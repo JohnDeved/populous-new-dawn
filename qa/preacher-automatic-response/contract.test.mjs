@@ -171,7 +171,11 @@ test('both omission and first32 require the same eligible native reference and c
     b => { b.positionCoherent = false }, b => { b.registeredOwner = false }, b => { b.nativeOnly = false },
     b => { b.unitId++ }, b => { b.team = 'yellow' }, b => { b.life = 0 }, b => { b.life = 999 },
     b => { b.workFlags = 1 }, b => { b.motionGroup = 1 }, b => { b.reverseAlliance = 1 },
-    b => { b.reverseAlliance = undefined }, b => { b.tribe = undefined; b.team = 'unknown' }]) {
+    b => { b.reverseAlliance = undefined }, b => { b.tribe = undefined; b.team = 'unknown' },
+    b => { b.flags2 = undefined }, b => { b.flags2 = 0x20000 + 0.5 }, b => { b.flags2 = 0x100020000 },
+    b => { b.flags4 = undefined }, b => { b.flags4 = 0.5 }, b => { b.flags4 = -1 },
+    b => { b.vehicle = undefined }, b => { b.vehicle = 0.5 }, b => { b.vehicle = 65536 },
+    b => { b.life = 1000.5; b.hp = 50.025 }, b => { b.life = 32768; b.hp = 1638.4 }]) {
     const changed = structuredClone(after); change(changed.facts.braves[0])
     assert.equal(qualifyingVisit(before, changed), null)
     const response = structuredClone(first); response.facts.braves = changed.facts.braves

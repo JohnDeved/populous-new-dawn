@@ -8,14 +8,17 @@ const cell = p => [(p.x >>> 9) & 127, (p.y >>> 9) & 127]
 export const eligibleBraveState = state => state === 10 || state === 17 || state === 19
 const tribes = { blue: 0, red: 1, yellow: 2, green: 3 }
 const word = n => Number.isInteger(n) && n >= 0 && n <= 65535
+const dword = n => Number.isInteger(n) && n >= 0 && n <= 0xffffffff
 
 export function eligibleObservedBrave(source, brave) {
   return !!brave && brave.identity > 0 && brave.id === brave.unitId && brave.class === 1 && brave.model === 2 &&
     brave.kind === 'brave' && Number.isInteger(brave.tribe) && brave.tribe >= 0 && brave.tribe <= 3 &&
     brave.tribe === tribes[brave.team] && brave.tribe !== source.tribe &&
-    brave.hp > 0 && brave.life > 0 && brave.life === Math.round(brave.hp * 20) && brave.inside === null &&
+    brave.hp > 0 && Number.isInteger(brave.life) && brave.life > 0 && brave.life <= 32767 &&
+    brave.life === Math.round(brave.hp * 20) && brave.inside === null &&
     brave.nativeOnly && brave.registeredOwner && brave.positionCoherent && word(brave.x) && word(brave.y) &&
-    eligibleBraveState(brave.state) && brave.workFlags === 0 && !brave.vehicle &&
+    eligibleBraveState(brave.state) && brave.workFlags === 0 && word(brave.vehicle) && !brave.vehicle &&
+    dword(brave.flags2) && dword(brave.flags4) &&
     !(brave.flags2 & 0x810000) && !!(brave.flags2 & 0x20000) && !(brave.flags4 & 0x1000) &&
     Number.isInteger(brave.reverseAlliance) && !(brave.reverseAlliance & (1 << source.tribe)) &&
     cell(brave).every((n, i) => Math.abs(((n - cell(source)[i] + 64) & 127) - 64) <= 1)
