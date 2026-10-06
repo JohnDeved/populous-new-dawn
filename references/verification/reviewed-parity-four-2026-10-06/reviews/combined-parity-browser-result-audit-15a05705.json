@@ -1,0 +1,117 @@
+{
+  "decision": "ACCEPT bounded combined ordinary firing/visible pixels/captured recovery",
+  "qaHead": "15a057056d88282686d2eb7e84dae1c843f6edb8",
+  "applicationHead": "169b5f38e8cc9f7aacbae222ba804ac519ec1f27",
+  "sourceStable": true,
+  "outerInputCount": 386,
+  "prior386InputsCoveredAfterPathDeduplication": true,
+  "commandMatchesAcceptedProposal": true,
+  "files": {
+    "outer-01.json": {
+      "bytes": 370978,
+      "sha256": "6e4eeab0c15f10940f5d52f26c80b9b7a9fd2c156906d0c1dfb7f5835f8f8b0d"
+    },
+    "prelaunch.json": {
+      "bytes": 1445,
+      "sha256": "93c8c6fcbc545e355f4156bf22ef1718c5da09dce8f567bcb117716cdcd8a276"
+    },
+    "terminal-cleanup.json": {
+      "bytes": 481,
+      "sha256": "e4f5d454933fb7b01d86134f1717edc00c2bcce0b577763c20f88c5f04a6c696"
+    },
+    "run/receipt.json": {
+      "bytes": 408998,
+      "sha256": "db60452818a867ebd52687c4fb8eb91dbb2241b5ad38360218a311e0ce4468ad"
+    },
+    "run/witness.json": {
+      "bytes": 410787,
+      "sha256": "63c5bd2bcd19be749a7b557ce256a785fcf22112fc59c09d14fca04e7e8208d3"
+    },
+    "run/actions.jsonl": {
+      "bytes": 84568,
+      "sha256": "f3aa5ed1ee9833b632fadd6b41c43531cddcc9de45515cf86ac1c644fff815a3"
+    },
+    "run/rows.jsonl": {
+      "bytes": 3606508,
+      "sha256": "979ce996caf26b35e491920e52d7fcc2d7109f88d802aec2c04e8e5fe95d29b5"
+    },
+    "run/recovery-turns.json": {
+      "bytes": 7178,
+      "sha256": "224d84e22e3abcd62ce953c61580682bcbdf70ed637b99db85f3ec38de2b4679"
+    },
+    "run/recovery-cleanup.json": {
+      "bytes": 7178,
+      "sha256": "ddeb2df2fe54df82a591ebb2f3b673ae1d7f6e60307a459f8ca9ad93cbc8046c"
+    },
+    "run/firing-full.png": {
+      "bytes": 1844172,
+      "sha256": "7a14286bcdd225b1330a6dab0436f001f7d5c6e6876a29d079a1d806f9d1a038"
+    },
+    "run/firing-actor.png": {
+      "bytes": 11180,
+      "sha256": "efa808af6d412f75a47b116c4a90f12d130e934de9039de19656359e3da8051a"
+    }
+  },
+  "rawRows": 253,
+  "rawBytes": 3606508,
+  "admissionRows": 70,
+  "actor": 181,
+  "sourceBrave": 122,
+  "target": 65,
+  "capturedTurn": 608,
+  "projectiles": [
+    195,
+    196
+  ],
+  "nativeOwner": 89,
+  "visiblePieces": [
+    0,
+    4050
+  ],
+  "frame": 5101,
+  "vfra": 100,
+  "cropMatchesFull": true,
+  "texture": {
+    "maxSize": 8192,
+    "image": [
+      2048,
+      8128
+    ],
+    "allocationAndUploadVerified": true,
+    "restored": true
+  },
+  "recoveryTurns": [
+    609,
+    610,
+    611,
+    612,
+    613
+  ],
+  "phase40Turn": 612,
+  "commandReleaseTurn": 613,
+  "sameInvocationCleanup": {
+    "observedAt": "2026-10-06T11:36:29.354767+00:00",
+    "sameLaunchInvocation": true,
+    "outerStatus": "passed",
+    "outerExit": 0,
+    "outerSignal": null,
+    "sourceAndInputsStable": true,
+    "harnessStatus": "passed",
+    "harnessFinishedAt": "2026-10-06T11:36:25.774Z",
+    "harnessFailure": null,
+    "connectEx": 111,
+    "loopbackReleased": true,
+    "contract": "Existing ephemeral harness finally awaits owned browser/server cleanup; no persistent profile or foreign process control."
+  },
+  "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+  "warnings": [
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0x212c007bd600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x212c007bd600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x212c007bd600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x212c007bd600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+  ],
+  "reviewerExecution": "Read-only Python/Git/PNG decoding and tool visual inspection; no game/native/browser/test/package execution."
+}

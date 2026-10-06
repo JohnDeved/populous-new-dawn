@@ -1,0 +1,238 @@
+{
+  "sourceBase": "89e68606a406f93715b930550317519818ddc081",
+  "combinedSource": "169b5f38e8cc9f7aacbae222ba804ac519ec1f27",
+  "qaAdoption": "15a057056d88282686d2eb7e84dae1c843f6edb8",
+  "priorAcceptedBrowser": "b32d46639c1f80629ad958e99f3e2fd54ff626a1",
+  "components": [
+    {
+      "name": "resting",
+      "source": "b0208188b8de345a6ad5e86cb7c49769624dda86",
+      "paths": 10,
+      "allDeclaredHashesVerified": true,
+      "ancestor": true
+    },
+    {
+      "name": "firing",
+      "source": "604506b19d79fdcaefa771f8e027ad206dfc2cc7",
+      "paths": 22,
+      "allDeclaredHashesVerified": true,
+      "ancestor": true
+    },
+    {
+      "name": "allocation",
+      "source": "64c47960f718b76ac8680f39f296c8acf0c4d2a4",
+      "paths": 43,
+      "allDeclaredHashesVerified": true,
+      "ancestor": true
+    },
+    {
+      "name": "recruitment",
+      "source": "a7f65d7df477891272b1613bbb166ad5a48b0e8b",
+      "paths": 16,
+      "allDeclaredHashesVerified": true,
+      "ancestor": true
+    }
+  ],
+  "changedSourcePaths": 81,
+  "metadataCompositionVerified": true,
+  "largeEvidenceRefsNotMerged": true,
+  "receipts": [
+    {
+      "receipt": "work/orchestration/combined-parity/check-01.json",
+      "sha256": "a40f21264b79c7e41ac3331b961a192422368eae08ba4e521dc49e8030a32b8b",
+      "status": "passed",
+      "exitCode": 0,
+      "sourceAndStreamsVerified": true
+    },
+    {
+      "receipt": "work/orchestration/combined-parity/build-01.json",
+      "sha256": "cac48cb89fb00964bdbcd2206256fbf9b7073168ea5636416555cff9efb1f24e",
+      "status": "passed",
+      "exitCode": 0,
+      "sourceAndStreamsVerified": true
+    },
+    {
+      "receipt": "work/orchestration/combined-parity/format-01.json",
+      "sha256": "d473f1ed77d9ef9a11f827f7b1cffcd25f6ae5567c16d562839fdceba71c808f",
+      "status": "passed",
+      "exitCode": 0,
+      "sourceAndStreamsVerified": true
+    },
+    {
+      "receipt": "work/orchestration/combined-parity/eslint-01.json",
+      "sha256": "db7955eb632aa9cbf3fd417ecc328b27237ae72d208bf7837a7ec941c36e4a1a",
+      "status": "passed",
+      "exitCode": 0,
+      "sourceAndStreamsVerified": true
+    },
+    {
+      "receipt": "work/orchestration/combined-parity/oxlint-01.json",
+      "sha256": "e8964990e11d91a665dfb027a3d49e1450290dbc2fdb7ed10760be942ff56a3b",
+      "status": "failed",
+      "exitCode": 1,
+      "sourceAndStreamsVerified": true
+    },
+    {
+      "receipt": "work/orchestration/combined-parity/oxlint-base-01.json",
+      "sha256": "8e5c07b97f9643a335ade72f7020df7e1947319d5dfb8b7c1a76dda07a89651c",
+      "status": "failed",
+      "exitCode": 1,
+      "sourceAndStreamsVerified": true
+    }
+  ],
+  "oxlint": {
+    "status": "failed",
+    "errors": 44,
+    "warnings": 94,
+    "baseErrors": 44,
+    "baseWarnings": 95,
+    "introduced": [],
+    "removed": [
+      {
+        "code": "eslint(prefer-destructuring)",
+        "filename": "app/scene-entities.ts",
+        "help": "Use object destructuring rather than direct member access.",
+        "labels": [
+          {
+            "source": "nativeUnits.cell"
+          }
+        ],
+        "message": "Use Object destructuring.",
+        "severity": "warning",
+        "url": "https://oxc.rs/docs/guide/usage/linter/rules/eslint/prefer-destructuring.html"
+      }
+    ]
+  },
+  "qa": [
+    {
+      "path": "qa/firewarrior-firing-candidate/README.md",
+      "sha256": "0aaa8d727a400c742067c1dde42145ffabc1f55067fa6e658520650513f59546",
+      "identicalToPriorAcceptedDriver": true
+    },
+    {
+      "path": "qa/firewarrior-firing-candidate/accepted-input.mjs",
+      "sha256": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+      "identicalToPriorAcceptedDriver": true
+    },
+    {
+      "path": "qa/firewarrior-firing-candidate/baseline-provenance.json",
+      "sha256": "4ecee49564bb9d22da05ba98eaf09a1b050f64eb8274ab7b99aa51bc53a32e2b",
+      "identicalToPriorAcceptedDriver": true
+    },
+    {
+      "path": "qa/firewarrior-firing-candidate/browser-probes.mjs",
+      "sha256": "a4ae152d98aa97b6aeafefb61b2a505f99bea840824e702edb75ae0a4c653cdd",
+      "identicalToPriorAcceptedDriver": true
+    },
+    {
+      "path": "qa/firewarrior-firing-candidate/candidate-source.json",
+      "sha256": "35d37d8b159656832976c3a8db272d07adfbc04cc961b3fe7f5ddc04f3451f4c",
+      "identicalToPriorAcceptedDriver": false
+    },
+    {
+      "path": "qa/firewarrior-firing-candidate/entry-identity.mjs",
+      "sha256": "a72943d933abeab19f627a5613e69481c746e59832e4fc690cb61b7529d2589c",
+      "identicalToPriorAcceptedDriver": true
+    },
+    {
+      "path": "qa/firewarrior-firing-candidate/event-deadlines.mjs",
+      "sha256": "8676d50935a16d1c46b56c48295ec18ccea6b41cb0b619ac2dd2e7ad710f3be7",
+      "identicalToPriorAcceptedDriver": true
+    },
+    {
+      "path": "qa/firewarrior-firing-candidate/ground-and-dispatch.mjs",
+      "sha256": "f7b5ba5703e155ed5962685735eae3092dffd47fab49256b8e5cb197bd4f82b1",
+      "identicalToPriorAcceptedDriver": true
+    },
+    {
+      "path": "qa/firewarrior-firing-candidate/guard-assertions.mjs",
+      "sha256": "7f1298c189f113b04a6c30fc2d3b903c74f9d2e24a2c139c4f193c47db2c1160",
+      "identicalToPriorAcceptedDriver": true
+    },
+    {
+      "path": "qa/firewarrior-firing-candidate/helper-provenance.json",
+      "sha256": "02992b10c3f23528e31362c4c0aeaefb29c40621f22a1b5e6441b41b0cca0ee9",
+      "identicalToPriorAcceptedDriver": true
+    },
+    {
+      "path": "qa/firewarrior-firing-candidate/input-boundary.mjs",
+      "sha256": "704b9c03c24419e9bee553ba259c9e6b7d9bb9b9121e06848e52691c4e861ac7",
+      "identicalToPriorAcceptedDriver": true
+    },
+    {
+      "path": "qa/firewarrior-firing-candidate/mission10-construction.json",
+      "sha256": "313a6eb81997c8bc1169666610ea59f62dadacf1e1c81861dbf93a56894e35cf",
+      "identicalToPriorAcceptedDriver": true
+    },
+    {
+      "path": "qa/firewarrior-firing-candidate/observer.mjs",
+      "sha256": "b00d2465b9b9bb7a574a8c151ec35d1cda5423c847e138b808a8e16ad47d9186",
+      "identicalToPriorAcceptedDriver": true
+    },
+    {
+      "path": "qa/firewarrior-firing-candidate/ordinary-input.mjs",
+      "sha256": "29708369124b7b1cbfde0150007f13f7ec25a27bc8ea6a9f7b6826ca693f8e85",
+      "identicalToPriorAcceptedDriver": true
+    },
+    {
+      "path": "qa/firewarrior-firing-candidate/pause-input.mjs",
+      "sha256": "d19ca6499098468b073302b239ad1a0b43930da58e2c09226f4f4b5b7fa7b606",
+      "identicalToPriorAcceptedDriver": true
+    },
+    {
+      "path": "qa/firewarrior-firing-candidate/pause-input.test.mjs",
+      "sha256": "8d810150acfe105c66f3a5ff96dbc615292f4ea9148bb4bd30f3a0194e6e57e0",
+      "identicalToPriorAcceptedDriver": true
+    },
+    {
+      "path": "qa/firewarrior-firing-candidate/preflight.py",
+      "sha256": "af52235a8414f4ec63827e5d46289ea3f33f7131ab49b8c64e6cd29fe012c8b1",
+      "identicalToPriorAcceptedDriver": true
+    },
+    {
+      "path": "qa/firewarrior-firing-candidate/recovery-observation.mjs",
+      "sha256": "9bf2aab0602811d9ccb9944f8cbdce5749cb0ce4f562f44943fa36787233b5d1",
+      "identicalToPriorAcceptedDriver": true
+    },
+    {
+      "path": "qa/firewarrior-firing-candidate/recovery-observation.test.mjs",
+      "sha256": "1cc4ae08087f181e46687d273c5b29f7bcdd9bb231fe2f29ff98092f27415178",
+      "identicalToPriorAcceptedDriver": true
+    },
+    {
+      "path": "qa/firewarrior-firing-candidate/render-observation.mjs",
+      "sha256": "c99c65b8337e57ca31fb53871d79b843066bf182dda1196cb1426552acbd6ee8",
+      "identicalToPriorAcceptedDriver": true
+    },
+    {
+      "path": "qa/firewarrior-firing-candidate/scenario.mjs",
+      "sha256": "2b8df49b9ccdcd12e634afb7717f212055ac3e5686f28cc1cf2a0d4d47a4e530",
+      "identicalToPriorAcceptedDriver": true
+    },
+    {
+      "path": "qa/firewarrior-firing-candidate/texture-assertions.mjs",
+      "sha256": "b6b897245363d3ab897f29832272462574311cbff9770b656961c3c5099efcec",
+      "identicalToPriorAcceptedDriver": true
+    },
+    {
+      "path": "qa/firewarrior-firing-candidate/texture-observation.mjs",
+      "sha256": "1853fc22f0a769170e04f13543c6ae687957919797cca6cbc3961257327400ca",
+      "identicalToPriorAcceptedDriver": true
+    },
+    {
+      "path": "qa/firewarrior-firing-candidate/texture-observation.test.mjs",
+      "sha256": "ee17b9f814575c3040f71f0b00a49dd5ec6c44c73bbc1e30c5cb688c603b4407",
+      "identicalToPriorAcceptedDriver": true
+    },
+    {
+      "path": "qa/firewarrior-firing-candidate/upload-runtime.json",
+      "sha256": "5e943686c16338301825e1d549df445fa78277f735a5452d52e14cebb51028f1",
+      "identicalToPriorAcceptedDriver": true
+    }
+  ],
+  "adoptionOnlyChangesReviewedCandidatePins": true,
+  "adoptionPreservesAppPublicScriptsTestsTrees": true,
+  "browserCommandReview": "awaiting owner freeze",
+  "browserResultReview": "not-run",
+  "reviewerExecution": "read-only Python/Git/source/receipt audits, no tests/native/browser/packages"
+}

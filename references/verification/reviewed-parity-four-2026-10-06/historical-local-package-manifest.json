@@ -1,0 +1,345 @@
+{
+  "createdAt": "2026-10-06T11:42:37.496500+00:00",
+  "status": "independently-accepted-combined-local-delivery",
+  "publication": {
+    "pushed": false,
+    "prCreated": false,
+    "mainMerged": false,
+    "deployed": false,
+    "state": "local-unpushed-not-reset-durable",
+    "blocker": "Normal Git authentication absent; no connector-write substitute used."
+  },
+  "source": {
+    "ref": "refs/heads/integrate/reviewed-parity-four-20261006",
+    "head": "169b5f38e8cc9f7aacbae222ba804ac519ec1f27",
+    "base": "89e68606a406f93715b930550317519818ddc081",
+    "tree": "68b5fb9ee3afe7a3aec3e20976a9891283bfb397",
+    "changedPaths": 81,
+    "bundle": "source-169b5f38.bundle",
+    "requires": [
+      "89e68606a406f93715b930550317519818ddc081"
+    ]
+  },
+  "qa": {
+    "ref": "refs/heads/qa/reviewed-parity-four-capture-20261006",
+    "head": "15a057056d88282686d2eb7e84dae1c843f6edb8",
+    "bundle": "qa-15a05705.bundle",
+    "requires": [
+      "169b5f38e8cc9f7aacbae222ba804ac519ec1f27"
+    ],
+    "mergeIntoMain": false,
+    "scope": "Capture-only25-file accepted checker;24 files identical to b32 and only candidate-source metadata adapted."
+  },
+  "components": {
+    "allocation": "64c47960f718b76ac8680f39f296c8acf0c4d2a4",
+    "resting": "b0208188b8de345a6ad5e86cb7c49769624dda86",
+    "recruitment": "a7f65d7df477891272b1613bbb166ad5a48b0e8b",
+    "firing": "604506b19d79fdcaefa771f8e027ad206dfc2cc7"
+  },
+  "sourceCorrespondence": "All component heads are ancestors;81-path exact accepted union; every final blob comes from its accepted stream except the exact disjoint project-map composition. No large component evidence refs merged. QA app/public/scripts/tests/engineering/package trees match169b exactly.",
+  "receipts": {
+    "structural-01": {
+      "status": "passed",
+      "exitCode": 0,
+      "executedSourceHead": "169b5f38e8cc9f7aacbae222ba804ac519ec1f27",
+      "receiptSha256": "ba7eb345f64d43956358920ea36b042867660bdf438bd57992c6970589a171e1",
+      "archiveMember": "combined-validation/structural-01.json"
+    },
+    "dependency-transfer-01": {
+      "status": "passed",
+      "exitCode": 0,
+      "executedSourceHead": "169b5f38e8cc9f7aacbae222ba804ac519ec1f27",
+      "receiptSha256": "8fd07813832ac0f7e0a924fd2ff42e4b16d8ef6d2a7d96726a29add3d77ab239",
+      "archiveMember": "combined-validation/dependency-transfer-01.json"
+    },
+    "check-01": {
+      "status": "passed",
+      "exitCode": 0,
+      "executedSourceHead": "169b5f38e8cc9f7aacbae222ba804ac519ec1f27",
+      "receiptSha256": "a40f21264b79c7e41ac3331b961a192422368eae08ba4e521dc49e8030a32b8b",
+      "archiveMember": "combined-validation/check-01.json"
+    },
+    "build-01": {
+      "status": "passed",
+      "exitCode": 0,
+      "executedSourceHead": "169b5f38e8cc9f7aacbae222ba804ac519ec1f27",
+      "receiptSha256": "cac48cb89fb00964bdbcd2206256fbf9b7073168ea5636416555cff9efb1f24e",
+      "archiveMember": "combined-validation/build-01.json"
+    },
+    "format-01": {
+      "status": "passed",
+      "exitCode": 0,
+      "executedSourceHead": "169b5f38e8cc9f7aacbae222ba804ac519ec1f27",
+      "receiptSha256": "d473f1ed77d9ef9a11f827f7b1cffcd25f6ae5567c16d562839fdceba71c808f",
+      "archiveMember": "combined-validation/format-01.json"
+    },
+    "eslint-01": {
+      "status": "passed",
+      "exitCode": 0,
+      "executedSourceHead": "169b5f38e8cc9f7aacbae222ba804ac519ec1f27",
+      "receiptSha256": "db7955eb632aa9cbf3fd417ecc328b27237ae72d208bf7837a7ec941c36e4a1a",
+      "archiveMember": "combined-validation/eslint-01.json"
+    },
+    "oxlint-01": {
+      "status": "failed",
+      "exitCode": 1,
+      "executedSourceHead": "169b5f38e8cc9f7aacbae222ba804ac519ec1f27",
+      "receiptSha256": "e8964990e11d91a665dfb027a3d49e1450290dbc2fdb7ed10760be942ff56a3b",
+      "archiveMember": "combined-validation/oxlint-01.json"
+    },
+    "oxlint-base-01": {
+      "status": "failed",
+      "exitCode": 1,
+      "executedSourceHead": "169b5f38e8cc9f7aacbae222ba804ac519ec1f27",
+      "receiptSha256": "8e5c07b97f9643a335ade72f7020df7e1947319d5dfb8b7c1a76dda07a89651c",
+      "archiveMember": "combined-validation/oxlint-base-01.json"
+    },
+    "browser-host-tests-01": {
+      "status": "passed",
+      "exitCode": 0,
+      "executedSourceHead": "15a057056d88282686d2eb7e84dae1c843f6edb8",
+      "receiptSha256": "345da1eacc9be0a8e29be4e73cdfd3e7d3e3acec0de584f3659d56ba670a76d0",
+      "archiveMember": "combined-validation/browser-host-tests-01.json"
+    },
+    "browser-syntax-01": {
+      "status": "passed",
+      "exitCode": 0,
+      "executedSourceHead": "15a057056d88282686d2eb7e84dae1c843f6edb8",
+      "receiptSha256": "0fa66198a89c93db1a5323db559b4072a1da1b386b03ea13d88edd185acef94e",
+      "archiveMember": "combined-validation/browser-syntax-01.json"
+    },
+    "accepted-baseline-source-preflight-01": {
+      "status": "passed",
+      "exitCode": 0,
+      "executedSourceHead": "15a057056d88282686d2eb7e84dae1c843f6edb8",
+      "receiptSha256": "0f69d10c0400b4ce1d08aba2bbf9b5fba7a107306725837ceb7c26beb1d21877",
+      "archiveMember": "combined-validation/accepted-baseline-source-preflight-01.json"
+    }
+  },
+  "fullTests": {
+    "passed": 1329,
+    "failed": 0,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "quality": {
+    "format": "passed",
+    "eslint": "passed",
+    "oxlint": "failed-baseline-debt",
+    "candidate": {
+      "errors": 44,
+      "warnings": 94
+    },
+    "base": {
+      "errors": 44,
+      "warnings": 95
+    },
+    "introducedFullDiagnostics": 0,
+    "removedAlreadyReviewedWarnings": 1,
+    "attribution": "combined-validation/quality-attribution.json"
+  },
+  "browser": {
+    "executedHead": "15a057056d88282686d2eb7e84dae1c843f6edb8",
+    "ordinaryMission": 10,
+    "actor": 181,
+    "sourceBrave": 122,
+    "targetTower": 65,
+    "projectiles": [
+      195,
+      196
+    ],
+    "capturedTurn": 608,
+    "phase40Turn": 612,
+    "completionTurn": 613,
+    "rows": 253,
+    "rawRowBytes": 3606508,
+    "texture": {
+      "width": 2048,
+      "height": 8128,
+      "actualMaxTextureSize": 8192
+    },
+    "browserVersion": "154.0.8037.92",
+    "outerStatus": "passed",
+    "outerFinishedAt": "2026-10-06T11:36:28.718Z",
+    "cleanup": {
+      "observedAt": "2026-10-06T11:36:29.354767+00:00",
+      "sameLaunchInvocation": true,
+      "outerStatus": "passed",
+      "outerExit": 0,
+      "outerSignal": null,
+      "sourceAndInputsStable": true,
+      "harnessStatus": "passed",
+      "harnessFinishedAt": "2026-10-06T11:36:25.774Z",
+      "harnessFailure": null,
+      "connectEx": 111,
+      "loopbackReleased": true,
+      "contract": "Existing ephemeral harness finally awaits owned browser/server cleanup; no persistent profile or foreign process control."
+    },
+    "independentDecision": "ACCEPT",
+    "review": "independent-reviews/combined-parity-browser-result-review-15a05705.md",
+    "screenshots": [
+      {
+        "name": "firing-full",
+        "clip": null,
+        "sha256": "7a14286bcdd225b1330a6dab0436f001f7d5c6e6876a29d079a1d806f9d1a038",
+        "turn": 608,
+        "phase": {
+          "object": 56,
+          "draw": 13,
+          "f1": 0,
+          "f2": 0,
+          "counter": 96,
+          "stamp": 608,
+          "animationMode": 44,
+          "timer": 4
+        }
+      },
+      {
+        "name": "firing-actor",
+        "clip": {
+          "x": 426,
+          "y": 409,
+          "width": 70,
+          "height": 71
+        },
+        "sha256": "efa808af6d412f75a47b116c4a90f12d130e934de9039de19656359e3da8051a",
+        "turn": 608,
+        "phase": {
+          "object": 56,
+          "draw": 13,
+          "f1": 0,
+          "f2": 0,
+          "counter": 96,
+          "stamp": 608,
+          "animationMode": 44,
+          "timer": 4
+        }
+      }
+    ],
+    "warningCount": 7
+  },
+  "evidence": {
+    "archive": "evidence-169b-15a.tar.gz",
+    "inventory": "evidence-inventory.json",
+    "verifiedPayloadFiles": 81,
+    "mergeIntoMain": false
+  },
+  "priorEvidenceLimits": [
+    "Component native and standard receipts retain original source heads.",
+    "Firing native full comparison remains failed with172 raw diagnostic differences; owned projection had zero differences,16 cases/60 visits, including four partial cases.",
+    "Historical failed preflights, captures and timeouts remain failed in component evidence; no labels rewritten.",
+    "Fresh browser proves one ordinary on-foot building-target capture, original atlas upload/map binding and actual same-volley recovery; software WebGL/headless only, no hardware performance, full native pixels or complete game parity."
+  ],
+  "dependencies": {
+    "observedAt": "2026-10-06T11:41:07.488874+00:00",
+    "status": "terminal-owned-not-transferred",
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/node_modules",
+    "device": 27,
+    "inode": 1978923,
+    "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "rootLockSha256": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+    "priorLockOnlyStub": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-firing-phase-fix-20261006/node_modules",
+    "priorStubEntries": [
+      ".package-lock.json"
+    ],
+    "heldFor": "Coordinator decides next reviewed work; no further launch/transfer without coordination.",
+    "knownExecutionSessions": {
+      "fullCheck": {
+        "sessionId": 26720,
+        "terminal": true
+      },
+      "build": {
+        "sessionId": 89752,
+        "terminal": true
+      },
+      "scopedQuality": {
+        "sessionId": 82419,
+        "terminal": true
+      },
+      "browser": {
+        "sessionId": 62155,
+        "terminal": true
+      }
+    },
+    "browserCleanup": "work/orchestration/combined-parity-browser-01/terminal-cleanup.json"
+  },
+  "artifacts": {
+    "evidence-169b-15a.tar.gz": {
+      "bytes": 2423552,
+      "sha256": "ed7f71fc1e005e688fccf6342af57925b259f549dc928eba02f8ffaba19bfa29"
+    },
+    "evidence-inventory.json": {
+      "bytes": 31058,
+      "sha256": "567d054b040879c4e87128c719f679c96c7004d603ad4137d7fa2ba948ba3fd0"
+    },
+    "qa-15a05705.bundle": {
+      "bytes": 62138,
+      "sha256": "1d3a3d6121e2fcab9b5acd35c58e1be02c8b5b99dc1b931abcdcb88f6281dfba"
+    },
+    "qa-15a05705.bundle.heads.txt": {
+      "bytes": 93,
+      "sha256": "3d561290698ab07aeda8745a883cda7e678d9297b7dba21a8040bf277b272040"
+    },
+    "qa-15a05705.bundle.verify.log": {
+      "bytes": 366,
+      "sha256": "f9ac8f753d1909a03ff22dfb2e3a84c1554b0877a39542773bc2c44714ebeec5"
+    },
+    "source-169b5f38.bundle": {
+      "bytes": 240277,
+      "sha256": "455cb914f3c1d3d45e9f0efcf7356b5b4e4c18cfed55edbb72171d2edc9e7976"
+    },
+    "source-169b5f38.bundle.heads.txt": {
+      "bytes": 92,
+      "sha256": "8ab5d2be1e401b006684e0ba482c23cd48a4478e121f8b89fdaead57e43f8c31"
+    },
+    "source-169b5f38.bundle.verify.log": {
+      "bytes": 369,
+      "sha256": "f1438c11d0d5739e45c64ce31ef1f2ddc9d12cf2409886765402bbdf43334495"
+    },
+    "README.md": {
+      "bytes": 2615,
+      "sha256": "99b0571f68db9f45dcd6b54dd6125b34a5e958c4cb99d51ba6f0e1589bf4c9da"
+    }
+  },
+  "originalSeparateEvidenceBundles": [
+    {
+      "component": "firing",
+      "ref": "refs/heads/evidence/firewarrior-firing-repair-20261006",
+      "head": "1f2c834256c8cfbdb56d36297aa323dcf18099a7",
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/review-bundles/firewarrior-firing-evidence-1f2c8342.bundle",
+      "requires": [
+        "b0208188b8de345a6ad5e86cb7c49769624dda86"
+      ],
+      "sha256": "ae3514b370da4f4cc07b3ee241ebbdfceb14ac778cb67ddb6afc400d64d84c95",
+      "bytes": 9704762,
+      "mergeIntoMain": false,
+      "copiedIntoNewPackage": false
+    },
+    {
+      "component": "resting",
+      "ref": "refs/heads/evidence/firewarrior-resting-artwork-20261006",
+      "head": "23f11ea9df6045b950269ec77aa9ea21d17b9637",
+      "path": "/workspace/shared/populous-firewarrior-recovery-20261006/firewarrior-resting-reviewed-23f11ea9.bundle",
+      "requires": [
+        "89e68606a406f93715b930550317519818ddc081"
+      ],
+      "sha256": "ce5c636a79e20577b554a3fe28bb280fa34336114107974dc0f7a669bf77a4b4",
+      "bytes": 42131051,
+      "mergeIntoMain": false,
+      "copiedIntoNewPackage": false
+    },
+    {
+      "component": "recruitment",
+      "ref": "refs/heads/evidence/mission3-raid-recruitment-20261006",
+      "head": "2ca7888c93ec9e754f51aec321a8873fad357b02",
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/review-bundles/mission3-raid-recruitment-final-20261006/evidence.gitbundle",
+      "requires": [
+        "89e68606a406f93715b930550317519818ddc081"
+      ],
+      "sha256": "63ca076b167f49ce576b54bce15d4c3fa9b90839d30aa8ce8cb63a9d1218aa34",
+      "bytes": 422277,
+      "mergeIntoMain": false,
+      "copiedIntoNewPackage": false
+    }
+  ]
+}

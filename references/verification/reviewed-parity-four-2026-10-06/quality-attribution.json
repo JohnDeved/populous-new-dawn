@@ -1,0 +1,67 @@
+{
+  "sourceHead": "169b5f38e8cc9f7aacbae222ba804ac519ec1f27",
+  "baseHead": "89e68606a406f93715b930550317519818ddc081",
+  "candidateReceipt": "oxlint-01.json",
+  "baselineReceipt": "oxlint-base-01.json",
+  "candidateCounts": {
+    "error": 44,
+    "warning": 94
+  },
+  "baselineCounts": {
+    "error": 44,
+    "warning": 95
+  },
+  "diagnosticComparison": "Full diagnostic objects including notes, labels and messages. Normalize only absolute baseline root, then map each candidate span through unchanged byte ranges to original source offset/line/column. Preserve multiplicity.",
+  "unmappedCandidateSpans": [],
+  "introduced": [],
+  "removed": [
+    {
+      "code": "eslint(prefer-destructuring)",
+      "filename": "app/scene-entities.ts",
+      "help": "Use object destructuring rather than direct member access.",
+      "labels": [
+        {
+          "span": {
+            "column": 12,
+            "length": 16,
+            "line": 351,
+            "offset": 11277
+          }
+        }
+      ],
+      "message": "Use Object destructuring.",
+      "severity": "warning",
+      "url": "https://oxc.rs/docs/guide/usage/linter/rules/eslint/prefer-destructuring.html"
+    }
+  ],
+  "status": "no-introduced-findings",
+  "actualOxlintStatus": "Both failed/exit1; baseline quality debt retained.",
+  "sourceFiles": {
+    "app/campaign-command-runtime.ts": {
+      "baseSha256": "7721cdb9954edc737d6c13828b42e69dac09b8046db8f93b7a7e92a05e0c908b",
+      "candidateSha256": "5badf47c9b0e55d99f307a1a82c3ba311c835ac78edeabc9f6c7796a39314182"
+    },
+    "app/computer-runtime.ts": {
+      "baseSha256": "1ca8fd533d5634cc5d82feb5909ab136506c966713c04508b1d487167e052f5c",
+      "candidateSha256": "fcaea74faacf6477a25c186b668eadc8e3a5a887cc74157683f818ee1a576872"
+    },
+    "app/hud-portrait.ts": {
+      "baseSha256": "e9e2a78bdd977a25ca06c95680ad724e14b6cd5b0a83286e90df622c33eb3e76",
+      "candidateSha256": "0540aae533d746fb34fd27fd212ddcc376fedfb4717593e5f63408cbd7c76bb8"
+    },
+    "app/live-building-combat.ts": {
+      "baseSha256": "fa648b2ae6b1708c26f81b4fa019ce3c3ccc5c8813891412742a2ddf71e464a2",
+      "candidateSha256": "c8c0a8f3b83157562154ad354206d9d7900f669c67134d5071d0471623617d23"
+    },
+    "app/scene-entities.ts": {
+      "baseSha256": "cc7cb79c9e92e5b0cb283f745dadec503d8246ab3936b054313d577b97f2c4f4",
+      "candidateSha256": "95a2a64f5741ca3445431a4b962e7a0aeef6e502841f56b2b90138addb236952"
+    },
+    "app/sprite-layers.ts": {
+      "baseSha256": "5ceb5fddb5703198df08b83fc567b1cd8fc48c292749bf73101ba0032e680ecd",
+      "candidateSha256": "0d76231e0844a131c37e207cbb8dab2a67d611711bd4f46ff39327e794043750"
+    }
+  },
+  "computedAtHead": "15a057056d88282686d2eb7e84dae1c843f6edb8",
+  "candidateSourceTreeCorrespondence": "QA head app tree equals the lint execution app tree; source spans and diagnostic labels are attributed to actual169b execution."
+}

@@ -1,0 +1,102 @@
+{
+  "preparedAt": "2026-10-06T13:45:01.997697+00:00",
+  "kind": "published-separate-combined-parity-evidence",
+  "repository": "https://github.com/JohnDeved/populous-new-dawn",
+  "evidenceBranch": "evidence/reviewed-parity-four-20261006",
+  "base": "89e68606a406f93715b930550317519818ddc081",
+  "application": {
+    "head": "169b5f38e8cc9f7aacbae222ba804ac519ec1f27",
+    "branch": "integrate/reviewed-parity-four-20261006",
+    "publishedRefVerified": true
+  },
+  "captureQA": {
+    "head": "15a057056d88282686d2eb7e84dae1c843f6edb8",
+    "branch": "qa/reviewed-parity-four-capture-20261006",
+    "publishedRefVerified": true,
+    "mergeIntoMain": false
+  },
+  "evidenceMergeIntoMain": false,
+  "rawArchive": {
+    "name": "raw-evidence-169b-15a.tar.gz",
+    "bytes": 2423552,
+    "sha256": "ed7f71fc1e005e688fccf6342af57925b259f549dc928eba02f8ffaba19bfa29",
+    "payloadFiles": 81,
+    "unchanged": true
+  },
+  "historicalWording": "Old local-only/authentication-blocked records remain immutable. Current publication is described by this README and manifest.",
+  "sourceNativeQualityLimits": "README.md and preserved independent reviews; original source heads, failed attempts,172 full-native differences and four partial cases retained.",
+  "files": {
+    "README.md": {
+      "bytes": 6418,
+      "sha256": "1c1cdda0473a2e956264c48c74df4cbe50cb48e75fd0cbbff0d05781321f1174"
+    },
+    "browser-source-correspondence.json": {
+      "bytes": 212912,
+      "sha256": "13ae3192d9434a005cdb00f2dd4e0e6475c5d7d993b763686776e73ae7a0a770"
+    },
+    "evidence-inventory.json": {
+      "bytes": 31058,
+      "sha256": "567d054b040879c4e87128c719f679c96c7004d603ad4137d7fa2ba948ba3fd0"
+    },
+    "gallery/firing-actor.png": {
+      "bytes": 11180,
+      "sha256": "efa808af6d412f75a47b116c4a90f12d130e934de9039de19656359e3da8051a"
+    },
+    "gallery/firing-full.png": {
+      "bytes": 1844172,
+      "sha256": "7a14286bcdd225b1330a6dab0436f001f7d5c6e6876a29d079a1d806f9d1a038"
+    },
+    "historical-local-package-manifest.json": {
+      "bytes": 12857,
+      "sha256": "6450c0a3a7db23e1a11ee1a0192f5b7ed69a2b14e241f5755b48a485bd9bd3f0"
+    },
+    "quality-attribution.json": {
+      "bytes": 2878,
+      "sha256": "132fffb2d81cfd9540d766defa01a4993f01b472146b2ce7a2e0513b40a22e08"
+    },
+    "raw-evidence-169b-15a.tar.gz": {
+      "bytes": 2423552,
+      "sha256": "ed7f71fc1e005e688fccf6342af57925b259f549dc928eba02f8ffaba19bfa29"
+    },
+    "reviews/combined-parity-browser-launch-review-15a05705.md": {
+      "bytes": 3873,
+      "sha256": "288affafc367d278b989ddcc06b836e699ffe879bb99596d5d9f8bd222c58ab3"
+    },
+    "reviews/combined-parity-browser-result-audit-15a05705.json": {
+      "bytes": 4155,
+      "sha256": "8dacfab49b9bf07a2f287abe1c2590cb3b247bb0006ae028035f74e3021a72e1"
+    },
+    "reviews/combined-parity-browser-result-review-15a05705.md": {
+      "bytes": 8019,
+      "sha256": "8a56145f4de4d28f3d28d897a6c19d0298651bab9b618134dddafe44f775788a"
+    },
+    "reviews/combined-parity-source-audit-169b5f38.json": {
+      "bytes": 8889,
+      "sha256": "ae1b7914a010eeb0f8bd06c989242e4ead6360473f88e565b877e981c84cd47f"
+    },
+    "reviews/combined-parity-source-review-169b5f38.md": {
+      "bytes": 6773,
+      "sha256": "efab73c5d48168a9da98bd4ed6c0573bd899d3a752c466195314b5a367fbb6f8"
+    },
+    "reviews/firing-native-packed-2ea28387.md": {
+      "bytes": 6771,
+      "sha256": "f6ab97c9c2dc1c195f0304b10b484dd71518e69542cbfc938592626aef60a15f"
+    },
+    "reviews/original-native-preflight.md": {
+      "bytes": 13022,
+      "sha256": "52cd9527ec19aa852aa72cc7d513b93a3f212e88ee4e86b68cdc512a1401cb52"
+    },
+    "reviews/original-owned-projection.md": {
+      "bytes": 3293,
+      "sha256": "dd514a892b25a3a1f83134c1abf453da5f94bd507cb2254a87f37d5841c5be5c"
+    },
+    "source-correspondence.json": {
+      "bytes": 47169,
+      "sha256": "e9b3fda092bb28a40450cfa9bfe6d23f142be7a8efb3c8ea88acacb535bc6caf"
+    },
+    "terminal-cleanup.json": {
+      "bytes": 481,
+      "sha256": "e4f5d454933fb7b01d86134f1717edc00c2bcce0b577763c20f88c5f04a6c696"
+    }
+  }
+}

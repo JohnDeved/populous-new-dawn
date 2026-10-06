@@ -1,0 +1,505 @@
+{
+  "createdAt": "2026-10-06T11:42:37.156963+00:00",
+  "sourceDeliveryHead": "169b5f38e8cc9f7aacbae222ba804ac519ec1f27",
+  "qaExecutionHead": "15a057056d88282686d2eb7e84dae1c843f6edb8",
+  "publication": "local-unpushed-not-reset-durable",
+  "files": [
+    {
+      "member": "combined-browser/outer-01.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity-browser-01/outer-01.json",
+      "bytes": 370978,
+      "sha256": "6e4eeab0c15f10940f5d52f26c80b9b7a9fd2c156906d0c1dfb7f5835f8f8b0d"
+    },
+    {
+      "member": "combined-browser/outer-01.json.artifacts/stderr.log",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity-browser-01/outer-01.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "member": "combined-browser/outer-01.json.artifacts/stdout.log",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity-browser-01/outer-01.json.artifacts/stdout.log",
+      "bytes": 190693,
+      "sha256": "7ff5f56e3dd128ccca99b9d65d14b340e78fed24d95d46114d12972f161130e7"
+    },
+    {
+      "member": "combined-browser/prelaunch.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity-browser-01/prelaunch.json",
+      "bytes": 1445,
+      "sha256": "93c8c6fcbc545e355f4156bf22ef1718c5da09dce8f567bcb117716cdcd8a276"
+    },
+    {
+      "member": "combined-browser/run/actions.jsonl",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity-browser-01/run/actions.jsonl",
+      "bytes": 84568,
+      "sha256": "f3aa5ed1ee9833b632fadd6b41c43531cddcc9de45515cf86ac1c644fff815a3"
+    },
+    {
+      "member": "combined-browser/run/firing-actor.png",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity-browser-01/run/firing-actor.png",
+      "bytes": 11180,
+      "sha256": "efa808af6d412f75a47b116c4a90f12d130e934de9039de19656359e3da8051a"
+    },
+    {
+      "member": "combined-browser/run/firing-full.png",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity-browser-01/run/firing-full.png",
+      "bytes": 1844172,
+      "sha256": "7a14286bcdd225b1330a6dab0436f001f7d5c6e6876a29d079a1d806f9d1a038"
+    },
+    {
+      "member": "combined-browser/run/receipt.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity-browser-01/run/receipt.json",
+      "bytes": 408998,
+      "sha256": "db60452818a867ebd52687c4fb8eb91dbb2241b5ad38360218a311e0ce4468ad"
+    },
+    {
+      "member": "combined-browser/run/recovery-cleanup.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity-browser-01/run/recovery-cleanup.json",
+      "bytes": 7178,
+      "sha256": "ddeb2df2fe54df82a591ebb2f3b673ae1d7f6e60307a459f8ca9ad93cbc8046c"
+    },
+    {
+      "member": "combined-browser/run/recovery-turns.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity-browser-01/run/recovery-turns.json",
+      "bytes": 7178,
+      "sha256": "224d84e22e3abcd62ce953c61580682bcbdf70ed637b99db85f3ec38de2b4679"
+    },
+    {
+      "member": "combined-browser/run/rows.jsonl",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity-browser-01/run/rows.jsonl",
+      "bytes": 3606508,
+      "sha256": "979ce996caf26b35e491920e52d7fcc2d7109f88d802aec2c04e8e5fe95d29b5"
+    },
+    {
+      "member": "combined-browser/run/server.log",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity-browser-01/run/server.log",
+      "bytes": 951,
+      "sha256": "804faa5a69cdf97461f386ab77034b4878aa31cfaa1c1681b828424e7616c244"
+    },
+    {
+      "member": "combined-browser/run/witness.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity-browser-01/run/witness.json",
+      "bytes": 410787,
+      "sha256": "63c5bd2bcd19be749a7b557ce256a785fcf22112fc59c09d14fca04e7e8208d3"
+    },
+    {
+      "member": "combined-browser/terminal-cleanup.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity-browser-01/terminal-cleanup.json",
+      "bytes": 481,
+      "sha256": "e4f5d454933fb7b01d86134f1717edc00c2bcce0b577763c20f88c5f04a6c696"
+    },
+    {
+      "member": "combined-validation/accepted-baseline-source-preflight-01.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/accepted-baseline-source-preflight-01.json",
+      "bytes": 45931,
+      "sha256": "0f69d10c0400b4ce1d08aba2bbf9b5fba7a107306725837ceb7c26beb1d21877"
+    },
+    {
+      "member": "combined-validation/accepted-baseline-source-preflight-01.json.artifacts/stderr.log",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/accepted-baseline-source-preflight-01.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "member": "combined-validation/accepted-baseline-source-preflight-01.json.artifacts/stdout.log",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/accepted-baseline-source-preflight-01.json.artifacts/stdout.log",
+      "bytes": 41013,
+      "sha256": "e2c30fc07a2913cb8561b1b0e1350450e5b2a8267da57b3688622d199450392d"
+    },
+    {
+      "member": "combined-validation/browser-adoption-inventory.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/browser-adoption-inventory.json",
+      "bytes": 5971,
+      "sha256": "7157089f6ec1cfafad34f82e4d53fb34fc30c57367b690dfc873df35e700b032"
+    },
+    {
+      "member": "combined-validation/browser-host-tests-01.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/browser-host-tests-01.json",
+      "bytes": 5776,
+      "sha256": "345da1eacc9be0a8e29be4e73cdfd3e7d3e3acec0de584f3659d56ba670a76d0"
+    },
+    {
+      "member": "combined-validation/browser-host-tests-01.json.artifacts/stderr.log",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/browser-host-tests-01.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "member": "combined-validation/browser-host-tests-01.json.artifacts/stdout.log",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/browser-host-tests-01.json.artifacts/stdout.log",
+      "bytes": 3466,
+      "sha256": "35a994df61c1d88e72e66a8ce9c34cf435ceef6b2144b8fb2370b1ba9462e2e7"
+    },
+    {
+      "member": "combined-validation/browser-launch-proposal.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/browser-launch-proposal.json",
+      "bytes": 2843,
+      "sha256": "12d4250dbb6b44df58cfffbe73c2d2f46063e93b1c706ff67f7ebed87bc62592"
+    },
+    {
+      "member": "combined-validation/browser-receipt-inputs.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/browser-receipt-inputs.json",
+      "bytes": 89980,
+      "sha256": "e915e03e2676e1c807558934487c9dd1fd87f36b1bb75e13a62f1c5be8d6ecb6"
+    },
+    {
+      "member": "combined-validation/browser-source-correspondence.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/browser-source-correspondence.json",
+      "bytes": 212912,
+      "sha256": "13ae3192d9434a005cdb00f2dd4e0e6475c5d7d993b763686776e73ae7a0a770"
+    },
+    {
+      "member": "combined-validation/browser-syntax-01.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/browser-syntax-01.json",
+      "bytes": 1836,
+      "sha256": "0fa66198a89c93db1a5323db559b4072a1da1b386b03ea13d88edd185acef94e"
+    },
+    {
+      "member": "combined-validation/browser-syntax-01.json.artifacts/stderr.log",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/browser-syntax-01.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "member": "combined-validation/browser-syntax-01.json.artifacts/stdout.log",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/browser-syntax-01.json.artifacts/stdout.log",
+      "bytes": 44,
+      "sha256": "8b671a120a3020dc34bd5e58b0aaa180960847085da205fc6838b0c43d00e5ff"
+    },
+    {
+      "member": "combined-validation/build-01.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/build-01.json",
+      "bytes": 6413,
+      "sha256": "cac48cb89fb00964bdbcd2206256fbf9b7073168ea5636416555cff9efb1f24e"
+    },
+    {
+      "member": "combined-validation/build-01.json.artifacts/stderr.log",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/build-01.json.artifacts/stderr.log",
+      "bytes": 2153,
+      "sha256": "edb491b5c8f72dda93ace666d38028bd69b852c37772d874193bb26d60f0d33b"
+    },
+    {
+      "member": "combined-validation/build-01.json.artifacts/stdout.log",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/build-01.json.artifacts/stdout.log",
+      "bytes": 1143,
+      "sha256": "2fbbafffd07139c62206c63a5e72926a1674b53a1d90a57e558296ba396989ea"
+    },
+    {
+      "member": "combined-validation/check-01.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/check-01.json",
+      "bytes": 143086,
+      "sha256": "a40f21264b79c7e41ac3331b961a192422368eae08ba4e521dc49e8030a32b8b"
+    },
+    {
+      "member": "combined-validation/check-01.json.artifacts/stderr.log",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/check-01.json.artifacts/stderr.log",
+      "bytes": 703,
+      "sha256": "3c0f8170e3148302516d0e8b076c60e5ee31fba6acf0b7e1c1d1fcae03821427"
+    },
+    {
+      "member": "combined-validation/check-01.json.artifacts/stdout.log",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/check-01.json.artifacts/stdout.log",
+      "bytes": 137240,
+      "sha256": "f74ab87383a8e8feee537695097d63349ec889c1a2bf1cd321893ae567ac1587"
+    },
+    {
+      "member": "combined-validation/dependency-preflight.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/dependency-preflight.json",
+      "bytes": 753,
+      "sha256": "7cd2bc2ded3d90d1614077ebb818923460ae27f992c9a7d0ac3ea641e48c2435"
+    },
+    {
+      "member": "combined-validation/dependency-transfer-01.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/dependency-transfer-01.json",
+      "bytes": 4160,
+      "sha256": "8fd07813832ac0f7e0a924fd2ff42e4b16d8ef6d2a7d96726a29add3d77ab239"
+    },
+    {
+      "member": "combined-validation/dependency-transfer-01.json.artifacts/stderr.log",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/dependency-transfer-01.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "member": "combined-validation/dependency-transfer-01.json.artifacts/stdout.log",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/dependency-transfer-01.json.artifacts/stdout.log",
+      "bytes": 1051,
+      "sha256": "d8e962818321cb5731f0cf8b84230615ffc9da17aee37112fdf0634c2c5bd35e"
+    },
+    {
+      "member": "combined-validation/dependency-transfer/after.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/dependency-transfer/after.json",
+      "bytes": 1093,
+      "sha256": "8f7b1e1379962904353a780cd64ca24b5f275fb2b04fa088f252e3d1ec0d687e"
+    },
+    {
+      "member": "combined-validation/dependency-transfer/before.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/dependency-transfer/before.json",
+      "bytes": 810,
+      "sha256": "1239846a8fd5dabf6cb9fe55222e72c7169c6502e42573ef9571b42e1fc75f9d"
+    },
+    {
+      "member": "combined-validation/eslint-01.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/eslint-01.json",
+      "bytes": 3799,
+      "sha256": "db7955eb632aa9cbf3fd417ecc328b27237ae72d208bf7837a7ec941c36e4a1a"
+    },
+    {
+      "member": "combined-validation/eslint-01.json.artifacts/stderr.log",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/eslint-01.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "member": "combined-validation/eslint-01.json.artifacts/stdout.log",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/eslint-01.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "member": "combined-validation/focused-gate-plan.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/focused-gate-plan.json",
+      "bytes": 4242,
+      "sha256": "9fd7a57cf52bb07256d2562d4f7a502ef016a2296ade321f0a1e24ffad75518c"
+    },
+    {
+      "member": "combined-validation/format-01.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/format-01.json",
+      "bytes": 3928,
+      "sha256": "d473f1ed77d9ef9a11f827f7b1cffcd25f6ae5567c16d562839fdceba71c808f"
+    },
+    {
+      "member": "combined-validation/format-01.json.artifacts/stderr.log",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/format-01.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "member": "combined-validation/format-01.json.artifacts/stdout.log",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/format-01.json.artifacts/stdout.log",
+      "bytes": 111,
+      "sha256": "2b0ae5723d50ed609476edf1d9f6102489944a395b11c78bc118ef7fb4cff641"
+    },
+    {
+      "member": "combined-validation/launch-browser.py",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/launch-browser.py",
+      "bytes": 3500,
+      "sha256": "147e280a238836d7e288f90c5cd89dcfd442f34120198ec3244613f5543f61ba"
+    },
+    {
+      "member": "combined-validation/move-dependencies.py",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/move-dependencies.py",
+      "bytes": 2346,
+      "sha256": "361c18ab0619420ec93270740387ed0ee08ad160c77149e0241e750112d7b327"
+    },
+    {
+      "member": "combined-validation/oxlint-01.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/oxlint-01.json",
+      "bytes": 112773,
+      "sha256": "e8964990e11d91a665dfb027a3d49e1450290dbc2fdb7ed10760be942ff56a3b"
+    },
+    {
+      "member": "combined-validation/oxlint-01.json.artifacts/stderr.log",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/oxlint-01.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "member": "combined-validation/oxlint-01.json.artifacts/stdout.log",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/oxlint-01.json.artifacts/stdout.log",
+      "bytes": 101915,
+      "sha256": "6f8e2ae91c3de7f96dca2bf5d29d2ceed1ec91f5cb46ebfc7e885228fec66697"
+    },
+    {
+      "member": "combined-validation/oxlint-base-01.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/oxlint-base-01.json",
+      "bytes": 157473,
+      "sha256": "8e5c07b97f9643a335ade72f7020df7e1947319d5dfb8b7c1a76dda07a89651c"
+    },
+    {
+      "member": "combined-validation/oxlint-base-01.json.artifacts/stderr.log",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/oxlint-base-01.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "member": "combined-validation/oxlint-base-01.json.artifacts/stdout.log",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/oxlint-base-01.json.artifacts/stdout.log",
+      "bytes": 145413,
+      "sha256": "9a1caf32c963e8b990eb2544492d965ca1128c2be8e08e5459bbe33f5d577e9d"
+    },
+    {
+      "member": "combined-validation/quality-attribution-lines.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/quality-attribution-lines.json",
+      "bytes": 3308,
+      "sha256": "82f3ca2dbbf1f2a976cbf2bcd09b27ccd6af759436f9a1c728bac605af842322"
+    },
+    {
+      "member": "combined-validation/quality-attribution.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/quality-attribution.json",
+      "bytes": 2878,
+      "sha256": "132fffb2d81cfd9540d766defa01a4993f01b472146b2ce7a2e0513b40a22e08"
+    },
+    {
+      "member": "combined-validation/raw-plan.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/raw-plan.json",
+      "bytes": 183300,
+      "sha256": "03044238198843cedf779d19be89c48a57c7adf92dcb60be1f127aa27224e7d8"
+    },
+    {
+      "member": "combined-validation/source-correspondence.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/source-correspondence.json",
+      "bytes": 47169,
+      "sha256": "e9b3fda092bb28a40450cfa9bfe6d23f142be7a8efb3c8ea88acacb535bc6caf"
+    },
+    {
+      "member": "combined-validation/structural-01.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/structural-01.json",
+      "bytes": 6571,
+      "sha256": "ba7eb345f64d43956358920ea36b042867660bdf438bd57992c6970589a171e1"
+    },
+    {
+      "member": "combined-validation/structural-01.json.artifacts/stderr.log",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/structural-01.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "member": "combined-validation/structural-01.json.artifacts/stdout.log",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/structural-01.json.artifacts/stdout.log",
+      "bytes": 4543,
+      "sha256": "a9b7ca918b13b928cfb5b6a9ee426df93f37663ff1d456c5a8d45656e8fcbc1f"
+    },
+    {
+      "member": "combined-validation/terminal-dependency-ownership.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/terminal-dependency-ownership.json",
+      "bytes": 1147,
+      "sha256": "4985ff8a35881b9d70209c9b28e69440ea714a20c86ab54a2285e61b4caf10e9"
+    },
+    {
+      "member": "combined-validation/unknown-path-review.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/unknown-path-review.json",
+      "bytes": 19138,
+      "sha256": "a97ab834931b5b7c71445b3763b71acc7c617ef1873953b4fe55f9832f4ea9d7"
+    },
+    {
+      "member": "component-acceptance/allocation/README.md",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/references/verification/mission3-raid-allocation-2026-10-06/README.md",
+      "bytes": 6003,
+      "sha256": "da88e67f63807528a3779f8c7f66d15d5396753716431a6ffb49af802be4abec"
+    },
+    {
+      "member": "component-acceptance/allocation/final-review.md",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/references/verification/mission3-raid-allocation-2026-10-06/final-review.md",
+      "bytes": 2322,
+      "sha256": "65fa23d4b0dafb9382b21fc8a0a975cc5b955e7cb58585b265afe4a595b59a67"
+    },
+    {
+      "member": "component-acceptance/allocation/source-manifest.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/references/verification/mission3-raid-allocation-2026-10-06/source-manifest.json",
+      "bytes": 1443,
+      "sha256": "9c59f3639538a55637635e5cc306edcc8a0a3a00e9e124aefacd2901c54a3da8"
+    },
+    {
+      "member": "component-acceptance/firing/final-handoff.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/review-bundles/firewarrior-firing-final-handoff.json",
+      "bytes": 2366,
+      "sha256": "f252055dd8e5c0849785b2c3cbe677ec18f85ee47b41fe925bab12c41fdb246e"
+    },
+    {
+      "member": "component-acceptance/firing/final-packaging-review.md",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/review-bundles/firewarrior-firing-final-packaging-604506b1.md",
+      "bytes": 4130,
+      "sha256": "b216ab86f066de7075fdca85fb9270bf7ab717d482167a6af95e05b24e32a485"
+    },
+    {
+      "member": "component-acceptance/firing/original-inputs/work/orchestration/firewarrior-firing-fix-20261006/browser-runtime-preflight-02.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-firing-phase-fix-20261006/work/orchestration/firewarrior-firing-fix-20261006/browser-runtime-preflight-02.json",
+      "bytes": 58398,
+      "sha256": "d2d0b8aeed3d8a9bfcb0df82c15add4e7f146401a4a44865bf9bea7ff57f91c3"
+    },
+    {
+      "member": "component-acceptance/firing/original-inputs/work/orchestration/firewarrior-firing-fix-20261006/build-01.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-firing-phase-fix-20261006/work/orchestration/firewarrior-firing-fix-20261006/build-01.json",
+      "bytes": 5797,
+      "sha256": "c7a5e62297443f7fbd8a37ca76323ed92b0ab4870ab91c0e734d340a4be24f58"
+    },
+    {
+      "member": "component-acceptance/firing/original-inputs/work/orchestration/firewarrior-firing-fix-20261006/check-02.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-firing-phase-fix-20261006/work/orchestration/firewarrior-firing-fix-20261006/check-02.json",
+      "bytes": 141651,
+      "sha256": "1f7dfb6eb420c1747cb57dfcef27785962ad8fd525c12bd703195a82d62cec54"
+    },
+    {
+      "member": "component-acceptance/firing/original-inputs/work/reviews/firing-recovery-observer-b32d4663.md",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-firing-phase-fix-20261006/work/reviews/firing-recovery-observer-b32d4663.md",
+      "bytes": 7067,
+      "sha256": "585dee4413e3fb60aea403837ffc1397d2b4c6da303bbe49d20f72773e312059"
+    },
+    {
+      "member": "component-acceptance/recruitment/final-manifest.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/review-bundles/mission3-raid-recruitment-final-20261006/manifest.json",
+      "bytes": 3089,
+      "sha256": "f6f1018174b507161f0d461511511126e9bbfe1beaed913d7e7394807d1eccb4"
+    },
+    {
+      "member": "component-acceptance/recruitment/final-review.md",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/review-bundles/mission3-raid-recruitment-final-20261006/final-review.md",
+      "bytes": 7993,
+      "sha256": "f37ca5367e80510092e4bd0a02d6f119f5612481e7ecad54061bb87a4dc4b678"
+    },
+    {
+      "member": "component-acceptance/resting/final-local-handoff.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/final-local-handoff.json",
+      "bytes": 3178,
+      "sha256": "2d4c1d4c72dc3d36d2587b5ab96abafc077b8e764d274eed2f6f78131b7d69e4"
+    },
+    {
+      "member": "component-acceptance/resting/independent-review-b020.md",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/evidence/firewarrior-resting-artwork/independent-review-b020.md",
+      "bytes": 7706,
+      "sha256": "ce2e8d408377e4a8d16665bcd8e2d7a68c21e74ea347648b728b2ca1bcc3f06b"
+    },
+    {
+      "member": "independent-reviews/combined-parity-browser-launch-review-15a05705.md",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/reviews/combined-parity-browser-launch-review-15a05705.md",
+      "bytes": 3873,
+      "sha256": "288affafc367d278b989ddcc06b836e699ffe879bb99596d5d9f8bd222c58ab3"
+    },
+    {
+      "member": "independent-reviews/combined-parity-browser-result-audit-15a05705.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/reviews/combined-parity-browser-result-audit-15a05705.json",
+      "bytes": 4155,
+      "sha256": "8dacfab49b9bf07a2f287abe1c2590cb3b247bb0006ae028035f74e3021a72e1"
+    },
+    {
+      "member": "independent-reviews/combined-parity-browser-result-review-15a05705.md",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/reviews/combined-parity-browser-result-review-15a05705.md",
+      "bytes": 8019,
+      "sha256": "8a56145f4de4d28f3d28d897a6c19d0298651bab9b618134dddafe44f775788a"
+    },
+    {
+      "member": "independent-reviews/combined-parity-source-audit-169b5f38.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/reviews/combined-parity-source-audit-169b5f38.json",
+      "bytes": 8889,
+      "sha256": "ae1b7914a010eeb0f8bd06c989242e4ead6360473f88e565b877e981c84cd47f"
+    },
+    {
+      "member": "independent-reviews/combined-parity-source-review-169b5f38.md",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/reviews/combined-parity-source-review-169b5f38.md",
+      "bytes": 6773,
+      "sha256": "efab73c5d48168a9da98bd4ed6c0573bd899d3a752c466195314b5a367fbb6f8"
+    }
+  ],
+  "exclusions": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006/work/orchestration/combined-parity/dependency-transfer/original-installed-lock.json",
+      "reason": "Installed tool lock payload omitted; immutable receipt hashes and preserved original stub identify it."
+    },
+    {
+      "path": "browser tmp/registry and all node_modules, original game data/executable, Python/tool/browser installations, credentials and profiles",
+      "reason": "Not evidence payloads; fingerprints/provenance only. No such bytes are archived."
+    }
+  ],
+  "labels": "Original component/native/failed executions retain their source heads and actual statuses. Combined full check/build ran169b; fresh browser ran15a; production/check trees match exactly."
+}

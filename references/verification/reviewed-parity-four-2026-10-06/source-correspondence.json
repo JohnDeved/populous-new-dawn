@@ -1,0 +1,895 @@
+{
+  "base": "89e68606a406f93715b930550317519818ddc081",
+  "head": "169b5f38e8cc9f7aacbae222ba804ac519ec1f27",
+  "tree": "68b5fb9ee3afe7a3aec3e20976a9891283bfb397",
+  "status": "",
+  "components": {
+    "resting": {
+      "source": "b0208188b8de345a6ad5e86cb7c49769624dda86",
+      "componentBase": "89e68606a406f93715b930550317519818ddc081",
+      "ancestor": true,
+      "changedPaths": 10,
+      "equalPaths": 1,
+      "rows": [
+        {
+          "path": "app/original-units.json",
+          "componentBlob": "fa529b76526c7aaf98352a01e5691331fc8aa07f",
+          "combinedBlob": "b5eb9c99aa6359f1e88f4a7b88e643cb5ebc1c14",
+          "componentSha256": "7ad4cfe64aa6bff0c1de8be2761d7c37c7849ff8b391b37758f37cd3778e52c6",
+          "combinedSha256": "9937b9949047824db757960884eaa7941db014073b47c4b671046cfddf6f6909",
+          "equal": false
+        },
+        {
+          "path": "engineering/project-map.json",
+          "componentBlob": "57046aa0e62bbbc248c4d62b6758ce24387db123",
+          "combinedBlob": "5b905585c07f8e24ddac9b2bb289ad5574f9f700",
+          "componentSha256": "780c5a9121247521904f7bf098b1e3293b0aa6a4d013045d0a120f7beaae5b87",
+          "combinedSha256": "3d1a523d7ab419192013c36f5379cb9823a8e0499d816f0604dd79799cdb945b",
+          "equal": false
+        },
+        {
+          "path": "public/original/provenance.json",
+          "componentBlob": "819b551c3cc845f1c5414863c6400ceef943c0ac",
+          "combinedBlob": "e570cf408a4507486b8d4d00535eeb34d9fa3d03",
+          "componentSha256": "fa03c1e323054e559309a36ced0dbace5c8bfd5d5f79913e6fc9b5b0dfa1a85d",
+          "combinedSha256": "535095682081ef7842fff65a169126448ef19bf93fede6fcad73279240c2923c",
+          "equal": false
+        },
+        {
+          "path": "public/original/unit-layers.png",
+          "componentBlob": "7c6b7648b0b5404992f26fed97bec9807a4df0aa",
+          "combinedBlob": "bbfddc08c041ebe50819a4e5735045b44aa67f90",
+          "componentSha256": "9bdbe47bc816c0c75036c7899a6bccdb8aeb47931dc0f49d541c957082afbcbd",
+          "combinedSha256": "5b43e27e9ab1baf156fd092d0b50a0bb9f9a58bd162532e779441d583da71d7a",
+          "equal": false
+        },
+        {
+          "path": "scripts/check-native-sprite-layers.py",
+          "componentBlob": "6e7f2a305767f2670b15b292fb1bfced61a07bf2",
+          "combinedBlob": "2c0bff16e1664f3462a08acc0fa8ec3e9cdbc415",
+          "componentSha256": "95ce087acbcf76f2b54513c6d10e746ee0349ec25362bb2bcabbf9afcb9b9548",
+          "combinedSha256": "b43afd5fb13232004419637e68f4e51fb40bcd37beb52442ec50c6307c59cd9f",
+          "equal": false
+        },
+        {
+          "path": "scripts/check-static-shaman-appearance.py",
+          "componentBlob": "1ea6709054f8ea23e0a8ce72348b96793f472c19",
+          "combinedBlob": "f2aff5fcc483abf7664ca74be165a35e3829fbd3",
+          "componentSha256": "496ff2dbb31eda9f9f27d49834b54dd630990d49b3063a16146b90d232ea31c3",
+          "combinedSha256": "629f916c67b144852bf5fb5eecc2151f1bc71402137e135086aa63353b92e6b3",
+          "equal": false
+        },
+        {
+          "path": "scripts/import-original.py",
+          "componentBlob": "7d6e4ced84c7053ff69d5d8af5f47410a906367d",
+          "combinedBlob": "192c5edeb0fd729a824802f04c231d8e58a7299f",
+          "componentSha256": "bf412564052bb6a3a7ac5c12190608b450407400f73d99f5becbdf40a7ae30bb",
+          "combinedSha256": "958c6bf4ca1ee9515e6bd184d07f6b9927041332012f4b1fa4db1fe52abd1751",
+          "equal": false
+        },
+        {
+          "path": "tests/firewarrior-resting-artwork.test.mjs",
+          "componentBlob": "72dd0e91419fc18cd1f32a810c9861addeb4e311",
+          "combinedBlob": "72dd0e91419fc18cd1f32a810c9861addeb4e311",
+          "componentSha256": "a817633f4eb4201b93b03c181db05658c7e7b8694bb9372b38cbc2021f91fa92",
+          "combinedSha256": "a817633f4eb4201b93b03c181db05658c7e7b8694bb9372b38cbc2021f91fa92",
+          "equal": true
+        },
+        {
+          "path": "tests/shaman-appearance.test.mjs",
+          "componentBlob": "26581133e4c057bd921786d03d2fb7ae8c1c9bc2",
+          "combinedBlob": "78dd32baeb38246aa1f6a5e298cbf433580649b0",
+          "componentSha256": "18b330f673771df62356b19533e303bca43bed008658c9b7bfc1e267980d42b8",
+          "combinedSha256": "ba687de3bbaf6cf942df4436bf047368ffc13941c3fd3a960347c964b3bbc43e",
+          "equal": false
+        },
+        {
+          "path": "tests/sprite-layers.test.mjs",
+          "componentBlob": "cf309f985302ebdcc55a4dc6e1953b948667d5c3",
+          "combinedBlob": "7ef971b8250c9ac1c77b095fd8bf4fb6d53bbcc8",
+          "componentSha256": "02df534fe9f215437f27168a2f8ec17cc02ba799f5f080dcb6dc1cb9e2d4054b",
+          "combinedSha256": "59ed5e381e3903a5acf66d68fe9e1e09b6b765bcdbe9614047eec2d5036b9161",
+          "equal": false
+        }
+      ],
+      "trees": {
+        "app": {
+          "component": "70ca3233de4be0a958d47b84b9723b69291d1b34",
+          "combined": "00f20a2d45a10b42145b9c342cf1583ce9dc0006",
+          "equal": false
+        },
+        "public": {
+          "component": "854cdf5faf9e2fff9eebb5f1684cf7356a9dab62",
+          "combined": "07c5aa3a57e0011988cc4ffdca4aa5bb7b8215c8",
+          "equal": false
+        },
+        "scripts": {
+          "component": "95ff35bcf51986a83e1882f88b3b731ff38c371a",
+          "combined": "56aa8cbc74363c49cab0a26b47db7ab597c8434c",
+          "equal": false
+        },
+        "tests": {
+          "component": "ec87076260b3deb3ace531d533f875aca4704aff",
+          "combined": "d1115f742861c4eb76ed1829cc954b46abe63d07",
+          "equal": false
+        }
+      }
+    },
+    "firing": {
+      "source": "604506b19d79fdcaefa771f8e027ad206dfc2cc7",
+      "componentBase": "b0208188b8de345a6ad5e86cb7c49769624dda86",
+      "ancestor": true,
+      "changedPaths": 22,
+      "equalPaths": 22,
+      "rows": [
+        {
+          "path": "app/hud-portrait.ts",
+          "componentBlob": "33b1015fcb2147285fe6dca76fe35105e73a97be",
+          "combinedBlob": "33b1015fcb2147285fe6dca76fe35105e73a97be",
+          "componentSha256": "0540aae533d746fb34fd27fd212ddcc376fedfb4717593e5f63408cbd7c76bb8",
+          "combinedSha256": "0540aae533d746fb34fd27fd212ddcc376fedfb4717593e5f63408cbd7c76bb8",
+          "equal": true
+        },
+        {
+          "path": "app/live-building-combat.ts",
+          "componentBlob": "90fab3aa1ef1e9a1a095d73d6e3cb123af359cff",
+          "combinedBlob": "90fab3aa1ef1e9a1a095d73d6e3cb123af359cff",
+          "componentSha256": "c8c0a8f3b83157562154ad354206d9d7900f669c67134d5071d0471623617d23",
+          "combinedSha256": "c8c0a8f3b83157562154ad354206d9d7900f669c67134d5071d0471623617d23",
+          "equal": true
+        },
+        {
+          "path": "app/original-units.json",
+          "componentBlob": "b5eb9c99aa6359f1e88f4a7b88e643cb5ebc1c14",
+          "combinedBlob": "b5eb9c99aa6359f1e88f4a7b88e643cb5ebc1c14",
+          "componentSha256": "9937b9949047824db757960884eaa7941db014073b47c4b671046cfddf6f6909",
+          "combinedSha256": "9937b9949047824db757960884eaa7941db014073b47c4b671046cfddf6f6909",
+          "equal": true
+        },
+        {
+          "path": "app/scene-entities.ts",
+          "componentBlob": "e4636cfa2f06e366b6e4fad0d5c02160874af46f",
+          "combinedBlob": "e4636cfa2f06e366b6e4fad0d5c02160874af46f",
+          "componentSha256": "95a2a64f5741ca3445431a4b962e7a0aeef6e502841f56b2b90138addb236952",
+          "combinedSha256": "95a2a64f5741ca3445431a4b962e7a0aeef6e502841f56b2b90138addb236952",
+          "equal": true
+        },
+        {
+          "path": "app/sprite-layers.ts",
+          "componentBlob": "1c0319e1cde3e5162ce1071d1060b7f71dd91c4a",
+          "combinedBlob": "1c0319e1cde3e5162ce1071d1060b7f71dd91c4a",
+          "componentSha256": "0d76231e0844a131c37e207cbb8dab2a67d611711bd4f46ff39327e794043750",
+          "combinedSha256": "0d76231e0844a131c37e207cbb8dab2a67d611711bd4f46ff39327e794043750",
+          "equal": true
+        },
+        {
+          "path": "decomp/research/firewarrior-firing-phase/owned-projection.json",
+          "componentBlob": "393eb1dba093a4a5103cd6e4ca41e18008ae06e1",
+          "combinedBlob": "393eb1dba093a4a5103cd6e4ca41e18008ae06e1",
+          "componentSha256": "5ea3bf389c59cb4ecbf98b19f98566939103e14ce49301b7fb64b330289d0128",
+          "combinedSha256": "5ea3bf389c59cb4ecbf98b19f98566939103e14ce49301b7fb64b330289d0128",
+          "equal": true
+        },
+        {
+          "path": "decomp/research/firewarrior-firing-phase/port.mjs",
+          "componentBlob": "70d1c23592c107c15f446c6144ba2cf6d3c5467b",
+          "combinedBlob": "70d1c23592c107c15f446c6144ba2cf6d3c5467b",
+          "componentSha256": "24ecb2a268de8eb6dfeb28920b2cc91eb536f16ea9cddd1b71e14dac99defa68",
+          "combinedSha256": "24ecb2a268de8eb6dfeb28920b2cc91eb536f16ea9cddd1b71e14dac99defa68",
+          "equal": true
+        },
+        {
+          "path": "evidence/firewarrior-firing-phase/native-comparison-20261006/fixtures.json.gz",
+          "componentBlob": "ccaf34a9f94b52bac01993e74dbbb446f383afc1",
+          "combinedBlob": "ccaf34a9f94b52bac01993e74dbbb446f383afc1",
+          "componentSha256": "839b4f2eb827ff1e2148ced8235f3fd2455156c020cda5e0fb27ac44df881d3c",
+          "combinedSha256": "839b4f2eb827ff1e2148ced8235f3fd2455156c020cda5e0fb27ac44df881d3c",
+          "equal": true
+        },
+        {
+          "path": "evidence/firewarrior-firing-phase/native-comparison-20261006/native.json.gz",
+          "componentBlob": "168623a401d52b98412c7dd0c261dea5a38d41ab",
+          "combinedBlob": "168623a401d52b98412c7dd0c261dea5a38d41ab",
+          "componentSha256": "627ac93756fd29012b8a4d4dc26b0b54a5da388cee36c1d1a28ec9707c896a4d",
+          "combinedSha256": "627ac93756fd29012b8a4d4dc26b0b54a5da388cee36c1d1a28ec9707c896a4d",
+          "equal": true
+        },
+        {
+          "path": "public/original/provenance.json",
+          "componentBlob": "e570cf408a4507486b8d4d00535eeb34d9fa3d03",
+          "combinedBlob": "e570cf408a4507486b8d4d00535eeb34d9fa3d03",
+          "componentSha256": "535095682081ef7842fff65a169126448ef19bf93fede6fcad73279240c2923c",
+          "combinedSha256": "535095682081ef7842fff65a169126448ef19bf93fede6fcad73279240c2923c",
+          "equal": true
+        },
+        {
+          "path": "public/original/unit-layers.png",
+          "componentBlob": "bbfddc08c041ebe50819a4e5735045b44aa67f90",
+          "combinedBlob": "bbfddc08c041ebe50819a4e5735045b44aa67f90",
+          "componentSha256": "5b43e27e9ab1baf156fd092d0b50a0bb9f9a58bd162532e779441d583da71d7a",
+          "combinedSha256": "5b43e27e9ab1baf156fd092d0b50a0bb9f9a58bd162532e779441d583da71d7a",
+          "equal": true
+        },
+        {
+          "path": "scripts/check-browser-shaman-appearance.mjs",
+          "componentBlob": "95c0b711e65d641858ffac2eba8d59a45da1ca4d",
+          "combinedBlob": "95c0b711e65d641858ffac2eba8d59a45da1ca4d",
+          "componentSha256": "6408feb6133768e1c38e92b56de4b97551aeca1ec95d430bcce1372f2f1a0029",
+          "combinedSha256": "6408feb6133768e1c38e92b56de4b97551aeca1ec95d430bcce1372f2f1a0029",
+          "equal": true
+        },
+        {
+          "path": "scripts/check-browser-sprite-layers.mjs",
+          "componentBlob": "24df7c537e41dc98698024345671b5e7641471fb",
+          "combinedBlob": "24df7c537e41dc98698024345671b5e7641471fb",
+          "componentSha256": "e0c1e916810407b4021ff2c2dd24d57a859a9a5aafd470519db0b99883091d48",
+          "combinedSha256": "e0c1e916810407b4021ff2c2dd24d57a859a9a5aafd470519db0b99883091d48",
+          "equal": true
+        },
+        {
+          "path": "scripts/check-firewarrior-firing-artwork.py",
+          "componentBlob": "287cfd553c2228e6dd80901bf265edbc80d8751b",
+          "combinedBlob": "287cfd553c2228e6dd80901bf265edbc80d8751b",
+          "componentSha256": "f91676df459104879af923ebca6bb618c10f7c656b0b0899edc51aae9294b478",
+          "combinedSha256": "f91676df459104879af923ebca6bb618c10f7c656b0b0899edc51aae9294b478",
+          "equal": true
+        },
+        {
+          "path": "scripts/check-native-sprite-layers.py",
+          "componentBlob": "2c0bff16e1664f3462a08acc0fa8ec3e9cdbc415",
+          "combinedBlob": "2c0bff16e1664f3462a08acc0fa8ec3e9cdbc415",
+          "componentSha256": "b43afd5fb13232004419637e68f4e51fb40bcd37beb52442ec50c6307c59cd9f",
+          "combinedSha256": "b43afd5fb13232004419637e68f4e51fb40bcd37beb52442ec50c6307c59cd9f",
+          "equal": true
+        },
+        {
+          "path": "scripts/check-static-shaman-appearance.py",
+          "componentBlob": "f2aff5fcc483abf7664ca74be165a35e3829fbd3",
+          "combinedBlob": "f2aff5fcc483abf7664ca74be165a35e3829fbd3",
+          "componentSha256": "629f916c67b144852bf5fb5eecc2151f1bc71402137e135086aa63353b92e6b3",
+          "combinedSha256": "629f916c67b144852bf5fb5eecc2151f1bc71402137e135086aa63353b92e6b3",
+          "equal": true
+        },
+        {
+          "path": "scripts/import-original.py",
+          "componentBlob": "192c5edeb0fd729a824802f04c231d8e58a7299f",
+          "combinedBlob": "192c5edeb0fd729a824802f04c231d8e58a7299f",
+          "componentSha256": "958c6bf4ca1ee9515e6bd184d07f6b9927041332012f4b1fa4db1fe52abd1751",
+          "combinedSha256": "958c6bf4ca1ee9515e6bd184d07f6b9927041332012f4b1fa4db1fe52abd1751",
+          "equal": true
+        },
+        {
+          "path": "tests/firewarrior-firing-artwork.test.mjs",
+          "componentBlob": "10633843152a24889b3694c0a71c415ec3ae821c",
+          "combinedBlob": "10633843152a24889b3694c0a71c415ec3ae821c",
+          "componentSha256": "7bc2c6e263ba823dd9d781e1d9fe14a35dafc8c97590db7c42e1ed594c635088",
+          "combinedSha256": "7bc2c6e263ba823dd9d781e1d9fe14a35dafc8c97590db7c42e1ed594c635088",
+          "equal": true
+        },
+        {
+          "path": "tests/firewarrior-firing-phase.test.mjs",
+          "componentBlob": "9aa3fc16188ff560f52818ed72e567eebe9fa893",
+          "combinedBlob": "9aa3fc16188ff560f52818ed72e567eebe9fa893",
+          "componentSha256": "0f59491049e175ec83c22c25168e5488c596fff619b945273a5e41a8210e2597",
+          "combinedSha256": "0f59491049e175ec83c22c25168e5488c596fff619b945273a5e41a8210e2597",
+          "equal": true
+        },
+        {
+          "path": "tests/fixtures/firewarrior-firing-artwork.json",
+          "componentBlob": "d7ff35e62d0db0ce6330073a5943b5f9f88b70c8",
+          "combinedBlob": "d7ff35e62d0db0ce6330073a5943b5f9f88b70c8",
+          "componentSha256": "e22a5f28c06c135539e578077c6e0cae5c94a7d8b0084c7e1645bc930b76b449",
+          "combinedSha256": "e22a5f28c06c135539e578077c6e0cae5c94a7d8b0084c7e1645bc930b76b449",
+          "equal": true
+        },
+        {
+          "path": "tests/shaman-appearance.test.mjs",
+          "componentBlob": "78dd32baeb38246aa1f6a5e298cbf433580649b0",
+          "combinedBlob": "78dd32baeb38246aa1f6a5e298cbf433580649b0",
+          "componentSha256": "ba687de3bbaf6cf942df4436bf047368ffc13941c3fd3a960347c964b3bbc43e",
+          "combinedSha256": "ba687de3bbaf6cf942df4436bf047368ffc13941c3fd3a960347c964b3bbc43e",
+          "equal": true
+        },
+        {
+          "path": "tests/sprite-layers.test.mjs",
+          "componentBlob": "7ef971b8250c9ac1c77b095fd8bf4fb6d53bbcc8",
+          "combinedBlob": "7ef971b8250c9ac1c77b095fd8bf4fb6d53bbcc8",
+          "componentSha256": "59ed5e381e3903a5acf66d68fe9e1e09b6b765bcdbe9614047eec2d5036b9161",
+          "combinedSha256": "59ed5e381e3903a5acf66d68fe9e1e09b6b765bcdbe9614047eec2d5036b9161",
+          "equal": true
+        }
+      ],
+      "trees": {
+        "app": {
+          "component": "18f462c09c75a914d58985f1d28cd66588cd8226",
+          "combined": "00f20a2d45a10b42145b9c342cf1583ce9dc0006",
+          "equal": false
+        },
+        "public": {
+          "component": "07c5aa3a57e0011988cc4ffdca4aa5bb7b8215c8",
+          "combined": "07c5aa3a57e0011988cc4ffdca4aa5bb7b8215c8",
+          "equal": true
+        },
+        "scripts": {
+          "component": "1c320324ea821c13f3513be85987b9fa8875f7b8",
+          "combined": "56aa8cbc74363c49cab0a26b47db7ab597c8434c",
+          "equal": false
+        },
+        "tests": {
+          "component": "f78dee8debdfbdfa58d06def1b711d62a5027381",
+          "combined": "d1115f742861c4eb76ed1829cc954b46abe63d07",
+          "equal": false
+        }
+      }
+    },
+    "allocation": {
+      "source": "64c47960f718b76ac8680f39f296c8acf0c4d2a4",
+      "componentBase": "89e68606a406f93715b930550317519818ddc081",
+      "ancestor": true,
+      "changedPaths": 43,
+      "equalPaths": 42,
+      "rows": [
+        {
+          "path": "app/campaign-command-runtime.ts",
+          "componentBlob": "b35a070c14e3e9c3ab2fbfb57c3947fd6cbee16d",
+          "combinedBlob": "b35a070c14e3e9c3ab2fbfb57c3947fd6cbee16d",
+          "componentSha256": "5badf47c9b0e55d99f307a1a82c3ba311c835ac78edeabc9f6c7796a39314182",
+          "combinedSha256": "5badf47c9b0e55d99f307a1a82c3ba311c835ac78edeabc9f6c7796a39314182",
+          "equal": true
+        },
+        {
+          "path": "decomp/README.md",
+          "componentBlob": "3abf190af3620f9155d598b5b5814f83c5b0f764",
+          "combinedBlob": "3abf190af3620f9155d598b5b5814f83c5b0f764",
+          "componentSha256": "42855751212dd0ad36880fa169d634ed11268e416ffd6055587c3a37c90719ed",
+          "combinedSha256": "42855751212dd0ad36880fa169d634ed11268e416ffd6055587c3a37c90719ed",
+          "equal": true
+        },
+        {
+          "path": "decomp/research/early-mission-ai.md",
+          "componentBlob": "ceca7074b619cc90775b70c361f710ce1d345ea5",
+          "combinedBlob": "ceca7074b619cc90775b70c361f710ce1d345ea5",
+          "componentSha256": "71509c37d6be849970a824c2b7bbd642669cd03767cfa5bd298f564f3805143b",
+          "combinedSha256": "71509c37d6be849970a824c2b7bbd642669cd03767cfa5bd298f564f3805143b",
+          "equal": true
+        },
+        {
+          "path": "decomp/research/mission3-raid-allocation-preflight.md",
+          "componentBlob": "751cc7150531e56fea2853ac5b9de2c42ddc5252",
+          "combinedBlob": "751cc7150531e56fea2853ac5b9de2c42ddc5252",
+          "componentSha256": "33a6ef8c4665545030c55ad4b6609aab63b0d9bd2e597232970473be556b19f5",
+          "combinedSha256": "33a6ef8c4665545030c55ad4b6609aab63b0d9bd2e597232970473be556b19f5",
+          "equal": true
+        },
+        {
+          "path": "engineering/project-map.json",
+          "componentBlob": "85dcf1139e9d98a9a8e8ba5c7cd7cf383025d70f",
+          "combinedBlob": "5b905585c07f8e24ddac9b2bb289ad5574f9f700",
+          "componentSha256": "51f5082e61024f95a25ddbb2d08169dbe7138b11b9e41c4bf128189e233e8e07",
+          "combinedSha256": "3d1a523d7ab419192013c36f5379cb9823a8e0499d816f0604dd79799cdb945b",
+          "equal": false
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/README.md",
+          "componentBlob": "e2cbed2d307a413ecc805343ca26bbefef3acf8e",
+          "combinedBlob": "e2cbed2d307a413ecc805343ca26bbefef3acf8e",
+          "componentSha256": "da88e67f63807528a3779f8c7f66d15d5396753716431a6ffb49af802be4abec",
+          "combinedSha256": "da88e67f63807528a3779f8c7f66d15d5396753716431a6ffb49af802be4abec",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/attempt1/receipt.json",
+          "componentBlob": "344d4945ab450bcd75754168e1dc5c6a2f479766",
+          "combinedBlob": "344d4945ab450bcd75754168e1dc5c6a2f479766",
+          "componentSha256": "c7c0e521aa40b62bad8423c57282f08c4678bc333041ebf308db70cc27467b63",
+          "combinedSha256": "c7c0e521aa40b62bad8423c57282f08c4678bc333041ebf308db70cc27467b63",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/attempt1/stderr.log",
+          "componentBlob": "e8cd01128604e7045bd32e805fb12f244fcc8a90",
+          "combinedBlob": "e8cd01128604e7045bd32e805fb12f244fcc8a90",
+          "componentSha256": "28be675d11f614b87752ba0215497c84ac91ac15661ff4b989db031eec7d4ea5",
+          "combinedSha256": "28be675d11f614b87752ba0215497c84ac91ac15661ff4b989db031eec7d4ea5",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/attempt1/stdout.log",
+          "componentBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "combinedBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "componentSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "combinedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/attempt2/receipt.json",
+          "componentBlob": "877ff7baf9ccabc56e74ff761c8671eedd724d4a",
+          "combinedBlob": "877ff7baf9ccabc56e74ff761c8671eedd724d4a",
+          "componentSha256": "e0bb8045af12075d4c6ab13089f996d230d141f79ee79af58b61190bd310061f",
+          "combinedSha256": "e0bb8045af12075d4c6ab13089f996d230d141f79ee79af58b61190bd310061f",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/attempt2/stderr.log",
+          "componentBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "combinedBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "componentSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "combinedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/attempt2/stdout.log",
+          "componentBlob": "06b032a79e0c895f12a2db0bfb659ef4460454af",
+          "combinedBlob": "06b032a79e0c895f12a2db0bfb659ef4460454af",
+          "componentSha256": "62da2b23a4d6ae19558abe1d8d0c7188579e51898e85ab7984add7876c6029d3",
+          "combinedSha256": "62da2b23a4d6ae19558abe1d8d0c7188579e51898e85ab7984add7876c6029d3",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/attempt3/receipt.json",
+          "componentBlob": "0d9a2b9627387a95c2f38495108efc7c45a3af7b",
+          "combinedBlob": "0d9a2b9627387a95c2f38495108efc7c45a3af7b",
+          "componentSha256": "c448edc0df82cb674da9c6e05941857c6077fcf4ecafad004b1e2ee2c943ddca",
+          "combinedSha256": "c448edc0df82cb674da9c6e05941857c6077fcf4ecafad004b1e2ee2c943ddca",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/attempt3/stderr.log",
+          "componentBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "combinedBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "componentSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "combinedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/attempt3/stdout.log",
+          "componentBlob": "14d0db15ed768a1c2d81dc97e49bb09f19922477",
+          "combinedBlob": "14d0db15ed768a1c2d81dc97e49bb09f19922477",
+          "componentSha256": "f6478e2a10d2af13041d7836de364d2da722bfb233836dae3d361b5c3e4b2c6e",
+          "combinedSha256": "f6478e2a10d2af13041d7836de364d2da722bfb233836dae3d361b5c3e4b2c6e",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/final-review.md",
+          "componentBlob": "99c6f7c8683db756cc46a850eae1a7be9f9d395c",
+          "combinedBlob": "99c6f7c8683db756cc46a850eae1a7be9f9d395c",
+          "componentSha256": "65fa23d4b0dafb9382b21fc8a0a975cc5b955e7cb58585b265afe4a595b59a67",
+          "combinedSha256": "65fa23d4b0dafb9382b21fc8a0a975cc5b955e7cb58585b265afe4a595b59a67",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/native-after/receipt.json",
+          "componentBlob": "05b83c5b0f6bba90dfea3eb978d584ddc24c5525",
+          "combinedBlob": "05b83c5b0f6bba90dfea3eb978d584ddc24c5525",
+          "componentSha256": "08d73fbca57beffc0c612e2f07756ed6a8374ec5507c49ad9ecabb3c836c1899",
+          "combinedSha256": "08d73fbca57beffc0c612e2f07756ed6a8374ec5507c49ad9ecabb3c836c1899",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/native-after/stderr.log",
+          "componentBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "combinedBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "componentSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "combinedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/native-after/stdout.log",
+          "componentBlob": "8f90ad0298fe38c9f26583ac211b365976309584",
+          "combinedBlob": "8f90ad0298fe38c9f26583ac211b365976309584",
+          "componentSha256": "5715473b9d0a1fbea81cd7b1a99a8120e4f06f59439a50523fb20f598825473c",
+          "combinedSha256": "5715473b9d0a1fbea81cd7b1a99a8120e4f06f59439a50523fb20f598825473c",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/portable-after/receipt.json",
+          "componentBlob": "156ad4bab132ab1fce0a4544588d549839ede9c4",
+          "combinedBlob": "156ad4bab132ab1fce0a4544588d549839ede9c4",
+          "componentSha256": "91899acc97e448e345b17369ecde87ba347821b6b47fa2c4a0319deb63dad7ea",
+          "combinedSha256": "91899acc97e448e345b17369ecde87ba347821b6b47fa2c4a0319deb63dad7ea",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/portable-after/stderr.log",
+          "componentBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "combinedBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "componentSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "combinedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/portable-after/stdout.log",
+          "componentBlob": "7e38bc03a1b14e7eccda55b83177c288fc20139b",
+          "combinedBlob": "7e38bc03a1b14e7eccda55b83177c288fc20139b",
+          "componentSha256": "514e123e853467d6ae93135375082332f51b4b2b84664400113914682659cb25",
+          "combinedSha256": "514e123e853467d6ae93135375082332f51b4b2b84664400113914682659cb25",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/portable-before/receipt.json",
+          "componentBlob": "5f0785532042357ca2b2c950c06e2d722399624c",
+          "combinedBlob": "5f0785532042357ca2b2c950c06e2d722399624c",
+          "componentSha256": "8561f5de1af94e395521f6ab672118189493265e78fc18e51d1d9a255d9f1ab9",
+          "combinedSha256": "8561f5de1af94e395521f6ab672118189493265e78fc18e51d1d9a255d9f1ab9",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/portable-before/stderr.log",
+          "componentBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "combinedBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "componentSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "combinedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/portable-before/stdout.log",
+          "componentBlob": "2f1f7ac9f87d0354be6a04871de90f685f69bc1b",
+          "combinedBlob": "2f1f7ac9f87d0354be6a04871de90f685f69bc1b",
+          "componentSha256": "52d92304e8a97d54d631ea049a34956da7c66bf77e988d9be1b8be46e7ab32cc",
+          "combinedSha256": "52d92304e8a97d54d631ea049a34956da7c66bf77e988d9be1b8be46e7ab32cc",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/source-manifest.json",
+          "componentBlob": "0486687dffa78b61a7384412465b2c97fa395f65",
+          "combinedBlob": "0486687dffa78b61a7384412465b2c97fa395f65",
+          "componentSha256": "9c59f3639538a55637635e5cc306edcc8a0a3a00e9e124aefacd2901c54a3da8",
+          "combinedSha256": "9c59f3639538a55637635e5cc306edcc8a0a3a00e9e124aefacd2901c54a3da8",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/standard/build.json",
+          "componentBlob": "7fc63f7dcbb15f0d0a72753689297e17ece0acf8",
+          "combinedBlob": "7fc63f7dcbb15f0d0a72753689297e17ece0acf8",
+          "componentSha256": "188ea701868ab50df506e1a8c2e111537d8abc48859c429756f490bbf6882a6d",
+          "combinedSha256": "188ea701868ab50df506e1a8c2e111537d8abc48859c429756f490bbf6882a6d",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/standard/eslint-scoped.json",
+          "componentBlob": "760770e11c3bbf5aa5620942fcaff5b672de0994",
+          "combinedBlob": "760770e11c3bbf5aa5620942fcaff5b672de0994",
+          "componentSha256": "df084c380844d16a87b0e141f58195fc8d80b5be8ec27f1e7f5ead40415d1c93",
+          "combinedSha256": "df084c380844d16a87b0e141f58195fc8d80b5be8ec27f1e7f5ead40415d1c93",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/standard/fallow-dupes.json",
+          "componentBlob": "b28f2f0877ff1ff18ed2658c3616b3250502b7da",
+          "combinedBlob": "b28f2f0877ff1ff18ed2658c3616b3250502b7da",
+          "componentSha256": "58c67588a189d95c300f2b5e99fffc1fd2a23d10bc9fabe59efcf982aaae63a2",
+          "combinedSha256": "58c67588a189d95c300f2b5e99fffc1fd2a23d10bc9fabe59efcf982aaae63a2",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/standard/fallow-health.json",
+          "componentBlob": "9e550c308b98c1407f9488c372b95f9678378c3a",
+          "combinedBlob": "9e550c308b98c1407f9488c372b95f9678378c3a",
+          "componentSha256": "2fd93844b20c0ca040879abb4f9ab9c4534d5e31d477346363754921232509a6",
+          "combinedSha256": "2fd93844b20c0ca040879abb4f9ab9c4534d5e31d477346363754921232509a6",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/standard/fallow-unused.json",
+          "componentBlob": "6234ac6e9a31c474d0801d3846e174c3b919ba58",
+          "combinedBlob": "6234ac6e9a31c474d0801d3846e174c3b919ba58",
+          "componentSha256": "34bba8fb6616c496f2a29441fac6de446f3e1d5fe65ab80862468e8ae76b2a75",
+          "combinedSha256": "34bba8fb6616c496f2a29441fac6de446f3e1d5fe65ab80862468e8ae76b2a75",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/standard/format-scoped.json",
+          "componentBlob": "b5bc2640795b52a70e46d4d47d9b70f96eae2f27",
+          "combinedBlob": "b5bc2640795b52a70e46d4d47d9b70f96eae2f27",
+          "componentSha256": "2cdc128b39807ee581e29850c919426f351b174fc5dba38292ff30901b8b44b2",
+          "combinedSha256": "2cdc128b39807ee581e29850c919426f351b174fc5dba38292ff30901b8b44b2",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/standard/full-check.json",
+          "componentBlob": "42240c48eb2bc0d2613e1bef35e7e78ca236b7c7",
+          "combinedBlob": "42240c48eb2bc0d2613e1bef35e7e78ca236b7c7",
+          "componentSha256": "ed3d63c7ac5d70ddcd2f1288899068b22b694c2aaf4e975c96ae8622a26f5864",
+          "combinedSha256": "ed3d63c7ac5d70ddcd2f1288899068b22b694c2aaf4e975c96ae8622a26f5864",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/standard/oxlint-base-absolute.json",
+          "componentBlob": "adb6b46c7e3320d55e77d9df8172b631d9c9df82",
+          "combinedBlob": "adb6b46c7e3320d55e77d9df8172b631d9c9df82",
+          "componentSha256": "f40bbf0e0b500091087e01f538f9e17c90c0a6e105326af2d54b06f952d144d7",
+          "combinedSha256": "f40bbf0e0b500091087e01f538f9e17c90c0a6e105326af2d54b06f952d144d7",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/standard/oxlint-base.json",
+          "componentBlob": "f9283161552f97b2f907e1272bf8690da6091d66",
+          "combinedBlob": "f9283161552f97b2f907e1272bf8690da6091d66",
+          "componentSha256": "ff4414ae93b2ba1a5b8313b30a990fe51358bd2fc5729186274370e8dbfb6762",
+          "combinedSha256": "ff4414ae93b2ba1a5b8313b30a990fe51358bd2fc5729186274370e8dbfb6762",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/standard/oxlint-scoped.json",
+          "componentBlob": "a85136c17f5b97e40e343fad7510fbbbb116029f",
+          "combinedBlob": "a85136c17f5b97e40e343fad7510fbbbb116029f",
+          "componentSha256": "48de88a798258159fc7285eaaf8a3f989c1e432c18723426dee0361736a1d0ba",
+          "combinedSha256": "48de88a798258159fc7285eaaf8a3f989c1e432c18723426dee0361736a1d0ba",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/standard/quality-attribution.json",
+          "componentBlob": "0d534e0ee5bb1651d323cbd380e25f620c322fe9",
+          "combinedBlob": "0d534e0ee5bb1651d323cbd380e25f620c322fe9",
+          "componentSha256": "88757f463a45da12b365a6096e787fb9e6890cb23f361d4d8a3d88807bc89eb7",
+          "combinedSha256": "88757f463a45da12b365a6096e787fb9e6890cb23f361d4d8a3d88807bc89eb7",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-allocation-2026-10-06/standard/receipt-index.json",
+          "componentBlob": "e68b595cf317ae740e4bf9cf93524a9c53fcb354",
+          "combinedBlob": "e68b595cf317ae740e4bf9cf93524a9c53fcb354",
+          "componentSha256": "f5ecb3755c538c52159e18eab789a1e21b3f0c20581e3b4defa05a8e7998716e",
+          "combinedSha256": "f5ecb3755c538c52159e18eab789a1e21b3f0c20581e3b4defa05a8e7998716e",
+          "equal": true
+        },
+        {
+          "path": "scripts/check-native-mission3-raid-allocation.py",
+          "componentBlob": "f253d53b91a292d910e9cbe5a33537b6787fdb2c",
+          "combinedBlob": "f253d53b91a292d910e9cbe5a33537b6787fdb2c",
+          "componentSha256": "d010174c235d69f1a7fc3aa80ab1b00b3fde80e83fec9267d36d6427d0299d4b",
+          "combinedSha256": "d010174c235d69f1a7fc3aa80ab1b00b3fde80e83fec9267d36d6427d0299d4b",
+          "equal": true
+        },
+        {
+          "path": "scripts/decomp.py",
+          "componentBlob": "9720c05ffd794663da7234034f6333ac3e01db04",
+          "combinedBlob": "9720c05ffd794663da7234034f6333ac3e01db04",
+          "componentSha256": "0a4783a8ee924c52e1125a5df3e4e625b3ab00835e848a2013e444bcfd979c2e",
+          "combinedSha256": "0a4783a8ee924c52e1125a5df3e4e625b3ab00835e848a2013e444bcfd979c2e",
+          "equal": true
+        },
+        {
+          "path": "scripts/mission3-raid-allocation-pair.mjs",
+          "componentBlob": "b95e7e4d5484cb2bfedd19b38490eacc17fb8f2f",
+          "combinedBlob": "b95e7e4d5484cb2bfedd19b38490eacc17fb8f2f",
+          "componentSha256": "b43e835fc839cb9a82bc7332e58ecb88f18654d11910dd13aae1fa32c13b96dc",
+          "combinedSha256": "b43e835fc839cb9a82bc7332e58ecb88f18654d11910dd13aae1fa32c13b96dc",
+          "equal": true
+        },
+        {
+          "path": "tests/fixtures/mission3-raid-allocation.json",
+          "componentBlob": "1e4e601fe4202334523beca7533e388e0de1187f",
+          "combinedBlob": "1e4e601fe4202334523beca7533e388e0de1187f",
+          "componentSha256": "da7c1916549335e2f731162b971533910e576f79736aee9850529e00a960c27a",
+          "combinedSha256": "da7c1916549335e2f731162b971533910e576f79736aee9850529e00a960c27a",
+          "equal": true
+        },
+        {
+          "path": "tests/mission3-raid-allocation.test.mjs",
+          "componentBlob": "98e385d9ab2d6390afae801cea6b925a71640995",
+          "combinedBlob": "98e385d9ab2d6390afae801cea6b925a71640995",
+          "componentSha256": "fcadf2a64f7a2c00bfc0e3d5dd645fe6b3b391709ce6e6d3dcf2b9287758d3b7",
+          "combinedSha256": "fcadf2a64f7a2c00bfc0e3d5dd645fe6b3b391709ce6e6d3dcf2b9287758d3b7",
+          "equal": true
+        }
+      ],
+      "trees": {
+        "app": {
+          "component": "4e3aaf8232ce1aac81dfab8691fed60b2a4a66e8",
+          "combined": "00f20a2d45a10b42145b9c342cf1583ce9dc0006",
+          "equal": false
+        },
+        "public": {
+          "component": "fc25859de55ec2be22ebc7d9f4c1e9b9d06ac00d",
+          "combined": "07c5aa3a57e0011988cc4ffdca4aa5bb7b8215c8",
+          "equal": false
+        },
+        "scripts": {
+          "component": "d4a36cde48d8fbb41e3c5f28f7f3664240e946b4",
+          "combined": "56aa8cbc74363c49cab0a26b47db7ab597c8434c",
+          "equal": false
+        },
+        "tests": {
+          "component": "b51c72e076c1ceebe4fad251ecd2ef2613251afb",
+          "combined": "d1115f742861c4eb76ed1829cc954b46abe63d07",
+          "equal": false
+        }
+      }
+    },
+    "recruitment": {
+      "source": "a7f65d7df477891272b1613bbb166ad5a48b0e8b",
+      "componentBase": "89e68606a406f93715b930550317519818ddc081",
+      "ancestor": true,
+      "changedPaths": 16,
+      "equalPaths": 16,
+      "rows": [
+        {
+          "path": "app/computer-runtime.ts",
+          "componentBlob": "761187efc1dc1f3c87d374b8483277c5d71a8ff8",
+          "combinedBlob": "761187efc1dc1f3c87d374b8483277c5d71a8ff8",
+          "componentSha256": "fcaea74faacf6477a25c186b668eadc8e3a5a887cc74157683f818ee1a576872",
+          "combinedSha256": "fcaea74faacf6477a25c186b668eadc8e3a5a887cc74157683f818ee1a576872",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-recruitment-origin-2026-10-06/README.md",
+          "componentBlob": "11b9c92ff8eeb28c8927e2085645fd9f35e303d6",
+          "combinedBlob": "11b9c92ff8eeb28c8927e2085645fd9f35e303d6",
+          "componentSha256": "a6c39a6721e0784596d6ac71cec50718a32b6ab75d20b5c2feb8e3675be9be9d",
+          "combinedSha256": "a6c39a6721e0784596d6ac71cec50718a32b6ab75d20b5c2feb8e3675be9be9d",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-recruitment-origin-2026-10-06/attempt1/stdout.log",
+          "componentBlob": "f756e755581623bc19808622e753c2bccfca0c22",
+          "combinedBlob": "f756e755581623bc19808622e753c2bccfca0c22",
+          "componentSha256": "e6d29dcc7df45d3d8e4b3df43b6f8388fba6fdcf6e32eec0ede56e00c25549ea",
+          "combinedSha256": "e6d29dcc7df45d3d8e4b3df43b6f8388fba6fdcf6e32eec0ede56e00c25549ea",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-recruitment-origin-2026-10-06/established-attempt1/stdout.log",
+          "componentBlob": "8c1850e53a8f57e9a8a9c8abc8cccf9775a59123",
+          "combinedBlob": "8c1850e53a8f57e9a8a9c8abc8cccf9775a59123",
+          "componentSha256": "3190c11fce3b1f31fac49a69e8eecec5348764d1cf63852fc01aeedca5e3e849",
+          "combinedSha256": "3190c11fce3b1f31fac49a69e8eecec5348764d1cf63852fc01aeedca5e3e849",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-recruitment-origin-2026-10-06/final-review.md",
+          "componentBlob": "6070a0b81130b47f06debad5d3fb74530a1deef9",
+          "combinedBlob": "6070a0b81130b47f06debad5d3fb74530a1deef9",
+          "componentSha256": "f37ca5367e80510092e4bd0a02d6f119f5612481e7ecad54061bb87a4dc4b678",
+          "combinedSha256": "f37ca5367e80510092e4bd0a02d6f119f5612481e7ecad54061bb87a4dc4b678",
+          "equal": true
+        },
+        {
+          "path": "references/verification/mission3-raid-recruitment-origin-2026-10-06/source-package.json",
+          "componentBlob": "e24e937845b1cbb39f6cbb039da0ff5aebbf176f",
+          "combinedBlob": "e24e937845b1cbb39f6cbb039da0ff5aebbf176f",
+          "componentSha256": "11bfa1dd5fa6157d7c011125780c5ae15f9c7e5ba9e4b6ddf173bffebb7730d6",
+          "combinedSha256": "11bfa1dd5fa6157d7c011125780c5ae15f9c7e5ba9e4b6ddf173bffebb7730d6",
+          "equal": true
+        },
+        {
+          "path": "scripts/check-native-mission3-raid-recruitment.py",
+          "componentBlob": "c76dfece8f7fc7b25279e7f3938ec61d6e65c5fc",
+          "combinedBlob": "c76dfece8f7fc7b25279e7f3938ec61d6e65c5fc",
+          "componentSha256": "338d8c4ba2a7d4f4b5de8486ab0080d6120df8b275de67e42e226affe1084484",
+          "combinedSha256": "338d8c4ba2a7d4f4b5de8486ab0080d6120df8b275de67e42e226affe1084484",
+          "equal": true
+        },
+        {
+          "path": "scripts/decomp.py",
+          "componentBlob": "9720c05ffd794663da7234034f6333ac3e01db04",
+          "combinedBlob": "9720c05ffd794663da7234034f6333ac3e01db04",
+          "componentSha256": "0a4783a8ee924c52e1125a5df3e4e625b3ab00835e848a2013e444bcfd979c2e",
+          "combinedSha256": "0a4783a8ee924c52e1125a5df3e4e625b3ab00835e848a2013e444bcfd979c2e",
+          "equal": true
+        },
+        {
+          "path": "scripts/mission3-raid-recruitment-pair.mjs",
+          "componentBlob": "84b98c862c143c7a5d6878d647d8461306a37d5c",
+          "combinedBlob": "84b98c862c143c7a5d6878d647d8461306a37d5c",
+          "componentSha256": "0ef3de6aa6b72f9ae253b905ac4057f891277b9d82e7444b5006ac9df75e92c4",
+          "combinedSha256": "0ef3de6aa6b72f9ae253b905ac4057f891277b9d82e7444b5006ac9df75e92c4",
+          "equal": true
+        },
+        {
+          "path": "tests/fixtures/mission3-raid-recruitment-all-known.json",
+          "componentBlob": "9ec222c271a6ef792097c6ff05503b97138e033a",
+          "combinedBlob": "9ec222c271a6ef792097c6ff05503b97138e033a",
+          "componentSha256": "d540248b8bda3fde1c15fe0ba866ac9ffd58af1290d73f88652a01eabc803d91",
+          "combinedSha256": "d540248b8bda3fde1c15fe0ba866ac9ffd58af1290d73f88652a01eabc803d91",
+          "equal": true
+        },
+        {
+          "path": "tests/fixtures/mission3-raid-recruitment-established.json",
+          "componentBlob": "9d152a4e5ff4a5a943383dba89e5f9462ded49dc",
+          "combinedBlob": "9d152a4e5ff4a5a943383dba89e5f9462ded49dc",
+          "componentSha256": "1d6f018bb411a5cbc0f3f436a75b74e88925c8a427a7dd1de5bc885a407d7c55",
+          "combinedSha256": "1d6f018bb411a5cbc0f3f436a75b74e88925c8a427a7dd1de5bc885a407d7c55",
+          "equal": true
+        },
+        {
+          "path": "tests/fixtures/mission3-raid-recruitment-loaded-cell.json",
+          "componentBlob": "5595f8888b6ce0f50031ad1afc6d6e23305e74af",
+          "combinedBlob": "5595f8888b6ce0f50031ad1afc6d6e23305e74af",
+          "componentSha256": "25c3897f0852ed0e65522bf7f54cdb180f01b98b21401751a626ff3d3cf2e376",
+          "combinedSha256": "25c3897f0852ed0e65522bf7f54cdb180f01b98b21401751a626ff3d3cf2e376",
+          "equal": true
+        },
+        {
+          "path": "tests/fixtures/mission3-raid-recruitment-origins.json",
+          "componentBlob": "56339d9d126ff550f5fb74abd305639b4fab7ef2",
+          "combinedBlob": "56339d9d126ff550f5fb74abd305639b4fab7ef2",
+          "componentSha256": "675aef805a5ddcf49de53c916912d3cd5d6e0e71db014bf387ca0dffd557a13b",
+          "combinedSha256": "675aef805a5ddcf49de53c916912d3cd5d6e0e71db014bf387ca0dffd557a13b",
+          "equal": true
+        },
+        {
+          "path": "tests/fixtures/mission3-raid-recruitment.json",
+          "componentBlob": "c710a5a31177de8d5daba15a387aac617b8f62a3",
+          "combinedBlob": "c710a5a31177de8d5daba15a387aac617b8f62a3",
+          "componentSha256": "f56b2b616a8389f0f86801f92d87fece6887e8182a7788d9bdc690556644cc53",
+          "combinedSha256": "f56b2b616a8389f0f86801f92d87fece6887e8182a7788d9bdc690556644cc53",
+          "equal": true
+        },
+        {
+          "path": "tests/mission3-raid-loaded-cell.test.mjs",
+          "componentBlob": "90c2bc8f05f478d322792f1976a642d3904a8362",
+          "combinedBlob": "90c2bc8f05f478d322792f1976a642d3904a8362",
+          "componentSha256": "a722565d484fc28440eddf8ef8ebc0e21dc5edbea4082a84a2f3ae8bd2b49c55",
+          "combinedSha256": "a722565d484fc28440eddf8ef8ebc0e21dc5edbea4082a84a2f3ae8bd2b49c55",
+          "equal": true
+        },
+        {
+          "path": "tests/mission3-raid-recruitment.test.mjs",
+          "componentBlob": "be60891a145e04dfd76fb90c364d11d6b19c263d",
+          "combinedBlob": "be60891a145e04dfd76fb90c364d11d6b19c263d",
+          "componentSha256": "3939ccf4719a083983e6c3f33e7af641352a595f7d534aac5efee0fda79c491b",
+          "combinedSha256": "3939ccf4719a083983e6c3f33e7af641352a595f7d534aac5efee0fda79c491b",
+          "equal": true
+        }
+      ],
+      "trees": {
+        "app": {
+          "component": "78d40c9c4b82d589df5c2003b9f29bafe7aaebc9",
+          "combined": "00f20a2d45a10b42145b9c342cf1583ce9dc0006",
+          "equal": false
+        },
+        "public": {
+          "component": "fc25859de55ec2be22ebc7d9f4c1e9b9d06ac00d",
+          "combined": "07c5aa3a57e0011988cc4ffdca4aa5bb7b8215c8",
+          "equal": false
+        },
+        "scripts": {
+          "component": "3777a4638fbf5bc1a936fd78e0bff0e07ce5c297",
+          "combined": "56aa8cbc74363c49cab0a26b47db7ab597c8434c",
+          "equal": false
+        },
+        "tests": {
+          "component": "9f1d55775838fa3fb5b4ad7188bba712ba87ba9e",
+          "combined": "d1115f742861c4eb76ed1829cc954b46abe63d07",
+          "equal": false
+        }
+      }
+    }
+  },
+  "allAcceptedRefsAreAncestors": true,
+  "execution": {
+    "heavy": false,
+    "native": false,
+    "browser": false,
+    "package": false,
+    "dependenciesMoved": false
+  },
+  "sharedPaths": {
+    "scripts/decomp.py": {
+      "status": "identical-on-both-components-and-combined",
+      "sha256": "0a4783a8ee924c52e1125a5df3e4e625b3ab00835e848a2013e444bcfd979c2e"
+    },
+    "engineering/project-map.json": {
+      "status": "exact-disjoint-composition",
+      "restingReplacement": {
+        "old": "          \"symbol\": \"append_shaman_units\"\n",
+        "new": "          \"symbol\": \"append_unit_families\"\n"
+      },
+      "allocationChanges": "five research/test paths appended unchanged",
+      "trackedRegenerationNeeded": false
+    }
+  },
+  "scopeAudit": {
+    "changedPaths": 81,
+    "authorizedStreamPaths": 81,
+    "unexpectedPaths": [],
+    "allFinalBlobsEqualAcceptedStreamExceptComposedMetadata": true,
+    "largeEvidenceRefsNotMerged": true,
+    "evidenceAncestors": {
+      "1f2c834256c8cfbdb56d36297aa323dcf18099a7": false,
+      "23f11ea9df6045b950269ec77aa9ea21d17b9637": false,
+      "2ca7888c93ec9e754f51aec321a8873fad357b02": false
+    }
+  }
+}
