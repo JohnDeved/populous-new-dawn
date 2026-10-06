@@ -1,0 +1,143 @@
+{
+  "provenance": "Host inspection of the one retained native result; no second original/app invocation",
+  "source": "dbec147f4aae79a40a917b195f7d8d3b58d63bf8",
+  "status": "passed, independent result review pending",
+  "nativeStartedAt": "2026-10-06T21:41:50.116Z",
+  "nativeFinishedAt": "2026-10-06T21:41:51.053Z",
+  "nativeSeconds": 0.937,
+  "hostSeconds": 2.2748892460076604,
+  "rawReceiptSha256": "0023aa7df3edf5746f3cbe6c3caf298ffff3f4421cd6177c71ec881fadcbc2a2",
+  "allocationRequests": {
+    "class1/model7": 1,
+    "class7/model9": 1,
+    "class7/model3": 32
+  },
+  "successfulAllocations": 34,
+  "model9EntryRngs": {
+    "gameplay": 1389729278,
+    "cosmetic": 287454020
+  },
+  "beforeRngs": {
+    "gameplay": 305419896,
+    "cosmetic": 287454020
+  },
+  "afterRngs": {
+    "gameplay": 1172462824,
+    "cosmetic": 3611742733
+  },
+  "derivedRngAdvances": {
+    "gameplayBeforeModel9": 2,
+    "gameplayWholeCall": 98,
+    "cosmeticWholeCall": 32
+  },
+  "body640": {
+    "class": 0,
+    "model": 12,
+    "state": 12,
+    "counter": 3,
+    "owner": 0,
+    "height": 1408,
+    "headingTarget": 0,
+    "speed": 0,
+    "life": 0
+  },
+  "person641": {
+    "class": 1,
+    "model": 7,
+    "state": 10,
+    "counter": 250,
+    "owner": 0,
+    "height": 128,
+    "headingTarget": 0,
+    "speed": 0,
+    "life": 1778
+  },
+  "root642": {
+    "class": 7,
+    "model": 9,
+    "state": 8,
+    "counter": 250,
+    "owner": 0,
+    "height": 330,
+    "headingTarget": 0,
+    "speed": 0,
+    "life": 0
+  },
+  "firstChild643": {
+    "class": 7,
+    "model": 3,
+    "state": 3,
+    "counter": 251,
+    "owner": 0,
+    "height": 330,
+    "headingTarget": 0,
+    "speed": 60,
+    "life": 0
+  },
+  "lastChild674": {
+    "class": 7,
+    "model": 3,
+    "state": 3,
+    "counter": 26,
+    "owner": 0,
+    "height": 330,
+    "headingTarget": 0,
+    "speed": 60,
+    "life": 0
+  },
+  "savedSite": [
+    4096,
+    4096,
+    240
+  ],
+  "currentGround": 128,
+  "finalOwnership": {
+    "highFree": 0,
+    "lowFree": 0,
+    "active": 33628416,
+    "retiring": 33554688,
+    "total": 35,
+    "lowCount": 0,
+    "allocatedEver": 35,
+    "classSeeds": [
+      250,
+      251,
+      250,
+      250,
+      250,
+      250,
+      250,
+      27,
+      250,
+      250,
+      250,
+      250
+    ],
+    "rngs": {
+      "gameplay": 1172462824,
+      "cosmetic": 3611742733
+    },
+    "argumentStack": 35127296,
+    "argumentFlag": 0
+  },
+  "suppliedSound": [
+    [
+      0,
+      107,
+      1
+    ]
+  ],
+  "translationBufferBytes": 67108864,
+  "rawWrapperFirstArgument": 8978439,
+  "semanticWrapperModelByte": 7,
+  "toolSession": 69120,
+  "terminalToolExit": 0,
+  "resourcesReleased": true,
+  "limits": [
+    "supplied fixed phase5 body and pool/terrain/tribe/RNG state",
+    "sound executable leaf supplied; frame-count loaded table supplied from pinned data",
+    "no original mission/death producer or living follower history",
+    "no first scheduled visit, failure, owner matrix, phase4 wave, lifetime or pool reuse",
+    "no application/render/ordinary witness or parity claim"
+  ]
+}

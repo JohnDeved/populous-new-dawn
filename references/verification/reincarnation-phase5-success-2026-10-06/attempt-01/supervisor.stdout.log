@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "output": "work/orchestration/reincarnation-phase5-success-20261006/attempt-01/receipt.json",
+  "headOid": "dbec147f4aae79a40a917b195f7d8d3b58d63bf8",
+  "exitCode": 0,
+  "stdoutSha256": "621ab39d1fa3fd43269efab4f274171a2f0a96fbed8d29d97b4232b92b02ee5f",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

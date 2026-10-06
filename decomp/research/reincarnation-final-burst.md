@@ -172,3 +172,20 @@ if it needs wider primary scheduling/capacity work, report the exact missing
 owner and retain this burst as a separate bounded task. No global allocator,
 modernization, combat/point-order (#243), Hut-smoke, outcome, startup conversion,
 assets, deployment, fixture recording or parity-ledger change is in scope.
+
+## First separately authorized component result, 2026-10-06
+
+The [one-success packet](../../references/verification/reincarnation-phase5-success-2026-10-06/attempt-01/README.md)
+retains one independently source-reviewed invocation of `dbec147f`, terminal
+PASS in0.937 seconds. Real phase5/wrapper/person/model9/model3 initialization
+made34 successful allocations, consumed the person argument record before
+model9, stored the new tribe Shaman handle and retired the body. Full-call RNG
+cost was98 gameplay advances (two before the burst) and32 cosmetic advances.
+Saved site240/current terrain128 yielded person128 and root/children330.
+
+This fixed supplied-state case stops at the controller return. It does not
+execute a scheduled visit, native death/mission history, allocator failure,
+phase4 wave, lifetime, app comparison or browser witness. Source/runtime inputs,
+raw traces, source preflight and same-invocation owned-process cleanup are
+retained; independent result review remains pending. No runtime or parity change
+has been made and the later matrix remains unexecuted.
