@@ -1,0 +1,46 @@
+{
+  "status": "unexecuted-source-only-proposal",
+  "applicationCommit": "b26f66b24da4fe133441e83c5377467a5066ef64",
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006",
+  "cpu": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "scenarioWallMs": 480000,
+  "outerWallSeconds": 510,
+  "killGraceSeconds": 10,
+  "profile": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/work/local-render-profiles/hut-smoke-ignition-01",
+  "output": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/work/orchestration/hut-smoke-state-exit/ordinary-01",
+  "port": 4194,
+  "argv": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=10s",
+    "510s",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "--max-old-space-size=1024",
+    "scripts/local-render/harness.mjs",
+    "--game-root",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006",
+    "--browser",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/extract-browser/chrome-headless-shell-linux64/chrome-headless-shell",
+    "--scenario",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/scripts/local-render/hut-smoke-ignition.mjs",
+    "--profile",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/work/local-render-profiles/hut-smoke-ignition-01",
+    "--output",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/work/orchestration/hut-smoke-state-exit/ordinary-01",
+    "--port",
+    "4194",
+    "--timeout",
+    "480000"
+  ],
+  "environment": "Sanitized host launcher required before grant; PATH and task-owned logs/cache only, no inherited application credentials. Existing maintained harness controls loopback/browser ownership.",
+  "toolSha256": {
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/extract-browser/chrome-headless-shell-linux64/chrome-headless-shell": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+    "/usr/bin/timeout": "6ca1891dfc0b05d7680770c2884c0391b92467c7bb6500a5c84677e6481739f1"
+  }
+}
