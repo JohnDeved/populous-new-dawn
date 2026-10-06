@@ -5,8 +5,12 @@
   "reviewSha256": "60811827de3096f311bcaa2d6a5683148b283c9c6158e179bb33a8b4ad14485d",
   "files": {
     "README.md": {
-      "sha256": "af55ac7e4c74cf43318c16ca99dc157891f540e49f6fff46e3595ac271d12d97",
-      "bytes": 5025
+      "sha256": "56920ec5ae5dc99fc669c4ebf205d1de4d22efb718e1b120f32d0c3652c3c44d",
+      "bytes": 5238
+    },
+    "merge-receipt.json": {
+      "sha256": "ea92d4fb00a146aff72557fe056377d01e571b174c9e0e219d31e51d25381636",
+      "bytes": 584
     },
     "review-manifest.json": {
       "sha256": "c66782d938788f52a3bc85c26cb5ddcfde9a2e5b0c74d2e4d452e080cd5b8e6f",
@@ -40,5 +44,7 @@
       "sha256": "09034b5acd33a2be35b8086b8a7385a18b575a4ba675ac4111864dd5d3ef0940",
       "bytes": 1567
     }
-  }
+  },
+  "previousPublicationManifestSha256": "14e5fe3929376b496eae18b6481e2c49b0b0c96c3d220b1af31f6f5bd295f4e8",
+  "mergeCommit": "1c7e6b05687aca14d9350e17c7ae14dc6c68bb97"
 }

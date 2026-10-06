@@ -1,0 +1,11 @@
+{
+  "pr": "https://github.com/JohnDeved/populous-new-dawn/pull/242",
+  "merged": true,
+  "mergedAt": "2026-10-06T19:38:44Z",
+  "mergeCommit": "1c7e6b05687aca14d9350e17c7ae14dc6c68bb97",
+  "acceptedHead": "d185c88ec604356df8dc665506270963b53e185b",
+  "acceptedTree": "a3f9e52824b5f9baf3839beadc5f032ec766a3c9",
+  "mainTree": "a3f9e52824b5f9baf3839beadc5f032ec766a3c9",
+  "mergeIdentityEvidence": "GitHub PR readback confirms merged commit/head/time",
+  "treeIdentityEvidence": "Coordinator verified remote main tree equals the exact reviewed/tested candidate tree; no new execution"
+}

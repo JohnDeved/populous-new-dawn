@@ -5,6 +5,10 @@ against main `a00eadc811e227559f9a2713eedbee5cd08af1c1`.
 [Final review](review.md) · [Review manifest](review-manifest.json) ·
 [PR242](https://github.com/JohnDeved/populous-new-dawn/pull/242).
 
+Merged on 2026-10-06 at 19:38:44 UTC as
+`1c7e6b05687aca14d9350e17c7ae14dc6c68bb97`. The coordinator verified that the
+remote main tree equals the exact tested candidate tree. [Merge receipt](merge-receipt.json).
+
 The sole runtime delta adds `timer < 840` to the existing condition surrounding the
 complete sermon turning block. It prevents the terminal simulation RNG draw and
 mode change while preserving earlier turning, interruption handling, terminal entry
