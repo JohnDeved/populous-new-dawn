@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "output": "work/orchestration/reincarnation-phase5-controls-20261006/person-failure-low-burst/attempt-01/receipt.json",
+  "headOid": "b970c05e933ab286e888e717773297f72fa5e3c1",
+  "exitCode": 0,
+  "stdoutSha256": "0096bc4113af8c6bb51ca9934353461ebcb6e5a87814d1ad9c6243da98654ad9",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

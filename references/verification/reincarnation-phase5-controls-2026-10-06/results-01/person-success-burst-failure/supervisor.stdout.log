@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "output": "work/orchestration/reincarnation-phase5-controls-20261006/person-success-burst-failure/attempt-01/receipt.json",
+  "headOid": "b970c05e933ab286e888e717773297f72fa5e3c1",
+  "exitCode": 0,
+  "stdoutSha256": "bea63534e3d1297db133f9c09be1b812010147ebb5be3d4e81c31a15045bf388",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

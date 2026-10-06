@@ -189,3 +189,18 @@ phase4 wave, lifetime, app comparison or browser witness. Source/runtime inputs,
 raw traces, source preflight and same-invocation owned-process cleanup are
 retained; the independent result review ACCEPTs this fixed composition only. No runtime or parity change
 has been made and the later matrix remains unexecuted.
+
+### Three separately authorized allocation controls
+
+The [three-control packet](../../references/verification/reincarnation-phase5-controls-2026-10-06/results-01/README.md)
+retains terminal passes on exact `b970c05e`: real high-pool person failure with
+class7 low-pool burst success; person success with model9 allocation failure;
+and both requests exhausted. Arguments clean before the companion in every
+case. Body retirement follows person success, while failure retains phase5.
+The observed logical gameplay/cosmetic RNG costs are96/32,2/0 and0/0.
+
+Each control ran one controller call only, with independent source preflight,
+unchanged inputs and same-invocation owned cleanup; result review is pending.
+No retry visit, capacity restoration, outer loop, lifetime, app or ordinary
+rendered behavior is claimed. The success fixture and wider16-case preparation
+were not changed or rerun.

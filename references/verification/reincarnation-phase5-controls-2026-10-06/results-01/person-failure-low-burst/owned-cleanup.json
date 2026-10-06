@@ -1,0 +1,53 @@
+{
+  "control": "person-failure-low-burst",
+  "startedAt": "2026-10-06T22:06:31.985286+00:00",
+  "finishedAt": "2026-10-06T22:06:33.490823+00:00",
+  "seconds": 1.5058512730029179,
+  "source": "b970c05e933ab286e888e717773297f72fa5e3c1",
+  "launchSha256": "44dc86fad7ddeaa45661718b17cc4b6ed2247a95beb331bd8bd9cfe124e70c45",
+  "supervisorExitCode": 0,
+  "ownedProcesses": [
+    {
+      "pid": 15,
+      "ppid": 5,
+      "pgid": 15,
+      "session": 15,
+      "startTicks": 6835503
+    },
+    {
+      "pid": 24,
+      "ppid": 15,
+      "pgid": 15,
+      "session": 15,
+      "startTicks": 6835511
+    },
+    {
+      "pid": 35,
+      "ppid": 15,
+      "pgid": 35,
+      "session": 15,
+      "startTicks": 6835535
+    },
+    {
+      "pid": 36,
+      "ppid": 35,
+      "pgid": 35,
+      "session": 15,
+      "startTicks": 6835536
+    },
+    {
+      "pid": 39,
+      "ppid": 15,
+      "pgid": 15,
+      "session": 15,
+      "startTicks": 6835598
+    }
+  ],
+  "checkedGroups": [
+    15,
+    35
+  ],
+  "remainingGroups": [],
+  "resourcesReleased": true,
+  "oneInvocation": true
+}

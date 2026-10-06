@@ -1,0 +1,77 @@
+{
+  "control": "person-success-burst-failure",
+  "status": "terminal passed; independent result review pending",
+  "source": "b970c05e933ab286e888e717773297f72fa5e3c1",
+  "toolSession": 72705,
+  "firstToolChunk": "fd5874",
+  "terminalToolChunk": "7c492b",
+  "startedAt": "2026-10-06T22:06:55.585Z",
+  "finishedAt": "2026-10-06T22:06:55.750Z",
+  "commandSeconds": 0.165,
+  "receiptSha256": "4a74df39fe746a479419e72477b5285d7367979add20eb28ea16ebed2253ef5d",
+  "suppliedRecordCount": 2,
+  "allocationRequests": {
+    "class1/model7": 1,
+    "class7/model9": 1
+  },
+  "successfulAllocations": {
+    "class1/model7": 1
+  },
+  "beforeRngs": {
+    "gameplay": 305419896,
+    "cosmetic": 287454020
+  },
+  "afterRngs": {
+    "gameplay": 1389729278,
+    "cosmetic": 287454020
+  },
+  "derivedLogicalRngAdvances": {
+    "gameplay": 2,
+    "cosmetic": 0
+  },
+  "rawRngWrites": {
+    "0x89d178": 4
+  },
+  "bodyClass": 0,
+  "bodyPhase": 5,
+  "bodyCounter": 3,
+  "finalOwnership": {
+    "highFree": 0,
+    "lowFree": 0,
+    "active": 33619968,
+    "retiring": 33554688,
+    "total": 2,
+    "lowCount": 0,
+    "allocatedEver": 2,
+    "classSeeds": [
+      250,
+      251,
+      250,
+      250,
+      250,
+      250,
+      250,
+      250,
+      250,
+      250,
+      250,
+      250
+    ],
+    "rngs": {
+      "gameplay": 1389729278,
+      "cosmetic": 287454020
+    },
+    "argumentStack": 35127296,
+    "argumentFlag": 0
+  },
+  "sounds": [
+    [
+      0,
+      107,
+      1
+    ]
+  ],
+  "translationBufferBytes": 67108864,
+  "resourcesReleased": true,
+  "limits": "one supplied-state controller call; no second visit/retry/lifetime/history/app/render claim"
+}

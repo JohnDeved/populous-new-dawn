@@ -1,0 +1,46 @@
+{
+  "control": "person-success-burst-failure",
+  "startedAt": "2026-10-06T22:06:54.897885+00:00",
+  "finishedAt": "2026-10-06T22:06:56.159375+00:00",
+  "seconds": 1.262932120996993,
+  "source": "b970c05e933ab286e888e717773297f72fa5e3c1",
+  "launchSha256": "3100c27dbb41378f19bad2a8946d27103cd6813c045f061464a9c4b40cc92beb",
+  "supervisorExitCode": 0,
+  "ownedProcesses": [
+    {
+      "pid": 15,
+      "ppid": 5,
+      "pgid": 15,
+      "session": 15,
+      "startTicks": 6837794
+    },
+    {
+      "pid": 24,
+      "ppid": 15,
+      "pgid": 15,
+      "session": 15,
+      "startTicks": 6837802
+    },
+    {
+      "pid": 35,
+      "ppid": 15,
+      "pgid": 35,
+      "session": 15,
+      "startTicks": 6837864
+    },
+    {
+      "pid": 36,
+      "ppid": 35,
+      "pgid": 35,
+      "session": 15,
+      "startTicks": 6837864
+    }
+  ],
+  "checkedGroups": [
+    15,
+    35
+  ],
+  "remainingGroups": [],
+  "resourcesReleased": true,
+  "oneInvocation": true
+}

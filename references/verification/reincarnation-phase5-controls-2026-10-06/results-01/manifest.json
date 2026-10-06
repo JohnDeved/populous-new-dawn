@@ -1,0 +1,321 @@
+{
+  "source": "b970c05e933ab286e888e717773297f72fa5e3c1",
+  "probeSha256": "de434fc1644ddf4e60474c5db857c49bb823fd85d835027a3815603f13b47dbe",
+  "invocations": 3,
+  "automaticRetries": 0,
+  "controllerCallsPerInvocation": 1,
+  "cases": [
+    {
+      "control": "person-failure-low-burst",
+      "status": "terminal passed; independent result review pending",
+      "source": "b970c05e933ab286e888e717773297f72fa5e3c1",
+      "toolSession": 78582,
+      "firstToolChunk": "5897f8",
+      "terminalToolChunk": "c73d57",
+      "startedAt": "2026-10-06T22:06:32.298Z",
+      "finishedAt": "2026-10-06T22:06:32.930Z",
+      "commandSeconds": 0.632,
+      "receiptSha256": "68b08f4b231ffb8852117ab79c24d09bd58b48e910b225c11ce1713d5b5c56b9",
+      "suppliedRecordCount": 1134,
+      "allocationRequests": {
+        "class1/model7": 1,
+        "class7/model9": 1,
+        "class7/model3": 32
+      },
+      "successfulAllocations": {
+        "class7/model3": 32,
+        "class7/model9": 1
+      },
+      "beforeRngs": {
+        "gameplay": 305419896,
+        "cosmetic": 287454020
+      },
+      "afterRngs": {
+        "gameplay": 1196965380,
+        "cosmetic": 3611742733
+      },
+      "derivedLogicalRngAdvances": {
+        "gameplay": 96,
+        "cosmetic": 32
+      },
+      "rawRngWrites": {
+        "0x89bc72": 64,
+        "0x89d178": 128
+      },
+      "bodyClass": 10,
+      "bodyPhase": 5,
+      "bodyCounter": 0,
+      "finalOwnership": {
+        "highFree": 0,
+        "lowFree": 0,
+        "active": 34086912,
+        "retiring": 0,
+        "total": 1134,
+        "lowCount": 33,
+        "allocatedEver": 1134,
+        "classSeeds": [
+          250,
+          250,
+          250,
+          250,
+          250,
+          250,
+          250,
+          27,
+          250,
+          250,
+          250,
+          250
+        ],
+        "rngs": {
+          "gameplay": 1196965380,
+          "cosmetic": 3611742733
+        },
+        "argumentStack": 35127296,
+        "argumentFlag": 0
+      },
+      "sounds": [],
+      "translationBufferBytes": 67108864,
+      "resourcesReleased": true,
+      "limits": "one supplied-state controller call; no second visit/retry/lifetime/history/app/render claim"
+    },
+    {
+      "control": "person-success-burst-failure",
+      "status": "terminal passed; independent result review pending",
+      "source": "b970c05e933ab286e888e717773297f72fa5e3c1",
+      "toolSession": 72705,
+      "firstToolChunk": "fd5874",
+      "terminalToolChunk": "7c492b",
+      "startedAt": "2026-10-06T22:06:55.585Z",
+      "finishedAt": "2026-10-06T22:06:55.750Z",
+      "commandSeconds": 0.165,
+      "receiptSha256": "4a74df39fe746a479419e72477b5285d7367979add20eb28ea16ebed2253ef5d",
+      "suppliedRecordCount": 2,
+      "allocationRequests": {
+        "class1/model7": 1,
+        "class7/model9": 1
+      },
+      "successfulAllocations": {
+        "class1/model7": 1
+      },
+      "beforeRngs": {
+        "gameplay": 305419896,
+        "cosmetic": 287454020
+      },
+      "afterRngs": {
+        "gameplay": 1389729278,
+        "cosmetic": 287454020
+      },
+      "derivedLogicalRngAdvances": {
+        "gameplay": 2,
+        "cosmetic": 0
+      },
+      "rawRngWrites": {
+        "0x89d178": 4
+      },
+      "bodyClass": 0,
+      "bodyPhase": 5,
+      "bodyCounter": 3,
+      "finalOwnership": {
+        "highFree": 0,
+        "lowFree": 0,
+        "active": 33619968,
+        "retiring": 33554688,
+        "total": 2,
+        "lowCount": 0,
+        "allocatedEver": 2,
+        "classSeeds": [
+          250,
+          251,
+          250,
+          250,
+          250,
+          250,
+          250,
+          250,
+          250,
+          250,
+          250,
+          250
+        ],
+        "rngs": {
+          "gameplay": 1389729278,
+          "cosmetic": 287454020
+        },
+        "argumentStack": 35127296,
+        "argumentFlag": 0
+      },
+      "sounds": [
+        [
+          0,
+          107,
+          1
+        ]
+      ],
+      "translationBufferBytes": 67108864,
+      "resourcesReleased": true,
+      "limits": "one supplied-state controller call; no second visit/retry/lifetime/history/app/render claim"
+    },
+    {
+      "control": "both-exhausted",
+      "status": "terminal passed; independent result review pending",
+      "source": "b970c05e933ab286e888e717773297f72fa5e3c1",
+      "toolSession": 82909,
+      "firstToolChunk": "f2fb5c",
+      "terminalToolChunk": "52fa25",
+      "startedAt": "2026-10-06T22:07:19.318Z",
+      "finishedAt": "2026-10-06T22:07:19.441Z",
+      "commandSeconds": 0.123,
+      "receiptSha256": "47b633614710ad4e40c7bd1f0f22e91b3ff72578f9edae1610cd9f97f843299b",
+      "suppliedRecordCount": 1,
+      "allocationRequests": {
+        "class1/model7": 1,
+        "class7/model9": 1
+      },
+      "successfulAllocations": {},
+      "beforeRngs": {
+        "gameplay": 305419896,
+        "cosmetic": 287454020
+      },
+      "afterRngs": {
+        "gameplay": 305419896,
+        "cosmetic": 287454020
+      },
+      "derivedLogicalRngAdvances": {
+        "gameplay": 0,
+        "cosmetic": 0
+      },
+      "rawRngWrites": {},
+      "bodyClass": 10,
+      "bodyPhase": 5,
+      "bodyCounter": 0,
+      "finalOwnership": {
+        "highFree": 0,
+        "lowFree": 0,
+        "active": 33554688,
+        "retiring": 0,
+        "total": 1,
+        "lowCount": 0,
+        "allocatedEver": 1,
+        "classSeeds": [
+          250,
+          250,
+          250,
+          250,
+          250,
+          250,
+          250,
+          250,
+          250,
+          250,
+          250,
+          250
+        ],
+        "rngs": {
+          "gameplay": 305419896,
+          "cosmetic": 287454020
+        },
+        "argumentStack": 35127296,
+        "argumentFlag": 0
+      },
+      "sounds": [],
+      "translationBufferBytes": 67108864,
+      "resourcesReleased": true,
+      "limits": "one supplied-state controller call; no second visit/retry/lifetime/history/app/render claim"
+    }
+  ],
+  "files": {
+    "both-exhausted/native-stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "both-exhausted/native-stdout.log": {
+      "sha256": "0d236dac9a73af3396dc9e53cb2e87a8f8cf5b7e6fcab6df9607b77d8c3b6003",
+      "bytes": 38189
+    },
+    "both-exhausted/observations.json": {
+      "sha256": "3e5b2c9ef463b7d60e8557fde7ac463f5830c53dc688eb25af1fd7a7f5e25338",
+      "bytes": 1531
+    },
+    "both-exhausted/owned-cleanup.json": {
+      "sha256": "9773a86f377051b5ac8703ed88fa23efdfcc5e78d081d6a158a4809830f88207",
+      "bytes": 1059
+    },
+    "both-exhausted/receipt.json": {
+      "sha256": "47b633614710ad4e40c7bd1f0f22e91b3ff72578f9edae1610cd9f97f843299b",
+      "bytes": 55128
+    },
+    "both-exhausted/supervisor.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "both-exhausted/supervisor.stdout.log": {
+      "sha256": "b3362884958eff461547eb94f637e74edf955c7bc05e4ec9f0fe3c3480a0880c",
+      "bytes": 383
+    },
+    "person-failure-low-burst/native-stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "person-failure-low-burst/native-stdout.log": {
+      "sha256": "0096bc4113af8c6bb51ca9934353461ebcb6e5a87814d1ad9c6243da98654ad9",
+      "bytes": 1679691
+    },
+    "person-failure-low-burst/observations.json": {
+      "sha256": "2368ef36717f02d918b5dd91ae1f8f7b3187723682414008cbdc333d49fda94b",
+      "bytes": 1675
+    },
+    "person-failure-low-burst/owned-cleanup.json": {
+      "sha256": "3d09caca6853434588af54f05412ca8a530b7b3e50993e540884e3552f599b64",
+      "bytes": 1069
+    },
+    "person-failure-low-burst/receipt.json": {
+      "sha256": "68b08f4b231ffb8852117ab79c24d09bd58b48e910b225c11ce1713d5b5c56b9",
+      "bytes": 1722086
+    },
+    "person-failure-low-burst/supervisor.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "person-failure-low-burst/supervisor.stdout.log": {
+      "sha256": "8e91bb31ff03e14b6027a43b0933414b0991ecae53c17dc4f9b8bbc551cbbd40",
+      "bytes": 393
+    },
+    "person-success-burst-failure/native-stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "person-success-burst-failure/native-stdout.log": {
+      "sha256": "bea63534e3d1297db133f9c09be1b812010147ebb5be3d4e81c31a15045bf388",
+      "bytes": 69562
+    },
+    "person-success-burst-failure/observations.json": {
+      "sha256": "dfcb504af6c92f4090cccf4e310d3a1ca92b175dc1a8a7c1d0b640786a332c4e",
+      "bytes": 1643
+    },
+    "person-success-burst-failure/owned-cleanup.json": {
+      "sha256": "07764afe28de2129cf4d5a6908c22afa1157cbef09dba7a7e9f246800e6fcab4",
+      "bytes": 957
+    },
+    "person-success-burst-failure/receipt.json": {
+      "sha256": "4a74df39fe746a479419e72477b5285d7367979add20eb28ea16ebed2253ef5d",
+      "bytes": 86945
+    },
+    "person-success-burst-failure/supervisor.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "person-success-burst-failure/supervisor.stdout.log": {
+      "sha256": "3dbaad1de11482af6cb04c051991ff28fa5fda40c9ff0638b70105b14c8ec7d1",
+      "bytes": 397
+    },
+    "source-review.md": {
+      "sha256": "a7d9b37ea37480e41cd1b04cb14643f7b4a6ec3d70a113901955e0dc77e7a8a0",
+      "bytes": 2388
+    },
+    "README.md": {
+      "sha256": "bdae38993eb9cc0ef6781231535939e3cd91f662a8f49e0f21bb7e55f526bf8c",
+      "bytes": 3177
+    }
+  }
+}

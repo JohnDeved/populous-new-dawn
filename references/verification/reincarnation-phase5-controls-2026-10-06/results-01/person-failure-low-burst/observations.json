@@ -1,0 +1,74 @@
+{
+  "control": "person-failure-low-burst",
+  "status": "terminal passed; independent result review pending",
+  "source": "b970c05e933ab286e888e717773297f72fa5e3c1",
+  "toolSession": 78582,
+  "firstToolChunk": "5897f8",
+  "terminalToolChunk": "c73d57",
+  "startedAt": "2026-10-06T22:06:32.298Z",
+  "finishedAt": "2026-10-06T22:06:32.930Z",
+  "commandSeconds": 0.632,
+  "receiptSha256": "68b08f4b231ffb8852117ab79c24d09bd58b48e910b225c11ce1713d5b5c56b9",
+  "suppliedRecordCount": 1134,
+  "allocationRequests": {
+    "class1/model7": 1,
+    "class7/model9": 1,
+    "class7/model3": 32
+  },
+  "successfulAllocations": {
+    "class7/model3": 32,
+    "class7/model9": 1
+  },
+  "beforeRngs": {
+    "gameplay": 305419896,
+    "cosmetic": 287454020
+  },
+  "afterRngs": {
+    "gameplay": 1196965380,
+    "cosmetic": 3611742733
+  },
+  "derivedLogicalRngAdvances": {
+    "gameplay": 96,
+    "cosmetic": 32
+  },
+  "rawRngWrites": {
+    "0x89bc72": 64,
+    "0x89d178": 128
+  },
+  "bodyClass": 10,
+  "bodyPhase": 5,
+  "bodyCounter": 0,
+  "finalOwnership": {
+    "highFree": 0,
+    "lowFree": 0,
+    "active": 34086912,
+    "retiring": 0,
+    "total": 1134,
+    "lowCount": 33,
+    "allocatedEver": 1134,
+    "classSeeds": [
+      250,
+      250,
+      250,
+      250,
+      250,
+      250,
+      250,
+      27,
+      250,
+      250,
+      250,
+      250
+    ],
+    "rngs": {
+      "gameplay": 1196965380,
+      "cosmetic": 3611742733
+    },
+    "argumentStack": 35127296,
+    "argumentFlag": 0
+  },
+  "sounds": [],
+  "translationBufferBytes": 67108864,
+  "resourcesReleased": true,
+  "limits": "one supplied-state controller call; no second visit/retry/lifetime/history/app/render claim"
+}
