@@ -42,11 +42,11 @@ pure x/y formula; `nativePosition` is deliberately not called because it also
 synchronizes terrain. Height is observed rather than predicted. This adapter
 neither creates a World nor issues game inputs.
 
-Browser/profile/scenario composition is **deferred**, including the
-coordinator's exact source/runtime review, ordinary activation route and lane grant.
-It must include the accepted issue223 immediate-activation producer bytes and a
-reviewed version2 campaign lifecycle observer. There is no launch or profile-adoption
-command here, and the branch's base producer has not been silently changed.
+The source-only [ordinary driver](../../qa/erosion-ordinary/README.md) now combines
+the accepted issue223 immediate-activation producer and this recorder. It uses one
+original Blue Shaman and one authored-head worship dispatch. Ordinary execution
+still requires the exact frozen driver review, remaining combined gates and lane
+grant; no ordinary capture has been performed.
 
 ## Exact native boundary
 
@@ -93,9 +93,10 @@ Run `python3 scripts/check-native-erosion-capture.py --help` for required paths.
 `--validate-only` performs no native imports or execution. Full replay additionally
 requires `--executable "$POPULOUS_EXE"` with the canonical emulator Python.
 
-Five files are required: the adapter's JSON capture, terminal local-render harness
+Six files are required: the reviewed external launch plan plus the adapter's JSON capture, terminal local-render harness
 receipt, prospective lifecycle JSON, captured module bundle, and archived ordinary
-inputs. The terminal receipt's `result.erosionReplay` must bind the raw SHA256 of
+inputs. The caller also pins the actual terminal receipt SHA256, source commit,
+source fingerprint and run ID independently of this bundle. The terminal receipt's `result.erosionReplay` must bind the raw SHA256 of
 capture/lifecycle/modules/inputs under `files`, plus `runId` and
 `sourceFingerprint`. It must be passed, clean, unchanged, error-free, and carry
 matching runtime/scenario and verified profile cleanup/continuity. The lifecycle
@@ -103,8 +104,10 @@ wrapper carries `runId`, `sourceFingerprint`, `errors`, `speedViolations`, and t
 version2 `erosion` observation. Required module paths are enumerated in the tool;
 each entry has sourceSha256, servedSha256 and exact servedBody. Source bytes are
 checked against the pinned git commit; served bytes are checked against their
-captured hash. Capturing and reviewing that actual runtime correspondence is a
-future driver obligation; this schema does not manufacture execution provenance.
+captured hash. The ordinary driver retains actual CDP script observations under a
+pinned compiler/server/harness identity and launch plan. Admission checks their
+correspondence; the coordinator reviews the actual observations and independently
+pins the terminal run. This schema does not manufacture execution provenance.
 
 Version2 capture JSON distinguishes constructor64 from actual first-afterTurn63.
 It contains64 `{turn, visit}` rows with detached before/after states,
@@ -125,9 +128,8 @@ check call order/receiver/exception identity, detached ownership and copy/append
 faults. Constructor tests compare original normalization/output and prove binding
 before an immediate source-fixture step, without altering constructor exceptions
 or World. Wrong/ambiguous creation, failed binding, late declarations, stale
-afterTurn-only arming and terrain-touching observation are covered. The existing
-full-World fixture uses the base producer; a corrected-producer comparison remains
-required on the combined source. Python admission tests use synthetic documents and never invoke native
+afterTurn-only arming and terrain-touching observation are covered. The combined ordinary-driver fixture additionally compares every World field
+after each of64 corrected-producer visits with capture disabled/enabled. Python admission tests use synthetic documents and never invoke native
 code. These tests require that pinned git object to remain available.
 
 Before ordinary capture, obtain fresh source review, coordinated aggregate/build

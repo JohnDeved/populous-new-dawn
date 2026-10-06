@@ -9,6 +9,7 @@ import { sourceReceipt } from '../../scripts/local-render/harness.mjs'
 import policy from './policy.json' with { type: 'json' }
 
 export const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
+export const evidenceBytes = data => JSON.stringify(data) + '\n'
 export const limits = Object.freeze(policy.limits)
 export const browserModules = Object.freeze(['app/erosion.ts', 'app/erosion-observation.ts', 'app/world-turn.ts', 'app/game-clock.ts',
   'qa/erosion-native-replay/capture.mjs', 'qa/erosion-ordinary/lifecycle.mjs', 'qa/erosion-ordinary/input.mjs', 'qa/erosion-ordinary/minimap-input.mjs'])
@@ -23,7 +24,13 @@ export function serverIdentity(root) {
     }
     return path
   })
-  return { node: process.version, platform: process.platform, arch: process.arch, packages: packageCodeIdentity(roots),
+  const packages = packageCodeIdentity(roots), vite = roots[0]
+  const bin = JSON.parse(readFileSync(resolve(vite, 'package.json'))).bin.vite
+  const path = resolve(root, 'node_modules/.bin/vite'), target = realpathSync(path)
+  assert.equal(target, resolve(vite, bin), 'Vite launcher must resolve to the collected package CLI')
+  const launcher = { path, target, sha256: sha256(readFileSync(target)) }
+  assert.equal(launcher.sha256, packages[realpathSync(vite)].files[bin.replace(/^\.\//, '')], 'Vite launcher bytes must be in the immutable closure')
+  return { node: process.version, platform: process.platform, arch: process.arch, packages, launcher,
     generatedCaches: 'Generated node_modules/.vite, .cache and task TMP/output files are excluded from immutable package identity; actual executed page scripts are retained separately.',
     files: Object.fromEntries(files.map(path => [path, sha256(readFileSync(resolve(root, path)))])) }
 }

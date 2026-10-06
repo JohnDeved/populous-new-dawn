@@ -5,7 +5,7 @@ import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { bindGame, showAllMissions, readShamanReadiness } from '../../scripts/browser-game.mjs'
 import { readQueuedPreservingStop, pollWithPreservation } from './stop.mjs'
-import { limits, readLaunchPlan, serverIdentity, sha256 } from './source-policy.mjs'
+import { limits, readLaunchPlan, serverIdentity, sha256, evidenceBytes } from './source-policy.mjs'
 import { observeLoadedModules } from './runtime.mjs'
 
 const ownRoot = resolve(fileURLToPath(new URL('../../', import.meta.url)))
@@ -22,7 +22,7 @@ export default async function ordinaryErosion({ page, root, output, url, signal,
   mkdirSync(commands, { recursive: false })
   let stopped = false, actorId, moduleObserver, attached = false, primaryError
   const record = entry => actions.push({ ordinal: actions.length + 1, wallMs: Date.now() - started, ...entry })
-  const save = (name, data) => { const bytes = JSON.stringify(data, null, 2) + '\n'; writeFileSync(resolve(output, name), bytes); return sha256(bytes) }
+  const save = (name, data) => { const bytes = evidenceBytes(data); writeFileSync(resolve(output, name), bytes); return sha256(bytes) }
   const checkStop = async () => {
     signal.throwIfAborted()
     assert.equal(stopped, false, 'The run is already stopping')
