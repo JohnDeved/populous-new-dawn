@@ -5,7 +5,8 @@ launch manifest is `bd01037046ca3e8b846f43c7eb1370ea5da9dbef6ebeb288c25f58fb507a
 The single CPU4 batch passed its declared mismatch checks at
 2026-10-06 23:19:22.189484–23:19:25.292810 UTC. Exit0, all source/tool/input hashes
 unchanged, and the owned process group was empty. Independent raw-result review
-is pending at this checkpoint. The executable source preflight is accepted.
+accepts all301 reads/148 writes, complete outputs and30 coverage counts. The
+executable source preflight is also accepted. See `result-review/`.
 
 | Captured projection | Original elapsed / phase | Production elapsed / phase |
 | --- | --- | --- |

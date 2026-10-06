@@ -1,7 +1,7 @@
 {
   "sourceHead": "bc5debd5c0271efc9cd892111563cc740eeebc91",
   "status": "expected-settlement-mismatches-confirmed",
-  "independentResultReview": "pending",
+  "independentResultReview": "accepted; see result-review",
   "files": [
     {
       "path": "raw/launch-01/receipt.json.gz",

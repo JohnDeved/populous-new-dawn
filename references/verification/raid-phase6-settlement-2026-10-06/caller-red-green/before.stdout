@@ -1,0 +1,205 @@
+✖ actual phase6 caller matches retained native captured-combat-timeout (125.168577ms)
+✖ actual phase6 caller matches retained native captured-moving-not-settled (33.122138ms)
+✖ stopped active sermon settles; its current immediate command owns eligibility (62.377742ms)
+✖ state flags require zero speed and do not make stationary attack19 settled (67.758584ms)
+✖ a later combat member still forces elapsed after an earlier unsettled member (26.495239ms)
+✖ the original airborne timeout bit is consumed from the registered owner (22.547673ms)
+✖ unknown owned records and the uncomposed state33 release branch stay unsettled (38.751519ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 0
+ℹ fail 7
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2244.417018
+
+✖ failing tests:
+
+test at tests/raid-phase6-settlement.test.mjs:68:3
+✖ actual phase6 caller matches retained native captured-combat-timeout (125.168577ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   elapsed: 2,
+  +   phase: 6
+  -   elapsed: 1801,
+  -   phase: 23
+    }
+  
+      at step (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/tests/raid-phase6-settlement.test.mjs:57:10)
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/tests/raid-phase6-settlement.test.mjs:71:5)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { elapsed: 2, phase: 6 },
+    expected: { elapsed: 1801, phase: 23 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/raid-phase6-settlement.test.mjs:68:3
+✖ actual phase6 caller matches retained native captured-moving-not-settled (33.122138ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      elapsed: 47,
+  +   phase: 23
+  -   phase: 6
+    }
+  
+      at step (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/tests/raid-phase6-settlement.test.mjs:57:10)
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/tests/raid-phase6-settlement.test.mjs:71:5)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { elapsed: 47, phase: 23 },
+    expected: { elapsed: 47, phase: 6 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/raid-phase6-settlement.test.mjs:92:1
+✖ stopped active sermon settles; its current immediate command owns eligibility (62.377742ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      elapsed: 2,
+  +   phase: 23
+  -   phase: 6
+    }
+  
+      at step (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/tests/raid-phase6-settlement.test.mjs:57:10)
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/tests/raid-phase6-settlement.test.mjs:97:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { elapsed: 2, phase: 23 },
+    expected: { elapsed: 2, phase: 6 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/raid-phase6-settlement.test.mjs:106:1
+✖ state flags require zero speed and do not make stationary attack19 settled (67.758584ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      elapsed: 2,
+  +   phase: 23
+  -   phase: 6
+    }
+  
+      at step (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/tests/raid-phase6-settlement.test.mjs:57:10)
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/tests/raid-phase6-settlement.test.mjs:112:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { elapsed: 2, phase: 23 },
+    expected: { elapsed: 2, phase: 6 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/raid-phase6-settlement.test.mjs:118:1
+✖ a later combat member still forces elapsed after an earlier unsettled member (26.495239ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   elapsed: 47,
+  -   elapsed: 1801,
+      phase: 23
+    }
+  
+      at step (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/tests/raid-phase6-settlement.test.mjs:57:10)
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/tests/raid-phase6-settlement.test.mjs:122:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { elapsed: 47, phase: 23 },
+    expected: { elapsed: 1801, phase: 23 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/raid-phase6-settlement.test.mjs:125:1
+✖ the original airborne timeout bit is consumed from the registered owner (22.547673ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   elapsed: 2,
+  -   elapsed: 1801,
+      phase: 23
+    }
+  
+      at step (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/tests/raid-phase6-settlement.test.mjs:57:10)
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/tests/raid-phase6-settlement.test.mjs:129:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { elapsed: 2, phase: 23 },
+    expected: { elapsed: 1801, phase: 23 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/raid-phase6-settlement.test.mjs:132:1
+✖ unknown owned records and the uncomposed state33 release branch stay unsettled (38.751519ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      elapsed: 2,
+  +   phase: 23
+  -   phase: 6
+    }
+  
+      at step (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/tests/raid-phase6-settlement.test.mjs:57:10)
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/tests/raid-phase6-settlement.test.mjs:135:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { elapsed: 2, phase: 23 },
+    expected: { elapsed: 2, phase: 6 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

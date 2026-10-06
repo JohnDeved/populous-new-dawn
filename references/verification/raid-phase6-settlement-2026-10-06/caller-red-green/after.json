@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "40ff63a9-1714-4080-a191-7b38f0496f46",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "32820cca2d169eab739e94502a7ef7bb881d6172",
+    "branch": "fix/raid-phase6-settlement-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/raid-phase6-settlement.test.mjs": "062cb48d05263623987843445aea1982e5b7c0bff27566230c75f33809d575ba",
+      "app/computer-runtime.ts": "11a3cf336a1361acdbfdff190c0f4aa218c705a76ab9f0ab4a12e68904758b71",
+      "app/computer.ts": "7e7425a46cba84fa4eeb4c29be92c25c848f992b94e2912d570b9959027a666d",
+      "app/person-orders.ts": "27600291a988813415ce88a4b046101fb772894490d44607b84f739a433eb1f3",
+      "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+      "decomp/research/raid-phase6-settlement/captured-combat-timeout/fixture.json": "29ab6fd7cc29d93633d5d7bfc4d3bd19ec26901ca0d6837a180cc58862775130",
+      "decomp/research/raid-phase6-settlement/captured-moving-not-settled/fixture.json": "3f596d308d96c7e5ae11d7698b3bea66fa48e2f2819fa61c81c42aa0ddedf8d4"
+    }
+  },
+  "command": [
+    "/usr/bin/taskset",
+    "--cpu-list",
+    "4",
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=3s",
+    "15s",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "--test",
+    "tests/raid-phase6-settlement.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006",
+  "startedAt": "2026-10-06T23:25:13.766Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/work/orchestration/raid-phase6-settlement-fix-20261006/caller-after-01.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/work/orchestration/raid-phase6-settlement-fix-20261006/caller-after-01.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T23:25:16.050Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ actual phase6 caller matches retained native captured-combat-timeout (88.550489ms)\n✔ actual phase6 caller matches retained native captured-moving-not-settled (26.650609ms)\n✔ stopped active sermon settles; its current immediate command owns eligibility (116.991603ms)\n✔ state flags require zero speed and do not make stationary attack19 settled (164.833097ms)\n✔ a later combat member still forces elapsed after an earlier unsettled member (24.446369ms)\n✔ the original airborne timeout bit is consumed from the registered owner (22.055413ms)\n✔ unknown owned records and the uncomposed state33 release branch stay unsettled (102.182564ms)\nℹ tests 7\nℹ suites 0\nℹ pass 7\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 2088.777141\n",
+  "stderr": "",
+  "stdoutSha256": "715797fdb0d6cae6ce90e24421eb1e42369de148b31d7ca3c41b1dc801a45a8e",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "32820cca2d169eab739e94502a7ef7bb881d6172",
+    "branch": "fix/raid-phase6-settlement-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/raid-phase6-settlement.test.mjs": "062cb48d05263623987843445aea1982e5b7c0bff27566230c75f33809d575ba",
+      "app/computer-runtime.ts": "11a3cf336a1361acdbfdff190c0f4aa218c705a76ab9f0ab4a12e68904758b71",
+      "app/computer.ts": "7e7425a46cba84fa4eeb4c29be92c25c848f992b94e2912d570b9959027a666d",
+      "app/person-orders.ts": "27600291a988813415ce88a4b046101fb772894490d44607b84f739a433eb1f3",
+      "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+      "decomp/research/raid-phase6-settlement/captured-combat-timeout/fixture.json": "29ab6fd7cc29d93633d5d7bfc4d3bd19ec26901ca0d6837a180cc58862775130",
+      "decomp/research/raid-phase6-settlement/captured-moving-not-settled/fixture.json": "3f596d308d96c7e5ae11d7698b3bea66fa48e2f2819fa61c81c42aa0ddedf8d4"
+    }
+  }
+}

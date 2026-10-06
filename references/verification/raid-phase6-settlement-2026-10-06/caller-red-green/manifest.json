@@ -1,0 +1,45 @@
+{
+  "beforeHead": "7449455802304d138f24d3c43b58f2fb11c2796a",
+  "afterHead": "32820cca2d169eab739e94502a7ef7bb881d6172",
+  "before": "expected red:0 passed,7 failed",
+  "after": "7 passed",
+  "nativeCalls": 0,
+  "files": [
+    {
+      "path": "before.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/work/orchestration/raid-phase6-settlement-fix-20261006/caller-before-01.json",
+      "bytes": 12896,
+      "sha256": "71e0e374eaffdab250e97918333fae278421f3318180ebedc26122936140d0e0"
+    },
+    {
+      "path": "before.stdout",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/work/orchestration/raid-phase6-settlement-fix-20261006/caller-before-01.json.artifacts/stdout.log",
+      "bytes": 9278,
+      "sha256": "998b056e00e67d29793c39a13c214da9aef54c7a9624fdf42ce27ffbf15d42a6"
+    },
+    {
+      "path": "before.stderr",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/work/orchestration/raid-phase6-settlement-fix-20261006/caller-before-01.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "after.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/work/orchestration/raid-phase6-settlement-fix-20261006/caller-after-01.json",
+      "bytes": 4194,
+      "sha256": "a38f0a9b3422385b90fd3a391a59ce38b59d7c262588939bc4158add4e0b314c"
+    },
+    {
+      "path": "after.stdout",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/work/orchestration/raid-phase6-settlement-fix-20261006/caller-after-01.json.artifacts/stdout.log",
+      "bytes": 768,
+      "sha256": "715797fdb0d6cae6ce90e24421eb1e42369de148b31d7ca3c41b1dc801a45a8e"
+    },
+    {
+      "path": "after.stderr",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/work/orchestration/raid-phase6-settlement-fix-20261006/caller-after-01.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

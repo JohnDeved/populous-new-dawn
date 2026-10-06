@@ -1,0 +1,136 @@
+{
+  "decision": "ACCEPT two supplied one-visit mismatches",
+  "head": "bc5debd5c0271efc9cd892111563cc740eeebc91",
+  "rawManifestSha256": "9ef176c51c6104ba100ea62518e767870d1acda731d713466530cb627af66c32",
+  "launchManifestSha256": "bd01037046ca3e8b846f43c7eb1370ea5da9dbef6ebeb288c25f58fb507aeb77",
+  "receiptSha256": "6c3cf66815397a901747851dee003a0b33ad89f6907b009cd8eddd5ee4c0c096",
+  "hashCount": 288,
+  "startedAt": "2026-10-06T23:19:22.189484+00:00",
+  "finishedAt": "2026-10-06T23:19:25.292810+00:00",
+  "seconds": 3.1033384390029823,
+  "exitCode": 0,
+  "remainingProcessGroupMembers": [],
+  "cases": [
+    {
+      "case": "captured-combat-timeout",
+      "instructionCount": 416,
+      "accesses": {
+        "read": 132,
+        "write": 67
+      },
+      "callPairs": 15,
+      "nonstackWrites": [
+        {
+          "pc": "0x4cb54b",
+          "offset": 8,
+          "size": 4,
+          "value": 1
+        },
+        {
+          "pc": "0x4d1519",
+          "offset": 4,
+          "size": 4,
+          "value": 2
+        },
+        {
+          "pc": "0x4d155a",
+          "offset": 4,
+          "size": 4,
+          "value": 1801
+        },
+        {
+          "pc": "0x4d155a",
+          "offset": 4,
+          "size": 4,
+          "value": 1801
+        },
+        {
+          "pc": "0x4d155a",
+          "offset": 4,
+          "size": 4,
+          "value": 1801
+        },
+        {
+          "pc": "0x4d155a",
+          "offset": 4,
+          "size": 4,
+          "value": 1801
+        },
+        {
+          "pc": "0x4d1900",
+          "offset": 66,
+          "size": 2,
+          "value": 23
+        }
+      ],
+      "nativeResult": {
+        "elapsed": 1801,
+        "phase": 23
+      },
+      "portResult": {
+        "elapsed": 2,
+        "phase": 6
+      },
+      "rawMemoryReconstruction": "all reads/write-before values and every final snapshot byte match",
+      "coverageAssertions": 15,
+      "nativeAssignments": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "portAssignments": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "case": "captured-moving-not-settled",
+      "instructionCount": 579,
+      "accesses": {
+        "read": 169,
+        "write": 81
+      },
+      "callPairs": 19,
+      "nonstackWrites": [
+        {
+          "pc": "0x4cb54b",
+          "offset": 8,
+          "size": 4,
+          "value": 1
+        },
+        {
+          "pc": "0x4d1519",
+          "offset": 4,
+          "size": 4,
+          "value": 47
+        }
+      ],
+      "nativeResult": {
+        "elapsed": 47,
+        "phase": 6
+      },
+      "portResult": {
+        "elapsed": 47,
+        "phase": 23
+      },
+      "rawMemoryReconstruction": "all reads/write-before values and every final snapshot byte match",
+      "coverageAssertions": 15,
+      "nativeAssignments": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "portAssignments": [
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "limits": "conditional admitted-member projection only; no full original raid lifetime, test change or runtime repair acceptance"
+}

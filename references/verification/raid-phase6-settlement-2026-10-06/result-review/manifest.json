@@ -1,0 +1,9 @@
+{
+  "decision": "ACCEPT supplied two-case result",
+  "head": "bc5debd5c0271efc9cd892111563cc740eeebc91",
+  "rawManifestSha256": "9ef176c51c6104ba100ea62518e767870d1acda731d713466530cb627af66c32",
+  "files": {
+    "review.md": "7709486ec2567abce5c41cda019391d468fdad9c1be00e611f6ab6e45c902a42",
+    "verification.json": "47841d75f2e9146432f3b1c024454928d6105e559096acf3e6d353cfb7ecd814"
+  }
+}
