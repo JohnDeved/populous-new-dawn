@@ -2,8 +2,8 @@
 
 The one separately authorized observer-only invocation on exact
 `b48519e0bf7a39bd9ea7b401e01e3fbe731441c9` completed all eleven original
-`004ec6f0` calls and all frozen assertions. **Independent raw-result review is
-pending.** The original failed attempt01 and its prefix-only review remain
+`004ec6f0` calls and all frozen assertions. **Independent raw-result review ACCEPT is
+retained in `result-review.json`.** The original failed attempt01 and its prefix-only review remain
 preserved; no limit, native fixture/function or expected outcome changed.
 
 The native receipt ran23:20:55.161–23:21:01.101 UTC on2026-10-06, exit0;

@@ -1,0 +1,8 @@
+{
+  "status": "source-only proposal; no app edit, native or browser/package execution",
+  "main": "1c7e6b05687aca14d9350e17c7ae14dc6c68bb97",
+  "files": {
+    "README.md": "a0a0a139895ccc9af6749098c05732f56dc578e833d012abb5af35aedf39e647",
+    "source-evidence.json": "7826ba1b8b148c1b6fad4bec0c52a79b6afd29f51d1dd864c11dd562f81ea82e"
+  }
+}

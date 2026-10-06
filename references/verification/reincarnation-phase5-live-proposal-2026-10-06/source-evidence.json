@@ -1,0 +1,1362 @@
+{
+  "mode": "source and retained native data only; no application or native execution",
+  "main": "1c7e6b05687aca14d9350e17c7ae14dc6c68bb97",
+  "mainFetchedAt": "2026-10-06T23:23Z",
+  "sourceSha256": {
+    "app/world-turn.ts": {
+      "mainSha256": "957422e62b080cdbe787d78673336fb97957cdd6d2ce1ae547f1a280db2df26a",
+      "researchBranchSha256": "957422e62b080cdbe787d78673336fb97957cdd6d2ce1ae547f1a280db2df26a"
+    },
+    "app/reincarnation.ts": {
+      "mainSha256": "d361f22db204184515e63c2dc134c78f42110a1a49e7d071b26223993eb1d182",
+      "researchBranchSha256": "d361f22db204184515e63c2dc134c78f42110a1a49e7d071b26223993eb1d182"
+    },
+    "app/reincarnation-wave-runtime.ts": {
+      "mainSha256": "2fd81857a0abdb0b12c8d6e48b7c2990950bb3eb51a29271a3a6f62458f81535",
+      "researchBranchSha256": "2fd81857a0abdb0b12c8d6e48b7c2990950bb3eb51a29271a3a6f62458f81535"
+    },
+    "app/world-state.ts": {
+      "mainSha256": "880c00574e29d9f9e2cffd59d79ff337dcfe07d023d45b95481c09ff9e056ff6",
+      "researchBranchSha256": "880c00574e29d9f9e2cffd59d79ff337dcfe07d023d45b95481c09ff9e056ff6"
+    },
+    "app/world-effects.ts": {
+      "mainSha256": "d831dcd87d1e2db3a5698b6124330c48e13940d0859c6ffc0d9cb110788e7352",
+      "researchBranchSha256": "d831dcd87d1e2db3a5698b6124330c48e13940d0859c6ffc0d9cb110788e7352"
+    },
+    "app/world-types.ts": {
+      "mainSha256": "39d0cf2a822e90a077ef86e43f74fb35e6966fe873f60d8e5b820f42c00cb3c4",
+      "researchBranchSha256": "39d0cf2a822e90a077ef86e43f74fb35e6966fe873f60d8e5b820f42c00cb3c4"
+    },
+    "app/live-people.ts": {
+      "mainSha256": "1b8b2f1c3015317709298d5610067d13c3a17cb1a53a1a0fdd8117000ccb01c3",
+      "researchBranchSha256": "1b8b2f1c3015317709298d5610067d13c3a17cb1a53a1a0fdd8117000ccb01c3"
+    },
+    "app/person-state.ts": {
+      "mainSha256": "da771659e4da644ce0aa7eb6a988907888a9971e77745e3afeb95215f983cc17",
+      "researchBranchSha256": "da771659e4da644ce0aa7eb6a988907888a9971e77745e3afeb95215f983cc17"
+    },
+    "app/person-physics.ts": {
+      "mainSha256": "2775891b5ff41dae806eddeec53ebd44957b72f00c9aeec8569ef256908ddbc8",
+      "researchBranchSha256": "2775891b5ff41dae806eddeec53ebd44957b72f00c9aeec8569ef256908ddbc8"
+    },
+    "app/effect-motion.ts": {
+      "mainSha256": "09aed949e22799f0b34ea36a5a19e416fccf366ef0e4e2aceccbe3dc354f74b4",
+      "researchBranchSha256": "09aed949e22799f0b34ea36a5a19e416fccf366ef0e4e2aceccbe3dc354f74b4"
+    },
+    "app/spell-trails.ts": {
+      "mainSha256": "884319866f64247e81d6ec2f5aeda1be57ea2c306b2c5f57d7b1e9562bd0fa67",
+      "researchBranchSha256": "884319866f64247e81d6ec2f5aeda1be57ea2c306b2c5f57d7b1e9562bd0fa67"
+    },
+    "app/level-start.ts": {
+      "mainSha256": "987b88e203cc863df79ca1afddb602329f9b68f29be715b6ddb1c4fd48c29948",
+      "researchBranchSha256": "987b88e203cc863df79ca1afddb602329f9b68f29be715b6ddb1c4fd48c29948"
+    },
+    "app/level-start-runtime.ts": {
+      "mainSha256": "cce900dc4e08ce890ac88060d7db41bb1cde578f80c2424317d4842d8884451b",
+      "researchBranchSha256": "cce900dc4e08ce890ac88060d7db41bb1cde578f80c2424317d4842d8884451b"
+    },
+    "app/campaign-runtime.ts": {
+      "mainSha256": "14db77faf860b168dea78e674788b3bc86437e26196e85f38fce6f3dfa541f89",
+      "researchBranchSha256": "14db77faf860b168dea78e674788b3bc86437e26196e85f38fce6f3dfa541f89"
+    },
+    "app/scene-effects.ts": {
+      "mainSha256": "af82cfb32f31bac26503d936b2c1f79807e87f48ddbec6c4d0a5ee91e4934321",
+      "researchBranchSha256": "af82cfb32f31bac26503d936b2c1f79807e87f48ddbec6c4d0a5ee91e4934321"
+    },
+    "app/object-cells.ts": {
+      "mainSha256": "cc693d083d0829c69f6295d9710b3c7762bd70f407ff9c5c408380dbd7465909",
+      "researchBranchSha256": "cc693d083d0829c69f6295d9710b3c7762bd70f407ff9c5c408380dbd7465909"
+    },
+    "app/native-math.ts": {
+      "mainSha256": "223fa6c4dc5d14a66daec1c1a15a5252802e1fa7e4f3cc7c5a2fcc07818435cc",
+      "researchBranchSha256": "223fa6c4dc5d14a66daec1c1a15a5252802e1fa7e4f3cc7c5a2fcc07818435cc"
+    },
+    "app/original-rules.json": {
+      "mainSha256": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+      "researchBranchSha256": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6"
+    },
+    "app/original-constants.json": {
+      "mainSha256": "ce71bff4c5971d1aae1539b4d014d69378ddc30067068d70353b5b78979fb47c",
+      "researchBranchSha256": "ce71bff4c5971d1aae1539b4d014d69378ddc30067068d70353b5b78979fb47c"
+    },
+    "app/game-store.ts": {
+      "mainSha256": "1bb66bc1db93af5bff36c54f2c32630b71000bc5c0085595e6c7f2bc3cf95565",
+      "researchBranchSha256": "1bb66bc1db93af5bff36c54f2c32630b71000bc5c0085595e6c7f2bc3cf95565"
+    },
+    "scripts/check-native-level-start.py": {
+      "mainSha256": "9227c7676e59c3f8477fc3d560d599ecbc7de553eb9155b1359a4100c04d6a88",
+      "researchBranchSha256": "9227c7676e59c3f8477fc3d560d599ecbc7de553eb9155b1359a4100c04d6a88"
+    },
+    "scripts/check-native-spell-trails.py": {
+      "mainSha256": "f145aca70c0ae204662f11f013e0fde5dfdeda52b60882109ef6d2e86618d5ca",
+      "researchBranchSha256": "f145aca70c0ae204662f11f013e0fde5dfdeda52b60882109ef6d2e86618d5ca"
+    },
+    "scripts/check-native-person-update.py": {
+      "mainSha256": "0b9654f7c00e16e99b34ae553138fc860777351f86752699295b6a0eb89c54d2",
+      "researchBranchSha256": "0b9654f7c00e16e99b34ae553138fc860777351f86752699295b6a0eb89c54d2"
+    },
+    "scripts/check-native-person-state.py": {
+      "mainSha256": "6ca20f1600c63c7bbed346b9ee4543b2adbe71d11ccdf04df1f73ce7b120b89b",
+      "researchBranchSha256": "6ca20f1600c63c7bbed346b9ee4543b2adbe71d11ccdf04df1f73ce7b120b89b"
+    },
+    "scripts/check-native-person-recovery.py": {
+      "mainSha256": "82764eda1f5f260343fb954c02726287764f371ffd33e8cf512cb6ad65708342",
+      "researchBranchSha256": "82764eda1f5f260343fb954c02726287764f371ffd33e8cf512cb6ad65708342"
+    },
+    "scripts/check-browser-reincarnation-wave.mjs": {
+      "mainSha256": "b52cd9475e6fcc00e15d3e7c9cca0d6056e5ed8d7cb86c61ec4efed589d1d314",
+      "researchBranchSha256": "b52cd9475e6fcc00e15d3e7c9cca0d6056e5ed8d7cb86c61ec4efed589d1d314"
+    },
+    "engineering/project-map.json": {
+      "mainSha256": "ba8ef89c34314418d04785529dbb35e558e6cdd639ee8e9b844d4d4e5bc25085",
+      "researchBranchSha256": "ca39a022a884d8b4fe86e5770cadeef287d18cbfd0a715b6c32fa4f21ec68323"
+    }
+  },
+  "acceptedTimelineSource": "b48519e0bf7a39bd9ea7b401e01e3fbe731441c9",
+  "acceptedTimelineReceiptSha256": "f672367b8d1a7614dd1863167c7873fa489f43e05886250ca73c554d852ce072",
+  "personHandle": 834,
+  "personInitializerDirectCalls": [
+    [
+      6,
+      "0x4da150",
+      "0x4ed8a0"
+    ],
+    [
+      6,
+      "0x4edaa5",
+      "0x4ed580"
+    ],
+    [
+      6,
+      "0x4ed598",
+      "0x4d23d0"
+    ],
+    [
+      6,
+      "0x4d25d6",
+      "0x4d5920"
+    ],
+    [
+      6,
+      "0x4d592f",
+      "0x4ee470"
+    ],
+    [
+      6,
+      "0x4d596a",
+      "0x4ea460"
+    ],
+    [
+      6,
+      "0x4d5aed",
+      "0x4e9b40"
+    ],
+    [
+      6,
+      "0x4d5b34",
+      "0x4ed6f0"
+    ],
+    [
+      6,
+      "0x4d5b40",
+      "0x4ed640"
+    ],
+    [
+      6,
+      "0x4ed657",
+      "0x4d2740"
+    ],
+    [
+      6,
+      "0x4d2840",
+      "0x4a3940"
+    ],
+    [
+      6,
+      "0x4d284f",
+      "0x4d47d0"
+    ],
+    [
+      6,
+      "0x4d2ad1",
+      "0x432260"
+    ],
+    [
+      6,
+      "0x4d30ba",
+      "0x4d3ea0"
+    ],
+    [
+      6,
+      "0x4d3f71",
+      "0x4d4040"
+    ],
+    [
+      6,
+      "0x4d4153",
+      "0x4ee700"
+    ],
+    [
+      6,
+      "0x4d26fd",
+      "0x44e940"
+    ]
+  ],
+  "personFieldsAtBirth": {
+    "angle": {
+      "offset": "26",
+      "format": "H",
+      "value": 0
+    },
+    "counter": {
+      "offset": "2e",
+      "format": "B",
+      "value": 250
+    },
+    "state": {
+      "offset": "2c",
+      "format": "B",
+      "value": 10
+    },
+    "flags2": {
+      "offset": "0c",
+      "format": "I",
+      "value": 1073877120
+    },
+    "flags4": {
+      "offset": "10",
+      "format": "I",
+      "value": 545259776
+    },
+    "flags3": {
+      "offset": "14",
+      "format": "I",
+      "value": 262404
+    },
+    "turnAngle": {
+      "offset": "57",
+      "format": "H",
+      "value": 155
+    },
+    "turnY": {
+      "offset": "59",
+      "format": "H",
+      "value": 0
+    },
+    "heading": {
+      "offset": "5d",
+      "format": "H",
+      "value": 0
+    },
+    "speed": {
+      "offset": "5f",
+      "format": "h",
+      "value": 0
+    },
+    "maxLife": {
+      "offset": "6c",
+      "format": "h",
+      "value": 1778
+    },
+    "life": {
+      "offset": "6e",
+      "format": "h",
+      "value": 1778
+    },
+    "anchorX": {
+      "offset": "68",
+      "format": "H",
+      "value": 4352
+    },
+    "anchorY": {
+      "offset": "6a",
+      "format": "H",
+      "value": 4352
+    },
+    "goalX": {
+      "offset": "4f",
+      "format": "H",
+      "value": 4352
+    },
+    "goalY": {
+      "offset": "51",
+      "format": "H",
+      "value": 4352
+    },
+    "object": {
+      "offset": "33",
+      "format": "H",
+      "value": 424
+    },
+    "renderFlags": {
+      "offset": "35",
+      "format": "H",
+      "value": 384
+    },
+    "physics": {
+      "offset": "30",
+      "format": "B",
+      "value": 18
+    },
+    "height": {
+      "offset": "41",
+      "format": "h",
+      "value": 256
+    }
+  },
+  "liveCurrentBirth": {
+    "native": null,
+    "hp": 100,
+    "headingRadians": "Math.PI",
+    "personCreationGameplayDraws": 0,
+    "nativeClass1AllocationSeedOwner": null,
+    "sharedPrimaryAllocatorOwner": null,
+    "provenance": "source assessment of addUnit and phase5 caller, not a new live execution"
+  },
+  "burstAngles": {
+    "producerStartGameplayRng": 1389729278,
+    "nativeSecondDraw": "pitch at +59",
+    "nativeThirdDraw": "yaw at +57",
+    "currentHelperAssigns": "second yaw; third pitch",
+    "oldNativeLevelStartProbeLabels": "pitch at +57; yaw at +59, opposite to current SpellTrail and real directed consumer",
+    "mismatchedCurrentHelperRecords": 32,
+    "particles": [
+      {
+        "generation": 196,
+        "handle": 836,
+        "lifetime": 2,
+        "nativeYawAt57": 815,
+        "nativePitchAt59": 326,
+        "currentHelperYaw": 326,
+        "currentHelperPitch": 815,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4123,
+          4057,
+          362
+        ],
+        "firstVisitVelocity": [
+          27,
+          16,
+          -39
+        ],
+        "retired": 11
+      },
+      {
+        "generation": 197,
+        "handle": 837,
+        "lifetime": 1,
+        "nativeYawAt57": 1274,
+        "nativePitchAt59": 1996,
+        "currentHelperYaw": 1996,
+        "currentHelperPitch": 1274,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4100,
+          4101,
+          375
+        ],
+        "firstVisitVelocity": [
+          4,
+          29,
+          5
+        ],
+        "retired": 10
+      },
+      {
+        "generation": 198,
+        "handle": 838,
+        "lifetime": 1,
+        "nativeYawAt57": 578,
+        "nativePitchAt59": 1792,
+        "currentHelperYaw": 1792,
+        "currentHelperPitch": 578,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4055,
+          4102,
+          367
+        ],
+        "firstVisitVelocity": [
+          -41,
+          21,
+          6
+        ],
+        "retired": 10
+      },
+      {
+        "generation": 199,
+        "handle": 839,
+        "lifetime": 2,
+        "nativeYawAt57": 367,
+        "nativePitchAt59": 630,
+        "currentHelperYaw": 630,
+        "currentHelperPitch": 367,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4144,
+          4118,
+          335
+        ],
+        "firstVisitVelocity": [
+          48,
+          -11,
+          22
+        ],
+        "retired": 11
+      },
+      {
+        "generation": 200,
+        "handle": 840,
+        "lifetime": 1,
+        "nativeYawAt57": 807,
+        "nativePitchAt59": 1917,
+        "currentHelperYaw": 1917,
+        "currentHelperPitch": 807,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4083,
+          4112,
+          373
+        ],
+        "firstVisitVelocity": [
+          -13,
+          27,
+          16
+        ],
+        "retired": 10
+      },
+      {
+        "generation": 201,
+        "handle": 841,
+        "lifetime": 1,
+        "nativeYawAt57": 1833,
+        "nativePitchAt59": 1213,
+        "currentHelperYaw": 1213,
+        "currentHelperPitch": 1833,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4114,
+          4071,
+          320
+        ],
+        "firstVisitVelocity": [
+          18,
+          -26,
+          -25
+        ],
+        "retired": 10
+      },
+      {
+        "generation": 202,
+        "handle": 842,
+        "lifetime": 1,
+        "nativeYawAt57": 1177,
+        "nativePitchAt59": 1903,
+        "currentHelperYaw": 1903,
+        "currentHelperPitch": 1177,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4105,
+          4117,
+          373
+        ],
+        "firstVisitVelocity": [
+          9,
+          27,
+          21
+        ],
+        "retired": 10
+      },
+      {
+        "generation": 203,
+        "handle": 843,
+        "lifetime": 1,
+        "nativeYawAt57": 1861,
+        "nativePitchAt59": 1239,
+        "currentHelperYaw": 1239,
+        "currentHelperPitch": 1861,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4114,
+          4066,
+          322
+        ],
+        "firstVisitVelocity": [
+          18,
+          -24,
+          -30
+        ],
+        "retired": 10
+      },
+      {
+        "generation": 204,
+        "handle": 844,
+        "lifetime": 2,
+        "nativeYawAt57": 1943,
+        "nativePitchAt59": 109,
+        "currentHelperYaw": 109,
+        "currentHelperPitch": 1943,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4091,
+          4112,
+          374
+        ],
+        "firstVisitVelocity": [
+          -5,
+          28,
+          16
+        ],
+        "retired": 11
+      },
+      {
+        "generation": 205,
+        "handle": 845,
+        "lifetime": 1,
+        "nativeYawAt57": 1151,
+        "nativePitchAt59": 1816,
+        "currentHelperYaw": 1816,
+        "currentHelperPitch": 1151,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4109,
+          4131,
+          368
+        ],
+        "firstVisitVelocity": [
+          13,
+          22,
+          35
+        ],
+        "retired": 10
+      },
+      {
+        "generation": 206,
+        "handle": 846,
+        "lifetime": 2,
+        "nativeYawAt57": 81,
+        "nativePitchAt59": 743,
+        "currentHelperYaw": 743,
+        "currentHelperPitch": 81,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4105,
+          4137,
+          326
+        ],
+        "firstVisitVelocity": [
+          9,
+          -20,
+          41
+        ],
+        "retired": 11
+      },
+      {
+        "generation": 207,
+        "handle": 847,
+        "lifetime": 2,
+        "nativeYawAt57": 138,
+        "nativePitchAt59": 1977,
+        "currentHelperYaw": 1977,
+        "currentHelperPitch": 138,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4092,
+          4086,
+          375
+        ],
+        "firstVisitVelocity": [
+          -4,
+          29,
+          -10
+        ],
+        "retired": 11
+      },
+      {
+        "generation": 208,
+        "handle": 848,
+        "lifetime": 1,
+        "nativeYawAt57": 1626,
+        "nativePitchAt59": 503,
+        "currentHelperYaw": 503,
+        "currentHelperPitch": 1626,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4041,
+          4110,
+          346
+        ],
+        "firstVisitVelocity": [
+          -55,
+          0,
+          14
+        ],
+        "retired": 10
+      },
+      {
+        "generation": 209,
+        "handle": 849,
+        "lifetime": 1,
+        "nativeYawAt57": 8,
+        "nativePitchAt59": 615,
+        "currentHelperYaw": 615,
+        "currentHelperPitch": 8,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4096,
+          4150,
+          336
+        ],
+        "firstVisitVelocity": [
+          0,
+          -10,
+          54
+        ],
+        "retired": 10
+      },
+      {
+        "generation": 210,
+        "handle": 850,
+        "lifetime": 2,
+        "nativeYawAt57": 681,
+        "nativePitchAt59": 1964,
+        "currentHelperYaw": 1964,
+        "currentHelperPitch": 681,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4084,
+          4101,
+          375
+        ],
+        "firstVisitVelocity": [
+          -12,
+          29,
+          5
+        ],
+        "retired": 11
+      },
+      {
+        "generation": 211,
+        "handle": 851,
+        "lifetime": 1,
+        "nativeYawAt57": 1030,
+        "nativePitchAt59": 95,
+        "currentHelperYaw": 95,
+        "currentHelperPitch": 1030,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4096,
+          4081,
+          374
+        ],
+        "firstVisitVelocity": [
+          0,
+          28,
+          -15
+        ],
+        "retired": 10
+      },
+      {
+        "generation": 212,
+        "handle": 852,
+        "lifetime": 1,
+        "nativeYawAt57": 1194,
+        "nativePitchAt59": 1646,
+        "currentHelperYaw": 1646,
+        "currentHelperPitch": 1194,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4122,
+          4143,
+          355
+        ],
+        "firstVisitVelocity": [
+          26,
+          9,
+          47
+        ],
+        "retired": 10
+      },
+      {
+        "generation": 213,
+        "handle": 853,
+        "lifetime": 1,
+        "nativeYawAt57": 911,
+        "nativePitchAt59": 1527,
+        "currentHelperYaw": 1527,
+        "currentHelperPitch": 911,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4077,
+          4150,
+          345
+        ],
+        "firstVisitVelocity": [
+          -19,
+          -1,
+          54
+        ],
+        "retired": 10
+      },
+      {
+        "generation": 214,
+        "handle": 854,
+        "lifetime": 2,
+        "nativeYawAt57": 191,
+        "nativePitchAt59": 1892,
+        "currentHelperYaw": 1892,
+        "currentHelperPitch": 191,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4082,
+          4074,
+          372
+        ],
+        "firstVisitVelocity": [
+          -14,
+          26,
+          -22
+        ],
+        "retired": 11
+      },
+      {
+        "generation": 215,
+        "handle": 855,
+        "lifetime": 2,
+        "nativeYawAt57": 328,
+        "nativePitchAt59": 1137,
+        "currentHelperYaw": 1137,
+        "currentHelperPitch": 328,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4080,
+          4086,
+          317
+        ],
+        "firstVisitVelocity": [
+          -16,
+          -29,
+          -10
+        ],
+        "retired": 11
+      },
+      {
+        "generation": 216,
+        "handle": 856,
+        "lifetime": 1,
+        "nativeYawAt57": 1740,
+        "nativePitchAt59": 1744,
+        "currentHelperYaw": 1744,
+        "currentHelperPitch": 1740,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4133,
+          4069,
+          363
+        ],
+        "firstVisitVelocity": [
+          37,
+          17,
+          -27
+        ],
+        "retired": 10
+      },
+      {
+        "generation": 217,
+        "handle": 857,
+        "lifetime": 1,
+        "nativeYawAt57": 1830,
+        "nativePitchAt59": 1938,
+        "currentHelperYaw": 1938,
+        "currentHelperPitch": 1830,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4106,
+          4082,
+          374
+        ],
+        "firstVisitVelocity": [
+          10,
+          28,
+          -14
+        ],
+        "retired": 10
+      },
+      {
+        "generation": 218,
+        "handle": 858,
+        "lifetime": 2,
+        "nativeYawAt57": 1668,
+        "nativePitchAt59": 448,
+        "currentHelperYaw": 448,
+        "currentHelperPitch": 1668,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4044,
+          4116,
+          351
+        ],
+        "firstVisitVelocity": [
+          -52,
+          5,
+          20
+        ],
+        "retired": 11
+      },
+      {
+        "generation": 219,
+        "handle": 859,
+        "lifetime": 1,
+        "nativeYawAt57": 29,
+        "nativePitchAt59": 1511,
+        "currentHelperYaw": 1511,
+        "currentHelperPitch": 29,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4092,
+          4038,
+          343
+        ],
+        "firstVisitVelocity": [
+          -4,
+          -3,
+          -58
+        ],
+        "retired": 10
+      },
+      {
+        "generation": 220,
+        "handle": 860,
+        "lifetime": 2,
+        "nativeYawAt57": 2026,
+        "nativePitchAt59": 855,
+        "currentHelperYaw": 855,
+        "currentHelperPitch": 2026,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4096,
+          4122,
+          319
+        ],
+        "firstVisitVelocity": [
+          0,
+          -27,
+          26
+        ],
+        "retired": 11
+      },
+      {
+        "generation": 221,
+        "handle": 861,
+        "lifetime": 1,
+        "nativeYawAt57": 1901,
+        "nativePitchAt59": 1029,
+        "currentHelperYaw": 1029,
+        "currentHelperPitch": 1901,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4096,
+          4096,
+          316
+        ],
+        "firstVisitVelocity": [
+          0,
+          -30,
+          0
+        ],
+        "retired": 10
+      },
+      {
+        "generation": 222,
+        "handle": 862,
+        "lifetime": 1,
+        "nativeYawAt57": 499,
+        "nativePitchAt59": 82,
+        "currentHelperYaw": 82,
+        "currentHelperPitch": 499,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4107,
+          4096,
+          375
+        ],
+        "firstVisitVelocity": [
+          11,
+          29,
+          0
+        ],
+        "retired": 10
+      },
+      {
+        "generation": 223,
+        "handle": 863,
+        "lifetime": 1,
+        "nativeYawAt57": 901,
+        "nativePitchAt59": 1590,
+        "currentHelperYaw": 1590,
+        "currentHelperPitch": 901,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4075,
+          4149,
+          350
+        ],
+        "firstVisitVelocity": [
+          -21,
+          4,
+          53
+        ],
+        "retired": 10
+      },
+      {
+        "generation": 224,
+        "handle": 864,
+        "lifetime": 1,
+        "nativeYawAt57": 652,
+        "nativePitchAt59": 1697,
+        "currentHelperYaw": 1697,
+        "currentHelperPitch": 652,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4049,
+          4116,
+          360
+        ],
+        "firstVisitVelocity": [
+          -47,
+          14,
+          20
+        ],
+        "retired": 10
+      },
+      {
+        "generation": 225,
+        "handle": 865,
+        "lifetime": 1,
+        "nativeYawAt57": 1031,
+        "nativePitchAt59": 267,
+        "currentHelperYaw": 267,
+        "currentHelperPitch": 1031,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4096,
+          4055,
+          366
+        ],
+        "firstVisitVelocity": [
+          0,
+          20,
+          -41
+        ],
+        "retired": 10
+      },
+      {
+        "generation": 226,
+        "handle": 866,
+        "lifetime": 2,
+        "nativeYawAt57": 1164,
+        "nativePitchAt59": 1247,
+        "currentHelperYaw": 1247,
+        "currentHelperPitch": 1164,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4109,
+          4128,
+          322
+        ],
+        "firstVisitVelocity": [
+          13,
+          -24,
+          32
+        ],
+        "retired": 11
+      },
+      {
+        "generation": 227,
+        "handle": 867,
+        "lifetime": 1,
+        "nativeYawAt57": 1256,
+        "nativePitchAt59": 445,
+        "currentHelperYaw": 445,
+        "currentHelperPitch": 1256,
+        "birthPoint": [
+          4096,
+          4096,
+          346
+        ],
+        "firstVisitPoint": [
+          4060,
+          4054,
+          352
+        ],
+        "firstVisitVelocity": [
+          -36,
+          6,
+          -42
+        ],
+        "retired": 10
+      }
+    ]
+  },
+  "staticInstructionRanges": [
+    {
+      "label": "semantic person RNG/angle/life",
+      "start": "004d5937",
+      "endExclusive": "004d5a2e",
+      "sha256": "0232ced18cb733dbca92a8e62d4aba6821b612d04ed5ffa9872fdecfae86afc9",
+      "bytesHex": "a178d189008bc88d14c08d04d18d0481c1e0028d04c105df240000a378d1890089442414c14c24140d8b44241456a378d18900e8f14a010083c4048b460c0d8000000089460c0d0010000089460c8b4424146625ff076689465733c08a462b8d0c808d048903c08a8866705a00884e308b8870705a0066c7466c0000f68090705a00087467a178d189008bd08d1cc08d04da8d0482c1e0028d04c205df240000a378d1890089442410c14c24100d8b442410a378d189008bc19983e20303c22bd2c1f8028bd88b442410f7f38bda8d04499983e20303c2c1f80266833dddc689000c8d0c0375014966894e6c814e100000800066894e6e",
+      "instructions": [
+        "004d5937 mov eax, dword ptr [0x89d178]",
+        "004d593c mov ecx, eax",
+        "004d593e lea edx, [eax + eax*8]",
+        "004d5941 lea eax, [ecx + edx*8]",
+        "004d5944 lea eax, [ecx + eax*4]",
+        "004d5947 shl eax, 2",
+        "004d594a lea eax, [ecx + eax*8]",
+        "004d594d add eax, 0x24df",
+        "004d5952 mov dword ptr [0x89d178], eax",
+        "004d5957 mov dword ptr [esp + 0x14], eax",
+        "004d595b ror dword ptr [esp + 0x14], 0xd",
+        "004d5960 mov eax, dword ptr [esp + 0x14]",
+        "004d5964 push esi",
+        "004d5965 mov dword ptr [0x89d178], eax",
+        "004d596a call 0x4ea460",
+        "004d596f add esp, 4",
+        "004d5972 mov eax, dword ptr [esi + 0xc]",
+        "004d5975 or eax, 0x80",
+        "004d597a mov dword ptr [esi + 0xc], eax",
+        "004d597d or eax, 0x1000",
+        "004d5982 mov dword ptr [esi + 0xc], eax",
+        "004d5985 mov eax, dword ptr [esp + 0x14]",
+        "004d5989 and ax, 0x7ff",
+        "004d598d mov word ptr [esi + 0x57], ax",
+        "004d5991 xor eax, eax",
+        "004d5993 mov al, byte ptr [esi + 0x2b]",
+        "004d5996 lea ecx, [eax + eax*4]",
+        "004d5999 lea eax, [ecx + ecx*4]",
+        "004d599c add eax, eax",
+        "004d599e mov cl, byte ptr [eax + 0x5a7066]",
+        "004d59a4 mov byte ptr [esi + 0x30], cl",
+        "004d59a7 mov ecx, dword ptr [eax + 0x5a7070]",
+        "004d59ad mov word ptr [esi + 0x6c], 0",
+        "004d59b3 test byte ptr [eax + 0x5a7090], 8",
+        "004d59ba je 0x4d5a23",
+        "004d59bc mov eax, dword ptr [0x89d178]",
+        "004d59c1 mov edx, eax",
+        "004d59c3 lea ebx, [eax + eax*8]",
+        "004d59c6 lea eax, [edx + ebx*8]",
+        "004d59c9 lea eax, [edx + eax*4]",
+        "004d59cc shl eax, 2",
+        "004d59cf lea eax, [edx + eax*8]",
+        "004d59d2 add eax, 0x24df",
+        "004d59d7 mov dword ptr [0x89d178], eax",
+        "004d59dc mov dword ptr [esp + 0x10], eax",
+        "004d59e0 ror dword ptr [esp + 0x10], 0xd",
+        "004d59e5 mov eax, dword ptr [esp + 0x10]",
+        "004d59e9 mov dword ptr [0x89d178], eax",
+        "004d59ee mov eax, ecx",
+        "004d59f0 cdq ",
+        "004d59f1 and edx, 3",
+        "004d59f4 add eax, edx",
+        "004d59f6 sub edx, edx",
+        "004d59f8 sar eax, 2",
+        "004d59fb mov ebx, eax",
+        "004d59fd mov eax, dword ptr [esp + 0x10]",
+        "004d5a01 div ebx",
+        "004d5a03 mov ebx, edx",
+        "004d5a05 lea eax, [ecx + ecx*2]",
+        "004d5a08 cdq ",
+        "004d5a09 and edx, 3",
+        "004d5a0c add eax, edx",
+        "004d5a0e sar eax, 2",
+        "004d5a11 cmp word ptr [0x89c6dd], 0xc",
+        "004d5a19 lea ecx, [ebx + eax]",
+        "004d5a1c jne 0x4d5a1f",
+        "004d5a1e dec ecx",
+        "004d5a1f mov word ptr [esi + 0x6c], cx",
+        "004d5a23 or dword ptr [esi + 0x10], 0x800000",
+        "004d5a2a mov word ptr [esi + 0x6e], cx"
+      ]
+    },
+    {
+      "label": "anchor centering/state dispatch",
+      "start": "004d5ac9",
+      "endExclusive": "004d5b5c",
+      "sha256": "479d286bac17e5d7620734f8883aa08e8aee03997cb75791a6643d7a9febc01a",
+      "bytesHex": "668b03662500fe6605000166890356668b466a662500fe660500016689466a8b0b894e4fe84e40010083c404f6460e10754d8a462c88467df6057cd189000274178a462b3c077504b327eb1e33c98ac88d04898d1480eb0b33c08a462b8d0c808d14898a1c5564705a0056e8b77b010083c404885e2c56e8fb7a010083c404807e2fff7407c686b0000000ff5f5e5b83c40cc3",
+      "instructions": [
+        "004d5ac9 mov ax, word ptr [ebx]",
+        "004d5acc and ax, 0xfe00",
+        "004d5ad0 add ax, 0x100",
+        "004d5ad4 mov word ptr [ebx], ax",
+        "004d5ad7 push esi",
+        "004d5ad8 mov ax, word ptr [esi + 0x6a]",
+        "004d5adc and ax, 0xfe00",
+        "004d5ae0 add ax, 0x100",
+        "004d5ae4 mov word ptr [esi + 0x6a], ax",
+        "004d5ae8 mov ecx, dword ptr [ebx]",
+        "004d5aea mov dword ptr [esi + 0x4f], ecx",
+        "004d5aed call 0x4e9b40",
+        "004d5af2 add esp, 4",
+        "004d5af5 test byte ptr [esi + 0xe], 0x10",
+        "004d5af9 jne 0x4d5b48",
+        "004d5afb mov al, byte ptr [esi + 0x2c]",
+        "004d5afe mov byte ptr [esi + 0x7d], al",
+        "004d5b01 test byte ptr [0x89d17c], 2",
+        "004d5b08 je 0x4d5b21",
+        "004d5b0a mov al, byte ptr [esi + 0x2b]",
+        "004d5b0d cmp al, 7",
+        "004d5b0f jne 0x4d5b15",
+        "004d5b11 mov bl, 0x27",
+        "004d5b13 jmp 0x4d5b33",
+        "004d5b15 xor ecx, ecx",
+        "004d5b17 mov cl, al",
+        "004d5b19 lea eax, [ecx + ecx*4]",
+        "004d5b1c lea edx, [eax + eax*4]",
+        "004d5b1f jmp 0x4d5b2c",
+        "004d5b21 xor eax, eax",
+        "004d5b23 mov al, byte ptr [esi + 0x2b]",
+        "004d5b26 lea ecx, [eax + eax*4]",
+        "004d5b29 lea edx, [ecx + ecx*4]",
+        "004d5b2c mov bl, byte ptr [edx*2 + 0x5a7064]",
+        "004d5b33 push esi",
+        "004d5b34 call 0x4ed6f0",
+        "004d5b39 add esp, 4",
+        "004d5b3c mov byte ptr [esi + 0x2c], bl",
+        "004d5b3f push esi",
+        "004d5b40 call 0x4ed640",
+        "004d5b45 add esp, 4",
+        "004d5b48 cmp byte ptr [esi + 0x2f], 0xff",
+        "004d5b4c je 0x4d5b55",
+        "004d5b4e mov byte ptr [esi + 0xb0], 0xff",
+        "004d5b55 pop edi",
+        "004d5b56 pop esi",
+        "004d5b57 pop ebx",
+        "004d5b58 add esp, 0xc",
+        "004d5b5b ret "
+      ]
+    },
+    {
+      "label": "burst second draw +59 and third +57",
+      "start": "0050cdf3",
+      "endExclusive": "0050ce5c",
+      "sha256": "a8818f256e22c7eb457e5f3cdd2282982c68ea0b00a44ae7cf627d9cff1cf904",
+      "bytesHex": "a178d189008bc88d14c08d04d18d0481c1e0028d04c105df240000a378d1890089442410c14c24100d8b4424108bc88d14c08d04d18d0481c1e0028d04c105df24000089442414c14c24140d8b442414a378d189006625ff07668945578b4424106625ff0766894559",
+      "instructions": [
+        "0050cdf3 mov eax, dword ptr [0x89d178]",
+        "0050cdf8 mov ecx, eax",
+        "0050cdfa lea edx, [eax + eax*8]",
+        "0050cdfd lea eax, [ecx + edx*8]",
+        "0050ce00 lea eax, [ecx + eax*4]",
+        "0050ce03 shl eax, 2",
+        "0050ce06 lea eax, [ecx + eax*8]",
+        "0050ce09 add eax, 0x24df",
+        "0050ce0e mov dword ptr [0x89d178], eax",
+        "0050ce13 mov dword ptr [esp + 0x10], eax",
+        "0050ce17 ror dword ptr [esp + 0x10], 0xd",
+        "0050ce1c mov eax, dword ptr [esp + 0x10]",
+        "0050ce20 mov ecx, eax",
+        "0050ce22 lea edx, [eax + eax*8]",
+        "0050ce25 lea eax, [ecx + edx*8]",
+        "0050ce28 lea eax, [ecx + eax*4]",
+        "0050ce2b shl eax, 2",
+        "0050ce2e lea eax, [ecx + eax*8]",
+        "0050ce31 add eax, 0x24df",
+        "0050ce36 mov dword ptr [esp + 0x14], eax",
+        "0050ce3a ror dword ptr [esp + 0x14], 0xd",
+        "0050ce3f mov eax, dword ptr [esp + 0x14]",
+        "0050ce43 mov dword ptr [0x89d178], eax",
+        "0050ce48 and ax, 0x7ff",
+        "0050ce4c mov word ptr [ebp + 0x57], ax",
+        "0050ce50 mov eax, dword ptr [esp + 0x10]",
+        "0050ce54 and ax, 0x7ff",
+        "0050ce58 mov word ptr [ebp + 0x59], ax"
+      ]
+    },
+    {
+      "label": "actual directed consumer +59 vertical/pitch +57 planar/yaw",
+      "start": "004e7b55",
+      "endExclusive": "004e7c08",
+      "sha256": "68ffa0d2b746e2e62b822873ffa526dcecb2fb07a0979b2224a0ee78597f4e9a",
+      "bytesHex": "f6460c807414668b46576689442412668b4e5966894c2410eb1b8d46578d4c24148d542410508d442416515250e87903000083c4108d442424c7000000000066c7400400000fbf7e5f85ff746633c08bd7668b44241025ff070000c1e002c1fa018b88e8e55d000fafcac1f9108b90e8dd5d0066014c24280fafd7c1fa1085d2743133c0668b44241225ff070000c1e0028b88e8dd5d000fafcac1f9108b80e8e55d0066014c24240fafc2c1f8106601442426",
+      "instructions": [
+        "004e7b55 test byte ptr [esi + 0xc], 0x80",
+        "004e7b59 je 0x4e7b6f",
+        "004e7b5b mov ax, word ptr [esi + 0x57]",
+        "004e7b5f mov word ptr [esp + 0x12], ax",
+        "004e7b64 mov cx, word ptr [esi + 0x59]",
+        "004e7b68 mov word ptr [esp + 0x10], cx",
+        "004e7b6d jmp 0x4e7b8a",
+        "004e7b6f lea eax, [esi + 0x57]",
+        "004e7b72 lea ecx, [esp + 0x14]",
+        "004e7b76 lea edx, [esp + 0x10]",
+        "004e7b7a push eax",
+        "004e7b7b lea eax, [esp + 0x16]",
+        "004e7b7f push ecx",
+        "004e7b80 push edx",
+        "004e7b81 push eax",
+        "004e7b82 call 0x4e7f00",
+        "004e7b87 add esp, 0x10",
+        "004e7b8a lea eax, [esp + 0x24]",
+        "004e7b8e mov dword ptr [eax], 0",
+        "004e7b94 mov word ptr [eax + 4], 0",
+        "004e7b9a movsx edi, word ptr [esi + 0x5f]",
+        "004e7b9e test edi, edi",
+        "004e7ba0 je 0x4e7c08",
+        "004e7ba2 xor eax, eax",
+        "004e7ba4 mov edx, edi",
+        "004e7ba6 mov ax, word ptr [esp + 0x10]",
+        "004e7bab and eax, 0x7ff",
+        "004e7bb0 shl eax, 2",
+        "004e7bb3 sar edx, 1",
+        "004e7bb6 mov ecx, dword ptr [eax + 0x5de5e8]",
+        "004e7bbc imul ecx, edx",
+        "004e7bbf sar ecx, 0x10",
+        "004e7bc2 mov edx, dword ptr [eax + 0x5ddde8]",
+        "004e7bc8 add word ptr [esp + 0x28], cx",
+        "004e7bcd imul edx, edi",
+        "004e7bd0 sar edx, 0x10",
+        "004e7bd3 test edx, edx",
+        "004e7bd5 je 0x4e7c08",
+        "004e7bd7 xor eax, eax",
+        "004e7bd9 mov ax, word ptr [esp + 0x12]",
+        "004e7bde and eax, 0x7ff",
+        "004e7be3 shl eax, 2",
+        "004e7be6 mov ecx, dword ptr [eax + 0x5ddde8]",
+        "004e7bec imul ecx, edx",
+        "004e7bef sar ecx, 0x10",
+        "004e7bf2 mov eax, dword ptr [eax + 0x5de5e8]",
+        "004e7bf8 add word ptr [esp + 0x24], cx",
+        "004e7bfd imul eax, edx",
+        "004e7c00 sar eax, 0x10",
+        "004e7c03 add word ptr [esp + 0x26], ax"
+      ]
+    }
+  ],
+  "unexecutedProposal": "Nullable phase5 attempt/result seam plus owner0 ordinary returning-person semantic initializer and allocation-backed root/children. Common-success field/RNG/effect-visit acceptance only unless shared class1/class7 primary ownership is separately supplied. No private pool/counter or dummy RNG draws."
+}

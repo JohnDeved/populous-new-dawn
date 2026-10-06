@@ -1,0 +1,16 @@
+{
+  "verdict": "ACCEPT bounded supplied-context11-call native timeline",
+  "source": "b48519e0bf7a39bd9ea7b401e01e3fbe731441c9",
+  "evidenceCommit": "566723189bb2177596fce44bf6fc7598f2344601",
+  "receiptSha256": "f672367b8d1a7614dd1863167c7873fa489f43e05886250ca73c554d852ce072",
+  "nativeStdoutSha256": "1275f73e5781d068074015b758979d450fb792c67a459a0ef6b1e680fdfae890",
+  "independentChecks": [
+    "Published member hashes verified; receipt passed/exit0 with equal source/input dictionaries and empty owned process groups.",
+    "All11 returned-pending rows reach exact EIP/ESP and direct timeout=false; all11 post-call partitions/ownership checks completed.",
+    "Calls1\u20139 raw records, direct calls and core events exactly match failed attempt01 after excluding newly added prior-link diagnostics.",
+    "Root visits7/8, retirement8 and free10 directly verified;32children have21 retirements10 and11 retirements11, with expected exact visit ranges and no child free claim at stop.",
+    "Bodyfree8/reuse9 and root reuse11 preserved by actual generation events. Older wave remains active at stop.",
+    "All196 ordered RNG-write tuples exactly match accepted standalone success, retaining intermediate values and conditional98/32 advance labels."
+  ],
+  "limits": "Supplied fixed world/body/pools/population/animation counts; outside-world, later ordinary Shaman, audio/light/notifications are declared supplies. No whole original mission/world RNG, browser/application equality, raster or live-game proof. Original attempt01 remains failed/inconclusive."
+}
