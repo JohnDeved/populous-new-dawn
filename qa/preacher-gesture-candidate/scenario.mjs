@@ -145,6 +145,7 @@ export default async function preacherCandidate(context) {
     await page.evaluate(installNativeGuardObserver)
     await page.evaluate(async id => {
       window.nativeGuardProbes = await import('/qa/preacher-gesture-baseline/inherited/browser-probes.mjs')
+      window.nativeGuardCandidateGround = await import('/qa/preacher-gesture-candidate/ground-input.mjs')
       const { installLoadedObservation } = await import('/qa/preacher-gesture-candidate/observe.mjs')
       installLoadedObservation(id)
     }, id)

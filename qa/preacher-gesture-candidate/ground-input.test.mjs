@@ -82,3 +82,14 @@ test('ground dispatch never clicks an exhausted probe or retries after delivery 
     assert.equal(clicks, valid ? 1 : 0); assert.equal(evaluations, 1); assert.equal(finished, 1)
   }
 })
+
+test('both initial and fresh-page bootstrap install the sampler used by retained ground helper', () => {
+  for (const file of ['acquire.mjs', 'scenario.mjs']) {
+    const text = readFileSync(new URL(file, import.meta.url), 'utf8')
+    const bootstraps = [...text.matchAll(/await page\.evaluate\(async [^\n]+ => \{([\s\S]*?)\n    \}/g)]
+      .map(match => match[1]).filter(body => body.includes('window.nativeGuardProbes ='))
+    assert.equal(bootstraps.length, 1, `${file}: one ordinary input bootstrap`)
+    assert.ok(bootstraps[0].includes("window.nativeGuardCandidateGround = await import('/qa/preacher-gesture-candidate/ground-input.mjs')"),
+      `${file}: ground sampler must exist in the current document before ordinary ground input`)
+  }
+})
