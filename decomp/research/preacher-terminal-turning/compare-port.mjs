@@ -197,9 +197,10 @@ try {
     phase = 'before-updater'
     row.beforeUpdater = snapshot()
     phase = 'updater'
-    stepObjectAnimation(p, { counter: serial, levelFlags: scenario.worldGlobals.updaterLevelFlags,
+    const updaterReturn = stepObjectAnimation(p, { counter: serial, levelFlags: scenario.worldGlobals.updaterLevelFlags,
       levelFlags2: scenario.worldGlobals.updaterLevelFlags2 },
     { frameCounts, modelFrames: [], morphDurations: [] }, () => forbidden('footprint'))
+    row.updaterReturn = { type: typeof updaterReturn, value: updaterReturn ?? null }
     output.completedUpdaterCalls++
     phase = 'after-updater'
     assertSupplies()

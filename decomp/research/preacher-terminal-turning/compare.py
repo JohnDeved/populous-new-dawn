@@ -194,6 +194,8 @@ def check_state(state,case,implementation):
         if (expected_raw!=actual['raw'] or actual['id']!=initial['id'] or
                 actual['address']!=int(initial['address'],16)):
             raise Blocked('Unmapped byte or raw256/owner observation drift')
+        if (actual['cellNext']!=initial['cellNext'] or actual['cellPrevious']!=initial['cellPrevious']):
+            raise Blocked('Unexpected record chain mutation')
         if index and actual['raw']!=initial['raw256Hex']:
             raise Blocked('Unexpected listener mutation')
     first=state['records'][0]
@@ -441,6 +443,7 @@ def run_native(manifest,cases,counts,instructions,rules,result,output):
         supply['stampBefore']=read(P+0x18,'I');write(P+0x18,'I',read(SERIAL,'I'));supply['stampAfter']=read(SERIAL,'I')
         current['phase']='before-updater';row['beforeUpdater']=snapshot()
         current['phase']='updater';row['updaterReturnAL']=call(0x4ee7b0,P)
+        row['updaterReturn']={'type':'void-machine-registers','rawEAX':result['calls'][-1]['rawEAX'],'lowAL':row['updaterReturnAL']}
         result['completedUpdaterCalls']+=1
         current['phase']='after-updater';row['afterUpdater']=snapshot();row['events']=list(events)
         (output/'native.json').write_text(json.dumps(result,indent=2)+'\n')
@@ -468,10 +471,10 @@ def differences(native, port):
                     entry['rawByteOffsets']=[i for i,(a,b) in enumerate(zip(raw_n,raw_p,strict=True)) if a!=b]
                     entry['recordRawByteOffsets']=[{'id':nr['id'],'offsets':[i for i,(a,b) in enumerate(zip(bytes.fromhex(nr['raw']),bytes.fromhex(pr['raw']),strict=True)) if a!=b]} for nr,pr in zip(ns['records'],ps['records'],strict=True) if nr['raw']!=pr['raw']]
                     delta['phases'][phase]=entry
-            for key in ['result','events']:
-                if n[key]!=p[key]:
-                    delta[key]={'native':n[key],'port':p[key]}
-            if delta['phases'] or 'result' in delta or 'events' in delta:
+            for key in sorted((set(n)|set(p))-set(PHASES)-{'case','visit'}):
+                if n.get(key)!=p.get(key):
+                    delta[key]={'native':n.get(key),'port':p.get(key)}
+            if delta['phases'] or any(key not in ['case','visit','phases'] for key in delta):
                 out.append(delta)
     return out
 

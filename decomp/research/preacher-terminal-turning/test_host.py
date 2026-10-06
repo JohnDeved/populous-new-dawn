@@ -116,10 +116,12 @@ class HostGuards(unittest.TestCase):
         p['afterController']['simulationRandom']+=1
         p['afterUpdater']['records'][1]['raw']='01'+p['afterUpdater']['records'][1]['raw'][2:]
         p['events']=[{'kind':'supplied','state':self.state()}]
+        p['updaterReturn']={'type':'undefined','value':None}
         delta=proof.differences(native,port)[0]
         self.assertIn('simulationRandom',delta['phases']['afterController'])
         self.assertEqual(delta['phases']['afterUpdater']['recordRawByteOffsets'],[{'id':3165,'offsets':[0]}])
         self.assertEqual(delta['events']['port'],p['events'])
+        self.assertEqual(delta['updaterReturn']['port'],p['updaterReturn'])
 
     def test_timeout_and_postflight_failures_are_retained(self):
         with tempfile.TemporaryDirectory() as folder:
