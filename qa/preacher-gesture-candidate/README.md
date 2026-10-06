@@ -4,7 +4,9 @@ Source-only candidate preparation. No candidate browser, install, full check,
 native execution or dependency transfer has been run by this QA task. The accepted
 baseline `9a54c932e5aaae1f50298e8e82e871ea87dfd2a8`, its original artifacts and source
 helpers remain unchanged. Candidate application input is the separate frozen
-feature `cf223a2b5611c9bc852755aa2228baadc98a2cb5`, based on `169b5f38`.
+feature `6ded591b9e969bdb3ad98d789d319bf3bf6fbe55`, based on `169b5f38`.
+Its test-only compatibility follow-up retains the exact app/public/runtime bytes
+from the original frozen `cf223a2b` implementation.
 
 The independent baseline ACCEPT and22-file raw archive are preserved at
 `/workspace/shared/preacher-gesture-baseline-results-9a54c932/review-manifest.json`.
@@ -154,5 +156,5 @@ baseline callback/visibility restore helpers are reused rather than rewritten.
 No candidate runtime result is claimed from these checks. App/public/scripts/tests
 must equal the frozen implementation exactly; this branch adds QA only.
 
-Local commits/bundles are unpushed and not reset-durable while normal Git
-authentication remains unavailable.
+Local commits/bundles are unpushed and not reset-durable. Publication remains
+stopped under parent coordination after the reported CONNECT-proxy403 failure.

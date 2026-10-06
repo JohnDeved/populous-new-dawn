@@ -24,6 +24,8 @@ const input = JSON.parse(readFileSync(resolve(here, 'application-inputs.json')))
 assert.equal(input.status, 'ready', 'Candidate application input binding is not frozen')
 assert.equal(git('rev-parse', 'HEAD:app'), input.appTree)
 assert.equal(git('rev-parse', 'HEAD:public'), input.publicTree)
+assert.equal(git('rev-parse', 'HEAD:scripts'), input.scriptsTree)
+assert.equal(git('rev-parse', 'HEAD:tests'), input.testsTree)
 for (const [file, expected] of Object.entries(input.files)) assert.equal(sha(resolve(root, file)), expected, file)
 const sprites = JSON.parse(readFileSync(resolve(root, 'app/original-units.json')))
 const preacherSources = [...new Set(Object.values(sprites.animations['blue-preacher']).map(d => d[0].source))]
