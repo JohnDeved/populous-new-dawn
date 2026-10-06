@@ -560,6 +560,49 @@ function computerAttackUnits(w: World, index: number) {
 const computerAttackReady = (u: Unit) =>
   !u.flight && !u.fight && !u.fighting && !u.casting && !u.lift
 
+// 0x4d14f0: task.members supplies the port's admitted-member ownership. Inspect
+// the registered person, including a fight owner that shadows stale u.native.
+function computerAttackSettled(w: World, index: number) {
+  const units = computerAttackUnits(w, index)
+  if (!units.length) return null
+  let settled = true
+  for (const u of units) {
+    const registered = w.objectCells.objects.get(u.id),
+      p = [u.flight, u.fight?.motion, u.native, u.entry?.person, u.builder?.person].find(
+        person => person && person === registered
+      )
+    if (
+      !p ||
+      !Number.isInteger(p.state) || p.state < 0 || p.state > 255 ||
+      !Number.isInteger(p.flags2) || p.flags2 < 0 || p.flags2 > 0xffffffff ||
+      !Number.isInteger(p.speed) || p.speed < -32768 || p.speed > 32767
+    ) {
+      settled = false
+      continue
+    }
+    // This side effect visits every member even after settlement is disproved.
+    if (p.state === 25 || p.state === 29 || p.flags2 & 0x80000)
+      w.ai.tasks[index].elapsed = 1801
+    // 0x4f39f0's state33 release/relocation remains uncomposed. Such a member
+    // cannot settle here; neither can an owner with unknown release fields.
+    if (
+      p.state === 33 &&
+      (!Number.isInteger(p.substate) || p.substate < 0 || p.substate > 255 ||
+        p.substate === 3 ||
+        (p.substate === 2 &&
+          (!Number.isInteger(p.commandPhase) || p.commandPhase < 0 || p.commandPhase > 4)))
+    ) {
+      settled = false
+      continue
+    }
+    if (p.speed !== 0) settled = false
+    if (rules.personStateFlags[p.state] & 8 || p.state === 25 || p.state === 29) continue
+    const order = (p.state === 10 || p.state === 33) && currentPersonOrder(w.buildingOrders, p)
+    if (!order || order.flags & 1 || ![17, 31, 32].includes(order.model)) settled = false
+  }
+  return settled
+}
+
 function computerAttackHasOrder(w: World, index: number, model: number, target: number) {
   const units = computerAttackUnits(w, index)
   return (
@@ -1656,17 +1699,7 @@ export function stepComputerTasks(w: World, tribe: number) {
             }
             return ids
           },
-          settled: () => {
-            const units = computerAttackUnits(w, index)
-            return units.length === 0
-              ? null
-              : units.every(
-                  u =>
-                    computerAttackReady(u) &&
-                    (u.native?.state !== 10 ||
-                      currentPersonOrder(w.buildingOrders, u.native)?.model !== 3)
-                )
-          },
+          settled: () => computerAttackSettled(w, index),
           memberWithin: (target, radius) => {
             const unit = computerAttackUnits(w, index).find(u => {
               if (!computerAttackReady(u)) return false
