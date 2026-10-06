@@ -4,6 +4,7 @@
 Controlled fixtures, not ordinary gameplay acceptance. Only the three population
 reads are supplied. Allocation/gates/target selection/geometry/RNG execute natively.
 Stop and print both observations at the first paired difference; no runtime repair.
+--remaining-gates runs only the final three frozen cases and retains all differences.
 """
 import argparse
 import gc
@@ -180,6 +181,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('executable', type=Path)
     parser.add_argument('--node', required=True, type=Path)
+    parser.add_argument('--remaining-gates', action='store_true',
+                        help='Run only the final three unchanged fixtures and retain all differences')
     args = parser.parse_args()
     # Independent of the outer receipt runner. Normal timeout is a failed probe.
     signal.alarm(60)
@@ -203,24 +206,30 @@ def main():
     struct.pack_into('<64i', program, 12288, *script['variables'])
     # Run the actual adapter in a separate short-lived process before the native
     # address-space limit; V8 reserves virtual memory beyond its explicit heap cap.
-    pair = subprocess.run([str(args.node), '--max-old-space-size=256',
-                           str(ROOT / 'scripts/mission3-raid-allocation-pair.mjs'), str(fixture_path)],
+    pair_args = [str(args.node), '--max-old-space-size=256',
+                 str(ROOT / 'scripts/mission3-raid-allocation-pair.mjs'), str(fixture_path)]
+    if args.remaining_gates:
+        pair_args.append('--remaining-gates')
+    pair = subprocess.run(pair_args,
                           cwd=ROOT, text=True, capture_output=True, timeout=20,
                           env={**os.environ, 'PYTHONDONTWRITEBYTECODE': '1'})
     assert pair.returncode == 0, pair.stderr
     assert len(pair.stdout) < 65536, 'Unexpectedly large portable output'
     portable = json.loads(pair.stdout)
-    assert len(portable) == 5
+    cases = fixture['cases'][2:] if args.remaining_gates else fixture['cases']
+    assert len(portable) == len(cases)
     resource.setrlimit(resource.RLIMIT_AS, (1024 ** 3, 1024 ** 3))
     report = {'scope': 'controlled allocator composition; no ordinary gameplay acceptance',
               'sourceHead': fixture['sourceHead'], 'fixtureSha256': sha(fixture_path),
+              'sourceHeadMeaning': 'fixture/runtime base; executed source is pinned by the outer receipt',
+              'caseSelection': 'final three frozen gate cases' if args.remaining_gates else 'first mismatch',
               'attributesBytesSha256': hashlib.sha256(bytes(fixture['attributes'])).hexdigest(),
               'programBytesSha256': hashlib.sha256(program).hexdigest(),
               'inputSha256': EXPECTED_INPUTS,
               'interceptedConsumers': {'0048f350': 'only internal1153/2/1 population reads'},
               'deferredConsumers': ['004cb400 task execution', '004f8490 recruitment', 'person/path/combat'],
               'cases': []}
-    for case, actual in zip(fixture['cases'], portable, strict=True):
+    for case, actual in zip(cases, portable, strict=True):
         probe = Probe(executable, fixture, case, bytes(program))
         native, detail = probe.run()
         projected = {key: actual[key] for key in native}
@@ -229,13 +238,15 @@ def main():
                                 'differentFields': different})
         del probe  # Only one native CPU/image is live at a time.
         gc.collect()  # Release bound-hook cycles before constructing the next CPU.
-        if different:
+        if different and not args.remaining_gates:
             report['status'] = 'mismatch; stopped before remaining native cases'
             print(json.dumps(report, indent=2))
             return 1
-    report['status'] = 'passed bounded allocator composition'
+    mismatched = any(case['differentFields'] for case in report['cases'])
+    report['status'] = ('mismatch; completed the remaining three frozen gate cases' if mismatched
+                        else 'passed bounded allocator composition')
     print(json.dumps(report, indent=2))
-    return 0
+    return int(mismatched)
 
 
 if __name__ == '__main__':

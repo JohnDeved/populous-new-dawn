@@ -8,6 +8,8 @@ import { campaignCommand } from '../app/campaign-command-runtime.ts'
 import { campaignInternal } from '../app/campaign-runtime.ts'
 
 const fixture = JSON.parse(readFileSync(process.argv[2], 'utf8'))
+const remainingGates = process.argv[3] === '--remaining-gates'
+assert.ok(process.argv.length === 3 || (process.argv.length === 4 && remainingGates))
 assert.equal(fixture.cases.length, 5)
 assert.equal(fixture.attributes.length, 48)
 assert.equal(fixture.attributes[25], 1)
@@ -16,7 +18,8 @@ const [start, end] = fixture.block
 assert.deepEqual([start, end], [796, 833])
 const block = { ...script, codes: [12, 1003, ...script.codes.slice(start, end), 1004, 1019] }
 
-const results = fixture.cases.map(c => {
+const cases = remainingGates ? fixture.cases.slice(2) : fixture.cases
+const results = cases.map(c => {
   const ai = {
     ...scriptState(script), ...createComputerQueue(),
     attributes: [...fixture.attributes],

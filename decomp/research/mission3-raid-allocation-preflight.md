@@ -1,6 +1,6 @@
 # Mission3 raid allocation: PhaseA source preflight
 
-Status: attempt2 retained the first controlled RNG mismatch; witness review pending.
+Status: attempt2 controlled RNG witness accepted; remaining gate cases prepared.
 Runtime base is
 `89e68606a406f93715b930550317519818ddc081`. Changes are two evidence programs,
 a controlled fixture, an optional shared-loader buffer argument, this note and raw
@@ -131,9 +131,9 @@ Use a new attempt path if a later reviewed change authorizes another execution.
 
 SHA256:
 
-- Corrected harness: `682244ce84837a737c49388d66f6ece96ea4ac8cd728ed11bba9555794f8a5dd`
+- Current harness: `d010174c235d69f1a7fc3aa80ab1b00b3fde80e83fec9267d36d6427d0299d4b`
 - Corrected shared loader: `0a4783a8ee924c52e1125a5df3e4e625b3ab00835e848a2013e444bcfd979c2e`
-- Pair adapter: `7bbe07e5dad4275cc33ba843b63d6089bd826aee1e173969c23265d15b4172af`
+- Current pair adapter: `b43e835fc839cb9a82bc7332e58ecb88f18654d11910dd13aae1fa32c13b96dc`
 - Fixture JSON: `da7c1916549335e2f731162b971533910e576f79736aee9850529e00a960c27a`
 - Supplied48attribute bytes: `c471187cb56bb6c813c4941ccd617c432e3b7634e96a26b35057371ba580bfc3`
 - Exact12552-byte program: `47425726a56232467e042d5ef7e33f7f5f40d1362164c7fbe481ec9bce26a930`
@@ -225,3 +225,32 @@ path/combat, natural campaign occurrence and rendering remain untested by this
 slice. The state20-off request is controlled; do not claim Mission3's authored
 script naturally disables state20. Runtime repair requires independent witness
 review and a bounded accepted scope before implementation.
+
+## Frozen supplemental gate plan
+
+Independent review accepted attempt2's bounded witness, including exact raw pool/
+attribute preservation and its controlled scope. Before any production repair,
+the coordinator requested a single run of only the remaining three already-frozen
+cases. The new `--remaining-gates` switch selects fixture entries2..4 in both the
+native harness and actual portable adapter: one active raid at authored cap1,
+full queue, and last-free-slot. It introduces no fixture, actor, RNG or gameplay
+change. Earlier nominal/state20 observations retain their existing source labels.
+
+This supplemental mode retains every paired difference across those three cases
+instead of stopping at the first one. It still aborts exceptions, known deferred
+controller/recruitment entry, failed native expectations, malformed input or
+resource limits. There is still no exhaustive unknown-function-call guard.
+No reproduction of the first two cases is part of this mode.
+
+Resource and intercepted-consumer contracts are unchanged. Maximum original work
+decreases to three initializations plus three block calls. Use the same CPU4,
+65-second TERM/5-second KILL payload with `--remaining-gates` appended, fresh
+`work/orchestration/mission3-raid-allocation/attempt3.json` receipt, and current
+source fingerprints. Differences return exit1 and a structured mismatch report;
+the command receipt must remain failed, never promoted to PASS.
+
+The raw report's historical `sourceHead` field is the fixture/runtime base89e6860,
+not the executed harness commit. A new explicit `sourceHeadMeaning` labels that
+distinction; the outer receipt is authoritative for executed HEAD and dirty diff.
+The supplemental source passes AST/Node syntax inspection only and is **not run**.
+It needs source preflight acceptance and a new coordinated execution grant.
