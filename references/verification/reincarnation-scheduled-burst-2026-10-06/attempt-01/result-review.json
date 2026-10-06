@@ -1,0 +1,26 @@
+{
+  "verdict": "ACCEPT retained failed/inconclusive attempt and bounded completed prefix only",
+  "source": "16c5cde60580c74985593779541b6048e0cc7e4c",
+  "receiptSha256": "11b1f143a347134c893ba7b596ab688db726f1b9e98c71df9522684417c12832",
+  "nativeStdoutSha256": "74416fb07a847f486e0dd9a6d4fdbb12c1478be101ded170735aa7fcaa994906",
+  "validatedReturnedCalls": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "partialCall": 10,
+  "lastEip": "00401b99",
+  "observations": [
+    "Original wave and phase5 birth were actually composed through call9, including new-record deferral, model9 visits7/8 and retirement8.",
+    "Body generation0 free8/reuse9 is explicit in raw events; root free and final model3 retirement are not completed claims.",
+    "Call10 did not return to required EIP; no call11 or complete timeline claim. Retained packet lacks direct timeout/instruction telemetry, so exact cap cause remains unknown.",
+    "All nine published member hashes verified; receipt source/input dictionaries equal and owned cleanup terminal."
+  ],
+  "next": "Review only observer local-link optimization/telemetry under original limits; no runtime, fixture, outcome or budget weakening."
+}

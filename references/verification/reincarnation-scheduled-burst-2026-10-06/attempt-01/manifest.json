@@ -42,6 +42,14 @@
     "supervisor.stdout.log": {
       "sha256": "dcf338d8bf224eb4697763c3015ad8d67d4cbb47ea0cdcf046dcb9058679d61a",
       "bytes": 368
+    },
+    "observer-diagnosis.json": {
+      "sha256": "ced69084a6715f3ab1e6f0711691f3a54c969213b49b5c111205501598af64bb",
+      "bytes": 10125
+    },
+    "result-review.json": {
+      "sha256": "41ee8cca424750d49373cb776873ffe69c6863d25646aa18f6ea182a0b3fa738",
+      "bytes": 1207
     }
   }
 }

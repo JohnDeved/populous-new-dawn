@@ -1,0 +1,107 @@
+--- accepted16c5cde6/probe-timeline.py
++++ observer-proposal/probe-timeline.py
+@@ -9,0 +10 @@
++from time import perf_counter_ns
+@@ -94 +95 @@
+-    from unicorn import UC_HOOK_CODE, UC_HOOK_MEM_READ, UC_HOOK_MEM_WRITE, UC_MEM_WRITE
++    from unicorn import UC_HOOK_CODE, UC_HOOK_MEM_READ, UC_HOOK_MEM_WRITE, UC_MEM_WRITE, UC_QUERY_TIMEOUT
+@@ -225,0 +227 @@
++    instruction_callbacks, supplied_skips, call_started_ns = 0, 0, 0
+@@ -303,0 +306,13 @@
++    def local_unlink(pointer, previous, following, head):
++        assert not previous or previous in known_records
++        assert not following or following in known_records
++        assert read(previous + 4 if previous else head, 'I') == following
++        if following:
++            assert read(following, 'I') == previous
++
++    def local_prepend(pointer, previous_head, head):
++        assert read(head, 'I') == pointer and read(pointer, 'I') == 0
++        assert read(pointer + 4, 'I') == previous_head
++        if previous_head:
++            assert previous_head in known_records and read(previous_head, 'I') == pointer
++
+@@ -305 +320,2 @@
+-        serial = retiring_pending.pop(pointer)
++        prior = retiring_pending.pop(pointer)
++        serial = prior['serial']
+@@ -310 +326,16 @@
+-        assert pointer in chain(0x890328) and pointer not in chain(0x890324)
++        local_unlink(pointer, prior['activePrev'], prior['activeNext'], 0x890324)
++        local_prepend(pointer, prior['retiringHead'], 0x890328)
++        assert read(0x89c651, 'I') == prior['allocatedCount']
++        assert not read(pointer + 0xc, 'I') & 0x20000
++        if prior['registered']:
++            previous, following = prior['cellPrev'], prior['cellNext']
++            if previous:
++                previous_pointer = read(TABLE + previous * 4, 'I')
++                assert previous_pointer in known_records
++                assert read(previous_pointer + 0x20, 'H') == following
++            else:
++                assert read(prior['cellHeadAddress'], 'H') == following
++            if following:
++                following_pointer = read(TABLE + following * 4, 'I')
++                assert following_pointer in known_records
++                assert read(following_pointer + 0x22, 'H') == previous
+@@ -312 +343,16 @@
+-        events.append({'retired': serial, 'turn': turn, 'state': state(pointer)})
++        events.append({'retired': serial, 'turn': turn, 'state': state(pointer), 'priorLinks': prior})
++
++    def call_metrics():
++        # UC_HOOK_CODE observes instruction starts, before execution. Supplied
++        # callee entries are skipped, and the final callback may be interrupted;
++        # do not label these as hardware-retired instructions.
++        result = {'elapsedNs': perf_counter_ns() - call_started_ns,
++                  'instructionCallbacks': instruction_callbacks,
++                  'suppliedEntrySkips': supplied_skips,
++                  'nativeInstructionStarts': instruction_callbacks - supplied_skips}
++        try:
++            result['unicornTimeout'] = bool(cpu.query(UC_QUERY_TIMEOUT))
++        except Exception as error:
++            result['unicornTimeout'] = None
++            result['timeoutQueryError'] = str(error)
++        return result
+@@ -314,0 +361,2 @@
++        nonlocal supplied_skips
++        supplied_skips += 1
+@@ -364 +412,2 @@
+-        nonlocal attempt, wrapper_active
++        nonlocal attempt, wrapper_active, instruction_callbacks
++        instruction_callbacks += 1
+@@ -447 +496,8 @@
+-            retiring_pending[pointer] = serial
++            cell = (read(pointer + 0x3d, 'H') >> 9) + (read(pointer + 0x3f, 'H') >> 9) * 128
++            retiring_pending[pointer] = {
++                'serial': serial, 'activePrev': read(pointer, 'I'),
++                'activeNext': read(pointer + 4, 'I'), 'retiringHead': read(0x890328, 'I'),
++                'allocatedCount': read(0x89c651, 'I'),
++                'registered': bool(read(pointer + 0xc, 'I') & 0x20000),
++                'cellPrev': read(pointer + 0x22, 'H'), 'cellNext': read(pointer + 0x20, 'H'),
++                'cellHeadAddress': LAND + cell * 16 + 6}
+@@ -460 +516,5 @@
+-            freeing_pending[pointer] = serial
++            assert read(pointer + 0x24, 'H') >= 640 and not read(pointer + 0xc, 'I') & 1
++            freeing_pending[pointer] = {
++                'serial': serial, 'retiringPrev': read(pointer, 'I'),
++                'retiringNext': read(pointer + 4, 'I'), 'freeHead': read(0x89031c, 'I'),
++                'allocatedCount': read(0x89c651, 'I')}
+@@ -463,2 +523,6 @@
+-            serial = freeing_pending.pop(pointer)
+-            assert pointer in chain(0x89031c) and pointer not in chain(0x890328)
++            prior = freeing_pending.pop(pointer)
++            serial = prior['serial']
++            local_unlink(pointer, prior['retiringPrev'], prior['retiringNext'], 0x890328)
++            local_prepend(pointer, prior['freeHead'], 0x89031c)
++            assert read(0x89c651, 'I') == prior['allocatedCount']
++            assert read(pointer + 0x2a, 'B') == 0 and read(pointer + 0x2e, 'B') == 0
+@@ -466 +530 @@
+-            events.append({'freed': serial, 'turn': turn, 'pointer': pointer})
++            events.append({'freed': serial, 'turn': turn, 'pointer': pointer, 'priorLinks': prior})
+@@ -482,0 +547,2 @@
++        instruction_callbacks, supplied_skips = 0, 0
++        call_started_ns = perf_counter_ns()
+@@ -487 +553 @@
+-                              'instruction': hex(cpu.reg_read(UC_X86_REG_EIP)),
++                              'instruction': hex(cpu.reg_read(UC_X86_REG_EIP)), 'metrics': call_metrics(),
+@@ -493,0 +560 @@
++                          'metrics': call_metrics(),

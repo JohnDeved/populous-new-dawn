@@ -1,0 +1,603 @@
+{
+  "summary": {
+    "method": "Host-only replay of retained native allocation/retirement/free observations from validated call9 into partial call10; no native CPU created. Each full-chain traversal performs 4 native-memory reads per record plus 1 head read and a growing Python-list membership check.",
+    "call10ObservedChainPairs": 72,
+    "traversedRecords": 27835,
+    "nativeMemoryReadCallsInTheseChainChecks": 111484,
+    "pythonListMembershipElementComparisonsUpperBound": 3723617,
+    "partialFinalListLengths": {
+      "active": 237,
+      "retiring": 99,
+      "highFree": 465,
+      "lowFree": 0
+    },
+    "lastObservedFree": {
+      "owner": "free",
+      "generation": 52,
+      "listLengths": [
+        465,
+        99
+      ]
+    },
+    "correctionProposal": "Keep all native instructions, supplied leaves, fixture, 11 calls and resource ceilings unchanged. Replace only repeated in-emulation full-list membership scans with direct bidirectional neighbor/head checks at retirement/free, retaining once-per-returned-call exhaustive partition/cell validation outside emu_start. Add host per-call monotonic elapsed, instruction callback count and UC_QUERY_TIMEOUT to raw output. No candidate edit or retry in this diagnosis.",
+    "limits": "Operation counts expose observer work, not a measured wall-time attribution. The failed packet cannot retrospectively identify the exact engine cap."
+  },
+  "perObservation": [
+    {
+      "owner": "retirement",
+      "generation": 227,
+      "listLengths": [
+        66,
+        257
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 225,
+      "listLengths": [
+        67,
+        256
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 224,
+      "listLengths": [
+        68,
+        255
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 223,
+      "listLengths": [
+        69,
+        254
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 222,
+      "listLengths": [
+        70,
+        253
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 221,
+      "listLengths": [
+        71,
+        252
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 219,
+      "listLengths": [
+        72,
+        251
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 217,
+      "listLengths": [
+        73,
+        250
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 216,
+      "listLengths": [
+        74,
+        249
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 213,
+      "listLengths": [
+        75,
+        248
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 212,
+      "listLengths": [
+        76,
+        247
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 211,
+      "listLengths": [
+        77,
+        246
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 209,
+      "listLengths": [
+        78,
+        245
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 208,
+      "listLengths": [
+        79,
+        244
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 205,
+      "listLengths": [
+        80,
+        243
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 203,
+      "listLengths": [
+        81,
+        242
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 202,
+      "listLengths": [
+        82,
+        241
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 201,
+      "listLengths": [
+        83,
+        240
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 200,
+      "listLengths": [
+        84,
+        239
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 198,
+      "listLengths": [
+        85,
+        238
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 197,
+      "listLengths": [
+        86,
+        237
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 129,
+      "listLengths": [
+        87,
+        236
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 128,
+      "listLengths": [
+        88,
+        235
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 127,
+      "listLengths": [
+        89,
+        234
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 126,
+      "listLengths": [
+        90,
+        233
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 125,
+      "listLengths": [
+        91,
+        232
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 124,
+      "listLengths": [
+        92,
+        231
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 123,
+      "listLengths": [
+        93,
+        230
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 122,
+      "listLengths": [
+        94,
+        229
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 121,
+      "listLengths": [
+        95,
+        228
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 120,
+      "listLengths": [
+        96,
+        227
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 119,
+      "listLengths": [
+        97,
+        226
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 118,
+      "listLengths": [
+        98,
+        225
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 117,
+      "listLengths": [
+        99,
+        224
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 116,
+      "listLengths": [
+        100,
+        223
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 115,
+      "listLengths": [
+        101,
+        222
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 114,
+      "listLengths": [
+        102,
+        221
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 113,
+      "listLengths": [
+        103,
+        220
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 112,
+      "listLengths": [
+        104,
+        219
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 111,
+      "listLengths": [
+        105,
+        218
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 110,
+      "listLengths": [
+        106,
+        217
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 109,
+      "listLengths": [
+        107,
+        216
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 108,
+      "listLengths": [
+        108,
+        215
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 107,
+      "listLengths": [
+        109,
+        214
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 106,
+      "listLengths": [
+        110,
+        213
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 105,
+      "listLengths": [
+        111,
+        212
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 104,
+      "listLengths": [
+        112,
+        211
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 103,
+      "listLengths": [
+        113,
+        210
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 102,
+      "listLengths": [
+        114,
+        209
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 101,
+      "listLengths": [
+        115,
+        208
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 100,
+      "listLengths": [
+        116,
+        207
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 99,
+      "listLengths": [
+        117,
+        206
+      ]
+    },
+    {
+      "owner": "retirement",
+      "generation": 98,
+      "listLengths": [
+        118,
+        205
+      ]
+    },
+    {
+      "owner": "free",
+      "generation": 34,
+      "listLengths": [
+        447,
+        117
+      ]
+    },
+    {
+      "owner": "free",
+      "generation": 35,
+      "listLengths": [
+        448,
+        116
+      ]
+    },
+    {
+      "owner": "free",
+      "generation": 36,
+      "listLengths": [
+        449,
+        115
+      ]
+    },
+    {
+      "owner": "free",
+      "generation": 37,
+      "listLengths": [
+        450,
+        114
+      ]
+    },
+    {
+      "owner": "free",
+      "generation": 38,
+      "listLengths": [
+        451,
+        113
+      ]
+    },
+    {
+      "owner": "free",
+      "generation": 39,
+      "listLengths": [
+        452,
+        112
+      ]
+    },
+    {
+      "owner": "free",
+      "generation": 40,
+      "listLengths": [
+        453,
+        111
+      ]
+    },
+    {
+      "owner": "free",
+      "generation": 41,
+      "listLengths": [
+        454,
+        110
+      ]
+    },
+    {
+      "owner": "free",
+      "generation": 42,
+      "listLengths": [
+        455,
+        109
+      ]
+    },
+    {
+      "owner": "free",
+      "generation": 43,
+      "listLengths": [
+        456,
+        108
+      ]
+    },
+    {
+      "owner": "free",
+      "generation": 44,
+      "listLengths": [
+        457,
+        107
+      ]
+    },
+    {
+      "owner": "free",
+      "generation": 45,
+      "listLengths": [
+        458,
+        106
+      ]
+    },
+    {
+      "owner": "free",
+      "generation": 46,
+      "listLengths": [
+        459,
+        105
+      ]
+    },
+    {
+      "owner": "free",
+      "generation": 47,
+      "listLengths": [
+        460,
+        104
+      ]
+    },
+    {
+      "owner": "free",
+      "generation": 48,
+      "listLengths": [
+        461,
+        103
+      ]
+    },
+    {
+      "owner": "free",
+      "generation": 49,
+      "listLengths": [
+        462,
+        102
+      ]
+    },
+    {
+      "owner": "free",
+      "generation": 50,
+      "listLengths": [
+        463,
+        101
+      ]
+    },
+    {
+      "owner": "free",
+      "generation": 51,
+      "listLengths": [
+        464,
+        100
+      ]
+    },
+    {
+      "owner": "free",
+      "generation": 52,
+      "listLengths": [
+        465,
+        99
+      ]
+    }
+  ]
+}

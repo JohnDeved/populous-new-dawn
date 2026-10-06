@@ -1,0 +1,47 @@
+{
+  "status": "observer-only source proposal; no native run",
+  "baselineSource": "16c5cde60580c74985593779541b6048e0cc7e4c",
+  "baselineProbeSha256": "d6034f564b02ef6497edf5da3f8a8d03469aadc7876ea5ce114812cd5470ce84",
+  "probeSha256": "fc4d89b00385b3ed8b9d7b73763a08863b98b4fbd9a89b54c3ef11b9bf1be1e0",
+  "unchangedFunctions": [
+    "sha",
+    "guard",
+    "state",
+    "rngs",
+    "chain",
+    "ownership",
+    "identify",
+    "raw_records",
+    "on_memory"
+  ],
+  "unchangedAstChecks": [
+    "top-level original targets/supplies/addresses",
+    "all fixture bytes/constants/loaded tables",
+    "mutable ranges",
+    "all native memory/register writes",
+    "mapping/hooks/native calls and limits",
+    "all post-call native outcome assertions"
+  ],
+  "hostOnlyLocalLinkCases": 144,
+  "detectedIndividualLinkCorruptions": 792,
+  "observerSites": {
+    "retirementEntry": [
+      "004edcf0",
+      "004ef180"
+    ],
+    "retirementCompleted": [
+      "004ede07",
+      "004ee190"
+    ],
+    "freeEntry": "00401b40",
+    "freeCompleted": "00401b99",
+    "nativeCounterDecrementAfterFreeReturn": "004ec975"
+  },
+  "timeoutApi": {
+    "constant": 4,
+    "querySourceSha256": "62ffe84341f4288e309040e06555b81798031817d32fd19a945e250813f872f0",
+    "constantsSourceSha256": "556c6a27336dc6dd3e0d49348951bde17e1b0f69166f2217773e6b3a7199f45d"
+  },
+  "telemetry": "Raw success/failure rows report monotonic elapsed ns, code-hook instruction starts, supplied-entry skips and UC_QUERY_TIMEOUT before assertions. Starts are not claimed as hardware-retired instructions; the interrupted final instruction may not execute.",
+  "scope": "Full list/cell ownership checks remain unchanged after every returned call. Only repeated in-emulation scans become exact local head/neighbor/cell/counter checks. No fixture, native function, branch, expectation,11-call limit,1s/200k call cap,20s+5/15CPU/1GiB supervisor bound or port change."
+}
