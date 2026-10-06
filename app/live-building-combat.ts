@@ -222,7 +222,9 @@ export function startLiveCombatResponse(w: World, u: Unit) {
   const source = (retained ?? createLivePerson(w, u)) as LivePerson & { class: 1; group: number }
   if (!retained) source.state = combatPerson(u).state
   const cell = (source.y >> 9) * 128 + (source.x >> 9)
-  let people: { unit: Unit; person: LivePerson & { class: 1; group: number } }[] = []
+  let people: { unit: Unit; person: LivePerson & { class: 1; group: number } }[] = [
+    { unit: u, person: source },
+  ]
   const peers = () => {
     people = w.units
       .filter(unit => {

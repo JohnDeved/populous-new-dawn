@@ -404,19 +404,20 @@ export function prepareBuildingEntryOrder(
   Object.assign(order, { model: dismantling ? 10 : 8, a, b, flags: order.flags | flags })
 }
 
-// 0x438730 for movement command 3, including unchanged-record short circuit.
+// 0x438730 for point commands 3/32, including unchanged-record short circuit.
 // Coast correction happens first; building lookup still uses the original cell.
 export function prepareMovementOrder(
   order: PersonOrder,
   point: { x: number; y: number },
   flags: number,
   land: { categories: Uint8Array; flags: Uint16Array | Uint32Array; buildingIds: Uint16Array },
-  outside: (id: number) => { x: number; y: number }
+  outside: (id: number) => { x: number; y: number },
+  model: 3 | 32 = 3
 ) {
   const x = point.x & 65535,
     y = point.y & 65535
-  if (order.model === 3 && order.a === x && order.b === y) return
-  order.model = 3
+  if (order.model === model && order.a === x && order.b === y) return
+  order.model = model
   order.flags |= flags & 255
   order.a = x
   order.b = y
