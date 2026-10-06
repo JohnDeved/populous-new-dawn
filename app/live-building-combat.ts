@@ -583,7 +583,7 @@ function stepAreaAttack(
             stateObject: launchFirewarrior(w, u, fireTarget),
           })
         }
-        if (!w.effects.some(effect => effect.id === p.stateObject)) p.stateObject = 0
+        if (!w.effects.some(shot => shot.id === p.stateObject)) p.stateObject = 0
         if (p.timer && --p.timer === 0) {
           p.animationMode = 40
           p.assignment |= 0x10
