@@ -1,0 +1,81 @@
+{
+  "repairHead": "d6c5ab372daebfef3dff33384b6accffa02c40f4",
+  "baselineHead": "1c7e6b05687aca14d9350e17c7ae14dc6c68bb97",
+  "format": "passed",
+  "eslint": "passed; dependency-free source tree warns React autodetect fallback",
+  "oxlint": "failed; same25 errors17 warnings as baseline, normalized messages identical",
+  "files": [
+    {
+      "path": "raw/scoped-oxlint-baseline-01/receipt.json.gz",
+      "sha256": "77240ada41ce93c4701b73bb70af4f9e5f925ca9cb9563caa2d197a0163992aa",
+      "bytes": 2313,
+      "gzipSha256": "9ddd857184c6e0a3cee542402c996fe0f54bf9d14e446de4b1626657f1c1ee2b"
+    },
+    {
+      "path": "raw/scoped-oxlint-baseline-01/stderr.txt.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "gzipSha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "path": "raw/scoped-oxlint-baseline-01/stdout.txt.gz",
+      "sha256": "e922bc3907d721c94432a3d0fb90fefdd28aed9f41e0a2aeffa0595c3f12314c",
+      "bytes": 9287,
+      "gzipSha256": "cc3ae404d13c6f2d42d03d50cee74326947018862465c32d24f109a5d6ea7f2c"
+    },
+    {
+      "path": "raw/scoped-format-repair-01/receipt.json.gz",
+      "sha256": "c8d25edc639a260d6da7910679d21524a314328fc86bc38f822e651874cab7b4",
+      "bytes": 2168,
+      "gzipSha256": "cc9826b7128567286d7dc041b72d76a6f969fbe7a794f1fa1c451e89135877bd"
+    },
+    {
+      "path": "raw/scoped-format-repair-01/stderr.txt.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "gzipSha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "path": "raw/scoped-format-repair-01/stdout.txt.gz",
+      "sha256": "bfe55ffc7ebb9ac8f79356b10ae4c944ed537fd8b20cb294ea9f60632177dfed",
+      "bytes": 110,
+      "gzipSha256": "c5b42786919b9a8340665c93b5c2c7fb1f738f04c0ac7d3e5d1845a0bbe61ea9"
+    },
+    {
+      "path": "raw/scoped-eslint-repair-01/receipt.json.gz",
+      "sha256": "898838e085f4731e843aaa67c0a21201c2756130b12b9abadbdd3da4e614ae88",
+      "bytes": 2282,
+      "gzipSha256": "4fc4f085f55e745369eefc786175e68ffc29d05b89fd179b80c5ce58f6cb5951"
+    },
+    {
+      "path": "raw/scoped-eslint-repair-01/stderr.txt.gz",
+      "sha256": "272e4c2b0e16e307699713ad6b529510bfa6a765ef48eba689f6f501a403e27f",
+      "bytes": 161,
+      "gzipSha256": "1a02432c68d18bec2adb299e8e31f59b056503751d71f54a1977201ff62d84a2"
+    },
+    {
+      "path": "raw/scoped-eslint-repair-01/stdout.txt.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "gzipSha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "path": "raw/scoped-oxlint-repair-01/receipt.json.gz",
+      "sha256": "a0a04e4b4161037112978af5d026f43984d80df95472eacdebb1cfaafc5c2f14",
+      "bytes": 2309,
+      "gzipSha256": "40755f80f0a5303de73c239a7c714fc2d7b0f311163f7e7e0a9ac8ab7322fe95"
+    },
+    {
+      "path": "raw/scoped-oxlint-repair-01/stderr.txt.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "gzipSha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "path": "raw/scoped-oxlint-repair-01/stdout.txt.gz",
+      "sha256": "f7f111898e0ee8a88c846528e0c11e46e61b12ea731c59e09ec795743c281a5b",
+      "bytes": 9287,
+      "gzipSha256": "02dc4064a19ff395353b3e9c7844275d63fc1e3fa33e221e2f8173c666f0f4c5"
+    }
+  ]
+}

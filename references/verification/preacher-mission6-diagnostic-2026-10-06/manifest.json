@@ -1,0 +1,172 @@
+{
+  "kind": "Mission6 fixed-step two-source diagnosis",
+  "scope": "one baseline and one candidate, no retries/native/browser/source edits",
+  "sources": [
+    {
+      "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-mission6-baseline-20261006",
+      "head": "1c7e6b05687aca14d9350e17c7ae14dc6c68bb97",
+      "appTree": "e08471b1db080a7ce66d2082b309d6efcfe9db26",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": ""
+    },
+    {
+      "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006",
+      "head": "0d278277145a83fccdc691874121c84ae71cec19",
+      "appTree": "902b00688e914c749e65cbcd20f0a8ef9c602f56",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": ""
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-mission6-baseline-20261006/work/orchestration/preacher-mission6-diagnostic-20261006/cleanup.json",
+      "bytes": 566,
+      "sha256": "df54ae541ce80634552a058483e0cb314e3b64d44b35504b01e6853ec0a61b5d"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-mission6-baseline-20261006/work/orchestration/preacher-mission6-diagnostic-20261006/conversion-and-member-events.json",
+      "bytes": 1080,
+      "sha256": "14462c076e58a2f9b9b9afa2e2c46eeab6a8cc86b65cd8e3175207421ef143f5"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-mission6-baseline-20261006/work/orchestration/preacher-mission6-diagnostic-20261006/diagnostic.mjs",
+      "bytes": 11953,
+      "sha256": "8d3a09a334663e12056a6c3c5c187819009246916635ae925712fc6d7bb76823"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-mission6-baseline-20261006/work/orchestration/preacher-mission6-diagnostic-20261006/guardian.py",
+      "bytes": 1439,
+      "sha256": "e503527db4de148b75a7007776ca828f5fae805d896046dc772136899550f4c2"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-mission6-baseline-20261006/work/orchestration/preacher-mission6-diagnostic-20261006/provenance.json",
+      "bytes": 433,
+      "sha256": "9058479c82fe92ba2ea0c4724e242f07e016bd4ca93ebe6a6f616d3dc59ca7e7"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-mission6-baseline-20261006/work/orchestration/preacher-mission6-diagnostic-20261006/receipt.json",
+      "bytes": 3117,
+      "sha256": "b04fa7b6731077ab4a26e0a005dd4d1accc2d81993d00449cead52c3adeab6a2"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-mission6-baseline-20261006/work/orchestration/preacher-mission6-diagnostic-20261006/receipt.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-mission6-baseline-20261006/work/orchestration/preacher-mission6-diagnostic-20261006/receipt.json.artifacts/stdout.log",
+      "bytes": 85,
+      "sha256": "0896f5b40232eea7696a4f53e0855b16b1d60e2e381552ceb693041fbfb06dc7"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-mission6-baseline-20261006/work/orchestration/preacher-mission6-diagnostic-20261006/result.json",
+      "bytes": 305,
+      "sha256": "d4639be4f44139a5df00434ea0b4e0f01c4ea49de73da66c3108d2eb87d2b5ff"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-mission6-baseline-20261006/work/orchestration/preacher-mission6-diagnostic-20261006/scenario-source.txt",
+      "bytes": 5380,
+      "sha256": "316220d90c5ed15db31b419d839874e26a4823c85c76f92f056b0c6ef3d0a0d6"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-mission6-baseline-20261006/work/orchestration/preacher-mission6-diagnostic-20261006/selected-turns.json",
+      "bytes": 1221365,
+      "sha256": "1f685f23440f884f9ee13d3e0966385898bc0dedbbd8a1abb182836edd3c3e23"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-mission6-baseline-20261006/work/orchestration/preacher-mission6-diagnostic-20261006/started.json",
+      "bytes": 440,
+      "sha256": "2f2b3376eb02211cff257e1d052f8f8dc3b1cc49d5f1a52f90bde9f4d804111b"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-mission6-baseline-20261006/work/orchestration/preacher-mission6-diagnostic-20261006/summary.json",
+      "bytes": 112664,
+      "sha256": "33c1f980573246bd839103f549ce4e46a92fa6cdc4dd7903a90e45cd18b846a4"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-mission6-baseline-20261006/work/orchestration/preacher-mission6-diagnostic-20261006/trace.jsonl",
+      "bytes": 39667102,
+      "sha256": "1f63399425d2e1589c1dc305cfedbac6df7d241fa90f750faca7105e8fd4be19"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-mission6-diagnostic-20261006/cleanup.json",
+      "bytes": 566,
+      "sha256": "2221708c7cf99d42effb14c69ec2bf3de58238cdef1ffa105b2a4059810220cc"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-mission6-diagnostic-20261006/conversion-and-member-events.json",
+      "bytes": 2111,
+      "sha256": "2091da8e615f941eabc6019aeccc25eae9de5ab7f8b5c44df1b491d64298990d"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-mission6-diagnostic-20261006/diagnostic.mjs",
+      "bytes": 11953,
+      "sha256": "8d3a09a334663e12056a6c3c5c187819009246916635ae925712fc6d7bb76823"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-mission6-diagnostic-20261006/findings.md",
+      "bytes": 6195,
+      "sha256": "9e6ca67723044db9a0341f56722044c7ea36bc50f285b675267750146561c89f"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-mission6-diagnostic-20261006/first-divergence.json",
+      "bytes": 68458,
+      "sha256": "c203d54ec5262f9c7c6c69ce4ee0494a0fa570becf65cee38ea04d97903733e1"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-mission6-diagnostic-20261006/guardian.py",
+      "bytes": 1439,
+      "sha256": "e503527db4de148b75a7007776ca828f5fae805d896046dc772136899550f4c2"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-mission6-diagnostic-20261006/provenance.json",
+      "bytes": 433,
+      "sha256": "9058479c82fe92ba2ea0c4724e242f07e016bd4ca93ebe6a6f616d3dc59ca7e7"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-mission6-diagnostic-20261006/receipt.json",
+      "bytes": 4397,
+      "sha256": "2d684a64da2b85debd0c572eb7ddf128cbb13fb46970b7cba25358b6e126dd39"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-mission6-diagnostic-20261006/receipt.json.artifacts/stderr.log",
+      "bytes": 1236,
+      "sha256": "c35dbaeb5e3e34a5c2fbb9e1ec648a6f82dcdca594809597d75b1d71edddb83c"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-mission6-diagnostic-20261006/receipt.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-mission6-diagnostic-20261006/result.json",
+      "bytes": 1306,
+      "sha256": "4a24474d4a1fc346f703915fca464237cfc5a3075994723cede15b1021522cb9"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-mission6-diagnostic-20261006/scenario-source.txt",
+      "bytes": 5380,
+      "sha256": "316220d90c5ed15db31b419d839874e26a4823c85c76f92f056b0c6ef3d0a0d6"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-mission6-diagnostic-20261006/selected-turns.json",
+      "bytes": 1275754,
+      "sha256": "e9954e802098bf756e860b5bea180b76f9fa7c4ff1505f68ad7e88c307c06e15"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-mission6-diagnostic-20261006/started.json",
+      "bytes": 440,
+      "sha256": "29dbc0f6ed794dc79f8ec3afc6fb2df63887d08c191f48b6832a3ac23bea9471"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-mission6-diagnostic-20261006/summary.json",
+      "bytes": 148052,
+      "sha256": "b1d999527a09673077ef8edf3b4930474b54fbc951b0818e77ac7c80577ca2cb"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-mission6-diagnostic-20261006/trace.jsonl",
+      "bytes": 38005468,
+      "sha256": "4cbfc048690c606c49347a38467e7d3954802f320b0acfccb78ec57f4b62fd40"
+    }
+  ]
+}
