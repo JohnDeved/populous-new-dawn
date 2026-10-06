@@ -1,8 +1,10 @@
 # Preacher sermon gesture evidence
 
 Refs #214. This packet preserves the bounded sermon gesture implementation and
-its original comparison. Ordinary candidate rendering, genuine Save/Load and
-supersession acceptance remain pending. The packet does not close the issue or
+its original comparison. The first ordinary candidate attempt failed before the
+Shaman home-return order was dispatched; gesture, genuine Save/Load and
+supersession evidence was not reached. Those acceptance gates remain blocked.
+The packet does not close the issue or
 claim whole-sermon, audible-output, native sound-mixer or original OS-game parity.
 
 ## Exact source boundaries
@@ -51,6 +53,25 @@ The ordinary pre-fix baseline was independently accepted locally at
 `9a54c932e5aaae1f50298e8e82e871ea87dfd2a8`, using application `169b5f38`.
 Its publication is owned separately; this packet does not assert a public artifact
 link. Candidate ordinary evidence is also owned separately and is excluded here.
+
+The candidate attempt used QA source
+`732652b27399dbfe799c1e89353fc895bc3f2b93` with application `b2b04cf4`, in original
+session `79409`. It finished with exit 1 on 2026-10-06 at 13:52:40.696 UTC:
+`Ground pixel changed before delivery` in the inherited ground-dispatch guard,
+before the Shaman returned home. No natural gesture, gesture return, Save/Load or
+supersession was observed. This early acquisition failure does not establish a
+gesture-controller regression, and the accepted native, asset and source gates
+remain valid.
+
+The maintained harness retained the failure and completed its cleanup; source,
+runtime and QA hashes stayed equal. A subsequent exclusive bind verified port
+4404 was released. That later check is not an exit-time process observation. The
+QA-owned terminal receipt SHA-256 is
+`f0c87f06f4eb2c0ce2665d2fa185e11813ba552489e46a334bd1c3f55f558cb5`, and cleanup
+record SHA-256 is
+`7a3ac716fecdd91480b962d6845e6d7c42183b06340f6266fdc757200c33324d`.
+These identities are recorded for coordination; this packet does not copy or
+claim publication of those separately owned files.
 
 ## Provenance and failed attempts
 

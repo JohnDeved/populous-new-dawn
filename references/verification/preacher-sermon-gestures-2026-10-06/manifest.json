@@ -6,7 +6,23 @@
   "nativeManifestSha256": "125acb5330e5487c7c5bd6438c13c2ec975ecb9d04538560ee9898d885b4a3b7",
   "appTree": "ebffcbf36afa3ac4ecd5f33a60e01c93e659f20f",
   "publicTree": "7afafb32546784eea20fd993df0f9eb5f9b86779",
-  "ordinaryCandidate": "pending; QA source/evidence owned elsewhere and excluded",
+  "ordinaryCandidate": {
+    "status": "failed before home-return pointer dispatch; visual/checkpoint proof not reached",
+    "qaHead": "732652b27399dbfe799c1e89353fc895bc3f2b93",
+    "application": "b2b04cf4915dafc7165e961f9b45ddb3efd4d103",
+    "originalSession": 79409,
+    "finishedAt": "2026-10-06T13:52:40.696Z",
+    "exitCode": 1,
+    "failure": "Ground pixel changed before delivery",
+    "gestureObserved": false,
+    "saveLoadObserved": false,
+    "supersessionObserved": false,
+    "receiptSha256": "f0c87f06f4eb2c0ce2665d2fa185e11813ba552489e46a334bd1c3f55f558cb5",
+    "cleanupSha256": "7a3ac716fecdd91480b962d6845e6d7c42183b06340f6266fdc757200c33324d",
+    "cleanup": "Maintained harness terminated with retained failure and equal source/runtime/QA hashes; later exclusive port4404 bind succeeded. The later check is not an exit-time process observation.",
+    "evidenceOwnedSeparately": true,
+    "qaFilesExcluded": true
+  },
   "ordinaryBaseline": "locally independently accepted at9a54c932/application169b; no external artifact link claimed here",
   "excluded": [
     "Original game files and executable",
@@ -464,8 +480,8 @@
       "bytes": 6089
     },
     "README.md": {
-      "sha256": "aa8602618320b13250f1d1f234c41420492963fade46d49a04936236abd1bfa7",
-      "bytes": 5649
+      "sha256": "5234f68b62b582b981dc9e819a25241e437930ef6e160615965c579e464458c9",
+      "bytes": 6863
     }
   }
 }
