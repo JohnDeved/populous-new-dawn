@@ -5155,6 +5155,11 @@ and names the remaining primary-stream, secondary-list and render-RNG boundaries
 visits and checkpoint slot reconstruction to the bounded runtime owner. Its
 primary-stream and current UI-adapter limits remain explicit.
 
+[Burning-state root release audit](research/hut-smoke-state-exit.md) identifies
+the class-2 initializer's immediate retained-root cleanup, omitted by the current
+live smoke eligibility and the existing fire probe's intercepted dispatch. It
+provides a bounded failure-first plan; runtime and rendered proof remain unrun.
+
 ## Building construction-gauge consumer — 2026-10-03
 
 [Bounded native/current comparison](research/building-construction-gauge.md) identifies

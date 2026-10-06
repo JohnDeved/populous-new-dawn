@@ -1,0 +1,53 @@
+{
+  "status": "source-audit-only",
+  "base": "1c7e6b05687aca14d9350e17c7ae14dc6c68bb97",
+  "date": "2026-10-06",
+  "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "staticTool": "GNU objdump (GNU Binutils for Debian) 2.44",
+  "sourceSha256": {
+    "app/hut-smoke-runtime.ts": "db740f09664eb124bba32f95740eb2842fe441bbaaa0653e408f4eba68f2a8c7",
+    "app/hut-occupancy-smoke.ts": "4d6660697dfa08ed6a99d5a906b857f9b259d3152abb7f33f82d389d84d1ed07",
+    "app/scene-entities.ts": "95a2a64f5741ca3445431a4b962e7a0aeef6e502841f56b2b90138addb236952",
+    "app/world-turn.ts": "957422e62b080cdbe787d78673336fb97957cdd6d2ce1ae547f1a280db2df26a",
+    "app/spell-effects-runtime.ts": "87b379fcadfccbf4592d9e34e3342a5b1df482618687defdd96b5491c8e73e63",
+    "app/building-damage.ts": "2edf267b12853719b2553d0ede485254ea101bbb2ae1ed6967306299895b90c3",
+    "app/building-runtime.ts": "d62fca552e99bf96792f21361fd73047b3fe064f2fcfbfb8af2307ba9e732463",
+    "app/live-people.ts": "1b8b2f1c3015317709298d5610067d13c3a17cb1a53a1a0fdd8117000ccb01c3",
+    "app/world-initialization.ts": "0b2accb95c180d87e71bad8788f9c28f3f49ab8af66d5189fd26af69ab717fe2",
+    "app/world-rules.ts": "5688538516b4f908930dbcd46ebb807a958ee3f7edbbcd59e7067d04bf74fd2a",
+    "app/level-one.ts": "e840e4ea8895ada4131c7d2da2ce70330307956ea7a6e647e55e76bf6026bd33",
+    "scripts/check-native-building-fire.py": "3eba21c7bda4dd0d9436432c4d58e8a4e695a6f332a9f23ecfc5599bcc2d5e2c",
+    "scripts/check-native-hut-smoke-owner.py": "27c568d40b09589ccdf548a6c234ea0394a15c78e4736ecf8010522b7708909c",
+    "scripts/check-browser-building-fire.mjs": "2b35b68651c49a8e9c60037895aaca371bacdd5ae3d5fae61df74aff784c96bb",
+    "decomp/generated/00408cb0.c": "e177dafe2e11a1dc758363ec69ba0cb42bec529cffb7635ee5348471223016f0",
+    "decomp/generated/004ed640.c": "00fed5e330959a34047a742ae4ce133e93c6cd4fdbdbc2a0222f22b06cda0ecb",
+    "decomp/generated/004030c0.c": "de57a2ea51b582b12864a014e4b5555b194d50770e4833cbc68f0703de7353d1",
+    "decomp/generated/00408840.c": "e4e29188408dbb7924057478a0ff5d704af116d67ee8bcd3c79f99c8fc071a9c",
+    "decomp/generated/00408ab0.c": "249f8b331263202d709d20c2c315bf9e0fce72be2a90878d48552460f4236512"
+  },
+  "staticCommands": [
+    {
+      "command": "objdump -D -Mintel --start-address=0x00403227 --stop-address=0x00403264 EXE",
+      "exitCode": 0,
+      "artifact": "class2-root-release.asm.txt",
+      "sha256": "ebc9ae0b6e686785dad1459b61c9a84d9776fbfe189245b63043db50894fe94c",
+      "normalization": "Strip trailing whitespace from objdump output; preserve instruction bytes and addresses"
+    },
+    {
+      "command": "objdump -D -Mintel --start-address=0x00408cb0 --stop-address=0x00408d00 EXE",
+      "exitCode": 0,
+      "artifact": "ignition-dispatch.asm.txt",
+      "sha256": "50e4263bbc329eff5a830362311c2463a75bee8be4b7d5d934e7706f7b1bb888",
+      "normalization": "Strip trailing whitespace from objdump output; preserve instruction bytes and addresses"
+    }
+  ],
+  "validation": {
+    "registeredExportHashes": "passed",
+    "canonicalExecutableHash": "passed",
+    "runtimeNativeComparison": "not-run",
+    "applicationTests": "not-run",
+    "browser": "not-run",
+    "typescriptQuality": "not-applicable; no TypeScript changes",
+    "npmCheckBuild": "not-applicable; docs-only source audit with execution outside this assignment"
+  }
+}
