@@ -186,7 +186,7 @@ export function stepPreachingOrder(
           effects.animate(97)
         }
       }
-      if (!(p.statusFlags & 2)) {
+      if (p.timer < 840 && !(p.statusFlags & 2)) {
         if (!p.animationMode && !(p.counter & 15)) {
           const pose = random(w) & 3
           if (pose === 1 || pose === 2) {
