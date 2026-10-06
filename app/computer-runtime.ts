@@ -1629,8 +1629,16 @@ export function stepComputerTasks(w: World, tribe: number) {
           },
           taskSpell: () => castAttackTaskSpell(w, tribe, task),
           select: (model, count, destination) => {
+            const recruitmentOrigin =
+              w.outcome.level === 3
+                ? w.ai.constructionBase !== undefined
+                  ? w.ai.constructionBase
+                  : shamanPosition
+                    ? ((shamanPosition.x >>> 8) & 254) | (shamanPosition.y & 0xfe00)
+                    : 0
+                : destination
             const current = (selection ??= computerSelectionWorld(w, tribe)),
-              ids = selectComputerPeople(current.world, model, model, -1, 1, destination, 7, count)
+              ids = selectComputerPeople(current.world, model, model, -1, 1, recruitmentOrigin, 7, count)
             for (const id of ids) {
               const source = current.sources.get(id)
               if (source) source.flags3 = current.world.units.get(id)!.flags3
