@@ -1,0 +1,148 @@
+{
+  "createdAt": "2026-10-06T23:20:12.584863+00:00",
+  "status": "independently-accepted-bounded-baseline-omission",
+  "testedQa": "e40eee375ac4ce862c73ef466723d1cf0d5d8883",
+  "application": "1c7e6b05687aca14d9350e17c7ae14dc6c68bb97",
+  "runId": "b1433e27-14a0-4fb0-8611-c65a535a8a0f",
+  "scope": "Ordinary Mission3 baseline omission at4699\u21924700. Expected positive32 assertion failed/exit1; candidate/native AL/lifecycle not claimed. Genuine3336 preserved.",
+  "files": [
+    {
+      "path": "crossing03-cleanup.json",
+      "bytes": 5512,
+      "sha256": "b095737d69c94dde6f2a4f4e103ae31bf6fd8f126f617706e6b921b2bd214fe1"
+    },
+    {
+      "path": "crossing03-command.json",
+      "bytes": 4043,
+      "sha256": "e0b8e7d576f4163a7015a8d492f5824e9156a9d9385f1e55b0e95ab1e074055e"
+    },
+    {
+      "path": "crossing03-setup.json",
+      "bytes": 821,
+      "sha256": "f19e4c96f5d0d3f4ac2f28a1c3b0e669342585ec1a4637408a4b2f1ebd917410"
+    },
+    {
+      "path": "crossing03/acquisition.json",
+      "bytes": 170654,
+      "sha256": "057924ccf7757223f033d87fdbf21d56e99efadd8f33af1d46ae2747b7147c67"
+    },
+    {
+      "path": "crossing03/actions.jsonl",
+      "bytes": 172129,
+      "sha256": "0ebfb7983bea46172d0736d4e0819545c42fd63e30dc392eaad7b3e933686334"
+    },
+    {
+      "path": "crossing03/baseline-qualified-omission.png",
+      "bytes": 1603205,
+      "sha256": "3b5066e70dac34b50c32b915425697ee02c8644fb2f5f2274065d7182ec3eba7"
+    },
+    {
+      "path": "crossing03/failure-0.png",
+      "bytes": 1604759,
+      "sha256": "78cde4a35d1ec3159984bfcdc1ed26d2f36610d44d6b0a7edb94d1287593f261"
+    },
+    {
+      "path": "crossing03/load-diagnostics.json",
+      "bytes": 59283,
+      "sha256": "aa239e5728d16bcebe80cd8aa9494d6727d2123349bc5bc3d43edc79fb0c5af5"
+    },
+    {
+      "path": "crossing03/loaded3336-paused.png",
+      "bytes": 1900400,
+      "sha256": "20b0b8459b1a1ecdfa6e8d0cdde1fdc4aef89b3fe8dd2935ccdfcd1e5df7e0f3"
+    },
+    {
+      "path": "crossing03/observer-cleanup.json",
+      "bytes": 28806,
+      "sha256": "86d67c85d251db6a36d1e1243474d4d3fe5f59236fb5d1cf1fdf1d2b7dee0f81"
+    },
+    {
+      "path": "crossing03/original-phases.jsonl",
+      "bytes": 2577573,
+      "sha256": "3348749f1481c66dcb583c402a8ae08691c67fa0bd10d9aceda7ddf15f2ec794"
+    },
+    {
+      "path": "crossing03/prelaunch.json",
+      "bytes": 16912,
+      "sha256": "7270e81d06049b521521651c926675f0db7240bcf9d1dfa8ef779f977b618d67"
+    },
+    {
+      "path": "crossing03/qualifying-visit.json",
+      "bytes": 21017,
+      "sha256": "3a15f4dcf161f9eca0d44f67882e91ed62759453397f93b2355edebcf5943669"
+    },
+    {
+      "path": "crossing03/receipt.json",
+      "bytes": 11041,
+      "sha256": "d95555db5a3936a0557a1123adab5d78eb08ba57a6b5713cb55697835f0655c1"
+    },
+    {
+      "path": "crossing03/response.json",
+      "bytes": 596314,
+      "sha256": "075105dde43318cceaf2ae366b736d52db5b4065dd50d50427a74f5358cc8967"
+    },
+    {
+      "path": "crossing03/terminal-inputs.json",
+      "bytes": 5445,
+      "sha256": "0e78c7ceb2ba8dfb75fd7a1cd897f37bfe8fb6676b9c63322a29acfbcce15c87"
+    },
+    {
+      "path": "outer-streams/stderr.log",
+      "bytes": 1280,
+      "sha256": "3725fd7afc68d14ecb351ae6de317d6cb96e7978b2caafb13f89b6f896e5fd7b"
+    },
+    {
+      "path": "outer-streams/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "prelaunch-crossing-e40eee37.json",
+      "bytes": 7203,
+      "sha256": "87000041a6fe5b0b072360a18c25811717752f718d471c5bae1ba45cdc91a0d6"
+    },
+    {
+      "path": "profile-correspondence-e40eee37.json",
+      "bytes": 668,
+      "sha256": "e8bf7bd482a09de2a263ebb4417ec72c821f0c9b2956f02095c53d6576289033"
+    }
+  ],
+  "publishedFiles": {
+    "qualifying-pair.json": {
+      "bytes": 18843,
+      "sha256": "a08d879dfd3a46779b34a61193b463552125addc1dad12f7fe1d55ecd996ed01"
+    },
+    "review.md": {
+      "bytes": 3498,
+      "sha256": "c6990f58350b6a22bbb551acb673e695874c15c3ca9cc1ed50a5de8bddfde69f"
+    },
+    "verification.json": {
+      "bytes": 4289,
+      "sha256": "9d8f3dcaebcabdf946968287da59422378cc0d9369a037e26738635106aa8833"
+    },
+    "cleanup.json": {
+      "bytes": 5512,
+      "sha256": "b095737d69c94dde6f2a4f4e103ae31bf6fd8f126f617706e6b921b2bd214fe1"
+    },
+    "review-manifest.json": {
+      "bytes": 491,
+      "sha256": "2463bcc2097389b6ac59f2bb7ad984678683bc12335e992420e24f4adf7b7bfe"
+    },
+    "baseline-qualified-omission.png": {
+      "bytes": 1603205,
+      "sha256": "3b5066e70dac34b50c32b915425697ee02c8644fb2f5f2274065d7182ec3eba7"
+    },
+    "archive.json": {
+      "bytes": 177,
+      "sha256": "9eee1947ce0ce60d861bb83a3579d6bd5e119481d282f6045d89231426a34b14"
+    },
+    "ordinary-preacher-crossing03.tar.gz": {
+      "bytes": 5265733,
+      "sha256": "ad5d9c2fd79c254017cac542c73191202b8d9f370e5aac9d93127d38d02421aa"
+    },
+    "README.md": {
+      "bytes": 3020,
+      "sha256": "6d754f56f51545348a021143f4af179e2ff38e1e387c63dba65c65d783948b53"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "decision": "ACCEPT bounded ordinary baseline omission; positive checker remains failed",
+  "head": "e40eee375ac4ce862c73ef466723d1cf0d5d8883",
+  "runId": "b1433e27-14a0-4fb0-8611-c65a535a8a0f",
+  "files": {
+    "review.md": "c6990f58350b6a22bbb551acb673e695874c15c3ca9cc1ed50a5de8bddfde69f",
+    "verification.json": "9d8f3dcaebcabdf946968287da59422378cc0d9369a037e26738635106aa8833",
+    "qualifying-pair.json": "a08d879dfd3a46779b34a61193b463552125addc1dad12f7fe1d55ecd996ed01"
+  }
+}

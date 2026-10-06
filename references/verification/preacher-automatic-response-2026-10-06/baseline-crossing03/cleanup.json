@@ -1,0 +1,136 @@
+{
+  "status": "baseline-omission-observed-terminal-cleaned",
+  "observedAt": "2026-10-06T23:17:22.911955+00:00",
+  "foregroundSession": 85093,
+  "foregroundExitCode": 1,
+  "testedHead": "e40eee375ac4ce862c73ef466723d1cf0d5d8883",
+  "finishedAt": "2026-10-06T23:15:13.091Z",
+  "outerStatus": "failed",
+  "innerStatus": "failed",
+  "diagnosticStatus": "baseline-omission-observed",
+  "assertionFailure": [
+    "Error: Qualified ordinary automatic-response visit retained; immediate32 is absent on baseline\n    at responseScenario (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-automatic-response-qa-20261006/qa/preacher-automatic-response/scenario.mjs:147:13)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-automatic-response-qa-20261006/scripts/local-render/harness.mjs:153:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-automatic-response-qa-20261006/qa/preacher-automatic-response/run.mjs:65:18"
+  ],
+  "profileId": "18a43673-dbce-42e2-97f0-f9e07c32df11",
+  "runId": "b1433e27-14a0-4fb0-8611-c65a535a8a0f",
+  "previousRunId": "71b7b45b-de5c-4091-9e96-3155583ccf3b",
+  "sourceStable": true,
+  "runtimeStable": true,
+  "qaStable": true,
+  "cleanupVerified": true,
+  "continuationVerified": true,
+  "checkpointBefore": {
+    "version": 1,
+    "level": 3,
+    "turn": 3336,
+    "time": 278,
+    "checkpointSha256": "016b2a662eaf14dd5daf3dc238017cffc76e224a910fe7914c239d5d0ab4ba88",
+    "actorsSha256": "5cb21546f2c3c0cf55fdd8ea170e4e43899c9ed7656a6e6010b1f0e6c1e3420d",
+    "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+    "stockSha256": "a1f8295c97ca4de8e02ed8f6616d47041ffee335814978cbf3e1b57ba80b58e0"
+  },
+  "checkpointAfter": {
+    "version": 1,
+    "level": 3,
+    "turn": 3336,
+    "time": 278,
+    "checkpointSha256": "016b2a662eaf14dd5daf3dc238017cffc76e224a910fe7914c239d5d0ab4ba88",
+    "actorsSha256": "5cb21546f2c3c0cf55fdd8ea170e4e43899c9ed7656a6e6010b1f0e6c1e3420d",
+    "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+    "stockSha256": "a1f8295c97ca4de8e02ed8f6616d47041ffee335814978cbf3e1b57ba80b58e0"
+  },
+  "checkpointUnchanged": true,
+  "browserErrors": [],
+  "observerRestoration": {
+    "checkedBy": "finishObserver calls requireCleanup before the expected absent32 throw",
+    "soleFailureIsExpectedAbsent32": true,
+    "rawFinishReturnRetained": false,
+    "finalCleanupErrors": []
+  },
+  "savedReplacementTurn": 3336,
+  "firstBound": {
+    "turn": 3379,
+    "paused": false
+  },
+  "pausedDiagnosticTurn": 3394,
+  "forwardDefenderRemovedTurn": 4209,
+  "plannerTurn": 4241,
+  "selectedBrave": 3067,
+  "predictionCount": 2,
+  "ordinaryMoveTurn": 4325,
+  "ordinaryMove": {
+    "id": 32,
+    "model": 3,
+    "flags": 0,
+    "references": 1,
+    "object": 0,
+    "a": 62591,
+    "b": 20062
+  },
+  "witness": {
+    "beforeTurn": 4699,
+    "afterTurn": 4700,
+    "sourceId": 3162,
+    "braveId": 3067,
+    "queued": [
+      {
+        "id": 32,
+        "identity": 2,
+        "model": 3,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 62591,
+        "b": 20062
+      }
+    ],
+    "pendingDistance": [
+      2989.02559373452,
+      2909.0453760641135
+    ],
+    "sourceHp": 55,
+    "sourceLife": 1100,
+    "sourceCell": [
+      126,
+      43
+    ],
+    "braveCell": [
+      125,
+      43
+    ],
+    "primary": [],
+    "genericThreat": 0,
+    "immediateCommand": 0,
+    "scanMask": 1
+  },
+  "phaseRows": 1042,
+  "screenshot": {
+    "path": "baseline-qualified-omission.png",
+    "turn": 4713,
+    "afterTurn": 4713,
+    "paused": true,
+    "sha256": "3b5066e70dac34b50c32b915425697ee02c8644fb2f5f2274065d7182ec3eba7",
+    "label": "Actual ordinary paused screenshot, not the earlier response instant"
+  },
+  "supplementalCurrentScope": {
+    "port4407Free": true,
+    "ownerLockAbsent": true,
+    "singletons": []
+  },
+  "rawFiles": {
+    "load-diagnostics.json": "aa239e5728d16bcebe80cd8aa9494d6727d2123349bc5bc3d43edc79fb0c5af5",
+    "receipt.json": "d95555db5a3936a0557a1123adab5d78eb08ba57a6b5713cb55697835f0655c1",
+    "loaded3336-paused.png": "20b0b8459b1a1ecdfa6e8d0cdde1fdc4aef89b3fe8dd2935ccdfcd1e5df7e0f3",
+    "failure-0.png": "78cde4a35d1ec3159984bfcdc1ed26d2f36610d44d6b0a7edb94d1287593f261",
+    "actions.jsonl": "0ebfb7983bea46172d0736d4e0819545c42fd63e30dc392eaad7b3e933686334",
+    "server.log": "e8c2a7ae18907acec46726a77482ee36c25e5e3528ff690538584e43094c6626",
+    "response.json": "075105dde43318cceaf2ae366b736d52db5b4065dd50d50427a74f5358cc8967",
+    "terminal-inputs.json": "0e78c7ceb2ba8dfb75fd7a1cd897f37bfe8fb6676b9c63322a29acfbcce15c87",
+    "baseline-qualified-omission.png": "3b5066e70dac34b50c32b915425697ee02c8644fb2f5f2274065d7182ec3eba7",
+    "original-phases.jsonl": "3348749f1481c66dcb583c402a8ae08691c67fa0bd10d9aceda7ddf15f2ec794",
+    "observer-cleanup.json": "86d67c85d251db6a36d1e1243474d4d3fe5f59236fb5d1cf1fdf1d2b7dee0f81",
+    "prelaunch.json": "7270e81d06049b521521651c926675f0db7240bcf9d1dfa8ef779f977b618d67",
+    "acquisition.json": "057924ccf7757223f033d87fdbf21d56e99efadd8f33af1d46ae2747b7147c67"
+  },
+  "limits": "Ordinary moving3/eligible-Brave absence is a source-bound call-admission inference, not an observed internal scanner AL or original execution. Positive32 behavior intentionally remains failed. No candidate/lifecycle claim. Later paused screenshot is not the exact4700 instant. No Save; original3336 unchanged."
+}

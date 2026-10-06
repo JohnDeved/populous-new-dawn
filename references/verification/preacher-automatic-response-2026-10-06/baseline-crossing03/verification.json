@@ -1,0 +1,32 @@
+{
+  "decision": "ACCEPT bounded ordinary baseline omission evidence; positive behavior remains FAILED",
+  "head": "e40eee375ac4ce862c73ef466723d1cf0d5d8883",
+  "runId": "b1433e27-14a0-4fb0-8611-c65a535a8a0f",
+  "rawRowIndices": [
+    1040,
+    1041
+  ],
+  "phaseRows": 1042,
+  "sourceRuntimeQaStable": true,
+  "cleanupVerified": true,
+  "checkpointUnchanged": true,
+  "screenshotViewed": true,
+  "screenshotScope": "Paused scene at4713 after later combat-owner handoff, not the4700 response instant",
+  "inputs": {
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-automatic-response-qa-20261006/work/orchestration/preacher-automatic-response/baseline/crossing03/load-diagnostics.json": "aa239e5728d16bcebe80cd8aa9494d6727d2123349bc5bc3d43edc79fb0c5af5",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-automatic-response-qa-20261006/work/orchestration/preacher-automatic-response/baseline/crossing03/receipt.json": "d95555db5a3936a0557a1123adab5d78eb08ba57a6b5713cb55697835f0655c1",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-automatic-response-qa-20261006/work/orchestration/preacher-automatic-response/baseline/crossing03/loaded3336-paused.png": "20b0b8459b1a1ecdfa6e8d0cdde1fdc4aef89b3fe8dd2935ccdfcd1e5df7e0f3",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-automatic-response-qa-20261006/work/orchestration/preacher-automatic-response/baseline/crossing03/failure-0.png": "78cde4a35d1ec3159984bfcdc1ed26d2f36610d44d6b0a7edb94d1287593f261",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-automatic-response-qa-20261006/work/orchestration/preacher-automatic-response/baseline/crossing03/actions.jsonl": "0ebfb7983bea46172d0736d4e0819545c42fd63e30dc392eaad7b3e933686334",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-automatic-response-qa-20261006/work/orchestration/preacher-automatic-response/baseline/crossing03/server.log": "e8c2a7ae18907acec46726a77482ee36c25e5e3528ff690538584e43094c6626",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-automatic-response-qa-20261006/work/orchestration/preacher-automatic-response/baseline/crossing03/response.json": "075105dde43318cceaf2ae366b736d52db5b4065dd50d50427a74f5358cc8967",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-automatic-response-qa-20261006/work/orchestration/preacher-automatic-response/baseline/crossing03/qualifying-visit.json": "3a15f4dcf161f9eca0d44f67882e91ed62759453397f93b2355edebcf5943669",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-automatic-response-qa-20261006/work/orchestration/preacher-automatic-response/baseline/crossing03/terminal-inputs.json": "0e78c7ceb2ba8dfb75fd7a1cd897f37bfe8fb6676b9c63322a29acfbcce15c87",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-automatic-response-qa-20261006/work/orchestration/preacher-automatic-response/baseline/crossing03/baseline-qualified-omission.png": "3b5066e70dac34b50c32b915425697ee02c8644fb2f5f2274065d7182ec3eba7",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-automatic-response-qa-20261006/work/orchestration/preacher-automatic-response/baseline/crossing03/original-phases.jsonl": "3348749f1481c66dcb583c402a8ae08691c67fa0bd10d9aceda7ddf15f2ec794",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-automatic-response-qa-20261006/work/orchestration/preacher-automatic-response/baseline/crossing03/observer-cleanup.json": "86d67c85d251db6a36d1e1243474d4d3fe5f59236fb5d1cf1fdf1d2b7dee0f81",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-automatic-response-qa-20261006/work/orchestration/preacher-automatic-response/baseline/crossing03/prelaunch.json": "7270e81d06049b521521651c926675f0db7240bcf9d1dfa8ef779f977b618d67",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-automatic-response-qa-20261006/work/orchestration/preacher-automatic-response/baseline/crossing03/acquisition.json": "057924ccf7757223f033d87fdbf21d56e99efadd8f33af1d46ae2747b7147c67",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-automatic-response-qa-20261006/work/orchestration/preacher-automatic-response/baseline/crossing03-command.json": "e0b8e7d576f4163a7015a8d492f5824e9156a9d9385f1e55b0e95ab1e074055e"
+  }
+}
