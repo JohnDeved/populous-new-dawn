@@ -1,11 +1,13 @@
 # Passive ordinary Preacher cutoff capture
 
 Source-only driver prepared from the independently accepted plan53bd2a40.
-Launch is disabled by source-inputs status until final accepted feature adoption
-and exact driver/command review. No package command, dependency transfer or
+Exact source-accepted, quality-frozen featurebd07a630 is adopted; browser launch
+still requires terminal standard gates, exact command review and the parent grant. No package command, dependency transfer or
 browser run has been performed in this tree. This isolated QA branch preserves accepted QA0ef63ba8
 and normally merges current main d35835caba6f6d89d9ca97a4f87a4b68744a6bbf.
-Its app/public/scripts/tests trees equal that main, which carries exact b2 behavior.
+It also normally adopts featurebd07a6302bb0170e9d6dc235983c2a961694d753;
+app/public/scripts/tests equal that feature, with only the reviewed narrow cutoff
+repair relative to main in runtime code.
 The accepted0ef tree and both candidate attempts remain immutable.
 
 ## Question and evidence boundary
@@ -17,11 +19,10 @@ so4174 is model state with a stale mesh, not a rendered restart witness. Baselin
 similarly skips4247. Neither absence is evidence of visible impact.
 
 One new ordinary run will establish this cutoff's exact reachable live state and
-record whether normal rendering presents it. The current-main profile records the
-unfixed transition. A later candidate profile must adopt only the separately
-reviewed exact fix and update source pins before review/grant. No mixed-source or
-source-change-during-run comparison is permitted. The parent chooses the profile;
-this plan grants neither a run nor a second comparison run.
+record whether normal rendering presents it. This candidate profile records the reviewed
+fixed transition. The prior main/native comparisons and retained0ef stream are
+the unfixed evidence; no fresh baseline is included. No mixed-source or
+source-change-during-run comparison is permitted. This source grants no run.
 
 ## Reuse and smallest proposed source changes
 

@@ -1,16 +1,16 @@
 {
-  "status": "driver-prepared-awaiting-final-accepted-feature-adoption",
+  "status": "ready",
   "applicationMain": "d35835caba6f6d89d9ca97a4f87a4b68744a6bbf",
   "acceptedQa": "0ef63ba8e1dbf2ef51e33626948e179116c40ca4",
   "nativeProofSource": "90d79f20e2931d61e8125a7a7a4ecf11b634201d",
   "trees": {
-    "app": "ebffcbf36afa3ac4ecd5f33a60e01c93e659f20f",
+    "app": "de673aa2e69dbd162411521779569fc2bc4127f0",
     "public": "7afafb32546784eea20fd993df0f9eb5f9b86779",
-    "scripts": "e60da49f0c994dd2bc2bd50f2ffbeca730dd2786",
-    "tests": "420c5b2f91eafe428d3204a3c088012c422058d2"
+    "scripts": "8a660e4ea72afed78bc88220cd9f51869a71e5bf",
+    "tests": "3c5772224d59d368bef2b5e1ab6adc993b541dfa"
   },
   "applicationFiles": {
-    "app/preacher-conversion.ts": "2369864ac8f0d20d51a1570bc8bddc608241d3da55fea6fba4b3a233e0c7933d",
+    "app/preacher-conversion.ts": "a402baa5e394ebf13347a3b371a957d25cb2bd519b44da77a886646a710fd784",
     "app/live-movement.ts": "626f7a07bbafe1f82e858b9a4e06490bda9f28f18b15be4a432d410ad1048e20",
     "app/person-state.ts": "da771659e4da644ce0aa7eb6a988907888a9971e77745e3afeb95215f983cc17",
     "app/live-people.ts": "1b8b2f1c3015317709298d5610067d13c3a17cb1a53a1a0fdd8117000ccb01c3",
@@ -49,12 +49,12 @@
       128
     ]
   },
-  "futureApplicationAdoption": "Only exact independently accepted fix under parent coordination, with revised pins and fresh source review. No current claim of fix adoption.",
-  "proposedFeature": "bd07a6302bb0170e9d6dc235983c2a961694d753",
+  "futureApplicationAdoption": "Exact source-accepted and quality-frozen bd07a630 adopted normally; launch still requires terminal standard gates, exact command preflight and parent resource grant.",
   "driverAdaptations": {
     "observe.mjs": "Accepted candidate phase/owner predicates narrowed to scalar ordinary cutoff and48/16 stop; unchanged baseline chainPhaseObservers imported.",
     "render.mjs": "Accepted render-observation geometry/layer reader made synchronous with preloaded inputs, actualDraw/material dimensions, three bounded existing-framebuffer reads. No forced rendering or layer changes.",
     "scenario.mjs": "Accepted acquisition imported unchanged, same fresh command17 entry and finite observation, no Save/Load/pause/supersession; fatal retained cleanup.",
     "run.mjs": "Accepted source/runtime-pinned runner adapted only to cutoff inputs/port4405/540s and disabled until source-inputs status ready."
-  }
+  },
+  "applicationCommit": "bd07a6302bb0170e9d6dc235983c2a961694d753"
 }
