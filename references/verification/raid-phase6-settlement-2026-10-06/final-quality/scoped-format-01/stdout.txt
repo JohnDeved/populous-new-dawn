@@ -1,0 +1,6 @@
+Checking formatting...
+
+app/computer-runtime.ts (9ms)
+
+Format issues found in above 1 files. Run without `--check` to fix.
+Finished in 12ms on 6 files using 4 threads.

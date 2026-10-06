@@ -1,0 +1,9 @@
+# Independent combined source correspondence
+
+ACCEPT source correspondence at `cdec00a4cabfa60c88654ae573d58991d4d96c0c`, app tree `aaa89e603e508aaa5db2aae26ee069396aa0072a`, for the coordinator's required integrated gates. This is not final merge/ordinary acceptance. Reviewer performed only source/Git/hash reads.
+
+Independently verified the complete tests tree is byte-identical to accepted47186efd (tree0ae1a2bfc469ada3cc0e9e04f7c81ed4234f7c54). computer-runtime.ts is byte-identical to accepted3007dd9f/47186efd. combat-targets.ts/live-combat.ts and the maintained Firewarrior full-module guard are exact acceptedd6c5ab37 bytes. person-orders.ts/preacher-conversion.ts/live-building-combat.ts are exact accepted0d278277 bytes. These six app files are the entire app delta from actual main1c7e6b05. Package and lock bytes are unchanged from that main. The worktree is clean and correspondence JSON hashes match.
+
+The final commit adds only the findings note and evidence/project-map links. The note accurately distinguishes the two supplied native visits, conditional membership mapping, actual production caller/failure-first correction, conservative missing/state33 boundary, unchanged mixed-target gap, stronger maintained513-tick test and pending integrated/ordinary gates. The pinned evidence commit97684052 contains the linked README and accepted raw-result review. Historical preflight source-only wording is explicitly retained as historical; it is not represented as current nonexecution.
+
+Prior scoped Oxfmt/ESLint and baseline-equal Oxlint evidence remains bounded to its earlier accepted heads; combined quality and full check/build have not been completed on this source. The ordinary baseline omission is accepted separately, but genuine candidate automatic32/initiator/queue/listener/release/render evidence remains pending. No smoke app changes or broad AI behavior were folded into this merge.

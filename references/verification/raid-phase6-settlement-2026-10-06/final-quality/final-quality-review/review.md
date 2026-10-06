@@ -1,0 +1,7 @@
+# Independent final formatting/quality correspondence
+
+ACCEPT exact `48a84610254d3ad5cddb600c266ed9a151233b79`, app tree562dd076f45cfc2bed6c3da0e6279d06b5b47af9, for the coordinator's integrated full check/build. The sole diff from acceptedcdec00a4 joins the existing timeout if/body onto one line. An exact text replacement reproduces the complete new file. The retained TypeScript scanner confirms6643 identical lexical tokens; tests and other app files are unchanged.
+
+Verified complete receipts and streams: final six-file Oxfmt check passes on48a84610; scoped ESLint passes on accepted pre-formatcdec00a4. Oxlint honestly remains exit1. Independently normalized only diagnostic line/column and compared multisets retaining filenames, severities, rule/message text and duplicate counts: candidate and main1c7e6b05 have exactly115 identical rows,41 errors/74 warnings. The same six paths and root config are used; baseline source files equal the main Git objects. No introduced diagnostic is present. The one-line whitespace correspondence carries those scoped results to the final head without claiming a new Oxlint pass.
+
+All read-only quality receipts have stable source/dependency identities and empty owned process groups; final format receipt is clean and stable. Earlier format failure and the intentional formatting-write receipt remain preserved rather than relabeled. This acceptance covers the formatting and baseline-quality comparison; full check/build and genuine ordinary candidate lifecycle remain pending.

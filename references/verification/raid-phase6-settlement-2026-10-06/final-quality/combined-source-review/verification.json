@@ -1,0 +1,22 @@
+{
+  "decision": "ACCEPT combined source correspondence",
+  "head": "cdec00a4cabfa60c88654ae573d58991d4d96c0c",
+  "appTree": "aaa89e603e508aaa5db2aae26ee069396aa0072a",
+  "testsTree": "0ae1a2bfc469ada3cc0e9e04f7c81ed4234f7c54",
+  "correspondenceSha256": "0d6c795c8bec2b7ecd79b5f517b6b04e9bf84cfc6bc39f1bdc3d162455074f2c",
+  "firewarriorGuard": {
+    "path": "decomp/research/firewarrior-firing-phase/port.mjs",
+    "sha256": "7dca747b11d1b1e195046a7f0f733fafa42a7933916486087de1b0de5b33d681"
+  },
+  "docs": {
+    "decomp/README.md": "4c61672942a34a718177a23ea82997612ca0945b099fce088fdcb97addbff079",
+    "engineering/project-map.json": "8247b6238fbc32d46a643a01ea571ac857256256d7fbbc5c4d1e8a19a1d002af",
+    "decomp/research/raid-phase6-settlement/findings.md": "4c4f9b5ca9eb9559bdd44b1e94b67e813f337af013cd8a31e58541129495819a"
+  },
+  "pending": [
+    "combined quality",
+    "full check",
+    "build",
+    "ordinary candidate lifecycle"
+  ]
+}

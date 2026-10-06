@@ -1,0 +1,8 @@
+{
+  "decision": "ACCEPT combined source correspondence",
+  "head": "cdec00a4cabfa60c88654ae573d58991d4d96c0c",
+  "files": {
+    "review.md": "d64c414de24503bbcd48a11303bb20842691d48d6fed7b560d2575d58e03e32f",
+    "verification.json": "48b18c1883f6d3390ec02726e168308934286444d116f455ae2e33eb6baf5ba3"
+  }
+}

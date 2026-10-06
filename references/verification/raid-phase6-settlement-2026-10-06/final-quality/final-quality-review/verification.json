@@ -1,0 +1,23 @@
+{
+  "decision": "ACCEPT final formatting/quality correspondence",
+  "head": "48a84610254d3ad5cddb600c266ed9a151233b79",
+  "appTree": "562dd076f45cfc2bed6c3da0e6279d06b5b47af9",
+  "appComputerRuntimeSha256": "4316213f89499dc4a73a915e81bca06c91c8a155aa0e5e7db84cee08295fb010",
+  "scope": [
+    "Oxfmt PASS",
+    "ESLint PASS via exact whitespace correspondence",
+    "Oxlint FAIL baseline-equivalent115 diagnostics"
+  ],
+  "diagnosticCounts": {
+    "warning": 74,
+    "error": 41
+  },
+  "receipts": {
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-pr247-final-gates/format-token-check-01.json": "0494c8be4417233c76ae924aa08c69c9360a091fd2328a77412f2a4444cf39ba",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-pr247-final-gates/format-final-01.json": "8cc23c6a5d4700a44774f9c035946ae0bfe1b7a89276f7b3aff1a2c1cee5e61a",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-pr247-final-gates/oxlint-comparison.json": "b6647c7a57cb12a2080b29393ab4cefed9d13ef1b81a4902c8165a4ede34ab84",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-pr247-final-gates/scoped-eslint-01/receipt.json": "b8e93b4216d8610d4d25c4de361bd902b80b1af23633b384e5246aec7cfda90a",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-pr247-final-gates/scoped-oxlint-01/receipt.json": "7e3445e897231f4a254422c00af9d024fba5395000669f7a01310909249139ca",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-pr247-final-gates/scoped-oxlint-baseline-01/receipt.json": "452fc7974b14856955adbe2e293521105deddd8038d17bebcc808de9bd54e8a2"
+  }
+}

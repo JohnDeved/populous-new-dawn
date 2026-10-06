@@ -1,0 +1,12 @@
+{
+  "status": "no new diagnostics",
+  "baselineHead": "1c7e6b05687aca14d9350e17c7ae14dc6c68bb97",
+  "candidateHead": "cdec00a4cabfa60c88654ae573d58991d4d96c0c",
+  "normalization": "only line and column removed; filename/severity/rule/message preserved",
+  "baselineExit": 1,
+  "candidateExit": 1,
+  "rows": 115,
+  "errors": 41,
+  "warnings": 74,
+  "normalizedSha256": "092acb3cdcedac03a76f338bc236c8405a5f7f9e701b785c21eba3886d912a5d"
+}

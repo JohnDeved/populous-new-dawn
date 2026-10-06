@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "46594797-50fe-4527-977c-d39df6088c2a",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "cdec00a4cabfa60c88654ae573d58991d4d96c0c",
+    "branch": "fix/preacher-command32-expiry-20261006",
+    "trackedDiffSha256": "6a32325c7f0fa8192aaffe2bbf1d422b76d2c8a4d91886af109fc27eea150034",
+    "inputs": {
+      "app/computer-runtime.ts": "4316213f89499dc4a73a915e81bca06c91c8a155aa0e5e7db84cee08295fb010",
+      "/tmp/check_pr247_format_tokens.mjs": "9463be2aa36e4467da06c43826444606800084fc42029b22f130749e4f6de6c1"
+    }
+  },
+  "command": [
+    "/usr/bin/taskset",
+    "--cpu-list",
+    "0-3",
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=3s",
+    "15s",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/tmp/check_pr247_format_tokens.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006",
+  "startedAt": "2026-10-06T23:47:15.812Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-pr247-final-gates/format-token-check-01.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-pr247-final-gates/format-token-check-01.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T23:47:16.426Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\"status\":\"passed\",\"tokens\":6643,\"tokenSha256\":\"814e5893fbc14fde546156296b50d3c1a2751d6cd032c3922f500d904c41245a\",\"scope\":\"TypeScript lexical tokens unchanged; only formatter line joining\"}\n",
+  "stderr": "",
+  "stdoutSha256": "f338ddd8d7406973bb75099f40b4c71fba97b68facd4ba9d12cc71729bc62a53",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "cdec00a4cabfa60c88654ae573d58991d4d96c0c",
+    "branch": "fix/preacher-command32-expiry-20261006",
+    "trackedDiffSha256": "6a32325c7f0fa8192aaffe2bbf1d422b76d2c8a4d91886af109fc27eea150034",
+    "inputs": {
+      "app/computer-runtime.ts": "4316213f89499dc4a73a915e81bca06c91c8a155aa0e5e7db84cee08295fb010",
+      "/tmp/check_pr247_format_tokens.mjs": "9463be2aa36e4467da06c43826444606800084fc42029b22f130749e4f6de6c1"
+    }
+  }
+}
