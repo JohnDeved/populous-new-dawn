@@ -285,6 +285,8 @@ test('Mission 6 Chumara trains Preachers and launches its first mixed raid', () 
     retired = false
   for (let turn = 0; turn < 513; turn++) {
     const phase = restoredAttack.phase,
+      elapsed = restoredAttack.elapsed,
+      fallback = restoredAttack.fallback,
       active = !!(restoredAttack.flags & 1),
       owners = phase === 6 ? originalMembers.map(id => {
         const unit = raiding.units.find(unit => unit.id === id),
@@ -296,7 +298,8 @@ test('Mission 6 Chumara trains Preachers and launches its first mixed raid', () 
         return {
           id, person, state: person.state, speed: person.speed,
           fightOwned: unit.fight?.motion === person,
-          immediate: person.immediateCommand, commands: [...person.commands],
+          immediate: person.immediateCommand, cursor: person.commandCursor,
+          commands: [...person.commands],
           queuedModel: raiding.buildingOrders.records[person.commands[person.commandCursor]]?.model,
           order, payload: order && { ...order },
         }
@@ -315,6 +318,8 @@ test('Mission 6 Chumara trains Preachers and launches its first mixed raid', () 
       assert.equal(combat.queuedModel, 3)
       assert.ok(owners.some(owner => owner.state === 10 && owner.speed > 0 && owner.order?.model === 3))
       assert.equal(abortTurn, null)
+      assert.ok(elapsed <= 1800)
+      assert.equal(fallback, 23)
       assert.equal(restoredAttack.elapsed, 1801)
       assert.equal(restoredAttack.fallback, 23)
       assert.equal(restoredAttack.flags & 1, 1)
@@ -322,6 +327,7 @@ test('Mission 6 Chumara trains Preachers and launches its first mixed raid', () 
       for (const owner of owners) {
         assert.equal(raiding.objectCells.objects.get(owner.id), owner.person)
         assert.equal(owner.person.immediateCommand, owner.immediate)
+        assert.equal(owner.person.commandCursor, owner.cursor)
         assert.deepEqual(owner.person.commands, owner.commands)
         assert.equal(currentPersonOrder(raiding.buildingOrders, owner.person), owner.order)
         assert.deepEqual(owner.order, owner.payload)
