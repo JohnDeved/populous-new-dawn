@@ -1,0 +1,28 @@
+{
+  "verdict": "ACCEPT standard and scoped quality evidence",
+  "blockingFindings": [],
+  "head": "bd07a6302bb0170e9d6dc235983c2a961694d753",
+  "sourceGateManifestSha256": "5e34ee494d2c61e869e0f2b9cbd318b88c50d41ad182c244a1ef3d89b31bcf88",
+  "tests": {
+    "tests": 1349,
+    "pass": 1349,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "gateSeconds": {
+    "full-check-01": 349.75687015499716,
+    "build-01": 32.20451943599619,
+    "scoped-format-01": 0.3218878410043544,
+    "scoped-eslint-01": 4.438943973000278,
+    "scoped-oxlint-01": 0.17747439999948256,
+    "scoped-oxlint-baseline-01": 0.2652702470004442
+  },
+  "sourceBeforeAfterStable": true,
+  "allOwnedProcessGroupsEmptyAtTermination": true,
+  "oxlint": "exact baseline warning; zero introduced diagnostics; no global clean claim",
+  "ordinaryBrowserEvidence": "pending separate QA",
+  "executionByReviewer": "none",
+  "reviewSha256": "caa6b5f4cc3bffec2b1d88c880332e2b90773bef76f41f0f8b0ab92e6c131f1a"
+}

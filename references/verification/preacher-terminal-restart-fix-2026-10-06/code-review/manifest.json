@@ -1,0 +1,23 @@
+{
+  "verdict": "ACCEPT code and focused evidence",
+  "blockingCodeFindings": [],
+  "integrationAcceptance": "pending full/quality/browser gates",
+  "base": "d35835caba6f6d89d9ca97a4f87a4b68744a6bbf",
+  "head": "bd07a6302bb0170e9d6dc235983c2a961694d753",
+  "sourceBundleManifestSha256": "964fedeac479ee2cce042ce9a6b10cc36a680e9456bf2917b06320ee2bde9bc6",
+  "fullDiffSha256": "192bc3a67568a1141c191cf440e73a7e77e07476bd2091e705ae755c271b755e",
+  "applicationSha256": "a402baa5e394ebf13347a3b371a957d25cb2bd519b44da77a886646a710fd784",
+  "independentChecks": [
+    "all bundle and source hashes",
+    "clean exact head/full git diff",
+    "git diff --check",
+    "fixture exactly equals accepted native case/input/fields",
+    "focused receipts against exact git blobs and final bytes",
+    "all27 cases/63 visits/full raw snapshots",
+    "all73 semantic requests and full event states",
+    "44 raw event-difference rows preserved"
+  ],
+  "originalExecutionByReviewer": false,
+  "applicationExecutionByReviewer": false,
+  "reviewSha256": "e0833e50eea9b264cdcc36822072d8cec4fe5eb81509db0fcfa93a01f6675da2"
+}
