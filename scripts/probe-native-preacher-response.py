@@ -93,7 +93,7 @@ def write_json(path, value):
     path.write_text(json.dumps(value, indent=2) + "\n")
 
 
-def native_once(fixture, executable, output, tools):
+def native_once(fixture, executable, output, tools, input_directory=PACKET):
     # Imports remain behind the explicit execution gate.
     import unicorn
     from unicorn import UC_HOOK_CODE, UC_HOOK_MEM_READ, UC_HOOK_MEM_WRITE
@@ -110,13 +110,14 @@ def native_once(fixture, executable, output, tools):
     configure_native_constants(cpu, executable)
     abi = fixture["abi"]
     cpu.mem_map(abi["scratchMapAddress"], abi["scratchMapBytes"])
-    raw_people = (PACKET / "people-input.bin").read_bytes()
+    raw_people = (input_directory / "people-input.bin").read_bytes()
     pool = fixture["pool"]
     stack, stop = abi["stack"], abi["stop"]
     for index, row in enumerate(fixture["people"]):
         cpu.mem_write(row["address"], raw_people[index * 256:(index + 1) * 256])
-    cpu.mem_write(pool["address"], (PACKET / "orders-input.bin").read_bytes())
-    cpu.mem_write(0x890390, struct.pack("<3I", 0, *[p["address"] for p in fixture["people"]]))
+    cpu.mem_write(pool["address"], (input_directory / "orders-input.bin").read_bytes())
+    pointer_count = len(fixture["people"]) + 1
+    cpu.mem_write(0x890390, struct.pack(f"<{pointer_count}I", 0, *[p["address"] for p in fixture["people"]]))
     cpu.mem_write(0x8a03e4, bytes(16384 * 16))
     cpu.mem_write(0x8a03e4 + fixture["world"]["cell"] * 16 + 6, struct.pack("<H", 1))
     cpu.mem_write(pool["cursorAddress"], struct.pack("<HH", pool["cursor"], pool["active"]))
@@ -138,7 +139,7 @@ def native_once(fixture, executable, output, tools):
             "poolHex": bytes(cpu.mem_read(pool["address"], 8000)).hex(),
             "cursor": read(pool["cursorAddress"], "H"), "active": read(pool["activeAddress"], "H"),
             "simulationRandom": read(0x89d178, "I"), "cosmeticRandom": read(0x89bc72, "I"),
-            "unitPointersHex": bytes(cpu.mem_read(0x890390, 12)).hex(),
+            "unitPointersHex": bytes(cpu.mem_read(0x890390, pointer_count * 4)).hex(),
             "terrainCells": [{"address": row["address"], "hex": bytes(cpu.mem_read(row["address"], row["size"])).hex()}
                              for row in fixture["allowlist"]["read"] if row["name"].startswith("terrain cell")],
             "stackHex": bytes(cpu.mem_read(stack - 4096, 4104)).hex(),

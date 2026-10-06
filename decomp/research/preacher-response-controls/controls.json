@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "status": "source-only-not-run",
+  "cases": [
+    {
+      "case": "stationary-sermon",
+      "fixture": "stationary-sermon/fixture.json",
+      "sha256": "379fdb1060f76604c8fec1e5400c62314a5aae47ef1791ee3efc6a021f48a233"
+    },
+    {
+      "case": "reverse-alliance",
+      "fixture": "reverse-alliance/fixture.json",
+      "sha256": "e0a81e5c46dc2ec09126acc91e9fe8a9fcba3498f91a2c1fc496ff22edf20b06"
+    },
+    {
+      "case": "allocation-exhaustion",
+      "fixture": "allocation-exhaustion/fixture.json",
+      "sha256": "1b2289bdffb244c9fa81eaf4b20ec6237dbb7fcdc8834bf76e0349d4f6cc7e0c"
+    },
+    {
+      "case": "primary21-sharing",
+      "fixture": "primary21-sharing/fixture.json",
+      "sha256": "0326103d4a866b97763d1a03b38b0e915b300446cfeb5dfced49ec8af47409a2"
+    }
+  ],
+  "caseCount": 4,
+  "nativeInvocationsPerCase": 1,
+  "portInvocationsPerCase": 1,
+  "retry": false,
+  "positiveEvidence": "../preacher-response-trigger/fixture.json"
+}

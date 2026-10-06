@@ -1,0 +1,537 @@
+{
+  "schemaVersion": 1,
+  "case": "stationary-sermon",
+  "history": "Prospective supplied control only; not run. Accepted positive remains separate and unchanged.",
+  "registration": "Both flags2=0x20000, source->enemy->null in identical supplied native and retained live registries. No registration after freeze.",
+  "people": [
+    {
+      "address": 33554688,
+      "native": {
+        "flags2": 131072,
+        "flags4": 0,
+        "flags3": 0,
+        "cellNext": 2,
+        "cellPrevious": 0,
+        "id": 1,
+        "class": 1,
+        "model": 4,
+        "state": 10,
+        "substate": 3,
+        "counter": 0,
+        "tribe": 0,
+        "reactionTimer": 0,
+        "reactionDuration": 0,
+        "x": 8448,
+        "y": 8448,
+        "h": 0,
+        "speed": 0,
+        "life": 1000,
+        "assignment": 0,
+        "selectionFlags": 0,
+        "orderLocation": 0,
+        "workTarget": 0,
+        "immediateCommand": 0,
+        "workFlags": 0,
+        "vehicle": 0,
+        "commandCursor": 0,
+        "commandStatus": 17,
+        "commandPhase": 0,
+        "disguise": 0,
+        "commands": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "portExtras": {
+        "group": 0,
+        "building": null,
+        "displacement": {
+          "x": 0,
+          "y": 0,
+          "h": 0
+        }
+      },
+      "unit": {
+        "team": "blue",
+        "kind": "preacher",
+        "x": 25.0,
+        "z": -41,
+        "hp": 50
+      }
+    },
+    {
+      "address": 33554944,
+      "native": {
+        "flags2": 131072,
+        "flags4": 0,
+        "flags3": 0,
+        "cellNext": 0,
+        "cellPrevious": 1,
+        "id": 2,
+        "class": 1,
+        "model": 2,
+        "state": 17,
+        "substate": 0,
+        "counter": 0,
+        "tribe": 1,
+        "reactionTimer": 0,
+        "reactionDuration": 0,
+        "x": 8576,
+        "y": 8448,
+        "h": 0,
+        "speed": 0,
+        "life": 1000,
+        "assignment": 0,
+        "selectionFlags": 0,
+        "orderLocation": 0,
+        "workTarget": 0,
+        "immediateCommand": 0,
+        "workFlags": 0,
+        "vehicle": 0,
+        "commandCursor": 0,
+        "commandStatus": 0,
+        "commandPhase": 0,
+        "disguise": 0,
+        "commands": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "portExtras": {
+        "group": 0,
+        "building": null,
+        "displacement": {
+          "x": 0,
+          "y": 0,
+          "h": 0
+        }
+      },
+      "unit": {
+        "team": "red",
+        "kind": "brave",
+        "x": 25.5,
+        "z": -41,
+        "hp": 50
+      }
+    }
+  ],
+  "fields": {
+    "flags2": {
+      "offset": 12,
+      "format": "I"
+    },
+    "flags4": {
+      "offset": 16,
+      "format": "I"
+    },
+    "flags3": {
+      "offset": 20,
+      "format": "I"
+    },
+    "cellNext": {
+      "offset": 32,
+      "format": "H"
+    },
+    "cellPrevious": {
+      "offset": 34,
+      "format": "H"
+    },
+    "id": {
+      "offset": 36,
+      "format": "H"
+    },
+    "class": {
+      "offset": 42,
+      "format": "B"
+    },
+    "model": {
+      "offset": 43,
+      "format": "B"
+    },
+    "state": {
+      "offset": 44,
+      "format": "B"
+    },
+    "substate": {
+      "offset": 45,
+      "format": "B"
+    },
+    "counter": {
+      "offset": 46,
+      "format": "B"
+    },
+    "tribe": {
+      "offset": 47,
+      "format": "b"
+    },
+    "reactionTimer": {
+      "offset": 49,
+      "format": "B"
+    },
+    "reactionDuration": {
+      "offset": 50,
+      "format": "B"
+    },
+    "x": {
+      "offset": 61,
+      "format": "H"
+    },
+    "y": {
+      "offset": 63,
+      "format": "H"
+    },
+    "h": {
+      "offset": 65,
+      "format": "h"
+    },
+    "speed": {
+      "offset": 95,
+      "format": "h"
+    },
+    "life": {
+      "offset": 110,
+      "format": "h"
+    },
+    "assignment": {
+      "offset": 118,
+      "format": "H"
+    },
+    "selectionFlags": {
+      "offset": 122,
+      "format": "B"
+    },
+    "orderLocation": {
+      "offset": 131,
+      "format": "H"
+    },
+    "workTarget": {
+      "offset": 137,
+      "format": "H"
+    },
+    "immediateCommand": {
+      "offset": 155,
+      "format": "H"
+    },
+    "workFlags": {
+      "offset": 157,
+      "format": "H"
+    },
+    "vehicle": {
+      "offset": 159,
+      "format": "H"
+    },
+    "commandCursor": {
+      "offset": 166,
+      "format": "B"
+    },
+    "commandStatus": {
+      "offset": 167,
+      "format": "B"
+    },
+    "commandPhase": {
+      "offset": 168,
+      "format": "B"
+    },
+    "disguise": {
+      "offset": 178,
+      "format": "B"
+    }
+  },
+  "rawInputs": [
+    {
+      "path": "people-input.bin",
+      "bytes": 512,
+      "sha256": "62ac94772c0a3d2a36ee46e6144abef16af0c7848d329fb27106e6de6bf72278"
+    },
+    {
+      "path": "orders-input.bin",
+      "bytes": 8000,
+      "sha256": "98d4245808a38451d76fb1c4fa5c136342200d164054774981c9921790bc7d38"
+    },
+    {
+      "path": "people-expected.bin",
+      "bytes": 512,
+      "sha256": "62ac94772c0a3d2a36ee46e6144abef16af0c7848d329fb27106e6de6bf72278"
+    },
+    {
+      "path": "orders-expected.bin",
+      "bytes": 8000,
+      "sha256": "98d4245808a38451d76fb1c4fa5c136342200d164054774981c9921790bc7d38"
+    }
+  ],
+  "pool": {
+    "address": 9668656,
+    "recordBytes": 10,
+    "count": 800,
+    "cursorAddress": 9874040,
+    "activeAddress": 9874042,
+    "cursor": 2,
+    "active": 1
+  },
+  "world": {
+    "mission": 3,
+    "turn": 0,
+    "levelFlags2": 0,
+    "gameFlags": 0,
+    "alliances": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "cell": 2064,
+    "cellHead": 1,
+    "category": 0,
+    "simulationRandom": 305419896,
+    "cosmeticRandom": 2596069104
+  },
+  "abi": {
+    "convention": "cdecl,32-bit stack slots; only declared low return bits are semantic",
+    "entry": 5064336,
+    "stack": 33673216,
+    "stop": 33681408,
+    "scratchMapAddress": 33554432,
+    "scratchMapBytes": 131072,
+    "initialRegisters": {
+      "EAX": 0,
+      "EBX": 0,
+      "ECX": 0,
+      "EDX": 0,
+      "ESI": 0,
+      "EDI": 0,
+      "EBP": 0,
+      "EFLAGS": 2
+    },
+    "functions": [
+      {
+        "entry": 5064336,
+        "stopExclusive": 5064646,
+        "argumentSlots": 1,
+        "returnBits": 0,
+        "expectedCalls": 1,
+        "nativeBytesSha256": "399afdac4b01cc694ccba66e603b2a3bc6fdddf593935fe2d1212155bc8a6206"
+      },
+      {
+        "entry": 5063904,
+        "stopExclusive": 5064330,
+        "argumentSlots": 1,
+        "returnBits": 8,
+        "expectedCalls": 1,
+        "nativeBytesSha256": "251925622a021e17aba73fb5494d30d55d770c63423a757f6f72062cd4ff267b"
+      },
+      {
+        "entry": 5373792,
+        "stopExclusive": 5374180,
+        "argumentSlots": 1,
+        "returnBits": 32,
+        "expectedCalls": 2,
+        "nativeBytesSha256": "356c5506ad93c49865f4522c514826e6ec58b69b9e6bd83678a006f3d0555a6e"
+      },
+      {
+        "entry": 5367728,
+        "stopExclusive": 5368224,
+        "argumentSlots": 1,
+        "returnBits": 8,
+        "expectedCalls": 1,
+        "nativeBytesSha256": "06286c8a9e59fa80fdeca3a9e5dc9bb811c2e1e060789b291fc711028df75c89"
+      },
+      {
+        "entry": 5108032,
+        "stopExclusive": 5108145,
+        "argumentSlots": 1,
+        "returnBits": 8,
+        "expectedCalls": 1,
+        "nativeBytesSha256": "fec00128a36ae3b37e8916227db68e15fd76cc060581dcd5253994e348bb88da"
+      },
+      {
+        "entry": 5369904,
+        "stopExclusive": 5370982,
+        "argumentSlots": 9,
+        "returnBits": 8,
+        "expectedCalls": 1,
+        "nativeBytesSha256": "033736b0dcd19538b4261718c65b26f6683402eea6795c07e02e4621f8ee3d65"
+      }
+    ]
+  },
+  "allowlist": {
+    "read": [
+      {
+        "name": "source record",
+        "address": 33554688,
+        "size": 256
+      },
+      {
+        "name": "enemy record",
+        "address": 33554944,
+        "size": 256
+      },
+      {
+        "name": "cdecl stack and locals",
+        "address": 33669120,
+        "size": 4104
+      },
+      {
+        "name": "full command pool",
+        "address": 9668656,
+        "size": 8000
+      },
+      {
+        "name": "allocation cursor and active count",
+        "address": 9874040,
+        "size": 4
+      },
+      {
+        "name": "three unit pointers including null",
+        "address": 8979344,
+        "size": 12
+      },
+      {
+        "name": "levelFlags2",
+        "address": 9002404,
+        "size": 4
+      },
+      {
+        "name": "alliances",
+        "address": 9832630,
+        "size": 4
+      },
+      {
+        "name": "game flags and simulation RNG",
+        "address": 9032056,
+        "size": 8
+      },
+      {
+        "name": "cosmetic RNG",
+        "address": 9026674,
+        "size": 4
+      },
+      {
+        "name": "model4 descriptor",
+        "address": 5927208,
+        "size": 50
+      },
+      {
+        "name": "state10 descriptor",
+        "address": 5926826,
+        "size": 5
+      },
+      {
+        "name": "command17 rangeMode",
+        "address": 5930809,
+        "size": 1
+      },
+      {
+        "name": "command32 flags",
+        "address": 5931146,
+        "size": 4
+      },
+      {
+        "name": "category0 flags",
+        "address": 5940008,
+        "size": 1
+      },
+      {
+        "name": "terrain cell 15,15",
+        "address": 9075924,
+        "size": 16
+      },
+      {
+        "name": "terrain cell 15,16",
+        "address": 9075940,
+        "size": 16
+      },
+      {
+        "name": "terrain cell 15,17",
+        "address": 9075956,
+        "size": 16
+      },
+      {
+        "name": "terrain cell 16,15",
+        "address": 9077972,
+        "size": 16
+      },
+      {
+        "name": "terrain cell 16,16",
+        "address": 9077988,
+        "size": 16
+      },
+      {
+        "name": "terrain cell 16,17",
+        "address": 9078004,
+        "size": 16
+      },
+      {
+        "name": "terrain cell 17,15",
+        "address": 9080020,
+        "size": 16
+      },
+      {
+        "name": "terrain cell 17,16",
+        "address": 9080036,
+        "size": 16
+      },
+      {
+        "name": "terrain cell 17,17",
+        "address": 9080052,
+        "size": 16
+      }
+    ],
+    "write": [
+      {
+        "name": "cdecl stack and locals",
+        "address": 33669120,
+        "size": 4104
+      },
+      {
+        "name": "source flags3",
+        "address": 33554708,
+        "size": 4
+      }
+    ],
+    "code": "Only this control's listed function ranges and exact call counts. No intercepted leaves; no sermon/cleanup/coast/building helpers.",
+    "interceptions": []
+  },
+  "limits": {
+    "nativeInstructions": 100000,
+    "nativeTimeoutMicroseconds": 1000000,
+    "portSeconds": 5,
+    "outerSeconds": 15,
+    "nativeInvocations": 1,
+    "portInvocations": 1,
+    "retry": false
+  },
+  "expected": {
+    "entrySequence": [
+      5064336,
+      5373792,
+      5063904,
+      5367728,
+      5373792,
+      5108032,
+      5369904
+    ],
+    "producerAL": 0,
+    "scanReturns": [
+      0
+    ],
+    "scanThreatOutputs": [
+      null
+    ],
+    "nativeCursor": 2,
+    "nativeActive": 1,
+    "portReturn": false,
+    "sharedPeer": null
+  }
+}

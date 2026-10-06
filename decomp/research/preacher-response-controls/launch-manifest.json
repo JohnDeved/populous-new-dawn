@@ -1,0 +1,519 @@
+{
+  "schemaVersion": 1,
+  "kind": "unexecuted-four-preacher-response-controls",
+  "createdAt": "2026-10-06T21:41:23.595422+00:00",
+  "issue": 243,
+  "runtimeHead": "4e3e95ca8495f99778479d5a8a90d9b57b7b7d10",
+  "runtimeAppTree": "9e7a0cc66244869327db5a264ef04353547c887b",
+  "acceptedPlanHead": "a4cda8d5aaaed7ebc3e73877bbbfe2b944dfd154",
+  "planReviewSha256": "2e4c4842c93cec252d92152060d7b923897fa19a200b66ea7534c7733daab3b1",
+  "registrationCorrection": "All supplied people start coherently registered with flags2=0x20000 and identical native/live linked membership. Negative controls retain0x20000. Primary21-sharing changes only source and peer to0x20010 on both sides, retaining links; actual caller registration is observed, never silently normalized.",
+  "executable": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe",
+    "sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+  },
+  "constantsSha256": "e905e513c798171d5540082565b8addc9f54e5851006b56e8d1976687ba42f24",
+  "python": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/bin/python",
+  "node": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+  "output": "work/orchestration/preacher-response-controls-20261006/run-01",
+  "files": [
+    {
+      "path": "app/combat-orders.ts",
+      "sha256": "911b4c57f16e2f673668db441a6288dfb32d0294ebb987dfbc8e93e4dcbeeb03"
+    },
+    {
+      "path": "app/combat-targets.ts",
+      "sha256": "6094fd3547b0571ffe5ebc080ec4bcccb7bf4f5fedd7d5e23637e727e719b71f"
+    },
+    {
+      "path": "app/live-building-combat.ts",
+      "sha256": "9eba26069c40b94fa9d6c3076bc4dfd008234d87bd92a8746c160057c7740e74"
+    },
+    {
+      "path": "app/live-combat.ts",
+      "sha256": "302ac73456dc801ebfb637a37e2d7081682b334c7ce8e0b8bae067d2248bd6b2"
+    },
+    {
+      "path": "app/live-movement.ts",
+      "sha256": "626f7a07bbafe1f82e858b9a4e06490bda9f28f18b15be4a432d410ad1048e20"
+    },
+    {
+      "path": "app/live-pathfinding.ts",
+      "sha256": "3a52a138448bcaae35acc85818a38381ea85d03717c750f51a33b8aad802c939"
+    },
+    {
+      "path": "app/live-people.ts",
+      "sha256": "1b8b2f1c3015317709298d5610067d13c3a17cb1a53a1a0fdd8117000ccb01c3"
+    },
+    {
+      "path": "app/live-resting.ts",
+      "sha256": "3164a20ff88fb05d919f8f53fd179b0375350c631af5420d667f7106d7f5f515"
+    },
+    {
+      "path": "app/melee-engagement.ts",
+      "sha256": "5e2a7d124328f63de97f75686c74027893b3012d34f13c6dc2bdd50184480cde"
+    },
+    {
+      "path": "app/object-cells.ts",
+      "sha256": "cc693d083d0829c69f6295d9710b3c7762bd70f407ff9c5c408380dbd7465909"
+    },
+    {
+      "path": "app/original-constants.json",
+      "sha256": "ce71bff4c5971d1aae1539b4d014d69378ddc30067068d70353b5b78979fb47c"
+    },
+    {
+      "path": "app/original-rules.json",
+      "sha256": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6"
+    },
+    {
+      "path": "app/person-order-start.ts",
+      "sha256": "8d0ebf7c58bce163b372a78430c7697f39138bc5cc6c30a9fbc81622d72c85cc"
+    },
+    {
+      "path": "app/person-order-update.ts",
+      "sha256": "23c2ff6108958715e45dc3caa034e5a3a558fdfcffa936e9129396ec8c48b286"
+    },
+    {
+      "path": "app/person-orders.ts",
+      "sha256": "27600291a988813415ce88a4b046101fb772894490d44607b84f739a433eb1f3"
+    },
+    {
+      "path": "app/preacher-conversion.ts",
+      "sha256": "fbb45d94d5dc7253f715ac11bf6b2813510d35d3778c0da2481cae2da6ec4806"
+    },
+    {
+      "path": "app/world-state.ts",
+      "sha256": "880c00574e29d9f9e2cffd59d79ff337dcfe07d023d45b95481c09ff9e056ff6"
+    },
+    {
+      "path": "app/world-turn.ts",
+      "sha256": "957422e62b080cdbe787d78673336fb97957cdd6d2ce1ae547f1a280db2df26a"
+    },
+    {
+      "path": "app/world-types.ts",
+      "sha256": "39d0cf2a822e90a077ef86e43f74fb35e6966fe873f60d8e5b820f42c00cb3c4"
+    },
+    {
+      "path": "decomp/generated/00436c20.c",
+      "sha256": "317e4e72aab9f611bec4f70dfb0b27be1213d2daca57f675ccbc8888610ac8e5"
+    },
+    {
+      "path": "decomp/generated/00436d00.c",
+      "sha256": "0c5d9dc7ca2e531605137b19aca83933dff51c8d843d0f2f9ab734b421cf2e13"
+    },
+    {
+      "path": "decomp/generated/00438730.c",
+      "sha256": "6a5ce0e68b07b0dab9837b53d8f0cc657495077a2069f0c43ba8bd594651e660"
+    },
+    {
+      "path": "decomp/generated/004d44e0.c",
+      "sha256": "42737b51751bdf4e80033dbd5ac5a09730d80b4b2a864d25244121ddc5d2d8da"
+    },
+    {
+      "path": "decomp/generated/004d4690.c",
+      "sha256": "6556d4948216899174a316eabb035cd064a6a887f439dfcea6f52c472303cca9"
+    },
+    {
+      "path": "decomp/generated/004de7b0.c",
+      "sha256": "7bc0102026fe87f53c50d0d113b4e525847e52d40ed2b67a2e12d5c7077d2cbb"
+    },
+    {
+      "path": "decomp/generated/0051e7b0.c",
+      "sha256": "e6fc7c9ec187d6a872f01fd87a2f9c68a0649a794867f11ecfa837cd3ef8e5df"
+    },
+    {
+      "path": "decomp/generated/0051ff60.c",
+      "sha256": "8bfcaa379644005b87cb8fe9382e12fa02e7057eedc94825ecf2fc15680788a1"
+    },
+    {
+      "path": "decomp/generated/00520480.c",
+      "sha256": "1961e127a6e5fb232d3f3f88a617ba5d3b25b87fa2d3acf3b8d4362e0abe4077"
+    },
+    {
+      "path": "decomp/research/preacher-response-controls/README.md",
+      "sha256": "08757ebaacd32a6d1850401f883c1b55e622db4cdf72a4435f7461abd8b68f07"
+    },
+    {
+      "path": "decomp/research/preacher-response-controls/allocation-exhaustion/fixture.json",
+      "sha256": "1b2289bdffb244c9fa81eaf4b20ec6237dbb7fcdc8834bf76e0349d4f6cc7e0c"
+    },
+    {
+      "path": "decomp/research/preacher-response-controls/allocation-exhaustion/orders-expected.bin",
+      "sha256": "26e2d8d804b440e85ecc2a925efc313666221c50b6df88b2beb09dfdb1048a56"
+    },
+    {
+      "path": "decomp/research/preacher-response-controls/allocation-exhaustion/orders-input.bin",
+      "sha256": "26e2d8d804b440e85ecc2a925efc313666221c50b6df88b2beb09dfdb1048a56"
+    },
+    {
+      "path": "decomp/research/preacher-response-controls/allocation-exhaustion/people-expected.bin",
+      "sha256": "eba91de5b1d95fc778618ce9a1ba47db1b2fc3f0473fa8aa95bf6e8779e1b860"
+    },
+    {
+      "path": "decomp/research/preacher-response-controls/allocation-exhaustion/people-input.bin",
+      "sha256": "eba91de5b1d95fc778618ce9a1ba47db1b2fc3f0473fa8aa95bf6e8779e1b860"
+    },
+    {
+      "path": "decomp/research/preacher-response-controls/controls.json",
+      "sha256": "f9a2935c1de4222cb4111ccf3666ffa7fdc926d86528b58d89b3efcc6b618bae"
+    },
+    {
+      "path": "decomp/research/preacher-response-controls/primary21-sharing/fixture.json",
+      "sha256": "0326103d4a866b97763d1a03b38b0e915b300446cfeb5dfced49ec8af47409a2"
+    },
+    {
+      "path": "decomp/research/preacher-response-controls/primary21-sharing/orders-expected.bin",
+      "sha256": "93ed04613c587d4356e8f8e511b1910b9b1533eb7523b469f799f4d2b294224c"
+    },
+    {
+      "path": "decomp/research/preacher-response-controls/primary21-sharing/orders-input.bin",
+      "sha256": "0230dfd150bb03c16d36f958cff8be36d2f8c457d5afa397d0e7eecb6bfb81a9"
+    },
+    {
+      "path": "decomp/research/preacher-response-controls/primary21-sharing/people-expected.bin",
+      "sha256": "490f0314a5f079459c7f57849dbe5fb63e3b7b64d318bce72a86cd9f4cd45284"
+    },
+    {
+      "path": "decomp/research/preacher-response-controls/primary21-sharing/people-input.bin",
+      "sha256": "5209cca4231a52060502e9db168d1a397ead98a27c306ce75965454b80990480"
+    },
+    {
+      "path": "decomp/research/preacher-response-controls/reverse-alliance/fixture.json",
+      "sha256": "e0a81e5c46dc2ec09126acc91e9fe8a9fcba3498f91a2c1fc496ff22edf20b06"
+    },
+    {
+      "path": "decomp/research/preacher-response-controls/reverse-alliance/orders-expected.bin",
+      "sha256": "e245d571c8ab84f3694b35a8a71dacebcfbad90cf8174857c3b0da9d5798018e"
+    },
+    {
+      "path": "decomp/research/preacher-response-controls/reverse-alliance/orders-input.bin",
+      "sha256": "e245d571c8ab84f3694b35a8a71dacebcfbad90cf8174857c3b0da9d5798018e"
+    },
+    {
+      "path": "decomp/research/preacher-response-controls/reverse-alliance/people-expected.bin",
+      "sha256": "eba91de5b1d95fc778618ce9a1ba47db1b2fc3f0473fa8aa95bf6e8779e1b860"
+    },
+    {
+      "path": "decomp/research/preacher-response-controls/reverse-alliance/people-input.bin",
+      "sha256": "eba91de5b1d95fc778618ce9a1ba47db1b2fc3f0473fa8aa95bf6e8779e1b860"
+    },
+    {
+      "path": "decomp/research/preacher-response-controls/stationary-sermon/fixture.json",
+      "sha256": "379fdb1060f76604c8fec1e5400c62314a5aae47ef1791ee3efc6a021f48a233"
+    },
+    {
+      "path": "decomp/research/preacher-response-controls/stationary-sermon/orders-expected.bin",
+      "sha256": "98d4245808a38451d76fb1c4fa5c136342200d164054774981c9921790bc7d38"
+    },
+    {
+      "path": "decomp/research/preacher-response-controls/stationary-sermon/orders-input.bin",
+      "sha256": "98d4245808a38451d76fb1c4fa5c136342200d164054774981c9921790bc7d38"
+    },
+    {
+      "path": "decomp/research/preacher-response-controls/stationary-sermon/people-expected.bin",
+      "sha256": "62ac94772c0a3d2a36ee46e6144abef16af0c7848d329fb27106e6de6bf72278"
+    },
+    {
+      "path": "decomp/research/preacher-response-controls/stationary-sermon/people-input.bin",
+      "sha256": "62ac94772c0a3d2a36ee46e6144abef16af0c7848d329fb27106e6de6bf72278"
+    },
+    {
+      "path": "decomp/research/preacher-response-trigger/004df140.asm",
+      "sha256": "351619451e397b21cd7dea434e5819a21706c096a94225bcbb457d3d08ae0e62"
+    },
+    {
+      "path": "decomp/research/preacher-response-trigger/0051e7b0.asm",
+      "sha256": "e248ae925376978d24f7b4373eba664d021aadfaebf304c0d2027001a102d48f"
+    },
+    {
+      "path": "decomp/research/preacher-response-trigger/0051f030.asm",
+      "sha256": "29ccb7e902e4ca716f0953beaebb0295d1708e65ba7f41ea9a4f811ca7673ae2"
+    },
+    {
+      "path": "decomp/research/preacher-response-trigger/adopted-runtime.diff",
+      "sha256": "7b0cfcb9dba20a233c2ca4f74f9562f9f56e4a41e87cf288213c1b83daf20bb3"
+    },
+    {
+      "path": "decomp/research/preacher-response-trigger/current-source-binding.json",
+      "sha256": "11dcc1c1fe63ee6dc2c2734350dfce1e9b386657cba47e035636a374f507d642"
+    },
+    {
+      "path": "decomp/research/preacher-response-trigger/fixture.json",
+      "sha256": "409584e74bee51536a14aa374fcbd8133770299cf9a98463eec0c68ed82b4f4b"
+    },
+    {
+      "path": "decomp/research/preacher-response-trigger/manifest.json",
+      "sha256": "04c0ff266146e6543fe37a2d714c5bd1eb91b2e0ea07454b8d97c9d954d061a8"
+    },
+    {
+      "path": "decomp/research/preacher-response-trigger/orders-input.bin",
+      "sha256": "e245d571c8ab84f3694b35a8a71dacebcfbad90cf8174857c3b0da9d5798018e"
+    },
+    {
+      "path": "decomp/research/preacher-response-trigger/people-input.bin",
+      "sha256": "eba91de5b1d95fc778618ce9a1ba47db1b2fc3f0473fa8aa95bf6e8779e1b860"
+    },
+    {
+      "path": "decomp/research/preacher-response-trigger/probe-packet.md",
+      "sha256": "3a4aa8e3e5729fc12b23e920b60cc7865d64336971abdd5b38d2512e3eff86d0"
+    },
+    {
+      "path": "decomp/sections.tsv",
+      "sha256": "1b6fa60b3d807d7a504a73136192505445d4360756762204258121e36c5b008e"
+    },
+    {
+      "path": "decomp/tools.json",
+      "sha256": "21154d63e900ca6342190d31a13960c0ed677ce2e86399ff72f82d713a1f9484"
+    },
+    {
+      "path": "scripts/check-native-combat-orders.py",
+      "sha256": "c7aefa98aeee57760bc038b193eb336929b4496752c59957673aeaae9b5b4d02"
+    },
+    {
+      "path": "scripts/check-native-melee-engagement.py",
+      "sha256": "1870797d4a01be50fa2e9f68c56349e975abba39172a0d9d4330c8e32fb88f89"
+    },
+    {
+      "path": "scripts/check-native-orders.py",
+      "sha256": "35f2fe16fd81eb83705d4c9c6bca2654e231b950fdda360596a35037c1cce85f"
+    },
+    {
+      "path": "scripts/decomp.py",
+      "sha256": "0a4783a8ee924c52e1125a5df3e4e625b3ab00835e848a2013e444bcfd979c2e"
+    },
+    {
+      "path": "scripts/mission3-natural-preacher-scenario.mjs",
+      "sha256": "71992d08220507993e36ce34c820d9371020b6f343af78bdbc8bd0a843043223"
+    },
+    {
+      "path": "scripts/preacher-response-controls.mjs",
+      "sha256": "5c1876c99e36ebf4d802b6cbd6a5f658c63a52d85d8a12694361cfb0a1fecd38"
+    },
+    {
+      "path": "scripts/preacher-response-pair.mjs",
+      "sha256": "8ade2a1ecdfe87f5df8bcf571b6f48672853a4144a05b2c55425bda3e41cfade"
+    },
+    {
+      "path": "scripts/probe-native-preacher-response-controls.py",
+      "sha256": "a04460a37c7c5c5a1a0e5dc5b83e90d997c8f2e118d24812209d8057970b0e24"
+    },
+    {
+      "path": "scripts/probe-native-preacher-response.py",
+      "sha256": "5786a182f5265443d05c8f095cc046ec20c42033efe51743f20bfd760376f6b0"
+    },
+    {
+      "path": "scripts/run-preacher-response-once.py",
+      "sha256": "5fe3a8f7ce3e63fc64a61bbdb6e5c02a9721e6ceb25715dbe5d91a4995157d24"
+    },
+    {
+      "path": "tests/mission3-natural-preacher.test.mjs",
+      "sha256": "a84aee5bfc9e904ed1065c69c2bdd0204a2c425722501be3d2c5c3ec3699e390"
+    },
+    {
+      "path": "tests/preacher-automatic-response.test.mjs",
+      "sha256": "6e80d44d91ac8cb4a2c0f484587c73bd18fe7795f037f0db2664ba4c8b80594f"
+    }
+  ],
+  "authorization": "Source-only prospective four controls. Exact preflight review and a separate run grant are required.",
+  "execution": {
+    "nativeControls": "not-run",
+    "portControlRunner": "not-run",
+    "ghidra": "not-run"
+  },
+  "resourcesHeld": [],
+  "toolFiles": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/bin/python",
+      "resolvedPath": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+      "sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7"
+    },
+    {
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "resolvedPath": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12"
+    },
+    {
+      "path": "/usr/bin/timeout",
+      "resolvedPath": "/usr/bin/timeout",
+      "sha256": "6ca1891dfc0b05d7680770c2884c0391b92467c7bb6500a5c84677e6481739f1"
+    },
+    {
+      "path": "/usr/bin/taskset",
+      "resolvedPath": "/usr/bin/taskset",
+      "sha256": "0c34de807bc9c617406360836fca2c7505eb86ede4df5a34854bde6eeddad9f3"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/lib/libunicorn.so.2",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/lib/libunicorn.so.2",
+      "sha256": "ddb196ec82b52e502c18e4a34478bf7b9f61c83c2ebaa95c74d8ded45a95da9c"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn-2.1.4.dist-info/METADATA",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn-2.1.4.dist-info/METADATA",
+      "sha256": "ce96de4160dc06c1bbcf35074cb542c9f296219f740aa0f34606f8837650c2e8"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/__init__.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/__init__.py",
+      "sha256": "9ad32123bca674cf205c308fd4d0d2a4db877c9dc2afac4feab7c84c8cf7043b"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/arm64_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/arm64_const.py",
+      "sha256": "92f91a2b0a36cd34deee16db4f8da4ac0c9ae35c3ea1089296e5ef9d170a5be9"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/arm_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/arm_const.py",
+      "sha256": "44fdb7a9f7a9d8c62be07fefaf21e20060813b2a503b6228e378e6bbff7f7b41"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/m68k_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/m68k_const.py",
+      "sha256": "7503e32454751bf66bdf1fcb19dd847537bcf6a5538e18125d8f53d8d448fed9"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/mips_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/mips_const.py",
+      "sha256": "3a04993d82610ea5f492af2d74fa79d849224a044ac0448281033ee331b58dac"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/ppc_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/ppc_const.py",
+      "sha256": "154aaa45f947dab3e488e58e74ad99a09c8d772766c561ff92ecb85cdedd61af"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/riscv_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/riscv_const.py",
+      "sha256": "278e10baf05cfb7c8675475081ae7f2d2037616c79cb907d51963aa2c5b490e4"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/s390x_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/s390x_const.py",
+      "sha256": "54d7026dd70b5bfca1d02e00e7a58d652eaa974b9ea980ba49ed4b80911b9fde"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/sparc_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/sparc_const.py",
+      "sha256": "bcdb0491b6e42c647b104ee53d61610504a97831302dd5280fd2123e05572e95"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/tricore_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/tricore_const.py",
+      "sha256": "1b6005a147d77a3fc1ab5c81fc878eeac3b9bb0b68d518e4a4226830d1356c4c"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn.py",
+      "sha256": "e823b17649d0610c6f52b665902ac9dc46962785feebcac8465a0d7c477f25b7"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_const.py",
+      "sha256": "556c6a27336dc6dd3e0d49348951bde17e1b0f69166f2217773e6b3a7199f45d"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py2.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py2.py",
+      "sha256": "66e2555d679e4f56a0117c2b8de0895a0a138fa3827e3a8a3621255e348d145a"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/__init__.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/__init__.py",
+      "sha256": "ee70d3a7de9ea545406d727436ee835f9d644aeb7428f0e4f1510f9190b28726"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/arch/__init__.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/arch/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/arch/arm.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/arch/arm.py",
+      "sha256": "c28693f90d8681c091f0ff92caed0a290350a969ea0a38343bb843a26b726711"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/arch/arm64.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/arch/arm64.py",
+      "sha256": "62963378864bae452f7cd2a784ddcd64ab6bdc8a6a69e033d48e8faaab0b2515"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/arch/intel.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/arch/intel.py",
+      "sha256": "8a04281923b5f4dd65ce5f122e222bd86df3e8efc7eae99086e0d372fd7a1a75"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/arch/types.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/arch/types.py",
+      "sha256": "2e103854e371ef576680073f44ead45b8177a73c450a6125e609b7c54e0bc844"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/unicorn.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/unicorn.py",
+      "sha256": "62ffe84341f4288e309040e06555b81798031817d32fd19a945e250813f872f0"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/x86_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/x86_const.py",
+      "sha256": "3b33c55b97503ab25e8ed8bbe576c1cee693f495df6785b04adc1c8ab47a79c4"
+    },
+    {
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/libpython3.12.so.1.0",
+      "resolvedPath": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/libpython3.12.so.1.0",
+      "sha256": "7e177a680eabb11fcb7d3867f7a1b9c4b93a9bd5b18129ce1af51ec07977b024"
+    }
+  ],
+  "toolIdentity": {
+    "pythonVersion": "3.12.14",
+    "nodeVersion": "v24.19.0",
+    "unicornVersion": "2.1.4",
+    "unicornModule": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/__init__.py",
+    "unicornLibrary": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/lib/libunicorn.so.2",
+    "timeout": "/usr/bin/timeout",
+    "taskset": "/usr/bin/taskset",
+    "pythonLibrary": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/libpython3.12.so.1.0"
+  },
+  "supervisorOutput": "work/orchestration/preacher-response-controls-20261006/launch-01",
+  "externalEnvelope": {
+    "cpu": 4,
+    "termSeconds": 15,
+    "killGraceSeconds": 3,
+    "watchdogSeconds": 18.25,
+    "processGroup": "New task-owned session; verified via /proc; final membership must be empty.",
+    "pythonFlags": [
+      "-E",
+      "-s",
+      "-B"
+    ],
+    "clearedEnvironment": [
+      "NODE_OPTIONS",
+      "NODE_PATH",
+      "PYTHONOPTIMIZE",
+      "PYTHONPATH",
+      "PYTHONHOME",
+      "LIBUNICORN_PATH",
+      "UNICORN_LIB_PATH",
+      "LD_PRELOAD",
+      "LD_LIBRARY_PATH"
+    ],
+    "rawReturnEvidence": "Full EAX retained on every return alongside the declared semantic AL/AX/EAX/null value."
+  },
+  "successStatus": "four-controls-matched",
+  "controls": {
+    "count": 4,
+    "names": [
+      "stationary-sermon",
+      "reverse-alliance",
+      "allocation-exhaustion",
+      "primary21-sharing"
+    ],
+    "nativeCalls": 4,
+    "portCalls": 4,
+    "nativePerCallMicroseconds": 1000000,
+    "nativePerCallInstructions": 100000,
+    "portBatchSeconds": 5,
+    "outerBatchSeconds": 15,
+    "killGraceSeconds": 3,
+    "retry": false
+  }
+}

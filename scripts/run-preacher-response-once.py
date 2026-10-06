@@ -16,7 +16,8 @@ import sys
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
-spec = importlib.util.spec_from_file_location("response_probe", ROOT / "scripts/probe-native-preacher-response.py")
+PROBE_SCRIPT = "probe-native-preacher-response-controls.py" if "--controls" in sys.argv else "probe-native-preacher-response.py"
+spec = importlib.util.spec_from_file_location("response_probe", ROOT / "scripts" / PROBE_SCRIPT)
 probe = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(probe)  # Definitions and standard-library imports only.
 
@@ -39,6 +40,7 @@ def members(group):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--execute", action="store_true")
+    parser.add_argument("--controls", action="store_true")
     parser.add_argument("--expected-source-head")
     parser.add_argument("--expected-manifest-sha")
     args = parser.parse_args()
@@ -74,7 +76,7 @@ def main():
     environment["PND_PREACHER_RESPONSE_SUPERVISED"] = "1"
     command = [manifest["toolIdentity"]["timeout"], "--signal=TERM", "--kill-after=3s", "15s",
                manifest["toolIdentity"]["taskset"], "--cpu-list", "4",
-               manifest["python"], "-E", "-s", "-B", str(ROOT / "scripts/probe-native-preacher-response.py"),
+               manifest["python"], "-E", "-s", "-B", str(ROOT / "scripts" / PROBE_SCRIPT),
                "--execute", "--expected-source-head", args.expected_source_head,
                "--expected-manifest-sha", args.expected_manifest_sha]
     started = datetime.datetime.now(datetime.timezone.utc)
@@ -102,7 +104,7 @@ def main():
             if receipt["exitCode"] == 0:
                 worker = json.loads((ROOT / manifest["output"] / "receipt.json").read_text())
                 assert worker["processGroup"] == process.pid and worker["cpuAffinity"] == [4]
-                assert worker["status"] == "expected-mismatch-confirmed"
+                assert worker["status"] == manifest.get("successStatus", "expected-mismatch-confirmed")
                 receipt["workerRuntime"] = worker
     except BaseException as error:
         receipt["error"] = f"{type(error).__name__}: {error}"
