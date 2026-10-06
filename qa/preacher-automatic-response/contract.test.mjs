@@ -6,6 +6,7 @@ import { movingEncounter, qualifyingVisit, createResponseTracker } from './obser
 import { responseProjection, requireResponseCheckpoint, requireSameCheckpoint } from './checkpoint.mjs'
 import { requireCleanup } from './scenario.mjs'
 import { chainPhaseObservers } from '../preacher-gesture-baseline/observe.mjs'
+import { chooseForwardDefender, requireDefenderRemoval } from './forward-defender.mjs'
 
 // Supplied diagnostic records test acceptance logic only. They are not ordinary
 // gameplay, native execution or rendered evidence.
@@ -120,4 +121,21 @@ test('reused drivers stay byte-identical and new observation contains no World/t
   assert.doesNotMatch(scenario, /local-render\/harness|waitForFunction\(async|\.put\(|\.add\(/)
   assert.match(scenario, /readQueuedPreservingStop/); assert.match(scenario, /requireSameCheckpoint/)
   assert.equal(pins.candidateTrees, null, 'Candidate cannot launch before adopted reviewed application')
+})
+
+test('forward removal requires the actual defender gone, original healthy actors and real arrival', () => {
+  const defender = { id: 8, kind: 'preacher', team: 'yellow', hp: 55, inside: null, x: -1, z: -115 }
+  assert.equal(chooseForwardDefender([defender]), defender)
+  assert.throws(() => chooseForwardDefender([])); assert.throws(() => chooseForwardDefender([defender, { ...defender, id: 9 }]))
+  const before = { shamanId: 5, preacherId: 6, preacherHp: 55, preacherPoint: { x: 35, z: 90 }, defender }
+  const row = { sameWorld: true, originalShaman: true, originalPreacher: true, status: 'playing', paused: false,
+    speed: 1, visibility: 'visible', inputMask: 0, yellow: [defender], blue: [
+      { id: 5, kind: 'shaman', team: 'blue', hp: 100, x: -1, z: -115 }, { id: 6, kind: 'preacher', team: 'blue', hp: 55, x: 35, z: 90 }] }
+  assert.equal(requireDefenderRemoval(row, before, 8), false)
+  row.yellow = []; assert.equal(requireDefenderRemoval(row, before, 8), true)
+  for (const change of [r => { r.originalShaman = false }, r => { r.blue[0].hp = 0 },
+    r => { r.blue[0].x = 35 }, r => { r.blue[1].hp-- }, r => { r.blue[1].x = 40 }, r => { r.blue[1].team = 'yellow' },
+    r => { r.yellow.push({ ...defender, id: 9 }) }]) {
+    const invalid = structuredClone(row); change(invalid); assert.throws(() => requireDefenderRemoval(invalid, before, 8))
+  }
 })

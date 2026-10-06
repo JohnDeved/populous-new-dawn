@@ -8,6 +8,7 @@ import { readQueuedPreservingStop } from '../erosion-ordinary/stop.mjs'
 import { bindGame, readShamanReadiness } from '../../scripts/browser-game.mjs'
 import { waitForCheckpointReadback } from '../../scripts/checkpoint-readback.mjs'
 import { requireResponseCheckpoint, requireSameCheckpoint } from './checkpoint.mjs'
+import { clearForwardDefender } from './forward-defender.mjs'
 
 export function requireCleanup(value) {
   assert.ok(value && !value.error, value?.error ?? 'Missing cleanup')
@@ -105,7 +106,8 @@ export default async function responseScenario(context) {
     begin('ordinary-acquisition-checkpoint', 15000)
     report.acquisitionCheckpoint = await saveCheckpoint('acquired-checkpoint', false); end({ committed: true })
 
-    begin('moving-approach-and-first-automatic32', 180000)
+    begin('forward-defender-and-first-automatic32', 180000)
+    report.forwardDefender = await clearForwardDefender({ page, acquisition, check }); persist()
     await acquisition.select('preacher')
     await acquisition.ordinary.map({ x: -39, z: -110 })
     const hit = await acquisition.ground({ x: -39, z: -110 }); assert.ok(hit, 'Declared approach ground is unavailable')
