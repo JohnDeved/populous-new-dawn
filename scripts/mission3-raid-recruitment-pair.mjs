@@ -8,7 +8,10 @@ import * as actualSelection from '../app/computer-selection.ts'
 
 const fixture = JSON.parse(readFileSync(process.argv[2], 'utf8'))
 assert.equal(process.argv.length, 3)
-assert.deepEqual(fixture.cases.map(c => c.id), ['common-origin-control', 'no-base-authored-coordinates'])
+const expectedCases = fixture.cases.length === 1
+  ? ['established-base-distinct']
+  : ['common-origin-control', 'no-base-authored-coordinates']
+assert.deepEqual(fixture.cases.map(c => c.id), expectedCases)
 assert.equal(fixture.people.length, 7)
 assert.equal(actualComputer.computerPhase(fixture.turn, fixture.tribe), 'dispatch')
 const stop = new Error('Stopped after actual selection callback and flags copyback')
@@ -75,7 +78,7 @@ const watchdog = setTimeout(() => process.exit(124), 20_000)
 watchdog.unref()
 
 function runCase(index) {
-  assert.ok(index === 0 || index === 1)
+  assert.ok(Number.isInteger(index) && index >= 0 && index < expectedCases.length)
   const c = fixture.cases[index], ai = actualComputer.createComputerQueue()
   Object.assign(ai, { flags: fixture.aiFlags, states: 1 << 20, cursor: fixture.queueCursor,
     selectionOwner: fixture.selectionOwner, defencePosition: fixture.defencePosition,
@@ -133,6 +136,9 @@ function runCase(index) {
       browserCoordinates: units.map(u => ({ id: u.id, x: u.x, z: u.z })),
       suppliedConstructionBase: ai.constructionBase ?? null,
       presentation: fixture.people.map(p => ({ id: p.id, commandStatus: p.commandStatus, guardInputPending: p.guardInputPending })),
+      records: { tasksBefore: before.ai.tasks, tasksAfter: ai.tasks,
+        unitsBefore: before.units, unitsAfter: world.units,
+        ordersBefore: before.buildingOrders.records, ordersAfter: world.buildingOrders.records },
       allowedWorldChangesAsserted: true, stoppedBeforeMembershipAndPersonActions: true } }
   active = null
   return result
@@ -144,7 +150,7 @@ try {
     assert.ok(line.length < 128)
     const request = JSON.parse(line)
     assert.deepEqual(request, { caseIndex: next })
-    assert.ok(next < 2, 'Only the two frozen first-origin cases may execute')
+    assert.ok(next < expectedCases.length, 'Only this frozen case sequence may execute')
     const result = runCase(next++)
     const response = JSON.stringify(result)
     assert.ok(response.length < 65536)

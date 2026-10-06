@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Two incremental original/live-adapter first-selection pairs, then stop.
+"""Frozen original/live-adapter first-selection cases, then stop.
 
 Supplied phase-3/world records; no original world loading or person preparation.
 Requires exact-source preflight and a separately granted execution lane.
@@ -44,10 +44,12 @@ def sha(path):
 
 class Portable:
     """One parked adapter. A request executes one case; no batch precomputation."""
-    def __init__(self, node):
+    def __init__(self, node, fixture_path, maximum):
+        assert maximum in (1, 2)
+        self.maximum = maximum
         self.process = subprocess.Popen(
             [str(node), '--max-old-space-size=256', '--experimental-test-module-mocks',
-             str(ROOT / 'scripts/mission3-raid-recruitment-pair.mjs'), str(FIXTURE)],
+             str(ROOT / 'scripts/mission3-raid-recruitment-pair.mjs'), str(fixture_path)],
             cwd=ROOT, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
             bufsize=0, env={**os.environ, 'PYTHONDONTWRITEBYTECODE': '1', 'NODE_OPTIONS': '', 'NODE_PATH': ''})
         self.deadline = time.monotonic() + 20
@@ -58,7 +60,7 @@ class Portable:
         self.calls = 0
 
     def call(self, index):
-        assert index == self.calls and index < 2
+        assert index == self.calls and index < self.maximum
         self.process.stdin.write((json.dumps({'caseIndex': index}) + '\n').encode())
         self.process.stdin.flush()
         output = bytearray()
@@ -268,6 +270,8 @@ def main():
     parser.add_argument('executable', type=Path)
     parser.add_argument('--node', required=True, type=Path)
     parser.add_argument('--manifest', required=True, type=Path)
+    parser.add_argument('--established-base', action='store_true',
+                        help='Only the predeclared established-base-distinct pair; preserve earlier witnesses')
     args = parser.parse_args()
     signal.alarm(60)
     resource.setrlimit(resource.RLIMIT_CPU, (30, 30))
@@ -283,9 +287,14 @@ def main():
     assert str(Path(sys.modules['decomp'].__file__).resolve()) == str(ROOT / 'scripts/decomp.py')
     loaded_library = sys.modules['unicorn.unicorn_py3.unicorn'].uclib._name
     assert str(Path(loaded_library).resolve()) == manifest['unicornLibrary']
-    fixture = json.loads(FIXTURE.read_text())
+    fixture_path = (ROOT / 'tests/fixtures/mission3-raid-recruitment-established.json'
+                    if args.established_base else FIXTURE)
+    expected_cases = (['established-base-distinct'] if args.established_base else
+                      ['common-origin-control', 'no-base-authored-coordinates'])
+    assert manifest['plannedCases'] == expected_cases
+    fixture = json.loads(fixture_path.read_text())
     assert fixture['comparisonFields'] == FIELDS
-    assert [c['id'] for c in fixture['cases']] == ['common-origin-control', 'no-base-authored-coordinates']
+    assert [c['id'] for c in fixture['cases']] == expected_cases
     assert len(fixture['people']) == 7 and not fixture['orders']
     assert fixture['turn'] == 2047 and fixture['queueCursor'] == 0 and fixture['tribe'] == 2
     assert fixture['task'] == {'index': 0, 'type': 20, 'phase': 3, 'flags': 1, 'mode': 0,
@@ -295,10 +304,10 @@ def main():
     assert all(p['state'] == 17 and p['flags2'] == 0 and p['vehicle'] == 0 for p in fixture['people'])
     assert sha(args.executable) == '3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f'
     report = {'scope': fixture['scope'], 'comparisonFields': FIELDS,
-              'nonComparedInputs': fixture['nonComparedInputs'], 'fixtureSha256': sha(FIXTURE),
+              'nonComparedInputs': fixture['nonComparedInputs'], 'fixtureSha256': sha(fixture_path),
               'manifestSha256': sha(args.manifest), 'interceptedNativeLeaves': [],
-              'cases': [], 'plannedPairs': 2, 'executedPairs': 0, 'status': 'not-started'}
-    portable = Portable(args.node)
+              'cases': [], 'plannedPairs': len(expected_cases), 'executedPairs': 0, 'status': 'not-started'}
+    portable = Portable(args.node, fixture_path, len(expected_cases))
     try:
         # V8 starts before the parent-only address-space cap. Its process has a
         # 256 MiB heap cap and 20-second watchdog; it waits for one request at a time.

@@ -81,6 +81,8 @@ a radius-behavior mismatch. Later visit/fill behavior, membership, commands,
 paths, combat, rendering and complete Mission3 parity are also outside the claim.
 Issue227's accepted admission repair remains unchanged and is not broadened.
 
-The witness requires independent result review before any runtime correction.
+Independent result review accepted this controlled origin witness. The next
+[distinct established-base preflight](mission3-raid-recruitment-established-preflight.md)
+is prepared separately; it has not executed or authorized a runtime correction.
 All evidence is committed locally and bundled for review, **unpushed and not
 reset-durable** while normal Git publication is unavailable.
