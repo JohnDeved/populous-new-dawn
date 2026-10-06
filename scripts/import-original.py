@@ -1,6 +1,6 @@
 """Decode the supplied Populous assets; never execute the Windows installer.
 Usage: python3 scripts/import-original.py /path/to/extracted/game [--units-only | --vehicles-only | --training-huts-only | --hut-smoke-only]
---units-only appends Shaman families and Firewarrior resting artwork and writes only
+--units-only appends Shaman families and Firewarrior resting/firing artwork and writes only
 app/original-units.json, public/original/unit-layers.png and provenance.json.
 --vehicles-only appends original mesh143/144 to original-models.json and its
 provenance modelIds; it never regenerates the shared object atlas.
@@ -165,7 +165,7 @@ def building_shapes(data, objects, smoke_offsets=b''):
     return dict(objects=indices,origins=origins,shapes=shapes,cells=list(data[64*48:]),socketOffsets={str(model):offsets[i] for i,model in enumerate(corrected)})
 
 def append_unit_families(source, project):
-    """Append original Shaman families and the Firewarrior resting gesture.
+    """Append original Shaman families and Firewarrior resting/firing artwork.
 
     This bounded mode writes only original-units.json, unit-layers.png and its
     provenance.json. The normal full importer calls it after producing that same
@@ -287,6 +287,14 @@ def append_unit_families(source, project):
     append_sources([resting_source])
     for team in ['blue', 'red']:
         units['animations'][team + '-firewarrior']['restingGesture'] = directions(resting_source)
+    # Command21 firing uses model6 row15, distinct from the existing melee key.
+    # Append after source720 so all established frame/piece indices remain stable.
+    firing_object = rules['personAnimationObjects'][15 * 9 + 6]
+    firing_source, firing_draw = rules['animationObjects'][firing_object]
+    assert (firing_object, firing_source, firing_draw) == (94, 56, 13)
+    append_sources([firing_source])
+    for team in ['blue', 'red']:
+        units['animations'][team + '-firewarrior']['firing'] = directions(firing_source)
     assert units['frames'][:len(old_frames)] == old_frames
     assert units['pieces'][:len(old_pieces)] == old_pieces
     assert all(units['animations'][name][state] == value
