@@ -1,0 +1,55 @@
+{
+  "verdict": "ACCEPT fixed plan",
+  "blockingFindings": [],
+  "proposalManifestSha256": "0f46c4b47cbf312295b9d1c057562502d506ec9837494d58c3821220e8cbda4b",
+  "proposalInputSha256": "cb82a929da6f450f8232f24a1d8ffde71e5038508d5a894592267df4b5c9a704",
+  "caseCount": 1,
+  "controllerUpdaterPairs": 3,
+  "nativeAcquisitions": 2,
+  "rawRecords": [
+    {
+      "id": 3164,
+      "sha256": "ef507e497f3c0b5813b1f8f2d3b0722c044c57661eeedfe79d3a943f5d08f204"
+    },
+    {
+      "id": 3165,
+      "sha256": "73ba4b980f28261de5f49277240f6be688d8ec8525e534fa80163e9bac454df2"
+    },
+    {
+      "id": 3166,
+      "sha256": "e2e0c688655c3675de4ddcb8d747e5625e1018272117f4f35eb17a9ada7fe36a"
+    },
+    {
+      "id": 3167,
+      "sha256": "d8f72cf91c1074ade6c43cabe94de5c37e2eddffcc163e70ad750c3c4b7ccfdd"
+    },
+    {
+      "id": 3168,
+      "sha256": "1244eef31b053300d0c57ab2337328ef7b508a51e5e36abff063cb3f2ed62dc3"
+    },
+    {
+      "id": 3169,
+      "sha256": "8f877c8560366329161470812f0969fe96dc87338d4ef2d7ed3bd51e4f4a61d1"
+    }
+  ],
+  "sourceProvenanceHashChecks": 23,
+  "baselineRecords": 2327,
+  "passiveRecords": 2352,
+  "retainedListenerObservations": 0,
+  "listeners": "source-derived supplied Brave model2; no ordinary history",
+  "portAcquisition": "supplied adapter; production scan not executed",
+  "nativePredictedFinal": {
+    "mode": 0,
+    "simulationRandom": 3603658299,
+    "assignment": 336
+  },
+  "portPredictedFinal": {
+    "mode": 2,
+    "simulationRandom": 1607832750,
+    "assignment": 336
+  },
+  "executionByReviewer": "none",
+  "implementationAuthorization": "not granted by this review",
+  "launchAuthorization": "not granted by this review",
+  "reviewSha256": "7b3f607598212adb1e35daa89a3023e6dd00c687b22fed6fb179b8a6c172e791"
+}

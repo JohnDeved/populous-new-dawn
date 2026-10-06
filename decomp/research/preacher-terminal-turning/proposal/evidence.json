@@ -1,0 +1,2465 @@
+{
+  "kind": "source-only next-boundary outline; no new execution",
+  "currentApplication": "bd07a6302bb0170e9d6dc235983c2a961694d753",
+  "inputSha256": {
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/work/orchestration/preacher-sermon-native/run-01/native.json": "bce40128163d945f90d56392c4fb8ecd21765f7e7ed3724b4ff5f90ac41c034d",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/work/orchestration/preacher-sermon-native/run-01/supplied-input.json": "a708520a0297fad98a655670d11a8614bda45c8f5f2c6d39b5f65881e2aa3502",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/work/orchestration/preacher-sermon-native/run-01/frozen-manifest.json": "125acb5330e5487c7c5bd6438c13c2ec975ecb9d04538560ee9898d885b4a3b7",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/decomp/research/preacher-sermon-gestures/result.json": "4711c12f4ab006e33e410f6ac47166c2930154bf691cc7364ac606d27ca8d1ec",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/work/orchestration/preacher-terminal-restart-fix/replay-after-01/port.stdout.json": "2bb2a99933482b2c87bda7540b79caac40d0ec5189952b069956afd31d7e4b23",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/app/preacher-conversion.ts": "a402baa5e394ebf13347a3b371a957d25cb2bd519b44da77a886646a710fd784",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/app/live-movement.ts": "626f7a07bbafe1f82e858b9a4e06490bda9f28f18b15be4a432d410ad1048e20",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/app/melee-engagement.ts": "5e2a7d124328f63de97f75686c74027893b3012d34f13c6dc2bdd50184480cde",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/app/native-math.ts": "223fa6c4dc5d14a66daec1c1a15a5252802e1fa7e4f3cc7c5a2fcc07818435cc",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/scripts/check-native-object-cells.py": "6ddac0efcc82c749dee534b2003f11271306b86e72ae2f0db98b5da84c6cb032",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/decomp/generated/0043a4d0.c": "468e8230bd5ccf922c0237163fbf5e92fa00948b0d1fd98ac46b7e0a35d33188"
+  },
+  "originalCase": {
+    "pairs": 1,
+    "person": {
+      "class": 1,
+      "model": 4,
+      "state": 10,
+      "substate": 3,
+      "counter": 15,
+      "tribe": 0,
+      "id": 1,
+      "physics": 15,
+      "flags2": 2097152,
+      "flags3": 262144,
+      "flags4": 0,
+      "stamp": 0,
+      "object": 168,
+      "draw": 14,
+      "renderFlags": 384,
+      "f1": 0,
+      "f2": 0,
+      "morph": 0,
+      "palette": 240,
+      "x": 16384,
+      "y": 16384,
+      "h": 0,
+      "goalX": 16384,
+      "goalY": 16384,
+      "angle": 200,
+      "heading": 200,
+      "turnAngle": 200,
+      "speed": 0,
+      "motionGroup": 0,
+      "motionIndex": 0,
+      "timer": 839,
+      "life": 1000,
+      "maxLife": 1000,
+      "assignment": 0,
+      "statusFlags": 0,
+      "cargo": 0,
+      "vehicle": 0,
+      "commandCursor": 0,
+      "commandStatus": 17,
+      "commandAux": 3,
+      "animationMode": 0,
+      "commandPhase": 0,
+      "immediateCommand": 0,
+      "workTarget": 0,
+      "previousState": 0
+    },
+    "cosmeticRandom": 1,
+    "simulationRandom": 4,
+    "acquisitionCount": 0,
+    "firstAngle": 333,
+    "id": "timer839-turning-known-difference",
+    "family": "boundaries"
+  },
+  "retainedNativeCase": {
+    "case": "timer839-turning-known-difference",
+    "rows": [
+      {
+        "case": "timer839-turning-known-difference",
+        "visit": 1,
+        "beforeController": {
+          "raw": "0000000000000000000000000000200000000000000004000000000000000000000000000100c800000001040a0310000f0000a80080010000000e00f00040004000000000000000000000000000000040004000000000c80000000000c80000000000000000000000000000e803e803470300000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000001100030000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "fields": {
+            "flags2": 2097152,
+            "flags4": 0,
+            "flags3": 262144,
+            "stamp": 0,
+            "id": 1,
+            "angle": 200,
+            "class": 1,
+            "model": 4,
+            "state": 10,
+            "substate": 3,
+            "counter": 16,
+            "tribe": 0,
+            "physics": 15,
+            "object": 168,
+            "renderFlags": 384,
+            "f1": 0,
+            "f2": 0,
+            "draw": 14,
+            "morph": 0,
+            "palette": 240,
+            "x": 16384,
+            "y": 16384,
+            "h": 0,
+            "goalX": 16384,
+            "goalY": 16384,
+            "turnAngle": 200,
+            "heading": 200,
+            "speed": 0,
+            "motionGroup": 0,
+            "motionIndex": 0,
+            "maxLife": 1000,
+            "life": 1000,
+            "timer": 839,
+            "assignment": 0,
+            "cargo": 0,
+            "previousState": 0,
+            "workTarget": 0,
+            "immediateCommand": 0,
+            "vehicle": 0,
+            "commandCursor": 0,
+            "commandStatus": 17,
+            "animationMode": 0,
+            "commandAux": 3,
+            "commandPhase": 0,
+            "statusFlags": 0
+          },
+          "objectIdCandidates": [
+            97
+          ],
+          "commands": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "order": {
+            "model": 17,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 16384,
+            "b": 16384
+          },
+          "worldAnimationCounter": 1001,
+          "cosmeticRandom": 1,
+          "simulationRandom": 4
+        },
+        "events": [
+          {
+            "visit": 1,
+            "phase": "controller",
+            "kind": "acquisition",
+            "args": [
+              33554432,
+              3
+            ],
+            "boundary": "supplied-count/status/first-angle",
+            "state": {
+              "raw": "0000000000000000000000000000204000000000000004000000000000000000000000000100c800000001040a0410000f0000a80080010000000e00f00040004000000000000000000000000000000040004000000000c80000000000c80000000000000000000000000000e803e803480300000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000001100030000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+              "fields": {
+                "flags2": 1075838976,
+                "flags4": 0,
+                "flags3": 262144,
+                "stamp": 0,
+                "id": 1,
+                "angle": 200,
+                "class": 1,
+                "model": 4,
+                "state": 10,
+                "substate": 4,
+                "counter": 16,
+                "tribe": 0,
+                "physics": 15,
+                "object": 168,
+                "renderFlags": 384,
+                "f1": 0,
+                "f2": 0,
+                "draw": 14,
+                "morph": 0,
+                "palette": 240,
+                "x": 16384,
+                "y": 16384,
+                "h": 0,
+                "goalX": 16384,
+                "goalY": 16384,
+                "turnAngle": 200,
+                "heading": 200,
+                "speed": 0,
+                "motionGroup": 0,
+                "motionIndex": 0,
+                "maxLife": 1000,
+                "life": 1000,
+                "timer": 840,
+                "assignment": 0,
+                "cargo": 0,
+                "previousState": 0,
+                "workTarget": 0,
+                "immediateCommand": 0,
+                "vehicle": 0,
+                "commandCursor": 0,
+                "commandStatus": 17,
+                "animationMode": 0,
+                "commandAux": 3,
+                "commandPhase": 0,
+                "statusFlags": 0
+              },
+              "objectIdCandidates": [
+                97
+              ],
+              "commands": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "order": {
+                "model": 17,
+                "flags": 0,
+                "references": 1,
+                "object": 0,
+                "a": 16384,
+                "b": 16384
+              },
+              "worldAnimationCounter": 1001,
+              "cosmeticRandom": 1,
+              "simulationRandom": 4
+            }
+          }
+        ],
+        "result": 0,
+        "afterController": {
+          "raw": "0000000000000000000000000000204000000000000004000000000000000000000000000100c800000001040a0410000f0000a80080010000000e00f00040004000000000000000000000000000000040004000000000c80000000000c80000000000000000000000000000e803e803480300000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000001100030000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "fields": {
+            "flags2": 1075838976,
+            "flags4": 0,
+            "flags3": 262144,
+            "stamp": 0,
+            "id": 1,
+            "angle": 200,
+            "class": 1,
+            "model": 4,
+            "state": 10,
+            "substate": 4,
+            "counter": 16,
+            "tribe": 0,
+            "physics": 15,
+            "object": 168,
+            "renderFlags": 384,
+            "f1": 0,
+            "f2": 0,
+            "draw": 14,
+            "morph": 0,
+            "palette": 240,
+            "x": 16384,
+            "y": 16384,
+            "h": 0,
+            "goalX": 16384,
+            "goalY": 16384,
+            "turnAngle": 200,
+            "heading": 200,
+            "speed": 0,
+            "motionGroup": 0,
+            "motionIndex": 0,
+            "maxLife": 1000,
+            "life": 1000,
+            "timer": 840,
+            "assignment": 0,
+            "cargo": 0,
+            "previousState": 0,
+            "workTarget": 0,
+            "immediateCommand": 0,
+            "vehicle": 0,
+            "commandCursor": 0,
+            "commandStatus": 17,
+            "animationMode": 0,
+            "commandAux": 3,
+            "commandPhase": 0,
+            "statusFlags": 2
+          },
+          "objectIdCandidates": [
+            97
+          ],
+          "commands": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "order": {
+            "model": 17,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 16384,
+            "b": 16384
+          },
+          "worldAnimationCounter": 1001,
+          "cosmeticRandom": 1,
+          "simulationRandom": 4
+        },
+        "beforeUpdater": {
+          "raw": "000000000000000000000000000020400000000000000400e903000000000000000000000100c800000001040a0410000f0000a80080010000000e00f00040004000000000000000000000000000000040004000000000c80000000000c80000000000000000000000000000e803e803480300000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000001100030000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "fields": {
+            "flags2": 1075838976,
+            "flags4": 0,
+            "flags3": 262144,
+            "stamp": 1001,
+            "id": 1,
+            "angle": 200,
+            "class": 1,
+            "model": 4,
+            "state": 10,
+            "substate": 4,
+            "counter": 16,
+            "tribe": 0,
+            "physics": 15,
+            "object": 168,
+            "renderFlags": 384,
+            "f1": 0,
+            "f2": 0,
+            "draw": 14,
+            "morph": 0,
+            "palette": 240,
+            "x": 16384,
+            "y": 16384,
+            "h": 0,
+            "goalX": 16384,
+            "goalY": 16384,
+            "turnAngle": 200,
+            "heading": 200,
+            "speed": 0,
+            "motionGroup": 0,
+            "motionIndex": 0,
+            "maxLife": 1000,
+            "life": 1000,
+            "timer": 840,
+            "assignment": 0,
+            "cargo": 0,
+            "previousState": 0,
+            "workTarget": 0,
+            "immediateCommand": 0,
+            "vehicle": 0,
+            "commandCursor": 0,
+            "commandStatus": 17,
+            "animationMode": 0,
+            "commandAux": 3,
+            "commandPhase": 0,
+            "statusFlags": 2
+          },
+          "objectIdCandidates": [
+            97
+          ],
+          "commands": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "order": {
+            "model": 17,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 16384,
+            "b": 16384
+          },
+          "worldAnimationCounter": 1001,
+          "cosmeticRandom": 1,
+          "simulationRandom": 4
+        },
+        "afterUpdater": {
+          "raw": "000000000000000000000000000020400000000000000400e903000000000000000000000100c800000001040a0410000f0000a80080010000010e00f00040004000000000000000000000000000000040004000000000c80000000000c80000000000000000000000000000e803e803480300000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000001100030000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "fields": {
+            "flags2": 1075838976,
+            "flags4": 0,
+            "flags3": 262144,
+            "stamp": 1001,
+            "id": 1,
+            "angle": 200,
+            "class": 1,
+            "model": 4,
+            "state": 10,
+            "substate": 4,
+            "counter": 16,
+            "tribe": 0,
+            "physics": 15,
+            "object": 168,
+            "renderFlags": 384,
+            "f1": 0,
+            "f2": 1,
+            "draw": 14,
+            "morph": 0,
+            "palette": 240,
+            "x": 16384,
+            "y": 16384,
+            "h": 0,
+            "goalX": 16384,
+            "goalY": 16384,
+            "turnAngle": 200,
+            "heading": 200,
+            "speed": 0,
+            "motionGroup": 0,
+            "motionIndex": 0,
+            "maxLife": 1000,
+            "life": 1000,
+            "timer": 840,
+            "assignment": 0,
+            "cargo": 0,
+            "previousState": 0,
+            "workTarget": 0,
+            "immediateCommand": 0,
+            "vehicle": 0,
+            "commandCursor": 0,
+            "commandStatus": 17,
+            "animationMode": 0,
+            "commandAux": 3,
+            "commandPhase": 0,
+            "statusFlags": 2
+          },
+          "objectIdCandidates": [
+            97
+          ],
+          "commands": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "order": {
+            "model": 17,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 16384,
+            "b": 16384
+          },
+          "worldAnimationCounter": 1001,
+          "cosmeticRandom": 1,
+          "simulationRandom": 4
+        }
+      }
+    ]
+  },
+  "currentPortCase": {
+    "case": "timer839-turning-known-difference",
+    "rows": [
+      {
+        "case": "timer839-turning-known-difference",
+        "visit": 1,
+        "result": 0,
+        "beforeController": {
+          "raw": "0000000000000000000000000000200000000000000004000000000000000000000000000100c800000001040a0310000f0000a80080010000000e00f00040004000000000000000000000000000000040004000000000c80000000000c80000000000000000000000000000e803e803470300000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000001100030000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "fields": {
+            "flags2": 2097152,
+            "flags4": 0,
+            "flags3": 262144,
+            "stamp": 0,
+            "id": 1,
+            "angle": 200,
+            "class": 1,
+            "model": 4,
+            "state": 10,
+            "substate": 3,
+            "counter": 16,
+            "tribe": 0,
+            "physics": 15,
+            "object": 168,
+            "renderFlags": 384,
+            "f1": 0,
+            "f2": 0,
+            "draw": 14,
+            "morph": 0,
+            "palette": 240,
+            "x": 16384,
+            "y": 16384,
+            "h": 0,
+            "goalX": 16384,
+            "goalY": 16384,
+            "turnAngle": 200,
+            "heading": 200,
+            "speed": 0,
+            "motionGroup": 0,
+            "motionIndex": 0,
+            "maxLife": 1000,
+            "life": 1000,
+            "timer": 839,
+            "assignment": 0,
+            "cargo": 0,
+            "previousState": 0,
+            "workTarget": 0,
+            "immediateCommand": 0,
+            "vehicle": 0,
+            "commandCursor": 0,
+            "commandStatus": 17,
+            "animationMode": 0,
+            "commandAux": 3,
+            "commandPhase": 0,
+            "statusFlags": 0
+          },
+          "objectIdCandidates": [
+            97
+          ],
+          "commands": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "order": {
+            "model": 17,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 16384,
+            "b": 16384
+          },
+          "worldAnimationCounter": 1001,
+          "cosmeticRandom": 1,
+          "simulationRandom": 4
+        },
+        "afterController": {
+          "raw": "0000000000000000000000000000204000000000000004000000000000000000000000000100c800000001040a0410000f0000a80080010000000e00f00040004000000000000000000000000000000040004000000000c80000000000c80000000000000000000000000000e803e803480300000000100000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000001101030000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "fields": {
+            "flags2": 1075838976,
+            "flags4": 0,
+            "flags3": 262144,
+            "stamp": 0,
+            "id": 1,
+            "angle": 200,
+            "class": 1,
+            "model": 4,
+            "state": 10,
+            "substate": 4,
+            "counter": 16,
+            "tribe": 0,
+            "physics": 15,
+            "object": 168,
+            "renderFlags": 384,
+            "f1": 0,
+            "f2": 0,
+            "draw": 14,
+            "morph": 0,
+            "palette": 240,
+            "x": 16384,
+            "y": 16384,
+            "h": 0,
+            "goalX": 16384,
+            "goalY": 16384,
+            "turnAngle": 200,
+            "heading": 200,
+            "speed": 0,
+            "motionGroup": 0,
+            "motionIndex": 0,
+            "maxLife": 1000,
+            "life": 1000,
+            "timer": 840,
+            "assignment": 16,
+            "cargo": 0,
+            "previousState": 0,
+            "workTarget": 0,
+            "immediateCommand": 0,
+            "vehicle": 0,
+            "commandCursor": 0,
+            "commandStatus": 17,
+            "animationMode": 1,
+            "commandAux": 3,
+            "commandPhase": 0,
+            "statusFlags": 2
+          },
+          "objectIdCandidates": [
+            97
+          ],
+          "commands": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "order": {
+            "model": 17,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 16384,
+            "b": 16384
+          },
+          "worldAnimationCounter": 1001,
+          "cosmeticRandom": 1,
+          "simulationRandom": 3138912261
+        },
+        "beforeUpdater": {
+          "raw": "000000000000000000000000000020400000000000000400e903000000000000000000000100c800000001040a0410000f0000a80080010000000e00f00040004000000000000000000000000000000040004000000000c80000000000c80000000000000000000000000000e803e803480300000000100000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000001101030000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "fields": {
+            "flags2": 1075838976,
+            "flags4": 0,
+            "flags3": 262144,
+            "stamp": 1001,
+            "id": 1,
+            "angle": 200,
+            "class": 1,
+            "model": 4,
+            "state": 10,
+            "substate": 4,
+            "counter": 16,
+            "tribe": 0,
+            "physics": 15,
+            "object": 168,
+            "renderFlags": 384,
+            "f1": 0,
+            "f2": 0,
+            "draw": 14,
+            "morph": 0,
+            "palette": 240,
+            "x": 16384,
+            "y": 16384,
+            "h": 0,
+            "goalX": 16384,
+            "goalY": 16384,
+            "turnAngle": 200,
+            "heading": 200,
+            "speed": 0,
+            "motionGroup": 0,
+            "motionIndex": 0,
+            "maxLife": 1000,
+            "life": 1000,
+            "timer": 840,
+            "assignment": 16,
+            "cargo": 0,
+            "previousState": 0,
+            "workTarget": 0,
+            "immediateCommand": 0,
+            "vehicle": 0,
+            "commandCursor": 0,
+            "commandStatus": 17,
+            "animationMode": 1,
+            "commandAux": 3,
+            "commandPhase": 0,
+            "statusFlags": 2
+          },
+          "objectIdCandidates": [
+            97
+          ],
+          "commands": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "order": {
+            "model": 17,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 16384,
+            "b": 16384
+          },
+          "worldAnimationCounter": 1001,
+          "cosmeticRandom": 1,
+          "simulationRandom": 3138912261
+        },
+        "afterUpdater": {
+          "raw": "000000000000000000000000000020400000000000000400e903000000000000000000000100c800000001040a0410000f0000a80080010000010e00f00040004000000000000000000000000000000040004000000000c80000000000c80000000000000000000000000000e803e803480300000000100000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000001101030000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "fields": {
+            "flags2": 1075838976,
+            "flags4": 0,
+            "flags3": 262144,
+            "stamp": 1001,
+            "id": 1,
+            "angle": 200,
+            "class": 1,
+            "model": 4,
+            "state": 10,
+            "substate": 4,
+            "counter": 16,
+            "tribe": 0,
+            "physics": 15,
+            "object": 168,
+            "renderFlags": 384,
+            "f1": 0,
+            "f2": 1,
+            "draw": 14,
+            "morph": 0,
+            "palette": 240,
+            "x": 16384,
+            "y": 16384,
+            "h": 0,
+            "goalX": 16384,
+            "goalY": 16384,
+            "turnAngle": 200,
+            "heading": 200,
+            "speed": 0,
+            "motionGroup": 0,
+            "motionIndex": 0,
+            "maxLife": 1000,
+            "life": 1000,
+            "timer": 840,
+            "assignment": 16,
+            "cargo": 0,
+            "previousState": 0,
+            "workTarget": 0,
+            "immediateCommand": 0,
+            "vehicle": 0,
+            "commandCursor": 0,
+            "commandStatus": 17,
+            "animationMode": 1,
+            "commandAux": 3,
+            "commandPhase": 0,
+            "statusFlags": 2
+          },
+          "objectIdCandidates": [
+            97
+          ],
+          "commands": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "order": {
+            "model": 17,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 16384,
+            "b": 16384
+          },
+          "worldAnimationCounter": 1001,
+          "cosmeticRandom": 1,
+          "simulationRandom": 3138912261
+        },
+        "events": [
+          {
+            "visit": 1,
+            "phase": "controller",
+            "kind": "acquisition",
+            "args": [
+              33554432,
+              3
+            ],
+            "boundary": "supplied-adapter",
+            "state": {
+              "raw": "0000000000000000000000000000204000000000000004000000000000000000000000000100c800000001040a0410000f0000a80080010000000e00f00040004000000000000000000000000000000040004000000000c80000000000c80000000000000000000000000000e803e803480300000000100000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000001101030000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+              "fields": {
+                "flags2": 1075838976,
+                "flags4": 0,
+                "flags3": 262144,
+                "stamp": 0,
+                "id": 1,
+                "angle": 200,
+                "class": 1,
+                "model": 4,
+                "state": 10,
+                "substate": 4,
+                "counter": 16,
+                "tribe": 0,
+                "physics": 15,
+                "object": 168,
+                "renderFlags": 384,
+                "f1": 0,
+                "f2": 0,
+                "draw": 14,
+                "morph": 0,
+                "palette": 240,
+                "x": 16384,
+                "y": 16384,
+                "h": 0,
+                "goalX": 16384,
+                "goalY": 16384,
+                "turnAngle": 200,
+                "heading": 200,
+                "speed": 0,
+                "motionGroup": 0,
+                "motionIndex": 0,
+                "maxLife": 1000,
+                "life": 1000,
+                "timer": 840,
+                "assignment": 16,
+                "cargo": 0,
+                "previousState": 0,
+                "workTarget": 0,
+                "immediateCommand": 0,
+                "vehicle": 0,
+                "commandCursor": 0,
+                "commandStatus": 17,
+                "animationMode": 1,
+                "commandAux": 3,
+                "commandPhase": 0,
+                "statusFlags": 0
+              },
+              "objectIdCandidates": [
+                97
+              ],
+              "commands": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "order": {
+                "model": 17,
+                "flags": 0,
+                "references": 1,
+                "object": 0,
+                "a": 16384,
+                "b": 16384
+              },
+              "worldAnimationCounter": 1001,
+              "cosmeticRandom": 1,
+              "simulationRandom": 3138912261
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "acquisitionDisassembly": {
+    "start": "0043abf0",
+    "endExclusive": "0043aeb8",
+    "sha256": "baa1247d5c91cabfc846dcfdbf5d7f34cdff9328efa41fe219ef1d90ed2d9c41",
+    "rows": [
+      {
+        "address": "0043abf0",
+        "bytes": "83ec18",
+        "mnemonic": "sub",
+        "operands": "esp, 0x18"
+      },
+      {
+        "address": "0043abf3",
+        "bytes": "c744240c00000000",
+        "mnemonic": "mov",
+        "operands": "dword ptr [esp + 0xc], 0"
+      },
+      {
+        "address": "0043abfb",
+        "bytes": "53",
+        "mnemonic": "push",
+        "operands": "ebx"
+      },
+      {
+        "address": "0043abfc",
+        "bytes": "56",
+        "mnemonic": "push",
+        "operands": "esi"
+      },
+      {
+        "address": "0043abfd",
+        "bytes": "57",
+        "mnemonic": "push",
+        "operands": "edi"
+      },
+      {
+        "address": "0043abfe",
+        "bytes": "55",
+        "mnemonic": "push",
+        "operands": "ebp"
+      },
+      {
+        "address": "0043abff",
+        "bytes": "33ed",
+        "mnemonic": "xor",
+        "operands": "ebp, ebp"
+      },
+      {
+        "address": "0043ac01",
+        "bytes": "8b7c242c",
+        "mnemonic": "mov",
+        "operands": "edi, dword ptr [esp + 0x2c]"
+      },
+      {
+        "address": "0043ac05",
+        "bytes": "f6471108",
+        "mnemonic": "test",
+        "operands": "byte ptr [edi + 0x11], 8"
+      },
+      {
+        "address": "0043ac09",
+        "bytes": "668b6f24",
+        "mnemonic": "mov",
+        "operands": "bp, word ptr [edi + 0x24]"
+      },
+      {
+        "address": "0043ac0d",
+        "bytes": "0f8599020000",
+        "mnemonic": "jne",
+        "operands": "0x43aeac"
+      },
+      {
+        "address": "0043ac13",
+        "bytes": "668b473d",
+        "mnemonic": "mov",
+        "operands": "ax, word ptr [edi + 0x3d]"
+      },
+      {
+        "address": "0043ac17",
+        "bytes": "66c1e808",
+        "mnemonic": "shr",
+        "operands": "ax, 8"
+      },
+      {
+        "address": "0043ac1b",
+        "bytes": "24fe",
+        "mnemonic": "and",
+        "operands": "al, 0xfe"
+      },
+      {
+        "address": "0043ac1d",
+        "bytes": "88442418",
+        "mnemonic": "mov",
+        "operands": "byte ptr [esp + 0x18], al"
+      },
+      {
+        "address": "0043ac21",
+        "bytes": "668b473f",
+        "mnemonic": "mov",
+        "operands": "ax, word ptr [edi + 0x3f]"
+      },
+      {
+        "address": "0043ac25",
+        "bytes": "66c1e808",
+        "mnemonic": "shr",
+        "operands": "ax, 8"
+      },
+      {
+        "address": "0043ac29",
+        "bytes": "24fe",
+        "mnemonic": "and",
+        "operands": "al, 0xfe"
+      },
+      {
+        "address": "0043ac2b",
+        "bytes": "88442419",
+        "mnemonic": "mov",
+        "operands": "byte ptr [esp + 0x19], al"
+      },
+      {
+        "address": "0043ac2f",
+        "bytes": "8b442430",
+        "mnemonic": "mov",
+        "operands": "eax, dword ptr [esp + 0x30]"
+      },
+      {
+        "address": "0043ac33",
+        "bytes": "668b4c2418",
+        "mnemonic": "mov",
+        "operands": "cx, word ptr [esp + 0x18]"
+      },
+      {
+        "address": "0043ac38",
+        "bytes": "24fe",
+        "mnemonic": "and",
+        "operands": "al, 0xfe"
+      },
+      {
+        "address": "0043ac3a",
+        "bytes": "66894c2414",
+        "mnemonic": "mov",
+        "operands": "word ptr [esp + 0x14], cx"
+      },
+      {
+        "address": "0043ac3f",
+        "bytes": "28442414",
+        "mnemonic": "sub",
+        "operands": "byte ptr [esp + 0x14], al"
+      },
+      {
+        "address": "0043ac43",
+        "bytes": "28442415",
+        "mnemonic": "sub",
+        "operands": "byte ptr [esp + 0x15], al"
+      },
+      {
+        "address": "0043ac47",
+        "bytes": "668b4c2414",
+        "mnemonic": "mov",
+        "operands": "cx, word ptr [esp + 0x14]"
+      },
+      {
+        "address": "0043ac4c",
+        "bytes": "8b442430",
+        "mnemonic": "mov",
+        "operands": "eax, dword ptr [esp + 0x30]"
+      },
+      {
+        "address": "0043ac50",
+        "bytes": "66894c2416",
+        "mnemonic": "mov",
+        "operands": "word ptr [esp + 0x16], cx"
+      },
+      {
+        "address": "0043ac55",
+        "bytes": "89442424",
+        "mnemonic": "mov",
+        "operands": "dword ptr [esp + 0x24], eax"
+      },
+      {
+        "address": "0043ac59",
+        "bytes": "85c0",
+        "mnemonic": "test",
+        "operands": "eax, eax"
+      },
+      {
+        "address": "0043ac5b",
+        "bytes": "0f8434020000",
+        "mnemonic": "je",
+        "operands": "0x43ae95"
+      },
+      {
+        "address": "0043ac61",
+        "bytes": "8b442430",
+        "mnemonic": "mov",
+        "operands": "eax, dword ptr [esp + 0x30]"
+      },
+      {
+        "address": "0043ac65",
+        "bytes": "89442420",
+        "mnemonic": "mov",
+        "operands": "dword ptr [esp + 0x20], eax"
+      },
+      {
+        "address": "0043ac69",
+        "bytes": "837c242000",
+        "mnemonic": "cmp",
+        "operands": "dword ptr [esp + 0x20], 0"
+      },
+      {
+        "address": "0043ac6e",
+        "bytes": "0f8405020000",
+        "mnemonic": "je",
+        "operands": "0x43ae79"
+      },
+      {
+        "address": "0043ac74",
+        "bytes": "33c0",
+        "mnemonic": "xor",
+        "operands": "eax, eax"
+      },
+      {
+        "address": "0043ac76",
+        "bytes": "33c9",
+        "mnemonic": "xor",
+        "operands": "ecx, ecx"
+      },
+      {
+        "address": "0043ac78",
+        "bytes": "668b442416",
+        "mnemonic": "mov",
+        "operands": "ax, word ptr [esp + 0x16]"
+      },
+      {
+        "address": "0043ac7d",
+        "bytes": "668b4c2416",
+        "mnemonic": "mov",
+        "operands": "cx, word ptr [esp + 0x16]"
+      },
+      {
+        "address": "0043ac82",
+        "bytes": "25fe000000",
+        "mnemonic": "and",
+        "operands": "eax, 0xfe"
+      },
+      {
+        "address": "0043ac87",
+        "bytes": "03c0",
+        "mnemonic": "add",
+        "operands": "eax, eax"
+      },
+      {
+        "address": "0043ac89",
+        "bytes": "81e100fe0000",
+        "mnemonic": "and",
+        "operands": "ecx, 0xfe00"
+      },
+      {
+        "address": "0043ac8f",
+        "bytes": "0bc1",
+        "mnemonic": "or",
+        "operands": "eax, ecx"
+      },
+      {
+        "address": "0043ac91",
+        "bytes": "668b0485ea038a00",
+        "mnemonic": "mov",
+        "operands": "ax, word ptr [eax*4 + 0x8a03ea]"
+      },
+      {
+        "address": "0043ac99",
+        "bytes": "6685c0",
+        "mnemonic": "test",
+        "operands": "ax, ax"
+      },
+      {
+        "address": "0043ac9c",
+        "bytes": "0f84c9010000",
+        "mnemonic": "je",
+        "operands": "0x43ae6b"
+      },
+      {
+        "address": "0043aca2",
+        "bytes": "0fbfc0",
+        "mnemonic": "movsx",
+        "operands": "eax, ax"
+      },
+      {
+        "address": "0043aca5",
+        "bytes": "8b348590038900",
+        "mnemonic": "mov",
+        "operands": "esi, dword ptr [eax*4 + 0x890390]"
+      },
+      {
+        "address": "0043acac",
+        "bytes": "85f6",
+        "mnemonic": "test",
+        "operands": "esi, esi"
+      },
+      {
+        "address": "0043acae",
+        "bytes": "0f84b7010000",
+        "mnemonic": "je",
+        "operands": "0x43ae6b"
+      },
+      {
+        "address": "0043acb4",
+        "bytes": "807e2a01",
+        "mnemonic": "cmp",
+        "operands": "byte ptr [esi + 0x2a], 1"
+      },
+      {
+        "address": "0043acb8",
+        "bytes": "0f8598010000",
+        "mnemonic": "jne",
+        "operands": "0x43ae56"
+      },
+      {
+        "address": "0043acbe",
+        "bytes": "33c0",
+        "mnemonic": "xor",
+        "operands": "eax, eax"
+      },
+      {
+        "address": "0043acc0",
+        "bytes": "8a462b",
+        "mnemonic": "mov",
+        "operands": "al, byte ptr [esi + 0x2b]"
+      },
+      {
+        "address": "0043acc3",
+        "bytes": "c744241800000000",
+        "mnemonic": "mov",
+        "operands": "dword ptr [esp + 0x18], 0"
+      },
+      {
+        "address": "0043accb",
+        "bytes": "8d0c80",
+        "mnemonic": "lea",
+        "operands": "ecx, [eax + eax*4]"
+      },
+      {
+        "address": "0043acce",
+        "bytes": "8d1489",
+        "mnemonic": "lea",
+        "operands": "edx, [ecx + ecx*4]"
+      },
+      {
+        "address": "0043acd1",
+        "bytes": "f6045590705a0020",
+        "mnemonic": "test",
+        "operands": "byte ptr [edx*2 + 0x5a7090], 0x20"
+      },
+      {
+        "address": "0043acd9",
+        "bytes": "0f84ef000000",
+        "mnemonic": "je",
+        "operands": "0x43adce"
+      },
+      {
+        "address": "0043acdf",
+        "bytes": "8a572f",
+        "mnemonic": "mov",
+        "operands": "dl, byte ptr [edi + 0x2f]"
+      },
+      {
+        "address": "0043ace2",
+        "bytes": "8a4e2f",
+        "mnemonic": "mov",
+        "operands": "cl, byte ptr [esi + 0x2f]"
+      },
+      {
+        "address": "0043ace5",
+        "bytes": "3ad1",
+        "mnemonic": "cmp",
+        "operands": "dl, cl"
+      },
+      {
+        "address": "0043ace7",
+        "bytes": "0f84e1000000",
+        "mnemonic": "je",
+        "operands": "0x43adce"
+      },
+      {
+        "address": "0043aced",
+        "bytes": "33c0",
+        "mnemonic": "xor",
+        "operands": "eax, eax"
+      },
+      {
+        "address": "0043acef",
+        "bytes": "8a462c",
+        "mnemonic": "mov",
+        "operands": "al, byte ptr [esi + 0x2c]"
+      },
+      {
+        "address": "0043acf2",
+        "bytes": "f68480796f5a0020",
+        "mnemonic": "test",
+        "operands": "byte ptr [eax + eax*4 + 0x5a6f79], 0x20"
+      },
+      {
+        "address": "0043acfa",
+        "bytes": "0f85ce000000",
+        "mnemonic": "jne",
+        "operands": "0x43adce"
+      },
+      {
+        "address": "0043ad00",
+        "bytes": "80faff",
+        "mnemonic": "cmp",
+        "operands": "dl, 0xff"
+      },
+      {
+        "address": "0043ad03",
+        "bytes": "741a",
+        "mnemonic": "je",
+        "operands": "0x43ad1f"
+      },
+      {
+        "address": "0043ad05",
+        "bytes": "80f9ff",
+        "mnemonic": "cmp",
+        "operands": "cl, 0xff"
+      },
+      {
+        "address": "0043ad08",
+        "bytes": "7415",
+        "mnemonic": "je",
+        "operands": "0x43ad1f"
+      },
+      {
+        "address": "0043ad0a",
+        "bytes": "3ad1",
+        "mnemonic": "cmp",
+        "operands": "dl, cl"
+      },
+      {
+        "address": "0043ad0c",
+        "bytes": "7411",
+        "mnemonic": "je",
+        "operands": "0x43ad1f"
+      },
+      {
+        "address": "0043ad0e",
+        "bytes": "0fbec2",
+        "mnemonic": "movsx",
+        "operands": "eax, dl"
+      },
+      {
+        "address": "0043ad11",
+        "bytes": "b301",
+        "mnemonic": "mov",
+        "operands": "bl, 1"
+      },
+      {
+        "address": "0043ad13",
+        "bytes": "8a80b6089600",
+        "mnemonic": "mov",
+        "operands": "al, byte ptr [eax + 0x9608b6]"
+      },
+      {
+        "address": "0043ad19",
+        "bytes": "d2e3",
+        "mnemonic": "shl",
+        "operands": "bl, cl"
+      },
+      {
+        "address": "0043ad1b",
+        "bytes": "22c3",
+        "mnemonic": "and",
+        "operands": "al, bl"
+      },
+      {
+        "address": "0043ad1d",
+        "bytes": "eb02",
+        "mnemonic": "jmp",
+        "operands": "0x43ad21"
+      },
+      {
+        "address": "0043ad1f",
+        "bytes": "b001",
+        "mnemonic": "mov",
+        "operands": "al, 1"
+      },
+      {
+        "address": "0043ad21",
+        "bytes": "84c0",
+        "mnemonic": "test",
+        "operands": "al, al"
+      },
+      {
+        "address": "0043ad23",
+        "bytes": "0f85a5000000",
+        "mnemonic": "jne",
+        "operands": "0x43adce"
+      },
+      {
+        "address": "0043ad29",
+        "bytes": "f6461608",
+        "mnemonic": "test",
+        "operands": "byte ptr [esi + 0x16], 8"
+      },
+      {
+        "address": "0043ad2d",
+        "bytes": "0f859b000000",
+        "mnemonic": "jne",
+        "operands": "0x43adce"
+      },
+      {
+        "address": "0043ad33",
+        "bytes": "6683be9f00000000",
+        "mnemonic": "cmp",
+        "operands": "word ptr [esi + 0x9f], 0"
+      },
+      {
+        "address": "0043ad3b",
+        "bytes": "0f858d000000",
+        "mnemonic": "jne",
+        "operands": "0x43adce"
+      },
+      {
+        "address": "0043ad41",
+        "bytes": "0fbec2",
+        "mnemonic": "movsx",
+        "operands": "eax, dl"
+      },
+      {
+        "address": "0043ad44",
+        "bytes": "50",
+        "mnemonic": "push",
+        "operands": "eax"
+      },
+      {
+        "address": "0043ad45",
+        "bytes": "56",
+        "mnemonic": "push",
+        "operands": "esi"
+      },
+      {
+        "address": "0043ad46",
+        "bytes": "e8653a0a00",
+        "mnemonic": "call",
+        "operands": "0x4de7b0"
+      },
+      {
+        "address": "0043ad4b",
+        "bytes": "83c408",
+        "mnemonic": "add",
+        "operands": "esp, 8"
+      },
+      {
+        "address": "0043ad4e",
+        "bytes": "85c0",
+        "mnemonic": "test",
+        "operands": "eax, eax"
+      },
+      {
+        "address": "0043ad50",
+        "bytes": "757c",
+        "mnemonic": "jne",
+        "operands": "0x43adce"
+      },
+      {
+        "address": "0043ad52",
+        "bytes": "f6460e10",
+        "mnemonic": "test",
+        "operands": "byte ptr [esi + 0xe], 0x10"
+      },
+      {
+        "address": "0043ad56",
+        "bytes": "7576",
+        "mnemonic": "jne",
+        "operands": "0x43adce"
+      },
+      {
+        "address": "0043ad58",
+        "bytes": "8a462c",
+        "mnemonic": "mov",
+        "operands": "al, byte ptr [esi + 0x2c]"
+      },
+      {
+        "address": "0043ad5b",
+        "bytes": "56",
+        "mnemonic": "push",
+        "operands": "esi"
+      },
+      {
+        "address": "0043ad5c",
+        "bytes": "88467d",
+        "mnemonic": "mov",
+        "operands": "byte ptr [esi + 0x7d], al"
+      },
+      {
+        "address": "0043ad5f",
+        "bytes": "e88c290b00",
+        "mnemonic": "call",
+        "operands": "0x4ed6f0"
+      },
+      {
+        "address": "0043ad64",
+        "bytes": "83c404",
+        "mnemonic": "add",
+        "operands": "esp, 4"
+      },
+      {
+        "address": "0043ad67",
+        "bytes": "c6462c17",
+        "mnemonic": "mov",
+        "operands": "byte ptr [esi + 0x2c], 0x17"
+      },
+      {
+        "address": "0043ad6b",
+        "bytes": "56",
+        "mnemonic": "push",
+        "operands": "esi"
+      },
+      {
+        "address": "0043ad6c",
+        "bytes": "e8cf280b00",
+        "mnemonic": "call",
+        "operands": "0x4ed640"
+      },
+      {
+        "address": "0043ad71",
+        "bytes": "83c404",
+        "mnemonic": "add",
+        "operands": "esp, 4"
+      },
+      {
+        "address": "0043ad74",
+        "bytes": "807e2f00",
+        "mnemonic": "cmp",
+        "operands": "byte ptr [esi + 0x2f], 0"
+      },
+      {
+        "address": "0043ad78",
+        "bytes": "7532",
+        "mnemonic": "jne",
+        "operands": "0x43adac"
+      },
+      {
+        "address": "0043ad7a",
+        "bytes": "810d05db890000000080",
+        "mnemonic": "or",
+        "operands": "dword ptr [0x89db05], 0x80000000"
+      },
+      {
+        "address": "0043ad84",
+        "bytes": "668b463d",
+        "mnemonic": "mov",
+        "operands": "ax, word ptr [esi + 0x3d]"
+      },
+      {
+        "address": "0043ad88",
+        "bytes": "66c1e808",
+        "mnemonic": "shr",
+        "operands": "ax, 8"
+      },
+      {
+        "address": "0043ad8c",
+        "bytes": "24fe",
+        "mnemonic": "and",
+        "operands": "al, 0xfe"
+      },
+      {
+        "address": "0043ad8e",
+        "bytes": "88442412",
+        "mnemonic": "mov",
+        "operands": "byte ptr [esp + 0x12], al"
+      },
+      {
+        "address": "0043ad92",
+        "bytes": "668b463f",
+        "mnemonic": "mov",
+        "operands": "ax, word ptr [esi + 0x3f]"
+      },
+      {
+        "address": "0043ad96",
+        "bytes": "66c1e808",
+        "mnemonic": "shr",
+        "operands": "ax, 8"
+      },
+      {
+        "address": "0043ad9a",
+        "bytes": "24fe",
+        "mnemonic": "and",
+        "operands": "al, 0xfe"
+      },
+      {
+        "address": "0043ad9c",
+        "bytes": "88442413",
+        "mnemonic": "mov",
+        "operands": "byte ptr [esp + 0x13], al"
+      },
+      {
+        "address": "0043ada0",
+        "bytes": "668b4c2412",
+        "mnemonic": "mov",
+        "operands": "cx, word ptr [esp + 0x12]"
+      },
+      {
+        "address": "0043ada5",
+        "bytes": "66890dccce9800",
+        "mnemonic": "mov",
+        "operands": "word ptr [0x98cecc], cx"
+      },
+      {
+        "address": "0043adac",
+        "bytes": "6a02",
+        "mnemonic": "push",
+        "operands": "2"
+      },
+      {
+        "address": "0043adae",
+        "bytes": "8a462f",
+        "mnemonic": "mov",
+        "operands": "al, byte ptr [esi + 0x2f]"
+      },
+      {
+        "address": "0043adb1",
+        "bytes": "50",
+        "mnemonic": "push",
+        "operands": "eax"
+      },
+      {
+        "address": "0043adb2",
+        "bytes": "8a4f2f",
+        "mnemonic": "mov",
+        "operands": "cl, byte ptr [edi + 0x2f]"
+      },
+      {
+        "address": "0043adb5",
+        "bytes": "51",
+        "mnemonic": "push",
+        "operands": "ecx"
+      },
+      {
+        "address": "0043adb6",
+        "bytes": "57",
+        "mnemonic": "push",
+        "operands": "edi"
+      },
+      {
+        "address": "0043adb7",
+        "bytes": "e8e470ffff",
+        "mnemonic": "call",
+        "operands": "0x431ea0"
+      },
+      {
+        "address": "0043adbc",
+        "bytes": "c744242801000000",
+        "mnemonic": "mov",
+        "operands": "dword ptr [esp + 0x28], 1"
+      },
+      {
+        "address": "0043adc4",
+        "bytes": "6689ae89000000",
+        "mnemonic": "mov",
+        "operands": "word ptr [esi + 0x89], bp"
+      },
+      {
+        "address": "0043adcb",
+        "bytes": "83c410",
+        "mnemonic": "add",
+        "operands": "esp, 0x10"
+      },
+      {
+        "address": "0043adce",
+        "bytes": "837c241800",
+        "mnemonic": "cmp",
+        "operands": "dword ptr [esp + 0x18], 0"
+      },
+      {
+        "address": "0043add3",
+        "bytes": "7513",
+        "mnemonic": "jne",
+        "operands": "0x43ade8"
+      },
+      {
+        "address": "0043add5",
+        "bytes": "807e2c17",
+        "mnemonic": "cmp",
+        "operands": "byte ptr [esi + 0x2c], 0x17"
+      },
+      {
+        "address": "0043add9",
+        "bytes": "757b",
+        "mnemonic": "jne",
+        "operands": "0x43ae56"
+      },
+      {
+        "address": "0043addb",
+        "bytes": "33c0",
+        "mnemonic": "xor",
+        "operands": "eax, eax"
+      },
+      {
+        "address": "0043addd",
+        "bytes": "668b8689000000",
+        "mnemonic": "mov",
+        "operands": "ax, word ptr [esi + 0x89]"
+      },
+      {
+        "address": "0043ade4",
+        "bytes": "3bc5",
+        "mnemonic": "cmp",
+        "operands": "eax, ebp"
+      },
+      {
+        "address": "0043ade6",
+        "bytes": "756e",
+        "mnemonic": "jne",
+        "operands": "0x43ae56"
+      },
+      {
+        "address": "0043ade8",
+        "bytes": "837c241c00",
+        "mnemonic": "cmp",
+        "operands": "dword ptr [esp + 0x1c], 0"
+      },
+      {
+        "address": "0043aded",
+        "bytes": "7563",
+        "mnemonic": "jne",
+        "operands": "0x43ae52"
+      },
+      {
+        "address": "0043adef",
+        "bytes": "668b463d",
+        "mnemonic": "mov",
+        "operands": "ax, word ptr [esi + 0x3d]"
+      },
+      {
+        "address": "0043adf3",
+        "bytes": "662b473d",
+        "mnemonic": "sub",
+        "operands": "ax, word ptr [edi + 0x3d]"
+      },
+      {
+        "address": "0043adf7",
+        "bytes": "0fb7d0",
+        "mnemonic": "movzx",
+        "operands": "edx, ax"
+      },
+      {
+        "address": "0043adfa",
+        "bytes": "668b463f",
+        "mnemonic": "mov",
+        "operands": "ax, word ptr [esi + 0x3f]"
+      },
+      {
+        "address": "0043adfe",
+        "bytes": "8bca",
+        "mnemonic": "mov",
+        "operands": "ecx, edx"
+      },
+      {
+        "address": "0043ae00",
+        "bytes": "662b473f",
+        "mnemonic": "sub",
+        "operands": "ax, word ptr [edi + 0x3f]"
+      },
+      {
+        "address": "0043ae04",
+        "bytes": "85d2",
+        "mnemonic": "test",
+        "operands": "edx, edx"
+      },
+      {
+        "address": "0043ae06",
+        "bytes": "0fb7c0",
+        "mnemonic": "movzx",
+        "operands": "eax, ax"
+      },
+      {
+        "address": "0043ae09",
+        "bytes": "7d04",
+        "mnemonic": "jge",
+        "operands": "0x43ae0f"
+      },
+      {
+        "address": "0043ae0b",
+        "bytes": "8bca",
+        "mnemonic": "mov",
+        "operands": "ecx, edx"
+      },
+      {
+        "address": "0043ae0d",
+        "bytes": "f7d9",
+        "mnemonic": "neg",
+        "operands": "ecx"
+      },
+      {
+        "address": "0043ae0f",
+        "bytes": "8bd8",
+        "mnemonic": "mov",
+        "operands": "ebx, eax"
+      },
+      {
+        "address": "0043ae11",
+        "bytes": "85c0",
+        "mnemonic": "test",
+        "operands": "eax, eax"
+      },
+      {
+        "address": "0043ae13",
+        "bytes": "7d04",
+        "mnemonic": "jge",
+        "operands": "0x43ae19"
+      },
+      {
+        "address": "0043ae15",
+        "bytes": "8bd8",
+        "mnemonic": "mov",
+        "operands": "ebx, eax"
+      },
+      {
+        "address": "0043ae17",
+        "bytes": "f7db",
+        "mnemonic": "neg",
+        "operands": "ebx"
+      },
+      {
+        "address": "0043ae19",
+        "bytes": "81f900800000",
+        "mnemonic": "cmp",
+        "operands": "ecx, 0x8000"
+      },
+      {
+        "address": "0043ae1f",
+        "bytes": "7c06",
+        "mnemonic": "jl",
+        "operands": "0x43ae27"
+      },
+      {
+        "address": "0043ae21",
+        "bytes": "8d910000ffff",
+        "mnemonic": "lea",
+        "operands": "edx, [ecx - 0x10000]"
+      },
+      {
+        "address": "0043ae27",
+        "bytes": "81fb00800000",
+        "mnemonic": "cmp",
+        "operands": "ebx, 0x8000"
+      },
+      {
+        "address": "0043ae2d",
+        "bytes": "7c06",
+        "mnemonic": "jl",
+        "operands": "0x43ae35"
+      },
+      {
+        "address": "0043ae2f",
+        "bytes": "8d830000ffff",
+        "mnemonic": "lea",
+        "operands": "eax, [ebx - 0x10000]"
+      },
+      {
+        "address": "0043ae35",
+        "bytes": "f7d8",
+        "mnemonic": "neg",
+        "operands": "eax"
+      },
+      {
+        "address": "0043ae37",
+        "bytes": "50",
+        "mnemonic": "push",
+        "operands": "eax"
+      },
+      {
+        "address": "0043ae38",
+        "bytes": "52",
+        "mnemonic": "push",
+        "operands": "edx"
+      },
+      {
+        "address": "0043ae39",
+        "bytes": "e836b21400",
+        "mnemonic": "call",
+        "operands": "0x586074"
+      },
+      {
+        "address": "0043ae3e",
+        "bytes": "83c408",
+        "mnemonic": "add",
+        "operands": "esp, 8"
+      },
+      {
+        "address": "0043ae41",
+        "bytes": "33c9",
+        "mnemonic": "xor",
+        "operands": "ecx, ecx"
+      },
+      {
+        "address": "0043ae43",
+        "bytes": "668bc8",
+        "mnemonic": "mov",
+        "operands": "cx, ax"
+      },
+      {
+        "address": "0043ae46",
+        "bytes": "8b442434",
+        "mnemonic": "mov",
+        "operands": "eax, dword ptr [esp + 0x34]"
+      },
+      {
+        "address": "0043ae4a",
+        "bytes": "81e1ff070000",
+        "mnemonic": "and",
+        "operands": "ecx, 0x7ff"
+      },
+      {
+        "address": "0043ae50",
+        "bytes": "8908",
+        "mnemonic": "mov",
+        "operands": "dword ptr [eax], ecx"
+      },
+      {
+        "address": "0043ae52",
+        "bytes": "ff44241c",
+        "mnemonic": "inc",
+        "operands": "dword ptr [esp + 0x1c]"
+      },
+      {
+        "address": "0043ae56",
+        "bytes": "33c0",
+        "mnemonic": "xor",
+        "operands": "eax, eax"
+      },
+      {
+        "address": "0043ae58",
+        "bytes": "668b4620",
+        "mnemonic": "mov",
+        "operands": "ax, word ptr [esi + 0x20]"
+      },
+      {
+        "address": "0043ae5c",
+        "bytes": "8b348590038900",
+        "mnemonic": "mov",
+        "operands": "esi, dword ptr [eax*4 + 0x890390]"
+      },
+      {
+        "address": "0043ae63",
+        "bytes": "85f6",
+        "mnemonic": "test",
+        "operands": "esi, esi"
+      },
+      {
+        "address": "0043ae65",
+        "bytes": "0f8549feffff",
+        "mnemonic": "jne",
+        "operands": "0x43acb4"
+      },
+      {
+        "address": "0043ae6b",
+        "bytes": "8044241602",
+        "mnemonic": "add",
+        "operands": "byte ptr [esp + 0x16], 2"
+      },
+      {
+        "address": "0043ae70",
+        "bytes": "ff4c2420",
+        "mnemonic": "dec",
+        "operands": "dword ptr [esp + 0x20]"
+      },
+      {
+        "address": "0043ae74",
+        "bytes": "e9f0fdffff",
+        "mnemonic": "jmp",
+        "operands": "0x43ac69"
+      },
+      {
+        "address": "0043ae79",
+        "bytes": "8a442414",
+        "mnemonic": "mov",
+        "operands": "al, byte ptr [esp + 0x14]"
+      },
+      {
+        "address": "0043ae7d",
+        "bytes": "ff4c2424",
+        "mnemonic": "dec",
+        "operands": "dword ptr [esp + 0x24]"
+      },
+      {
+        "address": "0043ae81",
+        "bytes": "8044241702",
+        "mnemonic": "add",
+        "operands": "byte ptr [esp + 0x17], 2"
+      },
+      {
+        "address": "0043ae86",
+        "bytes": "837c242400",
+        "mnemonic": "cmp",
+        "operands": "dword ptr [esp + 0x24], 0"
+      },
+      {
+        "address": "0043ae8b",
+        "bytes": "88442416",
+        "mnemonic": "mov",
+        "operands": "byte ptr [esp + 0x16], al"
+      },
+      {
+        "address": "0043ae8f",
+        "bytes": "0f85ccfdffff",
+        "mnemonic": "jne",
+        "operands": "0x43ac61"
+      },
+      {
+        "address": "0043ae95",
+        "bytes": "837c241c04",
+        "mnemonic": "cmp",
+        "operands": "dword ptr [esp + 0x1c], 4"
+      },
+      {
+        "address": "0043ae9a",
+        "bytes": "7f09",
+        "mnemonic": "jg",
+        "operands": "0x43aea5"
+      },
+      {
+        "address": "0043ae9c",
+        "bytes": "808fb200000002",
+        "mnemonic": "or",
+        "operands": "byte ptr [edi + 0xb2], 2"
+      },
+      {
+        "address": "0043aea3",
+        "bytes": "eb07",
+        "mnemonic": "jmp",
+        "operands": "0x43aeac"
+      },
+      {
+        "address": "0043aea5",
+        "bytes": "80a7b2000000fd",
+        "mnemonic": "and",
+        "operands": "byte ptr [edi + 0xb2], 0xfd"
+      },
+      {
+        "address": "0043aeac",
+        "bytes": "8b44241c",
+        "mnemonic": "mov",
+        "operands": "eax, dword ptr [esp + 0x1c]"
+      },
+      {
+        "address": "0043aeb0",
+        "bytes": "5d",
+        "mnemonic": "pop",
+        "operands": "ebp"
+      },
+      {
+        "address": "0043aeb1",
+        "bytes": "5f",
+        "mnemonic": "pop",
+        "operands": "edi"
+      },
+      {
+        "address": "0043aeb2",
+        "bytes": "5e",
+        "mnemonic": "pop",
+        "operands": "esi"
+      },
+      {
+        "address": "0043aeb3",
+        "bytes": "5b",
+        "mnemonic": "pop",
+        "operands": "ebx"
+      },
+      {
+        "address": "0043aeb4",
+        "bytes": "83c418",
+        "mnemonic": "add",
+        "operands": "esp, 0x18"
+      },
+      {
+        "address": "0043aeb7",
+        "bytes": "c3",
+        "mnemonic": "ret",
+        "operands": ""
+      }
+    ]
+  },
+  "minimalFutureShape": {
+    "caseCount": 1,
+    "controllerUpdaterPairs": 3,
+    "actualAcquisitionCalls": 2,
+    "inputProposalSha256": "cb82a929da6f450f8232f24a1d8ffde71e5038508d5a894592267df4b5c9a704",
+    "predictedFinal": {
+      "counter": 16,
+      "timer": 840,
+      "substate": 4,
+      "assignmentBoth": 336,
+      "statusFlagsBoth": 0,
+      "modeNative": 0,
+      "modePort": 2,
+      "simulationNative": 3603658299,
+      "simulationPort": 1607832750,
+      "postUpdaterF2Both": 0
+    },
+    "status": "fixed static proposal; not implemented or executed"
+  },
+  "exclusions": [
+    "Odd command32 expiry",
+    "Ghost producer/scan behavior",
+    "Fresh Bloodlust listener eligibility",
+    "Fresh conversion initialization/RNG",
+    "Ordinary five-listener acquisition",
+    "Original scheduler/renderer/OS",
+    "Runtime/PR241 changes"
+  ],
+  "ordinaryRecord2295": {
+    "phase": "beforeTurn",
+    "now": 368459.3999999985,
+    "timeOrigin": 1791288722207.4,
+    "sceneNow": 368421.4,
+    "turn": 4243,
+    "time": 353.5833333333333,
+    "animationFrame": 8487,
+    "animationTime": 0.025,
+    "pendingTime": 0,
+    "rng": {
+      "simulation": 3603658299,
+      "cosmetic": 2096320492
+    },
+    "sameActor": true,
+    "sameWorld": true,
+    "owner": "native",
+    "id": 3164,
+    "hp": 55,
+    "kind": "preacher",
+    "team": "blue",
+    "x": 34.96875,
+    "z": 88.98046875,
+    "inside": null,
+    "busy": false,
+    "status": "playing",
+    "paused": false,
+    "speed": 1,
+    "visibility": "visible",
+    "landFlags": 0,
+    "levelFlags2": 0,
+    "person": {
+      "id": 3164,
+      "class": 1,
+      "model": 4,
+      "state": 10,
+      "previousState": 17,
+      "substate": 3,
+      "tribe": 0,
+      "x": 11000,
+      "y": 40709,
+      "h": 155,
+      "anchorX": 11008,
+      "anchorY": 40704,
+      "counter": 147,
+      "flags2": 35783168,
+      "flags3": 262145,
+      "flags4": 536871168,
+      "physics": 15,
+      "speed": 0,
+      "angle": 694,
+      "heading": 694,
+      "turnAngle": 11008,
+      "turnY": 40704,
+      "slowTurn": 0,
+      "goalX": 11008,
+      "goalY": 40704,
+      "destinationX": 11008,
+      "destinationY": 40704,
+      "building": null,
+      "cargo": 0,
+      "vehicle": 0,
+      "assignment": 272,
+      "timer": 837,
+      "target": 0,
+      "link": 0,
+      "stateObject": 0,
+      "animationMode": 0,
+      "commandAux": 3,
+      "commandPhase": 0,
+      "object": 168,
+      "draw": 14,
+      "morph": 0,
+      "palette": 240,
+      "renderFlags": 384,
+      "f1": 0,
+      "f2": 3,
+      "stamp": 4243,
+      "morphTimer": 0,
+      "morphFrames": 0,
+      "statusFlags": 2,
+      "workFlags": 0,
+      "reservationNext": 0,
+      "formationCell": 0,
+      "motionTimer": 0,
+      "motionMode": 0,
+      "motionGroup": 0,
+      "motionIndex": 0,
+      "recoveryCounter": 3,
+      "supportHeight": 0,
+      "selectionFlags": 128,
+      "commands": [
+        26,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "commandCursor": 0,
+      "immediateCommand": 0,
+      "orderLocation": 0,
+      "commandStatus": 17,
+      "workTarget": 0,
+      "cellNext": 0,
+      "cellPrevious": 0,
+      "displacement": {
+        "x": 0,
+        "y": 0,
+        "h": 0
+      },
+      "reactionTimer": 0,
+      "reactionDuration": 0,
+      "anchorFlags": 0,
+      "velocity": {
+        "x": 24,
+        "y": 0,
+        "z": -25
+      },
+      "life": 1100,
+      "disguise": 0,
+      "savedVehicle": 0,
+      "formationDelay": 15,
+      "orderDelay": 8,
+      "damageAttacker": 255,
+      "burnTrail": 0,
+      "marchCooldown": 0,
+      "computerAssignment": 0
+    },
+    "order": {
+      "id": 26,
+      "model": 17,
+      "flags": 0,
+      "references": 1,
+      "object": 0,
+      "a": 11008,
+      "b": 40704
+    },
+    "queue": [
+      {
+        "id": 26,
+        "record": {
+          "model": 17,
+          "flags": 0,
+          "references": 1,
+          "object": 0,
+          "a": 11008,
+          "b": 40704
+        }
+      }
+    ],
+    "listeners": [],
+    "threats": [],
+    "site": {
+      "cell": 10133,
+      "flags": 49,
+      "category": 0,
+      "building": 0,
+      "collision": 0
+    },
+    "mesh": {
+      "visible": true,
+      "frame": 2967,
+      "frameFlip": true,
+      "draw": 14,
+      "owner": 0,
+      "layers": [
+        {
+          "visible": true,
+          "piece": 0,
+          "uv": [
+            -0.01025390625,
+            0.0004921259842519685,
+            0.01025390625,
+            0.999507874015748
+          ]
+        },
+        {
+          "visible": true,
+          "piece": 3230,
+          "uv": [
+            -0.0078125,
+            0.003567913385826772,
+            0.9453125,
+            0.2090305118110236
+          ]
+        },
+        {
+          "visible": false,
+          "piece": 2182,
+          "uv": [
+            -0.0078125,
+            0.0018454724409448819,
+            0.1953125,
+            0.4627214566929134
+          ]
+        }
+      ]
+    }
+  },
+  "currentCorroboration2319": {
+    "phase": "beforeTurn",
+    "now": 358389.8999999985,
+    "timeOrigin": 1791307468156,
+    "sceneNow": 358373.4,
+    "turn": 4136,
+    "time": 344.6666666666667,
+    "animationFrame": 8273,
+    "animationTime": 0.01666666666664728,
+    "pendingTime": 0,
+    "rng": {
+      "simulation": 2447055198,
+      "cosmetic": 1650250837
+    },
+    "sameActor": true,
+    "registeredOwner": true,
+    "sameWorld": true,
+    "owner": "native",
+    "id": 3160,
+    "hp": 55,
+    "kind": "preacher",
+    "team": "blue",
+    "inside": null,
+    "busy": false,
+    "status": "playing",
+    "paused": false,
+    "speed": 1,
+    "visibility": "visible",
+    "landFlags": 0,
+    "person": {
+      "id": 3160,
+      "class": 1,
+      "model": 4,
+      "tribe": 0,
+      "state": 10,
+      "previousState": 17,
+      "substate": 3,
+      "commandStatus": 17,
+      "counter": 40,
+      "timer": 837,
+      "flags2": 35783168,
+      "flags3": 262145,
+      "flags4": 536871168,
+      "statusFlags": 2,
+      "speed": 0,
+      "assignment": 272,
+      "animationMode": 0,
+      "commandAux": 3,
+      "commandPhase": 0,
+      "cargo": 0,
+      "vehicle": 0,
+      "disguise": 0,
+      "renderFlags": 384,
+      "object": 168,
+      "draw": 14,
+      "f1": 0,
+      "f2": 1,
+      "stamp": 4136,
+      "x": 11000,
+      "y": 40711,
+      "h": 155,
+      "anchorX": 11008,
+      "anchorY": 40704,
+      "goalX": 11008,
+      "goalY": 40704,
+      "destinationX": 11008,
+      "destinationY": 40704,
+      "motionGroup": 0,
+      "motionIndex": 0,
+      "recoveryCounter": 4,
+      "target": 0,
+      "link": 0,
+      "workTarget": 0,
+      "commandCursor": 0,
+      "immediateCommand": 0
+    },
+    "order": {
+      "id": 26,
+      "identity": 3,
+      "model": 17,
+      "flags": 0,
+      "references": 1,
+      "object": 0,
+      "a": 11008,
+      "b": 40704
+    },
+    "commands": [
+      26,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "followingOrder": false,
+    "listeners": [],
+    "threats": [],
+    "collision": 0
+  },
+  "supersededStartingState": {
+    "assignment": 0,
+    "flags4": 0,
+    "simulationRandom": 4,
+    "reason": "Older arithmetic fixture is not actual ordinary loop history. Preserve but do not reuse as the new observed projection."
+  },
+  "provenanceInputSha256": {
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-baseline-20261006/work/orchestration/preacher-gesture-baseline/browser-attempt-01/phases.jsonl": "d7f623cc9b8315a0a17d974fb6b7108b7271ce0b0a4cf827fa55cd897e27c7bb",
+    "/workspace/shared/preacher-cutoff-passive-result-e49e4473/raw-evidence.tar.gz": "3117f7f3f7cd389624c850e0e34620d41cde035b9871e6293349a84f2f1360f9"
+  },
+  "planReviewClarifications": {
+    "nullObjectPointer": "00890390=0 is an explicit supply",
+    "portBoundary": "Direct controller/updater replay with supplied count5/status adapter; no production live scan/physics/order/combat wrapper claim",
+    "schedule": "Exactly one external increment per pair; avoid adding live physics increment",
+    "listenerTypeCorrection": {
+      "supersededModel": 1,
+      "fixedModel": 2,
+      "reason": "Model1 is wild; model2 is Brave. Model2 flags0x08af pass bit0x20; different tribes reach state23 flags0x2164, whose bit0x20 branches to owned counting. No fresh initialization follows.",
+      "supplies": {
+        "type": {
+          "browserKind": "brave",
+          "browserTeam": "red",
+          "model": 2,
+          "tribe": 1,
+          "physics": 2,
+          "life": 1000,
+          "maxLife": 1000,
+          "hp": 50
+        },
+        "ownedState": {
+          "state": 23,
+          "previousState": 17,
+          "substate": 0,
+          "workTarget": 3164,
+          "timer": 100,
+          "cargo": 0,
+          "vehicle": 0,
+          "speed": 0
+        },
+        "flags": {
+          "flags2": 2228736,
+          "flags3": 262144,
+          "flags4": 536871296
+        },
+        "animation": {
+          "row": 0,
+          "requestObject": 15,
+          "source": 48,
+          "draw": 14,
+          "renderFlags": 384,
+          "palette": 240,
+          "f1": 0,
+          "f2": 0,
+          "frameProvenance": "For draw14 hold0, the setter resets f1=0. Supplied f2=0/stamp0/counter0/angle0 are not inferred conversion effects; no initialization history is asserted."
+        },
+        "provenance": "Static projection from nativeUnitModel/createLivePerson, model2 idleState17/physics2, initializeConversionVictim, stopPersonMovement/setPersonAnimation, and cell registration. All fields remain supplies; no initializer or victim update is executed.",
+        "timerSupply": "100 is in normal conversionDelay range94..105. No prior RNG draw or initialization history is asserted.",
+        "unmappedBytes": "Retained explicit zeros are unobserved component supplies, not a complete port/native allocator image."
+      }
+    },
+    "productionPortCallerGate": "Before any later implementation merge, require actual production acquisition/caller regression using reviewed small fixture or diagnostic export of unchanged private code. Supplied direct adapter proof does not satisfy it.",
+    "retainedListenerCheck": {
+      "baselinePhaseRecords": 2327,
+      "acceptedPassivePhaseRecords": 2352,
+      "nonemptyListenerArrays": 0,
+      "result": "No actual listener records found; corrected listener shape remains explicitly supplied and source-derived, not observed."
+    }
+  },
+  "nativeNamedConsumerRanges": {
+    "angle": {
+      "start": "00586074",
+      "endExclusive": "005861b4",
+      "sha256": "23b45f6366f1e756b310039dd6fb75c80066dbc27a733fb9e5a12ff096d79230",
+      "abi": "cdecl stack dx,dy; retain raw stack dwords; predicted16,0\u2192512"
+    },
+    "reveal": {
+      "start": "004da170",
+      "endExclusive": "004da1d0",
+      "sha256": "a0a4b04139637192b2e0698111404f3b635aaa92c170dda09fecf09034315c03",
+      "path": "No flags4 bit0x1000; actual no-op return"
+    }
+  },
+  "listenerShapeSourceSha256": {
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/app/unit-kinds.ts": "5c6903d13aef2e99645fc8cfa3d86afde5e109a6b099aa775f0061f8b060162f",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/app/live-combat.ts": "12107b400388222fb75453f86d055d6ea053813da355a75cf6a10ddb3553933a",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/app/live-people.ts": "1b8b2f1c3015317709298d5610067d13c3a17cb1a53a1a0fdd8117000ccb01c3",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/app/preacher-conversion.ts": "a402baa5e394ebf13347a3b371a957d25cb2bd519b44da77a886646a710fd784",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/app/person-state.ts": "da771659e4da644ce0aa7eb6a988907888a9971e77745e3afeb95215f983cc17",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/app/animation.ts": "81ce8a1c1b4f7ec9dc228405023337856fed007146b9abed4ff2e43d6fbf78af",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/app/object-cells.ts": "cc693d083d0829c69f6295d9710b3c7762bd70f407ff9c5c408380dbd7465909",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/app/original-constants.json": "ce71bff4c5971d1aae1539b4d014d69378ddc30067068d70353b5b78979fb47c",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/app/world-types.ts": "39d0cf2a822e90a077ef86e43f74fb35e6966fe873f60d8e5b820f42c00cb3c4"
+  }
+}

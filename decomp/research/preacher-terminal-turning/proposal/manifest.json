@@ -1,0 +1,32 @@
+{
+  "status": "fixed source-only plan proposal; implementation and execution not authorized",
+  "supersedesManifestSha256": "959c94ad364fc2767d7f3b71d87812c2ff0273dea6984afafe4b25d545256658",
+  "integratedMain": "a00eadc811e227559f9a2713eedbee5cd08af1c1",
+  "applicationContent": "bd07a6302bb0170e9d6dc235983c2a961694d753",
+  "caseCount": 1,
+  "controllerUpdaterPairs": 3,
+  "actualAcquisitionCalls": 2,
+  "runtimeEdits": false,
+  "newExecution": false,
+  "files": {
+    "outline.md": {
+      "sha256": "1591eeb21e48f56a4b077ec53562933224ba0d7e2399aa7bb164da3e4534946e",
+      "bytes": 10310
+    },
+    "case-input-proposal.json": {
+      "sha256": "cb82a929da6f450f8232f24a1d8ffde71e5038508d5a894592267df4b5c9a704",
+      "bytes": 20382
+    },
+    "evidence.json": {
+      "sha256": "37ab506760f5bea2e3148f01073ab1370b56d2932034206fcc17a28519381c7b",
+      "bytes": 69237
+    }
+  },
+  "supersedesDraftManifestSha256": "93353355ed8ee1b881b8230d4b80bdab7fe5b6e436ebc3bd4858fd1f67f0bae9",
+  "portBoundary": "Supplied count5/status adapter; native acquisition/angle/reveal actual; no live port-world execution",
+  "supersedesTypeDraftManifestSha256": "d81fcd2e2ad847f10fb8eb2e66a538f905b20829d5ff038055dbcc2578f3c317",
+  "listenerType": "Brave model2/physics2, source-backed supplied owned state23 projection",
+  "laterMergePrerequisite": "Actual production port-caller/acquisition regression; supplied direct adapter is insufficient",
+  "supersedesFrameDraftManifestSha256": "f8469dd2709f2d25311cc706fadc4c1068f51a6126058e883a934417e792c61c",
+  "supersedesFrameQualifierManifestSha256": "7f1903e5fb423ed45426ba1a6ed20480ffefb82fafb61e5f75a9584ab020c06c"
+}
