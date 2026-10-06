@@ -1,0 +1,15 @@
+✔ Mission 3 periodic raid preserves native mask, strict thresholds and arguments (3.713845ms)
+✔ Mission 3 naturally grows both tribes and recruits the authored three-Brave raid (15574.287411ms)
+✔ Mission3 authored raid allocation matches original: nominal accepted fixture (2.161383ms)
+✔ Mission3 authored raid allocation matches original: state20 disabled (0.24261ms)
+✔ Mission3 authored raid allocation matches original: one active raid reaches authored cap1 (0.12814ms)
+✔ Mission3 authored raid allocation matches original: all ten slots occupied by other tasks (0.105957ms)
+✔ Mission3 authored raid allocation matches original: only final slot free (0.2705ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 18188.331819

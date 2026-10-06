@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "db778a8a-611e-4343-bf37-180fbf508906",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "6335ef3bddcae93c008f8d3b62a39eea73ab2176",
+    "branch": "codex/mission3-raid-allocation-recovered-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/mission3-raid-allocation.test.mjs": "fcadf2a64f7a2c00bfc0e3d5dd645fe6b3b391709ce6e6d3dcf2b9287758d3b7",
+      "tests/early-mission-ai.test.mjs": "e459de8f768d4c55af6b2a9d26aa8f46b84d9e2a8b95d18b3439ad48b83752ef",
+      "scripts/mission3-raid-allocation-pair.mjs": "b43e835fc839cb9a82bc7332e58ecb88f18654d11910dd13aae1fa32c13b96dc",
+      "tests/fixtures/mission3-raid-allocation.json": "da7c1916549335e2f731162b971533910e576f79736aee9850529e00a960c27a",
+      "references/verification/mission3-raid-allocation-2026-10-06/attempt2/stdout.log": "62da2b23a4d6ae19558abe1d8d0c7188579e51898e85ab7984add7876c6029d3",
+      "references/verification/mission3-raid-allocation-2026-10-06/attempt3/stdout.log": "f6478e2a10d2af13041d7836de364d2da722bfb233836dae3d361b5c3e4b2c6e"
+    }
+  },
+  "command": [
+    "taskset",
+    "-c",
+    "4",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=5s",
+    "120s",
+    "node",
+    "--max-old-space-size=1024",
+    "--test",
+    "tests/mission3-raid-allocation.test.mjs",
+    "tests/early-mission-ai.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-allocation-recovered-20261006",
+  "startedAt": "2026-10-06T03:57:11.449Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-allocation-recovered-20261006/work/orchestration/mission3-raid-allocation/portable-after.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-allocation-recovered-20261006/work/orchestration/mission3-raid-allocation/portable-after.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T03:57:29.774Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ Mission 3 periodic raid preserves native mask, strict thresholds and arguments (3.713845ms)\n✔ Mission 3 naturally grows both tribes and recruits the authored three-Brave raid (15574.287411ms)\n✔ Mission3 authored raid allocation matches original: nominal accepted fixture (2.161383ms)\n✔ Mission3 authored raid allocation matches original: state20 disabled (0.24261ms)\n✔ Mission3 authored raid allocation matches original: one active raid reaches authored cap1 (0.12814ms)\n✔ Mission3 authored raid allocation matches original: all ten slots occupied by other tasks (0.105957ms)\n✔ Mission3 authored raid allocation matches original: only final slot free (0.2705ms)\nℹ tests 7\nℹ suites 0\nℹ pass 7\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 18188.331819\n",
+  "stderr": "",
+  "stdoutSha256": "514e123e853467d6ae93135375082332f51b4b2b84664400113914682659cb25",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "6335ef3bddcae93c008f8d3b62a39eea73ab2176",
+    "branch": "codex/mission3-raid-allocation-recovered-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/mission3-raid-allocation.test.mjs": "fcadf2a64f7a2c00bfc0e3d5dd645fe6b3b391709ce6e6d3dcf2b9287758d3b7",
+      "tests/early-mission-ai.test.mjs": "e459de8f768d4c55af6b2a9d26aa8f46b84d9e2a8b95d18b3439ad48b83752ef",
+      "scripts/mission3-raid-allocation-pair.mjs": "b43e835fc839cb9a82bc7332e58ecb88f18654d11910dd13aae1fa32c13b96dc",
+      "tests/fixtures/mission3-raid-allocation.json": "da7c1916549335e2f731162b971533910e576f79736aee9850529e00a960c27a",
+      "references/verification/mission3-raid-allocation-2026-10-06/attempt2/stdout.log": "62da2b23a4d6ae19558abe1d8d0c7188579e51898e85ab7984add7876c6029d3",
+      "references/verification/mission3-raid-allocation-2026-10-06/attempt3/stdout.log": "f6478e2a10d2af13041d7836de364d2da722bfb233836dae3d361b5c3e4b2c6e"
+    }
+  }
+}

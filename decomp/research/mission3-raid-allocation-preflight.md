@@ -1,6 +1,8 @@
 # Mission3 raid allocation: PhaseA source preflight
 
-Status: attempt2 controlled RNG witness accepted; attempt3 gate/cap witnesses retained.
+Status: original witnesses independently accepted; bounded repair passes all five
+native pairs and the unchanged natural raid/checkpoint test. Standard/quality
+acceptance remains pending. Owner: [issue227](https://github.com/JohnDeved/populous-new-dawn/issues/227).
 Runtime base is
 `89e68606a406f93715b930550317519818ddc081`. Changes are two evidence programs,
 a controlled fixture, an optional shared-loader buffer argument, this note and raw
@@ -295,3 +297,44 @@ GitHub issue165 is closed/completed for producer scheduling. Repository issue
 search found no open narrow raid-allocation owner. A new bug linked to165/8 should
 record the accepted witness and own this repair; it must not reopen the completed
 natural-victory scope of issue2 or imply full early-mission AI parity.
+
+## Mission3-only repair and failure-first validation
+
+Independent review accepted both mismatch witnesses and the bounded correction.
+`campaignCommand` now preserves existing ATTACK argument validation, then checks
+state20, active type20 count against attribute25, and a free slot before calling
+the target selector for the exact Mission3 request. It passes attribute25 to
+`requestAttack`, whose own allocation defenses remain in place. Other supported
+missions retain their previous behavior; selection, recruitment, geometry and
+combat are unchanged.
+
+The new actual-adapter regression compares the existing pair driver against the
+reviewed original observations, including all task fields, profile, read order,
+RNG and explicit occupied-record preservation. On unchanged runtime source
+`1831cddb7e1b0c25dedaa1669b0df9f7c1aac116`, it failed the three expected
+disabled/cap/full cases and passed nominal/last-slot. Raw failure output is retained
+byte-for-byte, including six whitespace-only TAP lines; maintained-source diff
+checks pass while a whole-artifact whitespace check reports those raw lines.
+
+Repair source `6335ef3bddcae93c008f8d3b62a39eea73ab2176` passes all five adapter
+cases and the unchanged two-test `early-mission-ai.test.mjs`, including real births,
+construction/training, three-Brave recruitment, movement/combat and checkpoint
+continuation. The portable-after receipt passed in18.33seconds; no natural test
+assertion or route was changed. This is Node simulation/command-path evidence.
+
+On that exact clean repair source, the normal native probe mode then ran **all five
+unchanged fixtures**, passing every paired field with no differences. Native-after
+ran from03:59:56.738 to03:59:57.956 UTC on CPU4, exit0, empty stderr, unchanged
+source/16input fingerprints and16MiB actual translator buffers. Receipt SHA256:
+`08d73fbca57beffc0c612e2f07756ed6a8374ec5507c49ad9ecabb3c836c1899`.
+The `portable-before`, `portable-after` and `native-after` directories under the
+same verification folder retain the source-bound receipts and raw streams.
+
+No new rendered capture is required for this nonvisual admission/RNG correction:
+it changes no rendering, presentation or input consumer. The existing
+computer-attack browser driver stages Mission1's downstream phase16/death/retreat
+path, while early-missions rendering verifies unchanged public entry. Neither adds
+coverage for these gates. Independent source review accepted this scoped rationale.
+Natural rendered recurrence, original whole-world composition and full campaign
+parity remain outside the claim. Standard check/build and TypeScript quality gates
+still require their own source-bound results and final independent acceptance.
