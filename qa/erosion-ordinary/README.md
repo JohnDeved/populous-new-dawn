@@ -34,6 +34,10 @@ Limits are15 minutes overall,120 seconds startup,30 seconds per camera settlemen
 90 seconds without actor travel/head work, and30 seconds from activation to
 retirement. Later pause, combat, death, replacement, failed route, changed order,
 ambiguous creation or unexpected control ends the attempt without another tactic.
+Scene binding retries only the actual Playwright TimeoutError within that shared
+120-second startup deadline. Up to64 timeout diagnostics are retained separately
+from physical actions. Non-timeout errors propagate immediately; each awaited bind
+is followed by the existing stop/deadline check. Physical inputs are not retried.
 
 ## Launch, stop and receipts
 

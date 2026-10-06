@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { errors } from '@playwright/test'
 import { bindGame, showAllMissions, readShamanReadiness } from '../../scripts/browser-game.mjs'
 import { readQueuedPreservingStop, pollWithPreservation } from './stop.mjs'
 import { limits, readLaunchPlan, serverIdentity, sha256, evidenceBytes, browserModules } from './source-policy.mjs'
@@ -18,7 +19,7 @@ export default async function ordinaryErosion({ page, root, output, url, signal,
   assert.equal(receipt.profile?.mode, 'created'); assert.equal(receipt.profile.path, launch.plan.profilePath)
   assert.equal(receipt.profile.previousRun ?? null, null); assert.equal(receipt.profile.checkpointAtStart, null)
   page.setDefaultTimeout(2000)
-  const started = Date.now(), commands = resolve(output, 'commands'), actions = []
+  const started = Date.now(), commands = resolve(output, 'commands'), actions = [], startupBindingTimeouts = []
   mkdirSync(commands, { recursive: false })
   let stopped = false, actorId, moduleObserver, attached = false, primaryError
   let resultValue, primaryFailed = false, cleanupFailed = false, cleanupError
@@ -136,7 +137,15 @@ export default async function ordinaryErosion({ page, root, output, url, signal,
       await page.getByRole('button', { name: 'Mission 3', exact: true }).focus()
       await checkStop(); await page.keyboard.press('Enter')
     })
-    await bindGame(page); await checkStop()
+    await poll(async () => {
+      try { await bindGame(page); return true }
+      catch (error) {
+        if (!(error instanceof errors.TimeoutError)) throw error
+        assert.ok(startupBindingTimeouts.length < 64, 'Startup binding diagnostic bound reached')
+        startupBindingTimeouts.push({ wallMs: Date.now() - started, message: String(error) })
+        return false
+      }
+    }, limits.startupMs - (Date.now() - started), 'Mission3 scene binding')
     const initial = await read(); actorId = initial.actor.id
     assert.equal(initial.actor.kind, 'shaman'); assert.equal(initial.actor.team, 'blue')
     assert.equal(initial.shrine.kind, 'erosionEffect'); assert.equal(initial.shrine.uses, 0)
@@ -150,7 +159,7 @@ export default async function ordinaryErosion({ page, root, output, url, signal,
         await button('Resume game'); resumedAtStartup = true
       }
       return (await readShamanReadiness(page)).ready === true
-    }, limits.startupMs, 'original Shaman opening completion')
+    }, limits.startupMs - (Date.now() - started), 'original Shaman opening completion')
     health(await read())
     if (launch.plan.purpose === 'startup-smoke') {
       await checkStop()
@@ -164,7 +173,7 @@ export default async function ordinaryErosion({ page, root, output, url, signal,
       const loaded = await moduleObserver.read(), final = await read()
       health(final); assert.equal(final.shrine.uses, 0); assert.equal(final.lifecycle, null)
       verifyInputs()
-      const files = { modules: save('modules.json', loaded.modules), startup: save('startup-smoke.json', { initial, final, actions, restoreTested: false }) }
+      const files = { modules: save('modules.json', loaded.modules), startup: save('startup-smoke.json', { initial, final, actions, startupBindingTimeouts, restoreTested: false }) }
       await checkStop(); await page.screenshot({ path: resolve(output, 'startup-ready.png'), timeout: 5000 }); await checkStop()
       resultValue = { erosionStartupSmoke: { files, runId: receipt.profile.runId, sourceFingerprint: receipt.source.fingerprint,
         originalActorId: actorId, launchPlanSha256: launch.planSha256, serverIdentity: launch.server, scriptObservations: loaded.observations,
@@ -274,7 +283,7 @@ export default async function ordinaryErosion({ page, root, output, url, signal,
       verifyInputs()
       const files = { capture: save('capture.json', result.capture), lifecycle: save('lifecycle.json', result.lifecycle),
         modules: save('modules.json', loadedAfter.modules), inputs: save('inputs.json', { version: 1, kind: 'ordinary-m3-shaman-erosion-inputs',
-          runId: receipt.profile.runId, sourceFingerprint: receipt.source.fingerprint, originalActorId: actorId, initial, actions, final, restoreTested: false }) }
+          runId: receipt.profile.runId, sourceFingerprint: receipt.source.fingerprint, originalActorId: actorId, initial, actions, startupBindingTimeouts, final, restoreTested: false }) }
       await checkStop(); await page.screenshot({ path: resolve(output, 'erosion-retired.png'), timeout: 5000 }); await checkStop()
       resultValue = { erosionReplay: { files, runId: receipt.profile.runId, sourceFingerprint: receipt.source.fingerprint,
         launchPlanSha256: launch.planSha256, serverIdentity: launch.server, scriptObservations: loadedAfter.observations,
@@ -289,7 +298,7 @@ export default async function ordinaryErosion({ page, root, output, url, signal,
       try { message = String(error) || message } catch { /* Retain the nonempty diagnostic. */ }
       cleanupFailures.push(message)
     }
-    try { save('actions.json', { runId: receipt.profile.runId, actions, failure: primaryFailed ? String(primaryError) || 'Scenario failed' : null }) }
+    try { save('actions.json', { runId: receipt.profile.runId, actions, startupBindingTimeouts, failure: primaryFailed ? String(primaryError) || 'Scenario failed' : null }) }
     catch (error) { rememberCleanup(error) }
     if (attached) try {
       const closed = await page.evaluate(() => {
