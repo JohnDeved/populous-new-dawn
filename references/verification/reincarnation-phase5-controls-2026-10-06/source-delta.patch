@@ -1,5 +1,5 @@
 --- accepted-success/probe-draft.py
-+++ proposed-controls/probe-controls-draft.py
++++ frozen-controls/probe-controls-draft.py
 @@ -1,4 +1,4 @@
 -"""ONE phase5 success composition, source draft only; never executed yet.
 -
@@ -10,7 +10,7 @@
 +Success fixture is preserved separately. One named control per invocation.
 +No outer loop, second visit, capacity restoration, automatic retry or browser.
 @@ -12,0 +13 @@
-+EXECUTABLE_FREEZE = False
++EXECUTABLE_FREEZE = True
 @@ -13,0 +15,11 @@
 +CONTROLS = {
 +    "person-failure-low-burst": {"highOccupied": 1101, "highFree": 0, "lowFree": 33,
@@ -145,8 +145,10 @@
 @@ -281 +338 @@
 -                    for record in [BODY, person, root, *sparks]},
 +                    for record in [BODY, *[p for p in (person, root) if p], *sparks]},
-@@ -289,3 +346 @@
+@@ -289,3 +346,3 @@
 -    if len(sys.argv) != 3 or sys.argv[1] != '--execute-reviewed':
 -        raise SystemExit('Usage after separate launch authorization: probe-draft.py --execute-reviewed EXE')
 -    print(json.dumps(prepare_one_success(Path(sys.argv[2]), execute_reviewed=True)), flush=True)
-+    raise SystemExit('SOURCE PROPOSAL ONLY: control execution is not frozen or authorized')
++    if len(sys.argv) != 4 or sys.argv[1] != '--execute-reviewed' or sys.argv[2] not in CONTROLS:
++        raise SystemExit('Usage after separate launch authorization: probe-controls-draft.py --execute-reviewed CONTROL EXE')
++    print(json.dumps(prepare_one_control(Path(sys.argv[3]), sys.argv[2], execute_reviewed=True)), flush=True)

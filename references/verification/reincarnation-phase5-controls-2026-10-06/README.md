@@ -1,11 +1,12 @@
-# Three critical phase5 allocation controls: source proposal
+# Three critical phase5 allocation controls: executable freeze
 
 No control has been executed. The independently accepted success fixture/probe,
 its raw result and the older16-case preparation remain unchanged. This packet
 copies the reviewed success probe's guarded native closure and changes only the
 declared primary-pool fixture, control assertions and output scope. The source
-has `EXECUTABLE_FREEZE = False` and no executable CLI; review must precede a
-separate bounded launch freeze and grant.
+now has a flag-gated CLI accepting only the three closed control names. Source
+review accepted the exact fixtures at `66d407df`; the final CLI/launcher freeze
+still needs approval and each run needs a separate coordinated execution grant.
 
 Exactly three named controls are proposed, one controller call per separately
 authorized invocation. No loop runs all cases; no additional phase5 visit,
@@ -65,3 +66,19 @@ No phase4 wave, startup conversion, app/runtime edit, rendering, ordinary Missio
 route, native-save/lifetime/pool-reuse claim or parity credit is included.
 `addUnit` still creates `native: null`; the accepted success initialization
 difference remains visible for the later port decision.
+
+## Three fresh launch declarations
+
+The three `launch-*.json` files reuse the exact existing receipt supervisor and
+accepted CPU4/time/memory/file/FD bounds. Each declares its own fresh isolated
+worktree/output and passes exactly one closed case to this probe. Each binds
+the actual probe, native helper/tools/constants, original EXE/balance/search/
+animation data, Python/Unicorn and supervisor/wrapper binaries. The success
+probe and its launcher are untouched.
+
+These are declarations, not a batch runner or execution grant. Run only the
+specific case authorized by the parent after CPU4 release; preserve its terminal
+receipt and owned cleanup before another grant. Stop after any unexpected
+failure for review. Do not retry, fall through to the next case, restore capacity
+or invoke a second controller visit. No declared worktree/output was created
+while preparing this freeze.

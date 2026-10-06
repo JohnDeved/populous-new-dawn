@@ -1,5 +1,5 @@
 {
-  "mode": "source-only three-control proposal; no module import/native/app execution",
+  "mode": "three-control executable CLI/launcher freeze; no execution",
   "acceptedSuccessSource": "dbec147f4aae79a40a917b195f7d8d3b58d63bf8",
   "acceptedSuccessProbeSha256": "a37d1a93702507eca13e42b1c012cad844dc1c46adf292da8df5f63554149f56",
   "acceptedResultPublication": "72a18e461a9c3ffaf71815e5a22afb77f549d7dc",
@@ -46,20 +46,52 @@
     "acceptedSuccessAndOldSixteenCaseUnchanged": "passed",
     "nativeAppPackageBrowserExecution": "not-run",
     "initialPatchWhitespace": "failed at28f186f: blank unified-diff context markers; fixed by zero-context artifact, probe bytes unchanged",
-    "finalWhitespace": "passed"
+    "finalWhitespace": "passed",
+    "acceptedFunctionBodiesUnchanged": "passed, AST correspondence",
+    "closedCliAndSingleCasePerInvocation": "passed, source only",
+    "fortyActualInputHashesPerLauncher": "passed",
+    "threeFreshWorktreeAndOutputPaths": "passed, none created",
+    "supervisorBoundsAndSanitizedEnvironmentUnchanged": "passed"
   },
   "files": {
     "README.md": {
-      "sha256": "c9aef4095babeefc250f9eeaa4d971d94fb00dbb06bcb2680430e3712c9d0557",
-      "bytes": 4498
+      "sha256": "3489eaa37797fdca99b226ef67360b870a6a35dceca786e2e7b7514dbb775a83",
+      "bytes": 5505
+    },
+    "launch-both-exhausted.json": {
+      "sha256": "110d4db86600ec2276e165554f83df1a6b6dc8765df25963bba7e1401118d7b3",
+      "bytes": 14703
+    },
+    "launch-person-failure-low-burst.json": {
+      "sha256": "44dc86fad7ddeaa45661718b17cc4b6ed2247a95beb331bd8bd9cfe124e70c45",
+      "bytes": 14773
+    },
+    "launch-person-success-burst-failure.json": {
+      "sha256": "3100c27dbb41378f19bad2a8946d27103cd6813c045f061464a9c4b40cc92beb",
+      "bytes": 14801
     },
     "probe-controls-draft.py": {
-      "sha256": "0c24825af1da81e3e1def7da95b4d1bb126ab1f6b6c59f2240675545e5573264",
-      "bytes": 18703
+      "sha256": "de434fc1644ddf4e60474c5db857c49bb823fd85d835027a3815603f13b47dbe",
+      "bytes": 18943
     },
     "source-delta.patch": {
-      "sha256": "a6c35ce8ad339b0afd71d2f115fcd13c215d48d13fb9b2dcf4aa0933c85f3a0a",
-      "bytes": 8464
+      "sha256": "9122fa2914e73819fbad6641e17f9537533f84e4a8d3345a54e691f46df11a03",
+      "bytes": 8706
+    }
+  },
+  "acceptedControlSource": "66d407df3f76acf4cca4c40bed15ce0a919c3827",
+  "launches": {
+    "person-failure-low-burst": {
+      "file": "references/verification/reincarnation-phase5-controls-2026-10-06/launch-person-failure-low-burst.json",
+      "sha256": "44dc86fad7ddeaa45661718b17cc4b6ed2247a95beb331bd8bd9cfe124e70c45"
+    },
+    "person-success-burst-failure": {
+      "file": "references/verification/reincarnation-phase5-controls-2026-10-06/launch-person-success-burst-failure.json",
+      "sha256": "3100c27dbb41378f19bad2a8946d27103cd6813c045f061464a9c4b40cc92beb"
+    },
+    "both-exhausted": {
+      "file": "references/verification/reincarnation-phase5-controls-2026-10-06/launch-both-exhausted.json",
+      "sha256": "110d4db86600ec2276e165554f83df1a6b6dc8765df25963bba7e1401118d7b3"
     }
   }
 }

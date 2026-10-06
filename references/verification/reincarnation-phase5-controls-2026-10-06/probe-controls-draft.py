@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
-EXECUTABLE_FREEZE = False
+EXECUTABLE_FREEZE = True
 TRANSLATION_BUFFER_BYTES = 64 * 1024 * 1024
 CONTROLS = {
     "person-failure-low-burst": {"highOccupied": 1101, "highFree": 0, "lowFree": 33,
@@ -343,4 +343,6 @@ def prepare_one_control(exe, control_name, *, execute_reviewed=False):
 
 
 if __name__ == '__main__':
-    raise SystemExit('SOURCE PROPOSAL ONLY: control execution is not frozen or authorized')
+    if len(sys.argv) != 4 or sys.argv[1] != '--execute-reviewed' or sys.argv[2] not in CONTROLS:
+        raise SystemExit('Usage after separate launch authorization: probe-controls-draft.py --execute-reviewed CONTROL EXE')
+    print(json.dumps(prepare_one_control(Path(sys.argv[3]), sys.argv[2], execute_reviewed=True)), flush=True)
