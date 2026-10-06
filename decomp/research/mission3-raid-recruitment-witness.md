@@ -75,7 +75,8 @@ make this a naturally occurring raid: no original world loading, population
 gates, allocation, full scheduler or campaign run was performed. The first real
 raid's original-versus-port member IDs remain unproved.
 
-The distinct-established-base and radius-specific output cases remain unexecuted.
+The distinct-established-base case now has a [separate controlled witness](mission3-raid-recruitment-established-witness.md).
+The radius-specific output case remains unexecuted.
 Neither the control's unequal radius inputs nor this origin witness establishes
 a radius-behavior mismatch. Later visit/fill behavior, membership, commands,
 paths, combat, rendering and complete Mission3 parity are also outside the claim.
@@ -83,6 +84,6 @@ Issue227's accepted admission repair remains unchanged and is not broadened.
 
 Independent result review accepted this controlled origin witness. The next
 [distinct established-base preflight](mission3-raid-recruitment-established-preflight.md)
-is prepared separately; it has not executed or authorized a runtime correction.
+has a separately retained result awaiting review; no runtime correction is authorized.
 All evidence is committed locally and bundled for review, **unpushed and not
 reset-durable** while normal Git publication is unavailable.

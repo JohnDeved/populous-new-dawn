@@ -1,6 +1,7 @@
 # Mission 3 raid: distinct established-base preflight
 
-**Prepared only; no execution or runtime implementation.** The independently
+**Frozen preflight; the [single-case witness](mission3-raid-recruitment-established-witness.md)
+is now retained separately. No runtime implementation.** The independently
 accepted [attempt1 witness](mission3-raid-recruitment-witness.md) proves the
 unestablished-base/Shaman-origin mismatch. It does not prove the established-base
 value branch or radius behavior. This freeze executes only the already proposed

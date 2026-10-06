@@ -1,0 +1,202 @@
+{
+  "sourceHead": "bee3aaff2966b774efa5fe2b0d0317b90296486c",
+  "session": 98433,
+  "runId": "d665e2f1-53d2-4903-8e5a-6b5d2d0b2336",
+  "startedAt": "2026-10-06T06:18:58.240Z",
+  "finishedAt": "2026-10-06T06:19:00.313Z",
+  "receiptStatus": "failed",
+  "probeStatus": "mismatch",
+  "exitCode": 1,
+  "sourceAnd256InputsUnchanged": true,
+  "executedNativeCalls": 1,
+  "executedPortableCalls": 1,
+  "nativeComparison": {
+    "selector": {
+      "model": 2,
+      "alternative": 2,
+      "target": -1,
+      "mode": 1,
+      "origin": 25304,
+      "flags": 7,
+      "requested": 3
+    },
+    "count": 3,
+    "ids": [
+      305,
+      301,
+      304
+    ],
+    "ranks": [
+      {
+        "distance": 0,
+        "id": 305
+      },
+      {
+        "distance": 2,
+        "id": 301
+      },
+      {
+        "distance": 4,
+        "id": 304
+      }
+    ],
+    "flags3": [
+      {
+        "id": 301,
+        "value": 2
+      },
+      {
+        "id": 302,
+        "value": 3
+      },
+      {
+        "id": 303,
+        "value": 3
+      },
+      {
+        "id": 304,
+        "value": 2
+      },
+      {
+        "id": 305,
+        "value": 2
+      },
+      {
+        "id": 306,
+        "value": 3
+      },
+      {
+        "id": 307,
+        "value": 3
+      }
+    ],
+    "task": {
+      "type": 20,
+      "phase": 3,
+      "selected": 0,
+      "cursor": 1,
+      "requested": 3,
+      "quotas": [
+        100,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "flags": 1,
+      "entity": 0
+    },
+    "rng": 305419896
+  },
+  "portableComparison": {
+    "selector": {
+      "model": 2,
+      "alternative": 2,
+      "target": -1,
+      "mode": 1,
+      "origin": 25852,
+      "flags": 7,
+      "requested": 3
+    },
+    "count": 3,
+    "ids": [
+      306,
+      302,
+      303
+    ],
+    "ranks": [
+      {
+        "id": 306,
+        "distance": 34
+      },
+      {
+        "id": 302,
+        "distance": 36
+      },
+      {
+        "id": 303,
+        "distance": 38
+      }
+    ],
+    "flags3": [
+      {
+        "id": 301,
+        "value": 3
+      },
+      {
+        "id": 302,
+        "value": 2
+      },
+      {
+        "id": 303,
+        "value": 2
+      },
+      {
+        "id": 304,
+        "value": 3
+      },
+      {
+        "id": 305,
+        "value": 3
+      },
+      {
+        "id": 306,
+        "value": 2
+      },
+      {
+        "id": 307,
+        "value": 3
+      }
+    ],
+    "task": {
+      "type": 20,
+      "phase": 3,
+      "selected": 0,
+      "cursor": 1,
+      "requested": 3,
+      "quotas": [
+        100,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "flags": 1,
+      "entity": 0
+    },
+    "rng": 305419896
+  },
+  "differentComparisonFields": [
+    "selector",
+    "ids",
+    "ranks",
+    "flags3"
+  ],
+  "recordedNonComparedInputs": [
+    "base",
+    "radius"
+  ],
+  "stopPc": "004cb6da",
+  "traceEntries": 64,
+  "radiusDistanceCalls": 0,
+  "tcgBufferBytes": 16777216,
+  "peakRssKiB": 145536,
+  "portableRecordCounts": {
+    "tasksBefore": 10,
+    "tasksAfter": 10,
+    "unitsBefore": 7,
+    "unitsAfter": 7,
+    "ordersBefore": 0,
+    "ordersAfter": 0
+  },
+  "cleanup": "Original foreground session terminal; portable.close waited for exit0 and no extra output; subsequent pgrep found no matching native/portable process; CPU4 released.",
+  "scope": "Controlled established-base recruitment-origin witness; no radius behavior, later consumers or natural identity proof.",
+  "rawSha256": {
+    "receipt.json": "160fa06d58a910da495fe08fafb22defabb2bc96285064fa99150a61aa4ca7ea",
+    "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout.log": "3190c11fce3b1f31fac49a69e8eecec5348764d1cf63852fc01aeedca5e3e849",
+    "launch.json": "a7c129c7a72f967b285b07431379b6f828e66168841ff241ea889c64d941f76d"
+  }
+}
