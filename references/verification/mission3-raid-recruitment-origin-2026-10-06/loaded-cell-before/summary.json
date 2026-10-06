@@ -1,0 +1,352 @@
+{
+  "sourceHead": "f75d847e3f088e0d0ac165ab7a9c0c5a611c9822",
+  "nativeSession": 28289,
+  "portableTestSession": 79297,
+  "startedAt": "2026-10-06T06:57:32.202Z",
+  "finishedAt": "2026-10-06T06:57:34.242Z",
+  "receiptStatus": "failed",
+  "probeStatus": "mismatch",
+  "inputsUnchanged": 263,
+  "nativeCalls": 2,
+  "portableCalls": 2,
+  "cases": [
+    {
+      "id": "loaded-cell-shaman-moved",
+      "native": {
+        "selector": {
+          "model": 2,
+          "alternative": 2,
+          "target": -1,
+          "mode": 1,
+          "origin": 24794,
+          "flags": 7,
+          "requested": 3
+        },
+        "count": 3,
+        "ids": [
+          301,
+          302,
+          303
+        ],
+        "ranks": [
+          {
+            "distance": 2,
+            "id": 301
+          },
+          {
+            "distance": 2,
+            "id": 302
+          },
+          {
+            "distance": 4,
+            "id": 303
+          }
+        ],
+        "flags3": [
+          {
+            "id": 301,
+            "value": 2
+          },
+          {
+            "id": 302,
+            "value": 2
+          },
+          {
+            "id": 303,
+            "value": 2
+          },
+          {
+            "id": 304,
+            "value": 3
+          },
+          {
+            "id": 305,
+            "value": 3
+          },
+          {
+            "id": 306,
+            "value": 3
+          },
+          {
+            "id": 307,
+            "value": 3
+          }
+        ],
+        "task": {
+          "type": 20,
+          "phase": 3,
+          "selected": 0,
+          "cursor": 1,
+          "requested": 3,
+          "quotas": [
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "flags": 1,
+          "entity": 0
+        },
+        "rng": 305419896
+      },
+      "portable": {
+        "selector": {
+          "model": 2,
+          "alternative": 2,
+          "target": -1,
+          "mode": 1,
+          "origin": 32896,
+          "flags": 7,
+          "requested": 3
+        },
+        "count": 3,
+        "ids": [
+          305,
+          301,
+          304
+        ],
+        "ranks": [
+          {
+            "id": 305,
+            "distance": 118
+          },
+          {
+            "id": 301,
+            "distance": 120
+          },
+          {
+            "id": 304,
+            "distance": 122
+          }
+        ],
+        "flags3": [
+          {
+            "id": 301,
+            "value": 2
+          },
+          {
+            "id": 302,
+            "value": 3
+          },
+          {
+            "id": 303,
+            "value": 3
+          },
+          {
+            "id": 304,
+            "value": 2
+          },
+          {
+            "id": 305,
+            "value": 2
+          },
+          {
+            "id": 306,
+            "value": 3
+          },
+          {
+            "id": 307,
+            "value": 3
+          }
+        ],
+        "task": {
+          "type": 20,
+          "phase": 3,
+          "selected": 0,
+          "cursor": 1,
+          "requested": 3,
+          "quotas": [
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "flags": 1,
+          "entity": 0
+        },
+        "rng": 305419896
+      },
+      "nonComparedInputs": [
+        "hasBase",
+        "base",
+        "shaman",
+        "radius"
+      ],
+      "stop": "004cb6da",
+      "tcgBytes": 16777216,
+      "peakRssKiB": 145604,
+      "radiusDistanceCalls": 0
+    },
+    {
+      "id": "loaded-cell-shaman-absent",
+      "native": {
+        "selector": {
+          "model": 2,
+          "alternative": 2,
+          "target": -1,
+          "mode": 1,
+          "origin": 24794,
+          "flags": 7,
+          "requested": 3
+        },
+        "count": 3,
+        "ids": [
+          301,
+          302,
+          303
+        ],
+        "ranks": [
+          {
+            "distance": 2,
+            "id": 301
+          },
+          {
+            "distance": 2,
+            "id": 302
+          },
+          {
+            "distance": 4,
+            "id": 303
+          }
+        ],
+        "flags3": [
+          {
+            "id": 301,
+            "value": 2
+          },
+          {
+            "id": 302,
+            "value": 2
+          },
+          {
+            "id": 303,
+            "value": 2
+          },
+          {
+            "id": 304,
+            "value": 3
+          },
+          {
+            "id": 305,
+            "value": 3
+          },
+          {
+            "id": 306,
+            "value": 3
+          }
+        ],
+        "task": {
+          "type": 20,
+          "phase": 3,
+          "selected": 0,
+          "cursor": 1,
+          "requested": 3,
+          "quotas": [
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "flags": 1,
+          "entity": 0
+        },
+        "rng": 305419896
+      },
+      "portable": {
+        "selector": {
+          "model": 2,
+          "alternative": 2,
+          "target": -1,
+          "mode": 1,
+          "origin": 0,
+          "flags": 7,
+          "requested": 3
+        },
+        "count": 3,
+        "ids": [
+          303,
+          302,
+          304
+        ],
+        "ranks": [
+          {
+            "id": 303,
+            "distance": 130
+          },
+          {
+            "id": 302,
+            "distance": 132
+          },
+          {
+            "id": 304,
+            "distance": 134
+          }
+        ],
+        "flags3": [
+          {
+            "id": 301,
+            "value": 3
+          },
+          {
+            "id": 302,
+            "value": 2
+          },
+          {
+            "id": 303,
+            "value": 2
+          },
+          {
+            "id": 304,
+            "value": 2
+          },
+          {
+            "id": 305,
+            "value": 3
+          },
+          {
+            "id": 306,
+            "value": 3
+          }
+        ],
+        "task": {
+          "type": 20,
+          "phase": 3,
+          "selected": 0,
+          "cursor": 1,
+          "requested": 3,
+          "quotas": [
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "flags": 1,
+          "entity": 0
+        },
+        "rng": 305419896
+      },
+      "nonComparedInputs": [
+        "hasBase",
+        "base",
+        "shaman",
+        "radius"
+      ],
+      "stop": "004cb6da",
+      "tcgBytes": 16777216,
+      "peakRssKiB": 145604,
+      "radiusDistanceCalls": 0
+    }
+  ],
+  "portableFailureFirst": "4expected comparison failures, direct and actual checkpoint for moved/absent; no setup failure",
+  "cleanup": "Both original foreground sessions terminal; peer exit0; no matching probe/adapter/test process; CPU4 released.",
+  "scope": "Supplied moved/absent states, retained loaded native word; no simulation of native movement/death or later/radius behavior",
+  "receiptSha256": "f91d02e72ea799ba7655640c0ed694e7ccba87c4cb34864b31b1c02dd38c4666"
+}

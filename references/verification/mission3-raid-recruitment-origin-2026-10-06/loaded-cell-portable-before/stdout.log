@@ -1,0 +1,410 @@
+✖ Mission3 retains loaded Shaman origin for loaded-cell-shaman-moved (8.854256ms)
+✖ Mission3 retains loaded Shaman origin for loaded-cell-shaman-absent (1.780149ms)
+✖ Mission3 retains loaded Shaman origin for loaded-cell-shaman-moved after checkpoint (1.150786ms)
+✖ Mission3 retains loaded Shaman origin for loaded-cell-shaman-absent after checkpoint (0.697884ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 0
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3205.292472
+
+✖ failing tests:
+
+test at tests/mission3-raid-loaded-cell.test.mjs:38:3
+✖ Mission3 retains loaded Shaman origin for loaded-cell-shaman-moved (8.854256ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  ... Skipped lines
+  
+    {
+      count: 3,
+      flags3: [
+        {
+          id: 301,
+  ...
+          id: 302,
+  +       value: 3
+  -       value: 2
+        },
+        {
+          id: 303,
+  +       value: 3
+  -       value: 2
+        },
+        {
+          id: 304,
+  +       value: 2
+  -       value: 3
+        },
+        {
+          id: 305,
+  +       value: 2
+  -       value: 3
+        },
+        {
+          id: 306,
+          value: 3
+        },
+  ...
+      ids: [
+  +     305,
+        301,
+  +     304
+  -     302,
+  -     303
+      ],
+      ranks: [
+        {
+  +       distance: 118,
+  +       id: 305
+  -       distance: 2,
+  -       id: 301
+        },
+        {
+  +       distance: 120,
+  +       id: 301
+  -       distance: 2,
+  -       id: 302
+        },
+        {
+  +       distance: 122,
+  +       id: 304
+  -       distance: 4,
+  -       id: 303
+        }
+      ],
+      rng: 305419896,
+      selector: {
+        alternative: 2,
+  ...
+        model: 2,
+  +     origin: 32896,
+  -     origin: 24794,
+        requested: 3,
+        target: -1
+      },
+      task: {
+        cursor: 1,
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-recruitment-20261006/tests/mission3-raid-loaded-cell.test.mjs:41:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: {
+      selector: { model: 2, alternative: 2, target: -1, mode: 1, origin: 32896, flags: 7, requested: 3 },
+      count: 3,
+      ids: [ 305, 301, 304 ],
+      ranks: [ [Object], [Object], [Object] ],
+      flags3: [
+        [Object], [Object],
+        [Object], [Object],
+        [Object], [Object],
+        [Object]
+      ],
+      task: { type: 20, phase: 3, selected: 0, cursor: 1, requested: 3, quotas: [Array], flags: 1, entity: 0 },
+      rng: 305419896
+    },
+    expected: {
+      selector: { model: 2, alternative: 2, target: -1, mode: 1, origin: 24794, flags: 7, requested: 3 },
+      count: 3,
+      ids: [ 301, 302, 303 ],
+      ranks: [ [Object], [Object], [Object] ],
+      flags3: [
+        [Object], [Object],
+        [Object], [Object],
+        [Object], [Object],
+        [Object]
+      ],
+      task: { type: 20, phase: 3, selected: 0, cursor: 1, requested: 3, quotas: [Array], flags: 1, entity: 0 },
+      rng: 305419896
+    },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/mission3-raid-loaded-cell.test.mjs:38:3
+✖ Mission3 retains loaded Shaman origin for loaded-cell-shaman-absent (1.780149ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  ... Skipped lines
+  
+    {
+      count: 3,
+      flags3: [
+        {
+          id: 301,
+  +       value: 3
+  -       value: 2
+        },
+        {
+          id: 302,
+          value: 2
+        },
+  ...
+          id: 304,
+  +       value: 2
+  -       value: 3
+        },
+        {
+          id: 305,
+          value: 3
+        },
+  ...
+      ids: [
+  +     303,
+  -     301,
+        302,
+  +     304
+  -     303
+      ],
+      ranks: [
+        {
+  +       distance: 130,
+  +       id: 303
+  -       distance: 2,
+  -       id: 301
+        },
+        {
+  +       distance: 132,
+  -       distance: 2,
+          id: 302
+        },
+        {
+  +       distance: 134,
+  +       id: 304
+  -       distance: 4,
+  -       id: 303
+        }
+      ],
+      rng: 305419896,
+      selector: {
+        alternative: 2,
+  ...
+        model: 2,
+  +     origin: 0,
+  -     origin: 24794,
+        requested: 3,
+        target: -1
+      },
+      task: {
+        cursor: 1,
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-recruitment-20261006/tests/mission3-raid-loaded-cell.test.mjs:41:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { selector: { model: 2, alternative: 2, target: -1, mode: 1, origin: 0, flags: 7, requested: 3 }, count: 3, ids: [ 303, 302, 304 ], ranks: [ [Object], [Object], [Object] ], flags3: [ [Object], [Object], [Object], [Object], [Object], [Object] ], task: { type: 20, phase: 3, selected: 0, cursor: 1, requested: 3, quotas: [Array], flags: 1, entity: 0 }, rng: 305419896 },
+    expected: { selector: { model: 2, alternative: 2, target: -1, mode: 1, origin: 24794, flags: 7, requested: 3 }, count: 3, ids: [ 301, 302, 303 ], ranks: [ [Object], [Object], [Object] ], flags3: [ [Object], [Object], [Object], [Object], [Object], [Object] ], task: { type: 20, phase: 3, selected: 0, cursor: 1, requested: 3, quotas: [Array], flags: 1, entity: 0 }, rng: 305419896 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/mission3-raid-loaded-cell.test.mjs:38:3
+✖ Mission3 retains loaded Shaman origin for loaded-cell-shaman-moved after checkpoint (1.150786ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  ... Skipped lines
+  
+    {
+      count: 3,
+      flags3: [
+        {
+          id: 301,
+  ...
+          id: 302,
+  +       value: 3
+  -       value: 2
+        },
+        {
+          id: 303,
+  +       value: 3
+  -       value: 2
+        },
+        {
+          id: 304,
+  +       value: 2
+  -       value: 3
+        },
+        {
+          id: 305,
+  +       value: 2
+  -       value: 3
+        },
+        {
+          id: 306,
+          value: 3
+        },
+  ...
+      ids: [
+  +     305,
+        301,
+  +     304
+  -     302,
+  -     303
+      ],
+      ranks: [
+        {
+  +       distance: 118,
+  +       id: 305
+  -       distance: 2,
+  -       id: 301
+        },
+        {
+  +       distance: 120,
+  +       id: 301
+  -       distance: 2,
+  -       id: 302
+        },
+        {
+  +       distance: 122,
+  +       id: 304
+  -       distance: 4,
+  -       id: 303
+        }
+      ],
+      rng: 305419896,
+      selector: {
+        alternative: 2,
+  ...
+        model: 2,
+  +     origin: 32896,
+  -     origin: 24794,
+        requested: 3,
+        target: -1
+      },
+      task: {
+        cursor: 1,
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-recruitment-20261006/tests/mission3-raid-loaded-cell.test.mjs:41:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: {
+      selector: { model: 2, alternative: 2, target: -1, mode: 1, origin: 32896, flags: 7, requested: 3 },
+      count: 3,
+      ids: [ 305, 301, 304 ],
+      ranks: [ [Object], [Object], [Object] ],
+      flags3: [
+        [Object], [Object],
+        [Object], [Object],
+        [Object], [Object],
+        [Object]
+      ],
+      task: { type: 20, phase: 3, selected: 0, cursor: 1, requested: 3, quotas: [Array], flags: 1, entity: 0 },
+      rng: 305419896
+    },
+    expected: {
+      selector: { model: 2, alternative: 2, target: -1, mode: 1, origin: 24794, flags: 7, requested: 3 },
+      count: 3,
+      ids: [ 301, 302, 303 ],
+      ranks: [ [Object], [Object], [Object] ],
+      flags3: [
+        [Object], [Object],
+        [Object], [Object],
+        [Object], [Object],
+        [Object]
+      ],
+      task: { type: 20, phase: 3, selected: 0, cursor: 1, requested: 3, quotas: [Array], flags: 1, entity: 0 },
+      rng: 305419896
+    },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/mission3-raid-loaded-cell.test.mjs:38:3
+✖ Mission3 retains loaded Shaman origin for loaded-cell-shaman-absent after checkpoint (0.697884ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  ... Skipped lines
+  
+    {
+      count: 3,
+      flags3: [
+        {
+          id: 301,
+  +       value: 3
+  -       value: 2
+        },
+        {
+          id: 302,
+          value: 2
+        },
+  ...
+          id: 304,
+  +       value: 2
+  -       value: 3
+        },
+        {
+          id: 305,
+          value: 3
+        },
+  ...
+      ids: [
+  +     303,
+  -     301,
+        302,
+  +     304
+  -     303
+      ],
+      ranks: [
+        {
+  +       distance: 130,
+  +       id: 303
+  -       distance: 2,
+  -       id: 301
+        },
+        {
+  +       distance: 132,
+  -       distance: 2,
+          id: 302
+        },
+        {
+  +       distance: 134,
+  +       id: 304
+  -       distance: 4,
+  -       id: 303
+        }
+      ],
+      rng: 305419896,
+      selector: {
+        alternative: 2,
+  ...
+        model: 2,
+  +     origin: 0,
+  -     origin: 24794,
+        requested: 3,
+        target: -1
+      },
+      task: {
+        cursor: 1,
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-recruitment-20261006/tests/mission3-raid-loaded-cell.test.mjs:41:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { selector: { model: 2, alternative: 2, target: -1, mode: 1, origin: 0, flags: 7, requested: 3 }, count: 3, ids: [ 303, 302, 304 ], ranks: [ [Object], [Object], [Object] ], flags3: [ [Object], [Object], [Object], [Object], [Object], [Object] ], task: { type: 20, phase: 3, selected: 0, cursor: 1, requested: 3, quotas: [Array], flags: 1, entity: 0 }, rng: 305419896 },
+    expected: { selector: { model: 2, alternative: 2, target: -1, mode: 1, origin: 24794, flags: 7, requested: 3 }, count: 3, ids: [ 301, 302, 303 ], ranks: [ [Object], [Object], [Object] ], flags3: [ [Object], [Object], [Object], [Object], [Object], [Object] ], task: { type: 20, phase: 3, selected: 0, cursor: 1, requested: 3, quotas: [Array], flags: 1, entity: 0 }, rng: 305419896 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

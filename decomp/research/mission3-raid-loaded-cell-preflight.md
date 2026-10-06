@@ -1,6 +1,7 @@
 # Mission3 retained loaded-Shaman cell: two-case before preflight
 
-Prepared only. Runtime bytes remain exactly **1d41c72c**. The reviewer confirmed
+Frozen preflight; the [executed before witness](mission3-raid-loaded-cell-witness.md) is retained separately.
+Runtime bytes remain exactly **1d41c72c**. The reviewer confirmed
 that AI+0x5a2 is initialized0 by00461d70 and filled with loaded model7 even
 coordinates by0048502d→00485b00 at00485b9a. Its004f6020 reader is independent of
 live pointer+0x89d; no current-position or absent-clear writer is proved. Existing
