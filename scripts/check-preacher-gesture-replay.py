@@ -2,7 +2,7 @@
 """Replay the candidate port against accepted native rows, without native execution.
 
 Usage: python -B scripts/check-preacher-gesture-replay.py NATIVE_RUN_DIR --output DIR
-The original 63 cases, frame counts and native rows are immutable hash-pinned inputs.
+The original 27 cases/63 visits, frame counts and native rows are immutable hash-pinned inputs.
 Every state byte is compared. Known residuals require exact case/phase/field/value
 matches; raw event differences remain visible beside declared adapter boundaries.
 """
@@ -22,7 +22,6 @@ REFERENCE = {
     'supplied-input.json': 'a708520a0297fad98a655670d11a8614bda45c8f5f2c6d39b5f65881e2aa3502',
     'frozen-manifest.json': '125acb5330e5487c7c5bd6438c13c2ec975ecb9d04538560ee9898d885b4a3b7',
 }
-TERMINAL = {'timer839-no-decision', 'timer839-turning-known-difference', 'timer839-active-final'}
 sha = lambda data: hashlib.sha256(data).hexdigest()
 
 
@@ -56,11 +55,11 @@ def snapshot_delta(native, port, case, phase, fields):
                    if json.dumps(value) != json.dumps(port['fields'][key])}
     expected_fields = {}
     expected_other = {}
-    if case in TERMINAL and phase != 'beforeController':
-        expected_fields['flags2'] = [0x40200000, 0x200000]
-        if case == 'timer839-turning-known-difference':
-            expected_fields.update(assignment=[0,16], animationMode=[0,1])
-            expected_other['simulationRandom'] = [4,3138912261]
+    # Terminal entry bits now match the original. Only the separately unresolved
+    # turning outcome remains in this case; every other field/byte must be equal.
+    if case == 'timer839-turning-known-difference' and phase != 'beforeController':
+        expected_fields.update(assignment=[0,16], animationMode=[0,1])
+        expected_other['simulationRandom'] = [4,3138912261]
     same(field_delta,expected_fields,f'{case}/{phase}: unexpected field differences')
     other = {key:[value,port[key]] for key,value in native.items() if key not in ['raw','fields']
              and json.dumps(value,sort_keys=True)!=json.dumps(port[key],sort_keys=True)}
@@ -126,7 +125,7 @@ def compare(native, port, fields):
             if record['stateResiduals'] or 'returnResidual' in record or 'rawEventResiduals' in record:
                 inventory.append(record)
     same(sum(len(c['rows']) for c in port['cases']),63,'Candidate visit count differs')
-    same(state_rows,4,'Known residual row set changed')
+    same(state_rows,2,'Known residual row set changed')
     return inventory,semantic_requests
 
 
@@ -167,7 +166,7 @@ def main():
         inventory,requests=compare(native,port,payload['fields'])
         (output/'differences.json').write_text(json.dumps(inventory,indent=2)+'\n')
         summary={'status':'passed','scope':'Candidate port against unchanged accepted supplied-state native rows',
-                 'pairs':63,'knownStateOrReturnResidualRows':4,'comparedRequests':requests,
+                 'pairs':63,'knownStateOrReturnResidualRows':2,'comparedRequests':requests,
                  'rawResidualRows':len(inventory),'wholeSermonEquality':'not-claimed',
                  'audio':'request-only interception; live owner flag tested separately',
                  'newNativeExecution':False,'nodeVersion':port['nodeVersion']}
