@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "98918726-b483-4fbc-aefa-cf4653c8955a",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "af314f0230d2a2ef66bf44c9e3e69b97635106fc",
+    "branch": "research/raid-phase6-settlement-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "/tmp/validate_raid_phase6_source.py": "4cfc884032df77e27c777a33bedc7d6fdf92de834ae6a63192af38c62ea84897",
+      "decomp/research/raid-phase6-settlement/launch-manifest.json": "f6151550615395f305651deb5f41046a99c71432be05c7054928868707b854ed",
+      "scripts/probe-native-raid-phase6.py": "75b55631640c45d3ab1a4011a798e986966ef7abfc3b4f8d7c138efa5852888b",
+      "scripts/raid-phase6-pair.mjs": "ca8b7cc7015d12795561e5af5fc79eb7002bec83d43c351de5d0a0aa4124e87c",
+      "scripts/run-preacher-response-once.py": "23dd99728374a2021231ff16c3cdb171bdfbecb65443a004589c9e382d7e349b"
+    }
+  },
+  "command": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=3s",
+    "15s",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/bin/python",
+    "-E",
+    "-s",
+    "-B",
+    "/tmp/validate_raid_phase6_source.py"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-20261006",
+  "startedAt": "2026-10-06T23:11:54.637Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-20261006/work/orchestration/raid-phase6-settlement-20261006/host-preflight-01.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-20261006/work/orchestration/raid-phase6-settlement-20261006/host-preflight-01.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T23:11:56.092Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "PASS: two-case host fixture/source guards; no native or application execution\nPASS: external-envelope host guards; no child process launched\nPASS: frozen host preflight, AST and Node syntax; native/app invocations0\n",
+  "stderr": "",
+  "stdoutSha256": "7127225f5a82576f71125fc30204a4c3abea36077f37efa3d85891b08be164c4",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "af314f0230d2a2ef66bf44c9e3e69b97635106fc",
+    "branch": "research/raid-phase6-settlement-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "/tmp/validate_raid_phase6_source.py": "4cfc884032df77e27c777a33bedc7d6fdf92de834ae6a63192af38c62ea84897",
+      "decomp/research/raid-phase6-settlement/launch-manifest.json": "f6151550615395f305651deb5f41046a99c71432be05c7054928868707b854ed",
+      "scripts/probe-native-raid-phase6.py": "75b55631640c45d3ab1a4011a798e986966ef7abfc3b4f8d7c138efa5852888b",
+      "scripts/raid-phase6-pair.mjs": "ca8b7cc7015d12795561e5af5fc79eb7002bec83d43c351de5d0a0aa4124e87c",
+      "scripts/run-preacher-response-once.py": "23dd99728374a2021231ff16c3cdb171bdfbecb65443a004589c9e382d7e349b"
+    }
+  }
+}
