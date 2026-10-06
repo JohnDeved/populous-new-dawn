@@ -278,6 +278,9 @@ recorded in the [Mission 3 opening note](research/mission3-opening.md).
 The complete periodic three-Brave raid block and its natural recruitment/combat
 path are documented in [early mission AI](research/early-mission-ai.md); later
 Mission 3 command blocks and rendered acceptance remain separate.
+The [raid first-selection origin preflight](research/mission3-raid-recruitment-origin.md)
+distinguishes construction-base/Shaman inputs from script defense fields. Its four
+controlled comparison cases are proposed only; no native or portable run is claimed.
 The state-23 listener warning is documented separately in
 [Mission 3 anti-preaching notification](research/mission3-preaching-message.md),
 including the scoped original message-107 import and one-shot checkpoint path.

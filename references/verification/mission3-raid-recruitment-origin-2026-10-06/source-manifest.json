@@ -1,0 +1,72 @@
+{
+  "scope": "Source-only preparation, not executed behavior",
+  "sourceBase": "89e68606a406f93715b930550317519818ddc081",
+  "sourceFingerprints": {
+    "app/computer-runtime.ts": "1ca8fd533d5634cc5d82feb5909ab136506c966713c04508b1d487167e052f5c",
+    "app/computer-selection.ts": "ec5835a2285376120c23bb9c12a25cc14b82512157e192cb144f012f936074cd",
+    "app/computer.ts": "7e7425a46cba84fa4eeb4c29be92c25c848f992b94e2912d570b9959027a666d",
+    "app/campaign-command-runtime.ts": "7721cdb9954edc737d6c13828b42e69dac09b8046db8f93b7a7e92a05e0c908b",
+    "app/campaign-runtime.ts": "14db77faf860b168dea78e674788b3bc86437e26196e85f38fce6f3dfa541f89",
+    "app/selection-runtime.ts": "d1b61309818d87e85e329c24fd7384ebd00b474b4dbe8f57ef84061ecbb2be71",
+    "app/native-math.ts": "223fa6c4dc5d14a66daec1c1a15a5252802e1fa7e4f3cc7c5a2fcc07818435cc",
+    "app/original-script-three.json": "7362d19fef54dc06869b9c54c41c2d8229acf2942a4b22e6056aab6208789ccc",
+    "app/level-three.ts": "7de51508c51d8193ee961de63a79016be4c58de284aefc3a707339b5e9b81e07",
+    "decomp/generated/004f6020.c": "21ada6683311b6a0b0a5f6030306ccee1262a8b7a6be0e630d5698a9c34fa8eb",
+    "decomp/generated/004f8490.c": "dbb15088aa9d2fffa03e725a29acb51592e28f82f9f276fcc9f682a3eb43ee57",
+    "decomp/generated/004f8390.c": "46b157ffe538b0bcee93c1957914ca168af43e17f2df0410b47f0c9125795d49",
+    "decomp/generated/004f55d0.c": "f75fa8a3d89aa472d2fabcf37947324accf489f329da4d2861e17ac27cd45021",
+    "decomp/generated/004c6da0.c": "491545b5e77c46412ec44e1178720eca14aa6b1b38b992f57176a948d64d2afd",
+    "decomp/generated/00461d70.c": "b3615d5df13470b64957be7de66ec21d444d9f093f78172cb9ac5ba65c4a8c46",
+    "decomp/generated/004615f0.c": "467eff666ecdd8e530b6b9cc7f90a8ca11f3c1b208f4603164c898ce7df8a0ce",
+    "scripts/check-native-selection.py": "54742e8b9138db00b0061489ed14574cf97368d974503079f75b782e4d5bb7d8",
+    "scripts/check-native-computer-attack.py": "0a9694bd36f0d60c1bb4772531d3a670bc0c1f60d502569c1af25d81cfb72942",
+    "scripts/check-native-computer.py": "d922da419bdc80eb646606edccf3438e24deccc95c067800d996f02423cc27a0",
+    "scripts/check-native-territory.py": "32be3666b20042d324d38ea500c7f0001ae108b2c5830bcb0900d2606f929111",
+    "tests/early-mission-ai.test.mjs": "e459de8f768d4c55af6b2a9d26aa8f46b84d9e2a8b95d18b3439ad48b83752ef"
+  },
+  "evidenceFingerprints": {
+    "references/verification/mission3-raid-recruitment-origin-2026-10-06/native-origin-fields.asm": "30bdba119904d5675b7e6958ffc0823cce8cdc5f2b69d8448ecb80e8ac4fba12",
+    "references/verification/mission3-raid-recruitment-origin-2026-10-06/native-phase3.asm": "622c0520d45588900dd34325abd029a91ce45460c5d6ab99ef1008e42d989f3b",
+    "references/verification/mission3-raid-recruitment-origin-2026-10-06/selection-cases.json": "752be075ac981038ee87d344579641bb8627917639d4543616192f7be8289d0d",
+    "references/verification/mission3-raid-recruitment-origin-2026-10-06/source-audit.json": "886ee541a194610cba748e4be5a89bf4574a32f3ceefed0f780cc89ea4eee033"
+  },
+  "nativeFileBackedRanges": [
+    {
+      "start": "004cb400",
+      "stopExclusive": "004cb824",
+      "fileOffset": 829440,
+      "length": 1060,
+      "sha256": "aeb247927bdd3639fb2e32109384359484fe2e9b645a7060324994eff88a9b47"
+    },
+    {
+      "start": "004ccac4",
+      "stopExclusive": "004ccb3c",
+      "fileOffset": 835268,
+      "length": 120,
+      "sha256": "794540f41431cd02e09e684e59086cedaced65c8748ad5a975a60f67fb9e0269"
+    },
+    {
+      "start": "004f6020",
+      "stopExclusive": "004f6040",
+      "fileOffset": 1004576,
+      "length": 32,
+      "sha256": "926a09ca8097a066da0d1d771a40099a462b17affddc430ad46c891a0e2094bf"
+    },
+    {
+      "start": "004f55d0",
+      "stopExclusive": "004f5680",
+      "fileOffset": 1001936,
+      "length": 176,
+      "sha256": "4ae3330ec07ebe8f43464f856c55e6f82d5e4abe6cfbe3220e8f41ccbfda041c"
+    },
+    {
+      "start": "00492c30",
+      "stopExclusive": "00492d12",
+      "fileOffset": 598064,
+      "length": 226,
+      "sha256": "00cbdad784764655e41d6ab8236e6c764709e8fed91fabc1c91c3fe46d1efccb"
+    }
+  ],
+  "originalExeSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "verificationPolicy": "No native, portable gameplay, browser or package jobs. A future probe requires new exact-source preflight and coordinator lane."
+}
