@@ -1,6 +1,6 @@
 """Decode the supplied Populous assets; never execute the Windows installer.
 Usage: python3 scripts/import-original.py /path/to/extracted/game [--units-only | --vehicles-only | --training-huts-only | --hut-smoke-only]
---units-only appends Shaman families and Firewarrior resting/firing artwork and writes only
+--units-only appends Shaman, Firewarrior and Preacher sermon artwork and writes only
 app/original-units.json, public/original/unit-layers.png and provenance.json.
 --vehicles-only appends original mesh143/144 to original-models.json and its
 provenance modelIds; it never regenerates the shared object atlas.
@@ -165,7 +165,7 @@ def building_shapes(data, objects, smoke_offsets=b''):
     return dict(objects=indices,origins=origins,shapes=shapes,cells=list(data[64*48:]),socketOffsets={str(model):offsets[i] for i,model in enumerate(corrected)})
 
 def append_unit_families(source, project):
-    """Append original Shaman families and Firewarrior resting/firing artwork.
+    """Append original Shaman, Firewarrior and Preacher sermon artwork.
 
     This bounded mode writes only original-units.json, unit-layers.png and its
     provenance.json. The normal full importer calls it after producing that same
@@ -323,6 +323,38 @@ def append_unit_families(source, project):
         piece.update(atlasX=x, atlasY=y)
     for team in ['blue', 'red']:
         units['animations'][team + '-firewarrior']['firing'] = directions(firing_source)
+    # Sermon objects98/99 share the existing direct-source person renderer.
+    # Follow the accepted firing append without moving any previous piece.
+    preaching_sources = [rules['animationObjects'][obj][0] for obj in (98, 99)]
+    assert [rules['animationObjects'][obj] for obj in (98, 99)] == [[176, 14], [184, 14]]
+    preaching_pieces = sorted({piece for source in preaching_sources for direction in range(8)
+                              for frame in cycle(source + direction)[0]
+                              for piece, *_ in raw_layers(frame)} -
+                             {piece['source'] for piece in units['pieces'][:4122]})
+    assert len(preaching_pieces) == 48
+    append_sources(preaching_sources)
+    assert len(units['frames']) == 5256 and len(units['pieces']) == 4170
+    for offset, source_piece in enumerate(preaching_pieces):
+        index = piece_index[source_piece]
+        assert index == 4122 + offset
+        piece = units['pieces'][index]
+        assert max(piece['w'], piece['h']) <= 32
+        # Eight free subslots in the final two old cells, then one new64px row.
+        container = 4062 + offset // 4
+        x = (container % units['columns']) * units['cell'] + (offset % 2) * 32
+        y = (container // units['columns']) * units['cell'] + ((offset // 2) % 2) * 32
+        assert x + 32 <= old_width and y + 32 <= 8192
+        if index < len(old_pieces):
+            assert (piece.get('atlasX'), piece.get('atlasY')) == (x, y), 'Refuse to repack sermon artwork'
+        else:
+            for row in range(32):
+                if y + row < old_height:
+                    at = ((y + row) * old_width + x) * 4
+                    assert not any(old_pixels[at:at + 32 * 4]), 'Sermon destination must be empty'
+        piece.update(atlasX=x, atlasY=y)
+    for team in ['blue', 'red']:
+        for index, source in enumerate(preaching_sources, 1):
+            units['animations'][team + '-preacher'][f'preachGesture{index}'] = directions(source)
     assert units['frames'][:len(old_frames)] == old_frames
     assert units['pieces'][:len(old_pieces)] == old_pieces
     assert all(units['animations'][name][state] == value
@@ -332,9 +364,12 @@ def append_unit_families(source, project):
     bottom = max(piece.get('atlasY', (i // columns) * cell) + piece['h']
                  for i, piece in enumerate(units['pieces']))
     height = max(old_height, ((bottom + cell - 1) // cell) * cell)
-    assert width == cell * columns
+    assert width == cell * columns and height == 8192
     pixels = bytearray(width * height * 4)
+    pixels[:len(old_pixels)] = old_pixels
     for i, piece in enumerate(units['pieces']):
+        if i < len(old_pieces):
+            continue
         w, h, rgba = bank[piece['source']]
         x = piece.get('atlasX', (i % columns) * cell)
         y = piece.get('atlasY', (i // columns) * cell)

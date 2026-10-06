@@ -27,7 +27,7 @@ function sermon(seed = 0, team = 'blue') {
   const person = unit.native
   Object.assign(person, {
     substate: 3, counter: 15, speed: 0, timer: 0, statusFlags: 2,
-    assignment: 0, animationMode: 0,
+    assignment: 0, animationMode: 0, commandAux: 3,
     flags2: person.flags2 & ~0x40002004,
     goalX: person.x, goalY: person.y,
   })
