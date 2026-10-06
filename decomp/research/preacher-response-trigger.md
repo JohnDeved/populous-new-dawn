@@ -5,6 +5,28 @@ Source-only investigation at `a00eadc811e227559f9a2713eedbee5cd08af1c1`,
 test, fixture, parity or generated Ghidra export was changed. This does not explain
 earlier Mission 3 deaths or establish original campaign behavior.
 
+## Current-main adoption before proof review
+
+The research branch normally merged main
+`1c7e6b05687aca14d9350e17c7ae14dc6c68bb97` at adoption commit
+`d91b6f66bcdaf7bf88353101aa065828d484e617`. The
+[current source binding](preacher-response-trigger/current-source-binding.json)
+refreshes guarded hashes; the original static-read manifest and disassemblies
+remain byte-identical to research commit `871967a422f5c0c432f4327a692eea22548b76b1`.
+That original manifest's source and note hashes describe its original snapshot.
+
+The entire `app/` delta from the original base is exactly the accepted
+`p.timer < 840 &&` condition in `stepPreachingOrder`; the full
+[runtime diff](preacher-response-trigger/adopted-runtime.diff) is retained.
+All response-producer sources are unchanged. Current runtime bytes equal main.
+The proposed **response-only** proof stops after the response initializer returns:
+no world tick, order startup, sermon step or queue completion. Native entry into
+`0043a4d0`, or port execution of `stepLivePreaching`/`stepPreachingOrder`, is an
+unexpected boundary and must fail the future run. Thus the newly accepted timer
+condition is outside this proof's execution path. Natural acquisition and sermon
+continuation below remain later work, not permission to broaden the next proof.
+No native/application/Ghidra execution occurred during this adoption.
+
 ## Result
 
 Static instructions show that the original automatic response can create immediate **command32 at the Preacher's
@@ -139,6 +161,11 @@ dispatch are additional caller conditions, not missing tests inside these leaves
 
 ## Smallest predeclared paired proof (not run)
 
+The first proposed launch contains **one positive case, one native dispatcher
+invocation and one production-port response invocation**, without retries. The
+controls listed below are separate finite follow-ups requiring their own complete
+call-graph and supply preflight; they are not included in this first launch.
+
 Use two supplied people in a dry category0 cell, no buildings/fights/vehicles,
 no listeners, no special flags or disguises, and zero alliances/game flags.
 Source: class1/model4, tribe0, life1000, state10, substate1, speed40, counter0,
@@ -150,6 +177,17 @@ active count1; unused records have zero references. Unit-table index0 and every
 unused cell head are null. Initialize all other fields explicitly rather than
 relying on unknown memory.
 
+Freeze the initiator as an already-retained `u.native` person, state10, with
+`u.builder`/entry/flight/fight absent, no inside/resting ownership, and actual unit
+HP/position consistent with the supplied native life/XY. Supply `world.turn=0`
+and person counter0 on both sides; the port scanner derives counter from the world.
+Supply source/enemy flags2=flags3=flags4=0, `world.levelFlags2=0` and native
+`0x895da4=0`; assignment0. The model4 scan mask1 sets then consumes pending bit
+0x800, leaving flags3=0. Freeze simulation RNG `0x12345678` and cosmetic RNG
+`0x9abcdef0` after fixture setup: observe native words `0x89d178`/`0x89bc72` and
+port `world.randomState`/`world.cosmeticRandom.randomState` before and after;
+predict both unchanged. Fixture construction is supplied history, not gameplay.
+
 Expected decisions: range1 yields primary radii0,0 (one cell); predicate0;
 primary ignores the model2 enemy and returns0/friendly=null; secondary radii2,2
 finds that same enemy through reverse eligibility, returns2 and writes its pointer;
@@ -160,13 +198,35 @@ becomes0x2021 when flags3 bit0x02000000 is clear. No sharing call occurs. On thi
 dry cell, command preparation must preserve raw XY. Never infer this from AL alone.
 
 Native boundary: enter the real `004d4690` dispatcher with the supplied record;
-execute eligibility, range, `0051e7b0`, both scan calls, disguise leaves,
+execute its first `0051ff60` range call and `004d44e0` eligibility call, then
+`0051e7b0` including the second `0051ff60`, `004df140`, both scan calls, disguise leaves,
 `00436c20`, `00438730` and `00436d00`. Record entry/exit and pool/person changes
 with observation-only hooks. **Intercept none** of these. Reuse the complete
 automatic-order harness's mapped constants/terrain/pool setup; configure shipped
 `levels/constant.dat` and hash it. No existing immediate order means no unrelated
 cleanup leaf is expected; fail on unexpected world calls rather than stub them.
-Record `0051e7b0` AL at its return, because the outer dispatcher is void.
+The dry `00438730` must execute fully; entering coast correction `004ec630` or
+building-point conversion `004044b0` fails this case. No `00520480` call is allowed.
+All calls are cdecl with 32-bit stack argument slots. Observe `004d44e0`,
+`004df140`, `0051f030` and `0051e7b0` returns in AL only, allocation in AX, range
+in EAX; preparation/attachment and the outer dispatcher are void. Undefined high
+return-register bits are not semantic results. Do not replace the void dispatch
+result with the port wrapper's boolean.
+
+Capture before/after raw256-byte records for **both** people, all8000 pool bytes,
+the16-bit allocation cursor/active count at `0x96aa78`/`0x96aa7a`, both RNG words,
+and ordered call/return records including scan arguments, modes and pointer writes.
+Retain decoded equivalents and the corresponding full port records/pool/cursors,
+immediate and queued ownership, unit/native identity, paths and cell registration.
+The comparison must expose every raw changed byte, not only the predicted model.
+
+Hard proposed launch limits: Unicorn instruction count100,000 and native timeout
+1,000,000 microseconds; one port process timeout5 seconds; outer foreground command
+timeout15 seconds. Each bound is terminal with artifacts retained and no retry.
+The complete raw fixture, actual argument widths/addresses, observation hooks,
+exact native memory/callee allowlist, port entry/return capture and source/input
+guards must be written, frozen and reviewed **before execution**. This plan is not
+an executable-ready packet and grants no run authority by itself.
 
 Port boundary: use actual `startLiveCombatResponse` and its private
 `startPreacherResponse`, with the supplied people/queue represented in a real World;
@@ -176,12 +236,14 @@ The static prediction at the pinned production head is that generic detection
 rejects the enemy Brave, produces no immediate order and returns false. Neither
 side of this predeclared mismatch has been executed by this investigation.
 
-Required small controls: enemy absent; enemy same tribe; reverse-direction alliance
+Later small controls: enemy absent; enemy same tribe; reverse-direction alliance
 bit only; source already stationary active17/substate3/speed0; source speed nonzero
 with that same17; enemy model4 (primary21 path); exhausted pool (no32 attachment);
 enemy at adjacent diagonal cell (inside secondary3x3) then two cells away (outside).
-Observe that no-share by a call counter; a third supplied friendly person is only
-needed later to check peer state. Do not expand into a random suite before this
+The model4 primary21 control must execute real `00520480` and declare its complete
+peer supplies/callees before that separate run. Observe no-share in the first case
+by a zero call counter; a third supplied friendly person is only needed later to
+check peer state. Do not expand into a random suite before this
 positive and its ownership snapshots agree with the declared branch path.
 
 ## Reuse, live continuation and remaining boundaries
@@ -208,7 +270,9 @@ positive and its ownership snapshots agree with the declared branch path.
 - Live integration needs more than adding a branch: `startLiveCombatResponse`
   currently populates its adoption list only by invoking the `peers` callback
   through sharing. A faithful no-share32 path must still adopt/register/cancel
-  movement for the initiating person. Test that explicit ownership boundary.
+  movement for the initiating person. The first supplied proof uses retained native
+  ownership; newly-created-person adoption/registration/path cancellation are later
+  runtime regressions, not added to the first native invocation.
 - Follow the produced immediate through startup (`startPersonOrders`), exact
   commandStatus32 and substate5, real `stepLivePreaching`, listener acquisition,
   removal and queued-command resumption. Those runtime/native-controller layers,
