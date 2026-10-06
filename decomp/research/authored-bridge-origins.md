@@ -79,6 +79,47 @@ The wrapper completed successfully with one exported function and no reanalysis.
 The export hash is indexed in `decomp/exports.json`. It is pseudocode, not original
 source. The executable probe uses Unicorn 2.1.4.
 
+## Authored activation initializes the controller
+
+The clone producer's call at `004fbb82` immediately executes
+`004ed700 → 0050a750 → 0050ee00`. This is a producer-owned first visit: it advances
+the controller to turn 1, caches coarse endpoints, axis, direction, cross and
+height increments, enables raising water, and returns at `0050efca`. It does not
+request trails, change terrain, or call terrain notifications. The next explicit
+dispatch reaches turn 2 and invokes terrain traversal at `0050efe9`.
+
+The authored `bridgeEffect` adapter now runs that initialization visit at reward
+creation. The generic constructor, spell-cast producer and controller arithmetic
+remain unchanged. The old authored adapter returned turn 0; its initialization
+therefore sampled terrain later than the original producer boundary. Component
+tests include an explicitly supplied endpoint-height change after birth and a
+checkpoint before the next visit, demonstrating that birth-time caches survive.
+This synthetic state test does not claim ordinary rendered timing.
+
+The [reviewed two-visit proof](https://github.com/JohnDeved/populous-new-dawn/tree/fe86aeab4dae6662d9c17a32618fd9246366d991/references/verification/authored-bridge-initialization-2026-10-06)
+binds main `b28b031`, the same EXE/DAT identities, terminal raw receipts and 6,872
+original instruction records. Independent review verified every instruction's
+bytes against the original PE. On supplied raw Mission 2 heights and zero flags,
+activation yields cells 24762→24778, alongY=false, direction=2, crossStep=0 and
+heightStep=0. Visit 2 emits 36 trails and 36 ordered terrain/notification pairs;
+28 heights change from 0 to 1. Eight notified vertices round to no numerical
+height change. Corresponding port visits match every controller field, terrain
+height, trail request and changed-cell callback.
+
+Both seeded RNG streams remain unchanged within that intercepted component.
+Model-3 trail initialization remains supplied, so the proof does not cover its
+cosmetic draws; reward-allocation sound requests likewise remain intercepted.
+`check-native-authored-bridges.py` retains `activation` and `nextVisit` snapshots
+with controller state, both RNG streams, terrain hash and ordered event requests.
+Those snapshots precede the optional terrain queue drain.
+
+The earlier ordinary browser capture has heightStep=2, not this raw-input zero.
+PR 191's endpoints, final-terrain and checkpoint acceptance remains valid within
+its documented scope. Neither proof establishes absolute world-tick delay,
+native mixed-class scheduling, complete allocation/notification consumers,
+full-world RNG, audio execution or rendering parity. This repair is issue 225,
+separate from Erosion issue 223.
+
 ## Live adapter and checkpoint boundary
 
 Fresh worlds preserve `bridgeStart` from the linked record and place the live

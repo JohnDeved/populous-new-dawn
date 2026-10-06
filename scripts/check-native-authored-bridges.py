@@ -7,6 +7,8 @@ execute. Allocation storage, world registration/class callbacks, shared-link sca
 presentation/audio, trail allocation, deletion and terrain notifications are
 intercepted. This is not a complete native-game or renderer execution.
 Mixed-link later heads are explicitly reduced to their authored bridge slots.
+Activation and next-visit snapshots retain both RNG streams under these supplied
+boundaries; real trail initialization and its cosmetic draws remain intercepted.
 """
 import argparse
 import hashlib
@@ -55,6 +57,7 @@ def return_from_hook(value=0):
 
 
 allocations, deleted, changed, trace = [], [], [], []
+trails, notifications = [], []
 
 
 def hook(_cpu, address, _size, _user):
@@ -73,6 +76,8 @@ def hook(_cpu, address, _size, _user):
             # Execute the real model initializer before returning allocated storage.
             cpu.reg_write(UC_X86_REG_EIP, THUNK)
             return
+        if read(CLONE + 0x6C, "h") <= 2:
+            trails.append(list(struct.unpack("<HHh", cpu.mem_read(point, 6))))
         cpu.mem_write(TRAIL, bytes(256))
         return_from_hook(TRAIL)
         return
@@ -82,6 +87,9 @@ def hook(_cpu, address, _size, _user):
         changed.append(read(sp + 4, "H"))
         if browser and mission == 2:
             return  # Execute the real terrain queue for the rendered capture.
+    if address == 0x44F2F0 and read(CLONE + 0x6C, "h") <= 2:
+        assert [read(sp + offset) for offset in (4, 12, 16)] == [1, 2, 0xFFFFFFFF]
+        notifications.append(read(sp + 8, "H"))
     return_from_hook()
 
 
@@ -123,6 +131,20 @@ def point(pointer, offset):
     return {"x": x, "y": y}
 
 
+def snapshot():
+    return {
+        "state": {
+            "turn": read(CLONE + 0x6C, "h"), "alongY": bool(read(CLONE + 0x86, "i")),
+            "startCell": read(CLONE + 0x8A, "H"), "endCell": read(CLONE + 0x8C, "H"),
+            "direction": read(CLONE + 0x7A, "i"), "crossStep": read(CLONE + 0x82, "i"),
+            "heightStep": read(CLONE + 0x7E, "i"), "raiseWater": bool(read(CLONE + 0x8E, "B")),
+        },
+        "gameplayRng": read(0x89D178), "cosmeticRng": read(0x89BC72),
+        "terrainSha256": hashlib.sha256(cpu.mem_read(0x8A03E4, 0x40000)).hexdigest(),
+        "trails": list(trails), "changed": list(changed), "notifications": list(notifications),
+    }
+
+
 cases, inventory = [], {}
 for mission in (1, 2, 3, 5, 6, 9):
     level_path = args.exe.parent / "levels" / f"levl{2000 + mission}.dat"
@@ -141,6 +163,8 @@ for mission in (1, 2, 3, 5, 6, 9):
             deleted.clear()
             changed.clear()
             trace.clear()
+            trails.clear()
+            notifications.clear()
             cpu.mem_write(0x890390, bytes(0x4000))
             terrain = bytearray(0x40000)
             for index, height in enumerate(struct.unpack("<16384h", level[:32768])):
@@ -163,15 +187,24 @@ for mission in (1, 2, 3, 5, 6, 9):
             # Supply the completion bit; ordinary live input is a separate browser gate.
             write(HEAD + 0x2E, "B", 1)
             write(HEAD + 0x6D, "B", read(HEAD + 0x6D, "B") | 2)
+            before = snapshot()
             invoke(0x4FB270, HEAD)
             assert len(allocations) == 1
             assert point(CLONE, 0x3D) == point(SOURCE, 0x3D)
             assert point(CLONE, 0x57) == point(SOURCE, 0x57)
             assert read(CLONE + 0x2C, "B") == 25
             assert read(CLONE + 0x6C, "h") == 1
+            activation = snapshot()
+            for field in ("terrainSha256", "gameplayRng", "cosmeticRng"):
+                assert activation[field] == before[field], (mission, field)
+            assert not activation["trails"] and not activation["changed"] and not activation["notifications"]
             turns = 1
             while CLONE not in deleted:
                 invoke(0x4ED700, CLONE)
+                if turns == 1:
+                    next_visit = snapshot()
+                    assert next_visit["state"]["turn"] == 2
+                    assert next_visit["notifications"] == next_visit["changed"]
                 if browser and mission == 2:
                     invoke(0x44DF40)
                 turns += 1
@@ -189,6 +222,7 @@ for mission in (1, 2, 3, 5, 6, 9):
                 "head": {"x": x / 256 - 8, "z": -y / 256 - 8},
                 "start": point(CLONE, 0x3D), "target": point(CLONE, 0x57),
                 "turns": turns, "changedCells": len(set(changed)),
+                "activation": activation, "nextVisit": next_visit,
                 "nativeTrace": list(dict.fromkeys(trace)),
                 "terrainSha256": hashlib.sha256(cpu.mem_read(0x8A03E4, 0x40000)).hexdigest(),
             })
