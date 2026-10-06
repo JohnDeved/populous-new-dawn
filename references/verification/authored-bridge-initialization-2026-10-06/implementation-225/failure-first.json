@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "457542b7-3344-4b2c-b78f-25844181b0d7",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "b28b031f6917f6d814536ba10a7d46e7be71de05",
+    "branch": "fix/authored-bridge-initialization",
+    "trackedDiffSha256": "c54b3e543633f38874a80a6bf18dc417395ccc24c967d948ad727fc9a4131574",
+    "inputs": {
+      "tests/authored-bridges.test.mjs": "e5bd0491d4947964ca782bc6affa66f69bf0a6c8224f2d4b6de5b4e576d6e26e"
+    }
+  },
+  "command": [
+    "timeout",
+    "60s",
+    "taskset",
+    "-c",
+    "4",
+    "node",
+    "--test",
+    "tests/authored-bridges.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-initialization",
+  "startedAt": "2026-10-06T01:25:55.674Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-initialization/work/orchestration/authored-bridge-initialization/failure-first.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-initialization/work/orchestration/authored-bridge-initialization/failure-first.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T01:25:59.951Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "✔ authored origins survive initialization for all five currently live campaign bridge heads (490.519824ms)\n✖ ordinary Mission 2 worship creates the authored crossing and every live terrain turn matches it (962.573542ms)\n✖ legacy migration recovers only missing immutable origins without replaying active terrain (716.612428ms)\n✖ component checkpoint preserves authored birth caches when sampled terrain changes before the next visit (479.332884ms)\n✖ pre-activation legacy save and mid-bridge checkpoint continue once at the authored origin (649.595641ms)\nℹ tests 5\nℹ suites 0\nℹ pass 1\nℹ fail 4\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 4205.966977\n\n✖ failing tests:\n\ntest at tests/authored-bridges.test.mjs:47:1\n✖ ordinary Mission 2 worship creates the authored crossing and every live terrain turn matches it (962.573542ms)\n  AssertionError [ERR_ASSERTION]: The authored producer owns the initialization visit\n  \n  0 !== 1\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-initialization/tests/authored-bridges.test.mjs:59:10)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: 0,\n    expected: 1,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n\ntest at tests/authored-bridges.test.mjs:88:1\n✖ legacy migration recovers only missing immutable origins without replaying active terrain (716.612428ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  12 !== 13\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-initialization/tests/authored-bridges.test.mjs:104:10)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 12,\n    expected: 13,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n\ntest at tests/authored-bridges.test.mjs:107:1\n✖ component checkpoint preserves authored birth caches when sampled terrain changes before the next visit (479.332884ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  0 !== 1\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-initialization/tests/authored-bridges.test.mjs:112:10)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 0,\n    expected: 1,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n\ntest at tests/authored-bridges.test.mjs:135:1\n✖ pre-activation legacy save and mid-bridge checkpoint continue once at the authored origin (649.595641ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  0 !== 1\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-initialization/tests/authored-bridges.test.mjs:145:10)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 0,\n    expected: 1,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n",
+  "stderr": "",
+  "stdoutSha256": "671b01cca0bb75edbfd9363202db0549b7b83ee862e02ac74e3b071d49a08947",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "b28b031f6917f6d814536ba10a7d46e7be71de05",
+    "branch": "fix/authored-bridge-initialization",
+    "trackedDiffSha256": "c54b3e543633f38874a80a6bf18dc417395ccc24c967d948ad727fc9a4131574",
+    "inputs": {
+      "tests/authored-bridges.test.mjs": "e5bd0491d4947964ca782bc6affa66f69bf0a6c8224f2d4b6de5b4e576d6e26e"
+    }
+  }
+}

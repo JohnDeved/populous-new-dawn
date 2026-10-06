@@ -1,0 +1,29 @@
+--- work/orchestration/authored-bridge-initialization/pr191-candidate.mjs	2026-10-05 21:28:59.073524824 -0400
++++ work/orchestration/authored-bridge-initialization/candidate.mjs	2026-10-05 21:31:20.420465589 -0400
+@@ -160,6 +160,18 @@
+   assert.ok(active.bridge,'Active bridge retained at pause')
+   assert.deepEqual(active.bridge.start,{x:47872,y:24832});assert.deepEqual(active.bridge.target,{x:51968,y:24832})
+   assert.deepEqual(active.effectPosition,{x:-77,z:-105});assert.equal(active.uses,1)
++  // Polling observes an active controller, not its exact birth turn. The native
++  // and component proof owns the immediate initialization boundary.
++  assert.ok(active.bridge.turn>=1,'Observed authored bridge is initialized')
++  const expected=await page.evaluate(async({initial,start,target})=>{
++    const {createLandBridge,stepLandBridge}=await import('/app/land-bridge.ts')
++    const bridge=createLandBridge(start,target)
++    stepLandBridge({heights:Int16Array.from(initial.heights),flags:Uint32Array.from(initial.flags)},bridge,
++      ()=>{throw Error('Initialization emitted a trail')},()=>{throw Error('Initialization notified terrain')})
++    return bridge
++  },{initial,start:active.bridge.start,target:active.bridge.target})
++  const caches=({turn,...fields})=>fields
++  assert.deepEqual(caches(active.bridge),caches(expected),'Observed caches match the captured initial terrain')
+   writeFileSync(resolve(output,'active-native-state.json'),JSON.stringify(active,null,2)+'\n')
+   await snap('authored-crossing-active')
+   // Save through the shipped menu and reload a fresh page while paused. The exact
+@@ -175,6 +187,7 @@
+   const restored=await page.evaluate(()=>{const w=window.testStore.getWorld();return {paused:w.paused,bridge:structuredClone(w.effects.find(f=>f.bridge)?.bridge),uses:w.shrines.find(h=>h.kind==='bridgeEffect').uses,stats:w.stats}})
+   assert.equal(restored.paused,true);assert.ok(restored.bridge,'Active bridge survives ordinary reload delay')
+   assert.deepEqual(restored.bridge.start,active.bridge.start);assert.deepEqual(restored.bridge.target,active.bridge.target)
++  assert.deepEqual(caches(restored.bridge),caches(active.bridge),'Load preserves every initialized controller cache')
+   assert.ok(restored.bridge.turn>=active.bridge.turn);assert.equal(restored.uses,1);assert.equal(restored.stats.bridges,1)
+   await map({x:-69,z:-105});await snap('authored-crossing-restored')
+   await resume();await page.waitForFunction(()=>!window.testStore.getWorld().effects.some(f=>f.bridge),null,{timeout:30000,polling:50});await pause()

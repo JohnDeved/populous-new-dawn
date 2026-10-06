@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "38a375b7-f817-406d-8c67-4ae72c2d4113",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "b28b031f6917f6d814536ba10a7d46e7be71de05",
+    "branch": "fix/authored-bridge-initialization",
+    "trackedDiffSha256": "0fbee7a4d9468c50ab3b18033e6503acc5238ae44fc81fa199bb6c8a527b89ac",
+    "inputs": {
+      "tests/authored-bridges.test.mjs": "e5bd0491d4947964ca782bc6affa66f69bf0a6c8224f2d4b6de5b4e576d6e26e",
+      "app/world-turn.ts": "ba7635cff5ce0576aa698167590f57806fe3531b2962f745aed423ddc4356302"
+    }
+  },
+  "command": [
+    "timeout",
+    "60s",
+    "taskset",
+    "-c",
+    "4",
+    "node",
+    "--test",
+    "tests/authored-bridges.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-initialization",
+  "startedAt": "2026-10-06T01:26:27.827Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-initialization/work/orchestration/authored-bridge-initialization/after-focused.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-initialization/work/orchestration/authored-bridge-initialization/after-focused.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T01:26:33.060Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ authored origins survive initialization for all five currently live campaign bridge heads (542.82605ms)\n✔ ordinary Mission 2 worship creates the authored crossing and every live terrain turn matches it (1237.101956ms)\n✔ legacy migration recovers only missing immutable origins without replaying active terrain (693.615061ms)\n✔ component checkpoint preserves authored birth caches when sampled terrain changes before the next visit (476.070489ms)\n✔ pre-activation legacy save and mid-bridge checkpoint continue once at the authored origin (1275.499994ms)\nℹ tests 5\nℹ suites 0\nℹ pass 5\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 5152.937383\n",
+  "stderr": "",
+  "stdoutSha256": "107a363df12a10a830fcffcf2a712833b3a72b0954a038348235f3bf63a1a5d7",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "b28b031f6917f6d814536ba10a7d46e7be71de05",
+    "branch": "fix/authored-bridge-initialization",
+    "trackedDiffSha256": "0fbee7a4d9468c50ab3b18033e6503acc5238ae44fc81fa199bb6c8a527b89ac",
+    "inputs": {
+      "tests/authored-bridges.test.mjs": "e5bd0491d4947964ca782bc6affa66f69bf0a6c8224f2d4b6de5b4e576d6e26e",
+      "app/world-turn.ts": "ba7635cff5ce0576aa698167590f57806fe3531b2962f745aed423ddc4356302"
+    }
+  }
+}

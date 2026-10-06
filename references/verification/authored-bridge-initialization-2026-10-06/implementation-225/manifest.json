@@ -1,0 +1,26 @@
+{
+  "sourceHead": "55c684cd2c4cc80a7e06786e24f0d87f4a0a5cd5",
+  "allowlistedFilesSha256": {
+    "failure-first.json": "2a557ae859d20a38a5e58e43d10eb61fc4ce443437154b1ca38788c7f1459b49",
+    "failure-first.json.artifacts/stdout.log": "671b01cca0bb75edbfd9363202db0549b7b83ee862e02ac74e3b071d49a08947",
+    "failure-first.json.artifacts/stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "failure-first.patch": "c54b3e543633f38874a80a6bf18dc417395ccc24c967d948ad727fc9a4131574",
+    "failure-first.test.mjs": "e5bd0491d4947964ca782bc6affa66f69bf0a6c8224f2d4b6de5b4e576d6e26e",
+    "after-focused.json": "e93a02fbb58257936aaba683f21debce3d17703a194cca5160fdf9d8d7f375d8",
+    "after-focused.json.artifacts/stdout.log": "107a363df12a10a830fcffcf2a712833b3a72b0954a038348235f3bf63a1a5d7",
+    "after-focused.json.artifacts/stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source-correspondence.json": "69f408c038f576d9b579030bd144b4483a140c91ca0b5c3355966548a7c1aa3a",
+    "native-authored-command.json": "4a450da5531fc1945a74a181356c08de8e28c39b4cacf505e4a51766457935a0",
+    "native-authored-command.json.artifacts/stdout.log": "32c36372e8d4501865c9be90773b611f030b638ec132041244f6de4236814136",
+    "native-authored-command.json.artifacts/stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native-authored.json": "ca9b650034f8cd7ab7445be27894d806cc734676b583690c525637b08797438d",
+    "implementation-review.md": "08f60aa2a2b20639f89ccfdb1cf0d7bc34b2df953eff94991fdd677892cba902",
+    "driver-native-review.md": "fc3e22694603eee98f7c6b34d58bbba297ec148531db44cf38a9d68e816b82c1",
+    "candidate.mjs": "3e8ad3a90e505fc4ea439f959aaf8d9e845c1c12eec70b271f3c130f55562aa5",
+    "pr191-candidate.mjs": "bb5caada25c5f1c440ae00fedb312ef28a744185f1d50c46308aca50c1a1226c",
+    "pr191-driver-delta.patch": "a27e345686428a3b367577d0465b4ccb2185b6b7200a9e390ad2f3d254fa036b",
+    "driver-provenance.json": "5099904962c44ad3744516ba8a6595533afc47ebd935566a8a85afdd560afa2f",
+    "gate-selection.md": "afbbae2d2de70eea6fa07c72b2463c27b90b374441eec6a11bb359c88e33ef0e"
+  },
+  "excluded": "No game binaries/assets, private browser state, credentials, environment files, dependencies or unrelated logs."
+}

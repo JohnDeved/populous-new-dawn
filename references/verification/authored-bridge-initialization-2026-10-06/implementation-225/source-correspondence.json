@@ -1,0 +1,21 @@
+{
+  "head": "55c684cd2c4cc80a7e06786e24f0d87f4a0a5cd5",
+  "status": "passed",
+  "runtimeAndTestsMatchAfterReceipt": {
+    "app/world-turn.ts": "ba7635cff5ce0576aa698167590f57806fe3531b2962f745aed423ddc4356302",
+    "tests/authored-bridges.test.mjs": "e5bd0491d4947964ca782bc6affa66f69bf0a6c8224f2d4b6de5b4e576d6e26e"
+  },
+  "failureFirstTestSha256": "e5bd0491d4947964ca782bc6affa66f69bf0a6c8224f2d4b6de5b4e576d6e26e",
+  "laterChanges": "Native snapshot instrumentation and documentation followed the focused pass. Native changes now have a separate passed receipt on clean55c684c; runtime/test bytes still match the focused after receipt.",
+  "pending": [
+    "generic bridge regression",
+    "check/build",
+    "TypeScript quality",
+    "ordinary rendered acceptance"
+  ],
+  "nativeReceipt": {
+    "path": "native-authored-command.json",
+    "sha256": "4a450da5531fc1945a74a181356c08de8e28c39b4cacf505e4a51766457935a0",
+    "result": "passed"
+  }
+}

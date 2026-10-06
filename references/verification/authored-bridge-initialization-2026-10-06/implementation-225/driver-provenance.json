@@ -1,0 +1,8 @@
+{
+  "originalCommit": "cfdf764631ab42173b0b4191abdbdd3c34d0d1e5",
+  "originalPath": "references/verification/authored-bridge-origin-2026-10-04/browser-candidate-02/candidate.mjs",
+  "originalSha256": "bb5caada25c5f1c440ae00fedb312ef28a744185f1d50c46308aca50c1a1226c",
+  "candidateSha256": "3e8ad3a90e505fc4ea439f959aaf8d9e845c1c12eec70b271f3c130f55562aa5",
+  "delta": "Only assertions of initialized caches at observed active state and preserved caches after ordinary Load; copied PR191 route/save/reload/native-terrain output unchanged. No exact birth turn assertion or passive observer.",
+  "status": "prepared-not-run"
+}
