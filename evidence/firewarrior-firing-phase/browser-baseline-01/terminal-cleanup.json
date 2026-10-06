@@ -1,0 +1,15 @@
+{
+  "observedAt": "2026-10-06T08:20:39.181422+00:00",
+  "sameLaunchInvocation": true,
+  "outerStatus": "passed",
+  "outerExit": 0,
+  "outerSignal": null,
+  "sourceAndInputsStable": true,
+  "harnessStatus": "passed",
+  "harnessFinishedAt": "2026-10-06T08:20:35.479Z",
+  "harnessFailure": null,
+  "listeners4401": [],
+  "connectEx": 111,
+  "loopbackReleased": true,
+  "contract": "Existing ephemeral harness finally awaits owned browser close/disconnection and server shutdown before its terminal receipt. No profile cleanupVerified field is invented. No process-name kill or foreign PID scan."
+}

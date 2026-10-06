@@ -1,0 +1,116 @@
+{
+  "kind": "ordinary-firewarrior-firing-baseline",
+  "testedSource": "634501cd72f19b43c17839f630a2bbff1957b249",
+  "applicationSource": "b0208188b8de345a6ad5e86cb7c49769624dda86",
+  "ordinaryAttemptCount": 1,
+  "scenarioStatus": "captured-pending-visual-review",
+  "selfVisualInspection": "actor visible and unobscured; standing-style48/14 while attributed volley fires",
+  "independentReview": "pending",
+  "publication": "local-unpushed-not-reset-durable",
+  "files": {
+    "firing-full.png": {
+      "source": "work/orchestration/firewarrior-firing-browser-baseline-01/run/firing-full.png",
+      "encoding": "identity",
+      "storedBytes": 1846385,
+      "storedSha256": "b7ac2654583b81f15d651a424c1b36ef72e4fdd44f6e33c846d6abce677bf653",
+      "expandedBytes": 1846385,
+      "expandedSha256": "b7ac2654583b81f15d651a424c1b36ef72e4fdd44f6e33c846d6abce677bf653"
+    },
+    "firing-actor.png": {
+      "source": "work/orchestration/firewarrior-firing-browser-baseline-01/run/firing-actor.png",
+      "encoding": "identity",
+      "storedBytes": 11668,
+      "storedSha256": "cced0602e4933ca9aa13da57ed8ca1ec2285a2933fd1a48a57e5bb684fa71caf",
+      "expandedBytes": 11668,
+      "expandedSha256": "cced0602e4933ca9aa13da57ed8ca1ec2285a2933fd1a48a57e5bb684fa71caf"
+    },
+    "rows.jsonl.gz": {
+      "source": "work/orchestration/firewarrior-firing-browser-baseline-01/run/rows.jsonl",
+      "encoding": "gzip",
+      "storedBytes": 63526,
+      "storedSha256": "7114db0b914d1cdfc2421550ac1d939a7b726cd3a9f64966ad094cdcfe139dfd",
+      "expandedBytes": 4042102,
+      "expandedSha256": "e3f678cff00e16afaaaa17963743214aa3dfd03fb53adcd40d63dc9e121b2681"
+    },
+    "actions.jsonl.gz": {
+      "source": "work/orchestration/firewarrior-firing-browser-baseline-01/run/actions.jsonl",
+      "encoding": "gzip",
+      "storedBytes": 8107,
+      "storedSha256": "6ccf5a917c9be92b7520d4a99eb282641a1d069da5dce0240a0c80aa3f136f5e",
+      "expandedBytes": 84580,
+      "expandedSha256": "a7d6f4efc605c129068fe65fe0746cfbc6871a7caf3d862bf838266a97c3c0e2"
+    },
+    "witness.json.gz": {
+      "source": "work/orchestration/firewarrior-firing-browser-baseline-01/run/witness.json",
+      "encoding": "gzip",
+      "storedBytes": 23949,
+      "storedSha256": "3b88a5ca2f9c5ff31c96370fb9fa526db25837abd21cebadb282bd21d0826710",
+      "expandedBytes": 266325,
+      "expandedSha256": "0af94520a8b43da593812d21942f108f84f085a4a28709ff6aa85120ecddd4f0"
+    },
+    "harness-receipt.json.gz": {
+      "source": "work/orchestration/firewarrior-firing-browser-baseline-01/run/receipt.json",
+      "encoding": "gzip",
+      "storedBytes": 25544,
+      "storedSha256": "fa2c3eefba12daae25f083b8168c3f53c3784e69742f9fffe22fdcf3d768d25d",
+      "expandedBytes": 254464,
+      "expandedSha256": "9f59a3a8a590b488af067486d3d45fa1eaf28a4dba0e69c6fcfd456867b63051"
+    },
+    "outer-receipt.json.gz": {
+      "source": "work/orchestration/firewarrior-firing-browser-baseline-01/outer.json",
+      "encoding": "gzip",
+      "storedBytes": 46666,
+      "storedSha256": "b5656b7c96ff1dc2dce5f1b97a54d6a48b2a7ec2731f36e6fb9c9974ba330a0d",
+      "expandedBytes": 204689,
+      "expandedSha256": "b421b1f73cd3bc7da7566a74ed82cfa3e11641fb65b8b9f3fe35a6c5c4ce3f09"
+    },
+    "command.json.gz": {
+      "source": "work/orchestration/firewarrior-firing-browser-baseline-01/command.json",
+      "encoding": "gzip",
+      "storedBytes": 2799,
+      "storedSha256": "885f82ca21a2d63e23b340c530dd3d5f3092e072c741a6cc2a3dee1ee07b6102",
+      "expandedBytes": 15991,
+      "expandedSha256": "11b3293f8d8d217b4512f5df7f4b6aa7da89210a23d681a811a3aebd3df5c632"
+    },
+    "outer-stdout.txt.gz": {
+      "source": "work/orchestration/firewarrior-firing-browser-baseline-01/outer.json.artifacts/stdout.log",
+      "encoding": "gzip",
+      "storedBytes": 9796,
+      "storedSha256": "be4a9b8cc0c13843db8044052f742c85e5c68008d1c4cf9ef8ec17ffd78e08a3",
+      "expandedBytes": 105305,
+      "expandedSha256": "a3c97df996454af432828d01516a86e4d03804f745806da51c13c93e1a516d9f"
+    },
+    "outer-stderr.txt": {
+      "source": "work/orchestration/firewarrior-firing-browser-baseline-01/outer.json.artifacts/stderr.log",
+      "encoding": "identity",
+      "storedBytes": 0,
+      "storedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expandedBytes": 0,
+      "expandedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "server.log.gz": {
+      "source": "work/orchestration/firewarrior-firing-browser-baseline-01/run/server.log",
+      "encoding": "gzip",
+      "storedBytes": 438,
+      "storedSha256": "8b5d73bee8dfc97c7dd1bd285b97cbb53ef226a5434e30ac9200c1b80db13c2e",
+      "expandedBytes": 952,
+      "expandedSha256": "63675f1df1785b591900b5a5b08f59dc68e1a731164a626ee448e1d2ec0e0968"
+    },
+    "prelaunch.json": {
+      "source": "work/orchestration/firewarrior-firing-browser-baseline-01/prelaunch.json",
+      "encoding": "identity",
+      "storedBytes": 320,
+      "storedSha256": "12fab8a256ee85e0dee5cac04d4e6bdb14ad2407671451c1c12b3bed7fc03562",
+      "expandedBytes": 320,
+      "expandedSha256": "12fab8a256ee85e0dee5cac04d4e6bdb14ad2407671451c1c12b3bed7fc03562"
+    },
+    "terminal-cleanup.json": {
+      "source": "work/orchestration/firewarrior-firing-browser-baseline-01/terminal-cleanup.json",
+      "encoding": "identity",
+      "storedBytes": 595,
+      "storedSha256": "0f056b5c5a1dce37fb41b7982de3bfe9c7551fa26c32d3389b07a469aa67f708",
+      "expandedBytes": 595,
+      "expandedSha256": "0f056b5c5a1dce37fb41b7982de3bfe9c7551fa26c32d3389b07a469aa67f708"
+    }
+  }
+}

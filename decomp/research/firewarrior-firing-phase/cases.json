@@ -1,0 +1,10 @@
+[
+  {"name":"entry-walk-frame3","phase":0,"changedTarget":true,"assignment":0,"object":40,"draw":18,"f1":7,"f2":3,"timer":0,"cooldown":0,"projectile":false,"visits":14},
+  {"name":"entry-idle-frame4","phase":0,"changedTarget":true,"assignment":128,"object":48,"draw":18,"f1":2,"f2":4,"timer":0,"cooldown":0,"projectile":false,"visits":1},
+  {"name":"recovery-boundary-present","phase":44,"changedTarget":false,"assignment":512,"object":56,"draw":13,"f1":3,"f2":4,"timer":1,"cooldown":25,"projectile":true,"visits":8},
+  {"name":"wait-entry-present","phase":40,"changedTarget":false,"assignment":528,"object":56,"draw":13,"f1":3,"f2":4,"timer":0,"cooldown":25,"projectile":true,"visits":7},
+  {"name":"wait-entry-gone","phase":40,"changedTarget":false,"assignment":528,"object":56,"draw":13,"f1":3,"f2":4,"timer":0,"cooldown":25,"projectile":false,"visits":1},
+  {"name":"cooldown-entry","phase":0,"changedTarget":true,"assignment":0,"object":40,"draw":18,"f1":7,"f2":3,"timer":0,"cooldown":25,"projectile":false,"visits":2},
+  {"name":"cooldown-expiry","phase":45,"changedTarget":false,"assignment":0,"object":40,"draw":18,"f1":7,"f2":3,"timer":1,"cooldown":25,"projectile":false,"visits":1},
+  {"name":"cooldown-cleared","phase":45,"changedTarget":false,"assignment":0,"object":40,"draw":18,"f1":7,"f2":3,"timer":10,"cooldown":0,"projectile":false,"visits":1}
+]

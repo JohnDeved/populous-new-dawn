@@ -1,0 +1,10 @@
+{
+  "status": "passed",
+  "at": "2026-10-06T08:18:54.466115+00:00",
+  "head": "634501cd72f19b43c17839f630a2bbff1957b249",
+  "dependencyInode": 1978923,
+  "port": 4401,
+  "listenerEntries": [],
+  "connectEx": 111,
+  "meaning": "connection refused in this launch invocation; no pre-existing listener claimed or stopped"
+}

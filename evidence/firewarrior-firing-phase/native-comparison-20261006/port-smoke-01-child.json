@@ -1,0 +1,22 @@
+{
+  "status": "completed",
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "--max-old-space-size=128",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-firing-phase-20261006/decomp/research/firewarrior-firing-phase/port.mjs"
+  ],
+  "reaped": true,
+  "pid": 44,
+  "returnCode": 0,
+  "maxRssKiB": 146484,
+  "logs": {
+    "port.stdout.json": {
+      "bytes": 167800,
+      "sha256": "2f9242c59c4936f378aca17ad966ca19198cdae7c7fbf3165d8f28335397c021"
+    },
+    "port.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

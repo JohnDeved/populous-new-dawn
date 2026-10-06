@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "ecde01c0-1e44-4f93-878a-bf1200635488",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "4656907be4bc2d97bff4cbf161963be1fe89ada4",
+    "branch": "research/firewarrior-firing-phase-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "decomp/research/firewarrior-firing-phase/port-smoke.py": "63e25dfbe457e880ccd950bf045780dc448087ced90ad7a933ac3ec31e40d67b",
+      "decomp/research/firewarrior-firing-phase/probe.py": "7d9bf6dbf2b6bf7791b70654d1ee1bd9ea03d73bcb3dc040cf912dd27ed5c4dd",
+      "decomp/research/firewarrior-firing-phase/port.mjs": "d606b2765e8c334834745ce33e51533a34a95c527c15190eea50a98b0512e510",
+      "decomp/research/firewarrior-firing-phase/cases.json": "3c5b55ee4be00f32ccb5acd1dc961a0bdc52525261356dc67385053bc1b13e24",
+      "decomp/research/firewarrior-firing-phase/preflight.py": "c3ef8ff2ae93adda55bea67cd0670d29e51534a86c44926faea0e7dd7c489a53",
+      "work/orchestration/firewarrior-firing-phase-20261006/source-preflight-04.json": "fd2626a6b5cc340a390322d12690ee02f96663fd27e34ceeeb03608b5a14251d",
+      "work/orchestration/firewarrior-firing-phase-20261006/native-01/supplied-fixtures.json": "9ad6cabf2ddd1dbc7305816b6b795a9c62ca606a83218c3857f90d2d3a39561d",
+      "work/orchestration/firewarrior-firing-phase-20261006/native-01/native.json": "977f01bd263bc7c49de959e8738c5538d7e14c637146b324a32dbfbf1fd0ba1a",
+      "app/live-building-combat.ts": "fa648b2ae6b1708c26f81b4fa019ce3c3ccc5c8813891412742a2ddf71e464a2",
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12"
+    }
+  },
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=3s",
+    "55s",
+    "taskset",
+    "-c",
+    "4",
+    "python",
+    "decomp/research/firewarrior-firing-phase/port-smoke.py",
+    "--preflight-receipt",
+    "work/orchestration/firewarrior-firing-phase-20261006/source-preflight-04.json",
+    "--output",
+    "work/orchestration/firewarrior-firing-phase-20261006/port-smoke-01"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-firing-phase-20261006",
+  "startedAt": "2026-10-06T07:34:43.011Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-firing-phase-20261006/work/orchestration/firewarrior-firing-phase-20261006/port-smoke-01.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-firing-phase-20261006/work/orchestration/firewarrior-firing-phase-20261006/port-smoke-01.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T07:34:45.605Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\"status\": \"passed\", \"phase\": \"finished\", \"nativeExecution\": false, \"exitCode\": 0, \"maxRssKiB\": 167332}\n",
+  "stderr": "",
+  "stdoutSha256": "b69adc5716ce66f7cb527df6a5e956fa6b1474bb9fdbd062d2802c58c7f0ce01",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "4656907be4bc2d97bff4cbf161963be1fe89ada4",
+    "branch": "research/firewarrior-firing-phase-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "decomp/research/firewarrior-firing-phase/port-smoke.py": "63e25dfbe457e880ccd950bf045780dc448087ced90ad7a933ac3ec31e40d67b",
+      "decomp/research/firewarrior-firing-phase/probe.py": "7d9bf6dbf2b6bf7791b70654d1ee1bd9ea03d73bcb3dc040cf912dd27ed5c4dd",
+      "decomp/research/firewarrior-firing-phase/port.mjs": "d606b2765e8c334834745ce33e51533a34a95c527c15190eea50a98b0512e510",
+      "decomp/research/firewarrior-firing-phase/cases.json": "3c5b55ee4be00f32ccb5acd1dc961a0bdc52525261356dc67385053bc1b13e24",
+      "decomp/research/firewarrior-firing-phase/preflight.py": "c3ef8ff2ae93adda55bea67cd0670d29e51534a86c44926faea0e7dd7c489a53",
+      "work/orchestration/firewarrior-firing-phase-20261006/source-preflight-04.json": "fd2626a6b5cc340a390322d12690ee02f96663fd27e34ceeeb03608b5a14251d",
+      "work/orchestration/firewarrior-firing-phase-20261006/native-01/supplied-fixtures.json": "9ad6cabf2ddd1dbc7305816b6b795a9c62ca606a83218c3857f90d2d3a39561d",
+      "work/orchestration/firewarrior-firing-phase-20261006/native-01/native.json": "977f01bd263bc7c49de959e8738c5538d7e14c637146b324a32dbfbf1fd0ba1a",
+      "app/live-building-combat.ts": "fa648b2ae6b1708c26f81b4fa019ce3c3ccc5c8813891412742a2ddf71e464a2",
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12"
+    }
+  }
+}

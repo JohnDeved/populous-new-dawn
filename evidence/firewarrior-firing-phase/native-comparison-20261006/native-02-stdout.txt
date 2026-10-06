@@ -1,0 +1,2 @@
+{"status": "failed", "comparisons": "actual-native-versus-actual-port", "calls": 60, "instructions": 18104, "elapsedSeconds": 2.0103887019995454, "maxRssKiB": 50020, "childMaxRssKiB": 145788, "mismatches": 394}
+{"status": "failed", "phase": "finished", "case": null, "visit": null, "rejectedFreeze": "e2bcc32a6fd0a088e3ef4f9f092f7bab3af8b984", "calls": 60, "instructions": 18104, "exitCode": 1, "maxRssKiB": 50020}

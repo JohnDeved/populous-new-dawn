@@ -1,0 +1,162 @@
+{
+  "kind": "finite-firewarrior-native-port-evidence",
+  "testedSource": "4656907be4bc2d97bff4cbf161963be1fe89ada4",
+  "applicationSource": "b0208188b8de345a6ad5e86cb7c49769624dda86",
+  "originalExeSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "classification": "failed-comparison-with-accepted-bounded-findings",
+  "ordinaryFiringWitness": "not-run",
+  "files": {
+    "native.json.gz": {
+      "source": "work/orchestration/firewarrior-firing-phase-20261006/native-02/native.json",
+      "encoding": "gzip",
+      "storedBytes": 15086,
+      "storedSha256": "627ac93756fd29012b8a4d4dc26b0b54a5da388cee36c1d1a28ec9707c896a4d",
+      "expandedBytes": 907665,
+      "expandedSha256": "977f01bd263bc7c49de959e8738c5538d7e14c637146b324a32dbfbf1fd0ba1a"
+    },
+    "port.json.gz": {
+      "source": "work/orchestration/firewarrior-firing-phase-20261006/native-02/port.stdout.json",
+      "encoding": "gzip",
+      "storedBytes": 3354,
+      "storedSha256": "bb798e747f1b56638b72c33cc8f0fadea1593ce00f5f364f4a05449c5c69ce33",
+      "expandedBytes": 167800,
+      "expandedSha256": "2f9242c59c4936f378aca17ad966ca19198cdae7c7fbf3165d8f28335397c021"
+    },
+    "fixtures.json.gz": {
+      "source": "work/orchestration/firewarrior-firing-phase-20261006/native-02/supplied-fixtures.json",
+      "encoding": "gzip",
+      "storedBytes": 1081,
+      "storedSha256": "839b4f2eb827ff1e2148ced8235f3fd2455156c020cda5e0fb27ac44df881d3c",
+      "expandedBytes": 30911,
+      "expandedSha256": "9ad6cabf2ddd1dbc7305816b6b795a9c62ca606a83218c3857f90d2d3a39561d"
+    },
+    "comparison.json.gz": {
+      "source": "work/orchestration/firewarrior-firing-phase-20261006/native-02/comparison.json",
+      "encoding": "gzip",
+      "storedBytes": 2081,
+      "storedSha256": "d52d7b6b254150c6f48c34be3c87e13dc493d6a1e9e7c41735f82a8a4890254e",
+      "expandedBytes": 54889,
+      "expandedSha256": "86ad04157e8783eb290360ac376cdbcd4e306240bd4fe47d4d78704eee2def28"
+    },
+    "first-mismatch.json": {
+      "source": "work/orchestration/firewarrior-firing-phase-20261006/native-02/first-mismatch.json",
+      "encoding": "identity",
+      "storedBytes": 120,
+      "storedSha256": "d0fce723220fc300589efd40008aa66013df15ba2065ec38d3ae74abe015b6fa",
+      "expandedBytes": 120,
+      "expandedSha256": "d0fce723220fc300589efd40008aa66013df15ba2065ec38d3ae74abe015b6fa"
+    },
+    "native-02-receipt.json": {
+      "source": "work/orchestration/firewarrior-firing-phase-20261006/native-02.json",
+      "encoding": "identity",
+      "storedBytes": 7869,
+      "storedSha256": "2ad5ce8d938793efb41caf84eee1411f2bd35ec2b2e896059d2a5fd9d14152af",
+      "expandedBytes": 7869,
+      "expandedSha256": "2ad5ce8d938793efb41caf84eee1411f2bd35ec2b2e896059d2a5fd9d14152af"
+    },
+    "native-02-terminal.json": {
+      "source": "work/orchestration/firewarrior-firing-phase-20261006/native-02/terminal.json",
+      "encoding": "identity",
+      "storedBytes": 224,
+      "storedSha256": "8bfecaa93e4153ba8dda8ce01fdef328ab8ec59a8dc2655db8f51fbd8b5b757a",
+      "expandedBytes": 224,
+      "expandedSha256": "8bfecaa93e4153ba8dda8ce01fdef328ab8ec59a8dc2655db8f51fbd8b5b757a"
+    },
+    "native-02-child.json": {
+      "source": "work/orchestration/firewarrior-firing-phase-20261006/native-02/port-process.json",
+      "encoding": "identity",
+      "storedBytes": 594,
+      "storedSha256": "ca91385c690102f3ee4ef80255473c9928145a2fde33c8bc82dd0303b0945660",
+      "expandedBytes": 594,
+      "expandedSha256": "ca91385c690102f3ee4ef80255473c9928145a2fde33c8bc82dd0303b0945660"
+    },
+    "write-policy.json": {
+      "source": "work/orchestration/firewarrior-firing-phase-20261006/native-02/write-policy.json",
+      "encoding": "identity",
+      "storedBytes": 1016,
+      "storedSha256": "7ff3cd0c243a91b1f32d2c62a637200776253dd6b7307deb416e7c4044c1c572",
+      "expandedBytes": 1016,
+      "expandedSha256": "7ff3cd0c243a91b1f32d2c62a637200776253dd6b7307deb416e7c4044c1c572"
+    },
+    "native-02-stdout.txt": {
+      "source": "work/orchestration/firewarrior-firing-phase-20261006/native-02.json.artifacts/stdout.log",
+      "encoding": "identity",
+      "storedBytes": 415,
+      "storedSha256": "e99c74c41adaf45b4882556513ad474daa2f46151055fd4bbb973f45bcac72e2",
+      "expandedBytes": 415,
+      "expandedSha256": "e99c74c41adaf45b4882556513ad474daa2f46151055fd4bbb973f45bcac72e2"
+    },
+    "native-02-stderr.txt": {
+      "source": "work/orchestration/firewarrior-firing-phase-20261006/native-02.json.artifacts/stderr.log",
+      "encoding": "identity",
+      "storedBytes": 0,
+      "storedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expandedBytes": 0,
+      "expandedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "findings.md": {
+      "source": "work/orchestration/firewarrior-firing-phase-20261006/native-02/findings.md",
+      "encoding": "identity",
+      "storedBytes": 5126,
+      "storedSha256": "e8b363d9a7a8c49ebfc0a7250713da55f3c5fff0b626997741d52a0d125e522f",
+      "expandedBytes": 5126,
+      "expandedSha256": "e8b363d9a7a8c49ebfc0a7250713da55f3c5fff0b626997741d52a0d125e522f"
+    },
+    "native-01-receipt.json": {
+      "source": "work/orchestration/firewarrior-firing-phase-20261006/native-01.json",
+      "encoding": "identity",
+      "storedBytes": 7634,
+      "storedSha256": "a5876699198945047bf88dca58a514222128aa753b13f4fb6617763c17399b70",
+      "expandedBytes": 7634,
+      "expandedSha256": "a5876699198945047bf88dca58a514222128aa753b13f4fb6617763c17399b70"
+    },
+    "native-01-terminal.json": {
+      "source": "work/orchestration/firewarrior-firing-phase-20261006/native-01/terminal.json",
+      "encoding": "identity",
+      "storedBytes": 851,
+      "storedSha256": "5b3653957c87dfd7d41f190d867ee9696c50e052d0617f51f4a4f754ecd483b7",
+      "expandedBytes": 851,
+      "expandedSha256": "5b3653957c87dfd7d41f190d867ee9696c50e052d0617f51f4a4f754ecd483b7"
+    },
+    "native-01-child.json": {
+      "source": "work/orchestration/firewarrior-firing-phase-20261006/native-01/port-process.json",
+      "encoding": "identity",
+      "storedBytes": 604,
+      "storedSha256": "1028e1f6d21b38dafdefe56091dfb90ba3fd31bf77b6a69774995d339b1e201a",
+      "expandedBytes": 604,
+      "expandedSha256": "1028e1f6d21b38dafdefe56091dfb90ba3fd31bf77b6a69774995d339b1e201a"
+    },
+    "native-01-stderr.txt": {
+      "source": "work/orchestration/firewarrior-firing-phase-20261006/native-01/port.stderr.txt",
+      "encoding": "identity",
+      "storedBytes": 895,
+      "storedSha256": "7df153d0eaed11d4e2647899fb767919fb2075a5aa6fbc5e15c2df0d7b9ba7e4",
+      "expandedBytes": 895,
+      "expandedSha256": "7df153d0eaed11d4e2647899fb767919fb2075a5aa6fbc5e15c2df0d7b9ba7e4"
+    },
+    "port-smoke-01-receipt.json": {
+      "source": "work/orchestration/firewarrior-firing-phase-20261006/port-smoke-01.json",
+      "encoding": "identity",
+      "storedBytes": 5291,
+      "storedSha256": "0763eed3b94d72bf2375737da3d237d279d1eeaac7610fe1e96cda974e58eec5",
+      "expandedBytes": 5291,
+      "expandedSha256": "0763eed3b94d72bf2375737da3d237d279d1eeaac7610fe1e96cda974e58eec5"
+    },
+    "port-smoke-01-manifest.json.gz": {
+      "source": "work/orchestration/firewarrior-firing-phase-20261006/port-smoke-01/manifest.json",
+      "encoding": "gzip",
+      "storedBytes": 23050,
+      "storedSha256": "5a40f7898af05a32c547d9a499060f554bc330316950d7b6be269f5553d8b69b",
+      "expandedBytes": 86482,
+      "expandedSha256": "83a0fb0d3580ed49935b1a7b88132f0dd29b05bdf71ad441be90e2ff87ee99da"
+    },
+    "port-smoke-01-child.json": {
+      "source": "work/orchestration/firewarrior-firing-phase-20261006/port-smoke-01/port-process.json",
+      "encoding": "identity",
+      "storedBytes": 658,
+      "storedSha256": "9ccd8793fe274fa05cccaefcdbda4ada57f6a946af31048f7645e9be62619381",
+      "expandedBytes": 658,
+      "expandedSha256": "9ccd8793fe274fa05cccaefcdbda4ada57f6a946af31048f7645e9be62619381"
+    }
+  }
+}

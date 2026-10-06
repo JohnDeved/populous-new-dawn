@@ -1,0 +1,73 @@
+{
+  "mutableByteRanges": [
+    [
+      "four-actor-records",
+      33554688,
+      33555712
+    ],
+    [
+      "allocation-context",
+      33556480,
+      33556736
+    ],
+    [
+      "native-stack",
+      33853440,
+      33873920
+    ],
+    [
+      "player-alert",
+      9032039,
+      9032040
+    ],
+    [
+      "simulation-rng",
+      9032056,
+      9032060
+    ],
+    [
+      "allocation-flag",
+      8987706,
+      8987707
+    ],
+    [
+      "allocation-context-pointer",
+      8987715,
+      8987719
+    ],
+    [
+      "land-list-16-17",
+      9080042,
+      9080044
+    ],
+    [
+      "land-list-17-17",
+      9080058,
+      9080060
+    ],
+    [
+      "land-list-16-18",
+      9082090,
+      9082092
+    ],
+    [
+      "land-list-17-18",
+      9082106,
+      9082108
+    ]
+  ],
+  "writablePages": [
+    8986624,
+    9031680,
+    9076736,
+    9080832,
+    33554432,
+    33853440,
+    33857536,
+    33861632,
+    33865728,
+    33869824
+  ],
+  "originalImageDefault": "read-execute",
+  "fixtureDefault": "read"
+}

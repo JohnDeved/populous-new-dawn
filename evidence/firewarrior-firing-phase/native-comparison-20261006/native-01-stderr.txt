@@ -1,0 +1,19 @@
+node:internal/util:249
+    throw new ERR_WEBASSEMBLY_NOT_SUPPORTED('TypeScript');
+          ^
+
+Error [ERR_WEBASSEMBLY_NOT_SUPPORTED]: WebAssembly is not supported in this environment, but is required for TypeScript
+    at assertTypeScript (node:internal/util:249:11)
+    at node:internal/modules/typescript:46:3
+    at node:internal/util:777:15
+    at parseTypeScript (node:internal/modules/typescript:58:17)
+    at processTypeScriptCode (node:internal/modules/typescript:146:42)
+    at stripTypeScriptModuleTypes (node:internal/modules/typescript:215:22)
+    at ModuleLoader.<anonymous> (node:internal/modules/esm/translators:680:29)
+    at #translate (node:internal/modules/esm/loader:434:20)
+    at afterLoad (node:internal/modules/esm/loader:502:29)
+    at ModuleLoader.loadAndTranslate (node:internal/modules/esm/loader:507:12) {
+  code: 'ERR_WEBASSEMBLY_NOT_SUPPORTED'
+}
+
+Node.js v24.19.0

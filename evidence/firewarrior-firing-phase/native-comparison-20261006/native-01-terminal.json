@@ -1,0 +1,15 @@
+{
+  "status": "failed",
+  "phase": "port-batch",
+  "case": null,
+  "visit": null,
+  "rejectedFreeze": "e2bcc32a6fd0a088e3ef4f9f092f7bab3af8b984",
+  "calls": 60,
+  "instructions": 18104,
+  "exitCode": 2,
+  "error": {
+    "type": "AssertionError",
+    "message": "Port process failed: {'status': 'failed', 'command': ['node', '--jitless', '--max-old-space-size=128', '/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-firing-phase-20261006/decomp/research/firewarrior-firing-phase/port.mjs'], 'reaped': True, 'pid': 86, 'returnCode': 1, 'maxRssKiB': 38612, 'logs': {'port.stdout.json': {'bytes': 0, 'sha256': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'}, 'port.stderr.txt': {'bytes': 895, 'sha256': '7df153d0eaed11d4e2647899fb767919fb2075a5aa6fbc5e15c2df0d7b9ba7e4'}}}; see retained logs"
+  },
+  "maxRssKiB": 50116
+}
