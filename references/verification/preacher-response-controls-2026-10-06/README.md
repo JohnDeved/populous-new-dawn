@@ -31,3 +31,13 @@ the same allocator coverage2-versus1 assertion. The complete552704-byte port
 JSON is retained; offline mapping found matching persistent fields/pool/RNG,
 but this remains an authoritative failed batch. The separate port replay
 archive manifest binds these additional files. No original native row changed.
+
+The final independently ACCEPTed port-only replay at834ff111 is retained under
+launch-03-port/run-03-port. It ran21:58:07.530603–21:58:10.213543 UTC,
+exit0, zero native calls,121 stable fingerprints and empty owned PGID32.
+All four complete state/queue/pool/RNG/ownership comparisons and48 unchanged
+coverage assertions pass. One continuous precise-coverage session avoids the
+prior stop/start boundary; the exact earlier V8 counter cause remains unproved.
+Raw inputs and expected counts were not relaxed. Independent final result and
+preflight reviews are unchanged beside the data. Earlier failures retain their
+authoritative failed labels. This is still supplied component evidence.

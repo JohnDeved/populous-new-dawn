@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "verdict": "ACCEPT-four-control-port-result",
+  "files": [
+    {
+      "path": "review.md",
+      "sha256": "f6a760cfc53c5a022520547fbe62e3d96386e596c7c6b3cc4c138c427152bad9"
+    },
+    {
+      "path": "verification.json",
+      "sha256": "633893b2a527b63d77314562819e947f538336a4cb95184caa6e06866d473f3e"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/automatic-preacher-response-fix-20261006/work/orchestration/preacher-response-controls-20261006/port-replay-03-manifest.json",
+      "sha256": "c8678e48a5b87136fe2b8e2c0652509bed649cf2a08b188649851e79aadd8053"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/automatic-preacher-response-fix-20261006/work/orchestration/preacher-response-controls-20261006/launch-03-port/receipt.json",
+      "sha256": "a3a1c3039427819cf475447789aded9705fa90ce58aebd3cbb0ae094cbbc83b0"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/automatic-preacher-response-fix-20261006/work/orchestration/preacher-response-controls-20261006/run-03-port/port.json",
+      "sha256": "a6f7b113872caf70570d0195ceb80edf38759888d8ceed0bd28860eaec9a4a26"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/automatic-preacher-response-fix-20261006/work/orchestration/preacher-response-controls-20261006/run-03-port/receipt.json",
+      "sha256": "3413f678f6b89bfa42f21a4656e0ecf1f7bf9065fb66026a19774425f578044d"
+    }
+  ]
+}

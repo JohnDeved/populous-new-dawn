@@ -1,0 +1,41 @@
+{
+  "head": "834ff111e9c38afddc78b1b08f3547cd1f0714f4",
+  "launchManifestSha256": "742f58966b15dd7d03149a53e85370569d85e223d69794a5081137ecff4d9185",
+  "status": "passed-four-controls-matched",
+  "nativeInvocations": 0,
+  "portInvocations": 4,
+  "files": {
+    "launch-03-port/receipt.json": {
+      "bytes": 55114,
+      "sha256": "a3a1c3039427819cf475447789aded9705fa90ce58aebd3cbb0ae094cbbc83b0"
+    },
+    "launch-03-port/stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "launch-03-port/stdout.txt": {
+      "bytes": 180,
+      "sha256": "a6f577e45618652171e085d63631ec3f8c068efe3869c78a7e7e7d8d8c7a842a"
+    },
+    "run-03-port/launch.json": {
+      "bytes": 29015,
+      "sha256": "742f58966b15dd7d03149a53e85370569d85e223d69794a5081137ecff4d9185"
+    },
+    "run-03-port/port.json": {
+      "bytes": 2294813,
+      "sha256": "a6f7b113872caf70570d0195ceb80edf38759888d8ceed0bd28860eaec9a4a26"
+    },
+    "run-03-port/port.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "run-03-port/port.stdout": {
+      "bytes": 574648,
+      "sha256": "c7284d8588ed2262854ddfb164badacbc398bf1c766a352464465efc29e1ffd8"
+    },
+    "run-03-port/receipt.json": {
+      "bytes": 1832,
+      "sha256": "3413f678f6b89bfa42f21a4656e0ecf1f7bf9065fb66026a19774425f578044d"
+    }
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "verdict": "ACCEPT-final-port-controls",
+  "head": "834ff111e9c38afddc78b1b08f3547cd1f0714f4",
+  "launchManifest": "742f58966b15dd7d03149a53e85370569d85e223d69794a5081137ecff4d9185",
+  "packetManifestSha256": "c8678e48a5b87136fe2b8e2c0652509bed649cf2a08b188649851e79aadd8053",
+  "portSha256": "a6f7b113872caf70570d0195ceb80edf38759888d8ceed0bd28860eaec9a4a26",
+  "externalReceiptSha256": "a3a1c3039427819cf475447789aded9705fa90ce58aebd3cbb0ae094cbbc83b0",
+  "fingerprints": 121,
+  "cases": [
+    {
+      "case": "stationary-sermon",
+      "result": false,
+      "coverageAssertions": 12
+    },
+    {
+      "case": "reverse-alliance",
+      "result": false,
+      "coverageAssertions": 12
+    },
+    {
+      "case": "allocation-exhaustion",
+      "result": false,
+      "coverageAssertions": 12
+    },
+    {
+      "case": "primary21-sharing",
+      "result": true,
+      "coverageAssertions": 12
+    }
+  ],
+  "nativeInvocations": 0,
+  "portInvocations": 4,
+  "seconds": 2.682950328991865,
+  "terminalGroupEmpty": true,
+  "fullMappedStateAndPoolMatchNative": true,
+  "bothRngsUnchanged": true,
+  "priorFailedReceiptsUnchanged": true
+}

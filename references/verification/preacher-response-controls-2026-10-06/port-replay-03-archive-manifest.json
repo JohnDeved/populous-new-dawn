@@ -1,0 +1,65 @@
+{
+  "head": "834ff111e9c38afddc78b1b08f3547cd1f0714f4",
+  "status": "passed-four-controls-matched",
+  "newNativeCalls": 0,
+  "rawCoverageAssertions": 48,
+  "stableFingerprints": 121,
+  "files": [
+    {
+      "path": "raw/launch-03-port/receipt.json.gz",
+      "decodedPath": "launch-03-port/receipt.json",
+      "sha256": "a3a1c3039427819cf475447789aded9705fa90ce58aebd3cbb0ae094cbbc83b0",
+      "bytes": 55114,
+      "gzipSha256": "8becd35ef64171f66769a85deb1fe5f0cfc8de015125916f07188e259531ad7c"
+    },
+    {
+      "path": "raw/launch-03-port/stderr.txt.gz",
+      "decodedPath": "launch-03-port/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "gzipSha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "path": "raw/launch-03-port/stdout.txt.gz",
+      "decodedPath": "launch-03-port/stdout.txt",
+      "sha256": "a6f577e45618652171e085d63631ec3f8c068efe3869c78a7e7e7d8d8c7a842a",
+      "bytes": 180,
+      "gzipSha256": "571322408de033b259bb554ff990e6397b19c5cd8fee2bd9f2559f70a51dc138"
+    },
+    {
+      "path": "raw/run-03-port/launch.json.gz",
+      "decodedPath": "run-03-port/launch.json",
+      "sha256": "742f58966b15dd7d03149a53e85370569d85e223d69794a5081137ecff4d9185",
+      "bytes": 29015,
+      "gzipSha256": "e4759f532ec8edf802c00e5491832a19d7a37a99c5225db4c8655416820cca47"
+    },
+    {
+      "path": "raw/run-03-port/port.json.gz",
+      "decodedPath": "run-03-port/port.json",
+      "sha256": "a6f7b113872caf70570d0195ceb80edf38759888d8ceed0bd28860eaec9a4a26",
+      "bytes": 2294813,
+      "gzipSha256": "e702e5d664ca3df684e84121e660d5285b7c896030bd001ece901d3f94b49756"
+    },
+    {
+      "path": "raw/run-03-port/port.stderr.gz",
+      "decodedPath": "run-03-port/port.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "gzipSha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "path": "raw/run-03-port/port.stdout.gz",
+      "decodedPath": "run-03-port/port.stdout",
+      "sha256": "c7284d8588ed2262854ddfb164badacbc398bf1c766a352464465efc29e1ffd8",
+      "bytes": 574648,
+      "gzipSha256": "20c70f08fd3a2e895ec2fd7739488b5241698b529e27da0e392aa04dd81f33ff"
+    },
+    {
+      "path": "raw/run-03-port/receipt.json.gz",
+      "decodedPath": "run-03-port/receipt.json",
+      "sha256": "3413f678f6b89bfa42f21a4656e0ecf1f7bf9065fb66026a19774425f578044d",
+      "bytes": 1832,
+      "gzipSha256": "1876d6fbbad0c4f66ecfab7adf57d7a94e5b07342cbf1e325b389d285496c934"
+    }
+  ]
+}

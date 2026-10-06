@@ -1,0 +1,13 @@
+# Independent complete port observations and one-session preflight
+
+Run02: ACCEPT the retained full four-case state observations against the accepted native rows; overall comparison receipt remainsFAILED because the primary21 allocator coverage count is2 versus required1. Source286b3ee63ac76edd37ae4ac15d77e499772c593d. No passing-launch or validated-count claim is made.
+
+Independently decoded complete552704-byte JSON SHA1367c8340e771d5ab650a61339b65438c0d944dbc944cd5cfabe1945ed139c47. Every declared person field and8queue words, full8000-byte pool, cursor/active, both RNG words match native before and after for allfour cases. All retained/native registry identities are true. Heads/registry/pathowners/turn remain equal, negative-case complete snapshots are identical, and primary21 changes only native ownership state in the Unit records. Wrapper result false/false/false/true matches the distinct expected API.
+
+Recomputed every coverage assertion from raw coverage. All match except primary21 allocatePersonOrder2vs1. Exhaustion has block coverage/root1/loop800; next primary allocator has isBlockCoverage:false/root2, while preparation1/attachments2/sharing1/caller1 agree. The immutable runtime source has exactly one allocation on this success path and sharing has no allocator. This remains an observation discrepancy, not license to change expected1.
+
+Run02 CPU4 finished in2.674s, exit1, no timeout,121pre/post fingerprints equal, empty group32, zero native calls. Fullstdout/stderr and failure receipts are preserved. The serializer repair succeeded; no output truncation remains.
+
+ACCEPT source/preflight834ff111e9c38afddc78b1b08f3547cd1f0714f4, manifest742f58966b15dd7d03149a53e85370569d85e223d69794a5081137ecff4d9185, for one separately granted final bounded port-only observation. The only semantic observer delta from286b3ee6 moves startPreciseCoverage before the four-case loop and stop after it, retaining before/after per-caller take/reset. Expectations stay unchanged. Cause of the earlier count is explicitly unproved. All90source/input and28tool hashes match, native fixtures/observer/runtime remain unchanged, retainedNative still selects zero native invocations. Newrun-03-port/launch-03-port are fresh; one5sNode batch underCPU4/15sTERM+3sKILL and the inherited source/tool/group guards. No execution is granted by this review. If this cannot establish trustworthy counts, preserve the observation gap rather than expanding retries or weakening assertions.
+
+Only read-only source/data checks were performed by the reviewer. Native proofs, odd32 consumer evidence, ordinary Load/geometry diagnostics and final runtime lifecycle/standard acceptance remain separate.

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "verdict": "ACCEPT-run02-state-observations; count-gap-retained; ACCEPT834ff111-preflight",
+  "files": [
+    {
+      "path": "review.md",
+      "sha256": "d031417a31f47785a5052683681e92be6c04decbc725553f53f53c0f29f55ca5"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/automatic-preacher-response-fix-20261006/work/orchestration/preacher-response-controls-20261006/run-02-port/port.stdout",
+      "sha256": "1367c8340e771d5ab650a61339b65438c0d944dbc944cd5cfabe1945ed139c47"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/automatic-preacher-response-fix-20261006/work/orchestration/preacher-response-controls-20261006/run-02-port/port.stderr",
+      "sha256": "8cd2f71d30002f2093d2c6e0e447267d50295af58c9112c99aa2d7c9dee28e01"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/automatic-preacher-response-fix-20261006/work/orchestration/preacher-response-controls-20261006/run-02-port/receipt.json",
+      "sha256": "0e614d2c50320a26566d71fffbadbc53b96a245bd67d1e30fc0767973cb06207"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/automatic-preacher-response-fix-20261006/work/orchestration/preacher-response-controls-20261006/launch-02-port/receipt.json",
+      "sha256": "fd4baaec838d91fe038174bc527c43f2b6b13bdb4ab8d53b816b5407b1ece207"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/automatic-preacher-response-fix-20261006/decomp/research/preacher-response-controls/launch-manifest.json",
+      "sha256": "742f58966b15dd7d03149a53e85370569d85e223d69794a5081137ecff4d9185"
+    }
+  ]
+}
