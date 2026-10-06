@@ -1,0 +1,165 @@
+{
+  "status": "hypothesis-supported",
+  "executedHead": "90d79f20e2931d61e8125a7a7a4ecf11b634201d",
+  "applicationBase": "b2b04cf4915dafc7165e961f9b45ddb3efd4d103",
+  "preflightSha256": "3fae8fd2230944ed5c446b25627b11549b6a0939372790fcebfded986e10e234",
+  "attempts": 1,
+  "exitCode": 0,
+  "postflightIdentity": "passed",
+  "remainingProcessGroupMembers": [],
+  "controllerCalls": 3,
+  "updaterCalls": 3,
+  "cosmeticRandom": 2096320492,
+  "simulationRandom": 3603658299,
+  "bothRngsInvariant": true,
+  "maxLifeRead": false,
+  "phaseFieldDifferences": [
+    {
+      "visit": 1,
+      "phase": "afterController",
+      "fields": {
+        "flags2": {
+          "native": 1109524992,
+          "port": 35783168
+        }
+      }
+    },
+    {
+      "visit": 1,
+      "phase": "beforeUpdater",
+      "fields": {
+        "flags2": {
+          "native": 1109524992,
+          "port": 35783168
+        }
+      }
+    },
+    {
+      "visit": 1,
+      "phase": "afterUpdater",
+      "fields": {
+        "flags2": {
+          "native": 1109524992,
+          "port": 35783168
+        }
+      }
+    },
+    {
+      "visit": 2,
+      "phase": "beforeController",
+      "fields": {
+        "flags2": {
+          "native": 1109524992,
+          "port": 35783168
+        }
+      }
+    },
+    {
+      "visit": 2,
+      "phase": "afterController",
+      "fields": {
+        "object": {
+          "native": 48,
+          "port": 168
+        },
+        "draw": {
+          "native": 16,
+          "port": 14
+        }
+      }
+    },
+    {
+      "visit": 2,
+      "phase": "beforeUpdater",
+      "fields": {
+        "object": {
+          "native": 48,
+          "port": 168
+        },
+        "draw": {
+          "native": 16,
+          "port": 14
+        }
+      }
+    },
+    {
+      "visit": 2,
+      "phase": "afterUpdater",
+      "fields": {
+        "object": {
+          "native": 48,
+          "port": 168
+        },
+        "draw": {
+          "native": 16,
+          "port": 14
+        }
+      }
+    },
+    {
+      "visit": 3,
+      "phase": "beforeController",
+      "fields": {
+        "object": {
+          "native": 48,
+          "port": 168
+        },
+        "draw": {
+          "native": 16,
+          "port": 14
+        }
+      }
+    }
+  ],
+  "nativeEventKinds": [
+    [
+      "acquisition"
+    ],
+    [
+      "stop",
+      "upper-setter",
+      "lower-setter"
+    ],
+    [
+      "stop",
+      "upper-setter",
+      "lower-setter",
+      "upper-setter",
+      "lower-setter",
+      "acquisition"
+    ]
+  ],
+  "portEventKinds": [
+    [
+      "acquisition"
+    ],
+    [],
+    [
+      "stop",
+      "upper-setter",
+      "lower-setter-intent",
+      "upper-setter",
+      "lower-setter-intent",
+      "acquisition"
+    ]
+  ],
+  "nativeCallInstructions": [
+    60,
+    48,
+    222,
+    46,
+    271,
+    38
+  ],
+  "nativeSeconds": 0.034919329002150334,
+  "nodeVersion": "v24.19.0",
+  "expectedEndpointsAndEventsMatched": true,
+  "limitations": [
+    "Supplied original-person projection, unknown record bytes zero-filled; no original allocator capture.",
+    "Only acquisition0 supplied; original controller, stop, setters and updater actually composed.",
+    "Scheduler, callers, physics, routes, rendering and OS game excluded.",
+    "Component source/frame distinction confirmed; ordinary rendered impact remains unestablished.",
+    "Entry-bit discrepancy transient and not sufficient for gameplay-impact claim.",
+    "No runtime repair, browser/package run, dependency movement, retry or scope expansion."
+  ]
+}

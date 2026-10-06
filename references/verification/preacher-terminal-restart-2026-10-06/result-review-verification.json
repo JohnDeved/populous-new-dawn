@@ -1,0 +1,178 @@
+{
+  "verdict": "ACCEPT",
+  "reviewScope": "Read and independently reconstruct existing result only; no execution or retry.",
+  "executedHead": "90d79f20e2931d61e8125a7a7a4ecf11b634201d",
+  "sourceBundleManifestSha256": "ae928a59b0d3c63c6af01413aac77d07c31d66aca83f8a8a9d8357a660077a33",
+  "nativeSha256": "1751ba217c1870a16a667fe638f7e250729bda62e01a1d16638f868f5c2e829c",
+  "portSha256": "64d8e1ebf85d088627fca87571cf84d561bcfaac05a2d091b22aa2c6f157e15d",
+  "launchReceiptSha256": "1bcb0cf0ec64e1ba80a1a031d8466dd9befff53330b2fb2d6d1e2e21ac0b8f3c",
+  "snapshotChecks": 43,
+  "eventChecks": 17,
+  "all45FieldsAndRaw256": "exactly match independent fixed-path expectations in every snapshot",
+  "nativePersonWritesReplayed": 47,
+  "totalNativeWrites": 129,
+  "writeReplay": "all afterController/afterUpdater raw states exactly reconstructed",
+  "rawDifferences": "exact unmasked inventory independently recomputed",
+  "fieldDeltas": [
+    {
+      "visit": 1,
+      "phase": "afterController",
+      "fields": {
+        "flags2": [
+          1109524992,
+          35783168
+        ]
+      },
+      "rawByteOffsets": [
+        15
+      ]
+    },
+    {
+      "visit": 1,
+      "phase": "beforeUpdater",
+      "fields": {
+        "flags2": [
+          1109524992,
+          35783168
+        ]
+      },
+      "rawByteOffsets": [
+        15
+      ]
+    },
+    {
+      "visit": 1,
+      "phase": "afterUpdater",
+      "fields": {
+        "flags2": [
+          1109524992,
+          35783168
+        ]
+      },
+      "rawByteOffsets": [
+        15
+      ]
+    },
+    {
+      "visit": 2,
+      "phase": "beforeController",
+      "fields": {
+        "flags2": [
+          1109524992,
+          35783168
+        ]
+      },
+      "rawByteOffsets": [
+        15
+      ]
+    },
+    {
+      "visit": 2,
+      "phase": "afterController",
+      "fields": {
+        "object": [
+          48,
+          168
+        ],
+        "draw": [
+          16,
+          14
+        ]
+      },
+      "rawByteOffsets": [
+        51,
+        58
+      ]
+    },
+    {
+      "visit": 2,
+      "phase": "beforeUpdater",
+      "fields": {
+        "object": [
+          48,
+          168
+        ],
+        "draw": [
+          16,
+          14
+        ]
+      },
+      "rawByteOffsets": [
+        51,
+        58
+      ]
+    },
+    {
+      "visit": 2,
+      "phase": "afterUpdater",
+      "fields": {
+        "object": [
+          48,
+          168
+        ],
+        "draw": [
+          16,
+          14
+        ]
+      },
+      "rawByteOffsets": [
+        51,
+        58
+      ]
+    },
+    {
+      "visit": 3,
+      "phase": "beforeController",
+      "fields": {
+        "object": [
+          48,
+          168
+        ],
+        "draw": [
+          16,
+          14
+        ]
+      },
+      "rawByteOffsets": [
+        51,
+        58
+      ]
+    }
+  ],
+  "bothRngsInvariant": true,
+  "maxLifeRead": false,
+  "instructions": [
+    60,
+    48,
+    222,
+    46,
+    271,
+    38
+  ],
+  "callSeconds": [
+    0.0025540280039422214,
+    0.0007314949980354868,
+    0.004411703004734591,
+    0.0004713890011771582,
+    0.006149310000182595,
+    0.0009941840035025962
+  ],
+  "nativeSeconds": 0.034919329002150334,
+  "outerSeconds": 1.5857258869946236,
+  "cleanupReceipt": {
+    "pid": 16,
+    "processGroup": 16,
+    "remainingProcessGroupMembers": [],
+    "cleanupAction": "No remaining process-group members; no cleanup signal needed",
+    "startedAt": "2026-10-06T16:33:29.307536+00:00",
+    "finishedAt": "2026-10-06T16:33:30.893358+00:00"
+  },
+  "postflightChecks": 93,
+  "postflightStatus": "passed",
+  "nodeVersion": "v24.19.0",
+  "independentLimitations": [
+    "Cleanup verified from retained terminal process-group receipt, not a new process launch.",
+    "Supplied-state component proof; no original scheduler/allocator/listener scan/world/render.",
+    "Historical ordinary169b branch evidence is separate; current-b2 rendered restart remains unobserved."
+  ]
+}

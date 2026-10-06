@@ -1,0 +1,15 @@
+{
+  "verdict": "ACCEPT",
+  "executedHead": "90d79f20e2931d61e8125a7a7a4ecf11b634201d",
+  "sourceResultManifestSha256": "ae928a59b0d3c63c6af01413aac77d07c31d66aca83f8a8a9d8357a660077a33",
+  "files": {
+    "review.md": {
+      "sha256": "1bf722ab8520fcddd8cb40cd1cb6a37def043b363c5bd1607947306c51922f8e",
+      "bytes": 5036
+    },
+    "verification.json": {
+      "sha256": "e9beeaa45cd4ee19852c41157da1afabc244ad44b6928e8dd7418836fb78f631",
+      "bytes": 3925
+    }
+  }
+}
