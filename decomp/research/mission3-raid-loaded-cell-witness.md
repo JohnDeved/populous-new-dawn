@@ -54,7 +54,8 @@ accepted repair proposal is constructionBase presence first, otherwise immutable
 missionPosition/campaignPosition packed0x60da, without a new save field or live
 actor dependency. Shared movement staging, radius and other missions stay separate.
 
-Independent result review is required before applying that correction. Earlier
+Independent result review accepted these witnesses. The [authored fallback correction](mission3-raid-authored-repair-preflight.md)
+now has focused portable acceptance and awaits exact five-case replay review. Earlier
 three comparison passes and the1301-test fullcheck are retained under
 [held-1d41-gates](../../references/verification/mission3-raid-recruitment-origin-2026-10-06/held-1d41-gates/),
 with their original source/limited claims. Build/quality never followed the hold.

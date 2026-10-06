@@ -8,7 +8,10 @@ import * as actualSelection from '../app/computer-selection.ts'
 
 const fixture = JSON.parse(readFileSync(process.argv[2], 'utf8'))
 assert.equal(process.argv.length, 3)
-const expectedCases = fixture.experiment === 'loaded-cell-lifecycle'
+const expectedCases = fixture.experiment === 'all-known-origins'
+  ? ['common-origin-control', 'no-base-authored-coordinates', 'established-base-distinct',
+      'loaded-cell-shaman-moved', 'loaded-cell-shaman-absent']
+  : fixture.experiment === 'loaded-cell-lifecycle'
   ? ['loaded-cell-shaman-moved', 'loaded-cell-shaman-absent']
   : fixture.cases.length === 1
   ? ['established-base-distinct']

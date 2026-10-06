@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "0c28f2a2-0b65-4d7b-86c9-63f4759ebf2b",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "353a813538710b0550a5fb76bdd83a2f7fb2b48e",
+    "branch": "research/mission3-raid-recruitment-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/mission3-raid-loaded-cell.test.mjs": "a722565d484fc28440eddf8ef8ebc0e21dc5edbea4082a84a2f3ae8bd2b49c55",
+      "tests/mission3-raid-recruitment.test.mjs": "3939ccf4719a083983e6c3f33e7af641352a595f7d534aac5efee0fda79c491b",
+      "tests/fixtures/mission3-raid-recruitment-loaded-cell.json": "25c3897f0852ed0e65522bf7f54cdb180f01b98b21401751a626ff3d3cf2e376",
+      "tests/fixtures/mission3-raid-recruitment-origins.json": "675aef805a5ddcf49de53c916912d3cd5d6e0e71db014bf387ca0dffd557a13b",
+      "scripts/mission3-raid-recruitment-pair.mjs": "7a1a297ce8b4d961fe9440c0d9f62a8cb59437a6f5cb169ff10fc6b8f6f065e3",
+      "app/computer-runtime.ts": "87863f9329f0cac44f06be2dfc9aa49500a8c07fc6f23fdc9dd18f83d48c990c",
+      "app/game-store.ts": "1bb66bc1db93af5bff36c54f2c32630b71000bc5c0085595e6c7f2bc3cf95565",
+      "app/mission-data.ts": "c4859525c084dfcd478a4fb5e08b93bb5f37c2aa1c2b8cd3250d5683b7e957cf"
+    }
+  },
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=5s",
+    "65s",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "--max-old-space-size=256",
+    "--test",
+    "tests/mission3-raid-recruitment.test.mjs",
+    "tests/mission3-raid-loaded-cell.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-recruitment-20261006",
+  "startedAt": "2026-10-06T07:02:37.578Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-recruitment-20261006/work/orchestration/mission3-raid-recruitment-origin/authored-portable-after.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-recruitment-20261006/work/orchestration/mission3-raid-recruitment-origin/authored-portable-after.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T07:02:43.942Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ Mission3 retains loaded Shaman origin for loaded-cell-shaman-moved (4.443279ms)\n✔ Mission3 retains loaded Shaman origin for loaded-cell-shaman-absent (1.320742ms)\n✔ Mission3 retains loaded Shaman origin for loaded-cell-shaman-moved after checkpoint (8.015747ms)\n✔ Mission3 retains loaded Shaman origin for loaded-cell-shaman-absent after checkpoint (0.145576ms)\n✔ Mission3 recruitment preserves original common-origin-control (1.034193ms)\n✔ Mission3 recruitment preserves original no-base-authored-coordinates (0.14171ms)\n✔ Mission3 recruitment preserves original established-base-distinct (0.607971ms)\n✔ Mission3 recruitment retains a valid established base at cell zero (0.22277ms)\nℹ tests 8\nℹ suites 0\nℹ pass 8\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 6224.530816\n",
+  "stderr": "",
+  "stdoutSha256": "9dffb621d62880bc2aaae1a796fa4b6dd60f68d7cd4367b6fac7158ba6674b86",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "353a813538710b0550a5fb76bdd83a2f7fb2b48e",
+    "branch": "research/mission3-raid-recruitment-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/mission3-raid-loaded-cell.test.mjs": "a722565d484fc28440eddf8ef8ebc0e21dc5edbea4082a84a2f3ae8bd2b49c55",
+      "tests/mission3-raid-recruitment.test.mjs": "3939ccf4719a083983e6c3f33e7af641352a595f7d534aac5efee0fda79c491b",
+      "tests/fixtures/mission3-raid-recruitment-loaded-cell.json": "25c3897f0852ed0e65522bf7f54cdb180f01b98b21401751a626ff3d3cf2e376",
+      "tests/fixtures/mission3-raid-recruitment-origins.json": "675aef805a5ddcf49de53c916912d3cd5d6e0e71db014bf387ca0dffd557a13b",
+      "scripts/mission3-raid-recruitment-pair.mjs": "7a1a297ce8b4d961fe9440c0d9f62a8cb59437a6f5cb169ff10fc6b8f6f065e3",
+      "app/computer-runtime.ts": "87863f9329f0cac44f06be2dfc9aa49500a8c07fc6f23fdc9dd18f83d48c990c",
+      "app/game-store.ts": "1bb66bc1db93af5bff36c54f2c32630b71000bc5c0085595e6c7f2bc3cf95565",
+      "app/mission-data.ts": "c4859525c084dfcd478a4fb5e08b93bb5f37c2aa1c2b8cd3250d5683b7e957cf"
+    }
+  }
+}

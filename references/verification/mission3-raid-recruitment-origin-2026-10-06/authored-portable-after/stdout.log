@@ -1,0 +1,16 @@
+✔ Mission3 retains loaded Shaman origin for loaded-cell-shaman-moved (4.443279ms)
+✔ Mission3 retains loaded Shaman origin for loaded-cell-shaman-absent (1.320742ms)
+✔ Mission3 retains loaded Shaman origin for loaded-cell-shaman-moved after checkpoint (8.015747ms)
+✔ Mission3 retains loaded Shaman origin for loaded-cell-shaman-absent after checkpoint (0.145576ms)
+✔ Mission3 recruitment preserves original common-origin-control (1.034193ms)
+✔ Mission3 recruitment preserves original no-base-authored-coordinates (0.14171ms)
+✔ Mission3 recruitment preserves original established-base-distinct (0.607971ms)
+✔ Mission3 recruitment retains a valid established base at cell zero (0.22277ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6224.530816
