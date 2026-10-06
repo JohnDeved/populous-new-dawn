@@ -200,6 +200,6 @@
     "hostFallbackSeconds": 523,
     "nodeHeapMiB": 1024
   },
-  "hostSha256": "91ed5eb886b4f201f7750201849d7dde43abe607b732b85a69ea7c3c0706c3d3",
+  "hostSha256": "e34570b0704c1b370d6d7f744ff5f9d53a675d18ed2fb86ba5ec425a4cb2e9dd",
   "approval": "This frozen packet does not itself grant launch or dependency transfer. The coordinator grants one exact committed-head invocation separately."
 }

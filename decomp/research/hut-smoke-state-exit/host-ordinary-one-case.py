@@ -54,7 +54,8 @@ receipt['sourceBefore'] = source()
 before = inventory(donor)
 receipt['dependencyInventoryBeforeSha256'] = retain_inventory('dependencies-before.json.gz', before)
 receipt['status'] = 'ready'; save()
-owned = {}; child = None; moved = False; isolated = []; generated = []
+owned = {}; child = None; known_session = None; ownership_verified = False; process_read_errors = set()
+moved = False; isolated = []; generated = []
 
 def processes():
     result = {}
@@ -62,13 +63,23 @@ def processes():
         if not directory.name.isdigit(): continue
         try:
             raw = (directory / 'stat').read_text(); fields = raw[raw.rfind(')') + 2:].split()
-            result[int(directory.name)] = {'state': fields[0], 'parent': int(fields[1]), 'start': int(fields[19])}
-        except (FileNotFoundError, ProcessLookupError, PermissionError): pass
+            result[int(directory.name)] = {'state': fields[0], 'parent': int(fields[1]),
+                                           'group': int(fields[2]), 'session': int(fields[3]), 'start': int(fields[19])}
+        except (FileNotFoundError, ProcessLookupError): pass
+        except PermissionError: process_read_errors.add(int(directory.name))
     return result
 
 def observe_owned():
     current = processes()
     live = {pid: row for pid, row in current.items() if owned.get(pid) == row['start']}
+    # Session membership survives the root's exit and descendant reparenting.
+    # Detached server/browser descendants additionally retain PID/start identity.
+    for pid, row in current.items():
+        if known_session is not None and row['session'] == known_session:
+            if pid in owned and owned[pid] != row['start']:
+                process_read_errors.add(pid)
+                continue
+            live[pid] = row; owned[pid] = row['start']
     while True:
         added = {pid: row for pid, row in current.items() if pid not in live and row['parent'] in live}
         if not added: break
@@ -96,8 +107,14 @@ try:
     receipt['status'] = 'running'; receipt['launchedAt'] = now(); save()
     with (output / 'stdout.txt').open('wb') as stdout, (output / 'stderr.txt').open('wb') as stderr:
         child = subprocess.Popen(plan['command'], cwd=root, env=plan['environment'], stdout=stdout, stderr=stderr, start_new_session=True)
-        first = processes(); owned[child.pid] = first[child.pid]['start']
-        receipt['rootPid'] = child.pid; save(); started = time.monotonic()
+        known_session = child.pid  # Popen(start_new_session=True) calls setsid.
+        receipt['rootPid'] = child.pid; receipt['rootSession'] = known_session; save()
+        first = processes(); identity = first.get(child.pid)
+        ownership_verified = bool(identity and identity['session'] == known_session and identity['group'] == child.pid)
+        receipt['initialProcessIdentity'] = identity
+        if ownership_verified: owned[child.pid] = identity['start']
+        else: receipt['cleanupUnknownReason'] = 'Root identity/session was not observable immediately after launch'
+        save(); started = time.monotonic()
         while child.poll() is None:
             observe_owned()
             if time.monotonic() - started > 523:
@@ -121,7 +138,10 @@ finally:
                 except ProcessLookupError: pass
             if sig == signal.SIGTERM: time.sleep(.5)
     receipt['remainingOwnedProcesses'] = list(observe_owned()) if child else []
-    receipt['resourcesReleased'] = not receipt['remainingOwnedProcesses']
+    receipt['ownershipVerified'] = ownership_verified
+    receipt['processReadErrors'] = sorted(process_read_errors)
+    receipt['resourcesReleased'] = ownership_verified and not process_read_errors and not receipt['remainingOwnedProcesses']
+    receipt['cleanupStatus'] = 'released' if receipt['resourcesReleased'] else 'unknown-or-remaining'
     if moved and receipt['resourcesReleased']:
         for name in plan['isolateCaches']:
             cache = local / name
