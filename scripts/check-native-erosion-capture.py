@@ -12,9 +12,11 @@ from pathlib import Path
 import re
 import struct
 import subprocess
+from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
-MODULES = ('app/erosion.ts', 'app/erosion-observation.ts', 'app/world-turn.ts', 'app/game-clock.ts', 'qa/erosion-native-replay/capture.mjs')
+MODULES = ('app/erosion.ts', 'app/erosion-observation.ts', 'app/world-turn.ts', 'app/game-clock.ts', 'qa/erosion-native-replay/capture.mjs',
+           'qa/erosion-ordinary/lifecycle.mjs', 'qa/erosion-ordinary/input.mjs', 'qa/erosion-ordinary/minimap-input.mjs')
 
 
 def require(value, message):
@@ -201,23 +203,132 @@ def reject_constant(value):
     raise ValueError('Nonfinite JSON: ' + value)
 
 
+def admit_caller(receipt_bytes, receipt, expected):
+    """Expectations come from the coordinator's actual terminal run, not this bundle."""
+    require(hex_hash(expected['receipt']) and digest(receipt_bytes) == expected['receipt'], 'Caller-pinned terminal receipt mismatch')
+    require(receipt.get('source', {}).get('commit') == expected['source'], 'Caller-pinned source commit mismatch')
+    require(receipt.get('source', {}).get('fingerprint') == expected['fingerprint'], 'Caller-pinned source fingerprint mismatch')
+    require(receipt.get('profile', {}).get('runId') == expected['run'], 'Caller-pinned actual run mismatch')
+
+
+def admit_inputs(inputs, capture):
+    require(inputs.get('version') == 1 and inputs.get('kind') == 'ordinary-m3-shaman-erosion-inputs' and inputs.get('restoreTested') is False, 'Expected one ordinary Shaman capture input archive')
+    require(inputs.get('runId') == capture['runId'] and inputs.get('sourceFingerprint') == capture['source']['fingerprint'], 'Ordinary input run/source mismatch')
+    actor = inputs.get('originalActorId')
+    require(integer(actor, 1, 0x7fffffff), 'Missing original actor identity')
+    initial = inputs.get('initial', {}).get('actor', {})
+    require(initial.get('id') == actor and initial.get('team') == 'blue' and initial.get('kind') == 'shaman' and initial.get('hp', 0) > 0, 'Missing original living Blue Shaman')
+    actions = inputs.get('actions', [])
+    allowed = {'show-all-missions', 'mission-start', 'skip-introduction', 'key', 'button', 'minimap', 'camera-drag', 'head-hit-probe', 'detached-command-context', 'worship-click', 'worship-accepted', 'worship-arrival', 'worship-work'}
+    require(isinstance(actions, list) and 1 <= len(actions) <= 64 and all(a.get('kind') in allowed and a.get('ordinal') == i + 1 for i, a in enumerate(actions)), 'Unexpected or unbounded ordinary action archive')
+    clicks = [a for a in actions if a['kind'] == 'worship-click']
+    require(len(clicks) == 2 and [a.get('phase') for a in clicks] == ['before', 'completed'] and all(a.get('actorId') == actor and a.get('hit', {}).get('id') == 101 for a in clicks), 'Exactly one completed named worship dispatch required')
+    accepted = [a for a in actions if a['kind'] == 'worship-accepted']
+    require(len(accepted) == 1 and accepted[0].get('actorId') == actor, 'Missing actual worship acceptance')
+    entry = accepted[0]
+    require(clicks[0]['ordinal'] < clicks[1]['ordinal'] < entry['ordinal'], 'Wrong worship dispatch/acceptance order')
+    require(clicks[0].get('hit') == clicks[1].get('hit') == entry.get('hit'), 'Worship target coordinates changed')
+    order = entry.get('after', {}).get('actor', {}).get('order', {})
+    require(order.get('model') == 27 and order.get('a') == 101 and integer(order.get('flags'), 0, 255) and not order['flags'] & 1, 'Wrong accepted original worship order')
+    delivered = entry.get('delivered', {})
+    require(delivered.get('restored') is True and delivered.get('errors') == [], 'Pointer observation/cleanup failed')
+    events = delivered.get('events', [])
+    require([event.get('type') for event in events] == ['pointerdown', 'pointerup'], 'Missing actual delivered pointer pair')
+    for event in events:
+        require(event.get('button') == 0 and event.get('trusted') is True and event.get('canvasOwned') is True and event.get('canvasTarget') is True, 'Untrusted or unowned worship input')
+        require(all(event.get('args', {}).get(key) is False for key in ('ctrlKey', 'shiftKey', 'altKey', 'metaKey')), 'Modified worship input')
+        require(event.get('x') == entry['hit'].get('x') and event.get('y') == entry['hit'].get('y'), 'Delivered worship coordinates differ')
+        for state in (event.get('state', {}), event.get('after', {})):
+            require(all(state.get(key) is True for key in ('currentSceneMatches', 'currentWorldMatches', 'armedWorldMatches', 'armedCanvasMatches')), 'Delivered input ownership changed')
+            require(state.get('target', {}).get('id') == 101 and state['target'].get('kind') == 'erosionEffect', 'Wrong actual delivered target')
+        require(isinstance(event.get('picks'), list) and all(pick.get('receiverMatches') is True and not pick.get('threw') for pick in event['picks']), 'Actual picker receiver/error mismatch')
+    require(any(pick.get('id') == 101 for event in events for pick in event['picks']), 'No actual authored head pick')
+    before, after = entry.get('before', {}), entry.get('after', {})
+    require(after.get('lastOrderTurn', -1) > before.get('lastOrderTurn', -1) and after.get('pointerAck', {}).get('until', -1) > before.get('pointerAck', {}).get('until', -1) and after['pointerAck'].get('target') == 101, 'No fresh actual order/pointer acknowledgement')
+    witnesses = [[a for a in actions if a['kind'] == kind] for kind in ('worship-arrival', 'worship-work')]
+    require(all(len(rows) == 1 for rows in witnesses), 'Require actual original-actor arrival and work witnesses')
+    for rows in witnesses:
+        row, witness = rows[0], rows[0].get('state', {})
+        unit, head = witness.get('actor', {}), witness.get('shrine', {})
+        require(row['ordinal'] > entry['ordinal'] and unit.get('id') == actor and unit.get('hp', 0) > 0 and unit.get('team') == 'blue' and unit.get('kind') == 'shaman', 'Wrong arrival/work actor or ordering')
+        require(unit.get('order', {}).get('model') == 27 and unit['order'].get('a') == 101 and unit.get('state') in (10, 33) and unit.get('speed') == 0 and unit.get('substate', 0) > 0, 'Nonqualifying worship work state')
+        require(head.get('id') == 101 and head.get('followers', 0) > 0 and head.get('uses') == 0, 'Wrong arrival/work head')
+        distances = [((unit[key] - head[key] + 128) % 256) - 128 for key in ('x', 'z')]
+        require(sum(d * d for d in distances) <= 16, 'Original actor not at the authored head')
+    require(witnesses[1][0]['state']['shrine'].get('work', 0) > after.get('shrine', {}).get('work', 0), 'No actual head-work transition')
+    require(inputs.get('final', {}).get('complete') is True, 'Ordinary capture did not complete')
+
+
+def admit_runtime(plan_bytes, plan, receipt, modules, source_bytes):
+    """Check existing records under the caller-pinned trusted terminal receipt.
+
+    This validates correspondence, not authenticity of an arbitrary submitted bundle.
+    The coordinator reviews actual script observations and the bounded compiler set.
+    """
+    source = receipt['source']; binding = receipt['result']['erosionReplay']
+    require(hex_hash(binding.get('launchPlanSha256')) and digest(plan_bytes) == binding['launchPlanSha256'], 'Reviewed launch-plan bytes mismatch')
+    policy = json.loads(source_bytes(source['commit'], 'qa/erosion-ordinary/policy.json'))
+    require(plan.get('kind') == 'erosion-ordinary-capture-launch-plan' and plan.get('operationalGrantReceived') is True, 'Missing reviewed launch plan')
+    require(plan.get('purpose') == 'capture', 'Startup-only smoke cannot be admitted as an Erosion capture')
+    require(plan.get('sourceHead') == source['commit'] and plan.get('sourceFingerprint') == source['fingerprint'] and plan.get('root') == source.get('root'), 'Launch/source mismatch')
+    require(plan.get('applicationTree') == policy['applicationTree'] and plan.get('limits') == policy['limits'] and plan.get('restoreTested') is False and binding.get('restoreTested') is False, 'Wrong application composition or scope')
+    require(plan.get('scenarioSha256') == receipt['scenario']['sha256'] and receipt['scenario']['path'] == str(Path(plan['root']) / 'qa/erosion-ordinary/scenario.mjs'), 'Launch/scenario mismatch')
+    profile = receipt['profile']
+    require(profile.get('mode') == 'created' and profile.get('path') == plan.get('profilePath') and profile.get('previousRun') is None and profile.get('checkpointAtStart') is None, 'Requires the fresh ordinary profile')
+    server = binding.get('serverIdentity', {})
+    require(plan.get('serverIdentitySha256') == digest(json.dumps(server, separators=(',', ':'), ensure_ascii=False).encode()), 'Launch/compiler identity mismatch')
+    runtime = receipt['runtime']
+    require(all(server.get(key) == runtime.get(key) for key in ('node', 'platform', 'arch')), 'Actual runtime/compiler host mismatch')
+    files = server.get('files', {})
+    require(files.get('node_modules/.package-lock.json') == runtime.get('installedLockSha256') and hex_hash(files.get('node_modules/.package-lock.json')), 'Installed dependency lock mismatch')
+    for path in ('package-lock.json', 'scripts/local-render/harness.mjs', 'scripts/local-render/owned-profile.mjs', 'scripts/local-render/checkpoint-observer.mjs', 'scripts/local-render/vite.config.mjs'):
+        require(files.get(path) == digest(source_bytes(source['commit'], path)), 'Pinned compiler/server source mismatch: ' + path)
+    packages, launcher = server.get('packages', {}), server.get('launcher', {})
+    require(isinstance(packages, dict) and 1 <= len(packages) <= 512, 'Missing bounded immutable compiler package closure')
+    for package in packages.values():
+        require(isinstance(package.get('name'), str) and isinstance(package.get('version'), str) and package.get('files') and all(hex_hash(value) for value in package['files'].values()), 'Invalid compiler package file identity')
+    vites = [(root, package) for root, package in packages.items() if package['name'] == 'vite']
+    require(len(vites) == 1 and launcher.get('path') == str(Path(plan['root']) / 'node_modules/.bin/vite'), 'Missing actual Vite launcher identity')
+    vite_root, vite = vites[0]
+    require(launcher.get('target') == str(Path(vite_root) / 'bin/vite.js') and launcher.get('sha256') == vite['files'].get('bin/vite.js') and hex_hash(launcher.get('sha256')), 'Actual Vite CLI not in pinned closure')
+    observations = binding.get('scriptObservations', [])
+    require(isinstance(observations, list) and [row.get('path') for row in observations] == list(MODULES), 'Missing/duplicate/reordered actual script observations')
+    contexts = set()
+    for row in observations:
+        path, url = row['path'], urlparse(row.get('url', ''))
+        require(f'{url.scheme}://{url.netloc}' == plan.get('origin') and url.path == '/' + path, 'Actual script origin/path mismatch')
+        require(isinstance(row.get('scriptId'), str) and row['scriptId'].isdigit() and integer(row.get('executionContextId'), 1, 0x7fffffff), 'Invalid actual script/context identity')
+        require(hex_hash(row.get('cdpHash')) and hex_hash(row.get('sourceMapSha256')), 'Missing actual script observation hashes')
+        require(row.get('correspondence') in ('exact', 'inline-source-map'), 'Missing pinned-source correspondence')
+        if row['correspondence'] == 'exact':
+            require(modules[path]['servedBody'].encode() == source_bytes(source['commit'], path), 'Wrong exact loaded source')
+        contexts.add(row['executionContextId'])
+    require(len(contexts) == 1 and len({row['scriptId'] for row in observations}) == len(MODULES), 'Script context/identity multiplicity')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    for name in ('capture', 'receipt', 'lifecycle', 'modules', 'inputs'):
+    for name in ('capture', 'receipt', 'lifecycle', 'modules', 'inputs', 'launch-plan'):
         parser.add_argument('--' + name, type=Path, required=True)
     parser.add_argument('--executable', type=Path)
     parser.add_argument('--validate-only', action='store_true')
+    for name in ('receipt-sha256', 'source-commit', 'source-fingerprint', 'run-id'):
+        parser.add_argument('--expected-' + name, required=True)
     args = parser.parse_args()
     blobs = {}
-    for name in ('capture', 'receipt', 'lifecycle', 'modules', 'inputs'):
-        path = getattr(args, name)
+    for name in ('capture', 'receipt', 'lifecycle', 'modules', 'inputs', 'launch-plan'):
+        path = getattr(args, name.replace('-', '_'))
         require(path.stat().st_size <= 32 * 1024 * 1024, 'Evidence file exceeds bounded 32MiB input: ' + name)
         blobs[name] = path.read_bytes()
-    documents = {name: json.loads(blobs[name], parse_constant=reject_constant, object_pairs_hook=strict_object) for name in ('capture', 'receipt', 'lifecycle', 'modules')}
+    documents = {name: json.loads(data, parse_constant=reject_constant, object_pairs_hook=strict_object) for name, data in blobs.items()}
+    admit_caller(blobs['receipt'], documents['receipt'], {'receipt': args.expected_receipt_sha256, 'source': args.expected_source_commit,
+                 'fingerprint': args.expected_source_fingerprint, 'run': args.expected_run_id})
+    admit_inputs(documents['inputs'], documents['capture'])
     hashes = {name: digest(blobs[name]) for name in ('capture', 'lifecycle', 'modules', 'inputs')}
     def source_bytes(commit, path):
         return subprocess.check_output(['git', 'show', commit + ':' + path], cwd=ROOT)
     steps = validate(documents['capture'], documents['receipt'], documents['lifecycle'], documents['modules'], hashes, source_bytes)
+    admit_runtime(blobs['launch-plan'], documents['launch-plan'], documents['receipt'], documents['modules'], source_bytes)
     if args.validate_only:
         result = {'status': 'validation-passed', 'nativeExecuted': False, 'steps': len(steps), 'files': hashes}
     else:

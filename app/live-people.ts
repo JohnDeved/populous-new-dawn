@@ -141,6 +141,9 @@ export type LivePerson = StatefulPerson &
     marchCooldown: number
     computerAssignment: number
     invisibilityRender?: number
+    // Public G retains this exact owner until its deferred order/state visit.
+    // Optional so legacy boolean-guard checkpoints keep their original policy.
+    guardInputPending?: boolean
   }
 const short = (n: number) => (n << 16) >> 16
 // Bootstrap the existing browser follower at the handoff to native controllers.
