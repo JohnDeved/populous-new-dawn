@@ -1,0 +1,28 @@
+{
+  "status": "unexecuted-supporting-source-draft",
+  "nativePacketHead": "7e22a80c8dceefd047ac7e17521353f2045b72f1",
+  "sourceSha256": {
+    "decomp/research/hut-smoke-state-exit/capture-live-ignition-draft.mjs": "b2e40bb1a451d87d194db4508188aa3829b256dbdd73bd101474457ad400ff51",
+    "decomp/research/hut-smoke-state-exit/live-and-ordinary-input-plan.md": "a654f7c68748c498f9aed9f39b47136caf15202d9a5a1bdd6835242368fc06c9",
+    "tests/support/hut-smoke-scene.mjs": "57cac80516f37ed084578bf4608ce478675bc5d6691b83375b6d30622e9d26d7",
+    "tests/support/bloodlust-scene.mjs": "bf0ba696f88c9d707cd4bb02b7dbee120e1a1f9e2fbdcd59ede163207599e4c6",
+    "app/hut-smoke-runtime.ts": "db740f09664eb124bba32f95740eb2842fe441bbaaa0653e408f4eba68f2a8c7",
+    "app/scene-entities.ts": "95a2a64f5741ca3445431a4b962e7a0aeef6e502841f56b2b90138addb236952",
+    "app/spell-effects-runtime.ts": "87b379fcadfccbf4592d9e34e3342a5b1df482618687defdd96b5491c8e73e63",
+    "app/building-runtime.ts": "d62fca552e99bf96792f21361fd73047b3fe064f2fcfbfb8af2307ba9e732463",
+    "app/building-damage.ts": "2edf267b12853719b2553d0ede485254ea101bbb2ae1ed6967306299895b90c3",
+    "app/world-turn.ts": "957422e62b080cdbe787d78673336fb97957cdd6d2ce1ae547f1a280db2df26a",
+    "app/level-one.ts": "e840e4ea8895ada4131c7d2da2ce70330307956ea7a6e647e55e76bf6026bd33",
+    "app/worship.ts": "f0e60f01e2b164e5d9e0ce6b8bd595ae3e4ca5f62ced9ef7c3e57dfb1ff75618",
+    "app/page.tsx": "50358f6ae119026e8b1f9215fa436126bb26b7595832140c136ed271fbc52fc2",
+    "scripts/check-browser-hut-occupancy-smoke.mjs": "cff781e71a54f8430f969a5996ce171e949a6a29d5541723ba35a993f5772e36",
+    "scripts/local-render/hut-smoke-secondary.mjs": "debd7b2e3caba4677251d1d582e911718bd4f8feb3f5dbaf9e8d06684fb3319e"
+  },
+  "validation": {
+    "relativeImportTargets": "passed; static path check only",
+    "trailingWhitespace": "passed",
+    "syntaxRuntimeNativeBrowserExecution": "not-run",
+    "exactLiveDraftReview": "pending"
+  },
+  "boundary": "Controlled fullHutScene world/cohort, actual command8 admission, direct live Lightning ignition consumer. Original native case supplies failed fire allocations; no fire/RNG stream equality. Ordinary input route is a separate unexecuted plan."
+}
