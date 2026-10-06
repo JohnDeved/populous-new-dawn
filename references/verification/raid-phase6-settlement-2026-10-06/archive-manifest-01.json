@@ -1,0 +1,98 @@
+{
+  "sourceHead": "bc5debd5c0271efc9cd892111563cc740eeebc91",
+  "status": "expected-settlement-mismatches-confirmed",
+  "independentResultReview": "pending",
+  "files": [
+    {
+      "path": "raw/launch-01/receipt.json.gz",
+      "decodedPath": "launch-01/receipt.json",
+      "bytes": 110073,
+      "sha256": "6c3cf66815397a901747851dee003a0b33ad89f6907b009cd8eddd5ee4c0c096",
+      "gzipSha256": "0527a3dba389f9e53f9454f2658b03f575bb059c5861e4abda332c1aa8b901eb"
+    },
+    {
+      "path": "raw/launch-01/stderr.txt.gz",
+      "decodedPath": "launch-01/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzipSha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "path": "raw/launch-01/stdout.txt.gz",
+      "decodedPath": "launch-01/stdout.txt",
+      "bytes": 117,
+      "sha256": "435ee555cd3de25fdd17cbc777cf9e043494ce601b68ba71890bdbd40af7a037",
+      "gzipSha256": "de688dce032db5be109d6a57452261b6a417dcc9ae3567bd1925b5e7bc3ead70"
+    },
+    {
+      "path": "raw/run-01/captured-combat-timeout/native-before.json.gz",
+      "decodedPath": "run-01/captured-combat-timeout/native-before.json",
+      "bytes": 41531,
+      "sha256": "454b38714619caf89372a75ff6c3eead4785caf7fe5506715deb0d67881ae21d",
+      "gzipSha256": "5795cffc41631f8d9c6287feeb3585bc8c611f6ef4f7f2f1fd73cb2826d512ca"
+    },
+    {
+      "path": "raw/run-01/captured-combat-timeout/native.json.gz",
+      "decodedPath": "run-01/captured-combat-timeout/native.json",
+      "bytes": 119515,
+      "sha256": "e50df845e53136add1bf51d9b0518513471ad5b200fde4842104343f15b4d48f",
+      "gzipSha256": "29653304d424b0ea38984c1dd4b8e4e67134b8ebc4de36e7aa54d9e33b04fd8c"
+    },
+    {
+      "path": "raw/run-01/captured-moving-not-settled/native-before.json.gz",
+      "decodedPath": "run-01/captured-moving-not-settled/native-before.json",
+      "bytes": 41531,
+      "sha256": "fda1fe58119be90c5864ff732e4d157a8220a4328b1be63ed27addbf9c372d88",
+      "gzipSha256": "05016bf4b23126589765f0b5f5868e1c7734d1c6469f49fe477bff843ef59304"
+    },
+    {
+      "path": "raw/run-01/captured-moving-not-settled/native.json.gz",
+      "decodedPath": "run-01/captured-moving-not-settled/native.json",
+      "bytes": 128612,
+      "sha256": "6cef29991ce29c40b48c04c47199a7415ed7bde0b07cd31d367768514cd259c7",
+      "gzipSha256": "827ddd9cc0ac2ec8e53b2ff9d228943dcc094cbae02ccd51747a381da560e7cb"
+    },
+    {
+      "path": "raw/run-01/comparison.json.gz",
+      "decodedPath": "run-01/comparison.json",
+      "bytes": 1022,
+      "sha256": "c9dedda961dc4292ab774d36c27e5d84d83187d8997e4c21b769e54b0fcb150c",
+      "gzipSha256": "3ad5e8260a73c63a4d07612dab36ed63805a2507d51d16d1eaf7d705a3898a9a"
+    },
+    {
+      "path": "raw/run-01/launch.json.gz",
+      "decodedPath": "run-01/launch.json",
+      "bytes": 49460,
+      "sha256": "bd01037046ca3e8b846f43c7eb1370ea5da9dbef6ebeb288c25f58fb507aeb77",
+      "gzipSha256": "d227270bc295cdb3c37c27ef1b1e90d62ed6f8a0ba6ebb315b96ecfb6122222b"
+    },
+    {
+      "path": "raw/run-01/port.json.gz",
+      "decodedPath": "run-01/port.json",
+      "bytes": 1269221,
+      "sha256": "153d9c3be1439dad2332acb275451d3f6bb193a1063b563e75dcd7455e995f1a",
+      "gzipSha256": "b53d3908f83f08cfd02ee0564d322991df90cc7bbe26a24ffffb553439269dcb"
+    },
+    {
+      "path": "raw/run-01/port.stderr.gz",
+      "decodedPath": "run-01/port.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzipSha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "path": "raw/run-01/port.stdout.gz",
+      "decodedPath": "run-01/port.stdout",
+      "bytes": 329839,
+      "sha256": "b7ef8a20ae9bf08745e72714319b03bc8864d8e5554b3497b9c698c4903a53a6",
+      "gzipSha256": "d8b5448ba4114c6f7941f52961ebdf0696069968617a75483ded763a4f616126"
+    },
+    {
+      "path": "raw/run-01/receipt.json.gz",
+      "decodedPath": "run-01/receipt.json",
+      "bytes": 473,
+      "sha256": "199b206003a821b2bae35d5562bff4093d9e216b80643ecd61fc96d6bc976b5e",
+      "gzipSha256": "19bd82096099a37b5254e22b7729f5365664a981486fc8abfd5cb56c1fce71a3"
+    }
+  ]
+}

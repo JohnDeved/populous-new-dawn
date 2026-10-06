@@ -1,0 +1,30 @@
+{
+  "sourceHead": "bc5debd5c0271efc9cd892111563cc740eeebc91",
+  "status": "host-only passed; no native or app execution",
+  "files": [
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-20261006/work/orchestration/raid-phase6-settlement-20261006/host-preflight-02.json",
+      "path": "receipt.json",
+      "bytes": 3421,
+      "sha256": "849cf867d6f0f4f79abd97d9eea9843959b78ea338a0796e5898a8c0749ba445"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-20261006/work/orchestration/raid-phase6-settlement-20261006/host-preflight-02.json.artifacts/stdout.log",
+      "path": "stdout.log",
+      "bytes": 215,
+      "sha256": "7127225f5a82576f71125fc30204a4c3abea36077f37efa3d85891b08be164c4"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-20261006/work/orchestration/raid-phase6-settlement-20261006/host-preflight-02.json.artifacts/stderr.log",
+      "path": "stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/tmp/validate_raid_phase6_source_02.py",
+      "path": "validate-source.py",
+      "bytes": 929,
+      "sha256": "50d769bc1c965c2de6371ee506d4e9565fba0f8167c5526c421c5f6c01e0ab0e"
+    }
+  ]
+}

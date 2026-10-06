@@ -1,0 +1,9 @@
+{
+  "decision": "ACCEPT",
+  "head": "bc5debd5c0271efc9cd892111563cc740eeebc91",
+  "launchManifestSha256": "bd01037046ca3e8b846f43c7eb1370ea5da9dbef6ebeb288c25f58fb507aeb77",
+  "files": {
+    "review.md": "b38e1aff844115c484134e48913e818e1c8f6c5a64710870811be3c7284bad52",
+    "verification.json": "8b8ce2553ee1fe98049a58a9baac8a3ca8cb8b69b55bb7e9ec5b842603591add"
+  }
+}

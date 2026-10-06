@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "baf2a6a0-a7e8-4751-93dc-6b99ccb35a40",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "bc5debd5c0271efc9cd892111563cc740eeebc91",
+    "branch": "research/raid-phase6-settlement-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "/tmp/validate_raid_phase6_source_02.py": "50d769bc1c965c2de6371ee506d4e9565fba0f8167c5526c421c5f6c01e0ab0e",
+      "decomp/research/raid-phase6-settlement/launch-manifest.json": "bd01037046ca3e8b846f43c7eb1370ea5da9dbef6ebeb288c25f58fb507aeb77",
+      "decomp/research/raid-phase6-settlement/port-import-closure.json": "980bee70f8c139d568103c8c0af1d1e724d2786b18abda49c3b462b91fbc66d4",
+      "scripts/probe-native-raid-phase6.py": "75b55631640c45d3ab1a4011a798e986966ef7abfc3b4f8d7c138efa5852888b",
+      "scripts/raid-phase6-pair.mjs": "ca8b7cc7015d12795561e5af5fc79eb7002bec83d43c351de5d0a0aa4124e87c",
+      "scripts/run-preacher-response-once.py": "23dd99728374a2021231ff16c3cdb171bdfbecb65443a004589c9e382d7e349b"
+    }
+  },
+  "command": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=3s",
+    "15s",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/bin/python",
+    "-E",
+    "-s",
+    "-B",
+    "/tmp/validate_raid_phase6_source_02.py"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-20261006",
+  "startedAt": "2026-10-06T23:17:57.237Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-20261006/work/orchestration/raid-phase6-settlement-20261006/host-preflight-02.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-20261006/work/orchestration/raid-phase6-settlement-20261006/host-preflight-02.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T23:17:58.476Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "PASS: two-case host fixture/source guards; no native or application execution\nPASS: external-envelope host guards; no child process launched\nPASS: frozen host preflight, AST and Node syntax; native/app invocations0\n",
+  "stderr": "",
+  "stdoutSha256": "7127225f5a82576f71125fc30204a4c3abea36077f37efa3d85891b08be164c4",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "bc5debd5c0271efc9cd892111563cc740eeebc91",
+    "branch": "research/raid-phase6-settlement-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "/tmp/validate_raid_phase6_source_02.py": "50d769bc1c965c2de6371ee506d4e9565fba0f8167c5526c421c5f6c01e0ab0e",
+      "decomp/research/raid-phase6-settlement/launch-manifest.json": "bd01037046ca3e8b846f43c7eb1370ea5da9dbef6ebeb288c25f58fb507aeb77",
+      "decomp/research/raid-phase6-settlement/port-import-closure.json": "980bee70f8c139d568103c8c0af1d1e724d2786b18abda49c3b462b91fbc66d4",
+      "scripts/probe-native-raid-phase6.py": "75b55631640c45d3ab1a4011a798e986966ef7abfc3b4f8d7c138efa5852888b",
+      "scripts/raid-phase6-pair.mjs": "ca8b7cc7015d12795561e5af5fc79eb7002bec83d43c351de5d0a0aa4124e87c",
+      "scripts/run-preacher-response-once.py": "23dd99728374a2021231ff16c3cdb171bdfbecb65443a004589c9e382d7e349b"
+    }
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "sourceHead": "bc5debd5c0271efc9cd892111563cc740eeebc91",
+  "launchManifestSha256": "bd01037046ca3e8b846f43c7eb1370ea5da9dbef6ebeb288c25f58fb507aeb77",
+  "status": "expected-settlement-mismatches-confirmed",
+  "scope": "two independent admitted-member projections; no full-raid lifetime claim",
+  "files": [
+    {
+      "path": "launch-01/receipt.json",
+      "bytes": 110073,
+      "sha256": "6c3cf66815397a901747851dee003a0b33ad89f6907b009cd8eddd5ee4c0c096"
+    },
+    {
+      "path": "launch-01/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "launch-01/stdout.txt",
+      "bytes": 117,
+      "sha256": "435ee555cd3de25fdd17cbc777cf9e043494ce601b68ba71890bdbd40af7a037"
+    },
+    {
+      "path": "run-01/captured-combat-timeout/native-before.json",
+      "bytes": 41531,
+      "sha256": "454b38714619caf89372a75ff6c3eead4785caf7fe5506715deb0d67881ae21d"
+    },
+    {
+      "path": "run-01/captured-combat-timeout/native.json",
+      "bytes": 119515,
+      "sha256": "e50df845e53136add1bf51d9b0518513471ad5b200fde4842104343f15b4d48f"
+    },
+    {
+      "path": "run-01/captured-moving-not-settled/native-before.json",
+      "bytes": 41531,
+      "sha256": "fda1fe58119be90c5864ff732e4d157a8220a4328b1be63ed27addbf9c372d88"
+    },
+    {
+      "path": "run-01/captured-moving-not-settled/native.json",
+      "bytes": 128612,
+      "sha256": "6cef29991ce29c40b48c04c47199a7415ed7bde0b07cd31d367768514cd259c7"
+    },
+    {
+      "path": "run-01/comparison.json",
+      "bytes": 1022,
+      "sha256": "c9dedda961dc4292ab774d36c27e5d84d83187d8997e4c21b769e54b0fcb150c"
+    },
+    {
+      "path": "run-01/launch.json",
+      "bytes": 49460,
+      "sha256": "bd01037046ca3e8b846f43c7eb1370ea5da9dbef6ebeb288c25f58fb507aeb77"
+    },
+    {
+      "path": "run-01/port.json",
+      "bytes": 1269221,
+      "sha256": "153d9c3be1439dad2332acb275451d3f6bb193a1063b563e75dcd7455e995f1a"
+    },
+    {
+      "path": "run-01/port.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "run-01/port.stdout",
+      "bytes": 329839,
+      "sha256": "b7ef8a20ae9bf08745e72714319b03bc8864d8e5554b3497b9c698c4903a53a6"
+    },
+    {
+      "path": "run-01/receipt.json",
+      "bytes": 473,
+      "sha256": "199b206003a821b2bae35d5562bff4093d9e216b80643ecd61fc96d6bc976b5e"
+    }
+  ]
+}

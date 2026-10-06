@@ -1,0 +1,3 @@
+PASS: two-case host fixture/source guards; no native or application execution
+PASS: external-envelope host guards; no child process launched
+PASS: frozen host preflight, AST and Node syntax; native/app invocations0
