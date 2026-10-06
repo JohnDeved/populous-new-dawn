@@ -1,0 +1,37 @@
+{
+  "verdict": "ACCEPT executed component result",
+  "sourceHead": "410cdb6747cd2641582a305a19f6a075057f4a10",
+  "inputManifestSha256": "4dad693936c368db05388d60337646199cb3755b4174f29ac4d37082cf3e3f68",
+  "nativeSha256": "bca1801056967b4d73e704e446c2252cc6b5da30244a5aa46a06a80eada8c8b5",
+  "portSha256": "d0a03a9e246fa156db252b19a3ad6ee0acf9ef69504893cfc5a7d82107866671",
+  "launchReceiptSha256": "92deec9502f9fa21e951ff6ef93cdc0c4e56655c283a0b0c07d20037b8cc4195",
+  "snapshotSetsChecked": 42,
+  "raw256RecordsChecked": 252,
+  "readWriteTraceReplay": {
+    "reads": 487,
+    "writes": 178,
+    "personWrites": 16,
+    "instructionAddresses": 1243,
+    "status": "all exact canonical/setup/memory values match"
+  },
+  "actualScans": "All nine heads, six-person pointer chain and null terminator read in order on both scans; five model2 state23 bypass tests each",
+  "nativeConsumerCounts": {
+    "acquisition": 2,
+    "angle": 2,
+    "reveal": 2
+  },
+  "nativeInstructions": [
+    526,
+    46,
+    55,
+    46,
+    522,
+    48
+  ],
+  "nativeSeconds": 0.13250529499782715,
+  "outerSeconds": 1.9262977429971215,
+  "cleanup": "terminal process group15 empty",
+  "differenceInventory": "independently recomputed exact full JSON",
+  "limits": "one supplied case; no actual production port scan or ordinary/render claim",
+  "reviewExecution": "data-only artifact inspection/replay; no original/application execution"
+}
