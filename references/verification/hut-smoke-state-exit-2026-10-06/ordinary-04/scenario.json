@@ -1,0 +1,3143 @@
+{
+  "status": "failed",
+  "actions": [
+    {
+      "label": "Select and focus shaman",
+      "phase": "before",
+      "at": "2026-10-06T23:28:39.646Z"
+    },
+    {
+      "label": "Select and focus shaman",
+      "phase": "after",
+      "at": "2026-10-06T23:28:40.963Z"
+    },
+    {
+      "label": "minimap-view",
+      "phase": "before",
+      "at": "2026-10-06T23:28:41.750Z"
+    },
+    {
+      "label": "minimap-view",
+      "phase": "after",
+      "at": "2026-10-06T23:28:41.841Z"
+    },
+    {
+      "label": "rendered-target",
+      "hit": {
+        "x": 809,
+        "y": 413,
+        "interiorRadius": 2,
+        "id": 29,
+        "collection": "shrines",
+        "turn": 224,
+        "expectedCommand": 27,
+        "cast": false,
+        "spellPreflight": null,
+        "diagnostics": {
+          "state": {
+            "turn": 224,
+            "frame": 209,
+            "animationFrame": 449,
+            "currentSceneMatches": true,
+            "currentWorldMatches": true,
+            "rect": {
+              "left": 200,
+              "top": 0,
+              "width": 1240,
+              "height": 1000
+            },
+            "localPixel": {
+              "x": 609,
+              "y": 413
+            },
+            "camera": {
+              "x": 651,
+              "y": 57195,
+              "angle": 1451
+            },
+            "center": {
+              "x": 651,
+              "y": 57195
+            },
+            "rawCenter": {
+              "x": 651,
+              "y": -8341
+            },
+            "projection": {
+              "curvature": 35248,
+              "depth": 6500,
+              "perspective": 11,
+              "scale": 40786,
+              "width": 1240,
+              "height": 1000,
+              "centerX": 620,
+              "centerY": 423,
+              "fractionX": 4,
+              "fractionY": 4,
+              "pixelScaleX": 0.0625,
+              "pixelScaleY": 0.0625,
+              "matrix": [
+                -4225,
+                0,
+                15829,
+                -5515,
+                15357,
+                -1472,
+                -14838,
+                -5708,
+                -3960
+              ]
+            },
+            "target": {
+              "id": 29,
+              "kind": "bridge",
+              "model": 45,
+              "x": -5,
+              "z": 25,
+              "active": true,
+              "enabled": true,
+              "stoneHead": {
+                "family": 45,
+                "object": 45,
+                "draw": 4,
+                "morph": 1,
+                "f1": 32,
+                "f2": 0,
+                "stamp": 224,
+                "flags3": 262144,
+                "renderFlags": 264,
+                "holdFrame": 1
+              }
+            },
+            "body": {
+              "nativeModel": 45,
+              "stoneHeadFrame": 8,
+              "frame": null,
+              "stage": 4,
+              "nativeSize": null,
+              "visible": true,
+              "positionVersion": 163,
+              "matrixWorld": [
+                2,
+                0,
+                0,
+                0,
+                0,
+                2,
+                0,
+                0,
+                0,
+                0,
+                2,
+                0,
+                -5,
+                0.5078125,
+                25,
+                1
+              ]
+            },
+            "cache": {
+              "lastKey": "209,651,57195,651,-8341,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,611,415",
+              "lastId": 29,
+              "lastKind": "model"
+            }
+          },
+          "context": {
+            "model": 27,
+            "enabled": true,
+            "buildingId": null,
+            "personId": null,
+            "shrineId": 29,
+            "treeId": null,
+            "vehicleId": null
+          },
+          "pick": {
+            "x": 809,
+            "y": 413,
+            "interiorRadius": 2,
+            "canvasOwned": true,
+            "hitId": 29
+          },
+          "selected": [
+            30
+          ]
+        },
+        "rejection": null
+      }
+    },
+    {
+      "label": "final-dispatch-preflight",
+      "command": 27,
+      "hit": {
+        "x": 809,
+        "y": 413,
+        "interiorRadius": 2,
+        "id": 29,
+        "collection": "shrines",
+        "turn": 224,
+        "expectedCommand": 27,
+        "cast": false,
+        "spellPreflight": null,
+        "diagnostics": {
+          "state": {
+            "turn": 224,
+            "frame": 209,
+            "animationFrame": 449,
+            "currentSceneMatches": true,
+            "currentWorldMatches": true,
+            "rect": {
+              "left": 200,
+              "top": 0,
+              "width": 1240,
+              "height": 1000
+            },
+            "localPixel": {
+              "x": 609,
+              "y": 413
+            },
+            "camera": {
+              "x": 651,
+              "y": 57195,
+              "angle": 1451
+            },
+            "center": {
+              "x": 651,
+              "y": 57195
+            },
+            "rawCenter": {
+              "x": 651,
+              "y": -8341
+            },
+            "projection": {
+              "curvature": 35248,
+              "depth": 6500,
+              "perspective": 11,
+              "scale": 40786,
+              "width": 1240,
+              "height": 1000,
+              "centerX": 620,
+              "centerY": 423,
+              "fractionX": 4,
+              "fractionY": 4,
+              "pixelScaleX": 0.0625,
+              "pixelScaleY": 0.0625,
+              "matrix": [
+                -4225,
+                0,
+                15829,
+                -5515,
+                15357,
+                -1472,
+                -14838,
+                -5708,
+                -3960
+              ]
+            },
+            "target": {
+              "id": 29,
+              "kind": "bridge",
+              "model": 45,
+              "x": -5,
+              "z": 25,
+              "active": true,
+              "enabled": true,
+              "stoneHead": {
+                "family": 45,
+                "object": 45,
+                "draw": 4,
+                "morph": 1,
+                "f1": 32,
+                "f2": 0,
+                "stamp": 224,
+                "flags3": 262144,
+                "renderFlags": 264,
+                "holdFrame": 1
+              }
+            },
+            "body": {
+              "nativeModel": 45,
+              "stoneHeadFrame": 8,
+              "frame": null,
+              "stage": 4,
+              "nativeSize": null,
+              "visible": true,
+              "positionVersion": 163,
+              "matrixWorld": [
+                2,
+                0,
+                0,
+                0,
+                0,
+                2,
+                0,
+                0,
+                0,
+                0,
+                2,
+                0,
+                -5,
+                0.5078125,
+                25,
+                1
+              ]
+            },
+            "cache": {
+              "lastKey": "209,651,57195,651,-8341,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,611,415",
+              "lastId": 29,
+              "lastKind": "model"
+            }
+          },
+          "context": {
+            "model": 27,
+            "enabled": true,
+            "buildingId": null,
+            "personId": null,
+            "shrineId": 29,
+            "treeId": null,
+            "vehicleId": null
+          },
+          "pick": {
+            "x": 809,
+            "y": 413,
+            "interiorRadius": 2,
+            "canvasOwned": true,
+            "hitId": 29
+          },
+          "selected": [
+            30
+          ]
+        },
+        "rejection": null
+      },
+      "preflight": {
+        "rejection": null,
+        "diagnostics": {
+          "state": {
+            "turn": 237,
+            "frame": 217,
+            "animationFrame": 474,
+            "currentSceneMatches": true,
+            "currentWorldMatches": true,
+            "rect": {
+              "left": 200,
+              "top": 0,
+              "width": 1240,
+              "height": 1000
+            },
+            "localPixel": {
+              "x": 609,
+              "y": 413
+            },
+            "camera": {
+              "x": 651,
+              "y": 57195,
+              "angle": 1451
+            },
+            "center": {
+              "x": 651,
+              "y": 57195
+            },
+            "rawCenter": {
+              "x": 651,
+              "y": -8341
+            },
+            "projection": {
+              "curvature": 35248,
+              "depth": 6500,
+              "perspective": 11,
+              "scale": 40786,
+              "width": 1240,
+              "height": 1000,
+              "centerX": 620,
+              "centerY": 423,
+              "fractionX": 4,
+              "fractionY": 4,
+              "pixelScaleX": 0.0625,
+              "pixelScaleY": 0.0625,
+              "matrix": [
+                -4225,
+                0,
+                15829,
+                -5515,
+                15357,
+                -1472,
+                -14838,
+                -5708,
+                -3960
+              ]
+            },
+            "target": {
+              "id": 29,
+              "kind": "bridge",
+              "model": 45,
+              "x": -5,
+              "z": 25,
+              "active": true,
+              "enabled": true,
+              "stoneHead": {
+                "family": 45,
+                "object": 45,
+                "draw": 4,
+                "morph": 1,
+                "f1": 12,
+                "f2": 0,
+                "stamp": 237,
+                "flags3": 262144,
+                "renderFlags": 264,
+                "holdFrame": 1
+              }
+            },
+            "body": {
+              "nativeModel": 45,
+              "stoneHeadFrame": 3,
+              "frame": null,
+              "stage": 4,
+              "nativeSize": null,
+              "visible": true,
+              "positionVersion": 171,
+              "matrixWorld": [
+                2,
+                0,
+                0,
+                0,
+                0,
+                2,
+                0,
+                0,
+                0,
+                0,
+                2,
+                0,
+                -5,
+                0.5078125,
+                25,
+                1
+              ]
+            },
+            "cache": {
+              "lastKey": "217,651,57195,651,-8341,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,611,415",
+              "lastId": 29,
+              "lastKind": "model"
+            }
+          },
+          "pick": {
+            "x": 809,
+            "y": 413,
+            "interiorRadius": 2,
+            "id": 29,
+            "collection": "shrines",
+            "turn": 224,
+            "expectedCommand": 27,
+            "cast": false,
+            "spellPreflight": null,
+            "diagnostics": {
+              "state": {
+                "turn": 224,
+                "frame": 209,
+                "animationFrame": 449,
+                "currentSceneMatches": true,
+                "currentWorldMatches": true,
+                "rect": {
+                  "left": 200,
+                  "top": 0,
+                  "width": 1240,
+                  "height": 1000
+                },
+                "localPixel": {
+                  "x": 609,
+                  "y": 413
+                },
+                "camera": {
+                  "x": 651,
+                  "y": 57195,
+                  "angle": 1451
+                },
+                "center": {
+                  "x": 651,
+                  "y": 57195
+                },
+                "rawCenter": {
+                  "x": 651,
+                  "y": -8341
+                },
+                "projection": {
+                  "curvature": 35248,
+                  "depth": 6500,
+                  "perspective": 11,
+                  "scale": 40786,
+                  "width": 1240,
+                  "height": 1000,
+                  "centerX": 620,
+                  "centerY": 423,
+                  "fractionX": 4,
+                  "fractionY": 4,
+                  "pixelScaleX": 0.0625,
+                  "pixelScaleY": 0.0625,
+                  "matrix": [
+                    -4225,
+                    0,
+                    15829,
+                    -5515,
+                    15357,
+                    -1472,
+                    -14838,
+                    -5708,
+                    -3960
+                  ]
+                },
+                "target": {
+                  "id": 29,
+                  "kind": "bridge",
+                  "model": 45,
+                  "x": -5,
+                  "z": 25,
+                  "active": true,
+                  "enabled": true,
+                  "stoneHead": {
+                    "family": 45,
+                    "object": 45,
+                    "draw": 4,
+                    "morph": 1,
+                    "f1": 32,
+                    "f2": 0,
+                    "stamp": 224,
+                    "flags3": 262144,
+                    "renderFlags": 264,
+                    "holdFrame": 1
+                  }
+                },
+                "body": {
+                  "nativeModel": 45,
+                  "stoneHeadFrame": 8,
+                  "frame": null,
+                  "stage": 4,
+                  "nativeSize": null,
+                  "visible": true,
+                  "positionVersion": 163,
+                  "matrixWorld": [
+                    2,
+                    0,
+                    0,
+                    0,
+                    0,
+                    2,
+                    0,
+                    0,
+                    0,
+                    0,
+                    2,
+                    0,
+                    -5,
+                    0.5078125,
+                    25,
+                    1
+                  ]
+                },
+                "cache": {
+                  "lastKey": "209,651,57195,651,-8341,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,611,415",
+                  "lastId": 29,
+                  "lastKind": "model"
+                }
+              },
+              "context": {
+                "model": 27,
+                "enabled": true,
+                "buildingId": null,
+                "personId": null,
+                "shrineId": 29,
+                "treeId": null,
+                "vehicleId": null
+              },
+              "pick": {
+                "x": 809,
+                "y": 413,
+                "interiorRadius": 2,
+                "canvasOwned": true,
+                "hitId": 29
+              },
+              "selected": [
+                30
+              ]
+            },
+            "rejection": null,
+            "canvasOwned": true,
+            "hitId": 29
+          },
+          "interior": {
+            "x": 809,
+            "y": 413,
+            "interiorRadius": 2
+          },
+          "context": {
+            "model": 27,
+            "enabled": true,
+            "buildingId": null,
+            "personId": null,
+            "shrineId": 29,
+            "treeId": null,
+            "vehicleId": null
+          },
+          "point": {
+            "id": 29,
+            "x": -5,
+            "z": 25
+          },
+          "selected": [
+            30
+          ],
+          "lastOrderTurn": 0,
+          "selectedUnits": [
+            {
+              "id": 30,
+              "kind": "shaman",
+              "team": "blue",
+              "hp": 100
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "command-27-click",
+      "phase": "before",
+      "at": "2026-10-06T23:28:45.790Z"
+    },
+    {
+      "label": "command-27-click",
+      "phase": "after",
+      "at": "2026-10-06T23:28:45.939Z"
+    },
+    {
+      "label": "actual-dispatch",
+      "command": 27,
+      "hit": {
+        "x": 809,
+        "y": 413,
+        "interiorRadius": 2,
+        "id": 29,
+        "collection": "shrines",
+        "turn": 224,
+        "expectedCommand": 27,
+        "cast": false,
+        "spellPreflight": null,
+        "diagnostics": {
+          "state": {
+            "turn": 224,
+            "frame": 209,
+            "animationFrame": 449,
+            "currentSceneMatches": true,
+            "currentWorldMatches": true,
+            "rect": {
+              "left": 200,
+              "top": 0,
+              "width": 1240,
+              "height": 1000
+            },
+            "localPixel": {
+              "x": 609,
+              "y": 413
+            },
+            "camera": {
+              "x": 651,
+              "y": 57195,
+              "angle": 1451
+            },
+            "center": {
+              "x": 651,
+              "y": 57195
+            },
+            "rawCenter": {
+              "x": 651,
+              "y": -8341
+            },
+            "projection": {
+              "curvature": 35248,
+              "depth": 6500,
+              "perspective": 11,
+              "scale": 40786,
+              "width": 1240,
+              "height": 1000,
+              "centerX": 620,
+              "centerY": 423,
+              "fractionX": 4,
+              "fractionY": 4,
+              "pixelScaleX": 0.0625,
+              "pixelScaleY": 0.0625,
+              "matrix": [
+                -4225,
+                0,
+                15829,
+                -5515,
+                15357,
+                -1472,
+                -14838,
+                -5708,
+                -3960
+              ]
+            },
+            "target": {
+              "id": 29,
+              "kind": "bridge",
+              "model": 45,
+              "x": -5,
+              "z": 25,
+              "active": true,
+              "enabled": true,
+              "stoneHead": {
+                "family": 45,
+                "object": 45,
+                "draw": 4,
+                "morph": 1,
+                "f1": 32,
+                "f2": 0,
+                "stamp": 224,
+                "flags3": 262144,
+                "renderFlags": 264,
+                "holdFrame": 1
+              }
+            },
+            "body": {
+              "nativeModel": 45,
+              "stoneHeadFrame": 8,
+              "frame": null,
+              "stage": 4,
+              "nativeSize": null,
+              "visible": true,
+              "positionVersion": 163,
+              "matrixWorld": [
+                2,
+                0,
+                0,
+                0,
+                0,
+                2,
+                0,
+                0,
+                0,
+                0,
+                2,
+                0,
+                -5,
+                0.5078125,
+                25,
+                1
+              ]
+            },
+            "cache": {
+              "lastKey": "209,651,57195,651,-8341,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,611,415",
+              "lastId": 29,
+              "lastKind": "model"
+            }
+          },
+          "context": {
+            "model": 27,
+            "enabled": true,
+            "buildingId": null,
+            "personId": null,
+            "shrineId": 29,
+            "treeId": null,
+            "vehicleId": null
+          },
+          "pick": {
+            "x": 809,
+            "y": 413,
+            "interiorRadius": 2,
+            "canvasOwned": true,
+            "hitId": 29
+          },
+          "selected": [
+            30
+          ]
+        },
+        "rejection": null
+      },
+      "evidence": {
+        "before": {
+          "turn": 237,
+          "selected": [
+            30
+          ],
+          "lastOrderTurn": 0,
+          "ack": {
+            "target": 0,
+            "until": 0
+          },
+          "worldMatches": true,
+          "units": [
+            {
+              "id": 30,
+              "kind": "shaman",
+              "hp": 100,
+              "inside": null,
+              "work": null
+            }
+          ]
+        },
+        "context": {
+          "model": 27,
+          "enabled": true,
+          "buildingId": null,
+          "personId": null,
+          "shrineId": 29,
+          "treeId": null,
+          "vehicleId": null
+        },
+        "point": {
+          "work": 0,
+          "target": 28,
+          "required": 1,
+          "remaining": 0,
+          "growth": 1,
+          "grown": false,
+          "enabled": true,
+          "reset": false,
+          "cooldown": 0,
+          "active": true,
+          "nextSlot": 0,
+          "slotTimer": 0,
+          "range": 1,
+          "followers": 0,
+          "forced": false,
+          "morph": null,
+          "mode": 0,
+          "model": 45,
+          "angle": 0.7853981633974483,
+          "id": 29,
+          "x": -5,
+          "z": 25,
+          "kind": "bridge",
+          "reward": "bridge",
+          "ordinarySpellReward": {
+            "head": 30,
+            "reward": 31,
+            "slot": 0,
+            "model": 12
+          },
+          "name": "Land Bridge stone head",
+          "progress": 0,
+          "duration": 9.333333333333334,
+          "uses": 0,
+          "stoneHead": {
+            "triggerIndex": 30,
+            "sceneryIndex": 32,
+            "family": 45,
+            "enabled": true,
+            "holdFrame": 1,
+            "object": 45,
+            "draw": 4,
+            "morph": 1,
+            "palette": 240,
+            "renderFlags": 264,
+            "f1": 28,
+            "f2": 0,
+            "stamp": 241,
+            "flags3": 262144,
+            "morphTimer": 0,
+            "morphFrames": 0
+          },
+          "panelActivity": {
+            "turn": 240,
+            "count": 0
+          },
+          "rewardRecipient": 0
+        },
+        "after": {
+          "turn": 239,
+          "selected": [
+            30
+          ],
+          "lastOrderTurn": 239,
+          "ack": {
+            "target": 29,
+            "until": 31530.733333339293
+          },
+          "worldMatches": true,
+          "units": [
+            {
+              "id": 30,
+              "kind": "shaman",
+              "hp": 100,
+              "inside": null,
+              "work": 29,
+              "order": {
+                "model": 27,
+                "flags": 0,
+                "references": 1,
+                "object": 0,
+                "a": 29,
+                "b": 0
+              }
+            }
+          ]
+        },
+        "errors": [],
+        "delivered": {
+          "events": [
+            {
+              "type": "pointerdown",
+              "turn": 239,
+              "x": 809,
+              "y": 413,
+              "button": 0,
+              "buttons": 1,
+              "trusted": true,
+              "canvasTarget": true,
+              "canvasOwned": true,
+              "args": {
+                "clientX": 809,
+                "clientY": 413,
+                "button": 0,
+                "buttons": 1,
+                "ctrlKey": false,
+                "shiftKey": false,
+                "altKey": false,
+                "metaKey": false,
+                "pointerType": "mouse"
+              },
+              "state": {
+                "turn": 239,
+                "frame": 219,
+                "animationFrame": 479,
+                "currentSceneMatches": true,
+                "currentWorldMatches": true,
+                "rect": {
+                  "left": 200,
+                  "top": 0,
+                  "width": 1240,
+                  "height": 1000
+                },
+                "localPixel": {
+                  "x": 609,
+                  "y": 413
+                },
+                "camera": {
+                  "x": 651,
+                  "y": 57195,
+                  "angle": 1451
+                },
+                "center": {
+                  "x": 651,
+                  "y": 57195
+                },
+                "rawCenter": {
+                  "x": 651,
+                  "y": -8341
+                },
+                "projection": {
+                  "curvature": 35248,
+                  "depth": 6500,
+                  "perspective": 11,
+                  "scale": 40786,
+                  "width": 1240,
+                  "height": 1000,
+                  "centerX": 620,
+                  "centerY": 423,
+                  "fractionX": 4,
+                  "fractionY": 4,
+                  "pixelScaleX": 0.0625,
+                  "pixelScaleY": 0.0625,
+                  "matrix": [
+                    -4225,
+                    0,
+                    15829,
+                    -5515,
+                    15357,
+                    -1472,
+                    -14838,
+                    -5708,
+                    -3960
+                  ]
+                },
+                "target": {
+                  "id": 29,
+                  "kind": "bridge",
+                  "model": 45,
+                  "x": -5,
+                  "z": 25,
+                  "active": true,
+                  "enabled": true,
+                  "stoneHead": {
+                    "family": 45,
+                    "object": 45,
+                    "draw": 4,
+                    "morph": 1,
+                    "f1": 20,
+                    "f2": 0,
+                    "stamp": 239,
+                    "flags3": 262144,
+                    "renderFlags": 264,
+                    "holdFrame": 1
+                  }
+                },
+                "body": {
+                  "nativeModel": 45,
+                  "stoneHeadFrame": 5,
+                  "frame": null,
+                  "stage": 4,
+                  "nativeSize": null,
+                  "visible": true,
+                  "positionVersion": 173,
+                  "matrixWorld": [
+                    2,
+                    0,
+                    0,
+                    0,
+                    0,
+                    2,
+                    0,
+                    0,
+                    0,
+                    0,
+                    2,
+                    0,
+                    -5,
+                    0.5078125,
+                    25,
+                    1
+                  ]
+                },
+                "cache": {
+                  "lastKey": "217,651,57195,651,-8341,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,611,415",
+                  "lastId": 29,
+                  "lastKind": "model"
+                },
+                "armedWorldMatches": true,
+                "armedCanvasMatches": true
+              },
+              "picks": [
+                {
+                  "name": "pick",
+                  "owner": "picking",
+                  "receiverMatches": true,
+                  "args": {
+                    "clientX": 809,
+                    "clientY": 413,
+                    "button": 0,
+                    "buttons": 1,
+                    "ctrlKey": false,
+                    "shiftKey": false,
+                    "altKey": false,
+                    "metaKey": false,
+                    "pointerType": "mouse"
+                  },
+                  "id": 29,
+                  "point": null,
+                  "before": {
+                    "lastKey": "217,651,57195,651,-8341,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,611,415",
+                    "lastId": 29,
+                    "lastKind": "model"
+                  },
+                  "after": {
+                    "lastKey": "219,651,57195,651,-8341,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,609,413",
+                    "lastId": 29,
+                    "lastKind": "model"
+                  }
+                },
+                {
+                  "name": "pickPerson",
+                  "owner": "picking",
+                  "receiverMatches": true,
+                  "args": {
+                    "clientX": 809,
+                    "clientY": 413,
+                    "button": 0,
+                    "buttons": 1,
+                    "ctrlKey": false,
+                    "shiftKey": false,
+                    "altKey": false,
+                    "metaKey": false,
+                    "pointerType": "mouse"
+                  },
+                  "id": null,
+                  "point": null,
+                  "before": {
+                    "lastKey": "217,651,57195,651,-8341,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,611,415",
+                    "lastId": 29,
+                    "lastKind": "model"
+                  },
+                  "after": {
+                    "lastKey": "219,651,57195,651,-8341,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,609,413",
+                    "lastId": 29,
+                    "lastKind": "model"
+                  }
+                },
+                {
+                  "name": "pickUnit",
+                  "owner": "scene",
+                  "receiverMatches": true,
+                  "args": {
+                    "clientX": 809,
+                    "clientY": 413,
+                    "button": 0,
+                    "buttons": 1,
+                    "ctrlKey": false,
+                    "shiftKey": false,
+                    "altKey": false,
+                    "metaKey": false,
+                    "pointerType": "mouse"
+                  },
+                  "id": null,
+                  "point": null,
+                  "before": {
+                    "lastKey": "217,651,57195,651,-8341,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,611,415",
+                    "lastId": 29,
+                    "lastKind": "model"
+                  },
+                  "after": {
+                    "lastKey": "219,651,57195,651,-8341,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,609,413",
+                    "lastId": 29,
+                    "lastKind": "model"
+                  }
+                },
+                {
+                  "name": "pick",
+                  "owner": "scene",
+                  "receiverMatches": true,
+                  "args": {
+                    "clientX": 809,
+                    "clientY": 413,
+                    "button": 0,
+                    "buttons": 1,
+                    "ctrlKey": false,
+                    "shiftKey": false,
+                    "altKey": false,
+                    "metaKey": false,
+                    "pointerType": "mouse"
+                  },
+                  "id": null,
+                  "point": {
+                    "x": -5.1728294510506885,
+                    "z": 24.9345713199761
+                  },
+                  "before": {
+                    "lastKey": "219,651,57195,651,-8341,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,609,413",
+                    "lastId": 29,
+                    "lastKind": "model"
+                  },
+                  "after": {
+                    "lastKey": "219,651,57195,651,-8341,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,609,413",
+                    "lastId": 29,
+                    "lastKind": "model"
+                  }
+                }
+              ],
+              "after": {
+                "turn": 239,
+                "frame": 219,
+                "animationFrame": 479,
+                "currentSceneMatches": true,
+                "currentWorldMatches": true,
+                "rect": {
+                  "left": 200,
+                  "top": 0,
+                  "width": 1240,
+                  "height": 1000
+                },
+                "localPixel": {
+                  "x": 609,
+                  "y": 413
+                },
+                "camera": {
+                  "x": 651,
+                  "y": 57195,
+                  "angle": 1451
+                },
+                "center": {
+                  "x": 651,
+                  "y": 57195
+                },
+                "rawCenter": {
+                  "x": 651,
+                  "y": -8341
+                },
+                "projection": {
+                  "curvature": 35248,
+                  "depth": 6500,
+                  "perspective": 11,
+                  "scale": 40786,
+                  "width": 1240,
+                  "height": 1000,
+                  "centerX": 620,
+                  "centerY": 423,
+                  "fractionX": 4,
+                  "fractionY": 4,
+                  "pixelScaleX": 0.0625,
+                  "pixelScaleY": 0.0625,
+                  "matrix": [
+                    -4225,
+                    0,
+                    15829,
+                    -5515,
+                    15357,
+                    -1472,
+                    -14838,
+                    -5708,
+                    -3960
+                  ]
+                },
+                "target": {
+                  "id": 29,
+                  "kind": "bridge",
+                  "model": 45,
+                  "x": -5,
+                  "z": 25,
+                  "active": true,
+                  "enabled": true,
+                  "stoneHead": {
+                    "family": 45,
+                    "object": 45,
+                    "draw": 4,
+                    "morph": 1,
+                    "f1": 20,
+                    "f2": 0,
+                    "stamp": 239,
+                    "flags3": 262144,
+                    "renderFlags": 264,
+                    "holdFrame": 1
+                  }
+                },
+                "body": {
+                  "nativeModel": 45,
+                  "stoneHeadFrame": 5,
+                  "frame": null,
+                  "stage": 4,
+                  "nativeSize": null,
+                  "visible": true,
+                  "positionVersion": 173,
+                  "matrixWorld": [
+                    2,
+                    0,
+                    0,
+                    0,
+                    0,
+                    2,
+                    0,
+                    0,
+                    0,
+                    0,
+                    2,
+                    0,
+                    -5,
+                    0.5078125,
+                    25,
+                    1
+                  ]
+                },
+                "cache": {
+                  "lastKey": "219,651,57195,651,-8341,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,609,413",
+                  "lastId": 29,
+                  "lastKind": "model"
+                },
+                "armedWorldMatches": true,
+                "armedCanvasMatches": true
+              }
+            },
+            {
+              "type": "pointerup",
+              "turn": 239,
+              "x": 809,
+              "y": 413,
+              "button": 0,
+              "buttons": 0,
+              "trusted": true,
+              "canvasTarget": true,
+              "canvasOwned": true,
+              "args": {
+                "clientX": 809,
+                "clientY": 413,
+                "button": 0,
+                "buttons": 0,
+                "ctrlKey": false,
+                "shiftKey": false,
+                "altKey": false,
+                "metaKey": false,
+                "pointerType": "mouse"
+              },
+              "state": {
+                "turn": 239,
+                "frame": 219,
+                "animationFrame": 479,
+                "currentSceneMatches": true,
+                "currentWorldMatches": true,
+                "rect": {
+                  "left": 200,
+                  "top": 0,
+                  "width": 1240,
+                  "height": 1000
+                },
+                "localPixel": {
+                  "x": 609,
+                  "y": 413
+                },
+                "camera": {
+                  "x": 651,
+                  "y": 57195,
+                  "angle": 1451
+                },
+                "center": {
+                  "x": 651,
+                  "y": 57195
+                },
+                "rawCenter": {
+                  "x": 651,
+                  "y": -8341
+                },
+                "projection": {
+                  "curvature": 35248,
+                  "depth": 6500,
+                  "perspective": 11,
+                  "scale": 40786,
+                  "width": 1240,
+                  "height": 1000,
+                  "centerX": 620,
+                  "centerY": 423,
+                  "fractionX": 4,
+                  "fractionY": 4,
+                  "pixelScaleX": 0.0625,
+                  "pixelScaleY": 0.0625,
+                  "matrix": [
+                    -4225,
+                    0,
+                    15829,
+                    -5515,
+                    15357,
+                    -1472,
+                    -14838,
+                    -5708,
+                    -3960
+                  ]
+                },
+                "target": {
+                  "id": 29,
+                  "kind": "bridge",
+                  "model": 45,
+                  "x": -5,
+                  "z": 25,
+                  "active": true,
+                  "enabled": true,
+                  "stoneHead": {
+                    "family": 45,
+                    "object": 45,
+                    "draw": 4,
+                    "morph": 1,
+                    "f1": 20,
+                    "f2": 0,
+                    "stamp": 239,
+                    "flags3": 262144,
+                    "renderFlags": 264,
+                    "holdFrame": 1
+                  }
+                },
+                "body": {
+                  "nativeModel": 45,
+                  "stoneHeadFrame": 5,
+                  "frame": null,
+                  "stage": 4,
+                  "nativeSize": null,
+                  "visible": true,
+                  "positionVersion": 173,
+                  "matrixWorld": [
+                    2,
+                    0,
+                    0,
+                    0,
+                    0,
+                    2,
+                    0,
+                    0,
+                    0,
+                    0,
+                    2,
+                    0,
+                    -5,
+                    0.5078125,
+                    25,
+                    1
+                  ]
+                },
+                "cache": {
+                  "lastKey": "219,651,57195,651,-8341,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,609,413",
+                  "lastId": 29,
+                  "lastKind": "model"
+                },
+                "armedWorldMatches": true,
+                "armedCanvasMatches": true
+              },
+              "picks": [
+                {
+                  "name": "pick",
+                  "owner": "scene",
+                  "receiverMatches": true,
+                  "args": {
+                    "clientX": 809,
+                    "clientY": 413,
+                    "button": 0,
+                    "buttons": 0,
+                    "ctrlKey": false,
+                    "shiftKey": false,
+                    "altKey": false,
+                    "metaKey": false,
+                    "pointerType": "mouse"
+                  },
+                  "id": null,
+                  "point": {
+                    "x": -5.1728294510506885,
+                    "z": 24.9345713199761
+                  },
+                  "before": {
+                    "lastKey": "219,651,57195,651,-8341,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,609,413",
+                    "lastId": 29,
+                    "lastKind": "model"
+                  },
+                  "after": {
+                    "lastKey": "219,651,57195,651,-8341,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,609,413",
+                    "lastId": 29,
+                    "lastKind": "model"
+                  }
+                },
+                {
+                  "name": "pick",
+                  "owner": "picking",
+                  "receiverMatches": true,
+                  "args": {
+                    "clientX": 809,
+                    "clientY": 413,
+                    "button": 0,
+                    "buttons": 0,
+                    "ctrlKey": false,
+                    "shiftKey": false,
+                    "altKey": false,
+                    "metaKey": false,
+                    "pointerType": "mouse"
+                  },
+                  "id": 29,
+                  "point": null,
+                  "before": {
+                    "lastKey": "219,651,57195,651,-8341,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,609,413",
+                    "lastId": 29,
+                    "lastKind": "model"
+                  },
+                  "after": {
+                    "lastKey": "219,651,57195,651,-8341,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,609,413",
+                    "lastId": 29,
+                    "lastKind": "model"
+                  }
+                },
+                {
+                  "name": "pickPerson",
+                  "owner": "picking",
+                  "receiverMatches": true,
+                  "args": {
+                    "clientX": 809,
+                    "clientY": 413,
+                    "button": 0,
+                    "buttons": 0,
+                    "ctrlKey": false,
+                    "shiftKey": false,
+                    "altKey": false,
+                    "metaKey": false,
+                    "pointerType": "mouse"
+                  },
+                  "id": null,
+                  "point": null,
+                  "before": {
+                    "lastKey": "219,651,57195,651,-8341,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,609,413",
+                    "lastId": 29,
+                    "lastKind": "model"
+                  },
+                  "after": {
+                    "lastKey": "219,651,57195,651,-8341,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,609,413",
+                    "lastId": 29,
+                    "lastKind": "model"
+                  }
+                },
+                {
+                  "name": "pick",
+                  "owner": "picking",
+                  "receiverMatches": true,
+                  "args": {
+                    "clientX": 809,
+                    "clientY": 413,
+                    "button": 0,
+                    "buttons": 0,
+                    "ctrlKey": false,
+                    "shiftKey": false,
+                    "altKey": false,
+                    "metaKey": false,
+                    "pointerType": "mouse"
+                  },
+                  "id": 29,
+                  "point": null,
+                  "before": {
+                    "lastKey": "219,651,57195,651,-8341,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,609,413",
+                    "lastId": 29,
+                    "lastKind": "model"
+                  },
+                  "after": {
+                    "lastKey": "219,651,57195,651,-8341,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,609,413",
+                    "lastId": 29,
+                    "lastKind": "model"
+                  }
+                },
+                {
+                  "name": "pickWorldObject",
+                  "owner": "scene",
+                  "receiverMatches": true,
+                  "args": {
+                    "clientX": 809,
+                    "clientY": 413,
+                    "button": 0,
+                    "buttons": 0,
+                    "ctrlKey": false,
+                    "shiftKey": false,
+                    "altKey": false,
+                    "metaKey": false,
+                    "pointerType": "mouse"
+                  },
+                  "id": 29,
+                  "point": {
+                    "x": -5,
+                    "z": 25
+                  },
+                  "before": {
+                    "lastKey": "219,651,57195,651,-8341,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,609,413",
+                    "lastId": 29,
+                    "lastKind": "model"
+                  },
+                  "after": {
+                    "lastKey": "219,651,57195,651,-8341,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,609,413",
+                    "lastId": 29,
+                    "lastKind": "model"
+                  }
+                }
+              ],
+              "after": {
+                "turn": 239,
+                "frame": 219,
+                "animationFrame": 479,
+                "currentSceneMatches": true,
+                "currentWorldMatches": true,
+                "rect": {
+                  "left": 200,
+                  "top": 0,
+                  "width": 1240,
+                  "height": 1000
+                },
+                "localPixel": {
+                  "x": 609,
+                  "y": 413
+                },
+                "camera": {
+                  "x": 651,
+                  "y": 57195,
+                  "angle": 1451
+                },
+                "center": {
+                  "x": 651,
+                  "y": 57195
+                },
+                "rawCenter": {
+                  "x": 651,
+                  "y": -8341
+                },
+                "projection": {
+                  "curvature": 35248,
+                  "depth": 6500,
+                  "perspective": 11,
+                  "scale": 40786,
+                  "width": 1240,
+                  "height": 1000,
+                  "centerX": 620,
+                  "centerY": 423,
+                  "fractionX": 4,
+                  "fractionY": 4,
+                  "pixelScaleX": 0.0625,
+                  "pixelScaleY": 0.0625,
+                  "matrix": [
+                    -4225,
+                    0,
+                    15829,
+                    -5515,
+                    15357,
+                    -1472,
+                    -14838,
+                    -5708,
+                    -3960
+                  ]
+                },
+                "target": {
+                  "id": 29,
+                  "kind": "bridge",
+                  "model": 45,
+                  "x": -5,
+                  "z": 25,
+                  "active": true,
+                  "enabled": true,
+                  "stoneHead": {
+                    "family": 45,
+                    "object": 45,
+                    "draw": 4,
+                    "morph": 1,
+                    "f1": 20,
+                    "f2": 0,
+                    "stamp": 239,
+                    "flags3": 262144,
+                    "renderFlags": 264,
+                    "holdFrame": 1
+                  }
+                },
+                "body": {
+                  "nativeModel": 45,
+                  "stoneHeadFrame": 5,
+                  "frame": null,
+                  "stage": 4,
+                  "nativeSize": null,
+                  "visible": true,
+                  "positionVersion": 173,
+                  "matrixWorld": [
+                    2,
+                    0,
+                    0,
+                    0,
+                    0,
+                    2,
+                    0,
+                    0,
+                    0,
+                    0,
+                    2,
+                    0,
+                    -5,
+                    0.5078125,
+                    25,
+                    1
+                  ]
+                },
+                "cache": {
+                  "lastKey": "219,651,57195,651,-8341,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,609,413",
+                  "lastId": 29,
+                  "lastKind": "model"
+                },
+                "armedWorldMatches": true,
+                "armedCanvasMatches": true
+              }
+            }
+          ],
+          "errors": [],
+          "restored": true
+        }
+      }
+    },
+    {
+      "label": "Select and focus shaman",
+      "phase": "before",
+      "at": "2026-10-06T23:29:02.344Z"
+    },
+    {
+      "label": "Select and focus shaman",
+      "phase": "after",
+      "at": "2026-10-06T23:29:03.569Z"
+    },
+    {
+      "label": "minimap-view",
+      "phase": "before",
+      "at": "2026-10-06T23:29:04.666Z"
+    },
+    {
+      "label": "minimap-view",
+      "phase": "after",
+      "at": "2026-10-06T23:29:04.775Z"
+    },
+    {
+      "label": "final-dispatch-preflight",
+      "command": 3,
+      "hit": {
+        "x": 806,
+        "y": 416,
+        "point": {
+          "x": -0.009245582362268578,
+          "z": 20.01575578532743
+        },
+        "target": {
+          "x": 0,
+          "z": 20
+        },
+        "snapped": {
+          "x": -1,
+          "z": 21
+        },
+        "context": {
+          "model": 3,
+          "enabled": true,
+          "buildingId": null,
+          "personId": null,
+          "shrineId": null,
+          "treeId": null,
+          "vehicleId": null
+        },
+        "rejection": null,
+        "diagnostics": {
+          "turn": 496,
+          "frame": 589,
+          "animationFrame": 993,
+          "currentSceneMatches": true,
+          "currentWorldMatches": true,
+          "rect": {
+            "left": 200,
+            "top": 0,
+            "width": 1240,
+            "height": 1000
+          },
+          "localPixel": {
+            "x": 606,
+            "y": 416
+          },
+          "camera": {
+            "x": 1952,
+            "y": 58483,
+            "angle": 1451
+          },
+          "center": {
+            "x": 1952,
+            "y": 58483
+          },
+          "rawCenter": {
+            "x": 1952,
+            "y": -7053
+          },
+          "projection": {
+            "curvature": 35248,
+            "depth": 6500,
+            "perspective": 11,
+            "scale": 40786,
+            "width": 1240,
+            "height": 1000,
+            "centerX": 620,
+            "centerY": 423,
+            "fractionX": 4,
+            "fractionY": 4,
+            "pixelScaleX": 0.0625,
+            "pixelScaleY": 0.0625,
+            "matrix": [
+              -4225,
+              0,
+              15829,
+              -5515,
+              15357,
+              -1472,
+              -14838,
+              -5708,
+              -3960
+            ]
+          },
+          "target": null,
+          "body": null,
+          "cache": {
+            "lastKey": "589,1952,58483,1952,-7053,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,606,416",
+            "lastId": null,
+            "lastKind": null
+          }
+        },
+        "turn": 496
+      },
+      "preflight": {
+        "rejection": null,
+        "diagnostics": {
+          "state": {
+            "turn": 505,
+            "frame": 597,
+            "animationFrame": 1010,
+            "currentSceneMatches": true,
+            "currentWorldMatches": true,
+            "rect": {
+              "left": 200,
+              "top": 0,
+              "width": 1240,
+              "height": 1000
+            },
+            "localPixel": {
+              "x": 606,
+              "y": 416
+            },
+            "camera": {
+              "x": 1952,
+              "y": 58483,
+              "angle": 1451
+            },
+            "center": {
+              "x": 1952,
+              "y": 58483
+            },
+            "rawCenter": {
+              "x": 1952,
+              "y": -7053
+            },
+            "projection": {
+              "curvature": 35248,
+              "depth": 6500,
+              "perspective": 11,
+              "scale": 40786,
+              "width": 1240,
+              "height": 1000,
+              "centerX": 620,
+              "centerY": 423,
+              "fractionX": 4,
+              "fractionY": 4,
+              "pixelScaleX": 0.0625,
+              "pixelScaleY": 0.0625,
+              "matrix": [
+                -4225,
+                0,
+                15829,
+                -5515,
+                15357,
+                -1472,
+                -14838,
+                -5708,
+                -3960
+              ]
+            },
+            "target": null,
+            "body": null,
+            "cache": {
+              "lastKey": "597,1952,58483,1952,-7053,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,606,416",
+              "lastId": null,
+              "lastKind": null
+            }
+          },
+          "pick": {
+            "x": 806,
+            "y": 416,
+            "point": {
+              "x": -0.009245582362268578,
+              "z": 20.01575578532743
+            },
+            "target": {
+              "x": 0,
+              "z": 20
+            },
+            "snapped": {
+              "x": -1,
+              "z": 21
+            },
+            "context": {
+              "model": 3,
+              "enabled": true,
+              "buildingId": null,
+              "personId": null,
+              "shrineId": null,
+              "treeId": null,
+              "vehicleId": null
+            },
+            "rejection": null,
+            "diagnostics": {
+              "turn": 496,
+              "frame": 589,
+              "animationFrame": 993,
+              "currentSceneMatches": true,
+              "currentWorldMatches": true,
+              "rect": {
+                "left": 200,
+                "top": 0,
+                "width": 1240,
+                "height": 1000
+              },
+              "localPixel": {
+                "x": 606,
+                "y": 416
+              },
+              "camera": {
+                "x": 1952,
+                "y": 58483,
+                "angle": 1451
+              },
+              "center": {
+                "x": 1952,
+                "y": 58483
+              },
+              "rawCenter": {
+                "x": 1952,
+                "y": -7053
+              },
+              "projection": {
+                "curvature": 35248,
+                "depth": 6500,
+                "perspective": 11,
+                "scale": 40786,
+                "width": 1240,
+                "height": 1000,
+                "centerX": 620,
+                "centerY": 423,
+                "fractionX": 4,
+                "fractionY": 4,
+                "pixelScaleX": 0.0625,
+                "pixelScaleY": 0.0625,
+                "matrix": [
+                  -4225,
+                  0,
+                  15829,
+                  -5515,
+                  15357,
+                  -1472,
+                  -14838,
+                  -5708,
+                  -3960
+                ]
+              },
+              "target": null,
+              "body": null,
+              "cache": {
+                "lastKey": "589,1952,58483,1952,-7053,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,606,416",
+                "lastId": null,
+                "lastKind": null
+              }
+            },
+            "turn": 496,
+            "canvasOwned": true,
+            "hitId": null
+          },
+          "interior": null,
+          "context": {
+            "model": 3,
+            "enabled": true,
+            "buildingId": null,
+            "personId": null,
+            "shrineId": null,
+            "treeId": null,
+            "vehicleId": null
+          },
+          "point": {
+            "id": null,
+            "x": -0.009245582362268578,
+            "z": 20.01575578532743
+          },
+          "selected": [
+            30
+          ],
+          "lastOrderTurn": 239,
+          "selectedUnits": [
+            {
+              "id": 30,
+              "kind": "shaman",
+              "team": "blue",
+              "hp": 100
+            }
+          ]
+        }
+      }
+    },
+    {
+      "label": "command-3-click",
+      "phase": "before",
+      "at": "2026-10-06T23:29:08.056Z"
+    },
+    {
+      "label": "command-3-click",
+      "phase": "after",
+      "at": "2026-10-06T23:29:08.165Z"
+    },
+    {
+      "label": "actual-dispatch",
+      "command": 3,
+      "hit": {
+        "x": 806,
+        "y": 416,
+        "point": {
+          "x": -0.009245582362268578,
+          "z": 20.01575578532743
+        },
+        "target": {
+          "x": 0,
+          "z": 20
+        },
+        "snapped": {
+          "x": -1,
+          "z": 21
+        },
+        "context": {
+          "model": 3,
+          "enabled": true,
+          "buildingId": null,
+          "personId": null,
+          "shrineId": null,
+          "treeId": null,
+          "vehicleId": null
+        },
+        "rejection": null,
+        "diagnostics": {
+          "turn": 496,
+          "frame": 589,
+          "animationFrame": 993,
+          "currentSceneMatches": true,
+          "currentWorldMatches": true,
+          "rect": {
+            "left": 200,
+            "top": 0,
+            "width": 1240,
+            "height": 1000
+          },
+          "localPixel": {
+            "x": 606,
+            "y": 416
+          },
+          "camera": {
+            "x": 1952,
+            "y": 58483,
+            "angle": 1451
+          },
+          "center": {
+            "x": 1952,
+            "y": 58483
+          },
+          "rawCenter": {
+            "x": 1952,
+            "y": -7053
+          },
+          "projection": {
+            "curvature": 35248,
+            "depth": 6500,
+            "perspective": 11,
+            "scale": 40786,
+            "width": 1240,
+            "height": 1000,
+            "centerX": 620,
+            "centerY": 423,
+            "fractionX": 4,
+            "fractionY": 4,
+            "pixelScaleX": 0.0625,
+            "pixelScaleY": 0.0625,
+            "matrix": [
+              -4225,
+              0,
+              15829,
+              -5515,
+              15357,
+              -1472,
+              -14838,
+              -5708,
+              -3960
+            ]
+          },
+          "target": null,
+          "body": null,
+          "cache": {
+            "lastKey": "589,1952,58483,1952,-7053,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,606,416",
+            "lastId": null,
+            "lastKind": null
+          }
+        },
+        "turn": 496
+      },
+      "evidence": {
+        "before": {
+          "turn": 505,
+          "selected": [
+            30
+          ],
+          "lastOrderTurn": 239,
+          "ack": {
+            "target": 29,
+            "until": 31530.733333339293
+          },
+          "worldMatches": true,
+          "units": [
+            {
+              "id": 30,
+              "kind": "shaman",
+              "hp": 100,
+              "inside": null,
+              "work": 29,
+              "order": {
+                "model": 27,
+                "flags": 0,
+                "references": 1,
+                "object": 0,
+                "a": 29,
+                "b": 0
+              }
+            }
+          ]
+        },
+        "context": {
+          "model": 3,
+          "enabled": true,
+          "buildingId": null,
+          "personId": null,
+          "shrineId": null,
+          "treeId": null,
+          "vehicleId": null
+        },
+        "point": {
+          "x": -0.009245582362268578,
+          "z": 20.01575578532743
+        },
+        "after": {
+          "turn": 507,
+          "selected": [
+            30
+          ],
+          "lastOrderTurn": 507,
+          "ack": {
+            "target": 0,
+            "until": 53757.733333339296
+          },
+          "worldMatches": true,
+          "units": [
+            {
+              "id": 30,
+              "kind": "shaman",
+              "hp": 100,
+              "inside": null,
+              "work": null,
+              "order": {
+                "model": 3,
+                "flags": 0,
+                "references": 1,
+                "object": 0,
+                "a": 2046,
+                "b": 58364
+              }
+            }
+          ]
+        },
+        "errors": [],
+        "delivered": {
+          "events": [
+            {
+              "type": "pointerdown",
+              "turn": 507,
+              "x": 806,
+              "y": 416,
+              "button": 0,
+              "buttons": 1,
+              "trusted": true,
+              "canvasTarget": true,
+              "canvasOwned": true,
+              "args": {
+                "clientX": 806,
+                "clientY": 416,
+                "button": 0,
+                "buttons": 1,
+                "ctrlKey": false,
+                "shiftKey": false,
+                "altKey": false,
+                "metaKey": false,
+                "pointerType": "mouse"
+              },
+              "state": {
+                "turn": 507,
+                "frame": 599,
+                "animationFrame": 1014,
+                "currentSceneMatches": true,
+                "currentWorldMatches": true,
+                "rect": {
+                  "left": 200,
+                  "top": 0,
+                  "width": 1240,
+                  "height": 1000
+                },
+                "localPixel": {
+                  "x": 606,
+                  "y": 416
+                },
+                "camera": {
+                  "x": 1952,
+                  "y": 58483,
+                  "angle": 1451
+                },
+                "center": {
+                  "x": 1952,
+                  "y": 58483
+                },
+                "rawCenter": {
+                  "x": 1952,
+                  "y": -7053
+                },
+                "projection": {
+                  "curvature": 35248,
+                  "depth": 6500,
+                  "perspective": 11,
+                  "scale": 40786,
+                  "width": 1240,
+                  "height": 1000,
+                  "centerX": 620,
+                  "centerY": 423,
+                  "fractionX": 4,
+                  "fractionY": 4,
+                  "pixelScaleX": 0.0625,
+                  "pixelScaleY": 0.0625,
+                  "matrix": [
+                    -4225,
+                    0,
+                    15829,
+                    -5515,
+                    15357,
+                    -1472,
+                    -14838,
+                    -5708,
+                    -3960
+                  ]
+                },
+                "target": null,
+                "body": null,
+                "cache": {
+                  "lastKey": "597,1952,58483,1952,-7053,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,606,416",
+                  "lastId": null,
+                  "lastKind": null
+                },
+                "armedWorldMatches": true,
+                "armedCanvasMatches": true
+              },
+              "picks": [
+                {
+                  "name": "pick",
+                  "owner": "picking",
+                  "receiverMatches": true,
+                  "args": {
+                    "clientX": 806,
+                    "clientY": 416,
+                    "button": 0,
+                    "buttons": 1,
+                    "ctrlKey": false,
+                    "shiftKey": false,
+                    "altKey": false,
+                    "metaKey": false,
+                    "pointerType": "mouse"
+                  },
+                  "id": null,
+                  "point": null,
+                  "before": {
+                    "lastKey": "597,1952,58483,1952,-7053,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,606,416",
+                    "lastId": null,
+                    "lastKind": null
+                  },
+                  "after": {
+                    "lastKey": "599,1952,58483,1952,-7053,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,606,416",
+                    "lastId": null,
+                    "lastKind": null
+                  }
+                },
+                {
+                  "name": "pickPerson",
+                  "owner": "picking",
+                  "receiverMatches": true,
+                  "args": {
+                    "clientX": 806,
+                    "clientY": 416,
+                    "button": 0,
+                    "buttons": 1,
+                    "ctrlKey": false,
+                    "shiftKey": false,
+                    "altKey": false,
+                    "metaKey": false,
+                    "pointerType": "mouse"
+                  },
+                  "id": null,
+                  "point": null,
+                  "before": {
+                    "lastKey": "597,1952,58483,1952,-7053,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,606,416",
+                    "lastId": null,
+                    "lastKind": null
+                  },
+                  "after": {
+                    "lastKey": "599,1952,58483,1952,-7053,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,606,416",
+                    "lastId": null,
+                    "lastKind": null
+                  }
+                },
+                {
+                  "name": "pickUnit",
+                  "owner": "scene",
+                  "receiverMatches": true,
+                  "args": {
+                    "clientX": 806,
+                    "clientY": 416,
+                    "button": 0,
+                    "buttons": 1,
+                    "ctrlKey": false,
+                    "shiftKey": false,
+                    "altKey": false,
+                    "metaKey": false,
+                    "pointerType": "mouse"
+                  },
+                  "id": null,
+                  "point": null,
+                  "before": {
+                    "lastKey": "597,1952,58483,1952,-7053,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,606,416",
+                    "lastId": null,
+                    "lastKind": null
+                  },
+                  "after": {
+                    "lastKey": "599,1952,58483,1952,-7053,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,606,416",
+                    "lastId": null,
+                    "lastKind": null
+                  }
+                },
+                {
+                  "name": "pick",
+                  "owner": "scene",
+                  "receiverMatches": true,
+                  "args": {
+                    "clientX": 806,
+                    "clientY": 416,
+                    "button": 0,
+                    "buttons": 1,
+                    "ctrlKey": false,
+                    "shiftKey": false,
+                    "altKey": false,
+                    "metaKey": false,
+                    "pointerType": "mouse"
+                  },
+                  "id": null,
+                  "point": {
+                    "x": -0.009245582362268578,
+                    "z": 20.01575578532743
+                  },
+                  "before": {
+                    "lastKey": "599,1952,58483,1952,-7053,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,606,416",
+                    "lastId": null,
+                    "lastKind": null
+                  },
+                  "after": {
+                    "lastKey": "599,1952,58483,1952,-7053,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,606,416",
+                    "lastId": null,
+                    "lastKind": null
+                  }
+                }
+              ],
+              "after": {
+                "turn": 507,
+                "frame": 599,
+                "animationFrame": 1014,
+                "currentSceneMatches": true,
+                "currentWorldMatches": true,
+                "rect": {
+                  "left": 200,
+                  "top": 0,
+                  "width": 1240,
+                  "height": 1000
+                },
+                "localPixel": {
+                  "x": 606,
+                  "y": 416
+                },
+                "camera": {
+                  "x": 1952,
+                  "y": 58483,
+                  "angle": 1451
+                },
+                "center": {
+                  "x": 1952,
+                  "y": 58483
+                },
+                "rawCenter": {
+                  "x": 1952,
+                  "y": -7053
+                },
+                "projection": {
+                  "curvature": 35248,
+                  "depth": 6500,
+                  "perspective": 11,
+                  "scale": 40786,
+                  "width": 1240,
+                  "height": 1000,
+                  "centerX": 620,
+                  "centerY": 423,
+                  "fractionX": 4,
+                  "fractionY": 4,
+                  "pixelScaleX": 0.0625,
+                  "pixelScaleY": 0.0625,
+                  "matrix": [
+                    -4225,
+                    0,
+                    15829,
+                    -5515,
+                    15357,
+                    -1472,
+                    -14838,
+                    -5708,
+                    -3960
+                  ]
+                },
+                "target": null,
+                "body": null,
+                "cache": {
+                  "lastKey": "599,1952,58483,1952,-7053,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,606,416",
+                  "lastId": null,
+                  "lastKind": null
+                },
+                "armedWorldMatches": true,
+                "armedCanvasMatches": true
+              }
+            },
+            {
+              "type": "pointerup",
+              "turn": 507,
+              "x": 806,
+              "y": 416,
+              "button": 0,
+              "buttons": 0,
+              "trusted": true,
+              "canvasTarget": true,
+              "canvasOwned": true,
+              "args": {
+                "clientX": 806,
+                "clientY": 416,
+                "button": 0,
+                "buttons": 0,
+                "ctrlKey": false,
+                "shiftKey": false,
+                "altKey": false,
+                "metaKey": false,
+                "pointerType": "mouse"
+              },
+              "state": {
+                "turn": 507,
+                "frame": 599,
+                "animationFrame": 1014,
+                "currentSceneMatches": true,
+                "currentWorldMatches": true,
+                "rect": {
+                  "left": 200,
+                  "top": 0,
+                  "width": 1240,
+                  "height": 1000
+                },
+                "localPixel": {
+                  "x": 606,
+                  "y": 416
+                },
+                "camera": {
+                  "x": 1952,
+                  "y": 58483,
+                  "angle": 1451
+                },
+                "center": {
+                  "x": 1952,
+                  "y": 58483
+                },
+                "rawCenter": {
+                  "x": 1952,
+                  "y": -7053
+                },
+                "projection": {
+                  "curvature": 35248,
+                  "depth": 6500,
+                  "perspective": 11,
+                  "scale": 40786,
+                  "width": 1240,
+                  "height": 1000,
+                  "centerX": 620,
+                  "centerY": 423,
+                  "fractionX": 4,
+                  "fractionY": 4,
+                  "pixelScaleX": 0.0625,
+                  "pixelScaleY": 0.0625,
+                  "matrix": [
+                    -4225,
+                    0,
+                    15829,
+                    -5515,
+                    15357,
+                    -1472,
+                    -14838,
+                    -5708,
+                    -3960
+                  ]
+                },
+                "target": null,
+                "body": null,
+                "cache": {
+                  "lastKey": "599,1952,58483,1952,-7053,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,606,416",
+                  "lastId": null,
+                  "lastKind": null
+                },
+                "armedWorldMatches": true,
+                "armedCanvasMatches": true
+              },
+              "picks": [
+                {
+                  "name": "pick",
+                  "owner": "scene",
+                  "receiverMatches": true,
+                  "args": {
+                    "clientX": 806,
+                    "clientY": 416,
+                    "button": 0,
+                    "buttons": 0,
+                    "ctrlKey": false,
+                    "shiftKey": false,
+                    "altKey": false,
+                    "metaKey": false,
+                    "pointerType": "mouse"
+                  },
+                  "id": null,
+                  "point": {
+                    "x": -0.009245582362268578,
+                    "z": 20.01575578532743
+                  },
+                  "before": {
+                    "lastKey": "599,1952,58483,1952,-7053,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,606,416",
+                    "lastId": null,
+                    "lastKind": null
+                  },
+                  "after": {
+                    "lastKey": "599,1952,58483,1952,-7053,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,606,416",
+                    "lastId": null,
+                    "lastKind": null
+                  }
+                },
+                {
+                  "name": "pick",
+                  "owner": "picking",
+                  "receiverMatches": true,
+                  "args": {
+                    "clientX": 806,
+                    "clientY": 416,
+                    "button": 0,
+                    "buttons": 0,
+                    "ctrlKey": false,
+                    "shiftKey": false,
+                    "altKey": false,
+                    "metaKey": false,
+                    "pointerType": "mouse"
+                  },
+                  "id": null,
+                  "point": null,
+                  "before": {
+                    "lastKey": "599,1952,58483,1952,-7053,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,606,416",
+                    "lastId": null,
+                    "lastKind": null
+                  },
+                  "after": {
+                    "lastKey": "599,1952,58483,1952,-7053,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,606,416",
+                    "lastId": null,
+                    "lastKind": null
+                  }
+                },
+                {
+                  "name": "pickPerson",
+                  "owner": "picking",
+                  "receiverMatches": true,
+                  "args": {
+                    "clientX": 806,
+                    "clientY": 416,
+                    "button": 0,
+                    "buttons": 0,
+                    "ctrlKey": false,
+                    "shiftKey": false,
+                    "altKey": false,
+                    "metaKey": false,
+                    "pointerType": "mouse"
+                  },
+                  "id": null,
+                  "point": null,
+                  "before": {
+                    "lastKey": "599,1952,58483,1952,-7053,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,606,416",
+                    "lastId": null,
+                    "lastKind": null
+                  },
+                  "after": {
+                    "lastKey": "599,1952,58483,1952,-7053,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,606,416",
+                    "lastId": null,
+                    "lastKind": null
+                  }
+                },
+                {
+                  "name": "pick",
+                  "owner": "picking",
+                  "receiverMatches": true,
+                  "args": {
+                    "clientX": 806,
+                    "clientY": 416,
+                    "button": 0,
+                    "buttons": 0,
+                    "ctrlKey": false,
+                    "shiftKey": false,
+                    "altKey": false,
+                    "metaKey": false,
+                    "pointerType": "mouse"
+                  },
+                  "id": null,
+                  "point": null,
+                  "before": {
+                    "lastKey": "599,1952,58483,1952,-7053,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,606,416",
+                    "lastId": null,
+                    "lastKind": null
+                  },
+                  "after": {
+                    "lastKey": "599,1952,58483,1952,-7053,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,606,416",
+                    "lastId": null,
+                    "lastKind": null
+                  }
+                },
+                {
+                  "name": "pickWorldObject",
+                  "owner": "scene",
+                  "receiverMatches": true,
+                  "args": {
+                    "clientX": 806,
+                    "clientY": 416,
+                    "button": 0,
+                    "buttons": 0,
+                    "ctrlKey": false,
+                    "shiftKey": false,
+                    "altKey": false,
+                    "metaKey": false,
+                    "pointerType": "mouse"
+                  },
+                  "id": null,
+                  "point": null,
+                  "before": {
+                    "lastKey": "599,1952,58483,1952,-7053,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,606,416",
+                    "lastId": null,
+                    "lastKind": null
+                  },
+                  "after": {
+                    "lastKey": "599,1952,58483,1952,-7053,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,606,416",
+                    "lastId": null,
+                    "lastKind": null
+                  }
+                },
+                {
+                  "name": "pick",
+                  "owner": "scene",
+                  "receiverMatches": true,
+                  "args": {
+                    "clientX": 806,
+                    "clientY": 416,
+                    "button": 0,
+                    "buttons": 0,
+                    "ctrlKey": false,
+                    "shiftKey": false,
+                    "altKey": false,
+                    "metaKey": false,
+                    "pointerType": "mouse"
+                  },
+                  "id": null,
+                  "point": {
+                    "x": -0.009245582362268578,
+                    "z": 20.01575578532743
+                  },
+                  "before": {
+                    "lastKey": "599,1952,58483,1952,-7053,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,606,416",
+                    "lastId": null,
+                    "lastKind": null
+                  },
+                  "after": {
+                    "lastKey": "599,1952,58483,1952,-7053,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,606,416",
+                    "lastId": null,
+                    "lastKind": null
+                  }
+                }
+              ],
+              "after": {
+                "turn": 507,
+                "frame": 599,
+                "animationFrame": 1014,
+                "currentSceneMatches": true,
+                "currentWorldMatches": true,
+                "rect": {
+                  "left": 200,
+                  "top": 0,
+                  "width": 1240,
+                  "height": 1000
+                },
+                "localPixel": {
+                  "x": 606,
+                  "y": 416
+                },
+                "camera": {
+                  "x": 1952,
+                  "y": 58483,
+                  "angle": 1451
+                },
+                "center": {
+                  "x": 1952,
+                  "y": 58483
+                },
+                "rawCenter": {
+                  "x": 1952,
+                  "y": -7053
+                },
+                "projection": {
+                  "curvature": 35248,
+                  "depth": 6500,
+                  "perspective": 11,
+                  "scale": 40786,
+                  "width": 1240,
+                  "height": 1000,
+                  "centerX": 620,
+                  "centerY": 423,
+                  "fractionX": 4,
+                  "fractionY": 4,
+                  "pixelScaleX": 0.0625,
+                  "pixelScaleY": 0.0625,
+                  "matrix": [
+                    -4225,
+                    0,
+                    15829,
+                    -5515,
+                    15357,
+                    -1472,
+                    -14838,
+                    -5708,
+                    -3960
+                  ]
+                },
+                "target": null,
+                "body": null,
+                "cache": {
+                  "lastKey": "599,1952,58483,1952,-7053,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,606,416",
+                  "lastId": null,
+                  "lastKind": null
+                },
+                "armedWorldMatches": true,
+                "armedCanvasMatches": true
+              }
+            }
+          ],
+          "errors": [],
+          "restored": true
+        }
+      }
+    },
+    {
+      "label": "minimap-view",
+      "phase": "before",
+      "at": "2026-10-06T23:29:11.235Z"
+    },
+    {
+      "label": "minimap-view",
+      "phase": "after",
+      "at": "2026-10-06T23:29:11.328Z"
+    },
+    {
+      "label": "select-earned-Land-Bridge",
+      "phase": "before",
+      "at": "2026-10-06T23:29:12.419Z"
+    },
+    {
+      "label": "select-earned-Land-Bridge",
+      "phase": "after",
+      "at": "2026-10-06T23:29:12.515Z"
+    }
+  ],
+  "screenshots": [],
+  "startup": {
+    "before": {
+      "ready": true,
+      "turn": 130,
+      "inputMask": 0,
+      "selected": [
+        30
+      ],
+      "levelStartPhase": 4,
+      "shaman": {
+        "id": 30,
+        "hp": 100,
+        "canOrder": true,
+        "selectable": true,
+        "state": 19,
+        "flags2": 131072,
+        "flags4": 536871168,
+        "commandStatus": 0
+      },
+      "level": 1
+    },
+    "after": {
+      "ready": true,
+      "turn": 130,
+      "inputMask": 0,
+      "selected": [
+        30
+      ],
+      "levelStartPhase": 4,
+      "shaman": {
+        "id": 30,
+        "hp": 100,
+        "canOrder": true,
+        "selectable": true,
+        "state": 19,
+        "flags2": 131072,
+        "flags4": 536871168,
+        "commandStatus": 0
+      },
+      "level": 1
+    },
+    "samples": 1
+  },
+  "renderer": {
+    "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+    "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "contextLost": false,
+    "canvas": [
+      1240,
+      1000
+    ],
+    "viewport": [
+      1440,
+      1000
+    ],
+    "dpr": 1
+  },
+  "initial": {
+    "turn": 135,
+    "speed": 1,
+    "paused": false,
+    "status": "playing",
+    "shots": 0,
+    "giftCount": 0,
+    "bridgeShots": 0,
+    "bridgeGifts": 0,
+    "bridges": 0,
+    "bridgeEffects": [],
+    "bridgeProjectiles": [],
+    "bridgeHead": {
+      "id": 29,
+      "x": -5,
+      "z": 25,
+      "uses": 0
+    },
+    "selected": [
+      30
+    ],
+    "mode": null,
+    "head": {
+      "id": 28,
+      "x": 11,
+      "z": 1,
+      "uses": 0,
+      "required": 1
+    },
+    "shaman": {
+      "id": 30,
+      "x": 9,
+      "z": 33,
+      "hp": 100,
+      "inside": null
+    },
+    "huts": [
+      {
+        "id": 36,
+        "x": -2.9296875,
+        "z": 40.9453125,
+        "progress": 1,
+        "hp": 170,
+        "burning": false,
+        "level": 1,
+        "residents": []
+      },
+      {
+        "id": 37,
+        "x": -11.0703125,
+        "z": 33.0546875,
+        "progress": 1,
+        "hp": 170,
+        "burning": false,
+        "level": 1,
+        "residents": []
+      }
+    ]
+  },
+  "initialRoutes": [
+    {
+      "label": "opening-Lightning",
+      "turn": 146,
+      "actor": {
+        "id": 30,
+        "kind": "shaman",
+        "x": 9,
+        "z": 33
+      },
+      "shrine": {
+        "id": 28,
+        "mode": 0,
+        "x": 11,
+        "z": 1
+      },
+      "goal": {
+        "x": 11,
+        "z": 3
+      },
+      "eligibility": {
+        "canOrder": true,
+        "accepts27": true,
+        "model": 7,
+        "flags4": 536871168
+      },
+      "routeFound": false,
+      "nativeRoute": null
+    },
+    {
+      "label": "opening-Land-Bridge",
+      "turn": 163,
+      "actor": {
+        "id": 30,
+        "kind": "shaman",
+        "x": 9,
+        "z": 33
+      },
+      "shrine": {
+        "id": 29,
+        "mode": 0,
+        "x": -5,
+        "z": 25
+      },
+      "goal": {
+        "x": -5,
+        "z": 27
+      },
+      "eligibility": {
+        "canOrder": true,
+        "accepts27": true,
+        "model": 7,
+        "flags4": 536871168
+      },
+      "routeFound": true,
+      "nativeRoute": {
+        "x": 4352,
+        "y": 55040,
+        "motionGroup": 27,
+        "motionIndex": 0
+      }
+    }
+  ],
+  "bridgeReward": {
+    "turn": 435,
+    "speed": 1,
+    "paused": false,
+    "status": "playing",
+    "shots": 0,
+    "giftCount": 0,
+    "bridgeShots": 1,
+    "bridgeGifts": 1,
+    "bridges": 0,
+    "bridgeEffects": [],
+    "bridgeProjectiles": [],
+    "bridgeHead": {
+      "id": 29,
+      "x": -5,
+      "z": 25,
+      "uses": 1
+    },
+    "selected": [
+      30
+    ],
+    "mode": null,
+    "head": {
+      "id": 28,
+      "x": 11,
+      "z": 1,
+      "uses": 0,
+      "required": 1
+    },
+    "shaman": {
+      "id": 30,
+      "x": -5,
+      "z": 26.75,
+      "hp": 100,
+      "inside": null
+    },
+    "huts": [
+      {
+        "id": 36,
+        "x": -2.9296875,
+        "z": 40.9453125,
+        "progress": 1,
+        "hp": 170,
+        "burning": false,
+        "level": 1,
+        "residents": [
+          1186
+        ]
+      },
+      {
+        "id": 37,
+        "x": -11.0703125,
+        "z": 33.0546875,
+        "progress": 1,
+        "hp": 170,
+        "burning": false,
+        "level": 1,
+        "residents": [
+          1188
+        ]
+      }
+    ]
+  },
+  "shoreInput": {
+    "x": 806,
+    "y": 416,
+    "point": {
+      "x": -0.009245582362268578,
+      "z": 20.01575578532743
+    },
+    "target": {
+      "x": 0,
+      "z": 20
+    },
+    "snapped": {
+      "x": -1,
+      "z": 21
+    },
+    "context": {
+      "model": 3,
+      "enabled": true,
+      "buildingId": null,
+      "personId": null,
+      "shrineId": null,
+      "treeId": null,
+      "vehicleId": null
+    },
+    "rejection": null,
+    "diagnostics": {
+      "turn": 496,
+      "frame": 589,
+      "animationFrame": 993,
+      "currentSceneMatches": true,
+      "currentWorldMatches": true,
+      "rect": {
+        "left": 200,
+        "top": 0,
+        "width": 1240,
+        "height": 1000
+      },
+      "localPixel": {
+        "x": 606,
+        "y": 416
+      },
+      "camera": {
+        "x": 1952,
+        "y": 58483,
+        "angle": 1451
+      },
+      "center": {
+        "x": 1952,
+        "y": 58483
+      },
+      "rawCenter": {
+        "x": 1952,
+        "y": -7053
+      },
+      "projection": {
+        "curvature": 35248,
+        "depth": 6500,
+        "perspective": 11,
+        "scale": 40786,
+        "width": 1240,
+        "height": 1000,
+        "centerX": 620,
+        "centerY": 423,
+        "fractionX": 4,
+        "fractionY": 4,
+        "pixelScaleX": 0.0625,
+        "pixelScaleY": 0.0625,
+        "matrix": [
+          -4225,
+          0,
+          15829,
+          -5515,
+          15357,
+          -1472,
+          -14838,
+          -5708,
+          -3960
+        ]
+      },
+      "target": null,
+      "body": null,
+      "cache": {
+        "lastKey": "589,1952,58483,1952,-7053,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,606,416",
+        "lastId": null,
+        "lastKind": null
+      }
+    },
+    "turn": 496
+  },
+  "bridgeInput": {
+    "x": 831,
+    "y": 412,
+    "point": {
+      "x": 0.3158875932996352,
+      "z": 3.9140164413717002
+    },
+    "target": {
+      "x": 0,
+      "z": 4
+    },
+    "snapped": {
+      "x": 1,
+      "z": 3
+    },
+    "context": null,
+    "rejection": {
+      "code": -2,
+      "message": "Beyond your reach. Move your shaman closer."
+    },
+    "diagnostics": {
+      "turn": 569,
+      "frame": 683,
+      "animationFrame": 1138,
+      "currentSceneMatches": true,
+      "currentWorldMatches": true,
+      "rect": {
+        "left": 200,
+        "top": 0,
+        "width": 1240,
+        "height": 1000
+      },
+      "localPixel": {
+        "x": 631,
+        "y": 412
+      },
+      "camera": {
+        "x": 2184,
+        "y": 62384,
+        "angle": 1451
+      },
+      "center": {
+        "x": 2184,
+        "y": 62384
+      },
+      "rawCenter": {
+        "x": 2184,
+        "y": -3152
+      },
+      "projection": {
+        "curvature": 35248,
+        "depth": 6500,
+        "perspective": 11,
+        "scale": 40786,
+        "width": 1240,
+        "height": 1000,
+        "centerX": 620,
+        "centerY": 423,
+        "fractionX": 4,
+        "fractionY": 4,
+        "pixelScaleX": 0.0625,
+        "pixelScaleY": 0.0625,
+        "matrix": [
+          -4225,
+          0,
+          15829,
+          -5515,
+          15357,
+          -1472,
+          -14838,
+          -5708,
+          -3960
+        ]
+      },
+      "target": null,
+      "body": null,
+      "cache": {
+        "lastKey": "653,1952,58483,1952,-7053,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4225,0,15829,-5515,15357,-1472,-14838,-5708,-3960,620,423,4,4,0.0625,0.0625,606,416",
+        "lastId": null,
+        "lastKind": null
+      }
+    },
+    "turn": 569
+  },
+  "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ {\n+   code: -2,\n+   message: 'Beyond your reach. Move your shaman closer.'\n+ }\n- null\n\n    at hutSmokeIgnition (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/scripts/local-render/hut-smoke-ignition.mjs:339:54)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/scripts/local-render/harness.mjs:153:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/scripts/local-render/harness.mjs:240:21"
+}

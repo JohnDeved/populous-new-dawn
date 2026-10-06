@@ -1,0 +1,15 @@
+Error: AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ {
++   code: -2,
++   message: 'Beyond your reach. Move your shaman closer.'
++ }
+- null
+
+    at hutSmokeIgnition (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/scripts/local-render/hut-smoke-ignition.mjs:339:54)
+    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/scripts/local-render/harness.mjs:153:20)
+    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/scripts/local-render/harness.mjs:240:21
+    at runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/scripts/local-render/harness.mjs:222:47)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/scripts/local-render/harness.mjs:240:21
