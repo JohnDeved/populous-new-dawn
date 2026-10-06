@@ -1,6 +1,6 @@
 # Mission3 raid allocation: PhaseA source preflight
 
-Status: attempt2 controlled RNG witness accepted; remaining gate cases prepared.
+Status: attempt2 controlled RNG witness accepted; attempt3 gate/cap witnesses retained.
 Runtime base is
 `89e68606a406f93715b930550317519818ddc081`. Changes are two evidence programs,
 a controlled fixture, an optional shared-loader buffer argument, this note and raw
@@ -254,3 +254,44 @@ not the executed harness commit. A new explicit `sourceHeadMeaning` labels that
 distinction; the outer receipt is authoritative for executed HEAD and dirty diff.
 The supplemental source passes AST/Node syntax inspection only and is **not run**.
 It needs source preflight acceptance and a new coordinated execution grant.
+
+## Attempt3: complete declared gate scope
+
+After exact-source review and the coordinator's separate CPU4 grant, source
+`ce9dc4bcabfb5ee55ed4c82170125df0fdff2452` executed the three unchanged suffix
+cases from03:51:32.117 to03:51:33.530 UTC. Fresh attempt3 is retained under
+`references/verification/mission3-raid-allocation-2026-10-06/attempt3/`.
+Receipt SHA256 is`c448edc0df82cb674da9c6e05941857c6077fcf4ecafad004b1e2ee2c943ddca`.
+Receipt status is **failed**, exit1, because the structured report retains actual
+paired differences. Stderr is empty, and source/input fingerprints remain identical.
+
+- **One active type20, authored attribute25=1:** Native gate/count rejects before
+  free-slot/target search and writes status1. No native task bytes or attributes
+  change; RNG stays305419896. The port allocates a second raid in slot1 and advances
+  RNG to851343515. Both occupiedUnchanged booleans are true, now non-vacuously.
+- **All ten slots occupied by other task types:** Native passes the type20 gate,
+  finds no slot, writes status2, and performs no target/RNG operation. Both sides
+  allocate no task and preserve all occupied tasks; only port advances RNG.
+  All820native task bytes remain identical.
+- **Only slot9 free:** Both sides allocate the same slot9, entity78, target/origin
+  20018, request3/damage8/Brave-only quota, no spells and one RNG step. Every
+  projected field matches; only slot9 native bytes change, while slots0..8 remain
+  byte-identical. Both occupiedUnchanged values are true.
+
+All three actual translator buffers read16,777,216bytes. No additional case,
+hook, original controller, recruitment consumer or ordinary mission observation
+was included. Witness review is pending; no production code has changed.
+
+The minimal proposed correction stays at Mission3's existing ATTACK adapter:
+after the current argument validation and before target lookup, reject disabled
+state20, active type20 count at/above attribute25, or no inactive task slot. Supply
+attribute25 to the existing task allocator instead of the tribe number. Keep
+other mission adapters, target/recruitment geometry and the script itself outside
+this slice. Acceptance should replay these same five paired cases, add a controlled
+live-adapter regression, retain the current ordinary raid/checkpoint test unchanged,
+then complete relevant standard/native/rendered gates and independent code review.
+
+GitHub issue165 is closed/completed for producer scheduling. Repository issue
+search found no open narrow raid-allocation owner. A new bug linked to165/8 should
+record the accepted witness and own this repair; it must not reopen the completed
+natural-victory scope of issue2 or imply full early-mission AI parity.
