@@ -19,6 +19,8 @@ type PreachingPerson = StatefulPerson & {
   commandAux: number
   commandPhase: number
   animationMode: number
+  f1: number
+  f2: number
   building: number | null
 }
 
@@ -103,15 +105,16 @@ export function cancelConversionVictim(victim: PreachingPerson, gameFlags: numbe
   return defaultPersonState(victim, gameFlags)
 }
 
-// 0x43a4d0 shared by commands 17/31/32. Listener orbit/gesture visuals remain
-// deliberately subordinate to the native timing, RNG and ownership lifecycle.
+// Shared sermon commands 17/31/32 retain separate gesture and turning RNG owners.
 export function stepPreachingOrder(
-  w: PreachingWorld,
+  w: PreachingWorld & { poseRandom: { randomState: number }; playerTribe: number },
   p: PreachingPerson,
   _order: PersonOrder,
   effects: {
     animate: (object: number) => void
     animationDuration: () => number
+    frameCount: () => number
+    sound: (cue: number) => void
     stop: () => void
     acquire: (radius: number) => number
     release: (radius: number) => void
@@ -140,6 +143,8 @@ export function stepPreachingOrder(
       p.flags2 = (p.flags2 & ~0x40000000) >>> 0
       effects.stop()
       effects.animate(95)
+      p.f1 = 1
+      p.f2 = 0
       p.timer = effects.animationDuration()
     }
     p.timer = short(p.timer - 1)
@@ -156,11 +161,31 @@ export function stepPreachingOrder(
       if (p.flags2 & 0x40000000) {
         p.flags2 = (p.flags2 & ~0x40000000) >>> 0
         p.timer = 0
-        p.animationMode = 0
-        p.statusFlags &= ~1
         effects.animate(97)
+        p.statusFlags &= ~1
+        p.f1 = 1
+        p.f2 = 0
+        p.animationMode = 0
+        p.assignment |= 16
       }
       p.timer = short(p.timer + 1)
+      if (p.timer < 840) {
+        if (!(p.statusFlags & 1)) {
+          if (!(p.counter & 15)) {
+            const gesture = random(w.poseRandom) & 3
+            if (gesture < 2) {
+              p.statusFlags |= 1
+              effects.animate(gesture === 0 ? 99 : 98)
+              p.f1 = 1
+              p.f2 = 0
+              if (p.assignment & 64) effects.sound(p.tribe === w.playerTribe ? 51 : 189)
+            }
+          }
+        } else if (!p.f1 && p.f2 >= effects.frameCount() - 1) {
+          p.statusFlags &= ~1
+          effects.animate(97)
+        }
+      }
       if (!(p.statusFlags & 2)) {
         if (!p.animationMode && !(p.counter & 15)) {
           const pose = random(w) & 3

@@ -7,6 +7,7 @@ import {
   addUnit,
   population,
   supportsFollower,
+  sound,
   type World,
   type Unit,
 } from './model.ts'
@@ -573,6 +574,8 @@ export function stepLivePreaching(w: World, u: Unit) {
   if ((order?.flags ?? 0) & 1) releasePreacherVictims(w, p, p.commandAux || 3)
   const state = {
     randomState: w.randomState,
+    poseRandom: w.cosmeticRandom,
+    playerTribe: w.manaWorld.playerTribe,
     loadFlags: w.manaWorld.loadFlags,
     orders: w.buildingOrders,
     tribeFlags: w.manaTribes.map(t => t.flags2),
@@ -583,6 +586,11 @@ export function stepLivePreaching(w: World, u: Unit) {
         animate: object => setLivePersonAnimation(w, p, object),
         animationDuration: () =>
           (rules.animationDescriptors[p.draw].step + 1) * sprites.frameCounts[p.object],
+        frameCount: () => sprites.frameCounts[p.object],
+        sound: cue => {
+          p.flags4 = (p.flags4 | 16) >>> 0
+          sound(w, cue, u, u.id)
+        },
         stop: () => {
           releasePersonRoute(w.motionRoutes, p)
           clearLivePath(w, u)
