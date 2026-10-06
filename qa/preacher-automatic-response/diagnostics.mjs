@@ -4,7 +4,7 @@ const tribes = { blue: 0, red: 1, yellow: 2, green: 3, wild: -1 }
 const delta = (a, b) => (((a - b + 64) & 127) - 64)
 const cell = p => [((p.x ?? 0) & 65535) >>> 9, ((p.y ?? 0) & 65535) >>> 9]
 const position = u => ({ x: Math.round((u.x + 8) * 256) & 65535, y: Math.round((-u.z - 8) * 256) & 65535 })
-const raw = p => p ? Object.fromEntries(('id class model tribe life state substate workFlags flags2 flags3 flags4 vehicle disguise x y h speed commandStatus immediateCommand commandCursor workTarget cellNext cellPrevious').split(' ').map(k => [k, p[k] ?? null])) : null
+const raw = p => p ? Object.fromEntries(('id class model tribe life state substate counter workFlags flags2 flags3 flags4 vehicle disguise x y h speed commandStatus immediateCommand commandCursor workTarget cellNext cellPrevious').split(' ').map(k => [k, p[k] ?? null])) : null
 
 export function responseCandidateReasons(source, item) {
   const p = item.native, reasons = { nativeReverse: [], ownership: [], oldQaPrefilter: [] }

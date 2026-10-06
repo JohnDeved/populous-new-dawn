@@ -75,6 +75,7 @@ export default async function loadDiagnostics({ page, root, output, receipt, sig
         shaman.team !== 'blue' || shaman.kind !== 'shaman' || !temple || temple.team !== 'blue' || temple.progress !== 1)
         throw Error('Paused loaded acquisition identity changed')
       return { turn: w.turn, time: w.time, paused: w.paused, speed: w.speed, status: w.status,
+        effectiveScanCounter: w.turn & 255, retainedPersonCounter: actor.native.counter,
         inputMask: w.inputMask, mode: w.mode, selected: [...w.selected],
         source: { id: actor.id, hp: actor.hp, x: actor.x, z: actor.z },
         shaman: { id: shaman.id, hp: shaman.hp, x: shaman.x, z: shaman.z }, templeId: temple.id,
