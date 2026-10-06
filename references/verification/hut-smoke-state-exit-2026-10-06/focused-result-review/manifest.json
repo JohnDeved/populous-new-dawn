@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "verdict": "ACCEPT-focused-red-green-evidence",
+  "files": [
+    {
+      "path": "review.md",
+      "sha256": "d1b12a428eebe95a944f178bd0abe4fac99731f0540c94adeedaae941d26d888"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/work/orchestration/hut-smoke-state-exit/focused-candidate-01.json",
+      "sha256": "5e064542eef9cf5f6aba8608caac8be0e78340875805788fa18bda8858ebdbd4"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-red-20261006/work/orchestration/hut-smoke-state-exit/focused-red-01.json",
+      "sha256": "526a0d9e1a6a54f2fdd569d47c2250915b6c268cff7546084f01bd8b18a40d60"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/work/orchestration/hut-smoke-state-exit/focused-host-01/receipt.json",
+      "sha256": "ce733676fca4b8598867b9441edb6c70679b8a1923ee98c6cc621036569e4e79"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/work/orchestration/hut-smoke-state-exit/focused-host-01/candidate-source-inventory.json.gz",
+      "sha256": "006b8cb4d380cbb248e6edc72aad0f46beb811d55d9c943db57ad0d2cd55da8a"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/work/orchestration/hut-smoke-state-exit/focused-host-01/red-source-inventory.json.gz",
+      "sha256": "0432355c23aaad850f1193cecba0842b04d599ba66f139bfc45fb37f1d90afce"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/work/orchestration/hut-smoke-state-exit/focused-host-01/dependency-inventory.json.gz",
+      "sha256": "2d8227abe3d2cd1f0c6943a0e27d9752c002e0dfdbca1973a744a62fc6d2db09"
+    }
+  ]
+}
