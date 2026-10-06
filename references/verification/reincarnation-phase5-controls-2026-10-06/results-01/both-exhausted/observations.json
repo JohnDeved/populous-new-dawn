@@ -1,6 +1,6 @@
 {
   "control": "both-exhausted",
-  "status": "terminal passed; independent result review pending",
+  "status": "terminal passed; independent result review ACCEPT",
   "source": "b970c05e933ab286e888e717773297f72fa5e3c1",
   "toolSession": 82909,
   "firstToolChunk": "f2fb5c",
@@ -63,5 +63,6 @@
   "sounds": [],
   "translationBufferBytes": 67108864,
   "resourcesReleased": true,
-  "limits": "one supplied-state controller call; no second visit/retry/lifetime/history/app/render claim"
+  "limits": "one supplied-state controller call; no second visit/retry/lifetime/history/app/render claim",
+  "resultReviewSha256": "3bb8ce89fc42cf2635fb335fad8e462ec5adbd00cef0b12d575608a5bbc14e60"
 }

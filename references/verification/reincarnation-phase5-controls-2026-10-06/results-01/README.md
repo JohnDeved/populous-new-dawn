@@ -1,7 +1,7 @@
 # Three critical allocation controls: original component results
 
-All three named invocations are **terminal PASS; independent result review
-pending**. Each ran exactly one original phase5 controller call from reviewed
+All three named invocations are **terminal PASS; [independent result review
+ACCEPT](result-review.md)**. Each ran exactly one original phase5 controller call from reviewed
 source `b970c05e933ab286e888e717773297f72fa5e3c1`, in its declared fresh worktree,
 with41 unchanged source/input hashes and empty stderr. They ran sequentially;
 owned process groups were checked absent between cases. No retry occurred.

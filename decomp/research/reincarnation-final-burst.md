@@ -200,7 +200,7 @@ case. Body retirement follows person success, while failure retains phase5.
 The observed logical gameplay/cosmetic RNG costs are96/32,2/0 and0/0.
 
 Each control ran one controller call only, with independent source preflight,
-unchanged inputs and same-invocation owned cleanup; result review is pending.
+unchanged inputs and same-invocation owned cleanup; independent result review ACCEPTs these controls.
 No retry visit, capacity restoration, outer loop, lifetime, app or ordinary
 rendered behavior is claimed. The success fixture and wider16-case preparation
 were not changed or rerun.
