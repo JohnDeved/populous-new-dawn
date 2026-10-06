@@ -1,0 +1,217 @@
+// The accepted Mission3 acquisition sequence, stopped at one safe Blue Preacher.
+import assert from 'node:assert/strict'
+import { appendFileSync, writeFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { createOrdinaryInput } from './inherited/ordinary-input.mjs'
+import { createOrderDispatch } from './inherited/ground-and-dispatch.mjs'
+import { installNativeGuardObserver, setNativeGuardObservedHut } from './inherited/observer.mjs'
+
+export const SAFE_POINTS = Object.freeze([{ x: 35, z: 90 }, { x: 33, z: 90 }, { x: 37, z: 90 }])
+
+export default async function preacherBaseline({ page, openMission, output, receipt, signal }) {
+  const started = performance.now(), acquisitionDeadline = started + 360000
+  let latest, preacherId, shamanId, templeId, traineeId, observerInstalled = false, finished = false
+  let armed, progress, pixels, restored, trainingAdmission = false
+  const milestones = [], failures = []
+  const log = event => appendFileSync(resolve(output, 'actions.jsonl'), JSON.stringify({ at: new Date().toISOString(),
+    elapsedMs: performance.now() - started, ...event }) + '\n')
+  const save = status => writeFileSync(resolve(output, 'baseline.json'), JSON.stringify({ status,
+    source: receipt.source, started, elapsedMs: performance.now() - started, preacherId, shamanId, templeId,
+    traineeId, trainingAdmission, milestones, armed, progress, pixels, restored, failures, latest,
+    limits: 'Fresh public Mission3; ordinary inputs and normal-speed RAF. Source168 baseline only; no gesture/RNG-draw, original full-game, conversion, or hardware-performance claim.' }, null, 2) + '\n')
+  const check = () => {
+    signal.throwIfAborted()
+    if (!observerInstalled) assert.ok(performance.now() < acquisitionDeadline, '360-second acquisition ceiling')
+    assert.deepEqual(receipt.errors, [])
+  }
+  const read = async () => {
+    check()
+    latest = await page.evaluate(() => ({ ...window.nativeGuardRead(),
+      unlockedTemple: window.testSceneRef.current.world.unlockedTemple }))
+    check(); return latest
+  }
+  const health = row => {
+    check(); assert.equal(row.level, 3); assert.equal(row.status, 'playing')
+    assert.equal(row.paused, false); assert.equal(row.speed, 1); assert.equal(row.visibility, 'visible')
+    assert.equal(row.landFlags & 2, 0)
+    if (shamanId) assert.ok(row.units.some(u => u.id === shamanId && u.hp > 0), 'Acquired Shaman survives')
+    if (preacherId) assert.ok(row.units.some(u => u.id === preacherId && u.hp > 0), 'Trained Preacher survives')
+  }
+  // One acquisition deadline and the accepted finite observation. No retry engine.
+  const pollUI = async (predicate, timeout, label) => {
+    const end = Math.min(performance.now() + timeout, observerInstalled ? Infinity : acquisitionDeadline)
+    for (;;) {
+      check()
+      if (await predicate()) { check(); return }
+      assert.ok(performance.now() < end, label)
+      await page.waitForTimeout(100)
+    }
+  }
+  const wait = async (label, predicate) => {
+    await pollUI(async () => { const row = await read(); health(row); return predicate(row) },
+      acquisitionDeadline - performance.now(), label)
+    milestones.push({ label, elapsedMs: performance.now() - started, state: latest }); save('acquiring')
+  }
+  const clear = async () => {
+    for (let i = 0; i < 3; i++) {
+      const row = await read(); health(row)
+      if (!row.mode && !row.selected.length) return
+      log({ action: 'key', key: 'Escape' }); await page.keyboard.press('Escape')
+    }
+    assert.fail('Ordinary Escape did not clear mode and selection')
+  }
+  const select = async (kind, five = false) => {
+    await clear()
+    const name = kind === 'shaman' ? 'Select and focus shaman' : `Select ${kind}`
+    log({ action: 'button', name, five })
+    await page.getByRole('button', { name, exact: true }).click(five ? { modifiers: ['Control'] } : {})
+    const row = await read(); health(row)
+    assert.equal(row.selected.length, five ? 5 : 1)
+    assert.ok(row.selected.every(id => row.units.some(u => u.id === id && u.kind === kind && u.team === 'blue')))
+    log({ action: 'selection-accepted', ids: row.selected, kind, turn: row.turn })
+    return row.selected
+  }
+  try {
+    await openMission(3)
+    await page.evaluate(installNativeGuardObserver)
+    await page.evaluate(async () => {
+      window.nativeGuardProbes = await import('/qa/preacher-gesture-baseline/inherited/browser-probes.mjs')
+    })
+    await wait('Shaman selectable after public Mission3 opening', row => row.readiness.ready && !row.inputMask)
+    assert.equal(latest.units.filter(u => u.kind === 'preacher').length, 0, 'No supplied Blue Preacher')
+    const vault = latest.shrines.find(h => h.kind === 'vault'); assert.ok(vault)
+    const ordinary = createOrdinaryInput({ page, read, log, signal, health, pollUI })
+    const dispatch = createOrderDispatch({ page, read, log, pollUI, health, ordinary, signal })
+    const ground = async (point, kind = null, radius = 0) => {
+      const result = await page.evaluate(async ({ point, kind, radius }) => {
+        const s = window.testSceneRef.current, r = s.container.getBoundingClientRect()
+        const { placementError } = await import('/app/model.ts')
+        const { nativePosition } = await import('/app/model.ts')
+        const { restingCellCollision } = await import('/app/person-collision.ts')
+        const { findEntityInput, createMoveContextProbe } = window.nativeGuardProbes
+        const clone = kind ? structuredClone(s.world) : null
+        const moveContext = kind ? null : createMoveContextProbe(s.world)
+        const rejected = []
+        for (let distance = 0; distance <= radius; distance++) for (let step = 0; step < (distance ? 24 : 1); step++) {
+          const a = step * Math.PI / 12, target = { x: point.x + Math.cos(a) * distance, z: point.z + Math.sin(a) * distance }
+          const q = s.screen(target), candidates = []
+          const cx = r.x + (q.x + 1) * r.width / 2, cy = r.y + (1 - q.y) * r.height / 2
+          for (const [dx, dy] of [[0, 0], [2, 0], [-2, 0], [0, 2], [0, -2]]) candidates.push({ x: cx + dx, y: cy + dy })
+          const hit = findEntityInput(candidates, 0, p => {
+            const e = { clientX: p.x, clientY: p.y }, canvasOwned = document.elementFromPoint(p.x, p.y) === s.renderer.domElement
+            const picked = canvasOwned ? s.pick(e) : null
+            return { canvasOwned, hitId: picked && s.picking.pick(e) === null &&
+              Math.hypot(picked.x - target.x, picked.z - target.z) <= 1.5 ? 0 : null }
+          })
+          if (!hit) continue
+          const picked = s.pick({ clientX: hit.x, clientY: hit.y })
+          const problem = kind ? placementError(clone, kind, picked) : null
+          const context = moveContext?.(picked)
+          if (problem || context && !(context.model === 3 && context.enabled)) { rejected.push({ target, problem, context }); continue }
+          const native = nativePosition(s.world, picked), cell = (native.y >> 9) * 128 + (native.x >> 9)
+          const collision = restingCellCollision({ flags: s.world.land.flags[cell], category: s.world.land.categories[cell] }, s.world.land.walkMasks[0], native)
+          if (!kind && collision) { rejected.push({ target, collision }); continue }
+          return { hit: { ...hit, point: { x: picked.x, z: picked.z }, context }, rejected }
+        }
+        return { hit: null, rejected }
+      }, { point, kind, radius })
+      log({ action: 'finite-ground-probe', point, kind, radius, ...result })
+      return result.hit
+    }
+    const move = async (point, radius = 0) => {
+      await ordinary.map(point)
+      const hit = await ground(point, null, radius); assert.ok(hit, 'No legal ordinary ground target in declared finite probes')
+      return dispatch.clickOrder(hit)
+    }
+    ;[shamanId] = await select('shaman')
+    await dispatch.clickOrder(await ordinary.targetEntity('shrines', vault.id))
+    await wait('Vault unlocks Temple', row => row.unlockedTemple)
+    await select('shaman'); await move({ x: 35, z: 81 }, 2)
+    await wait('Shaman returns home', row => row.units.some(u => u.id === shamanId && Math.hypot(u.x - 35, u.z - 81) <= 4))
+    const builders = await select('brave', true)
+    await ordinary.map({ x: 24, z: 70 })
+    const site = await ground({ x: 24, z: 70 }, 'temple', 12); assert.ok(site)
+    const beforeBuild = await read()
+    await page.getByRole('button', { name: 'buildings B', exact: true }).click()
+    await page.getByRole('button', { name: 'Temple, 8 wood', exact: true }).click()
+    assert.equal((await read()).mode, 'temple')
+    log({ action: 'place-temple-plan', site, builders })
+    await page.mouse.click(site.x, site.y); await page.mouse.move(400, 780)
+    const afterBuild = await read(), created = afterBuild.buildings.filter(b => b.team === 'blue' &&
+      b.kind === 'temple' && !beforeBuild.buildings.some(old => old.id === b.id))
+    assert.equal(created.length, 1); templeId = created[0].id
+    assert.ok(afterBuild.units.some(u => builders.includes(u.id) && (u.work === templeId || u.order?.model === 6 && u.order.a === templeId)))
+    await wait('Temple completed', row => row.buildings.some(b => b.id === templeId && b.hp > 0 && b.progress === 1))
+    await page.evaluate(setNativeGuardObservedHut, templeId)
+    ;[traineeId] = await select('brave')
+    const beforeTraining = await read(), retained = beforeTraining.units.filter(u => u.kind === 'brave' && u.id !== traineeId).map(u => u.id)
+    assert.ok(retained.length); assert.equal(beforeTraining.units.filter(u => u.kind === 'preacher').length, 0)
+    await dispatch.clickOrder(await ordinary.targetEntity('buildings', templeId))
+    await wait('Exactly one genuinely trained Preacher leaves Temple', row => {
+      trainingAdmission ||= row.hut?.admission?.occupants.includes(traineeId) ?? false
+      const trained = row.units.filter(u => u.kind === 'preacher' && u.hp > 0)
+      if (!trained.length) return false
+      assert.equal(trained.length, 1); const u = trained[0]
+      if (u.inside !== null || !u.native || u.sourceIdentity !== u.nativeIdentity) return false
+      assert.equal(row.units.some(u => u.id === traineeId), false)
+      assert.equal(trainingAdmission, true, 'Actual trainee admission observed before replacement')
+      assert.ok(row.units.some(u => retained.includes(u.id) && u.kind === 'brave' && u.hp > 0))
+      preacherId = u.id; return true
+    })
+    await page.screenshot({ path: resolve(output, 'acquired-preacher.png') })
+    assert.deepEqual(await select('preacher'), [preacherId])
+    await ordinary.map(SAFE_POINTS[0])
+    let safe
+    for (const point of SAFE_POINTS) { safe = await ground(point); if (safe) break }
+    assert.ok(safe, 'No safe Blue-base target among the three fixed points')
+    armed = await page.evaluate(async id => {
+      const { installSermonObservation } = await import('/qa/preacher-gesture-baseline/observe.mjs')
+      return installSermonObservation(id)
+    }, preacherId)
+    const moveReceipt = await dispatch.clickOrder(safe)
+    assert.equal(moveReceipt.inputAfter.units.find(u => u.id === preacherId).order.model, 3)
+    // Acquisition includes the approach and first genuine command17 entry.
+    await pollUI(async () => {
+      const p = await page.evaluate(() => window.preacherSermon.tracker.progress)
+      assert.notEqual(p.status, 'failed', p.reason)
+      return p.entryTurn !== null
+    }, acquisitionDeadline - performance.now(), 'Ordinary move never reaches command17 entry')
+    observerInstalled = true
+    milestones.push({ label: 'Ordinary safe command17 entry', elapsedMs: performance.now() - started,
+      moveReceipt, state: await read() }); save('observing')
+    await page.screenshot({ path: resolve(output, 'safe-preacher-entry.png') })
+    const witnessDeadline = performance.now() + 120000
+    for (;;) {
+      check(); health(await read())
+      const batch = await page.evaluate(() => window.preacherSermon.drain())
+      for (const row of batch.rows) appendFileSync(resolve(output, 'phases.jsonl'), JSON.stringify(row) + '\n')
+      progress = batch.progress; save('observing'); assert.deepEqual(batch.errors, [])
+      assert.notEqual(progress.status, 'failed', progress.reason)
+      if (progress.status === 'passed') break
+      assert.ok(performance.now() < witnessDeadline, 'Finite observation wall ceiling')
+      await page.waitForTimeout(200)
+    }
+    restored = await page.evaluate(() => window.preacherSermon.finish())
+    finished = true; assert.equal(restored.restored, true); assert.deepEqual(restored.errors, [])
+    pixels = await page.evaluate(async id => {
+      const { capturePreacherPixels } = await import('/qa/preacher-gesture-baseline/pixels.mjs')
+      return capturePreacherPixels(id)
+    }, preacherId)
+    assert.ok(pixels.changedPixels > 0); assert.equal(pixels.restored, true)
+    await page.screenshot({ path: resolve(output, 'source168-visible-preacher.png') })
+    save('passed')
+    return { preacherId, progress, pixels, application: receipt.source.commit }
+  } catch (error) {
+    failures.push(String(error?.stack ?? error)); save('failed'); throw error
+  } finally {
+    if (!finished) {
+      const tail = await page.evaluate(() => {
+        const pointer = window.campaignEntityPointer?.finish(); delete window.campaignEntityPointer
+        return { pointer, batch: window.preacherSermon?.drain(), restored: window.preacherSermon?.finish() }
+      }).catch(error => ({ cleanupError: String(error) }))
+      for (const row of tail.batch?.rows ?? []) appendFileSync(resolve(output, 'phases.jsonl'), JSON.stringify(row) + '\n')
+      writeFileSync(resolve(output, 'observer-cleanup.json'), JSON.stringify(tail, null, 2) + '\n')
+    }
+    // Returning/throwing delegates browser/server termination to the maintained harness.
+  }
+}

@@ -1,0 +1,150 @@
+[
+  {
+    "at": "2026-10-05T20:55:11.293Z",
+    "level": 3,
+    "wallMs": 189557,
+    "action": "condition-complete",
+    "condition": {
+      "type": "temple-unlocked"
+    },
+    "turn": 1537
+  },
+  {
+    "at": "2026-10-05T20:55:52.911Z",
+    "level": 3,
+    "wallMs": 231175,
+    "action": "snapshot",
+    "name": "m3-milestone-shaman-home",
+    "turn": 2026,
+    "status": "playing",
+    "paused": false,
+    "activeSeconds": 2011.0833333333335
+  },
+  {
+    "at": "2026-10-05T20:56:09.798Z",
+    "level": 3,
+    "wallMs": 248062,
+    "action": "plan-accepted",
+    "alias": "temple",
+    "building": {
+      "id": 1021,
+      "kind": "temple",
+      "team": "blue",
+      "x": 24.99609375,
+      "z": 69.07421875,
+      "hp": 260,
+      "progress": 0,
+      "logs": 0,
+      "builders": [
+        519,
+        300,
+        513,
+        312,
+        309,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "occupants": [],
+      "inside": 0,
+      "queue": 0
+    }
+  },
+  {
+    "at": "2026-10-05T20:57:21.698Z",
+    "level": 3,
+    "wallMs": 319962,
+    "action": "snapshot",
+    "name": "m3-milestone-temple",
+    "turn": 3091,
+    "status": "playing",
+    "paused": false,
+    "activeSeconds": 2099.8333333333335
+  },
+  {
+    "at": "2026-10-05T20:57:30.201Z",
+    "level": 3,
+    "wallMs": 328465,
+    "action": "snapshot",
+    "name": "m3-temple-ready",
+    "turn": 3153,
+    "status": "playing",
+    "paused": true,
+    "activeSeconds": 2105
+  },
+  {
+    "at": "2026-10-05T21:04:42.937Z",
+    "level": 3,
+    "wallMs": 761201,
+    "action": "preacher-training-started",
+    "training": {
+      "oldPreachers": [],
+      "retained": [
+        516,
+        510,
+        303,
+        522,
+        507,
+        589
+      ],
+      "trainee": 306
+    }
+  },
+  {
+    "at": "2026-10-05T21:04:57.776Z",
+    "level": 3,
+    "wallMs": 776040,
+    "action": "condition-complete",
+    "condition": {
+      "type": "trained-kind",
+      "kind": "preacher",
+      "existingIds": []
+    },
+    "turn": 5504
+  },
+  {
+    "at": "2026-10-05T21:05:00.230Z",
+    "level": 3,
+    "wallMs": 778494,
+    "action": "snapshot",
+    "name": "m3-milestone-preacher",
+    "turn": 5522,
+    "status": "playing",
+    "paused": false,
+    "activeSeconds": 2302.416666666667
+  },
+  {
+    "at": "2026-10-05T21:05:10.435Z",
+    "level": 3,
+    "wallMs": 788699,
+    "action": "snapshot",
+    "name": "m3-preacher-healthy-at-home",
+    "turn": 5596,
+    "status": "playing",
+    "paused": true,
+    "activeSeconds": 2308.5833333333335
+  },
+  {
+    "at": "2026-10-05T21:12:13.241Z",
+    "level": 3,
+    "wallMs": 1211505,
+    "action": "snapshot",
+    "name": "m3-forward-preacher-removed",
+    "turn": 6533,
+    "status": "playing",
+    "paused": true,
+    "activeSeconds": 2386.6666666666665
+  }
+]

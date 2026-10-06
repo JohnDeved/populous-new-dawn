@@ -1,0 +1,29 @@
+{
+  "sourceCommit": "6a565e3da1d39adeb453338a25493322ffcba710",
+  "sourcePrefix": "qa/firewarrior-firing-candidate/",
+  "byteIdenticalFiles": {
+    "ordinary-input.mjs": "29708369124b7b1cbfde0150007f13f7ec25a27bc8ea6a9f7b6826ca693f8e85",
+    "browser-probes.mjs": "a4ae152d98aa97b6aeafefb61b2a505f99bea840824e702edb75ae0a4c653cdd",
+    "accepted-input.mjs": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+    "input-boundary.mjs": "704b9c03c24419e9bee553ba259c9e6b7d9bb9b9121e06848e52691c4e861ac7",
+    "observer.mjs": "b00d2465b9b9bb7a574a8c151ec35d1cda5423c847e138b808a8e16ad47d9186",
+    "ground-and-dispatch.mjs": "f7b5ba5703e155ed5962685735eae3092dffd47fab49256b8e5cb197bd4f82b1"
+  },
+  "campaignSourceCommit": "473da60f62d8a08e95a18d9802d4444e71a4c636",
+  "campaignSourceFiles": {
+    "qa/campaign-continuity/scenario.mjs": "118b0befa1eab87d55e7af058fe835964d6a414839146045b2109dfbba4e60f2",
+    "qa/campaign-continuity/routes.mjs": "9c9ef454e1f2efa04d44ac11828f42c4d6c7f2f7db1be037e9dd7b1e4fff7198",
+    "qa/campaign-continuity/observation.mjs": "6b8502473443891217ce4dd3c10dbbe59674f9eaca5628a936a4509aef5f815a",
+    "references/verification/current-campaign-continuity-source-2026-10-05/mission-three-sermon-bcf8ac55/campaign-continuity/mission-three-segment-01/actions.jsonl": "a8cdce20fb62e6c855843ed74a27fe32306a57a03dd72225b5125ac45277c12d"
+  },
+  "acceptedScope": {
+    "correctedResearchCommit": "e72837e42ca445ac1220d6c8a1291c0d71adec3e",
+    "reviewPath": "../preacher-sermon-gestures-20261006/work/reviews/preacher-sermon-scope-review.md",
+    "reviewSha256": "eee9eb599eda650ee24c6a67e850566db325c5882a6647150416bb6cf5bb0645"
+  },
+  "dependencyReadOnlySource": {
+    "path": "../reviewed-parity-four-integration-20261006/node_modules",
+    "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "newHashes": "serverDependencies in expected-runtime.json; bytes only, nothing executed or transferred"
+  }
+}
