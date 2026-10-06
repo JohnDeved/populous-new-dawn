@@ -1,10 +1,55 @@
 # Ordinary automatic Preacher response, issue 243
 
-Source preparation only. No browser, server, install, package command, dependency
-move or full gate has run. The runner remains disabled until its exact source,
-runtime, command and profile inputs receive independent preflight and the
-coordinator grants the serialized resource slot. Runtime fixes belong to the
-producer owner. Main/base is `1c7e6b05687aca14d9350e17c7ae14dc6c68bb97`.
+Application/base remains `1c7e6b05687aca14d9350e17c7ae14dc6c68bb97`.
+Baseline attempt01 at QA `1aa0414b` failed before any qualifying Brave encounter.
+The new QA-only delta prepares bounded diagnostic capture and genuine Load→Pause
+from its retained checkpoint. It has not run. Exact-source review, profile
+correspondence and a separate resource grant are required before continuation.
+Runtime fixes remain with the producer owner; no candidate or full gate ran here.
+
+## Retained baseline and narrow diagnostic continuation
+
+Attempt01 used the actual Vault/Temple/training path, saved acquisition turn3336,
+and removed the actual forward defender3158 with the original Shaman. The healthy
+Blue Preacher3162 moved under3 at4103–4515, then acquired ordinary17 at4516.
+No qualifying moving-Brave encounter was recorded, so this is neither an ordinary
+32 omission proof nor a candidate pass. The failed inner/outer receipts,1131 phase
+rows, observer restoration and terminal cleanup remain unchanged. Both clocks and
+all prefix acquisition facts retain their original run/source attribution.
+
+Every recorded `braves` list was empty, but it held only prefilter successes.
+Rejected candidates and their positions cannot be recovered from that omission.
+The new passive diagnostic records every nearby Brave/native-primary candidate
+before filtering, including real selected owner slots, raw/world positions and
+cells, native life/workFlags/flags, registration/membership and explicit failed
+predicates. Missing native data stays missing. The earlier idle17/no-path/native-
+only restrictions remain visible as QA exclusions; they are not native secondary
+eligibility. Positive acceptance predicates are not relaxed by diagnostic records.
+Scan cadence remains tied to the actual production wrapper: `startLiveCombatResponse`
+uses `w.turn`, and `combatScan` supplies `counter: w.turn &255`. The retained
+person counter is a separately recorded field, not that wrapper's scheduling owner.
+
+`continuation-inputs.json` pins the exact prior terminal run, source, application,
+checker, raw receipt hashes, original actor IDs and real saved projection. The
+unchanged committed record is level3/turn3336, SHA256
+`016b2a662eaf14dd5daf3dc238017cffc76e224a910fe7914c239d5d0ab4ba88`.
+The profile is task-owned and terminal-clean; browser/profile bytes are never
+exported or reconstructed. Its source/checker changes require the existing
+independent correspondence contract naming that immediately preceding terminal run.
+
+With `PND_RESPONSE_PHASE=load-diagnostics`, the same maintained runner/scenario
+requires that recognized profile and performs only startup Load Game → normal
+auto-resume → Pause. The synchronous replacement boundary must match the saved
+Preacher/native queue/RNG and checkpoint component hashes. The paused scene reads
+all present enemy Braves and specialists (cap256), including rejected records and
+actual geometry, then verifies the full committed record is still unchanged.
+There is no movement, Save, new acquisition or guessed approach in this segment.
+Supported `stop-preserve-latest` remains active. Diagnostics must be reviewed
+before any subsequent route command is chosen.
+
+Continuation envelope: same origin4407/profile/application/browser/dependency
+pins, fresh output and0700 TMP/cache, CPU0–3;90s scenario,180s harness,210s INT plus
+20s kill grace. No source migration or stale-profile lock recovery is allowed.
 
 ## Three separate claims
 

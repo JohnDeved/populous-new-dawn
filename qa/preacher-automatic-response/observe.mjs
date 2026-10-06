@@ -1,4 +1,5 @@
 import { chainPhaseObservers } from '../preacher-gesture-baseline/observe.mjs'
+import { readResponsePeople } from './diagnostics.mjs'
 
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b)
 const queue = row => [row.person.commandCursor, row.commands, row.queued]
@@ -26,6 +27,9 @@ export function movingEncounter(row) {
 }
 
 export function qualifyingVisit(before, after) {
+  // Production startLiveCombatResponse gates w.turn, and combatScan passes a
+  // detached {...p, counter: w.turn & 255} to automaticCombatScanner. The stored
+  // person's separate counter is retained, but does not own this caller's scan.
   if (before?.phase !== 'beforeTurn' || after.phase !== 'afterTurn' || after.turn !== before.turn + 1 ||
     !movingEncounter(before) || !movingEncounter(after) || !same(queue(before), queue(after)) ||
     before.order.id !== after.order.id || before.order.identity !== after.order.identity ||
@@ -200,6 +204,8 @@ export async function installResponseObservation({ id, baseline = false, loaded 
       listeners: w.units.filter(v => v.hp > 0 && v.native?.state === 23 && v.native.workTarget === id).map(v => v.id),
       pendingDistance: p && current ? Math.hypot(short(current.a - p.x), short(current.b - p.y)) : 0,
       facts: { range, genericThreat, primaryGuardIds: guarded, braves, gameFlags: w.manaWorld.gameFlags,
+        candidates: p ? readResponsePeople(w, p, { identity }) : null,
+        effectiveScanCounter: w.turn & 255, retainedPersonCounter: p?.counter ?? null,
         levelFlags2: w.levelFlags2, scanMask: rules.personModels[4].scanMask,
         autoEligible: !!p && canAutoEngage(p, current, () => false),
         availableOrder: w.buildingOrders.records.slice(1).some(q => q.references === 0) } }

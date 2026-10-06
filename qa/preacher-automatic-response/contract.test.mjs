@@ -7,6 +7,8 @@ import { responseProjection, requireResponseCheckpoint, requireSameCheckpoint } 
 import { requireCleanup } from './scenario.mjs'
 import { chainPhaseObservers } from '../preacher-gesture-baseline/observe.mjs'
 import { chooseForwardDefender, requireDefenderRemoval } from './forward-defender.mjs'
+import { readResponsePeople } from './diagnostics.mjs'
+import { requireContinuation } from './load-diagnostics.mjs'
 
 // Supplied diagnostic records test acceptance logic only. They are not ordinary
 // gameplay, native execution or rendered evidence.
@@ -45,6 +47,16 @@ test('baseline absence requires a source-bound due visit while destination remai
     const changed = structuredClone(after); change(changed)
     assert.equal(qualifyingVisit(before, changed), null)
   }
+})
+
+test('actual production scan counter follows world turn even when retained person phase differs', () => {
+  const before = row(15, 'beforeTurn'), after = row(16)
+  before.person.counter = 30; after.person.counter = 31
+  assert.ok(qualifyingVisit(before, after), 'combatScan supplies world16 despite retained counter31')
+  before.turn = 16; after.turn = 17; before.person.counter = 31; after.person.counter = 32
+  assert.equal(qualifyingVisit(before, after), null, 'Retained counter32 does not schedule production world17')
+  before.person.flags3 |= 0x800
+  assert.ok(qualifyingVisit(before, after), 'A real pending scan remains a separate admission')
 })
 
 test('automatic32 can attach on the first moving visit and need not expose persistent substate5', () => {
@@ -140,4 +152,48 @@ test('forward removal requires the actual defender gone, original healthy actors
     r => { r.yellow.push({ ...defender, id: 9 }) }]) {
     const invalid = structuredClone(row); change(invalid); assert.throws(() => requireDefenderRemoval(invalid, before, 8))
   }
+})
+
+test('working or unowned nearby Brave records survive diagnostics with exact failed predicates', () => {
+  const source = { id: 5, class: 1, model: 4, tribe: 0, x: 0x2100, y: 0x2100, life: 1100, flags2: 0x20000, flags4: 0 }
+  const p = { id: 6, class: 1, model: 2, tribe: 2, x: 0x2300, y: 0x2100, life: 1000,
+    state: 10, workFlags: 0, flags2: 0x20000, flags4: 0, vehicle: 0, cellNext: 0 }
+  const u = { id: 6, kind: 'brave', team: 'yellow', hp: 50, x: 27, z: -41, inside: null,
+    builder: { person: p }, path: [{ x: 29, z: -41 }], work: 9, target: null }
+  const missing = { id: 7, kind: 'brave', team: 'yellow', hp: 50, x: 27, z: -41,
+    inside: null, path: [], work: null, target: null }
+  const heads = new Uint16Array(16384); heads[(p.y >>> 9) * 128 + (p.x >>> 9)] = p.id
+  const world = { units: [u, missing], objectCells: { heads, objects: new Map([[p.id, p]]) }, outcome: { alliances: [0, 0, 0, 0] } }
+  const original = structuredClone(world), result = readResponsePeople(world, source)
+  assert.equal(result.rows.length, 2)
+  assert.equal(result.rows[0].ownerSlot, 'builder.person')
+  assert.deepEqual(result.rows[0].nativeCell, [17, 16])
+  assert.deepEqual(result.rows[0].predicates.nativeReverse, [])
+  assert.deepEqual(result.rows[0].predicates.ownership, [])
+  for (const reason of ['not-native-only-owner', 'not-idle17', 'has-path'])
+    assert.ok(result.rows[0].predicates.oldQaPrefilter.includes(reason))
+  assert.ok(result.rows[1].predicates.ownership.includes('selected-record-missing'))
+  assert.deepEqual(world, original, 'Diagnostic reads must not normalize or repair the World')
+  assert.throws(() => readResponsePeople(world, source, { all: true, limit: 1 }), /cap exceeded/)
+  world.objectCells.objects.set(9, { ...p, id: 9, model: 7, x: 0x2500 })
+  const orphan = readResponsePeople(world, source).unmatchedPrimary
+  assert.equal(orphan.length, 1); assert.equal(orphan[0].id, 9)
+  assert.deepEqual(orphan[0].failedPredicates, ['native-primary-has-no-live-Unit'])
+})
+
+test('continuation admits only the exact genuine terminal checkpoint and original source labels', () => {
+  const pins = JSON.parse(readFileSync(new URL('./continuation-inputs.json', import.meta.url)))
+  const profile = { mode: 'reused', id: pins.profileId, inputs: { application: pins.application }, checkpointAtStart: pins.checkpoint,
+    previousRun: { runId: pins.priorRunId, receiptSha256: pins.previousReceiptSha256,
+      sourceFingerprint: pins.previousSourceFingerprint, sourceCommit: pins.previousSourceCommit, checker: pins.previousChecker,
+      cleanupVerified: true, continuationVerified: true, checkpointAtEnd: pins.checkpoint } }
+  requireContinuation(profile, pins)
+  for (const change of [p => { p.mode = 'created' }, p => { p.id = 'different' },
+    p => { p.checkpointAtStart.checkpointSha256 = 'invented' }, p => { p.previousRun.runId = 'stale' },
+    p => { p.previousRun.cleanupVerified = false }, p => { p.inputs.application = 'changed-game' }]) {
+    const wrong = structuredClone(profile); change(wrong); assert.throws(() => requireContinuation(wrong, pins))
+  }
+  const source = readFileSync(new URL('./load-diagnostics.mjs', import.meta.url), 'utf8')
+  assert.match(source, /name: 'Load Game'/); assert.match(source, /name: 'Pause game'/)
+  assert.doesNotMatch(source, /name: 'Save checkpoint'|mouse\.click|dispatch\.clickOrder|openMission\(/)
 })

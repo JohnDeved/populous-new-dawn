@@ -10,16 +10,24 @@ import scenario from './scenario.mjs'
 
 const root = process.cwd(), here = resolve(root, 'qa/preacher-automatic-response')
 const options = parseOptions(process.argv.slice(2)), side = process.env.PND_RESPONSE_SIDE
+const phase = process.env.PND_RESPONSE_PHASE ?? 'fresh'
+assert.ok(['fresh', 'load-diagnostics'].includes(phase))
 const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim()
 const sha = file => createHash('sha256').update(readFileSync(file)).digest('hex')
 const inputs = JSON.parse(readFileSync(resolve(here, 'source-inputs.json')))
 assert.ok(['baseline', 'candidate'].includes(side))
 assert.equal(resolve(options.gameRoot), root); assert.equal(options.port, inputs.ports[side])
-assert.equal(options.timeout, inputs.caps.harnessMs)
+const continuation = phase === 'load-diagnostics' ? JSON.parse(readFileSync(resolve(here, 'continuation-inputs.json'))) : null
+assert.equal(options.timeout, continuation ? continuation.caps.harnessMs : inputs.caps.harnessMs)
 assert.equal(resolve(options.profile), resolve(root, inputs.profiles[side]))
 assert.equal(resolve(options.scenario), resolve(here, 'scenario.mjs'))
-assert.equal(options.profileCorrespondence, undefined)
-assert.ok(!existsSync(options.profile), 'Initial acquisition requires a new task-owned profile')
+if (continuation) {
+  assert.equal(side, 'baseline'); assert.ok(options.profileCorrespondence, 'Exact reviewed source/checker correspondence required')
+  assert.ok(existsSync(options.profile), 'Genuine retained task profile required')
+} else {
+  assert.equal(options.profileCorrespondence, undefined)
+  assert.ok(!existsSync(options.profile), 'Initial acquisition requires a new task-owned profile')
+}
 assert.ok(resolve(options.output).startsWith(resolve(root, 'work/orchestration/preacher-automatic-response', side) + '/'))
 assert.ok(!existsSync(options.output), 'Every attempt requires fresh output')
 assert.match(process.env.PND_QA_HEAD ?? '', /^[0-9a-f]{40}$/)
@@ -46,6 +54,7 @@ assert.ok(process.env.PND_RESPONSE_PREFLIGHT, 'Independent exact-source prefligh
 const review = JSON.parse(readFileSync(process.env.PND_RESPONSE_PREFLIGHT))
 assert.equal(review.decision, 'ACCEPT'); assert.ok(review.reviewer && review.reference)
 assert.equal(review.head, process.env.PND_QA_HEAD); assert.equal(review.side, side)
+assert.equal(review.phase ?? 'fresh', phase)
 assert.deepEqual(review.argv, process.argv.slice(2)); assert.deepEqual(review.sourceFiles, sourceBefore)
 assert.deepEqual(review.runtime, runtimeBefore)
 mkdirSync(dirname(options.output), { recursive: true }); mkdirSync(options.output)

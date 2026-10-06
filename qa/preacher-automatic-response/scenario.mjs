@@ -9,6 +9,7 @@ import { bindGame, readShamanReadiness } from '../../scripts/browser-game.mjs'
 import { waitForCheckpointReadback } from '../../scripts/checkpoint-readback.mjs'
 import { requireResponseCheckpoint, requireSameCheckpoint } from './checkpoint.mjs'
 import { clearForwardDefender } from './forward-defender.mjs'
+import loadDiagnostics from './load-diagnostics.mjs'
 
 export function requireCleanup(value) {
   assert.ok(value && !value.error, value?.error ?? 'Missing cleanup')
@@ -19,6 +20,7 @@ export function requireCleanup(value) {
 }
 
 export default async function responseScenario(context) {
+  if (process.env.PND_RESPONSE_PHASE === 'load-diagnostics') return loadDiagnostics(context)
   const { page, output, receipt, signal, observeCheckpoint } = context
   const baseline = process.env.PND_RESPONSE_SIDE === 'baseline', started = performance.now()
   assert.ok(['baseline', 'candidate'].includes(process.env.PND_RESPONSE_SIDE))
