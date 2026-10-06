@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "1bb660c6-544f-46e8-a9a6-ad21cb560e11",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "47d2e2dc229f35352f1a7a1cfb948789053c9b1c",
+    "branch": "fix/issue223-erosion-activation",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "work/orchestration/issue223-erosion-activation/run-gates.mjs": "7fe6bdacaeec12bf1783748ce37d34bfed992b6ceb6b0c49cc7e0dfb83a04b68"
+    }
+  },
+  "command": [
+    "timeout",
+    "300s",
+    "taskset",
+    "-c",
+    "0-3",
+    "npm",
+    "run",
+    "build"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix",
+  "startedAt": "2026-10-06T00:06:16.221Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix/work/orchestration/issue223-erosion-activation/gates-47d2e2d/build.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix/work/orchestration/issue223-erosion-activation/gates-47d2e2d/build.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T00:06:33.518Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 build\n> WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext build\n\n\n  vinext build  (Vite 8.0.13)\n\n[1/5] analyze client references...\n\u001b[2K\rtransforming...✓ 272 modules transformed.\nrendering chunks...\n✓ built in 3.40s\n[2/5] analyze server references...\n\u001b[2K\rtransforming...✓ 388 modules transformed.\nrendering chunks...\n✓ built in 1.48s\n[3/5] build rsc environment...\n\u001b[2K\rtransforming...✓ 270 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 5.52s\n[4/5] build client environment...\n\u001b[2K\rtransforming...✓ 429 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 2.78s\n[5/5] build ssr environment...\n\u001b[2K\rtransforming...✓ 394 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 2.55s\n\u001b[0m\n  Route (app)\n  ─ ? /\n\n  ? Unknown\n\n  ? Some routes could not be classified. vinext currently uses static analysis\n    and cannot detect dynamic API usage (headers(), cookies(), etc.) at build time.\n    Automatic classification will be improved in a future release.\n\n  Build complete. Run `vinext start` to start the production server.\n\n",
+  "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n\u001b[33m▲ \u001b[43;33m[\u001b[43;30mWARNING\u001b[43;33m]\u001b[0m \u001b[1mProxy environment variables detected. We'll use your proxy for fetch requests.\u001b[0m\n\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - rsc:virtual-client-package (29%)\n  - vinext:og-inline-fetch-assets (23%)\n  - alias (8%)\n  - rsc:react-server-dom-webpack-alias (6%)\n  - rsc:use-server (4%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - rsc:virtual-client-package (38%)\n  - vinext:og-inline-fetch-assets (14%)\n  - rsc:load-environment-module (12%)\n  - vinext:middleware-server-only (6%)\n  - vinext:image-imports (5%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n[plugin builtin:vite-reporter] \n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\n",
+  "stdoutSha256": "da1226654ef71e3210f3fb4906666d1aadeac55121d91579b31493bca27ce398",
+  "stderrSha256": "4bbfe21757d81357b6428cc40270c3b5e6baff1a2721a3fb27564794b65be611",
+  "sourceAfter": {
+    "headOid": "47d2e2dc229f35352f1a7a1cfb948789053c9b1c",
+    "branch": "fix/issue223-erosion-activation",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "work/orchestration/issue223-erosion-activation/run-gates.mjs": "7fe6bdacaeec12bf1783748ce37d34bfed992b6ceb6b0c49cc7e0dfb83a04b68"
+    }
+  }
+}

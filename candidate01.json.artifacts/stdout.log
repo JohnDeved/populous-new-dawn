@@ -1,0 +1,12 @@
+✔ authored Mission 3 activation runs the first native Erosion call immediately and only once (534.811882ms)
+✔ multiple authored targets process in link order at activation and newest-first on later visits (60.879817ms)
+✔ activation queues radius6 texture updates and notifies before allocating the next target (174.46297ms)
+✔ repeated rewards get one initial visit each and exhausted rewards never allocate again (223.133203ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1863.503417

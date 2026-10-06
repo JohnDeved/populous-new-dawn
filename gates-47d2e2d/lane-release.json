@@ -1,0 +1,93 @@
+{
+  "head": "47d2e2dc229f35352f1a7a1cfb948789053c9b1c",
+  "at": "2026-10-06T00:11:19.040863+00:00",
+  "status": "released",
+  "originalGateSession": 25416,
+  "qualityComparisonSession": 84666,
+  "sessionsObservedTerminal": true,
+  "cpuLane": "0-3 released",
+  "dependencyInode": 925605,
+  "dependencyLocation": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix/node_modules",
+  "dependencyState": "parked at recipient; no further package work; available for parent-directed transfer",
+  "sourceClean": true,
+  "rootLockSha256": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+  "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "receipts": {
+    "eslint-changed.json": {
+      "status": "failed",
+      "exitCode": 1,
+      "sha256": "56027683fee5b29f9cf048bc78dd78957d94042543fc7b68e7725fa64c97aebf"
+    },
+    "standard.json": {
+      "status": "failed",
+      "exitCode": 1,
+      "sha256": "f64d4f5924bc2531f4073daf1e794168dc5958e964a0828a80509db0e592a998"
+    },
+    "lint.json": {
+      "status": "failed",
+      "exitCode": 1,
+      "sha256": "36454595e430a8072a91e16872ff36bbcd3a33e159eb55a7c565b4bf23a4d620"
+    },
+    "standard-changed.json": {
+      "status": "failed",
+      "exitCode": 1,
+      "sha256": "ad02e6a9b1a603b736548f3d89ef21659775388aab36145200ad00ed4fa7f375"
+    },
+    "dupes.json": {
+      "status": "passed",
+      "exitCode": 0,
+      "sha256": "13f9b6391c6c5f9d14e533c07865053ff6d2c00de5031b96835d1a9e1848cae6"
+    },
+    "standard-baseline-absolute.json": {
+      "status": "failed",
+      "exitCode": 1,
+      "sha256": "67fb161c4d135c6166058d79393ec6562865cdf87edf0ada780df8cb4dc16aa9"
+    },
+    "unused.json": {
+      "status": "failed",
+      "exitCode": 1,
+      "sha256": "204b9f8840e159ff9b5d701b2a24d2e6d73aacc2daa9499551f0a555f4cdaa3a"
+    },
+    "check.json": {
+      "status": "passed",
+      "exitCode": 0,
+      "sha256": "f98bfb7b03cb54d313b4b6d15a819ec823536a46e7403ededcc2673bfda91aec"
+    },
+    "health.json": {
+      "status": "passed",
+      "exitCode": 0,
+      "sha256": "72919d369b8e7d27c6f073f278b18fcb99e2ef1e9ec8bbadedc30752ebed775d"
+    },
+    "build.json": {
+      "status": "passed",
+      "exitCode": 0,
+      "sha256": "3475e782aea61a27065badbff626a4c79317fc96e9f6f5c271df712c644f789e"
+    },
+    "standard-baseline-source.json": {
+      "status": "failed",
+      "exitCode": 1,
+      "sha256": "2fb7da5464a7af7991bad2d3563bea75c703c86918191f79320a6ba9fa45e01e"
+    },
+    "format.json": {
+      "status": "failed",
+      "exitCode": 1,
+      "sha256": "7a3b6b037e6ca983de002856f7a371da2b4926bc72d2d897ed26b58e76639112"
+    },
+    "eslint-baseline.json": {
+      "status": "failed",
+      "exitCode": 1,
+      "sha256": "4031db8a4070946519cc1b81f3d75553da6ee815906c0df64fa434ea79aedce7"
+    },
+    "standard-baseline.json": {
+      "status": "failed",
+      "exitCode": 1,
+      "sha256": "165453fa5b304b3a0be0c0919ae694e6bb173db8aa9ab9b77fadab3e4d8a3fd1"
+    }
+  },
+  "qualityComparisonSha256": "4899bda0cb6a464ab2dfb42749cc7e680c064b97504afc39e023fdee82314732",
+  "remainingAcceptance": [
+    "ordinary rendered Mission3 activation/retirement",
+    "actual checkpoint UI/IndexedDB continuation",
+    "exact runtime composition with pre-activation recorder"
+  ]
+}

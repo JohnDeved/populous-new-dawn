@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "fdbe76ba-92ee-4979-99fc-3e3e88e86cf6",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "47d2e2dc229f35352f1a7a1cfb948789053c9b1c",
+    "branch": "fix/issue223-erosion-activation",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      ".oxlintrc.json": "caa0057ea1cbbc87402c3942667be83c2298b3a167957cea7153d0d72444ccff",
+      "../native-shaman-guard-fix/app/world-turn.ts": "42d9aa4228b091acb49ac6c108f6464852435d7bfaa5d8a8b82e375de0f8577e",
+      "work/orchestration/issue223-erosion-activation/quality-baseline/oxlint-source-correspondence.json": "24723130c868a2f44aebc127cc3df6b1e9c5677da728d787a9ad5597c0f8de6f"
+    }
+  },
+  "command": [
+    "timeout",
+    "120s",
+    "taskset",
+    "-c",
+    "0-3",
+    "node_modules/.bin/oxlint",
+    "--config",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix/.oxlintrc.json",
+    "../native-shaman-guard-fix/app/world-turn.ts"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix",
+  "startedAt": "2026-10-06T00:09:01.470Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix/work/orchestration/issue223-erosion-activation/gates-47d2e2d/standard-baseline-source.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix/work/orchestration/issue223-erosion-activation/gates-47d2e2d/standard-baseline-source.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T00:09:01.531Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "",
+  "stderr": "Error: `../native-shaman-guard-fix/app/world-turn.ts`: PATH must not contain \"..\"\n",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "63fdfacc4799ac216e52d467a06f913ac146e522b3df54f1fa917beface37599",
+  "sourceAfter": {
+    "headOid": "47d2e2dc229f35352f1a7a1cfb948789053c9b1c",
+    "branch": "fix/issue223-erosion-activation",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      ".oxlintrc.json": "caa0057ea1cbbc87402c3942667be83c2298b3a167957cea7153d0d72444ccff",
+      "../native-shaman-guard-fix/app/world-turn.ts": "42d9aa4228b091acb49ac6c108f6464852435d7bfaa5d8a8b82e375de0f8577e",
+      "work/orchestration/issue223-erosion-activation/quality-baseline/oxlint-source-correspondence.json": "24723130c868a2f44aebc127cc3df6b1e9c5677da728d787a9ad5597c0f8de6f"
+    }
+  }
+}

@@ -1,0 +1,103 @@
+
+> populous-first-dawn@0.1.0 quality:unused
+> fallow dead-code
+
+── Unused Code ─────────────────────────────────────
+
+● Unused files (7)
+  qa/audio-check.mjs
+  qa/browser-check.mjs
+  qa/flyby-check.mjs
+  qa/inspect.mjs
+  qa/native-visuals.mjs
+  qa/projection-check.mjs
+  worker/index.ts
+  Files not reachable from any entry point — https://docs.fallow.tools/explanations/dead-code#unused-files
+  To suppress: // fallow-ignore-file unused-file
+
+── Dependencies ─────────────────────────────────────
+
+● Unused devDependencies (3)
+  @vitejs/plugin-rsc
+  oxc-standard
+  react-server-dom-webpack
+  Listed in devDependencies but never imported or referenced — https://docs.fallow.tools/explanations/dead-code#unused-dependencies
+
+● Unresolved imports (38)
+  scripts/bench-formation-phase.mjs (3)
+    :8 ../app/.formation-phase-baseline.ts
+    :9 ../app/.formation-movement-baseline.ts
+    :10 ../app/.formation-world-turn-baseline.ts
+  scripts/bench-terrain-notifications.mjs (2)
+    :9 ../app/.terrain-notifications-baseline.ts
+    :10 ../app/.terrain-notifications-world-turn-baseline.ts
+  scripts/check-browser-hut-occupancy-smoke.mjs (2)
+    :536 /app/original-effects.json
+    :537 /app/original-rules.json
+  scripts/shaman-worship-ground-observer.mjs (2)
+    :10 /app/original-worship-acquisition.json
+    :11 /app/original-hud.json
+  qa/native-visuals.mjs
+    :20 /app/original-units.json
+  qa/projection-check.mjs
+    :52 /app/original-models.json
+  scripts/bench-command-context.mjs
+    :8 ../app/.command-context-baseline.ts
+  scripts/bench-route-recovery.mjs
+    :9 ../app/.route-recovery-baseline.ts
+  scripts/bench-world-height.mjs
+    :9 ../app/.world-height-baseline.ts
+  scripts/check-browser-background-audio.mjs
+    :202 /app/original-music.json
+  ... and 23 more in 23 files (--format json for full list)
+  Import paths that could not be resolved, check for missing packages or broken paths. Framework-specific imports may need a plugin: https://docs.fallow.tools/plugins — https://docs.fallow.tools/explanations/dead-code#unresolved-imports
+  To suppress: // fallow-ignore-next-line unresolved-import
+
+● Unlisted dependencies (1)
+  next
+  Packages imported in code but missing from package.json — https://docs.fallow.tools/explanations/dead-code#unlisted-dependencies
+
+── Structure ─────────────────────────────────────
+
+● Circular dependencies (20)
+  app/computer-runtime.ts (4 cycles)
+    → live-building-entry.ts → model.ts → computer-runtime.ts
+    → live-movement.ts → model.ts → computer-runtime.ts
+    → live-pathfinding.ts → model.ts → computer-runtime.ts
+    → live-people.ts → model.ts → computer-runtime.ts
+
+  app/live-building-combat.ts (3 cycles)
+    → live-building-entry.ts → live-movement.ts → live-building-combat.ts
+    → live-building-entry.ts → world-tasks.ts → live-building-combat.ts
+    → live-movement.ts → live-building-combat.ts
+
+  app/campaign-command-runtime.ts (2 cycles)
+    → live-building-combat.ts → model.ts → campaign-command-runtime.ts
+    → live-movement.ts → model.ts → campaign-command-runtime.ts
+
+  app/combat-runtime.ts (2 cycles)
+    → live-people.ts → model.ts → combat-runtime.ts
+    → world-tasks.ts → live-building-combat.ts → combat-runtime.ts
+
+  app/construction-runtime.ts (2 cycles)
+    → live-building-entry.ts → model.ts → construction-runtime.ts
+    → live-people.ts → model.ts → construction-runtime.ts
+
+  app/live-building-entry.ts (2 cycles)
+    → live-movement.ts → live-building-entry.ts
+    → live-people.ts → live-building-entry.ts
+
+  app/live-movement.ts (2 cycles)
+    → live-people.ts → live-movement.ts
+    → world-tasks.ts → live-movement.ts
+
+  app/live-people.ts (2 cycles)
+    → live-resting.ts → live-people.ts
+    → world-tasks.ts → live-people.ts
+
+  app/live-pathfinding.ts
+    → live-people.ts → live-pathfinding.ts
+
+  Import cycles that can cause initialization failures and prevent tree-shaking — https://docs.fallow.tools/explanations/dead-code#circular-dependencies
+  To suppress: // fallow-ignore-next-line circular-dependency
+

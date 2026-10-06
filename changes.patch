@@ -1,0 +1,366 @@
+diff --git a/app/world-turn.ts b/app/world-turn.ts
+index 4348445..81cef00 100644
+--- a/app/world-turn.ts
++++ b/app/world-turn.ts
+@@ -559,10 +559,25 @@ function stepTurn(w: World) {
+   }
+   w.gifts = w.gifts.filter(g => g.remaining > 0)
+   stepScenery(w)
+-  // New class-7 effects are inserted before the current native list cursor;
+-  // their first processor visit belongs to the following simulation turn.
++  // New effects are inserted before the current native list cursor. Their next
++  // scheduled visit is on the following turn; a producer can also process immediately.
+   const effectCount = w.effects.length,
+     terrainCenters: { cell: number; radius: number }[] = []
++  const queueErosionTerrain = (cell: number) => {
++    queueTerrain(w.land, cell, 6, 1, terrainTextures)
++    terrainCenters.push({ cell, radius: 6 })
++  }
++  const advanceErosion = (
++    fx: Effect,
++    erosion: Erosion,
++    terrain: (cell: number) => void = queueErosionTerrain
++  ) => {
++    const alive = stepErosion(w.land, erosion, w, {
++      sound: () => sound(w, 0xa9, fx),
++      terrain,
++    })
++    if (!alive) fx.duration = fx.age
++  }
+   // Native allocated-object order is newest first; terrain and RNG effects are noncommutative.
+   for (let index = effectCount - 1; index >= 0; index--) {
+     const fx = w.effects[index]
+@@ -659,16 +674,7 @@ function stepTurn(w: World) {
+       })
+       if (!alive) fx.duration = fx.age
+     }
+-    if (fx.erosion) {
+-      const alive = stepErosion(w.land, fx.erosion, w, {
+-        sound: () => sound(w, 0xa9, fx),
+-        terrain: cell => {
+-          queueTerrain(w.land, cell, 6, 1, terrainTextures)
+-          terrainCenters.push({ cell, radius: 6 })
+-        },
+-      })
+-      if (!alive) fx.duration = fx.age
+-    }
++    if (fx.erosion) advanceErosion(fx, fx.erosion)
+     if (fx.earthquake) {
+       const alive = stepEarthquake(w.land, fx.earthquake, w, {
+         sound: cue => sound(w, cue, fx),
+@@ -847,6 +853,7 @@ function stepTurn(w: World) {
+     notifyHeightChanges(w, terrainCenters)
+     refreshTerrainSurface(w)
+   }
++  terrainCenters.length = 0
+   w.effects = w.effects.filter(f => f.age < f.duration)
+   stepFirewarriorShots(w)
+   processProjectiles(w)
+@@ -930,6 +937,11 @@ function stepTurn(w: World) {
+           const erosion = effect(w, 'erosion', target)
+           erosion.erosion = createErosion(nativePosition(w, target))
+           erosion.duration = Infinity
++          // The head processes each cloned reward before allocating its next link.
++          advanceErosion(erosion, erosion.erosion, cell => {
++            queueErosionTerrain(cell)
++            notifyHeightChanges(w, [{ cell, radius: 6 }])
++          })
+         }
+       } else if (shrine.kind === 'flattenEffect') {
+         const flatten = effect(w, 'flatten', shrine.effectTarget!)
+@@ -1009,6 +1021,13 @@ function stepTurn(w: World) {
+     }
+     syncStoneHeadPresentation(shrine)
+   }
++  // New rewards have already notified their objects. Complete their queued
++  // landscape work after all shrine calls, without a second notification pass.
++  if (terrainCenters.length) {
++    processTerrain(w.land, terrainTextures)
++    for (const { cell, radius } of terrainCenters) updateWalkMasks(w.land, cell, radius)
++    refreshTerrainSurface(w)
++  }
+   // Imported availability selects rechargeable spells; head rewards remain one-off stocks.
+   w.manaWorld.turn = w.turn
+   for (const spell of SPELLS)
+diff --git a/decomp/README.md b/decomp/README.md
+index c4b85ac..50fd9db 100644
+--- a/decomp/README.md
++++ b/decomp/README.md
+@@ -35,7 +35,8 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
+ 
+ ## Port index
+ 
+-Recent reusable topic notes: [Authored scripted Land Bridge origins](research/authored-bridge-origins.md),
++Recent reusable topic notes: [Shrine Erosion activation](research/erosion-activation.md),
++[Authored scripted Land Bridge origins](research/authored-bridge-origins.md),
+ [Ordinary native Shaman Guard input and deferred ownership](research/shaman-guard-input.md),
+ [Model45 Stone Head logical animation visits](research/stone-head-logical-visits.md),
+ [Ordinary person and Splash logical animation visits](research/sprite-logical-visits.md),
+diff --git a/decomp/research/erosion-activation.md b/decomp/research/erosion-activation.md
+new file mode 100644
+index 0000000..7ec2877
+--- /dev/null
++++ b/decomp/research/erosion-activation.md
+@@ -0,0 +1,75 @@
++# Shrine Erosion activation
++
++## Reviewed native boundary
++
++Mission 3 DAT head row101 links row103, class7/model23. The
++[accepted bounded proof](https://github.com/JohnDeved/populous-new-dawn/tree/d6e59a309c1c0cd72895e4152829f1bbd5509432)
++executes the original allocation, initialization, field decoding, link resolution,
++template suspension, cloning, head dispatch and cached-next scheduler traversal.
++Its [independent review](https://github.com/JohnDeved/populous-new-dawn/blob/d6e59a309c1c0cd72895e4152829f1bbd5509432/review.md)
++accepted the declared supplied-state scope.
++
++The authored template starts state24/remaining64. `004edf50` suspends it to state0,
++and the loader marks flags4 bit0x40000000. `004ede10` preserves the new allocation's
++state24 while copying the template's countdown and other flags. The head directly
++calls `004ed700` at `004fbb82`; Erosion processes immediately and returns
++remaining63. `004ec6f0` caches its successor before the head call, so the newly
++prepended clone is visited again only on the next traversal, ending remaining62.
++
++With raw authored terrain and supplied RNG0x12345678, those calls yield RNG
++1317931103 and 2870622653, respectively, and change 46 then 65 heights relative to
++the input. Corresponding port controller calls match every height, RNG and
++terrain-notification cell. The old shrine adapter delayed its first call until
++the next turn. This is a bounded activation-order finding, not the cause of the
++broader animation issue214 or a complete mixed-class cadence claim.
++
++## Live integration and notifications
++
++`world-turn.ts` now processes each new shrine Erosion immediately after
++`createErosion`, before allocating the next authored target. It does not increment
++the effect's age or change allocation/count behavior. The existing effect snapshot
++still gives each new controller exactly one scheduled visit on the next turn.
++The controller arithmetic in `erosion.ts` is unchanged.
++
++Each new controller's terrain callback preserves the native call-site order:
++queue radius6 with texture flag1, then notify radius6 before the next allocation.
++The queue finishes once after shrine processing, updating walk masks and the
++rendered/compatibility surface without repeating object notifications. Native
++scheduler instruction `004ec9f5` calls `0044df40` after its object traversals;
++`0044ddf0` also retains its 1024-entry overflow flush. This does not introduce a
++per-target flush or move the port's existing active-effect batch.
++
++The separate terrain adapters have existing probes
++`check-native-terrain.py` and `check-native-terrain-notifications.py`. The bounded
++activation proof intercepted those consumers and does not establish complete
++object-consumer scheduling. The passive recorder must bind before activation:
++the first after-turn observation now has remaining63, and removal is 63 later
++turns after activation. Its previous remaining64 observation cannot capture the
++new first call.
++
++## Regression and scope
++
++`tests/erosion-shrine-activation.test.mjs` checks:
++
++- Mission3 activation and next-visit countdown, complete terrain hashes and RNG
++  against the accepted native receipt; unchanged age/count; saved continuation
++  and retirement without replay.
++- Actual Mission10 eight-target link order on activation and newest-first order
++  on the next visit. This is a port integration test, not a Mission10 native replay.
++- Radius6 inclusion/exclusion, texture flag1, notifications before the next
++  allocation while the queue is pending, and one deferred surface refresh.
++- Repeated and exhausted rewards, with one initial call per successful reward.
++
++The fixtures complete real level startup before stripping unrelated actors and
++supplying terrain, RNG and completion. They are not ordinary gameplay captures.
++The preserved failure-first receipt shows remaining64 instead of63 and no initial
++notification; its separate mistaken 10-target fixture expectation was corrected to
++the actual 8-target head before the passing candidate run.
++
++The proof's supplied normal-mode flags, seed, pool and completion, every intercepted
++leaf, both native attempts and port receipt remain in the immutable evidence
++commit. Sound requests were intercepted without maintaining the owned-sound bit;
++no playback cadence is established. `effect()` still lacks full native class7
++allocation ownership and always returns an object: this change does not claim
++allocation-failure parity. No parity credit, profile migration or broader mission
++completion is claimed by this repair.
+diff --git a/engineering/project-map.json b/engineering/project-map.json
+index bc21921..160b4d7 100644
+--- a/engineering/project-map.json
++++ b/engineering/project-map.json
+@@ -1091,6 +1091,7 @@
+         { "path": "decomp/research/worship-grant-presentation.md", "heading": "Three findings" },
+         { "path": "decomp/research/worship-grant-replacement.md", "heading": "Dynamic result" },
+         { "path": "decomp/research/authored-bridge-origins.md", "heading": "Executable composition proof" },
++        { "path": "decomp/research/erosion-activation.md", "heading": "Reviewed native boundary" },
+         {
+           "path": "decomp/research/recorded-demo-provenance.md",
+           "heading": "Reproduce the static boundary proof"
+diff --git a/tests/erosion-shrine-activation.test.mjs b/tests/erosion-shrine-activation.test.mjs
+new file mode 100644
+index 0000000..64b45c0
+--- /dev/null
++++ b/tests/erosion-shrine-activation.test.mjs
+@@ -0,0 +1,169 @@
++import assert from 'node:assert/strict'
++import { createHash } from 'node:crypto'
++import test from 'node:test'
++import { createWorld, tick } from '../app/model.ts'
++import { missionData } from '../app/mission-data.ts'
++import { createErosion, stepErosion } from '../app/erosion.ts'
++import { processTerrain, queueTerrain, terrainPointHeight, updateWalkMasks } from '../app/native-terrain.ts'
++import { finishLevelStart, retainFixtureUnits } from './level-start-fixture.mjs'
++
++const seed = 0x12345678
++const textures = { surface() {}, globe() {} }
++const liveErosion = world => world.effects.filter(effect => effect.erosion)
++const hashHeights = heights => {
++  const bytes = Buffer.alloc(32768)
++  heights.forEach((height, i) => bytes.writeInt16LE(height, i * 2))
++  return createHash('sha256').update(bytes).digest('hex')
++}
++
++// Controlled activation fixtures begin after the real opening. They retain an
++// authored shrine but supply raw authored heights, seed, completion and no actors.
++function suppliedWorld(mission = 3) {
++  const world = finishLevelStart(createWorld(mission))
++  const head = world.shrines.find(shrine => shrine.kind === 'erosionEffect')
++  assert.ok(head)
++  const building = structuredClone(world.buildings[0])
++  retainFixtureUnits(world, () => false)
++  for (const name of ['vehicles', 'buildings', 'trees', 'effects', 'gifts', 'projectiles',
++    'marching', 'combatMarches', 'fights', 'replants']) world[name] = []
++  world.shrines = [head]
++  world.manaWorld.gameFlags = 34
++  world.land.heights.fill(0)
++  for (const [x, y, h] of missionData(mission).level.heights) world.land.heights[y * 128 + x] = h
++  world.land.flags.fill(0)
++  world.land.buildingIds.fill(0)
++  world.land.dirty.fill(0)
++  world.land.queued = []
++  world.land.textureUpdates = []
++  world.land.landFlags = 0
++  world.landVersion = world.terrainVersion
++  world.randomState = seed
++  head.reset = false
++  head.forced = true
++  return { world, head, building }
++}
++
++function reference(world) {
++  return { land: structuredClone(world.land), randomState: world.randomState, controllers: [], cells: [] }
++}
++function advance(expected, controller) {
++  stepErosion(expected.land, controller, expected, {
++    sound() {},
++    terrain(cell) {
++      queueTerrain(expected.land, cell, 6, 1, textures)
++      expected.cells.push(cell)
++    },
++  })
++}
++function allocate(expected, target) {
++  const position = { x: Math.round((target.x + 8) * 256) & 65535,
++    y: Math.round((-target.z - 8) * 256) & 65535 }
++  const controller = createErosion({ ...position, h: terrainPointHeight(expected.land, position) })
++  expected.controllers.push(controller)
++  advance(expected, controller)
++}
++function finishTerrain(expected) {
++  processTerrain(expected.land, textures)
++  for (const cell of expected.cells) updateWalkMasks(expected.land, cell, 6)
++  expected.cells = []
++}
++function compare(world, expected) {
++  assert.equal(world.randomState, expected.randomState)
++  assert.deepEqual(world.land.heights, expected.land.heights)
++  assert.deepEqual(liveErosion(world).map(effect => effect.erosion), expected.controllers)
++}
++
++test('authored Mission 3 activation runs the first native Erosion call immediately and only once', () => {
++  const { world, head } = suppliedWorld()
++  const count = world.effectCounter
++  assert.equal(hashHeights(world.land.heights), '5646f3ecfc50b22a46fd403f4838727ef0a2baeb2428cb54f2d511f0a4185269')
++  tick(world, 1 / 12)
++  const effect = liveErosion(world)[0]
++  assert.equal(effect.erosion.remaining, 63)
++  assert.equal(effect.age, 0, 'the immediate call is not another scheduled visit')
++  assert.equal(world.effectCounter, (count + 1) & 255)
++  assert.equal(world.randomState, 1317931103)
++  assert.equal(hashHeights(world.land.heights), 'd503cb3d3f4ec9091ed26d2b67bd0a373a5ecc4c0a84840e906f7690d02fa9a6')
++  assert.equal(head.uses, 1)
++  const saved = structuredClone(world)
++  tick(world, 1 / 12)
++  tick(saved, 1 / 12)
++  assert.equal(effect.erosion.remaining, 62)
++  assert.equal(world.randomState, 2870622653)
++  assert.equal(hashHeights(world.land.heights), 'dc9f487ed787a37dda89659c074980aa87084b9e231ec66b8832d34c9d8f0c2d')
++  assert.deepEqual(world.land.heights, saved.land.heights)
++  assert.equal(world.randomState, saved.randomState)
++  assert.deepEqual(liveErosion(world), liveErosion(saved), 'restoring after activation does not replay visit1')
++  for (let i = 0; i < 61; i++) tick(world, 1 / 12)
++  assert.equal(effect.erosion.remaining, 1)
++  tick(world, 1 / 12)
++  assert.equal(effect.erosion.remaining, 0)
++  assert.equal(liveErosion(world).length, 0)
++})
++
++test('multiple authored targets process in link order at activation and newest-first on later visits', () => {
++  const { world, head } = suppliedWorld(10)
++  assert.equal(head.effectTargets.length, 8)
++  const expected = reference(world)
++  for (const target of head.effectTargets) allocate(expected, target)
++  finishTerrain(expected)
++  tick(world, 1 / 12)
++  compare(world, expected)
++  assert.ok(liveErosion(world).every(effect => effect.age === 0 && effect.erosion.remaining === 63))
++  assert.equal(world.land.queued.length, 0)
++  for (const controller of [...expected.controllers].reverse()) advance(expected, controller)
++  finishTerrain(expected)
++  tick(world, 1 / 12)
++  compare(world, expected)
++  assert.ok(liveErosion(world).every(effect => effect.erosion.remaining === 62))
++})
++
++test('activation queues radius6 texture updates and notifies before allocating the next target', () => {
++  const { world, head, building } = suppliedWorld()
++  head.effectTargets = [head.effectTarget, head.effectTarget]
++  const notifications = []
++  const center = 35575 // Accepted native first-call terrain callback for this seed/input.
++  for (const radius of [6, 7]) {
++    const id = 900 + radius
++    const cell = (((center & 254) + radius * 2) & 255) | (center & 0xfe00)
++    const index = (cell >>> 9) * 128 + ((cell & 254) >>> 1)
++    world.land.buildingIds[index] = id
++    // A dead building is ignored by gameplay. Its pending plan receives the
++    // existing notification adapter, exposing order without production hooks.
++    const preparation = {}
++    Object.defineProperty(preparation, 'revalidate', { set(value) {
++      if (value) notifications.push({ radius, effects: liveErosion(world).length,
++        queued: world.land.queued.length, textures: [...world.land.textureUpdates] })
++    } })
++    world.buildings.push({ ...building, id, hp: 0, preparation })
++  }
++  const version = world.landVersion
++  tick(world, 1 / 12)
++  assert.ok(notifications.some(row => row.radius === 6 && row.effects === 1))
++  assert.ok(!notifications.some(row => row.radius === 7 && row.effects === 1))
++  assert.ok(notifications.some(row => row.effects === 2))
++  assert.ok(notifications.every(row => row.queued > 0 && row.textures.every(value => value === 1)))
++  assert.equal(world.land.queued.length, 0)
++  assert.equal(world.landVersion, version + 1, 'one deferred post-shrine surface refresh')
++})
++
++test('repeated rewards get one initial visit each and exhausted rewards never allocate again', () => {
++  const { world, head } = suppliedWorld()
++  head.remaining = 2
++  tick(world, 1 / 12)
++  assert.equal(liveErosion(world)[0].erosion.remaining, 63)
++  tick(world, 2 / 12) // Original cooldown and reset visits, without another reward.
++  assert.equal(head.uses, 1)
++  head.forced = true
++  tick(world, 1 / 12)
++  assert.equal(head.uses, 2)
++  assert.equal(head.remaining, 0)
++  assert.equal(head.active, false)
++  assert.deepEqual(liveErosion(world).map(effect => effect.erosion.remaining), [60, 63])
++  const count = world.effectCounter
++  head.forced = true
++  for (let i = 0; i < 64; i++) tick(world, 1 / 12)
++  assert.equal(head.uses, 2)
++  assert.equal(world.effectCounter, count)
++  assert.equal(liveErosion(world).length, 0)
++})

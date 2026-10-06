@@ -1,0 +1,46 @@
+{
+  "result": "passed",
+  "oldBase": "10f168733815921070621842d8c025f35715a56d",
+  "reviewedHead": "432f28e6faf9bb2fa65f76400f4b373403df01df",
+  "adoptedMain": "b28b031f6917f6d814536ba10a7d46e7be71de05",
+  "mergeHead": "47d2e2dc229f35352f1a7a1cfb948789053c9b1c",
+  "mergeParents": [
+    "432f28e6faf9bb2fa65f76400f4b373403df01df",
+    "b28b031f6917f6d814536ba10a7d46e7be71de05"
+  ],
+  "conflicts": [
+    "decomp/README.md topic-index links only"
+  ],
+  "resolution": "preserved both Erosion and Guard topic links; no runtime conflict",
+  "deltaCorrespondence": [
+    {
+      "path": "app/world-turn.ts",
+      "sameAddedRemovedLines": true,
+      "sha256": "e5f178dbd89bd304307c9ccfd28c7e4ac9e1a132f10cea5a932b5687b8039734"
+    },
+    {
+      "path": "decomp/README.md",
+      "sameAddedRemovedLines": true,
+      "sha256": "1d681f1fcd8d8cd55bfeeddb32366988b25d6a28f8d5c76f8f96f39a97556a24"
+    },
+    {
+      "path": "decomp/research/erosion-activation.md",
+      "sameAddedRemovedLines": true,
+      "sha256": "1f1793445020990eb90aeb1c5ab470ca4219cfae7c0f79abd1c54ea7224c1d28"
+    },
+    {
+      "path": "engineering/project-map.json",
+      "sameAddedRemovedLines": true,
+      "sha256": "72efb2204d5d00fded28785780f61cd63e796a065e912446e08ca80a57333625"
+    },
+    {
+      "path": "tests/erosion-shrine-activation.test.mjs",
+      "sameAddedRemovedLines": true,
+      "sha256": "fb4f368f0b193a00249737ca76a929eef09098e989c30f5964598bbcd7b9bc25"
+    }
+  ],
+  "runtimeDeltaAgainstReviewedHead": "diff --git a/app/world-turn.ts b/app/world-turn.ts\nindex 433ca22..81cef00 100644\n--- a/app/world-turn.ts\n+++ b/app/world-turn.ts\n@@ -1526,7 +1526,8 @@ function stepTurn(w: World) {\n     if (builderActivity(u) && work && 'hp' in work) processBuilderWork(w, u, work)\n     if (\n       u.native &&\n-      ([3, 6, 7, 16, 22, 27, 30, 33].includes(activeOrder?.model ?? 0) ||\n+      (u.native.guardInputPending ||\n+        [3, 6, 7, 16, 22, 27, 30, 33].includes(activeOrder?.model ?? 0) ||\n         (activeOrder?.model === 18 && !!(activeOrder.flags & 1)) ||\n         (activeOrder?.model === 28 && nativePersonTribe(u) === w.manaWorld.playerTribe && !target))\n     ) {\n@@ -1597,7 +1598,9 @@ function stepTurn(w: World) {\n       u.work === null &&\n       u.target === null &&\n       u.tree === null &&\n-      !u.guard\n+      !u.guard &&\n+      activeOrder?.model !== 30 &&\n+      !u.native?.guardInputPending\n     ) {\n       u.idleTurns++\n       if (u.idleTurns > 16 && (w.turn & 15) === 0) {\n",
+  "reviewedErosionDeltaAgainstMainUnchanged": true,
+  "dependencyMove": "not yet performed",
+  "dependentGates": "paused for merge-correspondence review"
+}

@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "2d59184a-227c-4ca4-ae2c-cb67e99a06e1",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "47d2e2dc229f35352f1a7a1cfb948789053c9b1c",
+    "branch": "fix/issue223-erosion-activation",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "work/orchestration/issue223-erosion-activation/run-gates.mjs": "7fe6bdacaeec12bf1783748ce37d34bfed992b6ceb6b0c49cc7e0dfb83a04b68"
+    }
+  },
+  "command": [
+    "timeout",
+    "120s",
+    "taskset",
+    "-c",
+    "0-3",
+    "npm",
+    "run",
+    "format:check"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix",
+  "startedAt": "2026-10-06T00:06:33.543Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix/work/orchestration/issue223-erosion-activation/gates-47d2e2d/format.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix/work/orchestration/issue223-erosion-activation/gates-47d2e2d/format.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T00:06:33.831Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 format:check\n> oxfmt --check \"app/**/*.{ts,tsx}\"\n\nChecking formatting...\n\napp/render-view.ts (1ms)\napp/viewport-bounds.ts (0ms)\n\nFormat issues found in above 2 files. Run without `--check` to fix.\nFinished in 43ms on 243 files using 4 threads.\n",
+  "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n",
+  "stdoutSha256": "dc1d05fee47600e40c5f24eb090d025f4186eba49046d564ad4d3e5e139f4f6a",
+  "stderrSha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+  "sourceAfter": {
+    "headOid": "47d2e2dc229f35352f1a7a1cfb948789053c9b1c",
+    "branch": "fix/issue223-erosion-activation",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "work/orchestration/issue223-erosion-activation/run-gates.mjs": "7fe6bdacaeec12bf1783748ce37d34bfed992b6ceb6b0c49cc7e0dfb83a04b68"
+    }
+  }
+}

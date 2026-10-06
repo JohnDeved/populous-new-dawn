@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "1c4e250b-abdb-49c8-a6bd-e7afbe936037",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "10f168733815921070621842d8c025f35715a56d",
+    "branch": "fix/issue223-erosion-activation",
+    "trackedDiffSha256": "c137840e8b85a3f58d7a5ae5d6e616b513e1c18c47088609f51d63da30dae23a",
+    "inputs": {
+      "tests/erosion-shrine-activation.test.mjs": "fb4f368f0b193a00249737ca76a929eef09098e989c30f5964598bbcd7b9bc25"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/erosion-shrine-activation.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix",
+  "startedAt": "2026-10-05T23:48:48.190Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix/work/orchestration/issue223-erosion-activation/candidate01.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix/work/orchestration/issue223-erosion-activation/candidate01.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T23:48:50.142Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ authored Mission 3 activation runs the first native Erosion call immediately and only once (534.811882ms)\n✔ multiple authored targets process in link order at activation and newest-first on later visits (60.879817ms)\n✔ activation queues radius6 texture updates and notifies before allocating the next target (174.46297ms)\n✔ repeated rewards get one initial visit each and exhausted rewards never allocate again (223.133203ms)\nℹ tests 4\nℹ suites 0\nℹ pass 4\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1863.503417\n",
+  "stderr": "",
+  "stdoutSha256": "fe89396f8e43c8a17a81005f861eb98403f95d05f49050f404be00e8dea6585b",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "10f168733815921070621842d8c025f35715a56d",
+    "branch": "fix/issue223-erosion-activation",
+    "trackedDiffSha256": "c137840e8b85a3f58d7a5ae5d6e616b513e1c18c47088609f51d63da30dae23a",
+    "inputs": {
+      "tests/erosion-shrine-activation.test.mjs": "fb4f368f0b193a00249737ca76a929eef09098e989c30f5964598bbcd7b9bc25"
+    }
+  }
+}

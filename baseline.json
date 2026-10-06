@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "ab7fc337-22b1-495c-8b9a-449fd4914021",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "10f168733815921070621842d8c025f35715a56d",
+    "branch": "fix/issue223-erosion-activation",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/erosion-shrine-activation.test.mjs": "251dc35aa806a0d3e768392827f85680b5e634b4c230a0b0853e0379456c69ae"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/erosion-shrine-activation.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix",
+  "startedAt": "2026-10-05T23:47:54.398Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix/work/orchestration/issue223-erosion-activation/baseline.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix/work/orchestration/issue223-erosion-activation/baseline.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T23:47:56.194Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "✖ authored Mission 3 activation runs the first native Erosion call immediately and only once (361.805772ms)\n✖ multiple authored targets process in link order at activation and newest-first on later visits (106.976485ms)\n✖ activation queues radius6 texture updates and notifies before allocating the next target (162.325953ms)\n✖ repeated rewards get one initial visit each and exhausted rewards never allocate again (158.274031ms)\nℹ tests 4\nℹ suites 0\nℹ pass 0\nℹ fail 4\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1728.972393\n\n✖ failing tests:\n\ntest at tests/erosion-shrine-activation.test.mjs:76:1\n✖ authored Mission 3 activation runs the first native Erosion call immediately and only once (361.805772ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  64 !== 63\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix/tests/erosion-shrine-activation.test.mjs:82:10)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.start (node:internal/test_runner/test:1242:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 64,\n    expected: 63,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n\ntest at tests/erosion-shrine-activation.test.mjs:104:1\n✖ multiple authored targets process in link order at activation and newest-first on later visits (106.976485ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  8 !== 10\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix/tests/erosion-shrine-activation.test.mjs:106:10)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 8,\n    expected: 10,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n\ntest at tests/erosion-shrine-activation.test.mjs:121:1\n✖ activation queues radius6 texture updates and notifies before allocating the next target (162.325953ms)\n  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n  \n    assert.ok(notifications.some(row => row.radius === 6 && row.effects === 1))\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix/tests/erosion-shrine-activation.test.mjs:142:10)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: false,\n    expected: true,\n    operator: '==',\n    diff: 'simple'\n  }\n\ntest at tests/erosion-shrine-activation.test.mjs:150:1\n✖ repeated rewards get one initial visit each and exhausted rewards never allocate again (158.274031ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  64 !== 63\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix/tests/erosion-shrine-activation.test.mjs:154:10)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 64,\n    expected: 63,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n",
+  "stderr": "",
+  "stdoutSha256": "ee61914f343c33b86fdb981e592feb414c5651e5aa649f0214a68c70b94d6323",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "10f168733815921070621842d8c025f35715a56d",
+    "branch": "fix/issue223-erosion-activation",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/erosion-shrine-activation.test.mjs": "251dc35aa806a0d3e768392827f85680b5e634b4c230a0b0853e0379456c69ae"
+    }
+  }
+}

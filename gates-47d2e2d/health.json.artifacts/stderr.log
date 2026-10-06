@@ -1,0 +1,5 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+loaded config: /workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix/.fallowrc.json
+  note: git churn analysis took 2.1s (cached for next run at same HEAD)
+
+✗ 1903 above threshold · 18661 analyzed (2.45s)

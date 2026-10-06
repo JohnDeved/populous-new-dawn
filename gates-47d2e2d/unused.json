@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "2097a775-874b-4256-aa82-575f2ea92e54",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "47d2e2dc229f35352f1a7a1cfb948789053c9b1c",
+    "branch": "fix/issue223-erosion-activation",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "work/orchestration/issue223-erosion-activation/run-gates.mjs": "7fe6bdacaeec12bf1783748ce37d34bfed992b6ceb6b0c49cc7e0dfb83a04b68"
+    }
+  },
+  "command": [
+    "timeout",
+    "120s",
+    "taskset",
+    "-c",
+    "0-3",
+    "npm",
+    "run",
+    "quality:unused"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix",
+  "startedAt": "2026-10-06T00:07:02.913Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix/work/orchestration/issue223-erosion-activation/gates-47d2e2d/unused.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix/work/orchestration/issue223-erosion-activation/gates-47d2e2d/unused.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T00:07:03.480Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 quality:unused\n> fallow dead-code\n\n── Unused Code ─────────────────────────────────────\n\n● Unused files (7)\n  qa/audio-check.mjs\n  qa/browser-check.mjs\n  qa/flyby-check.mjs\n  qa/inspect.mjs\n  qa/native-visuals.mjs\n  qa/projection-check.mjs\n  worker/index.ts\n  Files not reachable from any entry point — https://docs.fallow.tools/explanations/dead-code#unused-files\n  To suppress: // fallow-ignore-file unused-file\n\n── Dependencies ─────────────────────────────────────\n\n● Unused devDependencies (3)\n  @vitejs/plugin-rsc\n  oxc-standard\n  react-server-dom-webpack\n  Listed in devDependencies but never imported or referenced — https://docs.fallow.tools/explanations/dead-code#unused-dependencies\n\n● Unresolved imports (38)\n  scripts/bench-formation-phase.mjs (3)\n    :8 ../app/.formation-phase-baseline.ts\n    :9 ../app/.formation-movement-baseline.ts\n    :10 ../app/.formation-world-turn-baseline.ts\n  scripts/bench-terrain-notifications.mjs (2)\n    :9 ../app/.terrain-notifications-baseline.ts\n    :10 ../app/.terrain-notifications-world-turn-baseline.ts\n  scripts/check-browser-hut-occupancy-smoke.mjs (2)\n    :536 /app/original-effects.json\n    :537 /app/original-rules.json\n  scripts/shaman-worship-ground-observer.mjs (2)\n    :10 /app/original-worship-acquisition.json\n    :11 /app/original-hud.json\n  qa/native-visuals.mjs\n    :20 /app/original-units.json\n  qa/projection-check.mjs\n    :52 /app/original-models.json\n  scripts/bench-command-context.mjs\n    :8 ../app/.command-context-baseline.ts\n  scripts/bench-route-recovery.mjs\n    :9 ../app/.route-recovery-baseline.ts\n  scripts/bench-world-height.mjs\n    :9 ../app/.world-height-baseline.ts\n  scripts/check-browser-background-audio.mjs\n    :202 /app/original-music.json\n  ... and 23 more in 23 files (--format json for full list)\n  Import paths that could not be resolved, check for missing packages or broken paths. Framework-specific imports may need a plugin: https://docs.fallow.tools/plugins — https://docs.fallow.tools/explanations/dead-code#unresolved-imports\n  To suppress: // fallow-ignore-next-line unresolved-import\n\n● Unlisted dependencies (1)\n  next\n  Packages imported in code but missing from package.json — https://docs.fallow.tools/explanations/dead-code#unlisted-dependencies\n\n── Structure ─────────────────────────────────────\n\n● Circular dependencies (20)\n  app/computer-runtime.ts (4 cycles)\n    → live-building-entry.ts → model.ts → computer-runtime.ts\n    → live-movement.ts → model.ts → computer-runtime.ts\n    → live-pathfinding.ts → model.ts → computer-runtime.ts\n    → live-people.ts → model.ts → computer-runtime.ts\n\n  app/live-building-combat.ts (3 cycles)\n    → live-building-entry.ts → live-movement.ts → live-building-combat.ts\n    → live-building-entry.ts → world-tasks.ts → live-building-combat.ts\n    → live-movement.ts → live-building-combat.ts\n\n  app/campaign-command-runtime.ts (2 cycles)\n    → live-building-combat.ts → model.ts → campaign-command-runtime.ts\n    → live-movement.ts → model.ts → campaign-command-runtime.ts\n\n  app/combat-runtime.ts (2 cycles)\n    → live-people.ts → model.ts → combat-runtime.ts\n    → world-tasks.ts → live-building-combat.ts → combat-runtime.ts\n\n  app/construction-runtime.ts (2 cycles)\n    → live-building-entry.ts → model.ts → construction-runtime.ts\n    → live-people.ts → model.ts → construction-runtime.ts\n\n  app/live-building-entry.ts (2 cycles)\n    → live-movement.ts → live-building-entry.ts\n    → live-people.ts → live-building-entry.ts\n\n  app/live-movement.ts (2 cycles)\n    → live-people.ts → live-movement.ts\n    → world-tasks.ts → live-movement.ts\n\n  app/live-people.ts (2 cycles)\n    → live-resting.ts → live-people.ts\n    → world-tasks.ts → live-people.ts\n\n  app/live-pathfinding.ts\n    → live-people.ts → live-pathfinding.ts\n\n  Import cycles that can cause initialization failures and prevent tree-shaking — https://docs.fallow.tools/explanations/dead-code#circular-dependencies\n  To suppress: // fallow-ignore-next-line circular-dependency\n\n",
+  "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\nloaded config: /workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix/.fallowrc.json\n  771 entry points detected (505 manual entry, 265 plugin, 1 package.json)\n\n✗ 7 files · 3 dev/optional dependencies · 38 unresolved imports · 1 unlisted dependency · 20 circular dependencies (0.30s)\n",
+  "stdoutSha256": "047c2ba5b9f21d23fd2815d0f77c190365be650f89406bca7136f9da66bcd053",
+  "stderrSha256": "f1fe2d3c804d2f21e4bea4653108a86e268060282c1a8faa26ad14c80d06821b",
+  "sourceAfter": {
+    "headOid": "47d2e2dc229f35352f1a7a1cfb948789053c9b1c",
+    "branch": "fix/issue223-erosion-activation",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "work/orchestration/issue223-erosion-activation/run-gates.mjs": "7fe6bdacaeec12bf1783748ce37d34bfed992b6ceb6b0c49cc7e0dfb83a04b68"
+    }
+  }
+}

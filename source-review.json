@@ -1,0 +1,53 @@
+{
+  "review": "ACCEPT",
+  "scope": "Independent read-only source and supplied focused-receipt review only",
+  "issue": 223,
+  "pullRequest": 224,
+  "base": "10f168733815921070621842d8c025f35715a56d",
+  "head": "432f28e6faf9bb2fa65f76400f4b373403df01df",
+  "reviewCompletedAt": "2026-10-05T23:54:11Z",
+  "persistedAt": "2026-10-05T23:59:37Z",
+  "sourceSha256": {
+    "app/world-turn.ts": "ce52adafa51372d9ca0818e98383a9eecd91bd7a84e621289059647988cb8910",
+    "app/erosion.ts": "33823b3db91d1a711d4babcd8b435d5344f2e29db8fc593f34d43532623db5e2",
+    "tests/erosion-shrine-activation.test.mjs": "fb4f368f0b193a00249737ca76a929eef09098e989c30f5964598bbcd7b9bc25",
+    "decomp/research/erosion-activation.md": "1f1793445020990eb90aeb1c5ab470ca4219cfae7c0f79abd1c54ea7224c1d28",
+    "decomp/README.md": "a848d4c8be9f02572735b2eec6fc134d604f1e2e2780f5ac85ef2bed6dd3ccb3",
+    "engineering/project-map.json": "191cc3754e0c16c1a62887b417697f52aa1897c8934ec8341a873a412bca28ff"
+  },
+  "receiptSha256": {
+    "work/orchestration/issue223-erosion-activation/candidate01.json": "16cb2a64769ca0fd44d640b35433d1f55fb609a2c1df84a3971053e0378f8e91",
+    "work/orchestration/issue223-erosion-activation/candidate01-source-binding.json": "06b297173249174ace005e3952d2da444a30a0bc98818436d6176be07e240988",
+    "work/orchestration/issue223-erosion-activation/baseline.json": "60d31364e057a3ce3a1aa8dfb51fcbc81cf710c96b198595191571370a74cb10",
+    "work/orchestration/issue223-erosion-activation/baseline-test.mjs": "251dc35aa806a0d3e768392827f85680b5e634b4c230a0b0853e0379456c69ae"
+  },
+  "verifiedRuntimeDiffSha256": "c137840e8b85a3f58d7a5ae5d6e616b513e1c18c47088609f51d63da30dae23a",
+  "verifiedTestSourceSha256": "fb4f368f0b193a00249737ca76a929eef09098e989c30f5964598bbcd7b9bc25",
+  "findings": [
+    "No blocking source correctness findings.",
+    "Each authored target allocates, processes once, queues radius6/texture1, and notifies before the next allocation.",
+    "The existing active-effect batch finishes before shrine work. Clearing terrainCenters prevents its later re-notification. New terrain work finishes after shrines with walk-mask and surface updates.",
+    "New rewards cannot re-enter the completed effect loop. app/erosion.ts is byte-identical to the reviewed base.",
+    "Four focused passing tests cover native first-two-call countdown/heights/RNG, multiple-target order, immediate notification adapter order, repeated/exhausted rewards and retirement.",
+    "The notification setter observes the real preparation adapter. The source has no second post-shrine object-notification pass.",
+    "Independently verified raw stdout/stderr and source hashes for both retained receipts, including stable before/after source. Baseline test correction is solely the disclosed Mission10 target count10 to8."
+  ],
+  "typescriptQualityReview": "Helpers reuse existing behavior clearly; no unnecessary machinery or new decompiler-style code. Tool-based quality gates were not run at review time.",
+  "remainingGates": [
+    "Source-bound npm run check and npm run build on the eventual merge candidate.",
+    "Source-bound npm run format:check, npm run lint, and npm run lint:standard; report and classify legacy Oxlint findings without treating a failing command as passed.",
+    "Consult Fallow health/duplication/unused reports as advisory evidence.",
+    "Affected rendered Mission3 activation and retirement through the shipped worship path, with the passive recorder bound before activation.",
+    "Actual checkpoint/UI and IndexedDB restore acceptance where that claim is made.",
+    "Record correspondence and applicable re-review/checks for any subsequent base or source change."
+  ],
+  "claimLimits": [
+    "The saved-continuation test uses structuredClone, consistent with the store cloning model; it does not exercise IndexedDB or UI restore.",
+    "Mission10 is a port integration comparison, not a native Mission10 replay.",
+    "Full native allocation ownership and allocation-failure parity remain outside the effect adapter.",
+    "Complete native startup, mixed-class cadence, full terrain object-consumer scheduling, audio playback/cadence and ordinary rendering are not established.",
+    "No parity credit, profile migration, broader mission completion, or production merge approval follows from this source-only verdict.",
+    "Guard mainb28b031 adoption and any later candidate are separate correspondence; this acceptance applies only to432f28e6faf9bb2fa65f76400f4b373403df01df."
+  ],
+  "reviewExecution": "Read-only source/receipt inspection and offline Python/hash comparisons only; no native, Node test, browser, package, aggregate, build or profile jobs. This requested review artifact is the only write."
+}

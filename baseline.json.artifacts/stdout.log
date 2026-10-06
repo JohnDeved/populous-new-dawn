@@ -1,0 +1,96 @@
+✖ authored Mission 3 activation runs the first native Erosion call immediately and only once (361.805772ms)
+✖ multiple authored targets process in link order at activation and newest-first on later visits (106.976485ms)
+✖ activation queues radius6 texture updates and notifies before allocating the next target (162.325953ms)
+✖ repeated rewards get one initial visit each and exhausted rewards never allocate again (158.274031ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 0
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1728.972393
+
+✖ failing tests:
+
+test at tests/erosion-shrine-activation.test.mjs:76:1
+✖ authored Mission 3 activation runs the first native Erosion call immediately and only once (361.805772ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  64 !== 63
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix/tests/erosion-shrine-activation.test.mjs:82:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 64,
+    expected: 63,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/erosion-shrine-activation.test.mjs:104:1
+✖ multiple authored targets process in link order at activation and newest-first on later visits (106.976485ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  8 !== 10
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix/tests/erosion-shrine-activation.test.mjs:106:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 8,
+    expected: 10,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/erosion-shrine-activation.test.mjs:121:1
+✖ activation queues radius6 texture updates and notifies before allocating the next target (162.325953ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(notifications.some(row => row.radius === 6 && row.effects === 1))
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix/tests/erosion-shrine-activation.test.mjs:142:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/erosion-shrine-activation.test.mjs:150:1
+✖ repeated rewards get one initial visit each and exhausted rewards never allocate again (158.274031ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  64 !== 63
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix/tests/erosion-shrine-activation.test.mjs:154:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 64,
+    expected: 63,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,5 @@
+{
+  "source": "b28b031f6917f6d814536ba10a7d46e7be71de05:app/world-turn.ts",
+  "sha256": "42d9aa4228b091acb49ac6c108f6464852435d7bfaa5d8a8b82e375de0f8577e",
+  "purpose": "Read-only current-main diagnostic baseline for the sole changed runtime file; no dependency sharing or source change."
+}

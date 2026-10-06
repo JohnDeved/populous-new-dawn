@@ -1,0 +1,8 @@
+{
+  "baselineMain": "b28b031f6917f6d814536ba10a7d46e7be71de05",
+  "donorSourceHead": "c20a297f5f815ce404f796b08f77ea56396f96da",
+  "sourceAppTreesIdentical": true,
+  "baselineFileSha256": "42d9aa4228b091acb49ac6c108f6464852435d7bfaa5d8a8b82e375de0f8577e",
+  "method": "candidate-owned oxlint binary/config reads unchanged donor source only; no donor package execution or dependency tree",
+  "failedPriorComparison": "standard-baseline receipt is a no-files configuration failure under ignored work path; retained and not treated as lint evidence"
+}

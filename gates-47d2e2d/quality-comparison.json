@@ -1,0 +1,130 @@
+{
+  "head": "47d2e2dc229f35352f1a7a1cfb948789053c9b1c",
+  "baselineMain": "b28b031f6917f6d814536ba10a7d46e7be71de05",
+  "check": "passed",
+  "build": "passed",
+  "fullCheckTestTotals": [
+    "\u2139 tests 1242",
+    "\u2139 pass 1242",
+    "\u2139 fail 0",
+    "\u2139 duration_ms 182759.86803"
+  ],
+  "format": {
+    "status": "failed",
+    "inheritedFiles": [
+      "app/render-view.ts",
+      "app/viewport-bounds.ts"
+    ],
+    "changedRuntimeFileClean": true
+  },
+  "eslint": {
+    "globalStatus": "failed",
+    "summary": [
+      "\u2716 284 problems (282 errors, 2 warnings)"
+    ],
+    "changedRuntimeBefore": 210,
+    "changedRuntimeAfter": 208,
+    "introduced": [],
+    "removed": [
+      [
+        "@typescript-eslint/no-unused-vars",
+        2,
+        "'Effect' is defined but never used."
+      ],
+      [
+        "@typescript-eslint/no-unused-vars",
+        2,
+        "'Erosion' is defined but never used."
+      ]
+    ],
+    "newTestDiagnostics": 0,
+    "otherDiagnosticFilesVerifiedUnchanged": [
+      "app/audio.ts",
+      "app/campaign-runtime.ts",
+      "app/live-construction-runtime.ts",
+      "app/live-pathfinding.ts",
+      "app/mission-data.ts",
+      "app/page.tsx",
+      "app/scene-effects.ts",
+      "app/scene-input-runtime.ts",
+      "app/spell-effects-runtime.ts",
+      "app/vehicle-routing.ts",
+      "app/world-selector.tsx",
+      "scripts/bench-area-attack.mjs",
+      "scripts/bench-sky-motion.mjs",
+      "scripts/check-browser-balloon-hut-menu.mjs",
+      "scripts/check-browser-blast-impact.mjs",
+      "scripts/check-browser-boat-house-menu.mjs",
+      "scripts/check-browser-building-panel-hover.mjs",
+      "scripts/check-browser-campaign-message-presentation.mjs",
+      "scripts/check-browser-followers-tab.mjs",
+      "scripts/check-browser-footprints.mjs",
+      "scripts/check-browser-land-bridge.mjs",
+      "scripts/check-browser-loading-art.mjs",
+      "scripts/check-browser-loading-screen.mjs",
+      "scripts/check-browser-mission11.mjs",
+      "scripts/check-browser-mission4-natural-victory.mjs",
+      "scripts/check-browser-mission4.mjs",
+      "scripts/check-browser-mission9.mjs",
+      "scripts/check-browser-terrain-ambience.mjs",
+      "scripts/check-browser-training-hut-colors.mjs",
+      "scripts/check-browser-vault-appearance.mjs",
+      "scripts/check-browser-vehicle-assets.mjs",
+      "scripts/local-render/harness.mjs",
+      "scripts/orchestration/cli.mjs",
+      "scripts/orchestration/verify.mjs",
+      "tests/combat-orders.test.mjs",
+      "tests/earthquake.test.mjs",
+      "tests/fight-cleanup.test.mjs",
+      "tests/firestorm.test.mjs",
+      "tests/land-bridge.test.mjs",
+      "tests/mission16-bloodlust.test.mjs",
+      "tests/orchestration.test.mjs",
+      "tests/performance-queue.test.mjs",
+      "tests/tornado.test.mjs",
+      "tests/worship-checkpoint-migration.test.mjs"
+    ]
+  },
+  "oxlint": {
+    "globalStatus": "failed",
+    "globalDiagnostics": 1409,
+    "changedRuntimeBefore": 281,
+    "changedRuntimeAfter": 279,
+    "introduced": [],
+    "removed": [
+      [
+        "error",
+        "eslint(no-unused-vars)",
+        "Type 'Effect' is imported but never used. help: Consider removing this import."
+      ],
+      [
+        "error",
+        "eslint(no-unused-vars)",
+        "Type 'Erosion' is imported but never used. help: Consider removing this import."
+      ]
+    ],
+    "otherDiagnosticFilesVerifiedUnchanged": 122
+  },
+  "fallow": {
+    "health": {
+      "status": "passed",
+      "exitCode": 0,
+      "advisory": true
+    },
+    "dupes": {
+      "status": "passed",
+      "exitCode": 0,
+      "advisory": true
+    },
+    "unused": {
+      "status": "failed",
+      "exitCode": 1,
+      "advisory": true
+    }
+  },
+  "comparisonSetupFailures": [
+    "standard-baseline: ignored work directory yielded no files",
+    "standard-baseline-source: oxlint rejected a relative path containing parent segments; absolute read-only source retry used"
+  ],
+  "limits": "Quality gates retain failing statuses; no introduced diagnostics in changed runtime or new test. Full rendering/audio/native allocation ownership and ordinary checkpoint UI remain unproved."
+}

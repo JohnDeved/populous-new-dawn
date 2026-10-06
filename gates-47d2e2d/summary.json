@@ -1,0 +1,67 @@
+{
+  "head": "47d2e2dc229f35352f1a7a1cfb948789053c9b1c",
+  "startedAt": "2026-10-06T00:03:01.797Z",
+  "cpu": "0-3",
+  "privateRoot": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/gate-private/issue223-47d2e2d",
+  "results": [
+    {
+      "name": "check",
+      "status": "passed",
+      "exitCode": 0,
+      "output": "work/orchestration/issue223-erosion-activation/gates-47d2e2d/check.json",
+      "source": "47d2e2dc229f35352f1a7a1cfb948789053c9b1c"
+    },
+    {
+      "name": "build",
+      "status": "passed",
+      "exitCode": 0,
+      "output": "work/orchestration/issue223-erosion-activation/gates-47d2e2d/build.json",
+      "source": "47d2e2dc229f35352f1a7a1cfb948789053c9b1c"
+    },
+    {
+      "name": "format",
+      "status": "failed",
+      "exitCode": 1,
+      "output": "work/orchestration/issue223-erosion-activation/gates-47d2e2d/format.json",
+      "source": "47d2e2dc229f35352f1a7a1cfb948789053c9b1c"
+    },
+    {
+      "name": "lint",
+      "status": "failed",
+      "exitCode": 1,
+      "output": "work/orchestration/issue223-erosion-activation/gates-47d2e2d/lint.json",
+      "source": "47d2e2dc229f35352f1a7a1cfb948789053c9b1c"
+    },
+    {
+      "name": "standard",
+      "status": "failed",
+      "exitCode": 1,
+      "output": "work/orchestration/issue223-erosion-activation/gates-47d2e2d/standard.json",
+      "source": "47d2e2dc229f35352f1a7a1cfb948789053c9b1c"
+    },
+    {
+      "name": "health",
+      "status": "passed",
+      "exitCode": 0,
+      "output": "work/orchestration/issue223-erosion-activation/gates-47d2e2d/health.json",
+      "source": "47d2e2dc229f35352f1a7a1cfb948789053c9b1c"
+    },
+    {
+      "name": "dupes",
+      "status": "passed",
+      "exitCode": 0,
+      "output": "work/orchestration/issue223-erosion-activation/gates-47d2e2d/dupes.json",
+      "source": "47d2e2dc229f35352f1a7a1cfb948789053c9b1c"
+    },
+    {
+      "name": "unused",
+      "status": "failed",
+      "exitCode": 1,
+      "output": "work/orchestration/issue223-erosion-activation/gates-47d2e2d/unused.json",
+      "source": "47d2e2dc229f35352f1a7a1cfb948789053c9b1c"
+    }
+  ],
+  "finishedAt": "2026-10-06T00:07:03.492Z",
+  "qualityRequiresClassification": true,
+  "rootLock": 347862
+}

@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "cc7cb665-865b-436f-a41c-2ddd954494dc",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "47d2e2dc229f35352f1a7a1cfb948789053c9b1c",
+    "branch": "fix/issue223-erosion-activation",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "work/orchestration/issue223-erosion-activation/quality-baseline/world-turn.ts": "42d9aa4228b091acb49ac6c108f6464852435d7bfaa5d8a8b82e375de0f8577e",
+      "eslint.config.mjs": "9578a25ed5bb7d9d6cd35f99459aa4b7987c9e32612ef1e020fa58826dc35543",
+      ".oxlintrc.json": "caa0057ea1cbbc87402c3942667be83c2298b3a167957cea7153d0d72444ccff"
+    }
+  },
+  "command": [
+    "timeout",
+    "120s",
+    "taskset",
+    "-c",
+    "0-3",
+    "node_modules/.bin/oxlint",
+    "--no-ignore",
+    "--config",
+    ".oxlintrc.json",
+    "work/orchestration/issue223-erosion-activation/quality-baseline/world-turn.ts"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix",
+  "startedAt": "2026-10-06T00:07:53.788Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix/work/orchestration/issue223-erosion-activation/gates-47d2e2d/standard-baseline.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-shrine-activation-fix/work/orchestration/issue223-erosion-activation/gates-47d2e2d/standard-baseline.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T00:07:53.876Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "No files found to lint. Please check your paths and ignore patterns.\n",
+  "stderr": "",
+  "stdoutSha256": "199555da75a83fe0949c501d1cac91995db05712c9befa4b61a7ae062738439c",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "47d2e2dc229f35352f1a7a1cfb948789053c9b1c",
+    "branch": "fix/issue223-erosion-activation",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "work/orchestration/issue223-erosion-activation/quality-baseline/world-turn.ts": "42d9aa4228b091acb49ac6c108f6464852435d7bfaa5d8a8b82e375de0f8577e",
+      "eslint.config.mjs": "9578a25ed5bb7d9d6cd35f99459aa4b7987c9e32612ef1e020fa58826dc35543",
+      ".oxlintrc.json": "caa0057ea1cbbc87402c3942667be83c2298b3a167957cea7153d0d72444ccff"
+    }
+  }
+}
