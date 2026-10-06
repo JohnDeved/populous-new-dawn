@@ -55,11 +55,8 @@ def snapshot_delta(native, port, case, phase, fields):
                    if json.dumps(value) != json.dumps(port['fields'][key])}
     expected_fields = {}
     expected_other = {}
-    # Terminal entry bits now match the original. Only the separately unresolved
-    # turning outcome remains in this case; every other field/byte must be equal.
-    if case == 'timer839-turning-known-difference' and phase != 'beforeController':
-        expected_fields.update(assignment=[0,16], animationMode=[0,1])
-        expected_other['simulationRandom'] = [4,3138912261]
+    # Terminal entry and turning now match the original: every field/byte is equal.
+    # The separately retained odd32 completion/release residual is checked below.
     same(field_delta,expected_fields,f'{case}/{phase}: unexpected field differences')
     other = {key:[value,port[key]] for key,value in native.items() if key not in ['raw','fields']
              and json.dumps(value,sort_keys=True)!=json.dumps(port[key],sort_keys=True)}
@@ -125,7 +122,7 @@ def compare(native, port, fields):
             if record['stateResiduals'] or 'returnResidual' in record or 'rawEventResiduals' in record:
                 inventory.append(record)
     same(sum(len(c['rows']) for c in port['cases']),63,'Candidate visit count differs')
-    same(state_rows,2,'Known residual row set changed')
+    same(state_rows,1,'Known residual row set changed')
     return inventory,semantic_requests
 
 
@@ -166,7 +163,7 @@ def main():
         inventory,requests=compare(native,port,payload['fields'])
         (output/'differences.json').write_text(json.dumps(inventory,indent=2)+'\n')
         summary={'status':'passed','scope':'Candidate port against unchanged accepted supplied-state native rows',
-                 'pairs':63,'knownStateOrReturnResidualRows':2,'comparedRequests':requests,
+                 'pairs':63,'knownStateOrReturnResidualRows':1,'comparedRequests':requests,
                  'rawResidualRows':len(inventory),'wholeSermonEquality':'not-claimed',
                  'audio':'request-only interception; live owner flag tested separately',
                  'newNativeExecution':False,'nodeVersion':port['nodeVersion']}
