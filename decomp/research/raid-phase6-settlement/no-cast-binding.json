@@ -1,0 +1,83 @@
+{
+  "kind": "static no-cast/ground branch provenance; not execution",
+  "script": "app/original-script-six.json",
+  "scriptSha256": "672d6c911118ca34a1a274a820f214c55782e7fdf88cf0205416e3e0b1fc12b6",
+  "tribe": "2",
+  "codeSliceStart": 811,
+  "codeSlice": [
+    1006,
+    1059,
+    1118,
+    11,
+    1071,
+    170,
+    115,
+    30,
+    27,
+    30,
+    1078,
+    1,
+    122,
+    64,
+    64
+  ],
+  "literalField64": [
+    0,
+    -1
+  ],
+  "nativeAllocatorArgumentCount": 14,
+  "marker": {
+    "scriptOperand": 12,
+    "callerStorePC": 4783808,
+    "callerPushPC": 4783871,
+    "allocatorArgument": 13,
+    "allocatorStackOffset": 76,
+    "allocatorReadPC": 5137156,
+    "allocatorStorePC": 5137190,
+    "esiTaskBias": 54,
+    "esiStoreOffset": 101,
+    "taskOffset": 47,
+    "lowByte": 255
+  },
+  "normalMode": {
+    "scriptOperand": 9,
+    "code": 1078,
+    "callerZeroPC": 4783932,
+    "callerPushPC": 4783882,
+    "allocatorArgument": 10,
+    "allocatorStackOffset": 64,
+    "allocatorStorePC": 5137041,
+    "taskOffset": 38,
+    "value": 0
+  },
+  "ranges": [
+    {
+      "name": "attack-operand-and-call",
+      "start": 4783184,
+      "stopExclusive": 4783959,
+      "nativeBytesSha256": "cccd0ecf3102db154b5423c2b6a67643424c564f3208189ab1548b30dc84bf8c",
+      "asmSha256": "1671f82086b7c042115b4540826df79c1dfe216552ba64c6473e46e21b4ca030"
+    },
+    {
+      "name": "allocator-prologue",
+      "start": 5136336,
+      "stopExclusive": 5136389,
+      "nativeBytesSha256": "fa4dffe1069e06a8f60787fb6b365a3467a73a77f4ac123df1a46884d1ed3b78",
+      "asmSha256": "05312ff2f71865b3a1bfc50a82e8a3a7b11664f4781b3b11630eb44bf5064a9a"
+    },
+    {
+      "name": "allocator-ground-mode-store",
+      "start": 5137019,
+      "stopExclusive": 5137044,
+      "nativeBytesSha256": "6bc0d021ac84984aa3db97e9d520e6b556dfc5f8f62cb372d7ff16837c38f3da",
+      "asmSha256": "4aaed9037528cd550316280e2aa74494211468abf1d6930c2cdc6cadd027cf98"
+    },
+    {
+      "name": "allocator-final-marker-store",
+      "start": 5137137,
+      "stopExclusive": 5137196,
+      "nativeBytesSha256": "ce58fb8dfa29291b7391894ec7d0a895f952d25ba580e84ba17a24d05b899bc7",
+      "asmSha256": "d61d6e565a6af262249d6b4fadc9fff98e732f69095822522e9431b36dcf553c"
+    }
+  ]
+}
