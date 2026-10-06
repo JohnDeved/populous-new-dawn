@@ -1,0 +1,24 @@
+{
+  "branch": "fix/mission3-raid-recruitment-origin-20261006",
+  "head": "a7f65d7df477891272b1613bbb166ad5a48b0e8b",
+  "base": "89e68606a406f93715b930550317519818ddc081",
+  "tree": "07b6686b7858d068ed44dee90916aa36386e6bc1",
+  "files": 16,
+  "byteIdenticalReviewedSourceCount": 11,
+  "rawWitnessBytes": 170679,
+  "sourcePackageSha256": "11bfa1dd5fa6157d7c011125780c5ae15f9c7e5ba9e4b6ddf173bffebb7730d6",
+  "reviewSha256": "f37ca5367e80510092e4bd0a02d6f119f5612481e7ecad54061bb87a4dc4b678",
+  "maintainedPaths": [
+    "app/computer-runtime.ts",
+    "scripts/check-native-mission3-raid-recruitment.py",
+    "scripts/decomp.py",
+    "scripts/mission3-raid-recruitment-pair.mjs",
+    "tests/fixtures/mission3-raid-recruitment-all-known.json",
+    "tests/fixtures/mission3-raid-recruitment-established.json",
+    "tests/fixtures/mission3-raid-recruitment-loaded-cell.json",
+    "tests/fixtures/mission3-raid-recruitment-origins.json",
+    "tests/fixtures/mission3-raid-recruitment.json",
+    "tests/mission3-raid-loaded-cell.test.mjs",
+    "tests/mission3-raid-recruitment.test.mjs"
+  ]
+}

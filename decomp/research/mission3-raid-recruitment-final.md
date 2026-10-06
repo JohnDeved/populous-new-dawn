@@ -96,4 +96,8 @@ test complements the controlled native/actual-adapter proof without expanding it
 
 All source and evidence are committed locally. Normal Git authentication remains
 unavailable: the branch/bundle are **unpushed and not reset-durable**. Publication,
-integration and final independent evidence acceptance remain separate steps.
+integration remain separate steps. Independent source/evidence acceptance is
+retained byte-for-byte in [final-review.md](../../references/verification/mission3-raid-recruitment-origin-2026-10-06/final-review.md).
+The compact main-bound source ref and its exact byte correspondence are recorded
+in [source-handoff.json](../../references/verification/mission3-raid-recruitment-origin-2026-10-06/source-handoff.json);
+this research/evidence history must not be merged into main.
