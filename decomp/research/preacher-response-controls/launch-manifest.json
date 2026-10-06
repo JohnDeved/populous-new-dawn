@@ -15,7 +15,7 @@
   "constantsSha256": "e905e513c798171d5540082565b8addc9f54e5851006b56e8d1976687ba42f24",
   "python": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/bin/python",
   "node": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
-  "output": "work/orchestration/preacher-response-controls-20261006/run-02-port",
+  "output": "work/orchestration/preacher-response-controls-20261006/run-03-port",
   "files": [
     {
       "path": "app/combat-orders.ts",
@@ -131,7 +131,7 @@
     },
     {
       "path": "decomp/research/preacher-response-controls/README.md",
-      "sha256": "e30ea46b1bd2ce4f4135d08696795ebf9c75abe5a3c4b6f171b16f83f365c4c3"
+      "sha256": "bbd446a10c51cd3eb1518d780537b85d351433a27a9a6bbc719599f1ceb1cf9f"
     },
     {
       "path": "decomp/research/preacher-response-controls/allocation-exhaustion/fixture.json",
@@ -287,7 +287,7 @@
     },
     {
       "path": "scripts/preacher-response-controls.mjs",
-      "sha256": "ec44fa3b62c21bee9c3f53d1fe229a06ecd0b7899aa732a9e7ee701c9cf990c0"
+      "sha256": "727cfcff01d4493ea9f04ec75f4f5ba36d79dc5129cbe5dda2b96ad2212153c6"
     },
     {
       "path": "scripts/preacher-response-pair.mjs",
@@ -537,7 +537,7 @@
     "taskset": "/usr/bin/taskset",
     "pythonLibrary": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/libpython3.12.so.1.0"
   },
-  "supervisorOutput": "work/orchestration/preacher-response-controls-20261006/launch-02-port",
+  "supervisorOutput": "work/orchestration/preacher-response-controls-20261006/launch-03-port",
   "externalEnvelope": {
     "cpu": 4,
     "termSeconds": 15,
