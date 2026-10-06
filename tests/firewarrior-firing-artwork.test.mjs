@@ -29,14 +29,14 @@ test('Firewarrior row15 has its own eight-direction five-frame firing family', (
 
 
 test('firing pieces use disjoint 32px subslots while every old atlas origin stays fixed', () => {
-  assert.deepEqual([units.width, units.height, units.columns, units.cell], [2048, 8128, 32, 64])
+  assert.deepEqual([units.width, units.height, units.columns, units.cell], [2048, 8192, 32, 64])
   for (const [index, piece] of units.pieces.slice(0, 4042).entries()) {
     assert.equal(piece.atlasX, undefined)
     assert.equal(piece.atlasY, undefined)
     assert.deepEqual(spriteAtlasOrigin(piece, index, units),
       { x: index % 32 * 64, y: Math.floor(index / 32) * 64 })
   }
-  const appended = units.pieces.slice(4042), occupied = new Set()
+  const appended = units.pieces.slice(4042, 4122), occupied = new Set()
   assert.equal(appended.length, 80)
   for (const [offset, piece] of appended.entries()) {
     const { x, y } = spriteAtlasOrigin(piece, 4042 + offset, units)

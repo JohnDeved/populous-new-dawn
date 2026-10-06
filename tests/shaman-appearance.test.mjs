@@ -18,6 +18,8 @@ test('Shaman import preserves every prior frame, piece and animation entry', () 
   for (const team of ['blue', 'red']) {
     delete priorAnimations[`${team}-firewarrior`].restingGesture
     delete priorAnimations[`${team}-firewarrior`].firing
+    delete priorAnimations[`${team}-preacher`].preachGesture1
+    delete priorAnimations[`${team}-preacher`].preachGesture2
   }
   assert.equal(hash(priorAnimations), 'a80bf4033d5ae38e84207bc6bfcb2615a5897861eaf2c931533940ce49f93575')
   assert.equal(hash(units.frames.slice(0, 4770)), '890b8810167fbda4f3da7eaa07e2eaf197f3315e8ae83541a144f13b26e1f108')
@@ -28,10 +30,13 @@ test('Shaman import preserves every prior frame, piece and animation entry', () 
   // Preserve the complete accepted resting-artwork prefixes before firing appends.
   assert.equal(hash(units.frames.slice(0, 5091)), '6669fa0faceabada76d28b0d13d47cc5c45d825f51d5f6da2594a4fa8e00530d')
   assert.equal(hash(units.pieces.slice(0, 4042)), 'c707cd1f93936d014375233432d196a09723d5e08b7b5365f8026387ad18d25b')
-  assert.equal(units.frames.length, 5116)
-  assert.equal(units.pieces.length, 4122)
+  // Preserve the complete accepted 169b firing append before Preacher gestures.
+  assert.equal(hash(units.frames.slice(0, 5116)), '1880a9ce9966cb9a6edc8138201b2b4c6ddb2f8dfadbfacca5ab5073d820693f')
+  assert.equal(hash(units.pieces.slice(0, 4122)), '74bf9d23035e81ce64ff4f8fce9bcd1c6561e535c513f6d3a4097185a4390170')
+  assert.equal(units.frames.length, 5116 + 140)
+  assert.equal(units.pieces.length, 4122 + 48)
   assert.equal(units.frameCounts.length, 792)
-  assert.deepEqual([units.width, units.height, units.cell, units.columns], [2048, 8128, 64, 32])
+  assert.deepEqual([units.width, units.height, units.cell, units.columns], [2048, 8192, 64, 32])
 })
 
 test('actual tribe selects every native Shaman source and eight original directions', () => {
