@@ -69,6 +69,10 @@ import {
 import { makeVaultWorldPresentation, drawVaultWorldPresentation } from './scene-vault-knowledge.ts'
 import { animateVaultKnowledgeMarker, makeVaultKnowledgeMarker } from './scene-effects.ts'
 
+const unitAtlasOrigins = nativeUnits.pieces.map((piece, index) =>
+  spriteAtlasOrigin(piece, index, nativeUnits)
+)
+
 const teamColor = {
   blue: 0x303fc1,
   red: 0xb92720,
@@ -408,7 +412,7 @@ export function animatePerson(
     layer.userData.piece = draw.piece
     if (!layer.visible) continue
     const piece = nativeUnits.pieces[draw.piece],
-      origin = spriteAtlasOrigin(piece, draw.piece, nativeUnits),
+      origin = unitAtlasOrigins[draw.piece],
       uv = (layer.userData.atlasTransform ??= new THREE.Vector4()),
       flip = !!(draw.flags & 1)
     uv.set(
