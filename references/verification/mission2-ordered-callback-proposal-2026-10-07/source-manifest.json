@@ -62,10 +62,11 @@
     "review-manifest.json": "0c3d875d68e85c447c7fde2cc09f353fc962a4b1d9866aeb66f57c54592d1f20"
   },
   "proposalSha256": {
-    "README.md": "91474a5b1c63f65c51910b02d2445976e3682850d7bf39cc0cf2b1d7bf1adb72",
-    "case.json": "3beebd3c56160d6c3268c37772d252c3d5d66cb53a0fc61e1a67b932438f86a4",
-    "selected-call-sites.asm": "81359136e975ebed6f5e3508fb6b946dcb54f251f619f6ce7d0d13e38bfa5677",
-    "selected-call-sites.json": "97d35adca95cbadcb9da949d72475fedcbc79f422534f6ab09bb9e0cff2e60ef",
+    "README.md": "1d485065761d15449e6dd7f806b20d09715819b1efbd20adc51bd4bfbec696a3",
+    "case.json": "0cf796c5e94849df4f2382395b77537ef4800996dfe400eca04af611d0a4e0e5",
+    "revision-notes.md": "cd3470fd95525f7daa4f5650741be86165ed9737f9ede34004df74f71b6fce1b",
+    "selected-call-sites.asm": "0587d935f1b6561b8a1c7b57db3871f62b8954ab2d17647192d418bbf4017e93",
+    "selected-call-sites.json": "e8574b0c3c4618f466a3d5283e3b6255f1b7694da564cde2fd700b8e878d4305",
     "static-audit-independent-verdict.md": "5a6510c4efdf653e5acc0a2b71625e9f151761921da4856cfc2c53d551e47be2"
   },
   "checks": {
@@ -76,6 +77,26 @@
     "maxNestedAttempts": 8,
     "nativePoolCapacitySourced": true,
     "runGrant": false,
-    "runtimeOrPackageOrBrowserExecution": false
-  }
+    "runtimeOrPackageOrBrowserExecution": false,
+    "preRosterMetadataBytes": [
+      28,
+      0,
+      0
+    ],
+    "metadataWriteTiming": "after link tail, before 0042b403",
+    "linkTailEndExclusive": "00485153",
+    "authoredOwnerCounts": [
+      6,
+      0,
+      0,
+      26
+    ],
+    "brightness004be230": "real",
+    "suppliedPresentationLeaves": [
+      "0048a050",
+      "004bdff0",
+      "004bdd40"
+    ]
+  },
+  "supersedesSourceProposal": "d324d1c5dafaa86e11936ddcd2c3ef6769a20b77"
 }

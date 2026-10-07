@@ -60,12 +60,21 @@ them is explicit and is not original file I/O.
    record mutations and the local owner-count array across entries. Real
    `00485011 → 004ed8a0 → 004ed580` and `0048502d → 00485b00` execute. No
    allocation result or initializer body is intercepted.
-5. Execute the **one original slice** `00485050..00485122`, including
+5. Execute the **one original slice** `00485050..00485153`, including
    `004851e0`, temporary file-ID clearing, `004866a0`, `004edf50`, linked flags
-   and the model89 scan. This retains native callback order. It stops before
-   the final full-map texture call. Heads are traversed in file-ID order64,60,26;
+   and the model89 scan, the supplied full-map texture notification, and real
+   owner-count finalization at `0048512b..00485153`. The latter writes
+   tribe+0x949=0x61 for owners1/2, which have no authored owner-count contribution.
+   Stop before version/file-I/O handling. This retains native callback order.
+   Heads are traversed in file-ID order64,60,26;
    linked records are63(6/2/255),61(7/24/0),27(6/2/255).
-6. After supplying only the header stores preceding the chosen cut, execute
+6. **After the link/owner-count tail and before the roster tail**, supply the
+   original preceding header stores in order: `0042b3f2` writes byte28 to
+   `0096ead0` (param1, landscape bank), `0042b3f8` writes byte0 to `0096ead1`
+   (param2, object bank), and `0042b3fd` writes byte0 to `0096ead2` (param3,
+   header flags). The three bytes are supplied as0/0/0 before this point in the
+   declared fresh component state; do not move 28 into the record phase.
+   Then execute
    `0042b403..0042b48a`. Original `004ecac0`, `00503230` and the four numeric
    tribe iterations own roster, Shaman handles, site coordinates and actual
    command18 allocation/attachment/state initialization. No host-written
@@ -95,9 +104,13 @@ accepted vstart/vfra files; search table; empty fresh pools/terrain/order storag
 and named fresh scalar state. Gameplay and cosmetic RNG start from the original
 reset word `09d78afe`. They are observed thereafter, without dummy advances.
 
+Keep **004be230 real**: its complete body `004be230..004be327` computes and
+writes terrain cell+0x0d brightness from real height, shadow and sunlight values.
+It has no calls/imports and is not a surface-cache notification.
+
 Proposed supplied presentation consumers are **0048a050** (sound: record its
-three arguments, return EAX0), **004be230** and **004bdff0** (final terrain
-surface/globe texture notifications: record the cell, void return), and
+three arguments, return EAX0), **004bdff0** (final globe texture notification:
+record the cell, void return), and
 **004bdd40** (brightness/texture rectangle: record cell/radius, void return).
 The last function's writes are presentation brightness and texture-cache state;
 height/cell ownership and queued terrain processing remain real. Its omitted
@@ -121,6 +134,8 @@ automatic leaf extension. No Windows import may execute.
   snapshots at pre-record, post-record, post-link and final cuts.
 - Final assertions:27 class1 admissions; seed27; the two exact Shaman records;
   real command18 orders on owners0/3 only; no person visit/counter increment;
+  real owner-count finalization to tribe+0x949=0x61 for owners1/2; pre-roster
+  metadata bytes28/0/0 at0096ead0/1/2;
   all original inputs immutable except loader-owned record owner remapping;
   fresh argument top restored/flag0; no retirement or secondary admission.
 - Proposed single invocation: CPU4 **only after a later explicit free-lane

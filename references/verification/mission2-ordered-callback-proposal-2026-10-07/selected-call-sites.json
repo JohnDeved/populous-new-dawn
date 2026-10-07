@@ -37,6 +37,24 @@
       "start": "00401090",
       "endExclusive": "004010ac",
       "sha256": "33f758325679fe4dfa0f95517deb06884db7281b8ae63e3e12b76e0cbed85225"
+    },
+    {
+      "label": "post_load_header_stores",
+      "start": "0042b3ea",
+      "endExclusive": "0042b403",
+      "sha256": "86486106b73b8b51d05f58c76a92682ab21c06b3c49c35e4f5f7aeaf082a6793"
+    },
+    {
+      "label": "link_tail_owner_count_finalization",
+      "start": "00485122",
+      "endExclusive": "00485153",
+      "sha256": "4b73cd7b839f9bb0597fdaa5824b4b3184daf531e66bb7c4a092d1c10ec7530f"
+    },
+    {
+      "label": "real_brightness_writer",
+      "start": "004be230",
+      "endExclusive": "004be327",
+      "sha256": "5e4d76042dbf72aa708a863ad8bbba4b8800592afc2a6fff592e81ebf8aa28d5"
     }
   ]
 }
