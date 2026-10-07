@@ -269,7 +269,7 @@ test('reused drivers stay byte-identical and new observation contains no World/t
   assert.doesNotMatch(scenario, /local-render\/harness|waitForFunction\(async|\.put\(|\.add\(/)
   assert.match(scenario, /readQueuedPreservingStop/); assert.match(scenario, /requireSameCheckpoint/)
   // Exact reviewed runtime adoption supersedes only the former disabled-state pin.
-  assert.equal(pins.candidateSource, '2f0c50379d89f603f4e51de006169ae04c9d2380')
+  assert.equal(pins.candidateSource, 'de0fb63fbcaaf2e0c16a355988bc022ee6313ae7')
   assert.deepEqual(Object.keys(pins.candidateTrees), Object.keys(pins.baselineTrees))
   for (const [name, hash] of Object.entries(pins.candidateTrees)) {
     const git = ref => execFileSync('git', ['rev-parse', `${ref}:${name}`],

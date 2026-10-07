@@ -3,7 +3,7 @@
 The accepted ordinary baseline remains bound to application
 `1c7e6b05687aca14d9350e17c7ae14dc6c68bb97` and tested QA `e40eee37`.
 Candidate source adopts only the reviewed lean runtime
-`2f0c50379d89f603f4e51de006169ae04c9d2380`, based on current main `e3a7a06a`.
+`de0fb63fbcaaf2e0c16a355988bc022ee6313ae7`, based on current main `e3a7a06a`.
 The accepted `49425649` scenario, observer, input and lifecycle logic is unchanged.
 No candidate browser run has occurred. Successful final application gates, exact
 source preflight and a separate resource grant are required before its fresh run.
@@ -206,12 +206,15 @@ interruption sequence remains, with three bounded corrections:
   The diagnostic read descriptor is restored in finally, including failure paths.
 
 No candidate browser run has occurred. `source-inputs.json` now binds the four
-candidate trees to the reviewed lean runtime `2f0c5037`; the contract's former
+candidate trees to the reviewed lean runtime `de0fb63f`; the contract's former
 `candidateTrees === null` assertion is superseded only by exact adopted-commit
 and HEAD tree equality. No gameplay or negative acceptance assertion changed.
 The historical research PR247 branch is not merged. The final gated runtime's
 application, public, scripts, tests and package bytes must match this adoption.
-Final gate receipts and exact-source preflight remain required. The latest continuation
+The `de0fb63f` refresh only wraps five line groups in `computer-runtime.ts` from
+the accepted `2f0c5037`; independent review found identical tokens and structural
+AST. The earlier failed formatting gate remains failed. Final gate receipts and
+exact-source preflight remain required. The latest continuation
 metadata names the actual crossing03 terminal run. The companion engineering guide
 is a non-QA file, so the conservative harness counts its new bytes as application
 inputs: this checker head cannot reopen the old baseline profile. Its original
