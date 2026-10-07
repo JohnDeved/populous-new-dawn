@@ -1,0 +1,63 @@
+{
+  "verifiedAt": "2026-10-07T05:17:34.669Z",
+  "repository": "JohnDeved/populous-new-dawn",
+  "pr": {
+    "number": 254,
+    "url": "https://github.com/JohnDeved/populous-new-dawn/pull/254",
+    "state": "closed",
+    "merged": true,
+    "mergedAt": "2026-10-07T05:07:09Z",
+    "mergeCommit": "a8e85a64376fbabe24b85e46ff02da8ba0a43676",
+    "testedHead": "d323ccae2b42b460dadc0cb07f6368f967aa21b7"
+  },
+  "merge": {
+    "sha": "a8e85a64376fbabe24b85e46ff02da8ba0a43676",
+    "url": "https://github.com/JohnDeved/populous-new-dawn/commit/a8e85a64376fbabe24b85e46ff02da8ba0a43676",
+    "tree": "0233947f76a06de666f549a284dca28a736dbf76",
+    "parents": [
+      "e3a7a06a4250457502288d5b4c4e4ad8f3b40b53",
+      "d323ccae2b42b460dadc0cb07f6368f967aa21b7"
+    ],
+    "testedLocalTree": "0233947f76a06de666f549a284dca28a736dbf76",
+    "exactTestedTreeMatch": true
+  },
+  "provider": {
+    "id": 112641413025,
+    "name": "Workers Builds: populous-new-dawn",
+    "url": "https://github.com/JohnDeved/populous-new-dawn/runs/112641413025",
+    "headSha": "a8e85a64376fbabe24b85e46ff02da8ba0a43676",
+    "status": "completed",
+    "conclusion": "success",
+    "completedAt": "2026-10-07T05:08:48Z",
+    "buildId": "31d0dab7-b15c-4da0-a2b3-d8ffb2ed0062",
+    "versionId": "debe6db1-d99f-4532-a0b7-9907f18869c2",
+    "summary": "\nBuild ID: [31d0dab7-b15c-4da0-a2b3-d8ffb2ed0062](https://dash.cloudflare.com/19321bcee0ed17a93b709cb602dd070c/workers/services/view/populous-new-dawn/production/builds/31d0dab7-b15c-4da0-a2b3-d8ffb2ed0062)\nScript: [populous-new-dawn](https://dash.cloudflare.com/19321bcee0ed17a93b709cb602dd070c/workers/services/view/populous-new-dawn/production)\nVersion ID: debe6db1-d99f-4532-a0b7-9907f18869c2\n"
+  },
+  "evidence": {
+    "finalReview": "https://github.com/JohnDeved/populous-new-dawn/blob/9f53db3de30e5eca1844bb73a82d0da93bcdf55e/references/verification/startup-burst-height-final-gates-2026-10-07/attempt-02/result-review.json",
+    "finalGates": "https://github.com/JohnDeved/populous-new-dawn/tree/9f53db3de30e5eca1844bb73a82d0da93bcdf55e/references/verification/startup-burst-height-final-gates-2026-10-07/attempt-02",
+    "ordinaryPair": "https://github.com/JohnDeved/populous-new-dawn/blob/410b793802a849b563ee710705f3504eaa87b53b/references/verification/startup-burst-height-ordinary-2026-10-07/ordinary-pair-review.json",
+    "beforeImage": "https://github.com/JohnDeved/populous-new-dawn/blob/410b793802a849b563ee710705f3504eaa87b53b/references/verification/startup-burst-height-ordinary-2026-10-07/baseline-attempt-01/mission-1-startup-burst.png",
+    "afterImage": "https://github.com/JohnDeved/populous-new-dawn/blob/410b793802a849b563ee710705f3504eaa87b53b/references/verification/startup-burst-height-ordinary-2026-10-07/candidate-isolated-attempt-02/mission-1-startup-burst.png"
+  },
+  "limits": [
+    "Provider success is GitHub's Cloudflare check result, not a new production gameplay/browser claim.",
+    "No package gate, browser, original-native or quarantined-resource action was performed for this readback.",
+    "Inherited Oxlint six errors/32 warnings and Fallow-unused findings remain explicit advisory failures.",
+    "Original interrupted candidate and its old loan remain unknown/quarantined."
+  ],
+  "issue": {
+    "number": 252,
+    "url": "https://github.com/JohnDeved/populous-new-dawn/issues/252",
+    "state": "closed",
+    "stateReason": "completed",
+    "closedAt": "2026-10-07T05:07:10Z",
+    "readbackUrl": "https://api.github.com/repos/JohnDeved/populous-new-dawn/issues/252"
+  },
+  "main": {
+    "ref": "refs/heads/main",
+    "sha": "a8e85a64376fbabe24b85e46ff02da8ba0a43676",
+    "readbackUrl": "https://api.github.com/repos/JohnDeved/populous-new-dawn/git/ref/heads/main"
+  },
+  "scope": "Startup stone burst root-height clamp only; no broad animation completion claim."
+}
