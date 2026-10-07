@@ -1,0 +1,12 @@
+{
+  "observedAt": "2026-10-07T02:40:22.468528+00:00",
+  "head": "e3a7a06a4250457502288d5b4c4e4ad8f3b40b53",
+  "checkId": 112602038820,
+  "status": "completed",
+  "conclusion": "success",
+  "completedAt": "2026-10-07T02:30:15Z",
+  "buildId": "58b5204c-4890-4bd1-a54e-c7cbcca1a8bc",
+  "versionId": "57b6174c-f320-4b0c-88ca-5b5478653caf",
+  "detailsUrl": "https://dash.cloudflare.com/19321bcee0ed17a93b709cb602dd070c/workers/services/view/populous-new-dawn/production/builds/58b5204c-4890-4bd1-a54e-c7cbcca1a8bc",
+  "limit": "Exact-merge provider success readback; no additional production gameplay, traffic-percentage or full-original-parity claim."
+}

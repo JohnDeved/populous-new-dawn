@@ -1,0 +1,9 @@
+{
+  "verifiedAt": "2026-10-07T02:29:12.112981+00:00",
+  "pr": 253,
+  "testedHead": "8592c0049b720f568630db42d1b9b602a000b0b4",
+  "mergedMain": "e3a7a06a4250457502288d5b4c4e4ad8f3b40b53",
+  "tree": "51dbcf5136e14fd744384996f5f90366ccfb315e",
+  "exactTestedTree": true,
+  "providerStatus": "pending"
+}
