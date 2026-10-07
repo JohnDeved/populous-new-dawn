@@ -1,0 +1,23 @@
+{
+  "verdict": "ACCEPT_SOURCE_PROPOSAL_ONLY",
+  "head": "7ec71c779639d99d4b2ea1b19396b83a02baa703",
+  "base": "274750b0620740342116e5443616eae03f35ade6",
+  "testSha256": "74212dcb91cf0c8635b4c9b36b8e534391dd2ffecb3cbc2df194a6cc16b312a9",
+  "unappliedPatchSha256": "b8c849b81745150317ce76d7e31b882d59252b47647747b2c9bddb92643885d3",
+  "sourceValidationSha256": "fc1f8b4b8a8b90b434cfe249de544d535f63ca12f5d529a674ddab3d2ffc14e7",
+  "findings": [
+    "All13 bound input hashes match; only the new test and three proposal files differ. Runtime and PR253 source inputs are unchanged. Reviewer did not import/run the test,application or native code and did not apply the patch.",
+    "Expected offset90 is decoded from accepted original root common/offset and32 child+0x41 bytes in SHAecec70d64abcfedd06ea1146462b6f7d86e35a3e8b77652f5cea0587b058c957. The live helper does not synthesize the native oracle.",
+    "Actual production birth observation extends the existing RNG-write observer. Every RNG assignment is forwarded unchanged. On the pending effect, the one-time animation setter first restores its original/default ordinary data descriptor with the assigned animation, then reads detached birth values. The synchronous producer has no intervening consumer requiring a different property value. Finally restores only still-owned descriptors and preserves the last actual RNG value; observation errors fail the regression.",
+    "The test requires the exact producer turn,age0,state3,zero velocity,three draws,first-draw lifetime,speed60 and authored XY,32 births per fresh enabled stone. Missions1/2/3 cover8/8/16 stones and1024 births with phases/counters/RNG diagnostics emitted before height assertions. This is fixed-step production-caller evidence, not public-control rendered evidence.",
+    "Proposed runtime delta creates one position after the existing effect9 counter increment and before the child loop: short(max(short(point.h),current terrain ground)+90). Existing createSpellTrail copies the position and keeps its child clamp. Allocation/draw order and parent stone data are unchanged. The expression matches the original signed root clamp-before-offset primitive.",
+    "Old-stone origin recovery remains excluded. The existing estimated old-stone point may pass through the corrected primitive without becoming a recovered native terrain-history input. No complete startup/raster/RNG-history parity claim is made."
+  ],
+  "nextBoundary": [
+    "Select/review the final integrated angle base and exact finite test preflight before any run.",
+    "Retain the failure-first test output and all three integrity diagnostics before applying the separately granted minimal patch.",
+    "Candidate must run the unchanged height test and existing startup/angle tests; compare end RNG,counters,stone turns and phase history exactly.",
+    "Ordinary rendered startup/checkpoint and final standard/type-quality gates remain required."
+  ],
+  "executionAuthority": "None from this source review."
+}
