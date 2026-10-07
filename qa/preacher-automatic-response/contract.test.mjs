@@ -138,7 +138,7 @@ function cancellationBoundary() {
   const before = row(20, 'input-boundary', true), after = row(20, 'input-boundary')
   after.order = { ...after.order, id: 12, identity: 12 }
   after.retiredOrders = [{ ...before.order, references: 0 }]
-  return { inputBefore: { automaticResponse: before, units: [{ id: 5, nativeIdentity: 8, order: before.order }] },
+  return { inputBefore: { automaticResponse: before, automaticResponseInterval: [], units: [{ id: 5, nativeIdentity: 8, order: before.order }] },
     inputAfter: { automaticResponse: after, units: [{ id: 5, nativeIdentity: 8, order: after.order, native: { immediateCommand: 0 } }] } }
 }
 
@@ -155,8 +155,9 @@ test('paused preparation freezes selection and owner before camera/point work; R
 })
 
 test('synchronous cancellation survives later automatic re-engagement without inventing release', () => {
+  const prepared = row(20, 'paused-interruption-prepared', true); prepared.paused = true
   const input = cancellationBoundary(), later = { references: 1, registered: true, listeners: [6], currentModel: 32 }
-  assert.doesNotThrow(() => requireInterruptedResponse(input, 5, later))
+  assert.doesNotThrow(() => requireInterruptedResponse(input, 5, prepared, later))
   for (const mutate of [x => { x.inputBefore.automaticResponse.order.model = 3 },
     x => { x.inputAfter.automaticResponse.retiredOrders[0].references = 1 },
     x => { x.inputAfter.automaticResponse.retiredOrders[0].identity++ },
@@ -164,19 +165,51 @@ test('synchronous cancellation survives later automatic re-engagement without in
     x => { x.inputAfter.automaticResponse.nativeOnly = false },
     x => { x.inputAfter.units[0].nativeIdentity = 99 }]) {
     const bad = structuredClone(input); mutate(bad)
-    assert.throws(() => requireInterruptedResponse(bad, 5, { references: 0, registered: true, listeners: [] }))
+    assert.throws(() => requireInterruptedResponse(bad, 5, prepared))
   }
+})
+
+test('interruption stays bound to the paused restored32, not another32 admitted before the handler', () => {
+  const prepared = row(19, 'paused-interruption-prepared', true); prepared.paused = true
+  const input = cancellationBoundary()
+  input.inputBefore.automaticResponseInterval = [row(19, 'beforeTurn', true), row(20, 'afterTurn', true)]
+  assert.doesNotThrow(() => requireInterruptedResponse(input, 5, prepared))
+  for (const replace of [r => { r.id = 77; r.identity = 77 }, r => { r.identity = 77 }, r => { r.a++ }]) {
+    const newer = structuredClone(input), order = newer.inputBefore.automaticResponse.order
+    replace(order)
+    newer.inputBefore.automaticResponse.person.immediateCommand = order.id
+    newer.inputBefore.units[0].order = structuredClone(order)
+    newer.inputAfter.automaticResponse.retiredOrders = [{ ...order, references: 0 }]
+    assert.throws(() => requireInterruptedResponse(newer, 5, prepared), 'Another32 is not the prepared restored32')
+  }
+  for (const mutate of [x => { x.inputBefore.automaticResponseInterval.pop() },
+    x => { x.inputBefore.automaticResponseInterval[1].order.model = 3 },
+    x => { x.inputBefore.automaticResponseInterval[1].person.commandStatus = 3 },
+    x => { x.inputBefore.automaticResponseInterval[0].nativeOnly = false }]) {
+    const interrupted = structuredClone(input); mutate(interrupted)
+    assert.throws(() => requireInterruptedResponse(interrupted, 5, prepared), 'Recorded loss or same-slot replacement cannot be hidden by re-engagement')
+  }
+  const reused = cancellationBoundary()
+  reused.inputBefore.automaticResponse.turn = reused.inputAfter.automaticResponse.turn = 21
+  reused.inputBefore.automaticResponseInterval = [row(19, 'beforeTurn', true), row(20, 'afterTurn', true),
+    row(20, 'beforeTurn', true), row(21, 'afterTurn', true)]
+  // Old32 expires, the same pool object is reused with startup still on3, and
+  // a later real visit starts the new32 before the actual input handler.
+  reused.inputBefore.automaticResponseInterval[1].person.commandStatus = 3
+  reused.inputBefore.automaticResponseInterval[2].person.commandStatus = 3
+  assert.throws(() => requireInterruptedResponse(reused, 5, prepared), 'Same id/identity/payload cannot conceal recorded reallocation')
 })
 
 test('composed input read forwards once, keeps detached boundary rows and restores its descriptor', () => {
   const previous = Object.getOwnPropertyDescriptor(globalThis, 'window'), input = cancellationBoundary()
   let row = input.inputBefore.automaticResponse, calls = 0
   const original = function (value) { calls++; assert.equal(this.marker, 7); return { value } }
-  const fake = { nativeGuardReadInput: original, preacherResponse: { read: () => structuredClone(row) } }
+  const prepared = structuredClone(row); prepared.paused = true
+  const fake = { nativeGuardReadInput: original, preacherResponse: { read: () => structuredClone(row), tracker: { rows: [] } } }
   globalThis.window = fake
   const descriptor = Object.getOwnPropertyDescriptor(fake, 'nativeGuardReadInput')
   try {
-    installInputResponseRead()
+    installInputResponseRead(prepared)
     const before = fake.nativeGuardReadInput.call({ marker: 7 }, 'before')
     row = input.inputAfter.automaticResponse
     const after = fake.nativeGuardReadInput.call({ marker: 7 }, 'after')
@@ -188,7 +221,7 @@ test('composed input read forwards once, keeps detached boundary rows and restor
     assert.deepEqual(Object.getOwnPropertyDescriptor(fake, 'nativeGuardReadInput'), descriptor)
     assert.equal(fake.preacherInputRead, undefined)
     fake.preacherResponse.read = () => { throw Error('read failed') }
-    installInputResponseRead()
+    installInputResponseRead(prepared)
     assert.throws(() => fake.nativeGuardReadInput.call({ marker: 7 }, 'failure'), /read failed/)
     assert.equal(calls, 3, 'The original read still runs exactly once on an observation failure')
     assert.equal(fake.preacherInputRead.finish().restored, true)

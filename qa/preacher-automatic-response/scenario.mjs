@@ -43,9 +43,28 @@ export function requirePausedResponse(row, id, before) {
   return unit
 }
 
-export function requireInterruptedResponse(input, id) {
+export function requireInterruptedResponse(input, id, prepared) {
   const before = input.inputBefore.automaticResponse, after = input.inputAfter.automaticResponse
   assert.ok(before && after, 'Synchronous response snapshots are required')
+  assert.ok(prepared?.paused && prepared.order?.model === 32, 'Paused restored32 binding required')
+  const requirePreparedOrder = row => {
+    assert.ok(row.sameWorld && row.sameActor && row.nativeOnly && row.registeredOwner && !row.busy)
+    assert.equal(row.actor.id, prepared.actor.id); assert.equal(row.person.id, prepared.person.id)
+    assert.equal(row.person.commandStatus, 32); assert.equal(row.person.immediateCommand, prepared.order.id)
+    assert.deepEqual(row.order, prepared.order, 'The actual32 must be the exact paused prepared record/payload')
+    assert.deepEqual([row.person.commandCursor, row.commands, row.queued],
+      [prepared.person.commandCursor, prepared.commands, prepared.queued], 'Prepared queued ownership changed')
+  }
+  requirePreparedOrder(prepared); requirePreparedOrder(before)
+  const turns = before.turn - prepared.turn, interval = input.inputBefore.automaticResponseInterval
+  assert.ok(Number.isInteger(turns) && turns >= 0 && turns <= 360, 'Bounded Resume-to-input interval required')
+  assert.ok(Array.isArray(interval)); assert.equal(interval.length, turns * 2, 'Complete passive interval required')
+  for (let offset = 0; offset < interval.length; offset += 2) {
+    const a = interval[offset], b = interval[offset + 1], turn = prepared.turn + offset / 2
+    assert.equal(a.phase, 'beforeTurn'); assert.equal(a.turn, turn)
+    assert.equal(b.phase, 'afterTurn'); assert.equal(b.turn, turn + 1)
+    requirePreparedOrder(a); requirePreparedOrder(b)
+  }
   for (const row of [before, after]) {
     assert.ok(row.sameWorld && row.sameActor && row.nativeOnly && row.registeredOwner && !row.busy)
     assert.equal(row.actor.id, id); assert.ok(row.actor.hp > 0 && row.person.life === Math.round(row.actor.hp * 20))
@@ -65,17 +84,29 @@ export function requireInterruptedResponse(input, id) {
 
 // Compose the existing synchronous input read with the existing passive response
 // read. No controller hook or game command is added. Restore the exact descriptor.
-export function installInputResponseRead() {
+export function installInputResponseRead(prepared) {
   if (window.preacherInputRead) throw Error('Response input read already installed')
   const descriptor = Object.getOwnPropertyDescriptor(window, 'nativeGuardReadInput')
-  const original = descriptor?.value, read = window.preacherResponse?.read
-  if (typeof original !== 'function' || typeof read !== 'function') throw Error('Owned input/response readers required')
+  const original = descriptor?.value, observer = window.preacherResponse, read = observer?.read
+  if (typeof original !== 'function' || typeof read !== 'function' || !Array.isArray(observer?.tracker?.rows))
+    throw Error('Owned input/response readers required')
+  if (!prepared?.paused || !Number.isInteger(prepared.turn)) throw Error('Paused response binding required')
   let calls = 0
   const wrapper = function (...args) {
     const input = Reflect.apply(original, this, args)
     if (Object.hasOwn(input, 'automaticResponse')) throw Error('Response field already owned')
     calls++
-    return { ...input, automaticResponse: read('input-boundary') }
+    const response = read('input-boundary')
+    const interval = observer.tracker.rows.filter(row =>
+      row.phase === 'beforeTurn' ? row.turn >= prepared.turn && row.turn < response.turn :
+        row.phase === 'afterTurn' && row.turn > prepared.turn && row.turn <= response.turn)
+    if (interval.length > 720) throw Error('Resume-to-input phase-row cap exceeded')
+    return { ...input, automaticResponse: response, automaticResponseInterval: interval.map(row => ({
+      phase: row.phase, turn: row.turn, sameWorld: row.sameWorld, sameActor: row.sameActor,
+      nativeOnly: row.nativeOnly, registeredOwner: row.registeredOwner, busy: row.busy,
+      actor: { id: row.actor?.id }, person: row.person && { id: row.person.id,
+        commandStatus: row.person.commandStatus, immediateCommand: row.person.immediateCommand,
+        commandCursor: row.person.commandCursor }, order: row.order, commands: row.commands, queued: row.queued })) }
   }
   Object.defineProperty(window, 'nativeGuardReadInput', { ...descriptor, value: wrapper })
   window.preacherInputRead = { finish() {
@@ -290,12 +321,14 @@ export default async function responseScenario(context) {
       after: await acquisition.read(), scope: 'Ordinary paused camera and owned-canvas picking only' }
     requirePausedResponse(report.interruptionPreparation.after, id, state); persist()
     assert.ok(target, 'Paused offset view has no legal owned ground interior; retain no-hit diagnostics')
-    await page.evaluate(installInputResponseRead)
+    report.interruptionPreparation.response = await page.evaluate(() => window.preacherResponse.read('paused-interruption-prepared'))
+    assert.equal(report.interruptionPreparation.response.paused, true); persist()
+    await page.evaluate(installInputResponseRead, report.interruptionPreparation.response)
     let inputFailure
     try {
       await button('Resume game')
       report.interruption = await acquisition.dispatch.clickOrder(target)
-      report.interruption.released = requireInterruptedResponse(report.interruption, id)
+      report.interruption.released = requireInterruptedResponse(report.interruption, id, report.interruptionPreparation.response)
     } catch (error) { inputFailure = error; throw error }
     finally {
       try {

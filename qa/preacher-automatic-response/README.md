@@ -195,7 +195,11 @@ interruption sequence remains, with three bounded corrections:
   actual canvas ownership and native context. No hit remains a retained failure.
   Resume is reserved for the one fresh validated dispatch.
 - That dispatch composes the existing synchronous input read with the existing
-  passive response read. Actual inputAfter must show the exact former32 record
+  passive response read. The paused prepared32 ID, record identity, payload,
+  native owner and queue must survive every complete before/after turn pair from
+  Resume to inputBefore (at most360 visits/720 rows). Recorded loss, startup of a
+  replacement32, or missing rows fails even if the same pool slot is later reused.
+  Actual inputAfter must show the exact former32 record
   at reference0, released listeners, unchanged native identity and model3. Later
   automatic re-engagement is retained separately and cannot rewrite cancellation.
   The diagnostic read descriptor is restored in finally, including failure paths.
