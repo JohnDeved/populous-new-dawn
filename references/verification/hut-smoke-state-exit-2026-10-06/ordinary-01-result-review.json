@@ -1,0 +1,19 @@
+{
+  "verdict": "ACCEPT retained failed attempt and release; ordinary smoke witness remains blocked",
+  "source": "5e37aa6c441b555cd924855ffeb7639a34544e9f",
+  "examinedAt": "2026-10-06T22:56:00Z",
+  "facts": [
+    "Rejected rendered-target revalidation before command27 pointer input. No worship reward, housing or Lightning witness.",
+    "Visible head and stable page retained in the screenshot; final picker/camera sample absent, so exact stale cause is unknown.",
+    "Source/tool/dependency fingerprints and full before/after inventory agree. Exact dependency inode returned; host and harness report owned cleanup."
+  ],
+  "artifacts": {
+    "ordinary-01/receipt.json": "9bb09ba0ee7f57e754905f682c3388d4701a359f39bdb8f6ff940d0f305e62bf",
+    "ordinary-01/hut-smoke-ignition.json": "6bed25b0e0b660547766e6e70ca45903c64f9060f7aeac70ef7b1cb50f5620c5",
+    "ordinary-01/failure-0.png": "b59a8964d6950666d6742fee735335031c9e8206d228b12f8a22a2d0f1793e8b",
+    "ordinary-host-01/receipt.json": "af4d66a7f86c10f97554e7f4805b6fadd9e30e8217aa7fca5952d22884243a06",
+    "ordinary-host-01/command-receipt.json": "a764c59a851b6073b40bb55f31ae8fe0f7fdf33b3d1404ee16ea0b37451d49d4",
+    "ordinary-host-01/dependencies-before.json.gz": "2462c15189d8337a237d8d3c9609b9c726e9609bc23e6d1615b3073937c5c7a9",
+    "ordinary-host-01/dependencies-after.json.gz": "2462c15189d8337a237d8d3c9609b9c726e9609bc23e6d1615b3073937c5c7a9"
+  }
+}

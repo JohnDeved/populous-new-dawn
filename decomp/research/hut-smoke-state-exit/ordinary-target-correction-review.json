@@ -1,0 +1,14 @@
+{
+  "verdict": "ACCEPT source correction; next ordinary run required",
+  "head": "545413962d957843330b6f2f430a80deaa8889f6",
+  "scenarioSha256": "63b702c0515d7fce66f0c5818e754a7f72fc74cf54fc820e44849843b778a03c",
+  "reviewedAt": "2026-10-06T22:59:00Z",
+  "checks": [
+    "Full 85-line scenario delta inspected against prior accepted source.",
+    "Imports and fresh-order wait now precede point selection. Same accepted erosion triangle-interior source and unchanged 5x5 actual picking guard.",
+    "Final revalidation retains diagnostics before rejection; accepted dispatch still requires real trusted input, fresh acknowledgement and selected native recipient.",
+    "Application tree, observer and four-contract test bytes unchanged. Node --check exit0.",
+    "Original failed attempt remains preserved. No retrospective stale-camera cause or ordinary ignition result inferred."
+  ],
+  "next": "Rebind existing host to this accepted scenario and fresh attempt02 paths; source/tool/dependency guard readback remains required. No broader route/clock/acceptance change."
+}

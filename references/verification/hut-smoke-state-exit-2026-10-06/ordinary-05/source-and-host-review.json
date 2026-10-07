@@ -1,0 +1,15 @@
+{
+  "verdict": "ACCEPT final05 checker+host; execution awaits shared gate release",
+  "head": "4363be773890acfb89eff90eecee11fe0c633f9e",
+  "scenarioSha256": "f1128cf3a472a5e939c185871cf61383704f4685958ee2729bbcb44dff47447a",
+  "packetSha256": "7abba49fe6e36110e9463f6ce2492bf3678493429a27e3f7a10522b1e66438d3",
+  "checks": [
+    "Full delta reviewed from last accepted selection correction; node --check exit0;35 source pins verified, app/renderer observer/contracts unchanged.",
+    "Single shore interior point in the previously demonstrated native cell; actual close stationary person required, then ordinary Pause.",
+    "One ordinary(0,12) camera offset frames unchanged Bridge target(0,4) outside the central badge; real ownership and finite same-cell search remain.",
+    "Exact native spellRange and positionDistance reuse the shipped range calculation on clonedWorld;128-unit margin and rejection diagnostics retained.",
+    "Both casts now observe one trusted real pointerup before/after stock on the same turn, avoiding intervening gift accounting. Nonthrowing diagnostics retain errors and native handler remains unchanged.",
+    "Host/lifecycle/bounds unchanged; fresh05 paths absent and original failed attempts preserved."
+  ],
+  "limits": "Source preflight only, no new browser success claim; one run after terminal dependency handoff, unchanged480s scenario510s TERM+10s grace."
+}

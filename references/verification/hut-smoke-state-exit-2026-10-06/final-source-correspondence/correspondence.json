@@ -1,0 +1,27 @@
+{
+  "base": "1c7e6b05687aca14d9350e17c7ae14dc6c68bb97",
+  "runtimeCandidate": "b26f66b24da4fe133441e83c5377467a5066ef64",
+  "ordinaryExecutedHead": "4363be773890acfb89eff90eecee11fe0c633f9e",
+  "ordinaryEvidenceHead": "e303f8895a58dce2f2dcb4b9a4acb1c8abbb1f3c",
+  "applicationFiles": {
+    "app/hut-smoke-runtime.ts": "96b52d988b5d6fec0482e48d7e768e8a835e70483f1988b94217cbe2e3877c1b",
+    "app/spell-effects-runtime.ts": "1c0df0978804bee45702cd2a7331be6efaf7a8cb411997d257be6dd503a6d90d",
+    "app/live-building-combat.ts": "9ed318b09c0258afca86c87d3147d3cda1b2a9c3ad8e8e81d7ec3703afa74a4e"
+  },
+  "firewarrior": {
+    "callerBeforeSha256": "c8c0a8f3b83157562154ad354206d9d7900f669c67134d5071d0471623617d23",
+    "callerAfterSha256": "9ed318b09c0258afca86c87d3147d3cda1b2a9c3ad8e8e81d7ec3703afa74a4e",
+    "stepAreaAttackUnchanged": true,
+    "stepAreaAttackBytes": 9332,
+    "stepAreaAttackSha256": "dd9c099be0a5eda1bb571a88a9ac7a30ade5de567325400ec63f5a1ab5fa4a59",
+    "portBeforeSha256": "24ecb2a268de8eb6dfeb28920b2cc91eb536f16ea9cddd1b71e14dac99defa68",
+    "portAfterSha256": "9db3a8617975bc0b306fbd4838a8edc876bc938ccc110c26bc2648d8be960dbb",
+    "onlyPortChange": "Exact whole-caller expected SHA; no other port bytes changed",
+    "fixtureCount": 16,
+    "fixturesSha256": "9ad6cabf2ddd1dbc7305816b6b795a9c62ca606a83218c3857f90d2d3a39561d",
+    "nativeSha256": "977f01bd263bc7c49de959e8738c5538d7e14c637146b324a32dbfbf1fd0ba1a",
+    "ownedProjectionSha256": "5ea3bf389c59cb4ecbf98b19f98566939103e14ce49301b7fb64b330289d0128",
+    "fixturesNativeProjectionAndTestByteIdenticalToMain": true
+  },
+  "validation": "Static correspondence only; final portable/check/build/quality gates pending."
+}

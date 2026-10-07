@@ -1,0 +1,7 @@
+# Final PR244 source correspondence
+
+The three runtime files remain byte-identical to the independently accepted seven-case candidate and the passed ordinary05 application. Current accepted main is1c7e6b05; no247 source is adopted in this freeze. The integrated checker/evidence branch adds its reviewed ordinary controls and preserves every earlier result label.
+
+The maintained Firewarrior port has an exact whole-file source guard. The Spy callback import/reconciliation changes that file hash even though stepAreaAttack is unchanged. This freeze changes only expectedCaller to the exact final caller SHA. The complete9332-byte ranged helper is identical to main (SHA in correspondence.json), all16 fixtures/native observations/owned projection bytes and test assertions are unchanged. No native execution or expected gameplay result is changed. The final npm check will exercise the actual ranged body through the strict rebound guard.
+
+Ordinary05 independently passed actual Bridge→Lightning acquisition, housing, stock consumption and the first rendered state4/timer125 root absence with unchanged residents. Its three actual-frame PNGs and separate paused-page image are retained alongside raw source/runtime/dependency/cleanup receipts. The result review is published unchanged in the parent evidence directory. Standard checks, build, TypeScript quality and final integrated review remain pending; this correspondence itself is not a gate pass.

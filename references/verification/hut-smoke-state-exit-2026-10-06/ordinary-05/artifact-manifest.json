@@ -1,0 +1,30 @@
+{
+  "head": "4363be773890acfb89eff90eecee11fe0c633f9e",
+  "applicationCommit": "b26f66b24da4fe133441e83c5377467a5066ef64",
+  "status": "passed-ordinary-earned-Bridge-Lightning-housing-actual-render-ignition",
+  "files": {
+    "browser-receipt.json": "ff9ace7c7c7203d20443361870c35b216d359723c938f707a8fde0461ddeecef",
+    "command-receipt.json": "ed316f4dfcc02aeebb1da03d6d2b9b10b90fa6745f3b40e955ea11bf9c6789d3",
+    "dependencies-after.json.gz": "2462c15189d8337a237d8d3c9609b9c726e9609bc23e6d1615b3073937c5c7a9",
+    "dependencies-before.json.gz": "2462c15189d8337a237d8d3c9609b9c726e9609bc23e6d1615b3073937c5c7a9",
+    "host-receipt.json": "e531e193700eef245353a28a0b29d1462f0a734a5e58f9c34850119a503f2216",
+    "hut-smoke-before.png": "7142e50dc0e2e868b8ba99abece0f22efd2ecbcfa48ad1e0611d9132e5fd0e30",
+    "hut-smoke-burning.png": "a53b666cfd8ea7e40a6df95fc7a0c9dee7fdbf2f1da0cd11e0133e25ddcee323",
+    "hut-smoke-evacuated.png": "2b77703e88cde950ef2865202fadc0b440f37970c3701c879430b9254a4958ca",
+    "hut-smoke-paused-after-ignition.png": "3912a24a738be09a56fe10fb3cf5ecda5629b79d30b8fedf52cd0f6f713cb488",
+    "prior-donor-return-receipt.json": "cfbd83acb644c5ccfa5ba6affe76135cc32d7ae065441f029204a2f857660f1c",
+    "result.md": "0f7c1cc0c76a41138ea4584a3c6f9e91f82949f923def44325c2b59e955a1830",
+    "scenario.json": "3c1b40c46ffe37906fbb7573bd1819049798a7a33cb81dc0fda2194d90e3d7d3",
+    "server.txt": "2a651434042728d5e3fda39d770b9d3723471a09ba923e1c62b944b0af3d6361",
+    "source-and-host-review.json": "a4b95f41da70346b2fa22de06bab9f15a71625bc0e6f43a8ac7c761590cffe44",
+    "source-host.py": "e34570b0704c1b370d6d7f744ff5f9d53a675d18ed2fb86ba5ec425a4cb2e9dd",
+    "source-observer.mjs": "8a50fa4bb93b6bb0fb9b927056dacb085049cb2125ebd6bb4db2579ea6f8b735",
+    "source-packet.json": "7abba49fe6e36110e9463f6ce2492bf3678493429a27e3f7a10522b1e66438d3",
+    "source-scenario.mjs": "f1128cf3a472a5e939c185871cf61383704f4685958ee2729bbcb44dff47447a",
+    "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout.txt": "fcbaef7f8b21ce7cfcfaeb35b43999796261757c28b35f187e36a83cd409ae22",
+    "stub-preparation-receipt.json": "02349f5f4833dc8f2dfa1bb3d6cca32ec56ada186c53fbaf3a5efe012ddd2ba4",
+    "wrapper-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "wrapper-stdout.txt": "da97384ff4b79870ec22dca7c008b21e25d645f73062b0e081850e8e13fbbe9d"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "verdict": "ACCEPT host rebind; execution awaits lane grant",
+  "head": "4199c8a1443789153b8ab14c725d6ebcf66a8541",
+  "packetSha256": "1b5849a9920a22ad2a10ec26dc71d604045f4dc4fdf24abd8e4ec10bc0b59c24",
+  "scenarioAnchor": "4e3d7b07ac8d956a8bd7c45984e15e818ad3dc10",
+  "sourcePinsVerified": 32,
+  "unchanged": [
+    "host",
+    "application",
+    "runtime tools",
+    "bounds"
+  ],
+  "freshPathsVerified": true,
+  "stubReceiptVerified": true
+}

@@ -1,0 +1,25 @@
+{
+  "verdict": "ACCEPT bounded ordinary ignition/render result",
+  "checkerSource": "4363be773890acfb89eff90eecee11fe0c633f9e",
+  "runtimeSource": "b26f66b24da4fe133441e83c5377467a5066ef64",
+  "publicEvidence": "e303f8895a58dce2f2dcb4b9a4acb1c8abbb1f3c",
+  "facts": [
+    "Real Mission1 entry, earned Bridge and completed crossing, earned Lightning, clear then all-Brave housing cohort, and actual trusted spell handlers consuming one shot on the same turn.",
+    "Before actual frame1382 has full root and residents13/15/1186. First actual burning frame1425 has state4/timer125, no root, identical residents and admission slots. Evacuation frame1432/timer118 has no residents/root.",
+    "Independently viewed before/burning/evacuated canvas PNGs; chimney plume visible before and absent during actual Lightning/early fire transition. Paused full-page screenshot is separate.",
+    "Browser errors empty, observer restored, source/runtime dictionaries equal; host ownership/cleanup and exact decompressed dependency inventory return verified."
+  ],
+  "imagesSha256": {
+    "hut-smoke-before.png": "7142e50dc0e2e868b8ba99abece0f22efd2ecbcfa48ad1e0611d9132e5fd0e30",
+    "hut-smoke-burning.png": "a53b666cfd8ea7e40a6df95fc7a0c9dee7fdbf2f1da0cd11e0133e25ddcee323",
+    "hut-smoke-evacuated.png": "2b77703e88cde950ef2865202fadc0b440f37970c3701c879430b9254a4958ca",
+    "hut-smoke-paused-after-ignition.png": "3912a24a738be09a56fe10fb3cf5ecda5629b79d30b8fedf52cd0f6f713cb488"
+  },
+  "receiptSha256": "ff9ace7c7c7203d20443361870c35b216d359723c938f707a8fde0461ddeecef",
+  "hostReceiptSha256": "e531e193700eef245353a28a0b29d1462f0a734a5e58f9c34850119a503f2216",
+  "limits": [
+    "No ordinary child puffs occurred in these frames; child lifetime remains the separately accepted native/focused evidence.",
+    "No full original renderer/raster or hardware performance claim. Prior four failed checker attempts retained.",
+    "Standard code gates and final reviewed integration remain required."
+  ]
+}
