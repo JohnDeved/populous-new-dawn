@@ -105,7 +105,7 @@ test('three captures use the actual same-call state and wait for a moved burst p
     const beforeBirthRead = structuredClone(f.world)
     draw()
     assert.deepEqual(f.world, beforeBirthRead, 'particle height and terrain sampling leave the world untouched')
-    const sampled = observer.read().records.at(-1).particles[0]
+    const [sampled] = observer.read().records.at(-1).particles
     assert.equal(sampled.h, 3)
     assert.equal(sampled.ground, 7)
     assert.equal(sampled.effectHeight, 3 / 45)

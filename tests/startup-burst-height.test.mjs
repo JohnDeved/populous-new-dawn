@@ -32,7 +32,7 @@ function observeStartupBirths(world) {
   const particles = new Map(), errors = []
   const originalRandom = Object.getOwnPropertyDescriptor(world, 'randomState')
   assert.ok(originalRandom && 'value' in originalRandom && originalRandom.configurable && originalRandom.writable)
-  let randomState = world.randomState
+  let { randomState } = world
   const getRandom = () => randomState
   const setRandom = value => {
     randomState = value
