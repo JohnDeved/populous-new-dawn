@@ -1,0 +1,146 @@
+"""Exact-source, one-shot passive capture supervisor; default mode is read-only."""
+from pathlib import Path
+import datetime
+import hashlib
+import json
+import os
+import resource
+import signal
+import subprocess
+import sys
+import time
+
+root = Path.cwd()
+assert sys.flags.ignore_environment and sys.flags.no_user_site and not sys.flags.optimize
+assert len(sys.argv) == 5, 'mode manifestSha reviewedSourceHead grantedCpu'
+mode, manifest_sha, head, cpu_text = sys.argv[1:]
+assert mode in ('--source-preflight', '--launch-passive-capture')
+cpu = int(cpu_text)
+assert cpu in os.sched_getaffinity(0)
+folder = root / 'work/orchestration/state33-release-capture-source'
+raw = (folder / 'launch-manifest.json').read_bytes()
+assert hashlib.sha256(raw).hexdigest() == manifest_sha
+manifest = json.loads(raw)
+limits = manifest['limits']
+assert limits == dict(termSeconds=120, killGraceSeconds=10, sampleSeconds=0.05,
+                     aggregateRssBytes=1073741824, outputBytes=8388608,
+                     snapshotBytes=7340032, cpuCount=1, retry=False,
+                     nativeCalls=0, packageAccess=False)
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=root, text=True).strip()
+assert git('rev-parse', 'HEAD') == head
+assert not git('status', '--porcelain')
+assert git('rev-parse', 'HEAD:app') == manifest['runtimeAppTree']
+assert not git('diff', manifest['runtimeHead'], '--', 'app', 'tests/mission2-raid.test.mjs')
+for item in manifest['files']:
+    assert hashlib.sha256((root / item['path']).read_bytes()).hexdigest() == item['sha256'], item['path']
+for item in manifest['tools']:
+    assert hashlib.sha256(Path(item['path']).read_bytes()).hexdigest() == item['sha256'], item['path']
+assert Path(sys.executable).resolve() == Path(manifest['tools'][1]['path']).resolve()
+output = root / manifest['output']
+assert not output.exists(), 'No retries or reuse of a capture output directory'
+command = [manifest['tools'][0]['path'], '--permission', '--max-old-space-size=768',
+           '--allow-fs-read=' + str(root), '--allow-fs-write=' + str(output), str(folder / 'main.mjs')]
+if mode == '--source-preflight':
+    print(json.dumps(dict(status='source-preflight-passed', sourceHead=head,
+                         manifestSha256=manifest_sha, cpu=cpu, command=command,
+                         nativeCalls=0, appExecution=False)))
+    sys.exit(0)
+
+# Reaching this gate requires the parent's reviewed resource grant for this exact command.
+output.mkdir()
+child = None
+started = time.monotonic()
+receipt = dict(sourceHead=head, manifestSha256=manifest_sha, command=command, cpu=[cpu],
+               limits=limits, startedAt=datetime.datetime.now(datetime.timezone.utc).isoformat(),
+               peakAggregateRssBytes=0, outputBytes=0, cleanupSignals=[], status='running')
+def process_info(pid):
+    try:
+        stat = Path(f'/proc/{pid}/stat').read_text()
+        fields = stat[stat.rfind(')') + 2:].split()
+        return dict(pid=pid, group=int(fields[2]), state=fields[0],
+                    startTimeTicks=int(fields[19]), rssBytes=int(fields[21]) * os.sysconf('SC_PAGE_SIZE'))
+    except (OSError, ValueError, IndexError):
+        return None
+
+def group_members():
+    if child is None:
+        return []
+    found = []
+    for path in Path('/proc').iterdir():
+        if path.name.isdigit():
+            info = process_info(int(path.name))
+            if info and info['group'] == child.pid and info['state'] != 'Z':
+                found.append(info)
+    return found
+
+def signal_owned(sig):
+    if group_members():
+        try:
+            os.killpg(child.pid, sig)
+            receipt['cleanupSignals'].append(signal.Signals(sig).name)
+        except ProcessLookupError:
+            pass
+
+def cleanup():
+    signal_owned(signal.SIGTERM)
+    end = time.monotonic() + limits['killGraceSeconds']
+    while group_members() and time.monotonic() < end:
+        time.sleep(limits['sampleSeconds'])
+    signal_owned(signal.SIGKILL)
+    if child:
+        child.wait(timeout=1)
+
+def interrupted(signum, _frame):
+    receipt['status'] = 'interrupted'
+    raise SystemExit(128 + signum)
+for sig in (signal.SIGTERM, signal.SIGINT):
+    signal.signal(sig, interrupted)
+
+def child_limits():
+    os.sched_setaffinity(0, {cpu})
+    resource.setrlimit(resource.RLIMIT_FSIZE, (limits['outputBytes'], limits['outputBytes']))
+
+environment = {key: value for key, value in os.environ.items() if key not in
+               ['NODE_OPTIONS', 'NODE_PATH', 'PYTHONPATH', 'PYTHONOPTIMIZE', 'LD_PRELOAD', 'LD_LIBRARY_PATH']}
+environment.update(PND_STATE33_CAPTURE='approved-single-passive-capture',
+                   PND_STATE33_CAPTURE_OUTPUT=str(output), PND_STATE33_SOURCE_HEAD=head)
+try:
+    with (output / 'stdout.log').open('xb') as stdout, (output / 'stderr.log').open('xb') as stderr:
+        child = subprocess.Popen(command, cwd=root, env=environment, start_new_session=True,
+                                 preexec_fn=child_limits, stdout=stdout, stderr=stderr)
+        receipt['processIdentity'] = process_info(child.pid)
+        (output / 'started.json').write_text(json.dumps(receipt, indent=2) + '\n')
+        while child.poll() is None:
+            members = group_members()
+            own = process_info(os.getpid())
+            rss = sum(info['rssBytes'] for info in members) + (own['rssBytes'] if own else 0)
+            size = sum(path.stat().st_size for path in output.iterdir() if path.is_file())
+            receipt['peakAggregateRssBytes'] = max(receipt['peakAggregateRssBytes'], rss)
+            receipt['outputBytes'] = size
+            failure = ('rss-cap' if rss > limits['aggregateRssBytes'] else
+                       'output-cap' if size > limits['outputBytes'] - 65536 else
+                       'time-cap' if time.monotonic() - started >= limits['termSeconds'] else None)
+            if failure:
+                receipt['status'] = failure
+                cleanup()
+                break
+            time.sleep(limits['sampleSeconds'])
+        receipt['exitCode'] = child.wait(timeout=1)
+        if receipt['status'] == 'running':
+            receipt['status'] = 'child-finished' if receipt['exitCode'] == 0 else 'child-failed'
+finally:
+    cleanup()
+    remaining = group_members()
+    receipt.update(remainingProcessGroupMembers=remaining, resourcesReleased=not remaining,
+                   elapsedSeconds=time.monotonic() - started,
+                   finishedAt=datetime.datetime.now(datetime.timezone.utc).isoformat())
+    receipt['outputBytes'] = sum(path.stat().st_size for path in output.iterdir() if path.is_file())
+    receipt['outputs'] = [dict(path=path.name, bytes=path.stat().st_size,
+                               sha256=hashlib.sha256(path.read_bytes()).hexdigest())
+                          for path in sorted(output.iterdir()) if path.is_file()]
+    if receipt['outputBytes'] > limits['outputBytes'] - 65536:
+        receipt['status'] = 'output-cap'
+    (output / 'cleanup.json').write_text(json.dumps(receipt, indent=2) + '\n')
+print(json.dumps(receipt))
+sys.exit(0 if receipt['status'] == 'child-finished' and receipt['resourcesReleased'] else 1)
