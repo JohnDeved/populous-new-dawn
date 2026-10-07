@@ -1,0 +1,8 @@
+{
+  "status": "failed",
+  "output": "work/orchestration/startup-burst-height-red-20261007/attempt-01/receipt.json",
+  "headOid": "b66f3a90661da4c394669f888758f8260c907bcc",
+  "exitCode": 1,
+  "stdoutSha256": "664e76e5faae0e66c7425ec26d21e2695c2e2da0a8fe3d7d799a809f3138f92e",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

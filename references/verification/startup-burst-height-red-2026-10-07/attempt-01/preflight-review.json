@@ -1,0 +1,63 @@
+{
+  "verdict": "ACCEPT exact source/base correspondence and one-command red preflight; parent execution/resource grant required",
+  "head": "b66f3a90661da4c394669f888758f8260c907bcc",
+  "launchManifestSha256": "d021bb130be7f0c3f4e1e2940fc34e813fc9996c5c9a98dcfe84c9536b28ed7a",
+  "method": "Read-only source/Git/hash/closure review; no imports, application, native, tests, package or browser execution",
+  "correspondence": {
+    "acceptedMain": "e3a7a06a4250457502288d5b4c4e4ad8f3b40b53",
+    "normalMerge": "eb2770b023c1fa512bbcf1d7e1d8e495ddc1b9d8",
+    "appTree": "71b48bf83bcece1b1e88c0661cf033cd9503c03c",
+    "exactMainAppEquality": true,
+    "testPatchRawOracleAndTargetRuntimeUnchanged": true,
+    "onlyChangedPreviouslyBoundInput": "app/level-start.ts, accepted PR253 angle draw ownership",
+    "priorProposal": "7ec71c779639d99d4b2ea1b19396b83a02baa703"
+  },
+  "preflight": {
+    "cleanHead": true,
+    "inputsIndependentlyHashed": 234,
+    "receiptInputs": 235,
+    "independentStaticRelativeClosure": 217,
+    "externalModuleSpecifiers": [
+      "node:assert/strict",
+      "node:crypto",
+      "node:fs",
+      "node:test"
+    ],
+    "freshDirectoryAbsent": true,
+    "oneCommand": "node --max-old-space-size=768 --test --test-concurrency=1 tests/startup-burst-height.test.mjs",
+    "cpu": [
+      4
+    ],
+    "worlds": 3,
+    "ticksPerWorld": 70,
+    "tests": 4,
+    "nativeCalls": 0,
+    "dependenciesRequired": false
+  },
+  "host": {
+    "source": "accepted8757de69 arrival host",
+    "onlyCodeDelta": "Task labels; nativeCalls1\u21920; absolute TERM30\u219250 seconds (KILL55). Ownership, signalling, source postflight and terminal failure propagation unchanged.",
+    "childWallSeconds": 40,
+    "childKillGraceSeconds": 5,
+    "childCpuSeconds": 45,
+    "heapMiB": 768,
+    "aggregateRssBytes": 1073741824,
+    "outputBytes": 33554432,
+    "hostTermSeconds": 50,
+    "hostKillSeconds": 55,
+    "oneInvocationNoReuseOrRetry": true
+  },
+  "resultConditions": [
+    "Retained native byte oracle must pass; mission1/2/3 must fail only h-ground offset0 versus90. Any other failure needs diagnosis before patch.",
+    "Each mission must emit integrity diagnostics before the height assertion, after authored8/8/16 groups and256/256/512 births. Preserve both RNG words, IDs/counters, stone turns and phase histories for exact red/green comparison.",
+    "Expected exit1 remains failed command/host receipt. Successful source/cleanup checks must be independently reviewed.",
+    "No runtime patch, new native run, renderer or ordinary browser claim is covered by this source verdict."
+  ],
+  "packetHashes": {
+    "README.md": "18a1ba6eb6372cf8cb2db06502bcdad7e253acb2495ed87ca185aa9759e20e48",
+    "launch.json": "d021bb130be7f0c3f4e1e2940fc34e813fc9996c5c9a98dcfe84c9536b28ed7a",
+    "launch.py": "8bfd7f4723c16479a11a567737d118a0a800c0aba7bfd30d95c5f48c3f203ee1",
+    "source-correspondence.json": "000c696fbb4472818294a5568debba0c149daa9f987f59d66363105593fcc1cd",
+    "source-validation.json": "671115731cf959a245c7dbca921368f4cbbfde3b48c4f1782204cd7ff69e20cc"
+  }
+}

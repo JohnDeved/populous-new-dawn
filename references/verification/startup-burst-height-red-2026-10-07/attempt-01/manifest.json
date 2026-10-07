@@ -1,0 +1,47 @@
+{
+  "sourceCommit": "b66f3a90661da4c394669f888758f8260c907bcc",
+  "originalExecutionDirectory": "/workspace/scratch/69fd8163d94e/startup-burst-height-red-run-20261007-01/work/orchestration/startup-burst-height-red-20261007/attempt-01",
+  "rawCopies": {
+    "receipt.json": {
+      "originalRelativePath": "receipt.json",
+      "sha256": "69036cd968b73f8616576531c80b8b1aecb7803c528884b348790cbfe4db17e9",
+      "bytes": 54589
+    },
+    "host-receipt.json": {
+      "originalRelativePath": "host-receipt.json",
+      "sha256": "09e7f4cf94b2b3055b4357e60d22bb0e073cb86bafeda090e205649f18ce2e1b",
+      "bytes": 63345
+    },
+    "launch-once.json": {
+      "originalRelativePath": "launch-once.json",
+      "sha256": "acbdd42bb7db842b8dcaeb035ee92e76ac31c63570d5e71b78f00667829e0639",
+      "bytes": 219
+    },
+    "supervisor.stdout.log": {
+      "originalRelativePath": "supervisor.stdout.log",
+      "sha256": "f0ce79382fc7a9cf823d4a1a5dcb0aeaeef009d64c64b45982e349abf30677e8",
+      "bytes": 363
+    },
+    "supervisor.stderr.log": {
+      "originalRelativePath": "supervisor.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "test-stdout.log": {
+      "originalRelativePath": "receipt.json.artifacts/stdout.log",
+      "sha256": "664e76e5faae0e66c7425ec26d21e2695c2e2da0a8fe3d7d799a809f3138f92e",
+      "bytes": 4299
+    },
+    "test-stderr.log": {
+      "originalRelativePath": "receipt.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  },
+  "derived": {
+    "diagnostics.json": "22fece081d2350b0823ce6d93f7229778d0d9366b9fd30a77e3e3b4ecddfd6a5",
+    "observations.json": "93b0278c466ef95b5e7d6edc03bdcf2e78d9a7db80d7ab156f46d235ef6aa46b",
+    "preflight-review.json": "093284cdd3f0a6d8ec8c8389ed4d09fcccb725409b4ab97174fe9004dd055ba2"
+  },
+  "semantics": "Actual failed exit1/statusfailed/hostpassedfalse retained. Expected-red acceptance requires independent result review; not a green code result."
+}

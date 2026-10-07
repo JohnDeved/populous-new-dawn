@@ -1,0 +1,90 @@
+{
+  "status": "expected-red-pending-independent-result-review",
+  "sourceCommit": "b66f3a90661da4c394669f888758f8260c907bcc",
+  "acceptedMain": "e3a7a06a4250457502288d5b4c4e4ad8f3b40b53",
+  "launchManifestSha256": "d021bb130be7f0c3f4e1e2940fc34e813fc9996c5c9a98dcfe84c9536b28ed7a",
+  "toolSession": 38679,
+  "initialChunk": "69d468",
+  "terminalChunk": "910a28",
+  "testCounts": {
+    "total": 4,
+    "passed": 1,
+    "failed": 3
+  },
+  "reporter": "Node default spec; raw output unchanged",
+  "firstCheckedBirthFailures": [
+    {
+      "level": 1,
+      "turn": 37,
+      "effect": 766,
+      "birthHeight": 64,
+      "ground": 64,
+      "actualOffset": 0,
+      "expectedOffset": 90
+    },
+    {
+      "level": 2,
+      "turn": 37,
+      "effect": 824,
+      "birthHeight": 128,
+      "ground": 128,
+      "actualOffset": 0,
+      "expectedOffset": 90
+    },
+    {
+      "level": 3,
+      "turn": 37,
+      "effect": 1574,
+      "birthHeight": 128,
+      "ground": 128,
+      "actualOffset": 0,
+      "expectedOffset": 90
+    }
+  ],
+  "diagnosticCount": 3,
+  "allBirthsCollected": 1024,
+  "receipt": {
+    "status": "failed",
+    "startedAt": "2026-10-07T02:39:41.246Z",
+    "finishedAt": "2026-10-07T02:39:43.726Z",
+    "exitCode": 1,
+    "stdoutSha256": "664e76e5faae0e66c7425ec26d21e2695c2e2da0a8fe3d7d799a809f3138f92e",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "receiptInputCount": 235,
+  "sourceUnchanged": true,
+  "host": {
+    "status": "child-failed",
+    "passed": false,
+    "startedAt": "2026-10-07T02:39:40.391359+00:00",
+    "finishedAt": "2026-10-07T02:39:44.585055+00:00",
+    "elapsedSeconds": 4.19372422399465,
+    "peakAggregateRssBytes": 462557184,
+    "rootProcessIdentity": {
+      "pid": 14,
+      "state": "R",
+      "parent": 2,
+      "group": 14,
+      "session": 14,
+      "startTimeTicks": 8474344,
+      "rssBytes": 0
+    },
+    "termDeadlineMonotonic": 84793.440283727,
+    "killDeadlineMonotonic": 84798.440283727,
+    "checkedGroups": [
+      14,
+      34
+    ],
+    "remainingGroups": [],
+    "resourcesReleased": true,
+    "sourceUnchanged": true
+  },
+  "limits": [
+    "Fixed-step actual production caller, not ordinary elapsed browser play",
+    "The first height assertion ends each mission test; do not claim every captured baseline birth height was independently asserted",
+    "All three final RNG/counter/stone-turn/phase diagnostics are retained for exact candidate comparison",
+    "Port ground64/128 values are not original post-wave terrain proof",
+    "Original native artifact is reused; no new native invocation",
+    "Runtime patch remains unapplied; one red command only, no retry"
+  ]
+}
