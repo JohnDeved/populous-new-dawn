@@ -1,0 +1,343 @@
+{
+  "provenance": {
+    "sourceCommit": "9ca4534463a3ba2b868722454d38e888a1cd40cc",
+    "sourcePath": "references/verification/startup-burst-height-assessment-2026-10-07/authored-data.json",
+    "sourceSha256": "701e6c2e248be4b309c49bbd711e2d683b81c4145765dde38f3c86f8314f12a6",
+    "extraction": "Mission, enabled-site flags and candidate stone nativeXY copied unchanged from reviewed authored data; terrain heights omitted."
+  },
+  "missions": [
+    {
+      "mission": 1,
+      "sites": [
+        {
+          "startupEnabled": true,
+          "stones": [
+            {
+              "nativeXY": [
+                4352,
+                56576
+              ]
+            },
+            {
+              "nativeXY": [
+                5376,
+                56064
+              ]
+            },
+            {
+              "nativeXY": [
+                5888,
+                55040
+              ]
+            },
+            {
+              "nativeXY": [
+                5376,
+                54016
+              ]
+            },
+            {
+              "nativeXY": [
+                4352,
+                53504
+              ]
+            },
+            {
+              "nativeXY": [
+                3328,
+                54016
+              ]
+            },
+            {
+              "nativeXY": [
+                2816,
+                55040
+              ]
+            },
+            {
+              "nativeXY": [
+                3328,
+                56064
+              ]
+            }
+          ]
+        },
+        {
+          "startupEnabled": false,
+          "stones": [
+            {
+              "nativeXY": [
+                2304,
+                8960
+              ]
+            },
+            {
+              "nativeXY": [
+                3328,
+                8448
+              ]
+            },
+            {
+              "nativeXY": [
+                3840,
+                7424
+              ]
+            },
+            {
+              "nativeXY": [
+                3328,
+                6400
+              ]
+            },
+            {
+              "nativeXY": [
+                2304,
+                5888
+              ]
+            },
+            {
+              "nativeXY": [
+                1280,
+                6400
+              ]
+            },
+            {
+              "nativeXY": [
+                768,
+                7424
+              ]
+            },
+            {
+              "nativeXY": [
+                1280,
+                8448
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mission": 2,
+      "sites": [
+        {
+          "startupEnabled": false,
+          "stones": [
+            {
+              "nativeXY": [
+                25344,
+                34560
+              ]
+            },
+            {
+              "nativeXY": [
+                26368,
+                34048
+              ]
+            },
+            {
+              "nativeXY": [
+                26880,
+                33024
+              ]
+            },
+            {
+              "nativeXY": [
+                26368,
+                32000
+              ]
+            },
+            {
+              "nativeXY": [
+                25344,
+                31488
+              ]
+            },
+            {
+              "nativeXY": [
+                24320,
+                32000
+              ]
+            },
+            {
+              "nativeXY": [
+                23808,
+                33024
+              ]
+            },
+            {
+              "nativeXY": [
+                24320,
+                34048
+              ]
+            }
+          ]
+        },
+        {
+          "startupEnabled": true,
+          "stones": [
+            {
+              "nativeXY": [
+                40192,
+                25344
+              ]
+            },
+            {
+              "nativeXY": [
+                41216,
+                24832
+              ]
+            },
+            {
+              "nativeXY": [
+                41728,
+                23808
+              ]
+            },
+            {
+              "nativeXY": [
+                41216,
+                22784
+              ]
+            },
+            {
+              "nativeXY": [
+                40192,
+                22272
+              ]
+            },
+            {
+              "nativeXY": [
+                39168,
+                22784
+              ]
+            },
+            {
+              "nativeXY": [
+                38656,
+                23808
+              ]
+            },
+            {
+              "nativeXY": [
+                39168,
+                24832
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mission": 3,
+      "sites": [
+        {
+          "startupEnabled": true,
+          "stones": [
+            {
+              "nativeXY": [
+                11008,
+                44288
+              ]
+            },
+            {
+              "nativeXY": [
+                12032,
+                43776
+              ]
+            },
+            {
+              "nativeXY": [
+                12544,
+                42752
+              ]
+            },
+            {
+              "nativeXY": [
+                12032,
+                41728
+              ]
+            },
+            {
+              "nativeXY": [
+                11008,
+                41216
+              ]
+            },
+            {
+              "nativeXY": [
+                9984,
+                41728
+              ]
+            },
+            {
+              "nativeXY": [
+                9472,
+                42752
+              ]
+            },
+            {
+              "nativeXY": [
+                9984,
+                43776
+              ]
+            }
+          ]
+        },
+        {
+          "startupEnabled": true,
+          "stones": [
+            {
+              "nativeXY": [
+                56064,
+                26368
+              ]
+            },
+            {
+              "nativeXY": [
+                57088,
+                25856
+              ]
+            },
+            {
+              "nativeXY": [
+                57600,
+                24832
+              ]
+            },
+            {
+              "nativeXY": [
+                57088,
+                23808
+              ]
+            },
+            {
+              "nativeXY": [
+                56064,
+                23296
+              ]
+            },
+            {
+              "nativeXY": [
+                55040,
+                23808
+              ]
+            },
+            {
+              "nativeXY": [
+                54528,
+                24832
+              ]
+            },
+            {
+              "nativeXY": [
+                55040,
+                25856
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -133,3 +133,33 @@ trajectory regression uses declared native origins/ground256, not actual startup
 birth-height equality. No allocator/scheduler/world or returning-person acceptance
 is claimed. Machine-specific hosts, raw receipts, captures and failed attempts stay
 in the linked evidence history; they are not application inputs.
+
+
+## Fresh stone burst root height (issue252)
+
+The composed original carrier arrival returns a newly initialized stone at
+`ground - 240`. The real model9 common initializer grounds that root before its
+`+90` offset, and each of the32 model3 children retains its own ground clamp.
+The port now performs this root clamp once before creating the children. The
+existing RNG, allocation, phase and child initialization order is preserved.
+
+[Accepted composed original proof](https://github.com/JohnDeved/populous-new-dawn/tree/274750b0620740342116e5443616eae03f35ade6/references/verification/startup-burst-arrival-2026-10-07/attempt-01)
+records root `-153 -> 87 -> 177` and32 children at177. It is one supplied arrival
+on raw imported terrain, diagonal0, disabled audio,36 successful allocations and
+two qualified shadow/audio supplies. It does not prove original post-wave terrain,
+full startup scheduling, allocation failure or old-stone height ownership.
+
+[Accepted failure-first caller proof](https://github.com/JohnDeved/populous-new-dawn/tree/2100f57306c9e6fe8b85d8ce18c862141496605f/references/verification/startup-burst-height-red-2026-10-07/attempt-01)
+shows the first actual birth in each of Missions1–3 at offset0 rather than90.
+[Accepted green caller proof](https://github.com/JohnDeved/populous-new-dawn/tree/6be97bf8e3ee853e61a9f5a3eefd40b7e7c0ed20/references/verification/startup-burst-height-green-2026-10-07/attempt-01)
+checks all1024 births and32 children per authored enabled stone. The three complete
+RNG/counter/ID/stone-turn/phase diagnostics exactly match red. These are fixed-step
+production-caller tests; ordinary rendered startup remains separate evidence.
+
+`tests/startup-burst-height.test.mjs` observes the real synchronous animation
+assignment before motion, forwarding RNG values and restoring owned descriptors.
+The compact native fixture keeps the exact three full root records and32 full
+child records from that accepted log; the authored fixture keeps reviewed mission,
+enabled-site and stone coordinates. Both link their immutable source hashes.
+The maintained test differs from the accepted green test only in those fixture
+paths and the native compact-file checksum. No original executable is distributed.
