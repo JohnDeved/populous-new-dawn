@@ -1,4 +1,9 @@
-import { buildingFirePoints, buildingModel, buildingPose } from './building-shapes.ts'
+import {
+  buildingFirePoints,
+  buildingModel,
+  buildingPose,
+  buildingSabotagePoint,
+} from './building-shapes.ts'
 import { joinBattle } from './combat-runtime.ts'
 import { createFire, effect, sound } from './world-effects.ts'
 import { cancelLiveResting } from './live-resting.ts'
@@ -26,7 +31,12 @@ import {
 } from './live-people.ts'
 import { clearLivePath, replanLivePath } from './live-pathfinding.ts'
 import { releasePersonRoute, setDirectPersonDestination } from './person-routes.ts'
-import { personAnimationObject, setPersonAnimationRow } from './person-state.ts'
+import {
+  personAnimationObject,
+  recoverPersonMovement,
+  setPersonAnimationRow,
+  stopPersonMovement,
+} from './person-state.ts'
 import { preparePersonTurn, stepPersonReaction } from './person-update.ts'
 import { attackCombatBuilding } from './combat-building.ts'
 import {
@@ -172,14 +182,27 @@ function stepSpySabotage(w: World, u: Unit, p: LivePerson, order: PersonOrder) {
   u.target = b.id
   u.heading = Math.atan2(b.x - u.x, b.z - u.z)
   if (p.substate === 0) {
-    if (p.motionGroup || u.path.length) return 0
-    const outside = buildingOutsidePoint(buildingPose(b)),
-      dx = ((p.x - outside.x + 0x8000) & 0xffff) - 0x8000,
-      dy = ((p.y - outside.y + 0x8000) & 0xffff) - 0x8000
-    if (Math.abs(dx) > 0x100 || Math.abs(dy) > 0x100) return 1
+    if (p.flags2 & 0x40000000) {
+      p.flags2 = (p.flags2 & ~0x40000000) >>> 0
+      recoverPersonMovement(w, p, (_, object) => setLivePersonAnimation(w, p, object))
+      replanLivePath(w, u, p, buildingSabotagePoint(buildingPose(b)))
+      if (p.flags4 & 0x10000000) {
+        p.flags4 = (p.flags4 & ~0x10000000) >>> 0
+        replanLivePath(w, u, p, buildingOutsidePoint(buildingPose(b)))
+      }
+    }
+    // Native compares sign-extended fields; this subtraction does not wrap.
+    const dx = ((p.goalX << 16) >> 16) - ((p.x << 16) >> 16),
+      dy = ((p.goalY << 16) >> 16) - ((p.y << 16) >> 16)
+    if (Math.abs(dx) > 11 || Math.abs(dy) > 11) return 0
     p.substate = 1
-    p.timer = 10
+    p.flags2 = (p.flags2 | 0x40000000) >>> 0
   } else if (p.substate === 1) {
+    if (p.flags2 & 0x40000000) {
+      p.flags2 = (p.flags2 & ~0x40000000) >>> 0
+      stopPersonMovement(p, (_, object) => setLivePersonAnimation(w, p, object))
+      p.timer = 10
+    }
     if (spyDetected(w, p)) revealSpy(p)
     if (--p.timer < 1) {
       p.substate = 2

@@ -644,8 +644,6 @@ export function command(
         const person = u.native ?? u.entry?.person ?? u.builder?.person
         if (!person || currentPersonOrder(w.buildingOrders, person)?.model !== 15) continue
         u.target = context.building.id
-        const path = planLivePath(w, u, entrance(w, context.building), person)
-        if (path) acceptLivePath(w, u, path)
       }
     if (model === 28 && result.accepted)
       for (const u of units) {
