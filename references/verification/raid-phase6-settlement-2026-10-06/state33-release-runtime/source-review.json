@@ -1,0 +1,60 @@
+{
+  "verdict": "ACCEPT_BOUNDED_RUNTIME_SOURCE_AND_FOCUSED_GREEN_PREFLIGHT",
+  "head": "bddf3b3ccc55330bdd711b7e7c8ed3d41554608b",
+  "integrationBase": "4c5949c6ea906856ef2a118f617e59f884038d2c",
+  "redHead": "28c76774282242bdee5350f31540b1e974df1375",
+  "greenManifestSha256": "f67ac6bde2b42d37e36c88b48ac7de91a405691fbdda91e3661430dd49f0d869",
+  "greenCommandSha256": "c5aa80c1a4e5cca8bb0dc587da6d90b233b81b861bf50242cb2d9a596762ed7f",
+  "findings": [
+    "Actual registered owner is selected once by existing identity lookup. Release predicate now consumes substate3 or substate2 with byte animationMode>4; commandPhase is not substituted. Unknown consumed fields remain conservative before release mutation.",
+    "Guard validates full dense eight-slot queues, immediate ID, every referenced order byte/word field and reference multiplicity, active pool count, person/model/team/active-tribe/task-admission coherence, and initializer inputs. Explicit native assignment0 is the established task.members representation; index+1 is admitted; a nonzero foreign owner is held. Sparse holes are materialized and rejected rather than coerced to zero.",
+    "Unknown Unit.nativeFlags7f remains absent. Valid present byte clears only bit0. Existing person computerAssignment becomes0 and flags3 bit0x2000 clears. The existing clear/reset/default10/initializer/anchor helper is reused with a new retainOwner mode, preserving controller slots/registry identity and avoiding incidental adoption of native,entry,vault or work ownership. Default behavior of all prior helper callers is unchanged.",
+    "Occupied anchor cells, vehicles, non-state10 defaults, training/fight-assignment cleanup, model30 spell release and final-reference attached objects remain explicit uncomposed holds. Regular other-model state10/common-animation behavior reuses existing callee ports/evidence; the newly composed native case itself is only model2,on-foot,unoccupied cell,empty post-clear queue.",
+    "Full member traversal is preserved: units is computed before iteration, while released IDs are removed by replacing task.members. Later members still receive combat elapsed handling. Release makes this visit unsettled; it does not jump directly to fallback14.",
+    "New actual-caller regression uses the exact accepted389ce317 V8 capture. Full declared owner/registry/pool/task/world snapshots must match the native-backed delta plus explicit port membership removal and scheduler cursor. Supplied retained-controller,+a8 threshold,+7f upper-bit and malformed/coherence vectors remain distinctly source-backed controls. The obsolete uncomposed-sub3 hold assertion is replaced by the captured regression; other existing phase6 assertions remain.",
+    "Red28c76774 is retained with10PASS/4 intended release assertion failures, exit1 in4.200seconds,239 identical source/tool inputs and empty group. Green adds only the reviewed assignment/sparse/model/tribe vectors without weakening those original assertions. Rehashed233 local files,four tools and239 outer inputs for exact bddf3b3c; clean source,fresh output,15-second TERM+3-second cleanupCPU4 envelope. Earlier green01 was not executed."
+  ],
+  "calleeEvidence": [
+    "decomp/README.md:653",
+    "decomp/README.md:1293",
+    "references/reverse-engineering.md:1017",
+    "scripts/check-native-person-state.py:83 (common/state10 initialization and all-nine-model selection; world effects supplied)",
+    "scripts/check-native-animation.py:105 (upper setters,models2\u20137; supplied animation-world data)"
+  ],
+  "limits": [
+    "Only source/focused-green preflight acceptance; parent must grant the actual window. Reviewer ran no app,test,native,package or browser code.",
+    "The new original composition is model2/unoccupied/empty-queue; no new whole-model or flight/entry lifetime equivalence is claimed.",
+    "Mission2 must still pass its unchanged original member/current19/combat scenario; no survivor substitution,test weakening or whole-native-lifetime claim follows.",
+    "Final quality/full check/build and candidate ordinary lifecycle remain pending."
+  ],
+  "inputs": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-state33-runtime-fix-20261007/app/computer-runtime.ts",
+      "sha256": "aec5e8865334fde341646cd03ec7a2f58e684d24586f36c2c49f867d4558bfa2"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-state33-runtime-fix-20261007/tests/raid-state33-release.test.mjs",
+      "sha256": "6ab77f55999d2cd6452d54ef35644c90e0cb3f353223cc8777afa01eb4a24413"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-state33-runtime-fix-20261007/tests/raid-phase6-settlement.test.mjs",
+      "sha256": "8c46f6620fccb87e5805681b83de9e757fe10fd8f17d58344e166b131c81506c"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-state33-runtime-fix-20261007/tests/fixtures/raid-state33-release.bin",
+      "sha256": "389ce3174fd613bb7841502ee737301a3e131451022ad8b7152f1613fa316562"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-state33-runtime-fix-20261007/work/orchestration/raid-state33-red-20261007/receipt.json",
+      "sha256": "8e64a08ae8b7383ab4029084ff0ed56e61ca04a9bfc60f7775592b750913d1cc"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-state33-runtime-fix-20261007/work/orchestration/raid-state33-green-02-20261007/preflight.json",
+      "sha256": "f67ac6bde2b42d37e36c88b48ac7de91a405691fbdda91e3661430dd49f0d869"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-state33-runtime-fix-20261007/work/orchestration/raid-state33-green-02-20261007/command.json",
+      "sha256": "c5aa80c1a4e5cca8bb0dc587da6d90b233b81b861bf50242cb2d9a596762ed7f"
+    }
+  ]
+}

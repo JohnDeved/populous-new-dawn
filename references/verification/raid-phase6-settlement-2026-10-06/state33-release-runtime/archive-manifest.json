@@ -1,0 +1,255 @@
+{
+  "executedHeads": [
+    "28c76774282242bdee5350f31540b1e974df1375",
+    "bddf3b3ccc55330bdd711b7e7c8ed3d41554608b"
+  ],
+  "files": [
+    {
+      "path": "raw/raid-state33-red-20261007/cleanup.json.gz",
+      "decodedPath": "raid-state33-red-20261007/cleanup.json",
+      "bytes": 1053,
+      "sha256": "25fc426da68ac82fd9a90df451333025bf0b4eaeecc0fa7a746b6edb325cb840",
+      "gzipSha256": "ace9264de0d051df52c6e8b71d41a6f7d4c97b11fc02624b170a4d1e1af1533a"
+    },
+    {
+      "path": "raw/raid-state33-red-20261007/closure-host.mjs.gz",
+      "decodedPath": "raid-state33-red-20261007/closure-host.mjs",
+      "bytes": 1636,
+      "sha256": "07e5ffb088a8e4b0c9851dc161f7ad6b4576f2fcb6f230770f8528b94afd8220",
+      "gzipSha256": "836628f10a3cc1dd1708a2f8a2b6142b7f6bef3afd0d3833ebead2db745050bc"
+    },
+    {
+      "path": "raw/raid-state33-red-20261007/command.json.gz",
+      "decodedPath": "raid-state33-red-20261007/command.json",
+      "bytes": 11099,
+      "sha256": "c6e107bf137a6167c5b98868e7a098d535ea011d4b2696c0d22a18255eaa5408",
+      "gzipSha256": "9b4aa9aff7160c19987b979615b26b678fd1cf5205c2896eb676ca9762fd6d39"
+    },
+    {
+      "path": "raw/raid-state33-red-20261007/diagnostic.mjs.gz",
+      "decodedPath": "raid-state33-red-20261007/diagnostic.mjs",
+      "bytes": 110,
+      "sha256": "3df22cac56f3c9804094c34fbd67f91d7a724ec1cede3c8e2eb7a54434da294b",
+      "gzipSha256": "056d9aafc4541bef777abd51b43a8f2a0bd981c9344614900af4e5aa540c8cbd"
+    },
+    {
+      "path": "raw/raid-state33-red-20261007/guardian.py.gz",
+      "decodedPath": "raid-state33-red-20261007/guardian.py",
+      "bytes": 3504,
+      "sha256": "e9ad5603602e54ffd97023bf2c1531f158278cb6a08f8df7063ad00e27cea90e",
+      "gzipSha256": "7e9079d2c09b1888f31af2e73a2196454d1bd587214ad6ac8bf387fc18f0d2e9"
+    },
+    {
+      "path": "raw/raid-state33-red-20261007/host.stderr.gz",
+      "decodedPath": "raid-state33-red-20261007/host.stderr",
+      "bytes": 179,
+      "sha256": "ce9996ec6a4411c39d5fc58a94b527d80520a61029aff33cd98d84a22a67d6a3",
+      "gzipSha256": "6bdd1ce2dfa75de6ccb6cc2f35cbcfa3fe0aeaa050c7f3ea2ca8d2a5f7b45407"
+    },
+    {
+      "path": "raw/raid-state33-red-20261007/host.stdout.gz",
+      "decodedPath": "raid-state33-red-20261007/host.stdout",
+      "bytes": 158,
+      "sha256": "28851ab5eb75c59837a72d47f9a3eddf1d65bbd4785c2a8522421d70ad315825",
+      "gzipSha256": "bfa0bd48a5d941e36c137fc89faad2a2d11de675eb7e71da0d9c16b39300f8f9"
+    },
+    {
+      "path": "raw/raid-state33-red-20261007/import-closure.json.gz",
+      "decodedPath": "raid-state33-red-20261007/import-closure.json",
+      "bytes": 21775,
+      "sha256": "b20f3446df437c0a5db3af6d535c1bc314e6a34651fc68c49ff5133f9b013d66",
+      "gzipSha256": "4068fd7ee437b592236c3cfbf45a8a3030749b5a09f75375c2fc6a6ddd072e2b"
+    },
+    {
+      "path": "raw/raid-state33-red-20261007/preflight.json.gz",
+      "decodedPath": "raid-state33-red-20261007/preflight.json",
+      "bytes": 33302,
+      "sha256": "e31109dcd28870241544e349ae7cdd7810b17303ad2d89b98ebdb728b5d7b40c",
+      "gzipSha256": "a38cb6ee40aa967db52581ed8b7f5f5d8b78ba4775e3f57a48256b374f753c89"
+    },
+    {
+      "path": "raw/raid-state33-red-20261007/receipt.json.gz",
+      "decodedPath": "raid-state33-red-20261007/receipt.json",
+      "bytes": 75927,
+      "sha256": "8e64a08ae8b7383ab4029084ff0ed56e61ca04a9bfc60f7775592b750913d1cc",
+      "gzipSha256": "44798cfdbade2f3218abb4bc30abb021419de078b56df209a4a71458517449cd"
+    },
+    {
+      "path": "raw/raid-state33-red-20261007/receipt.json.artifacts/stderr.log.gz",
+      "decodedPath": "raid-state33-red-20261007/receipt.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzipSha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "path": "raw/raid-state33-red-20261007/receipt.json.artifacts/stdout.log.gz",
+      "decodedPath": "raid-state33-red-20261007/receipt.json.artifacts/stdout.log",
+      "bytes": 23987,
+      "sha256": "ee11dab7a8f48839413fdcb34ea2a4f15fac1f24e9ed27f022849ac1e9cfa29a",
+      "gzipSha256": "15c700406b211fca6ab23feabf13cd71c00edb8b75ab46b5d44bfc42f47c9c7e"
+    },
+    {
+      "path": "raw/raid-state33-red-20261007/started.json.gz",
+      "decodedPath": "raid-state33-red-20261007/started.json",
+      "bytes": 878,
+      "sha256": "929508791230e6fc842dab8f40fe704e966e63f26b42c508dd88ed854d99a82b",
+      "gzipSha256": "017db0ba19cbc7d7547839a17319f6e64829f8655605e540fe0218b855062e81"
+    },
+    {
+      "path": "raw/raid-state33-green-20261007/closure-host.mjs.gz",
+      "decodedPath": "raid-state33-green-20261007/closure-host.mjs",
+      "bytes": 1638,
+      "sha256": "cf2bb1ea8ee04c44d05a47fa59b7c2730b1f31e76bf2773b700b0b3a71addc09",
+      "gzipSha256": "03331a8ea35e87b7a9ace318cdc001cf64bb8f8c47bbc7004df15cdb0c03235d"
+    },
+    {
+      "path": "raw/raid-state33-green-20261007/command.json.gz",
+      "decodedPath": "raid-state33-green-20261007/command.json",
+      "bytes": 11119,
+      "sha256": "9335c4b6ce752634d1cfd0ee7cd84d1203ee7db7fe8264a2bf844eb98ed41904",
+      "gzipSha256": "53d15fe0ac578d70a6bff77b9f4c32352df23968c919647c25e9b637146a2060"
+    },
+    {
+      "path": "raw/raid-state33-green-20261007/diagnostic.mjs.gz",
+      "decodedPath": "raid-state33-green-20261007/diagnostic.mjs",
+      "bytes": 110,
+      "sha256": "3df22cac56f3c9804094c34fbd67f91d7a724ec1cede3c8e2eb7a54434da294b",
+      "gzipSha256": "056d9aafc4541bef777abd51b43a8f2a0bd981c9344614900af4e5aa540c8cbd"
+    },
+    {
+      "path": "raw/raid-state33-green-20261007/guardian.py.gz",
+      "decodedPath": "raid-state33-green-20261007/guardian.py",
+      "bytes": 3504,
+      "sha256": "e9ad5603602e54ffd97023bf2c1531f158278cb6a08f8df7063ad00e27cea90e",
+      "gzipSha256": "7e9079d2c09b1888f31af2e73a2196454d1bd587214ad6ac8bf387fc18f0d2e9"
+    },
+    {
+      "path": "raw/raid-state33-green-20261007/host.stderr.gz",
+      "decodedPath": "raid-state33-green-20261007/host.stderr",
+      "bytes": 180,
+      "sha256": "dd8718e7e82757ca7926a55fa3b91d7c1af4ee542851343ef66f9502fc151c28",
+      "gzipSha256": "518ec724b93f31dd6d8a3723d04942cef57e03dcbfe2aec675e5ad4044d02537"
+    },
+    {
+      "path": "raw/raid-state33-green-20261007/host.stdout.gz",
+      "decodedPath": "raid-state33-green-20261007/host.stdout",
+      "bytes": 158,
+      "sha256": "28851ab5eb75c59837a72d47f9a3eddf1d65bbd4785c2a8522421d70ad315825",
+      "gzipSha256": "bfa0bd48a5d941e36c137fc89faad2a2d11de675eb7e71da0d9c16b39300f8f9"
+    },
+    {
+      "path": "raw/raid-state33-green-20261007/import-closure.json.gz",
+      "decodedPath": "raid-state33-green-20261007/import-closure.json",
+      "bytes": 21777,
+      "sha256": "443506f66bb3910e0d2ef51b6acb94c70676b5b8d276779eaa2e253ac624a691",
+      "gzipSha256": "c491e1cc473131e966fd5f4a4a31559a4ab8df97633e6b4bdc23ab89b56e8382"
+    },
+    {
+      "path": "raw/raid-state33-green-20261007/preflight.json.gz",
+      "decodedPath": "raid-state33-green-20261007/preflight.json",
+      "bytes": 33314,
+      "sha256": "bd5323b1a7b42b87b1fed2e75549c5bbf7d99a162f9dd625c8b19d495bd81da2",
+      "gzipSha256": "336df8ab234c7cb17b05081ef6d5a8a4c9f5d3699a2517571737141e71fc5e75"
+    },
+    {
+      "path": "raw/raid-state33-green-02-20261007/cleanup.json.gz",
+      "decodedPath": "raid-state33-green-02-20261007/cleanup.json",
+      "bytes": 1167,
+      "sha256": "59c9c520cd4f73be2941b8884680e0b11285da7992f85a44d825c58e26f94190",
+      "gzipSha256": "554856992dcbc0f60aa3858762afaafd7fe00c25019997a41d6b5b27bbc6f0c5"
+    },
+    {
+      "path": "raw/raid-state33-green-02-20261007/closure-host.mjs.gz",
+      "decodedPath": "raid-state33-green-02-20261007/closure-host.mjs",
+      "bytes": 1641,
+      "sha256": "18333c5ef10e9cf5c5a6e613aa99420860c7a04f263cdd9e4e6acefe43e2d8f6",
+      "gzipSha256": "d940ad702dca2f25f08445f81329d59b6e39576f1240ef24e63700b0d1f46f21"
+    },
+    {
+      "path": "raw/raid-state33-green-02-20261007/command.json.gz",
+      "decodedPath": "raid-state33-green-02-20261007/command.json",
+      "bytes": 11149,
+      "sha256": "c5aa80c1a4e5cca8bb0dc587da6d90b233b81b861bf50242cb2d9a596762ed7f",
+      "gzipSha256": "7f8e92d34e7a9a7d77e5bc36a7b14b246c4e39cf159e7e962a20ead62bb16c7a"
+    },
+    {
+      "path": "raw/raid-state33-green-02-20261007/diagnostic.mjs.gz",
+      "decodedPath": "raid-state33-green-02-20261007/diagnostic.mjs",
+      "bytes": 110,
+      "sha256": "3df22cac56f3c9804094c34fbd67f91d7a724ec1cede3c8e2eb7a54434da294b",
+      "gzipSha256": "056d9aafc4541bef777abd51b43a8f2a0bd981c9344614900af4e5aa540c8cbd"
+    },
+    {
+      "path": "raw/raid-state33-green-02-20261007/guardian.py.gz",
+      "decodedPath": "raid-state33-green-02-20261007/guardian.py",
+      "bytes": 3504,
+      "sha256": "e9ad5603602e54ffd97023bf2c1531f158278cb6a08f8df7063ad00e27cea90e",
+      "gzipSha256": "7e9079d2c09b1888f31af2e73a2196454d1bd587214ad6ac8bf387fc18f0d2e9"
+    },
+    {
+      "path": "raw/raid-state33-green-02-20261007/host.stderr.gz",
+      "decodedPath": "raid-state33-green-02-20261007/host.stderr",
+      "bytes": 180,
+      "sha256": "9f7a34276ecbd6bdfca0975bbbf9466ad466a2544d8ddcd048079692abb4ad46",
+      "gzipSha256": "43fc0621c578eb3e86e5a0960666634a3ae04b46a5c38c6a8e841dc67913dd2a"
+    },
+    {
+      "path": "raw/raid-state33-green-02-20261007/host.stdout.gz",
+      "decodedPath": "raid-state33-green-02-20261007/host.stdout",
+      "bytes": 158,
+      "sha256": "28851ab5eb75c59837a72d47f9a3eddf1d65bbd4785c2a8522421d70ad315825",
+      "gzipSha256": "bfa0bd48a5d941e36c137fc89faad2a2d11de675eb7e71da0d9c16b39300f8f9"
+    },
+    {
+      "path": "raw/raid-state33-green-02-20261007/import-closure.json.gz",
+      "decodedPath": "raid-state33-green-02-20261007/import-closure.json",
+      "bytes": 21780,
+      "sha256": "ae3d5bbc3be0789ef3d2052c68a28ebf33631bd15ba41f85c552f395689c14f0",
+      "gzipSha256": "2dbfc318825db5593098d78a2f0c4425f62c4e59437f2a3e1e3bd296ff607fa7"
+    },
+    {
+      "path": "raw/raid-state33-green-02-20261007/preflight.json.gz",
+      "decodedPath": "raid-state33-green-02-20261007/preflight.json",
+      "bytes": 33332,
+      "sha256": "f67ac6bde2b42d37e36c88b48ac7de91a405691fbdda91e3661430dd49f0d869",
+      "gzipSha256": "faa21134f586b03940e60eab58dc1866a45dd07655bad018ded9796dcdc9e0c3"
+    },
+    {
+      "path": "raw/raid-state33-green-02-20261007/receipt.json.gz",
+      "decodedPath": "raid-state33-green-02-20261007/receipt.json",
+      "bytes": 52616,
+      "sha256": "6b6589c07facf5640407328ada6f305985ecd6a289b550bbdfc86b4bb2e17ae4",
+      "gzipSha256": "7980f0cb09330deeeef8d53d26002eb8462d36e1388c7073a94c76d1e3dfe7f3"
+    },
+    {
+      "path": "raw/raid-state33-green-02-20261007/receipt.json.artifacts/stderr.log.gz",
+      "decodedPath": "raid-state33-green-02-20261007/receipt.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzipSha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "path": "raw/raid-state33-green-02-20261007/receipt.json.artifacts/stdout.log.gz",
+      "decodedPath": "raid-state33-green-02-20261007/receipt.json.artifacts/stdout.log",
+      "bytes": 1422,
+      "sha256": "31575b25de0a7852e18a31ea9ad380297f096cbc81ee2beb8a9f685da691723a",
+      "gzipSha256": "8bd3239103e9d5daf744846900d569da4ace58bc1bd945e6634bb400ab65765e"
+    },
+    {
+      "path": "raw/raid-state33-green-02-20261007/started.json.gz",
+      "decodedPath": "raid-state33-green-02-20261007/started.json",
+      "bytes": 991,
+      "sha256": "a60d8e35bceba50adb501b5c743b9fd18b320edbf65355d4f782b8fbb28826cd",
+      "gzipSha256": "502b1963b8d1414df3f6a203e594f47c8f5580a437f0306ca916d2e8218f31f6"
+    },
+    {
+      "path": "raw/raid-state33-focused-result-20261007/manifest.json.gz",
+      "decodedPath": "raid-state33-focused-result-20261007/manifest.json",
+      "bytes": 7235,
+      "sha256": "3a35f59f22e894d511ee804d0ffd0f4a2d6bb3f3b24272d7fe432e17b32ba0a9",
+      "gzipSha256": "20ba200ec878a98c5b04c7e34ecca9c120f7048701ed18a598266ad0b6080516"
+    }
+  ],
+  "sourceReviewSha256": "819c3001a603a3692f223eb4d5a9efafc66ff705a2492d9c545e2a40adeb9ef7",
+  "readmeSha256": "f473e024f92e13ae8a94633ffd34cc86a0e95a881f1c1a76b0480194bb6f4af6"
+}

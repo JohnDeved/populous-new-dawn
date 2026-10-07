@@ -1,0 +1,13 @@
+# State33 raid owner release: focused runtime result
+
+Refs #248, #247 and #243. Exact source `bddf3b3ccc55330bdd711b7e7c8ed3d41554608b` composes the accepted model2 state33 release with the actual registered owner. The [original conditional native result](https://github.com/JohnDeved/populous-new-dawn/blob/14853b19ab851b65b4a82341071c181c7a93ee0b/decomp/research/raid-state33-release/findings.md) and immutable captured3227 snapshot are reused; no new native invocation occurred.
+
+One red actual-dispatcher run at28c76774 produced10 passes/4 intended release failures. The corrected14-test run passed14/14 atbddf3b3c,2026-10-07 02:20:50.699152–02:20:54.493436 UTC, exit0. Both invocations retained239 identical before/after source/tool bindings and empty owned process groups. The superseded green01 packet was never executed; its missing result remains explicit.
+
+The captured full Unit/registry/pool/world comparison verifies member10's release, queue/reference decrement, reset/initializer and idle-anchor changes while preserving member11, positions/life/links and both RNGs. The port keeps absent nativeFlags7f absent; known byte values preserve upper bits. Native+af2/+7f0 remain explicit original-fixture supplies, while raw port+af0 and absent+7f remain provenance. Portable controls cover actual retained controller slots, exact+a8 animationMode versus+aa commandPhase, sparse/invalid queue words and conflicting task/tribe/model ownership.
+
+Before mutation, uncomposed spell cleanup, final-reference attached objects, vehicle/fight-assignment/training cleanup, occupied anchors and non-order default states retain conservative holds. Existing finishComputerPerson callers keep their behavior; the new retain-owner mode does not adopt or clear unrelated Unit controller/vault/work ownership. New native composition is model2 only; generic state10 and animation helper behavior reuses existing source/probe evidence and the portable caller checks.
+
+The [independent source/preflight verdict](source-review.json) accepts exactbddf3b3c. Independent focused-result review and the separate unchanged strict Mission2 replay are pending at this publication checkpoint. The original1405-pass/3-fail full-gate receipt remains authoritative; no new full suite, build or ordinary browser acceptance is claimed.
+
+[Archive manifest](archive-manifest.json) binds lossless raw inputs/receipts/streams and the unrun packet. The snapshot itself and unchanged positive assertions are pinned in the executed Git source.
