@@ -1,0 +1,17 @@
+{
+  "verdict": "ACCEPT_SOURCE_PREFLIGHT",
+  "source": "ba911faef3fbe739180f9ed2e6d0a7766b51a3f4",
+  "reviewedAt": "2026-10-07T00:40:51.496183+00:00",
+  "inputs": {
+    "scripts/local-render/startup-burst.mjs": "b343b8288da070d5535565aee7e9a9371254e7b47515a6ce7eb8cf3c9a6e4231",
+    "scripts/local-render/startup-burst-observer.mjs": "52a2440e31983b8c8882d5d789fa9289160619ff048c3967fda97fd1fdf36e0b",
+    "tests/startup-burst-observer.test.mjs": "fefe114b47a4c8573952d0df68deda03c71e119cc48ffe98528380ee0177f37d"
+  },
+  "finding": "Named existing-harness scenario uses ordinary Mission1 selection and one delivered Skip after passive observer installation. Original renderer is invoked exactly once with original receiver/args/result/exception; only same-main-scene successful draw is sampled. Three bounded PNG/state captures, error/row caps, scene/store identity checks, final readiness and cleanup preserve observation ownership. Completed frame explicitly excludes all particles including age-zero tails. Five focused contracts are retained.",
+  "scope": "One ordinary Mission1 before/active/completed capture per declared source; software rendering and actual browser startup only. Native32-child angle proof and1024 actual-caller particles are separate evidence. Known root-height discrepancy remains.",
+  "launchPrerequisites": [
+    "adopt accepted smoke main with exact app/scenario correspondence",
+    "review frozen resource/dependency/CLI input packet",
+    "exclusive dependency/browser lane grant"
+  ]
+}

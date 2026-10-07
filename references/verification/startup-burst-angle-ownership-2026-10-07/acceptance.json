@@ -12,7 +12,8 @@
     "extract-retained-records.py": "45efed441dbd5dc9470a71246e014fd190236a1db4783d0eb5b756ffc3814a15",
     "candidate-source-review.json": "ebf2dcf33e9c058773515e6efd175d4b50c76d29ca4158f21872ba2efff10681",
     "observer-contracts.json": "597a9a56afe6d0a94fd43517aca2e97a1343cf90a2d81f118cc9b5c67bfcb407",
-    "observer-contracts-02.json": "399d57c5a058f7c186219a4ee1cfccca6b2c85f02947d4d7210519908e9701fa"
+    "observer-contracts-02.json": "399d57c5a058f7c186219a4ee1cfccca6b2c85f02947d4d7210519908e9701fa",
+    "observer-source-review.json": "e78ddc4a11a4fcbbeff5f0d9d2e8c642b53d5934835e8a7dfba07029d4e52059"
   },
   "status": {
     "independentSourceReview": "passed",
@@ -23,7 +24,8 @@
     "standardGates": "not-run",
     "finalIndependentReview": "not-run",
     "candidateSourceReview": "passed: narrow two-owner application diff",
-    "observerContracts": "passed:5/5 at ba911fae including age-zero tail exclusion"
+    "observerContracts": "passed:5/5 at ba911fae including age-zero tail exclusion",
+    "observerSourceReview": "passed: exact ba911fae passive ordinary scenario"
   },
   "limits": "Angle ownership only. Retained native trajectories compare declared native birth origins and ground256, not actual startup origin heights. Existing model9 root clamp ordering gap stays unchanged; no allocator/world/returning-person or raster equivalence claim.",
   "observerSource": "ba911faef3fbe739180f9ed2e6d0a7766b51a3f4"
