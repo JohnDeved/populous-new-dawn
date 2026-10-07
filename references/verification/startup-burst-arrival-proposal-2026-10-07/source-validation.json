@@ -1,0 +1,34 @@
+{
+  "status": "passed-source-only",
+  "baseCommit": "9ca4534463a3ba2b868722454d38e888a1cd40cc",
+  "nativeExecution": "not-run",
+  "probeImported": false,
+  "applicationImported": false,
+  "simulation": "not-run",
+  "browser": "not-run",
+  "freshExecutionWorktreeCreated": false,
+  "checks": [
+    "Both Python files parsed and compiled as data only; no module imported or executed",
+    "Exactly one emu_start call in probe, none in launcher; no top-level native imports",
+    "All41 source/runtime/input hashes match",
+    "All32 shared external fingerprints match accepted prior launcher",
+    "All17 bounded static byte ranges re-read and matched canonical PE",
+    "Both original E8 call sites, callees and return addresses matched",
+    "Immutable9ca report, authored data and independent review unchanged",
+    "No tracked application, angle, fixture or parity edits; only new proposal directory",
+    "git diff --check passed"
+  ],
+  "immutableReportHashes": {
+    "decomp/research/startup-burst-root-height.md": "4caba3f0b36a53ba5ae78ed1429dc9624cc79821ebe9c6e7600d3bed7eefe615",
+    "references/verification/startup-burst-height-assessment-2026-10-07/authored-data.json": "701e6c2e248be4b309c49bbd711e2d683b81c4145765dde38f3c86f8314f12a6",
+    "references/verification/startup-burst-height-assessment-2026-10-07/source-review.md": "3f053fb02a41e4ceb3a8012e5a7cb96454fa4f2141ced506bcbdeafad775fe59"
+  },
+  "proposalFilesSha256": {
+    "probe-arrival.py": "889580dac8835f41cf96963257b69563d547e9fd588a7b69328ea305d16b4913",
+    "README.md": "9882b8985c811289525c631049593415e40dff7817ea049aae8b7ce708a8884d",
+    "launch.json": "ffb7a3e31776fbcacc933a7addfff45cdd78ec9ae8094d287bd72d37865bab15",
+    "launch.py": "c18a6f95a6362d1b356bca0610d22c2e1911e40436405b574e756b3d4b18bdc2",
+    "native-boundaries.json": "9c01818986cb1fc94ac739327650460810ca4c761c9b1a3f0467b15c92b14870"
+  },
+  "fullChecks": "not-applicable to unexecuted research source freeze; no npm/native/browser/simulation run permitted"
+}
