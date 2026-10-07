@@ -18,7 +18,8 @@ const SOURCE_FILES = [SCENARIO, 'scripts/checkpoint-readback.mjs', 'scripts/brow
   'scripts/local-render/owned-profile.mjs', 'scripts/local-render/checkpoint-observer.mjs']
 
 export function isOrdinaryCheckpointCandidate(value) {
-  return value?.kind === 'pnd-command-receipt' &&
+  return value?.kind === 'pnd-command-receipt' && value.command?.[0] === 'node' &&
+    value.command[1] === 'scripts/local-render/harness.mjs' &&
     (Object.hasOwn(value.source?.inputs ?? {}, SCENARIO) ||
       value.command?.some(arg => typeof arg === 'string' && arg.endsWith(SCENARIO)))
 }

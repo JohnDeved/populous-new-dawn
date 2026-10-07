@@ -1,8 +1,11 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { projectOrdinaryCheckpoint, selectOrdinaryCheckpoint } from '../scripts/parity-owned-checkpoint.mjs'
-import { buildReport, renderHTML } from '../scripts/parity-measure.mjs'
+import { buildReport, discoverReceipts, renderHTML } from '../scripts/parity-measure.mjs'
 const sha = value => createHash('sha256').update(value).digest('hex')
 const scenario = 'scripts/local-render/early-missions.mjs'
 function fixture() {
@@ -64,4 +67,24 @@ test('ordinary observation cannot double-count checkpoint or earn original/save 
   assert.equal(report.knownScope.percent, 0); assert.equal(report.missionCases.total, 0); assert.equal(report.browserIntegration.total, 0)
   assert.equal(report.missionCases.observations, 1); assert.equal(report.missionCases.capabilities[0].browserStatus, 'verified'); assert.equal(report.missionCases.capabilities[0].originalStatus, 'unknown')
   assert.ok(renderHTML(report).includes('evidence only; no extra credit')); assert.ok(renderHTML(report).includes(observed.testedSource.commit))
+})
+
+
+test('a newer syntax/source check is not discovered as an ordinary gameplay attempt', t => {
+  const root = mkdtempSync(join(tmpdir(), 'ordinary-checkpoint-discovery-'))
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+  const directory = join(root, 'work/orchestration'); mkdirSync(directory, { recursive: true })
+  const real = fixture().outer
+  const syntax = { ...structuredClone(real), command: ['node', '--check', scenario], finishedAt: '2026-10-07T22:00:00Z' }
+  writeFileSync(join(directory, 'real.json'), JSON.stringify(real))
+  writeFileSync(join(directory, 'syntax.json'), JSON.stringify(syntax))
+  const discovery = discoverReceipts(root)
+  assert.deepEqual(discovery.warnings, [])
+  assert.deepEqual(discovery.receipts.filter(r => r.commandReceipt).map(r => r.path), ['work/orchestration/real.json'])
+  const selected = selectOrdinaryCheckpoint(discovery.receipts.filter(r => r.commandReceipt).map(r =>
+    projectOrdinaryCheckpoint({ ...fixture(), outer: r.commandReceipt, path: r.path })))
+  assert.equal(selected.status, 'verified')
+  real.phase = 'prepared'; delete real.finishedAt
+  writeFileSync(join(directory, 'real.json'), JSON.stringify(real))
+  assert.equal(discoverReceipts(root).receipts.filter(r => r.commandReceipt).length, 1)
 })
