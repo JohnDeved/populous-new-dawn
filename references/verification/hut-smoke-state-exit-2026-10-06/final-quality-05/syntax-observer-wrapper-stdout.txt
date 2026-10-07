@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "output": "work/orchestration/hut-smoke-state-exit/final-quality-05/syntax-observer-command.json",
+  "headOid": "2f75201af64fb304c1b87c94b6324e746ec14a13",
+  "exitCode": 0,
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}
