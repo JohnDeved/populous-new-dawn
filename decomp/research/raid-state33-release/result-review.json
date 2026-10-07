@@ -1,0 +1,65 @@
+{
+  "verdict": "ACCEPT_CONDITIONAL_COMPOSED_RELEASE_GAP",
+  "executionHead": "0a71e4092cad3ef6319b2fc0f4a7c0eb79a1a189",
+  "launchManifestSha256": "dce472ec3b37cb01b7f5583d1bef663893db5c852a6bd15b7242248b4aa2c3ea",
+  "evidenceCommit": "e050ec6a7964fa9568b7a11301bbfe788923dc4e",
+  "rawManifestSha256": "54c50ad34fc01bf58acb994f91bb363fd3c9af2a54d665edb70f85ab29afa692",
+  "verification": {
+    "rawMembers": 10,
+    "nativeInstructions": 772,
+    "nativeCallEntries": 24,
+    "nativeFunctions": 20,
+    "nativeReads": 248,
+    "nativeWrites": 155,
+    "allAccessBeforeBytesReconstructed": true,
+    "all15WholeAfterRegionsMatched": true,
+    "postflightChecks": 303,
+    "postflightOrderedDigest": "47c7a705e66fecbef5b4c22b2f7943c13eecd73820771cc02773777cbc35187c",
+    "portCoverageAssertions": 12,
+    "declaredPortSnapshotsFullyCompared": true,
+    "ownedGroupEmpty": true,
+    "elapsedSeconds": 2.172220491003827,
+    "exitCode": 0,
+    "reviewerNativeOrApplicationExecution": false
+  },
+  "findings": [
+    "Every raw published execution file matches its original output bytes. Reconstructed303 postflight comparisons match the retained digest. Source/input/tool/canonical EXE identity is bound to the exact reviewed invocation, with no retry and empty owned group41.",
+    "Independently replayed all403 data-access observations as host data operations against frozen15 input regions, initialized stack and canonical file-backed PE bytes. Every logged beforeHex matches; applying155 recorded writes reproduces every complete final region. No output mask hides an unpredicted change.",
+    "Real phase6 controller and all release/clear/reset/default10/animation/anchor leaves execute in the declared24-entry nested order. Typed membership/predicate returns and raw EAX are retained. Outer/helper EAX19 is residual for semantic void, not a gameplay success code.",
+    "Original living person10 loses native+af2\u21920, clears queue slot1/order131refs1\u21920, pool active3\u21922, state33\u219210/previous33/substate0, motion timer/mode and timer0, cursor/status0, and idle anchor38656/28416. Position/life, cell/tribe links, person11, pool cursor144, other orders, target1022 and both RNG words are unchanged. AnimationMode9 and commandPhase8 remain distinct and unchanged. Task elapsed359\u2192360, visit counter0\u21921, phase6 stays6.",
+    "The exact supplied+7f0 address is accessed once for a one-byte read and write at004f2448, value00\u219200; no later or overlapping dependence occurs. General unknown-upper-bit preservation remains the source/algebra statement incoming&0xfe, not additional recovered history.",
+    "Decoded the port V8 before/after using builtins only. Full declared snapshots differ only by task elapsed359\u2192360 and supplied cursor1\u21922. Registered/native owner identity and actual absence of Unit.nativeFlags7f persist. Member10 stays state33/order131refs1/pool3/old anchor/member list[10,11]. Actual production dispatcher/private settled callback executes once and all12 positive/negative coverage assertions match. Stderr contains only the retained warning for the explicitly reviewed in-process inspector option.",
+    "The result establishes the conditional original release omission and supports proposing the smallest real registered-owner release/order/reset/initializer/anchor repair, with task membership removal and continued member traversal retaining unsettled for this visit. It does not authorize a runtime edit or test substitution by itself."
+  ],
+  "limits": [
+    "Native+af2, tribe chain/pointers, visitCounter0 and+7f0 are explicit supplies; raw port assignment0/absent+7f are not normalized.",
+    "Observed3227/sub3 is the fixed unconditional case, not earliest native eligibility or a recovered3171 animation mode.",
+    "No original Mission2 lifecycle, ordinary gameplay completion, repaired runtime, maintained-test pass, final package gate or merge readiness is established."
+  ],
+  "inputs": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/state33-raid-release-proof-20261007/decomp/research/raid-state33-release/result-20261007/manifest.json",
+      "sha256": "54c50ad34fc01bf58acb994f91bb363fd3c9af2a54d665edb70f85ab29afa692"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/state33-raid-release-proof-20261007/decomp/research/raid-state33-release/result-20261007/native.json",
+      "sha256": "3726277d8e5d67a68d8fbcd9321d30ab64f6c89fa2ab00af6ac4039dea2b1932"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/state33-raid-release-proof-20261007/decomp/research/raid-state33-release/result-20261007/port.stdout",
+      "sha256": "0a15cc163a0ab6847f2498068f9e61d1f62542e1d86a177433e89bf0b54d715e"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/state33-raid-release-proof-20261007/decomp/research/raid-state33-release/result-20261007/comparison.json",
+      "sha256": "45c7e9226337f31af4c3101ccf9f12865d8d48bfe4e835ae7ba2a810775eeff7"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/state33-raid-release-proof-20261007/decomp/research/raid-state33-release/result-20261007/cleanup.json",
+      "sha256": "91b4f4fe2848a320a1adb87a69323e4cc2c1c6f120283f44b95a235eb65dbd85"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/state33-raid-release-proof-20261007/decomp/research/raid-state33-release/result-20261007/result.json",
+      "sha256": "fbf34ac51a3dcc8e3384aecc0ae7366044b2ceeac99aae438a2ebfbe8d5582d9"
+    }
+  ]
+}

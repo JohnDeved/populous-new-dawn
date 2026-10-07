@@ -4,7 +4,9 @@ Refs #248 and #247. One original phase6 task visit releases original living
 member10 from its raid and current movement order; the frozen48a port keeps it
 state33 with order131. This is a proved conditional composed boundary, not a
 whole native Mission2 playthrough, a runtime fix or a passing maintained scenario.
-Actual-result independent review is pending at this publication.
+Independent [actual-result review](result-review.json) accepted this exact boundary.
+The unchanged verdict SHA256 is
+2ef1167df1ddf7330282625f7dd03b830e2c1824b29a4ed21138aedb3cc6d4d7.
 
 ## Exact evidence
 
