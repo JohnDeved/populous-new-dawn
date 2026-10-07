@@ -6,7 +6,7 @@ import { showAllMissions, waitForShamanReadiness } from '../browser-game.mjs'
 
 export default async function startupBurst({ page, output, signal, receipt }) {
   const report = { status: 'running', method: 'Public Mission1 and Skip; ordinary elapsed RAF, passive actual-render PNGs. No injected world, seed, effect, speed or frame clock.' }
-  let armed = false
+  let armed = false, failure
   const save = () => writeFileSync(resolve(output, 'startup-burst.json'), JSON.stringify(report, null, 2) + '\n')
   const retainFrames = async () => {
     const observed = await page.evaluate(() => window.startupBurstFrames.read())
@@ -61,11 +61,10 @@ export default async function startupBurst({ page, output, signal, receipt }) {
     assert.deepEqual(receipt.errors, [])
     report.status = 'passed'
     report.limits = 'Ordinary startup rendering/phase consistency only. Native angle evidence is separate and uses declared original birth origins; existing root-height clamp difference remains. Software rendering is not hardware performance or original raster equality.'
-    return report
   } catch (error) {
     report.status = 'failed'
     report.failure = String(error.stack ?? error)
-    throw error
+    failure = error
   } finally {
     if (armed && !report.observation) {
       try { await retainFrames() } catch (error) { report.readbackFailure = String(error) }
@@ -74,7 +73,9 @@ export default async function startupBurst({ page, output, signal, receipt }) {
       if (armed) await page.evaluate(() => { window.startupBurstFrames.close(); delete window.startupBurstFrames })
     } catch (error) {
       report.cleanupFailure = String(error)
-      if (report.status === 'passed') { report.status = 'failed'; throw error }
+      if (report.status === 'passed') { report.status = 'failed'; failure = error }
     } finally { save() }
   }
+  if (report.status === 'failed') throw failure
+  return report
 }
