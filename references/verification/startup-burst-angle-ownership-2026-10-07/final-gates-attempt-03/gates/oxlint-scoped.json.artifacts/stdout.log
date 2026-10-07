@@ -1,0 +1,260 @@
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1meslint(prefer-template): Unexpected string concatenation.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst.mjs[0m:10:75]
+ [2m 9[0m │   let armed = false, failure
+ [2m10[0m │   const save = () => writeFileSync(resolve(output, 'startup-burst.json'), JSON.stringify(report, null, 2) + '\n')
+    · [38;2;246;87;248m                                                                          ──────────────────────────────────────[0m
+ [2m11[0m │   const retainFrames = async () => {
+    ╰────
+[38;2;106;159;181m  help: [0mUse template literals instead of string concatenation.
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst.mjs[0m:12:48]
+ [2m11[0m │   const retainFrames = async () => {
+ [2m12[0m │     const observed = await page.evaluate(() => window.startupBurstFrames.read())
+    · [38;2;246;87;248m                                               ──────[0m
+ [2m13[0m │     for (const [label, frame] of Object.entries(observed.frames)) {
+    ╰────
+[38;2;106;159;181m  help: [0mReplace the alias with `globalThis`.
+[38;2;106;159;181m  note: [0mhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst.mjs[0m:29:7]
+ [2m28[0m │       const { armStartupBurstFrames } = await import('/scripts/local-render/startup-burst-observer.mjs')
+ [2m29[0m │       window.startupBurstFrames = armStartupBurstFrames()
+    · [38;2;246;87;248m      ──────[0m
+ [2m30[0m │     })
+    ╰────
+[38;2;106;159;181m  help: [0mReplace the alias with `globalThis`.
+[38;2;106;159;181m  note: [0mhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst.mjs[0m:39:22]
+ [2m38[0m │     report.initial = await page.evaluate(() => {
+ [2m39[0m │       const status = window.startupBurstFrames.status()
+    · [38;2;246;87;248m                     ──────[0m
+ [2m40[0m │       const scene = window.testSceneRef?.current
+    ╰────
+[38;2;106;159;181m  help: [0mReplace the alias with `globalThis`.
+[38;2;106;159;181m  note: [0mhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst.mjs[0m:40:21]
+ [2m39[0m │       const status = window.startupBurstFrames.status()
+ [2m40[0m │       const scene = window.testSceneRef?.current
+    · [38;2;246;87;248m                    ──────[0m
+ [2m41[0m │       if (!status.installed || !scene) return status
+    ╰────
+[38;2;106;159;181m  help: [0mReplace the alias with `globalThis`.
+[38;2;106;159;181m  note: [0mhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst.mjs[0m:52:24]
+ [2m51[0m │     await page.waitForFunction(() => {
+ [2m52[0m │       const observed = window.startupBurstFrames.status()
+    · [38;2;246;87;248m                       ──────[0m
+ [2m53[0m │       if (observed.errors.length) throw new Error(observed.errors.join('\n'))
+    ╰────
+[38;2;106;159;181m  help: [0mReplace the alias with `globalThis`.
+[38;2;106;159;181m  note: [0mhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst.mjs[0m:73:46]
+ [2m72[0m │     try {
+ [2m73[0m │       if (armed) await page.evaluate(() => { window.startupBurstFrames.close(); delete window.startupBurstFrames })
+    · [38;2;246;87;248m                                             ──────[0m
+ [2m74[0m │     } catch (error) {
+    ╰────
+[38;2;106;159;181m  help: [0mReplace the alias with `globalThis`.
+[38;2;106;159;181m  note: [0mhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst.mjs[0m:73:88]
+ [2m72[0m │     try {
+ [2m73[0m │       if (armed) await page.evaluate(() => { window.startupBurstFrames.close(); delete window.startupBurstFrames })
+    · [38;2;246;87;248m                                                                                       ──────[0m
+ [2m74[0m │     } catch (error) {
+    ╰────
+[38;2;106;159;181m  help: [0mReplace the alias with `globalThis`.
+[38;2;106;159;181m  note: [0mhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.[0m
+    ╭─[[38;2;92;157;255;1mtests/startup-burst-observer.test.mjs[0m:71:5]
+ [2m70[0m │     assert.deepEqual(observer.read().frames, {})
+ [2m71[0m │     window.testSceneRef.current = {}
+    · [38;2;246;87;248m    ──────[0m
+ [2m72[0m │     for (let n = 0; n < 12; n++) assert.equal(f.renderer.render(f.scene.scene, f.scene.camera), result)
+    ╰────
+[38;2;106;159;181m  help: [0mReplace the alias with `globalThis`.
+[38;2;106;159;181m  note: [0mhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(consistent-function-scoping): Function `original` does not capture any variables from its parent scope[0m
+    ╭─[[38;2;92;157;255;1mtests/startup-burst-observer.test.mjs[0m:80:9]
+ [2m79[0m │ test('observer refuses to overwrite a later renderer owner during close', () => {
+ [2m80[0m │   const original = () => 'original', replacement = () => 'replacement'
+    · [38;2;246;87;248m        ────────[0m
+ [2m81[0m │   const f = fixture(original); let observer
+    ╰────
+[38;2;106;159;181m  help: [0mMove `original` to the outer scope to avoid recreating it on every call.
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(consistent-function-scoping): Function `replacement` does not capture any variables from its parent scope[0m
+    ╭─[[38;2;92;157;255;1mtests/startup-burst-observer.test.mjs[0m:80:38]
+ [2m79[0m │ test('observer refuses to overwrite a later renderer owner during close', () => {
+ [2m80[0m │   const original = () => 'original', replacement = () => 'replacement'
+    · [38;2;246;87;248m                                     ───────────[0m
+ [2m81[0m │   const f = fixture(original); let observer
+    ╰────
+[38;2;106;159;181m  help: [0mMove `replacement` to the outer scope to avoid recreating it on every call.
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.[0m
+     ╭─[[38;2;92;157;255;1mtests/startup-burst-observer.test.mjs[0m:129:65]
+ [2m128[0m │   const ref = { current: f.scene }, main = { __reactFiberTest: {
+ [2m129[0m │     memoizedState: { memoizedState: ref, next: { memoizedState: window.testStore } },
+     · [38;2;246;87;248m                                                                ──────[0m
+ [2m130[0m │   } }
+     ╰────
+[38;2;106;159;181m  help: [0mReplace the alias with `globalThis`.
+[38;2;106;159;181m  note: [0mhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1meslint(no-nested-ternary): Do not nest ternary expressions.[0m
+     ╭─[[38;2;92;157;255;1mtests/startup-burst-observer.test.mjs[0m:136:75]
+ [2m135[0m │   f.renderer.domElement.isConnected = false
+ [2m136[0m │   globalThis.document = { documentElement: {}, querySelector: selector => selector === 'main' ? main : loading ? {} : null }
+     · [38;2;246;87;248m                                                                          ────────────────────────────────────────────────[0m
+ [2m137[0m │   globalThis.MutationObserver = class {
+     ╰────
+[38;2;106;159;181m  help: [0mRefactor nested ternary expressions into if-else statements for better readability.
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(no-nested-ternary): Unexpected nested ternary expression without parentheses.[0m
+     ╭─[[38;2;92;157;255;1mtests/startup-burst-observer.test.mjs[0m:136:104]
+ [2m135[0m │   f.renderer.domElement.isConnected = false
+ [2m136[0m │   globalThis.document = { documentElement: {}, querySelector: selector => selector === 'main' ? main : loading ? {} : null }
+     · [38;2;246;87;248m                                                                                                       ───────────────────[0m
+ [2m137[0m │   globalThis.MutationObserver = class {
+     ╰────
+[38;2;106;159;181m  help: [0mAdd parentheses around the nested ternary expression.
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1meslint(prefer-destructuring): Use Object destructuring.[0m
+     ╭─[[38;2;92;157;255;1mtests/startup-burst-observer.test.mjs[0m:170:20]
+ [2m169[0m │     assert.equal(observer.status().before, true)
+ [2m170[0m │     const sample = observer.read().frames.before.sample
+     · [38;2;246;87;248m                   ────────────────────────────────────[0m
+ [2m171[0m │     assert.equal(sample.loadingOverlay, true)
+     ╰────
+[38;2;106;159;181m  help: [0mUse object destructuring rather than direct member access.
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1meslint(prefer-destructuring): Use Object destructuring.[0m
+   ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst-observer.mjs[0m:4:17]
+ [2m3[0m │ export function observeStartupBurstFrames(scene) {
+ [2m4[0m │   const world = scene.world, renderer = scene.renderer, original = renderer.render
+   · [38;2;246;87;248m                ───────────[0m
+ [2m5[0m │   const descriptor = Object.getOwnPropertyDescriptor(renderer, 'render')
+   ╰────
+[38;2;106;159;181m  help: [0mUse object destructuring rather than direct member access.
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1meslint(prefer-destructuring): Use Object destructuring.[0m
+   ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst-observer.mjs[0m:4:41]
+ [2m3[0m │ export function observeStartupBurstFrames(scene) {
+ [2m4[0m │   const world = scene.world, renderer = scene.renderer, original = renderer.render
+   · [38;2;246;87;248m                                        ──────────────[0m
+ [2m5[0m │   const descriptor = Object.getOwnPropertyDescriptor(renderer, 'render')
+   ╰────
+[38;2;106;159;181m  help: [0mUse object destructuring rather than direct member access.
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst-observer.mjs[0m:12:36]
+ [2m11[0m │     try {
+ [2m12[0m │       if (scene.world !== world || window.testSceneRef.current !== scene || window.testStore.getWorld() !== world)
+    · [38;2;246;87;248m                                   ──────[0m
+ [2m13[0m │         throw new Error('Observed scene/world identity changed')
+    ╰────
+[38;2;106;159;181m  help: [0mReplace the alias with `globalThis`.
+[38;2;106;159;181m  note: [0mhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst-observer.mjs[0m:12:77]
+ [2m11[0m │     try {
+ [2m12[0m │       if (scene.world !== world || window.testSceneRef.current !== scene || window.testStore.getWorld() !== world)
+    · [38;2;246;87;248m                                                                            ──────[0m
+ [2m13[0m │         throw new Error('Observed scene/world identity changed')
+    ╰────
+[38;2;106;159;181m  help: [0mReplace the alias with `globalThis`.
+[38;2;106;159;181m  note: [0mhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1meslint(no-nested-ternary): Do not nest ternary expressions.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst-observer.mjs[0m:32:21]
+ [2m31[0m │           const stoneCount = row.sites.flatMap(site => site.stoneTurns).filter(turn => turn !== null).length
+ [2m32[0m │ [38;2;246;87;248m╭[0m[38;2;246;87;248m─[0m[38;2;246;87;248m▶[0m       const label = row.turn < 30 && stoneCount === 0 ? 'before' : row.particles.some(particle => particle.age > 0) ? 'burst' :
+ [2m33[0m │ [38;2;246;87;248m╰[0m[38;2;246;87;248m─[0m[38;2;246;87;248m▶[0m         row.turn >= 70 && row.particles.length === 0 && stoneCount === 8 && row.sites.every(site => site.phase === 4) ? 'after' : null
+ [2m34[0m │           if (label && !frames[label]) frames[label] = { sample: row, png: renderer.domElement.toDataURL('image/png') }
+    ╰────
+[38;2;106;159;181m  help: [0mRefactor nested ternary expressions into if-else statements for better readability.
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1meslint(no-nested-ternary): Do not nest ternary expressions.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst-observer.mjs[0m:32:68]
+ [2m31[0m │           const stoneCount = row.sites.flatMap(site => site.stoneTurns).filter(turn => turn !== null).length
+ [2m32[0m │ [38;2;246;87;248m╭[0m[38;2;246;87;248m─[0m[38;2;246;87;248m▶[0m       const label = row.turn < 30 && stoneCount === 0 ? 'before' : row.particles.some(particle => particle.age > 0) ? 'burst' :
+ [2m33[0m │ [38;2;246;87;248m╰[0m[38;2;246;87;248m─[0m[38;2;246;87;248m▶[0m         row.turn >= 70 && row.particles.length === 0 && stoneCount === 8 && row.sites.every(site => site.phase === 4) ? 'after' : null
+ [2m34[0m │           if (label && !frames[label]) frames[label] = { sample: row, png: renderer.domElement.toDataURL('image/png') }
+    ╰────
+[38;2;106;159;181m  help: [0mRefactor nested ternary expressions into if-else statements for better readability.
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(no-nested-ternary): Unexpected deeply nested ternary expression.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst-observer.mjs[0m:33:9]
+ [2m32[0m │       const label = row.turn < 30 && stoneCount === 0 ? 'before' : row.particles.some(particle => particle.age > 0) ? 'burst' :
+ [2m33[0m │         row.turn >= 70 && row.particles.length === 0 && stoneCount === 8 && row.sites.every(site => site.phase === 4) ? 'after' : null
+    · [38;2;246;87;248m        ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2m34[0m │       if (label && !frames[label]) frames[label] = { sample: row, png: renderer.domElement.toDataURL('image/png') }
+    ╰────
+[38;2;106;159;181m  help: [0mAvoid nesting ternary expressions for more than one level.
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1meslint(prefer-destructuring): Use Object destructuring.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst-observer.mjs[0m:77:23]
+ [2m76[0m │         if (!scene?.renderer?.domElement?.isConnected) continue
+ [2m77[0m │         const world = scene.world
+    · [38;2;246;87;248m                      ───────────[0m
+ [2m78[0m │         // Retain every precondition before evaluating the guard, including loading.
+    ╰────
+[38;2;106;159;181m  help: [0mUse object destructuring rather than direct member access.
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst-observer.mjs[0m:85:9]
+ [2m84[0m │           throw new Error(`Startup installation preconditions: ${JSON.stringify(installation)}`)
+ [2m85[0m │         window.testSceneRef = ref
+    · [38;2;246;87;248m        ──────[0m
+ [2m86[0m │         window.testScene = scene
+    ╰────
+[38;2;106;159;181m  help: [0mReplace the alias with `globalThis`.
+[38;2;106;159;181m  note: [0mhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst-observer.mjs[0m:86:9]
+ [2m85[0m │         window.testSceneRef = ref
+ [2m86[0m │         window.testScene = scene
+    · [38;2;246;87;248m        ──────[0m
+ [2m87[0m │         window.testStore = store
+    ╰────
+[38;2;106;159;181m  help: [0mReplace the alias with `globalThis`.
+[38;2;106;159;181m  note: [0mhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst-observer.mjs[0m:87:9]
+ [2m86[0m │         window.testScene = scene
+ [2m87[0m │         window.testStore = store
+    · [38;2;246;87;248m        ──────[0m
+ [2m88[0m │         captured = observeStartupBurstFrames(scene)
+    ╰────
+[38;2;106;159;181m  help: [0mReplace the alias with `globalThis`.
+[38;2;106;159;181m  note: [0mhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1meslint(prefer-destructuring): Use Object destructuring.[0m
+    ╭─[[38;2;92;157;255;1mtests/startup-burst-angles.test.mjs[0m:68:23]
+ [2m67[0m │     const particles = new Map()
+ [2m68[0m │     let randomState = world.randomState
+    · [38;2;246;87;248m                      ─────────────────[0m
+ [2m69[0m │     // Observe writes without supplying entities, RNG values, effects or startup state.
+    ╰────
+[38;2;106;159;181m  help: [0mUse object destructuring rather than direct member access.
+
+Found 27 warnings and 0 errors.
+Finished in 48ms on 5 files with 258 rules using 4 threads.

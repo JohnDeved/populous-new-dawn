@@ -1,0 +1,271 @@
+{
+  "head": "8592c0049b720f568630db42d1b9b602a000b0b4",
+  "packetSha256": "30b7aa6bec94892f35aa82710ab906623955dc199e48da01a4f56ada9d4bcb73",
+  "hostSha256": "9ef03ce91798890c2b29b09e0d42f078ee926530737fb81567384c6b26f4fa12",
+  "driverSha256": "af18e987d9ad3bee30281cbf88922bcb44f47fd95dde495c5c42cdde85a9476e",
+  "packetChanges": {
+    "fallowMarkerBaselineSha256": {
+      "before": null,
+      "after": "e44f1fd02579d234c0ccfb38cf3c2db775b17db212a9639515210cf56d3bb454"
+    },
+    "output": {
+      "before": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/work/orchestration/startup-burst-final-gates-02",
+      "after": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/work/orchestration/startup-burst-final-gates-03"
+    },
+    "hostSha256": {
+      "before": "451fb2db418e15e4a592a7316278f85173c942b1873bc21fc7b9f437eb5ae51b",
+      "after": "9ef03ce91798890c2b29b09e0d42f078ee926530737fb81567384c6b26f4fa12"
+    },
+    "fallowCacheDisposition": {
+      "before": "Use supported --no-cache: installed schema describes default .fallow/cache.bin, which is not ignored here. Prevent untracked cache writes without changing repository settings.",
+      "after": "Analysis --no-cache retained. The exact reviewed current lazy-verification marker is preserved by file move, regular verification runs without it, generated marker is retained, original file bytes/mode are restored before full inventory equality. Historical gate02 drift remains recorded."
+    },
+    "sources": {
+      "before": {
+        "app/level-start.ts": "271093f631144d14ce4438c8a0378241775e95375103339da4a73ef9b443599b",
+        "decomp/research/level-start-sequence.md": "aa45e0d76ff8739bc8306738df031d5351131167485e5e018f39a7208cbfe5ec",
+        "engineering/checks.json": "84b15330d9283e3586ff68af7c0a38466e95e81c2edf8e968e9ec03ea195ca22",
+        "scripts/check-native-level-start.py": "14f22a963449a8c966a0b821be2e53ca3cee63ce7a7216d6cc41245e23dadbcd",
+        "scripts/local-render/startup-burst-observer.mjs": "50cd6a7f8ff09b509ebe730859e3b9c46ca4a2a4eb3df0282d659922f022d7b1",
+        "scripts/local-render/startup-burst.mjs": "015ada809918bfc72baed8a9fa4a727d572da21d4fc25d55ca80a33a69ad320e",
+        "tests/fixtures/startup-burst-native.json": "21da672bfe5adb2dd03daac0b3b7ce51afe2c527f4b42d39499a30c6e292437f",
+        "tests/startup-burst-angles.test.mjs": "5b8a2786c486a3c724de6536ccbc848e0d2e401a5565d68c4c432fc00b6adc48",
+        "tests/startup-burst-observer.test.mjs": "1bfae3687146cf9149dd978cb7ca09162a8ca5c4452dbf74cfa2c2292d6524b5",
+        "package.json": "75177ce9ebe6a221ecb1e4e3c35c2697ed92882a6924577d8892f03538f7e51c",
+        "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+        "eslint.config.mjs": "9578a25ed5bb7d9d6cd35f99459aa4b7987c9e32612ef1e020fa58826dc35543",
+        ".oxfmtrc.json": "3d994b16c5ebbf15cb6a77529615f68696433af8e0384da5a1f8420b38db7479",
+        ".oxlintrc.json": "caa0057ea1cbbc87402c3942667be83c2298b3a167957cea7153d0d72444ccff",
+        ".fallowrc.json": "251e2edbe9a78fc017a6f9f5eaa588bbf0be3df380cacf80e0a51c2b35a2834a",
+        "tsconfig.json": "b91b0d5ff0f30cbfaa9f0bf4ca023a753d70f2ac32845d965186d098edc09fd3",
+        "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+        "work/orchestration/startup-burst-integration/run-gates.mjs": "1ba13a9e4e6d06b81f29f5b5555891b07d175d5c8f6114da5929f1c7701116d7"
+      },
+      "after": {
+        "app/level-start.ts": "271093f631144d14ce4438c8a0378241775e95375103339da4a73ef9b443599b",
+        "decomp/research/level-start-sequence.md": "aa45e0d76ff8739bc8306738df031d5351131167485e5e018f39a7208cbfe5ec",
+        "engineering/checks.json": "5fd703e14e111ade9e4b779afa8f00eebca03be5a3073f4bc29dd5342a75d846",
+        "scripts/check-native-level-start.py": "14f22a963449a8c966a0b821be2e53ca3cee63ce7a7216d6cc41245e23dadbcd",
+        "scripts/local-render/startup-burst-observer.mjs": "50cd6a7f8ff09b509ebe730859e3b9c46ca4a2a4eb3df0282d659922f022d7b1",
+        "scripts/local-render/startup-burst.mjs": "015ada809918bfc72baed8a9fa4a727d572da21d4fc25d55ca80a33a69ad320e",
+        "tests/fixtures/startup-burst-native.json": "21da672bfe5adb2dd03daac0b3b7ce51afe2c527f4b42d39499a30c6e292437f",
+        "tests/startup-burst-angles.test.mjs": "5b8a2786c486a3c724de6536ccbc848e0d2e401a5565d68c4c432fc00b6adc48",
+        "tests/startup-burst-observer.test.mjs": "1bfae3687146cf9149dd978cb7ca09162a8ca5c4452dbf74cfa2c2292d6524b5",
+        "package.json": "ed034f89cc44d7f3abb55abdc64004290b67c3f995f0dced4d53d04bf728ce9f",
+        "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+        "eslint.config.mjs": "9578a25ed5bb7d9d6cd35f99459aa4b7987c9e32612ef1e020fa58826dc35543",
+        ".oxfmtrc.json": "3d994b16c5ebbf15cb6a77529615f68696433af8e0384da5a1f8420b38db7479",
+        ".oxlintrc.json": "caa0057ea1cbbc87402c3942667be83c2298b3a167957cea7153d0d72444ccff",
+        ".fallowrc.json": "251e2edbe9a78fc017a6f9f5eaa588bbf0be3df380cacf80e0a51c2b35a2834a",
+        "tsconfig.json": "b91b0d5ff0f30cbfaa9f0bf4ca023a753d70f2ac32845d965186d098edc09fd3",
+        "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+        "work/orchestration/startup-burst-integration/run-gates.mjs": "af18e987d9ad3bee30281cbf88922bcb44f47fd95dde495c5c42cdde85a9476e"
+      }
+    },
+    "preparationReceipt": {
+      "before": {
+        "path": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/work/orchestration/startup-burst-final-gates-preparation-02/receipt.json",
+        "sha256": "09150df51ba0464691edcd7d325bc148b7cc062af51c484b6d466eae7e91b944",
+        "preservedStubIdentity": [
+          27,
+          1071510
+        ]
+      },
+      "after": {
+        "path": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/work/orchestration/startup-burst-final-gates-preparation-03/receipt.json",
+        "sha256": "e8889aaa40fd3d17ffef1b7b49da60b8957452d8da8ca808ad77caa97c2c2ef6",
+        "preservedStubIdentity": [
+          27,
+          1073721
+        ]
+      }
+    },
+    "hostOutput": {
+      "before": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/work/orchestration/startup-burst-final-gates-host-02",
+      "after": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/work/orchestration/startup-burst-final-gates-host-03"
+    },
+    "status": {
+      "before": "frozen final-gates02 after accepted post-finally propagation repair; awaiting one exact grant",
+      "after": "Source-only final-gates03 proposal; marker reconciliation/host and exact resource approval required"
+    },
+    "repairSourceReview": {
+      "before": {
+        "source": "2b7b19856b58913dbdff2b89beeea13782308f75",
+        "sha256": "23741439bd2d160e5e7196f8d4edf379148fe181b3d16a441d8a5068b54782d9"
+      },
+      "after": {
+        "source": "8592c0049b720f568630db42d1b9b602a000b0b4",
+        "sha256": "82af93c5b3bf26ade4c5c55bd677cbc1cadebde351a4b6df1821d9abbbf4905b"
+      }
+    },
+    "applicationCommit": {
+      "before": "2b7b19856b58913dbdff2b89beeea13782308f75",
+      "after": "8592c0049b720f568630db42d1b9b602a000b0b4"
+    },
+    "environment": {
+      "before": {
+        "PATH": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/usr/bin:/bin",
+        "LANG": "C.UTF-8",
+        "LC_ALL": "C.UTF-8",
+        "TZ": "UTC",
+        "CI": "1",
+        "NO_COLOR": "1",
+        "NODE_OPTIONS": "--max-old-space-size=1024",
+        "TMPDIR": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/work/local-render-temp/startup-burst-final-gates-02/tmp",
+        "TMP": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/work/local-render-temp/startup-burst-final-gates-02/tmp",
+        "TEMP": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/work/local-render-temp/startup-burst-final-gates-02/tmp",
+        "XDG_CACHE_HOME": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/work/local-render-temp/startup-burst-final-gates-02/cache",
+        "XDG_CONFIG_HOME": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/work/local-render-temp/startup-burst-final-gates-02/config",
+        "CLOUDFLARE_CF_FETCH_ENABLED": "false",
+        "WRANGLER_SEND_METRICS": "false",
+        "WRANGLER_WRITE_LOGS": "false"
+      },
+      "after": {
+        "PATH": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/usr/bin:/bin",
+        "LANG": "C.UTF-8",
+        "LC_ALL": "C.UTF-8",
+        "TZ": "UTC",
+        "CI": "1",
+        "NO_COLOR": "1",
+        "NODE_OPTIONS": "--max-old-space-size=1024",
+        "TMPDIR": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/work/local-render-temp/startup-burst-final-gates-03/tmp",
+        "TMP": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/work/local-render-temp/startup-burst-final-gates-03/tmp",
+        "TEMP": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/work/local-render-temp/startup-burst-final-gates-03/tmp",
+        "XDG_CACHE_HOME": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/work/local-render-temp/startup-burst-final-gates-03/cache",
+        "XDG_CONFIG_HOME": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/work/local-render-temp/startup-burst-final-gates-03/config",
+        "CLOUDFLARE_CF_FETCH_ENABLED": "false",
+        "WRANGLER_SEND_METRICS": "false",
+        "WRANGLER_WRITE_LOGS": "false",
+        "FALLOW_VERIFY_LOG": "1"
+      }
+    },
+    "sourceAnchor": {
+      "before": "2b7b19856b58913dbdff2b89beeea13782308f75",
+      "after": "8592c0049b720f568630db42d1b9b602a000b0b4"
+    },
+    "command": {
+      "before": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "--max-old-space-size=1024",
+        "scripts/orchestration/command-receipt.mjs",
+        "--output",
+        "work/orchestration/startup-burst-final-gates-host-02/command-receipt.json",
+        "--input",
+        "app/level-start.ts",
+        "--input",
+        "decomp/research/level-start-sequence.md",
+        "--input",
+        "engineering/checks.json",
+        "--input",
+        "scripts/check-native-level-start.py",
+        "--input",
+        "scripts/local-render/startup-burst-observer.mjs",
+        "--input",
+        "scripts/local-render/startup-burst.mjs",
+        "--input",
+        "tests/fixtures/startup-burst-native.json",
+        "--input",
+        "tests/startup-burst-angles.test.mjs",
+        "--input",
+        "tests/startup-burst-observer.test.mjs",
+        "--input",
+        "package.json",
+        "--input",
+        "package-lock.json",
+        "--input",
+        "eslint.config.mjs",
+        "--input",
+        ".oxfmtrc.json",
+        "--input",
+        ".oxlintrc.json",
+        "--input",
+        ".fallowrc.json",
+        "--input",
+        "tsconfig.json",
+        "--input",
+        "scripts/orchestration/command-receipt.mjs",
+        "--input",
+        "work/orchestration/startup-burst-integration/run-gates.mjs",
+        "--input",
+        "node_modules/.package-lock.json",
+        "--input",
+        "work/orchestration/startup-burst-integration/host-gates.py",
+        "--input",
+        "work/orchestration/startup-burst-integration/gate-packet.json",
+        "--",
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=10s",
+        "1540s",
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "--max-old-space-size=1024",
+        "work/orchestration/startup-burst-integration/run-gates.mjs"
+      ],
+      "after": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "--max-old-space-size=1024",
+        "scripts/orchestration/command-receipt.mjs",
+        "--output",
+        "work/orchestration/startup-burst-final-gates-host-03/command-receipt.json",
+        "--input",
+        "app/level-start.ts",
+        "--input",
+        "decomp/research/level-start-sequence.md",
+        "--input",
+        "engineering/checks.json",
+        "--input",
+        "scripts/check-native-level-start.py",
+        "--input",
+        "scripts/local-render/startup-burst-observer.mjs",
+        "--input",
+        "scripts/local-render/startup-burst.mjs",
+        "--input",
+        "tests/fixtures/startup-burst-native.json",
+        "--input",
+        "tests/startup-burst-angles.test.mjs",
+        "--input",
+        "tests/startup-burst-observer.test.mjs",
+        "--input",
+        "package.json",
+        "--input",
+        "package-lock.json",
+        "--input",
+        "eslint.config.mjs",
+        "--input",
+        ".oxfmtrc.json",
+        "--input",
+        ".oxlintrc.json",
+        "--input",
+        ".fallowrc.json",
+        "--input",
+        "tsconfig.json",
+        "--input",
+        "scripts/orchestration/command-receipt.mjs",
+        "--input",
+        "work/orchestration/startup-burst-integration/run-gates.mjs",
+        "--input",
+        "node_modules/.package-lock.json",
+        "--input",
+        "work/orchestration/startup-burst-integration/host-gates.py",
+        "--input",
+        "work/orchestration/startup-burst-integration/gate-packet.json",
+        "--",
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=10s",
+        "1540s",
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "--max-old-space-size=1024",
+        "work/orchestration/startup-burst-integration/run-gates.mjs"
+      ]
+    },
+    "temporary": {
+      "before": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/work/local-render-temp/startup-burst-final-gates-02",
+      "after": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/work/local-render-temp/startup-burst-final-gates-03"
+    }
+  },
+  "driverChange": "Only fresh03 output directory; all gates/bounds unchanged",
+  "sourceChange": "Only accepted package script alias and registry executable/args/input metadata; no application/test/browser/observer change",
+  "donorMutation": false,
+  "hostChange": "Exact marker isolation/restoration; generated object retained before validation, failures recorded and original restored in local finally; existing process/gate/cap logic unchanged"
+}

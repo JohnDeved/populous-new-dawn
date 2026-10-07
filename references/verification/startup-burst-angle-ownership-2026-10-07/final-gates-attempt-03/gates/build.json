@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "fffc2ea5-e8d3-4eaf-b99f-6ad7c692a433",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "8592c0049b720f568630db42d1b9b602a000b0b4",
+    "branch": "fix/startup-burst-pitch-yaw-20261007",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package.json": "ed034f89cc44d7f3abb55abdc64004290b67c3f995f0dced4d53d04bf728ce9f",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "work/orchestration/startup-burst-integration/run-gates.mjs": "af18e987d9ad3bee30281cbf88922bcb44f47fd95dde495c5c42cdde85a9476e",
+      "work/orchestration/startup-burst-integration/host-gates.py": "9ef03ce91798890c2b29b09e0d42f078ee926530737fb81567384c6b26f4fa12",
+      "work/orchestration/startup-burst-integration/gate-packet.json": "30b7aa6bec94892f35aa82710ab906623955dc199e48da01a4f56ada9d4bcb73"
+    }
+  },
+  "command": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=10s",
+    "300s",
+    "npm",
+    "run",
+    "build"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007",
+  "startedAt": "2026-10-07T02:19:04.016Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/work/orchestration/startup-burst-final-gates-03/build.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/work/orchestration/startup-burst-final-gates-03/build.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-07T02:19:30.268Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 build\n> WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext build\n\n\n  vinext build  (Vite 8.0.13)\n\n[1/5] analyze client references...\n\u001b[2K\rtransforming...✓ 272 modules transformed.\nrendering chunks...\n✓ built in 5.15s\n[2/5] analyze server references...\n\u001b[2K\rtransforming...✓ 389 modules transformed.\nrendering chunks...\n✓ built in 2.35s\n[3/5] build rsc environment...\n\u001b[2K\rtransforming...✓ 270 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 7.85s\n[4/5] build client environment...\n\u001b[2K\rtransforming...✓ 430 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 5.33s\n[5/5] build ssr environment...\n\u001b[2K\rtransforming...✓ 395 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 3.43s\n\u001b[0m\n  Route (app)\n  ─ ? /\n\n  ? Unknown\n\n  ? Some routes could not be classified. vinext currently uses static analysis\n    and cannot detect dynamic API usage (headers(), cookies(), etc.) at build time.\n    Automatic classification will be improved in a future release.\n\n  Build complete. Run `vinext start` to start the production server.\n\n",
+  "stderr": "\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - rsc:virtual-client-package (25%)\n  - vinext:og-inline-fetch-assets (15%)\n  - vinext:css-data-url (13%)\n  - vinext:middleware-server-only (10%)\n  - alias (10%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - rsc:load-environment-module (20%)\n  - vite-plugin-commonjs (15%)\n  - alias (14%)\n  - rsc:virtual-client-package (10%)\n  - vinext:middleware-server-only (10%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n[plugin builtin:vite-reporter] \n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - vinext:middleware-server-only (23%)\n  - vinext:css-data-url (18%)\n  - vinext:og-inline-fetch-assets (8%)\n  - rsc:virtual-client-package (8%)\n  - alias (5%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - vinext:css-data-url (15%)\n  - vinext:middleware-server-only (14%)\n  - alias (13%)\n  - vinext:og-inline-fetch-assets (10%)\n  - vinext:validate-middleware-exports (10%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n",
+  "stdoutSha256": "a4770f9f83195ae2a24ff8ce11a01b94b653baff29d445ed7ab86da1bb785482",
+  "stderrSha256": "41520ebf89b635de1109e4e793bc8d7ed671a8e085037c3efcfb2994ef5fe3b7",
+  "sourceAfter": {
+    "headOid": "8592c0049b720f568630db42d1b9b602a000b0b4",
+    "branch": "fix/startup-burst-pitch-yaw-20261007",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package.json": "ed034f89cc44d7f3abb55abdc64004290b67c3f995f0dced4d53d04bf728ce9f",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "work/orchestration/startup-burst-integration/run-gates.mjs": "af18e987d9ad3bee30281cbf88922bcb44f47fd95dde495c5c42cdde85a9476e",
+      "work/orchestration/startup-burst-integration/host-gates.py": "9ef03ce91798890c2b29b09e0d42f078ee926530737fb81567384c6b26f4fa12",
+      "work/orchestration/startup-burst-integration/gate-packet.json": "30b7aa6bec94892f35aa82710ab906623955dc199e48da01a4f56ada9d4bcb73"
+    }
+  }
+}

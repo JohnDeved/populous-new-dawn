@@ -1,0 +1,23 @@
+{
+  "verdict": "ACCEPT_OBSERVED_CACHE_BASELINE_AND_RESTORATION_PROPOSAL",
+  "evidenceCommit": "7d88f15c",
+  "diagnosisSha256": "e9ef5cfccc77c60cf3ecff6b0a1f1db3166b4493ec58cf91af7d2e151bb6d5d5",
+  "currentDependencyIdentity": [
+    27,
+    1978923
+  ],
+  "currentMarkerSha256": "e44f1fd02579d234c0ccfb38cf3c2db775b17db212a9639515210cf56d3bb454",
+  "verification": "Independently compared all21332 before/after entries: only the sentinel differs. Read current donor marker,binaries,package digests and64-byte signature files; hashes match retained evidence. Read installed schema3 path-bound cache writer and ordinary signature/digest verification path. No cryptographic verifier or Fallow binary was executed by reviewer.",
+  "historicalLimit": "Exact528-byte before marker is unavailable. Its fields/invalidation reason cannot be recovered. Gate02 dependencyTreeUnchanged=false remains failed.",
+  "nextLoan": "Preserve current exact bytes/mode; run unchanged wrapper with verification enabled and no skip flags; retain generated marker; restore original bytes/mode; require full inventory equality and fail on any other difference. Concrete host source still needs exact preflight.",
+  "focusedContextResult": {
+    "head": "8592c0049b720f568630db42d1b9b602a000b0b4",
+    "receiptSha256": "b80045abf5bcb4709f44b5916193da7ca8b7937e9209901f276e070f44baadf3",
+    "verdict": "ACCEPT_PASS",
+    "tests": 1,
+    "failures": 0,
+    "sourceUnchanged": true,
+    "limit": "Full standard gates remain separate."
+  },
+  "reviewerMutationOrExecution": "Read-only source/data/hash inspection; no donor mutation, package/browser/native execution or verification bypass."
+}

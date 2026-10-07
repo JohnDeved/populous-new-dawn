@@ -1,0 +1,37 @@
+[33m[PLUGIN_TIMINGS] [0mYour build spent significant time in plugins. Here is a breakdown:
+  - rsc:virtual-client-package (25%)
+  - vinext:og-inline-fetch-assets (15%)
+  - vinext:css-data-url (13%)
+  - vinext:middleware-server-only (10%)
+  - alias (10%)
+See https://rolldown.rs/options/checks#plugintimings for more details.
+
+[33m[PLUGIN_TIMINGS] [0mYour build spent significant time in plugins. Here is a breakdown:
+  - rsc:load-environment-module (20%)
+  - vite-plugin-commonjs (15%)
+  - alias (14%)
+  - rsc:virtual-client-package (10%)
+  - vinext:middleware-server-only (10%)
+See https://rolldown.rs/options/checks#plugintimings for more details.
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+[33m[PLUGIN_TIMINGS] [0mYour build spent significant time in plugins. Here is a breakdown:
+  - vinext:middleware-server-only (23%)
+  - vinext:css-data-url (18%)
+  - vinext:og-inline-fetch-assets (8%)
+  - rsc:virtual-client-package (8%)
+  - alias (5%)
+See https://rolldown.rs/options/checks#plugintimings for more details.
+
+[33m[PLUGIN_TIMINGS] [0mYour build spent significant time in plugins. Here is a breakdown:
+  - vinext:css-data-url (15%)
+  - vinext:middleware-server-only (14%)
+  - alias (13%)
+  - vinext:og-inline-fetch-assets (10%)
+  - vinext:validate-middleware-exports (10%)
+See https://rolldown.rs/options/checks#plugintimings for more details.
+

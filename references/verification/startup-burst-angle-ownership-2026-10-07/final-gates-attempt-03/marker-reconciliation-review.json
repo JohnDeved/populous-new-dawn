@@ -1,0 +1,41 @@
+{
+  "verdict": "ACCEPT_CACHE_ONLY_RECONCILIATION",
+  "reviewedAt": "2026-10-07T02:08:54.558562+00:00",
+  "inventoryOnlyChange": "@fallow-cli/linux-x64-gnu/.fallow-verified",
+  "beforeInventoryEntry": {
+    "mode": 33188,
+    "sha256": "a60c83b3077ec1bff199860f1b5fe26ea0930685df95bffed3590df74c3463b0",
+    "size": 528
+  },
+  "afterInventoryEntry": {
+    "mode": 33188,
+    "sha256": "e44f1fd02579d234c0ccfb38cf3c2db775b17db212a9639515210cf56d3bb454",
+    "size": 515
+  },
+  "currentMarkerSha256": "e44f1fd02579d234c0ccfb38cf3c2db775b17db212a9639515210cf56d3bb454",
+  "currentMarker": {
+    "schemaVersion": 3,
+    "verifiedAt": "2026-10-07T01:47:49.417Z",
+    "packageVersion": "3.23.0",
+    "packageName": "@fallow-cli/linux-x64-gnu",
+    "platformPkgDir": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/node_modules/@fallow-cli/linux-x64-gnu",
+    "binaries": {
+      "fallow": {
+        "mtimeMs": 1791258960851.346,
+        "sha256": "341ad292de33c682d01d417786c4258b4a04f52d2d848ffc4cdf4cd985da3e55"
+      },
+      "fallow-similar-code": {
+        "mtimeMs": 1791258961220.4094,
+        "sha256": "03e6bf5bc5dc47b230988905544b14d533178d6e57b588d99b7210f9e1227cd7"
+      }
+    }
+  },
+  "wrapperSources": {
+    "fallow/scripts/lazy-verify.js": "8a62239059441607ecc8c2cb90ccad552e1e88e8fe5a303d0f00a4b562069221",
+    "fallow/scripts/sentinel-path.js": "024664804008b70a5d9d3e1f07436854bd01f42c60f76f7d3d9842caa6d52ec8",
+    "fallow/scripts/verify-binary.js": "a815f1de53971f7e81c39bd072ffb5fc6c9afe49b0b25eda220489fb7d643f01"
+  },
+  "finding": "All dependency inventory entries except this documented lazy-verification sentinel are exactly equal. Current marker schema/package/binary hashes/mtimes match installed files. Wrapper binds install identity and verifies Ed25519/SHA256 when missing/stale before writing this metadata. No signature-skip flag is proposed.",
+  "historicalLimit": "The528-byte before-marker was hashed but not retained as bytes. Its exact fields and invalidation reason are not recovered; gate02 dependencyTreeUnchanged=false remains unchanged.",
+  "nextLoanContract": "Treat the observed515-byte marker as the new recorded baseline. Preserve its exact bytes/mode by reversible private rename before tool use, let the unmodified wrapper verify normally and write its own marker, retain the generated result separately, and restore the original byte-for-byte after owned processes are terminal. Verify full dependency inventory afterward. No marker fabrication or binary/signature changes."
+}

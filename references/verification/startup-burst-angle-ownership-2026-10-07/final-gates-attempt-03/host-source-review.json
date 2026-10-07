@@ -1,0 +1,30 @@
+{
+  "verdict": "ACCEPT_ONE_FINAL_GATE03_SEQUENCE",
+  "reviewedAt": "2026-10-07T02:13:57.318942+00:00",
+  "source": "8592c0049b720f568630db42d1b9b602a000b0b4",
+  "packetSha256": "30b7aa6bec94892f35aa82710ab906623955dc199e48da01a4f56ada9d4bcb73",
+  "hostSha256": "9ef03ce91798890c2b29b09e0d42f078ee926530737fb81567384c6b26f4fa12",
+  "driverSha256": "af18e987d9ad3bee30281cbf88922bcb44f47fd95dde495c5c42cdde85a9476e",
+  "focusedContextReceiptSha256": "b80045abf5bcb4709f44b5916193da7ca8b7937e9209901f276e070f44baadf3",
+  "finding": "Independent source/unchanged focused assertion pass binds the identical three-test npm alias, all14 checks/all6 evidence refs and24k budget. Exact current Fallow sentinel is preserved by rename before use; unmodified wrapper performs normal verification with logs; generated marker is retained/validated and original is restored in a local finally before inventory/return. Validation errors remain failed while restoration is attempted. All18 input hashes and fresh03 paths verified; no app/observer/render behavior change.",
+  "grant": {
+    "cpu": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "nodeHeapMiB": 1024,
+    "checkSeconds": 900,
+    "buildSeconds": 300,
+    "outerTermSeconds": 1540,
+    "killGraceSeconds": 10,
+    "hostFallbackSeconds": 1553,
+    "sequences": 1
+  },
+  "limits": [
+    "Gate01 lint failure and gate02 context/inventory failures remain unchanged.",
+    "528-byte historic sentinel contents were not retained; observed515-byte marker is the new baseline, not reconstructed history.",
+    "No budget increase, evidence/assertion drop, signature skip, browser/native repetition or timeout relaxation."
+  ]
+}

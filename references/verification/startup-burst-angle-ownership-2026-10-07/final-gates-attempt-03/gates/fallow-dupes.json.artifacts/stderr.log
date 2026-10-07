@@ -1,0 +1,6 @@
+fallow-verify outcome=ok cache=hit sentinel=/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/node_modules/@fallow-cli/linux-x64-gnu/.fallow-verified
+loaded config: /workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/.fallowrc.json
+note: skipped 244 files matching default duplicates ignores (use --explain-skipped for the list)
+note: module wiring excluded from clone detection (--no-ignore-imports to include it)
+
+✗ 13,252 lines (9.4%) duplicated across 265 files (0.45s)

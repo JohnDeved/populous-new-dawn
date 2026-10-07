@@ -1,0 +1,5 @@
+fallow-verify outcome=ok cache=hit sentinel=/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/node_modules/@fallow-cli/linux-x64-gnu/.fallow-verified
+loaded config: /workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/.fallowrc.json
+  799 entry points detected (533 manual entry, 266 plugin)
+
+✗ 8 files · 4 exports · 3 dev/optional dependencies · 39 unresolved imports · 1 unlisted dependency · 20 circular dependencies (0.42s)

@@ -1,0 +1,4 @@
+fallow-verify outcome=ok cache=miss sentinel=/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/node_modules/@fallow-cli/linux-x64-gnu/.fallow-verified
+loaded config: /workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/.fallowrc.json
+
+✗ 1983 above threshold · 19508 analyzed (3.49s)

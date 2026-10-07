@@ -1,0 +1,61 @@
+{
+  "results": [
+    {
+      "id": "format-scoped",
+      "status": "passed",
+      "exitCode": 0,
+      "advisory": false,
+      "classification": "passed"
+    },
+    {
+      "id": "eslint-scoped",
+      "status": "passed",
+      "exitCode": 0,
+      "advisory": false,
+      "classification": "passed"
+    },
+    {
+      "id": "oxlint-scoped",
+      "status": "passed",
+      "exitCode": 0,
+      "advisory": false,
+      "classification": "passed"
+    },
+    {
+      "id": "fallow-health",
+      "status": "passed",
+      "exitCode": 0,
+      "advisory": true,
+      "classification": "passed"
+    },
+    {
+      "id": "fallow-dupes",
+      "status": "passed",
+      "exitCode": 0,
+      "advisory": true,
+      "classification": "passed"
+    },
+    {
+      "id": "fallow-unused",
+      "status": "failed",
+      "exitCode": 1,
+      "advisory": true,
+      "classification": "advisory findings retained"
+    },
+    {
+      "id": "check",
+      "status": "passed",
+      "exitCode": 0,
+      "advisory": false,
+      "classification": "passed"
+    },
+    {
+      "id": "build",
+      "status": "passed",
+      "exitCode": 0,
+      "advisory": false,
+      "classification": "passed"
+    }
+  ],
+  "notRun": []
+}
