@@ -1,0 +1,592 @@
+{
+  "version": 1,
+  "base": "e3a7a06a4250457502288d5b4c4e4ad8f3b40b53",
+  "head": "8f50dda281ec6338bdb84e21473879f29a0282f9",
+  "changes": [
+    {
+      "path": "app/level-start-runtime.ts",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "2450145b24d5e0b0e278f157de38e83756443a92a88dee3e8fc2fef4492c4798",
+      "changeHash": "3e8d31c8fb3ad9eb9e73a5dc1f355e6d6440e372c73e0d0e6f85553618814d8f"
+    },
+    {
+      "path": "decomp/research/level-start-sequence.md",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "085f6cc4be1b4935d467bb1fe705e1c63b08fd35ee473c463fdaee20415aa244",
+      "changeHash": "7cd977715b24ce5eb1fda378dc20a5438e1865c6a37976fa56217ccb1287ddec"
+    },
+    {
+      "path": "package.json",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "2b18a30cb9b7edba84356d25030fc14ab44e75007d25c1db4164162d3233f0be",
+      "changeHash": "b68995059addc53c546d13b5af924ddcd066baa49dbfe06c32fa86ae1c746695"
+    },
+    {
+      "path": "scripts/local-render/startup-burst-observer.mjs",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "c1bcad473eefcb1f552ee6630183921a7a69052825c6e8707fff4a8e0d7a10ae",
+      "changeHash": "b0c3e6261245e96ed0880878d171be3501381e401fdbad7468be2fff52480e87"
+    },
+    {
+      "path": "scripts/local-render/startup-burst.mjs",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "df162f2455cae47a630f5f59b0afa4aba0ace9387364391a215371b90feba2bd",
+      "changeHash": "aff73fd1745216445649236e05af03fd479fd1eece75243ebf24288aa1cbe0b1"
+    },
+    {
+      "path": "tests/fixtures/startup-burst-height-authored.json",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "a1882793918442fc02a0a75fef096c48425d3ce5eab2f72723a15ac8adc8e418",
+      "changeHash": "9dc680432732570d26472abffd43bda89e9a47073040a24aba6323d032b92310"
+    },
+    {
+      "path": "tests/fixtures/startup-burst-height-native.json",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "ff00dce327343372721d5b3183f78e7b4740a3cab1568539ff1d3d08175d55f9",
+      "changeHash": "6179fbbecee6f999136ba9463f1522e43098f25984a80940e932e7969618cbef"
+    },
+    {
+      "path": "tests/startup-burst-height.test.mjs",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "a1b3af1bfabdd5926decbfa19c6be9c0ad45443fc8b6c4948cb6db5cba43c4d3",
+      "changeHash": "6475210caf579c02f848c0fac8024507768dee633e5addc91b5564ffbb9218f5"
+    },
+    {
+      "path": "tests/startup-burst-observer.test.mjs",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "061dbc9b9b306ec9a3ca89e09dcf7f87cf775ba533afa8bbae92eadaa079583f",
+      "changeHash": "f5716a09c3230194f29c1ed1d8fc37be14cdf35d3ce1dae938a1b5aebb42661c"
+    }
+  ],
+  "affectedSubsystems": [
+    "shaman-appearance"
+  ],
+  "unknownPaths": [
+    "decomp/research/level-start-sequence.md",
+    "scripts/local-render/startup-burst-observer.mjs",
+    "scripts/local-render/startup-burst.mjs",
+    "tests/fixtures/startup-burst-height-authored.json",
+    "tests/fixtures/startup-burst-height-native.json",
+    "tests/startup-burst-height.test.mjs",
+    "tests/startup-burst-observer.test.mjs"
+  ],
+  "checks": [
+    {
+      "id": "level-start-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-level-start.mjs"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/level-start-runtime.ts"
+      ],
+      "knownLimits": [
+        "UI restart/checkpoint acceptance also requires corresponding portable/store checks; native evidence is separate."
+      ],
+      "prerequisites": [
+        "Reserved Linux HeadlessShell browser/server slot",
+        "Playwright Chromium with verified local launch wrapper",
+        "Unique output directory"
+      ],
+      "sideEffects": [
+        "Writes screenshots and a commit-labelled JSON report to the requested output directory"
+      ],
+      "resources": [
+        "Serialized local Linux browser/server QA slot"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_URL, POPULOUS_LEVEL_START_OUTPUT"
+    },
+    {
+      "id": "level-start-native",
+      "kind": "native",
+      "command": [
+        "$POPULOUS_PYTHON",
+        "-B",
+        "scripts/check-native-level-start.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/level-start-runtime.ts"
+      ],
+      "knownLimits": [
+        "Supplied allocation, registration, notification and animation leaves; not full original game execution."
+      ],
+      "prerequisites": [
+        "Hash-matching supplied original EXE and adjacent mwsearch data",
+        "Explicit isolated native-execution authorization",
+        "Python with Unicorn and Capstone"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_PYTHON, POPULOUS_EXE"
+    },
+    {
+      "id": "level-start-portable",
+      "kind": "portable",
+      "command": [
+        "npm",
+        "run",
+        "test:level-start"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/level-start-runtime.ts"
+      ],
+      "knownLimits": [
+        "Browser pixels and native instruction comparisons run separately."
+      ],
+      "prerequisites": [
+        "Node.js with TypeScript stripping"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "level-start-static",
+      "kind": "static",
+      "command": [
+        "$POPULOUS_PYTHON",
+        "-B",
+        "scripts/check-static-level-start.py",
+        "--data-root",
+        "$POPULOUS_DATA_ROOT"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/level-start-runtime.ts"
+      ],
+      "knownLimits": [
+        "Not an original raster or browser comparison; append-preservation uses an optional captured baseline."
+      ],
+      "prerequisites": [
+        "Supplied hash-matching original game data",
+        "Python with Pillow"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_PYTHON, POPULOUS_DATA_ROOT"
+    },
+    {
+      "id": "orchestration-structural",
+      "kind": "metadata",
+      "command": [
+        "node",
+        "scripts/orchestration/cli.mjs",
+        "check"
+      ],
+      "reasons": [
+        "workflow path changed: package.json"
+      ],
+      "knownLimits": [
+        "Structural validation does not certify evidence semantics or enforce an OS sandbox."
+      ],
+      "prerequisites": [
+        "Node.js >=22.13.0",
+        "Git"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "orchestration-tests",
+      "kind": "metadata",
+      "command": [
+        "node",
+        "--test",
+        "tests/orchestration.test.mjs",
+        "tests/workflow-handoff.test.mjs",
+        "tests/workflow-policy.test.mjs"
+      ],
+      "reasons": [
+        "workflow path changed: package.json"
+      ],
+      "knownLimits": [
+        "Synthetic repositories validate mechanics; live assertions cover only the mapped performance boundaries named by this suite."
+      ],
+      "prerequisites": [
+        "Node.js >=22.13.0"
+      ],
+      "sideEffects": [
+        "May refresh ignored work/orchestration/index.json",
+        "Temporary directories only"
+      ],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "production-build",
+      "kind": "build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "reasons": [
+        "application source changed: app/level-start-runtime.ts",
+        "package scripts changed"
+      ],
+      "knownLimits": [
+        "A successful build does not establish browser behavior or native parity."
+      ],
+      "prerequisites": [
+        "Installed npm dependencies"
+      ],
+      "sideEffects": [
+        "Writes ignored dist/ and Wrangler logs"
+      ],
+      "resources": [
+        "Shared build directories; run serially"
+      ],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "reincarnation-wave-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/local-render/harness.mjs",
+        "--scenario",
+        "scripts/check-browser-reincarnation-wave.mjs",
+        "--mission",
+        "2",
+        "--browser",
+        "$POPULOUS_HEADLESS_SHELL",
+        "--output",
+        "$POPULOUS_ARTIFACT_DIR"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/level-start-runtime.ts"
+      ],
+      "knownLimits": [
+        "Command adapter is not pointer-picking proof.",
+        "Staged intruders are separate from natural gameplay acceptance.",
+        "Linux headless rendering cannot establish hardware performance."
+      ],
+      "prerequisites": [
+        "Owned local game server",
+        "Supported sandboxed Playwright browser"
+      ],
+      "sideEffects": [
+        "Writes source-bound captures/report to unique artifact directory"
+      ],
+      "resources": [
+        "Shared browser/server lane; serialize"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_ARTIFACT_DIR, POPULOUS_HEADLESS_SHELL"
+    },
+    {
+      "id": "reincarnation-wave-native",
+      "kind": "native",
+      "command": [
+        "$POPULOUS_PYTHON",
+        "-B",
+        "scripts/check-native-reincarnation-wave.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/level-start-runtime.ts"
+      ],
+      "knownLimits": [
+        "Supplied rendering, sound, removal and unrelated world leaves; spawn requests are supplied, not a successful native spawn.",
+        "Earlier corrupt-search receipts through94e88b4 are superseded."
+      ],
+      "prerequisites": [
+        "Hash-verified original EXE, levels/constant.dat and data/mwsearch.dat",
+        "Pinned Unicorn environment"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE, POPULOUS_PYTHON"
+    },
+    {
+      "id": "reincarnation-wave-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/reincarnation-wave.test.mjs",
+        "tests/level-start.test.mjs",
+        "tests/person-panic.test.mjs"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/level-start-runtime.ts"
+      ],
+      "knownLimits": [
+        "Supporting fixtures and source integration do not establish rendered acceptance."
+      ],
+      "prerequisites": [
+        "Node.js with TypeScript stripping"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "repository-check",
+      "kind": "portable",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "reasons": [
+        "application source changed: app/level-start-runtime.ts",
+        "unmapped path requires conservative general validation: decomp/research/level-start-sequence.md",
+        "unmapped path requires conservative general validation: scripts/local-render/startup-burst-observer.mjs",
+        "unmapped path requires conservative general validation: scripts/local-render/startup-burst.mjs",
+        "unmapped path requires conservative general validation: tests/fixtures/startup-burst-height-authored.json",
+        "unmapped path requires conservative general validation: tests/fixtures/startup-burst-height-native.json",
+        "unmapped path requires conservative general validation: tests/startup-burst-height.test.mjs",
+        "unmapped path requires conservative general validation: tests/startup-burst-observer.test.mjs",
+        "workflow integration changed: package.json"
+      ],
+      "knownLimits": [
+        "Does not run native executable, browser integration, or hardware performance checks."
+      ],
+      "prerequisites": [
+        "Installed npm dependencies"
+      ],
+      "sideEffects": [
+        "May update ignored tool caches"
+      ],
+      "resources": [
+        "Serialize with other full test runs"
+      ],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "shaman-appearance-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-shaman-appearance.mjs",
+        "--reference-report",
+        "$POPULOUS_SHAMAN_REFERENCE",
+        "--output-dir",
+        "$POPULOUS_SHAMAN_OUTPUT",
+        "--headed"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/level-start-runtime.ts"
+      ],
+      "knownLimits": [
+        "Requires an explicit browser/GPU slot; cannot run from a portable aggregate.",
+        "Controlled pose/death edge cases supplement ordinary mission startup; no144fps or performance-nonregression claim."
+      ],
+      "prerequisites": [
+        "Owned server at127.0.0.1:4318",
+        "Installed Playwright browser",
+        "Static reference report from the current atlas",
+        "A new unique ignored output directory",
+        "Explicit runtime resource grant"
+      ],
+      "sideEffects": [
+        "Creates an isolated browser profile and writes only the supplied new artifact directory"
+      ],
+      "resources": [
+        "Browser/GPU/server serialized by explicit CEO grant"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_URL, POPULOUS_SHAMAN_REFERENCE, POPULOUS_SHAMAN_OUTPUT"
+    },
+    {
+      "id": "shaman-appearance-native",
+      "kind": "native",
+      "command": [
+        "$POPULOUS_PYTHON",
+        "-B",
+        "scripts/check-native-shaman-appearance.py",
+        "$POPULOUS_EXE",
+        "--output",
+        "$POPULOUS_SHAMAN_NATIVE_OUTPUT"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/level-start-runtime.ts"
+      ],
+      "knownLimits": [
+        "Requires a separate native-execution grant; not included in browser/GPU approval.",
+        "Original world draw is separate static evidence; this does not execute the entire graphics loop."
+      ],
+      "prerequisites": [
+        "Documented native Python environment",
+        "Hash-verified supplied EXE/adjacent assets",
+        "Explicit native resource grant"
+      ],
+      "sideEffects": [
+        "Writes a new explicitly supplied evidence JSON; never records fixtures"
+      ],
+      "resources": [
+        "Native execution serialized by CEO"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_PYTHON, POPULOUS_EXE, POPULOUS_SHAMAN_NATIVE_OUTPUT"
+    },
+    {
+      "id": "shaman-appearance-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/shaman-appearance.test.mjs",
+        "tests/sprite-layers.test.mjs"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/level-start-runtime.ts"
+      ],
+      "knownLimits": [
+        "Portable checks do not certify rendered gameplay or complete native animation timing."
+      ],
+      "prerequisites": [
+        "Node.js >=22.13 with TypeScript stripping",
+        "Installed repository dependencies"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "shaman-assets-static",
+      "kind": "static",
+      "command": [
+        "$POPULOUS_PYTHON",
+        "-B",
+        "scripts/check-static-shaman-appearance.py",
+        "--data-root",
+        "$POPULOUS_DATA_ROOT"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/level-start-runtime.ts"
+      ],
+      "knownLimits": [
+        "Static original-byte comparison; no native executable or browser is run."
+      ],
+      "prerequisites": [
+        "Existing Python environment with Pillow",
+        "Supplied hash-matching original data root"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_PYTHON, POPULOUS_DATA_ROOT"
+    },
+    {
+      "id": "shaman-death-ground-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/local-render/harness.mjs",
+        "--scenario",
+        "scripts/check-browser-shaman-death-ground.mjs",
+        "--mission",
+        "1",
+        "--browser",
+        "$POPULOUS_HEADLESS_SHELL",
+        "--output",
+        "$POPULOUS_ARTIFACT_DIR",
+        "--timeout",
+        "480000"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/level-start-runtime.ts"
+      ],
+      "knownLimits": [
+        "Held RAF; full Scene.animate at24Hz/1x, not real time. Zero-time camera assist; no World injection. No native raster/hardware claim."
+      ],
+      "prerequisites": [
+        "Verified installed dependencies",
+        "Supported sandboxed browser"
+      ],
+      "sideEffects": [
+        "Writes source-bound screenshots/report in an owned artifact directory"
+      ],
+      "resources": [
+        "Shared browser/server lane; serialize"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_HEADLESS_SHELL, POPULOUS_ARTIFACT_DIR"
+    },
+    {
+      "id": "shaman-death-ground-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-shaman-death-ground.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/level-start-runtime.ts"
+      ],
+      "knownLimits": [
+        "Registration, support predicates, audio, bookkeeping and spawning are supplied leaves.",
+        "The current caller uses ordinary combat death and supplied post-death terrain; no shipped spell or native raster claim."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment and Node.js",
+        "Hash-verified executable, levels/constant.dat, data/mwsearch.dat, data/vstart-0.ani and data/vfra-0.ani"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs; coordinate CPU use"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "shaman-death-ground-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/shaman-death-ground.test.mjs",
+        "tests/shaman-death-cadence.test.mjs",
+        "tests/shaman-death-vfx.test.mjs",
+        "tests/controlled-scene-frames.test.mjs"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/level-start-runtime.ts"
+      ],
+      "knownLimits": [
+        "Death-terrain/drowning fixtures and fake-Scene bounds; actual rendering separate."
+      ],
+      "prerequisites": [
+        "Node.js with TypeScript stripping"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    }
+  ],
+  "executesChecks": false
+}
