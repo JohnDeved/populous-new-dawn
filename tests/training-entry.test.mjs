@@ -61,7 +61,7 @@ test('training admits five visible residents and places overflow on native rotat
     until(w, () => people.filter(u => u.inside === b.id).length === 5 && people.every(u => u.entry?.person.speed === 0))
     assert.equal(b.admission.inside, 5)
     assert.equal(w.stats.trained, 0, 'native development gate stops conversion')
-    assert.equal(w.buildingOrders.active, 8, 'training retains each active command')
+    assert.equal(w.buildingOrders.active, 1, 'one player click retains one shared training command')
     assert.equal(queue(w, b).length, 3)
     for (const u of people) {
       const p = unitAnimationSource(u)
@@ -84,7 +84,7 @@ test('queue cancellation retains successors and occupant departure reuses the fi
   w.selected = [leaving.id]; command(w, { x: 9, z: 30 })
   assert.deepEqual(queue(w, b), [before[0], before[2]])
   assert.equal(leaving.entry, undefined)
-  assert.equal(w.buildingOrders.active, 8) // Seven trainees and the new movement order.
+  assert.equal(w.buildingOrders.active, 2) // Shared training and the new movement order.
   assert.equal(leaving.native.commandStatus, 3)
   const original = b.admission.occupants.slice(), occupant = w.units.find(u => u.id === original[1])
   w.selected = [occupant.id]; command(w, { x: 8, z: 30 })
@@ -146,13 +146,13 @@ test('funded training replaces a complete batch, releases references and walks w
   assert.equal(w.stats.trained, 5)
   assert.ok(sources.every(id => !w.units.some(u => u.id === id)), 'conversion replaces identities')
   assert.deepEqual(queue(w, b), queued)
-  assert.equal(w.buildingOrders.active, 4, 'three trainees and one shared native exit order')
+  assert.equal(w.buildingOrders.active, 2, 'shared training and one shared native exit order')
   assert.equal(b.timer, 0)
   assert.ok(warriors.every(u => u.inside === null && u.path.length && !u.entry))
   assert.ok(w.effects.every(f => effectIds.includes(f.id) || f.kind !== 'birth' || Math.hypot(f.x - b.x, f.z - b.z) > 2), 'conversion must not invent a hut-birth flash')
   const positions = warriors.map(u => [u.x, u.z])
   until(w, () => warriors.every(u => u.path.length === 0))
-  assert.equal(w.buildingOrders.active, 3, 'arrival releases the shared exit order')
+  assert.equal(w.buildingOrders.active, 1, 'arrival releases the shared exit order')
   assert.ok(warriors.every((u, i) => Math.hypot(u.x - positions[i][0], u.z - positions[i][1]) > 1))
   until(w, () => queued.every(id => w.units.find(u => u.id === id)?.inside === b.id))
 })

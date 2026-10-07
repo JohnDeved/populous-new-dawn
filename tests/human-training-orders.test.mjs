@@ -4,6 +4,7 @@ import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mj
 import { addBuilding, addUnit, command, tick } from '../app/model.ts'
 import { createLivePerson, registerLivePerson } from '../app/live-people.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
+import { migrateCheckpoint } from '../app/game-store.ts'
 
 // Supplied unobstructed mechanics fixture; orders always enter through the
 // public player command. The ordinary Mission 3 route is a separate witness.
@@ -80,4 +81,155 @@ test('an exhausted ordinary training click has no deferred allocation retry', ()
   assert.ok(units.every(u => u.work === null && !u.entry))
   assert.equal(w.buildingOrders.records[799].references, 0)
   assert.equal(w.buildingOrders.active, 798)
+})
+
+test('ordinary training cancels all selected queues before eligibility and before allocating', () => {
+  const { w, b, units, people } = scenario('camp', 2)
+  // This supplied command-ineligible model owns the only releasable slot.
+  // The packet clears it even though it will not receive command 8.
+  const wildman = addUnit(w, 'wild', 'brave', { x: 10, z: 33 }),
+    p = (wildman.native = createLivePerson(w, wildman))
+  registerLivePerson(w, p)
+  for (let id = 1; id < 800; id++) w.buildingOrders.records[id].references = 1
+  w.buildingOrders.active = 799
+  Object.assign(w.buildingOrders.records[123], { model: 3, a: 1000, b: 1000 })
+  p.commands[0] = 123
+  p.commandStatus = 3
+  w.selected.push(wildman.id)
+  assert.equal(command(w, b), true)
+  assert.equal(assertShared(w, b, units, people), 123)
+  assert.equal(currentPersonOrder(w.buildingOrders, p), undefined)
+  assert.equal(wildman.entry, undefined)
+  assert.equal(wildman.work, null)
+  assert.equal(w.buildingOrders.active, 799)
+})
+
+test('full after selected cancellation reports failure and does not keep the old order', () => {
+  const { w, b, units, people } = scenario('camp', 1)
+  for (let id = 1; id < 800; id++) w.buildingOrders.records[id].references = 1
+  w.buildingOrders.active = 799
+  Object.assign(w.buildingOrders.records[123], { model: 3, references: 2 })
+  people[0].commands[0] = 123
+  people[0].commandStatus = 3
+  assert.equal(command(w, b), true)
+  assert.equal(w.buildingOrders.records[123].references, 1, 'the unselected owner retains its reference')
+  assert.equal(currentPersonOrder(w.buildingOrders, people[0]), undefined)
+  assert.equal(w.message, 'No command slots available.')
+  assert.equal(units[0].work, null)
+  assert.equal(units[0].entry, undefined)
+})
+
+test('training replaces registered fight, flight and blocked queues without restarting their motion', () => {
+  const { w, b, units, people } = scenario('camp', 3)
+  people[0].state = 25
+  units[0].fight = { motion: people[0], group: 0, started: w.turn, opponent: 0 }
+  people[1].state = 29
+  units[1].flight = people[1]
+  people[2].flags2 |= 0x100000
+  people[2].motionTimer = 123
+  people[2].motionMode = 3
+  // A stale native alias must not displace the registered fight/flight owner.
+  units[0].native = createLivePerson(w, units[0])
+  units[1].native = createLivePerson(w, units[1])
+  const motion = p => [p.state, p.substate, p.speed, p.x, p.y, p.h, p.object, p.frame],
+    before = people.map(motion)
+  assert.equal(command(w, b), true)
+  const id = people[0].commands[0]
+  assert.ok(id)
+  assert.ok(people.every(p => p.commands[0] === id))
+  assert.equal(w.buildingOrders.records[id].references, 3)
+  assert.deepEqual(people.map(motion), before)
+  assert.equal(people[2].motionTimer, 0, 'blocked people still receive the packet motion reset')
+  assert.equal(people[2].motionMode, 0)
+  assert.equal(units[0].fight.motion, people[0])
+  assert.equal(units[1].flight, people[1])
+  assert.equal(units[0].native, null)
+  assert.equal(units[1].native, null)
+  assert.ok(units.every(u => !u.entry && u.work === null))
+  assert.ok(people.every(p => w.objectCells.objects.get(p.id) === p))
+})
+
+test('ordinary training restarts selected state14 through the packet previous-state zero', () => {
+  const { w, b, units, people } = scenario('camp', 1)
+  people[0].state = 14
+  people[0].previousState = 17
+  command(w, b)
+  assertShared(w, b, units, people)
+  assert.equal(people[0].state, 10)
+  assert.equal(people[0].previousState, 0)
+  assert.equal(people[0].substate, 0, 'input starts the order without visiting its training controller')
+  assert.equal(b.admission, undefined, 'input does not perform admission')
+})
+
+function until(w, predicate, limit = 500) {
+  for (let i = 0; !predicate() && i < limit; i++) tick(w, 1 / 12)
+  assert.ok(predicate(), 'training lifecycle condition must be reached')
+}
+
+test('reissuing training retains approaching, waiting and resident owners without duplicating references', () => {
+  const { w, b, units, people } = scenario()
+  command(w, b)
+  const first = assertShared(w, b, units, people)
+  command(w, b)
+  const second = assertShared(w, b, units, people)
+  assert.equal(w.buildingOrders.records[first].references, 0)
+  assert.notEqual(second, first)
+  until(w, () => b.admission?.inside === 5 && people.every(p => !p.speed))
+  const occupants = b.admission.occupants.slice()
+  command(w, b)
+  assertShared(w, b, units, people)
+  assert.deepEqual(b.admission.occupants, occupants)
+  assert.equal(w.buildingOrders.active, 1)
+  for (let i = 0; i < 8; i++) tick(w, 1 / 12)
+  // The native command-8 controller completes a reissued order for someone
+  // already inside that same target; occupancy and waiting successors remain.
+  const waiting = units.filter(u => u.inside === null),
+    waitingPeople = waiting.map(u => people[units.indexOf(u)])
+  assertShared(w, b, waiting, waitingPeople)
+  assert.ok(units.filter(u => u.inside === b.id).every(u =>
+    u.native === people[units.indexOf(u)] && !currentPersonOrder(w.buildingOrders, u.native)
+  ))
+  assert.deepEqual(b.admission.occupants, occupants)
+})
+
+test('checkpoint preserves shared training aliases and cancellation releases only the selected member', () => {
+  for (const occupied of [false, true]) {
+    const { w, b, units, people } = scenario()
+    command(w, b)
+    const id = assertShared(w, b, units, people)
+    if (occupied) until(w, () => b.admission?.inside === 5 && people.every(p => !p.speed))
+    const restored = migrateCheckpoint(structuredClone(w))
+    for (const world of [w, restored]) {
+      const school = world.buildings.find(target => target.id === b.id),
+        group = world.units.filter(u => units.some(source => source.id === u.id)),
+        owners = group.map(u => u.entry.person)
+      assertShared(world, school, group, owners)
+      const leaving = group.find(u => u.inside === null)
+      world.selected = [leaving.id]
+      command(world, { x: 9, z: 30 })
+      assert.equal(world.buildingOrders.records[id].references, 7)
+      assert.equal(leaving.entry, undefined)
+      assert.equal(world.buildingOrders.active, 2)
+      for (let i = 0; i < 10; i++) tick(world, 1 / 12)
+    }
+    assert.deepEqual(restored.buildingOrders, w.buildingOrders)
+    assert.equal(restored.randomState, w.randomState)
+  }
+})
+
+test('death and target destruction release the shared ordinary training references exactly once', () => {
+  for (const occupied of [false, true]) {
+    const { w, b, units, people } = scenario()
+    command(w, b)
+    const id = assertShared(w, b, units, people)
+    if (occupied) until(w, () => b.admission?.inside === 5 && people.every(p => !p.speed))
+    units.find(u => u.inside === null).hp = 0
+    tick(w, 1 / 12)
+    assert.equal(w.buildingOrders.records[id].references, 7)
+    b.hp = 0
+    until(w, () => w.buildingOrders.records[id].references === 0)
+    assert.equal(w.buildingOrders.active, 0)
+    for (let i = 0; i < 8; i++) tick(w, 1 / 12)
+    assert.equal(w.buildingOrders.records[id].references, 0)
+  }
 })

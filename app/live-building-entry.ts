@@ -600,7 +600,10 @@ export function stepBuildingEntry(w: World, u: Unit, b?: Building) {
         p
       )
       initializeBuildingPerson(w, p)
-    } else cancelBuildingEntry(w, u)
+    } else {
+      cancelBuildingEntry(w, u)
+      u.native = p
+    }
     if (u.inside === null) u.work = null
   } else adoptLiveOrders(w, u, p)
 }

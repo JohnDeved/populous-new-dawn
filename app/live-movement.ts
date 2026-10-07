@@ -1,5 +1,5 @@
 import { buildingPose } from './building-shapes.ts'
-import { releaseTasks } from './world-tasks.ts'
+import { clearTaskBindings, releaseTasks } from './world-tasks.ts'
 import {
   buildingModel,
   browserPosition,
@@ -256,19 +256,62 @@ export function adoptLiveOrders(w: World, u: Unit, p: LivePerson) {
 
 // Player clicks append to the same eight-slot queues used by simulation.
 export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, replace: boolean) {
+  return issueLiveOrders(w, units, command, replace, false)
+}
+
+// Ordinary training input clears the entire selection before allocating once.
+// AI replacement and Ctrl queues retain their existing append semantics.
+export function replaceLiveTrainingOrders(w: World, units: Unit[], command: PersonOrder) {
+  return issueLiveOrders(w, units, command, false, true)
+}
+
+function issueLiveOrders(
+  w: World,
+  units: Unit[],
+  command: PersonOrder,
+  replace: boolean,
+  playerReplacement: boolean
+) {
   let count = 0
-  const bindings = units.map(unit => ({
-    unit,
-    person: personSource(unit),
-    retained: !!(unit.flight || unit.fight?.motion),
-  }))
-  const preachers = replace
-    ? bindings.flatMap(({ person: p }) => {
-        return p && [17, 31, 32].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0)
-          ? [p]
-          : []
-      })
-    : []
+  const bindings = units.map(unit => {
+    const sources = [
+        unit.flight,
+        unit.fight?.motion,
+        unit.entry?.person,
+        unit.builder?.person,
+        unit.native,
+      ],
+      registered = w.objectCells.objects.get(unit.id),
+      person = playerReplacement
+        ? sources.find(p => p && p === registered) ?? sources.find(Boolean)
+        : personSource(unit)
+    return {
+      unit,
+      person,
+      retained: playerReplacement
+        ? !!person && (person === unit.flight || person === unit.fight?.motion)
+        : !!(unit.flight || unit.fight?.motion),
+    }
+  })
+  const preachers =
+    replace || playerReplacement
+      ? bindings.flatMap(({ person: p }) => {
+          return p && [17, 31, 32].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0)
+            ? [p]
+            : []
+        })
+      : []
+  if (playerReplacement)
+    for (const binding of bindings) {
+      const { unit: u, retained } = binding,
+        p = (binding.person ??= createLivePerson(w, u))
+      // Queue cancellation precedes command eligibility and allocation.
+      clearPersonOrders(w.buildingOrders, p, orderEffects(w))
+      delete p.guardInputPending
+      if (retained || u.entry?.person === p) u.native = null
+      else u.native = p
+      if (![25, 29].includes(p.state) && !(p.flags2 & 0x100000)) clearTaskBindings(w, u)
+    }
   const accepted = appendPersonOrders(
     w.buildingOrders,
     command,
@@ -330,12 +373,12 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
     },
     replace
   )
-  for (const p of accepted ? preachers : [])
+  for (const p of accepted || playerReplacement ? preachers : [])
     if (![17, 31, 32].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0))
       releasePreacherVictims(w, p, p.commandAux || 3)
   for (const { unit: u, person, retained } of bindings) {
     const p = person!
-    if (!accepted && preachers.includes(p)) continue
+    if (!accepted && !playerReplacement && preachers.includes(p)) continue
     // 0x43b670 only replaces and attaches command 28; keep direct-target motion intact.
     if (command.model === 28) {
       if (!retained) adoptLiveOrders(w, u, p)
@@ -344,7 +387,8 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
     if (p.state === 25 || p.state === 29) continue
     // Native player input restarts the active order even when appending a later one.
     resetPersonMotion(p)
-    p.previousState = p.state === 14 ? 14 : 0
+    if (playerReplacement && p.flags2 & 0x100000) continue
+    p.previousState = !playerReplacement && p.state === 14 ? 14 : 0
     p.state = defaultPersonState(p, w.manaWorld.gameFlags)
     if (u.entry) initializeBuildingPerson(w, p)
     else changeLivePersonState(w, u, undefined, p)
