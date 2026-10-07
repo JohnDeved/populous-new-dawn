@@ -472,3 +472,34 @@ episodes,180-second approach,12000rows/3600visits and840/870+20-second bounds re
 The latest independently verified committed Save digest is retained before later
 screenshot/UI work; final storage must match it, or genuine3234 if no Save was
 verified. Original acquisition and failed-prefix history remain explicit.
+
+
+### Genuine saved32 tail
+
+Continuation03 at `88920b26` remains FAILED after the completed cancellation:
+qualified callback32 at4722, verified Save4743, natural release4829, exact ordinary
+Load4743 and synchronous input4806 all completed. The later native-owner handoff
+at4812 failed the continuing capture-only owner guard. No post-input paused image
+was reached. The original watch-restoration detail was overwritten in the final
+report by the loaded observer; only the passed pre-Save assertion proves that
+historical restoration. It is not reconstructed.
+
+The explicit candidate `saved-response` phase consumes that genuine retained4743
+checkpoint and the exact failed-run receipt/response hashes in
+`saved-response-inputs.json`. It performs only the existing Load→immediate Pause,
+paused controls, fixed camera/ground preparation and one ordinary cancellation.
+No acquisition, defender, crossing, scanner watch, new Save or storage recreation
+runs. Existing acquisition controls have one explicit paused-loaded binding option;
+the ordinary acquisition path is unchanged.
+
+Input snapshots carry the actual passive-row boundary. The unchanged exact
+prepared32/complete interval/40→reference0/listener-empty/new3 assertions must pass
+before the interruption interval is closed. All owner violations before that
+boundary, including render-only rows, remain fatal. Scene/world/clock errors remain
+globally fatal. Later rows and actor/controller changes remain diagnostic; the old
+native slot or move3 need not persist after completed input. Ordinary Pause then
+records a genuine later scene, truthfully labeled `after-loaded32-interruption`.
+Restoration reports are epoch-specific. Full saved4743 must remain committed.
+This tail proposes180-second harness and210-second INT plus20-second grace, with
+90-second Load and30-second interruption stages; source/resource review remains
+mandatory before launch.

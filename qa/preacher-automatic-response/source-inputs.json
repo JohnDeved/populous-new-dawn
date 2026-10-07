@@ -56,8 +56,9 @@
   "adaptedFiles": {
     "qa/preacher-gesture-candidate/acquire.mjs": {
       "baseSha256": "4fef9e4e3d3def13d7f685724b88a14253d7eeb63c888a0b11ef79643b6aa8ec",
-      "sha256": "175ed68921f4e94c6a598a7bb6fbddb0b9bf1fad3b6a73ca097959c58c01d487",
-      "reason": "Only add binding to a genuinely verified ordinary Load prefix; unchanged existing input helper bodies and original acquisition path. No actor/state injection or new training."
+      "sha256": "39d57728ea73e66cd7179b6476486a5d55735d7c0ab04d986236e1379cdd222e",
+      "reason": "Only add binding to a genuinely verified ordinary Load prefix; unchanged existing input helper bodies and original acquisition path. No actor/state injection or new training.",
+      "scope": "Existing acquisition behavior retained; optional verified paused-loaded controls binding skips resume, selection and home camera preparation for saved32 tail."
     }
   }
 }

@@ -181,3 +181,33 @@ test('only the outer observer owns the guard across two nested application write
   assert.equal(done.restored, true); assert.equal(done.callbacks, 1); assert.equal(done.writes, 3)
   assert.equal(done.errors.length, 2); assert.equal(person.flags3, 10)
 })
+
+test('interruption ownership ends at the validated observed-row boundary, retaining later handoff diagnostics', async () => {
+  const scenario = await import('./scenario.mjs')
+  assert.equal(typeof scenario.requireInterruptionEpoch, 'function')
+  const progress = { captureOnly: true, totalRows: 69,
+    captureViolations: [{ index: 68, turn: 4812, reason: 'Original on-foot living owner/scene/clock changed' }] }
+  const result = scenario.requireInterruptionEpoch(progress, { observedRows: 54, beforeTurn: 4806, afterTurn: 4806 })
+  assert.equal(result.postInputViolations.length, 1)
+  assert.throws(() => scenario.requireInterruptionEpoch({ ...progress, captureViolations: [{ ...progress.captureViolations[0], phase: 'render-after-updater', index: 53 }] }, { observedRows: 54 }))
+  for (const observedRows of [undefined, -1, 1.5, 70]) assert.throws(() => scenario.requireInterruptionEpoch(progress, { observedRows }))
+})
+
+test('capture-only rows retain later owner loss for endpoint-scoped validation instead of discarding them', () => {
+  const { after } = pair(), t = observer.createResponseTracker({ loaded: true, captureOnly: true })
+  const before = structuredClone(after); before.phase = 'beforeTurn'; before.turn--
+  const handoff = structuredClone(after); handoff.person = null; handoff.nativeOnly = false; handoff.sameActor = false; handoff.busy = true
+  t.observe(before); t.observe(handoff)
+  assert.equal(t.progress.status, 'capturing-interruption')
+  assert.equal(t.progress.captureViolations.length, 1); assert.equal(t.progress.captureViolations[0].index, 1)
+  assert.deepEqual(t.rows, [before, handoff])
+})
+
+test('capture-only scene, world and clock failures never become post-input owner diagnostics', () => {
+  for (const change of [v => { v.sameWorld = false }, v => { v.status = 'won' },
+    v => { v.speed = 2 }, v => { v.visibility = 'hidden' }]) {
+    const { after } = pair(); change(after)
+    const t = observer.createResponseTracker({ loaded: true, captureOnly: true })
+    t.observe(after); assert.equal(t.progress.status, 'failed')
+  }
+})

@@ -16,7 +16,7 @@ import { coherentCrossingBrave, crossingWitness } from './crossing-input.mjs'
 // gameplay, native execution or rendered evidence.
 function row(turn, phase = 'afterTurn', response = false) {
   const queued = { id: 10, identity: 2, model: 3, flags: 0, references: 1, object: 0, a: 20000, b: 20000 }
-  return { phase, turn, now: turn * 84, sameWorld: true, sameActor: true, nativeOnly: true,
+  return { phase, turn, observationIndex: 2, now: turn * 84, sameWorld: true, sameActor: true, nativeOnly: true,
     registeredOwner: true, actor: { id: 5, kind: 'preacher', team: 'blue', hp: 55, inside: null }, busy: false,
     admission: { work: null, target: null, tree: null, cargo: 0, harvest: false, delivery: false,
       vault: false, guard: false, attackReservation: false, starting: false, armageddon: false,

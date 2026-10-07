@@ -172,7 +172,7 @@ export function createResponseTracker({ baseline = false, loaded = false, captur
   const rows = [], events = [], progress = { status: loaded ? 'loaded' : 'awaiting-move', totalRows: 0,
     visits: 0, move: null, encounter: null, firstResponse: null, startup: null, listenerIds: [],
     released: null, rendered: [], oddNoListener: [], evenNoListener: [], episodes: [],
-    firstObservedResponse: null, qualifiedEpisode: null }
+    firstObservedResponse: null, qualifiedEpisode: null, captureOnly, captureViolations: [] }
   let before, previousTurn, originalQueue, responseId, responseIdentity, unqualified, scannerRow, scannerCount = 0
   const fail = reason => Object.assign(progress, { status: 'failed', reason })
   return { rows, events, progress, fail, observe(row) {
@@ -180,11 +180,16 @@ export function createResponseTracker({ baseline = false, loaded = false, captur
     rows.push(row)
     if (++progress.totalRows > maxRows) return fail('Compact row cap exceeded')
     const p = row.person
-    if (!p || !row.sameWorld || !row.sameActor || !row.registeredOwner || !row.nativeOnly ||
-      row.actor.hp <= 0 || row.actor.kind !== 'preacher' || row.actor.team !== 'blue' || row.actor.inside !== null ||
-      row.busy || p.class !== 1 || p.model !== 4 || p.tribe !== 0 || p.vehicle ||
-      row.status !== 'playing' || row.speed !== 1 || row.visibility !== 'visible')
+    if (!row.sameWorld || row.status !== 'playing' || row.speed !== 1 || row.visibility !== 'visible')
       return fail('Original on-foot living owner/scene/clock changed')
+    if (!p || !row.sameActor || !row.registeredOwner || !row.nativeOnly ||
+      row.actor.hp <= 0 || row.actor.kind !== 'preacher' || row.actor.team !== 'blue' || row.actor.inside !== null ||
+      row.busy || p.class !== 1 || p.model !== 4 || p.tribe !== 0 || p.vehicle) {
+      const reason = 'Original on-foot living owner/scene/clock changed'
+      if (!captureOnly) return fail(reason)
+      progress.captureViolations.push({ index: progress.totalRows - 1, turn: row.turn, phase: row.phase,
+        kind: 'actor-controller', reason })
+    }
     if (!progress.move && !loaded && ['beforeTurn', 'afterTurn'].includes(row.phase) && row.order?.model === 3 && !p.immediateCommand) {
       progress.move = row; originalQueue = queue(row); progress.status = 'approaching'
     }
@@ -443,7 +448,7 @@ export async function installResponseObservation({ id, baseline = false, loaded 
       const { world: view } = combatWorld(w, p, range)
       genericThreat = detectCombatThreat(view, p, { a: ((p.x >>> 8) & 254) | (p.y & 0xfe00), b: 0 }, false, false)
     }
-    const row = { phase, now: performance.now(), turn: w.turn, time: w.time,
+    const row = { phase, observationIndex: tracker.progress.totalRows, now: performance.now(), turn: w.turn, time: w.time,
       animationFrame: scene.gameClock.animationFrame, animationTime: scene.gameClock.animationTime,
       pendingTime: w.pendingTime, rng: [w.randomState, w.cosmeticRandom.randomState],
       sameWorld: scene === window.testSceneRef.current && w === world && w === window.testStore.getWorld(),

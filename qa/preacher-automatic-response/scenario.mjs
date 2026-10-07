@@ -9,7 +9,7 @@ import { bindGame, readShamanReadiness } from '../../scripts/browser-game.mjs'
 import { waitForCheckpointReadback } from '../../scripts/checkpoint-readback.mjs'
 import { requireResponseCheckpoint, requireSameCheckpoint } from './checkpoint.mjs'
 import { clearForwardDefender } from './forward-defender.mjs'
-import loadDiagnostics from './load-diagnostics.mjs'
+import loadDiagnostics, { requireContinuation } from './load-diagnostics.mjs'
 import { chooseCrossing, confirmCrossing } from './crossing-input.mjs'
 import { createHash } from 'node:crypto'
 import { sourceCorrespondence } from '../erosion-ordinary/runtime.mjs'
@@ -97,6 +97,15 @@ export function requirePausedResponse(row, id, before) {
   return unit
 }
 
+export function requireInterruptionEpoch(progress, completed) {
+  assert.equal(progress.captureOnly, true)
+  assert.ok(Number.isInteger(completed.observedRows) && completed.observedRows >= 0 &&
+    completed.observedRows <= progress.totalRows, 'Actual inputAfter observation boundary required')
+  assert.deepEqual(progress.captureViolations.filter(v => v.index < completed.observedRows), [],
+    'Pre-input ownership/scene/clock violation remains fatal')
+  return { completed, postInputViolations: progress.captureViolations.filter(v => v.index >= completed.observedRows) }
+}
+
 export function requireInterruptedResponse(input, id, prepared) {
   const before = input.inputBefore.automaticResponse, after = input.inputAfter.automaticResponse
   assert.ok(before && after, 'Synchronous response snapshots are required')
@@ -132,7 +141,9 @@ export function requireInterruptedResponse(input, id, prepared) {
   const released = after.retiredOrders.find(q => q.id === before.order.id && q.identity === before.order.identity)
   assert.ok(released, 'Exact old32 record must be observed after the input handler')
   assert.equal(released.references, 0); assert.deepEqual(after.listeners, [])
-  return { scope: 'synchronous-existing-pointer-handler', beforeTurn: before.turn, afterTurn: after.turn,
+  assert.ok(Number.isInteger(after.observationIndex) && after.observationIndex >= 0)
+  assert.equal(before.observationIndex, after.observationIndex, 'No passive turn/render row inside the synchronous handler')
+  return { scope: 'synchronous-existing-pointer-handler', observedRows: after.observationIndex, beforeTurn: before.turn, afterTurn: after.turn,
     nativeIdentity: current.nativeIdentity, released, listeners: after.listeners, currentOrder: after.order }
 }
 
@@ -175,19 +186,20 @@ export function installInputResponseRead(prepared) {
 
 export default async function responseScenario(context) {
   if (process.env.PND_RESPONSE_PHASE === 'load-diagnostics') return loadDiagnostics(context)
+  const savedEntry = process.env.PND_RESPONSE_PHASE === 'saved-response'
   const loadedPrefix = process.env.PND_RESPONSE_PHASE === 'crossing' ? await loadDiagnostics(context) : null
   const { page, root, url, output, receipt, signal, observeCheckpoint } = context
   const baseline = process.env.PND_RESPONSE_SIDE === 'baseline', started = performance.now()
   assert.ok(['baseline', 'candidate'].includes(process.env.PND_RESPONSE_SIDE))
   if (loadedPrefix) assert.equal(loadedPrefix.side, baseline ? 'baseline' : 'candidate')
   const prospective = !!loadedPrefix && !baseline
-  assert.equal(receipt.profile?.mode, loadedPrefix ? 'reused' : 'created')
-  if (!loadedPrefix) assert.equal(receipt.profile.checkpointAtStart, null)
+  assert.equal(receipt.profile?.mode, loadedPrefix || savedEntry ? 'reused' : 'created')
+  if (!loadedPrefix && !savedEntry) assert.equal(receipt.profile.checkpointAtStart, null)
   const commands = resolve(output, 'commands'); if (!loadedPrefix) mkdirSync(commands)
-  const report = { side: process.env.PND_RESPONSE_SIDE, status: 'running', loadedPrefix, stages: [], failures: [], events: [], screenshots: [],
+  const report = { side: process.env.PND_RESPONSE_SIDE, savedEntry, status: 'running', loadedPrefix, stages: [], failures: [], events: [], screenshots: [],
     scope: 'Ordinary automatic32 reachability and owned queue lifecycle; original component proof and pixels are separate.',
     qualificationMode: prospective ? 'first qualifying automatic32; every earlier episode retained' : 'first automatic32' }
-  let acquisition, progress, saved, restored, originalFinished = false, activeStage, primaryFailure, stopped = false, epoch = 'original'
+  let acquisition, progress, saved, restored, savedPins, id, originalFinished = false, activeStage, primaryFailure, stopped = false, epoch = 'original'
   let latestVerifiedCheckpoint = receipt.profile.checkpointAtStart
   const persist = () => writeFileSync(resolve(output, 'response.json'), JSON.stringify({ ...report,
     source: receipt.source, elapsedMs: performance.now() - started, activeStage, progress, saved, restored }, null, 2) + '\n')
@@ -207,7 +219,9 @@ export default async function responseScenario(context) {
     if (!batch) return
     for (const row of batch.rows) appendFileSync(resolve(output, epoch + '-phases.jsonl'), JSON.stringify(row) + '\n')
     progress = batch.progress; report.events.push(...batch.events)
-    if (batch.scannerRestoration) report.scannerRestoration = batch.scannerRestoration
+    if (batch.scannerRestoration) {
+      report.scannerRestorations ??= {}; report.scannerRestorations[epoch] = batch.scannerRestoration
+    }
   }
   const drain = async () => {
     check(); const batch = await page.evaluate(() => window.preacherResponse.drain()); retain(batch); persist()
@@ -226,15 +240,18 @@ export default async function responseScenario(context) {
     if (observed) { assert.equal(after.turn, observed.turn); assert.equal(after.paused, true) }
     report.screenshots.push({ path: name + '.png', observed, after, label: 'Actual ordinary paused screenshot, not the earlier response instant' }); check()
   }
-  const finishObserver = async () => {
+  const finishObserver = async completed => {
     const result = await page.evaluate(() => ({ observer: window.preacherResponse?.finish(), tail: window.preacherResponse?.drain() }))
-    retain(result.tail); requireCleanup(result); originalFinished = true; persist()
+    retain(result.tail); requireCleanup(result); originalFinished = true
+    if (completed) report.interruptionInterval = requireInterruptionEpoch(progress, completed)
+    writeFileSync(resolve(output, epoch + '-observer-restoration.json'), JSON.stringify(result.observer, null, 2) + '\n'); persist()
     assert.notEqual(progress?.status, 'failed', progress?.reason); return result
   }
   const saveCheckpoint = async (name, require32) => {
     if (prospective && require32) {
       const scanner = await page.evaluate(() => window.preacherResponse.scannerStatus())
-      requireScannerRestoration(scanner); report.scannerRestoration = scanner; persist()
+      requireScannerRestoration(scanner); report.scannerRestorations ??= {}; report.scannerRestorations[epoch] = scanner
+      writeFileSync(resolve(output, epoch + '-scanner-restoration.json'), JSON.stringify(scanner, null, 2) + '\n'); persist()
     }
     await button('Game settings')
     const before = await page.evaluate(async id => {
@@ -259,13 +276,37 @@ export default async function responseScenario(context) {
     return { ...committed, before, provenance }
   }
   try {
+    if (savedEntry) {
+      savedPins = JSON.parse(readFileSync(resolve(root, 'qa/preacher-automatic-response/saved-response-inputs.json')))
+      requireContinuation(receipt.profile, savedPins)
+      const readPinned = entry => {
+        const bytes = readFileSync(resolve(root, entry.path))
+        assert.equal(createHash('sha256').update(bytes).digest('hex'), entry.sha256)
+        return JSON.parse(bytes)
+      }
+      const previous = readPinned(savedPins.response), priorReceipt = readPinned(savedPins.receipt)
+      assert.equal(priorReceipt.status, 'failed'); assert.equal(priorReceipt.profile.runId, savedPins.priorRunId)
+      saved = previous.saved; requireResponseCheckpoint(saved.response)
+      verifyCommittedSave(saved.before, saved, saved.provenance)
+      assert.deepEqual(savedPins.originalActors, previous.loadedPrefix.originalActors)
+      readPinned({ path: savedPins.originalAcquisition.receipt, sha256: savedPins.originalAcquisition.sha256 })
+      readPinned({ path: savedPins.originalAcquisition.firstAdmission, sha256: savedPins.originalAcquisition.firstAdmissionSha256 })
+      assert.deepEqual(saved.digest, savedPins.checkpoint)
+      assert.deepEqual(previous.latestVerifiedSave.checkpoint, savedPins.checkpoint)
+      assert.deepEqual(priorReceipt.profile.checkpointAtEnd, savedPins.checkpoint)
+      id = savedPins.originalActors.preacherId
+      assert.equal(saved.response.actor.id, id)
+      report.savedPrefix = { source: savedPins.previousSourceCommit, runId: savedPins.priorRunId,
+        status: priorReceipt.status, checkpoint: savedPins.checkpoint, originalAcquisition: savedPins.originalAcquisition }
+      persist()
+    } else {
     begin(loadedPrefix ? 'bind-genuinely-loaded-acquisition' : 'ordinary-acquisition-and-safe17', loadedPrefix ? 20000 : 360000)
     if (loadedPrefix) await button('Resume game')
     acquisition = await acquirePreacher({ ...context, signal: { throwIfAborted: check }, loadedAcquisition: loadedPrefix ? {
       ids: loadedPrefix.originalActors, originalAcquisition: loadedPrefix.originalAcquisition,
       boundaryActorId: loadedPrefix.boundary.response.actor.id,
       checkpointSha256: loadedPrefix.committedAfter.checkpoint.checkpointSha256 } : null })
-    const id = acquisition.preacherId
+    id = acquisition.preacherId
     if (!loadedPrefix) {
     const initial = await acquisition.dispatch.clickOrder(acquisition.safe)
     assert.equal(initial.inputAfter.units.find(u => u.id === id).order.model, 3)
@@ -327,8 +368,9 @@ export default async function responseScenario(context) {
     report.originalProgress = progress
     await finishObserver(); end({ releasedTurn: progress.released.after.turn })
 
+    }
     begin('fresh-page-Load-exact32-boundary', 90000)
-    await page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 })
+    if (!savedEntry) await page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 })
     await page.getByRole('dialog', { name: 'Start game', exact: true }).waitFor({ timeout: 30000 })
     const empty = await page.evaluate(() => ({ response: typeof window.preacherResponse, scene: typeof window.testSceneRef }))
     assert.deepEqual(empty, { response: 'undefined', scene: 'undefined' })
@@ -362,11 +404,17 @@ export default async function responseScenario(context) {
     assert.equal(readiness.shaman?.canOrder, true); assert.equal(readiness.shaman?.selectable, true)
     // ready is correctly false while paused; never relabel that observation.
     assert.equal(readiness.ready, false)
-    await page.evaluate(installNativeGuardObserver)
-    await page.evaluate(async () => {
-      window.nativeGuardProbes = await import('/qa/preacher-gesture-baseline/inherited/browser-probes.mjs')
-      window.nativeGuardCandidateGround = await import('/qa/preacher-gesture-candidate/ground-input.mjs')
-    })
+    if (!savedEntry) {
+      await page.evaluate(installNativeGuardObserver)
+      await page.evaluate(async () => {
+        window.nativeGuardProbes = await import('/qa/preacher-gesture-baseline/inherited/browser-probes.mjs')
+        window.nativeGuardCandidateGround = await import('/qa/preacher-gesture-candidate/ground-input.mjs')
+      })
+    }
+    if (savedEntry) acquisition = await acquirePreacher({ ...context, signal: { throwIfAborted: check },
+      loadedAcquisition: { ids: savedPins.originalActors, boundaryActorId: id,
+        checkpointSha256: savedPins.checkpoint.checkpointSha256, originalAcquisition: savedPins.originalAcquisition },
+      pausedLoaded: true })
     const firstBound = await acquisition.read(); requirePausedResponse(firstBound, id)
     restored = { boundary, identity, autoResumed, pausedLoad, firstBoundTurn: firstBound.turn, readiness, empty }
     end({ savedTurn: saved.response.turn, firstBoundTurn: firstBound.turn })
@@ -412,8 +460,8 @@ export default async function responseScenario(context) {
     // This later ordinary state may already contain automatic re-engagement.
     // It is retained separately and cannot overwrite the synchronous release.
     report.interruption.later = await page.evaluate(() => window.preacherResponse.read('after-input-host-return'))
-    await finishObserver()
-    await button('Pause game'); await shot('loaded32-interrupted-with-move3'); end({ accepted: true })
+    await finishObserver(report.interruption.released)
+    await button('Pause game'); await shot('after-loaded32-interruption'); end({ accepted: true })
     report.status = 'passed'; persist()
   } catch (error) {
     primaryFailure = error; report.failures.push(String(error?.stack ?? error))
@@ -431,9 +479,10 @@ export default async function responseScenario(context) {
         return { pointer, observer, tail, inputRead }
       }, originalFinished)
       retain(cleanup.tail); requireCleanup(cleanup)
-      if (loadedPrefix) {
+      if (loadedPrefix || savedEntry) {
         report.committedAfterCrossing = await observeCheckpoint(report.latestVerifiedSave ?
-          'After ordinary candidate - latest verified Save' : 'After ordinary crossing - no Save')
+          'After ordinary candidate - latest verified Save' : savedEntry ?
+            'After saved32 interruption - no Save' : 'After ordinary crossing - no Save')
         assert.deepEqual(report.committedAfterCrossing.checkpoint, latestVerifiedCheckpoint)
       }
       writeFileSync(resolve(output, 'observer-cleanup.json'), JSON.stringify(cleanup, null, 2) + '\n')

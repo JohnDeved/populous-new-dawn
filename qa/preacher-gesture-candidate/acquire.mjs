@@ -8,7 +8,8 @@ import { installNativeGuardObserver, setNativeGuardObservedHut } from '../preach
 
 export const SAFE_POINTS = Object.freeze([{ x: 35, z: 90 }])
 
-export async function acquirePreacher({ page, openMission, output, receipt, signal, loadedAcquisition = null }) {
+export async function acquirePreacher({ page, openMission, output, receipt, signal, loadedAcquisition = null, pausedLoaded = false }) {
+  assert.ok(!pausedLoaded || loadedAcquisition, 'Paused controls require a verified loaded acquisition')
   const started = performance.now(), acquisitionDeadline = started + 360000
   let latest, preacherId, shamanId, templeId, traineeId, acquisitionComplete = false
   let firstAdmission = null, trainingAdmission = false
@@ -85,7 +86,9 @@ export async function acquirePreacher({ page, openMission, output, receipt, sign
       window.nativeGuardProbes = await import('/qa/preacher-gesture-baseline/inherited/browser-probes.mjs')
       window.nativeGuardCandidateGround = await import('/qa/preacher-gesture-candidate/ground-input.mjs')
     })
-    await wait(loadedAcquisition ? 'Loaded Shaman selectable after normal resume' : 'Shaman selectable after public Mission3 opening', row => row.readiness.ready && !row.inputMask)
+    if (pausedLoaded) {
+      latest = await read(); assert.equal(latest.paused, true); assert.equal(latest.inputMask, 0)
+    } else await wait(loadedAcquisition ? 'Loaded Shaman selectable after normal resume' : 'Shaman selectable after public Mission3 opening', row => row.readiness.ready && !row.inputMask)
     assert.equal(latest.units.filter(u => u.kind === 'preacher').length, loadedAcquisition ? 1 : 0)
     const vault = latest.shrines.find(h => h.kind === 'vault'); assert.ok(vault)
     const ordinary = createOrdinaryInput({ page, read, log, signal, health, pollUI })
@@ -176,11 +179,13 @@ export async function acquirePreacher({ page, openMission, output, receipt, sign
       assert.equal(latest.units.some(u => u.id === traineeId), false)
       save('loaded-existing-acquisition')
     }
-    assert.deepEqual(await select('preacher'), [preacherId])
-    await ordinary.map(SAFE_POINTS[0])
     let safe
-    for (const point of SAFE_POINTS) { safe = await ground(point); if (safe) break }
-    assert.ok(safe, 'The accepted Blue-base point is unavailable')
+    if (!pausedLoaded) {
+      assert.deepEqual(await select('preacher'), [preacherId])
+      await ordinary.map(SAFE_POINTS[0])
+      for (const point of SAFE_POINTS) { safe = await ground(point); if (safe) break }
+      assert.ok(safe, 'The accepted Blue-base point is unavailable')
+    }
     return { preacherId, shamanId, templeId, traineeId, firstAdmission, milestones, safe,
       read, health, log, clear, select, ground, ordinary, dispatch, started,
       acquisitionDeadline, save,

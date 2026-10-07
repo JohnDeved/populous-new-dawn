@@ -11,20 +11,25 @@ import scenario from './scenario.mjs'
 const root = process.cwd(), here = resolve(root, 'qa/preacher-automatic-response')
 const options = parseOptions(process.argv.slice(2)), side = process.env.PND_RESPONSE_SIDE
 const phase = process.env.PND_RESPONSE_PHASE ?? 'fresh'
-assert.ok(['fresh', 'load-diagnostics', 'crossing'].includes(phase))
+assert.ok(['fresh', 'load-diagnostics', 'crossing', 'saved-response'].includes(phase))
 const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim()
 const sha = file => createHash('sha256').update(readFileSync(file)).digest('hex')
 const inputs = JSON.parse(readFileSync(resolve(here, 'source-inputs.json')))
 assert.ok(['baseline', 'candidate'].includes(side))
+if (phase === 'saved-response') assert.equal(side, 'candidate')
 assert.equal(resolve(options.gameRoot), root); assert.equal(options.port, inputs.ports[side])
 const continuation = phase !== 'fresh' ? JSON.parse(readFileSync(resolve(here,
-  side === 'candidate' ? 'candidate-continuation-inputs.json' : 'continuation-inputs.json'))) : null
+  phase === 'saved-response' ? 'saved-response-inputs.json' : side === 'candidate' ? 'candidate-continuation-inputs.json' : 'continuation-inputs.json'))) : null
 assert.equal(options.timeout, phase === 'crossing' ? continuation.crossingCaps.harnessMs : continuation ? continuation.caps.harnessMs : inputs.caps.harnessMs)
 assert.equal(resolve(options.profile), resolve(root, inputs.profiles[side]))
 assert.equal(resolve(options.scenario), resolve(here, 'scenario.mjs'))
 if (continuation) {
-  assert.ok(side === 'baseline' || side === 'candidate' && phase === 'crossing')
-  if (side === 'candidate') { assert.equal(continuation.side, side); assert.equal(continuation.crossingCaps.maxResponseEpisodes, 3) }
+  assert.ok(side === 'baseline' || side === 'candidate' && ['crossing', 'saved-response'].includes(phase))
+  if (side === 'candidate') {
+    assert.equal(continuation.side, side)
+    if (phase === 'crossing') assert.equal(continuation.crossingCaps.maxResponseEpisodes, 3)
+    else { assert.equal(phase, 'saved-response'); assert.equal(continuation.caps.maxInputMoves, 1) }
+  }
   assert.ok(options.profileCorrespondence, 'Exact reviewed source/checker correspondence required')
   assert.ok(existsSync(options.profile), 'Genuine retained task profile required')
 } else {
