@@ -1,0 +1,46 @@
+{
+  "verdict": "ACCEPT actual maintained Mission2 pass and source/cleanup correspondence",
+  "head": "fc77be8572768a81ce853a8277560c18503a62ad",
+  "unchangedRuntimeHead": "bddf3b3ccc55330bdd711b7e7c8ed3d41554608b",
+  "resultManifestSha256": "8f2e0598efdf7c0d7ae9151b200eb3b51cd6484edcf0cec4fd467451a8432914",
+  "rawManifestMembersVerified": 20,
+  "receiptSha256": "128a2396ee3c685efdbcd253c0972f772269c60370d128da9103714b2adf39d7",
+  "cleanupSha256": "10b53f9fa7a340e4ea45d0427d0a31d8ec19e2643f4ea5d5ebccdb32027d7f99",
+  "resultSha256": "546ffc249077fb109002bc4fcc0d5802414ff9287a8f079f31581ca6acd1f0ac",
+  "traceSha256": "937bfca70ae2de8f276831346caafc5b9bd832d1de72331d18022774ab843142",
+  "reviewMethod": "Read-only full raw trace/JSON/source/hash checks; no execution",
+  "verification": {
+    "sourceInputBindingsRehashed": 237,
+    "sourceBeforeEqualsAfter": true,
+    "exitCode": 0,
+    "pass": 1,
+    "turnCalls": 3330,
+    "traceRows": 3336,
+    "byteIdenticalFailedRunPrefixRows": 3211,
+    "prefixEndsAtTurn": 3206,
+    "maximumActiveTribe3Type20": 1,
+    "cpu": [
+      4
+    ],
+    "limitSeconds": [
+      120,
+      10
+    ],
+    "elapsedSeconds": 9.775599219996366,
+    "remainingOwnedGroupMembers": []
+  },
+  "findings": [
+    "Native-backed release is witnessed at3197\u21923198 with living registered actor10 state33/substate2/animationMode5. Movement order131/ref1 clears, original Unit/person identity and health survive, task remains phase6 and admission becomes[11].",
+    "First attack phase16 at3206 belongs to the same task and remaining original member11 on registered current144/model19/a24740/b2056/ref1. All3211 raw rows through this point are byte-identical to the earlier unchanged test failure.",
+    "Original defender command then resumes rather than waiting for the obsolete two-member attack condition. At3330 defender1247 and original admitted11 are actual combat opponents and bothHP47. Registered raider current19/ref1 remains, released10 is aliveHP50/resting, task phase16/fallback14/flags1/member[11].",
+    "The stronger maintained test passed all release, same-Unit/current-owner, no replacement/readmission/duplicate, authored target, later combat damage/opponent and final task assertions within unchanged2000/5000tick budgets.",
+    "The final combat endpoint includes a legitimate retained controller; the test validates fresh registered owners and does not perpetually pin an old person object."
+  ],
+  "limitations": [
+    "A fixed-step production scenario, not ordinary UI/rendered play.",
+    "Post-tick release rows include subsequent idle work; exact helper/native field equality remains the separately accepted component proof.",
+    "Native selection-bit history and exact later recipient/refcount parity remain uncomposed.",
+    "Earlier full-suite and strict failed receipts remain immutable; this is one maintained scenario pass, not the final integrated full check."
+  ],
+  "nextBoundary": "Normally adopt only accepted source/test/required fixture bytes onto current main, review exact correspondence, then parent coordinates standard gates. No redundant native rerun is required for unchanged proof/runtime source."
+}

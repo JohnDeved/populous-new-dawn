@@ -1,0 +1,107 @@
+{
+  "executionHead": "fc77be8572768a81ce853a8277560c18503a62ad",
+  "status": "reviewed stronger maintained test PASS; original unchanged failure preserved separately",
+  "rawKindQualification": "Observer kind describes unchanged fixed-step setup; the assertion contract changed in the independently reviewed test-only commits. See source/preflight.",
+  "files": [
+    {
+      "path": "case-source.txt",
+      "bytes": 7160,
+      "sha256": "9c2eae678be34711f09cc50c7eae95f911a18e3e04b529a0e661e4a1da195adb"
+    },
+    {
+      "path": "cases.json",
+      "bytes": 645,
+      "sha256": "8d0bffbc64f204cc5fb983c614e0a7417c6da6ae8273dd0cc9a592b48e825230"
+    },
+    {
+      "path": "cleanup.json",
+      "bytes": 1120,
+      "sha256": "10b53f9fa7a340e4ea45d0427d0a31d8ec19e2643f4ea5d5ebccdb32027d7f99"
+    },
+    {
+      "path": "closure-host.mjs",
+      "bytes": 1655,
+      "sha256": "b344d28d35f8f7f60eb5936c01d6a43ea5ed35ea19d21a7e590b06f4c1777860"
+    },
+    {
+      "path": "command.json",
+      "bytes": 11125,
+      "sha256": "c7e87514ca21c4eb4c9dc8b5e00732ca0d92bcdc9be5f260fe5d8fd4ff661dfc"
+    },
+    {
+      "path": "diagnostic.mjs",
+      "bytes": 73,
+      "sha256": "ab0717cab2dad76bfd6f0e7c424d18ddd6f630f0a82cfe762e5921674f4f3c42"
+    },
+    {
+      "path": "guardian.py",
+      "bytes": 3513,
+      "sha256": "2de1c6a10e850474fe7e038e1716476ae3cc2874694ce1463ace5cdec2947800"
+    },
+    {
+      "path": "host.stderr",
+      "bytes": 180,
+      "sha256": "d28cb3ee37a63dc98ee7143e1b6dd118ec4c8eaa6ae8ae566251efcfd14666ec"
+    },
+    {
+      "path": "host.stdout",
+      "bytes": 122,
+      "sha256": "2ed59b77cb8296481659344b0e9b49f275d5db5782d18b57913b5a1ad22f9642"
+    },
+    {
+      "path": "import-closure.json",
+      "bytes": 21916,
+      "sha256": "0598835a681a78c7da8cdd8e5f27ace7ac4afd129bc9c5899051bb30c10b076d"
+    },
+    {
+      "path": "mission2.mjs",
+      "bytes": 7884,
+      "sha256": "517d70fd0da55bd4e8d3eaca31146e0a74f1992ab2bfb8ae39b313e790e0a0a4"
+    },
+    {
+      "path": "observer.mjs",
+      "bytes": 4600,
+      "sha256": "0fd679185be6095398dd63a920595a254fde579225a474a62f1ec0a51e568992"
+    },
+    {
+      "path": "preflight.json",
+      "bytes": 33201,
+      "sha256": "64534f2b9209461653a32ecf2d776605a46eea1cd401a24109b232bcdd5da8b8"
+    },
+    {
+      "path": "receipt.json",
+      "bytes": 51003,
+      "sha256": "128a2396ee3c685efdbcd253c0972f772269c60370d128da9103714b2adf39d7"
+    },
+    {
+      "path": "receipt.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "receipt.json.artifacts/stdout.log",
+      "bytes": 118,
+      "sha256": "faf06e7b8daa6ec2973d46cb1d4825397fb9f89219e8af1487b4204420e1cbbd"
+    },
+    {
+      "path": "result.json",
+      "bytes": 398,
+      "sha256": "546ffc249077fb109002bc4fcc0d5802414ff9287a8f079f31581ca6acd1f0ac"
+    },
+    {
+      "path": "started.json",
+      "bytes": 945,
+      "sha256": "4929924cbf42971768904a417f8f2323abf924872bad61f484125ad9d76ccebf"
+    },
+    {
+      "path": "summary.json",
+      "bytes": 79836,
+      "sha256": "e555e55c4e4e1424e5595fdbe12b8ec01d041ebe0e7752a3d4491d4722802351"
+    },
+    {
+      "path": "trace.jsonl",
+      "bytes": 59887212,
+      "sha256": "937bfca70ae2de8f276831346caafc5b9bd832d1de72331d18022774ab843142"
+    }
+  ]
+}

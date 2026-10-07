@@ -1,0 +1,39 @@
+{
+  "verdict": "ACCEPT exact maintained-test source and one-run preflight; parent resource grant required",
+  "head": "fc77be8572768a81ce853a8277560c18503a62ad",
+  "baseRuntime": "bddf3b3ccc55330bdd711b7e7c8ed3d41554608b",
+  "appUnchanged": true,
+  "testSha256": "829d0a4f8655cd53067c792f875a4bd9ead80b117d055299f35cb4ec92ce2674",
+  "preflightSha256": "64534f2b9209461653a32ecf2d776605a46eea1cd401a24109b232bcdd5da8b8",
+  "commandSha256": "c7e87514ca21c4eb4c9dc8b5e00732ca0d92bcdc9be5f260fe5d8fd4ff661dfc",
+  "caseSha256": "9c2eae678be34711f09cc50c7eae95f911a18e3e04b529a0e661e4a1da195adb",
+  "method": "Source/Git/JSON/hash review only; no application/test/native/browser execution",
+  "contract": [
+    "All original scenario setup, public commands and later defender/opponent/damage/phase/fallback assertions remain. Original2000/5000tick budgets remain.",
+    "First recruit exactly two distinct original Braves; predeclare release candidate and remaining admitted member from that original cohort. Require same active task and no duplicate/replacement/readmission.",
+    "Witness actual living registered state33 owner and original +a8 animationMode predicate immediately before admission removal; retain same Unit/person identity and health, clear model3 queue/reference, motion reset, phase6 and target.",
+    "After release, every cohort observation requires the same living Unit/ID and resolves a fresh actual registry person belonging to a Unit controller slot. Later supported controller handoff is permitted; original person identity is strict only across the release boundary.",
+    "Ready requires the remaining original admitted member on actual registered current19, uncancelled, original target/a, b0x0808 and reference1. Subsequent combat input targets that actual original member; no arbitrary survivor substitution."
+  ],
+  "limits": [
+    "Post-tick observations include later idle work; exact release helper endpoint is still supplied by the accepted native/focused comparison.",
+    "Native004359b0 selection-bit history and exact one-recipient/reference1 original output are uncomposed; these later maintained assertions concern actual port behavior.",
+    "No turn numbers or injected world/person values are added. A pass must execute the later original combat assertions."
+  ],
+  "preflight": {
+    "sourceToolHashesVerified": 235,
+    "outerBeforeAfterBindings": 237,
+    "cleanHead": true,
+    "freshOutputs": true,
+    "observerAndGuardianByteIdenticalToPriorAcceptedReplay": true,
+    "cpu": [
+      4
+    ],
+    "termSeconds": 120,
+    "killGraceSeconds": 10,
+    "oneCaseOnly": true,
+    "noNativePackageBrowserDependencies": true
+  },
+  "unrunSuperseded": "a4aadcc9 and a604ad1a maintained packets remain unrun; original bddf strict failure remains immutable.",
+  "refinement": "a604ad1a interim source review b28c1b3f is superseded by this one-line removal of perpetual person-object identity. This avoids a stale-owner assertion while preserving living actor identity and current registry validation."
+}
