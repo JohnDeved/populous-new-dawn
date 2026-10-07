@@ -1,0 +1,1429 @@
+[
+  {
+    "mission": 1,
+    "sourceFile": "app/level-one.ts",
+    "sourceSha256": "e840e4ea8895ada4131c7d2da2ce70330307956ea7a6e647e55e76bf6026bd33",
+    "datSha256": "97cdb6e170f68b462b5b36c42c99a598b0466e0131a105f30612f50d7f16e40c",
+    "headerSha256": "4b89ef6d64e4010bb3ec3b5985d0edc8e710504e8b1bc75a6ae688bd6eb070a6",
+    "headerTribeCount": 2,
+    "landscapeBank": 12,
+    "objectBank": 0,
+    "headerFlags": 0,
+    "recordsInFile": 2000,
+    "nonzeroAuthoredRecords": 44,
+    "ownerFilter": "signed int8 owner < uint8 tribeCount; owner255 is -1",
+    "authoredIdentityOrderMatchesApp": true,
+    "people": [
+      {
+        "recordIndex0": 13,
+        "recordId1": 14,
+        "classId": 1,
+        "model": 2,
+        "owner": 0,
+        "successfulDirectOrdinal0": 0
+      },
+      {
+        "recordIndex0": 14,
+        "recordId1": 15,
+        "classId": 1,
+        "model": 2,
+        "owner": 0,
+        "successfulDirectOrdinal0": 1
+      },
+      {
+        "recordIndex0": 15,
+        "recordId1": 16,
+        "classId": 1,
+        "model": 2,
+        "owner": 0,
+        "successfulDirectOrdinal0": 2
+      },
+      {
+        "recordIndex0": 16,
+        "recordId1": 17,
+        "classId": 1,
+        "model": 2,
+        "owner": 0,
+        "successfulDirectOrdinal0": 3
+      },
+      {
+        "recordIndex0": 17,
+        "recordId1": 18,
+        "classId": 1,
+        "model": 2,
+        "owner": 0,
+        "successfulDirectOrdinal0": 4
+      },
+      {
+        "recordIndex0": 18,
+        "recordId1": 19,
+        "classId": 1,
+        "model": 2,
+        "owner": 0,
+        "successfulDirectOrdinal0": 5
+      },
+      {
+        "recordIndex0": 34,
+        "recordId1": 35,
+        "classId": 1,
+        "model": 7,
+        "owner": 0,
+        "successfulDirectOrdinal0": 6
+      },
+      {
+        "recordIndex0": 37,
+        "recordId1": 38,
+        "classId": 1,
+        "model": 7,
+        "owner": 1,
+        "successfulDirectOrdinal0": 7
+      },
+      {
+        "recordIndex0": 38,
+        "recordId1": 39,
+        "classId": 1,
+        "model": 3,
+        "owner": 1,
+        "successfulDirectOrdinal0": 8
+      },
+      {
+        "recordIndex0": 39,
+        "recordId1": 40,
+        "classId": 1,
+        "model": 3,
+        "owner": 1,
+        "successfulDirectOrdinal0": 9
+      },
+      {
+        "recordIndex0": 40,
+        "recordId1": 41,
+        "classId": 1,
+        "model": 2,
+        "owner": 1,
+        "successfulDirectOrdinal0": 10
+      },
+      {
+        "recordIndex0": 43,
+        "recordId1": 44,
+        "classId": 1,
+        "model": 2,
+        "owner": 1,
+        "successfulDirectOrdinal0": 11
+      }
+    ],
+    "heads": [
+      {
+        "recordIndex0": 1,
+        "recordId1": 2,
+        "classId": 6,
+        "model": 6,
+        "owner": 0,
+        "mode": 4,
+        "links": [
+          {
+            "recordIndex0": 2,
+            "recordId1": 3,
+            "classId": 6,
+            "model": 2,
+            "owner": 255
+          }
+        ],
+        "coLocatedScenery9": []
+      },
+      {
+        "recordIndex0": 28,
+        "recordId1": 29,
+        "classId": 6,
+        "model": 6,
+        "owner": 0,
+        "mode": 0,
+        "links": [
+          {
+            "recordIndex0": 29,
+            "recordId1": 30,
+            "classId": 6,
+            "model": 2,
+            "owner": 255
+          }
+        ],
+        "coLocatedScenery9": [
+          {
+            "recordIndex0": 33,
+            "recordId1": 34,
+            "classId": 5,
+            "model": 9,
+            "owner": 255
+          }
+        ]
+      },
+      {
+        "recordIndex0": 30,
+        "recordId1": 31,
+        "classId": 6,
+        "model": 6,
+        "owner": 0,
+        "mode": 0,
+        "links": [
+          {
+            "recordIndex0": 31,
+            "recordId1": 32,
+            "classId": 6,
+            "model": 2,
+            "owner": 255
+          }
+        ],
+        "coLocatedScenery9": [
+          {
+            "recordIndex0": 32,
+            "recordId1": 33,
+            "classId": 5,
+            "model": 9,
+            "owner": 255
+          }
+        ]
+      }
+    ],
+    "rewards": [
+      {
+        "recordIndex0": 2,
+        "recordId1": 3,
+        "classId": 6,
+        "model": 2,
+        "owner": 255,
+        "rewardClass": 2,
+        "rewardModel": 7,
+        "settingByte2": 1,
+        "nestedClass6Model10Attempt": true
+      },
+      {
+        "recordIndex0": 29,
+        "recordId1": 30,
+        "classId": 6,
+        "model": 2,
+        "owner": 255,
+        "rewardClass": 11,
+        "rewardModel": 3,
+        "settingByte2": 3,
+        "nestedClass6Model10Attempt": false
+      },
+      {
+        "recordIndex0": 31,
+        "recordId1": 32,
+        "classId": 6,
+        "model": 2,
+        "owner": 255,
+        "rewardClass": 11,
+        "rewardModel": 12,
+        "settingByte2": 3,
+        "nestedClass6Model10Attempt": false
+      }
+    ],
+    "classModelCounts": [
+      {
+        "classId": 1,
+        "model": 2,
+        "count": 8
+      },
+      {
+        "classId": 1,
+        "model": 3,
+        "count": 2
+      },
+      {
+        "classId": 1,
+        "model": 7,
+        "count": 2
+      },
+      {
+        "classId": 2,
+        "model": 1,
+        "count": 2
+      },
+      {
+        "classId": 2,
+        "model": 3,
+        "count": 1
+      },
+      {
+        "classId": 2,
+        "model": 7,
+        "count": 1
+      },
+      {
+        "classId": 2,
+        "model": 18,
+        "count": 1
+      },
+      {
+        "classId": 5,
+        "model": 1,
+        "count": 15
+      },
+      {
+        "classId": 5,
+        "model": 2,
+        "count": 2
+      },
+      {
+        "classId": 5,
+        "model": 3,
+        "count": 1
+      },
+      {
+        "classId": 5,
+        "model": 5,
+        "count": 1
+      },
+      {
+        "classId": 5,
+        "model": 9,
+        "count": 2
+      },
+      {
+        "classId": 6,
+        "model": 2,
+        "count": 3
+      },
+      {
+        "classId": 6,
+        "model": 6,
+        "count": 3
+      }
+    ],
+    "authoredBuildings": [
+      {
+        "recordIndex0": 0,
+        "recordId1": 1,
+        "classId": 2,
+        "model": 3,
+        "owner": 1
+      },
+      {
+        "recordIndex0": 35,
+        "recordId1": 36,
+        "classId": 2,
+        "model": 18,
+        "owner": 255
+      },
+      {
+        "recordIndex0": 36,
+        "recordId1": 37,
+        "classId": 2,
+        "model": 7,
+        "owner": 1
+      },
+      {
+        "recordIndex0": 41,
+        "recordId1": 42,
+        "classId": 2,
+        "model": 1,
+        "owner": 0
+      },
+      {
+        "recordIndex0": 42,
+        "recordId1": 43,
+        "classId": 2,
+        "model": 1,
+        "owner": 0
+      }
+    ],
+    "headPostprocessingOrder": [
+      31,
+      29,
+      2
+    ],
+    "loaderSkipped": [],
+    "explicitClass7Records": [],
+    "limits": "Static input/branch inventory; successfulDirectOrdinal0 is conditional, not a native return observation."
+  },
+  {
+    "mission": 2,
+    "sourceFile": "app/level-two.ts",
+    "sourceSha256": "c576f47683ab6e58682e78c221eed5f44e91717e2e27097be0f5b5ba9f97c111",
+    "datSha256": "83f5c446975398b163ef00526567f7a86b2666d26f9f026231ec0b36bf5a289f",
+    "headerSha256": "44be9f709f03f4b4d936d86056256e7bb98683088332b4bb47354ad709ea8a49",
+    "headerTribeCount": 4,
+    "landscapeBank": 28,
+    "objectBank": 0,
+    "headerFlags": 0,
+    "recordsInFile": 2000,
+    "nonzeroAuthoredRecords": 81,
+    "ownerFilter": "signed int8 owner < uint8 tribeCount; owner255 is -1",
+    "authoredIdentityOrderMatchesApp": true,
+    "people": [
+      {
+        "recordIndex0": 6,
+        "recordId1": 7,
+        "classId": 1,
+        "model": 2,
+        "owner": 3,
+        "successfulDirectOrdinal0": 0
+      },
+      {
+        "recordIndex0": 7,
+        "recordId1": 8,
+        "classId": 1,
+        "model": 2,
+        "owner": 3,
+        "successfulDirectOrdinal0": 1
+      },
+      {
+        "recordIndex0": 8,
+        "recordId1": 9,
+        "classId": 1,
+        "model": 3,
+        "owner": 3,
+        "successfulDirectOrdinal0": 2
+      },
+      {
+        "recordIndex0": 9,
+        "recordId1": 10,
+        "classId": 1,
+        "model": 3,
+        "owner": 3,
+        "successfulDirectOrdinal0": 3
+      },
+      {
+        "recordIndex0": 10,
+        "recordId1": 11,
+        "classId": 1,
+        "model": 2,
+        "owner": 3,
+        "successfulDirectOrdinal0": 4
+      },
+      {
+        "recordIndex0": 11,
+        "recordId1": 12,
+        "classId": 1,
+        "model": 2,
+        "owner": 3,
+        "successfulDirectOrdinal0": 5
+      },
+      {
+        "recordIndex0": 12,
+        "recordId1": 13,
+        "classId": 1,
+        "model": 2,
+        "owner": 3,
+        "successfulDirectOrdinal0": 6
+      },
+      {
+        "recordIndex0": 13,
+        "recordId1": 14,
+        "classId": 1,
+        "model": 2,
+        "owner": 3,
+        "successfulDirectOrdinal0": 7
+      },
+      {
+        "recordIndex0": 14,
+        "recordId1": 15,
+        "classId": 1,
+        "model": 2,
+        "owner": 3,
+        "successfulDirectOrdinal0": 8
+      },
+      {
+        "recordIndex0": 15,
+        "recordId1": 16,
+        "classId": 1,
+        "model": 3,
+        "owner": 3,
+        "successfulDirectOrdinal0": 9
+      },
+      {
+        "recordIndex0": 16,
+        "recordId1": 17,
+        "classId": 1,
+        "model": 3,
+        "owner": 3,
+        "successfulDirectOrdinal0": 10
+      },
+      {
+        "recordIndex0": 17,
+        "recordId1": 18,
+        "classId": 1,
+        "model": 2,
+        "owner": 3,
+        "successfulDirectOrdinal0": 11
+      },
+      {
+        "recordIndex0": 18,
+        "recordId1": 19,
+        "classId": 1,
+        "model": 2,
+        "owner": 3,
+        "successfulDirectOrdinal0": 12
+      },
+      {
+        "recordIndex0": 19,
+        "recordId1": 20,
+        "classId": 1,
+        "model": 2,
+        "owner": 3,
+        "successfulDirectOrdinal0": 13
+      },
+      {
+        "recordIndex0": 20,
+        "recordId1": 21,
+        "classId": 1,
+        "model": 2,
+        "owner": 3,
+        "successfulDirectOrdinal0": 14
+      },
+      {
+        "recordIndex0": 21,
+        "recordId1": 22,
+        "classId": 1,
+        "model": 3,
+        "owner": 3,
+        "successfulDirectOrdinal0": 15
+      },
+      {
+        "recordIndex0": 22,
+        "recordId1": 23,
+        "classId": 1,
+        "model": 7,
+        "owner": 3,
+        "successfulDirectOrdinal0": 16
+      },
+      {
+        "recordIndex0": 23,
+        "recordId1": 24,
+        "classId": 1,
+        "model": 3,
+        "owner": 3,
+        "successfulDirectOrdinal0": 17
+      },
+      {
+        "recordIndex0": 57,
+        "recordId1": 58,
+        "classId": 1,
+        "model": 7,
+        "owner": 0,
+        "successfulDirectOrdinal0": 18
+      },
+      {
+        "recordIndex0": 64,
+        "recordId1": 65,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 19
+      },
+      {
+        "recordIndex0": 65,
+        "recordId1": 66,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 20
+      },
+      {
+        "recordIndex0": 66,
+        "recordId1": 67,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 21
+      },
+      {
+        "recordIndex0": 67,
+        "recordId1": 68,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 22
+      },
+      {
+        "recordIndex0": 68,
+        "recordId1": 69,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 23
+      },
+      {
+        "recordIndex0": 69,
+        "recordId1": 70,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 24
+      },
+      {
+        "recordIndex0": 70,
+        "recordId1": 71,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 25
+      },
+      {
+        "recordIndex0": 71,
+        "recordId1": 72,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 26
+      }
+    ],
+    "heads": [
+      {
+        "recordIndex0": 25,
+        "recordId1": 26,
+        "classId": 6,
+        "model": 6,
+        "owner": 0,
+        "mode": 4,
+        "links": [
+          {
+            "recordIndex0": 26,
+            "recordId1": 27,
+            "classId": 6,
+            "model": 2,
+            "owner": 255
+          }
+        ],
+        "coLocatedScenery9": []
+      },
+      {
+        "recordIndex0": 59,
+        "recordId1": 60,
+        "classId": 6,
+        "model": 6,
+        "owner": 0,
+        "mode": 0,
+        "links": [
+          {
+            "recordIndex0": 60,
+            "recordId1": 61,
+            "classId": 7,
+            "model": 24,
+            "owner": 0
+          }
+        ],
+        "coLocatedScenery9": [
+          {
+            "recordIndex0": 58,
+            "recordId1": 59,
+            "classId": 5,
+            "model": 9,
+            "owner": 255
+          }
+        ]
+      },
+      {
+        "recordIndex0": 63,
+        "recordId1": 64,
+        "classId": 6,
+        "model": 6,
+        "owner": 0,
+        "mode": 0,
+        "links": [
+          {
+            "recordIndex0": 62,
+            "recordId1": 63,
+            "classId": 6,
+            "model": 2,
+            "owner": 255
+          }
+        ],
+        "coLocatedScenery9": [
+          {
+            "recordIndex0": 61,
+            "recordId1": 62,
+            "classId": 5,
+            "model": 9,
+            "owner": 255
+          }
+        ]
+      }
+    ],
+    "rewards": [
+      {
+        "recordIndex0": 26,
+        "recordId1": 27,
+        "classId": 6,
+        "model": 2,
+        "owner": 255,
+        "rewardClass": 11,
+        "rewardModel": 5,
+        "settingByte2": 1,
+        "nestedClass6Model10Attempt": true
+      },
+      {
+        "recordIndex0": 62,
+        "recordId1": 63,
+        "classId": 6,
+        "model": 2,
+        "owner": 255,
+        "rewardClass": 11,
+        "rewardModel": 4,
+        "settingByte2": 3,
+        "nestedClass6Model10Attempt": false
+      }
+    ],
+    "classModelCounts": [
+      {
+        "classId": 1,
+        "model": 1,
+        "count": 8
+      },
+      {
+        "classId": 1,
+        "model": 2,
+        "count": 11
+      },
+      {
+        "classId": 1,
+        "model": 3,
+        "count": 6
+      },
+      {
+        "classId": 1,
+        "model": 7,
+        "count": 2
+      },
+      {
+        "classId": 2,
+        "model": 3,
+        "count": 4
+      },
+      {
+        "classId": 2,
+        "model": 4,
+        "count": 1
+      },
+      {
+        "classId": 2,
+        "model": 7,
+        "count": 1
+      },
+      {
+        "classId": 2,
+        "model": 18,
+        "count": 1
+      },
+      {
+        "classId": 5,
+        "model": 1,
+        "count": 24
+      },
+      {
+        "classId": 5,
+        "model": 2,
+        "count": 5
+      },
+      {
+        "classId": 5,
+        "model": 3,
+        "count": 6
+      },
+      {
+        "classId": 5,
+        "model": 4,
+        "count": 1
+      },
+      {
+        "classId": 5,
+        "model": 9,
+        "count": 2
+      },
+      {
+        "classId": 6,
+        "model": 2,
+        "count": 2
+      },
+      {
+        "classId": 6,
+        "model": 6,
+        "count": 3
+      },
+      {
+        "classId": 6,
+        "model": 9,
+        "count": 3
+      },
+      {
+        "classId": 7,
+        "model": 24,
+        "count": 1
+      }
+    ],
+    "authoredBuildings": [
+      {
+        "recordIndex0": 0,
+        "recordId1": 1,
+        "classId": 2,
+        "model": 18,
+        "owner": 255
+      },
+      {
+        "recordIndex0": 1,
+        "recordId1": 2,
+        "classId": 2,
+        "model": 7,
+        "owner": 3
+      },
+      {
+        "recordIndex0": 3,
+        "recordId1": 4,
+        "classId": 2,
+        "model": 3,
+        "owner": 3
+      },
+      {
+        "recordIndex0": 5,
+        "recordId1": 6,
+        "classId": 2,
+        "model": 3,
+        "owner": 3
+      },
+      {
+        "recordIndex0": 24,
+        "recordId1": 25,
+        "classId": 2,
+        "model": 4,
+        "owner": 3
+      },
+      {
+        "recordIndex0": 79,
+        "recordId1": 80,
+        "classId": 2,
+        "model": 3,
+        "owner": 3
+      },
+      {
+        "recordIndex0": 80,
+        "recordId1": 81,
+        "classId": 2,
+        "model": 3,
+        "owner": 0
+      }
+    ],
+    "headPostprocessingOrder": [
+      64,
+      60,
+      26
+    ],
+    "loaderSkipped": [
+      {
+        "recordIndex0": 2,
+        "recordId1": 3,
+        "classId": 6,
+        "model": 9,
+        "owner": 3
+      },
+      {
+        "recordIndex0": 4,
+        "recordId1": 5,
+        "classId": 6,
+        "model": 9,
+        "owner": 3
+      },
+      {
+        "recordIndex0": 78,
+        "recordId1": 79,
+        "classId": 6,
+        "model": 9,
+        "owner": 3
+      }
+    ],
+    "explicitClass7Records": [
+      {
+        "recordIndex0": 60,
+        "recordId1": 61,
+        "classId": 7,
+        "model": 24,
+        "owner": 0
+      }
+    ],
+    "limits": "Static input/branch inventory; successfulDirectOrdinal0 is conditional, not a native return observation."
+  },
+  {
+    "mission": 3,
+    "sourceFile": "app/level-three.ts",
+    "sourceSha256": "7de51508c51d8193ee961de63a79016be4c58de284aefc3a707339b5e9b81e07",
+    "datSha256": "eb239eabebbcde37c1e1633b149d48977cedf432348a12fc5ee6b4be74c049bf",
+    "headerSha256": "219dd7611a4e3f6c2d4e78620a4d5bb9cf61bf0e9c66c21b2b43b89c8ba4d3f0",
+    "headerTribeCount": 3,
+    "landscapeBank": 25,
+    "objectBank": 6,
+    "headerFlags": 0,
+    "recordsInFile": 2000,
+    "nonzeroAuthoredRecords": 109,
+    "ownerFilter": "signed int8 owner < uint8 tribeCount; owner255 is -1",
+    "authoredIdentityOrderMatchesApp": true,
+    "people": [
+      {
+        "recordIndex0": 9,
+        "recordId1": 10,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 0
+      },
+      {
+        "recordIndex0": 10,
+        "recordId1": 11,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 1
+      },
+      {
+        "recordIndex0": 11,
+        "recordId1": 12,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 2
+      },
+      {
+        "recordIndex0": 12,
+        "recordId1": 13,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 3
+      },
+      {
+        "recordIndex0": 13,
+        "recordId1": 14,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 4
+      },
+      {
+        "recordIndex0": 14,
+        "recordId1": 15,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 5
+      },
+      {
+        "recordIndex0": 15,
+        "recordId1": 16,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 6
+      },
+      {
+        "recordIndex0": 16,
+        "recordId1": 17,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 7
+      },
+      {
+        "recordIndex0": 17,
+        "recordId1": 18,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 8
+      },
+      {
+        "recordIndex0": 18,
+        "recordId1": 19,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 9
+      },
+      {
+        "recordIndex0": 19,
+        "recordId1": 20,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 10
+      },
+      {
+        "recordIndex0": 20,
+        "recordId1": 21,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 11
+      },
+      {
+        "recordIndex0": 21,
+        "recordId1": 22,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 12
+      },
+      {
+        "recordIndex0": 22,
+        "recordId1": 23,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 13
+      },
+      {
+        "recordIndex0": 23,
+        "recordId1": 24,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 14
+      },
+      {
+        "recordIndex0": 24,
+        "recordId1": 25,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 15
+      },
+      {
+        "recordIndex0": 25,
+        "recordId1": 26,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 16
+      },
+      {
+        "recordIndex0": 29,
+        "recordId1": 30,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 17
+      },
+      {
+        "recordIndex0": 30,
+        "recordId1": 31,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 18
+      },
+      {
+        "recordIndex0": 31,
+        "recordId1": 32,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 19
+      },
+      {
+        "recordIndex0": 32,
+        "recordId1": 33,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 20
+      },
+      {
+        "recordIndex0": 33,
+        "recordId1": 34,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 21
+      },
+      {
+        "recordIndex0": 34,
+        "recordId1": 35,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 22
+      },
+      {
+        "recordIndex0": 35,
+        "recordId1": 36,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 23
+      },
+      {
+        "recordIndex0": 36,
+        "recordId1": 37,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 24
+      },
+      {
+        "recordIndex0": 37,
+        "recordId1": 38,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 25
+      },
+      {
+        "recordIndex0": 38,
+        "recordId1": 39,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 26
+      },
+      {
+        "recordIndex0": 39,
+        "recordId1": 40,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 27
+      },
+      {
+        "recordIndex0": 40,
+        "recordId1": 41,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 28
+      },
+      {
+        "recordIndex0": 41,
+        "recordId1": 42,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 29
+      },
+      {
+        "recordIndex0": 42,
+        "recordId1": 43,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 30
+      },
+      {
+        "recordIndex0": 43,
+        "recordId1": 44,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 31
+      },
+      {
+        "recordIndex0": 45,
+        "recordId1": 46,
+        "classId": 1,
+        "model": 7,
+        "owner": 0,
+        "successfulDirectOrdinal0": 32
+      },
+      {
+        "recordIndex0": 46,
+        "recordId1": 47,
+        "classId": 1,
+        "model": 7,
+        "owner": 2,
+        "successfulDirectOrdinal0": 33
+      },
+      {
+        "recordIndex0": 47,
+        "recordId1": 48,
+        "classId": 1,
+        "model": 2,
+        "owner": 2,
+        "successfulDirectOrdinal0": 34
+      },
+      {
+        "recordIndex0": 48,
+        "recordId1": 49,
+        "classId": 1,
+        "model": 2,
+        "owner": 2,
+        "successfulDirectOrdinal0": 35
+      },
+      {
+        "recordIndex0": 49,
+        "recordId1": 50,
+        "classId": 1,
+        "model": 2,
+        "owner": 2,
+        "successfulDirectOrdinal0": 36
+      },
+      {
+        "recordIndex0": 50,
+        "recordId1": 51,
+        "classId": 1,
+        "model": 2,
+        "owner": 2,
+        "successfulDirectOrdinal0": 37
+      },
+      {
+        "recordIndex0": 51,
+        "recordId1": 52,
+        "classId": 1,
+        "model": 2,
+        "owner": 2,
+        "successfulDirectOrdinal0": 38
+      },
+      {
+        "recordIndex0": 52,
+        "recordId1": 53,
+        "classId": 1,
+        "model": 2,
+        "owner": 2,
+        "successfulDirectOrdinal0": 39
+      },
+      {
+        "recordIndex0": 93,
+        "recordId1": 94,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 40
+      },
+      {
+        "recordIndex0": 94,
+        "recordId1": 95,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 41
+      },
+      {
+        "recordIndex0": 95,
+        "recordId1": 96,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 42
+      },
+      {
+        "recordIndex0": 96,
+        "recordId1": 97,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 43
+      },
+      {
+        "recordIndex0": 97,
+        "recordId1": 98,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 44
+      },
+      {
+        "recordIndex0": 98,
+        "recordId1": 99,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 45
+      },
+      {
+        "recordIndex0": 99,
+        "recordId1": 100,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 46
+      },
+      {
+        "recordIndex0": 100,
+        "recordId1": 101,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 47
+      },
+      {
+        "recordIndex0": 105,
+        "recordId1": 106,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 48
+      },
+      {
+        "recordIndex0": 106,
+        "recordId1": 107,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 49
+      },
+      {
+        "recordIndex0": 107,
+        "recordId1": 108,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 50
+      },
+      {
+        "recordIndex0": 108,
+        "recordId1": 109,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 51
+      }
+    ],
+    "heads": [
+      {
+        "recordIndex0": 91,
+        "recordId1": 92,
+        "classId": 6,
+        "model": 6,
+        "owner": 0,
+        "mode": 4,
+        "links": [
+          {
+            "recordIndex0": 92,
+            "recordId1": 93,
+            "classId": 6,
+            "model": 2,
+            "owner": 255
+          }
+        ],
+        "coLocatedScenery9": []
+      },
+      {
+        "recordIndex0": 101,
+        "recordId1": 102,
+        "classId": 6,
+        "model": 6,
+        "owner": 0,
+        "mode": 0,
+        "links": [
+          {
+            "recordIndex0": 103,
+            "recordId1": 104,
+            "classId": 7,
+            "model": 23,
+            "owner": 0
+          }
+        ],
+        "coLocatedScenery9": [
+          {
+            "recordIndex0": 102,
+            "recordId1": 103,
+            "classId": 5,
+            "model": 9,
+            "owner": 255
+          }
+        ]
+      }
+    ],
+    "rewards": [
+      {
+        "recordIndex0": 92,
+        "recordId1": 93,
+        "classId": 6,
+        "model": 2,
+        "owner": 255,
+        "rewardClass": 2,
+        "rewardModel": 5,
+        "settingByte2": 1,
+        "nestedClass6Model10Attempt": true
+      }
+    ],
+    "classModelCounts": [
+      {
+        "classId": 1,
+        "model": 1,
+        "count": 44
+      },
+      {
+        "classId": 1,
+        "model": 2,
+        "count": 6
+      },
+      {
+        "classId": 1,
+        "model": 7,
+        "count": 2
+      },
+      {
+        "classId": 2,
+        "model": 1,
+        "count": 1
+      },
+      {
+        "classId": 2,
+        "model": 18,
+        "count": 1
+      },
+      {
+        "classId": 5,
+        "model": 2,
+        "count": 3
+      },
+      {
+        "classId": 5,
+        "model": 3,
+        "count": 46
+      },
+      {
+        "classId": 5,
+        "model": 6,
+        "count": 1
+      },
+      {
+        "classId": 5,
+        "model": 9,
+        "count": 1
+      },
+      {
+        "classId": 6,
+        "model": 2,
+        "count": 1
+      },
+      {
+        "classId": 6,
+        "model": 6,
+        "count": 2
+      },
+      {
+        "classId": 7,
+        "model": 23,
+        "count": 1
+      }
+    ],
+    "authoredBuildings": [
+      {
+        "recordIndex0": 0,
+        "recordId1": 1,
+        "classId": 2,
+        "model": 1,
+        "owner": 0
+      },
+      {
+        "recordIndex0": 104,
+        "recordId1": 105,
+        "classId": 2,
+        "model": 18,
+        "owner": 255
+      }
+    ],
+    "headPostprocessingOrder": [
+      102,
+      92
+    ],
+    "loaderSkipped": [],
+    "explicitClass7Records": [
+      {
+        "recordIndex0": 103,
+        "recordId1": 104,
+        "classId": 7,
+        "model": 23,
+        "owner": 0
+      }
+    ],
+    "limits": "Static input/branch inventory; successfulDirectOrdinal0 is conditional, not a native return observation."
+  }
+]

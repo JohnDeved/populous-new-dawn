@@ -1,0 +1,77 @@
+{
+  "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "ranges": [
+    {
+      "label": "fresh-header-wrapper",
+      "start": "0042c790",
+      "endExclusive": "0042c8e7",
+      "sha256": "60256464f1922cc7659034e73c00d2ddeeba0129a78c10b61b4992ef52570142"
+    },
+    {
+      "label": "class-seed-reset",
+      "start": "0042bfe7",
+      "endExclusive": "0042bffe",
+      "sha256": "5d68e05ff17350f1cadda644b6042535d924cbb156fa829808592965c0598a18"
+    },
+    {
+      "label": "record-and-link-call-sites",
+      "start": "00484edc",
+      "endExclusive": "00485122",
+      "sha256": "2a439e606bdfd870a9a973abca311823dd2a1158c6f545efaa6631414a17a3de"
+    },
+    {
+      "label": "class-state-dispatch-call-sites",
+      "start": "004ed640",
+      "endExclusive": "004ed6c4",
+      "sha256": "6e3e2eda73f3071bdc699413e4f9a90d4d33050a3f24a26a24dd4b1b76ab9c17"
+    },
+    {
+      "label": "person-model-initializer",
+      "start": "004d23d0",
+      "endExclusive": "004d2717",
+      "sha256": "f8f1c7570028be8dd9d105671d652a9790afc709a429d9e5748156177395bec6"
+    },
+    {
+      "label": "common-person-initializer",
+      "start": "004d5920",
+      "endExclusive": "004d5b5c",
+      "sha256": "8d032712205c00c6fe31a9faf46e7d15d2209e5a195bd8384a942d24bdf121d4"
+    },
+    {
+      "label": "effect-state-initializer",
+      "start": "0050a740",
+      "endExclusive": "0050a741",
+      "sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e"
+    },
+    {
+      "label": "nested-building-facade-initializer",
+      "start": "004fc330",
+      "endExclusive": "004fc56b",
+      "sha256": "2730bc1dbd93880d16df25a50388ae91eb991a1d0bcf20271435e2111e78f663"
+    },
+    {
+      "label": "head-appearance-initializer",
+      "start": "004fbd20",
+      "endExclusive": "004fbf40",
+      "sha256": "c48f459fda1a82d75a7cf4bbf3561decf9d1b4bbfe9a1a14a8d2ec24a617e341"
+    },
+    {
+      "label": "head-animation-leaves",
+      "start": "0040cb90",
+      "endExclusive": "0040cc07",
+      "sha256": "c769b1cbd170721dbfcccc4dc13bfd95cf8281e0d564ff1fa3d3cb3426d874eb"
+    },
+    {
+      "label": "nested-reward-height-helper",
+      "start": "004fc790",
+      "endExclusive": "004fc849",
+      "sha256": "007aa96cf34e326767fa939540b6e3a05a27300f526e7eb0f65479ae0061fa68"
+    },
+    {
+      "label": "script-storage-reset",
+      "start": "0048c620",
+      "endExclusive": "0048c64a",
+      "sha256": "ed7dc217e07cc0dbde8802fd107cc1bc7da23bee300ad10b198b11678f726cd6"
+    }
+  ]
+}

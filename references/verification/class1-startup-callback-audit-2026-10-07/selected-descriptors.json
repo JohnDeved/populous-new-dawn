@@ -1,0 +1,76 @@
+{
+  "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "constantDatSha256": "e905e513c798171d5540082565b8addc9f54e5851006b56e8d1976687ba42f24",
+  "scenery": [
+    {
+      "model": 1,
+      "address": "005a79c8",
+      "bytes": "0200430390010200a00f0d00f0ff0cfea8010a067f810c02",
+      "life": 400,
+      "state": 1,
+      "flags1": 127,
+      "flags2": 129,
+      "flags3": 12
+    },
+    {
+      "model": 2,
+      "address": "005a79e0",
+      "bytes": "0200430390010200a00f0e00f0ff0cfea8010a067f810c02",
+      "life": 400,
+      "state": 1,
+      "flags1": 127,
+      "flags2": 129,
+      "flags3": 12
+    },
+    {
+      "model": 3,
+      "address": "005a79f8",
+      "bytes": "0200430390010200a00f0f00f0ff0cfea8010a067f810c02",
+      "life": 400,
+      "state": 1,
+      "flags1": 127,
+      "flags2": 129,
+      "flags3": 12
+    },
+    {
+      "model": 4,
+      "address": "005a7a10",
+      "bytes": "0200430390010200a00f1000f0ff0cfea8010a067f810c02",
+      "life": 400,
+      "state": 1,
+      "flags1": 127,
+      "flags2": 129,
+      "flags3": 12
+    },
+    {
+      "model": 5,
+      "address": "005a7a28",
+      "bytes": "0200430390010200a00f1100f0ff0cfea8010a067f810c02",
+      "life": 400,
+      "state": 1,
+      "flags1": 127,
+      "flags2": 129,
+      "flags3": 12
+    },
+    {
+      "model": 6,
+      "address": "005a7a40",
+      "bytes": "0200430390010200a00f1200f0ff0cfea8010a067f810c02",
+      "life": 400,
+      "state": 1,
+      "flags1": 127,
+      "flags2": 129,
+      "flags3": 12
+    },
+    {
+      "model": 9,
+      "address": "005a7a88",
+      "bytes": "020082030000000000002d00fdffa8fda80a0a060881b800",
+      "life": 0,
+      "state": 10,
+      "flags1": 8,
+      "flags2": 129,
+      "flags3": 184
+    }
+  ]
+}
