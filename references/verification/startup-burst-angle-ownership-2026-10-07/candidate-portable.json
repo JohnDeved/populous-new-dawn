@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "2fc6773a-f4e6-4d36-9092-77b063d086ce",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "76b86607fca8a54ee45840ce3c750a5c95eb164e",
+    "branch": "fix/startup-burst-angle-ownership-20261007",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/startup-burst-angles.test.mjs": "5b8a2786c486a3c724de6536ccbc848e0d2e401a5565d68c4c432fc00b6adc48",
+      "tests/fixtures/startup-burst-native.json": "21da672bfe5adb2dd03daac0b3b7ce51afe2c527f4b42d39499a30c6e292437f",
+      "tests/level-start.test.mjs": "02f5f08533807fff59fb847a711f2c6fc436de9f065f590438bbf23c7af71b4f",
+      "app/level-start.ts": "271093f631144d14ce4438c8a0378241775e95375103339da4a73ef9b443599b",
+      "app/level-start-runtime.ts": "cce900dc4e08ce890ac88060d7db41bb1cde578f80c2424317d4842d8884451b",
+      "app/spell-trails.ts": "884319866f64247e81d6ec2f5aeda1be57ea2c306b2c5f57d7b1e9562bd0fa67",
+      "app/effect-motion.ts": "09aed949e22799f0b34ea36a5a19e416fccf366ef0e4e2aceccbe3dc354f74b4",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2"
+    }
+  },
+  "command": [
+    "timeout",
+    "-s",
+    "TERM",
+    "-k",
+    "5s",
+    "30s",
+    "node",
+    "--test",
+    "--test-concurrency=1",
+    "tests/startup-burst-angles.test.mjs",
+    "tests/level-start.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/startup-burst-angle-fix-20261007",
+  "startedAt": "2026-10-07T00:33:07.648Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/startup-burst-angle-fix-20261007/work/orchestration/startup-burst-angle-candidate-01/portable.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/startup-burst-angle-fix-20261007/work/orchestration/startup-burst-angle-candidate-01/portable.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-07T00:33:22.235Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ ordinary Mission1–3 startup uses native terrain, authored gates and real conversion (1066.7377ms)\n✔ native opening excludes Shaman selection, without inventing a casting restriction (147.477821ms)\n✔ checkpoint restore resumes every opening stage without replaying terrain/conversion (4006.055563ms)\n✔ restart gets one fresh sequence; repeated flyby skip does not replay it (726.767214ms)\n✔ only carrier-created stones are obstacles, while legacy sites keep their reservations (118.126533ms)\n✔ opening wave, conversion and stone cues preload their existing original samples (35.110144ms)\n✔ permitted opening casts enter native state22 and resume command18 without a stuck controller (2470.724309ms)\n✔ fresh-load camera follows native cell-edge/center snapping and angle retention (0.49181ms)\n✔ the command18 completion turn owns exactly one native person visit (435.809741ms)\n✔ permitted state22 interruption and completion retain one counter increment per turn (877.701084ms)\n✔ replacement player orders cancel startup before its counter write (238.865466ms)\n✔ only the linked neutral startup conversion flash follows its replacement Brave (237.060699ms)\n✔ a missing converted Brave does not retarget its flash or shorten the native expiry (170.938694ms)\n✔ an invalidated command18 is consumed by the ordinary queue without completing the site (82.136618ms)\n✔ default burst draws match all 32 retained original birth records (3.351311ms)\n✔ burst initializer composes with SpellTrail through all 139 retained native visits (7.314789ms)\n✔ ordinary Mission 1–3 startup assigns each observed draw to the native angle owner (1145.204385ms)\nℹ tests 17\nℹ suites 0\nℹ pass 17\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 14444.543389\n",
+  "stderr": "",
+  "stdoutSha256": "d82007c0baa963f2356fa475e5a8171b1f7de26d2f4d6298d25037c8bee4b33d",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "76b86607fca8a54ee45840ce3c750a5c95eb164e",
+    "branch": "fix/startup-burst-angle-ownership-20261007",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/startup-burst-angles.test.mjs": "5b8a2786c486a3c724de6536ccbc848e0d2e401a5565d68c4c432fc00b6adc48",
+      "tests/fixtures/startup-burst-native.json": "21da672bfe5adb2dd03daac0b3b7ce51afe2c527f4b42d39499a30c6e292437f",
+      "tests/level-start.test.mjs": "02f5f08533807fff59fb847a711f2c6fc436de9f065f590438bbf23c7af71b4f",
+      "app/level-start.ts": "271093f631144d14ce4438c8a0378241775e95375103339da4a73ef9b443599b",
+      "app/level-start-runtime.ts": "cce900dc4e08ce890ac88060d7db41bb1cde578f80c2424317d4842d8884451b",
+      "app/spell-trails.ts": "884319866f64247e81d6ec2f5aeda1be57ea2c306b2c5f57d7b1e9562bd0fa67",
+      "app/effect-motion.ts": "09aed949e22799f0b34ea36a5a19e416fccf366ef0e4e2aceccbe3dc354f74b4",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2"
+    }
+  }
+}

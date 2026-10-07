@@ -1,0 +1,24 @@
+{
+  "base": "1c7e6b05687aca14d9350e17c7ae14dc6c68bb97",
+  "sourceAccepted": "7f54a508d957a4661c3e40dadb734aebb67f146e",
+  "testedCandidate": "76b86607fca8a54ee45840ce3c750a5c95eb164e",
+  "files": {
+    "source-evidence.json": "2498a9a3d71849dcb5a2ecfc6e4fd3586264202912b94caf5d500b2297e8fcd3",
+    "source-review-review.md": "4a0095dac464ae36d80b47f46de800915abffff73ef07754d50c59e8bb5c46e3",
+    "source-review-manifest.json": "269485778004593fbfe7ee894222fa3afdc20917a38326ae927991519146c781",
+    "source-review-verification.json": "115700ecb27ec8ef534f84510219b71afe952fa3b2e23dc4a4545904c211d862",
+    "failure-first-portable.json": "b05fa6d9bc8f45cbd8d515dcf5d298b8f196a86f7153f02d719e4bbb1bb9f116",
+    "candidate-portable.json": "adba9439ecb50231b57794107de1b83fa5f3acc1ad4de05c478d26daf5117bb1",
+    "extract-retained-records.py": "45efed441dbd5dc9470a71246e014fd190236a1db4783d0eb5b756ffc3814a15"
+  },
+  "status": {
+    "independentSourceReview": "passed",
+    "failureFirstPortable": "failed as expected:14 pass,3 angle failures",
+    "candidatePortable": "passed:17/17",
+    "newNativeInvocation": "not-run; accepted immutable native records reused",
+    "ordinaryBrowser": "not-run",
+    "standardGates": "not-run",
+    "finalIndependentReview": "not-run"
+  },
+  "limits": "Angle ownership only. Retained native trajectories compare declared native birth origins and ground256, not actual startup origin heights. Existing model9 root clamp ordering gap stays unchanged; no allocator/world/returning-person or raster equivalence claim."
+}

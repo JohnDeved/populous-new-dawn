@@ -109,4 +109,6 @@ The helper now preserves the three draws while assigning pitch second and yaw
 third, after independent source review and a retained failure-first actual-caller
 run. The distinct model9-root clamp-before-height-offset gap remains unchanged;
 this correction does not certify complete startup positions or trajectories.
-Candidate validation and final acceptance remain pending.
+The unchanged-test candidate passes all17 focused checks:32 raw births,139
+declared-origin native visits,1024 actual startup particles and14 existing
+startup regressions. Ordinary browser/full gates and final acceptance remain pending.

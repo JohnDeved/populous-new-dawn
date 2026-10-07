@@ -95,5 +95,9 @@ manifest and verification. On exact `7f54a508`, the CPU4 baseline ran
 all3 new regressions failed on the angle swap. The actual caller failed at Mission1
 turn37/effect766 (pitch999/yaw1683 instead of pitch1683/yaw999). The unchanged
 source/input fingerprints and raw output are retained in `failure-first-portable.json`.
-The code correction follows that accepted proof and red result. Candidate portable,
-browser, check/build and TypeScript quality validation remain pending.
+The code correction follows that accepted proof and red result. Exact candidate `76b86607` then passed all17 tests in14.6s on CPU4
+(00:33:07.648–00:33:22.235 UTC). The same eight input hashes remained unchanged;
+raw output is retained in `candidate-portable.json`. This checks all32 raw native
+births,139 declared-origin native visits,1024 actual Mission1–3 startup particles,
+and the14 existing startup regressions. Browser, check/build and TypeScript
+quality validation remain pending.
