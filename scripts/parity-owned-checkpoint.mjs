@@ -73,10 +73,19 @@ export function projectOrdinaryCheckpoint({ outer, inner, journey, sourceFiles, 
     assert(source.status === '' && source.trackedDiffSha256 === EMPTY && source.untracked?.length === 0, 'unclean tested source')
     assert(outer.source.trackedDiffSha256 === EMPTY, 'dirty outer source')
     assert(sha(outer.stdout) === outer.stdoutSha256 && sha(outer.stderr) === outer.stderrSha256, 'raw stream hash mismatch')
-    const printed = JSON.parse(outer.stdout.trim().split('\n').at(-1))
-    assert(printed.status === inner.status && isDeepStrictEqual(printed.source, inner.source) &&
-      isDeepStrictEqual(printed.result, inner.result), 'outer and owned receipts disagree')
-    assert(isDeepStrictEqual(inner.result, journey), 'journey sidecar substitution')
+    const failed = outer.status === 'failed' && inner.status === 'failed'
+    if (failed) {
+      // The real harness deletes result and throws on failure: no success JSON
+      // is printed. Bind its terminal failure to the retained stderr instead.
+      assert(Number.isInteger(outer.exitCode) && outer.exitCode !== 0 && !Object.hasOwn(inner, 'result'), 'inconsistent terminal failure')
+      assert(typeof inner.failure === 'string' && inner.failure.length && outer.stderr.includes(inner.failure), 'unbound terminal failure')
+    } else {
+      assert(outer.status === 'passed' && inner.status === 'passed' && outer.exitCode === 0, 'inconsistent harness outcome')
+      const printed = JSON.parse(outer.stdout.trim().split('\n').at(-1))
+      assert(printed.status === inner.status && isDeepStrictEqual(printed.source, inner.source) &&
+        isDeepStrictEqual(printed.result, inner.result), 'outer and owned receipts disagree')
+      assert(isDeepStrictEqual(inner.result, journey), 'journey sidecar substitution')
+    }
     for (const name of SOURCE_FILES) {
       assert(sourceFiles[name] && sourceFiles[name] === outer.source.inputs?.[name], `unbound checker input: ${name}`)
     }
@@ -87,18 +96,15 @@ export function projectOrdinaryCheckpoint({ outer, inner, journey, sourceFiles, 
     const browserPath = localPath(outer.cwd, options['--browser'])
     assert(/^[a-f0-9]{64}$/.test(outer.source.inputs?.[browserPath] ?? ''), 'missing browser binary identity')
     assert(typeof inner.browserVersion === 'string' && inner.browserVersion.length, 'missing browser version')
-    const missions = journey.missions?.filter(mission => mission.level === 2)
-    assert(missions?.length === 1, 'missing/duplicate Mission 2 evidence')
-    const mission = missions[0], checks = mission.checks?.filter(check => check.name === CHECK)
-    assert(checks?.length === 1, 'missing/duplicate checkpoint case')
-    const checkpoint = checks[0]
-    assert(['passed', 'failed'].includes(checkpoint.status), 'unfinished checkpoint case')
-    const failed = outer.status === 'failed' || inner.status === 'failed' || checkpoint.status === 'failed'
-    assert(outer.status !== 'invalidated', 'invalidated outer receipt')
     result.diagnosticStatus = failed ? 'failed' : 'passed'
     result.testedSource = { commit: source.commit, tree: source.tree }
     result.browserVersion = inner.browserVersion
     if (!failed) {
+      const missions = journey.missions?.filter(mission => mission.level === 2)
+      assert(missions?.length === 1, 'missing/duplicate Mission 2 evidence')
+      const mission = missions[0], checks = mission.checks?.filter(check => check.name === CHECK)
+      assert(checks?.length === 1 && checks[0].status === 'passed', 'missing, duplicate or nonpassing checkpoint case')
+      const checkpoint = checks[0]
       assert(outer.exitCode === 0 && inner.status === 'passed', 'nonpassing harness outcome')
       assert(inner.errors?.length === 0 && mission.errorsBefore === 0 && mission.errorsAfter === 0 && !mission.failure, 'browser errors or mission failure')
       const { saved, loaded, restored, resumed } = checkpoint.evidence ?? {}
@@ -115,8 +121,10 @@ export function projectOrdinaryCheckpoint({ outer, inner, journey, sourceFiles, 
     // Old observed passes are useful history, never a carry permission after edits.
     const fresh = currentClean && source.tree === currentTree
     result.status = fresh ? failed ? 'failed' : 'verified' : 'stale'
-    result.reason = fresh ? 'Owned-server ordinary Mission 2 checkpoint result on matching source tree' :
-      'Historical ordinary result; current source tree differs or is dirty'
+    result.reason = failed
+      ? 'Owned early-missions witness failed; no Mission 2 pass credited' + (fresh ? '' : '; tested source is historical')
+      : fresh ? 'Owned-server ordinary Mission 2 checkpoint result on matching source tree'
+        : 'Historical ordinary result; current source tree differs or is dirty'
   } catch (error) {
     result.status = 'unknown'
     result.reason = `Rejected ordinary checkpoint evidence: ${error.message}`
@@ -155,5 +163,6 @@ export function selectOrdinaryCheckpoint(results) {
     return { id: ORDINARY_M2, status: 'unknown', reason: 'Candidate receipt has no valid ordering time' }
   const priority = { unknown: 0, failed: 1, stale: 2, verified: 3 }
   return [...results].sort((a, b) => Date.parse(b.finishedAt) - Date.parse(a.finishedAt) ||
-    priority[a.status] - priority[b.status] || a.receipt.localeCompare(b.receipt))[0]
+    priority[a.status] - priority[b.status] ||
+    Number(b.diagnosticStatus === 'failed') - Number(a.diagnosticStatus === 'failed') || a.receipt.localeCompare(b.receipt))[0]
 }

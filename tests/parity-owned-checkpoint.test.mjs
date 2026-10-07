@@ -50,11 +50,18 @@ test('malformed, interrupted, source-drift, sidecar and seeded substitutions fai
 })
 
 test('failed and incomplete newer attempts cannot hide behind an old pass', () => {
-  const data = fixture(); data.outer.status = 'failed'; data.outer.exitCode = 1; data.inner.status = 'failed'; data.journey.missions[0].checks[0].status = 'failed'; sync(data)
+  const data = fixture(); data.outer.status = 'failed'; data.outer.exitCode = 1; data.inner.status = 'failed'; data.journey.missions[0].checks[0].status = 'failed'
+  data.inner.failure = 'Error: checkpoint observation failed'; delete data.inner.result
+  data.outer.stdout = ''; data.outer.stdoutSha256 = sha('')
+  data.outer.stderr = 'Error: ' + data.inner.failure + '\n'; data.outer.stderrSha256 = sha(data.outer.stderr)
   const failure = projectOrdinaryCheckpoint(data), pass = projectOrdinaryCheckpoint(fixture())
   assert.equal(failure.status, 'failed'); assert.equal(failure.diagnosticStatus, 'failed')
   const stale = projectOrdinaryCheckpoint({ ...data, currentTree: 'new' }); assert.equal(stale.status, 'stale'); assert.equal(stale.diagnosticStatus, 'failed')
   assert.equal(selectOrdinaryCheckpoint([pass, failure]).status, 'failed')
+  const oldPass = { ...projectOrdinaryCheckpoint({ ...fixture(), currentTree: 'new' }), receipt: 'a-pass.json' }
+  assert.equal(selectOrdinaryCheckpoint([oldPass, { ...stale, receipt: 'z-failure.json' }]).diagnosticStatus, 'failed')
+  data.outer.sourceAfter.headOid = 'drift'
+  assert.equal(projectOrdinaryCheckpoint(data).status, 'unknown')
   const interrupted = { ...pass, status: 'unknown', finishedAt: '2026-10-07T21:00:00Z' }
   assert.equal(selectOrdinaryCheckpoint([pass, interrupted]).status, 'unknown')
   assert.equal(selectOrdinaryCheckpoint([pass, { ...interrupted, finishedAt: undefined }]).status, 'unknown')
