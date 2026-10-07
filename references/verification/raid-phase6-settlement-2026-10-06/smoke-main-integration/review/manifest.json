@@ -1,0 +1,12 @@
+{
+  "files": [
+    {
+      "path": "review.md",
+      "sha256": "fe32cae83658e99326813a9f530ffb27775852952a1ae8149735c2a4d067d749"
+    },
+    {
+      "path": "verification.json",
+      "sha256": "4230adcd8ae12db85c14c4a1f6463eb98530aa91669ede9d34cdd29edb08eece"
+    }
+  ]
+}

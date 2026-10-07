@@ -1,0 +1,1616 @@
+{
+  "kind": "host-only source correspondence; no application/native/package execution",
+  "parents": [
+    "308e0c12c0501eee8b2350815a794caac1ec8e9a",
+    "7c0bcdb246023ff4263b4baeddf5a84f7f90a7a0"
+  ],
+  "base": "1c7e6b05687aca14d9350e17c7ae14dc6c68bb97",
+  "callerHashes": {
+    "preacher": "9eba26069c40b94fa9d6c3076bc4dfd008234d87bd92a8746c160057c7740e74",
+    "smoke": "9ed318b09c0258afca86c87d3147d3cda1b2a9c3ad8e8e81d7ec3703afa74a4e",
+    "combined": "edb6d91de5b0eb9d9dda26670bf566c2f3b26b1a3e4c8574b394f14c208467a5"
+  },
+  "stepAreaAttackSha256": "dd9c099be0a5eda1bb571a88a9ac7a30ade5de567325400ec63f5a1ab5fa4a59",
+  "combatMotionSha256": "175b361f39b9cdcff5e1b084eb7c0e9ccd4ff7a78d7ff0262cb0c2025ff99948",
+  "guardDelta": "Only expectedCaller changed; full strict hash, source hook,16 fixture count and all assertions preserved",
+  "fixtures": {
+    "count": 16,
+    "decodedSha256": "9ad6cabf2ddd1dbc7305816b6b795a9c62ca606a83218c3857f90d2d3a39561d",
+    "nativeDecodedSha256": "977f01bd263bc7c49de959e8738c5538d7e14c637146b324a32dbfbf1fd0ba1a"
+  },
+  "unchangedInputs": {
+    "tests/firewarrior-firing-phase.test.mjs": "0f59491049e175ec83c22c25168e5488c596fff619b945273a5e41a8210e2597",
+    "decomp/research/firewarrior-firing-phase/owned-projection.json": "5ea3bf389c59cb4ecbf98b19f98566939103e14ce49301b7fb64b330289d0128",
+    "evidence/firewarrior-firing-phase/native-comparison-20261006/fixtures.json.gz": "839b4f2eb827ff1e2148ced8235f3fd2455156c020cda5e0fb27ac44df881d3c",
+    "evidence/firewarrior-firing-phase/native-comparison-20261006/native.json.gz": "627ac93756fd29012b8a4d4dc26b0b54a5da388cee36c1d1a28ec9707c896a4d",
+    "package.json": "75177ce9ebe6a221ecb1e4e3c35c2697ed92882a6924577d8892f03538f7e51c",
+    "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba"
+  },
+  "appSources": [
+    {
+      "path": "app/ambient-sound.ts",
+      "sha256": "99d36b9f2408b9e5930955c3268f72f2a889ccfc84b4606aadc96ce85fe9c438",
+      "source": "both"
+    },
+    {
+      "path": "app/angel.ts",
+      "sha256": "9808728ff3b671b9e6ae87f400c480493ea05faba4d3eddb20d52d83d9156f03",
+      "source": "both"
+    },
+    {
+      "path": "app/animation.ts",
+      "sha256": "81ce8a1c1b4f7ec9dc228405023337856fed007146b9abed4ff2e43d6fbf78af",
+      "source": "both"
+    },
+    {
+      "path": "app/armageddon.ts",
+      "sha256": "6cd2ad4301e6aaf4680b1413398e16f159b0e26f41792c7415b4bb64564a2280",
+      "source": "both"
+    },
+    {
+      "path": "app/audio-preferences.ts",
+      "sha256": "fc7843f32f915ff3723e139b0eeef7fc3c5294c21df80478aab115a45f63c31f",
+      "source": "both"
+    },
+    {
+      "path": "app/audio.ts",
+      "sha256": "696d570b569a16c0402ad59c4fad59737554a3349b78acd5110844474cf52a5b",
+      "source": "both"
+    },
+    {
+      "path": "app/blast-wave.ts",
+      "sha256": "ce6e26f642a290fd977894b166bd878dff979979647332834a7013cd41ccafe3",
+      "source": "both"
+    },
+    {
+      "path": "app/building-clearing.ts",
+      "sha256": "4eb4386f580efac0bc758074ee5ed59a2896eca947d1d3e6dbc6844c6ab1bbc9",
+      "source": "both"
+    },
+    {
+      "path": "app/building-damage.ts",
+      "sha256": "2edf267b12853719b2553d0ede485254ea101bbb2ae1ed6967306299895b90c3",
+      "source": "both"
+    },
+    {
+      "path": "app/building-debris.ts",
+      "sha256": "b6d7125dab58dd119d2e60caf3430683fbe19ec4326d0c0f78cd2700eec460bf",
+      "source": "both"
+    },
+    {
+      "path": "app/building-dismantle.ts",
+      "sha256": "cf6d9d53978d891097221845cffe1f8a58238ad9868fc3637c51c2df3a81e8b1",
+      "source": "both"
+    },
+    {
+      "path": "app/building-fetch.ts",
+      "sha256": "3a79971ead533fde8b27f9bec01bc07f29f55584bba54b1b7bdc96e6ba8a6567",
+      "source": "both"
+    },
+    {
+      "path": "app/building-occupants.ts",
+      "sha256": "24e6458718cd665b52188ac5473bfe265d179bb03ac530217c761addd471797a",
+      "source": "both"
+    },
+    {
+      "path": "app/building-panels.ts",
+      "sha256": "5d4d80feb2afb56d4b6b480f9195019ae42c3d2014a7c306e237671b31721f96",
+      "source": "both"
+    },
+    {
+      "path": "app/building-preparation.ts",
+      "sha256": "0d80320ac62a9366f63ea4dc216ba0ef9ee5fc7b421fa5516561272865b13df2",
+      "source": "both"
+    },
+    {
+      "path": "app/building-runtime.ts",
+      "sha256": "d62fca552e99bf96792f21361fd73047b3fe064f2fcfbfb8af2307ba9e732463",
+      "source": "both"
+    },
+    {
+      "path": "app/building-shapes.ts",
+      "sha256": "8e697a8ac76900bb95183907702323b0d477950c92b3e703744376c0fefc7457",
+      "source": "both"
+    },
+    {
+      "path": "app/building-sinking.ts",
+      "sha256": "ce7ad82cf0c8a31cdbab97327912335b06eb3136d931f0c83bd36cd75fdc081a",
+      "source": "both"
+    },
+    {
+      "path": "app/building-smoke.ts",
+      "sha256": "bff123b1ed70751207ae5fa943c332068be9e8530fddaa88ef328af1a1a8a9fc",
+      "source": "both"
+    },
+    {
+      "path": "app/building-terrain.ts",
+      "sha256": "eefc0bf4f8faf0d129678d3e5430fc661b9b16c1bf5b496c87a968b5bd9c5692",
+      "source": "both"
+    },
+    {
+      "path": "app/building-validity.ts",
+      "sha256": "8aee47bb6b0ca234f686f08e72c5b74fc10d590bae9d27518054b2587008bb2d",
+      "source": "both"
+    },
+    {
+      "path": "app/building-work.ts",
+      "sha256": "387f8461939033e3b1d6ed3fa5f63330921e66215e06ec8e6c38fa894dee729d",
+      "source": "both"
+    },
+    {
+      "path": "app/building-workers.ts",
+      "sha256": "1ed0901d343fe9d1d6e9335f43e069acc5ef3ec9bedb1235c643786dcd3ca290",
+      "source": "both"
+    },
+    {
+      "path": "app/camera-input.ts",
+      "sha256": "e9fddb48c26ab965518c6fda4bf2e3caba1d33ae6996a3b02c379ff050f8d37b",
+      "source": "both"
+    },
+    {
+      "path": "app/camera-motion.ts",
+      "sha256": "ff4b36a615eebd18af30b68a1fdff18bf92f619bce3382840c016728efeb87c7",
+      "source": "both"
+    },
+    {
+      "path": "app/camera-view.ts",
+      "sha256": "153f456c1b103a058b5cc6a0d76110dc313942a6c9f53dcc726d273648d25827",
+      "source": "both"
+    },
+    {
+      "path": "app/campaign-command-runtime.ts",
+      "sha256": "5badf47c9b0e55d99f307a1a82c3ba311c835ac78edeabc9f6c7796a39314182",
+      "source": "both"
+    },
+    {
+      "path": "app/campaign-runtime.ts",
+      "sha256": "14db77faf860b168dea78e674788b3bc86437e26196e85f38fce6f3dfa541f89",
+      "source": "both"
+    },
+    {
+      "path": "app/celebration.ts",
+      "sha256": "a54f9a7a058cdf49c2a9bb88ce80354aecd6650af43403e1e910bbec89532aba",
+      "source": "both"
+    },
+    {
+      "path": "app/chatgpt-auth.ts",
+      "sha256": "9d9801a4470b64b082ce66d2ca516b8faf07f01763a9c067b685fa0d0674279a",
+      "source": "both"
+    },
+    {
+      "path": "app/combat-approach.ts",
+      "sha256": "1b81f8a744ef4b39e66f0add003904c0c657e4cba56d8e83b419954cf85541a8",
+      "source": "both"
+    },
+    {
+      "path": "app/combat-building.ts",
+      "sha256": "a304b163de2630affa1659a7e9b1487bde8f63446c74bb847a107aefc5579a49",
+      "source": "both"
+    },
+    {
+      "path": "app/combat-order-search.ts",
+      "sha256": "08ee4472132f4a75154d0b8ec586fd1e1f6aaf6436e6b654ddc5c6900249ad19",
+      "source": "both"
+    },
+    {
+      "path": "app/combat-orders.ts",
+      "sha256": "911b4c57f16e2f673668db441a6288dfb32d0294ebb987dfbc8e93e4dcbeeb03",
+      "source": "both"
+    },
+    {
+      "path": "app/combat-pursuit.ts",
+      "sha256": "7c0bc5498a9a74276959e14be945c969194da015312b3ac1cbc41ad2ef84bf47",
+      "source": "both"
+    },
+    {
+      "path": "app/combat-runtime.ts",
+      "sha256": "9cc7100f34547eb2a767928f25e0068a6c6c4749934271dd98a6fb643ead0d23",
+      "source": "both"
+    },
+    {
+      "path": "app/combat-targets.ts",
+      "sha256": "612426f1c80ee4813e3c69f097059b6778f19a8801a716b31c69c0ea6bf2e591",
+      "source": "308e0c12c0501eee8b2350815a794caac1ec8e9a"
+    },
+    {
+      "path": "app/command-context.ts",
+      "sha256": "b418b37bef71210052645cdba946fc12612a63ec0962c98c65d6ae199a760700",
+      "source": "both"
+    },
+    {
+      "path": "app/computer-convert.ts",
+      "sha256": "264ca37fd944e63545f903be8e51bdc0a9fd5874aeedd6273223ad53df5ea0e3",
+      "source": "both"
+    },
+    {
+      "path": "app/computer-defense.ts",
+      "sha256": "663472843e8fed4a8bca9aaea10c16870e6e538ad94d35674a145f4e2f4a76f5",
+      "source": "both"
+    },
+    {
+      "path": "app/computer-runtime.ts",
+      "sha256": "4316213f89499dc4a73a915e81bca06c91c8a155aa0e5e7db84cee08295fb010",
+      "source": "308e0c12c0501eee8b2350815a794caac1ec8e9a"
+    },
+    {
+      "path": "app/computer-selection.ts",
+      "sha256": "ec5835a2285376120c23bb9c12a25cc14b82512157e192cb144f012f936074cd",
+      "source": "both"
+    },
+    {
+      "path": "app/computer-spells.ts",
+      "sha256": "a1ea1b2fd6d399248a0d476a92c31f564060e1269fd8f160e0007a5772fe4ccb",
+      "source": "both"
+    },
+    {
+      "path": "app/computer.ts",
+      "sha256": "7e7425a46cba84fa4eeb4c29be92c25c848f992b94e2912d570b9959027a666d",
+      "source": "both"
+    },
+    {
+      "path": "app/construction-order.ts",
+      "sha256": "f4dc10fd622cb9435c446f85830ce26f43aeea0f7e257ea95accc1108bdae7e5",
+      "source": "both"
+    },
+    {
+      "path": "app/construction-panel.ts",
+      "sha256": "0a47f269765f2d3dae657aa967ceb9d3d5a82eaeb58d2f9759aec63bfa68071d",
+      "source": "both"
+    },
+    {
+      "path": "app/construction-runtime.ts",
+      "sha256": "2ea49ae789ae747732c3bc327d58735f501b52dfcff84c17eef83ca4386c0653",
+      "source": "both"
+    },
+    {
+      "path": "app/convert-wild.ts",
+      "sha256": "665bf05aa307dbd0ac91b115e99fe1df456a5658c8fca9b39173c2b6a3f5919a",
+      "source": "both"
+    },
+    {
+      "path": "app/drag-border.ts",
+      "sha256": "c7dfdc8e81f1ea63f496dff91bfb80a1e3fcaa0ca41151e4a4c4e92989aaca78",
+      "source": "both"
+    },
+    {
+      "path": "app/drag-overlay.ts",
+      "sha256": "cc0a140d76c048bccddbd4ed1228583946331407c9d1ba771b55ad9415ae0c4e",
+      "source": "both"
+    },
+    {
+      "path": "app/drag-selection.ts",
+      "sha256": "d20dc572da826ecb70677527d876f1d883bc3ebddf2ff4361e2e2bf099fda93f",
+      "source": "both"
+    },
+    {
+      "path": "app/earthquake.ts",
+      "sha256": "f26e0878f184ea65289b97c83eff1cf6b795326361f232c202f84e9948d4afd0",
+      "source": "both"
+    },
+    {
+      "path": "app/effect-motion.ts",
+      "sha256": "09aed949e22799f0b34ea36a5a19e416fccf366ef0e4e2aceccbe3dc354f74b4",
+      "source": "both"
+    },
+    {
+      "path": "app/erosion-observation.ts",
+      "sha256": "8fcc841183c138b02f5eb33ad7f24efcc4f477a512655009c543cc8d004e2fd2",
+      "source": "both"
+    },
+    {
+      "path": "app/erosion.ts",
+      "sha256": "788ae0b14800e1a6d675279e08b2490702bc7c3e6fe305769d0bde25c8935d70",
+      "source": "both"
+    },
+    {
+      "path": "app/firestorm.ts",
+      "sha256": "a1ba3c8cc3f5a6f09af7d95598dcd2e35de3de521473502bee421a9bc42df195",
+      "source": "both"
+    },
+    {
+      "path": "app/firewarrior.ts",
+      "sha256": "600f11502d04e84f05cc3c11d439899e1fb982bba78ce23afe6709d1bbd9fc1b",
+      "source": "both"
+    },
+    {
+      "path": "app/flatten.ts",
+      "sha256": "f16bae3305c8aa296582586a13fa48912adef1665aa175e7a16a49c1e95992b2",
+      "source": "both"
+    },
+    {
+      "path": "app/flyby.ts",
+      "sha256": "f26ff256586988e1ec9d155abca20573d006b0f1c9a92a0a06f7566edcca912c",
+      "source": "both"
+    },
+    {
+      "path": "app/follower-tasks-runtime.ts",
+      "sha256": "0796f92af4c6290e2ec78fec4105d2e2cf8fa9a6e426cc84485284ae43c5a622",
+      "source": "both"
+    },
+    {
+      "path": "app/follower-tasks-view.tsx",
+      "sha256": "51586206c7867c7d348b146f721ce7938df73b0aa205a79b55c0d42d1ce82bea",
+      "source": "both"
+    },
+    {
+      "path": "app/follower-transports-runtime.ts",
+      "sha256": "d23add95d88d029b3e38ccde15097994b54ae9f645c100fd1ecf3dc509b5be17",
+      "source": "both"
+    },
+    {
+      "path": "app/footprints.ts",
+      "sha256": "f8e5cbb9530e9a8bf266608199218ce59fa466c78f2d0838d207ce8109dfa6fb",
+      "source": "both"
+    },
+    {
+      "path": "app/fps-graph.ts",
+      "sha256": "ccbd4e11b9f6527b98e3923110617b2c950d22ca6acd84c13a051e1dac916ce2",
+      "source": "both"
+    },
+    {
+      "path": "app/game-clock.ts",
+      "sha256": "d4f850867943a54ebf86e79b6d71e2f842d0e6c61c70bb2884872bd6d002eef6",
+      "source": "both"
+    },
+    {
+      "path": "app/game-store.ts",
+      "sha256": "1bb66bc1db93af5bff36c54f2c32630b71000bc5c0085595e6c7f2bc3cf95565",
+      "source": "both"
+    },
+    {
+      "path": "app/globals.css",
+      "sha256": "4503b77f2bbce07b00977040376a9e62ebaeba9a7c8faaf19ee28879d4051d32",
+      "source": "both"
+    },
+    {
+      "path": "app/globe-renderer.ts",
+      "sha256": "b3e049243aeb9c37f034027de0430c6a154b326d85517030ec4494e66ec54ac6",
+      "source": "both"
+    },
+    {
+      "path": "app/globe.ts",
+      "sha256": "2c24389052b6be70f87d40b080bb6180c03bfc3386c160750474d71dd4cf832d",
+      "source": "both"
+    },
+    {
+      "path": "app/ground-overlay.ts",
+      "sha256": "aae7defd7c43dcaeb41f9278f28ab90219d16410df8a8161ae109b0b944a1a0c",
+      "source": "both"
+    },
+    {
+      "path": "app/hud-charge.ts",
+      "sha256": "e15089d6f077450fe4ff7daac26dcdd3ba6610102b09164d751bf4b8030a9363",
+      "source": "both"
+    },
+    {
+      "path": "app/hud-font.ts",
+      "sha256": "c315ce98441cef13c5a8e49b4f31f446c4be8f4e24cca089a2b8065631bde350",
+      "source": "both"
+    },
+    {
+      "path": "app/hud-health.ts",
+      "sha256": "975965256b22c62ad9b6fdfe2dcd93143468e92a95f60bb6ab8cda238f66c6cb",
+      "source": "both"
+    },
+    {
+      "path": "app/hud-layout.ts",
+      "sha256": "013169e0feab4f2c71659b1fb22781c78755fd9ccca1542095224135eb08b6d6",
+      "source": "both"
+    },
+    {
+      "path": "app/hud-mana.ts",
+      "sha256": "970357e14ea3db1533db3a0adca9c8c336760213f750e26fd3b5e35313d14e30",
+      "source": "both"
+    },
+    {
+      "path": "app/hud-population.ts",
+      "sha256": "c80b9f11dcb6561c7a98c8ea4ceeee8f69b5991427593ba4a644305aac48a1fc",
+      "source": "both"
+    },
+    {
+      "path": "app/hud-portrait.ts",
+      "sha256": "0540aae533d746fb34fd27fd212ddcc376fedfb4717593e5f63408cbd7c76bb8",
+      "source": "both"
+    },
+    {
+      "path": "app/hud-selection.ts",
+      "sha256": "21738b749f85d9cf2daf9df5dfb3825283722775c7e5ff475843ad51c539ef3c",
+      "source": "both"
+    },
+    {
+      "path": "app/hud-tasks.ts",
+      "sha256": "44cd23ac03bf35405e8b50bfdf616b625c07a0c2e7fca7ae799e45d1f4a13644",
+      "source": "both"
+    },
+    {
+      "path": "app/hud-transports.ts",
+      "sha256": "13b350925ec1d5fd9d942a5b3bfa5570621b21ccf44727cdbe43a58ca77892b1",
+      "source": "both"
+    },
+    {
+      "path": "app/hud.tsx",
+      "sha256": "a864ecf785e4f3090682834452c7385f17040a0088a9f9704130d48d0fab8e19",
+      "source": "both"
+    },
+    {
+      "path": "app/hut-birth.ts",
+      "sha256": "7945933534e07a1c11cab0580901f84f68e84a10f88387d90665a08598afb24d",
+      "source": "both"
+    },
+    {
+      "path": "app/hut-occupancy-smoke.ts",
+      "sha256": "4d6660697dfa08ed6a99d5a906b857f9b259d3152abb7f33f82d389d84d1ed07",
+      "source": "both"
+    },
+    {
+      "path": "app/hut-smoke-runtime.ts",
+      "sha256": "8652d3c33cc2c195344c62a7a9d2aba572620742c0dd89458634f576853ac834",
+      "source": "7c0bcdb246023ff4263b4baeddf5a84f7f90a7a0"
+    },
+    {
+      "path": "app/hut-upgrade.ts",
+      "sha256": "ed011ed756c506cbf18ea917ba3f082343a3c2b405a1d2832393bc5dda0bd839",
+      "source": "both"
+    },
+    {
+      "path": "app/indexed-search.ts",
+      "sha256": "b1b7e755c00f678f1a2bc5f3504452b38f1bacefe511d45a0a4b0bda0d523e1f",
+      "source": "both"
+    },
+    {
+      "path": "app/land-bridge.ts",
+      "sha256": "b616b62e26e73dd51606d7b1e6deaf78bd31c07cb5036148f017a563b40bcac1",
+      "source": "both"
+    },
+    {
+      "path": "app/layout.tsx",
+      "sha256": "939d8598f4cefb7443a906dc1ab0b80dc3ef15834b19e8a2d3fff484cd0a80d0",
+      "source": "both"
+    },
+    {
+      "path": "app/level-eight.ts",
+      "sha256": "df365b5486abe812a8922a32c9f274c2257af3bf02a433b846cb796d906dc9c1",
+      "source": "both"
+    },
+    {
+      "path": "app/level-eighteen.ts",
+      "sha256": "a04200cfbfcad3b711aeb1eb1b81592573439d937d60793d1172140e99fc36de",
+      "source": "both"
+    },
+    {
+      "path": "app/level-eleven.ts",
+      "sha256": "63633951dce7bf847726e6ccd679dc37d9f32e6bf7cf1c2cfc196501b7b0d0eb",
+      "source": "both"
+    },
+    {
+      "path": "app/level-fifteen.ts",
+      "sha256": "ea1c6d1012030a1a4c286ba8c0c816a0867648ec92794eac4f3f53774ccabf3d",
+      "source": "both"
+    },
+    {
+      "path": "app/level-five.ts",
+      "sha256": "c62ed5dc14ae53f9d4f00081419083afe92d777aa6327b93dd1bd5dcf1f4c4f7",
+      "source": "both"
+    },
+    {
+      "path": "app/level-four.ts",
+      "sha256": "222ff10fd61d5be6956df077db5c80c05d3e324abd83029dcf819cb3fb8d26f7",
+      "source": "both"
+    },
+    {
+      "path": "app/level-fourteen.ts",
+      "sha256": "125a3414f903b6162c282fb1f9b4bff87131d02c50cec4bda50185da92d3228e",
+      "source": "both"
+    },
+    {
+      "path": "app/level-nine.ts",
+      "sha256": "f03bd298b4d479681caa522313346fb5f4aab2a0d830ff5274d1b330fb86676e",
+      "source": "both"
+    },
+    {
+      "path": "app/level-nineteen.ts",
+      "sha256": "d45b2242bfb9f51352b8e9dfdd7628537da9648f5c09e81c1346bac0c03d810f",
+      "source": "both"
+    },
+    {
+      "path": "app/level-one.ts",
+      "sha256": "e840e4ea8895ada4131c7d2da2ce70330307956ea7a6e647e55e76bf6026bd33",
+      "source": "both"
+    },
+    {
+      "path": "app/level-seven.ts",
+      "sha256": "9bb64b5f53059d4cddf6fe9d180b770756a61396bd9f5cc13807498b9f34c0e6",
+      "source": "both"
+    },
+    {
+      "path": "app/level-seventeen.ts",
+      "sha256": "deb06ffd68c0f33cb748596c61d47fbc78d82675bfffeb4cffcefba4abcedd04",
+      "source": "both"
+    },
+    {
+      "path": "app/level-six.ts",
+      "sha256": "3600fc524adac3f289428cb3c22f6e8517241cefdf87ff7d87e49bab524a1feb",
+      "source": "both"
+    },
+    {
+      "path": "app/level-sixteen.ts",
+      "sha256": "69cc4d97650ca5484c22d7dc943780c30447932ff799ced2d88a247f5de15c44",
+      "source": "both"
+    },
+    {
+      "path": "app/level-start-runtime.ts",
+      "sha256": "cce900dc4e08ce890ac88060d7db41bb1cde578f80c2424317d4842d8884451b",
+      "source": "both"
+    },
+    {
+      "path": "app/level-start.ts",
+      "sha256": "987b88e203cc863df79ca1afddb602329f9b68f29be715b6ddb1c4fd48c29948",
+      "source": "both"
+    },
+    {
+      "path": "app/level-ten.ts",
+      "sha256": "debcec7f3cc9772fdc33116848e2b3641f3522901f5100cb24b6da445841058f",
+      "source": "both"
+    },
+    {
+      "path": "app/level-thirteen.ts",
+      "sha256": "38739fa268b75b11c598d119ec28fe31a4a91869c6ca2d150826657262160d0c",
+      "source": "both"
+    },
+    {
+      "path": "app/level-three.ts",
+      "sha256": "7de51508c51d8193ee961de63a79016be4c58de284aefc3a707339b5e9b81e07",
+      "source": "both"
+    },
+    {
+      "path": "app/level-tutorial.ts",
+      "sha256": "5ffbfe4acc0772706c6ea0dc93a1f4e5cf53b4335725976b41003e91d49c183c",
+      "source": "both"
+    },
+    {
+      "path": "app/level-twelve.ts",
+      "sha256": "5c01f8133a81046627a92db7f7a2186cdd638f107e0138dcd8e4c40c5f642c73",
+      "source": "both"
+    },
+    {
+      "path": "app/level-twenty-one.ts",
+      "sha256": "7642b1cddfc96ca8d6f21e046fa10a1c3d448e1331c5c5e6df1604a071f08f74",
+      "source": "both"
+    },
+    {
+      "path": "app/level-twenty-three.ts",
+      "sha256": "66d035bc1de82b34a870118ccb27ee87e9051bb3b95df5b6ef73acdb66557a3c",
+      "source": "both"
+    },
+    {
+      "path": "app/level-twenty-two.ts",
+      "sha256": "f37720f9f525c135abb872791a4f8df9f5d64d7df4b4448c473cdcc054e28736",
+      "source": "both"
+    },
+    {
+      "path": "app/level-twenty.ts",
+      "sha256": "97c80e6aa0e315c80de90fd453990690f5ce2c9e15ad3d3fe6a5dbaa3e693d31",
+      "source": "both"
+    },
+    {
+      "path": "app/level-two.ts",
+      "sha256": "c576f47683ab6e58682e78c221eed5f44e91717e2e27097be0f5b5ba9f97c111",
+      "source": "both"
+    },
+    {
+      "path": "app/lightning.ts",
+      "sha256": "ace6f9d85ec07be651c021f1673e3c9b969bf99b42d8e6a404c1e1c57c8f44fb",
+      "source": "both"
+    },
+    {
+      "path": "app/live-building-combat.ts",
+      "sha256": "edb6d91de5b0eb9d9dda26670bf566c2f3b26b1a3e4c8574b394f14c208467a5",
+      "source": "exact two-parent combination"
+    },
+    {
+      "path": "app/live-building-entry.ts",
+      "sha256": "94aca18d9dfb6fadb1df9f9f747a22683ff14c4f42ed3629ebb668688efe647f",
+      "source": "both"
+    },
+    {
+      "path": "app/live-combat.ts",
+      "sha256": "f4849f9e46f7b10fba1ba0e0989451e2a3a5715eda978b317a850c04266ffdf3",
+      "source": "308e0c12c0501eee8b2350815a794caac1ec8e9a"
+    },
+    {
+      "path": "app/live-command.ts",
+      "sha256": "4671406f827e92fb70432bf88af54d764b4f628e422b320b89384485a6411913",
+      "source": "both"
+    },
+    {
+      "path": "app/live-construction-runtime.ts",
+      "sha256": "232fe5fd59ead259fc09d94ec524fba173549e32fc07ab14f6b1006d631cd6fa",
+      "source": "both"
+    },
+    {
+      "path": "app/live-movement.ts",
+      "sha256": "ff2d148ad97ddbcb6b719492ea3aded21a20c681f4339f814ca24984cd8f2d8c",
+      "source": "308e0c12c0501eee8b2350815a794caac1ec8e9a"
+    },
+    {
+      "path": "app/live-pathfinding.ts",
+      "sha256": "3a52a138448bcaae35acc85818a38381ea85d03717c750f51a33b8aad802c939",
+      "source": "both"
+    },
+    {
+      "path": "app/live-people.ts",
+      "sha256": "1b8b2f1c3015317709298d5610067d13c3a17cb1a53a1a0fdd8117000ccb01c3",
+      "source": "both"
+    },
+    {
+      "path": "app/live-resting.ts",
+      "sha256": "3164a20ff88fb05d919f8f53fd179b0375350c631af5420d667f7106d7f5f515",
+      "source": "both"
+    },
+    {
+      "path": "app/live-vehicles.ts",
+      "sha256": "7fbff4f2197bf77f6cad8ca6a9265dbc95ea74cc89270b814f11991c1265cebb",
+      "source": "both"
+    },
+    {
+      "path": "app/live-worship.ts",
+      "sha256": "31d3a291fa1f8d543f3da918d5eb4eb8208c46e6e9d3192ad14c5f7012ec47e6",
+      "source": "both"
+    },
+    {
+      "path": "app/mana.ts",
+      "sha256": "2db351005682c765353c834cff06e0eea0c8c9e20bd0ca536207fa9e81c77d33",
+      "source": "both"
+    },
+    {
+      "path": "app/marching-formations.ts",
+      "sha256": "647045896f6134fc189c28ab094ab5596337c1a4f8eef37e2549497f7d8a40ff",
+      "source": "both"
+    },
+    {
+      "path": "app/melee-encounter.ts",
+      "sha256": "f1f45b0012410f89500c457b822bb2dd36a8e44a05b7546cfcf7f4cb1447e51c",
+      "source": "both"
+    },
+    {
+      "path": "app/melee-engagement.ts",
+      "sha256": "5e2a7d124328f63de97f75686c74027893b3012d34f13c6dc2bdd50184480cde",
+      "source": "both"
+    },
+    {
+      "path": "app/melee-groups.ts",
+      "sha256": "6f70c87c5bb847af6365d13a1dca4c2809272c5adbd32ff698785be9f30291bd",
+      "source": "both"
+    },
+    {
+      "path": "app/melee-placement.ts",
+      "sha256": "8eb866a23813f5d665b22faba79dd985036204033cc7afbc1ddbe079f3b7be76",
+      "source": "both"
+    },
+    {
+      "path": "app/melee.ts",
+      "sha256": "c425264b3db07a4731a7f918629db4f080d7ae61fd6dd181c61838916ca4f9e7",
+      "source": "both"
+    },
+    {
+      "path": "app/messages.ts",
+      "sha256": "84f307387f09a3a787c11c491d08f05bcbfa797242d0f0320ee1f0e9f7537d78",
+      "source": "both"
+    },
+    {
+      "path": "app/minimap-frame-view.tsx",
+      "sha256": "44e4882d2435eb3d64c4a2a2e557888b0745db97a273bba1823aaec7def2a021",
+      "source": "both"
+    },
+    {
+      "path": "app/minimap-frame.ts",
+      "sha256": "6df4c733cafc8fb8fac7dcc807fc4c63eba8d994917a2cb764b85fa5d61138a1",
+      "source": "both"
+    },
+    {
+      "path": "app/minimap-renderer.ts",
+      "sha256": "6d06b83f10090080e51ecdb303a1403d7776e1c7668f067609a484d77599b4aa",
+      "source": "both"
+    },
+    {
+      "path": "app/minimap.ts",
+      "sha256": "ace3cb266bc801f660d053c649d998f3b49e22f7990c27312d0fb5d28597aec4",
+      "source": "both"
+    },
+    {
+      "path": "app/mission-data.ts",
+      "sha256": "c4859525c084dfcd478a4fb5e08b93bb5f37c2aa1c2b8cd3250d5683b7e957cf",
+      "source": "both"
+    },
+    {
+      "path": "app/model-faces.ts",
+      "sha256": "6e6d7f28eb6d1f027e571e3541ef751d23b10b99d6813ff7805e5367fca8634d",
+      "source": "both"
+    },
+    {
+      "path": "app/model-lighting.ts",
+      "sha256": "8c9890db5fc37092c167b59ed9e380ce4c75130358c8e0323eb44f6573466709",
+      "source": "both"
+    },
+    {
+      "path": "app/model.ts",
+      "sha256": "fc32041efee0a34ae32e26653dd8b45c2b54df8389d4e32ea11fa58e3cde4682",
+      "source": "both"
+    },
+    {
+      "path": "app/morph.ts",
+      "sha256": "e9bb1ef83cf2aea0b3a68b410ce4115d840e7695a993ba28b3c4d7707cda454c",
+      "source": "both"
+    },
+    {
+      "path": "app/music.ts",
+      "sha256": "d28fbb55383464433e0105f24c808a03591ceaaa6b2aaccdf22025dbcdd24198",
+      "source": "both"
+    },
+    {
+      "path": "app/native-math.ts",
+      "sha256": "223fa6c4dc5d14a66daec1c1a15a5252802e1fa7e4f3cc7c5a2fcc07818435cc",
+      "source": "both"
+    },
+    {
+      "path": "app/native-terrain.ts",
+      "sha256": "bef0de5cda0ab5a54147ff2c91569b97a4e1b58ed46bd1dc9e9a85467f8e17a5",
+      "source": "both"
+    },
+    {
+      "path": "app/object-cells.ts",
+      "sha256": "cc693d083d0829c69f6295d9710b3c7762bd70f407ff9c5c408380dbd7465909",
+      "source": "both"
+    },
+    {
+      "path": "app/object-panels.ts",
+      "sha256": "9cad36503f3f68b726b221bc2d0c2ea56fc34334f3534d6d48b281c5668fd80b",
+      "source": "both"
+    },
+    {
+      "path": "app/original-bloodlust.json",
+      "sha256": "941a464dc1a134f5f981a8d2e10e5fa59d15a0107393faad81f6bd90eafabe4f",
+      "source": "both"
+    },
+    {
+      "path": "app/original-camera.json",
+      "sha256": "988109e598f4e3c8b44ec16a1ce14f2c0fa5214364574d2e0411e8c2fd5be8b8",
+      "source": "both"
+    },
+    {
+      "path": "app/original-constants.json",
+      "sha256": "ce71bff4c5971d1aae1539b4d014d69378ddc30067068d70353b5b78979fb47c",
+      "source": "both"
+    },
+    {
+      "path": "app/original-effects.json",
+      "sha256": "8e43389fe9610e70fcedbbd8fe63b11d4addf9a001378225ee5ce273c5b83fdb",
+      "source": "both"
+    },
+    {
+      "path": "app/original-fire.json",
+      "sha256": "a8859a510c220487d5ef112e7b938019dfa631a9d37a1a64c3ff4bcc4cb805c9",
+      "source": "both"
+    },
+    {
+      "path": "app/original-follower-tasks.json",
+      "sha256": "3e4ef8f0e7e51f0bdd336a4da201d705a13a8cfd68b2d3205e3cb6b79107f65a",
+      "source": "both"
+    },
+    {
+      "path": "app/original-hud.json",
+      "sha256": "3b24abb207a0ad2fc92f7225866352f0d485cf9ac7d13fb8b76842fecc928929",
+      "source": "both"
+    },
+    {
+      "path": "app/original-messages.json",
+      "sha256": "c5de281ea8a3f7ce146992f2d10afb500620dbbb9e6e690d6afc1b95fba4235a",
+      "source": "both"
+    },
+    {
+      "path": "app/original-minimap-frame.json",
+      "sha256": "df4ca23395c73fbd6e41e1768ab63ab7dd55fc3e8d0e610022b5f28ef03d9c09",
+      "source": "both"
+    },
+    {
+      "path": "app/original-models.json",
+      "sha256": "1665fcc36e57bbb765259ec9b7c1755a6b126db837787c9038ed955c76a8afc5",
+      "source": "both"
+    },
+    {
+      "path": "app/original-music.json",
+      "sha256": "074226fce775529d0a0949e1e2a631c6cb027f8e367b0e11b5357bc4ffcd7357",
+      "source": "both"
+    },
+    {
+      "path": "app/original-pointer.json",
+      "sha256": "1c6f59a7c149febc237daedba024777918e404a1fc9293ba04ea509d572eaff1",
+      "source": "both"
+    },
+    {
+      "path": "app/original-rules.json",
+      "sha256": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+      "source": "both"
+    },
+    {
+      "path": "app/original-script-eight.json",
+      "sha256": "d5f4b7916b97d7b9b9622ac2ac9524807a979c91deefba0a784297c1c0ebdd5d",
+      "source": "both"
+    },
+    {
+      "path": "app/original-script-eighteen.json",
+      "sha256": "a4040dc873067e0c54ecdc7060dbda2c1f32579fdf56d9a14185405a5c715f6c",
+      "source": "both"
+    },
+    {
+      "path": "app/original-script-eleven.json",
+      "sha256": "a3ecb659f10e930c28950f6308e965f6c844cc56d440352f25c73f378c154ba3",
+      "source": "both"
+    },
+    {
+      "path": "app/original-script-fifteen.json",
+      "sha256": "e4166e6538dca31e8334986d35922a186304aebc786c3d4f995004860c68a5c3",
+      "source": "both"
+    },
+    {
+      "path": "app/original-script-five.json",
+      "sha256": "2c72b13228e8e3d5eafed5d80813510dd88e318832bc4009f622abe5d2d7c2b8",
+      "source": "both"
+    },
+    {
+      "path": "app/original-script-four.json",
+      "sha256": "24fc1b7c610fae2c441b0f7024a930b51d1a7ce43dd2986a959cbeeacf2542da",
+      "source": "both"
+    },
+    {
+      "path": "app/original-script-fourteen.json",
+      "sha256": "84ad1f10b0bea88f4be12c50f1e7d73b937f6e63ecaa6edc6a796a7745b4a665",
+      "source": "both"
+    },
+    {
+      "path": "app/original-script-nine.json",
+      "sha256": "28e9d5067c63642a39066a01ead910f31a16ecb28c3b2992e823c86fb2f90ebf",
+      "source": "both"
+    },
+    {
+      "path": "app/original-script-nineteen.json",
+      "sha256": "55e2e9bbe3861eed9f308239502b5f74707966e63ceb51b0f54ed81115bb647b",
+      "source": "both"
+    },
+    {
+      "path": "app/original-script-seven.json",
+      "sha256": "b6ce50cbb783b1dd61d9ec159a35020dc613ab9cc16fe51e508548f2b57145c5",
+      "source": "both"
+    },
+    {
+      "path": "app/original-script-seventeen.json",
+      "sha256": "a66a0b58383a1a51c5e0402b58917ac818d21d0f0a9a8f05e5d3f6b24ec2cd6e",
+      "source": "both"
+    },
+    {
+      "path": "app/original-script-six.json",
+      "sha256": "672d6c911118ca34a1a274a820f214c55782e7fdf88cf0205416e3e0b1fc12b6",
+      "source": "both"
+    },
+    {
+      "path": "app/original-script-sixteen.json",
+      "sha256": "3279b13bcffde6df88052f0ffb04221a41df8c8c0150822476108b67c4b91039",
+      "source": "both"
+    },
+    {
+      "path": "app/original-script-ten.json",
+      "sha256": "fc55d5f157e86a061d701f83b14a833960574b9342682210ca3ff58b9aab6628",
+      "source": "both"
+    },
+    {
+      "path": "app/original-script-thirteen.json",
+      "sha256": "b33215da998f1690aaf65ec6ace1da15eb1dbbf71624bc8a94c466b236355321",
+      "source": "both"
+    },
+    {
+      "path": "app/original-script-three.json",
+      "sha256": "7362d19fef54dc06869b9c54c41c2d8229acf2942a4b22e6056aab6208789ccc",
+      "source": "both"
+    },
+    {
+      "path": "app/original-script-tutorial.json",
+      "sha256": "d7e6125fae3768eec84fbd97361d2ea18660d31469feef7d593981acdd323a8c",
+      "source": "both"
+    },
+    {
+      "path": "app/original-script-twelve.json",
+      "sha256": "057637116a76ce13653f001fb2a0834bf9f6ebd9f7a613b3e34dc1bb27317e97",
+      "source": "both"
+    },
+    {
+      "path": "app/original-script-twenty-one.json",
+      "sha256": "570551c07e3ddae8bc868c3965b906020ed2260a08294d524c0d85a9bf6bcca8",
+      "source": "both"
+    },
+    {
+      "path": "app/original-script-twenty-three.json",
+      "sha256": "8f76d3144e412c7f3e4fe6baf5d716e806f3ffcd917b8d44c4ad1a3cf1cb9a0b",
+      "source": "both"
+    },
+    {
+      "path": "app/original-script-twenty-two.json",
+      "sha256": "5614cb096dd69e744f6de20a8830fa63af5a17e7f1003d4c33b963571d78cd1c",
+      "source": "both"
+    },
+    {
+      "path": "app/original-script-twenty.json",
+      "sha256": "47598850f9ab71d41ab92c0f30a4adab38faae8c004f18f5b0875b2e370f1657",
+      "source": "both"
+    },
+    {
+      "path": "app/original-script-two.json",
+      "sha256": "2a3b71e046b4935cfb54fa27c04c84f4b90d6f9b7d92c0471e28c505e4a2f94b",
+      "source": "both"
+    },
+    {
+      "path": "app/original-script.json",
+      "sha256": "ced4ce5323a9c68962f4c0762c799c08102bd75157c24b681047e27e539d342c",
+      "source": "both"
+    },
+    {
+      "path": "app/original-search.json",
+      "sha256": "ebb9c2b55caf00b5ca4f6de720b437bae95d944ea22c5c8b8ecb34ea9630d31a",
+      "source": "both"
+    },
+    {
+      "path": "app/original-shapes.json",
+      "sha256": "0d0fcd2252efe0bae7cbb9a7f3a9acc4f6f0bb7a6e6e83eb5fe4e34ec247e094",
+      "source": "both"
+    },
+    {
+      "path": "app/original-sky.json",
+      "sha256": "cf60c9a042700b742143863122944aa364e7faba66a307fce495bb1449a52f47",
+      "source": "both"
+    },
+    {
+      "path": "app/original-skylens.json",
+      "sha256": "d87d4abffba3b2a61cabb30b2812fd29015068db715ac1d138b3cd45ce0f67a0",
+      "source": "both"
+    },
+    {
+      "path": "app/original-sound.json",
+      "sha256": "5ddccef0c8990ebf26f125f0c5aa19e946c20f23def8e887902b8f20d132557f",
+      "source": "both"
+    },
+    {
+      "path": "app/original-stone-heads.json",
+      "sha256": "8dfa738e04170a3874baaae433577538326c90786eb000feb08aa31ed0d29f20",
+      "source": "both"
+    },
+    {
+      "path": "app/original-tooltips.json",
+      "sha256": "3d835a11ece7bc94bf227e44037eac496e47fd672eb62bb19997823dbb4af8aa",
+      "source": "both"
+    },
+    {
+      "path": "app/original-units.json",
+      "sha256": "e55160f7b2f269213de064a0db928708855b7e22affe6902a66ed3183bf9a12c",
+      "source": "both"
+    },
+    {
+      "path": "app/original-vault-knowledge.json",
+      "sha256": "ed729494e87f6ba6434a9acb915c4da30aa04e1e37b5628ab5d3c7a42bc830bb",
+      "source": "both"
+    },
+    {
+      "path": "app/original-worship-acquisition.json",
+      "sha256": "c4f9b772840a858fc465f9503ed5143851db36103426c6952fd8cc489a7498d7",
+      "source": "both"
+    },
+    {
+      "path": "app/page.tsx",
+      "sha256": "50358f6ae119026e8b1f9215fa436126bb26b7595832140c136ed271fbc52fc2",
+      "source": "both"
+    },
+    {
+      "path": "app/painter-order.ts",
+      "sha256": "9f1ecb3b78d699f9f18cc194f8265f9e23a8fb39d923d29d640b2c1ddb5005f7",
+      "source": "both"
+    },
+    {
+      "path": "app/painter-vertices.ts",
+      "sha256": "86a60f45bd7f926119dfe663982209f49a5f6919ae550a3ec35c46b1cc0afb85",
+      "source": "both"
+    },
+    {
+      "path": "app/painter.ts",
+      "sha256": "7fe87a5efa374ad8888e304a59e80e4712f7c5c469ace387f90999aa2a7e21b3",
+      "source": "both"
+    },
+    {
+      "path": "app/path-geometry.ts",
+      "sha256": "3ee1ee2b2cbf6f27c7b154087b4c289f0a4eec9bcc87afba1f74156c5a763f72",
+      "source": "both"
+    },
+    {
+      "path": "app/path-search.ts",
+      "sha256": "b772f8327026171a544119919901ee04e91e75c18f6ff74c1798630850ca7913",
+      "source": "both"
+    },
+    {
+      "path": "app/path-solver.ts",
+      "sha256": "753ce8f089f8478a4a0b77cebd13d5ba3dd0a0cd4711faaddf2c898f96a984a8",
+      "source": "both"
+    },
+    {
+      "path": "app/person-collision.ts",
+      "sha256": "fb4e3a388cca0a1f15f0cde99122d3d62c82eef14211f96ecba9ae01c0218a1c",
+      "source": "both"
+    },
+    {
+      "path": "app/person-idle.ts",
+      "sha256": "6dfb6f673b9d9856fac8727c29e4e5e1254e69df96d017d6e999820920c47350",
+      "source": "both"
+    },
+    {
+      "path": "app/person-motion.ts",
+      "sha256": "a8e87abdb010c7dcb20f4bfd438ec1340f82f2e92a8c4f1053c487c6c32d75d0",
+      "source": "both"
+    },
+    {
+      "path": "app/person-order-start.ts",
+      "sha256": "8d0ebf7c58bce163b372a78430c7697f39138bc5cc6c30a9fbc81622d72c85cc",
+      "source": "both"
+    },
+    {
+      "path": "app/person-order-update.ts",
+      "sha256": "23c2ff6108958715e45dc3caa034e5a3a558fdfcffa936e9129396ec8c48b286",
+      "source": "both"
+    },
+    {
+      "path": "app/person-orders.ts",
+      "sha256": "27600291a988813415ce88a4b046101fb772894490d44607b84f739a433eb1f3",
+      "source": "308e0c12c0501eee8b2350815a794caac1ec8e9a"
+    },
+    {
+      "path": "app/person-panel.ts",
+      "sha256": "2ede0182a7b477006f2ca1adb9e71df0b746785ba701b035456b2354d8b1699f",
+      "source": "both"
+    },
+    {
+      "path": "app/person-panic.ts",
+      "sha256": "e9fc4f62f450076cd4e7711b79256072becaaeca5f5a2d281026464d73e05ce5",
+      "source": "both"
+    },
+    {
+      "path": "app/person-physics.ts",
+      "sha256": "2775891b5ff41dae806eddeec53ebd44957b72f00c9aeec8569ef256908ddbc8",
+      "source": "both"
+    },
+    {
+      "path": "app/person-route-recovery.ts",
+      "sha256": "8fad4da6b52ba661478597008b2deb83f5f9a8e84db40b6dc58a82bee39d6a2b",
+      "source": "both"
+    },
+    {
+      "path": "app/person-routes.ts",
+      "sha256": "9ede023ac1ff1e3fcc1cdba0ff0beed9146f56003600a9ffce689048baa4f500",
+      "source": "both"
+    },
+    {
+      "path": "app/person-selection.ts",
+      "sha256": "a9e2f65c572b954c871921ae9a0366b5af20ab05fceab6e17661a52094fc7cc8",
+      "source": "both"
+    },
+    {
+      "path": "app/person-state.ts",
+      "sha256": "da771659e4da644ce0aa7eb6a988907888a9971e77745e3afeb95215f983cc17",
+      "source": "both"
+    },
+    {
+      "path": "app/person-update.ts",
+      "sha256": "0d77d8decb63f78dd0a129ad8d95953d628c71028921299325f832e924cffc9f",
+      "source": "both"
+    },
+    {
+      "path": "app/person-worship.ts",
+      "sha256": "471f5165c2f7f82a38b70522e76f258ef7311b97bf7f9608528dd7e0bcd2efca",
+      "source": "both"
+    },
+    {
+      "path": "app/popscript.ts",
+      "sha256": "1e17b6e10f209893d472fe49a6483130633778aeaf85528c6026216fdd5afe45",
+      "source": "both"
+    },
+    {
+      "path": "app/preacher-conversion.ts",
+      "sha256": "42b5f4ee351a8858f38c0a905880d368bbcdea6b07e992b731e587034b85a4b3",
+      "source": "308e0c12c0501eee8b2350815a794caac1ec8e9a"
+    },
+    {
+      "path": "app/projectile-motion.ts",
+      "sha256": "5667d819e7ccca090ecb882f0b9ecb939777f263c753f6ee8285fee85dd5ce2a",
+      "source": "both"
+    },
+    {
+      "path": "app/projection.ts",
+      "sha256": "2ee6b7640087b3e996cf13cefd4cecb4e6e9c0d52f4d7913265047bd66bafb97",
+      "source": "both"
+    },
+    {
+      "path": "app/reincarnation-wave-runtime.ts",
+      "sha256": "2fd81857a0abdb0b12c8d6e48b7c2990950bb3eb51a29271a3a6f62458f81535",
+      "source": "both"
+    },
+    {
+      "path": "app/reincarnation.ts",
+      "sha256": "d361f22db204184515e63c2dc134c78f42110a1a49e7d071b26223993eb1d182",
+      "source": "both"
+    },
+    {
+      "path": "app/render-view.ts",
+      "sha256": "5377cdba302416540cd2e9d90d07911dfebd0cae8921891aa06cd59c34a023f4",
+      "source": "both"
+    },
+    {
+      "path": "app/resting-slots.ts",
+      "sha256": "3dab8cd975d8f85eeeecb7827eb7c7a41edcce8fb0ef7c7f9470ebea0f35b45f",
+      "source": "both"
+    },
+    {
+      "path": "app/route-advance.ts",
+      "sha256": "fe9b9a98472cac03309d9cc284a3d76467885200bd59120cd975b6f75fbd1671",
+      "source": "both"
+    },
+    {
+      "path": "app/scene-assets.ts",
+      "sha256": "d475b0017791e1ab0dc81da2e11ade9c1502514eb3f5b955ba825e67c0e9157f",
+      "source": "both"
+    },
+    {
+      "path": "app/scene-camera-runtime.ts",
+      "sha256": "72e419cb58a4682b62c7611f0f0ba4f51e2f61a2c1e1ea254a84db436d272880",
+      "source": "both"
+    },
+    {
+      "path": "app/scene-effects.ts",
+      "sha256": "af82cfb32f31bac26503d936b2c1f79807e87f48ddbec6c4d0a5ee91e4934321",
+      "source": "both"
+    },
+    {
+      "path": "app/scene-entities.ts",
+      "sha256": "95a2a64f5741ca3445431a4b962e7a0aeef6e502841f56b2b90138addb236952",
+      "source": "both"
+    },
+    {
+      "path": "app/scene-hud-runtime.ts",
+      "sha256": "74a9ee8dd15b5b4790ea758d29156fe91a09ab51c20c1e35c3dad364a3c0e29d",
+      "source": "both"
+    },
+    {
+      "path": "app/scene-input-runtime.ts",
+      "sha256": "54def129260b6ffebbb4ddfd23591360ae004abe1adefeaaaf47757eaefd28f5",
+      "source": "both"
+    },
+    {
+      "path": "app/scene-picking.ts",
+      "sha256": "24e81f731ab76a49ebb08eb3ff1f3e3c6fa71f71bf3292b1c224c887e8abd180",
+      "source": "both"
+    },
+    {
+      "path": "app/scene-secondary-effects.ts",
+      "sha256": "e55891cf227665da77b9f01a85d7613f160406fdb4fb8349288142eab5f151bd",
+      "source": "both"
+    },
+    {
+      "path": "app/scene-terrain-runtime.ts",
+      "sha256": "815d8f2b0c1544a98cb7c05272873b58d9bbb28c8c679def6b1cb86d82e573b5",
+      "source": "both"
+    },
+    {
+      "path": "app/scene-vault-knowledge.ts",
+      "sha256": "c893e603c8b3a0a7cbecb0d46b56d65225856808d491f7008ffcddd16e39dde0",
+      "source": "both"
+    },
+    {
+      "path": "app/scene-worship-acquisition.ts",
+      "sha256": "c569987e2ccfda19f18543ac1ddcf49df7dee298f20a132325c141127f7a0c42",
+      "source": "both"
+    },
+    {
+      "path": "app/scene.ts",
+      "sha256": "8789a7751dd748ac5ebf86f3747e031070356840e787433225da801da5ac9c0b",
+      "source": "both"
+    },
+    {
+      "path": "app/scenery-fire.ts",
+      "sha256": "60d3700cf95dedfe4fa4ae67d024249387bb0db0ef58107e89eb89ca93b1a6cd",
+      "source": "both"
+    },
+    {
+      "path": "app/secondary-effects.ts",
+      "sha256": "d3cd7bcadad17a6bb95204040a1da6a43f66cd7488295ae38440e42420582417",
+      "source": "both"
+    },
+    {
+      "path": "app/selection-mesh.ts",
+      "sha256": "4110b442856eb574112744291800d088223aa2de9044cbfc0a24205879559b91",
+      "source": "both"
+    },
+    {
+      "path": "app/selection-raster.ts",
+      "sha256": "28bcf8b213c8077776ceac9359ee74fa9957b0747671de0d25134df6e2336d66",
+      "source": "both"
+    },
+    {
+      "path": "app/selection-runtime.ts",
+      "sha256": "d1b61309818d87e85e329c24fd7384ebd00b474b4dbe8f57ef84061ecbb2be71",
+      "source": "both"
+    },
+    {
+      "path": "app/shaman-appearance.ts",
+      "sha256": "575dbcad01258180af2b5fafb4f51ffed39e0c97b372c3263b47f27580064fe8",
+      "source": "both"
+    },
+    {
+      "path": "app/shaman-death-vfx.ts",
+      "sha256": "dd271694c881c321b865305d581fe1bf880ed542e4ce8f46971edb7c1355ab18",
+      "source": "both"
+    },
+    {
+      "path": "app/shaman-guard.ts",
+      "sha256": "3d35fe7fb9c63770d564a9caab239434bded6952326f486df474eba0fa94b83a",
+      "source": "both"
+    },
+    {
+      "path": "app/site-wave-effects.ts",
+      "sha256": "ade4cd3d0cef0d034d0b2e1c5fd2b01bb63f65ad496687562db0a1bf55ba74c0",
+      "source": "both"
+    },
+    {
+      "path": "app/sky-environment.ts",
+      "sha256": "ea9b48cfda1788432b5151790dfe36dbd487f3b3345e6320a1127a2d4bd23703",
+      "source": "both"
+    },
+    {
+      "path": "app/sky-motion.ts",
+      "sha256": "f0c0f308a6efe0878d1c4c859776386f1dcf764424e225a86971fba2c087fcb8",
+      "source": "both"
+    },
+    {
+      "path": "app/sky.ts",
+      "sha256": "b3a9c35e55364f5750536ac1a146a1d1e07c766662172794593a033301df1385",
+      "source": "both"
+    },
+    {
+      "path": "app/special-battle.ts",
+      "sha256": "d979165760c76ce77ccc43b941457dd445a8d0aedc8c9af51fea8da714e07f87",
+      "source": "both"
+    },
+    {
+      "path": "app/spell-button.ts",
+      "sha256": "421d4e9e8d5ef43e67ef9129513cc0794ebf22c373aa578927f1e766706c499d",
+      "source": "both"
+    },
+    {
+      "path": "app/spell-casting.ts",
+      "sha256": "d24000b5e151f1407f24646f8af1dd258d505938fb94681e9fafd2bd26f90905",
+      "source": "both"
+    },
+    {
+      "path": "app/spell-effects-runtime.ts",
+      "sha256": "1c0df0978804bee45702cd2a7331be6efaf7a8cb411997d257be6dd503a6d90d",
+      "source": "7c0bcdb246023ff4263b4baeddf5a84f7f90a7a0"
+    },
+    {
+      "path": "app/spell-halo.ts",
+      "sha256": "133e37ddc4e862e4f4b037d5a3860c7f1946872a6b4c851340c0a8abfa304026",
+      "source": "both"
+    },
+    {
+      "path": "app/spell-trails.ts",
+      "sha256": "884319866f64247e81d6ec2f5aeda1be57ea2c306b2c5f57d7b1e9562bd0fa67",
+      "source": "both"
+    },
+    {
+      "path": "app/spell-visibility.ts",
+      "sha256": "04d88c6c3fc1703100630ad0f9446a45af231d108e85bd76ce40c8f193d9c5b9",
+      "source": "both"
+    },
+    {
+      "path": "app/sprite-layers.ts",
+      "sha256": "0d76231e0844a131c37e207cbb8dab2a67d611711bd4f46ff39327e794043750",
+      "source": "both"
+    },
+    {
+      "path": "app/stone-head-149.ts",
+      "sha256": "fbdc48ed20df5fc160c23f080d34396e6efbebc13b25aa8bd4cde8205bfd9aaf",
+      "source": "both"
+    },
+    {
+      "path": "app/stone-head-animation.ts",
+      "sha256": "cea958795f6625272498d81b8b0799325805b048da9885db9f904802b56be981",
+      "source": "both"
+    },
+    {
+      "path": "app/stone-head-orientation.ts",
+      "sha256": "b06c8d10ed2f9b744821c14206d63523a4a9d156a6336ae7edb59756c42c0098",
+      "source": "both"
+    },
+    {
+      "path": "app/swamp.ts",
+      "sha256": "f9632ea3358a58a73fe641c963f20bd486d76a85e36b81d15c4c46a7a8098cb0",
+      "source": "both"
+    },
+    {
+      "path": "app/swarm.ts",
+      "sha256": "a388ff1ad7686824445cd9acfe7b0e5c63c102cda87bef31a09bfa7e925312c4",
+      "source": "both"
+    },
+    {
+      "path": "app/terrain-ambience.ts",
+      "sha256": "d6310dead91abfe74349d721b7e62c3dea9d3c37e8194ec36d43d2fc131d785d",
+      "source": "both"
+    },
+    {
+      "path": "app/terrain-light.ts",
+      "sha256": "40c694835d920df3aad356f6bdaffeb318de561f21914c6122534ea9be414316",
+      "source": "both"
+    },
+    {
+      "path": "app/terrain-notifications.ts",
+      "sha256": "6d577f0f6dd498b344530003e884e1fdc346385948cee10d1320f13ad47fa24a",
+      "source": "both"
+    },
+    {
+      "path": "app/terrain-texture.ts",
+      "sha256": "33ce4bfb151bb0a6dbb5276d74d26c0dc0028e763d61acbe902b174606c630b3",
+      "source": "both"
+    },
+    {
+      "path": "app/terrain-visibility.ts",
+      "sha256": "4bc520cceb53090e167e71f63dd06f5c9f1d3ccbd5181e83aea88401f668babf",
+      "source": "both"
+    },
+    {
+      "path": "app/territory.ts",
+      "sha256": "45de954b094fd4dd85036cbae986dfddefee479db58b0c67d589c16aa0f0546e",
+      "source": "both"
+    },
+    {
+      "path": "app/timber-search.ts",
+      "sha256": "d40f4cfb96cca9d3ece24e5517fafd1c73f44f6188def954a15e7c169d7a9784",
+      "source": "both"
+    },
+    {
+      "path": "app/timber.ts",
+      "sha256": "79a068ad1edbc513dd3ddb2dbe4bf9b115f02006b58a9aea83f18c6681a594ea",
+      "source": "both"
+    },
+    {
+      "path": "app/tooltip-layout.ts",
+      "sha256": "6d3e821af5a785ac70fbe4daf6ee2d20231fdc49671de01698464ac7ed0fa9bd",
+      "source": "both"
+    },
+    {
+      "path": "app/tooltips.ts",
+      "sha256": "7cb5133c90a9633b609b10267c8f923c5cabaf240a0ca03b475f601af287caa2",
+      "source": "both"
+    },
+    {
+      "path": "app/tornado-runtime.ts",
+      "sha256": "302ca07cb71b21a46a48270f085fb52c23374d7c79ded629b80f13224454398e",
+      "source": "both"
+    },
+    {
+      "path": "app/tornado.ts",
+      "sha256": "baa81b691fc5c770ababccff7443de65b9ad5d8d4c5363dc04dc162ea2d7ad62",
+      "source": "both"
+    },
+    {
+      "path": "app/training-conversion.ts",
+      "sha256": "6c8cade2447474f1d966cdfad22e9098d2fd4a5535891fe8c942ba7266806bf7",
+      "source": "both"
+    },
+    {
+      "path": "app/training-hut-appearance.ts",
+      "sha256": "b583a1a4a991031419e35e635f9b5b8dd8132e347c10d78449014c2c5e9eaa34",
+      "source": "both"
+    },
+    {
+      "path": "app/training-panel.ts",
+      "sha256": "15b2c7cc5a354640481ebfc2f67a50cb41c9a168d24d4a724daff38eeaecc52a",
+      "source": "both"
+    },
+    {
+      "path": "app/training.ts",
+      "sha256": "6cb9a9d09b0f4455a78899a17f3160e916ffd10ba3935e500857882f09e12ace",
+      "source": "both"
+    },
+    {
+      "path": "app/tree-growth.ts",
+      "sha256": "1e30ee962ff88b5f56d76b16f92514e15c0ed49605ddcd6ccd869c2ebe077b3e",
+      "source": "both"
+    },
+    {
+      "path": "app/tribe-turns.ts",
+      "sha256": "9b31e569f690ba2d59eb322614958ef5fcd4a701906ad39209a4fdd48fdea926",
+      "source": "both"
+    },
+    {
+      "path": "app/unit-health.ts",
+      "sha256": "45fb0c2daa1b355095ce405ab8fe7f7b4546c5e2bdd13a9fbe4c6d3633588ab6",
+      "source": "both"
+    },
+    {
+      "path": "app/unit-kinds.ts",
+      "sha256": "5c6903d13aef2e99645fc8cfa3d86afde5e109a6b099aa775f0061f8b060162f",
+      "source": "both"
+    },
+    {
+      "path": "app/unit-motion.ts",
+      "sha256": "de9faf108c4b29a2cf3a8ea5b2269788240ab5648243c86f503d9df1bc8fbf07",
+      "source": "both"
+    },
+    {
+      "path": "app/vault-appearance.ts",
+      "sha256": "4e7307cbce00416abf9464f80a60841214759f5f7a4e10f1337af1aca8b3a010",
+      "source": "both"
+    },
+    {
+      "path": "app/vault.ts",
+      "sha256": "d40771d046c920d5c226148a4e6e6c3738a24900e85216c22cfaddc88ca74a20",
+      "source": "both"
+    },
+    {
+      "path": "app/vehicle-appearance.ts",
+      "sha256": "f6f26ea63da988e68b52d940f108b50805ddc72d2732d036dc3a8935aeffd19f",
+      "source": "both"
+    },
+    {
+      "path": "app/vehicle-panel-runtime.ts",
+      "sha256": "7dec5906a10b3369e19413fb36bfce6b4e26c8dfd839c5f1d6b9592859bdf4cb",
+      "source": "both"
+    },
+    {
+      "path": "app/vehicle-panel.ts",
+      "sha256": "6678e681bf634320b836fb869cbc5db39df946ffc43146c7cd734636b15ccd2c",
+      "source": "both"
+    },
+    {
+      "path": "app/vehicle-routing.ts",
+      "sha256": "512b46e2b3b3dcb99b9633bbab3629ec7ec8e1c45ac4517d65c4dc2585415516",
+      "source": "both"
+    },
+    {
+      "path": "app/vehicle-seats.ts",
+      "sha256": "7766f3fe1035f147320e61b9a87b979d1669ff0d5bc8231f98ad8e21a2a63161",
+      "source": "both"
+    },
+    {
+      "path": "app/vehicle-unload.ts",
+      "sha256": "d90352475d8c3e8fd2c8587f761b61f18e1790c9742c2f0755538ae916b07099",
+      "source": "both"
+    },
+    {
+      "path": "app/viewport-bounds.ts",
+      "sha256": "8bdc1ff8b559354ab8f207aae5e0bf326d91f800dceddebad6c346baf7b075e8",
+      "source": "both"
+    },
+    {
+      "path": "app/volcano.ts",
+      "sha256": "5656ed170b1f9eb57aa4fbb751976127a28c51e98ff3ef1cd324804b9cd5adbd",
+      "source": "both"
+    },
+    {
+      "path": "app/water.ts",
+      "sha256": "53c3876d725edfbe9119b26967feb58762df32abe92a94a4ac04fa8f87495094",
+      "source": "both"
+    },
+    {
+      "path": "app/workshop-panel.ts",
+      "sha256": "f0508076aa9adbb793062621c3665334b0f7c66dae0178c4f0b08017040696f0",
+      "source": "both"
+    },
+    {
+      "path": "app/world-coordinates.ts",
+      "sha256": "5fab890c7ab683323d873c7350700a0bb3bf977f1b6512ddca6fa823f5a5fa4f",
+      "source": "both"
+    },
+    {
+      "path": "app/world-effects.ts",
+      "sha256": "d831dcd87d1e2db3a5698b6124330c48e13940d0859c6ffc0d9cb110788e7352",
+      "source": "both"
+    },
+    {
+      "path": "app/world-initialization.ts",
+      "sha256": "0b2accb95c180d87e71bad8788f9c28f3f49ab8af66d5189fd26af69ab717fe2",
+      "source": "both"
+    },
+    {
+      "path": "app/world-picking.ts",
+      "sha256": "b2e69234d2a5cf7603e7e8a1a19314b6a3213ccd5ede83e9b8c6e4e5844175f8",
+      "source": "both"
+    },
+    {
+      "path": "app/world-rules.ts",
+      "sha256": "5688538516b4f908930dbcd46ebb807a958ee3f7edbbcd59e7067d04bf74fd2a",
+      "source": "both"
+    },
+    {
+      "path": "app/world-selector-data.ts",
+      "sha256": "346cc3dd742728519e91b08fb54d30e1ef6354a742629cfa85cdd204b5d651f8",
+      "source": "both"
+    },
+    {
+      "path": "app/world-selector.module.css",
+      "sha256": "b59eeb08cc741e79ab6f5627964b09b3ae6342c8d61d47aae5c86bc7ef56117b",
+      "source": "both"
+    },
+    {
+      "path": "app/world-selector.tsx",
+      "sha256": "55c5244910e7fce31278a5f9225c4438d14f8d32687390d8ea858323487637f0",
+      "source": "both"
+    },
+    {
+      "path": "app/world-state.ts",
+      "sha256": "880c00574e29d9f9e2cffd59d79ff337dcfe07d023d45b95481c09ff9e056ff6",
+      "source": "both"
+    },
+    {
+      "path": "app/world-tasks.ts",
+      "sha256": "146f9856dd5ad69bccf6d470c977ca683454e67fe3d06fe67712edcf17849765",
+      "source": "both"
+    },
+    {
+      "path": "app/world-terrain-runtime.ts",
+      "sha256": "4fcf001bde3e32f5647a6efa25066dc9332320f244b034a8f41881a15af4a757",
+      "source": "both"
+    },
+    {
+      "path": "app/world-turn.ts",
+      "sha256": "957422e62b080cdbe787d78673336fb97957cdd6d2ce1ae547f1a280db2df26a",
+      "source": "both"
+    },
+    {
+      "path": "app/world-types.ts",
+      "sha256": "39d0cf2a822e90a077ef86e43f74fb35e6966fe873f60d8e5b820f42c00cb3c4",
+      "source": "both"
+    },
+    {
+      "path": "app/worship-acquisition-layout.ts",
+      "sha256": "fe2f767eba75ce55c4fd886070e6444b111ba1c9a891865aaaf05f99d96fe588",
+      "source": "both"
+    },
+    {
+      "path": "app/worship-acquisition-runtime.ts",
+      "sha256": "78e4a73406614305067fb3bad7c1ec7351da6060e3dcfef1f32735d1a4c12444",
+      "source": "both"
+    },
+    {
+      "path": "app/worship-acquisition-source.ts",
+      "sha256": "76d96f4b5c584747d09166f48d12b309fbc23b26a2e14422efe945cec86b0626",
+      "source": "both"
+    },
+    {
+      "path": "app/worship-acquisition.ts",
+      "sha256": "0d73b8bd93bcbb77c1863422bd65c53b6e242bb6a43974930b6c72315b341001",
+      "source": "both"
+    },
+    {
+      "path": "app/worship-appearance.ts",
+      "sha256": "1a8c7b4cbc09aff87a107e8b1ee09af8eb5c28ff5b1954a0d4cfbf39e04937a5",
+      "source": "both"
+    },
+    {
+      "path": "app/worship-panel-activity.ts",
+      "sha256": "1a1a98cbc5efad14d6e0ec526e9299211cd1eb36a2b11fca8acfc55249e5d1c5",
+      "source": "both"
+    },
+    {
+      "path": "app/worship-panel.ts",
+      "sha256": "7fac2c6d53502a99139218a7f8598a6daea749ded4d666869968165229296d98",
+      "source": "both"
+    },
+    {
+      "path": "app/worship.ts",
+      "sha256": "f0e60f01e2b164e5d9e0ce6b8bd595ae3e4ca5f62ced9ef7c3e57dfb1ff75618",
+      "source": "both"
+    }
+  ]
+}

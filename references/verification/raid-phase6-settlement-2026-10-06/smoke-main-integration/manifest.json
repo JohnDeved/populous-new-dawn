@@ -1,0 +1,15 @@
+{
+  "head": "4c5949c6ea906856ef2a118f617e59f884038d2c",
+  "parents": [
+    "308e0c12c0501eee8b2350815a794caac1ec8e9a",
+    "7c0bcdb246023ff4263b4baeddf5a84f7f90a7a0"
+  ],
+  "appTree": "6fa0c31bed4204d97336d60f7a53d9d366b4013e",
+  "testsTree": "d72507968644bc5efd45e82c72d46c9c09e6addf",
+  "files": {
+    "app/live-building-combat.ts": "edb6d91de5b0eb9d9dda26670bf566c2f3b26b1a3e4c8574b394f14c208467a5",
+    "decomp/research/firewarrior-firing-phase/port.mjs": "5edae570acf162c49f37596fec74e9f1428c8c5f6cc5bd4c8fee36ba1e79259e",
+    "work/orchestration/preacher-smoke-source-integration-20261007/correspondence.json": "0a66778c4970760788c67b9b24fdd9dd20942143c138fdd284dd8e9308b00647"
+  },
+  "status": "host-only source assertions passed; no execution grant or new suite/build claim"
+}

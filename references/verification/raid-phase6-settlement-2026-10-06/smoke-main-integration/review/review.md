@@ -1,0 +1,9 @@
+# ACCEPT: exact two-parent source integration
+
+Reviewed clean merge4c5949c6ea906856ef2a118f617e59f884038d2c, parents308e0c12c0501eee8b2350815a794caac1ec8e9a and main7c0bcdb246023ff4263b4baeddf5a84f7f90a7a0. Correspondence0a66778c4970760788c67b9b24fdd9dd20942143c138fdd284dd8e9308b00647 and manifest47ce182a7ee43cfe5c04b965681a5977e8113c6711af5da395314a21fc755975 match.
+
+Independently compared all317 tracked application files to both Git parents and current bytes:308 equal both,6 equal the reviewed Preacher/raid/owner parent,2 equal the smoke parent, and one declared combined live-building-combat.ts. The combined module is exactly308e0c12 plus main's reconcileWorldHutSmoke import and Spy ignition callback. No other application delta is hidden in the merge.
+
+The combined module hash isedb6d91de5b0eb9d9dda26670bf566c2f3b26b1a3e4c8574b394f14c208467a5. The Firewarrior port guard differs from each parent only in its expectedCaller hash. Its hook, strict assertions and expected data remain unchanged. Independently extracted protected combatMotion571-byte and stepAreaAttack9332-byte texts; both are byte-identical across merge and both parents, with SHA175b361f39b9cdcff5e1b084eb7c0e9ccd4ff7a78d7ff0262cb0c2025ff99948 anddd9c099be0a5eda1bb571a88a9ac7a30ade5de567325400ec63f5a1ab5fa4a59 respectively. All16 decompressed fixtures and decompressed native data match the retained hashes. Their compressed bytes, test, owned projection, package.json and lockfile equal both parents.
+
+This is source correspondence acceptance only. Existing component and focused-result reviews carry their original limits. It neither resolves Mission2/state33 nor substitutes for final standard gates or candidate ordinary lifecycle evidence. Reviewer performed Git/source/data reads and hashing only; no application, package, browser or native execution.

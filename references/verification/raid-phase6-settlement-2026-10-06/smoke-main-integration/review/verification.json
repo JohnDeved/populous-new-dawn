@@ -1,0 +1,28 @@
+{
+  "verdict": "ACCEPT source correspondence",
+  "head": "4c5949c6ea906856ef2a118f617e59f884038d2c",
+  "appFileCounts": {
+    "both": 308,
+    "preacherParent": 6,
+    "smokeParent": 2,
+    "combined": 1
+  },
+  "inputs": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raids-smoke-20261007/work/orchestration/preacher-smoke-source-integration-20261007/correspondence.json",
+      "sha256": "0a66778c4970760788c67b9b24fdd9dd20942143c138fdd284dd8e9308b00647"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raids-smoke-20261007/work/orchestration/preacher-smoke-source-integration-20261007/manifest.json",
+      "sha256": "47ce182a7ee43cfe5c04b965681a5977e8113c6711af5da395314a21fc755975"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raids-smoke-20261007/app/live-building-combat.ts",
+      "sha256": "edb6d91de5b0eb9d9dda26670bf566c2f3b26b1a3e4c8574b394f14c208467a5"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raids-smoke-20261007/decomp/research/firewarrior-firing-phase/port.mjs",
+      "sha256": "5edae570acf162c49f37596fec74e9f1428c8c5f6cc5bd4c8fee36ba1e79259e"
+    }
+  ]
+}
