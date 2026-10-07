@@ -172,3 +172,19 @@ All three actual PNGs were visually inspected. This is SwiftShader rendering,
 not hardware performance or a correction to the separate native-height gap.
 Independent result review, matching old-code pixels and final combined standard
 gates remain pending.
+
+## Paired previous-main frames
+
+[Baseline](ordinary-baseline-attempt-01/README.md) passed on exact `5d0d347e`,
+whose application remains accepted main `7c0bcdb2`; its checker and observer
+match candidate02 byte-for-byte. Both sources captured presented moved bursts at
+turn39 and completed stones at70. Both initial0 frames remain marked hidden
+by loading. Render-frame ordinals differ because these are separate ordinary
+elapsed-time runs.
+
+[The sampled pair comparison](ordinary-pair-comparison.json) finds identical
+site phase/timer/counter/stone history, gameplay/cosmetic RNG, speed and pause
+state at all52 shared observed turns. Turn39 contains the same32 particle IDs
+and ages with reversed old/corrected angle ownership and changed positions.
+The source-native field proof remains separate from these visible browser
+consistency witnesses. No additional original invocation was performed.

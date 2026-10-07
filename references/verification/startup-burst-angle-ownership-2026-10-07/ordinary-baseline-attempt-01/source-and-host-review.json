@@ -1,0 +1,10 @@
+{
+  "verdict": "ACCEPT_ONE_ORDINARY_BASELINE",
+  "reviewedAt": "2026-10-07T01:07:32.928884+00:00",
+  "source": "5d0d347ea95d2dc0e178b48e3aa2dc6a344f46a9",
+  "runtimeMain": "7c0bcdb246023ff4263b4baeddf5a84f7f90a7a0",
+  "packetSha256": "fe1cc28caaf3cc5b33996a701a7c25827ab72e3fde6a7b36fe6be5c491faea98",
+  "hostSha256": "667a11b75864c222953012c4a31d66e30f4a50206f1d4b5d0dda3e13a5c7f1ac",
+  "finding": "Actual app/public/package/runtime/hosting objects equal accepted main. Scenario/observer/contracts equal accepted candidate02 bytes. All frozen source hashes and fresh paths verified. Identical sandbox/dependency/PID cleanup host, port4197, CPU0\u20133,120s harness/150sTERM+10s/163s fallback.",
+  "limits": "One normal old-code visual baseline only, no application edits or full original raster equality. Hidden initial frame stays labelled."
+}

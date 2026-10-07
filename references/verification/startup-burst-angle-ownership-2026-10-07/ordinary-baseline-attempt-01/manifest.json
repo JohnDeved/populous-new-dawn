@@ -1,0 +1,25 @@
+{
+  "source": "5d0d347ea95d2dc0e178b48e3aa2dc6a344f46a9",
+  "applicationMain": "7c0bcdb246023ff4263b4baeddf5a84f7f90a7a0",
+  "status": "passed ordinary prior-main baseline; independent result review pending",
+  "session": 96481,
+  "initialChunk": "fea5ce",
+  "terminalChunk": "795377",
+  "files": {
+    "host-receipt.json": "de63d2212709069e9cfca6ce54468ecc078fbcdc09bba99f63f29b88caac299d",
+    "command-receipt.json": "21d4a51baf90c8e8248a11d92781cd1351e0e3e1f1cb09b1d9d8043a6ae3b7e6",
+    "dependencies-before.json.gz": "2462c15189d8337a237d8d3c9609b9c726e9609bc23e6d1615b3073937c5c7a9",
+    "dependencies-after.json.gz": "2462c15189d8337a237d8d3c9609b9c726e9609bc23e6d1615b3073937c5c7a9",
+    "stdout.txt": "3a2cf42ad32d1cb8d5b42ef3c6aae65aae837dcf6990cd386d581bb66bbaaea7",
+    "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "browser-receipt.json": "020add38125fdb08bc1f23ca6eec805a5a6128f48be117419d8a7ae244f31775",
+    "scenario.json": "9584173f2bb0685a74e9e4b75f53941ad5afb11e0a1bf84bd636088291a3c5c8",
+    "server.log": "c1859d906a01f393a47ccf42477ad7f11860b85baac8d344dc6231beb2c6507b",
+    "baseline-source-binding.json": "0c2173f21605cab12fffdeaad2112abb6e900deaaa44ff60bc3af1a6d42f9b28",
+    "mission-1-startup-before.png": "df52bc1d5a94be971454f017d9238ec5c61643912503d348ac2841700c6cf5ba",
+    "mission-1-startup-burst.png": "6b90d6569ba74ff011f0d3dae9117ec402760d87998c6a3fce2aa5b0e8709ff8",
+    "mission-1-startup-after.png": "194718d3439b22c63f4d74032cade4c037f8479a2c084e0e7fd168b86c6210ec",
+    "source-and-host-review.json": "6b29557e370f98a006ccff673b10aa2cc32fe157470317d92dc9131299b9db35"
+  },
+  "limits": "Same ordinary route/checker/viewport and native turn39/70, but independent elapsed rendering and different frame ordinals. Sampled RNG/phase consistency only; not full world/native or raster equivalence. Both initial0 canvases remain hidden by loading."
+}
