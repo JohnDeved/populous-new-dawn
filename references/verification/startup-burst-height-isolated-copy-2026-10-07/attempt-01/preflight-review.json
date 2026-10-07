@@ -1,0 +1,54 @@
+{
+  "verdict": "ACCEPT copy/source mechanism for separate worktree-copy grant; browser launch pending actual copy review",
+  "proposalHead": "3b24a750080a3788629f31ba44edffc2d81b45ed",
+  "candidateSource": "8f50dda281ec6338bdb84e21473879f29a0282f9",
+  "copyPlanSha256": "5e919868581bf9d17dc4b4b8ac0e05262e56132ea47a97b45286d2baaf13cb1d",
+  "runPlanSha256": "5472ea68e3a4f28ba845b781700fde22358e3bd1c0d2b7c5e81e4fd40f641015",
+  "copySourceSha256": "98b906906f14cf8de0fdacfc40204f69db736f0060331c0e0609acddddfd8e29",
+  "hostSha256": "711c87da391a44e692be17dda3bc9fce81a7ce77a81f32260381497c0c3c0f35",
+  "verification": {
+    "selectedInventoryEntries": 21253,
+    "regularFiles": 21210,
+    "regularBytes": 767239839,
+    "containedRelativeSymlinks": 43,
+    "appInputs": 336,
+    "runSources": 36,
+    "runTools": 8,
+    "runDependencyPins": 15,
+    "freshTargetAbsent": true,
+    "diskGiBAtReview": 8.3758
+  },
+  "copyContract": [
+    "Read exact quarantined source identity27/1978923 and pinned prelaunch inventory; exclude only Vite caches and path-bound Fallow verification marker.",
+    "Stream regular files into new independent tree, preserve file modes and43 symlink values without following them.",
+    "Require selected source-before/copy/source-after inventory equality,336app hashes unchanged, source identity unchanged and distinct copy identity.",
+    "No source-package rename/delete, installation, credentials, profile or original-scope signalling/cleanup. Partial/mismatched/timed-out copy is unusable and preserved without automatic retry."
+  ],
+  "bounds": {
+    "copyCpu": [
+      5,
+      6,
+      7
+    ],
+    "internalSeconds": 60,
+    "outerSeconds": 65,
+    "killGraceSeconds": 5,
+    "copyAddressSpaceBytes": 536870912,
+    "browserCpu": [
+      5,
+      6,
+      7
+    ],
+    "port": 4216,
+    "browserOuterSeconds": 150,
+    "browserKillGraceSeconds": 10,
+    "hostFallbackSeconds": 163
+  },
+  "runContract": [
+    "Exact copied inventory and passed copy-receipt/new identity must be reviewed before separate browser grant.",
+    "Existing ordinary host replaces lease/return with local independent-copy identity/inventory/receipt checks and records boot/PID/network namespace facts. Generated caches move only inside new host output after own children terminate.",
+    "Original passive Mission1 input/render/source/cleanup requirements remain; old attempt01 and resource disposition remain unknown.",
+    "CPU affinity avoids old0\u20133/native4 but does not isolate shared I/O/RAM or prove old-scope termination."
+  ],
+  "method": "Read-only source/hash/inventory-projection/Git comparison; no copy/worktree/browser execution"
+}

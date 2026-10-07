@@ -1,0 +1,31 @@
+{
+  "sourceHead": "8f50dda281ec6338bdb84e21473879f29a0282f9",
+  "proposalSource": "3b24a750080a3788629f31ba44edffc2d81b45ed",
+  "copyPlanSha256": "5e919868581bf9d17dc4b4b8ac0e05262e56132ea47a97b45286d2baaf13cb1d",
+  "originalReceipt": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-isolated-copy-02/receipt.json",
+  "originalReceiptSha256": "fcb97ba3ef69bd6bd06a2721f2a2fb5493984486e141a6426bbb21bf4f404e6e",
+  "preflightReviewSha256": "07449710eecc8b189004e9ed8a34a06098fcd40a9b4732817c3f8695b448e2a3",
+  "toolSession": 39171,
+  "initialChunk": "9cf145",
+  "terminalChunk": "c46fdb",
+  "toolExitCode": 0,
+  "newDependencyIdentity": [
+    27,
+    1209759
+  ],
+  "oldDependencyIdentityStillQuarantined": [
+    27,
+    1978923
+  ],
+  "oldDonorStubIdentityStillQuarantined": [
+    27,
+    1201252
+  ],
+  "selectedEntries": 21253,
+  "symlinks": 43,
+  "regularBytes": 767239839,
+  "selectedInventorySha256": "23ab48300852483706ed494df8efd90d25e3e26b37b402c61fed76136e348977",
+  "applicationHashesMatched": 336,
+  "browserExecution": "not-run; separate actual-copy review and grant required",
+  "oldScopeCleanup": "unknown; no cleanup or loan restoration claim"
+}
