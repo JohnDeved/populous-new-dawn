@@ -1,0 +1,8 @@
+{
+  "head": "c00bcea1c481c87290f48c08655674fa724c25bc",
+  "decision": "ACCEPT two-case test-only replay preflight",
+  "files": {
+    "review.md": "082cd14bfab99388463e45b930f165094acdd09b5569b1b08b5cf0ee54257f0d",
+    "verification.json": "7187509d97f498e72fdc5d746ab6ec2261a2e7ad26d6e0c817dfbec8a05448a4"
+  }
+}

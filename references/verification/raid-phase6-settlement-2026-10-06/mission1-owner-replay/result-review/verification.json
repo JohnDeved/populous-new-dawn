@@ -1,0 +1,77 @@
+{
+  "decision": "ACCEPT first-case result; BLOCK shared19 producer ownership",
+  "head": "c00bcea1c481c87290f48c08655674fa724c25bc",
+  "rawManifestSha256": "faa55cea6823b0e48fa5e0192cb244c3d929a8676db24e238501f3e45be44b93",
+  "traceSha256": "da854ab1208e4bae89dd9add7884db15022d87c118c8f7bc9b9c466b280d2542",
+  "results": [
+    {
+      "name": "mission-one Dakini launches its native attack route when Blue enters marker three",
+      "status": "passed",
+      "startedAt": "2026-10-07T00:31:56.935Z",
+      "finishedAt": "2026-10-07T00:31:58.412Z",
+      "turnCalls": 874
+    },
+    {
+      "name": "mission-one Dakini launches its later building attack when Blue overwhelms it",
+      "status": "failed",
+      "startedAt": "2026-10-07T00:31:58.412Z",
+      "finishedAt": "2026-10-07T00:31:59.048Z",
+      "turnCalls": 368,
+      "error": {
+        "name": "AssertionError",
+        "message": "gameplay condition reached within its turn budget",
+        "stack": "AssertionError [ERR_ASSERTION]: gameplay condition reached within its turn budget\n    at until (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-release-20261007/work/orchestration/preacher-mission1-owner-replay-20261007/mission1.mjs:27:114)\n    at Object.fn (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-release-20261007/work/orchestration/preacher-mission1-owner-replay-20261007/mission1.mjs:100:2)\n    at async run (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-release-20261007/work/orchestration/preacher-mission1-owner-replay-20261007/observer.mjs:67:7)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-release-20261007/work/orchestration/preacher-mission1-owner-replay-20261007/diagnostic.mjs:3:1",
+        "actual": false,
+        "expected": true
+      }
+    }
+  ],
+  "cleanup": {
+    "startedAt": "2026-10-07T00:31:55.817330+00:00",
+    "termDeadline": "2026-10-07T00:33:55.817330+00:00",
+    "killDeadline": "2026-10-07T00:34:05.817330+00:00",
+    "timeoutSeconds": 120,
+    "killGraceSeconds": 10,
+    "cpu": [
+      4
+    ],
+    "cleanupSignals": [],
+    "command": [
+      "/usr/bin/timeout",
+      "--signal=TERM",
+      "--kill-after=10s",
+      "120s",
+      "/usr/bin/taskset",
+      "--cpu-list",
+      "4",
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-release-20261007/work/orchestration/preacher-mission1-owner-replay-20261007/diagnostic.mjs"
+    ],
+    "pid": 35,
+    "processGroup": 35,
+    "processIdentity": "35 (timeout) R 24 35 35 0 -1 4194304 19 0 0 0 0 0 0 0 20 0 1 0 7707886 454656 0 18446744073709551615 93926027739136 93926027762185 140737065023232 0 0 0 0 0 0 0 0 0 17 5 0 0 0 0 0 93926027778512 93926027780676 93926151143424 140737065031689 140737065031995 140737065031995 140737065037799 0\n",
+    "elapsedSeconds": 3.3270948129938915,
+    "exitCode": 1,
+    "remainingProcessGroupMembers": [],
+    "resourcesReleased": true,
+    "finishedAt": "2026-10-07T00:31:59.144437+00:00"
+  },
+  "inputBindings": 246,
+  "shared19": {
+    "id": 12,
+    "model": 19,
+    "references": 4,
+    "unregisteredNativeOwners": [
+      40,
+      41,
+      39
+    ],
+    "registeredCurrent19Owners": [
+      42
+    ]
+  },
+  "source": {
+    "path": "app/live-movement.ts",
+    "sha256": "626f7a07bbafe1f82e858b9a4e06490bda9f28f18b15be4a432d410ad1048e20"
+  }
+}

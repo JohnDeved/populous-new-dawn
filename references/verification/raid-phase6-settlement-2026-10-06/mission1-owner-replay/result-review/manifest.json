@@ -1,0 +1,9 @@
+{
+  "decision": "ACCEPT first-case result; BLOCK shared19 producer ownership",
+  "head": "c00bcea1c481c87290f48c08655674fa724c25bc",
+  "files": {
+    "review.md": "94a5e15f9f1b81a151c140e57dde3d694e642b6d3dcb41998fe4476a16770e83",
+    "verification.json": "87df70121bd420ddb82bd8d400cc613aa64a71712202df91ed885a8ecb7888ce",
+    "selected-rows.json": "c5588e32dc1eb7a318c338a57b6362feb8461830c8d7770b794e081ffd269eaf"
+  }
+}

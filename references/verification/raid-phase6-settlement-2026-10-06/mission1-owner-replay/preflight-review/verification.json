@@ -1,0 +1,12 @@
+{
+  "decision": "ACCEPT two-case test-only replay preflight",
+  "head": "c00bcea1c481c87290f48c08655674fa724c25bc",
+  "preflightSha256": "f59f2cd322c48fa8a163045e290d8cbea2c0b1e634a2e463990eb4bc8b452a34",
+  "commandSha256": "38a9a9c38b6cbc11a58e179c9c202bc838ef8d3dd0fe0004f97843efaf9f2814",
+  "testSha256": "12d6bcb3b9767c4d0152de045bdb1e80a18a85f1489f3293cdb9a5e4bd905e88",
+  "sourceInputs": 240,
+  "closureFiles": 228,
+  "outerBindings": 246,
+  "hostReceiptSha256": "c995a30b88a8ba562de0f2830f8b98116081c658c116e6d4b113824c9313ecbc",
+  "pending": "actual two-case result; state33 release boundary; aggregate gates; ordinary candidate"
+}
