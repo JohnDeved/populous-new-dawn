@@ -1,0 +1,24 @@
+✔ retained original arrival grounds its root before the default height offset (1.466506ms)
+✔ ordinary Mission 1 startup births retain the original root height offset (289.044365ms)
+ℹ {"level":1,"births":256,"gameplay":2291033406,"cosmetic":1775192911,"effectCounter":129,"nextId":1184,"stoneTurns":[[0,[52,49,48,45,44,41,40,37]],[1,[null,null,null,null,null,null,null,null]]],"phaseHistory":[[1,"0:1,1:4"],[13,"0:2,1:4"],[35,"0:3,1:4"],[52,"0:4,1:4"]]}
+✔ ordinary Mission 2 startup births retain the original root height offset (297.714662ms)
+ℹ {"level":2,"births":256,"gameplay":661852190,"cosmetic":1775192911,"effectCounter":147,"nextId":1245,"stoneTurns":[[3,[null,null,null,null,null,null,null,null]],[0,[52,49,48,45,44,41,40,37]]],"phaseHistory":[[1,"3:4,0:1"],[13,"3:4,0:2"],[35,"3:4,0:3"],[52,"3:4,0:4"]]}
+✔ ordinary Mission 3 startup births retain the original root height offset (473.088894ms)
+ℹ {"level":3,"births":512,"gameplay":2772966691,"cosmetic":2096320492,"effectCounter":27,"nextId":2432,"stoneTurns":[[0,[52,49,48,45,44,41,40,37]],[2,[53,50,49,46,45,42,41,38]]],"phaseHistory":[[1,"0:1,2:1"],[13,"0:2,2:2"],[35,"0:3,2:3"],[52,"0:4,2:3"],[53,"0:4,2:4"]]}
+✔ observer forwards each original render receiver, arguments and exact result without a synthetic call (6.386478ms)
+✔ observer propagates the exact original render exception and never takes a successful-frame sample (0.648372ms)
+✔ diagnostic identity and readback errors remain bounded without changing original render results (1.111248ms)
+✔ observer refuses to overwrite a later renderer owner during close (0.169711ms)
+✔ three captures use the actual same-call state and wait for a moved burst particle (1.225487ms)
+✔ pre-Mission discovery binds the owned loading scene without starting or drawing it (0.891582ms)
+✔ pre-Mission discovery retains failed guard facts without installing or changing the world (0.543596ms)
+✔ closing an unbound pre-Mission observer disconnects discovery and prevents later capture (0.176892ms)
+✔ pre-Mission discovery waits for matching refs after the first canvas mutation (1.043868ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2365.837362

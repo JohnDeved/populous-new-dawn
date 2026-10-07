@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "output": "work/orchestration/startup-burst-height-short-checks/attempt-01/receipt.json",
+  "headOid": "8f50dda281ec6338bdb84e21473879f29a0282f9",
+  "exitCode": 0,
+  "stdoutSha256": "f26340b2f0fa745b931c59d7a1e600623ed6145dbc633c4dce94a535f42635d7",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

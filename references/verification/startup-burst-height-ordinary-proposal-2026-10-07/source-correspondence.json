@@ -1,0 +1,33 @@
+{
+  "baseline": {
+    "head": "b6c4d255cbf55a57568072666b1dc74726d75ab3",
+    "cwd": "/workspace/scratch/69fd8163d94e/startup-burst-height-before-source-20261007",
+    "port": 4214
+  },
+  "candidate": {
+    "head": "8f50dda281ec6338bdb84e21473879f29a0282f9",
+    "cwd": "/workspace/scratch/69fd8163d94e/startup-burst-height-fix-20261007",
+    "port": 4215
+  },
+  "baselineAppTree": "71b48bf83bcece1b1e88c0661cf033cd9503c03c",
+  "acceptedMainAppTree": "71b48bf83bcece1b1e88c0661cf033cd9503c03c",
+  "pairDiffOnly": [
+    "app/level-start-runtime.ts"
+  ],
+  "unchangedQaSha256": {
+    "scripts/local-render/startup-burst.mjs": "df162f2455cae47a630f5f59b0afa4aba0ace9387364391a215371b90feba2bd",
+    "scripts/local-render/startup-burst-observer.mjs": "c1bcad473eefcb1f552ee6630183921a7a69052825c6e8707fff4a8e0d7a10ae",
+    "app/level-start.ts": "271093f631144d14ce4438c8a0378241775e95375103339da4a73ef9b443599b"
+  },
+  "manifestSha256": {
+    "baseline": "80dec51f40162d27ee54da08db012c70fd64eacc34055c74f068b673fd763d73",
+    "candidate": "dab40904a533644241cef700b1ae15b1add282e67a0c70329294da7452aa3036"
+  },
+  "donorIdentityVerified": [
+    27,
+    1978923
+  ],
+  "donorLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "noDependenciesMoved": true,
+  "noBrowserRun": true
+}

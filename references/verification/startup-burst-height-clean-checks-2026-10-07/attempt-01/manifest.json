@@ -1,0 +1,58 @@
+{
+  "source": "8f50dda281ec6338bdb84e21473879f29a0282f9",
+  "toolSession": 24124,
+  "initialChunk": "423fe8",
+  "terminalChunk": "db2c03",
+  "rawCopies": {
+    "receipt.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-fix-20261007/work/orchestration/startup-burst-height-short-checks/attempt-01/receipt.json",
+      "sha256": "d6067d64d364410a7274db34826fe05d8ae14e38718a9a1e2101ec9e7fafaf5d",
+      "bytes": 51538
+    },
+    "host-receipt.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-fix-20261007/work/orchestration/startup-burst-height-short-checks/attempt-01/host-receipt.json",
+      "sha256": "f9ebb6421bfc313d20372086bac177551e887282710c7e49e4682aea2e56ab4b",
+      "bytes": 62147
+    },
+    "launch-once.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-fix-20261007/work/orchestration/startup-burst-height-short-checks/attempt-01/launch-once.json",
+      "sha256": "cb6feff70943a8c8b624cb7f1e3e524b24ba2dd1464d3a75c17e8a279d8646bf",
+      "bytes": 222
+    },
+    "supervisor.stdout.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-fix-20261007/work/orchestration/startup-burst-height-short-checks/attempt-01/supervisor.stdout.log",
+      "sha256": "c4b76ab3b1ebc1f7b8d5e33e5adad2669f51f9de0b423e4c50aae088e116519a",
+      "bytes": 363
+    },
+    "supervisor.stderr.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-fix-20261007/work/orchestration/startup-burst-height-short-checks/attempt-01/supervisor.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "stdout.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-fix-20261007/work/orchestration/startup-burst-height-short-checks/attempt-01/receipt.json.artifacts/stdout.log",
+      "sha256": "f26340b2f0fa745b931c59d7a1e600623ed6145dbc633c4dce94a535f42635d7",
+      "bytes": 2242
+    },
+    "stderr.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-fix-20261007/work/orchestration/startup-burst-height-short-checks/attempt-01/receipt.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "source-launch.py": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-fix-20261007/work/orchestration/startup-burst-height-short-check-source/launch.py",
+      "sha256": "14436cab9a1a189ea16f171b649712bff8660be10346546ad32fc40ac7b51f2f",
+      "bytes": 11443
+    },
+    "source-launch.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-fix-20261007/work/orchestration/startup-burst-height-short-check-source/launch.json",
+      "sha256": "0a8a85381faf167c67eaab7774770be29ebce26182a6fbecfc730245a7bdfdd4",
+      "bytes": 35940
+    }
+  },
+  "testCount": 13,
+  "passed": 13,
+  "exactThreeRedDiagnostics": true,
+  "receiptInputCount": 233,
+  "limits": "Only compact-loader/observer checks. No dependency, native or browser invocation; not full gates."
+}
