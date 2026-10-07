@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs'
+import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { acquirePreacher } from '../preacher-gesture-candidate/acquire.mjs'
 import { installReplacementObservation, replacementIdentity } from '../preacher-gesture-candidate/load-boundary.mjs'
@@ -11,6 +11,60 @@ import { requireResponseCheckpoint, requireSameCheckpoint } from './checkpoint.m
 import { clearForwardDefender } from './forward-defender.mjs'
 import loadDiagnostics from './load-diagnostics.mjs'
 import { chooseCrossing, confirmCrossing } from './crossing-input.mjs'
+import { createHash } from 'node:crypto'
+import { sourceCorrespondence } from '../erosion-ordinary/runtime.mjs'
+import { scannerModulePins, bindScannerCallsites } from './observe.mjs'
+
+// Same read-only scriptParsed/getScriptSource protocol as erosion/runtime.mjs,
+// narrowed to the actual response scanner and its three callers. No debugger pause.
+export async function captureScannerBinding(page, root, origin, check) {
+  const session = await page.context().newCDPSession(page), parsed = new Map()
+  const hash = value => createHash('sha256').update(value).digest('hex')
+  const record = event => {
+    let url
+    try { url = new URL(event.url) } catch { return }
+    const path = url.pathname.slice(1)
+    if (url.origin !== origin || !(path in scannerModulePins)) return
+    const events = parsed.get(path) ?? []
+    if (!events.some(v => v.scriptId === event.scriptId) && events.length < 2) events.push(event)
+    parsed.set(path, events)
+  }
+  session.on('Debugger.scriptParsed', record)
+  try {
+    await session.send('Debugger.enable')
+    const modules = {}, contexts = []
+    for (const [path, expected] of Object.entries(scannerModulePins)) {
+      check(); const events = parsed.get(path) ?? []
+      assert.equal(events.length, 1, 'One actually parsed module: ' + path)
+      const event = events[0], { scriptSource } = await session.send('Debugger.getScriptSource', { scriptId: event.scriptId })
+      check(); const original = readFileSync(resolve(root, path), 'utf8')
+      assert.equal(hash(original), expected)
+      const correspondence = sourceCorrespondence(scriptSource, original, event.sourceMapURL)
+      contexts.push(event.executionContextId)
+      modules[path] = { url: event.url, scriptId: event.scriptId, executionContextId: event.executionContextId,
+        sourceSha256: hash(original), servedSha256: hash(scriptSource), servedBody: scriptSource,
+        sourceMapURL: event.sourceMapURL, correspondence }
+    }
+    assert.equal(new Set(contexts).size, 1)
+    return { modules, bindings: bindScannerCallsites(modules) }
+  } finally { session.off('Debugger.scriptParsed', record); await session.detach() }
+}
+
+export function requireScannerRestoration(result) {
+  requireCleanup({ observer: result })
+  assert.ok(result && !result.notInstalled && result.callbacks > 0, 'Observed scanner descriptor must be restored before Save')
+}
+
+export function verifyCommittedSave(before, committed, provenance) {
+  assert.ok(committed && provenance?.checkpoint, 'Independent committed Save readback is required')
+  assert.deepEqual(committed.response, before)
+  const keys = ['version', 'level', 'turn', 'time', 'checkpointSha256', 'actorsSha256', 'terrainSha256', 'stockSha256']
+  for (const key of keys) {
+    assert.notEqual(committed.digest?.[key], undefined, key)
+    assert.deepEqual(provenance.checkpoint[key], committed.digest[key], key)
+  }
+  return structuredClone(provenance.checkpoint)
+}
 
 export function requireCleanup(value) {
   assert.ok(value && !value.error, value?.error ?? 'Missing cleanup')
@@ -122,7 +176,7 @@ export function installInputResponseRead(prepared) {
 export default async function responseScenario(context) {
   if (process.env.PND_RESPONSE_PHASE === 'load-diagnostics') return loadDiagnostics(context)
   const loadedPrefix = process.env.PND_RESPONSE_PHASE === 'crossing' ? await loadDiagnostics(context) : null
-  const { page, output, receipt, signal, observeCheckpoint } = context
+  const { page, root, url, output, receipt, signal, observeCheckpoint } = context
   const baseline = process.env.PND_RESPONSE_SIDE === 'baseline', started = performance.now()
   assert.ok(['baseline', 'candidate'].includes(process.env.PND_RESPONSE_SIDE))
   if (loadedPrefix) assert.equal(loadedPrefix.side, baseline ? 'baseline' : 'candidate')
@@ -134,6 +188,7 @@ export default async function responseScenario(context) {
     scope: 'Ordinary automatic32 reachability and owned queue lifecycle; original component proof and pixels are separate.',
     qualificationMode: prospective ? 'first qualifying automatic32; every earlier episode retained' : 'first automatic32' }
   let acquisition, progress, saved, restored, originalFinished = false, activeStage, primaryFailure, stopped = false, epoch = 'original'
+  let latestVerifiedCheckpoint = receipt.profile.checkpointAtStart
   const persist = () => writeFileSync(resolve(output, 'response.json'), JSON.stringify({ ...report,
     source: receipt.source, elapsedMs: performance.now() - started, activeStage, progress, saved, restored }, null, 2) + '\n')
   const check = () => {
@@ -152,6 +207,7 @@ export default async function responseScenario(context) {
     if (!batch) return
     for (const row of batch.rows) appendFileSync(resolve(output, epoch + '-phases.jsonl'), JSON.stringify(row) + '\n')
     progress = batch.progress; report.events.push(...batch.events)
+    if (batch.scannerRestoration) report.scannerRestoration = batch.scannerRestoration
   }
   const drain = async () => {
     check(); const batch = await page.evaluate(() => window.preacherResponse.drain()); retain(batch); persist()
@@ -176,6 +232,10 @@ export default async function responseScenario(context) {
     assert.notEqual(progress?.status, 'failed', progress?.reason); return result
   }
   const saveCheckpoint = async (name, require32) => {
+    if (prospective && require32) {
+      const scanner = await page.evaluate(() => window.preacherResponse.scannerStatus())
+      requireScannerRestoration(scanner); report.scannerRestoration = scanner; persist()
+    }
     await button('Game settings')
     const before = await page.evaluate(async id => {
       const { responseProjection } = await import('/qa/preacher-automatic-response/checkpoint.mjs')
@@ -193,7 +253,8 @@ export default async function responseScenario(context) {
       assert.deepEqual(committed.response, before); return true
     }, { attempts: 100 }), true)
     const provenance = await observeCheckpoint(name)
-    assert.equal(provenance.checkpoint.checkpointSha256, committed.digest.checkpointSha256)
+    latestVerifiedCheckpoint = verifyCommittedSave(before, committed, provenance)
+    report.latestVerifiedSave = { name, checkpoint: latestVerifiedCheckpoint, provenance }; persist()
     await shot(name); await page.getByRole('button', { name: /^Continue Game/ }).click(); check()
     return { ...committed, before, provenance }
   }
@@ -232,10 +293,15 @@ export default async function responseScenario(context) {
     await acquisition.ordinary.map(destination)
     const hit = await acquisition.ground(destination); assert.ok(hit, 'Declared approach ground is unavailable')
     if (report.crossingPlan) { report.crossingConfirmed = await confirmCrossing(page, report.crossingPlan, hit); check(); persist() }
-    await page.evaluate(async ({ id, baseline, prospective }) => {
+    const scanner = prospective ? await captureScannerBinding(page, root, new URL(url).origin, check) : null
+    if (scanner) {
+      writeFileSync(resolve(output, 'scanner-source-binding.json'), JSON.stringify(scanner, null, 2) + '\n')
+      report.scannerBindings = scanner.bindings; persist()
+    }
+    await page.evaluate(async ({ id, baseline, prospective, scannerBindings }) => {
       const { installResponseObservation } = await import('/qa/preacher-automatic-response/observe.mjs')
-      return installResponseObservation({ id, baseline, prospective })
-    }, { id, baseline, prospective })
+      return installResponseObservation({ id, baseline, prospective, scannerBindings })
+    }, { id, baseline, prospective, scannerBindings: scanner?.bindings ?? null })
     report.approach = await acquisition.dispatch.clickOrder(hit)
     const accepted = report.approach.inputAfter.units.find(v => v.id === id)
     assert.equal(accepted.order.model, 3); assert.equal(accepted.native.immediateCommand, 0)
@@ -366,8 +432,9 @@ export default async function responseScenario(context) {
       }, originalFinished)
       retain(cleanup.tail); requireCleanup(cleanup)
       if (loadedPrefix) {
-        report.committedAfterCrossing = await observeCheckpoint('After ordinary crossing - no Save')
-        assert.deepEqual(report.committedAfterCrossing.checkpoint, receipt.profile.checkpointAtStart)
+        report.committedAfterCrossing = await observeCheckpoint(report.latestVerifiedSave ?
+          'After ordinary candidate - latest verified Save' : 'After ordinary crossing - no Save')
+        assert.deepEqual(report.committedAfterCrossing.checkpoint, latestVerifiedCheckpoint)
       }
       writeFileSync(resolve(output, 'observer-cleanup.json'), JSON.stringify(cleanup, null, 2) + '\n')
     } catch (error) {

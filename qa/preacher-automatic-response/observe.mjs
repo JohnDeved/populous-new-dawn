@@ -42,8 +42,10 @@ export function stableBravePair(before, after) {
 
 // Shared by absence and first32. Retain raw endpoint changes; equal native cells
 // establish the scanner's spatial input, not an unobserved path or internal AL.
-function stableSourceVisit(before, after) {
-  if (before?.phase !== 'beforeTurn' || after.phase !== 'afterTurn' || after.turn !== before.turn + 1 ||
+function stableSourceVisit(before, after, callback = false) {
+  const interval = callback ? before?.phase === 'scanner-commit' && before.turn === after.turn :
+    before?.phase === 'beforeTurn' && after.turn === before.turn + 1
+  if (!interval || after.phase !== 'afterTurn' ||
     !movingSource(before) || !admittedMovingLane(after) || !same(queue(before), queue(after)) ||
     !same(before.admission, after.admission) || before.actor.hp !== after.actor.hp ||
     after.person.life !== Math.round(after.actor.hp * 20) || after.person.life <= 0 ||
@@ -51,12 +53,12 @@ function stableSourceVisit(before, after) {
     Math.hypot(short(after.person.x - before.person.x), short(after.person.y - before.person.y)) > 128 ||
     Math.hypot(short(before.order.a - after.person.x), short(before.order.b - after.person.y)) <= 512 ||
     after.facts.primaryGuardIds.length || after.facts.gameFlags !== 0 || after.facts.levelFlags2 !== 0 ||
-    !(!(after.turn & after.facts.scanMask) || before.person.flags3 & 0x800)) return null
+    !(!(after.turn & after.facts.scanMask) || (callback ? before.scannerCommit.oldFlags3 : before.person.flags3) & 0x800)) return null
   return true
 }
 
-function stableTriggerVisit(before, after) {
-  return stableSourceVisit(before, after) && movingEncounter(before) ? stableBravePair(before, after) : null
+function stableTriggerVisit(before, after, callback = false) {
+  return stableSourceVisit(before, after, callback) && movingEncounter(before) ? stableBravePair(before, after) : null
 }
 
 export function admittedMovingLane(row) {
@@ -103,10 +105,12 @@ function validSourceFields(row) {
     Number.isInteger(p.counter) && p.counter >= 0 && p.counter <= 255
 }
 
-export function classifyProspectiveResponse(before, after) {
-  if (!validSourceFields(before) || !validSourceFields(after) || !stableSourceVisit(before, after))
+export function classifyProspectiveResponse(before, after) { return classifyResponse(before, after) }
+
+function classifyResponse(before, after, callback = false) {
+  if (!validSourceFields(before) || !validSourceFields(after) || !stableSourceVisit(before, after, callback))
     return { kind: 'invalid', reason: 'First32 source/admission/health/cadence/queue predicates failed' }
-  const qualified = stableTriggerVisit(before, after)
+  const qualified = stableTriggerVisit(before, after, callback)
   if (before.facts.braves.some(v => !eligibleObservedBrave(before.person, v)) ||
     after.facts.braves.some(v => !eligibleObservedBrave(after.person, v)))
     return { kind: 'invalid', reason: 'First32 contains malformed or ineligible positive Brave evidence' }
@@ -124,6 +128,24 @@ export function classifyProspectiveResponse(before, after) {
       reason: 'Owned eligible Brave changed native cell during this logical visit; strict stable trigger is absent' }
   }
   return { kind: 'invalid', reason: 'First32 has unsupported, malformed or incoherent target evidence' }
+}
+
+// The callback row records the real scanner commit in turn T, never a fabricated
+// beforeTurn(T-1). Its source copy differs only by the wrapper's counter override
+// and the actual precommit flags3 consumed by that detached scanner.
+export function classifyScannerResponse(enclosing, commit, after) {
+  const c = commit?.scannerCommit, invalid = reason => ({ kind: 'invalid', reason })
+  if (!c?.bound || !dword(c.oldFlags3) || !dword(c.writtenFlags3) ||
+    commit.person.flags3 !== c.writtenFlags3 || c.writtenFlags3 !== ((c.oldFlags3 & ~0x800) >>> 0) ||
+    enclosing?.phase !== 'beforeTurn' || enclosing.turn + 1 !== commit.turn || commit.turn !== after.turn ||
+    !validSourceFields(enclosing) || !movingSource(enclosing) ||
+    !same(queue(enclosing), queue(commit)) || !same(enclosing.admission, commit.admission) ||
+    enclosing.actor.hp !== commit.actor.hp || !same(cell(enclosing.person), cell(commit.person)) ||
+    Math.hypot(short(commit.person.x - enclosing.person.x), short(commit.person.y - enclosing.person.y)) > 128 ||
+    !same(c.consumed, { person: { ...commit.person, flags3: c.oldFlags3, counter: commit.turn & 255 },
+      order: commit.order, levelFlags2: commit.facts.levelFlags2, inTower: false }))
+    return invalid('Missing, ambiguous or incoherent consumed scanner inputs')
+  return classifyResponse(commit, after, true)
 }
 
 function validImmediate32(row) {
@@ -146,12 +168,12 @@ export function qualifyingVisit(before, after) {
     basis: 'Adjacent retained moving3; explicit world-turn no-target/no-task admission; pending destination; same eligible native Brave reference/cell at both endpoints; due scanner; empty primary guard; actual generic miss; free order capacity. No internal AL observed.' }
 }
 
-export function createResponseTracker({ baseline = false, loaded = false, captureOnly = false, prospective = false, maxRows = 12000, maxVisits = 3600 } = {}) {
+export function createResponseTracker({ baseline = false, loaded = false, captureOnly = false, prospective = false, scannerCallbacks = false, maxRows = 12000, maxVisits = 3600 } = {}) {
   const rows = [], events = [], progress = { status: loaded ? 'loaded' : 'awaiting-move', totalRows: 0,
     visits: 0, move: null, encounter: null, firstResponse: null, startup: null, listenerIds: [],
     released: null, rendered: [], oddNoListener: [], evenNoListener: [], episodes: [],
     firstObservedResponse: null, qualifiedEpisode: null }
-  let before, previousTurn, originalQueue, responseId, responseIdentity, unqualified
+  let before, previousTurn, originalQueue, responseId, responseIdentity, unqualified, scannerRow, scannerCount = 0
   const fail = reason => Object.assign(progress, { status: 'failed', reason })
   return { rows, events, progress, fail, observe(row) {
     if (['failed', 'released', 'baseline-omission'].includes(progress.status)) return
@@ -174,7 +196,12 @@ export function createResponseTracker({ baseline = false, loaded = false, captur
       (!same(row.order, unqualified.after.order) || p.immediateCommand !== row.order.id ||
         row.orderUsers.length !== 1 || row.orderUsers[0] !== row.actor.id || unqualified.started && p.commandStatus !== 32))
       return fail('Nonqualifying32 changed between observed logical boundaries')
-    if (row.phase === 'beforeTurn') { before = row; return }
+    if (row.phase === 'beforeTurn') { before = row; scannerRow = null; scannerCount = 0; return }
+    if (row.phase === 'scanner-commit') {
+      if (!scannerCallbacks || !prospective || before?.turn + 1 !== row.turn || ++scannerCount !== 1)
+        return fail('Missing enclosing turn or duplicate scanner callback')
+      scannerRow = row; return
+    }
     if (row.phase === 'render-after-updater') {
       if (responseId && row.order?.id === responseId && row.order.identity === responseIdentity &&
         row.order.model === 32 && row.render?.visible && row.render.draw === p.draw &&
@@ -219,10 +246,10 @@ export function createResponseTracker({ baseline = false, loaded = false, captur
       if (prospective) {
         if (!progress.move || !same(queue(row), originalQueue) || !validImmediate32(row))
           return fail('Prospective32 payload/initiator/original queue failed')
-        const classification = classifyProspectiveResponse(before, row)
+        const classification = scannerCallbacks ? classifyScannerResponse(before, scannerRow, row) : classifyProspectiveResponse(before, row)
         if (classification.kind === 'invalid') return fail(classification.reason)
         const episode = { ordinal: progress.episodes.length + 1, classification: classification.kind,
-          trigger: classification, before, after: row, startRow: progress.totalRows - 2, release: null, started: p.commandStatus === 32 }
+          trigger: classification, before: scannerCallbacks ? scannerRow : before, enclosingBefore: scannerCallbacks ? before : null, after: row, startRow: progress.totalRows - 2, release: null, started: p.commandStatus === 32 }
         progress.episodes.push(episode)
         progress.firstObservedResponse ??= { before, after: row }
         if (classification.kind !== 'qualified') {
@@ -232,14 +259,16 @@ export function createResponseTracker({ baseline = false, loaded = false, captur
         progress.qualifiedEpisode = episode.ordinal
       }
       if (loaded) originalQueue = queue(row)
-      else if (!progress.move || !stableTriggerVisit(before, row) || !same(queue(row), originalQueue))
+      else if (!progress.move || !stableTriggerVisit(scannerCallbacks ? scannerRow : before, row, scannerCallbacks) || !same(queue(row), originalQueue))
         return fail('First32 has no source-bound moving3 trigger and preserved queue')
       if (baseline) return fail('Baseline unexpectedly produced32; preserve actual result')
       if (!p.immediateCommand || row.order.id !== p.immediateCommand || row.order.flags !== 32 ||
         row.order.references !== 1 || row.order.a !== p.x || row.order.b !== p.y || row.orderUsers.length !== 1)
         return fail('Immediate32 payload/reference/initiator ownership failed')
       responseId = row.order.id; responseIdentity = row.order.identity
-      progress.firstResponse = { before: loaded ? null : before, after: row, loaded, brave: loaded ? null : stableBravePair(before, row) }
+      progress.firstResponse = { before: loaded ? null : scannerCallbacks ? scannerRow : before,
+        enclosingBefore: scannerCallbacks ? before : null, after: row, loaded,
+        brave: loaded ? null : stableBravePair(scannerCallbacks ? scannerRow : before, row) }
       progress.status = 'responding'; events.push({ kind: loaded ? 'loaded32' : prospective ? 'first-qualified-automatic32' : 'first-automatic32', ...progress.firstResponse })
     }
     if (!responseId) {
@@ -265,7 +294,90 @@ export function createResponseTracker({ baseline = false, loaded = false, captur
   } }
 }
 
-export async function installResponseObservation({ id, baseline = false, loaded = false, captureOnly = false, prospective = false }) {
+export const scannerModulePins = {
+  'app/live-combat.ts': 'f4849f9e46f7b10fba1ba0e0989451e2a3a5715eda978b317a850c04266ffdf3',
+  'app/live-building-combat.ts': 'edb6d91de5b0eb9d9dda26670bf566c2f3b26b1a3e4c8574b394f14c208467a5',
+  'app/world-turn.ts': '957422e62b080cdbe787d78673336fb97957cdd6d2ce1ae547f1a280db2df26a',
+}
+
+// Locations come from actually parsed dev-server bodies, tied to pinned source
+// with the existing CDP/source-map correspondence. Never guess transformed lines.
+export function bindScannerCallsites(modules) {
+  const specs = [
+    ['app/live-combat.ts', 'combatScan', /p\.flags3\s*=\s*scan\.flags3\s*;/g],
+    ['app/live-combat.ts', 'allocateLiveCombatResponse', /combatScan\(w,\s*p,\s*order,\s*false,\s*firewarriorReady\)/g],
+    ['app/live-building-combat.ts', 'startLiveCombatResponse', /allocateLiveCombatResponse\(\s*w,\s*u,\s*source,[\s\S]*?\);/g],
+    ['app/world-turn.ts', 'stepTurn', /if\s*\(!target\)\s*\{\s*cancelLiveBuildingAttack\(w,\s*u\);\s*u\.target\s*=\s*null;\s*if\s*\((startLiveCombatResponse\(w,\s*u\))/g],
+  ]
+  return specs.map(([path, name, pattern]) => {
+    const m = modules[path]
+    if (!m || m.sourceSha256 !== scannerModulePins[path] || !m.servedSha256 || !m.url || !m.scriptId)
+      throw Error('Missing exact parsed source binding: ' + path)
+    const matches = [...m.servedBody.matchAll(pattern)]
+    if (matches.length !== 1) throw Error('Ambiguous served scanner callsite: ' + name)
+    const match = matches[0], text = match[1] ?? match[0]
+    const offset = match.index + (match[1] ? match[0].lastIndexOf(match[1]) : 0)
+    const prefix = m.servedBody.slice(0, offset), end = prefix + text
+    return { name, url: m.url, scriptId: m.scriptId, sourceSha256: m.sourceSha256,
+      servedSha256: m.servedSha256, startLine: prefix.split('\n').length,
+      startColumn: offset - prefix.lastIndexOf('\n'), endLine: end.split('\n').length,
+      endColumn: end.length - end.lastIndexOf('\n'), text }
+  })
+}
+
+export function identifyScannerCommit(stack, bindings) {
+  const frames = String(stack).split('\n').map(line => {
+    const m = /^\s*at (.*?) \((https?:.*):(\d+):(\d+)\)$/.exec(line)
+    return m && { name: m[1], url: m[2], line: +m[3], column: +m[4] }
+  }).filter(Boolean)
+  const start = frames.findIndex(f => f.name === 'combatScan')
+  if (start < 0) return null // Ordinary unrelated writes still forward unchanged.
+  const actual = frames.slice(start, start + bindings.length)
+  if (actual.length !== 4 || bindings.length !== 4 || actual.some((f, i) => {
+    const b = bindings[i]
+    return f.name !== b.name || f.url !== b.url || f.line < b.startLine || f.line > b.endLine ||
+      f.line === b.startLine && f.column < b.startColumn || f.line === b.endLine && f.column > b.endColumn
+  })) throw Error('Unrecognized or ambiguous served scanner call chain')
+  return { bound: true, frames: actual, stack: String(stack), bindings }
+}
+
+export function installScannerCommitWatch(person, { identify, observe }) {
+  const original = Object.getOwnPropertyDescriptor(person, 'flags3'), errors = []
+  if (!original || !('value' in original) || !original.configurable || !original.writable || !dword(original.value))
+    throw Error('Scanner watch requires an owned configurable writable uint32 data field')
+  let value = original.value, observing = false, writes = 0, callbacks = 0, result
+  const get = () => value
+  const set = function (next) {
+    const oldFlags3 = value
+    value = next // Exact application assignment precedes all observation, even errors.
+    writes++
+    try {
+      if (observing) throw Error('Reentrant scanner observation')
+      const callsite = identify(new Error().stack)
+      if (!callsite) return
+      observing = true; callbacks++
+      observe({ ...callsite, oldFlags3, writtenFlags3: next })
+    } catch (error) { errors.push(String(error)) }
+    finally { observing = false }
+  }
+  Object.defineProperty(person, 'flags3', { enumerable: original.enumerable, configurable: original.configurable, get, set })
+  return { errors, finish() {
+    if (result) return result
+    const current = Object.getOwnPropertyDescriptor(person, 'flags3')
+    const owned = current?.get === get && current?.set === set &&
+      current.enumerable === original.enumerable && current.configurable === original.configurable
+    if (owned) Object.defineProperty(person, 'flags3', { ...original, value })
+    else errors.push('Scanner descriptor ownership changed before restoration')
+    const final = Object.getOwnPropertyDescriptor(person, 'flags3')
+    result = { restored: owned && final?.value === value && final.writable === original.writable &&
+      final.enumerable === original.enumerable && final.configurable === original.configurable,
+    errors: [...errors], writes, callbacks, latestValue: value,
+    originalAttributes: { writable: original.writable, enumerable: original.enumerable, configurable: original.configurable } }
+    return result
+  } }
+}
+
+export async function installResponseObservation({ id, baseline = false, loaded = false, captureOnly = false, prospective = false, scannerBindings = null }) {
   const [{ unitAnimationSource }, { currentPersonOrder }, { engagementRange, inEngagementArea, canAutoEngage },
     { combatWorld }, { detectCombatThreat }, { terrainSupportsPerson }, { default: rules }] = await Promise.all([
     import('/app/model.ts'), import('/app/person-orders.ts'), import('/app/melee-engagement.ts'),
@@ -276,7 +388,7 @@ export async function installResponseObservation({ id, baseline = false, loaded 
   const identity = value => { if (!value) return null; if (!identities.has(value)) identities.set(value, ++nextIdentity); return identities.get(value) }
   const fields = 'id class model tribe state previousState substate commandStatus commandCursor immediateCommand workTarget workFlags flags2 flags3 flags4 statusFlags assignment speed life counter timer commandAux commandPhase object draw f1 f2 stamp x y h goalX goalY destinationX destinationY vehicle disguise motionGroup motionIndex cellNext cellPrevious'.split(' ')
   const snapshot = p => p && Object.fromEntries(fields.map(k => [k, p[k] ?? null]))
-  const tracker = createResponseTracker({ baseline, loaded, captureOnly, prospective })
+  const tracker = createResponseTracker({ baseline, loaded, captureOnly, prospective, scannerCallbacks: !!scannerBindings })
   const read = phase => {
     const w = scene.world, u = w.units.find(u => u.id === id), p = u?.native, current = p && currentPersonOrder(w.buildingOrders, p)
     const linked = person => {
@@ -368,9 +480,35 @@ export async function installResponseObservation({ id, baseline = false, loaded 
     }
     return row
   }
-  const chain = chainPhaseObservers(scene.gameClock, scene.renderer, row => tracker.observe(row), read,
-    args => args[0] === scene.scene && args[1] === scene.camera)
-  window.preacherResponse = { read, tracker, drain: () => ({ rows: tracker.rows.splice(0),
-    events: tracker.events.splice(0), progress: structuredClone(tracker.progress), errors: [...chain.errors] }), finish: () => chain.finish() }
+  let scannerWatch, scannerRestoration
+  const restoreScanner = () => scannerRestoration ??= scannerWatch?.finish() ?? { restored: true, errors: [], notInstalled: true }
+  const chain = chainPhaseObservers(scene.gameClock, scene.renderer, row => {
+    tracker.observe(row)
+    if (tracker.progress.firstResponse || tracker.progress.status === 'failed') restoreScanner()
+  }, read, args => args[0] === scene.scene && args[1] === scene.camera)
+  try {
+    if (scannerBindings) {
+      if (!prospective || baseline || loaded || captureOnly) throw Error('Scanner watch is candidate prospective only')
+      scannerWatch = installScannerCommitWatch(native, {
+        identify: stack => currentPersonOrder(world.buildingOrders, native)?.model === 3 ?
+          identifyScannerCommit(stack, scannerBindings) : null,
+        observe: commit => {
+          const row = read('scanner-commit')
+          row.scannerCommit = { ...commit, consumed: {
+            person: { ...row.person, flags3: commit.oldFlags3, counter: row.turn & 255 },
+            order: structuredClone(row.order), levelFlags2: row.facts.levelFlags2, inTower: false } }
+          tracker.observe(row)
+        },
+      })
+    }
+  } catch (error) { restoreScanner(); chain.finish(); throw error }
+  window.preacherResponse = { read, tracker, scannerStatus: () => scannerRestoration ?? { restored: false, errors: [] },
+    drain: () => ({ rows: tracker.rows.splice(0), events: tracker.events.splice(0),
+      progress: structuredClone(tracker.progress), scannerRestoration,
+      errors: [...chain.errors, ...(scannerWatch?.errors ?? []), ...(scannerRestoration?.errors ?? [])] }),
+    finish: () => {
+      const scanner = restoreScanner(), phases = chain.finish()
+      return { restored: scanner.restored && phases.restored, errors: [...scanner.errors, ...phases.errors], scanner, phases }
+    } }
   return read('armed-before-input')
 }

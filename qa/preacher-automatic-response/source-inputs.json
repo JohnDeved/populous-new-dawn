@@ -14,7 +14,10 @@
     "qa/preacher-gesture-candidate/ground-input.mjs": "0e108c481d44441078e8ce5317654baa0a4535ca461e90b29e7455d4c8802b6d",
     "qa/preacher-gesture-candidate/ground-dispatch.mjs": "42139eca57022912489c4a036981794afd668b3f335ef376e6abbe54e5f89e72",
     "qa/preacher-gesture-candidate/load-boundary.mjs": "46ca676143212890e4465d2daf857e959377f93eed2b9f1179d8af05edbf5940",
-    "qa/preacher-gesture-candidate/expected-runtime.json": "14b1df0f9b38157214acbd8370cc53992ebb0ee15e72a30f6d556d373b2bf617"
+    "qa/preacher-gesture-candidate/expected-runtime.json": "14b1df0f9b38157214acbd8370cc53992ebb0ee15e72a30f6d556d373b2bf617",
+    "qa/erosion-ordinary/runtime.mjs": "b6e8580cea631b8a81513cbdfab83dd6680c528e719abd323f1f927acf569a53",
+    "qa/erosion-ordinary/source-policy.mjs": "834f3c72abd9918c85bd45293833786b927c24dd7be2658f09cc874a50c57004",
+    "qa/erosion-ordinary/policy.json": "644f29cdf8edef6b5aebcaaa0cccbe8ffb64138b13e24168c69293b348b0a53e"
   },
   "baselineTrees": {
     "app": "e08471b1db080a7ce66d2082b309d6efcfe9db26",

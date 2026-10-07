@@ -438,3 +438,37 @@ baseline may be launched only on the recorded base trees. Candidate remains
 disabled until the reviewed producer and consumer changes are adopted normally.
 Dependency-free contract tests and syntax checks are preparation only; standard
 application gates belong to the runtime candidate's owner.
+
+
+### Prospective scanner-commit observation
+
+Continuation02 at `1b67abd5` stays FAILED: the two coherent32 episodes at4646
+and4774 changed Brave cells during the whole turn, released to the exact original3
+at4753 and4884, then movement completed to a new17 at4898. The one ordinary
+crossing is exhausted; no historical row is relabeled.
+
+The separately reviewed callback method adds one temporary exact-value `flags3`
+observer on the acquired native person. It forwards the application's assignment
+before recording the consumed source/order/level inputs at `combatScan`'s commit
+in `app/live-combat.ts:221`. Read-only CDP captures the actually parsed modules;
+the existing Erosion source-map correspondence and exact served assignment/caller
+locations bind the stack through `allocateLiveCombatResponse`,
+`startLiveCombatResponse`, and the pre-movement `stepTurn` call. Source maps support
+correspondence under the pinned compiler; they do not independently authenticate
+transformed semantics. Actual served bodies, hashes, stack and locations are retained.
+
+Rows keep their real times: whole-turn before(T-1), scanner-commit(T), afterTurn(T).
+The same source/ownership/queue/health/pending/primary/native-Brave guards apply to
+the actual response interval. The old application-written flags3 supplies pending
+cadence evidence; the retained person counter stays diagnostic. No scanner return
+or original AL is inferred. Missing or duplicate matching callbacks fail; unrelated
+non-moving writes pass through and cannot qualify. Descriptor changes are temporary
+instrumentation, while assigned values, game clocks and RNG are untouched.
+
+The original descriptor attributes and latest application value must be restored
+before Save and on every exit; errors are retained outside the game callback.
+Only a newly qualifying event enters the existing lifecycle. One crossing, three
+episodes,180-second approach,12000rows/3600visits and840/870+20-second bounds remain.
+The latest independently verified committed Save digest is retained before later
+screenshot/UI work; final storage must match it, or genuine3234 if no Save was
+verified. Original acquisition and failed-prefix history remain explicit.

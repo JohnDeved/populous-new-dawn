@@ -555,7 +555,7 @@ test('candidate continuation binds genuine3234 and the failed candidate source w
   const pins = JSON.parse(readFileSync(new URL('./candidate-continuation-inputs.json', import.meta.url)))
   assert.equal(pins.side, 'candidate'); assert.equal(pins.checkpoint.turn, 3234)
   assert.equal(pins.originalActors.traineeId, 519); assert.equal(pins.crossingCaps.maxResponseEpisodes, 3)
-  assert.equal(pins.previousSourceCommit, '9dfc4c8591b5decf4163a755af2ad5c8f9b4e220')
+  assert.equal(pins.previousSourceCommit, '1b67abd591db9f733a0d2ddbc7459d59a65d4465')
   assert.equal(pins.originalAcquisition.sourceCommit, 'd969cace30848f4777352baa061fdc6eb2ca26d8')
   assert.equal(pins.checkpoint.checkpointSha256, 'ff6c9257b60a3944fa34aef5df79a0b6249889f78889c460ad6ad5baa998342b')
   const profile = { mode: 'reused', id: pins.profileId, inputs: { application: pins.application }, checkpointAtStart: pins.checkpoint,
