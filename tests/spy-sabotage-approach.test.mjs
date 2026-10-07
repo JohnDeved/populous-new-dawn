@@ -6,6 +6,9 @@ import { createLivePerson, registerLivePerson } from '../app/live-people.ts'
 import { stepLiveBuildingAttack } from '../app/live-building-combat.ts'
 import { clearLivePath } from '../app/live-pathfinding.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
+import { buildingSabotagePoint, buildingOutsidePoint, buildingPose } from '../app/building-shapes.ts'
+import { randomPersonSpeed } from '../app/person-state.ts'
+import { migrateCheckpoint } from '../app/game-store.ts'
 
 // Supplied unobstructed mechanics setup. Every order uses the production command
 // caller; the unchanged training-to-Spy test remains the integration witness.
@@ -90,4 +93,74 @@ test('Spy goal arrival does not wrap across the signed coordinate seam', () => {
   stepLiveBuildingAttack(w, spy)
   assert.equal(person.substate, 0)
   assert.equal(currentPersonOrder(w.buildingOrders, person), order)
+})
+
+test('Spy shape targets use all mask cells, rotated edges, wrapping and the outside fallback', () => {
+  // Source-derived coordinates from raw shapes15–18, marker masks0x24/0x26
+  // and the reviewed quadrant table. These are not executable-native captures.
+  const expected = [[8448, 9248], [9248, 8448], [8448, 7648], [7648, 8448]]
+  for (let direction = 0; direction < 4; direction++) {
+    const point = buildingSabotagePoint({ object: 134, angle: direction * 512, anchorX: 8192, anchorY: 8192 })
+    assert.deepEqual([point.x, point.y], expected[direction])
+  }
+  assert.deepEqual(buildingSabotagePoint({ object: 134, angle: 0, anchorX: 65024, anchorY: 65024 }),
+    { x: 65280, y: 544 })
+  // Shape35 has no bit0x20: its outside point (8640,7040) supplies the
+  // coarse cell, then the producer chooses its inside-facing edge.
+  assert.deepEqual(buildingSabotagePoint({ object: 100, angle: 0, anchorX: 8192, anchorY: 8192 }),
+    { x: 8448, y: 7136 })
+})
+
+test('Spy planning failure falls back outside within the same entry-gated visit', () => {
+  const { w, target, spy, person } = scenario()
+  command(w, target)
+  person.speed = 0
+  const goal = buildingSabotagePoint(buildingPose(target)),
+    cache = w.motionRoutes.failedSearches,
+    view = new DataView(cache.buffer, cache.byteOffset, cache.byteLength)
+  // Supply an existing native failed-route cache entry. The real planner owns
+  // its failure flag and the actual command15 consumer must choose the fallback.
+  view.setInt16(0, 16, true)
+  cache[2] = (person.x >> 8) & 254
+  cache[3] = (person.y >> 8) & 254
+  cache[6] = (goal.x >> 8) & 254
+  cache[7] = (goal.y >> 8) & 254
+  const expectedRng = { randomState: w.randomState },
+    expectedSpeed = randomPersonSpeed(expectedRng, person)
+  stepLiveBuildingAttack(w, spy)
+  assert.deepEqual({ x: person.goalX, y: person.goalY }, buildingOutsidePoint(buildingPose(target)))
+  assert.equal(person.flags4 & 0x10000000, 0, 'the successful outside retry clears the planning failure')
+  assert.equal(person.flags2 & 0x40000000, 0)
+  assert.equal(person.speed, expectedSpeed)
+  assert.equal(w.randomState, expectedRng.randomState, 'recovery consumes one native speed draw')
+  stepLiveBuildingAttack(w, spy)
+  assert.equal(w.randomState, expectedRng.randomState, 'ordinary approach does not repeat recovery')
+})
+
+test('Spy approach and armed wait checkpoints retain the registered owner, order and next-visit timing', () => {
+  for (const waiting of [false, true]) {
+    const { w, target, spy, person } = scenario()
+    command(w, target)
+    stepLiveBuildingAttack(w, spy)
+    if (waiting) {
+      person.x = person.goalX
+      person.y = person.goalY
+      person.speed = 0
+      Object.assign(spy, browserPosition(person))
+      stepLiveBuildingAttack(w, spy)
+      assert.equal(person.substate, 1)
+      assert.ok(person.flags2 & 0x40000000)
+    }
+    const restored = migrateCheckpoint(structuredClone(w)),
+      copy = restored.units.find(u => u.id === spy.id)
+    assert.equal(restored.objectCells.objects.get(spy.id), copy.native)
+    for (let visit = 0; visit < 8; visit++) {
+      stepLiveBuildingAttack(w, spy)
+      stepLiveBuildingAttack(restored, copy)
+      assert.deepEqual(copy.native, person)
+      assert.deepEqual(restored.buildingOrders, w.buildingOrders)
+      assert.equal(restored.randomState, w.randomState)
+      if (waiting && visit === 0) assert.equal(copy.native.timer, 9)
+    }
+  }
 })

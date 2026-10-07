@@ -310,6 +310,25 @@ export function buildingOutsidePoint(b: BuildingShapePose): Point {
   }
 }
 
+// 0x40a6b0: Spy approach uses a non-occupancy mask cell and its inside-facing edge.
+export function buildingSabotagePoint(b: BuildingShapePose): Point {
+  const marked = buildingShapeCells(b).find(cell => cell.mask & 0x20),
+    point = marked
+      ? { x: (marked.index & 127) * 512, y: (marked.index >> 7) * 512 }
+      : buildingOutsidePoint(b),
+    center = { x: (point.x & 0xfe00) + 256, y: (point.y & 0xfe00) + 256 },
+    inside = buildingInsidePoint(b),
+    angle = nativeAngle(short(inside.x - center.x), -short(inside.y - center.y)),
+    offsets = [
+      { x: 256, y: 480 },
+      { x: 480, y: 256 },
+      { x: 256, y: 32 },
+      { x: 32, y: 256 },
+    ],
+    offset = offsets[((angle + 256) & 1536) >> 9]
+  return { x: (center.x & 0xfe00) + offset.x, y: (center.y & 0xfe00) + offset.y }
+}
+
 export interface BuildingPlanPose {
   cell: number
   shape: number
