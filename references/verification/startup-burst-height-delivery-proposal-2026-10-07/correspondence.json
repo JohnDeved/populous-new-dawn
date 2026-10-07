@@ -1,0 +1,55 @@
+{
+  "status": "source-only; clean delivery tests and ordinary browser not-run",
+  "cleanHead": "8f50dda281ec6338bdb84e21473879f29a0282f9",
+  "base": "e3a7a06a4250457502288d5b4c4e4ad8f3b40b53",
+  "acceptedResearchGreenSource": "82a78b2ed64795e49309ca9ca24bfa0c40242a00",
+  "acceptedResearchRetention": "6be97bf8e3ee853e61a9f5a3eefd40b7e7c0ed20",
+  "changedSourceSha256": {
+    "app/level-start-runtime.ts": "2450145b24d5e0b0e278f157de38e83756443a92a88dee3e8fc2fef4492c4798",
+    "decomp/research/level-start-sequence.md": "085f6cc4be1b4935d467bb1fe705e1c63b08fd35ee473c463fdaee20415aa244",
+    "package.json": "2b18a30cb9b7edba84356d25030fc14ab44e75007d25c1db4164162d3233f0be",
+    "scripts/local-render/startup-burst-observer.mjs": "c1bcad473eefcb1f552ee6630183921a7a69052825c6e8707fff4a8e0d7a10ae",
+    "scripts/local-render/startup-burst.mjs": "df162f2455cae47a630f5f59b0afa4aba0ace9387364391a215371b90feba2bd",
+    "tests/fixtures/startup-burst-height-authored.json": "a1882793918442fc02a0a75fef096c48425d3ce5eab2f72723a15ac8adc8e418",
+    "tests/fixtures/startup-burst-height-native.json": "ff00dce327343372721d5b3183f78e7b4740a3cab1568539ff1d3d08175d55f9",
+    "tests/startup-burst-height.test.mjs": "a1b3af1bfabdd5926decbfa19c6be9c0ad45443fc8b6c4948cb6db5cba43c4d3",
+    "tests/startup-burst-observer.test.mjs": "061dbc9b9b306ec9a3ca89e09dcf7f87cf775ba533afa8bbae92eadaa079583f"
+  },
+  "runtimeByteIdenticalToAcceptedGreen": true,
+  "regressionIdenticalAfterOnlyFixturePathAndChecksumNormalization": true,
+  "nativeFixture": {
+    "original": "references/verification/startup-burst-arrival-2026-10-07/attempt-01/native-stdout.log",
+    "originalSha256": "ecec70d64abcfedd06ea1146462b6f7d86e35a3e8b77652f5cea0587b058c957",
+    "compact": "tests/fixtures/startup-burst-height-native.json",
+    "compactSha256": "ff00dce327343372721d5b3183f78e7b4740a3cab1568539ff1d3d08175d55f9",
+    "statusCopied": true,
+    "completeRootRecordsCopied": 3,
+    "completeBirthRecordsCopied": 32,
+    "bytesPerRecord": 179,
+    "allRecordHexEqual": true
+  },
+  "authoredFixture": {
+    "original": "references/verification/startup-burst-height-assessment-2026-10-07/authored-data.json",
+    "originalSha256": "701e6c2e248be4b309c49bbd711e2d683b81c4145765dde38f3c86f8314f12a6",
+    "compact": "tests/fixtures/startup-burst-height-authored.json",
+    "compactSha256": "a1882793918442fc02a0a75fef096c48425d3ce5eab2f72723a15ac8adc8e418",
+    "allMissionEnabledFlagsAndNativeXYEqual": true,
+    "missionCount": 3,
+    "siteCount": 6,
+    "candidateStoneCount": 48,
+    "enabledStoneCount": 32
+  },
+  "observer": {
+    "delta": "Pure existing terrainPointHeight import plus ground at actual animation XY and existing effectHeight reads per selected particle; driver limits text and existing unit test extended.",
+    "unchanged": "Original render forwarding/return/exception, same receiver/args, scene/world ownership, readback count, turn record sampling, before/moved-burst/after labels, discovery/restore and public controls.",
+    "comparison": "Only actual shared observed world turns, particle IDs and ages. Retain x/y/h/ground/effectHeight and presented flags plus raw PNGs. Do not infer an unpresented birth or constant pixel shift.",
+    "nativeGroundOwner": "app/native-terrain.ts::terrainPointHeight reads existing four stored heights and diagonal; no mutation or RNG"
+  },
+  "pending": [
+    "Independent clean loader/observer source review",
+    "Adopt accepted PR247 successor main normally before final packet freeze",
+    "Clean-source standard/quality/broader startup gates",
+    "Reviewed finite ordinary before/after packet and separate resource grant"
+  ],
+  "noExecution": true
+}

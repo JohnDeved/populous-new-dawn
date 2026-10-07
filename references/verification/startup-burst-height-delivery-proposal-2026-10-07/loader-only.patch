@@ -1,0 +1,16 @@
+--- accepted-green/tests/startup-burst-height.test.mjs
++++ clean/tests/startup-burst-height.test.mjs
+@@ -5,10 +5,10 @@
+ import { createWorld, tick } from '../app/model.ts'
+ import { terrainPointHeight } from '../app/native-terrain.ts'
+ 
+-const nativeBytes = readFileSync(new URL('../references/verification/startup-burst-arrival-2026-10-07/attempt-01/native-stdout.log', import.meta.url))
+-assert.equal(createHash('sha256').update(nativeBytes).digest('hex'), 'ecec70d64abcfedd06ea1146462b6f7d86e35a3e8b77652f5cea0587b058c957')
++const nativeBytes = readFileSync(new URL('./fixtures/startup-burst-height-native.json', import.meta.url))
++assert.equal(createHash('sha256').update(nativeBytes).digest('hex'), 'ff00dce327343372721d5b3183f78e7b4740a3cab1568539ff1d3d08175d55f9')
+ const native = JSON.parse(nativeBytes)
+-const authored = JSON.parse(readFileSync(new URL('../references/verification/startup-burst-height-assessment-2026-10-07/authored-data.json', import.meta.url)))
++const authored = JSON.parse(readFileSync(new URL('./fixtures/startup-burst-height-authored.json', import.meta.url)))
+ const nativeHeight = record => Buffer.from(record.recordHex, 'hex').readInt16LE(0x41)
+ const nativeRoot = key => native.events.find(event => key in event)[key]
+ const nativeGround = nativeHeight(nativeRoot('rootAfterCommon'))
