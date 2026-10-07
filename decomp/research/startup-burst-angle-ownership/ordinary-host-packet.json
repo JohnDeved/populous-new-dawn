@@ -71,7 +71,6 @@
     ".vite",
     ".vite-temp"
   ],
-  "profile": "/workspace/scratch/69fd8163d94e/startup-burst-angle-fix-20261007/work/local-render-profiles/startup-burst-candidate-01",
   "output": "/workspace/scratch/69fd8163d94e/startup-burst-angle-fix-20261007/work/orchestration/startup-burst-ordinary-candidate-01",
   "hostOutput": "/workspace/scratch/69fd8163d94e/startup-burst-angle-fix-20261007/work/orchestration/startup-burst-ordinary-candidate-host-01",
   "temporary": "/workspace/scratch/69fd8163d94e/startup-burst-angle-fix-20261007/work/local-render-temp/startup-burst-candidate-01",
@@ -170,8 +169,6 @@
     "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/extract-browser/chrome-headless-shell-linux64/chrome-headless-shell",
     "--scenario",
     "/workspace/scratch/69fd8163d94e/startup-burst-angle-fix-20261007/scripts/local-render/startup-burst.mjs",
-    "--profile",
-    "/workspace/scratch/69fd8163d94e/startup-burst-angle-fix-20261007/work/local-render-profiles/startup-burst-candidate-01",
     "--output",
     "/workspace/scratch/69fd8163d94e/startup-burst-angle-fix-20261007/work/orchestration/startup-burst-ordinary-candidate-01",
     "--port",
@@ -203,15 +200,17 @@
     "hostFallbackSeconds": 163,
     "nodeHeapMiB": 1024
   },
-  "hostSha256": "3bd6433ee64521ccc24c395d451fcb4f5b2cf202d238225fd7de5ed483b604b0",
+  "hostSha256": "667a11b75864c222953012c4a31d66e30f4a50206f1d4b5d0dda3e13a5c7f1ac",
   "approval": "This frozen packet does not itself grant launch or dependency transfer. The coordinator grants one exact committed-head invocation separately.",
   "hostReuse": {
     "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/references/verification/hut-smoke-state-exit-2026-10-06/ordinary-05/source-host.py",
     "sourceSha256": "e34570b0704c1b370d6d7f744ff5f9d53a675d18ed2fb86ba5ec425a4cb2e9dd",
     "changes": [
       "Task-specific packet path only",
-      "Fallback deadline reduced from523s to163s; TERM/KILL/PID+start-time/session ownership and dependency return are otherwise unchanged"
+      "Fallback deadline reduced from523s to163s; TERM/KILL/PID+start-time/session ownership and dependency return are otherwise unchanged",
+      "Remove unused persistent-profile absence checks; CLI uses the existing harness disposable context without --profile"
     ]
   },
-  "acceptedMain": "7c0bcdb246023ff4263b4baeddf5a84f7f90a7a0"
+  "acceptedMain": "7c0bcdb246023ff4263b4baeddf5a84f7f90a7a0",
+  "browserContext": "Existing harness disposable context; no persistent profile, checkpoint or save. Temporary browser resources stay under the task TMPDIR and are owned by the same-invocation host."
 }

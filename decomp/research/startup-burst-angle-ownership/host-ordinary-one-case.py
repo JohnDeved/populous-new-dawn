@@ -25,7 +25,7 @@ lock_bytes = (donor / '.package-lock.json').read_bytes()
 assert hashlib.sha256(lock_bytes).hexdigest() == plan['installedLockSha256']
 assert sha(root / 'package-lock.json') == plan['packageLockSha256']
 for name, expected in plan['dependencyFiles'].items(): assert sha(donor / name) == expected, name
-for name in ('output', 'profile', 'temporary', 'hostOutput'):
+for name in ('output', 'temporary', 'hostOutput'):
     assert not Path(plan[name]).exists() and not Path(plan[name]).is_symlink(), name
 with socket.socket() as listener: listener.bind(('127.0.0.1', plan['port']))
 output = Path(plan['hostOutput']); output.mkdir(parents=True)
@@ -101,7 +101,7 @@ try:
             receipt['cacheMoves'].append({'at': now(), 'from': str(cache), 'to': str(retained)})
     temporary = Path(plan['temporary'])
     for subdir in ('tmp', 'cache', 'config'): (temporary / subdir).mkdir(parents=True, mode=0o700)
-    assert not Path(plan['output']).exists() and not Path(plan['profile']).exists()
+    assert not Path(plan['output']).exists()
     with socket.socket() as listener: listener.bind(('127.0.0.1', plan['port']))
     assert source() == receipt['sourceBefore']
     receipt['status'] = 'running'; receipt['launchedAt'] = now(); save()
