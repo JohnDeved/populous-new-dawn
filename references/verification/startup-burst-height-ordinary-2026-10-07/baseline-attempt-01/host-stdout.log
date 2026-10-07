@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "output": "work/orchestration/startup-burst-height-ordinary-baseline-host-01/command-receipt.json",
+  "headOid": "b6c4d255cbf55a57568072666b1dc74726d75ab3",
+  "exitCode": 0,
+  "stdoutSha256": "41d06328a47181f93a6e43432c92ca0f7c9d4185acb96ff29a18f60884ca03cc",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

@@ -1,0 +1,66 @@
+{
+  "verdict": "ACCEPT exact ordinary baseline preflight; candidate source ready but separately gated after baseline result/cleanup",
+  "proposalHead": "bacc0970d14496491cd7b20c68be0e7a5f6c7ec4",
+  "baseline": {
+    "head": "b6c4d255cbf55a57568072666b1dc74726d75ab3",
+    "packetSha256": "80dec51f40162d27ee54da08db012c70fd64eacc34055c74f068b673fd763d73",
+    "port": 4214
+  },
+  "candidate": {
+    "head": "8f50dda281ec6338bdb84e21473879f29a0282f9",
+    "packetSha256": "dab40904a533644241cef700b1ae15b1add282e67a0c70329294da7452aa3036",
+    "port": 4215
+  },
+  "hostSha256": "bdde66897c1cabd50469468dacdbb51418cf6d585c2463eec6515d573eeda39b",
+  "method": "Read-only exact source/hash/receipt/dependency identity and proc port inspection; no browser/test execution or resource move",
+  "verified": {
+    "sourcesPerCase": 36,
+    "toolsPerCase": 6,
+    "dependencyPinsPerCase": 15,
+    "donorIdentity": [
+      27,
+      1978923
+    ],
+    "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "baselineAppEqualsAcceptedMainE3": true,
+    "pairDifferenceOnly": "app/level-start-runtime.ts",
+    "samePassiveQaAndAngleSource": true,
+    "cleanHeads": true,
+    "localDependenciesOutputTmpAbsent": true,
+    "portsFreeAtReview": true
+  },
+  "hostDelta": "Accepted angle host plus external frozen case/root selection, strict sourceAnchor equality and terminal external-packet hash. Host itself is pre/post tool-bound. Existing lease/fullinventory/cache/ownedPID-start-session cleanup unchanged.",
+  "bounds": {
+    "cpu": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "scenarioMs": 120000,
+    "outerSeconds": 150,
+    "killGraceSeconds": 10,
+    "hostFallbackSeconds": 163,
+    "nodeHeapMiB": 1024,
+    "oneCaseAtATime": true,
+    "retry": false
+  },
+  "compactChecks": {
+    "passed": 13,
+    "failed": 0,
+    "skipped": 0,
+    "inputsStable": 233,
+    "hostPassed": true,
+    "resourcesReleased": true,
+    "remainingGroups": [],
+    "receiptSha256": "d6067d64d364410a7274db34826fe05d8ae14e38718a9a1e2101ec9e7fafaf5d",
+    "manifestSha256": "2e35898a229d4bb7cfedce1f929605f76f15f9d6761e95ee10f04e3fc2ea5c0a"
+  },
+  "acceptanceLimits": [
+    "Ordinary public Mission1/Skip/elapsedRAF and same-call passive render only; no forced frame/clock/world/seed.",
+    "Compare only common actually observed turn/particleID/age context, preserving XY,current-position ground,nativeh,effectHeight and presented/loading flags.",
+    "Report missing frames and any loading-covered before image. Do not infer unseen birth or constant screen-pixel shift.",
+    "Disposable isolated browser contexts, no persistent campaign profile/checkpoint sharing.",
+    "Candidate launch needs its separate parent grant after baseline actual result and complete dependency return; final integrated gates remain pending."
+  ]
+}

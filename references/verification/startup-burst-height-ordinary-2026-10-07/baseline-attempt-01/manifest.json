@@ -1,0 +1,74 @@
+{
+  "source": "b6c4d255cbf55a57568072666b1dc74726d75ab3",
+  "proposalManifestSha256": "80dec51f40162d27ee54da08db012c70fd64eacc34055c74f068b673fd763d73",
+  "rawCopies": {
+    "host-receipt.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-before-source-20261007/work/orchestration/startup-burst-height-ordinary-baseline-host-01/receipt.json",
+      "sha256": "7240c02d2a0cbc2cc65ac90ca131e4503cd702a7db600e81f5f7cca54bbe26ab",
+      "bytes": 86934
+    },
+    "command-receipt.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-before-source-20261007/work/orchestration/startup-burst-height-ordinary-baseline-host-01/command-receipt.json",
+      "sha256": "d8b26fce16ac21ad13ce799082b20656cc2cb4f027399fde08229dc6e1adcd24",
+      "bytes": 172079
+    },
+    "browser-receipt.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-before-source-20261007/work/orchestration/startup-burst-height-ordinary-baseline-01/receipt.json",
+      "sha256": "5b2153c21b49dcc6a5ed09ac76518033bcd52a9c034d449baae978cbc691e7ce",
+      "bytes": 341499
+    },
+    "scenario.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-before-source-20261007/work/orchestration/startup-burst-height-ordinary-baseline-01/startup-burst.json",
+      "sha256": "7232b350942f3fe6786f6cd943e317cca8fdef037c4356c33e496f0d9be8fb72",
+      "bytes": 313208
+    },
+    "command-stdout.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-before-source-20261007/work/orchestration/startup-burst-height-ordinary-baseline-host-01/command-receipt.json.artifacts/stdout.log",
+      "sha256": "41d06328a47181f93a6e43432c92ca0f7c9d4185acb96ff29a18f60884ca03cc",
+      "bytes": 139725
+    },
+    "command-stderr.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-before-source-20261007/work/orchestration/startup-burst-height-ordinary-baseline-host-01/command-receipt.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "host-stdout.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-before-source-20261007/work/orchestration/startup-burst-height-ordinary-baseline-host-01/stdout.txt",
+      "sha256": "afc36417a5860912aaea1531259e61ff197981b7997ab7dd427542cc2d8f4f5b",
+      "bytes": 373
+    },
+    "host-stderr.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-before-source-20261007/work/orchestration/startup-burst-height-ordinary-baseline-host-01/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "server.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-before-source-20261007/work/orchestration/startup-burst-height-ordinary-baseline-01/server.log",
+      "sha256": "a32052090713d6b333013f96f68cb0924d41b3acdd4eecc6704d6095408ecfed",
+      "bytes": 336
+    },
+    "mission-1-startup-before.png": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-before-source-20261007/work/orchestration/startup-burst-height-ordinary-baseline-01/mission-1-startup-before.png",
+      "sha256": "df52bc1d5a94be971454f017d9238ec5c61643912503d348ac2841700c6cf5ba",
+      "bytes": 2415745
+    },
+    "mission-1-startup-burst.png": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-before-source-20261007/work/orchestration/startup-burst-height-ordinary-baseline-01/mission-1-startup-burst.png",
+      "sha256": "0a2a0d552e51338d87f9aabe013ff74060435e46ea3f783826677da0ca13cbd1",
+      "bytes": 2415454
+    },
+    "mission-1-startup-after.png": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-before-source-20261007/work/orchestration/startup-burst-height-ordinary-baseline-01/mission-1-startup-after.png",
+      "sha256": "4ff35330b1e70ff0d9566d055b0431f5f8e09780b6d25ede810fa0d7a345b6bb",
+      "bytes": 2408504
+    }
+  },
+  "derived": {
+    "preflight-review.json": "455e5f1dd9923fb9acec64241a82f3d11d6ac646c478b279878889340013a9e9",
+    "observations.json": "1018b3fa61bb4aab904a1ffeeae2f8713e1d48ebf644b9671e2263ab782e827e"
+  },
+  "dependencyInventoriesKeptInOriginalPrivateHostDirectory": {
+    "before": "0c43ff1295c24bce7b78202de3209e3ba5f784b0320dee782a59aee025518ced",
+    "after": "0c43ff1295c24bce7b78202de3209e3ba5f784b0320dee782a59aee025518ced"
+  }
+}
