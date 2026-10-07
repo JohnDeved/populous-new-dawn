@@ -1,0 +1,42 @@
+{
+  "mode": "PE byte reading/disassembly only",
+  "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "ranges": [
+    {
+      "label": "native_pool_bootstrap",
+      "start": "004ed820",
+      "endExclusive": "004ed8a0",
+      "sha256": "9e7b9c8712a42bb488d3bcd3f0882ca59463ab9f8001dfa6ab3fad2210ba8c23"
+    },
+    {
+      "label": "pre_record_data_delivery",
+      "start": "00484c9a",
+      "endExclusive": "00484ce9",
+      "sha256": "5a7266dbe97a42587ca809b4681d5be70558e42b304b3d9e4e404f0c3480fa7c"
+    },
+    {
+      "label": "canonical_flag_tribe_sun_delivery",
+      "start": "00484da9",
+      "endExclusive": "00484e92",
+      "sha256": "1b2cf0235cfb2f17377c1a458786c4845fd18b7e66c5dfd37b54165d7b514554"
+    },
+    {
+      "label": "composed_roster_site_order_slice",
+      "start": "0042b403",
+      "endExclusive": "0042b48a",
+      "sha256": "215afdb9c7f4abebe661b3cfc20631d784f83bc59d974a2daa636b22fe2e0c43"
+    },
+    {
+      "label": "fresh_tribe_reset_owner",
+      "start": "0042b7f0",
+      "endExclusive": "0042b909",
+      "sha256": "c14f8c5d24887ba758c61d5ac1afd3f2a129b7c1cd51524753edf30cbea93c91"
+    },
+    {
+      "label": "native_sunlight_entry",
+      "start": "00401090",
+      "endExclusive": "004010ac",
+      "sha256": "33f758325679fe4dfa0f95517deb06884db7281b8ae63e3e12b76e0cbed85225"
+    }
+  ]
+}

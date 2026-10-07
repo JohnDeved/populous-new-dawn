@@ -1,0 +1,890 @@
+{
+  "status": "source proposal; not executable or authorized to run",
+  "case": "mission2_fresh_ordered_callbacks",
+  "baseMain": "e3a7a06a4250457502288d5b4c4e4ad8f3b40b53",
+  "acceptedStaticAudit": "a09eba7f5afdd420367eb5cecdb3eff860e0532b",
+  "inputs": {
+    "d3dpoptb.exe": {
+      "sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "bytes": 2275840
+    },
+    "levels/levl2002.dat": {
+      "sha256": "83f5c446975398b163ef00526567f7a86b2666d26f9f026231ec0b36bf5a289f",
+      "bytes": 192137
+    },
+    "levels/levl2002.hdr": {
+      "sha256": "44be9f709f03f4b4d936d86056256e7bb98683088332b4bb47354ad709ea8a49",
+      "bytes": 616
+    },
+    "levels/constant.dat": {
+      "sha256": "e905e513c798171d5540082565b8addc9f54e5851006b56e8d1976687ba42f24",
+      "bytes": 11712
+    },
+    "objects/objs0-2.dat": {
+      "sha256": "e1af6bdf050608d7c1832700826bece72ca592abdff3ee9c2138c50ed8a8607d",
+      "bytes": 8532
+    },
+    "objects/shapes.dat": {
+      "sha256": "ae1188129d84c266d91a1e9e75d960e99e80cdfd573f85d524742e970a0b2849",
+      "bytes": 4604
+    },
+    "data/vstart-0.ani": {
+      "sha256": "64a8975f234aa67eafc4d4d9edd7cc4aeba9f5743d028d8203e0c67ca199a1aa",
+      "bytes": 3168
+    },
+    "data/vfra-0.ani": {
+      "sha256": "c91720da3c636fb74cb749c5f8747ae884c1d76dbeed4b845f5a199ef1a55258",
+      "bytes": 31688
+    },
+    "data/mwsearch.dat": {
+      "sha256": "0c39b12d160658863c2df89aa34484dff459e48ea0b5634658b7473ca940fae0",
+      "bytes": 8320
+    }
+  },
+  "mission": {
+    "mission": 2,
+    "sourceFile": "app/level-two.ts",
+    "sourceSha256": "c576f47683ab6e58682e78c221eed5f44e91717e2e27097be0f5b5ba9f97c111",
+    "datSha256": "83f5c446975398b163ef00526567f7a86b2666d26f9f026231ec0b36bf5a289f",
+    "headerSha256": "44be9f709f03f4b4d936d86056256e7bb98683088332b4bb47354ad709ea8a49",
+    "headerTribeCount": 4,
+    "landscapeBank": 28,
+    "objectBank": 0,
+    "headerFlags": 0,
+    "recordsInFile": 2000,
+    "nonzeroAuthoredRecords": 81,
+    "ownerFilter": "signed int8 owner < uint8 tribeCount; owner255 is -1",
+    "authoredIdentityOrderMatchesApp": true,
+    "people": [
+      {
+        "recordIndex0": 6,
+        "recordId1": 7,
+        "classId": 1,
+        "model": 2,
+        "owner": 3,
+        "successfulDirectOrdinal0": 0
+      },
+      {
+        "recordIndex0": 7,
+        "recordId1": 8,
+        "classId": 1,
+        "model": 2,
+        "owner": 3,
+        "successfulDirectOrdinal0": 1
+      },
+      {
+        "recordIndex0": 8,
+        "recordId1": 9,
+        "classId": 1,
+        "model": 3,
+        "owner": 3,
+        "successfulDirectOrdinal0": 2
+      },
+      {
+        "recordIndex0": 9,
+        "recordId1": 10,
+        "classId": 1,
+        "model": 3,
+        "owner": 3,
+        "successfulDirectOrdinal0": 3
+      },
+      {
+        "recordIndex0": 10,
+        "recordId1": 11,
+        "classId": 1,
+        "model": 2,
+        "owner": 3,
+        "successfulDirectOrdinal0": 4
+      },
+      {
+        "recordIndex0": 11,
+        "recordId1": 12,
+        "classId": 1,
+        "model": 2,
+        "owner": 3,
+        "successfulDirectOrdinal0": 5
+      },
+      {
+        "recordIndex0": 12,
+        "recordId1": 13,
+        "classId": 1,
+        "model": 2,
+        "owner": 3,
+        "successfulDirectOrdinal0": 6
+      },
+      {
+        "recordIndex0": 13,
+        "recordId1": 14,
+        "classId": 1,
+        "model": 2,
+        "owner": 3,
+        "successfulDirectOrdinal0": 7
+      },
+      {
+        "recordIndex0": 14,
+        "recordId1": 15,
+        "classId": 1,
+        "model": 2,
+        "owner": 3,
+        "successfulDirectOrdinal0": 8
+      },
+      {
+        "recordIndex0": 15,
+        "recordId1": 16,
+        "classId": 1,
+        "model": 3,
+        "owner": 3,
+        "successfulDirectOrdinal0": 9
+      },
+      {
+        "recordIndex0": 16,
+        "recordId1": 17,
+        "classId": 1,
+        "model": 3,
+        "owner": 3,
+        "successfulDirectOrdinal0": 10
+      },
+      {
+        "recordIndex0": 17,
+        "recordId1": 18,
+        "classId": 1,
+        "model": 2,
+        "owner": 3,
+        "successfulDirectOrdinal0": 11
+      },
+      {
+        "recordIndex0": 18,
+        "recordId1": 19,
+        "classId": 1,
+        "model": 2,
+        "owner": 3,
+        "successfulDirectOrdinal0": 12
+      },
+      {
+        "recordIndex0": 19,
+        "recordId1": 20,
+        "classId": 1,
+        "model": 2,
+        "owner": 3,
+        "successfulDirectOrdinal0": 13
+      },
+      {
+        "recordIndex0": 20,
+        "recordId1": 21,
+        "classId": 1,
+        "model": 2,
+        "owner": 3,
+        "successfulDirectOrdinal0": 14
+      },
+      {
+        "recordIndex0": 21,
+        "recordId1": 22,
+        "classId": 1,
+        "model": 3,
+        "owner": 3,
+        "successfulDirectOrdinal0": 15
+      },
+      {
+        "recordIndex0": 22,
+        "recordId1": 23,
+        "classId": 1,
+        "model": 7,
+        "owner": 3,
+        "successfulDirectOrdinal0": 16
+      },
+      {
+        "recordIndex0": 23,
+        "recordId1": 24,
+        "classId": 1,
+        "model": 3,
+        "owner": 3,
+        "successfulDirectOrdinal0": 17
+      },
+      {
+        "recordIndex0": 57,
+        "recordId1": 58,
+        "classId": 1,
+        "model": 7,
+        "owner": 0,
+        "successfulDirectOrdinal0": 18
+      },
+      {
+        "recordIndex0": 64,
+        "recordId1": 65,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 19
+      },
+      {
+        "recordIndex0": 65,
+        "recordId1": 66,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 20
+      },
+      {
+        "recordIndex0": 66,
+        "recordId1": 67,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 21
+      },
+      {
+        "recordIndex0": 67,
+        "recordId1": 68,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 22
+      },
+      {
+        "recordIndex0": 68,
+        "recordId1": 69,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 23
+      },
+      {
+        "recordIndex0": 69,
+        "recordId1": 70,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 24
+      },
+      {
+        "recordIndex0": 70,
+        "recordId1": 71,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 25
+      },
+      {
+        "recordIndex0": 71,
+        "recordId1": 72,
+        "classId": 1,
+        "model": 1,
+        "owner": 255,
+        "successfulDirectOrdinal0": 26
+      }
+    ],
+    "heads": [
+      {
+        "recordIndex0": 25,
+        "recordId1": 26,
+        "classId": 6,
+        "model": 6,
+        "owner": 0,
+        "mode": 4,
+        "links": [
+          {
+            "recordIndex0": 26,
+            "recordId1": 27,
+            "classId": 6,
+            "model": 2,
+            "owner": 255
+          }
+        ],
+        "coLocatedScenery9": []
+      },
+      {
+        "recordIndex0": 59,
+        "recordId1": 60,
+        "classId": 6,
+        "model": 6,
+        "owner": 0,
+        "mode": 0,
+        "links": [
+          {
+            "recordIndex0": 60,
+            "recordId1": 61,
+            "classId": 7,
+            "model": 24,
+            "owner": 0
+          }
+        ],
+        "coLocatedScenery9": [
+          {
+            "recordIndex0": 58,
+            "recordId1": 59,
+            "classId": 5,
+            "model": 9,
+            "owner": 255
+          }
+        ]
+      },
+      {
+        "recordIndex0": 63,
+        "recordId1": 64,
+        "classId": 6,
+        "model": 6,
+        "owner": 0,
+        "mode": 0,
+        "links": [
+          {
+            "recordIndex0": 62,
+            "recordId1": 63,
+            "classId": 6,
+            "model": 2,
+            "owner": 255
+          }
+        ],
+        "coLocatedScenery9": [
+          {
+            "recordIndex0": 61,
+            "recordId1": 62,
+            "classId": 5,
+            "model": 9,
+            "owner": 255
+          }
+        ]
+      }
+    ],
+    "rewards": [
+      {
+        "recordIndex0": 26,
+        "recordId1": 27,
+        "classId": 6,
+        "model": 2,
+        "owner": 255,
+        "rewardClass": 11,
+        "rewardModel": 5,
+        "settingByte2": 1,
+        "nestedClass6Model10Attempt": true
+      },
+      {
+        "recordIndex0": 62,
+        "recordId1": 63,
+        "classId": 6,
+        "model": 2,
+        "owner": 255,
+        "rewardClass": 11,
+        "rewardModel": 4,
+        "settingByte2": 3,
+        "nestedClass6Model10Attempt": false
+      }
+    ],
+    "classModelCounts": [
+      {
+        "classId": 1,
+        "model": 1,
+        "count": 8
+      },
+      {
+        "classId": 1,
+        "model": 2,
+        "count": 11
+      },
+      {
+        "classId": 1,
+        "model": 3,
+        "count": 6
+      },
+      {
+        "classId": 1,
+        "model": 7,
+        "count": 2
+      },
+      {
+        "classId": 2,
+        "model": 3,
+        "count": 4
+      },
+      {
+        "classId": 2,
+        "model": 4,
+        "count": 1
+      },
+      {
+        "classId": 2,
+        "model": 7,
+        "count": 1
+      },
+      {
+        "classId": 2,
+        "model": 18,
+        "count": 1
+      },
+      {
+        "classId": 5,
+        "model": 1,
+        "count": 24
+      },
+      {
+        "classId": 5,
+        "model": 2,
+        "count": 5
+      },
+      {
+        "classId": 5,
+        "model": 3,
+        "count": 6
+      },
+      {
+        "classId": 5,
+        "model": 4,
+        "count": 1
+      },
+      {
+        "classId": 5,
+        "model": 9,
+        "count": 2
+      },
+      {
+        "classId": 6,
+        "model": 2,
+        "count": 2
+      },
+      {
+        "classId": 6,
+        "model": 6,
+        "count": 3
+      },
+      {
+        "classId": 6,
+        "model": 9,
+        "count": 3
+      },
+      {
+        "classId": 7,
+        "model": 24,
+        "count": 1
+      }
+    ],
+    "authoredBuildings": [
+      {
+        "recordIndex0": 0,
+        "recordId1": 1,
+        "classId": 2,
+        "model": 18,
+        "owner": 255
+      },
+      {
+        "recordIndex0": 1,
+        "recordId1": 2,
+        "classId": 2,
+        "model": 7,
+        "owner": 3
+      },
+      {
+        "recordIndex0": 3,
+        "recordId1": 4,
+        "classId": 2,
+        "model": 3,
+        "owner": 3
+      },
+      {
+        "recordIndex0": 5,
+        "recordId1": 6,
+        "classId": 2,
+        "model": 3,
+        "owner": 3
+      },
+      {
+        "recordIndex0": 24,
+        "recordId1": 25,
+        "classId": 2,
+        "model": 4,
+        "owner": 3
+      },
+      {
+        "recordIndex0": 79,
+        "recordId1": 80,
+        "classId": 2,
+        "model": 3,
+        "owner": 3
+      },
+      {
+        "recordIndex0": 80,
+        "recordId1": 81,
+        "classId": 2,
+        "model": 3,
+        "owner": 0
+      }
+    ],
+    "headPostprocessingOrder": [
+      64,
+      60,
+      26
+    ],
+    "loaderSkipped": [
+      {
+        "recordIndex0": 2,
+        "recordId1": 3,
+        "classId": 6,
+        "model": 9,
+        "owner": 3
+      },
+      {
+        "recordIndex0": 4,
+        "recordId1": 5,
+        "classId": 6,
+        "model": 9,
+        "owner": 3
+      },
+      {
+        "recordIndex0": 78,
+        "recordId1": 79,
+        "classId": 6,
+        "model": 9,
+        "owner": 3
+      }
+    ],
+    "explicitClass7Records": [
+      {
+        "recordIndex0": 60,
+        "recordId1": 61,
+        "classId": 7,
+        "model": 24,
+        "owner": 0
+      }
+    ],
+    "limits": "Static input/branch inventory; successfulDirectOrdinal0 is conditional, not a native return observation."
+  },
+  "nativePool": {
+    "recordBase": "008e0428",
+    "recordStride": 179,
+    "recordCount": 2000,
+    "primaryHandlesInclusive": [
+      1,
+      1839
+    ],
+    "lowHandlesInclusive": [
+      1,
+      639
+    ],
+    "highHandlesInclusive": [
+      640,
+      1839
+    ],
+    "secondaryHandlesInclusive": [
+      1840,
+      1999
+    ],
+    "nativeOwners": [
+      "004ed820",
+      "004ed880",
+      "004ee300"
+    ],
+    "nativeStorageEndExclusive": "00937a98",
+    "nullHandle": 0
+  },
+  "scratch": {
+    "base": "02000000",
+    "bytes": 2097152,
+    "objects": "02000000",
+    "shapes": "02004000",
+    "records": "02040000",
+    "animationCounts": "02020000",
+    "argumentStack": "02180000",
+    "cpuStack": "021ed000",
+    "returnSentinel": "021ef000"
+  },
+  "fixedSetup": {
+    "zeroRegions": [
+      {
+        "base": "008e0428",
+        "bytes": 358000,
+        "owner": "fresh native unit storage, then real index/list bootstrap"
+      },
+      {
+        "base": "008a03e4",
+        "bytes": 262144,
+        "owner": "empty cells before canonical height delivery"
+      },
+      {
+        "base": "0089d1c8",
+        "bytes": 12692,
+        "owner": "four fresh tribe records before real clear_tribe"
+      },
+      {
+        "base": "00938830",
+        "bytes": 8000,
+        "owner": "fresh native order records"
+      },
+      {
+        "base": "0068c6d0",
+        "bytes": 19480,
+        "owner": "empty original terrain update queue"
+      }
+    ],
+    "rngWords": {
+      "0089d178": "09d78afe",
+      "0089bc72": "09d78afe"
+    },
+    "bytes": {
+      "0089c6f0": 0,
+      "0096eabf": 4,
+      "0096eac0": 4,
+      "0096ead5": 0,
+      "0089243a": 0,
+      "0089ce37": 0,
+      "0088f000": 0,
+      "0096ead0": 0,
+      "0096ead1": 0,
+      "0096ead2": 28
+    },
+    "words": {
+      "0089c6dd": 2,
+      "0096aa78": 1,
+      "0096aa7a": 0
+    },
+    "dwords": {
+      "0089c661": 0,
+      "0089c665": 0,
+      "0089c669": 0,
+      "0089d17c": 0,
+      "0089d180": 0,
+      "0089d184": 0,
+      "0089d188": 0,
+      "00897981": 0
+    },
+    "tribeIdentity": {
+      "base": "0089d1c8",
+      "stride": 3173,
+      "offset": 3106,
+      "values": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "limits": "Declared fresh component context. This is not a complete original OS/global initializer. No seeded person/order/site or outcome fields."
+  },
+  "setupEntries": [
+    {
+      "entry": "004ed820",
+      "args": []
+    },
+    {
+      "entry": "004ed880",
+      "args": []
+    },
+    {
+      "entry": "004ee300",
+      "args": []
+    },
+    {
+      "entry": "0042bfe7",
+      "stop": "0042bffe",
+      "registers": {
+        "EBX": 0
+      },
+      "kind": "slice"
+    },
+    {
+      "entry": "0042b7f0",
+      "args": []
+    },
+    {
+      "entry": "00401040",
+      "args": []
+    },
+    {
+      "entry": "0044ddf0",
+      "args": [
+        0,
+        64,
+        0
+      ],
+      "inputBefore": "canonical height words in terrain cells"
+    },
+    {
+      "entry": "00422a60",
+      "args": [
+        0,
+        64
+      ]
+    },
+    {
+      "entry": "00401090",
+      "args": [],
+      "inputBefore": "DAT flags block, tribe words and sunlight byte"
+    }
+  ],
+  "recordStage": {
+    "count": 2000,
+    "entry": "00484edc",
+    "stop": "00485038",
+    "indexOrder": "0..1999",
+    "recordOffset": 81987,
+    "recordBytes": 55,
+    "registers": {
+      "ESI": "record pointer+1",
+      "EDI": "index+1",
+      "EBX": 0,
+      "ESP": "preserved local frame"
+    },
+    "frame": {
+      "ownerCountsOffset": 44,
+      "identityOwnerRemapOffset": 64,
+      "identityOwnerRemap": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "realCalls": [
+      "00485011 -> 004ed8a0",
+      "0048502d -> 00485b00"
+    ]
+  },
+  "tailStages": [
+    {
+      "entry": "00485050",
+      "stop": "00485122",
+      "owns": [
+        "004851e0",
+        "temporary file ID clear",
+        "004866a0",
+        "004edf50",
+        "linked flags",
+        "model89 conditional scan"
+      ]
+    },
+    {
+      "entry": "0042b403",
+      "stop": "0042b48a",
+      "owns": [
+        "004ecac0",
+        "00503230",
+        "tribe iteration0..3",
+        "00419790",
+        "00419810",
+        "00419880"
+      ]
+    }
+  ],
+  "suppliedPresentationLeaves": [
+    {
+      "entry": "0048a050",
+      "args": [
+        "thingPointer",
+        "cue_u16",
+        "flags_u16"
+      ],
+      "result": "EAX=0",
+      "memoryWrites": [],
+      "excluded": "sound state and cosmetic draws"
+    },
+    {
+      "entry": "004be230",
+      "args": [
+        "cell_u16"
+      ],
+      "result": "void",
+      "memoryWrites": [],
+      "excluded": "surface texture/cache state"
+    },
+    {
+      "entry": "004bdff0",
+      "args": [
+        "cell_u16"
+      ],
+      "result": "void",
+      "memoryWrites": [],
+      "excluded": "globe texture/cache state"
+    },
+    {
+      "entry": "004bdd40",
+      "args": [
+        "cell_u16",
+        "radius_i16"
+      ],
+      "result": "void",
+      "memoryWrites": [],
+      "excluded": "presentation brightness, globe pixels/cache dirty state"
+    }
+  ],
+  "forbiddenEntries": [
+    "004ec6f0",
+    "004d32b0",
+    "00433a10",
+    "0050c840",
+    "0048c6b0",
+    "004edbd0"
+  ],
+  "assertions": {
+    "topLevelEntries": 2011,
+    "class1SuccessfulCount": 27,
+    "class1NextSeed": 27,
+    "directAttemptCount": 78,
+    "primaryAttemptCeiling": 86,
+    "maxAllocationDepth": 2,
+    "secondaryAttemptCount": 0,
+    "retirementCount": 0,
+    "worldVisits": 0,
+    "shamans": [
+      {
+        "recordIndex0": 22,
+        "recordId1": 23,
+        "classId": 1,
+        "model": 7,
+        "owner": 3,
+        "successfulDirectOrdinal0": 16
+      },
+      {
+        "recordIndex0": 57,
+        "recordId1": 58,
+        "classId": 1,
+        "model": 7,
+        "owner": 0,
+        "successfulDirectOrdinal0": 18
+      }
+    ],
+    "command18Owners": [
+      0,
+      3
+    ],
+    "linkHeadRecordIds": [
+      64,
+      60,
+      26
+    ]
+  },
+  "proposedBounds": {
+    "affinity": [
+      4
+    ],
+    "wallTermSeconds": 30,
+    "killAfterSeconds": 5,
+    "cpuSeconds": 25,
+    "addressSpaceBytes": 1073741824,
+    "translationBufferBytes": 67108864,
+    "scratchBytes": 2097152,
+    "fileBytes": 16777216,
+    "totalInstructions": 35000000,
+    "topLevelEntries": 2011,
+    "primaryAllocationAttempts": 86,
+    "allocationDepth": 2,
+    "semanticEvents": 10000,
+    "perStage": {
+      "terrain": {
+        "timeoutMicroseconds": 10000000,
+        "instructions": 20000000
+      },
+      "navigation": {
+        "timeoutMicroseconds": 5000000,
+        "instructions": 10000000
+      },
+      "otherSetupAndTails": {
+        "timeoutMicroseconds": 1000000,
+        "instructions": 1000000
+      },
+      "eachRecord": {
+        "timeoutMicroseconds": 500000,
+        "instructions": 100000
+      }
+    }
+  },
+  "executionGrant": null,
+  "resourceReservation": null,
+  "nextGate": "Independent callback-coverage review; only then executable source/call-site/write-range/launcher freeze and separate run grant"
+}
