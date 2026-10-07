@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url'
 
 const root = new URL('../../../', import.meta.url)
 const caller = new URL('app/live-building-combat.ts', root).href
-const expectedCaller = 'c8c0a8f3b83157562154ad354206d9d7900f669c67134d5071d0471623617d23'
+const expectedCaller = 'edb6d91de5b0eb9d9dda26670bf566c2f3b26b1a3e4c8574b394f14c208467a5'
 const raw = readFileSync(fileURLToPath(caller))
 assert.equal(createHash('sha256').update(raw).digest('hex'), expectedCaller)
 let exposures = 0

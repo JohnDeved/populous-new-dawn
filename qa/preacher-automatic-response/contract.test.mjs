@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
+import { execFileSync } from 'node:child_process'
 import { movingEncounter, qualifyingVisit, createResponseTracker, eligibleBraveState } from './observe.mjs'
 import { responseProjection, requireResponseCheckpoint, requireSameCheckpoint } from './checkpoint.mjs'
 import { requireCleanup, requirePausedResponse, requireInterruptedResponse, installInputResponseRead } from './scenario.mjs'
@@ -267,7 +268,15 @@ test('reused drivers stay byte-identical and new observation contains no World/t
   const scenario = readFileSync(new URL('./scenario.mjs', import.meta.url), 'utf8')
   assert.doesNotMatch(scenario, /local-render\/harness|waitForFunction\(async|\.put\(|\.add\(/)
   assert.match(scenario, /readQueuedPreservingStop/); assert.match(scenario, /requireSameCheckpoint/)
-  assert.equal(pins.candidateTrees, null, 'Candidate cannot launch before adopted reviewed application')
+  // Exact reviewed runtime adoption supersedes only the former disabled-state pin.
+  assert.equal(pins.candidateSource, '2f0c50379d89f603f4e51de006169ae04c9d2380')
+  assert.deepEqual(Object.keys(pins.candidateTrees), Object.keys(pins.baselineTrees))
+  for (const [name, hash] of Object.entries(pins.candidateTrees)) {
+    const git = ref => execFileSync('git', ['rev-parse', `${ref}:${name}`],
+      { cwd: new URL('../../', import.meta.url), encoding: 'utf8' }).trim()
+    assert.equal(git(pins.candidateSource), hash, `reviewed runtime ${name}`)
+    assert.equal(git('HEAD'), hash, `adopted candidate ${name}`)
+  }
 })
 
 test('scan witness admits10/17/19 while initial crossing anchor stays stationary17/19', () => {

@@ -78,6 +78,7 @@ import {
 import { buildingAdmission } from './live-building-entry.ts'
 import { startIndexedSearch, nextIndexedSearch, endIndexedSearch } from './indexed-search.ts'
 import { igniteBuilding } from './building-damage.ts'
+import { reconcileWorldHutSmoke } from './hut-smoke-runtime.ts'
 import { random } from './native-math.ts'
 import { firewarriorReady, launchFirewarrior } from './firewarrior.ts'
 
@@ -153,6 +154,7 @@ function igniteSabotagedBuilding(w: World, b: Building, tribe: number) {
       b.burn.soundPlaying = true
       ignitePeople(point, tribeForTeam(b.team))
     }
+    reconcileWorldHutSmoke(w, b)
   })
 }
 
@@ -222,7 +224,9 @@ export function startLiveCombatResponse(w: World, u: Unit) {
   const source = (retained ?? createLivePerson(w, u)) as LivePerson & { class: 1; group: number }
   if (!retained) source.state = combatPerson(u).state
   const cell = (source.y >> 9) * 128 + (source.x >> 9)
-  let people: { unit: Unit; person: LivePerson & { class: 1; group: number } }[] = []
+  let people: { unit: Unit; person: LivePerson & { class: 1; group: number } }[] = [
+    { unit: u, person: source },
+  ]
   const peers = () => {
     people = w.units
       .filter(unit => {

@@ -1,5 +1,5 @@
 import { tribeForTeam, type World, type Unit, type Building } from './world-types.ts'
-import { buildingModel } from './building-shapes.ts'
+import { buildingModel, buildingOutsidePoint, buildingPose } from './building-shapes.ts'
 import { automaticCombatScanner, engagementRange, inEngagementArea } from './melee-engagement.ts'
 import {
   allocatePersonOrder,
@@ -7,12 +7,16 @@ import {
   currentPersonOrder,
   emptyPersonOrder,
   prepareCellOrder,
+  prepareMovementOrder,
   type OrderedPerson,
   type OrderEffects,
 } from './person-orders.ts'
 import { shareCombatOrder, startCombatResponse } from './combat-orders.ts'
 import {
+  areaCells,
   detectCombatThreat,
+  hasPreacherPrimaryThreat,
+  hasPreacherResponseThreat,
   selectCombatTarget,
   selectFirewarriorTarget,
   type AttackReservation,
@@ -218,24 +222,144 @@ function combatScan(
   return scanner
 }
 
+const unsigned = (value: unknown, max: number) =>
+  typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= max
+
 function startPreacherResponse(
   w: World,
-  p: CombatPerson & OrderedPerson & { h: number },
+  p: CombatPerson & OrderedPerson & { h: number; speed: number },
   peers: () => Iterable<CombatPerson & OrderedPerson & { h: number }>,
   effects: OrderEffects
 ) {
-  const range = engagementRange(p, currentPersonOrder(w.buildingOrders, p), false)
+  const order = currentPersonOrder(w.buildingOrders, p),
+    range = engagementRange(p, order, false)
   if (!range) return 0
   const radius = Math.trunc(range / 2) * 2,
     area = { a: ((p.x >>> 8) & 254) | (p.y & 0xfe00), b: radius | (radius << 8) },
-    { world } = combatWorld(w, p, range)
-  if (!detectCombatThreat(world, p, area, false, false)) return 0
+    primary = combatWorld(w, p, range),
+    attack = detectCombatThreat(primary.world, p, area, false, false)
+  if (!attack) {
+    if (
+      p.model !== 4 ||
+      !Number.isInteger(p.speed) ||
+      p.speed < -32768 ||
+      p.speed > 32767 ||
+      !unsigned(p.state, rules.personStateFlags.length - 1) ||
+      !unsigned(p.substate, 255) ||
+      !unsigned(p.flags2, 0xffffffff) ||
+      !unsigned(p.flags4, 0xffffffff) ||
+      !Number.isInteger(p.life) ||
+      p.life < -32768 ||
+      p.life > 32767 ||
+      !unsigned(p.disguise, 255)
+    )
+      return 0
+    if (
+      (p.state === 10 || p.state === 33) &&
+      order &&
+      !(order.flags & 1) &&
+      [17, 31, 32].includes(order.model) &&
+      p.substate > 1 &&
+      p.speed === 0
+    )
+      return 0
+    // A live projection can omit a native primary threat. Inspect the actual
+    // chains before admitting the fallback, without changing legacy scan order.
+    const linked = new Map<number, number>()
+    for (const cell of areaCells({ a: area.a, b: 0x0202 })) {
+      let previous = 0
+      for (let id = w.objectCells.heads[cell]; id;) {
+        const record = w.objectCells.objects.get(id)
+        if (
+          !record ||
+          record.id !== id ||
+          linked.has(id) ||
+          !unsigned(record.flags2, 0xffffffff) ||
+          !(record.flags2 & 0x20000) ||
+          !unsigned(record.x, 65535) ||
+          !unsigned(record.y, 65535) ||
+          (record.y >> 9) * 128 + (record.x >> 9) !== cell ||
+          record.cellPrevious !== previous ||
+          !unsigned(record.cellNext, 65535)
+        )
+          return 0
+        linked.set(id, cell)
+        previous = id
+        id = record.cellNext
+      }
+    }
+    const ownedFlags = (view: ReturnType<typeof combatWorld>) => (person: CombatPerson) => {
+      const owner = view.owners.get(person.id)
+      if (!owner || !('native' in owner)) return
+      const record =
+        owner.builder?.person ??
+        owner.flight ??
+        owner.fight?.motion ??
+        owner.native ??
+        owner.entry?.person
+      if (
+        !record ||
+        record.id !== owner.id ||
+        record.class !== 1 ||
+        record.model !== person.model ||
+        record.tribe !== person.tribe ||
+        w.objectCells.objects.get(person.id) !== record ||
+        !linked.has(person.id) ||
+        record.x !== person.x ||
+        record.y !== person.y ||
+        record.life !== person.life ||
+        !Number.isInteger(record.life) ||
+        record.life < -32768 ||
+        record.life > 32767 ||
+        !unsigned(record.workFlags, 65535) ||
+        !unsigned(record.state, rules.personStateFlags.length - 1) ||
+        record.state !== person.state ||
+        !unsigned(record.flags4, 0xffffffff) ||
+        (record.flags2 ^ person.flags2) & 0x810000 ||
+        (record.flags4 ^ person.flags4) & 0x1000 ||
+        !unsigned(record.vehicle, 65535) ||
+        record.vehicle !== person.vehicle ||
+        !unsigned(record.disguise, 255) ||
+        record.disguise !== person.disguise
+      )
+        return
+      return record.workFlags
+    }
+    const primaryCells = new Set(areaCells(area))
+    for (const [id, cell] of linked) {
+      if (id === p.id || !primaryCells.has(cell)) continue
+      const record = w.objectCells.objects.get(id)!
+      if (
+        !('class' in record) ||
+        !('model' in record) ||
+        !unsigned(record.class, 255) ||
+        !unsigned(record.model, 255)
+      )
+        return 0
+      if (record.class !== 1 || (record.model !== 4 && record.model !== 7)) continue
+      const projected = primary.world.objects.get(id)
+      if (!projected || projected.class !== 1 || ownedFlags(primary)(projected) === undefined)
+        return 0
+    }
+    if (hasPreacherPrimaryThreat(primary.world, p, area, ownedFlags(primary))) return 0
+    const secondary = range >= 3 ? primary : combatWorld(w, p, 3)
+    if (!hasPreacherResponseThreat(secondary.world, p, area.a, ownedFlags(secondary))) return 0
+  }
   const id = allocatePersonOrder(w.buildingOrders)
   if (!id) return 0
-  prepareCellOrder(w.buildingOrders.records[id], area, 32, w.land.categories)
+  if (attack) prepareCellOrder(w.buildingOrders.records[id], area, 32, w.land.categories)
+  else
+    prepareMovementOrder(
+      w.buildingOrders.records[id],
+      p,
+      32,
+      w.land,
+      building => buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === building)!)),
+      32
+    )
   p.flags2 = (p.flags2 | 16) >>> 0
   attachPersonOrder(w.buildingOrders, p, id, -1, effects)
-  shareCombatOrder(w.buildingOrders, p, id, peers(), effects)
+  if (attack) shareCombatOrder(w.buildingOrders, p, id, peers(), effects)
   return id
 }
 
@@ -274,7 +398,7 @@ function startFirewarriorResponse(
 export function allocateLiveCombatResponse(
   w: World,
   u: Unit,
-  p: CombatPerson & OrderedPerson & { h: number; commandPhase: number },
+  p: CombatPerson & OrderedPerson & { h: number; commandPhase: number; speed: number },
   peers: () => Iterable<CombatPerson & OrderedPerson & { h: number }>,
   effects: OrderEffects,
   firewarriorReady: (target?: Unit | Building) => boolean = () => false
