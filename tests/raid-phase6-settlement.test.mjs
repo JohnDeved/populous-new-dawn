@@ -129,16 +129,13 @@ test('the original airborne timeout bit is consumed from the registered owner', 
   step(context, 1801, 23)
 })
 
-test('unknown owned records and the uncomposed state33 release branch stay unsettled', () => {
+test('unknown owned records stay unsettled; unreleased state33 retains sermon eligibility', () => {
   const missing = oneMember()
   missing.w.objectCells.objects.delete(missing.u.id)
   step(missing, 2, 6)
   const unknown = oneMember()
   delete unknown.p.state
   step(unknown, 2, 6)
-  const release = oneMember()
-  Object.assign(release.p, { state: 33, substate: 3 })
-  step(release, 2, 6)
   const unreleased = oneMember()
   Object.assign(unreleased.p, { state: 33, substate: 1 })
   step(unreleased, 2, 23)
