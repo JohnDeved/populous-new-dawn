@@ -1,10 +1,12 @@
 """Host-only source/observer checks. Does not import Unicorn or execute native code."""
 import ast
+import collections
 import hashlib
 import importlib.util
 import json
 import struct
 import sys
+import types
 from pathlib import Path
 
 HERE=Path(__file__).resolve().parent
@@ -86,10 +88,31 @@ def main():
         try:probe.partition()
         except AssertionError:mutations.append(name)
         else:raise AssertionError(('observer accepted corrupt partition',name))
+    def input_write(pc,address,size,value=0,stage='setup-5',entry=5):
+        probe=module.Probe.__new__(module.Probe)
+        probe.entries,probe.stage,probe.reg=entry,stage,{'eip':0}
+        probe.protected_starts,probe.protected_ranges=[],[]
+        probe.mutable=[(0x89798d,0x897997,'input buffer')];probe.mutable_starts=[0x89798d]
+        probe.write_counts=collections.Counter()
+        cpu=types.SimpleNamespace(reg_read=lambda register:pc)
+        probe.on_write(cpu,0,address,size,value,None)
+    for pc,address,size in [(0x42b7fe,0x89798d,4),(0x42b800,0x897991,4),(0x42b803,0x897995,2)]:
+        input_write(pc,address,size)
+    clear_rejections=[]
+    for name,args in [
+        ('wrong-pc',(0x42b7ff,0x89798d,4)),('wrong-width',(0x42b7fe,0x89798d,2)),
+        ('nonzero-value',(0x42b7fe,0x89798d,4,1)),
+        ('wrong-stage',(0x42b7fe,0x89798d,4,0,'authored-record')),
+        ('wrong-entry',(0x42b7fe,0x89798d,4,0,'setup-5',6)),
+        ('adjacent-before',(0x42b7fe,0x897989,4)),('adjacent-after',(0x42b803,0x897997,2))]:
+        try:input_write(*args)
+        except AssertionError:clear_rejections.append(name)
+        else:raise AssertionError(('observer accepted unfrozen input-buffer write',name))
     assert 'unicorn' not in sys.modules
     result={'status':'passed','mode':'host-only AST/JSON/call encoding and synthetic observer fault checks',
             'nativeExecution':False,'emulatorImported':False,'validPartitions':2,
             'rejectedCorruptions':mutations,'callSitesChecked':len(closure['calls']),
+            'validInputBufferStores':3,'rejectedInputBufferWrites':clear_rejections,
             'limits':'These synthetic memory checks validate the observer only; they are not original allocation or Mission2 results.'}
     (HERE/'host-source-checks.json').write_text(json.dumps(result,indent=2)+'\n')
     print(json.dumps(result))

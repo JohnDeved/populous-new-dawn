@@ -61,6 +61,11 @@
       "owner": "indexed search slots"
     },
     {
+      "start": "0089798d",
+      "endExclusive": "00897997",
+      "owner": "setup5 navigation/input command buffer clear; only0042b7fe DWORD+0,0042b800 DWORD+4,0042b803 WORD+8,allzero"
+    },
+    {
       "start": "0089bc72",
       "endExclusive": "0089c48d",
       "owner": "cosmetic seed, roster counts and generated sunlight lookup tables"
@@ -408,5 +413,34 @@
         "instructions": 100000
       }
     }
+  },
+  "inputBufferClear": {
+    "stage": "setup-5",
+    "entryNumber": 5,
+    "range": [
+      "0089798d",
+      "00897997"
+    ],
+    "writes": [
+      {
+        "pc": "0042b7fe",
+        "address": "0089798d",
+        "width": 4,
+        "value": 0
+      },
+      {
+        "pc": "0042b800",
+        "address": "00897991",
+        "width": 4,
+        "value": 0
+      },
+      {
+        "pc": "0042b803",
+        "address": "00897995",
+        "width": 2,
+        "value": 0
+      }
+    ],
+    "source": "Original0042b7f1 setsECX;0042b7f7 clearsEAX;threealready-frozenstoreinstructions;00479dd0 names command-buffer consumer. Adjacent00897997 array stays excluded."
   }
 }

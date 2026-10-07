@@ -202,6 +202,11 @@ class Probe:
 
     def on_write(self, cpu, access, address, size, value, _):
         pc = cpu.reg_read(self.reg['eip'])
+        if address < 0x897997 and address + size > 0x89798d:
+            assert self.entries == 5 and self.stage == 'setup-5' and value == 0
+            assert (pc, address, size) in ((0x42b7fe, 0x89798d, 4),
+                                          (0x42b800, 0x897991, 4),
+                                          (0x42b803, 0x897995, 2)), 'Unfrozen input-buffer write'
         index = bisect.bisect_right(self.protected_starts, address + size - 1) - 1
         assert index < 0 or self.protected_ranges[index][1] <= address, ('immutable write', hex(pc), hex(address), size)
         region_index = bisect.bisect_right(self.mutable_starts,address)-1

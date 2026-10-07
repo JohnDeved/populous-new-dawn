@@ -1,7 +1,8 @@
 # Mission2 ordered callback executable freeze
 
-One fixed source proposal for independent executable review. No native/emulator,
-application, package or browser execution has occurred. `freezeComplete` means
+One fixed source proposal for independent executable review. This corrected
+packet is unexecuted; failed attempt01 remains retained at34016b86. The sole
+correction is documented in `observer-repair.md`. `freezeComplete` means
 that the review packet is assembled. It grants no execution authority. Running
 requires independent acceptance of the exact final commit and a separate parent
 grant for the declared fresh worktree, output and CPU4 invocation.

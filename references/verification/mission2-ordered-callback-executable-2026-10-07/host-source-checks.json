@@ -19,5 +19,15 @@
     "cell-cycle"
   ],
   "callSitesChecked": 314,
+  "validInputBufferStores": 3,
+  "rejectedInputBufferWrites": [
+    "wrong-pc",
+    "wrong-width",
+    "nonzero-value",
+    "wrong-stage",
+    "wrong-entry",
+    "adjacent-before",
+    "adjacent-after"
+  ],
   "limits": "These synthetic memory checks validate the observer only; they are not original allocation or Mission2 results."
 }
