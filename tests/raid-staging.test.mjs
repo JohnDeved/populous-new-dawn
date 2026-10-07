@@ -7,6 +7,7 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
   test('actual raid staging caller controls', t => {
     const env = { ...process.env, NODE_OPTIONS: '', NODE_PATH: '' }
     delete env.NODE_TEST_CONTEXT
+    t.diagnostic(`isolated child: inherited NODE_TEST_CONTEXT=${process.env.NODE_TEST_CONTEXT ?? 'absent'}; child context absent`)
     const result = spawnSync(process.execPath, [
       '--experimental-test-module-mocks', '--test', fileURLToPath(import.meta.url),
     ], {
