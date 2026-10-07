@@ -1047,13 +1047,18 @@ test('mission-one Dakini launches its later building attack when Blue overwhelms
  const target=w.buildings.filter(b=>b.team==='blue')[1],near={x:target.x+4,z:target.z};
  addUnit(w,'red','shaman',near);for(let i=0;i<3;i++)addUnit(w,'red','brave',near);
  addUnit(w,'blue','shaman',ENEMY);for(let i=0;i<8;i++)addUnit(w,'blue','brave',ENEMY);
- w.randomState=2;w.ai.variables[50]=1;w.turn=81;tick(w,1/12);
+ // This relocated roster has an established base: native +5b4/+36a shadows the loaded Shaman cell.
+ const staging=packed(nativePosition(w,near)),stagingCell=(staging>>>9)*128+((staging&255)>>>1);
+ assert.equal(w.land.categories[stagingCell]&15,0);assert.equal(w.land.flags[stagingCell]&512,0);assert.equal(w.land.buildingIds[stagingCell]&1023,0);
+ w.ai.constructionBase=staging;w.ai.defencePosition=staging;
+ const assertStaging=()=>{assert.equal(w.ai.constructionBase,staging);assert.equal(w.ai.defencePosition,staging);assert.equal(w.ai.flags&0x100,0x100);};
+ w.randomState=2;w.ai.variables[50]=1;w.turn=81;tick(w,1/12);assertStaging();
  task=w.ai.tasks.find(t=>t.flags&1&&t.type===20);
  assert.deepEqual([11,12,13,16,17,19].map(i=>w.ai.attributes[i]),[100,100,0,0,0,1]);
  assert.deepEqual(task&&{phase:task.phase,target:task.target,entity:task.entity,requested:task.requested,marker:task.mode,retreatPercent:task.retreatPercent,quotas:task.quotas},{phase:3,target:packed(buildingPosition(buildingPose(target))),entity:target.id,requested:4,marker:0,retreatPercent:50,quotas:[11,12,13,16,17,19].map(i=>w.ai.attributes[i])});
  assert.equal(w.ai.variables[3],1,'the original one-shot attack latch closes');
  until(w,()=>task.members.length===3,2);
- until(w,()=>!!(task.flags&1)&&task.members.length>=3&&task.members.every(id=>currentPersonOrder(w.buildingOrders,registeredRaidPerson(w,id))?.model===19),30);
+ until(w,()=>{assertStaging();return !!(task.flags&1)&&task.members.length>=3&&task.members.every(id=>currentPersonOrder(w.buildingOrders,registeredRaidPerson(w,id))?.model===19);},30);
  task.flags=0;task.members=[];w.turn=337;tick(w,1/12);
  assert.ok(!w.ai.tasks.some(t=>t.flags&1&&t.type===20),'the latched script does not launch another attack');
 
