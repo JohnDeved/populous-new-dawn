@@ -3,8 +3,9 @@
 Base: `1c7e6b05687aca14d9350e17c7ae14dc6c68bb97`. Source-only checkpoint
 `7f54a508` received independent ACCEPT before the retained failure-first run and
 application edit. The correction changes the two angle variable owners in
-`levelStartBurstParticle`; the three RNG calls stay in the same order. No original
-code execution, browser run, package install or parity change has occurred yet.
+`levelStartBurstParticle`; the three RNG calls stay in the same order. No new original-code execution, package install or parity change has occurred.
+The first ordinary browser attempt failed its initial capture gate; its complete
+failed result and verified cleanup are retained separately below.
 
 ## Original startup producer, not just a shared function name
 
@@ -135,3 +136,25 @@ Skip delivery with `noWaitAfter:true`, and no particles of any age in the
 completed frame. The added age-zero-tail negative case passes with the same
 five observer contracts; `observer-contracts-02.json` retains the exact result.
 The original contract receipt remains preserved.
+
+## Attempt01 failure and early-binding repair
+
+`ordinary-candidate-attempt-01/` retains the failed before-frame installation
+gate, unclassified initial predicate, failure screenshot and verified cleanup.
+No ordinary screenshot acceptance follows from that run. The already-passing
+angle/runtime regressions are unchanged.
+
+Source `f9b565ca` preloads the pure observer at the menu and arms a one-shot DOM
+MutationObserver before the public Mission1 input. It finds the same matching
+scene/store refs and connected canvas as the maintained binder, while allowing
+installation during loading before normal input readiness. It does not intercept
+start(), RAF, a prototype, or any world field. Exact level/turn/speed/paused/
+started/loading/canvas facts are retained before the still-unchanged installation
+guard. An incomplete first canvas mutation does not count as installation.
+
+Discovery disconnects on installation, binding error and final close. Every
+actual main-scene frame now records loading-overlay presence, canvas connection
+and a derived presented flag; a loading-covered canvas is not called presented
+gameplay. The nine focused ownership/disconnection/failed-guard contracts pass
+on exact `f9b565ca`, as retained in `observer-contracts-03.json`. This is source/
+portable acceptance preparation only, not a browser retry or result.

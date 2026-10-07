@@ -1,0 +1,21 @@
+{
+  "verdict": "ACCEPT_NARROW_SOURCE_PREFLIGHT",
+  "source": "f9b565ca09f8a4fdc60a82f823110c2b5836d28b",
+  "reviewedAt": "2026-10-07T00:57:35.878188+00:00",
+  "inputs": {
+    "scripts/local-render/startup-burst.mjs": "35da2b932064e1d8615bc43d55a04bf8a20e85dd625435a75cfe6dca41a1c046",
+    "scripts/local-render/startup-burst-observer.mjs": "50cd6a7f8ff09b509ebe730859e3b9c46ca4a2a4eb3df0282d659922f022d7b1",
+    "tests/startup-burst-observer.test.mjs": "1bfae3687146cf9149dd978cb7ca09162a8ca5c4452dbf74cfa2c2292d6524b5"
+  },
+  "finding": "Pure observer module is loaded before ordinary Mission selection. One-shot DOM discovery uses the existing scene/store fiber ownership pattern with connected canvas, captures initial guard facts, then installs the already-reviewed passive renderer observer and disconnects. No GameScene.start, RAF, clock or prototype hook; application tree unchanged. Discovery is closed on every final/error path. Same-frame rows distinguish loading-covered draws from presented canvas frames. Ordinary Skip remains one delivered public click.",
+  "historicalFailure": "Attempt01 remains failed; exact initial condition was unrecorded and is not retrospectively assigned. Source establishes that full bind readiness can consume the early window.",
+  "limits": [
+    "Execution can prove installation only from actual new receipt; source acceptance alone does not claim early capture.",
+    "Visible result acceptance requires visually inspected actual burst frame with presented=true; loading-covered frames remain labelled.",
+    "Root-height/native raster/cadence parity is not broadened."
+  ],
+  "remaining": [
+    "focused contract receipt",
+    "fresh exact02 source/output packet and resource grant"
+  ]
+}

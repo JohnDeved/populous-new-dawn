@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "e1ddc147-795f-4878-a31c-db3a92f93fd4",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "f9b565ca09f8a4fdc60a82f823110c2b5836d28b",
+    "branch": "fix/startup-burst-angle-ownership-20261007",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/local-render/startup-burst.mjs": "35da2b932064e1d8615bc43d55a04bf8a20e85dd625435a75cfe6dca41a1c046",
+      "scripts/local-render/startup-burst-observer.mjs": "50cd6a7f8ff09b509ebe730859e3b9c46ca4a2a4eb3df0282d659922f022d7b1",
+      "tests/startup-burst-observer.test.mjs": "1bfae3687146cf9149dd978cb7ca09162a8ca5c4452dbf74cfa2c2292d6524b5",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2"
+    }
+  },
+  "command": [
+    "timeout",
+    "-s",
+    "TERM",
+    "-k",
+    "5s",
+    "10s",
+    "node",
+    "--test",
+    "tests/startup-burst-observer.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/startup-burst-angle-fix-20261007",
+  "startedAt": "2026-10-07T00:57:29.004Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/startup-burst-angle-fix-20261007/work/orchestration/startup-burst-observer-contracts-03/portable.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/startup-burst-angle-fix-20261007/work/orchestration/startup-burst-observer-contracts-03/portable.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-07T00:57:29.489Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ observer forwards each original render receiver, arguments and exact result without a synthetic call (3.542287ms)\n✔ observer propagates the exact original render exception and never takes a successful-frame sample (0.968878ms)\n✔ diagnostic identity and readback errors remain bounded without changing original render results (1.532715ms)\n✔ observer refuses to overwrite a later renderer owner during close (0.320746ms)\n✔ three captures use the actual same-call state and wait for a moved burst particle (1.600124ms)\n✔ pre-Mission discovery binds the owned loading scene without starting or drawing it (1.377334ms)\n✔ pre-Mission discovery retains failed guard facts without installing or changing the world (0.610877ms)\n✔ closing an unbound pre-Mission observer disconnects discovery and prevents later capture (0.386103ms)\n✔ pre-Mission discovery waits for matching refs after the first canvas mutation (1.810366ms)\nℹ tests 9\nℹ suites 0\nℹ pass 9\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 281.790424\n",
+  "stderr": "",
+  "stdoutSha256": "2e4d97802295ec9fe2c53b82088c51409bb3f023979d88e81af78c195a9a8464",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "f9b565ca09f8a4fdc60a82f823110c2b5836d28b",
+    "branch": "fix/startup-burst-angle-ownership-20261007",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/local-render/startup-burst.mjs": "35da2b932064e1d8615bc43d55a04bf8a20e85dd625435a75cfe6dca41a1c046",
+      "scripts/local-render/startup-burst-observer.mjs": "50cd6a7f8ff09b509ebe730859e3b9c46ca4a2a4eb3df0282d659922f022d7b1",
+      "tests/startup-burst-observer.test.mjs": "1bfae3687146cf9149dd978cb7ca09162a8ca5c4452dbf74cfa2c2292d6524b5",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2"
+    }
+  }
+}
