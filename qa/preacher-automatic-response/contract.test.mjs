@@ -117,9 +117,9 @@ test('prospective mode retains exact unqualified4402 without rewriting the faile
 
 test('prospective mode keeps malformed source, payload, target and original queue failures fatal', () => {
   for (const mutate of [
-    (b, a) => { b.facts.genericThreat = 7 }, (b, a) => { b.admission.work = 7 },
-    (b, a) => { b.person.id++ }, (b, a) => { delete b.person.workFlags },
-    (b, a) => { b.person.speed = 32768 }, (b, a) => { a.person.speed = 65535 },
+    b => { b.facts.genericThreat = 7 }, b => { b.admission.work = 7 },
+    b => { b.person.id++ }, b => { delete b.person.workFlags },
+    b => { b.person.speed = 32768 }, (b, a) => { a.person.speed = 65535 },
     (b, a) => { delete a.person.state }, (b, a) => { delete a.person.substate },
     (b, a) => { a.person.state = 256 }, (b, a) => { a.person.substate = 1.5 },
     (b, a) => { delete a.person.commandCursor }, (b, a) => { a.person.commandStatus = 256 },
@@ -129,10 +129,10 @@ test('prospective mode keeps malformed source, payload, target and original queu
     (b, a) => { a.turn++ }, (b, a) => { a.actor.hp-- }, (b, a) => { a.person.life-- },
     (b, a) => { a.nativeOnly = false }, (b, a) => { a.order.references = 2 },
     (b, a) => { a.orderUsers = [8] }, (b, a) => { a.queued[0].identity++ },
-    (b, a) => { delete b.facts.candidates.rows[0].native.flags4 },
-    (b, a) => { b.facts.candidates.rows[0].registered = false },
-    (b, a) => { b.facts.candidates.rows[0].positionCoherent = false },
-    (b, a) => { b.facts.candidates.rows[0].native.state = 23 },
+    b => { delete b.facts.candidates.rows[0].native.flags4 },
+    b => { b.facts.candidates.rows[0].registered = false },
+    b => { b.facts.candidates.rows[0].positionCoherent = false },
+    b => { b.facts.candidates.rows[0].native.state = 23 },
     (b, a) => { a.facts.braves[0].vehicle = 1 },
   ]) {
     const { before, after } = first32Fixture(); mutate(before, after)
