@@ -67,7 +67,7 @@ test('Mission 2 naturally earns Matak kills and launches the organized raid', ()
     { requested: 2, mode: 7, entity: camp.id }
   )
   const target = raid.target
-  let originalMembers = null, released = false, beforeRelease = null
+  let originalMembers = null, released = false, beforeRelease = null, releasedOwner = null
   const registeredOwner = id => {
     const unit = w.units.find(unit => unit.id === id && unit.hp > 0)
     const person = w.objectCells.objects.get(id)
@@ -89,6 +89,8 @@ test('Mission 2 naturally earns Matak kills and launches the organized raid', ()
     if (!originalMembers) return
     const [releaseId, admittedId] = originalMembers
     if (!raid.members.includes(releaseId)) {
+      const current = registeredOwner(releaseId)
+      const { unit, person } = current
       if (!released) {
         assert.ok(beforeRelease, 'release has a witnessed original owner')
         assert.equal(beforeRelease.phase, 6)
@@ -102,7 +104,7 @@ test('Mission 2 naturally earns Matak kills and launches the organized raid', ()
         assert.ok(beforeRelease.order, 'the observed original owner has its movement order')
         assert.equal(beforeRelease.order.model, 3)
         assert.equal(beforeRelease.order.references, 1)
-        const { unit, person } = registeredOwner(releaseId)
+        assert.equal(unit, beforeRelease.unit, 'release retains the original Unit')
         assert.equal(person, beforeRelease.person, 'release retains the original registered record')
         assert.equal(unit.hp, beforeRelease.hp, 'admission is released while the original member lives')
         assert.equal(person.life, beforeRelease.life)
@@ -114,15 +116,18 @@ test('Mission 2 naturally earns Matak kills and launches the organized raid', ()
         assert.equal(person.motionMode, 0)
         assert.equal(raid.phase, 6, 'release itself does not skip to attack or retirement')
         assert.equal(raid.target, target)
+        releasedOwner = current
         released = true
       }
+      assert.equal(unit, releasedOwner.unit, 'the same released Unit remains alive')
+      assert.equal(person, releasedOwner.person, 'its original registered owner survives')
       assert.deepEqual(raid.members, [admittedId], 'only the predeclared still-admitted member remains')
     } else {
       assert.equal(released, false, 'a released member is not silently readmitted')
       assert.deepEqual(raid.members, originalMembers, 'no replacement cohort enters the task')
       const { unit, person } = registeredOwner(releaseId)
       const order = currentPersonOrder(w.buildingOrders, person)
-      beforeRelease = { person, phase: raid.phase, state: person.state, substate: person.substate,
+      beforeRelease = { unit, person, phase: raid.phase, state: person.state, substate: person.substate,
         animationMode: person.animationMode, hp: unit.hp, life: person.life,
         immediate: person.immediateCommand, ids: person.commands.filter(Boolean),
         order: order && { ...order } }
