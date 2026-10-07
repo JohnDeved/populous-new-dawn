@@ -391,6 +391,16 @@ export function campaignCommand(
           options.some((value, index) => value !== [0, -1, -1, 0][index])))
     )
       throw new Error('Unsupported computer attack')
+    const enabled = !!(w.ai.states & (1 << 20)),
+      maximum = missionThreeAttack ? w.ai.attributes[25] : campaignTribe(w)
+    // Mission3 allocation rejects before target selection can consume RNG.
+    if (
+      missionThreeAttack &&
+      (!enabled ||
+        w.ai.tasks.filter(task => task.flags & 1 && task.type === 20).length >= maximum ||
+        !w.ai.tasks.some(task => !(task.flags & 1)))
+    )
+      return
     const target =
       targetMode === 1070
         ? { id: 0, target: level.markers[marker] }
@@ -410,8 +420,8 @@ export function campaignCommand(
       damage,
       [11, 12, 13, 16, 17, 19].map(index => w.ai.attributes[index]),
       w.ai.attributes[28],
-      !!(w.ai.states & (1 << 20)),
-      campaignTribe(w),
+      enabled,
+      maximum,
       target.id,
       taskSpells
     )

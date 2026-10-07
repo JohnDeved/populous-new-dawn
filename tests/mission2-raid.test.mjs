@@ -66,17 +66,55 @@ test('Mission 2 naturally earns Matak kills and launches the organized raid', ()
     { requested: raid.requested, mode: raid.mode, entity: raid.entity },
     { requested: 2, mode: 7, entity: camp.id }
   )
-  stepUntil(
-    w,
-    () =>
-      raid.members.length === 2 &&
-      raid.phase === 16 &&
-      raid.members.some(id => {
-        const unit = w.units.find(candidate => candidate.id === id)
-        return unit?.native && currentPersonOrder(w.buildingOrders, unit.native)?.model === 19
-      }),
-    2000
-  )
+  const target = raid.target
+  let originalMembers = null
+  const originalUnits = new Map()
+  const registeredOwner = id => {
+    const unit = w.units.find(unit => unit.id === id && unit.hp > 0)
+    const person = w.objectCells.objects.get(id)
+    assert.ok(unit && person && person.id === unit.id, 'living original member has a registry owner')
+    assert.ok([unit.native, unit.flight, unit.fight?.motion, unit.entry?.person,
+      unit.builder?.person].includes(person), 'registry record belongs to the actual Unit')
+    return { unit, person }
+  }
+  const observeCohort = () => {
+    const active = w.ai.tasks.filter(task => task.flags & 1 && task.type === 20)
+    assert.equal(active.length, 1, 'no duplicate raid is created')
+    assert.equal(active[0], raid, 'the same task remains active')
+    assert.equal(raid.target, target, 'the same camp remains the attack target')
+    if (!originalMembers && raid.phase >= 4 && raid.members.length) {
+      assert.equal(raid.members.length, 2, 'the original requested cohort is recruited first')
+      assert.equal(new Set(raid.members).size, 2)
+      originalMembers = [...raid.members]
+      for (const id of originalMembers) {
+        const { unit } = registeredOwner(id)
+        assert.equal(unit.kind, 'brave')
+        originalUnits.set(id, unit)
+      }
+    }
+    if (!originalMembers) return
+    assert.deepEqual(raid.members, originalMembers, 'the full recruited cohort remains admitted; no replacement or member loss')
+    for (const id of originalMembers) {
+      const { unit } = registeredOwner(id)
+      assert.equal(unit, originalUnits.get(id), 'each original recruited Unit remains alive')
+    }
+  }
+  stepUntil(w, () => {
+    observeCohort()
+    if (!originalMembers || raid.phase !== 16) return false
+    const people = originalMembers.map(id => registeredOwner(id).person)
+    const orders = people.map(person => currentPersonOrder(w.buildingOrders, person))
+    if (orders.some(order => order?.model !== 19)) return false
+    const ids = people.map(person => person.immediateCommand || person.commands[person.commandCursor])
+    assert.equal(new Set(ids).size, 1, 'both original members share the actual attack order')
+    for (const order of orders) {
+      assert.equal(order.flags & 1, 0)
+      assert.equal(order.a, target)
+      assert.equal(order.b, 0x0808)
+      assert.equal(order.references, originalMembers.length)
+    }
+    return true
+  }, 2000)
   // Return one actual follower to fight the raid. Clicking the camp itself
   // starts training, whose replacement object is not evidence of combat damage.
   select(w, 'brave')
@@ -89,7 +127,7 @@ test('Mission 2 naturally earns Matak kills and launches the organized raid', ()
   const blueHp = defender.hp
   const taskDamage = raid.damage
   // Newborn followers change total tribe HP, so observe this fixed lifetime.
-  stepUntil(w, () => defender.hp < blueHp, 5000)
+  stepUntil(w, () => { observeCohort(); return defender.hp < blueHp }, 5000)
   assert.ok(raid.members.includes(defender.fight?.opponent) || raid.damage > taskDamage)
   assert.equal(raid.phase, 16)
   assert.equal(raid.fallback, 14)

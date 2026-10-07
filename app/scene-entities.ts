@@ -49,7 +49,7 @@ import {
 } from './projection.ts'
 import { morphCoordinate } from './morph.ts'
 import { modelHighlight } from './model-lighting.ts'
-import { spriteLayers } from './sprite-layers.ts'
+import { spriteAtlasOrigin, spriteLayers } from './sprite-layers.ts'
 import nativeUnits from './original-units.json'
 import { nativeUnitDraw } from './unit-kinds.ts'
 import { originalVehicleMesh, originalVehicleUV } from './vehicle-appearance.ts'
@@ -60,13 +60,18 @@ import { originalTrainingHutObject } from './training-hut-appearance.ts'
 import { shamanAppearance, shamanNativeDirections } from './shaman-appearance.ts'
 import nativeEffects from './original-effects.json'
 import rules from './original-rules.json'
-import { animationTeam, teamForTribe, tribeForTeam } from './world-types.ts'
+import { animationTeam, teamForTribe, tribeForTeam, vehicleApparentTribe } from './world-types.ts'
 import {
   vaultKnowledgeFrame,
   vaultKnowledgePlacement,
   vaultKnowledgeVisible,
 } from './vault-appearance.ts'
+import { makeVaultWorldPresentation, drawVaultWorldPresentation } from './scene-vault-knowledge.ts'
 import { animateVaultKnowledgeMarker, makeVaultKnowledgeMarker } from './scene-effects.ts'
+
+const unitAtlasOrigins = nativeUnits.pieces.map((piece, index) =>
+  spriteAtlasOrigin(piece, index, nativeUnits)
+)
 
 const teamColor = {
   blue: 0x303fc1,
@@ -311,9 +316,11 @@ function makeShrine(scene: GameScene, shrine: Shrine) {
   scene.objects.add(g)
   g.userData.shrine = shrine.id
   if (shrine.kind === 'vault') {
-    const frame = vaultKnowledgeFrame(shrine.reward, shrine.rewardModel)
+    const frame = vaultKnowledgeFrame(shrine.reward, shrine.rewardModel, scene.world.outcome.level)
     if (frame !== null) {
-      const marker = makeVaultKnowledgeMarker(frame),
+      const marker = shrine.knowledgeGlow
+          ? makeVaultWorldPresentation(true)
+          : makeVaultKnowledgeMarker(frame),
         placement = vaultKnowledgePlacement(shrine)
       scene.locate(marker, placement, scene.y(placement) + placement.heightOffset / 45)
       marker.userData.cellPosition = placement
@@ -344,8 +351,7 @@ export function animatePerson(
   const cycle = directions[direction],
     step = frameNumber ?? Math.floor(age * nativeUnits.fps),
     index =
-      cycle.frames[once ? Math.min(step, cycle.frames.length - 1) : step % cycle.frames.length],
-    cell = nativeUnits.cell
+      cycle.frames[once ? Math.min(step, cycle.frames.length - 1) : step % cycle.frames.length]
   const frame = nativeUnits.frames[index]
   g.userData.frame = index
   g.userData.frameFlip = cycle.flip
@@ -406,13 +412,14 @@ export function animatePerson(
     layer.userData.piece = draw.piece
     if (!layer.visible) continue
     const piece = nativeUnits.pieces[draw.piece],
+      origin = unitAtlasOrigins[draw.piece],
       uv = (layer.userData.atlasTransform ??= new THREE.Vector4()),
       flip = !!(draw.flags & 1)
     uv.set(
       (flip ? -piece.w : piece.w) / nativeUnits.width,
       piece.h / nativeUnits.height,
-      ((draw.piece % nativeUnits.columns) * cell + (flip ? piece.w : 0)) / nativeUnits.width,
-      1 - (Math.floor(draw.piece / nativeUnits.columns) * cell + piece.h) / nativeUnits.height
+      (origin.x + (flip ? piece.w : 0)) / nativeUnits.width,
+      1 - (origin.y + piece.h) / nativeUnits.height
     )
     layer.center.set(-draw.x / draw.w, 1 + draw.y / draw.h)
     layer.scale.set(draw.w, draw.h, 1)
@@ -605,12 +612,13 @@ export function updateVehiclesFrame(scene: GameScene) {
       scene.vehicleMeshes.set(v.id, g)
       scene.objects.add(g)
     }
-    if (g.userData.vehicleTeam !== v.team) {
+    const appearanceTeam = teamForTribe(vehicleApparentTribe(v))
+    if (g.userData.vehicleTeam !== appearanceTeam) {
       const mesh = g.children[0] as THREE.Mesh<THREE.BufferGeometry>
       const uv = mesh.geometry.getAttribute('uv') as THREE.BufferAttribute
-      uv.copyArray(originalVehicleUV(v.model, v.team))
+      uv.copyArray(originalVehicleUV(v.model, appearanceTeam))
       uv.needsUpdate = true
-      g.userData.vehicleTeam = v.team
+      g.userData.vehicleTeam = appearanceTeam
     }
     scene.locate(g, browserPosition(v), v.h / 45)
     scene.orientModel(g, v.heading)
@@ -716,7 +724,14 @@ export function updateShrinesFrame(scene: GameScene) {
       const placement = vaultKnowledgePlacement(shrine)
       scene.locate(marker, placement, scene.y(placement) + placement.heightOffset / 45)
       marker.userData.cellPosition = placement
-      animateVaultKnowledgeMarker(scene, marker, vaultKnowledgeVisible(shrine))
+      if (shrine.knowledgeGlow)
+        drawVaultWorldPresentation(
+          scene,
+          marker,
+          shrine.knowledgeGlow.displayedFrame,
+          vaultKnowledgeVisible(shrine)
+        )
+      else animateVaultKnowledgeMarker(scene, marker, vaultKnowledgeVisible(shrine))
     }
     const model = stoneHead149Model(shrine, scene.world.outcome.level)
     let mesh = entry.g.children[0] as THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>
@@ -793,4 +808,5 @@ export function renderSceneFrame(
   scene.view.painter.cells = scene.world.objectCells
   scene.view.prepare(scene.scene)
   scene.renderer.render(scene.scene, scene.camera)
+  scene.worshipPresentation.rememberBodies()
 }

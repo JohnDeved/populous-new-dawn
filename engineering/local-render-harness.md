@@ -48,11 +48,138 @@ performance parity. CPU/SwiftShader timings must not be compared as equivalent t
 Mac hardware-GPU timings. Serialize graphics captures and performance workloads.
 Downloaded binaries and proof images belong outside tracked source.
 
+## Opt-in task-owned checkpoint persistence
+
+Use `--profile /absolute/game-checkout/work/local-render-profiles/task-name` only
+for ordinary game checkpoint journeys. With no option the browser stays ephemeral.
+This creates a private, ignored, game-only directory, or reopens a recognized one;
+it never adopts an existing unmarked directory, personal profile, or symlink path.
+Keep every output directory separate from the profile. Never commit, attach, copy,
+or export its browser data. Only bounded receipts/manifests are review evidence.
+This preserves saves across normal harness termination on this machine; it does
+not promise survival of a cloud workspace reset.
+
+Persistent runs must name `--scenario`. The official Headless Shell runs through
+Playwright's `launchPersistentContext`, with the existing sandbox and explicit
+`--remote-debugging-pipe`, `--user-data-dir=<owned-directory>/browser`, and blank
+startup page. All Playwright default arguments remain disabled. HTTP/WebSocket
+requests are restricted to the exact loopback game origin, downloads are disabled,
+and service workers are blocked. This is for game QA only, with no login or auth.
+
+`owner.lock` is exclusive. Never delete or recover a live, stale, unknown, or
+interrupted lock automatically. Browser close must complete and disconnect before
+the lock can be released; timeout, failed close, changed ownership, or missing
+terminal checkpoint observation retains the lock and a failed receipt. Browser
+Singleton ownership markers also block reuse. A failed gameplay assertion can
+still preserve a genuine save when terminal cleanup and source identity are known.
+No process is killed by name or port.
+
+The manifest binds the canonical game root, exact origin (including port), game
+input bytes, browser binary, installed dependency lock, Playwright runtime, Node
+version, and harness bytes. Receipts retain exact source commit/tree/diff/untracked
+fingerprints and scenario hashes before/after execution. Changed game/runtime
+inputs always require a new profile. Only `qa/` and non-runtime scenarios under
+`scripts/local-render/` are checker inputs; other repository files fail closed as
+game inputs. A changed source identity or checker additionally requires
+`--profile-correspondence /absolute/review.json` naming:
+
+```json
+{
+  "priorRunId": "previous terminal run ID",
+  "previousSourceFingerprint": "previous exact source fingerprint",
+  "currentSourceFingerprint": "current exact source fingerprint",
+  "previousChecker": "previous receipt.profile.inputs.checker",
+  "currentChecker": "current profileInputReceipt(root).checker",
+  "decision": "ACCEPT",
+  "reviewer": "independent reviewer identity",
+  "reference": "retained exact-source review location"
+}
+```
+
+This file records an actual independent review; it is not an approval generator
+or a game-input migration override. Each changed-source continuation names its
+immediately preceding run. Same-source retries need no correspondence. A journey
+may impose a stricter same-source-only boundary on its own checkpoint milestones.
+
+Before the scenario executes, `receipt.profile.checkpointAtStart` is read from the
+committed IndexedDB `latest` record and compared with the previous terminal record.
+`receipt.profile` includes `id`, `path`, `runId`, `mode` (`created`/`reused`),
+`inputs`, `previousRun`, `checkpoints`, and final cleanup/continuation status.
+`previousRun` includes the preceding receipt path/hash, exact source fingerprint,
+commit, checker digest, run ID, status, and `checkpointAtEnd`.
+
+The scenario receives `observeCheckpoint(label)`, which only reads committed
+IndexedDB. It returns `{ label, observedAt, profileId, runId, sourceFingerprint,
+checkpoint }`, where `checkpoint` is null or `{ version, level, turn, time,
+checkpointSha256, actorsSha256, terrainSha256, stockSha256 }`. Hashing retains typed
+array type/values and Map/Set entries. No raw checkpoint storage is exported.
+The stable full-record identity is `observed.checkpoint.checkpointSha256`.
+Use ordinary Save and await the readback; observation alone does not prove the Save
+UI action. Use ordinary Load and synchronously observe the store replacement to
+check the saved turn boundary before the normal clock automatically resumes.
+
+For the small restart proof, run the same command twice with different outputs:
+
+```sh
+node scripts/local-render/harness.mjs --game-root "$PWD" \
+  --browser "$POPULOUS_BROWSER" --port 4188 --timeout 180000 \
+  --profile "$PWD/work/local-render-profiles/checkpoint-restart" \
+  --scenario "$PWD/scripts/local-render/checkpoint-restart.mjs" \
+  --output "$PWD/work/orchestration/checkpoint-restart/save"
+# After the first receipt verifies terminal browser cleanup, repeat with:
+# --output "$PWD/work/orchestration/checkpoint-restart/load"
+```
+
+The first run starts Mission 1 through shipped controls, awaits Shaman readiness,
+opens Game settings, clicks Save checkpoint, and checks committed readback. It then
+terminates its browser. The second launch reopens the same owned profile, clicks
+Load Game, and compares saved level, turn/time, actor identity/position/HP, terrain,
+and stock at the actual replacement boundary. Load's normal auto-resume is recorded,
+then the ordinary Pause control is used for a screenshot. No tick, world, or storage
+injection occurs. This proves restart continuity only, not mission completion.
+
 ## Ordinary-control scenario preflight
 
 Read this before writing or extending a journey. These contracts were checked
 against main `ab6e857` on 2026-10-04. Inspect the named callers again when their
 source changes; a successful DOM click alone does not prove an accepted command.
+
+### Keep scenario imports and startup completion explicit
+
+A named CLI scenario must not import the executing harness module. The harness
+awaits that scenario import, so importing the harness back can leave top-level
+await unsettled before a server starts. Shared source fingerprinting now lives in
+`owned-profile.mjs`; the harness re-exports it for existing callers. Exercise the
+real named-scenario CLI entry, then a short actual server/scene startup before a
+long route. An import-only check does not establish rendered startup.
+
+Use one bounded startup budget for scene binding and native actor readiness.
+Short individual waits may time out while a cold scene becomes visible. Retry
+only genuine Playwright `TimeoutError` from the read-only binding operation,
+retain those diagnostics, and check cancellation/deadline after each await before
+accepting success. Other errors propagate immediately. Keep physical mission,
+Skip and command inputs single-shot; never repeat a click merely because its
+completion wait failed. Once bound, pin the scene, World and original actor.
+
+For the optional Skip setup control, a scenario can use a single supported
+`Locator.click({ noWaitAfter: true })` followed by its explicit same-scene/native
+readiness gate. In the verified Playwright 1.63 implementation this still awaits
+the physical action and initial actionability checks, but skips navigation and
+post-action hit-interceptor waits. That return alone does not prove the opening
+finished. Do not apply this completion choice to a proof-critical worship/order
+click without its own reviewed input/recipient contract.
+
+The Erosion QA CLI, startup, cancellation and click regressions retain the three
+observed failures: import-cycle exit 13, the initial two-second canvas wait, and a
+Skip click that physically completed before its navigation wait timed out. The
+startup-only result is separate from an ordinary controller capture/native replay.
+
+Retained evidence: [CLI import exit 13](https://github.com/JohnDeved/populous-new-dawn/blob/d4b877ad56ca62f78fc6c49ee07cb4b5837c1f85/failures/import-cycle/command-receipt.json),
+[initial canvas timeout](https://github.com/JohnDeved/populous-new-dawn/blob/d4b877ad56ca62f78fc6c49ee07cb4b5837c1f85/failures/scene-binding/receipt.json), and
+[Skip completion timeout](https://github.com/JohnDeved/populous-new-dawn/blob/d4b877ad56ca62f78fc6c49ee07cb4b5837c1f85/failures/skip-completion/receipt.json).
+The [actual Erosion capture and bounded native replay](https://github.com/JohnDeved/populous-new-dawn/blob/d4b877ad56ca62f78fc6c49ee07cb4b5837c1f85/report.md) succeeded after
+these fixes. Regressions are [the real CLI boundary](../tests/erosion-ordinary-cli.test.mjs)
+and [startup/stop/click completion](../tests/erosion-ordinary-cleanup.test.mjs).
 
 ### Selectors depend on the current screen
 

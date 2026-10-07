@@ -465,7 +465,8 @@
       "purpose": "Verify imported task artwork against executed native logical draws.",
       "coveredBehavior": [
         "Native root/frame geometry",
-        "18 exact sprite regions"
+        "18 exact sprite regions",
+        "144 task/transport glyph layouts and 36 zero/99/100 boundaries"
       ],
       "knownLimits": [
         "Supplied raster/coordinate leaves; no original-game runtime or complete painter-order claim."
@@ -830,7 +831,9 @@
         "tests/ground-waypoints.test.mjs",
         "tests/live-movement.test.mjs",
         "tests/world-movement.test.mjs",
-        "tests/command-context.test.mjs"
+        "tests/command-context.test.mjs",
+        "tests/shaman-guard-native.test.mjs",
+        "tests/shaman-guard-input.test.mjs"
       ],
       "cwd": ".",
       "env": [],
@@ -841,6 +844,8 @@
         "app/model.ts",
         "app/world-turn.ts",
         "app/person-orders.ts",
+        "app/shaman-guard.ts",
+        "tests/fixtures/shaman-guard-native.json",
         "tests/fixtures/player-order-append.json",
         "tests/fixtures/movement-order.json"
       ],
@@ -4675,17 +4680,16 @@
         "Authored startup gates",
         "Real terrain and replacement braves",
         "Persisted staged sequence and no replay",
-        "Native Shaman pose clock and command18 input ownership"
+        "Native Shaman pose clock and command18 input ownership",
+        "Actual startup burst pitch/yaw ownership and retained native child trajectories"
       ],
       "knownLimits": [
         "Browser pixels and native instruction comparisons run separately."
       ],
-      "executable": "node",
-      "args": [
-        "--test",
-        "tests/level-start.test.mjs"
-      ],
+      "executable": "npm",
+      "args": ["run", "test:level-start"],
       "inputs": [
+        "package.json",
         "app/level-start.ts",
         "app/level-start-runtime.ts",
         "app/world-initialization.ts",
@@ -4702,7 +4706,14 @@
         "app/scene-camera-runtime.ts",
         "app/spell-casting.ts",
         "app/live-people.ts",
-        "app/live-movement.ts"
+        "app/live-movement.ts",
+        "tests/startup-burst-angles.test.mjs",
+        "tests/fixtures/startup-burst-native.json",
+        "app/spell-trails.ts",
+        "app/effect-motion.ts",
+        "tests/startup-burst-observer.test.mjs",
+        "scripts/local-render/startup-burst.mjs",
+        "scripts/local-render/startup-burst-observer.mjs"
       ],
       "prerequisites": [
         "Node.js with TypeScript stripping"
@@ -4871,6 +4882,575 @@
         "Playwright Chromium with verified local launch wrapper",
         "Unique output directory"
       ]
+    },
+    {
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "app/hud-transports.ts",
+        "app/follower-transports-runtime.ts",
+        "app/live-vehicles.ts",
+        "app/live-movement.ts",
+        "app/vehicle-unload.ts",
+        "tests/follower-transports.test.mjs",
+        "tests/follower-transport-runtime.test.mjs",
+        "tests/browser-follower-transports-checker.test.mjs",
+        "app/hud-layout.ts",
+        "app/scene-entities.ts",
+        "app/spell-effects-runtime.ts",
+        "app/world-types.ts",
+        "tests/hud-layout.test.mjs",
+        "tests/follower-transport-owner-consumers.test.mjs",
+        "scripts/transport-pixel-reference.mjs",
+        "tests/transport-pixel-reference.test.mjs"
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "id": "follower-transports-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check native transport row contracts and live passenger/owner adapters.",
+      "coveredBehavior": [
+        "Occupied craft counts per passenger class",
+        "All-passenger selection",
+        "Native priority and remembered focus",
+        "First/later boarding, unboarding and disguise owner writes",
+        "Legacy/occupied checkpoints and current class reads",
+        "Real/apparent owner consumers and frame-cache refresh",
+        "Preferred HUD scale and complete lower-panel height budget"
+      ],
+      "knownLimits": [
+        "Supporting class/owner fixtures do not establish natural acquisition or arbitrary mixed-tribe admission."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/follower-transports.test.mjs",
+        "tests/follower-transport-runtime.test.mjs",
+        "tests/browser-follower-transports-checker.test.mjs",
+        "tests/hud-layout.test.mjs",
+        "tests/follower-transport-owner-consumers.test.mjs",
+        "tests/transport-pixel-reference.test.mjs"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_EXE"
+      ],
+      "inputs": [
+        "app/hud-transports.ts",
+        "scripts/check-native-follower-transports.py",
+        "scripts/check-native-followers-panel.py"
+      ],
+      "prerequisites": [
+        "Verified original executable",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "id": "follower-transports-native",
+      "kind": "native",
+      "automation": "manual",
+      "purpose": "Compare occupied craft count, selection and focus helpers with native execution.",
+      "coveredBehavior": [
+        "480 native/TypeScript count, selection and six-click focus cases",
+        "Real/apparent owners",
+        "Driver priority, passenger distance and nearby craft bounds",
+        "Selected/blocked passengers and model variants"
+      ],
+      "knownLimits": [
+        "UI/sound and world leaves are supplied; no full original-game loop proof."
+      ],
+      "executable": "python3",
+      "args": [
+        "scripts/check-native-follower-transports.py",
+        "$POPULOUS_EXE"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_EXE"
+      ],
+      "inputs": [
+        "app/live-vehicles.ts",
+        "app/live-movement.ts",
+        "app/vehicle-unload.ts",
+        "app/world-types.ts",
+        "scripts/check-native-transport-ownership.py"
+      ],
+      "prerequisites": [
+        "Verified original executable",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "id": "transport-ownership-native",
+      "kind": "native",
+      "automation": "manual",
+      "purpose": "Execute authoritative native vehicle real/apparent owner writers.",
+      "coveredBehavior": [
+        "39 native initialization, boarding, exit, disguise, destruction and count/search cases"
+      ],
+      "knownLimits": [
+        "Native-only writer evidence is composed with live portable/browser adapters; supplied animation/world leaves and truncated command/timer boundaries remain explicit."
+      ],
+      "executable": "python3",
+      "args": [
+        "scripts/check-native-transport-ownership.py",
+        "$POPULOUS_EXE"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_BROWSER"
+      ],
+      "inputs": [
+        "app/hud-transports.ts",
+        "app/follower-transports-runtime.ts",
+        "app/follower-tasks-view.tsx",
+        "app/scene-input-runtime.ts",
+        "scripts/local-render/harness.mjs",
+        "scripts/check-browser-follower-transports.mjs",
+        "app/hud-layout.ts",
+        "app/scene-entities.ts",
+        "app/spell-effects-runtime.ts",
+        "app/vehicle-appearance.ts",
+        "scripts/check-native-live-models.py",
+        "scripts/transport-pixel-reference.mjs"
+      ],
+      "prerequisites": [
+        "Reserved local browser/server lane",
+        "Exclusive installed dependencies",
+        "Official sandboxed Headless Shell"
+      ],
+      "sideEffects": [
+        "Writes ignored capture/receipt output and private local server caches"
+      ],
+      "resources": [
+        "Exclusive browser and port4357"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "id": "follower-transports-browser",
+      "kind": "browser",
+      "automation": "manual",
+      "purpose": "Exercise occupied Boat/Balloon rows through shipped Followers controls.",
+      "coveredBehavior": [
+        "Presence/count and mixed-class selection",
+        "Independent focus and actual vehicle panel",
+        "Disrupted/repeated controls",
+        "Checkpoint and responsive HUD behavior",
+        "Strict physical-grid pixels, footer separation and center/digit hit ownership",
+        "Live apparent-owner UV/cache and genuine Boat/Balloon geometry capture"
+      ],
+      "knownLimits": [
+        "Supporting injected crews/crafts are explicitly labelled; no natural acquisition, Windows full-frame parity or hardware-performance claim.",
+        "Boat driver-Spy disguise is a bounded supporting fixture; non-driver scheduling and Balloon commandPosition remain outside this claim."
+      ],
+      "executable": "node",
+      "args": [
+        "scripts/local-render/harness.mjs",
+        "--game-root",
+        ".",
+        "--scenario",
+        "scripts/check-browser-follower-transports.mjs",
+        "--port",
+        "4357",
+        "--output",
+        "work/orchestration/follower-transports-browser",
+        "--timeout",
+        "600000"
+      ]
+    },
+    {
+      "id": "transport-vehicle-materials-native",
+      "kind": "native",
+      "automation": "manual",
+      "purpose": "Compare genuinely captured live transport geometry with native rendering and apparent-owner texture dispatch.",
+      "coveredBehavior": [
+        "Full native projection, shading, culling, buckets and picking for actual Boat/Balloon meshes",
+        "Original loader flags and all four apparent tribes plus neutral texture handles"
+      ],
+      "knownLimits": [
+        "Requires read-only model capture from the approved browser run; no synthetic input or fixture recording.",
+        "No final native GPU rasterization or hardware-performance claim."
+      ],
+      "executable": "python3",
+      "args": [
+        "-B",
+        "scripts/check-native-vehicle-materials.py",
+        "$POPULOUS_EXE",
+        "$POPULOUS_LIVE_MODEL_INPUT"
+      ],
+      "cwd": ".",
+      "env": [
+        "POPULOUS_EXE",
+        "POPULOUS_LIVE_MODEL_INPUT"
+      ],
+      "inputs": [
+        "scripts/check-native-vehicle-materials.py",
+        "scripts/check-native-live-models.py",
+        "app/vehicle-appearance.ts",
+        "app/scene-entities.ts",
+        "app/world-types.ts",
+        "public/original/provenance.json"
+      ],
+      "prerequisites": [
+        "Verified executable and original objects/objs0-2.dat, facs0-2.dat and pnts0-2.dat",
+        "Actual captured live-vehicle-models.json from the source-bound transport browser run"
+      ],
+      "sideEffects": [
+        "Writes native-vehicle-materials.json beside the captured input with exclusive creation"
+      ],
+      "resources": [
+        "Read-only native inputs; unique capture/output directory"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "id": "shaman-death-ground-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check grounding.",
+      "coveredBehavior": [
+        "Ordinary combat death and actual phase1 world-turn caller",
+        "Rising and lowering death-site ground",
+        "Last phase1 sample retention through checkpoint, phase2 and rise",
+        "Unchanged phase0 and direct drowning-entry anchor",
+        "Existing animation cadence and frame/hide behavior"
+      ],
+      "knownLimits": [
+        "Death-terrain/drowning fixtures and fake-Scene bounds; actual rendering separate."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/shaman-death-ground.test.mjs",
+        "tests/shaman-death-cadence.test.mjs",
+        "tests/shaman-death-vfx.test.mjs",
+        "tests/controlled-scene-frames.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "app/world-turn.ts",
+        "app/reincarnation.ts",
+        "app/shaman-death-vfx.ts",
+        "app/world-terrain-runtime.ts",
+        "app/game-store.ts",
+        "tests/level-start-fixture.mjs",
+        "tests/shaman-death-ground.test.mjs",
+        "tests/shaman-death-cadence.test.mjs",
+        "tests/shaman-death-vfx.test.mjs",
+        "scripts/controlled-scene-frames.mjs",
+        "tests/controlled-scene-frames.test.mjs"
+      ],
+      "prerequisites": [
+        "Node.js with TypeScript stripping"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "id": "shaman-death-ground-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Compare heights.",
+      "coveredBehavior": [
+        "Original death producer, model12 allocator/initializer and phase controller",
+        "Actual original terrain interpolation during every phase1 visit",
+        "Four-owner raising/lowering, phase2 retention and first rise",
+        "Unchanged phase0 and direct unsupported entry",
+        "Guarded mapped search bytes and all configured constants"
+      ],
+      "knownLimits": [
+        "Registration, support predicates, audio, bookkeeping and spawning are supplied leaves.",
+        "The current caller uses ordinary combat death and supplied post-death terrain; no shipped spell or native raster claim."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-shaman-death-ground.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-shaman-death-ground.py",
+        "scripts/decomp.py",
+        "decomp/tools.json",
+        "app/world-turn.ts",
+        "app/world-terrain-runtime.ts",
+        "app/reincarnation.ts",
+        "app/original-constants.json",
+        "tests/level-start-fixture.mjs"
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment and Node.js",
+        "Hash-verified executable, levels/constant.dat, data/mwsearch.dat, data/vstart-0.ani and data/vfra-0.ani"
+      ],
+      "sideEffects": [],
+      "resources": ["Read-only native inputs; coordinate CPU use"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "shaman-death-ground-browser",
+      "kind": "browser",
+      "automation": "manual",
+      "purpose": "Full Scene frames.",
+      "coveredBehavior": [
+        "M1 public H/worship/move/attack/casts; four earned Bridge shots",
+        "Bridge request/body/arrival/next-turn payout",
+        "Injured living caster creates Bridge, then combat death",
+        "Phase1 ground/stored/body/mesh; stable anchor",
+        "Framebuffer contribution and combined cached-height control"
+      ],
+      "knownLimits": [
+        "Held RAF; full Scene.animate at24Hz/1x, not real time. Zero-time camera assist; no World injection. No native raster/hardware claim."
+      ],
+      "executable": "node",
+      "args": [
+        "scripts/local-render/harness.mjs",
+        "--scenario",
+        "scripts/check-browser-shaman-death-ground.mjs",
+        "--mission",
+        "1",
+        "--browser",
+        "$POPULOUS_HEADLESS_SHELL",
+        "--output",
+        "$POPULOUS_ARTIFACT_DIR",
+        "--timeout",
+        "480000"
+      ],
+      "cwd": ".",
+      "env": [
+        "POPULOUS_HEADLESS_SHELL",
+        "POPULOUS_ARTIFACT_DIR"
+      ],
+      "inputs": [
+        "app/world-turn.ts",
+        "app/reincarnation.ts",
+        "app/shaman-death-vfx.ts",
+        "app/scene-effects.ts",
+        "app/scene.ts",
+        "app/live-command.ts",
+        "scripts/check-browser-shaman-death-ground.mjs",
+        "scripts/browser-game.mjs",
+        "scripts/hud-texture-readiness.mjs",
+        "scripts/campaign-start-readiness.mjs",
+        "scripts/local-render/harness.mjs",
+        "app/game-clock.ts",
+        "app/worship-acquisition-runtime.ts",
+        "app/scene-worship-acquisition.ts",
+        "scripts/controlled-scene-frames.mjs",
+        "scripts/shaman-worship-ground-observer.mjs"
+      ],
+      "prerequisites": [
+        "Verified installed dependencies",
+        "Supported sandboxed browser"
+      ],
+      "sideEffects": [
+        "Writes source-bound screenshots/report in an owned artifact directory"
+      ],
+      "resources": [
+        "Shared browser/server lane; serialize"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "id": "reincarnation-wave-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Verify ordinary mode2 site-wave ownership, native target response and checkpoint continuity.",
+      "coveredBehavior": [
+        "One-shot failed/busy allocation and saved height",
+        "Native eligible targets, panic and repeated protected damage",
+        "Same-turn older Swamp cleanup",
+        "Ordinary death, deferred first visit and independent post-spawn lifetime",
+        "Active encounter, entry queue and Boat/Balloon passenger handoffs",
+        "Checkpoint continuation without duplicated controller/orbits"
+      ],
+      "knownLimits": [
+        "Supporting fixtures and source integration do not establish rendered acceptance."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/reincarnation-wave.test.mjs",
+        "tests/level-start.test.mjs",
+        "tests/person-panic.test.mjs"
+      ],
+      "inputs": [
+        "app/reincarnation-wave-runtime.ts",
+        "app/site-wave-effects.ts",
+        "app/level-start.ts",
+        "app/level-start-runtime.ts",
+        "app/world-turn.ts",
+        "app/world-types.ts",
+        "app/world-state.ts",
+        "app/game-store.ts",
+        "app/live-people.ts",
+        "app/live-building-entry.ts",
+        "app/live-vehicles.ts",
+        "app/person-state.ts",
+        "app/person-update.ts",
+        "tests/reincarnation-wave.test.mjs",
+        "tests/level-start.test.mjs",
+        "tests/person-panic.test.mjs"
+      ],
+      "prerequisites": [
+        "Node.js with TypeScript stripping"
+      ],
+      "cwd": ".",
+      "env": [],
+      "sideEffects": [],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "id": "reincarnation-wave-native",
+      "kind": "native",
+      "automation": "manual",
+      "purpose": "Execute the composed original model12 producer, allocator, mode2 wave, panic and damage with mapped-input integrity guards.",
+      "coveredBehavior": [
+        "Real allocator, height quantization, busy/failure branches",
+        "Real panic/damage with eligibility and repeated ring endpoints",
+        "First cross-class traversal and spawn-request order",
+        "Terrain/orbit/sound lifetime and Swamp removal traversal",
+        "Passenger deselection and unchanged seat/order identity"
+      ],
+      "knownLimits": [
+        "Supplied rendering, sound, removal and unrelated world leaves; spawn requests are supplied, not a successful native spawn.",
+        "Earlier corrupt-search receipts through94e88b4 are superseded."
+      ],
+      "executable": "$POPULOUS_PYTHON",
+      "args": [
+        "-B",
+        "scripts/check-native-reincarnation-wave.py",
+        "$POPULOUS_EXE"
+      ],
+      "inputs": [
+        "scripts/check-native-reincarnation-wave.py",
+        "scripts/decomp.py",
+        "decomp/tools.json",
+        "app/original-constants.json",
+        "decomp/research/reincarnation-site-wave.md"
+      ],
+      "prerequisites": [
+        "Hash-verified original EXE, levels/constant.dat and data/mwsearch.dat",
+        "Pinned Unicorn environment"
+      ],
+      "cwd": ".",
+      "env": [
+        "POPULOUS_EXE",
+        "POPULOUS_PYTHON"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "id": "reincarnation-wave-browser",
+      "kind": "browser",
+      "automation": "manual",
+      "purpose": "Verify rendered ordinary reincarnation after real Mission2 combat death and saved-wave restoration.",
+      "coveredBehavior": [
+        "Shipped setup/H-selection/ordinary attack and natural model12 lifecycle",
+        "Deferred wave visit, orbit pixels, successful respawn and cleanup",
+        "Fresh-page checkpoint and responsive rendering",
+        "Separately labeled staged intrusion targets and rendered Swamp removal/neighbor survival",
+        "No remaining wave-owned lights after cleanup"
+      ],
+      "knownLimits": [
+        "Command adapter is not pointer-picking proof.",
+        "Staged intruders are separate from natural gameplay acceptance.",
+        "Linux headless rendering cannot establish hardware performance."
+      ],
+      "executable": "node",
+      "args": [
+        "scripts/local-render/harness.mjs",
+        "--scenario",
+        "scripts/check-browser-reincarnation-wave.mjs",
+        "--mission",
+        "2",
+        "--browser",
+        "$POPULOUS_HEADLESS_SHELL",
+        "--output",
+        "$POPULOUS_ARTIFACT_DIR"
+      ],
+      "inputs": [
+        "app/reincarnation-wave-runtime.ts",
+        "app/site-wave-effects.ts",
+        "app/level-start.ts",
+        "app/level-start-runtime.ts",
+        "app/world-turn.ts",
+        "app/world-types.ts",
+        "app/world-state.ts",
+        "app/game-store.ts",
+        "app/live-people.ts",
+        "app/live-building-entry.ts",
+        "app/live-vehicles.ts",
+        "app/person-state.ts",
+        "app/person-update.ts",
+        "app/scene-effects.ts",
+        "scripts/check-browser-reincarnation-wave.mjs",
+        "scripts/browser-game.mjs",
+        "scripts/campaign-start-readiness.mjs",
+        "scripts/local-render/harness.mjs"
+      ],
+      "prerequisites": [
+        "Owned local game server",
+        "Supported sandboxed Playwright browser"
+      ],
+      "cwd": ".",
+      "env": [
+        "POPULOUS_ARTIFACT_DIR",
+        "POPULOUS_HEADLESS_SHELL"
+      ],
+      "sideEffects": [
+        "Writes source-bound captures/report to unique artifact directory"
+      ],
+      "resources": [
+        "Shared browser/server lane; serialize"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     }
   ]
 }

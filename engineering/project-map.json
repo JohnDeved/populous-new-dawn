@@ -218,7 +218,7 @@
         "HUD queries must not allocate or claim native simulation ownership; actual controller precedence matters."
       ],
       "unresolved": [
-        "Occupied Boat/Balloon rows remain separate.",
+        "Occupied Boat/Balloon rows are mapped by the separate follower-transport-controls subsystem.",
         "Logical draw-request and browser consistency do not establish original Windows painter order, complete input-loop or hardware performance.",
         "Legacy task projections preserve explicit category identities without claiming full native work/guard gameplay."
       ]
@@ -237,6 +237,7 @@
         "app/person-order-update.ts",
         "app/person-orders.ts",
         "app/person-routes.ts",
+        "app/shaman-guard.ts",
         "app/route-advance.ts",
         "app/world-rules.ts"
       ],
@@ -247,6 +248,9 @@
         "scripts/probe-native-firewarrior.py",
         "scripts/probe-native-firewarrior-auto.py",
         "scripts/probe-native-firewarrior-tower.py",
+        "scripts/extract-shaman-guard-vectors.mjs",
+        "tests/shaman-guard-native.test.mjs",
+        "tests/shaman-guard-input.test.mjs",
         "tests/automatic-boat-crossing.test.mjs",
         "tests/game.test.mjs"
       ],
@@ -280,12 +284,14 @@
       ],
       "evidence": [
         { "path": "decomp/README.md", "heading": "Shared person commands" },
+        { "path": "decomp/research/shaman-guard-input.md", "heading": "Live integration boundary" },
         { "path": "decomp/research/firewarrior.md", "heading": "Firewarrior launch and open boundaries" },
         { "path": "decomp/research/command-28-attacking-shaman.md", "heading": "Finding" },
         { "path": "decomp/research/mission5-boat.md", "heading": "Mission 5 granted Boat" },
         { "path": "decomp/research/mission9-boat-house.md", "heading": "Mission 9 Boat House production" },
         { "path": "decomp/research/vehicle-destruction.md", "heading": "Vehicle damage and destruction" },
         { "path": "decomp/research/transport-idle-state.md", "heading": "Native behavior" },
+        { "path": "decomp/research/balloon-command-position.md", "heading": "Finding" },
         { "path": "decomp/research/rejected-adapter-candidates.md", "heading": "Terrain changes do not invalidate active person routes" },
         { "path": "decomp/README.md", "heading": "State-10 order dispatch and resumption" },
         {
@@ -516,6 +522,10 @@
           "path": "decomp/research/hut-smoke-secondary-owner.md",
           "heading": "Runtime contract"
         },
+        {
+          "path": "decomp/research/hut-smoke-state-exit.md",
+          "heading": "Original producer and consumer"
+        },
         { "path": "decomp/research/early-mission-skies.md", "heading": "Original selection and bounded correction" }
       ],
       "nativeAddresses": ["0x4306d0", "0x44df40", "0x44e940", "0x4f9380", "0x4b5f40"],
@@ -549,7 +559,9 @@
         "app/shaman-appearance.ts",
         "app/level-start.ts",
         "app/level-start-runtime.ts",
-        "app/reincarnation.ts"
+        "app/reincarnation.ts",
+        "app/reincarnation-wave-runtime.ts",
+        "app/site-wave-effects.ts"
       ],
       "researchPaths": [
         "scripts/import-original.py",
@@ -566,7 +578,18 @@
         "tests/level-start.test.mjs",
         "scripts/check-native-level-start.py",
         "scripts/check-static-level-start.py",
-        "scripts/check-browser-level-start.mjs"
+        "scripts/check-browser-level-start.mjs",
+        "scripts/check-native-reincarnation-wave.py",
+        "scripts/check-browser-reincarnation-wave.mjs",
+        "tests/reincarnation-wave.test.mjs",
+        "decomp/research/reincarnation-site-wave.md",
+        "tests/shaman-death-ground.test.mjs",
+        "scripts/check-native-shaman-death-ground.py",
+        "scripts/check-browser-shaman-death-ground.mjs",
+        "scripts/controlled-scene-frames.mjs",
+        "scripts/shaman-worship-ground-observer.mjs",
+        "tests/controlled-scene-frames.test.mjs",
+        "decomp/research/shaman-death-vfx.md"
       ],
       "sharedPaths": [
         "app/scene-entities.ts",
@@ -588,7 +611,7 @@
         },
         {
           "path": "scripts/import-original.py",
-          "symbol": "append_shaman_units"
+          "symbol": "append_unit_families"
         }
       ],
       "parityIds": [
@@ -613,6 +636,14 @@
         {
           "path": "decomp/research/level-start-sequence.md",
           "heading": "Original level-start sequence (issue #20)"
+        },
+        {
+          "path": "decomp/research/reincarnation-site-wave.md",
+          "heading": "Ordinary reincarnation site wave (#30)"
+        },
+        {
+          "path": "decomp/research/shaman-death-vfx.md",
+          "heading": "Phase1 ground"
         }
       ],
       "nativeAddresses": [
@@ -628,7 +659,13 @@
         "level-start-portable",
         "level-start-native",
         "level-start-static",
-        "level-start-browser"
+        "level-start-browser",
+        "reincarnation-wave-portable",
+        "reincarnation-wave-native",
+        "reincarnation-wave-browser",
+        "shaman-death-ground-portable",
+        "shaman-death-ground-native",
+        "shaman-death-ground-browser"
       ],
       "generatedInputIds": [
         "native-fixtures",
@@ -648,6 +685,14 @@
       "title": "Campaign VM and mission integration",
       "mappingStatus": "reviewed",
       "implementationPaths": [
+        "app/worship-acquisition.ts",
+        "app/worship-acquisition-runtime.ts",
+        "app/worship-acquisition-source.ts",
+        "app/worship-acquisition-layout.ts",
+        "app/scene-worship-acquisition.ts",
+        "app/original-worship-acquisition.json",
+        "scripts/import-worship-acquisition.py",
+
         "app/angel.ts",
         "app/campaign-command-runtime.ts",
         "app/computer.ts",
@@ -720,6 +765,18 @@
         "app/worship.ts"
       ],
       "researchPaths": [
+        "tests/worship-acquisition-controller.test.mjs",
+        "tests/worship-acquisition-runtime.test.mjs",
+        "tests/worship-acquisition-source.test.mjs",
+        "tests/fixtures/worship-acquisition-controller.json",
+        "scripts/check-worship-acquisition-assets.py",
+        "scripts/check-worship-acquisition-fixture.mjs",
+        "scripts/probe-native-worship-grant-request-order.py",
+        "decomp/research/worship-grant-request-order.md",
+        "decomp/research/worship-grant-source-order.md",
+        "decomp/research/worship-acquisition-body-raster.md",
+        "decomp/research/worship-acquisition-adapter.md",
+
         "engineering/single-player-feasibility.md",
         "decomp/research/recorded-demo-provenance.md",
         "scripts/check-static-recorded-demo-provenance.py",
@@ -752,7 +809,26 @@
         "decomp/research/mission2-enemy-marker.md",
       "decomp/research/early-mission-ai.md",
       "scripts/check-native-early-mission-ai.py",
+      "decomp/research/mission3-raid-allocation-preflight.md",
+      "scripts/check-native-mission3-raid-allocation.py",
+      "scripts/mission3-raid-allocation-pair.mjs",
+      "tests/fixtures/mission3-raid-allocation.json",
+      "tests/mission3-raid-allocation.test.mjs",
       "decomp/research/mission3-preaching-message.md",
+      "decomp/research/preacher-spell-retaliation.md",
+      "decomp/research/preacher-sermon-gestures.md",
+      "decomp/research/automatic-preacher-and-raid-ownership.md",
+      "tests/preacher-automatic-response.test.mjs",
+      "tests/live-order-owner.test.mjs",
+      "tests/raid-phase6-settlement.test.mjs",
+      "tests/raid-state33-release.test.mjs",
+      "tests/preacher-gestures.test.mjs",
+      "scripts/check-preacher-gesture-assets.py",
+      "scripts/check-preacher-gesture-replay.py",
+      "scripts/preacher-gesture-replay.mjs",
+      "tests/preacher-spell-retaliation.test.mjs",
+      "scripts/check-browser-preacher-retaliation.mjs",
+      "scripts/check-native-emergency-spells.py",
       "scripts/check-native-mission3-preaching-message.py",
       "decomp/research/mission2-rebuilding.md",
       "scripts/check-native-mission2-rebuilding.py",
@@ -1030,7 +1106,11 @@
       ],
       "evidence": [
         { "path": "decomp/README.md", "heading": "Campaign interpreter comparison" },
+        { "path": "decomp/research/worship-grant-handoff.md", "heading": "Three findings" },
+        { "path": "decomp/research/worship-grant-presentation.md", "heading": "Three findings" },
+        { "path": "decomp/research/worship-grant-replacement.md", "heading": "Dynamic result" },
         { "path": "decomp/research/authored-bridge-origins.md", "heading": "Executable composition proof" },
+        { "path": "decomp/research/erosion-activation.md", "heading": "Reviewed native boundary" },
         {
           "path": "decomp/research/recorded-demo-provenance.md",
           "heading": "Reproduce the static boundary proof"
@@ -1171,7 +1251,8 @@
         {"path": "decomp/research/loading-art.md", "heading": "New caller evidence: real resource-loading entry, not a percentage"},
         {"path": "decomp/research/loading-art.md", "heading": "Resource descriptor and failure propagation"},
         {"path": "decomp/research/vault-side-fire.md", "heading": "Model-18 Vault excludes generic attached fire"},
-        {"path": "decomp/research/vault-side-fire.md", "heading": "Known / unknown boundary"}
+        {"path": "decomp/research/vault-side-fire.md", "heading": "Known / unknown boundary"},
+        {"path": "decomp/research/vault-knowledge-world-assets.md", "heading": "Owned assets and live integration"}
       ],
       "nativeAddresses": [
         "0x40bce0",
@@ -1387,6 +1468,106 @@
       "unresolved": [
         "Original save format, named slots, options, broader profile data and exact front-end presentation remain unported."
       ]
+    },
+    {
+      "id": "follower-transport-controls",
+      "title": "Occupied Boat and Balloon Followers controls",
+      "mappingStatus": "inferred",
+      "implementationPaths": [
+        "app/hud-transports.ts",
+        "app/follower-transports-runtime.ts",
+        "app/hud-layout.ts"
+      ],
+      "researchPaths": [
+        "scripts/check-native-follower-transports.py",
+        "scripts/check-native-transport-ownership.py",
+        "tests/follower-transports.test.mjs",
+        "tests/follower-transport-runtime.test.mjs",
+        "scripts/check-browser-follower-transports.mjs",
+        "tests/browser-follower-transports-checker.test.mjs",
+        "decomp/research/follower-task-panel.md",
+        "tests/hud-layout.test.mjs",
+        "tests/follower-transport-owner-consumers.test.mjs",
+        "scripts/check-native-vehicle-materials.py",
+        "scripts/transport-pixel-reference.mjs",
+        "tests/transport-pixel-reference.test.mjs"
+      ],
+      "sharedPaths": [
+        "app/follower-tasks-runtime.ts",
+        "app/follower-tasks-view.tsx",
+        "app/page.tsx",
+        "app/globals.css",
+        "app/scene.ts",
+        "app/scene-input-runtime.ts",
+        "app/live-vehicles.ts",
+        "app/live-movement.ts",
+        "app/vehicle-unload.ts",
+        "app/world-types.ts",
+        "app/original-follower-tasks.json",
+        "app/scene-entities.ts",
+        "app/spell-effects-runtime.ts"
+      ],
+      "entrySymbols": [
+        {
+          "path": "app/follower-tasks-view.tsx",
+          "symbol": "FollowerTasks"
+        },
+        {
+          "path": "app/follower-transports-runtime.ts",
+          "symbol": "selectFollowerTransport"
+        },
+        {
+          "path": "app/scene-input-runtime.ts",
+          "symbol": "chooseTransport"
+        }
+      ],
+      "parityIds": [
+        "interface.selection",
+        "interface.commands"
+      ],
+      "evidence": [
+        {
+          "path": "decomp/research/follower-task-panel.md",
+          "heading": "Occupied-transport live integration"
+        }
+      ],
+      "nativeAddresses": [
+        "0x4ecac0",
+        "0x4514f0",
+        "0x4deb40",
+        "0x4e31f0",
+        "0x4a13c0",
+        "0x4a14b0",
+        "0x4a14e0",
+        "0x4a1580",
+        "0x4657d0",
+        "0x4659d0"
+      ],
+      "checkIds": [
+        "follower-transports-portable",
+        "follower-transports-native",
+        "transport-ownership-native",
+        "follower-transports-browser",
+        "follower-task-art-native",
+        "repository-check",
+        "production-build",
+        "vehicle-destruction-native",
+        "transport-vehicle-materials-native"
+      ],
+      "generatedInputIds": [
+        "imported-runtime-data"
+      ],
+      "risks": [
+        "Real count/presence owner differs from apparent selection/focus owner.",
+        "Class selection selects every eligible passenger; nearby inclusion and distance ranking have different geometry owners.",
+        "Vehicle model2/4 remembered focus intentionally reacquires instead of cycling.",
+        "The apparent tribe also owns vehicle UV/cache, damage immunity and Blast projection; other real-team consumers remain unchanged.",
+        "Fractional HUD scaling must preserve lower-row pixels and hit ownership above the modern footer."
+      ],
+      "unresolved": [
+        "Native boarding countdown and broader vehicle command behavior remain separately scoped.",
+        "Logical/source-pixel and software browser proof do not establish full original-game renderer order or hardware performance."
+      ]
     }
   ],
   "crossCutting": [
@@ -1506,12 +1687,23 @@
       "mappingStatus": "unmapped",
       "paths": [
         "app/blast-wave.ts",
+        "app/erosion.ts",
+        "app/erosion-observation.ts",
         "app/lightning.ts",
         "app/land-bridge.ts",
         "app/spell-effects-runtime.ts",
         "app/tornado-runtime.ts"
       ],
-      "note": "Mechanically inventoried only."
+      "researchPaths": [
+        "decomp/research/erosion-actual-capture.md",
+        "scripts/check-native-erosion-capture.py",
+        "tests/erosion-observation.test.mjs",
+        "tests/erosion-creation-observation.test.mjs",
+        "tests/erosion-capture.test.py",
+        "qa/erosion-native-replay/capture.mjs",
+        "qa/erosion-native-replay/capture.test.mjs"
+      ],
+      "note": "Mechanically inventoried only. Erosion capture/replay tooling does not establish ordinary native/browser parity."
     },
     {
       "id": "vehicles",

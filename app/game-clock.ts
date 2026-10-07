@@ -1,11 +1,14 @@
-import { HOME, sound, tick, type World, type TurnObserver } from './model.ts'
+import { HOME, sound, tick, TURNS_PER_SECOND, type World, type TurnObserver } from './model.ts'
 import { animateLiveObjects } from './live-people.ts'
 import { stepMessages } from './messages.ts'
 import { animateStoneHeads } from './stone-head-animation.ts'
+import { worshipDeadline } from './worship-acquisition-runtime.ts'
 
 export interface GameClock extends TurnObserver {
   animationTime: number
   animationFrame: number
+  worshipVisit?: () => void
+  presentationHidden?: () => boolean
 }
 
 interface TurnPhase {
@@ -56,27 +59,53 @@ function turnPhase(clock: GameClock) {
 // changes gameplay at low refresh rates. The renderer itself remains uncapped.
 export function advanceGame(w: World, clock: GameClock, seconds: number) {
   if (!Number.isFinite(seconds) || seconds < 0) throw new RangeError('Invalid elapsed game time')
-  if (w.paused) return
+  const presentation = clock.worshipVisit && !clock.presentationHidden?.()
+  if (w.paused && !presentation) return
   const interval = 1 / 24,
     phase = turnPhase(clock)
   while (seconds > 0) {
-    const elapsed = Math.min(seconds, interval - clock.animationTime)
+    const active = !w.paused,
+      ui = w.worshipAcquisition.clock,
+      untilUi = presentation ? Math.max(0, (ui.nextVisit - ui.elapsed) / 1000) : Infinity,
+      untilTurn =
+        active && w.speed > 0
+          ? Math.max(0, (1 / TURNS_PER_SECOND - w.pendingTime) / w.speed)
+          : Infinity,
+      elapsed = Math.min(
+        seconds,
+        active ? interval - clock.animationTime : Infinity,
+        untilUi,
+        untilTurn
+      )
+    const previousTurn = w.turn
     try {
-      tick(w, elapsed * w.speed, phase.observer)
+      if (active) tick(w, elapsed * w.speed, phase.observer)
     } finally {
       // A failing beforeTurn/body must not leave a later UI event inside a turn.
       phase.active = false
       phase.callbacks.length = 0
     }
+    // Observers finish first; the next controller turn must see this visit's
+    // frame. Direct tick() remains simulation-only. A land-paused tick has no turn.
+    if (w.turn !== previousTurn) {
+      animateLiveObjects(w, 'logical')
+      animateStoneHeads(w, 'logical')
+    }
     seconds = Math.max(0, seconds - elapsed)
-    clock.animationTime += elapsed
-    if (clock.animationTime + 1e-9 >= interval) {
+    if (presentation) ui.elapsed += elapsed * 1000
+    if (active) clock.animationTime += elapsed
+    if (active && clock.animationTime + 1e-9 >= interval) {
       clock.animationTime = 0
       animateLiveObjects(w)
       animateStoneHeads(w)
       stepMessages(w.messages, () => sound(w, 0xe4, HOME))
       clock.animationFrame++
       w.secondaryEffects.animationFrame++
+    }
+    if (presentation && ui.elapsed + 1e-7 >= ui.nextVisit) {
+      const preLimiter = ui.limiter
+      clock.worshipVisit!()
+      ui.nextVisit = worshipDeadline(ui, preLimiter)
     }
   }
 }

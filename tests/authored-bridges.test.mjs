@@ -12,11 +12,16 @@ const bridgeHead = world => world.shrines.find(head => head.kind === 'bridgeEffe
 const expectedStart = { x: 47872, y: 24832 }
 const expectedTarget = { x: 51968, y: 24832 }
 
-function worshipBridge(world) {
+function worshipBridge(world, beforeActivation = () => {}) {
   stepUntil(world, () => world.turn >= 122)
   select(world, 'shaman')
   assert.ok(command(world, bridgeHead(world)))
-  stepUntil(world, () => bridgeHead(world).uses === 1)
+  const head = bridgeHead(world)
+  stepUntil(world, () =>
+    !((world.turn + 1) & 3) && head.work >= (head.target - 1) * head.required ** 2)
+  beforeActivation()
+  tick(world, 1 / 12)
+  assert.equal(head.uses, 1)
   return world.effects.find(effect => effect.bridge)
 }
 
@@ -40,17 +45,36 @@ test('authored origins survive initialization for all five currently live campai
 })
 
 test('ordinary Mission 2 worship creates the authored crossing and every live terrain turn matches it', () => {
-  const world = createWorld(2), effect = worshipBridge(world)
+  const world = createWorld(2)
+  let before, withoutReward
+  const effect = worshipBridge(world, () => {
+    before = world.land.heights.slice()
+    withoutReward = structuredClone(world)
+    bridgeHead(withoutReward).active = false
+  })
+  tick(withoutReward, 1 / 12)
   assert.deepEqual(effect.bridge.start, expectedStart)
   assert.deepEqual(effect.bridge.target, expectedTarget)
   assert.deepEqual({ x: effect.x, z: effect.z }, { x: -77, z: -105 })
-  assert.equal(effect.bridge.turn, 0)
+  assert.equal(effect.bridge.turn, 1, 'The authored producer owns the initialization visit')
+  assert.deepEqual(world.land.heights, before, 'Initialization does not deform terrain')
+  assert.deepEqual(world.land, withoutReward.land, 'Initialization queues no terrain work')
+  assert.equal(world.randomState, withoutReward.randomState, 'Initialization consumes no gameplay RNG')
+  assert.deepEqual(world.cosmeticRandom, withoutReward.cosmeticRandom, 'Initialization consumes no cosmetic RNG')
+  assert.deepEqual(world.effects.filter(f => f.kind === 'trail'), withoutReward.effects.filter(f => f.kind === 'trail'))
   const reference = createLandBridge(expectedStart, expectedTarget)
   const land = { heights: world.land.heights.slice(), flags: world.land.flags.slice() }
+  stepLandBridge(land, reference, () => assert.fail('Unexpected initialization trail'),
+    () => assert.fail('Unexpected initialization terrain notification'))
+  assert.deepEqual(effect.bridge, reference, 'All initialized fields match the native-proved first visit')
   let alive = true
   while (alive) {
     alive = stepLandBridge(land, reference, () => {}, () => {})
     tick(world, 1 / 12)
+    if (reference.turn === 2) {
+      assert.notDeepEqual(world.land.heights, before, 'The next visit performs the first terrain pass')
+      assert.equal(world.effects.filter(f => f.sprite?.sequence === 'blastTrail').length, 36)
+    }
     assert.deepEqual(world.land.heights, land.heights)
     assert.deepEqual(effect.bridge, reference)
     assert.equal(world.effects.includes(effect), alive)
@@ -77,7 +101,35 @@ test('legacy migration recovers only missing immutable origins without replaying
   head.bridgeTarget = { x: 99, z: 98 }
   migrateCheckpoint(world)
   assert.equal(head.bridgeStart, undefined, 'Unrecognized target is not guessed')
-  assert.equal(effect.bridge.turn, 12)
+  assert.equal(effect.bridge.turn, 13)
+})
+
+test('component checkpoint preserves authored birth caches when sampled terrain changes before the next visit', async () => {
+  const store = createGameStore()
+  store.startMission(2)
+  let world = store.getWorld()
+  const effect = worshipBridge(world), initialized = structuredClone(effect.bridge)
+  assert.equal(initialized.turn, 1)
+  // Supplied state perturbation: distinguish birth-time sampling from deferred
+  // sampling. This does not model ordinary rendered terrain or absolute timing.
+  const x = (expectedTarget.x >>> 9) & 127, y = (expectedTarget.y >>> 9) & 127
+  for (const dy of [0, 1]) for (const dx of [0, 1])
+    world.land.heights[((y + dy) & 127) * 128 + ((x + dx) & 127)] = 1024
+  const land = { heights: world.land.heights.slice(), flags: world.land.flags.slice() }
+  const deferred = createLandBridge(expectedStart, expectedTarget)
+  stepLandBridge(land, deferred, () => {}, () => {})
+  assert.notEqual(deferred.heightStep, initialized.heightStep, 'The supplied change must distinguish sampling times')
+  await store.saveCheckpoint()
+  assert.ok(store.loadCheckpoint())
+  world = store.getWorld()
+  assert.deepEqual(world.effects.find(effect => effect.bridge).bridge, initialized)
+  const reference = structuredClone(initialized)
+  stepLandBridge(land, reference, () => {}, () => {})
+  tick(world, 1 / 12)
+  assert.deepEqual(world.effects.find(effect => effect.bridge).bridge, reference)
+  assert.equal(reference.turn, 2)
+  assert.equal(reference.heightStep, initialized.heightStep)
+  assert.deepEqual(world.land.heights, land.heights)
 })
 
 test('pre-activation legacy save and mid-bridge checkpoint continue once at the authored origin', async () => {
@@ -89,8 +141,18 @@ test('pre-activation legacy save and mid-bridge checkpoint continue once at the 
   assert.ok(store.loadCheckpoint())
   let world = store.getWorld()
   assert.deepEqual(bridgeHead(world).bridgeStart, { x: -77, z: -105 })
-  worshipBridge(world)
-  for (let turn = 0; turn < 20; turn++) tick(world, 1 / 12)
+  const activated = worshipBridge(world)
+  assert.equal(activated.bridge.turn, 1)
+  const initialized = structuredClone(activated.bridge), activationHeights = world.land.heights.slice()
+  await store.saveCheckpoint()
+  assert.ok(store.loadCheckpoint())
+  world = store.getWorld()
+  assert.deepEqual(world.effects.find(effect => effect.bridge).bridge, initialized)
+  assert.deepEqual(world.land.heights, activationHeights)
+  tick(world, 1 / 12)
+  assert.equal(world.effects.find(effect => effect.bridge).bridge.turn, 2, 'Restoration must not repeat initialization')
+  assert.notDeepEqual(world.land.heights, activationHeights)
+  for (let turn = 0; turn < 19; turn++) tick(world, 1 / 12)
   const state = structuredClone(world.effects.find(effect => effect.bridge).bridge)
   await store.saveCheckpoint()
   assert.ok(store.loadCheckpoint())

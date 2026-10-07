@@ -4,6 +4,7 @@ import { spawn } from 'node:child_process'
 import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 import { openGame } from './browser-game.mjs'
+import { waitForHudTexture } from './hud-texture-readiness.mjs'
 
 const projectRoot = process.cwd(),
   requireFromProject = createRequire(resolve(projectRoot, 'package.json')),
@@ -61,11 +62,7 @@ function cleanupReceipt() {
 }
 
 async function waitHud(page) {
-  await page.waitForFunction(async () => {
-    const { texture } = await import('/app/scene-assets.ts'),
-      image = texture('hud').image
-    return image instanceof HTMLImageElement && image.complete && image.naturalWidth > 0
-  })
+  await waitForHudTexture(page)
 }
 
 async function setHudSize(page, value) {

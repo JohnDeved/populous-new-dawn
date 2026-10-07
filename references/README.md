@@ -2,7 +2,11 @@
 
 ## Current browser acceptance evidence
 
+- [Fresh Mission 1 → 2 → 3 campaign victory, 2026-10-05](verification/current-campaign-victory-2026-10-05/README.md): independently accepted ordinary victories and committed `[1,2,3]` on pinned `3b89912`, with direct original-probe scope, failed-prefix history and remaining gaps explicit. No captured-terrain native Erosion replay or full-parity claim.
+
 - [Mission 1 ordinary-control observation, 2026-10-04](verification/mission-one-controls-2026-10-04/README.md): natural build/train/save/load/combat victory on `b846500`, with actual screenshots, both failed exploratory receipts and disclosed ordinary out-of-range correction. This is bounded evidence, not a clean maintained-checker or full-campaign pass.
+
+- [Mission 3 saved-checkpoint ordinary victory, 2026-10-05](verification/mission-three-controls-2026-10-05/README.md): independently accepted saved-sermon cancellation/reload/conversion, prospective Erosion and committed Mission 3 victory on pinned `b381851`. Five failures and three control stops remain; current-main replay and full parity are not claimed.
 
 ## Accepted direction
 

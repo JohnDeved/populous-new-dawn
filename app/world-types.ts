@@ -1,5 +1,5 @@
 import type { SecondaryEffects } from './secondary-effects.ts'
-import type { LevelStartSite } from './level-start.ts'
+import type { LevelStartSite, StartPoint, StartWave } from './level-start.ts'
 import type { LiveFormation } from './live-movement.ts'
 import type { Footprints } from './footprints.ts'
 import type { CombatMarch } from './combat-order-search.ts'
@@ -51,6 +51,8 @@ import type { MessageState } from './messages.ts'
 import type { VaultTask } from './vault.ts'
 import type { UnitKind } from './unit-kinds.ts'
 import type { Armageddon } from './armageddon.ts'
+import type { OrdinaryWorshipSource } from './worship-acquisition-source.ts'
+import type { WorshipAcquisitionRuntime } from './worship-acquisition-runtime.ts'
 
 export const TRIBE_TEAMS = ['blue', 'red', 'yellow', 'green'] as const
 export type TribeTeam = (typeof TRIBE_TEAMS)[number]
@@ -58,6 +60,9 @@ export type Team = TribeTeam | 'wild'
 export const teamForTribe = (tribe: number): Team =>
   tribe === -1 || tribe === 255 ? 'wild' : (TRIBE_TEAMS[tribe] ?? 'wild')
 export const tribeForTeam = (team: Team) => (team === 'wild' ? -1 : TRIBE_TEAMS.indexOf(team))
+// Native vehicle +0x2f; old checkpoints have only the real/count owner.
+export const vehicleApparentTribe = (vehicle: Pick<Vehicle, 'team' | 'apparentTribe'>) =>
+  vehicle.apparentTribe ?? tribeForTeam(vehicle.team)
 export const animationTeam = (team: Team): 'blue' | 'red' | 'wild' =>
   team === 'yellow' || team === 'green' ? 'red' : team
 export type BuildingKind =
@@ -104,6 +109,8 @@ export type Fight = {
 }
 export type NativePoint = { x: number; y: number; h: number }
 export type Vehicle = NativePoint & {
+  // Native apparent owner (+0x2f); team retains real count owner (+0xa1).
+  apparentTribe?: number
   id: number
   class: 4
   model: number
@@ -276,6 +283,7 @@ export type Shrine = Point &
     rewardModel?: number
     rewardDelay?: number
     rewardRecipient?: number
+    ordinarySpellReward?: OrdinaryWorshipSource
     // Completed local-player worship sample consumed by automatic panel presentation.
     panelActivity?: { turn: number; count: number }
     angelTarget?: Point
@@ -293,6 +301,7 @@ export type Shrine = Point &
     morph: ModelMorph | null
     // Undefined legacy saves lazily derive only an authored model45 family; null is unsupported.
     stoneHead?: StoneHeadAnimation | null
+    knowledgeGlow?: AnimatedUnit & { displayedFrame: number }
     angle: number
   }
 export type Tree = Point & {
@@ -345,6 +354,7 @@ export type Effect = Point & {
   sinking?: SinkingBuilding & { stage: number }
   wave?: BlastWave
   startConversionLink?: number
+  reincarnationWave?: StartWave & { tribe: number; mode: 2 }
   turnsRemaining?: number
   groundVersion?: number
   age: number
@@ -393,6 +403,7 @@ export type Gift = Effect & {
   amount?: number
   recipient?: number
   rewardModel?: number
+  ordinaryWorship?: OrdinaryWorshipSource & { completedTurn: number; serial: number }
   remaining: number
   phase: number
   frame: number
@@ -471,6 +482,7 @@ export type World = {
   fights: Battle[]
   levelStart: LevelStartSite[]
   levelStartStoneSound: number
+  reincarnationSites: (StartPoint | null)[]
   sounds: SoundEvent[]
   soundSerial: number
   mana: number
@@ -492,6 +504,7 @@ export type World = {
   pendingTime: number
   randomState: number
   cosmeticRandom: { randomState: number }
+  worshipAcquisition: WorshipAcquisitionRuntime
   effectCounter: number
   secondaryEffects: SecondaryEffects
   nextId: number

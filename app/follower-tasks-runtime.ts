@@ -68,10 +68,10 @@ function taskCategory(w: World, u: Unit, source: ReturnType<typeof unitAnimation
   return classify()
 }
 
-export function hudTaskPeople(w: World) {
+export function hudTaskPeople(w: World, ownedOnly = true) {
   const selected = new Set(w.selected)
   return w.units
-    .filter(u => u.team === 'blue' && u.hp > 0)
+    .filter(u => (!ownedOnly || u.team === 'blue') && u.hp > 0)
     .map(u => {
       const active = unitAnimationSource(u),
         route = w.pathfinding.people.get(u.id),
@@ -98,6 +98,7 @@ export function hudTaskPeople(w: World) {
         flags4: source?.flags4 ?? 0x20000000 | (u.ghost ? 0x800 : 0),
         selectionFlags: ((source?.selectionFlags ?? 0) & ~128) | (selected.has(u.id) ? 128 : 0),
         category: taskCategory(w, u, source),
+        commandStatus: source?.commandStatus ?? 0,
         vehicle: source?.vehicle ?? 0,
         source,
       }

@@ -1,12 +1,12 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { createWorld, tick, select } from '../app/model.ts'
-import { animateLiveObjects } from '../app/live-people.ts'
+import { createWorld, select } from '../app/model.ts'
+import { advanceGame } from '../app/game-clock.ts'
 import { campaignShamanReadiness } from '../scripts/campaign-start-readiness.mjs'
 
 const advance = (world, turns) => {
-  for (let i = 0; i < turns; i++) { tick(world, 1 / 12); animateLiveObjects(world); animateLiveObjects(world) }
+  advanceGame(world, { animationTime: 0, animationFrame: 0 }, turns / 12)
 }
 
 test('camera release alone does not make the startup Shaman selectable; observation is read-only', () => {

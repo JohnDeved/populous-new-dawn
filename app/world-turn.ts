@@ -1,3 +1,4 @@
+import { createReincarnationWave, stepReincarnationWave } from './reincarnation-wave-runtime.ts'
 import { reconcileWorldHutSmoke, stepSecondaryEffects } from './hut-smoke-runtime.ts'
 import {
   levelStartOwnsShaman,
@@ -498,12 +499,17 @@ function stepTurn(w: World) {
   stepLiveTimberSearches(w)
   stepOutcome(w) // 0x4ec6f0: after increment, before this turn's object work.
   stepLiveMarchingFormations(w) // Native formations steer this turn's person physics.
-  // 0x4facf0: auto-collected reward objects grant knowledge/stock after 82 object turns.
+  // Ordinary local spell gifts hand off at phase zero; their UI arrival can
+  // shorten this timer. Only a later object visit delivers the stock.
   for (const gift of w.gifts) {
-    if (gift.phase) gift.phase--
+    if (gift.phase) {
+      gift.phase--
+      if (!gift.phase && gift.ordinaryWorship && gift.recipient === w.manaWorld.playerTribe)
+        w.worshipAcquisition.requests.push(gift.id)
+    }
     if (--gift.remaining !== 0) continue
     gift.duration = gift.age
-    effect(w, 'birth', gift)
+    if (!gift.ordinaryWorship) effect(w, 'birth', gift)
     if (gift.reward === 'mana') {
       const tribe = w.manaTribes[gift.recipient ?? w.manaWorld.playerTribe]
       tribe.pending = (tribe.pending + (gift.amount ?? 0)) | 0
@@ -553,15 +559,31 @@ function stepTurn(w: World) {
   }
   w.gifts = w.gifts.filter(g => g.remaining > 0)
   stepScenery(w)
-  // New class-7 effects are inserted before the current native list cursor;
-  // their first processor visit belongs to the following simulation turn.
+  // New effects are inserted before the current native list cursor. Their next
+  // scheduled visit is on the following turn; a producer can also process immediately.
   const effectCount = w.effects.length,
     terrainCenters: { cell: number; radius: number }[] = []
+  const queueErosionTerrain = (cell: number) => {
+    queueTerrain(w.land, cell, 6, 1, terrainTextures)
+    terrainCenters.push({ cell, radius: 6 })
+  }
+  const advanceErosion = (
+    fx: Effect,
+    erosion: Erosion,
+    terrain: (cell: number) => void = queueErosionTerrain
+  ) => {
+    const alive = stepErosion(w.land, erosion, w, {
+      sound: () => sound(w, 0xa9, fx),
+      terrain,
+    })
+    if (!alive) fx.duration = fx.age
+  }
   // Native allocated-object order is newest first; terrain and RNG effects are noncommutative.
   for (let index = effectCount - 1; index >= 0; index--) {
     const fx = w.effects[index]
-    if (fx.kind === 'orderMarker') continue
+    if (fx.kind === 'orderMarker' || (fx.swamp && fx.age >= fx.duration)) continue
     fx.age += dt
+    if (fx.reincarnationWave) stepReincarnationWave(w, fx)
     if (fx.armageddon) stepArmageddon(w, fx)
     if (fx.corpse) {
       const step = stepReincarnation(fx.corpse.remaining, true, false)
@@ -652,16 +674,7 @@ function stepTurn(w: World) {
       })
       if (!alive) fx.duration = fx.age
     }
-    if (fx.erosion) {
-      const alive = stepErosion(w.land, fx.erosion, w, {
-        sound: () => sound(w, 0xa9, fx),
-        terrain: cell => {
-          queueTerrain(w.land, cell, 6, 1, terrainTextures)
-          terrainCenters.push({ cell, radius: 6 })
-        },
-      })
-      if (!alive) fx.duration = fx.age
-    }
+    if (fx.erosion) advanceErosion(fx, fx.erosion)
     if (fx.earthquake) {
       const alive = stepEarthquake(w.land, fx.earthquake, w, {
         sound: cue => sound(w, cue, fx),
@@ -840,6 +853,7 @@ function stepTurn(w: World) {
     notifyHeightChanges(w, terrainCenters)
     refreshTerrainSurface(w)
   }
+  terrainCenters.length = 0
   w.effects = w.effects.filter(f => f.age < f.duration)
   stepFirewarriorShots(w)
   processProjectiles(w)
@@ -915,6 +929,14 @@ function stepTurn(w: World) {
           nativePosition(w, start),
           nativePosition(w, shrine.bridgeTarget!)
         )
+        // The authored clone processes once before its producer returns. This
+        // first visit caches the crossing without terrain changes or trails.
+        stepLandBridge(
+          w.land,
+          bridge.bridge,
+          () => {},
+          () => {}
+        )
         bridge.team = 'blue'
         bridge.duration = Infinity
         w.stats.bridges++
@@ -923,6 +945,11 @@ function stepTurn(w: World) {
           const erosion = effect(w, 'erosion', target)
           erosion.erosion = createErosion(nativePosition(w, target))
           erosion.duration = Infinity
+          // The head processes each cloned reward before allocating its next link.
+          advanceErosion(erosion, erosion.erosion, cell => {
+            queueErosionTerrain(cell)
+            notifyHeightChanges(w, [{ cell, radius: 6 }])
+          })
         }
       } else if (shrine.kind === 'flattenEffect') {
         const flatten = effect(w, 'flatten', shrine.effectTarget!)
@@ -995,10 +1022,19 @@ function stepTurn(w: World) {
       } else if (shrine.kind === 'angel' && shrine.angelTarget) {
         // ponytail: keep the stone-head mesh until class-7/model-91's sprite presentation is decoded.
         createAngel(w, teamForTribe(w.manaWorld.playerTribe), shrine.angelTarget)
-      } else for (const reward of shrine.rewards ?? [shrine.reward!]) createGift(w, reward, shrine)
+      } else
+        for (const reward of shrine.rewards ?? [shrine.reward!])
+          createGift(w, reward, shrine, 0, shrine.ordinarySpellReward)
       if (shrine.kind !== 'mana' && shrine.kind !== 'inert') sound(w, 0x70, shrine)
     }
     syncStoneHeadPresentation(shrine)
+  }
+  // New rewards have already notified their objects. Complete their queued
+  // landscape work after all shrine calls, without a second notification pass.
+  if (terrainCenters.length) {
+    processTerrain(w.land, terrainTextures)
+    for (const { cell, radius } of terrainCenters) updateWalkMasks(w.land, cell, radius)
+    refreshTerrainSurface(w)
   }
   // Imported availability selects rechargeable spells; head rewards remain one-off stocks.
   w.manaWorld.turn = w.turn
@@ -1498,7 +1534,8 @@ function stepTurn(w: World) {
     if (builderActivity(u) && work && 'hp' in work) processBuilderWork(w, u, work)
     if (
       u.native &&
-      ([3, 6, 7, 16, 22, 27, 30, 33].includes(activeOrder?.model ?? 0) ||
+      (u.native.guardInputPending ||
+        [3, 6, 7, 16, 22, 27, 30, 33].includes(activeOrder?.model ?? 0) ||
         (activeOrder?.model === 18 && !!(activeOrder.flags & 1)) ||
         (activeOrder?.model === 28 && nativePersonTribe(u) === w.manaWorld.playerTribe && !target))
     ) {
@@ -1569,7 +1606,9 @@ function stepTurn(w: World) {
       u.work === null &&
       u.target === null &&
       u.tree === null &&
-      !u.guard
+      !u.guard &&
+      activeOrder?.model !== 30 &&
+      !u.native?.guardInputPending
     ) {
       u.idleTurns++
       if (u.idleTurns > 16 && (w.turn & 15) === 0) {
@@ -1744,10 +1783,11 @@ function stepTurn(w: World) {
       else if (tribe === 1) w.redRespawn = w.respawns[tribe]
       if (visual?.reincarnation) {
         setShamanDeathPhase(visual, step.phase)
+        if (step.phase === 1) visual.reincarnation.ground = nativePosition(w, visual).h
         visual.height = (visual.reincarnation.ground + step.height) / 45
       }
       if (step.event === 'splash') effect(w, 'splash', point ?? site)
-      else if (step.event === 'rise') effect(w, 'birth', site)
+      else if (step.event === 'rise') createReincarnationWave(w, tribe)
       else if (step.event === 'spawn') {
         const u = addUnit(w, team, 'shaman', site)
         if (tribe === w.manaWorld.playerTribe) sound(w, 0x6b, site)

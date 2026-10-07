@@ -1,6 +1,12 @@
 import { seatVehiclePassenger, vehicleSeat } from './vehicle-seats.ts'
 import type { LivePerson } from './live-people.ts'
-import { teamForTribe, tribeForTeam, type Vehicle, type World } from './world-types.ts'
+import {
+  teamForTribe,
+  tribeForTeam,
+  vehicleApparentTribe,
+  type Vehicle,
+  type World,
+} from './world-types.ts'
 import { browserPosition } from './world-coordinates.ts'
 import { terrainPointHeight } from './native-terrain.ts'
 import { restingCellCollision, terrainSupportsPerson } from './person-collision.ts'
@@ -9,6 +15,7 @@ import { movePosition, nativeAngle } from './native-math.ts'
 import { attachPersonRoute, releasePersonRoute, routeVehicleAvailable } from './person-routes.ts'
 import { boardingVehicle, vehicleReady } from './vehicle-routing.ts'
 import { moveObjectInCells } from './object-cells.ts'
+import { markPersonSelected } from './person-selection.ts'
 import rules from './original-rules.json' with { type: 'json' }
 
 const short = (n: number) => (n << 16) >> 16
@@ -18,6 +25,22 @@ function relocateLivePerson(w: World, p: LivePerson, to: { x: number; y: number;
   if (w.objectCells.objects.get(p.id) === p && p.flags2 & 0x20000)
     moveObjectInCells(w.objectCells, p, to)
   else Object.assign(p, to)
+}
+
+// The state initializer's deselection propagates through the active vehicle's
+// occupied slots. It changes selection only, preserving seats and attachment.
+export function deselectLiveVehiclePassengers(w: World, person: { id: number; vehicle: number }) {
+  const vehicle = w.vehicles.find(v => v.id === person.vehicle && v.active)
+  if (!vehicle?.passengerCount) return
+  const deselected = new Set<number>()
+  for (const id of vehicle.passengers.slice(0, rules.vehicleCapacity[vehicle.model])) {
+    if (!id || id === person.id) continue
+    const passenger = w.pathfinding.people.get(id) ?? w.units.find(u => u.id === id)?.native
+    if (!passenger?.class || passenger.flags2 & 1) continue
+    markPersonSelected(passenger, false)
+    deselected.add(id)
+  }
+  w.selected = w.selected.filter(id => !deselected.has(id))
 }
 
 export const liveVehicles = (w: World) =>
@@ -62,7 +85,8 @@ export function boardLiveVehicle(w: World, p: LivePerson, v: Vehicle) {
     i => !v.passengers[i]
   )
   if (slot === undefined) return false
-  if (!v.passengerCount) v.team = teamForTribe(p.tribe)
+  v.team = teamForTribe(p.tribe)
+  v.apparentTribe = p.model === 5 ? p.disguise >>> 6 : p.tribe
   v.passengers[slot] = p.id
   v.passengerCount++
   p.vehicle = v.id
@@ -93,6 +117,8 @@ export function leaveLiveVehicle(
 ) {
   const slot = v.passengers.indexOf(p.id)
   if (slot < 0) return
+  v.apparentTribe ??= tribeForTeam(v.team)
+  v.team = teamForTribe(p.tribe)
   v.passengers.splice(slot, 1)
   v.passengerCount = v.passengers.filter(Boolean).length
   if (!v.passengerCount) v.speed = -1
@@ -131,7 +157,7 @@ export function removeMissingVehiclePassengers(w: World) {
 }
 
 export function damageLiveVehicle(w: World, v: Vehicle, attacker: number, amount: number) {
-  if (w.levelFlags2 & 0x04000000 || tribeForTeam(v.team) === attacker) return
+  if (w.levelFlags2 & 0x04000000 || vehicleApparentTribe(v) === attacker) return
   v.life = short(v.life - short(amount))
 }
 
@@ -191,6 +217,8 @@ function destroyLiveVehicle(w: World, v: Vehicle) {
     const u = w.units.find(unit => unit.id === id),
       p = w.pathfinding.people.get(id) ?? u?.native
     if (!p) continue
+    v.apparentTribe ??= tribeForTeam(v.team)
+    v.team = teamForTribe(p.tribe)
     p.vehicle = 0
     p.flags2 = ((p.flags2 & ~0x4000) | 0x80010) >>> 0
     p.flags4 = ((p.flags4 & ~0x2000000) | 0x1000400) >>> 0

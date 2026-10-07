@@ -26,7 +26,7 @@ import {
 } from './live-people.ts'
 import { clearLivePath, replanLivePath } from './live-pathfinding.ts'
 import { releasePersonRoute, setDirectPersonDestination } from './person-routes.ts'
-import { personAnimationObject } from './person-state.ts'
+import { personAnimationObject, setPersonAnimationRow } from './person-state.ts'
 import { preparePersonTurn, stepPersonReaction } from './person-update.ts'
 import { attackCombatBuilding } from './combat-building.ts'
 import {
@@ -78,6 +78,7 @@ import {
 import { buildingAdmission } from './live-building-entry.ts'
 import { startIndexedSearch, nextIndexedSearch, endIndexedSearch } from './indexed-search.ts'
 import { igniteBuilding } from './building-damage.ts'
+import { reconcileWorldHutSmoke } from './hut-smoke-runtime.ts'
 import { random } from './native-math.ts'
 import { firewarriorReady, launchFirewarrior } from './firewarrior.ts'
 
@@ -153,6 +154,7 @@ function igniteSabotagedBuilding(w: World, b: Building, tribe: number) {
       b.burn.soundPlaying = true
       ignitePeople(point, tribeForTeam(b.team))
     }
+    reconcileWorldHutSmoke(w, b)
   })
 }
 
@@ -222,7 +224,9 @@ export function startLiveCombatResponse(w: World, u: Unit) {
   const source = (retained ?? createLivePerson(w, u)) as LivePerson & { class: 1; group: number }
   if (!retained) source.state = combatPerson(u).state
   const cell = (source.y >> 9) * 128 + (source.x >> 9)
-  let people: { unit: Unit; person: LivePerson & { class: 1; group: number } }[] = []
+  let people: { unit: Unit; person: LivePerson & { class: 1; group: number } }[] = [
+    { unit: u, person: source },
+  ]
   const peers = () => {
     people = w.units
       .filter(unit => {
@@ -543,43 +547,63 @@ function stepAreaAttack(
   if ([10, 11].includes(p.substate)) {
     const fireTarget = p.substate === 11 ? building : target
     if (!fireTarget) return true
-    if (p.animationMode === 40) {
-      if (
-        !p.stateObject ||
-        !w.effects.some(effect => effect.id === p.stateObject) ||
-        --p.timer < 1
-      ) {
-        Object.assign(p, { animationMode: 0, stateObject: 0, timer: 0 })
-        u.fighting = false
-        return true
+    if (p.flags2 & 0x40000000) {
+      p.flags2 = (p.flags2 & ~0x40000000) >>> 0
+      if (firewarriorReady(w, u, fireTarget)) {
+        p.assignment |= 0x10
+        p.animationMode = u.cooldown ? 45 : 44
+      } else restart = true
+    }
+    if (!restart) {
+      if (p.animationMode === 40) {
+        if (p.assignment & 0x10) {
+          p.assignment &= ~0x10
+          setPersonAnimationRow(p, 15, motion.animation)
+          Object.assign(p, { f1: 1, f2: 0, timer: 6 })
+          p.renderFlags |= 2
+        }
+        if (p.timer) p.timer--
+        if (
+          !p.stateObject ||
+          !w.effects.some(effect => effect.id === p.stateObject) ||
+          p.timer < 1
+        ) {
+          Object.assign(p, { animationMode: 0, stateObject: 0, timer: 0 })
+          u.fighting = false
+          return true
+        }
+      } else if (p.animationMode === 44) {
+        p.assignment |= 0x200
+        if (p.assignment & 0x10) {
+          p.assignment &= ~0x10
+          u.target = fireTarget.id
+          u.heading = Math.atan2(fireTarget.x - u.x, fireTarget.z - u.z)
+          u.fighting = true
+          setPersonAnimationRow(p, 15, motion.animation)
+          Object.assign(p, {
+            f1: 1,
+            f2: 0,
+            timer: (rules.animationDescriptors[p.draw].step + 1) * sprites.frameCounts[p.object],
+            stateObject: launchFirewarrior(w, u, fireTarget),
+          })
+        }
+        if (!w.effects.some(shot => shot.id === p.stateObject)) p.stateObject = 0
+        if (p.timer && --p.timer === 0) {
+          p.animationMode = 40
+          p.assignment |= 0x10
+        }
+      } else if (p.animationMode === 45) {
+        if (p.assignment & 0x10) {
+          p.assignment &= ~0x10
+          p.timer = 32
+        }
+        if (!u.cooldown || --p.timer < 1) {
+          Object.assign(p, { animationMode: 0, timer: 0 })
+          return true
+        }
       }
       return false
     }
-    if (p.animationMode === 44) {
-      if (--p.timer < 1) Object.assign(p, { animationMode: 40, timer: 6 })
-      return false
-    }
-    if (p.animationMode === 45) {
-      if (!u.cooldown || --p.timer < 1) {
-        Object.assign(p, { animationMode: 0, timer: 0 })
-        return true
-      }
-      return false
-    }
-    if (!firewarriorReady(w, u, fireTarget)) restart = true
-    else if (u.cooldown) Object.assign(p, { animationMode: 45, timer: 32 })
-    else {
-      u.target = fireTarget.id
-      u.heading = Math.atan2(fireTarget.x - u.x, fireTarget.z - u.z)
-      u.fighting = true
-      setLivePersonAnimation(w, p, 15)
-      Object.assign(p, {
-        animationMode: 44,
-        stateObject: launchFirewarrior(w, u, fireTarget),
-        timer: (rules.animationDescriptors[p.draw].step + 1) * sprites.frameCounts[p.object],
-      })
-    }
-    return false
   }
   if (!building && !target && !fight) restart = true
   else if (p.substate === 3 && building)

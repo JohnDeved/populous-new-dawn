@@ -1,0 +1,24 @@
+{
+  "sourceCommit": "b45073eb75f8e2c8aa66ef809e76eaf621a68fc0",
+  "files": {
+    "qa/erosion-ordinary/input.mjs": {
+      "source": "qa/campaign-continuity/command-probes.mjs",
+      "sha256": "86384f34412b3edc5f6ff624d8c06c71747606149c1941ca7862af836518fbaa",
+      "reuse": "one explicit cleanup-only delta: remove unused original binding from descriptor restoration destructuring; actual receiver/return/error/restoration behavior unchanged",
+      "currentSha256": "81e1417d36712aef156df1701505966d8e7731f4d856a7b0f2554c4a072ff2e7"
+    },
+    "qa/erosion-ordinary/stop.mjs": {
+      "source": "qa/campaign-continuity/queued-stop.mjs",
+      "sha256": "d67b3cca01cb8ac8032e31d3cdf71382d18bcae57397ffe2ebd945d259f12063",
+      "reuse": "explicit bounded-wait repair: recheck stop and deadline after awaited predicate before accepting readiness",
+      "currentSha256": "b3df0f2950c3134d0b8adc8b91d8f32703d92c58d28bbd4dce7782315159d7c8"
+    },
+    "qa/erosion-ordinary/minimap-input.mjs": {
+      "source": "qa/campaign-continuity/observation.mjs",
+      "sourceSha256": "69e9c3e6c51860af23d5446330755f43e70dcf5566bdebbe8a8e914de4ba2fd0",
+      "export": "minimapInput",
+      "bodySha256": "a8d9a0170ba123e5b29f29130bbf474083dc0a593dbafd6d53db804ee811b969",
+      "reuse": "unchanged exported function body with a new explanatory header"
+    }
+  }
+}

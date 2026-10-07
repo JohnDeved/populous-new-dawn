@@ -30,6 +30,8 @@ import {
 import { shamanDeathVfx } from './shaman-death-vfx.ts'
 import { short } from './native-math.ts'
 import { SWARM_INSECT_COUNT, hasSwarmRuntime, swarmState } from './swarm.ts'
+import { isTempleKnowledgeGift } from './vault-appearance.ts'
+import { makeVaultWorldPresentation, drawVaultWorldPresentation } from './scene-vault-knowledge.ts'
 
 export function makeVaultKnowledgeMarker(frame: number) {
   const g = new THREE.Group()
@@ -48,6 +50,11 @@ export function animateVaultKnowledgeMarker(scene: GameScene, g: THREE.Group, vi
 }
 
 export function makeFx(scene: GameScene, f: Effect) {
+  if (f.kind === 'gift' && isTempleKnowledgeGift(f as Gift)) {
+    const presentation = makeVaultWorldPresentation(false)
+    scene.locate(presentation, f, f.height)
+    return presentation
+  }
   const g = new THREE.Group()
   if (f.swamp) {
     const pool = new THREE.Mesh(
@@ -100,6 +107,7 @@ export function makeFx(scene: GameScene, f: Effect) {
   }
   if (
     f.wave ||
+    f.reincarnationWave ||
     f.bridge ||
     f.flatten ||
     f.erosion ||
@@ -299,6 +307,7 @@ export function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {
   }
   if (
     f.wave ||
+    f.reincarnationWave ||
     f.bridge ||
     f.flatten ||
     f.erosion ||
@@ -344,6 +353,10 @@ export function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {
     return
   }
   if (f.kind === 'gift') {
+    if (isTempleKnowledgeGift(f as Gift)) {
+      drawVaultWorldPresentation(scene, g, f.sprite!.frame, (f as Gift).phase > 0)
+      return
+    }
     g.visible = (f as Gift).phase > 0
     if (g.visible) {
       scene.animatePerson(g, 0, g.userData.directions, 0)

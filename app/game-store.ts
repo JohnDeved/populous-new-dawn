@@ -10,6 +10,10 @@ import {
   authoredWorshipMode,
   worshipAppearanceModel,
 } from './worship-appearance.ts'
+import { restoreOrdinaryWorshipSource } from './worship-acquisition-source.ts'
+import { createWorshipAcquisitionRuntime } from './worship-acquisition-runtime.ts'
+import { initializeVaultKnowledge } from './vault-appearance.ts'
+import { initializeVaultKnowledgeGift } from './world-effects.ts'
 
 const CHECKPOINT_DATABASE = 'populous-new-dawn',
   CHECKPOINT_STORE = 'checkpoints',
@@ -130,12 +134,14 @@ function migrateLegacyBridgeOrigins(world: World) {
 }
 
 export function migrateCheckpoint(world: World) {
+  world.worshipAcquisition ??= createWorshipAcquisitionRuntime()
   restoreSecondaryEffects(world)
   world.outcome.level ??= 1
   world.drawMode ??= 0
   // An old checkpoint has already passed startup. Never replay terrain or conversion.
   world.levelStart ??= []
   world.levelStartStoneSound ??= 0
+  world.reincarnationSites ??= []
   const computerTribe = missionEnemyTribe(world.outcome.level),
     legacySingleAI = !world.campaignAIs
   world.vehicles ??= []
@@ -196,6 +202,8 @@ export function migrateCheckpoint(world: World) {
     world.killCredits[3][0] = Math.max(world.killCredits[3][0], world.killCredits[1][0])
   }
   migrateLegacyWorshipAppearance(world)
+  for (const shrine of world.shrines)
+    shrine.ordinarySpellReward ??= restoreOrdinaryWorshipSource(world.outcome.level, shrine)
   // Only recover immutable authored endpoints. Keep active effects and terrain intact.
   migrateLegacyBridgeOrigins(world)
   if (world.outcome.level === 5 && !world.shrines.some(shrine => shrine.kind === 'angel')) {
@@ -217,16 +225,21 @@ export function migrateCheckpoint(world: World) {
       shrine.reward = shrine.kind === 'vault' ? 'camp' : shrine.kind
   for (const gift of world.gifts) if ((gift.reward as string) === 'vault') gift.reward = 'camp'
   for (const unit of world.units)
-    if (unit.shield && !unit.bloodlust)
-      for (const person of [
-        unit.native,
-        unit.flight,
-        unit.entry?.person,
-        unit.builder?.person,
-        unit.fight?.motion,
-      ])
-        if (person && (person.flags3 ?? 0) & 0x80000)
+    for (const person of [
+      unit.native,
+      unit.flight,
+      unit.entry?.person,
+      unit.builder?.person,
+      unit.fight?.motion,
+    ])
+      if (person) {
+        // Legacy checkpoints predate the native ordinary-person animation gate.
+        // Preserve the saved frame/stamp and every active controller alias.
+        if (person.class === 1 && person.model >= 2 && person.model <= 7)
+          person.flags3 = ((person.flags3 ?? 0) | 0x40000) >>> 0
+        if (unit.shield && !unit.bloodlust && (person.flags3 ?? 0) & 0x80000)
           person.flags3 = (((person.flags3 ?? 0) & ~0x80000) | 0x8000) >>> 0
+      }
   world.shots.convertWild ??= 0
   world.giftCounts.convertWild ??= 0
   world.shots.hypnotise ??= 0
@@ -250,6 +263,8 @@ export function migrateCheckpoint(world: World) {
   world.shots.angel ??= 0
   world.giftCounts.angel ??= 0
   const gifts = world.gifts as unknown as (Gift | LegacyGift)[]
+  for (const shrine of world.shrines) initializeVaultKnowledge(shrine, world.outcome.level)
+  for (const gift of gifts) if (gift.kind === 'gift') initializeVaultKnowledgeGift(world, gift)
   if (!gifts.some(gift => gift.kind !== 'gift')) return world
   world.gifts = []
   for (const saved of gifts) {

@@ -75,4 +75,5 @@ export function updateHudFrame(scene: GameScene, now: number, dt: number) {
     scene.uiTimer = 0
   }
   scene.drawMinimap()
+  scene.worshipPresentation.draw()
 }

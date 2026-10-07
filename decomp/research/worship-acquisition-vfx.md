@@ -1,5 +1,13 @@
 # Issue 30 — ordinary worship spell-acquisition VFX
 
+**Completeness correction, 2026-10-05:** the retained comparisons below exclude
+the local-player `00481550` screen handoff. The new
+[composed handoff evidence](worship-grant-handoff.md) proves an omitted spell UI
+controller at the six-visit hide boundary which can advance payout by clamping
+the remaining reward timer to 1. The world body/glow findings remain supported;
+fixed-82 payout is only established with that consumer excluded. No full ordinary
+acquisition-equivalence claim follows from this earlier slice.
+
 Scope: the completion-time acquisition presentation for ordinary worship spell rewards.
 Shaman death/reincarnation VFX, worship panels, Stone Head model families, and later spell
 cast effects are separate producers and are not changed here.

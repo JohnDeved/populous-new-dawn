@@ -1,0 +1,26 @@
+{
+  "base": "89e68606a406f93715b930550317519818ddc081",
+  "acceptedRuntimeAndFocusedSource": "0e94469658cf1ab3ad6e3cf795072182b77012b2",
+  "nativeNaturalFullBuildSource": "118a5eeeb83a3cc29a49e3bdb8407f32bb5b61fe",
+  "rawEvidenceArchiveCommit": "0a2b0083ad22b47506b17311778afea178bbb16d",
+  "rawEvidenceRef": "evidence/mission3-raid-recruitment-20261006",
+  "packaging": "Only byte-identical reviewed app/probe/adapter/test/fixture files and the two test-required original witness streams are carried into this source ref. Historical plans, frozen probe manifests and larger raw gate/failure archives remain on the evidence ref. No runtime or test rewrite and no gate rerun. This source package is not relabelled as an executed test head.",
+  "reviewSha256": "f37ca5367e80510092e4bd0a02d6f119f5612481e7ecad54061bb87a4dc4b678",
+  "reviewedSourceFilesSha256": {
+    "app/computer-runtime.ts": "fcaea74faacf6477a25c186b668eadc8e3a5a887cc74157683f818ee1a576872",
+    "scripts/check-native-mission3-raid-recruitment.py": "338d8c4ba2a7d4f4b5de8486ab0080d6120df8b275de67e42e226affe1084484",
+    "scripts/decomp.py": "0a4783a8ee924c52e1125a5df3e4e625b3ab00835e848a2013e444bcfd979c2e",
+    "scripts/mission3-raid-recruitment-pair.mjs": "0ef3de6aa6b72f9ae253b905ac4057f891277b9d82e7444b5006ac9df75e92c4",
+    "tests/fixtures/mission3-raid-recruitment-all-known.json": "d540248b8bda3fde1c15fe0ba866ac9ffd58af1290d73f88652a01eabc803d91",
+    "tests/fixtures/mission3-raid-recruitment-established.json": "1d6f018bb411a5cbc0f3f436a75b74e88925c8a427a7dd1de5bc885a407d7c55",
+    "tests/fixtures/mission3-raid-recruitment-loaded-cell.json": "25c3897f0852ed0e65522bf7f54cdb180f01b98b21401751a626ff3d3cf2e376",
+    "tests/fixtures/mission3-raid-recruitment-origins.json": "675aef805a5ddcf49de53c916912d3cd5d6e0e71db014bf387ca0dffd557a13b",
+    "tests/fixtures/mission3-raid-recruitment.json": "f56b2b616a8389f0f86801f92d87fece6887e8182a7788d9bdc690556644cc53",
+    "tests/mission3-raid-loaded-cell.test.mjs": "a722565d484fc28440eddf8ef8ebc0e21dc5edbea4082a84a2f3ae8bd2b49c55",
+    "tests/mission3-raid-recruitment.test.mjs": "3939ccf4719a083983e6c3f33e7af641352a595f7d534aac5efee0fda79c491b"
+  },
+  "requiredWitnessesSha256": {
+    "references/verification/mission3-raid-recruitment-origin-2026-10-06/attempt1/stdout.log": "e6d29dcc7df45d3d8e4b3df43b6f8388fba6fdcf6e32eec0ede56e00c25549ea",
+    "references/verification/mission3-raid-recruitment-origin-2026-10-06/established-attempt1/stdout.log": "3190c11fce3b1f31fac49a69e8eecec5348764d1cf63852fc01aeedca5e3e849"
+  }
+}

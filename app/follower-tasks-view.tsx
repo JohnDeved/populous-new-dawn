@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes } from 'react'
+import { transportCounts, type HudTransport, type TransportKind } from './hud-transports.ts'
 import { FollowerNumber } from './hud'
 import art from './original-follower-tasks.json'
 import { followerTaskCounts, type FollowerTask, type TaskPerson } from './hud-tasks.ts'
@@ -40,32 +41,63 @@ export function FollowerTasks({
   center,
   nearby,
   control,
+  vehicles,
+  transportPeople,
+  transportControl,
 }: {
+  vehicles: HudTransport[]
+  transportPeople: (TaskPerson & { commandStatus: number })[]
+  transportControl: (model: number, kind: TransportKind) => ButtonHTMLAttributes<HTMLButtonElement>
   people: TaskPerson[]
   center: { x: number; y: number }
   nearby: boolean
   control: (model: number, category: FollowerTask) => ButtonHTMLAttributes<HTMLButtonElement>
 }) {
-  const counts = followerTaskCounts(people, center, nearby)
+  const counts = followerTaskCounts(people, center, nearby),
+    transports = transportCounts(vehicles, transportPeople, center, nearby)
   return (
     <section className="follower-tasks" aria-label="Follower tasks">
-      {tasks.map(({ category, label }, row) =>
+      {[
+        ...tasks.map(({ category, label }, row) => ({
+          key: `task-${category}`,
+          label,
+          y: 6 + row * 41,
+          counts: counts.tasks.map(values => values[category]),
+          totalSprite: 637 + category * 2,
+          classSprite: 1083 + category,
+          action: category === 1 ? 'deselect' : 'select',
+          five: category !== 1,
+          control: (model: number) => control(model, category),
+        })),
+        ...([1, 3] as const)
+          .filter(kind => transports[kind].present)
+          .map(kind => ({
+            key: `transport-${kind}`,
+            label: kind === 1 ? 'Boats occupied by' : 'Balloons occupied by',
+            y: kind === 1 ? 190 : 231,
+            counts: transports[kind].counts,
+            totalSprite: kind === 1 ? 653 : 647,
+            classSprite: kind === 1 ? 655 : 1088,
+            action: 'select passengers',
+            five: true,
+            control: (model: number) => transportControl(model, kind),
+          })),
+      ].map(row =>
         columns.map(({ model, label: kind }, column) => {
           const enabled = model === 0 || counts.totals[model] > 0,
-            sprite = model === 0 ? 637 + category * 2 : 1083 + category,
-            action = category === 1 ? 'deselect' : 'select'
+            sprite = model === 0 ? row.totalSprite : row.classSprite
           return (
             <button
-              key={`${model}-${category}`}
-              aria-label={`${label} ${kind}`}
+              key={`${row.key}-${model}`}
+              aria-label={`${row.label} ${kind}`}
               disabled={!enabled}
-              style={{ left: column * 16, top: 6 + row * 41 }}
+              style={{ left: column * 16, top: row.y }}
               title={
                 enabled
-                  ? `${label} ${kind}: Click to ${action}. ${category === 1 ? '' : 'Ctrl: select five. '}Shift: ${action} all. Right-click: focus next.`
+                  ? `${row.label} ${kind}: Click to ${row.action}. ${row.five ? 'Ctrl: five. ' : ''}Shift: all. Right-click: focus next.`
                   : undefined
               }
-              {...control(model, category)}
+              {...row.control(model)}
             >
               <span className="follower-task-frame" aria-hidden="true" />
               <span className="follower-task-normal">
@@ -76,7 +108,7 @@ export function FollowerTasks({
                   <TaskIcon id={sprite + 1} />
                 </span>
               )}
-              <FollowerNumber count={counts.tasks[model][category]} alternate={nearby} y={24} />
+              <FollowerNumber count={row.counts[model]} alternate={nearby} y={24} />
             </button>
           )
         })

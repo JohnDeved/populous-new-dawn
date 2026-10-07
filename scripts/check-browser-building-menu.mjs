@@ -4,6 +4,7 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 import { bindGame } from './browser-game.mjs'
+import { waitForHudTexture } from './hud-texture-readiness.mjs'
 
 const projectRoot = process.cwd(),
   requireFromProject = createRequire(resolve(projectRoot, 'package.json')),
@@ -30,11 +31,7 @@ try {
   await page.waitForFunction(() => !window.testScene.world.inputMask)
   await page.waitForFunction(() => window.testSceneRef.current?.world === window.testStore.getWorld())
   await page.evaluate(() => { window.testScene = window.testSceneRef.current })
-  await page.waitForFunction(async () => {
-    const { texture } = await import('/app/scene-assets.ts')
-    const image = texture('hud').image
-    return image instanceof HTMLImageElement && image.complete && image.naturalWidth > 0
-  })
+  await waitForHudTexture(page)
 
   const panel = page.locator('.training-panel:not(.construction-panel):not(.tower-panel):not([hidden])')
   const authored = await page.evaluate(() => {

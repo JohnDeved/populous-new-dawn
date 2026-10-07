@@ -1,3 +1,4 @@
+import type { TransportKind } from './hud-transports.ts'
 import type { FollowerTask } from './hud-tasks.ts'
 import { syncSecondaryReservations } from './scene-secondary-effects.ts'
 import * as THREE from 'three'
@@ -9,6 +10,10 @@ import { type FlybyCamera } from './flyby.ts'
 import { FpsGraph } from './fps-graph.ts'
 import { levelStartCamera } from './level-start.ts'
 import { advanceGame } from './game-clock.ts'
+import {
+  WorshipAcquisitionPresentation,
+  type WorshipHudBridge,
+} from './scene-worship-acquisition.ts'
 import { MinimapRenderer } from './minimap-renderer.ts'
 import {
   HOME,
@@ -79,6 +84,7 @@ import { updateHudFrame } from './scene-hud-runtime.ts'
 import {
   acknowledgePointer,
   chooseFollowers,
+  chooseTransport,
   drawPointer,
   installInputListeners,
   keyDown,
@@ -245,6 +251,7 @@ export class GameScene {
   picking = new ScenePicking(this)
   hudFocus = Array<number>(8).fill(0)
   hudTaskFocus = Array<number>(48).fill(0)
+  hudTransportFocus = Array<number>(16).fill(0)
   buildingPanels = new Map<number, HTMLDivElement>()
   down = { x: 0, y: 0, button: 0, unit: undefined as number | undefined, extend: false }
   drag: { start: { x: number; y: number }; end: { x: number; y: number }; active: boolean } | null =
@@ -271,8 +278,12 @@ export class GameScene {
     afterTurn: () => {
       this.unitMotion.afterTurn(this.world)
       this.projectileMotion.afterTurn(this.world)
+      this.worshipPresentation.handoffs()
     },
+    worshipVisit: () => this.worshipPresentation.visit(),
+    presentationHidden: () => document.hidden,
   }
+  worshipPresentation: WorshipAcquisitionPresentation
   terrainVersion = -1
   treeSignature = ''
   onChange: () => void
@@ -301,7 +312,8 @@ export class GameScene {
       attenuation?: number,
       pan?: number,
       finished?: () => void
-    ) => (() => void) | void
+    ) => (() => void) | void,
+    worshipHud?: WorshipHudBridge
   ) {
     this.container = container
     this.mini = minimap
@@ -327,12 +339,16 @@ export class GameScene {
     const atlasAsset = retryFailedTexture('atlas'),
       unitAtlasAsset =
         nativeUnits.atlas === 'atlas' ? atlasAsset : retryFailedTexture(nativeUnits.atlas),
+      knowledgeAtlasAsset =
+        world.outcome.level === 3 ? retryFailedTexture('vault-knowledge') : null,
       preload = (
         [
           ['effects', loadTexture('effects'), false],
+          ['hud', loadTexture('hud'), false],
           ['unit-health', loadTexture('unit-health'), false],
           ['atlas', atlasAsset, true],
           [nativeUnits.atlas, unitAtlasAsset, true],
+          ...(knowledgeAtlasAsset ? [['vault-knowledge', knowledgeAtlasAsset, true] as const] : []),
         ] as const
       ).map(([name, asset, required]) =>
         asset.ready.then(loaded => {
@@ -447,6 +463,7 @@ export class GameScene {
     this.resize = new ResizeObserver(() => this.setSize())
     this.resize.observe(container)
     this.setSize()
+    this.worshipPresentation = new WorshipAcquisitionPresentation(this, worshipHud)
   }
   start() {
     if (this.started) return true
@@ -601,6 +618,14 @@ export class GameScene {
     category?: FollowerTask
   ) {
     chooseFollowers(this, model, modifiers, focus, category)
+  }
+  chooseTransport(
+    kind: TransportKind,
+    model: number,
+    modifiers: { shiftKey: boolean; ctrlKey: boolean },
+    focusNext = false
+  ) {
+    chooseTransport(this, kind, model, modifiers, focusNext)
   }
   focus(p: Point = HOME, { animate = false } = {}) {
     focus(this, p, { animate })
@@ -775,5 +800,6 @@ export class GameScene {
     this.buildingPanels.clear()
     this.objectPanels.dispose()
     this.spellPointer.remove()
+    this.worshipPresentation.dispose()
   }
 }

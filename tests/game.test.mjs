@@ -981,6 +981,13 @@ test('campaign attack commitment follows living warrior counts on its original t
  }
 });
 
+function registeredRaidPerson(w,id){
+ const unit=w.units.find(unit=>unit.id===id),person=w.objectCells.objects.get(id);
+ assert.ok(unit&&unit.hp>0&&person&&person.id===unit.id,'raid order observation requires its living intended unit');
+ assert.ok([unit.flight,unit.fight?.motion,unit.native,unit.entry?.person,unit.builder?.person].includes(person),'raid order observation requires its actual registered owner');
+ return person;
+}
+
 test('mission-one Dakini launches its native attack route when Blue enters marker three',async()=>{
  const {joinBattle}=await import('../app/model.ts');
  const {currentPersonOrder}=await import('../app/person-orders.ts');
@@ -1007,15 +1014,15 @@ test('mission-one Dakini launches its native attack route when Blue enters marke
  assert.ok(radiusDistance>1.5,'native radius advances before exact marker arrival');assert.deepEqual(phases.slice(-5),[10,11,12,6,14]);
  assert.equal(w.ai.selectionOwner,10);assert.equal(w.ai.flags&2,0);
  const members=[...task.members],victim=addUnit(w,'blue','warrior',marker),hp=victim.hp;
- until(w,()=>members.every(id=>currentPersonOrder(w.buildingOrders,w.units.find(u=>u.id===id).native)?.model===19),20);
- const attackIds=members.map(id=>w.units.find(u=>u.id===id).native.commands.find(Boolean));
+ until(w,()=>members.every(id=>currentPersonOrder(w.buildingOrders,registeredRaidPerson(w,id))?.model===19),20);
+ const attackIds=members.map(id=>registeredRaidPerson(w,id).commands.find(Boolean));
  assert.equal(new Set(attackIds).size,1,'the attack area order is shared by the whole group');
  assert.equal(w.buildingOrders.records[attackIds[0]].references,3);
  until(w,()=>victim.hp<hp,30);assert.equal(task.damage,0,'ordinary wounds do not credit the native task threshold');
  until(w,()=>victim.hp===0,30);assert.equal(task.damage,2,'a warrior death credits its native model score once');
  task.damage=task.extra;
  until(w,()=>!(task.flags&1),60);
- assert.ok(members.every(id=>currentPersonOrder(w.buildingOrders,w.units.find(u=>u.id===id).native)?.model!==19));
+ assert.ok(members.every(id=>currentPersonOrder(w.buildingOrders,registeredRaidPerson(w,id))?.model!==19));
  requestAttack(w.ai,task.origin,3,1,999,w.ai.attributes.slice(11,17),0,true,1);
  assert.equal(task.flags&1,1,'phase 23 releases the same queue slot for the next wave');
 });
@@ -1037,16 +1044,33 @@ test('mission-one Dakini launches its later building attack when Blue overwhelms
  assert.equal(fallback.randomState,1896349699,'person-only fallback consumes one native draw');
 
  const w=createWorld();until(w,()=>!w.ai.tasks.some(t=>t.flags&1&&t.type===24),2);w.units=[];
- const target=w.buildings.filter(b=>b.team==='blue')[1],near={x:target.x+4,z:target.z};
+ const target=w.buildings.filter(b=>b.team==='blue')[1],near={x:target.x+12,z:target.z};
  addUnit(w,'red','shaman',near);for(let i=0;i<3;i++)addUnit(w,'red','brave',near);
  addUnit(w,'blue','shaman',ENEMY);for(let i=0;i<8;i++)addUnit(w,'blue','brave',ENEMY);
- w.randomState=2;w.ai.variables[50]=1;w.turn=81;tick(w,1/12);
+ // This relocated roster has an established base: native +5b4/+36a shadows the loaded Shaman cell.
+ const staging=packed(nativePosition(w,near)),stagingCell=(staging>>>9)*128+((staging&255)>>>1);
+ assert.equal(w.land.categories[stagingCell]&15,0);assert.equal(w.land.flags[stagingCell]&512,0);assert.equal(w.land.buildingIds[stagingCell]&1023,0);
+ const {engagementRange,inEngagementArea}=await import('../app/melee-engagement.ts'),{areaCells,detectCombatThreat,eligibleCombatPerson}=await import('../app/combat-targets.ts'),{combatPerson,combatWorld}=await import('../app/live-combat.ts');
+ const goal={x:((staging&255)<<8)+128,y:(staging&0xff00)+128};
+ for(const unit of w.units.filter(unit=>unit.team==='red'))for(const point of [nativePosition(w,unit),goal]){
+  const person={...combatPerson(unit),x:point.x&65535,y:point.y&65535,state:17},range=engagementRange({...person,commandStatus:0,h:0},undefined,false),radius=Math.trunc(range/2)*2;
+  const area={a:packed(person),b:radius*257},{world}=combatWorld(w,person,range);
+  for(const cell of areaCells(area))assert.equal(w.land.flags[cell]&0x600,0,'staging must not start an automatic building response before the raid order');
+  assert.equal(detectCombatThreat(world,person,area,true,false),0,'injected and quantized staging points must start without an eligible idle threat');
+  for(const other of w.units.filter(other=>other.team!=='red')){
+   const enemy={...combatPerson(other),state:17},enemyRange=engagementRange({...enemy,commandStatus:0,h:0},undefined,false),{world:enemyWorld}=combatWorld(w,enemy,enemyRange);
+   assert.ok(!inEngagementArea(enemy,person,enemyRange)||!eligibleCombatPerson(enemyWorld,enemy,person),'staging must also avoid a hostile person starting the encounter');
+  }
+ }
+ w.ai.constructionBase=staging;w.ai.defencePosition=staging;
+ const assertStaging=()=>{assert.equal(w.ai.constructionBase,staging);assert.equal(w.ai.defencePosition,staging);assert.equal(w.ai.flags&0x100,0x100);};
+ w.randomState=2;w.ai.variables[50]=1;w.turn=81;tick(w,1/12);assertStaging();
  task=w.ai.tasks.find(t=>t.flags&1&&t.type===20);
  assert.deepEqual([11,12,13,16,17,19].map(i=>w.ai.attributes[i]),[100,100,0,0,0,1]);
  assert.deepEqual(task&&{phase:task.phase,target:task.target,entity:task.entity,requested:task.requested,marker:task.mode,retreatPercent:task.retreatPercent,quotas:task.quotas},{phase:3,target:packed(buildingPosition(buildingPose(target))),entity:target.id,requested:4,marker:0,retreatPercent:50,quotas:[11,12,13,16,17,19].map(i=>w.ai.attributes[i])});
  assert.equal(w.ai.variables[3],1,'the original one-shot attack latch closes');
  until(w,()=>task.members.length===3,2);
- until(w,()=>task.members.every(id=>currentPersonOrder(w.buildingOrders,w.units.find(u=>u.id===id).native)?.model===19),30);
+ until(w,()=>{assertStaging();return !!(task.flags&1)&&task.members.length>=3&&task.members.every(id=>currentPersonOrder(w.buildingOrders,registeredRaidPerson(w,id))?.model===19);},30);
  task.flags=0;task.members=[];w.turn=337;tick(w,1/12);
  assert.ok(!w.ai.tasks.some(t=>t.flags&1&&t.type===20),'the latched script does not launch another attack');
 
@@ -1813,8 +1837,9 @@ test('result camera crosses the world seam, releases input and retains native sk
 });
 
 
-test('victory owns persistent native followers, drops cargo and renders a separate paused animation clock', async () => {
+test('victory owns persistent native followers, drops cargo and pauses logical animation', async () => {
  const {animateLiveObjects}=await import('../app/live-people.ts');
+ const {advanceGame}=await import('../app/game-clock.ts');
  const {setAnimationObject}=await import('../app/animation.ts');
  const w=createWorld();w.units=w.units.filter(u=>u.team==='blue');
  const worker=w.units.find(u=>u.kind==='brave'),hut=w.buildings.find(b=>b.team==='blue');
@@ -1832,16 +1857,17 @@ test('victory owns persistent native followers, drops cargo and renders a separa
  for(const [i,u] of braves.entries()){
   Object.assign(u,{x:7,z:33});Object.assign(u.native,{anchorX:3840,anchorY:55040,substate:i?4:3,flags2:0x40020000,link:0,target:0,speed:0});
  }
- const phases=new Set();
- for(let i=0;i<96;i++){tick(w,1/12);animateLiveObjects(w);animateLiveObjects(w);for(const u of w.units)phases.add(u.native.substate);}
+ const phases=new Set(),clock={animationTime:0,animationFrame:0};
+ for(let i=0;i<96;i++){advanceGame(w,clock,1/12);for(const u of w.units)phases.add(u.native.substate);}
  assert.ok(phases.has(5)&&phases.has(6),'circle members enter native chain states');
  assert.ok(w.units.every((u,i)=>u.native===records[i]),'controllers retain the same person records');
  assert.ok(w.units.every(u=>u.work===null&&u.inside===null),'legacy auto-housing cannot take over celebrations');
  assert.ok(w.trees.filter(t=>t.model===11).every(t=>t.logs===1),'loose logs do not regrow');
  const p=worker.native;setAnimationObject(p,14,40);p.f1=p.f2=0;
- animateLiveObjects(w);assert.equal(p.f2,1,'animation mutates the owned record');
- w.paused=true;animateLiveObjects(w);assert.equal(p.f2,1);
- w.paused=false;p.renderFlags|=2;animateLiveObjects(w);assert.equal(p.f2,1,'native frozen pose survives presentation updates');
+ animateLiveObjects(w);assert.equal(p.f2,0,'presentation alone leaves the logical record unchanged');
+ animateLiveObjects(w,'logical');assert.equal(p.f2,1,'the logical phase mutates the owned record');
+ w.paused=true;animateLiveObjects(w,'logical');assert.equal(p.f2,1);
+ w.paused=false;p.renderFlags|=2;animateLiveObjects(w,'logical');assert.equal(p.f2,1,'native frozen pose survives logical updates');
 });
 
 test('live blocked followers retain native detour steering and recovery timers', async () => {
@@ -2239,7 +2265,8 @@ test('live followers share routes, advance before exact arrival and release ever
  assert.deepEqual(findPath(w,a,ENEMY),[]);assert.equal(w.pathfinding.people.get(a.id),pa);assert.equal(w.pathfinding.people.get(b.id),pb);assert.equal(refs(),2,'an unreachable preview preserves existing orders');
  const searches=w.pathfinding.state.searches;assert.ok(findPath(w,a,goal).length);
  assert.equal(refs(),2,'a preview borrows and releases the shared route');assert.equal(w.pathfinding.state.searches,searches,'preview reuses the live route');
- w.selected=[a.id];guardShaman(w);assert.equal(refs(),1);assert.equal(w.pathfinding.people.has(a.id),false);
+ w.selected=[a.id];guardShaman(w);assert.equal(refs(),2,'G defers the route handoff to native preparation');assert.equal(w.pathfinding.people.get(a.id),pa);
+ tick(w,1/12);assert.equal(refs(),1);assert.equal(a.native,pa);assert.equal(pa.commandStatus,30);
  until(w,()=>pb.motionGroup===0,15);
  assert.ok(Math.hypot(b.x-goal.x,b.z-goal.z)>0,'native route arrival precedes exact task arrival');
  assert.ok(Math.max(Math.abs(b.x-goal.x),Math.abs(b.z-goal.z))<=224/256);

@@ -8,6 +8,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .fps-graph{position:absolute;top:12px;right:12px;width:200px;max-width:calc(100% - 24px);padding:8px;z-index:5;pointer-events:none;user-select:none;background:#10201a26;font-family:inherit}
 .fps-reading{display:flex;align-items:flex-end;gap:5px;white-space:nowrap}.fps-graph .hud-sprite{font-size:0}.fps-reading strong,.fps-reading>span,.fps-reading small,.fps-caption>span{display:flex;filter:brightness(0) invert(1) sepia(.3) drop-shadow(1px 1px 1px #000)}.fps-reading strong{zoom:2}.fps-reading small{margin-left:auto}.fps-graph svg{display:block;width:100%;height:40px;margin:8px 0 5px}.fps-graph path{stroke:#e9dcbb26;stroke-width:1}.fps-graph polyline{stroke:#f4d475b3;stroke-width:1.5;stroke-linejoin:round;filter:drop-shadow(0 1px 1px #0008)}.fps-caption{display:flex;justify-content:space-between;gap:4px;opacity:.75}
 .native-hud{position:absolute;left:0;top:0;width:100px;height:calc(100dvh / var(--hud-scale));transform:scale(var(--hud-scale));transform-origin:top left;background:url('/original/hud-panel.png');color:#634535;z-index:4;image-rendering:pixelated}
+.worship-acquisition-overlay{position:absolute;inset:0;width:100%;height:100%;z-index:5;pointer-events:none;image-rendering:pixelated}
 .hud-sprite{display:inline-block;flex:none;background-image:url('/original/hud.png');background-repeat:no-repeat;image-rendering:pixelated;vertical-align:top;pointer-events:none}
 .training-panel canvas,.person-panel canvas{display:block}
 .training-panel button{position:absolute;top:var(--occupant-top);width:17px;height:24px;padding:0;border:0;background:transparent;pointer-events:auto;cursor:pointer}
@@ -75,7 +76,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 
 /* Lower task descriptors use34px frames and preserve opaque disabled silhouettes. */
 .followers-dock{height:277px;bottom:auto;padding:0;border:0;background:url('/original/follower-task-panel.png') no-repeat}
-.follower-tasks{position:relative;width:100px;height:170px}
+.follower-tasks{position:relative;width:100px;height:277px}
 .follower-tasks button{position:absolute;width:15px;height:34px;padding:0;overflow:visible}
 .follower-tasks button:disabled{opacity:1}
 .follower-task-frame{position:absolute;inset:0;background:url('/original/follower-task-normal.png');pointer-events:none}

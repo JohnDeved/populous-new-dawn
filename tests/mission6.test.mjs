@@ -280,12 +280,78 @@ test('Mission 6 Chumara trains Preachers and launches its first mixed raid', () 
         (unit.native?.flags4 ?? 0) & 0x40000
     )
   )
-  for (let turn = 0; turn < 513; turn++) tick(raiding, 1 / 12)
-  assert.equal(restoredAttack.flags & 1, 1)
-  assert.equal(
-    raiding.campaignAIs[2].tasks.filter(task => task.flags & 1 && task.type === 20).length,
-    1
-  )
+  const originalMembers = [...restoredAttack.members]
+  let abortTurn = null,
+    retired = false
+  for (let turn = 0; turn < 513; turn++) {
+    const phase = restoredAttack.phase,
+      elapsed = restoredAttack.elapsed,
+      fallback = restoredAttack.fallback,
+      active = !!(restoredAttack.flags & 1),
+      owners = phase === 6 ? originalMembers.map(id => {
+        const unit = raiding.units.find(unit => unit.id === id),
+          person = raiding.objectCells.objects.get(id),
+          order = person && currentPersonOrder(raiding.buildingOrders, person)
+        assert.ok(unit && person)
+        assert.ok([unit.flight, unit.fight?.motion, unit.native, unit.entry?.person,
+          unit.builder?.person].includes(person))
+        return {
+          id, person, state: person.state, speed: person.speed,
+          fightOwned: unit.fight?.motion === person,
+          immediate: person.immediateCommand, cursor: person.commandCursor,
+          commands: [...person.commands],
+          queuedModel: raiding.buildingOrders.records[person.commands[person.commandCursor]]?.model,
+          order, payload: order && { ...order },
+        }
+      }) : []
+    tick(raiding, 1 / 12)
+    const activeRaids = raiding.campaignAIs[2].tasks.filter(task => task.flags & 1 && task.type === 20)
+    assert.ok(activeRaids.length <= 1)
+    if (activeRaids.length) assert.equal(activeRaids[0], restoredAttack)
+    if (phase === 6 && restoredAttack.phase === 23) {
+      // 004d14f0 aborts on an admitted combat member, even while others move.
+      const combat = owners.find(owner => owner.id === preacherId && owner.fightOwned &&
+        [25, 29].includes(owner.state))
+      assert.ok(combat)
+      assert.equal(combat.order?.model, 32)
+      assert.ok(combat.immediate > 0)
+      assert.equal(combat.queuedModel, 3)
+      assert.ok(owners.some(owner => owner.state === 10 && owner.speed > 0 && owner.order?.model === 3))
+      assert.equal(abortTurn, null)
+      assert.ok(elapsed <= 1800)
+      assert.equal(fallback, 23)
+      assert.equal(restoredAttack.elapsed, 1801)
+      assert.equal(restoredAttack.fallback, 23)
+      assert.equal(restoredAttack.flags & 1, 1)
+      assert.deepEqual(restoredAttack.members, originalMembers)
+      for (const owner of owners) {
+        assert.equal(raiding.objectCells.objects.get(owner.id), owner.person)
+        assert.equal(owner.person.immediateCommand, owner.immediate)
+        assert.equal(owner.person.commandCursor, owner.cursor)
+        assert.deepEqual(owner.person.commands, owner.commands)
+        assert.equal(currentPersonOrder(raiding.buildingOrders, owner.person), owner.order)
+        assert.deepEqual(owner.order, owner.payload)
+      }
+      abortTurn = raiding.turn
+    }
+    if (active && !(restoredAttack.flags & 1)) {
+      assert.equal(phase, 23)
+      assert.ok(abortTurn !== null && raiding.turn > abortTurn)
+      assert.equal(restoredAttack.phase, 23)
+      assert.equal(restoredAttack.elapsed, 1801)
+      assert.equal(restoredAttack.flags & 3, 0)
+      assert.deepEqual(restoredAttack.members, [])
+      retired = true
+    }
+    if (retired) {
+      assert.equal(activeRaids.length, 0)
+      assert.equal(restoredAttack.flags & 1, 0)
+      assert.deepEqual(restoredAttack.members, [])
+    }
+  }
+  assert.ok(abortTurn !== null)
+  assert.ok(retired)
+  assert.ok(originalMembers.every(id => raiding.units.some(unit => unit.id === id && unit.hp > 0)))
 })
 
 test('Mission 6 opponents expand and Matak launches its first Warrior raid', () => {

@@ -43,7 +43,8 @@ export function unitAnimationSource(u: Unit) {
   if (u.fight?.motion && ['walk', 'idle'].includes(u.fight.animation ?? '')) return u.fight.motion
   if (
     u.native &&
-    (u.native.state !== 10 ||
+    (u.native.guardInputPending ||
+      u.native.state !== 10 ||
       [3, 6, 15, 16, 17, 18, 19, 21, 27, 30, 31, 32, 33].includes(u.native.commandStatus))
   )
     return u.native

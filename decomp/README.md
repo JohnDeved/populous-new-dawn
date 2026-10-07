@@ -35,7 +35,21 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 
 ## Port index
 
-Recent reusable topic notes: [Authored scripted Land Bridge origins](research/authored-bridge-origins.md),
+Recent reusable topic notes: [Preacher sermon gestures and original artwork](research/preacher-sermon-gestures.md),
+[Automatic Preacher sermons and raid ownership](research/automatic-preacher-and-raid-ownership.md),
+[Shrine Erosion activation](research/erosion-activation.md),
+[Authored scripted Land Bridge origins](research/authored-bridge-origins.md),
+[Ordinary native Shaman Guard input and deferred ownership](research/shaman-guard-input.md),
+[Model45 Stone Head logical animation visits](research/stone-head-logical-visits.md),
+[Ordinary person and Splash logical animation visits](research/sprite-logical-visits.md),
+[Mission 3 Temple world HFX ownership and lifetime](research/vault-knowledge-world-assets.md),
+[Ordinary spell acquisition screen handoff and arrival deadline](research/worship-grant-handoff.md),
+[Ordinary acquisition companion and native draw commands](research/worship-grant-presentation.md),
+[Second ordinary gift replacement and independent payout](research/worship-grant-replacement.md),
+[Composed ready-gift request order](research/worship-grant-request-order.md),
+[Authored head and completion-time clone order](research/worship-grant-source-order.md),
+[Original acquisition body raster and palette](research/worship-acquisition-body-raster.md),
+[Ordinary M1/M2 browser adapter](research/worship-acquisition-adapter.md),
 [Early-mission producer scheduling and the type9 boundary](research/early-mission-producer-schedule.md),
 [Recorded-demo raw state and unresolved source-map provenance](research/recorded-demo-provenance.md),
 [LEVL2131 Face Off selector and conditional script requirement](research/demo131-entry.md),
@@ -266,6 +280,9 @@ recorded in the [Mission 3 opening note](research/mission3-opening.md).
 The complete periodic three-Brave raid block and its natural recruitment/combat
 path are documented in [early mission AI](research/early-mission-ai.md); later
 Mission 3 command blocks and rendered acceptance remain separate.
+The subsequent [Mission3 raid allocator composition](research/mission3-raid-allocation-preflight.md)
+proves the original state/cap/free-slot gates before target RNG, with retained
+failure-first adapter witnesses and the bounded Mission3-only correction.
 The state-23 listener warning is documented separately in
 [Mission 3 anti-preaching notification](research/mission3-preaching-message.md),
 including the scoped original message-107 import and one-shot checkpoint path.
@@ -621,6 +638,11 @@ The Node ownership regression follows two followers through shared assignment,
 replacement and final-reference deletion. Full eight-slot queue overflow is
 explicitly rejected; the native out-of-bounds memory write is not represented.
 
+Balloon raw-payload startup is documented in
+[`research/balloon-command-position.md`](research/balloon-command-position.md).
+Its native probe executes the real configuration/position composition; packed
+cell and object position branches remain explicit live boundaries.
+
 ## Person initialization and training handoff
 
 ```sh
@@ -919,6 +941,9 @@ Browser person records/order, attack-group reserve input, early emergency paths,
 occupancy flags and complete global scheduling remain integration gaps.
 
 ## Complete general and emergency spell controller
+
+The live assignment adapter repair and failure-first producer-to-controller
+regression are documented in [active Preacher retaliation](research/preacher-spell-retaliation.md).
 
 ```sh
 .tools/decomp/oracle/bin/python scripts/check-native-emergency-spells.py /path/to/d3dpoptb.exe
@@ -4981,6 +5006,17 @@ ordinary corpse pixels, frames, rise, hidden wait and deletion. Static-site timi
 relocation, particles/audio, general class-10 scheduling and unplayable follower
 models remain open.
 
+### 2026-10-05 — grounded Shaman spirit follows changing terrain
+
+[Bounded phase1 height evidence](research/shaman-death-vfx.md#phase1-ground)
+and `check-native-shaman-death-ground.py` compare original allocation/controller/
+terrain-height execution with the actual current world-turn caller. Phase1 samples
+current death-site ground each visit; phase2 retains the final sample and phase3
+rises from it. Four-owner comparisons cover raising/lowering and unchanged phase0/
+direct unsupported entry. Constants and mapped search bytes are guarded. Supplied
+post-death terrain fixtures, rendered shipped-spell acceptance and native raster
+remain distinct evidence boundaries; this does not complete issue #30.
+
 ## 2026-09-17 — Mission 17 Armageddon
 
 `check-native-mission17-armageddon.py EXE` verifies the authored trigger/reward,
@@ -5120,6 +5156,11 @@ and names the remaining primary-stream, secondary-list and render-RNG boundaries
 visits and checkpoint slot reconstruction to the bounded runtime owner. Its
 primary-stream and current UI-adapter limits remain explicit.
 
+[Burning-state chimney root release](research/hut-smoke-state-exit.md) binds the
+original immediate state-exit cleanup to the Lightning and Spy ignition owners.
+The report links the accepted native composition, focused red/green comparison
+and ordinary Mission 1 rendered witness, with immutable raw evidence.
+
 ## Building construction-gauge consumer — 2026-10-03
 
 [Bounded native/current comparison](research/building-construction-gauge.md) identifies
@@ -5190,3 +5231,19 @@ comparisons and 180 real switch-body cases cover route release, zero speed and t
 detached return to orders. The live regression covers actual command boarding and
 Boat disguise completion/countdown/checkpoints; the earlier Balloon command-position
 boundary remains separate.
+
+## 2026-10-04 — Ordinary reincarnation site wave
+
+[Composed mode2 evidence](research/reincarnation-site-wave.md) executes the original
+model12 producer, real effect8 allocator/initializer, site wave, state26 initializer,
+and damage leaf. It proves next-turn first processing, continued lifetime at spawn,
+exact height quantization, exclusions, repeated protected-transition damage, busy
+duplicate cleanup and allocation failure without retry. Startup mode1 conversion
+remains separate. This evidence alone does not claim live browser completion.
+
+## Actual-input Erosion controller replay
+
+[Passive capture and replay](research/erosion-actual-capture.md) specifies exact
+per-call native height/RNG inputs, detached observation and strict source/runtime
+admission. Native sound ownership, reward activation timing and downstream terrain
+consumers remain explicit boundaries. Browser/native execution is not yet claimed.

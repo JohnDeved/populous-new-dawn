@@ -41,13 +41,14 @@
       "callers": [
         "scripts/check-native-drag-selection.py",
         "scripts/check-native-construction-order.py",
+        "scripts/extract-shaman-guard-vectors.mjs",
         "scripts/check-native-terrain.py"
       ],
       "inputs": ["decomp/requirements.txt", "decomp/sections.tsv"],
       "outputs": [
         { "path": "tests/fixtures", "type": "directory", "tracked": true, "protected": true }
       ],
-      "recording": "Inspect each script, executable/data hashes, supplied consumers, and output path. Most writes require --record, but historical building-entry, movement-order, orders, and person-panic checks write fixtures unconditionally."
+      "recording": "Inspect each script, executable/data hashes, supplied consumers, and output path. Most writes require --record, but historical building-entry, movement-order, orders, and person-panic checks write fixtures unconditionally. Shaman Guard extraction writes only its named fixture from accepted hash-pinned raw results; --check is read-only."
     },
     {
       "id": "imported-runtime-data",
@@ -62,6 +63,8 @@
         "scripts/import-messages.py",
         "scripts/import-script.py",
         "scripts/import-hud.py",
+        "scripts/import-worship-acquisition.py",
+        "scripts/import-vault-knowledge.py",
         "scripts/import-vehicle-panel-icons.py",
         "scripts/import-follower-tasks.py",
         "scripts/import-minimap-frame.py",
@@ -271,7 +274,47 @@
           "type": "file",
           "tracked": true,
           "protected": true,
-          "producer": "scripts/import-hud.py"
+          "producer": "scripts/import-hud.py",
+          "appenders": [
+            {
+              "producer": "scripts/import-worship-acquisition.py",
+              "scope": "Only HFX1059/1060/1068 ordinary-palette body rectangles; preserve every existing rectangle and metadata value except total atlas height."
+            }
+          ]
+        },
+        {
+          "path": "app/original-worship-acquisition.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-worship-acquisition.py"
+        },
+        {
+          "path": "app/original-vault-knowledge.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-vault-knowledge.py"
+        },
+        {
+          "path": "public/original/vault-knowledge.png",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-vault-knowledge.py"
+        },
+        {
+          "path": "public/original/hud.png",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-hud.py",
+          "appenders": [
+            {
+              "producer": "scripts/import-worship-acquisition.py",
+              "scope": "Append only ordinary-palette HFX1059/1060/1068 beneath the current image without repacking or changing any existing pixels."
+            }
+          ]
         },
         {
           "path": "app/original-messages.json",

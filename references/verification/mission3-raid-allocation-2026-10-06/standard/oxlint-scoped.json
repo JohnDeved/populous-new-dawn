@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "5b508e1b-5cce-4c40-91a3-e9e824750201",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "989edde0a327242671584d5fe9e2e5d89a48591a",
+    "branch": "codex/mission3-raid-allocation-recovered-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      ".oxlintrc.json": "caa0057ea1cbbc87402c3942667be83c2298b3a167957cea7153d0d72444ccff",
+      "node_modules/oxc-standard/.oxlintrc.json": "12a8af193abedfc648f0b37822a0092df18b5cd83644b8e6bd57d0f1e24d2bbc"
+    }
+  },
+  "command": [
+    "taskset",
+    "-c",
+    "0-3",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=5s",
+    "60s",
+    "node_modules/.bin/oxlint",
+    "app/campaign-command-runtime.ts"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-allocation-recovered-20261006",
+  "startedAt": "2026-10-06T04:08:31.306Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-allocation-recovered-20261006/work/orchestration/mission3-raid-allocation/oxlint-scoped.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-allocation-recovered-20261006/work/orchestration/mission3-raid-allocation/oxlint-scoped.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T04:08:31.495Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "app/campaign-command-runtime.ts:13:8: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.\napp/campaign-command-runtime.ts:19:8: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.\napp/campaign-command-runtime.ts:40:39: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.\napp/campaign-command-runtime.ts:38:35: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.\napp/campaign-command-runtime.ts:43:23: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.\napp/campaign-command-runtime.ts:41:34: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.\napp/campaign-command-runtime.ts:39:37: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.\napp/campaign-command-runtime.ts:46:27: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.\napp/campaign-command-runtime.ts:32:23: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.\napp/campaign-command-runtime.ts:29:25: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.\napp/campaign-command-runtime.ts:304:15: warning eslint(no-shadow): 'field' is already declared in the upper scope. help: Consider renaming 'field' to avoid shadowing the variable from the outer scope.\napp/campaign-command-runtime.ts:99:17: warning eslint(prefer-destructuring): Use Object destructuring. help: Use object destructuring rather than direct member access.\napp/campaign-command-runtime.ts:216:20: warning eslint(prefer-destructuring): Use Object destructuring. help: Use object destructuring rather than direct member access.\napp/campaign-command-runtime.ts:312:20: warning eslint(prefer-destructuring): Use Array destructuring. help: Use array destructuring rather than direct member access.\napp/campaign-command-runtime.ts:405:7: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/campaign-command-runtime.ts:407:11: warning unicorn(no-nested-ternary): Unexpected nested ternary expression without parentheses. help: Add parentheses around the nested ternary expression.\napp/campaign-command-runtime.ts:454:7: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/campaign-command-runtime.ts:454:31: warning unicorn(no-nested-ternary): Unexpected nested ternary expression without parentheses. help: Add parentheses around the nested ternary expression.\napp/campaign-command-runtime.ts:754:7: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/campaign-command-runtime.ts:771:11: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/campaign-command-runtime.ts:772:13: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/campaign-command-runtime.ts:783:15: warning unicorn(no-nested-ternary): Unexpected deeply nested ternary expression. help: Avoid nesting ternary expressions for more than one level.\napp/campaign-command-runtime.ts:798:13: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/campaign-command-runtime.ts:800:15: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/campaign-command-runtime.ts:802:17: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/campaign-command-runtime.ts:818:19: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/campaign-command-runtime.ts:827:21: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/campaign-command-runtime.ts:842:23: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/campaign-command-runtime.ts:851:25: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/campaign-command-runtime.ts:863:27: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/campaign-command-runtime.ts:880:29: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/campaign-command-runtime.ts:889:31: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/campaign-command-runtime.ts:898:33: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/campaign-command-runtime.ts:910:35: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/campaign-command-runtime.ts:922:37: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/campaign-command-runtime.ts:931:39: warning unicorn(no-nested-ternary): Unexpected deeply nested ternary expression. help: Avoid nesting ternary expressions for more than one level.\n",
+  "stderr": "",
+  "stdoutSha256": "8734828e93be997df9cda91dda4f8bd57abf111f02e17d0c3a52ca9651bd52ce",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "989edde0a327242671584d5fe9e2e5d89a48591a",
+    "branch": "codex/mission3-raid-allocation-recovered-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      ".oxlintrc.json": "caa0057ea1cbbc87402c3942667be83c2298b3a167957cea7153d0d72444ccff",
+      "node_modules/oxc-standard/.oxlintrc.json": "12a8af193abedfc648f0b37822a0092df18b5cd83644b8e6bd57d0f1e24d2bbc"
+    }
+  }
+}

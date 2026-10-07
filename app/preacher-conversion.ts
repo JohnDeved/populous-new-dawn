@@ -6,7 +6,7 @@ import {
   type OrderPool,
   type PersonOrder,
 } from './person-orders.ts'
-import { defaultPersonState, type StatefulPerson } from './person-state.ts'
+import { defaultPersonState, stopPersonMovement, type StatefulPerson } from './person-state.ts'
 
 type PreachingPerson = StatefulPerson & {
   class: number
@@ -19,6 +19,8 @@ type PreachingPerson = StatefulPerson & {
   commandAux: number
   commandPhase: number
   animationMode: number
+  f1: number
+  f2: number
   building: number | null
 }
 
@@ -103,15 +105,16 @@ export function cancelConversionVictim(victim: PreachingPerson, gameFlags: numbe
   return defaultPersonState(victim, gameFlags)
 }
 
-// 0x43a4d0 shared by commands 17/31/32. Listener orbit/gesture visuals remain
-// deliberately subordinate to the native timing, RNG and ownership lifecycle.
+// Shared sermon commands 17/31/32 retain separate gesture and turning RNG owners.
 export function stepPreachingOrder(
-  w: PreachingWorld,
+  w: PreachingWorld & { poseRandom: { randomState: number }; playerTribe: number },
   p: PreachingPerson,
   _order: PersonOrder,
   effects: {
     animate: (object: number) => void
     animationDuration: () => number
+    frameCount: () => number
+    sound: (cue: number) => void
     stop: () => void
     acquire: (radius: number) => number
     release: (radius: number) => void
@@ -140,6 +143,8 @@ export function stepPreachingOrder(
       p.flags2 = (p.flags2 & ~0x40000000) >>> 0
       effects.stop()
       effects.animate(95)
+      p.f1 = 1
+      p.f2 = 0
       p.timer = effects.animationDuration()
     }
     p.timer = short(p.timer - 1)
@@ -156,12 +161,32 @@ export function stepPreachingOrder(
       if (p.flags2 & 0x40000000) {
         p.flags2 = (p.flags2 & ~0x40000000) >>> 0
         p.timer = 0
-        p.animationMode = 0
-        p.statusFlags &= ~1
         effects.animate(97)
+        p.statusFlags &= ~1
+        p.f1 = 1
+        p.f2 = 0
+        p.animationMode = 0
+        p.assignment |= 16
       }
       p.timer = short(p.timer + 1)
-      if (!(p.statusFlags & 2)) {
+      if (p.timer < 840) {
+        if (!(p.statusFlags & 1)) {
+          if (!(p.counter & 15)) {
+            const gesture = random(w.poseRandom) & 3
+            if (gesture < 2) {
+              p.statusFlags |= 1
+              effects.animate(gesture === 0 ? 99 : 98)
+              p.f1 = 1
+              p.f2 = 0
+              if (p.assignment & 64) effects.sound(p.tribe === w.playerTribe ? 51 : 189)
+            }
+          }
+        } else if (!p.f1 && p.f2 >= effects.frameCount() - 1) {
+          p.statusFlags &= ~1
+          effects.animate(97)
+        }
+      }
+      if (p.timer < 840 && !(p.statusFlags & 2)) {
         if (!p.animationMode && !(p.counter & 15)) {
           const pose = random(w) & 3
           if (pose === 1 || pose === 2) {
@@ -188,7 +213,10 @@ export function stepPreachingOrder(
           p.assignment |= 16
         }
       }
-      if (p.timer >= 840) p.substate = 4
+      if (p.timer >= 840) {
+        p.substate = 4
+        p.flags2 = (p.flags2 | 0x40000000) >>> 0
+      }
     }
   } else if (p.substate === 4) {
     if (hasFollowingPersonOrder(w.orders, p)) {
@@ -198,6 +226,7 @@ export function stepPreachingOrder(
     }
     p.substate = 2
     p.flags2 = (p.flags2 | 0x40000000) >>> 0
+    stopPersonMovement(p, (_, object) => effects.animate(object))
   } else if (p.substate === 5) {
     scans = true
     if (close(p)) {
@@ -207,14 +236,13 @@ export function stepPreachingOrder(
     }
   }
 
-  let targets = p.assignment & 64 ? 1 : 0
   if (scans && !(p.counter & 1)) {
-    targets = effects.acquire(p.commandAux)
+    const targets = effects.acquire(p.commandAux)
     p.assignment = targets ? p.assignment | 64 : p.assignment & ~64
-  }
-  if (p.commandStatus === 32 && p.timer > 32 && !targets) {
-    effects.release(p.commandAux)
-    return 1
+    if (p.commandStatus === 32 && p.timer > 32 && !targets) {
+      effects.release(p.commandAux)
+      return 1
+    }
   }
   return 0
 }

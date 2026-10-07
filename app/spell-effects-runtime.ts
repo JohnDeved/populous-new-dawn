@@ -37,6 +37,7 @@ import { release, releaseTasks } from './world-tasks.ts'
 import {
   teamForTribe,
   tribeForTeam,
+  vehicleApparentTribe,
   type Building,
   type Effect,
   type NativePoint,
@@ -54,6 +55,7 @@ import {
   buildingPose,
 } from './building-shapes.ts'
 import { ensureBuildingDamage, igniteBuilding } from './building-damage.ts'
+import { reconcileWorldHutSmoke } from './hut-smoke-runtime.ts'
 import { createBlastWave, stepBlastWave, type BlastTarget, type BlastWave } from './blast-wave.ts'
 import { terrainPointHeight } from './native-terrain.ts'
 import { damagePerson } from './person-update.ts'
@@ -387,6 +389,7 @@ function igniteBuildingAt(w: World, target: NativePoint, tribe: number) {
         building.burn.soundPlaying = true
         ignitePeople(point, tribeForTeam(building.team))
       }
+      reconcileWorldHutSmoke(w, building)
     })
   }
 }
@@ -662,7 +665,7 @@ export function stepLiveBlastWave(w: World, wave: BlastWave) {
   for (const v of vehicles.values())
     add({
       ...v,
-      tribe: tribeForTeam(v.team),
+      tribe: vehicleApparentTribe(v),
       state: 0,
       previousState: 0,
       flags2: 0,

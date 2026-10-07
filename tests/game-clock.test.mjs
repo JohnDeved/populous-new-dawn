@@ -4,6 +4,7 @@ import { createWorld, command, tick, cast, placeBuilding, addUnit } from '../app
 import { advanceGame } from '../app/game-clock.ts'
 import { UnitMotion } from '../app/unit-motion.ts'
 import { addMessage, messageTop, stepMessages } from '../app/messages.ts'
+import { startPendingWorshipAcquisitions, visitWorshipAcquisition } from '../app/worship-acquisition-runtime.ts'
 
 const schedules = [
   ...[5, 30, 60, 120, 144, 240].map(hz => [1 / hz]),
@@ -16,17 +17,34 @@ function advance(w, clock, seconds, schedule) {
     seconds -= dt
   }
 }
-test('render cadence cannot change gameplay, RNG or owned animation state', () => {
+test('render cadence and idle production worship hooks cannot change gameplay, RNG or owned animation state', () => {
   for (const scenario of ['movement', 'celebration', 'construction', 'blast', 'combat'])
     for (const speed of [0.25, 1, 2]) {
-      const results = schedules.map((schedule, index) => {
+      const results = [false, true].flatMap(worshipHooks => schedules.map((schedule, index) => {
         const w = createWorld(),
           clock = { animationTime: 0, animationFrame: 0 }
+        let worshipVisits = 0
         // The first schedule is the unchanged simulation; all others observe turns.
-        if (index) {
+        if (index || worshipHooks) {
           const motion = new UnitMotion()
           clock.beforeTurn = () => motion.beforeTurn(w)
           clock.afterTurn = () => motion.afterTurn(w)
+        }
+        if (worshipHooks) {
+          const afterTurn = clock.afterTurn
+          clock.afterTurn = () => {
+            afterTurn()
+            startPendingWorshipAcquisitions(w, {
+              cue: () => assert.fail('idle clock must not initialize a gift'),
+              geometry: () => assert.fail('idle clock must not request gift geometry'),
+              failed: () => assert.fail('idle clock must not report a handoff'),
+            })
+          }
+          clock.worshipVisit = () => {
+            worshipVisits++
+            visitWorshipAcquisition(w, () => assert.fail('idle clock must not arrive'))
+          }
+          clock.presentationHidden = () => false
         }
         w.speed = speed
         if (scenario === 'celebration') {
@@ -81,8 +99,13 @@ test('render cadence cannot change gameplay, RNG or owned animation state', () =
         assert.equal(clock.animationFrame, 96)
         assert.ok(clock.animationTime < 1e-9)
         assert.ok(w.pendingTime < 1e-9)
-        return { ...w, pendingTime: 0 }
-      })
+        assert.equal(worshipVisits > 0, worshipHooks, 'exercise the live optional-hook branch')
+        // Only the newly owned UI clock is allowed to differ. Keep controllers,
+        // requests, both RNG states and every other World field in the comparison.
+        const { clock: uiClock, ...acquisition } = w.worshipAcquisition
+        if (worshipHooks) assert.ok(Math.abs(uiClock.elapsed - 4000) < 1e-6)
+        return { ...w, pendingTime: 0, worshipAcquisition: acquisition }
+      }))
       for (const result of results)
         for (const key of Object.keys(result))
           assert.deepEqual(result[key], results[0][key], `${scenario}, speed=${speed}, ${key}`)

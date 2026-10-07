@@ -214,7 +214,8 @@ for stage_flags in [0,0x4000]:
 print('PASS: native command18 selection flag does not block direct/player-entry spell readiness')
 
 # Default effect9 executes its complete 32-particle RNG body. Allocation supplies
-# zeroed model3 records; the original producer writes lifetime/speed/yaw/pitch.
+# zeroed model3 records; +0x59 is pitch and +0x57 is yaw, as consumed by
+# original 004e7a80 and independently checked in check-native-spell-trails.py.
 cpu,identity=native_cpu(exe);cpu.mem_map(0x2000000,0x40000)
 burst_ptrs=[]
 def burst_hook(c,address,size,user):
@@ -228,7 +229,7 @@ for a in [0x4ed8a0,0x4ed6f0]:cpu.hook_add(UC_HOOK_CODE,burst_hook,begin=a,end=a)
 burst_cases=[]
 for seed in [0,1,0x12345678,0xffffffff,0x50ccd0]:
  burst_ptrs=[];cpu.mem_write(p,bytes(256));write(0x89d178,'I',seed);call(0x50ccd0,p)
- burst_cases.append({'seed':seed,'randomState':read(0x89d178,'I'),'particles':[{'remaining':read(ptr+0x6c,'h'),'speed':read(ptr+0x5f,'h'),'pitch':read(ptr+0x57,'H'),'yaw':read(ptr+0x59,'H')} for ptr in burst_ptrs]})
+ burst_cases.append({'seed':seed,'randomState':read(0x89d178,'I'),'particles':[{'remaining':read(ptr+0x6c,'h'),'speed':read(ptr+0x5f,'h'),'pitch':read(ptr+0x59,'H'),'yaw':read(ptr+0x57,'H')} for ptr in burst_ptrs]})
 js="""import fs from 'node:fs';import {levelStartBurstParticle} from './app/level-start.ts';const cases=JSON.parse(fs.readFileSync(0,'utf8'));for(const c of cases){const rng={randomState:c.seed};const particles=Array.from({length:32},()=>levelStartBurstParticle(rng));if(JSON.stringify(particles)!==JSON.stringify(c.particles)||rng.randomState!==c.randomState)throw new Error('effect9 burst mismatch '+c.seed)}"""
 subprocess.run(['node','--input-type=module','-e',js],input=json.dumps(burst_cases).encode(),cwd=ROOT,check=True)
 print('PASS: five complete original effect9 bursts:160 particles, lifetime/speed/yaw/pitch and gameplay RNG')
