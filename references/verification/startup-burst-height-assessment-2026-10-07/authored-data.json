@@ -1,0 +1,815 @@
+{
+  "assessment": "Read-only imported data extraction; no game or native execution. Vertex heights are authored input, not terrain after the startup wave.",
+  "baseCommit": "7c0bcdb246023ff4263b4baeddf5a84f7f90a7a0",
+  "offsetUnits": 256,
+  "stoneOffsets": [
+    [
+      0,
+      6
+    ],
+    [
+      4,
+      4
+    ],
+    [
+      6,
+      0
+    ],
+    [
+      4,
+      -4
+    ],
+    [
+      0,
+      -6
+    ],
+    [
+      -4,
+      -4
+    ],
+    [
+      -6,
+      0
+    ],
+    [
+      -4,
+      4
+    ]
+  ],
+  "missions": [
+    {
+      "mission": 1,
+      "importedFile": "app/level-one.ts",
+      "importedSha256": "e840e4ea8895ada4131c7d2da2ce70330307956ea7a6e647e55e76bf6026bd33",
+      "originalLevelSha256": "97cdb6e170f68b462b5b36c42c99a598b0466e0131a105f30612f50d7f16e40c",
+      "authoredVertexHeightBounds": [
+        0,
+        424
+      ],
+      "sites": [
+        {
+          "objectIndex": 34,
+          "tribe": 0,
+          "startupEnabled": true,
+          "authoredBrowserXZ": [
+            9.0,
+            33.0
+          ],
+          "nativeXY": [
+            4352,
+            55040
+          ],
+          "snappedCenterXY": [
+            4352,
+            55040
+          ],
+          "stones": [
+            {
+              "index": 0,
+              "nativeXY": [
+                4352,
+                56576
+              ],
+              "authoredCornersABCD": [
+                92,
+                57,
+                30,
+                87
+              ]
+            },
+            {
+              "index": 1,
+              "nativeXY": [
+                5376,
+                56064
+              ],
+              "authoredCornersABCD": [
+                77,
+                77,
+                30,
+                67
+              ]
+            },
+            {
+              "index": 2,
+              "nativeXY": [
+                5888,
+                55040
+              ],
+              "authoredCornersABCD": [
+                62,
+                57,
+                30,
+                45
+              ]
+            },
+            {
+              "index": 3,
+              "nativeXY": [
+                5376,
+                54016
+              ],
+              "authoredCornersABCD": [
+                72,
+                72,
+                57,
+                40
+              ]
+            },
+            {
+              "index": 4,
+              "nativeXY": [
+                4352,
+                53504
+              ],
+              "authoredCornersABCD": [
+                82,
+                102,
+                92,
+                82
+              ]
+            },
+            {
+              "index": 5,
+              "nativeXY": [
+                3328,
+                54016
+              ],
+              "authoredCornersABCD": [
+                92,
+                92,
+                102,
+                82
+              ]
+            },
+            {
+              "index": 6,
+              "nativeXY": [
+                2816,
+                55040
+              ],
+              "authoredCornersABCD": [
+                83,
+                82,
+                92,
+                87
+              ]
+            },
+            {
+              "index": 7,
+              "nativeXY": [
+                3328,
+                56064
+              ],
+              "authoredCornersABCD": [
+                82,
+                62,
+                92,
+                102
+              ]
+            }
+          ]
+        },
+        {
+          "objectIndex": 37,
+          "tribe": 1,
+          "startupEnabled": false,
+          "authoredBrowserXZ": [
+            1.0,
+            -37.0
+          ],
+          "nativeXY": [
+            2304,
+            7424
+          ],
+          "snappedCenterXY": [
+            2304,
+            7424
+          ],
+          "stones": [
+            {
+              "index": 0,
+              "nativeXY": [
+                2304,
+                8960
+              ],
+              "authoredCornersABCD": [
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "index": 1,
+              "nativeXY": [
+                3328,
+                8448
+              ],
+              "authoredCornersABCD": [
+                248,
+                0,
+                0,
+                257
+              ]
+            },
+            {
+              "index": 2,
+              "nativeXY": [
+                3840,
+                7424
+              ],
+              "authoredCornersABCD": [
+                394,
+                380,
+                319,
+                394
+              ]
+            },
+            {
+              "index": 3,
+              "nativeXY": [
+                3328,
+                6400
+              ],
+              "authoredCornersABCD": [
+                394,
+                394,
+                394,
+                394
+              ]
+            },
+            {
+              "index": 4,
+              "nativeXY": [
+                2304,
+                5888
+              ],
+              "authoredCornersABCD": [
+                345,
+                345,
+                394,
+                394
+              ]
+            },
+            {
+              "index": 5,
+              "nativeXY": [
+                1280,
+                6400
+              ],
+              "authoredCornersABCD": [
+                345,
+                345,
+                345,
+                345
+              ]
+            },
+            {
+              "index": 6,
+              "nativeXY": [
+                768,
+                7424
+              ],
+              "authoredCornersABCD": [
+                345,
+                274,
+                309,
+                345
+              ]
+            },
+            {
+              "index": 7,
+              "nativeXY": [
+                1280,
+                8448
+              ],
+              "authoredCornersABCD": [
+                210,
+                0,
+                0,
+                234
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mission": 2,
+      "importedFile": "app/level-two.ts",
+      "importedSha256": "c576f47683ab6e58682e78c221eed5f44e91717e2e27097be0f5b5ba9f97c111",
+      "originalLevelSha256": "83f5c446975398b163ef00526567f7a86b2666d26f9f026231ec0b36bf5a289f",
+      "authoredVertexHeightBounds": [
+        0,
+        1020
+      ],
+      "sites": [
+        {
+          "objectIndex": 22,
+          "tribe": 3,
+          "startupEnabled": false,
+          "authoredBrowserXZ": [
+            91.0,
+            119.0
+          ],
+          "nativeXY": [
+            25344,
+            33024
+          ],
+          "snappedCenterXY": [
+            25344,
+            33024
+          ],
+          "stones": [
+            {
+              "index": 0,
+              "nativeXY": [
+                25344,
+                34560
+              ],
+              "authoredCornersABCD": [
+                119,
+                119,
+                119,
+                119
+              ]
+            },
+            {
+              "index": 1,
+              "nativeXY": [
+                26368,
+                34048
+              ],
+              "authoredCornersABCD": [
+                119,
+                119,
+                120,
+                107
+              ]
+            },
+            {
+              "index": 2,
+              "nativeXY": [
+                26880,
+                33024
+              ],
+              "authoredCornersABCD": [
+                128,
+                128,
+                83,
+                93
+              ]
+            },
+            {
+              "index": 3,
+              "nativeXY": [
+                26368,
+                32000
+              ],
+              "authoredCornersABCD": [
+                128,
+                128,
+                128,
+                98
+              ]
+            },
+            {
+              "index": 4,
+              "nativeXY": [
+                25344,
+                31488
+              ],
+              "authoredCornersABCD": [
+                288,
+                309,
+                199,
+                154
+              ]
+            },
+            {
+              "index": 5,
+              "nativeXY": [
+                24320,
+                32000
+              ],
+              "authoredCornersABCD": [
+                374,
+                358,
+                348,
+                376
+              ]
+            },
+            {
+              "index": 6,
+              "nativeXY": [
+                23808,
+                33024
+              ],
+              "authoredCornersABCD": [
+                197,
+                131,
+                183,
+                291
+              ]
+            },
+            {
+              "index": 7,
+              "nativeXY": [
+                24320,
+                34048
+              ],
+              "authoredCornersABCD": [
+                119,
+                119,
+                119,
+                119
+              ]
+            }
+          ]
+        },
+        {
+          "objectIndex": 57,
+          "tribe": 0,
+          "startupEnabled": true,
+          "authoredBrowserXZ": [
+            -107.0,
+            -101.0
+          ],
+          "nativeXY": [
+            40192,
+            23808
+          ],
+          "snappedCenterXY": [
+            40192,
+            23808
+          ],
+          "stones": [
+            {
+              "index": 0,
+              "nativeXY": [
+                40192,
+                25344
+              ],
+              "authoredCornersABCD": [
+                93,
+                135,
+                115,
+                93
+              ]
+            },
+            {
+              "index": 1,
+              "nativeXY": [
+                41216,
+                24832
+              ],
+              "authoredCornersABCD": [
+                96,
+                98,
+                95,
+                108
+              ]
+            },
+            {
+              "index": 2,
+              "nativeXY": [
+                41728,
+                23808
+              ],
+              "authoredCornersABCD": [
+                76,
+                108,
+                128,
+                64
+              ]
+            },
+            {
+              "index": 3,
+              "nativeXY": [
+                41216,
+                22784
+              ],
+              "authoredCornersABCD": [
+                0,
+                43,
+                49,
+                0
+              ]
+            },
+            {
+              "index": 4,
+              "nativeXY": [
+                40192,
+                22272
+              ],
+              "authoredCornersABCD": [
+                0,
+                0,
+                4,
+                0
+              ]
+            },
+            {
+              "index": 5,
+              "nativeXY": [
+                39168,
+                22784
+              ],
+              "authoredCornersABCD": [
+                0,
+                20,
+                50,
+                0
+              ]
+            },
+            {
+              "index": 6,
+              "nativeXY": [
+                38656,
+                23808
+              ],
+              "authoredCornersABCD": [
+                44,
+                88,
+                77,
+                68
+              ]
+            },
+            {
+              "index": 7,
+              "nativeXY": [
+                39168,
+                24832
+              ],
+              "authoredCornersABCD": [
+                63,
+                98,
+                75,
+                71
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mission": 3,
+      "importedFile": "app/level-three.ts",
+      "importedSha256": "7de51508c51d8193ee961de63a79016be4c58de284aefc3a707339b5e9b81e07",
+      "originalLevelSha256": "eb239eabebbcde37c1e1633b149d48977cedf432348a12fc5ee6b4be74c049bf",
+      "authoredVertexHeightBounds": [
+        0,
+        1024
+      ],
+      "sites": [
+        {
+          "objectIndex": 45,
+          "tribe": 0,
+          "startupEnabled": true,
+          "authoredBrowserXZ": [
+            35.0,
+            81.0
+          ],
+          "nativeXY": [
+            11008,
+            42752
+          ],
+          "snappedCenterXY": [
+            11008,
+            42752
+          ],
+          "stones": [
+            {
+              "index": 0,
+              "nativeXY": [
+                11008,
+                44288
+              ],
+              "authoredCornersABCD": [
+                138,
+                127,
+                125,
+                121
+              ]
+            },
+            {
+              "index": 1,
+              "nativeXY": [
+                12032,
+                43776
+              ],
+              "authoredCornersABCD": [
+                101,
+                104,
+                107,
+                93
+              ]
+            },
+            {
+              "index": 2,
+              "nativeXY": [
+                12544,
+                42752
+              ],
+              "authoredCornersABCD": [
+                85,
+                87,
+                87,
+                85
+              ]
+            },
+            {
+              "index": 3,
+              "nativeXY": [
+                12032,
+                41728
+              ],
+              "authoredCornersABCD": [
+                143,
+                115,
+                89,
+                105
+              ]
+            },
+            {
+              "index": 4,
+              "nativeXY": [
+                11008,
+                41216
+              ],
+              "authoredCornersABCD": [
+                184,
+                204,
+                184,
+                184
+              ]
+            },
+            {
+              "index": 5,
+              "nativeXY": [
+                9984,
+                41728
+              ],
+              "authoredCornersABCD": [
+                229,
+                210,
+                214,
+                229
+              ]
+            },
+            {
+              "index": 6,
+              "nativeXY": [
+                9472,
+                42752
+              ],
+              "authoredCornersABCD": [
+                194,
+                169,
+                195,
+                205
+              ]
+            },
+            {
+              "index": 7,
+              "nativeXY": [
+                9984,
+                43776
+              ],
+              "authoredCornersABCD": [
+                141,
+                144,
+                136,
+                158
+              ]
+            }
+          ]
+        },
+        {
+          "objectIndex": 46,
+          "tribe": 2,
+          "startupEnabled": true,
+          "authoredBrowserXZ": [
+            -45.0,
+            -105.0
+          ],
+          "nativeXY": [
+            56064,
+            24832
+          ],
+          "snappedCenterXY": [
+            56064,
+            24832
+          ],
+          "stones": [
+            {
+              "index": 0,
+              "nativeXY": [
+                56064,
+                26368
+              ],
+              "authoredCornersABCD": [
+                162,
+                192,
+                167,
+                167
+              ]
+            },
+            {
+              "index": 1,
+              "nativeXY": [
+                57088,
+                25856
+              ],
+              "authoredCornersABCD": [
+                132,
+                152,
+                147,
+                172
+              ]
+            },
+            {
+              "index": 2,
+              "nativeXY": [
+                57600,
+                24832
+              ],
+              "authoredCornersABCD": [
+                177,
+                147,
+                162,
+                182
+              ]
+            },
+            {
+              "index": 3,
+              "nativeXY": [
+                57088,
+                23808
+              ],
+              "authoredCornersABCD": [
+                192,
+                182,
+                182,
+                192
+              ]
+            },
+            {
+              "index": 4,
+              "nativeXY": [
+                56064,
+                23296
+              ],
+              "authoredCornersABCD": [
+                192,
+                192,
+                192,
+                192
+              ]
+            },
+            {
+              "index": 5,
+              "nativeXY": [
+                55040,
+                23808
+              ],
+              "authoredCornersABCD": [
+                177,
+                182,
+                192,
+                192
+              ]
+            },
+            {
+              "index": 6,
+              "nativeXY": [
+                54528,
+                24832
+              ],
+              "authoredCornersABCD": [
+                118,
+                115,
+                142,
+                149
+              ]
+            },
+            {
+              "index": 7,
+              "nativeXY": [
+                55040,
+                25856
+              ],
+              "authoredCornersABCD": [
+                152,
+                184,
+                192,
+                157
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

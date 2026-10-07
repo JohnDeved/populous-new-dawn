@@ -5117,7 +5117,9 @@ This is static evidence, not native execution or full loading-screen fidelity.
 The original startup command18, terrain/conversion wave, stone carriers and rise
 are traced in [level-start-sequence.md](research/level-start-sequence.md), including
 mission-specific reincarnation-disabled skips. New exports and the isolated native
-checker are indexed there. Native and local Linux browser acceptance remain
+checker are indexed there. The [root-height assessment](research/startup-burst-root-height.md)
+identifies a reachable fresh-stone clamp-order difference and a one-arrival
+original capture proposal; no runtime repair or full-startup equality is claimed. Native and local Linux browser acceptance remain
 source-bound under issue #20; this entry makes no whole-game parity completion claim.
 ## Residential hut smoke allocation-turn lifetime
 
