@@ -1,0 +1,3 @@
+{"id":"format-scoped","status":"passed","exitCode":0,"advisory":false,"classification":"passed"}
+{"id":"eslint-scoped","status":"passed","exitCode":0,"advisory":false,"classification":"passed"}
+{"id":"oxlint-scoped","status":"failed","exitCode":1,"advisory":false,"classification":"failed"}

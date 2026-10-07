@@ -1,0 +1,308 @@
+{
+  "status": "actual-failed-gate; inherited-cycle classification pending independent review",
+  "base": "e3a7a06a4250457502288d5b4c4e4ad8f3b40b53",
+  "source": "8f50dda281ec6338bdb84e21473879f29a0282f9",
+  "sourceAppDiffPaths": [
+    "app/level-start-runtime.ts"
+  ],
+  "importPrefixByteIdentical": true,
+  "allOtherAppFilesByteIdentical": true,
+  "oxlintConfigByteIdentical": true,
+  "errors": [
+    {
+      "severity": "error",
+      "rule": "import(no-cycle)",
+      "path": "app/level-start-runtime.ts",
+      "line": 18
+    },
+    {
+      "severity": "error",
+      "rule": "import(no-cycle)",
+      "path": "app/level-start-runtime.ts",
+      "line": 8
+    },
+    {
+      "severity": "error",
+      "rule": "import(no-cycle)",
+      "path": "app/level-start-runtime.ts",
+      "line": 46
+    },
+    {
+      "severity": "error",
+      "rule": "import(no-cycle)",
+      "path": "app/level-start-runtime.ts",
+      "line": 21
+    },
+    {
+      "severity": "error",
+      "rule": "import(no-cycle)",
+      "path": "app/level-start-runtime.ts",
+      "line": 10
+    },
+    {
+      "severity": "error",
+      "rule": "import(no-cycle)",
+      "path": "app/level-start-runtime.ts",
+      "line": 9
+    }
+  ],
+  "warningCount": 34,
+  "newTestWarnings": [
+    {
+      "severity": "warning",
+      "rule": "eslint(prefer-destructuring)",
+      "path": "tests/startup-burst-height.test.mjs",
+      "line": 35
+    },
+    {
+      "severity": "warning",
+      "rule": "eslint(prefer-destructuring)",
+      "path": "tests/startup-burst-observer.test.mjs",
+      "line": 108
+    }
+  ],
+  "allDiagnostics": [
+    {
+      "severity": "warning",
+      "rule": "eslint(prefer-destructuring)",
+      "path": "scripts/local-render/startup-burst-observer.mjs",
+      "line": 6
+    },
+    {
+      "severity": "warning",
+      "rule": "eslint(prefer-destructuring)",
+      "path": "scripts/local-render/startup-burst-observer.mjs",
+      "line": 6
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(prefer-global-this)",
+      "path": "scripts/local-render/startup-burst-observer.mjs",
+      "line": 14
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(prefer-global-this)",
+      "path": "scripts/local-render/startup-burst-observer.mjs",
+      "line": 14
+    },
+    {
+      "severity": "warning",
+      "rule": "eslint(no-nested-ternary)",
+      "path": "scripts/local-render/startup-burst-observer.mjs",
+      "line": 35
+    },
+    {
+      "severity": "warning",
+      "rule": "eslint(no-nested-ternary)",
+      "path": "scripts/local-render/startup-burst-observer.mjs",
+      "line": 35
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(no-nested-ternary)",
+      "path": "scripts/local-render/startup-burst-observer.mjs",
+      "line": 36
+    },
+    {
+      "severity": "warning",
+      "rule": "eslint(prefer-destructuring)",
+      "path": "scripts/local-render/startup-burst-observer.mjs",
+      "line": 80
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(prefer-global-this)",
+      "path": "scripts/local-render/startup-burst-observer.mjs",
+      "line": 88
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(prefer-global-this)",
+      "path": "scripts/local-render/startup-burst-observer.mjs",
+      "line": 89
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(prefer-global-this)",
+      "path": "scripts/local-render/startup-burst-observer.mjs",
+      "line": 90
+    },
+    {
+      "severity": "warning",
+      "rule": "eslint(prefer-destructuring)",
+      "path": "tests/startup-burst-height.test.mjs",
+      "line": 35
+    },
+    {
+      "severity": "warning",
+      "rule": "eslint(prefer-template)",
+      "path": "scripts/local-render/startup-burst.mjs",
+      "line": 10
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(prefer-global-this)",
+      "path": "scripts/local-render/startup-burst.mjs",
+      "line": 12
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(prefer-global-this)",
+      "path": "scripts/local-render/startup-burst.mjs",
+      "line": 29
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(prefer-global-this)",
+      "path": "scripts/local-render/startup-burst.mjs",
+      "line": 39
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(prefer-global-this)",
+      "path": "scripts/local-render/startup-burst.mjs",
+      "line": 40
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(prefer-global-this)",
+      "path": "scripts/local-render/startup-burst.mjs",
+      "line": 52
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(prefer-global-this)",
+      "path": "scripts/local-render/startup-burst.mjs",
+      "line": 73
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(prefer-global-this)",
+      "path": "scripts/local-render/startup-burst.mjs",
+      "line": 73
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(prefer-global-this)",
+      "path": "tests/startup-burst-observer.test.mjs",
+      "line": 71
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(consistent-function-scoping)",
+      "path": "tests/startup-burst-observer.test.mjs",
+      "line": 80
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(consistent-function-scoping)",
+      "path": "tests/startup-burst-observer.test.mjs",
+      "line": 80
+    },
+    {
+      "severity": "warning",
+      "rule": "eslint(prefer-destructuring)",
+      "path": "tests/startup-burst-observer.test.mjs",
+      "line": 108
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(prefer-global-this)",
+      "path": "tests/startup-burst-observer.test.mjs",
+      "line": 136
+    },
+    {
+      "severity": "warning",
+      "rule": "eslint(no-nested-ternary)",
+      "path": "tests/startup-burst-observer.test.mjs",
+      "line": 143
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(no-nested-ternary)",
+      "path": "tests/startup-burst-observer.test.mjs",
+      "line": 143
+    },
+    {
+      "severity": "warning",
+      "rule": "eslint(prefer-destructuring)",
+      "path": "tests/startup-burst-observer.test.mjs",
+      "line": 177
+    },
+    {
+      "severity": "error",
+      "rule": "import(no-cycle)",
+      "path": "app/level-start-runtime.ts",
+      "line": 18
+    },
+    {
+      "severity": "error",
+      "rule": "import(no-cycle)",
+      "path": "app/level-start-runtime.ts",
+      "line": 8
+    },
+    {
+      "severity": "error",
+      "rule": "import(no-cycle)",
+      "path": "app/level-start-runtime.ts",
+      "line": 46
+    },
+    {
+      "severity": "error",
+      "rule": "import(no-cycle)",
+      "path": "app/level-start-runtime.ts",
+      "line": 21
+    },
+    {
+      "severity": "error",
+      "rule": "import(no-cycle)",
+      "path": "app/level-start-runtime.ts",
+      "line": 10
+    },
+    {
+      "severity": "error",
+      "rule": "import(no-cycle)",
+      "path": "app/level-start-runtime.ts",
+      "line": 9
+    },
+    {
+      "severity": "warning",
+      "rule": "eslint(no-shadow)",
+      "path": "app/level-start-runtime.ts",
+      "line": 273
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(consistent-function-scoping)",
+      "path": "app/level-start-runtime.ts",
+      "line": 118
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(no-array-sort)",
+      "path": "app/level-start-runtime.ts",
+      "line": 222
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(no-negated-condition)",
+      "path": "app/level-start-runtime.ts",
+      "line": 225
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(no-array-reverse)",
+      "path": "app/level-start-runtime.ts",
+      "line": 231
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(no-array-reverse)",
+      "path": "app/level-start-runtime.ts",
+      "line": 271
+    }
+  ],
+  "interpretation": "All six errors concern pre-existing import declarations and unchanged app module edges. No baseline Oxlint execution was performed; this is source correspondence, not a claimed baseline run. Two prefer-destructuring warnings arise in newly added test-only lines.",
+  "noMutationOrRetry": true
+}

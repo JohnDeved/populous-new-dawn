@@ -1,0 +1,8 @@
+{
+  "status": "failed",
+  "output": "work/orchestration/startup-burst-height-final-gates-host-01/command-receipt.json",
+  "headOid": "8f50dda281ec6338bdb84e21473879f29a0282f9",
+  "exitCode": 1,
+  "stdoutSha256": "b41ca92277e059a75854b94ced2bc83c1b3715521e1bc0c26ba5608a33730474",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

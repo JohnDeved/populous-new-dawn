@@ -1,0 +1,38 @@
+{
+  "verdict": "ACCEPT",
+  "reviewKind": "independent read-only final-gate source preflight",
+  "reviewedAt": "2026-10-07T04:35:15.767937+00:00",
+  "sourceHead": "8f50dda281ec6338bdb84e21473879f29a0282f9",
+  "researchHead": "6eff15d4cd70aa8c4b7e8ed5216c0047d6336bb6",
+  "packetSha256": "3fb8a1e215bf2152b3282e8c933833dfdfb5a9b310d8a5c29fe955cbc135b2ae",
+  "hostSha256": "32e3a3b5bd1af85c522dabe297920f2a0c4bd94bcc9c6d3c440c18f735c3c33c",
+  "runnerSha256": "6743fee9a43e669ff922e5c8511934a89103d75dcf4394fd6980d33cd501b09c",
+  "verified": {
+    "cleanHead": true,
+    "sourcePins": 24,
+    "toolPins": 7,
+    "dependencyPins": 20,
+    "allPinsMatch": true,
+    "dependencyIdentity": [
+      27,
+      1209759
+    ],
+    "copyReceiptSha256": "fcb97ba3ef69bd6bd06a2721f2a2fb5493984486e141a6426bbb21bf4f404e6e",
+    "outputHostOutputAndTemporaryAbsent": true,
+    "viteCachesAndFallowMarkerAbsent": true
+  },
+  "contract": [
+    "CPU 5-7; quality 30/60/30 seconds, advisory Fallow 60 seconds each, required check/build 900 seconds each, outer TERM 2140 seconds plus 10 seconds KILL grace, host fallback 2153 seconds.",
+    "Format, ESLint and Oxlint require exit 0. Fallow exit 1 remains advisory findings; other failures and all required failures stop later stages.",
+    "Retain generated Fallow marker, validate schema/package/path/binary hashes/mtime, restore initial absence before complete dependency inventory equality.",
+    "Retain and remove task-generated caches from dependency inventory; verify exact independent-copy identity, source/tool/packet/copy receipt and owned-process cleanup.",
+    "Aggregate portable coverage, accepted native proof and ordinary pair are correctly distinguished from broader unrun subsystem checks."
+  ],
+  "limits": [
+    "Source acceptance is not an execution grant.",
+    "Original interrupted candidate attempt01 and dependency loan 27/1978923 remain unknown and quarantined.",
+    "No native/browser replay, installation, source edits or retry included.",
+    "Inherited browserContext text is descriptive metadata only; exact command is the gate runner and starts no browser.",
+    "No final quality/check/build result is claimed by this preflight."
+  ]
+}

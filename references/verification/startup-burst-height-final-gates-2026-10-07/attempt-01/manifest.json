@@ -1,0 +1,103 @@
+{
+  "source": "8f50dda281ec6338bdb84e21473879f29a0282f9",
+  "proposalSource": "6eff15d4cd70aa8c4b7e8ed5216c0047d6336bb6",
+  "proposalManifestSha256": "3fb8a1e215bf2152b3282e8c933833dfdfb5a9b310d8a5c29fe955cbc135b2ae",
+  "toolSession": 28073,
+  "initialChunk": "5aa527",
+  "terminalChunk": "310e7c",
+  "exitCode": 1,
+  "rawCopies": {
+    "host-receipt.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-host-01/receipt.json",
+      "sha256": "88b643bf6799aab62d24abada55b6b26a14e6fe6a661ab7538326d553954349c",
+      "bytes": 85912
+    },
+    "command-receipt.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-host-01/command-receipt.json",
+      "sha256": "516f83f23cf2b12559703ffaea7f3877454580f283a9d95e4646a48739107631",
+      "bytes": 9397
+    },
+    "command-stdout.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-host-01/command-receipt.json.artifacts/stdout.log",
+      "sha256": "b41ca92277e059a75854b94ced2bc83c1b3715521e1bc0c26ba5608a33730474",
+      "bytes": 291
+    },
+    "command-stderr.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-host-01/command-receipt.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "host-stdout.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-host-01/stdout.txt",
+      "sha256": "cc01f007bf4ac5226b1f0bea76ecf5b198bc0fe6235260425761245065be77c5",
+      "bytes": 367
+    },
+    "host-stderr.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-host-01/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "results.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-01/results.json",
+      "sha256": "6f6e2593b76bdcb1622ea5ff459881643d73b560d629da45b76e1332f3200b56",
+      "bytes": 569
+    },
+    "format-scoped.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-01/format-scoped.json",
+      "sha256": "e4b4b80f6ed4d42df7eeaac10a94c23242db4b6a8361a6744bdc96ce0438e773",
+      "bytes": 3979
+    },
+    "format-scoped-stdout.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-01/format-scoped.json.artifacts/stdout.log",
+      "sha256": "43ba3228233fc9185856268e65dd915e736fa6dbb95fc658f89b55172f802dd5",
+      "bytes": 110
+    },
+    "format-scoped-stderr.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-01/format-scoped.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "eslint-scoped.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-01/eslint-scoped.json",
+      "sha256": "c92f1cbdd8a2063837bb4a73725e227b80515a39eb8119dbd3d36b1a25b0c500",
+      "bytes": 4040
+    },
+    "eslint-scoped-stdout.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-01/eslint-scoped.json.artifacts/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "eslint-scoped-stderr.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-01/eslint-scoped.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "oxlint-scoped.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-01/oxlint-scoped.json",
+      "sha256": "7b6a5c2b89b427114860e6e7654ec6869b0739489ce65b3a44607e9e33519565",
+      "bytes": 48211
+    },
+    "oxlint-scoped-stdout.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-01/oxlint-scoped.json.artifacts/stdout.log",
+      "sha256": "5c22900d03cd07306ec07bd0fd23532ed59b22dfb44fe5a72550da59ab6ac89c",
+      "bytes": 40000
+    },
+    "oxlint-scoped-stderr.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-01/oxlint-scoped.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  },
+  "derived": {
+    "source-correspondence.json": "270cfe6d9802c9788591f418e222e79aa0555d9ff9dea9da31292193cd8048c6",
+    "preflight-review.json": "d216fc7b67fa1280260dcc58812f95bf1e55a56e8778b94ed184f2330dcc1d47"
+  },
+  "notRun": [
+    "fallow-health",
+    "fallow-dupes",
+    "fallow-unused",
+    "check",
+    "build"
+  ],
+  "semantics": "Format/ESLint passed; required Oxlint failed; later Fallow/check/build never ran. Failed receipt is not relabelled as passing. Fallow marker was never created; original absence restored and full copy inventory/source checks passed."
+}
