@@ -1,0 +1,143 @@
+{
+  "kind": "Source-only proposal manifest; no experiment executed",
+  "runtimeHead": "48a84610254d3ad5cddb600c266ed9a151233b79",
+  "runtimeAppTree": "562dd076f45cfc2bed6c3da0e6279d06b5b47af9",
+  "files": [
+    {
+      "path": "app/computer-runtime.ts",
+      "sha256": "4316213f89499dc4a73a915e81bca06c91c8a155aa0e5e7db84cee08295fb010"
+    },
+    {
+      "path": "app/computer.ts",
+      "sha256": "7e7425a46cba84fa4eeb4c29be92c25c848f992b94e2912d570b9959027a666d"
+    },
+    {
+      "path": "app/person-state.ts",
+      "sha256": "da771659e4da644ce0aa7eb6a988907888a9971e77745e3afeb95215f983cc17"
+    },
+    {
+      "path": "app/person-orders.ts",
+      "sha256": "27600291a988813415ce88a4b046101fb772894490d44607b84f739a433eb1f3"
+    },
+    {
+      "path": "app/original-script-two.json",
+      "sha256": "2a3b71e046b4935cfb54fa27c04c84f4b90d6f9b7d92c0471e28c505e4a2f94b"
+    },
+    {
+      "path": "scripts/check-native-person-state.py",
+      "sha256": "6ca20f1600c63c7bbed346b9ee4543b2adbe71d11ccdf04df1f73ce7b120b89b"
+    },
+    {
+      "path": "scripts/check-native-animation.py",
+      "sha256": "d24a59e7fd242cce787531ae19ddd9c4dcb551910704a1b981990ff285af9edc"
+    },
+    {
+      "path": "scripts/decomp.py",
+      "sha256": "0a4783a8ee924c52e1125a5df3e4e625b3ab00835e848a2013e444bcfd979c2e"
+    },
+    {
+      "path": "decomp/generated/004f39f0.c",
+      "sha256": "2c48580c7a176068e3e541e08043f0557dc51f21094983bb7e0f1e93ab0f994c"
+    },
+    {
+      "path": "decomp/generated/004f2440.c",
+      "sha256": "04a91d4a807f6699716900b0104f660ef0ede67e7f24644cfc05c7b0a73f5328"
+    },
+    {
+      "path": "decomp/generated/00436ca0.c",
+      "sha256": "1f9230efa60fe8029321ddab04755b8d073e5d8a8f53c87b90fbd9d6c2e854e6"
+    },
+    {
+      "path": "decomp/generated/004364d0.c",
+      "sha256": "694cf0f4dfbfe3ec7ada8b812b360d227443c43e44910bcd5a0dc0187a852553"
+    },
+    {
+      "path": "decomp/generated/004da1d0.c",
+      "sha256": "e80a2a24b40c424b9d6867a26c2a8aad383695b703e80c26c9b01184113916a0"
+    },
+    {
+      "path": "decomp/generated/00501be0.c",
+      "sha256": "8d73cfd000427bf623ca938d9f22c9bb5b6cc7a91a55826604e437336e12d822"
+    },
+    {
+      "path": "decomp/generated/004e9b40.c",
+      "sha256": "964ecf5fabb3c247b4b1c569652b101cc59ad32648932e44ad33275f6fce581c"
+    },
+    {
+      "path": "decomp/generated/004ed6f0.c",
+      "sha256": "6ff721df1ddebd3a70d39f02c40db0a9575212122c9e22363cf13eddc2ba9561"
+    },
+    {
+      "path": "decomp/generated/004ed640.c",
+      "sha256": "00fed5e330959a34047a742ae4ce133e93c6cd4fdbdbc2a0222f22b06cda0ecb"
+    },
+    {
+      "path": "decomp/generated/004d2740.c",
+      "sha256": "02dd6d6bcdebfd1fbb5065c50af5e8f40d33140676e99c316ceb3ebe85835747"
+    },
+    {
+      "path": "decomp/generated/00432260.c",
+      "sha256": "23e7e3767d6ab658025e4a0474e86bdad7264b2852b401a48b65c07f1a33ca3d"
+    },
+    {
+      "path": "decomp/generated/004a3940.c",
+      "sha256": "47669140587f7baea77e2d2a45d9fee3c5eab19a464c70eb41676fe754858ecd"
+    },
+    {
+      "path": "decomp/generated/004d47d0.c",
+      "sha256": "6b49ff975df8853455a07e2d8939349658f57c7687b87848ff77d8fa6a63215d"
+    },
+    {
+      "path": "decomp/generated/004d3ea0.c",
+      "sha256": "605d220b28ae7b6dbf2a6edb7661b50069e76223f1052ad49e3769ae422a4cb1"
+    },
+    {
+      "path": "decomp/generated/004d4040.c",
+      "sha256": "e15f9bccaa6eb40b0f44350fdf2eca10af2f284f7db74237dbb422fda6fce910"
+    },
+    {
+      "path": "decomp/generated/004ee700.c",
+      "sha256": "e3af26337ab4897a49a99ce77298f02d9067e981554ea8b782560231fe2701c0"
+    },
+    {
+      "path": "decomp/generated/004044b0.c",
+      "sha256": "68da617284e7d39836652e51811649145c806099e864f54e5fbe0589a0300c6e"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/phase6.asm",
+      "sha256": "64507b7c6eacc2a94dfaf43d44b9bf0b434961475491997f38a6d582ee11c3a6"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/task_helper.asm",
+      "sha256": "b5419d8aa6ac4b36fa895b89cde43e34d2e4319acdef15cdf324901b122a8fe3"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/no-cast-binding.json",
+      "sha256": "1fb2a48ec1e47e3498e03c3c32a238c9465406b3418a52c19026532261924a10"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/attack-operand-and-call.asm",
+      "sha256": "1671f82086b7c042115b4540826df79c1dfe216552ba64c6473e46e21b4ca030"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/allocator-final-marker-store.asm",
+      "sha256": "d61d6e565a6af262249d6b4fadc9fff98e732f69095822522e9431b36dcf553c"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/allocator-ground-mode-store.asm",
+      "sha256": "4aaed9037528cd550316280e2aa74494211468abf1d6930c2cdc6cadd027cf98"
+    },
+    {
+      "path": "decomp/research/raid-state33-release/mission2-no-cast-source.json",
+      "sha256": "6cbbfb5092c8dc63ddf85aedc4b7dbb760b9d3800398f45c5c400eb28cb56a54"
+    },
+    {
+      "path": "decomp/research/raid-state33-release/observed-3227.json",
+      "sha256": "89c7db8bcc7969d6094228ad609e84c1c34de3bc5156aad2a9ee42cde27ae941"
+    },
+    {
+      "path": "decomp/research/raid-state33-release/proposal.md",
+      "sha256": "be45a87957518a79c6a16afb77e4def66d9b9f14090bb412c95959046c8fedfd"
+    }
+  ]
+}

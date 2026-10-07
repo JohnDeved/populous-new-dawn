@@ -1,0 +1,56 @@
+{
+  "kind": "Static Mission2 no-cast binding; not an execution result",
+  "script": "app/original-script-two.json",
+  "scriptSha256": "2a3b71e046b4935cfb54fa27c04c84f4b90d6f9b7d92c0471e28c505e4a2f94b",
+  "scriptSource": "cpscr074.dat",
+  "scriptSourceSha256": "03931ad1bc69860177c0a0d7d850db46b268683bf95b274926e18fe1f8a5d9db",
+  "attacks": [
+    {
+      "opcodeIndex": 680,
+      "opcode": 1059,
+      "args": [
+        1118,
+        24,
+        1071,
+        127,
+        114,
+        28,
+        28,
+        68,
+        1078,
+        1,
+        32,
+        32,
+        32
+      ]
+    },
+    {
+      "opcodeIndex": 740,
+      "opcode": 1059,
+      "args": [
+        1118,
+        22,
+        1071,
+        127,
+        114,
+        28,
+        28,
+        68,
+        1078,
+        1,
+        32,
+        32,
+        32
+      ]
+    }
+  ],
+  "literalField32": [
+    0,
+    -1
+  ],
+  "sourceAssembly": "../raid-phase6-settlement/attack-operand-and-call.asm",
+  "mapping": "The last three field operands are all32, literal -1. The marker operand saved at0048fec0 and pushed at0048feff is allocator argument13. Allocator reads it at004e6304 and stores low byte at004e6326: ESI bias -54 plus0x65 equals task+0x2f. Thus the Mission2 task sentinel is0xff; the final argument14 also -1 is distinct.",
+  "branch": "004cb400 phase6 supplies helper argument7=1 at004cb8be. 004d14f0 tests task+0x2f at004d156c and branches over spell/world block to004d1759 when0xff.",
+  "groundMode": "ATTACK operand9=1078 sets normal ground mode0 via0048ff3c/0048ff0a and004e6291 (same static route as existing no-cast-binding).",
+  "notClaimed": "No original script VM/allocator execution; no original full-game mission capture."
+}
