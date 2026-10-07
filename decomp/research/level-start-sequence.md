@@ -95,3 +95,13 @@ Pending final acceptance: revised legacy fixture checks, local Linux HeadlessShe
 frames on the exact integrated commit and fresh review. Existing world allocation,
 terrain-notification batching, restored camera persistence and original-palette browser blend
 limits are not upgraded to native whole-game equivalence by these helper checks.
+
+## 2026-10-07: burst-angle composition correction under review
+
+The [startup burst source audit](../../references/verification/startup-burst-angle-ownership-2026-10-07/README.md)
+traces command18 through carrier arrival and stone creation to default effect9.
+Its second gameplay draw belongs to pitch at `+0x59`; its third belongs to yaw at
+`+0x57`, as consumed by the actual directed physics. The old level-start probe
+labeled those offsets oppositely and therefore did not certify composition with
+SpellTrail. Existing32 birth and139 scheduled visit records now provide an
+independent raw-byte oracle. Application correction and acceptance remain pending.
