@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { bindGame, showAllMissions, waitForShamanReadiness } from '../browser-game.mjs'
+import { showAllMissions, waitForShamanReadiness } from '../browser-game.mjs'
 
 export default async function startupBurst({ page, output, signal, receipt }) {
   const report = { status: 'running', method: 'Public Mission1 and Skip; ordinary elapsed RAF, passive actual-render PNGs. No injected world, seed, effect, speed or frame clock.' }
@@ -21,29 +21,33 @@ export default async function startupBurst({ page, output, signal, receipt }) {
   }
   try {
     signal.throwIfAborted()
-    // openMission also delivers Skip and waits for input readiness; install first
-    // so the transient burst remains observable on slow or fast render schedules.
+    // Compile only the pure observer while still at the menu, then discover the
+    // scene at canvas insertion instead of waiting through bindGame's RAF polls.
     await showAllMissions(page)
-    await page.getByRole('button', { name: 'Mission 1', exact: true }).focus()
-    await page.keyboard.press('Enter')
-    await bindGame(page)
-    report.initial = await page.evaluate(async () => {
-      const scene = window.testSceneRef.current, world = scene.world
-      if (world.outcome.level !== 1 || world.turn >= 30 || world.speed !== 1 || world.paused)
-        throw new Error('Ordinary Mission1 startup has already passed the bounded before-frame window')
-      const { observeStartupBurstFrames } = await import('/scripts/local-render/startup-burst-observer.mjs')
-      const gl = scene.renderer.getContext(), debug = gl.getExtension('WEBGL_debug_renderer_info')
-      const initial = { turn: world.turn, speed: world.speed, viewport: [innerWidth, innerHeight], dpr: devicePixelRatio,
-        canvas: [gl.drawingBufferWidth, gl.drawingBufferHeight], webglVersion: gl.getParameter(gl.VERSION),
-        renderer: debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER), contextLost: gl.isContextLost() }
-      window.startupBurstFrames = observeStartupBurstFrames(scene)
-      return initial
+    await page.evaluate(async () => {
+      const { armStartupBurstFrames } = await import('/scripts/local-render/startup-burst-observer.mjs')
+      window.startupBurstFrames = armStartupBurstFrames()
     })
     armed = true
+    report.phase = 'armed-before-Mission1'
     save()
-    assert.equal(report.initial.contextLost, false)
-    await page.waitForFunction(() => window.startupBurstFrames.status().before, undefined, { timeout: 10000 })
+    await page.getByRole('button', { name: 'Mission 1', exact: true }).focus()
+    await page.keyboard.press('Enter')
     await page.locator('.skip-introduction').click({ noWaitAfter: true })
+    report.skip = 'one delivered public click'
+    report.initial = await page.evaluate(() => {
+      const status = window.startupBurstFrames.status()
+      const scene = window.testSceneRef?.current
+      if (!status.installed || !scene) return status
+      const gl = scene.renderer.getContext(), debug = gl.getExtension('WEBGL_debug_renderer_info')
+      return { ...status, viewport: [innerWidth, innerHeight], dpr: devicePixelRatio,
+        canvas: [gl.drawingBufferWidth, gl.drawingBufferHeight], webglVersion: gl.getParameter(gl.VERSION),
+        renderer: debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER), contextLost: gl.isContextLost() }
+    })
+    save()
+    assert.equal(report.initial.installed, true, JSON.stringify(report.initial))
+    assert.deepEqual(report.initial.errors, [])
+    assert.equal(report.initial.contextLost, false)
     await page.waitForFunction(() => {
       const observed = window.startupBurstFrames.status()
       if (observed.errors.length) throw new Error(observed.errors.join('\n'))

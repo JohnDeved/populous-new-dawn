@@ -1,22 +1,26 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { observeStartupBurstFrames } from '../scripts/local-render/startup-burst-observer.mjs'
+import { observeStartupBurstFrames, armStartupBurstFrames } from '../scripts/local-render/startup-burst-observer.mjs'
 
 function fixture(original, own = false, readback = () => 'data:image/png;base64,AA==') {
   const prototype = { render: original }, renderer = Object.create(prototype)
   if (own) Object.defineProperty(renderer, 'render', { value: original, writable: true, configurable: true, enumerable: false })
   renderer.info = { render: { frame: 9 } }
-  renderer.domElement = { toDataURL: readback }
+  renderer.domElement = { toDataURL: readback, isConnected: true }
   const world = {
     levelStart: [{ tribe: 0, phase: 0, timer: 0, counter: 0, stoneTurns: Array(8).fill(null) }], effects: [],
     turn: 10, speed: 1, paused: false, cosmeticRandom: { randomState: 123 }, randomState: 456,
   }
   const scene = { world, renderer, scene: {}, camera: {} }
   const previous = Object.getOwnPropertyDescriptor(globalThis, 'window')
+  const previousDocument = Object.getOwnPropertyDescriptor(globalThis, 'document')
+  globalThis.document = { querySelector: () => null }
   globalThis.window = { testSceneRef: { current: scene }, testStore: { getWorld: () => world } }
   return { scene, renderer, world, restoreWindow() {
     if (previous) Object.defineProperty(globalThis, 'window', previous)
     else delete globalThis.window
+    if (previousDocument) Object.defineProperty(globalThis, 'document', previousDocument)
+    else delete globalThis.document
   } }
 }
 
@@ -115,4 +119,113 @@ test('three captures use the actual same-call state and wait for a moved burst p
     assert.equal(observer.read().records.length, 4)
     assert.deepEqual(observer.read().errors, [])
   } finally { observer.close(); f.restoreWindow() }
+})
+
+
+function discoveryFixture(f) {
+  const previousDocument = Object.getOwnPropertyDescriptor(globalThis, 'document')
+  const previousObserver = Object.getOwnPropertyDescriptor(globalThis, 'MutationObserver')
+  const ref = { current: f.scene }, main = { __reactFiberTest: {
+    memoizedState: { memoizedState: ref, next: { memoizedState: window.testStore } },
+  } }
+  let callback, connected = false, disconnects = 0, loading = true
+  f.world.outcome = { level: 1 }
+  f.scene.started = false
+  f.scene.unitMeshes = new Map()
+  f.renderer.domElement.isConnected = false
+  globalThis.document = { documentElement: {}, querySelector: selector => selector === 'main' ? main : loading ? {} : null }
+  globalThis.MutationObserver = class {
+    constructor(fn) { callback = fn }
+    observe(target, options) { assert.equal(target, document.documentElement); assert.deepEqual(options, { childList: true, subtree: true }); connected = true }
+    disconnect() { connected = false; disconnects++ }
+  }
+  return { ref, setLoading: value => { loading = value }, notify: () => callback(), connected: () => connected, disconnects: () => disconnects,
+    restore() {
+      if (previousDocument) Object.defineProperty(globalThis, 'document', previousDocument)
+      else delete globalThis.document
+      if (previousObserver) Object.defineProperty(globalThis, 'MutationObserver', previousObserver)
+      else delete globalThis.MutationObserver
+    } }
+}
+
+test('pre-Mission discovery binds the owned loading scene without starting or drawing it', () => {
+  let calls = 0
+  const f = fixture(() => { calls++ }), discovery = discoveryFixture(f)
+  let observer
+  try {
+    const before = structuredClone(f.world)
+    observer = armStartupBurstFrames()
+    assert.equal(observer.status().installed, false)
+    assert.equal(discovery.connected(), true)
+    f.renderer.domElement.isConnected = true
+    discovery.notify()
+    assert.equal(observer.status().installed, true)
+    assert.deepEqual(observer.status().installation, { level: 1, turn: 10, speed: 1, paused: false, started: false, loading: true, canvasConnected: true, rendererFrame: 9 })
+    assert.equal(calls, 0)
+    assert.deepEqual(f.world, before)
+    assert.equal(discovery.connected(), false)
+    f.renderer.render(f.scene.scene, f.scene.camera)
+    assert.equal(calls, 1)
+    assert.equal(observer.status().before, true)
+    const sample = observer.read().frames.before.sample
+    assert.equal(sample.loadingOverlay, true)
+    assert.equal(sample.canvasConnected, true)
+    assert.equal(sample.presented, false, 'a loading-covered draw is not labelled as presented')
+  } finally { observer?.close(); discovery.restore(); f.restoreWindow() }
+})
+
+test('pre-Mission discovery retains failed guard facts without installing or changing the world', () => {
+  const f = fixture(() => {}), discovery = discoveryFixture(f)
+  let observer
+  try {
+    f.world.turn = 38
+    f.renderer.domElement.isConnected = true
+    const original = f.renderer.render, before = structuredClone(f.world)
+    observer = armStartupBurstFrames()
+    assert.equal(observer.status().installed, false)
+    assert.equal(observer.read().installation.turn, 38)
+    assert.equal(observer.read().installation.loading, true)
+    assert.match(observer.read().errors[0], /Startup installation preconditions/)
+    assert.equal(discovery.connected(), false)
+    assert.equal(f.renderer.render, original)
+    assert.deepEqual(f.world, before)
+  } finally { observer?.close(); discovery.restore(); f.restoreWindow() }
+})
+
+test('closing an unbound pre-Mission observer disconnects discovery and prevents later capture', () => {
+  const f = fixture(() => {}), discovery = discoveryFixture(f)
+  let observer
+  try {
+    const original = f.renderer.render
+    observer = armStartupBurstFrames()
+    observer.close()
+    f.renderer.domElement.isConnected = true
+    discovery.notify()
+    assert.equal(observer.status().installed, false)
+    assert.equal(discovery.connected(), false)
+    assert.equal(f.renderer.render, original)
+  } finally { observer?.close(); discovery.restore(); f.restoreWindow() }
+})
+
+
+test('pre-Mission discovery waits for matching refs after the first canvas mutation', () => {
+  const f = fixture(() => {}), discovery = discoveryFixture(f)
+  let observer
+  try {
+    observer = armStartupBurstFrames()
+    f.renderer.domElement.isConnected = true
+    discovery.ref.current = null
+    discovery.notify()
+    assert.equal(observer.status().installed, false)
+    assert.equal(observer.read().installation, null)
+    assert.equal(discovery.connected(), true)
+    discovery.ref.current = f.scene
+    discovery.setLoading(false)
+    discovery.notify()
+    assert.equal(observer.status().installed, true)
+    assert.equal(observer.read().installation.loading, false)
+    assert.equal(discovery.connected(), false)
+    f.renderer.render(f.scene.scene, f.scene.camera)
+    assert.equal(observer.read().frames.before.sample.presented, true)
+  } finally { observer?.close(); discovery.restore(); f.restoreWindow() }
 })
