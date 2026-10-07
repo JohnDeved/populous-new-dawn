@@ -129,3 +129,9 @@ add a before/birth/first-moved/completion sequence. They pass on exact observer
 source `1b7b231c`, exit0 in0.3s; raw output and four unchanged source hashes are
 retained in `observer-contracts.json`. Native height limitations remain unchanged. No browser execution or shared dependency ownership is granted by
 freezing this source; source review and coordinator release still precede a run.
+
+Source review tightened the observer at `ba911fae`: explicit `new Error`, one
+Skip delivery with `noWaitAfter:true`, and no particles of any age in the
+completed frame. The added age-zero-tail negative case passes with the same
+five observer contracts; `observer-contracts-02.json` retains the exact result.
+The original contract receipt remains preserved.
