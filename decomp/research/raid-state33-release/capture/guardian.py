@@ -51,8 +51,12 @@ if mode == '--source-preflight':
 output.mkdir()
 child = None
 started = time.monotonic()
+term_deadline = started + limits['termSeconds']
+kill_deadline = term_deadline + limits['killGraceSeconds']
+cleanup_deadline = None
 receipt = dict(sourceHead=head, manifestSha256=manifest_sha, command=command, cpu=[cpu],
                limits=limits, startedAt=datetime.datetime.now(datetime.timezone.utc).isoformat(),
+               termDeadlineMonotonic=term_deadline, killDeadlineMonotonic=kill_deadline,
                peakAggregateRssBytes=0, outputBytes=0, cleanupSignals=[], status='running')
 def process_info(pid):
     try:
@@ -83,9 +87,12 @@ def signal_owned(sig):
             pass
 
 def cleanup():
+    global cleanup_deadline
+    if cleanup_deadline is None:
+        cleanup_deadline = min(kill_deadline, time.monotonic() + limits['killGraceSeconds'])
+        receipt['cleanupDeadlineMonotonic'] = cleanup_deadline
     signal_owned(signal.SIGTERM)
-    end = time.monotonic() + limits['killGraceSeconds']
-    while group_members() and time.monotonic() < end:
+    while group_members() and time.monotonic() < cleanup_deadline:
         time.sleep(limits['sampleSeconds'])
     signal_owned(signal.SIGKILL)
     if child:
@@ -100,6 +107,31 @@ for sig in (signal.SIGTERM, signal.SIGINT):
 def child_limits():
     os.sched_setaffinity(0, {cpu})
     resource.setrlimit(resource.RLIMIT_FSIZE, (limits['outputBytes'], limits['outputBytes']))
+
+def postflight():
+    checks = []
+    for name, args, expected in [
+        ('head', ['rev-parse', 'HEAD'], head),
+        ('cleanStatus', ['status', '--porcelain'], ''),
+        ('appTree', ['rev-parse', 'HEAD:app'], manifest['runtimeAppTree']),
+        ('runtimeDiff', ['diff', manifest['runtimeHead'], '--', 'app', 'tests/mission2-raid.test.mjs'], ''),
+    ]:
+        try:
+            actual = git(*args)
+            checks.append(dict(name=name, expected=expected, actual=actual, passed=actual == expected))
+        except Exception as error:
+            checks.append(dict(name=name, passed=False, error=str(error)))
+    inputs = [('file', root / item['path'], item['sha256']) for item in manifest['files']]
+    inputs += [('tool', Path(item['path']), item['sha256']) for item in manifest['tools']]
+    inputs.append(('manifest', folder / 'launch-manifest.json', manifest_sha))
+    for kind, path, expected in inputs:
+        try:
+            actual = hashlib.sha256(path.read_bytes()).hexdigest()
+            checks.append(dict(kind=kind, path=str(path), expected=expected,
+                               actual=actual, passed=actual == expected))
+        except Exception as error:
+            checks.append(dict(kind=kind, path=str(path), passed=False, error=str(error)))
+    return dict(passed=all(check['passed'] for check in checks), checks=checks)
 
 environment = {key: value for key, value in os.environ.items() if key not in
                ['NODE_OPTIONS', 'NODE_PATH', 'PYTHONPATH', 'PYTHONOPTIMIZE', 'LD_PRELOAD', 'LD_LIBRARY_PATH']}
@@ -119,8 +151,8 @@ try:
             receipt['peakAggregateRssBytes'] = max(receipt['peakAggregateRssBytes'], rss)
             receipt['outputBytes'] = size
             failure = ('rss-cap' if rss > limits['aggregateRssBytes'] else
-                       'output-cap' if size > limits['outputBytes'] - 65536 else
-                       'time-cap' if time.monotonic() - started >= limits['termSeconds'] else None)
+                       'output-cap' if size > limits['outputBytes'] - 262144 else
+                       'time-cap' if time.monotonic() >= term_deadline else None)
             if failure:
                 receipt['status'] = failure
                 cleanup()
@@ -135,12 +167,17 @@ finally:
     receipt.update(remainingProcessGroupMembers=remaining, resourcesReleased=not remaining,
                    elapsedSeconds=time.monotonic() - started,
                    finishedAt=datetime.datetime.now(datetime.timezone.utc).isoformat())
+    receipt['postflight'] = postflight()
+    if not receipt['postflight']['passed']:
+        receipt['status'] = 'source-changed'
     receipt['outputBytes'] = sum(path.stat().st_size for path in output.iterdir() if path.is_file())
     receipt['outputs'] = [dict(path=path.name, bytes=path.stat().st_size,
                                sha256=hashlib.sha256(path.read_bytes()).hexdigest())
                           for path in sorted(output.iterdir()) if path.is_file()]
-    if receipt['outputBytes'] > limits['outputBytes'] - 65536:
+    if receipt['outputBytes'] > limits['outputBytes'] - 262144:
         receipt['status'] = 'output-cap'
-    (output / 'cleanup.json').write_text(json.dumps(receipt, indent=2) + '\n')
+    terminal = json.dumps(receipt, indent=2) + '\n'
+    assert receipt['outputBytes'] + len(terminal.encode()) <= limits['outputBytes'], 'Terminal receipt output cap'
+    (output / 'cleanup.json').write_text(terminal)
 print(json.dumps(receipt))
 sys.exit(0 if receipt['status'] == 'child-finished' and receipt['resourcesReleased'] else 1)

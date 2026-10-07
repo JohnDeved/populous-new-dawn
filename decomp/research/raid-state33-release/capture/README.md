@@ -42,10 +42,15 @@ no package or network code is imported. No original executable is read or execut
 One owned process group inherits exactly the granted CPU. RSS of the Node group
 plus Python supervisor and total output size are sampled every50ms; breach fails
 and terminates the group. A768MiB V8 heap limit and8MiB per-file RLIMIT_FSIZE backstop
-the1GiB aggregate RSS/8MiB output caps. Snapshot itself is capped at7MiB before any
+the1GiB aggregate RSS/8MiB output caps. A256KiB terminal-receipt reserve is
+checked by the output monitor. Snapshot itself is capped at7MiB before any
 write, reserving report/receipt space. The supervisor enforces TERM120s/KILL10s,
+anchors termination to absolute start+120/start+130 deadlines (an earlier cap
+breach starts at most one shorter grace, never reset in final cleanup), and
 retains PID/group/start-tick identity, exact command, peak sampled RSS, raw stdout/
-stderr, file hashes and final empty-group cleanup. Any cap breach is failure;
+stderr, file hashes and final empty-group cleanup. Postflight rechecks exact HEAD,
+clean status, app/test identity, every input/tool hash and the launch manifest;
+any drift fails the source-bound result and is retained in the terminal receipt. Any cap breach is failure;
 this is sampled enforcement, not a claim of an instantaneous kernel aggregate cap.
 
 Source preparation (already run, no simulation):
