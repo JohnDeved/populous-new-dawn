@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "723149b0-4076-4c50-8d9b-fb39eabdaefa",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "1eee0458be159a829e3c993c448358f15169d03b",
+    "branch": "fix/hut-smoke-ignition-state-exit-20261007",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package.json": "75177ce9ebe6a221ecb1e4e3c35c2697ed92882a6924577d8892f03538f7e51c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/final-quality-02/source-before.json.gz": "1147e3ee752736879ef4a2c8b7ce5552286f4a9a81429fdf34c020c3c763b55d",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/host-final-quality-02.py": "da8d7233793924e4599cd26d32f47486801c7e930eab19c229c949e0ca79685c"
+    }
+  },
+  "command": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=5s",
+    "60s",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/npm",
+    "run",
+    "format:check"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007",
+  "startedAt": "2026-10-07T00:16:32.397Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/final-quality-02/format-command.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/final-quality-02/format-command.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-07T00:16:32.691Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 format:check\n> oxfmt --check \"app/**/*.{ts,tsx}\"\n\nChecking formatting...\n\napp/hut-smoke-runtime.ts (0ms)\napp/render-view.ts (2ms)\napp/viewport-bounds.ts (0ms)\n\nFormat issues found in above 3 files. Run without `--check` to fix.\nFinished in 55ms on 244 files using 4 threads.\n",
+  "stderr": "",
+  "stdoutSha256": "fdb509200f20357e8d28fcc2731ae64c46c8bed3c3e6e321aa63a3d8ec7e3110",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "1eee0458be159a829e3c993c448358f15169d03b",
+    "branch": "fix/hut-smoke-ignition-state-exit-20261007",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package.json": "75177ce9ebe6a221ecb1e4e3c35c2697ed92882a6924577d8892f03538f7e51c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/final-quality-02/source-before.json.gz": "1147e3ee752736879ef4a2c8b7ce5552286f4a9a81429fdf34c020c3c763b55d",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/host-final-quality-02.py": "da8d7233793924e4599cd26d32f47486801c7e930eab19c229c949e0ca79685c"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "status": "failed",
+  "classification": "launcher-only before dependency transfer or npm execution",
+  "terminalObservedAt": "2026-10-07T00:13:52.508398+00:00",
+  "exitCode": 1,
+  "error": "TypeError: keys must be str, int, float, bool or None, not PosixPath",
+  "sourceHead": "a701465361070036fd6493de623b04d3d7d23086",
+  "sourceHostSha256": "acdfaac648dab1e9eb6dac00509bf2208d350e40fb587a44a91e1c06aba0d498",
+  "packageCommandsStarted": false,
+  "dependenciesMoved": false,
+  "donorIdentity": [
+    27,
+    1978923
+  ],
+  "localStubIdentity": [
+    27,
+    820460
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "status": "failed",
+  "output": "work/orchestration/hut-smoke-state-exit/final-quality-02/lint-command.json",
+  "headOid": "1eee0458be159a829e3c993c448358f15169d03b",
+  "exitCode": 1,
+  "stdoutSha256": "c59098f8ef8987635c634f08323742e9722cb47f424c6c0fb6790cb7e8b503e3",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}
