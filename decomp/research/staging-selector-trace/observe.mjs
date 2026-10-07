@@ -125,6 +125,7 @@ export function finish(w, error, tickCalls) {
     tickCalls, cap: 12000, baseWrites, raidVisits: calls, rows, bytes, firstStaging: complete,
     originalSha256, transformedSha256,
     limits: ['No original/native execution or ordinary browser claim', 'Later return branches and attack/combat assertions unrun',
+      'First selected tick stops immediately after its return; any remaining opening commands/assertions are unrun',
       'A missing established base at first staging remains an unmet prerequisite; no scenario extension'] }
   writeFileSync(`${output}/result.json`, JSON.stringify(result, null, 2) + '\n', { flag: 'wx' })
   return result

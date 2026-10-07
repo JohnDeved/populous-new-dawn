@@ -25,6 +25,9 @@ is recorded as an unmet prerequisite; do not continue to seek another convenient
 raid. A prerequisite failure, authored end state or turn cap is a failed/bounded
 diagnostic, with no retry or extended scenario. Later maintained attack/combat
 assertions and return branches are explicitly unrun.
+The tick bridge raises a dedicated completion signal after that tick returns,
+even if the maintained opening is still in an earlier wait. No later player
+command or prerequisite assertion then runs. Their unrun status is preserved.
 
 ## Passive observations and source boundary
 

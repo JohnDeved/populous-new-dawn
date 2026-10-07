@@ -5,6 +5,7 @@ import { output, install, initialize, completed, finish } from './observe.mjs'
 assert.equal(process.env.PND_STAGING_TRACE, '1')
 for (const name of ['trace.jsonl', 'result.json']) assert.equal(existsSync(`${output}/${name}`), false)
 const hooks = install()
+const completedTick = Symbol('first selected production tick completed')
 let world, tickCalls = 0, failure = null
 try {
   const { tick: actualTick } = await import('../../../app/model.ts')
@@ -22,13 +23,14 @@ try {
       assert.ok(tickCalls < 12000, '12,000 fixed-turn call bound reached; no extension')
       tickCalls++
       actualTick(w, dt)
+      if (completed()) throw completedTick
       assert.equal(w.status, 'playing', 'authored outcome ended before selected boundary')
     },
     completed,
   })
   assert.ok(completed())
 } catch (error) {
-  failure = error
+  if (error !== completedTick) failure = error
 } finally {
   const result = finish(world, failure, tickCalls)
   hooks.deregister()
