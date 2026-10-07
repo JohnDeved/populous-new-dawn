@@ -257,9 +257,13 @@ export function adoptLiveOrders(w: World, u: Unit, p: LivePerson) {
 // Player clicks append to the same eight-slot queues used by simulation.
 export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, replace: boolean) {
   let count = 0
+  const bindings = units.map(unit => ({
+    unit,
+    person: personSource(unit),
+    retained: !!(unit.flight || unit.fight?.motion),
+  }))
   const preachers = replace
-    ? units.flatMap(u => {
-        const p = u.native ?? u.entry?.person ?? u.builder?.person
+    ? bindings.flatMap(({ person: p }) => {
         return p && [17, 31, 32].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0)
           ? [p]
           : []
@@ -268,9 +272,11 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
   const accepted = appendPersonOrders(
     w.buildingOrders,
     command,
-    units.map(u => {
-      const p = u.native ?? u.entry?.person ?? u.builder?.person ?? createLivePerson(w, u)
-      if (!u.entry) u.native = p
+    bindings.map(binding => {
+      const { unit: u, retained } = binding
+      binding.person ??= createLivePerson(w, u)
+      const p = binding.person
+      if (!retained && !u.entry) u.native = p
       p.selectionFlags |= 128
       registerLivePerson(w, p)
       return p
@@ -327,12 +333,12 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
   for (const p of accepted ? preachers : [])
     if (![17, 31, 32].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0))
       releasePreacherVictims(w, p, p.commandAux || 3)
-  for (const u of units) {
-    const p = (u.native ?? u.entry?.person ?? u.builder?.person)!
+  for (const { unit: u, person, retained } of bindings) {
+    const p = person!
     if (!accepted && preachers.includes(p)) continue
     // 0x43b670 only replaces and attaches command 28; keep direct-target motion intact.
     if (command.model === 28) {
-      adoptLiveOrders(w, u, p)
+      if (!retained) adoptLiveOrders(w, u, p)
       continue
     }
     if (p.state === 25 || p.state === 29) continue
@@ -341,8 +347,8 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
     p.previousState = p.state === 14 ? 14 : 0
     p.state = defaultPersonState(p, w.manaWorld.gameFlags)
     if (u.entry) initializeBuildingPerson(w, p)
-    else changeLivePersonState(w, u)
-    adoptLiveOrders(w, u, p)
+    else changeLivePersonState(w, u, undefined, p)
+    if (!retained) adoptLiveOrders(w, u, p)
     if (accepted && command.model === 17) {
       releasePersonRoute(w.motionRoutes, p)
       clearLivePath(w, u)

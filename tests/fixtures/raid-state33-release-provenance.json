@@ -1,0 +1,7 @@
+{
+  "sourcePair": "0a71e4092cad3ef6319b2fc0f4a7c0eb79a1a189",
+  "evidence": "e050ec6a7964fa9568b7a11301bbfe788923dc4e",
+  "captureSha256": "389ce3174fd613bb7841502ee737301a3e131451022ad8b7152f1613fa316562",
+  "resultReviewSha256": "2ef1167df1ddf7330282625f7dd03b830e2c1824b29a4ed21138aedb3cc6d4d7",
+  "scope": "One observed Mission2 turn3227 state33/sub3; actual port+af0 and absent Unit.nativeFlags7f retained; native+af2/+7f0 explicit supplies. Full original mission history not established."
+}
