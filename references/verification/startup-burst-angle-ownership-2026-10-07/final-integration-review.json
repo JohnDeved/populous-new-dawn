@@ -1,0 +1,62 @@
+{
+  "verdict": "ACCEPT_FOR_REVIEWED_PR_MERGE",
+  "source": "8592c0049b720f568630db42d1b9b602a000b0b4",
+  "base": "7c0bcdb246023ff4263b4baeddf5a84f7f90a7a0",
+  "reviewedAt": "2026-10-07T02:23:47.268383+00:00",
+  "outerReceiptSha256": "bf5e38ac732334aaff5925eabb3df77dbc0ed150ddbc8f50029a787cb21e38c8",
+  "receipts": {
+    "work/orchestration/startup-burst-final-gates-host-03/command-receipt.json": {
+      "sha256": "a00d184d5674c8a976bb444edd7e75cae36cb505f5160014b2e5fe9eb2755e17",
+      "status": "passed",
+      "exitCode": 0
+    },
+    "work/orchestration/startup-burst-final-gates-03/format-scoped.json": {
+      "sha256": "ad6066f6b3ee10c42e3d0f7969b3631937b5eba78ebd2ccce8133b8c2a727f8f",
+      "status": "passed",
+      "exitCode": 0
+    },
+    "work/orchestration/startup-burst-final-gates-03/eslint-scoped.json": {
+      "sha256": "11665a0b33d4540fbf437c46670a41b4a364907e4de2f51dd07883ffdff2abe4",
+      "status": "passed",
+      "exitCode": 0
+    },
+    "work/orchestration/startup-burst-final-gates-03/oxlint-scoped.json": {
+      "sha256": "847b47be503010736d3685f9f87c08e2f1ec508b390963a584d340ad63908376",
+      "status": "passed",
+      "exitCode": 0
+    },
+    "work/orchestration/startup-burst-final-gates-03/fallow-health.json": {
+      "sha256": "6fe5eb9c3e2992e38a6f971371d08332e39e659099237078e3b8b8b4e84c65c6",
+      "status": "passed",
+      "exitCode": 0
+    },
+    "work/orchestration/startup-burst-final-gates-03/fallow-dupes.json": {
+      "sha256": "6f12ff67e6ec4f62939fe57f8a4208ba8956b155133d077707c4554eb9296794",
+      "status": "passed",
+      "exitCode": 0
+    },
+    "work/orchestration/startup-burst-final-gates-03/fallow-unused.json": {
+      "sha256": "730126e2ffdcd19bf4b56685b63d660b9392b73aa9dbab3e8ca345967e65ae0e",
+      "status": "failed",
+      "exitCode": 1
+    },
+    "work/orchestration/startup-burst-final-gates-03/check.json": {
+      "sha256": "6a19b2cabba76d99471332c9f17630ff2c0f1cac5eb1b83bca3e2e19eb26d614",
+      "status": "passed",
+      "exitCode": 0
+    },
+    "work/orchestration/startup-burst-final-gates-03/build.json": {
+      "sha256": "8b61e20068e502455d39a1f2aea27a6e82aad5b23b16c2091633514fa3b8250c",
+      "status": "passed",
+      "exitCode": 0
+    }
+  },
+  "finding": "Final clean integration preserves accepted native32-birth/139-visit and1024 actual-caller angle coverage and ordinary before/after source correspondence. Final source-only finally fix and compact identical-test alias independently accepted; original24k context/evidence assertion passes. Full1388/1388/typecheck/parity/orchestration plus5-phase build pass. Scoped format/ESLint/Oxlint pass. All raw streams, declared inputs, whole dependency inventories, source/tool equality, owned cleanup and exact Fallow-marker restoration verified.",
+  "limits": [
+    "Oxlint27 introduced style warnings and Fallow findings remain disclosed; unused exits1 advisory, not a clean result.",
+    "First lint/context/cache failures are retained; historical528-byte marker contents are unavailable and are not reconstructed.",
+    "Ordinary presented turns39/70 are browser witnesses; initial0 frame is hidden/loading.52 matched observed turns are sampled consistency, not full-world equality.",
+    "Native probe field-label correction is not a newly executed160-case claim. Root-height issue252, full original raster/performance/gameplay parity and returning-Shaman allocation remain outside scope.",
+    "Evidence-only PR251 remains preserved and may be superseded only after PR253 merge."
+  ]
+}
