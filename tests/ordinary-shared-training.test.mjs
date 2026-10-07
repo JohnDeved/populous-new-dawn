@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { trainingObservation, assertSharedTraining, trainingOwnersToReassign } from '../scripts/local-render/ordinary-shared-training.mjs'
+import { trainingObservation, assertSharedTraining, trainingOwnersToReassign, assertCheckpointTraining, assertTrainingReleased } from '../scripts/local-render/ordinary-shared-training.mjs'
 
 // Observer/assertion tests only. These supplied objects are never browser input.
 function fixture(t) {
@@ -39,6 +39,7 @@ test('a structured checkpoint boundary retains exact ownership and aliases', t =
   window.trainingLoadedWorld = structuredClone(window.trainingSavedWorld)
   assert.deepEqual(f.read('loaded'), f.read('saved'))
   assert.equal(assertSharedTraining(f.read('loaded'), [1, 2], 10), 1)
+  assert.deepEqual(assertCheckpointTraining(f.read('saved'), [1, 2], 10, 1), [1, 2])
   window.trainingLoadedWorld.buildingOrders.records[1].references = 1
   assert.notDeepEqual(f.read('loaded'), f.read('saved'))
 })
@@ -52,6 +53,7 @@ test('later converted identities do not invalidate the exact earlier checkpoint 
   f.world.buildingOrders.records[1].references = 1
   assert.deepEqual(f.read('loaded'), f.read('saved'))
   assert.deepEqual(trainingOwnersToReassign(f.read(), [1, 2], 10, 1), [1])
+  assert.throws(() => assertCheckpointTraining(f.read(), [1, 2], 10, 1), /must contain shared training/)
   f.world.buildingOrders.records[1].references = 2
   assert.throws(() => trainingOwnersToReassign(f.read(), [1, 2], 10, 1))
 })
@@ -61,4 +63,21 @@ test('reassignment refuses lost owners, replacement actors and unexplained refer
   assert.throws(() => trainingOwnersToReassign(observed, [1], 10, 1), /Never substitute/)
   assert.throws(() => trainingOwnersToReassign({ ...observed, trackedOwners: [1, 2, 3] }, [1, 2], 10, 1))
   assert.throws(() => trainingOwnersToReassign({ ...observed, members: [{ id: 1, absent: true }, { id: 2, absent: true }] }, [1, 2], 10, 1), /No original training owner/)
+})
+
+test('release rejects a stale entry even when it is not the registered person', t => {
+  const f = fixture(t)
+  f.world.buildingOrders.records[1].references = 0
+  f.world.buildingOrders.records[2] = { model: 3, references: 2 }
+  for (const u of f.world.units) {
+    const p = f.world.objectCells.objects.get(u.id)
+    u.entry.person = structuredClone(p)
+    p.commands[0] = 2
+    u.native = p
+    u.work = null
+  }
+  assert.equal(f.read().members[0].aliases.entry, false)
+  assert.throws(() => assertTrainingReleased(f.read(), 10, 1), /No stale entry/)
+  for (const u of f.world.units) delete u.entry
+  assert.doesNotThrow(() => assertTrainingReleased(f.read(), 10, 1))
 })

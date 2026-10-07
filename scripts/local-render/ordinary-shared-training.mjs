@@ -17,7 +17,7 @@ export function trainingObservation({ source = 'live', ids = [], school = null, 
     if (!u) return { id, absent: true }
     const current = p && (p.immediateCommand || p.commands[p.commandCursor])
     return { id, kind: u.kind, team: u.team, hp: u.hp, x: u.x, z: u.z, inside: u.inside, work: u.work,
-      target: u.target, path: structuredClone(u.path), registered: !!p,
+      target: u.target, path: structuredClone(u.path), registered: !!p, entryPresent: !!u.entry,
       aliases: { native: !!p && u.native === p, entry: !!p && u.entry?.person === p,
         builder: !!p && u.builder?.person === p, flight: !!p && u.flight === p,
         fight: !!p && u.fight?.motion === p, entryPool: !!u.entry && u.entry.orders === w.buildingOrders },
@@ -71,6 +71,25 @@ export function trainingOwnersToReassign(snapshot, originalIds, school, order) {
   assert.equal(snapshot.trackedRecord.a, school)
   assert.equal(snapshot.trackedRecord.references, owners.length)
   return owners
+}
+
+export function assertCheckpointTraining(snapshot, originalIds, school, order) {
+  const owners = trainingOwnersToReassign(snapshot, originalIds, school, order)
+  assert.ok(owners.length >= 2, 'The saved checkpoint must contain shared training ownership')
+  assertSharedTraining({ ...snapshot, members: snapshot.members.filter(m => owners.includes(m.id)) }, owners, school, order)
+  return owners
+}
+
+export function assertTrainingReleased(snapshot, school, order) {
+  assert.equal(snapshot.trackedRecord.references, 0)
+  assert.deepEqual(snapshot.trackedOwners, [])
+  for (const member of snapshot.members) {
+    assert.equal(member.entryPresent, false, 'No stale entry adapter may survive reassignment')
+    assert.notEqual(member.work, school)
+    assert.equal(member.registered, true)
+    assert.notEqual(member.current, order)
+    assert.equal(member.record?.model, 3)
+  }
 }
 
 export default async function ({ page, output, receipt, openMission, signal }) {
@@ -233,6 +252,8 @@ export default async function ({ page, output, receipt, openMission, signal }) {
   }
   try {
     await stage('authored-mission3-entry', async () => {
+      assert.equal(receipt.profile?.mode, 'created', 'This route requires a fresh task-owned profile')
+      assert.equal(receipt.profile.checkpointAtStart, null, 'The route starts without a prior save')
       await openMission(3); await waitForShamanReadiness(page)
       const s = await read(); assert.equal(s.level, 3); assert.equal(s.speed, 1)
       originalShaman = s.blue.find(u => u.kind === 'shaman')?.id
@@ -247,7 +268,7 @@ export default async function ({ page, output, receipt, openMission, signal }) {
     await stage('earned-temple-knowledge', async () => {
       const ids = await select('shaman'), vault = (await read()).vault
       assert.ok(vault); await view(vault)
-      const input = await dispatch(await entityHit('shrines', vault.id), 27, ids)
+      const input = await dispatch(await entityHit('shrines', vault.id), 33, ids)
       await wait('vault', null, 180000)
       await select('shaman'); await view({ x: 35, z: 81 })
       const home = await groundHit({ x: 35, z: 81 }); assert.ok(home)
@@ -282,6 +303,7 @@ export default async function ({ page, output, receipt, openMission, signal }) {
       await button('Game settings')
       const menu = page.locator('dialog.game-dialog'); await menu.waitFor({ state: 'visible' })
       const paused = await read({ ids, school, order }); assert.equal(paused.paused, true)
+      const ownersAtSave = assertCheckpointTraining(paused, ids, school, order)
       await button('Save checkpoint'); await waitForSavedCheckpoint(page, paused.turn, signal)
       await page.evaluate(async () => {
         const request = indexedDB.open('populous-new-dawn', 1)
@@ -318,7 +340,7 @@ export default async function ({ page, output, receipt, openMission, signal }) {
       await bindGame(page)
       await wait('turn', saved.turn, 10000)
       await button('Pause game')
-      return { saved, loaded, resumed: await read({ ids, school, order }) }
+      return { ownersAtSave, saved, loaded, resumed: await read({ ids, school, order }) }
     })
     await stage('ordinary-group-reassignment', async () => {
       const before = await read({ ids, school, order })
@@ -342,13 +364,7 @@ export default async function ({ page, output, receipt, openMission, signal }) {
       await button('Resume game')
       const input = await dispatch(hit, 3, owners)
       const after = await read({ source: 'input', ids: owners, school, order })
-      assert.equal(after.trackedRecord.references, 0)
-      assert.deepEqual(after.trackedOwners, [])
-      for (const member of after.members) {
-        assert.equal(member.aliases.entry, false); assert.notEqual(member.work, school)
-        assert.equal(member.registered, true); assert.notEqual(member.current, order)
-        assert.equal(member.record?.model, 3)
-      }
+      assertTrainingReleased(after, school, order)
       await button('Pause game')
       return { before, originalIds: ids, reassignedIds: owners, input, after }
     })
