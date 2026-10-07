@@ -1,0 +1,30 @@
+{
+  "verdict": "ACCEPT clean source correspondence; final gates required",
+  "head": "459c71658ab9de8f586ce85b897a443da0df2bd0",
+  "base": "1c7e6b05687aca14d9350e17c7ae14dc6c68bb97",
+  "files": [
+    "app/hut-smoke-runtime.ts",
+    "app/live-building-combat.ts",
+    "app/spell-effects-runtime.ts",
+    "decomp/README.md",
+    "decomp/research/firewarrior-firing-phase/port.mjs",
+    "decomp/research/hut-smoke-state-exit.md",
+    "decomp/research/hut-smoke-state-exit/class2-root-release.asm.txt",
+    "decomp/research/hut-smoke-state-exit/correspondence.json",
+    "decomp/research/hut-smoke-state-exit/ignition-dispatch.asm.txt",
+    "decomp/research/hut-smoke-state-exit/probe-ignition-root-draft.py",
+    "engineering/project-map.json",
+    "scripts/local-render/hut-smoke-ignition-observer.mjs",
+    "scripts/local-render/hut-smoke-ignition.mjs",
+    "tests/hut-smoke-ignition-observer.test.mjs",
+    "tests/hut-smoke-ignition.test.mjs"
+  ],
+  "checks": [
+    "15-file maintainable integration scope verified; historical packets remain at immutable a701/e303 without source deletion.",
+    "All11 copied source/static artifacts correspond to accepted research/runtime/checker/native tests, except the independently inspected single whitespace line join in hut-smoke-runtime.",
+    "No substantive runtime, checker or test delta since native/focused/ordinary acceptance. Strict Firewarrior whole-file guard rebound; actual9332-byte helper and16 fixture/native/projection/test inputs unchanged.",
+    "Concise report/index headings and local decomp links verified; proof boundaries and four failed ordinary attempts retained by immutable links.",
+    "Final TS quality has no introduced diagnostics versus exactmain baseline; global/scoped failures remain honestly labelled. Four-file maintained JS lint classification remains queued."
+  ],
+  "remaining": "One final check/build on reviewed exact final source; any actionable new JS issue needs the smallest separately reviewed correction."
+}

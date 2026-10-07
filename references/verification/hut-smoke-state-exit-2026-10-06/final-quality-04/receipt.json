@@ -1,0 +1,150 @@
+{
+  "startedAt": "2026-10-07T00:23:26.719575+00:00",
+  "head": "459c71658ab9de8f586ce85b897a443da0df2bd0",
+  "base": "1c7e6b05687aca14d9350e17c7ae14dc6c68bb97",
+  "status": "terminal",
+  "runs": [
+    {
+      "label": "oxlint",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "--max-old-space-size=1024",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/scripts/orchestration/command-receipt.mjs",
+        "--output",
+        "work/orchestration/hut-smoke-state-exit/final-quality-04/oxlint-command.json",
+        "--input",
+        "package.json",
+        "--input",
+        "package-lock.json",
+        "--input",
+        "node_modules/.package-lock.json",
+        "--input",
+        "scripts/orchestration/command-receipt.mjs",
+        "--input",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/final-quality-04/source-before.json.gz",
+        "--input",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/host-final-quality-04.py",
+        "--",
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=5s",
+        "60s",
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "node_modules/oxlint/bin/oxlint",
+        "--format",
+        "json",
+        "scripts/local-render/hut-smoke-ignition.mjs",
+        "scripts/local-render/hut-smoke-ignition-observer.mjs",
+        "tests/hut-smoke-ignition.test.mjs",
+        "tests/hut-smoke-ignition-observer.test.mjs"
+      ],
+      "environment": {
+        "PATH": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/usr/bin:/bin",
+        "LANG": "C.UTF-8",
+        "LC_ALL": "C.UTF-8",
+        "NODE_OPTIONS": "--max-old-space-size=1024",
+        "npm_config_cache": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/final-quality-04/npm-cache",
+        "npm_config_update_notifier": "false",
+        "npm_config_fund": "false",
+        "npm_config_audit": "false"
+      },
+      "startedAt": "2026-10-07T00:23:30.787236+00:00",
+      "session": 16,
+      "endedAt": "2026-10-07T00:23:31.160751+00:00",
+      "exitCode": 1,
+      "status": "failed",
+      "sourceReceiptUnchanged": true,
+      "remainingOwnedProcesses": [],
+      "resourcesReleased": true
+    },
+    {
+      "label": "eslint",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "--max-old-space-size=1024",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/scripts/orchestration/command-receipt.mjs",
+        "--output",
+        "work/orchestration/hut-smoke-state-exit/final-quality-04/eslint-command.json",
+        "--input",
+        "package.json",
+        "--input",
+        "package-lock.json",
+        "--input",
+        "node_modules/.package-lock.json",
+        "--input",
+        "scripts/orchestration/command-receipt.mjs",
+        "--input",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/final-quality-04/source-before.json.gz",
+        "--input",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/host-final-quality-04.py",
+        "--",
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=5s",
+        "60s",
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "node_modules/eslint/bin/eslint.js",
+        "--format",
+        "json",
+        "scripts/local-render/hut-smoke-ignition.mjs",
+        "scripts/local-render/hut-smoke-ignition-observer.mjs",
+        "tests/hut-smoke-ignition.test.mjs",
+        "tests/hut-smoke-ignition-observer.test.mjs"
+      ],
+      "environment": {
+        "PATH": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/usr/bin:/bin",
+        "LANG": "C.UTF-8",
+        "LC_ALL": "C.UTF-8",
+        "NODE_OPTIONS": "--max-old-space-size=1024",
+        "npm_config_cache": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/final-quality-04/npm-cache",
+        "npm_config_update_notifier": "false",
+        "npm_config_fund": "false",
+        "npm_config_audit": "false"
+      },
+      "startedAt": "2026-10-07T00:23:31.161220+00:00",
+      "session": 66,
+      "endedAt": "2026-10-07T00:23:33.708944+00:00",
+      "exitCode": 0,
+      "status": "passed",
+      "sourceReceiptUnchanged": true,
+      "remainingOwnedProcesses": [],
+      "resourcesReleased": true
+    }
+  ],
+  "moves": [
+    {
+      "at": "2026-10-07T00:23:30.786824+00:00",
+      "actualSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-automatic-response-qa-20261006/node_modules",
+      "actualTarget": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/node_modules",
+      "actualIdentity": [
+        27,
+        1978923
+      ],
+      "donorTemporaryStub": [
+        27,
+        1048585
+      ]
+    }
+  ],
+  "returned": true,
+  "hostSha256": "6183f29de1316960ef99cb6e993e72a21cc384cd33bacdfb4c9866f436116ec7",
+  "tools": {
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/npm/bin/npm-cli.js": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+    "/usr/bin/timeout": "6ca1891dfc0b05d7680770c2884c0391b92467c7bb6500a5c84677e6481739f1",
+    "/usr/bin/taskset": "0c34de807bc9c617406360836fca2c7505eb86ede4df5a34854bde6eeddad9f3"
+  },
+  "sourceInventorySha256": "f3401e8a499397aa7d6e4a8f44647a5c5eefc83e8485dba72ea912fc4c77d0f5",
+  "dependencyInventorySha256": "c77ac32df85f210697351d8e65d861452e4a2af18d15bef7db7d5f99cafe86b2",
+  "sourceAfterInventorySha256": "f3401e8a499397aa7d6e4a8f44647a5c5eefc83e8485dba72ea912fc4c77d0f5",
+  "sourceUnchanged": true,
+  "dependenciesAfterInventorySha256": "c77ac32df85f210697351d8e65d861452e4a2af18d15bef7db7d5f99cafe86b2",
+  "dependenciesUnchanged": true,
+  "returnedAt": "2026-10-07T00:23:36.786683+00:00",
+  "returnedIdentity": [
+    27,
+    1978923
+  ],
+  "localPathAbsent": true,
+  "endedAt": "2026-10-07T00:23:36.787385+00:00"
+}

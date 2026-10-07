@@ -1,0 +1,8 @@
+{
+  "status": "failed",
+  "output": "work/orchestration/hut-smoke-state-exit/final-quality-04/oxlint-command.json",
+  "headOid": "459c71658ab9de8f586ce85b897a443da0df2bd0",
+  "exitCode": 1,
+  "stdoutSha256": "bd622cafab9dece8b49e47798f704582d8694d3d49098e788a2d599bea4eff1c",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

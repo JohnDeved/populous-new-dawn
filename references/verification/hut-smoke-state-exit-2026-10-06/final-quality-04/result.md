@@ -1,0 +1,3 @@
+# New maintained JavaScript quality
+
+At clean459c7165 ESLint passes with zero diagnostics. Oxlint fails with20 introduced throw-new-error style errors and113 warnings. Fifty warnings prefer globalThis to explicit browser/test window aliases;63 are other advisory style findings. None are attributed to a pre-existing main file. The narrow proposed repair inserts new at only20 built-in Error constructions across checker, observer and observer contracts; no runtime or acceptance condition changes. Full gates remain unrun pending review of that repair. Exact source/dependencies remain unchanged during the two commands; returned device27/inode1978923 at00:23:36.786683Z, all owned sessions absent.

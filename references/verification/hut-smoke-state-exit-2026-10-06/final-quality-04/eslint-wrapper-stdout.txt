@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "output": "work/orchestration/hut-smoke-state-exit/final-quality-04/eslint-command.json",
+  "headOid": "459c71658ab9de8f586ce85b897a443da0df2bd0",
+  "exitCode": 0,
+  "stdoutSha256": "6f216cf40695fbd312b67812e46762052b2f0d14f470eeaeaaed79add6c55d14",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

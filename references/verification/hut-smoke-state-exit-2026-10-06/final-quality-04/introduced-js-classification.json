@@ -1,0 +1,110 @@
+{
+  "beforeHead": "459c71658ab9de8f586ce85b897a443da0df2bd0",
+  "eslint": {
+    "exitCode": 0,
+    "diagnostics": 0
+  },
+  "oxlint": {
+    "exitCode": 1,
+    "errors": 20,
+    "warnings": 113,
+    "rules": [
+      {
+        "severity": "error",
+        "rule": "unicorn(throw-new-error)",
+        "count": 20
+      },
+      {
+        "severity": "warning",
+        "rule": "eslint(no-nested-ternary)",
+        "count": 8
+      },
+      {
+        "severity": "warning",
+        "rule": "eslint(no-shadow)",
+        "count": 25
+      },
+      {
+        "severity": "warning",
+        "rule": "eslint(prefer-destructuring)",
+        "count": 22
+      },
+      {
+        "severity": "warning",
+        "rule": "eslint(prefer-template)",
+        "count": 1
+      },
+      {
+        "severity": "warning",
+        "rule": "unicorn(consistent-function-scoping)",
+        "count": 3
+      },
+      {
+        "severity": "warning",
+        "rule": "unicorn(no-negated-condition)",
+        "count": 1
+      },
+      {
+        "severity": "warning",
+        "rule": "unicorn(no-nested-ternary)",
+        "count": 3
+      },
+      {
+        "severity": "warning",
+        "rule": "unicorn(prefer-global-this)",
+        "count": 50
+      }
+    ]
+  },
+  "classification": {
+    "throw-new-error": "Introduced actionable style errors: add only new to20 built-in Error constructions used by throws, preserving rejection messages, exception identity and control flow.",
+    "prefer-global-this": "50 warnings on explicit browser window/test realm aliases, identifying the browser realm under evaluate or contract setup.",
+    "remainingWarnings": "63 advisory style warnings on callback-local shadows, destructuring, ternaries, template text and function scoping. They are introduced in new maintained scripts, not pre-existing main diagnostics. No unused variable, unresolved global or invalid operation diagnostic was reported."
+  },
+  "changes": {
+    "scripts/local-render/hut-smoke-ignition-observer.mjs": {
+      "beforeSha256": "8a50fa4bb93b6bb0fb9b927056dacb085049cb2125ebd6bb4db2579ea6f8b735",
+      "afterSha256": "dba34bfd6471f3e92fae64367c801af552a5ac4d4fc1fe5e9dfdc9e36485a2bf",
+      "newKeywordsInserted": 4,
+      "sourceOffsets": [
+        679,
+        818,
+        3501,
+        4408
+      ],
+      "onlyChange": "new keyword before diagnostic Error construction"
+    },
+    "tests/hut-smoke-ignition-observer.test.mjs": {
+      "beforeSha256": "f31df10058cb90c1e581b71d0bb81cf84bb32c089e66601b4024e17d2da1fa3c",
+      "afterSha256": "ff82eadaedb662748fa15463b32bdd93d1d09e02d3b9220a1c35b08dc77b3efc",
+      "newKeywordsInserted": 2,
+      "sourceOffsets": [
+        2506,
+        3436
+      ],
+      "onlyChange": "new keyword before diagnostic Error construction"
+    },
+    "scripts/local-render/hut-smoke-ignition.mjs": {
+      "beforeSha256": "f1128cf3a472a5e939c185871cf61383704f4685958ee2729bbcb44dff47447a",
+      "afterSha256": "f6f4b09e941e2548188a977fdc096f5587801759b9a60277474d90a3a12da4be",
+      "newKeywordsInserted": 14,
+      "sourceOffsets": [
+        931,
+        2197,
+        15382,
+        20259,
+        26963,
+        27890,
+        29670,
+        30550,
+        31566,
+        33078,
+        33890,
+        34337,
+        34983,
+        36404
+      ],
+      "onlyChange": "new keyword before diagnostic Error construction"
+    }
+  }
+}
