@@ -93,7 +93,7 @@ export function assertTrainingReleased(snapshot, school, order) {
 }
 
 export default async function ({ page, output, receipt, openMission, signal }) {
-  const report = { productBase: 'a075c307cfc4a03e6470ece351605d3eb8df675f', source: receipt.source, status: 'running', steps: [],
+  const report = { productBase: '9eca3723f92c3c2cdcb7170c60816864aa82826d', source: receipt.source, status: 'running', steps: [],
     method: 'Public UI and real RAF; detached-clone validators, read-only picking and ownership observations.',
     limits: 'Mission3 group ownership/save/load/cancellation only. No conversion/combat, original-packet timing, throughput or hardware-performance claim.' }
   const save = () => writeFileSync(resolve(output, 'ordinary-shared-training.json'), JSON.stringify(report, null, 2) + '\n')
