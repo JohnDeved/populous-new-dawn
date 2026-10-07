@@ -110,7 +110,9 @@ export function runCommandReceipt(repo, { output, command, inputs = [], env = pr
     receipt.sourceError = error.message
   }
   let measurementAfter = []
-  try { measurementAfter = captureMeasurement(repo, command, { cwd }) } catch {}
+  try { measurementAfter = captureMeasurement(repo, command, { cwd }) } catch {
+    // Keep the empty after-state: finishMeasurement invalidates prior evidence.
+  }
   receipt.parityMeasurements = finishMeasurement(measurementBefore, measurementAfter, receipt)
   const temporary = `${target}.${randomUUID()}.tmp`
   writeFileSync(temporary, `${JSON.stringify(receipt, null, 2)}\n`, { flag: 'wx' })
