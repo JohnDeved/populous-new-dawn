@@ -1,0 +1,47 @@
+{
+  "kind": "Immutable raw passive port capture and receipts; not a native fixture or completed test",
+  "sourceHead": "c32dade74abf76dd8d0fd86db07659c68f830a67",
+  "launchManifestSha256": "bae05d1ed97672c4736eeedca238894419c553702694cee70df73da89c434ca1",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 1982,
+      "sha256": "88563a1bfa9742f2fe09c8651967f422da48486060d0b498e7d85559cff1c233"
+    },
+    {
+      "path": "cleanup.json",
+      "bytes": 2808,
+      "sha256": "eea2d7a947d049e3f5013dd6ea0716d16a5328893a3da7355c64368a5b311ce6"
+    },
+    {
+      "path": "result.json",
+      "bytes": 251,
+      "sha256": "41acf631b4e55e7fa49455b5d07fdf780610e859e811c8a7458ebf9e74d8832d"
+    },
+    {
+      "path": "snapshot.bin",
+      "bytes": 183620,
+      "sha256": "389ce3174fd613bb7841502ee737301a3e131451022ad8b7152f1613fa316562"
+    },
+    {
+      "path": "snapshot.json",
+      "bytes": 14699,
+      "sha256": "365adcd78f5f5161c3e265f0d6573d3cdc6432a59a29334ffe230ea58633b950"
+    },
+    {
+      "path": "started.json",
+      "bytes": 1393,
+      "sha256": "ace171a169b470d470644f636fc433be80e9f08f1a73494b2768dd63597e7a74"
+    },
+    {
+      "path": "stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "stdout.log",
+      "bytes": 230,
+      "sha256": "2ad19f3e1cfe50fba4639aa0def3062d1237c1f52f803e4c29a8de478670025d"
+    }
+  ]
+}

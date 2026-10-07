@@ -1,0 +1,41 @@
+{
+  "sourceHead": "c32dade74abf76dd8d0fd86db07659c68f830a67",
+  "manifestSha256": "bae05d1ed97672c4736eeedca238894419c553702694cee70df73da89c434ca1",
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "--permission",
+    "--max-old-space-size=768",
+    "--allow-fs-read=/workspace/scratch/69fd8163d94e/cloud-dev-20261004/state33-raid-release-proof-20261007",
+    "--allow-fs-write=/workspace/scratch/69fd8163d94e/cloud-dev-20261004/state33-raid-release-proof-20261007/work/orchestration/state33-release-capture-20261007-01",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/state33-raid-release-proof-20261007/work/orchestration/state33-release-capture-source/main.mjs"
+  ],
+  "cpu": [
+    4
+  ],
+  "limits": {
+    "termSeconds": 120,
+    "killGraceSeconds": 10,
+    "sampleSeconds": 0.05,
+    "aggregateRssBytes": 1073741824,
+    "outputBytes": 8388608,
+    "snapshotBytes": 7340032,
+    "cpuCount": 1,
+    "retry": false,
+    "nativeCalls": 0,
+    "packageAccess": false
+  },
+  "startedAt": "2026-10-07T01:03:35.518506+00:00",
+  "termDeadlineMonotonic": 79098.567428267,
+  "killDeadlineMonotonic": 79108.567428267,
+  "peakAggregateRssBytes": 0,
+  "outputBytes": 0,
+  "cleanupSignals": [],
+  "status": "running",
+  "processIdentity": {
+    "pid": 23,
+    "group": 23,
+    "state": "R",
+    "startTimeTicks": 7897856,
+    "rssBytes": 0
+  }
+}

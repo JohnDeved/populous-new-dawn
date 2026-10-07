@@ -1,0 +1,86 @@
+{
+  "sourceHead": "c32dade74abf76dd8d0fd86db07659c68f830a67",
+  "manifestSha256": "bae05d1ed97672c4736eeedca238894419c553702694cee70df73da89c434ca1",
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "--permission",
+    "--max-old-space-size=768",
+    "--allow-fs-read=/workspace/scratch/69fd8163d94e/cloud-dev-20261004/state33-raid-release-proof-20261007",
+    "--allow-fs-write=/workspace/scratch/69fd8163d94e/cloud-dev-20261004/state33-raid-release-proof-20261007/work/orchestration/state33-release-capture-20261007-01",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/state33-raid-release-proof-20261007/work/orchestration/state33-release-capture-source/main.mjs"
+  ],
+  "cpu": [
+    4
+  ],
+  "limits": {
+    "termSeconds": 120,
+    "killGraceSeconds": 10,
+    "sampleSeconds": 0.05,
+    "aggregateRssBytes": 1073741824,
+    "outputBytes": 8388608,
+    "snapshotBytes": 7340032,
+    "cpuCount": 1,
+    "retry": false,
+    "nativeCalls": 0,
+    "packageAccess": false
+  },
+  "startedAt": "2026-10-07T01:03:35.518506+00:00",
+  "termDeadlineMonotonic": 79098.567428267,
+  "killDeadlineMonotonic": 79108.567428267,
+  "peakAggregateRssBytes": 337604608,
+  "outputBytes": 200193,
+  "cleanupSignals": [],
+  "status": "child-finished",
+  "processIdentity": {
+    "pid": 23,
+    "group": 23,
+    "state": "R",
+    "startTimeTicks": 7897856,
+    "rssBytes": 0
+  },
+  "exitCode": 0,
+  "cleanupDeadlineMonotonic": 78995.248298249,
+  "remainingProcessGroupMembers": [],
+  "resourcesReleased": true,
+  "elapsedSeconds": 6.6815894490137,
+  "finishedAt": "2026-10-07T01:03:42.200092+00:00",
+  "postflight": {
+    "passed": true,
+    "checkedCount": 234,
+    "orderedChecksSha256": "c933c1428a10a61b287aadb010fa3dba0307c40a8ad204d720eb500743c8144c",
+    "changedInputs": [],
+    "unchangedInputs": "Every other member matched the frozen launch-manifest hash exactly"
+  },
+  "outputs": [
+    {
+      "path": "result.json",
+      "bytes": 251,
+      "sha256": "41acf631b4e55e7fa49455b5d07fdf780610e859e811c8a7458ebf9e74d8832d"
+    },
+    {
+      "path": "snapshot.bin",
+      "bytes": 183620,
+      "sha256": "389ce3174fd613bb7841502ee737301a3e131451022ad8b7152f1613fa316562"
+    },
+    {
+      "path": "snapshot.json",
+      "bytes": 14699,
+      "sha256": "365adcd78f5f5161c3e265f0d6573d3cdc6432a59a29334ffe230ea58633b950"
+    },
+    {
+      "path": "started.json",
+      "bytes": 1393,
+      "sha256": "ace171a169b470d470644f636fc433be80e9f08f1a73494b2768dd63597e7a74"
+    },
+    {
+      "path": "stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "stdout.log",
+      "bytes": 230,
+      "sha256": "2ad19f3e1cfe50fba4639aa0def3062d1237c1f52f803e4c29a8de478670025d"
+    }
+  ]
+}
