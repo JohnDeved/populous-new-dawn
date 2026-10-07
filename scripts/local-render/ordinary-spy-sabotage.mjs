@@ -2,11 +2,31 @@ import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { waitForSavedCheckpoint } from './early-missions.mjs'
+import { bindGame, showAllMissions } from '../browser-game.mjs'
 import { requireSabotageTrace } from './spy-sabotage-observer.mjs'
+
+// Page-serializable read-only eligibility/geometry. aria-disabled describes cast
+// visibility; the separate context-menu handler permits discovered permanent spells.
+export function prepareSpellChargePause(element, { name, model }) {
+  const w = window.testStore.getWorld(), player = w.manaWorld.playerTribe,
+    owner = w.manaTribes[player]?.spellOwner ?? player, bit = 1 << (model - 1)
+  if (!Number.isInteger(model) || model < 1 || model > 31 ||
+    !(w.manaWorld.spells[owner]?.available & (1 << model)) ||
+    element.tagName !== 'BUTTON' || !element.isConnected || element.disabled ||
+    !element.getAttribute('aria-label')?.startsWith(`${name}, `) ||
+    element.title !== `${name} · Right-click to pause or resume charging`)
+    throw Error('Spell is not an actual discovered permanent charging control')
+  const disabled = w.manaWorld.spells[player].disabled
+  if (disabled & bit) throw Error('Spell charging is already paused; do not toggle it on')
+  const r = element.getBoundingClientRect(), point = { x: r.left + r.width / 2, y: r.top + r.height / 2 }
+  if (!(r.width > 0 && r.height > 0) || element.ownerDocument.elementFromPoint(point.x, point.y)?.closest('button') !== element)
+    throw Error('Spell charging control does not own its rendered pointer point')
+  return { name, model, player, owner, bit, disabled, point, castDisabled: element.getAttribute('aria-disabled') }
+}
 
 // Authored Mission16, public controls and ordinary RAF only. The existing harness
 // owns the fresh profile, 300000ms whole-attempt deadline, browser and cleanup.
-export default async function ({ page, output, receipt, openMission, observeCheckpoint, signal }) {
+export default async function ({ page, output, receipt, observeCheckpoint, signal }) {
   const report = { productBase: '076636812067329a91de33aac484702c4f03f342', source: receipt.source,
     status: 'running', stages: [], method: 'Public Mission16 entry, real construction/training/save/disguise and pointer command15; passive copied turn evidence.',
     limits: 'One bounded functional attempt; no source-game timing, complete mission, hardware performance or unconditional reveal claim.' }
@@ -157,10 +177,55 @@ export default async function ({ page, output, receipt, openMission, observeChec
     assert.equal(result.after.order?.model, expectedModel)
     return { ...result, hit, preflight }
   }
+  const pauseCharging = async spell => {
+    const control = page.getByRole('button', { name: new RegExp('^' + spell.name + ', ') })
+    await control.scrollIntoViewIfNeeded({ timeout: remaining() })
+    const candidate = await control.evaluate(prepareSpellChargePause, spell)
+    remaining(); await page.mouse.move(candidate.point.x, candidate.point.y)
+    const before = await control.evaluate(prepareSpellChargePause, spell)
+    await control.evaluate(element => {
+      const events = [], listener = e => events.push({ type: e.type, trusted: e.isTrusted, button: e.button,
+        targetMatches: e.target.closest('button') === element,
+        modifiers: [e.ctrlKey, e.shiftKey, e.altKey, e.metaKey] })
+      document.addEventListener('contextmenu', listener, true)
+      window.finishSpellChargeInput = () => {
+        document.removeEventListener('contextmenu', listener, true)
+        return events
+      }
+    })
+    let events
+    try { remaining(); await page.mouse.click(before.point.x, before.point.y, { button: 'right' }) }
+    finally { events = await page.evaluate(() => {
+      const finish = window.finishSpellChargeInput; delete window.finishSpellChargeInput; return finish()
+    }) }
+    const after = await page.evaluate(player => window.testStore.getWorld().manaWorld.spells[player].disabled, before.player)
+    assert.deepEqual(events, [{ type: 'contextmenu', trusted: true, button: 2, targetMatches: true, modifiers: [false, false, false, false] }])
+    assert.equal(after, before.disabled ^ before.bit, 'The actual context menu must toggle exactly this charging bit')
+    const evidence = { before, after, events }
+    report.chargingPauses ??= []
+    report.chargingPauses.push(evidence); save()
+    return evidence
+  }
+  const checkpoint = async (label, actorId, targetId) => {
+    await button('Game settings'); await page.locator('dialog.game-dialog').waitFor({ state: 'visible', timeout: remaining() })
+    const paused = await read(actorId, targetId); assert.equal(paused.paused, true)
+    await button('Save checkpoint'); await waitForSavedCheckpoint(page, paused.turn, signal)
+    const saved = await observeCheckpoint(label)
+    assert.equal(saved.checkpoint.level, 16); assert.equal(saved.checkpoint.turn, paused.turn)
+    return { paused, checkpoint: saved }
+  }
   try {
     await stage('authored-entry-and-route-preflight', async () => {
       assert.equal(receipt.profile?.mode, 'created'); assert.equal(receipt.profile.checkpointAtStart, null)
-      page.setDefaultTimeout(remaining()); await openMission(16)
+      // Reuse the accepted early-missions introduction/readiness pattern.
+      // A mission with ready input need not expose an optional Skip control.
+      page.setDefaultTimeout(remaining()); await showAllMissions(page)
+      await button('Mission 16'); await bindGame(page)
+      await page.waitForFunction(() => !!(window.testSceneRef.current.world.flyby.flags & 1) ||
+        !window.testSceneRef.current.world.inputMask, null, { timeout: remaining(30000) })
+      const skip = page.locator('.skip-introduction'), introductionSkipped = await skip.isVisible()
+      if (introductionSkipped) await skip.click({ timeout: remaining() })
+      await page.waitForFunction(() => !window.testSceneRef.current.world.inputMask, null, { timeout: remaining(30000) })
       const initial = await read(), braves = initial.people.filter(u => u.team === 'blue' && u.kind === 'brave')
       assert.equal(initial.unlockedSpyHut, true); assert.equal(initial.inputMask, 0)
       assert.ok(braves.length >= 2); assert.equal(initial.people.filter(u => u.team === 'blue' && u.kind === 'spy').length, 0)
@@ -170,7 +235,7 @@ export default async function ({ page, output, receipt, openMission, observeChec
         const gl = window.testSceneRef.current.renderer.getContext(), ext = gl.getExtension('WEBGL_debug_renderer_info')
         return ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER)
       })
-      return { initial, candidates }
+      return { initial, candidates, introductionSkipped }
     })
     let school
     await stage('ordinary-spy-school-construction', async () => {
@@ -197,17 +262,25 @@ export default async function ({ page, output, receipt, openMission, observeChec
         const b = s.buildings.find(b => b.id === school.id); assert.ok(b?.hp > 0, 'School was lost')
         return b.progress === 1
       }, 180000)
-      return { builders, site, built }
+      const preparation = await checkpoint('Completed Spy school before training', null, school.id)
+      assert.equal(preparation.paused.target.progress, 1)
+      report.preparationSave = { schoolId: school.id, builders, ...preparation }; save()
+      await shot('completed-spy-school-saved-settings')
+      await page.getByRole('button', { name: 'Continue Game', exact: false }).click({ timeout: remaining() })
+      return { builders, site, built, preparation }
     })
     let spyId
     await stage('ordinary-training-and-genuine-save', async () => {
       const [brave] = await select('brave'); await view(school)
       await page.getByTitle('spells', { exact: true }).click({ timeout: remaining() })
       const charging = await page.evaluate(async () => {
-        const w = window.testStore.getWorld(), { SPELLS } = await import('/app/model.ts'), s = w.manaWorld.spells[0]
-        return SPELLS.filter(p => s.available & (1 << p.model) && !(s.disabled & (1 << (p.model - 1)))).map(p => p.name)
+        const w = window.testStore.getWorld(), { SPELLS } = await import('/app/model.ts'), player = w.manaWorld.playerTribe,
+          owner = w.manaTribes[player]?.spellOwner ?? player,
+          available = w.manaWorld.spells[owner]?.available, disabled = w.manaWorld.spells[player].disabled
+        return SPELLS.filter(p => available & (1 << p.model) && !(disabled & (1 << (p.model - 1))))
+          .map(p => ({ name: p.name, model: p.model }))
       })
-      for (const name of charging) await page.getByRole('button', { name: new RegExp('^' + name + ', ') }).click({ button: 'right', timeout: remaining() })
+      for (const spell of charging) await pauseCharging(spell)
       const before = await read(brave, school.id), previous = new Set(before.people.filter(u => u.team === 'blue' && u.kind === 'spy').map(u => u.id))
       const input = await dispatch(school.id, brave, 8)
       const trained = await wait('actual new Spy allocation and exit', s => {
@@ -220,11 +293,8 @@ export default async function ({ page, output, receipt, openMission, observeChec
         assert.ok(s.trained > before.trained); spyId = spies[0].id; return true
       }, 120000, brave, school.id)
       assert.notEqual(spyId, brave)
-      await button('Game settings'); await page.locator('dialog.game-dialog').waitFor({ state: 'visible', timeout: remaining() })
-      const paused = await read(spyId, school.id); assert.equal(paused.paused, true); assert.equal(paused.actor.kind, 'spy')
-      await button('Save checkpoint'); await waitForSavedCheckpoint(page, paused.turn, signal)
-      const saved = await observeCheckpoint('Trained Spy before hostile approach')
-      assert.equal(saved.checkpoint.level, 16); assert.equal(saved.checkpoint.turn, paused.turn)
+      const { paused, checkpoint: saved } = await checkpoint('Trained Spy before hostile approach', spyId, school.id)
+      assert.equal(paused.actor.kind, 'spy')
       report.savedSpy = { spyId, schoolId: school.id, sourceBrave: brave, paused, checkpoint: saved }; save()
       await shot('trained-spy-saved-settings')
       await page.getByRole('button', { name: 'Continue Game', exact: false }).click({ timeout: remaining() })
