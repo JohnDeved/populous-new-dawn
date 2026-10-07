@@ -1,0 +1,1839 @@
+{
+  "case": "captured-moving-not-settled",
+  "captureTurn": 8417,
+  "capturePath": "observed-8417.json",
+  "captureSha256": "18490c74d799f0aa0921ccb14a7fc72482378bb87f146ae0a5fb836f255b9234",
+  "people": [
+    {
+      "id": 386,
+      "address": 33554688,
+      "capturedUnit": {
+        "id": 386,
+        "team": "yellow",
+        "kind": "warrior",
+        "hp": 86.6,
+        "x": 52.84765625,
+        "z": -66.95703125,
+        "target": null,
+        "inside": null,
+        "work": null,
+        "fight": null,
+        "fighting": false,
+        "flight": false,
+        "p": {
+          "id": 386,
+          "class": 1,
+          "model": 3,
+          "tribe": 2,
+          "state": 10,
+          "previousState": 25,
+          "substate": 1,
+          "speed": 68,
+          "life": 1732,
+          "x": 15577,
+          "y": 15093,
+          "h": 192,
+          "goalX": 16128,
+          "goalY": 15104,
+          "flags2": 33690112,
+          "flags3": 264192,
+          "flags4": 536936704,
+          "workFlags": 0,
+          "workTarget": 575,
+          "vehicle": 0,
+          "disguise": 0,
+          "computerAssignment": 0,
+          "counter": 217,
+          "commandStatus": 19,
+          "commandAux": 0,
+          "commandPhase": 2,
+          "timer": 63,
+          "assignment": 256,
+          "immediateCommand": 0,
+          "commands": [
+            247,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "cellPrevious": 0,
+          "cellNext": 553,
+          "damageAttacker": 0
+        },
+        "order": {
+          "model": 19,
+          "flags": 0,
+          "references": 3,
+          "object": 0,
+          "a": 14394,
+          "b": 2056
+        },
+        "nativeOwner": true,
+        "registryOwner": true,
+        "nativeRegistered": true,
+        "cell": 3742,
+        "linked": true,
+        "chain": [
+          386,
+          553,
+          398
+        ],
+        "inChain": true,
+        "registry": {
+          "id": 386,
+          "class": 1,
+          "model": 3,
+          "tribe": 2,
+          "state": 10,
+          "previousState": 25,
+          "substate": 1,
+          "speed": 68,
+          "life": 1732,
+          "x": 15577,
+          "y": 15093,
+          "h": 192,
+          "goalX": 16128,
+          "goalY": 15104,
+          "flags2": 33690112,
+          "flags3": 264192,
+          "flags4": 536936704,
+          "workFlags": 0,
+          "workTarget": 575,
+          "vehicle": 0,
+          "disguise": 0,
+          "computerAssignment": 0,
+          "counter": 217,
+          "commandStatus": 19,
+          "commandAux": 0,
+          "commandPhase": 2,
+          "timer": 63,
+          "assignment": 256,
+          "immediateCommand": 0,
+          "commands": [
+            247,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "cellPrevious": 0,
+          "cellNext": 553,
+          "damageAttacker": 0
+        },
+        "native": {
+          "id": 386,
+          "class": 1,
+          "model": 3,
+          "tribe": 2,
+          "state": 10,
+          "previousState": 25,
+          "substate": 1,
+          "speed": 68,
+          "life": 1732,
+          "x": 15577,
+          "y": 15093,
+          "h": 192,
+          "goalX": 16128,
+          "goalY": 15104,
+          "flags2": 33690112,
+          "flags3": 264192,
+          "flags4": 536936704,
+          "workFlags": 0,
+          "workTarget": 575,
+          "vehicle": 0,
+          "disguise": 0,
+          "computerAssignment": 0,
+          "counter": 217,
+          "commandStatus": 19,
+          "commandAux": 0,
+          "commandPhase": 2,
+          "timer": 63,
+          "assignment": 256,
+          "immediateCommand": 0,
+          "commands": [
+            247,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "cellPrevious": 0,
+          "cellNext": 553,
+          "damageAttacker": 0
+        },
+        "path": [
+          {
+            "x": 55,
+            "z": -67
+          }
+        ]
+      },
+      "nativeValues": {
+        "flags2": 33690112,
+        "flags4": 536936704,
+        "flags3": 264192,
+        "cellNext": 553,
+        "cellPrevious": 0,
+        "id": 386,
+        "class": 1,
+        "model": 3,
+        "state": 10,
+        "substate": 1,
+        "counter": 217,
+        "tribe": 2,
+        "reactionTimer": 0,
+        "reactionDuration": 0,
+        "x": 15577,
+        "y": 15093,
+        "h": 192,
+        "speed": 68,
+        "life": 1732,
+        "assignment": 256,
+        "selectionFlags": 0,
+        "orderLocation": 0,
+        "workTarget": 575,
+        "immediateCommand": 0,
+        "workFlags": 0,
+        "vehicle": 0,
+        "commandCursor": 0,
+        "commandStatus": 19,
+        "commandPhase": 2,
+        "disguise": 0,
+        "tribeNext": 33554944,
+        "computerAssignment": 1,
+        "timer": 63
+      },
+      "nativeCommands": [
+        247,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "mapping": {
+        "computerAssignment": {
+          "observed": 0,
+          "supplied": 1,
+          "source": "task.members ownership representation"
+        },
+        "tribeNext": {
+          "supplied": 33554944,
+          "source": "declared native tribe chain, not a captured cell pointer"
+        },
+        "zeroUnreadFields": [
+          "reactionTimer",
+          "reactionDuration",
+          "selectionFlags",
+          "orderLocation"
+        ]
+      },
+      "currentOrderId": 247
+    },
+    {
+      "id": 415,
+      "address": 33554944,
+      "capturedUnit": {
+        "id": 415,
+        "team": "yellow",
+        "kind": "warrior",
+        "hp": 90,
+        "x": 51.92578125,
+        "z": -66.43359375,
+        "target": null,
+        "inside": null,
+        "work": null,
+        "fight": null,
+        "fighting": false,
+        "flight": false,
+        "p": {
+          "id": 415,
+          "class": 1,
+          "model": 3,
+          "tribe": 2,
+          "state": 10,
+          "previousState": 25,
+          "substate": 1,
+          "speed": 64,
+          "life": 1800,
+          "x": 15341,
+          "y": 14959,
+          "h": 192,
+          "goalX": 16128,
+          "goalY": 15104,
+          "flags2": 33690112,
+          "flags3": 264192,
+          "flags4": 536936704,
+          "workFlags": 0,
+          "workTarget": 575,
+          "vehicle": 0,
+          "disguise": 0,
+          "computerAssignment": 0,
+          "counter": 217,
+          "commandStatus": 19,
+          "commandAux": 0,
+          "commandPhase": 2,
+          "timer": 63,
+          "assignment": 258,
+          "immediateCommand": 0,
+          "commands": [
+            247,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "cellPrevious": 445,
+          "cellNext": 0,
+          "damageAttacker": 255
+        },
+        "order": {
+          "model": 19,
+          "flags": 0,
+          "references": 3,
+          "object": 0,
+          "a": 14394,
+          "b": 2056
+        },
+        "nativeOwner": true,
+        "registryOwner": true,
+        "nativeRegistered": true,
+        "cell": 3741,
+        "linked": true,
+        "chain": [
+          445,
+          415
+        ],
+        "inChain": true,
+        "registry": {
+          "id": 415,
+          "class": 1,
+          "model": 3,
+          "tribe": 2,
+          "state": 10,
+          "previousState": 25,
+          "substate": 1,
+          "speed": 64,
+          "life": 1800,
+          "x": 15341,
+          "y": 14959,
+          "h": 192,
+          "goalX": 16128,
+          "goalY": 15104,
+          "flags2": 33690112,
+          "flags3": 264192,
+          "flags4": 536936704,
+          "workFlags": 0,
+          "workTarget": 575,
+          "vehicle": 0,
+          "disguise": 0,
+          "computerAssignment": 0,
+          "counter": 217,
+          "commandStatus": 19,
+          "commandAux": 0,
+          "commandPhase": 2,
+          "timer": 63,
+          "assignment": 258,
+          "immediateCommand": 0,
+          "commands": [
+            247,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "cellPrevious": 445,
+          "cellNext": 0,
+          "damageAttacker": 255
+        },
+        "native": {
+          "id": 415,
+          "class": 1,
+          "model": 3,
+          "tribe": 2,
+          "state": 10,
+          "previousState": 25,
+          "substate": 1,
+          "speed": 64,
+          "life": 1800,
+          "x": 15341,
+          "y": 14959,
+          "h": 192,
+          "goalX": 16128,
+          "goalY": 15104,
+          "flags2": 33690112,
+          "flags3": 264192,
+          "flags4": 536936704,
+          "workFlags": 0,
+          "workTarget": 575,
+          "vehicle": 0,
+          "disguise": 0,
+          "computerAssignment": 0,
+          "counter": 217,
+          "commandStatus": 19,
+          "commandAux": 0,
+          "commandPhase": 2,
+          "timer": 63,
+          "assignment": 258,
+          "immediateCommand": 0,
+          "commands": [
+            247,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "cellPrevious": 445,
+          "cellNext": 0,
+          "damageAttacker": 255
+        },
+        "path": [
+          {
+            "x": 55,
+            "z": -67
+          }
+        ]
+      },
+      "nativeValues": {
+        "flags2": 33690112,
+        "flags4": 536936704,
+        "flags3": 264192,
+        "cellNext": 0,
+        "cellPrevious": 445,
+        "id": 415,
+        "class": 1,
+        "model": 3,
+        "state": 10,
+        "substate": 1,
+        "counter": 217,
+        "tribe": 2,
+        "reactionTimer": 0,
+        "reactionDuration": 0,
+        "x": 15341,
+        "y": 14959,
+        "h": 192,
+        "speed": 64,
+        "life": 1800,
+        "assignment": 258,
+        "selectionFlags": 0,
+        "orderLocation": 0,
+        "workTarget": 575,
+        "immediateCommand": 0,
+        "workFlags": 0,
+        "vehicle": 0,
+        "commandCursor": 0,
+        "commandStatus": 19,
+        "commandPhase": 2,
+        "disguise": 0,
+        "tribeNext": 33555200,
+        "computerAssignment": 1,
+        "timer": 63
+      },
+      "nativeCommands": [
+        247,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "mapping": {
+        "computerAssignment": {
+          "observed": 0,
+          "supplied": 1,
+          "source": "task.members ownership representation"
+        },
+        "tribeNext": {
+          "supplied": 33555200,
+          "source": "declared native tribe chain, not a captured cell pointer"
+        },
+        "zeroUnreadFields": [
+          "reactionTimer",
+          "reactionDuration",
+          "selectionFlags",
+          "orderLocation"
+        ]
+      },
+      "currentOrderId": 247
+    },
+    {
+      "id": 445,
+      "address": 33555200,
+      "capturedUnit": {
+        "id": 445,
+        "team": "yellow",
+        "kind": "warrior",
+        "hp": 88.25,
+        "x": 51.90625,
+        "z": -67.359375,
+        "target": null,
+        "inside": null,
+        "work": null,
+        "fight": null,
+        "fighting": false,
+        "flight": false,
+        "p": {
+          "id": 445,
+          "class": 1,
+          "model": 3,
+          "tribe": 2,
+          "state": 10,
+          "previousState": 25,
+          "substate": 1,
+          "speed": 69,
+          "life": 1765,
+          "x": 15336,
+          "y": 15196,
+          "h": 192,
+          "goalX": 16128,
+          "goalY": 15104,
+          "flags2": 33690112,
+          "flags3": 264192,
+          "flags4": 536936704,
+          "workFlags": 0,
+          "workTarget": 575,
+          "vehicle": 0,
+          "disguise": 0,
+          "computerAssignment": 0,
+          "counter": 217,
+          "commandStatus": 19,
+          "commandAux": 0,
+          "commandPhase": 2,
+          "timer": 63,
+          "assignment": 258,
+          "immediateCommand": 0,
+          "commands": [
+            247,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "cellPrevious": 0,
+          "cellNext": 415,
+          "damageAttacker": 0
+        },
+        "order": {
+          "model": 19,
+          "flags": 0,
+          "references": 3,
+          "object": 0,
+          "a": 14394,
+          "b": 2056
+        },
+        "nativeOwner": true,
+        "registryOwner": true,
+        "nativeRegistered": true,
+        "cell": 3741,
+        "linked": true,
+        "chain": [
+          445,
+          415
+        ],
+        "inChain": true,
+        "registry": {
+          "id": 445,
+          "class": 1,
+          "model": 3,
+          "tribe": 2,
+          "state": 10,
+          "previousState": 25,
+          "substate": 1,
+          "speed": 69,
+          "life": 1765,
+          "x": 15336,
+          "y": 15196,
+          "h": 192,
+          "goalX": 16128,
+          "goalY": 15104,
+          "flags2": 33690112,
+          "flags3": 264192,
+          "flags4": 536936704,
+          "workFlags": 0,
+          "workTarget": 575,
+          "vehicle": 0,
+          "disguise": 0,
+          "computerAssignment": 0,
+          "counter": 217,
+          "commandStatus": 19,
+          "commandAux": 0,
+          "commandPhase": 2,
+          "timer": 63,
+          "assignment": 258,
+          "immediateCommand": 0,
+          "commands": [
+            247,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "cellPrevious": 0,
+          "cellNext": 415,
+          "damageAttacker": 0
+        },
+        "native": {
+          "id": 445,
+          "class": 1,
+          "model": 3,
+          "tribe": 2,
+          "state": 10,
+          "previousState": 25,
+          "substate": 1,
+          "speed": 69,
+          "life": 1765,
+          "x": 15336,
+          "y": 15196,
+          "h": 192,
+          "goalX": 16128,
+          "goalY": 15104,
+          "flags2": 33690112,
+          "flags3": 264192,
+          "flags4": 536936704,
+          "workFlags": 0,
+          "workTarget": 575,
+          "vehicle": 0,
+          "disguise": 0,
+          "computerAssignment": 0,
+          "counter": 217,
+          "commandStatus": 19,
+          "commandAux": 0,
+          "commandPhase": 2,
+          "timer": 63,
+          "assignment": 258,
+          "immediateCommand": 0,
+          "commands": [
+            247,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "cellPrevious": 0,
+          "cellNext": 415,
+          "damageAttacker": 0
+        },
+        "path": [
+          {
+            "x": 55,
+            "z": -67
+          }
+        ]
+      },
+      "nativeValues": {
+        "flags2": 33690112,
+        "flags4": 536936704,
+        "flags3": 264192,
+        "cellNext": 415,
+        "cellPrevious": 0,
+        "id": 445,
+        "class": 1,
+        "model": 3,
+        "state": 10,
+        "substate": 1,
+        "counter": 217,
+        "tribe": 2,
+        "reactionTimer": 0,
+        "reactionDuration": 0,
+        "x": 15336,
+        "y": 15196,
+        "h": 192,
+        "speed": 69,
+        "life": 1765,
+        "assignment": 258,
+        "selectionFlags": 0,
+        "orderLocation": 0,
+        "workTarget": 575,
+        "immediateCommand": 0,
+        "workFlags": 0,
+        "vehicle": 0,
+        "commandCursor": 0,
+        "commandStatus": 19,
+        "commandPhase": 2,
+        "disguise": 0,
+        "tribeNext": 33555456,
+        "computerAssignment": 1,
+        "timer": 63
+      },
+      "nativeCommands": [
+        247,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "mapping": {
+        "computerAssignment": {
+          "observed": 0,
+          "supplied": 1,
+          "source": "task.members ownership representation"
+        },
+        "tribeNext": {
+          "supplied": 33555456,
+          "source": "declared native tribe chain, not a captured cell pointer"
+        },
+        "zeroUnreadFields": [
+          "reactionTimer",
+          "reactionDuration",
+          "selectionFlags",
+          "orderLocation"
+        ]
+      },
+      "currentOrderId": 247
+    },
+    {
+      "id": 398,
+      "address": 33555456,
+      "capturedUnit": {
+        "id": 398,
+        "team": "yellow",
+        "kind": "preacher",
+        "hp": 53,
+        "x": 52.37890625,
+        "z": -67.8671875,
+        "target": null,
+        "inside": null,
+        "work": null,
+        "fight": null,
+        "fighting": false,
+        "flight": false,
+        "p": {
+          "id": 398,
+          "class": 1,
+          "model": 4,
+          "tribe": 2,
+          "state": 10,
+          "previousState": 10,
+          "substate": 1,
+          "speed": 60,
+          "life": 1060,
+          "x": 15457,
+          "y": 15326,
+          "h": 192,
+          "goalX": 16128,
+          "goalY": 15104,
+          "flags2": 33690112,
+          "flags3": 262145,
+          "flags4": 536936720,
+          "workFlags": 0,
+          "workTarget": 575,
+          "vehicle": 0,
+          "disguise": 0,
+          "computerAssignment": 0,
+          "counter": 217,
+          "commandStatus": 21,
+          "commandAux": 0,
+          "commandPhase": 2,
+          "timer": 63,
+          "assignment": 256,
+          "immediateCommand": 255,
+          "commands": [
+            249,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "cellPrevious": 553,
+          "cellNext": 0,
+          "damageAttacker": 0
+        },
+        "order": {
+          "model": 21,
+          "flags": 32,
+          "references": 1,
+          "object": 0,
+          "a": 14908,
+          "b": 514
+        },
+        "nativeOwner": true,
+        "registryOwner": true,
+        "nativeRegistered": true,
+        "cell": 3742,
+        "linked": true,
+        "chain": [
+          386,
+          553,
+          398
+        ],
+        "inChain": true,
+        "registry": {
+          "id": 398,
+          "class": 1,
+          "model": 4,
+          "tribe": 2,
+          "state": 10,
+          "previousState": 10,
+          "substate": 1,
+          "speed": 60,
+          "life": 1060,
+          "x": 15457,
+          "y": 15326,
+          "h": 192,
+          "goalX": 16128,
+          "goalY": 15104,
+          "flags2": 33690112,
+          "flags3": 262145,
+          "flags4": 536936720,
+          "workFlags": 0,
+          "workTarget": 575,
+          "vehicle": 0,
+          "disguise": 0,
+          "computerAssignment": 0,
+          "counter": 217,
+          "commandStatus": 21,
+          "commandAux": 0,
+          "commandPhase": 2,
+          "timer": 63,
+          "assignment": 256,
+          "immediateCommand": 255,
+          "commands": [
+            249,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "cellPrevious": 553,
+          "cellNext": 0,
+          "damageAttacker": 0
+        },
+        "native": {
+          "id": 398,
+          "class": 1,
+          "model": 4,
+          "tribe": 2,
+          "state": 10,
+          "previousState": 10,
+          "substate": 1,
+          "speed": 60,
+          "life": 1060,
+          "x": 15457,
+          "y": 15326,
+          "h": 192,
+          "goalX": 16128,
+          "goalY": 15104,
+          "flags2": 33690112,
+          "flags3": 262145,
+          "flags4": 536936720,
+          "workFlags": 0,
+          "workTarget": 575,
+          "vehicle": 0,
+          "disguise": 0,
+          "computerAssignment": 0,
+          "counter": 217,
+          "commandStatus": 21,
+          "commandAux": 0,
+          "commandPhase": 2,
+          "timer": 63,
+          "assignment": 256,
+          "immediateCommand": 255,
+          "commands": [
+            249,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "cellPrevious": 553,
+          "cellNext": 0,
+          "damageAttacker": 0
+        },
+        "path": [
+          {
+            "x": 55,
+            "z": -67
+          }
+        ]
+      },
+      "nativeValues": {
+        "flags2": 33690112,
+        "flags4": 536936720,
+        "flags3": 262145,
+        "cellNext": 0,
+        "cellPrevious": 553,
+        "id": 398,
+        "class": 1,
+        "model": 4,
+        "state": 10,
+        "substate": 1,
+        "counter": 217,
+        "tribe": 2,
+        "reactionTimer": 0,
+        "reactionDuration": 0,
+        "x": 15457,
+        "y": 15326,
+        "h": 192,
+        "speed": 60,
+        "life": 1060,
+        "assignment": 256,
+        "selectionFlags": 0,
+        "orderLocation": 0,
+        "workTarget": 575,
+        "immediateCommand": 255,
+        "workFlags": 0,
+        "vehicle": 0,
+        "commandCursor": 0,
+        "commandStatus": 21,
+        "commandPhase": 2,
+        "disguise": 0,
+        "tribeNext": 0,
+        "computerAssignment": 1,
+        "timer": 63
+      },
+      "nativeCommands": [
+        249,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "mapping": {
+        "computerAssignment": {
+          "observed": 0,
+          "supplied": 1,
+          "source": "task.members ownership representation"
+        },
+        "tribeNext": {
+          "supplied": 0,
+          "source": "declared native tribe chain, not a captured cell pointer"
+        },
+        "zeroUnreadFields": [
+          "reactionTimer",
+          "reactionDuration",
+          "selectionFlags",
+          "orderLocation"
+        ]
+      },
+      "currentOrderId": 255
+    }
+  ],
+  "personFields": {
+    "flags2": {
+      "offset": 12,
+      "format": "I"
+    },
+    "flags4": {
+      "offset": 16,
+      "format": "I"
+    },
+    "flags3": {
+      "offset": 20,
+      "format": "I"
+    },
+    "cellNext": {
+      "offset": 32,
+      "format": "H"
+    },
+    "cellPrevious": {
+      "offset": 34,
+      "format": "H"
+    },
+    "id": {
+      "offset": 36,
+      "format": "H"
+    },
+    "class": {
+      "offset": 42,
+      "format": "B"
+    },
+    "model": {
+      "offset": 43,
+      "format": "B"
+    },
+    "state": {
+      "offset": 44,
+      "format": "B"
+    },
+    "substate": {
+      "offset": 45,
+      "format": "B"
+    },
+    "counter": {
+      "offset": 46,
+      "format": "B"
+    },
+    "tribe": {
+      "offset": 47,
+      "format": "b"
+    },
+    "reactionTimer": {
+      "offset": 49,
+      "format": "B"
+    },
+    "reactionDuration": {
+      "offset": 50,
+      "format": "B"
+    },
+    "x": {
+      "offset": 61,
+      "format": "H"
+    },
+    "y": {
+      "offset": 63,
+      "format": "H"
+    },
+    "h": {
+      "offset": 65,
+      "format": "h"
+    },
+    "speed": {
+      "offset": 95,
+      "format": "h"
+    },
+    "life": {
+      "offset": 110,
+      "format": "h"
+    },
+    "assignment": {
+      "offset": 118,
+      "format": "H"
+    },
+    "selectionFlags": {
+      "offset": 122,
+      "format": "B"
+    },
+    "orderLocation": {
+      "offset": 131,
+      "format": "H"
+    },
+    "workTarget": {
+      "offset": 137,
+      "format": "H"
+    },
+    "immediateCommand": {
+      "offset": 155,
+      "format": "H"
+    },
+    "workFlags": {
+      "offset": 157,
+      "format": "H"
+    },
+    "vehicle": {
+      "offset": 159,
+      "format": "H"
+    },
+    "commandCursor": {
+      "offset": 166,
+      "format": "B"
+    },
+    "commandStatus": {
+      "offset": 167,
+      "format": "B"
+    },
+    "commandPhase": {
+      "offset": 168,
+      "format": "B"
+    },
+    "disguise": {
+      "offset": 178,
+      "format": "B"
+    },
+    "tribeNext": {
+      "offset": 8,
+      "format": "I"
+    },
+    "computerAssignment": {
+      "offset": 175,
+      "format": "B"
+    },
+    "timer": {
+      "offset": 112,
+      "format": "h"
+    }
+  },
+  "task": {
+    "address": 9038536,
+    "index": 0,
+    "observed": {
+      "tribe": 2,
+      "index": 0,
+      "flags": 1,
+      "type": 20,
+      "phase": 6,
+      "target": 14111,
+      "requested": 4,
+      "extra": 20,
+      "selected": 4,
+      "remaining": 6,
+      "elapsed": 45,
+      "mode": 0,
+      "fallback": 23,
+      "regroup": 23112,
+      "origin": 13882,
+      "entity": 290,
+      "damage": 0,
+      "retries": 33,
+      "retreatPercent": 25,
+      "spells": [
+        0,
+        0,
+        0
+      ],
+      "quotas": [
+        0,
+        80,
+        30,
+        0,
+        0,
+        0
+      ],
+      "members": [
+        386,
+        415,
+        445,
+        398
+      ],
+      "route": [
+        {
+          "marker": 42,
+          "secondary": -1,
+          "quotas": [
+            0,
+            1,
+            0,
+            0
+          ]
+        },
+        {
+          "marker": -1,
+          "secondary": 0,
+          "quotas": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "marker": -1,
+          "secondary": 0,
+          "quotas": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "marker": -1,
+          "secondary": 0,
+          "quotas": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    "nativeValues": {
+      "elapsed": 45,
+      "target": 14111,
+      "regroup": 23112,
+      "origin": 13882,
+      "entity": 290,
+      "requested": 4,
+      "extra": 20,
+      "flags": 1,
+      "phase": 6,
+      "fallback": 23,
+      "type": 20,
+      "visitCounter": 0,
+      "spell0": 0,
+      "spell1": 0,
+      "spell2": 0,
+      "transportMode": 0,
+      "markerSentinel": 255
+    },
+    "fields": {
+      "elapsed": {
+        "offset": 4,
+        "format": "i"
+      },
+      "visitCounter": {
+        "offset": 8,
+        "format": "I"
+      },
+      "target": {
+        "offset": 16,
+        "format": "H"
+      },
+      "regroup": {
+        "offset": 18,
+        "format": "H"
+      },
+      "origin": {
+        "offset": 26,
+        "format": "H"
+      },
+      "spell0": {
+        "offset": 31,
+        "format": "B"
+      },
+      "spell1": {
+        "offset": 32,
+        "format": "B"
+      },
+      "spell2": {
+        "offset": 33,
+        "format": "B"
+      },
+      "transportMode": {
+        "offset": 38,
+        "format": "B"
+      },
+      "markerSentinel": {
+        "offset": 47,
+        "format": "B"
+      },
+      "entity": {
+        "offset": 50,
+        "format": "I"
+      },
+      "requested": {
+        "offset": 54,
+        "format": "i"
+      },
+      "extra": {
+        "offset": 58,
+        "format": "i"
+      },
+      "flags": {
+        "offset": 62,
+        "format": "I"
+      },
+      "phase": {
+        "offset": 66,
+        "format": "H"
+      },
+      "fallback": {
+        "offset": 68,
+        "format": "H"
+      },
+      "type": {
+        "offset": 79,
+        "format": "B"
+      }
+    }
+  },
+  "tribe": {
+    "address": 9038482,
+    "size": 3173,
+    "activeCount": 2,
+    "countCarrierIndex": 1,
+    "headOffset": 2177
+  },
+  "pool": {
+    "address": 9668656,
+    "bytes": 8000,
+    "knownOrders": {
+      "247": {
+        "model": 19,
+        "flags": 0,
+        "references": 3,
+        "object": 0,
+        "a": 14394,
+        "b": 2056
+      },
+      "255": {
+        "model": 21,
+        "flags": 32,
+        "references": 1,
+        "object": 0,
+        "a": 14908,
+        "b": 514
+      }
+    },
+    "shadowedUnprovidedRecords": "zero supplied unread bytes; any read rejects"
+  },
+  "tombstone": {
+    "address": 33555968,
+    "id": 290,
+    "flags2": 1,
+    "class": 0,
+    "reason": "captured entity absent; supplied inactive native identity"
+  },
+  "pointerTable": {
+    "address": 8979344,
+    "bytes": 4096
+  },
+  "world": {
+    "mission": 6,
+    "turn": 8417,
+    "tribe": 2,
+    "simulationRandom": 851199731,
+    "cosmeticRandom": 4142354515,
+    "portCursor": 0,
+    "portSupplies": {
+      "casting": null,
+      "lift": 0,
+      "shamanAbsent": true,
+      "countCarrier": "slot1 flags1; otherwise untouched createComputerQueue defaults"
+    },
+    "cellChains": "Captured chain IDs/links are materialized. Uncaptured nodes have explicitly supplied cell-center XY, membership flags and opaque identity only; they are not live units or native task members."
+  },
+  "abi": {
+    "entry": 5026816,
+    "stack": 33673216,
+    "stop": 33677312,
+    "scratchMapAddress": 33554432,
+    "scratchMapBytes": 131072,
+    "arguments": [
+      9038482,
+      0
+    ],
+    "initialRegisters": {
+      "EAX": 2711724449,
+      "EBX": 2998055602,
+      "ECX": 3284386755,
+      "EDX": 3570717908,
+      "ESI": 3857049061,
+      "EDI": 4143380214,
+      "EBP": 387389207,
+      "EFLAGS": 2
+    },
+    "functions": [
+      {
+        "name": "processor",
+        "entry": 5026816,
+        "stopExclusive": 5032644,
+        "argumentSlots": 2,
+        "returnBits": 0,
+        "nativeBytesSha256": "d85a5890295924cf606b9247122110c591dd96e53c7d567d5dc9faeeebad2b84"
+      },
+      {
+        "name": "settlement",
+        "entry": 5051632,
+        "stopExclusive": 5052684,
+        "argumentSlots": 7,
+        "returnBits": 0,
+        "nativeBytesSha256": "b087b676507dfd1b074c10c601f63f4f9c50afba286c6f4b1e25bfd35911d78b"
+      },
+      {
+        "name": "active-task-count",
+        "entry": 4597584,
+        "stopExclusive": 4597611,
+        "argumentSlots": 1,
+        "returnBits": 32,
+        "nativeBytesSha256": "34e763b354f67baa2d37621f44b9a68df2b0425c0362b5f8df101afec0aeb106"
+      },
+      {
+        "name": "membership",
+        "entry": 5186656,
+        "stopExclusive": 5186680,
+        "argumentSlots": 2,
+        "returnBits": 32,
+        "nativeBytesSha256": "1f45a69c816a9a38d71a269138acee5ff76eaae79925f0af5cddb69d88394344"
+      },
+      {
+        "name": "release-predicate",
+        "entry": 5192176,
+        "stopExclusive": 5192217,
+        "argumentSlots": 1,
+        "returnBits": 32,
+        "nativeBytesSha256": "21df11f89742dc22db42a28826d8a82715dc2b771f41e15c94f91c78caf4be41"
+      },
+      {
+        "name": "sermon-predicate",
+        "entry": 5107936,
+        "stopExclusive": 5108031,
+        "argumentSlots": 1,
+        "returnBits": 8,
+        "nativeBytesSha256": "68c6eb0ec6d1308d0f72de474729c9244f81e420a7e23dff03cfceb555303198"
+      }
+    ],
+    "codeRanges": [
+      {
+        "start": 5026816,
+        "stopExclusive": 5027004,
+        "sha256": "6fbaeb1407e83fdc846c82558c7935ae6adde30b22707772a0a67fc3207fe1ea"
+      },
+      {
+        "start": 5027145,
+        "stopExclusive": 5027166,
+        "sha256": "9992a18abe60631e05301234a9f2f91cd51a6fc4ca3bc088716ba02b6a656211"
+      },
+      {
+        "start": 5028023,
+        "stopExclusive": 5028072,
+        "sha256": "c24ad1e66fd9873aede9f4e612d2eeb8f2c035835b2d21e68410451e1e174b2b"
+      },
+      {
+        "start": 5051632,
+        "stopExclusive": 5052684,
+        "sha256": "b087b676507dfd1b074c10c601f63f4f9c50afba286c6f4b1e25bfd35911d78b"
+      },
+      {
+        "start": 4597584,
+        "stopExclusive": 4597611,
+        "sha256": "34e763b354f67baa2d37621f44b9a68df2b0425c0362b5f8df101afec0aeb106"
+      },
+      {
+        "start": 5186656,
+        "stopExclusive": 5186680,
+        "sha256": "1f45a69c816a9a38d71a269138acee5ff76eaae79925f0af5cddb69d88394344"
+      },
+      {
+        "start": 5192176,
+        "stopExclusive": 5192217,
+        "sha256": "21df11f89742dc22db42a28826d8a82715dc2b771f41e15c94f91c78caf4be41"
+      },
+      {
+        "start": 5107936,
+        "stopExclusive": 5108031,
+        "sha256": "68c6eb0ec6d1308d0f72de474729c9244f81e420a7e23dff03cfceb555303198"
+      }
+    ]
+  },
+  "allowlist": {
+    "read": [
+      {
+        "name": "cdecl stack",
+        "address": 33669120,
+        "size": 4108
+      },
+      {
+        "name": "phase6 jump-table slot",
+        "address": 5032668,
+        "size": 4
+      },
+      {
+        "name": "tribe head",
+        "address": 9040659,
+        "size": 4
+      },
+      {
+        "name": "entity290 pointer",
+        "address": 8980504,
+        "size": 4
+      },
+      {
+        "name": "inactive entity flag",
+        "address": 33555980,
+        "size": 1
+      },
+      {
+        "name": "active task flag0",
+        "address": 9038598,
+        "size": 1
+      },
+      {
+        "name": "active task flag1",
+        "address": 9038680,
+        "size": 1
+      },
+      {
+        "name": "active task flag2",
+        "address": 9038762,
+        "size": 1
+      },
+      {
+        "name": "active task flag3",
+        "address": 9038844,
+        "size": 1
+      },
+      {
+        "name": "active task flag4",
+        "address": 9038926,
+        "size": 1
+      },
+      {
+        "name": "active task flag5",
+        "address": 9039008,
+        "size": 1
+      },
+      {
+        "name": "active task flag6",
+        "address": 9039090,
+        "size": 1
+      },
+      {
+        "name": "active task flag7",
+        "address": 9039172,
+        "size": 1
+      },
+      {
+        "name": "active task flag8",
+        "address": 9039254,
+        "size": 1
+      },
+      {
+        "name": "active task flag9",
+        "address": 9039336,
+        "size": 1
+      },
+      {
+        "name": "task elapsed",
+        "address": 9038540,
+        "size": 4
+      },
+      {
+        "name": "task visitCounter",
+        "address": 9038544,
+        "size": 4
+      },
+      {
+        "name": "task transportMode",
+        "address": 9038574,
+        "size": 1
+      },
+      {
+        "name": "task markerSentinel",
+        "address": 9038583,
+        "size": 1
+      },
+      {
+        "name": "task entity",
+        "address": 9038586,
+        "size": 4
+      },
+      {
+        "name": "task phase",
+        "address": 9038602,
+        "size": 2
+      },
+      {
+        "name": "task fallback",
+        "address": 9038604,
+        "size": 2
+      },
+      {
+        "name": "person386 tribeNext",
+        "address": 33554696,
+        "size": 4
+      },
+      {
+        "name": "person386 computerAssignment",
+        "address": 33554863,
+        "size": 1
+      },
+      {
+        "name": "person386 state",
+        "address": 33554732,
+        "size": 1
+      },
+      {
+        "name": "person386 speed",
+        "address": 33554783,
+        "size": 2
+      },
+      {
+        "name": "person386 flags2 byte2",
+        "address": 33554702,
+        "size": 1
+      },
+      {
+        "name": "person386 immediate",
+        "address": 33554843,
+        "size": 2
+      },
+      {
+        "name": "person386 cursor",
+        "address": 33554854,
+        "size": 1
+      },
+      {
+        "name": "person386 current queued slot",
+        "address": 33554827,
+        "size": 2
+      },
+      {
+        "name": "person415 tribeNext",
+        "address": 33554952,
+        "size": 4
+      },
+      {
+        "name": "person415 computerAssignment",
+        "address": 33555119,
+        "size": 1
+      },
+      {
+        "name": "person415 state",
+        "address": 33554988,
+        "size": 1
+      },
+      {
+        "name": "person415 speed",
+        "address": 33555039,
+        "size": 2
+      },
+      {
+        "name": "person415 flags2 byte2",
+        "address": 33554958,
+        "size": 1
+      },
+      {
+        "name": "person415 immediate",
+        "address": 33555099,
+        "size": 2
+      },
+      {
+        "name": "person415 cursor",
+        "address": 33555110,
+        "size": 1
+      },
+      {
+        "name": "person415 current queued slot",
+        "address": 33555083,
+        "size": 2
+      },
+      {
+        "name": "person445 tribeNext",
+        "address": 33555208,
+        "size": 4
+      },
+      {
+        "name": "person445 computerAssignment",
+        "address": 33555375,
+        "size": 1
+      },
+      {
+        "name": "person445 state",
+        "address": 33555244,
+        "size": 1
+      },
+      {
+        "name": "person445 speed",
+        "address": 33555295,
+        "size": 2
+      },
+      {
+        "name": "person445 flags2 byte2",
+        "address": 33555214,
+        "size": 1
+      },
+      {
+        "name": "person445 immediate",
+        "address": 33555355,
+        "size": 2
+      },
+      {
+        "name": "person445 cursor",
+        "address": 33555366,
+        "size": 1
+      },
+      {
+        "name": "person445 current queued slot",
+        "address": 33555339,
+        "size": 2
+      },
+      {
+        "name": "person398 tribeNext",
+        "address": 33555464,
+        "size": 4
+      },
+      {
+        "name": "person398 computerAssignment",
+        "address": 33555631,
+        "size": 1
+      },
+      {
+        "name": "person398 state",
+        "address": 33555500,
+        "size": 1
+      },
+      {
+        "name": "person398 speed",
+        "address": 33555551,
+        "size": 2
+      },
+      {
+        "name": "person398 flags2 byte2",
+        "address": 33555470,
+        "size": 1
+      },
+      {
+        "name": "person398 immediate",
+        "address": 33555611,
+        "size": 2
+      },
+      {
+        "name": "state10 flags byte",
+        "address": 5926827,
+        "size": 1
+      },
+      {
+        "name": "current order247 model/flags",
+        "address": 9671126,
+        "size": 2
+      },
+      {
+        "name": "current order255 model/flags",
+        "address": 9671206,
+        "size": 2
+      }
+    ],
+    "write": [
+      {
+        "name": "cdecl stack",
+        "address": 33669120,
+        "size": 4108
+      },
+      {
+        "name": "elapsed",
+        "address": 9038540,
+        "size": 4
+      },
+      {
+        "name": "visit counter",
+        "address": 9038544,
+        "size": 4
+      }
+    ],
+    "interceptions": []
+  },
+  "expected": {
+    "entrySequence": [
+      5026816,
+      5186656,
+      5186656,
+      5186656,
+      5186656,
+      5051632,
+      4597584,
+      5186656,
+      5192176,
+      5107936,
+      5186656,
+      5192176,
+      5107936,
+      5186656,
+      5192176,
+      5107936,
+      5186656,
+      5192176,
+      5107936
+    ],
+    "nativeElapsed": 47,
+    "nativePhase": 6,
+    "portElapsed": 47,
+    "portPhase": 23,
+    "taskFlags": 1,
+    "nativeVisitCounter": 1,
+    "portCursor": 1,
+    "semanticReturn": "void",
+    "sermonALReturns": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "membershipReturns": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "releaseReturns": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "activeCountReturn": 2,
+    "personPoolRngUnchanged": true
+  },
+  "limits": {
+    "nativeInstructions": 100000,
+    "nativeTimeoutMicroseconds": 1000000,
+    "portSeconds": 5,
+    "outerSeconds": 15,
+    "retry": false
+  },
+  "rawInputs": [
+    {
+      "path": "people-input.bin",
+      "bytes": 1024,
+      "sha256": "4b1df7feffd16c3f1949f40b664f58bb422c4223f5176523c1f99c7916603e1e"
+    },
+    {
+      "path": "tribe-input.bin",
+      "bytes": 3173,
+      "sha256": "203639cf1c98e5b5673622d58ee26a1b52a53c41d3925be6bfbafdfd925277c8"
+    },
+    {
+      "path": "tribe-expected.bin",
+      "bytes": 3173,
+      "sha256": "fd47345f12b268922766f570634aaa5d5df2483411a029941d8ad116eb1d3ed3"
+    },
+    {
+      "path": "orders-input.bin",
+      "bytes": 8000,
+      "sha256": "ddaa78f8f23dabe3db7deb0ca7a64fdb8f105b612477e49c6756ba6dc6ba28fc"
+    },
+    {
+      "path": "pointers-input.bin",
+      "bytes": 4096,
+      "sha256": "b0f19579441075f47aeeac0f804034fb3cfa14322525a251839c994eaaf87def"
+    },
+    {
+      "path": "tombstone-input.bin",
+      "bytes": 256,
+      "sha256": "f9e7a5789e211e2aa836718b734219f95e2c35b2458113eeff42b6f70957401f"
+    }
+  ]
+}

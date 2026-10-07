@@ -66,17 +66,85 @@ test('Mission 2 naturally earns Matak kills and launches the organized raid', ()
     { requested: raid.requested, mode: raid.mode, entity: raid.entity },
     { requested: 2, mode: 7, entity: camp.id }
   )
-  stepUntil(
-    w,
-    () =>
-      raid.members.length === 2 &&
-      raid.phase === 16 &&
-      raid.members.some(id => {
-        const unit = w.units.find(candidate => candidate.id === id)
-        return unit?.native && currentPersonOrder(w.buildingOrders, unit.native)?.model === 19
-      }),
-    2000
-  )
+  const target = raid.target
+  let originalMembers = null, released = false, beforeRelease = null, releasedOwner = null
+  const registeredOwner = id => {
+    const unit = w.units.find(unit => unit.id === id && unit.hp > 0)
+    const person = w.objectCells.objects.get(id)
+    assert.ok(unit && person && person.id === unit.id, 'living original member has a registry owner')
+    assert.ok([unit.native, unit.flight, unit.fight?.motion, unit.entry?.person,
+      unit.builder?.person].includes(person), 'registry record belongs to the actual Unit')
+    return { unit, person }
+  }
+  const observeCohort = () => {
+    const active = w.ai.tasks.filter(task => task.flags & 1 && task.type === 20)
+    assert.equal(active.length, 1, 'no duplicate raid is created')
+    assert.equal(active[0], raid, 'the same task remains active')
+    if (!originalMembers && raid.phase >= 4 && raid.members.length) {
+      assert.equal(raid.members.length, 2, 'the original requested cohort is recruited first')
+      assert.equal(new Set(raid.members).size, 2)
+      originalMembers = [...raid.members]
+      for (const id of originalMembers) assert.equal(registeredOwner(id).unit.kind, 'brave')
+    }
+    if (!originalMembers) return
+    const [releaseId, admittedId] = originalMembers
+    if (!raid.members.includes(releaseId)) {
+      const current = registeredOwner(releaseId)
+      const { unit, person } = current
+      if (!released) {
+        assert.ok(beforeRelease, 'release has a witnessed original owner')
+        assert.equal(beforeRelease.phase, 6)
+        assert.equal(beforeRelease.state, 33)
+        assert.ok(beforeRelease.substate === 3 ||
+          (beforeRelease.substate === 2 && Number.isInteger(beforeRelease.animationMode) &&
+            beforeRelease.animationMode > 4 && beforeRelease.animationMode <= 255),
+          'the actual +a8 animationMode satisfies the original release predicate')
+        assert.equal(beforeRelease.immediate, 0)
+        assert.equal(beforeRelease.ids.length, 1)
+        assert.ok(beforeRelease.order, 'the observed original owner has its movement order')
+        assert.equal(beforeRelease.order.model, 3)
+        assert.equal(beforeRelease.order.references, 1)
+        assert.equal(unit, beforeRelease.unit, 'release retains the original Unit')
+        assert.equal(person, beforeRelease.person, 'release retains the original registered record')
+        assert.equal(unit.hp, beforeRelease.hp, 'admission is released while the original member lives')
+        assert.equal(person.life, beforeRelease.life)
+        assert.equal(person.computerAssignment, 0)
+        assert.deepEqual(person.commands, Array(8).fill(0))
+        assert.equal(person.immediateCommand, 0)
+        assert.equal(w.buildingOrders.records[beforeRelease.ids[0]].references, 0)
+        assert.equal(person.motionTimer, 0)
+        assert.equal(person.motionMode, 0)
+        assert.equal(raid.phase, 6, 'release itself does not skip to attack or retirement')
+        assert.equal(raid.target, target)
+        releasedOwner = current
+        released = true
+      }
+      assert.equal(unit, releasedOwner.unit, 'the same released Unit remains alive')
+      assert.deepEqual(raid.members, [admittedId], 'only the predeclared still-admitted member remains')
+    } else {
+      assert.equal(released, false, 'a released member is not silently readmitted')
+      assert.deepEqual(raid.members, originalMembers, 'no replacement cohort enters the task')
+      const { unit, person } = registeredOwner(releaseId)
+      const order = currentPersonOrder(w.buildingOrders, person)
+      beforeRelease = { unit, person, phase: raid.phase, state: person.state, substate: person.substate,
+        animationMode: person.animationMode, hp: unit.hp, life: person.life,
+        immediate: person.immediateCommand, ids: person.commands.filter(Boolean),
+        order: order && { ...order } }
+    }
+  }
+  stepUntil(w, () => {
+    observeCohort()
+    if (!released || raid.phase !== 16) return false
+    assert.equal(raid.members[0], originalMembers[1])
+    const { person } = registeredOwner(originalMembers[1])
+    const order = currentPersonOrder(w.buildingOrders, person)
+    if (order?.model !== 19) return false
+    assert.equal(order.flags & 1, 0)
+    assert.equal(order.a, target)
+    assert.equal(order.b, 0x0808)
+    assert.equal(order.references, 1)
+    return true
+  }, 2000)
   // Return one actual follower to fight the raid. Clicking the camp itself
   // starts training, whose replacement object is not evidence of combat damage.
   select(w, 'brave')
@@ -89,7 +157,7 @@ test('Mission 2 naturally earns Matak kills and launches the organized raid', ()
   const blueHp = defender.hp
   const taskDamage = raid.damage
   // Newborn followers change total tribe HP, so observe this fixed lifetime.
-  stepUntil(w, () => defender.hp < blueHp, 5000)
+  stepUntil(w, () => { observeCohort(); return defender.hp < blueHp }, 5000)
   assert.ok(raid.members.includes(defender.fight?.opponent) || raid.damage > taskDamage)
   assert.equal(raid.phase, 16)
   assert.equal(raid.fallback, 14)
