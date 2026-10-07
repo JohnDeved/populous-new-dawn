@@ -22,7 +22,7 @@
     "failureFirstPortable": "failed as expected:14 pass,3 angle failures",
     "candidatePortable": "passed:17/17",
     "newNativeInvocation": "not-run; accepted immutable native records reused",
-    "ordinaryBrowser": "failed attempt01 at initial guard; source-only early-binding repair awaiting review/new grant",
+    "ordinaryBrowser": "candidate passed attempt02: visible moved burst39 and completion70; initial rendered frame0 covered by loading; result review pending",
     "standardGates": "not-run",
     "finalIndependentReview": "not-run",
     "candidateSourceReview": "passed: narrow two-owner application diff",
@@ -30,5 +30,6 @@
     "observerSourceReview": "passed: exact f9b565ca early scene discovery and passive capture"
   },
   "limits": "Angle ownership only. Retained native trajectories compare declared native birth origins and ground256, not actual startup origin heights. Existing model9 root clamp ordering gap stays unchanged; no allocator/world/returning-person or raster equivalence claim.",
-  "observerSource": "f9b565ca09f8a4fdc60a82f823110c2b5836d28b"
+  "observerSource": "f9b565ca09f8a4fdc60a82f823110c2b5836d28b",
+  "ordinaryCandidateSource": "6a9f7d835294fc08166f6975957aa93f5e2256dc"
 }

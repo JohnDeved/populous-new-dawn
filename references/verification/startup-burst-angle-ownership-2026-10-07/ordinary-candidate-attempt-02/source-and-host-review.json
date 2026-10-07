@@ -1,0 +1,23 @@
+{
+  "verdict": "ACCEPT_ONE_ORDINARY_ATTEMPT02",
+  "reviewedAt": "2026-10-07T01:00:29.525267+00:00",
+  "source": "6a9f7d835294fc08166f6975957aa93f5e2256dc",
+  "packetSha256": "87274d9da56766267ea0c9a72f0185f72d9262b35c884daacb148474f4b01f6e",
+  "hostSha256": "667a11b75864c222953012c4a31d66e30f4a50206f1d4b5d0dda3e13a5c7f1ac",
+  "finding": "All31 source hashes verified; nine focused contracts reported passed on accepted early-bind source. Application, host, tools, dependencies and resource bounds unchanged. Command/environment changes are fresh02 output/TMP paths only. Preserved prior failed receipt and renamed lock stub are explicit.",
+  "grant": {
+    "cpu": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "port": 4196,
+    "harnessSeconds": 120,
+    "outerTermSeconds": 150,
+    "killGraceSeconds": 10,
+    "hostFallbackSeconds": 163,
+    "runs": 1
+  },
+  "limits": "No runtime change, hidden loading frame relabel or full native raster claim. Final visible result needs actual presented burst pixels."
+}

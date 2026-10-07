@@ -1,0 +1,9 @@
+1:01:18 AM [vite] (rsc) [optimizer] scanning dependencies...
+1:01:18 AM [vite] (ssr) [optimizer] scanning dependencies...
+
+  VITE v8.0.13  ready in 13524 ms
+
+  ➜  Local:   http://127.0.0.1:4196/
+ GET / 200 in 947ms (compile: 1791334874.8s, render: 919ms)
+ GET / 200 in 100ms (compile: 1791334874.8s, render: 62ms)
+  ➜  Tunnel closed

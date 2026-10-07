@@ -158,3 +158,17 @@ and a derived presented flag; a loading-covered canvas is not called presented
 gameplay. The nine focused ownership/disconnection/failed-guard contracts pass
 on exact `f9b565ca`, as retained in `observer-contracts-03.json`. This is source/
 portable acceptance preparation only, not a browser retry or result.
+
+## Actual candidate frames
+
+[Attempt02](ordinary-candidate-attempt-02/README.md) passed the one separately
+granted ordinary route on exact `6a9f7d83`, with verified host/dependency/source
+cleanup. Installation occurred at turn0 while loading and before Scene.start.
+The turn39 moved-burst frame and turn70 completed frame both have
+`presented:true`, connected canvas and no loading overlay. The initial turn0
+canvas has `presented:false` and remains labelled as covered by loading.
+The retained66 rows and final readiness108 contain no observer/browser errors.
+All three actual PNGs were visually inspected. This is SwiftShader rendering,
+not hardware performance or a correction to the separate native-height gap.
+Independent result review, matching old-code pixels and final combined standard
+gates remain pending.

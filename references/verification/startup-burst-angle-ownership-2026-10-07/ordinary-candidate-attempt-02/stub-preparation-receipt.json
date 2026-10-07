@@ -1,0 +1,18 @@
+{
+  "at": "2026-10-07T00:58:47.432986+00:00",
+  "source": "/workspace/scratch/69fd8163d94e/startup-burst-angle-fix-20261007/node_modules",
+  "destination": "/workspace/scratch/69fd8163d94e/startup-burst-angle-fix-20261007/work/orchestration/startup-burst-ordinary-candidate-preparation-02/returned-attempt01-lock-stub",
+  "identity": [
+    27,
+    1053646
+  ],
+  "lockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "onlyFiles": [
+    ".package-lock.json"
+  ],
+  "sourceAbsent": true,
+  "retainedIdentity": [
+    27,
+    1053646
+  ]
+}

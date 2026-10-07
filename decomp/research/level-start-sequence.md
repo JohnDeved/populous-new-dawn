@@ -111,4 +111,7 @@ run. The distinct model9-root clamp-before-height-offset gap remains unchanged;
 this correction does not certify complete startup positions or trajectories.
 The unchanged-test candidate passes all17 focused checks:32 raw births,139
 declared-origin native visits,1024 actual startup particles and14 existing
-startup regressions. Ordinary browser/full gates and final acceptance remain pending.
+startup regressions. Ordinary candidate Mission1 now has a presented moved-burst
+frame at turn39 and completed stones at turn70; the first rendered turn0 frame
+was still covered by loading and is labelled accordingly. Independent result
+review, combined full gates and final acceptance remain pending.

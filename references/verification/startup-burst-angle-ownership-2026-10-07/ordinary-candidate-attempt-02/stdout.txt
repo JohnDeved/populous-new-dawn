@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "output": "work/orchestration/startup-burst-ordinary-candidate-host-02/command-receipt.json",
+  "headOid": "6a9f7d835294fc08166f6975957aa93f5e2256dc",
+  "exitCode": 0,
+  "stdoutSha256": "ce8b26a85e25bfa844f6a03660cf074cc9661dc60649f604b98628516924a451",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}
