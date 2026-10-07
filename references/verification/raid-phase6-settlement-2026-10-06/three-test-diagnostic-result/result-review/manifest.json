@@ -1,0 +1,9 @@
+{
+  "decision": "ACCEPT diagnosis; three aggregate failures remain",
+  "head": "48a84610254d3ad5cddb600c266ed9a151233b79",
+  "files": {
+    "review.md": "e5dab4ec84cf16da991e3b035a1cb4a2261d57b3ecc90e3465d65c4620e13f3a",
+    "verification.json": "fa0bb869abba223d29288c2566c1ceb128d431a8dc5324f01f0788e91d1a36f5",
+    "selected-rows.json": "4a955dd537e8bf910d54967181b9796d2b864e99c72afd61eb9e65b09edc184b"
+  }
+}

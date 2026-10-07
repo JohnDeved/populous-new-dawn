@@ -1,0 +1,2931 @@
+[
+  {
+    "line": 878,
+    "case": "mission-one Dakini launches its native attack route when Blue enters marker three",
+    "world": 1,
+    "kind": "failure-endpoint",
+    "turn": 1069,
+    "turnCalls": 874,
+    "status": "playing",
+    "random": 558314449,
+    "cosmetic": 1702039682,
+    "tasks": [
+      {
+        "tribe": 1,
+        "index": 0,
+        "flags": 0,
+        "type": 20,
+        "phase": 23,
+        "target": 64006,
+        "requested": 3,
+        "extra": 999,
+        "selected": 3,
+        "remaining": 6,
+        "elapsed": 1801,
+        "mode": 3,
+        "fallback": 23,
+        "regroup": 64018,
+        "origin": 64006,
+        "entity": 0,
+        "damage": 999,
+        "retries": 0,
+        "retreatPercent": 50,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          100,
+          34,
+          0,
+          0,
+          0,
+          0
+        ],
+        "members": [],
+        "route": [
+          {
+            "marker": 1,
+            "secondary": -1,
+            "quotas": [
+              1,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      }
+    ],
+    "selected": [
+      30
+    ],
+    "actors": [
+      {
+        "id": 35,
+        "present": true,
+        "team": "red",
+        "kind": "brave",
+        "hp": 23.7,
+        "target": null,
+        "inside": null,
+        "work": null,
+        "fighting": false,
+        "fight": {
+          "group": 1222,
+          "opponent": 40,
+          "action": "recoil",
+          "animation": "recoil",
+          "started": 1068,
+          "knockback": false,
+          "remaining": 5
+        },
+        "registered": {
+          "id": 35,
+          "class": 1,
+          "model": 2,
+          "tribe": 1,
+          "state": 25,
+          "substate": 1,
+          "speed": 0,
+          "life": 474,
+          "x": 2359,
+          "y": 61693,
+          "h": 2,
+          "flags2": 2228864,
+          "flags3": 264192,
+          "flags4": 536871168,
+          "workFlags": 1222,
+          "workTarget": 0,
+          "vehicle": 0,
+          "computerAssignment": 0,
+          "counter": 102,
+          "commandStatus": 21,
+          "commandAux": 0,
+          "commandPhase": 0,
+          "timer": 0,
+          "assignment": 256,
+          "immediateCommand": 19,
+          "commands": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "cellPrevious": 40,
+          "cellNext": 0
+        },
+        "owners": {
+          "native": {
+            "registered": false,
+            "fields": null,
+            "order": null
+          },
+          "fight": {
+            "registered": true,
+            "fields": {
+              "id": 35,
+              "class": 1,
+              "model": 2,
+              "tribe": 1,
+              "state": 25,
+              "substate": 1,
+              "speed": 0,
+              "life": 474,
+              "x": 2359,
+              "y": 61693,
+              "h": 2,
+              "flags2": 2228864,
+              "flags3": 264192,
+              "flags4": 536871168,
+              "workFlags": 1222,
+              "workTarget": 0,
+              "vehicle": 0,
+              "computerAssignment": 0,
+              "counter": 102,
+              "commandStatus": 21,
+              "commandAux": 0,
+              "commandPhase": 0,
+              "timer": 0,
+              "assignment": 256,
+              "immediateCommand": 19,
+              "commands": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "commandCursor": 0,
+              "cellPrevious": 40,
+              "cellNext": 0
+            },
+            "order": {
+              "immediate": 19,
+              "cursor": 0,
+              "queued": 0,
+              "current": 19,
+              "currentRecord": {
+                "model": 21,
+                "flags": 48,
+                "references": 1,
+                "object": 0,
+                "a": 61962,
+                "b": 1028
+              },
+              "queuedRecord": null
+            }
+          },
+          "flight": {
+            "registered": false,
+            "order": null
+          },
+          "entry": {
+            "registered": false,
+            "order": null
+          },
+          "builder": {
+            "registered": false,
+            "order": null
+          }
+        },
+        "registeredOrder": {
+          "immediate": 19,
+          "cursor": 0,
+          "queued": 0,
+          "current": 19,
+          "currentRecord": {
+            "model": 21,
+            "flags": 48,
+            "references": 1,
+            "object": 0,
+            "a": 61962,
+            "b": 1028
+          },
+          "queuedRecord": null
+        }
+      },
+      {
+        "id": 33,
+        "present": true,
+        "team": "red",
+        "kind": "warrior",
+        "hp": 83.75,
+        "target": null,
+        "inside": null,
+        "work": null,
+        "fighting": false,
+        "fight": null,
+        "registered": {
+          "id": 33,
+          "class": 1,
+          "model": 3,
+          "tribe": 1,
+          "state": 14,
+          "substate": 0,
+          "speed": 0,
+          "life": 1675,
+          "x": 1558,
+          "y": 1590,
+          "h": 0,
+          "flags2": 1090656384,
+          "flags3": 262144,
+          "flags4": 805306624,
+          "workFlags": 0,
+          "workTarget": 0,
+          "vehicle": 0,
+          "computerAssignment": 0,
+          "counter": 99,
+          "commandStatus": 0,
+          "commandAux": 0,
+          "commandPhase": 0,
+          "timer": 0,
+          "assignment": 282,
+          "immediateCommand": 0,
+          "commands": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "cellPrevious": 0,
+          "cellNext": 0
+        },
+        "owners": {
+          "native": {
+            "registered": true,
+            "fields": {
+              "id": 33,
+              "class": 1,
+              "model": 3,
+              "tribe": 1,
+              "state": 14,
+              "substate": 0,
+              "speed": 0,
+              "life": 1675,
+              "x": 1558,
+              "y": 1590,
+              "h": 0,
+              "flags2": 1090656384,
+              "flags3": 262144,
+              "flags4": 805306624,
+              "workFlags": 0,
+              "workTarget": 0,
+              "vehicle": 0,
+              "computerAssignment": 0,
+              "counter": 99,
+              "commandStatus": 0,
+              "commandAux": 0,
+              "commandPhase": 0,
+              "timer": 0,
+              "assignment": 282,
+              "immediateCommand": 0,
+              "commands": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "commandCursor": 0,
+              "cellPrevious": 0,
+              "cellNext": 0
+            },
+            "order": {
+              "immediate": 0,
+              "cursor": 0,
+              "queued": 0,
+              "current": 0,
+              "currentRecord": null,
+              "queuedRecord": null
+            }
+          },
+          "fight": {
+            "registered": false,
+            "order": null
+          },
+          "flight": {
+            "registered": false,
+            "order": null
+          },
+          "entry": {
+            "registered": false,
+            "order": null
+          },
+          "builder": {
+            "registered": false,
+            "order": null
+          }
+        },
+        "registeredOrder": {
+          "immediate": 0,
+          "cursor": 0,
+          "queued": 0,
+          "current": 0,
+          "currentRecord": null,
+          "queuedRecord": null
+        }
+      },
+      {
+        "id": 34,
+        "present": true,
+        "team": "red",
+        "kind": "warrior",
+        "hp": 90.1,
+        "target": null,
+        "inside": null,
+        "work": null,
+        "fighting": false,
+        "fight": null,
+        "registered": {
+          "id": 34,
+          "class": 1,
+          "model": 3,
+          "tribe": 1,
+          "state": 33,
+          "substate": 3,
+          "speed": 0,
+          "life": 1802,
+          "x": 1186,
+          "y": 1610,
+          "h": 0,
+          "flags2": 1073872896,
+          "flags3": 264192,
+          "flags4": 939524352,
+          "workFlags": 0,
+          "workTarget": 0,
+          "vehicle": 0,
+          "computerAssignment": 0,
+          "counter": 98,
+          "commandStatus": 3,
+          "commandAux": 0,
+          "commandPhase": 8,
+          "timer": 448,
+          "assignment": 282,
+          "immediateCommand": 0,
+          "commands": [
+            16,
+            17,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "cellPrevious": 0,
+          "cellNext": 0
+        },
+        "owners": {
+          "native": {
+            "registered": true,
+            "fields": {
+              "id": 34,
+              "class": 1,
+              "model": 3,
+              "tribe": 1,
+              "state": 33,
+              "substate": 3,
+              "speed": 0,
+              "life": 1802,
+              "x": 1186,
+              "y": 1610,
+              "h": 0,
+              "flags2": 1073872896,
+              "flags3": 264192,
+              "flags4": 939524352,
+              "workFlags": 0,
+              "workTarget": 0,
+              "vehicle": 0,
+              "computerAssignment": 0,
+              "counter": 98,
+              "commandStatus": 3,
+              "commandAux": 0,
+              "commandPhase": 8,
+              "timer": 448,
+              "assignment": 282,
+              "immediateCommand": 0,
+              "commands": [
+                16,
+                17,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "commandCursor": 0,
+              "cellPrevious": 0,
+              "cellNext": 0
+            },
+            "order": {
+              "immediate": 0,
+              "cursor": 0,
+              "queued": 16,
+              "current": 16,
+              "currentRecord": {
+                "model": 3,
+                "flags": 0,
+                "references": 1,
+                "object": 0,
+                "a": 2176,
+                "b": 4736
+              },
+              "queuedRecord": {
+                "model": 3,
+                "flags": 0,
+                "references": 1,
+                "object": 0,
+                "a": 2176,
+                "b": 4736
+              }
+            }
+          },
+          "fight": {
+            "registered": false,
+            "order": null
+          },
+          "flight": {
+            "registered": false,
+            "order": null
+          },
+          "entry": {
+            "registered": false,
+            "order": null
+          },
+          "builder": {
+            "registered": false,
+            "order": null
+          }
+        },
+        "registeredOrder": {
+          "immediate": 0,
+          "cursor": 0,
+          "queued": 16,
+          "current": 16,
+          "currentRecord": {
+            "model": 3,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 2176,
+            "b": 4736
+          },
+          "queuedRecord": {
+            "model": 3,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 2176,
+            "b": 4736
+          }
+        }
+      },
+      {
+        "id": 30,
+        "present": true,
+        "team": "blue",
+        "kind": "shaman",
+        "hp": 100,
+        "target": null,
+        "inside": null,
+        "work": null,
+        "fighting": false,
+        "fight": null,
+        "registered": {
+          "id": 30,
+          "class": 1,
+          "model": 7,
+          "tribe": 0,
+          "state": 19,
+          "substate": 8,
+          "speed": 0,
+          "life": 2000,
+          "x": 4352,
+          "y": 55040,
+          "h": 64,
+          "flags2": 131072,
+          "flags3": 262144,
+          "flags4": 536871168,
+          "workFlags": 0,
+          "workTarget": 0,
+          "vehicle": 0,
+          "computerAssignment": 0,
+          "counter": 112,
+          "commandStatus": 0,
+          "commandAux": 0,
+          "commandPhase": 0,
+          "timer": 0,
+          "assignment": 273,
+          "immediateCommand": 0,
+          "commands": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "cellPrevious": 0,
+          "cellNext": 0
+        },
+        "owners": {
+          "native": {
+            "registered": true,
+            "fields": {
+              "id": 30,
+              "class": 1,
+              "model": 7,
+              "tribe": 0,
+              "state": 19,
+              "substate": 8,
+              "speed": 0,
+              "life": 2000,
+              "x": 4352,
+              "y": 55040,
+              "h": 64,
+              "flags2": 131072,
+              "flags3": 262144,
+              "flags4": 536871168,
+              "workFlags": 0,
+              "workTarget": 0,
+              "vehicle": 0,
+              "computerAssignment": 0,
+              "counter": 112,
+              "commandStatus": 0,
+              "commandAux": 0,
+              "commandPhase": 0,
+              "timer": 0,
+              "assignment": 273,
+              "immediateCommand": 0,
+              "commands": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "commandCursor": 0,
+              "cellPrevious": 0,
+              "cellNext": 0
+            },
+            "order": {
+              "immediate": 0,
+              "cursor": 0,
+              "queued": 0,
+              "current": 0,
+              "currentRecord": null,
+              "queuedRecord": null
+            }
+          },
+          "fight": {
+            "registered": false,
+            "order": null
+          },
+          "flight": {
+            "registered": false,
+            "order": null
+          },
+          "entry": {
+            "registered": false,
+            "order": null
+          },
+          "builder": {
+            "registered": false,
+            "order": null
+          }
+        },
+        "registeredOrder": {
+          "immediate": 0,
+          "cursor": 0,
+          "queued": 0,
+          "current": 0,
+          "currentRecord": null,
+          "queuedRecord": null
+        }
+      },
+      {
+        "id": 40,
+        "present": true,
+        "team": "blue",
+        "kind": "warrior",
+        "hp": 87.5,
+        "target": null,
+        "inside": null,
+        "work": null,
+        "fighting": false,
+        "fight": {
+          "group": 1222,
+          "opponent": 35,
+          "action": "attack",
+          "animation": "attack",
+          "started": 1067,
+          "remaining": 3
+        },
+        "registered": {
+          "id": 40,
+          "class": 1,
+          "model": 3,
+          "tribe": 0,
+          "state": 25,
+          "substate": 1,
+          "speed": 0,
+          "life": 1750,
+          "x": 2266,
+          "y": 61538,
+          "h": 7,
+          "flags2": 2228864,
+          "flags3": 264192,
+          "flags4": 536871168,
+          "workFlags": 1222,
+          "workTarget": 0,
+          "vehicle": 0,
+          "computerAssignment": 0,
+          "counter": 45,
+          "commandStatus": 21,
+          "commandAux": 0,
+          "commandPhase": 0,
+          "timer": 0,
+          "assignment": 256,
+          "immediateCommand": 20,
+          "commands": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "cellPrevious": 0,
+          "cellNext": 35
+        },
+        "owners": {
+          "native": {
+            "registered": false,
+            "fields": null,
+            "order": null
+          },
+          "fight": {
+            "registered": true,
+            "fields": {
+              "id": 40,
+              "class": 1,
+              "model": 3,
+              "tribe": 0,
+              "state": 25,
+              "substate": 1,
+              "speed": 0,
+              "life": 1750,
+              "x": 2266,
+              "y": 61538,
+              "h": 7,
+              "flags2": 2228864,
+              "flags3": 264192,
+              "flags4": 536871168,
+              "workFlags": 1222,
+              "workTarget": 0,
+              "vehicle": 0,
+              "computerAssignment": 0,
+              "counter": 45,
+              "commandStatus": 21,
+              "commandAux": 0,
+              "commandPhase": 0,
+              "timer": 0,
+              "assignment": 256,
+              "immediateCommand": 20,
+              "commands": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "commandCursor": 0,
+              "cellPrevious": 0,
+              "cellNext": 35
+            },
+            "order": {
+              "immediate": 20,
+              "cursor": 0,
+              "queued": 0,
+              "current": 20,
+              "currentRecord": {
+                "model": 21,
+                "flags": 48,
+                "references": 1,
+                "object": 0,
+                "a": 60934,
+                "b": 1028
+              },
+              "queuedRecord": null
+            }
+          },
+          "flight": {
+            "registered": false,
+            "order": null
+          },
+          "entry": {
+            "registered": false,
+            "order": null
+          },
+          "builder": {
+            "registered": false,
+            "order": null
+          }
+        },
+        "registeredOrder": {
+          "immediate": 20,
+          "cursor": 0,
+          "queued": 0,
+          "current": 20,
+          "currentRecord": {
+            "model": 21,
+            "flags": 48,
+            "references": 1,
+            "object": 0,
+            "a": 60934,
+            "b": 1028
+          },
+          "queuedRecord": null
+        }
+      }
+    ],
+    "population": [
+      {
+        "id": 13,
+        "team": "blue",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 14,
+        "team": "blue",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 15,
+        "team": "blue",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 16,
+        "team": "blue",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 17,
+        "team": "blue",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 18,
+        "team": "blue",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 30,
+        "team": "blue",
+        "kind": "shaman",
+        "hp": 100
+      },
+      {
+        "id": 32,
+        "team": "red",
+        "kind": "shaman",
+        "hp": 100
+      },
+      {
+        "id": 33,
+        "team": "red",
+        "kind": "warrior",
+        "hp": 83.75
+      },
+      {
+        "id": 34,
+        "team": "red",
+        "kind": "warrior",
+        "hp": 90.1
+      },
+      {
+        "id": 35,
+        "team": "red",
+        "kind": "brave",
+        "hp": 23.7
+      },
+      {
+        "id": 38,
+        "team": "red",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 39,
+        "team": "red",
+        "kind": "warrior",
+        "hp": 90
+      },
+      {
+        "id": 40,
+        "team": "blue",
+        "kind": "warrior",
+        "hp": 87.5
+      },
+      {
+        "id": 1196,
+        "team": "red",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 1198,
+        "team": "blue",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 1200,
+        "team": "blue",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 1219,
+        "team": "red",
+        "kind": "brave",
+        "hp": 50
+      }
+    ],
+    "selectionOwner": 1
+  },
+  {
+    "line": 1214,
+    "case": "mission-one Dakini launches its later building attack when Blue overwhelms it",
+    "world": 2,
+    "kind": "failure-endpoint",
+    "turn": 408,
+    "turnCalls": 333,
+    "status": "playing",
+    "random": 2819224270,
+    "cosmetic": 1094291488,
+    "tasks": [
+      {
+        "tribe": 1,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 15,
+        "target": 55036,
+        "requested": 4,
+        "extra": 999,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 1801,
+        "mode": 0,
+        "fallback": 14,
+        "regroup": 54784,
+        "origin": 55036,
+        "entity": 37,
+        "damage": 0,
+        "retries": 0,
+        "retreatPercent": 50,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          100,
+          100,
+          0,
+          0,
+          0,
+          1
+        ],
+        "members": [
+          40,
+          41,
+          42,
+          39
+        ],
+        "route": [
+          {
+            "marker": 1,
+            "secondary": -1,
+            "quotas": [
+              1,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      }
+    ],
+    "selected": [],
+    "actors": [
+      {
+        "id": 40,
+        "present": true,
+        "team": "red",
+        "kind": "brave",
+        "hp": 50,
+        "target": null,
+        "inside": null,
+        "work": null,
+        "fighting": false,
+        "fight": {
+          "group": 320,
+          "opponent": 313,
+          "action": "approach",
+          "animation": "idle",
+          "started": 408
+        },
+        "registered": {
+          "id": 40,
+          "class": 1,
+          "model": 2,
+          "tribe": 1,
+          "state": 25,
+          "substate": 0,
+          "speed": 72,
+          "life": 1000,
+          "x": 65327,
+          "y": 54085,
+          "h": 52,
+          "flags2": 1075974656,
+          "flags3": 264192,
+          "flags4": 536871168,
+          "workFlags": 320,
+          "workTarget": 320,
+          "vehicle": 0,
+          "computerAssignment": 0,
+          "counter": 147,
+          "commandStatus": 21,
+          "commandAux": 0,
+          "commandPhase": 2,
+          "timer": 0,
+          "assignment": 256,
+          "immediateCommand": 11,
+          "commands": [
+            9,
+            10,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "cellPrevious": 41,
+          "cellNext": 39
+        },
+        "owners": {
+          "native": {
+            "registered": false,
+            "fields": null,
+            "order": null
+          },
+          "fight": {
+            "registered": true,
+            "fields": {
+              "id": 40,
+              "class": 1,
+              "model": 2,
+              "tribe": 1,
+              "state": 25,
+              "substate": 0,
+              "speed": 72,
+              "life": 1000,
+              "x": 65327,
+              "y": 54085,
+              "h": 52,
+              "flags2": 1075974656,
+              "flags3": 264192,
+              "flags4": 536871168,
+              "workFlags": 320,
+              "workTarget": 320,
+              "vehicle": 0,
+              "computerAssignment": 0,
+              "counter": 147,
+              "commandStatus": 21,
+              "commandAux": 0,
+              "commandPhase": 2,
+              "timer": 0,
+              "assignment": 256,
+              "immediateCommand": 11,
+              "commands": [
+                9,
+                10,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "commandCursor": 0,
+              "cellPrevious": 41,
+              "cellNext": 39
+            },
+            "order": {
+              "immediate": 11,
+              "cursor": 0,
+              "queued": 9,
+              "current": 11,
+              "currentRecord": {
+                "model": 21,
+                "flags": 32,
+                "references": 3,
+                "object": 0,
+                "a": 54014,
+                "b": 0
+              },
+              "queuedRecord": {
+                "model": 3,
+                "flags": 0,
+                "references": 4,
+                "object": 0,
+                "a": 64768,
+                "b": 54144
+              }
+            }
+          },
+          "flight": {
+            "registered": false,
+            "order": null
+          },
+          "entry": {
+            "registered": false,
+            "order": null
+          },
+          "builder": {
+            "registered": false,
+            "order": null
+          }
+        },
+        "registeredOrder": {
+          "immediate": 11,
+          "cursor": 0,
+          "queued": 9,
+          "current": 11,
+          "currentRecord": {
+            "model": 21,
+            "flags": 32,
+            "references": 3,
+            "object": 0,
+            "a": 54014,
+            "b": 0
+          },
+          "queuedRecord": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 64768,
+            "b": 54144
+          }
+        }
+      },
+      {
+        "id": 41,
+        "present": true,
+        "team": "red",
+        "kind": "brave",
+        "hp": 50,
+        "target": null,
+        "inside": null,
+        "work": null,
+        "fighting": false,
+        "fight": {
+          "group": 320,
+          "opponent": 313,
+          "action": "approach",
+          "animation": "idle",
+          "started": 408
+        },
+        "registered": {
+          "id": 41,
+          "class": 1,
+          "model": 2,
+          "tribe": 1,
+          "state": 25,
+          "substate": 0,
+          "speed": 81,
+          "life": 1000,
+          "x": 65429,
+          "y": 54088,
+          "h": 52,
+          "flags2": 1075974656,
+          "flags3": 264192,
+          "flags4": 536871168,
+          "workFlags": 320,
+          "workTarget": 320,
+          "vehicle": 0,
+          "computerAssignment": 0,
+          "counter": 147,
+          "commandStatus": 21,
+          "commandAux": 0,
+          "commandPhase": 3,
+          "timer": 0,
+          "assignment": 256,
+          "immediateCommand": 11,
+          "commands": [
+            9,
+            10,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "cellPrevious": 42,
+          "cellNext": 40
+        },
+        "owners": {
+          "native": {
+            "registered": false,
+            "fields": null,
+            "order": null
+          },
+          "fight": {
+            "registered": true,
+            "fields": {
+              "id": 41,
+              "class": 1,
+              "model": 2,
+              "tribe": 1,
+              "state": 25,
+              "substate": 0,
+              "speed": 81,
+              "life": 1000,
+              "x": 65429,
+              "y": 54088,
+              "h": 52,
+              "flags2": 1075974656,
+              "flags3": 264192,
+              "flags4": 536871168,
+              "workFlags": 320,
+              "workTarget": 320,
+              "vehicle": 0,
+              "computerAssignment": 0,
+              "counter": 147,
+              "commandStatus": 21,
+              "commandAux": 0,
+              "commandPhase": 3,
+              "timer": 0,
+              "assignment": 256,
+              "immediateCommand": 11,
+              "commands": [
+                9,
+                10,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "commandCursor": 0,
+              "cellPrevious": 42,
+              "cellNext": 40
+            },
+            "order": {
+              "immediate": 11,
+              "cursor": 0,
+              "queued": 9,
+              "current": 11,
+              "currentRecord": {
+                "model": 21,
+                "flags": 32,
+                "references": 3,
+                "object": 0,
+                "a": 54014,
+                "b": 0
+              },
+              "queuedRecord": {
+                "model": 3,
+                "flags": 0,
+                "references": 4,
+                "object": 0,
+                "a": 64768,
+                "b": 54144
+              }
+            }
+          },
+          "flight": {
+            "registered": false,
+            "order": null
+          },
+          "entry": {
+            "registered": false,
+            "order": null
+          },
+          "builder": {
+            "registered": false,
+            "order": null
+          }
+        },
+        "registeredOrder": {
+          "immediate": 11,
+          "cursor": 0,
+          "queued": 9,
+          "current": 11,
+          "currentRecord": {
+            "model": 21,
+            "flags": 32,
+            "references": 3,
+            "object": 0,
+            "a": 54014,
+            "b": 0
+          },
+          "queuedRecord": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 64768,
+            "b": 54144
+          }
+        }
+      },
+      {
+        "id": 42,
+        "present": true,
+        "team": "red",
+        "kind": "brave",
+        "hp": 50,
+        "target": null,
+        "inside": null,
+        "work": null,
+        "fighting": false,
+        "fight": null,
+        "registered": {
+          "id": 42,
+          "class": 1,
+          "model": 2,
+          "tribe": 1,
+          "state": 10,
+          "substate": 1,
+          "speed": 83,
+          "life": 1000,
+          "x": 65445,
+          "y": 54094,
+          "h": 53,
+          "flags2": 33690112,
+          "flags3": 262144,
+          "flags4": 536936704,
+          "workFlags": 0,
+          "workTarget": 320,
+          "vehicle": 0,
+          "computerAssignment": 0,
+          "counter": 147,
+          "commandStatus": 21,
+          "commandAux": 0,
+          "commandPhase": 4,
+          "timer": 63,
+          "assignment": 272,
+          "immediateCommand": 11,
+          "commands": [
+            9,
+            10,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "cellPrevious": 0,
+          "cellNext": 41
+        },
+        "owners": {
+          "native": {
+            "registered": true,
+            "fields": {
+              "id": 42,
+              "class": 1,
+              "model": 2,
+              "tribe": 1,
+              "state": 10,
+              "substate": 1,
+              "speed": 83,
+              "life": 1000,
+              "x": 65445,
+              "y": 54094,
+              "h": 53,
+              "flags2": 33690112,
+              "flags3": 262144,
+              "flags4": 536936704,
+              "workFlags": 0,
+              "workTarget": 320,
+              "vehicle": 0,
+              "computerAssignment": 0,
+              "counter": 147,
+              "commandStatus": 21,
+              "commandAux": 0,
+              "commandPhase": 4,
+              "timer": 63,
+              "assignment": 272,
+              "immediateCommand": 11,
+              "commands": [
+                9,
+                10,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "commandCursor": 0,
+              "cellPrevious": 0,
+              "cellNext": 41
+            },
+            "order": {
+              "immediate": 11,
+              "cursor": 0,
+              "queued": 9,
+              "current": 11,
+              "currentRecord": {
+                "model": 21,
+                "flags": 32,
+                "references": 3,
+                "object": 0,
+                "a": 54014,
+                "b": 0
+              },
+              "queuedRecord": {
+                "model": 3,
+                "flags": 0,
+                "references": 4,
+                "object": 0,
+                "a": 64768,
+                "b": 54144
+              }
+            }
+          },
+          "fight": {
+            "registered": false,
+            "order": null
+          },
+          "flight": {
+            "registered": false,
+            "order": null
+          },
+          "entry": {
+            "registered": false,
+            "order": null
+          },
+          "builder": {
+            "registered": false,
+            "order": null
+          }
+        },
+        "registeredOrder": {
+          "immediate": 11,
+          "cursor": 0,
+          "queued": 9,
+          "current": 11,
+          "currentRecord": {
+            "model": 21,
+            "flags": 32,
+            "references": 3,
+            "object": 0,
+            "a": 54014,
+            "b": 0
+          },
+          "queuedRecord": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 64768,
+            "b": 54144
+          }
+        }
+      },
+      {
+        "id": 39,
+        "present": true,
+        "team": "red",
+        "kind": "shaman",
+        "hp": 100.75,
+        "target": null,
+        "inside": null,
+        "work": null,
+        "fighting": false,
+        "fight": {
+          "group": 320,
+          "opponent": 313,
+          "action": "ready",
+          "animation": "idle",
+          "started": 406
+        },
+        "registered": {
+          "id": 39,
+          "class": 1,
+          "model": 7,
+          "tribe": 1,
+          "state": 25,
+          "substate": 1,
+          "speed": 0,
+          "life": 2015,
+          "x": 65509,
+          "y": 54132,
+          "h": 52,
+          "flags2": 2228864,
+          "flags3": 264192,
+          "flags4": 671088896,
+          "workFlags": 320,
+          "workTarget": 0,
+          "vehicle": 0,
+          "computerAssignment": 0,
+          "counter": 149,
+          "commandStatus": 3,
+          "commandAux": 0,
+          "commandPhase": 0,
+          "timer": 0,
+          "assignment": 281,
+          "immediateCommand": 0,
+          "commands": [
+            9,
+            10,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "cellPrevious": 40,
+          "cellNext": 313
+        },
+        "owners": {
+          "native": {
+            "registered": false,
+            "fields": null,
+            "order": null
+          },
+          "fight": {
+            "registered": true,
+            "fields": {
+              "id": 39,
+              "class": 1,
+              "model": 7,
+              "tribe": 1,
+              "state": 25,
+              "substate": 1,
+              "speed": 0,
+              "life": 2015,
+              "x": 65509,
+              "y": 54132,
+              "h": 52,
+              "flags2": 2228864,
+              "flags3": 264192,
+              "flags4": 671088896,
+              "workFlags": 320,
+              "workTarget": 0,
+              "vehicle": 0,
+              "computerAssignment": 0,
+              "counter": 149,
+              "commandStatus": 3,
+              "commandAux": 0,
+              "commandPhase": 0,
+              "timer": 0,
+              "assignment": 281,
+              "immediateCommand": 0,
+              "commands": [
+                9,
+                10,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "commandCursor": 0,
+              "cellPrevious": 40,
+              "cellNext": 313
+            },
+            "order": {
+              "immediate": 0,
+              "cursor": 0,
+              "queued": 9,
+              "current": 9,
+              "currentRecord": {
+                "model": 3,
+                "flags": 0,
+                "references": 4,
+                "object": 0,
+                "a": 64768,
+                "b": 54144
+              },
+              "queuedRecord": {
+                "model": 3,
+                "flags": 0,
+                "references": 4,
+                "object": 0,
+                "a": 64768,
+                "b": 54144
+              }
+            }
+          },
+          "flight": {
+            "registered": false,
+            "order": null
+          },
+          "entry": {
+            "registered": false,
+            "order": null
+          },
+          "builder": {
+            "registered": false,
+            "order": null
+          }
+        },
+        "registeredOrder": {
+          "immediate": 0,
+          "cursor": 0,
+          "queued": 9,
+          "current": 9,
+          "currentRecord": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 64768,
+            "b": 54144
+          },
+          "queuedRecord": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 64768,
+            "b": 54144
+          }
+        }
+      },
+      {
+        "id": 313,
+        "present": true,
+        "team": "blue",
+        "kind": "brave",
+        "hp": 50,
+        "target": null,
+        "inside": null,
+        "work": null,
+        "fighting": false,
+        "fight": {
+          "group": 320,
+          "opponent": 39,
+          "action": "approach",
+          "animation": "walk",
+          "started": 406
+        },
+        "registered": {
+          "id": 313,
+          "class": 1,
+          "model": 2,
+          "tribe": 0,
+          "state": 25,
+          "substate": 0,
+          "speed": 80,
+          "life": 1000,
+          "x": 65432,
+          "y": 53971,
+          "h": 58,
+          "flags2": 1075970560,
+          "flags3": 264192,
+          "flags4": 536871168,
+          "workFlags": 320,
+          "workTarget": 0,
+          "vehicle": 0,
+          "computerAssignment": 0,
+          "counter": 152,
+          "commandStatus": 21,
+          "commandAux": 0,
+          "commandPhase": 0,
+          "timer": 0,
+          "assignment": 256,
+          "immediateCommand": 8,
+          "commands": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "cellPrevious": 39,
+          "cellNext": 0
+        },
+        "owners": {
+          "native": {
+            "registered": false,
+            "fields": null,
+            "order": null
+          },
+          "fight": {
+            "registered": true,
+            "fields": {
+              "id": 313,
+              "class": 1,
+              "model": 2,
+              "tribe": 0,
+              "state": 25,
+              "substate": 0,
+              "speed": 80,
+              "life": 1000,
+              "x": 65432,
+              "y": 53971,
+              "h": 58,
+              "flags2": 1075970560,
+              "flags3": 264192,
+              "flags4": 536871168,
+              "workFlags": 320,
+              "workTarget": 0,
+              "vehicle": 0,
+              "computerAssignment": 0,
+              "counter": 152,
+              "commandStatus": 21,
+              "commandAux": 0,
+              "commandPhase": 0,
+              "timer": 0,
+              "assignment": 256,
+              "immediateCommand": 8,
+              "commands": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "commandCursor": 0,
+              "cellPrevious": 39,
+              "cellNext": 0
+            },
+            "order": {
+              "immediate": 8,
+              "cursor": 0,
+              "queued": 0,
+              "current": 8,
+              "currentRecord": {
+                "model": 21,
+                "flags": 32,
+                "references": 1,
+                "object": 0,
+                "a": 55036,
+                "b": 1028
+              },
+              "queuedRecord": null
+            }
+          },
+          "flight": {
+            "registered": false,
+            "order": null
+          },
+          "entry": {
+            "registered": false,
+            "order": null
+          },
+          "builder": {
+            "registered": false,
+            "order": null
+          }
+        },
+        "registeredOrder": {
+          "immediate": 8,
+          "cursor": 0,
+          "queued": 0,
+          "current": 8,
+          "currentRecord": {
+            "model": 21,
+            "flags": 32,
+            "references": 1,
+            "object": 0,
+            "a": 55036,
+            "b": 1028
+          },
+          "queuedRecord": null
+        }
+      }
+    ],
+    "population": [
+      {
+        "id": 39,
+        "team": "red",
+        "kind": "shaman",
+        "hp": 100.75
+      },
+      {
+        "id": 40,
+        "team": "red",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 41,
+        "team": "red",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 42,
+        "team": "red",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 43,
+        "team": "blue",
+        "kind": "shaman",
+        "hp": 100
+      },
+      {
+        "id": 44,
+        "team": "blue",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 45,
+        "team": "blue",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 46,
+        "team": "blue",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 47,
+        "team": "blue",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 48,
+        "team": "blue",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 49,
+        "team": "blue",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 50,
+        "team": "blue",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 51,
+        "team": "blue",
+        "kind": "brave",
+        "hp": 13.45
+      },
+      {
+        "id": 52,
+        "team": "red",
+        "kind": "brave",
+        "hp": 22.05
+      },
+      {
+        "id": 313,
+        "team": "blue",
+        "kind": "brave",
+        "hp": 50
+      }
+    ],
+    "selectionOwner": 0
+  },
+  {
+    "line": 5518,
+    "case": "Mission 2 naturally earns Matak kills and launches the organized raid",
+    "world": 3,
+    "kind": "failure-endpoint",
+    "turn": 4298,
+    "turnCalls": 4298,
+    "status": "playing",
+    "random": 1092133215,
+    "cosmetic": 1251369750,
+    "tasks": [
+      {
+        "tribe": 3,
+        "index": 1,
+        "flags": 1,
+        "type": 20,
+        "phase": 16,
+        "target": 24740,
+        "requested": 2,
+        "extra": 10,
+        "selected": 2,
+        "remaining": 6,
+        "elapsed": 1376,
+        "mode": 7,
+        "fallback": 14,
+        "regroup": 30852,
+        "origin": 24740,
+        "entity": 1022,
+        "damage": 0,
+        "retries": 0,
+        "retreatPercent": 50,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          100,
+          0,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          10,
+          11
+        ],
+        "route": [
+          {
+            "marker": 0,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": 0,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": 0,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": 0,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      }
+    ],
+    "selected": [
+      1247,
+      1261,
+      1275,
+      1283
+    ],
+    "actors": [
+      {
+        "id": 10,
+        "present": false
+      },
+      {
+        "id": 11,
+        "present": true,
+        "team": "green",
+        "kind": "brave",
+        "hp": 50,
+        "target": null,
+        "inside": null,
+        "work": null,
+        "fighting": false,
+        "fight": null,
+        "registered": {
+          "id": 11,
+          "class": 1,
+          "model": 2,
+          "tribe": 3,
+          "state": 10,
+          "substate": 0,
+          "speed": 79,
+          "life": 1000,
+          "x": 34057,
+          "y": 30932,
+          "h": 182,
+          "flags2": 33690112,
+          "flags3": 262144,
+          "flags4": 536871168,
+          "workFlags": 0,
+          "workTarget": 0,
+          "vehicle": 0,
+          "computerAssignment": 0,
+          "counter": 198,
+          "commandStatus": 19,
+          "commandAux": 0,
+          "commandPhase": 0,
+          "timer": 0,
+          "assignment": 280,
+          "immediateCommand": 0,
+          "commands": [
+            178,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "cellPrevious": 0,
+          "cellNext": 0
+        },
+        "owners": {
+          "native": {
+            "registered": true,
+            "fields": {
+              "id": 11,
+              "class": 1,
+              "model": 2,
+              "tribe": 3,
+              "state": 10,
+              "substate": 0,
+              "speed": 79,
+              "life": 1000,
+              "x": 34057,
+              "y": 30932,
+              "h": 182,
+              "flags2": 33690112,
+              "flags3": 262144,
+              "flags4": 536871168,
+              "workFlags": 0,
+              "workTarget": 0,
+              "vehicle": 0,
+              "computerAssignment": 0,
+              "counter": 198,
+              "commandStatus": 19,
+              "commandAux": 0,
+              "commandPhase": 0,
+              "timer": 0,
+              "assignment": 280,
+              "immediateCommand": 0,
+              "commands": [
+                178,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "commandCursor": 0,
+              "cellPrevious": 0,
+              "cellNext": 0
+            },
+            "order": {
+              "immediate": 0,
+              "cursor": 0,
+              "queued": 178,
+              "current": 178,
+              "currentRecord": {
+                "model": 19,
+                "flags": 0,
+                "references": 1,
+                "object": 0,
+                "a": 24740,
+                "b": 2056
+              },
+              "queuedRecord": {
+                "model": 19,
+                "flags": 0,
+                "references": 1,
+                "object": 0,
+                "a": 24740,
+                "b": 2056
+              }
+            }
+          },
+          "fight": {
+            "registered": false,
+            "order": null
+          },
+          "flight": {
+            "registered": false,
+            "order": null
+          },
+          "entry": {
+            "registered": false,
+            "order": null
+          },
+          "builder": {
+            "registered": false,
+            "order": null
+          }
+        },
+        "registeredOrder": {
+          "immediate": 0,
+          "cursor": 0,
+          "queued": 178,
+          "current": 178,
+          "currentRecord": {
+            "model": 19,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 24740,
+            "b": 2056
+          },
+          "queuedRecord": {
+            "model": 19,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 24740,
+            "b": 2056
+          }
+        }
+      },
+      {
+        "id": 1247,
+        "present": true,
+        "team": "blue",
+        "kind": "brave",
+        "hp": 50,
+        "target": null,
+        "inside": null,
+        "work": null,
+        "fighting": false,
+        "fight": null,
+        "registered": {
+          "id": 1247,
+          "class": 1,
+          "model": 2,
+          "tribe": 0,
+          "state": 19,
+          "substate": 5,
+          "speed": 0,
+          "life": 1000,
+          "x": 47360,
+          "y": 25996,
+          "h": 65,
+          "flags2": 131072,
+          "flags3": 262144,
+          "flags4": 671088896,
+          "workFlags": 0,
+          "workTarget": 0,
+          "vehicle": 0,
+          "computerAssignment": 0,
+          "counter": 201,
+          "commandStatus": 0,
+          "commandAux": 0,
+          "commandPhase": 0,
+          "timer": 0,
+          "assignment": 281,
+          "immediateCommand": 0,
+          "commands": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "cellPrevious": 1275,
+          "cellNext": 0
+        },
+        "owners": {
+          "native": {
+            "registered": true,
+            "fields": {
+              "id": 1247,
+              "class": 1,
+              "model": 2,
+              "tribe": 0,
+              "state": 19,
+              "substate": 5,
+              "speed": 0,
+              "life": 1000,
+              "x": 47360,
+              "y": 25996,
+              "h": 65,
+              "flags2": 131072,
+              "flags3": 262144,
+              "flags4": 671088896,
+              "workFlags": 0,
+              "workTarget": 0,
+              "vehicle": 0,
+              "computerAssignment": 0,
+              "counter": 201,
+              "commandStatus": 0,
+              "commandAux": 0,
+              "commandPhase": 0,
+              "timer": 0,
+              "assignment": 281,
+              "immediateCommand": 0,
+              "commands": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "commandCursor": 0,
+              "cellPrevious": 1275,
+              "cellNext": 0
+            },
+            "order": {
+              "immediate": 0,
+              "cursor": 0,
+              "queued": 0,
+              "current": 0,
+              "currentRecord": null,
+              "queuedRecord": null
+            }
+          },
+          "fight": {
+            "registered": false,
+            "order": null
+          },
+          "flight": {
+            "registered": false,
+            "order": null
+          },
+          "entry": {
+            "registered": false,
+            "order": null
+          },
+          "builder": {
+            "registered": false,
+            "order": null
+          }
+        },
+        "registeredOrder": {
+          "immediate": 0,
+          "cursor": 0,
+          "queued": 0,
+          "current": 0,
+          "currentRecord": null,
+          "queuedRecord": null
+        }
+      },
+      {
+        "id": 1261,
+        "present": true,
+        "team": "blue",
+        "kind": "brave",
+        "hp": 50,
+        "target": null,
+        "inside": null,
+        "work": null,
+        "fighting": false,
+        "fight": null,
+        "registered": {
+          "id": 1261,
+          "class": 1,
+          "model": 2,
+          "tribe": 0,
+          "state": 19,
+          "substate": 5,
+          "speed": 0,
+          "life": 1000,
+          "x": 47360,
+          "y": 25716,
+          "h": 82,
+          "flags2": 131072,
+          "flags3": 262144,
+          "flags4": 671088896,
+          "workFlags": 0,
+          "workTarget": 0,
+          "vehicle": 0,
+          "computerAssignment": 0,
+          "counter": 201,
+          "commandStatus": 0,
+          "commandAux": 0,
+          "commandPhase": 0,
+          "timer": 0,
+          "assignment": 281,
+          "immediateCommand": 0,
+          "commands": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "cellPrevious": 54,
+          "cellNext": 1283
+        },
+        "owners": {
+          "native": {
+            "registered": true,
+            "fields": {
+              "id": 1261,
+              "class": 1,
+              "model": 2,
+              "tribe": 0,
+              "state": 19,
+              "substate": 5,
+              "speed": 0,
+              "life": 1000,
+              "x": 47360,
+              "y": 25716,
+              "h": 82,
+              "flags2": 131072,
+              "flags3": 262144,
+              "flags4": 671088896,
+              "workFlags": 0,
+              "workTarget": 0,
+              "vehicle": 0,
+              "computerAssignment": 0,
+              "counter": 201,
+              "commandStatus": 0,
+              "commandAux": 0,
+              "commandPhase": 0,
+              "timer": 0,
+              "assignment": 281,
+              "immediateCommand": 0,
+              "commands": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "commandCursor": 0,
+              "cellPrevious": 54,
+              "cellNext": 1283
+            },
+            "order": {
+              "immediate": 0,
+              "cursor": 0,
+              "queued": 0,
+              "current": 0,
+              "currentRecord": null,
+              "queuedRecord": null
+            }
+          },
+          "fight": {
+            "registered": false,
+            "order": null
+          },
+          "flight": {
+            "registered": false,
+            "order": null
+          },
+          "entry": {
+            "registered": false,
+            "order": null
+          },
+          "builder": {
+            "registered": false,
+            "order": null
+          }
+        },
+        "registeredOrder": {
+          "immediate": 0,
+          "cursor": 0,
+          "queued": 0,
+          "current": 0,
+          "currentRecord": null,
+          "queuedRecord": null
+        }
+      },
+      {
+        "id": 1275,
+        "present": true,
+        "team": "blue",
+        "kind": "brave",
+        "hp": 50,
+        "target": null,
+        "inside": null,
+        "work": null,
+        "fighting": false,
+        "fight": null,
+        "registered": {
+          "id": 1275,
+          "class": 1,
+          "model": 2,
+          "tribe": 0,
+          "state": 19,
+          "substate": 7,
+          "speed": 0,
+          "life": 1000,
+          "x": 47481,
+          "y": 25926,
+          "h": 53,
+          "flags2": 1075970176,
+          "flags3": 262144,
+          "flags4": 671088896,
+          "workFlags": 0,
+          "workTarget": 0,
+          "vehicle": 0,
+          "computerAssignment": 0,
+          "counter": 201,
+          "commandStatus": 0,
+          "commandAux": 0,
+          "commandPhase": 0,
+          "timer": 16,
+          "assignment": 281,
+          "immediateCommand": 0,
+          "commands": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "cellPrevious": 1283,
+          "cellNext": 1247
+        },
+        "owners": {
+          "native": {
+            "registered": true,
+            "fields": {
+              "id": 1275,
+              "class": 1,
+              "model": 2,
+              "tribe": 0,
+              "state": 19,
+              "substate": 7,
+              "speed": 0,
+              "life": 1000,
+              "x": 47481,
+              "y": 25926,
+              "h": 53,
+              "flags2": 1075970176,
+              "flags3": 262144,
+              "flags4": 671088896,
+              "workFlags": 0,
+              "workTarget": 0,
+              "vehicle": 0,
+              "computerAssignment": 0,
+              "counter": 201,
+              "commandStatus": 0,
+              "commandAux": 0,
+              "commandPhase": 0,
+              "timer": 16,
+              "assignment": 281,
+              "immediateCommand": 0,
+              "commands": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "commandCursor": 0,
+              "cellPrevious": 1283,
+              "cellNext": 1247
+            },
+            "order": {
+              "immediate": 0,
+              "cursor": 0,
+              "queued": 0,
+              "current": 0,
+              "currentRecord": null,
+              "queuedRecord": null
+            }
+          },
+          "fight": {
+            "registered": false,
+            "order": null
+          },
+          "flight": {
+            "registered": false,
+            "order": null
+          },
+          "entry": {
+            "registered": false,
+            "order": null
+          },
+          "builder": {
+            "registered": false,
+            "order": null
+          }
+        },
+        "registeredOrder": {
+          "immediate": 0,
+          "cursor": 0,
+          "queued": 0,
+          "current": 0,
+          "currentRecord": null,
+          "queuedRecord": null
+        }
+      },
+      {
+        "id": 1283,
+        "present": true,
+        "team": "blue",
+        "kind": "brave",
+        "hp": 50,
+        "target": null,
+        "inside": null,
+        "work": null,
+        "fighting": false,
+        "fight": null,
+        "registered": {
+          "id": 1283,
+          "class": 1,
+          "model": 2,
+          "tribe": 0,
+          "state": 19,
+          "substate": 5,
+          "speed": 0,
+          "life": 1000,
+          "x": 47481,
+          "y": 25786,
+          "h": 58,
+          "flags2": 131072,
+          "flags3": 262144,
+          "flags4": 671088896,
+          "workFlags": 0,
+          "workTarget": 0,
+          "vehicle": 0,
+          "computerAssignment": 0,
+          "counter": 201,
+          "commandStatus": 0,
+          "commandAux": 0,
+          "commandPhase": 0,
+          "timer": 0,
+          "assignment": 281,
+          "immediateCommand": 0,
+          "commands": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "cellPrevious": 1261,
+          "cellNext": 1275
+        },
+        "owners": {
+          "native": {
+            "registered": true,
+            "fields": {
+              "id": 1283,
+              "class": 1,
+              "model": 2,
+              "tribe": 0,
+              "state": 19,
+              "substate": 5,
+              "speed": 0,
+              "life": 1000,
+              "x": 47481,
+              "y": 25786,
+              "h": 58,
+              "flags2": 131072,
+              "flags3": 262144,
+              "flags4": 671088896,
+              "workFlags": 0,
+              "workTarget": 0,
+              "vehicle": 0,
+              "computerAssignment": 0,
+              "counter": 201,
+              "commandStatus": 0,
+              "commandAux": 0,
+              "commandPhase": 0,
+              "timer": 0,
+              "assignment": 281,
+              "immediateCommand": 0,
+              "commands": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "commandCursor": 0,
+              "cellPrevious": 1261,
+              "cellNext": 1275
+            },
+            "order": {
+              "immediate": 0,
+              "cursor": 0,
+              "queued": 0,
+              "current": 0,
+              "currentRecord": null,
+              "queuedRecord": null
+            }
+          },
+          "fight": {
+            "registered": false,
+            "order": null
+          },
+          "flight": {
+            "registered": false,
+            "order": null
+          },
+          "entry": {
+            "registered": false,
+            "order": null
+          },
+          "builder": {
+            "registered": false,
+            "order": null
+          }
+        },
+        "registeredOrder": {
+          "immediate": 0,
+          "cursor": 0,
+          "queued": 0,
+          "current": 0,
+          "currentRecord": null,
+          "queuedRecord": null
+        }
+      }
+    ],
+    "population": [
+      {
+        "id": 4,
+        "team": "green",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 5,
+        "team": "green",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 6,
+        "team": "green",
+        "kind": "warrior",
+        "hp": 90
+      },
+      {
+        "id": 7,
+        "team": "green",
+        "kind": "warrior",
+        "hp": 90
+      },
+      {
+        "id": 8,
+        "team": "green",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 9,
+        "team": "green",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 11,
+        "team": "green",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 12,
+        "team": "green",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 14,
+        "team": "green",
+        "kind": "warrior",
+        "hp": 90
+      },
+      {
+        "id": 15,
+        "team": "green",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 16,
+        "team": "green",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 17,
+        "team": "green",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 18,
+        "team": "green",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 20,
+        "team": "green",
+        "kind": "shaman",
+        "hp": 100
+      },
+      {
+        "id": 54,
+        "team": "blue",
+        "kind": "shaman",
+        "hp": 100
+      },
+      {
+        "id": 1245,
+        "team": "green",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 1247,
+        "team": "blue",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 1249,
+        "team": "green",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 1251,
+        "team": "green",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 1255,
+        "team": "green",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 1257,
+        "team": "green",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 1261,
+        "team": "blue",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 1263,
+        "team": "green",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 1265,
+        "team": "blue",
+        "kind": "warrior",
+        "hp": 90.2
+      },
+      {
+        "id": 1266,
+        "team": "blue",
+        "kind": "warrior",
+        "hp": 90
+      },
+      {
+        "id": 1267,
+        "team": "blue",
+        "kind": "warrior",
+        "hp": 90.2
+      },
+      {
+        "id": 1268,
+        "team": "blue",
+        "kind": "warrior",
+        "hp": 90.2
+      },
+      {
+        "id": 1269,
+        "team": "blue",
+        "kind": "warrior",
+        "hp": 90.25
+      },
+      {
+        "id": 1275,
+        "team": "blue",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 1277,
+        "team": "blue",
+        "kind": "warrior",
+        "hp": 90
+      },
+      {
+        "id": 1278,
+        "team": "blue",
+        "kind": "warrior",
+        "hp": 90
+      },
+      {
+        "id": 1279,
+        "team": "blue",
+        "kind": "warrior",
+        "hp": 90
+      },
+      {
+        "id": 1283,
+        "team": "blue",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 1517,
+        "team": "green",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 1519,
+        "team": "green",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 1533,
+        "team": "green",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 1535,
+        "team": "green",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 1539,
+        "team": "green",
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 1541,
+        "team": "green",
+        "kind": "brave",
+        "hp": 50
+      }
+    ],
+    "selectionOwner": 10
+  }
+]

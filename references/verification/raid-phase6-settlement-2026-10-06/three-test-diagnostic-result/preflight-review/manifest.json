@@ -1,0 +1,10 @@
+{
+  "head": "48a84610254d3ad5cddb600c266ed9a151233b79",
+  "decision": "ACCEPT one unchanged three-scenario diagnostic",
+  "preflightSha256": "d664ace67e9d3269d6429ea6be92bb93d8a99f5bb1338bb06e7de7bcf5a49a45",
+  "commandSha256": "5bed1889771adea580709a3b7c11399035c6afc1f87f9151d512812733803904",
+  "files": {
+    "review.md": "d429ee544033934414703a20bd9fc408b3e37516556e52434c6061a7d109ba7d",
+    "verification.json": "742df6beae867f64c555e805670fabfa4c490fb49ddccf6bd5535588d7c0c721"
+  }
+}

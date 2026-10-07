@@ -1,0 +1,24 @@
+{
+  "head": "48a84610254d3ad5cddb600c266ed9a151233b79",
+  "preflightSha256": "d664ace67e9d3269d6429ea6be92bb93d8a99f5bb1338bb06e7de7bcf5a49a45",
+  "hostReceiptSha256": "969f7db6331233581ac5f713abc7dcf229a60ffb5aa82a43d3a7c8e2a6a7e42c",
+  "files": 243,
+  "closureFiles": 230,
+  "tools": 4,
+  "caseNames": [
+    "mission-one Dakini launches its native attack route when Blue enters marker three",
+    "mission-one Dakini launches its later building attack when Blue overwhelms it",
+    "Mission 2 naturally earns Matak kills and launches the organized raid"
+  ],
+  "exactScenarioHashes": [
+    "02c4060c21250415a90d34923235ec90c69f37f8b0a1a8a209b5924eb9673b3e",
+    "8f6650ac413173b6ae42d7ecfc16427b322ba7b1b9d4a4db0f92494b744dc3c3",
+    "daaca5f726fd6e728588ab12c06eb30e6aea2387522757011ea1be27d4db7864"
+  ],
+  "freshOutputs": true,
+  "sourceClean": true,
+  "sourceOnlyReviewer": true,
+  "decision": "ACCEPT one unchanged three-scenario diagnostic",
+  "outerArgvSha256": "5bed1889771adea580709a3b7c11399035c6afc1f87f9151d512812733803904",
+  "outerInputBindings": 249
+}

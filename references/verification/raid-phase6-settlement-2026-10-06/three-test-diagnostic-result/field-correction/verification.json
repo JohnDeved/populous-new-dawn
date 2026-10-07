@@ -1,0 +1,46 @@
+{
+  "decision": "CORRECT prior field interpretation; hold substate2 guard acceptance",
+  "nativeOffset": "0xa8",
+  "correctField": "animationMode",
+  "commandPhaseOffset": "0xaa",
+  "firstUnconditionalObservedRelease": {
+    "turn": 3227,
+    "rawLine1Based": 4446,
+    "state": 33,
+    "substate": 3,
+    "life": 1000
+  },
+  "nativeComponentChecks": [
+    {
+      "case": "captured-combat-timeout",
+      "mislabelledA8BytesTouched": false,
+      "addresses": [
+        33554856,
+        33555112,
+        33555368,
+        33555624
+      ],
+      "nativeSha256": "e50df845e53136add1bf51d9b0518513471ad5b200fde4842104343f15b4d48f"
+    },
+    {
+      "case": "captured-moving-not-settled",
+      "mislabelledA8BytesTouched": false,
+      "addresses": [
+        33554856,
+        33555112,
+        33555368,
+        33555624
+      ],
+      "nativeSha256": "6cef29991ce29c40b48c04c47199a7415ed7bde0b07cd31d367768514cd259c7"
+    }
+  ],
+  "sourceFiles": {
+    "scripts/check-native-route-recovery.py": "e5d1a3d63aa10a9d20c6fbc90959c0f475d32e68c9a351d560f33fca4c6509c8",
+    "scripts/check-native-person-state.py": "6ca20f1600c63c7bbed346b9ee4543b2adbe71d11ccdf04df1f73ce7b120b89b",
+    "app/computer-runtime.ts": "4316213f89499dc4a73a915e81bca06c91c8a155aa0e5e7db84cee08295fb010"
+  },
+  "supersededReviewManifests": [
+    "e9a92e8b07f656635b35bca8f1f9b4413efb12461f883755c37c279a66d30f13",
+    "16ab66cd4c3c603f50934b1fd7bd6d05c9b2321433d083bb97eaf106ed0ade65"
+  ]
+}

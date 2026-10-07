@@ -1,0 +1,88 @@
+{
+  "decision": "ACCEPT diagnosis; three aggregate failures remain",
+  "head": "48a84610254d3ad5cddb600c266ed9a151233b79",
+  "rawManifestSha256": "d84c82408e834bcb01910394a8ee3b49c1d9c6f8b7c24f9737d78b1e1945b424",
+  "traceSha256": "f03ac7d7261c6be54b82a4061be8c47049ce221c2684239eab0adef866ca064c",
+  "failureLines": [
+    878,
+    1214,
+    5518
+  ],
+  "firstState33ReleaseEligible": {
+    "line": 4390,
+    "turn": 3171,
+    "hp": 50,
+    "substate": 2,
+    "commandPhase": 8
+  },
+  "beforeAfterInputs": 249,
+  "cleanup": {
+    "startedAt": "2026-10-07T00:10:27.906702+00:00",
+    "termDeadline": "2026-10-07T00:12:27.906702+00:00",
+    "killDeadline": "2026-10-07T00:12:37.906702+00:00",
+    "timeoutSeconds": 120,
+    "killGraceSeconds": 10,
+    "cpu": [
+      4
+    ],
+    "cleanupSignals": [],
+    "command": [
+      "/usr/bin/timeout",
+      "--signal=TERM",
+      "--kill-after=10s",
+      "120s",
+      "/usr/bin/taskset",
+      "--cpu-list",
+      "4",
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-raid-regressions-20261006/diagnostic.mjs"
+    ],
+    "pid": 35,
+    "processGroup": 35,
+    "processIdentity": "35 (timeout) R 24 35 35 0 -1 4194304 6 0 0 0 0 0 0 0 20 0 1 0 7579095 454656 0 18446744073709551615 94515539243008 94515539266057 140736504845952 0 0 0 0 0 0 0 0 0 17 6 0 0 0 0 0 94515539282384 94515539284548 94516496289792 140736504850434 140736504850741 140736504850741 140736504856551 0\n",
+    "elapsedSeconds": 11.815408855996793,
+    "exitCode": 1,
+    "remainingProcessGroupMembers": [],
+    "resourcesReleased": true,
+    "finishedAt": "2026-10-07T00:10:39.722123+00:00"
+  },
+  "caseOutcomes": [
+    {
+      "name": "mission-one Dakini launches its native attack route when Blue enters marker three",
+      "status": "failed",
+      "startedAt": "2026-10-07T00:10:29.008Z",
+      "finishedAt": "2026-10-07T00:10:30.776Z",
+      "turnCalls": 874,
+      "error": {
+        "name": "TypeError",
+        "message": "Cannot read properties of null (reading 'immediateCommand')",
+        "stack": "TypeError: Cannot read properties of null (reading 'immediateCommand')\n    at currentPersonOrder (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/app/person-orders.ts:67:21)\n    at file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-raid-regressions-20261006/mission1.mjs:62:30\n    at Array.every (<anonymous>)\n    at Object.fn (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-raid-regressions-20261006/mission1.mjs:62:20)\n    at async run (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-raid-regressions-20261006/observer.mjs:67:7)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-raid-regressions-20261006/diagnostic.mjs:4:1"
+      }
+    },
+    {
+      "name": "mission-one Dakini launches its later building attack when Blue overwhelms it",
+      "status": "failed",
+      "startedAt": "2026-10-07T00:10:30.776Z",
+      "finishedAt": "2026-10-07T00:10:31.406Z",
+      "turnCalls": 333,
+      "error": {
+        "name": "TypeError",
+        "message": "Cannot read properties of null (reading 'immediateCommand')",
+        "stack": "TypeError: Cannot read properties of null (reading 'immediateCommand')\n    at currentPersonOrder (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/app/person-orders.ts:67:21)\n    at file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-raid-regressions-20261006/mission1.mjs:93:37\n    at Array.every (<anonymous>)\n    at file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-raid-regressions-20261006/mission1.mjs:93:27\n    at until (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-raid-regressions-20261006/mission1.mjs:27:60)\n    at Object.fn (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-raid-regressions-20261006/mission1.mjs:93:2)\n    at async run (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-raid-regressions-20261006/observer.mjs:67:7)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-raid-regressions-20261006/diagnostic.mjs:4:1"
+      }
+    },
+    {
+      "name": "Mission 2 naturally earns Matak kills and launches the organized raid",
+      "status": "failed",
+      "startedAt": "2026-10-07T00:10:31.406Z",
+      "finishedAt": "2026-10-07T00:10:39.659Z",
+      "turnCalls": 4298,
+      "error": {
+        "name": "AssertionError",
+        "message": "The expression evaluated to a falsy value:\n\n  assert.ok(defender && attacker)\n",
+        "stack": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert.ok(defender && attacker)\n\n    at Object.fn (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-raid-regressions-20261006/mission2.mjs:88:10)\n    at run (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-raid-regressions-20261006/observer.mjs:67:18)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-raid-regressions-20261006/diagnostic.mjs:4:1",
+        "expected": true
+      }
+    }
+  ]
+}

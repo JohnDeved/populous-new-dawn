@@ -1,0 +1,136 @@
+{
+  "sourceHead": "48a84610254d3ad5cddb600c266ed9a151233b79",
+  "status": "three unchanged failures reproduced",
+  "files": [
+    {
+      "path": "case-1-source.txt",
+      "bytes": 3584,
+      "sha256": "02c4060c21250415a90d34923235ec90c69f37f8b0a1a8a209b5924eb9673b3e"
+    },
+    {
+      "path": "case-2-source.txt",
+      "bytes": 3617,
+      "sha256": "8f6650ac413173b6ae42d7ecfc16427b322ba7b1b9d4a4db0f92494b744dc3c3"
+    },
+    {
+      "path": "case-3-source.txt",
+      "bytes": 3072,
+      "sha256": "daaca5f726fd6e728588ab12c06eb30e6aea2387522757011ea1be27d4db7864"
+    },
+    {
+      "path": "cases.json",
+      "bytes": 909,
+      "sha256": "ded27c6fe7cd8f0abede02cba185c9a9436f3161bf2781a517634b4525decca4"
+    },
+    {
+      "path": "cleanup.json",
+      "bytes": 1175,
+      "sha256": "b511c7e86d4eb66135a86c015afe6924c6891233d6f0d3adb96fe22422dd33b4"
+    },
+    {
+      "path": "closure-host.mjs",
+      "bytes": 1645,
+      "sha256": "9305c0d429df69116b743863cb14df583780b3c1c11ba145de1d4d480a50b26b"
+    },
+    {
+      "path": "command.json",
+      "bytes": 11488,
+      "sha256": "5bed1889771adea580709a3b7c11399035c6afc1f87f9151d512812733803904"
+    },
+    {
+      "path": "diagnostic.mjs",
+      "bytes": 97,
+      "sha256": "7dff53b7ba6a87780fb813ee12028d9ce5dab896dbf206cb98eb5fbcf802de91"
+    },
+    {
+      "path": "failure-endpoints.json",
+      "bytes": 66400,
+      "sha256": "48f35f2ca21d4a33970487086f8956b9e474afb6ac4344355c1cd55ec1704821"
+    },
+    {
+      "path": "guardian.py",
+      "bytes": 3513,
+      "sha256": "2de1c6a10e850474fe7e038e1716476ae3cc2874694ce1463ace5cdec2947800"
+    },
+    {
+      "path": "host-receipt.json",
+      "bytes": 2450,
+      "sha256": "969f7db6331233581ac5f713abc7dcf229a60ffb5aa82a43d3a7c8e2a6a7e42c"
+    },
+    {
+      "path": "host-receipt.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "host-receipt.json.artifacts/stdout.log",
+      "bytes": 138,
+      "sha256": "59c569885f8baeb4a83cc006843198e40470d7e456fbe2fad4323fe993456863"
+    },
+    {
+      "path": "import-closure.json",
+      "bytes": 22915,
+      "sha256": "05aedfeeb7511809a955d6406b848c12b14b1679d796f2af88a6b55c218afe5f"
+    },
+    {
+      "path": "mission1.mjs",
+      "bytes": 9660,
+      "sha256": "16fe07ae3c41b33fd7066fc0ca8d79bfbb4e8f58ebcd2d04a14844587668986f"
+    },
+    {
+      "path": "mission2.mjs",
+      "bytes": 3796,
+      "sha256": "f43a133af6b92d4aa6eaa5d553573ed845f433f18e710de52bcbd46405c24855"
+    },
+    {
+      "path": "observer.mjs",
+      "bytes": 4389,
+      "sha256": "a0b752f9120462870a8d7d4ce4ad8aa93e5fa89547bf9bd5c6160c9366703d31"
+    },
+    {
+      "path": "preflight.json",
+      "bytes": 40504,
+      "sha256": "d664ace67e9d3269d6429ea6be92bb93d8a99f5bb1338bb06e7de7bcf5a49a45"
+    },
+    {
+      "path": "prepare-source.py",
+      "bytes": 2213,
+      "sha256": "6d17081d50ac71df06864318163f6a71feb1d30ee4139a12c711d18f485207a3"
+    },
+    {
+      "path": "receipt.json",
+      "bytes": 53505,
+      "sha256": "b7883816f151a3622930be0ea90d5deb41ae6b8510ab8435ec142f5f07ade94d"
+    },
+    {
+      "path": "receipt.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "receipt.json.artifacts/stdout.log",
+      "bytes": 368,
+      "sha256": "aabf77ac546f8d742622401882f7fc54fc4b192a109ad63e6f34254d21d236be"
+    },
+    {
+      "path": "result.json",
+      "bytes": 4400,
+      "sha256": "7fb9e8910f5731d5db70db04edfa48da55feb232333b6adbd86558f9d6a74c2f"
+    },
+    {
+      "path": "started.json",
+      "bytes": 999,
+      "sha256": "89e7d9ae81478dd64094bbe71e5fe6c3fee6929358617b910c9fa29ab61b7fda"
+    },
+    {
+      "path": "task-transitions.json",
+      "bytes": 133890,
+      "sha256": "40714fe34316da80bff8050d416895814068124bbc98452e8db8ca1bd0d22eb3"
+    },
+    {
+      "path": "trace.jsonl",
+      "bytes": 87610780,
+      "sha256": "f03ac7d7261c6be54b82a4061be8c47049ce221c2684239eab0adef866ca064c"
+    }
+  ]
+}
