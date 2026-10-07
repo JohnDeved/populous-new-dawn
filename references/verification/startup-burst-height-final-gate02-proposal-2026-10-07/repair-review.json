@@ -1,0 +1,30 @@
+{
+  "verdict": "ACCEPT exact source-only test-style and scoped inherited-diagnostic continuation proposal",
+  "reviewedAt": "2026-10-07T04:45:21.385209+00:00",
+  "proposalHead": "c9984e19ebd694e1654bba01f61643826ff4e4f1",
+  "patchSha256": "2031d2f9bdd4bc9bd2497b8a89970237112799c57b6eb83248a5b09bc433aa30",
+  "attributionSha256": "251778683d729e32210c8ad84e7d0ba939dfa028adc40ecc8c03ec59e56caec9",
+  "policySha256": "de04fc5b4bcd7789f28cf1c93b41b446db59ffedd1fb7e9159ab7aecaedc495c",
+  "sourceReview": [
+    "Object destructuring retains the same one initial RNG data-property read before installing the unchanged observer accessor.",
+    "Array destructuring selects the first item from the same ordinary cloned particle array; test assertions and sampling calls remain unchanged.",
+    "Runtime, ordinary driver and passive render observer are not edited."
+  ],
+  "independentVerification": {
+    "cycleFilesAcrossThreeRefs": 21,
+    "configurationFiles": 3,
+    "installedOxlintFiles": 24,
+    "diagnosticSitesMappedToActualSource": 40,
+    "expectedRetainedErrorTuples": 6,
+    "expectedRetainedWarningTuples": 32,
+    "expectedTuplesExactlyEqualOriginalMinusTwoNewWarnings": true
+  },
+  "policy": [
+    "Retain original Oxlint failed status, exit1 and raw diagnostic stream.",
+    "Only the exact reviewed six inherited error and 32 warning tuples/counts may receive the named inherited-advisory continuation classification. New, missing, moved or unclassified diagnostics stop execution.",
+    "No global lint configuration or required format/ESLint/check/build rule changes.",
+    "Gate01 remains failed with all later stages not run."
+  ],
+  "nextBoundary": "Review the exact applied test-only head, classifier implementation, new manifest and fresh gate02 output paths before a separate parent grant.",
+  "executionByReviewer": "None; source/Git/hash/raw-data reads only."
+}

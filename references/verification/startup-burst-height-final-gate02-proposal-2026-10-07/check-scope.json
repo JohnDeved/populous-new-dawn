@@ -1,0 +1,35 @@
+{
+  "status": "proposed coverage; exact review required",
+  "base": "e3a7a06a4250457502288d5b4c4e4ad8f3b40b53",
+  "source": "d323ccae2b42b460dadc0cb07f6368f967aa21b7",
+  "planningToolExit": 0,
+  "planningExecutesChecks": false,
+  "unknownPathsExplicitlyReviewed": [
+    "decomp/research/level-start-sequence.md",
+    "scripts/local-render/startup-burst-observer.mjs",
+    "scripts/local-render/startup-burst.mjs",
+    "tests/fixtures/startup-burst-height-authored.json",
+    "tests/fixtures/startup-burst-height-native.json",
+    "tests/startup-burst-height.test.mjs",
+    "tests/startup-burst-observer.test.mjs"
+  ],
+  "gateSequence": [
+    "scoped format",
+    "scoped ESLint",
+    "scoped Oxlint",
+    "advisory Fallow health/dupes/unused",
+    "npm run check",
+    "npm run build"
+  ],
+  "aggregatePortableCoverage": "npm run check runs all tests/*.test.mjs, TypeScript, parity structural validation and orchestration check; this includes startup/angles/heights/observer, checkpoint/restart, reincarnation-wave and orchestration regression files.",
+  "nativeReuse": "Accepted composed carrier/stone/root/child original result and compact full-byte oracle; new live change is only root clamp order, so no additional original executable invocation is proposed.",
+  "browserReuse": "Independently accepted ordinary presented baseline/candidate pair on same8f50 source, public Mission1/Skip with actual common turns/IDs/ages and genuine images.",
+  "unaffectedBroadSubsystemSelections": "Native/static imported assets, reincarnation terrain-wave algorithms and Shaman pose/death presentation were not changed. Conservative shaman-appearance subsystem selections are reviewed against this exact root-height diff; they are not silently counted as passed.",
+  "remainingLimits": [
+    "No original full-startup/post-wave absolute terrain or old-stone parity claim",
+    "Ordinary before-frame loading qualification and software-renderer limit retained",
+    "Original interrupted attempt01 remains unknown/quarantined",
+    "No final gate execution yet; PR255 remains unaccepted and later integration correspondence remains explicit"
+  ],
+  "gate02": "Only two reviewed test-style assignments differ; full test assertions and app/passive QA unchanged. Reviewed inherited Oxlint set remains explicitly advisory/failed, subject to final independent exact comparison."
+}

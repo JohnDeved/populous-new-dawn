@@ -1,0 +1,25 @@
+{
+  "source": "d323ccae2b42b460dadc0cb07f6368f967aa21b7",
+  "previouslyTestedAndRenderedSource": "8f50dda281ec6338bdb84e21473879f29a0282f9",
+  "changedFiles": {
+    "tests/startup-burst-height.test.mjs": {
+      "beforeSha256": "a1b3af1bfabdd5926decbfa19c6be9c0ad45443fc8b6c4948cb6db5cba43c4d3",
+      "afterSha256": "3462423c68022d9d6809c567ca93fa8b29d289f2c7e6007e4e83c63dd91d3aba"
+    },
+    "tests/startup-burst-observer.test.mjs": {
+      "beforeSha256": "061dbc9b9b306ec9a3ca89e09dcf7f87cf775ba533afa8bbae92eadaa079583f",
+      "afterSha256": "deef1361ad1da045967e7d716da1800519ae1ec69131627cef374728c8373a3d"
+    }
+  },
+  "appTreeUnchanged": "bdd11dc19eaaefc7c9694fd7d369e08659c3685a",
+  "productionAndPassiveQaSha256": {
+    "app/level-start-runtime.ts": "2450145b24d5e0b0e278f157de38e83756443a92a88dee3e8fc2fef4492c4798",
+    "scripts/local-render/startup-burst-observer.mjs": "c1bcad473eefcb1f552ee6630183921a7a69052825c6e8707fff4a8e0d7a10ae",
+    "scripts/local-render/startup-burst.mjs": "df162f2455cae47a630f5f59b0afa4aba0ace9387364391a215371b90feba2bd"
+  },
+  "assertionsAndObservationSemanticsUnchanged": true,
+  "patchSha256": "2031d2f9bdd4bc9bd2497b8a89970237112799c57b6eb83248a5b09bc433aa30",
+  "readback": "Applied exact reviewed two-assignment patch; ordinary/native/runtime bytes unchanged. Original interrupted source checkout stays8f50.",
+  "noNativeOrBrowserReplay": true,
+  "gateExecution": "not-run"
+}
