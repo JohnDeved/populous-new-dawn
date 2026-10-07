@@ -60,7 +60,7 @@ export default async function startupBurst({ page, output, signal, receipt }) {
     assert.ok(report.observation.records.every(row => row.speed === 1 && !row.paused))
     assert.deepEqual(receipt.errors, [])
     report.status = 'passed'
-    report.limits = 'Ordinary startup rendering/phase consistency only. Native angle evidence is separate and uses declared original birth origins; existing root-height clamp difference remains. Software rendering is not hardware performance or original raster equality.'
+    report.limits = 'Ordinary startup rendering/phase and sampled post-motion particle heights only. Compare shared observed turns/IDs/ages and actual-position ground across sources; an unseen birth frame or constant screen-pixel shift is not inferred. Native birth/angle proofs remain separate. Software rendering is not hardware performance or original raster equality.'
   } catch (error) {
     report.status = 'failed'
     report.failure = String(error.stack ?? error)
