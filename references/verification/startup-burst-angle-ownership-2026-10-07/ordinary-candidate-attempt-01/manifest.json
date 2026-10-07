@@ -1,0 +1,21 @@
+{
+  "source": "c9d8a5e18399e343cc6a99d4d89b7d4c16108a81",
+  "status": "failed: initial combined guard before observer installation",
+  "session": 61609,
+  "initialChunk": "fdca39",
+  "terminalChunk": "ca127e",
+  "files": {
+    "host-receipt.json": "6ac2aa1814033f41091691a2e197635da73db880aa1006817d8d5ffc9412fc8a",
+    "command-receipt.json": "138dffa065d3ef590f7f7c1000277fc2d4e5983699b80eef1690be8c94f25b75",
+    "dependencies-before.json.gz": "2462c15189d8337a237d8d3c9609b9c726e9609bc23e6d1615b3073937c5c7a9",
+    "dependencies-after.json.gz": "2462c15189d8337a237d8d3c9609b9c726e9609bc23e6d1615b3073937c5c7a9",
+    "stdout.txt": "89f09081425179c8d804f60aeb7979fafff96984594b13c822d078b17748a7fd",
+    "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "browser-receipt.json": "ebdb8c8c5d00bb4070ab1752ef2ae6fb086bd5cb289ff986e96900d7a4cfaf3c",
+    "scenario.json": "f7c7d8b500d738b8342bbb13f7c04c148383bc626b04efcb75e0d43dcf807c4e",
+    "server.log": "b43475bdc18f71af2047c62435a0e2382ba5482b2f0f80989907b8dfd4931128",
+    "failure-0.png": "95819fa7e4b1a4d12106663186db4f97d635851652f1d6a93d7a3a14154f650f",
+    "source-and-host-review.json": "bcc3ffc14c17e085117be7f02723d124e2dd376dc739e2c1f261391505725203"
+  },
+  "limits": "No turn/speed/paused facts were retained before the combined guard. No same-render captures were made; failure-0.png is the maintained harness failure screenshot, not accepted startup phase evidence."
+}

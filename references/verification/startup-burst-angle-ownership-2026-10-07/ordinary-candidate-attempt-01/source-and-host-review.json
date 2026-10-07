@@ -1,0 +1,24 @@
+{
+  "verdict": "ACCEPT_ONE_ORDINARY_CANDIDATE_PREFLIGHT",
+  "reviewedAt": "2026-10-07T00:45:51.776647+00:00",
+  "source": "c9d8a5e18399e343cc6a99d4d89b7d4c16108a81",
+  "packetSha256": "c670302176d8b664132e5cc7a53681d691a707a27a921760c707cb35d7c9ebf5",
+  "hostSha256": "667a11b75864c222953012c4a31d66e30f4a50206f1d4b5d0dda3e13a5c7f1ac",
+  "finding": "Verified31 source hashes and the exact host diff against accepted smoke05. Only task packet path, absent persistent-profile checks and shorter fallback changed. Existing sandboxed harness, exclusive receipted dependency move, cache isolation and PID/start/session-owned cleanup retained. Combined app matches24d5caff adoption of accepted smoke main.",
+  "grant": {
+    "cpu": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "port": 4196,
+    "harnessSeconds": 120,
+    "outerTermSeconds": 150,
+    "killGraceSeconds": 10,
+    "hostFallbackSeconds": 163,
+    "nodeHeapMiB": 1024,
+    "runs": 1
+  },
+  "limits": "One disposable ordinary candidate startup capture; no baseline or further run implied. Source/result capture and resources must be terminal before next gate."
+}

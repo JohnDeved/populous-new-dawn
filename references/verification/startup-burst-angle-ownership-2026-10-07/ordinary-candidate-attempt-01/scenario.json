@@ -1,0 +1,5 @@
+{
+  "status": "failed",
+  "method": "Public Mission1 and Skip; ordinary elapsed RAF, passive actual-render PNGs. No injected world, seed, effect, speed or frame clock.",
+  "failure": "page.evaluate: Error: Ordinary Mission1 startup has already passed the bounded before-frame window\n    at eval (eval at evaluate (:311:30), <anonymous>:4:15)\n    at UtilityScript.evaluate (<anonymous>:313:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at startupBurst (/workspace/scratch/69fd8163d94e/startup-burst-angle-fix-20261007/scripts/local-render/startup-burst.mjs:30:33)\n    at async runLocalBrowser (/workspace/scratch/69fd8163d94e/startup-burst-angle-fix-20261007/scripts/local-render/harness.mjs:153:20)\n    at async file:///workspace/scratch/69fd8163d94e/startup-burst-angle-fix-20261007/scripts/local-render/harness.mjs:240:21"
+}
