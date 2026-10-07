@@ -17,12 +17,15 @@ const sha = file => createHash('sha256').update(readFileSync(file)).digest('hex'
 const inputs = JSON.parse(readFileSync(resolve(here, 'source-inputs.json')))
 assert.ok(['baseline', 'candidate'].includes(side))
 assert.equal(resolve(options.gameRoot), root); assert.equal(options.port, inputs.ports[side])
-const continuation = phase !== 'fresh' ? JSON.parse(readFileSync(resolve(here, 'continuation-inputs.json'))) : null
+const continuation = phase !== 'fresh' ? JSON.parse(readFileSync(resolve(here,
+  side === 'candidate' ? 'candidate-continuation-inputs.json' : 'continuation-inputs.json'))) : null
 assert.equal(options.timeout, phase === 'crossing' ? continuation.crossingCaps.harnessMs : continuation ? continuation.caps.harnessMs : inputs.caps.harnessMs)
 assert.equal(resolve(options.profile), resolve(root, inputs.profiles[side]))
 assert.equal(resolve(options.scenario), resolve(here, 'scenario.mjs'))
 if (continuation) {
-  assert.equal(side, 'baseline'); assert.ok(options.profileCorrespondence, 'Exact reviewed source/checker correspondence required')
+  assert.ok(side === 'baseline' || side === 'candidate' && phase === 'crossing')
+  if (side === 'candidate') { assert.equal(continuation.side, side); assert.equal(continuation.crossingCaps.maxResponseEpisodes, 3) }
+  assert.ok(options.profileCorrespondence, 'Exact reviewed source/checker correspondence required')
   assert.ok(existsSync(options.profile), 'Genuine retained task profile required')
 } else {
   assert.equal(options.profileCorrespondence, undefined)

@@ -23,7 +23,7 @@ function row(turn, phase = 'afterTurn', response = false) {
       landFlags: 0, supported: true, positionCoherent: true },
     status: 'playing', paused: false, speed: 1, visibility: 'visible', pendingDistance: 5000,
     person: { id: 5, class: 1, model: 4, tribe: 0, state: 10, speed: 40, life: 1100, commandStatus: response ? 32 : 3,
-      commandCursor: 0, immediateCommand: response ? 11 : 0, commands: [10, 0], flags2: 0x20000, flags3: 0,
+      commandCursor: 0, immediateCommand: response ? 11 : 0, commands: [10, 0], workTarget: 0, workFlags: 0, flags2: 0x20000, flags3: 0,
       flags4: 0, assignment: 0, vehicle: 0, x: 0x2100, y: 0x2100, substate: 0, counter: turn & 255, timer: 0, draw: 14 },
     commands: [10, 0], queued: [queued], order: response ? { id: 11, identity: 3, model: 32, flags: 32,
       references: 1, object: 0, a: 0x2100, b: 0x2100 } : queued,
@@ -87,6 +87,108 @@ test('actual production scan counter follows world turn even when retained perso
   assert.equal(qualifyingVisit(before, after), null, 'Retained counter32 does not schedule production world17')
   before.person.flags3 |= 0x800
   assert.ok(qualifyingVisit(before, after), 'A real pending scan remains a separate admission')
+})
+
+const first32Fixture = () => JSON.parse(readFileSync(new URL('./retained-candidate01-first32.json', import.meta.url)))
+function episodeRows(startTurn = 4401) {
+  const { before, after } = first32Fixture()
+  before.turn = startTurn; after.turn = startTurn + 1
+  const startupBefore = structuredClone(after); startupBefore.phase = 'beforeTurn'
+  const startup = structuredClone(after); startup.turn++; startup.person.commandStatus = 32; startup.person.substate = 2
+  const releaseBefore = structuredClone(startup); releaseBefore.phase = 'beforeTurn'
+  const released = structuredClone(startup); released.turn++; released.person.immediateCommand = 0
+  released.order = structuredClone(released.queued[0]); released.retiredOrders = [{ ...after.order, references: 0 }]
+  return { before, after, startupBefore, startup, releaseBefore, released }
+}
+
+test('prospective mode retains exact unqualified4402 without rewriting the failed original attempt', () => {
+  const f = first32Fixture(), original = createResponseTracker()
+  original.observe(f.before); original.observe(f.after)
+  assert.equal(original.progress.status, 'failed')
+  const tracker = createResponseTracker({ prospective: true })
+  tracker.observe(f.before); tracker.observe(f.after)
+  assert.equal(tracker.progress.status, 'unqualified-response', tracker.progress.reason)
+  assert.equal(tracker.progress.firstResponse, null); assert.equal(tracker.progress.startup, null)
+  assert.equal(tracker.progress.episodes.length, 1)
+  assert.equal(tracker.progress.episodes[0].classification, 'nonqualifying-cell-transition')
+  assert.equal(tracker.progress.episodes[0].release, null)
+  assert.deepEqual(tracker.rows, [f.before, f.after])
+})
+
+test('prospective mode keeps malformed source, payload, target and original queue failures fatal', () => {
+  for (const mutate of [
+    (b, a) => { b.facts.genericThreat = 7 }, (b, a) => { b.admission.work = 7 },
+    (b, a) => { b.person.id++ }, (b, a) => { delete b.person.workFlags },
+    (b, a) => { a.turn++ }, (b, a) => { a.actor.hp-- }, (b, a) => { a.person.life-- },
+    (b, a) => { a.nativeOnly = false }, (b, a) => { a.order.references = 2 },
+    (b, a) => { a.orderUsers = [8] }, (b, a) => { a.queued[0].identity++ },
+    (b, a) => { delete b.facts.candidates.rows[0].native.flags4 },
+    (b, a) => { b.facts.candidates.rows[0].registered = false },
+    (b, a) => { b.facts.candidates.rows[0].positionCoherent = false },
+    (b, a) => { b.facts.candidates.rows[0].native.state = 23 },
+    (b, a) => { a.facts.braves[0].vehicle = 1 },
+  ]) {
+    const { before, after } = first32Fixture(); mutate(before, after)
+    const t = createResponseTracker({ prospective: true }); t.observe(before); t.observe(after)
+    assert.equal(t.progress.status, 'failed'); assert.equal(t.progress.firstResponse, null)
+  }
+})
+
+test('unqualified episode requires its observed release before the first qualifying new edge', () => {
+  const e = episodeRows(), t = createResponseTracker({ prospective: true })
+  for (const r of Object.values(e)) t.observe(r)
+  assert.equal(t.progress.status, 'approaching', t.progress.reason)
+  assert.ok(t.progress.episodes[0].release)
+  const moveBefore = structuredClone(e.released); moveBefore.phase = 'beforeTurn'; moveBefore.person.commandStatus = 3
+  moveBefore.pendingDistance = e.before.pendingDistance
+  const move = structuredClone(moveBefore); move.phase = 'afterTurn'; move.turn++
+  const before = structuredClone(move); before.phase = 'beforeTurn'; before.facts.range = 1; before.facts.genericThreat = 0
+  const after = structuredClone(e.after); after.turn = before.turn + 1; after.order.id = 35; after.order.identity = 7; after.person.immediateCommand = 35
+  for (const r of [moveBefore, move, before, after]) t.observe(r)
+  assert.equal(t.progress.status, 'responding', t.progress.reason)
+  assert.equal(t.progress.episodes.length, 2); assert.equal(t.progress.qualifiedEpisode, 2)
+  assert.equal(t.progress.firstObservedResponse.after.turn, 4402)
+  assert.equal(t.progress.firstResponse.after.turn, 4406)
+  assert.equal(t.events.at(-1).kind, 'first-qualified-automatic32')
+  const first = createResponseTracker({ prospective: true }); first.observe(row(15, 'beforeTurn')); first.observe(row(16, 'afterTurn', true))
+  assert.equal(first.progress.qualifiedEpisode, 1, 'Do not skip a qualifying very first attachment')
+})
+
+test('unqualified episode rejects missing release, reuse, changed health and exhausted episode budget', () => {
+  for (const mutate of [
+    e => { e.released.retiredOrders[0].references = 1 }, e => { e.released.retiredOrders[0].identity++ },
+    e => { e.released.listeners = [3067] }, e => { e.released.queued[0].a++ },
+    e => { e.startup.actor.hp-- }, e => { e.startup.order.id++ },
+    e => { e.released.order.model = 17 }, e => { e.startup.turn++ },
+  ]) {
+    const e = episodeRows(); mutate(e); const t = createResponseTracker({ prospective: true })
+    for (const r of Object.values(e)) t.observe(r)
+    assert.equal(t.progress.status, 'failed'); assert.equal(t.progress.firstResponse, null)
+  }
+  const t = createResponseTracker({ prospective: true })
+  for (let n = 0; n < 3; n++) {
+    const e = episodeRows(4401 + n * 4)
+    if (n) { const before = structuredClone(e.before); before.turn--; const after = structuredClone(e.before); after.phase = 'afterTurn'; t.observe(before); t.observe(after) }
+    for (const r of Object.values(e)) t.observe(r)
+  }
+  assert.equal(t.progress.status, 'failed'); assert.match(t.progress.reason, /episode cap/)
+  assert.equal(t.progress.episodes.length, 3); assert.ok(t.progress.episodes.every(e => e.release))
+})
+
+test('prospective tracking preserves visit/row caps and rejects incomplete pairs or recorded same-slot restart', () => {
+  for (const options of [{ maxRows: 1 }, { maxVisits: 0 }]) {
+    const e = episodeRows(), t = createResponseTracker({ prospective: true, ...options })
+    t.observe(e.before); t.observe(e.after); assert.equal(t.progress.status, 'failed')
+  }
+  for (const restart of [false, true]) {
+    const e = episodeRows(), t = createResponseTracker({ prospective: true })
+    t.observe(e.before); t.observe(e.after)
+    if (restart) {
+      t.observe(e.startupBefore); t.observe(e.startup)
+      e.releaseBefore.person.commandStatus = 3; t.observe(e.releaseBefore)
+    } else t.observe(e.startup)
+    assert.equal(t.progress.status, 'failed'); assert.equal(t.progress.firstResponse, null)
+  }
 })
 
 test('automatic32 can attach on the first moving visit and need not expose persistent substate5', () => {
@@ -412,4 +514,21 @@ test('continuation admits only the exact genuine terminal checkpoint and origina
   const labels = [...source.matchAll(/observeCheckpoint\('([^']+)'\)/g)].map(match => match[1])
   assert.equal(labels.length, 1)
   for (const label of labels) assert.match(label, /^[a-zA-Z0-9][a-zA-Z0-9 -]{0,79}$/, 'Maintained harness label contract')
+})
+
+test('candidate continuation binds genuine3234 and the failed candidate source without borrowing baseline3336', () => {
+  const pins = JSON.parse(readFileSync(new URL('./candidate-continuation-inputs.json', import.meta.url)))
+  assert.equal(pins.side, 'candidate'); assert.equal(pins.checkpoint.turn, 3234)
+  assert.equal(pins.originalActors.traineeId, 519); assert.equal(pins.crossingCaps.maxResponseEpisodes, 3)
+  assert.equal(pins.previousSourceCommit, 'd969cace30848f4777352baa061fdc6eb2ca26d8')
+  assert.equal(pins.checkpoint.checkpointSha256, 'ff6c9257b60a3944fa34aef5df79a0b6249889f78889c460ad6ad5baa998342b')
+  const profile = { mode: 'reused', id: pins.profileId, inputs: { application: pins.application }, checkpointAtStart: pins.checkpoint,
+    previousRun: { runId: pins.priorRunId, receiptSha256: pins.previousReceiptSha256,
+      sourceFingerprint: pins.previousSourceFingerprint, sourceCommit: pins.previousSourceCommit, checker: pins.previousChecker,
+      cleanupVerified: true, continuationVerified: true, checkpointAtEnd: pins.checkpoint } }
+  requireContinuation(profile, pins)
+  for (const mutate of [p => { p.checkpointAtStart.turn = 3336 }, p => { p.previousRun.checker = 'wrong' },
+    p => { p.previousRun.sourceFingerprint = 'wrong' }, p => { p.previousRun.continuationVerified = false }]) {
+    const wrong = structuredClone(profile); mutate(wrong); assert.throws(() => requireContinuation(wrong, pins))
+  }
 })

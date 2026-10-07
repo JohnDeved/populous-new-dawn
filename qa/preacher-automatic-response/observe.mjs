@@ -10,7 +10,7 @@ const tribes = { blue: 0, red: 1, yellow: 2, green: 3 }
 const word = n => Number.isInteger(n) && n >= 0 && n <= 65535
 const dword = n => Number.isInteger(n) && n >= 0 && n <= 0xffffffff
 
-export function eligibleObservedBrave(source, brave) {
+function eligibleBraveFields(source, brave) {
   return !!brave && brave.identity > 0 && brave.id === brave.unitId && brave.class === 1 && brave.model === 2 &&
     brave.kind === 'brave' && Number.isInteger(brave.tribe) && brave.tribe >= 0 && brave.tribe <= 3 &&
     brave.tribe === tribes[brave.team] && brave.tribe !== source.tribe &&
@@ -21,7 +21,11 @@ export function eligibleObservedBrave(source, brave) {
     dword(brave.flags2) && dword(brave.flags4) &&
     Number.isInteger(brave.disguise) && brave.disguise >= 0 && brave.disguise <= 255 &&
     !(brave.flags2 & 0x810000) && !!(brave.flags2 & 0x20000) && !(brave.flags4 & 0x1000) &&
-    Number.isInteger(brave.reverseAlliance) && !(brave.reverseAlliance & (1 << source.tribe)) &&
+    Number.isInteger(brave.reverseAlliance) && !(brave.reverseAlliance & (1 << source.tribe))
+}
+
+export function eligibleObservedBrave(source, brave) {
+  return eligibleBraveFields(source, brave) &&
     cell(brave).every((n, i) => Math.abs(((n - cell(source)[i] + 64) & 127) - 64) <= 1)
 }
 
@@ -38,9 +42,9 @@ export function stableBravePair(before, after) {
 
 // Shared by absence and first32. Retain raw endpoint changes; equal native cells
 // establish the scanner's spatial input, not an unobserved path or internal AL.
-function stableTriggerVisit(before, after) {
+function stableSourceVisit(before, after) {
   if (before?.phase !== 'beforeTurn' || after.phase !== 'afterTurn' || after.turn !== before.turn + 1 ||
-    !movingEncounter(before) || !admittedMovingLane(after) || !same(queue(before), queue(after)) ||
+    !movingSource(before) || !admittedMovingLane(after) || !same(queue(before), queue(after)) ||
     !same(before.admission, after.admission) || before.actor.hp !== after.actor.hp ||
     after.person.life !== Math.round(after.actor.hp * 20) || after.person.life <= 0 ||
     !same(cell(before.person), cell(after.person)) ||
@@ -48,7 +52,11 @@ function stableTriggerVisit(before, after) {
     Math.hypot(short(before.order.a - after.person.x), short(before.order.b - after.person.y)) <= 512 ||
     after.facts.primaryGuardIds.length || after.facts.gameFlags !== 0 || after.facts.levelFlags2 !== 0 ||
     !(!(after.turn & after.facts.scanMask) || before.person.flags3 & 0x800)) return null
-  return stableBravePair(before, after)
+  return true
+}
+
+function stableTriggerVisit(before, after) {
+  return stableSourceVisit(before, after) && movingEncounter(before) ? stableBravePair(before, after) : null
 }
 
 export function admittedMovingLane(row) {
@@ -61,14 +69,66 @@ export function admittedMovingLane(row) {
 // A deliberately narrow ordinary-domain witness, not a second implementation of
 // 0051f030. No model4/7 candidate exists in the guarded area, so its primary is
 // empty without weakening any native predicate. The actual generic read also misses.
-export function movingEncounter(row) {
+function movingSource(row) {
   const p = row.person, f = row.facts
   return !!p && admittedMovingLane(row) && row.order?.model === 3 && !p.immediateCommand && p.commandStatus === 3 &&
     p.life > 0 && p.life === Math.round(row.actor.hp * 20) &&
     p.state === 10 && p.speed > 0 && !(row.order.flags & 1) && row.pendingDistance > 512 &&
     f.autoEligible && f.range === 1 && f.genericThreat === 0 && f.primaryGuardIds.length === 0 &&
-    f.availableOrder && f.braves.length > 0 && f.gameFlags === 0 && f.levelFlags2 === 0 &&
+    f.availableOrder && f.gameFlags === 0 && f.levelFlags2 === 0 &&
     !(p.flags2 & 0x810004) && !(p.flags4 & 0x1c00) && !(p.assignment & 4) && !p.vehicle
+}
+
+export function movingEncounter(row) {
+  return movingSource(row) && row.facts.braves.length > 0
+}
+
+// Project existing raw diagnostic fields only; absent fields remain absent.
+function diagnosticBrave(item) {
+  if (!item?.native) return null
+  return { ...item.native, identity: item.ownerIdentity, unitId: item.id, kind: item.kind,
+    team: item.team, hp: item.hp, inside: item.inside, nativeOnly: item.nativeOnly && item.ownerSlot === 'native',
+    registeredOwner: item.registered && item.cellLinked, positionCoherent: item.positionCoherent,
+    reverseAlliance: item.reverseAlliance }
+}
+
+function validSourceFields(row) {
+  const p = row?.person, a = row?.admission
+  return p && a && p.id === row.actor.id && [p.id, p.x, p.y, p.vehicle, p.assignment, p.workTarget, p.speed].every(word) &&
+    Number.isInteger(p.workFlags) && p.workFlags >= 0 && p.workFlags <= 255 &&
+    [p.flags2, p.flags3, p.flags4, a.landFlags].every(dword) &&
+    Number.isInteger(p.life) && p.life > 0 && p.life <= 32767 && p.life === Math.round(row.actor.hp * 20) &&
+    Number.isInteger(p.counter) && p.counter >= 0 && p.counter <= 255
+}
+
+export function classifyProspectiveResponse(before, after) {
+  if (!validSourceFields(before) || !validSourceFields(after) || !stableSourceVisit(before, after))
+    return { kind: 'invalid', reason: 'First32 source/admission/health/cadence/queue predicates failed' }
+  const qualified = stableTriggerVisit(before, after)
+  if (before.facts.braves.some(v => !eligibleObservedBrave(before.person, v)) ||
+    after.facts.braves.some(v => !eligibleObservedBrave(after.person, v)))
+    return { kind: 'invalid', reason: 'First32 contains malformed or ineligible positive Brave evidence' }
+  if (qualified) return { kind: 'qualified', brave: qualified }
+  for (const brave of after.facts.braves) {
+    const a = diagnosticBrave(before.facts.candidates?.rows.find(v => v.id === brave.id))
+    const b = diagnosticBrave(after.facts.candidates?.rows.find(v => v.id === brave.id))
+    if (!eligibleBraveFields(before.person, a) || !eligibleObservedBrave(after.person, b) ||
+      !eligibleObservedBrave(after.person, brave)) continue
+    if (a.identity !== b.identity || b.identity !== brave.identity || a.id !== b.id ||
+      a.class !== b.class || a.model !== b.model || a.tribe !== b.tribe || same(cell(a), cell(b))) continue
+    const fields = 'id class model tribe state x y life workFlags flags2 flags4 vehicle disguise'.split(' ')
+    if (fields.some(key => b[key] !== brave[key])) continue
+    return { kind: 'nonqualifying-cell-transition', before: a, after: b,
+      reason: 'Owned eligible Brave changed native cell during this logical visit; strict stable trigger is absent' }
+  }
+  return { kind: 'invalid', reason: 'First32 has unsupported, malformed or incoherent target evidence' }
+}
+
+function validImmediate32(row) {
+  const p = row.person, order = row.order
+  return p.immediateCommand && order?.model === 32 && order.id === p.immediateCommand &&
+    order.flags === 32 && order.references === 1 && order.a === p.x && order.b === p.y &&
+    row.orderUsers.length === 1 && row.orderUsers[0] === row.actor.id
 }
 
 export function qualifyingVisit(before, after) {
@@ -82,11 +142,12 @@ export function qualifyingVisit(before, after) {
     basis: 'Adjacent retained moving3; explicit world-turn no-target/no-task admission; pending destination; same eligible native Brave reference/cell at both endpoints; due scanner; empty primary guard; actual generic miss; free order capacity. No internal AL observed.' }
 }
 
-export function createResponseTracker({ baseline = false, loaded = false, captureOnly = false, maxRows = 12000, maxVisits = 3600 } = {}) {
+export function createResponseTracker({ baseline = false, loaded = false, captureOnly = false, prospective = false, maxRows = 12000, maxVisits = 3600 } = {}) {
   const rows = [], events = [], progress = { status: loaded ? 'loaded' : 'awaiting-move', totalRows: 0,
     visits: 0, move: null, encounter: null, firstResponse: null, startup: null, listenerIds: [],
-    released: null, rendered: [], oddNoListener: [], evenNoListener: [] }
-  let before, previousTurn, originalQueue, responseId, responseIdentity
+    released: null, rendered: [], oddNoListener: [], evenNoListener: [], episodes: [],
+    firstObservedResponse: null, qualifiedEpisode: null }
+  let before, previousTurn, originalQueue, responseId, responseIdentity, unqualified
   const fail = reason => Object.assign(progress, { status: 'failed', reason })
   return { rows, events, progress, fail, observe(row) {
     if (['failed', 'released', 'baseline-omission'].includes(progress.status)) return
@@ -101,6 +162,14 @@ export function createResponseTracker({ baseline = false, loaded = false, captur
     if (!progress.move && !loaded && ['beforeTurn', 'afterTurn'].includes(row.phase) && row.order?.model === 3 && !p.immediateCommand) {
       progress.move = row; originalQueue = queue(row); progress.status = 'approaching'
     }
+    if (prospective && progress.move && !responseId &&
+      (!same(queue(row), originalQueue) || row.actor.hp !== progress.move.actor.hp ||
+        !validSourceFields(row) || !admittedMovingLane(row)))
+      return fail('Prospective original queue or coherent health changed')
+    if (unqualified && row.phase !== 'afterTurn' &&
+      (!same(row.order, unqualified.after.order) || p.immediateCommand !== row.order.id ||
+        row.orderUsers.length !== 1 || row.orderUsers[0] !== row.actor.id || unqualified.started && p.commandStatus !== 32))
+      return fail('Nonqualifying32 changed between observed logical boundaries')
     if (row.phase === 'beforeTurn') { before = row; return }
     if (row.phase === 'render-after-updater') {
       if (row.order?.model === 32 && row.render?.visible && row.render.draw === p.draw &&
@@ -111,16 +180,52 @@ export function createResponseTracker({ baseline = false, loaded = false, captur
     }
     if (row.phase !== 'afterTurn') return
     if (row.paused) return fail('Logical turn advanced while paused')
+    if (prospective && (before?.phase !== 'beforeTurn' || before.turn + 1 !== row.turn))
+      return fail('Prospective episode is missing an adjacent before/after pair')
     if (previousTurn !== undefined && row.turn !== previousTurn + 1) return fail('Missing or repeated logical visit')
     previousTurn = row.turn
     if (++progress.visits > maxVisits) return fail('Logical visit cap exceeded')
     if (captureOnly) { progress.status = 'capturing-interruption'; return }
+    if (unqualified) {
+      if (row.order?.model === 32) {
+        if (!same(row.order, unqualified.after.order) || p.immediateCommand !== row.order.id ||
+          row.orderUsers.length !== 1 || row.orderUsers[0] !== row.actor.id ||
+          unqualified.started && p.commandStatus !== 32)
+          return fail('Nonqualifying32 record replaced, shared or restarted before observed release')
+        if (p.commandStatus === 32) unqualified.started = true
+        return
+      }
+      const retired = row.retiredOrders.find(v => v.id === unqualified.after.order.id)
+      if (p.immediateCommand || row.order?.model !== 3 || !same(row.order, progress.move.order) ||
+        !retired || !same(retired, { ...unqualified.after.order, references: 0 }) || row.listeners.length)
+        return fail('Nonqualifying32 ended without exact record release and original queued3')
+      unqualified.release = { before, after: row, retired }; unqualified.endRow = progress.totalRows - 1
+      events.push({ kind: 'nonqualifying32-release-to-original3', episode: unqualified.ordinal, ...unqualified.release })
+      unqualified = null; progress.status = 'approaching'
+      if (progress.episodes.length >= 3) return fail('Prospective response episode cap reached without qualification')
+      return
+    }
     const qualified = qualifyingVisit(before, row)
     if (qualified && !progress.encounter) {
       progress.encounter = qualified; events.push({ kind: 'qualifying-visit-without32', ...qualified })
       if (baseline) { progress.status = 'baseline-omission'; return }
     }
     if (!responseId && row.order?.model === 32) {
+      if (prospective) {
+        if (!progress.move || !same(queue(row), originalQueue) || !validImmediate32(row))
+          return fail('Prospective32 payload/initiator/original queue failed')
+        const classification = classifyProspectiveResponse(before, row)
+        if (classification.kind === 'invalid') return fail(classification.reason)
+        const episode = { ordinal: progress.episodes.length + 1, classification: classification.kind,
+          trigger: classification, before, after: row, startRow: progress.totalRows - 2, release: null, started: p.commandStatus === 32 }
+        progress.episodes.push(episode)
+        progress.firstObservedResponse ??= { before, after: row }
+        if (classification.kind !== 'qualified') {
+          unqualified = episode; progress.status = 'unqualified-response'
+          events.push({ kind: 'nonqualifying-automatic32', ...episode }); return
+        }
+        progress.qualifiedEpisode = episode.ordinal
+      }
       if (loaded) originalQueue = queue(row)
       else if (!progress.move || !stableTriggerVisit(before, row) || !same(queue(row), originalQueue))
         return fail('First32 has no source-bound moving3 trigger and preserved queue')
@@ -130,7 +235,7 @@ export function createResponseTracker({ baseline = false, loaded = false, captur
         return fail('Immediate32 payload/reference/initiator ownership failed')
       responseId = row.order.id; responseIdentity = row.order.identity
       progress.firstResponse = { before: loaded ? null : before, after: row, loaded, brave: loaded ? null : stableBravePair(before, row) }
-      progress.status = 'responding'; events.push({ kind: loaded ? 'loaded32' : 'first-automatic32', ...progress.firstResponse })
+      progress.status = 'responding'; events.push({ kind: loaded ? 'loaded32' : prospective ? 'first-qualified-automatic32' : 'first-automatic32', ...progress.firstResponse })
     }
     if (!responseId) {
       if (progress.move && row.order?.model !== 3) return fail('Moving3 ended before qualified automatic32; idle17 is not32')
@@ -155,7 +260,7 @@ export function createResponseTracker({ baseline = false, loaded = false, captur
   } }
 }
 
-export async function installResponseObservation({ id, baseline = false, loaded = false, captureOnly = false }) {
+export async function installResponseObservation({ id, baseline = false, loaded = false, captureOnly = false, prospective = false }) {
   const [{ unitAnimationSource }, { currentPersonOrder }, { engagementRange, inEngagementArea, canAutoEngage },
     { combatWorld }, { detectCombatThreat }, { terrainSupportsPerson }, { default: rules }] = await Promise.all([
     import('/app/model.ts'), import('/app/person-orders.ts'), import('/app/melee-engagement.ts'),
@@ -166,7 +271,7 @@ export async function installResponseObservation({ id, baseline = false, loaded 
   const identity = value => { if (!value) return null; if (!identities.has(value)) identities.set(value, ++nextIdentity); return identities.get(value) }
   const fields = 'id class model tribe state previousState substate commandStatus commandCursor immediateCommand workTarget workFlags flags2 flags3 flags4 statusFlags assignment speed life counter timer commandAux commandPhase object draw f1 f2 stamp x y h goalX goalY destinationX destinationY vehicle disguise motionGroup motionIndex cellNext cellPrevious'.split(' ')
   const snapshot = p => p && Object.fromEntries(fields.map(k => [k, p[k] ?? null]))
-  const tracker = createResponseTracker({ baseline, loaded, captureOnly })
+  const tracker = createResponseTracker({ baseline, loaded, captureOnly, prospective })
   const read = phase => {
     const w = scene.world, u = w.units.find(u => u.id === id), p = u?.native, current = p && currentPersonOrder(w.buildingOrders, p)
     const linked = person => {

@@ -125,12 +125,14 @@ export default async function responseScenario(context) {
   const { page, output, receipt, signal, observeCheckpoint } = context
   const baseline = process.env.PND_RESPONSE_SIDE === 'baseline', started = performance.now()
   assert.ok(['baseline', 'candidate'].includes(process.env.PND_RESPONSE_SIDE))
-  if (loadedPrefix) assert.equal(baseline, true, 'This continuation grants baseline crossing only')
+  if (loadedPrefix) assert.equal(loadedPrefix.side, baseline ? 'baseline' : 'candidate')
+  const prospective = !!loadedPrefix && !baseline
   assert.equal(receipt.profile?.mode, loadedPrefix ? 'reused' : 'created')
   if (!loadedPrefix) assert.equal(receipt.profile.checkpointAtStart, null)
   const commands = resolve(output, 'commands'); if (!loadedPrefix) mkdirSync(commands)
   const report = { side: process.env.PND_RESPONSE_SIDE, status: 'running', loadedPrefix, stages: [], failures: [], events: [], screenshots: [],
-    scope: 'Ordinary automatic32 reachability and owned queue lifecycle; original component proof and pixels are separate.' }
+    scope: 'Ordinary automatic32 reachability and owned queue lifecycle; original component proof and pixels are separate.',
+    qualificationMode: prospective ? 'first qualifying automatic32; every earlier episode retained' : 'first automatic32' }
   let acquisition, progress, saved, restored, originalFinished = false, activeStage, primaryFailure, stopped = false, epoch = 'original'
   const persist = () => writeFileSync(resolve(output, 'response.json'), JSON.stringify({ ...report,
     source: receipt.source, elapsedMs: performance.now() - started, activeStage, progress, saved, restored }, null, 2) + '\n')
@@ -230,10 +232,10 @@ export default async function responseScenario(context) {
     await acquisition.ordinary.map(destination)
     const hit = await acquisition.ground(destination); assert.ok(hit, 'Declared approach ground is unavailable')
     if (report.crossingPlan) { report.crossingConfirmed = await confirmCrossing(page, report.crossingPlan, hit); check(); persist() }
-    await page.evaluate(async ({ id, baseline }) => {
+    await page.evaluate(async ({ id, baseline, prospective }) => {
       const { installResponseObservation } = await import('/qa/preacher-automatic-response/observe.mjs')
-      return installResponseObservation({ id, baseline })
-    }, { id, baseline })
+      return installResponseObservation({ id, baseline, prospective })
+    }, { id, baseline, prospective })
     report.approach = await acquisition.dispatch.clickOrder(hit)
     const accepted = report.approach.inputAfter.units.find(v => v.id === id)
     assert.equal(accepted.order.model, 3); assert.equal(accepted.native.immediateCommand, 0)
@@ -245,7 +247,9 @@ export default async function responseScenario(context) {
       // Positive behavior acceptance stays failed, while the diagnostic result is retained.
       throw Error('Qualified ordinary automatic-response visit retained; immediate32 is absent on baseline')
     }
-    end({ firstResponseTurn: progress.firstResponse.after.turn, startup: progress.startup.person })
+    end({ ...(prospective ? { firstQualifiedResponseTurn: progress.firstResponse.after.turn,
+      qualifiedEpisode: progress.qualifiedEpisode, firstObservedResponseTurn: progress.firstObservedResponse.after.turn }
+      : { firstResponseTurn: progress.firstResponse.after.turn }), startup: progress.startup.person })
 
     begin('ordinary32-save-and-natural-release', 120000)
     await button('Pause game')

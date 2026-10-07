@@ -4,9 +4,62 @@ The accepted ordinary baseline remains bound to application
 `1c7e6b05687aca14d9350e17c7ae14dc6c68bb97` and tested QA `e40eee37`.
 Candidate source adopts only the reviewed lean runtime
 `e4e84e225a451eb301b5e41ab27811a6c6d37300`, including accepted main `a8e85a64`.
-The accepted `49425649` scenario, observer, input and lifecycle logic is unchanged.
-No candidate browser run has occurred. Successful final application gates, exact
-source preflight and a separate resource grant are required before its fresh run.
+Candidate attempt01 at QA `d969cace` remains FAILED/exit1: actual immediate32 and
+queued3 were observed, but the target crossed cells inside that logical turn and
+the strict stable-cell witness failed. Final application gates passed on `e4e84e22`.
+This QA-only revision prepares a genuine3234 continuation; it has not run and
+requires exact source/profile correspondence, preflight and a separate grant.
+
+## Prospective first qualifying candidate response
+
+The failed candidate acquired Preacher3162 through Temple1021 from trainee519,
+then ordinarily saved turn3234, full digest
+`ff6c9257b60a3944fa34aef5df79a0b6249889f78889c460ad6ad5baa998342b`.
+At4401→4402 its original queued record32 remained model3/identity2/reference1;
+new immediate record34 was model32/flags32/reference1 with raw source XY and the
+original native owner. Brave3067 moved cell[124,42]→[125,42], entering the source's
+secondary area during the turn. All non-Brave trigger and payload checks passed;
+the earlier eligible Brave set and stable pair were absent. The original failed
+receipt and unchanged checker result remain evidence, not a candidate pass.
+
+`candidate-continuation-inputs.json` binds the actual closed profile/run, original
+acquisition/first admission, full3234 digest and saved native projection. Candidate
+`PND_RESPONSE_PHASE=crossing` reuses the existing Load→Pause diagnostics and loaded
+acquisition branch. It does not train again or read the old baseline3336 profile.
+Application/harness bytes are unchanged, but this checker/source change requires
+independent correspondence from the immediately preceding candidate terminal run.
+
+Use the same bounded defender removal,4×2 planner and one ordinary movement.
+The continuation-only tracker selects the first qualifying automatic32, including
+the very first attachment if it qualifies. It retains every earlier event in
+order. Only an explicitly recorded coherent enemy Brave cell transition can be
+nonqualifying after all source/admission/health/cadence/queue and immediate32
+payload/initiator checks pass. Missing owned fields, malformed targets, changed
+source or queue and other predicate failures remain fatal. The original strict
+stable-cell/reference/eligibility qualifier is unchanged.
+
+Every nonqualifying episode keeps its logical/render rows, bound32 record and
+original owner/health/queue. A later event requires observed old32 reference0,
+empty listeners/immediate slot and return to the exact original queued3. Missing
+release, replacement, recorded same-slot restart, missing logical pairs or
+arrival17 fails. No observer reset or hidden input is used. At most three32
+episodes are considered under the same180-second defender/approach and existing
+row/visit caps; the third nonqualifying episode is retained through observed
+release unless the existing timeout or another assertion ends it first.
+
+Only a fully qualifying event enters the existing startup→Pause/Save32→natural
+release→Load32→paused preparation→synchronous interruption acceptance. Earlier
+events stay nonqualifying and cannot supply that lifecycle proof. Supported
+stop-preserve-latest leaves3234 intact until an ordinary qualified Save occurs.
+Harness840 seconds and outer870-second INT plus20-second grace remain unchanged.
+
+The retained3986 geometry includes coherent Brave2909 near a possible later
+cell[123,40] window of the same destination, with533–1196 native units remaining.
+This is only geometric opportunity: at4402 the source motion group is already0,
+so its retained destination field does not prove a resumed route or future target
+state. The conservative planner's whole-cell768 margin for2909 remains unsatisfied;
+no planner or actual512-margin qualification rule is weakened. No extra input is
+proposed. Failure to earn the witness within the original bounds remains failure.
 
 ## Retained baseline and narrow diagnostic continuation
 
@@ -205,7 +258,7 @@ interruption sequence remains, with three bounded corrections:
   automatic re-engagement is retained separately and cannot rewrite cancellation.
   The diagnostic read descriptor is restored in finally, including failure paths.
 
-No candidate browser run has occurred. `source-inputs.json` now binds the four
+The first candidate browser attempt remains failed as described above. `source-inputs.json` binds the four
 candidate trees to the reviewed combined runtime `e4e84e22`; the contract's former
 `candidateTrees === null` assertion is superseded only by exact adopted-commit
 and HEAD tree equality. No gameplay or negative acceptance assertion changed.

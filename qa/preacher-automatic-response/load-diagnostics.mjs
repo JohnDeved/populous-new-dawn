@@ -22,18 +22,20 @@ export function requireContinuation(profile, pins) {
 // Continuation of this same driver: genuine Load→Pause only. No route is chosen
 // until these actual current candidate records have been independently inspected.
 export default async function loadDiagnostics({ page, root, output, receipt, signal, observeCheckpoint }) {
-  const pins = JSON.parse(readFileSync(resolve(root, 'qa/preacher-automatic-response/continuation-inputs.json')))
+  const side = process.env.PND_RESPONSE_SIDE
+  const pins = JSON.parse(readFileSync(resolve(root, 'qa/preacher-automatic-response',
+    side === 'candidate' ? 'candidate-continuation-inputs.json' : 'continuation-inputs.json')))
   requireContinuation(receipt.profile, pins)
   const sha = p => createHash('sha256').update(readFileSync(resolve(root, p))).digest('hex')
   assert.equal(sha(pins.previousReceipt), pins.previousReceiptSha256)
   assert.equal(sha(pins.originalAcquisition.receipt), pins.originalAcquisition.sha256)
   assert.equal(sha(pins.originalAcquisition.firstAdmission), pins.originalAcquisition.firstAdmissionSha256)
   const started = performance.now(), commands = resolve(output, 'commands'); mkdirSync(commands)
-  const report = { status: 'running', phase: 'load-diagnostics', originalAcquisition: pins.originalAcquisition,
+  const report = { status: 'running', phase: 'load-diagnostics', side, originalAcquisition: pins.originalAcquisition,
     originalActors: pins.originalActors,
     prefixSourceCommit: pins.originalAcquisition.sourceCommit ?? pins.previousSourceCommit,
     prefixRunId: pins.originalAcquisition.runId ?? pins.priorRunId, failures: [],
-    scope: 'Ordinary Load3336 then Pause and read-only current geometry. No new movement, Save, automatic-response or conversion claim.' }
+    scope: `Ordinary Load${pins.checkpoint.turn} then Pause and read-only current geometry. No new movement, Save, automatic-response or conversion claim.` }
   const save = () => writeFileSync(resolve(output, 'load-diagnostics.json'), JSON.stringify({ ...report,
     source: receipt.source, elapsedMs: performance.now() - started }, null, 2) + '\n')
   const check = () => {
@@ -87,7 +89,7 @@ export default async function loadDiagnostics({ page, root, output, receipt, sig
     }, pins.originalActors); check()
     assert.equal(report.diagnostics.status, 'playing'); assert.equal(report.diagnostics.speed, 1)
     assert.ok(report.diagnostics.turn >= pins.checkpoint.turn)
-    await page.screenshot({ path: resolve(output, 'loaded3336-paused.png'), timeout: 5000 }); check()
+    await page.screenshot({ path: resolve(output, `loaded${pins.checkpoint.turn}-paused.png`), timeout: 5000 }); check()
     report.committedAfter = await observeCheckpoint('After ordinary Load and Pause - no Save'); check()
     assert.deepEqual(report.committedAfter.checkpoint, pins.checkpoint)
     report.status = 'passed'; save()
