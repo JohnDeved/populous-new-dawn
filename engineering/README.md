@@ -141,3 +141,9 @@ rendering cannot certify hardware frame performance. Never invent speedups or FP
 Serialize shared Ghidra projects, full-check/build resources, fixed ports/capture
 paths, fixture/parity recording, and measurements. A worktree isolates edits, not CPU,
 GPU, shared files, or services. Keep process ownership and cleanup explicit.
+
+## Approved delivery experiment
+
+The bounded [five-product-PR trial](delivery-trial.md) adds a cheap preflight and
+compact transition evidence to existing PRs/receipts. It does not replace final
+gates or GitHub ownership, and speed targets remain unproven until measured.

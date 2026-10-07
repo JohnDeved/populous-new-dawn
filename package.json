@@ -29,6 +29,7 @@
     "orchestration:index": "node scripts/orchestration/cli.mjs index",
     "orchestration:context": "node scripts/orchestration/cli.mjs context",
     "orchestration:plan": "node scripts/orchestration/cli.mjs plan",
+    "orchestration:preflight": "node scripts/orchestration/preflight.mjs",
     "orchestration:prepare": "node scripts/orchestration/prepare.mjs",
     "orchestration:verify": "node scripts/orchestration/verify.mjs",
     "orchestration:audit": "node scripts/orchestration/cli.mjs audit",
