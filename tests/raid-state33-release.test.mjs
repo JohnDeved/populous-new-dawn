@@ -100,6 +100,10 @@ test('unknown consumed release fields do not cause partial release or invented z
     c => { delete c.p.commands },
     c => { c.p.commands[1] = 800 },
     c => { delete c.w.buildingOrders.records[131].references },
+    c => { c.w.buildingOrders.records[131].object = 1 },
+    c => { c.w.buildingOrders.records[131].model = 30 },
+    c => { c.p.commands[2] = 131 },
+    c => { delete c.p.renderFlags },
     c => { delete c.p.computerAssignment },
     c => { c.u.nativeFlags7f = 256 },
   ]) {
