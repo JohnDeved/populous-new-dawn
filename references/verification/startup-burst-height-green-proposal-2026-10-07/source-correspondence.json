@@ -1,0 +1,27 @@
+{
+  "status": "source-only green proposal; no test execution",
+  "acceptedMain": "e3a7a06a4250457502288d5b4c4e4ad8f3b40b53",
+  "normalAdoptionCommit": "eb2770b023c1fa512bbcf1d7e1d8e495ddc1b9d8",
+  "acceptedRedSource": "b66f3a90661da4c394669f888758f8260c907bcc",
+  "acceptedRedRetention": "2100f57306c9e6fe8b85d8ce18c862141496605f",
+  "appliedRuntimeCommit": "0acbe338745a8e9007bc8945e7d1d6c831703eb2",
+  "runtimeAppTree": "bdd11dc19eaaefc7c9694fd7d369e08659c3685a",
+  "runtimeDelta": {
+    "path": "app/level-start-runtime.ts",
+    "beforeSha256": "cce900dc4e08ce890ac88060d7db41bb1cde578f80c2424317d4842d8884451b",
+    "afterSha256": "2450145b24d5e0b0e278f157de38e83756443a92a88dee3e8fc2fef4492c4798",
+    "scope": "Exact reviewed b8c849b8 patch: once per burst root, signed input height is clamped to sampled ground before +90; existing child clamp remains."
+  },
+  "preservedSha256": {
+    "tests/startup-burst-height.test.mjs": "74212dcb91cf0c8635b4c9b36b8e534391dd2ffecb3cbc2df194a6cc16b312a9",
+    "references/verification/startup-burst-height-repair-proposal-2026-10-07/proposed-runtime.patch": "b8c849b81745150317ce76d7e31b882d59252b47647747b2c9bddb92643885d3",
+    "references/verification/startup-burst-arrival-2026-10-07/attempt-01/native-stdout.log": "ecec70d64abcfedd06ea1146462b6f7d86e35a3e8b77652f5cea0587b058c957",
+    "app/level-start.ts": "271093f631144d14ce4438c8a0378241775e95375103339da4a73ef9b443599b",
+    "references/verification/startup-burst-height-red-2026-10-07/attempt-01/diagnostics.json": "22fece081d2350b0823ce6d93f7229778d0d9366b9fd30a77e3e3b4ecddfd6a5",
+    "references/verification/startup-burst-height-red-2026-10-07/attempt-01/test-stdout.log": "664e76e5faae0e66c7425ec26d21e2695c2e2da0a8fe3d7d799a809f3138f92e",
+    "references/verification/startup-burst-height-red-2026-10-07/attempt-01/result-review.json": "534734348066678b504c5758c280627acdbffaf6dbc464780680b5f75b9a7e14"
+  },
+  "runtimePatchApplied": true,
+  "testExecution": "not-run",
+  "greenAcceptance": "Four tests pass; all 1024 birth checks and 32 per stone assertions run; exact equality to all three accepted red integrity diagnostics. No ordinary browser or native whole-startup claim."
+}
