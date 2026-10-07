@@ -1,0 +1,265 @@
+{
+  "freezeComplete": false,
+  "status": "source checkpoint; no executable/run acceptance",
+  "acceptedProposal": "74365c8ab78cf7a8c9ebbf613247092e67f8c4f1",
+  "nativeReadRanges": [
+    {
+      "start": "00400000",
+      "endExclusive": "00d4c000",
+      "owner": "verified PE mapping"
+    },
+    {
+      "start": "02000000",
+      "endExclusive": "02200000",
+      "owner": "declared scratch only"
+    }
+  ],
+  "nativeWriteRanges": [
+    {
+      "start": "0064f480",
+      "endExclusive": "0064f4a8",
+      "owner": "same-cell route metadata"
+    },
+    {
+      "start": "00651344",
+      "endExclusive": "006513dc",
+      "owner": "guarded path scratch"
+    },
+    {
+      "start": "0068c6d0",
+      "endExclusive": "006912e8",
+      "owner": "terrain queue and dirty cells"
+    },
+    {
+      "start": "0087ca1c",
+      "endExclusive": "0087ca20",
+      "owner": "camera dirty flag"
+    },
+    {
+      "start": "0089031c",
+      "endExclusive": "008922f0",
+      "owner": "native pool lists, bootstrap handle table and roster heads"
+    },
+    {
+      "start": "0089243a",
+      "endExclusive": "0089243b",
+      "owner": "allocation argument flag"
+    },
+    {
+      "start": "00892443",
+      "endExclusive": "00892447",
+      "owner": "allocation argument top"
+    },
+    {
+      "start": "008926c7",
+      "endExclusive": "008926cf",
+      "owner": "fresh tribe queue state"
+    },
+    {
+      "start": "0089290d",
+      "endExclusive": "008929cd",
+      "owner": "indexed search slots"
+    },
+    {
+      "start": "0089bc72",
+      "endExclusive": "0089c48d",
+      "owner": "cosmetic seed, roster counts and generated sunlight lookup tables"
+    },
+    {
+      "start": "0089c651",
+      "endExclusive": "0089c68d",
+      "owner": "pool/roster/terrain flags and mana counters"
+    },
+    {
+      "start": "0089c6e5",
+      "endExclusive": "0089c6e7",
+      "owner": "building damage event cell"
+    },
+    {
+      "start": "0089ce37",
+      "endExclusive": "0089ce38",
+      "owner": "allocation initializer flag"
+    },
+    {
+      "start": "0089ce60",
+      "endExclusive": "0089ce62",
+      "owner": "building/effect notification state"
+    },
+    {
+      "start": "0089d178",
+      "endExclusive": "0089d19c",
+      "owner": "game RNG and allocation/turn counters"
+    },
+    {
+      "start": "0089d1c8",
+      "endExclusive": "008a035c",
+      "owner": "four tribe records"
+    },
+    {
+      "start": "008a03e4",
+      "endExclusive": "00937a98",
+      "owner": "terrain, tribe statistics and native unit arena"
+    },
+    {
+      "start": "00937a98",
+      "endExclusive": "009557a4",
+      "owner": "sunlight, order and fresh worker-search structures"
+    },
+    {
+      "start": "009557a4",
+      "endExclusive": "0096eadd",
+      "owner": "motion/navigation/AI setup state and class seeds"
+    },
+    {
+      "start": "02000000",
+      "endExclusive": "02200000",
+      "owner": "declared scratch; immutable tables protected separately"
+    }
+  ],
+  "additionalFreshInputs": [
+    {
+      "address": "0089290d",
+      "source": "empty indexed search slots from fresh array clear",
+      "zeroBytes": 192
+    },
+    {
+      "address": "0093a770",
+      "bytes": "00000000000000000000000000000000000000000000000000000000",
+      "source": "fresh resource-search counters; original00493a40 clear"
+    },
+    {
+      "address": "009557a4",
+      "source": "fresh motion groups before real tribe defaults",
+      "zeroBytes": 44898
+    },
+    {
+      "address": "0089ce5c",
+      "bytes": "c800c800",
+      "source": "0042c8a9..0042c8c0 fresh route limits"
+    },
+    {
+      "address": "005d45a8",
+      "bytes": "03",
+      "source": "loaded landscape mode3;004bd230"
+    },
+    {
+      "address": "0096eace",
+      "bytes": "00",
+      "source": "fresh pending flags"
+    },
+    {
+      "address": "00969d8e",
+      "bytes": "0000",
+      "source": "no transport reservation entries"
+    }
+  ],
+  "allowedClassModels": [
+    [
+      1,
+      1
+    ],
+    [
+      1,
+      2
+    ],
+    [
+      1,
+      3
+    ],
+    [
+      1,
+      7
+    ],
+    [
+      2,
+      3
+    ],
+    [
+      2,
+      4
+    ],
+    [
+      2,
+      7
+    ],
+    [
+      2,
+      18
+    ],
+    [
+      5,
+      1
+    ],
+    [
+      5,
+      2
+    ],
+    [
+      5,
+      3
+    ],
+    [
+      5,
+      4
+    ],
+    [
+      5,
+      9
+    ],
+    [
+      6,
+      2
+    ],
+    [
+      6,
+      6
+    ],
+    [
+      6,
+      9
+    ],
+    [
+      6,
+      10
+    ],
+    [
+      7,
+      24
+    ]
+  ],
+  "allowedStates": {
+    "1": [
+      8,
+      10
+    ],
+    "2": [
+      2
+    ],
+    "5": [
+      1,
+      2,
+      5,
+      7,
+      10
+    ],
+    "6": [
+      0,
+      4,
+      5,
+      7,
+      8
+    ],
+    "7": [
+      0,
+      25
+    ]
+  },
+  "instructionAccounting": "Unicorn enforces exact per-entry instruction caps. The block observer records/enforces a conservative decoded-instruction upper bound for the aggregate; it does not claim an exact retired-instruction count.",
+  "remainingPreparation": [
+    "static source/ownership audit",
+    "exact allocation caller bindings",
+    "host-only observer checks",
+    "manifest and bounded launcher",
+    "independent executable review and separate grant"
+  ]
+}
