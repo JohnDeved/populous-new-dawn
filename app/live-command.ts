@@ -612,14 +612,13 @@ export function command(
       spyHut: 'spies',
       firewarriorHut: 'firewarriors',
     }
-    tell(
-      w,
-      !result.accepted
-        ? 'No command slots available.'
-        : result.count
-          ? `Braves sent to train as ${trained[context.building.kind as keyof typeof trained]}.`
-          : 'No selected followers can take this order.'
-    )
+    let message = 'No command slots available.'
+    if (result.accepted) {
+      message = 'No selected followers can take this order.'
+      if (result.count)
+        message = `Braves sent to train as ${trained[context.building.kind as keyof typeof trained]}.`
+    }
+    tell(w, message)
     return true
   }
   if (

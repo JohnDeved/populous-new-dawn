@@ -283,7 +283,7 @@ function issueLiveOrders(
       ],
       registered = w.objectCells.objects.get(unit.id),
       person = playerReplacement
-        ? sources.find(p => p && p === registered) ?? sources.find(Boolean)
+        ? (sources.find(p => p && p === registered) ?? sources.find(Boolean))
         : personSource(unit)
     return {
       unit,
@@ -303,8 +303,9 @@ function issueLiveOrders(
       : []
   if (playerReplacement)
     for (const binding of bindings) {
-      const { unit: u, retained } = binding,
-        p = (binding.person ??= createLivePerson(w, u))
+      const { unit: u, retained } = binding
+      binding.person ??= createLivePerson(w, u)
+      const p = binding.person
       // Queue cancellation precedes command eligibility and allocation.
       clearPersonOrders(w.buildingOrders, p, orderEffects(w))
       delete p.guardInputPending
