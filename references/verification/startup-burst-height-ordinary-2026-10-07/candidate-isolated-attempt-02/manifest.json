@@ -1,0 +1,74 @@
+{
+  "source": "8f50dda281ec6338bdb84e21473879f29a0282f9",
+  "proposalManifestSha256": "5472ea68e3a4f28ba845b781700fde22358e3bd1c0d2b7c5e81e4fd40f641015",
+  "rawCopies": {
+    "host-receipt.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-isolated-host-02/receipt.json",
+      "sha256": "da89292b19a89d1f4b0cddef069a48470f0ea0d8352146429c8bbc58c0f2cb50",
+      "bytes": 87451
+    },
+    "command-receipt.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-isolated-host-02/command-receipt.json",
+      "sha256": "8819517267a9a2f42ce139445a5d54237dd7dc2df2c213517aa4378cbd9e0170",
+      "bytes": 197152
+    },
+    "browser-receipt.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-isolated-candidate-02/receipt.json",
+      "sha256": "4fed27b89697f2fcc62d32de64040dc4c572a1a309a02c9dd3b7545122435c0d",
+      "bytes": 391674
+    },
+    "scenario.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-isolated-candidate-02/startup-burst.json",
+      "sha256": "1e493b51c02cd28dc9338b376fee188fce2a45ea07d679a9e406bc8c112b4b9c",
+      "bytes": 359582
+    },
+    "command-stdout.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-isolated-host-02/command-receipt.json.artifacts/stdout.log",
+      "sha256": "58d7acd2a45c05dad26f269703e98649b6cfebcf7e3efa312ffb8183bb120dd8",
+      "bytes": 160987
+    },
+    "command-stderr.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-isolated-host-02/command-receipt.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "host-stdout.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-isolated-host-02/stdout.txt",
+      "sha256": "7acd2c8036b99cb4e648d2e9e918cb2dd486baf57e39ad90d746eee4733c754b",
+      "bytes": 364
+    },
+    "host-stderr.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-isolated-host-02/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "server.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-isolated-candidate-02/server.log",
+      "sha256": "11e643d5ce71073ec3d6f350a74a8adce26c54b1cce9c434353d3c2d1d55e16c",
+      "bytes": 335
+    },
+    "mission-1-startup-before.png": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-isolated-candidate-02/mission-1-startup-before.png",
+      "sha256": "df52bc1d5a94be971454f017d9238ec5c61643912503d348ac2841700c6cf5ba",
+      "bytes": 2415745
+    },
+    "mission-1-startup-burst.png": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-isolated-candidate-02/mission-1-startup-burst.png",
+      "sha256": "575a36996a87bc543b59f76f065c4e311dc4505c951c7a1cdc23972f2c8a4d63",
+      "bytes": 2416198
+    },
+    "mission-1-startup-after.png": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-isolated-candidate-02/mission-1-startup-after.png",
+      "sha256": "de66c67f74120f02a366ff3968ff9d59bae9a2343ddbf77c8ed4c40e402d0693",
+      "bytes": 2408566
+    }
+  },
+  "derived": {
+    "preflight-review.json": "739851b1e094fcbfb1fa916f240cc6fb03e20089e8a94de4a0804fdb747c505f",
+    "observations.json": "7adcf2f147f0556c854232c637b136b516817cc541431ecc98fdfedcedbebd90"
+  },
+  "dependencyInventoriesKeptInOriginalPrivateHostDirectory": {
+    "before": "3e1d69eaacfb2469367ef96f47cbd38b8cf7c171bee87248c66d9c050572a309",
+    "after": "3e1d69eaacfb2469367ef96f47cbd38b8cf7c171bee87248c66d9c050572a309"
+  }
+}

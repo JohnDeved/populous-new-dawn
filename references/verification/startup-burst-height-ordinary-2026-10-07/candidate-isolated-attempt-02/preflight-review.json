@@ -1,0 +1,46 @@
+{
+  "verdict": "ACCEPT actual independent copy and now-bound one-run preflight; parent conditional browser grant applies",
+  "candidateSource": "8f50dda281ec6338bdb84e21473879f29a0282f9",
+  "copyReceiptSha256": "fcb97ba3ef69bd6bd06a2721f2a2fb5493984486e141a6426bbb21bf4f404e6e",
+  "runPlanSha256": "5472ea68e3a4f28ba845b781700fde22358e3bd1c0d2b7c5e81e4fd40f641015",
+  "newCopyIdentity": [
+    27,
+    1209759
+  ],
+  "selectedInventorySha256": "23ab48300852483706ed494df8efd90d25e3e26b37b402c61fed76136e348977",
+  "verification": {
+    "copyStatus": "passed",
+    "sourceCopySourceHashEqual": true,
+    "copyEntriesIndependentlyRehashed": 21253,
+    "applicationFilesIndependentlyRehashed": 336,
+    "runSourcePins": 36,
+    "toolPins": 8,
+    "dependencyPins": 15,
+    "clean8f50Head": true,
+    "excludedCachesMarkerAbsent": true,
+    "freshOutputHostOutputTemporaryAbsent": true,
+    "port4216NotBoundInReviewNamespace": true,
+    "copyStart": "2026-10-07T04:08:32.512374+00:00",
+    "copyEnd": "2026-10-07T04:08:44.874052+00:00"
+  },
+  "runBounds": {
+    "cpu": [
+      5,
+      6,
+      7
+    ],
+    "port": 4216,
+    "scenarioMs": 120000,
+    "outerSeconds": 150,
+    "killGraceSeconds": 10,
+    "hostFallbackSeconds": 163,
+    "attempts": 1
+  },
+  "limits": [
+    "Only the new independent copy/source/port are accepted for this invocation.",
+    "Old1978923loan,stub,caches and original85102scope remain quarantined/unknown; no restoration or termination conclusion.",
+    "Fresh namespace port readback is only local readiness; the host repeats its own binding/source/identity guard at launch.",
+    "Actual ordinary candidate result, presented-frame comparison and own terminal cleanup still require raw review."
+  ],
+  "method": "Read-only full copied inventory/source/tool/hash and fresh-path checks; no browser/copy/move/signalling by reviewer"
+}

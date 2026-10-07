@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "output": "work/orchestration/startup-burst-height-isolated-host-02/command-receipt.json",
+  "headOid": "8f50dda281ec6338bdb84e21473879f29a0282f9",
+  "exitCode": 0,
+  "stdoutSha256": "58d7acd2a45c05dad26f269703e98649b6cfebcf7e3efa312ffb8183bb120dd8",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}
