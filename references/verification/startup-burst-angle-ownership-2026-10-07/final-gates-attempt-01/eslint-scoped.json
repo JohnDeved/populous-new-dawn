@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "df2d4831-ea35-4972-af97-9709071f90a3",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "4cac5083653e3994a4d8c627395581271bb63569",
+    "branch": "fix/startup-burst-pitch-yaw-20261007",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package.json": "75177ce9ebe6a221ecb1e4e3c35c2697ed92882a6924577d8892f03538f7e51c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "work/orchestration/startup-burst-integration/run-gates.mjs": "b4a702132f48534267e746d46af3f3a30a376a0146bf26823013e01212f60d43",
+      "work/orchestration/startup-burst-integration/host-gates.py": "451fb2db418e15e4a592a7316278f85173c942b1873bc21fc7b9f437eb5ae51b",
+      "work/orchestration/startup-burst-integration/gate-packet.json": "a77b8655266dc81d1b50b420c34b7d769481560938ccd1742e34d59ea8dc0e56"
+    }
+  },
+  "command": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=10s",
+    "60s",
+    "node_modules/.bin/eslint",
+    "app/level-start.ts",
+    "scripts/local-render/startup-burst.mjs",
+    "scripts/local-render/startup-burst-observer.mjs",
+    "tests/startup-burst-angles.test.mjs",
+    "tests/startup-burst-observer.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007",
+  "startedAt": "2026-10-07T01:23:39.865Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/work/orchestration/startup-burst-final-gates-01/eslint-scoped.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/work/orchestration/startup-burst-final-gates-01/eslint-scoped.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-07T01:23:42.712Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "\n/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/scripts/local-render/startup-burst.mjs\n  77:67  error  Unsafe usage of ThrowStatement  no-unsafe-finally\n\n✖ 1 problem (1 error, 0 warnings)\n\n",
+  "stderr": "",
+  "stdoutSha256": "1fe6855ac4149479e10e0f5adbc95637c4c4daf7b23a143af1b4c53015b54eb6",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "4cac5083653e3994a4d8c627395581271bb63569",
+    "branch": "fix/startup-burst-pitch-yaw-20261007",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package.json": "75177ce9ebe6a221ecb1e4e3c35c2697ed92882a6924577d8892f03538f7e51c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "work/orchestration/startup-burst-integration/run-gates.mjs": "b4a702132f48534267e746d46af3f3a30a376a0146bf26823013e01212f60d43",
+      "work/orchestration/startup-burst-integration/host-gates.py": "451fb2db418e15e4a592a7316278f85173c942b1873bc21fc7b9f437eb5ae51b",
+      "work/orchestration/startup-burst-integration/gate-packet.json": "a77b8655266dc81d1b50b420c34b7d769481560938ccd1742e34d59ea8dc0e56"
+    }
+  }
+}

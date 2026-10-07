@@ -1,0 +1,26 @@
+{
+  "results": [
+    {
+      "id": "format-scoped",
+      "status": "passed",
+      "exitCode": 0,
+      "advisory": false,
+      "classification": "passed"
+    },
+    {
+      "id": "eslint-scoped",
+      "status": "failed",
+      "exitCode": 1,
+      "advisory": false,
+      "classification": "failed"
+    }
+  ],
+  "notRun": [
+    "oxlint-scoped",
+    "fallow-health",
+    "fallow-dupes",
+    "fallow-unused",
+    "check",
+    "build"
+  ]
+}

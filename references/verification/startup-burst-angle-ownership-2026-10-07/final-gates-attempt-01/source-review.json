@@ -1,0 +1,25 @@
+{
+  "verdict": "ACCEPT_FINAL_SOURCE_AND_GATE_PREFLIGHT",
+  "reviewedAt": "2026-10-07T01:22:53.685441+00:00",
+  "source": "4cac5083653e3994a4d8c627395581271bb63569",
+  "packetSha256": "a77b8655266dc81d1b50b420c34b7d769481560938ccd1742e34d59ea8dc0e56",
+  "hostSha256": "451fb2db418e15e4a592a7316278f85173c942b1873bc21fc7b9f437eb5ae51b",
+  "runGatesSha256": "b4a702132f48534267e746d46af3f3a30a376a0146bf26823013e01212f60d43",
+  "finding": "Final delta from accepted b133 is proof-link prose only. All18 source/quality inputs match. Scoped format/ESLint/Oxlint cover changed maintained sources, Fallow findings remain failed/advisory with no-cache, required failures stop later steps. Host differs from accepted cleanup wrapper only task packet path, no-browser port-check removal and finite outer window. Same source/dependency/PID ownership and postflight contracts.",
+  "grant": {
+    "cpu": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "nodeHeapMiB": 1024,
+    "checkSeconds": 900,
+    "buildSeconds": 300,
+    "outerTermSeconds": 1540,
+    "killGraceSeconds": 10,
+    "hostFallbackSeconds": 1553,
+    "sequences": 1
+  },
+  "limits": "One exact sequence; build only after required checks pass. No extra browser/native gate or timeout relaxation. Existing legacy quality findings require explicit baseline disposition rather than silent pass."
+}

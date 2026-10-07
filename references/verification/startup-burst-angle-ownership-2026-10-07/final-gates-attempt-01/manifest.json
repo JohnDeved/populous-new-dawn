@@ -1,0 +1,19 @@
+{
+  "source": "4cac5083653e3994a4d8c627395581271bb63569",
+  "status": "failed at scoped ESLint no-unsafe-finally; no later gates run",
+  "session": 75778,
+  "terminalChunk": "4afbc2",
+  "files": {
+    "host-receipt.json": "b56d956973c9a4566107035f2cc122c3ef73dfbb03ed4cfc3744226f352f76a1",
+    "command-receipt.json": "f0920452d4e06751433ccd0149e047cc64ba08ecfae3d6c35e6ee4fc572001d2",
+    "dependencies-before.json.gz": "2462c15189d8337a237d8d3c9609b9c726e9609bc23e6d1615b3073937c5c7a9",
+    "dependencies-after.json.gz": "2462c15189d8337a237d8d3c9609b9c726e9609bc23e6d1615b3073937c5c7a9",
+    "format-scoped.json": "b261912501b1dd9613ad1b6723ceaf15c8fed17965de3bf3b336fa43d365b42a",
+    "eslint-scoped.json": "a117b960f1768ad7d2c602deb8d81a11579d1e96afd4d7c5b513843200a74d97",
+    "results.json": "a73df405604f5bfe554049ce17dd03b87c2a57fb1616c32d77f236285eea06ad",
+    "source-driver.mjs": "b4a702132f48534267e746d46af3f3a30a376a0146bf26823013e01212f60d43",
+    "source-host.py": "451fb2db418e15e4a592a7316278f85173c942b1873bc21fc7b9f437eb5ae51b",
+    "source-packet.json": "a77b8655266dc81d1b50b420c34b7d769481560938ccd1742e34d59ea8dc0e56",
+    "source-review.json": "c3f2b58d5e3f0719ab5c812b111e6fe39bbf9e86c0cf5bfc30370378b9753a48"
+  }
+}

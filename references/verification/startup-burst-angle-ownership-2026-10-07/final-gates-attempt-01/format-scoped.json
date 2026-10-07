@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "1bf7fc29-728b-40ac-9f2f-ff7b4f6616d4",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "4cac5083653e3994a4d8c627395581271bb63569",
+    "branch": "fix/startup-burst-pitch-yaw-20261007",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package.json": "75177ce9ebe6a221ecb1e4e3c35c2697ed92882a6924577d8892f03538f7e51c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "work/orchestration/startup-burst-integration/run-gates.mjs": "b4a702132f48534267e746d46af3f3a30a376a0146bf26823013e01212f60d43",
+      "work/orchestration/startup-burst-integration/host-gates.py": "451fb2db418e15e4a592a7316278f85173c942b1873bc21fc7b9f437eb5ae51b",
+      "work/orchestration/startup-burst-integration/gate-packet.json": "a77b8655266dc81d1b50b420c34b7d769481560938ccd1742e34d59ea8dc0e56"
+    }
+  },
+  "command": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=10s",
+    "30s",
+    "node_modules/.bin/oxfmt",
+    "--check",
+    "app/level-start.ts"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007",
+  "startedAt": "2026-10-07T01:23:39.656Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/work/orchestration/startup-burst-final-gates-01/format-scoped.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/work/orchestration/startup-burst-final-gates-01/format-scoped.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-07T01:23:39.792Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 4ms on 1 files using 4 threads.\n",
+  "stderr": "",
+  "stdoutSha256": "d53e59298e192057315b9a62de22d67416e83f04b3b7d3418dab27f55ef47c59",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "4cac5083653e3994a4d8c627395581271bb63569",
+    "branch": "fix/startup-burst-pitch-yaw-20261007",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package.json": "75177ce9ebe6a221ecb1e4e3c35c2697ed92882a6924577d8892f03538f7e51c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "work/orchestration/startup-burst-integration/run-gates.mjs": "b4a702132f48534267e746d46af3f3a30a376a0146bf26823013e01212f60d43",
+      "work/orchestration/startup-burst-integration/host-gates.py": "451fb2db418e15e4a592a7316278f85173c942b1873bc21fc7b9f437eb5ae51b",
+      "work/orchestration/startup-burst-integration/gate-packet.json": "a77b8655266dc81d1b50b420c34b7d769481560938ccd1742e34d59ea8dc0e56"
+    }
+  }
+}
