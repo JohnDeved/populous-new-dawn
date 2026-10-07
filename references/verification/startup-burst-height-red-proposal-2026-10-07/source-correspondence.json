@@ -1,0 +1,27 @@
+{
+  "status": "source-only correspondence; no test execution",
+  "reviewedTestProposal": "7ec71c779639d99d4b2ea1b19396b83a02baa703",
+  "reviewedProposalRetention": "4db38415944cdd3ef6c3e8fd7b346f682257523f",
+  "acceptedMain": "e3a7a06a4250457502288d5b4c4e4ad8f3b40b53",
+  "mainTree": "51dbcf5136e14fd744384996f5f90366ccfb315e",
+  "acceptedAngleSource": "8592c004",
+  "normalAdoptionCommit": "eb2770b023c1fa512bbcf1d7e1d8e495ddc1b9d8",
+  "runtimeAppTree": "71b48bf83bcece1b1e88c0661cf033cd9503c03c",
+  "runtimeMatchesAcceptedMain": true,
+  "changedPriorBoundInputs": {
+    "app/level-start.ts": {
+      "before": "987b88e203cc863df79ca1afddb602329f9b68f29be715b6ddb1c4fd48c29948",
+      "after": "271093f631144d14ce4438c8a0378241775e95375103339da4a73ef9b443599b",
+      "reason": "Accepted integrated PR253 pitch/yaw draw ownership; test observes height and preserves angle files."
+    }
+  },
+  "preservedSha256": {
+    "tests/startup-burst-height.test.mjs": "74212dcb91cf0c8635b4c9b36b8e534391dd2ffecb3cbc2df194a6cc16b312a9",
+    "references/verification/startup-burst-height-repair-proposal-2026-10-07/proposed-runtime.patch": "b8c849b81745150317ce76d7e31b882d59252b47647747b2c9bddb92643885d3",
+    "references/verification/startup-burst-arrival-2026-10-07/attempt-01/native-stdout.log": "ecec70d64abcfedd06ea1146462b6f7d86e35a3e8b77652f5cea0587b058c957",
+    "app/level-start-runtime.ts": "cce900dc4e08ce890ac88060d7db41bb1cde578f80c2424317d4842d8884451b"
+  },
+  "unappliedRuntimePatch": true,
+  "testExecution": "not-run",
+  "expectedRed": "Original raw-byte oracle passes; three mission tests fail actual birth offset0 vs native90 after emitting all three integrity diagnostics."
+}

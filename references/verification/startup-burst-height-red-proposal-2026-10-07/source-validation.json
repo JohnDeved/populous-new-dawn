@@ -1,0 +1,27 @@
+{
+  "status": "passed-source-only",
+  "sourceBase": "eb2770b023c1fa512bbcf1d7e1d8e495ddc1b9d8",
+  "testExecution": "not-run",
+  "worldCreation": "not-run",
+  "nativeExecution": "not-run",
+  "browser": "not-run",
+  "runtimePatchApplied": false,
+  "checks": [
+    "Reused host AST/compile-as-data only; exactly one Popen",
+    "217-file static relative import closure; only Node built-ins",
+    "All frozen source/evidence/tool hashes match",
+    "Fresh execution worktree/output not created",
+    "Accepted height test/patch/raw-native/runtime hashes preserved",
+    "Accepted integrated app tree matches main exactly; only angle helper changed among prior13 inputs",
+    "Final Node --check syntax validation passes without evaluating test imports",
+    "git apply --check passes; runtime patch remains unapplied"
+  ],
+  "inputCount": 234,
+  "receiptInputCount": 235,
+  "packetSha256": {
+    "README.md": "18a1ba6eb6372cf8cb2db06502bcdad7e253acb2495ed87ca185aa9759e20e48",
+    "launch.json": "d021bb130be7f0c3f4e1e2940fc34e813fc9996c5c9a98dcfe84c9536b28ed7a",
+    "launch.py": "8bfd7f4723c16479a11a567737d118a0a800c0aba7bfd30d95c5f48c3f203ee1",
+    "source-correspondence.json": "000c696fbb4472818294a5568debba0c149daa9f987f59d66363105593fcc1cd"
+  }
+}
