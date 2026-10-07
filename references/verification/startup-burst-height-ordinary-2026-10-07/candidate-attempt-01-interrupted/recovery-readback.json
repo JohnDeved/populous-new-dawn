@@ -1,0 +1,87 @@
+{
+  "status": "interrupted-unknown; no terminal result or cleanup claim",
+  "recordedAt": "2026-10-07T03:55:37.328503+00:00",
+  "source": "8f50dda281ec6338bdb84e21473879f29a0282f9",
+  "toolSession": 85102,
+  "initialChunk": "41ec0d",
+  "originalSessionResume": "write_stdin(session_id85102) returned Unknown process id85102",
+  "hostStartedAt": "2026-10-07T03:39:01.025432+00:00",
+  "commandStartedAt": "2026-10-07T03:39:04.032Z",
+  "recordedRootPid": 37,
+  "recordedRootSession": 37,
+  "recordedInitialProcessIdentity": {
+    "state": "R",
+    "parent": 2,
+    "group": 37,
+    "session": 37,
+    "start": 8830699
+  },
+  "rawSnapshots": {
+    "host-receipt.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-fix-20261007/work/orchestration/startup-burst-height-ordinary-candidate-host-01/receipt.json",
+      "sha256": "ef88be5919b8476eb15bb6050c805bbf76fd397d464ca872d22bf564322d8607",
+      "bytes": 50479
+    },
+    "command-receipt.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-fix-20261007/work/orchestration/startup-burst-height-ordinary-candidate-host-01/command-receipt.json",
+      "sha256": "26a85acb53fe73c352c6947fc7dc1b4f0eed2097c9ff10c70640c43b20448324",
+      "bytes": 6172
+    },
+    "host-stdout.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-fix-20261007/work/orchestration/startup-burst-height-ordinary-candidate-host-01/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "host-stderr.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-fix-20261007/work/orchestration/startup-burst-height-ordinary-candidate-host-01/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "command-stdout.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-fix-20261007/work/orchestration/startup-burst-height-ordinary-candidate-host-01/command-receipt.json.artifacts/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "command-stderr.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-fix-20261007/work/orchestration/startup-burst-height-ordinary-candidate-host-01/command-receipt.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "server.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-fix-20261007/work/orchestration/startup-burst-height-ordinary-candidate-01/server.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  },
+  "integrityReadback": {
+    "sourceFilesCompared": 336,
+    "sourceFilesMatch": true,
+    "toolsCompared": 6,
+    "toolsMatch": true,
+    "packetMatch": true,
+    "dependencyIdentity": [
+      27,
+      1978923
+    ],
+    "dependencyLocation": "/workspace/scratch/69fd8163d94e/startup-burst-height-fix-20261007/node_modules",
+    "donorStubIdentity": [
+      27,
+      1201252
+    ],
+    "beforeInventorySha256": "0c43ff1295c24bce7b78202de3209e3ba5f784b0320dee782a59aee025518ced",
+    "reconstructedDependencyEntries": 21332,
+    "reconstructableExactlyFromCurrentFilesAndRetainedDonorCaches": true,
+    "generatedViteTempIdentity": [
+      27,
+      438955
+    ],
+    "dependencyMovedByRecovery": false
+  },
+  "scopeLimit": "The fresh execution namespace has no recorded PID and can bind4215; each tool runs in a new sandbox namespace, so these observations do not prove disposition of the original execution scope. Its receipt lacks namespace identity.",
+  "requiredNextEvidence": "Supported original-session terminal result or authoritative lifecycle evidence that the exact original execution scope ended, followed by reviewed owned-resource restoration. No retry is granted.",
+  "browserReceiptExists": false,
+  "scenarioReceiptExists": false,
+  "renderedImagesExist": false,
+  "resourcesReleased": "unknown",
+  "passClaim": false
+}
