@@ -4680,7 +4680,8 @@
         "Authored startup gates",
         "Real terrain and replacement braves",
         "Persisted staged sequence and no replay",
-        "Native Shaman pose clock and command18 input ownership"
+        "Native Shaman pose clock and command18 input ownership",
+        "Actual startup burst pitch/yaw ownership and retained native child trajectories"
       ],
       "knownLimits": [
         "Browser pixels and native instruction comparisons run separately."
@@ -4688,7 +4689,9 @@
       "executable": "node",
       "args": [
         "--test",
-        "tests/level-start.test.mjs"
+        "tests/level-start.test.mjs",
+        "tests/startup-burst-angles.test.mjs",
+        "tests/startup-burst-observer.test.mjs"
       ],
       "inputs": [
         "app/level-start.ts",
@@ -4707,7 +4710,14 @@
         "app/scene-camera-runtime.ts",
         "app/spell-casting.ts",
         "app/live-people.ts",
-        "app/live-movement.ts"
+        "app/live-movement.ts",
+        "tests/startup-burst-angles.test.mjs",
+        "tests/fixtures/startup-burst-native.json",
+        "app/spell-trails.ts",
+        "app/effect-motion.ts",
+        "tests/startup-burst-observer.test.mjs",
+        "scripts/local-render/startup-burst.mjs",
+        "scripts/local-render/startup-burst-observer.mjs"
       ],
       "prerequisites": [
         "Node.js with TypeScript stripping"
