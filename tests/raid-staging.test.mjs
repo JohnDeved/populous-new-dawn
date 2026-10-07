@@ -5,14 +5,17 @@ import test, { mock } from 'node:test'
 
 if (!process.execArgv.includes('--experimental-test-module-mocks')) {
   test('actual raid staging caller controls', t => {
+    const env = { ...process.env, NODE_OPTIONS: '', NODE_PATH: '' }
+    delete env.NODE_TEST_CONTEXT
     const result = spawnSync(process.execPath, [
       '--experimental-test-module-mocks', '--test', fileURLToPath(import.meta.url),
     ], {
       encoding: 'utf8', timeout: 10_000, maxBuffer: 1024 * 1024,
-      env: { ...process.env, NODE_OPTIONS: '', NODE_PATH: '' },
+      env,
     })
     t.diagnostic(result.stdout)
     assert.equal(result.error, undefined)
+    assert.match(result.stdout, /tests 13\b/, 'all thirteen child cases must report')
     assert.equal(result.status, 0, result.stderr + result.stdout)
   })
 } else {
