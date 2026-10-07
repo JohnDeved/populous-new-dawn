@@ -1,0 +1,22 @@
+{
+  "verdict": "ACCEPT proposed one-hunk style correction, held until active gate02 terminal",
+  "sourceHead": "de0fb63fbcaaf2e0c16a355988bc022ee6313ae7",
+  "patchSha256": "ce01dc1ce27d51bab8cb5c2f79aa72a2dc47c273c3c1eb6a0bb23930779c0b28",
+  "hypotheticalFileSha256": "a1dd3b3625da008bf2e90eccfaa14bdecf136799c58052b0043ddb5eaac6c7f0",
+  "reasoningSummary": [
+    "Each binding is a locally constructed private plain object with an ordinary person data property; it is not a getter/proxy and is not exposed to createLivePerson.",
+    "Splitting the nullish assignment from the const read preserves initializer condition and number of calls, assigned person identity, conditional native adoption, selection/registry write order and exceptions.",
+    "The added property read occurs immediately after the same assignment with no intervening callback or asynchronous boundary."
+  ],
+  "smallestAffectedValidation": [
+    "Scoped read-only Oxfmt/ESLint/Oxlint for app/live-movement.ts, with prior baseline diagnostics retained and the introduced no-multi-assign row removed.",
+    "TypeScript typecheck, because property narrowing is now read in a separate statement.",
+    "Existing two actual append/replace owner regressions, unchanged assertions.",
+    "Final build on the exact final head."
+  ],
+  "carriedCoverage": "If gate02 aggregate passes, carry that full-suite result with exact one-hunk/source correspondence to this behavior-preserving correction. No native probes or complete Mission1/2/6 repetitions are justified by this style delta.",
+  "limitations": [
+    "Proposal only; no source edit or execution by reviewer.",
+    "Final acceptance still requires exact committed delta, affected receipts/final build and ordinary candidate evidence."
+  ]
+}

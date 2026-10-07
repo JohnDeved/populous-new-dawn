@@ -1,0 +1,45 @@
+{
+  "verdict": "ACCEPT authentic terminal failed gate and cleanup; final integration remains blocked",
+  "head": "de0fb63fbcaaf2e0c16a355988bc022ee6313ae7",
+  "checkReceiptSha256": "252d1b878ec48e1f78c7df5a0e2952798b6542feccf64fb1c180985b632bce2f",
+  "checkStdoutSha256": "d67a1b7e948e77704209f1dcbdd165bfc535465a7bfa0346f5ee5e50f2b30f3b",
+  "hostReceiptSha256": "a9638c314110983b41d262a0dfa2115255ef22a930fad52d72e5c8d86d07c240",
+  "resultsSha256": "931dca382e1461df230440b3736b82229a959c4c86d6c9cfe2595eec097f6ff6",
+  "method": "Read-only receipts/raw logs/source and compressed dependency inventories",
+  "outcome": {
+    "typecheck": "passed",
+    "tests": 1438,
+    "passed": 1437,
+    "failed": 1,
+    "skipped": 0,
+    "failure": "tests/game.test.mjs:1056, later Mission1 building attack active task/cohort>=3/all registered current19 wait within30second simulation budget",
+    "notReached": [
+      "later same-test latch and moving-target pursuit assertions",
+      "parity:check",
+      "orchestration:check",
+      "build"
+    ],
+    "quality": "Oxfmt/ESLint/Fallow health/dupes pass; Oxlint/Fallow unused remain failed/advisory with separate attribution"
+  },
+  "cleanup": {
+    "sourceUnchanged": true,
+    "toolsUnchanged": true,
+    "dependencyInventoryEntriesEqual": 21332,
+    "installedLockUnchanged": true,
+    "returned": true,
+    "returnedAt": "2026-10-07T03:26:14.724160+00:00",
+    "remainingOwnedProcesses": [],
+    "fallowGeneratedMarkerMatchesBinaries": true,
+    "fallowOriginalMarkerRestored": "e44f1fd02579d234c0ccfb38cf3c2db775b17db212a9639515210cf56d3bb454",
+    "fallowGeneratedMarkerRetained": "785a282442b7b6b1c683719e099091266503cb2cc57fb6026866f1d7bd100ed4"
+  },
+  "blockers": [
+    "Need exact actual cohort/registered owner/current+queued-order endpoint before any test expectation or runtime correction. Test title and cardinality failure alone do not establish cause.",
+    "One introduced Oxlint no-multi-assign finding has an accepted separate source-only split proposal; it does not resolve the maintained scenario failure."
+  ],
+  "limits": [
+    "No native/Mission1 replay or source edit by review.",
+    "Earlier component/maintained successes remain valid within their own sources; this failed aggregate cannot be carried as a pass.",
+    "Fresh ordinary candidate remains blocked on final integration gates."
+  ]
+}

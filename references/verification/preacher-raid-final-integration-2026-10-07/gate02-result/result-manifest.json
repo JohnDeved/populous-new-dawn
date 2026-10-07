@@ -1,0 +1,172 @@
+{
+  "sourceHead": "de0fb63fbcaaf2e0c16a355988bc022ee6313ae7",
+  "status": "failed",
+  "tests": {
+    "passed": 1437,
+    "failed": 1
+  },
+  "failedBoundary": "tests/game.test.mjs:1056 active task/member count/registered current19 wait",
+  "build": "not run",
+  "members": [
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-host-02/command-receipt.json",
+      "bytes": 13384,
+      "sha256": "d747ee5e7b79f2d6e5fc79c6402f5443a056b5713a5f88d79052bbb4af183b64"
+    },
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-host-02/command-receipt.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-host-02/command-receipt.json.artifacts/stdout.log",
+      "bytes": 706,
+      "sha256": "2c956f7ac608852ca0868dab7245a74e67889b10892152e2c2ab82d89936b673"
+    },
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-host-02/dependencies-after.json.gz",
+      "bytes": 1009622,
+      "sha256": "0c43ff1295c24bce7b78202de3209e3ba5f784b0320dee782a59aee025518ced"
+    },
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-host-02/dependencies-before.json.gz",
+      "bytes": 1009622,
+      "sha256": "0c43ff1295c24bce7b78202de3209e3ba5f784b0320dee782a59aee025518ced"
+    },
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-host-02/donor-fallow-verification-marker.json",
+      "bytes": 515,
+      "sha256": "e44f1fd02579d234c0ccfb38cf3c2db775b17db212a9639515210cf56d3bb454"
+    },
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-host-02/generated-fallow-verification-marker.json",
+      "bytes": 532,
+      "sha256": "785a282442b7b6b1c683719e099091266503cb2cc57fb6026866f1d7bd100ed4"
+    },
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-host-02/receipt.json",
+      "bytes": 94654,
+      "sha256": "a9638c314110983b41d262a0dfa2115255ef22a930fad52d72e5c8d86d07c240"
+    },
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-host-02/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-host-02/stdout.txt",
+      "bytes": 360,
+      "sha256": "b0c2a6542adbc4a81e12ee700bd080ea3d2c5bae83023012702c8f18281ba3f7"
+    },
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-02/check.json",
+      "bytes": 148355,
+      "sha256": "252d1b878ec48e1f78c7df5a0e2952798b6542feccf64fb1c180985b632bce2f"
+    },
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-02/check.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-02/check.json.artifacts/stdout.log",
+      "bytes": 143385,
+      "sha256": "d67a1b7e948e77704209f1dcbdd165bfc535465a7bfa0346f5ee5e50f2b30f3b"
+    },
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-02/eslint-scoped.json",
+      "bytes": 3600,
+      "sha256": "c3fbaa96005889b02fd8b03ec236d9d36f917eb8073cff4aa1a85decbd32c2d9"
+    },
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-02/eslint-scoped.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-02/eslint-scoped.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-02/fallow-dupes.json",
+      "bytes": 15525,
+      "sha256": "fabe858e7cce70b195849e5c6d25652fca6f11cbb2bae768734f6f226de259d1"
+    },
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-02/fallow-dupes.json.artifacts/stderr.log",
+      "bytes": 554,
+      "sha256": "4673927088b30ff04a189e0c14fe783a3ad5979ac29feb74892fe08ff000a52e"
+    },
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-02/fallow-dupes.json.artifacts/stdout.log",
+      "bytes": 11325,
+      "sha256": "b13ee13ed6470ebbce9d268bc407f22de0e82ad064abf19eb9f608a097c00a51"
+    },
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-02/fallow-health.json",
+      "bytes": 51565,
+      "sha256": "bff4749ea553209cede795d967a3cf1fa71e3f4ae1a8bc076907da2c4513da65"
+    },
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-02/fallow-health.json.artifacts/stderr.log",
+      "bytes": 363,
+      "sha256": "fe7d306d6e7c79df4d916b91a4ba7346efcc0eb7cbca3666e5a53e63db0eb2a0"
+    },
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-02/fallow-health.json.artifacts/stdout.log",
+      "bytes": 46661,
+      "sha256": "c9ac7bef07378a31c6c04d235c32e821599c32196110c33b1699a780b033e618"
+    },
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-02/fallow-unused.json",
+      "bytes": 8860,
+      "sha256": "554053ee24a893088d68a36344b86a45b3c7ef7fece9641ea23b1b19dd389d4a"
+    },
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-02/fallow-unused.json.artifacts/stderr.log",
+      "bytes": 512,
+      "sha256": "41206dd40b4b01a6b95992f0081d15c4675e1f4aff9a21b7de37a988662fe0dc"
+    },
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-02/fallow-unused.json.artifacts/stdout.log",
+      "bytes": 4799,
+      "sha256": "918f14e4cca5f0caf6f4502d1f6b6c670f897299b86e97d7affd59bc1ddd7f29"
+    },
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-02/format-scoped.json",
+      "bytes": 3729,
+      "sha256": "f056caec35707b08c1d20ac9cfee3f44109a33c0207a4c10d19b40033fbe4f75"
+    },
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-02/format-scoped.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-02/format-scoped.json.artifacts/stdout.log",
+      "bytes": 111,
+      "sha256": "920583d6e0af1a6bc897652b1562b2540ee40f39eef39a92834c269c63b39c93"
+    },
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-02/oxlint-scoped.json",
+      "bytes": 192635,
+      "sha256": "64a24c0fc1bdb36bd10b21e4cd2ec2dc4d67f3504994311b57f409e98cc992ef"
+    },
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-02/oxlint-scoped.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-02/oxlint-scoped.json.artifacts/stdout.log",
+      "bytes": 167114,
+      "sha256": "a5359dfe8cfa80a7b24c2b76aac5542e6be34214c70c11363798f0304afb6a79"
+    },
+    {
+      "path": "work/orchestration/preacher-raid-final-gates-02/results.json",
+      "bytes": 1109,
+      "sha256": "931dca382e1461df230440b3736b82229a959c4c86d6c9cfe2595eec097f6ff6"
+    }
+  ]
+}

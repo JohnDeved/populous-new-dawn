@@ -1,0 +1,229 @@
+{
+  "sourceHead": "de0fb63fbcaaf2e0c16a355988bc022ee6313ae7",
+  "members": [
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-host-02/command-receipt.json",
+      "archive": "raw/host/command-receipt.json.gz",
+      "bytes": 13384,
+      "sha256": "d747ee5e7b79f2d6e5fc79c6402f5443a056b5713a5f88d79052bbb4af183b64",
+      "archiveSha256": "b6c97fd3d8b3a224f03a58d065956d6791382576c4755d56f41f8edb3832d551"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-host-02/command-receipt.json.artifacts/stderr.log",
+      "archive": "raw/host/command-receipt.json.artifacts/stderr.log.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archiveSha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-host-02/command-receipt.json.artifacts/stdout.log",
+      "archive": "raw/host/command-receipt.json.artifacts/stdout.log.gz",
+      "bytes": 706,
+      "sha256": "2c956f7ac608852ca0868dab7245a74e67889b10892152e2c2ab82d89936b673",
+      "archiveSha256": "0829ea813139f8386043055628b6e5f7d1e7405c48909b6fad209db059c0442f"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-host-02/dependencies-after.json.gz",
+      "archive": "raw/host/dependencies-after.json.gz.gz",
+      "bytes": 1009622,
+      "sha256": "0c43ff1295c24bce7b78202de3209e3ba5f784b0320dee782a59aee025518ced",
+      "archiveSha256": "d041bcff7cbfc3f0ed0ef352a9fe93c62f4bca49bc8b8285d0cbe29970d95e8e"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-host-02/dependencies-before.json.gz",
+      "archive": "raw/host/dependencies-before.json.gz.gz",
+      "bytes": 1009622,
+      "sha256": "0c43ff1295c24bce7b78202de3209e3ba5f784b0320dee782a59aee025518ced",
+      "archiveSha256": "d041bcff7cbfc3f0ed0ef352a9fe93c62f4bca49bc8b8285d0cbe29970d95e8e"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-host-02/donor-fallow-verification-marker.json",
+      "archive": "raw/host/donor-fallow-verification-marker.json.gz",
+      "bytes": 515,
+      "sha256": "e44f1fd02579d234c0ccfb38cf3c2db775b17db212a9639515210cf56d3bb454",
+      "archiveSha256": "53772137a86fb36b5f66cbb559ee8cf16cec92c83e87faf0ba431d71b6004499"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-host-02/generated-fallow-verification-marker.json",
+      "archive": "raw/host/generated-fallow-verification-marker.json.gz",
+      "bytes": 532,
+      "sha256": "785a282442b7b6b1c683719e099091266503cb2cc57fb6026866f1d7bd100ed4",
+      "archiveSha256": "5107685c0697173eb3f41332c0e4af09445f63e619c5ec33a01bbaf197b5fdc9"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-host-02/receipt.json",
+      "archive": "raw/host/receipt.json.gz",
+      "bytes": 94654,
+      "sha256": "a9638c314110983b41d262a0dfa2115255ef22a930fad52d72e5c8d86d07c240",
+      "archiveSha256": "a8455dfb91edaf911396fa44ff87b4dacac6fe680b9876c32a31f2bbb506fc45"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-host-02/stderr.txt",
+      "archive": "raw/host/stderr.txt.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archiveSha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-host-02/stdout.txt",
+      "archive": "raw/host/stdout.txt.gz",
+      "bytes": 360,
+      "sha256": "b0c2a6542adbc4a81e12ee700bd080ea3d2c5bae83023012702c8f18281ba3f7",
+      "archiveSha256": "fc8767de488aee38ff6892e512f5b2955aa20df7054578d9df3e3b976ec52ad7"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-02/check.json",
+      "archive": "raw/steps/check.json.gz",
+      "bytes": 148355,
+      "sha256": "252d1b878ec48e1f78c7df5a0e2952798b6542feccf64fb1c180985b632bce2f",
+      "archiveSha256": "6c92234f11bea4d36b7480c0f74d329741425bad0a61c128c558e878c954d286"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-02/check.json.artifacts/stderr.log",
+      "archive": "raw/steps/check.json.artifacts/stderr.log.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archiveSha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-02/check.json.artifacts/stdout.log",
+      "archive": "raw/steps/check.json.artifacts/stdout.log.gz",
+      "bytes": 143385,
+      "sha256": "d67a1b7e948e77704209f1dcbdd165bfc535465a7bfa0346f5ee5e50f2b30f3b",
+      "archiveSha256": "86a7fab2937276352a95e3a95856099b426719aa4aabe7f936cc730724e7a11c"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-02/eslint-scoped.json",
+      "archive": "raw/steps/eslint-scoped.json.gz",
+      "bytes": 3600,
+      "sha256": "c3fbaa96005889b02fd8b03ec236d9d36f917eb8073cff4aa1a85decbd32c2d9",
+      "archiveSha256": "2dcff9466fac21b6012f74008359c841939c1e9515354d49e5255e93e1eea63f"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-02/eslint-scoped.json.artifacts/stderr.log",
+      "archive": "raw/steps/eslint-scoped.json.artifacts/stderr.log.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archiveSha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-02/eslint-scoped.json.artifacts/stdout.log",
+      "archive": "raw/steps/eslint-scoped.json.artifacts/stdout.log.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archiveSha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-02/fallow-dupes.json",
+      "archive": "raw/steps/fallow-dupes.json.gz",
+      "bytes": 15525,
+      "sha256": "fabe858e7cce70b195849e5c6d25652fca6f11cbb2bae768734f6f226de259d1",
+      "archiveSha256": "7d4f9ec4cdfc734d19ab1720af54454c0f2265aa28ffe749c38e01bf0ce2416a"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-02/fallow-dupes.json.artifacts/stderr.log",
+      "archive": "raw/steps/fallow-dupes.json.artifacts/stderr.log.gz",
+      "bytes": 554,
+      "sha256": "4673927088b30ff04a189e0c14fe783a3ad5979ac29feb74892fe08ff000a52e",
+      "archiveSha256": "63a40411a5993b00605aaaa4492d7d5fa3a3c2153d7203141ec4eb78dfcef647"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-02/fallow-dupes.json.artifacts/stdout.log",
+      "archive": "raw/steps/fallow-dupes.json.artifacts/stdout.log.gz",
+      "bytes": 11325,
+      "sha256": "b13ee13ed6470ebbce9d268bc407f22de0e82ad064abf19eb9f608a097c00a51",
+      "archiveSha256": "efd00de919bf40af229dad6fe914e640cdc6bf55058ca735e6c854c34cdf0fdd"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-02/fallow-health.json",
+      "archive": "raw/steps/fallow-health.json.gz",
+      "bytes": 51565,
+      "sha256": "bff4749ea553209cede795d967a3cf1fa71e3f4ae1a8bc076907da2c4513da65",
+      "archiveSha256": "db33c84f95a2902d9234cce78fe7f85691d35bde427e51e75b95ca5a3f8e31a2"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-02/fallow-health.json.artifacts/stderr.log",
+      "archive": "raw/steps/fallow-health.json.artifacts/stderr.log.gz",
+      "bytes": 363,
+      "sha256": "fe7d306d6e7c79df4d916b91a4ba7346efcc0eb7cbca3666e5a53e63db0eb2a0",
+      "archiveSha256": "45adbf414766a926de3906f0678ba0a11c585fa9c35af1cb806455d0c80c3da0"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-02/fallow-health.json.artifacts/stdout.log",
+      "archive": "raw/steps/fallow-health.json.artifacts/stdout.log.gz",
+      "bytes": 46661,
+      "sha256": "c9ac7bef07378a31c6c04d235c32e821599c32196110c33b1699a780b033e618",
+      "archiveSha256": "7640e9906ccf8c22166c915dd322eae8b50aa020286bdb5ef95284f70f846a7a"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-02/fallow-unused.json",
+      "archive": "raw/steps/fallow-unused.json.gz",
+      "bytes": 8860,
+      "sha256": "554053ee24a893088d68a36344b86a45b3c7ef7fece9641ea23b1b19dd389d4a",
+      "archiveSha256": "da119cdd12498489c17cd08cfe0cb482974b79840656bd10a9938d2f989df3d2"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-02/fallow-unused.json.artifacts/stderr.log",
+      "archive": "raw/steps/fallow-unused.json.artifacts/stderr.log.gz",
+      "bytes": 512,
+      "sha256": "41206dd40b4b01a6b95992f0081d15c4675e1f4aff9a21b7de37a988662fe0dc",
+      "archiveSha256": "fe3cb59d13dcaf125be1877dd98c699f22c47c5cec29b06868dc7831a34263db"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-02/fallow-unused.json.artifacts/stdout.log",
+      "archive": "raw/steps/fallow-unused.json.artifacts/stdout.log.gz",
+      "bytes": 4799,
+      "sha256": "918f14e4cca5f0caf6f4502d1f6b6c670f897299b86e97d7affd59bc1ddd7f29",
+      "archiveSha256": "c155815c430267d67a9a458cca7fff26be329d67d8252a524e1dc70b78dc756f"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-02/format-scoped.json",
+      "archive": "raw/steps/format-scoped.json.gz",
+      "bytes": 3729,
+      "sha256": "f056caec35707b08c1d20ac9cfee3f44109a33c0207a4c10d19b40033fbe4f75",
+      "archiveSha256": "6997e97891971bc04fa1e1a0dc0be9fb6f66f6e90e152416a06716c48a9e6c51"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-02/format-scoped.json.artifacts/stderr.log",
+      "archive": "raw/steps/format-scoped.json.artifacts/stderr.log.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archiveSha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-02/format-scoped.json.artifacts/stdout.log",
+      "archive": "raw/steps/format-scoped.json.artifacts/stdout.log.gz",
+      "bytes": 111,
+      "sha256": "920583d6e0af1a6bc897652b1562b2540ee40f39eef39a92834c269c63b39c93",
+      "archiveSha256": "dfa94df28461ce98b749ae53533b2164e1405759c19e9ce543f1e095e92c4717"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-02/oxlint-scoped.json",
+      "archive": "raw/steps/oxlint-scoped.json.gz",
+      "bytes": 192635,
+      "sha256": "64a24c0fc1bdb36bd10b21e4cd2ec2dc4d67f3504994311b57f409e98cc992ef",
+      "archiveSha256": "7c7610ada7e4bb85822f71a65f861b3a8d29af4175478c9407f1ed598b70889b"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-02/oxlint-scoped.json.artifacts/stderr.log",
+      "archive": "raw/steps/oxlint-scoped.json.artifacts/stderr.log.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archiveSha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-02/oxlint-scoped.json.artifacts/stdout.log",
+      "archive": "raw/steps/oxlint-scoped.json.artifacts/stdout.log.gz",
+      "bytes": 167114,
+      "sha256": "a5359dfe8cfa80a7b24c2b76aac5542e6be34214c70c11363798f0304afb6a79",
+      "archiveSha256": "df07458baf83ef9df9cf496b9c3aa86a7ea9528ac159bcbe83033d22ff79efb7"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-raid-ownership-final-20261007/work/orchestration/preacher-raid-final-gates-02/results.json",
+      "archive": "raw/steps/results.json.gz",
+      "bytes": 1109,
+      "sha256": "931dca382e1461df230440b3736b82229a959c4c86d6c9cfe2595eec097f6ff6",
+      "archiveSha256": "a7cb2dfee031d2a2a55e063370da35cb0d50e32d13f1718b1728ba9c279777bc"
+    }
+  ]
+}

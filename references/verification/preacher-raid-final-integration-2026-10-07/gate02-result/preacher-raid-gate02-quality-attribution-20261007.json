@@ -1,0 +1,49 @@
+{
+  "status": "Read-only quality attribution; required check/build still running at review time",
+  "source": "de0fb63fbcaaf2e0c16a355988bc022ee6313ae7",
+  "requiredQuality": {
+    "format": "passed",
+    "eslint": "passed"
+  },
+  "oxlint": {
+    "status": "failed",
+    "exitCode": 1,
+    "errors": 55,
+    "warnings": 79,
+    "total": 134,
+    "retainedSixFileBaselineRowsExactlyMatch": 115,
+    "baselineHead": "1c7e6b05687aca14d9350e17c7ae14dc6c68bb97",
+    "baselineStdoutSha256": "d57234e5d8d4dc3d942be5eaec9923f115e43396f38b6830c959d3b5a255f724",
+    "normalization": "Filename/severity/rule/message multiset; display position/help decoration omitted.",
+    "newlyScopedLiveMovementRows": 19,
+    "attributedToUnchangedMainSourceOrImportGraph": 18,
+    "introducedFinding": {
+      "file": "app/live-movement.ts",
+      "line": 277,
+      "rule": "eslint(no-multi-assign)",
+      "source": "const p = (binding.person ??= createLivePerson(w, u))",
+      "note": "This assignment belongs to the accepted owner-caching correction. Report as introduced; source remains frozen during the active gates. A separate nullish initialization/read can remove it without changing intended ownership."
+    },
+    "caveat": "18 rows were source-attributed, not established by a new seven-file baseline lint invocation."
+  },
+  "fallow": {
+    "health": "passed exit0; maintainability85.1/cycles20/unuseddeps3 unchanged; LOC176034\u2192177090",
+    "dupes": "passed exit0; clone groups674\u2192673",
+    "unused": "failed exit1 advisory; stdout byte-identical to accepted PR253gate03 baseline",
+    "baselineUnusedReceiptSha256": "730126e2ffdcd19bf4b56685b63d660b9392b73aa9dbab3e8ca345967e65ae0e",
+    "candidateUnusedReceiptSha256": "554053ee24a893088d68a36344b86a45b3c7ef7fece9641ea23b1b19dd389d4a"
+  },
+  "receiptHashes": {
+    "format-scoped": "f056caec35707b08c1d20ac9cfee3f44109a33c0207a4c10d19b40033fbe4f75",
+    "eslint-scoped": "c3fbaa96005889b02fd8b03ec236d9d36f917eb8073cff4aa1a85decbd32c2d9",
+    "oxlint-scoped": "64a24c0fc1bdb36bd10b21e4cd2ec2dc4d67f3504994311b57f409e98cc992ef",
+    "fallow-health": "bff4749ea553209cede795d967a3cf1fa71e3f4ae1a8bc076907da2c4513da65",
+    "fallow-dupes": "fabe858e7cce70b195849e5c6d25652fca6f11cbb2bae768734f6f226de259d1",
+    "fallow-unused": "554053ee24a893088d68a36344b86a45b3c7ef7fece9641ea23b1b19dd389d4a"
+  },
+  "limitations": [
+    "No new execution or source edit by review.",
+    "Raw exit1 statuses stay failed/advisory; this is not clean-lint acceptance.",
+    "Final source/dependency/Fallow-marker restoration and full gate result require terminal host evidence."
+  ]
+}
