@@ -12,8 +12,8 @@ combat-timeout/state/speed rules. Appending orders preserves retained fight/flig
 owners; validated state33 release clears admission/orders, resets the explicit
 owner and relocates its idle anchor without changing its controller identity.
 
-The seven retained fixture files are the inputs actually read by maintained tests.
-They preserve their accepted bytes and supplied-state limits. Native-only +af/+7f
+The retained test data and state33 provenance record preserve their accepted
+bytes and supplied-state limits. Native-only +af/+7f
 projection is explicit; missing owned fields do not become invented zero values.
 Uncomposed spell/object/vehicle cleanup and occupied-anchor cases remain held.
 The new composed state33 proof is model2; generic state10/animation callees reuse
