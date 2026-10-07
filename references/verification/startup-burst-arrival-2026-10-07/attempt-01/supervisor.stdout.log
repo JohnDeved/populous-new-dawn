@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "output": "work/orchestration/startup-burst-arrival-20261007/attempt-01/receipt.json",
+  "headOid": "8757de6987ce84af5c20c3a737853b27ba2b146c",
+  "exitCode": 0,
+  "stdoutSha256": "ecec70d64abcfedd06ea1146462b6f7d86e35a3e8b77652f5cea0587b058c957",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

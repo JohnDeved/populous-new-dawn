@@ -1,0 +1,44 @@
+{
+  "sourceCommit": "8757de6987ce84af5c20c3a737853b27ba2b146c",
+  "originalPrivateExecutionDirectory": "/workspace/scratch/69fd8163d94e/startup-burst-arrival-run-20261007-01/work/orchestration/startup-burst-arrival-20261007/attempt-01",
+  "copyPolicy": "Each raw file copied byte-for-byte without editing; renamed stdout/stderr mapping below",
+  "rawCopies": {
+    "receipt.json": {
+      "originalRelativePath": "receipt.json",
+      "sha256": "ad003307b3af9aa8a20a52f99c9ca249ca1c6558e06473abb30c8b3b0e906e23",
+      "bytes": 474886
+    },
+    "host-receipt.json": {
+      "originalRelativePath": "host-receipt.json",
+      "sha256": "c67ff8e6a20263e109a292f648844d5f22412f0b1ea053ad9461e964883dc1b8",
+      "bytes": 22992
+    },
+    "launch-once.json": {
+      "originalRelativePath": "launch-once.json",
+      "sha256": "fae71e37095ce0364ca47b99a7abc928efcda68a1e795b143ade7b8df9db1dc1",
+      "bytes": 209
+    },
+    "supervisor.stdout.log": {
+      "originalRelativePath": "supervisor.stdout.log",
+      "sha256": "2b9da200953e13033d29ede3d5b2c7ab6c2c6a96b679c7d9a38217b891c546f3",
+      "bytes": 360
+    },
+    "supervisor.stderr.log": {
+      "originalRelativePath": "supervisor.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "native-stdout.log": {
+      "originalRelativePath": "receipt.json.artifacts/stdout.log",
+      "sha256": "ecec70d64abcfedd06ea1146462b6f7d86e35a3e8b77652f5cea0587b058c957",
+      "bytes": 441190
+    },
+    "native-stderr.log": {
+      "originalRelativePath": "receipt.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  },
+  "observationSha256": "8ca595e16c69174135a8fa7d4589612af8c2e75544df83af1385fc2c171ccb28",
+  "nativeExecutableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+}
