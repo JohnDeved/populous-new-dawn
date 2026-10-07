@@ -86,9 +86,12 @@ test('substate2 uses byte animationMode at+a8, independently of commandPhase at+
 })
 
 test('release preserves known upper membership flags and leaves absent flags absent', () => {
-  const c = fixture()
-  c.u.nativeFlags7f = 0xa5
-  visit(c, true)
+  for (const assignment of [0, 2]) {
+    const c = fixture()
+    c.p.computerAssignment = assignment
+    c.u.nativeFlags7f = 0xa5
+    visit(c, true)
+  }
 })
 
 test('unknown consumed release fields do not cause partial release or invented zeros', () => {
@@ -105,6 +108,7 @@ test('unknown consumed release fields do not cause partial release or invented z
     c => { c.p.commands[2] = 131 },
     c => { delete c.p.renderFlags },
     c => { delete c.p.computerAssignment },
+    c => { c.p.computerAssignment = 99 },
     c => { c.u.nativeFlags7f = 256 },
   ]) {
     const c = fixture()

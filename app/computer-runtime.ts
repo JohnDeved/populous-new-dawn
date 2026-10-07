@@ -245,14 +245,20 @@ export function returnComputerGuards(w: World, tribe: number) {
   }
 }
 
-function finishComputerPerson(w: World, u: Unit, p: LivePerson, cleanup: boolean) {
+function finishComputerPerson(
+  w: World,
+  u: Unit,
+  p: LivePerson,
+  cleanup: boolean,
+  retainOwner = false
+) {
   if (cleanup) clearPersonOrders(w.buildingOrders, p, orderEffects(w))
   resetPersonMotion(p)
   if (!(p.flags2 & 0x100000)) {
-    u.native = p
-    changeLivePersonState(w, u, defaultPersonState(p, w.manaWorld.gameFlags))
+    if (!retainOwner) u.native = p
+    changeLivePersonState(w, u, defaultPersonState(p, w.manaWorld.gameFlags), p)
   }
-  adoptLiveOrders(w, u, p)
+  if (!retainOwner) adoptLiveOrders(w, u, p)
   if (cleanup) {
     const cell = (p.y >>> 9) * 128 + (p.x >>> 9),
       building =
@@ -562,6 +568,59 @@ const computerAttackReady = (u: Unit) =>
 const unsignedAttackField = (value: number, maximum: number) =>
   Number.isInteger(value) && value >= 0 && value <= maximum
 
+// The composed 0x4f39f0 release returns an ordinary on-foot owner to its
+// empty order initializer. Hold malformed fields and still-uncomposed cleanup
+// leaves before changing either native admission or the port member list.
+function canReleaseComputerAttackPerson(w: World, index: number, u: Unit, p: LivePerson) {
+  if (
+    !unsignedAttackField(p.id, 65535) ||
+    p.id !== u.id ||
+    p.class !== 1 ||
+    !unsignedAttackField(p.model, 8) ||
+    !rules.personModels[p.model] ||
+    (p.model === 7 && !unsignedAttackField(p.statusFlags, 255)) ||
+    !unsignedAttackField(p.computerAssignment, 255) ||
+    (p.computerAssignment !== 0 && p.computerAssignment !== index + 1) ||
+    !unsignedAttackField(p.flags3, 0xffffffff) ||
+    !unsignedAttackField(p.flags4, 0xffffffff) ||
+    ![p.assignment, p.cargo, p.vehicle, p.x, p.y, p.renderFlags].every(value =>
+      unsignedAttackField(value, 65535)
+    ) ||
+    !Number.isInteger(p.f1) || p.f1 < -32768 || p.f1 > 32767 ||
+    !unsignedAttackField(p.f2, 255) ||
+    !unsignedAttackField(w.manaWorld.gameFlags, 0xffffffff) ||
+    !unsignedAttackField(p.tribe, w.manaTribes.length - 1) ||
+    !unsignedAttackField(w.manaTribes[p.tribe].flags2, 0xffffffff) ||
+    (Object.hasOwn(u, 'nativeFlags7f') && !unsignedAttackField(u.nativeFlags7f!, 255)) ||
+    p.vehicle || p.assignment & 32 || p.flags3 & 32 ||
+    defaultPersonState(p, w.manaWorld.gameFlags) !== 10 ||
+    w.land.flags[(p.y >>> 9) * 128 + (p.x >>> 9)] & 512 ||
+    !Array.isArray(p.commands) || p.commands.length !== 8 ||
+    !unsignedAttackField(p.immediateCommand, 799) ||
+    !p.commands.every(id => unsignedAttackField(id, 799)) ||
+    !unsignedAttackField(w.buildingOrders.active, 799)
+  ) return false
+  const releases = new Map<number, number>()
+  for (const id of [...p.commands, p.immediateCommand])
+    if (id) releases.set(id, (releases.get(id) ?? 0) + 1)
+  let freed = 0
+  for (const [id, count] of releases) {
+    const order = w.buildingOrders.records[id]
+    if (
+      !order ||
+      !unsignedAttackField(order.model, 255) ||
+      !unsignedAttackField(order.flags, 255) ||
+      !unsignedAttackField(order.references, 65535) ||
+      order.references < count ||
+      !unsignedAttackField(order.object, 65535) ||
+      order.model === 30 ||
+      (order.object !== 0 && order.references === count)
+    ) return false
+    if (order.references === count) freed++
+  }
+  return w.buildingOrders.active >= freed
+}
+
 // 0x4d14f0: task.members supplies the port's admitted-member ownership. Inspect
 // the registered person, including a fight owner that shadows stale u.native.
 function computerAttackSettled(w: World, index: number) {
@@ -586,16 +645,25 @@ function computerAttackSettled(w: World, index: number) {
     }
     // This side effect visits every member even after settlement is disproved.
     if (p.state === 25 || p.state === 29 || p.flags2 & 0x80000) w.ai.tasks[index].elapsed = 1801
-    // 0x4f39f0's state33 release/relocation remains uncomposed. Such a member
-    // cannot settle here; neither can an owner with unknown release fields.
-    if (
-      p.state === 33 &&
-      (!unsignedAttackField(p.substate, 255) ||
-        p.substate === 3 ||
-        (p.substate === 2 && !unsignedAttackField(p.commandPhase, 4)))
-    ) {
-      settled = false
-      continue
+    if (p.state === 33) {
+      if (
+        !unsignedAttackField(p.substate, 255) ||
+        (p.substate === 2 && !unsignedAttackField(p.animationMode, 255))
+      ) {
+        settled = false
+        continue
+      }
+      if (p.substate === 3 || (p.substate === 2 && p.animationMode > 4)) {
+        settled = false
+        if (!canReleaseComputerAttackPerson(w, index, u, p)) continue
+        // 0x4f2440: absence of +7f remains unknown; known upper bits survive.
+        if (Object.hasOwn(u, 'nativeFlags7f')) u.nativeFlags7f! &= 254
+        p.computerAssignment = 0
+        p.flags3 = (p.flags3 & ~0x2000) >>> 0
+        finishComputerPerson(w, u, p, true, true)
+        w.ai.tasks[index].members = w.ai.tasks[index].members.filter(id => id !== u.id)
+        continue
+      }
     }
     if (p.speed !== 0) settled = false
     if (rules.personStateFlags[p.state] & 8 || p.state === 25 || p.state === 29) continue
