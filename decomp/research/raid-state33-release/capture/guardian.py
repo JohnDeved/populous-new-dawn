@@ -118,7 +118,9 @@ def postflight():
     ]:
         try:
             actual = git(*args)
-            checks.append(dict(name=name, expected=expected, actual=actual, passed=actual == expected))
+            value = actual if len(actual) <= 2048 else dict(
+                bytes=len(actual.encode()), sha256=hashlib.sha256(actual.encode()).hexdigest())
+            checks.append(dict(name=name, expected=expected, actual=value, passed=actual == expected))
         except Exception as error:
             checks.append(dict(name=name, passed=False, error=str(error)))
     inputs = [('file', root / item['path'], item['sha256']) for item in manifest['files']]
@@ -131,7 +133,11 @@ def postflight():
                                actual=actual, passed=actual == expected))
         except Exception as error:
             checks.append(dict(kind=kind, path=str(path), passed=False, error=str(error)))
-    return dict(passed=all(check['passed'] for check in checks), checks=checks)
+    encoded = json.dumps(checks, sort_keys=True, separators=(',', ':')).encode()
+    changed = [check for check in checks if not check['passed']]
+    return dict(passed=not changed, checkedCount=len(checks),
+                orderedChecksSha256=hashlib.sha256(encoded).hexdigest(), changedInputs=changed,
+                unchangedInputs='Every other member matched the frozen launch-manifest hash exactly')
 
 environment = {key: value for key, value in os.environ.items() if key not in
                ['NODE_OPTIONS', 'NODE_PATH', 'PYTHONPATH', 'PYTHONOPTIMIZE', 'LD_PRELOAD', 'LD_LIBRARY_PATH']}

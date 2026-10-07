@@ -907,7 +907,7 @@
     },
     {
       "path": "decomp/research/raid-state33-release/capture/guardian.py",
-      "sha256": "fc2323dd8406c0379d54e15c1d251399a4a96e6860ada79244e2dc79641468b2"
+      "sha256": "64bf6b598c7a872165dec5133518dbcb595a3b48a73c18e7d7cbb7c9468754a6"
     },
     {
       "path": "decomp/research/raid-state33-release/capture/observer.mjs",

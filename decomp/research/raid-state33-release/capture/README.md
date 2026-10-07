@@ -50,7 +50,9 @@ breach starts at most one shorter grace, never reset in final cleanup), and
 retains PID/group/start-tick identity, exact command, peak sampled RSS, raw stdout/
 stderr, file hashes and final empty-group cleanup. Postflight rechecks exact HEAD,
 clean status, app/test identity, every input/tool hash and the launch manifest;
-any drift fails the source-bound result and is retained in the terminal receipt. Any cap breach is failure;
+any drift fails the source-bound result and is retained in the terminal receipt.
+The terminal record keeps the count/hash of all ordered checks and explicit
+changed inputs; unusually large Git output is hashed rather than embedded. Any cap breach is failure;
 this is sampled enforcement, not a claim of an instantaneous kernel aggregate cap.
 
 Source preparation (already run, no simulation):
