@@ -2,6 +2,47 @@
   "version": 1,
   "checks": [
     {
+      "id": "parity-measure-tests",
+      "kind": "metadata",
+      "automation": "safe",
+      "purpose": "Validate receipt-derived automatic parity measurement without executing game checks.",
+      "coveredBehavior": [
+        "Evidence freshness, failure precedence, unknown scope, deterministic history and report escaping"
+      ],
+      "knownLimits": [
+        "Synthetic evidence validates measurement, not actual game parity."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/parity-measure.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/parity-measure.mjs",
+        "scripts/orchestration/command-receipt.mjs",
+        "scripts/orchestration/verify.mjs",
+        "scripts/orchestration/cli.mjs",
+        "tests/parity-measure.test.mjs",
+        "engineering/parity-capabilities.json",
+        "engineering/checks.json",
+        "parity.json"
+      ],
+      "prerequisites": [
+        "Node.js >=22.13.0",
+        "Git"
+      ],
+      "sideEffects": [
+        "Task-owned temporary fixture repositories only"
+      ],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
       "cwd": ".",
       "env": [
         "POPULOUS_EXE"
@@ -1156,8 +1197,8 @@
       "coveredBehavior": [
         "First visit offers Missions 1 through 4 before scene creation",
         "Mission 1 mouse and Mission 4 keyboard selection",
-        "Normal Mission 1 victory continues through the shipped result UI into Mission 2",
-        "Normal Mission 1 victory persists a completion mark and Mission 2 recommendation",
+        "Injected Mission 1 enemy removal and one simulation tick reach the result UI; Continue then starts Mission 2",
+        "The injected Mission 1 outcome persists a completion mark and Mission 2 recommendation",
         "Mission 2 Totem route and one-shot Tornado-use instruction",
         "Mission 2 marker-triggered Matak tower counterattack",
         "Returning-player mission and Load Game choice before scene creation",
@@ -1165,7 +1206,7 @@
         "Fresh-world isolation and in-session completion/checkpoint fallback when storage is unavailable"
       ],
       "knownLimits": [
-        "Uses browser-native IndexedDB and one latest checkpoint; it does not prove original save-format, slot, broader profile, or front-end parity."
+        "Removes enemy units and ticks to seed Mission 1 victory; later diagnostics use direct commands/ticks and injected state. This is not natural Mission 1 victory. Uses browser-native IndexedDB and one latest checkpoint; it does not prove original save-format, slot, broader profile, or front-end parity."
       ],
       "executable": "node",
       "args": ["scripts/check-browser-checkpoint.mjs"],
