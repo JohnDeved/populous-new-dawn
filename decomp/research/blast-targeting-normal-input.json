@@ -257,6 +257,69 @@
         "42c7fe:\t8a 1d a3 b7 89 00    \tmov    bl,BYTE PTR ds:0x89b7a3",
         "42c804:\t8a 0d a1 b7 89 00    \tmov    cl,BYTE PTR ds:0x89b7a1"
       ]
+    },
+    {
+      "virtualAddress": "004eda87",
+      "length": 35,
+      "section": ".text",
+      "fileOffset": 970375,
+      "sha256": "4e93e57b0d40a81a5d934d11c210e02241eec180ea164a2264faffa858006c22",
+      "bytes": "380d37ce89007537380d3a248900740d814e0c00040000880d3a24890056e8d6faffff",
+      "meaning": "Unsuppressed allocation transfers pending-record flag to flags2 bit0x400, clears pending flag, and calls004ed580 at004edaa5; the Ghidra name init_unit_class must not be resolved as004ed640.",
+      "disassembly": [
+        "4eda87:\t38 0d 37 ce 89 00    \tcmp    BYTE PTR ds:0x89ce37,cl",
+        "4eda8d:\t75 37                \tjne    0x4edac6",
+        "4eda8f:\t38 0d 3a 24 89 00    \tcmp    BYTE PTR ds:0x89243a,cl",
+        "4eda95:\t74 0d                \tje     0x4edaa4",
+        "4eda97:\t81 4e 0c 00 04 00 00 \tor     DWORD PTR [esi+0xc],0x400",
+        "4eda9e:\t88 0d 3a 24 89 00    \tmov    BYTE PTR ds:0x89243a,cl",
+        "4edaa4:\t56                   \tpush   esi",
+        "4edaa5:\te8 d6 fa ff ff       \tcall   0x4ed580"
+      ]
+    },
+    {
+      "virtualAddress": "004ed580",
+      "length": 23,
+      "section": ".text",
+      "fileOffset": 969088,
+      "sha256": "bf9efad89f4c1fd9fdce60ae2b4cf457531df7c62a46134a8871db671a92fcc0",
+      "bytes": "5633c08b7424088a462a4883f80a7760ff248508d64e00",
+      "meaning": "Type initialization dispatch reads unit class at+0x2a and indexes class-1 in table004ed608.",
+      "disassembly": [
+        "4ed580:\t56                   \tpush   esi",
+        "4ed581:\t33 c0                \txor    eax,eax",
+        "4ed583:\t8b 74 24 08          \tmov    esi,DWORD PTR [esp+0x8]",
+        "4ed587:\t8a 46 2a             \tmov    al,BYTE PTR [esi+0x2a]",
+        "4ed58a:\t48                   \tdec    eax",
+        "4ed58b:\t83 f8 0a             \tcmp    eax,0xa",
+        "4ed58e:\t77 60                \tja     0x4ed5f0",
+        "4ed590:\tff 24 85 08 d6 4e 00 \tjmp    DWORD PTR [eax*4+0x4ed608]"
+      ]
+    },
+    {
+      "virtualAddress": "004ed5e7",
+      "length": 6,
+      "section": ".text",
+      "fileOffset": 969191,
+      "sha256": "992a8d4e494f6414967a45f6f70b6a5c333b1f7cfca70ae2c51170dee14b6a31",
+      "bytes": "56e8d33efdff",
+      "meaning": "Class11 initializer dispatch calls004c14c0.",
+      "disassembly": [
+        "4ed5e7:\t56                   \tpush   esi",
+        "4ed5e8:\te8 d3 3e fd ff       \tcall   0x4c14c0"
+      ]
+    },
+    {
+      "virtualAddress": "004c1930",
+      "length": 1,
+      "section": ".text",
+      "fileOffset": 789808,
+      "sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "bytes": "c3",
+      "meaning": "Separate state-initializer004c1930 is RET, not the allocation initializer.",
+      "disassembly": [
+        "4c1930:\tc3                   \tret"
+      ]
     }
   ],
   "packetWriterTables": [
@@ -366,6 +429,14 @@
     {
       "path": "decomp/generated/00486160.c",
       "sha256": "059056b8e82166c65ac59efcb1e886cf117b1ec88069a69ce06ee51b16eb9919"
+    },
+    {
+      "path": "decomp/generated/004ed8a0.c",
+      "sha256": "0a3e6654f1c046935bf0a75e32d8691f641fa13fad6c82dc06f3783ba520e5c9"
+    },
+    {
+      "path": "decomp/generated/004ed580.c",
+      "sha256": "30f96739bcd6f1703d38d8937b3a5890bffaaf282be069067360bd7a1da118c8"
     }
   ],
   "limits": [
@@ -424,5 +495,16 @@
     ],
     "exitCode": 0,
     "scope": "Only these three exact header members were extracted as data into ignored task work. Raw headers are not published."
-  }
+  },
+  "initializerTables": [
+    {
+      "virtualAddress": "004ed630",
+      "length": 4,
+      "section": ".text",
+      "fileOffset": 969264,
+      "sha256": "2ed6cf5deb50fe3e29c2324266011e56f44652d230cabb152e59c4f7fde7c2db",
+      "bytes": "e7d54e00",
+      "meaning": "Class11 table entry at004ed608+(11-1)*4 points to004ed5e7."
+    }
+  ]
 }

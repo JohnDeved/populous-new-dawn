@@ -45,7 +45,7 @@ The executable and archive themselves are not included. Mapping is
 with the recorded objdump command; it reads the PE as data and never runs it.
 
 Only file reads, standard-library PE parsing, static objdump and the bounded
-data-only header extraction were used. All 20 reused exports matched
+data-only header extraction were used. All 22 reused exports matched
 `decomp/exports.json`; header recovery used the existing maintained extractor
 and parser environment. No installer, native execution/emulation/probe, Ghidra,
 browser, build, dependency installation, fixture or asset recording ran.
@@ -79,8 +79,15 @@ browser, build, dependency installation, fixture or asset recording ran.
 6. `0043e8e0:690–729` consumes those three commands. It reads the same `+4/+8`
    fields, obtains the model via highWord `>>11`, stores `highWord & 0x7ff` in
    allocation record `field1_0x4`, advances that record and allocates class11.
-   `004c14c0:32–45` consumes the record under allocation flag `0x400` and writes
-   its `+4` low16 to spell `+0x6a`; without a supplied record it writes zero.
+   In the unsuppressed successful-allocation branch, original instructions
+   `004eda87..004edaaa` transfer the pending flag to unit `flags2 & 0x400` and
+   call **`004ed580` at `004edaa5`**. Its class11 table entry at `004ed630`
+   points to `004ed5e7`, which calls `004c14c0`. The allocator pseudocode name
+   `init_unit_class` is misleading here: do not resolve it as the separate
+   `004ed640` state dispatcher, whose class11 leaf `004c1930` is simply RET.
+   `004c14c0:32–45` consumes the record under flag `0x400`, writing its `+4`
+   low16 to spell `+0x6a`; without a supplied record it writes zero. Allocation
+   failure/suppressed initialization is not a successful identity-transfer case.
 
 This distinguishes identity from position and ground aim from direct aim.
 It does not imply nearest-person aim assistance or an enemy-only filter.
