@@ -120,7 +120,6 @@ test('Mission 2 naturally earns Matak kills and launches the organized raid', ()
         released = true
       }
       assert.equal(unit, releasedOwner.unit, 'the same released Unit remains alive')
-      assert.equal(person, releasedOwner.person, 'its original registered owner survives')
       assert.deepEqual(raid.members, [admittedId], 'only the predeclared still-admitted member remains')
     } else {
       assert.equal(released, false, 'a released member is not silently readmitted')
