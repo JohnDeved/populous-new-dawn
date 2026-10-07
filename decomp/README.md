@@ -5160,6 +5160,11 @@ and names the remaining primary-stream, secondary-list and render-RNG boundaries
 visits and checkpoint slot reconstruction to the bounded runtime owner. Its
 primary-stream and current UI-adapter limits remain explicit.
 
+[Burning-state chimney root release](research/hut-smoke-state-exit.md) binds the
+original immediate state-exit cleanup to the Lightning and Spy ignition owners.
+The report links the accepted native composition, focused red/green comparison
+and ordinary Mission 1 rendered witness, with immutable raw evidence.
+
 ## Building construction-gauge consumer — 2026-10-03
 
 [Bounded native/current comparison](research/building-construction-gauge.md) identifies

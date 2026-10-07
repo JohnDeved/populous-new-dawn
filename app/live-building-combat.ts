@@ -78,6 +78,7 @@ import {
 import { buildingAdmission } from './live-building-entry.ts'
 import { startIndexedSearch, nextIndexedSearch, endIndexedSearch } from './indexed-search.ts'
 import { igniteBuilding } from './building-damage.ts'
+import { reconcileWorldHutSmoke } from './hut-smoke-runtime.ts'
 import { random } from './native-math.ts'
 import { firewarriorReady, launchFirewarrior } from './firewarrior.ts'
 
@@ -153,6 +154,7 @@ function igniteSabotagedBuilding(w: World, b: Building, tribe: number) {
       b.burn.soundPlaying = true
       ignitePeople(point, tribeForTeam(b.team))
     }
+    reconcileWorldHutSmoke(w, b)
   })
 }
 
