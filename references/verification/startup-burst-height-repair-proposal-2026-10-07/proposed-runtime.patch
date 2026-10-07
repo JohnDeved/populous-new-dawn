@@ -1,0 +1,18 @@
+--- a/app/level-start-runtime.ts
++++ b/app/level-start-runtime.ts
+@@ -48,9 +48,13 @@
+ function stoneBurst(w: World, point: StartPoint, tribe: number) {
+   const team = teamForTribe(tribe)
+   w.effectCounter = (w.effectCounter + 1) & 255 // effect9, 0x50ccd0
++  // The burst root is grounded before its offset; each child retains its own clamp.
++  const position = {
++    ...point,
++    h: short(Math.max(short(point.h), terrainPointHeight(w.land, point)) + 90),
++  }
+   for (let particle = 0; particle < 32; particle++) {
+-    const position = { ...point, h: short(point.h + 90) },
+-      burst = effect(w, 'trail', browserPosition(position)),
++    const burst = effect(w, 'trail', browserPosition(position)),
+       trail = createSpellTrail(w.land, position, 3, (w.effectCounter - 1) & 255, w.cosmeticRandom)
+     trail.flags4 &= ~0x100
+     Object.assign(trail, levelStartBurstParticle(w))

@@ -1,0 +1,44 @@
+{
+  "status": "passed-source-only",
+  "baseCommit": "274750b0620740342116e5443616eae03f35ade6",
+  "nativeSourceFreeze": "8757de6987ce84af5c20c3a737853b27ba2b146c",
+  "testExecution": "not-run",
+  "runtimePatchApplied": false,
+  "nativeExecution": "not-run; accepted earlier one-arrival evidence reused",
+  "browser": "not-run",
+  "syntaxCommand": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "--check",
+    "tests/startup-burst-height.test.mjs"
+  ],
+  "syntaxExitCode": 0,
+  "checks": [
+    "Node --check parses only; test module/app imports were not evaluated",
+    "Maintained runtime and seven observed production files equal committed base",
+    "Accepted original native stdout and result-review retained unchanged",
+    "Proposed patch is a separate text artifact, not applied",
+    "Local proposal links resolve",
+    "No PR253 test/fixture/runtime inputs edited",
+    "git apply --check accepts the proposal; no runtime patch applied"
+  ],
+  "inputSha256": {
+    "tests/startup-burst-height.test.mjs": "74212dcb91cf0c8635b4c9b36b8e534391dd2ffecb3cbc2df194a6cc16b312a9",
+    "app/level-start-runtime.ts": "cce900dc4e08ce890ac88060d7db41bb1cde578f80c2424317d4842d8884451b",
+    "app/level-start.ts": "987b88e203cc863df79ca1afddb602329f9b68f29be715b6ddb1c4fd48c29948",
+    "app/spell-trails.ts": "884319866f64247e81d6ec2f5aeda1be57ea2c306b2c5f57d7b1e9562bd0fa67",
+    "app/native-terrain.ts": "bef0de5cda0ab5a54147ff2c91569b97a4e1b58ed46bd1dc9e9a85467f8e17a5",
+    "app/world-turn.ts": "957422e62b080cdbe787d78673336fb97957cdd6d2ce1ae547f1a280db2df26a",
+    "app/world-effects.ts": "d831dcd87d1e2db3a5698b6124330c48e13940d0859c6ffc0d9cb110788e7352",
+    "app/reincarnation.ts": "d361f22db204184515e63c2dc134c78f42110a1a49e7d071b26223993eb1d182",
+    "references/verification/startup-burst-arrival-2026-10-07/attempt-01/native-stdout.log": "ecec70d64abcfedd06ea1146462b6f7d86e35a3e8b77652f5cea0587b058c957",
+    "references/verification/startup-burst-arrival-2026-10-07/attempt-01/result-review.json": "b2bc1cba57973440d0230572133cc9c2fe6b4bf32f7c37b53f3ea459f93b2516",
+    "references/verification/startup-burst-height-assessment-2026-10-07/authored-data.json": "701e6c2e248be4b309c49bbd711e2d683b81c4145765dde38f3c86f8314f12a6",
+    "references/verification/startup-burst-height-repair-proposal-2026-10-07/proposed-runtime.patch": "b8c849b81745150317ce76d7e31b882d59252b47647747b2c9bddb92643885d3",
+    "references/verification/startup-burst-height-repair-proposal-2026-10-07/README.md": "212cc6d16db254c48e2d6281af0ea7171a8da6c9e50dc83e64ffd4b433f95583"
+  },
+  "observerReuse": {
+    "path": "/workspace/scratch/69fd8163d94e/startup-burst-angle-fix-20261007/tests/startup-burst-angles.test.mjs",
+    "sha256": "5b8a2786c486a3c724de6536ccbc848e0d2e401a5565d68c4c432fc00b6adc48",
+    "scope": "Existing world.randomState-write birth observer copied conceptually; existing file unmodified. One-time animation-assignment snapshot added only in the new height test."
+  }
+}
