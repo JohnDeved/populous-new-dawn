@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "99613f09-6d55-4d7c-95b1-0df8a3f08f57",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "48a84610254d3ad5cddb600c266ed9a151233b79",
+    "branch": "fix/preacher-command32-expiry-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/preacher-raid-regressions-20261006/preflight.json": "d664ace67e9d3269d6429ea6be92bb93d8a99f5bb1338bb06e7de7bcf5a49a45",
+      "/tmp/validate_pr247_three_cases.py": "3a054d53c83ecf4ce985589d45c47b45a004285b6e1cb88b755a5877752afd03"
+    }
+  },
+  "command": [
+    "/usr/bin/taskset",
+    "--cpu-list",
+    "4",
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=3s",
+    "15s",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/bin/python",
+    "-E",
+    "-s",
+    "-B",
+    "/tmp/validate_pr247_three_cases.py"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006",
+  "startedAt": "2026-10-07T00:04:57.765Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-raid-regressions-20261006/host-receipt.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-raid-regressions-20261006/host-receipt.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-07T00:04:58.736Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "PASS: three exact maintained cases, source/tool hashes, Python AST and five Node syntax checks; no app/native execution or package access\n",
+  "stderr": "",
+  "stdoutSha256": "59c569885f8baeb4a83cc006843198e40470d7e456fbe2fad4323fe993456863",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "48a84610254d3ad5cddb600c266ed9a151233b79",
+    "branch": "fix/preacher-command32-expiry-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/preacher-raid-regressions-20261006/preflight.json": "d664ace67e9d3269d6429ea6be92bb93d8a99f5bb1338bb06e7de7bcf5a49a45",
+      "/tmp/validate_pr247_three_cases.py": "3a054d53c83ecf4ce985589d45c47b45a004285b6e1cb88b755a5877752afd03"
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "status": "failed",
+  "output": "work/orchestration/preacher-pr247-final-gates/check-01.json",
+  "headOid": "48a84610254d3ad5cddb600c266ed9a151233b79",
+  "exitCode": 1,
+  "stdoutSha256": "b17b221d6ce083d2246b6a4c3427bb262bae9e378ddd84cf4f667095846c498b",
+  "stderrSha256": "7f8612995e1e4a4a8fd18340a249e878536a26b4fd753b6b1b0938bec28f0276"
+}

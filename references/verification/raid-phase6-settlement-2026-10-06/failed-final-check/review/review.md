@@ -1,0 +1,11 @@
+# Independent combined full-check failure review
+
+BLOCK final standard-gate acceptance at exact `48a84610254d3ad5cddb600c266ed9a151233b79`. The genuine full check failed with1405 passes/3 failures out of1408 tests. TypeScript completed; the npm command stops at tests, so subsequent parity:check and orchestration:check did not execute. Build was not launched. Reviewer did not rerun any test.
+
+Verified full inner/outer receipts, complete stdout/stderr hashes and unchanged source/dependency identities. CPU0–3,900s cap;23:48:59.397161→23:53:45.347035 UTC,285.950s, exit1, owned group25 empty. The new nine focused settlement tests and revised Mission6 scenario pass inside this aggregate. Earlier baseline-equivalent Oxlint diagnostics remain a distinct scoped quality limitation.
+
+Exact failures: game.test.mjs1018 passes a null u.native to currentPersonOrder after the type20 task retires; game.test.mjs1049 does the same while waiting for shared command19 in the later building raid. These tests assume the native slot owns the person; the full output alone does not establish which registered/fight owner or current order actually exists at those points. Merely adding optional chaining or switching slots without inspecting ownership could conceal a gameplay change.
+
+mission2-raid.test.mjs86 fails defender&&attacker after its phase16 wait. It derives defender from selected[0] after additive select('brave') and attacker from raid.members[0]. The failure does not identify which is missing. A stale selected identity or a missing first member are possible explanations, not accepted findings. No selection or runtime change is justified from this assertion alone.
+
+The smallest next diagnostic is the unchanged three selected scenarios at the frozen runtime, retaining exact selected IDs/actor presence, raid membership/phase/elapsed and registered/native/fight owner/current/queued-order snapshots at these boundaries, with source-bound finite receipts. Coordinator must grant that execution separately. Preserve this failed aggregate and do not weaken assertions or roll back the proven native predicates merely to make it pass. Final integrated and candidate ordinary lifecycle acceptance remain open.

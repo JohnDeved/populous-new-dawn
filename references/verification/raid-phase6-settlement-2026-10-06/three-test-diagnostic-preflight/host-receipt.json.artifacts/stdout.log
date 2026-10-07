@@ -1,0 +1,1 @@
+PASS: three exact maintained cases, source/tool hashes, Python AST and five Node syntax checks; no app/native execution or package access

@@ -1,0 +1,8 @@
+{
+  "head": "48a84610254d3ad5cddb600c266ed9a151233b79",
+  "decision": "BLOCK final gates; diagnostic required",
+  "files": {
+    "review.md": "8942ab9038059fdaf15c18aa8900c653c2bcd72f07b464aa0e0c7b393ab3f6a1",
+    "verification.json": "77c8b414bc033276bf6a3aeef3f45c253034da625654a93264159fb2319b81ea"
+  }
+}

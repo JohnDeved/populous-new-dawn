@@ -1,0 +1,18 @@
+{
+  "names": [
+    "mission-one Dakini launches its native attack route when Blue enters marker three",
+    "mission-one Dakini launches its later building attack when Blue overwhelms it",
+    "Mission 2 naturally earns Matak kills and launches the organized raid"
+  ],
+  "count": 3,
+  "sourceFiles": {
+    "tests/game.test.mjs": "39b6c0a91c9b35a6aa927292e1749e30a6406428c343f182ab2f46b0681a0ee0",
+    "tests/mission2-raid.test.mjs": "7574ce1db5080bc4efed98a7c0bc5b4c2dd7c29e9e4a8e3e4d1bda0bf5104a42"
+  },
+  "transform": "Original imports/scenarios; only relative import relocation, node:test registration and read-only post-tick alias; assertions/setup unchanged",
+  "scenarioHashes": [
+    "02c4060c21250415a90d34923235ec90c69f37f8b0a1a8a209b5924eb9673b3e",
+    "8f6650ac413173b6ae42d7ecfc16427b322ba7b1b9d4a4db0f92494b744dc3c3",
+    "daaca5f726fd6e728588ab12c06eb30e6aea2387522757011ea1be27d4db7864"
+  ]
+}

@@ -1,0 +1,99 @@
+import { wrappedDistance } from '../../../app/world-coordinates.ts'
+import assert from 'node:assert/strict'
+import { test, observeTick } from './observer.mjs'
+import {
+  command,
+  createWorld,
+  placeBuilding,
+  select,
+  setSelection,
+  tick as underlyingTick,
+} from '../../../app/model.ts'
+import { migrateCheckpoint } from '../../../app/game-store.ts'
+import { campaignAttackTarget } from '../../../app/campaign-runtime.ts'
+import { currentPersonOrder } from '../../../app/person-orders.ts'
+
+function stepUntil(w, ready, limit) {
+  for (let i = 0; i < limit && !ready(); i++) tick(w, 1 / 12)
+  assert.ok(ready(), `condition timed out at turn ${w.turn}`)
+}
+
+
+function tick(w,dt){return observeTick(underlyingTick,w,dt)}
+test('Mission 2 naturally earns Matak kills and launches the organized raid', () => {
+  const w = createWorld(2)
+  stepUntil(w, () => w.turn >= 70, 1000)
+
+  select(w, 'brave')
+  assert.ok(placeBuilding(w, 'camp', { x: -99, z: -105 }))
+  const camp = w.buildings.find(building => building.team === 'blue' && building.kind === 'camp')
+  stepUntil(w, () => camp.progress === 1, 3000)
+  stepUntil(w, () => !w.units.some(unit => unit.builder), 1000)
+  setSelection(
+    w,
+    w.units
+      .filter(unit => unit.team === 'blue' && unit.kind === 'brave' && unit.hp > 0)
+      .slice(0, 8)
+      .map(unit => unit.id)
+  )
+  assert.ok(command(w, camp))
+  stepUntil(
+    w,
+    () => w.units.filter(unit => unit.team === 'blue' && unit.kind === 'warrior' && unit.hp > 0).length >= 8,
+    15000
+  )
+
+  const warriors = () =>
+    w.units.filter(unit => unit.team === 'blue' && unit.kind === 'warrior' && unit.hp > 0)
+  for (let attempts = 0; w.killCredits[0][3] <= 3 && attempts < 8; attempts++) {
+    const target = w.units
+      .filter(unit => unit.team === 'green' && unit.kind !== 'shaman' && unit.hp > 0)
+      .sort((a, b) => wrappedDistance(a, camp) - wrappedDistance(b, camp))[0]
+    assert.ok(target)
+    setSelection(w, warriors().map(unit => unit.id))
+    assert.ok(command(w, target))
+    stepUntil(w, () => target.hp <= 0, 10000)
+  }
+  assert.equal(w.killCredits[0][1], 0)
+  assert.ok(w.killCredits[0][3] > 3)
+
+  // Let the authored raid regroup without running through our idle defenders.
+  // This startup scenario selects two fallback Braves rather than Warriors.
+  select(w, 'all')
+  assert.ok(command(w, { x: -80, z: -108 }))
+
+  stepUntil(w, () => w.ai.tasks.some(task => task.flags & 1 && task.type === 20), 5000)
+  const raid = w.ai.tasks.find(task => task.flags & 1 && task.type === 20)
+  assert.deepEqual(
+    { requested: raid.requested, mode: raid.mode, entity: raid.entity },
+    { requested: 2, mode: 7, entity: camp.id }
+  )
+  stepUntil(
+    w,
+    () =>
+      raid.members.length === 2 &&
+      raid.phase === 16 &&
+      raid.members.some(id => {
+        const unit = w.units.find(candidate => candidate.id === id)
+        return unit?.native && currentPersonOrder(w.buildingOrders, unit.native)?.model === 19
+      }),
+    2000
+  )
+  // Return one actual follower to fight the raid. Clicking the camp itself
+  // starts training, whose replacement object is not evidence of combat damage.
+  select(w, 'brave')
+  assert.ok(w.selected.length)
+  const defender = w.units.find(unit => unit.id === w.selected[0])
+  const attacker = w.units.find(unit => unit.id === raid.members[0])
+  assert.ok(defender && attacker)
+  setSelection(w, [defender.id])
+  assert.ok(command(w, attacker))
+  const blueHp = defender.hp
+  const taskDamage = raid.damage
+  // Newborn followers change total tribe HP, so observe this fixed lifetime.
+  stepUntil(w, () => defender.hp < blueHp, 5000)
+  assert.ok(raid.members.includes(defender.fight?.opponent) || raid.damage > taskDamage)
+  assert.equal(raid.phase, 16)
+  assert.equal(raid.fallback, 14)
+  assert.ok(raid.flags & 1)
+})

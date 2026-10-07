@@ -1,0 +1,75 @@
+{
+  "sourceHead": "48a84610254d3ad5cddb600c266ed9a151233b79",
+  "status": "failed",
+  "typecheck": "passed",
+  "tests": {
+    "passed": 1405,
+    "failed": 3,
+    "total": 1408
+  },
+  "parity": "not reached",
+  "orchestration": "not reached",
+  "build": "not run",
+  "files": [
+    {
+      "path": "check-01/receipt.json",
+      "bytes": 2488,
+      "sha256": "c2c0140bd2fc64f02d49ac8cad36a221a722d13f4c2f99630212f6ad1c0203d1"
+    },
+    {
+      "path": "check-01/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "check-01/stdout.txt",
+      "bytes": 346,
+      "sha256": "aa95d6fb7b0a794755892b046b44dd5957a1aeedec8511bc1e8bb34b2964d899"
+    },
+    {
+      "path": "check-01.json",
+      "bytes": 147038,
+      "sha256": "b691e4950f6fb377d9253e0ab8e110c30bbed63168ae3a30a3a2bda5d6f9a8f8"
+    },
+    {
+      "path": "check-01.json.artifacts/stderr.log",
+      "bytes": 505,
+      "sha256": "7f8612995e1e4a4a8fd18340a249e878536a26b4fd753b6b1b0938bec28f0276"
+    },
+    {
+      "path": "check-01.json.artifacts/stdout.log",
+      "bytes": 142370,
+      "sha256": "b17b221d6ce083d2246b6a4c3427bb262bae9e378ddd84cf4f667095846c498b"
+    },
+    {
+      "path": "dependency-return-01/receipt.json",
+      "bytes": 974,
+      "sha256": "cfbd83acb644c5ccfa5ba6affe76135cc32d7ae065441f029204a2f857660f1c"
+    },
+    {
+      "path": "feature-remote-readback.txt",
+      "bytes": 91,
+      "sha256": "5af53305964b901975c9d5c972359bea514eb70f5caa59491e360a378ade5da8"
+    },
+    {
+      "path": "gate-supervisor.py",
+      "bytes": 5183,
+      "sha256": "6f9cccd47f18b8d0feedbc00ed31ac0cd56fc627e91449948d64df0483ee66e3"
+    },
+    {
+      "path": "review/manifest.json",
+      "bytes": 308,
+      "sha256": "9eb6f513790fde1e7317dd92105d2fc5fc3c17ec8307353e7dd33108f239305e"
+    },
+    {
+      "path": "review/review.md",
+      "bytes": 2218,
+      "sha256": "8942ab9038059fdaf15c18aa8900c653c2bcd72f07b464aa0e0c7b393ab3f6a1"
+    },
+    {
+      "path": "review/verification.json",
+      "bytes": 1290,
+      "sha256": "77c8b414bc033276bf6a3aeef3f45c253034da625654a93264159fb2319b81ea"
+    }
+  ]
+}

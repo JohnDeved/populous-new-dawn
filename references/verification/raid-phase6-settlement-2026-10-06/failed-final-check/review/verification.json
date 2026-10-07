@@ -1,0 +1,19 @@
+{
+  "decision": "BLOCK final gates; diagnostic required",
+  "head": "48a84610254d3ad5cddb600c266ed9a151233b79",
+  "tests": 1408,
+  "pass": 1405,
+  "fail": 3,
+  "typecheck": "passed",
+  "parityCheck": "not reached",
+  "orchestrationCheck": "not reached",
+  "build": "not run",
+  "seconds": 285.9498621120001,
+  "ownedGroupEmpty": true,
+  "receipts": {
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-pr247-final-gates/check-01/receipt.json": "c2c0140bd2fc64f02d49ac8cad36a221a722d13f4c2f99630212f6ad1c0203d1",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-pr247-final-gates/check-01.json": "b691e4950f6fb377d9253e0ab8e110c30bbed63168ae3a30a3a2bda5d6f9a8f8",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-pr247-final-gates/check-01.json.artifacts/stdout.log": "b17b221d6ce083d2246b6a4c3427bb262bae9e378ddd84cf4f667095846c498b",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-pr247-final-gates/check-01.json.artifacts/stderr.log": "7f8612995e1e4a4a8fd18340a249e878536a26b4fd753b6b1b0938bec28f0276"
+  }
+}
