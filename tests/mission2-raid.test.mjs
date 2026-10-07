@@ -78,7 +78,8 @@ test('Mission 2 naturally earns Matak kills and launches the organized raid', ()
   }
   const observeCohort = () => {
     const active = w.ai.tasks.filter(task => task.flags & 1 && task.type === 20)
-    assert.deepEqual(active, [raid], 'the same task stays active without a duplicate raid')
+    assert.equal(active.length, 1, 'no duplicate raid is created')
+    assert.equal(active[0], raid, 'the same task remains active')
     if (!originalMembers && raid.phase >= 4 && raid.members.length) {
       assert.equal(raid.members.length, 2, 'the original requested cohort is recruited first')
       assert.equal(new Set(raid.members).size, 2)
@@ -98,6 +99,7 @@ test('Mission 2 naturally earns Matak kills and launches the organized raid', ()
           'the actual +a8 animationMode satisfies the original release predicate')
         assert.equal(beforeRelease.immediate, 0)
         assert.equal(beforeRelease.ids.length, 1)
+        assert.ok(beforeRelease.order, 'the observed original owner has its movement order')
         assert.equal(beforeRelease.order.model, 3)
         assert.equal(beforeRelease.order.references, 1)
         const { unit, person } = registeredOwner(releaseId)
