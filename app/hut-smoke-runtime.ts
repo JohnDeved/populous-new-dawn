@@ -17,7 +17,11 @@ import {
 } from './secondary-effects.ts'
 
 const eligible = (b: Building) =>
-  b.kind === 'hut' && b.team === 'blue' && b.progress >= 1 && b.hp > 0
+  b.kind === 'hut' &&
+  b.team === 'blue' &&
+  b.progress >= 1 &&
+  b.hp > 0 &&
+  (!b.damageState || b.damageState.state === 2)
 
 function smokePosition(w: World, b: Building) {
   const socket = buildingSocketPoint(buildingPose(b), hutOccupancySmokeSocket(buildingModel(b)))
@@ -134,4 +138,7 @@ export function restoreSecondaryEffects(w: World) {
   rebuildSecondaryLists(w.secondaryEffects)
   // DOM panels/previews are transient and are rebuilt by their actual adapters.
   w.secondaryEffects.reservations = []
+  // Older saves could retain a burning hut's root until occupant evacuation.
+  // Restore the same eligibility now, including when play resumes paused.
+  for (const building of w.buildings) if (!eligible(building)) reconcileWorldHutSmoke(w, building)
 }

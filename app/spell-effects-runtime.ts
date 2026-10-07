@@ -55,6 +55,7 @@ import {
   buildingPose,
 } from './building-shapes.ts'
 import { ensureBuildingDamage, igniteBuilding } from './building-damage.ts'
+import { reconcileWorldHutSmoke } from './hut-smoke-runtime.ts'
 import { createBlastWave, stepBlastWave, type BlastTarget, type BlastWave } from './blast-wave.ts'
 import { terrainPointHeight } from './native-terrain.ts'
 import { damagePerson } from './person-update.ts'
@@ -388,6 +389,7 @@ function igniteBuildingAt(w: World, target: NativePoint, tribe: number) {
         building.burn.soundPlaying = true
         ignitePeople(point, tribeForTeam(building.team))
       }
+      reconcileWorldHutSmoke(w, building)
     })
   }
 }
