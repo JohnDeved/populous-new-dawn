@@ -1,0 +1,31 @@
+{
+  "status": "failed; retained partial component evidence only",
+  "source": "77839a91aad0453eed69448bd59dba6ae71c2fce",
+  "manifestSha256": "acede23df705addeee7475a188b6b0ea2dbc45f91bd3a94029411c191c9a9106",
+  "launchSha256": "e555ac459975167728ff96ce8089eaf5d193de80d4854d2d0c0f62b035aad499",
+  "toolSessionId": 24973,
+  "nativeCallsAttempted": 5,
+  "nativeCallsReturned": 4,
+  "allocations": 0,
+  "failedCall": {
+    "entry": 5,
+    "stage": "setup-5",
+    "recordId": null,
+    "start": "0042b7f0",
+    "stop": "021ef000",
+    "eip": 4372478,
+    "esp": 35573752,
+    "elapsedSeconds": 0.000399367,
+    "unicornTimeout": false,
+    "nativeInstructionLimit": 1000000,
+    "blockInstructionUpperBound": 36,
+    "aggregateBlockInstructionUpperBound": 55419,
+    "error": "AssertionError(('native write range', '0x42b7fe', '0x89798d', 4))"
+  },
+  "error": "AssertionError(\"AssertionError(('native write range', '0x42b7fe', '0x89798d', 4))\")",
+  "sourceAndInputsStable": true,
+  "receiptInputCount": 61,
+  "cpu4Released": true,
+  "retry": false,
+  "limits": "Only native pool setup and class-seed reset returned. Tribe initialization stopped at its early guarded write; no authored records, callbacks, roster or orders were completed."
+}

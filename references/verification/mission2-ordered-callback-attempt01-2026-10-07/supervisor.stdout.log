@@ -1,0 +1,8 @@
+{
+  "status": "failed",
+  "output": "work/orchestration/class1-mission2-ordered-callback-20261007/attempt-01/receipt.json",
+  "headOid": "77839a91aad0453eed69448bd59dba6ae71c2fce",
+  "exitCode": 1,
+  "stdoutSha256": "78fe37b3f75837b1c1fa5d1e4fe074268c0cb583e639bfbe6858ce40bc287333",
+  "stderrSha256": "47a406507543f11f29447087a800ed29e6760cf5ed6400eb016bb4609190c4a9"
+}

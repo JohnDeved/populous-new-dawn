@@ -1,0 +1,10 @@
+{
+  "startedAt": "2026-10-07T05:34:12.719364+00:00",
+  "supervisorPid": 6,
+  "ownedSession": 6,
+  "nativeWallTermSeconds": 30,
+  "nativeKillAfterSeconds": 5,
+  "outerObservationDeadline": "2026-10-07T05:34:52.719364+00:00",
+  "source": "77839a91aad0453eed69448bd59dba6ae71c2fce",
+  "launchSha256": "e555ac459975167728ff96ce8089eaf5d193de80d4854d2d0c0f62b035aad499"
+}

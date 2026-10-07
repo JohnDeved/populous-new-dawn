@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/69fd8163d94e/class1-mission2-ordered-callback-run-20261007-01/references/verification/mission2-ordered-callback-executable-2026-10-07/probe.py", line 487, in <module>
+    main()
+  File "/workspace/scratch/69fd8163d94e/class1-mission2-ordered-callback-run-20261007-01/references/verification/mission2-ordered-callback-executable-2026-10-07/probe.py", line 471, in main
+    emit(probe.run())
+         ^^^^^^^^^^^
+  File "/workspace/scratch/69fd8163d94e/class1-mission2-ordered-callback-run-20261007-01/references/verification/mission2-ordered-callback-executable-2026-10-07/probe.py", line 394, in run
+    self.invoke(int(row['entry'],16),row.get('args',()),int(row.get('stop',f'{STOP:08x}'),16),category,
+  File "/workspace/scratch/69fd8163d94e/class1-mission2-ordered-callback-run-20261007-01/references/verification/mission2-ordered-callback-executable-2026-10-07/probe.py", line 373, in invoke
+    assert error is None,error
+           ^^^^^^^^^^^^^
+AssertionError: AssertionError(('native write range', '0x42b7fe', '0x89798d', 4))
