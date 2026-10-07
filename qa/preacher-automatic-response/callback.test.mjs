@@ -167,3 +167,17 @@ test('Save cannot begin with an installed, missing or failed scanner restoration
     assert.throws(() => requireScannerRestoration(result))
   assert.doesNotThrow(() => requireScannerRestoration({ restored: true, errors: [], callbacks: 1 }))
 })
+
+test('only the outer observer owns the guard across two nested application writes', () => {
+  const person = { flags3: 1 }; let calls = 0
+  const watch = observer.installScannerCommitWatch(person, {
+    identify: () => ({ bound: true }), observe() {
+      if (++calls === 1) { person.flags3 = 9; person.flags3 = 10 }
+    },
+  })
+  person.flags3 = 2
+  assert.equal(person.flags3, 10); assert.equal(calls, 1)
+  const done = watch.finish()
+  assert.equal(done.restored, true); assert.equal(done.callbacks, 1); assert.equal(done.writes, 3)
+  assert.equal(done.errors.length, 2); assert.equal(person.flags3, 10)
+})

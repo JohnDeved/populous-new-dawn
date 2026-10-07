@@ -351,14 +351,15 @@ export function installScannerCommitWatch(person, { identify, observe }) {
     const oldFlags3 = value
     value = next // Exact application assignment precedes all observation, even errors.
     writes++
+    let entered = false
     try {
       if (observing) throw Error('Reentrant scanner observation')
       const callsite = identify(new Error().stack)
       if (!callsite) return
-      observing = true; callbacks++
+      observing = true; entered = true; callbacks++
       observe({ ...callsite, oldFlags3, writtenFlags3: next })
     } catch (error) { errors.push(String(error)) }
-    finally { observing = false }
+    finally { if (entered) observing = false }
   }
   Object.defineProperty(person, 'flags3', { enumerable: original.enumerable, configurable: original.configurable, get, set })
   return { errors, finish() {
