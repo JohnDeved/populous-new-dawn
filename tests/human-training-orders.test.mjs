@@ -3,20 +3,21 @@ import test from 'node:test'
 import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
 import { addBuilding, addUnit, command, tick } from '../app/model.ts'
 import { createLivePerson, registerLivePerson } from '../app/live-people.ts'
-import { currentPersonOrder } from '../app/person-orders.ts'
+import { currentPersonOrder, emptyPersonOrder } from '../app/person-orders.ts'
+import { appendLiveOrders } from '../app/live-movement.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
 
 // Supplied unobstructed mechanics fixture; orders always enter through the
 // public player command. The ordinary Mission 3 route is a separate witness.
-function scenario(kind = 'camp', count = 8) {
+function scenario(kind = 'camp', count = 8, team = 'blue') {
   const w = createStartedWorld()
   retainFixtureUnits(w, u => u.kind === 'shaman')
   w.manaWorld.gameFlags = 32
   w.terrain.fill(3)
   w.terrainVersion++
-  const b = addBuilding(w, 'blue', kind, { x: -2, z: 32 }, true)
+  const b = addBuilding(w, team, kind, { x: -2, z: 32 }, true)
   const units = Array.from({ length: count }, (_, i) =>
-    addUnit(w, 'blue', 'brave', { x: 7 + i * 0.4, z: 33 })
+    addUnit(w, team, 'brave', { x: 7 + i * 0.4, z: 33 })
   )
   const people = units.map(u => {
     u.native = createLivePerson(w, u)
@@ -56,6 +57,22 @@ test('one ordinary group training click shares one immediately attached register
     assertShared(w, b, units, people)
     assert.equal(w.buildingOrders.active, 1, 'entry must not allocate per follower')
   }
+})
+
+test('AI Hut admission keeps its existing empty-order adapter lifetime', () => {
+  const { w, b, units: [u], people: [p] } = scenario('hut', 1, 'yellow'),
+    order = { ...emptyPersonOrder(), model: 8, a: b.id }
+  // The normal computer task caller uses appendLiveOrders, not player replacement.
+  assert.deepEqual(appendLiveOrders(w, [u], order, true), { accepted: true, count: 1 })
+  const id = p.commands[p.commandCursor]
+  until(w, () => u.inside === b.id)
+  assert.equal(currentPersonOrder(w.buildingOrders, p), undefined)
+  assert.equal(w.buildingOrders.records[id].references, 0)
+  assert.equal(u.entry, undefined)
+  assert.equal(u.native, null, 'fresh Hut admission must not retain a new empty-order native adapter')
+  tick(w, 1 / 12)
+  assert.equal(u.inside, b.id)
+  assert.equal(w.objectCells.objects.has(u.id), false)
 })
 
 test('one remaining command slot accepts the complete ordinary training group', () => {
