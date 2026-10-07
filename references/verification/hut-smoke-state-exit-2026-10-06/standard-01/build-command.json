@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "d9e84324-aceb-4bed-968a-348fa2cb3566",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "2f75201af64fb304c1b87c94b6324e746ec14a13",
+    "branch": "fix/hut-smoke-ignition-state-exit-20261007",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package.json": "75177ce9ebe6a221ecb1e4e3c35c2697ed92882a6924577d8892f03538f7e51c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "decomp/research/hut-smoke-state-exit/correspondence.json": "604ef9f7159a6c66345d7e390f972262545192ec527dbbf80dea4b2bf6a59faa",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/standard-01/source-before.json.gz": "ca07dbc89488d21e1cdc3d603fb3f1f3072d3b6f5076911844044e5c71964839",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/host-standard-01.py": "0ff968b36ed46ca89e4b113803e5bc399af21502b2794da7c20c59d56c641ce1"
+    }
+  },
+  "command": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=5s",
+    "300s",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/npm/bin/npm-cli.js",
+    "run",
+    "build"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007",
+  "startedAt": "2026-10-07T00:37:42.062Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/standard-01/build-command.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/standard-01/build-command.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-07T00:38:07.952Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 build\n> WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext build\n\n\n  vinext build  (Vite 8.0.13)\n\n\u001b[34m[1/5] analyze client references...\u001b[39m\n\u001b[2K\rtransforming...✓ 272 modules transformed.\nrendering chunks...\n\u001b[32m✓ built in 4.91s\u001b[39m\n\u001b[34m[2/5] analyze server references...\u001b[39m\n\u001b[2K\rtransforming...✓ 389 modules transformed.\nrendering chunks...\n\u001b[32m✓ built in 2.13s\u001b[39m\n\u001b[34m[3/5] build rsc environment...\u001b[39m\n\u001b[2K\rtransforming...✓ 270 modules transformed.\nrendering chunks...\ncomputing gzip size...\n\u001b[32m✓ built in 6.81s\u001b[39m\n\u001b[34m[4/5] build client environment...\u001b[39m\n\u001b[2K\rtransforming...✓ 430 modules transformed.\nrendering chunks...\ncomputing gzip size...\n\u001b[32m✓ built in 5.42s\u001b[39m\n\u001b[34m[5/5] build ssr environment...\u001b[39m\n\u001b[2K\rtransforming...✓ 395 modules transformed.\nrendering chunks...\ncomputing gzip size...\n\u001b[32m✓ built in 4.41s\u001b[39m\n\u001b[0m\n  Route (app)\n  ─ ? /\n\n  ? Unknown\n\n  ? Some routes could not be classified. vinext currently uses static analysis\n    and cannot detect dynamic API usage (headers(), cookies(), etc.) at build time.\n    Automatic classification will be improved in a future release.\n\n  Build complete. Run `vinext start` to start the production server.\n\n",
+  "stderr": "\u001b[33m\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - rsc:virtual-client-package (25%)\n  - alias (16%)\n  - vinext:og-inline-fetch-assets (16%)\n  - vinext:css-data-url (14%)\n  - rsc:react-server-dom-webpack-alias (5%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\u001b[39m\n\u001b[33m\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - rsc:load-environment-module (22%)\n  - vinext:css-data-url (16%)\n  - rsc:virtual-client-package (11%)\n  - vinext:middleware-server-only (8%)\n  - vinext:og-inline-fetch-assets (7%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\u001b[39m\n\u001b[33m[plugin builtin:vite-reporter] \n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\u001b[39m\n\u001b[33m\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - vinext:middleware-server-only (26%)\n  - alias (18%)\n  - vinext:css-data-url (10%)\n  - rsc:virtual-client-package (10%)\n  - rsc:scan-strip (9%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\u001b[39m\n\u001b[33m\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - vinext:middleware-server-only (24%)\n  - vinext:css-data-url (19%)\n  - alias (12%)\n  - vinext:validate-middleware-exports (11%)\n  - vinext:og-inline-fetch-assets (8%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\u001b[39m\n",
+  "stdoutSha256": "6f744d509f33a506732ae6ee14f9cff7bdca46b18307d2513bebd5ddb4eab406",
+  "stderrSha256": "4a021662a82db84d83630cfc2d5006a4e3550aad792781f8b49a4a1be31040df",
+  "sourceAfter": {
+    "headOid": "2f75201af64fb304c1b87c94b6324e746ec14a13",
+    "branch": "fix/hut-smoke-ignition-state-exit-20261007",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package.json": "75177ce9ebe6a221ecb1e4e3c35c2697ed92882a6924577d8892f03538f7e51c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "decomp/research/hut-smoke-state-exit/correspondence.json": "604ef9f7159a6c66345d7e390f972262545192ec527dbbf80dea4b2bf6a59faa",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/standard-01/source-before.json.gz": "ca07dbc89488d21e1cdc3d603fb3f1f3072d3b6f5076911844044e5c71964839",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/host-standard-01.py": "0ff968b36ed46ca89e4b113803e5bc399af21502b2794da7c20c59d56c641ce1"
+    }
+  }
+}

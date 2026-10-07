@@ -1,0 +1,19 @@
+{
+  "build-command.json": "d6df6166be7ccdd6244821573560d3edf60f6712d2a54b789efa5e2766f0c21c",
+  "build-stderr.txt": "4a021662a82db84d83630cfc2d5006a4e3550aad792781f8b49a4a1be31040df",
+  "build-stdout.txt": "6f744d509f33a506732ae6ee14f9cff7bdca46b18307d2513bebd5ddb4eab406",
+  "build-wrapper-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "build-wrapper-stdout.txt": "3e445ec1219880d4be0e7d5a53b1fafab38ced175e69967a14f836935f083ad8",
+  "check-command.json": "b09a688e0851423d88bf5822f2122b96efa78804738464432314218f2ec788e1",
+  "check-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "check-stdout.txt": "7cbce13b9f9af517e8fe27a31c68dfd99dfc6a8e35985194074a23c5008c6b0f",
+  "check-wrapper-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "check-wrapper-stdout.txt": "89335abbb96f0dea743c1457da557ee20cd655af48c492561a3b6d4248953374",
+  "dependencies-after.json.gz": "2462c15189d8337a237d8d3c9609b9c726e9609bc23e6d1615b3073937c5c7a9",
+  "dependencies-before.json.gz": "2462c15189d8337a237d8d3c9609b9c726e9609bc23e6d1615b3073937c5c7a9",
+  "receipt.json": "082597c8c7117db233c77e547254bd7a559eedb3301c782ff21b3deed53350eb",
+  "result.md": "27f284fda49d35ad85a84d6fbe36c8750366b48b55ea6fde792e18b9756ad85c",
+  "source-after.json.gz": "ca07dbc89488d21e1cdc3d603fb3f1f3072d3b6f5076911844044e5c71964839",
+  "source-before.json.gz": "ca07dbc89488d21e1cdc3d603fb3f1f3072d3b6f5076911844044e5c71964839",
+  "source-host.py": "0ff968b36ed46ca89e4b113803e5bc399af21502b2794da7c20c59d56c641ce1"
+}

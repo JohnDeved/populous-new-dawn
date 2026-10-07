@@ -1,0 +1,37 @@
+[33m[33m[PLUGIN_TIMINGS] [0mYour build spent significant time in plugins. Here is a breakdown:
+  - rsc:virtual-client-package (25%)
+  - alias (16%)
+  - vinext:og-inline-fetch-assets (16%)
+  - vinext:css-data-url (14%)
+  - rsc:react-server-dom-webpack-alias (5%)
+See https://rolldown.rs/options/checks#plugintimings for more details.
+[39m
+[33m[33m[PLUGIN_TIMINGS] [0mYour build spent significant time in plugins. Here is a breakdown:
+  - rsc:load-environment-module (22%)
+  - vinext:css-data-url (16%)
+  - rsc:virtual-client-package (11%)
+  - vinext:middleware-server-only (8%)
+  - vinext:og-inline-fetch-assets (7%)
+See https://rolldown.rs/options/checks#plugintimings for more details.
+[39m
+[33m[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[33m[33m[PLUGIN_TIMINGS] [0mYour build spent significant time in plugins. Here is a breakdown:
+  - vinext:middleware-server-only (26%)
+  - alias (18%)
+  - vinext:css-data-url (10%)
+  - rsc:virtual-client-package (10%)
+  - rsc:scan-strip (9%)
+See https://rolldown.rs/options/checks#plugintimings for more details.
+[39m
+[33m[33m[PLUGIN_TIMINGS] [0mYour build spent significant time in plugins. Here is a breakdown:
+  - vinext:middleware-server-only (24%)
+  - vinext:css-data-url (19%)
+  - alias (12%)
+  - vinext:validate-middleware-exports (11%)
+  - vinext:og-inline-fetch-assets (8%)
+See https://rolldown.rs/options/checks#plugintimings for more details.
+[39m

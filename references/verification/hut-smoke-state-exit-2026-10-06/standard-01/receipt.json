@@ -1,0 +1,194 @@
+{
+  "status": "terminal",
+  "startedAt": "2026-10-07T00:32:32.763323+00:00",
+  "head": "2f75201af64fb304c1b87c94b6324e746ec14a13",
+  "hostSha256": "0ff968b36ed46ca89e4b113803e5bc399af21502b2794da7c20c59d56c641ce1",
+  "tools": {
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/npm/bin/npm-cli.js": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+    "/usr/bin/timeout": "6ca1891dfc0b05d7680770c2884c0391b92467c7bb6500a5c84677e6481739f1",
+    "/usr/bin/taskset": "0c34de807bc9c617406360836fca2c7505eb86ede4df5a34854bde6eeddad9f3"
+  },
+  "runs": [
+    {
+      "mode": "check",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "scripts/orchestration/command-receipt.mjs",
+        "--output",
+        "work/orchestration/hut-smoke-state-exit/standard-01/check-command.json",
+        "--input",
+        "package.json",
+        "--input",
+        "package-lock.json",
+        "--input",
+        "node_modules/.package-lock.json",
+        "--input",
+        "scripts/orchestration/command-receipt.mjs",
+        "--input",
+        "decomp/research/hut-smoke-state-exit/correspondence.json",
+        "--input",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/standard-01/source-before.json.gz",
+        "--input",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/host-standard-01.py",
+        "--",
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=5s",
+        "900s",
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "check"
+      ],
+      "environment": {
+        "PATH": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/usr/bin:/bin",
+        "LANG": "C.UTF-8",
+        "LC_ALL": "C.UTF-8",
+        "NODE_OPTIONS": "--max-old-space-size=1024",
+        "TMPDIR": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/standard-01/tmp",
+        "XDG_CACHE_HOME": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/standard-01/cache",
+        "XDG_CONFIG_HOME": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/standard-01/config",
+        "npm_config_cache": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/standard-01/npm",
+        "npm_config_update_notifier": "false",
+        "npm_config_fund": "false",
+        "npm_config_audit": "false",
+        "WRANGLER_SEND_METRICS": "false",
+        "CI": "1"
+      },
+      "startedAt": "2026-10-07T00:32:37.330700+00:00",
+      "termDeadline": "2026-10-07T00:47:37.330700+00:00",
+      "killDeadline": "2026-10-07T00:47:42.330700+00:00",
+      "status": "passed",
+      "session": 36,
+      "initialIdentity": {
+        "state": "R",
+        "parent": 2,
+        "group": 36,
+        "session": 36,
+        "start": 7712038
+      },
+      "endedAt": "2026-10-07T00:37:40.864301+00:00",
+      "exitCode": 0,
+      "remainingOwnedProcesses": [],
+      "ownershipVerified": true,
+      "processReadErrors": [],
+      "resourcesReleased": true,
+      "sourceReceiptUnchanged": true
+    },
+    {
+      "mode": "build",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "scripts/orchestration/command-receipt.mjs",
+        "--output",
+        "work/orchestration/hut-smoke-state-exit/standard-01/build-command.json",
+        "--input",
+        "package.json",
+        "--input",
+        "package-lock.json",
+        "--input",
+        "node_modules/.package-lock.json",
+        "--input",
+        "scripts/orchestration/command-receipt.mjs",
+        "--input",
+        "decomp/research/hut-smoke-state-exit/correspondence.json",
+        "--input",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/standard-01/source-before.json.gz",
+        "--input",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/host-standard-01.py",
+        "--",
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=5s",
+        "300s",
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "build"
+      ],
+      "environment": {
+        "PATH": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/usr/bin:/bin",
+        "LANG": "C.UTF-8",
+        "LC_ALL": "C.UTF-8",
+        "NODE_OPTIONS": "--max-old-space-size=1024",
+        "TMPDIR": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/standard-01/tmp",
+        "XDG_CACHE_HOME": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/standard-01/cache",
+        "XDG_CONFIG_HOME": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/standard-01/config",
+        "npm_config_cache": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/standard-01/npm",
+        "npm_config_update_notifier": "false",
+        "npm_config_fund": "false",
+        "npm_config_audit": "false",
+        "WRANGLER_SEND_METRICS": "false",
+        "CI": "1"
+      },
+      "startedAt": "2026-10-07T00:37:41.988569+00:00",
+      "termDeadline": "2026-10-07T00:42:41.988569+00:00",
+      "killDeadline": "2026-10-07T00:42:46.988569+00:00",
+      "status": "passed",
+      "session": 4005,
+      "initialIdentity": {
+        "state": "R",
+        "parent": 2,
+        "group": 4005,
+        "session": 4005,
+        "start": 7742504
+      },
+      "endedAt": "2026-10-07T00:38:08.104989+00:00",
+      "exitCode": 0,
+      "remainingOwnedProcesses": [],
+      "ownershipVerified": true,
+      "processReadErrors": [],
+      "resourcesReleased": true,
+      "sourceReceiptUnchanged": true
+    }
+  ],
+  "moves": [
+    {
+      "at": "2026-10-07T00:32:37.053143+00:00",
+      "from": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-automatic-response-qa-20261006/node_modules",
+      "to": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/node_modules",
+      "identity": [
+        27,
+        1978923
+      ],
+      "temporaryStub": [
+        27,
+        1048780
+      ]
+    }
+  ],
+  "cacheMoves": [
+    {
+      "at": "2026-10-07T00:32:37.053465+00:00",
+      "from": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/node_modules/.vite",
+      "to": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/standard-01/donor-cache-vite"
+    },
+    {
+      "at": "2026-10-07T00:32:37.053509+00:00",
+      "from": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/node_modules/.vite-temp",
+      "to": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/standard-01/donor-cache-vite-temp"
+    }
+  ],
+  "returned": true,
+  "sourceBeforeSha256": "ca07dbc89488d21e1cdc3d603fb3f1f3072d3b6f5076911844044e5c71964839",
+  "dependenciesBeforeSha256": "2462c15189d8337a237d8d3c9609b9c726e9609bc23e6d1615b3073937c5c7a9",
+  "dependenciesAfterSha256": "2462c15189d8337a237d8d3c9609b9c726e9609bc23e6d1615b3073937c5c7a9",
+  "dependenciesUnchanged": true,
+  "returnedAt": "2026-10-07T00:38:11.135525+00:00",
+  "returnedIdentity": [
+    27,
+    1978923
+  ],
+  "sourceAfterSha256": "ca07dbc89488d21e1cdc3d603fb3f1f3072d3b6f5076911844044e5c71964839",
+  "sourceUnchanged": true,
+  "toolsAfter": {
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/npm/bin/npm-cli.js": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+    "/usr/bin/timeout": "6ca1891dfc0b05d7680770c2884c0391b92467c7bb6500a5c84677e6481739f1",
+    "/usr/bin/taskset": "0c34de807bc9c617406360836fca2c7505eb86ede4df5a34854bde6eeddad9f3"
+  },
+  "toolsUnchanged": true,
+  "endedAt": "2026-10-07T00:38:11.554440+00:00",
+  "resourcesReleased": true
+}
