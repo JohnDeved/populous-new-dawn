@@ -1599,11 +1599,12 @@ export function stepComputerTasks(w: World, tribe: number) {
         ),
         shamanPosition = shaman && nativePosition(w, shaman),
         staging =
-          w.ai.flags & 0x100
+          w.ai.constructionBase ??
+          (w.ai.flags & 0x100
             ? w.ai.defencePosition
             : shamanPosition
               ? ((shamanPosition.x >>> 8) & 254) | (shamanPosition.y & 0xfe00)
-              : 0,
+              : 0),
         actions = stepAttackTask(w.ai, index, {
           staging,
           ready: () => computerAttackUnits(w, index).every(computerAttackReady),
