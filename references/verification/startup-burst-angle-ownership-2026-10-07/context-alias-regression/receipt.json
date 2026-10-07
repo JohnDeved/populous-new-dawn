@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "2a6f544e-1f80-4618-9925-4e84734c43fc",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "8592c0049b720f568630db42d1b9b602a000b0b4",
+    "branch": "fix/startup-burst-pitch-yaw-20261007",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package.json": "ed034f89cc44d7f3abb55abdc64004290b67c3f995f0dced4d53d04bf728ce9f",
+      "engineering/checks.json": "5fd703e14e111ade9e4b779afa8f00eebca03be5a3073f4bc29dd5342a75d846",
+      "engineering/project-map.json": "88b202f36d367041b8524f43bae7162e19717a27d2505d8a354eaec25dbb4991",
+      "engineering/generated-files.json": "5ca9351a2c77ce6312deb6c770679b591c85891ae56e230042eee04489971f41",
+      "tests/orchestration.test.mjs": "8ffbe394cc8a4972421383c8efcbe261d766e27e527230e0329f2f52d85f962a",
+      "scripts/orchestration/cli.mjs": "f4711ab1af9da2a3eb1303970b551cd6beb112fbccce4c0b7dcae9f99b4ae739",
+      "scripts/orchestration/verify.mjs": "d3c63bb64d47cde9da7904d07c4ae3f995cace4e9efb02f3ed6480644c44843b",
+      "scripts/orchestration/prepare.mjs": "c83d9b635577d90d5bdf90b9e21096f6815cb63fd24a8c202adbc3a835ee8fd7",
+      "parity.json": "02f787d817df8871105dc3b6581e127ddbc06023f77c1f0375b81ff802711130",
+      "decomp/research/reincarnation-site-wave.md": "e51e3c60907b9c34d54fdb890733e3979127223de8d5ce4cf2b323d60fc77173",
+      "decomp/README.md": "5847dedaa323a1265add2c75e1b54ec7239e8e604d3aef542965d4edf0e0a3e5",
+      "decomp/research/level-start-sequence.md": "aa45e0d76ff8739bc8306738df031d5351131167485e5e018f39a7208cbfe5ec",
+      "decomp/research/shaman-death-vfx.md": "59b846ca12132b04989715d770d792b77bd7a58af29e2bb7a13f4556e488966d"
+    }
+  },
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=5s",
+    "30s",
+    "node",
+    "--test",
+    "--test-name-pattern=Shaman appearance context keeps its complete checks and evidence within the default budget",
+    "tests/orchestration.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007",
+  "startedAt": "2026-10-07T02:06:36.335Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/work/orchestration/startup-burst-context-alias-01/receipt.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/work/orchestration/startup-burst-context-alias-01/receipt.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-07T02:06:38.410Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ Shaman appearance context keeps its complete checks and evidence within the default budget (1699.640165ms)\nℹ tests 1\nℹ suites 0\nℹ pass 1\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1910.370722\n",
+  "stderr": "",
+  "stdoutSha256": "7cba6763c5fbd57c3102ad8ae07b661bab8879e269485e70d29385cc21ff308e",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "8592c0049b720f568630db42d1b9b602a000b0b4",
+    "branch": "fix/startup-burst-pitch-yaw-20261007",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package.json": "ed034f89cc44d7f3abb55abdc64004290b67c3f995f0dced4d53d04bf728ce9f",
+      "engineering/checks.json": "5fd703e14e111ade9e4b779afa8f00eebca03be5a3073f4bc29dd5342a75d846",
+      "engineering/project-map.json": "88b202f36d367041b8524f43bae7162e19717a27d2505d8a354eaec25dbb4991",
+      "engineering/generated-files.json": "5ca9351a2c77ce6312deb6c770679b591c85891ae56e230042eee04489971f41",
+      "tests/orchestration.test.mjs": "8ffbe394cc8a4972421383c8efcbe261d766e27e527230e0329f2f52d85f962a",
+      "scripts/orchestration/cli.mjs": "f4711ab1af9da2a3eb1303970b551cd6beb112fbccce4c0b7dcae9f99b4ae739",
+      "scripts/orchestration/verify.mjs": "d3c63bb64d47cde9da7904d07c4ae3f995cace4e9efb02f3ed6480644c44843b",
+      "scripts/orchestration/prepare.mjs": "c83d9b635577d90d5bdf90b9e21096f6815cb63fd24a8c202adbc3a835ee8fd7",
+      "parity.json": "02f787d817df8871105dc3b6581e127ddbc06023f77c1f0375b81ff802711130",
+      "decomp/research/reincarnation-site-wave.md": "e51e3c60907b9c34d54fdb890733e3979127223de8d5ce4cf2b323d60fc77173",
+      "decomp/README.md": "5847dedaa323a1265add2c75e1b54ec7239e8e604d3aef542965d4edf0e0a3e5",
+      "decomp/research/level-start-sequence.md": "aa45e0d76ff8739bc8306738df031d5351131167485e5e018f39a7208cbfe5ec",
+      "decomp/research/shaman-death-vfx.md": "59b846ca12132b04989715d770d792b77bd7a58af29e2bb7a13f4556e488966d"
+    }
+  }
+}

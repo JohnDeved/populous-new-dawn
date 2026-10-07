@@ -1,0 +1,15 @@
+{
+  "verdict": "ACCEPT_SOURCE_ONLY_METADATA_CORRESPONDENCE",
+  "base": "2b7b19856b58913dbdff2b89beeea13782308f75",
+  "head": "8592c0049b720f568630db42d1b9b602a000b0b4",
+  "hashes": {
+    "package.json": "ed034f89cc44d7f3abb55abdc64004290b67c3f995f0dced4d53d04bf728ce9f",
+    "engineering/checks.json": "5fd703e14e111ade9e4b779afa8f00eebca03be5a3073f4bc29dd5342a75d846"
+  },
+  "finding": "Independent parsed-JSON comparison confirms only scripts.test:level-start and check115 executable/args plus package.json input are changed. The alias runs node --test on the exact same level-start, startup-burst-angles and startup-burst-observer files in unchanged order. No application,test assertion,budget,other check,evidence reference or lockfile changes.",
+  "validation": "Source/data reads only; no tests or application were executed by the reviewer. The owner-reported23964-byte context is not substituted for an actual focused assertion pass.",
+  "limits": [
+    "Gate02 remains a retained failure:1387 tests passed,one unchanged orchestration context/evidence-budget assertion failed.",
+    "The focused unchanged orchestration assertion and subsequent granted standard gates need terminal source-bound passing receipts."
+  ]
+}

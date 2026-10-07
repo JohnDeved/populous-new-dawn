@@ -87,7 +87,14 @@
       "sentinelSha256": "341ad292de33c682d01d417786c4258b4a04f52d2d848ffc4cdf4cd985da3e55",
       "matchesSentinel": true,
       "matchesBeforeInventory": true,
-      "matchesAfterInventory": true
+      "matchesAfterInventory": true,
+      "matchesPublishedPackageDigest": true,
+      "signature": {
+        "sha256": "8b615bd636cc7625b2179e440db5c3e70ade854277df331619729ce27e52e198",
+        "size": 64,
+        "matchesBeforeInventory": true,
+        "matchesAfterInventory": true
+      }
     },
     "@fallow-cli/linux-x64-gnu/fallow-similar-code": {
       "sha256": "03e6bf5bc5dc47b230988905544b14d533178d6e57b588d99b7210f9e1227cd7",
@@ -97,9 +104,17 @@
       "sentinelSha256": "03e6bf5bc5dc47b230988905544b14d533178d6e57b588d99b7210f9e1227cd7",
       "matchesSentinel": true,
       "matchesBeforeInventory": true,
-      "matchesAfterInventory": true
+      "matchesAfterInventory": true,
+      "matchesPublishedPackageDigest": true,
+      "signature": {
+        "sha256": "7156cb0863d24a0cdb041c2d63cd7cd4ee1ed238f0e8657d8735f8e6ee9425c7",
+        "size": 64,
+        "matchesBeforeInventory": true,
+        "matchesAfterInventory": true
+      }
     }
   },
   "mutation": false,
-  "scope": "Read-only byte copies and SHA-256 comparisons; no Fallow/native execution, verification bypass or donor mutation."
+  "scope": "Read-only byte copies and SHA-256 comparisons; no Fallow/native execution, verification bypass or donor mutation.",
+  "signatureVerificationExecutedByDiagnosis": false
 }
