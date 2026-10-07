@@ -61,7 +61,7 @@ const controllerMock = mock.module(new URL('../app/computer.ts', import.meta.url
       assert.equal(++controllerCalls, 1)
       assert.equal(ai, active.world.ai)
       assert.equal(index, 0)
-      assert.equal(input.staging, fixture.defencePosition)
+      assert.equal(input.staging, active.expectedStaging)
       return actualComputer.stepAttackTask(ai, index, {
         ...input,
         select(...args) {
@@ -132,7 +132,8 @@ function runCase(index) {
     tribe: 2, x: u.native.x, y: u.native.y, flags2: u.native.flags2, flags3: u.native.flags3,
     flags4: u.native.flags4, assignment: u.native.assignment, busy: 0, vehicle: 0,
     driver: 0, inside: 0, immediateCommand: 0, commands: [...u.native.commands], commandCursor: 0 }))
-  active = { world, expectedPeople, liveShamanCell: c.liveShamanCell ?? fixture.shamanCell }; selectorCalls = 0; controllerCalls = 0
+  active = { world, expectedPeople, liveShamanCell: c.liveShamanCell ?? fixture.shamanCell,
+    expectedStaging: c.hasConstructionBase ? c.constructionBaseCell : fixture.defencePosition }; selectorCalls = 0; controllerCalls = 0
   assert.throws(() => stepComputerTasks(world, 2), error => error === stop)
   assert.equal(selectorCalls, 1); assert.equal(controllerCalls, 1)
   const expected = structuredClone(before)
