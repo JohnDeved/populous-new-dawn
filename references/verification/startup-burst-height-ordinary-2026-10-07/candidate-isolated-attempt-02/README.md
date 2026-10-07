@@ -19,7 +19,7 @@ samples and no negative differences. No constant pixel shift or unseen birth is
 inferred. Native and fixed-step birth proofs remain separate.
 
 Raw receipts/logs/images, source bindings, copy hashes and preflight verdict are
-preserved here. Actual result/pair review is pending. Full private dependency
+preserved here. Independent [actual candidate/pair ACCEPT](../ordinary-pair-review.json) is retained. Full private dependency
 inventories/generated caches remain in the original new host directory. Software
 rendering is not hardware performance or original raster equality; final integrated
 source/gates remain pending.

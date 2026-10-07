@@ -1,0 +1,80 @@
+{
+  "verdict": "ACCEPT actual isolated ordinary candidate and bounded observed height pair",
+  "baselineHead": "b6c4d255cbf55a57568072666b1dc74726d75ab3",
+  "candidateHead": "8f50dda281ec6338bdb84e21473879f29a0282f9",
+  "candidateManifestSha256": "de942fc543c0b580e5194ea34ee38fcdd7d615dc29bd82dfc5f7bf8897a44ec6",
+  "pairComparisonSha256": "aeac608bdd69c0225398aa19cd25f6ec0079286c5e8751342437648e09902c5c",
+  "candidateHostReceiptSha256": "da89292b19a89d1f4b0cddef069a48470f0ea0d8352146429c8bbc58c0f2cb50",
+  "candidateScenarioSha256": "1e493b51c02cd28dc9338b376fee188fce2a45ea07d679a9e406bc8c112b4b9c",
+  "method": "Read-only actual raw/source/hash/inventory comparison, independent full matched-sample computation and direct inspection of baseline/candidate PNGs; no new execution",
+  "candidateVerification": {
+    "rawCopiesByteIdentical": 12,
+    "derivedHashesVerified": 2,
+    "dependencyInventoryEntriesEqual": 21253,
+    "copyIdentity": [
+      27,
+      1209759
+    ],
+    "hostBrowserScenarioPass": true,
+    "browserAndObserverErrors": [],
+    "sourceToolsPacketCopyReceiptUnchanged": true,
+    "remainingOwnedProcesses": [],
+    "startedAt": "2026-10-07T04:15:00.592416+00:00",
+    "endedAt": "2026-10-07T04:16:05.105475+00:00",
+    "oldLoanMoved": false
+  },
+  "independentPair": {
+    "baselineRecords": 65,
+    "candidateRecords": 66,
+    "commonPresentedTurns": 41,
+    "matchedParticleSamples": 440,
+    "uniqueParticles": 256,
+    "nonheightMismatches": 0,
+    "unmatchedParticleSetsAtCommonTurns": 0,
+    "positiveNativeHeightDeltas": 419,
+    "zeroDeltas": 21,
+    "negativeDeltas": 0,
+    "heightDeltaRange": [
+      0,
+      90
+    ],
+    "worldFields": [
+      "speed",
+      "paused",
+      "gameplay",
+      "cosmetic",
+      "sites"
+    ],
+    "particleFields": [
+      "ID",
+      "age",
+      "team",
+      "x",
+      "y",
+      "ground",
+      "pitch",
+      "yaw",
+      "state",
+      "remaining"
+    ],
+    "effectHeightTimes45EqualsNativeH": "all matched samples within1e-9 arithmetic tolerance"
+  },
+  "images": {
+    "viewed": "All3 actual candidate PNGs and all3 baseline PNGs",
+    "before": "Both turn0 loading-covered; identical canvas bytes do not establish a presented before scene.",
+    "burst": "Both presented turn39/32particles/age2/12. Actual images show changed burst placement consistent with the measured height difference; no fixed screen-pixel displacement is asserted.",
+    "after": "Both presented turn70, completed stones/no burst. PNGs are not byte-identical; no general raster identity claim.",
+    "hashes": {
+      "mission-1-startup-before.png": "df52bc1d5a94be971454f017d9238ec5c61643912503d348ac2841700c6cf5ba",
+      "mission-1-startup-burst.png": "575a36996a87bc543b59f76f065c4e311dc4505c951c7a1cdc23972f2c8a4d63",
+      "mission-1-startup-after.png": "de66c67f74120f02a366ff3968ff9d59bae9a2343ddbf77c8ed4c40e402d0693"
+    }
+  },
+  "limits": [
+    "Compare only actual common turn/ID/age observations; render schedules differ and no missing frame is synthesized.",
+    "Post-motion height deltas0\u201390 differ from the separate proven birth offset90.",
+    "Original raster/hardware performance/post-wave original terrain and unseen birth frame remain outside this result.",
+    "Interrupted original candidate01 remains UNKNOWN and is excluded; the new copy\u2019s successful cleanup does not resolve that older scope.",
+    "Final clean/integrated source quality/check/build gates remain required."
+  ]
+}
