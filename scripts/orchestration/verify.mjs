@@ -15,7 +15,7 @@ import {
   validateRepository,
 } from './cli.mjs'
 
-import { captureMeasurement, finishMeasurement, refreshMeasurement } from '../parity-measure.mjs'
+import { browserSourceFingerprint, captureMeasurement, finishMeasurement, refreshMeasurement } from '../parity-measure.mjs'
 
 const RECORDING_ARGUMENT = /(^|[/:-])record(?:ing)?($|[=:/-])/i
 const TIMEOUT_MS = 300_000
@@ -114,6 +114,7 @@ export async function startGameServer(repo, env, logPath) {
     occupied = true
   } catch {}
   if (occupied) throw new Error(`refusing to reuse an unidentified server at ${url}`)
+  const ownedSourceFingerprint = existsSync(join(repo, 'engineering/parity-capabilities.json')) ? browserSourceFingerprint(repo) : null
   const child = spawn('npm', ['run', 'dev', '--', '--port', String(port)], { cwd: repo, env, shell: false }),
     output = []
   child.stdout.on('data', chunk => output.push(chunk))
@@ -122,6 +123,7 @@ export async function startGameServer(repo, env, logPath) {
     await waitForServer(url, 30_000, child)
     return {
       url,
+      sourceFingerprint: ownedSourceFingerprint,
       stop: async () => {
         await stopServer(child)
         writeFileSync(logPath, Buffer.concat(output))
@@ -257,7 +259,8 @@ export async function verifyContract(
       const concreteCommand = commandFor(check, runEnv)
       record(blocked(check, fingerprint, concreteCommand,
         'Execution started; no completed result is available if this run is interrupted'))
-      const measurementBefore = captureMeasurement(repo, concreteCommand)
+      const measurementContext = { cwd: safeRepoPath(repo, check.cwd), ownedServerFingerprint: gameServer?.sourceFingerprint ?? null }
+      const measurementBefore = captureMeasurement(repo, concreteCommand, measurementContext)
       const started = performance.now(),
         outcome = await execute(concreteCommand, {
           cwd: safeRepoPath(repo, check.cwd),
@@ -297,7 +300,7 @@ export async function verifyContract(
         reason,
         durationMs,
         log: relative(repo, log),
-        parityMeasurements: finishMeasurement(measurementBefore, captureMeasurement(repo, concreteCommand), { status: reason ? 'failed' : 'passed', exitCode: outcome.exitCode, finishedAt: new Date().toISOString() }),
+        parityMeasurements: finishMeasurement(measurementBefore, captureMeasurement(repo, concreteCommand, measurementContext), { status: reason ? 'failed' : 'passed', exitCode: outcome.exitCode, finishedAt: new Date().toISOString() }),
         coveredCheckIds: reason ? [] : coverage.filter(item => item.coveredBy === check.id)
           .map(item => item.checkId),
       })

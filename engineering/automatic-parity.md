@@ -55,14 +55,17 @@ recover a failure; original failed receipts are retained.
 
 Browser engine/renderer/device provenance is not fully captured by this v1 metadata.
 Treat browser results as the declared diagnostic run, not cross-hardware visual or
-performance proof. Remote `POPULOUS_URL` servers must represent the same tested
-source; v1 cannot independently authenticate a remote server's build. Native checks
+performance proof. Browser source credit requires the verifier to launch and own the
+server with a matching immutable startup fingerprint. Externally supplied
+`POPULOUS_URL` and raw command-wrapper browser outcomes remain diagnostic-only and
+unknown for source credit; local file hashes cannot authenticate those servers. Native checks
 with environment-substituted commands are not automatically bound by this v1 exact
 command adapter. They stay unknown rather than manufacturing an original result.
 
 Discovery scans repository-local JSON under ignored `work/orchestration`, skipping
 symlinks, raw-log directories and generated reports. Oversized/invalid JSON makes
-measurement incomplete rather than hiding a possibly newer failed receipt. Old
+measurement incomplete rather than hiding a possibly newer failed receipt. Refresh
+errors replace the current report with an unavailable notice while preserving history. Old
 arbitrary logs and summaries are not accepted as results. Receipts are trusted local
 engineering evidence, not cryptographically signed attestations.
 

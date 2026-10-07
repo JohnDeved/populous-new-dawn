@@ -4,11 +4,11 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'nod
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { execFileSync } from 'node:child_process'
-import { buildReport, captureMeasurement, evaluateCheck, finishMeasurement, renderHTML, writeReport } from '../scripts/parity-measure.mjs'
+import { buildReport, browserSourceFingerprint, captureMeasurement, evaluateCheck, finishMeasurement, refreshMeasurement, renderHTML, writeReport } from '../scripts/parity-measure.mjs'
 import { runCommandReceipt } from '../scripts/orchestration/command-receipt.mjs'
 
 const check = { id: 'opening-browser', kind: 'browser', executable: 'node', args: ['check.mjs'], inputs: ['check.mjs', 'app/game.ts'], expected: { exitCode: 0, artifacts: [] } }
-const current = { version: 1, checkId: check.id, definitionHash: 'definition', inputPaths: ['app/game.ts'], inputFingerprint: 'source', runtime: { node: 'test' } }
+const current = { browserInputFingerprint: 'browser-source', ownedServerFingerprint: 'browser-source', version: 1, checkId: check.id, definitionHash: 'definition', inputPaths: ['app/game.ts'], inputFingerprint: 'source', runtime: { node: 'test' } }
 const evidence = (status = 'passed', overrides = {}) => ({ ...current, status, exitCode: status === 'passed' ? 0 : 1, finishedAt: '2026-10-07T00:00:00.000Z', ...overrides })
 const receipt = (value, path = 'receipt.json') => ({ path, measurements: [value] })
 const model = {
@@ -97,7 +97,8 @@ test('real command receipt automatically gains binding, report and history; scop
   const result = runCommandReceipt(repo, { output: 'work/orchestration/run/pass.json', command: ['node', 'check.mjs'] })
   assert.equal(result.parityMeasurements[0].status, 'passed')
   const report = writeReport(repo)
-  assert.equal(report.checks[0].status, 'verified')
+  assert.equal(report.checks[0].status, 'unknown')
+  assert.equal(report.checks[0].diagnosticStatus, 'passed')
   assert.equal(report.missionCases.capabilities[0].status, 'unknown')
   const history = () => JSON.parse(readFileSync(join(repo, 'work/orchestration/parity-measure/history.json')))
   assert.equal(history().length, 1)
@@ -117,4 +118,34 @@ test('receipt records source drift as invalidated and cannot credit changed beha
   assert.equal(result.status, 'invalidated')
   assert.equal(result.parityMeasurements[0].status, 'invalidated')
   assert.equal(writeReport(repo).checks[0].status, 'stale')
+})
+
+
+test('browser outcome needs independently owned source provenance, not just local hashes', t => {
+  const { repo } = repository(t), command = ['node', 'check.mjs']
+  const unbound = captureMeasurement(repo, command)[0]
+  const outcome = { ...unbound, status: 'passed', exitCode: 0, finishedAt: '2026-10-07T01:00:00Z' }
+  assert.equal(evaluateCheck(check, [receipt(outcome)], unbound).status, 'unknown')
+  const bound = captureMeasurement(repo, command, { ownedServerFingerprint: browserSourceFingerprint(repo) })[0]
+  assert.equal(evaluateCheck(check, [receipt({ ...outcome, ...bound })], unbound).status, 'verified')
+  assert.equal(evaluateCheck(check, [receipt({ ...outcome, ownedServerFingerprint: 'different-server' })], unbound).status, 'unknown')
+  assert.equal(evaluateCheck(check, [receipt({ ...outcome, status: 'failed', exitCode: 1 })], unbound).status, 'unknown')
+  assert.deepEqual(captureMeasurement(repo, command, { cwd: join(repo, 'app') }), [])
+})
+
+
+test('refresh failure invalidates an existing current pass without rewriting history', t => {
+  const { repo, put } = repository(t)
+  writeReport(repo)
+  const historyPath = join(repo, 'work/orchestration/parity-measure/history.json')
+  const history = readFileSync(historyPath, 'utf8')
+  put('work/orchestration/parity-measure/report.json', { status: 'verified', percent: 100 })
+  put('work/orchestration/parity-measure/index.html', '<h1>100% verified</h1>')
+  put('engineering/parity-capabilities.json', { version: 999, capabilities: [] })
+  refreshMeasurement(repo)
+  const report = JSON.parse(readFileSync(join(repo, 'work/orchestration/parity-measure/report.json')))
+  assert.equal(report.status, 'unavailable')
+  assert.ok(!('percent' in report))
+  assert.ok(!readFileSync(join(repo, 'work/orchestration/parity-measure/index.html'), 'utf8').includes('100%'))
+  assert.equal(readFileSync(historyPath, 'utf8'), history)
 })

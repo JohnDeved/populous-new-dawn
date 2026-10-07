@@ -15,6 +15,8 @@ const digest = value => createHash('sha256').update(JSON.stringify(value)).diges
 const read = (repo, path) => JSON.parse(readFileSync(safeRepoPath(repo, path), 'utf8'))
 const runtime = () => ({ node: process.version, platform: process.platform, arch: process.arch })
 const states = ['verified', 'failed', 'blocked', 'stale', 'unknown']
+const browserInputs = ['app', 'scripts', 'public/original', 'package.json', 'package-lock.json', DEFINITIONS]
+export const browserSourceFingerprint = repo => fingerprintPaths(repo, browserInputs)
 
 export function loadMeasurement(repo) {
   const definitions = read(repo, DEFINITIONS)
@@ -50,16 +52,17 @@ export function loadMeasurement(repo) {
 
 // Capture only exact, registered checks. Aggregate commands never imply a pass for
 // their constituents. Broad app/asset inputs deliberately invalidate conservatively.
-export function captureMeasurement(repo, command, { cwd = repo } = {}) {
+export function captureMeasurement(repo, command, { cwd = repo, ownedServerFingerprint = null } = {}) {
   if (!existsSync(resolve(repo, DEFINITIONS))) return []
   const { definitions, checks } = loadMeasurement(repo)
   const bound = new Set(definitions.capabilities.flatMap(c => [...c.browserCheckIds, ...c.originalCheckIds]))
   return checks.filter(check => bound.has(check.id) && resolve(repo, check.cwd ?? '.') === resolve(cwd) &&
     JSON.stringify([check.executable, ...check.args]) === JSON.stringify(command)).map(check => {
-    const inputs = [...new Set([...check.inputs, 'app', 'scripts', 'public/original', 'package.json', 'package-lock.json', DEFINITIONS])].sort()
+    const inputs = [...new Set([...check.inputs, ...browserInputs])].sort()
     return {
       version: 1, checkId: check.id, definitionHash: digest(check),
       inputPaths: inputs, inputFingerprint: fingerprintPaths(repo, inputs), runtime: runtime(),
+      ...(check.kind === 'browser' ? { browserInputFingerprint: browserSourceFingerprint(repo), ownedServerFingerprint } : {}),
     }
   })
 }
@@ -95,6 +98,9 @@ export function evaluateCheck(check, receipts, current) {
     JSON.stringify(latest.inputPaths) !== JSON.stringify(current.inputPaths) ||
     JSON.stringify(latest.runtime) !== JSON.stringify(current.runtime) || latest.status === 'invalidated') {
     status = 'stale'; reason = 'Definition, source, fixture, dependency or runtime identity changed'
+  } else if (check.kind === 'browser' && ['passed', 'failed'].includes(latest.status) &&
+    (!latest.ownedServerFingerprint || latest.ownedServerFingerprint !== latest.browserInputFingerprint)) {
+    status = 'unknown'; reason = 'Diagnostic outcome only: no matching owned-server source provenance'
   } else if (latest.status === 'passed' && latest.exitCode === check.expected.exitCode) {
     status = 'verified'; reason = 'Current source-bound check passed; declared check limits apply'
   } else if (latest.status === 'failed' || latest.status === 'passed') {
@@ -102,8 +108,10 @@ export function evaluateCheck(check, receipts, current) {
   } else {
     status = latest.status === 'blocked' ? 'blocked' : 'unknown'; reason = 'No completed successful check'
   }
-  return { id: check.id, status, reason, receipt: latest.receipt, finishedAt: latest.finishedAt,
-    regression: status === 'failed' && candidates.slice(1).some(e => e.status === 'passed') }
+  return { id: check.id, status, diagnosticStatus: latest.status, reason, receipt: latest.receipt, finishedAt: latest.finishedAt,
+    regression: status === 'failed' && candidates.slice(1).some(e => e.status === 'passed' &&
+      e.exitCode === check.expected.exitCode && e.version === 1 && e.definitionHash === current.definitionHash &&
+      (check.kind !== 'browser' || e.ownedServerFingerprint && e.ownedServerFingerprint === e.browserInputFingerprint)) }
 }
 
 export function buildReport(model, receipts, currentEvidence, source) {
@@ -186,7 +194,7 @@ export function discoverReceipts(repo) {
 const escape = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c])
 export function renderHTML(report) {
   const rows = report.missionCases.capabilities.map(c => `<tr><td>${escape(c.title)}</td><td>${escape(c.browserStatus)}</td><td>${escape(c.originalStatus)}</td><td>${escape(c.status)}</td><td>${escape(c.limits)}</td></tr>`).join('')
-  return `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Automatic parity evidence</title><style>body{font:16px system-ui;max-width:1100px;margin:40px auto;padding:0 20px;color:#e8edf2;background:#15202b}h1,h2{color:#9cdbff}table{border-collapse:collapse;width:100%}th,td{text-align:left;border-bottom:1px solid #486070;padding:12px;vertical-align:top}code{overflow-wrap:anywhere}summary{cursor:pointer}li{margin:8px 0}</style><h1>Automatic parity evidence</h1><p>Build <code>${escape(report.source.head)}</code> · scope <code>${escape(report.scopeHash.slice(0,12))}</code> · discovery open</p><h2>${report.knownScope.counts.verified}/${report.knownScope.total} known requirements automatically verified</h2><p>Unmeasured requirements remain in the denominator. This is evidence coverage, not game implementation percentage.</p><h2>Browser integration: ${report.browserIntegration.verified}/${report.browserIntegration.total} declared mission cases</h2><p>These are diagnostic browser checks with the setup limitations below, not original-game parity.</p><h2>Missions 1–3: ${report.missionCases.counts.verified}/${report.missionCases.total} paired evidence gates</h2><table><thead><tr><th>Capability</th><th>Browser</th><th>Original</th><th>Paired status</th><th>Boundary</th></tr></thead><tbody>${rows}</tbody></table><h2>Checks</h2><ul>${report.checks.map(c => `<li><b>${escape(c.id)}: ${escape(c.status)}</b> ${escape(c.reason)}${c.receipt ? `<br>Receipt: <code>${escape(c.receipt)}</code>` : ''}<br>${escape((c.limits ?? []).join(' '))}</li>`).join('')}</ul><h2>Historical ledger</h2><p>${report.historical ? `${report.historical.percent.toFixed(2)}%, ${escape(report.historical.date)}. ${escape(report.historical.label)}.` : 'No historical assessment.'}</p><h2>Limits</h2><ul>${[...report.limits, ...(report.warnings ?? [])].map(l => `<li>${escape(l)}</li>`).join('')}</ul><details><summary>All known requirements</summary><ul>${report.knownScope.requirements.map(r => `<li>${escape(r.id)}: ${escape(r.status)} — ${escape(r.title)}</li>`).join('')}</ul></details></html>\n`
+  return `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Automatic parity evidence</title><style>body{font:16px system-ui;max-width:1100px;margin:40px auto;padding:0 20px;color:#e8edf2;background:#15202b}h1,h2{color:#9cdbff}table{border-collapse:collapse;width:100%}th,td{text-align:left;border-bottom:1px solid #486070;padding:12px;vertical-align:top}code{overflow-wrap:anywhere}summary{cursor:pointer}li{margin:8px 0}</style><h1>Automatic parity evidence</h1><p>Build <code>${escape(report.source.head)}</code> · scope <code>${escape(report.scopeHash.slice(0,12))}</code> · discovery open</p><h2>${report.knownScope.counts.verified}/${report.knownScope.total} known requirements automatically verified</h2><p>Unmeasured requirements remain in the denominator. This is evidence coverage, not game implementation percentage.</p><h2>Browser integration: ${report.browserIntegration.verified}/${report.browserIntegration.total} declared mission cases</h2><p>These are diagnostic browser checks with the setup limitations below, not original-game parity.</p><h2>Missions 1–3: ${report.missionCases.counts.verified}/${report.missionCases.total} paired evidence gates</h2><table><thead><tr><th>Capability</th><th>Browser</th><th>Original</th><th>Paired status</th><th>Boundary</th></tr></thead><tbody>${rows}</tbody></table><h2>Checks</h2><ul>${report.checks.map(c => `<li><b>${escape(c.id)}: ${escape(c.status)}</b> ${escape(c.reason)}${c.diagnosticStatus ? ` (recorded outcome: ${escape(c.diagnosticStatus)})` : ''}${c.receipt ? `<br>Receipt: <code>${escape(c.receipt)}</code>` : ''}<br>${escape((c.limits ?? []).join(' '))}</li>`).join('')}</ul><h2>Historical ledger</h2><p>${report.historical ? `${report.historical.percent.toFixed(2)}%, ${escape(report.historical.date)}. ${escape(report.historical.label)}.` : 'No historical assessment.'}</p><h2>Limits</h2><ul>${[...report.limits, ...(report.warnings ?? [])].map(l => `<li>${escape(l)}</li>`).join('')}</ul><details><summary>All known requirements</summary><ul>${report.knownScope.requirements.map(r => `<li>${escape(r.id)}: ${escape(r.status)} — ${escape(r.title)}</li>`).join('')}</ul></details></html>\n`
 }
 
 export function writeReport(repo) {
@@ -215,9 +223,20 @@ export function writeReport(repo) {
   return report
 }
 
+export function invalidateReport(repo) {
+  const output = safeRepoPath(repo, OUTPUT, { mustExist: false })
+  mkdirSync(output, { recursive: true })
+  const unavailable = { version: 1, status: 'unavailable', reason: 'Measurement refresh failed; previous scores are unavailable. Run parity:measure for the error.' }
+  writeFileSync(resolve(output, 'report.json'), JSON.stringify(unavailable, null, 2) + '\n')
+  writeFileSync(resolve(output, 'index.html'), '<!doctype html><html lang="en"><meta charset="utf-8"><title>Parity evidence unavailable</title><h1>Parity evidence unavailable</h1><p>' + unavailable.reason + '</p></html>\n')
+}
+
 export function refreshMeasurement(repo) {
   if (!existsSync(resolve(repo, DEFINITIONS))) return
-  try { writeReport(repo) } catch (error) { console.error(`Automatic parity report not refreshed: ${error.message}`) }
+  try { writeReport(repo) } catch (error) {
+    invalidateReport(repo)
+    console.error(`Automatic parity report unavailable: ${error.message}`)
+  }
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
@@ -226,5 +245,8 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     const report = writeReport(ROOT)
     console.log(`Automatic evidence: ${report.knownScope.counts.verified}/${report.knownScope.total} known requirements; ${report.missionCases.counts.verified}/${report.missionCases.total} mission gates. ${OUTPUT}/index.html`)
     process.exitCode = report.checks.some(c => c.status === 'failed') ? 1 : report.checks.some(c => c.status !== 'verified') || report.missionCases.counts.verified < report.missionCases.total ? 2 : 0
-  } catch (error) { console.error(error.message); process.exitCode = 1 }
+  } catch (error) {
+    try { invalidateReport(ROOT) } catch (failure) { console.error(`Cannot invalidate prior report: ${failure.message}`) }
+    console.error(error.message); process.exitCode = 1
+  }
 }
