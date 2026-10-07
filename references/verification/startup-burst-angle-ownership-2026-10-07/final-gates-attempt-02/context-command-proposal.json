@@ -1,0 +1,50 @@
+{
+  "mode": "in-memory metadata-only projection; no repository edit or checks executed",
+  "budget": 24000,
+  "currentFiveEvidenceBytes": 23141,
+  "retainingAllSixWithExplicitTestArguments": 24074,
+  "retainingAllSixWithSameTestsBehindNpmScript": 23964,
+  "referencesUnchanged": [
+    {
+      "path": "decomp/research/reincarnation-site-wave.md",
+      "heading": "Ordinary reincarnation site wave (#30)"
+    },
+    {
+      "path": "decomp/README.md",
+      "heading": "Original person sprite layers and regression coverage"
+    },
+    {
+      "path": "decomp/README.md",
+      "heading": "Animated shaman portrait — 2026-09-09"
+    },
+    {
+      "path": "decomp/README.md",
+      "heading": "2026-09-12 — shaman reincarnation lifecycle"
+    },
+    {
+      "path": "decomp/research/level-start-sequence.md",
+      "heading": "Original level-start sequence (issue #20)"
+    },
+    {
+      "path": "decomp/research/shaman-death-vfx.md",
+      "heading": "Phase1 ground"
+    }
+  ],
+  "checkIdsUnchanged": [
+    "shaman-appearance-portable",
+    "shaman-assets-static",
+    "shaman-appearance-browser",
+    "shaman-appearance-native",
+    "level-start-portable",
+    "level-start-native",
+    "level-start-static",
+    "level-start-browser",
+    "reincarnation-wave-portable",
+    "reincarnation-wave-native",
+    "reincarnation-wave-browser",
+    "shaman-death-ground-portable",
+    "shaman-death-ground-native",
+    "shaman-death-ground-browser"
+  ],
+  "proposedScript": "node --test tests/level-start.test.mjs tests/startup-burst-angles.test.mjs tests/startup-burst-observer.test.mjs"
+}

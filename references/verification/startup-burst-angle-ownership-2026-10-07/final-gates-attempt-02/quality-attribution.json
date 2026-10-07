@@ -1,0 +1,126 @@
+{
+  "source": "2b7b19856b58913dbdff2b89beeea13782308f75",
+  "oxlint": {
+    "exitCode": 0,
+    "errors": 0,
+    "warnings": 27,
+    "byFile": {
+      "scripts/local-render/startup-burst.mjs": 8,
+      "scripts/local-render/startup-burst-observer.mjs": 11,
+      "tests/startup-burst-angles.test.mjs": 1,
+      "tests/startup-burst-observer.test.mjs": 7
+    },
+    "findings": [
+      {
+        "finding": "eslint(prefer-template): Unexpected string concatenation.",
+        "location": "scripts/local-render/startup-burst.mjs:10:75"
+      },
+      {
+        "finding": "unicorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.",
+        "location": "scripts/local-render/startup-burst.mjs:12:48"
+      },
+      {
+        "finding": "unicorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.",
+        "location": "scripts/local-render/startup-burst.mjs:29:7"
+      },
+      {
+        "finding": "unicorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.",
+        "location": "scripts/local-render/startup-burst.mjs:39:22"
+      },
+      {
+        "finding": "unicorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.",
+        "location": "scripts/local-render/startup-burst.mjs:40:21"
+      },
+      {
+        "finding": "unicorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.",
+        "location": "scripts/local-render/startup-burst.mjs:52:24"
+      },
+      {
+        "finding": "unicorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.",
+        "location": "scripts/local-render/startup-burst.mjs:73:46"
+      },
+      {
+        "finding": "unicorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.",
+        "location": "scripts/local-render/startup-burst.mjs:73:88"
+      },
+      {
+        "finding": "eslint(prefer-destructuring): Use Object destructuring.",
+        "location": "scripts/local-render/startup-burst-observer.mjs:4:17"
+      },
+      {
+        "finding": "eslint(prefer-destructuring): Use Object destructuring.",
+        "location": "scripts/local-render/startup-burst-observer.mjs:4:41"
+      },
+      {
+        "finding": "unicorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.",
+        "location": "scripts/local-render/startup-burst-observer.mjs:12:36"
+      },
+      {
+        "finding": "unicorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.",
+        "location": "scripts/local-render/startup-burst-observer.mjs:12:77"
+      },
+      {
+        "finding": "eslint(no-nested-ternary): Do not nest ternary expressions.",
+        "location": "scripts/local-render/startup-burst-observer.mjs:32:21"
+      },
+      {
+        "finding": "eslint(no-nested-ternary): Do not nest ternary expressions.",
+        "location": "scripts/local-render/startup-burst-observer.mjs:32:68"
+      },
+      {
+        "finding": "unicorn(no-nested-ternary): Unexpected deeply nested ternary expression.",
+        "location": "scripts/local-render/startup-burst-observer.mjs:33:9"
+      },
+      {
+        "finding": "eslint(prefer-destructuring): Use Object destructuring.",
+        "location": "scripts/local-render/startup-burst-observer.mjs:77:23"
+      },
+      {
+        "finding": "unicorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.",
+        "location": "scripts/local-render/startup-burst-observer.mjs:85:9"
+      },
+      {
+        "finding": "unicorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.",
+        "location": "scripts/local-render/startup-burst-observer.mjs:86:9"
+      },
+      {
+        "finding": "unicorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.",
+        "location": "scripts/local-render/startup-burst-observer.mjs:87:9"
+      },
+      {
+        "finding": "eslint(prefer-destructuring): Use Object destructuring.",
+        "location": "tests/startup-burst-angles.test.mjs:68:23"
+      },
+      {
+        "finding": "unicorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.",
+        "location": "tests/startup-burst-observer.test.mjs:71:5"
+      },
+      {
+        "finding": "unicorn(consistent-function-scoping): Function `original` does not capture any variables from its parent scope",
+        "location": "tests/startup-burst-observer.test.mjs:80:9"
+      },
+      {
+        "finding": "unicorn(consistent-function-scoping): Function `replacement` does not capture any variables from its parent scope",
+        "location": "tests/startup-burst-observer.test.mjs:80:38"
+      },
+      {
+        "finding": "unicorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.",
+        "location": "tests/startup-burst-observer.test.mjs:129:65"
+      },
+      {
+        "finding": "eslint(no-nested-ternary): Do not nest ternary expressions.",
+        "location": "tests/startup-burst-observer.test.mjs:136:75"
+      },
+      {
+        "finding": "unicorn(no-nested-ternary): Unexpected nested ternary expression without parentheses.",
+        "location": "tests/startup-burst-observer.test.mjs:136:104"
+      },
+      {
+        "finding": "eslint(prefer-destructuring): Use Object destructuring.",
+        "location": "tests/startup-burst-observer.test.mjs:170:20"
+      }
+    ],
+    "attribution": "All27 warnings are in newly maintained QA/test files; none in app/level-start.ts. They are reported as introduced stylistic findings, not legacy or suppressed errors."
+  },
+  "fallow": "Health and dupes exit0 with advisory findings; unused exit1 is retained as advisory under the configured accepted policy. No unused-code deletion or broad refactor is part of this angle-only correction."
+}

@@ -1,0 +1,13 @@
+{
+  "verdict": "ACCEPT_NARROW_SOURCE_DELTA",
+  "base": "4cac5083653e3994a4d8c627395581271bb63569",
+  "source": "2b7b19856b58913dbdff2b89beeea13782308f75",
+  "file": "scripts/local-render/startup-burst.mjs",
+  "sha256": "015ada809918bfc72baed8a9fa4a727d572da21d4fc25d55ca80a33a69ad320e",
+  "finding": "Sole 5-addition/4-deletion change stores body or cleanup errors and propagates failure after finally. Body error keeps precedence; cleanup error changes success to failure. Successful return also occurs after cleanup/save. Save errors propagate as before. All actions/evaluate/wait bodies, observer, application and tests are unchanged.",
+  "validation": "Independent exact text reconstruction of the delta, one changed file, clean head and equal application trees; no execution by reviewer.",
+  "limits": [
+    "Earlier source/ordinary/copy reviews carry unchanged.",
+    "The retained standard gate stopped at scoped no-unsafe-finally; no new lint/check/build pass is claimed."
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "dea1a883-db45-4874-ad55-5158dd483520",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "2b7b19856b58913dbdff2b89beeea13782308f75",
+    "branch": "fix/startup-burst-pitch-yaw-20261007",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package.json": "75177ce9ebe6a221ecb1e4e3c35c2697ed92882a6924577d8892f03538f7e51c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "work/orchestration/startup-burst-integration/run-gates.mjs": "1ba13a9e4e6d06b81f29f5b5555891b07d175d5c8f6114da5929f1c7701116d7",
+      "work/orchestration/startup-burst-integration/host-gates.py": "451fb2db418e15e4a592a7316278f85173c942b1873bc21fc7b9f437eb5ae51b",
+      "work/orchestration/startup-burst-integration/gate-packet.json": "e662047e89396f68da5ca09172d75e8481a629017bd11ee84d709a545ac46ef8"
+    }
+  },
+  "command": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=10s",
+    "60s",
+    "node_modules/.bin/eslint",
+    "app/level-start.ts",
+    "scripts/local-render/startup-burst.mjs",
+    "scripts/local-render/startup-burst-observer.mjs",
+    "tests/startup-burst-angles.test.mjs",
+    "tests/startup-burst-observer.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007",
+  "startedAt": "2026-10-07T01:47:45.624Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/work/orchestration/startup-burst-final-gates-02/eslint-scoped.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/startup-burst-angle-integration-20261007/work/orchestration/startup-burst-final-gates-02/eslint-scoped.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-07T01:47:48.834Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "2b7b19856b58913dbdff2b89beeea13782308f75",
+    "branch": "fix/startup-burst-pitch-yaw-20261007",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package.json": "75177ce9ebe6a221ecb1e4e3c35c2697ed92882a6924577d8892f03538f7e51c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "work/orchestration/startup-burst-integration/run-gates.mjs": "1ba13a9e4e6d06b81f29f5b5555891b07d175d5c8f6114da5929f1c7701116d7",
+      "work/orchestration/startup-burst-integration/host-gates.py": "451fb2db418e15e4a592a7316278f85173c942b1873bc21fc7b9f437eb5ae51b",
+      "work/orchestration/startup-burst-integration/gate-packet.json": "e662047e89396f68da5ca09172d75e8481a629017bd11ee84d709a545ac46ef8"
+    }
+  }
+}

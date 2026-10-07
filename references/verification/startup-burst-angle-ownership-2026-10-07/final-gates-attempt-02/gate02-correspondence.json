@@ -1,0 +1,44 @@
+{
+  "head": "2b7b19856b58913dbdff2b89beeea13782308f75",
+  "packetSha256": "e662047e89396f68da5ca09172d75e8481a629017bd11ee84d709a545ac46ef8",
+  "driverSha256": "1ba13a9e4e6d06b81f29f5b5555891b07d175d5c8f6114da5929f1c7701116d7",
+  "hostSha256": "451fb2db418e15e4a592a7316278f85173c942b1873bc21fc7b9f437eb5ae51b",
+  "changedPacketKeys": [
+    "applicationCommit",
+    "command",
+    "environment",
+    "hostOutput",
+    "output",
+    "preparationReceipt",
+    "repairSourceReview",
+    "sourceAnchor",
+    "sources",
+    "status",
+    "temporary"
+  ],
+  "changedSourceBindings": [
+    "scripts/local-render/startup-burst.mjs",
+    "work/orchestration/startup-burst-integration/run-gates.mjs"
+  ],
+  "hostBytesUnchanged": true,
+  "driverLogicUnchangedExceptFreshDirectory": true,
+  "allSourceToolDependencyHashesVerified": true,
+  "bounds": {
+    "scopedQualitySeconds": [
+      30,
+      60,
+      30
+    ],
+    "advisoryFallowSeconds": [
+      60,
+      60,
+      60
+    ],
+    "checkSeconds": 900,
+    "buildSeconds": 300,
+    "outerTermSeconds": 1540,
+    "killGraceSeconds": 10,
+    "hostFallbackSeconds": 1553,
+    "nodeHeapMiB": 1024
+  }
+}

@@ -1,0 +1,2468 @@
+{
+  "before": {
+    "version": 1,
+    "subsystem": {
+      "id": "shaman-appearance",
+      "title": "Original Shaman appearance",
+      "mappingStatus": "reviewed",
+      "implementationPaths": [
+        "app/shaman-appearance.ts",
+        "app/level-start.ts",
+        "app/level-start-runtime.ts",
+        "app/reincarnation.ts",
+        "app/reincarnation-wave-runtime.ts",
+        "app/site-wave-effects.ts"
+      ],
+      "researchPaths": [
+        "scripts/import-original.py",
+        "app/original-units.json",
+        "public/original/unit-layers.png",
+        "public/original/provenance.json",
+        "tests/shaman-appearance.test.mjs",
+        "tests/sprite-layers.test.mjs",
+        "scripts/check-static-shaman-appearance.py",
+        "scripts/check-native-shaman-appearance.py",
+        "scripts/check-browser-shaman-appearance.mjs",
+        "scripts/check-browser-sprite-layers.mjs",
+        "scripts/check-browser-reincarnation.mjs",
+        "tests/level-start.test.mjs",
+        "scripts/check-native-level-start.py",
+        "scripts/check-static-level-start.py",
+        "scripts/check-browser-level-start.mjs",
+        "scripts/check-native-reincarnation-wave.py",
+        "scripts/check-browser-reincarnation-wave.mjs",
+        "tests/reincarnation-wave.test.mjs",
+        "decomp/research/reincarnation-site-wave.md",
+        "tests/shaman-death-ground.test.mjs",
+        "scripts/check-native-shaman-death-ground.py",
+        "scripts/check-browser-shaman-death-ground.mjs",
+        "scripts/controlled-scene-frames.mjs",
+        "scripts/shaman-worship-ground-observer.mjs",
+        "tests/controlled-scene-frames.test.mjs",
+        "decomp/research/shaman-death-vfx.md"
+      ],
+      "sharedPaths": [
+        "app/scene-entities.ts",
+        "app/scene-effects.ts",
+        "app/world-turn.ts"
+      ],
+      "entrySymbols": [
+        {
+          "path": "app/shaman-appearance.ts",
+          "symbol": "shamanAppearance"
+        },
+        {
+          "path": "app/scene-entities.ts",
+          "symbol": "updateUnitsFrame"
+        },
+        {
+          "path": "app/scene-effects.ts",
+          "symbol": "animateFx"
+        },
+        {
+          "path": "scripts/import-original.py",
+          "symbol": "append_unit_families"
+        }
+      ],
+      "nativeAddresses": [
+        "0x4673b0",
+        "0x450e60",
+        "0x5029d0"
+      ],
+      "risks": [
+        "Preserve old frame/piece indices and occupied pixels; source IDs are not packed frame indices.",
+        "Native execution, browser/GPU validation and fixture recording require separately reserved resources."
+      ]
+    },
+    "query": "",
+    "cache": "generated-missing",
+    "ledgerRevision": 28,
+    "parityScope": [
+      {
+        "id": "graphics.sprites.layers",
+        "title": "Imported unit pieces, tribe layers, signed offsets and mirroring",
+        "status": "verified",
+        "scope": [
+          "Compared original selection and pixels for the imported playable classes; remaining class/state coverage is separate."
+        ],
+        "omittedScopeSentences": 0,
+        "noteHash": "ee9d7e5911c1a1dc664d5b058b7bef4ecdee7d38d625cf3b4ecd0b6766c58b2d",
+        "evidence": [
+          "scripts/check-native-sprite-layers.py",
+          "scripts/check-browser-sprite-layers.mjs"
+        ],
+        "provenance": {
+          "path": "parity.json",
+          "lineStart": 228,
+          "lineEnd": 228,
+          "sourceHash": "02f787d817df8871105dc3b6581e127ddbc06023f77c1f0375b81ff802711130"
+        }
+      },
+      {
+        "id": "graphics.sprites.roster",
+        "title": "Remaining tribes and unit-class sprite variants",
+        "status": "missing",
+        "scope": [
+          "Complete original roster has not been compared and integrated."
+        ],
+        "omittedScopeSentences": 0,
+        "noteHash": "b04bc26004f288daad72ef17bdfdb103d41a665df94113d094aa1f47690984ca",
+        "evidence": [],
+        "provenance": {
+          "path": "parity.json",
+          "lineStart": 258,
+          "lineEnd": 258,
+          "sourceHash": "02f787d817df8871105dc3b6581e127ddbc06023f77c1f0375b81ff802711130"
+        }
+      },
+      {
+        "id": "graphics.sprites.states",
+        "title": "Complete action-to-sprite state ownership",
+        "status": "partial",
+        "scope": [
+          "Remaining action and scheduling ownership is not verified."
+        ],
+        "omittedScopeSentences": 0,
+        "noteHash": "ba7b455e82aec687b7841c48a2658756925d5f8a7aabae4b521c61bb1bfb5807",
+        "evidence": [
+          "app/live-people.ts",
+          "references/reverse-engineering.md"
+        ],
+        "provenance": {
+          "path": "parity.json",
+          "lineStart": 248,
+          "lineEnd": 248,
+          "sourceHash": "02f787d817df8871105dc3b6581e127ddbc06023f77c1f0375b81ff802711130"
+        }
+      },
+      {
+        "id": "combat.shamans",
+        "title": "All shaman combat, death and reincarnation behavior",
+        "status": "partial",
+        "scope": [
+          "Opening shaman playable; full death/site/tribe lifecycle unverified."
+        ],
+        "omittedScopeSentences": 0,
+        "noteHash": "92d53cd2dc4ee798408bfd2377afd69ca7411e81ff0c6ec5cd718da623f745bb",
+        "evidence": [
+          "scripts/check-native-reincarnation.py",
+          "tests/game.test.mjs"
+        ],
+        "provenance": {
+          "path": "parity.json",
+          "lineStart": 2240,
+          "lineEnd": 2240,
+          "sourceHash": "02f787d817df8871105dc3b6581e127ddbc06023f77c1f0375b81ff802711130"
+        }
+      }
+    ],
+    "checks": [
+      {
+        "id": "shaman-appearance-portable",
+        "kind": "portable",
+        "purpose": "Check four-tribe Shaman sources, unchanged old atlas pixels, and original Mission23 checkpoint/death identity.",
+        "reason": "selected only; planning never executes checks",
+        "knownLimits": [
+          "Portable checks do not certify rendered gameplay or complete native animation timing."
+        ],
+        "command": [
+          "node",
+          "--test",
+          "tests/shaman-appearance.test.mjs",
+          "tests/sprite-layers.test.mjs"
+        ],
+        "prerequisites": [
+          "Node.js >=22.13 with TypeScript stripping",
+          "Installed repository dependencies"
+        ],
+        "sideEffects": [],
+        "resources": [],
+        "status": "not-run"
+      },
+      {
+        "id": "shaman-assets-static",
+        "kind": "static",
+        "purpose": "Compare all imported Shaman frame chains, layer metadata and atlas pieces against supplied original asset bytes.",
+        "reason": "missing environment: POPULOUS_PYTHON, POPULOUS_DATA_ROOT",
+        "knownLimits": [
+          "Static original-byte comparison; no native executable or browser is run."
+        ],
+        "command": [
+          "$POPULOUS_PYTHON",
+          "-B",
+          "scripts/check-static-shaman-appearance.py",
+          "--data-root",
+          "$POPULOUS_DATA_ROOT"
+        ],
+        "prerequisites": [
+          "Existing Python environment with Pillow",
+          "Supplied hash-matching original data root"
+        ],
+        "sideEffects": [],
+        "resources": [],
+        "status": "blocked"
+      },
+      {
+        "id": "shaman-appearance-browser",
+        "kind": "browser",
+        "purpose": "Check the shipped four-tribe renderer, diagnostic actions, normal lifecycle, checkpoint UI and original-byte GPU pixels in an explicitly reserved slot.",
+        "reason": "missing environment: POPULOUS_URL, POPULOUS_SHAMAN_REFERENCE, POPULOUS_SHAMAN_OUTPUT",
+        "knownLimits": [
+          "Requires an explicit browser/GPU slot; cannot run from a portable aggregate.",
+          "Controlled pose/death edge cases supplement ordinary mission startup; no144fps or performance-nonregression claim."
+        ],
+        "command": [
+          "node",
+          "scripts/check-browser-shaman-appearance.mjs",
+          "--reference-report",
+          "$POPULOUS_SHAMAN_REFERENCE",
+          "--output-dir",
+          "$POPULOUS_SHAMAN_OUTPUT",
+          "--headed"
+        ],
+        "prerequisites": [
+          "Owned server at127.0.0.1:4318",
+          "Installed Playwright browser",
+          "Static reference report from the current atlas",
+          "A new unique ignored output directory",
+          "Explicit runtime resource grant"
+        ],
+        "sideEffects": [
+          "Creates an isolated browser profile and writes only the supplied new artifact directory"
+        ],
+        "resources": [
+          "Browser/GPU/server serialized by explicit CEO grant"
+        ],
+        "status": "blocked"
+      },
+      {
+        "id": "shaman-appearance-native",
+        "kind": "native",
+        "purpose": "Optionally compare all four Shaman layer selections with the original portrait routine using the existing HUD oracle.",
+        "reason": "missing environment: POPULOUS_PYTHON, POPULOUS_EXE, POPULOUS_SHAMAN_NATIVE_OUTPUT",
+        "knownLimits": [
+          "Requires a separate native-execution grant; not included in browser/GPU approval.",
+          "Original world draw is separate static evidence; this does not execute the entire graphics loop."
+        ],
+        "command": [
+          "$POPULOUS_PYTHON",
+          "-B",
+          "scripts/check-native-shaman-appearance.py",
+          "$POPULOUS_EXE",
+          "--output",
+          "$POPULOUS_SHAMAN_NATIVE_OUTPUT"
+        ],
+        "prerequisites": [
+          "Documented native Python environment",
+          "Hash-verified supplied EXE/adjacent assets",
+          "Explicit native resource grant"
+        ],
+        "sideEffects": [
+          "Writes a new explicitly supplied evidence JSON; never records fixtures"
+        ],
+        "resources": [
+          "Native execution serialized by CEO"
+        ],
+        "status": "blocked"
+      },
+      {
+        "id": "level-start-portable",
+        "kind": "portable",
+        "purpose": "Verify ordinary Mission1–3 startup, input release, terrain/conversion, restart, flyby skip and resumable checkpoints.",
+        "reason": "selected only; planning never executes checks",
+        "knownLimits": [
+          "Browser pixels and native instruction comparisons run separately."
+        ],
+        "command": [
+          "node",
+          "--test",
+          "tests/level-start.test.mjs"
+        ],
+        "prerequisites": [
+          "Node.js with TypeScript stripping"
+        ],
+        "sideEffects": [],
+        "resources": [],
+        "status": "not-run"
+      },
+      {
+        "id": "level-start-native",
+        "kind": "native",
+        "purpose": "Compare isolated original opening command, terrain wave, carriers, stones and conversion producers.",
+        "reason": "missing environment: POPULOUS_PYTHON, POPULOUS_EXE",
+        "knownLimits": [
+          "Supplied allocation, registration, notification and animation leaves; not full original game execution."
+        ],
+        "command": [
+          "$POPULOUS_PYTHON",
+          "-B",
+          "scripts/check-native-level-start.py",
+          "$POPULOUS_EXE"
+        ],
+        "prerequisites": [
+          "Hash-matching supplied original EXE and adjacent mwsearch data",
+          "Explicit isolated native-execution authorization",
+          "Python with Unicorn and Capstone"
+        ],
+        "sideEffects": [],
+        "resources": [],
+        "status": "blocked"
+      },
+      {
+        "id": "level-start-static",
+        "kind": "static",
+        "purpose": "Compare appended startup HFX frames and dust palette with original bytes.",
+        "reason": "missing environment: POPULOUS_PYTHON, POPULOUS_DATA_ROOT",
+        "knownLimits": [
+          "Not an original raster or browser comparison; append-preservation uses an optional captured baseline."
+        ],
+        "command": [
+          "$POPULOUS_PYTHON",
+          "-B",
+          "scripts/check-static-level-start.py",
+          "--data-root",
+          "$POPULOUS_DATA_ROOT"
+        ],
+        "prerequisites": [
+          "Supplied hash-matching original game data",
+          "Python with Pillow"
+        ],
+        "sideEffects": [],
+        "resources": [],
+        "status": "blocked"
+      },
+      {
+        "id": "level-start-browser",
+        "kind": "browser",
+        "purpose": "Capture real before/during/after Mission1–3 startup on the exact development commit.",
+        "reason": "missing environment: POPULOUS_URL, POPULOUS_LEVEL_START_OUTPUT",
+        "knownLimits": [
+          "UI restart/checkpoint acceptance also requires corresponding portable/store checks; native evidence is separate."
+        ],
+        "command": [
+          "node",
+          "scripts/check-browser-level-start.mjs"
+        ],
+        "prerequisites": [
+          "Reserved Linux HeadlessShell browser/server slot",
+          "Playwright Chromium with verified local launch wrapper",
+          "Unique output directory"
+        ],
+        "sideEffects": [
+          "Writes screenshots and a commit-labelled JSON report to the requested output directory"
+        ],
+        "resources": [
+          "Serialized local Linux browser/server QA slot"
+        ],
+        "status": "blocked"
+      },
+      {
+        "id": "reincarnation-wave-portable",
+        "kind": "portable",
+        "purpose": "Verify ordinary mode2 site-wave ownership, native target response and checkpoint continuity.",
+        "reason": "selected only; planning never executes checks",
+        "knownLimits": [
+          "Supporting fixtures and source integration do not establish rendered acceptance."
+        ],
+        "command": [
+          "node",
+          "--test",
+          "tests/reincarnation-wave.test.mjs",
+          "tests/level-start.test.mjs",
+          "tests/person-panic.test.mjs"
+        ],
+        "prerequisites": [
+          "Node.js with TypeScript stripping"
+        ],
+        "sideEffects": [],
+        "resources": [],
+        "status": "not-run"
+      },
+      {
+        "id": "reincarnation-wave-native",
+        "kind": "native",
+        "purpose": "Execute the composed original model12 producer, allocator, mode2 wave, panic and damage with mapped-input integrity guards.",
+        "reason": "missing environment: POPULOUS_EXE, POPULOUS_PYTHON",
+        "knownLimits": [
+          "Supplied rendering, sound, removal and unrelated world leaves; spawn requests are supplied, not a successful native spawn.",
+          "Earlier corrupt-search receipts through94e88b4 are superseded."
+        ],
+        "command": [
+          "$POPULOUS_PYTHON",
+          "-B",
+          "scripts/check-native-reincarnation-wave.py",
+          "$POPULOUS_EXE"
+        ],
+        "prerequisites": [
+          "Hash-verified original EXE, levels/constant.dat and data/mwsearch.dat",
+          "Pinned Unicorn environment"
+        ],
+        "sideEffects": [],
+        "resources": [],
+        "status": "blocked"
+      },
+      {
+        "id": "reincarnation-wave-browser",
+        "kind": "browser",
+        "purpose": "Verify rendered ordinary reincarnation after real Mission2 combat death and saved-wave restoration.",
+        "reason": "missing environment: POPULOUS_ARTIFACT_DIR, POPULOUS_HEADLESS_SHELL",
+        "knownLimits": [
+          "Command adapter is not pointer-picking proof.",
+          "Staged intruders are separate from natural gameplay acceptance.",
+          "Linux headless rendering cannot establish hardware performance."
+        ],
+        "command": [
+          "node",
+          "scripts/local-render/harness.mjs",
+          "--scenario",
+          "scripts/check-browser-reincarnation-wave.mjs",
+          "--mission",
+          "2",
+          "--browser",
+          "$POPULOUS_HEADLESS_SHELL",
+          "--output",
+          "$POPULOUS_ARTIFACT_DIR"
+        ],
+        "prerequisites": [
+          "Owned local game server",
+          "Supported sandboxed Playwright browser"
+        ],
+        "sideEffects": [
+          "Writes source-bound captures/report to unique artifact directory"
+        ],
+        "resources": [
+          "Shared browser/server lane; serialize"
+        ],
+        "status": "blocked"
+      },
+      {
+        "id": "shaman-death-ground-portable",
+        "kind": "portable",
+        "purpose": "Check grounding.",
+        "reason": "selected only; planning never executes checks",
+        "knownLimits": [
+          "Death-terrain/drowning fixtures and fake-Scene bounds; actual rendering separate."
+        ],
+        "command": [
+          "node",
+          "--test",
+          "tests/shaman-death-ground.test.mjs",
+          "tests/shaman-death-cadence.test.mjs",
+          "tests/shaman-death-vfx.test.mjs",
+          "tests/controlled-scene-frames.test.mjs"
+        ],
+        "prerequisites": [
+          "Node.js with TypeScript stripping"
+        ],
+        "sideEffects": [],
+        "resources": [],
+        "status": "not-run"
+      },
+      {
+        "id": "shaman-death-ground-native",
+        "kind": "native",
+        "purpose": "Compare heights.",
+        "reason": "missing environment: POPULOUS_EXE",
+        "knownLimits": [
+          "Registration, support predicates, audio, bookkeeping and spawning are supplied leaves.",
+          "The current caller uses ordinary combat death and supplied post-death terrain; no shipped spell or native raster claim."
+        ],
+        "command": [
+          ".tools/decomp/oracle/bin/python",
+          "scripts/check-native-shaman-death-ground.py",
+          "$POPULOUS_EXE"
+        ],
+        "prerequisites": [
+          "Documented Unicorn Python environment and Node.js",
+          "Hash-verified executable, levels/constant.dat, data/mwsearch.dat, data/vstart-0.ani and data/vfra-0.ani"
+        ],
+        "sideEffects": [],
+        "resources": [
+          "Read-only native inputs; coordinate CPU use"
+        ],
+        "status": "blocked"
+      },
+      {
+        "id": "shaman-death-ground-browser",
+        "kind": "browser",
+        "purpose": "Full Scene frames.",
+        "reason": "missing environment: POPULOUS_HEADLESS_SHELL, POPULOUS_ARTIFACT_DIR",
+        "knownLimits": [
+          "Held RAF; full Scene.animate at24Hz/1x, not real time. Zero-time camera assist; no World injection. No native raster/hardware claim."
+        ],
+        "command": [
+          "node",
+          "scripts/local-render/harness.mjs",
+          "--scenario",
+          "scripts/check-browser-shaman-death-ground.mjs",
+          "--mission",
+          "1",
+          "--browser",
+          "$POPULOUS_HEADLESS_SHELL",
+          "--output",
+          "$POPULOUS_ARTIFACT_DIR",
+          "--timeout",
+          "480000"
+        ],
+        "prerequisites": [
+          "Verified installed dependencies",
+          "Supported sandboxed browser"
+        ],
+        "sideEffects": [
+          "Writes source-bound screenshots/report in an owned artifact directory"
+        ],
+        "resources": [
+          "Shared browser/server lane; serialize"
+        ],
+        "status": "blocked"
+      }
+    ],
+    "unresolved": [
+      "Static original-byte evidence and bounded live checks do not certify a full native graphics loop, complete death-frame timing or performance nonregression.",
+      "Generic follower/Spy behavior and simulation state remain outside the Shaman-only appearance repair."
+    ],
+    "sourceExcerpts": [
+      {
+        "path": "decomp/research/reincarnation-site-wave.md",
+        "headingTrail": [
+          "Ordinary reincarnation site wave (#30)"
+        ],
+        "occurrence": 1,
+        "lineStart": 19,
+        "lineEnd": 20,
+        "sourceHash": "e51e3c60907b9c34d54fdb890733e3979127223de8d5ce4cf2b323d60fc77173",
+        "sectionHash": "9c0308ef0a8d6e557bab6c19e783cb2d676a1784abea5e256f1e9a2ba1a7b5fc",
+        "contentHash": "939f24d20323b005fef4d7fa3758c0df32017bceb083eb476cd551d3bd48caba",
+        "excerpt": "accepted model12 body/spirit presentation. It does not complete issue #30.\n",
+        "truncated": true
+      },
+      {
+        "path": "decomp/README.md",
+        "headingTrail": [
+          "Static decompilation workspace",
+          "Original person sprite layers and regression coverage"
+        ],
+        "occurrence": 1,
+        "lineStart": 2326,
+        "lineEnd": 2331,
+        "sourceHash": "5847dedaa323a1265add2c75e1b54ec7239e8e604d3aef542965d4edf0e0a3e5",
+        "sectionHash": "b05f563790a8ae31455f0e73c343db443b2af9685818adfafc2ff326912b147d",
+        "contentHash": "602de418d2bb2251c21f67d61c722321b3387d2719148150f9f2d90bccd6393e",
+        "excerpt": "at scaled texel boundaries; it does not certify bit-identical scaled rasterization.\nA deliberate wrong-atlas UV mutation was rejected by this check. Existing live\nselection and real Blast shadow/landing checks also pass. Broader animation-state\nownership and all original tribes/classes are not certified by these fixtures.\n\n",
+        "truncated": true
+      },
+      {
+        "path": "decomp/README.md",
+        "headingTrail": [
+          "Static decompilation workspace",
+          "Animated shaman portrait — 2026-09-09"
+        ],
+        "occurrence": 1,
+        "lineStart": 3357,
+        "lineEnd": 3359,
+        "sourceHash": "5847dedaa323a1265add2c75e1b54ec7239e8e604d3aef542965d4edf0e0a3e5",
+        "sectionHash": "579b95082d582e196e867a4f3604422de819c897bbb1bffa8497d76836669a9a",
+        "contentHash": "d314216b13532c961839e196a2c7de92172fe33ad914d396f74e1de591ff7ba9",
+        "excerpt": "other panels and whole original-frame matching remain unfinished.\n\n",
+        "truncated": true
+      },
+      {
+        "path": "decomp/README.md",
+        "headingTrail": [
+          "Static decompilation workspace",
+          "2026-09-12 — shaman reincarnation lifecycle"
+        ],
+        "occurrence": 1,
+        "lineStart": 5006,
+        "lineEnd": 5007,
+        "sourceHash": "5847dedaa323a1265add2c75e1b54ec7239e8e604d3aef542965d4edf0e0a3e5",
+        "sectionHash": "3cfd50465f376ea0a66bb6fea9f1c196078bfe06e79f67b80431feafe85c295d",
+        "contentHash": "cb44de3917d761510772aef83b6621ffd025061020e59c999d15eb0d43fcee0f",
+        "excerpt": "models remain open.\n",
+        "truncated": true
+      },
+      {
+        "path": "decomp/research/level-start-sequence.md",
+        "headingTrail": [
+          "Original level-start sequence (issue #20)"
+        ],
+        "occurrence": 1,
+        "lineStart": 1,
+        "lineEnd": 4,
+        "sourceHash": "2dc3a5f1a4a0f069768808de3551682a2d0252ce962249ed7a5a033e0d4a9225",
+        "sectionHash": "69257d58505bca2bff143ce3c9dc916bd07e6dda99979cb2c7657903452eb7c4",
+        "contentHash": "69257d58505bca2bff143ce3c9dc916bd07e6dda99979cb2c7657903452eb7c4",
+        "excerpt": "# Original level-start sequence (issue #20)\n\nWork in progress, October 3 2026. No overall parity or browser-completion claim.\n",
+        "truncated": false
+      },
+      {
+        "path": "decomp/research/shaman-death-vfx.md",
+        "headingTrail": [
+          "Bounded Shaman death presentation (#30)",
+          "Phase1 ground"
+        ],
+        "occurrence": 1,
+        "lineStart": 159,
+        "lineEnd": 160,
+        "sourceHash": "59b846ca12132b04989715d770d792b77bd7a58af29e2bb7a13f4556e488966d",
+        "sectionHash": "20e338355302f52b89f24908929cac797b28f4bec76066e4681ca321a3296cdb",
+        "contentHash": "b61cae8191ce94298b93744530dd52c54a7879e01d01bf0f84106c3fc489631b",
+        "excerpt": "This bounded repair does not complete issue #30 or award additional parity credit.\n",
+        "truncated": true
+      }
+    ],
+    "omissions": [
+      {
+        "path": "decomp/research/reincarnation-site-wave.md",
+        "headingTrail": [
+          "Ordinary reincarnation site wave (#30)"
+        ],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          19,
+          20
+        ]
+      },
+      {
+        "path": "decomp/README.md",
+        "headingTrail": [
+          "Static decompilation workspace",
+          "Original person sprite layers and regression coverage"
+        ],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          2326,
+          2331
+        ]
+      },
+      {
+        "path": "decomp/README.md",
+        "headingTrail": [
+          "Static decompilation workspace",
+          "Animated shaman portrait — 2026-09-09"
+        ],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          3357,
+          3359
+        ]
+      },
+      {
+        "path": "decomp/README.md",
+        "headingTrail": [
+          "Static decompilation workspace",
+          "2026-09-12 — shaman reincarnation lifecycle"
+        ],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          5006,
+          5007
+        ]
+      },
+      {
+        "path": "decomp/research/shaman-death-vfx.md",
+        "headingTrail": [
+          "Bounded Shaman death presentation (#30)",
+          "Phase1 ground"
+        ],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          159,
+          160
+        ]
+      },
+      {
+        "reason": "lower-ranked source sections",
+        "count": 196
+      },
+      {
+        "reason": "context budget",
+        "count": 34
+      }
+    ],
+    "contextBytes": 23990,
+    "budgetBytes": 24000,
+    "executesChecks": false
+  },
+  "wide": {
+    "version": 1,
+    "subsystem": {
+      "id": "shaman-appearance",
+      "title": "Original Shaman appearance",
+      "mappingStatus": "reviewed",
+      "implementationPaths": [
+        "app/shaman-appearance.ts",
+        "app/level-start.ts",
+        "app/level-start-runtime.ts",
+        "app/reincarnation.ts",
+        "app/reincarnation-wave-runtime.ts",
+        "app/site-wave-effects.ts"
+      ],
+      "researchPaths": [
+        "scripts/import-original.py",
+        "app/original-units.json",
+        "public/original/unit-layers.png",
+        "public/original/provenance.json",
+        "tests/shaman-appearance.test.mjs",
+        "tests/sprite-layers.test.mjs",
+        "scripts/check-static-shaman-appearance.py",
+        "scripts/check-native-shaman-appearance.py",
+        "scripts/check-browser-shaman-appearance.mjs",
+        "scripts/check-browser-sprite-layers.mjs",
+        "scripts/check-browser-reincarnation.mjs",
+        "tests/level-start.test.mjs",
+        "scripts/check-native-level-start.py",
+        "scripts/check-static-level-start.py",
+        "scripts/check-browser-level-start.mjs",
+        "scripts/check-native-reincarnation-wave.py",
+        "scripts/check-browser-reincarnation-wave.mjs",
+        "tests/reincarnation-wave.test.mjs",
+        "decomp/research/reincarnation-site-wave.md",
+        "tests/shaman-death-ground.test.mjs",
+        "scripts/check-native-shaman-death-ground.py",
+        "scripts/check-browser-shaman-death-ground.mjs",
+        "scripts/controlled-scene-frames.mjs",
+        "scripts/shaman-worship-ground-observer.mjs",
+        "tests/controlled-scene-frames.test.mjs",
+        "decomp/research/shaman-death-vfx.md"
+      ],
+      "sharedPaths": [
+        "app/scene-entities.ts",
+        "app/scene-effects.ts",
+        "app/world-turn.ts"
+      ],
+      "entrySymbols": [
+        {
+          "path": "app/shaman-appearance.ts",
+          "symbol": "shamanAppearance"
+        },
+        {
+          "path": "app/scene-entities.ts",
+          "symbol": "updateUnitsFrame"
+        },
+        {
+          "path": "app/scene-effects.ts",
+          "symbol": "animateFx"
+        },
+        {
+          "path": "scripts/import-original.py",
+          "symbol": "append_unit_families"
+        }
+      ],
+      "nativeAddresses": [
+        "0x4673b0",
+        "0x450e60",
+        "0x5029d0"
+      ],
+      "risks": [
+        "Preserve old frame/piece indices and occupied pixels; source IDs are not packed frame indices.",
+        "Native execution, browser/GPU validation and fixture recording require separately reserved resources."
+      ]
+    },
+    "query": "",
+    "cache": "valid",
+    "ledgerRevision": 28,
+    "parityScope": [
+      {
+        "id": "graphics.sprites.layers",
+        "title": "Imported unit pieces, tribe layers, signed offsets and mirroring",
+        "status": "verified",
+        "scope": [
+          "Compared original selection and pixels for the imported playable classes; remaining class/state coverage is separate."
+        ],
+        "omittedScopeSentences": 0,
+        "noteHash": "ee9d7e5911c1a1dc664d5b058b7bef4ecdee7d38d625cf3b4ecd0b6766c58b2d",
+        "evidence": [
+          "scripts/check-native-sprite-layers.py",
+          "scripts/check-browser-sprite-layers.mjs"
+        ],
+        "provenance": {
+          "path": "parity.json",
+          "lineStart": 228,
+          "lineEnd": 228,
+          "sourceHash": "02f787d817df8871105dc3b6581e127ddbc06023f77c1f0375b81ff802711130"
+        }
+      },
+      {
+        "id": "graphics.sprites.roster",
+        "title": "Remaining tribes and unit-class sprite variants",
+        "status": "missing",
+        "scope": [
+          "Complete original roster has not been compared and integrated."
+        ],
+        "omittedScopeSentences": 0,
+        "noteHash": "b04bc26004f288daad72ef17bdfdb103d41a665df94113d094aa1f47690984ca",
+        "evidence": [],
+        "provenance": {
+          "path": "parity.json",
+          "lineStart": 258,
+          "lineEnd": 258,
+          "sourceHash": "02f787d817df8871105dc3b6581e127ddbc06023f77c1f0375b81ff802711130"
+        }
+      },
+      {
+        "id": "graphics.sprites.states",
+        "title": "Complete action-to-sprite state ownership",
+        "status": "partial",
+        "scope": [
+          "Remaining action and scheduling ownership is not verified."
+        ],
+        "omittedScopeSentences": 0,
+        "noteHash": "ba7b455e82aec687b7841c48a2658756925d5f8a7aabae4b521c61bb1bfb5807",
+        "evidence": [
+          "app/live-people.ts",
+          "references/reverse-engineering.md"
+        ],
+        "provenance": {
+          "path": "parity.json",
+          "lineStart": 248,
+          "lineEnd": 248,
+          "sourceHash": "02f787d817df8871105dc3b6581e127ddbc06023f77c1f0375b81ff802711130"
+        }
+      },
+      {
+        "id": "combat.shamans",
+        "title": "All shaman combat, death and reincarnation behavior",
+        "status": "partial",
+        "scope": [
+          "Opening shaman playable; full death/site/tribe lifecycle unverified."
+        ],
+        "omittedScopeSentences": 0,
+        "noteHash": "92d53cd2dc4ee798408bfd2377afd69ca7411e81ff0c6ec5cd718da623f745bb",
+        "evidence": [
+          "scripts/check-native-reincarnation.py",
+          "tests/game.test.mjs"
+        ],
+        "provenance": {
+          "path": "parity.json",
+          "lineStart": 2240,
+          "lineEnd": 2240,
+          "sourceHash": "02f787d817df8871105dc3b6581e127ddbc06023f77c1f0375b81ff802711130"
+        }
+      }
+    ],
+    "checks": [
+      {
+        "id": "shaman-appearance-portable",
+        "kind": "portable",
+        "purpose": "Check four-tribe Shaman sources, unchanged old atlas pixels, and original Mission23 checkpoint/death identity.",
+        "reason": "selected only; planning never executes checks",
+        "knownLimits": [
+          "Portable checks do not certify rendered gameplay or complete native animation timing."
+        ],
+        "command": [
+          "node",
+          "--test",
+          "tests/shaman-appearance.test.mjs",
+          "tests/sprite-layers.test.mjs"
+        ],
+        "prerequisites": [
+          "Node.js >=22.13 with TypeScript stripping",
+          "Installed repository dependencies"
+        ],
+        "sideEffects": [],
+        "resources": [],
+        "status": "not-run"
+      },
+      {
+        "id": "shaman-assets-static",
+        "kind": "static",
+        "purpose": "Compare all imported Shaman frame chains, layer metadata and atlas pieces against supplied original asset bytes.",
+        "reason": "missing environment: POPULOUS_PYTHON, POPULOUS_DATA_ROOT",
+        "knownLimits": [
+          "Static original-byte comparison; no native executable or browser is run."
+        ],
+        "command": [
+          "$POPULOUS_PYTHON",
+          "-B",
+          "scripts/check-static-shaman-appearance.py",
+          "--data-root",
+          "$POPULOUS_DATA_ROOT"
+        ],
+        "prerequisites": [
+          "Existing Python environment with Pillow",
+          "Supplied hash-matching original data root"
+        ],
+        "sideEffects": [],
+        "resources": [],
+        "status": "blocked"
+      },
+      {
+        "id": "shaman-appearance-browser",
+        "kind": "browser",
+        "purpose": "Check the shipped four-tribe renderer, diagnostic actions, normal lifecycle, checkpoint UI and original-byte GPU pixels in an explicitly reserved slot.",
+        "reason": "missing environment: POPULOUS_URL, POPULOUS_SHAMAN_REFERENCE, POPULOUS_SHAMAN_OUTPUT",
+        "knownLimits": [
+          "Requires an explicit browser/GPU slot; cannot run from a portable aggregate.",
+          "Controlled pose/death edge cases supplement ordinary mission startup; no144fps or performance-nonregression claim."
+        ],
+        "command": [
+          "node",
+          "scripts/check-browser-shaman-appearance.mjs",
+          "--reference-report",
+          "$POPULOUS_SHAMAN_REFERENCE",
+          "--output-dir",
+          "$POPULOUS_SHAMAN_OUTPUT",
+          "--headed"
+        ],
+        "prerequisites": [
+          "Owned server at127.0.0.1:4318",
+          "Installed Playwright browser",
+          "Static reference report from the current atlas",
+          "A new unique ignored output directory",
+          "Explicit runtime resource grant"
+        ],
+        "sideEffects": [
+          "Creates an isolated browser profile and writes only the supplied new artifact directory"
+        ],
+        "resources": [
+          "Browser/GPU/server serialized by explicit CEO grant"
+        ],
+        "status": "blocked"
+      },
+      {
+        "id": "shaman-appearance-native",
+        "kind": "native",
+        "purpose": "Optionally compare all four Shaman layer selections with the original portrait routine using the existing HUD oracle.",
+        "reason": "missing environment: POPULOUS_PYTHON, POPULOUS_EXE, POPULOUS_SHAMAN_NATIVE_OUTPUT",
+        "knownLimits": [
+          "Requires a separate native-execution grant; not included in browser/GPU approval.",
+          "Original world draw is separate static evidence; this does not execute the entire graphics loop."
+        ],
+        "command": [
+          "$POPULOUS_PYTHON",
+          "-B",
+          "scripts/check-native-shaman-appearance.py",
+          "$POPULOUS_EXE",
+          "--output",
+          "$POPULOUS_SHAMAN_NATIVE_OUTPUT"
+        ],
+        "prerequisites": [
+          "Documented native Python environment",
+          "Hash-verified supplied EXE/adjacent assets",
+          "Explicit native resource grant"
+        ],
+        "sideEffects": [
+          "Writes a new explicitly supplied evidence JSON; never records fixtures"
+        ],
+        "resources": [
+          "Native execution serialized by CEO"
+        ],
+        "status": "blocked"
+      },
+      {
+        "id": "level-start-portable",
+        "kind": "portable",
+        "purpose": "Verify ordinary Mission1–3 startup, input release, terrain/conversion, restart, flyby skip and resumable checkpoints.",
+        "reason": "selected only; planning never executes checks",
+        "knownLimits": [
+          "Browser pixels and native instruction comparisons run separately."
+        ],
+        "command": [
+          "node",
+          "--test",
+          "tests/level-start.test.mjs",
+          "tests/startup-burst-angles.test.mjs",
+          "tests/startup-burst-observer.test.mjs"
+        ],
+        "prerequisites": [
+          "Node.js with TypeScript stripping"
+        ],
+        "sideEffects": [],
+        "resources": [],
+        "status": "not-run"
+      },
+      {
+        "id": "level-start-native",
+        "kind": "native",
+        "purpose": "Compare isolated original opening command, terrain wave, carriers, stones and conversion producers.",
+        "reason": "missing environment: POPULOUS_PYTHON, POPULOUS_EXE",
+        "knownLimits": [
+          "Supplied allocation, registration, notification and animation leaves; not full original game execution."
+        ],
+        "command": [
+          "$POPULOUS_PYTHON",
+          "-B",
+          "scripts/check-native-level-start.py",
+          "$POPULOUS_EXE"
+        ],
+        "prerequisites": [
+          "Hash-matching supplied original EXE and adjacent mwsearch data",
+          "Explicit isolated native-execution authorization",
+          "Python with Unicorn and Capstone"
+        ],
+        "sideEffects": [],
+        "resources": [],
+        "status": "blocked"
+      },
+      {
+        "id": "level-start-static",
+        "kind": "static",
+        "purpose": "Compare appended startup HFX frames and dust palette with original bytes.",
+        "reason": "missing environment: POPULOUS_PYTHON, POPULOUS_DATA_ROOT",
+        "knownLimits": [
+          "Not an original raster or browser comparison; append-preservation uses an optional captured baseline."
+        ],
+        "command": [
+          "$POPULOUS_PYTHON",
+          "-B",
+          "scripts/check-static-level-start.py",
+          "--data-root",
+          "$POPULOUS_DATA_ROOT"
+        ],
+        "prerequisites": [
+          "Supplied hash-matching original game data",
+          "Python with Pillow"
+        ],
+        "sideEffects": [],
+        "resources": [],
+        "status": "blocked"
+      },
+      {
+        "id": "level-start-browser",
+        "kind": "browser",
+        "purpose": "Capture real before/during/after Mission1–3 startup on the exact development commit.",
+        "reason": "missing environment: POPULOUS_URL, POPULOUS_LEVEL_START_OUTPUT",
+        "knownLimits": [
+          "UI restart/checkpoint acceptance also requires corresponding portable/store checks; native evidence is separate."
+        ],
+        "command": [
+          "node",
+          "scripts/check-browser-level-start.mjs"
+        ],
+        "prerequisites": [
+          "Reserved Linux HeadlessShell browser/server slot",
+          "Playwright Chromium with verified local launch wrapper",
+          "Unique output directory"
+        ],
+        "sideEffects": [
+          "Writes screenshots and a commit-labelled JSON report to the requested output directory"
+        ],
+        "resources": [
+          "Serialized local Linux browser/server QA slot"
+        ],
+        "status": "blocked"
+      },
+      {
+        "id": "reincarnation-wave-portable",
+        "kind": "portable",
+        "purpose": "Verify ordinary mode2 site-wave ownership, native target response and checkpoint continuity.",
+        "reason": "selected only; planning never executes checks",
+        "knownLimits": [
+          "Supporting fixtures and source integration do not establish rendered acceptance."
+        ],
+        "command": [
+          "node",
+          "--test",
+          "tests/reincarnation-wave.test.mjs",
+          "tests/level-start.test.mjs",
+          "tests/person-panic.test.mjs"
+        ],
+        "prerequisites": [
+          "Node.js with TypeScript stripping"
+        ],
+        "sideEffects": [],
+        "resources": [],
+        "status": "not-run"
+      },
+      {
+        "id": "reincarnation-wave-native",
+        "kind": "native",
+        "purpose": "Execute the composed original model12 producer, allocator, mode2 wave, panic and damage with mapped-input integrity guards.",
+        "reason": "missing environment: POPULOUS_EXE, POPULOUS_PYTHON",
+        "knownLimits": [
+          "Supplied rendering, sound, removal and unrelated world leaves; spawn requests are supplied, not a successful native spawn.",
+          "Earlier corrupt-search receipts through94e88b4 are superseded."
+        ],
+        "command": [
+          "$POPULOUS_PYTHON",
+          "-B",
+          "scripts/check-native-reincarnation-wave.py",
+          "$POPULOUS_EXE"
+        ],
+        "prerequisites": [
+          "Hash-verified original EXE, levels/constant.dat and data/mwsearch.dat",
+          "Pinned Unicorn environment"
+        ],
+        "sideEffects": [],
+        "resources": [],
+        "status": "blocked"
+      },
+      {
+        "id": "reincarnation-wave-browser",
+        "kind": "browser",
+        "purpose": "Verify rendered ordinary reincarnation after real Mission2 combat death and saved-wave restoration.",
+        "reason": "missing environment: POPULOUS_ARTIFACT_DIR, POPULOUS_HEADLESS_SHELL",
+        "knownLimits": [
+          "Command adapter is not pointer-picking proof.",
+          "Staged intruders are separate from natural gameplay acceptance.",
+          "Linux headless rendering cannot establish hardware performance."
+        ],
+        "command": [
+          "node",
+          "scripts/local-render/harness.mjs",
+          "--scenario",
+          "scripts/check-browser-reincarnation-wave.mjs",
+          "--mission",
+          "2",
+          "--browser",
+          "$POPULOUS_HEADLESS_SHELL",
+          "--output",
+          "$POPULOUS_ARTIFACT_DIR"
+        ],
+        "prerequisites": [
+          "Owned local game server",
+          "Supported sandboxed Playwright browser"
+        ],
+        "sideEffects": [
+          "Writes source-bound captures/report to unique artifact directory"
+        ],
+        "resources": [
+          "Shared browser/server lane; serialize"
+        ],
+        "status": "blocked"
+      },
+      {
+        "id": "shaman-death-ground-portable",
+        "kind": "portable",
+        "purpose": "Check grounding.",
+        "reason": "selected only; planning never executes checks",
+        "knownLimits": [
+          "Death-terrain/drowning fixtures and fake-Scene bounds; actual rendering separate."
+        ],
+        "command": [
+          "node",
+          "--test",
+          "tests/shaman-death-ground.test.mjs",
+          "tests/shaman-death-cadence.test.mjs",
+          "tests/shaman-death-vfx.test.mjs",
+          "tests/controlled-scene-frames.test.mjs"
+        ],
+        "prerequisites": [
+          "Node.js with TypeScript stripping"
+        ],
+        "sideEffects": [],
+        "resources": [],
+        "status": "not-run"
+      },
+      {
+        "id": "shaman-death-ground-native",
+        "kind": "native",
+        "purpose": "Compare heights.",
+        "reason": "missing environment: POPULOUS_EXE",
+        "knownLimits": [
+          "Registration, support predicates, audio, bookkeeping and spawning are supplied leaves.",
+          "The current caller uses ordinary combat death and supplied post-death terrain; no shipped spell or native raster claim."
+        ],
+        "command": [
+          ".tools/decomp/oracle/bin/python",
+          "scripts/check-native-shaman-death-ground.py",
+          "$POPULOUS_EXE"
+        ],
+        "prerequisites": [
+          "Documented Unicorn Python environment and Node.js",
+          "Hash-verified executable, levels/constant.dat, data/mwsearch.dat, data/vstart-0.ani and data/vfra-0.ani"
+        ],
+        "sideEffects": [],
+        "resources": [
+          "Read-only native inputs; coordinate CPU use"
+        ],
+        "status": "blocked"
+      },
+      {
+        "id": "shaman-death-ground-browser",
+        "kind": "browser",
+        "purpose": "Full Scene frames.",
+        "reason": "missing environment: POPULOUS_HEADLESS_SHELL, POPULOUS_ARTIFACT_DIR",
+        "knownLimits": [
+          "Held RAF; full Scene.animate at24Hz/1x, not real time. Zero-time camera assist; no World injection. No native raster/hardware claim."
+        ],
+        "command": [
+          "node",
+          "scripts/local-render/harness.mjs",
+          "--scenario",
+          "scripts/check-browser-shaman-death-ground.mjs",
+          "--mission",
+          "1",
+          "--browser",
+          "$POPULOUS_HEADLESS_SHELL",
+          "--output",
+          "$POPULOUS_ARTIFACT_DIR",
+          "--timeout",
+          "480000"
+        ],
+        "prerequisites": [
+          "Verified installed dependencies",
+          "Supported sandboxed browser"
+        ],
+        "sideEffects": [
+          "Writes source-bound screenshots/report in an owned artifact directory"
+        ],
+        "resources": [
+          "Shared browser/server lane; serialize"
+        ],
+        "status": "blocked"
+      }
+    ],
+    "unresolved": [
+      "Static original-byte evidence and bounded live checks do not certify a full native graphics loop, complete death-frame timing or performance nonregression.",
+      "Generic follower/Spy behavior and simulation state remain outside the Shaman-only appearance repair."
+    ],
+    "sourceExcerpts": [
+      {
+        "path": "decomp/research/reincarnation-site-wave.md",
+        "headingTrail": [
+          "Ordinary reincarnation site wave (#30)"
+        ],
+        "occurrence": 1,
+        "lineStart": 19,
+        "lineEnd": 20,
+        "sourceHash": "e51e3c60907b9c34d54fdb890733e3979127223de8d5ce4cf2b323d60fc77173",
+        "sectionHash": "9c0308ef0a8d6e557bab6c19e783cb2d676a1784abea5e256f1e9a2ba1a7b5fc",
+        "contentHash": "939f24d20323b005fef4d7fa3758c0df32017bceb083eb476cd551d3bd48caba",
+        "excerpt": "accepted model12 body/spirit presentation. It does not complete issue #30.\n",
+        "truncated": true
+      },
+      {
+        "path": "decomp/README.md",
+        "headingTrail": [
+          "Static decompilation workspace",
+          "Original person sprite layers and regression coverage"
+        ],
+        "occurrence": 1,
+        "lineStart": 2326,
+        "lineEnd": 2331,
+        "sourceHash": "5847dedaa323a1265add2c75e1b54ec7239e8e604d3aef542965d4edf0e0a3e5",
+        "sectionHash": "b05f563790a8ae31455f0e73c343db443b2af9685818adfafc2ff326912b147d",
+        "contentHash": "602de418d2bb2251c21f67d61c722321b3387d2719148150f9f2d90bccd6393e",
+        "excerpt": "at scaled texel boundaries; it does not certify bit-identical scaled rasterization.\nA deliberate wrong-atlas UV mutation was rejected by this check. Existing live\nselection and real Blast shadow/landing checks also pass. Broader animation-state\nownership and all original tribes/classes are not certified by these fixtures.\n\n",
+        "truncated": true
+      },
+      {
+        "path": "decomp/README.md",
+        "headingTrail": [
+          "Static decompilation workspace",
+          "Animated shaman portrait — 2026-09-09"
+        ],
+        "occurrence": 1,
+        "lineStart": 3357,
+        "lineEnd": 3359,
+        "sourceHash": "5847dedaa323a1265add2c75e1b54ec7239e8e604d3aef542965d4edf0e0a3e5",
+        "sectionHash": "579b95082d582e196e867a4f3604422de819c897bbb1bffa8497d76836669a9a",
+        "contentHash": "d314216b13532c961839e196a2c7de92172fe33ad914d396f74e1de591ff7ba9",
+        "excerpt": "other panels and whole original-frame matching remain unfinished.\n\n",
+        "truncated": true
+      },
+      {
+        "path": "decomp/README.md",
+        "headingTrail": [
+          "Static decompilation workspace",
+          "2026-09-12 — shaman reincarnation lifecycle"
+        ],
+        "occurrence": 1,
+        "lineStart": 5006,
+        "lineEnd": 5007,
+        "sourceHash": "5847dedaa323a1265add2c75e1b54ec7239e8e604d3aef542965d4edf0e0a3e5",
+        "sectionHash": "3cfd50465f376ea0a66bb6fea9f1c196078bfe06e79f67b80431feafe85c295d",
+        "contentHash": "cb44de3917d761510772aef83b6621ffd025061020e59c999d15eb0d43fcee0f",
+        "excerpt": "models remain open.\n",
+        "truncated": true
+      },
+      {
+        "path": "decomp/research/level-start-sequence.md",
+        "headingTrail": [
+          "Original level-start sequence (issue #20)"
+        ],
+        "occurrence": 1,
+        "lineStart": 1,
+        "lineEnd": 4,
+        "sourceHash": "aa45e0d76ff8739bc8306738df031d5351131167485e5e018f39a7208cbfe5ec",
+        "sectionHash": "69257d58505bca2bff143ce3c9dc916bd07e6dda99979cb2c7657903452eb7c4",
+        "contentHash": "69257d58505bca2bff143ce3c9dc916bd07e6dda99979cb2c7657903452eb7c4",
+        "excerpt": "# Original level-start sequence (issue #20)\n\nWork in progress, October 3 2026. No overall parity or browser-completion claim.\n",
+        "truncated": false
+      },
+      {
+        "path": "decomp/research/shaman-death-vfx.md",
+        "headingTrail": [
+          "Bounded Shaman death presentation (#30)",
+          "Phase1 ground"
+        ],
+        "occurrence": 1,
+        "lineStart": 159,
+        "lineEnd": 160,
+        "sourceHash": "59b846ca12132b04989715d770d792b77bd7a58af29e2bb7a13f4556e488966d",
+        "sectionHash": "20e338355302f52b89f24908929cac797b28f4bec76066e4681ca321a3296cdb",
+        "contentHash": "b61cae8191ce94298b93744530dd52c54a7879e01d01bf0f84106c3fc489631b",
+        "excerpt": "This bounded repair does not complete issue #30 or award additional parity credit.\n",
+        "truncated": true
+      },
+      {
+        "path": "GOAL.md",
+        "headingTrail": [
+          "Goal: fast, playable Populous New Dawn parity",
+          "Current execution order: highest-impact playable parity"
+        ],
+        "occurrence": 1,
+        "lineStart": 208,
+        "lineEnd": 215,
+        "sourceHash": "236d60319235939d0fdd40b516643192b62631c31e6fcbf2577405b526d9ca97",
+        "sectionHash": "090961d3e647f1b4421f8e7cf307af3f145cfdc7a95cfe268e5513acb1add546",
+        "contentHash": "5ccdc8f942889670a9ad929d27872d2a4cebb2948399848053043aeab9d339ba",
+        "excerpt": "## Current execution order: highest-impact playable parity\n\nGitHub release-gate issues and their linked PRs are the current priority and status\nsource. Preserve overdue original dates and complete gate acceptance; past named\nworker assignments in this file are retired. The parent assigns current owners and\nkeeps independent work moving on isolated branches. Finish a running check or\nreviewable delivery before switching; a small fix does not close an entire gate.\n",
+        "truncated": true
+      },
+      {
+        "path": "app/shaman-appearance.ts",
+        "headingTrail": [],
+        "lineStart": 10,
+        "lineEnd": 22,
+        "sourceHash": "575dbcad01258180af2b5fafb4f51ffed39e0c97b372c3263b47f27580064fe8",
+        "contentHash": "0623bb24f090d2d374474815cd380fa4be7dfd6461ed1f8bb85c303ebdd79828",
+        "excerpt": "  green: { signature: 'green-shaman', sourceOffset: 24 },\n} as const\n\n// 004673b0 / 00450e60: distinct original artwork rather than follower recoloring.\nexport function shamanAppearance(team: Team) {\n  if (team === 'wild') throw new RangeError('A Shaman requires an original player tribe')\n  return appearances[team]\n}\n\nexport function shamanNativeDirections(team: Team, originalBase: number) {\n  return sources[originalBase + shamanAppearance(team).sourceOffset]\n}\n",
+        "truncated": true
+      },
+      {
+        "path": "app/scene-entities.ts",
+        "headingTrail": [],
+        "lineStart": 455,
+        "lineEnd": 470,
+        "sourceHash": "95a2a64f5741ca3445431a4b962e7a0aeef6e502841f56b2b90138addb236952",
+        "contentHash": "b8fa9ad856b4b2480a270232c4c928a557f1024f1943ae53c548b67eacaf2273",
+        "excerpt": "    }\n  }\n}\n\nexport function updateUnitsFrame(scene: GameScene) {\n  for (const [id, g] of scene.unitMeshes)\n    if (!scene.world.units.some(u => u.id === id)) {\n      scene.objects.remove(g)\n      scene.releaseGroup(g)\n      scene.unitMeshes.delete(id)\n    }\n  const showHealth =\n    scene.keys.has('quote') &&\n    !scene.world.inputMask &&\n    !scene.overviewStage &&\n    !document.querySelector('dialog[open]')",
+        "truncated": true
+      },
+      {
+        "path": "scripts/import-original.py",
+        "headingTrail": [],
+        "lineStart": 163,
+        "lineEnd": 170,
+        "sourceHash": "02127ee637d42c033119a16045c26b01adaa7d8c2833a82c3bedd03d247039e0",
+        "contentHash": "0b0bcc24e7903e8a89b89560ad18c16439cc6ecce34e25bfb918366b229bc685",
+        "excerpt": "        struct.unpack_from('<h',objects,i+52)[0]-struct.unpack_from('<h',objects,i+36)[0],\n    ] for i in range(0,len(objects),54)]\n    return dict(objects=indices,origins=origins,shapes=shapes,cells=list(data[64*48:]),socketOffsets={str(model):offsets[i] for i,model in enumerate(corrected)})\n\ndef append_unit_families(source, project):\n    \"\"\"Append original Shaman, Firewarrior and Preacher sermon artwork.\n\n    This bounded mode writes only original-units.json, unit-layers.png and its",
+        "truncated": true
+      },
+      {
+        "path": "app/scene-effects.ts",
+        "headingTrail": [],
+        "lineStart": 252,
+        "lineEnd": 266,
+        "sourceHash": "af82cfb32f31bac26503d936b2c1f79807e87f48ddbec6c4d0a5ee91e4934321",
+        "contentHash": "4116874b1e8714e6a32a33e0705f62ee8d3a98432601894ba237d92dfecb8669",
+        "excerpt": "  }\n  return g\n}\n\nexport function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {\n  const displacement =\n    f.animation && 'displacement' in f.animation ? f.animation.displacement : undefined\n  if (displacement) {\n    const to = { x: f.x, y: (f.height! * 45) / 128, z: f.z }\n    const from = {\n      x: f.x - displacement.x / 256,\n      y: to.y - displacement.h / 128,\n      z: f.z + displacement.y / 256,\n    }\n    g.position.copy(",
+        "truncated": true
+      },
+      {
+        "path": "decomp/research/reincarnation-site-wave.md",
+        "headingTrail": [
+          "Ordinary reincarnation site wave (#30)",
+          "Composed original evidence before implementation"
+        ],
+        "occurrence": 1,
+        "lineStart": 21,
+        "lineEnd": 28,
+        "sourceHash": "e51e3c60907b9c34d54fdb890733e3979127223de8d5ce4cf2b323d60fc77173",
+        "sectionHash": "c5df52f50cb563515511c3303cba921e41fadcfc4a860ed2f99fa5fb923df61f",
+        "contentHash": "97d589520bc03f87d81935e454ebaea0fae2a594239ee65170a390c1c8b972aa",
+        "excerpt": "## Composed original evidence before implementation\n\nBase `f78e5c17757ce061b8b159da150536ee690e6b6f` still emitted generic browser\n`birth` at the ordinary reincarnation rise boundary. That is a sixteen-visit\nmodel60 sprite; the original producer creates a class7/model8 site wave.\n\nThe evidence probe executes original `005029d0`, real allocator `004ed8a0`, its\n`004ed580` → `00509c10` → `0050bcd0` → `0050c780` chain, mode setter `0050c830`,",
+        "truncated": true
+      },
+      {
+        "path": "scripts/check-native-shaman-appearance.py",
+        "headingTrail": [],
+        "lineStart": 1,
+        "lineEnd": 11,
+        "sourceHash": "fec30cd8a53d987d9c52592965e919c957d7b4fc0791b3686bdf22b8fc2f2595",
+        "contentHash": "e667b3dfb55f214e7d5b85658382df0ac1284f8db55cd1eb7c9b02c186e1d4b0",
+        "excerpt": "\"\"\"Compare all four shipped Shaman selections with the original portrait draw.\n\nUsage: python scripts/check-native-shaman-appearance.py EXE --output NEW_JSON\nRuns the existing unchanged portrait oracle first, then supplies its same palette,\ncoordinate and final raster consumers for all four tribes. No fixture recording.\nThe world draw's equivalent tribe*8 branch is retained static evidence, not a\nclaim to execute the entire original graphics loop.\n\"\"\"\nimport argparse\nimport hashlib\nimport json",
+        "truncated": true
+      },
+      {
+        "path": "scripts/check-static-shaman-appearance.py",
+        "headingTrail": [],
+        "lineStart": 1,
+        "lineEnd": 12,
+        "sourceHash": "629f916c67b144852bf5fb5eecc2151f1bc71402137e135086aa63353b92e6b3",
+        "contentHash": "085012c36c9cf4a8849c9923f0fbea5e431683b8015ad1bf835274bbc438b335",
+        "excerpt": "\"\"\"Verify appended unit chains and original pixels without executing native code.\n\nUsage: python3 -B scripts/check-static-shaman-appearance.py --data-root GAME_ROOT\nOptional --baseline-dir DIR accepts original-units.json and unit-layers.png from\nan earlier reviewed revision, for independent append-only occupied-pixel checks.\nRequires the existing Pillow dependency used by native asset checks.\n\"\"\"\nimport argparse\nimport hashlib\nimport importlib.util\nimport json\nimport struct",
+        "truncated": true
+      },
+      {
+        "path": "tests/shaman-appearance.test.mjs",
+        "headingTrail": [],
+        "lineStart": 3,
+        "lineEnd": 9,
+        "sourceHash": "6d5e353eff99237da76f1fb7c894d788da265af60a56dc5db6819c5fbc49d44e",
+        "contentHash": "686bdf0f3c96554a72a93055b056f17b7be3d7f50d48fd4bfed7d874d6cee45e",
+        "excerpt": "import { createHash } from 'node:crypto'\nimport { readFileSync } from 'node:fs'\nimport { inflateSync } from 'node:zlib'\nimport fixture from './fixtures/unit-sprites.json' with { type: 'json' }\nimport units from '../app/original-units.json' with { type: 'json' }\nimport rules from '../app/original-rules.json' with { type: 'json' }\nimport { shamanAppearance, shamanNativeDirections, shamanReincarnationPose } from '../app/shaman-appearance.ts'",
+        "truncated": true
+      },
+      {
+        "path": "tests/shaman-death-vfx.test.mjs",
+        "headingTrail": [],
+        "lineStart": 1,
+        "lineEnd": 10,
+        "sourceHash": "83342f840718d81c0d74666d32227ae0466cba8891edd7e9cb5ca1f8fa2e1759",
+        "contentHash": "5ba12533db4b63f3b71ecff805f9ab70e1be1d8e8c958a51a6ab6f97c444130e",
+        "excerpt": "import assert from 'node:assert/strict'\nimport test from 'node:test'\nimport { readFileSync } from 'node:fs'\nimport units from '../app/original-units.json' with { type: 'json' }\nimport { shamanDeathVfx } from '../app/shaman-death-vfx.ts'\nimport { shamanReincarnationPose } from '../app/shaman-appearance.ts'\nimport { reincarnationTurns, stepReincarnation } from '../app/reincarnation.ts'\n\nconst teams = ['blue', 'red', 'yellow', 'green']\n",
+        "truncated": true
+      },
+      {
+        "path": "app/game-store.ts",
+        "headingTrail": [],
+        "lineStart": 3,
+        "lineEnd": 12,
+        "sourceHash": "1bb66bc1db93af5bff36c54f2c32630b71000bc5c0085595e6c7f2bc3cf95565",
+        "contentHash": "12833888a038744fa99fd1c02bb33222102d43bcf180887e297ee5e1655315ed",
+        "excerpt": "import { campaignCommand, createGift, createWorld, type Gift, type World } from './model.ts'\nimport { missionData, missionEnemyTribe, missionNumbers } from './mission-data.ts'\nimport { teamForTribe, type Point } from './world-types.ts'\nimport { createComputerProducers } from './computer.ts'\nimport rules from './original-rules.json' with { type: 'json' }\nimport {\n  WORSHIP_STONE_HEAD_MODEL,\n  authoredWorshipMode,\n  worshipAppearanceModel,\n} from './worship-appearance.ts'",
+        "truncated": true
+      },
+      {
+        "path": "app/scene-terrain-runtime.ts",
+        "headingTrail": [],
+        "lineStart": 19,
+        "lineEnd": 31,
+        "sourceHash": "815d8f2b0c1544a98cb7c05272873b58d9bbb28c8c679def6b1cb86d82e573b5",
+        "contentHash": "37cada96f0bdd40d6cfb6769e0241dce2beba47c5963e5d48ec7bcc9f064b463",
+        "excerpt": "  type Point,\n  type Tree,\n  type Effect,\n} from './model'\nimport { campaignShamanTeams } from './campaign-runtime.ts'\nimport { vertexLighting } from './projection.ts'\nimport { reincarnationStoneRise, reincarnationStones } from './reincarnation.ts'\nimport { timberScale } from './timber.ts'\nimport { updateWaveShake } from './scene-entities.ts'\nimport rules from './original-rules.json'\n\nexport function initializeTerrain(scene: GameScene) {\n  scene.terrainMap.colorSpace = THREE.NoColorSpace",
+        "truncated": true
+      },
+      {
+        "path": "app/shaman-death-vfx.ts",
+        "headingTrail": [],
+        "lineStart": 1,
+        "lineEnd": 8,
+        "sourceHash": "dd271694c881c321b865305d581fe1bf880ed542e4ce8f46971edb7c1355ab18",
+        "contentHash": "0b5b4e11e4e1b348eeeb503c0718ec856cc807ea40bd3852e4ed4e2f766f8157",
+        "excerpt": "import units from './original-units.json' with { type: 'json' }\nimport { setAnimationObject } from './animation.ts'\nimport type { Effect } from './world-types.ts'\n\n// 005029d0: reset on entry to the processed phase, not on a rendered frame.\n// The original object setter retains f2, so the phase controller clears it.\nexport function setShamanDeathPhase(effect: Effect, phase: number) {\n  const death = effect.reincarnation",
+        "truncated": true
+      },
+      {
+        "path": "app/world-initialization.ts",
+        "headingTrail": [],
+        "lineStart": 6,
+        "lineEnd": 13,
+        "sourceHash": "0b2accb95c180d87e71bad8788f9c28f3f49ab8af66d5189fd26af69ab717fe2",
+        "contentHash": "a97d692bd85f599592f765476527b0c9a2d712a3a479bb7c863ffd2897ac3d9c",
+        "excerpt": "import { nativePosition, syncLandscapeObjects } from './world-terrain-runtime.ts'\nimport { distance } from './world-coordinates.ts'\nimport { short } from './native-math.ts'\nimport { addUnit, breedingWork, createWorldState } from './world-state.ts'\nimport { isShaman, SPELLS, TURNS_PER_SECOND } from './world-rules.ts'\nimport { missionData, tutorialLevel } from './mission-data.ts'\nimport { createWorship } from './worship.ts'\nimport { worshipAppearanceModel } from './worship-appearance.ts'",
+        "truncated": true
+      },
+      {
+        "path": "scripts/check-native-shaman-death-ground.py",
+        "headingTrail": [],
+        "lineStart": 1,
+        "lineEnd": 7,
+        "sourceHash": "b880152e87e24a44dff7d0eb196c37d64f4ab877f1e8aa7124fe25800c495045",
+        "contentHash": "e7a8c5b3d0d6e9f32c7ef097c67be890dafbae316f09f59bfaf75c6f4a9fe1de",
+        "excerpt": "\"\"\"Compare original Shaman phase1 grounding with the live world-turn caller.\n\nUsage: python scripts/check-native-shaman-death-ground.py EXE\nReal death producer, allocator, initializer, phase controller, object setter and\nterrain-height reader execute. No fixture writes or original game/OS launch.\nSupport predicates, registration, audio, source bookkeeping and spawning are\nsupplied. Current-game death uses ordinary Mission2 combat; changed terrain is a",
+        "truncated": true
+      },
+      {
+        "path": "app/animation.ts",
+        "headingTrail": [],
+        "lineStart": 1,
+        "lineEnd": 16,
+        "sourceHash": "81ce8a1c1b4f7ec9dc228405023337856fed007146b9abed4ff2e43d6fbf78af",
+        "contentHash": "6316b6f6d724989a7e36039c05af35bd60a8cf043ab55a87bbaaa6552f21e21e",
+        "excerpt": "import rules from './original-rules.json' with { type: 'json' }\nimport { random } from './native-math.ts'\n\nexport type Animation = {\n  object: number\n  draw: number\n  morph: number\n  palette: number\n  renderFlags: number\n  f1: number\n  f2: number\n}\nexport type AnimatedUnit = Animation & {\n  stamp: number\n  flags3: number\n  morphTimer: number",
+        "truncated": true
+      },
+      {
+        "path": "app/effect-motion.ts",
+        "headingTrail": [],
+        "lineStart": 1,
+        "lineEnd": 16,
+        "sourceHash": "09aed949e22799f0b34ea36a5a19e416fccf366ef0e4e2aceccbe3dc354f74b4",
+        "contentHash": "af3152a538da9634d7947293121047596860460627e308a5b896261e3ca5a8a1",
+        "excerpt": "import { terrainPointHeight, type NativeTerrain } from './native-terrain.ts'\nimport { limitPersonVelocity } from './person-physics.ts'\nimport rules from './original-rules.json' with { type: 'json' }\n\nexport interface DirectedEffect {\n  x: number\n  y: number\n  h: number\n  flags2: number\n  flags4: number\n  speed: number\n  yaw: number\n  pitch: number\n  velocity: { x: number; y: number; z: number }\n}\nconst short = (n: number) => (n << 16) >> 16",
+        "truncated": true
+      },
+      {
+        "path": "app/level-start-runtime.ts",
+        "headingTrail": [],
+        "lineStart": 34,
+        "lineEnd": 49,
+        "sourceHash": "cce900dc4e08ce890ac88060d7db41bb1cde578f80c2424317d4842d8884451b",
+        "contentHash": "3883a2fad41aafcdfad62223bc5977b9a86dba3150972286ff10c4573537fbe4",
+        "excerpt": "  levelStartConversionPoint,\n  type StartPoint,\n  type LevelStartSite,\n} from './level-start.ts'\nimport rules from './original-rules.json' with { type: 'json' }\n\nimport {\n  animatedSiteEffect,\n  siteWaveEffects,\n  inSiteWaveCell,\n  burnSiteWaveScenery,\n  finishSiteWaveTerrain,\n} from './site-wave-effects.ts'\n\nfunction stoneBurst(w: World, point: StartPoint, tribe: number) {\n  const team = teamForTribe(tribe)",
+        "truncated": true
+      },
+      {
+        "path": "app/level-start.ts",
+        "headingTrail": [],
+        "lineStart": 25,
+        "lineEnd": 40,
+        "sourceHash": "271093f631144d14ce4438c8a0378241775e95375103339da4a73ef9b443599b",
+        "contentHash": "f052560d3a18fe20be5872f83feb66af232a035fd71d43e0bd9442ec0a403098",
+        "excerpt": "  orbits: StartOrbit[]\n}\nexport interface LevelStartSite {\n  tribe: number\n  shaman: number\n  center: StartPoint\n  phase: 0 | 1 | 2 | 3 | 4\n  entering: boolean\n  timer: number\n  counter: number\n  suspended?: boolean\n  awaitedWave?: number | null\n  wave: StartWave | null\n  carriers: StartCarrier[]\n  stoneTurns: (number | null)[]\n}",
+        "truncated": true
+      },
+      {
+        "path": "app/live-building-entry.ts",
+        "headingTrail": [],
+        "lineStart": 77,
+        "lineEnd": 83,
+        "sourceHash": "94aca18d9dfb6fadb1df9f9f747a22683ff14c4f42ed3629ebb668688efe647f",
+        "contentHash": "926e1e56abab278254437105a27c114232d7f2fd2588cc10c64cecefbbb7854f",
+        "excerpt": "import { restingCellCollision } from './person-collision.ts'\nimport { startIndexedSearch, nextIndexedSearch, endIndexedSearch } from './indexed-search.ts'\nimport { setPersonAnchor, personStateAfterOrders } from './person-order-update.ts'\nimport { startBuildingOccupantAnimation } from './animation.ts'\nimport sprites from './original-units.json' with { type: 'json' }\nimport rules from './original-rules.json' with { type: 'json' }\nimport { nativePersonModel } from './live-combat.ts'",
+        "truncated": true
+      },
+      {
+        "path": "app/live-command.ts",
+        "headingTrail": [],
+        "lineStart": 33,
+        "lineEnd": 48,
+        "sourceHash": "4671406f827e92fb70432bf88af54d764b4f628e422b320b89384485a6411913",
+        "contentHash": "2cffe02fc87583d0e5104fbdb94a49f4983d57c98dd3359c2504fc42aec9a8b7",
+        "excerpt": "  writePersonOrder,\n} from './person-orders.ts'\nimport {\n  appendLiveOrders,\n  anchorLiveShamanGuard,\n  cancelLiveOrder,\n  movementOrder,\n  orderEffects,\n  startLiveConstructionOrder,\n  startLiveOrder,\n} from './live-movement.ts'\nimport { canOrder, cancelInteraction, selectionPeople } from './selection-runtime.ts'\nimport { release } from './world-tasks.ts'\nimport { attachPersonRoute, releasePersonRoute } from './person-routes.ts'\nimport {\n  addBuilding,",
+        "truncated": true
+      },
+      {
+        "path": "app/live-movement.ts",
+        "headingTrail": [],
+        "lineStart": 73,
+        "lineEnd": 84,
+        "sourceHash": "626f7a07bbafe1f82e858b9a4e06490bda9f28f18b15be4a432d410ad1048e20",
+        "contentHash": "c249f11a1cb6fd244bb8c9c348e4b1b0b0a23ca3fec1fd89473ca427aed4b01e",
+        "excerpt": "  joinMarchingFormation,\n  stepMarchingFormation,\n  type MarchingFormation,\n} from './marching-formations.ts'\nimport rules from './original-rules.json' with { type: 'json' }\nimport constants from './original-constants.json' with { type: 'json' }\nimport sprites from './original-units.json' with { type: 'json' }\nimport { spyDisguisedFrom } from './computer-spells.ts'\nimport { teamForTribe, tribeForTeam } from './world-types.ts'\nimport {\n  boardLiveVehicle,\n  leaveLiveVehicle,",
+        "truncated": true
+      }
+    ],
+    "omissions": [
+      {
+        "path": "decomp/research/reincarnation-site-wave.md",
+        "headingTrail": [
+          "Ordinary reincarnation site wave (#30)"
+        ],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          19,
+          20
+        ]
+      },
+      {
+        "path": "decomp/README.md",
+        "headingTrail": [
+          "Static decompilation workspace",
+          "Original person sprite layers and regression coverage"
+        ],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          2326,
+          2331
+        ]
+      },
+      {
+        "path": "decomp/README.md",
+        "headingTrail": [
+          "Static decompilation workspace",
+          "Animated shaman portrait — 2026-09-09"
+        ],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          3357,
+          3359
+        ]
+      },
+      {
+        "path": "decomp/README.md",
+        "headingTrail": [
+          "Static decompilation workspace",
+          "2026-09-12 — shaman reincarnation lifecycle"
+        ],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          5006,
+          5007
+        ]
+      },
+      {
+        "path": "decomp/research/shaman-death-vfx.md",
+        "headingTrail": [
+          "Bounded Shaman death presentation (#30)",
+          "Phase1 ground"
+        ],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          159,
+          160
+        ]
+      },
+      {
+        "path": "GOAL.md",
+        "headingTrail": [
+          "Goal: fast, playable Populous New Dawn parity",
+          "Current execution order: highest-impact playable parity"
+        ],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          208,
+          215
+        ]
+      },
+      {
+        "path": "app/shaman-appearance.ts",
+        "headingTrail": [],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          10,
+          22
+        ]
+      },
+      {
+        "path": "app/scene-entities.ts",
+        "headingTrail": [],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          455,
+          470
+        ]
+      },
+      {
+        "path": "scripts/import-original.py",
+        "headingTrail": [],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          163,
+          170
+        ]
+      },
+      {
+        "path": "app/scene-effects.ts",
+        "headingTrail": [],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          252,
+          266
+        ]
+      },
+      {
+        "path": "decomp/research/reincarnation-site-wave.md",
+        "headingTrail": [
+          "Ordinary reincarnation site wave (#30)",
+          "Composed original evidence before implementation"
+        ],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          21,
+          28
+        ]
+      },
+      {
+        "path": "scripts/check-native-shaman-appearance.py",
+        "headingTrail": [],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          1,
+          11
+        ]
+      },
+      {
+        "path": "scripts/check-static-shaman-appearance.py",
+        "headingTrail": [],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          1,
+          12
+        ]
+      },
+      {
+        "path": "tests/shaman-appearance.test.mjs",
+        "headingTrail": [],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          3,
+          9
+        ]
+      },
+      {
+        "path": "tests/shaman-death-vfx.test.mjs",
+        "headingTrail": [],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          1,
+          10
+        ]
+      },
+      {
+        "path": "app/game-store.ts",
+        "headingTrail": [],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          3,
+          12
+        ]
+      },
+      {
+        "path": "app/scene-terrain-runtime.ts",
+        "headingTrail": [],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          19,
+          31
+        ]
+      },
+      {
+        "path": "app/shaman-death-vfx.ts",
+        "headingTrail": [],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          1,
+          8
+        ]
+      },
+      {
+        "path": "app/world-initialization.ts",
+        "headingTrail": [],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          6,
+          13
+        ]
+      },
+      {
+        "path": "scripts/check-native-shaman-death-ground.py",
+        "headingTrail": [],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          1,
+          7
+        ]
+      },
+      {
+        "path": "app/animation.ts",
+        "headingTrail": [],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          1,
+          16
+        ]
+      },
+      {
+        "path": "app/effect-motion.ts",
+        "headingTrail": [],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          1,
+          16
+        ]
+      },
+      {
+        "path": "app/level-start-runtime.ts",
+        "headingTrail": [],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          34,
+          49
+        ]
+      },
+      {
+        "path": "app/level-start.ts",
+        "headingTrail": [],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          25,
+          40
+        ]
+      },
+      {
+        "path": "app/live-building-entry.ts",
+        "headingTrail": [],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          77,
+          83
+        ]
+      },
+      {
+        "path": "app/live-command.ts",
+        "headingTrail": [],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          33,
+          48
+        ]
+      },
+      {
+        "path": "app/live-movement.ts",
+        "headingTrail": [],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          73,
+          84
+        ]
+      },
+      {
+        "reason": "lower-ranked source sections",
+        "count": 204
+      },
+      {
+        "reason": "context budget",
+        "count": 10
+      }
+    ],
+    "contextBytes": 47004,
+    "budgetBytes": 48000,
+    "executesChecks": false
+  },
+  "small": {
+    "version": 1,
+    "subsystem": {
+      "id": "shaman-appearance",
+      "title": "Original Shaman appearance",
+      "mappingStatus": "reviewed",
+      "implementationPaths": [
+        "app/shaman-appearance.ts",
+        "app/level-start.ts",
+        "app/level-start-runtime.ts",
+        "app/reincarnation.ts",
+        "app/reincarnation-wave-runtime.ts",
+        "app/site-wave-effects.ts"
+      ],
+      "researchPaths": [
+        "scripts/import-original.py",
+        "app/original-units.json",
+        "public/original/unit-layers.png",
+        "public/original/provenance.json",
+        "tests/shaman-appearance.test.mjs",
+        "tests/sprite-layers.test.mjs",
+        "scripts/check-static-shaman-appearance.py",
+        "scripts/check-native-shaman-appearance.py",
+        "scripts/check-browser-shaman-appearance.mjs",
+        "scripts/check-browser-sprite-layers.mjs",
+        "scripts/check-browser-reincarnation.mjs",
+        "tests/level-start.test.mjs",
+        "scripts/check-native-level-start.py",
+        "scripts/check-static-level-start.py",
+        "scripts/check-browser-level-start.mjs",
+        "scripts/check-native-reincarnation-wave.py",
+        "scripts/check-browser-reincarnation-wave.mjs",
+        "tests/reincarnation-wave.test.mjs",
+        "decomp/research/reincarnation-site-wave.md",
+        "tests/shaman-death-ground.test.mjs",
+        "scripts/check-native-shaman-death-ground.py",
+        "scripts/check-browser-shaman-death-ground.mjs",
+        "scripts/controlled-scene-frames.mjs",
+        "scripts/shaman-worship-ground-observer.mjs",
+        "tests/controlled-scene-frames.test.mjs",
+        "decomp/research/shaman-death-vfx.md"
+      ],
+      "sharedPaths": [
+        "app/scene-entities.ts",
+        "app/scene-effects.ts",
+        "app/world-turn.ts"
+      ],
+      "entrySymbols": [
+        {
+          "path": "app/shaman-appearance.ts",
+          "symbol": "shamanAppearance"
+        },
+        {
+          "path": "app/scene-entities.ts",
+          "symbol": "updateUnitsFrame"
+        },
+        {
+          "path": "app/scene-effects.ts",
+          "symbol": "animateFx"
+        },
+        {
+          "path": "scripts/import-original.py",
+          "symbol": "append_unit_families"
+        }
+      ],
+      "nativeAddresses": [
+        "0x4673b0",
+        "0x450e60",
+        "0x5029d0"
+      ],
+      "risks": [
+        "Preserve old frame/piece indices and occupied pixels; source IDs are not packed frame indices.",
+        "Native execution, browser/GPU validation and fixture recording require separately reserved resources."
+      ]
+    },
+    "query": "",
+    "cache": "valid",
+    "ledgerRevision": 28,
+    "parityScope": [
+      {
+        "id": "graphics.sprites.layers",
+        "title": "Imported unit pieces, tribe layers, signed offsets and mirroring",
+        "status": "verified",
+        "scope": [
+          "Compared original selection and pixels for the imported playable classes; remaining class/state coverage is separate."
+        ],
+        "omittedScopeSentences": 0,
+        "noteHash": "ee9d7e5911c1a1dc664d5b058b7bef4ecdee7d38d625cf3b4ecd0b6766c58b2d",
+        "evidence": [
+          "scripts/check-native-sprite-layers.py",
+          "scripts/check-browser-sprite-layers.mjs"
+        ],
+        "provenance": {
+          "path": "parity.json",
+          "lineStart": 228,
+          "lineEnd": 228,
+          "sourceHash": "02f787d817df8871105dc3b6581e127ddbc06023f77c1f0375b81ff802711130"
+        }
+      },
+      {
+        "id": "graphics.sprites.roster",
+        "title": "Remaining tribes and unit-class sprite variants",
+        "status": "missing",
+        "scope": [
+          "Complete original roster has not been compared and integrated."
+        ],
+        "omittedScopeSentences": 0,
+        "noteHash": "b04bc26004f288daad72ef17bdfdb103d41a665df94113d094aa1f47690984ca",
+        "evidence": [],
+        "provenance": {
+          "path": "parity.json",
+          "lineStart": 258,
+          "lineEnd": 258,
+          "sourceHash": "02f787d817df8871105dc3b6581e127ddbc06023f77c1f0375b81ff802711130"
+        }
+      },
+      {
+        "id": "graphics.sprites.states",
+        "title": "Complete action-to-sprite state ownership",
+        "status": "partial",
+        "scope": [
+          "Remaining action and scheduling ownership is not verified."
+        ],
+        "omittedScopeSentences": 0,
+        "noteHash": "ba7b455e82aec687b7841c48a2658756925d5f8a7aabae4b521c61bb1bfb5807",
+        "evidence": [
+          "app/live-people.ts",
+          "references/reverse-engineering.md"
+        ],
+        "provenance": {
+          "path": "parity.json",
+          "lineStart": 248,
+          "lineEnd": 248,
+          "sourceHash": "02f787d817df8871105dc3b6581e127ddbc06023f77c1f0375b81ff802711130"
+        }
+      },
+      {
+        "id": "combat.shamans",
+        "title": "All shaman combat, death and reincarnation behavior",
+        "status": "partial",
+        "scope": [
+          "Opening shaman playable; full death/site/tribe lifecycle unverified."
+        ],
+        "omittedScopeSentences": 0,
+        "noteHash": "92d53cd2dc4ee798408bfd2377afd69ca7411e81ff0c6ec5cd718da623f745bb",
+        "evidence": [
+          "scripts/check-native-reincarnation.py",
+          "tests/game.test.mjs"
+        ],
+        "provenance": {
+          "path": "parity.json",
+          "lineStart": 2240,
+          "lineEnd": 2240,
+          "sourceHash": "02f787d817df8871105dc3b6581e127ddbc06023f77c1f0375b81ff802711130"
+        }
+      }
+    ],
+    "checks": [
+      {
+        "id": "shaman-appearance-portable",
+        "kind": "portable",
+        "purpose": "Check four-tribe Shaman sources, unchanged old atlas pixels, and original Mission23 checkpoint/death identity.",
+        "reason": "selected only; planning never executes checks",
+        "knownLimits": [
+          "Portable checks do not certify rendered gameplay or complete native animation timing."
+        ],
+        "command": [
+          "node",
+          "--test",
+          "tests/shaman-appearance.test.mjs",
+          "tests/sprite-layers.test.mjs"
+        ],
+        "prerequisites": [
+          "Node.js >=22.13 with TypeScript stripping",
+          "Installed repository dependencies"
+        ],
+        "sideEffects": [],
+        "resources": [],
+        "status": "not-run"
+      },
+      {
+        "id": "shaman-assets-static",
+        "kind": "static",
+        "purpose": "Compare all imported Shaman frame chains, layer metadata and atlas pieces against supplied original asset bytes.",
+        "reason": "missing environment: POPULOUS_PYTHON, POPULOUS_DATA_ROOT",
+        "knownLimits": [
+          "Static original-byte comparison; no native executable or browser is run."
+        ],
+        "command": [
+          "$POPULOUS_PYTHON",
+          "-B",
+          "scripts/check-static-shaman-appearance.py",
+          "--data-root",
+          "$POPULOUS_DATA_ROOT"
+        ],
+        "prerequisites": [
+          "Existing Python environment with Pillow",
+          "Supplied hash-matching original data root"
+        ],
+        "sideEffects": [],
+        "resources": [],
+        "status": "blocked"
+      },
+      {
+        "id": "shaman-appearance-browser",
+        "kind": "browser",
+        "purpose": "Check the shipped four-tribe renderer, diagnostic actions, normal lifecycle, checkpoint UI and original-byte GPU pixels in an explicitly reserved slot.",
+        "reason": "missing environment: POPULOUS_URL, POPULOUS_SHAMAN_REFERENCE, POPULOUS_SHAMAN_OUTPUT",
+        "knownLimits": [
+          "Requires an explicit browser/GPU slot; cannot run from a portable aggregate.",
+          "Controlled pose/death edge cases supplement ordinary mission startup; no144fps or performance-nonregression claim."
+        ],
+        "command": [
+          "node",
+          "scripts/check-browser-shaman-appearance.mjs",
+          "--reference-report",
+          "$POPULOUS_SHAMAN_REFERENCE",
+          "--output-dir",
+          "$POPULOUS_SHAMAN_OUTPUT",
+          "--headed"
+        ],
+        "prerequisites": [
+          "Owned server at127.0.0.1:4318",
+          "Installed Playwright browser",
+          "Static reference report from the current atlas",
+          "A new unique ignored output directory",
+          "Explicit runtime resource grant"
+        ],
+        "sideEffects": [
+          "Creates an isolated browser profile and writes only the supplied new artifact directory"
+        ],
+        "resources": [
+          "Browser/GPU/server serialized by explicit CEO grant"
+        ],
+        "status": "blocked"
+      },
+      {
+        "id": "shaman-appearance-native",
+        "kind": "native",
+        "purpose": "Optionally compare all four Shaman layer selections with the original portrait routine using the existing HUD oracle.",
+        "reason": "missing environment: POPULOUS_PYTHON, POPULOUS_EXE, POPULOUS_SHAMAN_NATIVE_OUTPUT",
+        "knownLimits": [
+          "Requires a separate native-execution grant; not included in browser/GPU approval.",
+          "Original world draw is separate static evidence; this does not execute the entire graphics loop."
+        ],
+        "command": [
+          "$POPULOUS_PYTHON",
+          "-B",
+          "scripts/check-native-shaman-appearance.py",
+          "$POPULOUS_EXE",
+          "--output",
+          "$POPULOUS_SHAMAN_NATIVE_OUTPUT"
+        ],
+        "prerequisites": [
+          "Documented native Python environment",
+          "Hash-verified supplied EXE/adjacent assets",
+          "Explicit native resource grant"
+        ],
+        "sideEffects": [
+          "Writes a new explicitly supplied evidence JSON; never records fixtures"
+        ],
+        "resources": [
+          "Native execution serialized by CEO"
+        ],
+        "status": "blocked"
+      },
+      {
+        "id": "level-start-portable",
+        "kind": "portable",
+        "purpose": "Verify ordinary Mission1–3 startup, input release, terrain/conversion, restart, flyby skip and resumable checkpoints.",
+        "reason": "selected only; planning never executes checks",
+        "knownLimits": [
+          "Browser pixels and native instruction comparisons run separately."
+        ],
+        "command": [
+          "node",
+          "--test",
+          "tests/level-start.test.mjs",
+          "tests/startup-burst-angles.test.mjs",
+          "tests/startup-burst-observer.test.mjs"
+        ],
+        "prerequisites": [
+          "Node.js with TypeScript stripping"
+        ],
+        "sideEffects": [],
+        "resources": [],
+        "status": "not-run"
+      },
+      {
+        "id": "level-start-native",
+        "kind": "native",
+        "purpose": "Compare isolated original opening command, terrain wave, carriers, stones and conversion producers.",
+        "reason": "missing environment: POPULOUS_PYTHON, POPULOUS_EXE",
+        "knownLimits": [
+          "Supplied allocation, registration, notification and animation leaves; not full original game execution."
+        ],
+        "command": [
+          "$POPULOUS_PYTHON",
+          "-B",
+          "scripts/check-native-level-start.py",
+          "$POPULOUS_EXE"
+        ],
+        "prerequisites": [
+          "Hash-matching supplied original EXE and adjacent mwsearch data",
+          "Explicit isolated native-execution authorization",
+          "Python with Unicorn and Capstone"
+        ],
+        "sideEffects": [],
+        "resources": [],
+        "status": "blocked"
+      },
+      {
+        "id": "level-start-static",
+        "kind": "static",
+        "purpose": "Compare appended startup HFX frames and dust palette with original bytes.",
+        "reason": "missing environment: POPULOUS_PYTHON, POPULOUS_DATA_ROOT",
+        "knownLimits": [
+          "Not an original raster or browser comparison; append-preservation uses an optional captured baseline."
+        ],
+        "command": [
+          "$POPULOUS_PYTHON",
+          "-B",
+          "scripts/check-static-level-start.py",
+          "--data-root",
+          "$POPULOUS_DATA_ROOT"
+        ],
+        "prerequisites": [
+          "Supplied hash-matching original game data",
+          "Python with Pillow"
+        ],
+        "sideEffects": [],
+        "resources": [],
+        "status": "blocked"
+      },
+      {
+        "id": "level-start-browser",
+        "kind": "browser",
+        "purpose": "Capture real before/during/after Mission1–3 startup on the exact development commit.",
+        "reason": "missing environment: POPULOUS_URL, POPULOUS_LEVEL_START_OUTPUT",
+        "knownLimits": [
+          "UI restart/checkpoint acceptance also requires corresponding portable/store checks; native evidence is separate."
+        ],
+        "command": [
+          "node",
+          "scripts/check-browser-level-start.mjs"
+        ],
+        "prerequisites": [
+          "Reserved Linux HeadlessShell browser/server slot",
+          "Playwright Chromium with verified local launch wrapper",
+          "Unique output directory"
+        ],
+        "sideEffects": [
+          "Writes screenshots and a commit-labelled JSON report to the requested output directory"
+        ],
+        "resources": [
+          "Serialized local Linux browser/server QA slot"
+        ],
+        "status": "blocked"
+      },
+      {
+        "id": "reincarnation-wave-portable",
+        "kind": "portable",
+        "purpose": "Verify ordinary mode2 site-wave ownership, native target response and checkpoint continuity.",
+        "reason": "selected only; planning never executes checks",
+        "knownLimits": [
+          "Supporting fixtures and source integration do not establish rendered acceptance."
+        ],
+        "command": [
+          "node",
+          "--test",
+          "tests/reincarnation-wave.test.mjs",
+          "tests/level-start.test.mjs",
+          "tests/person-panic.test.mjs"
+        ],
+        "prerequisites": [
+          "Node.js with TypeScript stripping"
+        ],
+        "sideEffects": [],
+        "resources": [],
+        "status": "not-run"
+      },
+      {
+        "id": "reincarnation-wave-native",
+        "kind": "native",
+        "purpose": "Execute the composed original model12 producer, allocator, mode2 wave, panic and damage with mapped-input integrity guards.",
+        "reason": "missing environment: POPULOUS_EXE, POPULOUS_PYTHON",
+        "knownLimits": [
+          "Supplied rendering, sound, removal and unrelated world leaves; spawn requests are supplied, not a successful native spawn.",
+          "Earlier corrupt-search receipts through94e88b4 are superseded."
+        ],
+        "command": [
+          "$POPULOUS_PYTHON",
+          "-B",
+          "scripts/check-native-reincarnation-wave.py",
+          "$POPULOUS_EXE"
+        ],
+        "prerequisites": [
+          "Hash-verified original EXE, levels/constant.dat and data/mwsearch.dat",
+          "Pinned Unicorn environment"
+        ],
+        "sideEffects": [],
+        "resources": [],
+        "status": "blocked"
+      },
+      {
+        "id": "reincarnation-wave-browser",
+        "kind": "browser",
+        "purpose": "Verify rendered ordinary reincarnation after real Mission2 combat death and saved-wave restoration.",
+        "reason": "missing environment: POPULOUS_ARTIFACT_DIR, POPULOUS_HEADLESS_SHELL",
+        "knownLimits": [
+          "Command adapter is not pointer-picking proof.",
+          "Staged intruders are separate from natural gameplay acceptance.",
+          "Linux headless rendering cannot establish hardware performance."
+        ],
+        "command": [
+          "node",
+          "scripts/local-render/harness.mjs",
+          "--scenario",
+          "scripts/check-browser-reincarnation-wave.mjs",
+          "--mission",
+          "2",
+          "--browser",
+          "$POPULOUS_HEADLESS_SHELL",
+          "--output",
+          "$POPULOUS_ARTIFACT_DIR"
+        ],
+        "prerequisites": [
+          "Owned local game server",
+          "Supported sandboxed Playwright browser"
+        ],
+        "sideEffects": [
+          "Writes source-bound captures/report to unique artifact directory"
+        ],
+        "resources": [
+          "Shared browser/server lane; serialize"
+        ],
+        "status": "blocked"
+      },
+      {
+        "id": "shaman-death-ground-portable",
+        "kind": "portable",
+        "purpose": "Check grounding.",
+        "reason": "selected only; planning never executes checks",
+        "knownLimits": [
+          "Death-terrain/drowning fixtures and fake-Scene bounds; actual rendering separate."
+        ],
+        "command": [
+          "node",
+          "--test",
+          "tests/shaman-death-ground.test.mjs",
+          "tests/shaman-death-cadence.test.mjs",
+          "tests/shaman-death-vfx.test.mjs",
+          "tests/controlled-scene-frames.test.mjs"
+        ],
+        "prerequisites": [
+          "Node.js with TypeScript stripping"
+        ],
+        "sideEffects": [],
+        "resources": [],
+        "status": "not-run"
+      },
+      {
+        "id": "shaman-death-ground-native",
+        "kind": "native",
+        "purpose": "Compare heights.",
+        "reason": "missing environment: POPULOUS_EXE",
+        "knownLimits": [
+          "Registration, support predicates, audio, bookkeeping and spawning are supplied leaves.",
+          "The current caller uses ordinary combat death and supplied post-death terrain; no shipped spell or native raster claim."
+        ],
+        "command": [
+          ".tools/decomp/oracle/bin/python",
+          "scripts/check-native-shaman-death-ground.py",
+          "$POPULOUS_EXE"
+        ],
+        "prerequisites": [
+          "Documented Unicorn Python environment and Node.js",
+          "Hash-verified executable, levels/constant.dat, data/mwsearch.dat, data/vstart-0.ani and data/vfra-0.ani"
+        ],
+        "sideEffects": [],
+        "resources": [
+          "Read-only native inputs; coordinate CPU use"
+        ],
+        "status": "blocked"
+      },
+      {
+        "id": "shaman-death-ground-browser",
+        "kind": "browser",
+        "purpose": "Full Scene frames.",
+        "reason": "missing environment: POPULOUS_HEADLESS_SHELL, POPULOUS_ARTIFACT_DIR",
+        "knownLimits": [
+          "Held RAF; full Scene.animate at24Hz/1x, not real time. Zero-time camera assist; no World injection. No native raster/hardware claim."
+        ],
+        "command": [
+          "node",
+          "scripts/local-render/harness.mjs",
+          "--scenario",
+          "scripts/check-browser-shaman-death-ground.mjs",
+          "--mission",
+          "1",
+          "--browser",
+          "$POPULOUS_HEADLESS_SHELL",
+          "--output",
+          "$POPULOUS_ARTIFACT_DIR",
+          "--timeout",
+          "480000"
+        ],
+        "prerequisites": [
+          "Verified installed dependencies",
+          "Supported sandboxed browser"
+        ],
+        "sideEffects": [
+          "Writes source-bound screenshots/report in an owned artifact directory"
+        ],
+        "resources": [
+          "Shared browser/server lane; serialize"
+        ],
+        "status": "blocked"
+      }
+    ],
+    "unresolved": [
+      "Static original-byte evidence and bounded live checks do not certify a full native graphics loop, complete death-frame timing or performance nonregression.",
+      "Generic follower/Spy behavior and simulation state remain outside the Shaman-only appearance repair."
+    ],
+    "sourceExcerpts": [
+      {
+        "path": "decomp/research/reincarnation-site-wave.md",
+        "headingTrail": [
+          "Ordinary reincarnation site wave (#30)"
+        ],
+        "occurrence": 1,
+        "lineStart": 19,
+        "lineEnd": 20,
+        "sourceHash": "e51e3c60907b9c34d54fdb890733e3979127223de8d5ce4cf2b323d60fc77173",
+        "sectionHash": "9c0308ef0a8d6e557bab6c19e783cb2d676a1784abea5e256f1e9a2ba1a7b5fc",
+        "contentHash": "939f24d20323b005fef4d7fa3758c0df32017bceb083eb476cd551d3bd48caba",
+        "excerpt": "accepted model12 body/spirit presentation. It does not complete issue #30.\n",
+        "truncated": true
+      },
+      {
+        "path": "decomp/README.md",
+        "headingTrail": [
+          "Static decompilation workspace",
+          "Original person sprite layers and regression coverage"
+        ],
+        "occurrence": 1,
+        "lineStart": 2326,
+        "lineEnd": 2331,
+        "sourceHash": "5847dedaa323a1265add2c75e1b54ec7239e8e604d3aef542965d4edf0e0a3e5",
+        "sectionHash": "b05f563790a8ae31455f0e73c343db443b2af9685818adfafc2ff326912b147d",
+        "contentHash": "602de418d2bb2251c21f67d61c722321b3387d2719148150f9f2d90bccd6393e",
+        "excerpt": "at scaled texel boundaries; it does not certify bit-identical scaled rasterization.\nA deliberate wrong-atlas UV mutation was rejected by this check. Existing live\nselection and real Blast shadow/landing checks also pass. Broader animation-state\nownership and all original tribes/classes are not certified by these fixtures.\n\n",
+        "truncated": true
+      },
+      {
+        "path": "decomp/README.md",
+        "headingTrail": [
+          "Static decompilation workspace",
+          "Animated shaman portrait — 2026-09-09"
+        ],
+        "occurrence": 1,
+        "lineStart": 3357,
+        "lineEnd": 3359,
+        "sourceHash": "5847dedaa323a1265add2c75e1b54ec7239e8e604d3aef542965d4edf0e0a3e5",
+        "sectionHash": "579b95082d582e196e867a4f3604422de819c897bbb1bffa8497d76836669a9a",
+        "contentHash": "d314216b13532c961839e196a2c7de92172fe33ad914d396f74e1de591ff7ba9",
+        "excerpt": "other panels and whole original-frame matching remain unfinished.\n\n",
+        "truncated": true
+      },
+      {
+        "path": "decomp/README.md",
+        "headingTrail": [
+          "Static decompilation workspace",
+          "2026-09-12 — shaman reincarnation lifecycle"
+        ],
+        "occurrence": 1,
+        "lineStart": 5006,
+        "lineEnd": 5007,
+        "sourceHash": "5847dedaa323a1265add2c75e1b54ec7239e8e604d3aef542965d4edf0e0a3e5",
+        "sectionHash": "3cfd50465f376ea0a66bb6fea9f1c196078bfe06e79f67b80431feafe85c295d",
+        "contentHash": "cb44de3917d761510772aef83b6621ffd025061020e59c999d15eb0d43fcee0f",
+        "excerpt": "models remain open.\n",
+        "truncated": true
+      },
+      {
+        "path": "decomp/research/level-start-sequence.md",
+        "headingTrail": [
+          "Original level-start sequence (issue #20)"
+        ],
+        "occurrence": 1,
+        "lineStart": 1,
+        "lineEnd": 4,
+        "sourceHash": "aa45e0d76ff8739bc8306738df031d5351131167485e5e018f39a7208cbfe5ec",
+        "sectionHash": "69257d58505bca2bff143ce3c9dc916bd07e6dda99979cb2c7657903452eb7c4",
+        "contentHash": "69257d58505bca2bff143ce3c9dc916bd07e6dda99979cb2c7657903452eb7c4",
+        "excerpt": "# Original level-start sequence (issue #20)\n\nWork in progress, October 3 2026. No overall parity or browser-completion claim.\n",
+        "truncated": false
+      }
+    ],
+    "omissions": [
+      {
+        "path": "decomp/research/reincarnation-site-wave.md",
+        "headingTrail": [
+          "Ordinary reincarnation site wave (#30)"
+        ],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          19,
+          20
+        ]
+      },
+      {
+        "path": "decomp/README.md",
+        "headingTrail": [
+          "Static decompilation workspace",
+          "Original person sprite layers and regression coverage"
+        ],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          2326,
+          2331
+        ]
+      },
+      {
+        "path": "decomp/README.md",
+        "headingTrail": [
+          "Static decompilation workspace",
+          "Animated shaman portrait — 2026-09-09"
+        ],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          3357,
+          3359
+        ]
+      },
+      {
+        "path": "decomp/README.md",
+        "headingTrail": [
+          "Static decompilation workspace",
+          "2026-09-12 — shaman reincarnation lifecycle"
+        ],
+        "reason": "source section returned as a bounded window",
+        "retainedLines": [
+          5006,
+          5007
+        ]
+      },
+      {
+        "reason": "lower-ranked source sections",
+        "count": 204
+      },
+      {
+        "reason": "context budget",
+        "count": 35
+      }
+    ],
+    "contextBytes": 23141,
+    "budgetBytes": 24000,
+    "executesChecks": false
+  }
+}
