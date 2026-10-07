@@ -1,0 +1,866 @@
+{
+  "status": "source-only attribution and unapplied test-style proposal; no new lint/test execution",
+  "acceptedMain": "e3a7a06a4250457502288d5b4c4e4ad8f3b40b53",
+  "heightBaseline": "b6c4d255cbf55a57568072666b1dc74726d75ab3",
+  "candidate": "8f50dda281ec6338bdb84e21473879f29a0282f9",
+  "mainAppTree": "71b48bf83bcece1b1e88c0661cf033cd9503c03c",
+  "baselineAppTree": "71b48bf83bcece1b1e88c0661cf033cd9503c03c",
+  "onlyAppDiff": "app/level-start-runtime.ts",
+  "runtimeImportPrefixByteIdentical": true,
+  "allOtherAppFilesByteIdentical": true,
+  "cycleFiles": {
+    "app/campaign-runtime.ts": {
+      "acceptedMainSha256": "14db77faf860b168dea78e674788b3bc86437e26196e85f38fce6f3dfa541f89",
+      "baselineSha256": "14db77faf860b168dea78e674788b3bc86437e26196e85f38fce6f3dfa541f89",
+      "candidateSha256": "14db77faf860b168dea78e674788b3bc86437e26196e85f38fce6f3dfa541f89",
+      "sameWholeFile": true,
+      "runtimeImportPrefixSame": false
+    },
+    "app/combat-approach.ts": {
+      "acceptedMainSha256": "1b81f8a744ef4b39e66f0add003904c0c657e4cba56d8e83b419954cf85541a8",
+      "baselineSha256": "1b81f8a744ef4b39e66f0add003904c0c657e4cba56d8e83b419954cf85541a8",
+      "candidateSha256": "1b81f8a744ef4b39e66f0add003904c0c657e4cba56d8e83b419954cf85541a8",
+      "sameWholeFile": true,
+      "runtimeImportPrefixSame": false
+    },
+    "app/combat-orders.ts": {
+      "acceptedMainSha256": "911b4c57f16e2f673668db441a6288dfb32d0294ebb987dfbc8e93e4dcbeeb03",
+      "baselineSha256": "911b4c57f16e2f673668db441a6288dfb32d0294ebb987dfbc8e93e4dcbeeb03",
+      "candidateSha256": "911b4c57f16e2f673668db441a6288dfb32d0294ebb987dfbc8e93e4dcbeeb03",
+      "sameWholeFile": true,
+      "runtimeImportPrefixSame": false
+    },
+    "app/combat-runtime.ts": {
+      "acceptedMainSha256": "9cc7100f34547eb2a767928f25e0068a6c6c4749934271dd98a6fb643ead0d23",
+      "baselineSha256": "9cc7100f34547eb2a767928f25e0068a6c6c4749934271dd98a6fb643ead0d23",
+      "candidateSha256": "9cc7100f34547eb2a767928f25e0068a6c6c4749934271dd98a6fb643ead0d23",
+      "sameWholeFile": true,
+      "runtimeImportPrefixSame": false
+    },
+    "app/combat-targets.ts": {
+      "acceptedMainSha256": "776a455e696905b3d2bad8dd256ab22074cf9c086e3801e935e3caf3ed2d1384",
+      "baselineSha256": "776a455e696905b3d2bad8dd256ab22074cf9c086e3801e935e3caf3ed2d1384",
+      "candidateSha256": "776a455e696905b3d2bad8dd256ab22074cf9c086e3801e935e3caf3ed2d1384",
+      "sameWholeFile": true,
+      "runtimeImportPrefixSame": false
+    },
+    "app/computer-spells.ts": {
+      "acceptedMainSha256": "a1ea1b2fd6d399248a0d476a92c31f564060e1269fd8f160e0007a5772fe4ccb",
+      "baselineSha256": "a1ea1b2fd6d399248a0d476a92c31f564060e1269fd8f160e0007a5772fe4ccb",
+      "candidateSha256": "a1ea1b2fd6d399248a0d476a92c31f564060e1269fd8f160e0007a5772fe4ccb",
+      "sameWholeFile": true,
+      "runtimeImportPrefixSame": false
+    },
+    "app/firewarrior.ts": {
+      "acceptedMainSha256": "600f11502d04e84f05cc3c11d439899e1fb982bba78ce23afe6709d1bbd9fc1b",
+      "baselineSha256": "600f11502d04e84f05cc3c11d439899e1fb982bba78ce23afe6709d1bbd9fc1b",
+      "candidateSha256": "600f11502d04e84f05cc3c11d439899e1fb982bba78ce23afe6709d1bbd9fc1b",
+      "sameWholeFile": true,
+      "runtimeImportPrefixSame": false
+    },
+    "app/level-start-runtime.ts": {
+      "acceptedMainSha256": "cce900dc4e08ce890ac88060d7db41bb1cde578f80c2424317d4842d8884451b",
+      "baselineSha256": "cce900dc4e08ce890ac88060d7db41bb1cde578f80c2424317d4842d8884451b",
+      "candidateSha256": "2450145b24d5e0b0e278f157de38e83756443a92a88dee3e8fc2fef4492c4798",
+      "sameWholeFile": false,
+      "runtimeImportPrefixSame": true
+    },
+    "app/live-building-combat.ts": {
+      "acceptedMainSha256": "9ed318b09c0258afca86c87d3147d3cda1b2a9c3ad8e8e81d7ec3703afa74a4e",
+      "baselineSha256": "9ed318b09c0258afca86c87d3147d3cda1b2a9c3ad8e8e81d7ec3703afa74a4e",
+      "candidateSha256": "9ed318b09c0258afca86c87d3147d3cda1b2a9c3ad8e8e81d7ec3703afa74a4e",
+      "sameWholeFile": true,
+      "runtimeImportPrefixSame": false
+    },
+    "app/live-building-entry.ts": {
+      "acceptedMainSha256": "94aca18d9dfb6fadb1df9f9f747a22683ff14c4f42ed3629ebb668688efe647f",
+      "baselineSha256": "94aca18d9dfb6fadb1df9f9f747a22683ff14c4f42ed3629ebb668688efe647f",
+      "candidateSha256": "94aca18d9dfb6fadb1df9f9f747a22683ff14c4f42ed3629ebb668688efe647f",
+      "sameWholeFile": true,
+      "runtimeImportPrefixSame": false
+    },
+    "app/live-combat.ts": {
+      "acceptedMainSha256": "12107b400388222fb75453f86d055d6ea053813da355a75cf6a10ddb3553933a",
+      "baselineSha256": "12107b400388222fb75453f86d055d6ea053813da355a75cf6a10ddb3553933a",
+      "candidateSha256": "12107b400388222fb75453f86d055d6ea053813da355a75cf6a10ddb3553933a",
+      "sameWholeFile": true,
+      "runtimeImportPrefixSame": false
+    },
+    "app/live-movement.ts": {
+      "acceptedMainSha256": "626f7a07bbafe1f82e858b9a4e06490bda9f28f18b15be4a432d410ad1048e20",
+      "baselineSha256": "626f7a07bbafe1f82e858b9a4e06490bda9f28f18b15be4a432d410ad1048e20",
+      "candidateSha256": "626f7a07bbafe1f82e858b9a4e06490bda9f28f18b15be4a432d410ad1048e20",
+      "sameWholeFile": true,
+      "runtimeImportPrefixSame": false
+    },
+    "app/live-pathfinding.ts": {
+      "acceptedMainSha256": "3a52a138448bcaae35acc85818a38381ea85d03717c750f51a33b8aad802c939",
+      "baselineSha256": "3a52a138448bcaae35acc85818a38381ea85d03717c750f51a33b8aad802c939",
+      "candidateSha256": "3a52a138448bcaae35acc85818a38381ea85d03717c750f51a33b8aad802c939",
+      "sameWholeFile": true,
+      "runtimeImportPrefixSame": false
+    },
+    "app/live-people.ts": {
+      "acceptedMainSha256": "1b8b2f1c3015317709298d5610067d13c3a17cb1a53a1a0fdd8117000ccb01c3",
+      "baselineSha256": "1b8b2f1c3015317709298d5610067d13c3a17cb1a53a1a0fdd8117000ccb01c3",
+      "candidateSha256": "1b8b2f1c3015317709298d5610067d13c3a17cb1a53a1a0fdd8117000ccb01c3",
+      "sameWholeFile": true,
+      "runtimeImportPrefixSame": false
+    },
+    "app/model.ts": {
+      "acceptedMainSha256": "fc32041efee0a34ae32e26653dd8b45c2b54df8389d4e32ea11fa58e3cde4682",
+      "baselineSha256": "fc32041efee0a34ae32e26653dd8b45c2b54df8389d4e32ea11fa58e3cde4682",
+      "candidateSha256": "fc32041efee0a34ae32e26653dd8b45c2b54df8389d4e32ea11fa58e3cde4682",
+      "sameWholeFile": true,
+      "runtimeImportPrefixSame": false
+    },
+    "app/site-wave-effects.ts": {
+      "acceptedMainSha256": "ade4cd3d0cef0d034d0b2e1c5fd2b01bb63f65ad496687562db0a1bf55ba74c0",
+      "baselineSha256": "ade4cd3d0cef0d034d0b2e1c5fd2b01bb63f65ad496687562db0a1bf55ba74c0",
+      "candidateSha256": "ade4cd3d0cef0d034d0b2e1c5fd2b01bb63f65ad496687562db0a1bf55ba74c0",
+      "sameWholeFile": true,
+      "runtimeImportPrefixSame": false
+    },
+    "app/spell-casting.ts": {
+      "acceptedMainSha256": "d24000b5e151f1407f24646f8af1dd258d505938fb94681e9fafd2bd26f90905",
+      "baselineSha256": "d24000b5e151f1407f24646f8af1dd258d505938fb94681e9fafd2bd26f90905",
+      "candidateSha256": "d24000b5e151f1407f24646f8af1dd258d505938fb94681e9fafd2bd26f90905",
+      "sameWholeFile": true,
+      "runtimeImportPrefixSame": false
+    },
+    "app/world-effects.ts": {
+      "acceptedMainSha256": "d831dcd87d1e2db3a5698b6124330c48e13940d0859c6ffc0d9cb110788e7352",
+      "baselineSha256": "d831dcd87d1e2db3a5698b6124330c48e13940d0859c6ffc0d9cb110788e7352",
+      "candidateSha256": "d831dcd87d1e2db3a5698b6124330c48e13940d0859c6ffc0d9cb110788e7352",
+      "sameWholeFile": true,
+      "runtimeImportPrefixSame": false
+    },
+    "app/world-initialization.ts": {
+      "acceptedMainSha256": "0b2accb95c180d87e71bad8788f9c28f3f49ab8af66d5189fd26af69ab717fe2",
+      "baselineSha256": "0b2accb95c180d87e71bad8788f9c28f3f49ab8af66d5189fd26af69ab717fe2",
+      "candidateSha256": "0b2accb95c180d87e71bad8788f9c28f3f49ab8af66d5189fd26af69ab717fe2",
+      "sameWholeFile": true,
+      "runtimeImportPrefixSame": false
+    },
+    "app/world-state.ts": {
+      "acceptedMainSha256": "880c00574e29d9f9e2cffd59d79ff337dcfe07d023d45b95481c09ff9e056ff6",
+      "baselineSha256": "880c00574e29d9f9e2cffd59d79ff337dcfe07d023d45b95481c09ff9e056ff6",
+      "candidateSha256": "880c00574e29d9f9e2cffd59d79ff337dcfe07d023d45b95481c09ff9e056ff6",
+      "sameWholeFile": true,
+      "runtimeImportPrefixSame": false
+    },
+    "app/world-tasks.ts": {
+      "acceptedMainSha256": "146f9856dd5ad69bccf6d470c977ca683454e67fe3d06fe67712edcf17849765",
+      "baselineSha256": "146f9856dd5ad69bccf6d470c977ca683454e67fe3d06fe67712edcf17849765",
+      "candidateSha256": "146f9856dd5ad69bccf6d470c977ca683454e67fe3d06fe67712edcf17849765",
+      "sameWholeFile": true,
+      "runtimeImportPrefixSame": false
+    }
+  },
+  "sameConfigSha256": {
+    ".oxlintrc.json": "caa0057ea1cbbc87402c3942667be83c2298b3a167957cea7153d0d72444ccff",
+    "tsconfig.json": "b91b0d5ff0f30cbfaa9f0bf4ca023a753d70f2ac32845d965186d098edc09fd3",
+    "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba"
+  },
+  "samePackageTypeAndDependencyDeclarations": true,
+  "installedSelectedInventorySha256": "23ab48300852483706ed494df8efd90d25e3e26b37b402c61fed76136e348977",
+  "installedOxlintFiles": {
+    ".bin/oxlint": {
+      "link": "../oxlint/bin/oxlint",
+      "mode": 41471
+    },
+    "@oxlint/binding-linux-x64-gnu/README.md": {
+      "mode": 33188,
+      "sha256": "ac40b0e84aeb9eb83fa19dd6ef4d9c4eff662c32387f41005f575ee282ea0f56",
+      "size": 105
+    },
+    "@oxlint/binding-linux-x64-gnu/oxlint.linux-x64-gnu.node": {
+      "mode": 33188,
+      "sha256": "956f76f478667f1bacf5b84c33ee8dd0bd030395ff1b8fab279584d39f169e62",
+      "size": 15876960
+    },
+    "@oxlint/binding-linux-x64-gnu/package.json": {
+      "mode": 33188,
+      "sha256": "5de416a766fd206eed2cdcdabca160214837580a2642b7e8de2db2de4a473bc6",
+      "size": 768
+    },
+    "oxc-standard/.oxlintrc.json": {
+      "mode": 33188,
+      "sha256": "12a8af193abedfc648f0b37822a0092df18b5cd83644b8e6bd57d0f1e24d2bbc",
+      "size": 6443
+    },
+    "oxc-standard/package.json": {
+      "mode": 33188,
+      "sha256": "e4596f7dba75c04f97d1b5e53ebccdcb195eb071c1b3f43917d957726717512e",
+      "size": 1990
+    },
+    "oxlint/LICENSE": {
+      "mode": 33188,
+      "sha256": "95ced5ecf1133fbf41d409b5555c86c344f83f3b019926057ddbc07cfdcc27b3",
+      "size": 1119
+    },
+    "oxlint/README.md": {
+      "mode": 33188,
+      "sha256": "1e2175a447dc67abfe4b712e1a706ec357f9f7131e544c05a3ccba88eb4a40d7",
+      "size": 2502
+    },
+    "oxlint/bin/oxlint": {
+      "mode": 33261,
+      "sha256": "ecab4e2f1bebaab1a3306620bee562ec16e8cb83dd5fb739b94a5aae3c9e34bd",
+      "size": 46
+    },
+    "oxlint/configuration_schema.json": {
+      "mode": 33188,
+      "sha256": "a0faa36156d984a4015d0db4daba076f2ed5ad75bfca42fb0d94a8c21f361a8b",
+      "size": 762571
+    },
+    "oxlint/dist/bindings.js": {
+      "mode": 33188,
+      "sha256": "e527e0448f9bfa5abac4fcdca1041bed89c2743c0ae6e189dce6b2f5b99664ac",
+      "size": 24787
+    },
+    "oxlint/dist/cli.js": {
+      "mode": 33188,
+      "sha256": "d07f5e241742b952d436bac99ba2b22010ce56fcc6b47f22a70d3317d8d78400",
+      "size": 4125
+    },
+    "oxlint/dist/index.d.ts": {
+      "mode": 33188,
+      "sha256": "002b930154a0473a4338f431182a3e381f7ebaa0722fed120210afa3cbcb51e4",
+      "size": 253715
+    },
+    "oxlint/dist/index.js": {
+      "mode": 33188,
+      "sha256": "bcd7d20da966ad0daf2bbb9386d2f3e325e68a9b33c695de240d4a69e7b9f59a",
+      "size": 253
+    },
+    "oxlint/dist/js_config.js": {
+      "mode": 33188,
+      "sha256": "27596da272e54931618d1b959becdf200d6b992f972b831a54026d8352ea4bdc",
+      "size": 7508
+    },
+    "oxlint/dist/lint.js": {
+      "mode": 33188,
+      "sha256": "1df3522ab96862436a66c9b33cb1252e0a87ff383d63756fc458d96409dd5c3e",
+      "size": 1143686
+    },
+    "oxlint/dist/plugins-dev.d.ts": {
+      "mode": 33188,
+      "sha256": "1af5431fa3acbd4ece077e45f8b26faec25f7d146c64a8581f34c83128112160",
+      "size": 163235
+    },
+    "oxlint/dist/plugins-dev.js": {
+      "mode": 33188,
+      "sha256": "9160dbc594c8f9fa6e624cc358cb2093dc19281c5233168f0352203fc11b5c16",
+      "size": 41272
+    },
+    "oxlint/dist/plugins.js": {
+      "mode": 33188,
+      "sha256": "81e4c275f6200ab4b6aed66ba2836b2a8e68756a8609ced02daf91e226377e2d",
+      "size": 940
+    },
+    "oxlint/dist/rolldown-runtime.js": {
+      "mode": 33188,
+      "sha256": "5fc650d7f3c5b72629da633623bf7bc72fd972051fe82268c703b2681f26eb51",
+      "size": 1506
+    },
+    "oxlint/dist/utils.js": {
+      "mode": 33188,
+      "sha256": "591682f61f6ff1ee264f9df278c71eb4f8f426d34f7ea9b14f77dbd30c989778",
+      "size": 1057
+    },
+    "oxlint/dist/workspace.js": {
+      "mode": 33188,
+      "sha256": "07d934175ffa28dedbfff3ba1b16bb96158d7fb9c5ebcdd91b7ad6fb1df4c160",
+      "size": 289
+    },
+    "oxlint/dist/workspace2.js": {
+      "mode": 33188,
+      "sha256": "bfc5efa892c05854dfc783625a03087861cbead465fe72c1dcf96e2c01629061",
+      "size": 1017
+    },
+    "oxlint/package.json": {
+      "mode": 33188,
+      "sha256": "194e9ac91a3525151344674311b8272ad2f81ce0a2efc3ec5454a60dfc3d14b6",
+      "size": 3096
+    }
+  },
+  "diagnostics": [
+    {
+      "severity": "warning",
+      "rule": "eslint(prefer-destructuring)",
+      "path": "scripts/local-render/startup-burst-observer.mjs",
+      "line": 6,
+      "column": 17,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 4,
+      "sourceLine": "const world = scene.world, renderer = scene.renderer, original = renderer.render"
+    },
+    {
+      "severity": "warning",
+      "rule": "eslint(prefer-destructuring)",
+      "path": "scripts/local-render/startup-burst-observer.mjs",
+      "line": 6,
+      "column": 41,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 4,
+      "sourceLine": "const world = scene.world, renderer = scene.renderer, original = renderer.render"
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(prefer-global-this)",
+      "path": "scripts/local-render/startup-burst-observer.mjs",
+      "line": 14,
+      "column": 36,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 12,
+      "sourceLine": "if (scene.world !== world || window.testSceneRef.current !== scene || window.testStore.getWorld() !== world)"
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(prefer-global-this)",
+      "path": "scripts/local-render/startup-burst-observer.mjs",
+      "line": 14,
+      "column": 77,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 12,
+      "sourceLine": "if (scene.world !== world || window.testSceneRef.current !== scene || window.testStore.getWorld() !== world)"
+    },
+    {
+      "severity": "warning",
+      "rule": "eslint(no-nested-ternary)",
+      "path": "scripts/local-render/startup-burst-observer.mjs",
+      "line": 35,
+      "column": 21,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 32,
+      "sourceLine": "const label = row.turn < 30 && stoneCount === 0 ? 'before' : row.particles.some(particle => particle.age > 0) ? 'burst' :"
+    },
+    {
+      "severity": "warning",
+      "rule": "eslint(no-nested-ternary)",
+      "path": "scripts/local-render/startup-burst-observer.mjs",
+      "line": 35,
+      "column": 68,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 32,
+      "sourceLine": "const label = row.turn < 30 && stoneCount === 0 ? 'before' : row.particles.some(particle => particle.age > 0) ? 'burst' :"
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(no-nested-ternary)",
+      "path": "scripts/local-render/startup-burst-observer.mjs",
+      "line": 36,
+      "column": 9,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 33,
+      "sourceLine": "row.turn >= 70 && row.particles.length === 0 && stoneCount === 8 && row.sites.every(site => site.phase === 4) ? 'after' : null"
+    },
+    {
+      "severity": "warning",
+      "rule": "eslint(prefer-destructuring)",
+      "path": "scripts/local-render/startup-burst-observer.mjs",
+      "line": 80,
+      "column": 23,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 77,
+      "sourceLine": "const world = scene.world"
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(prefer-global-this)",
+      "path": "scripts/local-render/startup-burst-observer.mjs",
+      "line": 88,
+      "column": 9,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 85,
+      "sourceLine": "window.testSceneRef = ref"
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(prefer-global-this)",
+      "path": "scripts/local-render/startup-burst-observer.mjs",
+      "line": 89,
+      "column": 9,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 86,
+      "sourceLine": "window.testScene = scene"
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(prefer-global-this)",
+      "path": "scripts/local-render/startup-burst-observer.mjs",
+      "line": 90,
+      "column": 9,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 87,
+      "sourceLine": "window.testStore = store"
+    },
+    {
+      "severity": "warning",
+      "rule": "eslint(prefer-destructuring)",
+      "path": "tests/startup-burst-height.test.mjs",
+      "line": 35,
+      "column": 21,
+      "cyclePaths": [],
+      "classification": "introduced-test-style-warning",
+      "acceptedMainLine": null,
+      "sourceLine": "let randomState = world.randomState"
+    },
+    {
+      "severity": "warning",
+      "rule": "eslint(prefer-template)",
+      "path": "scripts/local-render/startup-burst.mjs",
+      "line": 10,
+      "column": 75,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 10,
+      "sourceLine": "const save = () => writeFileSync(resolve(output, 'startup-burst.json'), JSON.stringify(report, null, 2) + '\\n')"
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(prefer-global-this)",
+      "path": "scripts/local-render/startup-burst.mjs",
+      "line": 12,
+      "column": 48,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 12,
+      "sourceLine": "const observed = await page.evaluate(() => window.startupBurstFrames.read())"
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(prefer-global-this)",
+      "path": "scripts/local-render/startup-burst.mjs",
+      "line": 29,
+      "column": 7,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 29,
+      "sourceLine": "window.startupBurstFrames = armStartupBurstFrames()"
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(prefer-global-this)",
+      "path": "scripts/local-render/startup-burst.mjs",
+      "line": 39,
+      "column": 22,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 39,
+      "sourceLine": "const status = window.startupBurstFrames.status()"
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(prefer-global-this)",
+      "path": "scripts/local-render/startup-burst.mjs",
+      "line": 40,
+      "column": 21,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 40,
+      "sourceLine": "const scene = window.testSceneRef?.current"
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(prefer-global-this)",
+      "path": "scripts/local-render/startup-burst.mjs",
+      "line": 52,
+      "column": 24,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 52,
+      "sourceLine": "const observed = window.startupBurstFrames.status()"
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(prefer-global-this)",
+      "path": "scripts/local-render/startup-burst.mjs",
+      "line": 73,
+      "column": 46,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 73,
+      "sourceLine": "if (armed) await page.evaluate(() => { window.startupBurstFrames.close(); delete window.startupBurstFrames })"
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(prefer-global-this)",
+      "path": "scripts/local-render/startup-burst.mjs",
+      "line": 73,
+      "column": 88,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 73,
+      "sourceLine": "if (armed) await page.evaluate(() => { window.startupBurstFrames.close(); delete window.startupBurstFrames })"
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(prefer-global-this)",
+      "path": "tests/startup-burst-observer.test.mjs",
+      "line": 71,
+      "column": 5,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 71,
+      "sourceLine": "window.testSceneRef.current = {}"
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(consistent-function-scoping)",
+      "path": "tests/startup-burst-observer.test.mjs",
+      "line": 80,
+      "column": 9,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 80,
+      "sourceLine": "const original = () => 'original', replacement = () => 'replacement'"
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(consistent-function-scoping)",
+      "path": "tests/startup-burst-observer.test.mjs",
+      "line": 80,
+      "column": 38,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 80,
+      "sourceLine": "const original = () => 'original', replacement = () => 'replacement'"
+    },
+    {
+      "severity": "warning",
+      "rule": "eslint(prefer-destructuring)",
+      "path": "tests/startup-burst-observer.test.mjs",
+      "line": 108,
+      "column": 21,
+      "cyclePaths": [],
+      "classification": "introduced-test-style-warning",
+      "acceptedMainLine": null,
+      "sourceLine": "const sampled = observer.read().records.at(-1).particles[0]"
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(prefer-global-this)",
+      "path": "tests/startup-burst-observer.test.mjs",
+      "line": 136,
+      "column": 65,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 129,
+      "sourceLine": "memoizedState: { memoizedState: ref, next: { memoizedState: window.testStore } },"
+    },
+    {
+      "severity": "warning",
+      "rule": "eslint(no-nested-ternary)",
+      "path": "tests/startup-burst-observer.test.mjs",
+      "line": 143,
+      "column": 75,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 136,
+      "sourceLine": "globalThis.document = { documentElement: {}, querySelector: selector => selector === 'main' ? main : loading ? {} : null }"
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(no-nested-ternary)",
+      "path": "tests/startup-burst-observer.test.mjs",
+      "line": 143,
+      "column": 104,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 136,
+      "sourceLine": "globalThis.document = { documentElement: {}, querySelector: selector => selector === 'main' ? main : loading ? {} : null }"
+    },
+    {
+      "severity": "warning",
+      "rule": "eslint(prefer-destructuring)",
+      "path": "tests/startup-burst-observer.test.mjs",
+      "line": 177,
+      "column": 20,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 170,
+      "sourceLine": "const sample = observer.read().frames.before.sample"
+    },
+    {
+      "severity": "error",
+      "rule": "import(no-cycle)",
+      "path": "app/level-start-runtime.ts",
+      "line": 18,
+      "column": 30,
+      "cyclePaths": [
+        "app/live-movement.ts",
+        "app/computer-spells.ts",
+        "app/spell-casting.ts",
+        "app/live-people.ts",
+        "app/live-building-entry.ts",
+        "app/firewarrior.ts",
+        "app/combat-runtime.ts",
+        "app/world-tasks.ts",
+        "app/live-building-combat.ts",
+        "app/live-movement.ts",
+        "app/live-pathfinding.ts",
+        "app/model.ts",
+        "app/world-initialization.ts",
+        "app/level-start-runtime.ts"
+      ],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 18,
+      "sourceLine": "import { orderEffects } from './live-movement.ts'"
+    },
+    {
+      "severity": "error",
+      "rule": "import(no-cycle)",
+      "path": "app/level-start-runtime.ts",
+      "line": 8,
+      "column": 8,
+      "cyclePaths": [
+        "app/live-people.ts",
+        "app/live-building-entry.ts",
+        "app/firewarrior.ts",
+        "app/combat-runtime.ts",
+        "app/campaign-runtime.ts",
+        "app/live-combat.ts",
+        "app/combat-orders.ts",
+        "app/combat-targets.ts",
+        "app/computer-spells.ts",
+        "app/spell-casting.ts",
+        "app/live-people.ts",
+        "app/live-movement.ts",
+        "app/live-building-combat.ts",
+        "app/live-pathfinding.ts",
+        "app/model.ts",
+        "app/world-initialization.ts",
+        "app/level-start-runtime.ts"
+      ],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 8,
+      "sourceLine": "} from './live-people.ts'"
+    },
+    {
+      "severity": "error",
+      "rule": "import(no-cycle)",
+      "path": "app/level-start-runtime.ts",
+      "line": 46,
+      "column": 8,
+      "cyclePaths": [
+        "app/site-wave-effects.ts",
+        "app/world-effects.ts",
+        "app/campaign-runtime.ts",
+        "app/live-combat.ts",
+        "app/combat-orders.ts",
+        "app/combat-targets.ts",
+        "app/computer-spells.ts",
+        "app/spell-casting.ts",
+        "app/live-people.ts",
+        "app/live-building-entry.ts",
+        "app/firewarrior.ts",
+        "app/combat-runtime.ts",
+        "app/world-tasks.ts",
+        "app/live-building-combat.ts",
+        "app/live-movement.ts",
+        "app/live-pathfinding.ts",
+        "app/model.ts",
+        "app/world-initialization.ts",
+        "app/level-start-runtime.ts"
+      ],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 46,
+      "sourceLine": "} from './site-wave-effects.ts'"
+    },
+    {
+      "severity": "error",
+      "rule": "import(no-cycle)",
+      "path": "app/level-start-runtime.ts",
+      "line": 21,
+      "column": 55,
+      "cyclePaths": [
+        "app/world-effects.ts",
+        "app/campaign-runtime.ts",
+        "app/live-combat.ts",
+        "app/combat-orders.ts",
+        "app/combat-targets.ts",
+        "app/computer-spells.ts",
+        "app/spell-casting.ts",
+        "app/live-people.ts",
+        "app/live-building-entry.ts",
+        "app/firewarrior.ts",
+        "app/combat-runtime.ts",
+        "app/world-tasks.ts",
+        "app/live-building-combat.ts",
+        "app/live-movement.ts",
+        "app/live-pathfinding.ts",
+        "app/model.ts",
+        "app/world-initialization.ts",
+        "app/level-start-runtime.ts"
+      ],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 21,
+      "sourceLine": "import { effect, sound, shotVisual, moveVisual } from './world-effects.ts'"
+    },
+    {
+      "severity": "error",
+      "rule": "import(no-cycle)",
+      "path": "app/level-start-runtime.ts",
+      "line": 10,
+      "column": 25,
+      "cyclePaths": [
+        "app/world-state.ts",
+        "app/campaign-runtime.ts",
+        "app/live-combat.ts",
+        "app/combat-orders.ts",
+        "app/combat-targets.ts",
+        "app/computer-spells.ts",
+        "app/spell-casting.ts",
+        "app/live-people.ts",
+        "app/live-building-entry.ts",
+        "app/firewarrior.ts",
+        "app/combat-runtime.ts",
+        "app/world-tasks.ts",
+        "app/live-building-combat.ts",
+        "app/live-movement.ts",
+        "app/live-pathfinding.ts",
+        "app/model.ts",
+        "app/world-initialization.ts",
+        "app/level-start-runtime.ts"
+      ],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 10,
+      "sourceLine": "import { addUnit } from './world-state.ts'"
+    },
+    {
+      "severity": "error",
+      "rule": "import(no-cycle)",
+      "path": "app/level-start-runtime.ts",
+      "line": 9,
+      "column": 30,
+      "cyclePaths": [
+        "app/world-tasks.ts",
+        "app/live-building-combat.ts",
+        "app/combat-approach.ts",
+        "app/combat-targets.ts",
+        "app/computer-spells.ts",
+        "app/spell-casting.ts",
+        "app/live-people.ts",
+        "app/live-building-entry.ts",
+        "app/firewarrior.ts",
+        "app/combat-runtime.ts",
+        "app/world-tasks.ts",
+        "app/live-movement.ts",
+        "app/live-pathfinding.ts",
+        "app/model.ts",
+        "app/world-initialization.ts",
+        "app/level-start-runtime.ts"
+      ],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 9,
+      "sourceLine": "import { releaseTasks } from './world-tasks.ts'"
+    },
+    {
+      "severity": "warning",
+      "rule": "eslint(no-shadow)",
+      "path": "app/level-start-runtime.ts",
+      "line": 273,
+      "column": 11,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 269,
+      "sourceLine": "const u = w.units.find(u => u.id === site.shaman)"
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(consistent-function-scoping)",
+      "path": "app/level-start-runtime.ts",
+      "line": 118,
+      "column": 11,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 114,
+      "sourceLine": "const unsupported = () => {"
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(no-array-sort)",
+      "path": "app/level-start-runtime.ts",
+      "line": 222,
+      "column": 6,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 218,
+      "sourceLine": ".sort((a, b) => b.id - a.id)"
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(no-negated-condition)",
+      "path": "app/level-start-runtime.ts",
+      "line": 225,
+      "column": 9,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 221,
+      "sourceLine": "if (!carrier) {"
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(no-array-reverse)",
+      "path": "app/level-start-runtime.ts",
+      "line": 231,
+      "column": 42,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 227,
+      "sourceLine": "for (const u of [...w.units].reverse())"
+    },
+    {
+      "severity": "warning",
+      "rule": "unicorn(no-array-reverse)",
+      "path": "app/level-start-runtime.ts",
+      "line": 271,
+      "column": 40,
+      "cyclePaths": [],
+      "classification": "inherited-from-accepted-main",
+      "acceptedMainLine": 267,
+      "sourceLine": "for (const site of [...w.levelStart].reverse()) {"
+    }
+  ],
+  "warningAttribution": {
+    "inherited": 32,
+    "newTestStyle": 2
+  },
+  "errorAttribution": {
+    "inheritedImportCycles": 6,
+    "newErrors": 0
+  },
+  "testOnlyUnappliedRepairs": {
+    "tests/startup-burst-height.test.mjs": {
+      "beforeSha256": "a1b3af1bfabdd5926decbfa19c6be9c0ad45443fc8b6c4948cb6db5cba43c4d3",
+      "afterSha256": "3462423c68022d9d6809c567ca93fa8b29d289f2c7e6007e4e83c63dd91d3aba",
+      "before": "  let randomState = world.randomState",
+      "after": "  let { randomState } = world"
+    },
+    "tests/startup-burst-observer.test.mjs": {
+      "beforeSha256": "061dbc9b9b306ec9a3ca89e09dcf7f87cf775ba533afa8bbae92eadaa079583f",
+      "afterSha256": "deef1361ad1da045967e7d716da1800519ae1ec69131627cef374728c8373a3d",
+      "before": "    const sampled = observer.read().records.at(-1).particles[0]",
+      "after": "    const [sampled] = observer.read().records.at(-1).particles"
+    }
+  },
+  "preservedProductionSha256": {
+    "app/level-start-runtime.ts": "2450145b24d5e0b0e278f157de38e83756443a92a88dee3e8fc2fef4492c4798",
+    "scripts/local-render/startup-burst-observer.mjs": "c1bcad473eefcb1f552ee6630183921a7a69052825c6e8707fff4a8e0d7a10ae",
+    "scripts/local-render/startup-burst.mjs": "df162f2455cae47a630f5f59b0afa4aba0ace9387364391a215371b90feba2bd"
+  },
+  "semantics": "No error imports, config, app dependency edge or installed tool bytes changed. New assignments use destructuring with the same single data read / ordinary-array first value; all assertions, RNG forwarding, observer sampling and production bytes remain unchanged. No legacy cycle refactor, global lint-rule change or baseline linter execution is proposed."
+}

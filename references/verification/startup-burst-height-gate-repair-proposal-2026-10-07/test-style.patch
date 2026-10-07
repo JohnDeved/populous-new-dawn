@@ -1,0 +1,22 @@
+--- a/tests/startup-burst-height.test.mjs
++++ b/tests/startup-burst-height.test.mjs
+@@ -32,7 +32,7 @@
+   const particles = new Map(), errors = []
+   const originalRandom = Object.getOwnPropertyDescriptor(world, 'randomState')
+   assert.ok(originalRandom && 'value' in originalRandom && originalRandom.configurable && originalRandom.writable)
+-  let randomState = world.randomState
++  let { randomState } = world
+   const getRandom = () => randomState
+   const setRandom = value => {
+     randomState = value
+--- a/tests/startup-burst-observer.test.mjs
++++ b/tests/startup-burst-observer.test.mjs
+@@ -105,7 +105,7 @@
+     const beforeBirthRead = structuredClone(f.world)
+     draw()
+     assert.deepEqual(f.world, beforeBirthRead, 'particle height and terrain sampling leave the world untouched')
+-    const sampled = observer.read().records.at(-1).particles[0]
++    const [sampled] = observer.read().records.at(-1).particles
+     assert.equal(sampled.h, 3)
+     assert.equal(sampled.ground, 7)
+     assert.equal(sampled.effectHeight, 3 / 45)
