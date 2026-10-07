@@ -1,0 +1,30 @@
+{
+  "status": "passed",
+  "mode": "host-only existing on_write boundary checks",
+  "validStages": [
+    6,
+    9
+  ],
+  "rejectedWrites": [
+    {
+      "pc": 4200621
+    },
+    {
+      "size": 2
+    },
+    {
+      "esi": 1023
+    },
+    {
+      "stage": "authored-record"
+    },
+    {
+      "entry": 7
+    },
+    {
+      "address": 9028750
+    }
+  ],
+  "emulatorImported": false,
+  "nativeExecution": false
+}

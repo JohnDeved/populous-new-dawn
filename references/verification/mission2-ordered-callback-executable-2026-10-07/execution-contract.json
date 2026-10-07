@@ -67,7 +67,7 @@
     },
     {
       "start": "0089bc72",
-      "endExclusive": "0089c48d",
+      "endExclusive": "0089c48e",
       "owner": "cosmetic seed, roster counts and generated sunlight lookup tables"
     },
     {
@@ -442,5 +442,22 @@
       }
     ],
     "source": "Original0042b7f1 setsECX;0042b7f7 clearsEAX;threealready-frozenstoreinstructions;00479dd0 names command-buffer consumer. Adjacent00897997 array stays excluded."
+  },
+  "sunlightFinalByte": {
+    "address": "0089c48d",
+    "width": 1,
+    "pc": "00401906",
+    "esi": 1024,
+    "admittedStages": [
+      [
+        6,
+        "setup-6"
+      ],
+      [
+        9,
+        "setup-9"
+      ]
+    ],
+    "source": "00401796 startsESI0;004018e3 increments before00401906 store;00401900/0040190c continue onlyESI<1024. Value is computed by original instructions."
   }
 }

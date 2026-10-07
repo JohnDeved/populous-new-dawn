@@ -1,8 +1,8 @@
 # Mission2 ordered callback executable freeze
 
 One fixed source proposal for independent executable review. This corrected
-packet is unexecuted; failed attempt01 remains retained at34016b86. The sole
-correction is documented in `observer-repair.md`. `freezeComplete` means
+packet is unexecuted; failed attempts01/02 remain retained at34016b86/ee3e4c37. The exact
+corrections are documented in `observer-repair.md` and `sunlight-repair.md`. `freezeComplete` means
 that the review packet is assembled. It grants no execution authority. Running
 requires independent acceptance of the exact final commit and a separate parent
 grant for the declared fresh worktree, output and CPU4 invocation.

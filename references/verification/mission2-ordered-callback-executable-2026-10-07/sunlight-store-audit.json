@@ -1,0 +1,118 @@
+{
+  "status": "source-only store-extent audit; no corrected native execution",
+  "scope": [
+    "00401040",
+    "00401090",
+    "00401790",
+    "00586000"
+  ],
+  "closureSha256": "90e186238bb1cc74c6df93dcd7f66e5239d8360699f831e9c08bdd99c03e2d12",
+  "table1": {
+    "pc": "004018ad",
+    "base": "0089bc8e",
+    "index": "ESI0..1023",
+    "width": 1,
+    "range": [
+      "0089bc8e",
+      "0089c08e"
+    ]
+  },
+  "table2": {
+    "pc": "00401906",
+    "encodedBase": "0089c08d",
+    "index": "ESI1..1024 after004018e3 INC",
+    "width": 1,
+    "range": [
+      "0089c08e",
+      "0089c48e"
+    ]
+  },
+  "loopOwners": [
+    "00401796 xorESI,ESI",
+    "004018e3 incESI",
+    "00401900 cmpESI,1024",
+    "0040190c jl00401799"
+  ],
+  "otherGlobalStores": [
+    {
+      "owner": "00401040",
+      "pcs": [
+        "00401046",
+        "0040104d",
+        "00401054",
+        "0040105f",
+        "00401066",
+        "0040106c"
+      ],
+      "range": [
+        "00937aa8",
+        "00937ab1"
+      ],
+      "widths": "threeWORDs ataa8/aaa/aac;BYTEs ataae/aaf/ab0"
+    },
+    {
+      "owner": "00401040",
+      "pcs": [
+        "0040107e",
+        "00401080"
+      ],
+      "base": "00937c46",
+      "dwordCount": 762,
+      "trailingWord": true,
+      "endExclusive": "00938830",
+      "boundary": "Stops exactly before native order records begin00938830"
+    },
+    {
+      "owner": "00401040",
+      "pc": "00401082",
+      "address": "0096aa7c",
+      "width": 2,
+      "endExclusive": "0096aa7e"
+    },
+    {
+      "owner": "00401090",
+      "pcs": [
+        "00401095",
+        "0040109b",
+        "004010a1"
+      ],
+      "range": [
+        "00937aa8",
+        "00937aae"
+      ],
+      "widths": "threeWORDs; tail-jumps real00401790"
+    }
+  ],
+  "stackStores": {
+    "owner": "00401790",
+    "explicitStorePcs": [
+      "004017b4",
+      "004017c6",
+      "004017e6",
+      "004017f3",
+      "0040180d",
+      "00401845",
+      "00401860"
+    ],
+    "localOffsets": [
+      32,
+      36,
+      24,
+      28,
+      16,
+      20,
+      20
+    ],
+    "localFrameBytes": 24,
+    "otherWrites": "register saves and call/argument pushes only; existing scratch"
+  },
+  "sqrtLeaf": {
+    "owner": "00586000",
+    "writes": "Only stack saves; no non-stack writes or additional calls"
+  },
+  "sourceFilesSha256": {
+    "decomp/generated/00401040.c": "5e922afec0f81a68a5545be8cbd7528e3081c1542f84505f1c1d2644b5a76583",
+    "decomp/generated/00401790.c": "a3568e67114680ada06019d189bd1997c5f82e2517a778c4832c7e17826ced68"
+  },
+  "finding": "Only newly admitted destination is0089c48d; no other endpoint gap in the selected sunlight owner. No original byte, call, input, state, outcome or resource bound changes."
+}
