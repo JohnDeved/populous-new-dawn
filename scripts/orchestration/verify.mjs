@@ -15,6 +15,8 @@ import {
   validateRepository,
 } from './cli.mjs'
 
+import { captureMeasurement, finishMeasurement, refreshMeasurement } from '../parity-measure.mjs'
+
 const RECORDING_ARGUMENT = /(^|[/:-])record(?:ing)?($|[=:/-])/i
 const TIMEOUT_MS = 300_000
 
@@ -196,10 +198,16 @@ export async function verifyContract(
   }
   const record = result => {
     result.coveredCheckIds ??= []
+    const current = captureMeasurement(repo, result.command)
+    result.parityMeasurements ??= finishMeasurement(current, current, { ...result, finishedAt: new Date().toISOString() })
     results[results.findIndex(item => item.checkId === result.checkId)] = result
     contract.verification.results = contract.verification.results.map(item =>
       item.checkId === result.checkId ? result : item)
     persist()
+  }
+  for (const result of results) {
+    const current = captureMeasurement(repo, result.command)
+    result.parityMeasurements = finishMeasurement(current, current, { ...result, finishedAt: new Date().toISOString() })
   }
   // Clear old passes before executing; interrupted runs retain only completed receipts.
   persist()
@@ -249,6 +257,7 @@ export async function verifyContract(
       const concreteCommand = commandFor(check, runEnv)
       record(blocked(check, fingerprint, concreteCommand,
         'Execution started; no completed result is available if this run is interrupted'))
+      const measurementBefore = captureMeasurement(repo, concreteCommand)
       const started = performance.now(),
         outcome = await execute(concreteCommand, {
           cwd: safeRepoPath(repo, check.cwd),
@@ -288,12 +297,14 @@ export async function verifyContract(
         reason,
         durationMs,
         log: relative(repo, log),
+        parityMeasurements: finishMeasurement(measurementBefore, captureMeasurement(repo, concreteCommand), { status: reason ? 'failed' : 'passed', exitCode: outcome.exitCode, finishedAt: new Date().toISOString() }),
         coveredCheckIds: reason ? [] : coverage.filter(item => item.coveredBy === check.id)
           .map(item => item.checkId),
       })
     }
   } finally {
     await gameServer?.stop()
+    refreshMeasurement(repo)
   }
   const status = results.some(result => result.status === 'failed')
     ? 'failed'

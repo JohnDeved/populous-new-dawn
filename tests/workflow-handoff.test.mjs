@@ -621,6 +621,8 @@ test('receipt CLI preserves repeated input flags and rejects zero-exit input dri
     const helper = join(repo, 'scripts/orchestration/command-receipt.mjs')
     mkdirSync(join(repo, 'scripts/orchestration'), { recursive: true })
     writeFileSync(helper, readFileSync(new URL('../scripts/orchestration/command-receipt.mjs', import.meta.url)))
+    for (const path of ['scripts/parity-measure.mjs', 'scripts/orchestration/cli.mjs'])
+      writeFileSync(join(repo, path), readFileSync(new URL(`../${path}`, import.meta.url)))
     writeFileSync(join(repo, 'work/helper.txt'), 'helper before\n')
     writeFileSync(join(repo, 'work/config.json'), '{"enabled":true}\n')
     for (const mutate of [false, true]) {

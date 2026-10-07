@@ -2,6 +2,47 @@
   "version": 1,
   "checks": [
     {
+      "id": "parity-measure-tests",
+      "kind": "metadata",
+      "automation": "safe",
+      "purpose": "Validate receipt-derived automatic parity measurement without executing game checks.",
+      "coveredBehavior": [
+        "Evidence freshness, failure precedence, unknown scope, deterministic history and report escaping"
+      ],
+      "knownLimits": [
+        "Synthetic evidence validates measurement, not actual game parity."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/parity-measure.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/parity-measure.mjs",
+        "scripts/orchestration/command-receipt.mjs",
+        "scripts/orchestration/verify.mjs",
+        "scripts/orchestration/cli.mjs",
+        "tests/parity-measure.test.mjs",
+        "engineering/parity-capabilities.json",
+        "engineering/checks.json",
+        "parity.json"
+      ],
+      "prerequisites": [
+        "Node.js >=22.13.0",
+        "Git"
+      ],
+      "sideEffects": [
+        "Task-owned temporary fixture repositories only"
+      ],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
       "cwd": ".",
       "env": [
         "POPULOUS_EXE"

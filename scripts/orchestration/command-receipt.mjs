@@ -6,6 +6,7 @@ import { closeSync, mkdirSync, openSync, readFileSync, renameSync, writeFileSync
 import { dirname, isAbsolute, normalize, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { isDeepStrictEqual } from 'node:util'
+import { captureMeasurement, finishMeasurement, refreshMeasurement } from '../parity-measure.mjs'
 
 export const ROOT = fileURLToPath(new URL('../../', import.meta.url))
 const sha256 = value => createHash('sha256').update(value).digest('hex')
@@ -47,6 +48,7 @@ export function runCommandReceipt(repo, { output, command, inputs = [], env = pr
     'receipt command arguments must be non-empty strings'
   )
   assert(Array.isArray(inputs) && inputs.every(file => typeof file === 'string' && file.length), 'receipt inputs must be file paths')
+  const measurementBefore = captureMeasurement(repo, command, { cwd })
   const target = safeOutput(repo, output),
     source = sourceSnapshot(repo, inputs),
     artifacts = `${target}.artifacts`,
@@ -64,6 +66,7 @@ export function runCommandReceipt(repo, { output, command, inputs = [], env = pr
       startedAt: new Date().toISOString(),
       artifacts: { stdout: stdoutPath, stderr: stderrPath },
     }
+  started.parityMeasurements = finishMeasurement(measurementBefore, measurementBefore, { status: 'unknown', exitCode: null, finishedAt: started.startedAt })
   mkdirSync(dirname(target), { recursive: true })
   // Each attempt needs a new output path. Never replace an earlier pass or an
   // unknown interrupted attempt; its logs may still belong to a live command.
@@ -106,6 +109,9 @@ export function runCommandReceipt(repo, { output, command, inputs = [], env = pr
     receipt.status = 'invalidated'
     receipt.sourceError = error.message
   }
+  let measurementAfter = []
+  try { measurementAfter = captureMeasurement(repo, command, { cwd }) } catch {}
+  receipt.parityMeasurements = finishMeasurement(measurementBefore, measurementAfter, receipt)
   const temporary = `${target}.${randomUUID()}.tmp`
   writeFileSync(temporary, `${JSON.stringify(receipt, null, 2)}\n`, { flag: 'wx' })
   renameSync(temporary, target)
@@ -151,6 +157,7 @@ function main() {
       2
     )
   )
+  refreshMeasurement(ROOT)
   process.exitCode = receipt.status === 'passed' ? 0 : (receipt.exitCode || 1)
 }
 

@@ -1211,6 +1211,8 @@ function workflowPath(path) {
     'tests/orchestration.test.mjs',
     'tests/workflow-handoff.test.mjs',
     'tests/workflow-policy.test.mjs',
+    'scripts/parity-measure.mjs',
+    'tests/parity-measure.test.mjs',
   ].some(rule => pathMatches(path, rule))
 }
 
@@ -1244,6 +1246,8 @@ export function planChanges(repo = ROOT, { base = 'HEAD' } = {}) {
       matched.add('workflow')
       addCheck('orchestration-tests', `workflow path changed: ${change.path}`)
       addCheck('orchestration-structural', `workflow path changed: ${change.path}`)
+      if (checks.checks.some(check => check.id === 'parity-measure-tests'))
+        addCheck('parity-measure-tests', `automatic evidence integration changed: ${change.path}`)
       addCheck('repository-check', `workflow integration changed: ${change.path}`)
       if (change.path === 'package.json') addCheck('production-build', 'package scripts changed')
     }
