@@ -1,0 +1,67 @@
+{
+  "verdict": "ACCEPT as a source-bound safely terminated failed gate; final delivery remains blocked",
+  "reviewedAt": "2026-10-07T04:41:37.747238+00:00",
+  "sourceHead": "8f50dda281ec6338bdb84e21473879f29a0282f9",
+  "hostReceiptSha256": "88b643bf6799aab62d24abada55b6b26a14e6fe6a661ab7538326d553954349c",
+  "startedAt": "2026-10-07T04:35:30.431447+00:00",
+  "endedAt": "2026-10-07T04:35:41.102222+00:00",
+  "results": {
+    "format": "passed",
+    "ESLint": "passed",
+    "Oxlint": "failed: 34 warnings and 6 import-cycle errors",
+    "Fallow": "not run",
+    "check": "not run",
+    "build": "not run"
+  },
+  "verified": {
+    "cleanExactHead": true,
+    "everyInnerSourceEqualsSourceAfter": true,
+    "hostSourceBeforeEqualsAfter": true,
+    "dependencyInventoryEntries": 21253,
+    "fullDependencyInventoryEqual": true,
+    "copyIdentity": [
+      27,
+      1209759
+    ],
+    "remainingOwnedProcesses": [],
+    "resourcesReleased": true,
+    "markerInitialAndTerminalAbsence": true,
+    "generatedMarkerAbsentBecauseFallowNotRun": true,
+    "toolsAndPacketUnchanged": true,
+    "oldLoanMoved": false
+  },
+  "sourceAttribution": {
+    "sixErrors": "All six import(no-cycle) errors are in the existing level-start-runtime.ts import prefix. That entire prefix and every other app file are byte-identical to main e3a7a06a, so the import graph is unchanged. This is source attribution, not a rerun of baseline Oxlint.",
+    "newWarnings": [
+      "tests/startup-burst-height.test.mjs:35 prefer-destructuring",
+      "tests/startup-burst-observer.test.mjs:108 prefer-destructuring"
+    ],
+    "otherWarnings": "Remaining 32 warnings map to retained source constructs."
+  },
+  "limits": [
+    "Gate01 remains failed; do not mark unrun Fallow/check/build passed.",
+    "No behavioral correction or quality-policy change was applied by this review.",
+    "A separately reviewed policy/source refreeze and execution grant are needed for follow-on gates.",
+    "Old interrupted candidate attempt01 remains unknown and quarantined."
+  ],
+  "rawFiles": {
+    "work/orchestration/startup-burst-height-final-gates-01/results.json": "6f6e2593b76bdcb1622ea5ff459881643d73b560d629da45b76e1332f3200b56",
+    "work/orchestration/startup-burst-height-final-gates-01/oxlint-scoped.json": "7b6a5c2b89b427114860e6e7654ec6869b0739489ce65b3a44607e9e33519565",
+    "work/orchestration/startup-burst-height-final-gates-01/format-scoped.json": "e4b4b80f6ed4d42df7eeaac10a94c23242db4b6a8361a6744bdc96ce0438e773",
+    "work/orchestration/startup-burst-height-final-gates-01/eslint-scoped.json": "c92f1cbdd8a2063837bb4a73725e227b80515a39eb8119dbd3d36b1a25b0c500",
+    "work/orchestration/startup-burst-height-final-gates-01/eslint-scoped.json.artifacts/stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "work/orchestration/startup-burst-height-final-gates-01/eslint-scoped.json.artifacts/stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "work/orchestration/startup-burst-height-final-gates-01/format-scoped.json.artifacts/stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "work/orchestration/startup-burst-height-final-gates-01/format-scoped.json.artifacts/stdout.log": "43ba3228233fc9185856268e65dd915e736fa6dbb95fc658f89b55172f802dd5",
+    "work/orchestration/startup-burst-height-final-gates-01/oxlint-scoped.json.artifacts/stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "work/orchestration/startup-burst-height-final-gates-01/oxlint-scoped.json.artifacts/stdout.log": "5c22900d03cd07306ec07bd0fd23532ed59b22dfb44fe5a72550da59ab6ac89c",
+    "work/orchestration/startup-burst-height-final-gates-host-01/receipt.json": "88b643bf6799aab62d24abada55b6b26a14e6fe6a661ab7538326d553954349c",
+    "work/orchestration/startup-burst-height-final-gates-host-01/command-receipt.json": "516f83f23cf2b12559703ffaea7f3877454580f283a9d95e4646a48739107631",
+    "work/orchestration/startup-burst-height-final-gates-host-01/stdout.txt": "cc01f007bf4ac5226b1f0bea76ecf5b198bc0fe6235260425761245065be77c5",
+    "work/orchestration/startup-burst-height-final-gates-host-01/dependencies-before.json.gz": "3e1d69eaacfb2469367ef96f47cbd38b8cf7c171bee87248c66d9c050572a309",
+    "work/orchestration/startup-burst-height-final-gates-host-01/dependencies-after.json.gz": "3e1d69eaacfb2469367ef96f47cbd38b8cf7c171bee87248c66d9c050572a309",
+    "work/orchestration/startup-burst-height-final-gates-host-01/stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "work/orchestration/startup-burst-height-final-gates-host-01/command-receipt.json.artifacts/stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "work/orchestration/startup-burst-height-final-gates-host-01/command-receipt.json.artifacts/stdout.log": "b41ca92277e059a75854b94ced2bc83c1b3715521e1bc0c26ba5608a33730474"
+  }
+}

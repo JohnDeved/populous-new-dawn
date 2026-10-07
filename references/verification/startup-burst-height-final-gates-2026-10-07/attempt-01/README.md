@@ -22,3 +22,7 @@ is preserved. The old interrupted loan remains untouched and unknown.
 [preflight review](preflight-review.json) and [copy hashes](manifest.json) preserve
 the stop. Independent failure classification and any continuation/repair require
 review and a separate grant.
+
+Independent [failed-result review](failed-result-review.json) confirms the exact
+required stop, inherited-cycle attribution and successful cleanup. This does not
+relabel Oxlint passed or authorize a source/policy change or retry.
