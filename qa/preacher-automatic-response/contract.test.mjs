@@ -119,6 +119,9 @@ test('prospective mode keeps malformed source, payload, target and original queu
   for (const mutate of [
     (b, a) => { b.facts.genericThreat = 7 }, (b, a) => { b.admission.work = 7 },
     (b, a) => { b.person.id++ }, (b, a) => { delete b.person.workFlags },
+    (b, a) => { b.person.speed = 32768 }, (b, a) => { a.person.speed = 65535 },
+    (b, a) => { delete a.person.state }, (b, a) => { delete a.person.substate },
+    (b, a) => { a.person.state = 256 }, (b, a) => { a.person.substate = 1.5 },
     (b, a) => { a.turn++ }, (b, a) => { a.actor.hp-- }, (b, a) => { a.person.life-- },
     (b, a) => { a.nativeOnly = false }, (b, a) => { a.order.references = 2 },
     (b, a) => { a.orderUsers = [8] }, (b, a) => { a.queued[0].identity++ },

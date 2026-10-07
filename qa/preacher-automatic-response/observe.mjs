@@ -94,7 +94,9 @@ function diagnosticBrave(item) {
 
 function validSourceFields(row) {
   const p = row?.person, a = row?.admission
-  return p && a && p.id === row.actor.id && [p.id, p.x, p.y, p.vehicle, p.assignment, p.workTarget, p.speed].every(word) &&
+  return p && a && p.id === row.actor.id && [p.id, p.x, p.y, p.vehicle, p.assignment, p.workTarget].every(word) &&
+    Number.isInteger(p.speed) && p.speed >= -32768 && p.speed <= 32767 &&
+    [p.state, p.substate].every(n => Number.isInteger(n) && n >= 0 && n <= 255) &&
     Number.isInteger(p.workFlags) && p.workFlags >= 0 && p.workFlags <= 255 &&
     [p.flags2, p.flags3, p.flags4, a.landFlags].every(dword) &&
     Number.isInteger(p.life) && p.life > 0 && p.life <= 32767 && p.life === Math.round(row.actor.hp * 20) &&
