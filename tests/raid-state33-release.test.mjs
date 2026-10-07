@@ -101,6 +101,7 @@ test('unknown consumed release fields do not cause partial release or invented z
     c => { delete c.p.flags3 },
     c => { delete c.p.assignment },
     c => { delete c.p.commands },
+    c => { delete c.p.commands[0] },
     c => { c.p.commands[1] = 800 },
     c => { delete c.w.buildingOrders.records[131].references },
     c => { c.w.buildingOrders.records[131].object = 1 },
@@ -109,6 +110,9 @@ test('unknown consumed release fields do not cause partial release or invented z
     c => { delete c.p.renderFlags },
     c => { delete c.p.computerAssignment },
     c => { c.p.computerAssignment = 99 },
+    c => { c.p.tribe = 0 },
+    c => { c.u.team = 'blue' },
+    c => { c.p.model = 3 },
     c => { c.u.nativeFlags7f = 256 },
   ]) {
     const c = fixture()
