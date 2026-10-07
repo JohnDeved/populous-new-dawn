@@ -1,0 +1,116 @@
+{
+  "reviewedSource": "77839a91aad0453eed69448bd59dba6ae71c2fce",
+  "receiptSha256": "55c94689fffbe63b3c8ca49c43f6e037e627489659f82413c666b13ff4771599",
+  "stdoutSha256": "78fe37b3f75837b1c1fa5d1e4fe074268c0cb583e639bfbe6858ce40bc287333",
+  "stderrSha256": "47a406507543f11f29447087a800ed29e6760cf5ed6400eb016bb4609190c4a9",
+  "cleanupSha256": "22818a80db32a4ef4f2e123ba8c62134ac8c80681ab9c1c0759dd09cb1567d02",
+  "inputCount": 61,
+  "sourceAndInputsStable": true,
+  "calls": [
+    {
+      "entry": 1,
+      "stage": "setup-1",
+      "recordId": null,
+      "start": "004ed820",
+      "stop": "021ef000",
+      "eip": 35581952,
+      "esp": 35573764,
+      "elapsedSeconds": 0.024510527,
+      "unicornTimeout": false,
+      "nativeInstructionLimit": 1000000,
+      "blockInstructionUpperBound": 10013,
+      "aggregateBlockInstructionUpperBound": 10013,
+      "error": null
+    },
+    {
+      "entry": 2,
+      "stage": "setup-2",
+      "recordId": null,
+      "start": "004ed880",
+      "stop": "021ef000",
+      "eip": 35581952,
+      "esp": 35573764,
+      "elapsedSeconds": 0.022246099,
+      "unicornTimeout": false,
+      "nativeInstructionLimit": 1000000,
+      "blockInstructionUpperBound": 10003,
+      "aggregateBlockInstructionUpperBound": 20016,
+      "error": null
+    },
+    {
+      "entry": 3,
+      "stage": "setup-3",
+      "recordId": null,
+      "start": "004ee300",
+      "stop": "021ef000",
+      "eip": 35581952,
+      "esp": 35573764,
+      "elapsedSeconds": 0.186911136,
+      "unicornTimeout": false,
+      "nativeInstructionLimit": 1000000,
+      "blockInstructionUpperBound": 35361,
+      "aggregateBlockInstructionUpperBound": 55377,
+      "error": null
+    },
+    {
+      "entry": 4,
+      "stage": "setup-4",
+      "recordId": null,
+      "start": "0042bfe7",
+      "stop": "0042bffe",
+      "eip": 4374526,
+      "esp": 35573760,
+      "elapsedSeconds": 0.000589955,
+      "unicornTimeout": false,
+      "nativeInstructionLimit": 1000000,
+      "blockInstructionUpperBound": 6,
+      "aggregateBlockInstructionUpperBound": 55383,
+      "error": null
+    },
+    {
+      "entry": 5,
+      "stage": "setup-5",
+      "recordId": null,
+      "start": "0042b7f0",
+      "stop": "021ef000",
+      "eip": 4372478,
+      "esp": 35573752,
+      "elapsedSeconds": 0.000399367,
+      "unicornTimeout": false,
+      "nativeInstructionLimit": 1000000,
+      "blockInstructionUpperBound": 36,
+      "aggregateBlockInstructionUpperBound": 55419,
+      "error": "AssertionError(('native write range', '0x42b7fe', '0x89798d', 4))"
+    }
+  ],
+  "terminal": "failed setup5 declared-write-range guard",
+  "allocations": 0,
+  "rngWrites": 0,
+  "seeds": "all zero",
+  "remainingOwnedProcesses": [],
+  "minimalCorrection": {
+    "start": "0089798d",
+    "endExclusive": "00897997",
+    "stores": [
+      {
+        "pc": "0042b7fe",
+        "address": "0089798d",
+        "width": 4,
+        "value": 0
+      },
+      {
+        "pc": "0042b800",
+        "address": "00897991",
+        "width": 4,
+        "value": 0
+      },
+      {
+        "pc": "0042b803",
+        "address": "00897995",
+        "width": 2,
+        "value": 0
+      }
+    ]
+  },
+  "mode": "read-only receipt/source review; no retry or execution"
+}

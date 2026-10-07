@@ -1,0 +1,31 @@
+{
+  "status": "failed; retained partial component evidence only",
+  "source": "5d8b30c4c92d40adee8951cb9f9b763d69f54a1c",
+  "manifestSha256": "7b9473458cef8644059735183ae0b00bd85baa0e4e21fce90f6bd542bdeb22dd",
+  "launchSha256": "a0525fbaa649d736ac0f80e380a852e62df38e1f863c615817e78e1e86cecb5f",
+  "toolSessionId": 58974,
+  "nativeCallsAttempted": 6,
+  "nativeCallsReturned": 5,
+  "allocations": 0,
+  "failedCall": {
+    "entry": 6,
+    "stage": "setup-6",
+    "recordId": null,
+    "start": "00401040",
+    "stop": "021ef000",
+    "eip": 4200710,
+    "esp": 35573712,
+    "elapsedSeconds": 0.43870544,
+    "unicornTimeout": false,
+    "nativeInstructionLimit": 1000000,
+    "blockInstructionUpperBound": 183350,
+    "aggregateBlockInstructionUpperBound": 242381,
+    "error": "AssertionError(('native write range', '0x401906', '0x89c48d', 1))"
+  },
+  "error": "AssertionError(\"AssertionError(('native write range', '0x401906', '0x89c48d', 1))\")",
+  "sourceAndInputsStable": true,
+  "receiptInputCount": 62,
+  "cpu4Released": true,
+  "furtherRetry": false,
+  "limits": "Pool setup, class-seed reset and tribe clear/defaults returned. Sunlight setup stopped at a generated-table write. No authored records, post-record callbacks, roster/site/orders or class1 allocations were completed."
+}

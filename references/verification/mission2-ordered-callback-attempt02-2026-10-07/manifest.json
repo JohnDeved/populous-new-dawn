@@ -1,0 +1,16 @@
+{
+  "status": "failed attempt02; no further retry",
+  "filesSha256": {
+    "README.md": "ad881f4917592c66ec9c16fa946ecdd3afdd3ba19c4c9ba71d9b407a10c97423",
+    "attempt01-result-review.json": "525d5de0c3f8b5bba7a87cb0c7ddecc4d045d414d83e4ca0e5f8a5cdd7b57959",
+    "executable-repair-review.md": "fd4918d1e7fdf6a524d241c5c87004edad68df0b0bc60029baf1c9e052b64695",
+    "launch-session.json": "21bef004f5af04cfe4d331216e6133e68c75b673a6445673259ac56a3f166fef",
+    "owned-cleanup.json": "f5e523e602631f4ead2f649e486177a224664e369758cdeffac256ababbbd09e",
+    "receipt.json": "f34b0ac441048375ae2753689b68c4517df1b9da2ecc343d4e2b613c3e827923",
+    "result.json": "705c0516cbe896f01a50858c69ce1bdf1bfd8b27220f3ca330a5caffa5f54190",
+    "stderr.log": "c796366f315863c9402fb7eaa56ae6434a764c27b4673cfbcf18e75a6648ec16",
+    "stdout.log": "1d7854488802dd6902f6e048d5a420fce45cf9301fa6ff2e01a8bbe39edc03d8",
+    "supervisor.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "supervisor.stdout.log": "22c7c899f577110fc3a9f2feb3a86ecc67eba6af33ef19bac81d40d2906183ed"
+  }
+}
