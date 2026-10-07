@@ -461,7 +461,14 @@ export function stepBuildingEntry(w: World, u: Unit, b?: Building) {
   }
   const state = b && buildingAdmission(w, b),
     ctx = context(w),
-    order = currentPersonOrder(w.buildingOrders, p)!
+    order = currentPersonOrder(w.buildingOrders, p)!,
+    residentReissue =
+      b &&
+      order.model === 8 &&
+      p.substate === 0 &&
+      u.inside === b.id &&
+      order.a === b.id &&
+      ['camp', 'temple', 'spyHut', 'firewarriorHut'].includes(b.kind)
   syncLivePersonCells(w)
   p.counter = (p.counter + 1) & 255
   p.cargo = Math.round(u.cargo * 100)
@@ -600,7 +607,12 @@ export function stepBuildingEntry(w: World, u: Unit, b?: Building) {
         p
       )
       initializeBuildingPerson(w, p)
-    } else cancelBuildingEntry(w, u)
+    } else {
+      cancelBuildingEntry(w, u)
+      // Reissuing to the same school completes immediately for its resident.
+      // Fresh admission keeps the existing browser adapter lifetime.
+      if (residentReissue) u.native = p
+    }
     if (u.inside === null) u.work = null
   } else adoptLiveOrders(w, u, p)
 }

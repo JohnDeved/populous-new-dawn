@@ -41,6 +41,59 @@ test('Mission 2 naturally earns Matak kills and launches the organized raid', ()
     15000
   )
 
+  assert.equal(w.ai.tasks.some(task => task.flags & 1 && task.type === 20), false,
+    'cohort observation is armed before any raid recruitment')
+  let raid = null, target = null, originalMembers = null
+  const originalUnits = new Map(), admittedMembers = []
+  const registeredOwner = id => {
+    const unit = w.units.find(unit => unit.id === id && unit.hp > 0),
+      person = w.objectCells.objects.get(id)
+    assert.ok(unit && person && person.id === unit.id, 'living original member has a registry owner')
+    assert.ok([unit.native, unit.flight, unit.fight?.motion, unit.entry?.person,
+      unit.builder?.person].includes(person), 'registry record belongs to the actual Unit')
+    return { unit, person }
+  }
+  // Observe every admitted member from the first recruitment call, including
+  // recruitment that begins during the kill-credit setup.
+  const observeCohort = () => {
+    const active = w.ai.tasks.filter(task => task.flags & 1 && task.type === 20)
+    if (!raid && !active.length) return
+    assert.equal(active.length, 1, 'no duplicate raid is created')
+    if (!raid) {
+      raid = active[0]
+      target = raid.target
+      assert.deepEqual({ requested: raid.requested, mode: raid.mode, entity: raid.entity },
+        { requested: 2, mode: 7, entity: camp.id })
+      assert.deepEqual(raid.quotas, [0, 100, 0, 0, 0, 0], 'the authored raid requests Warriors first')
+    }
+    assert.equal(active[0], raid, 'the same task remains active')
+    assert.equal(raid.target, target, 'the same camp remains the attack target')
+    assert.deepEqual(raid.members.slice(0, admittedMembers.length), admittedMembers,
+      'recruitment retains every previously admitted original member')
+    for (const id of raid.members) {
+      const { unit } = registeredOwner(id)
+      if (!originalUnits.has(id)) {
+        assert.equal(originalMembers, null, 'no replacement enters the completed original cohort')
+        assert.equal(unit.team, 'green')
+        // 0x4cb400 tries the Warrior quota, then selector model -1 fills any
+        // shortage with eligible non-Shamans. This authored Mission2 troop
+        // pool contains Braves and Warriors; the generic selector is broader.
+        assert.ok(unit.kind === 'warrior' || unit.kind === 'brave')
+        originalUnits.set(id, unit)
+        admittedMembers.push(id)
+      }
+      assert.equal(unit, originalUnits.get(id), 'each original recruited Unit remains alive')
+    }
+    if (!originalMembers && raid.phase >= 4 && raid.members.length) {
+      assert.equal(raid.members.length, 2, 'the original requested cohort is recruited first')
+      assert.equal(new Set(raid.members).size, 2)
+      originalMembers = [...admittedMembers]
+    }
+    if (originalMembers)
+      assert.deepEqual(raid.members, originalMembers, 'the full recruited cohort remains admitted; no replacement or member loss')
+  }
+  const observedUntil = (ready, limit) => stepUntil(w, () => { observeCohort(); return ready() }, limit)
+
   const warriors = () =>
     w.units.filter(unit => unit.team === 'blue' && unit.kind === 'warrior' && unit.hp > 0)
   for (let attempts = 0; w.killCredits[0][3] <= 3 && attempts < 8; attempts++) {
@@ -50,55 +103,17 @@ test('Mission 2 naturally earns Matak kills and launches the organized raid', ()
     assert.ok(target)
     setSelection(w, warriors().map(unit => unit.id))
     assert.ok(command(w, target))
-    stepUntil(w, () => target.hp <= 0, 10000)
+    observedUntil(() => target.hp <= 0 || w.killCredits[0][3] > 3, 10000)
   }
   assert.equal(w.killCredits[0][1], 0)
   assert.ok(w.killCredits[0][3] > 3)
 
   // Let the authored raid regroup without running through our idle defenders.
-  // This startup scenario selects two fallback Braves rather than Warriors.
+  // Stop combat as soon as the authored kill-credit objective is fulfilled.
   select(w, 'all')
   assert.ok(command(w, { x: -80, z: -108 }))
 
-  stepUntil(w, () => w.ai.tasks.some(task => task.flags & 1 && task.type === 20), 5000)
-  const raid = w.ai.tasks.find(task => task.flags & 1 && task.type === 20)
-  assert.deepEqual(
-    { requested: raid.requested, mode: raid.mode, entity: raid.entity },
-    { requested: 2, mode: 7, entity: camp.id }
-  )
-  const target = raid.target
-  let originalMembers = null
-  const originalUnits = new Map()
-  const registeredOwner = id => {
-    const unit = w.units.find(unit => unit.id === id && unit.hp > 0)
-    const person = w.objectCells.objects.get(id)
-    assert.ok(unit && person && person.id === unit.id, 'living original member has a registry owner')
-    assert.ok([unit.native, unit.flight, unit.fight?.motion, unit.entry?.person,
-      unit.builder?.person].includes(person), 'registry record belongs to the actual Unit')
-    return { unit, person }
-  }
-  const observeCohort = () => {
-    const active = w.ai.tasks.filter(task => task.flags & 1 && task.type === 20)
-    assert.equal(active.length, 1, 'no duplicate raid is created')
-    assert.equal(active[0], raid, 'the same task remains active')
-    assert.equal(raid.target, target, 'the same camp remains the attack target')
-    if (!originalMembers && raid.phase >= 4 && raid.members.length) {
-      assert.equal(raid.members.length, 2, 'the original requested cohort is recruited first')
-      assert.equal(new Set(raid.members).size, 2)
-      originalMembers = [...raid.members]
-      for (const id of originalMembers) {
-        const { unit } = registeredOwner(id)
-        assert.equal(unit.kind, 'brave')
-        originalUnits.set(id, unit)
-      }
-    }
-    if (!originalMembers) return
-    assert.deepEqual(raid.members, originalMembers, 'the full recruited cohort remains admitted; no replacement or member loss')
-    for (const id of originalMembers) {
-      const { unit } = registeredOwner(id)
-      assert.equal(unit, originalUnits.get(id), 'each original recruited Unit remains alive')
-    }
-  }
+  observedUntil(() => !!raid, 5000)
   stepUntil(w, () => {
     observeCohort()
     if (!originalMembers || raid.phase !== 16) return false

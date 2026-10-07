@@ -38,6 +38,7 @@ import {
   cancelLiveOrder,
   movementOrder,
   orderEffects,
+  replaceLiveTrainingOrders,
   startLiveConstructionOrder,
   startLiveOrder,
 } from './live-movement.ts'
@@ -590,6 +591,36 @@ export function command(
     ].includes(context.building.kind)
   const queuedTree =
     model === 7 && context.tree && context.tree.model >= 1 && context.tree.model <= 6
+  if (
+    model === 8 &&
+    context.building &&
+    ['camp', 'temple', 'spyHut', 'firewarriorHut'].includes(context.building.kind) &&
+    !modifiers.ctrlKey &&
+    !w.orderCursor
+  ) {
+    const units = w.units.filter(u => u.hp > 0 && w.selected.includes(u.id)),
+      input = playerOrderInput(8, 0, false, modifiers.shiftKey, modifiers.altKey),
+      order = emptyPersonOrder()
+    writePersonOrder(order, 8, context.building.id, 0, input.flags)
+    const result = replaceLiveTrainingOrders(w, units, order)
+    for (const person of selectionPeople(w))
+      person.selectionFlags = (person.selectionFlags & ~1) | (person.selectionFlags >>> 7)
+    if (input.deselect) cancelInteraction(w)
+    const trained = {
+      camp: 'warriors',
+      temple: 'preachers',
+      spyHut: 'spies',
+      firewarriorHut: 'firewarriors',
+    }
+    let message = 'No command slots available.'
+    if (result.accepted) {
+      message = 'No selected followers can take this order.'
+      if (result.count)
+        message = `Braves sent to train as ${trained[context.building.kind as keyof typeof trained]}.`
+    }
+    tell(w, message)
+    return true
+  }
   if (
     model === 15 ||
     model === 19 ||
