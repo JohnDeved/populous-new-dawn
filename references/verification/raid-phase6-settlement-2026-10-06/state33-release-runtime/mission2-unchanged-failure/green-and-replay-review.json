@@ -1,0 +1,45 @@
+{
+  "verdict": "ACCEPT_FOCUSED_REPAIRED_COMPARISON_AND_STRICT_MISSION2_PREFLIGHT",
+  "head": "bddf3b3ccc55330bdd711b7e7c8ed3d41554608b",
+  "focusedManifestSha256": "3a35f59f22e894d511ee804d0ffd0f4a2d6bb3f3b24272d7fe432e17b32ba0a9",
+  "findings": [
+    "Independently verified all34 focused result packet members and both raw receipt stream hashes. Red retains10passes/4 intended release failures; green passes14/14 with no skips or cancellations. Green239 before/after inputs are identical and the owned group is empty, exit0 in3.794272seconds.",
+    "The new captured actual-dispatcher regression compares a full declared owner/registry/pool/task/world snapshot against the immutable native-backed release delta. Every represented native changed field is included, while unchanged represented fields and unrelated owners/pool records are retained. Task membership removal maps native+af2\u21920 to the existing observed+af0 port representation; absent+7f is preserved. Native-only visit counter,ABI/stack/pointers and padding are not invented as port fields. This satisfies the repaired actual-port comparison for the accepted modeled contract; no redundant native rerun or extra comparator is needed.",
+    "Supplied controls pass for retained fight/flight/entry/builder owner identity,substate2 animationMode threshold independent of commandPhase,known+7f upper bits,valid task assignment and malformed/sparse/foreign-model/tribe/unsupported cleanup holds. Existing combat timeout/moving-not-settled/current-immediate/unknown-shadowed-order regressions also pass. General model/lifecycle limits from the source review remain.",
+    "The strict Mission2 packet is source-bound to the same head and unchanged test7574ce1db5080bc4efed98a7c0bc5b4c2dd7c29e9e4a8e3e4d1bda0bf5104a42. Its exact first case body,setup,two-member/current19 wait and combat assertions are preserved. Only test registration/import paths/tick alias are adapted. Passive observer adds animationMode,previous/motion/anchor and+7f presence,retains released historical member IDs,reads sourceHead from the pinned preflight,and records failures without changing the game.",
+    "Rehashed231 local files,four tools and all237 outer bindings; clean source and fresh outputs. Existing guardian enforcesCPU4,120sTERM+10s cleanup with exact pre/post source/input receipt. The original failed scenario stays immutable. The forthcoming result may fail and must be interpreted from its trace; no test weakening is pre-authorized."
+  ],
+  "strictReplay": {
+    "preflightSha256": "5d66f76e934571323bde0b519b3b6b583e4aa42c914a563c15ce3761223cc196",
+    "commandSha256": "4a4ab232ac3cb6bb9a1cee015a775fe6f30c058b391eeaaafe0a6c8ea7becac4",
+    "caseSha256": "daaca5f726fd6e728588ab12c06eb30e6aea2387522757011ea1be27d4db7864",
+    "outputFreshAtReview": true
+  },
+  "limits": [
+    "Focused14/14 is not a Mission2 full-scenario,ordinary browser or final standard-gate pass.",
+    "The original composed release remains model2,unoccupied cell,empty post-clear queue; extra source-backed controls are labelled separately.",
+    "The coordinator must separately grant one strict replay. Reviewer executed no application,test,native,package or browser code."
+  ],
+  "inputs": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-state33-runtime-fix-20261007/work/orchestration/raid-state33-focused-result-20261007/manifest.json",
+      "sha256": "3a35f59f22e894d511ee804d0ffd0f4a2d6bb3f3b24272d7fe432e17b32ba0a9"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-state33-runtime-fix-20261007/work/orchestration/raid-state33-green-02-20261007/receipt.json",
+      "sha256": "6b6589c07facf5640407328ada6f305985ecd6a289b550bbdfc86b4bb2e17ae4"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-state33-runtime-fix-20261007/work/orchestration/raid-state33-green-02-20261007/cleanup.json",
+      "sha256": "59c9c520cd4f73be2941b8884680e0b11285da7992f85a44d825c58e26f94190"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-state33-runtime-fix-20261007/work/orchestration/raid-state33-mission2-replay-20261007/preflight.json",
+      "sha256": "5d66f76e934571323bde0b519b3b6b583e4aa42c914a563c15ce3761223cc196"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-state33-runtime-fix-20261007/work/orchestration/raid-state33-mission2-replay-20261007/command.json",
+      "sha256": "4a4ab232ac3cb6bb9a1cee015a775fe6f30c058b391eeaaafe0a6c8ea7becac4"
+    }
+  ]
+}

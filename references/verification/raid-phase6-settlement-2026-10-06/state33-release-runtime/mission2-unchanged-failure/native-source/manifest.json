@@ -1,0 +1,53 @@
+{
+  "sourceHead": "bddf3b3ccc55330bdd711b7e7c8ed3d41554608b",
+  "canonicalExecutableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "kind": "read-only static disassembly and source/trace correspondence; no emulator or application execution",
+  "ranges": {
+    "phase14-15": [
+      "0x4cc0bd",
+      "0x4cc112"
+    ],
+    "phase16-count-retreat": [
+      "0x4cc112",
+      "0x4cc272"
+    ],
+    "admitted-count-prefix": [
+      "0x4ce2c0",
+      "0x4ce3a9"
+    ],
+    "attack-dispatch": [
+      "0x4ce0a0",
+      "0x4ce2b8"
+    ],
+    "commit-selection-gate": [
+      "0x435a8a",
+      "0x435ad3"
+    ],
+    "membership-filter": [
+      "0x4f2460",
+      "0x4f2474"
+    ],
+    "phase-lock": [
+      "0x4f5c80",
+      "0x4f5d10"
+    ]
+  },
+  "files": {
+    "work/orchestration/raid-state33-cohort-assessment-20261007/membership-filter.asm": "6d9279ccb62223ed7e03a38eacd7029c15c2e60d24f6b2a603f5c923f5bf7a6c",
+    "work/orchestration/raid-state33-cohort-assessment-20261007/admitted-count-prefix.asm": "ddf6253a329edeeeb13a8f4c7bf5ac18a38a61f7b49491be13743a4d266a924c",
+    "work/orchestration/raid-state33-cohort-assessment-20261007/phase14-15.asm": "50077f4409c66f48773cfd9142dc09b38724a573880f4fa71ae59268db4e5c8a",
+    "work/orchestration/raid-state33-cohort-assessment-20261007/attack-dispatch.asm": "1a207d7f356d575e7845503230c24c9394bea3e182a80c5c3c2c98a6d38d605b",
+    "work/orchestration/raid-state33-cohort-assessment-20261007/commit-selection-gate.asm": "1fd687fd84c5c76c2cc90841242f305de09a08f8aa14356f30f2685e8fe5b7bb",
+    "work/orchestration/raid-state33-cohort-assessment-20261007/phase16-count-retreat.asm": "972ef903aa69a0c399d45126a3c29c9e24bcea02029ae0f2465ca9792df8238c",
+    "work/orchestration/raid-state33-cohort-assessment-20261007/phase-lock.asm": "378daf5e2d49aae3bd972dfcad77526a81f95ec15e5b2ed7969dbb347d699b93"
+  },
+  "inputs": {
+    "app/computer.ts": "7e7425a46cba84fa4eeb4c29be92c25c848f992b94e2912d570b9959027a666d",
+    "app/computer-runtime.ts": "aec5e8865334fde341646cd03ec7a2f58e684d24586f36c2c49f867d4558bfa2",
+    "app/person-orders.ts": "27600291a988813415ce88a4b046101fb772894490d44607b84f739a433eb1f3",
+    "tests/mission2-raid.test.mjs": "7574ce1db5080bc4efed98a7c0bc5b4c2dd7c29e9e4a8e3e4d1bda0bf5104a42",
+    "scripts/check-native-computer-attack.py": "0a9694bd36f0d60c1bb4772531d3a670bc0c1f60d502569c1af25d81cfb72942",
+    "work/orchestration/raid-state33-mission2-replay-20261007/cohort-diagnosis.json": "72ab3a30430738a41adf86df9308e4453b6cea845df3518df0865ea721509e47",
+    "work/orchestration/raid-state33-mission2-replay-20261007/result-manifest.json": "843564b2050b0c616b427f4033fe68a3b9483d7e54de3a1a3b25ea6b0b9bee66"
+  }
+}

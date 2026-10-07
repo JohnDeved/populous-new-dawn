@@ -1,0 +1,70 @@
+{
+  "verdict": "ACCEPT actual failed diagnostic and scoped release/cohort findings; maintained Mission2 test still FAIL",
+  "reviewMethod": "Read-only source, canonical EXE disassembly, raw JSON and SHA-256 checks; no application/native/test execution",
+  "sourceHead": "bddf3b3ccc55330bdd711b7e7c8ed3d41554608b",
+  "resultManifestSha256": "843564b2050b0c616b427f4033fe68a3b9483d7e54de3a1a3b25ea6b0b9bee66",
+  "receiptSha256": "6bc4c1648bc080e3d7af533f91f7f9598a7105d227fc7469726c53a6072f667a",
+  "traceSha256": "df9b44298f01693cdac100664891c77fecebc8380924072f8b22d76c5f49b529",
+  "cohortDiagnosisSha256": "72ab3a30430738a41adf86df9308e4453b6cea845df3518df0865ea721509e47",
+  "verification": {
+    "rawManifestMembers": 19,
+    "beforeAfterInputs": 237,
+    "currentInputsRehashed": 237,
+    "sourceClean": true,
+    "traceRows": 4492,
+    "independentlyMatchedTransitionRows": 17,
+    "maximumActiveTribe3Type20": 1,
+    "exitCode": 1,
+    "elapsedSeconds": 8.844790233008098,
+    "cpu": [
+      4
+    ],
+    "limitsSeconds": [
+      120,
+      10
+    ],
+    "remainingOwnedGroupMembers": []
+  },
+  "findings": [
+    "Original unchanged two-member/phase16/current19 wait exhausted its 2000-tick budget at world turn4486. Later defender selection, attack input and damage assertions were not reached.",
+    "Raw lines3202\u21923203, turns3197\u21923198: original member10 is alive50HP/life1000, actual registered native state33/substate2/animationMode5, queued/current131 model3. After tick its queue/current clear, membership becomes[11], task remains phase6 and elapsed329\u2192332. Unit10 remains alive and registered.",
+    "End-of-tick state17 and subsequent anchor changes include ordinary later person/idle work in that tick. These rows do not replace the accepted exact native/helper endpoint comparison.",
+    "Same task progresses phase14 at3201, phase15 at3204, phase16 at3206. Original member11 is alive/current144 model19, references1. At4486 both original10/11 remain50HP, released10 rests without orders and admitted11 remains current19.",
+    "Every captured row has at most one active tribe3 type20 task. No death-based replacement or arbitrary survivor substitution explains this failure."
+  ],
+  "canonicalSource": {
+    "exeSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "ranges": [
+      {
+        "start": "0x4cc0bd",
+        "endExclusive": "0x4cc112",
+        "sha256": "b3d8e0c0c422a545a32225dafe44f9d4d0659413f2d37883083168388153bc81"
+      },
+      {
+        "start": "0x4cc246",
+        "endExclusive": "0x4cc25b",
+        "sha256": "f029b9a99eb41b3c24db0ebcc43e9e0c513ca78e83556e1435c19db1e874356f"
+      },
+      {
+        "start": "0x4ce0a0",
+        "endExclusive": "0x4ce1a6",
+        "sha256": "c6725afaef93ee54f5e1e51c4a2e6b98bd08ac3a285ebe0ddf7ba7cd377c6308"
+      }
+    ],
+    "phase14": "004cc0bd calls004f5c80 selection acquisition for phase15; no requested-equals-active condition.",
+    "phase15": "004cc0d4 calls004ce0a0 with task index+1, then releases selection and unconditionally stores phase16 at004cc101.",
+    "phase16": "004cc246..004cc259 computes signed trunc(retreatPercent*requested/100) and retreats on strict greater-than-active. Supplied50 percent/requested2 therefore does not reject active1 by quota alone.",
+    "selectionLimit": "004ce0a0 filters admitted persons through004f2460 for state14 initialization, but004359b0 commits commands by person+0x7a bit128. Captured selectionFlags129 and intervening original selection history were not composed. Native exact one-recipient/reference1 is not proved by this review."
+  },
+  "smallestJustifiedNextBoundary": [
+    "A separately reviewed maintained-test delta may record the original recruited two-person cohort and require the specific living, registered, natively eligible state33 release before accepting reduced admitted membership, within the existing wait budget.",
+    "Require the same task and surviving admitted original cohort, actual model19 attack at the authored target, no duplicate task, and continued life of the released original member. Preserve all later defender/combat/damage assertions and budgets.",
+    "Do not merely remove the length assertion or choose any survivor; do not label the later port command-recipient/refcount output as a composed original cohort result. Exact release-field equality remains supplied by accepted native/14-test comparison.",
+    "No test edit, retry, new native run, whole-game lifecycle or ordinary browser claim is authorized by this result verdict."
+  ],
+  "limitations": [
+    "Fixed-step unchanged production scenario, not ordinary UI/browser evidence.",
+    "Native full-world selection/history and later combat assertions remain unproved.",
+    "PR247/full gates remain blocked pending the separately reviewed maintained test and remaining integration gates."
+  ]
+}
