@@ -1,0 +1,43 @@
+{
+  "sourceHead": "0a71e4092cad3ef6319b2fc0f4a7c0eb79a1a189",
+  "manifestSha256": "dce472ec3b37cb01b7f5583d1bef663893db5c852a6bd15b7242248b4aa2c3ea",
+  "command": [
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/bin/python",
+    "-I",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/state33-raid-release-proof-20261007/decomp/research/raid-state33-release/pair/probe.py",
+    "--execute-pair",
+    "dce472ec3b37cb01b7f5583d1bef663893db5c852a6bd15b7242248b4aa2c3ea",
+    "0a71e4092cad3ef6319b2fc0f4a7c0eb79a1a189"
+  ],
+  "cpu": [
+    4
+  ],
+  "limits": {
+    "termSeconds": 12,
+    "killGraceSeconds": 3,
+    "sampleSeconds": 0.02,
+    "aggregateRssBytes": 1073741824,
+    "outputBytes": 8388608,
+    "cpuCount": 1,
+    "retry": false,
+    "nativeInvocations": 1,
+    "portInvocations": 1,
+    "nativeInstructions": 100000,
+    "nativeMicroseconds": 1000000,
+    "portSeconds": 5
+  },
+  "startedAt": "2026-10-07T01:53:17.401869+00:00",
+  "termDeadlineMonotonic": 81972.450790423,
+  "killDeadlineMonotonic": 81975.450790423,
+  "peakAggregateRssBytes": 0,
+  "outputBytes": 0,
+  "cleanupSignals": [],
+  "status": "running",
+  "processIdentity": {
+    "pid": 41,
+    "group": 41,
+    "state": "R",
+    "startTimeTicks": 8196045,
+    "rssBytes": 0
+  }
+}

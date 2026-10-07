@@ -816,6 +816,7 @@
       "decomp/research/preacher-response-trigger.md",
       "decomp/research/preacher-response-implementation-proposal.md",
       "decomp/research/raid-phase6-settlement/findings.md",
+      "decomp/research/raid-state33-release/findings.md",
       "scripts/probe-native-raid-phase6.py",
       "scripts/raid-phase6-pair.mjs",
       "tests/raid-phase6-settlement.test.mjs",

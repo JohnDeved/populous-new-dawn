@@ -1,0 +1,34 @@
+{
+  "status": "expected-state33-release-gap-confirmed",
+  "nativeSemanticReturn": "void",
+  "portSemanticReturn": "undefined",
+  "native": {
+    "member10State": 10,
+    "nativeAssignment": 0,
+    "command131References": 0,
+    "poolActive": 2,
+    "anchor": [
+      38656,
+      28416
+    ],
+    "elapsed": 360,
+    "phase": 6
+  },
+  "port": {
+    "member10State": 33,
+    "observedAssignment": 0,
+    "taskMembers": [
+      10,
+      11
+    ],
+    "command131References": 1,
+    "poolActive": 3,
+    "anchor": [
+      34048,
+      30976
+    ],
+    "elapsed": 360,
+    "phase": 6
+  },
+  "limits": "Conditional two-member constructor/admission projection; no native mission history, scheduler or maintained-test completion claim"
+}

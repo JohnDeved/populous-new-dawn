@@ -1,0 +1,57 @@
+{
+  "kind": "Immutable raw one-native/one-port result; conditional release gap, no runtime fix",
+  "sourceHead": "0a71e4092cad3ef6319b2fc0f4a7c0eb79a1a189",
+  "launchManifestSha256": "dce472ec3b37cb01b7f5583d1bef663893db5c852a6bd15b7242248b4aa2c3ea",
+  "files": [
+    {
+      "path": "cleanup.json",
+      "bytes": 3897,
+      "sha256": "91b4f4fe2848a320a1adb87a69323e4cc2c1c6f120283f44b95a235eb65dbd85"
+    },
+    {
+      "path": "comparison.json",
+      "bytes": 732,
+      "sha256": "45c7e9226337f31af4c3101ccf9f12865d8d48bfe4e835ae7ba2a810775eeff7"
+    },
+    {
+      "path": "native-before.json",
+      "bytes": 51535,
+      "sha256": "94df13209292ce8c1e30a97f88a69b56542d4b0470683849d643366063f32bdb"
+    },
+    {
+      "path": "native.json",
+      "bytes": 175092,
+      "sha256": "3726277d8e5d67a68d8fbcd9321d30ab64f6c89fa2ab00af6ac4039dea2b1932"
+    },
+    {
+      "path": "port.stderr",
+      "bytes": 203,
+      "sha256": "8a7f6783432d7bce1417a4660fc9ee0211685819ac066a08a22fcf471d566ece"
+    },
+    {
+      "path": "port.stdout",
+      "bytes": 490119,
+      "sha256": "0a15cc163a0ab6847f2498068f9e61d1f62542e1d86a177433e89bf0b54d715e"
+    },
+    {
+      "path": "result.json",
+      "bytes": 703,
+      "sha256": "fbf34ac51a3dcc8e3384aecc0ae7366044b2ceeac99aae438a2ebfbe8d5582d9"
+    },
+    {
+      "path": "started.json",
+      "bytes": 1284,
+      "sha256": "0033c411b0434b891014534704f3bf9d4f828d065621b110b6187e11ad60fc7d"
+    },
+    {
+      "path": "stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "stdout.log",
+      "bytes": 663,
+      "sha256": "a9b7a6eb93f2f42feb29e00af6e0e2b7e49f69f59023642fa76b9a09ebf4ac7a"
+    }
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "sourceHead": "0a71e4092cad3ef6319b2fc0f4a7c0eb79a1a189",
+  "manifestSha256": "dce472ec3b37cb01b7f5583d1bef663893db5c852a6bd15b7242248b4aa2c3ea",
+  "command": [
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/bin/python",
+    "-I",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/state33-raid-release-proof-20261007/decomp/research/raid-state33-release/pair/probe.py",
+    "--execute-pair",
+    "dce472ec3b37cb01b7f5583d1bef663893db5c852a6bd15b7242248b4aa2c3ea",
+    "0a71e4092cad3ef6319b2fc0f4a7c0eb79a1a189"
+  ],
+  "cpu": [
+    4
+  ],
+  "limits": {
+    "termSeconds": 12,
+    "killGraceSeconds": 3,
+    "sampleSeconds": 0.02,
+    "aggregateRssBytes": 1073741824,
+    "outputBytes": 8388608,
+    "cpuCount": 1,
+    "retry": false,
+    "nativeInvocations": 1,
+    "portInvocations": 1,
+    "nativeInstructions": 100000,
+    "nativeMicroseconds": 1000000,
+    "portSeconds": 5
+  },
+  "startedAt": "2026-10-07T01:53:17.401869+00:00",
+  "termDeadlineMonotonic": 81972.450790423,
+  "killDeadlineMonotonic": 81975.450790423,
+  "peakAggregateRssBytes": 251580416,
+  "outputBytes": 720331,
+  "cleanupSignals": [],
+  "status": "child-finished",
+  "processIdentity": {
+    "pid": 41,
+    "group": 41,
+    "state": "R",
+    "startTimeTicks": 8196045,
+    "rssBytes": 0
+  },
+  "exitCode": 0,
+  "workerResult": {
+    "status": "expected-state33-release-gap-confirmed",
+    "sourceHead": "0a71e4092cad3ef6319b2fc0f4a7c0eb79a1a189",
+    "manifestSha256": "dce472ec3b37cb01b7f5583d1bef663893db5c852a6bd15b7242248b4aa2c3ea",
+    "nativeInvocations": 1,
+    "portInvocations": 1,
+    "nativeStatus": "predicted-release-confirmed",
+    "portCommand": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "--permission",
+      "--allow-inspector",
+      "--allow-fs-read=/workspace/scratch/69fd8163d94e/cloud-dev-20261004/state33-raid-release-proof-20261007",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/state33-raid-release-proof-20261007/decomp/research/raid-state33-release/pair/port.mjs"
+    ]
+  },
+  "cleanupDeadlineMonotonic": 81965.622491484,
+  "remainingProcessGroupMembers": [],
+  "resourcesReleased": true,
+  "elapsedSeconds": 2.172220491003827,
+  "finishedAt": "2026-10-07T01:53:19.574084+00:00",
+  "postflight": {
+    "passed": true,
+    "checkedCount": 303,
+    "orderedChecksSha256": "47c7a705e66fecbef5b4c22b2f7943c13eecd73820771cc02773777cbc35187c",
+    "changedInputs": [],
+    "unchangedInputs": "Every other member matched the frozen launch-manifest hash exactly"
+  },
+  "outputs": [
+    {
+      "path": "comparison.json",
+      "bytes": 732,
+      "sha256": "45c7e9226337f31af4c3101ccf9f12865d8d48bfe4e835ae7ba2a810775eeff7"
+    },
+    {
+      "path": "native-before.json",
+      "bytes": 51535,
+      "sha256": "94df13209292ce8c1e30a97f88a69b56542d4b0470683849d643366063f32bdb"
+    },
+    {
+      "path": "native.json",
+      "bytes": 175092,
+      "sha256": "3726277d8e5d67a68d8fbcd9321d30ab64f6c89fa2ab00af6ac4039dea2b1932"
+    },
+    {
+      "path": "port.stderr",
+      "bytes": 203,
+      "sha256": "8a7f6783432d7bce1417a4660fc9ee0211685819ac066a08a22fcf471d566ece"
+    },
+    {
+      "path": "port.stdout",
+      "bytes": 490119,
+      "sha256": "0a15cc163a0ab6847f2498068f9e61d1f62542e1d86a177433e89bf0b54d715e"
+    },
+    {
+      "path": "result.json",
+      "bytes": 703,
+      "sha256": "fbf34ac51a3dcc8e3384aecc0ae7366044b2ceeac99aae438a2ebfbe8d5582d9"
+    },
+    {
+      "path": "started.json",
+      "bytes": 1284,
+      "sha256": "0033c411b0434b891014534704f3bf9d4f828d065621b110b6187e11ad60fc7d"
+    },
+    {
+      "path": "stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "stdout.log",
+      "bytes": 663,
+      "sha256": "a9b7a6eb93f2f42feb29e00af6e0e2b7e49f69f59023642fa76b9a09ebf4ac7a"
+    }
+  ]
+}
