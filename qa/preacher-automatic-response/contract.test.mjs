@@ -3,7 +3,7 @@ import test from 'node:test'
 import { readFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
-import { movingEncounter, qualifyingVisit, createResponseTracker, eligibleBraveState } from './observe.mjs'
+import { movingEncounter, qualifyingVisit, createResponseTracker, eligibleBraveState, stableBravePair } from './observe.mjs'
 import { responseProjection, requireResponseCheckpoint, requireSameCheckpoint } from './checkpoint.mjs'
 import { requireCleanup, requirePausedResponse, requireInterruptedResponse, installInputResponseRead } from './scenario.mjs'
 import { chainPhaseObservers } from '../preacher-gesture-baseline/observe.mjs'
@@ -90,6 +90,25 @@ test('actual production scan counter follows world turn even when retained perso
 })
 
 const first32Fixture = () => JSON.parse(readFileSync(new URL('./retained-candidate01-first32.json', import.meta.url)))
+test('exact4653→4654 preserves the eligible native pair while its unconsumed route handle changes', () => {
+  const f = JSON.parse(readFileSync(new URL('./retained-continuation01-first32.json', import.meta.url)))
+  assert.equal(f.sourceHead, '9dfc4c8591b5decf4163a755af2ad5c8f9b4e220')
+  assert.deepEqual([f.before.facts.braves[0].motionGroup, f.after.facts.braves[0].motionGroup], [253, 254])
+  assert.ok(stableBravePair(f.before, f.after))
+  const tracker = createResponseTracker({ prospective: true }); tracker.observe(f.before); tracker.observe(f.after)
+  assert.equal(tracker.progress.status, 'responding', tracker.progress.reason)
+  assert.equal(tracker.progress.qualifiedEpisode, 1)
+  assert.equal(tracker.progress.firstResponse.after.turn, 4654)
+  for (const mutate of [b => { b.facts.braves[0].workFlags = 1 }, b => { b.facts.braves[0].identity++ },
+    b => { b.facts.braves[0].routeOwner++ }, b => { b.facts.braves[0].x += 512 },
+    b => { b.queued[0].identity++ }]) {
+    const before = structuredClone(f.before); mutate(before)
+    const denied = createResponseTracker({ prospective: true }); denied.observe(before); denied.observe(f.after)
+    assert.equal(denied.progress.qualifiedEpisode, null)
+    assert.equal(denied.progress.firstResponse, null)
+  }
+})
+
 function episodeRows(startTurn = 4401) {
   const { before, after } = first32Fixture()
   before.turn = startTurn; after.turn = startTurn + 1
@@ -428,7 +447,7 @@ test('both omission and first32 require the same eligible native reference and c
     b => { b.x += 512 }, b => { b.x = 0x21b0 + 0.5 }, b => { b.x = 65536 },
     b => { b.positionCoherent = false }, b => { b.registeredOwner = false }, b => { b.nativeOnly = false },
     b => { b.unitId++ }, b => { b.team = 'yellow' }, b => { b.life = 0 }, b => { b.life = 999 },
-    b => { b.workFlags = 1 }, b => { b.motionGroup = 1 }, b => { b.reverseAlliance = 1 },
+    b => { b.workFlags = 1 }, b => { b.reverseAlliance = 1 },
     b => { b.reverseAlliance = undefined }, b => { b.tribe = undefined; b.team = 'unknown' },
     b => { b.flags2 = undefined }, b => { b.flags2 = 0x20000 + 0.5 }, b => { b.flags2 = 0x100020000 },
     b => { b.flags4 = undefined }, b => { b.flags4 = 0.5 }, b => { b.flags4 = -1 },
@@ -536,7 +555,8 @@ test('candidate continuation binds genuine3234 and the failed candidate source w
   const pins = JSON.parse(readFileSync(new URL('./candidate-continuation-inputs.json', import.meta.url)))
   assert.equal(pins.side, 'candidate'); assert.equal(pins.checkpoint.turn, 3234)
   assert.equal(pins.originalActors.traineeId, 519); assert.equal(pins.crossingCaps.maxResponseEpisodes, 3)
-  assert.equal(pins.previousSourceCommit, 'd969cace30848f4777352baa061fdc6eb2ca26d8')
+  assert.equal(pins.previousSourceCommit, '9dfc4c8591b5decf4163a755af2ad5c8f9b4e220')
+  assert.equal(pins.originalAcquisition.sourceCommit, 'd969cace30848f4777352baa061fdc6eb2ca26d8')
   assert.equal(pins.checkpoint.checkpointSha256, 'ff6c9257b60a3944fa34aef5df79a0b6249889f78889c460ad6ad5baa998342b')
   const profile = { mode: 'reused', id: pins.profileId, inputs: { application: pins.application }, checkpointAtStart: pins.checkpoint,
     previousRun: { runId: pins.priorRunId, receiptSha256: pins.previousReceiptSha256,

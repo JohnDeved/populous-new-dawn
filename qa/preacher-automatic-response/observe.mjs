@@ -34,7 +34,7 @@ export function stableBravePair(before, after) {
     if (!eligibleObservedBrave(before.person, a)) continue
     const b = after.facts.braves.find(b => eligibleObservedBrave(after.person, b) &&
       a.identity === b.identity && a.id === b.id && a.class === b.class && a.model === b.model &&
-      a.tribe === b.tribe && a.motionGroup === b.motionGroup && a.routeOwner === b.routeOwner && same(cell(a), cell(b)))
+      a.tribe === b.tribe && a.routeOwner === b.routeOwner && same(cell(a), cell(b)))
     if (b) return { before: a, after: b, cell: cell(a) }
   }
   return null

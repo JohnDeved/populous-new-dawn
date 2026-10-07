@@ -10,6 +10,20 @@ the strict stable-cell witness failed. Final application gates passed on `e4e84e
 This QA-only revision prepares a genuine3234 continuation; it has not run and
 requires exact source/profile correspondence, preflight and a separate grant.
 
+Continuation01 at QA `9dfc4c85` also remains FAILED/exit1. At4653→4654, actual
+immediate40/model32 retained the same queued3 and native owner. Brave3067 had
+the same native identity, route owner, cell[125,43] and eligible endpoints, but
+its route handle `motionGroup` changed253→254. That was the sole strict-pair veto;
+the cell-transition fallback correctly did not accept a same-cell event.
+Native reverse eligibility and the actual owned-record checks do not consume
+this route handle. [Pathfinding](../../app/live-pathfinding.ts) can replace it
+without replacing the registered person; [response eligibility](../../app/combat-targets.ts)
+and [live ownership](../../app/live-combat.ts) retain the actual workFlags and
+native-record checks. The narrow correction removes only motionGroup equality,
+keeps its raw values, and retains identity/routeOwner/cell/eligibility/queue guards.
+The exact failed pair supplies regression coverage; neither failed run is relabelled.
+Continuation metadata now names the actual immediately preceding failed run.
+
 ## Prospective first qualifying candidate response
 
 The failed candidate acquired Preacher3162 through Temple1021 from trainee519,
@@ -120,7 +134,7 @@ The scan witness admits coherent states10/17/19. Native reverse excludes23 and
 has no idle/pathless requirement. Initial crossing choice remains stationary17/19;
 its later target may move or attack while the Preacher approaches. Both omission
 and first32 require the same actual native reference, identity/class/model/tribe,
-route owner/group and native cell at both adjacent scan endpoints, with eligibility
+route owner and native cell at both adjacent scan endpoints, with eligibility
 rechecked independently at each. Raw XY, state, path endpoints/length and current
 order changes remain in the rows. Whole-record equality is not required. Changed
 cell, missing/replaced owner, incoherent native/world XY or life, listener23,
