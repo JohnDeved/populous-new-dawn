@@ -1044,12 +1044,24 @@ test('mission-one Dakini launches its later building attack when Blue overwhelms
  assert.equal(fallback.randomState,1896349699,'person-only fallback consumes one native draw');
 
  const w=createWorld();until(w,()=>!w.ai.tasks.some(t=>t.flags&1&&t.type===24),2);w.units=[];
- const target=w.buildings.filter(b=>b.team==='blue')[1],near={x:target.x+4,z:target.z};
+ const target=w.buildings.filter(b=>b.team==='blue')[1],near={x:target.x+12,z:target.z};
  addUnit(w,'red','shaman',near);for(let i=0;i<3;i++)addUnit(w,'red','brave',near);
  addUnit(w,'blue','shaman',ENEMY);for(let i=0;i<8;i++)addUnit(w,'blue','brave',ENEMY);
  // This relocated roster has an established base: native +5b4/+36a shadows the loaded Shaman cell.
  const staging=packed(nativePosition(w,near)),stagingCell=(staging>>>9)*128+((staging&255)>>>1);
  assert.equal(w.land.categories[stagingCell]&15,0);assert.equal(w.land.flags[stagingCell]&512,0);assert.equal(w.land.buildingIds[stagingCell]&1023,0);
+ const {engagementRange,inEngagementArea}=await import('../app/melee-engagement.ts'),{areaCells,detectCombatThreat,eligibleCombatPerson}=await import('../app/combat-targets.ts'),{combatPerson,combatWorld}=await import('../app/live-combat.ts');
+ const goal={x:((staging&255)<<8)+128,y:(staging&0xff00)+128};
+ for(const unit of w.units.filter(unit=>unit.team==='red'))for(const point of [nativePosition(w,unit),goal]){
+  const person={...combatPerson(unit),x:point.x&65535,y:point.y&65535,state:17},range=engagementRange({...person,commandStatus:0,h:0},undefined,false),radius=Math.trunc(range/2)*2;
+  const area={a:packed(person),b:radius*257},{world}=combatWorld(w,person,range);
+  for(const cell of areaCells(area))assert.equal(w.land.flags[cell]&0x600,0,'staging must not start an automatic building response before the raid order');
+  assert.equal(detectCombatThreat(world,person,area,true,false),0,'injected and quantized staging points must start without an eligible idle threat');
+  for(const other of w.units.filter(other=>other.team!=='red')){
+   const enemy={...combatPerson(other),state:17},enemyRange=engagementRange({...enemy,commandStatus:0,h:0},undefined,false),{world:enemyWorld}=combatWorld(w,enemy,enemyRange);
+   assert.ok(!inEngagementArea(enemy,person,enemyRange)||!eligibleCombatPerson(enemyWorld,enemy,person),'staging must also avoid a hostile person starting the encounter');
+  }
+ }
  w.ai.constructionBase=staging;w.ai.defencePosition=staging;
  const assertStaging=()=>{assert.equal(w.ai.constructionBase,staging);assert.equal(w.ai.defencePosition,staging);assert.equal(w.ai.flags&0x100,0x100);};
  w.randomState=2;w.ai.variables[50]=1;w.turn=81;tick(w,1/12);assertStaging();
