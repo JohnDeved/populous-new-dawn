@@ -1,0 +1,20 @@
+{
+  "verdict": "ACCEPT",
+  "scope": "independent source/preflight review only; native execution not granted or performed",
+  "reviewedSourceCommit": "8757de6987ce84af5c20c3a737853b27ba2b146c",
+  "priorNativeSourceCommit": "0c11696376cd305758a6f10ff8417a413063f87a",
+  "launchManifestSha256": "3a31886ef4c11d560053532ea8680e17321e7c18a4f7d524f83d0102a3ac2815",
+  "reviewDateUtc": "2026-10-07",
+  "findings": [
+    "The prior0c116963 packet omitted owned process identity/terminal cleanup from its launcher; this was a launch-source gap, not a native result failure.",
+    "PID/start/session ownership now covers GNU timeout subgroup; one absolute30/35-second host boundary and terminal source/residual-process checks are explicit.",
+    "Native probe and child argv are byte-identical to reviewed0c116963.",
+    "All41 source/runtime/input hashes and17 canonical byte ranges match.",
+    "Actual height-owning stone state initialization, both shape setters, real dust allocation, root common clamp,32 child allocations, effect7 retirement and final state0 visit remain composed.",
+    "One supplied arrival and36 allocations only; raw terrain/supplied diagonal0 G87, disabled-audio RNG and presentation boundaries remain explicit."
+  ],
+  "requiredBeforeExecution": "Separate parent resource and CPU4 execution grant for exact8757de6987ce84af5c20c3a737853b27ba2b146c in the declared fresh worktree. No automatic retry.",
+  "nativeExecution": "not-run",
+  "hostExecution": "not-run",
+  "recordRetention": "This verdict-only file is added after the reviewed source freeze; it does not change executable proposal sources or the frozen manifest."
+}
