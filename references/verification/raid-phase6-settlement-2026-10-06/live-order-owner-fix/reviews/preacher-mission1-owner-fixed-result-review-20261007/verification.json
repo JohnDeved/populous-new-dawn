@@ -1,0 +1,44 @@
+{
+  "verdict": "ACCEPT",
+  "executionHead": "308e0c12c0501eee8b2350815a794caac1ec8e9a",
+  "staleObserverLabel": "c00bcea1c481c87290f48c08655674fa724c25bc",
+  "inputs": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-release-20261007/work/orchestration/preacher-mission1-owner-fixed-replay-20261007/result-manifest.json",
+      "sha256": "a51a0fc58084f565e3b2fb50b4b36fad9a88d46881c7252ae2cfbf212a7e45f4"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-release-20261007/work/orchestration/preacher-mission1-owner-fixed-replay-20261007/receipt.json",
+      "sha256": "ad4266ccd464a431edda918b205986ff217b90c5aadf8de868a0959b6b5d2dc6"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-release-20261007/work/orchestration/preacher-mission1-owner-fixed-replay-20261007/cleanup.json",
+      "sha256": "768674b640901ceaf405e6b77baa84bfa2e23a291d54234fad6fbe86d1c51a7c"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-release-20261007/work/orchestration/preacher-mission1-owner-fixed-replay-20261007/result.json",
+      "sha256": "682a0b3c8827581dd05ffdddbf545366f7aeec78c146413645bd2c919d8fd873"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-release-20261007/work/orchestration/preacher-mission1-owner-fixed-replay-20261007/trace.jsonl",
+      "sha256": "2a8140b7e3a93c0abb11606a3d41961e62cdf4043e2e32ba827a6927e78b4a7a"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-release-20261007/work/orchestration/preacher-mission1-owner-fixed-replay-20261007/case-1-source.txt",
+      "sha256": "4fb7bb28aa59f8241c69aafa68b9996a93fa0745b82f72ca23a980bdf71a2a56"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-release-20261007/work/orchestration/preacher-mission1-owner-fixed-replay-20261007/case-2-source.txt",
+      "sha256": "38e3c5a91205e97b12de06fb1b03a2fbb02e8f889166ed500c4df1f7450d5013"
+    }
+  ],
+  "traceLines": 594,
+  "criticalLines": [
+    136,
+    246,
+    581,
+    582,
+    593,
+    594
+  ]
+}

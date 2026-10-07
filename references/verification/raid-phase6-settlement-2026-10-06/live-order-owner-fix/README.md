@@ -1,0 +1,11 @@
+# Retained live-order ownership
+
+Refs #243, #247, #248. Production correction `308e0c12c0501eee8b2350815a794caac1ec8e9a` caches each Unit's actual person once across preacher discovery, queue attachment and post-append handling. Existing fight/flight owners retain their identity and controller slot. Legacy owner creation remains for units with no person. Existing queue clear/attach, state25/29 motion skip and explicit selected-person initialization are preserved.
+
+The same two supplied actual-caller tests fail at registry identity on `c8d0d48d`, then pass2/2 on308e0c12. They cover append and replace, shared19 references, registered native/fight/knockback-flight ownership, and unchanged state25 motion. They are not a new original-game proof of arbitrary flight restart behavior. Existing40 native player-order captures support queue/reference mechanics with preparation and world-effect leaves supplied.
+
+The unchanged strict Mission1 route and building scenarios then both pass,243/343 ticks respectively, within their original budgets and full model19/shared-reference/combat-restoration/retirement assertions. At building turn409, all four registered owners share model19 record12 with references4; units40/41/39 retain their fight records and no shadow native. This repairs the [retained prior failure](../mission1-owner-replay/README.md).
+
+The strict replay ran2026-10-07 00:50:29.305977–00:50:32.494576 UTC, exit0,246 unchanged input/tool bindings and an empty owned process group. The byte-identical observer's inner result.json retains its old c00bcea1 sourceHead label. The authoritative preflight, command and before/after receipt bind actual308e0c12. Raw output is preserved unchanged; the stale label is metadata, not the execution identity.
+
+[Independent strict result review](reviews/preacher-mission1-owner-fixed-result-review-20261007/review.md) accepts this bounded result. All raw source/receipt/trace files are losslessly compressed and pinned by [archive-manifest.json](archive-manifest.json), alongside the prior red and green. No native/game/browser execution or package access occurred. Mission2 state33 release, final combined full check/build, and ordinary automatic-sermon acceptance remain separate pending gates.

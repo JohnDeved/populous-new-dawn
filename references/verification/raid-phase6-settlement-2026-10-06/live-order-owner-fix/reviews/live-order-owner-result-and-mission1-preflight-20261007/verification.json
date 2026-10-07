@@ -1,0 +1,35 @@
+{
+  "verdict": "ACCEPT focused result and unchanged replay preflight",
+  "sourceHead": "308e0c12c0501eee8b2350815a794caac1ec8e9a",
+  "rawMembersVerified": 27,
+  "inputs": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-release-20261007/work/orchestration/live-order-owner-result-20261007/manifest.json",
+      "sha256": "b228224edf8d34ab76ffa5f9b69cb1cc87a5f33172e55ec4231f755bc3ad752f"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-release-20261007/work/orchestration/live-order-owner-red-20261007/receipt.json",
+      "sha256": "ec02168610711f2be9bb3018a1235096a0a395e917561bf0646224eb781e55f4"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-release-20261007/work/orchestration/live-order-owner-red-20261007/cleanup.json",
+      "sha256": "fc4eb35dec8481da2cc1352787791cf9a7b3b6e3a15146a918f85ea453f49f31"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-release-20261007/work/orchestration/live-order-owner-green-20261007/receipt.json",
+      "sha256": "11322c3ecf0bd8b9e756e4252b9af9dcc9e71068b3cef8714b9aba250acb83b4"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-release-20261007/work/orchestration/live-order-owner-green-20261007/cleanup.json",
+      "sha256": "32462dc67bb8bcb745866d05ddbae7db2efb9864dee07c46b5ba9bf4e9610951"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-release-20261007/work/orchestration/preacher-mission1-owner-fixed-replay-20261007/preflight.json",
+      "sha256": "e2fa6c9753d8308b937895a635fe75149d45a2b0da017973a101a499b94fac3f"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-release-20261007/work/orchestration/preacher-mission1-owner-fixed-replay-20261007/command.json",
+      "sha256": "e18ffef23057c0dad692ebc1b7d2f7d8cb794a12383ec92fc9873607213d0597"
+    }
+  ]
+}
