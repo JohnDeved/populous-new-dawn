@@ -1,0 +1,53 @@
+{
+  "verdict": "ACCEPT actual focused green and exact red/green integrity comparison",
+  "sourceHead": "82a78b2ed64795e49309ca9ca24bfa0c40242a00",
+  "resultPublicationHead": "67eb108a",
+  "resultManifestSha256": "e3a8826220b713c27a0a9560bfee70e94a560cb923c055ce9901d33fb0f1e374",
+  "receiptSha256": "74920b7e638526b735f312cc6eee37dce3e88e3755652b78fe679e9ee0069509",
+  "hostReceiptSha256": "924f0bc28659472b11e651f3f10d4f90de432ef6d0b5b1ed8f9233c39510dcbd",
+  "stdoutSha256": "e46ae7b395d29de9ee00712ced445fab731a992b110a656fac690a4b68c024ec",
+  "method": "Read-only source/raw JSON/stdout/hash inspection; no execution",
+  "verification": {
+    "testPass": 4,
+    "testFail": 0,
+    "testSkip": 0,
+    "totalBirthAssertions": 1024,
+    "missionBirthCounts": [
+      256,
+      256,
+      512
+    ],
+    "everyAuthoredEnabledStoneHas32Births": true,
+    "nativeByteOraclePassed": true,
+    "redGreenDiagnosticsExactAllFields": true,
+    "diagnosticsSha256": "22fece081d2350b0823ce6d93f7229778d0d9366b9fd30a77e3e3b4ecddfd6a5",
+    "receiptInputsCurrentAndBeforeAfterVerified": 238,
+    "retainedRawCopiesByteIdentical": 7,
+    "derivedHashesVerified": 4,
+    "exitCode": 0,
+    "hostPassed": true,
+    "elapsedSeconds": 3.258662431006087,
+    "peakAggregateRssBytes": 293453824,
+    "cpu": [
+      4
+    ],
+    "checkedGroups": [
+      14,
+      34
+    ],
+    "remainingOwnedProcesses": [],
+    "sourceUnchanged": true
+  },
+  "findings": [
+    "The unchanged height test reaches every birth height90-above-sampled-ground assertion and final32-per-authored-stone assertion on Missions1\u20133.",
+    "Every field in all3 diagnostic objects parsed independently from raw red/green stdout is exactly equal: both RNG words, effectCounter,nextId,stone turns,phase history and totalbirths. No filter/tolerance used.",
+    "Source is the reviewed root clamp; accepted angle helper and height test/oracle bytes are unchanged.",
+    "Both command and host passed with full postflight equality and empty owned groups; expected red remains separately retained failed."
+  ],
+  "limits": [
+    "Fixed-step production-caller evidence, not ordinary elapsed rendered startup.",
+    "Draw count/order/lifetime checks do not independently assert pitch/yaw values.",
+    "Original native oracle retains one supplied arrival/raw terrain/disabled audio/successful allocation/two qualified presentation-leaf boundaries.",
+    "Final clean-delivery source correspondence, broader startup/angle regressions and standard gates remain outstanding."
+  ]
+}

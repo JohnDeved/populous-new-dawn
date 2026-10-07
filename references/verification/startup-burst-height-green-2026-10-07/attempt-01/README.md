@@ -23,8 +23,9 @@ chunk8c9bca, terminal25b5ba. CPU4 was released immediately. No retry occurred.
 [Raw test output](test-stdout.log), [receipt](receipt.json),
 [owned cleanup](host-receipt.json), [preflight ACCEPT](preflight-review.json),
 [observations](observations.json) and [copy hashes](manifest.json) are preserved.
-Independent result review is pending; observations keep that status permanently,
-and a later separate verdict will own acceptance without rewriting these bytes.
+Independent [actual-result ACCEPT](result-review.json) binds this complete result.
+Observations retain their pre-review status; the separate verdict owns acceptance
+without rewriting raw bytes, the comparison or the manifest.
 
 This is fixed-step production-caller evidence. Ordinary elapsed rendered startup,
 original post-wave ground and old-stone height ownership remain separate. Native
