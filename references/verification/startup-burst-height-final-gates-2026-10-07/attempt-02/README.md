@@ -22,7 +22,7 @@ initial absence restored before full dependency inventory equality.
 
 Raw receipts/logs/generated marker and their hashes are retained unchanged.
 Complete dependency inventories/generated caches remain in the original new host
-directory. Independent final result review is pending. Gate01 stays failed; the
+directory. Independent [final result ACCEPT](result-review.json) is retained. Gate01 stays failed; the
 original interrupted browser attempt01/loan remains unknown and untouched. No
 native/browser replay occurred for the two-line test-only style repair. Accepted
 ordinary/native proofs transfer through the recorded unchanged production/QA hashes.
