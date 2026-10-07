@@ -1,0 +1,41 @@
+{
+  "verdict": "ACCEPT exact formatter source correspondence and fresh gate02 preflight",
+  "head": "de0fb63fbcaaf2e0c16a355988bc022ee6313ae7",
+  "previousHead": "2f0c50379d89f603f4e51de006169ae04c9d2380",
+  "packetSha256": "fbc7dc860ac752933b325675f3f5c037dcd9dcd267b156cb8593b39f030c553b",
+  "hostSha256": "a9a1be7cbc8ca929f7bf753cf9929be0aa5f5af2cc74fae62b136aed697ddec3",
+  "runnerSha256": "a8188213d3b5e9d75971aebef2b2a551dd6951e05a769c957d17222b26700fde",
+  "launchSha256": "879692850acee187e5bdb74e33b08e6565c6514cc94bd64ec1d1ca3fcf218153",
+  "sourceDelta": {
+    "onlyFile": "app/computer-runtime.ts",
+    "beforeSha256": "aec5e8865334fde341646cd03ec7a2f58e684d24586f36c2c49f867d4558bfa2",
+    "afterSha256": "acf5274a52d64fccb3e4bc27b491759acdbd9d6a86877ac444e8e2b5c4269655",
+    "review": "Only line wrapping in canReleaseComputerAttackPerson; no spelling/operator/string/comment or ASI-sensitive return change. Independent whitespace-stripped equality and exact retained before/after bytes checked.",
+    "tokenCount": 7372,
+    "tokensEqual": true,
+    "structuralAstEqual": true,
+    "parseDiagnostics": 0,
+    "structuralReceiptSha256": "a5e11fdd0c8969bbfea1d3f397c1c90c376bd3bf59cc739e88ca7e2575c192da"
+  },
+  "priorFailures": [
+    "Gate01 stopped at computer-runtime Oxfmt; all7 later steps not run. Source/tools and21332 dependency entries restored exactly; no owned processes.",
+    "Formatter completed its one-file write, but its printer-string equality check failed due retained layout. Original failed receipt is preserved; structural/token evidence supplies the correct source comparison. No formatter retry occurred."
+  ],
+  "gate02Verification": {
+    "sources": 45,
+    "tools": 5,
+    "dependencyPins": 20,
+    "freshOutputs": true,
+    "cleanHead": true,
+    "hostAndRunnerDelta": "Paths only",
+    "boundsAndEnvironmentPolicyUnchanged": true,
+    "fallowMarkerRestorationUnchanged": true,
+    "requiredVersusAdvisoryClassificationUnchanged": true
+  },
+  "limits": [
+    "No runtime/native/Mission2 replay needed for this formatting-only delta.",
+    "Actual gate02 results and ordinary candidate remain pending.",
+    "Oxlint/Fallow exit1 remains failed/advisory for attribution, not a clean-quality result."
+  ],
+  "reviewMethod": "Read-only source/hash/Git/data inspection; no application/package/native/browser execution"
+}

@@ -1,0 +1,68 @@
+{
+  "verdict": "ACCEPT exact one serial quality/check/build preflight; coordinator resource grant required",
+  "head": "2f0c50379d89f603f4e51de006169ae04c9d2380",
+  "packetSha256": "c5a7fa93e77321d59a9ed243a71f98f160804876b274fd49b1d6bef9a945c3fa",
+  "hostSha256": "fc86d0f9933a5a78c8fba5ccf7a9fb644080da67ec6ca551bfc73daff21af7a4",
+  "runnerSha256": "2c95ec64c1e9716e2f4d46c99daf3196801798d21b8d2e8d33e876d0cf25438a",
+  "launchSha256": "03779d4bfa1ae83638d6269c140c1427d93e61b7c176bab48ed827e2a6a4f876",
+  "method": "Read-only source/hash/dependency identity review; no move/package/application/native/browser execution",
+  "verified": {
+    "sources": 45,
+    "tools": 5,
+    "dependencyPins": 20,
+    "donorIdentity": [
+      27,
+      1978923
+    ],
+    "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "fallowMarkerBaselineSha256": "e44f1fd02579d234c0ccfb38cf3c2db775b17db212a9639515210cf56d3bb454",
+    "cleanSource": true,
+    "destinationDependenciesAbsent": true,
+    "outputHostOutputTemporaryAbsent": true
+  },
+  "hostReuse": "Accepted startup gate03 host differs only packet path and1553\u21922153second fallback. Full source/tool postflight, PID/start/session ownership, exact dependency inventories and return semantics unchanged.",
+  "execution": {
+    "cpu": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "order": [
+      "format-scoped",
+      "eslint-scoped",
+      "oxlint-scoped",
+      "fallow-health",
+      "fallow-dupes",
+      "fallow-unused",
+      "check",
+      "build"
+    ],
+    "qualitySeconds": [
+      30,
+      60,
+      30,
+      60,
+      60,
+      60
+    ],
+    "checkSeconds": 900,
+    "buildSeconds": 900,
+    "outerTermSeconds": 2140,
+    "killGraceSeconds": 10,
+    "hostFallbackSeconds": 2153,
+    "nodeHeapMiB": 1024
+  },
+  "classification": [
+    "Oxfmt/ESLint/check/build must pass. Any required failure stops later steps and remains recorded.",
+    "Oxlint exit1 remains failed/advisory; final acceptance requires baseline/new-finding attribution, not a clean-lint assertion.",
+    "Fallow exit1 remains failed/advisory findings; other errors/timeouts stop. Normal binary verification still runs with FALLOW_VERIFY_LOG and no verification bypass."
+  ],
+  "restoration": [
+    "Original lazy-verification marker e44f1fd0 is retained by rename before ordinary verification. Generated marker is retained and schema/path/version/binary digests/mtimes checked. Original exact bytes/mode return before full inventory equality.",
+    "Original .vite/.vite-temp caches are retained and restored; generated caches retained privately.",
+    "Full source/tool and dependency before/after equality, donor identity/lock/stub ownership and no remaining owned processes are required. Dependency return occurs only after confirmed release.",
+    "Historical Fallow drift and previous failed gates are not relabelled."
+  ],
+  "pending": "Actual gate receipts/streams and ordinary candidate evidence are still required; source acceptance grants no result claim."
+}

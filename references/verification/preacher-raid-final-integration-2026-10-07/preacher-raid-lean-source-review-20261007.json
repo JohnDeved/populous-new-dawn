@@ -1,0 +1,31 @@
+{
+  "verdict": "ACCEPT lean successor source correspondence; final gates and ordinary candidate remain pending",
+  "head": "2f0c50379d89f603f4e51de006169ae04c9d2380",
+  "base": "e3a7a06a4250457502288d5b4c4e4ad8f3b40b53",
+  "acceptedSource": "fc77be8572768a81ce853a8277560c18503a62ad",
+  "correspondenceSha256": "96212495ba37f647278bde2c87c8cd64725a96049ec7205d9547a1191390d433",
+  "method": "Read-only full file hashes/Git objects, allowlist, app mapping, data consumers and proof links; no execution",
+  "verified": {
+    "changedFiles": 27,
+    "retainedFilesByteIdentical": 24,
+    "newDocumentationFiles": 3,
+    "completeAppFiles": 317,
+    "protectedMainInputs": 10,
+    "immutableProofLinks": 6,
+    "cleanHead": true,
+    "publicTreeUnchanged": true,
+    "requiredTestDataPresent": true
+  },
+  "scope": [
+    "7 application files,8 maintained tests,2 strict tools and7 data/provenance files are byte-identical to acceptedfc77.",
+    "317 application paths match either acceptedfc77 or currentmaine3 as declared. No undeclared application edit.",
+    "Main package/lock/check definitions/startup alias/context CLI/assertion and accepted PR253 startup/angle files are unchanged.",
+    "Three new documentation/index entries accurately retain native supply/projection/cleanup/selection-history limits and link the published evidence instead of copying historical execution infrastructure."
+  ],
+  "limitations": [
+    "Source identity carries previous component/focused acceptance; it does not supply a new aggregate test/build or ordinary browser result.",
+    "Actual24000byte context-budget assertion remains a required gate; preserved constants alone do not prove packet size after registry changes.",
+    "No native computation needs repetition for identical retained evidence/runtime inputs."
+  ],
+  "nextBoundary": "Review and execute parent-authorized concrete quality/standard preflight on this intended delivery source; retain original failed gates and baseline quality diagnostics."
+}
