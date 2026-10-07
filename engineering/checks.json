@@ -4686,14 +4686,10 @@
       "knownLimits": [
         "Browser pixels and native instruction comparisons run separately."
       ],
-      "executable": "node",
-      "args": [
-        "--test",
-        "tests/level-start.test.mjs",
-        "tests/startup-burst-angles.test.mjs",
-        "tests/startup-burst-observer.test.mjs"
-      ],
+      "executable": "npm",
+      "args": ["run", "test:level-start"],
       "inputs": [
+        "package.json",
         "app/level-start.ts",
         "app/level-start-runtime.ts",
         "app/world-initialization.ts",
