@@ -1,12 +1,13 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { readFileSync } from 'node:fs'
 import { SPY_RESTART, requireSpyRestart, spyRouteLength, probeSpyRoutes } from './spy-sabotage-continuation.mjs'
 
 test('continuation requires exact genuine save, source, profile, origin and closed prior run', () => {
   const checkpoint = { version: 1, level: 16, turn: SPY_RESTART.turn, checkpointSha256: SPY_RESTART.checkpointSha256 }
   const profile = { mode: 'reused', id: SPY_RESTART.profileId, origin: SPY_RESTART.origin,
     checkpointAtStart: checkpoint, correspondence: { decision: 'ACCEPT' },
-    previousRun: { runId: SPY_RESTART.priorRunId, sourceCommit: SPY_RESTART.source,
+    previousRun: { runId: SPY_RESTART.priorRunId, sourceCommit: SPY_RESTART.priorSource,
       cleanupVerified: true, continuationVerified: true, checkpointAtEnd: checkpoint } }
   assert.equal(requireSpyRestart(profile), checkpoint)
   for (const mutate of [p => { p.mode = 'created' }, p => { p.id = 'other' }, p => { p.origin = 'http://127.0.0.1:4494' },
@@ -16,6 +17,18 @@ test('continuation requires exact genuine save, source, profile, origin and clos
     p => { p.checkpointAtStart.turn++ }, p => { p.checkpointAtStart.level = 15 }]) {
     const changed = structuredClone(profile); mutate(changed); assert.throws(() => requireSpyRestart(changed))
   }
+})
+
+test('actual maintained checkpoint-label contract rejects the failed semicolon and accepts every scenario label', () => {
+  const harness = readFileSync(new URL('./harness.mjs', import.meta.url), 'utf8')
+  const guard = harness.split('\n').find(line => line.includes("throw Error('Checkpoint label must be short plain text')"))
+  assert.ok(guard, 'Use the actual maintained label guard')
+  const validate = new Function('label', guard)
+  assert.throws(() => validate('Genuine Spy02 Load; original committed Save retained'), /Checkpoint label/)
+  const scenario = readFileSync(new URL('./ordinary-spy-sabotage.mjs', import.meta.url), 'utf8')
+  const labels = [...scenario.matchAll(/\b(?:observeCheckpoint|checkpoint)\('([^']+)'/g)].map(match => match[1])
+  assert.ok(labels.length > 0)
+  for (const label of labels) assert.doesNotThrow(() => validate(label), label)
 })
 
 test('route length measures wrapped segments and rejects absent or non-finite routes', () => {

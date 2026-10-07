@@ -1,7 +1,9 @@
 // This is one specific continuation of a genuinely acquired Spy, not a fixture.
 export const SPY_RESTART = Object.freeze({
   profileId: '63037eff-3c34-4fd8-9be7-a089e1e49f6b',
-  priorRunId: 'a12f88d1-1137-4cd7-b7a8-1c1c5bb47b11',
+  priorRunId: '61da3538-44a3-4ce7-8ef7-f1543ee2f331',
+  priorSource: '28aa2e6c12842642019545ad1edd3db748581eeb',
+  acquisitionRunId: 'a12f88d1-1137-4cd7-b7a8-1c1c5bb47b11',
   source: '278b470489fb99681c788dbb57b5d6bc4fe3a228',
   checkpointSha256: 'c2f5aacc335c5e4b73f4d8e9edb40a79d073f5d7019a704a88e0f97ccfa9e5bb',
   actorId: 394, schoolId: 340, turn: 1973, origin: 'http://127.0.0.1:4493',
@@ -12,7 +14,7 @@ export function requireSpyRestart(profile) {
   const saved = profile?.checkpointAtStart, prior = profile?.previousRun
   if (profile?.mode !== 'reused' || profile.id !== SPY_RESTART.profileId ||
     profile.origin !== SPY_RESTART.origin || prior?.runId !== SPY_RESTART.priorRunId ||
-    prior.sourceCommit !== SPY_RESTART.source || !prior.cleanupVerified || !prior.continuationVerified ||
+    prior.sourceCommit !== SPY_RESTART.priorSource || !prior.cleanupVerified || !prior.continuationVerified ||
     profile.correspondence?.decision !== 'ACCEPT' || saved?.checkpointSha256 !== SPY_RESTART.checkpointSha256 ||
     saved.level !== 16 || saved.turn !== SPY_RESTART.turn || saved.version !== 1 ||
     prior.checkpointAtEnd?.checkpointSha256 !== saved.checkpointSha256)

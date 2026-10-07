@@ -261,14 +261,16 @@ export default async function ({ page, output, receipt, observeCheckpoint, signa
         assert.equal(boundary.actor.registeredNative, true)
         assert.deepEqual([boundary.target.id, boundary.target.kind, boundary.target.team, boundary.target.progress, boundary.target.hp],
           [SPY_RESTART.schoolId, 'spyHut', 'blue', 1, 260])
+        report.loadedBoundary = { originalSource: SPY_RESTART.source, acquisitionRun: SPY_RESTART.acquisitionRunId,
+          priorRun: SPY_RESTART.priorRunId, priorSource: SPY_RESTART.priorSource, saved, loaded, boundary }; save()
         await bindGame(page)
         await page.waitForFunction(turn => window.testStore.getWorld().turn > turn, saved.turn, { timeout: remaining() })
-        const observed = await observeCheckpoint('Genuine Spy02 Load; original committed Save retained')
+        const observed = await observeCheckpoint('Genuine Spy02 Load - original Save retained')
         assert.deepEqual(observed.checkpoint, saved)
         const live = await read(SPY_RESTART.actorId, SPY_RESTART.schoolId)
         assert.ok(live.actor?.hp > 0 && live.actor.registeredNative)
         spyId = SPY_RESTART.actorId; school = live.buildings.find(b => b.id === SPY_RESTART.schoolId)
-        return { originalSource: SPY_RESTART.source, priorRun: SPY_RESTART.priorRunId, saved, loaded, boundary, observed }
+        return { ...report.loadedBoundary, observed }
       })
     } else {
     await stage('authored-entry-and-route-preflight', async () => {
