@@ -55,6 +55,12 @@
       "start": "004be230",
       "endExclusive": "004be327",
       "sha256": "5e4d76042dbf72aa708a863ad8bbba4b8800592afc2a6fff592e81ebf8aa28d5"
+    },
+    {
+      "label": "pre_record_landscape_bank_store",
+      "start": "0042b34e",
+      "endExclusive": "0042b372",
+      "sha256": "754b1601c5b45d67cc68fb03ed9fb27ecd7b9a95c08fa6af5f0ca5f435d29086"
     }
   ]
 }

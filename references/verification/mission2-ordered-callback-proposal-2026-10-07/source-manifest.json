@@ -62,12 +62,13 @@
     "review-manifest.json": "0c3d875d68e85c447c7fde2cc09f353fc962a4b1d9866aeb66f57c54592d1f20"
   },
   "proposalSha256": {
-    "README.md": "1d485065761d15449e6dd7f806b20d09715819b1efbd20adc51bd4bfbec696a3",
-    "case.json": "0cf796c5e94849df4f2382395b77537ef4800996dfe400eca04af611d0a4e0e5",
-    "revision-notes.md": "cd3470fd95525f7daa4f5650741be86165ed9737f9ede34004df74f71b6fce1b",
-    "selected-call-sites.asm": "0587d935f1b6561b8a1c7b57db3871f62b8954ab2d17647192d418bbf4017e93",
-    "selected-call-sites.json": "e8574b0c3c4618f466a3d5283e3b6255f1b7694da564cde2fd700b8e878d4305",
-    "static-audit-independent-verdict.md": "5a6510c4efdf653e5acc0a2b71625e9f151761921da4856cfc2c53d551e47be2"
+    "README.md": "44d3e151742040ff50ac67621faabb3b54ce4886d0cd48481f71f4d9d2dc4235",
+    "case.json": "ee204793dfb64b28657d133d7aa60485248915ec0b86aa7792848cc7c4f716f9",
+    "revision-notes.md": "1d804adf797f98af7ba3c672d02a3a807eaedf8a1f503798cc9d4bb2e5339572",
+    "selected-call-sites.asm": "85c8ea6fe53682ba70a4d13ea14c724e532498feb6b51475f81be7e6f43d4129",
+    "selected-call-sites.json": "a7f1d2fbdc8352a0d636b9d00b8de69f7463e75c4e444bebd579aa7b3fbdf564",
+    "static-audit-independent-verdict.md": "5a6510c4efdf653e5acc0a2b71625e9f151761921da4856cfc2c53d551e47be2",
+    "wrapper-bank-store-audit.json": "aea240573f75b984d797da52502bf7d0656bf3137f67e5532b3bbe9d6efb2475"
   },
   "checks": {
     "closedMissionCount": 1,
@@ -83,7 +84,7 @@
       0,
       0
     ],
-    "metadataWriteTiming": "after link tail, before 0042b403",
+    "metadataWriteTiming": "Landscape bank28 before terrain/records via0042b35e/364; tuple28/0/0 reapplied after link tail before0042b403",
     "linkTailEndExclusive": "00485153",
     "authoredOwnerCounts": [
       6,
@@ -96,7 +97,16 @@
       "0048a050",
       "004bdff0",
       "004bdd40"
-    ]
+    ],
+    "preRecordLoadedBankBytes": {
+      "0089ce3d": 28,
+      "0096ead0": 28
+    },
+    "wrapperBankStoreAudit": "all direct references in0042b230,0042b590,0042c790"
   },
-  "supersedesSourceProposal": "d324d1c5dafaa86e11936ddcd2c3ef6769a20b77"
+  "supersedesSourceProposal": "8338da867a79170434dcd1672d4230e0006e9898",
+  "preservedPriorProposals": [
+    "d324d1c5dafaa86e11936ddcd2c3ef6769a20b77",
+    "8338da867a79170434dcd1672d4230e0006e9898"
+  ]
 }

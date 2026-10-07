@@ -625,7 +625,6 @@
       "0089243a": 0,
       "0089ce37": 0,
       "0088f000": 0,
-      "0096ead0": 0,
       "0096ead1": 0,
       "0096ead2": 0
     },
@@ -656,7 +655,7 @@
       ]
     },
     "limits": "Declared fresh component context. This is not a complete original OS/global initializer. No seeded person/order/site or outcome fields.",
-    "metadataTiming": "These three bytes are the explicit zeroed fresh component pre-record state. Apply preRosterTailStores only after the link/owner-count tail returns."
+    "metadataTiming": "Apply preRecordLoadedBankStores after setup entry6 (00401040) and before setup entry7 (0044ddf0). Keep bank28 through all records. Reapply preRosterTailStores after the link/owner-count tail. No zero-entry assumption for0096ead0."
   },
   "setupEntries": [
     {
@@ -694,7 +693,7 @@
         64,
         0
       ],
-      "inputBefore": "canonical height words in terrain cells"
+      "inputBefore": "Apply preRecordLoadedBankStores in order, then deliver canonical height words in terrain cells. Both bank fields equal28 before this terrain call and remain28 through all record slices."
     },
     {
       "entry": "00422a60",
@@ -735,7 +734,11 @@
     "realCalls": [
       "00485011 -> 004ed8a0",
       "0048502d -> 00485b00"
-    ]
+    ],
+    "requiredBankBytes": {
+      "0089ce3d": 28,
+      "0096ead0": 28
+    }
   },
   "tailStages": [
     {
@@ -865,7 +868,13 @@
       28,
       0,
       0
-    ]
+    ],
+    "metadataBeforeRecords": {
+      "0089ce3d": 28,
+      "0096ead0": 28,
+      "0096ead1": 0,
+      "0096ead2": 0
+    }
   },
   "proposedBounds": {
     "affinity": [
@@ -905,7 +914,7 @@
   "executionGrant": null,
   "resourceReservation": null,
   "nextGate": "Independent callback-coverage review; only then executable source/call-site/write-range/launcher freeze and separate run grant",
-  "supersedesProposal": "d324d1c5dafaa86e11936ddcd2c3ef6769a20b77",
+  "supersedesProposal": "8338da867a79170434dcd1672d4230e0006e9898",
   "preRosterTailStores": [
     {
       "originalStore": "0042b3f2",
@@ -935,5 +944,25 @@
     "calls": [],
     "writes": "terrain cell+0x0d brightness",
     "inputs": "height at selected/east/south cells; cell+0x0e shadow low nibble; 00937aa8/aaa/aac signed sunlight words"
-  }
+  },
+  "preservedPriorProposals": [
+    "d324d1c5dafaa86e11936ddcd2c3ef6769a20b77",
+    "8338da867a79170434dcd1672d4230e0006e9898"
+  ],
+  "preRecordLoadedBankStores": [
+    {
+      "originalStore": "0042b35e",
+      "address": "0089ce3d",
+      "width": 1,
+      "value": 28,
+      "source": "active landscape bank from param1, before init_file_names/resource load"
+    },
+    {
+      "originalStore": "0042b364",
+      "address": "0096ead0",
+      "width": 1,
+      "value": 28,
+      "source": "landscape bank from BL=param1, before resource load and 00484a10"
+    }
+  ]
 }

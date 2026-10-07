@@ -1,0 +1,90 @@
+{
+  "mode": "bounded static wrapper inspection; no native execution",
+  "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "targetAddresses": [
+    "0089ce3d",
+    "0096ead0",
+    "0096ead1",
+    "0096ead2"
+  ],
+  "wrappers": [
+    {
+      "name": "load_level",
+      "start": "0042b230",
+      "endExclusive": "0042b590",
+      "sha256": "bd0133d97f8cdee5a1cacc06eef512ce4d1b82156813c0a36bf903bb09c228f3",
+      "allDirectTargetReferences": [
+        {
+          "address": "0042b34e",
+          "bytes": "0fbe053dce8900",
+          "mnemonic": "movsx",
+          "operands": "eax, byte ptr [0x89ce3d]"
+        },
+        {
+          "address": "0042b35e",
+          "bytes": "881d3dce8900",
+          "mnemonic": "mov",
+          "operands": "byte ptr [0x89ce3d], bl"
+        },
+        {
+          "address": "0042b364",
+          "bytes": "881dd0ea9600",
+          "mnemonic": "mov",
+          "operands": "byte ptr [0x96ead0], bl"
+        },
+        {
+          "address": "0042b389",
+          "bytes": "803d3dce890036",
+          "mnemonic": "cmp",
+          "operands": "byte ptr [0x89ce3d], 0x36"
+        },
+        {
+          "address": "0042b3f2",
+          "bytes": "881dd0ea9600",
+          "mnemonic": "mov",
+          "operands": "byte ptr [0x96ead0], bl"
+        },
+        {
+          "address": "0042b3f8",
+          "bytes": "a2d1ea9600",
+          "mnemonic": "mov",
+          "operands": "byte ptr [0x96ead1], al"
+        },
+        {
+          "address": "0042b3fd",
+          "bytes": "880dd2ea9600",
+          "mnemonic": "mov",
+          "operands": "byte ptr [0x96ead2], cl"
+        }
+      ]
+    },
+    {
+      "name": "explicit_parameter_wrapper",
+      "start": "0042b590",
+      "endExclusive": "0042b660",
+      "sha256": "19fea56465e251e90c9149a3c013700df1d7d3b89320d64384965e5e77d26d6e",
+      "allDirectTargetReferences": []
+    },
+    {
+      "name": "header_wrapper",
+      "start": "0042c790",
+      "endExclusive": "0042c8f0",
+      "sha256": "cace1d771165ec6a3635bd02a92f2542560215f7e5f0e36d802d3be15ecf86bc",
+      "allDirectTargetReferences": []
+    }
+  ],
+  "mission2Header": {
+    "sha256": "44be9f709f03f4b4d936d86056256e7bb98683088332b4bb47354ad709ea8a49",
+    "byteOffsets": [
+      96,
+      97,
+      98
+    ],
+    "values": [
+      28,
+      0,
+      0
+    ]
+  },
+  "conclusion": "Before terrain/record loading active bank0089ce3d and landscape metadata0096ead0 are28. After loading stores0042b3f2/3f8/3fd reapply28/0/0 to0096ead0/1/2."
+}

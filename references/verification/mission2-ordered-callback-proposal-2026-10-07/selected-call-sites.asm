@@ -350,3 +350,13 @@
 004be322 5b                       pop ebx
 004be323 83c404                   add esp, 4
 004be326 c3                       ret
+; pre_record_landscape_bank_store [0042b34e,0042b372)
+0042b34e 0fbe053dce8900           movsx eax, byte ptr [0x89ce3d]
+0042b355 8b5c2414                 mov ebx, dword ptr [esp + 0x14]
+0042b359 3bc3                     cmp eax, ebx
+0042b35b 7456                     je 0x42b3b3
+0042b35d 53                       push ebx
+0042b35e 881d3dce8900             mov byte ptr [0x89ce3d], bl
+0042b364 881dd0ea9600             mov byte ptr [0x96ead0], bl
+0042b36a e8d1edffff               call 0x42a140
+0042b36f 83c404                   add esp, 4

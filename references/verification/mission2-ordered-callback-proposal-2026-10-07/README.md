@@ -47,7 +47,12 @@ them is explicit and is not original file I/O.
    player0, allowing its real clear-tribe/AI-default/order-buffer descendants.
    No AI script or turn processor is called. Call `00401040` for fresh sunlight
    state. These are setup entries5/6.
-3. Copy canonical DAT height words into otherwise empty 16-byte terrain cells.
+3. Supply the loaded landscape-bank state **before terrain and record
+   processing**: active bank `0089ce3d=28`, then `0096ead0=28`. These correspond
+   to `0042b35e/0042b364`, before resource loading and `00484a10`. The same-bank
+   wrapper path already has bank28 and skips this reload. There is no asserted
+   zero value for `0096ead0` in the record phase. Copy canonical DAT height
+   words into otherwise empty 16-byte terrain cells.
    Call real `0044ddf0(0,64,0)` and `00422a60(0,64)` (entries7/8), preserving
    terrain flags, navigation arrays and their exact ordering. Copy the DAT
    flag block's bit4 contribution and four two-word tribe fields exactly as the
@@ -72,9 +77,8 @@ them is explicit and is not original file I/O.
    original preceding header stores in order: `0042b3f2` writes byte28 to
    `0096ead0` (param1, landscape bank), `0042b3f8` writes byte0 to `0096ead1`
    (param2, object bank), and `0042b3fd` writes byte0 to `0096ead2` (param3,
-   header flags). The three bytes are supplied as0/0/0 before this point in the
-   declared fresh component state; do not move 28 into the record phase.
-   Then execute
+   header flags). Thus the earlier landscape-bank value28 is reapplied here;
+   object-bank/header-flags bytes remain0/0. Then execute
    `0042b403..0042b48a`. Original `004ecac0`, `00503230` and the four numeric
    tribe iterations own roster, Shaman handles, site coordinates and actual
    command18 allocation/attachment/state initialization. No host-written
