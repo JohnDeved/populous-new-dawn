@@ -1,0 +1,638 @@
+[
+  {
+    "mission": 1,
+    "rawFile": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/levl2001.dat",
+    "rawSha256": "97cdb6e170f68b462b5b36c42c99a598b0466e0131a105f30612f50d7f16e40c",
+    "appFile": "app/level-one.ts",
+    "appSha256": "e840e4ea8895ada4131c7d2da2ce70330307956ea7a6e647e55e76bf6026bd33",
+    "staticComparison": "JSON syntax normalization only; no import or execution",
+    "recordOrderEqual": true,
+    "sourceOwnerFilterPassesForAll": true,
+    "tribeCount": 2,
+    "directClass1Count": 12,
+    "nextSeedAfterDirectContribution": 12,
+    "shamans": [
+      {
+        "index": 34,
+        "model": 7,
+        "owner": 0,
+        "directAllocationSeed": 6
+      },
+      {
+        "index": 37,
+        "model": 7,
+        "owner": 1,
+        "directAllocationSeed": 7
+      }
+    ],
+    "records": [
+      {
+        "index": 13,
+        "model": 2,
+        "owner": 0,
+        "directAllocationSeed": 0
+      },
+      {
+        "index": 14,
+        "model": 2,
+        "owner": 0,
+        "directAllocationSeed": 1
+      },
+      {
+        "index": 15,
+        "model": 2,
+        "owner": 0,
+        "directAllocationSeed": 2
+      },
+      {
+        "index": 16,
+        "model": 2,
+        "owner": 0,
+        "directAllocationSeed": 3
+      },
+      {
+        "index": 17,
+        "model": 2,
+        "owner": 0,
+        "directAllocationSeed": 4
+      },
+      {
+        "index": 18,
+        "model": 2,
+        "owner": 0,
+        "directAllocationSeed": 5
+      },
+      {
+        "index": 34,
+        "model": 7,
+        "owner": 0,
+        "directAllocationSeed": 6
+      },
+      {
+        "index": 37,
+        "model": 7,
+        "owner": 1,
+        "directAllocationSeed": 7
+      },
+      {
+        "index": 38,
+        "model": 3,
+        "owner": 1,
+        "directAllocationSeed": 8
+      },
+      {
+        "index": 39,
+        "model": 3,
+        "owner": 1,
+        "directAllocationSeed": 9
+      },
+      {
+        "index": 40,
+        "model": 2,
+        "owner": 1,
+        "directAllocationSeed": 10
+      },
+      {
+        "index": 43,
+        "model": 2,
+        "owner": 1,
+        "directAllocationSeed": 11
+      }
+    ],
+    "limit": "Direct authored contribution under successful allocation; not an executed full level load or all-callback allocation history."
+  },
+  {
+    "mission": 2,
+    "rawFile": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/levl2002.dat",
+    "rawSha256": "83f5c446975398b163ef00526567f7a86b2666d26f9f026231ec0b36bf5a289f",
+    "appFile": "app/level-two.ts",
+    "appSha256": "c576f47683ab6e58682e78c221eed5f44e91717e2e27097be0f5b5ba9f97c111",
+    "staticComparison": "JSON syntax normalization only; no import or execution",
+    "recordOrderEqual": true,
+    "sourceOwnerFilterPassesForAll": true,
+    "tribeCount": 4,
+    "directClass1Count": 27,
+    "nextSeedAfterDirectContribution": 27,
+    "shamans": [
+      {
+        "index": 22,
+        "model": 7,
+        "owner": 3,
+        "directAllocationSeed": 16
+      },
+      {
+        "index": 57,
+        "model": 7,
+        "owner": 0,
+        "directAllocationSeed": 18
+      }
+    ],
+    "records": [
+      {
+        "index": 6,
+        "model": 2,
+        "owner": 3,
+        "directAllocationSeed": 0
+      },
+      {
+        "index": 7,
+        "model": 2,
+        "owner": 3,
+        "directAllocationSeed": 1
+      },
+      {
+        "index": 8,
+        "model": 3,
+        "owner": 3,
+        "directAllocationSeed": 2
+      },
+      {
+        "index": 9,
+        "model": 3,
+        "owner": 3,
+        "directAllocationSeed": 3
+      },
+      {
+        "index": 10,
+        "model": 2,
+        "owner": 3,
+        "directAllocationSeed": 4
+      },
+      {
+        "index": 11,
+        "model": 2,
+        "owner": 3,
+        "directAllocationSeed": 5
+      },
+      {
+        "index": 12,
+        "model": 2,
+        "owner": 3,
+        "directAllocationSeed": 6
+      },
+      {
+        "index": 13,
+        "model": 2,
+        "owner": 3,
+        "directAllocationSeed": 7
+      },
+      {
+        "index": 14,
+        "model": 2,
+        "owner": 3,
+        "directAllocationSeed": 8
+      },
+      {
+        "index": 15,
+        "model": 3,
+        "owner": 3,
+        "directAllocationSeed": 9
+      },
+      {
+        "index": 16,
+        "model": 3,
+        "owner": 3,
+        "directAllocationSeed": 10
+      },
+      {
+        "index": 17,
+        "model": 2,
+        "owner": 3,
+        "directAllocationSeed": 11
+      },
+      {
+        "index": 18,
+        "model": 2,
+        "owner": 3,
+        "directAllocationSeed": 12
+      },
+      {
+        "index": 19,
+        "model": 2,
+        "owner": 3,
+        "directAllocationSeed": 13
+      },
+      {
+        "index": 20,
+        "model": 2,
+        "owner": 3,
+        "directAllocationSeed": 14
+      },
+      {
+        "index": 21,
+        "model": 3,
+        "owner": 3,
+        "directAllocationSeed": 15
+      },
+      {
+        "index": 22,
+        "model": 7,
+        "owner": 3,
+        "directAllocationSeed": 16
+      },
+      {
+        "index": 23,
+        "model": 3,
+        "owner": 3,
+        "directAllocationSeed": 17
+      },
+      {
+        "index": 57,
+        "model": 7,
+        "owner": 0,
+        "directAllocationSeed": 18
+      },
+      {
+        "index": 64,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 19
+      },
+      {
+        "index": 65,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 20
+      },
+      {
+        "index": 66,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 21
+      },
+      {
+        "index": 67,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 22
+      },
+      {
+        "index": 68,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 23
+      },
+      {
+        "index": 69,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 24
+      },
+      {
+        "index": 70,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 25
+      },
+      {
+        "index": 71,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 26
+      }
+    ],
+    "limit": "Direct authored contribution under successful allocation; not an executed full level load or all-callback allocation history."
+  },
+  {
+    "mission": 3,
+    "rawFile": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/levl2003.dat",
+    "rawSha256": "eb239eabebbcde37c1e1633b149d48977cedf432348a12fc5ee6b4be74c049bf",
+    "appFile": "app/level-three.ts",
+    "appSha256": "7de51508c51d8193ee961de63a79016be4c58de284aefc3a707339b5e9b81e07",
+    "staticComparison": "JSON syntax normalization only; no import or execution",
+    "recordOrderEqual": true,
+    "sourceOwnerFilterPassesForAll": true,
+    "tribeCount": 3,
+    "directClass1Count": 52,
+    "nextSeedAfterDirectContribution": 52,
+    "shamans": [
+      {
+        "index": 45,
+        "model": 7,
+        "owner": 0,
+        "directAllocationSeed": 32
+      },
+      {
+        "index": 46,
+        "model": 7,
+        "owner": 2,
+        "directAllocationSeed": 33
+      }
+    ],
+    "records": [
+      {
+        "index": 9,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 0
+      },
+      {
+        "index": 10,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 1
+      },
+      {
+        "index": 11,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 2
+      },
+      {
+        "index": 12,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 3
+      },
+      {
+        "index": 13,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 4
+      },
+      {
+        "index": 14,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 5
+      },
+      {
+        "index": 15,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 6
+      },
+      {
+        "index": 16,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 7
+      },
+      {
+        "index": 17,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 8
+      },
+      {
+        "index": 18,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 9
+      },
+      {
+        "index": 19,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 10
+      },
+      {
+        "index": 20,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 11
+      },
+      {
+        "index": 21,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 12
+      },
+      {
+        "index": 22,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 13
+      },
+      {
+        "index": 23,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 14
+      },
+      {
+        "index": 24,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 15
+      },
+      {
+        "index": 25,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 16
+      },
+      {
+        "index": 29,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 17
+      },
+      {
+        "index": 30,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 18
+      },
+      {
+        "index": 31,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 19
+      },
+      {
+        "index": 32,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 20
+      },
+      {
+        "index": 33,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 21
+      },
+      {
+        "index": 34,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 22
+      },
+      {
+        "index": 35,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 23
+      },
+      {
+        "index": 36,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 24
+      },
+      {
+        "index": 37,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 25
+      },
+      {
+        "index": 38,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 26
+      },
+      {
+        "index": 39,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 27
+      },
+      {
+        "index": 40,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 28
+      },
+      {
+        "index": 41,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 29
+      },
+      {
+        "index": 42,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 30
+      },
+      {
+        "index": 43,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 31
+      },
+      {
+        "index": 45,
+        "model": 7,
+        "owner": 0,
+        "directAllocationSeed": 32
+      },
+      {
+        "index": 46,
+        "model": 7,
+        "owner": 2,
+        "directAllocationSeed": 33
+      },
+      {
+        "index": 47,
+        "model": 2,
+        "owner": 2,
+        "directAllocationSeed": 34
+      },
+      {
+        "index": 48,
+        "model": 2,
+        "owner": 2,
+        "directAllocationSeed": 35
+      },
+      {
+        "index": 49,
+        "model": 2,
+        "owner": 2,
+        "directAllocationSeed": 36
+      },
+      {
+        "index": 50,
+        "model": 2,
+        "owner": 2,
+        "directAllocationSeed": 37
+      },
+      {
+        "index": 51,
+        "model": 2,
+        "owner": 2,
+        "directAllocationSeed": 38
+      },
+      {
+        "index": 52,
+        "model": 2,
+        "owner": 2,
+        "directAllocationSeed": 39
+      },
+      {
+        "index": 93,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 40
+      },
+      {
+        "index": 94,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 41
+      },
+      {
+        "index": 95,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 42
+      },
+      {
+        "index": 96,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 43
+      },
+      {
+        "index": 97,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 44
+      },
+      {
+        "index": 98,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 45
+      },
+      {
+        "index": 99,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 46
+      },
+      {
+        "index": 100,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 47
+      },
+      {
+        "index": 105,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 48
+      },
+      {
+        "index": 106,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 49
+      },
+      {
+        "index": 107,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 50
+      },
+      {
+        "index": 108,
+        "model": 1,
+        "owner": 255,
+        "directAllocationSeed": 51
+      }
+    ],
+    "limit": "Direct authored contribution under successful allocation; not an executed full level load or all-callback allocation history."
+  }
+]
