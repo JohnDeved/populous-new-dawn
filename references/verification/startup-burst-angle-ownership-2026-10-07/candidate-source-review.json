@@ -1,0 +1,12 @@
+{
+  "verdict": "ACCEPT_NARROW_SOURCE_DELTA",
+  "reviewedAt": "2026-10-07T00:33:52.463241+00:00",
+  "base": "7f54a508d957a4661c3e40dadb734aebb67f146e",
+  "source": "76b86607fca8a54ee45840ce3c750a5c95eb164e",
+  "finding": "Exactly swaps ownership of second and third existing gameplay RNG draws between pitch and yaw; draw count/order, lifetime, speed and all other application bytes stay unchanged. The accepted native birth/trajectory fixture plus actual-caller baseline failure support this scope.",
+  "limits": [
+    "native-root height clamp discrepancy remains separate",
+    "no claim of complete startup trajectory or whole-world RNG equivalence",
+    "matching portable candidate and ordinary startup-render evidence remain pending"
+  ]
+}

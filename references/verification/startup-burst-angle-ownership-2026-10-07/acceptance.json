@@ -9,7 +9,8 @@
     "source-review-verification.json": "115700ecb27ec8ef534f84510219b71afe952fa3b2e23dc4a4545904c211d862",
     "failure-first-portable.json": "b05fa6d9bc8f45cbd8d515dcf5d298b8f196a86f7153f02d719e4bbb1bb9f116",
     "candidate-portable.json": "adba9439ecb50231b57794107de1b83fa5f3acc1ad4de05c478d26daf5117bb1",
-    "extract-retained-records.py": "45efed441dbd5dc9470a71246e014fd190236a1db4783d0eb5b756ffc3814a15"
+    "extract-retained-records.py": "45efed441dbd5dc9470a71246e014fd190236a1db4783d0eb5b756ffc3814a15",
+    "candidate-source-review.json": "ebf2dcf33e9c058773515e6efd175d4b50c76d29ca4158f21872ba2efff10681"
   },
   "status": {
     "independentSourceReview": "passed",
@@ -18,7 +19,8 @@
     "newNativeInvocation": "not-run; accepted immutable native records reused",
     "ordinaryBrowser": "not-run",
     "standardGates": "not-run",
-    "finalIndependentReview": "not-run"
+    "finalIndependentReview": "not-run",
+    "candidateSourceReview": "passed: narrow two-owner application diff"
   },
   "limits": "Angle ownership only. Retained native trajectories compare declared native birth origins and ground256, not actual startup origin heights. Existing model9 root clamp ordering gap stays unchanged; no allocator/world/returning-person or raster equivalence claim."
 }

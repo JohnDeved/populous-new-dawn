@@ -101,3 +101,30 @@ raw output is retained in `candidate-portable.json`. This checks all32 raw nativ
 births,139 declared-origin native visits,1024 actual Mission1–3 startup particles,
 and the14 existing startup regressions. Browser, check/build and TypeScript
 quality validation remain pending.
+
+
+## Frozen ordinary-frame scenario (unexecuted)
+
+`scripts/local-render/startup-burst.mjs` is one named scenario for the existing
+sandbox-preserving `scripts/local-render/harness.mjs`; it does not start a new
+browser/server framework. One fresh ordinary Mission1 route on each source is a
+bounded visual witness; the portable actual-caller regression covers Missions1–3.
+
+It uses the existing All missions/Mission1 input and `bindGame`, installs the
+small passive renderer observer before the delivered Skip click, then waits for
+ordinary elapsed RAF. The observer preserves the maintained smoke observer's
+receiver/argument/result/exception and descriptor-restoration contract. It never
+invokes render, changes the world, pauses, cancels RAF or alters the clock.
+
+Three PNGs are copied synchronously from real main-scene render returns with
+same-call state: before any stone, a burst after at least one real particle visit
+(age greater than zero), and completion at/after turn70 with eight stones and no
+burst particles. Final Shaman readiness is read only after those frames. The
+observer retains at most96 turn rows/eight errors/three images and is restored in
+`finally`; partial observations are retained on failure. It records actual
+renderer/viewport/DPR and makes no original-raster or hardware-performance claim.
+
+The five focused observer tests reuse the existing smoke ownership contracts and
+add a before/birth/first-moved/completion sequence. Native height limitations remain
+unchanged. No browser execution or shared dependency ownership is granted by
+freezing this source; source review and coordinator release still precede a run.
