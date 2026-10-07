@@ -94,9 +94,9 @@ function diagnosticBrave(item) {
 
 function validSourceFields(row) {
   const p = row?.person, a = row?.admission
-  return p && a && p.id === row.actor.id && [p.id, p.x, p.y, p.vehicle, p.assignment, p.workTarget].every(word) &&
+  return p && a && p.id === row.actor.id && [p.id, p.x, p.y, p.vehicle, p.assignment, p.workTarget, p.immediateCommand].every(word) &&
     Number.isInteger(p.speed) && p.speed >= -32768 && p.speed <= 32767 &&
-    [p.state, p.substate].every(n => Number.isInteger(n) && n >= 0 && n <= 255) &&
+    [p.state, p.substate, p.commandStatus, p.commandCursor].every(n => Number.isInteger(n) && n >= 0 && n <= 255) &&
     Number.isInteger(p.workFlags) && p.workFlags >= 0 && p.workFlags <= 255 &&
     [p.flags2, p.flags3, p.flags4, a.landFlags].every(dword) &&
     Number.isInteger(p.life) && p.life > 0 && p.life <= 32767 && p.life === Math.round(row.actor.hp * 20) &&
@@ -128,7 +128,9 @@ export function classifyProspectiveResponse(before, after) {
 
 function validImmediate32(row) {
   const p = row.person, order = row.order
-  return p.immediateCommand && order?.model === 32 && order.id === p.immediateCommand &&
+  return word(p.immediateCommand) && p.immediateCommand > 0 && order?.model === 32 &&
+    word(order.id) && order.id > 0 && order.id === p.immediateCommand &&
+    Number.isSafeInteger(order.identity) && order.identity > 0 && word(order.object) &&
     order.flags === 32 && order.references === 1 && order.a === p.x && order.b === p.y &&
     row.orderUsers.length === 1 && row.orderUsers[0] === row.actor.id
 }
