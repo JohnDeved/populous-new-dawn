@@ -1,0 +1,161 @@
+{
+  "case": "mission-one Dakini launches its later building attack when Blue overwhelms it",
+  "allRegisteredCurrent19Rows": [],
+  "allNativeCurrent19Rows": [
+    {
+      "line": 1213,
+      "turn": 409
+    },
+    {
+      "line": 1214,
+      "turn": 410
+    },
+    {
+      "line": 1215,
+      "turn": 411
+    },
+    {
+      "line": 1216,
+      "turn": 412
+    },
+    {
+      "line": 1217,
+      "turn": 413
+    },
+    {
+      "line": 1218,
+      "turn": 414
+    },
+    {
+      "line": 1219,
+      "turn": 415
+    },
+    {
+      "line": 1220,
+      "turn": 416
+    },
+    {
+      "line": 1221,
+      "turn": 417
+    },
+    {
+      "line": 1222,
+      "turn": 418
+    },
+    {
+      "line": 1223,
+      "turn": 419
+    },
+    {
+      "line": 1224,
+      "turn": 420
+    },
+    {
+      "line": 1225,
+      "turn": 421
+    },
+    {
+      "line": 1226,
+      "turn": 422
+    },
+    {
+      "line": 1227,
+      "turn": 423
+    },
+    {
+      "line": 1228,
+      "turn": 424
+    },
+    {
+      "line": 1229,
+      "turn": 425
+    },
+    {
+      "line": 1230,
+      "turn": 426
+    },
+    {
+      "line": 1231,
+      "turn": 427
+    },
+    {
+      "line": 1232,
+      "turn": 428
+    },
+    {
+      "line": 1233,
+      "turn": 429
+    },
+    {
+      "line": 1234,
+      "turn": 430
+    },
+    {
+      "line": 1235,
+      "turn": 431
+    },
+    {
+      "line": 1236,
+      "turn": 432
+    },
+    {
+      "line": 1237,
+      "turn": 433
+    },
+    {
+      "line": 1238,
+      "turn": 434
+    },
+    {
+      "line": 1239,
+      "turn": 435
+    },
+    {
+      "line": 1240,
+      "turn": 436
+    },
+    {
+      "line": 1241,
+      "turn": 437
+    },
+    {
+      "line": 1242,
+      "turn": 438
+    },
+    {
+      "line": 1243,
+      "turn": 439
+    },
+    {
+      "line": 1244,
+      "turn": 440
+    },
+    {
+      "line": 1245,
+      "turn": 441
+    },
+    {
+      "line": 1246,
+      "turn": 442
+    },
+    {
+      "line": 1247,
+      "turn": 443
+    },
+    {
+      "line": 1248,
+      "turn": 443
+    }
+  ],
+  "firstRegistered19ById": {
+    "42": {
+      "line": 1213,
+      "turn": 409
+    }
+  },
+  "phase16First": {
+    "line": 1213,
+    "turn": 409
+  },
+  "sampledCohortRows": 362
+}
