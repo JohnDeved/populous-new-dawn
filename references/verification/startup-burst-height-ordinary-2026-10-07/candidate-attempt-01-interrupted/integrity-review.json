@@ -1,0 +1,42 @@
+{
+  "verdict": "ACCEPT interrupted-attempt integrity audit; outcome and original execution-scope cleanup remain UNKNOWN",
+  "sourceHead": "8f50dda281ec6338bdb84e21473879f29a0282f9",
+  "originalToolSession": 85102,
+  "recordedRootIdentity": {
+    "pid": 37,
+    "session": 37,
+    "group": 37,
+    "startTimeTicks": 8830699
+  },
+  "hostSnapshotSha256": "ef88be5919b8476eb15bb6050c805bbf76fd397d464ca872d22bf564322d8607",
+  "commandSnapshotSha256": "26a85acb53fe73c352c6947fc7dc1b4f0eed2097c9ff10c70640c43b20448324",
+  "ownerAuditSha256": "4c03373e918fce1e5714ba71a7f578813a6eb97d9b46de1492a9bad9a6c3ad18",
+  "independentReadback": {
+    "sourceFilesRehashed": 336,
+    "toolsRehashed": 6,
+    "rawSnapshotsVerified": 7,
+    "dependencyEntriesReconstructedAndRehashed": 21332,
+    "exactInventoryMatch": true,
+    "dependencyLocation": "/workspace/scratch/69fd8163d94e/startup-burst-height-fix-20261007/node_modules",
+    "dependencyIdentity": [
+      27,
+      1978923
+    ],
+    "donorStubIdentity": [
+      27,
+      1201252
+    ]
+  },
+  "status": [
+    "Original host receipt remains running. Command receipt remains unknown/prepared. No terminal browser/scenario receipt or candidate PNG establishes a result.",
+    "Original session resume was reported Unknown process id. A fresh exec shows a newly created codex-linux-sandbox asPID1; absence of oldPID37 there does not establish original-namespace termination.",
+    "Current files plus original retained Vite caches reconstruct the exact before inventory. Generated cache is separate and preserved."
+  ],
+  "blockedBoundary": "Need supported original-session terminal result or authoritative lifecycle evidence for the exact original execution scope before claiming termination and authorizing owned resource restoration. Do not infer cleanup from fresh-namespace process/port absence.",
+  "actionsByReviewer": "Read-only source/file/hash/proc inspection; no signalling, move, retry or launcher execution.",
+  "claims": [
+    "No candidate pass or paired rendered-height claim.",
+    "Baseline-only accepted result remains valid.",
+    "Historical raw receipts stay unchanged; any later recovery disposition needs a separate receipt."
+  ]
+}

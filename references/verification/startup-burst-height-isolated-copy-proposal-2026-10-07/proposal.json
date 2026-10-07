@@ -1,0 +1,29 @@
+{
+  "status": "source-only proposal; no copy/worktree/browser execution",
+  "copyPlanSha256": "5e919868581bf9d17dc4b4b8ac0e05262e56132ea47a97b45286d2baaf13cb1d",
+  "runPlanSha256": "5472ea68e3a4f28ba845b781700fde22358e3bd1c0d2b7c5e81e4fd40f641015",
+  "copySourceSha256": "98b906906f14cf8de0fdacfc40204f69db736f0060331c0e0609acddddfd8e29",
+  "hostSourceSha256": "711c87da391a44e692be17dda3bc9fce81a7ce77a81f32260381497c0c3c0f35",
+  "selectedInventorySha256": "23ab48300852483706ed494df8efd90d25e3e26b37b402c61fed76136e348977",
+  "disk": {
+    "dependencyRegularBytes": 767239839,
+    "trackedWorktreeBytes": 177549859,
+    "nominalCombinedBytes": 944789698,
+    "suggestedReserveBytes": 2147483648,
+    "availableAtPreparationBytes": 9182703616
+  },
+  "memory": {
+    "copyAddressSpaceCapBytes": 536870912,
+    "copyExpectedProcessRss": "Streaming1MiB blocks plus two21k-entry metadata maps, expected under128MiB; not a measured run",
+    "browserNodeHeapMiB": 1024,
+    "browserAggregateRss": "Not measured or capped by the reused accepted host; Chromium plus Node/compiler overhead remains additional shared memory"
+  },
+  "scheduling": "CPU5\u20137 only; old unknown scope was0\u20133 and separate native lane4. This separates declared affinity only; shared I/O/RAM/kernel resources and unknown old-scope lifecycle remain, so no performance claim.",
+  "requirements": [
+    "Independent exact source/copy/run review",
+    "Separate parent authorization to create the worktree/copy, then launch",
+    "No installs, credentials, profiles, original native invocation or old loan/caches/receipt mutation",
+    "Before/copy/after selected inventory equality and app-source hashes",
+    "One new run only after grant; preserve failure/partial copy without automatic retry"
+  ]
+}

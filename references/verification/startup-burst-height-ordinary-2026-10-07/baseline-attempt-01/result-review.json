@@ -1,0 +1,69 @@
+{
+  "verdict": "ACCEPT actual ordinary baseline only; no candidate/pair result",
+  "head": "b6c4d255cbf55a57568072666b1dc74726d75ab3",
+  "manifestSha256": "d25b6e77caaca746767456ebfe2c1076eb5cf2fd3303bbab8045b5a2af8dca05",
+  "hostReceiptSha256": "7240c02d2a0cbc2cc65ac90ca131e4503cd702a7db600e81f5f7cca54bbe26ab",
+  "browserReceiptSha256": "5b2153c21b49dcc6a5ed09ac76518033bcd52a9c034d449baae978cbc691e7ce",
+  "scenarioSha256": "7232b350942f3fe6786f6cd943e317cca8fdef037c4356c33e496f0d9be8fb72",
+  "method": "Read-only raw/source/hash/dependency inventories plus direct inspection of3 actual canvas PNGs; no execution",
+  "verification": {
+    "rawCopiesByteIdentical": 12,
+    "derivedHashesVerified": 2,
+    "dependencyInventoryEntriesEqual": 21332,
+    "browserScenarioHostPassed": true,
+    "browserErrors": [],
+    "observerErrors": [],
+    "sourceToolsExternalPacketUnchanged": true,
+    "ownedProcessesEmpty": true,
+    "donorReturned": true,
+    "startedAt": "2026-10-07T03:36:18.379856+00:00",
+    "endedAt": "2026-10-07T03:37:19.736313+00:00"
+  },
+  "observation": {
+    "renderer": "SwiftShader/Vulkan software",
+    "viewport": [
+      1440,
+      1000
+    ],
+    "canvas": [
+      1240,
+      1000
+    ],
+    "recordCount": 65,
+    "speed": 1,
+    "paused": false,
+    "before": {
+      "turn": 0,
+      "presented": false,
+      "loading": true,
+      "meaning": "actual canvas capture covered by loading UI; no visible before-scene claim"
+    },
+    "burst": {
+      "turn": 39,
+      "presented": true,
+      "particles": 32,
+      "age": 0.16666666666666666,
+      "sampledNativeHeightMinusCurrentGroundRange": [
+        0,
+        58
+      ]
+    },
+    "after": {
+      "turn": 70,
+      "presented": true,
+      "particles": 0,
+      "meaning": "startup stones complete"
+    }
+  },
+  "imageInspection": "Actual burst PNG shows the startup effects around the original gathering; after PNG shows completed stones with that burst gone. Image review supports sampled scene continuity, not original raster equality or unseen birth height.",
+  "pngHashes": {
+    "mission-1-startup-before.png": "df52bc1d5a94be971454f017d9238ec5c61643912503d348ac2841700c6cf5ba",
+    "mission-1-startup-burst.png": "0a2a0d552e51338d87f9aabe013ff74060435e46ea3f783826677da0ca13cbd1",
+    "mission-1-startup-after.png": "4ff35330b1e70ff0d9566d055b0431f5f8e09780b6d25ede810fa0d7a345b6bb"
+  },
+  "limits": [
+    "Baseline post-motion presented heights are distinct from fixed-step birth/native offset proofs.",
+    "Candidate invocation was interrupted later and remains unknown; no paired visual/height delta can be accepted from this baseline.",
+    "Constant screen-pixel shift, unseen frames, original post-wave terrain and hardware performance are unproved."
+  ]
+}
