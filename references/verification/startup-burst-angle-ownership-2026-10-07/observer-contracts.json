@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "e257a1e3-e1a8-4872-964d-07a4f334cb98",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "1b7b231c8913a9a27eef44f586b941027cffbe00",
+    "branch": "fix/startup-burst-angle-ownership-20261007",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/local-render/startup-burst.mjs": "7904b33774378dad06b4dae35c2665e8132266fd3e16574592b49623f650a8e5",
+      "scripts/local-render/startup-burst-observer.mjs": "8d62f9414ab46e452c4d20701fb824ab2af718e024b69ffc1c82a786924547bd",
+      "tests/startup-burst-observer.test.mjs": "de694260550248e6b83b4b3ff6e905755a89003176cb0bac8b34ef3e6d32baa7",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2"
+    }
+  },
+  "command": [
+    "timeout",
+    "-s",
+    "TERM",
+    "-k",
+    "5s",
+    "10s",
+    "node",
+    "--test",
+    "tests/startup-burst-observer.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/startup-burst-angle-fix-20261007",
+  "startedAt": "2026-10-07T00:38:50.447Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/startup-burst-angle-fix-20261007/work/orchestration/startup-burst-observer-contracts-01/portable.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/startup-burst-angle-fix-20261007/work/orchestration/startup-burst-observer-contracts-01/portable.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-07T00:38:50.760Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ observer forwards each original render receiver, arguments and exact result without a synthetic call (2.312652ms)\n✔ observer propagates the exact original render exception and never takes a successful-frame sample (0.590046ms)\n✔ diagnostic identity and readback errors remain bounded without changing original render results (1.290715ms)\n✔ observer refuses to overwrite a later renderer owner during close (0.291422ms)\n✔ three captures use the actual same-call state and wait for a moved burst particle (0.985252ms)\nℹ tests 5\nℹ suites 0\nℹ pass 5\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 166.941074\n",
+  "stderr": "",
+  "stdoutSha256": "1e42abe1ae3fd1365bbbd81715e1a624fceeed3c96d0e2f094ccab98409fe69d",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "1b7b231c8913a9a27eef44f586b941027cffbe00",
+    "branch": "fix/startup-burst-angle-ownership-20261007",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/local-render/startup-burst.mjs": "7904b33774378dad06b4dae35c2665e8132266fd3e16574592b49623f650a8e5",
+      "scripts/local-render/startup-burst-observer.mjs": "8d62f9414ab46e452c4d20701fb824ab2af718e024b69ffc1c82a786924547bd",
+      "tests/startup-burst-observer.test.mjs": "de694260550248e6b83b4b3ff6e905755a89003176cb0bac8b34ef3e6d32baa7",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2"
+    }
+  }
+}

@@ -125,6 +125,7 @@ observer retains at most96 turn rows/eight errors/three images and is restored i
 renderer/viewport/DPR and makes no original-raster or hardware-performance claim.
 
 The five focused observer tests reuse the existing smoke ownership contracts and
-add a before/birth/first-moved/completion sequence. Native height limitations remain
-unchanged. No browser execution or shared dependency ownership is granted by
+add a before/birth/first-moved/completion sequence. They pass on exact observer
+source `1b7b231c`, exit0 in0.3s; raw output and four unchanged source hashes are
+retained in `observer-contracts.json`. Native height limitations remain unchanged. No browser execution or shared dependency ownership is granted by
 freezing this source; source review and coordinator release still precede a run.
