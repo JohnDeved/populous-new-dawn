@@ -106,7 +106,7 @@ level-start probe exchanged those labels. The correction changes the two local
 owners and probe labels while preserving all three draws, their order, lifetime,
 speed and existing height behavior.
 
-[Source proof and independent review](https://github.com/JohnDeved/populous-new-dawn/tree/a2b6f239bcaf68bedcf6dc86e1327a567853ae27/references/verification/startup-burst-angle-ownership-2026-10-07)
+[Source proof and independent review](https://github.com/JohnDeved/populous-new-dawn/tree/0725ac6101ecbe15f1030825943d832af25fa34c/references/verification/startup-burst-angle-ownership-2026-10-07)
 retain canonical bytes, immutable original records, the failure-first caller run,
 and candidate results. `tests/fixtures/startup-burst-native.json` copies32 birth
 records and139 scheduled visits from the accepted native component, with its
@@ -117,13 +117,15 @@ script verifies the complete original log before deriving the fixture.
 Focused validation passed17/17:32 original births,139 declared-origin visits,
 1024 actual Mission1–3 startup particles and14 existing startup regressions. The
 passive ordinary-capture ownership/discovery contracts passed9/9. The same accepted
-checker recorded [old main](https://github.com/JohnDeved/populous-new-dawn/blob/a2b6f239bcaf68bedcf6dc86e1327a567853ae27/references/verification/startup-burst-angle-ownership-2026-10-07/ordinary-baseline-attempt-01/README.md)
-and [corrected startup](https://github.com/JohnDeved/populous-new-dawn/blob/a2b6f239bcaf68bedcf6dc86e1327a567853ae27/references/verification/startup-burst-angle-ownership-2026-10-07/ordinary-candidate-attempt-02/README.md)
+checker recorded [old main](https://github.com/JohnDeved/populous-new-dawn/blob/0725ac6101ecbe15f1030825943d832af25fa34c/references/verification/startup-burst-angle-ownership-2026-10-07/ordinary-baseline-attempt-01/README.md)
+and [corrected startup](https://github.com/JohnDeved/populous-new-dawn/blob/0725ac6101ecbe15f1030825943d832af25fa34c/references/verification/startup-burst-angle-ownership-2026-10-07/ordinary-candidate-attempt-02/README.md)
 through public Mission1/Skip and real elapsed rendering. Both have presented
 burst39/completion70 frames; their initial0 canvases were covered by loading and
 are labelled accordingly. All52 shared observed turns preserve site history and
 both RNG words. Independent elapsed timing and SwiftShader rendering are not
-hardware-performance or exact raster claims.
+hardware-performance or exact raster claims. The [independent paired result
+review](https://github.com/JohnDeved/populous-new-dawn/blob/0725ac6101ecbe15f1030825943d832af25fa34c/references/verification/startup-burst-angle-ownership-2026-10-07/ordinary-baseline-attempt-01/result-review.json)
+accepts these bounded witnesses.
 
 A separate height boundary remains: native model9 clamps its root before adding90,
 whereas the current startup adapter adds90 before clamping the child. The raw
