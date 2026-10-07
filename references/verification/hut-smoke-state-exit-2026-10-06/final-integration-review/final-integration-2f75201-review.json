@@ -1,0 +1,34 @@
+{
+  "verdict": "ACCEPT_FOR_REVIEWED_PR_MERGE",
+  "source": "2f75201af64fb304c1b87c94b6324e746ec14a13",
+  "base": "1c7e6b05687aca14d9350e17c7ae14dc6c68bb97",
+  "reviewedAt": "2026-10-07T00:39:04.476921+00:00",
+  "verifiedSourceFiles": 3693,
+  "standardGates": {
+    "check": {
+      "receiptSha256": "b09a688e0851423d88bf5822f2122b96efa78804738464432314218f2ec788e1",
+      "stdoutSha256": "7cbce13b9f9af517e8fe27a31c68dfd99dfc6a8e35985194074a23c5008c6b0f",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "finishedAt": "2026-10-07T00:37:40.757Z"
+    },
+    "build": {
+      "receiptSha256": "d6df6166be7ccdd6244821573560d3edf60f6712d2a54b789efa5e2766f0c21c",
+      "stdoutSha256": "6f744d509f33a506732ae6ee14f9cff7bdca46b18307d2513bebd5ddb4eab406",
+      "stderrSha256": "4a021662a82db84d83630cfc2d5006a4e3550aad792781f8b49a4a1be31040df",
+      "finishedAt": "2026-10-07T00:38:07.952Z"
+    }
+  },
+  "outerReceiptSha256": "082597c8c7117db233c77e547254bd7a559eedb3301c782ff21b3deed53350eb",
+  "earlierAcceptedReviews": {
+    "ordinary-05-result-review.json": "c9bf342cbc81384ea489d6aa72bbadf33298cfcc3f491494bdb264ff734707e0",
+    "clean-integration-source-review.json": "066323af54bef909d29eb5694e1daabefc7684ef3546794b20e3423f8e3f8621",
+    "error-construction-2f75201-source-review.json": "5f39db1b0b5f60a3df77f3f8cadb22e785134b26bb02ce286cef4bd5a72d42e1"
+  },
+  "finding": "Final clean15-file source is covered by native component proof, actual-caller failure-first tests, real ordinary Mission1 ignition canvas evidence and exact executable correspondence. Final npm check1376/1376 plus typecheck/parity/orchestration and all build phases passed. Source/tools/dependency inventory unchanged; owned processes empty and dependency returned.",
+  "limits": [
+    "Legacy scoped TS quality findings and113 JS advisory warnings remain disclosed; no overall clean-lint claim.",
+    "Ordinary witness is actual Lightning ignition; Spy path is focused actual-caller coverage.",
+    "Native proof supplies failed fire allocation and leaf boundaries; complete primary fire stream and full original gameplay parity remain unproved.",
+    "Original failed ordinary/native attempts remain immutable; old PR244 research is superseded only after PR249 merge."
+  ]
+}
