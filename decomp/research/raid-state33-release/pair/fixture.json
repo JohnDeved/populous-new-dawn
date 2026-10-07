@@ -1,0 +1,2182 @@
+{
+  "kind": "One unexecuted supplied state33 composition; predictions from source only",
+  "captureSha256": "389ce3174fd613bb7841502ee737301a3e131451022ad8b7152f1613fa316562",
+  "people": [
+    {
+      "id": 10,
+      "address": 33554688,
+      "capturedFields": {
+        "id": 10,
+        "class": 1,
+        "model": 2,
+        "state": 33,
+        "previousState": 10,
+        "substate": 3,
+        "tribe": 3,
+        "x": 38530,
+        "y": 28404,
+        "h": 469,
+        "anchorX": 34048,
+        "anchorY": 30976,
+        "counter": 151,
+        "flags2": 1073879040,
+        "flags3": 264192,
+        "flags4": 939524352,
+        "physics": 2,
+        "speed": 0,
+        "angle": 1525,
+        "heading": 1525,
+        "turnAngle": 33920,
+        "turnY": 30848,
+        "slowTurn": 0,
+        "goalX": 33920,
+        "goalY": 30848,
+        "destinationX": 33920,
+        "destinationY": 30848,
+        "building": null,
+        "cargo": 0,
+        "vehicle": 0,
+        "assignment": 280,
+        "timer": 70,
+        "target": 0,
+        "link": 0,
+        "stateObject": 0,
+        "animationMode": 9,
+        "commandAux": 0,
+        "commandPhase": 8,
+        "object": 48,
+        "draw": 14,
+        "morph": 0,
+        "palette": 240,
+        "renderFlags": 384,
+        "f1": 0,
+        "f2": 0,
+        "stamp": 0,
+        "morphTimer": 0,
+        "morphFrames": 0,
+        "statusFlags": 0,
+        "workFlags": 0,
+        "reservationNext": 0,
+        "formationCell": 33330,
+        "motionTimer": 1,
+        "motionMode": 10,
+        "motionGroup": 0,
+        "motionIndex": 0,
+        "recoveryCounter": 0,
+        "supportHeight": 0,
+        "selectionFlags": 129,
+        "commands": [
+          0,
+          131,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "commandCursor": 1,
+        "immediateCommand": 0,
+        "orderLocation": 0,
+        "commandStatus": 3,
+        "workTarget": 0,
+        "cellNext": 0,
+        "cellPrevious": 0,
+        "displacement": {
+          "x": 0,
+          "y": 0,
+          "h": 0
+        },
+        "reactionTimer": 0,
+        "reactionDuration": 0,
+        "anchorFlags": 0,
+        "velocity": {
+          "x": -3,
+          "y": 0,
+          "z": -1
+        },
+        "life": 1000,
+        "disguise": 0,
+        "savedVehicle": 0,
+        "formationDelay": 0,
+        "orderDelay": 8,
+        "damageAttacker": 255,
+        "burnTrail": 0,
+        "marchCooldown": 0,
+        "computerAssignment": 0
+      },
+      "nativeFlags7fSupply": 0,
+      "nativeAssignmentSupply": 2,
+      "capturedNativeFlags7fPresent": false,
+      "capturedAssignment": 0,
+      "unencodedPortFields": [
+        "building",
+        "disguise",
+        "formationDelay",
+        "marchCooldown",
+        "morphFrames",
+        "morphTimer",
+        "motionGroup",
+        "motionIndex",
+        "reactionDuration",
+        "reactionTimer",
+        "velocity"
+      ]
+    },
+    {
+      "id": 11,
+      "address": 33554944,
+      "capturedFields": {
+        "id": 11,
+        "class": 1,
+        "model": 2,
+        "state": 19,
+        "previousState": 17,
+        "substate": 5,
+        "tribe": 3,
+        "x": 34048,
+        "y": 30976,
+        "h": 173,
+        "anchorX": 34048,
+        "anchorY": 30976,
+        "counter": 151,
+        "flags2": 131072,
+        "flags3": 262144,
+        "flags4": 671088896,
+        "physics": 2,
+        "speed": 0,
+        "angle": 1720,
+        "heading": 1720,
+        "turnAngle": 34048,
+        "turnY": 30976,
+        "slowTurn": 0,
+        "goalX": 34048,
+        "goalY": 30976,
+        "destinationX": 34048,
+        "destinationY": 30976,
+        "building": null,
+        "cargo": 0,
+        "vehicle": 0,
+        "assignment": 281,
+        "timer": 0,
+        "target": 24,
+        "link": 0,
+        "stateObject": 60,
+        "animationMode": 0,
+        "commandAux": 0,
+        "commandPhase": 0,
+        "object": 48,
+        "draw": 14,
+        "morph": 0,
+        "palette": 240,
+        "renderFlags": 384,
+        "f1": 0,
+        "f2": 0,
+        "stamp": 0,
+        "morphTimer": 0,
+        "morphFrames": 0,
+        "statusFlags": 0,
+        "workFlags": 0,
+        "reservationNext": 0,
+        "formationCell": 30852,
+        "motionTimer": 0,
+        "motionMode": 3,
+        "motionGroup": 0,
+        "motionIndex": 0,
+        "recoveryCounter": 6,
+        "supportHeight": 0,
+        "selectionFlags": 129,
+        "commands": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "commandCursor": 1,
+        "immediateCommand": 0,
+        "orderLocation": 0,
+        "commandStatus": 0,
+        "workTarget": 0,
+        "cellNext": 0,
+        "cellPrevious": 0,
+        "displacement": {
+          "x": 0,
+          "y": 0,
+          "h": 0
+        },
+        "reactionTimer": 0,
+        "reactionDuration": 0,
+        "anchorFlags": 17,
+        "velocity": {
+          "x": -51,
+          "y": 0,
+          "z": 46
+        },
+        "life": 1000,
+        "disguise": 0,
+        "savedVehicle": 0,
+        "formationDelay": 22,
+        "orderDelay": 8,
+        "damageAttacker": 255,
+        "burnTrail": 0,
+        "marchCooldown": 0,
+        "computerAssignment": 0
+      },
+      "nativeFlags7fSupply": 0,
+      "nativeAssignmentSupply": 2,
+      "capturedNativeFlags7fPresent": false,
+      "capturedAssignment": 0,
+      "unencodedPortFields": [
+        "building",
+        "disguise",
+        "formationDelay",
+        "marchCooldown",
+        "morphFrames",
+        "morphTimer",
+        "motionGroup",
+        "motionIndex",
+        "reactionDuration",
+        "reactionTimer",
+        "velocity"
+      ]
+    }
+  ],
+  "fields": {
+    "flags2": [
+      12,
+      "I"
+    ],
+    "flags4": [
+      16,
+      "I"
+    ],
+    "flags3": [
+      20,
+      "I"
+    ],
+    "stamp": [
+      24,
+      "I"
+    ],
+    "supportHeight": [
+      28,
+      "h"
+    ],
+    "cellNext": [
+      32,
+      "H"
+    ],
+    "cellPrevious": [
+      34,
+      "H"
+    ],
+    "id": [
+      36,
+      "H"
+    ],
+    "angle": [
+      38,
+      "H"
+    ],
+    "class": [
+      42,
+      "B"
+    ],
+    "model": [
+      43,
+      "B"
+    ],
+    "state": [
+      44,
+      "B"
+    ],
+    "substate": [
+      45,
+      "B"
+    ],
+    "counter": [
+      46,
+      "B"
+    ],
+    "tribe": [
+      47,
+      "b"
+    ],
+    "physics": [
+      48,
+      "B"
+    ],
+    "object": [
+      51,
+      "H"
+    ],
+    "renderFlags": [
+      53,
+      "H"
+    ],
+    "f1": [
+      55,
+      "h"
+    ],
+    "f2": [
+      57,
+      "B"
+    ],
+    "draw": [
+      58,
+      "B"
+    ],
+    "morph": [
+      59,
+      "B"
+    ],
+    "palette": [
+      60,
+      "B"
+    ],
+    "x": [
+      61,
+      "H"
+    ],
+    "y": [
+      63,
+      "H"
+    ],
+    "h": [
+      65,
+      "h"
+    ],
+    "goalX": [
+      79,
+      "H"
+    ],
+    "goalY": [
+      81,
+      "H"
+    ],
+    "destinationX": [
+      83,
+      "H"
+    ],
+    "destinationY": [
+      85,
+      "H"
+    ],
+    "turnAngle": [
+      87,
+      "H"
+    ],
+    "turnY": [
+      89,
+      "H"
+    ],
+    "heading": [
+      93,
+      "H"
+    ],
+    "speed": [
+      95,
+      "h"
+    ],
+    "motionTimer": [
+      97,
+      "H"
+    ],
+    "recoveryCounter": [
+      101,
+      "B"
+    ],
+    "motionMode": [
+      102,
+      "B"
+    ],
+    "anchorX": [
+      104,
+      "H"
+    ],
+    "anchorY": [
+      106,
+      "H"
+    ],
+    "life": [
+      110,
+      "h"
+    ],
+    "timer": [
+      112,
+      "h"
+    ],
+    "target": [
+      114,
+      "H"
+    ],
+    "link": [
+      116,
+      "H"
+    ],
+    "assignment": [
+      118,
+      "H"
+    ],
+    "cargo": [
+      120,
+      "H"
+    ],
+    "selectionFlags": [
+      122,
+      "B"
+    ],
+    "previousState": [
+      125,
+      "B"
+    ],
+    "slowTurn": [
+      126,
+      "B"
+    ],
+    "formationCell": [
+      128,
+      "H"
+    ],
+    "anchorFlags": [
+      130,
+      "B"
+    ],
+    "orderLocation": [
+      131,
+      "H"
+    ],
+    "reservationNext": [
+      133,
+      "H"
+    ],
+    "stateObject": [
+      135,
+      "H"
+    ],
+    "workTarget": [
+      137,
+      "H"
+    ],
+    "immediateCommand": [
+      155,
+      "H"
+    ],
+    "workFlags": [
+      157,
+      "H"
+    ],
+    "vehicle": [
+      159,
+      "H"
+    ],
+    "savedVehicle": [
+      161,
+      "H"
+    ],
+    "burnTrail": [
+      164,
+      "B"
+    ],
+    "commandCursor": [
+      166,
+      "B"
+    ],
+    "commandStatus": [
+      167,
+      "B"
+    ],
+    "animationMode": [
+      168,
+      "B"
+    ],
+    "commandAux": [
+      169,
+      "B"
+    ],
+    "commandPhase": [
+      170,
+      "B"
+    ],
+    "orderDelay": [
+      171,
+      "B"
+    ],
+    "computerAssignment": [
+      175,
+      "B"
+    ],
+    "damageAttacker": [
+      176,
+      "B"
+    ],
+    "statusFlags": [
+      178,
+      "B"
+    ]
+  },
+  "regions": [
+    {
+      "name": "person10",
+      "address": 33554688,
+      "bytes": 256,
+      "path": "person10-input.bin",
+      "sha256": "b671931ad965e4ad9314ffa8742b7e110791c0e4e2a6e67771ce0a6e3b1993ae",
+      "predictedPath": "person10-predicted.bin",
+      "predictedSha256": "a6ea0b6ccc758062e2488c27fef6a8f4ed6d219b2de9d20f8d7356e86e2df8fb"
+    },
+    {
+      "name": "person11",
+      "address": 33554944,
+      "bytes": 256,
+      "path": "person11-input.bin",
+      "sha256": "c4074c33a8747bc2274cc8891ff6d643729cadb9f538aefe36df63d6bf1f3306",
+      "predictedPath": "person11-predicted.bin",
+      "predictedSha256": "c4074c33a8747bc2274cc8891ff6d643729cadb9f538aefe36df63d6bf1f3306"
+    },
+    {
+      "name": "tribes",
+      "address": 9032136,
+      "bytes": 12692,
+      "path": "tribes-input.bin",
+      "sha256": "458f9df035e07046da2c692beea6c579670262bff8b157f5d60290cc9523d861",
+      "predictedPath": "tribes-predicted.bin",
+      "predictedSha256": "123b94b69edb24247d079addbd56ae4d97f3c2c34a7c2467a10b34688ba1f589"
+    },
+    {
+      "name": "orders",
+      "address": 9668656,
+      "bytes": 8000,
+      "path": "orders-input.bin",
+      "sha256": "165dde258ef083dfba957db62b828a04956e4fbde05fb19121010ebe07836395",
+      "predictedPath": "orders-predicted.bin",
+      "predictedSha256": "d59ceafc3ec468c5303b2cb57a69aa7cbe071a29b2a41503fbe7cc3fcbe2537a"
+    },
+    {
+      "name": "pool-counters",
+      "address": 9874040,
+      "bytes": 4,
+      "path": "pool-counters-input.bin",
+      "sha256": "87e66450a479e76216a0d0e90bc740200ed0efd07d198fddf4b61227d1560744",
+      "predictedPath": "pool-counters-predicted.bin",
+      "predictedSha256": "f96b0741d35bcb7c7c3ca3fc02e10de79acc054028bd7cb0bd8600eea2c3c5c5"
+    },
+    {
+      "name": "target1022",
+      "address": 33555456,
+      "bytes": 256,
+      "path": "target1022-input.bin",
+      "sha256": "9bdcf4469da296b84c463ece3c4af3cc8805eb62fce2a80569d877f2f0d67b30",
+      "predictedPath": "target1022-predicted.bin",
+      "predictedSha256": "9bdcf4469da296b84c463ece3c4af3cc8805eb62fce2a80569d877f2f0d67b30"
+    },
+    {
+      "name": "pointers",
+      "address": 8979344,
+      "bytes": 4096,
+      "path": "pointers-input.bin",
+      "sha256": "c578b7d74308de448abf739568151e0b5f052801225295eb3e0dd0ba5669faa4",
+      "predictedPath": "pointers-predicted.bin",
+      "predictedSha256": "c578b7d74308de448abf739568151e0b5f052801225295eb3e0dd0ba5669faa4"
+    },
+    {
+      "name": "cell7115",
+      "address": 9158804,
+      "bytes": 16,
+      "path": "cell7115-input.bin",
+      "sha256": "61eaedbece73daf7fbbb30b62e45696c2f900742052e005f8500b9bbb042d304",
+      "predictedPath": "cell7115-predicted.bin",
+      "predictedSha256": "61eaedbece73daf7fbbb30b62e45696c2f900742052e005f8500b9bbb042d304"
+    },
+    {
+      "name": "cell7746",
+      "address": 9168900,
+      "bytes": 16,
+      "path": "cell7746-input.bin",
+      "sha256": "3d117ee3c69d7a8e7f03fd74e432b6921e79a43368e99edd4fc09c5320c92cf4",
+      "predictedPath": "cell7746-predicted.bin",
+      "predictedSha256": "3d117ee3c69d7a8e7f03fd74e432b6921e79a43368e99edd4fc09c5320c92cf4"
+    },
+    {
+      "name": "simulation-rng",
+      "address": 9032056,
+      "bytes": 4,
+      "path": "simulation-rng-input.bin",
+      "sha256": "3eeb1ef0ecd408744ed6851693e3310f8a3042a96bb1b5a512c4d7cfc983d099",
+      "predictedPath": "simulation-rng-predicted.bin",
+      "predictedSha256": "3eeb1ef0ecd408744ed6851693e3310f8a3042a96bb1b5a512c4d7cfc983d099"
+    },
+    {
+      "name": "cosmetic-rng",
+      "address": 9026674,
+      "bytes": 4,
+      "path": "cosmetic-rng-input.bin",
+      "sha256": "c8856eebdee7ac29d08bc9371a259f4019a121d07fe610a45eb8ae492090a599",
+      "predictedPath": "cosmetic-rng-predicted.bin",
+      "predictedSha256": "c8856eebdee7ac29d08bc9371a259f4019a121d07fe610a45eb8ae492090a599"
+    },
+    {
+      "name": "game-flags",
+      "address": 9032060,
+      "bytes": 4,
+      "path": "game-flags-input.bin",
+      "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+      "predictedPath": "game-flags-predicted.bin",
+      "predictedSha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119"
+    },
+    {
+      "name": "player-tribe",
+      "address": 9029360,
+      "bytes": 1,
+      "path": "player-tribe-input.bin",
+      "sha256": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d",
+      "predictedPath": "player-tribe-predicted.bin",
+      "predictedSha256": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d"
+    },
+    {
+      "name": "frame-table-pointer",
+      "address": 5889860,
+      "bytes": 4,
+      "path": "frame-table-pointer-input.bin",
+      "sha256": "c7986c2547f215ecf1878d69cf1419230c95a7164e1cc56436ebd15e318e91a1",
+      "predictedPath": "frame-table-pointer-predicted.bin",
+      "predictedSha256": "c7986c2547f215ecf1878d69cf1419230c95a7164e1cc56436ebd15e318e91a1"
+    },
+    {
+      "name": "object48-frame-count",
+      "address": 33579297,
+      "bytes": 1,
+      "path": "object48-frame-count-input.bin",
+      "sha256": "67586e98fad27da0b9968bc039a1ef34c939b9b8e523a8bef89d478608c5ecf6",
+      "predictedPath": "object48-frame-count-predicted.bin",
+      "predictedSha256": "67586e98fad27da0b9968bc039a1ef34c939b9b8e523a8bef89d478608c5ecf6"
+    }
+  ],
+  "sourceData": [
+    {
+      "path": "data/vstart-0.ani",
+      "sha256": "64a8975f234aa67eafc4d4d9edd7cc4aeba9f5743d028d8203e0c67ca199a1aa"
+    },
+    {
+      "path": "data/vfra-0.ani",
+      "sha256": "c91720da3c636fb74cb749c5f8747ae884c1d76dbeed4b845f5a199ef1a55258"
+    }
+  ],
+  "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "tribe": 9041655,
+  "task": 9041791,
+  "taskIndex": 1,
+  "frameCount": 6,
+  "supplied": {
+    "nativeFlags7f": 0,
+    "nativeAssignment": 2,
+    "visitCounter": 0,
+    "portCursor": 1,
+    "portTurn": 3227,
+    "tribeChain": [
+      10,
+      11
+    ],
+    "unmappedBytes": "0xa5; no read allowed"
+  },
+  "abi": {
+    "entry": 5026816,
+    "stack": 33673216,
+    "stop": 33677312,
+    "scratchAddress": 33554432,
+    "scratchBytes": 131072,
+    "arguments": [
+      9041655,
+      1
+    ],
+    "functions": [
+      {
+        "name": "processor",
+        "entry": 5026816,
+        "stopExclusive": 5032644,
+        "argumentSlots": 2,
+        "returnBits": 0
+      },
+      {
+        "name": "settlement",
+        "entry": 5051632,
+        "stopExclusive": 5052684,
+        "argumentSlots": 7,
+        "returnBits": 0
+      },
+      {
+        "name": "active-count",
+        "entry": 4597584,
+        "stopExclusive": 4597611,
+        "argumentSlots": 1,
+        "returnBits": 32
+      },
+      {
+        "name": "membership",
+        "entry": 5186656,
+        "stopExclusive": 5186680,
+        "argumentSlots": 2,
+        "returnBits": 32
+      },
+      {
+        "name": "release-predicate",
+        "entry": 5192176,
+        "stopExclusive": 5192217,
+        "argumentSlots": 1,
+        "returnBits": 32
+      },
+      {
+        "name": "release-membership",
+        "entry": 5186624,
+        "stopExclusive": 5186656,
+        "argumentSlots": 2,
+        "returnBits": 0
+      },
+      {
+        "name": "clear-orders",
+        "entry": 4418720,
+        "stopExclusive": 4418802,
+        "argumentSlots": 1,
+        "returnBits": 0
+      },
+      {
+        "name": "release-order",
+        "entry": 4416720,
+        "stopExclusive": 4417186,
+        "argumentSlots": 2,
+        "returnBits": 0
+      },
+      {
+        "name": "working-predicate",
+        "entry": 5087696,
+        "stopExclusive": 5087797,
+        "argumentSlots": 1,
+        "returnBits": 8
+      },
+      {
+        "name": "release-fight",
+        "entry": 5250016,
+        "stopExclusive": 5250048,
+        "argumentSlots": 1,
+        "returnBits": 0
+      },
+      {
+        "name": "reset-motion",
+        "entry": 5151552,
+        "stopExclusive": 5151596,
+        "argumentSlots": 1,
+        "returnBits": 0
+      },
+      {
+        "name": "empty-state-exit",
+        "entry": 5166832,
+        "stopExclusive": 5166833,
+        "argumentSlots": 1,
+        "returnBits": 0
+      },
+      {
+        "name": "class-initializer",
+        "entry": 5166656,
+        "stopExclusive": 5166688,
+        "argumentSlots": 1,
+        "returnBits": 0
+      },
+      {
+        "name": "person-initializer",
+        "entry": 5056320,
+        "stopExclusive": 5058865,
+        "argumentSlots": 1,
+        "returnBits": 0
+      },
+      {
+        "name": "clear-work",
+        "entry": 4864320,
+        "stopExclusive": 4864341,
+        "argumentSlots": 1,
+        "returnBits": 0
+      },
+      {
+        "name": "formation",
+        "entry": 5064656,
+        "stopExclusive": 5064761,
+        "argumentSlots": 1,
+        "returnBits": 0
+      },
+      {
+        "name": "empty-order-start",
+        "entry": 4399712,
+        "stopExclusive": 4400310,
+        "argumentSlots": 1,
+        "returnBits": 0
+      },
+      {
+        "name": "animation-select",
+        "entry": 5062304,
+        "stopExclusive": 5062525,
+        "argumentSlots": 1,
+        "returnBits": 0
+      },
+      {
+        "name": "person-animation",
+        "entry": 5062720,
+        "stopExclusive": 5063319,
+        "argumentSlots": 2,
+        "returnBits": 0
+      },
+      {
+        "name": "object-animation",
+        "entry": 5170944,
+        "stopExclusive": 5171052,
+        "argumentSlots": 3,
+        "returnBits": 0
+      }
+    ],
+    "codeRanges": [
+      {
+        "start": 5026816,
+        "stopExclusive": 5027004,
+        "sha256": "6fbaeb1407e83fdc846c82558c7935ae6adde30b22707772a0a67fc3207fe1ea"
+      },
+      {
+        "start": 5027145,
+        "stopExclusive": 5027166,
+        "sha256": "9992a18abe60631e05301234a9f2f91cd51a6fc4ca3bc088716ba02b6a656211"
+      },
+      {
+        "start": 5028023,
+        "stopExclusive": 5028072,
+        "sha256": "c24ad1e66fd9873aede9f4e612d2eeb8f2c035835b2d21e68410451e1e174b2b"
+      },
+      {
+        "start": 5051632,
+        "stopExclusive": 5052684,
+        "sha256": "b087b676507dfd1b074c10c601f63f4f9c50afba286c6f4b1e25bfd35911d78b"
+      },
+      {
+        "start": 4597584,
+        "stopExclusive": 4597611,
+        "sha256": "34e763b354f67baa2d37621f44b9a68df2b0425c0362b5f8df101afec0aeb106"
+      },
+      {
+        "start": 5186656,
+        "stopExclusive": 5186680,
+        "sha256": "1f45a69c816a9a38d71a269138acee5ff76eaae79925f0af5cddb69d88394344"
+      },
+      {
+        "start": 5192176,
+        "stopExclusive": 5192217,
+        "sha256": "21df11f89742dc22db42a28826d8a82715dc2b771f41e15c94f91c78caf4be41"
+      },
+      {
+        "start": 5186624,
+        "stopExclusive": 5186656,
+        "sha256": "39a33fc987aeaddddfa864f229b9aa597e2227985d02328543812c106e3b55e7"
+      },
+      {
+        "start": 4418720,
+        "stopExclusive": 4418802,
+        "sha256": "cf959d04cc9ee6e4b96d3dcd0fc457042bd364df70c1aa867aa30dd79feb631b"
+      },
+      {
+        "start": 4416720,
+        "stopExclusive": 4417186,
+        "sha256": "6b51fe897e91b949283918cdda80010fd38b2364b100e50eb47d2c4aa8ed392f"
+      },
+      {
+        "start": 5087696,
+        "stopExclusive": 5087797,
+        "sha256": "11ea5562490a7ae415438070941d7af84f50d43e4d4c74e7162f92f072c1cedf"
+      },
+      {
+        "start": 5250016,
+        "stopExclusive": 5250048,
+        "sha256": "192aff50b5b45655083365e5d386f4af6becfae564d2e66f431a181559a44b1e"
+      },
+      {
+        "start": 5151552,
+        "stopExclusive": 5151596,
+        "sha256": "9e14c682329fa53f0d16fd502c44ee5e4925609f9a4625b5fe39ade9bdb749ae"
+      },
+      {
+        "start": 5166832,
+        "stopExclusive": 5166833,
+        "sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e"
+      },
+      {
+        "start": 5166656,
+        "stopExclusive": 5166688,
+        "sha256": "7665dcc1ee287a550b6ce792becd29ee1ebcb67c1bce5425e9fb1a8b7223c251"
+      },
+      {
+        "start": 5056320,
+        "stopExclusive": 5058865,
+        "sha256": "1b5096b6756cf3da4bfaaf1bdaa20b1b2a922a5ac609985976c450c46fe5e569"
+      },
+      {
+        "start": 4864320,
+        "stopExclusive": 4864341,
+        "sha256": "298e811b2de96cc026999326107672c369719374f301712b9963653d45d314c7"
+      },
+      {
+        "start": 5064656,
+        "stopExclusive": 5064761,
+        "sha256": "eb6b6f5e3764c67939c4bba930e258435f32e7cbb0763ab6bc62b3fa47cd7807"
+      },
+      {
+        "start": 4399712,
+        "stopExclusive": 4399755,
+        "sha256": "eb4b5035e3179c33e58c5c9d5a037ba5cea82578ee96aa429b007657b69f1851"
+      },
+      {
+        "start": 4400303,
+        "stopExclusive": 4400310,
+        "sha256": "8b3dfb9c003d887e077d1ddbf813612025c15a5f23d5dbb33b3b9deb9eb8f5d3"
+      },
+      {
+        "start": 5062304,
+        "stopExclusive": 5062525,
+        "sha256": "8005e4a67e0ad67b0d0d2cd9855a1db8c7c1604a8250a9e3b5c1973f76736285"
+      },
+      {
+        "start": 5062720,
+        "stopExclusive": 5063319,
+        "sha256": "ee45d83c5df4a8c9a6d00315b3fdbcfc2d4bb263cc055ec42e635fefa72aedfd"
+      },
+      {
+        "start": 5170944,
+        "stopExclusive": 5171052,
+        "sha256": "72362f2cb43f60870b96001d79a62aa9cc808e837b1dc6ba1d7fe68a58a6379e"
+      }
+    ],
+    "staticRanges": [
+      {
+        "address": 5032668,
+        "size": 4,
+        "name": "phase6 jump",
+        "sha256": "6f9660e18f8400627af7369d9cfc711c07e0cc2ac7b7d8e0a30e8a28b40ef7d8"
+      },
+      {
+        "address": 5166788,
+        "size": 4,
+        "name": "person class jump",
+        "sha256": "bfd8782c93d5436a2a627a33c0a525c46f6b21011a81302271a8ecc48bc5f348"
+      },
+      {
+        "address": 5058868,
+        "size": 176,
+        "name": "state initializer jump table",
+        "sha256": "173c7957192bca87595b2f91b4eed5f796265adca89afff12d26021461e0c3ef"
+      },
+      {
+        "address": 5062528,
+        "size": 112,
+        "name": "animation state dispatch tables",
+        "sha256": "9050391afc0dc364299ca9bacb4b8d7341f29d9020959744592416e79a74baa8"
+      },
+      {
+        "address": 5926827,
+        "size": 4,
+        "name": "state10flags6916",
+        "sha256": "b15f27636f7bc660511e3dc33da31d844ac45cb70c446b15670555ccd68f70cf"
+      },
+      {
+        "address": 5926943,
+        "size": 1,
+        "name": "oldstate33flag byte",
+        "sha256": "c555eab45d08845ae9f10d452a99bfcb06f74a50b988fe7e48dd323789b88ee3"
+      },
+      {
+        "address": 5926872,
+        "size": 1,
+        "name": "state19flags byte",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+      },
+      {
+        "address": 5927112,
+        "size": 1,
+        "name": "model2default10",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+      },
+      {
+        "address": 5927156,
+        "size": 2,
+        "name": "model2flags",
+        "sha256": "41ea7477a6c8c61dd1668f9b1ec619a86774efde16c0dedc9d4eec597fcea225"
+      },
+      {
+        "address": 5926228,
+        "size": 2,
+        "name": "model2standing action15",
+        "sha256": "46e04d129d7b45d054469ce34e24069a1426b3e34f1b68a3d1bff1e070aee192"
+      },
+      {
+        "address": 5925012,
+        "size": 4,
+        "name": "action15 object48/draw14",
+        "sha256": "23b28fda5ba804835dfa27d3ca55570c668ec958ec7777fc75bd5dae12e76067"
+      },
+      {
+        "address": 5925778,
+        "size": 11,
+        "name": "draw14descriptor",
+        "sha256": "39b88111caac4f7a5e1925b3ebe9e8ab581bd769cafb517d0768fa576016aeba"
+      }
+    ],
+    "initialRegisters": {
+      "EAX": 2711724449,
+      "EBX": 2998055602,
+      "ECX": 3284386755,
+      "EDX": 3570717908,
+      "ESI": 3857049061,
+      "EDI": 4143380214,
+      "EBP": 387389207,
+      "EFLAGS": 2
+    }
+  },
+  "allowlist": {
+    "read": [
+      {
+        "address": 33554700,
+        "size": 4,
+        "name": "flags2"
+      },
+      {
+        "address": 33554704,
+        "size": 4,
+        "name": "flags4"
+      },
+      {
+        "address": 33554708,
+        "size": 4,
+        "name": "flags3"
+      },
+      {
+        "address": 33554712,
+        "size": 4,
+        "name": "stamp"
+      },
+      {
+        "address": 33554716,
+        "size": 2,
+        "name": "supportHeight"
+      },
+      {
+        "address": 33554720,
+        "size": 2,
+        "name": "cellNext"
+      },
+      {
+        "address": 33554722,
+        "size": 2,
+        "name": "cellPrevious"
+      },
+      {
+        "address": 33554724,
+        "size": 2,
+        "name": "id"
+      },
+      {
+        "address": 33554726,
+        "size": 2,
+        "name": "angle"
+      },
+      {
+        "address": 33554730,
+        "size": 1,
+        "name": "class"
+      },
+      {
+        "address": 33554731,
+        "size": 1,
+        "name": "model"
+      },
+      {
+        "address": 33554732,
+        "size": 1,
+        "name": "state"
+      },
+      {
+        "address": 33554733,
+        "size": 1,
+        "name": "substate"
+      },
+      {
+        "address": 33554734,
+        "size": 1,
+        "name": "counter"
+      },
+      {
+        "address": 33554735,
+        "size": 1,
+        "name": "tribe"
+      },
+      {
+        "address": 33554736,
+        "size": 1,
+        "name": "physics"
+      },
+      {
+        "address": 33554739,
+        "size": 2,
+        "name": "object"
+      },
+      {
+        "address": 33554741,
+        "size": 2,
+        "name": "renderFlags"
+      },
+      {
+        "address": 33554743,
+        "size": 2,
+        "name": "f1"
+      },
+      {
+        "address": 33554745,
+        "size": 1,
+        "name": "f2"
+      },
+      {
+        "address": 33554746,
+        "size": 1,
+        "name": "draw"
+      },
+      {
+        "address": 33554747,
+        "size": 1,
+        "name": "morph"
+      },
+      {
+        "address": 33554748,
+        "size": 1,
+        "name": "palette"
+      },
+      {
+        "address": 33554749,
+        "size": 2,
+        "name": "x"
+      },
+      {
+        "address": 33554751,
+        "size": 2,
+        "name": "y"
+      },
+      {
+        "address": 33554753,
+        "size": 2,
+        "name": "h"
+      },
+      {
+        "address": 33554767,
+        "size": 2,
+        "name": "goalX"
+      },
+      {
+        "address": 33554769,
+        "size": 2,
+        "name": "goalY"
+      },
+      {
+        "address": 33554771,
+        "size": 2,
+        "name": "destinationX"
+      },
+      {
+        "address": 33554773,
+        "size": 2,
+        "name": "destinationY"
+      },
+      {
+        "address": 33554775,
+        "size": 2,
+        "name": "turnAngle"
+      },
+      {
+        "address": 33554777,
+        "size": 2,
+        "name": "turnY"
+      },
+      {
+        "address": 33554781,
+        "size": 2,
+        "name": "heading"
+      },
+      {
+        "address": 33554783,
+        "size": 2,
+        "name": "speed"
+      },
+      {
+        "address": 33554785,
+        "size": 2,
+        "name": "motionTimer"
+      },
+      {
+        "address": 33554789,
+        "size": 1,
+        "name": "recoveryCounter"
+      },
+      {
+        "address": 33554790,
+        "size": 1,
+        "name": "motionMode"
+      },
+      {
+        "address": 33554792,
+        "size": 2,
+        "name": "anchorX"
+      },
+      {
+        "address": 33554794,
+        "size": 2,
+        "name": "anchorY"
+      },
+      {
+        "address": 33554798,
+        "size": 2,
+        "name": "life"
+      },
+      {
+        "address": 33554800,
+        "size": 2,
+        "name": "timer"
+      },
+      {
+        "address": 33554802,
+        "size": 2,
+        "name": "target"
+      },
+      {
+        "address": 33554804,
+        "size": 2,
+        "name": "link"
+      },
+      {
+        "address": 33554806,
+        "size": 2,
+        "name": "assignment"
+      },
+      {
+        "address": 33554808,
+        "size": 2,
+        "name": "cargo"
+      },
+      {
+        "address": 33554810,
+        "size": 1,
+        "name": "selectionFlags"
+      },
+      {
+        "address": 33554813,
+        "size": 1,
+        "name": "previousState"
+      },
+      {
+        "address": 33554814,
+        "size": 1,
+        "name": "slowTurn"
+      },
+      {
+        "address": 33554816,
+        "size": 2,
+        "name": "formationCell"
+      },
+      {
+        "address": 33554818,
+        "size": 1,
+        "name": "anchorFlags"
+      },
+      {
+        "address": 33554819,
+        "size": 2,
+        "name": "orderLocation"
+      },
+      {
+        "address": 33554821,
+        "size": 2,
+        "name": "reservationNext"
+      },
+      {
+        "address": 33554823,
+        "size": 2,
+        "name": "stateObject"
+      },
+      {
+        "address": 33554825,
+        "size": 2,
+        "name": "workTarget"
+      },
+      {
+        "address": 33554843,
+        "size": 2,
+        "name": "immediateCommand"
+      },
+      {
+        "address": 33554845,
+        "size": 2,
+        "name": "workFlags"
+      },
+      {
+        "address": 33554847,
+        "size": 2,
+        "name": "vehicle"
+      },
+      {
+        "address": 33554849,
+        "size": 2,
+        "name": "savedVehicle"
+      },
+      {
+        "address": 33554852,
+        "size": 1,
+        "name": "burnTrail"
+      },
+      {
+        "address": 33554854,
+        "size": 1,
+        "name": "commandCursor"
+      },
+      {
+        "address": 33554855,
+        "size": 1,
+        "name": "commandStatus"
+      },
+      {
+        "address": 33554856,
+        "size": 1,
+        "name": "animationMode"
+      },
+      {
+        "address": 33554857,
+        "size": 1,
+        "name": "commandAux"
+      },
+      {
+        "address": 33554858,
+        "size": 1,
+        "name": "commandPhase"
+      },
+      {
+        "address": 33554859,
+        "size": 1,
+        "name": "orderDelay"
+      },
+      {
+        "address": 33554863,
+        "size": 1,
+        "name": "computerAssignment"
+      },
+      {
+        "address": 33554864,
+        "size": 1,
+        "name": "damageAttacker"
+      },
+      {
+        "address": 33554866,
+        "size": 1,
+        "name": "statusFlags"
+      },
+      {
+        "address": 33554827,
+        "size": 16,
+        "name": "captured queue"
+      },
+      {
+        "address": 33554696,
+        "size": 4,
+        "name": "supplied two-person tribe chain"
+      },
+      {
+        "address": 33554815,
+        "size": 1,
+        "name": "supplied flag byte; PC must be004f2448"
+      },
+      {
+        "address": 33554956,
+        "size": 4,
+        "name": "flags2"
+      },
+      {
+        "address": 33554960,
+        "size": 4,
+        "name": "flags4"
+      },
+      {
+        "address": 33554964,
+        "size": 4,
+        "name": "flags3"
+      },
+      {
+        "address": 33554968,
+        "size": 4,
+        "name": "stamp"
+      },
+      {
+        "address": 33554972,
+        "size": 2,
+        "name": "supportHeight"
+      },
+      {
+        "address": 33554976,
+        "size": 2,
+        "name": "cellNext"
+      },
+      {
+        "address": 33554978,
+        "size": 2,
+        "name": "cellPrevious"
+      },
+      {
+        "address": 33554980,
+        "size": 2,
+        "name": "id"
+      },
+      {
+        "address": 33554982,
+        "size": 2,
+        "name": "angle"
+      },
+      {
+        "address": 33554986,
+        "size": 1,
+        "name": "class"
+      },
+      {
+        "address": 33554987,
+        "size": 1,
+        "name": "model"
+      },
+      {
+        "address": 33554988,
+        "size": 1,
+        "name": "state"
+      },
+      {
+        "address": 33554989,
+        "size": 1,
+        "name": "substate"
+      },
+      {
+        "address": 33554990,
+        "size": 1,
+        "name": "counter"
+      },
+      {
+        "address": 33554991,
+        "size": 1,
+        "name": "tribe"
+      },
+      {
+        "address": 33554992,
+        "size": 1,
+        "name": "physics"
+      },
+      {
+        "address": 33554995,
+        "size": 2,
+        "name": "object"
+      },
+      {
+        "address": 33554997,
+        "size": 2,
+        "name": "renderFlags"
+      },
+      {
+        "address": 33554999,
+        "size": 2,
+        "name": "f1"
+      },
+      {
+        "address": 33555001,
+        "size": 1,
+        "name": "f2"
+      },
+      {
+        "address": 33555002,
+        "size": 1,
+        "name": "draw"
+      },
+      {
+        "address": 33555003,
+        "size": 1,
+        "name": "morph"
+      },
+      {
+        "address": 33555004,
+        "size": 1,
+        "name": "palette"
+      },
+      {
+        "address": 33555005,
+        "size": 2,
+        "name": "x"
+      },
+      {
+        "address": 33555007,
+        "size": 2,
+        "name": "y"
+      },
+      {
+        "address": 33555009,
+        "size": 2,
+        "name": "h"
+      },
+      {
+        "address": 33555023,
+        "size": 2,
+        "name": "goalX"
+      },
+      {
+        "address": 33555025,
+        "size": 2,
+        "name": "goalY"
+      },
+      {
+        "address": 33555027,
+        "size": 2,
+        "name": "destinationX"
+      },
+      {
+        "address": 33555029,
+        "size": 2,
+        "name": "destinationY"
+      },
+      {
+        "address": 33555031,
+        "size": 2,
+        "name": "turnAngle"
+      },
+      {
+        "address": 33555033,
+        "size": 2,
+        "name": "turnY"
+      },
+      {
+        "address": 33555037,
+        "size": 2,
+        "name": "heading"
+      },
+      {
+        "address": 33555039,
+        "size": 2,
+        "name": "speed"
+      },
+      {
+        "address": 33555041,
+        "size": 2,
+        "name": "motionTimer"
+      },
+      {
+        "address": 33555045,
+        "size": 1,
+        "name": "recoveryCounter"
+      },
+      {
+        "address": 33555046,
+        "size": 1,
+        "name": "motionMode"
+      },
+      {
+        "address": 33555048,
+        "size": 2,
+        "name": "anchorX"
+      },
+      {
+        "address": 33555050,
+        "size": 2,
+        "name": "anchorY"
+      },
+      {
+        "address": 33555054,
+        "size": 2,
+        "name": "life"
+      },
+      {
+        "address": 33555056,
+        "size": 2,
+        "name": "timer"
+      },
+      {
+        "address": 33555058,
+        "size": 2,
+        "name": "target"
+      },
+      {
+        "address": 33555060,
+        "size": 2,
+        "name": "link"
+      },
+      {
+        "address": 33555062,
+        "size": 2,
+        "name": "assignment"
+      },
+      {
+        "address": 33555064,
+        "size": 2,
+        "name": "cargo"
+      },
+      {
+        "address": 33555066,
+        "size": 1,
+        "name": "selectionFlags"
+      },
+      {
+        "address": 33555069,
+        "size": 1,
+        "name": "previousState"
+      },
+      {
+        "address": 33555070,
+        "size": 1,
+        "name": "slowTurn"
+      },
+      {
+        "address": 33555072,
+        "size": 2,
+        "name": "formationCell"
+      },
+      {
+        "address": 33555074,
+        "size": 1,
+        "name": "anchorFlags"
+      },
+      {
+        "address": 33555075,
+        "size": 2,
+        "name": "orderLocation"
+      },
+      {
+        "address": 33555077,
+        "size": 2,
+        "name": "reservationNext"
+      },
+      {
+        "address": 33555079,
+        "size": 2,
+        "name": "stateObject"
+      },
+      {
+        "address": 33555081,
+        "size": 2,
+        "name": "workTarget"
+      },
+      {
+        "address": 33555099,
+        "size": 2,
+        "name": "immediateCommand"
+      },
+      {
+        "address": 33555101,
+        "size": 2,
+        "name": "workFlags"
+      },
+      {
+        "address": 33555103,
+        "size": 2,
+        "name": "vehicle"
+      },
+      {
+        "address": 33555105,
+        "size": 2,
+        "name": "savedVehicle"
+      },
+      {
+        "address": 33555108,
+        "size": 1,
+        "name": "burnTrail"
+      },
+      {
+        "address": 33555110,
+        "size": 1,
+        "name": "commandCursor"
+      },
+      {
+        "address": 33555111,
+        "size": 1,
+        "name": "commandStatus"
+      },
+      {
+        "address": 33555112,
+        "size": 1,
+        "name": "animationMode"
+      },
+      {
+        "address": 33555113,
+        "size": 1,
+        "name": "commandAux"
+      },
+      {
+        "address": 33555114,
+        "size": 1,
+        "name": "commandPhase"
+      },
+      {
+        "address": 33555115,
+        "size": 1,
+        "name": "orderDelay"
+      },
+      {
+        "address": 33555119,
+        "size": 1,
+        "name": "computerAssignment"
+      },
+      {
+        "address": 33555120,
+        "size": 1,
+        "name": "damageAttacker"
+      },
+      {
+        "address": 33555122,
+        "size": 1,
+        "name": "statusFlags"
+      },
+      {
+        "address": 33555083,
+        "size": 16,
+        "name": "captured queue"
+      },
+      {
+        "address": 33554952,
+        "size": 4,
+        "name": "supplied two-person tribe chain"
+      },
+      {
+        "address": 9041771,
+        "size": 1,
+        "name": "captured task active flag0"
+      },
+      {
+        "address": 9041853,
+        "size": 1,
+        "name": "captured task active flag1"
+      },
+      {
+        "address": 9041935,
+        "size": 1,
+        "name": "captured task active flag2"
+      },
+      {
+        "address": 9042017,
+        "size": 1,
+        "name": "captured task active flag3"
+      },
+      {
+        "address": 9042099,
+        "size": 1,
+        "name": "captured task active flag4"
+      },
+      {
+        "address": 9042181,
+        "size": 1,
+        "name": "captured task active flag5"
+      },
+      {
+        "address": 9042263,
+        "size": 1,
+        "name": "captured task active flag6"
+      },
+      {
+        "address": 9042345,
+        "size": 1,
+        "name": "captured task active flag7"
+      },
+      {
+        "address": 9042427,
+        "size": 1,
+        "name": "captured task active flag8"
+      },
+      {
+        "address": 9042509,
+        "size": 1,
+        "name": "captured task active flag9"
+      },
+      {
+        "address": 9041795,
+        "size": 4,
+        "name": "elapsed"
+      },
+      {
+        "address": 9041799,
+        "size": 4,
+        "name": "visitCounter"
+      },
+      {
+        "address": 9041829,
+        "size": 1,
+        "name": "transportMode"
+      },
+      {
+        "address": 9041838,
+        "size": 1,
+        "name": "markerSentinel"
+      },
+      {
+        "address": 9041841,
+        "size": 4,
+        "name": "entity"
+      },
+      {
+        "address": 9041857,
+        "size": 2,
+        "name": "phase"
+      },
+      {
+        "address": 9041859,
+        "size": 2,
+        "name": "fallback"
+      },
+      {
+        "address": 9043832,
+        "size": 4,
+        "name": "supplied tribe head"
+      },
+      {
+        "address": 9044024,
+        "size": 4,
+        "name": "captured tribe state flags"
+      },
+      {
+        "address": 9669966,
+        "size": 10,
+        "name": "captured order131"
+      },
+      {
+        "address": 9874042,
+        "size": 2,
+        "name": "pool active count"
+      },
+      {
+        "address": 33555468,
+        "size": 1,
+        "name": "captured live target flag"
+      },
+      {
+        "address": 33555498,
+        "size": 1,
+        "name": "captured target class"
+      },
+      {
+        "address": 8983432,
+        "size": 4,
+        "name": "target1022 pointer"
+      },
+      {
+        "address": 9158805,
+        "size": 1,
+        "name": "captured unoccupied actor10 cell"
+      },
+      {
+        "address": 9032060,
+        "size": 1,
+        "name": "game-flags"
+      },
+      {
+        "address": 5889860,
+        "size": 4,
+        "name": "supplied frame table address"
+      },
+      {
+        "address": 33579297,
+        "size": 1,
+        "name": "original object48 frame count"
+      },
+      {
+        "address": 5032668,
+        "size": 4,
+        "name": "phase6 jump"
+      },
+      {
+        "address": 5166788,
+        "size": 4,
+        "name": "person class jump"
+      },
+      {
+        "address": 5058868,
+        "size": 176,
+        "name": "state initializer jump table"
+      },
+      {
+        "address": 5062528,
+        "size": 112,
+        "name": "animation state dispatch tables"
+      },
+      {
+        "address": 5926827,
+        "size": 4,
+        "name": "state10flags6916"
+      },
+      {
+        "address": 5926943,
+        "size": 1,
+        "name": "oldstate33flag byte"
+      },
+      {
+        "address": 5926872,
+        "size": 1,
+        "name": "state19flags byte"
+      },
+      {
+        "address": 5927112,
+        "size": 1,
+        "name": "model2default10"
+      },
+      {
+        "address": 5927156,
+        "size": 2,
+        "name": "model2flags"
+      },
+      {
+        "address": 5926228,
+        "size": 2,
+        "name": "model2standing action15"
+      },
+      {
+        "address": 5925012,
+        "size": 4,
+        "name": "action15 object48/draw14"
+      },
+      {
+        "address": 5925778,
+        "size": 11,
+        "name": "draw14descriptor"
+      },
+      {
+        "address": 33669120,
+        "size": 4108,
+        "name": "cdecl stack"
+      }
+    ],
+    "write": [
+      {
+        "address": 33554815,
+        "size": 1,
+        "name": "real release AND; PC must be004f2448"
+      },
+      {
+        "address": 33554829,
+        "size": 2,
+        "name": "release queue slot1"
+      },
+      {
+        "address": 33554732,
+        "size": 1,
+        "name": "state"
+      },
+      {
+        "address": 33554733,
+        "size": 1,
+        "name": "substate"
+      },
+      {
+        "address": 33554813,
+        "size": 1,
+        "name": "previousState"
+      },
+      {
+        "address": 33554700,
+        "size": 4,
+        "name": "flags2"
+      },
+      {
+        "address": 33554708,
+        "size": 4,
+        "name": "flags3"
+      },
+      {
+        "address": 33554704,
+        "size": 4,
+        "name": "flags4"
+      },
+      {
+        "address": 33554741,
+        "size": 2,
+        "name": "renderFlags"
+      },
+      {
+        "address": 33554739,
+        "size": 2,
+        "name": "object"
+      },
+      {
+        "address": 33554746,
+        "size": 1,
+        "name": "draw"
+      },
+      {
+        "address": 33554747,
+        "size": 1,
+        "name": "morph"
+      },
+      {
+        "address": 33554748,
+        "size": 1,
+        "name": "palette"
+      },
+      {
+        "address": 33554743,
+        "size": 2,
+        "name": "f1"
+      },
+      {
+        "address": 33554745,
+        "size": 1,
+        "name": "f2"
+      },
+      {
+        "address": 33554806,
+        "size": 2,
+        "name": "assignment"
+      },
+      {
+        "address": 33554800,
+        "size": 2,
+        "name": "timer"
+      },
+      {
+        "address": 33554785,
+        "size": 2,
+        "name": "motionTimer"
+      },
+      {
+        "address": 33554790,
+        "size": 1,
+        "name": "motionMode"
+      },
+      {
+        "address": 33554854,
+        "size": 1,
+        "name": "commandCursor"
+      },
+      {
+        "address": 33554855,
+        "size": 1,
+        "name": "commandStatus"
+      },
+      {
+        "address": 33554792,
+        "size": 2,
+        "name": "anchorX"
+      },
+      {
+        "address": 33554794,
+        "size": 2,
+        "name": "anchorY"
+      },
+      {
+        "address": 33554818,
+        "size": 1,
+        "name": "anchorFlags"
+      },
+      {
+        "address": 33554863,
+        "size": 1,
+        "name": "computerAssignment"
+      },
+      {
+        "address": 33554845,
+        "size": 2,
+        "name": "workFlags"
+      },
+      {
+        "address": 33554825,
+        "size": 2,
+        "name": "workTarget"
+      },
+      {
+        "address": 33554823,
+        "size": 2,
+        "name": "stateObject"
+      },
+      {
+        "address": 9041795,
+        "size": 4,
+        "name": "elapsed359->360"
+      },
+      {
+        "address": 9041799,
+        "size": 4,
+        "name": "supplied visit-counter0->1"
+      },
+      {
+        "address": 9669968,
+        "size": 2,
+        "name": "order131refs1->0"
+      },
+      {
+        "address": 9874042,
+        "size": 2,
+        "name": "pool active3->2"
+      },
+      {
+        "address": 33669120,
+        "size": 4108,
+        "name": "cdecl stack"
+      }
+    ],
+    "interceptions": [],
+    "flags7f": {
+      "address": 33554815,
+      "pc": 5186632,
+      "readCount": 1,
+      "writeCount": 1
+    }
+  },
+  "predicted": {
+    "entrySequence": [
+      5026816,
+      5186656,
+      5186656,
+      5051632,
+      4597584,
+      5186656,
+      5192176,
+      5186624,
+      4418720,
+      4416720,
+      5087696,
+      5250016,
+      5151552,
+      5166832,
+      5166656,
+      5056320,
+      4864320,
+      5064656,
+      4399712,
+      5062304,
+      5062720,
+      5170944,
+      5186656,
+      5192176
+    ],
+    "person10Changes": {
+      "state": 10,
+      "previousState": 33,
+      "substate": 0,
+      "flags2": 1073876992,
+      "timer": 0,
+      "motionTimer": 0,
+      "motionMode": 0,
+      "commandCursor": 0,
+      "commandStatus": 0,
+      "anchorX": 38656,
+      "anchorY": 28416,
+      "computerAssignment": 0
+    },
+    "phase": 6,
+    "elapsed": 360,
+    "order131References": 0,
+    "poolActive": 2
+  },
+  "limits": {
+    "nativeInstructions": 100000,
+    "nativeMicroseconds": 1000000,
+    "portSeconds": 5,
+    "outerSeconds": 15,
+    "outputBytes": 8388608,
+    "retry": false
+  }
+}
