@@ -1,0 +1,18 @@
+{
+  "verdict": "ACCEPT_SOURCE_ONLY",
+  "reviewedAt": "2026-10-07T00:32:15.413830+00:00",
+  "base": "459c71658ab9de8f586ce85b897a443da0df2bd0",
+  "source": "2f75201af64fb304c1b87c94b6324e746ec14a13",
+  "files": {
+    "scripts/local-render/hut-smoke-ignition.mjs": 14,
+    "scripts/local-render/hut-smoke-ignition-observer.mjs": 4,
+    "tests/hut-smoke-ignition-observer.test.mjs": 2
+  },
+  "finding": "All executable changes are twenty explicit new keywords on built-in Error constructions. Conditions, strings, control flow and application tree are identical. Four passing observer contracts and syntax/ESLint/zero-error Oxlint receipts support this narrow quality correction. Existing 113 advisory warnings remain disclosed.",
+  "ordinaryCorrespondence": "Previously accepted ordinary-05 evidence remains attributable through the accepted format-only and Error-construction-only deltas. No new browser run required.",
+  "remainingGates": [
+    "one exact-source npm run check with 900s cap",
+    "npm run build with 300s cap only after check passes",
+    "final evidence review before PR249 merge"
+  ]
+}
