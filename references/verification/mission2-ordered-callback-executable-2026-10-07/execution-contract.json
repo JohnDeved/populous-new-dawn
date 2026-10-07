@@ -1,6 +1,6 @@
 {
-  "freezeComplete": false,
-  "status": "source checkpoint; no executable/run acceptance",
+  "freezeComplete": true,
+  "status": "Executable review packet frozen; not run; independent executable acceptance and separate grant required",
   "acceptedProposal": "74365c8ab78cf7a8c9ebbf613247092e67f8c4f1",
   "nativeReadRanges": [
     {
@@ -255,11 +255,158 @@
     ]
   },
   "instructionAccounting": "Unicorn enforces exact per-entry instruction caps. The block observer records/enforces a conservative decoded-instruction upper bound for the aggregate; it does not claim an exact retired-instruction count.",
-  "remainingPreparation": [
-    "static source/ownership audit",
-    "exact allocation caller bindings",
-    "host-only observer checks",
-    "manifest and bounded launcher",
-    "independent executable review and separate grant"
-  ]
+  "executionGrant": null,
+  "stageAbi": {
+    "ordinaryCalls": {
+      "convention": "cdecl",
+      "stack": "021ed000",
+      "returnSentinel": "021ef000",
+      "returnEsp": "021ed004",
+      "arguments": "accepted case setupEntries in listed order"
+    },
+    "slices": {
+      "stack": "021ed000",
+      "returnEsp": "021ed000",
+      "stop": "exact end-exclusive address from accepted case",
+      "registers": "accepted case; EBX=0 for reset and every record; ESI=record+1, EDI=fileID for each record"
+    },
+    "preservedRecordFrame": {
+      "ownerCountsOffset": 44,
+      "identityOwnerRemapOffset": 64,
+      "identityOwnerRemap": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "nativeReturnPolicy": "Publish partial registers/timing/timeout before requiring exact EIP and ESP; no repair/retry"
+  },
+  "stageInputs": {
+    "beforeEntry1": [
+      "PE data and zero-filled mapped BSS",
+      "canonical constant overlays and relocated bank2 object/shapes",
+      "canonical search table and derived real animation counts",
+      "accepted case fixedSetup and additionalFreshInputs; scratch record bytes copied from canonical DAT",
+      "fresh allocation argument stack at02180000"
+    ],
+    "afterEntry6Before7": [
+      "accepted preRecordLoadedBankStores in listed order:0089ce3d=28 then0096ead0=28",
+      "canonical signed DAT heights copied into otherwise empty terrain cells"
+    ],
+    "afterEntry8Before9": [
+      "canonical DAT flags set cell bit4",
+      "first four bytes of each DAT16-byte tribe block copied to tribe+8a1",
+      "DAT sunlight byte14042 copied to00937ab0"
+    ],
+    "beforeRecords": [
+      "zero four preserved authored owner counts; identity owner remap0,1,2,3"
+    ],
+    "beforeRosterTail": [
+      "accepted preRosterTailStores in listed order:0096ead0/1/2=28/0/0"
+    ],
+    "boundary": "No other world/person/site/order outcome state is supplied between entries"
+  },
+  "allocationCallers": [
+    {
+      "call": "00485011",
+      "return": "00485016",
+      "depth": 1,
+      "owner": "direct canonical authored record; exact class/model/owner after real loader filtering"
+    },
+    {
+      "call": "004037d6",
+      "return": "004037db",
+      "depth": 2,
+      "owner": "class2 parent initializer; class6/model9 with same owner"
+    },
+    {
+      "call": "00485cde",
+      "return": "00485ce3",
+      "depth": 1,
+      "owner": "fileID27 reward postprocessor; class6/model10/owner0; direct allocation already returned"
+    }
+  ],
+  "suppliedCallsiteAbi": [
+    {
+      "entry": "0048a050",
+      "args": [
+        "thingPointer",
+        "cue_u16",
+        "flags_u16"
+      ],
+      "result": "EAX=0",
+      "memoryWrites": [],
+      "excluded": "sound state and cosmetic draws",
+      "callSites": [
+        "00509df5",
+        "00509e02"
+      ],
+      "convention": "cdecl; advance ESP by4 and return to exact decoded caller+5; caller consumes its arguments; do not execute supplied body"
+    },
+    {
+      "entry": "004bdff0",
+      "args": [
+        "cell_u16"
+      ],
+      "result": "void",
+      "memoryWrites": [],
+      "excluded": "globe texture/cache state",
+      "callSites": [
+        "0044e804"
+      ],
+      "convention": "cdecl; advance ESP by4 and return to exact decoded caller+5; caller consumes its arguments; do not execute supplied body"
+    },
+    {
+      "entry": "004bdd40",
+      "args": [
+        "cell_u16",
+        "radius_i16"
+      ],
+      "result": "void",
+      "memoryWrites": [],
+      "excluded": "presentation brightness, globe pixels/cache dirty state",
+      "callSites": [
+        "00403bf3",
+        "00403d3c",
+        "00485126"
+      ],
+      "convention": "cdecl; advance ESP by4 and return to exact decoded caller+5; caller consumes its arguments; do not execute supplied body"
+    }
+  ],
+  "bounds": {
+    "affinity": [
+      4
+    ],
+    "wallTermSeconds": 30,
+    "killAfterSeconds": 5,
+    "cpuSeconds": 25,
+    "addressSpaceBytes": 1073741824,
+    "translationBufferBytes": 67108864,
+    "scratchBytes": 2097152,
+    "fileBytes": 16777216,
+    "totalInstructions": 35000000,
+    "topLevelEntries": 2011,
+    "primaryAllocationAttempts": 86,
+    "allocationDepth": 2,
+    "semanticEvents": 10000,
+    "perStage": {
+      "terrain": {
+        "timeoutMicroseconds": 10000000,
+        "instructions": 20000000
+      },
+      "navigation": {
+        "timeoutMicroseconds": 5000000,
+        "instructions": 10000000
+      },
+      "otherSetupAndTails": {
+        "timeoutMicroseconds": 1000000,
+        "instructions": 1000000
+      },
+      "eachRecord": {
+        "timeoutMicroseconds": 500000,
+        "instructions": 100000
+      }
+    }
+  }
 }

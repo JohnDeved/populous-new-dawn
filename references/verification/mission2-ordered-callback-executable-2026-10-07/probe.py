@@ -246,8 +246,19 @@ class Probe:
             assert len(self.allocations) + len(self.allocation_stack) < 86
             assert len(self.allocation_stack) < 2
             assert [cls, model] in self.contract['allowedClassModels']
-            if self.allocation_stack:
-                assert (cls, model) in ((6,9),(6,10)), 'Unproposed nested creator'
+            ret=self.read(sp)
+            assert self.stage=='authored-record'
+            if ret==0x485016:
+                assert not self.allocation_stack
+                record=RECORDS+(self.record_id-1)*55
+                assert (cls,model,owner)==(self.read(record+1,'B'),self.read(record,'B'),self.read(record+2,'B'))
+            elif ret==0x4037db:
+                assert len(self.allocation_stack)==1 and self.allocation_stack[0]['class']==2
+                assert (cls,model)==(6,9) and owner==self.allocation_stack[0]['owner']
+            elif ret==0x485ce3:
+                assert not self.allocation_stack and self.record_id==27 and (cls,model,owner)==(6,10,0)
+            else:
+                raise AssertionError(('unfrozen allocator caller',hex(ret)))
             row = dict(sp=sp, returnAddress=self.read(sp), sourceRecord=self.record_id,
                        depth=len(self.allocation_stack)+1, **{'class':cls}, model=model, owner=owner,
                        point=list(struct.unpack('<HHh', cpu.mem_read(point,6))),
@@ -259,16 +270,16 @@ class Probe:
             assert sp == row['sp'] and self.read(sp) == row['returnAddress']
             pointer = cpu.reg_read(self.reg['eax'])
             row.update(result=pointer, afterArgTop=self.read(0x892443), afterArgFlag=self.read(0x89243a,'B'))
+            self.allocations.append(row)
+            self.event({'allocationReturn': row})  # Retain return/cleanup before field assertions.
             if pointer:
-                assert POOL < pointer < POOL_END and (pointer-POOL)%STRIDE == 0
+                assert POOL < pointer < 0x930ab8 and (pointer-POOL)%STRIDE == 0
                 row.update(handle=self.read(pointer+0x24,'H'), raw=bytes(cpu.mem_read(pointer,STRIDE)).hex())
                 if row['class'] == 1:
                     assert self.read(pointer+0x2e,'B') == row['seed']
                     assert self.read(SEEDS+1,'B') == (row['seed']+1)&255
                 if row['returnAddress']==0x485016:
                     self.returned_records[row['sourceRecord']] = pointer
-            self.allocations.append(row)
-            self.event({'allocationReturn': row.copy()})
             assert pointer, 'Unexpected allocation failure; preserve and stop'
         elif address in (0x4ed580,0x4ed640):
             pointer = self.args(1)[0]
@@ -306,6 +317,9 @@ class Probe:
                 offset=head-POOL;prev,next_=struct.unpack_from('<II',arena,offset)
                 handle=struct.unpack_from('<H',arena,offset+0x24)[0]
                 assert prev==previous and struct.unpack_from('<I',handles,handle*4)[0]==head and handle==(head-POOL)//STRIDE
+                cls=arena[offset+0x2a];flags=struct.unpack_from('<I',arena,offset+0xc)[0]
+                assert not flags&1
+                assert cls in (1,2,5,6,7) if label=='active' else cls==0
                 assert (1<=handle<640) if label=='low' else (640<=handle<1840) if label=='high' else True
                 assert (handle>=1840) if label.startswith('secondary') else (handle<1840)
                 seen.add(head);members.append(handle);previous,head=head,next_
@@ -332,6 +346,9 @@ class Probe:
               'seedBytes':bytes(self.cpu.mem_read(SEEDS,12)).hex(),
               'pool':bytes(self.cpu.mem_read(POOL,POOL_END-POOL)).hex(),
               'terrainSha256':sha(bytes(self.cpu.mem_read(LAND,0x40000))),
+              'terrain':bytes(self.cpu.mem_read(LAND,0x40000)).hex(),
+              'terrainQueue':bytes(self.cpu.mem_read(0x68c6d0,0x4c18)).hex(),
+              'motionState':bytes(self.cpu.mem_read(0x9557a4,0xaf62)).hex(),
               'tribes':bytes(self.cpu.mem_read(TRIBES,4*0xc65)).hex(),
               'orders':bytes(self.cpu.mem_read(0x938830,8000)).hex(),
               'rngs':[self.read(GAME_RNG),self.read(COSMETIC_RNG)]})
@@ -401,8 +418,17 @@ class Probe:
         self.stage='roster-site-orders';self.invoke(0x42b403,stop=0x42b48a)
         self.snapshot('final')
         people=[row for row in self.allocations if row['class']==1]
+        assert sum(row['returnAddress']==0x485016 for row in self.allocations)==78
+        assert sum(row['returnAddress']==0x485ce3 for row in self.allocations)==1
+        assert sum(row['returnAddress']==0x4037db for row in self.allocations)<=7
         assert len(people)==27 and [row['seed'] for row in people]==list(range(27))
         assert self.read(SEEDS+1,'B')==27 and self.entries==2011 and len(self.allocations)<=86
+        assert [row[3] for row in self.seed_copies if row[4]==1]==list(range(27))
+        assert [row[3] for row in self.seed_writes if row[1]==SEEDS+1 and row[2]==1]==list(range(1,28))
+        for address,count in [(0x485b00,78),(0x4851e0,1),(0x4866a0,1),(0x4edf50,1),
+                              (0x4ecac0,1),(0x503230,1),(0x419790,4),(0x419810,4),
+                              (0x419880,4),(0x436c20,2),(0x436d00,2),(0x438730,2)]:
+            assert self.call_counts[address]==count,('original callback count',hex(address),self.call_counts[address],count)
         for expected in self.case['assertions']['shamans']:
             person=self.returned_records[expected['recordId1']];owner=expected['owner']
             assert person==self.read(TRIBES+owner*0xc65+0x89d)
@@ -411,6 +437,10 @@ class Probe:
             order=self.read(person+0x8b,'H');assert 0<order<800
             assert self.read(0x938830+order*10,'B')==18 and self.read(0x938830+order*10+2,'H')==1
         assert self.read(0x96aa7a,'H')==2
+        assert all(self.read(TRIBES+owner*0xc65+0x89d)==0 for owner in (1,2))
+        assert self.read(0x892443)==ARGS and self.read(0x89243a,'B')==0
+        assert bytes(self.cpu.mem_read(0x96ead0,3))==bytes([28,0,0])
+        assert self.read(0x89d188)==0
         self.verify_immutable()
         return {'status':'passed','entries':self.entries,'allocations':self.allocations,'events':self.events,
                 'seedCopies':self.seed_copies,'seedWrites':self.seed_writes,'rngWrites':self.rng_writes,
@@ -430,6 +460,11 @@ def main():
     case=json.loads(CASE_PATH.read_text());closure=json.loads((HERE/'closure.json').read_text())
     contract=json.loads((HERE/'execution-contract.json').read_text())
     assert closure['ready'] and contract['freezeComplete'], 'Source checkpoint is not executable-frozen'
+    launch=json.loads((HERE/'launch.json').read_text())
+    for name,expected in launch['inputsSha256'].items():
+        path=Path(name)
+        if not path.is_absolute():path=ROOT/path
+        assert sha(path.read_bytes())==expected,('changed frozen input',name)
     probe=None
     try:
         probe=Probe(args.executable,case,closure,contract)
@@ -438,7 +473,13 @@ def main():
         emit({'status':'failed','error':repr(error),'stage':probe.stage if probe else 'setup',
               'entry':probe.entries if probe else 0,'allocations':probe.allocations if probe else [],
               'events':probe.events if probe else [],'allocationStack':probe.allocation_stack if probe else [],
-              'rngWrites':probe.rng_writes if probe else [],'seedWrites':probe.seed_writes if probe else []})
+              'rngWrites':probe.rng_writes if probe else [],'seedWrites':probe.seed_writes if probe else [],
+              'poolAtStop':bytes(probe.cpu.mem_read(POOL,POOL_END-POOL)).hex() if probe else None,
+              'seedBytesAtStop':bytes(probe.cpu.mem_read(SEEDS,12)).hex() if probe else None,
+              'poolHeadsAtStop':[probe.read(a) for a in range(0x89031c,0x890334,4)] if probe else None,
+              'registersAtStop':{name:probe.cpu.reg_read(register) for name,register in probe.reg.items()} if probe else None,
+              'argumentTopAtStop':probe.read(0x892443) if probe else None,
+              'argumentFlagAtStop':probe.read(0x89243a,'B') if probe else None})
         raise
 
 

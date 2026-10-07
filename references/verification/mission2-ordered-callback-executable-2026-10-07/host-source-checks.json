@@ -1,0 +1,23 @@
+{
+  "status": "passed",
+  "mode": "host-only AST/JSON/call encoding and synthetic observer fault checks",
+  "nativeExecution": false,
+  "emulatorImported": false,
+  "validPartitions": 2,
+  "rejectedCorruptions": [
+    "free-backlink",
+    "free-cycle",
+    "handle-alias",
+    "missing-free-record",
+    "free-class",
+    "occupancy-count",
+    "active-class",
+    "cell-backlink",
+    "cell-position",
+    "registration-flag",
+    "missing-cell-members",
+    "cell-cycle"
+  ],
+  "callSitesChecked": 314,
+  "limits": "These synthetic memory checks validate the observer only; they are not original allocation or Mission2 results."
+}

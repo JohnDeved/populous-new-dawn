@@ -75,6 +75,8 @@ EXCLUDED_CALLS = {
     0x40324f: 'Fresh building has no attached record+92 to delete.',
     0x404b5e: 'Boat models13/14 are absent.',
     0x404baa: 'Boat models13/14 are absent.',
+    0x404bc2: 'Boat models13/14 are absent; no effect83 allocation.',
+    0x404bd2: 'Boat models13/14 are absent; no boat cue.',
     **{pc: 'Fresh people have no vehicle handle+9f; constructor/start orders do not board a vehicle.'
        for pc in (0x432371,0x4323ae,0x4323d4,0x4323e3,0x4323f5,0x43243f,0x432455,0x432463,
                   0x432edc,0x432f2e,0x432f3d)},
@@ -87,9 +89,11 @@ EXCLUDED_CALLS = {
     0x4514a5: 'No model4 person is authored in Mission2.',
     0x48510c: 'No class7/model89 is authored or produced.',
     0x486810: 'Head modes are0/4, never upgrade mode3.',
+    0x486803: 'Head modes are0/4, never upgrade mode3; no extra building.',
     0x495021: 'Fresh resource-search record count93a770 is zero.',
     0x4a6afb: 'Selected scenery descriptor byte22 lacks bit2.',
     0x4a7b45: 'Fresh tree life400 is not below100; stone9 lacks the health branch.',
+    0x4a7af3: 'Fresh tree life400 is not below100; no scenery17 allocation.',
     0x4a92cc: 'No class9 plan is authored/produced; occupied footprint cells are buildings.',
     0x4d27e3: 'Fresh person flags3 bit20 is clear (no building assignment).',
     0x4d279a: 'Previous person state is0,8 or10, never14.',
@@ -194,7 +198,13 @@ def collect(executable):
               'instructions': dict(sorted(instructions.items())),
               'calls': dict(sorted(calls.items())), 'jumps': dict(sorted(jumps.items())),
               'pending': pending}
-    (HERE / 'closure.json').write_text(json.dumps(result, indent=2) + '\n')
+    # One instruction per line keeps the machine manifest reviewable without
+    # repeating six lines of formatting for every original instruction.
+    prefix={key:value for key,value in result.items() if key!='instructions'}
+    body=json.dumps(prefix,indent=2)[:-2]+',\n  "instructions": {\n'
+    body+=',\n'.join('    '+json.dumps(key)+': '+json.dumps(value,separators=(',',':'))
+                      for key,value in result['instructions'].items())
+    (HERE / 'closure.json').write_text(body+'\n  }\n}\n')
     print(json.dumps({'ready': result['ready'], 'instructions': len(instructions),
                       'calls': len(calls), 'pending': pending}, indent=2))
 
