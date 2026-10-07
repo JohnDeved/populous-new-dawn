@@ -1,0 +1,39 @@
+{
+  "issue": 243,
+  "qaPullRequest": 246,
+  "runtime": "e4e84e225a451eb301b5e41ab27811a6c6d37300",
+  "callbackSource": "88920b26e1862383036e40814198d36326d9f7a1",
+  "tailSource": "dbcdae39399ba3c4f0787ce0c0d378d4f90169bd",
+  "reviews": [
+    {
+      "scope": "qualified-entry-and-lifecycle",
+      "decision": "ACCEPT completed qualified entry/lifecycle/Save/Load/synchronous cancellation and bounded cleanup evidence; original outer FAILED retained; post-input visual/terminal segment incomplete",
+      "reviewedAt": "2026-10-07T09:11:20.010489+00:00",
+      "reviewRecordSha256": "00504018a9aea1ca51e2cc55fc6a684dc3e72cc24166ce97ada66ceadeb3e416",
+      "source": "88920b26e1862383036e40814198d36326d9f7a1",
+      "runtime": "e4e84e225a451eb301b5e41ab27811a6c6d37300",
+      "scopeLimit": "Historical failures remain unchanged. This is a compact review attestation; no profile, storage or raw game dump is included.",
+      "reviewType": "Independent source and evidence review"
+    },
+    {
+      "scope": "saved-response-tail",
+      "decision": "ACCEPT",
+      "reviewedAt": "2026-10-07T09:33:56.484029+00:00",
+      "reviewRecordSha256": "ffae009d3cc843b88e0b6bd0af25144a9c811e2849eafd713da3760915e6cbce",
+      "source": "dbcdae39399ba3c4f0787ce0c0d378d4f90169bd",
+      "runtime": "e4e84e225a451eb301b5e41ab27811a6c6d37300",
+      "scopeLimit": "Historical failures remain unchanged. This is a compact review attestation; no profile, storage or raw game dump is included.",
+      "reviewType": "Independent source and evidence review"
+    }
+  ],
+  "images": [
+    {
+      "path": "active32-save-4743.png",
+      "sha256": "9aa0957af89046a503fabfe108d4b6e8b513c3ebba7dc03c6fee1252970b4f05"
+    },
+    {
+      "path": "post-interruption-paused-4857.png",
+      "sha256": "87af7439e4dafefa6d5f6f0562dcc2309a69eb2edda3961ca056e058b63762ce"
+    }
+  ]
+}
