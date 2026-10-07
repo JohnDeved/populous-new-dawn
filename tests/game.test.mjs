@@ -1053,7 +1053,7 @@ test('mission-one Dakini launches its later building attack when Blue overwhelms
  assert.deepEqual(task&&{phase:task.phase,target:task.target,entity:task.entity,requested:task.requested,marker:task.mode,retreatPercent:task.retreatPercent,quotas:task.quotas},{phase:3,target:packed(buildingPosition(buildingPose(target))),entity:target.id,requested:4,marker:0,retreatPercent:50,quotas:[11,12,13,16,17,19].map(i=>w.ai.attributes[i])});
  assert.equal(w.ai.variables[3],1,'the original one-shot attack latch closes');
  until(w,()=>task.members.length===3,2);
- until(w,()=>task.members.every(id=>currentPersonOrder(w.buildingOrders,registeredRaidPerson(w,id))?.model===19),30);
+ until(w,()=>!!(task.flags&1)&&task.members.length>=3&&task.members.every(id=>currentPersonOrder(w.buildingOrders,registeredRaidPerson(w,id))?.model===19),30);
  task.flags=0;task.members=[];w.turn=337;tick(w,1/12);
  assert.ok(!w.ai.tasks.some(t=>t.flags&1&&t.type===20),'the latched script does not launch another attack');
 
