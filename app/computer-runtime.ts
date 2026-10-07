@@ -587,7 +587,9 @@ function canReleaseComputerAttackPerson(w: World, index: number, u: Unit, p: Liv
     ![p.assignment, p.cargo, p.vehicle, p.x, p.y, p.renderFlags].every(value =>
       unsignedAttackField(value, 65535)
     ) ||
-    !Number.isInteger(p.f1) || p.f1 < -32768 || p.f1 > 32767 ||
+    !Number.isInteger(p.f1) ||
+    p.f1 < -32768 ||
+    p.f1 > 32767 ||
     !unsignedAttackField(p.f2, 255) ||
     !unsignedAttackField(w.manaWorld.gameFlags, 0xffffffff) ||
     !unsignedAttackField(p.tribe, w.manaTribes.length - 1) ||
@@ -595,14 +597,18 @@ function canReleaseComputerAttackPerson(w: World, index: number, u: Unit, p: Liv
     p.tribe !== tribeForTeam(u.team) ||
     !unsignedAttackField(w.manaTribes[p.tribe].flags2, 0xffffffff) ||
     (Object.hasOwn(u, 'nativeFlags7f') && !unsignedAttackField(u.nativeFlags7f!, 255)) ||
-    p.vehicle || p.assignment & 32 || p.flags3 & 32 ||
+    p.vehicle ||
+    p.assignment & 32 ||
+    p.flags3 & 32 ||
     defaultPersonState(p, w.manaWorld.gameFlags) !== 10 ||
     w.land.flags[(p.y >>> 9) * 128 + (p.x >>> 9)] & 512 ||
-    !Array.isArray(p.commands) || p.commands.length !== 8 ||
+    !Array.isArray(p.commands) ||
+    p.commands.length !== 8 ||
     !unsignedAttackField(p.immediateCommand, 799) ||
     ![...p.commands].every(id => unsignedAttackField(id, 799)) ||
     !unsignedAttackField(w.buildingOrders.active, 799)
-  ) return false
+  )
+    return false
   const releases = new Map<number, number>()
   for (const id of [...p.commands, p.immediateCommand])
     if (id) releases.set(id, (releases.get(id) ?? 0) + 1)
@@ -618,7 +624,8 @@ function canReleaseComputerAttackPerson(w: World, index: number, u: Unit, p: Liv
       !unsignedAttackField(order.object, 65535) ||
       order.model === 30 ||
       (order.object !== 0 && order.references === count)
-    ) return false
+    )
+      return false
     if (order.references === count) freed++
   }
   return w.buildingOrders.active >= freed
