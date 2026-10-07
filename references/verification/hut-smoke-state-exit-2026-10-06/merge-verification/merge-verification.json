@@ -1,0 +1,9 @@
+{
+  "verifiedAt": "2026-10-07T00:42:36.138166+00:00",
+  "pr": 249,
+  "testedHead": "2f75201af64fb304c1b87c94b6324e746ec14a13",
+  "mergedMain": "7c0bcdb246023ff4263b4baeddf5a84f7f90a7a0",
+  "tree": "3297a5bb34f5394fd28d55364705fd6bb5999689",
+  "exactTestedTree": true,
+  "providerStatus": "pending; initial exact-merge check-runs empty"
+}
