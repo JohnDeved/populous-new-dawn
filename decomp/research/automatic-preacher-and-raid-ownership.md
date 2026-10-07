@@ -20,6 +20,17 @@ The new composed state33 proof is model2; generic state10/animation callees reus
 existing evidence. Reduced raid admission and quota semantics do not establish
 later original selection-bit history or whole native Mission2 equality.
 
+The maintained Mission1 building-attack fixture declares an established local
+base and starts its relocated roster outside both directions of idle engagement.
+The original attack, latch and pursuit predicates and budgets are preserved in
+[the reviewed test source](https://github.com/JohnDeved/populous-new-dawn/blob/6c26e082bc3239c5f3e0b0d0106d8489a2001b09/tests/game.test.mjs).
+Earlier unchanged and insufficient-setup failures remain retained. The original
+admission measurement preserves flags3 for this captured input; the earlier
+opposite explanation is withdrawn. Applying only its measured assignment change
+does not alter the detached port phase5 result. The general defence-position
+versus native construction-base selector mismatch and original route/history
+parity remain open; this supplied test does not certify them.
+
 Immutable evidence and independent reviews:
 
 - [Original automatic-sermon omission and boundaries](https://github.com/JohnDeved/populous-new-dawn/blob/925d9ea6fe994ab9e53db92193635ded89a91910/references/verification/preacher-response-trigger-2026-10-06/README.md)
