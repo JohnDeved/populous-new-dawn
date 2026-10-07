@@ -20,7 +20,7 @@ import {
   stepLivePhysics,
   type LivePerson,
 } from './live-people.ts'
-import { initializeBuildingPerson } from './live-building-entry.ts'
+import { cancelBuildingEntry, initializeBuildingPerson } from './live-building-entry.ts'
 import { stepLiveWorship } from './live-worship.ts'
 import {
   liveBuildingAttackTarget,
@@ -387,7 +387,16 @@ function issueLiveOrders(
     if (p.state === 25 || p.state === 29) continue
     // Native player input restarts the active order even when appending a later one.
     resetPersonMotion(p)
-    if (playerReplacement && p.flags2 & 0x100000) continue
+    if (playerReplacement && p.flags2 & 0x100000) {
+      // No initializer may run for this person. A failed click still removes
+      // its browser entry adapter and physical queue link before the next turn.
+      if (!accepted && u.entry?.person === p) {
+        cancelBuildingEntry(w, u)
+        u.native = p
+        u.work = null
+      }
+      continue
+    }
     p.previousState = !playerReplacement && p.state === 14 ? 14 : 0
     p.state = defaultPersonState(p, w.manaWorld.gameFlags)
     if (u.entry) initializeBuildingPerson(w, p)

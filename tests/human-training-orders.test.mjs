@@ -119,6 +119,47 @@ test('full after selected cancellation reports failure and does not keep the old
   assert.equal(units[0].entry, undefined)
 })
 
+test('blocked prior entry with an exhausted pool detaches its empty order without initialization or retry', () => {
+  const { w, b, units, people } = scenario()
+  command(w, b)
+  const shared = assertShared(w, b, units, people)
+  until(w, () => b.admission?.inside === 5 && people.every(p => !p.speed))
+  const queued = () => {
+    const ids = []
+    for (let id = b.admission.queueHead; id; ) {
+      assert.ok(!ids.includes(id))
+      ids.push(id)
+      id = units.find(unit => unit.id === id).entry.person.reservationNext
+    }
+    return ids
+  }
+  const queueBefore = queued(),
+    u = units.find(unit => unit.id === queueBefore[0]), p = u.entry.person,
+    before = [p.state, p.previousState, p.substate, p.counter]
+  p.flags2 |= 0x100000
+  for (let id = 1; id < 800; id++)
+    if (!w.buildingOrders.records[id].references) w.buildingOrders.records[id].references = 1
+  w.buildingOrders.active = 799
+  w.selected = [u.id]
+  command(w, b)
+  assert.equal(w.message, 'No command slots available.')
+  assert.equal(w.buildingOrders.records[shared].references, 7)
+  assert.equal(u.entry, undefined, 'an empty training queue must not remain dispatchable')
+  assert.equal(u.work, null)
+  assert.equal(u.native, p)
+  assert.deepEqual([p.state, p.previousState, p.substate, p.counter], before)
+  assert.equal(p.flags3 & 32, 0, 'physical queue cleanup preserves the other waiting followers')
+  assert.deepEqual(queued(), queueBefore.slice(1))
+  const free = shared === 799 ? 798 : 799
+  w.buildingOrders.records[free].references = 0
+  w.buildingOrders.active--
+  for (let i = 0; i < 8; i++) tick(w, 1 / 12)
+  assert.equal(u.entry, undefined)
+  assert.equal(u.work, null)
+  assert.equal(currentPersonOrder(w.buildingOrders, p), undefined)
+  assert.equal(w.buildingOrders.records[free].references, 0)
+})
+
 test('training replaces registered fight, flight and blocked queues without restarting their motion', () => {
   const { w, b, units, people } = scenario('camp', 3)
   people[0].state = 25
