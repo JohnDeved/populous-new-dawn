@@ -4,7 +4,9 @@ One separately authorized command ran on exact
 `b66f3a90661da4c394669f888758f8260c907bcc`, including accepted integrated main
 `e3a7a06a4250457502288d5b4c4e4ad8f3b40b53` and its angle correction. Frozen
 manifest SHA256: `d021bb130be7f0c3f4e1e2940fc34e813fc9996c5c9a98dcfe84c9536b28ed7a`.
-Independent red-result review is pending. The runtime patch remains unapplied.
+Independent [expected-red result ACCEPT](result-review.json) is retained. The
+runtime patch remains unapplied. The earlier observations keep their pre-review
+status; the separate verdict binds the unchanged failed output and diagnostics.
 
 The default Node spec output contains exactly4 tests: the original-byte oracle
 passes and all3 mission tests fail only the intended birth-height assertion.
@@ -22,7 +24,8 @@ The observers collected256/256/512 births and all sites completed their normal
 RNG/counter/stone-turn/phase-transition [diagnostics](diagnostics.json) are retained
 for exact comparison against the future candidate. The first failing height ends
 each mission's assertion loop; this result does not claim every collected red birth
-height was independently asserted. It establishes the actual caller's defect in
+height was independently asserted. The final per-stone32 distribution assertion
+was also not reached and remains required on unchanged green. It establishes the actual caller's defect in
 all three missions, alongside the separately accepted native composition.
 
 The test was not changed or retried. Node's actual exit1/failed command receipt and

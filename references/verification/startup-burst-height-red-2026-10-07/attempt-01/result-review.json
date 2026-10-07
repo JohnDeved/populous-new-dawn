@@ -1,0 +1,250 @@
+{
+  "verdict": "ACCEPT intended failure-first result; command and host remain failed/exit1",
+  "head": "b66f3a90661da4c394669f888758f8260c907bcc",
+  "method": "Read-only exact source/raw stdout/JSON/hash inspection; no execution or patch",
+  "rawRoot": "/workspace/scratch/69fd8163d94e/startup-burst-height-red-run-20261007-01/work/orchestration/startup-burst-height-red-20261007/attempt-01",
+  "receiptSha256": "69036cd968b73f8616576531c80b8b1aecb7803c528884b348790cbfe4db17e9",
+  "hostReceiptSha256": "09e7f4cf94b2b3055b4357e60d22bb0e073cb86bafeda090e205649f18ce2e1b",
+  "stdoutSha256": "664e76e5faae0e66c7425ec26d21e2695c2e2da0a8fe3d7d799a809f3138f92e",
+  "sourceAndInputsEqual": true,
+  "receiptInputsIndependentlyRehashed": 235,
+  "hostInputs": 234,
+  "actualReporter": "Node default spec reporter, retained unmodified; not TAP",
+  "counts": {
+    "tests": 4,
+    "pass": 1,
+    "fail": 3,
+    "skipped": 0,
+    "cancelled": 0
+  },
+  "failures": [
+    {
+      "mission": 1,
+      "turn": 37,
+      "effect": 766,
+      "h": 64,
+      "ground": 64,
+      "actualOffset": 0,
+      "expectedOffset": 90
+    },
+    {
+      "mission": 2,
+      "turn": 37,
+      "effect": 824,
+      "h": 128,
+      "ground": 128,
+      "actualOffset": 0,
+      "expectedOffset": 90
+    },
+    {
+      "mission": 3,
+      "turn": 37,
+      "effect": 1574,
+      "h": 128,
+      "ground": 128,
+      "actualOffset": 0,
+      "expectedOffset": 90
+    }
+  ],
+  "integrityDiagnostics": [
+    {
+      "level": 1,
+      "births": 256,
+      "gameplay": 2291033406,
+      "cosmetic": 1775192911,
+      "effectCounter": 129,
+      "nextId": 1184,
+      "stoneTurns": [
+        [
+          0,
+          [
+            52,
+            49,
+            48,
+            45,
+            44,
+            41,
+            40,
+            37
+          ]
+        ],
+        [
+          1,
+          [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        ]
+      ],
+      "phaseHistory": [
+        [
+          1,
+          "0:1,1:4"
+        ],
+        [
+          13,
+          "0:2,1:4"
+        ],
+        [
+          35,
+          "0:3,1:4"
+        ],
+        [
+          52,
+          "0:4,1:4"
+        ]
+      ]
+    },
+    {
+      "level": 2,
+      "births": 256,
+      "gameplay": 661852190,
+      "cosmetic": 1775192911,
+      "effectCounter": 147,
+      "nextId": 1245,
+      "stoneTurns": [
+        [
+          3,
+          [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        ],
+        [
+          0,
+          [
+            52,
+            49,
+            48,
+            45,
+            44,
+            41,
+            40,
+            37
+          ]
+        ]
+      ],
+      "phaseHistory": [
+        [
+          1,
+          "3:4,0:1"
+        ],
+        [
+          13,
+          "3:4,0:2"
+        ],
+        [
+          35,
+          "3:4,0:3"
+        ],
+        [
+          52,
+          "3:4,0:4"
+        ]
+      ]
+    },
+    {
+      "level": 3,
+      "births": 512,
+      "gameplay": 2772966691,
+      "cosmetic": 2096320492,
+      "effectCounter": 27,
+      "nextId": 2432,
+      "stoneTurns": [
+        [
+          0,
+          [
+            52,
+            49,
+            48,
+            45,
+            44,
+            41,
+            40,
+            37
+          ]
+        ],
+        [
+          2,
+          [
+            53,
+            50,
+            49,
+            46,
+            45,
+            42,
+            41,
+            38
+          ]
+        ]
+      ],
+      "phaseHistory": [
+        [
+          1,
+          "0:1,2:1"
+        ],
+        [
+          13,
+          "0:2,2:2"
+        ],
+        [
+          35,
+          "0:3,2:3"
+        ],
+        [
+          52,
+          "0:4,2:3"
+        ],
+        [
+          53,
+          "0:4,2:4"
+        ]
+      ]
+    }
+  ],
+  "verifiedPreHeight": [
+    "Native raw-byte root/child oracle passed.",
+    "All missions completed70ticks with no observer errors; total births256/256/512, phase4/carriersdrained and fresh-stone turn counts8/8/16 passed.",
+    "The first asserted birth per mission passed production-assignment, unmoved age0/state3,3draws/third-draw assignment, lifetime/speed and authoredXY checks before the intended height failure."
+  ],
+  "notReached": [
+    "Later births per-birth checks after the first failing height assertion.",
+    "Final one32-child-burst-per-fresh-stone assertion."
+  ],
+  "cleanup": {
+    "startedAt": "2026-10-07T02:39:40.391359+00:00",
+    "finishedAt": "2026-10-07T02:39:44.585055+00:00",
+    "elapsedSeconds": 4.19372422399465,
+    "cpu": [
+      4
+    ],
+    "peakAggregateRssBytes": 462557184,
+    "checkedGroups": [
+      14,
+      34
+    ],
+    "remainingOwnedProcesses": [],
+    "resourcesReleased": true,
+    "sourceUnchanged": true,
+    "hostStatus": "child-failed",
+    "passed": false,
+    "exitCode": 1
+  },
+  "nextBoundary": "Parent may authorize applying the already reviewed minimal text patch, then review exact source/green preflight. Unchanged green must run every assertion and retain exact diagnostic equality. No new native run needed.",
+  "limitations": [
+    "Fixed-step actual production-caller regression; ordinary elapsed/rendered play not established.",
+    "Expected red remains an actual failed test and is not a whole-suite pass."
+  ]
+}
