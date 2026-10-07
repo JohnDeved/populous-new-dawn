@@ -1,0 +1,21 @@
+{
+  "verdict": "ACCEPT_ORDINARY_CANDIDATE_WITNESS",
+  "reviewedAt": "2026-10-07T01:06:55.078447+00:00",
+  "source": "6a9f7d835294fc08166f6975957aa93f5e2256dc",
+  "artifacts": {
+    "work/orchestration/startup-burst-ordinary-candidate-host-02/receipt.json": "f7f85c809a9e36f146a9f323c30b42efab30b228104d9b59217979a8689917ac",
+    "work/orchestration/startup-burst-ordinary-candidate-host-02/command-receipt.json": "380754450e4cfe1c966f3959ffbe1c44e3b8ca9753b69770325cffc1e34c5399",
+    "work/orchestration/startup-burst-ordinary-candidate-02/receipt.json": "32158d3a346d318997f70eff0caf41851532beebe63ff2d05c2e7dd34628c4c7",
+    "work/orchestration/startup-burst-ordinary-candidate-02/startup-burst.json": "e18bd5600e50944dc3d5ed801712dafcf4a182a4087371162868a1b309aead2d",
+    "work/orchestration/startup-burst-ordinary-candidate-02/mission-1-startup-before.png": "df52bc1d5a94be971454f017d9238ec5c61643912503d348ac2841700c6cf5ba",
+    "work/orchestration/startup-burst-ordinary-candidate-02/mission-1-startup-burst.png": "25fd2f6a9a71a9375a327523ac4690fd5e380ef8b7df114aa1da64ce3577f1e9",
+    "work/orchestration/startup-burst-ordinary-candidate-02/mission-1-startup-after.png": "d3c2b9a6b637387bc76ee23c768578e35c011ed24266a024e5071973faf44c29"
+  },
+  "finding": "Exact-source host and command pass, raw streams/input hashes and complete dependency inventories verified; owned processes empty/resources returned. Actual passive observer installed turn0 before GameScene.start. Visually inspected all3 canvas PNGs. Turn39 shows actual moved burst32 particles with presented=true; turn70 shows8 stones/no burst particles/presented=true; Shaman input readiness observed108.",
+  "limits": [
+    "Turn0 before-frame was covered by loading and is explicitly not a visible gameplay claim.",
+    "Software rendered ordinary candidate witness; paired old-code visual and final clean-tree gates remain pending.",
+    "Native angle component and actual-caller tests remain separate; known root-height discrepancy and full original raster/gameplay parity remain unproved.",
+    "Attempt01 remains failed with unknown exact combined guard branch; no retrospective pass."
+  ]
+}

@@ -22,7 +22,7 @@
     "failureFirstPortable": "failed as expected:14 pass,3 angle failures",
     "candidatePortable": "passed:17/17",
     "newNativeInvocation": "not-run; accepted immutable native records reused",
-    "ordinaryBrowser": "candidate passed attempt02: visible moved burst39 and completion70; initial rendered frame0 covered by loading; result review pending",
+    "ordinaryBrowser": "passed and independently accepted candidate attempt02: presented burst39/completion70; initial0 hidden/loading",
     "standardGates": "not-run",
     "finalIndependentReview": "not-run",
     "candidateSourceReview": "passed: narrow two-owner application diff",

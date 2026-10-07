@@ -33,5 +33,6 @@ The same-invocation host verified owned-process cleanup, returned donor1978923,
 equal complete dependency inventories, unchanged source and tools. All raw command,
 browser, scenario, host, source-review and preparation receipts are retained with
 member hashes. Attempt01 remains preserved as failed; this result does not erase
-its missing precondition facts. Independent result review and combined standard
-check/build/quality gates remain pending.
+its missing precondition facts. Independent result review accepts this bounded witness in `result-review.json`.
+The paired previous-main capture and combined standard check/build/quality gates
+remain pending.

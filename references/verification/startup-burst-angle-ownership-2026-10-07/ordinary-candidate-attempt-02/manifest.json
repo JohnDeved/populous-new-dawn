@@ -2,7 +2,7 @@
   "source": "6a9f7d835294fc08166f6975957aa93f5e2256dc",
   "sourceAnchor": "f9b565ca09f8a4fdc60a82f823110c2b5836d28b",
   "acceptedMain": "7c0bcdb246023ff4263b4baeddf5a84f7f90a7a0",
-  "status": "passed ordinary Mission1 startup candidate witness; independent result review pending",
+  "status": "passed and independently accepted bounded ordinary Mission1 startup candidate witness",
   "session": 2492,
   "initialChunk": "fe7670",
   "terminalChunk": "2d4352",
@@ -40,7 +40,8 @@
     "mission-1-startup-before.png": "df52bc1d5a94be971454f017d9238ec5c61643912503d348ac2841700c6cf5ba",
     "mission-1-startup-burst.png": "25fd2f6a9a71a9375a327523ac4690fd5e380ef8b7df114aa1da64ce3577f1e9",
     "mission-1-startup-after.png": "d3c2b9a6b637387bc76ee23c768578e35c011ed24266a024e5071973faf44c29",
-    "source-and-host-review.json": "7059fc709053a9019760ff108edba3aad2f48bfffea6dd758f65b97b1183b002"
+    "source-and-host-review.json": "7059fc709053a9019760ff108edba3aad2f48bfffea6dd758f65b97b1183b002",
+    "result-review.json": "9cacd237c82bf75049e7329721dd67bf9c8c37a97f19a299d6e4b388c750e04f"
   },
   "limits": "Ordinary startup rendering/phase consistency only. Native angle evidence is separate and uses declared original birth origins; existing root-height clamp difference remains. Software rendering is not hardware performance or original raster equality."
 }
