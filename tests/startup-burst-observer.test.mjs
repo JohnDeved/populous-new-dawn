@@ -91,6 +91,7 @@ test('observer refuses to overwrite a later renderer owner during close', () => 
 
 test('three captures use the actual same-call state and wait for a moved burst particle', () => {
   const f = fixture(() => {}), observer = observeStartupBurstFrames(f.scene)
+  f.world.land = { heights: new Int16Array(16384).fill(7), flags: new Uint32Array(16384) }
   try {
     const draw = () => f.renderer.render(f.scene.scene, f.scene.camera)
     const unchanged = structuredClone(f.world)
@@ -99,9 +100,15 @@ test('three captures use the actual same-call state and wait for a moved burst p
     assert.equal(observer.read().frames.before.sample.turn, 10)
     f.world.turn = 37
     f.world.levelStart[0].stoneTurns[7] = 37
-    f.world.effects.push({ id: 5, age: 0, sprite: { sequence: 'blastTrail' },
+    f.world.effects.push({ id: 5, age: 0, height: 3 / 45, sprite: { sequence: 'blastTrail' },
       animation: { x: 1, y: 2, h: 3, yaw: 815, pitch: 326, speed: 60, state: 3, remaining: 2 } })
+    const beforeBirthRead = structuredClone(f.world)
     draw()
+    assert.deepEqual(f.world, beforeBirthRead, 'particle height and terrain sampling leave the world untouched')
+    const [sampled] = observer.read().records.at(-1).particles
+    assert.equal(sampled.h, 3)
+    assert.equal(sampled.ground, 7)
+    assert.equal(sampled.effectHeight, 3 / 45)
     assert.equal(observer.status().burst, false, 'coincident birth points do not show angle-driven motion yet')
     f.world.turn = 38
     f.world.effects[0].age = 1 / 12
