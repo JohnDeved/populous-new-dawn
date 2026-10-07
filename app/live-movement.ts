@@ -274,7 +274,8 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
     command,
     bindings.map(binding => {
       const { unit: u, retained } = binding
-      const p = (binding.person ??= createLivePerson(w, u))
+      binding.person ??= createLivePerson(w, u)
+      const p = binding.person
       if (!retained && !u.entry) u.native = p
       p.selectionFlags |= 128
       registerLivePerson(w, p)

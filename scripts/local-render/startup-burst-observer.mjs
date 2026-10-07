@@ -1,3 +1,5 @@
+import { terrainPointHeight } from '../../app/native-terrain.ts'
+
 // Uses the maintained hut-ignition observer's passive renderer ownership contract.
 // Read the actual main-scene draw; never invoke render, RAF, a clock or a game action.
 export function observeStartupBurstFrames(scene) {
@@ -21,7 +23,8 @@ export function observeStartupBurstFrames(scene) {
         sites: world.levelStart.map(({ tribe, phase, timer, counter, stoneTurns }) => ({ tribe, phase, timer, counter, stoneTurns: [...stoneTurns] })),
         particles: world.effects.filter(effect => effect.sprite?.sequence === 'blastTrail' && effect.animation?.speed === 60)
           .map(effect => ({ id: effect.id, team: effect.team, age: effect.age, x: effect.animation.x,
-            y: effect.animation.y, h: effect.animation.h, pitch: effect.animation.pitch,
+            y: effect.animation.y, h: effect.animation.h, ground: terrainPointHeight(world.land, effect.animation),
+            effectHeight: effect.height, pitch: effect.animation.pitch,
             yaw: effect.animation.yaw, state: effect.animation.state, remaining: effect.animation.remaining })),
       }
       if (!records.length || row.turn !== records.at(-1).turn) {

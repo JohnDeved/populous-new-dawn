@@ -3,7 +3,7 @@
 The accepted ordinary baseline remains bound to application
 `1c7e6b05687aca14d9350e17c7ae14dc6c68bb97` and tested QA `e40eee37`.
 Candidate source adopts only the reviewed lean runtime
-`de0fb63fbcaaf2e0c16a355988bc022ee6313ae7`, based on current main `e3a7a06a`.
+`e4e84e225a451eb301b5e41ab27811a6c6d37300`, including accepted main `a8e85a64`.
 The accepted `49425649` scenario, observer, input and lifecycle logic is unchanged.
 No candidate browser run has occurred. Successful final application gates, exact
 source preflight and a separate resource grant are required before its fresh run.
@@ -206,14 +206,16 @@ interruption sequence remains, with three bounded corrections:
   The diagnostic read descriptor is restored in finally, including failure paths.
 
 No candidate browser run has occurred. `source-inputs.json` now binds the four
-candidate trees to the reviewed lean runtime `de0fb63f`; the contract's former
+candidate trees to the reviewed combined runtime `e4e84e22`; the contract's former
 `candidateTrees === null` assertion is superseded only by exact adopted-commit
 and HEAD tree equality. No gameplay or negative acceptance assertion changed.
 The historical research PR247 branch is not merged. The final gated runtime's
 application, public, scripts, tests and package bytes must match this adoption.
 The `de0fb63f` refresh only wraps five line groups in `computer-runtime.ts` from
 the accepted `2f0c5037`; independent review found identical tokens and structural
-AST. The earlier failed formatting gate remains failed. Final gate receipts and
+AST. The earlier failed formatting gate remains failed. The later `e4e84e22`
+adoption preserves main's root-height repair, the reviewed private-binding style
+split and the accepted strict Mission1 staging fixture. Final gate receipts and
 exact-source preflight remain required. The latest continuation
 metadata names the actual crossing03 terminal run. The companion engineering guide
 is a non-QA file, so the conservative harness counts its new bytes as application
@@ -328,8 +330,15 @@ storage or outcome is injected. Diagnostic globals contain observation only.
 
 ## Proposed serialized launch envelope
 
-Fresh QA worktree: `preacher-automatic-response-qa-20261006`, branch
-`qa/preacher-automatic-response-20261006`. Baseline port 4407, candidate port 4408.
+QA source remains in `preacher-automatic-response-qa-20261006`, branch
+`qa/preacher-automatic-response-20261006`. Candidate execution uses a fresh
+checkout at `/workspace/scratch/69fd8163d94e/preacher-automatic-response-isolated-candidate-20261007`
+and the exact reviewed QA head. Rebind only existing launcher root/output/TMP/profile
+paths and recompute the actual source fingerprint there. Historical baseline port
+4407 is unchanged; candidate port is4408. The old dependency tree and donor stub
+are quarantined and must remain untouched. The coordinator supplies the separately
+verified dependency copy after its terminal gate run; old resource receipts are
+not current runtime verification.
 Use one official sandboxed Headless Shell, one Vite server and CPU 0–3 at a time.
 Runtime/browser/dependency pins are the unchanged accepted `expected-runtime.json`.
 Dependencies stay where their owner left them until a separate grant.
