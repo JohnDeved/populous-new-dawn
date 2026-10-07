@@ -30,7 +30,7 @@ export default async function startupBurst({ page, output, signal, receipt }) {
     report.initial = await page.evaluate(async () => {
       const scene = window.testSceneRef.current, world = scene.world
       if (world.outcome.level !== 1 || world.turn >= 30 || world.speed !== 1 || world.paused)
-        throw Error('Ordinary Mission1 startup has already passed the bounded before-frame window')
+        throw new Error('Ordinary Mission1 startup has already passed the bounded before-frame window')
       const { observeStartupBurstFrames } = await import('/scripts/local-render/startup-burst-observer.mjs')
       const gl = scene.renderer.getContext(), debug = gl.getExtension('WEBGL_debug_renderer_info')
       const initial = { turn: world.turn, speed: world.speed, viewport: [innerWidth, innerHeight], dpr: devicePixelRatio,
@@ -43,10 +43,10 @@ export default async function startupBurst({ page, output, signal, receipt }) {
     save()
     assert.equal(report.initial.contextLost, false)
     await page.waitForFunction(() => window.startupBurstFrames.status().before, undefined, { timeout: 10000 })
-    await page.locator('.skip-introduction').click()
+    await page.locator('.skip-introduction').click({ noWaitAfter: true })
     await page.waitForFunction(() => {
       const observed = window.startupBurstFrames.status()
-      if (observed.errors.length) throw Error(observed.errors.join('\n'))
+      if (observed.errors.length) throw new Error(observed.errors.join('\n'))
       return observed.before && observed.burst && observed.after
     }, undefined, { timeout: 60000, polling: 50 })
     report.readiness = await waitForShamanReadiness(page, { timeout: 10000 })

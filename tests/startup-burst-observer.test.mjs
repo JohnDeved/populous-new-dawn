@@ -41,7 +41,7 @@ test('observer forwards each original render receiver, arguments and exact resul
 })
 
 test('observer propagates the exact original render exception and never takes a successful-frame sample', () => {
-  const failure = Error('original render failed'); let calls = 0
+  const failure = new Error('original render failed'); let calls = 0
   const original = function () { calls++; throw failure }
   const f = fixture(original, true); let observer
   const descriptor = Object.getOwnPropertyDescriptor(f.renderer, 'render')
@@ -58,7 +58,7 @@ test('observer propagates the exact original render exception and never takes a 
 test('diagnostic identity and readback errors remain bounded without changing original render results', () => {
   const result = {}; let calls = 0
   const original = () => { calls++; return result }
-  const f = fixture(original, true, () => { throw Error('readback unavailable') }); let observer
+  const f = fixture(original, true, () => { throw new Error('readback unavailable') }); let observer
   try {
     observer = observeStartupBurstFrames(f.scene)
     assert.equal(f.renderer.render(f.scene.scene, f.scene.camera), result)
@@ -104,9 +104,12 @@ test('three captures use the actual same-call state and wait for a moved burst p
     draw()
     assert.equal(observer.read().frames.burst.sample.turn, 38)
     f.world.turn = 70
-    f.world.effects = []
+    f.world.effects[0].age = 0
     f.world.levelStart[0].phase = 4
     f.world.levelStart[0].stoneTurns.fill(37)
+    draw()
+    assert.equal(observer.status().after, false, 'an age-zero particle tail is not completed startup')
+    f.world.effects = []
     draw()
     assert.equal(observer.read().frames.after.sample.turn, 70)
     assert.equal(observer.read().records.length, 4)

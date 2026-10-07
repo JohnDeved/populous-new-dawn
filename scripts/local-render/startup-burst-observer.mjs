@@ -10,7 +10,7 @@ export function observeStartupBurstFrames(scene) {
     if (closed || args[0] !== scene.scene || args[1] !== scene.camera) return result
     try {
       if (scene.world !== world || window.testSceneRef.current !== scene || window.testStore.getWorld() !== world)
-        throw Error('Observed scene/world identity changed')
+        throw new Error('Observed scene/world identity changed')
       const row = {
         turn: world.turn, rendererFrame: renderer.info.render.frame,
         speed: world.speed, paused: world.paused, gameplay: world.randomState,
@@ -22,12 +22,12 @@ export function observeStartupBurstFrames(scene) {
             yaw: effect.animation.yaw, state: effect.animation.state, remaining: effect.animation.remaining })),
       }
       if (!records.length || row.turn !== records.at(-1).turn) {
-        if (records.length >= 96) throw Error('Bounded startup observation exhausted')
+        if (records.length >= 96) throw new Error('Bounded startup observation exhausted')
         records.push(row)
       }
       const stoneCount = row.sites.flatMap(site => site.stoneTurns).filter(turn => turn !== null).length
       const label = row.turn < 30 && stoneCount === 0 ? 'before' : row.particles.some(particle => particle.age > 0) ? 'burst' :
-        row.turn >= 70 && stoneCount === 8 && row.sites.every(site => site.phase === 4) ? 'after' : null
+        row.turn >= 70 && row.particles.length === 0 && stoneCount === 8 && row.sites.every(site => site.phase === 4) ? 'after' : null
       if (label && !frames[label]) frames[label] = { sample: row, png: renderer.domElement.toDataURL('image/png') }
     } catch (error) {
       if (errors.length < 8) errors.push(String(error?.stack ?? error))
@@ -41,7 +41,7 @@ export function observeStartupBurstFrames(scene) {
     close() {
       if (closed) return
       closed = true
-      if (renderer.render !== wrapper) throw Error('Renderer observer ownership changed')
+      if (renderer.render !== wrapper) throw new Error('Renderer observer ownership changed')
       if (descriptor) Object.defineProperty(renderer, 'render', descriptor)
       else delete renderer.render
     },
