@@ -143,7 +143,12 @@ test('prospective mode keeps malformed source, payload, target and original queu
 
 test('unqualified episode requires its observed release before the first qualifying new edge', () => {
   const e = episodeRows(), t = createResponseTracker({ prospective: true })
-  for (const r of Object.values(e)) t.observe(r)
+  t.observe(e.before); t.observe(e.after)
+  const earlyRender = structuredClone(e.after); earlyRender.phase = 'render-after-updater'
+  earlyRender.render = { visible: true, draw: earlyRender.person.draw, stamp: earlyRender.turn }
+  t.observe(earlyRender)
+  assert.equal(t.progress.rendered.length, 0, 'A nonqualifying rendered record cannot earn qualified rendering')
+  for (const r of [e.startupBefore, e.startup, e.releaseBefore, e.released]) t.observe(r)
   assert.equal(t.progress.status, 'approaching', t.progress.reason)
   assert.ok(t.progress.episodes[0].release)
   const moveBefore = structuredClone(e.released); moveBefore.phase = 'beforeTurn'; moveBefore.person.commandStatus = 3
@@ -157,6 +162,10 @@ test('unqualified episode requires its observed release before the first qualify
   assert.equal(t.progress.firstObservedResponse.after.turn, 4402)
   assert.equal(t.progress.firstResponse.after.turn, 4406)
   assert.equal(t.events.at(-1).kind, 'first-qualified-automatic32')
+  assert.equal(t.progress.rendered.length, 0, 'The qualified record has not rendered yet')
+  const qualifiedRender = structuredClone(after); qualifiedRender.phase = 'render-after-updater'
+  qualifiedRender.render = { visible: true, draw: qualifiedRender.person.draw, stamp: qualifiedRender.turn }
+  t.observe(qualifiedRender); assert.deepEqual(t.progress.rendered, [4406])
   const first = createResponseTracker({ prospective: true }); first.observe(row(15, 'beforeTurn')); first.observe(row(16, 'afterTurn', true))
   assert.equal(first.progress.qualifiedEpisode, 1, 'Do not skip a qualifying very first attachment')
 })

@@ -176,7 +176,8 @@ export function createResponseTracker({ baseline = false, loaded = false, captur
       return fail('Nonqualifying32 changed between observed logical boundaries')
     if (row.phase === 'beforeTurn') { before = row; return }
     if (row.phase === 'render-after-updater') {
-      if (row.order?.model === 32 && row.render?.visible && row.render.draw === p.draw &&
+      if (responseId && row.order?.id === responseId && row.order.identity === responseIdentity &&
+        row.order.model === 32 && row.render?.visible && row.render.draw === p.draw &&
         row.render.stamp === row.turn && !progress.rendered.includes(row.turn)) {
         if (progress.rendered.length < 12) progress.rendered.push(row.turn)
       }
