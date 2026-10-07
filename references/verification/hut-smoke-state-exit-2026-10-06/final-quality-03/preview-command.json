@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "52f4c059-2897-4583-a763-9c3a6c820255",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "1eee0458be159a829e3c993c448358f15169d03b",
+    "branch": "fix/hut-smoke-ignition-state-exit-20261007",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package.json": "75177ce9ebe6a221ecb1e4e3c35c2697ed92882a6924577d8892f03538f7e51c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/final-quality-03/source-before.json.gz": "1147e3ee752736879ef4a2c8b7ce5552286f4a9a81429fdf34c020c3c763b55d",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/host-final-quality-03.py": "69d6f6deb47f3c65634eeebb122b1585106e6e8f18a2d1b5964284eaae9b0043"
+    }
+  },
+  "command": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=5s",
+    "60s",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "work/orchestration/hut-smoke-state-exit/preview-and-token-proof.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007",
+  "startedAt": "2026-10-07T00:19:20.349Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/final-quality-03/preview-command.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/final-quality-03/preview-command.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-07T00:19:21.001Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\n  \"beforeSha256\": \"96b52d988b5d6fec0482e48d7e768e8a835e70483f1988b94217cbe2e3877c1b\",\n  \"afterSha256\": \"8652d3c33cc2c195344c62a7a9d2aba572620742c0dd89458634f576853ac834\",\n  \"tokenCount\": 1070,\n  \"tokenSha256\": \"8f8ba757049573d5e8eba3d23c8fefff755c9f1b26bc1d4b88c32a1fe7c6f8e7\",\n  \"tokensIdentical\": true,\n  \"parseErrors\": 0,\n  \"appUnchanged\": true\n}\n",
+  "stderr": "",
+  "stdoutSha256": "da248dcda3216bdb900e7d189b36cb652f46c4fd2d1d666986fc7feedc33ec7d",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "1eee0458be159a829e3c993c448358f15169d03b",
+    "branch": "fix/hut-smoke-ignition-state-exit-20261007",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package.json": "75177ce9ebe6a221ecb1e4e3c35c2697ed92882a6924577d8892f03538f7e51c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/final-quality-03/source-before.json.gz": "1147e3ee752736879ef4a2c8b7ce5552286f4a9a81429fdf34c020c3c763b55d",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-integration-20261007/work/orchestration/hut-smoke-state-exit/host-final-quality-03.py": "69d6f6deb47f3c65634eeebb122b1585106e6e8f18a2d1b5964284eaae9b0043"
+    }
+  }
+}

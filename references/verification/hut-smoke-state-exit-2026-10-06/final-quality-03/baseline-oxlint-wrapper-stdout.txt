@@ -1,0 +1,8 @@
+{
+  "status": "failed",
+  "output": "work/orchestration/hut-smoke-state-exit/final-quality-03/baseline-oxlint-command.json",
+  "headOid": "1c7e6b05687aca14d9350e17c7ae14dc6c68bb97",
+  "exitCode": 1,
+  "stdoutSha256": "a860e521f1dbf54ad2884fd43b3cc3af6167e8f6c2b4a1e71e4c14cb39e943a7",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

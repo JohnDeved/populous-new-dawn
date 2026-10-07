@@ -1,0 +1,19 @@
+{
+  "candidateHead": "1eee0458be159a829e3c993c448358f15169d03b",
+  "baselineHead": "1c7e6b05687aca14d9350e17c7ae14dc6c68bb97",
+  "normalization": "filename (ESLint basename), severity, rule and message; ignore locations and help metadata",
+  "oxlint": {
+    "candidate": 45,
+    "baseline": 45,
+    "new": [],
+    "removed": [],
+    "errors": 27,
+    "warnings": 18
+  },
+  "eslint": {
+    "candidate": 1,
+    "baseline": 1,
+    "new": [],
+    "removed": []
+  }
+}

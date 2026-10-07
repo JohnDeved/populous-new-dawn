@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "output": "work/orchestration/hut-smoke-state-exit/final-quality-03/preview-command.json",
+  "headOid": "1eee0458be159a829e3c993c448358f15169d03b",
+  "exitCode": 0,
+  "stdoutSha256": "da248dcda3216bdb900e7d189b36cb652f46c4fd2d1d666986fc7feedc33ec7d",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

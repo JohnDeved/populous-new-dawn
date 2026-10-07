@@ -1,0 +1,8 @@
+{
+  "status": "failed",
+  "output": "work/orchestration/hut-smoke-state-exit/final-quality-03/baseline-eslint-command.json",
+  "headOid": "1c7e6b05687aca14d9350e17c7ae14dc6c68bb97",
+  "exitCode": 1,
+  "stdoutSha256": "9ef919593bef89129dfed97a30aeb0cec0a4a4b665061b5678c8989175e19e0d",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

@@ -1,0 +1,3 @@
+# Scoped quality and formatting correspondence
+
+Candidate1eee0458 and main1c7 each report45 Oxlint diagnostics (27 errors,18 warnings) and the same single ESLint prefer-const error. Filename/severity/rule/message multisets match, with no new or removed diagnostics. The formatter preview changes one restore-loop line break only:1070 TypeScript tokens are identical, zero parse diagnostics, formatted file SHA8652d3c33cc2c195344c62a7a9d2aba572620742c0dd89458634f576853ac834. The app remained unchanged during this preview. All five bounded commands ended; dependency27/1978923 returned unchanged at00:19:30.582352Z. Both source inventories and dependency inventory match before/after.
