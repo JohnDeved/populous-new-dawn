@@ -1,0 +1,66 @@
+{
+  "verdict": "ACCEPT_CONDITIONAL_NATIVE_ARRIVAL_RESULT",
+  "executionHead": "8757de6987ce84af5c20c3a737853b27ba2b146c",
+  "launchManifestSha256": "3a31886ef4c11d560053532ea8680e17321e7c18a4f7d524f83d0102a3ac2815",
+  "rawManifestSha256": "2ae739e58d9de54616b6550f9469ea4b18d2f299e11c9e7b3e12d03a3dcfc757",
+  "rawStdoutSha256": "ecec70d64abcfedd06ea1146462b6f7d86e35a3e8b77652f5cea0587b058c957",
+  "verification": {
+    "byteIdenticalRawCopies": 7,
+    "unchangedReceiptInputs": 42,
+    "nativeAllocations": 36,
+    "originalGroundReturns": 70,
+    "rawChildBirths": 32,
+    "exactRngWritesRecomputed": 192,
+    "instructionCallbacks": 22195,
+    "suppliedEntrySkips": 2,
+    "nativeElapsedSeconds": 0.434536345,
+    "unicornTimeout": false,
+    "hostElapsedSeconds": 2.2987365330045577,
+    "ownedGroups": [
+      14,
+      34
+    ],
+    "remainingGroups": [],
+    "reviewerNativeOrApplicationExecution": false
+  },
+  "findings": [
+    "Both native command receipt and independent host receipt passed at the exact reviewed source. Before/after inputs,HEAD and clean status match. Peak aggregate RSS262406144bytes stayed bounded; no cleanup signal or residual owned group remained. Every published raw copy equals its original execution artifact and retained hash.",
+    "One original004bb290 returned atSTOP with ESP=STACK+4 and rawEAX pointing to retired effect7. Real allocator entries are exactly effect7,stone,dust,model9root,32 model3 children, using the36 declared distinct high-pool pointers/handles641..676. No supplied successful allocation or retry occurred.",
+    "Independently rebuilt the imported raw terrain and carrier cell-head hashes. All70 original ground returns use3328/56064 and signed height87. Actual incoming stone temporary height is0 in this supplied stack context; it is retained, not replaced. Stone returns\u2212153,dust returns\u221225 (dust allocation itself received\u2212169). Root is observed at\u2212153 before common init,87 after real clamp and177 after the original+90 write. Every completed child birth is177.",
+    "Decoded all32 raw0xb3 child records and verified actual class7/model3/state3,XYZ177,speed60,lifetime1\u20132,second gameplay draw owning pitch and third owning yaw. Recomputed every intermediate192 gameplay/cosmetic write value in original order. Final gameplay1196965380 and cosmetic3611742733 correspond to96 and32 advances respectively.",
+    "Reconstructed final global and cell chains directly from raw records: handles676 down through642 then640,with641 removed from both. Effect7 has class0/removal flag/retirement counter3, is the retirement head, receives the copied six carrier bytes, and undergoes the one real state0 immediate visit. Free lists are empty; allocated/ever37,low0,class seeds5/7/8=1/35/1,argument stack restored and flag0,sound counter1.",
+    "Only the declared call-site-qualified shadow and disabled-UI sound supplies occurred. Raw direct-call/access metadata,position writes,allocation snapshots and ground observations remain retained. No active-audio RNG,post-wave terrain or later scheduled particle state is inferred.",
+    "The result supports a bounded actual-production-caller height regression/repair proposal that preserves the proved ground-before+90 ordering. Source/data review and future runtime validation remain separate; this review itself performs no app or native execution."
+  ],
+  "limits": [
+    "This is one supplied carrier/index7/raw-terrain/pool arrival component, not command18/carrier movement or an ordinary authored mission state capture.",
+    "Diagonal0,seeded RNGs,zero old-stone handles and UI pointer0 are explicit supplies; shadow presentation and active audio are excluded.",
+    "No full original-game rendering,later particle lifetime,exhaustion,old-stone case,complete startup parity or runtime fix is established."
+  ],
+  "inputs": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/startup-burst-height-assessment-20261007/references/verification/startup-burst-arrival-2026-10-07/attempt-01/manifest.json",
+      "sha256": "2ae739e58d9de54616b6550f9469ea4b18d2f299e11c9e7b3e12d03a3dcfc757"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/startup-burst-height-assessment-20261007/references/verification/startup-burst-arrival-2026-10-07/attempt-01/receipt.json",
+      "sha256": "ad003307b3af9aa8a20a52f99c9ca249ca1c6558e06473abb30c8b3b0e906e23"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/startup-burst-height-assessment-20261007/references/verification/startup-burst-arrival-2026-10-07/attempt-01/host-receipt.json",
+      "sha256": "c67ff8e6a20263e109a292f648844d5f22412f0b1ea053ad9461e964883dc1b8"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/startup-burst-height-assessment-20261007/references/verification/startup-burst-arrival-2026-10-07/attempt-01/native-stdout.log",
+      "sha256": "ecec70d64abcfedd06ea1146462b6f7d86e35a3e8b77652f5cea0587b058c957"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/startup-burst-height-assessment-20261007/references/verification/startup-burst-arrival-2026-10-07/attempt-01/native-stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/startup-burst-height-assessment-20261007/references/verification/startup-burst-arrival-2026-10-07/attempt-01/observations.json",
+      "sha256": "8ca595e16c69174135a8fa7d4589612af8c2e75544df83af1385fc2c171ccb28"
+    }
+  ]
+}
