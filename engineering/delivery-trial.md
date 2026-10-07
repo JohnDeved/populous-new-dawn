@@ -75,6 +75,9 @@ inherited finding with its baseline/candidate receipts and attribution linked in
 the PR. That acceptance is separate from the tool exit status; no ignore list,
 quiet flag, budget increase or global "clean" claim. Execution/configuration errors
 are blockers, not inherited findings. Record diagnostic-policy delays separately.
+Accepting an inherited diagnostic does not clear skipped commands: retain the failed
+preflight, execute every remaining cheap check on the same candidate and tool
+identity, and resolve their results before booking the final lane.
 
 Before a long supplied scenario, QA and implementation review the affected
 fixture's terrain connectivity, coherent base, roster ownership, idle engagement
