@@ -197,8 +197,9 @@ export default async function responseScenario(context) {
   if (!loadedPrefix && !savedEntry) assert.equal(receipt.profile.checkpointAtStart, null)
   const commands = resolve(output, 'commands'); if (!loadedPrefix) mkdirSync(commands)
   const report = { side: process.env.PND_RESPONSE_SIDE, savedEntry, status: 'running', loadedPrefix, stages: [], failures: [], events: [], screenshots: [],
-    scope: 'Ordinary automatic32 reachability and owned queue lifecycle; original component proof and pixels are separate.',
-    qualificationMode: prospective ? 'first qualifying automatic32; every earlier episode retained' : 'first automatic32' }
+    scope: savedEntry ? 'Genuine saved32 Load and interruption tail; prior qualified entry and lifecycle are carried from the reviewed failed prefix.' :
+      'Ordinary automatic32 reachability and owned queue lifecycle; original component proof and pixels are separate.',
+    qualificationMode: savedEntry ? 'saved32 interruption tail - prior entry and lifecycle carried' : prospective ? 'first qualifying automatic32; every earlier episode retained' : 'first automatic32' }
   let acquisition, progress, saved, restored, savedPins, id, originalFinished = false, activeStage, primaryFailure, stopped = false, epoch = 'original'
   let latestVerifiedCheckpoint = receipt.profile.checkpointAtStart
   const persist = () => writeFileSync(resolve(output, 'response.json'), JSON.stringify({ ...report,
