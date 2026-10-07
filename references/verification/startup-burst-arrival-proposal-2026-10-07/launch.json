@@ -165,9 +165,9 @@
     "app/original-constants.json": "ce71bff4c5971d1aae1539b4d014d69378ddc30067068d70353b5b78979fb47c",
     "app/level-one.ts": "e840e4ea8895ada4131c7d2da2ce70330307956ea7a6e647e55e76bf6026bd33",
     "references/verification/startup-burst-arrival-proposal-2026-10-07/probe-arrival.py": "889580dac8835f41cf96963257b69563d547e9fd588a7b69328ea305d16b4913",
-    "references/verification/startup-burst-arrival-proposal-2026-10-07/launch.py": "c18a6f95a6362d1b356bca0610d22c2e1911e40436405b574e756b3d4b18bdc2",
+    "references/verification/startup-burst-arrival-proposal-2026-10-07/launch.py": "38a33e2ca14ab954aa42a46e76b413c758ae83eec863b8127ddecd8f8882a043",
     "references/verification/startup-burst-arrival-proposal-2026-10-07/native-boundaries.json": "9c01818986cb1fc94ac739327650460810ca4c761c9b1a3f0467b15c92b14870",
-    "references/verification/startup-burst-arrival-proposal-2026-10-07/README.md": "9882b8985c811289525c631049593415e40dff7817ea049aae8b7ce708a8884d",
+    "references/verification/startup-burst-arrival-proposal-2026-10-07/README.md": "04310e3856ce60ba697ca92e49a981fbf900d91c1273b0afb75d4e72508da18a",
     "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
     "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/constant.dat": "e905e513c798171d5540082565b8addc9f54e5851006b56e8d1976687ba42f24",
     "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/bin/python": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
@@ -221,5 +221,22 @@
     "All input hashes must match before the one supervisor exec",
     "Output directory must never have existed; no automatic retry",
     "Terminal passed receipt, original JSON status passed, unchanged sources/inputs, owned cleanup and independent raw-result review"
-  ]
+  ],
+  "hostLimits": {
+    "termSeconds": 30,
+    "killGraceSeconds": 5,
+    "sampleSeconds": 0.05,
+    "aggregateRssBytes": 1073741824,
+    "outputBytes": 33554432,
+    "cpuCount": 1,
+    "retry": false,
+    "nativeCalls": 1
+  },
+  "hostReceiptOutput": "work/orchestration/startup-burst-arrival-20261007/attempt-01/host-receipt.json",
+  "hostProvenance": {
+    "acceptedSourceCommit": "c32dade74abf76dd8d0fd86db07659c68f830a67",
+    "sourcePath": "decomp/research/raid-state33-release/capture/guardian.py",
+    "sourceSha256": "64bf6b598c7a872165dec5133518dbcb595a3b48a73c18e7d7cbb7c9468754a6",
+    "adaptation": "Reuse process observation, deadline, bounded monitoring, cleanup and source postflight; no Mission2 scenario/data code. Track session plus PID/start identity because GNU timeout may create a second process group. Replace capture argv with unchanged existing native command-receipt argv. Task-specific host bounds30+5s/1GiB/32MiB; original child bounds unchanged."
+  }
 }

@@ -132,12 +132,31 @@ raw observations and exit nonzero; a bound or assertion is never relaxed in-run.
 
 `launch.py` is unexecuted source. It requires the parent's explicit full reviewed
 commit argument, the one named fresh worktree, matching clean HEAD, every pinned
-input hash and a never-used output directory. It creates one marker and execs
-only the existing command-receipt supervisor. No shell/background/retry loop.
-The child is pinned toCPU4 with20s wall timeout,5s TERM-to-KILL grace,15s CPU,
-1GiB address-space,32MiB file-size,128-descriptor and zero-core limits, in an empty
-environment plus fixed PATH/locale/UTC. `launch.json` freezes exact argv/input
-hashes; its `status: not-run` is intentional.
+input hash and a never-used output directory. It creates one marker and starts
+exactly one existing command-receipt supervisor in an owned session. No shell,
+background task or retry loop. The generic host portions reuse the accepted state33
+capture guardian at `c32dade74abf76dd8d0fd86db07659c68f830a67`,
+`decomp/research/raid-state33-release/capture/guardian.py`; task-specific provenance
+and changes are frozen in `launch.json`.
+
+The host observes PID, parent, process group, session and start ticks. Session
+membership captures GNU timeout's separate child group; retained PID/start identity
+also follows observed descendants after reparenting. Cleanup signals only those
+owned identities after a fresh start-tick check. One absolute TERM deadline at30s
+and absolute KILL deadline at35s are calculated once and never extended. RSS/output
+caps and external interruptions take the same cleanup path. The terminal
+`host-receipt.json` retains observed identities/groups, signals, actual residual
+members, source/input/manifest hashes before and after, command-receipt status and
+release result. Missing ownership evidence, read errors, residual processes or
+source drift prevent a pass.
+
+The native child remains pinned to CPU4 with its unchanged20s wall timeout,
+5s TERM-to-KILL grace,15s CPU,1GiB address-space,32MiB file-size,128-descriptor
+and zero-core limits, in an empty environment plus fixed PATH/locale/UTC. The host
+also limits aggregate RSS and outputs to1GiB/32MiB and reserves256KiB for its
+terminal receipt. `launch.json` freezes exact argv/input hashes; its `status:
+not-run` is intentional. This launcher-only correction changes no native fixture,
+original call, observer, byte range, assertion or native execution bound.
 
 A future parent grant must reserveCPU4 and create the named fresh execution tree
 at the reviewed head. Preparation does not create that tree or reserve resources.
