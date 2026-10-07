@@ -43,7 +43,7 @@ test('observer forwards each original render receiver, arguments and exact resul
 })
 
 test('observer propagates the exact original render exception and never takes a successful-frame sample', () => {
-  const failure = Error('original render failed'); let calls = 0
+  const failure = new Error('original render failed'); let calls = 0
   const original = function () { calls++; throw failure }
   const f = fixture(original, true); let observer
   const descriptor = Object.getOwnPropertyDescriptor(f.renderer, 'render')
@@ -60,7 +60,7 @@ test('observer propagates the exact original render exception and never takes a 
 test('diagnostic identity and readback errors remain bounded without changing original render results', () => {
   const result = {}; let calls = 0
   const original = () => { calls++; return result }
-  const f = fixture(original, true, () => { throw Error('readback unavailable') }); let observer
+  const f = fixture(original, true, () => { throw new Error('readback unavailable') }); let observer
   try {
     observer = observeHutIgnitionFrames(f.scene, 7)
     f.world.buildings[0].damageState = { state: 4 }

@@ -9,9 +9,9 @@ export function observeHutIgnitionFrames(scene, hutId) {
   let ordinal = 0, closed = false
   const sample = () => {
     if (scene.world !== world || window.testSceneRef.current !== scene || window.testStore.getWorld() !== world)
-      throw Error('Observed scene/world identity changed')
+      throw new Error('Observed scene/world identity changed')
     const hut = world.buildings.find(building => building.id === hutId)
-    if (!hut) throw Error('Observed hut disappeared')
+    if (!hut) throw new Error('Observed hut disappeared')
     const owner = world.secondaryEffects, record = owner.roots[hutId]
     const root = record?.state.root, group = scene.buildingMeshes.get(hutId)
     const smoke = group?.userData.hutOccupancySmoke
@@ -55,7 +55,7 @@ export function observeHutIgnitionFrames(scene, hutId) {
     try {
       const row = sample(), previous = records.at(-1)
       if (!previous || row.turn !== previous.turn || row.paused !== previous.paused) {
-        if (records.length >= 256) throw Error('Bounded ignition observation exhausted')
+        if (records.length >= 256) throw new Error('Bounded ignition observation exhausted')
         records.push(row)
       }
       if (!frames.before && row.rootVisible && row.rootRecord?.state.root?.mode === 'full' && row.hut.timer === null)
@@ -76,7 +76,7 @@ export function observeHutIgnitionFrames(scene, hutId) {
     close() {
       if (closed) return
       closed = true
-      if (renderer.render !== wrapper) throw Error('Renderer observer ownership changed')
+      if (renderer.render !== wrapper) throw new Error('Renderer observer ownership changed')
       if (descriptor) Object.defineProperty(renderer, 'render', descriptor)
       else delete renderer.render
     },

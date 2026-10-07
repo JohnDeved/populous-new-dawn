@@ -18,7 +18,7 @@
     "ownedProjectionSha256": "5ea3bf389c59cb4ecbf98b19f98566939103e14ce49301b7fb64b330289d0128",
     "fixturesNativeProjectionAndTestByteIdenticalToMain": true
   },
-  "validation": "Native, focused and ordinary evidence accepted; one whitespace-only token-identical smoke formatting correction. Scoped lint has no introduced diagnostics. Broad lint/format failures remain retained. Standard check/build pending.",
+  "validation": "Accepted native/runtime/ordinary source correspondence plus one token-identical smoke formatting line and20 built-in Error new keywords in maintained checker/observer/contracts. Final JS recheck, standard check/build and renewed source review pending.",
   "preservedResearchHead": "a701465361070036fd6493de623b04d3d7d23086",
   "evidenceUrl": "https://github.com/JohnDeved/populous-new-dawn/tree/a701465361070036fd6493de623b04d3d7d23086/references/verification/hut-smoke-state-exit-2026-10-06",
   "acceptedApplicationFiles": {
@@ -44,10 +44,10 @@
     "app/live-building-combat.ts": "9ed318b09c0258afca86c87d3147d3cda1b2a9c3ad8e8e81d7ec3703afa74a4e",
     "app/spell-effects-runtime.ts": "1c0df0978804bee45702cd2a7331be6efaf7a8cb411997d257be6dd503a6d90d",
     "decomp/research/firewarrior-firing-phase/port.mjs": "9db3a8617975bc0b306fbd4838a8edc876bc938ccc110c26bc2648d8be960dbb",
-    "scripts/local-render/hut-smoke-ignition.mjs": "f1128cf3a472a5e939c185871cf61383704f4685958ee2729bbcb44dff47447a",
-    "scripts/local-render/hut-smoke-ignition-observer.mjs": "8a50fa4bb93b6bb0fb9b927056dacb085049cb2125ebd6bb4db2579ea6f8b735",
+    "scripts/local-render/hut-smoke-ignition.mjs": "f6f4b09e941e2548188a977fdc096f5587801759b9a60277474d90a3a12da4be",
+    "scripts/local-render/hut-smoke-ignition-observer.mjs": "dba34bfd6471f3e92fae64367c801af552a5ac4d4fc1fe5e9dfdc9e36485a2bf",
     "tests/hut-smoke-ignition.test.mjs": "6ac554e82c51fd92393f56fb0ae766dcc3927a2bd8a502744fa62f34d9c8654e",
-    "tests/hut-smoke-ignition-observer.test.mjs": "f31df10058cb90c1e581b71d0bb81cf84bb32c089e66601b4024e17d2da1fa3c",
+    "tests/hut-smoke-ignition-observer.test.mjs": "ff82eadaedb662748fa15463b32bdd93d1d09e02d3b9220a1c35b08dc77b3efc",
     "decomp/research/hut-smoke-state-exit/probe-ignition-root-draft.py": "ef2f20f3547ebf313fd95c2381ce6e4d1568a9a9788243bcac571d45ce78da55",
     "decomp/research/hut-smoke-state-exit/class2-root-release.asm.txt": "ebc9ae0b6e686785dad1459b61c9a84d9776fbfe189245b63043db50894fe94c",
     "decomp/research/hut-smoke-state-exit/ignition-dispatch.asm.txt": "50e4263bbc329eff5a830362311c2463a75bee8be4b7d5d934e7706f7b1bb888"
@@ -81,5 +81,117 @@
       "new": [],
       "removed": []
     }
+  },
+  "maintainedJavaScriptCorrection": {
+    "beforeHead": "459c71658ab9de8f586ce85b897a443da0df2bd0",
+    "eslint": {
+      "exitCode": 0,
+      "diagnostics": 0
+    },
+    "oxlint": {
+      "exitCode": 1,
+      "errors": 20,
+      "warnings": 113,
+      "rules": [
+        {
+          "severity": "error",
+          "rule": "unicorn(throw-new-error)",
+          "count": 20
+        },
+        {
+          "severity": "warning",
+          "rule": "eslint(no-nested-ternary)",
+          "count": 8
+        },
+        {
+          "severity": "warning",
+          "rule": "eslint(no-shadow)",
+          "count": 25
+        },
+        {
+          "severity": "warning",
+          "rule": "eslint(prefer-destructuring)",
+          "count": 22
+        },
+        {
+          "severity": "warning",
+          "rule": "eslint(prefer-template)",
+          "count": 1
+        },
+        {
+          "severity": "warning",
+          "rule": "unicorn(consistent-function-scoping)",
+          "count": 3
+        },
+        {
+          "severity": "warning",
+          "rule": "unicorn(no-negated-condition)",
+          "count": 1
+        },
+        {
+          "severity": "warning",
+          "rule": "unicorn(no-nested-ternary)",
+          "count": 3
+        },
+        {
+          "severity": "warning",
+          "rule": "unicorn(prefer-global-this)",
+          "count": 50
+        }
+      ]
+    },
+    "classification": {
+      "throw-new-error": "Introduced actionable style errors: add only new to20 built-in Error constructions used by throws, preserving rejection messages, exception identity and control flow.",
+      "prefer-global-this": "50 warnings on explicit browser window/test realm aliases, identifying the browser realm under evaluate or contract setup.",
+      "remainingWarnings": "63 advisory style warnings on callback-local shadows, destructuring, ternaries, template text and function scoping. They are introduced in new maintained scripts, not pre-existing main diagnostics. No unused variable, unresolved global or invalid operation diagnostic was reported."
+    },
+    "changes": {
+      "scripts/local-render/hut-smoke-ignition-observer.mjs": {
+        "beforeSha256": "8a50fa4bb93b6bb0fb9b927056dacb085049cb2125ebd6bb4db2579ea6f8b735",
+        "afterSha256": "dba34bfd6471f3e92fae64367c801af552a5ac4d4fc1fe5e9dfdc9e36485a2bf",
+        "newKeywordsInserted": 4,
+        "sourceOffsets": [
+          679,
+          818,
+          3501,
+          4408
+        ],
+        "onlyChange": "new keyword before diagnostic Error construction"
+      },
+      "tests/hut-smoke-ignition-observer.test.mjs": {
+        "beforeSha256": "f31df10058cb90c1e581b71d0bb81cf84bb32c089e66601b4024e17d2da1fa3c",
+        "afterSha256": "ff82eadaedb662748fa15463b32bdd93d1d09e02d3b9220a1c35b08dc77b3efc",
+        "newKeywordsInserted": 2,
+        "sourceOffsets": [
+          2506,
+          3436
+        ],
+        "onlyChange": "new keyword before diagnostic Error construction"
+      },
+      "scripts/local-render/hut-smoke-ignition.mjs": {
+        "beforeSha256": "f1128cf3a472a5e939c185871cf61383704f4685958ee2729bbcb44dff47447a",
+        "afterSha256": "f6f4b09e941e2548188a977fdc096f5587801759b9a60277474d90a3a12da4be",
+        "newKeywordsInserted": 14,
+        "sourceOffsets": [
+          931,
+          2197,
+          15382,
+          20259,
+          26963,
+          27890,
+          29670,
+          30550,
+          31566,
+          33078,
+          33890,
+          34337,
+          34983,
+          36404
+        ],
+        "onlyChange": "new keyword before diagnostic Error construction"
+      }
+    },
+    "evidenceUrl": "https://github.com/JohnDeved/populous-new-dawn/tree/4b1e19267c2dab71b483317874ef928b6e831012/references/verification/hut-smoke-state-exit-2026-10-06/final-quality-04",
+    "validation": "Source-only correction; scoped recheck and observer contracts pending. Exactly20 new keywords in built-in Error constructions; no runtime change."
   }
 }

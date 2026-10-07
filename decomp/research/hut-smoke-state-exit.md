@@ -42,7 +42,10 @@ The ignition callback files are byte-identical to focused candidate
 `4363be773890acfb89eff90eecee11fe0c633f9e`. The smoke owner differs only by
 one formatter line break, with all1070 TypeScript tokens proven identical.
 The maintained checker, observer,
-tests and native probe preserve the accepted source bytes, including historical
+runtime tests and native probe preserve the accepted source bytes. The maintained
+checker/observer and observer contracts add only20 `new` keywords at built-in
+Error constructions after scoped lint; messages, conditions and successful-route
+code are unchanged. The source still includes historical
 “draft/unrun” comments. Those comments label preparation; the results below
 identify what was subsequently executed.
 
@@ -116,6 +119,14 @@ single ESLint error in unchanged code. Broad lint retains its failed737-warning/
 plus unchanged render-view/viewport-bounds issues; only the smoke line break
 was corrected using the preview and identical-token proof. No unrelated cleanup
 is included.
+
+[Maintained JavaScript lint](https://github.com/JohnDeved/populous-new-dawn/tree/4b1e19267c2dab71b483317874ef928b6e831012/references/verification/hut-smoke-state-exit-2026-10-06/final-quality-04) passes ESLint with zero diagnostics.
+Oxlint originally reported20 `throw-new-error` errors and113 advisory warnings:
+50 explicit browser/test `window` aliases plus63 callback-shadow/destructuring/
+other style warnings. These are introduced maintained-file diagnostics, not
+legacy main findings. The20 error constructions receive only `new`; the scoped
+recheck and observer contracts remain pending. No whole-PR lint-clean claim is
+made.
 
 `npm run check` and `npm run build` remain pending final source review and the
 serialized dependency window. Earlier failure/pass labels and accepted proof

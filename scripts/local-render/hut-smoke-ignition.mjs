@@ -13,7 +13,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
     signal.throwIfAborted()
     if (originalShamanId !== null) await page.evaluate(id => {
       const unit = window.testSceneRef.current.world.units.find(unit => unit.id === id)
-      if (!unit || unit.hp <= 0) throw Error('Original Shaman was lost; stop the ordinary route')
+      if (!unit || unit.hp <= 0) throw new Error('Original Shaman was lost; stop the ordinary route')
     }, originalShamanId)
     report.actions.push({ label, phase: 'before', at: new Date().toISOString() }); save()
     await run()
@@ -35,7 +35,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
   })
   const read = () => page.evaluate(() => {
     const scene = window.testSceneRef.current, world = scene.world
-    if (window.testStore.getWorld() !== world || world.outcome.level !== 1) throw Error('Mission1 scene/store mismatch')
+    if (window.testStore.getWorld() !== world || world.outcome.level !== 1) throw new Error('Mission1 scene/store mismatch')
     const head = world.shrines.find(shrine => shrine.reward === 'lightning')
     const bridgeHead = world.shrines.find(shrine => shrine.reward === 'bridge')
     const shaman = world.units.find(unit => unit.kind === 'shaman' && unit.team === 'blue')
@@ -209,7 +209,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
       const preflight = { turn: world.turn, point, spell, mode: world.mode, paused: world.paused,
         actorId, stock: world.shots[spell], rejection }
       if (rejection || world.paused || world.mode !== spell || world.shots[spell] <= 0) return preflight
-      if (window.hutCastInput) throw Error('A cast observation is already armed')
+      if (window.hutCastInput) throw new Error('A cast observation is already armed')
       const record = { before: [], after: [], errors: [] }
       const sample = event => ({ turn: world.turn, stock: world.shots[spell], gifts: world.giftCounts[spell],
         mode: world.mode, trusted: event.isTrusted, button: event.button, canvasTarget: event.target === canvas,
@@ -281,7 +281,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
       import('/app/live-combat.ts'), import('/app/person-orders.ts')])
     const source = window.testSceneRef.current.world, copy = structuredClone(source)
     const actor = copy.units.find(unit => unit.id === actorId), shrine = copy.shrines.find(head => head.id === shrineId)
-    if (!actor || actor.hp <= 0 || !shrine) throw Error('Original worship actor or target was lost')
+    if (!actor || actor.hp <= 0 || !shrine) throw new Error('Original worship actor or target was lost')
     syncNativeTerrain(copy); syncLandscapeObjects(copy)
     const person = combatPerson(actor), goal = browserPosition(worshipApproach(worshipHeadPose(copy, shrine)))
     const path = planLivePath(copy, actor, goal)
@@ -375,7 +375,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
     await clickEntity('shrines', report.initial.bridgeHead.id, 27, false, [shamanId])
     await page.waitForFunction(({ headId, actorId }) => {
       const world = window.testSceneRef.current.world, actor = world.units.find(unit => unit.id === actorId)
-      if (!actor || actor.hp <= 0) throw Error('Original Shaman was lost during Bridge worship')
+      if (!actor || actor.hp <= 0) throw new Error('Original Shaman was lost during Bridge worship')
       return world.shots.bridge > 0 && world.shrines.find(head => head.id === headId)?.uses > 0
     }, { headId: report.initial.bridgeHead.id, actorId: shamanId }, { timeout: 180000 })
     report.bridgeReward = await read(); save()
@@ -389,7 +389,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
     await dispatch(shore, 3, [shamanId])
     await page.waitForFunction(({ id, point }) => {
       const actor = window.testSceneRef.current.world.units.find(unit => unit.id === id)
-      if (!actor || actor.hp <= 0) throw Error('Original Shaman was lost before the shore')
+      if (!actor || actor.hp <= 0) throw new Error('Original Shaman was lost before the shore')
       const person = actor.builder?.person ?? actor.flight ?? actor.fight?.motion ?? actor.native ?? actor.entry?.person
       return actor.inside === null && !actor.path.length && person && Number.isFinite(person.speed) && person.speed === 0 &&
         Math.hypot(actor.x - point.x, actor.z - point.z) < 0.35
@@ -413,7 +413,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
       !bridgeBefore.bridgeProjectiles.some(prior => prior.id === projectile.id)) || bridgeAfter.bridges > bridgeBefore.bridges)
     await page.waitForFunction(({ actorId, before }) => {
       const world = window.testSceneRef.current.world, actor = world.units.find(unit => unit.id === actorId)
-      if (!actor || actor.hp <= 0) throw Error('Original Shaman was lost while the Bridge completed')
+      if (!actor || actor.hp <= 0) throw new Error('Original Shaman was lost while the Bridge completed')
       return world.stats.bridges > before && !world.effects.some(effect => effect.bridge) &&
         !world.projectiles.some(projectile => projectile.spell === 'bridge')
     }, { actorId: shamanId, before: bridgeBefore.bridges }, { timeout: 60000 })
@@ -425,7 +425,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
     await clickEntity('shrines', headId, 27, false, [shamanId])
     await page.waitForFunction(({ headId, actorId }) => {
       const world = window.testSceneRef.current.world, actor = world.units.find(unit => unit.id === actorId)
-      if (!actor || actor.hp <= 0) throw Error('Original Shaman was lost during Lightning worship')
+      if (!actor || actor.hp <= 0) throw new Error('Original Shaman was lost during Lightning worship')
       return world.shots.lightning > 0 && world.shrines.find(head => head.id === headId)?.uses > 0
     }, { headId, actorId: shamanId }, { timeout: 180000 })
     report.reward = await read(); save()
@@ -442,7 +442,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
     await dispatch(ground, 3, [shamanId])
     await page.waitForFunction(({ id, point }) => {
       const unit = window.testSceneRef.current.world.units.find(unit => unit.id === id)
-      if (!unit || unit.hp <= 0) throw Error('Original Shaman was lost on the return route')
+      if (!unit || unit.hp <= 0) throw new Error('Original Shaman was lost on the return route')
       return unit.inside === null && Math.hypot(unit.x - point.x, unit.z - point.z) < 2
     }, { id: shamanId, point: ground.point }, { timeout: 180000 })
     assert.equal((await read()).mode, null, 'Ground dispatch must finish before changing the cohort')
@@ -463,7 +463,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
     await page.waitForFunction(({ id, actorId }) => {
       const scene = window.testSceneRef.current, world = scene.world
       const actor = world.units.find(unit => unit.id === actorId)
-      if (!actor || actor.hp <= 0) throw Error('Original Shaman was lost during housing')
+      if (!actor || actor.hp <= 0) throw new Error('Original Shaman was lost during housing')
       const hut = world.buildings.find(building => building.id === id)
       return hut?.progress === 1 && !hut.burn &&
         world.secondaryEffects.roots[id]?.state.root?.mode === 'full' &&
@@ -477,14 +477,14 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
     assert.equal(report.beforeLightningSelection.mode, null)
     assert.equal(report.beforeLightningSelection.shaman.inside, null)
     await page.evaluate(async id => {
-      if (window.hutIgnitionFrames) throw Error('Ignition observer already exists')
+      if (window.hutIgnitionFrames) throw new Error('Ignition observer already exists')
       const { observeHutIgnitionFrames } = await import('/scripts/local-render/hut-smoke-ignition-observer.mjs')
       window.hutIgnitionFrames = observeHutIgnitionFrames(window.testSceneRef.current, id)
     }, hut.id)
     armed = true
     await page.waitForFunction(id => {
       const actor = window.testSceneRef.current.world.units.find(unit => unit.id === id)
-      if (!actor || actor.hp <= 0) throw Error('Original Shaman was lost during the ignition witness')
+      if (!actor || actor.hp <= 0) throw new Error('Original Shaman was lost during the ignition witness')
       const state = window.hutIgnitionFrames.status()
       return state.before || state.errors.length
     }, shamanId)
@@ -495,7 +495,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
     await clickEntity('buildings', hut.id, null, true)
     await page.waitForFunction(id => {
       const actor = window.testSceneRef.current.world.units.find(unit => unit.id === id)
-      if (!actor || actor.hp <= 0) throw Error('Original Shaman was lost during the ignition witness')
+      if (!actor || actor.hp <= 0) throw new Error('Original Shaman was lost during the ignition witness')
       const state = window.hutIgnitionFrames.status()
       return state.burning || state.errors.length
     }, shamanId, { timeout: 180000 })
@@ -518,7 +518,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
     await resume()
     await page.waitForFunction(id => {
       const actor = window.testSceneRef.current.world.units.find(unit => unit.id === id)
-      if (!actor || actor.hp <= 0) throw Error('Original Shaman was lost during the ignition witness')
+      if (!actor || actor.hp <= 0) throw new Error('Original Shaman was lost during the ignition witness')
       const state = window.hutIgnitionFrames.status()
       return state.evacuated || state.errors.length
     }, shamanId)
