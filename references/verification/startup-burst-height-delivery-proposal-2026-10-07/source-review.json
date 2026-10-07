@@ -1,0 +1,32 @@
+{
+  "verdict": "ACCEPT clean source correspondence and passive observer delta; execution and final gates pending",
+  "head": "8f50dda281ec6338bdb84e21473879f29a0282f9",
+  "base": "e3a7a06a4250457502288d5b4c4e4ad8f3b40b53",
+  "reviewMethod": "Read-only Git/source/hash/data extraction review; no import, test, application, native or browser execution",
+  "verified": [
+    "Exactly9 changed files, clean head. Runtime SHA2450145b equals accepted focused green.",
+    "Native compact fixture preserves3 complete root and32 complete child recordHex values, all179bytes each, exactly from accepted native stdout ecec70d6. Provenance and source hash verified.",
+    "Authored compact fixture is exact mission/startupEnabled/stone-nativeXY projection of pinned authored-data701e6c2e; no expected heights synthesized.",
+    "Height test differs from accepted green only in2fixture URLs and compact native checksum; all assertions/observer logic unchanged.",
+    "Passive renderer now calls the existing pure terrainPointHeight at actual animationXY and records effect.height after the same real render. It preserves render receiver,args,return,error propagation and descriptor restoration.",
+    "Extended supplied same-call observer test checks sampled values and full world equality; package adds the height test to the existing startup alias without changing budget or check selection.",
+    "Immutable native/red/green evidence links point to existing Git objects and retain scope limits."
+  ],
+  "limits": [
+    "Compact-loader and new observer test edits are source-reviewed but unrun on this head.",
+    "Actual sampled post-motion heights can be compared only at shared observed turn/ID/age/position context. An unseen birth frame and constant screen-pixel shift are not inferred.",
+    "Ordinary browser host/preflight and final integrated format/typecheck/test/build remain separate.",
+    "Pitch/yaw evidence remains the accepted PR253 producer tests, not the new height assertion itself."
+  ],
+  "changedFileHashes": {
+    "app/level-start-runtime.ts": "2450145b24d5e0b0e278f157de38e83756443a92a88dee3e8fc2fef4492c4798",
+    "decomp/research/level-start-sequence.md": "085f6cc4be1b4935d467bb1fe705e1c63b08fd35ee473c463fdaee20415aa244",
+    "package.json": "2b18a30cb9b7edba84356d25030fc14ab44e75007d25c1db4164162d3233f0be",
+    "scripts/local-render/startup-burst-observer.mjs": "c1bcad473eefcb1f552ee6630183921a7a69052825c6e8707fff4a8e0d7a10ae",
+    "scripts/local-render/startup-burst.mjs": "df162f2455cae47a630f5f59b0afa4aba0ace9387364391a215371b90feba2bd",
+    "tests/fixtures/startup-burst-height-authored.json": "a1882793918442fc02a0a75fef096c48425d3ce5eab2f72723a15ac8adc8e418",
+    "tests/fixtures/startup-burst-height-native.json": "ff00dce327343372721d5b3183f78e7b4740a3cab1568539ff1d3d08175d55f9",
+    "tests/startup-burst-height.test.mjs": "a1b3af1bfabdd5926decbfa19c6be9c0ad45443fc8b6c4948cb6db5cba43c4d3",
+    "tests/startup-burst-observer.test.mjs": "061dbc9b9b306ec9a3ca89e09dcf7f87cf775ba533afa8bbae92eadaa079583f"
+  }
+}

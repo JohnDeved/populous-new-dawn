@@ -23,3 +23,7 @@ will be rerun with the final integrated gates. PR247's accepted successor main
 will be normally adopted before final gate/ordinary packet freeze. Browser and
 package lanes remain queued under coordinator control. The accepted angle driver
 and host are being reused; this is not a new game or native harness.
+
+Independent [clean-source ACCEPT](source-review.json) verifies the compact fixture,
+loader and passive observer correspondence. Final integrated and rendered gates
+remain pending; this verdict does not grant execution.
