@@ -1,7 +1,7 @@
 {
   "source": "5d0d347ea95d2dc0e178b48e3aa2dc6a344f46a9",
   "applicationMain": "7c0bcdb246023ff4263b4baeddf5a84f7f90a7a0",
-  "status": "passed ordinary prior-main baseline; independent result review pending",
+  "status": "passed and independently accepted ordinary prior-main baseline and sampled comparison",
   "session": 96481,
   "initialChunk": "fea5ce",
   "terminalChunk": "795377",
@@ -19,7 +19,8 @@
     "mission-1-startup-before.png": "df52bc1d5a94be971454f017d9238ec5c61643912503d348ac2841700c6cf5ba",
     "mission-1-startup-burst.png": "6b90d6569ba74ff011f0d3dae9117ec402760d87998c6a3fce2aa5b0e8709ff8",
     "mission-1-startup-after.png": "194718d3439b22c63f4d74032cade4c037f8479a2c084e0e7fd168b86c6210ec",
-    "source-and-host-review.json": "6b29557e370f98a006ccff673b10aa2cc32fe157470317d92dc9131299b9db35"
+    "source-and-host-review.json": "6b29557e370f98a006ccff673b10aa2cc32fe157470317d92dc9131299b9db35",
+    "result-review.json": "87d91ecae9903b07060a63370afa9dcb9cc701788ccbb2d9cf0b9b64eca106fc"
   },
   "limits": "Same ordinary route/checker/viewport and native turn39/70, but independent elapsed rendering and different frame ordinals. Sampled RNG/phase consistency only; not full world/native or raster equivalence. Both initial0 canvases remain hidden by loading."
 }

@@ -28,8 +28,8 @@
     "candidateSourceReview": "passed: narrow two-owner application diff",
     "observerContracts": "passed:9/9 at f9b565ca including early discovery/ownership/disconnection/loading facts",
     "observerSourceReview": "passed: exact f9b565ca early scene discovery and passive capture",
-    "ordinaryBaseline": "passed: original main7c0bcdb2 with identical checker; presented burst39/completed70; result review pending",
-    "ordinaryPair": "52 shared sampled turns retain equal RNG/site history; same32 burst IDs/ages at39; angles corrected"
+    "ordinaryBaseline": "passed and independently accepted: unchanged main7c0bcdb2 and identical checker; presented burst39/completion70",
+    "ordinaryPair": "independently accepted:52 shared observed turns retain equal RNG/site history and32 burst IDs/ages at39"
   },
   "limits": "Angle ownership only. Retained native trajectories compare declared native birth origins and ground256, not actual startup origin heights. Existing model9 root clamp ordering gap stays unchanged; no allocator/world/returning-person or raster equivalence claim.",
   "observerSource": "f9b565ca09f8a4fdc60a82f823110c2b5836d28b",

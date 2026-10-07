@@ -29,5 +29,5 @@ world/native equality or a claim of identical raster timing.
 
 The host verified no remaining owned processes, donor1978923 returned, equal
 complete dependency inventories, and unchanged source/tools. Raw receipts,
-source binding and artifact hashes are retained. Independent baseline result
-review and final lean-integration standard gates remain pending.
+source binding and artifact hashes are retained. Independent baseline and sampled-pair review accepts this witness in
+`result-review.json`. Final lean-integration standard gates remain pending.

@@ -1,0 +1,21 @@
+{
+  "verdict": "ACCEPT_ORDINARY_BASELINE_AND_SAMPLED_PAIR",
+  "reviewedAt": "2026-10-07T01:11:55.512553+00:00",
+  "baselineSource": "5d0d347ea95d2dc0e178b48e3aa2dc6a344f46a9",
+  "baselineRuntime": "7c0bcdb246023ff4263b4baeddf5a84f7f90a7a0",
+  "candidateSource": "6a9f7d835294fc08166f6975957aa93f5e2256dc",
+  "artifacts": {
+    "work/orchestration/startup-burst-ordinary-baseline-host-01/receipt.json": "de63d2212709069e9cfca6ce54468ecc078fbcdc09bba99f63f29b88caac299d",
+    "work/orchestration/startup-burst-ordinary-baseline-host-01/command-receipt.json": "21d4a51baf90c8e8248a11d92781cd1351e0e3e1f1cb09b1d9d8043a6ae3b7e6",
+    "work/orchestration/startup-burst-ordinary-baseline-01/receipt.json": "020add38125fdb08bc1f23ca6eec805a5a6128f48be117419d8a7ae244f31775",
+    "work/orchestration/startup-burst-ordinary-baseline-01/startup-burst.json": "9584173f2bb0685a74e9e4b75f53941ad5afb11e0a1bf84bd636088291a3c5c8",
+    "work/orchestration/startup-burst-ordinary-baseline-01/mission-1-startup-burst.png": "6b90d6569ba74ff011f0d3dae9117ec402760d87998c6a3fce2aa5b0e8709ff8"
+  },
+  "finding": "Raw baseline command/host/source/dependency/cleanup verified. Both actual presented turn39 burst images visually inspected. All32 identities/ages match, with pitch/yaw draw ownership swapped exactly; effect766 old999/1683 becomes1683/999. Both complete70 without particles; initial0 hidden/loading is labelled. All52 shared observed turns have identical sites/gameplay RNG/cosmetic RNG/speed/pause fields.",
+  "limits": [
+    "Sampled browser consistency and actual visible bursts, not complete world or original raster equality.",
+    "Native32 births/139 visits and1024 controlled actual-caller particles remain separate proof scopes.",
+    "Known fresh-stone root-height discrepancy is still open in issue252.",
+    "Attempt01 remains failed. Clean integration source/quality/full gates remain required."
+  ]
+}
