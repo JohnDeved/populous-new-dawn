@@ -1,0 +1,8 @@
+{
+  "decision": "ACCEPT angle-only source/failure-first design",
+  "head": "7f54a508d957a4661c3e40dadb734aebb67f146e",
+  "files": {
+    "review.md": "4a0095dac464ae36d80b47f46de800915abffff73ef07754d50c59e8bb5c46e3",
+    "verification.json": "115700ecb27ec8ef534f84510219b71afe952fa3b2e23dc4a4545904c211d862"
+  }
+}

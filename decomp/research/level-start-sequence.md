@@ -96,7 +96,7 @@ frames on the exact integrated commit and fresh review. Existing world allocatio
 terrain-notification batching, restored camera persistence and original-palette browser blend
 limits are not upgraded to native whole-game equivalence by these helper checks.
 
-## 2026-10-07: burst-angle composition correction under review
+## 2026-10-07: burst-angle composition correction
 
 The [startup burst source audit](../../references/verification/startup-burst-angle-ownership-2026-10-07/README.md)
 traces command18 through carrier arrival and stone creation to default effect9.
@@ -104,4 +104,9 @@ Its second gameplay draw belongs to pitch at `+0x59`; its third belongs to yaw a
 `+0x57`, as consumed by the actual directed physics. The old level-start probe
 labeled those offsets oppositely and therefore did not certify composition with
 SpellTrail. Existing32 birth and139 scheduled visit records now provide an
-independent raw-byte oracle. Application correction and acceptance remain pending.
+independent raw-byte oracle under the declared native birth origin/ground inputs.
+The helper now preserves the three draws while assigning pitch second and yaw
+third, after independent source review and a retained failure-first actual-caller
+run. The distinct model9-root clamp-before-height-offset gap remains unchanged;
+this correction does not certify complete startup positions or trajectories.
+Candidate validation and final acceptance remain pending.

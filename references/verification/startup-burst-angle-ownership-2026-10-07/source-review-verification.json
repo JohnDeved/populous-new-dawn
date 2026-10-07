@@ -1,0 +1,17 @@
+{
+  "head": "7f54a508d957a4661c3e40dadb734aebb67f146e",
+  "fixtureSha256": "21da672bfe5adb2dd03daac0b3b7ce51afe2c527f4b42d39499a30c6e292437f",
+  "rawSourceSha256": "1275f73e5781d068074015b758979d450fb792c67a459a0ef6b1e680fdfae890",
+  "births": 32,
+  "visits": 139,
+  "gameplayAdvances": 96,
+  "firstGameplay": 1389729278,
+  "finalGameplay": 1172462824,
+  "cosmeticAdvances": 32,
+  "allOldAngleAssignmentsDiffer": 32,
+  "sourceEvidenceSha256": "2498a9a3d71849dcb5a2ecfc6e4fd3586264202912b94caf5d500b2297e8fcd3",
+  "canonicalRanges": 3,
+  "scope": "source preparation, raw-record extraction and angle ownership only; no tests/native/browser executed by reviewer",
+  "heightResidual": "Native root clamp precedes+90; existing live stoneBurst child clamp follows+90. Not part of angle-only correction.",
+  "decision": "ACCEPT angle-only source/failure-first design"
+}

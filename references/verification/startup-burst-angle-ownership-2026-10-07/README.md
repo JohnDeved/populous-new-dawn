@@ -1,9 +1,10 @@
-# Startup burst angle ownership: source review checkpoint
+# Startup burst angle ownership correction
 
-Base: `1c7e6b05687aca14d9350e17c7ae14dc6c68bb97`. No application edit, native
-execution, browser run, package install, original game execution or parity change
-is included in this checkpoint. The proposed correction is the two angle variable
-owners in `levelStartBurstParticle`; the three RNG calls stay in the same order.
+Base: `1c7e6b05687aca14d9350e17c7ae14dc6c68bb97`. Source-only checkpoint
+`7f54a508` received independent ACCEPT before the retained failure-first run and
+application edit. The correction changes the two angle variable owners in
+`levelStartBurstParticle`; the three RNG calls stay in the same order. No original
+code execution, browser run, package install or parity change has occurred yet.
 
 ## Original startup producer, not just a shared function name
 
@@ -40,9 +41,14 @@ planar motion. The current helper assigns those draws oppositely. The old
 `check-native-level-start.py` mislabeled both offsets and therefore masked the
 composition defect. `check-native-spell-trails.py` already uses the correct names.
 
-This trace establishes the startup producer's angle contract. It does not claim
-that startup's complete native scheduler, allocator, terrain or rendering is
-identical to the browser adapter, or certify PR245's returning-person prerequisite.
+This trace establishes the startup producer's angle contract. A separate height
+boundary remains: native model9 common initialization clamps the root to ground
+before adding90; current `stoneBurst` adds90 before `createSpellTrail` clamps its
+child. This change deliberately preserves that existing behavior. Native trajectory
+comparisons below use the declared retained birth origins and flat ground256, not
+the actual startup caller's birth height. No complete startup position/trajectory,
+scheduler, allocator, terrain or rendering equality is claimed, and PR245's
+returning-person prerequisite is not certified.
 
 ## Accepted raw records reused without a new invocation
 
@@ -83,5 +89,11 @@ no phase5/person draw is introduced into the startup helper by this evidence reu
   the shared lane. The old browser checker drives RAF/speed and is only a fixed
   step diagnostic, so it cannot serve as this ordinary-play proof.
 
-No failure-first, browser, check/build or TypeScript quality result is claimed yet.
-No application file changes until the coordinator supplies independent ACCEPT.
+Independent source review is retained in `source-review-review.md` with its
+manifest and verification. On exact `7f54a508`, the CPU4 baseline ran
+00:25:53.576–00:26:06.472 UTC and exited1: all14 existing startup tests passed;
+all3 new regressions failed on the angle swap. The actual caller failed at Mission1
+turn37/effect766 (pitch999/yaw1683 instead of pitch1683/yaw999). The unchanged
+source/input fingerprints and raw output are retained in `failure-first-portable.json`.
+The code correction follows that accepted proof and red result. Candidate portable,
+browser, check/build and TypeScript quality validation remain pending.
