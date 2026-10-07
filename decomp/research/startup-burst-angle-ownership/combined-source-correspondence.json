@@ -1,0 +1,23 @@
+{
+  "acceptedMain": "7c0bcdb246023ff4263b4baeddf5a84f7f90a7a0",
+  "combinedSource": "24d5cafff60c3bccf29db445e0fd6f9574629a34",
+  "mainDeltaApplicationFiles": [
+    "app/level-start.ts"
+  ],
+  "runtimeAndObserverUnchangedFrom": {
+    "app/level-start.ts": "76b86607fca8a54ee45840ce3c750a5c95eb164e",
+    "tests/startup-burst-angles.test.mjs": "7f54a508d957a4661c3e40dadb734aebb67f146e",
+    "tests/fixtures/startup-burst-native.json": "7f54a508d957a4661c3e40dadb734aebb67f146e",
+    "scripts/local-render/startup-burst.mjs": "ba911faef3fbe739180f9ed2e6d0a7766b51a3f4",
+    "scripts/local-render/startup-burst-observer.mjs": "ba911faef3fbe739180f9ed2e6d0a7766b51a3f4",
+    "tests/startup-burst-observer.test.mjs": "ba911faef3fbe739180f9ed2e6d0a7766b51a3f4"
+  },
+  "verifiedHashes": {
+    "app/level-start.ts": "271093f631144d14ce4438c8a0378241775e95375103339da4a73ef9b443599b",
+    "tests/startup-burst-angles.test.mjs": "5b8a2786c486a3c724de6536ccbc848e0d2e401a5565d68c4c432fc00b6adc48",
+    "tests/fixtures/startup-burst-native.json": "21da672bfe5adb2dd03daac0b3b7ce51afe2c527f4b42d39499a30c6e292437f",
+    "scripts/local-render/startup-burst.mjs": "b343b8288da070d5535565aee7e9a9371254e7b47515a6ce7eb8cf3c9a6e4231",
+    "scripts/local-render/startup-burst-observer.mjs": "52a2440e31983b8c8882d5d789fa9289160619ff048c3967fda97fd1fdf36e0b",
+    "tests/startup-burst-observer.test.mjs": "fefe114b47a4c8573952d0df68deda03c71e119cc48ffe98528380ee0177f37d"
+  }
+}
