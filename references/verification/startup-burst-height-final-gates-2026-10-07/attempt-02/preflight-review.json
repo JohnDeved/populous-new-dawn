@@ -1,0 +1,34 @@
+{
+  "verdict": "ACCEPT exact final gate02 preflight; separate execution grant required",
+  "reviewedAt": "2026-10-07T04:51:32.401065+00:00",
+  "sourceHead": "d323ccae2b42b460dadc0cb07f6368f967aa21b7",
+  "researchHead": "eabcb03bcc1a722a5315616de18d444545a6308b",
+  "packetSha256": "45eaef0ee4108bf4bf4999166c5079c21ec1c084e343cfd9891dbbfb05316173",
+  "hostSha256": "32e3a3b5bd1af85c522dabe297920f2a0c4bd94bcc9c6d3c440c18f735c3c33c",
+  "runnerSha256": "37e8dd8c7f2a84ccf0d88a72269ce88c53ba300088c97368e1cdc606f2aec3a0",
+  "sourceCorrespondence": "Exactly the accepted two test-only destructuring changes over 8f50dda2; app, passive observer, driver, packages and assertions remain unchanged.",
+  "verified": {
+    "sourcePins": 24,
+    "toolPins": 9,
+    "dependencyPins": 20,
+    "allPinsMatch": true,
+    "cleanExactHead": true,
+    "independentCopyIdentity": [
+      27,
+      1209759
+    ],
+    "outputHostOutputTemporaryAbsent": true,
+    "cachesAndFallowMarkerAbsent": true,
+    "hostByteIdenticalToGate01": true
+  },
+  "policyClarification": {
+    "expectedDiagnosticSetSha256": "de04fc5b4bcd7789f28cf1c93b41b446db59ffedd1fb7e9159ab7aecaedc495c",
+    "coordinatorDirection": "Reuse the existing advisory flag rather than adding a parser.",
+    "effect": "Oxlint exit1 remains failed and may continue only provisionally. The independent final result review must match exactly six inherited errors and 32 inherited warnings; new/missing/moved/unclassified findings block final acceptance.",
+    "supersedes": "The earlier proposal described exact matching before continuation. This reviewed implementation defers that exact matching to independent final acceptance without turning Oxlint into a pass.",
+    "required": "Format, ESLint, npm check and build remain required. Fallow has its existing separate advisory policy."
+  },
+  "bounds": "CPU5-7; same scoped and Fallow limits; check/build 900 seconds each; outer2140 TERM plus10 cleanup; host2153 fallback.",
+  "cleanup": "Unchanged independent-copy inventory/source/tool/packet checks and owned-process cleanup; generated marker retained and validated, then initial absence restored. Original quarantined loan remains untouched and unknown.",
+  "executionByReviewer": "None"
+}

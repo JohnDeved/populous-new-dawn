@@ -1,0 +1,177 @@
+{
+  "source": "d323ccae2b42b460dadc0cb07f6368f967aa21b7",
+  "proposalSource": "eabcb03bcc1a722a5315616de18d444545a6308b",
+  "proposalManifestSha256": "45eaef0ee4108bf4bf4999166c5079c21ec1c084e343cfd9891dbbfb05316173",
+  "toolSession": 82930,
+  "initialChunk": "28c760",
+  "terminalChunk": "882946",
+  "hostExitCode": 0,
+  "rawCopies": {
+    "host-receipt.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-host-02/receipt.json",
+      "sha256": "bd4db4b627c30e1646d43667a467c7570a252e5f001936121a9a23bde31fad6b",
+      "bytes": 89709
+    },
+    "command-receipt.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-host-02/command-receipt.json",
+      "sha256": "38953af4213544e4619d25ab5a0c961959b44e3685a40be5f84bd33532788dbf",
+      "bytes": 11157
+    },
+    "command-stdout.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-host-02/command-receipt.json.artifacts/stdout.log",
+      "sha256": "00ebf7c5f559f95719f203b8647bc51d91c6f0e074f849f6552b338abab9ad31",
+      "bytes": 833
+    },
+    "command-stderr.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-host-02/command-receipt.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "host-stdout.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-host-02/stdout.txt",
+      "sha256": "2c28cc868700900f8dde67cdffea57b74651c871433aa1d102c68921d810b616",
+      "bytes": 367
+    },
+    "host-stderr.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-host-02/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "results.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-02/results.json",
+      "sha256": "932cc12156000ec08da33482e95f7aec3652a4b3930d2cff2f51baacd208a64c",
+      "bytes": 1271
+    },
+    "generated-fallow-verification-marker.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-host-02/generated-fallow-verification-marker.json",
+      "sha256": "49bc25105bc03f764d0b08d9cbbb5345fff9aa0e1e057c09a933d4ca526a44ad",
+      "bytes": 527
+    },
+    "format-scoped.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-02/format-scoped.json",
+      "sha256": "f5f23255231283d4f43cca922e51ed919eb97f0d6dea4fababa5977b2d537cc4",
+      "bytes": 4079
+    },
+    "format-scoped-stdout.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-02/format-scoped.json.artifacts/stdout.log",
+      "sha256": "ca501c0cbc84729796737f92c89a86b70b78bd0ba572df27841ad5b37afe1d6d",
+      "bytes": 110
+    },
+    "format-scoped-stderr.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-02/format-scoped.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "eslint-scoped.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-02/eslint-scoped.json",
+      "sha256": "46681cb9c078151150ae44b1c47dd3aaa130c46e9fc9acfb4905e90acce211db",
+      "bytes": 4140
+    },
+    "eslint-scoped-stdout.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-02/eslint-scoped.json.artifacts/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "eslint-scoped-stderr.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-02/eslint-scoped.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "oxlint-scoped.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-02/oxlint-scoped.json",
+      "sha256": "df96e71bfc161aaa5aef86de65c3d29aac10bc2ca6e9350dd73f0b37f06dc264",
+      "bytes": 46749
+    },
+    "oxlint-scoped-stdout.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-02/oxlint-scoped.json.artifacts/stdout.log",
+      "sha256": "d49825cfff5e926f2b0d96b0471f0438adab5d93663bb09aa87537ebff320b23",
+      "bytes": 38616
+    },
+    "oxlint-scoped-stderr.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-02/oxlint-scoped.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "fallow-health.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-02/fallow-health.json",
+      "sha256": "10450d91c2fae0ee4979dda7bb6759ed8343357945703c184231c9d62ab5e85d",
+      "bytes": 52042
+    },
+    "fallow-health-stdout.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-02/fallow-health.json.artifacts/stdout.log",
+      "sha256": "35f720e3958b11eebfd25ba306743705b05f7fbe5d786258b388ea0eb2f8912d",
+      "bytes": 46619
+    },
+    "fallow-health-stderr.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-02/fallow-health.json.artifacts/stderr.log",
+      "sha256": "4c1b629b13d5753c279052ef8e5802e913b0d46f65a43bf9d29381ea20c5c817",
+      "bytes": 351
+    },
+    "fallow-dupes.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-02/fallow-dupes.json",
+      "sha256": "478875f88fc1253565829c7dc92ad29589f35ee8cdee4ef6c13d631db4eeba83",
+      "bytes": 15493
+    },
+    "fallow-dupes-stdout.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-02/fallow-dupes.json.artifacts/stdout.log",
+      "sha256": "3a087e74bf3c18f7acac19fa2b731d6d0e0bcfedb91f5b509d30f56f192167b7",
+      "bytes": 10777
+    },
+    "fallow-dupes-stderr.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-02/fallow-dupes.json.artifacts/stderr.log",
+      "sha256": "b2f568f6b226d8e45b87532bb3344d904b9120baeff92cdc8a8b3d8ac53c8853",
+      "bytes": 542
+    },
+    "fallow-unused.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-02/fallow-unused.json",
+      "sha256": "93f6d8b79033aefe8e92eade60ddb120ca543376aace614668ad0e02950f54e2",
+      "bytes": 9406
+    },
+    "fallow-unused-stdout.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-02/fallow-unused.json.artifacts/stdout.log",
+      "sha256": "db2af75cf95eae9c0257a3bec5ad44f3605a2ff9902df5a401d67b8c027db05d",
+      "bytes": 4829
+    },
+    "fallow-unused-stderr.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-02/fallow-unused.json.artifacts/stderr.log",
+      "sha256": "c4c381e0222c0959649756efb8ceb15677baca6caf85c3ae613ef856b3faf139",
+      "bytes": 500
+    },
+    "check.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-02/check.json",
+      "sha256": "6caf9cfd96219d8707c9acf9207abd93a0129c3e026f1220d14ac285057d8ce3",
+      "bytes": 149952
+    },
+    "check-stdout.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-02/check.json.artifacts/stdout.log",
+      "sha256": "73050790ad059c7fd6fa1825c996e0da299518f3b6995a0c30c933359bb4041f",
+      "bytes": 143949
+    },
+    "check-stderr.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-02/check.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "build.json": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-02/build.json",
+      "sha256": "35793a8bd47a2eeba72fa50aff5dc95df05a99d6fa4433a01723a31f2bc60bf9",
+      "bytes": 6872
+    },
+    "build-stdout.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-02/build.json.artifacts/stdout.log",
+      "sha256": "dfa94bcc4ca5ccc5f00c1479d4db9154992f82b27ef5c1560d98b259506e2333",
+      "bytes": 1143
+    },
+    "build-stderr.log": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/startup-burst-height-isolated-candidate-20261007-02/work/orchestration/startup-burst-height-final-gates-02/build.json.artifacts/stderr.log",
+      "sha256": "155a330065edd64bd671ccdc884f5066136043be6a4f7fad39041120213f3c2f",
+      "bytes": 1670
+    }
+  },
+  "derived": {
+    "comparison.json": "cf877baee38cb6ab599134897e7169d1fbcf8a26c931dcfb93820e068d2e6e8e",
+    "startup-diagnostics.json": "22fece081d2350b0823ce6d93f7229778d0d9366b9fd30a77e3e3b4ecddfd6a5",
+    "preflight-review.json": "c9a75ee1dfb3c30f4cd4ce95bb1e88adedccb5d45f59b1330665f85523229b88"
+  },
+  "semantics": "Required format/ESLint/check/build passed. Raw Oxlint and Fallow-unused remain failed/exit1 advisory findings; exact Oxlint set independently reviewed. Fallow marker generated normally, validated and retained; initial absence restored before full dependency equality. Old interrupted loan remains unknown/quarantined."
+}

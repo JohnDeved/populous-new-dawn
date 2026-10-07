@@ -1,0 +1,571 @@
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1meslint(prefer-template): Unexpected string concatenation.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst.mjs[0m:10:75]
+ [2m 9[0m │   let armed = false, failure
+ [2m10[0m │   const save = () => writeFileSync(resolve(output, 'startup-burst.json'), JSON.stringify(report, null, 2) + '\n')
+    · [38;2;246;87;248m                                                                          ──────────────────────────────────────[0m
+ [2m11[0m │   const retainFrames = async () => {
+    ╰────
+[38;2;106;159;181m  help: [0mUse template literals instead of string concatenation.
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst.mjs[0m:12:48]
+ [2m11[0m │   const retainFrames = async () => {
+ [2m12[0m │     const observed = await page.evaluate(() => window.startupBurstFrames.read())
+    · [38;2;246;87;248m                                               ──────[0m
+ [2m13[0m │     for (const [label, frame] of Object.entries(observed.frames)) {
+    ╰────
+[38;2;106;159;181m  help: [0mReplace the alias with `globalThis`.
+[38;2;106;159;181m  note: [0mhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst.mjs[0m:29:7]
+ [2m28[0m │       const { armStartupBurstFrames } = await import('/scripts/local-render/startup-burst-observer.mjs')
+ [2m29[0m │       window.startupBurstFrames = armStartupBurstFrames()
+    · [38;2;246;87;248m      ──────[0m
+ [2m30[0m │     })
+    ╰────
+[38;2;106;159;181m  help: [0mReplace the alias with `globalThis`.
+[38;2;106;159;181m  note: [0mhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst.mjs[0m:39:22]
+ [2m38[0m │     report.initial = await page.evaluate(() => {
+ [2m39[0m │       const status = window.startupBurstFrames.status()
+    · [38;2;246;87;248m                     ──────[0m
+ [2m40[0m │       const scene = window.testSceneRef?.current
+    ╰────
+[38;2;106;159;181m  help: [0mReplace the alias with `globalThis`.
+[38;2;106;159;181m  note: [0mhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst.mjs[0m:40:21]
+ [2m39[0m │       const status = window.startupBurstFrames.status()
+ [2m40[0m │       const scene = window.testSceneRef?.current
+    · [38;2;246;87;248m                    ──────[0m
+ [2m41[0m │       if (!status.installed || !scene) return status
+    ╰────
+[38;2;106;159;181m  help: [0mReplace the alias with `globalThis`.
+[38;2;106;159;181m  note: [0mhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst.mjs[0m:52:24]
+ [2m51[0m │     await page.waitForFunction(() => {
+ [2m52[0m │       const observed = window.startupBurstFrames.status()
+    · [38;2;246;87;248m                       ──────[0m
+ [2m53[0m │       if (observed.errors.length) throw new Error(observed.errors.join('\n'))
+    ╰────
+[38;2;106;159;181m  help: [0mReplace the alias with `globalThis`.
+[38;2;106;159;181m  note: [0mhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst.mjs[0m:73:46]
+ [2m72[0m │     try {
+ [2m73[0m │       if (armed) await page.evaluate(() => { window.startupBurstFrames.close(); delete window.startupBurstFrames })
+    · [38;2;246;87;248m                                             ──────[0m
+ [2m74[0m │     } catch (error) {
+    ╰────
+[38;2;106;159;181m  help: [0mReplace the alias with `globalThis`.
+[38;2;106;159;181m  note: [0mhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst.mjs[0m:73:88]
+ [2m72[0m │     try {
+ [2m73[0m │       if (armed) await page.evaluate(() => { window.startupBurstFrames.close(); delete window.startupBurstFrames })
+    · [38;2;246;87;248m                                                                                       ──────[0m
+ [2m74[0m │     } catch (error) {
+    ╰────
+[38;2;106;159;181m  help: [0mReplace the alias with `globalThis`.
+[38;2;106;159;181m  note: [0mhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1meslint(prefer-destructuring): Use Object destructuring.[0m
+   ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst-observer.mjs[0m:6:17]
+ [2m5[0m │ export function observeStartupBurstFrames(scene) {
+ [2m6[0m │   const world = scene.world, renderer = scene.renderer, original = renderer.render
+   · [38;2;246;87;248m                ───────────[0m
+ [2m7[0m │   const descriptor = Object.getOwnPropertyDescriptor(renderer, 'render')
+   ╰────
+[38;2;106;159;181m  help: [0mUse object destructuring rather than direct member access.
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1meslint(prefer-destructuring): Use Object destructuring.[0m
+   ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst-observer.mjs[0m:6:41]
+ [2m5[0m │ export function observeStartupBurstFrames(scene) {
+ [2m6[0m │   const world = scene.world, renderer = scene.renderer, original = renderer.render
+   · [38;2;246;87;248m                                        ──────────────[0m
+ [2m7[0m │   const descriptor = Object.getOwnPropertyDescriptor(renderer, 'render')
+   ╰────
+[38;2;106;159;181m  help: [0mUse object destructuring rather than direct member access.
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst-observer.mjs[0m:14:36]
+ [2m13[0m │     try {
+ [2m14[0m │       if (scene.world !== world || window.testSceneRef.current !== scene || window.testStore.getWorld() !== world)
+    · [38;2;246;87;248m                                   ──────[0m
+ [2m15[0m │         throw new Error('Observed scene/world identity changed')
+    ╰────
+[38;2;106;159;181m  help: [0mReplace the alias with `globalThis`.
+[38;2;106;159;181m  note: [0mhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst-observer.mjs[0m:14:77]
+ [2m13[0m │     try {
+ [2m14[0m │       if (scene.world !== world || window.testSceneRef.current !== scene || window.testStore.getWorld() !== world)
+    · [38;2;246;87;248m                                                                            ──────[0m
+ [2m15[0m │         throw new Error('Observed scene/world identity changed')
+    ╰────
+[38;2;106;159;181m  help: [0mReplace the alias with `globalThis`.
+[38;2;106;159;181m  note: [0mhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1meslint(no-nested-ternary): Do not nest ternary expressions.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst-observer.mjs[0m:35:21]
+ [2m34[0m │           const stoneCount = row.sites.flatMap(site => site.stoneTurns).filter(turn => turn !== null).length
+ [2m35[0m │ [38;2;246;87;248m╭[0m[38;2;246;87;248m─[0m[38;2;246;87;248m▶[0m       const label = row.turn < 30 && stoneCount === 0 ? 'before' : row.particles.some(particle => particle.age > 0) ? 'burst' :
+ [2m36[0m │ [38;2;246;87;248m╰[0m[38;2;246;87;248m─[0m[38;2;246;87;248m▶[0m         row.turn >= 70 && row.particles.length === 0 && stoneCount === 8 && row.sites.every(site => site.phase === 4) ? 'after' : null
+ [2m37[0m │           if (label && !frames[label]) frames[label] = { sample: row, png: renderer.domElement.toDataURL('image/png') }
+    ╰────
+[38;2;106;159;181m  help: [0mRefactor nested ternary expressions into if-else statements for better readability.
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1meslint(no-nested-ternary): Do not nest ternary expressions.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst-observer.mjs[0m:35:68]
+ [2m34[0m │           const stoneCount = row.sites.flatMap(site => site.stoneTurns).filter(turn => turn !== null).length
+ [2m35[0m │ [38;2;246;87;248m╭[0m[38;2;246;87;248m─[0m[38;2;246;87;248m▶[0m       const label = row.turn < 30 && stoneCount === 0 ? 'before' : row.particles.some(particle => particle.age > 0) ? 'burst' :
+ [2m36[0m │ [38;2;246;87;248m╰[0m[38;2;246;87;248m─[0m[38;2;246;87;248m▶[0m         row.turn >= 70 && row.particles.length === 0 && stoneCount === 8 && row.sites.every(site => site.phase === 4) ? 'after' : null
+ [2m37[0m │           if (label && !frames[label]) frames[label] = { sample: row, png: renderer.domElement.toDataURL('image/png') }
+    ╰────
+[38;2;106;159;181m  help: [0mRefactor nested ternary expressions into if-else statements for better readability.
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(no-nested-ternary): Unexpected deeply nested ternary expression.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst-observer.mjs[0m:36:9]
+ [2m35[0m │       const label = row.turn < 30 && stoneCount === 0 ? 'before' : row.particles.some(particle => particle.age > 0) ? 'burst' :
+ [2m36[0m │         row.turn >= 70 && row.particles.length === 0 && stoneCount === 8 && row.sites.every(site => site.phase === 4) ? 'after' : null
+    · [38;2;246;87;248m        ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2m37[0m │       if (label && !frames[label]) frames[label] = { sample: row, png: renderer.domElement.toDataURL('image/png') }
+    ╰────
+[38;2;106;159;181m  help: [0mAvoid nesting ternary expressions for more than one level.
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1meslint(prefer-destructuring): Use Object destructuring.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst-observer.mjs[0m:80:23]
+ [2m79[0m │         if (!scene?.renderer?.domElement?.isConnected) continue
+ [2m80[0m │         const world = scene.world
+    · [38;2;246;87;248m                      ───────────[0m
+ [2m81[0m │         // Retain every precondition before evaluating the guard, including loading.
+    ╰────
+[38;2;106;159;181m  help: [0mUse object destructuring rather than direct member access.
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst-observer.mjs[0m:88:9]
+ [2m87[0m │           throw new Error(`Startup installation preconditions: ${JSON.stringify(installation)}`)
+ [2m88[0m │         window.testSceneRef = ref
+    · [38;2;246;87;248m        ──────[0m
+ [2m89[0m │         window.testScene = scene
+    ╰────
+[38;2;106;159;181m  help: [0mReplace the alias with `globalThis`.
+[38;2;106;159;181m  note: [0mhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst-observer.mjs[0m:89:9]
+ [2m88[0m │         window.testSceneRef = ref
+ [2m89[0m │         window.testScene = scene
+    · [38;2;246;87;248m        ──────[0m
+ [2m90[0m │         window.testStore = store
+    ╰────
+[38;2;106;159;181m  help: [0mReplace the alias with `globalThis`.
+[38;2;106;159;181m  note: [0mhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.[0m
+    ╭─[[38;2;92;157;255;1mscripts/local-render/startup-burst-observer.mjs[0m:90:9]
+ [2m89[0m │         window.testScene = scene
+ [2m90[0m │         window.testStore = store
+    · [38;2;246;87;248m        ──────[0m
+ [2m91[0m │         captured = observeStartupBurstFrames(scene)
+    ╰────
+[38;2;106;159;181m  help: [0mReplace the alias with `globalThis`.
+[38;2;106;159;181m  note: [0mhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.[0m
+    ╭─[[38;2;92;157;255;1mtests/startup-burst-observer.test.mjs[0m:71:5]
+ [2m70[0m │     assert.deepEqual(observer.read().frames, {})
+ [2m71[0m │     window.testSceneRef.current = {}
+    · [38;2;246;87;248m    ──────[0m
+ [2m72[0m │     for (let n = 0; n < 12; n++) assert.equal(f.renderer.render(f.scene.scene, f.scene.camera), result)
+    ╰────
+[38;2;106;159;181m  help: [0mReplace the alias with `globalThis`.
+[38;2;106;159;181m  note: [0mhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(consistent-function-scoping): Function `original` does not capture any variables from its parent scope[0m
+    ╭─[[38;2;92;157;255;1mtests/startup-burst-observer.test.mjs[0m:80:9]
+ [2m79[0m │ test('observer refuses to overwrite a later renderer owner during close', () => {
+ [2m80[0m │   const original = () => 'original', replacement = () => 'replacement'
+    · [38;2;246;87;248m        ────────[0m
+ [2m81[0m │   const f = fixture(original); let observer
+    ╰────
+[38;2;106;159;181m  help: [0mMove `original` to the outer scope to avoid recreating it on every call.
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(consistent-function-scoping): Function `replacement` does not capture any variables from its parent scope[0m
+    ╭─[[38;2;92;157;255;1mtests/startup-burst-observer.test.mjs[0m:80:38]
+ [2m79[0m │ test('observer refuses to overwrite a later renderer owner during close', () => {
+ [2m80[0m │   const original = () => 'original', replacement = () => 'replacement'
+    · [38;2;246;87;248m                                     ───────────[0m
+ [2m81[0m │   const f = fixture(original); let observer
+    ╰────
+[38;2;106;159;181m  help: [0mMove `replacement` to the outer scope to avoid recreating it on every call.
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`.[0m
+     ╭─[[38;2;92;157;255;1mtests/startup-burst-observer.test.mjs[0m:136:65]
+ [2m135[0m │   const ref = { current: f.scene }, main = { __reactFiberTest: {
+ [2m136[0m │     memoizedState: { memoizedState: ref, next: { memoizedState: window.testStore } },
+     · [38;2;246;87;248m                                                                ──────[0m
+ [2m137[0m │   } }
+     ╰────
+[38;2;106;159;181m  help: [0mReplace the alias with `globalThis`.
+[38;2;106;159;181m  note: [0mhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1meslint(no-nested-ternary): Do not nest ternary expressions.[0m
+     ╭─[[38;2;92;157;255;1mtests/startup-burst-observer.test.mjs[0m:143:75]
+ [2m142[0m │   f.renderer.domElement.isConnected = false
+ [2m143[0m │   globalThis.document = { documentElement: {}, querySelector: selector => selector === 'main' ? main : loading ? {} : null }
+     · [38;2;246;87;248m                                                                          ────────────────────────────────────────────────[0m
+ [2m144[0m │   globalThis.MutationObserver = class {
+     ╰────
+[38;2;106;159;181m  help: [0mRefactor nested ternary expressions into if-else statements for better readability.
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(no-nested-ternary): Unexpected nested ternary expression without parentheses.[0m
+     ╭─[[38;2;92;157;255;1mtests/startup-burst-observer.test.mjs[0m:143:104]
+ [2m142[0m │   f.renderer.domElement.isConnected = false
+ [2m143[0m │   globalThis.document = { documentElement: {}, querySelector: selector => selector === 'main' ? main : loading ? {} : null }
+     · [38;2;246;87;248m                                                                                                       ───────────────────[0m
+ [2m144[0m │   globalThis.MutationObserver = class {
+     ╰────
+[38;2;106;159;181m  help: [0mAdd parentheses around the nested ternary expression.
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1meslint(prefer-destructuring): Use Object destructuring.[0m
+     ╭─[[38;2;92;157;255;1mtests/startup-burst-observer.test.mjs[0m:177:20]
+ [2m176[0m │     assert.equal(observer.status().before, true)
+ [2m177[0m │     const sample = observer.read().frames.before.sample
+     · [38;2;246;87;248m                   ────────────────────────────────────[0m
+ [2m178[0m │     assert.equal(sample.loadingOverlay, true)
+     ╰────
+[38;2;106;159;181m  help: [0mUse object destructuring rather than direct member access.
+
+  [38;2;225;80;80;1m×[0m [38;2;225;80;80;1mimport(no-cycle): Dependency cycle detected[0m
+    ╭─[[38;2;92;157;255;1mapp/level-start-runtime.ts[0m:18:30]
+ [2m17[0m │ } from './person-orders.ts'
+ [2m18[0m │ import { orderEffects } from './live-movement.ts'
+    · [38;2;246;87;248m                             ────────────────────[0m
+ [2m19[0m │ import { startPersonOrders } from './person-order-start.ts'
+    ╰────
+[38;2;106;159;181m  help: [0mRefactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.
+[38;2;106;159;181m  note: [0mThese paths form a cycle:
+           ╭──▶ ./live-movement.ts (app/live-movement.ts)
+           │         ⬇ imports
+           │    ./computer-spells.ts (app/computer-spells.ts)
+           │         ⬇ imports
+           │    ./spell-casting.ts (app/spell-casting.ts)
+           │         ⬇ imports
+           │    ./live-people.ts (app/live-people.ts)
+           │         ⬇ imports
+           │    ./live-building-entry.ts (app/live-building-entry.ts)
+           │         ⬇ imports
+           │    ./firewarrior.ts (app/firewarrior.ts)
+           │         ⬇ imports
+           │    ./combat-runtime.ts (app/combat-runtime.ts)
+           │         ⬇ imports
+           │    ./world-tasks.ts (app/world-tasks.ts)
+           │         ⬇ imports
+           │    ./live-building-combat.ts (app/live-building-combat.ts)
+           │         ⬇ imports
+           │    ./live-movement.ts (app/live-movement.ts)
+           │         ⬇ imports
+           │    ./live-pathfinding.ts (app/live-pathfinding.ts)
+           │         ⬇ imports
+           │    ./model.ts (app/model.ts)
+           │         ⬇ imports
+           │    ./world-initialization.ts (app/world-initialization.ts)
+           │         ⬇ imports
+           │    ./level-start-runtime.ts (app/level-start-runtime.ts)
+           ╰─────────╯ imports the current file
+
+  [38;2;225;80;80;1m×[0m [38;2;225;80;80;1mimport(no-cycle): Dependency cycle detected[0m
+   ╭─[[38;2;92;157;255;1mapp/level-start-runtime.ts[0m:8:8]
+ [2m7[0m │   setLivePersonAnimation,
+ [2m8[0m │ } from './live-people.ts'
+   · [38;2;246;87;248m       ──────────────────[0m
+ [2m9[0m │ import { releaseTasks } from './world-tasks.ts'
+   ╰────
+[38;2;106;159;181m  help: [0mRefactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.
+[38;2;106;159;181m  note: [0mThese paths form a cycle:
+           ╭──▶ ./live-people.ts (app/live-people.ts)
+           │         ⬇ imports
+           │    ./live-building-entry.ts (app/live-building-entry.ts)
+           │         ⬇ imports
+           │    ./firewarrior.ts (app/firewarrior.ts)
+           │         ⬇ imports
+           │    ./combat-runtime.ts (app/combat-runtime.ts)
+           │         ⬇ imports
+           │    ./campaign-runtime.ts (app/campaign-runtime.ts)
+           │         ⬇ imports
+           │    ./live-combat.ts (app/live-combat.ts)
+           │         ⬇ imports
+           │    ./combat-orders.ts (app/combat-orders.ts)
+           │         ⬇ imports
+           │    ./combat-targets.ts (app/combat-targets.ts)
+           │         ⬇ imports
+           │    ./computer-spells.ts (app/computer-spells.ts)
+           │         ⬇ imports
+           │    ./spell-casting.ts (app/spell-casting.ts)
+           │         ⬇ imports
+           │    ./live-people.ts (app/live-people.ts)
+           │         ⬇ imports
+           │    ./live-movement.ts (app/live-movement.ts)
+           │         ⬇ imports
+           │    ./live-building-combat.ts (app/live-building-combat.ts)
+           │         ⬇ imports
+           │    ./live-pathfinding.ts (app/live-pathfinding.ts)
+           │         ⬇ imports
+           │    ./model.ts (app/model.ts)
+           │         ⬇ imports
+           │    ./world-initialization.ts (app/world-initialization.ts)
+           │         ⬇ imports
+           │    ./level-start-runtime.ts (app/level-start-runtime.ts)
+           ╰─────────╯ imports the current file
+
+  [38;2;225;80;80;1m×[0m [38;2;225;80;80;1mimport(no-cycle): Dependency cycle detected[0m
+    ╭─[[38;2;92;157;255;1mapp/level-start-runtime.ts[0m:46:8]
+ [2m45[0m │   finishSiteWaveTerrain,
+ [2m46[0m │ } from './site-wave-effects.ts'
+    · [38;2;246;87;248m       ────────────────────────[0m
+ [2m47[0m │ 
+    ╰────
+[38;2;106;159;181m  help: [0mRefactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.
+[38;2;106;159;181m  note: [0mThese paths form a cycle:
+           ╭──▶ ./site-wave-effects.ts (app/site-wave-effects.ts)
+           │         ⬇ imports
+           │    ./world-effects.ts (app/world-effects.ts)
+           │         ⬇ imports
+           │    ./campaign-runtime.ts (app/campaign-runtime.ts)
+           │         ⬇ imports
+           │    ./live-combat.ts (app/live-combat.ts)
+           │         ⬇ imports
+           │    ./combat-orders.ts (app/combat-orders.ts)
+           │         ⬇ imports
+           │    ./combat-targets.ts (app/combat-targets.ts)
+           │         ⬇ imports
+           │    ./computer-spells.ts (app/computer-spells.ts)
+           │         ⬇ imports
+           │    ./spell-casting.ts (app/spell-casting.ts)
+           │         ⬇ imports
+           │    ./live-people.ts (app/live-people.ts)
+           │         ⬇ imports
+           │    ./live-building-entry.ts (app/live-building-entry.ts)
+           │         ⬇ imports
+           │    ./firewarrior.ts (app/firewarrior.ts)
+           │         ⬇ imports
+           │    ./combat-runtime.ts (app/combat-runtime.ts)
+           │         ⬇ imports
+           │    ./world-tasks.ts (app/world-tasks.ts)
+           │         ⬇ imports
+           │    ./live-building-combat.ts (app/live-building-combat.ts)
+           │         ⬇ imports
+           │    ./live-movement.ts (app/live-movement.ts)
+           │         ⬇ imports
+           │    ./live-pathfinding.ts (app/live-pathfinding.ts)
+           │         ⬇ imports
+           │    ./model.ts (app/model.ts)
+           │         ⬇ imports
+           │    ./world-initialization.ts (app/world-initialization.ts)
+           │         ⬇ imports
+           │    ./level-start-runtime.ts (app/level-start-runtime.ts)
+           ╰─────────╯ imports the current file
+
+  [38;2;225;80;80;1m×[0m [38;2;225;80;80;1mimport(no-cycle): Dependency cycle detected[0m
+    ╭─[[38;2;92;157;255;1mapp/level-start-runtime.ts[0m:21:55]
+ [2m20[0m │ import { removeObjectFromCell } from './object-cells.ts'
+ [2m21[0m │ import { effect, sound, shotVisual, moveVisual } from './world-effects.ts'
+    · [38;2;246;87;248m                                                      ────────────────────[0m
+ [2m22[0m │ import { nativePosition } from './world-terrain-runtime.ts'
+    ╰────
+[38;2;106;159;181m  help: [0mRefactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.
+[38;2;106;159;181m  note: [0mThese paths form a cycle:
+           ╭──▶ ./world-effects.ts (app/world-effects.ts)
+           │         ⬇ imports
+           │    ./campaign-runtime.ts (app/campaign-runtime.ts)
+           │         ⬇ imports
+           │    ./live-combat.ts (app/live-combat.ts)
+           │         ⬇ imports
+           │    ./combat-orders.ts (app/combat-orders.ts)
+           │         ⬇ imports
+           │    ./combat-targets.ts (app/combat-targets.ts)
+           │         ⬇ imports
+           │    ./computer-spells.ts (app/computer-spells.ts)
+           │         ⬇ imports
+           │    ./spell-casting.ts (app/spell-casting.ts)
+           │         ⬇ imports
+           │    ./live-people.ts (app/live-people.ts)
+           │         ⬇ imports
+           │    ./live-building-entry.ts (app/live-building-entry.ts)
+           │         ⬇ imports
+           │    ./firewarrior.ts (app/firewarrior.ts)
+           │         ⬇ imports
+           │    ./combat-runtime.ts (app/combat-runtime.ts)
+           │         ⬇ imports
+           │    ./world-tasks.ts (app/world-tasks.ts)
+           │         ⬇ imports
+           │    ./live-building-combat.ts (app/live-building-combat.ts)
+           │         ⬇ imports
+           │    ./live-movement.ts (app/live-movement.ts)
+           │         ⬇ imports
+           │    ./live-pathfinding.ts (app/live-pathfinding.ts)
+           │         ⬇ imports
+           │    ./model.ts (app/model.ts)
+           │         ⬇ imports
+           │    ./world-initialization.ts (app/world-initialization.ts)
+           │         ⬇ imports
+           │    ./level-start-runtime.ts (app/level-start-runtime.ts)
+           ╰─────────╯ imports the current file
+
+  [38;2;225;80;80;1m×[0m [38;2;225;80;80;1mimport(no-cycle): Dependency cycle detected[0m
+    ╭─[[38;2;92;157;255;1mapp/level-start-runtime.ts[0m:10:25]
+ [2m 9[0m │ import { releaseTasks } from './world-tasks.ts'
+ [2m10[0m │ import { addUnit } from './world-state.ts'
+    · [38;2;246;87;248m                        ──────────────────[0m
+ [2m11[0m │ import { randomPersonSpeed, recoverPersonMovement } from './person-state.ts'
+    ╰────
+[38;2;106;159;181m  help: [0mRefactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.
+[38;2;106;159;181m  note: [0mThese paths form a cycle:
+           ╭──▶ ./world-state.ts (app/world-state.ts)
+           │         ⬇ imports
+           │    ./campaign-runtime.ts (app/campaign-runtime.ts)
+           │         ⬇ imports
+           │    ./live-combat.ts (app/live-combat.ts)
+           │         ⬇ imports
+           │    ./combat-orders.ts (app/combat-orders.ts)
+           │         ⬇ imports
+           │    ./combat-targets.ts (app/combat-targets.ts)
+           │         ⬇ imports
+           │    ./computer-spells.ts (app/computer-spells.ts)
+           │         ⬇ imports
+           │    ./spell-casting.ts (app/spell-casting.ts)
+           │         ⬇ imports
+           │    ./live-people.ts (app/live-people.ts)
+           │         ⬇ imports
+           │    ./live-building-entry.ts (app/live-building-entry.ts)
+           │         ⬇ imports
+           │    ./firewarrior.ts (app/firewarrior.ts)
+           │         ⬇ imports
+           │    ./combat-runtime.ts (app/combat-runtime.ts)
+           │         ⬇ imports
+           │    ./world-tasks.ts (app/world-tasks.ts)
+           │         ⬇ imports
+           │    ./live-building-combat.ts (app/live-building-combat.ts)
+           │         ⬇ imports
+           │    ./live-movement.ts (app/live-movement.ts)
+           │         ⬇ imports
+           │    ./live-pathfinding.ts (app/live-pathfinding.ts)
+           │         ⬇ imports
+           │    ./model.ts (app/model.ts)
+           │         ⬇ imports
+           │    ./world-initialization.ts (app/world-initialization.ts)
+           │         ⬇ imports
+           │    ./level-start-runtime.ts (app/level-start-runtime.ts)
+           ╰─────────╯ imports the current file
+
+  [38;2;225;80;80;1m×[0m [38;2;225;80;80;1mimport(no-cycle): Dependency cycle detected[0m
+    ╭─[[38;2;92;157;255;1mapp/level-start-runtime.ts[0m:9:30]
+ [2m 8[0m │ } from './live-people.ts'
+ [2m 9[0m │ import { releaseTasks } from './world-tasks.ts'
+    · [38;2;246;87;248m                             ──────────────────[0m
+ [2m10[0m │ import { addUnit } from './world-state.ts'
+    ╰────
+[38;2;106;159;181m  help: [0mRefactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.
+[38;2;106;159;181m  note: [0mThese paths form a cycle:
+           ╭──▶ ./world-tasks.ts (app/world-tasks.ts)
+           │         ⬇ imports
+           │    ./live-building-combat.ts (app/live-building-combat.ts)
+           │         ⬇ imports
+           │    ./combat-approach.ts (app/combat-approach.ts)
+           │         ⬇ imports
+           │    ./combat-targets.ts (app/combat-targets.ts)
+           │         ⬇ imports
+           │    ./computer-spells.ts (app/computer-spells.ts)
+           │         ⬇ imports
+           │    ./spell-casting.ts (app/spell-casting.ts)
+           │         ⬇ imports
+           │    ./live-people.ts (app/live-people.ts)
+           │         ⬇ imports
+           │    ./live-building-entry.ts (app/live-building-entry.ts)
+           │         ⬇ imports
+           │    ./firewarrior.ts (app/firewarrior.ts)
+           │         ⬇ imports
+           │    ./combat-runtime.ts (app/combat-runtime.ts)
+           │         ⬇ imports
+           │    ./world-tasks.ts (app/world-tasks.ts)
+           │         ⬇ imports
+           │    ./live-movement.ts (app/live-movement.ts)
+           │         ⬇ imports
+           │    ./live-pathfinding.ts (app/live-pathfinding.ts)
+           │         ⬇ imports
+           │    ./model.ts (app/model.ts)
+           │         ⬇ imports
+           │    ./world-initialization.ts (app/world-initialization.ts)
+           │         ⬇ imports
+           │    ./level-start-runtime.ts (app/level-start-runtime.ts)
+           ╰─────────╯ imports the current file
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1meslint(no-shadow): 'u' is already declared in the upper scope.[0m
+     ╭─[[38;2;92;157;255;1mapp/level-start-runtime.ts[0m:273:11]
+ [2m272[0m │     if (site.phase === 4) continue
+ [2m273[0m │     const u = w.units.find(u => u.id === site.shaman)
+     · [38;2;246;87;248m          ┬[0m[38;2;30;201;212m                ┬[0m
+     ·           [38;2;246;87;248m│[0m                [38;2;30;201;212m╰── [38;2;30;201;212m'u' is declared here[0m[0m
+     ·           [38;2;246;87;248m╰── [38;2;246;87;248mshadowed declaration is here[0m[0m
+ [2m274[0m │     if (!u?.native || u.hp <= 0) {
+     ╰────
+[38;2;106;159;181m  help: [0mConsider renaming 'u' to avoid shadowing the variable from the outer scope.
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(consistent-function-scoping): Function `unsupported` does not capture any variables from its parent scope[0m
+     ╭─[[38;2;92;157;255;1mapp/level-start-runtime.ts[0m:118:11]
+ [2m117[0m │     }
+ [2m118[0m │     const unsupported = () => {
+     · [38;2;246;87;248m          ───────────[0m
+ [2m119[0m │       throw new Error('Unexpected transport/building in authored startup')
+     ╰────
+[38;2;106;159;181m  help: [0mMove `unsupported` to the outer scope to avoid recreating it on every call.
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(no-array-sort): Use `Array#toSorted()` instead of `Array#sort()`.[0m
+     ╭─[[38;2;92;157;255;1mapp/level-start-runtime.ts[0m:222:6]
+ [2m221[0m │     ])
+ [2m222[0m │     .sort((a, b) => b.id - a.id)
+     · [38;2;246;87;248m     ────[0m
+ [2m223[0m │   for (const { site, carrier } of controllers) {
+     ╰────
+[38;2;106;159;181m  help: [0m`Array#sort()` mutates the original array. Use `Array#toSorted()` to return a new sorted array without modifying the original.
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(no-negated-condition): Unexpected negated condition.[0m
+     ╭─[[38;2;92;157;255;1mapp/level-start-runtime.ts[0m:225:9]
+ [2m224[0m │     const team = teamForTribe(site.tribe)
+ [2m225[0m │     if (!carrier) {
+     · [38;2;246;87;248m        ────────[0m
+ [2m226[0m │       if (site.wave) {
+     ╰────
+[38;2;106;159;181m  help: [0mRemove the negation operator and switch the consequent and alternate branches.
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(no-array-reverse): Use `Array#toReversed()` instead of `Array#reverse()`.[0m
+     ╭─[[38;2;92;157;255;1mapp/level-start-runtime.ts[0m:231:42]
+ [2m230[0m │           siteWaveEffects(w, site.tribe, changed, cell => {
+ [2m231[0m │             for (const u of [...w.units].reverse())
+     · [38;2;246;87;248m                                         ───────[0m
+ [2m232[0m │               if (u.team === 'wild' && u.hp > 0 && u.inside === null && inSiteWaveCell(w, cell, u))
+     ╰────
+[38;2;106;159;181m  help: [0m`Array#reverse()` mutates the original array. Use `Array#toReversed()` to return a new reversed array without modifying the original.
+
+  [38;2;244;191;117;1m⚠[0m [38;2;244;191;117;1municorn(no-array-reverse): Use `Array#toReversed()` instead of `Array#reverse()`.[0m
+     ╭─[[38;2;92;157;255;1mapp/level-start-runtime.ts[0m:271:40]
+ [2m270[0m │   }
+ [2m271[0m │   for (const site of [...w.levelStart].reverse()) {
+     · [38;2;246;87;248m                                       ───────[0m
+ [2m272[0m │     if (site.phase === 4) continue
+     ╰────
+[38;2;106;159;181m  help: [0m`Array#reverse()` mutates the original array. Use `Array#toReversed()` to return a new reversed array without modifying the original.
+
+Found 32 warnings and 6 errors.
+Finished in 61ms on 5 files with 258 rules using 3 threads.
