@@ -140,6 +140,5 @@ export function restoreSecondaryEffects(w: World) {
   w.secondaryEffects.reservations = []
   // Older saves could retain a burning hut's root until occupant evacuation.
   // Restore the same eligibility now, including when play resumes paused.
-  for (const building of w.buildings)
-    if (!eligible(building)) reconcileWorldHutSmoke(w, building)
+  for (const building of w.buildings) if (!eligible(building)) reconcileWorldHutSmoke(w, building)
 }

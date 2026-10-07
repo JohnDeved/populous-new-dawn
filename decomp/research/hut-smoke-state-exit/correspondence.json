@@ -3,11 +3,6 @@
   "runtimeCandidate": "b26f66b24da4fe133441e83c5377467a5066ef64",
   "ordinaryExecutedHead": "4363be773890acfb89eff90eecee11fe0c633f9e",
   "ordinaryEvidenceHead": "e303f8895a58dce2f2dcb4b9a4acb1c8abbb1f3c",
-  "applicationFiles": {
-    "app/hut-smoke-runtime.ts": "96b52d988b5d6fec0482e48d7e768e8a835e70483f1988b94217cbe2e3877c1b",
-    "app/spell-effects-runtime.ts": "1c0df0978804bee45702cd2a7331be6efaf7a8cb411997d257be6dd503a6d90d",
-    "app/live-building-combat.ts": "9ed318b09c0258afca86c87d3147d3cda1b2a9c3ad8e8e81d7ec3703afa74a4e"
-  },
   "firewarrior": {
     "callerBeforeSha256": "c8c0a8f3b83157562154ad354206d9d7900f669c67134d5071d0471623617d23",
     "callerAfterSha256": "9ed318b09c0258afca86c87d3147d3cda1b2a9c3ad8e8e81d7ec3703afa74a4e",
@@ -23,9 +18,15 @@
     "ownedProjectionSha256": "5ea3bf389c59cb4ecbf98b19f98566939103e14ce49301b7fb64b330289d0128",
     "fixturesNativeProjectionAndTestByteIdenticalToMain": true
   },
-  "validation": "Accepted native, focused and ordinary evidence is byte-correspondent. Final clean-tree quality/check/build pending.",
+  "validation": "Native, focused and ordinary evidence accepted; one whitespace-only token-identical smoke formatting correction. Scoped lint has no introduced diagnostics. Broad lint/format failures remain retained. Standard check/build pending.",
   "preservedResearchHead": "a701465361070036fd6493de623b04d3d7d23086",
-  "copiedSources": {
+  "evidenceUrl": "https://github.com/JohnDeved/populous-new-dawn/tree/a701465361070036fd6493de623b04d3d7d23086/references/verification/hut-smoke-state-exit-2026-10-06",
+  "acceptedApplicationFiles": {
+    "app/hut-smoke-runtime.ts": "96b52d988b5d6fec0482e48d7e768e8a835e70483f1988b94217cbe2e3877c1b",
+    "app/spell-effects-runtime.ts": "1c0df0978804bee45702cd2a7331be6efaf7a8cb411997d257be6dd503a6d90d",
+    "app/live-building-combat.ts": "9ed318b09c0258afca86c87d3147d3cda1b2a9c3ad8e8e81d7ec3703afa74a4e"
+  },
+  "acceptedCopiedSources": {
     "app/hut-smoke-runtime.ts": "96b52d988b5d6fec0482e48d7e768e8a835e70483f1988b94217cbe2e3877c1b",
     "app/live-building-combat.ts": "9ed318b09c0258afca86c87d3147d3cda1b2a9c3ad8e8e81d7ec3703afa74a4e",
     "app/spell-effects-runtime.ts": "1c0df0978804bee45702cd2a7331be6efaf7a8cb411997d257be6dd503a6d90d",
@@ -38,5 +39,47 @@
     "decomp/research/hut-smoke-state-exit/class2-root-release.asm.txt": "ebc9ae0b6e686785dad1459b61c9a84d9776fbfe189245b63043db50894fe94c",
     "decomp/research/hut-smoke-state-exit/ignition-dispatch.asm.txt": "50e4263bbc329eff5a830362311c2463a75bee8be4b7d5d934e7706f7b1bb888"
   },
-  "evidenceUrl": "https://github.com/JohnDeved/populous-new-dawn/tree/a701465361070036fd6493de623b04d3d7d23086/references/verification/hut-smoke-state-exit-2026-10-06"
+  "integrationSources": {
+    "app/hut-smoke-runtime.ts": "8652d3c33cc2c195344c62a7a9d2aba572620742c0dd89458634f576853ac834",
+    "app/live-building-combat.ts": "9ed318b09c0258afca86c87d3147d3cda1b2a9c3ad8e8e81d7ec3703afa74a4e",
+    "app/spell-effects-runtime.ts": "1c0df0978804bee45702cd2a7331be6efaf7a8cb411997d257be6dd503a6d90d",
+    "decomp/research/firewarrior-firing-phase/port.mjs": "9db3a8617975bc0b306fbd4838a8edc876bc938ccc110c26bc2648d8be960dbb",
+    "scripts/local-render/hut-smoke-ignition.mjs": "f1128cf3a472a5e939c185871cf61383704f4685958ee2729bbcb44dff47447a",
+    "scripts/local-render/hut-smoke-ignition-observer.mjs": "8a50fa4bb93b6bb0fb9b927056dacb085049cb2125ebd6bb4db2579ea6f8b735",
+    "tests/hut-smoke-ignition.test.mjs": "6ac554e82c51fd92393f56fb0ae766dcc3927a2bd8a502744fa62f34d9c8654e",
+    "tests/hut-smoke-ignition-observer.test.mjs": "f31df10058cb90c1e581b71d0bb81cf84bb32c089e66601b4024e17d2da1fa3c",
+    "decomp/research/hut-smoke-state-exit/probe-ignition-root-draft.py": "ef2f20f3547ebf313fd95c2381ce6e4d1568a9a9788243bcac571d45ce78da55",
+    "decomp/research/hut-smoke-state-exit/class2-root-release.asm.txt": "ebc9ae0b6e686785dad1459b61c9a84d9776fbfe189245b63043db50894fe94c",
+    "decomp/research/hut-smoke-state-exit/ignition-dispatch.asm.txt": "50e4263bbc329eff5a830362311c2463a75bee8be4b7d5d934e7706f7b1bb888"
+  },
+  "formattingCorrespondence": {
+    "beforeSha256": "96b52d988b5d6fec0482e48d7e768e8a835e70483f1988b94217cbe2e3877c1b",
+    "afterSha256": "8652d3c33cc2c195344c62a7a9d2aba572620742c0dd89458634f576853ac834",
+    "tokenCount": 1070,
+    "tokenSha256": "8f8ba757049573d5e8eba3d23c8fefff755c9f1b26bc1d4b88c32a1fe7c6f8e7",
+    "tokensIdentical": true,
+    "parseErrors": 0,
+    "appUnchanged": true,
+    "scope": "Only restore for/if line break; all other accepted source bytes unchanged",
+    "evidenceUrl": "https://github.com/JohnDeved/populous-new-dawn/tree/89070c5d7ed15acef46609007f2e61275ccf8e02/references/verification/hut-smoke-state-exit-2026-10-06/final-quality-03"
+  },
+  "qualityComparison": {
+    "candidateHead": "1eee0458be159a829e3c993c448358f15169d03b",
+    "baselineHead": "1c7e6b05687aca14d9350e17c7ae14dc6c68bb97",
+    "normalization": "filename (ESLint basename), severity, rule and message; ignore locations and help metadata",
+    "oxlint": {
+      "candidate": 45,
+      "baseline": 45,
+      "new": [],
+      "removed": [],
+      "errors": 27,
+      "warnings": 18
+    },
+    "eslint": {
+      "candidate": 1,
+      "baseline": 1,
+      "new": [],
+      "removed": []
+    }
+  }
 }

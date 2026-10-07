@@ -37,9 +37,11 @@ The root now retires immediately, before residents leave. Emitted children keep
 their own secondary slots, normal visits and lifetime. Allocation, fire, RNG,
 resident admission, animation cadence and render frequency retain their owners.
 
-The three runtime files are byte-identical to focused candidate
+The ignition callback files are byte-identical to focused candidate
 `b26f66b24da4fe133441e83c5377467a5066ef64` and ordinary executed source
-`4363be773890acfb89eff90eecee11fe0c633f9e`. The maintained checker, observer,
+`4363be773890acfb89eff90eecee11fe0c633f9e`. The smoke owner differs only by
+one formatter line break, with all1070 TypeScript tokens proven identical.
+The maintained checker, observer,
 tests and native probe preserve the accepted source bytes, including historical
 “draft/unrun” comments. Those comments label preparation; the results below
 identify what was subsequently executed.
@@ -100,13 +102,21 @@ claimed.
 ## Integration correspondence and checks
 
 [Exact source and evidence correspondence](hut-smoke-state-exit/correspondence.json)
-records all11 copied executable/static files. The Firewarrior port changes only
+records all11 accepted executable/static files and the formatting correspondence. The Firewarrior port changes only
 its strict whole-caller SHA guard; `stepAreaAttack` remains byte-identical over
 9332 bytes, SHA256
 `dd9c099be0a5eda1bb571a88a9ac7a30ade5de567325400ec63f5a1ab5fa4a59`.
 All16 Firewarrior fixtures, native observations, projection and tests are
 unchanged. The portable suite exercises that exact guard and comparison.
 
-Final clean-tree quality, `npm run check` and `npm run build` are pending source
-review and the serialized dependency window. Earlier failure/pass labels and
-accepted proof remain attached to their exact source revisions.
+[Scoped quality comparison](https://github.com/JohnDeved/populous-new-dawn/tree/89070c5d7ed15acef46609007f2e61275ccf8e02/references/verification/hut-smoke-state-exit-2026-10-06/final-quality-03) found no introduced diagnostics: candidate
+and exact main1c7 each have45 Oxlint rows (27 errors,18 warnings) and the same
+single ESLint error in unchanged code. Broad lint retains its failed737-warning/
+671-error advisory result. Broad format retained the smoke line-break issue
+plus unchanged render-view/viewport-bounds issues; only the smoke line break
+was corrected using the preview and identical-token proof. No unrelated cleanup
+is included.
+
+`npm run check` and `npm run build` remain pending final source review and the
+serialized dependency window. Earlier failure/pass labels and accepted proof
+remain attached to their exact source revisions.
