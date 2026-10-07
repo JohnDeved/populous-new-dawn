@@ -147,3 +147,10 @@ GPU, shared files, or services. Keep process ownership and cleanup explicit.
 The bounded [five-product-PR trial](delivery-trial.md) adds a cheap preflight and
 compact transition evidence to existing PRs/receipts. It does not replace final
 gates or GitHub ownership, and speed targets remain unproven until measured.
+
+## Automatic evidence report
+
+`npm run parity:measure` derives local JSON/HTML/history from source-bound receipts,
+without running game checks or editing completion flags. Normal receipt/verification
+commands refresh it automatically. See [automatic parity evidence](automatic-parity.md)
+for the initially incomplete Mission 1–3 bindings, freshness rules and evidence limits.

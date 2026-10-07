@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "description": "Executable evidence bindings, never completion flags. Mission cases are a separate view; they do not add credit to overlapping whole-game requirements.",
+  "capabilities": [
+    {
+      "id": "mission-one.continuation",
+      "title": "Mission 1 result continuation to Mission 2 (injected outcome)",
+      "scope": "scenario",
+      "mission": 1,
+      "parityId": "campaign.mission-one",
+      "browserCheckIds": ["checkpoint-browser"],
+      "originalCheckIds": [],
+      "limits": "The browser check removes enemy units and advances a tick to trigger victory before clicking Continue. It proves result continuation, not natural Mission 1 victory or original timing."
+    },
+    {
+      "id": "mission-two.checkpoint",
+      "title": "Mission 2 fresh-page checkpoint restoration",
+      "scope": "scenario",
+      "mission": 2,
+      "parityId": "persistence.load",
+      "browserCheckIds": ["checkpoint-browser"],
+      "originalCheckIds": [],
+      "limits": "The diagnostic also uses direct commands/ticks and injected state. Browser IndexedDB continuation is a modernization. It does not establish original save-format or whole-world parity."
+    },
+    {
+      "id": "mission-three.opening",
+      "title": "Mission 3 opening, first construction and Preacher",
+      "scope": "scenario",
+      "mission": 3,
+      "parityId": "campaign.missions",
+      "browserCheckIds": ["mission3-browser"],
+      "originalCheckIds": [],
+      "limits": "The check seeds Mission 2 victory, then exercises shipped continuation. Later Mission 3 behavior and full original comparison remain unknown."
+    }
+  ]
+}
