@@ -1,0 +1,19 @@
+{
+  "status": "exact-match",
+  "acceptedRedSource": "b66f3a90661da4c394669f888758f8260c907bcc",
+  "greenSource": "82a78b2ed64795e49309ca9ca24bfa0c40242a00",
+  "redDiagnosticsPath": "references/verification/startup-burst-height-red-2026-10-07/attempt-01/diagnostics.json",
+  "redDiagnosticsSha256": "22fece081d2350b0823ce6d93f7229778d0d9366b9fd30a77e3e3b4ecddfd6a5",
+  "greenDiagnosticsSha256": "22fece081d2350b0823ce6d93f7229778d0d9366b9fd30a77e3e3b4ecddfd6a5",
+  "compared": "All fields in the three complete JSON objects decoded from actual raw stdout; no filtering or numerical tolerance",
+  "levels": [
+    1,
+    2,
+    3
+  ],
+  "births": [
+    256,
+    256,
+    512
+  ]
+}

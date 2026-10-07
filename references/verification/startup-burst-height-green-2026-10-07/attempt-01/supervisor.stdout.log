@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "output": "work/orchestration/startup-burst-height-green-20261007/attempt-01/receipt.json",
+  "headOid": "82a78b2ed64795e49309ca9ca24bfa0c40242a00",
+  "exitCode": 0,
+  "stdoutSha256": "e46ae7b395d29de9ee00712ced445fab731a992b110a656fac690a4b68c024ec",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

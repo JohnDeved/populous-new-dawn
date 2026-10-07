@@ -1,0 +1,57 @@
+{
+  "verdict": "ACCEPT exact green source/preflight",
+  "head": "82a78b2ed64795e49309ca9ca24bfa0c40242a00",
+  "manifestSha256": "43e2f8c63f4d7cd2e7c36788fa26a7df681603f129b26e904dfb77e2f551cba8",
+  "method": "Read-only source/Git/hash comparison; no test/application/native/browser execution",
+  "runtime": {
+    "file": "app/level-start-runtime.ts",
+    "sha256": "2450145b24d5e0b0e278f157de38e83756443a92a88dee3e8fc2fef4492c4798",
+    "appliedHunkEqualsReviewedTextPatch": true,
+    "onlyAppOrTestDeltaFromRed": true,
+    "scope": "Ground signed root height once after existing root effectCounter increment and before32children, then add90 with signed-short conversion. Existing child clamp and allocation/RNG order remain."
+  },
+  "preserved": {
+    "testSha256": "74212dcb91cf0c8635b4c9b36b8e534391dd2ffecb3cbc2df194a6cc16b312a9",
+    "nativeRawSha256": "ecec70d64abcfedd06ea1146462b6f7d86e35a3e8b77652f5cea0587b058c957",
+    "angleFileSha256": "271093f631144d14ce4438c8a0378241775e95375103339da4a73ef9b443599b",
+    "redDiagnosticsSha256": "22fece081d2350b0823ce6d93f7229778d0d9366b9fd30a77e3e3b4ecddfd6a5"
+  },
+  "preflight": {
+    "pinsIndependentlyHashed": 237,
+    "receiptBindings": 238,
+    "cleanHead": true,
+    "freshDirectoryAbsent": true,
+    "hostDelta": "Two labels only from accepted red host",
+    "childArgvAndHostLimitsUnchanged": true,
+    "oneCommandFourTests": true,
+    "cpu": [
+      4
+    ],
+    "childSeconds": [
+      40,
+      5
+    ],
+    "hostSeconds": [
+      50,
+      5
+    ],
+    "nativeCalls": 0,
+    "packageOrDependencyUse": false
+  },
+  "acceptanceConditions": [
+    "All four unchanged tests pass with no skips and all1024 per-birth/final32-per-authored-stone assertions reached.",
+    "Exact equality of all three emitted integrity objects with accepted red raw diagnostics, including RNG words, effectCounter,nextId,stone turns,phase histories.",
+    "Actual command and host pass, exact source/tool/input postflight, no residual owned processes/groups, no limit/ownership errors."
+  ],
+  "claimLimits": [
+    "Height test checks3draws/lifetime/assignment order, not pitch/yaw values. PR253 angle evidence and later angle regression remain separate.",
+    "Fixed-step actual production caller only; ordinary elapsed/rendered startup and final integrated gates remain outstanding.",
+    "Supplied native arrival retains terrain/audio/allocation/presentation-leaf conditions. No native rerun is needed for this unchanged oracle."
+  ],
+  "packetHashes": {
+    "README.md": "f0f85b98abb16ad4e92e6cb6f8a3b0e758a7d668b2b68228415c5bcc66ac1edb",
+    "launch.json": "43e2f8c63f4d7cd2e7c36788fa26a7df681603f129b26e904dfb77e2f551cba8",
+    "launch.py": "5995c4f55938d785ddde371c300b89e9cd96293ec0003fcca78bbc583bbf3728",
+    "source-correspondence.json": "c8d798267040be26f6c807dceb0ea36f69491d2f777e07c3f389938e66bd1acb"
+  }
+}

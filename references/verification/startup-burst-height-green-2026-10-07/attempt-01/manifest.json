@@ -1,0 +1,48 @@
+{
+  "sourceCommit": "82a78b2ed64795e49309ca9ca24bfa0c40242a00",
+  "originalExecutionDirectory": "/workspace/scratch/69fd8163d94e/startup-burst-height-green-run-20261007-01/work/orchestration/startup-burst-height-green-20261007/attempt-01",
+  "rawCopies": {
+    "receipt.json": {
+      "originalRelativePath": "receipt.json",
+      "sha256": "74920b7e638526b735f312cc6eee37dce3e88e3755652b78fe679e9ee0069509",
+      "bytes": 52547
+    },
+    "host-receipt.json": {
+      "originalRelativePath": "host-receipt.json",
+      "sha256": "924f0bc28659472b11e651f3f10d4f90de432ef6d0b5b1ed8f9233c39510dcbd",
+      "bytes": 64543
+    },
+    "launch-once.json": {
+      "originalRelativePath": "launch-once.json",
+      "sha256": "5195bde440d4b28020a28f14fe5e30ba5d904c296b2afd36d3744ee47ba48110",
+      "bytes": 221
+    },
+    "supervisor.stdout.log": {
+      "originalRelativePath": "supervisor.stdout.log",
+      "sha256": "0195e846ac617ec3599bdfb4a29860fc22e09ad30622728105a24219cedf3e0c",
+      "bytes": 365
+    },
+    "supervisor.stderr.log": {
+      "originalRelativePath": "supervisor.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "test-stdout.log": {
+      "originalRelativePath": "receipt.json.artifacts/stdout.log",
+      "sha256": "e46ae7b395d29de9ee00712ced445fab731a992b110a656fac690a4b68c024ec",
+      "bytes": 1304
+    },
+    "test-stderr.log": {
+      "originalRelativePath": "receipt.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  },
+  "derived": {
+    "diagnostics.json": "22fece081d2350b0823ce6d93f7229778d0d9366b9fd30a77e3e3b4ecddfd6a5",
+    "red-comparison.json": "907fcce8294a26628abd15812df7a370a18a36b5214bc8b78b364ff9976de49c",
+    "observations.json": "d42a2663bc89ebcb2a65557da9c64e7f10430ccdf7dfc6baaf25e76a7e3fafbb",
+    "preflight-review.json": "fa9acab7a394a65cdd39ceff74af8066d56ca38429745d01cca1fc2bea709211"
+  },
+  "semantics": "Actual exit0 and passed command/host receipts retained; complete green assertions and exact diagnostic equality require independent result acceptance. No broader runtime/browser claim."
+}

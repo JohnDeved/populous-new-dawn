@@ -1,0 +1,61 @@
+{
+  "status": "passed-pending-independent-result-review",
+  "sourceCommit": "82a78b2ed64795e49309ca9ca24bfa0c40242a00",
+  "acceptedMain": "e3a7a06a4250457502288d5b4c4e4ad8f3b40b53",
+  "launchManifestSha256": "43e2f8c63f4d7cd2e7c36788fa26a7df681603f129b26e904dfb77e2f551cba8",
+  "toolSession": 96229,
+  "initialChunk": "8c9bca",
+  "terminalChunk": "25b5ba",
+  "testCounts": {
+    "total": 4,
+    "passed": 4,
+    "failed": 0
+  },
+  "reporter": "Node default spec; raw output unchanged",
+  "allBirthAssertionsReached": 1024,
+  "perStone32AssertionReached": true,
+  "exactRedDiagnosticsMatch": true,
+  "receipt": {
+    "status": "passed",
+    "startedAt": "2026-10-07T02:54:54.614Z",
+    "finishedAt": "2026-10-07T02:54:56.945Z",
+    "exitCode": 0,
+    "stdoutSha256": "e46ae7b395d29de9ee00712ced445fab731a992b110a656fac690a4b68c024ec",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "receiptInputCount": 238,
+  "sourceUnchanged": true,
+  "host": {
+    "status": "child-finished",
+    "passed": true,
+    "startedAt": "2026-10-07T02:54:54.185606+00:00",
+    "finishedAt": "2026-10-07T02:54:57.444241+00:00",
+    "elapsedSeconds": 3.258662431006087,
+    "peakAggregateRssBytes": 293453824,
+    "rootProcessIdentity": {
+      "pid": 14,
+      "state": "R",
+      "parent": 2,
+      "group": 14,
+      "session": 14,
+      "startTimeTicks": 8565723,
+      "rssBytes": 3276800
+    },
+    "termDeadlineMonotonic": 85707.234531378,
+    "killDeadlineMonotonic": 85712.234531378,
+    "checkedGroups": [
+      14,
+      34
+    ],
+    "remainingGroups": [],
+    "resourcesReleased": true,
+    "sourceUnchanged": true
+  },
+  "limits": [
+    "Fixed-step actual production caller, not ordinary elapsed rendered startup",
+    "Height test verifies three-draw order, lifetime and assignment; pitch/yaw values remain separate PR253 and later angle-regression evidence",
+    "All native component raw-terrain/disabled-audio/two-supply/one-arrival/successful-allocation limits remain",
+    "Original native artifact reused without new native invocation",
+    "Only one focused green command; no retry or further runtime/test edits; clean-delivery integrated gates remain pending"
+  ]
+}

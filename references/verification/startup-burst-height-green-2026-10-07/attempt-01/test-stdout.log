@@ -1,0 +1,15 @@
+✔ retained original arrival grounds its root before the default height offset (1.324786ms)
+✔ ordinary Mission 1 startup births retain the original root height offset (334.595693ms)
+ℹ {"level":1,"births":256,"gameplay":2291033406,"cosmetic":1775192911,"effectCounter":129,"nextId":1184,"stoneTurns":[[0,[52,49,48,45,44,41,40,37]],[1,[null,null,null,null,null,null,null,null]]],"phaseHistory":[[1,"0:1,1:4"],[13,"0:2,1:4"],[35,"0:3,1:4"],[52,"0:4,1:4"]]}
+✔ ordinary Mission 2 startup births retain the original root height offset (382.558482ms)
+ℹ {"level":2,"births":256,"gameplay":661852190,"cosmetic":1775192911,"effectCounter":147,"nextId":1245,"stoneTurns":[[3,[null,null,null,null,null,null,null,null]],[0,[52,49,48,45,44,41,40,37]]],"phaseHistory":[[1,"3:4,0:1"],[13,"3:4,0:2"],[35,"3:4,0:3"],[52,"3:4,0:4"]]}
+✔ ordinary Mission 3 startup births retain the original root height offset (275.739209ms)
+ℹ {"level":3,"births":512,"gameplay":2772966691,"cosmetic":2096320492,"effectCounter":27,"nextId":2432,"stoneTurns":[[0,[52,49,48,45,44,41,40,37]],[2,[53,50,49,46,45,42,41,38]]],"phaseHistory":[[1,"0:1,2:1"],[13,"0:2,2:2"],[35,"0:3,2:3"],[52,"0:4,2:3"],[53,"0:4,2:4"]]}
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2287.275031
