@@ -4,6 +4,8 @@ import { resolve } from 'node:path'
 import { waitForSavedCheckpoint } from './early-missions.mjs'
 import { bindGame, showAllMissions } from '../browser-game.mjs'
 import { requireSabotageTrace } from './spy-sabotage-observer.mjs'
+import { checkpointObservation, readCommittedCheckpoint } from './checkpoint-observer.mjs'
+import { SPY_RESTART, requireSpyRestart, spyRouteLength } from './spy-sabotage-continuation.mjs'
 
 // Page-serializable read-only eligibility/geometry. aria-disabled describes cast
 // visibility; the separate context-menu handler permits discovered permanent spells.
@@ -25,12 +27,15 @@ export function prepareSpellChargePause(element, { name, model }) {
 }
 
 // Authored Mission16, public controls and ordinary RAF only. The existing harness
-// owns the fresh profile, 300000ms whole-attempt deadline, browser and cleanup.
+// owns the profile, 300000ms whole-attempt deadline, browser and cleanup.
 export default async function ({ page, output, receipt, observeCheckpoint, signal }) {
   const report = { productBase: '076636812067329a91de33aac484702c4f03f342', source: receipt.source,
     status: 'running', stages: [], method: 'Public Mission16 entry, real construction/training/save/disguise and pointer command15; passive copied turn evidence.',
     limits: 'One bounded functional attempt; no source-game timing, complete mission, hardware performance or unconditional reveal claim.' }
   const deadline = Date.parse(receipt.startedAt) + 300000
+  const continuation = receipt.profile?.mode === 'reused'
+  report.entry = continuation ? 'genuine Spy02 Load continuation' : 'fresh authored Mission16 acquisition'
+  if (continuation) report.method = 'Genuine Spy02 checkpoint, public Load/disguise and one pointer command15; detached navigation screen and passive copied turn evidence.'
   let observerInstalled = false
   const save = () => writeFileSync(resolve(output, 'ordinary-spy-sabotage.json'), JSON.stringify(report, null, 2) + '\n')
   const remaining = (maximum = 15000) => {
@@ -215,6 +220,57 @@ export default async function ({ page, output, receipt, observeCheckpoint, signa
     return { paused, checkpoint: saved }
   }
   try {
+    let school, spyId
+    if (continuation) {
+      await stage('genuine-spy02-load-boundary', async () => {
+        const saved = requireSpyRestart(receipt.profile)
+        assert.deepEqual(await readCommittedCheckpoint(page), saved)
+        // Existing checkpoint-restart pattern: copy the first replacement before
+        // public Load auto-resumes. The subscription never changes game state.
+        await page.evaluate(() => {
+          const main = document.querySelector('main')
+          let fiber = main[Object.keys(main).find(key => key.startsWith('__reactFiber'))], store
+          for (; fiber && !store; fiber = fiber.return) for (let hook = fiber.memoizedState; hook; hook = hook.next)
+            if (hook.memoizedState?.getWorld && hook.memoizedState?.subscribe) { store = hook.memoizedState; break }
+          if (!store) throw Error('Store unavailable before public Load')
+          const before = store.getWorld(); window.spyLoadBoundary = null; window.spyLoadError = null
+          const unsubscribe = store.subscribe(() => {
+            const w = store.getWorld(); if (w === before) return
+            try { window.spyLoadBoundary = { version: 1, world: structuredClone(w) } }
+            catch (error) { window.spyLoadError = String(error) }
+            finally { unsubscribe() }
+          })
+          window.finishSpyLoadObservation = unsubscribe
+        })
+        try {
+          await button('Load Game')
+          await page.waitForFunction(() => window.spyLoadBoundary || window.spyLoadError, null, { timeout: remaining() })
+        } finally {
+          await page.evaluate(() => { window.finishSpyLoadObservation?.(); delete window.finishSpyLoadObservation })
+        }
+        assert.equal(await page.evaluate(() => window.spyLoadError), null)
+        const loaded = await page.evaluate(checkpointObservation, { observationName: 'spyLoadBoundary' })
+        for (const key of ['level', 'turn', 'time', 'actorsSha256', 'terrainSha256', 'stockSha256']) assert.deepEqual(loaded[key], saved[key])
+        const boundary = await page.evaluate(async ({ actorId, schoolId }) => {
+          const { spySnapshot } = await import('/scripts/local-render/spy-sabotage-observer.mjs')
+          return spySnapshot(window.spyLoadBoundary.world, actorId, schoolId)
+        }, SPY_RESTART)
+        await page.evaluate(() => { delete window.spyLoadBoundary; delete window.spyLoadError })
+        assert.equal(boundary.actor.id, SPY_RESTART.actorId); assert.equal(boundary.actor.kind, 'spy')
+        assert.equal(boundary.actor.team, 'blue'); assert.equal(boundary.actor.hp, 30)
+        assert.equal(boundary.actor.registeredNative, true)
+        assert.deepEqual([boundary.target.id, boundary.target.kind, boundary.target.team, boundary.target.progress, boundary.target.hp],
+          [SPY_RESTART.schoolId, 'spyHut', 'blue', 1, 260])
+        await bindGame(page)
+        await page.waitForFunction(turn => window.testStore.getWorld().turn > turn, saved.turn, { timeout: remaining() })
+        const observed = await observeCheckpoint('Genuine Spy02 Load; original committed Save retained')
+        assert.deepEqual(observed.checkpoint, saved)
+        const live = await read(SPY_RESTART.actorId, SPY_RESTART.schoolId)
+        assert.ok(live.actor?.hp > 0 && live.actor.registeredNative)
+        spyId = SPY_RESTART.actorId; school = live.buildings.find(b => b.id === SPY_RESTART.schoolId)
+        return { originalSource: SPY_RESTART.source, priorRun: SPY_RESTART.priorRunId, saved, loaded, boundary, observed }
+      })
+    } else {
     await stage('authored-entry-and-route-preflight', async () => {
       assert.equal(receipt.profile?.mode, 'created'); assert.equal(receipt.profile.checkpointAtStart, null)
       // Reuse the accepted early-missions introduction/readiness pattern.
@@ -237,7 +293,6 @@ export default async function ({ page, output, receipt, observeCheckpoint, signa
       })
       return { initial, candidates, introductionSkipped }
     })
-    let school
     await stage('ordinary-spy-school-construction', async () => {
       const builders = await select('brave', true); await view({ x: 32, z: -32 })
       const site = await page.evaluate(async () => {
@@ -269,7 +324,6 @@ export default async function ({ page, output, receipt, observeCheckpoint, signa
       await page.getByRole('button', { name: 'Continue Game', exact: false }).click({ timeout: remaining() })
       return { builders, site, built, preparation }
     })
-    let spyId
     await stage('ordinary-training-and-genuine-save', async () => {
       const [brave] = await select('brave'); await view(school)
       await page.getByTitle('spells', { exact: true }).click({ timeout: remaining() })
@@ -300,11 +354,29 @@ export default async function ({ page, output, receipt, observeCheckpoint, signa
       await page.getByRole('button', { name: 'Continue Game', exact: false }).click({ timeout: remaining() })
       return { sourceBrave: brave, allocatedSpy: spyId, input, trained, saved }
     })
+    }
     let target
     await stage('ordinary-disguise-and-target', async () => {
       assert.deepEqual(await select('spy'), [spyId])
       const candidates = await targets(spyId); assert.ok(candidates.length, 'PREREQUISITE: no live connected hostile target')
-      target = candidates[0]
+      if (continuation) {
+        const routes = await page.evaluate(async candidates => {
+          const { probeSpyRoutes } = await import('/scripts/local-render/spy-sabotage-continuation.mjs')
+          const { findPath } = await import('/app/live-command.ts')
+          const { browserPosition } = await import('/app/model.ts')
+          const w = window.testStore.getWorld()
+          window.spyRouteBefore = { version: 1, world: structuredClone(w) }
+          try { return probeSpyRoutes(w, candidates, (probe, actor, goal) => findPath(probe, actor, browserPosition(goal))) }
+          finally { window.spyRouteAfter = { version: 1, world: structuredClone(w) } }
+        }, candidates)
+        const before = await page.evaluate(checkpointObservation, { observationName: 'spyRouteBefore' })
+        const after = await page.evaluate(checkpointObservation, { observationName: 'spyRouteAfter' })
+        assert.deepEqual(after, before, 'Detached route probes must leave the complete live world unchanged')
+        await page.evaluate(() => { delete window.spyRouteBefore; delete window.spyRouteAfter })
+        report.routeCandidates = { routes, before, after }; save()
+        target = routes.filter(r => r.eligible).sort((a, b) => a.length - b.length || a.id - b.id)[0]
+        assert.ok(target, 'PREREQUISITE: no reviewed Yellow candidate has a route within 170 world units')
+      } else target = candidates[0]
       await page.getByTitle('followers', { exact: true }).click({ timeout: remaining() })
       const names = { red: 'Dakini', yellow: 'Chumara', green: 'Matak' }, tribe = { red: 1, yellow: 2, green: 3 }[target.team]
       await button(`Disguise selected spies as ${names[target.team]}`)
@@ -325,12 +397,19 @@ export default async function ({ page, output, receipt, observeCheckpoint, signa
           () => window.testSceneRef.current === s && window.testStore.getWorld() === w)
       }, { spyId, targetId: target.id }); observerInstalled = true
       const input = await dispatch(target.id, spyId, 15)
+      report.command15Input = input; save()
       await wait('actual Spy approach/arrival/sabotage', s => {
         assert.ok(s.actor?.hp > 0 && s.actor.registeredNative, 'Chosen Spy/controller was lost')
         assert.ok(s.target?.hp > 0, 'Chosen target was lost')
         assert.equal(s.order?.model, 15, 'Stop if combat or reassignment replaces sabotage')
+        if (continuation && !report.actualApproach && s.person.substate === 0 && s.actor.path.length) {
+          report.actualApproach = { turn: s.turn, actor: s.actor, goal: { x: s.person.goalX, y: s.person.goalY },
+            length: spyRouteLength(s.actor, s.actor.path) }; save()
+          assert.ok(report.actualApproach.length <= SPY_RESTART.maxRouteLength, 'Actual route exceeds the declared 170-world-unit bound')
+        }
         return s.person.substate === 4 && s.target.burn?.remaining > 0
       }, remaining(120000), spyId, target.id)
+      if (continuation) assert.ok(report.actualApproach, 'The actual continued approach must have a recorded route bound')
       const trace = await page.evaluate(() => { const result = window.spyTurnObserver.finish(); delete window.spyTurnObserver; return result })
       observerInstalled = false
       writeFileSync(resolve(output, 'spy-sabotage-trace.json'), JSON.stringify({ input, trace }, null, 2) + '\n')
