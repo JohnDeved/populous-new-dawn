@@ -3,6 +3,7 @@ import test from 'node:test'
 import { readFileSync } from 'node:fs'
 import { createMission1VaultInput } from '../scripts/local-render/mission1-vault-input.mjs'
 import { createWorld, tick, command, setSelection } from '../app/model.ts'
+import { observeEntityPointer } from '../qa/erosion-ordinary/input.mjs'
 import { interruptFlyby } from '../app/flyby.ts'
 import { observeBlastEpisode, inputContext } from '../qa/blast-ordinary/observer.mjs'
 
@@ -14,7 +15,7 @@ function fixture(t, { rejectRelease = false, rejectAdmission = false, throwDraw,
     addEventListener(type, fn, capture = false) { listeners.push({ type, fn, capture }) },
     removeEventListener(type, fn, capture = false) { const index = listeners.findIndex(x => x.type === type && x.fn === fn && x.capture === capture); if (index >= 0) listeners.splice(index, 1) },
     dispatch(type, point = { x: 10, y: 20 }) {
-      const event = { type, target: canvas, button: 0, buttons: type === 'pointerdown' ? 1 : 0, isTrusted: true, clientX: point.x, clientY: point.y }
+      const event = { type, target: canvas, ctrlKey: false, shiftKey: false, altKey: false, metaKey: false, pointerType: 'mouse', button: 0, buttons: type === 'pointerdown' ? 1 : 0, isTrusted: true, clientX: point.x, clientY: point.y }
       // DOM invoke snapshots each phase. Newly armed bubble listeners cannot
       // consume this event; removals of old listeners still take effect.
       for (const capture of [true, false]) for (const listener of listeners.filter(x => x.type === type && x.capture === capture).slice())
@@ -26,7 +27,7 @@ function fixture(t, { rejectRelease = false, rejectAdmission = false, throwDraw,
   const native = id => ({ id, class: 1, flags2: 0, x: id === 1 ? 100 : 1000, y: 2000, h: 120, speed: 0, state: 19, immediateCommand: 0, commands: [], commandCursor: 0 })
   const actor = modelWorld?.units.find(u => u.team === 'blue' && u.kind === 'shaman') ?? { id: 1, team: 'blue', kind: 'shaman', hp: 100, inside: null, native: native(1) }
   const target = modelWorld?.units.find(u => u.team === 'red' && u.kind === 'brave' && u.x === -9 && u.z === -3) ?? { id: 3, team: 'blue', kind: 'brave', hp: 100, inside: null, native: native(3) }
-  const world = modelWorld ?? { turn: 1, outcome: { level: 2 }, status: 'playing', paused: false, speed: 1, mode: 'blast', inputMask: 0,
+  const world = modelWorld ?? { turn: 1, outcome: { level: 2 }, status: 'playing', paused: false, speed: 1, mode: 'blast', inputMask: 0, lastOrderTurn: 0,
     manaWorld: { gameFlags: 0 }, manaTribes: [{ mana: 10 }], randomState: 123, units: [actor, target], selected: [3], projectiles: [], effects: [],
     objectCells: { objects: new Map([[1, actor.native], [3, target.native]]) }, buildingOrders: { records: [] }, shots: { blast: 4 }, stats: { cast: 0 } }
   if (enemy && !modelWorld) {
@@ -45,7 +46,7 @@ function fixture(t, { rejectRelease = false, rejectAdmission = false, throwDraw,
     picking: { pickPerson: () => world.mode === 'blast' && !(enemy && !groundEnemy && handlers === 1 && !primerPerson) ? target.id : null, pick: () => null }, unitMeshes: new Map(), fxMeshes: new Map(),
     pickUnit: () => null, pickWorldObject: () => null, screen: () => ({ x: 0, y: 0 }),
     pick: () => modelWorld ? { x: actor.x, z: actor.z + 2 } : { x: 3, z: 0 },
-    drawPointer(now) { log.push({ name: 'draw', receiver: this, now }); if (throwDraw) throw throwDraw; attrs.set('d', 'M'.repeat(now < this.pointerAck.until ? 32 : 16)); return 'draw-result' },
+    drawPointer(now) { log.push({ name: 'draw', receiver: this, now }); if (throwDraw) throw throwDraw; attrs.set('d', 'M'.repeat(now < this.pointerAck.until && this.pointerAck.target === this.hoveredObject ? 32 : 16)); return 'draw-result' },
     renderer: { domElement: canvas, info: { render: { frame: 0 } }, getContext: () => ({ isContextLost: () => false, drawingBufferWidth: 2, drawingBufferHeight: 2,
       RGBA: 1, UNSIGNED_BYTE: 2, readPixels(...args) { log.push('readPixels'); args.at(-1).fill(255) } }),
     render() { this.info.render.frame++; return 'render-result' } },
@@ -289,8 +290,13 @@ test('wrong or repeated delivered preparation move remains an observer failure',
 
 function groundApproach(t) {
   const f = fixture(t, { enemy: true, groundEnemy: true })
+  const snapshot = () => ({ turn: f.world.turn, selected: [...f.world.selected], lastOrderTurn: f.world.lastOrderTurn,
+    worldMatches: true, units: [{ id: f.actor.id, kind: 'shaman', hp: f.actor.hp, orderId: f.actor.native.immediateCommand,
+      order: structuredClone(f.world.buildingOrders.records[f.actor.native.immediateCommand]) }] })
+  const before = snapshot(), trace = observeEntityPointer(f.scene, document)
   f.canvas.dispatch('pointerdown'); f.canvas.dispatch('pointerup')
-  assert.equal(f.observer.read().artifacts.approach.valid, true)
+  f.delivery = { before, after: snapshot(), errors: [], delivered: trace.finish() }
+  assert.equal(f.observer.read().artifacts.approach.valid, false)
   assert.equal(f.observer.read().artifacts.primer, undefined)
   return f
 }
@@ -301,7 +307,7 @@ function startResponse(f) {
 }
 test('actual approach receipt arms stationary natural hover and one independent moving release', async t => {
   const f = groundApproach(t)
-  assert.equal(f.observer.armEnemy().setup, 'ground-response')
+  assert.equal(f.observer.armEnemy(f.delivery).setup, 'ground-response')
   f.world.mode = 'blast'; f.world.turn = 2; f.scene.gameClock.afterTurn()
   f.observer.prepareEnemyPointer({ x: 10, y: 20 }); f.canvas.dispatch('pointermove')
   f.scene.renderer.render(f.scene.scene, f.scene.camera); f.scene.drawPointer(performance.now())
@@ -320,7 +326,7 @@ test('actual approach receipt arms stationary natural hover and one independent 
   assert.equal(f.scene.drawPointer, f.originalDraw); assert.equal(f.scene.renderer.render, f.originalRender); assert.equal(f.scene.picking.pickPerson, f.originalPick)
 })
 test('a response before the first natural hover cannot be replaced by a later stationary frame', t => {
-  const f = groundApproach(t); f.observer.armEnemy(); f.world.mode = 'blast'
+  const f = groundApproach(t); f.observer.armEnemy(f.delivery); f.world.mode = 'blast'
   f.observer.prepareEnemyPointer({ x: 10, y: 20 }); f.canvas.dispatch('pointermove')
   startResponse(f)
   f.scene.renderer.render(f.scene.scene, f.scene.camera); f.scene.drawPointer(performance.now())
@@ -332,12 +338,12 @@ test('a response before the first natural hover cannot be replaced by a later st
 test('ground approach arming rejects changed original owner or a replaced active order', t => {
   for (const change of [f => { f.actor.native = { ...f.actor.native } }, f => { f.world.buildingOrders.records[1] = { model: 3, a: 1, b: 2 } }]) {
     const f = groundApproach(t); change(f)
-    assert.throws(() => f.observer.armEnemy(), /validated active original approach/)
+    assert.throws(() => f.observer.armEnemy(f.delivery), /validated active original approach/)
     f.observer.dispose()
   }
 })
 test('ground preparation retains actual context drift as failure before any cast', t => {
-  const f = groundApproach(t); f.observer.armEnemy(); f.world.mode = 'blast'
+  const f = groundApproach(t); f.observer.armEnemy(f.delivery); f.world.mode = 'blast'
   f.observer.prepareEnemyPointer({ x: 10, y: 20 }); f.scene.cameraPosition.x++
   f.canvas.dispatch('pointermove')
   assert.match(f.observer.progress().errors.join(' '), /declared point, context/)
@@ -380,6 +386,19 @@ test('real moveGround and episode compose one approach owner before the cast tra
   assert.equal(f.handlers(), 1)
   assert.deepEqual(f.observer.progress().errors, [], 'Episode must not finish beneath the helper-owned picker wrappers')
   assert.deepEqual([f.scene.pickUnit, f.scene.picking.pickPerson, f.scene.pickWorldObject, f.scene.picking.pick, f.scene.pick], f.pristinePickers)
+  for (const mutate of [
+    d => { d.delivered.restored = false }, d => { d.delivered.events[1].turn++ },
+    d => { d.delivered.events[1].x++ }, d => { d.delivered.events[0].trusted = false },
+    d => { d.delivered.events[1].state.camera.x++ }, d => { d.after.selected = [99] },
+    d => { d.after.units[0].order.a++ }, d => { d.after.lastOrderTurn++ },
+    d => { d.before.units[0].id++ },
+    d => { d.delivered.events[1].picks.filter(p => p.name === 'pick' && p.owner === 'scene').at(-1).point.z++ },
+  ]) {
+    const invalid = structuredClone(delivered); mutate(invalid)
+    assert.throws(() => f.observer.armEnemy(invalid), /Restored moveGround receipt/)
+    assert.equal(f.handlers(), 1)
+    assert.equal(f.observer.read().artifacts.approach.valid, false)
+  }
   assert.equal(f.observer.armEnemy(delivered).setup, 'ground-response')
   f.observer.dispose()
   assert.deepEqual([f.scene.pickUnit, f.scene.picking.pickPerson, f.scene.pickWorldObject, f.scene.picking.pick, f.scene.pick], f.pristinePickers)

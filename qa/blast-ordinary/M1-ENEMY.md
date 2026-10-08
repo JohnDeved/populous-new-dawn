@@ -17,8 +17,11 @@ may use at most two existing right-drags before combat preparation.
 Settle the only combat view, prepare imports/input helpers and install observers
 before the sole final approach to(-5.1,0.9). Retain that actual trusted ground
 handler, selected original caster, exact native command3 payload, unchanged stock
-and cast count. Arm only while that original approach is active and before an
-enemy response. Key1 then arms Blast without changing the approach order.
+and cast count. During this command, moveGround alone owns the picker wrappers.
+The episode records passive synchronous before/after state; armEnemy consumes the
+helper's returned restored trace and matches its turn/point/context/recipient/order
+to those snapshots before installing the person-cast trace. Arm only while that
+original approach is active and before an enemy response. Key1 then arms Blast without changing the approach order.
 
 During the approach, prepare exactly one actual canvas-owned guard pixel while
 its distinct-turn pose is stationary and source readiness/range succeeds. Send
@@ -79,3 +82,12 @@ interval was189.3ms/four logical turns with about3.264 world units of target
 motion. The fixed original trial freeze is unchanged. Pure focused contracts
 exercise synthetic event/DOM and actual caller bodies; they are not gameplay or
 rendered evidence. No additional attempt is authorized by importing this module.
+
+The first ground-response attempt at6d9e1c895 remains failed before hover. Its
+trusted approach at873 delivered original Shaman30/order13, but the episode tried
+to restore an inner picker observer while moveGround still owned outer wrappers.
+No person cast occurred. The sole-owner repair is covered by a regression that
+runs the actual moveGround/dispatch, generic pointer observer and episode together
+with an authored M1 World and real command3. Only browser DOM/events and callback
+module-URL resolution are supplied; this is composed source proof, not an ordinary
+input or rendered result. The exact old implementation's failed receipt is retained.

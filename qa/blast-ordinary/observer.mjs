@@ -4,7 +4,7 @@ import { createBlastAdmission } from './preparation.mjs'
 import { captureBlastReleaseRange, readBlastReleasePixel, recordBlastRelease, observeBlastTurn } from './setup-observer.mjs'
 import { spellTargetError } from '../../app/live-command.ts'
 import { currentPersonOrder } from '../../app/person-orders.ts'
-import { observeEntityPointer } from '../erosion-ordinary/input.mjs'
+import { observeEntityPointer, entityInputState } from '../erosion-ordinary/input.mjs'
 
 const short = n => (n << 16) >> 16
 const position = p => ({ x: short(p.x), y: short(p.y), h: short(p.h) })
@@ -54,6 +54,8 @@ export function observeBlastEpisode(scene, options) {
   let shot, delivered = false, eventBefore, inputBefore, pressBefore, pointer, disposed = false, moveExpected, moveOwner, movementDelivered = false, movementOrder, plannedGround, deferredAck, hudFrame, movementAttempted = false
   const sameScene = () => window.testSceneRef.current === scene && window.testStore.getWorld() === world && scene.world === world && scene.renderer.domElement.isConnected
   const person = u => blastPersonSnapshot(world, u, target, movementOrder)
+  const deliveryContext = state => Object.fromEntries(['turn', 'frame', 'animationFrame', 'currentSceneMatches', 'currentWorldMatches',
+    'rect', 'camera', 'center', 'rawCenter', 'projection'].map(key => [key, state[key]]))
   const sample = () => ({ turn: world.turn, level: world.outcome.level, playing: world.status === 'playing', paused: world.paused,
     speed: world.speed, flags: world.manaWorld.gameFlags, sceneMatches: sameScene(), actor: person(actor), target: person(target),
     stock: world.shots.blast, castCount: world.stats.cast, mana: world.manaTribes[0].mana, random: world.randomState,
@@ -216,6 +218,7 @@ export function observeBlastEpisode(scene, options) {
     eventBefore = { observedAt: performance.now(), press: structuredClone(pressBefore), point: { x: event.clientX, y: event.clientY }, turn: world.turn, targetId: target.id, mode: world.mode, trusted: event.isTrusted,
       canvasOwned: event.target === scene.renderer.domElement && document.elementFromPoint(event.clientX, event.clientY) === scene.renderer.domElement,
       context: inputContext(scene), stockBefore: world.shots.blast, castCountBefore: world.stats.cast }
+    if (groundEnemy && !enemyArmed) eventBefore.deliveryContext = deliveryContext(entityInputState(scene, null, eventBefore.point))
     inputBefore = { turn: world.turn, mode: world.mode, selected: [...world.selected], stock: world.shots.blast, castCount: world.stats.cast,
       trusted: eventBefore.trusted, canvasOwned: eventBefore.canvasOwned, point: { ...eventBefore.point } }
     if (delivered) {
@@ -229,6 +232,23 @@ export function observeBlastEpisode(scene, options) {
     const moving = delivered
     if (moving) movementAttempted = true
     try {
+      if (groundEnemy && !enemyArmed) {
+        if (artifacts.approach) throw Error('Only one actual ground approach input is permitted')
+        approachOwner = actor.native; approachOrder = approachOwner && currentPersonOrder(world.buildingOrders, approachOwner)
+        const after = sample(), value = structuredClone(eventBefore)
+        artifacts.approach = { event: value, after: structuredClone(after), selected: [...world.selected], lastOrderTurn: world.lastOrderTurn,
+          orderId: approachOwner && (approachOwner.immediateCommand || approachOwner.commands[approachOwner.commandCursor]),
+          order: approachOrder && { ...approachOrder }, contextAfter: inputContext(scene),
+          deliveryContextAfter: deliveryContext(entityInputState(scene, null, value.point)), valid: false }
+        if (!sameScene() || !value.trusted || !value.canvasOwned || value.mode !== null || world.mode !== null || value.turn !== world.turn ||
+            !after.actor.same || !after.actor.ownerValid || actor.hp <= 0 || world.selected.length !== 1 || world.selected[0] !== actor.id ||
+            approachOrder?.model !== 3 || approachOrder.flags & 1 || world.lastOrderTurn !== world.turn ||
+            after.stock !== value.stockBefore || after.castCount !== value.castCountBefore || world.projectiles.some(p => p.team === 'blue' && p.spell === 'blast'))
+          throw Error('One actual trusted ground approach, original selected caster and unchanged cast count required')
+        // moveGround alone owns the picker wrappers. Its restored trace is
+        // consumed by armEnemy after the helper returns; no wrapper finishes here.
+        return
+      }
       if (!pointer) {
         artifacts.unarmedFollowingInput = { before: structuredClone(inputBefore), handlerTrace: false,
           after: { turn: world.turn, mode: world.mode, selected: [...world.selected], stock: world.shots.blast, castCount: world.stats.cast } }
@@ -244,19 +264,6 @@ export function observeBlastEpisode(scene, options) {
       const up = trace.events.find(e => e.type === 'pointerup')
       if (!up || trace.events.filter(e => e.type === 'pointerup').length !== 1) throw Error('Exactly one actual release required')
       const persons = up.picks.filter(p => p.name === 'pickPerson'), terrain = up.picks.find(p => p.name === 'pick' && p.owner === 'scene' && p.point)
-      if (groundEnemy && !enemyArmed) {
-        approachOwner = actor.native; approachOrder = approachOwner && currentPersonOrder(world.buildingOrders, approachOwner)
-        const after = sample(), value = { ...eventBefore, handlerPersonId: persons.at(-1)?.id ?? null, handlerTerrain: terrain?.point ?? null }
-        artifacts.approach = { event: structuredClone(value), trace, after: structuredClone(after), order: approachOrder && { ...approachOrder }, valid: false }
-        if (!sameScene() || !value.trusted || !value.canvasOwned || value.mode !== null || world.mode !== null || value.turn !== world.turn ||
-            !after.actor.same || !after.actor.ownerValid || actor.hp <= 0 || world.selected.length !== 1 || world.selected[0] !== actor.id ||
-            persons.some(p => p.id !== null) || !terrain || approachOrder?.model !== 3 || approachOrder.flags & 1 ||
-            (approachOrder.a & 65535) !== (Math.round((terrain.point.x + 8) * 256) & 65535) ||
-            (approachOrder.b & 65535) !== (Math.round((-terrain.point.z - 8) * 256) & 65535) || world.lastOrderTurn !== world.turn ||
-            after.stock !== value.stockBefore || after.castCount !== value.castCountBefore || world.projectiles.some(p => p.team === 'blue' && p.spell === 'blast'))
-          throw Error('One actual trusted ground approach, original selected caster and unchanged cast count required')
-        artifacts.approach.valid = true; return
-      }
       if (enemy && !enemyArmed) {
         const allocated = world.projectiles.filter(p => p.team === 'blue' && p.spell === 'blast')
         const after = sample(), value = { ...eventBefore, handlerPersonId: persons.at(-1)?.id ?? null, handlerTerrain: terrain?.point ?? null }
@@ -302,7 +309,7 @@ export function observeBlastEpisode(scene, options) {
   canvas.addEventListener('pointermove', captureEnemyMove, false)
   canvas.addEventListener('pointerdown', capturePress, true)
   canvas.addEventListener('pointerup', capture, true)
-  pointer = observeEntityPointer(scene, document, { id: target.id, collection: 'units' })
+  if (!groundEnemy) pointer = observeEntityPointer(scene, document, { id: target.id, collection: 'units' })
   canvas.addEventListener('pointerup', release, false)
   function armMove(ground) {
     const report = evidence.report()
@@ -332,13 +339,37 @@ export function observeBlastEpisode(scene, options) {
       return structuredClone(artifacts.enemyPointer.prepared)
     },
     pointerProbe: () => artifacts.enemyPointer ? structuredClone({ ...artifacts.enemyPointer, ...(groundEnemy && { response: artifacts.groundResponse ?? null }) }) : null,
-    armEnemy() {
+    armEnemy(delivery) {
       if (groundEnemy) {
-        if (enemyArmed || disposed || !artifacts.approach?.valid || evidence.report().errors.length || !sameScene() || pointer ||
+        const observed = artifacts.approach, trace = delivery?.delivered, events = trace?.events, value = observed?.event
+        artifacts.approachDelivery = delivery ? structuredClone(delivery) : null
+        const same = (a, b) => JSON.stringify(a) === JSON.stringify(b)
+        const exactOrder = order => order && Object.fromEntries(['model', 'flags', 'references', 'object', 'a', 'b'].map(key => [key, order[key]]))
+        const unit = delivery?.after?.units?.find(u => u.id === actor.id)
+        const down = events?.[0], up = events?.[1], terrain = up?.picks?.filter(p => p.name === 'pick' && p.owner === 'scene' && p.point).at(-1)
+        if (!observed || !value.press || !trace || !trace.restored || trace.errors.length || delivery.errors.length || events.length !== 2 ||
+            down.type !== 'pointerdown' || up.type !== 'pointerup' || down.turn !== value.press.turn || up.turn !== value.turn ||
+            !events.every(e => e.trusted && e.canvasOwned && e.canvasTarget && e.button === 0 &&
+              ['ctrlKey', 'shiftKey', 'altKey', 'metaKey'].every(key => e.args[key] === false)) || down.buttons !== 1 || up.buttons !== 0 ||
+            !same({ x: down.x, y: down.y }, value.press.point) || !same({ x: up.x, y: up.y }, value.point) ||
+            !same(deliveryContext(up.state), value.deliveryContext) || !same(deliveryContext(up.after), observed.deliveryContextAfter) ||
+            !same(value.context, observed.contextAfter) || !same(value.context, inputContext(scene)) ||
+            !delivery.before.worldMatches || !delivery.after.worldMatches || delivery.before.turn > down.turn || delivery.after.turn !== value.turn ||
+            !same(delivery.before.selected, [actor.id]) || !same(delivery.after.selected, observed.selected) ||
+            delivery.before.units.length !== 1 || delivery.after.units.length !== 1 || delivery.before.units[0].id !== actor.id || unit?.kind !== 'shaman' ||
+            delivery.after.lastOrderTurn !== value.turn || delivery.after.lastOrderTurn !== observed.lastOrderTurn ||
+            delivery.before.lastOrderTurn >= delivery.after.lastOrderTurn || !unit || unit.hp <= 0 || unit.orderId !== observed.orderId ||
+            !same(exactOrder(unit.order), exactOrder(observed.order)) || !terrain ||
+            up.picks.some(p => p.name === 'pickPerson' && p.id !== null) ||
+            (unit.order.a & 65535) !== (Math.round((terrain.point.x + 8) * 256) & 65535) ||
+            (unit.order.b & 65535) !== (Math.round((-terrain.point.z - 8) * 256) & 65535))
+          throw Error('Restored moveGround receipt must match the actual approach event, context, selected recipient and native order')
+        if (enemyArmed || disposed || !artifacts.approach || evidence.report().errors.length || !sameScene() || pointer ||
             !person(actor).same || !person(actor).ownerValid || actor.hp <= 0 || actor.native !== approachOwner ||
             currentPersonOrder(world.buildingOrders, approachOwner) !== approachOrder || world.stats.cast !== artifacts.approach.after.castCount ||
             artifacts.groundResponse || person(target).orderModel === 21)
           throw Error('One validated active original approach before enemy response required')
+        observed.valid = true
         enemyArmed = true
         canvas.removeEventListener('pointerup', release, false)
         pointer = observeEntityPointer(scene, document, { id: target.id, collection: 'units' })

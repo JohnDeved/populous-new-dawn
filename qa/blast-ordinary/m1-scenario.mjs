@@ -226,7 +226,7 @@ export default async function ordinaryM1EnemyBlast({ page, output, receipt, sign
     report.beforeApproach = before
     await page.screenshot({ path: resolve(output, 'before-approach.png') }); save()
     const approach = await move('guard approach', { x: -5.1, z: 0.9 })
-    report.approachArmed = await page.evaluate(() => window.blastEpisode.armEnemy())
+    report.approachArmed = await page.evaluate(delivered => window.blastEpisode.armEnemy(delivered), approach.delivered)
     const approachTurn = approach.delivered.before.turn
     await checkStop(); signal.throwIfAborted()
     await page.keyboard.press('1')
