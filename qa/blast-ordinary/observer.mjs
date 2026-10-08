@@ -1,6 +1,6 @@
 import { createBlastEpisode } from './contract.mjs'
 import { captureRenderedCanvas } from './frame-capture.mjs'
-import { captureBlastReleaseRange, readBlastReleasePixel, recordBlastRelease } from './setup-observer.mjs'
+import { captureBlastReleaseRange, readBlastReleasePixel, recordBlastRelease, observeBlastTurn } from './setup-observer.mjs'
 import { spellTargetError } from '../../app/live-command.ts'
 import { currentPersonOrder } from '../../app/person-orders.ts'
 import { observeEntityPointer } from '../erosion-ordinary/input.mjs'
@@ -35,6 +35,13 @@ export function pointerFeedback(scene) {
     lines: (path.match(/M/g) ?? []).length, path, opacity, context: inputContext(scene) }
 }
 
+export function blastPersonSnapshot(world, u, target, movementOrder) {
+  const p = owner(u), registered = world.objectCells.objects.get(u.id), order = p && currentPersonOrder(world.buildingOrders, p)
+  return { id: u.id, same: world.units.includes(u), team: u.team, kind: u.kind, hp: u.hp, inside: u.inside,
+    ownerValid: !!p && registered === p && p.class === 1 && !(p.flags2 & 1), position: p ? position(p) : null,
+    orderModel: order?.model, movementOrderSame: u !== target || !movementOrder || !!p && order === movementOrder, speed: p?.speed, state: p?.state }
+}
+
 // Hooks invoke the original method once, with the same receiver and arguments.
 // No game, clock, renderer, person, command, stock or storage setter is used.
 export function observeBlastEpisode(scene, options) {
@@ -43,12 +50,7 @@ export function observeBlastEpisode(scene, options) {
   const evidence = createBlastEpisode(options), artifacts = {}, wrappers = [], pending = new Set()
   let shot, delivered = false, eventBefore, pressBefore, pointer, disposed = false, moveExpected, moveOwner, movementDelivered = false, movementOrder
   const sameScene = () => window.testSceneRef.current === scene && window.testStore.getWorld() === world && scene.world === world && scene.renderer.domElement.isConnected
-  const person = u => {
-    const p = owner(u), registered = world.objectCells.objects.get(u.id)
-    return { id: u.id, same: world.units.includes(u), team: u.team, kind: u.kind, hp: u.hp, inside: u.inside,
-      ownerValid: !!p && registered === p && p.class === 1 && !(p.flags2 & 1), position: p && position(p),
-      orderModel: p && currentPersonOrder(world.buildingOrders, p)?.model, movementOrderSame: !movementOrder || currentPersonOrder(world.buildingOrders, p) === movementOrder, speed: p?.speed, state: p?.state }
-  }
+  const person = u => blastPersonSnapshot(world, u, target, movementOrder)
   const sample = () => ({ turn: world.turn, level: world.outcome.level, playing: world.status === 'playing', paused: world.paused,
     speed: world.speed, flags: world.manaWorld.gameFlags, sceneMatches: sameScene(), actor: person(actor), target: person(target),
     stock: world.shots.blast, castCount: world.stats.cast, mana: world.manaTribes[0].mana, random: world.randomState,
@@ -62,12 +64,13 @@ export function observeBlastEpisode(scene, options) {
     const wrapper = function (...args) { const result = original?.apply(this, args); guard(() => callback(...args)); return result }
     wrappers.push({ object, key, original, descriptor, wrapper }); object[key] = wrapper
   }
-  wrap(scene.gameClock, 'beforeTurn', () => { if (delivered) evidence.before(sample()) })
-  wrap(scene.gameClock, 'afterTurn', () => { if (delivered) evidence.after(sample()) })
+  wrap(scene.gameClock, 'beforeTurn', () => observeBlastTurn(evidence, 'before', sample))
+  wrap(scene.gameClock, 'afterTurn', () => observeBlastTurn(evidence, 'after', sample))
   const saveFrame = (kind, effectId) => {
     if (artifacts[kind]) return
     const { png, pixels } = captureRenderedCanvas(scene)
-    const feedback = pointerFeedback(scene), frame = { turn: world.turn, kind, targetId: feedback.targetId, visible: true, lines: feedback.lines, pixels, effectId,
+    const feedback = pointerFeedback(scene), frame = { turn: world.turn, renderFrame: scene.renderer.info.render.frame, kind, targetId: feedback.targetId, visible: true, lines: feedback.lines, pixels, effectId,
+      ...(kind === 'projectile' && { phase: shot.phase, shotId: shot.id }),
       ...(kind === 'hover' && { targetSame: world.units.find(u => u.id === target.id) === target, ownerValid: person(target).ownerValid, position: person(target).position, context: inputContext(scene),
         point: { x: scene.pointerScreen.clientX, y: scene.pointerScreen.clientY }, renderFrame: scene.renderer.info.render.frame, observedAt: performance.now() }) }
     const vector = scene.pointerOutline.cloneNode(true), rect = scene.container.getBoundingClientRect(), path = vector.querySelector('path')
@@ -98,7 +101,8 @@ export function observeBlastEpisode(scene, options) {
     pending.add(work); void work.finally(() => pending.delete(work))
   }
   wrap(scene.renderer, 'render', (renderedScene, camera) => {
-    if (disposed || renderedScene !== scene.scene || camera !== scene.camera || !sameScene()) return
+    if (disposed || renderedScene !== scene.scene || camera !== scene.camera) return
+    if (!sameScene()) { evidence.error('Original scene/World/canvas changed while observing rendered evidence'); return }
     const feedback = pointerFeedback(scene), report = evidence.report()
     if (report.hover && options.expectation === 'candidate' && feedback.visible && feedback.targetId === target.id) {
       if (!delivered && feedback.lines === 16) saveFrame('hover', null)
@@ -109,7 +113,18 @@ export function observeBlastEpisode(scene, options) {
       const q = scene.screen(effect, effect.height)
       return q && Math.abs(q.x) < 1 && Math.abs(q.y) < 1 && visible(scene.fxMeshes.get(effect.id))
     }
-    if (shot?.phase === 'arrived' && world.projectiles.includes(shot) && shot.visuals[0] && onScreen(shot.visuals[0])) saveFrame('arrival', shot.visuals[0].id)
+    const owned = shot && world.projectiles.includes(shot), head = owned && shot.visuals[0]
+    const projectilePhase = owned && ['flying', 'arrived'].includes(shot.phase)
+    const headVisible = !!(head && visible(scene.fxMeshes.get(head.id)))
+    const headOnScreen = !!(projectilePhase && head && onScreen(head))
+    if (!report.retired || world.turn <= report.retired + 2) {
+      const observed = { turn: world.turn, renderFrame: scene.renderer.info.render.frame,
+        phase: owned ? shot.phase : 'retired', shotId: shot?.id ?? null, headId: head?.id ?? null,
+        headMeshPresent: !!(head && scene.fxMeshes.get(head.id)), headVisible, headOnScreen }
+      artifacts.renderOpportunity ??= { first: structuredClone(observed), last: null, visits: 0 }
+      artifacts.renderOpportunity.last = observed; artifacts.renderOpportunity.visits++
+    }
+    if (headOnScreen) saveFrame('projectile', head.id)
     const impact = report.impact && world.effects.find(e => e.id === report.impact.flash.id)
     if (impact && onScreen(impact)) saveFrame('impact', impact.id)
   })
