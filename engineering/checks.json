@@ -29,7 +29,7 @@
         "Existing raw outer receipt, owned harness receipt and scenario sidecar with reviewed checker Git objects"
       ],
       "sideEffects": [
-        "Read-only projection; browser/native execution is not authorized by this binding"
+        "Reads existing receipts; writes generated report.json, index.html and history.json under work/orchestration/parity-measure. Does not launch browser/native work."
       ],
       "resources": [
         "No runtime resources for receipt projection"
@@ -67,7 +67,7 @@
         "Existing raw outer receipt, owned harness receipt and scenario sidecar with reviewed checker Git objects"
       ],
       "sideEffects": [
-        "Read-only projection; browser/native execution is not authorized by this binding"
+        "Reads existing receipts; writes generated report.json, index.html and history.json under work/orchestration/parity-measure. Does not launch browser/native work."
       ],
       "resources": [
         "No runtime resources for receipt projection"
