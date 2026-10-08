@@ -7,6 +7,7 @@ import { resolve } from 'node:path'
 import { bindGame, waitForShamanReadiness } from '../browser-game.mjs'
 import { waitForCheckpointReadback } from '../checkpoint-readback.mjs'
 import { createMission1VaultInput } from './mission1-vault-input.mjs'
+import { installMission1MoveWitness } from './mission1-vault-arrival.mjs'
 import { installMission1VaultWitness, readMission1VaultProgress } from './mission1-vault-witness.mjs'
 import { installMission1VaultCheckpointState, readMission1VaultCheckpoint, installMission1VaultLoadWitness } from './mission1-vault-checkpoint.mjs'
 import { findMission1CampGround, installMission1CampConstruction } from './mission1-vault-construction.mjs'
@@ -39,7 +40,7 @@ export function mission1BlastReady(id) {
 
 export default async function mission1VaultKnowledge({ page, openMission, output, signal, receipt }) {
   const hash = value => createHash('sha256').update(value).digest('hex')
-  const files = ['mission1-vault-knowledge.mjs', 'mission1-vault-input.mjs', 'mission1-vault-witness.mjs', 'mission1-vault-checkpoint.mjs', 'mission1-vault-construction.mjs']
+  const files = ['mission1-vault-knowledge.mjs', 'mission1-vault-input.mjs', 'mission1-vault-witness.mjs', 'mission1-vault-checkpoint.mjs', 'mission1-vault-construction.mjs', 'mission1-vault-arrival.mjs']
   const report = { source: receipt.source, status: 'running', actions: [], captures: {},
     helpers: Object.fromEntries(files.map(file => [file, hash(readFileSync(new URL(file, import.meta.url)))])),
     provenance: { bridge: 'scripts/local-render/hut-smoke-ignition.mjs:373-419 @ e649af3c51be5e1f6131809c900789b607ef7fb2',
@@ -104,13 +105,29 @@ export default async function mission1VaultKnowledge({ page, openMission, output
       const hit = cellMove ? await input.farBankGround(point) : await fixedGround(point)
       assert.equal(hit.rejection, null, JSON.stringify(hit))
       const delivered = await dispatch(hit, 3, [originalShamanId])
-      await wait(({ id, point }) => {
-        const u = window.testSceneRef.current.world.units.find(u => u.id === id)
-        if (!u || u.hp <= 0) throw Error('Original Shaman lost on ordinary crossing')
-        const p = u.builder?.person ?? u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person
-        return u.inside === null && !u.path.length && p?.speed === 0 && Math.hypot(u.x - point.x, u.z - point.z) < 0.35
-      }, { id: originalShamanId, point: hit.point }, 180000)
-      return { hit, delivered, arrived: await read() }
+      const recipient = delivered.after.units.find(unit => unit.id === originalShamanId)
+      const movement = { hit, delivered, status: 'running' }
+      report.movements ??= []; report.movements.push(movement); save()
+      let installed = false
+      try {
+        await page.evaluate(installMission1MoveWitness, { id: originalShamanId, point: hit.point,
+          orderId: recipient.orderId, order: recipient.order, acknowledgedTurn: delivered.after.lastOrderTurn })
+        installed = true
+        await wait(() => {
+          const e = window.mission1MoveEvidence
+          if (e.errors.length) throw Error(e.errors.join('\n'))
+          return !!e.completed
+        }, null, 180000)
+        movement.status = 'passed'
+      } catch (error) { movement.status = 'failed'; movement.failure = String(error.stack ?? error); throw error }
+      finally {
+        movement.observation = await page.evaluate(installed => installed
+          ? window.restoreMission1MoveWitness() : window.mission1MoveEvidence ?? null, installed)
+          .catch(error => ({ observationError: String(error) }))
+        save()
+      }
+      assert.equal(movement.observation.restored, true); assert.deepEqual(movement.observation.errors, [])
+      return { hit, delivered, movement: movement.observation, arrived: await read() }
     }
     // Accepted Bridge-first prefix: real command27, earned stock, checked shore,
     // public key2 and real projectile/terrain completion, original Shaman throughout.

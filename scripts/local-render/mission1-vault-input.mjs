@@ -140,6 +140,7 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
           const person = unit?.builder?.person ?? unit?.flight ?? unit?.fight?.motion ?? unit?.native ?? unit?.entry?.person
           return { id, kind: unit?.kind, hp: unit?.hp, inside: unit?.inside, work: unit?.work,
             vaultTask: unit?.vault && { ...unit.vault },
+            orderId: person && (person.immediateCommand || person.commands[person.commandCursor]),
             order: person ? structuredClone(currentPersonOrder(world.buildingOrders, person)) : null }
         }) })
       const delivery = observeEntityPointer(scene, document, hit.collection ? hit : null)
