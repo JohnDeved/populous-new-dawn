@@ -33,7 +33,9 @@ export function vaultKnowledgeFrame(
   mission?: number
 ): number | null {
   if (!reward) return null
-  const knowledge = knowledgeVaults.find(entry => entry.reward === reward && entry.mission === mission)
+  const knowledge = knowledgeVaults.find(
+    entry => entry.reward === reward && entry.mission === mission
+  )
   if (knowledge) return knowledge.body.source
   if (BUILDING_REWARDS.has(reward)) return 1077
   if (reward === 'mana') return 1056 + rewardModel
@@ -93,7 +95,10 @@ export function initializeVaultKnowledge(shrine: Shrine, mission: number) {
     shrine.knowledgeGlow ??= { ...createKnowledgeGlow(knowledge), displayedFrame: 0 }
 }
 
-export function vaultKnowledgeGiftAppearance(world: Pick<World, 'outcome' | 'shrines'>, gift: Gift) {
+export function vaultKnowledgeGiftAppearance(
+  world: Pick<World, 'outcome' | 'shrines'>,
+  gift: Gift
+) {
   const shrine = vaultKnowledgeSource(world, gift),
     knowledge = shrine && vaultKnowledgeAppearance(shrine, world.outcome.level)
   if (
