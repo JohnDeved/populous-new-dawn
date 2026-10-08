@@ -238,8 +238,10 @@ export default async function blastControls({ page, output, receipt, openMission
     }, targetId)
     await input('Load Game', () => selector.getByRole('button', { name: 'Load Game', exact: true }).click())
     const loaded = await page.evaluate(() => ({ boundary: window.controlsLoadedBoundary, error: window.controlsLoadError }))
-    assert.equal(loaded.error, null); assert.deepEqual(loaded.boundary, saved, 'Synchronous public Load boundary must preserve the genuine active cast')
     report.loaded = loaded.boundary
+    report.loadObservationError = loaded.error
+    save()
+    assert.equal(loaded.error, null); assert.deepEqual(loaded.boundary, saved, 'Synchronous public Load boundary must preserve the genuine active cast')
     await bindGame(page)
     state = await snap(); healthy(state); assert.equal(state.paused, false)
     await finishCast(saved.turn, ground.point)
