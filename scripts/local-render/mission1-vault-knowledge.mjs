@@ -168,9 +168,10 @@ export default async function mission1VaultKnowledge({ page, openMission, output
       await wait(mission1BlastReady, originalShamanId, 120000)
       await pause(); await button('Select and focus shaman'); await view(current)
       await page.keyboard.press('1'); assert.equal((await read()).mode, 'blast')
-      const hit = await input.entityPoint('units', guard.id, null, 'blast')
-      assert.equal(hit.rejection, null, JSON.stringify(hit))
       await resume()
+      const hit = await input.entityPoint('units', guard.id, null, 'blast')
+      report.actions.push({ label: 'guard-blast-probe', attempt, hit }); save()
+      assert.equal(hit.rejection, null, JSON.stringify(hit))
       const delivered = await castInput(hit, 'blast')
       await wait(({ id, hp, x, z }) => {
         const w = window.testSceneRef.current.world, u = w.units.find(u => u.id === id)

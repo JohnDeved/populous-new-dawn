@@ -58,9 +58,11 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
     }, null, { timeout: 5000 })
   }
   const entityPoint = (collection, id, expectedCommand, cast = false) => page.evaluate(
-    async ({ collection, id, expectedCommand, cast }) => {
-      const [{ findEntityInput, inspectEntityPoint, createMoveContextProbe, entityInputState }, { spellTargetError }] =
-        await Promise.all([import('/qa/erosion-ordinary/input.mjs'), import('/app/live-command.ts')])
+    async ({ collection, id, expectedCommand, cast, actorId }) => {
+      const [{ findEntityInput, inspectEntityPoint, createMoveContextProbe, entityInputState }, { spellTargetError },
+        { nativePosition }, { spellRange }, { positionDistance }, { SPELLS }] = await Promise.all([
+        import('/qa/erosion-ordinary/input.mjs'), import('/app/live-command.ts'), import('/app/world-terrain-runtime.ts'),
+        import('/app/spell-casting.ts'), import('/app/native-math.ts'), import('/app/world-rules.ts')])
       const scene = window.testSceneRef.current, world = scene.world
       const target = world[collection].find(object => object.id === id)
       if (!target) return { id, collection, rejection: 'Ordinary target disappeared',
@@ -83,15 +85,27 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
       candidates.sort((a, b) => Math.hypot(a.x - center.x, a.y - center.y) - Math.hypot(b.x - center.x, b.y - center.y))
       for (let dy = -140; dy <= 64; dy += 4)
         for (let dx = -100; dx <= 100; dx += 4) candidates.push({ x: center.x + dx, y: center.y + dy })
+      // Counts describe inspected search points, not a retrospective cause for all candidates.
+      const probe = { paused: world.paused, candidates: candidates.length, inspected: 0, matching: 0,
+        rejections: { canvasOwnership: 0, wrongTarget: 0, noTerrainPick: 0, wrongTerrainCell: 0 }, examples: {} }
+      const reject = (reason, sample) => {
+        probe.rejections[reason]++
+        probe.examples[reason] ??= { x: sample.x, y: sample.y, canvasOwned: sample.canvasOwned, hitId: sample.hitId }
+        return { ...sample, hitId: null }
+      }
       const hit = findEntityInput(candidates, id, point => {
         const sample = inspectEntityPoint(scene, collection, point)
+        probe.inspected++
+        if (!sample.canvasOwned) return reject('canvasOwnership', sample)
+        if (sample.hitId !== id) return reject('wrongTarget', sample)
         if (cast && collection === 'buildings' && sample.hitId === id) {
           const ground = scene.pick({ clientX: point.x, clientY: point.y })
           const x = ground && Math.round((ground.x + 8) * 256) & 65535
           const y = ground && Math.round((-ground.z - 8) * 256) & 65535
-          if (!ground || (world.land.buildingIds[(y >> 9) * 128 + (x >> 9)] & 1023) !== id)
-            return { ...sample, hitId: null }
+          if (!ground) return reject('noTerrainPick', sample)
+          if ((world.land.buildingIds[(y >> 9) * 128 + (x >> 9)] & 1023) !== id) return reject('wrongTerrainCell', sample)
         }
+        probe.matching++
         return sample
       })
       const diagnostics = { state: entityInputState(scene, { id, collection }, hit ?? center), context,
@@ -99,12 +113,22 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
       const rejection = expectedCommand !== null && (!context.enabled || context.model !== expectedCommand)
         ? 'Ordinary command context changed' : !hit ? 'No current rendered target interior with the required terrain cell' : null
       const ground = cast && hit ? scene.pick({ clientX: hit.x, clientY: hit.y }) : null
+      // Geometry is diagnostic only. Synchronizing native helpers get a detached World.
+      const spellWorld = cast ? structuredClone(world) : null, actor = spellWorld?.units.find(u => u.id === actorId)
+      const spec = cast && SPELLS.find(s => s.id === cast)
+      const nativeCaster = actor ? nativePosition(spellWorld, actor) : null
+      const nativeTarget = ground && spellWorld ? nativePosition(spellWorld, ground) : null
+      const range = actor && spec ? spellRange(spellWorld, actor, spec.model) * 256 : null
+      const distance = nativeCaster && nativeTarget ? positionDistance(nativeCaster, nativeTarget) : null
+      const castGeometry = cast ? { actorId, actor: actor && { x: actor.x, z: actor.z, hp: actor.hp, inside: actor.inside },
+        model: spec?.model, nativeCaster, nativeTarget, range, distance,
+        margin: range !== null && distance !== null ? range - distance : null } : null
       const spellPreflight = cast && ground ? { point: ground, selected: [...world.selected],
         shots: world.shots[cast], turn: world.turn,
         rejection: spellTargetError(structuredClone(world), cast, ground) } : null
-      return { ...hit, id, collection, turn: world.turn, expectedCommand, cast, spellPreflight, diagnostics,
+      return { ...hit, id, collection, turn: world.turn, expectedCommand, cast, probe, castGeometry, spellPreflight, diagnostics,
         rejection: rejection ?? (cast && !ground ? 'Spell ground pick disappeared' : null) }
-    }, { collection, id, expectedCommand, cast })
+    }, { collection, id, expectedCommand, cast, actorId: originalShamanId })
   const dispatch = async (hit, command, expectedIds) => {
     const preflight = await page.evaluate(async ({ hit, command, expectedIds }) => {
       const [{ currentPersonOrder }, { findEntityInput, inspectEntityPoint, createMoveContextProbe, observeEntityPointer, entityInputState }] =
