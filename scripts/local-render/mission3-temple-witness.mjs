@@ -178,7 +178,14 @@ export async function armTemplePlacement({ hit, selected }) {
     throw Error('Temple placement precondition changed')
   if (window.finishTemplePlacement) throw Error('A Temple input observer is already armed')
   const pointer = observeEntityPointer(scene),
-    record = { before: observer.read(), after: null, errors: [] }
+    record = { preflight: observer.read(), before: null, after: null, errors: [] }
+  const before = () => {
+    try {
+      record.before = observer.read()
+    } catch (error) {
+      record.errors.push(String(error))
+    }
+  }
   const after = () => {
     try {
       record.after = observer.read()
@@ -186,8 +193,10 @@ export async function armTemplePlacement({ hit, selected }) {
       record.errors.push(String(error))
     }
   }
+  scene.renderer.domElement.addEventListener('pointerup', before, true)
   scene.renderer.domElement.addEventListener('pointerup', after)
   window.finishTemplePlacement = () => {
+    scene.renderer.domElement.removeEventListener('pointerup', before, true)
     scene.renderer.domElement.removeEventListener('pointerup', after)
     delete window.finishTemplePlacement
     return { ...record, pointer: pointer.finish() }

@@ -28,8 +28,8 @@ No Swarm, Bridge, prior construction, training or additional reward is required.
 from reviewed e504f73f (also byte-identical in a409893c). Their historical names
 are retained to avoid another input framework. The input contract already handles
 the actual command33 phase0 queue/native owner and command3 movement. Current
-portable composition reaches one complete object95 Temple1021 at turn2430 using
-the real five-Brave selection caller. Direct model turns/synthetic DOM in that
+portable composition reaches one complete object95 Temple1021 at turn2446 using
+the real five-Brave selection caller and an intervening pre-input turn. Direct model turns/synthetic DOM in that
 test are explicitly not browser evidence.
 
 ## Maintained browser and evidence contract
@@ -60,7 +60,8 @@ observer captures bounded gameplay identity. Sequential readonly IDB transaction
 must commit that exact paused turn/time, Temple, Vault, actors and stock-independent
 stats. The existing owned-profile `observeCheckpoint` then records the full typed
 checkpoint digest, actor, terrain and stock digests. Raw World/profile bytes stay
-local; only bounded summaries/digests are output. Close menu retains Pause.
+local; only bounded summaries/digests are output. Settings remains open until
+harness shutdown: its close handler would resume the simulation.
 
 There is no failure fallback Save. Errors retain partial input, arrival and Save
 evidence. The harness owns browser/server shutdown and the terminal committed

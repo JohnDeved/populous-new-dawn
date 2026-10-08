@@ -89,7 +89,7 @@ function fixture(t) {
 }
 
 test('current M3 earned-Vault, native-arrival and five-Brave construction compose with maintained helpers', async t => {
-  const { world, actor, scene, until } = fixture(t)
+  const { world, actor, scene, until, step } = fixture(t)
   const initial = await evaluate(installTempleRouteObservation)
   assertTempleRouteHealth(initial, actor.id)
   assert.equal(initial.readiness.ready, true)
@@ -182,6 +182,7 @@ test('current M3 earned-Vault, native-arrival and five-Brave construction compos
   await assert.rejects(evaluate(armTemplePlacement, { hit, selected: [] }), /precondition changed/)
   assert.equal(listeners.length, 0)
   await evaluate(armTemplePlacement, { hit, selected })
+  step() // A legitimate real turn can occur after arming and before input.
   for (const type of ['pointerdown', 'pointerup']) {
     const event = {
       type,
@@ -204,6 +205,8 @@ test('current M3 earned-Vault, native-arrival and five-Brave construction compos
   }
   const evidence = window.finishTemplePlacement()
   assert.equal(listeners.length, 0)
+  assert.equal(evidence.before.turn, evidence.preflight.turn + 1)
+  assert.equal(evidence.after.turn, evidence.before.turn)
   assert.equal(assertTemplePlacement(evidence, hit, selected).id, 1021)
   const wrongRecipients = structuredClone(evidence)
   wrongRecipients.after.units.find(u => selected.includes(u.id)).work = null
@@ -358,7 +361,7 @@ test('public Save observer and committed typed digest compose without exporting 
   assert.match(entry.digest.checkpoint.terrainSha256, /^[a-f0-9]{64}$/)
   assert.equal(f.closed(), 1)
   assert.equal(f.listeners.size, 0)
-  assert.deepEqual(f.calls, ['Game settings', 'Save checkpoint', 'Close menu'])
+  assert.deepEqual(f.calls, ['Game settings', 'Save checkpoint'])
   assert.equal(JSON.stringify(f.report).includes('Float32Array'), false)
   assert.ok(f.savedReports.some(report => report.checkpoint.boundary?.saved))
 })

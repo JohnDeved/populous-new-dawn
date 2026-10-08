@@ -165,7 +165,8 @@ export async function saveTempleCheckpoint({
   assert.equal(entry.digest.checkpoint.turn, entry.boundary.saved.turn)
   assert.equal(entry.digest.checkpoint.time, entry.boundary.saved.time)
   assert.match(entry.digest.checkpoint.checkpointSha256, /^[a-f0-9]{64}$/)
-  await input.button('Close menu')
+  // Leave settings open. Its public close handler resumes the simulation;
+  // this journey ends at the saved paused boundary and the harness closes it.
   return entry
 }
 
