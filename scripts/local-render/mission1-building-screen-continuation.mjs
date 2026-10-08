@@ -17,10 +17,12 @@ export const continuationSource = {
   application: '3a9e326e8389249c66ec0010cc288d4d6652e27b45478ad638ad6876a39e23f0',
   checkpointSha256: '82d1bdbc83e29ca77e210513ff737bb16342a464dc8b6e477c896f997fa2b3ca',
   predecessor: {
-    output: 'work/orchestration/m1-building-continuation-149a95f-01',
-    receiptSha256: '50ffac1c7ce0071c92ff96208ea4e796d4df1da882261726f97ce2e0c0af70da',
-    runId: 'f0f06516-950c-40f4-9430-b1ace631910b',
-    sourceFingerprint: '2a24b1c27ae26ac641ea397b8b855971a90d1a5f10908f85e5af6fa9a87f4936',
+    output: 'work/orchestration/m1-building-continuation-5b691bc-02',
+    reportSha256: '3a758d0a60d4f019c846eb0e322f29e2b661daee45cf42f47e45fcbb9aa70166',
+    receiptSha256: '45f7d71842b4dbd045b029b6381aee7e7c7c111ba08db274340d736789906e35',
+    runId: '81d22f47-2974-4cc5-8d06-2975616fe9ca',
+    sourceFingerprint: '897cfd4dbd7c48b71a464ae9da63677fd7fda48519d308ce2c5f3ad141078bd4',
+    previousReceiptSha256: '50ffac1c7ce0071c92ff96208ea4e796d4df1da882261726f97ce2e0c0af70da',
   },
 }
 
@@ -83,7 +85,40 @@ export function finishMission1BuildingContinuation(report, save, failed, failure
   return report
 }
 
-export default async function mission1BuildingScreenContinuation({ page, root, output, signal, receipt }) {
+export function readMission1FinalHud() {
+  const scene = window.testSceneRef?.current, world = scene?.world,
+    tab = document.querySelector('[aria-label="buildings B"]'),
+    card = document.querySelector('[aria-label="Warrior Training Hut, 8 wood"]')
+  return { worldMatches: !!world && world === window.testStore?.getWorld(), sceneStarted: scene?.started ?? false,
+    canvasConnected: scene?.renderer?.domElement?.isConnected ?? false, loading: !!document.querySelector('.loading-world'),
+    inputMask: world?.inputMask ?? null, turn: world?.turn ?? null, paused: world?.paused ?? null,
+    camp: world?.unlockedCamp ?? null, mode: world?.mode ?? null, buildingsSelected: tab?.getAttribute('aria-pressed') === 'true',
+    selectedTabs: [...document.querySelectorAll('.dock-tabs [aria-pressed="true"]')].map(button => button.getAttribute('aria-label')),
+    cardPresent: !!card, cardDisabled: card?.disabled ?? null }
+}
+
+export async function selectMission1CompletedCamp({ page, button, report, save }) {
+  const evidence = report.finalHud = { before: await page.evaluate(readMission1FinalHud), after: null, selected: null, cleanupErrors: [] }
+  let failed = false, failure
+  const retainError = error => { evidence.cleanupErrors.push(String(error?.stack ?? error)); if (!failed) { failed = true; failure = error } }
+  try { await button('buildings B').click() }
+  catch (error) { failed = true; failure = error }
+  finally {
+    try { evidence.after = await page.evaluate(readMission1FinalHud) } catch (error) { retainError(error) }
+    try { save() } catch (error) { retainError(error) }
+  }
+  if (failed) throw failure
+  const after = evidence.after
+  assert.ok(after.worldMatches && after.sceneStarted && after.canvasConnected && !after.loading, 'Final HUD Scene/readiness mismatch')
+  assert.equal(after.inputMask, 0, 'Final HUD is still input-masked')
+  assert.equal(after.camp, true); assert.equal(after.buildingsSelected, true, 'Public Buildings click did not select its tab')
+  assert.equal(after.cardPresent, true); assert.equal(after.cardDisabled, false)
+  await button('Warrior Training Hut, 8 wood').click()
+  evidence.selected = await page.evaluate(readMission1FinalHud); save()
+  assert.equal(evidence.selected.mode, 'camp')
+}
+
+export default async function mission1BuildingScreenContinuation({ page, root, output, signal, receipt }, { completionOnly = false } = {}) {
   const hash = bytes => createHash('sha256').update(bytes).digest('hex')
   const prior = (name, expected, directory = continuationSource.output) => {
     const bytes = readFileSync(resolve(root, directory, name))
@@ -93,8 +128,10 @@ export default async function mission1BuildingScreenContinuation({ page, root, o
   const previous = prior('receipt.json', continuationSource.receiptSha256)
   const original = prior('mission1-building-screen.json', continuationSource.reportSha256)
   const predecessor = prior('receipt.json', continuationSource.predecessor.receiptSha256, continuationSource.predecessor.output)
+  const partial = prior('mission1-building-continuation.json', continuationSource.predecessor.reportSha256, continuationSource.predecessor.output)
   assert.equal(previous.status, 'failed'); assert.equal(original.status, 'failed')
   assert.equal(predecessor.status, 'failed'); assert.deepEqual(predecessor.profile.checkpointAtEnd, previous.profile.checkpointAtEnd)
+  assert.equal(partial.status, 'failed'); assert.equal(predecessor.profile.previousRun.receiptSha256, continuationSource.predecessor.previousReceiptSha256)
   assert.equal(receipt.profile.mode, 'reused'); assert.equal(receipt.profile.id, continuationSource.profileId)
   assert.equal(receipt.profile.previousRun.runId, continuationSource.predecessor.runId)
   assert.equal(receipt.profile.previousRun.receiptSha256, continuationSource.predecessor.receiptSha256)
@@ -105,7 +142,14 @@ export default async function mission1BuildingScreenContinuation({ page, root, o
   const serializedSaved = original.checkpoints.find(entry => entry.label === 'M1 active screen').saved
   let saved
   const birth = original.epochs.ordinary.birth, shamanId = original.epochs.ordinary.source.shamanId
-  const report = { status: 'running', source: receipt.source, prior: continuationSource, loads: [], frames: {},
+  assertMission1BuildingRestart(partial.restart, partial.beforeRestart, birth.gift.id)
+  for (const label of ['before', 'after']) {
+    const sample = partial.beforeRestart.samples[label]
+    assert.equal(sample.count, 16); assert.equal(sample.resourcesStable, true)
+    assert.equal(sample.referenceGeometryUnchanged, true); assert.equal(sample.submittedMappingMatches, true)
+  }
+  const report = { status: 'running', source: receipt.source, prior: continuationSource, completionOnly, loads: [], frames: {},
+    carriedPartial: 'Failed02 retains accepted resize samples and active-building interruption with shared-owner clearing. Companion/pulse were inactive at Restart; no active companion/pulse interruption is claimed.',
     limits: 'Only the genuine saved1300 ownership tail; ordinary01 remains FAILED. No repeated prefix, new acquisition, clock/RAF/state/storage mutation or hardware-performance claim.' }
   const save = () => writeFileSync(resolve(output, 'mission1-building-continuation.json'), JSON.stringify(report, null, 2) + '\n')
   const persistScreen = (label, evidence) => {
@@ -157,31 +201,34 @@ export default async function mission1BuildingScreenContinuation({ page, root, o
     save()
     report.durationSentinel = assertMission1SerializedCheckpoint(saved, serializedSaved)
     save()
-    await load(true, true)
-    await button('buildings B').click()
-    for (const [label, width, height] of [['before', 1440, 1000], ['after', 1280, 960]]) {
-      await page.evaluate(options => window.m1BuildingScreen.armDrawSample(options), { label, width, height })
-      if (label === 'after') await page.setViewportSize({ width, height })
-      await page.waitForFunction(label => {
-        const state = window.m1BuildingScreen.status()
-        if (state.errors.length) throw Error(state.errors.join('\n'))
-        return state.samples[label] === 16
-      }, label, { timeout: 30000, polling: 50 })
+    if (completionOnly) await load(true, false)
+    else {
+      await load(true, true)
+      await button('buildings B').click()
+      for (const [label, width, height] of [['before', 1440, 1000], ['after', 1280, 960]]) {
+        await page.evaluate(options => window.m1BuildingScreen.armDrawSample(options), { label, width, height })
+        if (label === 'after') await page.setViewportSize({ width, height })
+        await page.waitForFunction(label => {
+          const state = window.m1BuildingScreen.status()
+          if (state.errors.length) throw Error(state.errors.join('\n'))
+          return state.samples[label] === 16
+        }, label, { timeout: 30000, polling: 50 })
+      }
+      await button('Game settings').click()
+      await page.evaluate(async () => {
+        const { installMission1BuildingRestartWitness } = await import('/scripts/local-render/mission1-building-screen-load.mjs')
+        installMission1BuildingRestartWitness()
+      })
+      await runMission1BuildingRestart({ page, button, report, persistScreen, save })
+      const restart = report.restart
+      assertMission1BuildingRestart(restart, report.beforeRestart, birth.gift.id)
+      assert.deepEqual(await page.evaluate(readMission1VaultCheckpoint), saved, 'Restart altered the genuine committed checkpoint')
+      await bindGame(page)
+      await button('buildings B').click()
+      assert.equal(await button('Warrior Training Hut, 8 wood').isDisabled(), true)
+      await page.screenshot({ path: resolve(output, 'restarted-camp-locked.png') })
+      await load(false, false)
     }
-    await button('Game settings').click()
-    await page.evaluate(async () => {
-      const { installMission1BuildingRestartWitness } = await import('/scripts/local-render/mission1-building-screen-load.mjs')
-      installMission1BuildingRestartWitness()
-    })
-    await runMission1BuildingRestart({ page, button, report, persistScreen, save })
-    const restart = report.restart
-    assertMission1BuildingRestart(restart, report.beforeRestart, birth.gift.id)
-    assert.deepEqual(await page.evaluate(readMission1VaultCheckpoint), saved, 'Restart altered the genuine committed checkpoint')
-    await bindGame(page)
-    await button('buildings B').click()
-    assert.equal(await button('Warrior Training Hut, 8 wood').isDisabled(), true)
-    await page.screenshot({ path: resolve(output, 'restarted-camp-locked.png') })
-    await load(false, false)
     await page.waitForFunction(() => {
       const state = window.m1BuildingScreen.status()
       if (state.errors.length) throw Error(state.errors.join('\n'))
@@ -195,8 +242,7 @@ export default async function mission1BuildingScreenContinuation({ page, root, o
     assert.equal(grant.after.turn - birth.turn, 82); assert.equal(grant.before.gift.remaining, 1)
     assert.equal(grant.before.camp, false); assert.equal(grant.after.gift, undefined); assert.equal(grant.after.camp, true)
     assert.ok(evidence.frames.terminal)
-    await button('buildings B').click(); await button('Warrior Training Hut, 8 wood').click()
-    assert.equal(await page.evaluate(() => window.testSceneRef.current.world.mode), 'camp')
+    await selectMission1CompletedCamp({ page, button, report, save })
     await page.screenshot({ path: resolve(output, 'restored-camp-complete.png') })
     assert.deepEqual(receipt.errors, []); report.status = 'passed'
   } catch (error) { failed = true; failure = error; report.status = 'failed'; report.failure = String(error?.stack ?? error) }

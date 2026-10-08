@@ -10,7 +10,9 @@ import { installMission1VaultCheckpointState, installMission1VaultSaveWitness,
 import scenario, { saveMission1BuildingCheckpoint } from '../../scripts/local-render/mission1-building-screen.mjs'
 import componentSmoke, { drawMission1Component } from '../../scripts/local-render/mission1-building-drawer-smoke.mjs'
 import continuation, { assertMission1BuildingRestart, runMission1BuildingRestart,
-  finishMission1BuildingContinuation, assertMission1SerializedCheckpoint } from '../../scripts/local-render/mission1-building-screen-continuation.mjs'
+  finishMission1BuildingContinuation, assertMission1SerializedCheckpoint,
+  readMission1FinalHud, selectMission1CompletedCamp } from '../../scripts/local-render/mission1-building-screen-continuation.mjs'
+import completion from '../../scripts/local-render/mission1-building-screen-completion.mjs'
 import { armMission1BuildingSceneStart, installMission1BuildingRestartWitness } from '../../scripts/local-render/mission1-building-screen-load.mjs'
 import { parseOptions } from '../../scripts/local-render/harness.mjs'
 
@@ -298,17 +300,18 @@ test('named scenario, maintained argv and explicit imports resolve without launc
   assert.equal(typeof scenario, 'function')
   assert.equal(typeof componentSmoke, 'function')
   assert.equal(typeof continuation, 'function')
+  assert.equal(typeof completion, 'function')
   const root = fileURLToPath(new URL('../../', import.meta.url))
   const scenarioPath = resolve(root, 'scripts/local-render/mission1-building-screen.mjs')
   const options = parseOptions(['--game-root', root, '--scenario', scenarioPath, '--mission', '1', '--timeout', '1200000',
     '--profile', resolve(root, 'work/local-render-profiles/m1-building-screen-review-only'),
     '--output', resolve(root, 'work/orchestration/m1-building-screen-review-only'), '--port', '4188', '--browser', '/unassigned-review-only'])
   assert.equal(options.scenario, scenarioPath); assert.equal(options.mission, 1)
-  const tail = parseOptions(['--game-root', root, '--scenario', resolve(root, 'scripts/local-render/mission1-building-screen-continuation.mjs'),
-    '--mission', '1', '--timeout', '240000', '--profile', resolve(root, 'work/local-render-profiles/m1-building-screen-review-only'),
+  const tail = parseOptions(['--game-root', root, '--scenario', resolve(root, 'scripts/local-render/mission1-building-screen-completion.mjs'),
+    '--mission', '1', '--timeout', '180000', '--profile', resolve(root, 'work/local-render-profiles/m1-building-screen-review-only'),
     '--profile-correspondence', resolve(root, 'work/orchestration/review-only.json')])
   assert.ok(tail.profileCorrespondence.endsWith('review-only.json'))
-  for (const file of ['mission1-building-screen.mjs', 'mission1-building-screen-witness.mjs', 'mission1-vault-checkpoint.mjs', 'mission1-building-drawer-smoke.mjs', 'mission1-building-screen-load.mjs', 'mission1-building-screen-continuation.mjs']) {
+  for (const file of ['mission1-building-screen.mjs', 'mission1-building-screen-witness.mjs', 'mission1-vault-checkpoint.mjs', 'mission1-building-drawer-smoke.mjs', 'mission1-building-screen-load.mjs', 'mission1-building-screen-continuation.mjs', 'mission1-building-screen-completion.mjs']) {
     const source = readFileSync(resolve(root, 'scripts/local-render', file), 'utf8')
     for (const [, relative] of source.matchAll(/from '([^']+)'/g)) {
       if (relative.startsWith('node:')) continue
@@ -521,6 +524,52 @@ test('resize observation rejects replaced fixed buffers, wrong submitted corners
   assert.equal(f.api.status().samples.before, 0)
   assert.equal(f.calls.filter(call => call === 'draw').length, 3)
   f.close()
+})
+
+test('final public HUD selection retains actual masked-click diagnostics and never retries a suppressed tab', async t => {
+  let buildings = false
+  const world = { inputMask: 0, turn: 1332, paused: true, unlockedCamp: true, mode: null }, calls = []
+  const scene = { world, started: true, renderer: { domElement: { isConnected: true } } }
+  const tab = { getAttribute: name => name === 'aria-label' ? 'buildings B' : String(buildings) }
+  globalThis.window = { testSceneRef: { current: scene }, testStore: { getWorld: () => world } }
+  globalThis.document = {
+    querySelector(selector) {
+      if (selector.includes('buildings B')) return tab
+      if (selector.includes('Warrior Training Hut')) return buildings ? { disabled: false } : null
+      if (selector === '.loading-world') return null
+      assert.fail(selector)
+    }, querySelectorAll: () => [buildings ? tab : { getAttribute: () => 'spells 1–3' }],
+  }
+  t.after(() => { delete globalThis.window; delete globalThis.document })
+  const page = { evaluate: async fn => fn() }, button = name => ({ async click() {
+    calls.push(name)
+    if (world.inputMask) return
+    if (name === 'buildings B') buildings = true
+    else if (name === 'Warrior Training Hut, 8 wood') world.mode = 'camp'
+    else assert.fail(name)
+  } })
+  const passed = {}
+  await selectMission1CompletedCamp({ page, button, report: passed, save() {} })
+  assert.deepEqual(calls, ['buildings B', 'Warrior Training Hut, 8 wood'])
+  assert.equal(passed.finalHud.before.cardPresent, false); assert.equal(passed.finalHud.after.cardPresent, true)
+  assert.equal(passed.finalHud.selected.mode, 'camp')
+  calls.length = 0; buildings = false; world.inputMask = 128; world.mode = null
+  const blocked = {}
+  await assert.rejects(selectMission1CompletedCamp({ page, button, report: blocked, save() {} }), /input-masked/)
+  assert.deepEqual(calls, ['buildings B']); assert.equal(blocked.finalHud.after.inputMask, 128)
+  assert.deepEqual(blocked.finalHud.after.selectedTabs, ['spells 1–3']); assert.equal(blocked.finalHud.after.cardPresent, false)
+  assert.equal(readMission1FinalHud().worldMatches, true)
+})
+
+test('final HUD diagnostic cleanup preserves a primitive input error over read and report failures', async () => {
+  let reads = 0, caught = false
+  const report = {}, page = { async evaluate() { if (++reads === 1) return { inputMask: 0 }; throw Error('after diagnostic failed') } },
+    button = () => ({ async click() { throw null } })
+  try { await selectMission1CompletedCamp({ page, button, report, save() { throw Error('report failed') } }) }
+  catch (error) { caught = true; assert.equal(error, null) }
+  assert.equal(caught, true)
+  assert.match(report.finalHud.cleanupErrors[0], /after diagnostic failed/)
+  assert.match(report.finalHud.cleanupErrors[1], /report failed/)
 })
 
 test('component smoke uses one production-interface draw and disposes its detached owner even after failure', async t => {

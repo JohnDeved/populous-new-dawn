@@ -199,7 +199,7 @@
     },
     {
       "path": "qa/mission1-building-screen/screen-contract.test.mjs",
-      "sha256": "c0e697d37cbf35a5d67d9626b8c534d6a0f4cae2e21f263f8c2ce420d37eb7c3"
+      "sha256": "2190e0b5d2c9ebf833ec79cf3558bc70a648e932c57bb618391d15794c1650b0"
     },
     {
       "path": "scripts/local-render/mission1-building-drawer-smoke.mjs",
@@ -211,7 +211,11 @@
     },
     {
       "path": "scripts/local-render/mission1-building-screen-continuation.mjs",
-      "sha256": "8dd317638aaf328f4fdc774937b2205c4a5168e547100d42f0fc6cbec01e1791"
+      "sha256": "5ba079ab094b9eccb0da050983bac0d11d187f1998362c9058166e1dd49c5aac"
+    },
+    {
+      "path": "scripts/local-render/mission1-building-screen-completion.mjs",
+      "sha256": "09b692cccab4988bfe0c88f55f3f1f19d70df2144211de1c8ff135573001dea6"
     }
   ],
   "routeSource": {
@@ -393,5 +397,19 @@
       },
       "limits": "Fixed resource identities/attribute capacities only; excludes atlas/framebuffer/total GPU memory. Sample wall interval includes observer overhead and is not draw CPU time or hardware throughput. Each draw preserves state/RNG; no equality is required across paused visits."
     }
+  },
+  "completionOnly": {
+    "scenario": "scripts/local-render/mission1-building-screen-completion.mjs",
+    "predecessor": {
+      "status": "FAILED",
+      "runId": "81d22f47-2974-4cc5-8d06-2975616fe9ca",
+      "reportSha256": "3a758d0a60d4f019c846eb0e322f29e2b661daee45cf42f47e45fcbb9aa70166",
+      "receiptSha256": "45f7d71842b4dbd045b029b6381aee7e7c7c111ba08db274340d736789906e35"
+    },
+    "scope": "One Startup Load of unchanged genuine1300, existing early-start observer, remaining exact grant/terminal, actual final HUD diagnostics and public Camp selection. No repeated resize/Restart/prefix.",
+    "carried": "Failed02 accepted resize/workload and active-building interruption plus shared-owner clearing; companion/pulse were already inactive. Both failed tails and ordinary01 remain failed.",
+    "innerTimeoutMs": 180000,
+    "outerTimeoutSeconds": 240,
+    "launchEnabled": false
   }
 }
