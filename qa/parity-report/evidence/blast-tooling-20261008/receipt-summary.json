@@ -1,0 +1,277 @@
+{
+  "testedSource": {
+    "head": "b762ba26a5b166af43777d6542797ebed33ebd36",
+    "tree": "473a0c4d695dd5b12762421965d92c819a162f2b"
+  },
+  "scope": "Combined PR271/272 tooling validation; no product trial enrollment or added gameplay parity credit.",
+  "standard": {
+    "status": "passed",
+    "testFileCount": 257,
+    "stageCount": 12,
+    "counts": {
+      "tests": 1505,
+      "pass": 1505,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "startedAt": "2026-10-08T10:31:27.224Z",
+    "finishedAt": "2026-10-08T10:39:14.443Z",
+    "counting": "Final Node summary in each shard; nested child summaries excluded."
+  },
+  "stages": [
+    {
+      "stage": "typecheck",
+      "status": "passed",
+      "receiptSha256": "ecf648d8c34f0a684ab3fc883380c247fd5392685a30af68237dd978449f663a"
+    },
+    {
+      "stage": "test-01",
+      "status": "passed",
+      "receiptSha256": "70beef594fad10724924df7bcc42cbcc9b59dca8a4b5b63255ab59326be03b90",
+      "counts": {
+        "tests": 200,
+        "pass": 200,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "stage": "test-02",
+      "status": "passed",
+      "receiptSha256": "a26eebed92b135e67196c9b41d27a0a81d4b22e0e52546944bae19524f1a6706",
+      "counts": {
+        "tests": 272,
+        "pass": 272,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "stage": "test-03",
+      "status": "passed",
+      "receiptSha256": "49452dac28b12b7fe3a59cd58b760dcf247b63d51552f8102c70dfbe85221bec",
+      "counts": {
+        "tests": 160,
+        "pass": 160,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "stage": "test-04",
+      "status": "passed",
+      "receiptSha256": "a81ced035f18596eba743a49a53890226aae2b50f503eb416505c5c8f028a05a",
+      "counts": {
+        "tests": 185,
+        "pass": 185,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "stage": "test-05",
+      "status": "passed",
+      "receiptSha256": "91e811584086b331a304fc6556f1eeec6325ec5b8d48b5c0c818049a916a3a03",
+      "counts": {
+        "tests": 129,
+        "pass": 129,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "stage": "test-06",
+      "status": "passed",
+      "receiptSha256": "0c22f8209ba91b0fdf2a5836ce829cc20237731ceecc902ad39fe50ee471ca8c",
+      "counts": {
+        "tests": 159,
+        "pass": 159,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "stage": "test-07",
+      "status": "passed",
+      "receiptSha256": "3945e1a74b2770030bf22dec28d415fe1016642f9329ae8d45e620f10a909907",
+      "counts": {
+        "tests": 168,
+        "pass": 168,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "stage": "test-08",
+      "status": "passed",
+      "receiptSha256": "497b51841d7a272e0ca4b6abbdaee5a90a619ba4ece9b929eebc2934be422ea6",
+      "counts": {
+        "tests": 232,
+        "pass": 232,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "stage": "parity",
+      "status": "passed",
+      "receiptSha256": "8cbfa67ec85c7c6f2fbcfaa9c4655ddb0ea5cbcd559770a48b80239f2addb945"
+    },
+    {
+      "stage": "orchestration",
+      "status": "passed",
+      "receiptSha256": "10bafe068c51268fda85dc3ad4fd7e00e3adfd7a1ee089091729862c62cd0b74"
+    },
+    {
+      "stage": "build",
+      "status": "passed",
+      "receiptSha256": "3f4198e1e1cf22d42c092d5d80c0ab5ce7f58f29ebaeba87e498be36ffbb140d"
+    }
+  ],
+  "strictPreflight": {
+    "status": "failed",
+    "exitCode": 1,
+    "inheritedFindings": [
+      {
+        "path": "scripts/orchestration/cli.mjs",
+        "line": 752,
+        "column": 62,
+        "symbol": "_evidence"
+      },
+      {
+        "path": "scripts/orchestration/cli.mjs",
+        "line": 842,
+        "column": 44,
+        "symbol": "_hash"
+      },
+      {
+        "path": "scripts/orchestration/cli.mjs",
+        "line": 842,
+        "column": 63,
+        "symbol": "_changeHash"
+      }
+    ],
+    "rule": "@typescript-eslint/no-unused-vars",
+    "attribution": "Independently reviewed as inherited; no clean-lint claim."
+  },
+  "render": {
+    "status": "passed-capture",
+    "outerStatus": "passed",
+    "exitCode": 0,
+    "startedAt": "2026-10-08T10:46:45.010Z",
+    "finishedAt": "2026-10-08T10:46:46.334Z",
+    "browserVersion": "154.0.8037.92",
+    "viewportWidths": [
+      1440,
+      960
+    ],
+    "scrollWidths": [
+      1425,
+      945
+    ],
+    "errors": [],
+    "blockedRequests": [],
+    "browserDisconnected": true
+  },
+  "coverage": {
+    "knownRequirements": 181,
+    "automaticallyVerifiedRequirements": 0,
+    "browserCases": 3,
+    "verifiedBrowserCases": 0,
+    "pairedGates": 3,
+    "verifiedPairedGates": 0,
+    "observationRows": 3
+  },
+  "blastObservations": [
+    {
+      "id": "blast-controls-ordinary",
+      "status": "stale",
+      "diagnosticStatus": "passed",
+      "finishedAt": "2026-10-08T09:03:54.841Z",
+      "testedSource": {
+        "commit": "2e51cf0a024369221c534d0a72c1fcef7e0065ff",
+        "tree": "d94cbc72d25a2535aa9d541f26082b5265b50070"
+      },
+      "observed": {
+        "stagesPassed": 6,
+        "savedTurn": 397,
+        "loadedTurn": 397,
+        "resumedTurn": 421,
+        "activeShotId": 1266,
+        "equality": "bounded saved/loaded projection only"
+      }
+    },
+    {
+      "id": "blast-person-ordinary",
+      "status": "stale",
+      "diagnosticStatus": "passed",
+      "finishedAt": "2026-10-08T08:46:36.687Z",
+      "testedSource": {
+        "commit": "c40026937f39dadf86143ef13f73dba22d2e4a9c",
+        "tree": "ce2942f3d5277b07165ce355e7c4d6b210a1ff3a"
+      },
+      "observed": {
+        "releaseTurn": 340,
+        "movementTurn": 343,
+        "arrivalTurn": 349,
+        "impactTurn": 350,
+        "target": "friendly Blue Brave"
+      }
+    }
+  ],
+  "curatedWarning": "Curated render: exactly four approved Blast attempts inspected. Other checks are uninspected and remain unknown. No generic receipt discovery or browser/native execution was performed.",
+  "receiptSha256": {
+    "standardAggregate": "59542ad13122fc1c25ff284ac4f4e75f6c628cf8095e2945240575d8048dbe14",
+    "strictPreflight": "cce97aa1d70751c5283c1bebcc06401cb35a821fc664484ebcc6c4ea69b96b80",
+    "structural": "10b1650b4e16fd0711e96c7d21cd13f61ff7b797584fb8f37c87a16ed1d8d4d8",
+    "context": "f598cfee3d87173115badf8cf78b982365b10c79ca94879399068d1bcc2ef3c4",
+    "curatedProjection": "1c7b6b8285ee4f27048a045bdc12de885db459c7108f63f181f8e78f40e84e11",
+    "curatedHtml": "186b800d623b2142e2a0255222b44c3246ad36aef92de7a59f37eb9ffcab0264",
+    "curatedJson": "ea4f55f1a1886843ade58fdccc66ffe3a147e2aff8f8a1dfc79e5c9f8cdba17a",
+    "renderOuter": "0bfae9c1d78034051c838eebe48dbeee07e5ed912f070d14c336ca1ecca75d54",
+    "renderResult": "89aef639a780f333becda1990f279ed7cd1491018fbc84928d24f85231ed42e1"
+  },
+  "images": {
+    "report.png": {
+      "sha256": "baead231d3158722260cb7537d480c3fb90db289a7bddf8d98c7b161db885919",
+      "width": 1425,
+      "height": 2164
+    },
+    "person-row.png": {
+      "sha256": "97a7abc145f339dec894f9d6c8dda733a70e2733c1b3fc3000fab2d43d5ca26e",
+      "width": 1100,
+      "height": 114
+    },
+    "controls-row.png": {
+      "sha256": "9dbbb93f2ada955a6c77e31dd63997171dc82149709fb714e48eacfe06a662b8",
+      "width": 1100,
+      "height": 114
+    }
+  },
+  "limits": [
+    "The screenshots render a static evidence report, not the game.",
+    "Both Blast rows are historical/stale; Original remains unknown.",
+    "The person case uses a friendly Blue Brave only.",
+    "Controls equality is a bounded saved/loaded projection; the recorded full digest is not an independent full-World recomputation.",
+    "No original-game execution, native paired parity, matched game frames, or hardware-performance claim.",
+    "Raw archives, profiles, and unselected evidence are not included."
+  ]
+}
