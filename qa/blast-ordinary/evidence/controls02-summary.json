@@ -1,0 +1,290 @@
+{
+  "kind": "ordinary-blast-controls-result",
+  "status": "passed",
+  "runId": "56df23e1-5560-4ba9-890e-15ec3bc89d1a",
+  "source": {
+    "commit": "2e51cf0a024369221c534d0a72c1fcef7e0065ff",
+    "tree": "d94cbc72d25a2535aa9d541f26082b5265b50070",
+    "fingerprint": "c82bcae58249f0b3a2d20edae472909801817224f3b9a4bb66394e27f6e1131b",
+    "beforeAfterEqual": true,
+    "scenarioSha256": "06e069edfc2cd1c2a0fd9c5de158b7762566fc9943b4ec1feec47752df7b3303",
+    "runtimeCanonicalJsonSha256": "5e3fadfe0990e3a3958e9e1759a502b7f4f6b51482d57b2d7679c0e1e3b06543",
+    "runtimeBeforeAfterEqual": true,
+    "browserVersion": "154.0.8037.92",
+    "browserBinarySha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706"
+  },
+  "timing": {
+    "startedAt": "2026-10-08T09:02:18.623Z",
+    "finishedAt": "2026-10-08T09:03:54.841Z",
+    "scenarioLimitSeconds": 240,
+    "harnessLimitSeconds": 300,
+    "outerLimitSeconds": 330
+  },
+  "checks": [
+    {
+      "name": "cancel-and-key-repeat",
+      "status": "passed"
+    },
+    {
+      "name": "out-of-range",
+      "status": "passed"
+    },
+    {
+      "name": "empty-ground-and-repeated-click",
+      "status": "passed"
+    },
+    {
+      "name": "public-pause-active-save-fresh-page-Load",
+      "status": "passed"
+    },
+    {
+      "name": "ordinary-stock-exhaustion-and-rejection",
+      "status": "passed"
+    },
+    {
+      "name": "pause-button-hold-and-resume",
+      "status": "passed"
+    }
+  ],
+  "activeCast": {
+    "releaseTurn": 395,
+    "pauseTurn": 397,
+    "releaseToSpaceObservedMs": 147.0,
+    "trustedRelease": true,
+    "trustedSpace": true,
+    "saved": {
+      "level": 2,
+      "turn": 397,
+      "time": 33.083333333333336,
+      "pendingTime": 0.031928666666870435,
+      "paused": true,
+      "speed": 1,
+      "castCount": 2,
+      "blastStock": 2,
+      "actor": {
+        "id": 54,
+        "hp": 100,
+        "x": -107,
+        "z": -101,
+        "casting": {
+          "spell": "blast",
+          "point": {
+            "x": -99,
+            "z": -101
+          },
+          "remaining": 0.33333333333333337
+        }
+      },
+      "target": {
+        "id": 278,
+        "team": "blue",
+        "kind": "brave",
+        "hp": 50,
+        "x": -99,
+        "z": -101,
+        "inside": null
+      },
+      "targetNativePose": {
+        "id": 278,
+        "class": 1,
+        "x": 42240,
+        "y": 23808,
+        "h": 96
+      },
+      "projectile": {
+        "id": 1266,
+        "spell": "blast",
+        "team": "blue",
+        "caster": 54,
+        "target": {
+          "x": -99,
+          "z": -101
+        },
+        "source": {
+          "x": -107,
+          "z": -101
+        },
+        "position": {
+          "x": -25344,
+          "y": 23808,
+          "h": 128
+        },
+        "destination": {
+          "x": -23296,
+          "y": 23808,
+          "h": 96
+        },
+        "origin": {
+          "x": -25344,
+          "y": 23808,
+          "h": 128
+        },
+        "phase": "windup",
+        "remaining": 4,
+        "turns": 0,
+        "visuals": [],
+        "blastTarget": {
+          "personId": 278,
+          "shotPersonId": null,
+          "destination": {
+            "x": -23296,
+            "y": 23808,
+            "h": 96
+          }
+        }
+      },
+      "randomState": 1473196295,
+      "cosmeticRandom": {
+        "randomState": 2348018865
+      }
+    },
+    "loaded": {
+      "level": 2,
+      "turn": 397,
+      "time": 33.083333333333336,
+      "pendingTime": 0.031928666666870435,
+      "paused": true,
+      "speed": 1,
+      "castCount": 2,
+      "blastStock": 2,
+      "actor": {
+        "id": 54,
+        "hp": 100,
+        "x": -107,
+        "z": -101,
+        "casting": {
+          "spell": "blast",
+          "point": {
+            "x": -99,
+            "z": -101
+          },
+          "remaining": 0.33333333333333337
+        }
+      },
+      "target": {
+        "id": 278,
+        "team": "blue",
+        "kind": "brave",
+        "hp": 50,
+        "x": -99,
+        "z": -101,
+        "inside": null
+      },
+      "targetNativePose": {
+        "id": 278,
+        "class": 1,
+        "x": 42240,
+        "y": 23808,
+        "h": 96
+      },
+      "projectile": {
+        "id": 1266,
+        "spell": "blast",
+        "team": "blue",
+        "caster": 54,
+        "target": {
+          "x": -99,
+          "z": -101
+        },
+        "source": {
+          "x": -107,
+          "z": -101
+        },
+        "position": {
+          "x": -25344,
+          "y": 23808,
+          "h": 128
+        },
+        "destination": {
+          "x": -23296,
+          "y": 23808,
+          "h": 96
+        },
+        "origin": {
+          "x": -25344,
+          "y": 23808,
+          "h": 128
+        },
+        "phase": "windup",
+        "remaining": 4,
+        "turns": 0,
+        "visuals": [],
+        "blastTarget": {
+          "personId": 278,
+          "shotPersonId": null,
+          "destination": {
+            "x": -23296,
+            "y": 23808,
+            "h": 96
+          }
+        }
+      },
+      "randomState": 1473196295,
+      "cosmeticRandom": {
+        "randomState": 2348018865
+      }
+    },
+    "boundedProjectionEqual": true,
+    "boundedProjectionCanonicalJsonSha256": "7564d18367e8b1016eb608d688f544354f9dcee290d6c3b43e0b642bdab3ef20",
+    "fullScenarioProjectionEqual": true,
+    "fullScenarioProjectionCanonicalJsonSha256": "123c1fddb7e830a48e7536160576881cdeff25102187ab9903734b1a557f6b34",
+    "hashEncoding": "UTF-8 JSON; sorted keys; no whitespace; Python json.dumps separators=(comma,colon). These are QA projection hashes, not exported browser storage."
+  },
+  "stock": {
+    "initial": 4,
+    "final": 0,
+    "acceptedCasts": 4,
+    "chargingAtEnd": false
+  },
+  "evidenceHashes": {
+    "outerReceipt": "79e5e9023426ccbf0fe85e289ba329bee8ce0280b0d62afab9973f03c0ed2bf6",
+    "harnessReceipt": "8d13f50931e0ec52f63c2bcdcc9322a7ed2a36408820a9033be9978730d4ab94",
+    "controlsEvidence": "adfdc47b5732822a8bce1cd249f3dd4e1952faea184144390b1847490863c0dd",
+    "rawStdout": "bc3b9c851da9b195db4f4d425468f209370247b0768981b95080de44df234d51",
+    "rawStderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "gameErrors": [],
+  "warningSummary": {
+    "softwareWebGLFallback": 2,
+    "readPixelsStall": 4,
+    "textureWithoutImageData": 2
+  },
+  "images": [
+    {
+      "file": "controls02-out-of-range.png",
+      "sha256": "77feb37bfe4f7a13498d35edd6651a381eb152360ab7ab53c3edaf05b9dc0846",
+      "width": 1440,
+      "height": 1000,
+      "caption": "Visible range rejection; four Blast shots retained.",
+      "visuallyInspected": true
+    },
+    {
+      "file": "controls02-active-save-menu.png",
+      "sha256": "ea07808847961cda963e2bf3d70ec7e471949387681ec87d104ac5bcfff0cd6e",
+      "width": 1440,
+      "height": 1000,
+      "caption": "Public Game settings at 00:33 with two Blast shots. Active projectile state is established by the retained input/save/load evidence, not by the menu image alone.",
+      "visuallyInspected": true
+    },
+    {
+      "file": "controls02-no-stock.png",
+      "sha256": "3a70631a73300107d8a854abc2b0f646f8b5d3899a109a6883a2e835aa9b0fdb",
+      "width": 1440,
+      "height": 1000,
+      "caption": "After genuine fresh-page Load, zero-stock Blast remains selectable and shows the charging rejection message.",
+      "visuallyInspected": true
+    }
+  ],
+  "limits": [
+    "Headless Chrome 154 software-WebGL functional evidence; no hardware performance or native-executable claim.",
+    "Screenshots document visible UI. The active cast/save/Load equality is supported by the separate retained state/input evidence.",
+    "Independent moving-person pair/frame evidence and final combined-tree gates remain separate.",
+    "Failed controls01 remains failed and retained. No browser profile, IndexedDB database, raw save payload or complete raw archive is included."
+  ],
+  "recordedCheckpointDigest": {
+    "afterSave": "9588a5d6a42c784dd351a58acc00d5b9b84354b7b2cd9ac15f20465b38532244",
+    "atRunEnd": "9588a5d6a42c784dd351a58acc00d5b9b84354b7b2cd9ac15f20465b38532244",
+    "matching": true,
+    "verification": "These are recorded matching harness digests. No full-World export or independent full checkpoint digest recomputation was performed."
+  }
+}
