@@ -59,8 +59,14 @@ existing hover/context freshness check remains mandatory. A delayed event may
 already cast before the actual-release contract rejects it; any such failure is
 retained. The four-turn limit has the controlled model witness above; successful
 browser delivery remains prospective. `pointer-preparation.json` retains the last
-96 preparation reads, including bounds, hit candidates, feedback, failure reasons
-and read duration, so a missing real pixel can be distinguished from later delay.
+96 preparation reads, including bounds, hit candidates, feedback, identity/range gate fields, read
+duration and bounded results from the existing inspections. Rendered-body
+visibility/pickability/frame and painter-source fields are retained as well.
+These records distinguish missing ownership from later delay without inventing
+an occluder or treating bounds alone as a person hit. The geometric picker and
+its render-eligibility producer are unchanged between baseline and candidate and
+have no spell-mode gate; actual positive baseline pixel feasibility still must
+be witnessed.
 
 Passive setup telemetry retains up to96 before/after turn-boundary snapshots and
 the first identity/health failure. Ground dispatch records the real pointer
@@ -72,9 +78,12 @@ hover rasterization finishes asynchronously; it is never awaited before release,
 and its retained capture turn must precede or equal the actual release turn. No world, resources, original identities, simulation clock
 or renderer is changed by the observations.
 
-The setup must finish before turn1800. The approach/range wait is bounded at140s,
-hover/pointer setup at12s with the stricter four-turn release window, the released
-cast at48 turns/10s and the entire scenario at240s. All movement, actual pointer,
+The setup must finish before turn1800. The combined approach, range and pointer
+preparation poll is bounded at140s within the240s scenario cap. There is no
+separate12s hover timer. Once readiness is admitted, the actual release window
+is four turns and the released cast remains bounded at48 turns/10s. A candidate hover frame still requires a real intervening render after evidence
+registration and before the click; pre-trigger visible feedback alone earns no
+saved-frame credit. Missing that render fails the episode. All movement, actual pointer,
 hover/ack, stock/count, parent/shot identity, arrival/impact and frame requirements
 remain mandatory. No camp, training, kill-credit raid or bridge reward is required.
 

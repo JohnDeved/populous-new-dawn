@@ -15,7 +15,7 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
   assert.ok(basename(output).startsWith(`blast-m2-${expectation}-`), 'Use an expectation-specific fresh output')
   const commands = resolve(output, 'commands'), started = Date.now(), actions = []
   mkdirSync(commands)
-  const limits = { wallMs: 240000, approachMs: 140000, targetMs: 12000, cameraMs: 15000, castMs: 10000, maximumSetupTurn: 1800 }
+  const limits = { wallMs: 240000, approachMs: 140000, cameraMs: 15000, castMs: 10000, maximumSetupTurn: 1800 }
   let attached = false, setupAttached = false, primaryError, result
   const preparation = []
   const save = (name, data) => writeFileSync(resolve(output, name), JSON.stringify(data, null, 2) + '\n')
@@ -138,7 +138,28 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
         const targetError = target ? spellTargetError(probe, 'blast', target) : 'missing target'
         const distance = p ? wrappedDistance(actor, p) : null, box = p && s.picking.personBounds(p.id)
         const rect = s.container.getBoundingClientRect(), event = s.pointerScreen
-        const inspect = point => inspectEntityPoint(s, 'units', point)
+        const inspection = { canvasOwned: 0, outsideCanvas: 0, targetHit: 0, nullHit: 0, otherHit: 0, samples: [] }
+        const inspect = point => {
+          const result = inspectEntityPoint(s, 'units', point)
+          if (!result.canvasOwned) inspection.outsideCanvas++
+          else {
+            inspection.canvasOwned++
+            if (result.hitId === p.id) inspection.targetHit++
+            else if (result.hitId === null) inspection.nullHit++
+            else inspection.otherHit++
+          }
+          if (inspection.samples.length < 8) inspection.samples.push({ x: point.x, y: point.y, ...result,
+            geometricKind: result.canvasOwned ? s.picking.lastKind : null,
+            geometricId: result.canvasOwned ? s.picking.lastId : null })
+          return result
+        }
+        const group = s.unitMeshes.get(19), layer = group?.userData.layers?.findLast(piece => piece.visible)
+        const source = layer && s.view.painter.source(layer), unit = window.blastOriginal.target
+        const renderedBody = { visible: group?.visible ?? null, pickable: group?.userData.pickable ?? null,
+          frame: group?.userData.frame ?? null, spriteBucket: group?.userData.spriteBucket ?? null,
+          inside: unit.inside, nativeRenderFlags: unit.native?.renderFlags ?? null, nativeFlags2: unit.native?.flags2 ?? null,
+          visibleLayer: !!layer, layerHasPainterSource: !!source,
+          painterSource: source ? { bucket: source.bucket, cell: source.cell, phase: source.phase, object: source.object, face: source.face } : null }
         const existingHit = p && event && findEntityInput([{ x: event.clientX, y: event.clientY }], p.id, inspect)
         const candidates = []
         if (box) for (const fy of [0.5, 0.35, 0.65]) for (const fx of [0.5, 0.35, 0.65])
@@ -163,7 +184,7 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
         }
         return { turn: w.turn, state, response, distance, targetError, actorFighting: !!actor.fight,
           box: box ? { x: box.x, y: box.y, width: box.width, height: box.height } : null,
-          existingHit, nextHit, feedback: { targetId: feedback.targetId, visible: feedback.visible, lines: feedback.lines },
+          existingHit, nextHit, inspection, renderedBody, feedback: { targetId: feedback.targetId, visible: feedback.visible, lines: feedback.lines },
           ready, hover, readMilliseconds: performance.now() - started }
       }, { previous: prior, expectation })
       preparation.push(observed); if (preparation.length > 96) preparation.shift()
