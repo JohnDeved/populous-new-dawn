@@ -1,6 +1,7 @@
 // Adapted from the accepted hut-smoke-ignition Bridge prefix and ordinary-shared-training input.
 // Live World is read only; every validator that synchronizes terrain receives a detached clone.
 import assert from 'node:assert/strict'
+import { randomUUID } from 'node:crypto'
 
 // Accept only the two observed ordinary Blast paths needed by this M1 route.
 // Other picker results are an unsupported QA prerequisite, not game invalidity.
@@ -288,7 +289,8 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
     return evidence
   }
   const castInput = async (hit, spell) => {
-    const preflight = await page.evaluate(async ({ hit, spell, actorId }) => {
+    const owner = randomUUID()
+    const preflight = await page.evaluate(async ({ hit, spell, actorId, owner }) => {
       const [{ spellTargetError }, { inspectEntityPoint, observeEntityPointer }] = await Promise.all([import('/app/live-command.ts'), import('/qa/erosion-ordinary/input.mjs')])
       const scene = window.testSceneRef.current, world = scene.world, canvas = scene.renderer.domElement
       const point = hit.point ?? hit.spellPreflight.point
@@ -297,7 +299,7 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
       const rejection = JSON.stringify(world.selected) !== JSON.stringify([actorId]) ? 'Original Shaman must own spell input' : !pick.canvasOwned || !actual || Math.hypot(actual.x - point.x, actual.z - point.z) > 0.05 ||
         (hit.collection && pick.hitId !== hit.id) ? 'Spell target changed before actual input' : spellTargetError(structuredClone(world), spell, point)
       const preflight = { turn: world.turn, point, spell, mode: world.mode, paused: world.paused,
-        actorId, stock: world.shots[spell], pick, actual, rejection }
+        actorId, stock: world.shots[spell], pick, actual, rejection, armed: false }
       if (rejection || world.paused || world.mode !== spell || world.shots[spell] <= 0) return preflight
       if (window.mission1VaultCastInput || window.mission1VaultDispatch) throw new Error('An input observer is already armed')
       // One maintained observer owns the actual handler's picker calls. Preflight
@@ -321,7 +323,7 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
       const before = event => { releaseUnits = new Map(world.units.map(unit => [unit.id, unit])); observe('before', event) }
       const after = event => { completedUnits = new Map(world.units.map(unit => [unit.id, unit])); observe('after', event) }
       canvas.addEventListener('pointerup', before, true); canvas.addEventListener('pointerup', after)
-      window.mission1VaultCastInput = { finish() {
+      window.mission1VaultCastInput = { owner, finish() {
         canvas.removeEventListener('pointerup', before, true); canvas.removeEventListener('pointerup', after)
         const delivered = pointer.finish(), release = delivered.events.find(event => event.type === 'pointerup')
         const picked = release?.picks.find(pick => pick.owner === 'picking' && pick.name === 'pickPerson')?.id
@@ -329,26 +331,32 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
         return { ...record, pointer: delivered, resolvedPerson: { id: picked ?? null,
           before: !!prior, after: !!current, sameObject: !!prior && prior === current } }
       } }
-      return preflight
-    }, { hit, spell, actorId: originalShamanId })
-    let delivered, failure
+      return { ...preflight, armed: true, owner }
+    }, { hit, spell, actorId: originalShamanId, owner })
+    let delivered, failure, failed = false
     const cleanupFailures = []
     try {
       report.actions.push({ label: 'actual-cast-preflight', preflight }); save()
       assert.equal(preflight.rejection, null); assert.equal(preflight.paused, false)
       assert.equal(preflight.mode, spell); assert.ok(preflight.stock > 0)
       await action(`${spell}-target-click`, () => page.mouse.click(hit.x, hit.y))
-    } catch (error) { failure = error }
+    } catch (error) { failure = error; failed = true }
     finally {
-      try {
-        delivered = await page.evaluate(() => { const observer = window.mission1VaultCastInput; delete window.mission1VaultCastInput; return observer?.finish() })
+      if (preflight.armed) try {
+        assert.equal(preflight.owner, owner)
+        delivered = await page.evaluate(owner => {
+          const observer = window.mission1VaultCastInput
+          if (!observer || observer.owner !== owner) throw Error('Cast observer ownership changed before cleanup')
+          delete window.mission1VaultCastInput
+          return observer.finish()
+        }, owner)
       } catch (error) { cleanupFailures.push(error) }
       report.actions.push({ label: 'actual-cast-stock', spell, delivered })
       try { save() } catch (error) { cleanupFailures.push(error) }
       if (cleanupFailures.length) report.actions.push({ label: 'actual-cast-cleanup-errors',
-        primary: failure && String(failure.stack ?? failure), errors: cleanupFailures.map(error => String(error.stack ?? error)) })
+        primary: failed ? String(failure?.stack ?? failure) : null, errors: cleanupFailures.map(error => String(error?.stack ?? error)) })
     }
-    if (failure) throw failure
+    if (failed) throw failure
     if (cleanupFailures.length) throw cleanupFailures[0]
     assert.deepEqual(delivered.errors, []); assert.deepEqual(delivered.pointer.errors, [])
     assert.equal(delivered.pointer.restored, true)

@@ -42,7 +42,7 @@ function fixture(t, { personId = 38, rejection = null, throwInput = false, failS
       pickPerson(event) {
         assert.equal(this, scene.picking); calls.push('person')
         if (nested) this.pick(event)
-        if (dispatching && throwPicker) throw pickerFailure
+        if (dispatching && throwPicker) throw throwPicker === 'null' ? null : pickerFailure
         return personId
       },
     },
@@ -165,6 +165,16 @@ test('a thrown original picker stays primary when final evidence saving also fai
   assert.equal(f.world.shots.blast, 4); f.restored()
 })
 
+test('an original primitive throw remains primary through cleanup and report failure', async t => {
+  const f = fixture(t, { throwPicker: 'null', failSaves: [3] })
+  let caught = false
+  try { await f.input.castInput(f.hit, 'blast') } catch (error) { caught = true; assert.equal(error, null) }
+  assert.equal(caught, true)
+  const failures = f.report.actions.find(action => action.label === 'actual-cast-cleanup-errors')
+  assert.equal(failures.primary, 'null'); assert.match(failures.errors[0], /report save failed/)
+  f.restored()
+})
+
 test('unexpected picker replacement is retained as failed restoration evidence', async t => {
   const f = fixture(t, { replacePicker: true })
   await assert.rejects(f.input.castInput(f.hit, 'blast'))
@@ -232,6 +242,38 @@ test('a competing dispatch observer blocks arming a cast observer', async t => {
   await assert.rejects(f.input.castInput(f.hit, 'blast'), /input observer is already armed/)
   assert.equal(window.mission1VaultDispatch.owner, 'existing')
   assert.equal(f.world.shots.blast, 4); f.restored()
+})
+
+test('rejected preflight never consumes an existing cast observer', async t => {
+  const f = fixture(t, { rejection: 'beyond reach' })
+  let finished = false
+  const existing = { owner: 'another invocation', finish() { finished = true } }
+  window.mission1VaultCastInput = existing
+  await assert.rejects(f.input.castInput(f.hit, 'blast'))
+  assert.equal(window.mission1VaultCastInput, existing)
+  assert.equal(finished, false); assert.equal(f.world.shots.blast, 4)
+  delete window.mission1VaultCastInput
+  f.restored()
+})
+
+test('a changed cast owner is reported without deleting or finishing the new owner', async t => {
+  const f = fixture(t)
+  let previous, finished = false
+  const existing = { owner: 'replacement invocation', finish() { finished = true } }
+  const reportAction = f.report.actions.push.bind(f.report.actions)
+  f.report.actions.push = (...items) => {
+    if (items.some(item => item.label === 'actual-cast-preflight')) {
+      previous = window.mission1VaultCastInput
+      window.mission1VaultCastInput = existing
+    }
+    return reportAction(...items)
+  }
+  await assert.rejects(f.input.castInput(f.hit, 'blast'), /ownership changed before cleanup/)
+  assert.equal(window.mission1VaultCastInput, existing); assert.equal(finished, false)
+  // Test-owned disposal of its displaced fixture; production refuses foreign ownership.
+  assert.equal(previous.finish().pointer.restored, true)
+  delete window.mission1VaultCastInput
+  f.restored()
 })
 
 test('the recovered checkpoint observer rejects M3 and does not mutate its M1 source', t => {

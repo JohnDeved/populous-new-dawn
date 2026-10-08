@@ -10,9 +10,9 @@
       "path": "scripts/local-render/mission1-vault-input.mjs",
       "sourceCommit": "91c9453061e92aa2ada4f4c170904b47c7e56a98",
       "sourceSha256": "aeba86b15187385b6a29f3c2aafdd17f3d3dfb989fbd477b20e9350d9e0c527b",
-      "candidateSha256": "269664b8ee669eef60621e147b092f60ffd3fd4715df54c8cd3452fe3649ead1",
+      "candidateSha256": "bbb7869e1f5ac97c744a434a91269dc867bb5edea71323c058bc4722631b6da3",
       "byteIdentical": false,
-      "change": "Compose the maintained single pointer observer; restore across first report/save failure and retain primary/cleanup errors; validate actual current Blast person/ground chain against one fresh projectile, object identity, consumed gate and acknowledgement."
+      "change": "Compose the maintained single pointer observer; restore across first report/save failure and retain primary/cleanup errors; validate actual current Blast person/ground chain against one fresh projectile, object identity, consumed gate and acknowledgement. Cleanup uses an explicit armed/invocation owner and preserves primitive thrown values."
     },
     {
       "path": "scripts/local-render/mission1-vault-arrival.mjs",
