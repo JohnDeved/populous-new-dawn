@@ -37,8 +37,9 @@ The revised browser trigger requires the same living outdoor class1/nondeleted
 Warrior19, actual movement across two distinct normal-turn observations, no fight,
 fresh detached-clone `spellTargetError === null`, and distance at least7. It uses
 the first qualifying observation; release must follow within four simulation
-turns, with fresh pointer, movement and range checks. Missing that window fails
-without casting. The four-turn limit has the controlled model witness above; browser delivery
+turns, with fresh pointer, movement and range checks. An expired pre-dispatch check stops further input. If a trusted release arrives
+after the window despite the earlier check, the episode fails and retains that
+late delivered event and any cast it caused. The four-turn limit has the controlled model witness above; browser delivery
 within that limit remains prospective.
 
 Passive setup telemetry retains up to96 before/after turn-boundary snapshots and
