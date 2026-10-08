@@ -51,14 +51,19 @@ export function createBlastEpisode(options) {
       hover = clone(value)
     },
     release(value, sample) {
-      keys(value, ['turn', 'targetId', 'mode', 'trusted', 'canvasOwned', 'context', 'handlerPersonId', 'handlerTerrain', 'stockBefore', 'castCountBefore', 'point'])
+      keys(value, ['turn', 'targetId', 'mode', 'trusted', 'canvasOwned', 'context', 'handlerPersonId', 'handlerTerrain', 'stockBefore', 'castCountBefore', 'point', 'targetCheck'])
       const prepared = expectation === 'baseline' ? proposal : hover
       check(prepared && !release, 'One delivered release must follow declared preparation')
       live(sample)
       check(value.turn >= triggerTurn && value.turn <= triggerTurn + 4, 'Actual response release window expired')
       check(sample.target.hp > 0, 'Ordinary setup requires a living response member at release')
       check(value.turn >= prepared.turn && value.turn <= prepared.turn + 1 && same(value.context, prepared.context), 'Stale pointer/proposal or changed input context')
-      if (expectation === 'baseline') check(same(value.point, proposal.point), 'Actual release pixel differs from proposed pixel')
+      if (expectation === 'baseline') {
+        check(same(value.point, proposal.point), 'Actual release pixel differs from proposed pixel')
+        const delivered = value.targetCheck
+        check(delivered?.range.phase === 'before-handler' && delivered.range.turn === value.turn && delivered.range.targetId === targetId && delivered.range.sameOriginal && delivered.range.targetError === null, 'Original proposed target is no longer in actual source range at release')
+        check(delivered?.pixel.phase === 'after-handler-diagnostic' && delivered.pixel.turn === value.turn && delivered.pixel.personId === targetId && same(delivered.pixel.point, value.point), 'Original proposed target no longer owns the delivered pixel')
+      }
       check(value.mode === 'blast' && value.targetId === targetId && value.trusted && value.canvasOwned, 'Actual trusted Blast release on the owned canvas required')
       check(expectation === 'candidate' ? value.handlerPersonId === targetId : value.handlerPersonId === null && value.handlerTerrain, 'Real handler pick does not match the declared phenotype')
       check(sample.shot && sample.shot.phase === 'windup' && sample.shot.remaining === 6 && sample.shot.caster === actorId, 'Release did not allocate one fresh Blast windup')

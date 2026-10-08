@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { observeBlastSetup } from '../qa/blast-ordinary/setup-observer.mjs'
+import { observeBlastSetup, captureBlastReleaseRange, readBlastReleasePixel } from '../qa/blast-ordinary/setup-observer.mjs'
 
 // Fake records only: no simulation, browser, runtime module or imported fixture.
 function fixture(clock = {}) {
@@ -143,4 +143,45 @@ test('unsupported descriptors are rejected before either callback is installed',
   const result = observer.finish()
   assert.equal(getterCalls, 0); assert.deepEqual(Object.getOwnPropertyDescriptors(clock), descriptors)
   assert.equal(result.finished, true); assert.equal(result.errorCount, 1); assert.equal(result.attachmentVerified, false)
+})
+
+
+test('actual-release range validation uses a detached current World and notices target movement or replacement', () => {
+  const target = { id: 19, x: 2 }, world = { turn: 10, units: [target] }
+  const rangeCheck = (probe, spell, person) => {
+    assert.notEqual(probe, world); assert.equal(spell, 'blast')
+    const error = person.x > 5 ? { code: -2 } : null
+    person.x = 999; probe.turn++
+    return error
+  }
+  assert.equal(captureBlastReleaseRange(world, target, rangeCheck).targetError, null)
+  assert.deepEqual(world, { turn: 10, units: [{ id: 19, x: 2 }] })
+  // A proposal was valid, but the actual target is outside range at release.
+  target.x = 8
+  const moved = captureBlastReleaseRange(world, target, rangeCheck)
+  assert.deepEqual(moved.targetError, { code: -2 }); assert.equal(world.turn, 10); assert.equal(target.x, 8)
+  world.units = [{ id: 19, x: 2 }]
+  assert.equal(captureBlastReleaseRange(world, target, rangeCheck).sameOriginal, false)
+})
+
+test('post-handler pixel evidence uses the actual method result and retains its cache effect separately', () => {
+  const event = { clientX: 467, clientY: 390 }, world = { turn: 10 }, result = { original: true }
+  let owner = 19, calls = 0, handlerCalls = 0
+  const picking = { lastKey: 'before', lastId: null, lastKind: null,
+    pickPerson(argument) { assert.equal(this, picking); assert.equal(argument, event); calls++; this.lastKey = 'after'; this.lastId = owner; return owner } }
+  const scene = { world, picking }
+  const originalHandler = function (argument) { assert.equal(this, scene); assert.equal(argument, event); handlerCalls++; return result }
+  assert.equal(Reflect.apply(originalHandler, scene, [event]), result)
+  const delivered = readBlastReleasePixel(scene, event)
+  assert.equal(handlerCalls, 1); assert.equal(calls, 1)
+  assert.equal(delivered.personId, 19); assert.equal(delivered.phase, 'after-handler-diagnostic')
+  assert.equal(delivered.cacheBefore.lastKey, 'before'); assert.equal(delivered.cacheAfter.lastKey, 'after')
+  // Occlusion or movement changes actual ownership after an earlier proposal.
+  owner = null
+  assert.equal(readBlastReleasePixel(scene, event).personId, null)
+  owner = 1207
+  assert.equal(readBlastReleasePixel(scene, event).personId, 1207)
+  const failure = new Error('picker failure'); picking.pickPerson = () => { throw failure }
+  assert.throws(() => readBlastReleasePixel(scene, event), error => error === failure)
+  assert.equal(handlerCalls, 1)
 })

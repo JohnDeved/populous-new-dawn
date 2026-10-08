@@ -364,7 +364,7 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
     save('episode.json', { expectation, diagnostic, diagnosticResult, source: receipt.source, profileId: receipt.profile.id, runId: receipt.profile.runId, limits, actions, ...result,
       status: primaryError ? 'failed' : 'passed', failure: primaryError?.stack,
       remainingAcceptance: ['Empty-ground control', 'Out-of-range/no-stock/cancel/repeat', 'Pause and active-cast save/reload', 'Comparable paired frame review'],
-      method: 'Public Mission2 entry, ordinary HUD/minimap/ground/person input and real RAF. Passive original-call-once turn/render/pointer observers; detached-clone diagnostic validators. No injected game state or clock stepping.' })
+      method: 'Public Mission2 entry, ordinary HUD/minimap/ground/person input and real RAF. Original-call-once turn/render/pointer observers; detached-clone diagnostic validators. Baseline release additionally checks target range before the handler and performs one geometric person read after handler-trace restoration, with cache effects separately retained. No injected game state or clock stepping; no timing-equivalence claim.' })
   }
   if (primaryError) throw primaryError
   assert.deepEqual(receipt.errors, [])

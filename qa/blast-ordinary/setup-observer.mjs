@@ -1,5 +1,5 @@
 // Passive setup telemetry only. No game/runtime imports, stepping or input dispatch.
-// The only writes outside this closure install/restore the two callback wrappers.
+// The setup observer writes only its two callback wrappers. Release diagnostics below separately declare their picker-cache effects.
 const scalar = value => ['string', 'boolean'].includes(typeof value) || Number.isFinite(value) ? value : null
 const fields = (object, names) => Object.fromEntries(names.map(name => [name, scalar(object?.[name])]))
 const sources = unit => [['flight', unit?.flight], ['fight', unit?.fight?.motion], ['native', unit?.native], ['entry', unit?.entry?.person], ['builder', unit?.builder?.person]]
@@ -122,4 +122,22 @@ export function observeBlastSetup(scene, actor, {
       return read()
     },
   }
+}
+
+// Actual release capture boundary. The source validator receives a detached World.
+export function captureBlastReleaseRange(world, originalTarget, rangeCheck) {
+  const sameOriginal = world.units.find(unit => unit.id === originalTarget.id) === originalTarget
+  const probe = structuredClone(world), target = probe.units.find(unit => unit.id === originalTarget.id)
+  return { phase: 'before-handler', turn: world.turn, targetId: originalTarget.id, sameOriginal,
+    targetError: target ? structuredClone(rangeCheck(probe, 'blast', target)) : 'missing target' }
+}
+
+// Call only after the real handler trace has finished/restored. This additional
+// geometric read can update picker caches; it is not a handler-consumed pick.
+export function readBlastReleasePixel(scene, event) {
+  const before = fields(scene.picking, ['lastKey', 'lastId', 'lastKind'])
+  const personId = scene.picking.pickPerson(event)
+  return { phase: 'after-handler-diagnostic', turn: scene.world.turn,
+    point: { x: event.clientX, y: event.clientY }, personId,
+    cacheBefore: before, cacheAfter: fields(scene.picking, ['lastKey', 'lastId', 'lastKind']) }
 }
