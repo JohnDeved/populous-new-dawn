@@ -363,3 +363,64 @@ test('ack uses consumed source time and actual capture chronology across simulat
     assert.throws(() => make().frame(bad), /natural HUD time|pose or context|precedes/)
   }
 })
+
+function enemySample(turn) {
+  const value = sample(turn - 2), aim = position(Math.max(3, turn - 1))
+  value.turn = turn; value.level = 1; value.actor.kind = 'shaman'; value.actor.ownerValid = true; value.target.team = 'red'; value.target.position = position(turn)
+  if (value.shot) {
+    value.shot.target = browserPoint(aim); value.shot.destination = value.shot.phase === 'windup' ? position(3) : aim
+    value.shot.tracking.destination = aim
+  }
+  for (const effect of value.effects) effect.point = browserPoint(aim)
+  return value
+}
+function enemyStart(change = () => {}) {
+  const episode = createBlastEpisode({ ...options, phenotype: 'm1-enemy' }), ctx = { ...context, level: 1 }
+  const h = { ...hover('candidate'), context: copy(ctx), previousPosition: position(0), targetSame: true, ownerValid: true, renderFrame: 5 }
+  const frame = { ...hoverFrame(), context: copy(ctx), pixels: null }, first = enemySample(3)
+  const event = { ...release('candidate'), turn: 3, observedAt: 3.2, point: { x: 15, y: 22 }, context: copy(ctx),
+    press: { ...release('candidate').press, turn: 3, observedAt: 3, position: position(3), point: { x: 15, y: 22 }, context: copy(ctx) },
+    targetCheck: { range: { phase: 'before-handler', turn: 3, targetId: 3, sameOriginal: true, targetError: null }, position: position(3) } }
+  change({ h, frame, event, first })
+  episode.hover(h); episode.captureHover(frame); episode.trigger(2, 2); episode.release(event, first)
+  return { episode, frame, first, ctx }
+}
+test('enemy phenotype binds independently moving hover and release poses with deferred actual cue pixels', () => {
+  const { episode, frame, first, ctx } = enemyStart()
+  assert.notDeepEqual(episode.report().hover.position, first.target.position)
+  assert.notDeepEqual(episode.report().hover.point, episode.report().release.point)
+  assert.equal(episode.report().complete, false)
+  episode.frame({ ...frame, pixels: 80 })
+  episode.frame({ kind: 'ack', turn: 3, targetId: 3, visible: true, lines: 32, pixels: 160, effectId: null,
+    targetSame: true, ownerValid: true, position: position(3), context: ctx, renderFrame: 6, observedAt: 3.3, drawNow: 3.2, ackUntil: 4 })
+  for (let turn = 3; turn < 12; turn++) {
+    episode.before(enemySample(turn)); episode.after(enemySample(turn + 1))
+    if (turn === 8) episode.frame({ kind: 'projectile', turn: 9, targetId: 3, visible: true, lines: 16, pixels: 100, effectId: 50, renderFrame: 8, phase: 'flying', shotId: 44 })
+    if (turn === 11) episode.frame({ kind: 'impact', turn: 12, targetId: 3, visible: true, lines: 16, pixels: 100, effectId: 61 })
+  }
+  assert.equal(episode.report().complete, true); assert.equal(episode.report().movement, undefined)
+  assert.equal(episode.report().windupMotion, true); assert.equal(episode.report().flightMotion, true)
+})
+test('enemy release rejects wrong recipient, replacement, ground miss, context, event pose/range and late delivery', () => {
+  for (const change of [
+    ({ event }) => { event.handlerPersonId = 4 }, ({ event }) => { event.handlerPersonId = null; event.handlerTerrain = true },
+    ({ first }) => { first.target.same = false }, ({ first }) => { first.target.ownerValid = false },
+    ({ first }) => { first.target.hp = 0 }, ({ event }) => { event.context.camera.x++ },
+    ({ first }) => { first.turn++ }, ({ event }) => { event.targetCheck.position.x++ },
+    ({ event }) => { event.targetCheck.range.turn-- }, ({ event }) => { event.targetCheck.range.sameOriginal = false },
+    ({ event }) => { event.targetCheck.range.targetError = 'out of range' }, ({ event }) => { event.turn = 7 },
+    ({ event }) => { event.point.x++ }, ({ event }) => { event.trusted = false },
+  ]) assert.throws(() => enemyStart(change))
+})
+test('enemy natural cue rejects unowned, stationary, fake, changed and post-trigger captures', () => {
+  for (const change of [
+    ({ h }) => { h.ownerValid = false }, ({ h }) => { h.targetSame = false },
+    ({ h }) => { h.previousPosition = copy(h.position) }, ({ frame }) => { frame.renderFrame++ },
+    ({ frame }) => { frame.position.x++ }, ({ frame }) => { frame.context.camera.x++ },
+    ({ frame }) => { frame.targetSame = false }, ({ frame }) => { frame.turn = 3 },
+  ]) assert.throws(() => enemyStart(change))
+  const { episode, frame } = enemyStart()
+  assert.throws(() => episode.captureHover(frame), /before trigger/)
+  assert.throws(() => episode.frame({ ...frame, position: position(3), pixels: 80 }), /prospective capture/)
+  assert.throws(() => createBlastEpisode({ ...options, phenotype: 'm1-enemy', expectation: 'baseline' }), /candidate-only/)
+})

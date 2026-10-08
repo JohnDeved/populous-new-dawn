@@ -4,7 +4,7 @@ import { observeBlastEpisode, inputContext } from '../qa/blast-ordinary/observer
 
 // Synthetic event/DOM graph only. The real observer is exercised; no browser,
 // gameplay, rendered-pixel or public-command result is claimed by these mocks.
-function fixture(t, { rejectRelease = false, rejectAdmission = false, throwDraw } = {}) {
+function fixture(t, { rejectRelease = false, rejectAdmission = false, throwDraw, enemy = false, primerPerson = false } = {}) {
   const listeners = [], log = [], rect = { left: 0, top: 0, width: 20, height: 20 }
   const canvas = { isConnected: true, getBoundingClientRect: () => rect,
     addEventListener(type, fn, capture = false) { listeners.push({ type, fn, capture }) },
@@ -25,13 +25,20 @@ function fixture(t, { rejectRelease = false, rejectAdmission = false, throwDraw 
   const world = { turn: 1, outcome: { level: 2 }, status: 'playing', paused: false, speed: 1, mode: 'blast', inputMask: 0,
     manaWorld: { gameFlags: 0 }, manaTribes: [{ mana: 10 }], randomState: 123, units: [actor, target], selected: [3], projectiles: [], effects: [],
     objectCells: { objects: new Map([[1, actor.native], [3, target.native]]) }, buildingOrders: { records: [] }, shots: { blast: 4 }, stats: { cast: 0 } }
+  if (enemy) {
+    world.outcome.level = 1; target.team = 'red'; world.selected = [1]
+    world.castingTribes = [{ flags: 0, cooldown: 0, aiCooldown: 0 }]; world.manaTribes[0].playerType = 2
+    world.landVersion = 0; world.terrainVersion = 0; world.buildings = []
+    world.land = { heights: new Int16Array(16384).fill(120), flags: new Uint32Array(16384) }
+    for (const u of world.units) { u.x = (u.native.x - 2048) / 256; u.z = -(u.native.y + 2048) / 256 }
+  }
   const attrs = new Map([['d', 'M'.repeat(16)], ['stroke-opacity', '1']])
   const path = { getAttribute: key => attrs.get(key), style: {} }
   const outline = { cloneNode() { return { attrs: Object.fromEntries(attrs), style: {}, setAttribute(key, value) { this.attrs[key] = value }, querySelector: () => ({ style: {} }) } } }
   const scene = { world, scene: {}, camera: {}, container: { clientWidth: 20, clientHeight: 20, getBoundingClientRect: () => rect },
     cameraPosition: { x: 1, y: 2, angle: 3 }, viewPoint: { x: 1, z: 2 }, cameraBearing: 3, gameClock: { beforeTurn() {}, afterTurn() {}, animationFrame: 0 },
     pointerOutline: outline, pointerPath: path, pointerScreen: { clientX: 10, clientY: 20 }, hoveredObject: 3, pointerAck: { target: 0, until: 0 },
-    picking: { pickPerson: () => world.mode === 'blast' ? 3 : null }, unitMeshes: new Map(), fxMeshes: new Map(),
+    picking: { pickPerson: () => world.mode === 'blast' && !(enemy && handlers === 1 && !primerPerson) ? 3 : null }, unitMeshes: new Map(), fxMeshes: new Map(),
     pick: () => ({ x: 3, z: 0 }),
     drawPointer(now) { log.push({ name: 'draw', receiver: this, now }); if (throwDraw) throw throwDraw; attrs.set('d', 'M'.repeat(now < this.pointerAck.until ? 32 : 16)); return 'draw-result' },
     renderer: { domElement: canvas, info: { render: { frame: 0 } }, getContext: () => ({ isContextLost: () => false, drawingBufferWidth: 2, drawingBufferHeight: 2,
@@ -53,11 +60,12 @@ function fixture(t, { rejectRelease = false, rejectAdmission = false, throwDraw 
   canvas.addEventListener('pointerup', event => {
     handlers++; scene.pointerScreen = event; scene.pointerButtons = 0
     if (world.mode === 'blast') {
-      scene.picking.pickPerson(event)
+      const hitId = scene.picking.pickPerson(event)
+      if (enemy && handlers === 1) scene.pick(event)
       if (rejectRelease && handlers === 1) return
-      world.projectiles.push({ id: 44, team: 'blue', spell: 'blast', caster: 1, phase: 'windup', remaining: 6, target: { x: 1, z: 2 },
-        destination: { x: 1000, y: 2000, h: 120 }, blastTarget: { personId: 3, shotPersonId: null, destination: { x: 1000, y: 2000, h: 120 } }, visuals: [] })
-      world.mode = null; world.shots.blast--; world.stats.cast++; if (rejectAdmission) world.selected = [1]; scene.pointerAck = { target: 3, until: performance.now() + 5000 / 24 }
+      world.projectiles.push({ id: enemy ? 43 + handlers : 44, team: 'blue', spell: 'blast', caster: 1, phase: 'windup', remaining: 6, target: { x: 1, z: 2 },
+        destination: { x: 1000, y: 2000, h: 120 }, blastTarget: enemy && handlers === 1 && hitId === null ? undefined : { personId: 3, shotPersonId: null, destination: { x: target.native.x, y: 2000, h: 120 } }, visuals: [] })
+      world.mode = null; world.shots.blast--; world.stats.cast++; if (rejectAdmission) world.selected = [1]; scene.pointerAck = { target: hitId, until: hitId === null ? 0 : performance.now() + 5000 / 24 }
     } else {
       scene.pick(event); scene.picking.pickPerson(event)
       world.buildingOrders.records[1] = { model: 3, a: 2816, b: 63488 }
@@ -65,9 +73,9 @@ function fixture(t, { rejectRelease = false, rejectAdmission = false, throwDraw 
     }
   })
   const originalDraw = scene.drawPointer, originalRender = scene.renderer.render, originalPick = scene.picking.pickPerson
-  const observer = observeBlastEpisode(scene, { expectation: 'candidate', actorId: 1, targetId: 3, runId: 'synthetic', sourceFingerprint: 'synthetic' })
+  const observer = observeBlastEpisode(scene, { expectation: 'candidate', actorId: 1, targetId: 3, runId: 'synthetic', sourceFingerprint: 'synthetic', ...(enemy && { phenotype: 'm1-enemy' }) })
   const ground = { x: 50, y: 60, point: { x: 3, z: 0 } }
-  observer.prepareMove(ground)
+  if (!enemy) observer.prepareMove(ground)
   const prepare = async () => {
     const pose = { x: 1000, y: 2000, h: 120 }
     observer.hover({ turn: 1, targetId: 3, mode: 'blast', canvasOwned: true, hitId: 3, visible: true, lines: 16,
@@ -76,7 +84,7 @@ function fixture(t, { rejectRelease = false, rejectAdmission = false, throwDraw 
     canvas.dispatch('pointerdown'); observer.trigger(1)
   }
   t.after(() => observer.dispose())
-  return { scene, world, canvas, observer, prepare, ground, log, attrs, originalDraw, originalRender, originalPick, handlers: () => handlers }
+  return { scene, world, canvas, observer, prepare, ground, log, attrs, originalDraw, originalRender, originalPick, target, handlers: () => handlers }
 }
 
 test('actual first release rearms one later event without replay or duplicate original handler', async t => {
@@ -171,4 +179,51 @@ test('validated cast with rejected admission still retains the unarmed following
   assert.deepEqual(attempted.after, { turn: 1, mode: null, selected: [1], stock: 3, castCount: 1 })
   assert.equal(result.report.complete, false); assert.equal(f.handlers(), 2)
   assert.ok(result.report.errors.some(error => error.includes('actual effects retained without handler trace')))
+})
+
+test('enemy arm consumes its actual ground primer and deferred natural hover uses the later live release pose', async t => {
+  const f = fixture(t, { enemy: true })
+  assert.throws(() => f.observer.armEnemy(), /validated actual ground primer/)
+  f.canvas.dispatch('pointerdown'); f.canvas.dispatch('pointerup')
+  assert.equal(f.handlers(), 1); assert.equal(f.observer.progress().release, undefined)
+  assert.equal(f.observer.read().artifacts.primer.valid, true)
+  assert.equal(f.observer.armEnemy().primerId, 44)
+  assert.equal(f.observer.read().artifacts.pointer.events.filter(e => e.type === 'pointerup').length, 1)
+  assert.throws(() => f.observer.armEnemy(), /validated actual ground primer/)
+  f.world.projectiles.length = 0; f.world.mode = 'blast'
+  f.world.turn = 2; f.target.native.x += 10; f.target.x += 10 / 256; f.scene.gameClock.afterTurn()
+  const renderResult = f.scene.renderer.render(f.scene.scene, f.scene.camera), drawNow = performance.now()
+  assert.equal(f.scene.drawPointer(drawNow), 'draw-result'); assert.equal(renderResult, 'render-result')
+  const prepared = f.observer.read()
+  assert.equal(prepared.report.hover.turn, 2); assert.equal(prepared.report.hoverCapture.renderFrame, 1)
+  assert.equal(prepared.artifacts.hover.png, undefined); assert.equal(prepared.artifacts.hover.bracketPng, undefined)
+  assert.equal(f.log.includes('readPixels'), false); assert.equal(f.log.includes('raster'), false)
+  f.world.turn = 3; f.target.native.x += 10; f.target.x += 10 / 256; f.scene.gameClock.afterTurn()
+  f.observer.trigger(3)
+  f.canvas.dispatch('pointerdown', { x: 11, y: 21 }); f.canvas.dispatch('pointerup', { x: 11, y: 21 })
+  await f.observer.settled()
+  const delivered = f.observer.read()
+  assert.deepEqual(delivered.report.errors, [])
+  assert.equal(delivered.report.release.handlerPersonId, 3); assert.equal(delivered.report.release.turn, 3)
+  assert.equal(delivered.report.entry.shot.id, 45); assert.equal(delivered.report.movement, undefined)
+  assert.notDeepEqual(delivered.report.hover.position, delivered.report.entry.target.position)
+  assert.equal(delivered.report.frames.find(frame => frame.kind === 'hover').turn, 2)
+  assert.equal(delivered.artifacts.hover.bracketPixels, 1); assert.equal(f.handlers(), 2)
+  f.observer.dispose(); assert.equal(f.scene.drawPointer, f.originalDraw); assert.equal(f.scene.picking.pickPerson, f.originalPick)
+})
+test('enemy primer person hit is retained and cannot arm a second person cast', t => {
+  const f = fixture(t, { enemy: true, primerPerson: true })
+  f.canvas.dispatch('pointerdown'); f.canvas.dispatch('pointerup')
+  assert.equal(f.observer.read().artifacts.primer.valid, false)
+  assert.equal(f.observer.read().artifacts.primer.event.handlerPersonId, 3)
+  assert.throws(() => f.observer.armEnemy(), /validated actual ground primer/)
+  assert.match(f.observer.progress().errors.join(' '), /ground primer/)
+})
+test('enemy draw without matching natural render cannot manufacture hover evidence', t => {
+  const f = fixture(t, { enemy: true })
+  f.canvas.dispatch('pointerdown'); f.canvas.dispatch('pointerup'); f.observer.armEnemy()
+  f.world.mode = 'blast'; f.world.turn = 2; f.target.native.x += 10; f.scene.gameClock.afterTurn()
+  f.scene.drawPointer(performance.now())
+  assert.equal(f.observer.progress().hover, undefined)
+  assert.match(f.observer.progress().errors.join(' '), /preceding natural render/)
 })

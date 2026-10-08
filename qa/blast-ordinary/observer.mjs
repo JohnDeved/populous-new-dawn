@@ -48,7 +48,9 @@ export function blastPersonSnapshot(world, u, target, movementOrder) {
 export function observeBlastEpisode(scene, options) {
   const world = scene.world, actor = world.units.find(u => u.id === options.actorId), target = world.units.find(u => u.id === options.targetId)
   if (!actor || !target || world.projectiles.some(p => p.team === 'blue' && p.spell === 'blast')) throw Error('Fresh actor, target and empty Blue Blast lifecycle required')
+  const enemy = options.phenotype === 'm1-enemy'
   const evidence = createBlastEpisode(options), artifacts = {}, wrappers = [], pending = new Set(), admission = createBlastAdmission()
+  let enemyArmed = false, primerShot, deferredHover, priorEnemy, latestEnemy
   let shot, delivered = false, eventBefore, inputBefore, pressBefore, pointer, disposed = false, moveExpected, moveOwner, movementDelivered = false, movementOrder, plannedGround, deferredAck, hudFrame, movementAttempted = false
   const sameScene = () => window.testSceneRef.current === scene && window.testStore.getWorld() === world && scene.world === world && scene.renderer.domElement.isConnected
   const person = u => blastPersonSnapshot(world, u, target, movementOrder)
@@ -66,11 +68,15 @@ export function observeBlastEpisode(scene, options) {
     wrappers.push({ object, key, original, descriptor, wrapper }); object[key] = wrapper
   }
   wrap(scene.gameClock, 'beforeTurn', () => observeBlastTurn(evidence, 'before', sample))
-  wrap(scene.gameClock, 'afterTurn', () => observeBlastTurn(evidence, 'after', sample))
-  const flushAck = () => { if (deferredAck) { const work = deferredAck; deferredAck = null; work() } }
+  latestEnemy = { turn: world.turn, ...person(target) }
+  wrap(scene.gameClock, 'afterTurn', () => {
+    if (enemy && world.turn !== latestEnemy.turn) { priorEnemy = latestEnemy; latestEnemy = { turn: world.turn, ...person(target) } }
+    observeBlastTurn(evidence, 'after', sample)
+  })
+  const flushAck = () => { if (deferredHover) { const work = deferredHover; deferredHover = null; work() } if (deferredAck) { const work = deferredAck; deferredAck = null; work() } }
   const saveFrame = (kind, effectId, drawNow) => {
     if (artifacts[kind]) return
-    const { png, pixels } = kind === 'ack' ? { pixels: null } : captureRenderedCanvas(scene)
+    const { png, pixels } = kind === 'ack' || enemy && kind === 'hover' ? { pixels: null } : captureRenderedCanvas(scene)
     const feedback = pointerFeedback(scene), frame = { turn: world.turn, renderFrame: scene.renderer.info.render.frame, kind, targetId: feedback.targetId, visible: true, lines: feedback.lines, pixels, effectId,
       ...(kind === 'projectile' && { phase: shot.phase, shotId: shot.id }),
       ...(kind === 'ack' && { drawNow, ackUntil: scene.pointerAck.until, observedAt: performance.now(), targetSame: world.units.find(u => u.id === target.id) === target, ownerValid: person(target).ownerValid, position: person(target).position, context: inputContext(scene) }),
@@ -82,7 +88,8 @@ export function observeBlastEpisode(scene, options) {
     if (path) { const style = getComputedStyle(scene.pointerPath); path.style.stroke = style.stroke; path.style.fill = style.fill; path.style.strokeWidth = style.strokeWidth }
     const svg = new XMLSerializer().serializeToString(vector)
     artifacts[kind] = { turn: world.turn, png, svg,
-      feedback, frameProof: structuredClone(frame), effectId, pixels, ...(kind === 'ack' ? { pixelScope: 'Detached raster of the frozen live DOM acknowledgment SVG; no WebGL or full-game acknowledgment PNG.' } : { pixelScope: 'Nontransparent pixels in the actual post-render game canvas, not an isolated-effect pixel count. Review the PNG and submitted visible effect together.' }) }
+      feedback, frameProof: structuredClone(frame), effectId, pixels, ...(kind === 'ack' || enemy && kind === 'hover' ? { pixelScope: 'Detached raster of the frozen live DOM cue SVG; no WebGL or full-game cue PNG.' } : { pixelScope: 'Nontransparent pixels in the actual post-render game canvas, not an isolated-effect pixel count. Review the PNG and submitted visible effect together.' }) }
+    if (enemy && kind === 'hover') evidence.captureHover(frame)
     if (kind !== 'hover' && kind !== 'ack') { evidence.frame(frame); return }
     // Rasterize a detached snapshot of the actual SVG and its computed stroke.
     // Never redraw, hide or alter a live game mesh or DOM element for pixel counts.
@@ -104,7 +111,8 @@ export function observeBlastEpisode(scene, options) {
       })().catch(error => evidence.error(error))
       pending.add(work); void work.finally(() => pending.delete(work))
     }
-    if (kind === 'ack' && !movementAttempted) deferredAck = rasterize
+    if (enemy && kind === 'hover' && !delivered) deferredHover = rasterize
+    else if (kind === 'ack' && !enemy && !movementAttempted) deferredAck = rasterize
     else rasterize()
   }
   wrap(scene.renderer, 'render', (renderedScene, camera) => {
@@ -112,7 +120,7 @@ export function observeBlastEpisode(scene, options) {
     if (!sameScene()) { evidence.error('Original scene/World/canvas changed while observing rendered evidence'); return }
     hudFrame = { turn: world.turn, renderFrame: scene.renderer.info.render.frame, context: inputContext(scene) }
     const feedback = pointerFeedback(scene), report = evidence.report()
-    if (report.hover && options.expectation === 'candidate' && feedback.visible && feedback.targetId === target.id) {
+    if (!enemy && report.hover && options.expectation === 'candidate' && feedback.visible && feedback.targetId === target.id) {
       if (!delivered && feedback.lines === 16) saveFrame('hover', null)
     }
     if (!delivered) return
@@ -139,12 +147,26 @@ export function observeBlastEpisode(scene, options) {
   // Use the RAF time consumed by drawPointer, not a later observer timestamp.
   wrap(scene, 'drawPointer', now => {
     const rendered = hudFrame; hudFrame = null
-    if (disposed || !delivered || options.expectation !== 'candidate') return
+    if (disposed || (!delivered && !(enemy && enemyArmed)) || options.expectation !== 'candidate') return
     if (!sameScene()) { evidence.error('Original scene/World/canvas changed while observing HUD evidence'); return }
     if (!rendered || rendered.turn !== world.turn || rendered.renderFrame !== scene.renderer.info.render.frame ||
         JSON.stringify(rendered.context) !== JSON.stringify(inputContext(scene))) throw Error('HUD draw does not match the preceding natural render')
     const feedback = pointerFeedback(scene)
-    if (feedback.visible && feedback.targetId === target.id && feedback.lines === 32 &&
+    if (enemy && !delivered && !evidence.report().hover && world.mode === 'blast' && !scene.pointerButtons &&
+        feedback.visible && feedback.targetId === target.id && feedback.lines === 16 && scene.pointerScreen && priorEnemy) {
+      const current = person(target), point = { x: scene.pointerScreen.clientX, y: scene.pointerScreen.clientY }
+      if (current.same && current.ownerValid && current.hp > 0 && priorEnemy.same && priorEnemy.ownerValid &&
+          priorEnemy.turn < world.turn && current.position && priorEnemy.position &&
+          (current.position.x !== priorEnemy.position.x || current.position.y !== priorEnemy.position.y) &&
+          document.elementFromPoint(point.x, point.y) === canvas) {
+        evidence.hover({ turn: world.turn, targetId: target.id, mode: world.mode, canvasOwned: true, hitId: feedback.targetId,
+          visible: feedback.visible, lines: feedback.lines, context: inputContext(scene), position: current.position,
+          previousTurn: priorEnemy.turn, previousPosition: priorEnemy.position, point, observedAt: performance.now(),
+          targetSame: current.same, ownerValid: current.ownerValid, renderFrame: scene.renderer.info.render.frame })
+        saveFrame('hover', null, now)
+      }
+    }
+    if (delivered && feedback.visible && feedback.targetId === target.id && feedback.lines === 32 &&
         scene.pointerAck.target === target.id && now < scene.pointerAck.until) saveFrame('ack', null, now)
   })
   const capturePress = event => {
@@ -165,7 +187,7 @@ export function observeBlastEpisode(scene, options) {
       eventBefore.selected = [...world.selected]
       eventBefore.shotBefore = shot && { id: shot.id, phase: shot.phase, remaining: shot.remaining }
     }
-    if (!delivered && options.expectation === 'baseline') guard(() => { eventBefore.targetCheck = { range: captureBlastReleaseRange(world, target, spellTargetError) } })
+    if (!delivered && (options.expectation === 'baseline' || enemy && enemyArmed)) guard(() => { eventBefore.targetCheck = { range: captureBlastReleaseRange(world, target, spellTargetError), ...(enemy && { position: person(target).position }) } })
   }
   const release = event => {
     if (event.button !== 0 || event.type !== 'pointerup') return
@@ -187,6 +209,19 @@ export function observeBlastEpisode(scene, options) {
       const up = trace.events.find(e => e.type === 'pointerup')
       if (!up || trace.events.filter(e => e.type === 'pointerup').length !== 1) throw Error('Exactly one actual release required')
       const persons = up.picks.filter(p => p.name === 'pickPerson'), terrain = up.picks.find(p => p.name === 'pick' && p.owner === 'scene' && p.point)
+      if (enemy && !enemyArmed) {
+        const allocated = world.projectiles.filter(p => p.team === 'blue' && p.spell === 'blast')
+        const after = sample(), value = { ...eventBefore, handlerPersonId: persons.at(-1)?.id ?? null, handlerTerrain: terrain?.point ?? null }
+        artifacts.primer = { event: structuredClone(value), trace, after: structuredClone(after), valid: false }
+        if (!sameScene() || !eventBefore.trusted || !eventBefore.canvasOwned || eventBefore.mode !== 'blast' ||
+            eventBefore.turn !== world.turn || !after.actor.same || !after.actor.ownerValid || after.actor.kind !== 'shaman' || after.actor.hp <= 0 || world.mode !== null ||
+            persons.some(p => p.id !== null) || !terrain || allocated.length !== 1 || allocated[0].caster !== actor.id ||
+            allocated[0].blastTarget || allocated[0].phase !== 'windup' || allocated[0].remaining !== 6 ||
+            after.stock !== eventBefore.stockBefore - 1 || after.castCount !== eventBefore.castCountBefore + 1)
+          throw Error('One actual trusted ground primer, original caster, fresh shot and payment required')
+        primerShot = allocated[0]; artifacts.primer.shot = structuredClone({ id: primerShot.id, caster: primerShot.caster, target: primerShot.target })
+        artifacts.primer.valid = true; return
+      }
       if (delivered) {
         const p = owner(target), order = p && currentPersonOrder(world.buildingOrders, p)
         const value = { turn: world.turn, mode: eventBefore.mode, selected: eventBefore.selected, trusted: eventBefore.trusted, canvasOwned: eventBefore.canvasOwned,
@@ -201,14 +236,15 @@ export function observeBlastEpisode(scene, options) {
         eventBefore.targetCheck.pixel = readBlastReleasePixel(scene, event)
         artifacts.deliveredTargetCheck = structuredClone(eventBefore.targetCheck)
       }
+      if (enemy && (!artifacts.primer?.valid || world.projectiles.includes(primerShot) || eventBefore.castCountBefore !== artifacts.primer.after.castCount || eventBefore.stockBefore !== artifacts.primer.after.stock)) throw Error('Actual ground primer must retire before the person release')
       const shots = world.projectiles.filter(p => p.team === 'blue' && p.spell === 'blast')
       if (shots.length !== 1) throw Error('One naturally allocated Blue Blast required')
       shot = shots[0]
       recordBlastRelease(artifacts, evidence, { ...eventBefore, handlerPersonId: persons.at(-1)?.id ?? null, handlerTerrain: !!terrain }, sample())
       delivered = true
-      admission.accept(armMove(plannedGround))
+      if (!enemy) admission.accept(armMove(plannedGround))
     } catch (error) { admission.fail(error); evidence.error(error) }
-    finally { if (moving) flushAck() }
+    finally { if (moving || enemy && enemyArmed) flushAck() }
   }
   const canvas = scene.renderer.domElement
   // Register the capture before the generic pointer observer; both precede the real handler.
@@ -235,7 +271,20 @@ export function observeBlastEpisode(scene, options) {
     return check
   }
   return {
+    armEnemy() {
+      if (!enemy || enemyArmed || disposed || !artifacts.primer?.valid || evidence.report().errors.length || !sameScene() ||
+          !person(actor).same || !person(actor).ownerValid || actor.hp <= 0 || world.stats.cast !== artifacts.primer.after.castCount ||
+          world.shots.blast !== artifacts.primer.after.stock || pointer)
+        throw Error('One validated actual ground primer must precede enemy arming')
+      enemyArmed = true
+      canvas.removeEventListener('pointerup', release, false)
+      pointer = observeEntityPointer(scene, document, { id: target.id, collection: 'units' })
+      canvas.addEventListener('pointerup', release, false)
+      artifacts.enemyArmed = { turn: world.turn, primerId: primerShot.id, primerRetired: !world.projectiles.includes(primerShot) }
+      return structuredClone(artifacts.enemyArmed)
+    },
     prepareMove(ground) {
+      if (enemy) throw Error('Enemy episode has no commanded movement')
       if (plannedGround || delivered || disposed) throw Error('One movement plan before the actual cast required')
       if (![ground?.x, ground?.y, ground?.point?.x, ground?.point?.z].every(Number.isFinite)) throw Error('Finite precomputed ground plan required')
       plannedGround = structuredClone(ground)
