@@ -187,7 +187,10 @@ test('enemy arm consumes its actual ground primer and deferred natural hover use
   f.canvas.dispatch('pointerdown'); f.canvas.dispatch('pointerup')
   assert.equal(f.handlers(), 1); assert.equal(f.observer.progress().release, undefined)
   assert.equal(f.observer.read().artifacts.primer.valid, true)
+  // Normal charging between inputs is observed, not a cross-turn stock veto.
+  f.world.shots.blast++
   assert.equal(f.observer.armEnemy().primerId, 44)
+  assert.equal(f.observer.read().artifacts.enemyArmed.stockDeltaSincePrimer, 1)
   assert.equal(f.observer.read().artifacts.pointer.events.filter(e => e.type === 'pointerup').length, 1)
   assert.throws(() => f.observer.armEnemy(), /validated actual ground primer/)
   f.world.projectiles.length = 0; f.world.mode = 'blast'

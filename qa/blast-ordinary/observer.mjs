@@ -236,7 +236,7 @@ export function observeBlastEpisode(scene, options) {
         eventBefore.targetCheck.pixel = readBlastReleasePixel(scene, event)
         artifacts.deliveredTargetCheck = structuredClone(eventBefore.targetCheck)
       }
-      if (enemy && (!artifacts.primer?.valid || world.projectiles.includes(primerShot) || eventBefore.castCountBefore !== artifacts.primer.after.castCount || eventBefore.stockBefore !== artifacts.primer.after.stock)) throw Error('Actual ground primer must retire before the person release')
+      if (enemy && (!artifacts.primer?.valid || world.projectiles.includes(primerShot) || eventBefore.castCountBefore !== artifacts.primer.after.castCount)) throw Error('Actual ground primer must retire before the person release')
       const shots = world.projectiles.filter(p => p.team === 'blue' && p.spell === 'blast')
       if (shots.length !== 1) throw Error('One naturally allocated Blue Blast required')
       shot = shots[0]
@@ -274,13 +274,14 @@ export function observeBlastEpisode(scene, options) {
     armEnemy() {
       if (!enemy || enemyArmed || disposed || !artifacts.primer?.valid || evidence.report().errors.length || !sameScene() ||
           !person(actor).same || !person(actor).ownerValid || actor.hp <= 0 || world.stats.cast !== artifacts.primer.after.castCount ||
-          world.shots.blast !== artifacts.primer.after.stock || pointer)
+          pointer)
         throw Error('One validated actual ground primer must precede enemy arming')
       enemyArmed = true
       canvas.removeEventListener('pointerup', release, false)
       pointer = observeEntityPointer(scene, document, { id: target.id, collection: 'units' })
       canvas.addEventListener('pointerup', release, false)
-      artifacts.enemyArmed = { turn: world.turn, primerId: primerShot.id, primerRetired: !world.projectiles.includes(primerShot) }
+      artifacts.enemyArmed = { turn: world.turn, primerId: primerShot.id, primerRetired: !world.projectiles.includes(primerShot),
+        stock: world.shots.blast, stockDeltaSincePrimer: world.shots.blast - artifacts.primer.after.stock }
       return structuredClone(artifacts.enemyArmed)
     },
     prepareMove(ground) {
