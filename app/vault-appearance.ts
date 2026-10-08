@@ -3,7 +3,14 @@ import { browserPosition } from './world-coordinates.ts'
 import { SPELLS } from './world-rules.ts'
 import { setAnimationObject, type AnimatedUnit } from './animation.ts'
 import type { Gift, Point, Shrine, World } from './world-types.ts'
-import knowledge from './original-vault-knowledge.json' with { type: 'json' }
+import temple from './original-vault-knowledge.json' with { type: 'json' }
+import camp from './original-vault-knowledge-camp.json' with { type: 'json' }
+
+const knowledgeVaults = [
+  { ...camp, reward: 'camp' as const },
+  { ...temple, reward: 'temple' as const },
+]
+export type VaultKnowledgeAppearance = (typeof knowledgeVaults)[number]
 
 export const VAULT_KNOWLEDGE_SOCKET = 1
 
@@ -26,35 +33,43 @@ export function vaultKnowledgeFrame(
   mission?: number
 ): number | null {
   if (!reward) return null
-  if (reward === 'temple' && mission === knowledge.mission) return knowledge.body.source
+  const knowledge = knowledgeVaults.find(
+    entry => entry.reward === reward && entry.mission === mission
+  )
+  if (knowledge) return knowledge.body.source
   if (BUILDING_REWARDS.has(reward)) return 1077
   if (reward === 'mana') return 1056 + rewardModel
   const spell = SPELLS.find(entry => entry.id === reward)
   return spell ? 1056 + spell.model : null
 }
 
-// This resource contract is proven only for Mission 3's authored Temple Vault.
-export function isTempleKnowledgeVault(shrine: Shrine, mission: number) {
-  return (
-    mission === knowledge.mission &&
-    shrine.kind === 'vault' &&
-    shrine.mode === 4 &&
-    shrine.reward === 'temple' &&
-    shrine.x === knowledge.source.x &&
-    shrine.z === knowledge.source.z
+// Restrict each bank's artwork to its evidenced authored source.
+export function vaultKnowledgeAppearance(shrine: Shrine, mission: number) {
+  return knowledgeVaults.find(
+    knowledge =>
+      mission === knowledge.mission &&
+      shrine.kind === 'vault' &&
+      shrine.mode === 4 &&
+      shrine.reward === knowledge.reward &&
+      shrine.x === knowledge.source.x &&
+      shrine.z === knowledge.source.z
   )
 }
 
-export function templeKnowledgeSource(world: Pick<World, 'outcome' | 'shrines'>, point: Point) {
+export function vaultKnowledgeAtlas(mission: number) {
+  return knowledgeVaults.find(knowledge => knowledge.mission === mission)?.atlas
+}
+
+export function vaultKnowledgeSource(world: Pick<World, 'outcome' | 'shrines'>, point: Point) {
   return world.shrines.find(
     shrine =>
       (shrine.x - point.x) % 256 === 0 &&
       (shrine.z - point.z) % 256 === 0 &&
-      isTempleKnowledgeVault(shrine, world.outcome.level)
+      vaultKnowledgeAppearance(shrine, world.outcome.level)
   )
 }
 
-export function createKnowledgeGlow(): AnimatedUnit {
+export function createKnowledgeGlow(knowledge: VaultKnowledgeAppearance): AnimatedUnit {
   const state: AnimatedUnit = {
     object: 0,
     draw: 0,
@@ -75,17 +90,25 @@ export function createKnowledgeGlow(): AnimatedUnit {
 
 // Creation/migration only. Rendering reads the saved cursor without changing it.
 export function initializeVaultKnowledge(shrine: Shrine, mission: number) {
-  if (shrine.active && isTempleKnowledgeVault(shrine, mission))
-    shrine.knowledgeGlow ??= { ...createKnowledgeGlow(), displayedFrame: 0 }
+  const knowledge = vaultKnowledgeAppearance(shrine, mission)
+  if (shrine.active && knowledge)
+    shrine.knowledgeGlow ??= { ...createKnowledgeGlow(knowledge), displayedFrame: 0 }
 }
 
-export function isTempleKnowledgeGift(gift: Gift) {
-  return (
-    gift.reward === 'temple' &&
+export function vaultKnowledgeGiftAppearance(
+  world: Pick<World, 'outcome' | 'shrines'>,
+  gift: Gift
+) {
+  const shrine = vaultKnowledgeSource(world, gift),
+    knowledge = shrine && vaultKnowledgeAppearance(shrine, world.outcome.level)
+  if (
+    knowledge &&
+    gift.reward === knowledge.reward &&
     gift.frame === knowledge.body.source &&
     gift.animation?.object === knowledge.glow.frames[0].source &&
     gift.animation.draw === knowledge.glow.draw
   )
+    return knowledge
 }
 
 export function vaultKnowledgeVisible(shrine: Pick<Shrine, 'kind' | 'active' | 'reward'>): boolean {

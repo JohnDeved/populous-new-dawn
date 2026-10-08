@@ -1,0 +1,156 @@
+{
+  "sha256": {
+    "d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "levels/levl2001.dat": "97cdb6e170f68b462b5b36c42c99a598b0466e0131a105f30612f50d7f16e40c",
+    "levels/levl2001.hdr": "4b89ef6d64e4010bb3ec3b5985d0edc8e710504e8b1bc75a6ae688bd6eb070a6",
+    "data/hfx0-0.dat": "681eb1734fd73f86a6a52a8540415ec69a241a378161b60e9c9da1263d4ee0bf",
+    "data/pal0-c.dat": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53",
+    "data/al0-c.dat": "afc46e78b56f901f1331ceb0b02052eeaba2b6446b8747a03d0f12639ae17310"
+  },
+  "atlas": "vault-knowledge-camp",
+  "width": 384,
+  "height": 384,
+  "mission": 1,
+  "landscapeBank": 12,
+  "buildingModel": 7,
+  "source": {
+    "triggerIndex": 1,
+    "rewardIndex": 2,
+    "x": -5.0,
+    "z": -3.0
+  },
+  "body": {
+    "source": 1077,
+    "x": 1,
+    "y": 1,
+    "w": 22,
+    "h": 24,
+    "rgbaSha256": "4f728efea07ff160530c49531bb4c82adb017aaed05ae8b3c21fc2327ad261ad"
+  },
+  "glow": {
+    "draw": 43,
+    "step": 4,
+    "count": 14,
+    "tint": [
+      229,
+      220,
+      214
+    ],
+    "tintBaked": true,
+    "frames": [
+      {
+        "source": 1417,
+        "x": 97,
+        "y": 1,
+        "w": 81,
+        "h": 68,
+        "rgbaSha256": "c9f953baa45cd1d316c0aafa5b520d4f8ba48231aa41ac91cc2278b44f0303a9"
+      },
+      {
+        "source": 1418,
+        "x": 193,
+        "y": 1,
+        "w": 81,
+        "h": 68,
+        "rgbaSha256": "52ae4afa4435c0faa6912f89d10efbaf7dcbd5b0f5dee502028f9e47f9617cee"
+      },
+      {
+        "source": 1419,
+        "x": 289,
+        "y": 1,
+        "w": 81,
+        "h": 68,
+        "rgbaSha256": "74646bca655bb3333afee25ab5cf34921db1dae8ee066eae6b4c1237ca080809"
+      },
+      {
+        "source": 1420,
+        "x": 1,
+        "y": 97,
+        "w": 81,
+        "h": 68,
+        "rgbaSha256": "18a872856a9ed9d88d6a3b86dd71c490d1ddb089147b32739be44d39fd549d46"
+      },
+      {
+        "source": 1421,
+        "x": 97,
+        "y": 97,
+        "w": 81,
+        "h": 68,
+        "rgbaSha256": "f392f545088465c7f523602e5f76b305af4ecce1a9f2d581934b3d7d3959dec0"
+      },
+      {
+        "source": 1422,
+        "x": 193,
+        "y": 97,
+        "w": 81,
+        "h": 68,
+        "rgbaSha256": "648629c3d06067d07c4e82eb7a685b4829c512d84c90a06838d4d44249fe6cac"
+      },
+      {
+        "source": 1423,
+        "x": 289,
+        "y": 97,
+        "w": 81,
+        "h": 68,
+        "rgbaSha256": "5dfd6a9fd0c3e745f2825d05c025004405ea90165227b09fdb8898aa86baa120"
+      },
+      {
+        "source": 1424,
+        "x": 1,
+        "y": 193,
+        "w": 81,
+        "h": 68,
+        "rgbaSha256": "5b2c6500bd114ea3b22c77059edfb62765dfac082945c3b988ad6e811c9c0397"
+      },
+      {
+        "source": 1425,
+        "x": 97,
+        "y": 193,
+        "w": 81,
+        "h": 68,
+        "rgbaSha256": "b2bf23dfeda17ed1b0fc69f8e6ca46ee5c184e16630affd698e63345934f4f80"
+      },
+      {
+        "source": 1426,
+        "x": 193,
+        "y": 193,
+        "w": 81,
+        "h": 68,
+        "rgbaSha256": "c09063a2c5904abb5a4ad8945bd0731da9d99d66f2c4123c760d3518cb7e748c"
+      },
+      {
+        "source": 1427,
+        "x": 289,
+        "y": 193,
+        "w": 81,
+        "h": 68,
+        "rgbaSha256": "231042b11d9d46b38eaff0169ed32cd02d4df26fd18a89a35534ed4c99d73ad5"
+      },
+      {
+        "source": 1428,
+        "x": 1,
+        "y": 289,
+        "w": 81,
+        "h": 68,
+        "rgbaSha256": "097acff087da2cf037bdd41663e18f9ebdf3b7eb9909d05c744d5f7abd06443a"
+      },
+      {
+        "source": 1429,
+        "x": 97,
+        "y": 289,
+        "w": 81,
+        "h": 68,
+        "rgbaSha256": "1a92d5c78a2194f513705cbab2cd0646efe40a5cd90b4e199f24081b00c6759e"
+      },
+      {
+        "source": 1430,
+        "x": 193,
+        "y": 289,
+        "w": 81,
+        "h": 68,
+        "rgbaSha256": "bde54ba2b4894727b4fccf936d2ac6e48513ac69291ba4589491a808d32f6269"
+      }
+    ]
+  },
+  "rgbaSha256": "456f8d667cc30c012ad4de3b49011d56c9c898135af5725bf553a3aeefd05eab"
+}
