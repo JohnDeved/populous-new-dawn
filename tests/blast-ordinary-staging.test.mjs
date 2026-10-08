@@ -45,9 +45,11 @@ test('completed ordinary M2 staging binds its real owner and admits a later cast
       assert.equal(snapshot.idle, false)
       assert.equal(stationaryBlastTarget(snapshot, prior?.turn, prior?.position, actual.turn), false)
     }
-    if (prior && actual.turn > prior.turn && actual.position.x === prior.position.x && actual.position.y === prior.position.y) stationary ??= actual
+    if (prior && actual.turn > prior.turn && snapshot.position.x === prior.position.x && snapshot.position.y === prior.position.y) stationary ??= actual
     if (stationaryBlastTarget(snapshot, prior?.turn, prior?.position, actual.turn)) { admitted = actual; break }
-    prior = actual
+    // Match the browser caller: both motion samples use responseSnapshot's
+    // signed-short coordinates, not the binding diagnostic's unsigned owner XY.
+    prior = { turn: actual.turn, position: structuredClone(snapshot.position) }
   }
   t.diagnostic(JSON.stringify({ completionPrefix, tail, firstUnboundedStable: firstUnboundedStable ?? null, firstUnboundedZero: firstUnboundedZero ?? null }))
   assert.ok(movingResting, 'actual resting-slot approach must be rejected before admission')
