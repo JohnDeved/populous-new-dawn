@@ -2,8 +2,8 @@
 
 Prepared from runtime freeze `4635c1acc9b66c1d54e5e2bc7cad4b88fa30754b` and
 read against the reviewed lifetime repair `7c3ac608917d0b6a3a6c4c779460953905f2738e`.
-The revised driver is prospective. One baseline setup failed before casting; no
-ordinary Blast episode has passed. Pure helper tests and controlled model probes
+The revised driver is prospective. Two baseline attempts failed before casting;
+no ordinary Blast episode has passed. Pure helper tests and controlled model probes
 are not ordinary episodes, native comparisons or parity awards.
 
 ## Stage and route
@@ -14,7 +14,11 @@ were not recorded. A separate supplied-port model probe showed that both the old
 patrol approach and the reused response-test destination meet enemy defenders
 more than 62 world units before patrol range. The test proved a first territory
 scan, not survival to the destination. The failed run and its profile remain
-preserved; the candidate was not attempted.
+preserved; the candidate was not attempted. The next baseline at `cbc412b6`
+failed before any public actions while preloading the observer: the real Vite
+CommonJS plugin interpreted the local assertion function named `require` as an
+import. The helper is now named `requireEvidence`; its predicates are unchanged.
+The failed500 receipt and server log remain retained.
 
 The revised proposal keeps public Mission2 entry, introduction skip, original
 Blue Shaman HUD selection and one real ground movement command toward `(58,108)`.
@@ -143,3 +147,18 @@ The pure reducer rejects stale context, wrong real-handler identity, missing
 feedback/arrival/impact, changed/removed owners, repeated before samples, skipped
 turns and externally supplied success fields. Its synthetic records are helper
 contract tests only; they do not certify the driver or evidence adapters have run.
+
+## Real client-transform regression
+
+`transform-check.mjs` is an opt-in coordinator-owned package check, separate from
+the dependency-free contracts. It loads the maintained local-render Vite config
+in middleware mode, verifies the observed old local-`require` failure through
+that actual client plugin pipeline, and transforms the three browser helper
+modules. It creates no HTTP listener, browser or game World; Vite may initialize
+its maintained development environment, which is closed in `finally`. Use the
+existing stationary dependencies and a unique receipt/output with a120s outer
+bound. A transform pass is not an ordinary episode.
+
+```sh
+POPULOUS_GAME_ROOT="$PWD" node qa/blast-ordinary/transform-check.mjs
+```
