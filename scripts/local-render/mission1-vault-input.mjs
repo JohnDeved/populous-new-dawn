@@ -2,6 +2,61 @@
 // Live World is read only; every validator that synchronizes terrain receives a detached clone.
 import assert from 'node:assert/strict'
 
+// Accept only the two observed ordinary Blast paths needed by this M1 route.
+// Other picker results are an unsupported QA prerequisite, not game invalidity.
+export function assertMission1BlastTarget({ before, after, pointer, resolvedPerson }, actorId) {
+  assert.equal(before.mode, 'blast'); assert.equal(after.mode, null)
+  for (const sample of [before, after]) {
+    assert.equal(sample.overviewActive, false)
+    assert.ok(Number.isInteger(sample.gameFlags) && !(sample.gameFlags & 32))
+    assert.equal(sample.caster, actorId); assert.equal(sample.worldMatches, true)
+  }
+  assert.equal(after.gameFlags, before.gameFlags); assert.equal(after.turn, before.turn)
+  assert.equal(after.stock, before.stock - 1)
+  assert.equal(pointer.restored, true); assert.deepEqual(pointer.errors, [])
+  const releases = pointer.events.filter(event => event.type === 'pointerup')
+  assert.equal(releases.length, 1)
+  const release = releases[0]
+  assert.ok(release.trusted && release.canvasOwned && release.canvasTarget && release.button === 0)
+  const picks = release.picks.filter(pick => pick.owner === 'picking' && pick.name === 'pickPerson' ||
+    pick.owner === 'scene' && pick.name === 'pick')
+  for (const pick of picks) {
+    assert.equal(pick.receiverMatches, true); assert.deepEqual(pick.args, release.args)
+    assert.ok(!pick.threw, 'Actual target picker threw')
+  }
+  assert.equal(picks[0]?.owner, 'picking'); assert.equal(picks[0]?.name, 'pickPerson')
+  const fresh = after.projectiles.filter(shot => !before.projectiles.some(prior => prior.id === shot.id))
+  assert.equal(fresh.length, 1, 'Exactly one fresh Blast projectile is required')
+  const shot = fresh[0]
+  assert.ok(Number.isInteger(shot.id)); assert.equal(shot.spell, 'blast'); assert.equal(shot.caster, actorId)
+  assert.equal(shot.phase, 'windup'); assert.equal(shot.remaining, 6); assert.equal(shot.turns, 0)
+  assert.deepEqual(shot.visuals, [])
+  assert.ok(Number.isFinite(after.pointerAck.until) && after.pointerAck.until > before.pointerAck.until)
+  const id = picks[0].id
+  if (id !== null) {
+    assert.ok(Number.isInteger(id) && id > 0)
+    assert.equal(picks.length, 1, 'Direct-person receipt must not contain terrain fallback')
+    assert.deepEqual(resolvedPerson, { id, before: true, after: true, sameObject: true },
+      'Unresolved/replaced picked person is an unsupported QA prerequisite')
+    assert.equal(shot.blastTarget?.personId, id); assert.equal(shot.blastTarget?.shotPersonId, null)
+    assert.deepEqual(shot.destination, shot.blastTarget.destination)
+    assert.ok(['x', 'y', 'h'].every(key => Number.isFinite(shot.destination[key])))
+    // world-coordinates.ts browserPosition: signed-short wrap, then /256.
+    assert.deepEqual(shot.target, { x: ((shot.destination.x - 2048) << 16 >> 16) / 256,
+      z: -((shot.destination.y + 2048) << 16 >> 16) / 256 })
+    assert.equal(after.pointerAck.target, id)
+    return { kind: 'person', personId: id, projectileId: shot.id }
+  }
+  assert.equal(picks.length, 2); assert.equal(picks[1].owner, 'scene'); assert.equal(picks[1].name, 'pick')
+  const point = picks[1].point
+  assert.ok(point && Number.isFinite(point.x) && Number.isFinite(point.z))
+  assert.equal(shot.blastTarget, undefined)
+  // spell-casting.ts beginCast consumes this actual terrain point's 2x2 cell.
+  assert.deepEqual(shot.target, { x: Math.floor(point.x / 2) * 2 + 1, z: -Math.floor(-point.z / 2) * 2 - 1 })
+  assert.equal(after.pointerAck.target, 0)
+  return { kind: 'ground', personId: null, projectileId: shot.id, point }
+}
+
 export class Mission1PreclickRejection extends Error {
   constructor(message, retryable) { super(message); this.retryable = retryable; this.inputAttempted = false }
 }
@@ -249,35 +304,52 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
       // terrain/payment alone cannot distinguish direct-person Blast from fallback.
       const pointer = observeEntityPointer(scene, document, hit.collection ? hit : null)
       const record = { before: [], after: [], errors: [] }
+      let releaseUnits, completedUnits
       const sample = event => ({ turn: world.turn, stock: world.shots[spell], gifts: world.giftCounts[spell],
-        mode: world.mode, trusted: event.isTrusted, button: event.button, canvasTarget: event.target === canvas,
+        mode: world.mode, overviewActive: scene.overviewActive, gameFlags: world.manaWorld.gameFlags,
+        trusted: event.isTrusted, button: event.button, canvasTarget: event.target === canvas,
         worldMatches: scene.world === world && window.testStore.getWorld() === world,
         caster: world.units.find(unit => unit.id === actorId)?.id ?? null,
-        projectiles: world.projectiles.filter(p => p.spell === spell).map(p => ({ id: p.id, caster: p.caster,
-          target: { ...p.target }, destination: { ...p.destination }, blastTarget: p.blastTarget && structuredClone(p.blastTarget) })),
+        projectiles: world.projectiles.filter(p => p.spell === spell).map(p => ({ id: p.id, spell: p.spell, caster: p.caster, phase: p.phase, remaining: p.remaining, turns: p.turns,
+          visuals: p.visuals.map(effect => effect.id), target: { ...p.target }, destination: { ...p.destination }, blastTarget: p.blastTarget && structuredClone(p.blastTarget) })),
         pointerAck: { ...scene.pointerAck },
         effects: world.effects.map(e => e.id) })
       const observe = (phase, event) => {
         try { record[phase].push(sample(event)) }
         catch (error) { if (record.errors.length < 8) record.errors.push(String(error?.stack ?? error)) }
       }
-      const before = event => observe('before', event), after = event => observe('after', event)
+      const before = event => { releaseUnits = new Map(world.units.map(unit => [unit.id, unit])); observe('before', event) }
+      const after = event => { completedUnits = new Map(world.units.map(unit => [unit.id, unit])); observe('after', event) }
       canvas.addEventListener('pointerup', before, true); canvas.addEventListener('pointerup', after)
       window.mission1VaultCastInput = { finish() {
         canvas.removeEventListener('pointerup', before, true); canvas.removeEventListener('pointerup', after)
-        return { ...record, pointer: pointer.finish() }
+        const delivered = pointer.finish(), release = delivered.events.find(event => event.type === 'pointerup')
+        const picked = release?.picks.find(pick => pick.owner === 'picking' && pick.name === 'pickPerson')?.id
+        const prior = releaseUnits?.get(picked), current = completedUnits?.get(picked)
+        return { ...record, pointer: delivered, resolvedPerson: { id: picked ?? null,
+          before: !!prior, after: !!current, sameObject: !!prior && prior === current } }
       } }
       return preflight
     }, { hit, spell, actorId: originalShamanId })
-    report.actions.push({ label: 'actual-cast-preflight', preflight }); save()
-    assert.equal(preflight.rejection, null); assert.equal(preflight.paused, false)
-    assert.equal(preflight.mode, spell); assert.ok(preflight.stock > 0)
-    let delivered
-    try { await action(`${spell}-target-click`, () => page.mouse.click(hit.x, hit.y)) }
+    let delivered, failure
+    const cleanupFailures = []
+    try {
+      report.actions.push({ label: 'actual-cast-preflight', preflight }); save()
+      assert.equal(preflight.rejection, null); assert.equal(preflight.paused, false)
+      assert.equal(preflight.mode, spell); assert.ok(preflight.stock > 0)
+      await action(`${spell}-target-click`, () => page.mouse.click(hit.x, hit.y))
+    } catch (error) { failure = error }
     finally {
-      delivered = await page.evaluate(() => { const observer = window.mission1VaultCastInput; delete window.mission1VaultCastInput; return observer?.finish() })
-      report.actions.push({ label: 'actual-cast-stock', spell, delivered }); save()
+      try {
+        delivered = await page.evaluate(() => { const observer = window.mission1VaultCastInput; delete window.mission1VaultCastInput; return observer?.finish() })
+      } catch (error) { cleanupFailures.push(error) }
+      report.actions.push({ label: 'actual-cast-stock', spell, delivered })
+      try { save() } catch (error) { cleanupFailures.push(error) }
+      if (cleanupFailures.length) report.actions.push({ label: 'actual-cast-cleanup-errors',
+        primary: failure && String(failure.stack ?? failure), errors: cleanupFailures.map(error => String(error.stack ?? error)) })
     }
+    if (failure) throw failure
+    if (cleanupFailures.length) throw cleanupFailures[0]
     assert.deepEqual(delivered.errors, []); assert.deepEqual(delivered.pointer.errors, [])
     assert.equal(delivered.pointer.restored, true)
     assert.deepEqual(delivered.pointer.events.map(event => [event.type, event.x, event.y, event.button, event.trusted, event.canvasOwned, event.canvasTarget]),
@@ -289,7 +361,9 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
     assert.equal(after.turn, before.turn)
     assert.equal(after.stock, before.stock - 1, 'One real handler must spend one immediately observed earned shot')
     assert.equal(after.mode, null)
-    return { preflight, before, after, pointer: delivered.pointer }
+    const result = { preflight, before, after, pointer: delivered.pointer, resolvedPerson: delivered.resolvedPerson }
+    if (spell === 'blast') result.target = assertMission1BlastTarget(result, originalShamanId)
+    return result
   }
   const clickEntity = async (collection, id, command, cast = false, expectedIds = null) => {
     if (!cast) await prepareDispatch()

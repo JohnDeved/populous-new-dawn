@@ -10,9 +10,9 @@
       "path": "scripts/local-render/mission1-vault-input.mjs",
       "sourceCommit": "91c9453061e92aa2ada4f4c170904b47c7e56a98",
       "sourceSha256": "aeba86b15187385b6a29f3c2aafdd17f3d3dfb989fbd477b20e9350d9e0c527b",
-      "candidateSha256": "0fd774dc7194bfbca785171f68d74ae73299287efee0fa6a4122470c0c897f9a",
+      "candidateSha256": "269664b8ee669eef60621e147b092f60ffd3fd4715df54c8cd3452fe3649ead1",
       "byteIdentical": false,
-      "change": "Compose the maintained single pointer observer into castInput; retain current target projectile/ack facts and reject overlapping dispatch ownership."
+      "change": "Compose the maintained single pointer observer; restore across first report/save failure and retain primary/cleanup errors; validate actual current Blast person/ground chain against one fresh projectile, object identity, consumed gate and acknowledgement."
     },
     {
       "path": "scripts/local-render/mission1-vault-arrival.mjs",
@@ -99,6 +99,11 @@
       "path": "app/unit-kinds.ts",
       "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
       "sha256": "5c6903d13aef2e99645fc8cfa3d86afde5e109a6b099aa775f0061f8b060162f"
+    },
+    {
+      "path": "app/world-coordinates.ts",
+      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "sha256": "5fab890c7ab683323d873c7350700a0bb3bf977f1b6512ddca6fa823f5a5fa4f"
     },
     {
       "path": "app/world-rules.ts",
