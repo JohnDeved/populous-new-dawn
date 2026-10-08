@@ -68,9 +68,9 @@ export function observeBlastEpisode(scene, options) {
     wrappers.push({ object, key, original, descriptor, wrapper }); object[key] = wrapper
   }
   wrap(scene.gameClock, 'beforeTurn', () => observeBlastTurn(evidence, 'before', sample))
-  latestEnemy = { turn: world.turn, ...person(target) }
+  latestEnemy = enemy ? { turn: world.turn, ...person(target) } : null
   wrap(scene.gameClock, 'afterTurn', () => {
-    if (enemy && world.turn !== latestEnemy.turn) { priorEnemy = latestEnemy; latestEnemy = { turn: world.turn, ...person(target) } }
+    if (enemy && !delivered && world.turn !== latestEnemy.turn) { priorEnemy = latestEnemy; latestEnemy = { turn: world.turn, ...person(target) } }
     observeBlastTurn(evidence, 'after', sample)
   })
   const flushAck = () => { if (deferredHover) { const work = deferredHover; deferredHover = null; work() } if (deferredAck) { const work = deferredAck; deferredAck = null; work() } }
