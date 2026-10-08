@@ -1,20 +1,20 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { createBlastPreparation, findProposedBlastPixel } from '../qa/blast-ordinary/preparation.mjs'
+import { createBlastPreparation, releaseHeldBlast, findProposedBlastPixel } from '../qa/blast-ordinary/preparation.mjs'
 
 // Fake copied records only: no simulation, browser, runtime module or fixture.
 function observation(turn = 100, overrides = {}) {
   return {
     turn,
     state: { failures: [], actor: { id: 54, hp: 100 }, cameraSettled: true, inputMask: 0 },
-    response: [{ id: 19, orderModel: 19, speed: 60, fighting: false, position: { x: turn, y: 200 } }],
+    response: [{ id: 19, orderModel: 3, speed: 60, fighting: false, position: { x: turn, y: 200 } }],
     distance: 8, targetError: null, actorFighting: false,
     box: { x: 20, y: 30, width: 10, height: 20 },
     existingHit: { x: 25, y: 40 }, nextHit: { x: 25, y: 40 },
     inspection: { canvasOwned: 3, outsideCanvas: 1, targetHit: 1, nullHit: 1, otherHit: 1,
       sampleLimit: 250, samples: [{ x: 25, y: 40, canvasOwned: true, hitId: 19, geometricId: 19 }] },
     renderedBody: { originalTargetPresent: true, sameIdIsOriginal: true, targetId: 19, hp: 100,
-      team: 'green', kind: 'warrior', inside: null, activeNative: { id: 19, class: 1, flags2: 0 },
+      team: 'blue', kind: 'brave', inside: null, activeNative: { id: 19, class: 1, flags2: 0 },
       visible: true, pickable: true, visibleLayer: true, layerHasPainterSource: true },
     moving: true, live: true, phenotype: true, ready: false, phase: 'preparing', rejections: [],
     ...overrides,
@@ -83,10 +83,10 @@ test('a pixel miss is retained only with the other live, moving, range and camer
   assert.equal(preparation.read().firstPixelMiss.turn, 101)
 })
 
-test('initial absent or different response waits; losing the observed target model19 response stops', () => {
+test('initial absent or different response waits; losing the observed target model3 movement stops', () => {
   const preparation = createBlastPreparation({ targetId: 19 })
   assert.deepEqual(preparation.observe(observation(100, { response: [] })), { stopReason: null })
-  assert.deepEqual(preparation.observe(observation(101, { response: [{ id: 20, orderModel: 19 }] })), { stopReason: null })
+  assert.deepEqual(preparation.observe(observation(101, { response: [{ id: 20, orderModel: 3 }] })), { stopReason: null })
   assert.equal(preparation.read().firstLiveResponse, null)
   preparation.observe(observation(102))
   const terminal = observation(103, { response: [] })
@@ -102,10 +102,10 @@ test('initial absent or different response waits; losing the observed target mod
   assert.equal(preparation.read().firstTerminal.turn, 103)
 })
 
-test('a changed response order cannot conceal the end of the model19 response', () => {
+test('a changed response order cannot conceal the end of the model3 movement', () => {
   const preparation = createBlastPreparation({ targetId: 19 })
   preparation.observe(observation())
-  assert.equal(preparation.observe(observation(101, { response: [{ id: 19, orderModel: 3 }] })).stopReason, 'response-ended')
+  assert.equal(preparation.observe(observation(101, { response: [{ id: 19, orderModel: 19 }] })).stopReason, 'response-ended')
 })
 
 test('death, removal, deletion and identity loss stop even before any response appeared', () => {
@@ -150,7 +150,7 @@ test('invalid target identity and unbounded retention are rejected', () => {
 })
 
 // Source chronology: buildingCounterattack includes occupied-building residents,
-// queues model19, and person initialization leaves the building. A later housed
+// queues a movement order, and person initialization leaves the building. A later housed
 // sample ends the already observed outdoor response, not its initial wait.
 test('initial housing waits, then a real response followed by housing stops without rearming', () => {
   for (const inside of [0, 71]) {
@@ -213,4 +213,43 @@ test('baseline can retain actual in-range evidence below seven; candidate margin
   assert.equal(baseline.read().firstFailures.pixel, null)
   assert.equal(candidate.read().firstInRangeResponse, null)
   assert.equal(candidate.read().minimumDistance, 7)
+})
+
+function heldFixture({ failPreparation = false, failCancellation = false, dirtyRelease = false } = {}) {
+  const log = [], retained = [], state = { mode: 'blast', selected: [3], buttons: 0, castCount: 0, lastOrderTurn: 70 }
+  const prepared = { turn: 90, point: { x: 30, y: 40 } }, failure = Error('expired original hover')
+  const callbacks = {
+    press: async () => { log.push('down'); state.buttons = 1 },
+    prepare: async () => { log.push('read'); if (failPreparation) throw failure; return prepared },
+    release: async value => { log.push(value ? 'up-cast' : 'up-cancelled'); state.buttons = 0; if (value || dirtyRelease) state.castCount++ },
+    cancel: async () => { log.push('escape'); if (failCancellation) return; if (state.mode) state.mode = null; else state.selected = [] },
+    read: async () => ({ ...state, selected: [...state.selected] }),
+    retain: value => retained.push(structuredClone(value)),
+  }
+  return { callbacks, log, retained, state, prepared, failure }
+}
+test('held Blast preparation leaves only fresh read then ordinary up after the press', async () => {
+  const f = heldFixture()
+  assert.equal(await releaseHeldBlast(f.callbacks), f.prepared)
+  assert.deepEqual(f.log, ['down', 'read', 'up-cast'])
+  assert.equal(f.state.castCount, 1)
+  assert.deepEqual(f.retained, [])
+})
+test('expired held preparation clears mode and followers before up without cast or order', async () => {
+  const f = heldFixture({ failPreparation: true })
+  await assert.rejects(releaseHeldBlast(f.callbacks), error => error === f.failure)
+  assert.deepEqual(f.log, ['down', 'read', 'escape', 'escape', 'up-cancelled'])
+  assert.deepEqual(f.retained.at(-1).cancelled.selected, [])
+  assert.equal(f.retained.at(-1).cancelled.mode, null)
+  assert.equal(f.retained.at(-1).after.castCount, 0)
+  assert.equal(f.retained.at(-1).after.lastOrderTurn, 70)
+  assert.deepEqual(f.retained[0].before.selected, [3], 'earlier retained state stays detached')
+})
+test('uncleared held mode or selection blocks mouse-up; cleanup cast is retained and rejected', async () => {
+  const blocked = heldFixture({ failPreparation: true, failCancellation: true })
+  await assert.rejects(releaseHeldBlast(blocked.callbacks), AggregateError)
+  assert.deepEqual(blocked.log, ['down', 'read', 'escape', 'escape'])
+  const dirty = heldFixture({ failPreparation: true, dirtyRelease: true })
+  await assert.rejects(releaseHeldBlast(dirty.callbacks), AggregateError)
+  assert.equal(dirty.retained.at(-1).after.castCount, 1)
 })
