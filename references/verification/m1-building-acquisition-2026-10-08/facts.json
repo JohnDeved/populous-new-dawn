@@ -1,6 +1,6 @@
 {
   "kind": "derived partial evidence summary",
-  "purpose": "Review and reset durability for PR274; not merge readiness or a complete ordinary result.",
+  "purpose": "Review and reset durability for PR274: retained failed partial runs plus the final completion-only result, within the stated M1 limits.",
   "pullRequest": "https://github.com/JohnDeved/populous-new-dawn/pull/274",
   "productCommit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
   "qaCommit": "b1e60f4da98b2015a365fb4dd6929a8e9bcdadaa",
@@ -84,11 +84,7 @@
     "ownedCleanupVerified": true,
     "observerRestored": true
   },
-  "pending": [
-    "Restored remaining gift/grant/terminal timeline after a fresh public Load of the unchanged saved1300 checkpoint",
-    "Real enabled camp-card selection after that restored tail",
-    "Final ordinary acceptance and merge readiness"
-  ],
+  "pending": [],
   "standards": {
     "productCommit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
     "sourceFocusedTests": 61,
@@ -160,6 +156,16 @@
       "width": 1280,
       "height": 960,
       "transformation": "none; exact PNG bytes retained"
+    },
+    {
+      "file": "restored-camp-complete.png",
+      "kind": "full-browser-screenshot",
+      "caption": "Completion-only restored run at turn1343, with Buildings selected, camp card enabled and actual mode camp. Earlier failed runs retain their original status.",
+      "bytes": 1690769,
+      "sha256": "ad72d7145a4aff78e7d858085c73889ff7b03a1b23befd30e5c5b9a913f9b08a",
+      "width": 1440,
+      "height": 1000,
+      "transformation": "none; exact PNG bytes retained"
     }
   ],
   "rawReferences": [
@@ -215,6 +221,21 @@
       "sha256": "2acc4d451a0522ab37ae5e9aca483cae1f1aa26d586418d7565efb35f55b9c2d",
       "source": "retained tail01 review identity; raw input not included",
       "included": false
+    },
+    {
+      "file": "m1-building-completion-a409893-01/mission1-building-continuation.json",
+      "sha256": "1bafe7eee0b3f926b9354549a36a02edf0d6a6b8a67e19c08dc8fbc5190d4c04",
+      "included": false
+    },
+    {
+      "file": "m1-building-completion-a409893-01/receipt.json",
+      "sha256": "b33f9972d60d4683ef2e089a6c9cf4d0310fa8c651bafb7c84043e56da629394",
+      "included": false
+    },
+    {
+      "file": "m1-building-completion-a409893-01.outer.json",
+      "sha256": "960926dc6ddf0fcb835f7f1d019542e3c646c46512b3d1da474c8d04e111ca38",
+      "included": false
     }
   ],
   "reviewReferences": [
@@ -242,6 +263,11 @@
       "file": "review-bundles/blast-preparation-c62ea28-review-20261008/issue23-m1-continuation02-partial-review.md",
       "sha256": "77fcd27ac662a3b09317b639d92323d3fab24c2bd09b2e8daf09f275e64eede4",
       "availability": "retained locally; not included in this package"
+    },
+    {
+      "file": "review-bundles/blast-preparation-c62ea28-review-20261008/issue23-m1-completion-final-result-review.md",
+      "sha256": "e967be4e928942a953eec33686e49f3d7d2e55097ded80fcae1d28c92754c81f",
+      "availability": "retained locally; not included in this package"
     }
   ],
   "limits": [
@@ -267,6 +293,12 @@
       "qaCommitPrefix": "149a95f",
       "failure": "Loaded tagged gift.duration was +Infinity; prior JSON report held null. This was a lossy historical comparison, not established product checkpoint loss.",
       "accepted": "Successful one-shot start attachment and restoration only; Restart and remaining grant proof were not reached."
+    },
+    {
+      "name": "continuation02",
+      "status": "failed",
+      "finishedAt": "2026-10-08T19:53:11.591Z",
+      "failure": "Post-Restart locked-card locator timeout; live inputMask was not recorded. Accepted resize and active-building Restart remain bounded as recorded above."
     }
   ],
   "continuation02": {
@@ -374,5 +406,56 @@
       "observerRestored": true,
       "logicalGeometryScope": "Frozen handoff geometry; paused UI-owned feedback is not assumed frozen."
     }
+  },
+  "completion01": {
+    "qaCommit": "a409893cdab222e140f1acc02b69c25d6e6e05b6",
+    "productCommit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
+    "status": "passed",
+    "completionOnly": true,
+    "startedAt": "2026-10-08T20:16:11.155Z",
+    "finishedAt": "2026-10-08T20:16:51.847Z",
+    "durationSeconds": 40.692,
+    "reviewStatus": "accepted; no stated M1 evidence gate remains",
+    "observed": {
+      "restoredInitialTurn": 1300,
+      "restoredGiftRemaining": 32,
+      "handoffs": 0,
+      "grants": 1,
+      "beforeGrant": {
+        "worldTurn": 1331,
+        "giftId": 3541,
+        "remaining": 1,
+        "campUnlocked": false
+      },
+      "grantWorldTurn": 1332,
+      "terminalOverlayHidden": true,
+      "terminalFreshPixelCredit": false,
+      "finalHud": {
+        "worldTurn": 1343,
+        "inputMask": 0,
+        "worldMatches": true,
+        "sceneStarted": true,
+        "canvasConnected": true,
+        "loading": false,
+        "buildingsSelected": true,
+        "cardPresent": true,
+        "cardDisabled": false,
+        "mode": "camp"
+      },
+      "observedCounts": {
+        "worldVisits": 43,
+        "uiVisits": 105,
+        "draws": 27,
+        "units": "Distinct clocks; not a frame-rate or hardware-performance claim."
+      },
+      "committedSaved1300Unchanged": true,
+      "ownedCleanupVerified": true,
+      "continuationVerified": true,
+      "observerRestored": true,
+      "errors": [],
+      "terminalWorldTurn": 1333
+    },
+    "carriedScope": "Resize/workload and active-building Restart carry from independently accepted continuation02 partial evidence. Companion/pulse were inactive at that Restart; active interruption of them is not claimed.",
+    "limits": "No repeated acquisition prefix or new handoff; source-derived original comparison and actual port pixels remain separate. Earlier ordinary01, tail01 and continuation02 are still failed."
   }
 }

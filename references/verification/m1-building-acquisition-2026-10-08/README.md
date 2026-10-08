@@ -1,6 +1,6 @@
 # Mission 1 acquisition: accepted partial evidence
 
-**ordinary01 FAILED at 2026-10-08 19:13:48.387 UTC.** A delayed post-Load assertion missed the active controller window. This small package preserves independently accepted results from that run. Continuation02 also remains FAILED, after independently accepted resize/workload and active-building Restart results. The restored remaining grant/terminal timeline and final enabled-card selection remain pending; this is not a merge-ready claim.
+**The completion-only run PASS at 2026-10-08 20:16:51.847 UTC is independently accepted.** It covers the restored remaining grant/terminal journey and enabled-card selection. Ordinary01, tail01 and continuation02 remain FAILED with only their independently accepted portions carried. The assembled evidence closes the stated M1 gates while retaining those histories and the limits below.
 
 [PR274](https://github.com/JohnDeved/populous-new-dawn/pull/274), product [e6a607bc](https://github.com/JohnDeved/populous-new-dawn/commit/e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc), QA [b1e60f4](https://github.com/JohnDeved/populous-new-dawn/commit/b1e60f4da98b2015a365fb4dd6929a8e9bcdadaa). Scope is M1 record 1 → reward 2, class 2/model 7, geometry 103, modes 6/7 only. Refs #23; this slice does not close the broader issue.
 
@@ -18,6 +18,14 @@
 - Trusted Restart at 1320 interrupted the active building (phase 4/visit 35, gift remaining 12) and synchronously produced turn 0, camp locked, Vault active, null building/companion/pulse, empty requests/tagged gifts. Companion/pulse were already inactive before the click: only their retained-owner clearing is claimed. The committed saved 1300 checkpoint was unchanged.
 - Earlier **tail01 remains FAILED**: it compared source-backed +Infinity gift duration against null in a prior JSON report. That lossy comparison did not establish product checkpoint loss. The corrected continuation used the actual committed snapshot plus an explicit sentinel; neither old failed run is relabelled passed.
 
+## Completion-only restored tail
+
+[QA a409893](https://github.com/JohnDeved/populous-new-dawn/commit/a409893cdab222e140f1acc02b69c25d6e6e05b6) loads the unchanged saved 1300 state using the reviewed early observer. It records zero new handoffs and exactly one grant: gift 3541 remains locked with remaining 1 at 1331 and grants at 1332. The terminal overlay is hidden, without claiming fresh GPU pixels for that hidden draw.
+
+At1343 the actual inputMask is 0, the current scene is started/connected with no loader, Buildings is selected, the card is enabled and the public card click sets mode camp. The committed saved 1300 state remains unchanged; cleanup/continuation are verified and errors are empty. The run took 40.692 seconds. These are observed port results, separate from source-derived comparison with the original.
+
+This completion carries the accepted resize/workload and active-building Restart from failed continuation02. It does not repeat them or claim interruption of active companion/pulse owners. All three previous failed histories and raw hash references remain in [facts.json](facts.json). Final result verdict SHA256: `e967be4e928942a953eec33686e49f3d7d2e55097ded80fcae1d28c92754c81f`.
+
 ## Exact, unedited images
 
 The whole, flight and two resize files are **isolated transparent overlay canvases**, not full browser screenshots; transparent regions may appear black in an image viewer.
@@ -30,6 +38,7 @@ The whole, flight and two resize files are **isolated transparent overlay canvas
 |[Unlocked HUD](camp-screen-complete.png)|Full browser screenshot after the first-epoch grant; the filename does not mean the entire run passed|
 |[Before resize](beforeRestart-resize-before-overlay.png)|Continuation02 isolated overlay at 1440×1000|
 |[After resize](beforeRestart-resize-after-overlay.png)|Continuation02 isolated overlay at 1280×960|
+|[Restored completion](restored-camp-complete.png)|Full browser screenshot of the enabled camp card and actual camp build mode at 1343|
 
 [Derived facts and identities](facts.json) records PNG byte hashes, raw receipt hash references and the current source, standard and partial-review verdict hashes. The raw files stay local and are not included or attested by this package.
 
