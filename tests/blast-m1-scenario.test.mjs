@@ -154,3 +154,25 @@ test('an unprobed range never becomes the first observed range failure', () => {
   preparation.observe({ turn: 11, gates: { pixel: true, range: false }, rangeStatus: 'probed', ready: false })
   assert.equal(preparation.read().firstFailures.range.turn, 11)
 })
+
+test('actual route caller delegates once to maintained moveGround and propagates uncertain input failure', async () => {
+  const source = readFileSync(new URL('../qa/blast-ordinary/m1-scenario.mjs', import.meta.url), 'utf8')
+  const start = source.indexOf('    const move = async '), end = source.indexOf("\n    await checked(() => input.button('Select and focus shaman'))", start)
+  assert.ok(start >= 0 && end > start)
+  // Execute the actual local caller body with supplied input/arrival observations.
+  // The maintained helper's browser work and native arrival are not simulated here.
+  const body = source.slice(start, end), point = { x: 0.2, z: 3.5 }, calls = []
+  const report = { startup: { actorId: 30 }, route: [] }, hit = { point }, order = { model: 3, flags: 0, a: 2099, b: 62592 }
+  const delivered = { after: { units: [{ id: 30, orderId: 1, order }], lastOrderTurn: 100 } }
+  let failure
+  const input = { button: async () => {}, view: async () => {},
+    moveGround: async (...args) => { calls.push(args); if (failure) throw failure; return { hit, delivered } },
+    fixedGround: () => assert.fail('Caller bypassed maintained preparation'), dispatch: () => assert.fail('Caller bypassed maintained dispatch') }
+  const route = new Function('input', 'checked', 'settle', 'page', 'report', 'save', 'poll', 'healthy', 'current', 'assert', `${body}; return move`)(
+    input, fn => fn(), async () => {}, { evaluate: async () => ({ done: true, turn: 123 }) }, report, () => {}, async check => assert.equal(await check(), true), () => {}, async () => ({}), assert)
+  const result = await route('crossing', point, true)
+  assert.deepEqual(calls, [[point, true]]); assert.equal(result.hit, hit); assert.equal(result.delivered, delivered)
+  failure = Error('Actual or uncertain input failure')
+  await assert.rejects(route('crossing', point, true), error => error === failure)
+  assert.equal(calls.length, 2, 'The caller must not retry a helper failure')
+})

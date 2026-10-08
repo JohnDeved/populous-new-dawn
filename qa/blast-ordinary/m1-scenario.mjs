@@ -155,9 +155,9 @@ export default async function ordinaryM1EnemyBlast({ page, output, receipt, sign
     const move = async (name, point, cellMove = false) => {
       await checked(() => input.button('Select and focus shaman'))
       await checked(() => input.view(point)); await settle()
-      const hit = await checked(() => input.fixedGround(point, null, cellMove))
-      assert.equal(hit.rejection, null, JSON.stringify(hit))
-      const delivered = await checked(() => input.dispatch(hit, 3, [report.startup.actorId]))
+      // Reuse the maintained maximum-three pre-click recovery. It never retries
+      // a delivered/uncertain click; cellMove retains its finite far-bank view path.
+      const { hit, delivered } = await checked(() => input.moveGround(point, cellMove))
       const recipient = delivered.after.units.find(u => u.id === report.startup.actorId)
       const expected = { a: Math.round((hit.point.x + 8) * 256) & 65535, b: Math.round((-hit.point.z - 8) * 256) & 65535 }
       const route = { name, hit, delivered, expected, arrival: null }
