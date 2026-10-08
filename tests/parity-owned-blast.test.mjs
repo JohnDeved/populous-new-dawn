@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { BLAST_BINDINGS, BLAST_CONTROL_STAGES, isOrdinaryBlastCandidate, projectOrdinaryBlast, selectOrdinaryBlast } from '../scripts/parity-owned-blast.mjs'
@@ -167,4 +167,17 @@ test('Blast observations add no requirement, browser-case or paired parity credi
   assert.match(renderHTML(report), /bounded saved\/loaded projection only/)
   const escaped = structuredClone(report); escaped.checks[0].observed.target = '<script>unsafe</script>'
   assert.ok(!renderHTML(escaped).includes('<script>unsafe'))
+})
+
+
+test('parity declarations fingerprint their executed tests and both owned adapters exactly once', () => {
+  const { checks } = JSON.parse(readFileSync(new URL('../engineering/checks.json', import.meta.url), 'utf8'))
+  for (const id of ['parity-measure-tests', ...BLAST_BINDINGS.map(binding => binding.id)]) {
+    const check = checks.find(check => check.id === id)
+    assert.ok(check, `Missing declaration: ${id}`)
+    assert.equal(new Set(check.inputs).size, check.inputs.length, `Duplicate inputs: ${id}`)
+    const executedFiles = check.args.filter(arg => arg.endsWith('.mjs'))
+    for (const path of [...executedFiles, 'scripts/parity-measure.mjs', 'scripts/parity-owned-checkpoint.mjs', 'scripts/parity-owned-blast.mjs'])
+      assert.ok(check.inputs.includes(path), `${id} does not fingerprint ${path}`)
+  }
 })
