@@ -4,6 +4,7 @@ import assert from 'node:assert/strict'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { resolve } from 'node:path'
+import { readMission1ContinuationSeed } from './mission1-vault-continue.mjs'
 import { bindGame, waitForShamanReadiness } from '../browser-game.mjs'
 import { waitForCheckpointReadback } from '../checkpoint-readback.mjs'
 import { createMission1VaultInput } from './mission1-vault-input.mjs'
@@ -49,10 +50,10 @@ export function assertMission1ApproachPayload(approach, actorId) {
   return { actorId, orderId: recipient.orderId, pickedNative: expected, order: { ...recipient.order } }
 }
 
-export default async function mission1VaultKnowledge({ page, openMission, output, signal, receipt }) {
+export default async function mission1VaultKnowledge({ page, openMission, output, signal, receipt, continueSaved946 = false }) {
   const hash = value => createHash('sha256').update(value).digest('hex')
-  const files = ['mission1-vault-knowledge.mjs', 'mission1-vault-input.mjs', 'mission1-vault-witness.mjs', 'mission1-vault-checkpoint.mjs', 'mission1-vault-construction.mjs', 'mission1-vault-arrival.mjs', 'mission1-vault-guard-observation.mjs']
-  const report = { source: receipt.source, status: 'running', actions: [], captures: {},
+  const files = ['mission1-vault-knowledge.mjs', 'mission1-vault-input.mjs', 'mission1-vault-witness.mjs', 'mission1-vault-checkpoint.mjs', 'mission1-vault-construction.mjs', 'mission1-vault-arrival.mjs', 'mission1-vault-guard-observation.mjs', 'mission1-vault-continue.mjs']
+  const report = { source: receipt.source, entry: continueSaved946 ? 'public-saved946-continuation' : 'fresh-Mission1', status: 'running', actions: [], captures: {},
     helpers: Object.fromEntries(files.map(file => [file, hash(readFileSync(new URL(file, import.meta.url)))])),
     provenance: { bridge: 'scripts/local-render/hut-smoke-ignition.mjs:373-419 @ e649af3c51be5e1f6131809c900789b607ef7fb2',
       observer: 'Mission3 a6b302d5, tightened for missed birth and exact first1417',
@@ -92,15 +93,22 @@ export default async function mission1VaultKnowledge({ page, openMission, output
     return witness
   }
   try {
-    await openMission(1)
-    report.readiness = await waitForShamanReadiness(page, { timeout: 60000 })
-    const initial = report.initial = await read()
-    assert.equal(initial.speed, 1); assert.equal(initial.camp, false); assert.equal(initial.bridgeShots, 0)
-    originalShamanId = initial.blue.find(u => u.kind === 'shaman')?.id
-    assert.ok(originalShamanId && initial.bridgeHead && initial.vault)
-    const guard = initial.red.find(u => u.kind === 'brave' && Math.hypot(u.x + 9, u.z + 3) < 3)
-    assert.ok(guard, 'Retain authored record43 Red guard identity at the opening')
-    report.guardId = guard.id
+    let initial, saved, guard
+    if (continueSaved946) {
+      const seed = await readMission1ContinuationSeed(page, receipt)
+      saved = seed.saved; originalShamanId = seed.originalShamanId
+      report.continuation = seed.provenance
+    } else {
+      await openMission(1)
+      report.readiness = await waitForShamanReadiness(page, { timeout: 60000 })
+      initial = report.initial = await read()
+      assert.equal(initial.speed, 1); assert.equal(initial.camp, false); assert.equal(initial.bridgeShots, 0)
+      originalShamanId = initial.blue.find(u => u.kind === 'shaman')?.id
+      assert.ok(originalShamanId && initial.bridgeHead && initial.vault)
+      guard = initial.red.find(u => u.kind === 'brave' && Math.hypot(u.x + 9, u.z + 3) < 3)
+      assert.ok(guard, 'Retain authored record43 Red guard identity at the opening')
+      report.guardId = guard.id
+    }
     const input = createMission1VaultInput({ page, signal, report, save, originalShamanId })
     const { button, pause, resume, view, fixedGround, clickEntity, castInput } = input
     const clear = async () => {
@@ -138,96 +146,100 @@ export default async function mission1VaultKnowledge({ page, openMission, output
       assert.equal(movement.observation.restored, true); assert.deepEqual(movement.observation.errors, [])
       return { hit, delivered, movement: movement.observation, arrived: await read() }
     }
-    // Accepted Bridge-first prefix: real command27, earned stock, checked shore,
-    // public key2 and real projectile/terrain completion, original Shaman throughout.
-    await resume(); await button('Select and focus shaman'); await view(initial.bridgeHead)
-    report.bridgeOrder = await clickEntity('shrines', initial.bridgeHead.id, 27, false, [originalShamanId])
-    await wait(({ headId, actorId }) => {
-      const w = window.testSceneRef.current.world, u = w.units.find(u => u.id === actorId)
-      if (!u || u.hp <= 0) throw Error('Original Shaman lost during Bridge worship')
-      return w.shots.bridge > 0 && w.shrines.find(h => h.id === headId)?.uses > 0
-    }, { headId: initial.bridgeHead.id, actorId: originalShamanId }, 180000)
-    report.bridgeReward = await read()
-    assert.ok(report.bridgeReward.bridgeGifts > initial.bridgeGifts)
-    report.shore = await move({ x: 0.5, z: 19 })
-    await pause(); await view({ x: 0, z: 12 })
-    await page.keyboard.press('2'); assert.equal((await read()).mode, 'bridge')
-    const bridgePoint = await fixedGround({ x: 0, z: 4 }, 'bridge')
-    assert.equal(bridgePoint.rejection, null, JSON.stringify(bridgePoint)); assert.ok(bridgePoint.margin >= bridgePoint.minimumMargin)
-    await resume()
-    const bridgeBefore = await read(), bridgeDelivery = await castInput(bridgePoint, 'bridge'), bridgeAfter = await read()
-    report.bridgeCast = { point: bridgePoint, before: bridgeBefore, delivered: bridgeDelivery, after: bridgeAfter }; save()
-    assert.ok(bridgeAfter.projectiles.some(p => p.spell === 'bridge' && p.caster === originalShamanId &&
-      !bridgeBefore.projectiles.some(old => old.id === p.id)) || bridgeAfter.bridges > bridgeBefore.bridges)
-    await wait(({ actorId, bridges }) => {
-      const w = window.testSceneRef.current.world, u = w.units.find(u => u.id === actorId)
-      if (!u || u.hp <= 0) throw Error('Original Shaman lost while Bridge completed')
-      return w.stats.bridges > bridges && !w.effects.some(e => e.bridge) && !w.projectiles.some(p => p.spell === 'bridge')
-    }, { actorId: originalShamanId, bridges: bridgeBefore.bridges }, 60000)
-    report.completedBridge = await read()
-    assert.ok(report.completedBridge.landVersion > bridgeBefore.landVersion)
-    report.crossing = await move({ x: 0, z: 4 }, true)
-    // Authored approach cell is outside the Vault footprint; real input and movement still must succeed.
-    report.guardApproach = await move({ x: -5, z: 3 })
-    report.guardApproach.payloadCorrespondence = assertMission1ApproachPayload(report.guardApproach, originalShamanId); save()
-    // The existing Red guard is an ordinary gameplay prerequisite. If still near
-    // the approach, use genuine Blast stock and let normal damage/retreat resolve.
-    report.guardCasts = []
-    for (let attempt = 0; attempt < 6; attempt++) {
-      const current = (await read()).red.find(u => u.id === guard.id)
-      if (!current || current.hp <= 0 || Math.hypot(current.x + 5, current.z + 3) > 14) break
+    if (!continueSaved946) {
+      // Accepted Bridge-first prefix: real command27, earned stock, checked shore,
+      // public key2 and real projectile/terrain completion, original Shaman throughout.
+      await resume(); await button('Select and focus shaman'); await view(initial.bridgeHead)
+      report.bridgeOrder = await clickEntity('shrines', initial.bridgeHead.id, 27, false, [originalShamanId])
+      await wait(({ headId, actorId }) => {
+        const w = window.testSceneRef.current.world, u = w.units.find(u => u.id === actorId)
+        if (!u || u.hp <= 0) throw Error('Original Shaman lost during Bridge worship')
+        return w.shots.bridge > 0 && w.shrines.find(h => h.id === headId)?.uses > 0
+      }, { headId: initial.bridgeHead.id, actorId: originalShamanId }, 180000)
+      report.bridgeReward = await read()
+      assert.ok(report.bridgeReward.bridgeGifts > initial.bridgeGifts)
+      report.shore = await move({ x: 0.5, z: 19 })
+      await pause(); await view({ x: 0, z: 12 })
+      await page.keyboard.press('2'); assert.equal((await read()).mode, 'bridge')
+      const bridgePoint = await fixedGround({ x: 0, z: 4 }, 'bridge')
+      assert.equal(bridgePoint.rejection, null, JSON.stringify(bridgePoint)); assert.ok(bridgePoint.margin >= bridgePoint.minimumMargin)
       await resume()
-      await wait(mission1BlastReady, originalShamanId, 120000)
-      await pause(); await button('Select and focus shaman'); await view(current)
-      await page.keyboard.press('1'); assert.equal((await read()).mode, 'blast')
-      await resume()
-      const currentGuard = (await read()).red.find(u => u.id === guard.id)
-      if (!currentGuard || currentGuard.hp <= 0 || Math.hypot(currentGuard.x + 5, currentGuard.z + 3) > 14) break
-      const presentation = await page.evaluate(readMission1GuardPresentation, guard.id)
-      const hit = await fixedGround(currentGuard, 'blast')
-      report.actions.push({ label: 'guard-blast-probe', attempt, guard: currentGuard, presentation, hit }); save()
-      assert.equal(hit.rejection, null, JSON.stringify(hit))
-      const delivered = await castInput(hit, 'blast')
-      await wait(({ id, hp, x, z }) => {
-        const w = window.testSceneRef.current.world, u = w.units.find(u => u.id === id)
-        return !u || u.hp < hp || Math.hypot(u.x - x, u.z - z) > 2
-      }, currentGuard, 30000)
-      report.guardCasts.push({ before: currentGuard, hit, delivered, after: (await read()).red.find(u => u.id === guard.id) }); save()
+      const bridgeBefore = await read(), bridgeDelivery = await castInput(bridgePoint, 'bridge'), bridgeAfter = await read()
+      report.bridgeCast = { point: bridgePoint, before: bridgeBefore, delivered: bridgeDelivery, after: bridgeAfter }; save()
+      assert.ok(bridgeAfter.projectiles.some(p => p.spell === 'bridge' && p.caster === originalShamanId &&
+        !bridgeBefore.projectiles.some(old => old.id === p.id)) || bridgeAfter.bridges > bridgeBefore.bridges)
+      await wait(({ actorId, bridges }) => {
+        const w = window.testSceneRef.current.world, u = w.units.find(u => u.id === actorId)
+        if (!u || u.hp <= 0) throw Error('Original Shaman lost while Bridge completed')
+        return w.stats.bridges > bridges && !w.effects.some(e => e.bridge) && !w.projectiles.some(p => p.spell === 'bridge')
+      }, { actorId: originalShamanId, bridges: bridgeBefore.bridges }, 60000)
+      report.completedBridge = await read()
+      assert.ok(report.completedBridge.landVersion > bridgeBefore.landVersion)
+      report.crossing = await move({ x: 0, z: 4 }, true)
+      // Authored approach cell is outside the Vault footprint; real input and movement still must succeed.
+      report.guardApproach = await move({ x: -5, z: 3 })
+      report.guardApproach.payloadCorrespondence = assertMission1ApproachPayload(report.guardApproach, originalShamanId); save()
+      // The existing Red guard is an ordinary gameplay prerequisite. If still near
+      // the approach, use genuine Blast stock and let normal damage/retreat resolve.
+      report.guardCasts = []
+      for (let attempt = 0; attempt < 6; attempt++) {
+        const current = (await read()).red.find(u => u.id === guard.id)
+        if (!current || current.hp <= 0 || Math.hypot(current.x + 5, current.z + 3) > 14) break
+        await resume()
+        await wait(mission1BlastReady, originalShamanId, 120000)
+        await pause(); await button('Select and focus shaman'); await view(current)
+        await page.keyboard.press('1'); assert.equal((await read()).mode, 'blast')
+        await resume()
+        const currentGuard = (await read()).red.find(u => u.id === guard.id)
+        if (!currentGuard || currentGuard.hp <= 0 || Math.hypot(currentGuard.x + 5, currentGuard.z + 3) > 14) break
+        const presentation = await page.evaluate(readMission1GuardPresentation, guard.id)
+        const hit = await fixedGround(currentGuard, 'blast')
+        report.actions.push({ label: 'guard-blast-probe', attempt, guard: currentGuard, presentation, hit }); save()
+        assert.equal(hit.rejection, null, JSON.stringify(hit))
+        const delivered = await castInput(hit, 'blast')
+        await wait(({ id, hp, x, z }) => {
+          const w = window.testSceneRef.current.world, u = w.units.find(u => u.id === id)
+          return !u || u.hp < hp || Math.hypot(u.x - x, u.z - z) > 2
+        }, currentGuard, 30000)
+        report.guardCasts.push({ before: currentGuard, hit, delivered, after: (await read()).red.find(u => u.id === guard.id) }); save()
+      }
+      const afterGuard = (await read()).red.find(u => u.id === guard.id)
+      assert.ok(!afterGuard || afterGuard.hp <= 0 || Math.hypot(afterGuard.x + 5, afterGuard.z + 3) > 14, 'Guard still threatens Vault approach')
+      await pause(); await clear(); await button('Select and focus shaman'); await view(initial.vault)
+      await page.evaluate(installMission1VaultWitness); witnessInstalled = true
+      await resume(); await wait(() => !!window.vaultEvidence.stages.preflight?.postRender)
+      await pause()
+      const marker = await capture('camp-marker-before-save')
+      assert.equal(marker.marker?.visible, true); assert.equal(marker.marker?.family, 'hfx'); assert.equal(marker.marker?.body, 1077)
+      assert.ok(marker.marker.glow.frame >= 1417 && marker.marker.glow.frame <= 1430)
+      // A baseline product stops above with its actual rendered marker retained.
+      for (let attempt = 0; attempt < 3 && !(await page.evaluate(() => window.readVaultWitness().state.shrine.glow?.f1)); attempt++) {
+        await resume(); await wait(() => !!window.readVaultWitness().state.shrine.glow?.f1); await pause()
+      }
+      await page.evaluate(installMission1VaultCheckpointState)
+      const paused = await page.evaluate(() => window.mission1VaultCheckpointState(window.testSceneRef.current.world))
+      assert.notEqual(paused.glow.f1, 0); assert.equal(paused.active, true); assert.equal(paused.camp, false); assert.equal(paused.gifts, 0)
+      assert.ok(paused.bridges > initial.bridges)
+      await button('Game settings'); await button('Save checkpoint')
+      assert.equal(await waitForCheckpointReadback(async () => {
+        signal.throwIfAborted(); saved = await page.evaluate(readMission1VaultCheckpoint)
+        return saved?.turn === paused.turn && saved?.level === 1
+      }), true)
+      assert.deepEqual(saved, paused)
+      await finishWitness('preload')
+      await page.reload({ waitUntil: 'domcontentloaded' })
     }
-    const afterGuard = (await read()).red.find(u => u.id === guard.id)
-    assert.ok(!afterGuard || afterGuard.hp <= 0 || Math.hypot(afterGuard.x + 5, afterGuard.z + 3) > 14, 'Guard still threatens Vault approach')
-    await pause(); await clear(); await button('Select and focus shaman'); await view(initial.vault)
-    await page.evaluate(installMission1VaultWitness); witnessInstalled = true
-    await resume(); await wait(() => !!window.vaultEvidence.stages.preflight?.postRender)
-    await pause()
-    const marker = await capture('camp-marker-before-save')
-    assert.equal(marker.marker?.visible, true); assert.equal(marker.marker?.family, 'hfx'); assert.equal(marker.marker?.body, 1077)
-    assert.ok(marker.marker.glow.frame >= 1417 && marker.marker.glow.frame <= 1430)
-    // A baseline product stops above with its actual rendered marker retained.
-    for (let attempt = 0; attempt < 3 && !(await page.evaluate(() => window.readVaultWitness().state.shrine.glow?.f1)); attempt++) {
-      await resume(); await wait(() => !!window.readVaultWitness().state.shrine.glow?.f1); await pause()
-    }
-    await page.evaluate(installMission1VaultCheckpointState)
-    const paused = await page.evaluate(() => window.mission1VaultCheckpointState(window.testSceneRef.current.world))
-    assert.notEqual(paused.glow.f1, 0); assert.equal(paused.active, true); assert.equal(paused.camp, false); assert.equal(paused.gifts, 0)
-    assert.ok(paused.bridges > initial.bridges)
-    await button('Game settings'); await button('Save checkpoint')
-    let saved
-    assert.equal(await waitForCheckpointReadback(async () => {
-      signal.throwIfAborted(); saved = await page.evaluate(readMission1VaultCheckpoint)
-      return saved?.turn === paused.turn && saved?.level === 1
-    }), true)
-    assert.deepEqual(saved, paused)
-    await finishWitness('preload')
-    await page.reload({ waitUntil: 'domcontentloaded' })
     const startup = page.getByRole('dialog', { name: 'Start game', exact: true })
     await startup.waitFor({ state: 'visible' })
     await page.evaluate(installMission1VaultCheckpointState); await page.evaluate(installMission1VaultLoadWitness)
     await startup.getByRole('button', { name: 'Load Game', exact: true }).click()
     const boundary = await page.evaluate(() => ({ loaded: window.vaultLoadedBoundary, error: window.vaultLoadedError }))
     assert.equal(boundary.error, null); assert.deepEqual(boundary.loaded, saved)
-    report.checkpoint = { saved, loadedBeforeResume: boundary.loaded, scope: 'Same browser context; actual reload and public Load Game; no cross-process persistence claim' }; save()
+    report.checkpoint = { saved, loadedBeforeResume: boundary.loaded, scope: continueSaved946
+      ? 'Verified full stored946 digest; public Load Game matches bounded synchronous snapshot; prefix not replayed'
+      : 'Same browser context; actual reload and public Load Game; no cross-process persistence claim' }; save()
     await bindGame(page); await waitForShamanReadiness(page); await pause()
+    initial ??= report.initial = await read()
     await page.evaluate(installMission1VaultWitness); witnessInstalled = true
     await page.evaluate(() => { window.vaultEvidence.arm = null })
     await clear(); await button('Select and focus shaman'); await view(initial.vault)
