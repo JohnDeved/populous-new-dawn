@@ -20,10 +20,21 @@ test('completed ordinary M2 staging binds its real owner and admits a later cast
   assert.equal(currentPersonOrder(world.buildingOrders, person)?.model, 3)
   assert.equal(bindStagedBlastTarget(original, destination, currentPersonOrder).ready, false, 'unreached stage cannot attach')
   assert.equal(original.movePerson, undefined)
-  let completed, stationary, admitted, movingResting, firstZeroSpeed, prior
+  let completed, stationary, admitted, movingResting, firstZeroSpeed, prior, lastActual, firstUnboundedStable, firstUnboundedZero
+  const completionPrefix = [], tail = []
   for (let attempts = 0; attempts < 600; attempts++) {
     tick(world, 1 / 12)
     const actual = bindStagedBlastTarget(original, destination, currentPersonOrder)
+    const observation = { ...actual, substate: person.substate, flags2: person.flags2,
+      distance: Math.hypot(target.x - destination.x, target.z - destination.z),
+      goal: { x: person.goalX, y: person.goalY }, destination: { x: person.destinationX, y: person.destinationY },
+      anchor: { x: person.anchorX, y: person.anchorY }, registeredOwnerSame: world.objectCells.objects.get(target.id) === person }
+    tail.push(observation); if (tail.length > 8) tail.shift()
+    if (!actual.order && completionPrefix.length < 24) completionPrefix.push(observation)
+    if (!actual.order && actual.speed === 0) firstUnboundedZero ??= observation
+    if (!actual.order && lastActual && actual.position.x === lastActual.position.x && actual.position.y === lastActual.position.y)
+      firstUnboundedStable ??= observation
+    lastActual = actual
     if (!actual.ready) continue
     completed ??= actual
     if (actual.speed === 0) firstZeroSpeed ??= actual
@@ -38,6 +49,7 @@ test('completed ordinary M2 staging binds its real owner and admits a later cast
     if (stationaryBlastTarget(snapshot, prior?.turn, prior?.position, actual.turn)) { admitted = actual; break }
     prior = actual
   }
+  t.diagnostic(JSON.stringify({ completionPrefix, tail, firstUnboundedStable: firstUnboundedStable ?? null, firstUnboundedZero: firstUnboundedZero ?? null }))
   assert.ok(movingResting, 'actual resting-slot approach must be rejected before admission')
   assert.ok(completed && stationary && admitted, 'normal staging must reach a stable native pose within the finite contract')
   assert.equal(currentPersonOrder(world.buildingOrders, person), undefined)
