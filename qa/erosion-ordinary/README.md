@@ -75,8 +75,11 @@ and finish its profile receipt. It never issues Save. An incomplete or unexpecte
 command also stops. There is no detached input promise after stop.
 
 `input.mjs` and `minimap-input.mjs` reuse the previously reviewed ordinary helpers;
-`reuse.json` records correspondence and the input helper's sole cleanup-only delta
-(removing an unused destructured binding). `stop.mjs` explicitly repairs that
+`reuse.json` records correspondence, the input helper's cleanup-only delta
+(removing an unused destructured binding), and its shared `integerInputPoint`
+producer. Ground probes can choose this integer CSS point before canvas ownership,
+picking and source validation, then retain it unchanged for dispatch and exact
+delivered-event comparison. Observed events are never rounded. `stop.mjs` repairs that
 helper's late-ready bug by checking stop and deadline again after the predicate.
 Legacy `settleView()` and `effectPixels()` are not imported or used. Screenshots
 come from the real page without renderer or mesh writes.
