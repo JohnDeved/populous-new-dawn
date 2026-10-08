@@ -236,7 +236,8 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
         let hover = prepared, ready = false, rejection = null, phase = 'preparing'
         if (!p) rejection = 'original-person-unavailable'
         else if (report.errors.length) rejection = 'episode-observation-error'
-        else if (prepared && w.turn > prepared.turn + 1) rejection = 'prospective-hover-expired'
+        else if (prepared && JSON.stringify(p.position) !== JSON.stringify(prepared.position)) rejection = 'prospective-hover-pose-changed'
+        else if (prepared && (!event || event.clientX !== prepared.point.x || event.clientY !== prepared.point.y)) rejection = 'prospective-hover-pixel-changed'
         else if (prepared && JSON.stringify(feedback.context) !== JSON.stringify(prepared.context)) rejection = 'prospective-hover-context-changed'
         else if (eligible && baselineProposal) {
           ready = true; phase = 'ready-to-press'
@@ -245,7 +246,8 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
           if (!hover) {
             hover = { turn: w.turn, targetId: p.id, mode: w.mode, canvasOwned: true, hitId: p.id,
               visible: feedback.visible, lines: feedback.lines, context: feedback.context, position: p.position,
-              previousTurn: motionTurn, previousPosition: motionPosition, idle: p.idle }
+              previousTurn: motionTurn, previousPosition: motionPosition, idle: p.idle,
+              point: { x: event.clientX, y: event.clientY }, observedAt: performance.now() }
             window.blastEpisode.hover(hover)
           }
           phase = 'awaiting-natural-hover-frame'
@@ -311,10 +313,11 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
                 !actual?.canvasOwned || actual.hitId !== target.id)
               throw Error('Held pointer preparation lost original target, motion, range or context')
             if (expectation === 'candidate') {
-              if (!report.hover || w.turn > report.hover.turn + 1 || JSON.stringify(context) !== JSON.stringify(report.hover.context) ||
+              if (!report.hover || w.turn < report.hover.turn || JSON.stringify(p.position) !== JSON.stringify(report.hover.position) ||
+                  JSON.stringify(point) !== JSON.stringify(report.hover.point) || JSON.stringify(context) !== JSON.stringify(report.hover.context) ||
                   !report.frames.some(frame => frame.kind === 'hover') ||
                   !findEntityInput([point], target.id, q => inspectEntityPoint(s, 'units', q)))
-                throw Error('Original natural hover expired or target left the held pixel')
+                throw Error('Original natural hover pose/context changed or target left the held pixel')
             } else {
               const motion = w.turn > previous.turn ? { turn: previous.turn, position: prior.position } :
                 { turn: previous.motionTurn, position: previous.motionPosition }

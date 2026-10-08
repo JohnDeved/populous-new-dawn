@@ -11,14 +11,15 @@ const position = turn => ({ x: 1000 + (turn - 1) * 10, y: 2000, h: 120 })
 const browserPoint = p => ({ x: (p.x - 2048) / 256, z: -(p.y + 2048) / 256 })
 const hover = expectation => ({ turn: 1, targetId: 3, mode: 'blast', canvasOwned: true, hitId: 3,
   visible: expectation === 'candidate', lines: expectation === 'candidate' ? 16 : 0, context: copy(context), position: position(1),
-  previousTurn: 0, previousPosition: position(1), idle: true })
-const release = expectation => ({ point: { x: 10, y: 20 },
+  previousTurn: 0, previousPosition: position(1), idle: true, point: { x: 10, y: 20 }, observedAt: 1 })
+const release = expectation => ({ point: { x: 10, y: 20 }, observedAt: 1.4,
+  press: { targetSame: true, ownerValid: true, turn: 1, observedAt: 1.2, mode: 'blast', trusted: true, canvasOwned: true, point: { x: 10, y: 20 }, context: copy(context), position: position(1) },
   ...(expectation === 'baseline' ? { targetCheck: { range: { phase: 'before-handler', turn: 1, targetId: 3, sameOriginal: true, targetError: null },
     pixel: { phase: 'after-handler-diagnostic', turn: 1, personId: 3, point: { x: 10, y: 20 } } } } : {}), turn: 1, targetId: 3, mode: 'blast', trusted: true, canvasOwned: true, context: copy(context),
   handlerPersonId: expectation === 'candidate' ? 3 : null, handlerTerrain: expectation === 'baseline', stockBefore: 4, castCountBefore: 0 })
 const proposed = () => {
   const value = hover('baseline')
-  delete value.visible; delete value.lines
+  delete value.visible; delete value.lines; delete value.observedAt
   return { ...value, kind: 'proposed-pixel', point: { x: 10, y: 20 } }
 }
 function sample(turn, expectation = 'candidate', { still = false } = {}) {
@@ -38,13 +39,15 @@ const movement = () => ({ turn: 1, mode: null, selected: [3], trusted: true, can
   point: { x: 50, y: 60 }, shotBefore: { id: 44, phase: 'windup', remaining: 6 },
   order: { model: 3, a: 2816, b: 63488 }, expected: { a: 2816, b: 63488, pixel: { x: 50, y: 60 } },
   handlerPoint: { x: 3, z: 0 }, handlerPersonId: null, afterMode: null, afterSelected: [3], ownerSame: true })
+const hoverFrame = () => ({ kind: 'hover', turn: 1, targetId: 3, visible: true, lines: 16, pixels: 80, effectId: null,
+  position: position(1), context: copy(context), point: { x: 10, y: 20 }, renderFrame: 5, observedAt: 1.1, targetSame: true, ownerValid: true })
 function start(expectation = 'candidate', change = () => {}) {
   const episode = createBlastEpisode({ ...options, expectation }), h = expectation === 'baseline' ? proposed() : hover(expectation), r = release(expectation), first = sample(1, expectation)
   change({ h, r, first })
   if (expectation === 'baseline') episode.propose(h)
   else episode.hover(h)
-  if (expectation === 'candidate') episode.frame({ kind: 'hover', turn: 1, targetId: 3, visible: true, lines: 16, pixels: 80, effectId: null })
-  episode.trigger(1)
+  if (expectation === 'candidate') episode.frame(hoverFrame())
+  episode.trigger(1, 1.3)
   episode.release(r, first)
   episode.move(movement(), first)
   if (expectation === 'candidate') episode.frame({ kind: 'ack', turn: 1, targetId: 3, visible: true, lines: 32, pixels: 160, effectId: null })
@@ -86,7 +89,7 @@ test('setup requires life, but a retained nondeleted class1 owner is not invalid
 })
 test('stale pointer, changed context, wrong handler and synthetic events are rejected', () => {
   for (const damage of [r => { r.turn = 3 }, r => { r.context.camera.x++ }, r => { r.handlerPersonId = 4 }, r => { r.trusted = false }, r => { r.canvasOwned = false }])
-    assert.throws(() => start('candidate', ({ r }) => damage(r)), /Stale|handler|trusted/)
+    assert.throws(() => start('candidate', ({ r }) => damage(r)), /Actual release|handler|trusted|matching press/)
 })
 test('missing visible hover, arrival, impact or acknowledgement cannot pass', () => {
   assert.throws(() => start('candidate', ({ h }) => { h.visible = false }), /feedback/)
@@ -95,8 +98,8 @@ test('missing visible hover, arrival, impact or acknowledgement cannot pass', ()
   assert.throws(() => episode.frame({ kind: 'arrival', turn: 1, targetId: 3, visible: false, lines: 16, pixels: 0, effectId: 50 }), /pixels/)
   const withoutAck = createBlastEpisode(options)
   withoutAck.hover(hover('candidate'))
-  withoutAck.frame({ kind: 'hover', turn: 1, targetId: 3, visible: true, lines: 16, pixels: 80, effectId: null })
-  withoutAck.trigger(1); withoutAck.release(release('candidate'), sample(1))
+  withoutAck.frame(hoverFrame())
+  withoutAck.trigger(1, 1.3); withoutAck.release(release('candidate'), sample(1))
   for (let turn = 1; turn < 10; turn++) { withoutAck.before(sample(turn)); withoutAck.after(sample(turn + 1)) }
   assert.equal(withoutAck.report().complete, false)
 })
@@ -145,35 +148,35 @@ test('actual delivered release outside four trigger turns fails', () => {
 test('candidate admission requires a prospective natural frame, not visible feedback alone', () => {
   const episode = createBlastEpisode(options)
   episode.hover(hover('candidate'))
-  assert.throws(() => episode.trigger(1), /validated hover frame/)
+  assert.throws(() => episode.trigger(1, 1.3), /validated hover frame/)
   assert.equal(episode.report().triggerTurn, undefined)
   assert.equal(episode.report().complete, false)
 })
 
-test('a pre-registration, stale or future hover frame cannot authorize the trigger', () => {
-  const frame = { kind: 'hover', turn: 1, targetId: 3, visible: true, lines: 16, pixels: 80, effectId: null }
-  const unregistered = createBlastEpisode(options)
-  assert.throws(() => unregistered.frame(frame), /Stale bracket/)
-  const stale = createBlastEpisode(options)
-  stale.hover(hover('candidate')); stale.frame(frame)
-  assert.throws(() => stale.trigger(3), /hover expired/)
+test('a pre-registration, future or post-trigger hover frame cannot authorize input', () => {
+  const frame = hoverFrame(), unregistered = createBlastEpisode(options)
+  assert.throws(() => unregistered.frame(frame), /hover frame pose/)
   const future = createBlastEpisode(options)
   future.hover(hover('candidate')); future.frame({ ...frame, turn: 2 })
-  assert.throws(() => future.trigger(1), /validated hover frame/)
-})
-
-test('validated prospective hover admits one fresh trigger and retains release freshness', () => {
-  const episode = createBlastEpisode(options)
-  episode.hover(hover('candidate'))
-  episode.frame({ kind: 'hover', turn: 1, targetId: 3, visible: true, lines: 16, pixels: 80, effectId: null })
-  episode.trigger(2)
-  assert.throws(() => episode.release({ ...release('candidate'), turn: 3 }, sample(3)), /Stale pointer/)
+  assert.throws(() => future.trigger(1, 1.3), /validated hover frame/)
+  const timed = createBlastEpisode(options)
+  timed.hover(hover('candidate')); timed.frame({ ...frame, observedAt: 2 })
+  assert.throws(() => timed.trigger(1, 1.3), /validated hover frame/)
   const valid = start().episode
-  assert.equal(valid.report().triggerTurn, 1)
-  assert.throws(() => valid.trigger(2), /One actual response trigger/)
-  assert.throws(() => valid.hover(hover('candidate')), /only once/)
+  assert.throws(() => valid.frame(frame), /before the trigger/)
 })
 
+test('exact natural frame/press/event correspondence replaces candidate age without widening trigger timing', () => {
+  const episode = createBlastEpisode(options), frame = hoverFrame(), event = release('candidate'), actual = sample(3)
+  episode.hover(hover('candidate')); episode.frame(frame)
+  event.press.turn = 2; event.press.observedAt = 2.1; event.turn = 3; event.observedAt = 3.1
+  actual.target.position = position(1); actual.shot.remaining = 6
+  episode.trigger(2, 2.3); episode.release(event, actual)
+  assert.equal(episode.report().release.turn, 3)
+  assert.equal(episode.report().hover.turn, 1)
+  assert.throws(() => episode.trigger(3, 3.3), /One actual response trigger/)
+  assert.throws(() => episode.hover(hover('candidate')), /only once/)
+})
 
 test('baseline proposal is distinct from actual hover and actual delivered release', () => {
   const result = start('baseline').episode.report()
@@ -219,8 +222,8 @@ test('post-cast movement requires accepted release, cleared mode, same selection
     m => { m.afterSelected = [1] }, m => { m.trusted = false }, m => { m.shotBefore.remaining = 0 },
     m => { m.shotBefore.phase = 'flying' }, m => { m.shotBefore.id++ }]) {
     const episode = createBlastEpisode(options), m = movement()
-    episode.hover(hover('candidate')); episode.frame({ kind: 'hover', turn: 1, targetId: 3, visible: true, lines: 16, pixels: 80, effectId: null })
-    episode.trigger(1); episode.release(release('candidate'), sample(1)); change(m)
+    episode.hover(hover('candidate')); episode.frame(hoverFrame())
+    episode.trigger(1, 1.3); episode.release(release('candidate'), sample(1)); change(m)
     assert.throws(() => episode.move(m, sample(1)), /Ground movement|late|another cast/)
   }
 })
@@ -228,8 +231,8 @@ test('movement proves the original owner, actual ground pixel and exact command 
   for (const change of [m => { m.ownerSame = false }, m => { m.order.model = 19 }, m => { m.order.a++ },
     m => { m.handlerPersonId = 5 }, m => { m.handlerPoint.x++ }, m => { m.point.x++ }]) {
     const episode = createBlastEpisode(options), m = movement()
-    episode.hover(hover('candidate')); episode.frame({ kind: 'hover', turn: 1, targetId: 3, visible: true, lines: 16, pixels: 80, effectId: null })
-    episode.trigger(1); episode.release(release('candidate'), sample(1)); change(m)
+    episode.hover(hover('candidate')); episode.frame(hoverFrame())
+    episode.trigger(1, 1.3); episode.release(release('candidate'), sample(1)); change(m)
     assert.throws(() => episode.move(m, sample(1)), /ordinary ground move/)
   }
   assert.throws(() => finish({ mutate: ({ before, turn }) => { if (turn === 4) before.target.movementOrderSame = false } }), /movement order changed/)
@@ -242,7 +245,7 @@ function baselineEventTime(change = () => {}) {
   r.turn = 3; r.targetCheck.range.turn = 3; r.targetCheck.pixel.turn = 3
   actual.target.position = copy(p.position); actual.shot.remaining = 6
   change({ p, r, actual })
-  episode.propose(p); episode.trigger(1); episode.release(r, actual)
+  episode.propose(p); episode.trigger(1, 1.3); episode.release(r, actual)
   return episode
 }
 test('baseline proposal age is diagnostic when exact current event identity, XYZ, context, pixel and range agree', () => {
@@ -261,4 +264,20 @@ test('baseline event-time replacement rejects changed pose, stale sample, owners
     ({ r }) => { r.targetCheck.range.sameOriginal = false }, ({ r }) => { r.trusted = false },
     ({ r }) => { r.canvasOwned = false }, ({ r }) => { r.turn = 6 }])
     assert.throws(() => baselineEventTime(change), /target changed|differs|pixel|source range|trusted|release window/)
+})
+
+test('candidate frame pose/context/pixel and actual frame-before-press chronology are mandatory', () => {
+  for (const change of [f => { f.position.x++ }, f => { f.position.h++ }, f => { f.context.camera.x++ },
+    f => { f.targetSame = false }, f => { f.ownerValid = false }, f => { f.point.x++ }, f => { f.observedAt = 0.5 }, f => { f.renderFrame = null }, f => { f.turn = 0 }]) {
+    const episode = createBlastEpisode(options), frame = hoverFrame()
+    episode.hover(hover('candidate')); change(frame)
+    assert.throws(() => episode.frame(frame), /hover frame pose|chronology/)
+  }
+  for (const change of [r => { r.press.observedAt = 1.05 }, r => { r.press.observedAt = 1.35 },
+    r => { r.observedAt = 1.25 }, r => { r.press.turn = 0 }, r => { r.press.turn = 2 },
+    r => { r.press.position.x++ }, r => { r.press.context.camera.x++ }, r => { r.press.point.x++ },
+    r => { r.press.targetSame = false }, r => { r.press.ownerValid = false }, r => { r.point.x++ }, r => { r.press.trusted = false }, r => { r.press.canvasOwned = false }])
+    assert.throws(() => start('candidate', ({ r }) => change(r)), /matching press/)
+  for (const change of [s => { s.target.position.y++ }, s => { s.target.position.h++ }, s => { s.turn++ }])
+    assert.throws(() => start('candidate', ({ first }) => change(first)), /Actual release pose/)
 })

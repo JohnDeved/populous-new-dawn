@@ -41,7 +41,7 @@ export function observeBlastEpisode(scene, options) {
   const world = scene.world, actor = world.units.find(u => u.id === options.actorId), target = world.units.find(u => u.id === options.targetId)
   if (!actor || !target || world.projectiles.some(p => p.team === 'blue' && p.spell === 'blast')) throw Error('Fresh actor, target and empty Blue Blast lifecycle required')
   const evidence = createBlastEpisode(options), artifacts = {}, wrappers = [], pending = new Set()
-  let shot, delivered = false, eventBefore, pointer, disposed = false, moveExpected, moveOwner, movementDelivered = false, movementOrder
+  let shot, delivered = false, eventBefore, pressBefore, pointer, disposed = false, moveExpected, moveOwner, movementDelivered = false, movementOrder
   const sameScene = () => window.testSceneRef.current === scene && window.testStore.getWorld() === world && scene.world === world && scene.renderer.domElement.isConnected
   const person = u => {
     const p = owner(u), registered = world.objectCells.objects.get(u.id)
@@ -67,14 +67,16 @@ export function observeBlastEpisode(scene, options) {
   const saveFrame = (kind, effectId) => {
     if (artifacts[kind]) return
     const { png, pixels } = captureRenderedCanvas(scene)
-    const feedback = pointerFeedback(scene), frame = { turn: world.turn, kind, targetId: feedback.targetId, visible: true, lines: feedback.lines, pixels, effectId }
+    const feedback = pointerFeedback(scene), frame = { turn: world.turn, kind, targetId: feedback.targetId, visible: true, lines: feedback.lines, pixels, effectId,
+      ...(kind === 'hover' && { targetSame: world.units.find(u => u.id === target.id) === target, ownerValid: person(target).ownerValid, position: person(target).position, context: inputContext(scene),
+        point: { x: scene.pointerScreen.clientX, y: scene.pointerScreen.clientY }, renderFrame: scene.renderer.info.render.frame, observedAt: performance.now() }) }
     const vector = scene.pointerOutline.cloneNode(true), rect = scene.container.getBoundingClientRect(), path = vector.querySelector('path')
     vector.setAttribute('width', String(rect.width)); vector.setAttribute('height', String(rect.height))
     vector.style.width = ''; vector.style.height = ''; vector.style.display = 'block'
     if (path) { const style = getComputedStyle(scene.pointerPath); path.style.stroke = style.stroke; path.style.fill = style.fill; path.style.strokeWidth = style.strokeWidth }
     const svg = new XMLSerializer().serializeToString(vector)
     artifacts[kind] = { turn: world.turn, png, svg,
-      feedback, effectId, pixels, pixelScope: 'Nontransparent pixels in the actual post-render game canvas, not an isolated-effect pixel count. Review the PNG and submitted visible effect together.' }
+      feedback, frameProof: structuredClone(frame), effectId, pixels, pixelScope: 'Nontransparent pixels in the actual post-render game canvas, not an isolated-effect pixel count. Review the PNG and submitted visible effect together.' }
     if (kind !== 'hover' && kind !== 'ack') { evidence.frame(frame); return }
     // Rasterize a detached snapshot of the actual SVG and its computed stroke.
     // Never redraw, hide or alter a live game mesh or DOM element for pixel counts.
@@ -111,9 +113,16 @@ export function observeBlastEpisode(scene, options) {
     const impact = report.impact && world.effects.find(e => e.id === report.impact.flash.id)
     if (impact && onScreen(impact)) saveFrame('impact', impact.id)
   })
+  const capturePress = event => {
+    if (event.button !== 0) return
+    pressBefore = { turn: world.turn, observedAt: performance.now(), mode: world.mode, trusted: event.isTrusted,
+      canvasOwned: event.target === scene.renderer.domElement && document.elementFromPoint(event.clientX, event.clientY) === scene.renderer.domElement,
+      point: { x: event.clientX, y: event.clientY }, context: inputContext(scene), position: person(target).position,
+      targetSame: world.units.find(u => u.id === target.id) === target, ownerValid: person(target).ownerValid }
+  }
   const capture = event => {
     if (event.button !== 0 || event.type !== 'pointerup') return
-    eventBefore = { point: { x: event.clientX, y: event.clientY }, turn: world.turn, targetId: target.id, mode: world.mode, trusted: event.isTrusted,
+    eventBefore = { observedAt: performance.now(), press: structuredClone(pressBefore), point: { x: event.clientX, y: event.clientY }, turn: world.turn, targetId: target.id, mode: world.mode, trusted: event.isTrusted,
       canvasOwned: event.target === scene.renderer.domElement && document.elementFromPoint(event.clientX, event.clientY) === scene.renderer.domElement,
       context: inputContext(scene), stockBefore: world.shots.blast, castCountBefore: world.stats.cast }
     if (delivered) {
@@ -158,6 +167,7 @@ export function observeBlastEpisode(scene, options) {
   }
   const canvas = scene.renderer.domElement
   // Register the capture before the generic pointer observer; both precede the real handler.
+  canvas.addEventListener('pointerdown', capturePress, true)
   canvas.addEventListener('pointerup', capture, true)
   pointer = observeEntityPointer(scene, document, { id: target.id, collection: 'units' })
   canvas.addEventListener('pointerup', release, false)
@@ -184,7 +194,7 @@ export function observeBlastEpisode(scene, options) {
     hover: value => evidence.hover(value),
     trigger: turn => {
       if (turn > world.turn || world.turn - turn > 4) throw Error('Stale actual response trigger')
-      evidence.trigger(turn)
+      evidence.trigger(turn, performance.now())
     },
     read: () => ({ report: evidence.report(), artifacts: structuredClone(artifacts) }),
     progress: () => evidence.report(),
@@ -192,7 +202,7 @@ export function observeBlastEpisode(scene, options) {
     dispose() {
       if (disposed) return
       disposed = true
-      canvas.removeEventListener('pointerup', capture, true); canvas.removeEventListener('pointerup', release, false)
+      canvas.removeEventListener('pointerdown', capturePress, true); canvas.removeEventListener('pointerup', capture, true); canvas.removeEventListener('pointerup', release, false)
       if (pointer) { const result = pointer.finish(); pointer = null; if (!result.restored || result.errors.length) evidence.error('Pointer cleanup failed') }
       for (const { object, key, original, descriptor, wrapper } of wrappers.reverse()) {
         if (object[key] !== wrapper) evidence.error(`Unexpected observer replacement: ${key}`)

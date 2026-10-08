@@ -37,12 +37,25 @@ before the cast. Keep the same selected Brave. Candidate preparation still needs
 its owned5×5, distance>=7 margin,16-line visible hover and validated natural hover
 frame; baseline needs one real owned pixel. Pre-position the ordinary pointer,
 press left, make one fresh read, then release. The held interval never refreshes
-candidate hover. Candidate <=1-turn hover freshness and the shared <=4-turn trigger-to-release
-bound remain. Baseline proposal age is retained diagnostically: actual release
+candidate hover. The shared <=4-turn trigger-to-release bound remains. Preparation age is
+retained diagnostically; it does not substitute for current target evidence: actual release
 must have exactly the same original target XYZ pose, pixel and context, with its
 sample/range/pixel records on that actual event turn, current owner/range and a
 trusted owned-canvas event. This replaces only the baseline proposal-age proxy,
-not its time window or any candidate hover/frame condition.
+not the four-turn window. Candidate natural-frame relation is specified below.
+The candidate natural-render hook records the real16-line frame's original
+registered target, normalized XYZ, input context, actual pixel, render frame and
+monotonic capture time. These must match the registered hover. Actual trusted
+pointer-down capture must match that target/pose/context/pixel and follow the
+natural frame; the trigger must follow the press, and the actual matching release
+must follow the trigger. Event/sample turns must agree. Capture/press/trigger/
+release chronology is checked even within one simulation turn. Missing frames,
+changed pose/context/pixel/owner, synthetic input or reversed chronology reject.
+No frame is forced or credited retroactively. The five former one-turn proxies
+were the scenario's prepared-hover and held-hover checks plus reducer trigger,
+release and hover-frame checks; they now use these explicit relations. Actual
+source range and candidate handler identity remain mandatory.
+
 Failed held preparation still uses two public Escapes, verifies mode=null and
 selection=[], then mouse-up and no additional cast/order; all cleanup is retained.
 
