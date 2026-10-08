@@ -1165,7 +1165,7 @@ function finishCast(
     fx.team = shaman.team
     fx.duration = Infinity
     w.stats.bridges++
-    tell(w, 'The earth rises. Lead your followers across the new Land Bridge.')
+    tell(w, 'Land Bridge cast.')
   } else {
     if (spell === 'flatten') {
       fx.flatten = createFlatten(w.land, nativePosition(w, p))
