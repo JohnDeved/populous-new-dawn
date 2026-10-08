@@ -1,6 +1,8 @@
 # Issue 40: ordinary zoom observation preflight
 
-Base: `86c0dd37b1a7879a84d5a55ab9bca4b14beed029`. This change adds QA only;
+Initial base: `86c0dd37b1a7879a84d5a55ab9bca4b14beed029`; integration adopts
+main `eac737a0f7411f432ed790202cde63a42e314115` (the delivered PR275 acknowledgment
+repair and its test) without altering the QA source. This change adds QA only;
 the integrated PR42 renderer is unchanged. It does not establish a new defect or
 complete issue40, issue15, or the issue87/62 hardware acceptance.
 
