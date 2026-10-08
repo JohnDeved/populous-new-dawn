@@ -42,6 +42,26 @@ already died in combat. The first live-window failure now has retained evidence.
 Source tracing supports a later terrain command clearing the person result;
 actual terrain tuples and a matching live-window image were not captured.
 
+The subsequent baseline-only diagnostic at `84bf627a` captured the exact natural
+frame used by the first eligible search: turn473/render340. Nine fresh calls
+consumed person19 at bucket1867/depth0.799025, then closer terrain triangles31998
+and31743 at buckets1734/1727 and depths0.727248/0.723586. The matching PNG shows the
+foreground ridge covering the sampled target bounds. This establishes terrain
+occlusion for those actual samples; no picker/render ordering defect was shown.
+The diagnostic stopped with no cast and earns no ordinary acceptance.
+
+One prospective public camera adjustment now precedes the Shaman's ground command:
+a single right drag of512 pixels, in16 integer32px steps, after original Shaman
+selection and before the first minimap approach. It reuses the Erosion driver's
+owned-canvas corridor and guaranteed mouse-up pattern. `pointerMove` calls
+`dragCamera` with horizontal displacement and default zero momentum, yielding
+exactly512 native angle units, a quarter-turn, with no center translation. The
+moved right release returns before cancellation. Trusted event records and
+`camera-rotation.json` must confirm exact settled angle/center, zero velocity,
+original selection, null mode and unchanged lastOrderTurn. There is no angle sweep or second rotation;
+positive pixels at the new view remain prospective. The passive diagnostic is
+still available if that view fails, with all range/motion/cast gates unchanged.
+
 The revised proposal keeps public Mission2 entry, introduction skip, original
 Blue Shaman HUD selection and one real ground movement command toward `(58,108)`.
 It faces the actual response corridor near `(122,122)` immediately after the move
