@@ -1,8 +1,9 @@
 // Serialized into the real browser. Reads cached presentation state only.
 // Hooks retain state and already-rendered pixels; the host owns all UI input.
 export function installMission1VaultWitness() {
-  const scene = window.testSceneRef.current, world = scene.world, restorers = []
+  const scene = window.testSceneRef.current, world = scene.world, clock = scene.gameClock, restorers = []
   if (world !== window.testStore.getWorld()) throw Error('Scene/store identity mismatch')
+  if (!Number.isSafeInteger(clock.animationFrame) || clock.animationFrame < 0) throw Error('Missing presentation clock counter')
   const vault = world.shrines.find(s => s.kind === 'vault' && s.mode === 4 && s.reward === 'camp' && s.x === -5 && s.z === -3)
   if (!vault || world.outcome.level !== 1) throw Error('Authored Mission 1 camp Vault required')
   const evidence = window.vaultEvidence = { vaultId: vault.id, giftId: null, arm: 'preflight',
@@ -13,7 +14,8 @@ export function installMission1VaultWitness() {
     recipient: gift.recipient, independentGlow: gift.animation !== vault.knowledgeGlow, animation: gift.animation && { ...gift.animation }, sprite: gift.sprite && { ...gift.sprite } }
   const state = () => {
     if (scene.world !== world || window.testStore.getWorld() !== world) throw Error('Observer scene/store World changed')
-    return { turn: world.turn, time: world.time, paused: world.paused, speed: world.speed,
+    return { turn: world.turn, time: world.time, paused: world.paused, speed: world.speed, landFlags: world.land.landFlags,
+    presentationClock: { sameOwner: scene.gameClock === clock, animationFrame: clock.animationFrame },
     camp: world.unlockedCamp, shrine: { active: vault.active, remaining: vault.remaining,
       glow: vault.knowledgeGlow && { ...vault.knowledgeGlow } },
     gift: copyGift(world.gifts.find(g => g.id === evidence.giftId)) }
@@ -27,6 +29,40 @@ export function installMission1VaultWitness() {
       scale: c.scale.toArray(), center: c.center?.toArray() })) }
   const rendered = () => ({ state: state(), marker: presentation(scene.shrineMeshes.get(vault.id)?.g.userData.vaultKnowledgeMarker),
     gift: presentation(scene.fxMeshes.get(evidence.giftId)) })
+  const validateBirth = (stage, snapshot) => {
+    const born = stage.afterTurn, now = snapshot.state, initial = born.gift, gift = now.gift,
+      start = born.presentationClock, end = now.presentationClock,
+      visits = end.animationFrame - start.animationFrame,
+      validClock = start.sameOwner && end.sameOwner && Number.isSafeInteger(start.animationFrame) &&
+        start.animationFrame >= 0 && Number.isSafeInteger(end.animationFrame) && Number.isSafeInteger(visits) && visits >= 0
+    // game-clock.ts increments this independent counter after every presentation visit.
+    // Draw43 latches before step4, wrapping its quarter-frame cursor at56.
+    stage.presentation = { birthClock: start, firstRenderClock: end, visits,
+      expectedCursor: validClock ? (visits % 14) * 4 : null,
+      expectedLatch: validClock ? (visits ? (visits - 1) % 14 : 0) : null,
+      expectedHfx: validClock ? 1417 + (visits ? (visits - 1) % 14 : 0) : null }
+    const failures = [], reject = message => failures.push(message)
+    if (!validClock) reject('Presentation clock identity/counter changed')
+    if (initial?.frame !== 1077 || initial?.animation?.object !== 1417 || initial?.animation?.draw !== 43 ||
+        initial?.animation?.f1 !== 0 || initial?.sprite?.frame !== 0 || !initial?.independentGlow ||
+        initial?.phase !== 6 || initial?.remaining !== 82)
+      reject('Birth must initialize independent HFX1077/draw43 cursor0/latch0 at phase6/remaining82')
+    if (born.paused || now.paused || born.landFlags & 2 || now.landFlags & 2)
+      reject('Birth-to-render animation eligibility changed')
+    if (!snapshot.gift?.visible || !snapshot.gift?.glow?.visible || !(gift?.phase > 0) ||
+        now.turn - born.turn < 0 || now.turn - born.turn >= 6)
+      reject('Missed visible birth: first actual render must precede six-visit hide')
+    if (!gift || gift.id !== initial?.id || snapshot.gift?.body !== 1077 || snapshot.gift?.family !== 'hfx')
+      reject('First actual birth render must show the owned HFX1077 body')
+    if (validClock && (gift?.animation?.f1 !== stage.presentation.expectedCursor ||
+        gift?.sprite?.frame !== stage.presentation.expectedLatch || snapshot.gift?.glow?.frame !== stage.presentation.expectedHfx))
+      reject('First actual birth cursor/latch/HFX must match independent presentation visits')
+    stage.validationErrors = failures
+    if (failures.length) {
+      stage.missedRender = structuredClone(snapshot)
+      evidence.errors.push(...failures)
+    }
+  }
   const wrap = (owner, key, factory) => {
     const own = Object.hasOwn(owner, key), original = owner[key], replacement = factory(original)
     if (typeof original !== 'function') throw Error(`Missing callback ${key}`)
@@ -70,24 +106,14 @@ export function installMission1VaultWitness() {
     if (args[0] === scene.scene && args[1] === scene.camera) observe(() => {
       evidence.frames++
       if (pendingRenders.length) {
-        const canvas = scene.renderer.domElement, snapshot = rendered()
+        const canvas = scene.renderer.domElement, snapshot = rendered(), stages = pendingRenders.splice(0)
+        for (const stage of stages) evidence.stages[stage].postRender = structuredClone(snapshot)
         if (!(canvas.width > 0 && canvas.height > 0 && canvas.width * canvas.height <= 2_000_000))
           throw Error('Rendered canvas exceeds declared capture bound')
         const pixels = canvas.toDataURL('image/png')
-        for (const stage of pendingRenders.splice(0)) {
-          if (stage === 'birth' && (!snapshot.gift?.visible || snapshot.state.gift?.phase <= 0)) {
-            evidence.stages.birth.missedRender = structuredClone(snapshot)
-            evidence.errors.push('Missed visible birth: birth and retirement preceded the first actual render')
-            continue
-          }
-          if (stage === 'birth' && (snapshot.gift.body !== 1077 || snapshot.gift.glow?.frame !== 1417)) {
-            evidence.stages.birth.missedRender = structuredClone(snapshot)
-            evidence.errors.push('First actual birth render must show HFX1077 and HFX1417')
-            continue
-          }
-          evidence.stages[stage].postRender = structuredClone(snapshot)
-          window.vaultRenderedPixels[stage] = pixels
-        }
+        // Retain the first actual render even when its validation fails.
+        for (const stage of stages) window.vaultRenderedPixels[stage] = pixels
+        if (stages.includes('birth')) validateBirth(evidence.stages.birth, snapshot)
       }
     })
     return result
