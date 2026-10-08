@@ -142,6 +142,10 @@ export function observeBlastEpisode(scene, options) {
   canvas.addEventListener('pointerup', release, false)
   return {
     hover: value => evidence.hover(value),
+    trigger: turn => {
+      if (turn > world.turn || world.turn - turn > 4) throw Error('Stale actual response trigger')
+      evidence.trigger(turn)
+    },
     read: () => ({ report: evidence.report(), artifacts: structuredClone(artifacts) }),
     progress: () => evidence.report(),
     settled: () => Promise.all([...pending]),

@@ -69,6 +69,10 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
       window.blastOriginal = { scene, world, actor, target }
       const { observeBlastSetup } = await import('/qa/blast-ordinary/setup-observer.mjs')
       const { currentPersonOrder } = await import('/app/person-orders.ts')
+      const { observeBlastEpisode, responseSnapshot, pointerFeedback } = await import('/qa/blast-ordinary/observer.mjs')
+      const { observeEntityPointer, findEntityInput, inspectEntityPoint } = await import('/qa/erosion-ordinary/input.mjs')
+      const { spellTargetError } = await import('/app/model.ts'), { wrappedDistance } = await import('/app/world-coordinates.ts')
+      window.blastHelpers = { observeBlastEpisode, responseSnapshot, pointerFeedback, observeEntityPointer, findEntityInput, inspectEntityPoint, spellTargetError, wrappedDistance }
       window.blastSetup = observeBlastSetup(scene, actor, { currentOrder: (w, p) => currentPersonOrder(w.buildingOrders, p) })
       if (window.blastSetup.read().errors.length) throw Error('Setup observation could not attach')
     })
@@ -94,10 +98,7 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
     }, approach)
     assert.ok(ground, 'No real ordinary ground move at the bounded approach')
     const groundBefore = await current()
-    await page.evaluate(async () => {
-      const { observeEntityPointer } = await import('/qa/erosion-ordinary/input.mjs')
-      window.blastGround = observeEntityPointer(window.testSceneRef.current)
-    })
+    await page.evaluate(() => { window.blastGround = window.blastHelpers.observeEntityPointer(window.testSceneRef.current) })
     await input('approach-ground', ground, () => page.mouse.click(ground.x, ground.y))
     const groundAfter = await current(), groundPointer = await page.evaluate(() => {
       const result = window.blastGround.finish(); window.blastGround = null; return result
@@ -117,14 +118,17 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
     await view({ x: 122, z: 122 })
     const state = await current(); healthy(state)
     const target = { id: 19 }
+    await page.evaluate(options => {
+      window.blastEpisode = window.blastHelpers.observeBlastEpisode(window.testSceneRef.current, options)
+    }, { expectation, actorId: state.actor.id, targetId: target.id, runId: receipt.profile.runId, sourceFingerprint: receipt.source.fingerprint, maxTurns: 48 })
+    attached = true
     await input('blast-key', {}, () => page.keyboard.press('1'))
     assert.equal((await current()).mode, 'blast')
     let prior, trigger
     await poll(async () => {
       healthy(await current())
-      const observed = await page.evaluate(async () => {
-        const s = window.testSceneRef.current, { responseSnapshot } = await import('/qa/blast-ordinary/observer.mjs')
-        const { spellTargetError } = await import('/app/model.ts'), { wrappedDistance } = await import('/app/world-coordinates.ts')
+      const observed = await page.evaluate(() => {
+        const s = window.testSceneRef.current, { responseSnapshot, spellTargetError, wrappedDistance } = window.blastHelpers
         const response = responseSnapshot(s), p = response[0], actor = window.blastOriginal.actor
         const probe = structuredClone(s.world), target = p && probe.units.find(u => u.id === p.id)
         return { turn: s.world.turn, response, distance: p ? wrappedDistance(actor, p) : null,
@@ -136,21 +140,15 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
       if (!trigger) prior = observed
       return !!trigger
     }, limits.approachMs, 'healthy original response Warrior19 moving inside actual Blast range')
-    save('target-setup.json', { prior, trigger, target, state: await current(), releaseWithinTurns: 4 })
-    await page.evaluate(async options => {
-      const setup = window.blastSetup.finish()
-      if (!setup.cleanupVerified || setup.errors.length) throw Error('Setup observer cleanup failed')
-      const { observeBlastEpisode } = await import('/qa/blast-ordinary/observer.mjs')
-      window.blastEpisode = observeBlastEpisode(window.testSceneRef.current, options)
-    }, { expectation, actorId: state.actor.id, targetId: target.id, runId: receipt.profile.runId, sourceFingerprint: receipt.source.fingerprint, maxTurns: 48, triggerTurn: trigger.turn })
-    attached = true
+    await page.evaluate(turn => window.blastEpisode.trigger(turn), trigger.turn)
+    save('target-setup.json', { prior, trigger, target, releaseWithinTurns: 4 })
     let hit, hover
     await poll(async () => {
       assert.ok((await current()).turn <= trigger.turn + 4, 'Response release window expired; stop without casting')
-      hit = await page.evaluate(async id => {
+      hit = await page.evaluate(id => {
         const s = window.testSceneRef.current, u = s.world.units.find(u => u.id === id && u.hp > 0 && u.inside === null), box = s.picking.personBounds(id)
         if (!u || !box) return null
-        const { findEntityInput, inspectEntityPoint } = await import('/qa/erosion-ordinary/input.mjs'), { spellTargetError } = await import('/app/model.ts')
+        const { findEntityInput, inspectEntityPoint, spellTargetError } = window.blastHelpers
         // Native position/terrain synchronization runs only on this detached clone.
         const probe = structuredClone(s.world)
         if (spellTargetError(probe, 'blast', probe.units.find(p => p.id === id)) || !s.world.shots.blast) return null
@@ -160,8 +158,8 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
       }, target.id)
       if (!hit) return false
       await input('person-hover', { id: target.id, hit }, () => page.mouse.move(hit.x, hit.y))
-      hover = await page.evaluate(async ({ id, prior }) => {
-        const s = window.testSceneRef.current, { pointerFeedback, responseSnapshot } = await import('/qa/blast-ordinary/observer.mjs')
+      hover = await page.evaluate(({ id, prior }) => {
+        const s = window.testSceneRef.current, { pointerFeedback, responseSnapshot } = window.blastHelpers
         const p = responseSnapshot(s).find(p => p.id === id), old = prior.response.find(p => p.id === id)
         const event = s.pointerScreen, actual = event && s.picking.pickPerson(event), feedback = pointerFeedback(s)
         if (!p || !old || !event || actual !== id) return null
@@ -172,12 +170,11 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
       return hover && (expectation === 'candidate' ? hover.visible && hover.lines === 16 : !hover.visible)
     }, limits.targetMs, 'real person hit and declared hover phenotype')
     await page.evaluate(hover => window.blastEpisode.hover(hover), hover)
-    if (expectation === 'candidate') await poll(() => page.evaluate(() => window.blastEpisode.progress().frames.some(f => f.kind === 'hover')), 2000, 'rendered hover frame')
     // Re-read the moving person hit immediately before a single dispatched click.
-    const fresh = await page.evaluate(async id => {
-      const s = window.testSceneRef.current, { pointerFeedback, responseSnapshot } = await import('/qa/blast-ordinary/observer.mjs')
+    const fresh = await page.evaluate(id => {
+      const s = window.testSceneRef.current, { pointerFeedback, responseSnapshot, spellTargetError } = window.blastHelpers
       const p = responseSnapshot(s).find(p => p.id === id), event = s.pointerScreen
-      const { spellTargetError } = await import('/app/model.ts'), probe = structuredClone(s.world)
+      const probe = structuredClone(s.world)
       return { turn: s.world.turn, id: event && s.picking.pickPerson(event), p, feedback: pointerFeedback(s),
         targetError: p ? spellTargetError(probe, 'blast', probe.units.find(u => u.id === id)) : 'missing target' }
     }, target.id)
@@ -197,16 +194,6 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
     await page.screenshot({ path: resolve(output, 'terminal.png') })
   } catch (error) { primaryError = error }
   finally {
-    if (setupAttached) {
-      try {
-        const setup = await page.evaluate(() => {
-          const ground = window.blastGround?.finish(); window.blastGround = null
-          return { ...window.blastSetup.finish(), ground }
-        })
-        save('setup-trace.json', setup)
-        if ((!setup.cleanupVerified || setup.errors.length || setup.ground?.errors.length) && !primaryError) primaryError = Error('Setup observation/cleanup failed')
-      } catch (error) { primaryError ??= error }
-    }
     if (attached) {
       try {
         const terminal = await page.evaluate(async () => { window.blastEpisode.dispose(); await window.blastEpisode.settled(); return window.blastEpisode.read() })
@@ -220,6 +207,16 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
           delete artifact.bracketPng
           delete artifact.png; delete artifact.svg
         }
+      } catch (error) { primaryError ??= error }
+    }
+    if (setupAttached) {
+      try {
+        const setup = await page.evaluate(() => {
+          const ground = window.blastGround?.finish(); window.blastGround = null
+          return { ...window.blastSetup.finish(), ground }
+        })
+        save('setup-trace.json', setup)
+        if ((!setup.cleanupVerified || setup.errors.length || setup.ground?.errors.length) && !primaryError) primaryError = Error('Setup observation/cleanup failed')
       } catch (error) { primaryError ??= error }
     }
     save('episode.json', { expectation, source: receipt.source, profileId: receipt.profile.id, runId: receipt.profile.runId, limits, actions, ...result,

@@ -28,21 +28,27 @@ model command, found Warrior19 at turn423 with Shaman100HP, distance7.643 and a
 valid spell target. An immediate public-model cast canceled the travel order;
 the Warrior moved through six windup visits and two flight visits, with impact
 at turn432. A declared12-turn delayed cast also succeeded, but the target stopped
-before flight, so that arm does not satisfy this episode. These are controlled
-port-model observations, not original timing or ordinary browser results.
+before flight, so that arm does not satisfy this episode. A separately reviewed
+four-turn arm cast at427: the target moved during all six windup visits and both
+flight visits, impact occurred at436, and the Shaman retained100HP. These are
+controlled port-model observations, not original timing or ordinary browser results.
 
 The revised browser trigger requires the same living outdoor class1/nondeleted
 Warrior19, actual movement across two distinct normal-turn observations, no fight,
 fresh detached-clone `spellTargetError === null`, and distance at least7. It uses
 the first qualifying observation; release must follow within four simulation
 turns, with fresh pointer, movement and range checks. Missing that window fails
-without casting. This is a prospective timing bound, not a measured browser result.
+without casting. The four-turn limit has the controlled model witness above; browser delivery
+within that limit remains prospective.
 
 Passive setup telemetry retains up to96 before/after turn-boundary snapshots and
 the first identity/health failure. Ground dispatch records the real pointer
 handler's picks, selected recipient, actual model3 order/payload, acknowledgement
-and new order marker. The setup observer restores its exact callbacks before the
-cast observer attaches. No world, resources, original identities, simulation clock
+and new order marker. Both observers attach before the range trigger. Cleanup restores the cast
+observer first, then the setup observer, in the reverse of attachment order.
+All helper imports, camera input and key arming precede the trigger. Captured
+hover rasterization finishes asynchronously; it is never awaited before release,
+and its retained capture turn must precede or equal the actual release turn. No world, resources, original identities, simulation clock
 or renderer is changed by the observations.
 
 The setup must finish before turn1800. The approach/range wait is bounded at140s,
