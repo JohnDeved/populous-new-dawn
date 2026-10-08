@@ -90,3 +90,29 @@ test('overlay disposal releases only its own texture, geometry, material and con
   assert.equal(calls.filter(([name]) => name === 'loseContext').length, 1)
   assert.throws(() => surface.draw([], 640, 480), /disposed/)
 })
+
+test('Temple mode32 is fullbright cutout and bank replacement owns only its wrapper', () => {
+  const { surface, atlas, snapshots, calls } = setup(), p = new THREE.Texture({ width: 256, height: 1024 }), disposed = []
+  const command = collectBuildingAcquisitionTriangles({ whole: false, submissions: [{
+    face: 127, transformed: [[0, 0, 500], [100, 0, 500], [100, 100, 500], [0, 100, 500]],
+    projected: [[10, 10], [110, 10], [110, 110], [10, 110]], flight: 0,
+  }] }, { width: 640, height: 480, model: 95, templeTile: 100 })
+  surface.draw(triangles(), 640, 480)
+  const first = snapshots[0].mesh.material.uniforms.atlas.value
+  first.addEventListener('dispose', () => disposed.push('old wrapper'))
+  atlas.addEventListener('dispose', () => disposed.push('shared c'))
+  p.addEventListener('dispose', () => disposed.push('shared p'))
+  surface.setAtlas(p)
+  surface.draw(command, 640, 480)
+  const second = snapshots.at(-1).mesh.material.uniforms.atlas.value
+  assert.notEqual(second, first)
+  assert.equal(second.source, p.source)
+  assert.deepEqual(snapshots.at(-1).attributes.alphaCutout.slice(0, 6), Array(6).fill(1))
+  assert.deepEqual(snapshots.at(-1).attributes.faceLight.slice(0, 6), Array(6).fill(1))
+  surface.setAtlas(p)
+  assert.equal(snapshots.at(-1).mesh.material.uniforms.atlas.value, second)
+  assert.deepEqual(disposed, ['old wrapper'])
+  assert.equal(calls.filter(([kind]) => kind === 'size').length, 1)
+  surface.dispose()
+  assert.deepEqual(disposed, ['old wrapper'])
+})

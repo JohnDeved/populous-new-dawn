@@ -65,6 +65,7 @@
         "scripts/import-hud.py",
         "scripts/import-worship-acquisition.py",
         "scripts/import-vault-knowledge.py",
+        "scripts/import-temple-acquisition.py",
         "scripts/import-vehicle-panel-icons.py",
         "scripts/import-follower-tasks.py",
         "scripts/import-minimap-frame.py",
@@ -73,6 +74,9 @@
       ],
       "inputs": ["references/native-assets.md", "decomp/sections.tsv"],
       "outputs": [
+        { "path": "app/original-temple-acquisition.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-temple-acquisition.py" },
+        { "path": "public/original/temple-model-p.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-temple-acquisition.py" },
+        { "path": "public/original/temple-sparkles-p.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-temple-acquisition.py" },
         {
           "path": "app/level-one.ts",
           "type": "file",

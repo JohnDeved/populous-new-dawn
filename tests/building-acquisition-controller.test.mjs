@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createHash } from 'node:crypto'
 import vectors from './fixtures/building-acquisition-source.json' with { type: 'json' }
+import templeVectors from './fixtures/temple-acquisition-source.json' with { type: 'json' }
 import { createWorshipAcquisitionState, startBuildingAcquisition, startWorshipAcquisition, stepWorshipAcquisition, getWorshipAcquisitionDrawCommands } from '../app/worship-acquisition.ts'
 import { random } from '../app/native-math.ts'
 const hash = value => createHash('sha256').update(JSON.stringify(value)).digest('hex')
@@ -11,13 +12,14 @@ const geometry = (target = [25, 286], origin = [420, 180]) => ({
   targetRect: { x: target[0] - 23, y: target[1] - 26, width: 46, height: 52 },
   targetHud: { x: target[0], y: target[1] }, hudScale: 1,
 })
-for (const sample of vectors.cases) test(`source-derived controller/vertices/shared RNG: ${sample.name}`, () => {
-  const state = createWorshipAcquisitionState(), rng = { randomState: sample.seed }
-  startBuildingAcquisition(state, { giftId: 900, geometry: geometry([25, 286], sample.name.endsWith('fallback') ? [370, 240] : [420, 180]) }, () => random(rng))
+for (const sample of [...vectors.cases, ...templeVectors.cases]) test(`source-derived controller/vertices/shared RNG: ${sample.name}`, () => {
+  const state = createWorshipAcquisitionState(), rng = { randomState: sample.seed },
+    model = sample.name.startsWith('95-') ? 5 : 7, target = model === 5 ? [71, 286] : [25, 286]
+  startBuildingAcquisition(state, { giftId: 900, model, geometry: geometry(target, sample.name.endsWith('fallback') ? [370, 240] : [420, 180]) }, () => random(rng))
   assert.equal(rng.randomState, sample.initialPostBuildingRng)
   for (const expected of sample.rows) {
     const [ui, paused] = expected
-    if (sample.name === `103-spell-overlap-${ui}`) startWorshipAcquisition(state, { giftId: 950, model: 3, geometry: geometry([80, 364], [250, 300]) })
+    if (sample.name === `${model === 5 ? 95 : 103}-spell-overlap-${ui}`) startWorshipAcquisition(state, { giftId: 950, model: 3, geometry: geometry([80, 364], [250, 300]) })
     const result = stepWorshipAcquisition(state, { paused: !!paused, random: () => random(rng) })
     const c = state.building, draw = state.drawCommands.find(command => command.kind === 'building')
     const actual = [ui, paused, c.phase, c.visits, draw?.whole ? 1 : 0, draw?.selected ?? [],

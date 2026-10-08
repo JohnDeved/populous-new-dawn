@@ -18,7 +18,7 @@ export interface BuildingAcquisitionController {
   phase: number
   visits: number
   pending: boolean
-  model: 103
+  model: 103 | 95
   giftId: number
   family: 'building'
   geometry: WorshipAcquisitionGeometry
@@ -46,7 +46,8 @@ export interface BuildingAcquisitionDrawCommand {
   anchor: { x: number; y: number }
   family: 'building'
   giftId: number
-  model: 7
+  model: 5 | 7
+  geometryModel: 103 | 95
   geometry: WorshipAcquisitionGeometry
   whole: boolean
   selected: number[]
@@ -55,20 +56,20 @@ export interface BuildingAcquisitionDrawCommand {
 
 // Undo the existing import's exact model scaling/reflected Z. Six-decimal
 // positions recover all original integer coordinates, verified against FACS/PNTS.
-const camp = models['103']
-export const campCorners: number[][][] = []
-for (let face = 0, vertex = 0; face < camp.faces.length; face += 2) {
-  const corners = camp.faces[face] === 3 ? [0, 1, 2] : [0, 1, 2, 5]
-  campCorners.push(
-    corners.map(corner =>
-      [0, 1, 2].map(
-        axis =>
-          Math.round(camp.p[(vertex + corner) * 3 + axis] * camp.scale * 3) * (axis === 2 ? -1 : 1)
-      )
-    )
-  )
-  vertex += corners.length === 3 ? 3 : 6
+function modelCorners(id: 103 | 95) {
+  const model = models[id], result: number[][][] = []
+  for (let face = 0, vertex = 0; face < model.faces.length; face += 2) {
+    const corners = model.faces[face] === 3 ? [0, 1, 2] : [0, 1, 2, 5]
+    result.push(corners.map(corner => [0, 1, 2].map(axis =>
+      Math.round(model.p[(vertex + corner) * 3 + axis] * model.scale * 3) * (axis === 2 ? -1 : 1)
+    )))
+    vertex += corners.length === 3 ? 3 : 6
+  }
+  return result
 }
+export const campCorners = modelCorners(103)
+export const templeCorners = modelCorners(95)
+const cornersByModel = { 103: campCorners, 95: templeCorners }
 const { trunc, imul: mul } = Math
 const dot = (a: number[], b: number[]) => (mul(a[0], b[0]) + mul(a[1], b[1]) + mul(a[2], b[2])) | 0
 const cross = (a: number[], b: number[]) => [
@@ -152,7 +153,7 @@ export function buildingGeometryVisit(controller: BuildingAcquisitionController,
   const global = globalMatrix(controller.yaw, controller.tilt)
   const selected: number[] = [],
     submissions: BuildingFaceProjection[] = []
-  for (const [index, source] of campCorners.entries()) {
+  for (const [index, source] of cornersByModel[controller.model].entries()) {
     const face = controller.faces[index]
     let points = source.map(([x, y, z]) => [x, y, z])
     if (!whole) {
@@ -215,7 +216,8 @@ export function buildingGeometryVisit(controller: BuildingAcquisitionController,
 export function initializeBuildingAcquisition(
   giftId: number,
   geometry: WorshipAcquisitionGeometry,
-  random: () => number
+  random: () => number,
+  model: 103 | 95 = 103
 ): BuildingAcquisitionController {
   const saved = structuredClone(geometry)
   saved.origin = { x: short(saved.origin.x), y: short(saved.origin.y) }
@@ -225,7 +227,7 @@ export function initializeBuildingAcquisition(
     phase: 0,
     visits: 0,
     pending: true,
-    model: 103,
+    model,
     giftId,
     family: 'building',
     geometry: saved,
@@ -243,7 +245,7 @@ export function initializeBuildingAcquisition(
     radius: 0,
     delta: 0,
     allStarted: false,
-    faces: campCorners.map(() => ({
+    faces: cornersByModel[model].map(() => ({
       threshold: 0,
       angles: [random() & 2047, random() & 2047, random() & 2047],
       heading: 0,

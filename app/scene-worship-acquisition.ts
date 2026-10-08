@@ -1,3 +1,4 @@
+import { templeArt, templeSpriteMaterial } from './temple-art.ts'
 import { BuildingAcquisitionTriangleSurface } from './building-acquisition-drawer.ts'
 import { collectBuildingAcquisitionTriangles } from './building-acquisition-triangles.ts'
 import type { GameScene } from './scene.ts'
@@ -96,7 +97,7 @@ export class WorshipAcquisitionPresentation {
         // The gift clamp still belongs to this visit when its HUD is detached.
       }
       this.failed(
-        (model === 7
+        (model === 7 || model === 5
           ? this.scene.world.worshipAcquisition.controllers.building
           : this.scene.world.worshipAcquisition.controllers.spell
         )?.giftId ?? -1,
@@ -145,13 +146,16 @@ export class WorshipAcquisitionPresentation {
   }
 
   private sprite(command: Extract<WorshipAcquisitionDrawCommand, { kind: 'sprite' }>) {
-    const key = `${command.frame}:${command.rgb}`,
+    const material = templeSpriteMaterial(command.frame, command.palette, this.scene.templeResourceSnapshot),
+      rgb = material?.rgb ?? command.rgb,
+      atlasName = material?.atlas ?? 'effects',
+      key = `${atlasName}:${command.frame}:${rgb}`,
       cached = this.sprites.get(key)
     if (cached) return cached
-    const frame = Object.values(effects.animations)
+    const frame = material?.crop ?? Object.values(effects.animations)
         .flat()
         .find(frame => frame.source === command.frame),
-      atlas = texture('effects').image as HTMLImageElement | undefined
+      atlas = texture(atlasName).image as HTMLImageElement | undefined
     if (!frame || !atlas?.complete || !atlas.naturalWidth) return null
     const canvas = document.createElement('canvas')
     canvas.width = frame.w
@@ -159,8 +163,8 @@ export class WorshipAcquisitionPresentation {
     const context = canvas.getContext('2d')!
     context.drawImage(
       atlas,
-      (frame.index % 8) * 256,
-      Math.floor(frame.index / 8) * 256,
+      'x' in frame ? frame.x : (frame.index % 8) * 256,
+      'y' in frame ? frame.y : Math.floor(frame.index / 8) * 256,
       frame.w,
       frame.h,
       0,
@@ -168,9 +172,9 @@ export class WorshipAcquisitionPresentation {
       frame.w,
       frame.h
     )
-    if (command.rgb !== 0xffffff) {
+    if (rgb !== 0xffffff) {
       const image = context.getImageData(0, 0, frame.w, frame.h),
-        color = [command.rgb >>> 16, (command.rgb >>> 8) & 255, command.rgb & 255]
+        color = [rgb >>> 16, (rgb >>> 8) & 255, rgb & 255]
       for (let i = 0; i < image.data.length; i += 4)
         for (let channel = 0; channel < 3; channel++)
           image.data[i + channel] = Math.round((image.data[i + channel] * color[channel]) / 255)
@@ -267,7 +271,10 @@ export class WorshipAcquisitionPresentation {
         )
         context.globalAlpha = 1
       } else if (command.kind === 'building') {
-        const atlas = texture('atlas'),
+        const model = command.geometryModel ?? (command.model === 5 ? 95 : 103),
+          resource = this.scene.templeResourceSnapshot
+        if (model === 95 && !resource) throw new Error('Temple screen resource is unavailable')
+        const atlas = texture(model === 95 ? templeArt.modelAtlas : 'atlas'),
           image = atlas.image as HTMLImageElement | undefined
         if (!image?.complete || !image.naturalWidth) continue
         const reference = command.geometry,
@@ -296,9 +303,10 @@ export class WorshipAcquisitionPresentation {
           // not retain the old window's visibility cuts or stretch the model.
           triangles = collectBuildingAcquisitionTriangles(
             { whole: command.whole, submissions },
-            { width, height }
+            { width, height, model, templeTile: resource?.tile }
           )
         this.buildingSurface ??= new BuildingAcquisitionTriangleSurface(atlas)
+        this.buildingSurface.setAtlas(atlas)
         context.drawImage(
           this.buildingSurface.draw(triangles, width, height, ratio),
           0,

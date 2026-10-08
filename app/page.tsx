@@ -123,7 +123,7 @@ export default function Home() {
   const shell = useRef<HTMLElement>(null)
   const hudPanel = useRef<HTMLElement>(null)
   const spellButtons = useRef(new Map<number, HTMLButtonElement>())
-  const campButton = useRef<HTMLButtonElement>(null)
+  const campButton = useRef<HTMLButtonElement>(null), templeButton = useRef<HTMLButtonElement>(null)
   const followerPress = useRef<EventTarget | null>(null)
   const loadRequest = useRef<LoadRequest | null>(null)
   const messageDetails = useRef(new Map<number, HTMLDetailsElement>())
@@ -182,7 +182,7 @@ export default function Home() {
       const root = shell.current,
         panel = hudPanel.current,
         view = viewport.current,
-        button = model === 7 ? campButton.current : spellButtons.current.get(model)
+        button = model === 7 ? campButton.current : model === 5 ? templeButton.current : spellButtons.current.get(model)
       if (!root?.isConnected || !panel?.isConnected || !view?.isConnected) return null
       const shellRect = root.getBoundingClientRect(),
         panelRect = panel.getBoundingClientRect(),
@@ -292,7 +292,7 @@ export default function Home() {
       // The scene task owns this synchronous commit; React does not call it
       // during render. Automatic native selection preserves spell/build mode.
       flushSync(() => {
-        setTab(model === 7 ? 'buildings' : 'spells')
+        setTab(model === 7 || model === 5 ? 'buildings' : 'spells')
         setHover(null)
         update()
       })
@@ -319,7 +319,8 @@ export default function Home() {
             update()
           },
           (cue, attenuation, pan, finished) => audio.current?.cue(cue, attenuation, pan, finished),
-          { select: selectAcquisitionPanel, measure: measureWorshipHud }
+          { select: selectAcquisitionPanel, measure: measureWorshipHud },
+          store.bindPresentation(world)
         )
         scene = created
         engine.current = created
@@ -1115,7 +1116,7 @@ export default function Home() {
               {BUILDINGS.map(b => (
                 <button
                   key={b.id}
-                  ref={b.id === 'camp' ? campButton : undefined}
+                  ref={b.id === 'camp' ? campButton : b.id === 'temple' ? templeButton : undefined}
                   disabled={
                     (b.id === 'camp' && !world.unlockedCamp) ||
                     (b.id === 'tower' && !world.unlockedTower) ||

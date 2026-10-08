@@ -62,7 +62,7 @@ test('unrelated, nonlocal and legacy gifts never gain M1 screen eligibility', ()
   head.mode = originalMode
   assert.equal(createGift(world, 'temple', head).buildingAcquisition, undefined)
   const other = createWorld(3)
-  assert.equal(createGift(other, 'temple', vault(other)).buildingAcquisition, undefined)
+  assert.equal(createGift(other, 'camp', vault(other)).buildingAcquisition, undefined)
   const gift = createGift(world, 'camp', head)
   gift.recipient = 1
   for (let i = 0; i < 6; i++) tick(world, 1 / 12)

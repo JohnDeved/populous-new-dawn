@@ -27,7 +27,7 @@ const freeze = value => {
 test('M1 consumes the existing 107 face groups and only modes6/7', () => {
   assert.equal(models[103].modes.length, 107)
   assert.deepEqual(models[103].modes.reduce((count, mode) => ({ ...count, [mode]: (count[mode] ?? 0) + 1 }), {}), { 6: 36, 7: 71 })
-  assert.equal(BUILDING_ACQUISITION_TRIANGLE_CAPACITY, models[103].p.length / 9)
+  assert.equal(BUILDING_ACQUISITION_TRIANGLE_CAPACITY, models[95].p.length / 9)
   const submissions = models[103].modes.map((_, index) => {
     const projection = face(index)
     if (models[103].faces[index * 2] === 3) {
@@ -36,7 +36,7 @@ test('M1 consumes the existing 107 face groups and only modes6/7', () => {
     }
     return projection
   })
-  assert.equal(collect(submissions).length, BUILDING_ACQUISITION_TRIANGLE_CAPACITY)
+  assert.equal(collect(submissions).length, models[103].p.length / 9)
   assert.throws(() => collect([face(107)]), /Invalid Mission 1/)
 })
 

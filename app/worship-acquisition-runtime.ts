@@ -88,7 +88,7 @@ export function startPendingWorshipAcquisitions(world: World, bridge: WorshipHan
     if (gift.buildingAcquisition) {
       startBuildingAcquisition(
         world.worshipAcquisition.controllers,
-        { giftId: gift.id, geometry },
+        { giftId: gift.id, geometry, model: gift.buildingAcquisition.model },
         () => random(world.cosmeticRandom)
       )
       continue
@@ -113,7 +113,7 @@ export function visitWorshipAcquisition(
     paused,
     random: () => random(world.cosmeticRandom),
   })
-  if (result.buildingPanel) reselectPanel(7)
+  if (result.buildingPanel) reselectPanel(result.buildingPanel)
   for (const arrival of result.arrivals) {
     // Native panel reopening precedes the arrival flag/handle/timer checks.
     reselectPanel(arrival.model)

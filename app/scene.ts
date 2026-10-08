@@ -1,3 +1,5 @@
+import type { PresentationBinding, SharedAniblSnapshot } from './shared-anibl.ts'
+import { templeArt } from './temple-art.ts'
 import type { TransportKind } from './hud-transports.ts'
 import type { FollowerTask } from './hud-tasks.ts'
 import { syncSecondaryReservations } from './scene-secondary-effects.ts'
@@ -281,9 +283,15 @@ export class GameScene {
       this.projectileMotion.afterTurn(this.world)
       this.worshipPresentation.handoffs()
     },
-    worshipVisit: () => this.worshipPresentation.visit(),
+    worshipVisit: () => {
+      if (this.presentationBinding && !this.presentationBinding.isCurrent()) return
+      this.presentationBinding?.advance()
+      this.worshipPresentation.visit()
+    },
     presentationHidden: () => document.hidden,
   }
+  templeResourceSnapshot: SharedAniblSnapshot | null = null
+  private presentationBinding?: PresentationBinding
   worshipPresentation: WorshipAcquisitionPresentation
   terrainVersion = -1
   treeSignature = ''
@@ -314,8 +322,13 @@ export class GameScene {
       pan?: number,
       finished?: () => void
     ) => (() => void) | void,
-    worshipHud?: WorshipHudBridge
+    worshipHud?: WorshipHudBridge,
+    presentationBinding?: PresentationBinding
   ) {
+    this.presentationBinding = presentationBinding
+    this.templeResourceSnapshot = presentationBinding?.snapshot() ?? null
+    if (world.outcome.level === 3 && !this.templeResourceSnapshot)
+      throw new Error('Mission 3 requires its presentation resource binding')
     this.container = container
     this.mini = minimap
     this.portrait = portrait
@@ -342,6 +355,9 @@ export class GameScene {
         nativeUnits.atlas === 'atlas' ? atlasAsset : retryFailedTexture(nativeUnits.atlas),
       knowledgeAtlas = vaultKnowledgeAtlas(world.outcome.level),
       knowledgeAtlasAsset = knowledgeAtlas ? retryFailedTexture(knowledgeAtlas) : null,
+      templeAssets = world.outcome.level === 3
+        ? [templeArt.modelAtlas, templeArt.sparkleAtlas].map(name => [name, retryFailedTexture(name), true] as const)
+        : [],
       preload = (
         [
           ['effects', loadTexture('effects'), false],
@@ -350,6 +366,7 @@ export class GameScene {
           ['atlas', atlasAsset, true],
           [nativeUnits.atlas, unitAtlasAsset, true],
           ...(knowledgeAtlasAsset ? [[knowledgeAtlas!, knowledgeAtlasAsset, true] as const] : []),
+          ...templeAssets,
         ] as const
       ).map(([name, asset, required]) =>
         asset.ready.then(loaded => {
@@ -467,6 +484,7 @@ export class GameScene {
     this.worshipPresentation = new WorshipAcquisitionPresentation(this, worshipHud)
   }
   start() {
+    if (this.presentationBinding && !this.presentationBinding.isCurrent()) return false
     if (this.started) return true
     if (this.disposed || this.terrainLoad.signal.aborted) return false
     this.started = true
@@ -695,6 +713,7 @@ export class GameScene {
     playWorldSounds(this)
   }
   animate = (now: number) => {
+    if (this.disposed || (this.presentationBinding && !this.presentationBinding.isCurrent())) return
     if (this.renderer.getPixelRatio() !== Math.min(devicePixelRatio, 1.8)) this.setSize()
     const previous = this.previous ?? now,
       skyTicks = Math.imul(Math.max(0, Math.floor(now) - Math.floor(previous)), 64) >>> 0,
@@ -703,6 +722,7 @@ export class GameScene {
     this.previous = now
     syncSecondaryReservations(this)
     advanceGame(this.world, this.gameClock, dt)
+    this.templeResourceSnapshot = this.presentationBinding?.snapshot() ?? null
     this.playWorldSounds()
     this.updateTerrainFrame()
     this.updateDecorationsFrame()
@@ -780,6 +800,7 @@ export class GameScene {
   dispose() {
     if (this.disposed) return
     this.disposed = true
+    this.presentationBinding?.release()
     if (this.frame) cancelAnimationFrame(this.frame)
     for (const stop of this.ownedSounds.values()) stop()
     this.ownedSounds.clear()
