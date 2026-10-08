@@ -2,9 +2,10 @@
 const gates = ['response', 'live', 'moving', 'range', 'camera', 'body', 'pixel', 'phenotype']
 const pixelCounts = ['canvasOwned', 'outsideCanvas', 'targetHit', 'nullHit', 'otherHit']
 
-export function createBlastPreparation({ targetId, capacity = 96 }) {
+export function createBlastPreparation({ targetId, capacity = 96, maximumSetupTurn = 1800 }) {
   if (!Number.isInteger(targetId) || targetId < 1) throw Error('Preparation targetId must be a positive integer')
   if (!Number.isInteger(capacity) || capacity < 1 || capacity > 96) throw Error('Preparation capacity must be 1..96')
+  if (!Number.isInteger(maximumSetupTurn) || maximumSetupTurn < 1 || maximumSetupTurn > 1800) throw Error('Preparation maximumSetupTurn must be 1..1800')
   const rows = [], firstFailures = Object.fromEntries(gates.map(gate => [gate, null]))
   const inspectionTotals = { reads: 0, total: 0, ...Object.fromEntries(pixelCounts.map(key => [key, 0])), sampleCount: 0 }
   let total = 0, dropped = 0, firstLiveResponse = null, lastLiveResponse = null
@@ -12,15 +13,16 @@ export function createBlastPreparation({ targetId, capacity = 96 }) {
 
   const terminalReason = (row, response) => {
     const body = row.renderedBody
-    if (body?.inside !== null && body?.inside !== undefined) return 'target-housed'
     if (typeof body?.hp === 'number' && body.hp <= 0) return 'target-dead'
     if (body?.originalTargetPresent === false) return 'target-removed'
     if (body?.sameIdIsOriginal === false || body?.targetId != null && body.targetId !== targetId) return 'target-replaced'
     if (body?.activeNative && body.activeNative.flags2 & 1) return 'target-removed'
+    if (firstLiveResponse && body?.inside !== null && body?.inside !== undefined) return 'target-housed'
     if (firstLiveResponse && !response) return 'response-ended'
+    if (row.turn >= maximumSetupTurn) return 'setup-turn-limit'
     return null
   }
-  const read = () => structuredClone({ version: 1, targetId, capacity, total, dropped, rows,
+  const read = () => structuredClone({ version: 1, targetId, capacity, maximumSetupTurn, total, dropped, rows,
     firstLiveResponse, lastLiveResponse, firstInRangeResponse, firstPixelMiss,
     firstFailures, inspectionTotals, firstTerminal, stopReason })
 
@@ -31,6 +33,7 @@ export function createBlastPreparation({ targetId, capacity = 96 }) {
       if (stopReason) return { stopReason }
       if (!observation || typeof observation !== 'object' || Array.isArray(observation)) throw Error('Preparation observation must be a copied row')
       const row = structuredClone(observation)
+      if (!Number.isInteger(row.turn) || row.turn < 0) throw Error('Actual preparation turn required')
       const response = row.response?.find(person => person.id === targetId && person.orderModel === 19)
       const state = row.state, body = row.renderedBody
       stopReason = terminalReason(row, response)

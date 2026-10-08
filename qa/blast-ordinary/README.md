@@ -2,7 +2,7 @@
 
 Prepared from runtime freeze `4635c1acc9b66c1d54e5e2bc7cad4b88fa30754b` and
 read against the reviewed lifetime repair `7c3ac608917d0b6a3a6c4c779460953905f2738e`.
-The revised driver is prospective. Four baseline attempts failed before casting;
+The revised driver is prospective. Five baseline attempts failed before casting;
 no ordinary Blast episode has passed. Pure helper tests and controlled model probes
 are not ordinary episodes, native comparisons or parity awards.
 
@@ -30,6 +30,10 @@ last96 pointer rows begin at1667, after Warrior19 was housed in building71;
 all have absent response/bounds and zero inspections. Earlier live response rows
 were evicted. Those late rows cannot identify the first unmet pointer predicate,
 and no new hover action does not prove every earlier existing-pointer hit was null.
+Baseline `03472e2f` then stopped at its first preparation read, turn309: the original
+Warrior19 was alive with90HP and housed in building71, with zero pixel inspections.
+No outdoor response had yet been observed. The stop wrongly treated initial
+housing as the end of a response; that failed attempt remains preserved.
 
 The revised proposal keeps public Mission2 entry, introduction skip, original
 Blue Shaman HUD selection and one real ground movement command toward `(58,108)`.
@@ -72,10 +76,17 @@ browser delivery remains prospective. `pointer-preparation.json` retains the las
 response, first failed examples for eight fixed gates, and the first pixel miss
 when live/movement/range/camera requirements already hold. Missing bounds or body
 feedback do not suppress that pixel-miss record. Aggregate inspection counts cover
-all accepted rows. The first target housing, death, removal, replacement, or loss
-of an already observed model19 response stops setup immediately and is retained;
-it does not wait for turn1800 or rearm on a later response. Initial absent response
-alone can wait within the original setup limits. Each row includes bounds, hit
+all accepted rows. Once an outdoor model19 response has actually been observed,
+its loss or the target returning indoors stops setup immediately and is retained;
+it does not wait for turn1800 or rearm on a later response. Initial housing or
+absent response can wait within the original setup limits. Death, removal,
+deletion and identity replacement still stop immediately in either phase. The
+same exclusive turn1800 deadline is passed to the preparation reducer, so initial
+housing cannot wait indefinitely. This follows the existing source chronology:
+`buildingCounterattack` in `app/live-building-combat.ts` includes nearby building
+occupants and assigns model19 after a hostile scan; live-person initialization
+releases occupants for their new order. The initial housed state is therefore
+not evidence of a completed response. Each row includes bounds, hit
 candidates, feedback, identity/range gate fields, read duration and bounded results
 from the existing inspections. Rendered-body
 visibility/pickability/frame, exact active animation-source model/render flags,

@@ -18,7 +18,7 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
   mkdirSync(commands)
   const limits = { wallMs: 240000, approachMs: 140000, cameraMs: 15000, castMs: 10000, maximumSetupTurn: 1800 }
   let attached = false, setupAttached = false, primaryError, result
-  const preparation = createBlastPreparation({ targetId: 19 })
+  const preparation = createBlastPreparation({ targetId: 19, maximumSetupTurn: limits.maximumSetupTurn })
   let admittedObservation
   const save = (name, data) => writeFileSync(resolve(output, name), JSON.stringify(data, null, 2) + '\n')
   const checkStop = async () => {
