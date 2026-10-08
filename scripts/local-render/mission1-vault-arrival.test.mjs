@@ -24,7 +24,7 @@ function fixture() {
   const u = { id: 30, kind: 'shaman', team: 'blue', hp: 100, native: p, x: p.x / 256 - 8,
     z: -(p.y << 16 >> 16) / 256 - 8, inside: null, work: null, lift: 0, casting: null, fight: null, path: [{ ...point }] }
   const w = { turn: 200, time: 200 / 12, paused: false, status: 'playing', lastOrderTurn: 200,
-    units: [u], buildingOrders: { records: [null, order] }, pathfinding: { people: new Map([[30, p]]) } }
+    units: [u], objectCells: { objects: new Map([[30, p]]) }, buildingOrders: { records: [null, order] }, pathfinding: { people: new Map([[30, p]]) } }
   const calls = [], before = function (...args) { calls.push(['before', this === scene.gameClock, args]); return 10 }
   const after = function (...args) { calls.push(['after', this === scene.gameClock, args]); return 11 }
   const scene = { world: w, gameClock: { beforeTurn: before, afterTurn: after } }
@@ -63,6 +63,7 @@ test('legitimate diagonal native completion replaces the extra Euclidean helper 
   const after = structuredClone(f.w), e = window.restoreMission1MoveWitness()
   assert.deepEqual(f.w, after); assert.equal(e.restored, true); assert.deepEqual(e.errors, [])
   assert.ok(e.completed); assert.equal(e.completed.before.orderId, 1); assert.equal(e.completed.after.orderId, 0)
+  assert.equal(e.completed.after.registeredOwnerMatches, true)
   assert.equal(e.completed.after.nativeReached, true); assert.equal(e.completed.after.legacy.within035, false)
   assert.equal(e.completed.after.legacy.speedZero, true); assert.equal(e.completed.after.route.present, false)
   assert.equal(f.scene.gameClock.beforeTurn, f.before); assert.equal(f.scene.gameClock.afterTurn, f.after)
@@ -75,6 +76,7 @@ test('observer rejects boundary/outside, pending routes, replaced/cancelled orde
     f => { f.complete(); f.p.commands[1] = 2 }, f => { f.complete(); f.p.state = 1 },
     f => { f.complete(); f.p.flags4 |= 0x10000000 },
     f => { f.u.native = { ...f.p } }, f => { f.p.model = 6 },
+    f => { f.w.objectCells.objects.set(30, { ...f.p }) },
     f => { f.complete(); f.p.counter = 205 },
     f => { f.w.lastOrderTurn++ }, f => { f.w.buildingOrders.records[1].flags |= 1 },
     f => { f.w.buildingOrders.records[1].a++ },

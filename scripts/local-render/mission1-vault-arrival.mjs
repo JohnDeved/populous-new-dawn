@@ -20,6 +20,7 @@ export async function installMission1MoveWitness({ id, point, orderId, order, ac
     const distance = actor && Math.hypot(actor.x - point.x, actor.z - point.z)
     return { turn: w.turn, time: w.time, paused: w.paused, status: w.status, lastOrderTurn: w.lastOrderTurn,
       worldMatches: s.world === w && window.testStore.getWorld() === w, actorMatches,
+      registeredOwnerMatches: !!person && w.objectCells.objects.get(id) === person,
       actor: actor && { id: actor.id, kind: actor.kind, team: actor.team, hp: actor.hp, x: actor.x, z: actor.z,
         inside: actor.inside, work: actor.work, lift: actor.lift, casting: !!actor.casting, fighting: !!actor.fight,
         pathLength: actor.path.length, path: actor.path.slice(0, 8).map(p => ({ ...p })) },
@@ -32,7 +33,7 @@ export async function installMission1MoveWitness({ id, point, orderId, order, ac
         speedZero: person?.speed === 0, within035: distance < 0.35 } }
   }
   const validate = snapshot => {
-    if (!snapshot.worldMatches || !snapshot.actorMatches || snapshot.actor?.id !== id || snapshot.native?.id !== id ||
+    if (!snapshot.worldMatches || !snapshot.actorMatches || !snapshot.registeredOwnerMatches || snapshot.actor?.id !== id || snapshot.native?.id !== id ||
       snapshot.native.model !== originalModel || snapshot.actor.hp <= 0 ||
       snapshot.actor.kind !== 'shaman' || snapshot.actor.team !== 'blue') throw Error('Original movement actor/world ownership changed')
     if (snapshot.lastOrderTurn !== acknowledgedTurn) throw Error('Acknowledged movement was replaced by a later order')
