@@ -212,6 +212,17 @@ test('enemy arm consumes its actual ground primer and deferred natural hover use
   assert.notDeepEqual(delivered.report.hover.position, delivered.report.entry.target.position)
   assert.equal(delivered.report.frames.find(frame => frame.kind === 'hover').turn, 2)
   assert.equal(delivered.artifacts.hover.bracketPixels, 1); assert.equal(f.handlers(), 2)
+  // After release only the active lifecycle sample reads the target owner;
+  // preparation history must not introduce another snapshot on this boundary.
+  const nativeOwner = f.target.native
+  f.scene.gameClock.beforeTurn()
+  f.world.turn = 4; f.world.projectiles[0].remaining = 5
+  f.world.projectiles[0].blastTarget.destination = { x: nativeOwner.x, y: nativeOwner.y, h: nativeOwner.h }
+  nativeOwner.x += 10
+  let ownerReads = 0
+  Object.defineProperty(f.target, 'native', { configurable: true, get() { ownerReads++; return nativeOwner } })
+  f.scene.gameClock.afterTurn()
+  assert.equal(ownerReads, 1); assert.deepEqual(f.observer.progress().errors, [])
   f.observer.dispose(); assert.equal(f.scene.drawPointer, f.originalDraw); assert.equal(f.scene.picking.pickPerson, f.originalPick)
 })
 test('enemy primer person hit is retained and cannot arm a second person cast', t => {
