@@ -1,6 +1,6 @@
 # Proposed product slice: M1 camp screen acquisition
 
-Decision requested: implement **only Mission1's authored Warrior Training Hut
+Selected product scope: implement **only Mission1's authored Warrior Training Hut
 screen acquisition**, after review of this proposal. No app code is changed here.
 Base app tree`ba6df35a5a9fcd06b7c9004cd5a833d24f8d359c`; accepted CPU reference
 `5fedc5f6ae08c6b8223d6b989717cfff334f649c`.
@@ -23,15 +23,18 @@ Base app tree`ba6df35a5a9fcd06b7c9004cd5a833d24f8d359c`; accepted CPU reference
 - Run all face transformations and renderer-produced eligibility feedback once
   per existing logical UI visit, including the proved paused path. Produce saved
   draw commands. Uncapped RAF drawing only maps/interpolates them and consumes no
-  RNG or state. Do not change `game-clock.ts` periods or global animation ownership.
+  RNG or state. Keep clock/deadline source byte-identical. Key interpolation/cache
+  ownership by family+gift/controller+face/particle, so replacement never blends
+  from an older acquisition. No global animation ownership change.
 
 ## Limited files and rendering
 
 Extend `world-types.ts`, `world-effects.ts:createGift`, `world-turn.ts`'s phase-zero
 branch, `worship-acquisition-runtime.ts` and `worship-acquisition.ts`; put the
 building-only state/matrix/face logic in a small `building-acquisition.ts`.
-Use existing `vault-appearance.ts` source recognition with an explicit Mission1
-gate. Keep existing spell request/arrival behavior independently tested.
+Appearance recognition is not a complete provenance tag: verify the actual pinned
+record1→record2 class2/model7 link and slot once at creation, then retain it with
+an explicit Mission1 gate. Keep spell request/arrival behavior independently tested.
 
 Extend `page.tsx`'s current synchronous HUD bridge with a building target and a
 model7 button ref. Extend `scene-worship-acquisition.ts` anchor/draw ownership and
@@ -56,7 +59,9 @@ same atlas image, draw clock and disposal owner; add no autonomous render loop,
 world renderer pass or framework. A plain Canvas2D textured triangle is sufficient
 only if it preserves the proven cutout/filter/color behavior; do not silently
 replace alpha test with partially transparent edges. Check final material and
-clip/order submissions against the static contract before claiming visible parity.
+clip/order submissions against the static contract. This is implementation-ready
+source evidence. Full original GPU pixel identity is a stated limit, not another
+open-ended research gate before the bounded M1 feature can be built and verified.
 
 ## Acceptance and excluded M3 path
 
@@ -69,6 +74,17 @@ locked Buildings destination, whole/per-face screen pixels, enabled-card selecti
 and reachable pause/Save-Load/restart/resize boundaries. Carry unchanged PR269 world
 art with exact consumer correspondence. Standard check/build, TypeScript quality
 and a bounded screen workload/performance check are still required.
+
+Start with failures on the old app: newly created actual M1 source gift→sixth
+object visit→queued request→automatic HUD measurement/controller start. Add strict
+source/link/recipient negatives, M3 exclusion and untagged legacy gifts. Preserve
+passing6/82 world checks and the legacy building payout effect separately. Component
+checks then compare the126-visit CPU reference and pause/replacement vectors,
+vertices/order/materials; repeated draws must leave flags/RNG/clock unchanged.
+Cover disabled-card measurement, resize without reference-state mutation, and
+active state serialization/restore without cue/requeue/RNG replay plus normal
+restart cleanup. The ordinary driver proves the real command33 journey; supplied
+component states do not replace it. No fixture/parity re-recording is implied.
 
 **Mission3 class2 screen handoff stays disabled.** Its CPU/data proof is retained,
 but16 Temple mode32 faces require the real shared ANIBL bank2[92] phase, which the
