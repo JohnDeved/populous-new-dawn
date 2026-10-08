@@ -90,7 +90,12 @@
         "app/selection-mesh.ts",
         "app/world-picking.ts"
       ],
-      "researchPaths": ["tests/painter-order.test.mjs"],
+      "researchPaths": [
+        "tests/painter-order.test.mjs",
+        "decomp/research/blast-targeting.md",
+        "decomp/research/blast-targeting-normal-input.md",
+        "decomp/research/blast-targeting-normal-input.json"
+      ],
       "sharedPaths": ["app/model.ts", "app/scene.ts", "app/render-view.ts"],
       "entrySymbols": [
         { "path": "app/scene.ts", "symbol": "pointerUp" },
@@ -110,6 +115,7 @@
         "graphics.raster.queue"
       ],
       "evidence": [
+        { "path": "decomp/research/blast-targeting-normal-input.md", "heading": "Blast bit-clear input identity chain" },
         { "path": "decomp/research/follower-frame-alpha.md", "heading": "Disabled follower frames" },
         { "path": "decomp/research/follower-task-panel.md", "heading": "Native Followers task panel" },
         { "path": "decomp/README.md", "heading": "Native follower selection" },

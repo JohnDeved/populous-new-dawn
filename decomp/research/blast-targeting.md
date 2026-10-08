@@ -4,14 +4,24 @@ Research base: `bb5980c2bc85fdfc9bd91d5bdc58eb9866b3bebb` on `codex/worker-3-bla
 
 Canonical original executable: `/Users/johann/populous-browser/work/orchestration/ceo-release/native-run/d3dpoptb.exe`, SHA-256 `3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`.
 
-This note is a bounded issue #74 research result. No runtime, picking, HUD, spell, asset, or checkpoint source was changed. Existing native/current spell, picking, command-target, pointer-bracket, Blast-impact and Blast-wave evidence was reused. No new native execution was performed; the unresolved identity-transport bridge below remains a prerequisite for end-to-end direct-click proof.
+This note is a bounded issue #74 research result. No runtime, picking, HUD, spell, asset, or checkpoint source was changed. Existing native/current spell, picking, command-target, pointer-bracket, Blast-impact and Blast-wave evidence was reused. No new native execution was performed; the unresolved bit-set identity-transport bridge below remains a prerequisite for that special-path direct-click proof.
 
-## Result
+## Updated branch classification (2026-10-07)
+
+[The bit-clear input reassessment](blast-targeting-normal-input.md) corrects this
+original note's normal-path classification. Shipped left-release bindings select
+`0x6a/0x6b` when game flag `0x20` is clear; their explicit picked-ID packing and
+`0x4f/0x50/0x51` consumer reach spell `+0x6a`. The distinct bit-set press path
+`0xc4/0x84` below remains unresolved. Matched original Mission1–3 header setup
+and the remaining full execution boundaries are documented in the new report. This does not
+claim that `0xc4` assigns the picked ID or reopen its held native operation.
+
+## Earlier special-path result
 
 Retained evidence establishes distinct input paths and a conditional target-following mechanism, with an unresolved bridge between them:
 
 - A ground Blast and a direct object/person Blast are distinct native input paths.
-- A direct click selects an object/person, uses its click-time position and records its identity for pointer acknowledgement. Its identity transfer into the spell command remains unproved.
+- A direct click selects an object/person, uses its click-time position and records its identity for pointer acknowledgement. Its bit-set `0xc4/0x84` identity transfer remains unproved; the bit-clear release path is now statically linked in the reassessment.
 - Blast is spell model **2** and its original descriptor has flags `0x44bf`.
 - Native targeting code tests bit `0x40` of the descriptor's **high byte** at `0x5a80eb + model*0x3e`; this is full-word flag **`0x4000`**. Blast therefore has the target-following flag.
 - Static decomp shows that a supplied spell target ID persists into the class-8 shot and refreshes its destination while valid. This does not independently prove that the clicked object's ID reaches that field.
@@ -19,11 +29,11 @@ Retained evidence establishes distinct input paths and a conditional target-foll
 - The native frontend also records the clicked target ID for the same pointer-bracket acknowledgement used by normal contextual targeting. Ground Blast instead takes the zero-ID ground branch and creates the ground-click marker.
 - This is not evidence that every spell homes. The target-following behavior is descriptor-gated; issue #74 should restore Blast first and must not add blanket seeking to other spells.
 
-## Original normal input producer
+## Original bit-set input producer
 
-The shipped normal spell click is in `004aab80`, case `0xc4`.
+The bit-set spell press path is in `004aab80`, case `0xc4`; it is distinct from the bit-clear left-release path documented in the reassessment.
 
-After checking the selected spell is usable, the producer builds command `0x84`. The retained expression packs the selected spell model above the low eleven payload bits while preserving the pre-existing low bits of `local_334._2_2_`. It does **not** visibly merge the just-picked `uVar22` ID into those bits. Their provenance is unresolved. A nearby contextual-command branch explicitly merges `uVar13` into low eleven bits; that separate branch is not proof of the spell-click assignment.
+After checking the selected spell is usable, the producer builds command `0x84`. The retained expression packs the selected spell model above the low eleven payload bits while preserving the pre-existing low bits of `local_334._2_2_`. It does **not** visibly merge the just-picked `uVar22` ID into those bits. Their provenance is unresolved. The nearby spell-command cases `0x6a/0x6b` explicitly merge `uVar13` into low eleven bits. Their bit-clear identity chain is now documented separately; it is not proof of the `0xc4` assignment.
 
 The pick order is the native person hit (`unit_index_1`) and then the mixed object hit (`unit_index_2`), with the existing special exclusion for class 10 / type 16. This producer does not itself establish an enemy-only eligibility rule, so a browser repair must not invent one merely because the reported case is an enemy person.
 
@@ -38,9 +48,9 @@ Only the zero-ID ground branch allocates the immediate ground-selection marker (
 
 ### Command-consumer boundary
 
-`0043e8e0`, command `0x84`, decodes the spell model with `payloadHigh >> 11`, performs spell creation/payment work, and decrements stock. The retained evidence does not close **picked object → command `0x84` low eleven bits → spell-unit `+0x6a`**. Both the low-bit provenance in case `0xc4` and its transfer into the spell unit remain unresolved, including the local normal-entry path.
+`0043e8e0`, command `0x84`, decodes the spell model with `payloadHigh >> 11`, performs spell creation/payment work, and decrements stock. The retained evidence does not close **picked object → command `0x84` low eleven bits → spell-unit `+0x6a`**. Both the low-bit provenance in case `0xc4` and its transfer into the spell unit remain unresolved, for this bit-set path.
 
-No retained executed checker establishes this bridge. `check-native-command-target.py` covers a different contextual packet family. Before claiming end-to-end direct-click homing or implementing its identity transport as native-equivalent, establish this bridge; the downstream static mechanism alone is insufficient.
+No retained executed checker establishes this bridge. `check-native-command-target.py` covers a different contextual packet family. Before claiming end-to-end direct-click homing for the bit-set path, establish this bridge. The bit-clear path has a separate static producer/consumer proof, with matched early-mission setup and its execution limits retained.
 
 ## Original target persistence before and during flight
 
@@ -156,8 +166,8 @@ Current `cast(w, spell, p)` accepts only a point-like target.
 | Behavior | Original | Current browser |
 | --- | --- | --- |
 | Ground Blast | picked ID 0 + ground point; ground marker branch | terrain point only |
-| Direct enemy/object Blast | picked object position + acknowledgement proved; command identity bridge unresolved | object identity discarded in spell mode |
-| Moving supplied target | static decomp: supplied spell ID reaches class-8 shot and refreshes destination; clicked-ID provenance unresolved | fixed destination; no target ID |
+| Direct enemy/object Blast | picked object position + acknowledgement; bit-clear identity chain linked, bit-set bridge unresolved | object identity discarded in spell mode |
+| Moving supplied target | static decomp: supplied spell ID reaches class-8 shot and refreshes destination; bit-clear clicked-ID chain now linked | fixed destination; no target ID |
 | Target death/removal | clears identity, keeps last destination, no reacquire | no identity to clear; always fixed point |
 | Replacement target | none | none, but only because targeting is absent |
 | Direct-target HUD | same object-ID pointer acknowledgement slot/brackets as contextual target | person/object brackets disabled while spell mode active |
@@ -165,7 +175,7 @@ Current `cast(w, spell, p)` accepts only a point-like target.
 
 ## Exact implementation reservation — not performed in this research task
 
-Subject to first resolving the picked-ID transport bridge, the proposed Blast-only repair would reserve these production owners together. This is a prospective scope, not accepted end-to-end native equivalence:
+Subject to the branch-specific prerequisites and acceptance in the new reassessment, the proposed Blast-only repair would reserve these production owners together. This is a prospective scope, not accepted end-to-end native equivalence:
 
 1. **`app/scene-input-runtime.ts`**
    - For Blast mode only, preserve native object/person picking alongside the terrain point.
@@ -203,6 +213,6 @@ No picking-engine rewrite, no generic HUD redesign, no blanket “all spells hom
 
 No new native execution was submitted. Static decomp supports direct-versus-ground selection, click position, acknowledgement assignment and the downstream supplied-ID homing/clear/no-reacquire mechanism. The retained pointer-bracket checker separately executes bracket rendering and acknowledgement expiry; it does not execute the spell-click identity bridge.
 
-The unresolved bridge is the provenance of case `0xc4`'s preserved low eleven payload bits and their transfer through command `0x84` into spell `+0x6a`. This is necessary for the local direct-click claim too, not merely multiplayer or all-transport plumbing. A future source or executed comparison must bind the picked object independently to those fields before end-to-end fidelity is claimed.
+The unresolved bridge is the provenance of case `0xc4`'s preserved low eleven payload bits and their transfer through command `0x84` into spell `+0x6a`. This remains necessary for the bit-set direct-click claim. The separately proved bit-clear path does not establish this assignment; see the reassessment for the corrected ordinary-path reservation and remaining setup/execution limits.
 
-The current browser's point-only input/projectile and absent spell-mode brackets are source-supported gaps. They do not fill the missing original transport proof. No new run is required to correct this documentation; no blanket seeking or enemy-only eligibility rule follows from the retained evidence.
+The current browser's point-only input/projectile and absent spell-mode brackets are source-supported gaps. They do not fill the missing bit-set original transport proof. No new run is required to correct this documentation; no blanket seeking or enemy-only eligibility rule follows from the retained evidence.

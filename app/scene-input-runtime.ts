@@ -24,7 +24,6 @@ import {
   selectFollowers,
   spellTargetError,
   type Building,
-  type Point,
 } from './model'
 import { command } from './live-command.ts'
 import { focusHudPerson } from './hud-selection.ts'
@@ -43,6 +42,7 @@ import {
 } from './drag-selection.ts'
 import { nativeAngle, positionDistance } from './native-math.ts'
 import { spellCursor } from './spell-casting.ts'
+import { blastPersonPosition, blastPersonTargeting } from './blast-targeting.ts'
 import nativeHud from './original-hud.json'
 import { buildingPlanCells, type BuildingShapePose } from './building-shapes.ts'
 import { groundOverlay, groundOverlayTriangles } from './ground-overlay.ts'
@@ -350,10 +350,12 @@ export function pointerUp(scene: GameScene, event: PointerEvent) {
     return
   }
   if (event.button !== 0) return
+  const directBlast =
+    !scene.overviewActive && blastPersonTargeting(scene.world.mode, scene.world.manaWorld.gameFlags)
   const clickedUnit = !scene.world.mode
     ? scene.world.units.find(u => u.id === scene.down.unit)
     : undefined
-  const pickedId = !scene.world.mode && scene.picking.pickPerson(event)
+  const pickedId = (!scene.world.mode || directBlast) && scene.picking.pickPerson(event)
   const picked =
     scene.world.units.find(u => u.id === pickedId) ??
     (!scene.world.mode && scene.world.selected.length ? scene.pickWorldObject(event) : undefined) ??
@@ -366,10 +368,22 @@ export function pointerUp(scene: GameScene, event: PointerEvent) {
   if (scene.world.mode) {
     const mode = scene.world.mode
     const ok = SPELLS.some(s => s.id === mode)
-      ? cast(scene.world, mode as Parameters<typeof cast>[1], p)
+      ? cast(
+          scene.world,
+          mode as Parameters<typeof cast>[1],
+          p,
+          directBlast ? picked?.id : undefined
+        )
       : placeBuilding(scene.world, mode as Parameters<typeof placeBuilding>[1], p)
     if (!ok) scene.onSound(0x25)
     else if (!SPELLS.some(s => s.id === mode)) scene.onSound(0x24)
+    else if (directBlast) {
+      const id = picked?.id ?? 0,
+        marker = commandMarkerPoint(nativePosition(scene.world, p), id)
+      if (marker) effect(scene.world, 'orderMarker', browserPosition(marker))
+      scene.acknowledgePointer(id)
+      scene.onSound(0x6a)
+    }
   } else {
     if (clickedUnit) {
       selectUnit(scene.world, clickedUnit.id, scene.down.extend)
@@ -672,7 +686,8 @@ export function drawPointer(scene: GameScene, now: number) {
   const bounds =
     !scene.overviewActive &&
     !scene.world.inputMask &&
-    !scene.world.mode &&
+    (!scene.world.mode ||
+      blastPersonTargeting(scene.world.mode, scene.world.manaWorld.gameFlags)) &&
     scene.hoveredObject !== null
       ? scene.picking.personBounds(scene.hoveredObject)
       : null
@@ -705,6 +720,7 @@ export function updatePointerFrame(scene: GameScene, now: number) {
   // Picking projects the entire terrain; repeat when the pointer/view changes.
   const pointerState = [
     scene.world.mode,
+    scene.world.manaWorld.gameFlags,
     scene.world.inputMask,
     scene.world.turn,
     scene.pointerButtons,
@@ -724,13 +740,25 @@ export function updatePointerFrame(scene: GameScene, now: number) {
   ].join(',')
   if (pointerState !== scene.pointerState) {
     if (scene.pointerButtons === 1 && scene.pointerScreen) scene.updateDrag(scene.pointerScreen)
-    scene.pointer = scene.pointerScreen && scene.world.mode ? scene.pick(scene.pointerScreen) : null
-    scene.hoveredObject =
-      scene.pointerScreen && !scene.pointerButtons && !scene.world.mode && !scene.world.inputMask
-        ? scene.overviewActive
+    const directBlast =
+        !scene.overviewActive &&
+        blastPersonTargeting(scene.world.mode, scene.world.manaWorld.gameFlags),
+      personId =
+        directBlast && scene.pointerScreen ? scene.picking.pickPerson(scene.pointerScreen) : null,
+      person = personId === null ? null : blastPersonPosition(scene.world, personId, nativePosition)
+    scene.pointer = null
+    if (scene.pointerScreen && scene.world.mode)
+      scene.pointer = person ? browserPosition(person) : scene.pick(scene.pointerScreen)
+    scene.hoveredObject = null
+    if (scene.pointerScreen && !scene.pointerButtons && !scene.world.inputMask) {
+      if (directBlast) {
+        if (person) scene.hoveredObject = personId
+      } else if (!scene.world.mode) {
+        scene.hoveredObject = scene.overviewActive
           ? (scene.pickWorldObject(scene.pointerScreen)?.id ?? null)
           : scene.picking.pick(scene.pointerScreen)
-        : null
+      }
+    }
     scene.pointerState = pointerState
   }
   scene.selectionOverlay.visible = scene.dragActive.value

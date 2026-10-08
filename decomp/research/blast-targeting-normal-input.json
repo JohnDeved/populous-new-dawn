@@ -1,0 +1,510 @@
+{
+  "schemaVersion": 1,
+  "issue": 74,
+  "date": "2026-10-07",
+  "baseCommit": "e649af3c51be5e1f6131809c900789b607ef7fb2",
+  "scope": "Static file-byte interpretation and existing indexed pseudocode only. No original execution, emulation, probe, runtime modification or parity credit.",
+  "executable": {
+    "name": "d3dpoptb.exe",
+    "bytes": 2275840,
+    "sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "imageBase": "00400000",
+    "sourceManifest": "https://github.com/JohnDeved/populous-new-dawn/blob/9e29c810bf82e364aaf72ff858a0da08919356bc/engineering/cloud-bootstrap.json",
+    "archiveSha256": "6aa6c366809ea1d9575ec1d31a24527a95c7332f0a1d2ab692f7a602e7e10702",
+    "component": "Component0"
+  },
+  "mapping": {
+    "formula": "fileOffset = section.fileOffset + virtualAddress - section.virtualAddress",
+    "sections": [
+      {
+        "name": ".text",
+        "virtualAddress": 4198400,
+        "virtualSize": 1591844,
+        "rawSize": 1592320,
+        "fileOffset": 1024
+      },
+      {
+        "name": ".data",
+        "virtualAddress": 5865472,
+        "virtualSize": 7813552,
+        "rawSize": 361984,
+        "fileOffset": 1662464
+      }
+    ]
+  },
+  "bindingLayout": "<BIBBBI: scan, action, event, modifiers, gates, predicate",
+  "bindings": [
+    {
+      "virtualAddress": "005d6268",
+      "length": 12,
+      "section": ".data",
+      "fileOffset": 1917032,
+      "sha256": "1adf394d42e867820d05e4d730bf29de54e99ba5fdc483595ea3fb036a942d72",
+      "bytes": "f0c400000009180030f04f00",
+      "scan": 240,
+      "action": 196,
+      "event": 9,
+      "modifiers": 24,
+      "gates": 0,
+      "predicate": "004ff030"
+    },
+    {
+      "virtualAddress": "005d628c",
+      "length": 12,
+      "section": ".data",
+      "fileOffset": 1917068,
+      "sha256": "67773bd7ebf186d96b75a56e04604530034711dbd9ac92d8f7f296c549d795a3",
+      "bytes": "f06a0000000c0000e0ef4f00",
+      "scan": 240,
+      "action": 106,
+      "event": 12,
+      "modifiers": 0,
+      "gates": 0,
+      "predicate": "004fefe0"
+    },
+    {
+      "virtualAddress": "005d6298",
+      "length": 12,
+      "section": ".data",
+      "fileOffset": 1917080,
+      "sha256": "2e8edf07dcffa3cb9023ab6bbb5fc8dc55b84c945f5b9bb641d15b91cb47668c",
+      "bytes": "f06b0000000c0200e0ef4f00",
+      "scan": 240,
+      "action": 107,
+      "event": 12,
+      "modifiers": 2,
+      "gates": 0,
+      "predicate": "004fefe0"
+    }
+  ],
+  "spell2Flags": {
+    "virtualAddress": "005a8166",
+    "length": 2,
+    "section": ".data",
+    "fileOffset": 1728358,
+    "sha256": "9828ce6fed2944d53ac4a0fc68a7a9096f9ec1d4c6f77c7ddc630f662b6e01a7",
+    "bytes": "bf44",
+    "value": 17599
+  },
+  "codeWindows": [
+    {
+      "virtualAddress": "004fefe0",
+      "length": 72,
+      "section": ".text",
+      "fileOffset": 1041376,
+      "sha256": "ef7db55b7d8d4ae82cacbe2b531ae94ff31f9b47158306f2835da2173a6fa7ea",
+      "bytes": "f6057cd1890020753cf605bcca8700017433803de7c689000d752a6a018a0df0c689000fbe0581ce890068e2ca8700506a0151e8d834fcff83c41485c07e06b801000000c333c0c3",
+      "meaning": "Normal spell-release predicate requires game flags bit 0x20 clear, valid map point, mode13 and positive target validation.",
+      "disassembly": [
+        "4fefe0:\tf6 05 7c d1 89 00 20 \ttest   BYTE PTR ds:0x89d17c,0x20",
+        "4fefe7:\t75 3c                \tjne    0x4ff025",
+        "4fefe9:\tf6 05 bc ca 87 00 01 \ttest   BYTE PTR ds:0x87cabc,0x1",
+        "4feff0:\t74 33                \tje     0x4ff025",
+        "4feff2:\t80 3d e7 c6 89 00 0d \tcmp    BYTE PTR ds:0x89c6e7,0xd",
+        "4feff9:\t75 2a                \tjne    0x4ff025",
+        "4feffb:\t6a 01                \tpush   0x1",
+        "4feffd:\t8a 0d f0 c6 89 00    \tmov    cl,BYTE PTR ds:0x89c6f0",
+        "4ff003:\t0f be 05 81 ce 89 00 \tmovsx  eax,BYTE PTR ds:0x89ce81",
+        "4ff00a:\t68 e2 ca 87 00       \tpush   0x87cae2",
+        "4ff00f:\t50                   \tpush   eax",
+        "4ff010:\t6a 01                \tpush   0x1",
+        "4ff012:\t51                   \tpush   ecx",
+        "4ff013:\te8 d8 34 fc ff       \tcall   0x4c24f0",
+        "4ff018:\t83 c4 14             \tadd    esp,0x14",
+        "4ff01b:\t85 c0                \ttest   eax,eax",
+        "4ff01d:\t7e 06                \tjle    0x4ff025",
+        "4ff01f:\tb8 01 00 00 00       \tmov    eax,0x1",
+        "4ff024:\tc3                   \tret",
+        "4ff025:\t33 c0                \txor    eax,eax",
+        "4ff027:\tc3                   \tret"
+      ]
+    },
+    {
+      "virtualAddress": "004ff030",
+      "length": 72,
+      "section": ".text",
+      "fileOffset": 1041456,
+      "sha256": "06c8c25af4f44d670d0072dc37f16b19211b53d0ecf47694888f33c3d786a761",
+      "bytes": "f6057cd1890020743cf605bcca8700017433803de7c689000d752a6a018a0df0c689000fbe0581ce890068e2ca8700506a0151e88834fcff83c41485c07e06b801000000c333c0c3",
+      "meaning": "Alternate spell-press predicate requires game flags bit 0x20 set, otherwise the same tested conditions.",
+      "disassembly": [
+        "4ff030:\tf6 05 7c d1 89 00 20 \ttest   BYTE PTR ds:0x89d17c,0x20",
+        "4ff037:\t74 3c                \tje     0x4ff075",
+        "4ff039:\tf6 05 bc ca 87 00 01 \ttest   BYTE PTR ds:0x87cabc,0x1",
+        "4ff040:\t74 33                \tje     0x4ff075",
+        "4ff042:\t80 3d e7 c6 89 00 0d \tcmp    BYTE PTR ds:0x89c6e7,0xd",
+        "4ff049:\t75 2a                \tjne    0x4ff075",
+        "4ff04b:\t6a 01                \tpush   0x1",
+        "4ff04d:\t8a 0d f0 c6 89 00    \tmov    cl,BYTE PTR ds:0x89c6f0",
+        "4ff053:\t0f be 05 81 ce 89 00 \tmovsx  eax,BYTE PTR ds:0x89ce81",
+        "4ff05a:\t68 e2 ca 87 00       \tpush   0x87cae2",
+        "4ff05f:\t50                   \tpush   eax",
+        "4ff060:\t6a 01                \tpush   0x1",
+        "4ff062:\t51                   \tpush   ecx",
+        "4ff063:\te8 88 34 fc ff       \tcall   0x4c24f0",
+        "4ff068:\t83 c4 14             \tadd    esp,0x14",
+        "4ff06b:\t85 c0                \ttest   eax,eax",
+        "4ff06d:\t7e 06                \tjle    0x4ff075",
+        "4ff06f:\tb8 01 00 00 00       \tmov    eax,0x1",
+        "4ff074:\tc3                   \tret",
+        "4ff075:\t33 c0                \txor    eax,eax",
+        "4ff077:\tc3                   \tret"
+      ]
+    },
+    {
+      "virtualAddress": "00479cf0",
+      "length": 118,
+      "section": ".text",
+      "fileOffset": 495856,
+      "sha256": "fb82917f0b3b213e8864d94b8feb3df6b7af2a59f469ea98d1601541fe4784ab",
+      "bytes": "5333c08a4424085632d28d0c40f60562c68900088db489977989007556668b4c24100fb7c183e80c83f846770f33db8a98849d4700ff249d689d4700807e0c00751ceb18810d61c6890000080000810d61c6890000008000b201eb02b20184d274118b442414884e0c8b4c2418894604894e085e5bc3",
+      "meaning": "Conditional tribe packet writer preserves full caller payload at packet+4 and point at packet+8; does not establish later queue scheduling.",
+      "disassembly": [
+        "479cf0:\t53                   \tpush   ebx",
+        "479cf1:\t33 c0                \txor    eax,eax",
+        "479cf3:\t8a 44 24 08          \tmov    al,BYTE PTR [esp+0x8]",
+        "479cf7:\t56                   \tpush   esi",
+        "479cf8:\t32 d2                \txor    dl,dl",
+        "479cfa:\t8d 0c 40             \tlea    ecx,[eax+eax*2]",
+        "479cfd:\tf6 05 62 c6 89 00 08 \ttest   BYTE PTR ds:0x89c662,0x8",
+        "479d04:\t8d b4 89 97 79 89 00 \tlea    esi,[ecx+ecx*4+0x897997]",
+        "479d0b:\t75 56                \tjne    0x479d63",
+        "479d0d:\t66 8b 4c 24 10       \tmov    cx,WORD PTR [esp+0x10]",
+        "479d12:\t0f b7 c1             \tmovzx  eax,cx",
+        "479d15:\t83 e8 0c             \tsub    eax,0xc",
+        "479d18:\t83 f8 46             \tcmp    eax,0x46",
+        "479d1b:\t77 0f                \tja     0x479d2c",
+        "479d1d:\t33 db                \txor    ebx,ebx",
+        "479d1f:\t8a 98 84 9d 47 00    \tmov    bl,BYTE PTR [eax+0x479d84]",
+        "479d25:\tff 24 9d 68 9d 47 00 \tjmp    DWORD PTR [ebx*4+0x479d68]",
+        "479d2c:\t80 7e 0c 00          \tcmp    BYTE PTR [esi+0xc],0x0",
+        "479d30:\t75 1c                \tjne    0x479d4e",
+        "479d32:\teb 18                \tjmp    0x479d4c",
+        "479d34:\t81 0d 61 c6 89 00 00 \tor     DWORD PTR ds:0x89c661,0x800",
+        "479d3b:\t08 00 00",
+        "479d3e:\t81 0d 61 c6 89 00 00 \tor     DWORD PTR ds:0x89c661,0x800000",
+        "479d45:\t00 80 00",
+        "479d48:\tb2 01                \tmov    dl,0x1",
+        "479d4a:\teb 02                \tjmp    0x479d4e",
+        "479d4c:\tb2 01                \tmov    dl,0x1",
+        "479d4e:\t84 d2                \ttest   dl,dl",
+        "479d50:\t74 11                \tje     0x479d63",
+        "479d52:\t8b 44 24 14          \tmov    eax,DWORD PTR [esp+0x14]",
+        "479d56:\t88 4e 0c             \tmov    BYTE PTR [esi+0xc],cl",
+        "479d59:\t8b 4c 24 18          \tmov    ecx,DWORD PTR [esp+0x18]",
+        "479d5d:\t89 46 04             \tmov    DWORD PTR [esi+0x4],eax",
+        "479d60:\t89 4e 08             \tmov    DWORD PTR [esi+0x8],ecx",
+        "479d63:\t5e                   \tpop    esi",
+        "479d64:\t5b                   \tpop    ebx",
+        "479d65:\tc3                   \tret"
+      ]
+    },
+    {
+      "virtualAddress": "004856e2",
+      "length": 21,
+      "section": ".text",
+      "fileOffset": 543458,
+      "sha256": "114c3b53cf8906f9ed613083ff819209fc0661886ee810755617a4904ae9e8aa",
+      "bytes": "5168ffffff0f6841b789006823cd8900e889080a00",
+      "meaning": "Header read passes destination0x89b741 to original file reader00525f80.",
+      "disassembly": [
+        "4856e2:\t51                   \tpush   ecx",
+        "4856e3:\t68 ff ff ff 0f       \tpush   0xfffffff",
+        "4856e8:\t68 41 b7 89 00       \tpush   0x89b741",
+        "4856ed:\t68 23 cd 89 00       \tpush   0x89cd23",
+        "4856f2:\te8 89 08 0a 00       \tcall   0x525f80"
+      ]
+    },
+    {
+      "virtualAddress": "0042b2de",
+      "length": 7,
+      "section": ".text",
+      "fileOffset": 173790,
+      "sha256": "6beba7c0f4a54a946201da3f5d9376fcc972fdbedb18c17c309b27b78ea5c74b",
+      "bytes": "83257cd18900df",
+      "meaning": "Fresh load clears game flags bit0x20 at0089d17c.",
+      "disassembly": [
+        "42b2de:\t83 25 7c d1 89 00 df \tand    DWORD PTR ds:0x89d17c,0xffffffdf"
+      ]
+    },
+    {
+      "virtualAddress": "0042b501",
+      "length": 23,
+      "section": ".text",
+      "fileOffset": 174337,
+      "sha256": "bfb91433c8179d00a262e44d1ae0afdeb7b80550f1ac5e10e7f48702db65208e",
+      "bytes": "f60561c6890008740ef605a3b78900087405e8280cffff",
+      "meaning": "Late bit0x20 setter0041c140 is gated by landflags bit8 and header+98 bit8.",
+      "disassembly": [
+        "42b501:\tf6 05 61 c6 89 00 08 \ttest   BYTE PTR ds:0x89c661,0x8",
+        "42b508:\t74 0e                \tje     0x42b518",
+        "42b50a:\tf6 05 a3 b7 89 00 08 \ttest   BYTE PTR ds:0x89b7a3,0x8",
+        "42b511:\t74 05                \tje     0x42b518",
+        "42b513:\te8 28 0c ff ff       \tcall   0x41c140"
+      ]
+    },
+    {
+      "virtualAddress": "0042c7f7",
+      "length": 19,
+      "section": ".text",
+      "fileOffset": 179191,
+      "sha256": "c3c89de1779824ce26ddcf37d4c03dffd788cc2fb77b787d9a926b1608293628",
+      "bytes": "33dba0a2b789008a1da3b789008a0da1b78900",
+      "meaning": "Upper loader reads object/header level/flags bytes from0089b7a1..a3.",
+      "disassembly": [
+        "42c7f7:\t33 db                \txor    ebx,ebx",
+        "42c7f9:\ta0 a2 b7 89 00       \tmov    al,ds:0x89b7a2",
+        "42c7fe:\t8a 1d a3 b7 89 00    \tmov    bl,BYTE PTR ds:0x89b7a3",
+        "42c804:\t8a 0d a1 b7 89 00    \tmov    cl,BYTE PTR ds:0x89b7a1"
+      ]
+    },
+    {
+      "virtualAddress": "004eda87",
+      "length": 35,
+      "section": ".text",
+      "fileOffset": 970375,
+      "sha256": "4e93e57b0d40a81a5d934d11c210e02241eec180ea164a2264faffa858006c22",
+      "bytes": "380d37ce89007537380d3a248900740d814e0c00040000880d3a24890056e8d6faffff",
+      "meaning": "Unsuppressed allocation transfers pending-record flag to flags2 bit0x400, clears pending flag, and calls004ed580 at004edaa5; the Ghidra name init_unit_class must not be resolved as004ed640.",
+      "disassembly": [
+        "4eda87:\t38 0d 37 ce 89 00    \tcmp    BYTE PTR ds:0x89ce37,cl",
+        "4eda8d:\t75 37                \tjne    0x4edac6",
+        "4eda8f:\t38 0d 3a 24 89 00    \tcmp    BYTE PTR ds:0x89243a,cl",
+        "4eda95:\t74 0d                \tje     0x4edaa4",
+        "4eda97:\t81 4e 0c 00 04 00 00 \tor     DWORD PTR [esi+0xc],0x400",
+        "4eda9e:\t88 0d 3a 24 89 00    \tmov    BYTE PTR ds:0x89243a,cl",
+        "4edaa4:\t56                   \tpush   esi",
+        "4edaa5:\te8 d6 fa ff ff       \tcall   0x4ed580"
+      ]
+    },
+    {
+      "virtualAddress": "004ed580",
+      "length": 23,
+      "section": ".text",
+      "fileOffset": 969088,
+      "sha256": "bf9efad89f4c1fd9fdce60ae2b4cf457531df7c62a46134a8871db671a92fcc0",
+      "bytes": "5633c08b7424088a462a4883f80a7760ff248508d64e00",
+      "meaning": "Type initialization dispatch reads unit class at+0x2a and indexes class-1 in table004ed608.",
+      "disassembly": [
+        "4ed580:\t56                   \tpush   esi",
+        "4ed581:\t33 c0                \txor    eax,eax",
+        "4ed583:\t8b 74 24 08          \tmov    esi,DWORD PTR [esp+0x8]",
+        "4ed587:\t8a 46 2a             \tmov    al,BYTE PTR [esi+0x2a]",
+        "4ed58a:\t48                   \tdec    eax",
+        "4ed58b:\t83 f8 0a             \tcmp    eax,0xa",
+        "4ed58e:\t77 60                \tja     0x4ed5f0",
+        "4ed590:\tff 24 85 08 d6 4e 00 \tjmp    DWORD PTR [eax*4+0x4ed608]"
+      ]
+    },
+    {
+      "virtualAddress": "004ed5e7",
+      "length": 6,
+      "section": ".text",
+      "fileOffset": 969191,
+      "sha256": "992a8d4e494f6414967a45f6f70b6a5c333b1f7cfca70ae2c51170dee14b6a31",
+      "bytes": "56e8d33efdff",
+      "meaning": "Class11 initializer dispatch calls004c14c0.",
+      "disassembly": [
+        "4ed5e7:\t56                   \tpush   esi",
+        "4ed5e8:\te8 d3 3e fd ff       \tcall   0x4c14c0"
+      ]
+    },
+    {
+      "virtualAddress": "004c1930",
+      "length": 1,
+      "section": ".text",
+      "fileOffset": 789808,
+      "sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "bytes": "c3",
+      "meaning": "Separate state-initializer004c1930 is RET, not the allocation initializer.",
+      "disassembly": [
+        "4c1930:\tc3                   \tret"
+      ]
+    }
+  ],
+  "packetWriterTables": [
+    {
+      "virtualAddress": "00479dc7",
+      "length": 3,
+      "section": ".text",
+      "fileOffset": 496071,
+      "sha256": "56a42ea06e5f6c892189b3cb763c725f7265743ec82b994e6cefddb930710aea",
+      "bytes": "060606"
+    },
+    {
+      "virtualAddress": "00479d80",
+      "length": 4,
+      "section": ".text",
+      "fileOffset": 496000,
+      "sha256": "ead7c164357cf1ce4ebf16f02c0a6adeba70864506f427c248d60838e1b043d2",
+      "bytes": "2c9d4700"
+    }
+  ],
+  "decoder": "GNU objdump (GNU Binutils for Debian) 2.44",
+  "command": [
+    "objdump",
+    "-d",
+    "-Mintel",
+    "--start-address=<window.virtualAddress>",
+    "--stop-address=<window.virtualAddress+window.length>",
+    "<canonical-exe>"
+  ],
+  "indexedExports": [
+    {
+      "path": "decomp/generated/004aa1c0.c",
+      "sha256": "ed1bed27fb7d6f77bae82d3238de7411335f29b5f05e6323e5a17c6b2b000141"
+    },
+    {
+      "path": "decomp/generated/004891d0.c",
+      "sha256": "e54cae740901190dd02aaf565d8dcaf7aaecf41d68f8a46c14698cb4f0f78a5a"
+    },
+    {
+      "path": "decomp/generated/00489470.c",
+      "sha256": "21e700f6472f6a6b2f9253a86ec8ef7be44d37a9ceabe848ced5629a84be593a"
+    },
+    {
+      "path": "decomp/generated/004aab80.c",
+      "sha256": "a286e361005571ddcba7405348e2582aa061c3f427d1a8e8fed09a5d1e7890a8"
+    },
+    {
+      "path": "decomp/generated/0043e8e0.c",
+      "sha256": "39b7c6e645760a599abecb4e44861da69ebc08c3d3370dff0c3835934e9fd309"
+    },
+    {
+      "path": "decomp/generated/004c14c0.c",
+      "sha256": "4d6389740f08a00ed06a7336d9df2ddd9aaeb5dd39652fb6a39dcfebcf62bc3d"
+    },
+    {
+      "path": "decomp/generated/004c1d10.c",
+      "sha256": "ccd1d1551580f657f57e4d8570f1616f72b55517b3f8be17b06447abd6fdecea"
+    },
+    {
+      "path": "decomp/generated/004c21e0.c",
+      "sha256": "f77b05e26db925b21365450489106135eb60e88d5a2e2823c81174b67a0aeccc"
+    },
+    {
+      "path": "decomp/generated/004bae30.c",
+      "sha256": "23758559e76c53f66aa6af80a6411c0a5167cd74a24a205389b6e8bd6ac365fe"
+    },
+    {
+      "path": "decomp/generated/004bb440.c",
+      "sha256": "111e3a26c773c6422f1bcc20c8d9ab5b1d910f05928fbcf6fe0ee4819a3a01a2"
+    },
+    {
+      "path": "decomp/generated/0046e030.c",
+      "sha256": "2cda33131a3a64e5f68b2f8c3cf98cd9c002668dc40e97f222d73b9343969ea5"
+    },
+    {
+      "path": "decomp/generated/00467130.c",
+      "sha256": "09cfb71fc01038d291465e9c9f741be7c6016fe678f788844ac3118e20f4c368"
+    },
+    {
+      "path": "decomp/generated/00475730.c",
+      "sha256": "e3b4c88bc7ddc73e8b8eb6ee91228634e39a7776aa0f5719485c6467280c19b3"
+    },
+    {
+      "path": "decomp/generated/004673b0.c",
+      "sha256": "c4e0beb13818e637a0c6ea3862dfe48995bf2bc0a192d806708550e7df8fc64f"
+    },
+    {
+      "path": "decomp/generated/00475860.c",
+      "sha256": "101427c616760a98b1635c7deba6f5817cf099a8eab13ba6f238fc0537261925"
+    },
+    {
+      "path": "decomp/generated/0042b230.c",
+      "sha256": "241109ebdd842f8a448a43b58d5423b719ee7fe84a51d35e2612ac7b0b5517f2"
+    },
+    {
+      "path": "decomp/generated/0042c790.c",
+      "sha256": "c49212bb7ed30d20e15c196fbfaa9cd9b694762a13194ce385d66c168ebb059e"
+    },
+    {
+      "path": "decomp/generated/0041c140.c",
+      "sha256": "ea69cddc0bb94931d89842b9a38538e52c7f08d9d8a0f150db6f964b5df132ed"
+    },
+    {
+      "path": "decomp/generated/00485660.c",
+      "sha256": "0011fa0a4994eb995b0b1e2f86ae532eadb4697c444845f59cdf8e56c85de573"
+    },
+    {
+      "path": "decomp/generated/00486160.c",
+      "sha256": "059056b8e82166c65ac59efcb1e886cf117b1ec88069a69ce06ee51b16eb9919"
+    },
+    {
+      "path": "decomp/generated/004ed8a0.c",
+      "sha256": "0a3e6654f1c046935bf0a75e32d8691f641fa13fad6c82dc06f3783ba520e5c9"
+    },
+    {
+      "path": "decomp/generated/004ed580.c",
+      "sha256": "30f96739bcd6f1703d38d8937b3a5890bffaaf282be069067360bd7a1da118c8"
+    }
+  ],
+  "limits": [
+    "No original OS input/panel-selection run or frontend timing observation.",
+    "No original transport/allocator/scheduler execution; later transport ownership remains unexecuted.",
+    "Alternate game-flags-bit0x20 path 0xc4/0x84 remains unresolved and its missing routines were not inspected.",
+    "No changed executable, imported asset, native fixture, runtime or parity ledger."
+  ],
+  "earlyMissionHeaders": [
+    {
+      "mission": 1,
+      "member": "levels/levl2001.hdr",
+      "bytes": 616,
+      "sha256": "4b89ef6d64e4010bb3ec3b5985d0edc8e710504e8b1bc75a6ae688bd6eb070a6",
+      "importedMetadataPath": "app/level-one.ts",
+      "headerFlagsOffset": 98,
+      "headerFlagsValue": 0,
+      "nativeHeaderBase": "0089b741",
+      "nativeFlagsAddress": "0089b7a3"
+    },
+    {
+      "mission": 2,
+      "member": "levels/levl2002.hdr",
+      "bytes": 616,
+      "sha256": "44be9f709f03f4b4d936d86056256e7bb98683088332b4bb47354ad709ea8a49",
+      "importedMetadataPath": "app/level-two.ts",
+      "headerFlagsOffset": 98,
+      "headerFlagsValue": 0,
+      "nativeHeaderBase": "0089b741",
+      "nativeFlagsAddress": "0089b7a3"
+    },
+    {
+      "mission": 3,
+      "member": "levels/levl2003.hdr",
+      "bytes": 616,
+      "sha256": "219dd7611a4e3f6c2d4e78620a4d5bb9cf61bf0e9c66c21b2b43b89c8ba4d3f0",
+      "importedMetadataPath": "app/level-three.ts",
+      "headerFlagsOffset": 98,
+      "headerFlagsValue": 0,
+      "nativeHeaderBase": "0089b741",
+      "nativeFlagsAddress": "0089b7a3"
+    }
+  ],
+  "headerRecovery": {
+    "parser": "Existing parser-venv/bin/python with refinery; no dependency changes.",
+    "extractor": "scripts/extract-reference.py",
+    "extractorSha256": "43870b6e06aeb43f8ea9103f3e601e4236397cbb1e49d72c43e570d4e13ffd7e",
+    "arguments": [
+      "--component",
+      "Component0",
+      "<canonical-archive>",
+      "<isolated-work>/headers",
+      "levels/levl2001.hdr",
+      "levels/levl2002.hdr",
+      "levels/levl2003.hdr"
+    ],
+    "exitCode": 0,
+    "scope": "Only these three exact header members were extracted as data into ignored task work. Raw headers are not published."
+  },
+  "initializerTables": [
+    {
+      "virtualAddress": "004ed630",
+      "length": 4,
+      "section": ".text",
+      "fileOffset": 969264,
+      "sha256": "2ed6cf5deb50fe3e29c2324266011e56f44652d230cabb152e59c4f7fde7c2db",
+      "bytes": "e7d54e00",
+      "meaning": "Class11 table entry at004ed608+(11-1)*4 points to004ed5e7."
+    }
+  ]
+}
