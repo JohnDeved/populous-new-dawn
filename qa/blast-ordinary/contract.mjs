@@ -25,13 +25,15 @@ export function createBlastEpisode(options) {
   }
   return {
     trigger(turn) {
-      check(triggerTurn === undefined && !hover && !entry && Number.isInteger(turn) && turn >= 0, 'One actual response trigger turn required')
+      check(triggerTurn === undefined && hover && !entry && Number.isInteger(turn) && turn >= 0, 'One actual response trigger turn required after prospective hover')
+      check(turn >= hover.turn && turn <= hover.turn + 1, 'Prospective hover expired before response trigger')
+      check(expectation === 'baseline' || frames.some(frame => frame.kind === 'hover' && frame.turn <= turn), 'A real validated hover frame must precede the response trigger')
       triggerTurn = turn
     },
     hover(value) {
       keys(value, ['turn', 'targetId', 'mode', 'canvasOwned', 'hitId', 'visible', 'lines', 'context', 'position', 'previousTurn', 'previousPosition', 'orderModel'])
-      check(!hover && !entry, 'Hover may be accepted only once')
-      check(value.turn >= triggerTurn && value.turn <= triggerTurn + 4, 'Response release window expired')
+      check(!hover && triggerTurn === undefined && !entry, 'Hover may be accepted only once before the trigger')
+      check(Number.isInteger(value.turn) && value.turn >= 0, 'Actual prospective hover turn required')
       check(value.mode === 'blast' && value.targetId === targetId && value.hitId === targetId && value.canvasOwned && value.orderModel === 19, 'A real response person hit in Blast mode is required')
       check(value.turn > value.previousTurn && moved(value.position, value.previousPosition), 'Target was stopped or motion sample repeated')
       check(expectation === 'candidate' ? value.visible && value.lines === 16 : !value.visible, 'Expected visible hover feedback missing or baseline phenotype changed')

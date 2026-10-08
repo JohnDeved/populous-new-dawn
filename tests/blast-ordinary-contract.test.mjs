@@ -30,9 +30,9 @@ function sample(turn, expectation = 'candidate', { still = false } = {}) {
 function start(expectation = 'candidate', change = () => {}) {
   const episode = createBlastEpisode({ ...options, expectation }), h = hover(expectation), r = release(expectation), first = sample(1, expectation)
   change({ h, r, first })
-  episode.trigger(1)
   episode.hover(h)
   if (expectation === 'candidate') episode.frame({ kind: 'hover', turn: 1, targetId: 3, visible: true, lines: 16, pixels: 80, effectId: null })
+  episode.trigger(1)
   episode.release(r, first)
   if (expectation === 'candidate') episode.frame({ kind: 'ack', turn: 1, targetId: 3, visible: true, lines: 32, pixels: 160, effectId: null })
   return { episode, first }
@@ -81,8 +81,9 @@ test('missing visible hover, arrival, impact or acknowledgement cannot pass', ()
   const { episode } = start()
   assert.throws(() => episode.frame({ kind: 'arrival', turn: 1, targetId: 3, visible: false, lines: 16, pixels: 0, effectId: 50 }), /pixels/)
   const withoutAck = createBlastEpisode(options)
-  withoutAck.trigger(1)
-  withoutAck.hover(hover('candidate')); withoutAck.release(release('candidate'), sample(1))
+  withoutAck.hover(hover('candidate'))
+  withoutAck.frame({ kind: 'hover', turn: 1, targetId: 3, visible: true, lines: 16, pixels: 80, effectId: null })
+  withoutAck.trigger(1); withoutAck.release(release('candidate'), sample(1))
   for (let turn = 1; turn < 10; turn++) { withoutAck.before(sample(turn)); withoutAck.after(sample(turn + 1)) }
   assert.equal(withoutAck.report().complete, false)
 })
@@ -124,17 +125,38 @@ test('an unrelated patrol model cannot satisfy the declared response episode', (
   assert.throws(() => start('candidate', ({ h }) => { h.orderModel = 25 }), /response person/)
 })
 
-test('actual delivered release outside four trigger turns fails even with a fresh hover', () => {
-  assert.throws(() => start('baseline', ({ h, r, first }) => { h.turn = 5; r.turn = 6; first.turn = 6 }), /release window/)
+test('actual delivered release outside four trigger turns fails', () => {
+  assert.throws(() => start('baseline', ({ r, first }) => { r.turn = 6; first.turn = 6 }), /release window/)
 })
 
-test('deferred hover raster retains its capture turn and cannot claim a post-release frame', () => {
+test('candidate admission requires a prospective natural frame, not visible feedback alone', () => {
   const episode = createBlastEpisode(options)
-  episode.trigger(1); episode.hover(hover('candidate')); episode.release(release('candidate'), sample(1))
+  episode.hover(hover('candidate'))
+  assert.throws(() => episode.trigger(1), /validated hover frame/)
+  assert.equal(episode.report().triggerTurn, undefined)
+  assert.equal(episode.report().complete, false)
+})
+
+test('a pre-registration, stale or future hover frame cannot authorize the trigger', () => {
+  const frame = { kind: 'hover', turn: 1, targetId: 3, visible: true, lines: 16, pixels: 80, effectId: null }
+  const unregistered = createBlastEpisode(options)
+  assert.throws(() => unregistered.frame(frame), /Stale bracket/)
+  const stale = createBlastEpisode(options)
+  stale.hover(hover('candidate')); stale.frame(frame)
+  assert.throws(() => stale.trigger(3), /hover expired/)
+  const future = createBlastEpisode(options)
+  future.hover(hover('candidate')); future.frame({ ...frame, turn: 2 })
+  assert.throws(() => future.trigger(1), /validated hover frame/)
+})
+
+test('validated prospective hover admits one fresh trigger and retains release freshness', () => {
+  const episode = createBlastEpisode(options)
+  episode.hover(hover('candidate'))
   episode.frame({ kind: 'hover', turn: 1, targetId: 3, visible: true, lines: 16, pixels: 80, effectId: null })
-  assert.equal(episode.report().frames.length, 1)
-  const other = createBlastEpisode(options)
-  other.trigger(1); other.hover(hover('candidate')); other.release(release('candidate'), sample(1))
-  assert.throws(() => other.frame({ kind: 'hover', turn: 2, targetId: 3, visible: true, lines: 16, pixels: 80, effectId: null }), /Stale bracket/)
-  assert.throws(() => episode.trigger(2), /One actual response trigger/)
+  episode.trigger(2)
+  assert.throws(() => episode.release({ ...release('candidate'), turn: 3 }, sample(3)), /Stale pointer/)
+  const valid = start().episode
+  assert.equal(valid.report().triggerTurn, 1)
+  assert.throws(() => valid.trigger(2), /One actual response trigger/)
+  assert.throws(() => valid.hover(hover('candidate')), /only once/)
 })

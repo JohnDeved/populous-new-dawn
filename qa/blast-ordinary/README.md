@@ -2,7 +2,7 @@
 
 Prepared from runtime freeze `4635c1acc9b66c1d54e5e2bc7cad4b88fa30754b` and
 read against the reviewed lifetime repair `7c3ac608917d0b6a3a6c4c779460953905f2738e`.
-The revised driver is prospective. Three baseline attempts failed before casting;
+The revised driver is prospective. Four baseline attempts failed before casting;
 no ordinary Blast episode has passed. Pure helper tests and controlled model probes
 are not ordinary episodes, native comparisons or parity awards.
 
@@ -24,7 +24,12 @@ payload/acknowledgement. It reached valid moving response range at turn470, but
 returned no stable person pixel on its first hit search; the next pre-dispatch
 check at476 exceeded the four-turn window. No hover or cast occurred, and the
 Shaman retained100HP. The retained ring supports that call boundary; the exact
-pixel-miss cause was not captured, so latency alone is not established.
+pixel-miss cause was not captured, so latency alone is not established. Baseline
+`9be303e3` later reached the setup turn limit without any trigger or cast. Its
+last96 pointer rows begin at1667, after Warrior19 was housed in building71;
+all have absent response/bounds and zero inspections. Earlier live response rows
+were evicted. Those late rows cannot identify the first unmet pointer predicate,
+and no new hover action does not prove every earlier existing-pointer hit was null.
 
 The revised proposal keeps public Mission2 entry, introduction skip, original
 Blue Shaman HUD selection and one real ground movement command toward `(58,108)`.
@@ -49,18 +54,30 @@ fresh detached-clone `spellTargetError === null`, and distance at least7. It als
 requires a settled camera and a currently owned 5×5 person-pixel neighborhood at
 the actual pointer, with the declared hover phenotype. Pixel search, public mouse
 hovering, imports and caches are prepared before this trigger. A single
-synchronous browser read combines the final checks with trigger/hover evidence
-registration; the one normal click follows immediately, with no additional remote
-reads, file writes or raster waits in between. There is no clock scheduler or
-window extension.
+synchronous browser read registers a prospective hover when all these conditions
+hold. For the candidate, the game's next qualifying natural render must then
+supply a validated hover frame, including completed detached pixel validation.
+A fresh synchronous read rechecks identity, health, range, context and current
+person pixel before recording the trigger. The one normal click follows
+immediately, with no additional remote reads, file writes or raster waits in
+between. Baseline admits directly after its absent-feedback hover because it
+cannot supply candidate brackets. There is no clock scheduler or window extension.
 
 The actual trusted release must occur within four simulation turns, and the
 existing hover/context freshness check remains mandatory. A delayed event may
 already cast before the actual-release contract rejects it; any such failure is
 retained. The four-turn limit has the controlled model witness above; successful
 browser delivery remains prospective. `pointer-preparation.json` retains the last
-96 preparation reads, including bounds, hit candidates, feedback, identity/range gate fields, read
-duration and bounded results from the existing inspections. Rendered-body
+96 preparation reads plus immutable first/last live response, first in-range
+response, first failed examples for eight fixed gates, and the first pixel miss
+when live/movement/range/camera requirements already hold. Missing bounds or body
+feedback do not suppress that pixel-miss record. Aggregate inspection counts cover
+all accepted rows. The first target housing, death, removal, replacement, or loss
+of an already observed model19 response stops setup immediately and is retained;
+it does not wait for turn1800 or rearm on a later response. Initial absent response
+alone can wait within the original setup limits. Each row includes bounds, hit
+candidates, feedback, identity/range gate fields, read duration and bounded results
+from the existing inspections. Rendered-body
 visibility/pickability/frame, exact active animation-source model/render flags,
 and painter-source fields are retained as well. The existing searches perform
 at most250 pixel inspections per read; each records its canvas ownership,
@@ -77,16 +94,21 @@ handler's picks, selected recipient, actual model3 order/payload, acknowledgemen
 and new order marker. Both observers attach before the range trigger. Cleanup restores the cast
 observer first, then the setup observer, in the reverse of attachment order.
 All helper imports, camera input and key arming precede the trigger. Captured
-hover rasterization finishes asynchronously; it is never awaited before release,
-and its retained capture turn must precede or equal the actual release turn. No world, resources, original identities, simulation clock
-or renderer is changed by the observations.
+hover rasterization finishes asynchronously before candidate admission. No prior
+frame receives retroactive credit: the observer captures only after prospective
+hover registration, and the reducer requires its validated frame before trigger.
+No world, resources, original identities, simulation clock or renderer is changed
+by the observations.
 
 The setup must finish before turn1800. The combined approach, range and pointer
 preparation poll is bounded at140s within the240s scenario cap. There is no
 separate12s hover timer. Once readiness is admitted, the actual release window
-is four turns and the released cast remains bounded at48 turns/10s. A candidate hover frame still requires a real intervening render after evidence
-registration and before the click; pre-trigger visible feedback alone earns no
-saved-frame credit. Missing that render fails the episode. All movement, actual pointer,
+is four turns and the released cast remains bounded at48 turns/10s. The prospective
+hover must remain at most one turn old at both trigger and actual release; it is
+never replaced or refreshed. Natural rendering, raster completion and transport
+may exhaust this interval, which fails setup without admission. A candidate frame
+must follow hover registration and precede trigger; visible feedback alone earns
+no saved-frame credit. All movement, actual pointer,
 hover/ack, stock/count, parent/shot identity, arrival/impact and frame requirements
 remain mandatory. No camp, training, kill-credit raid or bridge reward is required.
 
@@ -164,7 +186,7 @@ stop helper. Any file there stops further input and is retained; a normal stop i
 Helper validation (no runtime imports, browser, simulation, build or native run):
 
 ```sh
-node --test tests/blast-ordinary-contract.test.mjs tests/blast-ordinary-setup-observer.test.mjs
+node --test tests/blast-ordinary-contract.test.mjs tests/blast-ordinary-setup-observer.test.mjs tests/blast-ordinary-preparation.test.mjs
 node --check qa/blast-ordinary/scenario.mjs
 node --check qa/blast-ordinary/observer.mjs
 node --check qa/blast-ordinary/contract.mjs
@@ -175,6 +197,11 @@ The pure reducer rejects stale context, wrong real-handler identity, missing
 feedback/arrival/impact, changed/removed owners, repeated before samples, skipped
 turns and externally supplied success fields. Its synthetic records are helper
 contract tests only; they do not certify the driver or evidence adapters have run.
+New phase negatives reject missing/unregistered/future/stale hover frames, repeated
+admission and late delivery. Preparation negatives cover early-row preservation,
+input/output mutation, fixed retention bounds, response loss and unavailable
+original identities. Earlier23-helper and1,503-test results remain historical;
+changed helper/test inputs require their own exact-head validation.
 
 ## Real client-transform regression
 
