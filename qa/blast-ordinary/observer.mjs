@@ -172,12 +172,12 @@ export function observeBlastEpisode(scene, options) {
     const moving = delivered
     if (moving) movementAttempted = true
     try {
-      if (delivered && (!moveExpected || movementDelivered)) throw Error('Repeated or unarmed movement input')
       if (!pointer) {
         artifacts.unarmedFollowingInput = { before: structuredClone(inputBefore), handlerTrace: false,
           after: { turn: world.turn, mode: world.mode, selected: [...world.selected], stock: world.shots.blast, castCount: world.stats.cast } }
         throw Error('Predeclared following input had no accepted armed first release; actual effects retained without handler trace')
       }
+      if (delivered && (!moveExpected || movementDelivered)) throw Error('Repeated or unarmed movement input')
       const trace = pointer.finish(); pointer = null
       if (delivered) artifacts.movePointer = trace
       else artifacts.pointer = trace

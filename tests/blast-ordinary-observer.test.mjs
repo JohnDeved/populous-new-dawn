@@ -4,7 +4,7 @@ import { observeBlastEpisode, inputContext } from '../qa/blast-ordinary/observer
 
 // Synthetic event/DOM graph only. The real observer is exercised; no browser,
 // gameplay, rendered-pixel or public-command result is claimed by these mocks.
-function fixture(t, { rejectRelease = false, throwDraw } = {}) {
+function fixture(t, { rejectRelease = false, rejectAdmission = false, throwDraw } = {}) {
   const listeners = [], log = [], rect = { left: 0, top: 0, width: 20, height: 20 }
   const canvas = { isConnected: true, getBoundingClientRect: () => rect,
     addEventListener(type, fn, capture = false) { listeners.push({ type, fn, capture }) },
@@ -57,7 +57,7 @@ function fixture(t, { rejectRelease = false, throwDraw } = {}) {
       if (rejectRelease && handlers === 1) return
       world.projectiles.push({ id: 44, team: 'blue', spell: 'blast', caster: 1, phase: 'windup', remaining: 6, target: { x: 1, z: 2 },
         destination: { x: 1000, y: 2000, h: 120 }, blastTarget: { personId: 3, shotPersonId: null, destination: { x: 1000, y: 2000, h: 120 } }, visuals: [] })
-      world.mode = null; world.shots.blast--; world.stats.cast++; scene.pointerAck = { target: 3, until: performance.now() + 5000 / 24 }
+      world.mode = null; world.shots.blast--; world.stats.cast++; if (rejectAdmission) world.selected = [1]; scene.pointerAck = { target: 3, until: performance.now() + 5000 / 24 }
     } else {
       scene.pick(event); scene.picking.pickPerson(event)
       world.buildingOrders.records[1] = { model: 3, a: 2816, b: 63488 }
@@ -159,4 +159,16 @@ test('failed first release keeps the declared second event and its effects witho
   assert.equal(result.artifacts.movePointer, undefined)
   assert.ok(result.report.errors.some(error => error.includes('actual effects retained without handler trace')))
   assert.ok(result.report.errors.every(error => !error.includes('finish') && !error.includes('TypeError')))
+})
+
+test('validated cast with rejected admission still retains the unarmed following input', async t => {
+  const f = fixture(t, { rejectAdmission: true }); await f.prepare()
+  const pending = assert.rejects(f.observer.waitForMove(), /Actual accepted cast/); f.canvas.dispatch('pointerup'); await pending
+  assert.ok(f.observer.read().report.release, 'first cast is accepted before the single-selection admission fails')
+  f.canvas.dispatch('pointerdown', { x: 50, y: 60 }); f.canvas.dispatch('pointerup', { x: 50, y: 60 })
+  const result = f.observer.read(), attempted = result.artifacts.unarmedFollowingInput
+  assert.equal(attempted.handlerTrace, false); assert.deepEqual(attempted.before.selected, [1])
+  assert.deepEqual(attempted.after, { turn: 1, mode: null, selected: [1], stock: 3, castCount: 1 })
+  assert.equal(result.report.complete, false); assert.equal(f.handlers(), 2)
+  assert.ok(result.report.errors.some(error => error.includes('actual effects retained without handler trace')))
 })
