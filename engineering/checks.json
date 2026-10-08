@@ -2,6 +2,53 @@
   "version": 1,
   "checks": [
     {
+      "id": "mission-two-checkpoint-ordinary",
+      "kind": "browser",
+      "automation": "manual",
+      "receiptAdapter": "ordinary-m2-checkpoint",
+      "purpose": "Read the owned early-missions harness witness for ordinary Mission 2 checkpoint restoration.",
+      "coveredBehavior": [
+        "Public Save checkpoint, fresh reload, public Load, retained turn/roster/stats and real-clock resumption"
+      ],
+      "knownLimits": [
+        "Only the exact reviewed ordinary scenario and source-bound owned harness are accepted. This is browser checkpoint modernization, not original save compatibility or full mission parity. Historical source changes produce stale evidence."
+      ],
+      "executable": "node",
+      "args": [
+        "scripts/local-render/harness.mjs",
+        "--scenario",
+        "scripts/local-render/early-missions.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/local-render/early-missions.mjs",
+        "scripts/local-render/harness.mjs",
+        "scripts/local-render/owned-profile.mjs",
+        "scripts/local-render/checkpoint-observer.mjs",
+        "scripts/local-render/vite.config.mjs",
+        "scripts/checkpoint-readback.mjs",
+        "scripts/browser-game.mjs",
+        "app",
+        "public/original",
+        "package.json",
+        "package-lock.json"
+      ],
+      "prerequisites": [
+        "Existing source-bound owned harness receipt, matching journey and raw outer receipt"
+      ],
+      "sideEffects": [
+        "Report adapter reads only; harness execution requires separate lane and runtime setup"
+      ],
+      "resources": [
+        "No runtime resources for receipt projection"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
       "id": "parity-measure-tests",
       "kind": "metadata",
       "automation": "safe",
@@ -15,12 +62,15 @@
       "executable": "node",
       "args": [
         "--test",
-        "tests/parity-measure.test.mjs"
+        "tests/parity-measure.test.mjs",
+        "tests/parity-owned-checkpoint.test.mjs"
       ],
       "cwd": ".",
       "env": [],
       "inputs": [
         "scripts/parity-measure.mjs",
+        "scripts/parity-owned-checkpoint.mjs",
+        "tests/parity-owned-checkpoint.test.mjs",
         "scripts/orchestration/command-receipt.mjs",
         "scripts/orchestration/verify.mjs",
         "scripts/orchestration/cli.mjs",

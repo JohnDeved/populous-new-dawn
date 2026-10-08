@@ -7,6 +7,7 @@ import { existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, renameSync
 import { relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { fingerprintPaths, safeRepoPath } from './orchestration/cli.mjs'
+import { ORDINARY_M2, isOrdinaryCheckpointCandidate, readOrdinaryCheckpoint, selectOrdinaryCheckpoint } from './parity-owned-checkpoint.mjs'
 
 const ROOT = fileURLToPath(new URL('../', import.meta.url))
 const DEFINITIONS = 'engineering/parity-capabilities.json'
@@ -33,7 +34,7 @@ export function loadMeasurement(repo) {
   for (const capability of definitions.capabilities) {
     assert(!seen.has(capability.id), 'duplicate capability ID')
     seen.add(capability.id)
-    assert(['scenario', 'requirement'].includes(capability.scope), 'invalid capability scope')
+    assert(['scenario', 'requirement', 'observation'].includes(capability.scope), 'invalid capability scope')
     if (capability.scope === 'requirement') assert(capability.id === capability.parityId && inventory.some(r => r.id === capability.id), 'whole-requirement bindings must use the exact leaf requirement ID')
     assert(typeof capability.title === 'string' && capability.title, 'missing capability title')
     assert(allIds.has(capability.parityId), `unknown parity ID: ${capability.parityId}`)
@@ -56,7 +57,7 @@ export function captureMeasurement(repo, command, { cwd = repo, ownedServerFinge
   if (!existsSync(resolve(repo, DEFINITIONS))) return []
   const { definitions, checks } = loadMeasurement(repo)
   const bound = new Set(definitions.capabilities.flatMap(c => [...c.browserCheckIds, ...c.originalCheckIds]))
-  return checks.filter(check => bound.has(check.id) && resolve(repo, check.cwd ?? '.') === resolve(cwd) &&
+  return checks.filter(check => !check.receiptAdapter && bound.has(check.id) && resolve(repo, check.cwd ?? '.') === resolve(cwd) &&
     JSON.stringify([check.executable, ...check.args]) === JSON.stringify(command)).map(check => {
     const inputs = [...new Set([...check.inputs, ...browserInputs])].sort()
     return {
@@ -114,10 +115,11 @@ export function evaluateCheck(check, receipts, current) {
       (check.kind !== 'browser' || e.ownedServerFingerprint && e.ownedServerFingerprint === e.browserInputFingerprint)) }
 }
 
-export function buildReport(model, receipts, currentEvidence, source) {
+export function buildReport(model, receipts, currentEvidence, source, adaptedResults = []) {
   const current = new Map(currentEvidence.map(e => [e.checkId, e]))
-  const checkResults = model.checks.filter(check => current.has(check.id)).map(check => ({
-    ...evaluateCheck(check, receipts, current.get(check.id)), kind: check.kind,
+  const adapted = new Map(adaptedResults.map(result => [result.id, result]))
+  const checkResults = model.checks.filter(check => current.has(check.id) || adapted.has(check.id)).map(check => ({
+    ...(adapted.get(check.id) ?? evaluateCheck(check, receipts, current.get(check.id))), kind: check.kind,
     coveredBehavior: check.coveredBehavior, limits: check.knownLimits,
   }))
   const byId = new Map(checkResults.map(result => [result.id, result]))
@@ -135,16 +137,18 @@ export function buildReport(model, receipts, currentEvidence, source) {
     return { ...item, status: binding?.status ?? 'unknown',
       reason: binding ? 'Exact requirement evidence binding; declared scope limits apply' : 'Whole requirement has no complete automatic evidence binding' }
   })
+  const scoredCapabilities = capabilities.filter(capability => capability.scope !== 'observation')
   const counts = values => Object.fromEntries(states.map(state => [state, values.filter(v => v.status === state).length]))
   const historyEntry = model.history?.at(-1)
   return {
     version: 1, source, scopeHash: digest({ inventory: model.inventory, capabilities: model.definitions.capabilities }),
     discovery: 'open',
     knownScope: { total: knownScope.length, counts: counts(knownScope), percent: knownScope.length ? 100 * knownScope.filter(r => r.status === 'verified').length / knownScope.length : null, requirements: knownScope },
-    browserIntegration: { total: capabilities.length, verified: capabilities.filter(c => c.browserStatus === 'verified').length,
-      percent: capabilities.length ? 100 * capabilities.filter(c => c.browserStatus === 'verified').length / capabilities.length : null },
-    missionCases: { total: capabilities.length, counts: counts(capabilities),
-      percent: capabilities.length ? 100 * capabilities.filter(c => c.status === 'verified').length / capabilities.length : null,
+    browserIntegration: { total: scoredCapabilities.length, verified: scoredCapabilities.filter(c => c.browserStatus === 'verified').length,
+      percent: scoredCapabilities.length ? 100 * scoredCapabilities.filter(c => c.browserStatus === 'verified').length / scoredCapabilities.length : null },
+    missionCases: { total: scoredCapabilities.length, counts: counts(scoredCapabilities),
+      observations: capabilities.filter(c => c.scope === 'observation').length,
+      percent: scoredCapabilities.length ? 100 * scoredCapabilities.filter(c => c.status === 'verified').length / scoredCapabilities.length : null,
       capabilities },
     checks: checkResults,
     historical: historyEntry ? { date: historyEntry.date, revision: historyEntry.revision,
@@ -183,7 +187,9 @@ export function discoverReceipts(repo) {
           measurements = value.verification.results.flatMap(result => (result.parityMeasurements ?? [])
             .map(e => ({ ...e, status: result.status === e.status ? e.status : 'invalidated' })))
         }
-        if (Array.isArray(measurements)) receipts.push({ path: local, measurements })
+        if (Array.isArray(measurements) || isOrdinaryCheckpointCandidate(value))
+          receipts.push({ path: local, measurements: measurements ?? [],
+            ...(isOrdinaryCheckpointCandidate(value) ? { commandReceipt: value } : {}) })
       }
     }
   }
@@ -193,8 +199,8 @@ export function discoverReceipts(repo) {
 
 const escape = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c])
 export function renderHTML(report) {
-  const rows = report.missionCases.capabilities.map(c => `<tr><td>${escape(c.title)}</td><td>${escape(c.browserStatus)}</td><td>${escape(c.originalStatus)}</td><td>${escape(c.status)}</td><td>${escape(c.limits)}</td></tr>`).join('')
-  return `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Automatic parity evidence</title><style>body{font:16px system-ui;max-width:1100px;margin:40px auto;padding:0 20px;color:#e8edf2;background:#15202b}h1,h2{color:#9cdbff}table{border-collapse:collapse;width:100%}th,td{text-align:left;border-bottom:1px solid #486070;padding:12px;vertical-align:top}code{overflow-wrap:anywhere}summary{cursor:pointer}li{margin:8px 0}</style><h1>Automatic parity evidence</h1><p>Build <code>${escape(report.source.head)}</code> · scope <code>${escape(report.scopeHash.slice(0,12))}</code> · discovery open</p><h2>${report.knownScope.counts.verified}/${report.knownScope.total} known requirements automatically verified</h2><p>Unmeasured requirements remain in the denominator. This is evidence coverage, not game implementation percentage.</p><h2>Browser integration: ${report.browserIntegration.verified}/${report.browserIntegration.total} declared mission cases</h2><p>These are diagnostic browser checks with the setup limitations below, not original-game parity.</p><h2>Missions 1–3: ${report.missionCases.counts.verified}/${report.missionCases.total} paired evidence gates</h2><table><thead><tr><th>Capability</th><th>Browser</th><th>Original</th><th>Paired status</th><th>Boundary</th></tr></thead><tbody>${rows}</tbody></table><h2>Checks</h2><ul>${report.checks.map(c => `<li><b>${escape(c.id)}: ${escape(c.status)}</b> ${escape(c.reason)}${c.diagnosticStatus ? ` (recorded outcome: ${escape(c.diagnosticStatus)})` : ''}${c.receipt ? `<br>Receipt: <code>${escape(c.receipt)}</code>` : ''}<br>${escape((c.limits ?? []).join(' '))}</li>`).join('')}</ul><h2>Historical ledger</h2><p>${report.historical ? `${report.historical.percent.toFixed(2)}%, ${escape(report.historical.date)}. ${escape(report.historical.label)}.` : 'No historical assessment.'}</p><h2>Limits</h2><ul>${[...report.limits, ...(report.warnings ?? [])].map(l => `<li>${escape(l)}</li>`).join('')}</ul><details><summary>All known requirements</summary><ul>${report.knownScope.requirements.map(r => `<li>${escape(r.id)}: ${escape(r.status)} — ${escape(r.title)}</li>`).join('')}</ul></details></html>\n`
+  const rows = report.missionCases.capabilities.map(c => `<tr><td>${escape(c.title)}${c.scope === 'observation' ? ' (evidence only; no extra credit)' : ''}</td><td>${escape(c.browserStatus)}</td><td>${escape(c.originalStatus)}</td><td>${escape(c.status)}</td><td>${escape(c.limits)}</td></tr>`).join('')
+  return `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Automatic parity evidence</title><style>body{font:16px system-ui;max-width:1100px;margin:40px auto;padding:0 20px;color:#e8edf2;background:#15202b}h1,h2{color:#9cdbff}table{border-collapse:collapse;width:100%}th,td{text-align:left;border-bottom:1px solid #486070;padding:12px;vertical-align:top}code{overflow-wrap:anywhere}summary{cursor:pointer}li{margin:8px 0}</style><h1>Automatic parity evidence</h1><p>Build <code>${escape(report.source.head)}</code> · scope <code>${escape(report.scopeHash.slice(0,12))}</code> · discovery open</p><h2>${report.knownScope.counts.verified}/${report.knownScope.total} known requirements automatically verified</h2><p>Unmeasured requirements remain in the denominator. This is evidence coverage, not game implementation percentage.</p><h2>Browser integration: ${report.browserIntegration.verified}/${report.browserIntegration.total} declared mission cases</h2><p>These are diagnostic browser checks with the setup limitations below, not original-game parity.</p><h2>Missions 1–3: ${report.missionCases.counts.verified}/${report.missionCases.total} paired evidence gates</h2><table><thead><tr><th>Capability</th><th>Browser</th><th>Original</th><th>Paired status</th><th>Boundary</th></tr></thead><tbody>${rows}</tbody></table><h2>Checks</h2><ul>${report.checks.map(c => `<li><b>${escape(c.id)}: ${escape(c.status)}</b> ${escape(c.reason)}${c.diagnosticStatus ? ` (recorded outcome: ${escape(c.diagnosticStatus)})` : ''}${c.testedSource ? `<br>Tested source: <code>${escape(c.testedSource.commit)}</code> · ${escape(c.finishedAt)} · ${escape(c.evidenceClass)}` : ''}${c.receipt ? `<br>Receipt: <code>${escape(c.receipt)}</code>` : ''}<br>${escape((c.limits ?? []).join(' '))}</li>`).join('')}</ul><h2>Historical ledger</h2><p>${report.historical ? `${report.historical.percent.toFixed(2)}%, ${escape(report.historical.date)}. ${escape(report.historical.label)}.` : 'No historical assessment.'}</p><h2>Limits</h2><ul>${[...report.limits, ...(report.warnings ?? [])].map(l => `<li>${escape(l)}</li>`).join('')}</ul><details><summary>All known requirements</summary><ul>${report.knownScope.requirements.map(r => `<li>${escape(r.id)}: ${escape(r.status)} — ${escape(r.title)}</li>`).join('')}</ul></details></html>\n`
 }
 
 export function writeReport(repo) {
@@ -204,10 +210,13 @@ export function writeReport(repo) {
   const currentEvidence = model.checks.filter(check => bound.has(check.id)).flatMap(check =>
     captureMeasurement(repo, [check.executable, ...check.args]))
   const git = args => execFileSync('git', args, { cwd: repo, encoding: 'utf8' }).trim()
-  const source = { head: git(['rev-parse', 'HEAD']), trackedDiffHash: digest(git(['diff', 'HEAD', '--binary'])) }
+  const source = { head: git(['rev-parse', 'HEAD']), tree: git(['rev-parse', 'HEAD^{tree}']), clean: git(['status', '--porcelain']) === '', trackedDiffHash: digest(git(['diff', 'HEAD', '--binary'])) }
   const { receipts, warnings } = discoverReceipts(repo)
   // Never retain an old pass when discovery may have omitted a newer failure.
-  const report = { ...buildReport(model, warnings.length ? [] : receipts, currentEvidence, source), warnings }
+  const eligibleReceipts = warnings.length ? [] : receipts
+  const adapted = bound.has(ORDINARY_M2) ? [selectOrdinaryCheckpoint(eligibleReceipts.filter(r => r.commandReceipt)
+    .map(receipt => readOrdinaryCheckpoint(repo, receipt, source)))] : []
+  const report = { ...buildReport(model, eligibleReceipts, currentEvidence, source, adapted), warnings }
   const output = safeRepoPath(repo, OUTPUT, { mustExist: false })
   mkdirSync(output, { recursive: true })
   const historyPath = resolve(output, 'history.json')
