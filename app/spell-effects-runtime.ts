@@ -91,6 +91,7 @@ import {
 } from './live-vehicles.ts'
 import { startArmageddon } from './armageddon.ts'
 import { setDirectPersonDestination } from './person-routes.ts'
+import { blastPersonPosition } from './blast-targeting.ts'
 
 const debrisModels: Record<number, NativeModel> = modelAssets
 const SHIELD_TURNS = constants.SHIELD_COUNT_X8 * 8
@@ -465,6 +466,23 @@ export function processProjectiles(w: World) {
       shot.remaining--
       continue
     }
+    const tracking = shot.spell === 'blast' ? shot.blastTarget : undefined
+    if (tracking) {
+      // 0x4c1d10 keeps the parent spell point current through the later impact visit.
+      if (tracking.personId !== null) {
+        const target = blastPersonPosition(w, tracking.personId)
+        if (target) {
+          tracking.destination = target
+          shot.target = browserPosition(target)
+        } else tracking.personId = null
+      }
+      // 0x4bae30 clears only the shot's own identity, retaining its last destination.
+      if (shot.phase !== 'windup' && tracking.shotPersonId !== null) {
+        const target = blastPersonPosition(w, tracking.shotPersonId)
+        if (target) shot.destination = target
+        else tracking.shotPersonId = null
+      }
+    }
     if (shot.phase === 'windup') {
       if (!caster) {
         remove()
@@ -475,6 +493,10 @@ export function processProjectiles(w: World) {
       shot.origin = nativePosition(w, caster)
       shot.origin.h += 0x60
       shot.position = { ...shot.origin }
+      if (tracking) {
+        tracking.shotPersonId = tracking.personId
+        shot.destination = { ...tracking.destination }
+      }
       // 0x4c21e0: Lightning aims 0x400 above, displaced 0x600 toward the shaman.
       if (shot.spell === 'lightning') {
         const d = shot.destination,

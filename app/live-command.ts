@@ -55,6 +55,7 @@ import { assignBuilder, BuilderTask } from './building-workers.ts'
 import { worshipHeadPose, worshipOrder } from './live-worship.ts'
 import { worshipApproach } from './worship.ts'
 import { canShamanCast, spellInRange, beginCast } from './spell-casting.ts'
+import { blastPersonPosition, blastPersonTargeting } from './blast-targeting.ts'
 import { BUILDINGS, isShaman, SPELLS } from './world-rules.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import { randomPersonSpeed } from './person-state.ts'
@@ -400,8 +401,13 @@ export function spellTargetError(w: World, spell: Spell, p: Point) {
   return null
 }
 
-export function cast(w: World, spell: Spell, p: Point) {
+export function cast(w: World, spell: Spell, p: Point, personId?: number) {
   if (w.paused || w.status !== 'playing') return false
+  const direct =
+    personId !== undefined && blastPersonTargeting(spell, w.manaWorld.gameFlags)
+      ? blastPersonPosition(w, personId)
+      : null
+  if (direct) p = browserPosition(direct)
   const error = spellTargetError(w, spell, p)
   if (error?.code === -1) {
     if (error.message) tell(w, error.message)
@@ -437,7 +443,7 @@ export function cast(w: World, spell: Spell, p: Point) {
   const shaman = w.units.find(u => u.team === 'blue' && isShaman(u))!
   release(w, shaman)
   shaman.heading = Math.atan2(p.x - shaman.x, p.z - shaman.z)
-  beginCast(w, shaman, spell, p)
+  beginCast(w, shaman, spell, p, direct ? personId : undefined)
   w.mode = null
   return true
 }

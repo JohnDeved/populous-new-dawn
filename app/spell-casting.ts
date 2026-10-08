@@ -8,6 +8,8 @@ import { SPELLS, TURNS_PER_SECOND } from './world-rules.ts'
 import { nativePosition } from './world-terrain-runtime.ts'
 import { buildingModel } from './building-shapes.ts'
 import { sound } from './world-effects.ts'
+import { blastPersonPosition, blastPersonTargeting } from './blast-targeting.ts'
+import { browserPosition } from './world-coordinates.ts'
 
 export type SpellCaster = {
   height: number
@@ -405,9 +407,16 @@ export function spellInRange(w: World, u: Unit, model: number, target: Point) {
   )
 }
 
-export function beginCast(w: World, u: Unit, spell: Spell, p: Point) {
+export function beginCast(w: World, u: Unit, spell: Spell, p: Point, personId?: number) {
   // 0x4f4de0 targets the center of a native 2x2 cell and spends the charge on allocation.
-  const target = { x: Math.floor(p.x / 2) * 2 + 1, z: -Math.floor(-p.z / 2) * 2 - 1 },
+  // The ordinary direct-person Blast packet instead retains the person's exact pose.
+  const direct =
+      personId !== undefined && blastPersonTargeting(spell, w.manaWorld.gameFlags)
+        ? blastPersonPosition(w, personId)
+        : null,
+    target = direct
+      ? browserPosition(direct)
+      : { x: Math.floor(p.x / 2) * 2 + 1, z: -Math.floor(-p.z / 2) * 2 - 1 },
     position = nativePosition(w, u)
   const tribe = tribeForTeam(u.team),
     model = SPELLS.find(s => s.id === spell)!.model
@@ -422,12 +431,15 @@ export function beginCast(w: World, u: Unit, spell: Spell, p: Point) {
     target,
     source: { x: u.x, z: u.z },
     position,
-    destination: nativePosition(w, target),
+    destination: direct ?? nativePosition(w, target),
     origin: { ...position },
     phase: 'windup',
     remaining: 6,
     turns: 0,
     visuals: [],
+    ...(direct && {
+      blastTarget: { personId: personId!, shotPersonId: null, destination: { ...direct } },
+    }),
   })
   debitSpellMana(w.manaTribes[tribe], state.flags, price)
   registerSpellCooldown(
