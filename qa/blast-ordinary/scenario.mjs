@@ -16,7 +16,7 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
   const commands = resolve(output, 'commands'), started = Date.now(), actions = []
   mkdirSync(commands)
   const limits = { wallMs: 240000, approachMs: 140000, targetMs: 12000, cameraMs: 15000, castMs: 10000, maximumSetupTurn: 1800 }
-  let attached = false, primaryError, result
+  let attached = false, setupAttached = false, primaryError, result
   const save = (name, data) => writeFileSync(resolve(output, name), JSON.stringify(data, null, 2) + '\n')
   const checkStop = async () => {
     signal.throwIfAborted()
@@ -29,13 +29,15 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
     await checkStop(); actions.push({ kind, details, wallMs: Date.now() - started, phase: 'before' }); await fn()
     actions.push({ kind, details, wallMs: Date.now() - started, phase: 'after' }); await checkStop()
   }
-  const current = () => page.evaluate(() => {
-    const s = window.testSceneRef.current, w = s.world, original = window.blastOriginal
-    if (!original || s !== original.scene || w !== original.world || w !== window.testStore.getWorld() || !w.units.includes(original.actor)) throw Error('Original scene, World or Shaman changed')
-    return { turn: w.turn, level: w.outcome.level, flags: w.manaWorld.gameFlags, status: w.status, paused: w.paused, speed: w.speed,
-      actor: { id: original.actor.id, x: original.actor.x, z: original.actor.z, hp: original.actor.hp }, selected: [...w.selected], mode: w.mode,
-      stock: w.shots.blast, castCount: w.stats.cast, random: w.randomState, inputMask: w.inputMask }
-  })
+  const current = async () => {
+    const state = await page.evaluate(() => {
+      const s = window.testSceneRef.current, w = s.world, sample = window.blastSetup.snapshot()
+      return { ...sample, flags: w.manaWorld.gameFlags, castCount: w.stats.cast, random: w.randomState }
+    })
+    assert.ok(state, 'Setup snapshot failed')
+    assert.deepEqual(state.failures, [], 'Original scene, World or healthy Shaman changed; setup trace retained')
+    return state
+  }
   const healthy = state => {
     assert.equal(state.level, 2); assert.equal(state.status, 'playing'); assert.equal(state.paused, false); assert.equal(state.speed, 1)
     assert.equal(state.flags & 32, 0); assert.ok(state.actor.hp > 0); assert.ok(state.turn < limits.maximumSetupTurn)
@@ -58,12 +60,19 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
   try {
     await openMission(2)
     const readiness = await waitForShamanReadiness(page)
-    await page.evaluate(() => {
+    await page.evaluate(async () => {
       if (window.blastOriginal || window.blastEpisode) throw Error('No observer rearming')
       const scene = window.testSceneRef.current, world = scene.world, actor = world.units.find(u => u.team === 'blue' && u.kind === 'shaman' && u.hp > 0)
       if (!actor || world.stats.cast || world.shots.blast !== 4) throw Error('Untouched fresh Mission2 start required')
-      window.blastOriginal = { scene, world, actor }
+      const target = world.units.find(u => u.id === 19 && u.team === 'green' && u.kind === 'warrior')
+      if (!target) throw Error('Authored response Warrior19 is required; no replacement target')
+      window.blastOriginal = { scene, world, actor, target }
+      const { observeBlastSetup } = await import('/qa/blast-ordinary/setup-observer.mjs')
+      const { currentPersonOrder } = await import('/app/person-orders.ts')
+      window.blastSetup = observeBlastSetup(scene, actor, { currentOrder: (w, p) => currentPersonOrder(w.buildingOrders, p) })
+      if (window.blastSetup.read().errors.length) throw Error('Setup observation could not attach')
     })
+    setupAttached = true
     healthy(await current()); save('startup.json', { readiness, state: await current(), limits })
     await input('escape', {}, () => page.keyboard.press('Escape'))
     await input('followers-tab', {}, () => page.getByLabel('followers', { exact: true }).click())
@@ -84,37 +93,60 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
       return null
     }, approach)
     assert.ok(ground, 'No real ordinary ground move at the bounded approach')
+    const groundBefore = await current()
+    await page.evaluate(async () => {
+      const { observeEntityPointer } = await import('/qa/erosion-ordinary/input.mjs')
+      window.blastGround = observeEntityPointer(window.testSceneRef.current)
+    })
     await input('approach-ground', ground, () => page.mouse.click(ground.x, ground.y))
-    await poll(async () => {
-      const state = await current(); healthy(state)
-      return Math.hypot(state.actor.x - ground.point.x, state.actor.z - ground.point.z) < 2
-    }, limits.approachMs, 'original Shaman walking to patrol range')
-    await view(approach)
-    // Two distinct normal-turn observations choose an actually moving original patrol member.
-    let prior, target
-    await poll(async () => {
-      const observed = await page.evaluate(async () => {
-        const s = window.testSceneRef.current, { patrolSnapshot } = await import('/qa/blast-ordinary/observer.mjs')
-        return { turn: s.world.turn, patrol: patrolSnapshot(s) }
-      })
-      if (prior && observed.turn > prior.turn) target = observed.patrol.find(p => {
-        const old = prior.patrol.find(u => u.id === p.id)
-        return old && p.speed > 0 && (p.position.x !== old.position.x || p.position.y !== old.position.y)
-      })
-      if (!target) prior = observed
-      return !!target
-    }, limits.targetMs, 'naturally moving model25 patrol member')
-    save('target-setup.json', { prior, target, state: await current() })
+    const groundAfter = await current(), groundPointer = await page.evaluate(() => {
+      const result = window.blastGround.finish(); window.blastGround = null; return result
+    })
+    save('ground-dispatch.json', { before: groundBefore, after: groundAfter, pointer: groundPointer })
+    assert.deepEqual(groundBefore.selected, [groundBefore.actor.id])
+    assert.deepEqual(groundPointer.errors, []); assert.equal(groundPointer.restored, true)
+    const deliveredGround = groundPointer.events.find(e => e.type === 'pointerup')
+    assert.ok(deliveredGround?.trusted && deliveredGround.canvasTarget && deliveredGround.canvasOwned)
+    assert.ok(deliveredGround.picks.some(p => p.owner === 'scene' && p.name === 'pick' && p.point && Math.hypot(p.point.x - ground.point.x, p.point.z - ground.point.z) < 0.75))
+    assert.equal(groundAfter.actor.order?.model, 3, 'Original Shaman did not receive the ordinary move order')
+    assert.equal(groundAfter.actor.order.a & 65535, Math.round((ground.point.x + 8) * 256) & 65535)
+    assert.equal(groundAfter.actor.order.b & 65535, Math.round((-ground.point.z - 8) * 256) & 65535)
+    assert.ok(groundAfter.pointerAck.until > groundBefore.pointerAck.until)
+    assert.ok(groundAfter.orderMarkers.some(e => !groundBefore.orderMarkers.some(old => old.id === e.id)))
+    // Face the observed response corridor before either side reaches cast range.
+    await view({ x: 122, z: 122 })
     const state = await current(); healthy(state)
-    await page.evaluate(async options => {
-      const { observeBlastEpisode } = await import('/qa/blast-ordinary/observer.mjs')
-      window.blastEpisode = observeBlastEpisode(window.testSceneRef.current, options)
-    }, { expectation, actorId: state.actor.id, targetId: target.id, runId: receipt.profile.runId, sourceFingerprint: receipt.source.fingerprint, maxTurns: 48 })
-    attached = true
+    const target = { id: 19 }
     await input('blast-key', {}, () => page.keyboard.press('1'))
     assert.equal((await current()).mode, 'blast')
+    let prior, trigger
+    await poll(async () => {
+      healthy(await current())
+      const observed = await page.evaluate(async () => {
+        const s = window.testSceneRef.current, { responseSnapshot } = await import('/qa/blast-ordinary/observer.mjs')
+        const { spellTargetError } = await import('/app/model.ts'), { wrappedDistance } = await import('/app/world-coordinates.ts')
+        const response = responseSnapshot(s), p = response[0], actor = window.blastOriginal.actor
+        const probe = structuredClone(s.world), target = p && probe.units.find(u => u.id === p.id)
+        return { turn: s.world.turn, response, distance: p ? wrappedDistance(actor, p) : null,
+          targetError: target ? spellTargetError(probe, 'blast', target) : 'missing target', actorFighting: !!actor.fight }
+      })
+      const p = observed.response[0], old = prior?.response[0]
+      if (old && p && observed.turn > prior.turn && p.speed > 0 && !p.fighting && !observed.actorFighting &&
+        (p.position.x !== old.position.x || p.position.y !== old.position.y) && observed.distance >= 7 && observed.targetError === null) trigger = observed
+      if (!trigger) prior = observed
+      return !!trigger
+    }, limits.approachMs, 'healthy original response Warrior19 moving inside actual Blast range')
+    save('target-setup.json', { prior, trigger, target, state: await current(), releaseWithinTurns: 4 })
+    await page.evaluate(async options => {
+      const setup = window.blastSetup.finish()
+      if (!setup.cleanupVerified || setup.errors.length) throw Error('Setup observer cleanup failed')
+      const { observeBlastEpisode } = await import('/qa/blast-ordinary/observer.mjs')
+      window.blastEpisode = observeBlastEpisode(window.testSceneRef.current, options)
+    }, { expectation, actorId: state.actor.id, targetId: target.id, runId: receipt.profile.runId, sourceFingerprint: receipt.source.fingerprint, maxTurns: 48, triggerTurn: trigger.turn })
+    attached = true
     let hit, hover
     await poll(async () => {
+      assert.ok((await current()).turn <= trigger.turn + 4, 'Response release window expired; stop without casting')
       hit = await page.evaluate(async id => {
         const s = window.testSceneRef.current, u = s.world.units.find(u => u.id === id && u.hp > 0 && u.inside === null), box = s.picking.personBounds(id)
         if (!u || !box) return null
@@ -129,8 +161,8 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
       if (!hit) return false
       await input('person-hover', { id: target.id, hit }, () => page.mouse.move(hit.x, hit.y))
       hover = await page.evaluate(async ({ id, prior }) => {
-        const s = window.testSceneRef.current, { pointerFeedback, patrolSnapshot } = await import('/qa/blast-ordinary/observer.mjs')
-        const p = patrolSnapshot(s).find(p => p.id === id), old = prior.patrol.find(p => p.id === id)
+        const s = window.testSceneRef.current, { pointerFeedback, responseSnapshot } = await import('/qa/blast-ordinary/observer.mjs')
+        const p = responseSnapshot(s).find(p => p.id === id), old = prior.response.find(p => p.id === id)
         const event = s.pointerScreen, actual = event && s.picking.pickPerson(event), feedback = pointerFeedback(s)
         if (!p || !old || !event || actual !== id) return null
         return { turn: s.world.turn, targetId: id, mode: s.world.mode, canvasOwned: document.elementFromPoint(event.clientX, event.clientY) === s.renderer.domElement,
@@ -143,11 +175,16 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
     if (expectation === 'candidate') await poll(() => page.evaluate(() => window.blastEpisode.progress().frames.some(f => f.kind === 'hover')), 2000, 'rendered hover frame')
     // Re-read the moving person hit immediately before a single dispatched click.
     const fresh = await page.evaluate(async id => {
-      const s = window.testSceneRef.current, { pointerFeedback, patrolSnapshot } = await import('/qa/blast-ordinary/observer.mjs')
-      const p = patrolSnapshot(s).find(p => p.id === id), event = s.pointerScreen
-      return { turn: s.world.turn, id: event && s.picking.pickPerson(event), p, feedback: pointerFeedback(s) }
+      const s = window.testSceneRef.current, { pointerFeedback, responseSnapshot } = await import('/qa/blast-ordinary/observer.mjs')
+      const p = responseSnapshot(s).find(p => p.id === id), event = s.pointerScreen
+      const { spellTargetError } = await import('/app/model.ts'), probe = structuredClone(s.world)
+      return { turn: s.world.turn, id: event && s.picking.pickPerson(event), p, feedback: pointerFeedback(s),
+        targetError: p ? spellTargetError(probe, 'blast', probe.units.find(u => u.id === id)) : 'missing target' }
     }, target.id)
     assert.equal(fresh.id, target.id, 'Moving target left the actual pointer before dispatch')
+    assert.ok(fresh.p?.speed > 0 && !fresh.p.fighting, 'Original response target stopped before release')
+    assert.equal(fresh.targetError, null, 'Fresh release-time spell range/health validation failed')
+    assert.ok(fresh.turn <= trigger.turn + 4, 'Response release window expired; stop without casting')
     assert.ok(fresh.turn <= hover.turn + 1, 'Hover/context became stale; stop without casting')
     await input('blast-person-release', { id: target.id, hit, turn: fresh.turn }, () => page.mouse.click(hit.x, hit.y))
     await poll(async () => {
@@ -160,6 +197,16 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
     await page.screenshot({ path: resolve(output, 'terminal.png') })
   } catch (error) { primaryError = error }
   finally {
+    if (setupAttached) {
+      try {
+        const setup = await page.evaluate(() => {
+          const ground = window.blastGround?.finish(); window.blastGround = null
+          return { ...window.blastSetup.finish(), ground }
+        })
+        save('setup-trace.json', setup)
+        if ((!setup.cleanupVerified || setup.errors.length || setup.ground?.errors.length) && !primaryError) primaryError = Error('Setup observation/cleanup failed')
+      } catch (error) { primaryError ??= error }
+    }
     if (attached) {
       try {
         const terminal = await page.evaluate(async () => { window.blastEpisode.dispose(); await window.blastEpisode.settled(); return window.blastEpisode.read() })

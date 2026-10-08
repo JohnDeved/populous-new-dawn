@@ -5,13 +5,13 @@ import { createBlastEpisode } from '../qa/blast-ordinary/contract.mjs'
 
 // Synthetic evidence records test only the reducer, never gameplay or rendering.
 const copy = value => structuredClone(value)
-const options = { expectation: 'candidate', actorId: 1, targetId: 3, runId: 'test-run', sourceFingerprint: 'source', maxTurns: 48 }
+const options = { expectation: 'candidate', actorId: 1, targetId: 3, runId: 'test-run', sourceFingerprint: 'source', maxTurns: 48, triggerTurn: 1 }
 const context = { level: 2, camera: { x: 2, y: 3 }, flags: 0 }
 const position = turn => ({ x: 1000 + (turn - 1) * 10, y: 2000, h: 120 })
 const browserPoint = p => ({ x: (p.x - 2048) / 256, z: -(p.y + 2048) / 256 })
 const hover = expectation => ({ turn: 1, targetId: 3, mode: 'blast', canvasOwned: true, hitId: 3,
   visible: expectation === 'candidate', lines: expectation === 'candidate' ? 16 : 0, context: copy(context), position: position(1),
-  previousTurn: 0, previousPosition: position(0), orderModel: 25 })
+  previousTurn: 0, previousPosition: position(0), orderModel: 19 })
 const release = expectation => ({ turn: 1, targetId: 3, mode: 'blast', trusted: true, canvasOwned: true, context: copy(context),
   handlerPersonId: expectation === 'candidate' ? 3 : null, handlerTerrain: expectation === 'baseline', stockBefore: 4, castCountBefore: 0 })
 function sample(turn, expectation = 'candidate', { still = false } = {}) {
@@ -67,7 +67,7 @@ test('changed, removed or invalid target fails before impact', () => {
     assert.throws(() => finish({ mutate: ({ before, turn }) => { if (turn === 4) damage(before.target) } }), /target changed|disappeared/)
 })
 test('setup requires life, but a retained nondeleted class1 owner is not invalidated by HP alone', () => {
-  assert.throws(() => start('candidate', ({ first }) => { first.target.hp = 0 }), /living patrol/)
+  assert.throws(() => start('candidate', ({ first }) => { first.target.hp = 0 }), /living response/)
   assert.equal(finish({ mutate: ({ before, after, turn }) => { if (turn >= 4) { before.target.hp = 0; after.target.hp = 0 } } }).report().complete, true)
 })
 test('stale pointer, changed context, wrong handler and synthetic events are rejected', () => {
@@ -116,4 +116,12 @@ test('driver source excludes game mutations and diagnostic clock/render shortcut
   assert.match(driver, /receipt\.profile\?\.mode, 'created'/)
   assert.match(driver, /spellTargetError\(probe,/)
   assert.match(driver, /remainingAcceptance/)
+})
+
+test('an unrelated patrol model cannot satisfy the declared response episode', () => {
+  assert.throws(() => start('candidate', ({ h }) => { h.orderModel = 25 }), /response person/)
+})
+
+test('actual delivered release outside four trigger turns fails even with a fresh hover', () => {
+  assert.throws(() => start('baseline', ({ h, r, first }) => { h.turn = 5; r.turn = 6; first.turn = 6 }), /release window/)
 })
