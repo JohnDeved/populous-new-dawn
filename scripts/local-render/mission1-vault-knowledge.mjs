@@ -56,7 +56,7 @@ export default async function mission1VaultKnowledge({ page, openMission, output
   const report = { source: receipt.source, entry: continueSaved946 ? 'public-saved946-continuation' : 'fresh-Mission1', status: 'running', actions: [], captures: {},
     helpers: Object.fromEntries(files.map(file => [file, hash(readFileSync(new URL(file, import.meta.url)))])),
     provenance: { bridge: 'scripts/local-render/hut-smoke-ignition.mjs:373-419 @ e649af3c51be5e1f6131809c900789b607ef7fb2',
-      observer: 'Mission3 a6b302d5, tightened for missed birth and exact first1417',
+      observer: 'Mission3 a6b302d5; visible birth and exact frame from independent presentation-clock visits',
       construction: 'ordinary-shared-training.mjs @ a3d3f2f92a7dc7e84f54f6ddac9f6c989b0ee435',
       input: 'qa/erosion-ordinary/input.mjs' },
     limits: 'Ordinary Mission1 bank-c camp marker/gift and construction only. Real RAF at speed1. Software/headless pixels do not establish native raster, absolute animation cadence or hardware performance.' }
@@ -262,7 +262,9 @@ export default async function mission1VaultKnowledge({ page, openMission, output
     assert.equal(stages.birth.beforeTurn.shrine.active, true); assert.equal(stages.birth.afterTurn.shrine.active, false)
     assert.equal(stages.birth.afterTurn.gift.independentGlow, true)
     assert.equal(stages.birth.postRender.gift.visible, true); assert.equal(stages.birth.postRender.gift.body, 1077)
-    assert.equal(stages.birth.postRender.gift.glow.frame, 1417); assert.equal(stages.birth.postRender.marker.visible, false)
+    assert.deepEqual(stages.birth.validationErrors, [])
+    assert.equal(stages.birth.postRender.gift.glow.frame, stages.birth.presentation.expectedHfx)
+    assert.equal(stages.birth.postRender.marker.visible, false)
     assert.equal(stages.retirement.afterTurn.turn - stages.birth.afterTurn.turn, 6)
     assert.equal(stages.retirement.afterTurn.gift.remaining, 76); assert.equal(stages.retirement.postRender.gift.visible, false)
     assert.equal(stages.retirement.afterTurn.camp, false)
