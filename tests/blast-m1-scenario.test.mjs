@@ -64,3 +64,13 @@ test('scenario refuses baseline or reused profiles before any browser operation'
     else process.env.POPULOUS_BLAST_EXPECTATION = previous
   }
 })
+
+
+test('ground primer excludes persons while retaining actual non-person terrain semantics', () => {
+  const source = readFileSync(new URL('../qa/blast-ordinary/m1-scenario.mjs', import.meta.url), 'utf8')
+  const primer = source.slice(source.indexOf('    const primer = await page.evaluate'), source.indexOf('    report.primer = { hit: primer }'))
+  assert.ok(primer.length > 0)
+  assert.doesNotMatch(primer, /pickUnit|pickWorldObject/)
+  assert.match(primer, /const occupied = person !== null/)
+  assert.match(primer, /pickedCell.x === wanted.x && pickedCell.y === wanted.y && error === null/)
+})

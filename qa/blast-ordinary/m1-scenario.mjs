@@ -197,7 +197,7 @@ export default async function ordinaryM1EnemyBlast({ page, output, receipt, sign
         const hit = { x: Math.round(base.x + dx), y: Math.round(base.y + dy) }, event = { clientX: hit.x, clientY: hit.y }
         const owned = document.elementFromPoint(hit.x, hit.y) === s.renderer.domElement
         const person = owned ? s.picking.pickPerson(event) : null
-        const occupied = person !== null || owned && (s.pickUnit(event) || s.pickWorldObject(event))
+        const occupied = person !== null
         const point = owned && !occupied ? s.pick(event) : null, pickedCell = point && cell(point)
         const error = point ? spellTargetError(probe, 'blast', point) : 'no empty ground'
         const margin = point ? spellRange(probe, caster, 2) * 256 - positionDistance(nativePosition(probe, caster), nativePosition(probe, point)) : null
@@ -231,7 +231,7 @@ export default async function ordinaryM1EnemyBlast({ page, output, receipt, sign
           frame: group?.userData.frame ?? null, spriteBucket: group?.userData.spriteBucket ?? null,
           visibleLayer: !!layer, painter: source ? { bucket: source.bucket, cell: source.cell, phase: source.phase, object: source.object, face: source.face } : null,
           native: native ? { id: native.id, class: native.class, flags2: native.flags2, renderFlags: native.renderFlags, state: native.state } : null }
-        const box = s.picking.personBounds(target.id), rect = s.container.getBoundingClientRect(), candidates = [], inspection = []
+        const box = s.picking.personBounds(target.id), rect = s.renderer.domElement.getBoundingClientRect(), candidates = [], inspection = []
         const canonical = point => ({ x: Math.round(point.x), y: Math.round(point.y) })
         if (s.pointerScreen) candidates.push(canonical({ x: s.pointerScreen.clientX, y: s.pointerScreen.clientY }))
         if (box) for (const fy of [0.5, 0.35, 0.65]) for (const fx of [0.5, 0.35, 0.65])
