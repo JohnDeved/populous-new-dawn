@@ -1,6 +1,6 @@
 # Blast person targeting: accepted first ordinary stage
 
-On 2026-10-08, independently reviewed baseline20 and candidate24 completed their
+On 2026-10-08, independently reviewed baseline 20 and candidate 24 completed their
 respective ordinary Mission2 witnesses. This is a friendly-person identity, HUD,
 moving-aim and parent-impact result. Enemy damage, original-game execution,
 remaining interruption/checkpoint controls and final combined-tree checks are
@@ -10,23 +10,23 @@ original 00:10:12 UTC trial freeze and every failed attempt are preserved.
 ## Exact products and observed behavior
 
 - Baseline: `b1ee7aba72f440040155216fe35a3fbd2d79d13c`. The actual person pixel
-  delivered a ground cast at turn321. Public movement325 occurred during windup;
-  windup and flight motion were observed, with arrival329 and fixed-ground
-  impact330. Natural flying327 and impact331 frames were retained.
-- Candidate: `c40026937f39dadf86143ef13f73dba22d2e4a9c`. Natural hover331 preceded
-  the actual trusted person release340. Original Shaman54 cast on Brave278;
-  the same Brave received the exact public model3 move343 with three windup
+  delivered a ground cast at turn321. Public movement 325 occurred during windup;
+  windup and flight motion were observed, with arrival 329 and fixed-ground
+  impact 330. Natural flying 327 and impact 331 frames were retained.
+- Candidate: `c40026937f39dadf86143ef13f73dba22d2e4a9c`. Natural hover 331 preceded
+  the actual trusted person release 340. Original Shaman 54 cast on Brave 278;
+  the same Brave received the exact public model 3 move 343 with three windup
   turns remaining. Ten adjacent visits preserve the accepted movement order
-  and actual windup and flight motion. Shot1252 arrived349, while parent
-  wave1263/flash1264 at350 used the target's updated pre-impact position
-  `(-97.2109375,-101)`. Stock4→3 and exactly one cast were retained.
-- Candidate natural frames show the 16-line hover331, 32-line acknowledgment343,
-  owned projectile head1254 during flying348, and impact350. Both raw receipts
+  and actual windup and flight motion. Shot 1252 arrived 349, while parent
+  wave 1263/flash 1264 at 350 used the target's updated pre-impact position
+  `(-97.2109375,-101)`. Stock 4→3 and exactly one cast were retained.
+- Candidate natural frames show the 16-line hover 331, 32-line acknowledgment 343,
+  owned projectile head 1254 during flying 348, and impact 350. Both raw receipts
   passed with stable source/runtime/scenario, no browser errors, and verified
   profile cleanup/continuation. No checkpoint was created in this stage.
 
 The products share the current-main application baseline, with eight candidate
-application files implementing Blast person targeting. QA methods differ: baseline20
+application files implementing Blast person targeting. QA methods differ: baseline 20
 is accepted historical evidence under an explicit consumer/lifecycle correspondence,
 not an execution of the candidate's later notification/HUD checker. Camera headings,
 turn histories and capture phases differ. These images support the declared
@@ -42,7 +42,7 @@ effect-pixel counts. No frame was forced, and flight is not relabelled arrival.
 
 The [hover raster](candidate24-hover-brackets.png) and
 [acknowledgment raster](candidate24-ack-brackets.png) are detached rasterizations
-of frozen, naturally drawn DOM SVG and computed style, with94 and188 positive
+of frozen, naturally drawn DOM SVG and computed style, with 94 and 188 positive
 pixels respectively. They are not full-game screenshots or composites. The game
 canvas excludes that DOM overlay. Ack records the actual consumed RAF time and
 original target/pose/context; its rasterization was deferred until after input.
@@ -54,7 +54,7 @@ and [exact byte/hash index](https://github.com/JohnDeved/populous-new-dawn/blob/
 close the normal bit-clear selector→packet→spell/shot identity chain with early
 mission-header setup evidence. They do not execute original instructions.
 
-The port covers plain0x6a person release. Ctrl0x6b mode retention, the special
+The port covers plain 0x6a person release. Ctrl 0x6b mode retention, the special
 bit-set path, arbitrary object targeting, full original composition and enemy
 damage parity remain outside this witness. Other spells, range/payment/RNG and
 bit-set behavior are unchanged. Valid allocated dead/airborne people retain
