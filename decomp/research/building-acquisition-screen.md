@@ -262,8 +262,11 @@ route: worship → earned Bridge → shore cast → crossing → guard → publi
 Load → Vault command33 → camp construction. It runs normal RAF/speed1 and does
 not inject World, actors or stock. Review/adapt only its passive screen observer
 and current input contracts after the candidate is fixed; do not freeze a route
-whose current guard step has not been validated. The existing guard method uses
-accepted terrain-cell spell input, not a person-picker chase.
+whose current guard step has not been validated. The historical input was
+terrain-cell-targeted, but current PR270 tries `pickPerson` before ground fallback.
+Retain the actual current handler/target receipt; `fixedGround` plus successful
+payment does not establish ground-only dispatch. Do not expand this screen route
+into a new enemy-pixel targeting investigation.
 
 Historical continuation08 passed on`2bb0a161` with unchanged saved turn946/full
 SHA`d737edcff40882186b99f996a7243df01659bf02f3504eedff36f15398391f33`.
@@ -284,13 +287,16 @@ The old suspended-RAF preacher checker is not a real-time screen witness.
 
 The separately reviewed local witness plan is
 `mission1-vault-driver-20261007/work/orchestration/prepare-vault-screen-witness-20261008/plan.md`
-(sibling worktree; SHA256`1dd91f6a5f325c9ce90af58414a7f5875dab9c7d85fad0bdaba577e916c71a27`).
-It is unpushed planning, not a receipt. Capture locked-card baseline, gift birth,
-six-visit handoff, first real whole/per-face screen renders, independent81/82 grant,
-and final enabled-card selection. Then cover natural pause, synchronous public
-Save/Load replacement, restart cleanup and resized display mapping from a new
-same-source checkpoint. Full construction/battle/victory need not be repeated for
-a screen-only change. World visits, UI visits and actual renders remain separate.
+(sibling worktree; SHA256`1e7064df5751a23eb9c41ebd0fbc8d39825a7090f1c9ef0b6c34f04c4e87ac2b`).
+It is unpushed planning, not a receipt. Carry forward unchanged PR269 world-art
+evidence while observing gift birth and six-visit hide. New pixels target the
+locked-card baseline, handoff, first real whole/per-face screen phases and final
+enabled-card selection; retain the independent81/82 grant. The final ownership
+contract and natural active duration determine where public pause, synchronous
+Save/Load, restart and resize can be exercised from a new same-source checkpoint.
+Missing an active boundary is a reported verification limit, never permission to
+inject/reseed state. Full construction/battle/victory need not be repeated for a
+screen-only change. World visits, UI visits and actual renders remain separate.
 
 This packet's static data/hash/conditional-layout audit and seven supplied-depth
 CPU-reference cases passed. Full controller
