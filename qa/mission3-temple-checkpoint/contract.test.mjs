@@ -4,8 +4,15 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
-import { createWorld, command, tick, select, setSelection, placeBuilding } from '../../app/model.ts'
-import { placementError } from '../../app/model.ts'
+import {
+  createWorld,
+  command,
+  tick,
+  select,
+  setSelection,
+  placeBuilding,
+  placementError,
+} from '../../app/model.ts'
 import * as pointer from '../erosion-ordinary/input.mjs'
 import { currentPersonOrder, personReachedOrder } from '../../app/person-orders.ts'
 import { nativeUnitModel } from '../../app/unit-kinds.ts'
@@ -379,8 +386,8 @@ function checkpointFixture(t, { clickFailure = false, malformed = false } = {}) 
     async button(name) {
       calls.push(name)
       if (name !== 'Save checkpoint') return
-      if (clickFailure) throw Error('Synthetic physical click failed')
-      for (const listener of [...listeners]) listener({ isTrusted: true, target: button })
+      if (clickFailure) throw new Error('Synthetic physical click failed')
+      for (const listener of listeners) listener({ isTrusted: true, target: button })
       record = { version: 1, world: structuredClone(base.world) }
       if (malformed) record.world.turn++
     },
@@ -461,8 +468,8 @@ test('maintained helper provenance pins the current bytes and public controls st
     'Resume game',
   ])
     assert.ok(page.includes(name), name)
-  assert.ok(page.includes('aria-label={`${b.name}, ${b.cost} wood`}'))
-  assert.ok(page.includes('aria-label={`Select ${u.kind}`}'))
+  assert.ok(page.includes(`aria-label={\`\${b.name}, \${b.cost} wood\`}`))
+  assert.ok(page.includes(`aria-label={\`Select \${u.kind}\`}`))
   const harness = read('scripts/local-render/harness.mjs').toString()
   assert.ok(harness.includes('const openMission = async mission =>'))
   assert.ok(harness.includes('await bindGame(page)'))

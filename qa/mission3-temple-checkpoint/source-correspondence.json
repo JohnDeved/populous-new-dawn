@@ -15,7 +15,7 @@
     {
       "path": "scripts/local-render/mission1-vault-input.mjs",
       "commit": "e504f73f698bb852c4091fe004e5a043e583772e",
-      "sha256": "c4b2328726e62935396fcca68f4bc4a9857e452a88fb312c214783e47bb38083",
+      "sha256": "6516422eadca28e8850a0640ded3ab8a30cdc5b12a1a44e982af14c2a414b913",
       "upstreamSha256": "bbb7869e1f5ac97c744a434a91269dc867bb5edea71323c058bc4722631b6da3",
       "adaptation": "Only explicit M3 home(35,81) groundRadius2; default0.35, same-native-cell and spell predicates, actual dispatch and arrival unchanged."
     },

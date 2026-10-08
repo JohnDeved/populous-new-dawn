@@ -12,7 +12,7 @@ export async function installTempleRouteObservation() {
     unit => unit.team === 'blue' && unit.kind === 'shaman' && unit.hp > 0
   )
   if (world.outcome.level !== 3 || !shaman || window.m3TempleRoute)
-    throw Error('Fresh M3 observation required')
+    throw new Error('Fresh M3 observation required')
   const building = b => ({
     id: b.id,
     kind: b.kind,
@@ -175,8 +175,8 @@ export async function armTemplePlacement({ hit, selected }) {
     Math.hypot(point.x - hit.point.x, point.z - hit.point.z) > 0.05 ||
     placementError(structuredClone(world), 'temple', point)
   )
-    throw Error('Temple placement precondition changed')
-  if (window.finishTemplePlacement) throw Error('A Temple input observer is already armed')
+    throw new Error('Temple placement precondition changed')
+  if (window.finishTemplePlacement) throw new Error('A Temple input observer is already armed')
   const pointer = observeEntityPointer(scene),
     record = { preflight: observer.read(), before: null, after: null, errors: [] }
   const before = () => {
@@ -257,14 +257,14 @@ export function armTempleSave() {
     b => b.textContent.trim() === 'Save checkpoint'
   )
   if (!button?.isConnected || button.disabled || window.finishTempleSave)
-    throw Error('Public Save unavailable')
+    throw new Error('Public Save unavailable')
   const record = { saved: null, error: null }
   const capture = event => {
     try {
       if (!event.isTrusted || (event.target !== button && !button.contains(event.target)))
-        throw Error('Trusted public Save required')
+        throw new Error('Trusted public Save required')
       const observer = window.m3TempleRoute
-      if (observer.world !== window.testStore.getWorld()) throw Error('Save World replaced')
+      if (observer.world !== window.testStore.getWorld()) throw new Error('Save World replaced')
       record.saved = observer.summary(observer.world)
     } catch (error) {
       record.error = String(error)
@@ -284,7 +284,7 @@ export async function readCommittedTempleSummary() {
     const request = indexedDB.open('populous-new-dawn')
     request.onupgradeneeded = () => {
       request.transaction.abort()
-      reject(Error('Missing checkpoint database'))
+      reject(new Error('Missing checkpoint database'))
     }
     request.onsuccess = () => resolve(request.result)
     request.onerror = () => reject(request.error)
@@ -295,7 +295,7 @@ export async function readCommittedTempleSummary() {
         request = tx.objectStore('checkpoints').get('latest')
       tx.oncomplete = () => resolve(request.result)
       tx.onerror = () => reject(tx.error)
-      tx.onabort = () => reject(tx.error ?? Error('Checkpoint read aborted'))
+      tx.onabort = () => reject(tx.error ?? new Error('Checkpoint read aborted'))
     })
     return record
       ? { version: record.version, summary: window.m3TempleRoute.summary(record.world) }

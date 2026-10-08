@@ -119,5 +119,10 @@ product lint remains failed with accepted inherited attribution.
 Current QA contracts, formatting/ESLint, scoped Oxlint under the stationary config,
 and context-filtered orchestration tests close affected integration only. The new
 QA tests are outside package.json's top-level test glob and run explicitly.
+Scoped quality receipts retain their actual outcomes: the copied input helper's
+existing bare-Error finding and legacy formatting are inherited QA-helper issues,
+separate from historical product lint. The new M3 modules receive mechanical
+style repairs; advisory browser-global/serialized-parameter warnings stay visible.
+An inherited-finding disposition is not a clean whole-scope lint/format pass.
 No full unchanged check/build replay is required. Fresh browser route, screenshot,
 typed Save, terminal cleanup and exact final profile digest remain mandatory.

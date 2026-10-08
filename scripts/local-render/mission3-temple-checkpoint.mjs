@@ -83,12 +83,13 @@ export async function saveTempleCheckpoint({
   save,
   observeCheckpoint,
 }) {
-  const entry = (report.checkpoint = {
+  const entry = {
     boundary: null,
     committed: null,
     digest: null,
     cleanupErrors: [],
-  })
+  }
+  report.checkpoint = entry
   let armed = false,
     failed = false,
     failure
@@ -255,7 +256,8 @@ export default async function mission3TempleCheckpoint({
   try {
     await openMission(3)
     report.readiness = await waitForShamanReadiness(page, { timeout: 60000 })
-    const initial = (report.initial = await page.evaluate(installTempleRouteObservation))
+    const initial = await page.evaluate(installTempleRouteObservation)
+    report.initial = initial
     installed = true
     shamanId = report.readiness.after.shaman.id
     save()
@@ -279,7 +281,8 @@ export default async function mission3TempleCheckpoint({
     await clear()
     await input.button('Select and focus shaman')
     await input.view({ x: 35, z: 81 })
-    const movement = (report.home = await input.moveGround({ x: 35, z: 81 }, false, 2))
+    const movement = await input.moveGround({ x: 35, z: 81 }, false, 2)
+    report.home = movement
     save()
     const recipient = movement.delivered.after.units.find(u => u.id === shamanId)
     let moveFailed = false,
@@ -297,7 +300,7 @@ export default async function mission3TempleCheckpoint({
         () =>
           page.evaluate(() => {
             const evidence = window.mission1MoveEvidence
-            if (evidence.errors.length) throw Error(evidence.errors.join('\n'))
+            if (evidence.errors.length) throw new Error(evidence.errors.join('\n'))
             return !!evidence.completed
           }),
         300000
@@ -336,7 +339,8 @@ export default async function mission3TempleCheckpoint({
         .getByRole('button', { name: 'Select brave', exact: true })
         .click({ modifiers: ['Control'] })
     )
-    const selected = (report.builders = (await read()).selected)
+    const selected = (await read()).selected
+    report.builders = selected
     save()
     assert.equal(selected.length, 5)
     assert.ok(
@@ -345,7 +349,8 @@ export default async function mission3TempleCheckpoint({
         .every(u => u.kind === 'brave' && u.hp > 0)
     )
     await input.view({ x: 24, z: 70 })
-    const hit = (report.site = await page.evaluate(findTempleGround))
+    const hit = await page.evaluate(findTempleGround)
+    report.site = hit
     save()
     assert.equal(hit.rejection, undefined, 'Legal ordinary Temple site required')
     await input.button('buildings B')
@@ -381,7 +386,8 @@ export default async function mission3TempleCheckpoint({
       }
     }
     if (placementFailed) throw placementFailure
-    const temple = (report.plan = assertTemplePlacement(report.placement, hit, selected))
+    const temple = assertTemplePlacement(report.placement, hit, selected)
+    report.plan = temple
     report.completed = await wait(
       'ordinary-Temple-completed',
       state =>
@@ -439,7 +445,7 @@ export default async function mission3TempleCheckpoint({
     }
     if (report.cleanupErrors.length && !failed) {
       failed = true
-      failure = Error(report.cleanupErrors.join('\n'))
+      failure = new Error(report.cleanupErrors.join('\n'))
       report.status = 'failed'
       report.failure = String(failure)
     }
