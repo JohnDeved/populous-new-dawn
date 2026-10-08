@@ -141,3 +141,9 @@ export function readBlastReleasePixel(scene, event) {
     point: { x: event.clientX, y: event.clientY }, personId,
     cacheBefore: before, cacheAfter: fields(scene.picking, ['lastKey', 'lastId', 'lastKind']) }
 }
+
+// Retain detached attempted evidence even when the reducer rejects this release.
+export function recordBlastRelease(artifacts, evidence, event, sample) {
+  artifacts.attemptedRelease = { stage: 'reducer-validation', event: structuredClone(event), sample: structuredClone(sample) }
+  return evidence.release(event, sample)
+}
