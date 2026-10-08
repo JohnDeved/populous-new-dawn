@@ -1,4 +1,9 @@
-import { initializeBuildingAcquisition, visitBuildingAcquisition, type BuildingAcquisitionController, type BuildingAcquisitionDrawCommand } from './building-acquisition.ts'
+import {
+  initializeBuildingAcquisition,
+  visitBuildingAcquisition,
+  type BuildingAcquisitionController,
+  type BuildingAcquisitionDrawCommand,
+} from './building-acquisition.ts'
 import { movePosition, nativeAngle, positionDistance, short } from './native-math.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import hud from './original-hud.json' with { type: 'json' }
@@ -104,7 +109,10 @@ export interface WorshipBodyCommand extends DrawBinding {
   flags: 0
   finalLeg: boolean
 }
-export type WorshipAcquisitionDrawCommand = WorshipSpriteCommand | WorshipBodyCommand | BuildingAcquisitionDrawCommand
+export type WorshipAcquisitionDrawCommand =
+  | WorshipSpriteCommand
+  | WorshipBodyCommand
+  | BuildingAcquisitionDrawCommand
 export interface WorshipAcquisitionState {
   building: BuildingAcquisitionController | null
   spell: WorshipSpellController | null
@@ -138,7 +146,16 @@ export function startWorshipAcquisition(
   const geometry = structuredClone(request.geometry)
   geometry.origin = integerPoint(geometry.origin)
   geometry.target = integerPoint(geometry.target)
-  const common = { family: 'spell' as const, giftId: request.giftId, active: true, step: 0, visits: 0, next: true, model: request.model, geometry }
+  const common = {
+    family: 'spell' as const,
+    giftId: request.giftId,
+    active: true,
+    step: 0,
+    visits: 0,
+    next: true,
+    model: request.model,
+    geometry,
+  }
   state.spell = {
     ...common,
     giftId: request.giftId,
@@ -189,8 +206,16 @@ export function startBuildingAcquisition(
 ) {
   const c = initializeBuildingAcquisition(request.giftId, request.geometry, random)
   state.building = c
-  startCompanion(state, { family: 'building', giftId: c.giftId, model: 7,
-    geometry: c.geometry, active: true, step: 0, visits: 0, next: true })
+  startCompanion(state, {
+    family: 'building',
+    giftId: c.giftId,
+    model: 7,
+    geometry: c.geometry,
+    active: true,
+    step: 0,
+    visits: 0,
+    next: true,
+  })
 }
 
 function move(p: WorshipPoint, angle: number, distance: number) {
@@ -344,7 +369,15 @@ function stepCompanion(state: WorshipAcquisitionState, paused: boolean, random: 
 }
 
 function startPulse(state: WorshipAcquisitionState, c: DrawBinding, remaining: number) {
-  state.pulse = { active: true, frame: 0, remaining, family: c.family, giftId: c.giftId, model: c.model, geometry: c.geometry }
+  state.pulse = {
+    active: true,
+    frame: 0,
+    remaining,
+    family: c.family,
+    giftId: c.giftId,
+    model: c.model,
+    geometry: c.geometry,
+  }
 }
 
 function stepSpell(
@@ -451,17 +484,32 @@ export function stepWorshipAcquisition(
     else pulse.frame = (pulse.frame + 1) % 6
   }
   stepCompanion(state, input.paused, input.random)
-  const building = state.building, result = visitBuildingAcquisition(building, input.paused)
+  const { building } = state
+  const result = visitBuildingAcquisition(building, input.paused)
   if (building && result && !('retired' in result)) {
-    const binding = { family: 'building' as const, giftId: building.giftId, model: 7 as const, geometry: building.geometry }
+    const binding = {
+      family: 'building' as const,
+      giftId: building.giftId,
+      model: 7 as const,
+      geometry: building.geometry,
+    }
     if (result.pulse) startPulse(state, binding, result.pulse)
-    state.drawCommands.push({ kind: 'building', ...binding, whole: result.whole,
-      selected: result.selected, submissions: result.submissions })
+    state.drawCommands.push({
+      kind: 'building',
+      ...binding,
+      whole: result.whole,
+      selected: result.selected,
+      submissions: result.submissions,
+    })
   }
   const buildingArrival = !!(result && 'arrivalAttempt' in result && result.arrivalAttempt)
   const arrivals: WorshipAcquisitionArrival[] = []
   stepSpell(state, input.paused, arrivals)
-  return { arrivals, buildingArrival, limiterActive: !!(state.building?.active || state.spell?.active || state.companion?.active) }
+  return {
+    arrivals,
+    buildingArrival,
+    limiterActive: !!(state.building?.active || state.spell?.active || state.companion?.active),
+  }
 }
 
 /** Rendering is a read-only consumer of the last UI visit, including its final

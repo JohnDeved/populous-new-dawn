@@ -104,6 +104,8 @@ export function buildingDrawPoint(
   const mapped = mapViewport(point, reference.viewport, current.viewport),
     oldTarget = mapViewport(reference.target, reference.viewport, current.viewport),
     target = worshipTargetPoint(current)
-  return { x: mapped.x + flight * (target.x - oldTarget.x),
-    y: mapped.y + flight * (target.y - oldTarget.y) }
+  return {
+    x: mapped.x + flight * (target.x - oldTarget.x),
+    y: mapped.y + flight * (target.y - oldTarget.y),
+  }
 }

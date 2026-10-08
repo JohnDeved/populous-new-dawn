@@ -70,10 +70,17 @@ export class WorshipAcquisitionPresentation {
         this.scene.onSound(0x71)
       },
       geometry: gift => {
-        const current = this.bridge?.select((gift.buildingAcquisition ?? gift.ordinaryWorship)!.model)
+        const current = this.bridge?.select(
+          (gift.buildingAcquisition ?? gift.ordinaryWorship)!.model
+        )
         return current ? worshipHandoffGeometry(current, this.anchors.get(gift.id)) : null
       },
-      failed: gift => this.failed(gift.id, (gift.buildingAcquisition ?? gift.ordinaryWorship)!.model, 'handoff geometry'),
+      failed: gift =>
+        this.failed(
+          gift.id,
+          (gift.buildingAcquisition ?? gift.ordinaryWorship)!.model,
+          'handoff geometry'
+        ),
     })
   }
 
@@ -85,7 +92,10 @@ export class WorshipAcquisitionPresentation {
         // The gift clamp still belongs to this visit when its HUD is detached.
       }
       this.failed(
-        (model === 7 ? this.scene.world.worshipAcquisition.controllers.building : this.scene.world.worshipAcquisition.controllers.spell)?.giftId ?? -1,
+        (model === 7
+          ? this.scene.world.worshipAcquisition.controllers.building
+          : this.scene.world.worshipAcquisition.controllers.spell
+        )?.giftId ?? -1,
         model,
         'arrival geometry'
       )
@@ -184,7 +194,10 @@ export class WorshipAcquisitionPresentation {
       for (const command of this.previousCommands) {
         if (command.kind === 'body') this.previousBody = command
         else if (command.kind === 'sprite' && command.particle !== undefined)
-          this.previousParticles.set(`${command.family}:${command.giftId}:${command.particle}`, command)
+          this.previousParticles.set(
+            `${command.family}:${command.giftId}:${command.particle}`,
+            command
+          )
       }
     }
     const shell = this.scene.container.parentElement!,
@@ -222,7 +235,9 @@ export class WorshipAcquisitionPresentation {
           const previous =
               command.particle === undefined
                 ? undefined
-                : this.previousParticles.get(`${command.family}:${command.giftId}:${command.particle}`),
+                : this.previousParticles.get(
+                    `${command.family}:${command.giftId}:${command.particle}`
+                  ),
             interpolated = interpolateWorshipPoint(
               command,
               previous?.geometry === command.geometry ? previous : undefined,

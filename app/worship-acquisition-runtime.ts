@@ -52,7 +52,10 @@ export function startPendingWorshipAcquisitions(world: World, bridge: WorshipHan
   world.worshipAcquisition.requests = []
   const gifts = requests.flatMap(id => {
     const gift = world.gifts.find(candidate => candidate.id === id)
-    return (gift?.ordinaryWorship || gift?.buildingAcquisition) && gift.recipient === world.manaWorld.playerTribe ? [gift] : []
+    return (gift?.ordinaryWorship || gift?.buildingAcquisition) &&
+      gift.recipient === world.manaWorld.playerTribe
+      ? [gift]
+      : []
   })
   // Completion-time clones prepend to the native list. Same-turn heads are
   // visited newest authored head first, then their links in ascending slot order.
@@ -80,7 +83,11 @@ export function startPendingWorshipAcquisitions(world: World, bridge: WorshipHan
       continue
     }
     if (gift.buildingAcquisition) {
-      startBuildingAcquisition(world.worshipAcquisition.controllers, { giftId: gift.id, geometry }, () => random(world.cosmeticRandom))
+      startBuildingAcquisition(
+        world.worshipAcquisition.controllers,
+        { giftId: gift.id, geometry },
+        () => random(world.cosmeticRandom)
+      )
       continue
     }
     startWorshipAcquisition(world.worshipAcquisition.controllers, {
