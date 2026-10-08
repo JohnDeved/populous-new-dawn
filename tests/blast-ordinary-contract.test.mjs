@@ -5,7 +5,7 @@ import { createBlastEpisode } from '../qa/blast-ordinary/contract.mjs'
 
 // Synthetic evidence records test only the reducer, never gameplay or rendering.
 const copy = value => structuredClone(value)
-const options = { expectation: 'candidate', actorId: 1, targetId: 3, runId: 'test-run', sourceFingerprint: 'source', maxTurns: 48, triggerTurn: 1 }
+const options = { expectation: 'candidate', actorId: 1, targetId: 3, runId: 'test-run', sourceFingerprint: 'source', maxTurns: 48 }
 const context = { level: 2, camera: { x: 2, y: 3 }, flags: 0 }
 const position = turn => ({ x: 1000 + (turn - 1) * 10, y: 2000, h: 120 })
 const browserPoint = p => ({ x: (p.x - 2048) / 256, z: -(p.y + 2048) / 256 })
@@ -30,6 +30,7 @@ function sample(turn, expectation = 'candidate', { still = false } = {}) {
 function start(expectation = 'candidate', change = () => {}) {
   const episode = createBlastEpisode({ ...options, expectation }), h = hover(expectation), r = release(expectation), first = sample(1, expectation)
   change({ h, r, first })
+  episode.trigger(1)
   episode.hover(h)
   if (expectation === 'candidate') episode.frame({ kind: 'hover', turn: 1, targetId: 3, visible: true, lines: 16, pixels: 80, effectId: null })
   episode.release(r, first)
@@ -80,6 +81,7 @@ test('missing visible hover, arrival, impact or acknowledgement cannot pass', ()
   const { episode } = start()
   assert.throws(() => episode.frame({ kind: 'arrival', turn: 1, targetId: 3, visible: false, lines: 16, pixels: 0, effectId: 50 }), /pixels/)
   const withoutAck = createBlastEpisode(options)
+  withoutAck.trigger(1)
   withoutAck.hover(hover('candidate')); withoutAck.release(release('candidate'), sample(1))
   for (let turn = 1; turn < 10; turn++) { withoutAck.before(sample(turn)); withoutAck.after(sample(turn + 1)) }
   assert.equal(withoutAck.report().complete, false)
@@ -124,4 +126,15 @@ test('an unrelated patrol model cannot satisfy the declared response episode', (
 
 test('actual delivered release outside four trigger turns fails even with a fresh hover', () => {
   assert.throws(() => start('baseline', ({ h, r, first }) => { h.turn = 5; r.turn = 6; first.turn = 6 }), /release window/)
+})
+
+test('deferred hover raster retains its capture turn and cannot claim a post-release frame', () => {
+  const episode = createBlastEpisode(options)
+  episode.trigger(1); episode.hover(hover('candidate')); episode.release(release('candidate'), sample(1))
+  episode.frame({ kind: 'hover', turn: 1, targetId: 3, visible: true, lines: 16, pixels: 80, effectId: null })
+  assert.equal(episode.report().frames.length, 1)
+  const other = createBlastEpisode(options)
+  other.trigger(1); other.hover(hover('candidate')); other.release(release('candidate'), sample(1))
+  assert.throws(() => other.frame({ kind: 'hover', turn: 2, targetId: 3, visible: true, lines: 16, pixels: 80, effectId: null }), /Stale bracket/)
+  assert.throws(() => episode.trigger(2), /One actual response trigger/)
 })

@@ -8,14 +8,13 @@ const short = n => (n << 16) >> 16
 const browserPoint = p => ({ x: short(p.x - 2048) / 256, z: -short(p.y + 2048) / 256 })
 
 export function createBlastEpisode(options) {
-  keys(options, ['expectation', 'actorId', 'targetId', 'runId', 'sourceFingerprint', 'maxTurns', 'triggerTurn'])
-  const { expectation, actorId, targetId, runId, sourceFingerprint, maxTurns = 48, triggerTurn } = options
+  keys(options, ['expectation', 'actorId', 'targetId', 'runId', 'sourceFingerprint', 'maxTurns'])
+  const { expectation, actorId, targetId, runId, sourceFingerprint, maxTurns = 48 } = options
   require(['baseline', 'candidate'].includes(expectation), 'Explicit baseline/candidate expectation required')
   require(Number.isInteger(actorId) && Number.isInteger(targetId) && actorId !== targetId && runId && sourceFingerprint, 'Bound run and person identities required')
   require(Number.isInteger(maxTurns) && maxTurns >= 12 && maxTurns <= 120, 'Bounded cast turn limit required')
-  require(Number.isInteger(triggerTurn) && triggerTurn >= 0, 'Actual response trigger turn required')
   const rows = [], frames = [], errors = []
-  let before, lastAfter, entry, release, hover, arrival, impact, retired, windupMotion = false, flightMotion = false
+  let triggerTurn, before, lastAfter, entry, release, hover, arrival, impact, retired, windupMotion = false, flightMotion = false
   const fail = message => { errors.push(message); throw Error(message) }
   const check = (condition, message) => { if (!condition) fail(message) }
   function live(sample, targetRequired = true) {
@@ -25,6 +24,10 @@ export function createBlastEpisode(options) {
     if (targetRequired) check(sample.target?.id === targetId && sample.target.same && sample.target.team === 'green' && sample.target.kind === 'warrior' && sample.target.inside === null && sample.target.ownerValid, 'Original outdoor response target changed or disappeared')
   }
   return {
+    trigger(turn) {
+      check(triggerTurn === undefined && !hover && !entry && Number.isInteger(turn) && turn >= 0, 'One actual response trigger turn required')
+      triggerTurn = turn
+    },
     hover(value) {
       keys(value, ['turn', 'targetId', 'mode', 'canvasOwned', 'hitId', 'visible', 'lines', 'context', 'position', 'previousTurn', 'previousPosition', 'orderModel'])
       check(!hover && !entry, 'Hover may be accepted only once')
@@ -95,7 +98,7 @@ export function createBlastEpisode(options) {
       check(value.visible && value.pixels > 0, 'Rendered feedback pixels are missing')
       if (value.kind === 'hover' || value.kind === 'ack') {
         check(value.targetId === targetId && value.lines === (value.kind === 'ack' ? 32 : 16), 'Wrong person or bracket phase')
-        check(value.kind === 'hover' ? hover && !entry && value.turn >= hover.turn && value.turn <= hover.turn + 1 : release && value.turn >= release.turn && value.turn <= release.turn + 3, 'Stale bracket frame or missing input phase')
+        check(value.kind === 'hover' ? hover && value.turn >= hover.turn && value.turn <= hover.turn + 1 && (!release || value.turn <= release.turn) : release && value.turn >= release.turn && value.turn <= release.turn + 3, 'Stale bracket frame or missing input phase')
       }
       if (value.kind === 'arrival') check(arrival && value.turn === arrival.turn && arrival.shot.visualIds.includes(value.effectId), 'Rendered arrival is stale or absent')
       if (value.kind === 'impact') check(impact && value.turn >= impact.turn && value.effectId === impact.flash.id, 'Rendered impact is stale or absent')
