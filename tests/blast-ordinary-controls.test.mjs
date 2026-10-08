@@ -126,6 +126,33 @@ class EventTargetFixture {
     for (const row of this.listeners) if (row.type === event.type && !row.capture) row.callback(event)
   }
 }
+test('canvas-focused keyboard observation does not hit-test missing coordinates; invalid pointers remain unowned', () => {
+  const w = world(), canvas = new EventTargetFixture(), win = new EventTargetFixture(), hits = []
+  const scene = { world: w, gameClock: {}, renderer: { domElement: canvas } }
+  const doc = { elementFromPoint(x, y) {
+    if (!Number.isFinite(x) || !Number.isFinite(y)) throw TypeError('Non-finite double')
+    hits.push([x, y]); return x === 10 ? canvas : null
+  } }
+  const observer = observeControls(scene, () => ({ finish: () => ({ restored: true, errors: [], events: [] }) }), null, doc, win)
+  w.mode = 'blast'
+  win.emit({ type: 'keydown', code: 'Escape', isTrusted: true, repeat: false, target: canvas }, () => { w.mode = null })
+  win.emit({ type: 'keydown', code: 'Space', isTrusted: false, repeat: true, target: { closest: () => true } })
+  assert.deepEqual(hits, [], 'Keyboard events have no pointer position to hit-test')
+  canvas.emit({ type: 'pointerup', button: 2, isTrusted: true, target: canvas, clientX: NaN, clientY: 20 })
+  assert.deepEqual(hits, [], 'Invalid pointer coordinates cannot reach the DOM hit-test')
+  canvas.emit({ type: 'pointerup', button: 2, isTrusted: true, target: canvas, clientX: 11, clientY: 20 })
+  canvas.emit({ type: 'pointerup', button: 2, isTrusted: true, target: canvas, clientX: 10, clientY: 20 })
+  const result = observer.finish()
+  assert.deepEqual(result.errors, []); assert.equal(result.cleanupVerified, true)
+  assert.equal(result.events.length, 5)
+  const [escape, space, invalid, obscured, owned] = result.events
+  assert.deepEqual([escape.code, escape.trusted, escape.repeat, escape.blockedTarget, escape.canvasOwned], ['Escape', true, false, false, false])
+  assert.equal(escape.before.mode, 'blast'); assert.equal(escape.after.mode, null)
+  assert.deepEqual([space.code, space.trusted, space.repeat, space.blockedTarget], ['Space', false, true, true])
+  assert.equal(invalid.canvasOwned, false); assert.equal(obscured.canvasOwned, false); assert.equal(owned.canvasOwned, true)
+  assert.deepEqual(hits, [[11, 20], [10, 20]])
+  assert.equal(canvas.listeners.length + win.listeners.length, 0)
+})
 test('observation calls the original turn callbacks once and preserves foreign replacements on cleanup', () => {
   const w = world(), canvas = new EventTargetFixture(), win = new EventTargetFixture(), calls = []
   const clock = { beforeTurn(value) { calls.push(['before', this === clock, value]); return 42 }, afterTurn() { calls.push(['after', this === clock]); throw Error('original failure') } }
