@@ -157,11 +157,16 @@ that actual client plugin pipeline, and transforms the three browser helper
 modules. It explicitly disables HMR and verifies the main Vite HTTP server is
 absent. It creates no browser or game World; Vite may initialize internal
 development resources, which are closed in `finally`. A fresh dedicated cache
-under `work/orchestration/` is mandatory; the installed dependency cache is unused. Use the
+beneath `node_modules/.vite/blast-transform-*` is mandatory. This preserves the
+installed CommonJS plugin's normal generated-cache exclusion; only new cache
+files are written, with installed package bytes and lockfiles unchanged. The
+earlier isolated `work/` cache failed because generated dependencies bypassed
+that exclusion and received duplicate default exports; that failed cache remains
+retained. Use the
 existing stationary dependencies and a unique receipt/output with a120s outer
 bound. A transform pass is not an ordinary episode.
 
 ```sh
-POPULOUS_GAME_ROOT="$PWD" POPULOUS_TRANSFORM_CACHE="$PWD/work/orchestration/UNIQUE/vite-cache" \
+POPULOUS_GAME_ROOT="$PWD" POPULOUS_TRANSFORM_CACHE="$PWD/node_modules/.vite/blast-transform-unique" \
   node qa/blast-ordinary/transform-check.mjs
 ```
