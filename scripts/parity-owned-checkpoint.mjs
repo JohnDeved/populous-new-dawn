@@ -18,10 +18,20 @@ const SOURCE_FILES = [SCENARIO, 'scripts/checkpoint-readback.mjs', 'scripts/brow
   'scripts/local-render/owned-profile.mjs', 'scripts/local-render/checkpoint-observer.mjs']
 
 export function isOrdinaryCheckpointCandidate(value) {
-  return value?.kind === 'pnd-command-receipt' && value.command?.[0] === 'node' &&
-    value.command[1] === 'scripts/local-render/harness.mjs' &&
-    (Object.hasOwn(value.source?.inputs ?? {}, SCENARIO) ||
-      value.command?.some(arg => typeof arg === 'string' && arg.endsWith(SCENARIO)))
+  if (value?.kind !== 'pnd-command-receipt' || value.command?.[0] !== 'node' ||
+    value.command[1] !== 'scripts/local-render/harness.mjs') return false
+  const scenarios = value.command.flatMap((arg, index) => arg === '--scenario'
+    ? [value.command[index + 1]] : typeof arg === 'string' && arg.startsWith('--scenario=')
+      ? [arg.slice('--scenario='.length)] : [])
+  if (scenarios.length) {
+    // An explicitly different scenario owns the attempt even when it imports
+    // early-missions as a helper. Actual early-missions plus malformed options
+    // must still reach the strict adapter and remain fail-closed.
+    if (scenarios.some(arg => typeof arg === 'string' &&
+      (arg === SCENARIO || arg.endsWith('/' + SCENARIO)))) return true
+    if (scenarios.some(arg => typeof arg === 'string' && arg.length && !arg.startsWith('--'))) return false
+  }
+  return Object.hasOwn(value.source?.inputs ?? {}, SCENARIO)
 }
 
 function localPath(root, path) {

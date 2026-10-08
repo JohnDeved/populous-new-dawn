@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto'
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { projectOrdinaryCheckpoint, selectOrdinaryCheckpoint } from '../scripts/parity-owned-checkpoint.mjs'
+import { isOrdinaryCheckpointCandidate, projectOrdinaryCheckpoint, selectOrdinaryCheckpoint } from '../scripts/parity-owned-checkpoint.mjs'
 import { buildReport, discoverReceipts, renderHTML } from '../scripts/parity-measure.mjs'
 const sha = value => createHash('sha256').update(value).digest('hex')
 const scenario = 'scripts/local-render/early-missions.mjs'
@@ -94,4 +94,38 @@ test('a newer syntax/source check is not discovered as an ordinary gameplay atte
   real.phase = 'prepared'; delete real.finishedAt
   writeFileSync(join(directory, 'real.json'), JSON.stringify(real))
   assert.equal(discoverReceipts(root).receipts.filter(r => r.commandReceipt).length, 1)
+})
+
+
+test('an explicit Spy scenario is excluded despite pinning early-missions as a helper', t => {
+  const root = mkdtempSync(join(tmpdir(), 'ordinary-checkpoint-mixed-'))
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+  const directory = join(root, 'work/orchestration'); mkdirSync(directory, { recursive: true })
+  const real = fixture().outer
+  // Same command/extra-option/helper-input shape as retained ordinary-spy-04.
+  const spy = { ...structuredClone(real), finishedAt: '2026-10-07T23:08:16.367Z', command: [
+    'node', 'scripts/local-render/harness.mjs', '--game-root', '/tested',
+    '--browser', '/tested/work/browser', '--port', '4493', '--output', '/tested/work/orchestration/ordinary-spy-04',
+    '--timeout', '300000', '--profile', '/tested/work/local-render-profiles/spy-sabotage-02',
+    '--profile-correspondence', '/tested/work/orchestration/ordinary-spy-04/accepted-correspondence.json',
+    '--scenario', '/tested/scripts/local-render/ordinary-spy-sabotage.mjs',
+  ] }
+  spy.source.inputs['scripts/local-render/ordinary-spy-sabotage.mjs'] = '4e46e470b02d49e7f2377ff99b00e00377dd70b52fce3a268b1464a6174e7b23'
+  assert.ok(Object.hasOwn(spy.source.inputs, scenario))
+  assert.equal(isOrdinaryCheckpointCandidate(spy), false)
+  const malformedSpy = structuredClone(spy); malformedSpy.command.push('--scenario')
+  assert.equal(isOrdinaryCheckpointCandidate(malformedSpy), false)
+  writeFileSync(join(directory, 'older-m2.json'), JSON.stringify(real))
+  writeFileSync(join(directory, 'newer-spy.json'), JSON.stringify(spy))
+  const candidates = discoverReceipts(root).receipts.filter(r => r.commandReceipt)
+  assert.deepEqual(candidates.map(r => r.path), ['work/orchestration/older-m2.json'])
+  assert.equal(selectOrdinaryCheckpoint(candidates.map(r => projectOrdinaryCheckpoint({ ...fixture(), outer: r.commandReceipt, path: r.path }))).status, 'verified')
+  const interrupted = structuredClone(real); interrupted.phase = 'prepared'; delete interrupted.finishedAt
+  assert.equal(isOrdinaryCheckpointCandidate(interrupted), true)
+  const duplicate = structuredClone(real); duplicate.command.push('--scenario', '/tested/scripts/local-render/ordinary-spy-sabotage.mjs')
+  assert.equal(isOrdinaryCheckpointCandidate(duplicate), true)
+  assert.equal(projectOrdinaryCheckpoint({ ...fixture(), outer: duplicate }).status, 'unknown')
+  const missing = structuredClone(real); missing.command.pop()
+  assert.equal(isOrdinaryCheckpointCandidate(missing), true)
+  assert.equal(projectOrdinaryCheckpoint({ ...fixture(), outer: missing }).status, 'unknown')
 })
