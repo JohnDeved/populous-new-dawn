@@ -1,0 +1,374 @@
+{
+  "source": {
+    "currentHead": "333888ed7d2a37943aa94b345e4e1bc7fc42490b",
+    "currentTree": "e92f2bd801cfda3950372f67e031992f10f1dbbe",
+    "carriedHead": "b762ba26a5b166af43777d6542797ebed33ebd36",
+    "carriedTree": "473a0c4d695dd5b12762421965d92c819a162f2b"
+  },
+  "standard": {
+    "status": "passed-current-stages-plus-reviewed-carry",
+    "testFileCount": 257,
+    "totals": {
+      "tests": 1511,
+      "suites": 0,
+      "pass": 1511,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "freshStageCount": 8,
+    "carriedStageCount": 4,
+    "freshStartedAt": "2026-10-08T11:47:18.475Z",
+    "freshFinishedAt": "2026-10-08T11:50:08.604Z",
+    "scope": "All257 standard test files covered once. Fresh01/02/03/08 and static/build, reviewed historical04\u201307. Source identities and overbroad changed non-dispatched input remain explicit. No ordinary/native/full-parity credit."
+  },
+  "stages": [
+    {
+      "stage": "typecheck",
+      "status": "passed",
+      "receipt": "work/orchestration/blast-reference-final-01/typecheck.json",
+      "receiptSha256": "bdf60519dff58142d88cfc89eb7b870ed23317732410e95e73a3b7c21f87e0de",
+      "executedHead": "333888ed7d2a37943aa94b345e4e1bc7fc42490b",
+      "carried": false,
+      "startedAt": "2026-10-08T11:47:18.475Z",
+      "finishedAt": "2026-10-08T11:47:23.033Z",
+      "stdoutSha256": "5b3b688caa668685eebda41ca93c4e60de869bac3645a0b25bf22809e6c84ba5",
+      "stderrSha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f"
+    },
+    {
+      "stage": "test-01",
+      "status": "passed",
+      "receipt": "work/orchestration/blast-reference-final-01/test-01.json",
+      "receiptSha256": "b13daec7b082734b3615ea9b45c7188747c885e0895440bae08645315a68cd1f",
+      "executedHead": "333888ed7d2a37943aa94b345e4e1bc7fc42490b",
+      "carried": false,
+      "startedAt": "2026-10-08T11:47:23.185Z",
+      "finishedAt": "2026-10-08T11:48:01.819Z",
+      "stdoutSha256": "5dac6fd4240e13c67cbfd7728b07947a2d55dfe061a38152a5ff3851dbc99b38",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "fileCount": 33,
+      "counts": {
+        "tests": 206,
+        "suites": 0,
+        "pass": 206,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "stage": "test-02",
+      "status": "passed",
+      "receipt": "work/orchestration/blast-reference-final-01/test-02.json",
+      "receiptSha256": "201b7265603c8e2430c852336c7b4f85255967560072976fb4b2b39259b0e981",
+      "executedHead": "333888ed7d2a37943aa94b345e4e1bc7fc42490b",
+      "carried": false,
+      "startedAt": "2026-10-08T11:48:01.964Z",
+      "finishedAt": "2026-10-08T11:48:31.782Z",
+      "stdoutSha256": "2d4ba55f7f87dcbcc17133353b2083ff99132d1d845506c5517a134c7c79c723",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "fileCount": 32,
+      "counts": {
+        "tests": 272,
+        "suites": 0,
+        "pass": 272,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "stage": "test-03",
+      "status": "passed",
+      "receipt": "work/orchestration/blast-reference-final-01/test-03.json",
+      "receiptSha256": "35cbb069bb981bcf7c6557ad8a6bfd0cc1f2e784eb94e6faefd4a316150a19a5",
+      "executedHead": "333888ed7d2a37943aa94b345e4e1bc7fc42490b",
+      "carried": false,
+      "startedAt": "2026-10-08T11:48:42.582Z",
+      "finishedAt": "2026-10-08T11:49:11.532Z",
+      "stdoutSha256": "213f178cfc069d6786050007daac606cb3e80e2fb78f75c8aed63c870f21425f",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "fileCount": 32,
+      "counts": {
+        "tests": 160,
+        "suites": 0,
+        "pass": 160,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "stage": "test-04",
+      "status": "passed",
+      "receipt": "work/orchestration/blast-tooling-standard-01/test-04.json",
+      "receiptSha256": "a81ced035f18596eba743a49a53890226aae2b50f503eb416505c5c8f028a05a",
+      "executedHead": "b762ba26a5b166af43777d6542797ebed33ebd36",
+      "carried": true,
+      "startedAt": "2026-10-08T10:34:14.315Z",
+      "finishedAt": "2026-10-08T10:35:17.984Z",
+      "stdoutSha256": "43d5b0ee92f4560c080cddf4a4cdfd7c6b370230270995a90d39d6fc00aa9671",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "fileCount": 32,
+      "counts": {
+        "tests": 185,
+        "suites": 0,
+        "pass": 185,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "carryBasis": "All dispatched tests, app/public, dependency locks and runtime source are unchanged. Changed report adapter/registry/doc/test paths are exercised by fresh test-01/02/03/08. Original receipt remains labelled with original inputs.",
+      "nonDispatchedInputChanges": [
+        "tests/parity-owned-blast.test.mjs"
+      ],
+      "measurementImportLimit": "Old wrapper/source retained. This historical execution did not execute new report adapter imports; parityMeasurements was empty."
+    },
+    {
+      "stage": "test-05",
+      "status": "passed",
+      "receipt": "work/orchestration/blast-tooling-standard-01/test-05.json",
+      "receiptSha256": "91e811584086b331a304fc6556f1eeec6325ec5b8d48b5c0c818049a916a3a03",
+      "executedHead": "b762ba26a5b166af43777d6542797ebed33ebd36",
+      "carried": true,
+      "startedAt": "2026-10-08T10:35:18.122Z",
+      "finishedAt": "2026-10-08T10:36:01.509Z",
+      "stdoutSha256": "447063539ca311047855b9405cb60b4ea549566106bdb821c485af18a633c862",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "fileCount": 32,
+      "counts": {
+        "tests": 129,
+        "suites": 0,
+        "pass": 129,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "carryBasis": "All dispatched tests, app/public, dependency locks and runtime source are unchanged. Changed report adapter/registry/doc/test paths are exercised by fresh test-01/02/03/08. Original receipt remains labelled with original inputs.",
+      "nonDispatchedInputChanges": [
+        "tests/parity-owned-blast.test.mjs"
+      ],
+      "measurementImportLimit": "Old wrapper/source retained. This historical execution did not execute new report adapter imports; parityMeasurements was empty."
+    },
+    {
+      "stage": "test-06",
+      "status": "passed",
+      "receipt": "work/orchestration/blast-tooling-standard-01/test-06.json",
+      "receiptSha256": "0c22f8209ba91b0fdf2a5836ce829cc20237731ceecc902ad39fe50ee471ca8c",
+      "executedHead": "b762ba26a5b166af43777d6542797ebed33ebd36",
+      "carried": true,
+      "startedAt": "2026-10-08T10:36:35.142Z",
+      "finishedAt": "2026-10-08T10:36:55.231Z",
+      "stdoutSha256": "8e555f201f7290bd94c12bf60363ba4d9b91e8051eb8b1f1cd55630d3963866a",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "fileCount": 32,
+      "counts": {
+        "tests": 159,
+        "suites": 0,
+        "pass": 159,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "carryBasis": "All dispatched tests, app/public, dependency locks and runtime source are unchanged. Changed report adapter/registry/doc/test paths are exercised by fresh test-01/02/03/08. Original receipt remains labelled with original inputs.",
+      "nonDispatchedInputChanges": [
+        "tests/parity-owned-blast.test.mjs"
+      ],
+      "measurementImportLimit": "Old wrapper/source retained. This historical execution did not execute new report adapter imports; parityMeasurements was empty."
+    },
+    {
+      "stage": "test-07",
+      "status": "passed",
+      "receipt": "work/orchestration/blast-tooling-standard-01/test-07.json",
+      "receiptSha256": "3945e1a74b2770030bf22dec28d415fe1016642f9329ae8d45e620f10a909907",
+      "executedHead": "b762ba26a5b166af43777d6542797ebed33ebd36",
+      "carried": true,
+      "startedAt": "2026-10-08T10:36:55.369Z",
+      "finishedAt": "2026-10-08T10:37:19.934Z",
+      "stdoutSha256": "e488cbcb2d384b57dee3417b7a7e3db2e7a7344a53dfe0ec6e32e219a4d2f255",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "fileCount": 32,
+      "counts": {
+        "tests": 168,
+        "suites": 0,
+        "pass": 168,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "carryBasis": "All dispatched tests, app/public, dependency locks and runtime source are unchanged. Changed report adapter/registry/doc/test paths are exercised by fresh test-01/02/03/08. Original receipt remains labelled with original inputs.",
+      "nonDispatchedInputChanges": [
+        "tests/parity-owned-blast.test.mjs"
+      ],
+      "measurementImportLimit": "Old wrapper/source retained. This historical execution did not execute new report adapter imports; parityMeasurements was empty."
+    },
+    {
+      "stage": "test-08",
+      "status": "passed",
+      "receipt": "work/orchestration/blast-reference-final-01/test-08.json",
+      "receiptSha256": "cc6fe1ee9984eb43229d0007686abf0ea13d399e455b1470fa70c3513548d592",
+      "executedHead": "333888ed7d2a37943aa94b345e4e1bc7fc42490b",
+      "carried": false,
+      "startedAt": "2026-10-08T11:49:11.671Z",
+      "finishedAt": "2026-10-08T11:49:44.688Z",
+      "stdoutSha256": "1b2602e574cea252205524d73a4ee8a8820244f87e2a12f2d8cbad580eec26a1",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "fileCount": 32,
+      "counts": {
+        "tests": 232,
+        "suites": 0,
+        "pass": 232,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "stage": "parity",
+      "status": "passed",
+      "receipt": "work/orchestration/blast-reference-final-01/parity.json",
+      "receiptSha256": "c1ad6843551876565abf05a297924f97c6b2350a565a0a5052d2065fd4259415",
+      "executedHead": "333888ed7d2a37943aa94b345e4e1bc7fc42490b",
+      "carried": false,
+      "startedAt": "2026-10-08T11:49:44.830Z",
+      "finishedAt": "2026-10-08T11:49:45.146Z",
+      "stdoutSha256": "f39c8ad20b8013f4e4e4ade55ff5d63ab1c8df3729611db56c2d25cf734b48a9",
+      "stderrSha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f"
+    },
+    {
+      "stage": "orchestration",
+      "status": "passed",
+      "receipt": "work/orchestration/blast-reference-final-01/orchestration.json",
+      "receiptSha256": "680b744d2bb5cb56ac1c118b49bb0d2eb6320725fe58619a5263b320a46d46f3",
+      "executedHead": "333888ed7d2a37943aa94b345e4e1bc7fc42490b",
+      "carried": false,
+      "startedAt": "2026-10-08T11:49:45.295Z",
+      "finishedAt": "2026-10-08T11:49:45.811Z",
+      "stdoutSha256": "37bcf21634d0fc273f279e005fffe2d82bfa055187ccbcf5d733e1706514ab06",
+      "stderrSha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f"
+    },
+    {
+      "stage": "build",
+      "status": "passed",
+      "receipt": "work/orchestration/blast-reference-final-01/build.json",
+      "receiptSha256": "bda03ab95769302e974dd81e8822ad7e504b6c144fa6da5f4aa079c7d1c08c7b",
+      "executedHead": "333888ed7d2a37943aa94b345e4e1bc7fc42490b",
+      "carried": false,
+      "startedAt": "2026-10-08T11:49:45.948Z",
+      "finishedAt": "2026-10-08T11:50:08.604Z",
+      "stdoutSha256": "6fb1d925b3348c845e4a48113b5a8200e2bf0760533d3cac307b271010137d91",
+      "stderrSha256": "4d21e2303338aaf399206821b52ed3235a85ad3195d54412566b097e3f8339ad"
+    }
+  ],
+  "render": {
+    "status": "passed-capture",
+    "outerStatus": "passed",
+    "finishedAt": "2026-10-08T11:56:30.194Z",
+    "browserVersion": "154.0.8037.92",
+    "viewportWidths": [
+      1440,
+      960
+    ],
+    "scrollWidths": [
+      1425,
+      945
+    ],
+    "errors": [],
+    "blockedRequests": [],
+    "browserDisconnected": true
+  },
+  "selectedCurrentReference": {
+    "id": "blast-impact-original-reference",
+    "status": "unknown",
+    "receipt": "work/orchestration/blast-reference-final-01/test-02.json",
+    "finishedAt": "2026-10-08T11:48:31.782Z",
+    "provenanceGrade": "historical-reference",
+    "rawNativeAttestation": "missing",
+    "originalExecutionStatus": "unknown",
+    "reason": "Rejected historical Blast reference evidence: unsupported reference receipt input: work/orchestration/blast-reference-final-01/manifest.json"
+  },
+  "separateHistoricalObservation": {
+    "id": "blast-impact-original-reference",
+    "status": "stale",
+    "receipt": "work/orchestration/blast-tooling-standard-01/test-02.json",
+    "finishedAt": "2026-10-08T10:33:28.651Z",
+    "evidenceClass": "historical-reference",
+    "provenanceGrade": "historical-reference",
+    "rawNativeAttestation": "missing",
+    "originalExecutionStatus": "unknown",
+    "diagnosticStatus": "passed",
+    "testedSource": {
+      "commit": "b762ba26a5b166af43777d6542797ebed33ebd36",
+      "tree": "473a0c4d695dd5b12762421965d92c819a162f2b"
+    },
+    "reference": {
+      "commit": "ef651f3b592cf859fb738b9e36eb05495e55d9a5",
+      "path": "tests/fixtures/blast-impact.json",
+      "sha256": "673c161abfaaa78359d1d280bc6f2c2f7084dc629019a2383c3bfee90ebc9d2f",
+      "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+    },
+    "observed": {
+      "comparedSnapshots": 6,
+      "headRetirementVisit": 2,
+      "firstEnemyImpulseVisit": 3,
+      "firstFriendlyImpulseVisit": 5,
+      "setup": "supplied gameFlags32 and ground cast; no ordinary bit-clear person-selection proof"
+    },
+    "reason": "Port-to-historical-reference component comparison; raw native attestation missing; original execution unknown; current full source tree differs or is dirty"
+  },
+  "coverage": {
+    "knownRequirements": 181,
+    "verifiedRequirements": 0,
+    "browserCases": 3,
+    "verifiedBrowserCases": 0,
+    "pairedGates": 3,
+    "verifiedPairedGates": 0,
+    "ordinaryObservationRows": 3
+  },
+  "curatedWarnings": [
+    "Curated report: exactly six completed attempts were inspected: four ordinary Blast attempts and two historical-reference comparison attempts. Other checks are uninspected. No generic discovery or new native/game execution was performed.",
+    "Latest attempt: source 333888ed7d2a37943aa94b345e4e1bc7fc42490b, finished 2026-10-08T11:48:31.782Z. Its raw command passed, but its new manifest is unsupported by the strict reference adapter, so the selected reference status remains unknown. No fallback to the older pass.",
+    "Separate historical observation only: source b762ba26a5b166af43777d6542797ebed33ebd36, finished 2026-10-08T10:33:28.651Z, recorded comparison passed and now stale. It compared six head/enemy/friendly snapshots to the ef651f3b historical original-derived reference; it is not the selected latest evidence.",
+    "Historical comparison limits: supplied gameFlags32 and a ground cast; no ordinary bit-clear person-selection proof. Raw native attestation is missing, original execution remains unknown, and the fixture event log is not port-compared."
+  ],
+  "receiptSha256": {
+    "aggregate": "ac97276d40fccf097609bac19af21c0126653d6770d4c9f38b152e30af683dfb",
+    "currentManifest": "0a298ac45bd357a7f1530afa4318964a9e0a8af10eefaaf1daa2f17a42f40008",
+    "currentTest02": "201b7265603c8e2430c852336c7b4f85255967560072976fb4b2b39259b0e981",
+    "projection": "eba5f472dcec467ba93e7b11cbfbf216a52f4ed102ba247bd8cf93749b006034",
+    "curatedHtml": "687ac64592c931bfe0f5ecca5813646f7bd0aad5a8116a4455773baa07de960b",
+    "curatedJson": "1908fc536532438fa932596faa8fff04c0252f102de84374361b4a6f64a2f852",
+    "renderOuter": "b0ccdc52736db0256e42e40a606a470dc9804ba36f761eb67822b90ceb6f8540",
+    "renderResult": "2500a62b14f74f071d7f5ffac7064243adedee9b4ec2094555b34ef1a11262d3"
+  },
+  "images": {
+    "report.png": {
+      "sha256": "b97c1dadc12679d2d1ddbe0733158ba42fec02220600593d0cace96db866ba94",
+      "width": 1425,
+      "height": 2526
+    },
+    "reference-detail.png": {
+      "sha256": "2fca5ca1c7fa1b04a9a9ff0d4406926088ae0c327eb4ffb4900f941db6c2c244",
+      "width": 1060,
+      "height": 155
+    }
+  },
+  "limits": [
+    "This is a mixed-source standard aggregate: eight fresh stages on333888ed, four separately reviewed carried stages04\u201307 onb762ba26. It is not twelve fresh runs.",
+    "Current test-02 command passed, but its new manifest is unsupported by the strict reference adapter. Latest status remains unknown, without fallback.",
+    "The separately retained historical reference comparison passed onb762ba26 and is stale; raw native attestation is missing and original execution is unknown.",
+    "The comparator supplies gameFlags32 and a ground cast, not the ordinary bit-clear person-selection path. Only six head/enemy/friendly snapshots are compared, not the full fixture event log.",
+    "Static report screenshots do not establish ordinary game execution, native/full Blast parity, game-frame matching or hardware performance.",
+    "No capability binding or parity numerator/denominator was added. This aggregate is not a clean-lint attestation.",
+    "No tests, game/browser/native runs were repeated to publish this supplement; no raw archives, profiles or native binaries are included."
+  ]
+}
