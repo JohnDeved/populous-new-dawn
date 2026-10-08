@@ -25,9 +25,10 @@ The pre-release fixed eastern-segment deadline no longer applies to this staged
 idle episode. Stage acceptance stays within two world units of the declared point.
 The actual registered person is bound after the staging order completes; no
 obsolete active-model3 record is required at attachment. State19 can still be
-repositioning, so binding alone earns no idle admission. No active order plus
-unchanged native XY across distinct normal turns owns the later stationary gate;
-the movement-rate field remains diagnostic. Staging and pointer polling share
+repositioning, so binding alone earns no idle admission. No active order, speed zero and
+unchanged native XY across distinct normal turns own the later stationary gate.
+The completed-stage sample does not justify dropping the existing zero-speed
+check: the source clears speed on resting-slot arrival. Staging and pointer polling share
 one140s deadline, rather than allocating a second preparation budget.
 
 Before casting, precompute one actual empty-ground input near `(-93,-101)` for the

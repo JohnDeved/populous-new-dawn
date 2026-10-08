@@ -19,7 +19,7 @@ test('completed ordinary M2 staging binds its real owner and admits a later cast
   assert.equal(currentPersonOrder(world.buildingOrders, person)?.model, 3)
   assert.equal(bindStagedBlastTarget(original, destination, currentPersonOrder).ready, false, 'unreached stage cannot attach')
   assert.equal(original.movePerson, undefined)
-  let completed, stationary, firstZeroSpeed, prior
+  let completed, stationary, admitted, firstZeroSpeed, prior
   for (let attempts = 0; attempts < 600; attempts++) {
     tick(world, 1 / 12)
     const actual = bindStagedBlastTarget(original, destination, currentPersonOrder)
@@ -27,12 +27,12 @@ test('completed ordinary M2 staging binds its real owner and admits a later cast
     completed ??= actual
     if (actual.speed === 0) firstZeroSpeed ??= actual
     if (prior && actual.turn > prior.turn && actual.position.x === prior.position.x && actual.position.y === prior.position.y) {
-      stationary = actual
-      break
+      stationary ??= actual
+      if (actual.speed === 0) { admitted = actual; break }
     }
     prior = actual
   }
-  assert.ok(completed && stationary, 'normal staging must reach a stable native pose within the finite contract')
+  assert.ok(completed && stationary && admitted, 'normal staging must reach a stable native pose within the finite contract')
   assert.equal(currentPersonOrder(world.buildingOrders, person), undefined)
   assert.throws(() => {
     const order = currentPersonOrder(world.buildingOrders, person)
@@ -51,5 +51,5 @@ test('completed ordinary M2 staging binds its real owner and admits a later cast
   assert.equal(world.projectiles.at(-1).caster, actor.id)
   assert.equal(world.projectiles.at(-1).phase, 'windup')
   assert.equal(world.projectiles.at(-1).remaining, 6)
-  t.diagnostic(JSON.stringify({ completed, stationary, firstZeroSpeed: firstZeroSpeed ?? null, caster: actor.id, target: target.id }))
+  t.diagnostic(JSON.stringify({ completed, stationary, admitted, firstZeroSpeed: firstZeroSpeed ?? null, caster: actor.id, target: target.id }))
 })
