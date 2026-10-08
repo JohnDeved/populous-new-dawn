@@ -182,7 +182,7 @@ test('baseline proposal is distinct from actual hover and actual delivered relea
   assert.deepEqual(result.release.point, result.proposal.point)
   assert.equal(result.complete, false)
   assert.throws(() => start('baseline', ({ r }) => { r.point.x++ }), /differs from proposed/)
-  assert.throws(() => start('baseline', ({ r }) => { r.turn = 3 }), /Stale pointer\/proposal/)
+  assert.throws(() => start('baseline', ({ r }) => { r.turn = 3 }), /event-time sample/)
 })
 
 test('proposed pixel records cannot be relabelled as candidate hover evidence', () => {
@@ -235,4 +235,30 @@ test('movement proves the original owner, actual ground pixel and exact command 
   assert.throws(() => finish({ mutate: ({ before, turn }) => { if (turn === 4) before.target.movementOrderSame = false } }), /movement order changed/)
   const { episode } = start()
   assert.throws(() => episode.move(movement(), sample(1)), /One public movement/)
+})
+
+function baselineEventTime(change = () => {}) {
+  const episode = createBlastEpisode({ ...options, expectation: 'baseline' }), p = proposed(), r = release('baseline'), actual = sample(3, 'baseline')
+  r.turn = 3; r.targetCheck.range.turn = 3; r.targetCheck.pixel.turn = 3
+  actual.target.position = copy(p.position); actual.shot.remaining = 6
+  change({ p, r, actual })
+  episode.propose(p); episode.trigger(1); episode.release(r, actual)
+  return episode
+}
+test('baseline proposal age is diagnostic when exact current event identity, XYZ, context, pixel and range agree', () => {
+  const report = baselineEventTime().report()
+  assert.equal(report.proposal.turn, 1); assert.equal(report.release.turn, 3)
+  assert.equal(report.entry.turn, 3); assert.equal(report.complete, false)
+})
+test('baseline event-time replacement rejects changed pose, stale sample, ownership, pixel, context, range and late trigger', () => {
+  for (const coordinate of ['x', 'y', 'h'])
+    assert.throws(() => baselineEventTime(({ actual }) => { actual.target.position[coordinate]++ }), /Actual release pose/)
+  for (const turn of [2, 4])
+    assert.throws(() => baselineEventTime(({ actual }) => { actual.turn = turn }), /event-time sample/)
+  for (const change of [({ actual }) => { actual.target.id++ }, ({ actual }) => { actual.target.same = false },
+    ({ actual }) => { actual.target.ownerValid = false }, ({ r }) => { r.point.x++ }, ({ r }) => { r.context.camera.x++ },
+    ({ r }) => { r.targetCheck.pixel.personId++ }, ({ r }) => { r.targetCheck.range.targetError = { code: -2 } },
+    ({ r }) => { r.targetCheck.range.sameOriginal = false }, ({ r }) => { r.trusted = false },
+    ({ r }) => { r.canvasOwned = false }, ({ r }) => { r.turn = 6 }])
+    assert.throws(() => baselineEventTime(change), /target changed|differs|pixel|source range|trusted|release window/)
 })

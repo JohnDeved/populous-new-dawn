@@ -59,7 +59,10 @@ export function createBlastEpisode(options) {
       live(sample)
       check(value.turn >= triggerTurn && value.turn <= triggerTurn + 4, 'Actual response release window expired')
       check(sample.target.hp > 0, 'Ordinary setup requires a living response member at release')
-      check(value.turn >= prepared.turn && value.turn <= prepared.turn + 1 && same(value.context, prepared.context), 'Stale pointer/proposal or changed input context')
+      if (expectation === 'candidate')
+        check(value.turn >= prepared.turn && value.turn <= prepared.turn + 1 && same(value.context, prepared.context), 'Stale pointer/proposal or changed input context')
+      else check(value.turn >= prepared.turn && sample.turn === value.turn && same(value.context, prepared.context) &&
+        same(sample.target.position, proposal.position), 'Actual release pose, context or event-time sample differs from the proposal')
       if (expectation === 'baseline') {
         check(same(value.point, proposal.point), 'Actual release pixel differs from proposed pixel')
         const delivered = value.targetCheck
