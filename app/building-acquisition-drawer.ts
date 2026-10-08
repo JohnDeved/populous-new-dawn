@@ -4,9 +4,17 @@ import {
   type BuildingAcquisitionTriangle,
 } from './building-acquisition-triangles.ts'
 
-type TriangleRenderer = Pick<THREE.WebGLRenderer,
-  'domElement' | 'sortObjects' | 'setClearColor' | 'setPixelRatio' | 'setSize' |
-  'clear' | 'render' | 'dispose' | 'forceContextLoss'
+type TriangleRenderer = Pick<
+  THREE.WebGLRenderer,
+  | 'domElement'
+  | 'sortObjects'
+  | 'setClearColor'
+  | 'setPixelRatio'
+  | 'setSize'
+  | 'clear'
+  | 'render'
+  | 'dispose'
+  | 'forceContextLoss'
 >
 
 /** One detached, pooled pass owned by the existing acquisition overlay.
@@ -19,18 +27,38 @@ export class BuildingAcquisitionTriangleSurface {
   private readonly scene = new THREE.Scene()
   private readonly camera = new THREE.Camera()
   private readonly material: THREE.RawShaderMaterial
-  private readonly position = new THREE.BufferAttribute(new Float32Array(BUILDING_ACQUISITION_TRIANGLE_CAPACITY * 9), 3)
-  private readonly uv = new THREE.BufferAttribute(new Float32Array(BUILDING_ACQUISITION_TRIANGLE_CAPACITY * 6), 2)
-  private readonly light = new THREE.BufferAttribute(new Float32Array(BUILDING_ACQUISITION_TRIANGLE_CAPACITY * 3), 1)
-  private readonly cutout = new THREE.BufferAttribute(new Float32Array(BUILDING_ACQUISITION_TRIANGLE_CAPACITY * 3), 1)
+  private readonly position = new THREE.BufferAttribute(
+    new Float32Array(BUILDING_ACQUISITION_TRIANGLE_CAPACITY * 9),
+    3
+  )
+  private readonly uv = new THREE.BufferAttribute(
+    new Float32Array(BUILDING_ACQUISITION_TRIANGLE_CAPACITY * 6),
+    2
+  )
+  private readonly light = new THREE.BufferAttribute(
+    new Float32Array(BUILDING_ACQUISITION_TRIANGLE_CAPACITY * 3),
+    1
+  )
+  private readonly cutout = new THREE.BufferAttribute(
+    new Float32Array(BUILDING_ACQUISITION_TRIANGLE_CAPACITY * 3),
+    1
+  )
   private width = 0
   private height = 0
   private ratio = 0
   private disposed = false
 
-  constructor(atlas: THREE.Texture, createRenderer = (): TriangleRenderer => new THREE.WebGLRenderer({
-    alpha: true, antialias: false, depth: false, stencil: false, premultipliedAlpha: false,
-  })) {
+  constructor(
+    atlas: THREE.Texture,
+    createRenderer = (): TriangleRenderer =>
+      new THREE.WebGLRenderer({
+        alpha: true,
+        antialias: false,
+        depth: false,
+        stencil: false,
+        premultipliedAlpha: false,
+      })
+  ) {
     this.renderer = createRenderer()
     this.renderer.sortObjects = false
     this.renderer.setClearColor(0, 0)
@@ -80,7 +108,10 @@ void main() {
       toneMapped: false,
     })
     for (const [name, attribute] of [
-      ['position', this.position], ['uv', this.uv], ['faceLight', this.light], ['alphaCutout', this.cutout],
+      ['position', this.position],
+      ['uv', this.uv],
+      ['faceLight', this.light],
+      ['alphaCutout', this.cutout],
     ] as const) {
       attribute.setUsage(THREE.DynamicDrawUsage)
       this.geometry.setAttribute(name, attribute)
@@ -90,7 +121,12 @@ void main() {
     this.scene.add(mesh)
   }
 
-  draw(triangles: readonly BuildingAcquisitionTriangle[], width: number, height: number, ratio = 1) {
+  draw(
+    triangles: readonly BuildingAcquisitionTriangle[],
+    width: number,
+    height: number,
+    ratio = 1
+  ) {
     if (this.disposed) throw new Error('Acquisition triangle surface is disposed')
     if (triangles.length > BUILDING_ACQUISITION_TRIANGLE_CAPACITY)
       throw new Error('Mission 1 acquisition triangle capacity exceeded')
@@ -114,7 +150,8 @@ void main() {
         vertex++
       }
     }
-    for (const attribute of [this.position, this.uv, this.light, this.cutout]) attribute.needsUpdate = true
+    for (const attribute of [this.position, this.uv, this.light, this.cutout])
+      attribute.needsUpdate = true
     this.geometry.setDrawRange(0, vertex)
     this.renderer.clear()
     if (vertex) this.renderer.render(this.scene, this.camera)

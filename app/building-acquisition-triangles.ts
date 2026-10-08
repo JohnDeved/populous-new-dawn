@@ -31,7 +31,7 @@ export interface BuildingAcquisitionTriangle {
   flags: 0x80 | 0x82
 }
 
-const model = models[103],
+const { 103: model } = models,
   sunlight = sunlightShades(),
   faces = model.modes.map((mode, face) => {
     if (mode !== 6 && mode !== 7) throw new Error('Unsupported acquisition material')
@@ -60,7 +60,12 @@ export function buildingAcquisitionBucket(depths: number[], bias: number) {
  * Source common-outcode rejection is followed by full-shell GPU clipping. */
 export function collectBuildingAcquisitionTriangles(
   command: { whole: boolean; submissions: readonly BuildingFaceProjection[] },
-  { width, height, tribe = 0, shadeOffset = 0 }: {
+  {
+    width,
+    height,
+    tribe = 0,
+    shadeOffset = 0,
+  }: {
     width: number
     height: number
     tribe?: number
@@ -74,14 +79,22 @@ export function collectBuildingAcquisitionTriangles(
       data = faces[face]
     if (!data || projected.length !== data.count || transformed.length !== data.count)
       throw new Error('Invalid Mission 1 acquisition face')
-    const firstDepth = transformed[0][2],
-      light = command.whole
-        ? sunlight[model.normals[face][0]] + ((shadeOffset << 24) >> 24)
-        : sunlight[faceNormal(transformed[0], transformed[1], transformed[2])] +
-          (firstDepth >= 400 ? -20 : firstDepth <= -400 ? 4 : 0),
-      shade = Math.max(command.whole ? 1 : 0, Math.min(63, light)),
+    let light = sunlight[model.normals[face][0]] + ((shadeOffset << 24) >> 24)
+    if (!command.whole) {
+      const [, , firstDepth] = transformed[0]
+      light = sunlight[faceNormal(transformed[0], transformed[1], transformed[2])]
+      if (firstDepth >= 400) light -= 20
+      else if (firstDepth <= -400) light += 4
+    }
+    const shade = Math.max(command.whole ? 1 : 0, Math.min(63, light)),
       diffuse = shade < 32 ? shade * 8 : 255,
-      corners = data.count === 3 ? [[0, 1, 2]] : [[0, 2, 3], [0, 1, 2]]
+      corners =
+        data.count === 3
+          ? [[0, 1, 2]]
+          : [
+              [0, 2, 3],
+              [0, 1, 2],
+            ]
     for (const [triangle, indices] of corners.entries()) {
       const insertion = order++,
         points = indices.map(corner => ({
@@ -96,19 +109,31 @@ export function collectBuildingAcquisitionTriangles(
         points.every(p => p.x < 0) ||
         points.every(p => p.x >= width) ||
         points.every(p => p.y >= height)
-      ) continue
+      )
+        continue
       const [a, b, c] = points,
         area = (b.x - a.x) * (c.y - b.y) - (b.y - a.y) * (c.x - b.x)
       if (command.whole && area <= 0) continue
       if (!command.whole && area <= 0) points.reverse()
-      const bucket = buildingAcquisitionBucket(indices.map(corner => transformed[corner][2]), model.biases[face])
+      const bucket = buildingAcquisitionBucket(
+        indices.map(corner => transformed[corner][2]),
+        model.biases[face]
+      )
       // This acquisition's queue drains 256 down to0, not the world's full queue.
       if (bucket > 256) continue
       triangles.push({
-        face, triangle, bucket, order: insertion, points, flight, shade, diffuse,
-        mode: data.mode, flags: data.mode === 7 ? 0x82 : 0x80,
+        face,
+        triangle,
+        bucket,
+        order: insertion,
+        points,
+        flight,
+        shade,
+        diffuse,
+        mode: data.mode,
+        flags: data.mode === 7 ? 0x82 : 0x80,
       })
     }
   }
-  return triangles.sort(comparePolygons)
+  return triangles.toSorted(comparePolygons)
 }
