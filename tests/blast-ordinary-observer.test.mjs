@@ -56,6 +56,7 @@ function fixture(t, { rejectRelease = false, rejectAdmission = false, throwDraw,
     t.after(() => descriptor ? Object.defineProperty(globalThis, key, descriptor) : delete globalThis[key])
   }
   let handlers = 0
+  canvas.addEventListener('pointermove', event => { scene.pointerScreen = event })
   canvas.addEventListener('pointerdown', event => { scene.pointerScreen = event; scene.pointerButtons = 1 })
   canvas.addEventListener('pointerup', event => {
     handlers++; scene.pointerScreen = event; scene.pointerButtons = 0
@@ -195,9 +196,12 @@ test('enemy arm consumes its actual ground primer and deferred natural hover use
   assert.throws(() => f.observer.armEnemy(), /validated actual ground primer/)
   f.world.projectiles.length = 0; f.world.mode = 'blast'
   f.world.turn = 2; f.target.native.x += 10; f.target.x += 10 / 256; f.scene.gameClock.afterTurn()
+  f.observer.prepareEnemyPointer({ x: 10, y: 20 }); f.canvas.dispatch('pointermove')
   const renderResult = f.scene.renderer.render(f.scene.scene, f.scene.camera), drawNow = performance.now()
   assert.equal(f.scene.drawPointer(drawNow), 'draw-result'); assert.equal(renderResult, 'render-result')
   const prepared = f.observer.read()
+  assert.equal(prepared.artifacts.enemyPointer.draw.matchedMove, true)
+  assert.equal(prepared.artifacts.enemyPointer.move.turn, 2)
   assert.equal(prepared.report.hover.turn, 2); assert.equal(prepared.report.hoverCapture.renderFrame, 1)
   assert.equal(prepared.artifacts.hover.png, undefined); assert.equal(prepared.artifacts.hover.bracketPng, undefined)
   assert.equal(f.log.includes('readPixels'), false); assert.equal(f.log.includes('raster'), false)
@@ -236,8 +240,37 @@ test('enemy primer person hit is retained and cannot arm a second person cast', 
 test('enemy draw without matching natural render cannot manufacture hover evidence', t => {
   const f = fixture(t, { enemy: true })
   f.canvas.dispatch('pointerdown'); f.canvas.dispatch('pointerup'); f.observer.armEnemy()
-  f.world.mode = 'blast'; f.world.turn = 2; f.target.native.x += 10; f.scene.gameClock.afterTurn()
+  f.world.projectiles.length = 0; f.world.mode = 'blast'; f.world.turn = 2; f.target.native.x += 10; f.scene.gameClock.afterTurn()
+  f.observer.prepareEnemyPointer({ x: 10, y: 20 }); f.canvas.dispatch('pointermove')
   f.scene.drawPointer(performance.now())
   assert.equal(f.observer.progress().hover, undefined)
   assert.match(f.observer.progress().errors.join(' '), /preceding natural render/)
+})
+
+test('enemy pointer probe keeps the first natural miss and forbids a later hover substitute', t => {
+  const f = fixture(t, { enemy: true })
+  f.canvas.dispatch('pointerdown'); f.canvas.dispatch('pointerup'); f.observer.armEnemy()
+  f.world.projectiles.length = 0; f.world.mode = 'blast'; f.world.turn = 2; f.target.native.x += 10; f.scene.gameClock.afterTurn()
+  f.observer.prepareEnemyPointer({ x: 10, y: 20 }); f.canvas.dispatch('pointermove')
+  f.scene.hoveredObject = null
+  f.scene.renderer.render(f.scene.scene, f.scene.camera); f.scene.drawPointer(performance.now())
+  const first = f.observer.pointerProbe()
+  assert.equal(first.draw.matchedMove, true); assert.equal(first.draw.feedback.targetId, null)
+  assert.equal(f.observer.progress().hover, undefined)
+  f.scene.hoveredObject = 3; f.world.turn = 3; f.target.native.x += 10; f.scene.gameClock.afterTurn()
+  f.scene.renderer.render(f.scene.scene, f.scene.camera); f.scene.drawPointer(performance.now())
+  assert.deepEqual(f.observer.pointerProbe(), first); assert.equal(f.observer.progress().hover, undefined)
+  first.move.point.x = 99; first.draw.context.camera.x = 99
+  assert.equal(f.observer.pointerProbe().move.point.x, 10)
+  assert.throws(() => f.observer.prepareEnemyPointer({ x: 11, y: 20 }), /One finite pointer/)
+})
+test('wrong or repeated delivered preparation move remains an observer failure', t => {
+  const f = fixture(t, { enemy: true })
+  f.canvas.dispatch('pointerdown'); f.canvas.dispatch('pointerup'); f.observer.armEnemy()
+  f.world.projectiles.length = 0; f.world.mode = 'blast'
+  f.observer.prepareEnemyPointer({ x: 10, y: 20 })
+  f.canvas.dispatch('pointermove', { x: 11, y: 20 }); f.canvas.dispatch('pointermove', { x: 10, y: 20 })
+  assert.equal(f.observer.pointerProbe().move.point.x, 11)
+  assert.match(f.observer.progress().errors.join(' '), /declared point/)
+  assert.match(f.observer.progress().errors.join(' '), /Repeated preparation/)
 })

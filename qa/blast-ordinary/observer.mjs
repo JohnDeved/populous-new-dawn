@@ -151,8 +151,20 @@ export function observeBlastEpisode(scene, options) {
     if (!sameScene()) { evidence.error('Original scene/World/canvas changed while observing HUD evidence'); return }
     if (!rendered || rendered.turn !== world.turn || rendered.renderFrame !== scene.renderer.info.render.frame ||
         JSON.stringify(rendered.context) !== JSON.stringify(inputContext(scene))) throw Error('HUD draw does not match the preceding natural render')
-    const feedback = pointerFeedback(scene)
-    if (enemy && !delivered && !evidence.report().hover && world.mode === 'blast' && !scene.pointerButtons &&
+    const feedback = pointerFeedback(scene), probe = artifacts.enemyPointer
+    const firstMoveDraw = !!(enemy && !delivered && probe?.move && !probe.draw)
+    if (firstMoveDraw) {
+      const current = person(target), point = scene.pointerScreen && { x: scene.pointerScreen.clientX, y: scene.pointerScreen.clientY }
+      const draw = { turn: world.turn, observedAt: performance.now(), drawNow: now, point, context: inputContext(scene),
+        position: current.position, previousTurn: priorEnemy?.turn, previousPosition: priorEnemy?.position,
+        targetSame: current.same, ownerValid: current.ownerValid, feedback: { targetId: feedback.targetId, visible: feedback.visible, lines: feedback.lines },
+        renderFrame: scene.renderer.info.render.frame }
+      draw.matchedMove = draw.turn >= probe.move.turn && draw.renderFrame >= probe.move.renderFrame && draw.observedAt >= probe.move.observedAt && now <= draw.observedAt &&
+        JSON.stringify(draw.point) === JSON.stringify(probe.move.point) && JSON.stringify(draw.context) === JSON.stringify(probe.move.context)
+      probe.draw = structuredClone(draw)
+      if (!draw.matchedMove) { probe.errors.push('First natural draw does not match the actual delivered preparation move'); throw Error(probe.errors.at(-1)) }
+    }
+    if (firstMoveDraw && !delivered && !evidence.report().hover && world.mode === 'blast' && !scene.pointerButtons &&
         feedback.visible && feedback.targetId === target.id && feedback.lines === 16 && scene.pointerScreen && priorEnemy) {
       const current = person(target), point = { x: scene.pointerScreen.clientX, y: scene.pointerScreen.clientY }
       if (current.same && current.ownerValid && current.hp > 0 && priorEnemy.same && priorEnemy.ownerValid &&
@@ -169,6 +181,24 @@ export function observeBlastEpisode(scene, options) {
     if (delivered && feedback.visible && feedback.targetId === target.id && feedback.lines === 32 &&
         scene.pointerAck.target === target.id && now < scene.pointerAck.until) saveFrame('ack', null, now)
   })
+  const captureEnemyMove = event => {
+    const probe = artifacts.enemyPointer
+    if (disposed || !enemy || !probe || probe.draw) return
+    guard(() => {
+      if (probe.move) { probe.errors.push('Repeated preparation move before its first natural draw'); throw Error(probe.errors.at(-1)) }
+      const current = person(target)
+      probe.move = { turn: world.turn, observedAt: performance.now(), point: { x: event.clientX, y: event.clientY },
+        context: inputContext(scene), position: current.position, targetSame: current.same, ownerValid: current.ownerValid,
+        trusted: event.isTrusted, canvasOwned: event.target === canvas && document.elementFromPoint(event.clientX, event.clientY) === canvas,
+        mode: world.mode, renderFrame: scene.renderer.info.render.frame }
+      if (!sameScene() || !probe.move.trusted || !probe.move.canvasOwned || event.buttons !== 0 || world.mode !== 'blast' ||
+          probe.move.turn < probe.prepared.turn || probe.move.observedAt < probe.prepared.observedAt ||
+          JSON.stringify(probe.move.point) !== JSON.stringify(probe.prepared.point) || JSON.stringify(probe.move.context) !== JSON.stringify(probe.prepared.context)) {
+        probe.errors.push('Actual preparation move differs from its declared point, context or trusted canvas')
+        throw Error(probe.errors.at(-1))
+      }
+    })
+  }
   const capturePress = event => {
     if (event.button !== 0) return
     pressBefore = { turn: world.turn, observedAt: performance.now(), mode: world.mode, trusted: event.isTrusted,
@@ -248,6 +278,7 @@ export function observeBlastEpisode(scene, options) {
   }
   const canvas = scene.renderer.domElement
   // Register the capture before the generic pointer observer; both precede the real handler.
+  canvas.addEventListener('pointermove', captureEnemyMove, false)
   canvas.addEventListener('pointerdown', capturePress, true)
   canvas.addEventListener('pointerup', capture, true)
   pointer = observeEntityPointer(scene, document, { id: target.id, collection: 'units' })
@@ -271,6 +302,15 @@ export function observeBlastEpisode(scene, options) {
     return check
   }
   return {
+    prepareEnemyPointer(point) {
+      if (!enemy || !enemyArmed || disposed || delivered || artifacts.enemyPointer || evidence.report().errors.length ||
+          !sameScene() || world.mode !== 'blast' || world.projectiles.includes(primerShot) ||
+          !Number.isInteger(point?.x) || !Number.isInteger(point?.y)) throw Error('One finite pointer preparation after primer retirement required')
+      artifacts.enemyPointer = { prepared: { turn: world.turn, observedAt: performance.now(), point: { ...point },
+        context: inputContext(scene), position: person(target).position }, move: null, draw: null, errors: [] }
+      return structuredClone(artifacts.enemyPointer.prepared)
+    },
+    pointerProbe: () => structuredClone(artifacts.enemyPointer ?? null),
     armEnemy() {
       if (!enemy || enemyArmed || disposed || !artifacts.primer?.valid || evidence.report().errors.length || !sameScene() ||
           !person(actor).same || !person(actor).ownerValid || actor.hp <= 0 || world.stats.cast !== artifacts.primer.after.castCount ||
@@ -305,6 +345,7 @@ export function observeBlastEpisode(scene, options) {
       if (disposed) return
       disposed = true
       admission.fail(Error('Movement admission observer disposed'))
+      canvas.removeEventListener('pointermove', captureEnemyMove, false)
       canvas.removeEventListener('pointerdown', capturePress, true); canvas.removeEventListener('pointerup', capture, true); canvas.removeEventListener('pointerup', release, false)
       if (pointer) { const result = pointer.finish(); pointer = null; if (!result.restored || result.errors.length) evidence.error('Pointer cleanup failed') }
       for (const { object, key, original, descriptor, wrapper } of wrappers.reverse()) {

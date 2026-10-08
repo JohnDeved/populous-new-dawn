@@ -1,15 +1,85 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import test from 'node:test'
-import ordinaryM1EnemyBlast, { createM1EnemyPreparation } from '../qa/blast-ordinary/m1-scenario.mjs'
+import ordinaryM1EnemyBlast, { createM1EnemyPreparation, createM1PointerAttempt } from '../qa/blast-ordinary/m1-scenario.mjs'
 
 test('enemy admission has no stationary neighborhood helper or pixel offsets', () => {
   const source = readFileSync(new URL('../qa/blast-ordinary/m1-scenario.mjs', import.meta.url), 'utf8')
-  const admission = source.slice(source.indexOf('    let previous\n'), source.indexOf("    }, 'first eligible real moving-enemy pixel and natural hover')"))
+  const admission = source.slice(source.indexOf('    const observe = '), source.indexOf("    }, 'one actual preparation move, first natural draw and one admission')"))
   assert.ok(admission.length > 0)
   assert.doesNotMatch(admission, /findEntityInput|interiorRadius|\bd[xy]\b/)
   assert.match(admission, /inspectEntityPoint\(s, 'units', point\)/)
   assert.match(admission, /actual\.canvasOwned && actual\.hitId === target\.id/)
+  assert.match(admission, /if \(cheapReady && \(stage === 'preparation' \|\| firstDrawHover\)\) \{\s*const probe = structuredClone\(w\)/)
+  assert.match(admission, /let rangeStatus = 'unprobed', targetError = 'unprobed'/)
+  assert.match(admission, /stage === 'preparation' && cheapReady && gates\.range/)
+})
+
+const readyPreparation = () => ({ preparationReady: true, rangeStatus: 'probed', targetError: null, pixel: { x: 50, y: 60 } })
+const pointerProbe = () => ({ move: { turn: 10 }, draw: { turn: 10, renderFrame: 40 }, errors: [] })
+const admissionRow = (gates = { hover: true, pixel: true, range: true }) => ({ gates,
+  ready: Object.values(gates).every(Boolean), withinBounds: true, rangeStatus: 'probed', targetError: null, errors: [] })
+function pointerHarness({ move = async () => {}, checkStop = async () => {} } = {}) {
+  const retained = [], calls = [], controller = new AbortController()
+  let time = 100
+  const attempt = createM1PointerAttempt({ checkStop, signal: controller.signal, now: () => time++,
+    move: async point => { calls.push(point); await move(point) }, retain: value => retained.push(value) })
+  return { attempt, retained, calls, controller }
+}
+
+test('one preparation move and one admission cannot become a pointer chase', async () => {
+  const { attempt, retained, calls } = pointerHarness()
+  await attempt.move(readyPreparation())
+  await assert.rejects(attempt.move(readyPreparation()), /Only one preparation/)
+  assert.deepEqual(calls, [{ x: 50, y: 60 }])
+  assert.equal(retained.length, 1); assert.equal(retained[0].completed, true)
+  assert.equal(retained[0].hostBefore, 100); assert.equal(retained[0].hostAfter, 101)
+  const result = attempt.admit(admissionRow(), pointerProbe())
+  assert.deepEqual(result, { castReady: true, diagnosticComplete: false, complete: false, missingGates: [] })
+  assert.throws(() => attempt.admit(admissionRow(), pointerProbe()), /Only one fresh postdraw/)
+})
+
+test('a clean first-draw gate miss is a completed diagnostic without a cast', async () => {
+  const { attempt, calls } = pointerHarness()
+  await attempt.move(readyPreparation())
+  const result = attempt.admit(admissionRow({ hover: false, pixel: true, range: true }), pointerProbe())
+  assert.deepEqual(result, { castReady: false, diagnosticComplete: true, complete: false, missingGates: ['hover'] })
+  assert.equal(calls.length, 1)
+  assert.throws(() => attempt.admit(admissionRow(), pointerProbe()), /Only one fresh postdraw/)
+})
+
+test('preparation input failure is retained and is never retried or admitted', async () => {
+  const { attempt, retained, calls } = pointerHarness({ move: async () => { throw Error('actual input failed') } })
+  await assert.rejects(attempt.move(readyPreparation()), /actual input failed/)
+  assert.equal(retained.length, 1); assert.equal(retained[0].inputAttempted, true); assert.equal(retained[0].completed, false)
+  assert.match(retained[0].failure, /actual input failed/); assert.equal(retained[0].hostAfter, 101)
+  await assert.rejects(attempt.move(readyPreparation()), /Only one preparation/)
+  assert.throws(() => attempt.admit(admissionRow(), pointerProbe()), /input must finish/)
+  assert.equal(calls.length, 1)
+})
+
+test('abort and unprobed range cannot spend the preparation move', async () => {
+  const aborted = pointerHarness()
+  aborted.controller.abort(Error('stop input'))
+  await assert.rejects(aborted.attempt.move(readyPreparation()), /stop input/)
+  assert.equal(aborted.calls.length, 0); assert.equal(aborted.retained[0].inputAttempted, false)
+  const unprobed = pointerHarness()
+  await assert.rejects(unprobed.attempt.move({ ...readyPreparation(), rangeStatus: 'unprobed' }), /probed/)
+  assert.equal(unprobed.calls.length, 0)
+})
+
+test('missing draw, expired bounds and real observer errors remain failures', async () => {
+  for (const [row, probe, error] of [
+    [admissionRow(), { move: {}, errors: [] }, /first natural draw/],
+    [admissionRow(), { ...pointerProbe(), errors: ['observer failure'] }, /Pointer observation failed/],
+    [{ ...admissionRow(), errors: ['episode failure'] }, pointerProbe(), /Episode observation failed/],
+    [{ ...admissionRow(), withinBounds: false }, pointerProbe(), /window expired/],
+  ]) {
+    const { attempt } = pointerHarness()
+    await attempt.move(readyPreparation())
+    assert.throws(() => attempt.admit(row, probe), error)
+    assert.throws(() => attempt.admit(admissionRow(), pointerProbe()), /Only one fresh postdraw/)
+  }
 })
 
 test('preparation keeps first gate failures and motion when its bounded tail rolls', () => {

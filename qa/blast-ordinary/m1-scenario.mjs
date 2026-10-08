@@ -9,7 +9,7 @@ import { pollWithPreservation, readQueuedPreservingStop } from '../erosion-ordin
 export function createM1EnemyPreparation(capacity = 96) {
   assert.ok(Number.isInteger(capacity) && capacity > 0 && capacity <= 96)
   const rows = [], firstFailures = {}
-  let total = 0, firstMoving = null, firstReady = null
+  let total = 0, firstMoving = null, firstPreparationReady = null, firstReady = null
   return {
     observe(value) {
       const row = structuredClone(value)
@@ -19,9 +19,44 @@ export function createM1EnemyPreparation(capacity = 96) {
       for (const [gate, passed] of Object.entries(row.gates))
         if (!passed && !firstFailures[gate]) firstFailures[gate] = row
       if (row.gates.moving) firstMoving ??= row
+      if (row.preparationReady) firstPreparationReady ??= row
       if (row.ready) firstReady ??= row
     },
-    read: () => structuredClone({ capacity, total, dropped: total - rows.length, firstFailures, firstMoving, firstReady, rows }),
+    read: () => structuredClone({ capacity, total, dropped: total - rows.length, firstFailures, firstMoving, firstPreparationReady, firstReady, rows }),
+  }
+}
+
+// A host-only one-attempt guard. Polling and real observations belong to the
+// caller; a clean observed gate miss differs from input or observation failure.
+export function createM1PointerAttempt({ checkStop, signal, move, retain, now = Date.now }) {
+  let attempt, admitted = false
+  return {
+    async move(row) {
+      assert.equal(attempt, undefined, 'Only one preparation mouse move is permitted')
+      assert.equal(row.preparationReady, true, 'Actual source-ready preparation required')
+      assert.equal(row.rangeStatus, 'probed'); assert.equal(row.targetError, null)
+      attempt = { row, hostBefore: now(), inputAttempted: false, completed: false }
+      try {
+        await checkStop(); signal.throwIfAborted()
+        attempt.inputAttempted = true
+        await move(row.pixel)
+        attempt.completed = true
+      } catch (error) { attempt.failure = String(error?.stack ?? error); throw error }
+      finally { attempt.hostAfter = now(); retain(structuredClone(attempt)) }
+    },
+    admit(row, probe) {
+      assert.ok(attempt?.completed, 'Preparation input must finish before admission')
+      assert.equal(admitted, false, 'Only one fresh postdraw admission is permitted')
+      admitted = true
+      assert.ok(probe?.move && probe?.draw, 'Actual preparation event and first natural draw required')
+      assert.deepEqual(probe.errors, [], 'Pointer observation failed')
+      assert.deepEqual(row.errors, [], 'Episode observation failed')
+      assert.equal(row.withinBounds, true, 'The first-draw admission window expired')
+      const missingGates = Object.entries(row.gates).filter(([, passed]) => !passed).map(([gate]) => gate)
+      const ready = missingGates.length === 0 && row.rangeStatus === 'probed' && row.targetError === null
+      assert.equal(row.ready, ready, 'Admission gate classification disagrees')
+      return { castReady: ready, diagnosticComplete: !ready, complete: false, missingGates }
+    },
   }
 }
 
@@ -41,7 +76,7 @@ export default async function ordinaryM1EnemyBlast({ page, output, receipt, sign
   const report = { expectation: 'candidate', phenotype: 'm1-enemy', source: receipt.source,
     profileId: receipt.profile.id, runId: receipt.profile.runId, limits, actions: [], route: [] }
   const preparation = createM1EnemyPreparation()
-  let primaryError, episode, setupAttached = false, episodeAttached = false, admitted, home
+  let primaryError, episode, setupAttached = false, episodeAttached = false, home, diagnostic, skipPollSleep = false
   const save = (name = 'm1-route.json', value = report) => writeFileSync(resolve(output, name), JSON.stringify(value, null, 2) + '\n')
   const checkStop = async () => {
     signal.throwIfAborted()
@@ -51,7 +86,10 @@ export default async function ordinaryM1EnemyBlast({ page, output, receipt, sign
   }
   const poll = (check, label, timeout = limits.wallMs - (Date.now() - started)) => pollWithPreservation(check, {
     checkStop, timeout: Math.min(timeout, limits.wallMs - (Date.now() - started)), label,
-    interval: 50, sleep: ms => page.waitForTimeout(ms),
+    interval: 50, sleep: ms => {
+      if (skipPollSleep) { skipPollSleep = false; return }
+      return page.waitForTimeout(ms)
+    },
   })
   const current = () => page.evaluate(() => {
     const { world: w, actor, target } = window.blastOriginal
@@ -214,17 +252,21 @@ export default async function ordinaryM1EnemyBlast({ page, output, receipt, sign
     const primerTurn = report.primer.delivered.before.turn
     await checkStop()
     await page.keyboard.press('1')
-    let previous
-    await poll(async () => {
-      const row = await page.evaluate(({ previous, home, primerTurn, limits }) => {
+    let previous, prepared = false
+    const pointerAttempt = createM1PointerAttempt({ checkStop, signal,
+      move: point => page.mouse.move(point.x, point.y),
+      retain: attempt => { report.pointerPreparation = attempt; preparation.observe(attempt.row) },
+    })
+    const observe = (stage, pointerProbe = null) => page.evaluate(({ previous, home, primerTurn, limits, stage, pointerProbe }) => {
         const { scene: s, world: w, actor, target } = window.blastOriginal
         const { blastPersonSnapshot, inputContext, inspectEntityPoint, spellTargetError, unitAnimationSource } = window.blastHelpers
         const progress = window.blastEpisode.progress(), sample = window.blastSetup.snapshot()
         const person = blastPersonSnapshot(w, target, target), actorPerson = blastPersonSnapshot(w, actor, target)
-        const probe = structuredClone(w), clonedTarget = probe.units.find(u => u.id === target.id)
-        const targetError = clonedTarget ? spellTargetError(probe, 'blast', clonedTarget) : 'target missing'
-        const moving = !!(previous && w.turn > previous.turn && person.position && previous.position &&
-          (person.position.x !== previous.position.x || person.position.y !== previous.position.y))
+        const draw = pointerProbe?.draw
+        const motionBefore = draw ? w.turn > draw.turn ? { turn: draw.turn, position: draw.position }
+          : { turn: draw.previousTurn, position: draw.previousPosition } : previous
+        const moving = !!(motionBefore && w.turn > motionBefore.turn && person.position && motionBefore.position &&
+          (person.position.x !== motionBefore.position.x || person.position.y !== motionBefore.position.y))
         const group = s.unitMeshes.get(target.id), layer = group?.userData.layers?.findLast(piece => piece.visible)
         const source = layer && s.view.painter.source(layer), native = unitAnimationSource(target)
         const body = { visible: group?.visible === true, pickable: group?.userData.pickable === true,
@@ -246,56 +288,98 @@ export default async function ordinaryM1EnemyBlast({ page, output, receipt, sign
           inspection.push(actual)
           if (actual.canvasOwned && actual.hitId === target.id) { pixel = point; break }
         }
-        const context = inputContext(s), hover = progress.hover
+        const context = inputContext(s), hover = progress.hover, capture = progress.hoverCapture
+        const same = (a, b) => JSON.stringify(a) === JSON.stringify(b)
+        const firstDrawHover = !!(draw && hover && capture && draw.matchedMove && capture.turn === draw.turn && capture.renderFrame === draw.renderFrame &&
+          same(capture.point, draw.point) && same(capture.position, draw.position) && same(capture.context, draw.context))
+        const withinBounds = w.turn < limits.maximumSetupTurn && w.turn - primerTurn <= limits.primerTurns
         const gates = { identity: !!(sample && !sample.failures.length && person.same && person.id === 38 && person.team === 'red' && person.kind === 'brave' &&
             person.hp > 0 && person.inside === null && person.ownerValid && actorPerson.ownerValid && actor.hp > 0 && actor.x === home.x && actor.z === home.z &&
             actorPerson.position && home.position && actorPerson.position.x === home.position.x && actorPerson.position.y === home.position.y && actorPerson.position.h === home.position.h),
           live: w.outcome.level === 1 && w.status === 'playing' && !w.paused && w.speed === 1 && !(w.manaWorld.gameFlags & 32) &&
-            w.turn < limits.maximumSetupTurn && w.turn - primerTurn <= limits.primerTurns,
+            withinBounds,
           camera: !w.inputMask && !s.cameraMotion.active && !s.resultCamera.active && !s.viewTransition,
           recipient: w.selected.length === 1 && w.selected[0] === actor.id && w.mode === 'blast' && w.shots.blast > 0 && w.stats.cast === 2,
-          moving, range: targetError === null, body: body.visible && body.pickable && body.visibleLayer && !!body.painter,
-          pixel: !!pixel, hover: !!hover && !!progress.hoverCapture, context: !hover || JSON.stringify(context) === JSON.stringify(hover.context),
+          moving, range: false, body: body.visible && body.pickable && body.visibleLayer && !!body.painter,
+          pixel: !!pixel, hover: firstDrawHover, context: stage === 'preparation' || !!hover && same(context, hover.context) && same(context, draw?.context),
           primerRetired: !w.projectiles.some(p => p.team === 'blue' && p.spell === 'blast'), observation: progress.errors.length === 0 }
-        const ready = Object.values(gates).every(Boolean)
-        const row = { turn: w.turn, position: person.position, person, actor: actorPerson, gates, ready, pixel,
+        const cheapReady = ['identity', 'live', 'camera', 'recipient', 'moving', 'body', 'pixel', 'primerRetired', 'observation'].every(gate => gates[gate])
+        let rangeStatus = 'unprobed', targetError = 'unprobed'
+        // Only actual source readiness may spend the single preparation move.
+        // Earlier cheap misses retain an explicit unprobed range, never success.
+        if (cheapReady && (stage === 'preparation' || firstDrawHover)) {
+          const probe = structuredClone(w), clonedTarget = probe.units.find(u => u.id === target.id)
+          targetError = clonedTarget ? spellTargetError(probe, 'blast', clonedTarget) : 'target missing'
+          rangeStatus = 'probed'; gates.range = targetError === null
+        }
+        const preparationReady = stage === 'preparation' && cheapReady && gates.range
+        const ready = stage === 'admission' && Object.values(gates).every(Boolean)
+        const row = { stage, turn: w.turn, position: person.position, person, actor: actorPerson, gates, preparationReady, ready, pixel,
           body, box: box && { x: box.x, y: box.y, width: box.width, height: box.height }, inspection,
-          targetError, context, hover, errors: progress.errors, failures: sample?.failures ?? ['snapshot'] }
-        // Only metadata is armed here. The host sends the sole candidate click.
+          rangeStatus, targetError, withinBounds, context, hover, firstDrawHover, errors: progress.errors, failures: sample?.failures ?? ['snapshot'] }
+        if (preparationReady) window.blastEpisode.prepareEnemyPointer(pixel)
+        // Only metadata is armed here. The host sends the sole ordinary input.
         if (ready) window.blastEpisode.trigger(w.turn)
         return row
-      }, { previous, home, primerTurn, limits })
-      if (row.ready) {
-        admitted = row
-        // No screenshot, raster work, artifact write or additional read between
-        // this fresh source/pixel admission and the one ordinary click.
-        signal.throwIfAborted()
-        await page.mouse.click(row.pixel.x, row.pixel.y)
-        preparation.observe(row); admitted = null
-        report.personInput = { turn: row.turn, pixel: row.pixel, targetId: report.startup.targetId }
-        return true
-      }
-      preparation.observe(row)
-      assert.ok(row.gates.identity, 'Original caster/target identity, health or fixed position changed')
-      assert.ok(row.gates.live, 'Ordinary clock or bounded primer window ended')
-      assert.ok(row.gates.recipient, 'Original cast recipient, stock or cast count changed')
-      assert.ok(row.gates.context, 'Natural hover context changed')
-      assert.deepEqual(row.errors, [], 'Episode observation failed')
-      if (!previous || row.turn > previous.turn) previous = { turn: row.turn, position: row.position }
-      if (row.pixel && !row.hover && row.gates.camera) await page.mouse.move(row.pixel.x, row.pixel.y)
-      return false
-    }, 'first eligible real moving-enemy pixel and natural hover')
-    save()
+      }, { previous, home, primerTurn, limits, stage, pointerProbe })
     await poll(async () => {
-      const { progress, turn } = await page.evaluate(() => ({ progress: window.blastEpisode.progress(), turn: window.blastOriginal.world.turn }))
-      assert.deepEqual(progress.errors, [], 'Moving-enemy lifecycle failed')
-      assert.ok(turn - report.personInput.turn <= limits.lifecycleTurns, 'Second-shot lifecycle/render window expired')
-      return progress.complete
-    }, 'moving windup, flight, exact arrival and natural impact')
-    await page.screenshot({ path: resolve(output, 'terminal.png') })
+      if (!prepared) {
+        const row = await observe('preparation')
+        if (row.preparationReady) {
+          await pointerAttempt.move(row)
+          prepared = true; skipPollSleep = true
+          return false
+        }
+        preparation.observe(row)
+        assert.ok(row.gates.identity, 'Original caster/target identity, health or fixed position changed')
+        assert.ok(row.gates.live, 'Ordinary clock or bounded primer window ended')
+        assert.ok(row.gates.recipient, 'Original cast recipient, stock or cast count changed')
+        assert.deepEqual(row.errors, [], 'Episode observation failed')
+        if (!previous || row.turn > previous.turn) previous = { turn: row.turn, position: row.position }
+        return false
+      }
+      const observed = await page.evaluate(() => ({ probe: window.blastEpisode.pointerProbe(), turn: window.blastOriginal.world.turn }))
+      report.pointerProbe = observed
+      assert.deepEqual(observed.probe.errors, [], 'Preparation pointer observation failed')
+      assert.ok(observed.turn < limits.maximumSetupTurn && observed.turn - primerTurn <= limits.primerTurns, 'Preparation event/draw window expired')
+      if (!observed.probe.draw) return false
+      // This is the only fresh admission after the first actual natural draw.
+      const row = await observe('admission', observed.probe)
+      let inputAttempt
+      try {
+        const decision = pointerAttempt.admit(row, observed.probe)
+        if (!decision.castReady) {
+          diagnostic = { ...decision, personCast: false, admission: row, pointerProbe: observed.probe }
+          return true
+        }
+        inputAttempt = { turn: row.turn, pixel: row.pixel, targetId: report.startup.targetId,
+          hostBefore: Date.now(), inputAttempted: false, completed: false }
+        await checkStop(); signal.throwIfAborted()
+        inputAttempt.inputAttempted = true
+        await page.mouse.click(row.pixel.x, row.pixel.y)
+        inputAttempt.completed = true
+        return true
+      } catch (error) {
+        if (inputAttempt) inputAttempt.failure = String(error?.stack ?? error)
+        throw error
+      } finally {
+        preparation.observe(row)
+        report.pointerAdmission = row
+        if (inputAttempt) { inputAttempt.hostAfter = Date.now(); report.personInput = inputAttempt }
+      }
+    }, 'one actual preparation move, first natural draw and one admission')
+    save()
+    if (!diagnostic) {
+      await poll(async () => {
+        const { progress, turn } = await page.evaluate(() => ({ progress: window.blastEpisode.progress(), turn: window.blastOriginal.world.turn }))
+        assert.deepEqual(progress.errors, [], 'Moving-enemy lifecycle failed')
+        assert.ok(turn - report.personInput.turn <= limits.lifecycleTurns, 'Second-shot lifecycle/render window expired')
+        return progress.complete
+      }, 'moving windup, flight, exact arrival and natural impact')
+      await page.screenshot({ path: resolve(output, 'terminal.png') })
+    }
   } catch (error) { primaryError = error }
   finally {
-    if (admitted) preparation.observe(admitted)
     if (episodeAttached) {
       try {
         episode = await page.evaluate(async () => {
@@ -322,11 +406,15 @@ export default async function ordinaryM1EnemyBlast({ page, output, receipt, sign
     }
     if (!primaryError && receipt.errors.length) primaryError = Error(`Browser errors: ${receipt.errors.join('\n')}`)
     save(); save('pointer-preparation.json', preparation.read())
-    save('episode.json', { ...report, ...episode, status: primaryError ? 'failed' : 'passed', failure: primaryError?.stack,
+    save('episode.json', { ...report, ...episode, diagnostic, diagnosticComplete: !!diagnostic && !primaryError,
+      complete: !primaryError && !diagnostic && episode?.report.complete === true, status: primaryError ? 'failed' : 'passed', failure: primaryError?.stack,
       method: 'One public Mission1 Bridge prefix, one ground primer and at most one person Blast. Real RAF and trusted public input; original-call-once passive observers and detached-clone predicates. Natural hover/ack artifacts are frozen actual-DOM detached rasters; projectile/impact images are actual game-canvas captures.',
       remainingAcceptance: ['Empty-ground/rejection/interruption controls', 'Active-cast save/reload', 'Comparable paired frame review', 'Hardware performance'] })
   }
   if (primaryError) throw primaryError
+  if (diagnostic) return { stage: 'ordinary-m1-first-pointer-diagnostic', expectation: 'candidate', diagnosticComplete: true, complete: false,
+    personCast: false, missingGates: diagnostic.missingGates, evidence: resolve(output, 'episode.json'),
+    remainingAcceptance: ['Ordinary moving-person cast and all later gameplay acceptance'] }
   assert.equal(episode.report.complete, true)
   return { stage: 'ordinary-m1-moving-enemy-cast-impact', expectation: 'candidate', complete: true, evidence: resolve(output, 'episode.json'),
     remainingAcceptance: ['Ground/rejection/interruption controls', 'Active-cast save/reload', 'Paired frame review', 'Hardware performance'] }
