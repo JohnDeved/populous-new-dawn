@@ -154,11 +154,14 @@ contract tests only; they do not certify the driver or evidence adapters have ru
 the dependency-free contracts. It loads the maintained local-render Vite config
 in middleware mode, verifies the observed old local-`require` failure through
 that actual client plugin pipeline, and transforms the three browser helper
-modules. It creates no HTTP listener, browser or game World; Vite may initialize
-its maintained development environment, which is closed in `finally`. Use the
+modules. It explicitly disables HMR and verifies the main Vite HTTP server is
+absent. It creates no browser or game World; Vite may initialize internal
+development resources, which are closed in `finally`. A fresh dedicated cache
+under `work/orchestration/` is mandatory; the installed dependency cache is unused. Use the
 existing stationary dependencies and a unique receipt/output with a120s outer
 bound. A transform pass is not an ordinary episode.
 
 ```sh
-POPULOUS_GAME_ROOT="$PWD" node qa/blast-ordinary/transform-check.mjs
+POPULOUS_GAME_ROOT="$PWD" POPULOUS_TRANSFORM_CACHE="$PWD/work/orchestration/UNIQUE/vite-cache" \
+  node qa/blast-ordinary/transform-check.mjs
 ```
