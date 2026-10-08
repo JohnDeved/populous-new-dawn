@@ -3,6 +3,7 @@ import { writeFileSync, mkdirSync } from 'node:fs'
 import { basename, resolve } from 'node:path'
 import { waitForShamanReadiness } from '../../scripts/browser-game.mjs'
 import { pollWithPreservation, readQueuedPreservingStop } from '../erosion-ordinary/stop.mjs'
+import { createBlastPreparation } from './preparation.mjs'
 
 // First-stage ordinary witness. This module does not run a browser on import.
 export default async function ordinaryBlast({ page, output, receipt, signal, openMission }) {
@@ -17,7 +18,8 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
   mkdirSync(commands)
   const limits = { wallMs: 240000, approachMs: 140000, cameraMs: 15000, castMs: 10000, maximumSetupTurn: 1800 }
   let attached = false, setupAttached = false, primaryError, result
-  const preparation = []
+  const preparation = createBlastPreparation({ targetId: 19 })
+  let admittedObservation
   const save = (name, data) => writeFileSync(resolve(output, name), JSON.stringify(data, null, 2) + '\n')
   const checkStop = async () => {
     signal.throwIfAborted()
@@ -128,13 +130,16 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
     assert.equal((await current()).mode, 'blast')
     let prior, trigger
     await poll(async () => {
-      const observed = await page.evaluate(({ previous, expectation }) => {
+      const observed = await page.evaluate(({ previous, expectation, maximumSetupTurn }) => {
         const s = window.testSceneRef.current, w = s.world, started = performance.now()
         const { responseSnapshot, pointerFeedback, spellTargetError, wrappedDistance, findEntityInput, inspectEntityPoint } = window.blastHelpers
         const sample = window.blastSetup.snapshot(), actor = window.blastOriginal.actor
         const state = { turn: w.turn, level: w.outcome.level, status: w.status, paused: w.paused, speed: w.speed,
           flags: w.manaWorld.gameFlags, mode: w.mode, stock: w.shots.blast, inputMask: w.inputMask, cameraSettled: !s.cameraMotion.active && !s.resultCamera.active && !s.viewTransition, actor: { id: actor.id, hp: actor.hp }, failures: sample?.failures ?? ['snapshot'] }
-        const response = responseSnapshot(s), p = response[0], old = previous?.response[0]
+        const report = window.blastEpisode.progress(), prepared = report.hover
+        const response = responseSnapshot(s), p = response[0]
+        const motionTurn = prepared?.previousTurn ?? previous?.turn
+        const motionPosition = prepared?.previousPosition ?? previous?.response[0]?.position
         const probe = structuredClone(w), target = p && probe.units.find(u => u.id === p.id)
         const targetError = target ? spellTargetError(probe, 'blast', target) : 'missing target'
         const distance = p ? wrappedDistance(actor, p) : null, box = p && s.picking.personBounds(p.id)
@@ -157,7 +162,8 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
         const group = s.unitMeshes.get(19), layer = group?.userData.layers?.findLast(piece => piece.visible)
         const source = layer && s.view.painter.source(layer), unit = window.blastOriginal.target
         const activeNative = window.blastHelpers.unitAnimationSource(unit)
-        const renderedBody = { visible: group?.visible ?? null, pickable: group?.userData.pickable ?? null,
+        const renderedBody = { originalTargetPresent: w.units.includes(unit), sameIdIsOriginal: w.units.find(person => person.id === 19) === unit,
+          targetId: unit.id, hp: unit.hp, team: unit.team, kind: unit.kind, visible: group?.visible ?? null, pickable: group?.userData.pickable ?? null,
           frame: group?.userData.frame ?? null, spriteBucket: group?.userData.spriteBucket ?? null,
           inside: unit.inside, nativeRenderFlags: unit.native?.renderFlags ?? null, nativeFlags2: unit.native?.flags2 ?? null,
           activeNative: activeNative ? { id: activeNative.id, class: activeNative.class, model: activeNative.model,
@@ -170,31 +176,44 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
           candidates.push({ x: rect.left + box.x + box.width * fx, y: rect.top + box.y + box.height * fy })
         const nextHit = existingHit || (p && findEntityInput(candidates, p.id, inspect))
         const feedback = pointerFeedback(s)
-        const live = state.failures.length === 0 && state.level === 2 && state.status === 'playing' && !state.paused &&
+        const live = state.turn < maximumSetupTurn && state.failures.length === 0 && state.level === 2 && state.status === 'playing' && !state.paused &&
           state.speed === 1 && !(state.flags & 32) && !state.inputMask && state.cameraSettled && state.mode === 'blast' && state.stock > 0 && state.actor.hp > 0
-        const moving = old && p && w.turn > previous.turn && p.speed > 0 && !p.fighting && !actor.fight &&
-          (p.position.x !== old.position.x || p.position.y !== old.position.y)
+        const moving = !!(motionPosition && p && w.turn > motionTurn && p.speed > 0 && !p.fighting && !actor.fight &&
+          (p.position.x !== motionPosition.x || p.position.y !== motionPosition.y))
         const phenotype = expectation === 'candidate' ? feedback.visible && feedback.lines === 16 && feedback.targetId === 19 : !feedback.visible
-        const ready = !!(live && moving && distance >= 7 && targetError === null && existingHit && phenotype)
-        let hover = null
-        if (ready) {
-          hover = { turn: w.turn, targetId: p.id, mode: w.mode, canvasOwned: true, hitId: p.id,
-            visible: feedback.visible, lines: feedback.lines, context: feedback.context, position: p.position,
-            previousTurn: previous.turn, previousPosition: old.position, orderModel: p.orderModel }
-          // Eligibility, the already delivered hover and evidence registration share
-          // one synchronous read. No remote read or raster await follows before click.
-          window.blastEpisode.trigger(w.turn)
-          window.blastEpisode.hover(hover)
+        const eligible = !!(live && moving && distance >= 7 && targetError === null && existingHit && phenotype)
+        let hover = prepared, ready = false, rejection = null, phase = 'preparing'
+        if (report.errors.length) rejection = 'episode-observation-error'
+        else if (prepared && w.turn > prepared.turn + 1) rejection = 'prospective-hover-expired'
+        else if (prepared && JSON.stringify(feedback.context) !== JSON.stringify(prepared.context)) rejection = 'prospective-hover-context-changed'
+        else if (eligible) {
+          if (!hover) {
+            hover = { turn: w.turn, targetId: p.id, mode: w.mode, canvasOwned: true, hitId: p.id,
+              visible: feedback.visible, lines: feedback.lines, context: feedback.context, position: p.position,
+              previousTurn: motionTurn, previousPosition: motionPosition, orderModel: p.orderModel }
+            window.blastEpisode.hover(hover)
+          }
+          phase = 'awaiting-natural-hover-frame'
+          // The real render and its pixel validation finish before admission.
+          // Recheck current eligibility here; no read or raster await follows trigger.
+          if (expectation === 'baseline' || report.frames.some(frame => frame.kind === 'hover' && frame.turn <= w.turn)) {
+            window.blastEpisode.trigger(w.turn)
+            ready = true; phase = 'admitted'
+          }
         }
         return { turn: w.turn, state, response, distance, targetError, actorFighting: !!actor.fight,
           box: box ? { x: box.x, y: box.y, width: box.width, height: box.height } : null,
           existingHit, nextHit, inspection, renderedBody, feedback: { targetId: feedback.targetId, visible: feedback.visible, lines: feedback.lines },
-          ready, hover, readMilliseconds: performance.now() - started }
-      }, { previous: prior, expectation })
-      preparation.push(observed); if (preparation.length > 96) preparation.shift()
+          live, moving, phenotype, eligible, phase, rejection, episodeErrors: report.errors, ready, hover, readMilliseconds: performance.now() - started }
+      }, { previous: prior, expectation, maximumSetupTurn: limits.maximumSetupTurn })
+      // Preserve failed/onset rows before assertions. The admitted row is retained
+      // after input, keeping diagnostic copying outside the four-turn interval.
+      if (observed.ready) { admittedObservation = observed; trigger = observed; return true }
+      const { stopReason } = preparation.observe(observed)
+      assert.equal(stopReason, null, 'Original response ended or target became unavailable; first observations retained')
+      assert.equal(observed.rejection, null, 'Prospective hover admission failed; first observations retained')
       assert.deepEqual(observed.state.failures, [], 'Original scene, World or healthy Shaman changed; setup trace retained')
       healthy(observed.state)
-      if (observed.ready) { trigger = observed; return true }
       prior = observed
       if (observed.nextHit && !observed.existingHit)
         await input('prepare-person-hover', { id: target.id, hit: observed.nextHit, turn: observed.turn }, () => page.mouse.move(observed.nextHit.x, observed.nextHit.y))
@@ -203,6 +222,7 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
     // One normal trusted click follows the atomic eligibility read. Late delivery
     // remains a retained failure under the existing actual-release contract.
     await input('blast-person-release', { id: target.id, hit: trigger.existingHit, turn: trigger.turn }, () => page.mouse.click(trigger.existingHit.x, trigger.existingHit.y))
+    preparation.observe(admittedObservation); admittedObservation = null
     save('target-setup.json', { prior, trigger, target, releaseWithinTurns: 4 })
     await poll(async () => {
       const report = await page.evaluate(() => window.blastEpisode.progress())
@@ -239,7 +259,8 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
         if ((!setup.cleanupVerified || setup.errors.length || setup.ground?.errors.length) && !primaryError) primaryError = Error('Setup observation/cleanup failed')
       } catch (error) { primaryError ??= error }
     }
-    save('pointer-preparation.json', { capacity: 96, rows: preparation })
+    if (admittedObservation) preparation.observe(admittedObservation)
+    save('pointer-preparation.json', preparation.read())
     save('episode.json', { expectation, source: receipt.source, profileId: receipt.profile.id, runId: receipt.profile.runId, limits, actions, ...result,
       status: primaryError ? 'failed' : 'passed', failure: primaryError?.stack,
       remainingAcceptance: ['Empty-ground control', 'Out-of-range/no-stock/cancel/repeat', 'Pause and active-cast save/reload', 'Comparable paired frame review'],
