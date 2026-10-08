@@ -23,7 +23,8 @@ export function observeControls(scene, observeEntityPointer, target = null, doc 
       current = { type: event.type, code: event.code ?? null, button: event.button ?? null,
         x: event.clientX ?? null, y: event.clientY ?? null, trusted: event.isTrusted,
         repeat: !!event.repeat, blockedTarget: !!event.target?.closest?.('button,input,dialog'),
-        canvasOwned: event.target === canvas && doc.elementFromPoint(event.clientX, event.clientY) === canvas,
+        canvasOwned: event.type === 'pointerup' && Number.isFinite(event.clientX) && Number.isFinite(event.clientY) &&
+          event.target === canvas && doc.elementFromPoint(event.clientX, event.clientY) === canvas,
         observedAt: performance.now(), targetSame: !!target && world.units.find(unit => unit.id === target.id) === target,
         targetOwnerValid: !!person && person.class === 1 && !(person.flags2 & 1) && world.objectCells.objects.get(target.id) === person,
         before: controlSnapshot(world), after: null }
