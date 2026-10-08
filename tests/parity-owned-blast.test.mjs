@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto'
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { BLAST_BINDINGS, BLAST_CONTROL_STAGES, isOrdinaryBlastCandidate, projectOrdinaryBlast, selectOrdinaryBlast } from '../scripts/parity-owned-blast.mjs'
+import { BLAST_BINDINGS, BLAST_CONTROL_STAGES, BLAST_REFERENCE, isOrdinaryBlastCandidate, projectOrdinaryBlast, selectOrdinaryBlast, isBlastReferenceCandidate, projectBlastReference, selectBlastReference } from '../scripts/parity-owned-blast.mjs'
 import { buildReport, discoverReceipts, renderHTML } from '../scripts/parity-measure.mjs'
 const sha = value => createHash('sha256').update(value).digest('hex')
 
@@ -172,7 +172,7 @@ test('Blast observations add no requirement, browser-case or paired parity credi
 
 test('parity declarations fingerprint their executed tests and both owned adapters exactly once', () => {
   const { checks } = JSON.parse(readFileSync(new URL('../engineering/checks.json', import.meta.url), 'utf8'))
-  for (const id of ['parity-measure-tests', ...BLAST_BINDINGS.map(binding => binding.id)]) {
+  for (const id of ['parity-measure-tests', BLAST_REFERENCE.id, ...BLAST_BINDINGS.map(binding => binding.id)]) {
     const check = checks.find(check => check.id === id)
     assert.ok(check, `Missing declaration: ${id}`)
     assert.equal(new Set(check.inputs).size, check.inputs.length, `Duplicate inputs: ${id}`)
@@ -180,4 +180,130 @@ test('parity declarations fingerprint their executed tests and both owned adapte
     for (const path of [...executedFiles, 'scripts/parity-measure.mjs', 'scripts/parity-owned-checkpoint.mjs', 'scripts/parity-owned-blast.mjs'])
       assert.ok(check.inputs.includes(path), `${id} does not fingerprint ${path}`)
   }
+})
+
+function referenceFixture() {
+  const manifestPath = 'work/orchestration/reviewed/manifest.json'
+  const sourceFiles = { ...BLAST_REFERENCE.files, 'package.json': sha('package'), 'package-lock.json': sha('lock') }
+  const manifest = { head: 'b'.repeat(40), tree: 'a'.repeat(40), innerSeconds: 240,
+    stages: [{ name: 'test-02', command: ['node', '--test', BLAST_REFERENCE.comparator] }],
+    files: { [BLAST_REFERENCE.comparator]: sourceFiles[BLAST_REFERENCE.comparator] },
+    dependency: { rootLockSha256: sourceFiles['package-lock.json'], installedLockSha256: sha('installed') } }
+  const source = { headOid: manifest.head, trackedDiffSha256: sha(''), inputs: {
+    [manifestPath]: BLAST_REFERENCE.manifestSha256,
+    'work/orchestration/reviewed/run-stage.mjs': BLAST_REFERENCE.runnerSha256,
+    ...manifest.files, 'package.json': sourceFiles['package.json'], 'package-lock.json': sourceFiles['package-lock.json'],
+    'node_modules/.package-lock.json': manifest.dependency.installedLockSha256,
+  } }
+  const outer = { kind: 'pnd-command-receipt', phase: 'finished', status: 'passed', exitCode: 0,
+    command: ['timeout', '--signal=TERM', '--kill-after=10s', '240s', ...manifest.stages[0].command],
+    source, sourceAfter: structuredClone(source), finishedAt: '2026-10-08T10:33:28.651Z',
+    stdout: `✔ ${BLAST_REFERENCE.caseName} (161.542949ms)\nℹ pass 272\nℹ fail 0\n`, stderr: '' }
+  outer.stdoutSha256 = sha(outer.stdout); outer.stderrSha256 = sha(outer.stderr)
+  const fixture = { executableSha256: BLAST_REFERENCE.executableSha256,
+    timeline: [[true, false, false], [false, false, false], [false, true, false], [false, true, false], [false, true, true], [false, true, true]]
+      .map(([head, enemy, ally]) => ({ head, enemy, ally })), events: ['not port-compared'] }
+  return { outer, manifest, manifestPath, sourceFiles, fixture, currentTree: 'new-tree', currentClean: true, path: 'work/orchestration/reference.json' }
+}
+const rehashReference = d => { d.outer.stdoutSha256 = sha(d.outer.stdout); d.outer.stderrSha256 = sha(d.outer.stderr) }
+
+test('historical reference preserves missing native attestation and supplied ground setup even on a matching tree', () => {
+  const d = referenceFixture(), historical = projectBlastReference(d)
+  assert.equal(historical.status, 'stale'); assert.equal(historical.diagnosticStatus, 'passed')
+  assert.equal(historical.observed.comparedSnapshots, 6)
+  assert.equal(historical.reference.sha256, BLAST_REFERENCE.files[BLAST_REFERENCE.fixture])
+  assert.match(historical.observed.setup, /gameFlags32 and ground cast; no ordinary bit-clear person-selection proof/)
+  for (const result of [historical, projectBlastReference({ ...d, currentTree: d.manifest.tree })]) {
+    assert.equal(result.provenanceGrade, 'historical-reference')
+    assert.equal(result.rawNativeAttestation, 'missing'); assert.equal(result.originalExecutionStatus, 'unknown')
+    assert.match(result.reason, /raw native attestation missing; original execution unknown/)
+    assert.equal(result.observed.events, undefined)
+  }
+  assert.equal(projectBlastReference({ ...d, currentTree: d.manifest.tree }).status, 'verified')
+  assert.equal(projectBlastReference({ ...d, currentTree: d.manifest.tree, currentClean: false }).status, 'stale')
+})
+
+test('historical comparison rejects count-only, skipped, duplicate and unrelated named output', () => {
+  for (const stdout of [
+    'ℹ pass 272\nℹ fail 0\n',
+    `﹣ ${BLAST_REFERENCE.caseName} (0ms) # SKIP\n`,
+    `✔ Other comparison (1ms)\n`,
+    `✔ ${BLAST_REFERENCE.caseName} (1ms)\n✔ ${BLAST_REFERENCE.caseName} (2ms)\n`,
+    `# ✔ ${BLAST_REFERENCE.caseName} (1ms)\n`,
+    `✖ ${BLAST_REFERENCE.caseName} (1ms)\n`,
+  ]) {
+    const d = referenceFixture(); d.outer.stdout = stdout; rehashReference(d)
+    assert.equal(projectBlastReference(d).status, 'unknown', stdout)
+  }
+})
+
+test('historical reference binding rejects substituted identities, drift and filtered selection', () => {
+  const changes = [
+    d => { d.outer.phase = 'prepared' }, d => { d.outer.finishedAt = 'bad' },
+    d => { d.outer.sourceAfter.headOid = 'drift' }, d => { d.outer.source.trackedDiffSha256 = sha('dirty'); d.outer.sourceAfter = structuredClone(d.outer.source) },
+    d => { d.outer.stdout += 'tamper' }, d => { d.outer.stderr += 'tamper' }, d => { d.outer.exitCode = 1 },
+    d => { d.manifest.head = 'c'.repeat(40) }, d => { d.outer.source.inputs[d.manifestPath] = 'unknown'; d.outer.sourceAfter = structuredClone(d.outer.source) },
+    d => { d.outer.source.inputs['work/orchestration/reviewed/run-stage.mjs'] = 'unknown'; d.outer.sourceAfter = structuredClone(d.outer.source) },
+    d => { d.sourceFiles[BLAST_REFERENCE.comparator] = 'changed' }, d => { d.sourceFiles[BLAST_REFERENCE.fixture] = 'changed' },
+    d => { d.sourceFiles['decomp/exports.json'] = 'changed' }, d => { d.sourceFiles['scripts/check-native-blast-impact.py'] = 'changed' },
+    d => { d.fixture.executableSha256 = 'other-original' }, d => { d.fixture.timeline[0].head = false },
+    d => { delete d.outer.source.inputs[BLAST_REFERENCE.comparator]; d.outer.sourceAfter = structuredClone(d.outer.source) },
+    d => { d.manifest.dependency.installedLockSha256 = 'different-installed-lock' },
+    d => { d.outer.command.push('--test-name-pattern', 'other test') }, d => { d.outer.command.push(BLAST_REFERENCE.comparator) },
+  ]
+  for (const change of changes) {
+    const d = referenceFixture(); change(d); const result = projectBlastReference(d)
+    assert.equal(result.status, 'unknown', change.toString()); assert.equal(result.observed, undefined)
+    assert.equal(result.originalExecutionStatus, 'unknown')
+  }
+})
+
+test('newer unsupported, interrupted or failed selected comparisons cannot fall back to an older pass', () => {
+  const d = referenceFixture(), old = projectBlastReference(d)
+  d.outer.finishedAt = '2026-10-08T11:00:00Z'; d.outer.status = 'failed'; d.outer.exitCode = 1
+  d.outer.stdout = `✖ ${BLAST_REFERENCE.caseName} (2ms)\n`; rehashReference(d)
+  const failed = projectBlastReference(d)
+  assert.equal(failed.diagnosticStatus, 'failed'); assert.equal(failed.status, 'stale')
+  assert.equal(selectBlastReference([old, failed]).diagnosticStatus, 'failed')
+  assert.equal(selectBlastReference([old, { ...failed, finishedAt: old.finishedAt }]).diagnosticStatus, 'failed')
+  d.outer.phase = 'prepared'
+  assert.equal(selectBlastReference([old, projectBlastReference(d)]).status, 'unknown')
+  d.outer.phase = 'finished'; d.sourceFiles[BLAST_REFERENCE.comparator] = 'new unsupported checker'
+  assert.equal(selectBlastReference([old, projectBlastReference(d)]).status, 'unknown')
+  delete d.outer.finishedAt
+  assert.equal(selectBlastReference([old, projectBlastReference(d)]).status, 'unknown')
+})
+
+test('reference discovery needs an explicitly selected comparator, not helper input hashes', t => {
+  const root = mkdtempSync(join(tmpdir(), 'blast-reference-discovery-'))
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+  const directory = join(root, 'work/orchestration'); mkdirSync(directory, { recursive: true })
+  const real = referenceFixture().outer, helper = structuredClone(real), filtered = structuredClone(real)
+  helper.command[helper.command.length - 1] = 'tests/unrelated.test.mjs'
+  filtered.command.push('--test-name-pattern', 'not the comparison')
+  assert.equal(isBlastReferenceCandidate(real), true); assert.equal(isBlastReferenceCandidate(helper), false)
+  assert.equal(isBlastReferenceCandidate(filtered), true)
+  for (const [name, receipt] of Object.entries({ real, helper, filtered })) writeFileSync(join(directory, `${name}.json`), JSON.stringify(receipt))
+  const { receipts } = discoverReceipts(root)
+  assert.deepEqual(receipts.filter(r => r.commandReceipt).map(r => r.path), ['work/orchestration/filtered.json', 'work/orchestration/real.json'])
+})
+
+test('historical original-reference detail cannot enter any capability or inflate coverage', () => {
+  const definitions = JSON.parse(readFileSync(new URL('../engineering/parity-capabilities.json', import.meta.url), 'utf8'))
+  const { checks } = JSON.parse(readFileSync(new URL('../engineering/checks.json', import.meta.url), 'utf8'))
+  const check = checks.find(check => check.id === BLAST_REFERENCE.id)
+  assert.equal(check.kind, 'portable'); assert.equal(check.receiptAdapter, 'historical-blast-impact')
+  assert.ok(definitions.capabilities.every(c => ![...c.browserCheckIds, ...c.originalCheckIds].includes(BLAST_REFERENCE.id)))
+  const model = { checks, definitions, inventory: [{ id: 'spells.blast', title: 'Full Blast', group: 'spells' }] }
+  const result = projectBlastReference({ ...referenceFixture(), currentTree: 'a'.repeat(40) })
+  const before = buildReport(model, [], [], { head: 'current' })
+  const after = buildReport(model, [], [], { head: 'current' }, [result])
+  assert.deepEqual(after.knownScope, before.knownScope); assert.deepEqual(after.browserIntegration, before.browserIntegration)
+  assert.deepEqual(after.missionCases, before.missionCases); assert.equal(after.scopeHash, before.scopeHash)
+  assert.equal(after.checks.length, before.checks.length + 1)
+  assert.ok(after.missionCases.capabilities.every(c => c.originalStatus === 'unknown'))
+  const html = renderHTML(after)
+  assert.match(html, /historical-reference/); assert.match(html, /raw native attestation missing/)
+  assert.match(html, /supplied gameFlags32|supplied gameFlags = 32|Supplied gameFlags32/)
+  assert.match(html, /ground cast/); assert.match(html, /bit-clear person-selection/)
 })

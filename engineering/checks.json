@@ -2,6 +2,54 @@
   "version": 1,
   "checks": [
     {
+      "id": "blast-impact-original-reference",
+      "kind": "portable",
+      "automation": "manual",
+      "receiptAdapter": "historical-blast-impact",
+      "purpose": "Interpret the reviewed port comparison against six historical original-reference Blast snapshots; never execute the original or comparator.",
+      "coveredBehavior": [
+        "Six compared arrival/head-retirement and first enemy/friendly impulse snapshots"
+      ],
+      "knownLimits": [
+        "Historical-reference provenance; raw native execution attestation is missing and original execution remains unknown, including on a matching port source tree.",
+        "Supplied gameFlags32 and a ground cast do not validate the ordinary bit-clear person-selection path. Native allocation, deletion and person bodies are supplied; the full fixture event log is not port-compared.",
+        "Unscored check detail only. No complete Blast, native whole-game, native timing, matched-frame or hardware-performance credit."
+      ],
+      "executable": "node",
+      "args": [
+        "scripts/parity-measure.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/parity-measure.mjs",
+        "scripts/parity-owned-blast.mjs",
+        "scripts/parity-owned-checkpoint.mjs",
+        "scripts/orchestration/cli.mjs",
+        "tests/blast-impact.test.mjs",
+        "tests/fixtures/blast-impact.json",
+        "scripts/check-native-blast-impact.py",
+        "decomp/exports.json",
+        "app",
+        "package.json",
+        "package-lock.json",
+        "engineering/checks.json"
+      ],
+      "prerequisites": [
+        "Existing explicit comparator receipt and reviewed manifest/runner Git identities; historical fixture origin available as Git data"
+      ],
+      "sideEffects": [
+        "Reads existing receipts and Git objects; writes generated report.json, index.html and history.json under work/orchestration/parity-measure. Does not launch tests, browser or native work."
+      ],
+      "resources": [
+        "No runtime resources for receipt projection"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
       "id": "blast-controls-ordinary",
       "kind": "browser",
       "automation": "manual",
