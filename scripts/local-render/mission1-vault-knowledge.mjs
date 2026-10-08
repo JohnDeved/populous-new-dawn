@@ -99,9 +99,10 @@ export default async function mission1VaultKnowledge({ page, openMission, output
       }
       assert.fail('Public Escape did not clear mode and selection')
     }
-    const move = async point => {
+    const move = async (point, cellMove = false) => {
       await button('Select and focus shaman'); await view(point); await resume(); await prepareDispatch()
-      const hit = await fixedGround(point); assert.equal(hit.rejection, null, JSON.stringify(hit))
+      const hit = cellMove ? await input.farBankGround(point) : await fixedGround(point)
+      assert.equal(hit.rejection, null, JSON.stringify(hit))
       const delivered = await dispatch(hit, 3, [originalShamanId])
       await wait(({ id, point }) => {
         const u = window.testSceneRef.current.world.units.find(u => u.id === id)
@@ -139,7 +140,7 @@ export default async function mission1VaultKnowledge({ page, openMission, output
     }, { actorId: originalShamanId, bridges: bridgeBefore.bridges }, 60000)
     report.completedBridge = await read()
     assert.ok(report.completedBridge.landVersion > bridgeBefore.landVersion)
-    report.crossing = await move({ x: 0, z: 4 })
+    report.crossing = await move({ x: 0, z: 4 }, true)
     // The existing Red guard is an ordinary gameplay prerequisite. If still near
     // the approach, use genuine Blast stock and let normal damage/retreat resolve.
     report.guardCasts = []
