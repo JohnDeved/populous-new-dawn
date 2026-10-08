@@ -14,7 +14,7 @@ export function createBlastEpisode(options) {
   requireEvidence(Number.isInteger(actorId) && Number.isInteger(targetId) && actorId !== targetId && runId && sourceFingerprint, 'Bound run and person identities required')
   requireEvidence(Number.isInteger(maxTurns) && maxTurns >= 12 && maxTurns <= 120, 'Bounded cast turn limit required')
   const rows = [], frames = [], errors = []
-  let triggerTurn, before, lastAfter, entry, release, hover, arrival, impact, retired, windupMotion = false, flightMotion = false
+  let triggerTurn, before, lastAfter, entry, release, hover, proposal, arrival, impact, retired, windupMotion = false, flightMotion = false
   const fail = message => { errors.push(message); throw Error(message) }
   const check = (condition, message) => { if (!condition) fail(message) }
   function live(sample, targetRequired = true) {
@@ -25,27 +25,40 @@ export function createBlastEpisode(options) {
   }
   return {
     trigger(turn) {
-      check(triggerTurn === undefined && hover && !entry && Number.isInteger(turn) && turn >= 0, 'One actual response trigger turn required after prospective hover')
-      check(turn >= hover.turn && turn <= hover.turn + 1, 'Prospective hover expired before response trigger')
+      const prepared = expectation === 'baseline' ? proposal : hover
+      check(triggerTurn === undefined && prepared && !entry && Number.isInteger(turn) && turn >= 0, 'One actual response trigger turn required after declared preparation')
+      check(turn >= prepared.turn && turn <= prepared.turn + 1, expectation === 'candidate' ? 'Prospective hover expired before response trigger' : 'Proposal expired before response trigger')
       check(expectation === 'baseline' || frames.some(frame => frame.kind === 'hover' && frame.turn <= turn), 'A real validated hover frame must precede the response trigger')
       triggerTurn = turn
     },
+    propose(value) {
+      keys(value, ['kind', 'turn', 'targetId', 'mode', 'canvasOwned', 'hitId', 'context', 'position', 'previousTurn', 'previousPosition', 'orderModel', 'point'])
+      check(expectation === 'baseline' && value.kind === 'proposed-pixel', 'Only baseline may use proposed-pixel evidence')
+      check(!proposal && !hover && triggerTurn === undefined && !entry, 'One proposed pixel before the trigger required')
+      check(Number.isInteger(value.turn) && value.turn >= 0 && Number.isInteger(value.point?.x) && Number.isInteger(value.point?.y), 'Actual proposal turn and integer pixel required')
+      check(value.mode === 'blast' && value.targetId === targetId && value.hitId === targetId && value.canvasOwned && value.orderModel === 19, 'A real response person pixel in Blast mode is required')
+      check(value.turn > value.previousTurn && moved(value.position, value.previousPosition), 'Target was stopped or motion sample repeated')
+      proposal = clone(value)
+    },
     hover(value) {
       keys(value, ['turn', 'targetId', 'mode', 'canvasOwned', 'hitId', 'visible', 'lines', 'context', 'position', 'previousTurn', 'previousPosition', 'orderModel'])
+      check(expectation === 'candidate', 'Only candidate uses actual hover evidence')
       check(!hover && triggerTurn === undefined && !entry, 'Hover may be accepted only once before the trigger')
       check(Number.isInteger(value.turn) && value.turn >= 0, 'Actual prospective hover turn required')
       check(value.mode === 'blast' && value.targetId === targetId && value.hitId === targetId && value.canvasOwned && value.orderModel === 19, 'A real response person hit in Blast mode is required')
       check(value.turn > value.previousTurn && moved(value.position, value.previousPosition), 'Target was stopped or motion sample repeated')
-      check(expectation === 'candidate' ? value.visible && value.lines === 16 : !value.visible, 'Expected visible hover feedback missing or baseline phenotype changed')
+      check(value.visible && value.lines === 16, 'Expected visible hover feedback missing')
       hover = clone(value)
     },
     release(value, sample) {
-      keys(value, ['turn', 'targetId', 'mode', 'trusted', 'canvasOwned', 'context', 'handlerPersonId', 'handlerTerrain', 'stockBefore', 'castCountBefore'])
-      check(hover && !release, 'One delivered release must follow an observed hover')
+      keys(value, ['turn', 'targetId', 'mode', 'trusted', 'canvasOwned', 'context', 'handlerPersonId', 'handlerTerrain', 'stockBefore', 'castCountBefore', 'point'])
+      const prepared = expectation === 'baseline' ? proposal : hover
+      check(prepared && !release, 'One delivered release must follow declared preparation')
       live(sample)
       check(value.turn >= triggerTurn && value.turn <= triggerTurn + 4, 'Actual response release window expired')
       check(sample.target.hp > 0, 'Ordinary setup requires a living response member at release')
-      check(value.turn >= hover.turn && value.turn <= hover.turn + 1 && same(value.context, hover.context), 'Stale pointer or changed input context')
+      check(value.turn >= prepared.turn && value.turn <= prepared.turn + 1 && same(value.context, prepared.context), 'Stale pointer/proposal or changed input context')
+      if (expectation === 'baseline') check(same(value.point, proposal.point), 'Actual release pixel differs from proposed pixel')
       check(value.mode === 'blast' && value.targetId === targetId && value.trusted && value.canvasOwned, 'Actual trusted Blast release on the owned canvas required')
       check(expectation === 'candidate' ? value.handlerPersonId === targetId : value.handlerPersonId === null && value.handlerTerrain, 'Real handler pick does not match the declared phenotype')
       check(sample.shot && sample.shot.phase === 'windup' && sample.shot.remaining === 6 && sample.shot.caster === actorId, 'Release did not allocate one fresh Blast windup')
@@ -110,7 +123,7 @@ export function createBlastEpisode(options) {
       requireEvidence(args.length === 0, 'Cannot seed a success report')
       const required = expectation === 'candidate' ? ['hover', 'ack', 'arrival', 'impact'] : ['arrival', 'impact']
       const complete = !!(entry && release && arrival && impact && retired && windupMotion && flightMotion && !before && !errors.length && required.every(kind => frames.some(f => f.kind === kind)))
-      return clone({ version: 1, expectation, runId, sourceFingerprint, triggerTurn, actorId, targetId, complete, errors, hover, release, entry, arrival, impact, retired, windupMotion, flightMotion, rows, frames,
+      return clone({ version: 1, expectation, runId, sourceFingerprint, triggerTurn, actorId, targetId, complete, errors, hover, proposal, release, entry, arrival, impact, retired, windupMotion, flightMotion, rows, frames,
         limits: 'Ordinary rendered browser episode only when accompanied by the harness receipt and retained frame files. No original execution, full parity, hardware performance, ground comparison or save/reload claim.' })
     },
     error(error) { errors.push(String(error?.stack ?? error)) },

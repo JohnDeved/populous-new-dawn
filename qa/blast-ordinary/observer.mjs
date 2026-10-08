@@ -111,7 +111,7 @@ export function observeBlastEpisode(scene, options) {
   })
   const capture = event => {
     if (event.button !== 0 || event.type !== 'pointerup') return
-    eventBefore = { turn: world.turn, targetId: target.id, mode: world.mode, trusted: event.isTrusted,
+    eventBefore = { point: { x: event.clientX, y: event.clientY }, turn: world.turn, targetId: target.id, mode: world.mode, trusted: event.isTrusted,
       canvasOwned: event.target === scene.renderer.domElement && document.elementFromPoint(event.clientX, event.clientY) === scene.renderer.domElement,
       context: inputContext(scene), stockBefore: world.shots.blast, castCountBefore: world.stats.cast }
   }
@@ -137,6 +137,7 @@ export function observeBlastEpisode(scene, options) {
   pointer = observeEntityPointer(scene, document, { id: target.id, collection: 'units' })
   canvas.addEventListener('pointerup', release, false)
   return {
+    propose: value => evidence.propose(value),
     hover: value => evidence.hover(value),
     trigger: turn => {
       if (turn > world.turn || world.turn - turn > 4) throw Error('Stale actual response trigger')
