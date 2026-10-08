@@ -2,7 +2,7 @@
 
 Prepared from runtime freeze `4635c1acc9b66c1d54e5e2bc7cad4b88fa30754b` and
 read against the reviewed lifetime repair `7c3ac608917d0b6a3a6c4c779460953905f2738e`.
-The revised driver is prospective. Six baseline attempts failed before casting;
+The revised driver is prospective. Seven baseline attempts failed before casting;
 no ordinary Blast episode has passed. Pure helper tests and controlled model probes
 are not ordinary episodes, native comparisons or parity awards.
 
@@ -79,23 +79,39 @@ four-turn arm cast at427: the target moved during all six windup visits and both
 flight visits, impact occurred at436, and the Shaman retained100HP. These are
 controlled port-model observations, not original timing or ordinary browser results.
 
-The revised browser trigger requires the same living outdoor class1/nondeleted
-Warrior19, actual movement across two distinct normal-turn observations, no fight,
-fresh detached-clone `spellTargetError === null`, and distance at least7. It also
-requires a settled camera and a currently owned 5×5 person-pixel neighborhood at
-the actual pointer, with the declared hover phenotype. Pixel search, public mouse
-hovering, imports and caches are prepared before this trigger. A single
-synchronous browser read registers a prospective hover when all these conditions
-hold. For the candidate, the game's next qualifying natural render must then
-supply a validated hover frame, including completed detached pixel validation.
-A fresh synchronous read rechecks identity, health, range, context and current
-person pixel before recording the trigger. The one normal click follows
-immediately, with no additional remote reads, file writes or raster waits in
-between. Baseline admits directly after its absent-feedback hover because it
-cannot supply candidate brackets. There is no clock scheduler or window extension.
+Both ordinary expectations retain the same original living outdoor class1/nondeleted
+Warrior19, movement across two distinct normal turns, no fight, healthy original
+Shaman, fresh actual `spellTargetError === null`, stock and normal campaign context.
+The candidate also retains the declared distance>=7 preparation margin, settled
+camera, actual pointer's owned5×5 person neighborhood, real visible hover and
+validated natural hover frame before its fresh trigger.
+
+The baseline now uses one fresh canvas-owned target19 pixel, followed immediately
+by one trusted click at those coordinates. Its bounded search reuses only the
+first-tested pixel of each former5×5 candidate, at most nine distinct points;
+no neighborhood, prior resting pointer or distance>=7 condition is claimed.
+These were QA robustness margins, not shipped `pointerUp` requirements. The
+original input handler consumes one event pixel and checks actual range, health
+and stock. Baseline evidence therefore records `kind: proposed-pixel`, its actual
+inspection turn/context and intended point, separately from the delivered event.
+It does not populate hover evidence or claim the pointer was already resting there.
+The actual trusted release must match the proposal's coordinates and context.
+Candidate hover rejects proposed-pixel records and still requires a natural frame.
+
+The retained quarter-turn baseline `de5f4921` proves why this distinction matters:
+a usable5×5 existed at529 with range8.574, but the public pre-hover move and next
+read reached534 after the target moved34px. The resting pointer missed and range
+was5.947. Earlier525/527 rows had individual19 pixels next to person1207. That
+failed preparation remains retained; this baseline-only change is a new prospective
+experiment, with actual motion/arrival/impact proof still mandatory.
+
+A single synchronous read registers either the baseline proposal or the candidate's
+fresh trigger after its validated hover frame. One normal click follows immediately,
+with no additional remote reads, file writes or raster waits. There is no clock
+scheduler, timing-window extension or changed game code.
 
 The actual trusted release must occur within four simulation turns, and the
-existing hover/context freshness check remains mandatory. A delayed event may
+one-turn proposal/hover context freshness check remains mandatory. A delayed event may
 already cast before the actual-release contract rejects it; any such failure is
 retained. The four-turn limit has the controlled model witness above; successful
 browser delivery remains prospective. `pointer-preparation.json` retains the last
@@ -141,7 +157,7 @@ by the observations.
 The setup must finish before turn1800. The combined approach, range and pointer
 preparation poll is bounded at140s within the240s scenario cap. There is no
 separate12s hover timer. Once readiness is admitted, the actual release window
-is four turns and the released cast remains bounded at48 turns/10s. The prospective
+is four turns and the released cast remains bounded at48 turns/10s. The baseline proposal or candidate prospective
 hover must remain at most one turn old at both trigger and actual release; it is
 never replaced or refreshed. Natural rendering, raster completion and transport
 may exhaust this interval, which fails setup without admission. A candidate frame
@@ -212,9 +228,10 @@ POPULOUS_BLAST_EXPECTATION=candidate node scripts/local-render/harness.mjs \
 Replace `candidate` with `baseline` throughout for the unchanged product. Use a
 lowercase/digit/hyphen suffix to satisfy profile validation. Both runs require
 fresh, separate profiles and fresh outputs. Neither run imports the other's
-checkpoint. Baseline explicitly expects the historical absent spell-mode hover
-and person identity, plus a fixed point projectile. It still requires a genuine
-person pixel, real accepted cast, target motion, arrival and impact. Baseline
+checkpoint. Baseline explicitly expects the historical absent spell-mode feedback
+and delivered person identity, plus a fixed point projectile. It requires a genuine
+proposed person pixel, separately observed real accepted release, target motion,
+arrival and impact. Baseline
 success means the expected defect was reproduced, not candidate acceptance.
 
 `owned-profile.mjs` already classifies every `qa/**` path as checker input; no

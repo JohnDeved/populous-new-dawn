@@ -1,11 +1,12 @@
-// Diagnostic copies only: no game/runtime imports, stepping, picking or input.
+// No game/runtime imports, stepping or input. Pick observations are supplied by the caller.
 const gates = ['response', 'live', 'moving', 'range', 'camera', 'body', 'pixel', 'phenotype']
 const pixelCounts = ['canvasOwned', 'outsideCanvas', 'targetHit', 'nullHit', 'otherHit']
 
-export function createBlastPreparation({ targetId, capacity = 96, maximumSetupTurn = 1800 }) {
+export function createBlastPreparation({ targetId, capacity = 96, maximumSetupTurn = 1800, minimumDistance = 7 }) {
   if (!Number.isInteger(targetId) || targetId < 1) throw Error('Preparation targetId must be a positive integer')
   if (!Number.isInteger(capacity) || capacity < 1 || capacity > 96) throw Error('Preparation capacity must be 1..96')
   if (!Number.isInteger(maximumSetupTurn) || maximumSetupTurn < 1 || maximumSetupTurn > 1800) throw Error('Preparation maximumSetupTurn must be 1..1800')
+  if (![0, 7].includes(minimumDistance)) throw Error('Declared baseline0 or candidate7 distance required')
   const rows = [], firstFailures = Object.fromEntries(gates.map(gate => [gate, null]))
   const inspectionTotals = { reads: 0, total: 0, ...Object.fromEntries(pixelCounts.map(key => [key, 0])), sampleCount: 0 }
   let total = 0, dropped = 0, firstLiveResponse = null, lastLiveResponse = null
@@ -22,7 +23,7 @@ export function createBlastPreparation({ targetId, capacity = 96, maximumSetupTu
     if (row.turn >= maximumSetupTurn) return 'setup-turn-limit'
     return null
   }
-  const read = () => structuredClone({ version: 1, targetId, capacity, maximumSetupTurn, total, dropped, rows,
+  const read = () => structuredClone({ version: 1, targetId, capacity, maximumSetupTurn, minimumDistance, total, dropped, rows,
     firstLiveResponse, lastLiveResponse, firstInRangeResponse, firstPixelMiss,
     firstFailures, inspectionTotals, firstTerminal, stopReason })
 
@@ -41,10 +42,10 @@ export function createBlastPreparation({ targetId, capacity = 96, maximumSetupTu
         response: !!response,
         live: row.live === true,
         moving: row.moving === true,
-        range: !!response && Number.isFinite(row.distance) && row.distance >= 7 && row.targetError === null,
+        range: !!response && Number.isFinite(row.distance) && row.distance >= minimumDistance && row.targetError === null,
         camera: state?.cameraSettled === true && !state.inputMask,
         body: body?.visible === true && body.pickable === true && body.visibleLayer === true && body.layerHasPainterSource === true,
-        pixel: !!row.existingHit,
+        pixel: row.preparationKind === 'proposed-pixel' ? !!row.nextHit : !!row.existingHit,
         phenotype: row.phenotype === true,
       }
       total++; rows.push(row)
@@ -71,4 +72,20 @@ export function createBlastPreparation({ targetId, capacity = 96, maximumSetupTu
       return { stopReason }
     },
   }
+}
+
+
+// Baseline reuses only the first tested pixel of each former5x5 candidate.
+// This preserves the nine-point search envelope without claiming prior hover.
+export function findProposedBlastPixel(candidates, targetId, inspect) {
+  if (candidates.length > 9) throw Error('At most nine baseline pixel candidates')
+  const visited = new Set()
+  for (const candidate of candidates) {
+    const x = Math.round(candidate.x) - 2, y = Math.round(candidate.y) - 2, key = `${x},${y}`
+    if (!Number.isFinite(x) || !Number.isFinite(y) || visited.has(key)) continue
+    visited.add(key)
+    const actual = inspect({ x, y })
+    if (actual.canvasOwned && actual.hitId === targetId) return { x, y, kind: 'proposed-pixel' }
+  }
+  return null
 }

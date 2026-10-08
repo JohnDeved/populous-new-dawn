@@ -12,8 +12,13 @@ const browserPoint = p => ({ x: (p.x - 2048) / 256, z: -(p.y + 2048) / 256 })
 const hover = expectation => ({ turn: 1, targetId: 3, mode: 'blast', canvasOwned: true, hitId: 3,
   visible: expectation === 'candidate', lines: expectation === 'candidate' ? 16 : 0, context: copy(context), position: position(1),
   previousTurn: 0, previousPosition: position(0), orderModel: 19 })
-const release = expectation => ({ turn: 1, targetId: 3, mode: 'blast', trusted: true, canvasOwned: true, context: copy(context),
+const release = expectation => ({ point: { x: 10, y: 20 }, turn: 1, targetId: 3, mode: 'blast', trusted: true, canvasOwned: true, context: copy(context),
   handlerPersonId: expectation === 'candidate' ? 3 : null, handlerTerrain: expectation === 'baseline', stockBefore: 4, castCountBefore: 0 })
+const proposed = () => {
+  const value = hover('baseline')
+  delete value.visible; delete value.lines
+  return { ...value, kind: 'proposed-pixel', point: { x: 10, y: 20 } }
+}
 function sample(turn, expectation = 'candidate', { still = false } = {}) {
   const candidate = expectation === 'candidate', p = position(still ? 1 : turn), aim = position(still ? 1 : Math.max(1, turn - 1))
   const phase = turn < 7 ? 'windup' : turn < 9 ? 'flying' : 'arrived'
@@ -28,9 +33,10 @@ function sample(turn, expectation = 'candidate', { still = false } = {}) {
     effects: turn < 10 ? [] : [{ id: 60, kind: 'blastWave', point: candidate ? browserPoint(aim) : { x: 11, z: 17 } }, { id: 61, kind: 'blast', point: candidate ? browserPoint(aim) : { x: 11, z: 17 } }] }
 }
 function start(expectation = 'candidate', change = () => {}) {
-  const episode = createBlastEpisode({ ...options, expectation }), h = hover(expectation), r = release(expectation), first = sample(1, expectation)
+  const episode = createBlastEpisode({ ...options, expectation }), h = expectation === 'baseline' ? proposed() : hover(expectation), r = release(expectation), first = sample(1, expectation)
   change({ h, r, first })
-  episode.hover(h)
+  if (expectation === 'baseline') episode.propose(h)
+  else episode.hover(h)
   if (expectation === 'candidate') episode.frame({ kind: 'hover', turn: 1, targetId: 3, visible: true, lines: 16, pixels: 80, effectId: null })
   episode.trigger(1)
   episode.release(r, first)
@@ -159,4 +165,25 @@ test('validated prospective hover admits one fresh trigger and retains release f
   assert.equal(valid.report().triggerTurn, 1)
   assert.throws(() => valid.trigger(2), /One actual response trigger/)
   assert.throws(() => valid.hover(hover('candidate')), /only once/)
+})
+
+
+test('baseline proposal is distinct from actual hover and actual delivered release', () => {
+  const result = start('baseline').episode.report()
+  assert.equal(result.hover, undefined)
+  assert.equal(result.proposal.kind, 'proposed-pixel')
+  assert.deepEqual(result.release.point, result.proposal.point)
+  assert.equal(result.complete, false)
+  assert.throws(() => start('baseline', ({ r }) => { r.point.x++ }), /differs from proposed/)
+  assert.throws(() => start('baseline', ({ r }) => { r.turn = 3 }), /Stale pointer\/proposal/)
+})
+
+test('proposed pixel records cannot be relabelled as candidate hover evidence', () => {
+  const candidate = createBlastEpisode(options)
+  assert.throws(() => candidate.propose(proposed()), /Only baseline/)
+  const other = createBlastEpisode(options)
+  assert.throws(() => other.hover(proposed()), /Unrecognized|seeded/)
+  const noFrame = createBlastEpisode(options)
+  const relabeled = proposed(); delete relabeled.kind; delete relabeled.point
+  assert.throws(() => noFrame.hover(relabeled), /visible hover/)
 })

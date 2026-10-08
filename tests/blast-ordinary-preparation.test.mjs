@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { createBlastPreparation } from '../qa/blast-ordinary/preparation.mjs'
+import { createBlastPreparation, findProposedBlastPixel } from '../qa/blast-ordinary/preparation.mjs'
 
 // Fake copied records only: no simulation, browser, runtime module or fixture.
 function observation(turn = 100, overrides = {}) {
@@ -181,4 +181,36 @@ test('initial housing cannot outlive the unchanged no-response setup deadline', 
   assert.equal(preparation.read().total, 2)
   for (const maximumSetupTurn of [0, 1801, Infinity])
     assert.throws(() => createBlastPreparation({ targetId: 19, maximumSetupTurn }), /maximumSetupTurn/)
+})
+
+
+test('baseline proposes one observed owned target pixel without claiming a neighborhood or prior hover', () => {
+  const calls = [], proposed = findProposedBlastPixel([{ x: 472, y: 392 }, { x: 469, y: 392 }], 19, point => {
+    calls.push(point)
+    return { canvasOwned: true, hitId: point.x === 467 ? 19 : 1207 }
+  })
+  assert.deepEqual(calls, [{ x: 470, y: 390 }, { x: 467, y: 390 }])
+  assert.deepEqual(proposed, { x: 467, y: 390, kind: 'proposed-pixel' })
+  assert.equal('interiorRadius' in proposed, false)
+  assert.equal('hover' in proposed, false)
+  assert.equal(findProposedBlastPixel([{ x: 469, y: 392 }], 19, () => ({ canvasOwned: false, hitId: 19 })), null)
+  assert.equal(findProposedBlastPixel([{ x: 469, y: 392 }], 19, () => ({ canvasOwned: true, hitId: 1207 })), null)
+})
+
+test('baseline pixel search stays within the original nine first-tested pixels and ignores duplicate points', () => {
+  let calls = 0
+  const candidates = Array.from({ length: 9 }, () => ({ x: 20, y: 30 }))
+  assert.equal(findProposedBlastPixel(candidates, 19, () => { calls++; return { canvasOwned: true, hitId: null } }), null)
+  assert.equal(calls, 1)
+  assert.throws(() => findProposedBlastPixel([...candidates, { x: 2, y: 2 }], 19, () => null), /At most nine/)
+})
+
+test('baseline can retain actual in-range evidence below seven; candidate margin remains declared', () => {
+  const row = observation(10, { distance: 2, existingHit: null, nextHit: { x: 10, y: 20, kind: 'proposed-pixel' }, preparationKind: 'proposed-pixel' })
+  const baseline = createBlastPreparation({ targetId: 19, minimumDistance: 0 }), candidate = createBlastPreparation({ targetId: 19 })
+  baseline.observe(row); candidate.observe(row)
+  assert.equal(baseline.read().firstInRangeResponse.turn, 10)
+  assert.equal(baseline.read().firstFailures.pixel, null)
+  assert.equal(candidate.read().firstInRangeResponse, null)
+  assert.equal(candidate.read().minimumDistance, 7)
 })
