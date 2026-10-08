@@ -23,6 +23,13 @@ condition. Neither original0x6a selection nor spell range validation requires
 initial target speed; movement is still mandatory during windup and flight.
 The pre-release fixed eastern-segment deadline no longer applies to this staged
 idle episode. Stage acceptance stays within two world units of the declared point.
+The actual registered person is bound after the staging order completes; no
+obsolete active-model3 record is required at attachment. State19 can still be
+repositioning, so binding alone earns no idle admission. No active order, speed zero and
+unchanged native XY across distinct normal turns own the later stationary gate.
+The completed-stage sample does not justify dropping the existing zero-speed
+check: the source clears speed on resting-slot arrival. Staging and pointer polling share
+one140s deadline, rather than allocating a second preparation budget.
 
 Before casting, precompute one actual empty-ground input near `(-93,-101)` for the
 later movement. All imports, ground-pixel discovery and observer setup happen
@@ -66,6 +73,16 @@ rejection/interruption, Save/Load, paired-frame and final combined-tree gates re
 open. The passive diagnostic is available but disabled in ordinary bindings.
 
 ## Retained earlier attempts
+
+Baseline `8e707803` completed the public staging order but failed an obsolete
+attachment assertion demanding that model3 still exist. At306 Brave278 remained
+alive/outdoors with its same registered class1 owner and no order; state19/substate2
+and speed72 accompanied real XY movement through304–306. This was completed-order
+handoff, not yet stable idle. The source repair binds that owner and retains the
+later stationary-pose gate. A new controlled imported-M2 caller regression follows
+normal startup/selection/command3 to completion and resting, then actual cast
+admission; it does not inject a target pose or claim browser success.
+
 
 Baseline `4b3f2a08` bound the real Brave278 and accepted its ordinary move. Reads
 290/297/303/308 all found a current owned target pixel, but none found the target

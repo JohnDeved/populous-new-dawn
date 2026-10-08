@@ -78,10 +78,10 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
       const { unitAnimationSource } = await import('/app/selection-runtime.ts')
       const { observeBlastEpisode, responseSnapshot, pointerFeedback } = await import('/qa/blast-ordinary/observer.mjs')
       const { observeBlastPick } = await import('/qa/blast-ordinary/pick-observer.mjs')
-      const { findProposedBlastPixel } = await import('/qa/blast-ordinary/preparation.mjs')
+      const { findProposedBlastPixel, bindStagedBlastTarget, stationaryBlastTarget } = await import('/qa/blast-ordinary/preparation.mjs')
       const { observeEntityPointer, findEntityInput, inspectEntityPoint } = await import('/qa/erosion-ordinary/input.mjs')
       const { spellTargetError } = await import('/app/model.ts'), { wrappedDistance } = await import('/app/world-coordinates.ts')
-      window.blastHelpers = { currentPersonOrder, findProposedBlastPixel, observeBlastPick, unitAnimationSource, observeBlastEpisode, responseSnapshot, pointerFeedback, observeEntityPointer, findEntityInput, inspectEntityPoint, spellTargetError, wrappedDistance }
+      window.blastHelpers = { stationaryBlastTarget, bindStagedBlastTarget, currentPersonOrder, findProposedBlastPixel, observeBlastPick, unitAnimationSource, observeBlastEpisode, responseSnapshot, pointerFeedback, observeEntityPointer, findEntityInput, inspectEntityPoint, spellTargetError, wrappedDistance }
       window.blastSetup = observeBlastSetup(scene, actor, { currentOrder: (w, p) => currentPersonOrder(w.buildingOrders, p) })
       if (window.blastSetup.read().errors.length) throw Error('Setup observation could not attach')
     }, roster)
@@ -119,11 +119,20 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
     }, approach)
     const ground = await groundAt({ x: -99, z: -101 })
     assert.ok(ground, 'No real ordinary ground move at the bounded approach')
+    const preparationDeadline = Date.now() + limits.approachMs
+    const preparationRemaining = () => {
+      const remaining = preparationDeadline - Date.now()
+      assert.ok(remaining > 0, 'Combined staging and pointer preparation deadline reached')
+      return remaining
+    }
     const groundBefore = await current()
     await page.evaluate(() => { window.blastGround = window.blastHelpers.observeEntityPointer(window.testSceneRef.current) })
     await input('approach-ground', ground, () => page.mouse.click(ground.x, ground.y))
     const groundAfter = await current(), groundPointer = await page.evaluate(() => {
-      const result = window.blastGround.finish(); window.blastGround = null; return result
+      const result = window.blastGround.finish(); window.blastGround = null
+      const target = window.blastOriginal.target
+      window.blastOriginal.stagePerson = target.native ?? target.entry?.person
+      return result
     })
     save('ground-dispatch.json', { before: groundBefore, after: groundAfter, pointer: groundPointer })
     assert.deepEqual(groundBefore.selected, [target.id])
@@ -140,15 +149,14 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
     assert.ok(groundAfter.orderMarkers.some(e => !groundBefore.orderMarkers.some(old => old.id === e.id)))
     const movementGround = await groundAt({ x: -93, z: -101 })
     assert.ok(movementGround, 'Precomputed empty-ground continuation required before casting')
+    let staged
+    await poll(async () => {
+      staged = await page.evaluate(point => window.blastHelpers.bindStagedBlastTarget(window.blastOriginal, point, window.blastHelpers.currentPersonOrder), ground.point)
+      return staged.ready
+    }, preparationRemaining(), 'same registered Brave completing the accepted public staging move')
+    save('staged-target.json', staged)
     const state = await current(); healthy(state)
     await page.evaluate(options => {
-      const { world, target } = window.blastOriginal
-      const person = target.native ?? target.entry?.person
-      const order = person && window.blastHelpers.currentPersonOrder(world.buildingOrders, person)
-      if (!order || order.model !== 3) throw Error('The accepted original movement order must still own the Brave')
-      window.blastOriginal.movePerson = person
-      window.blastOriginal.moveOrder = order
-      window.blastOriginal.movePoint = { a: order.a, b: order.b }
       window.blastEpisode = window.blastHelpers.observeBlastEpisode(window.testSceneRef.current, options)
     }, { expectation, actorId: state.actor.id, targetId: target.id, runId: receipt.profile.runId, sourceFingerprint: receipt.source.fingerprint, maxTurns: 48 })
     attached = true
@@ -158,7 +166,7 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
     await poll(async () => {
       const observed = await page.evaluate(({ previous, expectation, maximumSetupTurn, diagnostic, baselineProposal, minimumDistance }) => {
         const s = window.testSceneRef.current, w = s.world, started = performance.now()
-        const { responseSnapshot, pointerFeedback, spellTargetError, wrappedDistance, findEntityInput, findProposedBlastPixel, inspectEntityPoint } = window.blastHelpers
+        const { stationaryBlastTarget, responseSnapshot, pointerFeedback, spellTargetError, wrappedDistance, findEntityInput, findProposedBlastPixel, inspectEntityPoint } = window.blastHelpers
         const sample = window.blastSetup.snapshot(), actor = window.blastOriginal.actor
         const state = { turn: w.turn, level: w.outcome.level, status: w.status, paused: w.paused, speed: w.speed,
           flags: w.manaWorld.gameFlags, mode: w.mode, stock: w.shots.blast, inputMask: w.inputMask, cameraSettled: !s.cameraMotion.active && !s.resultCamera.active && !s.viewTransition, actor: { id: actor.id, hp: actor.hp, x: actor.x, z: actor.z }, failures: sample?.failures ?? ['snapshot'] }
@@ -198,8 +206,7 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
           painterSource: source ? { bucket: source.bucket, cell: source.cell, phase: source.phase, object: source.object, face: source.face } : null }
         const live = state.turn < maximumSetupTurn && state.failures.length === 0 && state.level === 2 && state.status === 'playing' && !state.paused &&
           state.speed === 1 && !(state.flags & 32) && !state.inputMask && state.cameraSettled && state.mode === 'blast' && state.stock > 0 && state.actor.hp > 0
-        const stationary = !!(motionPosition && p && w.turn > motionTurn && p.idle && !p.fighting && !actor.fight &&
-          p.position.x === motionPosition.x && p.position.y === motionPosition.y)
+        const stationary = stationaryBlastTarget(p, motionTurn, motionPosition, w.turn, !!actor.fight)
         let searchPixels = true, diagnosticComplete = false, diagnosticError = null
         if (diagnostic && live && stationary && distance >= 7 && targetError === null) {
           window.blastPick ??= window.blastHelpers.observeBlastPick(s, { targetId: window.blastOriginal.target.id })
@@ -268,7 +275,7 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
       if (!diagnostic && observed.stationary && observed.nextHit && !observed.existingHit)
         await input('prepare-person-hover', { id: target.id, hit: observed.nextHit, turn: observed.turn }, () => page.mouse.move(observed.nextHit.x, observed.nextHit.y))
       return false
-    }, limits.approachMs, 'healthy idle original target at a real stable pointer pixel and actual Blast range')
+    }, preparationRemaining(), 'healthy idle original target at a real stable pointer pixel and actual Blast range')
     if (diagnostic) {
       const proof = await page.evaluate(() => window.blastPick.read())
       assert.deepEqual(proof.errors, []); assert.equal(proof.sealed, true)

@@ -120,3 +120,26 @@ export async function releaseHeldBlast({ press, prepare, release, cancel, read, 
     throw error
   }
 }
+
+// Bind the actual registered person after the public staging order completes.
+// The binding is QA metadata; neither the World nor person/order records change.
+export function bindStagedBlastTarget(original, point, currentOrder) {
+  const { scene, world, target, stagePerson } = original
+  const person = target?.native ?? target?.entry?.person
+  if (scene.world !== world || world.units.find(unit => unit.id === target?.id) !== target ||
+      target.team !== 'blue' || target.kind !== 'brave' || target.hp <= 0 || target.inside !== null ||
+      !person || person !== stagePerson || person.class !== 1 || person.flags2 & 1 || world.objectCells.objects.get(target.id) !== person)
+    throw Error('Original staged person identity or registered owner changed')
+  const order = currentOrder(world.buildingOrders, person)
+  const ready = (!order || !!(order.flags & 1)) && Math.hypot(target.x - point.x, target.z - point.z) <= 2
+  const observation = { ready, turn: world.turn, targetId: target.id, x: target.x, z: target.z,
+    position: { x: person.x, y: person.y, h: person.h }, state: person.state, speed: person.speed,
+    order: order ? { model: order.model, flags: order.flags, a: order.a, b: order.b } : null }
+  if (ready) original.movePerson = person
+  return observation
+}
+
+export function stationaryBlastTarget(person, previousTurn, previousPosition, turn, actorFighting = false) {
+  return !!(person && previousPosition && turn > previousTurn && person.idle && !person.fighting && !actorFighting &&
+    person.position.x === previousPosition.x && person.position.y === previousPosition.y)
+}

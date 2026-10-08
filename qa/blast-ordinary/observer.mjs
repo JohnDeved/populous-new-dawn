@@ -20,11 +20,11 @@ export const inputContext = scene => ({
   camera: { ...scene.cameraPosition }, view: { ...scene.viewPoint }, bearing: scene.cameraBearing,
   width: scene.container.clientWidth, height: scene.container.clientHeight,
 })
-export function responseSnapshot(scene) {
+export function responseSnapshot(scene, original = window.blastOriginal) {
   const w = scene.world
-  return w.units.filter(u => u === window.blastOriginal.target && u.team === 'blue' && u.kind === 'brave' && u.hp > 0 && u.inside === null).flatMap(u => {
+  return w.units.filter(u => u === original.target && u.team === 'blue' && u.kind === 'brave' && u.hp > 0 && u.inside === null).flatMap(u => {
     const p = owner(u), order = p && currentPersonOrder(w.buildingOrders, p)
-    return p?.class === 1 && p === window.blastOriginal.movePerson && !(p.flags2 & 1) ? [{ id: u.id, x: u.x, z: u.z, position: position(p), speed: p.speed, orderModel: order?.model ?? null, idle: p.speed === 0 && (!order || !!(order.flags & 1)), fighting: !!u.fight }] : []
+    return p?.class === 1 && p === original.movePerson && !(p.flags2 & 1) ? [{ id: u.id, x: u.x, z: u.z, position: position(p), speed: p.speed, orderModel: order?.model ?? null, idle: p.speed === 0 && (!order || !!(order.flags & 1)), fighting: !!u.fight }] : []
   })
 }
 export function pointerFeedback(scene) {
