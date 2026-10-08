@@ -1,6 +1,6 @@
 // Pure evidence reducer. It never creates, advances or changes a game World.
-const require = (value, message) => { if (!value) throw Error(message) }
-const keys = (value, allowed) => require(Object.keys(value).every(key => allowed.includes(key)), 'Unrecognized or seeded evidence field')
+const requireEvidence = (value, message) => { if (!value) throw Error(message) }
+const keys = (value, allowed) => requireEvidence(Object.keys(value).every(key => allowed.includes(key)), 'Unrecognized or seeded evidence field')
 const clone = value => structuredClone(value)
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b)
 const moved = (a, b) => a.x !== b.x || a.y !== b.y
@@ -10,9 +10,9 @@ const browserPoint = p => ({ x: short(p.x - 2048) / 256, z: -short(p.y + 2048) /
 export function createBlastEpisode(options) {
   keys(options, ['expectation', 'actorId', 'targetId', 'runId', 'sourceFingerprint', 'maxTurns'])
   const { expectation, actorId, targetId, runId, sourceFingerprint, maxTurns = 48 } = options
-  require(['baseline', 'candidate'].includes(expectation), 'Explicit baseline/candidate expectation required')
-  require(Number.isInteger(actorId) && Number.isInteger(targetId) && actorId !== targetId && runId && sourceFingerprint, 'Bound run and person identities required')
-  require(Number.isInteger(maxTurns) && maxTurns >= 12 && maxTurns <= 120, 'Bounded cast turn limit required')
+  requireEvidence(['baseline', 'candidate'].includes(expectation), 'Explicit baseline/candidate expectation required')
+  requireEvidence(Number.isInteger(actorId) && Number.isInteger(targetId) && actorId !== targetId && runId && sourceFingerprint, 'Bound run and person identities required')
+  requireEvidence(Number.isInteger(maxTurns) && maxTurns >= 12 && maxTurns <= 120, 'Bounded cast turn limit required')
   const rows = [], frames = [], errors = []
   let triggerTurn, before, lastAfter, entry, release, hover, arrival, impact, retired, windupMotion = false, flightMotion = false
   const fail = message => { errors.push(message); throw Error(message) }
@@ -105,7 +105,7 @@ export function createBlastEpisode(options) {
       frames.push(clone(value))
     },
     report(...args) {
-      require(args.length === 0, 'Cannot seed a success report')
+      requireEvidence(args.length === 0, 'Cannot seed a success report')
       const required = expectation === 'candidate' ? ['hover', 'ack', 'arrival', 'impact'] : ['arrival', 'impact']
       const complete = !!(entry && release && arrival && impact && retired && windupMotion && flightMotion && !before && !errors.length && required.every(kind => frames.some(f => f.kind === kind)))
       return clone({ version: 1, expectation, runId, sourceFingerprint, triggerTurn, actorId, targetId, complete, errors, hover, release, entry, arrival, impact, retired, windupMotion, flightMotion, rows, frames,
