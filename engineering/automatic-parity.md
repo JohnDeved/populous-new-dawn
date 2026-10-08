@@ -143,3 +143,35 @@ full-frame comparison or hardware performance is inferred. Published scope repor
 `tests/parity-owned-blast.test.mjs` covers these binding and accounting boundaries
 using synthetic receipts. Projection reads local evidence only; it does not launch
 browser/native work, copy dependencies, manipulate profiles, or change parity flags.
+
+## Historical original-reference Blast comparison
+
+An unscored portable check detail interprets the specific named comparison in the
+reviewed `blast-tooling-standard-01/test-02.json` receipt. It compares six retained
+head/enemy/friendly snapshots with `tests/fixtures/blast-impact.json`, whose
+original executable identity and historical origin are pinned. The receipt's
+aggregate test count is not evidence for a constituent comparison or a parity
+percentage. Changed/unknown checker or manifest bytes, skipped or duplicate named
+records, raw stream mismatches, source drift and incomplete newer attempts fail
+closed. The adapter reads the recorded runner and native probe as data only.
+
+The provenance grade is `historical-reference`, with `rawNativeAttestation: missing`
+and `originalExecutionStatus: unknown` even when the full port tree matches. The
+port comparison ran on `b762ba26a5b166af43777d6542797ebed33ebd36`, finishing at
+`2026-10-08T10:33:28.651Z`; the reference originated in
+`ef651f3b592cf859fb738b9e36eb05495e55d9a5`. Whole-tree mismatch remains stale; matching
+application files cannot substitute for full source equality.
+
+The port test supplies `gameFlags = 32`, constructs a test world and casts at the
+ground. It does not validate the ordinary bit-clear person-selection path. Native
+allocation/deletion, person bodies and unrelated world consumers are supplied or
+intercepted. The six compared snapshots cover head retention on arrival, retirement
+on the next visit, first enemy impulse at relative visit 3 and first friendly impulse
+at visit 5. The fixture's additional allocation/audio event log is not port-compared.
+No original whole-game play, native person motion, native wall-clock timing, saves,
+full frames or hardware performance follows.
+
+This detail has no capability, requirement, `browserCheckIds` or `originalCheckIds`
+binding. Existing Original statuses and all coverage counts are unchanged. A
+matching-source portable result is still only a comparison to that historical
+reference, never a new native execution result.

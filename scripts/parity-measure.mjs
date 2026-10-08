@@ -8,7 +8,7 @@ import { relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { fingerprintPaths, safeRepoPath } from './orchestration/cli.mjs'
 import { ORDINARY_M2, isOrdinaryCheckpointCandidate, readOrdinaryCheckpoint, selectOrdinaryCheckpoint } from './parity-owned-checkpoint.mjs'
-import { BLAST_BINDINGS, isOrdinaryBlastCandidate, readOrdinaryBlast, selectOrdinaryBlast } from './parity-owned-blast.mjs'
+import { BLAST_BINDINGS, BLAST_REFERENCE, isOrdinaryBlastCandidate, readOrdinaryBlast, selectOrdinaryBlast, isBlastReferenceCandidate, readBlastReference, selectBlastReference } from './parity-owned-blast.mjs'
 
 const ROOT = fileURLToPath(new URL('../', import.meta.url))
 const DEFINITIONS = 'engineering/parity-capabilities.json'
@@ -188,7 +188,7 @@ export function discoverReceipts(repo) {
           measurements = value.verification.results.flatMap(result => (result.parityMeasurements ?? [])
             .map(e => ({ ...e, status: result.status === e.status ? e.status : 'invalidated' })))
         }
-        const owned = isOrdinaryCheckpointCandidate(value) || BLAST_BINDINGS.some(binding => isOrdinaryBlastCandidate(value, binding))
+        const owned = isOrdinaryCheckpointCandidate(value) || BLAST_BINDINGS.some(binding => isOrdinaryBlastCandidate(value, binding)) || isBlastReferenceCandidate(value)
         if (Array.isArray(measurements) || owned)
           receipts.push({ path: local, measurements: measurements ?? [],
             ...(owned ? { commandReceipt: value } : {}) })
@@ -221,6 +221,10 @@ export function writeReport(repo) {
   for (const binding of BLAST_BINDINGS.filter(binding => bound.has(binding.id)))
     adapted.push(selectOrdinaryBlast(eligibleReceipts.filter(r => isOrdinaryBlastCandidate(r.commandReceipt, binding))
       .map(receipt => readOrdinaryBlast(repo, receipt, source, binding)), binding))
+  // This portable reference detail is intentionally unbound from all capability scores.
+  if (model.checks.some(check => check.id === BLAST_REFERENCE.id))
+    adapted.push(selectBlastReference(eligibleReceipts.filter(r => isBlastReferenceCandidate(r.commandReceipt))
+      .map(receipt => readBlastReference(repo, receipt, source))))
   const report = { ...buildReport(model, eligibleReceipts, currentEvidence, source, adapted), warnings }
   const output = safeRepoPath(repo, OUTPUT, { mustExist: false })
   mkdirSync(output, { recursive: true })

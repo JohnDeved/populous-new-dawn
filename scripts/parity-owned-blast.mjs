@@ -1,8 +1,10 @@
-// Read-only bindings for two reviewed ordinary Blast witnesses. Historical checker
+// Read-only bindings for reviewed ordinary Blast witnesses and a historical reference. Checker
 // bytes are pinned separately from full tested-tree freshness; no game code runs.
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
+import { readFileSync, statSync } from 'node:fs'
+import { safeRepoPath } from './orchestration/cli.mjs'
 import { isDeepStrictEqual as same } from 'node:util'
 import { jsonFile, localPath, selectOwnedObservation, validateOwnedReceipt } from './parity-owned-checkpoint.mjs'
 
@@ -187,3 +189,115 @@ export function readOrdinaryBlast(repo, { path, commandReceipt: outer }, current
 }
 
 export const selectOrdinaryBlast = (results, binding) => selectOwnedObservation(results, binding.id, binding.label)
+
+// This portable comparison consumes a historical original-derived fixture. It is
+// deliberately not a native check or capability binding, even on a matching tree.
+export const BLAST_REFERENCE = {
+  id: 'blast-impact-original-reference', comparator: 'tests/blast-impact.test.mjs',
+  caseName: 'Blast head reaches impact and native first/last wave visits launch enemies/allies',
+  origin: 'ef651f3b592cf859fb738b9e36eb05495e55d9a5',
+  fixture: 'tests/fixtures/blast-impact.json',
+  executableSha256: '3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f',
+  manifestSha256: 'e7026c1ba4a0c0bbeab4d94574b137d3ac4473362acb6f3c1e23cd522848d2aa',
+  runnerSha256: '04f39b371e17a329a76056223daed481290143f0672dc0e162f83eac7dd22147',
+  files: {
+    'tests/blast-impact.test.mjs': 'fe39d3121852d795e47ab419aa04b1cdc72ba03cb4c91fbdff42f47fa1bb92af',
+    'tests/fixtures/blast-impact.json': '673c161abfaaa78359d1d280bc6f2c2f7084dc629019a2383c3bfee90ebc9d2f',
+    'decomp/exports.json': '51e55c295a9956e89be85c98df835f1da141e3e10cb6b16435f55423ff5b26db',
+    'scripts/check-native-blast-impact.py': 'f5193e8eab00e285f33d3cafc0cee8483fd2e8df6e72552bbc44c9cf0e6b9207',
+  },
+}
+const referenceResult = (outer, path) => ({ id: BLAST_REFERENCE.id, status: 'unknown', receipt: path,
+  finishedAt: outer?.finishedAt ?? outer?.startedAt, evidenceClass: 'historical-reference',
+  provenanceGrade: 'historical-reference', rawNativeAttestation: 'missing', originalExecutionStatus: 'unknown' })
+
+export function isBlastReferenceCandidate(value) {
+  if (value?.kind !== 'pnd-command-receipt' || !Array.isArray(value.command)) return false
+  const index = value.command.indexOf('node')
+  return index >= 0 && value.command[index + 1] === '--test' && value.command.slice(index + 2).some(arg =>
+    typeof arg === 'string' && (arg === BLAST_REFERENCE.comparator || arg.endsWith('/' + BLAST_REFERENCE.comparator)))
+}
+
+export function projectBlastReference({ outer, manifest, manifestPath, sourceFiles, fixture, currentTree, currentClean, path }) {
+  const result = referenceResult(outer, path)
+  try {
+    assert(isBlastReferenceCandidate(outer), 'comparator not explicitly selected')
+    const stages = manifest.stages?.filter(stage => stage.command?.includes(BLAST_REFERENCE.comparator))
+    assert(stages?.length === 1 && stages[0].name === 'test-02' && same(outer.command,
+      ['timeout', '--signal=TERM', '--kill-after=10s', `${manifest.innerSeconds}s`, ...stages[0].command]), 'unsupported or filtered comparison command')
+    assert(stages[0].command.filter(arg => arg === BLAST_REFERENCE.comparator).length === 1, 'duplicate selected comparator')
+    assert(outer.phase === 'finished' && ['passed', 'failed'].includes(outer.status) && Number.isFinite(Date.parse(outer.finishedAt)), 'incomplete comparison attempt')
+    assert(same(outer.source, outer.sourceAfter) && outer.source?.trackedDiffSha256 === sha(''), 'comparison source drift or dirty source')
+    assert(outer.source.headOid === manifest.head && /^[a-f0-9]{40}$/.test(manifest.tree ?? ''), 'manifest/source mismatch')
+    assert(sha(outer.stdout) === outer.stdoutSha256 && sha(outer.stderr) === outer.stderrSha256, 'raw stream hash mismatch')
+    assert(outer.source.inputs?.[manifestPath] === BLAST_REFERENCE.manifestSha256 &&
+      outer.source.inputs?.[manifestPath.replace(/manifest\.json$/, 'run-stage.mjs')] === BLAST_REFERENCE.runnerSha256, 'unsupported manifest/runner identity')
+    for (const [name, hash] of Object.entries(BLAST_REFERENCE.files)) assert(sourceFiles[name] === hash, `unsupported reference input: ${name}`)
+    assert(manifest.files?.[BLAST_REFERENCE.comparator] === sourceFiles[BLAST_REFERENCE.comparator], 'manifest comparator substitution')
+    for (const [name, hash] of Object.entries(manifest.files)) assert(outer.source.inputs[name] === hash, `unbound shard test: ${name}`)
+    for (const name of ['package.json', 'package-lock.json']) assert(sourceFiles[name] && outer.source.inputs[name] === sourceFiles[name], `unbound dependency input: ${name}`)
+    assert(manifest.dependency?.rootLockSha256 === sourceFiles['package-lock.json'] &&
+      manifest.dependency.installedLockSha256 === outer.source.inputs['node_modules/.package-lock.json'], 'dependency identity mismatch')
+    assert(fixture.executableSha256 === BLAST_REFERENCE.executableSha256, 'reference executable identity mismatch')
+    const timeline = [
+      { head: true, enemy: false, ally: false }, { head: false, enemy: false, ally: false },
+      { head: false, enemy: true, ally: false }, { head: false, enemy: true, ally: false },
+      { head: false, enemy: true, ally: true }, { head: false, enemy: true, ally: true },
+    ]
+    assert(same(fixture.timeline, timeline), 'reference timeline mismatch')
+    // Only the specific named record is evidence. Aggregate counts cannot certify
+    // a constituent test; unsupported/skipped/duplicate records remain unknown.
+    const records = outer.stdout.split('\n').filter(line => line.includes(BLAST_REFERENCE.caseName))
+    const failed = outer.status === 'failed', marker = failed ? '✖' : '✔'
+    assert(records.length === 1 && new RegExp(`^${marker} ${BLAST_REFERENCE.caseName} \\([\\d.]+ms\\)$`).test(records[0]), 'missing, duplicate or nonpassing named comparison')
+    assert(failed ? Number.isInteger(outer.exitCode) && outer.exitCode !== 0 : outer.exitCode === 0, 'comparison exit/status mismatch')
+    result.diagnosticStatus = failed ? 'failed' : 'passed'
+    result.testedSource = { commit: manifest.head, tree: manifest.tree }
+    result.reference = { commit: BLAST_REFERENCE.origin, path: BLAST_REFERENCE.fixture,
+      sha256: BLAST_REFERENCE.files[BLAST_REFERENCE.fixture], executableSha256: fixture.executableSha256 }
+    if (!failed) result.observed = { comparedSnapshots: 6, headRetirementVisit: 2, firstEnemyImpulseVisit: 3, firstFriendlyImpulseVisit: 5,
+      setup: 'supplied gameFlags32 and ground cast; no ordinary bit-clear person-selection proof' }
+    const fresh = currentClean && currentTree === manifest.tree
+    result.status = fresh ? failed ? 'failed' : 'verified' : 'stale'
+    result.reason = 'Port-to-historical-reference component comparison; raw native attestation missing; original execution unknown; ' +
+      (fresh ? 'matching full clean port source tree' : 'current full source tree differs or is dirty')
+  } catch (error) {
+    result.reason = `Rejected historical Blast reference evidence: ${error.message}`
+  }
+  return result
+}
+
+export function readBlastReference(repo, { path, commandReceipt: outer }, current) {
+  try {
+    assert(isBlastReferenceCandidate(outer), 'comparator not explicitly selected')
+    const manifests = Object.keys(outer.source?.inputs ?? {}).filter(name => name.startsWith('work/orchestration/') && name.endsWith('/manifest.json'))
+    assert(manifests.length === 1, 'missing/ambiguous shard manifest')
+    const manifestPath = manifests[0]
+    const pinnedBytes = (name, expected) => {
+      const file = safeRepoPath(repo, name)
+      assert(statSync(file).size <= 4 * 1024 * 1024, 'oversized reference input')
+      const bytes = readFileSync(file)
+      assert(sha(bytes) === expected, `unsupported reference receipt input: ${name}`)
+      return bytes
+    }
+    const manifest = JSON.parse(pinnedBytes(manifestPath, BLAST_REFERENCE.manifestSha256))
+    pinnedBytes(manifestPath.replace(/manifest\.json$/, 'run-stage.mjs'), BLAST_REFERENCE.runnerSha256)
+    assert(/^[a-f0-9]{40}$/.test(outer.source?.headOid ?? ''), 'invalid tested commit')
+    const git = args => execFileSync('git', args, { cwd: repo, maxBuffer: 8 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] })
+    const commit = outer.source.headOid
+    assert(git(['rev-parse', `${commit}^{tree}`]).toString().trim() === manifest.tree, 'tested commit/tree mismatch')
+    const sourceFiles = Object.fromEntries([...Object.keys(BLAST_REFERENCE.files), 'package.json', 'package-lock.json']
+      .map(name => [name, sha(git(['show', `${commit}:${name}`]))]))
+    assert(sha(git(['show', `${BLAST_REFERENCE.origin}:${BLAST_REFERENCE.fixture}`])) === BLAST_REFERENCE.files[BLAST_REFERENCE.fixture], 'historical reference origin mismatch')
+    const fixture = JSON.parse(git(['show', `${commit}:${BLAST_REFERENCE.fixture}`]))
+    const exports = JSON.parse(git(['show', `${commit}:decomp/exports.json`]))
+    assert(exports.executableSha256 === fixture.executableSha256, 'exports/reference executable mismatch')
+    return projectBlastReference({ outer, manifest, manifestPath, sourceFiles, fixture, path, currentTree: current.tree, currentClean: current.clean })
+  } catch (error) {
+    return { ...referenceResult(outer, path), reason: `Rejected historical Blast reference evidence: ${error.message}` }
+  }
+}
+
+export function selectBlastReference(results) {
+  return { ...referenceResult(), ...selectOwnedObservation(results, BLAST_REFERENCE.id, 'historical Blast reference comparison') }
+}
