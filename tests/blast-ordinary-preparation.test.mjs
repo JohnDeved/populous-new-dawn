@@ -16,7 +16,7 @@ function observation(turn = 100, overrides = {}) {
     renderedBody: { originalTargetPresent: true, sameIdIsOriginal: true, targetId: 19, hp: 100,
       team: 'blue', kind: 'brave', inside: null, activeNative: { id: 19, class: 1, flags2: 0 },
       visible: true, pickable: true, visibleLayer: true, layerHasPainterSource: true },
-    moving: true, live: true, phenotype: true, ready: false, phase: 'preparing', rejections: [],
+    stationary: true, live: true, phenotype: true, ready: false, phase: 'preparing', rejections: [],
     ...overrides,
   }
 }
@@ -53,14 +53,14 @@ test('response onset, range onset and pixel miss survive tail eviction and input
 
 test('fixed gate failures retain the first raw row without following caller rejection names', () => {
   const preparation = createBlastPreparation({ targetId: 19, capacity: 1 })
-  const first = observation(100, { response: [], live: false, moving: false, distance: null,
+  const first = observation(100, { response: [], live: false, stationary: false, distance: null,
     targetError: 'missing target', existingHit: null, nextHit: null, phenotype: false,
     state: { cameraSettled: false, inputMask: 1, failures: ['actorHealth'] },
     renderedBody: { visible: false }, phase: 'search', rejections: ['unbounded-name'] })
   preparation.observe(first)
   preparation.observe(observation(101))
   const report = preparation.read()
-  assert.deepEqual(Object.keys(report.firstFailures), ['response', 'live', 'moving', 'range', 'camera', 'body', 'pixel', 'phenotype'])
+  assert.deepEqual(Object.keys(report.firstFailures), ['response', 'live', 'stationary', 'range', 'camera', 'body', 'pixel', 'phenotype'])
   for (const failed of Object.values(report.firstFailures)) {
     assert.equal(failed.turn, 100)
     assert.equal(failed.phase, 'search')
@@ -70,10 +70,10 @@ test('fixed gate failures retain the first raw row without following caller reje
   assert.deepEqual(preparation.read().firstFailures.live.state.failures, ['actorHealth'])
 })
 
-test('a pixel miss is retained only with the other live, moving, range and camera gates', () => {
+test('a pixel miss is retained only with the other live, stationary, range and camera gates', () => {
   const preparation = createBlastPreparation({ targetId: 19 })
   const misses = { existingHit: null, nextHit: null }
-  for (const overrides of [{ pixelSearchAttempted: false }, { live: false }, { moving: false }, { distance: 6 }, { targetError: 'out of range' },
+  for (const overrides of [{ pixelSearchAttempted: false }, { live: false }, { stationary: false }, { distance: 6 }, { targetError: 'out of range' },
     { state: { cameraSettled: false, inputMask: 0 } }, { state: { cameraSettled: true, inputMask: 1 } },
     { nextHit: { x: 25, y: 40 } }]) {
     preparation.observe(observation(100, { ...misses, ...overrides }))
@@ -155,7 +155,7 @@ test('invalid target identity and unbounded retention are rejected', () => {
 test('initial housing waits, then a real response followed by housing stops without rearming', () => {
   for (const inside of [0, 71]) {
     const preparation = createBlastPreparation({ targetId: 19 })
-    const housed = observation(309, { response: [], live: true, moving: false, box: null,
+    const housed = observation(309, { response: [], live: true, stationary: false, box: null,
       existingHit: null, nextHit: null, distance: null, targetError: 'missing target' })
     Object.assign(housed.renderedBody, { inside, visible: false, pickable: false, activeNative: null })
     assert.equal(preparation.observe(housed).stopReason, null)

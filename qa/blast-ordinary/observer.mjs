@@ -24,7 +24,7 @@ export function responseSnapshot(scene) {
   const w = scene.world
   return w.units.filter(u => u === window.blastOriginal.target && u.team === 'blue' && u.kind === 'brave' && u.hp > 0 && u.inside === null).flatMap(u => {
     const p = owner(u), order = p && currentPersonOrder(w.buildingOrders, p)
-    return p?.class === 1 && p === window.blastOriginal.movePerson && !(p.flags2 & 1) && order?.model === 3 && order === window.blastOriginal.moveOrder && order.a === window.blastOriginal.movePoint.a && order.b === window.blastOriginal.movePoint.b ? [{ id: u.id, x: u.x, z: u.z, position: position(p), speed: p.speed, orderModel: order.model, fighting: !!u.fight }] : []
+    return p?.class === 1 && p === window.blastOriginal.movePerson && !(p.flags2 & 1) ? [{ id: u.id, x: u.x, z: u.z, position: position(p), speed: p.speed, orderModel: order?.model ?? null, idle: p.speed === 0 && (!order || !!(order.flags & 1)), fighting: !!u.fight }] : []
   })
 }
 export function pointerFeedback(scene) {
@@ -41,13 +41,13 @@ export function observeBlastEpisode(scene, options) {
   const world = scene.world, actor = world.units.find(u => u.id === options.actorId), target = world.units.find(u => u.id === options.targetId)
   if (!actor || !target || world.projectiles.some(p => p.team === 'blue' && p.spell === 'blast')) throw Error('Fresh actor, target and empty Blue Blast lifecycle required')
   const evidence = createBlastEpisode(options), artifacts = {}, wrappers = [], pending = new Set()
-  let shot, delivered = false, eventBefore, pointer, disposed = false
+  let shot, delivered = false, eventBefore, pointer, disposed = false, moveExpected, moveOwner, movementDelivered = false, movementOrder
   const sameScene = () => window.testSceneRef.current === scene && window.testStore.getWorld() === world && scene.world === world && scene.renderer.domElement.isConnected
   const person = u => {
     const p = owner(u), registered = world.objectCells.objects.get(u.id)
     return { id: u.id, same: world.units.includes(u), team: u.team, kind: u.kind, hp: u.hp, inside: u.inside,
       ownerValid: !!p && registered === p && p.class === 1 && !(p.flags2 & 1), position: p && position(p),
-      orderModel: p && currentPersonOrder(world.buildingOrders, p)?.model, speed: p?.speed, state: p?.state }
+      orderModel: p && currentPersonOrder(world.buildingOrders, p)?.model, movementOrderSame: !movementOrder || currentPersonOrder(world.buildingOrders, p) === movementOrder, speed: p?.speed, state: p?.state }
   }
   const sample = () => ({ turn: world.turn, level: world.outcome.level, playing: world.status === 'playing', paused: world.paused,
     speed: world.speed, flags: world.manaWorld.gameFlags, sceneMatches: sameScene(), actor: person(actor), target: person(target),
@@ -116,19 +116,34 @@ export function observeBlastEpisode(scene, options) {
     eventBefore = { point: { x: event.clientX, y: event.clientY }, turn: world.turn, targetId: target.id, mode: world.mode, trusted: event.isTrusted,
       canvasOwned: event.target === scene.renderer.domElement && document.elementFromPoint(event.clientX, event.clientY) === scene.renderer.domElement,
       context: inputContext(scene), stockBefore: world.shots.blast, castCountBefore: world.stats.cast }
-    if (options.expectation === 'baseline') guard(() => { eventBefore.targetCheck = { range: captureBlastReleaseRange(world, target, spellTargetError) } })
+    if (delivered) {
+      eventBefore.selected = [...world.selected]
+      eventBefore.shotBefore = shot && { id: shot.id, phase: shot.phase, remaining: shot.remaining }
+    }
+    if (!delivered && options.expectation === 'baseline') guard(() => { eventBefore.targetCheck = { range: captureBlastReleaseRange(world, target, spellTargetError) } })
   }
   const release = event => {
     if (event.button !== 0 || event.type !== 'pointerup') return
     guard(() => {
-      if (delivered) throw Error('Repeated cast input')
+      if (delivered && (!moveExpected || movementDelivered)) throw Error('Repeated or unarmed movement input')
       const trace = pointer.finish(); pointer = null
-      artifacts.pointer = trace
-      artifacts.attemptedRelease = { stage: 'handler-trace', event: structuredClone(eventBefore) }
+      if (delivered) artifacts.movePointer = trace
+      else artifacts.pointer = trace
+      if (delivered) artifacts.attemptedMove = { event: structuredClone(eventBefore) }
+      else artifacts.attemptedRelease = { stage: 'handler-trace', event: structuredClone(eventBefore) }
       if (trace.errors.length || !trace.restored) throw Error('Delivered pointer observation did not restore cleanly')
       const up = trace.events.find(e => e.type === 'pointerup')
       if (!up || trace.events.filter(e => e.type === 'pointerup').length !== 1) throw Error('Exactly one actual release required')
       const persons = up.picks.filter(p => p.name === 'pickPerson'), terrain = up.picks.find(p => p.name === 'pick' && p.owner === 'scene' && p.point)
+      if (delivered) {
+        const p = owner(target), order = p && currentPersonOrder(world.buildingOrders, p)
+        const value = { turn: world.turn, mode: eventBefore.mode, selected: eventBefore.selected, trusted: eventBefore.trusted, canvasOwned: eventBefore.canvasOwned,
+          point: eventBefore.point, shotBefore: eventBefore.shotBefore, order: order && { model: order.model, a: order.a & 65535, b: order.b & 65535 }, expected: moveExpected,
+          handlerPoint: terrain?.point ?? null, handlerPersonId: persons.at(-1)?.id ?? null, afterMode: world.mode, afterSelected: [...world.selected], ownerSame: p === moveOwner }
+        artifacts.attemptedMove = { event: structuredClone(value), sample: structuredClone(sample()) }
+        evidence.move(value, sample()); movementOrder = order; movementDelivered = true
+        return
+      }
       if (options.expectation === 'baseline') {
         eventBefore.targetCheck ??= {}
         eventBefore.targetCheck.pixel = readBlastReleasePixel(scene, event)
@@ -147,6 +162,24 @@ export function observeBlastEpisode(scene, options) {
   pointer = observeEntityPointer(scene, document, { id: target.id, collection: 'units' })
   canvas.addEventListener('pointerup', release, false)
   return {
+    armMove(ground) {
+      const report = evidence.report()
+      const check = { turn: world.turn, mode: world.mode, selected: [...world.selected], castCount: world.stats.cast,
+        shot: shot && { id: shot.id, phase: shot.phase, remaining: shot.remaining }, acceptedRelease: !!report.release, errors: [...report.errors] }
+      artifacts.moveAdmission = structuredClone(check)
+      if (!delivered || !report.release || report.errors.length || moveExpected || !sameScene() || world.mode !== null ||
+          world.selected.length !== 1 || world.selected[0] !== target.id || !shot || !world.projectiles.includes(shot) ||
+          shot.id !== report.entry.shot.id || shot.phase !== 'windup' || shot.remaining <= 0 || world.stats.cast !== report.entry.castCount)
+        throw Error('Actual accepted cast, cleared mode, original selection and remaining windup required before movement')
+      moveOwner = owner(target)
+      moveExpected = { a: Math.round((ground.point.x + 8) * 256) & 65535, b: Math.round((-ground.point.z - 8) * 256) & 65535, pixel: { x: ground.x, y: ground.y } }
+      // Preserve the same bubble ordering: the generic trace completes before
+      // this observer consumes it, on both the cast and the one later move.
+      canvas.removeEventListener('pointerup', release, false)
+      pointer = observeEntityPointer(scene, document, { id: target.id, collection: 'units' })
+      canvas.addEventListener('pointerup', release, false)
+      return check
+    },
     propose: value => evidence.propose(value),
     hover: value => evidence.hover(value),
     trigger: turn => {

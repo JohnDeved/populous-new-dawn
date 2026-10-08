@@ -1,5 +1,5 @@
 // No game/runtime imports, stepping or input. Pick observations are supplied by the caller.
-const gates = ['response', 'live', 'moving', 'range', 'camera', 'body', 'pixel', 'phenotype']
+const gates = ['response', 'live', 'stationary', 'range', 'camera', 'body', 'pixel', 'phenotype']
 const pixelCounts = ['canvasOwned', 'outsideCanvas', 'targetHit', 'nullHit', 'otherHit']
 
 export function createBlastPreparation({ targetId, capacity = 96, maximumSetupTurn = 1800, minimumDistance = 7 }) {
@@ -35,13 +35,13 @@ export function createBlastPreparation({ targetId, capacity = 96, maximumSetupTu
       if (!observation || typeof observation !== 'object' || Array.isArray(observation)) throw Error('Preparation observation must be a copied row')
       const row = structuredClone(observation)
       if (!Number.isInteger(row.turn) || row.turn < 0) throw Error('Actual preparation turn required')
-      const response = row.response?.find(person => person.id === targetId && person.orderModel === 3)
+      const response = row.response?.find(person => person.id === targetId && [3, null].includes(person.orderModel))
       const state = row.state, body = row.renderedBody
       stopReason = terminalReason(row, response)
       const qualified = {
         response: !!response,
         live: row.live === true,
-        moving: row.moving === true,
+        stationary: row.stationary === true,
         range: !!response && Number.isFinite(row.distance) && row.distance >= minimumDistance && row.targetError === null,
         camera: state?.cameraSettled === true && !state.inputMask,
         body: body?.visible === true && body.pickable === true && body.visibleLayer === true && body.layerHasPainterSource === true,
@@ -65,7 +65,7 @@ export function createBlastPreparation({ targetId, capacity = 96, maximumSetupTu
         firstLiveResponse ??= row
         lastLiveResponse = row
         if (qualified.range) firstInRangeResponse ??= row
-        if (qualified.live && qualified.moving && qualified.range && qualified.camera && row.pixelSearchAttempted !== false && !row.existingHit && !row.nextHit)
+        if (qualified.live && qualified.stationary && qualified.range && qualified.camera && row.pixelSearchAttempted !== false && !row.existingHit && !row.nextHit)
           firstPixelMiss ??= row
       }
       // The full copied tail is available on read(), outside the release window.
