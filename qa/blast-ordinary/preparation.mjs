@@ -64,7 +64,7 @@ export function createBlastPreparation({ targetId, capacity = 96, maximumSetupTu
         firstLiveResponse ??= row
         lastLiveResponse = row
         if (qualified.range) firstInRangeResponse ??= row
-        if (qualified.live && qualified.moving && qualified.range && qualified.camera && !row.existingHit && !row.nextHit)
+        if (qualified.live && qualified.moving && qualified.range && qualified.camera && row.pixelSearchAttempted !== false && !row.existingHit && !row.nextHit)
           firstPixelMiss ??= row
       }
       // The full copied tail is available on read(), outside the release window.
