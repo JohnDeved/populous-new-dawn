@@ -3,7 +3,7 @@ import { writeFileSync, mkdirSync } from 'node:fs'
 import { basename, resolve } from 'node:path'
 import { waitForShamanReadiness } from '../../scripts/browser-game.mjs'
 import { pollWithPreservation, readQueuedPreservingStop } from '../erosion-ordinary/stop.mjs'
-import { createBlastPreparation, releaseHeldBlast } from './preparation.mjs'
+import { createBlastPreparation, releaseHeldBlast, waitForBlastAdmission } from './preparation.mjs'
 
 // First-stage ordinary witness. This module does not run a browser on import.
 export default async function ordinaryBlast({ page, output, receipt, signal, openMission }) {
@@ -156,9 +156,10 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
     }, preparationRemaining(), 'same registered Brave completing the accepted public staging move')
     save('staged-target.json', staged)
     const state = await current(); healthy(state)
-    await page.evaluate(options => {
+    await page.evaluate(({ options, ground }) => {
       window.blastEpisode = window.blastHelpers.observeBlastEpisode(window.testSceneRef.current, options)
-    }, { expectation, actorId: state.actor.id, targetId: target.id, runId: receipt.profile.runId, sourceFingerprint: receipt.source.fingerprint, maxTurns: 48 })
+      window.blastEpisode.prepareMove(ground)
+    }, { options: { expectation, actorId: state.actor.id, targetId: target.id, runId: receipt.profile.runId, sourceFingerprint: receipt.source.fingerprint, maxTurns: 48 }, ground: movementGround })
     attached = true
     await input('blast-key', {}, () => page.keyboard.press('1'))
     assert.equal((await current()).mode, 'blast')
@@ -286,7 +287,7 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
     } else {
       // The pointer and candidate natural hover are prepared before the press.
       // Only one fresh read and the trusted mouse-up remain after left-down.
-      let heldCleanup
+      let heldCleanup, movementWait
       const readHeld = () => page.evaluate(() => {
         const s = window.testSceneRef.current, w = s.world
         return { turn: w.turn, buttons: s.pointerButtons, mode: w.mode, selected: [...w.selected], castCount: w.stats.cast, lastOrderTurn: w.lastOrderTurn }
@@ -328,18 +329,27 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
             window.blastEpisode.trigger(w.turn)
             return { turn: w.turn, point, targetId: target.id, preparation: expectation === 'baseline' ? 'proposed-pixel' : 'rendered-hover' }
           }, { previous: trigger, expectation, minimumDistance, home, maximumSetupTurn: limits.maximumSetupTurn }),
-          release: prepared => input(prepared ? 'blast-person-release' : 'cancelled-person-up', prepared ?? {}, () => page.mouse.up(), false),
+          release: prepared => {
+            if (prepared) signal.throwIfAborted()
+            if (prepared) movementWait = waitForBlastAdmission(page.evaluate(() => window.blastEpisode.waitForMove()), signal, limits.castMs)
+              .then(value => ({ value }), error => ({ error }))
+            return input(prepared ? 'blast-person-release' : 'cancelled-person-up', prepared ?? {}, () => page.mouse.up(), false)
+          },
           cancel: () => input('cancel-held-blast', {}, () => page.keyboard.press('Escape'), false),
           read: readHeld,
           retain: value => { heldCleanup = structuredClone(value) },
         })
-        // One concise existing-observer read verifies the actual accepted cast,
-        // cleared mode, retained selection and remaining windup before the move.
-        const movementAdmission = await page.evaluate(ground => window.blastEpisode.armMove(ground), movementGround)
+        // The pre-release waiter observes the same checks latched by the actual
+        // release callback. No additional query follows mouse-up.
+        const admission = await movementWait
+        if (admission.error) throw admission.error
+        const movementAdmission = admission.value
+        signal.throwIfAborted()
         await input('windup-ground-move', { target, ground: movementGround, admission: movementAdmission },
           () => page.mouse.click(movementGround.x, movementGround.y), false)
         trigger = { ...trigger, releasedPreparation, movementAdmission, movementGround }
       } finally {
+        await page.evaluate(() => window.blastEpisode.abortMove('Held input finished or aborted'))
         if (heldCleanup) save('held-release-cleanup.json', heldCleanup)
         save('held-preparation.json', await page.evaluate(() => window.blastHeldRead ?? null))
       }
@@ -349,7 +359,7 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
         const report = await page.evaluate(() => window.blastEpisode.progress())
         assert.deepEqual(report.errors, [], 'Ordinary lifecycle observation failed')
         return report.complete
-      }, limits.castMs, 'moving-target windup, flight, rendered arrival and impact')
+      }, limits.castMs, 'moving-target windup, flight, natural projectile and impact')
       result = await page.evaluate(() => window.blastEpisode.read())
       assert.equal(result.report.complete, true)
       await page.screenshot({ path: resolve(output, 'terminal.png') })
@@ -378,9 +388,9 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
         result = terminal
         if (terminal.report.errors.length && !primaryError) primaryError = Error('Observer cleanup/lifecycle failed')
         for (const [kind, artifact] of Object.entries(terminal.artifacts)) {
-          if (!artifact.png) continue
-          writeFileSync(resolve(output, `${kind}.png`), Buffer.from(artifact.png.split(',')[1], 'base64'))
-          writeFileSync(resolve(output, `${kind}.svg`), artifact.svg)
+          if (!artifact.png && !artifact.svg) continue
+          if (artifact.png) writeFileSync(resolve(output, `${kind}.png`), Buffer.from(artifact.png.split(',')[1], 'base64'))
+          if (artifact.svg) writeFileSync(resolve(output, `${kind}.svg`), artifact.svg)
           if (artifact.bracketPng) writeFileSync(resolve(output, `${kind}-brackets.png`), Buffer.from(artifact.bracketPng.split(',')[1], 'base64'))
           delete artifact.bracketPng
           delete artifact.png; delete artifact.svg

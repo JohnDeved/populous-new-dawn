@@ -253,3 +253,26 @@ test('uncleared held mode or selection blocks mouse-up; cleanup cast is retained
   await assert.rejects(releaseHeldBlast(dirty.callbacks), AggregateError)
   assert.equal(dirty.retained.at(-1).after.castCount, 1)
 })
+
+test('admission latch retains detached success and settles early and late failures', async () => {
+  const { createBlastAdmission } = await import('../qa/blast-ordinary/preparation.mjs')
+  const latch = createBlastAdmission(), value = { turn: 5, selected: [3] }, early = latch.wait()
+  latch.accept(value); value.selected[0] = 4
+  assert.deepEqual(await early, { turn: 5, selected: [3] })
+  const late = await latch.wait(); late.selected[0] = 5
+  assert.deepEqual(await latch.wait(), { turn: 5, selected: [3] })
+  assert.throws(() => latch.accept(value), /already settled/)
+  const failed = createBlastAdmission(); failed.fail(Error('release rejected'))
+  await assert.rejects(failed.wait(), /release rejected/)
+})
+
+test('missing input and abort bound the host waiter without an unhandled rejection', async () => {
+  const { createBlastAdmission, waitForBlastAdmission } = await import('../qa/blast-ordinary/preparation.mjs')
+  const missing = createBlastAdmission(), signal = new AbortController()
+  await assert.rejects(waitForBlastAdmission(missing.wait(), signal.signal, 5), /timed out/)
+  missing.fail(Error('disposed after timeout'))
+  const aborted = createBlastAdmission(), controller = new AbortController()
+  const waiting = assert.rejects(waitForBlastAdmission(aborted.wait(), controller.signal), /host abort/)
+  controller.abort(Error('host abort')); await waiting
+  aborted.fail(Error('disposed after abort'))
+})

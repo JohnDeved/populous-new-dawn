@@ -143,3 +143,32 @@ export function stationaryBlastTarget(person, previousTurn, previousPosition, tu
   return !!(person && previousPosition && turn > previousTurn && person.idle && !person.fighting && !actorFighting &&
     person.position.x === previousPosition.x && person.position.y === previousPosition.y)
 }
+
+// One read-only notification of the actual accepted release. No event or clock
+// is scheduled. Every subscriber gets a detached value; cancellation settles it.
+export function createBlastAdmission() {
+  let resolve, reject, settled = false
+  const promise = new Promise((yes, no) => { resolve = yes; reject = no })
+  void promise.catch(() => {})
+  return {
+    accept(value) {
+      if (settled) throw Error('Movement admission already settled')
+      const copy = structuredClone(value)
+      settled = true; resolve(copy)
+    },
+    fail(error) { if (!settled) { settled = true; reject(error) } },
+    wait: () => promise.then(value => structuredClone(value)),
+  }
+}
+
+export function waitForBlastAdmission(promise, signal, timeoutMs = 10000) {
+  return new Promise((resolve, reject) => {
+    let timer
+    const done = fn => value => { clearTimeout(timer); signal.removeEventListener('abort', abort); fn(value) }
+    const abort = () => done(reject)(signal.reason ?? Error('Movement admission aborted'))
+    signal.addEventListener('abort', abort, { once: true })
+    timer = setTimeout(() => done(reject)(Error('Movement admission timed out')), timeoutMs)
+    promise.then(done(resolve), done(reject))
+    if (signal.aborted) { signal.removeEventListener('abort', abort); abort() }
+  })
+}

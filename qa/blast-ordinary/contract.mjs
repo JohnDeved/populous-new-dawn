@@ -141,7 +141,7 @@ export function createBlastEpisode(options) {
       rows.push({ stage: 'turn', before: a, after: clone(b) }); lastAfter = b.turn; before = null
     },
     frame(value) {
-      keys(value, ['turn', 'kind', 'targetId', 'visible', 'lines', 'pixels', 'effectId', 'position', 'context', 'point', 'renderFrame', 'observedAt', 'targetSame', 'ownerValid', 'phase', 'shotId'])
+      keys(value, ['turn', 'kind', 'targetId', 'visible', 'lines', 'pixels', 'effectId', 'position', 'context', 'point', 'renderFrame', 'observedAt', 'targetSame', 'ownerValid', 'phase', 'shotId', 'drawNow', 'ackUntil'])
       check(['hover', 'ack', 'projectile', 'impact'].includes(value.kind), 'Unknown frame evidence')
       if (value.kind === 'hover') check(triggerTurn === undefined && !release, 'Natural hover frame must be recorded before the trigger')
       if (frames.some(frame => frame.kind === value.kind)) return
@@ -151,7 +151,15 @@ export function createBlastEpisode(options) {
         if (value.kind === 'hover') check(hover && value.targetSame && value.ownerValid && value.turn >= hover.turn && Number.isInteger(value.renderFrame) && value.renderFrame >= 0 &&
           Number.isFinite(value.observedAt) && value.observedAt >= hover.observedAt && same(value.position, hover.position) &&
           same(value.context, hover.context) && same(value.point, hover.point), 'Natural hover frame pose/context/pixel or chronology differs')
-        else check(release && value.turn >= release.turn && value.turn <= release.turn + 3, 'Stale bracket frame or missing input phase')
+        else {
+          check(release && value.turn >= release.turn && value.turn <= release.turn + 3, 'Stale bracket frame or missing input phase')
+          const observed = value.turn === entry.turn ? entry : rows.find(row => row.stage === 'turn' && row.after.turn === value.turn)?.after
+          check(value.targetSame && value.ownerValid && observed?.target.same && observed.target.ownerValid &&
+            same(value.position, observed.target.position) && same(value.context, release.context) &&
+            Number.isInteger(value.renderFrame) && value.renderFrame >= 0 && Number.isFinite(value.observedAt) &&
+            Number.isFinite(value.drawNow) && Number.isFinite(value.ackUntil) && value.drawNow < value.ackUntil,
+          'Acknowledgment lacks its actual natural HUD time, original target pose or context')
+        }
       }
       if (value.kind === 'projectile') {
         const observed = rows.find(row => row.stage === 'turn' && row.after.turn === value.turn)?.after.shot

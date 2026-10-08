@@ -4,8 +4,8 @@ The current prospective episode uses one naturally present Blue Brave at binding
 the original stationary Blue Shaman, and a public ground move on the home island.
 The application includes current main `1c309ffc` through normal merge `2e110a2a`;
 the Blast runtime patch is unchanged. Historical `1bcac93a` standard results remain
-historical. No ordinary baseline/candidate pair has passed, and the candidate has
-not run. Original/native execution and enemy-damage parity are not credited.
+historical. Baseline20 passed its first ordinary stage; candidate21 ran and failed
+the windup-motion and acknowledgment-image requirements. No complete pair has passed. Original/native execution and enemy-damage parity are not credited.
 
 ## Current idle-target then moving-person episode
 
@@ -59,24 +59,40 @@ source range and candidate handler identity remain mandatory.
 Failed held preparation still uses two public Escapes, verifies mode=null and
 selection=[], then mouse-up and no additional cast/order; all cleanup is retained.
 
-Immediately after the first release, one concise existing-observer read must prove
-that this run's accepted first shot exists in windup, cast count matches, mode is
-null and the same Brave remains singly selected. It records remaining windup and
-arms exactly one ordinary ground trace. If any check fails, no follow-up click is
-issued. Otherwise immediately click the precomputed ground point. No imports,
-raster waits, file writes, screenshots, reselection, pause or scheduler intervene.
-The actual second trusted release must still find the first shot in windup and
-must create the exact model3 destination for the same native owner while keeping
-mode/selection and cast count correct. The trace completes before the observer
-consumes it; attempted movement survives validation failure. Its order identity
-then remains fixed through the observed pre-impact lifecycle.
+Before mouse-up, the host subscribes to one read-only admission notification. The
+actual release observer first finishes/restores its handler trace, validates this
+run's release and marks it delivered. It then applies the existing shot/windup,
+cast-count, cleared-mode and exact single-selection checks, arms the next pointer
+trace and resolves the detached admission. The ground plan was copied once before
+the cast; a late subscriber receives the same retained value. No callback issues
+input. The host waits for normal mouse-up and admission, checks its AbortSignal,
+then immediately sends the ordinary precomputed ground click. There is no extra
+post-release evaluate round trip. Failed release, admission, disposal or abort
+rejects the waiter; a missing eligible event has a10s timeout, followed by observer
+cancellation, and cannot issue a ground click. Rejection handlers are attached
+while mouse-up is pending.
+
+The actual second trusted release independently must still find the first shot
+in windup and create the exact model3 destination for the same native owner, with
+mode/selection and cast count correct. A latched admission cannot excuse a late
+actual delivery. The trace completes before consumption, and attempted movement
+survives validation failure. Its order identity remains fixed through the observed
+pre-impact lifecycle. Original event handlers run once; rearming cannot replay the
+first pointerup as movement. No clock or input scheduler is added.
 
 The six-turn windup is about500ms at ordinary speed. The prior measured ground
 click took323ms; no timing success is inferred from that budget. A late command,
 no movement within windup or flight, or lost identity fails. The next ground
 click can also replace person acknowledgement before rendering. Candidate still
-requires an actual natural32-line acknowledgement image; there is no forced frame
-or promise that one occurs between events. Missing acknowledgement remains a
+requires actual natural32-line acknowledgement geometry and positive pixels from
+its frozen live DOM SVG. The passive hook runs after the original drawPointer and
+uses the same consumed RAF time, with matching preceding natural render/turn/context.
+It snapshots SVG, computed style and original target/pose metadata synchronously.
+There is no WebGL readback or full-game acknowledgment PNG. Detached rasterization
+starts only after the attempted second release, or drains during final cleanup;
+it never rereads live DOM and retains proof even after a rejected move or abort.
+Hover keeps its pre-trigger canvas image, and projectile/impact keep natural
+WebGL captures. There is no forced frame or promise that acknowledgment appears. Missing acknowledgement remains a
 failed experiment. Both products retain exact per-turn arrival/destination and
 next-turn parent impact. Visible projectile evidence is one actual natural owned
 head frame during `flying` or `arrived`, labelled with its observed phase, shot ID,
@@ -101,6 +117,17 @@ rejection/interruption, Save/Load, paired-frame and final combined-tree gates re
 open. The passive diagnostic is available but disabled in ordinary bindings.
 
 ## Retained earlier attempts
+
+Baseline20 (`b1ee7aba`) passed: release321, public movement325 during windup,
+arrival329 and fixed-ground impact330, with genuine flying/impact images.
+Candidate21 (`72c73c00`) retained a real16-line hover336 and person release345,
+then admitted movement348 with three windup turns remaining. Its actual public
+down/up arrived351 after flight began; all windup target poses remained fixed.
+Flight movement, arrival354 and tracked parent impact355 were observed, but no
+32-line acknowledgment image was captured. The run remains failed. The old
+renderer hook inspected pointer SVG before that frame's HUD draw; actual missing
+acknowledgment cause is unknown. The new hook and admission notification do not
+retroactively accept21 or guarantee delivery within windup.
 
 [Baseline19's retained technical note](evidence/baseline19-observed-history.md)
 and actual impact PNG preserve the first complete observed ground-cast/move/

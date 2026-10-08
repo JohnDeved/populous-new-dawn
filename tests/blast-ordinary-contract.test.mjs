@@ -51,7 +51,8 @@ function start(expectation = 'candidate', change = () => {}) {
   episode.trigger(1, 1.3)
   episode.release(r, first)
   episode.move(movement(), first)
-  if (expectation === 'candidate') episode.frame({ kind: 'ack', turn: 1, targetId: 3, visible: true, lines: 32, pixels: 160, effectId: null })
+  if (expectation === 'candidate') episode.frame({ kind: 'ack', turn: 1, targetId: 3, visible: true, lines: 32, pixels: 160, effectId: null,
+    targetSame: true, ownerValid: true, position: position(1), context: copy(context), renderFrame: 6, observedAt: 1.5, drawNow: 1.4, ackUntil: 2 })
   return { episode, first }
 }
 function finish({ expectation = 'candidate', omitFrame, mutate = () => {}, still = false, projectilePhase = 'arrived' } = {}) {
@@ -315,5 +316,16 @@ test('natural projectile frame rejects wrong shot, visual, phase or unobserved t
     const frame = { kind: 'projectile', renderFrame: 8, turn: 7, phase: 'flying', shotId: 44, targetId: 3, visible: true, lines: 0, pixels: 100, effectId: 50 }
     change(frame)
     assert.throws(() => episode.frame(frame), /actual owned shot/)
+  }
+})
+
+test('acknowledgment retains consumed natural HUD time, original owner, pose and context', () => {
+  const frame = () => ({ kind: 'ack', turn: 1, targetId: 3, visible: true, lines: 32, pixels: 160, effectId: null,
+    targetSame: true, ownerValid: true, position: position(1), context: copy(context), renderFrame: 6,
+    observedAt: 1.5, drawNow: 1.4, ackUntil: 2 })
+  for (const change of [f => { f.drawNow = f.ackUntil }, f => { delete f.drawNow }, f => { f.targetSame = false },
+    f => { f.ownerValid = false }, f => { f.position.x++ }, f => { f.context.flags = 32 }, f => { f.renderFrame = null }]) {
+    const { episode } = start('baseline'), bad = frame(); change(bad)
+    assert.throws(() => episode.frame(bad), /natural HUD time|pose or context/)
   }
 })

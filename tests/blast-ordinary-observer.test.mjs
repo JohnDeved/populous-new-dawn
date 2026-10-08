@@ -1,0 +1,146 @@
+import assert from 'node:assert/strict'
+import test from 'node:test'
+import { observeBlastEpisode, inputContext } from '../qa/blast-ordinary/observer.mjs'
+
+// Synthetic event/DOM graph only. The real observer is exercised; no browser,
+// gameplay, rendered-pixel or public-command result is claimed by these mocks.
+function fixture(t, { rejectRelease = false, throwDraw } = {}) {
+  const listeners = [], log = [], rect = { left: 0, top: 0, width: 20, height: 20 }
+  const canvas = { isConnected: true, getBoundingClientRect: () => rect,
+    addEventListener(type, fn, capture = false) { listeners.push({ type, fn, capture }) },
+    removeEventListener(type, fn, capture = false) { const index = listeners.findIndex(x => x.type === type && x.fn === fn && x.capture === capture); if (index >= 0) listeners.splice(index, 1) },
+    dispatch(type, point = { x: 10, y: 20 }) {
+      const event = { type, target: canvas, button: 0, buttons: type === 'pointerdown' ? 1 : 0, isTrusted: true, clientX: point.x, clientY: point.y }
+      // DOM invoke snapshots each phase. Newly armed bubble listeners cannot
+      // consume this event; removals of old listeners still take effect.
+      for (const capture of [true, false]) for (const listener of listeners.filter(x => x.type === type && x.capture === capture).slice())
+        if (listeners.includes(listener)) listener.fn.call(canvas, event)
+      return event
+    },
+    toDataURL() { log.push('webgl-png'); return 'data:image/png;base64,eA==' },
+  }
+  const native = id => ({ id, class: 1, flags2: 0, x: id === 1 ? 100 : 1000, y: 2000, h: 120, speed: 0, state: 19, immediateCommand: 0, commands: [], commandCursor: 0 })
+  const actor = { id: 1, team: 'blue', kind: 'shaman', hp: 100, inside: null, native: native(1) }
+  const target = { id: 3, team: 'blue', kind: 'brave', hp: 100, inside: null, native: native(3) }
+  const world = { turn: 1, outcome: { level: 2 }, status: 'playing', paused: false, speed: 1, mode: 'blast', inputMask: 0,
+    manaWorld: { gameFlags: 0 }, manaTribes: [{ mana: 10 }], randomState: 123, units: [actor, target], selected: [3], projectiles: [], effects: [],
+    objectCells: { objects: new Map([[1, actor.native], [3, target.native]]) }, buildingOrders: { records: [] }, shots: { blast: 4 }, stats: { cast: 0 } }
+  const attrs = new Map([['d', 'M'.repeat(16)], ['stroke-opacity', '1']])
+  const path = { getAttribute: key => attrs.get(key), style: {} }
+  const outline = { cloneNode() { return { attrs: Object.fromEntries(attrs), style: {}, setAttribute(key, value) { this.attrs[key] = value }, querySelector: () => ({ style: {} }) } } }
+  const scene = { world, scene: {}, camera: {}, container: { clientWidth: 20, clientHeight: 20, getBoundingClientRect: () => rect },
+    cameraPosition: { x: 1, y: 2, angle: 3 }, viewPoint: { x: 1, z: 2 }, cameraBearing: 3, gameClock: { beforeTurn() {}, afterTurn() {}, animationFrame: 0 },
+    pointerOutline: outline, pointerPath: path, pointerScreen: { clientX: 10, clientY: 20 }, hoveredObject: 3, pointerAck: { target: 0, until: 0 },
+    picking: { pickPerson: () => world.mode === 'blast' ? 3 : null }, unitMeshes: new Map(), fxMeshes: new Map(),
+    pick: () => ({ x: 3, z: 0 }),
+    drawPointer(now) { log.push({ name: 'draw', receiver: this, now }); if (throwDraw) throw throwDraw; attrs.set('d', 'M'.repeat(now < this.pointerAck.until ? 32 : 16)); return 'draw-result' },
+    renderer: { domElement: canvas, info: { render: { frame: 0 } }, getContext: () => ({ isContextLost: () => false, drawingBufferWidth: 2, drawingBufferHeight: 2,
+      RGBA: 1, UNSIGNED_BYTE: 2, readPixels(...args) { log.push('readPixels'); args.at(-1).fill(255) } }),
+    render() { this.info.render.frame++; return 'render-result' } },
+  }
+  const doc = { elementFromPoint: () => canvas, createElement() { log.push('raster'); return { getContext: () => ({ drawImage() {}, getImageData: () => ({ data: new Uint8Array([0, 0, 0, 255]) }) }), toDataURL: () => 'data:image/png;base64,eA==' } } }
+  const globals = { window: { testSceneRef: { current: scene }, testStore: { getWorld: () => world } }, document: doc,
+    getComputedStyle: () => ({ display: '', visibility: 'visible', stroke: 'white', fill: 'none', strokeWidth: '1' }),
+    Image: class { decode() { log.push('decode'); return Promise.resolve() } },
+    XMLSerializer: class { serializeToString(vector) { return JSON.stringify(vector.attrs) } } }
+  for (const [key, value] of Object.entries(globals)) {
+    const descriptor = Object.getOwnPropertyDescriptor(globalThis, key)
+    Object.defineProperty(globalThis, key, { configurable: true, writable: true, value })
+    t.after(() => descriptor ? Object.defineProperty(globalThis, key, descriptor) : delete globalThis[key])
+  }
+  let handlers = 0
+  canvas.addEventListener('pointerdown', event => { scene.pointerScreen = event; scene.pointerButtons = 1 })
+  canvas.addEventListener('pointerup', event => {
+    handlers++; scene.pointerScreen = event; scene.pointerButtons = 0
+    if (world.mode === 'blast') {
+      scene.picking.pickPerson(event)
+      if (rejectRelease) return
+      world.projectiles.push({ id: 44, team: 'blue', spell: 'blast', caster: 1, phase: 'windup', remaining: 6, target: { x: 1, z: 2 },
+        destination: { x: 1000, y: 2000, h: 120 }, blastTarget: { personId: 3, shotPersonId: null, destination: { x: 1000, y: 2000, h: 120 } }, visuals: [] })
+      world.mode = null; world.shots.blast--; world.stats.cast++; scene.pointerAck = { target: 3, until: performance.now() + 5000 / 24 }
+    } else {
+      scene.pick(event); scene.picking.pickPerson(event)
+      world.buildingOrders.records[1] = { model: 3, a: 2816, b: 63488 }
+      target.native.immediateCommand = 1
+    }
+  })
+  const originalDraw = scene.drawPointer, originalRender = scene.renderer.render, originalPick = scene.picking.pickPerson
+  const observer = observeBlastEpisode(scene, { expectation: 'candidate', actorId: 1, targetId: 3, runId: 'synthetic', sourceFingerprint: 'synthetic' })
+  const ground = { x: 50, y: 60, point: { x: 3, z: 0 } }
+  observer.prepareMove(ground)
+  const prepare = async () => {
+    const pose = { x: 1000, y: 2000, h: 120 }
+    observer.hover({ turn: 1, targetId: 3, mode: 'blast', canvasOwned: true, hitId: 3, visible: true, lines: 16,
+      context: inputContext(scene), position: pose, previousTurn: 0, previousPosition: pose, idle: true, point: { x: 10, y: 20 }, observedAt: performance.now() })
+    scene.renderer.render(scene.scene, scene.camera); scene.drawPointer(performance.now()); await observer.settled()
+    canvas.dispatch('pointerdown'); observer.trigger(1)
+  }
+  t.after(() => observer.dispose())
+  return { scene, world, canvas, observer, prepare, ground, log, attrs, originalDraw, originalRender, originalPick, handlers: () => handlers }
+}
+
+test('actual first release rearms one later event without replay or duplicate original handler', async t => {
+  const f = fixture(t); await f.prepare()
+  const early = f.observer.waitForMove(); f.ground.point.x = 999
+  f.canvas.dispatch('pointerup')
+  const admission = await early
+  assert.equal(admission.turn, 1); assert.equal(admission.shot.remaining, 6); assert.equal(f.handlers(), 1)
+  assert.equal(f.observer.read().artifacts.movePointer, undefined)
+  admission.selected[0] = 99
+  assert.deepEqual((await f.observer.waitForMove()).selected, [3])
+  f.canvas.dispatch('pointerdown', { x: 50, y: 60 }); f.canvas.dispatch('pointerup', { x: 50, y: 60 })
+  const result = f.observer.read()
+  assert.equal(f.handlers(), 2); assert.equal(result.report.movement.order.model, 3)
+  assert.deepEqual(result.report.errors, [])
+  assert.equal(result.artifacts.pointer.events.filter(e => e.type === 'pointerup').length, 1)
+  assert.equal(result.artifacts.movePointer.events.filter(e => e.type === 'pointerup').length, 1)
+  f.observer.dispose()
+  assert.equal(f.scene.drawPointer, f.originalDraw); assert.equal(f.scene.renderer.render, f.originalRender); assert.equal(f.scene.picking.pickPerson, f.originalPick)
+})
+
+test('HUD snapshot is after the original draw and ack raster waits for actual second release', async t => {
+  const f = fixture(t); await f.prepare(); f.canvas.dispatch('pointerup'); await f.observer.waitForMove()
+  const reads = f.log.filter(x => x === 'readPixels').length, rasters = f.log.filter(x => x === 'raster').length
+  f.scene.renderer.render(f.scene.scene, f.scene.camera)
+  const now = performance.now()
+  assert.equal(f.scene.drawPointer(now), 'draw-result')
+  const captured = f.observer.read().artifacts.ack
+  assert.equal(captured.feedback.lines, 32); assert.equal(captured.frameProof.drawNow, now)
+  assert.equal(captured.png, undefined); assert.equal(captured.bracketPng, undefined)
+  assert.equal(f.log.filter(x => x === 'readPixels').length, reads); assert.equal(f.log.filter(x => x === 'raster').length, rasters)
+  assert.equal(f.log.findLast(x => x?.name === 'draw').receiver, f.scene)
+  f.attrs.set('d', 'changed-after-snapshot')
+  // Late movement rejects independently, but still drains its earlier ack proof.
+  f.world.projectiles[0].phase = 'flying'; f.world.projectiles[0].remaining = 0
+  f.canvas.dispatch('pointerdown', { x: 50, y: 60 }); f.canvas.dispatch('pointerup', { x: 50, y: 60 })
+  await f.observer.settled()
+  const result = f.observer.read()
+  assert.equal(result.artifacts.ack.svg, captured.svg); assert.ok(result.artifacts.ack.bracketPng)
+  assert.equal(result.report.frames.find(x => x.kind === 'ack').drawNow, now)
+  assert.ok(result.report.errors.some(x => x.includes('Movement was late')))
+})
+
+test('failed actual release, explicit abort and disposal settle waiting readers', async t => {
+  const f = fixture(t, { rejectRelease: true }); await f.prepare()
+  const pending = assert.rejects(f.observer.waitForMove(), /One naturally allocated/)
+  f.canvas.dispatch('pointerup'); await pending
+  assert.equal(f.handlers(), 1); assert.equal(f.observer.read().artifacts.movePointer, undefined)
+  const g = fixture(t); const aborted = assert.rejects(g.observer.waitForMove(), /explicit stop/)
+  g.observer.abortMove('explicit stop'); await aborted
+  const h = fixture(t); const disposed = assert.rejects(h.observer.waitForMove(), /disposed/)
+  h.observer.dispose(); await disposed
+})
+
+test('deferred ack drains on disposal without rereading DOM', async t => {
+  const f = fixture(t); await f.prepare(); f.canvas.dispatch('pointerup')
+  f.scene.renderer.render(f.scene.scene, f.scene.camera); f.scene.drawPointer(f.scene.pointerAck.until - 1)
+  const svg = f.observer.read().artifacts.ack.svg
+  f.attrs.set('d', 'changed'); f.observer.dispose(); await f.observer.settled()
+  assert.equal(f.observer.read().artifacts.ack.svg, svg); assert.ok(f.observer.read().artifacts.ack.bracketPng)
+})
+
+test('original draw exception and argument identity survive the passive wrapper', t => {
+  const failure = Error('original draw failed'), f = fixture(t, { throwDraw: failure }), now = 19
+  assert.throws(() => f.scene.drawPointer(now), error => error === failure)
+  assert.deepEqual(f.log.at(-1), { name: 'draw', receiver: f.scene, now })
+})
