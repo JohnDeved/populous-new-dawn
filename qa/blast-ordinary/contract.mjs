@@ -4,7 +4,6 @@ const keys = (value, allowed) => require(Object.keys(value).every(key => allowed
 const clone = value => structuredClone(value)
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b)
 const moved = (a, b) => a.x !== b.x || a.y !== b.y
-const point = value => ({ x: value.x, y: value.y, h: value.h })
 const short = n => (n << 16) >> 16
 const browserPoint = p => ({ x: short(p.x - 2048) / 256, z: -short(p.y + 2048) / 256 })
 
