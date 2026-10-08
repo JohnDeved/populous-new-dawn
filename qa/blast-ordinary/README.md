@@ -96,6 +96,16 @@ and stock. Baseline evidence therefore records `kind: proposed-pixel`, its actua
 inspection turn/context and intended point, separately from the delivered event.
 It does not populate hover evidence or claim the pointer was already resting there.
 The actual trusted release must match the proposal's coordinates and context.
+A separate baseline release check validates the original target's current source
+range on a detached World in the event capture phase. After the real handler's
+trace has finished and restored, one additional synchronous geometric person read
+must still return that original target at the delivered pixel. Its phase and
+picker cache before/after are retained as diagnostic evidence, never attributed
+to the original handler (which consumes terrain in the baseline). This read can
+update picker caches, and the cloned range check adds event-processing cost;
+neither is claimed timing-equivalent to an unobserved event. Neither advances the
+clock or mutates the live World. A moved, occluded, replaced or out-of-range target
+fails even when the original ground cast itself succeeds.
 Candidate hover rejects proposed-pixel records and still requires a natural frame.
 
 The retained quarter-turn baseline `de5f4921` proves why this distinction matters:

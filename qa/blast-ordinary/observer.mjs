@@ -1,5 +1,7 @@
 import { createBlastEpisode } from './contract.mjs'
 import { captureRenderedCanvas } from './frame-capture.mjs'
+import { captureBlastReleaseRange, readBlastReleasePixel } from './setup-observer.mjs'
+import { spellTargetError } from '../../app/live-command.ts'
 import { currentPersonOrder } from '../../app/person-orders.ts'
 import { observeEntityPointer } from '../erosion-ordinary/input.mjs'
 
@@ -114,6 +116,7 @@ export function observeBlastEpisode(scene, options) {
     eventBefore = { point: { x: event.clientX, y: event.clientY }, turn: world.turn, targetId: target.id, mode: world.mode, trusted: event.isTrusted,
       canvasOwned: event.target === scene.renderer.domElement && document.elementFromPoint(event.clientX, event.clientY) === scene.renderer.domElement,
       context: inputContext(scene), stockBefore: world.shots.blast, castCountBefore: world.stats.cast }
+    if (options.expectation === 'baseline') guard(() => { eventBefore.targetCheck = { range: captureBlastReleaseRange(world, target, spellTargetError) } })
   }
   const release = event => {
     if (event.button !== 0 || event.type !== 'pointerup') return
@@ -124,6 +127,11 @@ export function observeBlastEpisode(scene, options) {
       const up = trace.events.find(e => e.type === 'pointerup')
       if (!up || trace.events.filter(e => e.type === 'pointerup').length !== 1) throw Error('Exactly one actual release required')
       const persons = up.picks.filter(p => p.name === 'pickPerson'), terrain = up.picks.find(p => p.name === 'pick' && p.owner === 'scene' && p.point)
+      if (options.expectation === 'baseline') {
+        eventBefore.targetCheck ??= {}
+        eventBefore.targetCheck.pixel = readBlastReleasePixel(scene, event)
+        artifacts.deliveredTargetCheck = structuredClone(eventBefore.targetCheck)
+      }
       const shots = world.projectiles.filter(p => p.team === 'blue' && p.spell === 'blast')
       if (shots.length !== 1) throw Error('One naturally allocated Blue Blast required')
       shot = shots[0]

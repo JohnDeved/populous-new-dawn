@@ -12,7 +12,9 @@ const browserPoint = p => ({ x: (p.x - 2048) / 256, z: -(p.y + 2048) / 256 })
 const hover = expectation => ({ turn: 1, targetId: 3, mode: 'blast', canvasOwned: true, hitId: 3,
   visible: expectation === 'candidate', lines: expectation === 'candidate' ? 16 : 0, context: copy(context), position: position(1),
   previousTurn: 0, previousPosition: position(0), orderModel: 19 })
-const release = expectation => ({ point: { x: 10, y: 20 }, turn: 1, targetId: 3, mode: 'blast', trusted: true, canvasOwned: true, context: copy(context),
+const release = expectation => ({ point: { x: 10, y: 20 },
+  ...(expectation === 'baseline' ? { targetCheck: { range: { phase: 'before-handler', turn: 1, targetId: 3, sameOriginal: true, targetError: null },
+    pixel: { phase: 'after-handler-diagnostic', turn: 1, personId: 3, point: { x: 10, y: 20 } } } } : {}), turn: 1, targetId: 3, mode: 'blast', trusted: true, canvasOwned: true, context: copy(context),
   handlerPersonId: expectation === 'candidate' ? 3 : null, handlerTerrain: expectation === 'baseline', stockBefore: 4, castCountBefore: 0 })
 const proposed = () => {
   const value = hover('baseline')
@@ -186,4 +188,14 @@ test('proposed pixel records cannot be relabelled as candidate hover evidence', 
   const noFrame = createBlastEpisode(options)
   const relabeled = proposed(); delete relabeled.kind; delete relabeled.point
   assert.throws(() => noFrame.hover(relabeled), /visible hover/)
+})
+
+
+test('a once-correct proposal cannot mask movement, occlusion, replacement or range loss at actual release', () => {
+  for (const personId of [null, 4])
+    assert.throws(() => start('baseline', ({ r }) => { r.targetCheck.pixel.personId = personId }), /no longer owns/)
+  assert.throws(() => start('baseline', ({ r }) => { r.targetCheck.range.targetError = { code: -2 } }), /actual source range/)
+  assert.throws(() => start('baseline', ({ r }) => { r.targetCheck.range.sameOriginal = false }), /actual source range/)
+  assert.throws(() => start('baseline', ({ r }) => { delete r.targetCheck }), /actual source range/)
+  assert.throws(() => start('baseline', ({ r }) => { r.targetCheck.pixel.phase = 'handler' }), /no longer owns/)
 })
