@@ -28,6 +28,38 @@ export function assertMission1BuildingRestart(restart, screen, giftId) {
   assert.deepEqual(restart.after.acquisition.requests, []); assert.deepEqual(restart.after.buildingGifts, [])
 }
 
+export async function runMission1BuildingRestart({ page, button, report, persistScreen, save }) {
+  let failed = false, failure
+  const cleanupError = error => {
+    report.restartCleanupErrors ??= []; report.restartCleanupErrors.push(String(error?.stack ?? error))
+    if (!failed) { failed = true; failure = error }
+  }
+  try { await button('Restart world').click(); await button('Pause game').click() }
+  catch (error) { failed = true; failure = error }
+  finally {
+    try {
+      report.restart = await page.evaluate(() => window.restoreM1BuildingRestart?.())
+      const screen = report.restart?.screen
+      if (screen) {
+        report.beforeRestart = screen; delete report.restart.screen
+        persistScreen('beforeRestart', screen)
+      }
+    } catch (error) { cleanupError(error) }
+    try { save() } catch (error) { cleanupError(error) }
+  }
+  if (failed) throw failure
+}
+
+export function finishMission1BuildingContinuation(report, save, failed, failure) {
+  try { save() }
+  catch (error) {
+    report.reportSaveFailure = String(error?.stack ?? error)
+    if (!failed) { failed = true; failure = error; report.status = 'failed' }
+  }
+  if (failed) throw failure
+  return report
+}
+
 export default async function mission1BuildingScreenContinuation({ page, root, output, signal, receipt }) {
   const hash = bytes => createHash('sha256').update(bytes).digest('hex')
   const prior = (name, expected) => {
@@ -100,13 +132,7 @@ export default async function mission1BuildingScreenContinuation({ page, root, o
       const { installMission1BuildingRestartWitness } = await import('/scripts/local-render/mission1-building-screen-load.mjs')
       installMission1BuildingRestartWitness()
     })
-    try { await button('Restart world').click(); await button('Pause game').click() }
-    finally {
-      report.restart = await page.evaluate(() => window.restoreM1BuildingRestart?.())
-      const screen = report.restart?.screen
-      if (screen) { delete report.restart.screen; persistScreen('beforeRestart', screen) }
-      save()
-    }
+    await runMission1BuildingRestart({ page, button, report, persistScreen, save })
     const restart = report.restart
     assertMission1BuildingRestart(restart, report.beforeRestart, birth.gift.id)
     assert.deepEqual(await page.evaluate(readMission1VaultCheckpoint), saved, 'Restart altered the genuine committed checkpoint')
@@ -145,8 +171,6 @@ export default async function mission1BuildingScreenContinuation({ page, root, o
       report.cleanup = cleanup
       if (cleanup.errors.length) throw Error(cleanup.errors.join('\n'))
     } catch (error) { report.cleanupFailure = String(error?.stack ?? error); if (!failed) { failed = true; failure = error; report.status = 'failed' } }
-    save()
   }
-  if (failed) throw failure
-  return report
+  return finishMission1BuildingContinuation(report, save, failed, failure)
 }

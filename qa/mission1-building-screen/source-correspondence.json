@@ -199,7 +199,7 @@
     },
     {
       "path": "qa/mission1-building-screen/screen-contract.test.mjs",
-      "sha256": "036235383ff0e2d12f0dfb588867f82673ae4812c9369eea14659c9aef41bd39"
+      "sha256": "3d8ff5d05214b3cdfebc6aa60cb532ecf7e63482eafb2b644d64f7cd57eadee5"
     },
     {
       "path": "scripts/local-render/mission1-building-drawer-smoke.mjs",
@@ -211,7 +211,7 @@
     },
     {
       "path": "scripts/local-render/mission1-building-screen-continuation.mjs",
-      "sha256": "f2585e82ab1b1730fdf5cc09f1324df1935e2eb6f029fd6e2a7ae0361f87f2f1"
+      "sha256": "d2f39acffde3c0315ddb3fc07e9c2320037c73f741ed725c63a4cd604b7fd8e1"
     }
   ],
   "routeSource": {

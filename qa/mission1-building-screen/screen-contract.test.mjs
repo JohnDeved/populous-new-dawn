@@ -9,7 +9,8 @@ import { installMission1VaultCheckpointState, installMission1VaultSaveWitness,
   installMission1VaultLoadWitness } from '../../scripts/local-render/mission1-vault-checkpoint.mjs'
 import scenario, { saveMission1BuildingCheckpoint } from '../../scripts/local-render/mission1-building-screen.mjs'
 import componentSmoke, { drawMission1Component } from '../../scripts/local-render/mission1-building-drawer-smoke.mjs'
-import continuation, { assertMission1BuildingRestart } from '../../scripts/local-render/mission1-building-screen-continuation.mjs'
+import continuation, { assertMission1BuildingRestart, runMission1BuildingRestart,
+  finishMission1BuildingContinuation } from '../../scripts/local-render/mission1-building-screen-continuation.mjs'
 import { armMission1BuildingSceneStart, installMission1BuildingRestartWitness } from '../../scripts/local-render/mission1-building-screen-load.mjs'
 import { parseOptions } from '../../scripts/local-render/harness.mjs'
 
@@ -412,6 +413,28 @@ test('trusted Restart captures actual active pre-state and synchronous reset; re
   evidence.before.acquisition.controllers.building.active = false
   assert.throws(() => assertMission1BuildingRestart(evidence, evidence.screen, 54), /missed active ownership/)
   assert.equal(world.worshipAcquisition.controllers.building.active, true)
+})
+
+test('Restart caller and final report preserve a primitive input throw through cleanup and save failures', async t => {
+  const report = { status: 'running' }, calls = [], cleanup = Error('supplied cleanup failure'), saveError = Error('supplied save failure')
+  globalThis.window = { restoreM1BuildingRestart() { calls.push('cleanup'); throw cleanup } }
+  t.after(() => delete globalThis.window)
+  const page = { evaluate: async fn => fn() }, button = name => ({ async click() {
+    calls.push(name); if (name === 'Pause game') throw null
+  } })
+  const save = () => { calls.push('save'); throw saveError }
+  let caught = false, primary
+  try { await runMission1BuildingRestart({ page, button, report, save, persistScreen() { assert.fail('no collected screen') } }) }
+  catch (error) { caught = true; primary = error }
+  assert.equal(caught, true); assert.equal(primary, null)
+  assert.deepEqual(calls, ['Restart world', 'Pause game', 'cleanup', 'save'])
+  assert.match(report.restartCleanupErrors[0], /supplied cleanup failure/)
+  assert.match(report.restartCleanupErrors[1], /supplied save failure/)
+  let finished = false
+  try { finishMission1BuildingContinuation(report, save, caught, primary) }
+  catch (error) { finished = true; assert.equal(error, null) }
+  assert.equal(finished, true); assert.match(report.reportSaveFailure, /supplied save failure/)
+  assert.throws(() => finishMission1BuildingContinuation(report, save, false), error => error === saveError)
 })
 
 test('component smoke uses one production-interface draw and disposes its detached owner even after failure', async t => {
