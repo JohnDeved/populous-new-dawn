@@ -238,7 +238,7 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
       return castInput(hit, cast)
     } else return dispatch(hit, command, expectedIds)
   }
-  const fixedGround = (target, spell = null) => page.evaluate(async ({ target, spell, actorId }) => {
+  const fixedGround = (target, spell = null, cellMove = false) => page.evaluate(async ({ target, spell, actorId, cellMove }) => {
     const [{ createMoveContextProbe, entityInputState }, { spellTargetError }, { spellRange }, { nativePosition }, { positionDistance }] = await Promise.all([
       import('/qa/erosion-ordinary/input.mjs'), import('/app/live-command.ts'), import('/app/spell-casting.ts'),
       import('/app/world-terrain-runtime.ts'), import('/app/native-math.ts')])
@@ -247,6 +247,21 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
       y: rect.top + (1 - projected.y) * rect.height / 2 }, candidates = []
     const snap = point => ({ x: Math.floor(point.x / 2) * 2 + 1, z: -Math.floor(-point.z / 2) * 2 - 1 })
     const wanted = snap(target), probe = createMoveContextProbe(world), rejected = []
+    // Match nativePosition's rounding/wrap and liveCommandContext's 512-unit cell.
+    // Keep the spell cell rule and the accepted shore's 0.35 aim precision unchanged.
+    const nativeCell = point => ({ x: (Math.round((point.x + 8) * 256) & 65535) >> 9,
+      y: (Math.round((-point.z - 8) * 256) & 65535) >> 9 })
+    const wantedCell = nativeCell(target), rejectionCounts = { canvasOwnership: 0, objectHit: 0,
+      noTerrainPick: 0, wrongCell: 0, aimPrecision: 0, commandContext: 0, spellPredicate: 0, spellMargin: 0 }
+    let nearestRejectedPoint = null
+    const reject = (reason, hit, point = null, details = {}) => {
+      rejectionCounts[reason]++
+      if (!point) return
+      const targetDistance = Math.hypot(point.x - target.x, point.z - target.z)
+      if (!nearestRejectedPoint || targetDistance < nearestRejectedPoint.targetDistance)
+        nearestRejectedPoint = { reason, ...hit, point: { x: point.x, z: point.z },
+          pointCell: nativeCell(point), targetDistance, ...details }
+    }
     const spellWorld = spell ? structuredClone(world) : null
     const actor = spellWorld?.units.find(unit => unit.id === actorId)
     const caster = actor ? { id: actor.id, x: actor.x, z: actor.z, hp: actor.hp, inside: actor.inside,
@@ -259,26 +274,69 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
     for (const offset of candidates) {
       const hit = { x: Math.round(center.x + offset.dx), y: Math.round(center.y + offset.dy) }
       const event = { clientX: hit.x, clientY: hit.y }
-      if (document.elementFromPoint(hit.x, hit.y) !== scene.renderer.domElement) continue
-      if (!spell && (scene.pickUnit(event) || scene.picking.pickPerson(event) || scene.pickWorldObject(event))) continue
+      if (document.elementFromPoint(hit.x, hit.y) !== scene.renderer.domElement) {
+        reject('canvasOwnership', hit); continue
+      }
+      if (!spell && (scene.pickUnit(event) || scene.picking.pickPerson(event) || scene.pickWorldObject(event))) {
+        reject('objectHit', hit); continue
+      }
       const point = scene.pick(event)
-      if (!point) continue
-      const snapped = snap(point)
-      if (spell ? snapped.x !== wanted.x || snapped.z !== wanted.z : Math.hypot(point.x - target.x, point.z - target.z) > 0.35) continue
+      if (!point) { reject('noTerrainPick', hit); continue }
+      const snapped = snap(point), pointCell = nativeCell(point)
+      if (spell ? snapped.x !== wanted.x || snapped.z !== wanted.z : cellMove
+        ? pointCell.x !== wantedCell.x || pointCell.y !== wantedCell.y
+        : Math.hypot(point.x - target.x, point.z - target.z) > 0.35) {
+        reject(spell || cellMove ? 'wrongCell' : 'aimPrecision', hit, point); continue
+      }
       const context = spell ? null : probe(point)
       const rejection = spell ? spellTargetError(spellWorld, spell, point)
         : context.model !== 3 || !context.enabled ? 'Ground command context rejected' : null
+      if (!spell && rejection) { reject('commandContext', hit, point, { context }); continue }
       const nativeTarget = spell ? nativePosition(spellWorld, point) : null
       const distance = spell ? positionDistance(caster.native, nativeTarget) : null
       const margin = spell ? caster.range - distance : null
       if (spell && (rejection || margin < minimumMargin)) {
+        reject(rejection ? 'spellPredicate' : 'spellMargin', hit, point, { rejection, margin })
         rejected.push({ ...hit, point, nativeTarget, rejection, distance, margin }); continue
       }
-      return { ...hit, point, target, snapped, context, rejection, caster, nativeTarget, distance, margin, minimumMargin, rejected,
+      return { ...hit, point, target, snapped, wantedCell, pointCell, cellMove, context, rejection, caster, nativeTarget, distance, margin, minimumMargin, rejected, rejectionCounts, nearestRejectedPoint,
         diagnostics: entityInputState(scene, null, hit), turn: world.turn }
     }
-    return { target, rejection: 'No owned rendered point in the required native cell meets the shipped predicate and range margin',
-      caster, minimumMargin, rejected, diagnostics: entityInputState(scene, null, center) }
-  }, { target, spell, actorId: originalShamanId })
-  return { action, button, pause, resume, settle, view, prepareDispatch, entityPoint, dispatch, castInput, fixedGround, clickEntity }
+    return { target, wantedCell, cellMove, rejection: spell
+      ? 'No owned rendered point in the required native cell meets the shipped predicate and range margin'
+      : 'No owned empty ground pick meets the requested movement target and enabled command3 context',
+      caster, minimumMargin, rejected, rejectionCounts, nearestRejectedPoint, diagnostics: entityInputState(scene, null, center) }
+  }, { target, spell, actorId: originalShamanId, cellMove })
+  const farBankGround = async target => {
+    let hit
+    // Reuse ordinary-shared-training's owned right-drag corridor. Two finite
+    // camera adjustments can expose this same destination cell; never drift it.
+    for (let attempt = 0; attempt < 3; attempt++) {
+      await prepareDispatch()
+      hit = await fixedGround(target, null, true)
+      report.actions.push({ label: 'far-bank-ground-probe', attempt, hit }); save()
+      if (hit.rejection === null || attempt === 2) return hit
+      const corridor = await page.evaluate(() => {
+        const canvas = window.testSceneRef.current.renderer.domElement
+        for (const y of [750, 650, 550]) {
+          let owned = true
+          for (let x = 280; x <= 792; x++)
+            if (document.elementFromPoint(x, y) !== canvas) { owned = false; break }
+          if (owned) return { x: 280, endX: 792, y }
+        }
+        return null
+      })
+      report.actions.push({ label: 'far-bank-camera-corridor', attempt, corridor }); save()
+      if (!corridor) return hit
+      await action('far-bank-ordinary-camera-rotation', async () => {
+        await page.mouse.move(corridor.x, corridor.y); await page.mouse.down({ button: 'right' })
+        try { await page.mouse.move(corridor.endX, corridor.y, { steps: 12 }) }
+        finally { await page.mouse.up({ button: 'right' }) }
+        await page.mouse.move(400, 780)
+      })
+      await settle()
+    }
+    return hit
+  }
+  return { action, button, pause, resume, settle, view, prepareDispatch, entityPoint, dispatch, castInput, fixedGround, farBankGround, clickEntity }
 }
