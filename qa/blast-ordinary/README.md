@@ -1,6 +1,6 @@
 # Ordinary Mission2 Blast episode
 
-The current prospective episode uses one naturally converted starting Blue Brave,
+The current prospective episode uses one naturally present Blue Brave at binding,
 the original stationary Blue Shaman, and a public ground move on the home island.
 The application includes current main `1c309ffc` through normal merge `2e110a2a`;
 the Blast runtime patch is unchanged. Historical `1bcac93a` standard results remain
@@ -12,9 +12,12 @@ not run. Original/native execution and enemy-damage parity are not credited.
 Mission2 supplies eight Wildmen around Shaman `(-107,-101)`. The maintained
 startup wave allocates eight real Blue Braves (`level-start-runtime.ts:176–194`;
 `tests/level-start.test.mjs` checks the one-to-nine Blue population transition).
-After ordinary readiness, focus the original Shaman, clear selection, and use the
-public single-Brave HUD button. Bind the actual selected startup Brave object;
-never guess its ID or replace it. One ordinary ground click aims at `(-93,-101)`
+Ordinary hut births may add more people before browser readiness, so eight is
+not a permanent census invariant. Persist actual readiness, turn, site phases and
+the Blue/Wild census before validation. Focus the original Shaman, clear selection,
+and use the public single-Brave HUD button. Bind the actual selected outdoor Blue
+Brave from that recorded pre-command cohort; never guess its ID, replace it or
+claim conversion genealogy. An ordinary hut-born Brave is also eligible. One ordinary ground click aims at `(-93,-101)`
 (with the existing bounded half-unit ground-pixel alternatives). Record the real
 selected recipient, accepted model3 order and payload, acknowledgement and marker.
 The Shaman stays home. Imports are warmed before movement; the cast observer
@@ -61,6 +64,13 @@ available, but ordinary runs explicitly disable it. Later ground, rejection,
 interruption, Save/Load and paired-frame controls remain open.
 
 ## Retained earlier attempts
+
+Baseline `8c39a25c` failed before any scenario input on the incorrect exact-eight
+Brave census gate. The failure PNG shows09 in the Brave HUD, while the gate did
+not retain its actual roster or turn. Source permits ordinary hut births after
+the turn34 conversion assertion; no particular ninth identity/birth turn is
+claimed. The revised gate records the census first and binds one actual eligible
+member without imposing an unrelated permanent population count.
 
 Baseline `4138b25c` actually cast at turn527 after proposing person19 at525.
 The intended target was still in range, but the delivered pixel belonged to13;

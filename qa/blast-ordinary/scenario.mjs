@@ -56,13 +56,23 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
   try {
     await openMission(2)
     const readiness = await waitForShamanReadiness(page)
-    await page.evaluate(async () => {
+    const roster = await page.evaluate(() => {
+      const w = window.testSceneRef.current.world
+      return { turn: w.turn, level: w.outcome.level,
+        levelStart: w.levelStart.map(site => ({ tribe: site.tribe, shaman: site.shaman, phase: site.phase })),
+        people: w.units.filter(u => u.team === 'blue' || u.team === 'wild').map(u => ({ id: u.id, team: u.team, kind: u.kind,
+          hp: u.hp, inside: u.inside, x: u.x, z: u.z, ghost: !!u.ghost, native: u.native ?
+            { id: u.native.id, class: u.native.class, flags2: u.native.flags2, flags4: u.native.flags4 } : null })) }
+    })
+    save('startup-roster.json', { readiness, ...roster })
+    await page.evaluate(async census => {
       if (window.blastOriginal || window.blastEpisode) throw Error('No observer rearming')
       const scene = window.testSceneRef.current, world = scene.world, actor = world.units.find(u => u.team === 'blue' && u.kind === 'shaman' && u.hp > 0)
       if (!actor || world.stats.cast || world.shots.blast !== 4) throw Error('Untouched fresh Mission2 start required')
-      const startingBraves = world.units.filter(u => u.team === 'blue' && u.kind === 'brave' && u.hp > 0)
-      if (startingBraves.length !== 8) throw Error('Eight normally converted starting Blue Braves required')
-      window.blastOriginal = { scene, world, actor, startingBraves, target: null }
+      const recordedIds = new Set(census.people.filter(u => u.team === 'blue' && u.kind === 'brave' && u.hp > 0 && u.inside === null && !u.ghost).map(u => u.id))
+      const boundBraves = world.units.filter(u => recordedIds.has(u.id) && u.team === 'blue' && u.kind === 'brave' && u.hp > 0 && u.inside === null && !u.ghost)
+      if (!boundBraves.length) throw Error('An eligible naturally present Blue Brave from the recorded census is required')
+      window.blastOriginal = { scene, world, actor, boundBraves, target: null }
       const { observeBlastSetup } = await import('/qa/blast-ordinary/setup-observer.mjs')
       const { currentPersonOrder } = await import('/app/person-orders.ts')
       const { unitAnimationSource } = await import('/app/selection-runtime.ts')
@@ -74,7 +84,7 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
       window.blastHelpers = { currentPersonOrder, findProposedBlastPixel, observeBlastPick, unitAnimationSource, observeBlastEpisode, responseSnapshot, pointerFeedback, observeEntityPointer, findEntityInput, inspectEntityPoint, spellTargetError, wrappedDistance }
       window.blastSetup = observeBlastSetup(scene, actor, { currentOrder: (w, p) => currentPersonOrder(w.buildingOrders, p) })
       if (window.blastSetup.read().errors.length) throw Error('Setup observation could not attach')
-    })
+    }, roster)
     setupAttached = true
     healthy(await current()); save('startup.json', { readiness, state: await current(), limits })
     await input('escape', {}, () => page.keyboard.press('Escape'))
@@ -86,11 +96,11 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
     await input('clear-selection', {}, () => page.keyboard.press('Escape'))
     await input('select-one-brave', {}, () => page.getByRole('button', { name: 'Select brave', exact: true }).click())
     target = await page.evaluate(() => {
-      const { world, startingBraves } = window.blastOriginal
+      const { world, boundBraves } = window.blastOriginal
       if (world.selected.length !== 1) throw Error('Exactly one public HUD-selected Brave required')
       const unit = world.units.find(u => u.id === world.selected[0])
-      if (!startingBraves.includes(unit) || unit.team !== 'blue' || unit.kind !== 'brave' || unit.hp <= 0 || unit.inside !== null)
-        throw Error('Selected person must be an original outdoor startup Brave')
+      if (!boundBraves.includes(unit) || unit.team !== 'blue' || unit.kind !== 'brave' || unit.hp <= 0 || unit.inside !== null)
+        throw Error('Selected person must be the same outdoor Brave recorded before commands')
       window.blastOriginal.target = unit
       return { id: unit.id, team: unit.team, kind: unit.kind, x: unit.x, z: unit.z }
     })
