@@ -1,0 +1,184 @@
+{
+  "scope": "M1-only source/helper preparation; no launch, application adoption, current route completion or rendered pass",
+  "base": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+  "applicationTree": "ba6df35a5a9fcd06b7c9004cd5a833d24f8d359c",
+  "acceptedProductProposal": "47a8ba13f5c798625f4c956fc6b7b6a68f50c576",
+  "reviewVerdictPrefix": "b58400db",
+  "priorPlanSha256": "1e7064df5751a23eb9c41ebd0fbc8d39825a7090f1c9ef0b6c34f04c4e87ac2b",
+  "recoveredModules": [
+    {
+      "path": "scripts/local-render/mission1-vault-input.mjs",
+      "sourceCommit": "91c9453061e92aa2ada4f4c170904b47c7e56a98",
+      "sourceSha256": "aeba86b15187385b6a29f3c2aafdd17f3d3dfb989fbd477b20e9350d9e0c527b",
+      "candidateSha256": "0fd774dc7194bfbca785171f68d74ae73299287efee0fa6a4122470c0c897f9a",
+      "byteIdentical": false,
+      "change": "Compose the maintained single pointer observer into castInput; retain current target projectile/ack facts and reject overlapping dispatch ownership."
+    },
+    {
+      "path": "scripts/local-render/mission1-vault-arrival.mjs",
+      "sourceCommit": "91c9453061e92aa2ada4f4c170904b47c7e56a98",
+      "sourceSha256": "4ef7d2f1acf079f1d49ae87a9ba3bc2cff09f88cfa6b5b1e176e5fac4faaab99",
+      "candidateSha256": "4ef7d2f1acf079f1d49ae87a9ba3bc2cff09f88cfa6b5b1e176e5fac4faaab99",
+      "byteIdentical": true,
+      "change": null
+    },
+    {
+      "path": "scripts/local-render/mission1-vault-guard-observation.mjs",
+      "sourceCommit": "91c9453061e92aa2ada4f4c170904b47c7e56a98",
+      "sourceSha256": "6fbb5f9024a0639e49a34c6c7f5e9b6eb6b57caca39f6e920d35c3bdf5aeec3f",
+      "candidateSha256": "6fbb5f9024a0639e49a34c6c7f5e9b6eb6b57caca39f6e920d35c3bdf5aeec3f",
+      "byteIdentical": true,
+      "change": null
+    },
+    {
+      "path": "scripts/local-render/mission1-vault-checkpoint.mjs",
+      "sourceCommit": "91c9453061e92aa2ada4f4c170904b47c7e56a98",
+      "sourceSha256": "3ecd6842811477486f5ff27d3ebd5829138700bd6e4fb6186180b7c01c4a2957",
+      "candidateSha256": "3ecd6842811477486f5ff27d3ebd5829138700bd6e4fb6186180b7c01c4a2957",
+      "byteIdentical": true,
+      "change": null
+    }
+  ],
+  "retainedCurrentSources": [
+    {
+      "path": "app/blast-targeting.ts",
+      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "sha256": "cf7cd6693317932337458cff270e1e07cf43cb24790d8861f2ebce3fa2952261"
+    },
+    {
+      "path": "app/live-command.ts",
+      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "sha256": "a53f4f0a64104dabacdfb1d2242c1979baa047a89f192a89a52b1c72a702bdca"
+    },
+    {
+      "path": "app/minimap.ts",
+      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "sha256": "ace3cb266bc801f660d053c649d998f3b49e22f7990c27312d0fb5d28597aec4"
+    },
+    {
+      "path": "app/native-math.ts",
+      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "sha256": "223fa6c4dc5d14a66daec1c1a15a5252802e1fa7e4f3cc7c5a2fcc07818435cc"
+    },
+    {
+      "path": "app/original-rules.json",
+      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "sha256": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6"
+    },
+    {
+      "path": "app/page.tsx",
+      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "sha256": "50358f6ae119026e8b1f9215fa436126bb26b7595832140c136ed271fbc52fc2"
+    },
+    {
+      "path": "app/person-idle.ts",
+      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "sha256": "6dfb6f673b9d9856fac8727c29e4e5e1254e69df96d017d6e999820920c47350"
+    },
+    {
+      "path": "app/person-orders.ts",
+      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "sha256": "27600291a988813415ce88a4b046101fb772894490d44607b84f739a433eb1f3"
+    },
+    {
+      "path": "app/scene-input-runtime.ts",
+      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "sha256": "7987f8f11abfdf4ea858b612d83d526169b31de05c76f52ce070809409c268a2"
+    },
+    {
+      "path": "app/selection-runtime.ts",
+      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "sha256": "c5330f78ee474ef5dc22fa66541ef2cd32f89ee51b5b551e6d6cfa13baa3f80c"
+    },
+    {
+      "path": "app/spell-casting.ts",
+      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "sha256": "90cebe30385ef3294a6c6a428285d507f333b91a4b9cb13f4b67a14733ee5600"
+    },
+    {
+      "path": "app/unit-kinds.ts",
+      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "sha256": "5c6903d13aef2e99645fc8cfa3d86afde5e109a6b099aa775f0061f8b060162f"
+    },
+    {
+      "path": "app/world-rules.ts",
+      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "sha256": "5688538516b4f908930dbcd46ebb807a958ee3f7edbbcd59e7067d04bf74fd2a"
+    },
+    {
+      "path": "app/world-selector.tsx",
+      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "sha256": "55c5244910e7fce31278a5f9225c4438d14f8d32687390d8ea858323487637f0"
+    },
+    {
+      "path": "app/world-terrain-runtime.ts",
+      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "sha256": "4fcf001bde3e32f5647a6efa25066dc9332320f244b034a8f41881a15af4a757"
+    },
+    {
+      "path": "qa/erosion-ordinary/input.mjs",
+      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "sha256": "29afe98c0e35e79fc25b6f9f6f0782de072ef9276d56bd8304ab9b72a99a8e19"
+    },
+    {
+      "path": "qa/erosion-ordinary/minimap-input.mjs",
+      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "sha256": "acf622d6277bae5ec3cf734c03cea7a4a8637f1dde9c710c8be6e2234ebd30e5"
+    },
+    {
+      "path": "scripts/browser-game.mjs",
+      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "sha256": "061ecb23dbcc5296fa6cdd044f44910af52884bb20d4fce5a9d64eb4391d9ba9"
+    },
+    {
+      "path": "scripts/checkpoint-readback.mjs",
+      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "sha256": "256139ba93205ffd091b61b5df93eb6db849c493ecf13e9405431258291ecc80"
+    },
+    {
+      "path": "scripts/local-render/checkpoint-observer.mjs",
+      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "sha256": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947"
+    },
+    {
+      "path": "scripts/local-render/harness.mjs",
+      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "sha256": "fb07de9e278f26b2b32324defeb6164832472a58d422aead1032b7db7ee85fcf"
+    },
+    {
+      "path": "scripts/local-render/owned-profile.mjs",
+      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "sha256": "445a29903f994f7fd4c4d0ee32924400b31b6c73673ec2e04d3f4ad3eee403f5"
+    },
+    {
+      "path": "scripts/local-render/vite.config.mjs",
+      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "sha256": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+    }
+  ],
+  "notRecovered": [
+    "historical application/runtime",
+    "mission1-vault-knowledge.mjs full driver",
+    "historical continuation946/profile",
+    "world-art observer and construction modules",
+    "M3 driver"
+  ],
+  "launch": {
+    "enabled": false,
+    "reason": "Product observation/draw interfaces and persistence capture point require final freeze/review; coordinator has not granted execution.",
+    "newHarnessArguments": [],
+    "scenario": null,
+    "profile": null,
+    "browser": null,
+    "port": null
+  },
+  "nextObserverFields": {
+    "status": "Source-owner supplied interface; product integration/review still pending",
+    "giftTag": "buildingAcquisition {mission:1,head:1,reward:2,slot:0,rewardClass:2,model:7,completedTurn,serial}",
+    "controller": "world.worshipAcquisition.controllers.building {active,phase,visits,pending,model:103,giftId,geometry,faces,allStarted,x,y,scale,yaw,tilt}",
+    "faces": "{threshold,angles,heading,countdown,flags}",
+    "shared": "companion/pulse retain shared owner and family/giftId",
+    "draw": "{kind:'building',family:'building',giftId,model:7,geometry,whole:boolean,selected:number[],submissions:[{face,transformed:number[][],projected:number[][],flight:number}]}",
+    "geometry": "Frozen HUD reference only; model pose is separate controller x/y/scale/yaw/tilt"
+  }
+}
