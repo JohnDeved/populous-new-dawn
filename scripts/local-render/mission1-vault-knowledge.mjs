@@ -8,6 +8,7 @@ import { bindGame, waitForShamanReadiness } from '../browser-game.mjs'
 import { waitForCheckpointReadback } from '../checkpoint-readback.mjs'
 import { createMission1VaultInput } from './mission1-vault-input.mjs'
 import { installMission1MoveWitness } from './mission1-vault-arrival.mjs'
+import { readMission1GuardPresentation } from './mission1-vault-guard-observation.mjs'
 import { installMission1VaultWitness, readMission1VaultProgress } from './mission1-vault-witness.mjs'
 import { installMission1VaultCheckpointState, readMission1VaultCheckpoint, installMission1VaultLoadWitness } from './mission1-vault-checkpoint.mjs'
 import { findMission1CampGround, installMission1CampConstruction } from './mission1-vault-construction.mjs'
@@ -40,7 +41,7 @@ export function mission1BlastReady(id) {
 
 export default async function mission1VaultKnowledge({ page, openMission, output, signal, receipt }) {
   const hash = value => createHash('sha256').update(value).digest('hex')
-  const files = ['mission1-vault-knowledge.mjs', 'mission1-vault-input.mjs', 'mission1-vault-witness.mjs', 'mission1-vault-checkpoint.mjs', 'mission1-vault-construction.mjs', 'mission1-vault-arrival.mjs']
+  const files = ['mission1-vault-knowledge.mjs', 'mission1-vault-input.mjs', 'mission1-vault-witness.mjs', 'mission1-vault-checkpoint.mjs', 'mission1-vault-construction.mjs', 'mission1-vault-arrival.mjs', 'mission1-vault-guard-observation.mjs']
   const report = { source: receipt.source, status: 'running', actions: [], captures: {},
     helpers: Object.fromEntries(files.map(file => [file, hash(readFileSync(new URL(file, import.meta.url)))])),
     provenance: { bridge: 'scripts/local-render/hut-smoke-ignition.mjs:373-419 @ e649af3c51be5e1f6131809c900789b607ef7fb2',
@@ -158,6 +159,8 @@ export default async function mission1VaultKnowledge({ page, openMission, output
     report.completedBridge = await read()
     assert.ok(report.completedBridge.landVersion > bridgeBefore.landVersion)
     report.crossing = await move({ x: 0, z: 4 }, true)
+    // Authored approach cell is outside the Vault footprint; real input and movement still must succeed.
+    report.guardApproach = await move({ x: -5, z: 3 }, true)
     // The existing Red guard is an ordinary gameplay prerequisite. If still near
     // the approach, use genuine Blast stock and let normal damage/retreat resolve.
     report.guardCasts = []
@@ -169,15 +172,18 @@ export default async function mission1VaultKnowledge({ page, openMission, output
       await pause(); await button('Select and focus shaman'); await view(current)
       await page.keyboard.press('1'); assert.equal((await read()).mode, 'blast')
       await resume()
-      const hit = await input.entityPoint('units', guard.id, null, 'blast')
-      report.actions.push({ label: 'guard-blast-probe', attempt, hit }); save()
+      const currentGuard = (await read()).red.find(u => u.id === guard.id)
+      if (!currentGuard || currentGuard.hp <= 0 || Math.hypot(currentGuard.x + 5, currentGuard.z + 3) > 14) break
+      const presentation = await page.evaluate(readMission1GuardPresentation, guard.id)
+      const hit = await fixedGround(currentGuard, 'blast')
+      report.actions.push({ label: 'guard-blast-probe', attempt, guard: currentGuard, presentation, hit }); save()
       assert.equal(hit.rejection, null, JSON.stringify(hit))
       const delivered = await castInput(hit, 'blast')
       await wait(({ id, hp, x, z }) => {
         const w = window.testSceneRef.current.world, u = w.units.find(u => u.id === id)
         return !u || u.hp < hp || Math.hypot(u.x - x, u.z - z) > 2
-      }, current, 30000)
-      report.guardCasts.push({ before: current, hit, delivered, after: (await read()).red.find(u => u.id === guard.id) }); save()
+      }, currentGuard, 30000)
+      report.guardCasts.push({ before: currentGuard, hit, delivered, after: (await read()).red.find(u => u.id === guard.id) }); save()
     }
     const afterGuard = (await read()).red.find(u => u.id === guard.id)
     assert.ok(!afterGuard || afterGuard.hp <= 0 || Math.hypot(afterGuard.x + 5, afterGuard.z + 3) > 14, 'Guard still threatens Vault approach')
