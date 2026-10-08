@@ -34,7 +34,7 @@ export function isOrdinaryCheckpointCandidate(value) {
   return Object.hasOwn(value.source?.inputs ?? {}, SCENARIO)
 }
 
-function localPath(root, path) {
+export function localPath(root, path) {
   assert(typeof root === 'string' && isAbsolute(root), 'missing tested root')
   assert(typeof path === 'string' && path.length, 'missing receipt path')
   const local = relative(root, resolve(root, path))
@@ -59,10 +59,37 @@ function optionsFor(outer) {
   return { options, output }
 }
 
-function jsonFile(repo, path) {
+export function jsonFile(repo, path) {
   const absolute = safeRepoPath(repo, path)
   assert(statSync(absolute).size <= 4 * 1024 * 1024, 'oversized checkpoint receipt')
   return JSON.parse(readFileSync(absolute, 'utf8'))
+}
+
+// Shared raw owned-harness boundary; scenario-specific adapters validate the sidecar.
+export function validateOwnedReceipt(outer, inner) {
+  assert(outer.phase === 'finished' && ['passed', 'failed', 'invalidated'].includes(outer.status), 'interrupted outer receipt')
+  assert(Number.isFinite(Date.parse(outer.finishedAt)), 'invalid completion time')
+  assert(outer.source?.headOid === inner.source?.commit && outer.cwd === inner.source?.root, 'source identity mismatch')
+  assert(isDeepStrictEqual(outer.source, outer.sourceAfter), 'outer source drift')
+  assert(isDeepStrictEqual(inner.source, inner.sourceAfter), 'owned server source drift')
+  const { fingerprint, ...source } = inner.source
+  assert(fingerprint === sha(JSON.stringify(source)), 'source fingerprint mismatch')
+  assert(source.status === '' && source.trackedDiffSha256 === EMPTY && source.untracked?.length === 0, 'unclean tested source')
+  assert(outer.source.trackedDiffSha256 === EMPTY, 'dirty outer source')
+  assert(sha(outer.stdout) === outer.stdoutSha256 && sha(outer.stderr) === outer.stderrSha256, 'raw stream hash mismatch')
+  const failed = outer.status === 'failed' && inner.status === 'failed'
+  if (failed) {
+    // The real harness deletes result and throws on failure: no success JSON
+    // is printed. Bind its terminal failure to the retained stderr instead.
+    assert(Number.isInteger(outer.exitCode) && outer.exitCode !== 0 && !Object.hasOwn(inner, 'result'), 'inconsistent terminal failure')
+    assert(typeof inner.failure === 'string' && inner.failure.length && outer.stderr.includes(inner.failure), 'unbound terminal failure')
+  } else {
+    assert(outer.status === 'passed' && inner.status === 'passed' && outer.exitCode === 0, 'inconsistent harness outcome')
+    const printed = JSON.parse(outer.stdout.trim().split('\n').at(-1))
+    assert(printed.status === inner.status && isDeepStrictEqual(printed.source, inner.source) &&
+      isDeepStrictEqual(printed.result, inner.result), 'outer and owned receipts disagree')
+  }
+  return { source, failed }
 }
 
 // Pure interpretation, with explicit source/reference identity supplied by the
@@ -73,29 +100,8 @@ export function projectOrdinaryCheckpoint({ outer, inner, journey, sourceFiles, 
     reason: 'Incomplete ordinary checkpoint evidence' }
   try {
     const { options } = optionsFor(outer)
-    assert(outer.phase === 'finished' && ['passed', 'failed', 'invalidated'].includes(outer.status), 'interrupted outer receipt')
-    assert(Number.isFinite(Date.parse(outer.finishedAt)), 'invalid completion time')
-    assert(outer.source?.headOid === inner.source?.commit && outer.cwd === inner.source?.root, 'source identity mismatch')
-    assert(isDeepStrictEqual(outer.source, outer.sourceAfter), 'outer source drift')
-    assert(isDeepStrictEqual(inner.source, inner.sourceAfter), 'owned server source drift')
-    const { fingerprint, ...source } = inner.source
-    assert(fingerprint === sha(JSON.stringify(source)), 'source fingerprint mismatch')
-    assert(source.status === '' && source.trackedDiffSha256 === EMPTY && source.untracked?.length === 0, 'unclean tested source')
-    assert(outer.source.trackedDiffSha256 === EMPTY, 'dirty outer source')
-    assert(sha(outer.stdout) === outer.stdoutSha256 && sha(outer.stderr) === outer.stderrSha256, 'raw stream hash mismatch')
-    const failed = outer.status === 'failed' && inner.status === 'failed'
-    if (failed) {
-      // The real harness deletes result and throws on failure: no success JSON
-      // is printed. Bind its terminal failure to the retained stderr instead.
-      assert(Number.isInteger(outer.exitCode) && outer.exitCode !== 0 && !Object.hasOwn(inner, 'result'), 'inconsistent terminal failure')
-      assert(typeof inner.failure === 'string' && inner.failure.length && outer.stderr.includes(inner.failure), 'unbound terminal failure')
-    } else {
-      assert(outer.status === 'passed' && inner.status === 'passed' && outer.exitCode === 0, 'inconsistent harness outcome')
-      const printed = JSON.parse(outer.stdout.trim().split('\n').at(-1))
-      assert(printed.status === inner.status && isDeepStrictEqual(printed.source, inner.source) &&
-        isDeepStrictEqual(printed.result, inner.result), 'outer and owned receipts disagree')
-      assert(isDeepStrictEqual(inner.result, journey), 'journey sidecar substitution')
-    }
+    const { source, failed } = validateOwnedReceipt(outer, inner)
+    if (!failed) assert(isDeepStrictEqual(inner.result, journey), 'journey sidecar substitution')
     for (const name of SOURCE_FILES) {
       assert(sourceFiles[name] && sourceFiles[name] === outer.source.inputs?.[name], `unbound checker input: ${name}`)
     }
@@ -168,9 +174,13 @@ export function readOrdinaryCheckpoint(repo, { path, commandReceipt: outer }, cu
 }
 
 export function selectOrdinaryCheckpoint(results) {
-  if (!results.length) return { id: ORDINARY_M2, status: 'unknown', reason: 'No owned ordinary Mission 2 receipt' }
+  return selectOwnedObservation(results, ORDINARY_M2, 'ordinary Mission 2')
+}
+
+export function selectOwnedObservation(results, id, label) {
+  if (!results.length) return { id, status: 'unknown', reason: `No owned ${label} receipt` }
   if (results.some(result => !Number.isFinite(Date.parse(result.finishedAt))))
-    return { id: ORDINARY_M2, status: 'unknown', reason: 'Candidate receipt has no valid ordering time' }
+    return { id, status: 'unknown', reason: 'Candidate receipt has no valid ordering time' }
   const priority = { unknown: 0, failed: 1, stale: 2, verified: 3 }
   return [...results].sort((a, b) => Date.parse(b.finishedAt) - Date.parse(a.finishedAt) ||
     priority[a.status] - priority[b.status] ||

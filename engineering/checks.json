@@ -2,6 +2,82 @@
   "version": 1,
   "checks": [
     {
+      "id": "blast-controls-ordinary",
+      "kind": "browser",
+      "automation": "manual",
+      "receiptAdapter": "ordinary-blast-controls",
+      "purpose": "Read the reviewed owned Blast controls receipt and sidecar; never run the harness.",
+      "coveredBehavior": [
+        "Evidence-only ordinary Blast controls observation"
+      ],
+      "knownLimits": [
+        "Six public Mission 2 control stages including active-cast Save and fresh-page Load. Equality covers the bounded saved/loaded projection; the recorded digest is not an independent full-World recomputation. No original execution, save-format or paired parity claim."
+      ],
+      "executable": "node",
+      "args": [
+        "scripts/parity-measure.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/parity-owned-blast.mjs",
+        "scripts/parity-owned-checkpoint.mjs",
+        "scripts/parity-owned-blast.mjs",
+        "tests/parity-owned-blast.test.mjs",
+        "engineering/parity-capabilities.json"
+      ],
+      "prerequisites": [
+        "Existing raw outer receipt, owned harness receipt and scenario sidecar with reviewed checker Git objects"
+      ],
+      "sideEffects": [
+        "Read-only projection; browser/native execution is not authorized by this binding"
+      ],
+      "resources": [
+        "No runtime resources for receipt projection"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "id": "blast-person-ordinary",
+      "kind": "browser",
+      "automation": "manual",
+      "receiptAdapter": "ordinary-blast-person",
+      "purpose": "Read the reviewed owned Blast person receipt and sidecar; never run the harness.",
+      "coveredBehavior": [
+        "Evidence-only ordinary Blast person observation"
+      ],
+      "knownLimits": [
+        "Owned public Mission 2 person release, real windup move and friendly Blue Brave tracking through arrival/impact. Historical browser observations only when source differs; no enemy-target, native execution, paired-frame, hardware-performance or whole-spell claim."
+      ],
+      "executable": "node",
+      "args": [
+        "scripts/parity-measure.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/parity-owned-blast.mjs",
+        "scripts/parity-owned-checkpoint.mjs",
+        "engineering/parity-capabilities.json"
+      ],
+      "prerequisites": [
+        "Existing raw outer receipt, owned harness receipt and scenario sidecar with reviewed checker Git objects"
+      ],
+      "sideEffects": [
+        "Read-only projection; browser/native execution is not authorized by this binding"
+      ],
+      "resources": [
+        "No runtime resources for receipt projection"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
       "id": "mission-two-checkpoint-ordinary",
       "kind": "browser",
       "automation": "manual",
@@ -63,7 +139,8 @@
       "args": [
         "--test",
         "tests/parity-measure.test.mjs",
-        "tests/parity-owned-checkpoint.test.mjs"
+        "tests/parity-owned-checkpoint.test.mjs",
+        "tests/parity-owned-blast.test.mjs"
       ],
       "cwd": ".",
       "env": [],
