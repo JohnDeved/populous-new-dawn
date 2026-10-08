@@ -30,7 +30,7 @@ import {
 import { shamanDeathVfx } from './shaman-death-vfx.ts'
 import { short } from './native-math.ts'
 import { SWARM_INSECT_COUNT, hasSwarmRuntime, swarmState } from './swarm.ts'
-import { isTempleKnowledgeGift } from './vault-appearance.ts'
+import { vaultKnowledgeGiftAppearance } from './vault-appearance.ts'
 import { makeVaultWorldPresentation, drawVaultWorldPresentation } from './scene-vault-knowledge.ts'
 
 export function makeVaultKnowledgeMarker(frame: number) {
@@ -50,8 +50,9 @@ export function animateVaultKnowledgeMarker(scene: GameScene, g: THREE.Group, vi
 }
 
 export function makeFx(scene: GameScene, f: Effect) {
-  if (f.kind === 'gift' && isTempleKnowledgeGift(f as Gift)) {
-    const presentation = makeVaultWorldPresentation(false)
+  const knowledge = f.kind === 'gift' && vaultKnowledgeGiftAppearance(scene.world, f as Gift)
+  if (knowledge) {
+    const presentation = makeVaultWorldPresentation(knowledge, false)
     scene.locate(presentation, f, f.height)
     return presentation
   }
@@ -353,8 +354,9 @@ export function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {
     return
   }
   if (f.kind === 'gift') {
-    if (isTempleKnowledgeGift(f as Gift)) {
-      drawVaultWorldPresentation(scene, g, f.sprite!.frame, (f as Gift).phase > 0)
+    const knowledge = vaultKnowledgeGiftAppearance(scene.world, f as Gift)
+    if (knowledge) {
+      drawVaultWorldPresentation(scene, g, knowledge, f.sprite!.frame, (f as Gift).phase > 0)
       return
     }
     g.visible = (f as Gift).phase > 0

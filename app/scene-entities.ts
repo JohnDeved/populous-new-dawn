@@ -62,6 +62,7 @@ import nativeEffects from './original-effects.json'
 import rules from './original-rules.json'
 import { animationTeam, teamForTribe, tribeForTeam, vehicleApparentTribe } from './world-types.ts'
 import {
+  vaultKnowledgeAppearance,
   vaultKnowledgeFrame,
   vaultKnowledgePlacement,
   vaultKnowledgeVisible,
@@ -318,9 +319,11 @@ function makeShrine(scene: GameScene, shrine: Shrine) {
   if (shrine.kind === 'vault') {
     const frame = vaultKnowledgeFrame(shrine.reward, shrine.rewardModel, scene.world.outcome.level)
     if (frame !== null) {
-      const marker = shrine.knowledgeGlow
-          ? makeVaultWorldPresentation(true)
-          : makeVaultKnowledgeMarker(frame),
+      const knowledge = vaultKnowledgeAppearance(shrine, scene.world.outcome.level),
+        marker =
+          shrine.knowledgeGlow && knowledge
+            ? makeVaultWorldPresentation(knowledge, true)
+            : makeVaultKnowledgeMarker(frame),
         placement = vaultKnowledgePlacement(shrine)
       scene.locate(marker, placement, scene.y(placement) + placement.heightOffset / 45)
       marker.userData.cellPosition = placement
@@ -724,10 +727,12 @@ export function updateShrinesFrame(scene: GameScene) {
       const placement = vaultKnowledgePlacement(shrine)
       scene.locate(marker, placement, scene.y(placement) + placement.heightOffset / 45)
       marker.userData.cellPosition = placement
-      if (shrine.knowledgeGlow)
+      const knowledge = vaultKnowledgeAppearance(shrine, scene.world.outcome.level)
+      if (shrine.knowledgeGlow && knowledge)
         drawVaultWorldPresentation(
           scene,
           marker,
+          knowledge,
           shrine.knowledgeGlow.displayedFrame,
           vaultKnowledgeVisible(shrine)
         )

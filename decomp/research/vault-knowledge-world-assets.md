@@ -1,7 +1,8 @@
-# Mission 3 Temple knowledge world sprites
+# Early-mission knowledge world sprites
 
-Refs #23. This implements only Mission 3's bank-p Temple world marker, collected
-body and their independently owned glow. Building screen acquisition, other Vault
+Refs #23. This implements Mission 3's bank-p Temple and Mission 1's bank-c Warrior
+Training Hut world marker, collected body and independently owned glow. The
+Mission 1 evidence and source boundary are below. Building screen acquisition, other Vault
 rewards, side-fire recollections, global animation cadence and payout changes are
 outside this slice. No parity credit is requested.
 
@@ -96,14 +97,28 @@ rendering. The local Shaman presentation adapter already handles this difference
 by latching before advancement. This slice follows that same pattern: the marker
 cursor retains `displayedFrame`, and the gift uses existing `Effect.sprite.frame`.
 Both are initialized to 0 and latched before their own cursor step. Rendering reads
-the latch. A gift born exactly on a turn/animation boundary therefore first shows
-HFX1417 while its next cursor is 4; the following boundary displays HFX1418.
+the latch. The first presentation visit latches frame 0 (HFX1417) and advances the
+cursor to 4; the second latches frame 1 (HFX1418) and advances the cursor to 8.
 Hidden gift glows stop both cursor and display-latch advancement.
+
+This corrects the earlier claim that the first browser render must show HFX1417.
+`advanceGame` can finish multiple presentation visits before `Scene.animate`
+renders once, including after a gift's birth in the same simulation turn. The
+first actual GPU frame therefore uses the latest latched frame. A rendered
+witness must retain the birth state, independently count intervening presentation
+visits using the same game clock, and compare the displayed body/glow with the
+draw-before-step recurrence while the gift is still in its six-visit visible
+window. The observed Mission 1 continuation showed birth cursor/latch 0 and
+first-render cursor 8/latch 1/HFX1418 in turn 1235; its original strict-HFX1417
+assertion failed. That retained metadata alone does not independently count the
+visits, and no birth PNG was saved by that failed checker.
 
 This reuses the current chronological 24 Hz adapter. It does not change that rate
 or settle issue 214's broad animation-speed report. The native per-visit sequence,
 browser frame-rate independence and absolute original wall-clock cadence remain
-different claims.
+different claims. The accepted native proof establishes the per-visit resource
+mapping and recurrence, not native global animation ownership or whole-frame
+scheduling parity.
 
 ## Verification boundary
 
@@ -118,3 +133,56 @@ separate cursors, new/legacy/nonzero checkpoint state, pause/deactivation,
 first-visible-frame ordering and unrelated-family controls. TypeScript, formatting,
 canonical asset checks and final standard/rendered gates are recorded in the PR
 evidence; no passing browser or full-campaign result is implied by this note.
+
+## Mission 1 Warrior Training Hut extension
+
+The authored Mission 1 trigger record 1 at (-5,-3), mode4, links to record 2's
+class6/model2 payload [2,7,1,1]. Model18 Vault record35 at (-6,-2), angle512,
+provides socket1; imported shape arithmetic gives the same (-5,-3) point and
+height offset1072. Header bank12 selects c. The canonical EXE's descriptor word
+at `005a7446 = 005a7228 + 7*76 + 10` is little-endian `3504`, HFX1077.
+The retained `check-native-worship.py` model7 case and the building-family
+consumers above support this descriptor choice. No new original instructions ran.
+
+The ordinary-PAL HFX1077 body is 22×24, with 230 opaque pixels and complete RGBA
+SHA256 `4f728efea07ff160530c49531bb4c82adb017aaed05ae8b3c21fc2327ad261ad`.
+It was absent from the existing HUD atlas. The former compact-frame1077 consumer
+selected VFRA65, so changing a numeric ID alone could not correct it.
+Bank-c HFX1417–1430 are 81×68. Their alpha matches the Temple frames, but every
+frame differs visibly. AL-c[0x2f82] selects palette129 and tint[229,220,214]; the
+Temple tint[247,235,201] cannot be reused. Full frame hashes are retained in
+`app/original-vault-knowledge-camp.json` and independently pinned by the asset checker.
+
+Input hashes: `levl2001.dat`
+`97cdb6e170f68b462b5b36c42c99a598b0466e0131a105f30612f50d7f16e40c`;
+`levl2001.hdr`
+`4b89ef6d64e4010bb3ec3b5985d0edc8e710504e8b1bc75a6ae688bd6eb070a6`;
+`pal0-c.dat`
+`6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53`;
+`al0-c.dat`
+`afc46e78b56f901f1331ceb0b02052eeaba2b6446b8747a03d0f12639ae17310`.
+The EXE and HFX identity remain those of the accepted Temple proof.
+
+The independently reviewed data-only packet reproduced the body and all fourteen
+glows, matched three known bank-c spell/HUD crops, and checked every original
+Temple PNG/frame hash. It used checked PE sections, PSFB decoding and PNG reads,
+not native execution or final original rasterization. The scoped importer now
+accepts `--mission 1` and owns only the new camp metadata/atlas; its default
+Mission3 preset remains separate. The asset checker verifies exact reviewed camp
+RGBA, idempotence, failed-input preservation and unchanged Temple/shared assets.
+
+The application resolves only this authored Mission1 source and the accepted
+Mission3 source. Both use the existing renderer, saved cursor, first-display
+latch, socket and migration owners. Collected placement changes to socket1072;
+IDs, RNG, phase6 hide and timer82 unlock are unchanged. The new atlas is required
+before the first Mission1 scene and uses the existing nearest-filtered sprite path.
+
+Focused caller tests prove initialization, independent marker/gift cursors,
+legacy/nonzero checkpoint behavior, first display and preserved hide/unlock visits.
+The ordinary acceptance route must first earn Land Bridge, cast from the dry
+shore, complete the crossing and handle the authored guard using normal input.
+It then covers genuine Vault acquisition, nonzero-cursor public Save/Load and
+home-island camp construction. A read-only real-render observer must capture the
+first actual visible HFX1077 body and exact glow derived from independently counted
+presentation visits, before the six-visit hide; a later screenshot cannot substitute.
+This note does not claim that the rendered episode or standard gates have passed.
