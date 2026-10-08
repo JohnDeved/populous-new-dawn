@@ -304,6 +304,20 @@
           "producer": "scripts/import-vault-knowledge.py"
         },
         {
+          "path": "app/original-vault-knowledge-camp.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-vault-knowledge.py"
+        },
+        {
+          "path": "public/original/vault-knowledge-camp.png",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-vault-knowledge.py"
+        },
+        {
           "path": "public/original/hud.png",
           "type": "file",
           "tracked": true,

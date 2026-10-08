@@ -71,6 +71,7 @@ export function loadTexture(kind: string) {
     kind === nativeUnits.atlas ||
     kind === 'effects' ||
     kind === 'vault-knowledge' ||
+    kind === 'vault-knowledge-camp' ||
     kind === 'selection' ||
     kind === 'unit-health'
   ) {

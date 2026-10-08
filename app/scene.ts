@@ -28,6 +28,7 @@ import {
 import { ObjectPanels } from './object-panels.ts'
 import pointerPalette from './original-pointer.json' with { type: 'json' }
 import nativeUnits from './original-units.json'
+import { vaultKnowledgeAtlas } from './vault-appearance.ts'
 import { ProjectileMotion } from './projectile-motion.ts'
 import { loadTexture, releaseGroup, retryFailedTexture, texture } from './scene-assets.ts'
 import { ScenePicking } from './scene-picking.ts'
@@ -339,8 +340,8 @@ export class GameScene {
     const atlasAsset = retryFailedTexture('atlas'),
       unitAtlasAsset =
         nativeUnits.atlas === 'atlas' ? atlasAsset : retryFailedTexture(nativeUnits.atlas),
-      knowledgeAtlasAsset =
-        world.outcome.level === 3 ? retryFailedTexture('vault-knowledge') : null,
+      knowledgeAtlas = vaultKnowledgeAtlas(world.outcome.level),
+      knowledgeAtlasAsset = knowledgeAtlas ? retryFailedTexture(knowledgeAtlas) : null,
       preload = (
         [
           ['effects', loadTexture('effects'), false],
@@ -348,7 +349,7 @@ export class GameScene {
           ['unit-health', loadTexture('unit-health'), false],
           ['atlas', atlasAsset, true],
           [nativeUnits.atlas, unitAtlasAsset, true],
-          ...(knowledgeAtlasAsset ? [['vault-knowledge', knowledgeAtlasAsset, true] as const] : []),
+          ...(knowledgeAtlasAsset ? [[knowledgeAtlas!, knowledgeAtlasAsset, true] as const] : []),
         ] as const
       ).map(([name, asset, required]) =>
         asset.ready.then(loaded => {

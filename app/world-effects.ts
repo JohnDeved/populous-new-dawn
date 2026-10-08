@@ -37,9 +37,9 @@ import { terrainSupportsPerson } from './person-collision.ts'
 import type { NativeModel } from './model-faces.ts'
 import {
   createKnowledgeGlow,
-  isTempleKnowledgeGift,
-  templeKnowledgeSource,
-  vaultKnowledgeFrame,
+  vaultKnowledgeAppearance,
+  vaultKnowledgeGiftAppearance,
+  vaultKnowledgeSource,
   vaultKnowledgePlacement,
 } from './vault-appearance.ts'
 
@@ -183,16 +183,17 @@ export function createGift(
 
 // Creation/checkpoint migration changes presentation only, never reward timing or IDs.
 export function initializeVaultKnowledgeGift(w: World, gift: Gift) {
-  if (gift.reward !== 'temple' || isTempleKnowledgeGift(gift)) return
-  const shrine = templeKnowledgeSource(w, gift)
-  if (!shrine) return
+  if (vaultKnowledgeGiftAppearance(w, gift)) return
+  const shrine = vaultKnowledgeSource(w, gift),
+    knowledge = shrine && vaultKnowledgeAppearance(shrine, w.outcome.level)
+  if (!shrine || !knowledge || gift.reward !== knowledge.reward) return
   const placement = vaultKnowledgePlacement(shrine)
   gift.x = placement.x
   gift.z = placement.z
-  gift.frame = vaultKnowledgeFrame(shrine.reward, shrine.rewardModel, w.outcome.level)!
+  gift.frame = knowledge.body.source
   gift.height =
     (terrainPointHeight(w.land, nativePosition(w, placement)) + placement.heightOffset) / 45
-  gift.animation ??= createKnowledgeGlow()
+  gift.animation ??= createKnowledgeGlow(knowledge)
   gift.sprite ??= { sequence: 'vault-knowledge-glow', frame: 0, fixed: true }
 }
 export function createAngel(w: World, team: Team, p: Point) {
