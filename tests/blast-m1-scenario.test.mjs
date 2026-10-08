@@ -18,7 +18,7 @@ test('enemy admission has no stationary neighborhood helper or pixel offsets', (
 const readyPreparation = () => ({ preparationReady: true, rangeStatus: 'probed', targetError: null, pixel: { x: 50, y: 60 } })
 const pointerProbe = () => ({ move: { turn: 10 }, draw: { turn: 10, renderFrame: 40 }, errors: [] })
 const admissionRow = (gates = { hover: true, pixel: true, range: true }) => ({ gates,
-  ready: Object.values(gates).every(Boolean), withinBounds: true, rangeStatus: 'probed', targetError: null, errors: [] })
+  ready: Object.values(gates).every(Boolean), withinBounds: true, rangeStatus: 'probed', targetError: null, errors: [], failures: [] })
 function pointerHarness({ move = async () => {}, checkStop = async () => {} } = {}) {
   const retained = [], calls = [], controller = new AbortController()
   let time = 100
@@ -74,6 +74,7 @@ test('missing draw, expired bounds and real observer errors remain failures', as
     [admissionRow(), { ...pointerProbe(), errors: ['observer failure'] }, /Pointer observation failed/],
     [{ ...admissionRow(), errors: ['episode failure'] }, pointerProbe(), /Episode observation failed/],
     [{ ...admissionRow(), withinBounds: false }, pointerProbe(), /window expired/],
+    [{ ...admissionRow({ hover: false }), failures: ['scene'] }, pointerProbe(), /Setup observation failed/],
   ]) {
     const { attempt } = pointerHarness()
     await attempt.move(readyPreparation())
@@ -143,4 +144,13 @@ test('ground primer excludes persons while retaining actual non-person terrain s
   assert.doesNotMatch(primer, /pickUnit|pickWorldObject/)
   assert.match(primer, /const occupied = person !== null/)
   assert.match(primer, /pickedCell.x === wanted.x && pickedCell.y === wanted.y && error === null/)
+})
+
+
+test('an unprobed range never becomes the first observed range failure', () => {
+  const preparation = createM1EnemyPreparation()
+  preparation.observe({ turn: 10, gates: { pixel: false, range: false }, rangeStatus: 'unprobed', ready: false })
+  assert.equal(preparation.read().firstFailures.range, undefined)
+  preparation.observe({ turn: 11, gates: { pixel: true, range: false }, rangeStatus: 'probed', ready: false })
+  assert.equal(preparation.read().firstFailures.range.turn, 11)
 })

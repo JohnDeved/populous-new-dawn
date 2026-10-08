@@ -16,8 +16,10 @@ export function createM1EnemyPreparation(capacity = 96) {
       assert.ok(Number.isInteger(row.turn) && row.turn >= 0)
       total++; rows.push(row)
       if (rows.length > capacity) rows.shift()
-      for (const [gate, passed] of Object.entries(row.gates))
+      for (const [gate, passed] of Object.entries(row.gates)) {
+        if (gate === 'range' && row.rangeStatus === 'unprobed') continue
         if (!passed && !firstFailures[gate]) firstFailures[gate] = row
+      }
       if (row.gates.moving) firstMoving ??= row
       if (row.preparationReady) firstPreparationReady ??= row
       if (row.ready) firstReady ??= row
@@ -51,6 +53,7 @@ export function createM1PointerAttempt({ checkStop, signal, move, retain, now = 
       assert.ok(probe?.move && probe?.draw, 'Actual preparation event and first natural draw required')
       assert.deepEqual(probe.errors, [], 'Pointer observation failed')
       assert.deepEqual(row.errors, [], 'Episode observation failed')
+      assert.deepEqual(row.failures, [], 'Setup observation failed')
       assert.equal(row.withinBounds, true, 'The first-draw admission window expired')
       const missingGates = Object.entries(row.gates).filter(([, passed]) => !passed).map(([gate]) => gate)
       const ready = missingGates.length === 0 && row.rangeStatus === 'probed' && row.targetError === null
