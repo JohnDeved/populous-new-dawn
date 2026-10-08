@@ -31,11 +31,18 @@ export interface BuildingAcquisitionTriangle {
   flags: 0x80 | 0x82
 }
 
+interface AcquisitionFace {
+  mode: 6 | 7
+  count: number
+  tile: number
+  uv: number[][]
+}
+
 const { 103: model } = models,
   sunlight = sunlightShades(),
-  faces = model.modes.map((mode, face) => {
+  faces = model.modes.map((mode, face): AcquisitionFace => {
     if (mode !== 6 && mode !== 7) throw new Error('Unsupported acquisition material')
-    return { mode, count: model.faces[face * 2], tile: model.tiles[face], uv: [] as number[][] }
+    return { mode, count: model.faces[face * 2], tile: model.tiles[face], uv: [] }
   })
 let vertex = 0
 for (const face of faces) {

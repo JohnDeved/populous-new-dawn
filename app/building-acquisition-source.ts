@@ -19,11 +19,13 @@ export function buildingAcquisitionSource(world: World, reward: Gift['reward'], 
   if ((shrine.rewardRecipient ?? 0) !== world.manaWorld.playerTribe) return
   const { objects } = missionData(1).level
   const head = objects.find(object => object.index === 1),
-    gift = objects.find(object => object.index === 2)
+    gift = objects.find(object => object.index === 2),
+    settings = head?.settings
   if (
+    !settings ||
     head?.type !== 6 ||
     head.model !== 6 ||
-    head.settings?.[0] !== 4 ||
+    settings[0] !== 4 ||
     head.x !== shrine.x ||
     head.z !== shrine.z ||
     gift?.type !== 6 ||
@@ -35,7 +37,7 @@ export function buildingAcquisitionSource(world: World, reward: Gift['reward'], 
   )
     return
   const slots = Array.from({ length: 10 }, (_, slot) => slot).filter(
-    slot => (head.settings[6 + slot * 2] | (head.settings[7 + slot * 2] << 8)) === 3
+    slot => (settings[6 + slot * 2] | (settings[7 + slot * 2] << 8)) === 3
   )
   if (slots.length !== 1) return
   return {
