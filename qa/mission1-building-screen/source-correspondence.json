@@ -195,11 +195,11 @@
     },
     {
       "path": "scripts/local-render/mission1-building-screen-witness.mjs",
-      "sha256": "ca8d06e9fbdf751060fcc25173f4d75faa086a826d017258a098c21debbd95c1"
+      "sha256": "bc0f22fbd4ea700c82d5d5e393bbc0c901f31da58dbc58b8be817f9f77015342"
     },
     {
       "path": "qa/mission1-building-screen/screen-contract.test.mjs",
-      "sha256": "7a0a88591123a2be732319c807bf1c5c3d7b7f24df5f34698e09d481bf9d8f7a"
+      "sha256": "c0e697d37cbf35a5d67d9626b8c534d6a0f4cae2e21f263f8c2ce420d37eb7c3"
     },
     {
       "path": "scripts/local-render/mission1-building-drawer-smoke.mjs",
@@ -207,11 +207,11 @@
     },
     {
       "path": "scripts/local-render/mission1-building-screen-load.mjs",
-      "sha256": "9a594645235a682adff42129d2a9679c2a76a3967fd32c10b60a12d2dc1e9aeb"
+      "sha256": "8e698639ba309326f44aab929dc948451a311abe5079cc931a9192fb69f0b61c"
     },
     {
       "path": "scripts/local-render/mission1-building-screen-continuation.mjs",
-      "sha256": "5a95dda51cdebed98fa48413cf9fb646f88d1111e6403fca3a95cd3565517bdd"
+      "sha256": "8dd317638aaf328f4fdc774937b2205c4a5168e547100d42f0fc6cbec01e1791"
     }
   ],
   "routeSource": {
@@ -371,6 +371,27 @@
     "fixture": {
       "path": "qa/mission1-building-screen/fixtures/saved1300.json",
       "sha256": "b7f9175784e7b34e608c043e00601ae1cda58d85f6b9d9d30c2c4687d66a77f0"
+    },
+    "resizeSample": {
+      "sizes": [
+        [
+          1440,
+          1000
+        ],
+        [
+          1280,
+          960
+        ]
+      ],
+      "drawsPerSize": 16,
+      "viewportChanges": 1,
+      "source": "Existing passive draw hook, fresh actual renderer counter, current mapped position buffer and locked Buildings DOM; current pure production interpolation/mapping/collector at paused fraction1.",
+      "capacity": {
+        "triangles": 175,
+        "vertices": 525,
+        "attributeBytes": 14700
+      },
+      "limits": "Fixed resource identities/attribute capacities only; excludes atlas/framebuffer/total GPU memory. Sample wall interval includes observer overhead and is not draw CPU time or hardware throughput. Each draw preserves state/RNG; no equality is required across paused visits."
     }
   }
 }

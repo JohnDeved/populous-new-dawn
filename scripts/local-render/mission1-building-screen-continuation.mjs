@@ -158,6 +158,16 @@ export default async function mission1BuildingScreenContinuation({ page, root, o
     report.durationSentinel = assertMission1SerializedCheckpoint(saved, serializedSaved)
     save()
     await load(true, true)
+    await button('buildings B').click()
+    for (const [label, width, height] of [['before', 1440, 1000], ['after', 1280, 960]]) {
+      await page.evaluate(options => window.m1BuildingScreen.armDrawSample(options), { label, width, height })
+      if (label === 'after') await page.setViewportSize({ width, height })
+      await page.waitForFunction(label => {
+        const state = window.m1BuildingScreen.status()
+        if (state.errors.length) throw Error(state.errors.join('\n'))
+        return state.samples[label] === 16
+      }, label, { timeout: 30000, polling: 50 })
+    }
     await button('Game settings').click()
     await page.evaluate(async () => {
       const { installMission1BuildingRestartWitness } = await import('/scripts/local-render/mission1-building-screen-load.mjs')

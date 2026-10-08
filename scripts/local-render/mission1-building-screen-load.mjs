@@ -53,7 +53,10 @@ function currentSceneRef(scene) {
 export async function prepareMission1BuildingLoad({ shamanId, birth }) {
   if (window.m1BuildingLoad || window.restoreVaultLoadWitness || window.m1BuildingScreen)
     throw Error('A lifecycle observer is already installed')
-  const { GameScene } = await import('/app/scene.ts')
+  const [{ GameScene }, { buildingDrawPoint, interpolateWorshipPoint, interpolateBuildingSubmissions },
+    { collectBuildingAcquisitionTriangles }] = await Promise.all([
+    import('/app/scene.ts'), import('/app/worship-acquisition-layout.ts'), import('/app/building-acquisition-triangles.ts'),
+  ])
   installMission1VaultCheckpointState()
   let loadedWorld = null, start
   const { store } = installMission1VaultLoadWitness(world => { loadedWorld = world })
@@ -62,7 +65,19 @@ export async function prepareMission1BuildingLoad({ shamanId, birth }) {
       expectedWorld: () => loadedWorld, sceneRef: currentSceneRef,
       attach(scene, ref, owner) {
         window.testSceneRef = ref; window.testScene = scene; window.testStore = owner
-        installMission1BuildingScreenWitness({ shamanId, birth })
+        installMission1BuildingScreenWitness({ shamanId, birth,
+          mapDraw(command, current, width, height, previous) {
+            const anchor = interpolateWorshipPoint(command.anchor,
+              previous?.giftId === command.giftId && previous.geometry === command.geometry ? previous.anchor : undefined, 1)
+            const target = buildingDrawPoint(command.geometry.target, command.geometry, current, 1, anchor)
+            const submissions = interpolateBuildingSubmissions(command, previous, 1).map(submission => ({ ...submission,
+              projected: submission.projected.map(([x, y]) => {
+                const point = buildingDrawPoint({ x, y }, command.geometry, current, submission.flight, anchor)
+                return [point.x, point.y]
+              }) }))
+            return { target, triangles: collectBuildingAcquisitionTriangles({ whole: command.whole, submissions }, { width, height }) }
+          },
+        })
       } })
   } catch (error) { window.restoreVaultLoadWitness?.(); throw error }
   const owner = window.m1BuildingLoad = {

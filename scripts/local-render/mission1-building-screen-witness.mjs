@@ -1,6 +1,6 @@
 // Page-serializable passive observation. Original callbacks remain the only
 // owners of turns, UI visits, geometry feedback, RNG, and GPU drawing.
-export function installMission1BuildingScreenWitness({ shamanId, birth = null } = {}) {
+export function installMission1BuildingScreenWitness({ shamanId, birth = null, mapDraw = null } = {}) {
   if (window.m1BuildingScreen) throw Error('A building-screen observer is already installed')
   const installation = window.m1BuildingScreenInstallation = { resumed: !!birth, state: null }
   const scene = window.testSceneRef.current, world = scene.world, clock = scene.gameClock,
@@ -10,9 +10,9 @@ export function installMission1BuildingScreenWitness({ shamanId, birth = null } 
       !Object.hasOwn(world.worshipAcquisition.controllers, 'building')) throw Error('Current authored M1 screen product required')
   const evidence = { source: { level: 1, vaultId: vault.id, shamanId }, birth: birth && structuredClone(birth),
     handoffs: 0, worldVisits: 0, uiVisits: 0, draws: 0, grants: 0, stages: {}, phases: {},
-    recentUi: [], skippedGpuDraws: 0, skippedGpuSamples: [], frames: {}, errors: [], restored: false }
+    recentUi: [], skippedGpuDraws: 0, skippedGpuSamples: [], frames: {}, samples: {}, errors: [], restored: false }
   let giftId = birth?.gift.id ?? null, beforeTurn = null, closed = false,
-    controller = world.worshipAcquisition.controllers.building
+    controller = world.worshipAcquisition.controllers.building, sample = null, resources = null, referenceGeometry = null
   const error = failure => { if (evidence.errors.length < 16) evidence.errors.push(String(failure?.stack ?? failure)) }
   const observe = fn => { try { return fn() } catch (failure) { error(failure) } }
   const call = (original, receiver, args) => {
@@ -72,9 +72,66 @@ export function installMission1BuildingScreenWitness({ shamanId, birth = null } 
       gl.readPixels(0, 0, gpu.width, gpu.height, gl.RGBA, gl.UNSIGNED_BYTE, pixels)
       frame.opaquePixels = 0
       for (let offset = 3; offset < pixels.length; offset += 4) if (pixels[offset]) frame.opaquePixels++
-      if (label === 'whole' || label === 'flight') check(frame.opaquePixels > 0, 'Actual submitted building GPU frame is empty')
+      if (label === 'whole' || label === 'flight' || label.startsWith('resize-'))
+        check(frame.opaquePixels > 0, 'Actual submitted building GPU frame is empty')
     }
     if (label === 'handoff') check(!frame.worldGiftVisible, 'Gift body/glow group remains visible after hide')
+  }
+  const sampleResources = () => {
+    const surface = presentation.buildingSurface, mesh = surface?.scene.children[0]
+    check(surface && mesh && !surface.disposed && mesh.geometry === surface.geometry && mesh.material === surface.material,
+      'Missing existing acquisition surface/mesh')
+    check(surface.material.uniforms.atlas.value === surface.atlas, 'Acquisition atlas owner changed')
+    const refs = [surface, surface.renderer, surface.renderer.domElement, surface.geometry, surface.material,
+      surface.atlas, surface.scene, surface.camera, mesh, surface.material.uniforms.atlas.value]
+    let bytes = 0
+    for (const [field, name, size] of [['position', 'position', 3], ['uv', 'uv', 2], ['light', 'faceLight', 1], ['cutout', 'alphaCutout', 1]]) {
+      const attribute = surface[field], array = attribute?.array
+      check(attribute === surface.geometry.attributes[name] && array instanceof Float32Array &&
+        attribute.itemSize === size && array.length === 525 * size, 'Acquisition fixed attribute capacity changed')
+      refs.push(attribute, array, array.buffer); bytes += array.byteLength
+    }
+    check(bytes === 14700, 'Acquisition attribute byte capacity changed')
+    if (resources) check(refs.every((ref, index) => ref === resources[index]), 'Acquisition resources were replaced')
+    else resources = refs
+    return bytes
+  }
+  const sampleDraw = (command, gpuProof) => {
+    if (!sample || sample.count === 16) return
+    check(world.paused && controller?.active && world.gifts.some(g => g.id === giftId) && !world.unlockedCamp,
+      'Resize sample lost its actual paused active gift')
+    const shell = scene.container.parentElement, canvas = presentation.canvas, gpu = presentation.buildingSurface?.renderer.domElement,
+      ratio = devicePixelRatio || 1
+    if (innerWidth !== sample.width || innerHeight !== sample.height ||
+      canvas.width !== Math.round(shell.clientWidth * ratio) || canvas.height !== Math.round(shell.clientHeight * ratio) ||
+      gpu?.width !== canvas.width || gpu?.height !== canvas.height) return
+    if (!command || !gpuProof.fresh || presentation.buildingSurface.geometry.drawRange.count === 0) return
+    if (!sample.count) capture(`resize-${sample.label}`, command, gpuProof)
+    const measured = hud(), surface = presentation.buildingSurface, vertices = surface.geometry.drawRange.count
+    check(measured.selected && measured.disabled && measured.rectangle?.width > 0, 'Resize sample needs the actual locked Buildings card')
+    check(JSON.stringify(controller.geometry) === referenceGeometry && JSON.stringify(command.geometry) === referenceGeometry,
+      'Resize mutated the frozen acquisition geometry')
+    const bytes = sampleResources(), current = { viewport: measured.viewport, targetRect: measured.rectangle, hudScale: measured.hudScale },
+      expected = mapDraw(command, current, shell.clientWidth, shell.clientHeight, presentation.previousBuilding), r = measured.rectangle, scale = measured.hudScale,
+      target = { x: r.x + Math.trunc(r.width / scale / 2) * scale, y: r.y + Math.trunc(r.height / scale / 2) * scale }
+    check(expected.target.x === target.x && expected.target.y === target.y, 'Resized endpoint missed the actual card')
+    check(vertices === expected.triangles.length * 3 && vertices > 0 && vertices <= 525, 'Resized submitted triangle count differs')
+    let vertex = 0
+    for (const triangle of expected.triangles) for (const point of triangle.points) {
+      check(surface.position.array[vertex * 3] === Math.fround(point.x) &&
+        surface.position.array[vertex * 3 + 1] === Math.fround(point.y) && surface.position.array[vertex * 3 + 2] === 0,
+      'Actual submitted corner differs from current production mapping')
+      vertex++
+    }
+    if (!sample.count) {
+      sample.first = { hud: measured, target, corners: Array.from(surface.position.array.slice(0, 9)), gpuFrame: gpuProof.afterFrame,
+        canvas: { width: canvas.width, height: canvas.height }, attributeBytes: bytes, vertexCapacity: 525, triangleCapacity: 175 }
+      sample.startedAt = performance.now()
+    }
+    sample.count++; sample.lastGpuFrame = gpuProof.afterFrame
+    sample.minVertices = Math.min(sample.minVertices ?? vertices, vertices); sample.maxVertices = Math.max(sample.maxVertices ?? vertices, vertices)
+    sample.resourcesStable = true; sample.referenceGeometryUnchanged = true; sample.submittedMappingMatches = true
+    if (sample.count === 16) { sample.finishedAt = performance.now(); sample.elapsedMs = sample.finishedAt - sample.startedAt }
   }
   const wrap = (owner, key, factory) => {
     const descriptor = Object.getOwnPropertyDescriptor(owner, key), original = owner[key]
@@ -186,6 +243,7 @@ export function installMission1BuildingScreenWitness({ shamanId, birth = null } 
         if (fresh && command && !command.whole && command.submissions.some(face => face.flight > 0) &&
             presentation.buildingSurface.geometry.drawRange.count > 0) capture('flight', command, gpuProof)
         if (building?.giftId === giftId && !building.active && world.unlockedCamp) capture('terminal', command, gpuProof)
+        sampleDraw(command, gpuProof)
         check(frozen() === before, 'RAF draw mutated saved acquisition/RNG state')
       })
       return result
@@ -197,7 +255,19 @@ export function installMission1BuildingScreenWitness({ shamanId, birth = null } 
   const api = {
     status: () => ({ giftId, birth: evidence.birth?.turn ?? null, handoffs: evidence.handoffs, grants: evidence.grants,
       whole: !!evidence.frames.whole, flight: !!evidence.frames.flight, terminal: !!evidence.frames.terminal,
-      buildingActive: world.worshipAcquisition.controllers.building?.active ?? false, errors: [...evidence.errors] }),
+      buildingActive: world.worshipAcquisition.controllers.building?.active ?? false,
+      samples: Object.fromEntries(Object.entries(evidence.samples).map(([label, entry]) => [label, entry.count])), errors: [...evidence.errors] }),
+    armDrawSample({ label, width, height }) {
+      checkOwner()
+      check(typeof mapDraw === 'function' && (!sample || sample.count === 16), 'Draw sample cannot be armed')
+      check(label === 'before' && !sample && width === 1440 && height === 1000 ||
+        label === 'after' && sample?.label === 'before' && width === 1280 && height === 960, 'Only the declared single resize is supported')
+      check(world.paused && controller?.active && controller.giftId === giftId && world.gifts.some(g => g.id === giftId),
+        'Draw sample requires actual paused active ownership')
+      sampleResources(); referenceGeometry ??= JSON.stringify(controller.geometry)
+      sample = evidence.samples[label] = { label, width, height, count: 0,
+        limits: '16 natural production draws; attribute bytes exclude atlas/framebuffer/total GPU memory. Elapsed wall time includes observation overhead and is not CPU time or a hardware rate.' }
+    },
     read: () => structuredClone(evidence),
     close() {
       check(!closed, 'Building-screen observer already closed'); closed = true

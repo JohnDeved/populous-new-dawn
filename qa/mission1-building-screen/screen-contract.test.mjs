@@ -14,7 +14,7 @@ import continuation, { assertMission1BuildingRestart, runMission1BuildingRestart
 import { armMission1BuildingSceneStart, installMission1BuildingRestartWitness } from '../../scripts/local-render/mission1-building-screen-load.mjs'
 import { parseOptions } from '../../scripts/local-render/harness.mjs'
 
-function fixture(t, { pixels = true, mutateDraw = false, initialBirth = null, skipGpu = false, skipHandoff = false, lazySurface = false, missedResume = false } = {}) {
+function fixture(t, { pixels = true, mutateDraw = false, initialBirth = null, skipGpu = false, skipHandoff = false, lazySurface = false, missedResume = false, mapDraw = null } = {}) {
   const rect = { x: 3, y: 260, width: 46, height: 52 }, geometry = {
     viewport: { x: 200, y: 0, width: 440, height: 480 }, origin: { x: 350, y: 180 },
     target: { x: 26, y: 286 }, targetRect: rect, targetHud: { x: 26, y: 286 }, hudScale: 1,
@@ -103,7 +103,7 @@ function fixture(t, { pixels = true, mutateDraw = false, initialBirth = null, sk
     birth(); world.turn = initialBirth.turn + 6; world.gifts[0].phase = 0; world.gifts[0].remaining = 76; start()
   }
   if (missedResume) { world.gifts = []; world.unlockedCamp = true; world.worshipAcquisition.controllers.building.active = false }
-  installMission1BuildingScreenWitness({ shamanId: 30, birth: initialBirth })
+  installMission1BuildingScreenWitness({ shamanId: 30, birth: initialBirth, mapDraw })
   const api = window.m1BuildingScreen
   t.after(() => { if (globalThis.window?.m1BuildingScreen === api) api.close(); delete globalThis.window })
   const close = () => {
@@ -461,6 +461,66 @@ test('actual serialized saved1300 accepts only the identified positive-Infinity 
   }
   assert.equal(live.buildingGifts[0].duration, Infinity)
   assert.equal(serialized.buildingGifts[0].duration, null)
+})
+
+function resizeFixture(t) {
+  const f = fixture(t, { initialBirth: { turn: 10, gift: { id: 54 } },
+    mapDraw(_command, current) {
+      const r = current.targetRect, scale = current.hudScale
+      return { target: { x: r.x + Math.trunc(r.width / scale / 2) * scale, y: r.y + Math.trunc(r.height / scale / 2) * scale },
+        triangles: [{ points: [{ x: 1, y: 2 }, { x: 3, y: 4 }, { x: 5, y: 6 }] }] }
+    } })
+  f.ui(false, 0.2); f.world.paused = true
+  const surface = f.scene.worshipPresentation.buildingSurface, root = f.scene.container.parentElement,
+    canvas = f.scene.worshipPresentation.canvas
+  surface.atlas = {}; surface.camera = {}; surface.material = { uniforms: { atlas: { value: surface.atlas } } }
+  surface.scene = { children: [{ geometry: surface.geometry, material: surface.material }] }
+  surface.geometry.attributes = {}
+  for (const [field, name, size] of [['position', 'position', 3], ['uv', 'uv', 2], ['light', 'faceLight', 1], ['cutout', 'alphaCutout', 1]])
+    surface[field] = surface.geometry.attributes[name] = { itemSize: size, array: new Float32Array(525 * size) }
+  surface.position.array.set([1, 2, 0, 3, 4, 0, 5, 6, 0])
+  globalThis.devicePixelRatio = 1; globalThis.innerWidth = root.clientWidth = canvas.width = 1440
+  globalThis.innerHeight = root.clientHeight = canvas.height = 1000
+  t.after(() => { delete globalThis.devicePixelRatio; delete globalThis.innerWidth; delete globalThis.innerHeight })
+  return { ...f, surface, root, canvas }
+}
+
+test('one existing draw observer samples16+16 actual-sized callbacks and fixed resource capacities', t => {
+  const f = resizeFixture(t), geometry = structuredClone(f.world.worshipAcquisition.controllers.building.geometry)
+  f.api.armDrawSample({ label: 'before', width: 1440, height: 1000 })
+  for (let i = 0; i < 16; i++) f.draw()
+  assert.equal(f.api.status().samples.before, 16)
+  f.api.armDrawSample({ label: 'after', width: 1280, height: 960 })
+  globalThis.innerWidth = f.root.clientWidth = 1280; globalThis.innerHeight = f.root.clientHeight = 960
+  f.draw() // Existing canvas is still at the prior size: no new sample credit.
+  assert.equal(f.api.status().samples.after, 0)
+  f.canvas.width = 1280; f.canvas.height = 960
+  for (let i = 0; i < 16; i++) f.draw()
+  const e = f.close()
+  assert.deepEqual(e.errors, []); assert.equal(e.samples.after.count, 16)
+  assert.equal(e.samples.before.first.attributeBytes, 14700)
+  assert.equal(e.samples.after.first.vertexCapacity, 525)
+  assert.equal(e.samples.after.first.triangleCapacity, 175)
+  assert.equal(e.samples.after.resourcesStable, true); assert.equal(e.samples.after.submittedMappingMatches, true)
+  assert.ok(e.frames['resize-before'].opaquePixels > 0 && e.frames['resize-after'].opaquePixels > 0)
+  assert.deepEqual(f.world.worshipAcquisition.controllers.building.geometry, geometry)
+  assert.equal(f.calls.filter(call => call === 'draw').length, 33)
+})
+
+test('resize observation rejects replaced fixed buffers, wrong submitted corners and mutated reference geometry', t => {
+  const f = resizeFixture(t)
+  f.api.armDrawSample({ label: 'before', width: 1440, height: 1000 })
+  const array = f.surface.position.array
+  f.surface.position.array = array.slice(); f.draw()
+  assert.match(f.api.status().errors.at(-1), /resources were replaced/)
+  assert.match(f.api.read().frames['resize-before'].buildingPng, /^data:image\/png;base64,/)
+  f.surface.position.array = array; array[0] = 999; f.draw()
+  assert.match(f.api.status().errors.at(-1), /submitted corner differs/)
+  array[0] = 1; f.world.worshipAcquisition.controllers.building.geometry.target.x++; f.draw()
+  assert.match(f.api.status().errors.at(-1), /frozen acquisition geometry/)
+  assert.equal(f.api.status().samples.before, 0)
+  assert.equal(f.calls.filter(call => call === 'draw').length, 3)
+  f.close()
 })
 
 test('component smoke uses one production-interface draw and disposes its detached owner even after failure', async t => {
