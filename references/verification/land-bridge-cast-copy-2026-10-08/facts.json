@@ -1,0 +1,88 @@
+{
+  "productHead": "501fcc1ac218d859551e286fd26219c98951f39b",
+  "base": "86c0dd37b1a7879a84d5a55ab9bca4b14beed029",
+  "qaHead": "e504f73f698bb852c4091fe004e5a043e583772e",
+  "productCorrespondence": "app/, public/, package.json and package-lock.json are byte-identical between productHead and qaHead.",
+  "ordinaryRun": {
+    "status": "passed",
+    "review": "accepted",
+    "durationSeconds": 89.686,
+    "mission": 1,
+    "initialShots": 0,
+    "earnedShotTurn": 399,
+    "earnedShots": 1,
+    "trustedCanvasCast": true,
+    "castTurn": 539,
+    "stockBefore": 1,
+    "stockAfter": 0,
+    "casterId": 30,
+    "projectileId": 1195,
+    "effectId": 1256,
+    "allocationTurn": 548,
+    "allocationControllerTurn": 0,
+    "message": "Land Bridge cast.",
+    "messageLifetimeSeconds": 9.0,
+    "firstObservedVisibleDomTurn": 549,
+    "firstObservedVisibleControllerTurn": 1,
+    "rendererConsumerBoundSameController": true,
+    "screenshotBracketTurns": [
+      551,
+      570
+    ],
+    "screenshotControllerTurns": [
+      3,
+      22
+    ],
+    "errors": [],
+    "observerRestored": true,
+    "cleanupVerified": true,
+    "continuationVerified": true,
+    "checkpointCreated": false,
+    "reviewedAt": "2026-10-08T21:20:47Z",
+    "finalVerdictSha256": "84fccb9bfb59560938e83cb6ca960e5836efd93ed0622bfbbdf894b6d5aeac37"
+  },
+  "capture": {
+    "browserVersion": "154.0.8037.92",
+    "headless": true,
+    "viewport": {
+      "width": 1440,
+      "height": 1000,
+      "dpr": 1
+    },
+    "file": "land-bridge-acknowledgment.png",
+    "sha256": "d1a178cf900fb7b1dacebb5cdf7271973a328d2b2f530d6b86ebd757caae9df5",
+    "unchangedSourceBytes": true,
+    "renderer": "No hardware renderer or native-pixel equivalence claim."
+  },
+  "standardChecks": {
+    "head": "501fcc1ac218d859551e286fd26219c98951f39b",
+    "status": "passed",
+    "stages": 12,
+    "testFiles": 261,
+    "tests": 1540,
+    "pass": 1540,
+    "failed": 0,
+    "aggregateSha256": "bed6a801cf5c608591b936e7dbea8ed9e7106901668dec783f1262d60a8a6b71"
+  },
+  "strictLint": {
+    "status": "failed",
+    "oxlintFindings": 25,
+    "eslintFindings": 3,
+    "attribution": "Independently reviewed as inherited on unchanged base lines."
+  },
+  "rawEvidenceSha256": {
+    "receipt.json": "c3b344c01bbfd38926dc49ed6cbeb7f2a2f0a21442d2f7c94a7757d1e9067266",
+    "land-bridge-feedback.json": "aadf0ce1de3942737bbcd2b792c780a47e6826e585797c5b84e5215a2b01c4f4",
+    "outer-receipt.json": "1c9a43b0d8c3e424765dc7bb7a153e4c1cd2036b85f657170f91dfab073aaf85",
+    "standard-aggregate.json": "bed6a801cf5c608591b936e7dbea8ed9e7106901668dec783f1262d60a8a6b71"
+  },
+  "limits": [
+    "One ordinary earned Mission 1 Bridge cast and visible acknowledgment.",
+    "First observed visible DOM is not a compositor-frame timestamp.",
+    "Screenshot brackets turns 551\u2013570 after terrain work began; it is not a turn-zero or pre-terrain screenshot.",
+    "No completed crossing, campaign victory, native pixel equivalence, or hardware performance claim.",
+    "The supplied-stock component regression is separate from this ordinary episode.",
+    "No before-change screenshot was captured.",
+    "Issue 58 remains open beyond this one-string correction."
+  ]
+}
