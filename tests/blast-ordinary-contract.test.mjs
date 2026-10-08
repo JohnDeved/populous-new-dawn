@@ -11,7 +11,7 @@ const position = turn => ({ x: 1000 + (turn - 1) * 10, y: 2000, h: 120 })
 const browserPoint = p => ({ x: (p.x - 2048) / 256, z: -(p.y + 2048) / 256 })
 const hover = expectation => ({ turn: 1, targetId: 3, mode: 'blast', canvasOwned: true, hitId: 3,
   visible: expectation === 'candidate', lines: expectation === 'candidate' ? 16 : 0, context: copy(context), position: position(1),
-  previousTurn: 0, previousPosition: position(0), orderModel: 19 })
+  previousTurn: 0, previousPosition: position(0), orderModel: 3 })
 const release = expectation => ({ point: { x: 10, y: 20 },
   ...(expectation === 'baseline' ? { targetCheck: { range: { phase: 'before-handler', turn: 1, targetId: 3, sameOriginal: true, targetError: null },
     pixel: { phase: 'after-handler-diagnostic', turn: 1, personId: 3, point: { x: 10, y: 20 } } } } : {}), turn: 1, targetId: 3, mode: 'blast', trusted: true, canvasOwned: true, context: copy(context),
@@ -25,8 +25,8 @@ function sample(turn, expectation = 'candidate', { still = false } = {}) {
   const candidate = expectation === 'candidate', p = position(still ? 1 : turn), aim = position(still ? 1 : Math.max(1, turn - 1))
   const phase = turn < 7 ? 'windup' : turn < 9 ? 'flying' : 'arrived'
   return { turn, level: 2, playing: true, paused: false, speed: 1, flags: 0, sceneMatches: true,
-    actor: { id: 1, same: true, hp: 100, team: 'blue' },
-    target: { id: 3, same: true, hp: 100, team: 'green', kind: 'warrior', inside: null, ownerValid: true, position: p },
+    actor: { id: 1, same: true, hp: 100, team: 'blue', position: { x: 100, y: 200, h: 120 } },
+    target: { id: 3, same: true, hp: 100, team: 'blue', kind: 'brave', inside: null, ownerValid: true, position: p },
     stock: 3, castCount: 1, mana: 10, random: 123,
     shot: turn < 10 ? { id: 44, caster: 1, phase, remaining: Math.max(0, 7 - turn), target: candidate ? browserPoint(aim) : { x: 11, z: 17 },
       destination: candidate && phase !== 'windup' ? aim : position(1),
@@ -72,7 +72,7 @@ test('stopped target and repeated motion samples cannot complete', () => {
   assert.throws(() => start('candidate', ({ h }) => { h.previousPosition = h.position }), /stopped|repeated/)
 })
 test('changed, removed or invalid target fails before impact', () => {
-  for (const damage of [target => { target.id = 4 }, target => { target.same = false }, target => { target.ownerValid = false }, target => { target.team = 'blue' }])
+  for (const damage of [target => { target.id = 4 }, target => { target.same = false }, target => { target.ownerValid = false }, target => { target.team = 'green' }])
     assert.throws(() => finish({ mutate: ({ before, turn }) => { if (turn === 4) damage(before.target) } }), /target changed|disappeared/)
 })
 test('setup requires life, but a retained nondeleted class1 owner is not invalidated by HP alone', () => {
@@ -129,8 +129,8 @@ test('driver source excludes game mutations and diagnostic clock/render shortcut
   assert.match(driver, /remainingAcceptance/)
 })
 
-test('an unrelated patrol model cannot satisfy the declared response episode', () => {
-  assert.throws(() => start('candidate', ({ h }) => { h.orderModel = 25 }), /response person/)
+test('an unrelated patrol model cannot satisfy the declared move episode', () => {
+  assert.throws(() => start('candidate', ({ h }) => { h.orderModel = 25 }), /commanded person/)
 })
 
 test('actual delivered release outside four trigger turns fails', () => {
@@ -198,4 +198,11 @@ test('a once-correct proposal cannot mask movement, occlusion, replacement or ra
   assert.throws(() => start('baseline', ({ r }) => { r.targetCheck.range.sameOriginal = false }), /actual source range/)
   assert.throws(() => start('baseline', ({ r }) => { delete r.targetCheck }), /actual source range/)
   assert.throws(() => start('baseline', ({ r }) => { r.targetCheck.pixel.phase = 'handler' }), /no longer owns/)
+})
+
+test('friendly episode keeps the original Shaman stationary and rejects enemy or non-Brave substitution', () => {
+  assert.throws(() => finish({ mutate: ({ before, turn }) => { if (turn === 4) before.actor.position.x++ } }), /Shaman moved/)
+  for (const key of ['team', 'kind'])
+    assert.throws(() => start('candidate', ({ first }) => { first.target[key] = key === 'team' ? 'green' : 'warrior' }), /target changed/)
+  assert.throws(() => start('candidate', ({ h }) => { h.orderModel = 19 }), /commanded person/)
 })

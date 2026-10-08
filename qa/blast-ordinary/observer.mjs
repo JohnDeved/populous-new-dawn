@@ -22,9 +22,9 @@ export const inputContext = scene => ({
 })
 export function responseSnapshot(scene) {
   const w = scene.world
-  return w.units.filter(u => u === window.blastOriginal.target && u.id === 19 && u.team === 'green' && u.kind === 'warrior' && u.hp > 0 && u.inside === null).flatMap(u => {
+  return w.units.filter(u => u === window.blastOriginal.target && u.team === 'blue' && u.kind === 'brave' && u.hp > 0 && u.inside === null).flatMap(u => {
     const p = owner(u), order = p && currentPersonOrder(w.buildingOrders, p)
-    return p?.class === 1 && !(p.flags2 & 1) && order?.model === 19 ? [{ id: u.id, x: u.x, z: u.z, position: position(p), speed: p.speed, orderModel: order.model, fighting: !!u.fight }] : []
+    return p?.class === 1 && p === window.blastOriginal.movePerson && !(p.flags2 & 1) && order?.model === 3 && order === window.blastOriginal.moveOrder && order.a === window.blastOriginal.movePoint.a && order.b === window.blastOriginal.movePoint.b ? [{ id: u.id, x: u.x, z: u.z, position: position(p), speed: p.speed, orderModel: order.model, fighting: !!u.fight }] : []
   })
 }
 export function pointerFeedback(scene) {

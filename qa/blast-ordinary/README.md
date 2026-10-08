@@ -1,12 +1,76 @@
 # Ordinary Mission2 Blast episode
 
-Prepared from runtime freeze `4635c1acc9b66c1d54e5e2bc7cad4b88fa30754b` and
-read against the reviewed lifetime repair `7c3ac608917d0b6a3a6c4c779460953905f2738e`.
-The revised driver is prospective. Seven baseline attempts failed before casting;
-no ordinary Blast episode has passed. Pure helper tests and controlled model probes
-are not ordinary episodes, native comparisons or parity awards.
+The current prospective episode uses one naturally converted starting Blue Brave,
+the original stationary Blue Shaman, and a public ground move on the home island.
+The application includes current main `1c309ffc` through normal merge `2e110a2a`;
+the Blast runtime patch is unchanged. Historical `1bcac93a` standard results remain
+historical. No ordinary baseline/candidate pair has passed, and the candidate has
+not run. Original/native execution and enemy-damage parity are not credited.
 
-## Stage and route
+## Current friendly-moving-person episode
+
+Mission2 supplies eight Wildmen around Shaman `(-107,-101)`. The maintained
+startup wave allocates eight real Blue Braves (`level-start-runtime.ts:176–194`;
+`tests/level-start.test.mjs` checks the one-to-nine Blue population transition).
+After ordinary readiness, focus the original Shaman, clear selection, and use the
+public single-Brave HUD button. Bind the actual selected startup Brave object;
+never guess its ID or replace it. One ordinary ground click aims at `(-93,-101)`
+(with the existing bounded half-unit ground-pixel alternatives). Record the real
+selected recipient, accepted model3 order and payload, acknowledgement and marker.
+The Shaman stays home. Imports are warmed before movement; the cast observer
+attaches after the ground handler restores and before public key1 arms Blast.
+
+Both expectations wait for the same move owner/order/payload to enter the fixed
+open eastern segment `x=-100..-97, |z+101|<=2`. This is an episode preparation
+window, independently checked against actual source range. Missing the segment,
+losing the move, entering a building, death or identity loss stops the episode.
+There is no second command, target replacement, route or camera sweep. Authored
+cells78–85/46–47 are dry and no building/tree occupies the segment; this supports
+the proposal, but actual route, separation and visibility remain prospective.
+No training, camp, kill credit or enemy travel is needed.
+
+Prepare the ordinary pointer before pressing. The baseline needs one actual
+canvas-owned pixel; its final proposed record is created only by the fresh held
+read. Candidate preparation retains its owned5×5, distance>=7 margin, visible
+16-line hover and validated natural hover frame. Then issue trusted left-down,
+one fresh synchronous read, and immediate trusted mouse-up. Blast-mode down does
+not select, drag or cast; up consumes its own current pixel. Holding suppresses
+live hover, so the candidate's already captured hover cannot be refreshed or
+relabelled. Its original one-turn freshness remains mandatory. The baseline's
+fresh proposal also expires after one turn; trigger-to-delivered-release remains
+at most four turns. The immediate up skips stop-file/readback work; the fresh
+preparation is guarded, and actual late events remain failed attempts.
+
+A failed held preparation uses two public Escapes: clear mode, then selection.
+Read back `mode=null` and `selected=[]` before mouse-up. Retain before/cancelled/
+after state and prove no cleanup cast or new movement order. Failure to clear
+those prerequisites prevents mouse-up and fails the run. Cleanup inputs remain
+available after an ordinary stop so a held gesture can be cancelled safely.
+
+Baseline actual-release proof stays separate: detached source-range validation
+before the real handler, one independently labelled geometric target read after
+handler restoration, actual cache effects, and retained attempted release before
+reducer rejection. Candidate requires the actual handler's person ID. Both retain
+same-person motion during windup and flight, stock/count, exact parent/shot
+ownership, arrival and parent impact, and natural rendered phases. Candidate
+also requires hover/ack pixels. Friendly impact follows `blastAllied`; this
+witness covers moving person identity, feedback and aim, not enemy damage.
+Existing 1800-turn setup,140s preparation,240s scenario,48-turn/10s lifecycle and
+300s harness/330s outer limits stay unchanged. The existing diagnostic remains
+available, but ordinary runs explicitly disable it. Later ground, rejection,
+interruption, Save/Load and paired-frame controls remain open.
+
+## Retained earlier attempts
+
+Baseline `4138b25c` actually cast at turn527 after proposing person19 at525.
+The intended target was still in range, but the delivered pixel belonged to13;
+the proposal was also two turns old. Stock4→3 and one fixed-ground projectile
+were retained, together with the real handler trace and rejected attempt. That
+is a failed intended-recipient witness, not ordinary acceptance. All earlier
+failures remain retained below. The earlier response route/probes do not establish
+the new home-island episode or extend proof across current-main application bytes.
+
+## Historical response route and controls
 
 The first fresh-profile baseline at `2611af07` failed before casting: the retained
 screenshot reports Shaman reincarnation. The exact browser death turn and killer
@@ -50,7 +114,7 @@ foreground ridge covering the sampled target bounds. This establishes terrain
 occlusion for those actual samples; no picker/render ordering defect was shown.
 The diagnostic stopped with no cast and earns no ordinary acceptance.
 
-One prospective public camera adjustment now precedes the Shaman's ground command:
+The historical public camera adjustment preceded the Shaman's ground command:
 a single right drag of512 pixels, in16 integer32px steps, after original Shaman
 selection and before the first minimap approach. It reuses the Erosion driver's
 owned-canvas corridor and guaranteed mouse-up pattern. `pointerMove` calls
@@ -62,7 +126,7 @@ original selection, null mode and unchanged lastOrderTurn. There is no angle swe
 positive pixels at the new view remain prospective. The passive diagnostic is
 still available if that view fails, with all range/motion/cast gates unchanged.
 
-The revised proposal keeps public Mission2 entry, introduction skip, original
+That historical proposal kept public Mission2 entry, introduction skip, original
 Blue Shaman HUD selection and one real ground movement command toward `(58,108)`.
 It faces the actual response corridor near `(122,122)` immediately after the move
 and arms Blast before waiting. It targets only authored Green Warrior19, retained
@@ -86,7 +150,7 @@ The candidate also retains the declared distance>=7 preparation margin, settled
 camera, actual pointer's owned5×5 person neighborhood, real visible hover and
 validated natural hover frame before its fresh trigger.
 
-The baseline now uses one fresh canvas-owned target19 pixel, followed immediately
+That historical baseline used one fresh canvas-owned target19 pixel, followed immediately
 by one trusted click at those coordinates. Its bounded search reuses only the
 first-tested pixel of each former5×5 candidate, at most nine distinct points;
 no neighborhood, prior resting pointer or distance>=7 condition is claimed.

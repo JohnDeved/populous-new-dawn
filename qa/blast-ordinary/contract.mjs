@@ -21,7 +21,8 @@ export function createBlastEpisode(options) {
     keys(sample, ['turn', 'level', 'playing', 'paused', 'speed', 'flags', 'sceneMatches', 'actor', 'target', 'stock', 'castCount', 'mana', 'random', 'shot', 'effects'])
     check(Number.isInteger(sample.turn) && sample.level === 2 && sample.playing && !sample.paused && sample.speed === 1 && !(sample.flags & 32) && sample.sceneMatches, 'Ordinary Mission2 clock/context changed')
     check(sample.actor?.id === actorId && sample.actor.same && sample.actor.hp > 0 && sample.actor.team === 'blue', 'Original Blue Shaman changed or disappeared')
-    if (targetRequired) check(sample.target?.id === targetId && sample.target.same && sample.target.team === 'green' && sample.target.kind === 'warrior' && sample.target.inside === null && sample.target.ownerValid, 'Original outdoor response target changed or disappeared')
+    if (entry) check(sample.actor.position.x === entry.actor.position.x && sample.actor.position.y === entry.actor.position.y, 'Original Shaman moved during the cast')
+    if (targetRequired) check(sample.target?.id === targetId && sample.target.same && sample.target.team === 'blue' && sample.target.kind === 'brave' && sample.target.inside === null && sample.target.ownerValid, 'Original outdoor commanded Blue target changed or disappeared')
   }
   return {
     trigger(turn) {
@@ -36,7 +37,7 @@ export function createBlastEpisode(options) {
       check(expectation === 'baseline' && value.kind === 'proposed-pixel', 'Only baseline may use proposed-pixel evidence')
       check(!proposal && !hover && triggerTurn === undefined && !entry, 'One proposed pixel before the trigger required')
       check(Number.isInteger(value.turn) && value.turn >= 0 && Number.isInteger(value.point?.x) && Number.isInteger(value.point?.y), 'Actual proposal turn and integer pixel required')
-      check(value.mode === 'blast' && value.targetId === targetId && value.hitId === targetId && value.canvasOwned && value.orderModel === 19, 'A real response person pixel in Blast mode is required')
+      check(value.mode === 'blast' && value.targetId === targetId && value.hitId === targetId && value.canvasOwned && value.orderModel === 3, 'A real commanded person pixel in Blast mode is required')
       check(value.turn > value.previousTurn && moved(value.position, value.previousPosition), 'Target was stopped or motion sample repeated')
       proposal = clone(value)
     },
@@ -45,7 +46,7 @@ export function createBlastEpisode(options) {
       check(expectation === 'candidate', 'Only candidate uses actual hover evidence')
       check(!hover && triggerTurn === undefined && !entry, 'Hover may be accepted only once before the trigger')
       check(Number.isInteger(value.turn) && value.turn >= 0, 'Actual prospective hover turn required')
-      check(value.mode === 'blast' && value.targetId === targetId && value.hitId === targetId && value.canvasOwned && value.orderModel === 19, 'A real response person hit in Blast mode is required')
+      check(value.mode === 'blast' && value.targetId === targetId && value.hitId === targetId && value.canvasOwned && value.orderModel === 3, 'A real commanded person hit in Blast mode is required')
       check(value.turn > value.previousTurn && moved(value.position, value.previousPosition), 'Target was stopped or motion sample repeated')
       check(value.visible && value.lines === 16, 'Expected visible hover feedback missing')
       hover = clone(value)

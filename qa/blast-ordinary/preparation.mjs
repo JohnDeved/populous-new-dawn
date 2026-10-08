@@ -35,7 +35,7 @@ export function createBlastPreparation({ targetId, capacity = 96, maximumSetupTu
       if (!observation || typeof observation !== 'object' || Array.isArray(observation)) throw Error('Preparation observation must be a copied row')
       const row = structuredClone(observation)
       if (!Number.isInteger(row.turn) || row.turn < 0) throw Error('Actual preparation turn required')
-      const response = row.response?.find(person => person.id === targetId && person.orderModel === 19)
+      const response = row.response?.find(person => person.id === targetId && person.orderModel === 3)
       const state = row.state, body = row.renderedBody
       stopReason = terminalReason(row, response)
       const qualified = {
@@ -88,4 +88,35 @@ export function findProposedBlastPixel(candidates, targetId, inspect) {
     if (actual.canvasOwned && actual.hitId === targetId) return { x, y, kind: 'proposed-pixel' }
   }
   return null
+}
+
+// One ordinary held-left gesture. Preparation uses read-only observations; only
+// its caller may admit the final release. Failed preparation cancels twice before
+// mouse-up, and proves the cleanup neither casts nor orders selected followers.
+export async function releaseHeldBlast({ press, prepare, release, cancel, read, retain }) {
+  let released = false
+  try {
+    await press()
+    const prepared = await prepare()
+    await release(prepared)
+    released = true
+    return prepared
+  } catch (error) {
+    if (!released) {
+      const cleanup = { before: await read() }
+      retain(cleanup)
+      try {
+        await cancel(); await cancel()
+        cleanup.cancelled = await read(); retain(cleanup)
+        if (cleanup.cancelled.mode !== null || cleanup.cancelled.selected.length)
+          throw Error('Held release cleanup requires cleared mode and selection')
+        await release(null)
+        cleanup.after = await read(); retain(cleanup)
+        if (cleanup.after.mode !== null || cleanup.after.selected.length || cleanup.after.buttons !== 0 ||
+            cleanup.after.castCount !== cleanup.before.castCount || cleanup.after.lastOrderTurn !== cleanup.before.lastOrderTurn)
+          throw Error('Held release cleanup changed cast or order state')
+      } catch (cleanupError) { throw new AggregateError([error, cleanupError], 'Held Blast preparation and cleanup failed') }
+    }
+    throw error
+  }
 }
