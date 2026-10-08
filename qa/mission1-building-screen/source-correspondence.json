@@ -34,9 +34,9 @@
       "path": "scripts/local-render/mission1-vault-checkpoint.mjs",
       "sourceCommit": "91c9453061e92aa2ada4f4c170904b47c7e56a98",
       "sourceSha256": "3ecd6842811477486f5ff27d3ebd5829138700bd6e4fb6186180b7c01c4a2957",
-      "candidateSha256": "5fee9340b78f304d0046c3c3b494d2d6a43af9ed9059013f3167ecda33aab8bd",
+      "candidateSha256": "49f83f55d4a5bf0dd019613a099d3ad3c97468c22019e5508543f241d3c9e8bb",
       "byteIdentical": false,
-      "change": "Extend the bounded snapshot to actual shared acquisition/RNG/building gifts, mode and pause; capture the trusted public Save click synchronously before the real handler."
+      "change": "Extend the bounded snapshot to actual shared acquisition/RNG/building gifts, mode and pause; capture the trusted public Save click synchronously before the real handler. Optional passive onLoad callback retains the exact restored World identity for one-shot scene-start observation; existing no-argument callers unchanged."
     }
   ],
   "retainedCurrentSources": [
@@ -199,11 +199,19 @@
     },
     {
       "path": "qa/mission1-building-screen/screen-contract.test.mjs",
-      "sha256": "1319554c45a3e9b63750501aac5473f6e3ed6752cd83e15d8e83546ad9c2f95f"
+      "sha256": "036235383ff0e2d12f0dfb588867f82673ae4812c9369eea14659c9aef41bd39"
     },
     {
       "path": "scripts/local-render/mission1-building-drawer-smoke.mjs",
       "sha256": "d1c62251eef17c39a3686ec4f4de0d26cd6d709a991b254596e27ae2a7e109b8"
+    },
+    {
+      "path": "scripts/local-render/mission1-building-screen-load.mjs",
+      "sha256": "9a594645235a682adff42129d2a9679c2a76a3967fd32c10b60a12d2dc1e9aeb"
+    },
+    {
+      "path": "scripts/local-render/mission1-building-screen-continuation.mjs",
+      "sha256": "f2585e82ab1b1730fdf5cc09f1324df1935e2eb6f029fd6e2a7ae0361f87f2f1"
     }
   ],
   "routeSource": {
@@ -342,5 +350,16 @@
     "launchEnabled": false,
     "runner": "Existing scripts/local-render/harness.mjs --scenario; no new argv",
     "precedes": "Ordinary M1 prefix only after exact coordinator admission"
+  },
+  "continuation": {
+    "scenario": "scripts/local-render/mission1-building-screen-continuation.mjs",
+    "priorStatus": "FAILED",
+    "priorReportSha256": "be6126e9f035016d39262ea4d7a02c6f93a775f84801a073c13c43532cd712b6",
+    "priorReceiptSha256": "425a83c54d56018a80964b60dfb029fba284e1b940861c372086ff519770ebec",
+    "checkpointSha256": "82d1bdbc83e29ca77e210513ff737bb16342a464dc8b6e477c896f997fa2b3ca",
+    "scope": "Same product/application/runtime/profile; reviewed checker-only correspondence required. Exact saved1300 Load/active-Restart/remaining-grant tail only. Original start once then passive attachment synchronously before first scheduled RAF callback. Public Pause immediately after Load, actual trusted Restart pre-state. No prefix replay.",
+    "launchEnabled": false,
+    "innerTimeoutMs": 240000,
+    "outerTimeoutSeconds": 300
   }
 }

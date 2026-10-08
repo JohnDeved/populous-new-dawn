@@ -9,6 +9,8 @@ import { installMission1VaultCheckpointState, installMission1VaultSaveWitness,
   installMission1VaultLoadWitness } from '../../scripts/local-render/mission1-vault-checkpoint.mjs'
 import scenario, { saveMission1BuildingCheckpoint } from '../../scripts/local-render/mission1-building-screen.mjs'
 import componentSmoke, { drawMission1Component } from '../../scripts/local-render/mission1-building-drawer-smoke.mjs'
+import continuation, { assertMission1BuildingRestart } from '../../scripts/local-render/mission1-building-screen-continuation.mjs'
+import { armMission1BuildingSceneStart, installMission1BuildingRestartWitness } from '../../scripts/local-render/mission1-building-screen-load.mjs'
 import { parseOptions } from '../../scripts/local-render/harness.mjs'
 
 function fixture(t, { pixels = true, mutateDraw = false, initialBirth = null, skipGpu = false, skipHandoff = false, lazySurface = false, missedResume = false } = {}) {
@@ -280,9 +282,12 @@ test('Save/Load snapshot includes actual shared UI state at synchronous public b
   click({ isTrusted: true, target: button })
   const saved = window.restoreVaultSaveWitness().saved
   assert.equal(saved.acquisition.clock.elapsed, 25); assert.deepEqual(saved.cosmeticRandom, { randomState: 77 })
-  installMission1VaultLoadWitness()
+  let loadedObject, loadedStore
+  const loadOwner = installMission1VaultLoadWitness((world, owner) => { loadedObject = world; loadedStore = owner })
+  assert.equal(loadOwner.store, store); assert.equal(loadOwner.before, world)
   current = structuredClone(world); subscriber()
   assert.equal(unsubscribed, true); assert.deepEqual(window.vaultLoadedBoundary, saved)
+  assert.equal(loadedObject, current); assert.equal(loadedStore, store)
   current.worshipAcquisition.clock.elapsed++
   assert.equal(window.vaultLoadedBoundary.acquisition.clock.elapsed, 25)
   assert.equal(window.restoreVaultLoadWitness, undefined)
@@ -291,13 +296,18 @@ test('Save/Load snapshot includes actual shared UI state at synchronous public b
 test('named scenario, maintained argv and explicit imports resolve without launching a runtime', () => {
   assert.equal(typeof scenario, 'function')
   assert.equal(typeof componentSmoke, 'function')
+  assert.equal(typeof continuation, 'function')
   const root = fileURLToPath(new URL('../../', import.meta.url))
   const scenarioPath = resolve(root, 'scripts/local-render/mission1-building-screen.mjs')
   const options = parseOptions(['--game-root', root, '--scenario', scenarioPath, '--mission', '1', '--timeout', '1200000',
     '--profile', resolve(root, 'work/local-render-profiles/m1-building-screen-review-only'),
     '--output', resolve(root, 'work/orchestration/m1-building-screen-review-only'), '--port', '4188', '--browser', '/unassigned-review-only'])
   assert.equal(options.scenario, scenarioPath); assert.equal(options.mission, 1)
-  for (const file of ['mission1-building-screen.mjs', 'mission1-building-screen-witness.mjs', 'mission1-vault-checkpoint.mjs', 'mission1-building-drawer-smoke.mjs']) {
+  const tail = parseOptions(['--game-root', root, '--scenario', resolve(root, 'scripts/local-render/mission1-building-screen-continuation.mjs'),
+    '--mission', '1', '--timeout', '240000', '--profile', resolve(root, 'work/local-render-profiles/m1-building-screen-review-only'),
+    '--profile-correspondence', resolve(root, 'work/orchestration/review-only.json')])
+  assert.ok(tail.profileCorrespondence.endsWith('review-only.json'))
+  for (const file of ['mission1-building-screen.mjs', 'mission1-building-screen-witness.mjs', 'mission1-vault-checkpoint.mjs', 'mission1-building-drawer-smoke.mjs', 'mission1-building-screen-load.mjs', 'mission1-building-screen-continuation.mjs']) {
     const source = readFileSync(resolve(root, 'scripts/local-render', file), 'utf8')
     for (const [, relative] of source.matchAll(/from '([^']+)'/g)) {
       if (relative.startsWith('node:')) continue
@@ -305,6 +315,103 @@ test('named scenario, maintained argv and explicit imports resolve without launc
     }
     assert.doesNotMatch(source, /cancelAnimationFrame|requestAnimationFrame\s*=|\.tick\(|\.animate\(|\.render\(|indexedDB.*readwrite/)
   }
+})
+
+test('successful natural start attaches the existing observer before its first scheduled callback', async t => {
+  const birth = { turn: 1250, gift: { id: 54 } }, f = fixture(t, { initialBirth: birth })
+  f.close()
+  f.world.turn = 1300; f.world.gifts[0].remaining = 32
+  f.world.worshipAcquisition.controllers.building.phase = 4
+  f.world.worshipAcquisition.controllers.building.visits = 1
+  const ref = window.testSceneRef, store = window.testStore, args = [{ tag: 'original argument' }], order = []
+  const prototype = { start(...actual) {
+    assert.equal(this, f.scene); assert.deepEqual(actual, args); order.push('original')
+    queueMicrotask(() => {
+      order.push('first callback'); assert.ok(window.m1BuildingScreen)
+      for (let i = 0; i < 32; i++) f.giftVisit()
+      f.world.worshipAcquisition.controllers.building.active = false
+      f.draw()
+    })
+    return true
+  } }
+  const original = prototype.start
+  const owner = armMission1BuildingSceneStart({ prototype, store, expectedWorld: () => f.world, sceneRef: () => ref,
+    attach(scene, actualRef, actualStore) {
+      order.push('attach'); assert.equal(scene, f.scene); assert.equal(actualRef, ref); assert.equal(actualStore, store)
+      installMission1BuildingScreenWitness({ shamanId: 30, birth })
+    } })
+  assert.equal(prototype.start.apply(f.scene, args), true)
+  assert.equal(prototype.start, original); assert.deepEqual(order, ['original', 'attach'])
+  await Promise.resolve()
+  const evidence = window.m1BuildingScreen.close()
+  assert.deepEqual(order, ['original', 'attach', 'first callback'])
+  assert.deepEqual(owner.evidence, { calls: 1, result: true, originalThrew: false, attached: true, restored: true, errors: [] })
+  assert.equal(evidence.grants, 1); assert.equal(evidence.handoffs, 0); assert.deepEqual(evidence.errors, [])
+  assert.equal(evidence.stages.grant.after.turn, 1332); assert.equal(evidence.stages.grant.before.gift.remaining, 1)
+})
+
+test('start preserves primitive throws, false return and observer exceptions without suppressing the original', () => {
+  for (const mode of ['throw-null', 'false', 'attach-fails', 'wrong-world']) {
+    const world = {}, scene = { world }, ref = { current: scene }, args = [{}]
+    let calls = 0, attachments = 0
+    const prototype = { start(...actual) {
+      calls++; assert.equal(this, scene); assert.deepEqual(actual, args)
+      if (mode === 'throw-null') throw null
+      return mode !== 'false'
+    } }
+    const original = prototype.start, descriptor = Object.getOwnPropertyDescriptor(prototype, 'start')
+    const owner = armMission1BuildingSceneStart({ prototype, store: { getWorld: () => world },
+      expectedWorld: () => mode === 'wrong-world' ? {} : world, sceneRef: () => ref,
+      attach() { attachments++; throw Error('supplied attach failure') } })
+    if (mode === 'throw-null') {
+      let caught = false
+      try { prototype.start.apply(scene, args) } catch (error) { caught = true; assert.equal(error, null) }
+      assert.equal(caught, true)
+    } else assert.equal(prototype.start.apply(scene, args), mode !== 'false')
+    assert.equal(calls, 1); assert.equal(attachments, mode === 'attach-fails' ? 1 : 0)
+    assert.equal(owner.evidence.attached, false); assert.equal(owner.evidence.restored, true)
+    assert.equal(owner.evidence.errors.length, 1); assert.equal(prototype.start, original)
+    assert.deepEqual(Object.getOwnPropertyDescriptor(prototype, 'start'), descriptor)
+  }
+})
+
+test('one-shot start cleanup preserves a foreign replacement and original primitive exception', () => {
+  const foreign = () => false, world = {}, scene = { world }
+  const prototype = { start() { prototype.start = foreign; throw undefined } }
+  const owner = armMission1BuildingSceneStart({ prototype, store: { getWorld: () => world },
+    expectedWorld: () => world, sceneRef: () => ({ current: scene }), attach() { assert.fail('must not attach') } })
+  let caught = false
+  try { prototype.start.call(scene) } catch (error) { caught = true; assert.equal(error, undefined) }
+  assert.equal(caught, true); assert.equal(prototype.start, foreign)
+  assert.equal(owner.evidence.calls, 1); assert.equal(owner.evidence.restored, false)
+  assert.match(owner.evidence.errors.at(-1), /ownership changed/)
+  assert.throws(owner.close, /ownership changed/); assert.equal(prototype.start, foreign)
+})
+
+test('trusted Restart captures actual active pre-state and synchronous reset; retired pre-state cannot earn active reset', t => {
+  const world = { outcome: { level: 1 }, turn: 1300, time: 1, paused: true, mode: null, selected: [30], unlockedCamp: false,
+    shrines: [{ kind: 'vault', mode: 4, reward: 'camp', x: -5, z: -3, active: false }],
+    gifts: [{ id: 54, remaining: 32, buildingAcquisition: { model: 7 } }], stats: { bridges: 1 }, landVersion: 1,
+    land: { heights: [1, 2] }, units: [{ id: 30, kind: 'shaman', team: 'blue', hp: 100 }], cosmeticRandom: { randomState: 77 },
+    worshipAcquisition: { controllers: { building: { active: true }, companion: {}, pulse: {} }, requests: [] } }
+  let current = world, subscriber, click, closed = 0, unsubscribed = 0
+  const store = { getWorld: () => current, subscribe(fn) { subscriber = fn; return () => { unsubscribed++ } } }
+  const button = { textContent: 'Restart world', isConnected: true, disabled: false,
+    addEventListener(_name, fn) { click = fn }, removeEventListener(_name, fn) { assert.equal(click, fn); click = null } }
+  const main = { __reactFiberTest: { memoizedState: { memoizedState: store } } }
+  globalThis.window = { m1BuildingScreen: { close() { closed++; delete window.m1BuildingScreen; return { restored: true, errors: [] } } } }
+  globalThis.document = { querySelectorAll: () => [button], querySelector: () => main }
+  t.after(() => { delete globalThis.window; delete globalThis.document })
+  installMission1VaultCheckpointState(); installMission1BuildingRestartWitness()
+  click({ isTrusted: true, target: button })
+  current = structuredClone(world); current.turn = 0; current.shrines[0].active = true; current.gifts = []
+  current.worshipAcquisition.controllers = { building: null, companion: null, pulse: null }; subscriber()
+  const evidence = window.restoreM1BuildingRestart()
+  assert.equal(closed, 1); assert.equal(unsubscribed, 1)
+  assertMission1BuildingRestart(evidence, evidence.screen, 54)
+  evidence.before.acquisition.controllers.building.active = false
+  assert.throws(() => assertMission1BuildingRestart(evidence, evidence.screen, 54), /missed active ownership/)
+  assert.equal(world.worshipAcquisition.controllers.building.active, true)
 })
 
 test('component smoke uses one production-interface draw and disposes its detached owner even after failure', async t => {

@@ -53,7 +53,7 @@ export function installMission1VaultSaveWitness() {
   }
 }
 
-export function installMission1VaultLoadWitness() {
+export function installMission1VaultLoadWitness(onLoad = null) {
   const main = document.querySelector('main')
   let fiber = main[Object.keys(main).find(key => key.startsWith('__reactFiber'))], store
   for (; fiber && !store; fiber = fiber.return)
@@ -66,9 +66,13 @@ export function installMission1VaultLoadWitness() {
   const unsubscribe = store.subscribe(() => {
     const w = store.getWorld()
     if (w === before) return
-    try { window.vaultLoadedBoundary = window.mission1VaultCheckpointState(w) }
+    try {
+      window.vaultLoadedBoundary = window.mission1VaultCheckpointState(w)
+      onLoad?.(w, store)
+    }
     catch (error) { window.vaultLoadedError = String(error) }
     finally { unsubscribe(); delete window.restoreVaultLoadWitness }
   })
   window.restoreVaultLoadWitness = unsubscribe
+  return { store, before }
 }
