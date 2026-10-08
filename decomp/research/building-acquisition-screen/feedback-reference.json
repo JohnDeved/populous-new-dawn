@@ -1,0 +1,211 @@
+{
+  "status": "passed",
+  "kind": "finite-source-derived-CPU-reference",
+  "scriptSha256": "454f200006852d2f196d43a6184b408cc82d474d0773bb1577f9968460465391",
+  "nativeExecution": false,
+  "transformedDepthsSupplied": true,
+  "completeControllerComparison": false,
+  "cases": [
+    {
+      "case": "equality-four-budget-and-unused-fourth-corner",
+      "selected": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "flags": [
+        6,
+        6,
+        6,
+        6,
+        2
+      ]
+    },
+    {
+      "case": "budget-skips-later-threshold-write",
+      "selected": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "fifth": {
+        "threshold": -16384,
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "heading": 0,
+        "countdown": 0,
+        "flags": 2
+      }
+    },
+    {
+      "case": "below-zero-and-above-threshold",
+      "selected": [
+        2
+      ],
+      "thresholds": [
+        3000,
+        3000,
+        3001
+      ]
+    },
+    {
+      "case": "signed16-threshold-store",
+      "selected": [],
+      "face": {
+        "threshold": -25536,
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "heading": 0,
+        "countdown": 0,
+        "flags": 2
+      }
+    },
+    {
+      "case": "paused-feedback-next-visit-flight-and-all-started-shortening",
+      "trace": [
+        {
+          "paused": true,
+          "visits": 20,
+          "complete": false,
+          "selected": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "flags": [
+            6,
+            6,
+            6,
+            6,
+            2
+          ],
+          "countdowns": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "paused": true,
+          "visits": 20,
+          "complete": false,
+          "selected": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "flags": [
+            6,
+            6,
+            6,
+            6,
+            2
+          ],
+          "countdowns": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "paused": false,
+          "visits": 21,
+          "complete": false,
+          "selected": [
+            4
+          ],
+          "flags": [
+            5,
+            5,
+            5,
+            5,
+            6
+          ],
+          "countdowns": [
+            9,
+            9,
+            9,
+            9,
+            0
+          ]
+        },
+        {
+          "paused": false,
+          "visits": 91,
+          "complete": true,
+          "selected": [],
+          "flags": [
+            5,
+            5,
+            5,
+            5,
+            5
+          ],
+          "countdowns": [
+            8,
+            8,
+            8,
+            8,
+            9
+          ]
+        }
+      ]
+    },
+    {
+      "case": "late-all-started-does-not-rewind",
+      "visits": 96,
+      "complete": true
+    },
+    {
+      "case": "bounded-flight-scale-and-shared-target-delta",
+      "samples": [
+        {
+          "countdown": 10,
+          "scale": 36,
+          "delta": [
+            10,
+            5
+          ]
+        },
+        {
+          "countdown": 9,
+          "scale": 36,
+          "delta": [
+            20,
+            10
+          ]
+        },
+        {
+          "countdown": 1,
+          "scale": 0,
+          "delta": [
+            100,
+            50
+          ]
+        },
+        {
+          "countdown": 0,
+          "scale": 0,
+          "delta": [
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ]
+}

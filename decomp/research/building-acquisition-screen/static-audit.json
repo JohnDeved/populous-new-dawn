@@ -1,0 +1,245 @@
+{
+  "status": "passed",
+  "kind": "static-data-and-source-reference",
+  "applicationBase": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+  "nativeExecution": false,
+  "completeControllerComparison": false,
+  "scriptSha256": "971db9e0ab0097f7fac91a1202f8c25ddbac57f0b44609ef38053a96971280fc",
+  "archive": {
+    "sha256": "6aa6c366809ea1d9575ec1d31a24527a95c7332f0a1d2ab692f7a602e7e10702",
+    "bytes": 322676040,
+    "installerMember": "Populous The Beginning [Setup]/Setup_Populous_The_Beginning.exe",
+    "installerBytes": 323091880,
+    "installerSha256": "c5d3ad2a1b369e636df85a6061b832c18f2dc33526a03383f61abd7b5518c52d",
+    "dataMembers": [
+      "data/{app}/objects/facs0-2.dat",
+      "data/{app}/objects/pnts0-2.dat"
+    ],
+    "component": "Component0"
+  },
+  "inputs": {
+    "d3dpoptb.exe": {
+      "bytes": 2275840,
+      "sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+    },
+    "objects/objs0-2.dat": {
+      "bytes": 8532,
+      "sha256": "e1af6bdf050608d7c1832700826bece72ca592abdff3ee9c2138c50ed8a8607d"
+    },
+    "objects/facs0-2.dat": {
+      "bytes": 686100,
+      "sha256": "01a9a6d02efa0d35f7026cd97f8e01f72cbfb72e94217efe8256e8fe43597e9a"
+    },
+    "objects/pnts0-2.dat": {
+      "bytes": 59880,
+      "sha256": "09ebbdc9496d2ebd3a932be96af3fd27e6701a41105a5154aec4abe39e50b911"
+    }
+  },
+  "sourceRanges": {
+    "buildingInitializer": {
+      "start": "004819c0",
+      "endExclusive": "00481d99",
+      "sha256": "d116b7c1bbf240b17066d0d65887bfca2b76571523afaa63370059a97bc64eee"
+    },
+    "buildingController": {
+      "start": "004839f0",
+      "endExclusive": "0048418d",
+      "sha256": "e437ebb50ba1dcb9fc7e72b788cb6e6fc76c9a1a1f352f2ceaf8488a5a72c417"
+    },
+    "wholeGeometry": {
+      "start": "00472da0",
+      "endExclusive": "00473205",
+      "sha256": "1480e6dde3eec60ea28e143bcadb773bb5277db22a6dfd1522c8483492e51400"
+    },
+    "perFaceGeometry": {
+      "start": "00473210",
+      "endExclusive": "00473c8f",
+      "sha256": "3ad7b46a3ff06fcf8a806b4c1868358fae94bbc1ea7c79ab5c9a91aea83b843c"
+    },
+    "hudRectangle": {
+      "start": "0044bc10",
+      "endExclusive": "0044bd74",
+      "sha256": "1f2446f5b33a220662c271fe94e5b195b0330056da7eb6c0894b3a18cd9604c9"
+    },
+    "hudChildConstructor": {
+      "start": "0044ca80",
+      "endExclusive": "0044cc3e",
+      "sha256": "179ca77f483ddc8758e2800e2cc80d78945746ec2f533a7d9520e3f408f96184"
+    },
+    "companionInitializer": {
+      "start": "00481490",
+      "endExclusive": "00481541",
+      "sha256": "41c7dd97b289ad4e3a725bc47f7434ca879b66f815be325fb813afdaf069514d"
+    },
+    "matrixProduct": {
+      "start": "0047f7b0",
+      "endExclusive": "0047f927",
+      "sha256": "4474033ef413ae9e242c418e4c2f8c5907e4cd7e16df35fb72e31fc9b2e0fd52"
+    },
+    "matrixRotations": {
+      "start": "0047f930",
+      "endExclusive": "0047fe83",
+      "sha256": "d91d88671aae32bcb788487ff45a6cb66d6b935f34aa20c09192f1cb17866a4b"
+    },
+    "floatToInteger": {
+      "start": "0055bc54",
+      "endExclusive": "0055bc7b",
+      "sha256": "d0a2aca68648a0ae9d5cbfae1b276d4a64d4f797fc0c60f28b64096cdfa3148c"
+    }
+  },
+  "repoSources": {
+    "app/original-models.json": "1665fcc36e57bbb765259ec9b7c1755a6b126db837787c9038ed955c76a8afc5",
+    "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+    "app/world-turn.ts": "957422e62b080cdbe787d78673336fb97957cdd6d2ce1ae547f1a280db2df26a",
+    "app/world-effects.ts": "ebc48fa08fdc44bd3305fd1b7baba377a2b4c5da3d994a65a8f878137a2f4c7b",
+    "app/page.tsx": "50358f6ae119026e8b1f9215fa436126bb26b7595832140c136ed271fbc52fc2",
+    "app/model-faces.ts": "6e6d7f28eb6d1f027e571e3541ef751d23b10b99d6813ff7805e5367fca8634d",
+    "app/scene-worship-acquisition.ts": "c569987e2ccfda19f18543ac1ddcf49df7dee298f20a132325c141127f7a0c42",
+    "app/worship-acquisition.ts": "0d73b8bd93bcbb77c1863422bd65c53b6e242bb6a43974930b6c72315b341001",
+    "scripts/import-original.py": "02127ee637d42c033119a16045c26b01adaa7d8c2833a82c3bedd03d247039e0",
+    "scripts/extract-reference.py": "43870b6e06aeb43f8ea9103f3e601e4236397cbb1e49d72c43e570d4e13ffd7e",
+    "scripts/probe-native-vault-knowledge.py": "48ca690c78230073b0f1a69ee203d252ed768bb2efcc11ba44ff434b067b530d",
+    "decomp/generated/00480ea0.c": "2a33aed851b4c8b7bfd13ae8379ad1fcfdc45865edcbd3ad9d1abd6af827f826"
+  },
+  "geometry": [
+    {
+      "buildingModel": 7,
+      "descriptor": "005a743c",
+      "geometry": 103,
+      "faces": 107,
+      "points": 115,
+      "firstFaceOneBased": 7151,
+      "firstPointOneBased": 5390,
+      "scale": 160,
+      "hfx": 1077,
+      "hudControl": 6,
+      "browserMatches": {
+        "p": true,
+        "uv": true,
+        "faces": true,
+        "tiles": true,
+        "modes": true
+      },
+      "cosmeticInitializerDraws": 428
+    },
+    {
+      "buildingModel": 5,
+      "descriptor": "005a73a4",
+      "geometry": 95,
+      "faces": 147,
+      "points": 131,
+      "firstFaceOneBased": 5987,
+      "firstPointOneBased": 4286,
+      "scale": 160,
+      "hfx": 1079,
+      "hudControl": 4,
+      "browserMatches": {
+        "p": true,
+        "uv": true,
+        "faces": true,
+        "tiles": true,
+        "modes": true
+      },
+      "cosmeticInitializerDraws": 588
+    }
+  ],
+  "hudReferences": [
+    {
+      "buildingModel": 7,
+      "control": 6,
+      "definition": "005cc4dc",
+      "fixedFields": [
+        307,
+        35634,
+        4710,
+        7099
+      ],
+      "cases": [
+        {
+          "viewport": [
+            640,
+            480
+          ],
+          "rect": [
+            2,
+            260,
+            48,
+            312
+          ],
+          "target": [
+            25,
+            286
+          ]
+        },
+        {
+          "viewport": [
+            1280,
+            960
+          ],
+          "rect": [
+            5,
+            521,
+            97,
+            625
+          ],
+          "target": [
+            51,
+            573
+          ]
+        }
+      ]
+    },
+    {
+      "buildingModel": 5,
+      "control": 4,
+      "definition": "005cc51e",
+      "fixedFields": [
+        5017,
+        35634,
+        4710,
+        7099
+      ],
+      "cases": [
+        {
+          "viewport": [
+            640,
+            480
+          ],
+          "rect": [
+            48,
+            260,
+            94,
+            312
+          ],
+          "target": [
+            71,
+            286
+          ]
+        },
+        {
+          "viewport": [
+            1280,
+            960
+          ],
+          "rect": [
+            97,
+            521,
+            189,
+            625
+          ],
+          "target": [
+            143,
+            573
+          ]
+        }
+      ]
+    }
+  ],
+  "mathData": {
+    "sineMatches": true,
+    "atanMatches": true,
+    "projectionX": 0.00390625,
+    "projectionY": -0.00390625,
+    "flightFraction": 0.10000000149011612
+  }
+}

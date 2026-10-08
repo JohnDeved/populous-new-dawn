@@ -1,0 +1,25 @@
+{
+  "status": "passed",
+  "scope": "Read Component0 FACS/PNTS as DATA with existing parser; no installer/native code execution",
+  "pythonVersion": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "pythonSha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+  "package": {
+    "name": "binary-refinery",
+    "version": "0.10.11",
+    "innoArchiveParserSha256": "40cc671060cc062e5545852558207f031afa2095dc7e69312a4928e58c403626"
+  },
+  "extractor": {
+    "path": "scripts/extract-reference.py",
+    "sha256": "43870b6e06aeb43f8ea9103f3e601e4236397cbb1e49d72c43e570d4e13ffd7e"
+  },
+  "archiveIdentity": "static-audit.json#/archive",
+  "selected": [
+    "data/{app}/objects/facs0-2.dat",
+    "data/{app}/objects/pnts0-2.dat"
+  ],
+  "outputs": {
+    "objects/facs0-2.dat": "01a9a6d02efa0d35f7026cd97f8e01f72cbfb72e94217efe8256e8fe43597e9a",
+    "objects/pnts0-2.dat": "09ebbdc9496d2ebd3a932be96af3fd27e6701a41105a5154aec4abe39e50b911"
+  },
+  "rawOriginalsPublished": false
+}
