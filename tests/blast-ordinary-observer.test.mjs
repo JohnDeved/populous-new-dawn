@@ -1,10 +1,14 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { readFileSync } from 'node:fs'
+import { createMission1VaultInput } from '../scripts/local-render/mission1-vault-input.mjs'
+import { createWorld, tick, command, setSelection } from '../app/model.ts'
+import { interruptFlyby } from '../app/flyby.ts'
 import { observeBlastEpisode, inputContext } from '../qa/blast-ordinary/observer.mjs'
 
 // Synthetic event/DOM graph only. The real observer is exercised; no browser,
 // gameplay, rendered-pixel or public-command result is claimed by these mocks.
-function fixture(t, { rejectRelease = false, rejectAdmission = false, throwDraw, enemy = false, primerPerson = false, groundEnemy = false } = {}) {
+function fixture(t, { rejectRelease = false, rejectAdmission = false, throwDraw, enemy = false, primerPerson = false, groundEnemy = false, modelWorld = null } = {}) {
   const listeners = [], log = [], rect = { left: 0, top: 0, width: 20, height: 20 }
   const canvas = { isConnected: true, getBoundingClientRect: () => rect,
     addEventListener(type, fn, capture = false) { listeners.push({ type, fn, capture }) },
@@ -20,12 +24,12 @@ function fixture(t, { rejectRelease = false, rejectAdmission = false, throwDraw,
     toDataURL() { log.push('webgl-png'); return 'data:image/png;base64,eA==' },
   }
   const native = id => ({ id, class: 1, flags2: 0, x: id === 1 ? 100 : 1000, y: 2000, h: 120, speed: 0, state: 19, immediateCommand: 0, commands: [], commandCursor: 0 })
-  const actor = { id: 1, team: 'blue', kind: 'shaman', hp: 100, inside: null, native: native(1) }
-  const target = { id: 3, team: 'blue', kind: 'brave', hp: 100, inside: null, native: native(3) }
-  const world = { turn: 1, outcome: { level: 2 }, status: 'playing', paused: false, speed: 1, mode: 'blast', inputMask: 0,
+  const actor = modelWorld?.units.find(u => u.team === 'blue' && u.kind === 'shaman') ?? { id: 1, team: 'blue', kind: 'shaman', hp: 100, inside: null, native: native(1) }
+  const target = modelWorld?.units.find(u => u.team === 'red' && u.kind === 'brave' && u.x === -9 && u.z === -3) ?? { id: 3, team: 'blue', kind: 'brave', hp: 100, inside: null, native: native(3) }
+  const world = modelWorld ?? { turn: 1, outcome: { level: 2 }, status: 'playing', paused: false, speed: 1, mode: 'blast', inputMask: 0,
     manaWorld: { gameFlags: 0 }, manaTribes: [{ mana: 10 }], randomState: 123, units: [actor, target], selected: [3], projectiles: [], effects: [],
     objectCells: { objects: new Map([[1, actor.native], [3, target.native]]) }, buildingOrders: { records: [] }, shots: { blast: 4 }, stats: { cast: 0 } }
-  if (enemy) {
+  if (enemy && !modelWorld) {
     world.outcome.level = 1; target.team = 'red'; world.selected = [1]; if (groundEnemy) world.mode = null
     world.castingTribes = [{ flags: 0, cooldown: 0, aiCooldown: 0 }]; world.manaTribes[0].playerType = 2
     world.landVersion = 0; world.terrainVersion = 0; world.buildings = []
@@ -38,8 +42,9 @@ function fixture(t, { rejectRelease = false, rejectAdmission = false, throwDraw,
   const scene = { world, scene: {}, camera: {}, container: { clientWidth: 20, clientHeight: 20, getBoundingClientRect: () => rect },
     cameraPosition: { x: 1, y: 2, angle: 3 }, viewPoint: { x: 1, z: 2 }, cameraBearing: 3, gameClock: { beforeTurn() {}, afterTurn() {}, animationFrame: 0 },
     pointerOutline: outline, pointerPath: path, pointerScreen: { clientX: 10, clientY: 20 }, hoveredObject: 3, pointerAck: { target: 0, until: 0 },
-    picking: { pickPerson: () => world.mode === 'blast' && !(enemy && !groundEnemy && handlers === 1 && !primerPerson) ? 3 : null }, unitMeshes: new Map(), fxMeshes: new Map(),
-    pick: () => ({ x: 3, z: 0 }),
+    picking: { pickPerson: () => world.mode === 'blast' && !(enemy && !groundEnemy && handlers === 1 && !primerPerson) ? target.id : null, pick: () => null }, unitMeshes: new Map(), fxMeshes: new Map(),
+    pickUnit: () => null, pickWorldObject: () => null, screen: () => ({ x: 0, y: 0 }),
+    pick: () => modelWorld ? { x: actor.x, z: actor.z + 2 } : { x: 3, z: 0 },
     drawPointer(now) { log.push({ name: 'draw', receiver: this, now }); if (throwDraw) throw throwDraw; attrs.set('d', 'M'.repeat(now < this.pointerAck.until ? 32 : 16)); return 'draw-result' },
     renderer: { domElement: canvas, info: { render: { frame: 0 } }, getContext: () => ({ isContextLost: () => false, drawingBufferWidth: 2, drawingBufferHeight: 2,
       RGBA: 1, UNSIGNED_BYTE: 2, readPixels(...args) { log.push('readPixels'); args.at(-1).fill(255) } }),
@@ -69,13 +74,18 @@ function fixture(t, { rejectRelease = false, rejectAdmission = false, throwDraw,
       world.mode = null; world.shots.blast--; world.stats.cast++; if (rejectAdmission) world.selected = [1]; scene.pointerAck = { target: hitId, until: hitId === null ? 0 : performance.now() + 5000 / 24 }
     } else {
       scene.pick(event); scene.picking.pickPerson(event)
-      world.buildingOrders.records[1] = { model: 3, a: 2816, b: 63488 }
-      if (groundEnemy) { actor.native.immediateCommand = 1; world.lastOrderTurn = world.turn }
-      else target.native.immediateCommand = 1
+      if (modelWorld) assert.equal(command(world, scene.pick(event)), true)
+      else {
+        world.buildingOrders.records[1] = { model: 3, a: 2816, b: 63488 }
+        if (groundEnemy) { actor.native.immediateCommand = 1; world.lastOrderTurn = world.turn }
+        else target.native.immediateCommand = 1
+      }
+      scene.pointerAck = { target: 0, until: performance.now() + 5000 / 24 }
     }
   })
   const originalDraw = scene.drawPointer, originalRender = scene.renderer.render, originalPick = scene.picking.pickPerson
-  const observer = observeBlastEpisode(scene, { expectation: 'candidate', actorId: 1, targetId: 3, runId: 'synthetic', sourceFingerprint: 'synthetic', ...(enemy && { phenotype: 'm1-enemy' }), ...(groundEnemy && { enemySetup: 'ground-response' }) })
+  const pristinePickers = [scene.pickUnit, scene.picking.pickPerson, scene.pickWorldObject, scene.picking.pick, scene.pick]
+  const observer = observeBlastEpisode(scene, { expectation: 'candidate', actorId: actor.id, targetId: target.id, runId: 'synthetic', sourceFingerprint: 'synthetic', ...(enemy && { phenotype: 'm1-enemy' }), ...(groundEnemy && { enemySetup: 'ground-response' }) })
   const ground = { x: 50, y: 60, point: { x: 3, z: 0 } }
   if (!enemy) observer.prepareMove(ground)
   const prepare = async () => {
@@ -86,7 +96,7 @@ function fixture(t, { rejectRelease = false, rejectAdmission = false, throwDraw,
     canvas.dispatch('pointerdown'); observer.trigger(1)
   }
   t.after(() => observer.dispose())
-  return { scene, world, canvas, observer, prepare, ground, log, attrs, originalDraw, originalRender, originalPick, actor, target, handlers: () => handlers }
+  return { scene, world, canvas, observer, prepare, ground, log, attrs, originalDraw, originalRender, originalPick, pristinePickers, actor, target, handlers: () => handlers }
 }
 
 test('actual first release rearms one later event without replay or duplicate original handler', async t => {
@@ -332,4 +342,45 @@ test('ground preparation retains actual context drift as failure before any cast
   f.canvas.dispatch('pointermove')
   assert.match(f.observer.progress().errors.join(' '), /declared point, context/)
   assert.equal(f.observer.progress().release, undefined)
+})
+
+
+function authoredCommandWorld() {
+  const world = createWorld(1)
+  for (let i = 0; i < 72; i++) tick(world, 1 / 12)
+  // Same accepted source-bound warmup Skip composition as the model packet.
+  const source = readFileSync(new URL('../app/scene-camera-runtime.ts', import.meta.url), 'utf8')
+  const matches = [...source.matchAll(/export function skipIntroduction\(scene: GameScene\) \{\n[^]*?\n\}/g)]
+  assert.equal(matches.length, 1); assert.equal(world.flyby.flags & 17, 17); assert.ok(world.flyby.warmup > 0)
+  const body = matches[0][0].replace('export ', '').replace('(scene: GameScene)', '(scene)')
+  new Function('interruptFlyby', `${body}; return skipIntroduction`)(interruptFlyby)({ world, flybyCamera: { x: 17 * 256, y: -41 * 256, angle: 0, zoom: 0 }, onChange() {} })
+  setSelection(world, [world.units.find(u => u.team === 'blue' && u.kind === 'shaman').id])
+  return world
+}
+function actualMoveGround(f) {
+  const report = { actions: [] }, controller = new AbortController(), root = new URL('../', import.meta.url).href
+  const page = {
+    // Execute the actual browser callbacks. Only absolute Vite module specifiers
+    // are mapped to the same repository files; no callback body is replaced.
+    evaluate: async (fn, arg) => {
+      const source = fn.toString().replace(/import\('\/(app|qa)\//g, (_, folder) => `import('${root}${folder}/`)
+      return new Function(`return (${source})`)()(arg)
+    },
+    waitForFunction: async fn => assert.equal(fn(), true),
+    mouse: { click: async (x, y) => { f.canvas.dispatch('pointerdown', { x, y }); f.canvas.dispatch('pointerup', { x, y }) } },
+  }
+  const input = createMission1VaultInput({ page, signal: controller.signal, report, save() {}, originalShamanId: f.actor.id })
+  return { input, report }
+}
+test('real moveGround and episode compose one approach owner before the cast trace arms', async t => {
+  const f = fixture(t, { enemy: true, groundEnemy: true, modelWorld: authoredCommandWorld() })
+  const { input } = actualMoveGround(f)
+  const { delivered } = await input.moveGround({ x: f.actor.x, z: f.actor.z + 2 })
+  assert.equal(delivered.delivered.restored, true); assert.deepEqual(delivered.delivered.errors, [])
+  assert.equal(f.handlers(), 1)
+  assert.deepEqual(f.observer.progress().errors, [], 'Episode must not finish beneath the helper-owned picker wrappers')
+  assert.deepEqual([f.scene.pickUnit, f.scene.picking.pickPerson, f.scene.pickWorldObject, f.scene.picking.pick, f.scene.pick], f.pristinePickers)
+  assert.equal(f.observer.armEnemy(delivered).setup, 'ground-response')
+  f.observer.dispose()
+  assert.deepEqual([f.scene.pickUnit, f.scene.picking.pickPerson, f.scene.pickWorldObject, f.scene.picking.pick, f.scene.pick], f.pristinePickers)
 })
