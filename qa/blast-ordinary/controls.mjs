@@ -4,7 +4,7 @@ import { resolve } from 'node:path'
 import { bindGame, waitForShamanReadiness } from '../../scripts/browser-game.mjs'
 import { waitForSavedCheckpoint } from '../../scripts/local-render/early-missions.mjs'
 import { pollWithPreservation, readQueuedPreservingStop } from '../erosion-ordinary/stop.mjs'
-import { assertNoCast, assertCast, assertActivePause, assertFrozen } from './controls-evidence.mjs'
+import { assertNoCast, assertCancellationSequence, assertCast, assertActivePause, assertFrozen } from './controls-evidence.mjs'
 
 // Separate remaining-control witness. Never changes the moving-target contract.
 export default async function blastControls({ page, output, receipt, openMission, observeCheckpoint, signal }) {
@@ -156,7 +156,7 @@ export default async function blastControls({ page, output, receipt, openMission
       await page.keyboard.press('1'); await page.mouse.click(stage.x, stage.y, { button: 'right' })
       await page.keyboard.press('1'); await page.keyboard.press('1')
     }))
-    for (const event of cancel.events) assertNoCast(event)
+    assertCancellationSequence(cancel.events)
     state = await snap(); assert.equal(state.mode, null); assert.deepEqual(state.selected, []); assert.equal(state.stock, 4)
     report.checks.push({ name: 'cancel-and-key-repeat', status: 'passed' })
     ground = await findGround('near'); const far = await findGround('far')

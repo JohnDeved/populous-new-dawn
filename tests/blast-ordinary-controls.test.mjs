@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
-import { controlSnapshot, activeCheckpointProjection, assertNoCast, assertCast, assertActivePause, assertFrozen } from '../qa/blast-ordinary/controls-evidence.mjs'
+import { controlSnapshot, activeCheckpointProjection, assertNoCast, assertCancellationSequence, assertCast, assertActivePause, assertFrozen } from '../qa/blast-ordinary/controls-evidence.mjs'
 import { readActiveCheckpoint, observeControls } from '../qa/blast-ordinary/controls-observer.mjs'
 
 // Synthetic evidence validates the QA assertions, not ordinary gameplay.
@@ -39,6 +39,29 @@ test('cancel/rejection cannot hide payment, allocation or RNG changes', () => {
   for (const mutate of [e => { e.after.stock-- }, e => { e.after.payment.shots.blast-- }, e => { e.after.projectiles.push({ id: 1 }) }, e => { e.after.randomState++ }, e => { e.after.turn++ }, e => { e.after.lastOrderTurn = 12 }]) {
     const bad = structuredClone(event); mutate(bad)
     assert.throws(() => assertNoCast(bad))
+  }
+})
+test('each delivered cancellation must work even when later toggles restore final null', () => {
+  const events = ['Digit1', 'Escape', 'Digit1', 2, 'Digit1', 'Digit1'].map((control, index) => ({
+    type: control === 2 ? 'pointerup' : 'keydown', code: control === 2 ? null : control,
+    button: control === 2 ? 2 : null, trusted: true, canvasOwned: true, repeat: false,
+    before: { ...state(), mode: index % 2 ? 'blast' : null }, after: { ...state(), mode: index % 2 ? null : 'blast' },
+  }))
+  assertCancellationSequence(events)
+  const maskedEscape = structuredClone(events)
+  maskedEscape[1].after.mode = 'blast'
+  maskedEscape[2].before.mode = 'blast'; maskedEscape[2].after.mode = null
+  maskedEscape[3].before.mode = null
+  for (const event of maskedEscape) assertNoCast(event)
+  assert.equal(maskedEscape.at(-1).after.mode, null, 'The previous aggregate assertions would pass')
+  assert.throws(() => assertCancellationSequence(maskedEscape), /input 2.*own mode transition/)
+  for (const index of [3, 5]) {
+    const failed = structuredClone(events); failed[index].after.mode = 'blast'
+    assert.throws(() => assertCancellationSequence(failed), /own mode transition/)
+  }
+  for (const mutate of [value => value.splice(1, 1), value => value.push(structuredClone(value[5])), value => { value[3].button = 0 }, value => { value[3].canvasOwned = false }, value => { value[1].trusted = false }, value => { value[5].repeat = true }]) {
+    const failed = structuredClone(events); mutate(failed)
+    assert.throws(() => assertCancellationSequence(failed))
   }
 })
 test('active pause rejects late impact, untrusted input, blocked focus and wrong ordering', () => {

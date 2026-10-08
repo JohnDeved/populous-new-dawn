@@ -39,6 +39,24 @@ export function assertNoCast(event) {
     equal(event.after[key], event.before[key], `Rejected/cancelled input changed ${key}`)
 }
 
+export function assertCancellationSequence(events) {
+  const expected = [
+    ['keydown', 'Digit1', null, 'blast'],
+    ['keydown', 'Escape', 'blast', null],
+    ['keydown', 'Digit1', null, 'blast'],
+    ['pointerup', 2, 'blast', null],
+    ['keydown', 'Digit1', null, 'blast'],
+    ['keydown', 'Digit1', 'blast', null],
+  ]
+  requireEvidence(events.length === expected.length, 'Exactly six delivered cancellation inputs required')
+  for (const [index, [type, control, before, after]] of expected.entries()) {
+    const event = events[index]
+    requireEvidence(event.type === type && (type === 'keydown' ? event.code === control && !event.repeat : event.button === control && event.canvasOwned), `Cancellation input ${index + 1} has the wrong delivered control`)
+    assertNoCast(event)
+    requireEvidence(event.before.mode === before && event.after.mode === after, `Cancellation input ${index + 1} did not perform its own mode transition`)
+  }
+}
+
 export function assertCast(event, pointer, { targetId = null } = {}) {
   requireEvidence(event.trusted && event.canvasOwned && event.type === 'pointerup' && event.button === 0, 'Trusted owned-canvas release required')
   requireEvidence(event.before.mode === 'blast' && !event.before.paused, 'Live armed Blast required')
