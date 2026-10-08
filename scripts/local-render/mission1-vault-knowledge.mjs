@@ -192,7 +192,7 @@ export default async function mission1VaultKnowledge({ page, openMission, output
     await startup.getByRole('button', { name: 'Load Game', exact: true }).click()
     const boundary = await page.evaluate(() => ({ loaded: window.vaultLoadedBoundary, error: window.vaultLoadedError }))
     assert.equal(boundary.error, null); assert.deepEqual(boundary.loaded, saved)
-    report.checkpoint = { saved, loadedBeforeResume: boundary.loaded, scope: 'Same ephemeral browser context, real reload and public Load Game' }; save()
+    report.checkpoint = { saved, loadedBeforeResume: boundary.loaded, scope: 'Same browser context; actual reload and public Load Game; no cross-process persistence claim' }; save()
     await bindGame(page); await waitForShamanReadiness(page); await pause()
     await page.evaluate(installMission1VaultWitness); witnessInstalled = true
     await page.evaluate(() => { window.vaultEvidence.arm = null })
