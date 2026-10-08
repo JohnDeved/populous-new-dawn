@@ -61,7 +61,10 @@ retained. The four-turn limit has the controlled model witness above; successful
 browser delivery remains prospective. `pointer-preparation.json` retains the last
 96 preparation reads, including bounds, hit candidates, feedback, identity/range gate fields, read
 duration and bounded results from the existing inspections. Rendered-body
-visibility/pickability/frame and painter-source fields are retained as well.
+visibility/pickability/frame, exact active animation-source model/render flags,
+and painter-source fields are retained as well. The existing searches perform
+at most250 pixel inspections per read; each records its canvas ownership,
+person hit and actual geometric winner/lastKind, without additional picks.
 These records distinguish missing ownership from later delay without inventing
 an occluder or treating bounds alone as a person hit. The geometric picker and
 its render-eligibility producer are unchanged between baseline and candidate and

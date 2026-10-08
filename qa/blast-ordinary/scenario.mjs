@@ -70,10 +70,11 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
       window.blastOriginal = { scene, world, actor, target }
       const { observeBlastSetup } = await import('/qa/blast-ordinary/setup-observer.mjs')
       const { currentPersonOrder } = await import('/app/person-orders.ts')
+      const { unitAnimationSource } = await import('/app/selection-runtime.ts')
       const { observeBlastEpisode, responseSnapshot, pointerFeedback } = await import('/qa/blast-ordinary/observer.mjs')
       const { observeEntityPointer, findEntityInput, inspectEntityPoint } = await import('/qa/erosion-ordinary/input.mjs')
       const { spellTargetError } = await import('/app/model.ts'), { wrappedDistance } = await import('/app/world-coordinates.ts')
-      window.blastHelpers = { observeBlastEpisode, responseSnapshot, pointerFeedback, observeEntityPointer, findEntityInput, inspectEntityPoint, spellTargetError, wrappedDistance }
+      window.blastHelpers = { unitAnimationSource, observeBlastEpisode, responseSnapshot, pointerFeedback, observeEntityPointer, findEntityInput, inspectEntityPoint, spellTargetError, wrappedDistance }
       window.blastSetup = observeBlastSetup(scene, actor, { currentOrder: (w, p) => currentPersonOrder(w.buildingOrders, p) })
       if (window.blastSetup.read().errors.length) throw Error('Setup observation could not attach')
     })
@@ -138,7 +139,7 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
         const targetError = target ? spellTargetError(probe, 'blast', target) : 'missing target'
         const distance = p ? wrappedDistance(actor, p) : null, box = p && s.picking.personBounds(p.id)
         const rect = s.container.getBoundingClientRect(), event = s.pointerScreen
-        const inspection = { canvasOwned: 0, outsideCanvas: 0, targetHit: 0, nullHit: 0, otherHit: 0, samples: [] }
+        const inspection = { canvasOwned: 0, outsideCanvas: 0, targetHit: 0, nullHit: 0, otherHit: 0, sampleLimit: 250, samples: [] }
         const inspect = point => {
           const result = inspectEntityPoint(s, 'units', point)
           if (!result.canvasOwned) inspection.outsideCanvas++
@@ -148,16 +149,19 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
             else if (result.hitId === null) inspection.nullHit++
             else inspection.otherHit++
           }
-          if (inspection.samples.length < 8) inspection.samples.push({ x: point.x, y: point.y, ...result,
+          if (inspection.samples.length < inspection.sampleLimit) inspection.samples.push({ x: point.x, y: point.y, ...result,
             geometricKind: result.canvasOwned ? s.picking.lastKind : null,
             geometricId: result.canvasOwned ? s.picking.lastId : null })
           return result
         }
         const group = s.unitMeshes.get(19), layer = group?.userData.layers?.findLast(piece => piece.visible)
         const source = layer && s.view.painter.source(layer), unit = window.blastOriginal.target
+        const activeNative = window.blastHelpers.unitAnimationSource(unit)
         const renderedBody = { visible: group?.visible ?? null, pickable: group?.userData.pickable ?? null,
           frame: group?.userData.frame ?? null, spriteBucket: group?.userData.spriteBucket ?? null,
           inside: unit.inside, nativeRenderFlags: unit.native?.renderFlags ?? null, nativeFlags2: unit.native?.flags2 ?? null,
+          activeNative: activeNative ? { id: activeNative.id, class: activeNative.class, model: activeNative.model,
+            state: activeNative.state, renderFlags: activeNative.renderFlags, flags2: activeNative.flags2 } : null,
           visibleLayer: !!layer, layerHasPainterSource: !!source,
           painterSource: source ? { bucket: source.bucket, cell: source.cell, phase: source.phase, object: source.object, face: source.face } : null }
         const existingHit = p && event && findEntityInput([{ x: event.clientX, y: event.clientY }], p.id, inspect)
