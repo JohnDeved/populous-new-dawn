@@ -2,7 +2,7 @@
 
 Prepared from runtime freeze `4635c1acc9b66c1d54e5e2bc7cad4b88fa30754b` and
 read against the reviewed lifetime repair `7c3ac608917d0b6a3a6c4c779460953905f2738e`.
-The revised driver is prospective. Two baseline attempts failed before casting;
+The revised driver is prospective. Three baseline attempts failed before casting;
 no ordinary Blast episode has passed. Pure helper tests and controlled model probes
 are not ordinary episodes, native comparisons or parity awards.
 
@@ -18,7 +18,13 @@ preserved; the candidate was not attempted. The next baseline at `cbc412b6`
 failed before any public actions while preloading the observer: the real Vite
 CommonJS plugin interpreted the local assertion function named `require` as an
 import. The helper is now named `requireEvidence`; its predicates are unchanged.
-The failed500 receipt and server log remain retained.
+The failed500 receipt and server log remain retained. The later baseline at
+`d194744e` proved the trusted ground dispatch, Shaman54 recipient and model3
+payload/acknowledgement. It reached valid moving response range at turn470, but
+returned no stable person pixel on its first hit search; the next pre-dispatch
+check at476 exceeded the four-turn window. No hover or cast occurred, and the
+Shaman retained100HP. The retained ring supports that call boundary; the exact
+pixel-miss cause was not captured, so latency alone is not established.
 
 The revised proposal keeps public Mission2 entry, introduction skip, original
 Blue Shaman HUD selection and one real ground movement command toward `(58,108)`.
@@ -39,12 +45,22 @@ controlled port-model observations, not original timing or ordinary browser resu
 
 The revised browser trigger requires the same living outdoor class1/nondeleted
 Warrior19, actual movement across two distinct normal-turn observations, no fight,
-fresh detached-clone `spellTargetError === null`, and distance at least7. It uses
-the first qualifying observation; release must follow within four simulation
-turns, with fresh pointer, movement and range checks. An expired pre-dispatch check stops further input. If a trusted release arrives
-after the window despite the earlier check, the episode fails and retains that
-late delivered event and any cast it caused. The four-turn limit has the controlled model witness above; browser delivery
-within that limit remains prospective.
+fresh detached-clone `spellTargetError === null`, and distance at least7. It also
+requires a settled camera and a currently owned 5×5 person-pixel neighborhood at
+the actual pointer, with the declared hover phenotype. Pixel search, public mouse
+hovering, imports and caches are prepared before this trigger. A single
+synchronous browser read combines the final checks with trigger/hover evidence
+registration; the one normal click follows immediately, with no additional remote
+reads, file writes or raster waits in between. There is no clock scheduler or
+window extension.
+
+The actual trusted release must occur within four simulation turns, and the
+existing hover/context freshness check remains mandatory. A delayed event may
+already cast before the actual-release contract rejects it; any such failure is
+retained. The four-turn limit has the controlled model witness above; successful
+browser delivery remains prospective. `pointer-preparation.json` retains the last
+96 preparation reads, including bounds, hit candidates, feedback, failure reasons
+and read duration, so a missing real pixel can be distinguished from later delay.
 
 Passive setup telemetry retains up to96 before/after turn-boundary snapshots and
 the first identity/health failure. Ground dispatch records the real pointer
