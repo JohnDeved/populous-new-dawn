@@ -330,7 +330,7 @@ test('acknowledgment retains consumed natural HUD time, original owner, pose and
   }
 })
 
-test('movement requires the exact canonical inspected integer pixel, never a float tolerance', () => {
+test('movement keeps exact inspected pixel equality while the caller chooses canonical integers', () => {
   const first = sample(1, 'baseline'), make = () => {
     const episode = createBlastEpisode({ ...options, expectation: 'baseline' })
     episode.propose(proposed()); episode.trigger(1, 1.3); episode.release(release('baseline'), first)

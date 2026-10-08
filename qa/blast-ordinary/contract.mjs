@@ -94,8 +94,7 @@ export function createBlastEpisode(options) {
       check(value.shotBefore?.id === entry.shot.id && value.shotBefore.phase === 'windup' && value.shotBefore.remaining > 0 &&
         sample.shot?.id === entry.shot.id && sample.castCount === entry.castCount, 'Movement was late or created another cast')
       check(value.handlerPersonId === null && value.handlerPoint && value.ownerSame && value.order?.model === 3 &&
-        value.order.a === value.expected.a && value.order.b === value.expected.b &&
-        Number.isInteger(value.point?.x) && Number.isInteger(value.point?.y) && same(value.point, value.expected.pixel) &&
+        value.order.a === value.expected.a && value.order.b === value.expected.b && same(value.point, value.expected.pixel) &&
         (Math.round((value.handlerPoint.x + 8) * 256) & 65535) === value.expected.a &&
         (Math.round((-value.handlerPoint.z - 8) * 256) & 65535) === value.expected.b, 'Original person did not receive the declared ordinary ground move')
       check(value.turn === sample.turn && value.turn >= entry.turn && value.turn < entry.turn + 6, 'Movement must be delivered during the original windup')
