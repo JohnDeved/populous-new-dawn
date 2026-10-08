@@ -6,6 +6,7 @@ import { installMission1VaultCheckpointState, readMission1VaultCheckpoint, insta
 import { createMission1VaultInput } from './mission1-vault-input.mjs'
 import { findMission1CampGround, installMission1CampConstruction } from './mission1-vault-construction.mjs'
 import { waitForCheckpointReadback } from '../checkpoint-readback.mjs'
+import { mission1BlastReady } from './mission1-vault-knowledge.mjs'
 
 const source = file => readFileSync(new URL(file, import.meta.url), 'utf8')
 const vector = () => ({ toArray: () => [0, 0, 0] })
@@ -267,4 +268,28 @@ test('driver binds shipped labels, readiness, authored records and maintained so
   assert.match(driver, /stages.birth.postRender.gift.glow.frame, 1417/)
   assert.match(driver, /Warrior Training Hut, 8 wood/)
   assert.doesNotMatch(driver + input, /training-entry|requestAnimationFrame\s*=|\.tick\(|\.animate\(|\.render\(|indexedDB.*readwrite/)
+})
+
+
+test('Blast readiness waits for the actual tribe casting cooldown and original living Shaman', () => {
+  const f = fixture(), u = f.world.units[0]
+  Object.assign(u, { cooldown: 0, lift: 0, casting: null })
+  f.world.shots = { blast: 1 }
+  f.world.castingTribes = [{ flags: 0, cooldown: 12, aiCooldown: 0 }]
+  f.world.manaTribes = [{ playerType: 0 }]
+  assert.equal(mission1BlastReady(46), false, 'combat cooldown zero does not clear spell cooldown')
+  f.world.castingTribes[0].cooldown = 0
+  u.cooldown = 99
+  assert.equal(mission1BlastReady(46), true, 'combat timer does not own spell readiness')
+  f.world.manaTribes[0].playerType = 1; f.world.castingTribes[0].aiCooldown = 3
+  assert.equal(mission1BlastReady(46), false)
+  f.world.castingTribes[0].flags = 0x80000
+  assert.equal(mission1BlastReady(46), true, 'retain native unlimited-range cast gate')
+  u.lift = 1; assert.equal(mission1BlastReady(46), false)
+  u.lift = 0; u.casting = { spell: 'blast' }; assert.equal(mission1BlastReady(46), false)
+  u.casting = null; f.world.shots.blast = 0; assert.equal(mission1BlastReady(46), false)
+  f.world.shots.blast = 1; u.hp = 0; assert.throws(() => mission1BlastReady(46), /Original Shaman/)
+  assert.match(source('../../app/live-command.ts'), /canShamanCast\(w\.castingTribes\[0\], w\.manaTribes\[0\]\.playerType/)
+  assert.match(source('../../app/spell-casting.ts'), /!t\.cooldown/)
+  assert.match(source('./mission1-vault-knowledge.mjs'), /await wait\(mission1BlastReady, originalShamanId, 120000\)/)
 })
