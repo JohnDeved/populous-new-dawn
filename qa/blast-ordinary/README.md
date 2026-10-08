@@ -37,8 +37,25 @@ before the cast. Keep the same selected Brave. Candidate preparation still needs
 its owned5×5, distance>=7 margin,16-line visible hover and validated natural hover
 frame; baseline needs one real owned pixel. Pre-position the ordinary pointer,
 press left, make one fresh read, then release. The held interval never refreshes
-candidate hover. Original <=1-turn preparation freshness and <=4-turn release
-bounds remain. Actual source range and delivered target ownership are still checked.
+candidate hover. The shared <=4-turn trigger-to-release bound remains. Preparation age is
+retained diagnostically; it does not substitute for current target evidence: actual release
+must have exactly the same original target XYZ pose, pixel and context, with its
+sample/range/pixel records on that actual event turn, current owner/range and a
+trusted owned-canvas event. This replaces only the baseline proposal-age proxy,
+not the four-turn window. Candidate natural-frame relation is specified below.
+The candidate natural-render hook records the real16-line frame's original
+registered target, normalized XYZ, input context, actual pixel, render frame and
+monotonic capture time. These must match the registered hover. Actual trusted
+pointer-down capture must match that target/pose/context/pixel and follow the
+natural frame; the trigger must follow the press, and the actual matching release
+must follow the trigger. Event/sample turns must agree. Capture/press/trigger/
+release chronology is checked even within one simulation turn. Missing frames,
+changed pose/context/pixel/owner, synthetic input or reversed chronology reject.
+No frame is forced or credited retroactively. The five former one-turn proxies
+were the scenario's prepared-hover and held-hover checks plus reducer trigger,
+release and hover-frame checks; they now use these explicit relations. Actual
+source range and candidate handler identity remain mandatory.
+
 Failed held preparation still uses two public Escapes, verifies mode=null and
 selection=[], then mouse-up and no additional cast/order; all cleanup is retained.
 
@@ -73,6 +90,16 @@ rejection/interruption, Save/Load, paired-frame and final combined-tree gates re
 open. The passive diagnostic is available but disabled in ordinary bindings.
 
 ## Retained earlier attempts
+
+Baseline `a9a3be8c` delivered the intended278 pixel at322 after proposal320, with
+unchanged target XYZ/context, current source range and owned/trusted input. It
+allocated fixed-ground Blast1252, stock4→3; the sole release rejection was the
+one-turn proposal-age proxy. The following observer read at325 found only three
+windup turns left and correctly withheld movement because release was rejected.
+That run remains failed. The new baseline oracle requires actual event-time
+identity/pose/context/range correspondence; it does not retroactively accept18,
+widen a turn threshold or establish the later command/motion/render outcome.
+
 
 Baseline `8e707803` completed the public staging order but failed an obsolete
 attachment assertion demanding that model3 still exist. At306 Brave278 remained
