@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
 import { createBlastEpisode } from '../qa/blast-ordinary/contract.mjs'
+import { observeBlastTurn } from '../qa/blast-ordinary/setup-observer.mjs'
 
 // Synthetic evidence records test only the reducer, never gameplay or rendering.
 const copy = value => structuredClone(value)
@@ -53,13 +54,13 @@ function start(expectation = 'candidate', change = () => {}) {
   if (expectation === 'candidate') episode.frame({ kind: 'ack', turn: 1, targetId: 3, visible: true, lines: 32, pixels: 160, effectId: null })
   return { episode, first }
 }
-function finish({ expectation = 'candidate', omitFrame, mutate = () => {}, still = false } = {}) {
+function finish({ expectation = 'candidate', omitFrame, mutate = () => {}, still = false, projectilePhase = 'arrived' } = {}) {
   const { episode } = start(expectation)
   for (let turn = 1; turn < 10; turn++) {
     const before = sample(turn, expectation, { still }), after = sample(turn + 1, expectation, { still })
     mutate({ before, after, turn })
     episode.before(before); episode.after(after)
-    if (turn === 8 && omitFrame !== 'arrival') episode.frame({ kind: 'arrival', turn: 9, targetId: 3, visible: true, lines: 16, pixels: 100, effectId: 50 })
+    if (turn === (projectilePhase === 'flying' ? 6 : 8) && omitFrame !== 'projectile') episode.frame({ kind: 'projectile', renderFrame: 8, phase: projectilePhase, shotId: 44, turn: turn + 1, targetId: 3, visible: true, lines: 16, pixels: 100, effectId: 50 })
     if (turn === 9 && omitFrame !== 'impact') episode.frame({ kind: 'impact', turn: 10, targetId: 3, visible: true, lines: 16, pixels: 100, effectId: 61 })
   }
   return episode
@@ -93,9 +94,9 @@ test('stale pointer, changed context, wrong handler and synthetic events are rej
 })
 test('missing visible hover, arrival, impact or acknowledgement cannot pass', () => {
   assert.throws(() => start('candidate', ({ h }) => { h.visible = false }), /feedback/)
-  for (const omitFrame of ['arrival', 'impact']) assert.equal(finish({ omitFrame }).report().complete, false)
+  for (const omitFrame of ['projectile', 'impact']) assert.equal(finish({ omitFrame }).report().complete, false)
   const { episode } = start()
-  assert.throws(() => episode.frame({ kind: 'arrival', turn: 1, targetId: 3, visible: false, lines: 16, pixels: 0, effectId: 50 }), /pixels/)
+  assert.throws(() => episode.frame({ kind: 'projectile', renderFrame: 8, phase: 'flying', shotId: 44, turn: 1, targetId: 3, visible: false, lines: 16, pixels: 0, effectId: 50 }), /pixels/)
   const withoutAck = createBlastEpisode(options)
   withoutAck.hover(hover('candidate'))
   withoutAck.frame(hoverFrame())
@@ -280,4 +281,39 @@ test('candidate frame pose/context/pixel and actual frame-before-press chronolog
     assert.throws(() => start('candidate', ({ r }) => change(r)), /matching press/)
   for (const change of [s => { s.target.position.y++ }, s => { s.target.position.h++ }, s => { s.turn++ }])
     assert.throws(() => start('candidate', ({ first }) => change(first)), /Actual release pose/)
+})
+
+test('lifecycle caller avoids snapshots before release and after retirement, but preserves active failures', () => {
+  const unopened = createBlastEpisode(options), retired = finish()
+  let snapshots = 0
+  const forbidden = () => { snapshots++; throw Error('post-retirement person owner unavailable') }
+  for (const episode of [unopened, retired]) {
+    assert.equal(episode.observingTurns(), false)
+    observeBlastTurn(episode, 'before', forbidden)
+    observeBlastTurn(episode, 'after', forbidden)
+  }
+  assert.equal(snapshots, 0)
+  const { episode } = start()
+  assert.equal(episode.observingTurns(), true)
+  assert.throws(() => observeBlastTurn(episode, 'before', forbidden), /owner unavailable/)
+  assert.equal(snapshots, 1)
+})
+
+test('one natural owned flying or arrived frame plus impact can satisfy presentation while logical arrival remains exact', () => {
+  for (const projectilePhase of ['flying', 'arrived']) {
+    const report = finish({ projectilePhase }).report()
+    assert.equal(report.complete, true)
+    assert.equal(report.arrival.turn, 9); assert.equal(report.impact.turn, 10)
+    assert.equal(report.frames.find(f => f.kind === 'projectile').phase, projectilePhase)
+  }
+  assert.equal(finish({ omitFrame: 'projectile' }).report().complete, false)
+})
+test('natural projectile frame rejects wrong shot, visual, phase or unobserved turn', () => {
+  for (const change of [f => { f.shotId++ }, f => { f.effectId++ }, f => { f.phase = 'arrived' }, f => { f.turn = 6 }]) {
+    const { episode } = start()
+    for (let turn = 1; turn < 7; turn++) { episode.before(sample(turn)); episode.after(sample(turn + 1)) }
+    const frame = { kind: 'projectile', renderFrame: 8, turn: 7, phase: 'flying', shotId: 44, targetId: 3, visible: true, lines: 0, pixels: 100, effectId: 50 }
+    change(frame)
+    assert.throws(() => episode.frame(frame), /actual owned shot/)
+  }
 })

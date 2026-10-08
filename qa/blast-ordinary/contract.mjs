@@ -21,11 +21,12 @@ export function createBlastEpisode(options) {
     keys(sample, ['turn', 'level', 'playing', 'paused', 'speed', 'flags', 'sceneMatches', 'actor', 'target', 'stock', 'castCount', 'mana', 'random', 'shot', 'effects'])
     check(Number.isInteger(sample.turn) && sample.level === 2 && sample.playing && !sample.paused && sample.speed === 1 && !(sample.flags & 32) && sample.sceneMatches, 'Ordinary Mission2 clock/context changed')
     check(sample.actor?.id === actorId && sample.actor.same && sample.actor.hp > 0 && sample.actor.team === 'blue', 'Original Blue Shaman changed or disappeared')
-    if (entry) check(sample.actor.position.x === entry.actor.position.x && sample.actor.position.y === entry.actor.position.y, 'Original Shaman moved during the cast')
+    if (entry) check(sample.actor.position && entry.actor.position && sample.actor.position.x === entry.actor.position.x && sample.actor.position.y === entry.actor.position.y, 'Original Shaman moved during the cast')
     if (movement && targetRequired) check(sample.target.movementOrderSame, 'Original public movement order changed')
     if (targetRequired) check(sample.target?.id === targetId && sample.target.same && sample.target.team === 'blue' && sample.target.kind === 'brave' && sample.target.inside === null && sample.target.ownerValid, 'Original outdoor commanded Blue target changed or disappeared')
   }
   return {
+    observingTurns: () => !!entry && !retired,
     trigger(turn, observedAt) {
       const prepared = expectation === 'baseline' ? proposal : hover
       check(triggerTurn === undefined && prepared && !entry && Number.isInteger(turn) && turn >= 0, 'One actual response trigger turn required after declared preparation')
@@ -140,8 +141,8 @@ export function createBlastEpisode(options) {
       rows.push({ stage: 'turn', before: a, after: clone(b) }); lastAfter = b.turn; before = null
     },
     frame(value) {
-      keys(value, ['turn', 'kind', 'targetId', 'visible', 'lines', 'pixels', 'effectId', 'position', 'context', 'point', 'renderFrame', 'observedAt', 'targetSame', 'ownerValid'])
-      check(['hover', 'ack', 'arrival', 'impact'].includes(value.kind), 'Unknown frame evidence')
+      keys(value, ['turn', 'kind', 'targetId', 'visible', 'lines', 'pixels', 'effectId', 'position', 'context', 'point', 'renderFrame', 'observedAt', 'targetSame', 'ownerValid', 'phase', 'shotId'])
+      check(['hover', 'ack', 'projectile', 'impact'].includes(value.kind), 'Unknown frame evidence')
       if (value.kind === 'hover') check(triggerTurn === undefined && !release, 'Natural hover frame must be recorded before the trigger')
       if (frames.some(frame => frame.kind === value.kind)) return
       check(value.visible && value.pixels > 0, 'Rendered feedback pixels are missing')
@@ -152,13 +153,18 @@ export function createBlastEpisode(options) {
           same(value.context, hover.context) && same(value.point, hover.point), 'Natural hover frame pose/context/pixel or chronology differs')
         else check(release && value.turn >= release.turn && value.turn <= release.turn + 3, 'Stale bracket frame or missing input phase')
       }
-      if (value.kind === 'arrival') check(arrival && value.turn === arrival.turn && arrival.shot.visualIds.includes(value.effectId), 'Rendered arrival is stale or absent')
+      if (value.kind === 'projectile') {
+        const observed = rows.find(row => row.stage === 'turn' && row.after.turn === value.turn)?.after.shot
+        check(observed && Number.isInteger(value.renderFrame) && value.renderFrame >= 0 && ['flying', 'arrived'].includes(value.phase) && observed.phase === value.phase &&
+          value.shotId === entry.shot.id && observed.id === value.shotId && observed.visualIds.includes(value.effectId),
+        'Natural projectile frame lacks the actual owned shot, visible phase or visual identity')
+      }
       if (value.kind === 'impact') check(impact && value.turn >= impact.turn && value.effectId === impact.flash.id, 'Rendered impact is stale or absent')
       frames.push(clone(value))
     },
     report(...args) {
       requireEvidence(args.length === 0, 'Cannot seed a success report')
-      const required = expectation === 'candidate' ? ['hover', 'ack', 'arrival', 'impact'] : ['arrival', 'impact']
+      const required = expectation === 'candidate' ? ['hover', 'ack', 'projectile', 'impact'] : ['projectile', 'impact']
       const complete = !!(entry && release && movement && arrival && impact && retired && windupMotion && flightMotion && !before && !errors.length && required.every(kind => frames.some(f => f.kind === kind)))
       return clone({ version: 1, expectation, runId, sourceFingerprint, triggerTurn, triggerObservedAt, actorId, targetId, complete, errors, hover, proposal, release, movement, entry, arrival, impact, retired, windupMotion, flightMotion, rows, frames,
         limits: 'Ordinary rendered browser episode only when accompanied by the harness receipt and retained frame files. No original execution, full parity, hardware performance, ground comparison or save/reload claim.' })

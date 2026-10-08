@@ -77,8 +77,19 @@ no movement within windup or flight, or lost identity fails. The next ground
 click can also replace person acknowledgement before rendering. Candidate still
 requires an actual natural32-line acknowledgement image; there is no forced frame
 or promise that one occurs between events. Missing acknowledgement remains a
-failed experiment. Both products retain actual arrival/parent impact and rendered
-phases; friendly damage follows `blastAllied` and earns no enemy-damage claim.
+failed experiment. Both products retain exact per-turn arrival/destination and
+next-turn parent impact. Visible projectile evidence is one actual natural owned
+head frame during `flying` or `arrived`, labelled with its observed phase, shot ID,
+visual ID, render frame and simulation turn, plus a separate impact frame. The
+scene advances all elapsed turns before rendering; a GPU frame in the single
+`arrived` turn is not guaranteed. No render is forced and no impact image becomes
+arrival evidence. First/last natural render opportunities and a visit count are
+retained with head visibility/phase within the lifecycle and two post-impact turns.
+Lifecycle snapshot construction stops after retirement, while render observation
+continues. Active missing target owners remain invalid; order equality applies
+only to the target and safely represents a missing owner.
+
+Both products keep logical and visual evidence distinct; friendly damage follows `blastAllied` and earns no enemy-damage claim.
 
 The baseline's event-time detached range check and separately labelled one
 post-handler geometric read remain unchanged, including their cache/cost limits.
@@ -90,6 +101,14 @@ rejection/interruption, Save/Load, paired-frame and final combined-tree gates re
 open. The passive diagnostic is available but disabled in ordinary bindings.
 
 ## Retained earlier attempts
+
+[Baseline19's retained technical note](evidence/baseline19-observed-history.md)
+and actual impact PNG preserve the first complete observed ground-cast/move/
+windup/flight/arrival/impact history. It remains failed: no natural arrival frame
+was captured and a post-retirement nullable-owner sample threw. The new observable
+relation requires a fresh genuine projectile frame and impact frame;19 receives
+no retrospective visual or ordinary acceptance.
+
 
 Baseline `a9a3be8c` delivered the intended278 pixel at322 after proposal320, with
 unchanged target XYZ/context, current source range and owned/trusted input. It
@@ -393,14 +412,15 @@ stop helper. Any file there stops further input and is retained; a normal stop i
   report, remaining acceptance and errors. `receipt.json` remains authoritative
   for source drift, browser errors, cancellation and cleanup.
 - `startup.json`, `ground-dispatch.json`, `setup-trace.json`, `target-setup.json`: selection readiness, actual movement dispatch, bounded failure diagnostics and natural response motion.
-- `hover/ack/arrival/impact.png`: actual canvas captured immediately after the
+- `hover/ack/projectile/impact.png`: actual canvas captured immediately after the
   game's own render, when the corresponding phase and submitted visible mesh or
   SVG are observed. `hover/ack.svg` and `*-brackets.png` preserve the actual SVG
   geometry/computed stroke and its detached rasterization. `terminal.png` is a
   full-page screenshot taken after completion.
 - Arrival is captured at its first qualifying render within the exact observed
-  arrival turn. An earlier render without the visible effect does not suppress
-  later renders in that same turn; a later-turn arrival image is rejected.
+  observed flying or arrived turn, retaining the exact phase/shot/visual IDs. An
+  earlier render without a visible head does not suppress later valid renders;
+  unobserved or mismatched turn/phase/visual identity is rejected.
 - Effect frame pixel counts cover the full nontransparent game canvas. They are
   not isolated-effect pixel counts or an occlusion proof; review the PNG and
   recorded on-screen visible effect together. Bracket counts are from the detached

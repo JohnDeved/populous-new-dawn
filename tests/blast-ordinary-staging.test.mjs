@@ -3,7 +3,7 @@ import test from 'node:test'
 import { createWorld, tick, command, cast, selectFollowers, cancelInteraction, nativePosition } from '../app/model.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { bindStagedBlastTarget, stationaryBlastTarget } from '../qa/blast-ordinary/preparation.mjs'
-import { responseSnapshot } from '../qa/blast-ordinary/observer.mjs'
+import { responseSnapshot, blastPersonSnapshot } from '../qa/blast-ordinary/observer.mjs'
 
 // Actual imported M2 World/public model commands; no injected actors, pose, speed,
 // resources, terrain or order. This is a port caller contract, not browser evidence.
@@ -72,5 +72,21 @@ test('completed ordinary M2 staging binds its real owner and admits a later cast
   assert.equal(world.projectiles.at(-1).caster, actor.id)
   assert.equal(world.projectiles.at(-1).phase, 'windup')
   assert.equal(world.projectiles.at(-1).remaining, 6)
-  t.diagnostic(JSON.stringify({ completed, movingResting, stationary, admitted, firstZeroSpeed: firstZeroSpeed ?? null, caster: actor.id, target: target.id }))
+  assert.ok(command(world, { x: -93, z: -101 }))
+  const movementOrder = currentPersonOrder(world.buildingOrders, target.native)
+  assert.equal(blastPersonSnapshot(world, actor, target, movementOrder).movementOrderSame, true, 'the target order does not apply to the Shaman')
+  let absentOwner
+  for (let attempts = 0; attempts < 120; attempts++) {
+    tick(world, 1 / 12)
+    const actual = blastPersonSnapshot(world, target, target, movementOrder)
+    if (!target.flight && !target.native && !target.entry?.person && !target.builder?.person) {
+      absentOwner = { turn: world.turn, ...actual }
+      assert.equal(actual.ownerValid, false)
+      assert.equal(actual.movementOrderSame, false)
+      assert.equal(actual.position, null)
+      break
+    }
+  }
+  assert.ok(absentOwner, 'normal Blast impulse landing supplies the observed nullable owner transition')
+  t.diagnostic(JSON.stringify({ absentOwner, completed, movingResting, stationary, admitted, firstZeroSpeed: firstZeroSpeed ?? null, caster: actor.id, target: target.id }))
 })
