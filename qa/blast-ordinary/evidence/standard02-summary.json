@@ -1,0 +1,200 @@
+{
+  "kind": "accepted-fresh-standard-profile-summary",
+  "standardStagesStatus": "passed",
+  "independentAggregateReview": "ACCEPT reported by coordinator after verification of all twelve raw receipts, disjoint test coverage, counts, source/input/output hashes and offline build.",
+  "source": {
+    "head": "4b08bae53aa4b5b1c26c38dc9660f5c57e52e4f0",
+    "tree": "041081a0a9bda2611b838cee9b957c03ed72e7bf",
+    "sourceAndInputsStableAcrossAllStages": true
+  },
+  "aggregateSha256": "e6b0dc1884654261ba2fe1084b6fa9a977ae5bb782925bf1c156c3c207480110",
+  "manifestSha256": "45e6e0f41ce64de9ee952cea98af3c1c8ac89964a09a92f2d3f1a118a1b21b8b",
+  "runnerSha256": "e4bbd2ee4e0ae2b23fb92b551e4ca6ac92c36f44afea46c9cd1112dbc903e457",
+  "coverage": {
+    "freshStages": 12,
+    "freshTestShards": 8,
+    "uniqueTestFiles": 256,
+    "counts": {
+      "tests": 1496,
+      "pass": 1496,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "counting": "Final Node test-runner summary per shard only. Nested child-run summaries are neither added nor substituted; no test inventory is copied here."
+  },
+  "timing": {
+    "startedAt": "2026-10-08T09:08:43.896Z",
+    "finishedAt": "2026-10-08T09:16:31.542Z",
+    "summedCommandSeconds": 314.507,
+    "spanSeconds": 467.646
+  },
+  "stages": [
+    {
+      "stage": "typecheck",
+      "status": "passed",
+      "durationSeconds": 10.134,
+      "receiptSha256": "8d224135d77e53281d5716c1bb25c2a84cdef504dcda63b9d6427a4f5ad1f075",
+      "stdoutSha256": "5b3b688caa668685eebda41ca93c4e60de869bac3645a0b25bf22809e6c84ba5",
+      "stderrSha256": "7d61cb2e2deb776dfec4d6f54693f9edeed0af5c4da52f091c53c995d862fb65"
+    },
+    {
+      "stage": "test-01",
+      "status": "passed",
+      "durationSeconds": 38.131,
+      "receiptSha256": "e47ba1953b1bb4da2c6b9cecee58ec40f44387685e3fb19969b15b3c0fb0d600",
+      "stdoutSha256": "fc6807150517dd583fbdde126fdf6225518334ade2e7c90252b031ad3e9eadc1",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "testFileCount": 32,
+      "testsPassed": 176
+    },
+    {
+      "stage": "test-02",
+      "status": "passed",
+      "durationSeconds": 30.059,
+      "receiptSha256": "f7a2b454952e1041c4d332a54db2af32b0704d814da542bc53d342767802c495",
+      "stdoutSha256": "4213ce01cfa673c88b941dd4e90a2eb5fe31f963385f7a25d426b2d2a9c28187",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "testFileCount": 32,
+      "testsPassed": 238
+    },
+    {
+      "stage": "test-03",
+      "status": "passed",
+      "durationSeconds": 38.635,
+      "receiptSha256": "c42625906384171bc901396dd206becc13b9f6c6552493f42f730b7e90ba25d2",
+      "stdoutSha256": "c293ce5bcce62c22de978896e8d92db1d04e595c7af1dc724909cfd1714d6f81",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "testFileCount": 32,
+      "testsPassed": 213
+    },
+    {
+      "stage": "test-04",
+      "status": "passed",
+      "durationSeconds": 62.908,
+      "receiptSha256": "fd37ff9a161fa1b73399fef67db02902dfad8df06987310d3377d9c18dcb98fd",
+      "stdoutSha256": "aaa14551a2a6e038c60b0679ecf805cbd304476d0e7374ee7e9bffdd65d63481",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "testFileCount": 32,
+      "testsPassed": 151
+    },
+    {
+      "stage": "test-05",
+      "status": "passed",
+      "durationSeconds": 36.598,
+      "receiptSha256": "4de2636f79ee3a32a5350b61c4dd1c4206d32fed5618c0768e9bace84c33cd55",
+      "stdoutSha256": "bbc6f32eeecd5fe5a7ffcc4234287f33eacbb5c47a8aa6783eb7f73c28db8781",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "testFileCount": 32,
+      "testsPassed": 129
+    },
+    {
+      "stage": "test-06",
+      "status": "passed",
+      "durationSeconds": 16.068,
+      "receiptSha256": "bc941f1f06865e47e2039e64c3928c4ccf7288f6fd92288da123bbc703ccf3b5",
+      "stdoutSha256": "7a947cd56e684c1e8cf7f4bb514dbb7844945d9239258d82072b4f89d0cb31b9",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "testFileCount": 32,
+      "testsPassed": 158
+    },
+    {
+      "stage": "test-07",
+      "status": "passed",
+      "durationSeconds": 27.443,
+      "receiptSha256": "d03e86caa24a591b7ec729b756b2a38142ae56bf2996320f0d1bac8e6b0abdfa",
+      "stdoutSha256": "ddaf8b4ed4850c3b59482208fe2b96a975df9166a676fb7b1cf58098c40b8091",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "testFileCount": 32,
+      "testsPassed": 240
+    },
+    {
+      "stage": "test-08",
+      "status": "passed",
+      "durationSeconds": 29.106,
+      "receiptSha256": "865643b0f97e911ad1c14e438ec9d5f5aeffc45c33c703bd04a611e96694bb1a",
+      "stdoutSha256": "a9dda9f235804f49178edba0c09e66dae0c5646b411ef356337a8978af73fbe7",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "testFileCount": 32,
+      "testsPassed": 191
+    },
+    {
+      "stage": "parity",
+      "status": "passed",
+      "durationSeconds": 0.346,
+      "receiptSha256": "a7cf1f4ae0477bb4e18e3eb4da162359f06ecf99aa24ff5b9dcf52e15d6fa77d",
+      "stdoutSha256": "f39c8ad20b8013f4e4e4ade55ff5d63ab1c8df3729611db56c2d25cf734b48a9",
+      "stderrSha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f"
+    },
+    {
+      "stage": "orchestration",
+      "status": "passed",
+      "durationSeconds": 0.59,
+      "receiptSha256": "3ff48c0083a3128759a568dd914570922835aeb9ac80b05ae6a78f1266b91698",
+      "stdoutSha256": "f48a93a803281f55b594cffbe27e1ed3fbbae12c6e26b6c6a7f4ce27c20b3559",
+      "stderrSha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f"
+    },
+    {
+      "stage": "build",
+      "status": "passed",
+      "durationSeconds": 24.489,
+      "receiptSha256": "64dfce27291bc97b675e4ad68f2e7bb7cf8da3dfdf57fcb410adb17bcd5b8090",
+      "stdoutSha256": "49219b864fbc947e84faa836704c6de9f2de8e532e976b23cb60403a76a7fe59",
+      "stderrSha256": "e4843c1bc44f0fd9260c07587bef7c796bcaadb9cd6eb258ca8e7495637c345c"
+    }
+  ],
+  "quality": {
+    "preflight": {
+      "status": "failed",
+      "exitCode": 1,
+      "receiptSha256": "627b164ffcfe898573ae5338fec64c15eb2e7c242be17db397333426bd7a2fe7",
+      "stdoutSha256": "4938c490197768b33f2626d5c2ae83e5d67746fa7eba6d035ff0b0d161afbfc6",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "strictOxlintStatus": "failed",
+      "reportedFindings": 94,
+      "formatStatus": "passed",
+      "attribution": "Independent final review accepted the exact match to inherited findings. Strict lint remains failed."
+    },
+    "eslint": {
+      "status": "failed",
+      "exitCode": 1,
+      "receiptSha256": "c238f66aa24d9698424c8281c858cd4185e96b1f15b780d8bfc3c2accac9aa21",
+      "stdoutSha256": "067157a39f3280b85d769b431678c5965e840a8ac1f2c2cbf69632b67c2b8d7d",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reportedErrors": 1,
+      "attribution": "Independent final review accepted the exact inherited prefer-const finding. ESLint remains failed."
+    },
+    "structural": {
+      "status": "passed",
+      "exitCode": 0,
+      "receiptSha256": "cad24dd4c652c3f67a15dce353f6b51ed012e98df35e0f332f113e2c200e38a1",
+      "stdoutSha256": "8e23de509dd4a18772a2f4bcb90638ee66c8484a293ef55a9a01bf04cb0bd0ad",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "context": {
+      "status": "passed",
+      "exitCode": 0,
+      "receiptSha256": "7e86a04d2c93dad05a0f8c17e232478efe0a779f1e2cad83b68926ee413165fe",
+      "stdoutSha256": "230768da5b760127ebfc6d4b4241ed7976b55799d5a3a6fd6db952a48b2dd097",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "build": {
+    "status": "passed",
+    "metadataFetch": "disabled by CLOUDFLARE_CF_FETCH_ENABLED=false",
+    "telemetry": "WRANGLER_SEND_METRICS=false",
+    "scope": "Offline build result, not a deployment."
+  },
+  "separateOrdinaryEvidence": {
+    "movingCandidate24Source": "c40026937f39dadf86143ef13f73dba22d2e4a9c",
+    "controls02Source": "2e51cf0a024369221c534d0a72c1fcef7e0065ff",
+    "controlsSummary": "controls02-summary.json",
+    "scope": "Ordinary moving-person/frame and controls results were accepted separately on their recorded QA sources, with independent correspondence to the product. They are not substituted for any of these twelve fresh standard stages."
+  },
+  "limits": [
+    "The twelve standard stages pass. Strict lint remains FAILED with 94 Oxlint findings plus one ESLint error, independently accepted as inherited; this is not a clean-lint claim.",
+    "No full-original parity or hardware performance claim.",
+    "Published on the supporting evidence branch; the exact tested product head is unchanged. Raw logs, archives, profiles and test inventory are retained separately and not included."
+  ]
+}
