@@ -88,10 +88,20 @@
         "app/person-selection.ts",
         "app/scene-picking.ts",
         "app/selection-mesh.ts",
-        "app/world-picking.ts"
+        "app/world-picking.ts",
+        "app/blast-targeting.ts",
+        "app/unit-animation-source.ts"
       ],
-      "researchPaths": ["tests/painter-order.test.mjs"],
-      "sharedPaths": ["app/model.ts", "app/scene.ts", "app/render-view.ts"],
+      "researchPaths": [
+        "tests/painter-order.test.mjs",
+        "tests/blast-targeting.test.mjs",
+        "decomp/research/blast-targeting.md"
+      ],
+      "sharedPaths": [
+        "app/model.ts", "app/scene.ts", "app/render-view.ts",
+        "app/scene-input-runtime.ts", "app/live-command.ts", "app/spell-casting.ts",
+        "app/spell-effects-runtime.ts", "app/world-types.ts"
+      ],
       "entrySymbols": [
         { "path": "app/scene.ts", "symbol": "pointerUp" },
         { "path": "app/model.ts", "symbol": "selectArea" },
@@ -110,6 +120,7 @@
         "graphics.raster.queue"
       ],
       "evidence": [
+        { "path": "decomp/research/blast-targeting.md", "heading": "Blast person targeting" },
         { "path": "decomp/research/follower-frame-alpha.md", "heading": "Disabled follower frames" },
         { "path": "decomp/research/follower-task-panel.md", "heading": "Native Followers task panel" },
         { "path": "decomp/README.md", "heading": "Native follower selection" },
