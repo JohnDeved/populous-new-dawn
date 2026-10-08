@@ -26,10 +26,10 @@ flyby, clocks, RNG, camera state and rendering ownership to the game. It issues:
 2. `-`, followed by one `=` after an actual fractional frame was observed. This
    request is not guaranteed to arrive during a fraction. Its in-page keydown
    record must prove active `0 < previewFraction < 1`, matching last-render state,
-   and preservation of the displayed config through the native key handler.
+   and preservation of the displayed config through the existing game key handler.
    A missed fraction stops the run without retry.
 3. Held `w` and `q` with `-`, genuine release after one naturally rendered combined
-   movement/rotation/zoom sample, then the normal endpoint observation.
+   movement/rotation/zoom sample, then the settled bird-view endpoint observation.
 
 The post-readiness observation is capped at 15 seconds, 512 metadata rows and
 12 PNGs. Absent intermediate bands remain missing evidence. No artificial RAF,
@@ -60,11 +60,18 @@ readback failure, partial installation, ownership conflicts, and row/time bounds
 These are contract tests, not browser delivery or visual evidence.
 
 Both new modules passed `node --check`; `git diff --check` passed.
+Scoped format, Oxlint and ESLint use the stationary checkout's binaries and exact
+config paths, without copying or linking dependencies. Formatting and Oxlint
+errors found in the first preflight were repaired. Remaining Oxlint browser-alias
+and function-scoping warnings are advisory: the observer must remain self-contained
+for page serialization, and `window` identifies the browser context. ESLint's
+React-version discovery warning reflects the isolated checkout's absent dependencies,
+not a source error.
 The actual-base orchestration plan conservatively selects `repository-check`
 because the new QA paths are unmapped. This is an explicit review requirement,
 not an empty check set. Aggregate check/build and browser/native/performance
 checks are **not-run**: this bounded assignment permits cheap contracts only,
-with the primary PR275 run owning the stationary execution lane. No dependency
+with the coordinator owning the stationary execution lane. No dependency
 installation or additional aggregate execution was attempted.
 
 Passing this scenario later would establish only sampled current-port ordinary
