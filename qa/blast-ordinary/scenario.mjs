@@ -89,6 +89,55 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
     await input('followers-tab', {}, () => page.getByLabel('followers', { exact: true }).click())
     await input('select-shaman', {}, () => page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click())
     const selected = await current(); assert.deepEqual(selected.selected, [selected.actor.id]); assert.equal(selected.mode, null)
+    // One predeclared quarter-turn uses the existing Erosion right-drag pattern.
+    // Sixteen integer32px steps avoid per-event native truncation changing512.
+    await settle()
+    const readCamera = () => page.evaluate(() => {
+      const s = window.testSceneRef.current
+      return { turn: s.world.turn, camera: { ...s.cameraPosition },
+        displayed: { x: Math.round((s.viewPoint.x + 8) * 256) & 65535,
+          y: Math.round((-s.viewPoint.z - 8) * 256) & 65535,
+          angle: Math.round(s.cameraBearing * 1024 / Math.PI) & 2047 },
+        lastOrderTurn: s.world.lastOrderTurn, velocity: { ...s.cameraVelocity }, selected: [...s.world.selected], mode: s.world.mode,
+        settled: !s.world.inputMask && !s.cameraMotion.active && !s.resultCamera.active && !s.viewTransition }
+    })
+    const rotationBefore = await readCamera(), corridor = await page.evaluate(() => {
+      const s = window.testSceneRef.current
+      for (const y of [750, 650, 550])
+        if (Array.from({ length: 17 }, (_, i) => 280 + i * 32).every(x => document.elementFromPoint(x, y) === s.renderer.domElement))
+          return { x: 280, y, end: 792, steps: 16, nativeAngleDelta: 512 }
+      return null
+    })
+    assert.ok(corridor, 'Owned canvas corridor required for the one declared camera rotation')
+    assert.equal(rotationBefore.settled, true)
+    assert.deepEqual(rotationBefore.velocity, { turn: 0, forward: 0, side: 0 })
+    assert.deepEqual(rotationBefore.selected, [selected.actor.id]); assert.equal(rotationBefore.mode, null)
+    let rotationAfter, rotationPointer
+    await page.evaluate(() => { window.blastRotation = window.blastHelpers.observeEntityPointer(window.testSceneRef.current) })
+    try {
+      await input('camera-right-drag', corridor, async () => {
+        await page.mouse.move(corridor.x, corridor.y); await checkStop()
+        await page.mouse.down({ button: 'right' })
+        try { await checkStop(); await page.mouse.move(corridor.end, corridor.y, { steps: corridor.steps }) }
+        finally { await page.mouse.up({ button: 'right' }) }
+      })
+      await settle(); rotationAfter = await readCamera()
+    } finally {
+      rotationPointer = await page.evaluate(() => { const trace = window.blastRotation.finish(); window.blastRotation = null; return trace })
+      save('camera-rotation.json', { before: rotationBefore, after: rotationAfter, corridor, pointer: rotationPointer })
+    }
+    assert.deepEqual(rotationPointer.errors, []); assert.equal(rotationPointer.restored, true)
+    const cameraEvents = rotationPointer.events
+    assert.deepEqual(cameraEvents.map(event => [event.type, event.button, event.buttons]), [['pointerdown', 2, 2], ['pointerup', 2, 0]])
+    assert.ok(cameraEvents.every(event => event.trusted && event.canvasTarget && event.canvasOwned && event.button === 2))
+    assert.ok(cameraEvents.every(event => !event.args.ctrlKey && !event.args.shiftKey && !event.args.altKey && !event.args.metaKey))
+    assert.equal(rotationAfter.settled, true)
+    assert.equal(rotationAfter.lastOrderTurn, rotationBefore.lastOrderTurn)
+    assert.deepEqual(rotationAfter.camera, { ...rotationBefore.displayed, angle: (rotationBefore.displayed.angle + 512) & 2047 })
+    assert.deepEqual(rotationAfter.displayed, rotationAfter.camera)
+    assert.deepEqual(rotationAfter.velocity, { turn: 0, forward: 0, side: 0 })
+    assert.deepEqual(rotationAfter.selected, [selected.actor.id]); assert.equal(rotationAfter.mode, null)
+    healthy(await current())
     const approach = { x: 58, z: 108 }
     await view(approach)
     const ground = await page.evaluate(async approach => {
