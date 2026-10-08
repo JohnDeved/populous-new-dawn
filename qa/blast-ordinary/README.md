@@ -2,31 +2,54 @@
 
 Prepared from runtime freeze `4635c1acc9b66c1d54e5e2bc7cad4b88fa30754b` and
 read against the reviewed lifetime repair `7c3ac608917d0b6a3a6c4c779460953905f2738e`.
-The driver is prospective: no game/browser journey has run. A passing pure helper
-test is not a passing ordinary episode, native comparison or parity award.
+The revised driver is prospective. One baseline setup failed before casting; no
+ordinary Blast episode has passed. Pure helper tests and controlled model probes
+are not ordinary episodes, native comparisons or parity awards.
 
 ## Stage and route
 
-`scenario.mjs` uses the public Mission2 selector and introduction skip, waits for
-the real Shaman selection gate, selects the original Blue Shaman through the HUD,
-and issues one real ground movement command near `(58,108)`. It observes an
-existing, living Green Warrior following the authored cyclic model25 patrol, then
-uses key1 and a real person hit/release to cast once. No camp, training, kill-credit
-raid or bridge reward is requested. No fallback target, injected unit/resource,
-terrain-target substitute, synthetic game event or clock stepping is permitted.
+The first fresh-profile baseline at `2611af07` failed before casting: the retained
+screenshot reports Shaman reincarnation. The exact browser death turn and killer
+were not recorded. A separate supplied-port model probe showed that both the old
+patrol approach and the reused response-test destination meet enemy defenders
+more than 62 world units before patrol range. The test proved a first territory
+scan, not survival to the destination. The failed run and its profile remain
+preserved; the candidate was not attempted.
 
-The authored patrol is allocated at turn53 and is asserted by turn122 in
-`tests/game.test.mjs`. Its marker endpoints are `(52,114)` and `(50,108)`.
-`tests/ai-response-task.test.mjs` separately reaches existing camp territory by
-turn1000 using the original Shaman and an ordinary ground command. It does not
-prove this exact approach point. Approximately one to two simulation minutes is
-a planning estimate only. The setup must finish before turn1800; after observer
-attachment, hover/pointer setup has its own 12s bound and the released cast has
-a 48-turn lifecycle cap and 10s polling bound. Approach is bounded at 140s and
-the overall scenario at 240s. Turn1800 is a setup-only bound, not an absolute
-post-release turn cap. These are declared experimental limits, not measured durations.
-Failure to reach the point, keep the target in range, retain a current pixel or
-observe motion during both windup and flight fails this attempt.
+The revised proposal keeps public Mission2 entry, introduction skip, original
+Blue Shaman HUD selection and one real ground movement command toward `(58,108)`.
+It faces the actual response corridor near `(122,122)` immediately after the move
+and arms Blast before waiting. It targets only authored Green Warrior19, retained
+by exact object identity from startup, while its actual model19 response order
+moves it toward the Shaman. There is no replacement target or patrol fallback.
+
+A finite supplied-port probe at candidate `1bcac93a`, using a declared turn220
+model command, found Warrior19 at turn423 with Shaman100HP, distance7.643 and a
+valid spell target. An immediate public-model cast canceled the travel order;
+the Warrior moved through six windup visits and two flight visits, with impact
+at turn432. A declared12-turn delayed cast also succeeded, but the target stopped
+before flight, so that arm does not satisfy this episode. These are controlled
+port-model observations, not original timing or ordinary browser results.
+
+The revised browser trigger requires the same living outdoor class1/nondeleted
+Warrior19, actual movement across two distinct normal-turn observations, no fight,
+fresh detached-clone `spellTargetError === null`, and distance at least7. It uses
+the first qualifying observation; release must follow within four simulation
+turns, with fresh pointer, movement and range checks. Missing that window fails
+without casting. This is a prospective timing bound, not a measured browser result.
+
+Passive setup telemetry retains up to96 before/after turn-boundary snapshots and
+the first identity/health failure. Ground dispatch records the real pointer
+handler's picks, selected recipient, actual model3 order/payload, acknowledgement
+and new order marker. The setup observer restores its exact callbacks before the
+cast observer attaches. No world, resources, original identities, simulation clock
+or renderer is changed by the observations.
+
+The setup must finish before turn1800. The approach/range wait is bounded at140s,
+hover/pointer setup at12s with the stricter four-turn release window, the released
+cast at48 turns/10s and the entire scenario at240s. All movement, actual pointer,
+hover/ack, stock/count, parent/shot identity, arrival/impact and frame requirements
+remain mandatory. No camp, training, kill-credit raid or bridge reward is required.
 
 Stage1 records person hover/ack, actual delivered pointer calls, stock/cast count,
 adjacent real turn observations, parent/shot identity and destinations, actual
@@ -77,7 +100,7 @@ stop helper. Any file there stops further input and is retained; a normal stop i
 - `episode.json`: source/profile/run binding, public actions, full bounded reducer
   report, remaining acceptance and errors. `receipt.json` remains authoritative
   for source drift, browser errors, cancellation and cleanup.
-- `startup.json`, `target-setup.json`: selection readiness and natural movement.
+- `startup.json`, `ground-dispatch.json`, `setup-trace.json`, `target-setup.json`: selection readiness, actual movement dispatch, bounded failure diagnostics and natural response motion.
 - `hover/ack/arrival/impact.png`: actual canvas captured immediately after the
   game's own render, when the corresponding phase and submitted visible mesh or
   SVG are observed. `hover/ack.svg` and `*-brackets.png` preserve the actual SVG
@@ -102,7 +125,7 @@ stop helper. Any file there stops further input and is retained; a normal stop i
 Helper validation (no runtime imports, browser, simulation, build or native run):
 
 ```sh
-node --test tests/blast-ordinary-contract.test.mjs
+node --test tests/blast-ordinary-contract.test.mjs tests/blast-ordinary-setup-observer.test.mjs
 node --check qa/blast-ordinary/scenario.mjs
 node --check qa/blast-ordinary/observer.mjs
 node --check qa/blast-ordinary/contract.mjs

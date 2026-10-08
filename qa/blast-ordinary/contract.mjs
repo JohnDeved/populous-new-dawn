@@ -8,11 +8,12 @@ const short = n => (n << 16) >> 16
 const browserPoint = p => ({ x: short(p.x - 2048) / 256, z: -short(p.y + 2048) / 256 })
 
 export function createBlastEpisode(options) {
-  keys(options, ['expectation', 'actorId', 'targetId', 'runId', 'sourceFingerprint', 'maxTurns'])
-  const { expectation, actorId, targetId, runId, sourceFingerprint, maxTurns = 48 } = options
+  keys(options, ['expectation', 'actorId', 'targetId', 'runId', 'sourceFingerprint', 'maxTurns', 'triggerTurn'])
+  const { expectation, actorId, targetId, runId, sourceFingerprint, maxTurns = 48, triggerTurn } = options
   require(['baseline', 'candidate'].includes(expectation), 'Explicit baseline/candidate expectation required')
   require(Number.isInteger(actorId) && Number.isInteger(targetId) && actorId !== targetId && runId && sourceFingerprint, 'Bound run and person identities required')
   require(Number.isInteger(maxTurns) && maxTurns >= 12 && maxTurns <= 120, 'Bounded cast turn limit required')
+  require(Number.isInteger(triggerTurn) && triggerTurn >= 0, 'Actual response trigger turn required')
   const rows = [], frames = [], errors = []
   let before, lastAfter, entry, release, hover, arrival, impact, retired, windupMotion = false, flightMotion = false
   const fail = message => { errors.push(message); throw Error(message) }
@@ -21,13 +22,14 @@ export function createBlastEpisode(options) {
     keys(sample, ['turn', 'level', 'playing', 'paused', 'speed', 'flags', 'sceneMatches', 'actor', 'target', 'stock', 'castCount', 'mana', 'random', 'shot', 'effects'])
     check(Number.isInteger(sample.turn) && sample.level === 2 && sample.playing && !sample.paused && sample.speed === 1 && !(sample.flags & 32) && sample.sceneMatches, 'Ordinary Mission2 clock/context changed')
     check(sample.actor?.id === actorId && sample.actor.same && sample.actor.hp > 0 && sample.actor.team === 'blue', 'Original Blue Shaman changed or disappeared')
-    if (targetRequired) check(sample.target?.id === targetId && sample.target.same && sample.target.team === 'green' && sample.target.kind === 'warrior' && sample.target.inside === null && sample.target.ownerValid, 'Original outdoor patrol target changed or disappeared')
+    if (targetRequired) check(sample.target?.id === targetId && sample.target.same && sample.target.team === 'green' && sample.target.kind === 'warrior' && sample.target.inside === null && sample.target.ownerValid, 'Original outdoor response target changed or disappeared')
   }
   return {
     hover(value) {
       keys(value, ['turn', 'targetId', 'mode', 'canvasOwned', 'hitId', 'visible', 'lines', 'context', 'position', 'previousTurn', 'previousPosition', 'orderModel'])
       check(!hover && !entry, 'Hover may be accepted only once')
-      check(value.mode === 'blast' && value.targetId === targetId && value.hitId === targetId && value.canvasOwned && value.orderModel === 25, 'A real patrol person hit in Blast mode is required')
+      check(value.turn >= triggerTurn && value.turn <= triggerTurn + 4, 'Response release window expired')
+      check(value.mode === 'blast' && value.targetId === targetId && value.hitId === targetId && value.canvasOwned && value.orderModel === 19, 'A real response person hit in Blast mode is required')
       check(value.turn > value.previousTurn && moved(value.position, value.previousPosition), 'Target was stopped or motion sample repeated')
       check(expectation === 'candidate' ? value.visible && value.lines === 16 : !value.visible, 'Expected visible hover feedback missing or baseline phenotype changed')
       hover = clone(value)
@@ -36,7 +38,8 @@ export function createBlastEpisode(options) {
       keys(value, ['turn', 'targetId', 'mode', 'trusted', 'canvasOwned', 'context', 'handlerPersonId', 'handlerTerrain', 'stockBefore', 'castCountBefore'])
       check(hover && !release, 'One delivered release must follow an observed hover')
       live(sample)
-      check(sample.target.hp > 0, 'Ordinary setup requires a living patrol member at release')
+      check(value.turn >= triggerTurn && value.turn <= triggerTurn + 4, 'Actual response release window expired')
+      check(sample.target.hp > 0, 'Ordinary setup requires a living response member at release')
       check(value.turn >= hover.turn && value.turn <= hover.turn + 1 && same(value.context, hover.context), 'Stale pointer or changed input context')
       check(value.mode === 'blast' && value.targetId === targetId && value.trusted && value.canvasOwned, 'Actual trusted Blast release on the owned canvas required')
       check(expectation === 'candidate' ? value.handlerPersonId === targetId : value.handlerPersonId === null && value.handlerTerrain, 'Real handler pick does not match the declared phenotype')
@@ -102,7 +105,7 @@ export function createBlastEpisode(options) {
       require(args.length === 0, 'Cannot seed a success report')
       const required = expectation === 'candidate' ? ['hover', 'ack', 'arrival', 'impact'] : ['arrival', 'impact']
       const complete = !!(entry && release && arrival && impact && retired && windupMotion && flightMotion && !before && !errors.length && required.every(kind => frames.some(f => f.kind === kind)))
-      return clone({ version: 1, expectation, runId, sourceFingerprint, actorId, targetId, complete, errors, hover, release, entry, arrival, impact, retired, windupMotion, flightMotion, rows, frames,
+      return clone({ version: 1, expectation, runId, sourceFingerprint, triggerTurn, actorId, targetId, complete, errors, hover, release, entry, arrival, impact, retired, windupMotion, flightMotion, rows, frames,
         limits: 'Ordinary rendered browser episode only when accompanied by the harness receipt and retained frame files. No original execution, full parity, hardware performance, ground comparison or save/reload claim.' })
     },
     error(error) { errors.push(String(error?.stack ?? error)) },
