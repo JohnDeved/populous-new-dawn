@@ -6,6 +6,8 @@ export function installMission1VaultCheckpointState() {
   if (w.outcome.level !== 1 || !vault) throw Error('Exact authored Mission 1 camp Vault required')
   return structuredClone({ version, level: w.outcome.level, turn: w.turn, time: w.time,
     active: vault.active, glow: vault.knowledgeGlow, camp: w.unlockedCamp,
+    paused: w.paused, mode: w.mode, selected: w.selected, acquisition: w.worshipAcquisition,
+    cosmeticRandom: w.cosmeticRandom, buildingGifts: w.gifts.filter(gift => gift.buildingAcquisition),
     gifts: w.gifts.length, bridges: w.stats.bridges, landVersion: w.landVersion,
     heights: Array.from(w.land.heights),
     shaman: w.units.filter(u => u.team === 'blue' && u.kind === 'shaman').map(u => ({ id: u.id, hp: u.hp, x: u.x, z: u.z })) })
@@ -27,6 +29,28 @@ export async function readMission1VaultCheckpoint() {
     })
     return record ? window.mission1VaultCheckpointState(record.world, record.version) : null
   } finally { db.close() }
+}
+
+// Capture the same synchronous public click that calls store.saveCheckpoint.
+// UI presentation may advance while paused, so an earlier host read is not equal.
+export function installMission1VaultSaveWitness() {
+  if (window.restoreVaultSaveWitness) throw Error('A Save observer is already armed')
+  const button = [...document.querySelectorAll('button')].find(button => button.textContent.trim() === 'Save checkpoint')
+  if (!button?.isConnected || button.disabled) throw Error('Public Save checkpoint control unavailable')
+  window.vaultSavedBoundary = null
+  window.vaultSaveError = null
+  const capture = event => {
+    try {
+      if (!event.isTrusted || event.target !== button && !button.contains(event.target)) throw Error('Save requires the trusted public control')
+      window.vaultSavedBoundary = window.mission1VaultCheckpointState(window.testStore.getWorld())
+    } catch (error) { window.vaultSaveError = String(error?.stack ?? error) }
+  }
+  button.addEventListener('click', capture, { capture: true, once: true })
+  window.restoreVaultSaveWitness = () => {
+    button.removeEventListener('click', capture, true)
+    delete window.restoreVaultSaveWitness
+    return { saved: window.vaultSavedBoundary, error: window.vaultSaveError }
+  }
 }
 
 export function installMission1VaultLoadWitness() {

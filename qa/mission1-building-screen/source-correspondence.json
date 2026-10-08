@@ -1,7 +1,7 @@
 {
-  "scope": "M1-only source/helper preparation; no launch, application adoption, current route completion or rendered pass",
+  "scope": "M1-only actual ordinary screen scenario and passive observer source, pending independent source review and browser admission",
   "base": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
-  "applicationTree": "ba6df35a5a9fcd06b7c9004cd5a833d24f8d359c",
+  "applicationTree": "0f434b7ed72250f258be543ef4545352f66e25dd",
   "acceptedProductProposal": "47a8ba13f5c798625f4c956fc6b7b6a68f50c576",
   "reviewVerdictPrefix": "b58400db",
   "priorPlanSha256": "1e7064df5751a23eb9c41ebd0fbc8d39825a7090f1c9ef0b6c34f04c4e87ac2b",
@@ -34,130 +34,130 @@
       "path": "scripts/local-render/mission1-vault-checkpoint.mjs",
       "sourceCommit": "91c9453061e92aa2ada4f4c170904b47c7e56a98",
       "sourceSha256": "3ecd6842811477486f5ff27d3ebd5829138700bd6e4fb6186180b7c01c4a2957",
-      "candidateSha256": "3ecd6842811477486f5ff27d3ebd5829138700bd6e4fb6186180b7c01c4a2957",
-      "byteIdentical": true,
-      "change": null
+      "candidateSha256": "5fee9340b78f304d0046c3c3b494d2d6a43af9ed9059013f3167ecda33aab8bd",
+      "byteIdentical": false,
+      "change": "Extend the bounded snapshot to actual shared acquisition/RNG/building gifts, mode and pause; capture the trusted public Save click synchronously before the real handler."
     }
   ],
   "retainedCurrentSources": [
     {
       "path": "app/blast-targeting.ts",
-      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
       "sha256": "cf7cd6693317932337458cff270e1e07cf43cb24790d8861f2ebce3fa2952261"
     },
     {
       "path": "app/live-command.ts",
-      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
       "sha256": "a53f4f0a64104dabacdfb1d2242c1979baa047a89f192a89a52b1c72a702bdca"
     },
     {
       "path": "app/minimap.ts",
-      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
       "sha256": "ace3cb266bc801f660d053c649d998f3b49e22f7990c27312d0fb5d28597aec4"
     },
     {
       "path": "app/native-math.ts",
-      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
       "sha256": "223fa6c4dc5d14a66daec1c1a15a5252802e1fa7e4f3cc7c5a2fcc07818435cc"
     },
     {
       "path": "app/original-rules.json",
-      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
       "sha256": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6"
     },
     {
       "path": "app/page.tsx",
-      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
-      "sha256": "50358f6ae119026e8b1f9215fa436126bb26b7595832140c136ed271fbc52fc2"
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
+      "sha256": "02fd3f7e8455ebc65df7d9be1c25846456bcf754600cbc00f062bb5ba0bb3b50"
     },
     {
       "path": "app/person-idle.ts",
-      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
       "sha256": "6dfb6f673b9d9856fac8727c29e4e5e1254e69df96d017d6e999820920c47350"
     },
     {
       "path": "app/person-orders.ts",
-      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
       "sha256": "27600291a988813415ce88a4b046101fb772894490d44607b84f739a433eb1f3"
     },
     {
       "path": "app/scene-input-runtime.ts",
-      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
       "sha256": "7987f8f11abfdf4ea858b612d83d526169b31de05c76f52ce070809409c268a2"
     },
     {
       "path": "app/selection-runtime.ts",
-      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
       "sha256": "c5330f78ee474ef5dc22fa66541ef2cd32f89ee51b5b551e6d6cfa13baa3f80c"
     },
     {
       "path": "app/spell-casting.ts",
-      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
       "sha256": "90cebe30385ef3294a6c6a428285d507f333b91a4b9cb13f4b67a14733ee5600"
     },
     {
       "path": "app/unit-kinds.ts",
-      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
       "sha256": "5c6903d13aef2e99645fc8cfa3d86afde5e109a6b099aa775f0061f8b060162f"
     },
     {
       "path": "app/world-coordinates.ts",
-      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
       "sha256": "5fab890c7ab683323d873c7350700a0bb3bf977f1b6512ddca6fa823f5a5fa4f"
     },
     {
       "path": "app/world-rules.ts",
-      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
       "sha256": "5688538516b4f908930dbcd46ebb807a958ee3f7edbbcd59e7067d04bf74fd2a"
     },
     {
       "path": "app/world-selector.tsx",
-      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
       "sha256": "55c5244910e7fce31278a5f9225c4438d14f8d32687390d8ea858323487637f0"
     },
     {
       "path": "app/world-terrain-runtime.ts",
-      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
       "sha256": "4fcf001bde3e32f5647a6efa25066dc9332320f244b034a8f41881a15af4a757"
     },
     {
       "path": "qa/erosion-ordinary/input.mjs",
-      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
       "sha256": "29afe98c0e35e79fc25b6f9f6f0782de072ef9276d56bd8304ab9b72a99a8e19"
     },
     {
       "path": "qa/erosion-ordinary/minimap-input.mjs",
-      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
       "sha256": "acf622d6277bae5ec3cf734c03cea7a4a8637f1dde9c710c8be6e2234ebd30e5"
     },
     {
       "path": "scripts/browser-game.mjs",
-      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
       "sha256": "061ecb23dbcc5296fa6cdd044f44910af52884bb20d4fce5a9d64eb4391d9ba9"
     },
     {
       "path": "scripts/checkpoint-readback.mjs",
-      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
       "sha256": "256139ba93205ffd091b61b5df93eb6db849c493ecf13e9405431258291ecc80"
     },
     {
       "path": "scripts/local-render/checkpoint-observer.mjs",
-      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
       "sha256": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947"
     },
     {
       "path": "scripts/local-render/harness.mjs",
-      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
       "sha256": "fb07de9e278f26b2b32324defeb6164832472a58d422aead1032b7db7ee85fcf"
     },
     {
       "path": "scripts/local-render/owned-profile.mjs",
-      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
       "sha256": "445a29903f994f7fd4c4d0ee32924400b31b6c73673ec2e04d3f4ad3eee403f5"
     },
     {
       "path": "scripts/local-render/vite.config.mjs",
-      "commit": "9751eee28bd6f43cac3a84eda350eac71f5a4e8a",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
       "sha256": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
     }
   ],
@@ -170,20 +170,161 @@
   ],
   "launch": {
     "enabled": false,
-    "reason": "Product observation/draw interfaces and persistence capture point require final freeze/review; coordinator has not granted execution.",
+    "reason": "Actual scenario and interfaces exist; source review and exact coordinator runtime/port/profile/output/timeout binding remain pending. No browser grant.",
     "newHarnessArguments": [],
-    "scenario": null,
+    "scenario": "scripts/local-render/mission1-building-screen.mjs",
     "profile": null,
     "browser": null,
     "port": null
   },
   "nextObserverFields": {
-    "status": "Source-owner supplied interface; product integration/review still pending",
+    "status": "Implemented passive observation against frozen product source; no rendered execution",
     "giftTag": "buildingAcquisition {mission:1,head:1,reward:2,slot:0,rewardClass:2,model:7,completedTurn,serial}",
     "controller": "world.worshipAcquisition.controllers.building {active,phase,visits,pending,model:103,giftId,geometry,faces,allStarted,x,y,scale,yaw,tilt}",
     "faces": "{threshold,angles,heading,countdown,flags}",
     "shared": "companion/pulse retain shared owner and family/giftId",
-    "draw": "{kind:'building',family:'building',giftId,model:7,geometry,whole:boolean,selected:number[],submissions:[{face,transformed:number[][],projected:number[][],flight:number}]}",
+    "draw": "{kind:'building',family:'building',giftId,model:7,geometry,anchor:{x,y},whole:boolean,selected:number[],submissions:[{face,transformed:number[][],projected:number[][],flight:number}]}",
     "geometry": "Frozen HUD reference only; model pose is separate controller x/y/scale/yaw/tilt"
+  },
+  "productCommit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
+  "qaHelperBase": "59eb029e0e9f1b8cfe51c2ca063aa404199508be",
+  "scenarioModules": [
+    {
+      "path": "scripts/local-render/mission1-building-screen.mjs",
+      "sha256": "686cf69c536ef99c93c0faa50b3e3f48c5a2ebb1e3ba70c3dc0a46cd3d3a4abf"
+    },
+    {
+      "path": "scripts/local-render/mission1-building-screen-witness.mjs",
+      "sha256": "e45442c2efefe50f1ca7618e26efe1d5d8bcad55fd105615198bbe6be1dd4ecd"
+    },
+    {
+      "path": "qa/mission1-building-screen/screen-contract.test.mjs",
+      "sha256": "d115d92a58cca89ad3b19682d3797f7b28dbc82a48cd966d43ad0fe42398a358"
+    }
+  ],
+  "routeSource": {
+    "commit": "91c9453061e92aa2ada4f4c170904b47c7e56a98",
+    "path": "scripts/local-render/mission1-vault-knowledge.mjs",
+    "reused": "read route, readiness predicate, approach payload, bounded clear/move, Bridge and guard prefix through guard retirement",
+    "omitted": "historical946 continuation, world-art pixels and construction",
+    "change": "actual screen observer plus genuine same-source pre-Vault/active Save, Load, Restart and normal continuation"
+  },
+  "productInputs": [
+    {
+      "path": "app/building-acquisition.ts",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
+      "sha256": "83a038b4e5cad746d490a6423453ad84cb71935788a34665519d12aa1e859447"
+    },
+    {
+      "path": "app/building-acquisition-source.ts",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
+      "sha256": "02199700aa5754f4c78484f792cf196b9757ac73a2d885367ab39f7a8765d61a"
+    },
+    {
+      "path": "app/building-acquisition-triangles.ts",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
+      "sha256": "70aa6efafe4b6706d11576a316be9cbf20abd904f2762e668f7100c5be11c6f6"
+    },
+    {
+      "path": "app/building-acquisition-drawer.ts",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
+      "sha256": "83fd85d8250397d9c617864aac953f0e082aafcf95d1bfc5cb9150835354eff4"
+    },
+    {
+      "path": "app/scene-worship-acquisition.ts",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
+      "sha256": "217c8ece56b28efc7d4753e8fd4ec2e3e965cf53e97b58e92228ed4c5fc22fe3"
+    },
+    {
+      "path": "app/worship-acquisition.ts",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
+      "sha256": "3afe10d73dbf7fbc0979e4354804b4c384e15c32459ecc2cdb859c9c1439c3bf"
+    },
+    {
+      "path": "app/worship-acquisition-runtime.ts",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
+      "sha256": "edec22c601a9d3a1e5370300c7791892d20b41a33080e320ead098b4637b6f09"
+    },
+    {
+      "path": "app/worship-acquisition-layout.ts",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
+      "sha256": "c0e5d8e94ac3bda0fb07fd44ea509faf327fcc85af014cd44b1bd3194ab76efe"
+    },
+    {
+      "path": "app/page.tsx",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
+      "sha256": "02fd3f7e8455ebc65df7d9be1c25846456bcf754600cbc00f062bb5ba0bb3b50"
+    },
+    {
+      "path": "app/game-store.ts",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
+      "sha256": "8f64a264bb03f52d1e56faeaf342f16868c3caefe1b4d1dffc4a2e4668ea26fa"
+    },
+    {
+      "path": "app/world-turn.ts",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
+      "sha256": "825867f15f3150095ebb80dcbda4e144786c383f81b5bd7a90b22c78c43492da"
+    },
+    {
+      "path": "app/world-effects.ts",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
+      "sha256": "265779df0ac4a6a576acd8f342b22ee174864a5f7515f2f25f8ca3d5ff3d354d"
+    },
+    {
+      "path": "app/world-types.ts",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
+      "sha256": "fbac52e66f4e48f037f86fbbb2cec8e7dfb30d595bcfbde4a7e307972d6071c3"
+    },
+    {
+      "path": "app/game-clock.ts",
+      "commit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
+      "sha256": "d4f850867943a54ebf86e79b6d71e2f842d0e6c61c70bb2884872bd6d002eef6"
+    }
+  ],
+  "worldArtCarry": {
+    "sourceProduct": "8348cad7ff47fd597bfbf84caa09135b24f339dd",
+    "scope": "Exact unchanged world-sprite consumers/assets. New6/82 events and screen output still require ordinary observation; not a whole-renderer/pixel equality claim.",
+    "files": [
+      {
+        "path": "app/scene-vault-knowledge.ts",
+        "sha256": "73d24ff01baa277a9db481f14673486166d692296d02473d98c90a84b4bb24d7",
+        "byteIdentical": true
+      },
+      {
+        "path": "app/vault-appearance.ts",
+        "sha256": "caaaf8cef021efdeaa725e99f803094e15735b246eb6b1e01d65b457fab784dd",
+        "byteIdentical": true
+      },
+      {
+        "path": "app/original-vault-knowledge.json",
+        "sha256": "ed729494e87f6ba6434a9acb915c4da30aa04e1e37b5628ab5d3c7a42bc830bb",
+        "byteIdentical": true
+      },
+      {
+        "path": "app/original-vault-knowledge-camp.json",
+        "sha256": "e774e69ab41efc342a2189fe8cbdab63a2c10cd4cb93515cd77e649cb83a2100",
+        "byteIdentical": true
+      },
+      {
+        "path": "public/original/vault-knowledge.png",
+        "sha256": "3da92d874ef00aeeb450e058984f65c5c63ff6ff476c5c7fde4c085ec5968df7",
+        "byteIdentical": true
+      },
+      {
+        "path": "public/original/vault-knowledge-camp.png",
+        "sha256": "bf592cf848e4b3de0350f96ec934f99068b9a89a5113c66a151c0ace9b1ca9e1",
+        "byteIdentical": true
+      },
+      {
+        "path": "app/projection.ts",
+        "sha256": "2ee6b7640087b3e996cf13cefd4cecb4e6e9c0d52f4d7913265047bd66bafb97",
+        "byteIdentical": true
+      },
+      {
+        "path": "app/scene-assets.ts",
+        "sha256": "1bd28dba1ff8705b8dc9afa6d812e7eed5e58282591626fc6402e371a2aa8475",
+        "byteIdentical": true
+      }
+    ]
   }
 }

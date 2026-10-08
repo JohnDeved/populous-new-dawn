@@ -310,5 +310,6 @@ test('current source correspondence binds helper imports and preserves launch-di
   assert.match(rules, /id: 'camp',\s+name: 'Warrior Training Hut',\s+cost: 8/)
   assert.equal(correspondence.launch.enabled, false)
   assert.deepEqual(correspondence.launch.newHarnessArguments, [])
-  for (const key of ['scenario', 'profile', 'browser', 'port']) assert.equal(correspondence.launch[key], null)
+  assert.equal(correspondence.launch.scenario, 'scripts/local-render/mission1-building-screen.mjs')
+  for (const key of ['profile', 'browser', 'port']) assert.equal(correspondence.launch[key], null)
 })
