@@ -108,10 +108,8 @@ test('a changed response order cannot conceal the end of the model19 response', 
   assert.equal(preparation.observe(observation(101, { response: [{ id: 19, orderModel: 3 }] })).stopReason, 'response-ended')
 })
 
-test('housing, death, removal, deletion and identity loss stop even before any response appeared', () => {
+test('death, removal, deletion and identity loss stop even before any response appeared', () => {
   for (const [change, reason] of [
-    [{ inside: 82 }, 'target-housed'],
-    [{ inside: 0 }, 'target-housed'],
     [{ hp: 0 }, 'target-dead'],
     [{ originalTargetPresent: false, sameIdIsOriginal: false }, 'target-removed'],
     [{ sameIdIsOriginal: false }, 'target-replaced'],
@@ -149,4 +147,38 @@ test('invalid target identity and unbounded retention are rejected', () => {
     assert.throws(() => createBlastPreparation({ targetId: 19, capacity }), /capacity/)
   for (const targetId of [0, -1, 1.5, null, undefined])
     assert.throws(() => createBlastPreparation({ targetId }), /targetId/)
+})
+
+// Source chronology: buildingCounterattack includes occupied-building residents,
+// queues model19, and person initialization leaves the building. A later housed
+// sample ends the already observed outdoor response, not its initial wait.
+test('initial housing waits, then a real response followed by housing stops without rearming', () => {
+  for (const inside of [0, 71]) {
+    const preparation = createBlastPreparation({ targetId: 19 })
+    const housed = observation(309, { response: [], live: true, moving: false, box: null,
+      existingHit: null, nextHit: null, distance: null, targetError: 'missing target' })
+    Object.assign(housed.renderedBody, { inside, visible: false, pickable: false, activeNative: null })
+    assert.equal(preparation.observe(housed).stopReason, null)
+    assert.equal(preparation.read().firstLiveResponse, null)
+    assert.equal(preparation.read().rows[0].renderedBody.inside, inside)
+    assert.equal(preparation.observe(observation(423)).stopReason, null)
+    assert.equal(preparation.read().firstLiveResponse.turn, 423)
+    assert.equal(preparation.observe({ ...housed, turn: 440 }).stopReason, 'target-housed')
+    assert.equal(preparation.read().firstTerminal.turn, 440)
+    assert.equal(preparation.observe(observation(441)).stopReason, 'target-housed')
+  }
+})
+
+test('initial housing cannot outlive the unchanged no-response setup deadline', () => {
+  const preparation = createBlastPreparation({ targetId: 19, maximumSetupTurn: 1800 })
+  const housed = observation(1799, { response: [] })
+  housed.renderedBody.inside = 71
+  assert.equal(preparation.observe(housed).stopReason, null)
+  assert.equal(preparation.observe({ ...housed, turn: 1800 }).stopReason, 'setup-turn-limit')
+  assert.equal(preparation.read().firstLiveResponse, null)
+  assert.equal(preparation.read().firstTerminal.turn, 1800)
+  assert.equal(preparation.observe(observation(1801)).stopReason, 'setup-turn-limit')
+  assert.equal(preparation.read().total, 2)
+  for (const maximumSetupTurn of [0, 1801, Infinity])
+    assert.throws(() => createBlastPreparation({ targetId: 19, maximumSetupTurn }), /maximumSetupTurn/)
 })
