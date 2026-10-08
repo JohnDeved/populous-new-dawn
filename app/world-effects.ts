@@ -1,3 +1,4 @@
+import { buildingAcquisitionSource } from './building-acquisition-source.ts'
 import { registerSecondaryMarker } from './hut-smoke-runtime.ts'
 import {
   tribeForTeam,
@@ -174,6 +175,11 @@ export function createGift(
   })
   if (ordinary) {
     gift.ordinaryWorship = { ...ordinary, completedTurn: w.turn, serial: gift.id }
+    gift.recipient = w.manaWorld.playerTribe
+  }
+  const building = buildingAcquisitionSource(w, reward, p)
+  if (building) {
+    gift.buildingAcquisition = { ...building, completedTurn: w.turn, serial: gift.id }
     gift.recipient = w.manaWorld.playerTribe
   }
   initializeVaultKnowledgeGift(w, gift)

@@ -2,7 +2,7 @@
 
 import { hudScale } from './hud-layout.ts'
 import { flushSync } from 'react-dom'
-import type { WorshipAcquisitionGeometry, WorshipSpellModel } from './worship-acquisition.ts'
+import type { WorshipAcquisitionGeometry, WorshipTargetModel } from './worship-acquisition.ts'
 import type { WorshipHudGeometry } from './worship-acquisition-layout.ts'
 
 import { MinimapFrame } from './minimap-frame-view'
@@ -123,6 +123,7 @@ export default function Home() {
   const shell = useRef<HTMLElement>(null)
   const hudPanel = useRef<HTMLElement>(null)
   const spellButtons = useRef(new Map<number, HTMLButtonElement>())
+  const campButton = useRef<HTMLButtonElement>(null)
   const followerPress = useRef<EventTarget | null>(null)
   const loadRequest = useRef<LoadRequest | null>(null)
   const messageDetails = useRef(new Map<number, HTMLDetailsElement>())
@@ -175,13 +176,13 @@ export default function Home() {
     audio = useRef<Soundscape | null>(null)
   const measureWorshipHud = useCallback(
     (
-      model: WorshipSpellModel,
+      model: WorshipTargetModel,
       fallback?: WorshipAcquisitionGeometry
     ): WorshipHudGeometry | null => {
       const root = shell.current,
         panel = hudPanel.current,
         view = viewport.current,
-        button = spellButtons.current.get(model)
+        button = model === 7 ? campButton.current : spellButtons.current.get(model)
       if (!root?.isConnected || !panel?.isConnected || !view?.isConnected) return null
       const shellRect = root.getBoundingClientRect(),
         panelRect = panel.getBoundingClientRect(),
@@ -224,6 +225,7 @@ export default function Home() {
                 height: fallback!.targetRect.height * scale,
               },
         geometry = {
+          shell: { x: 0, y: 0, width: shellRect.width, height: shellRect.height },
           viewport: {
             x: viewRect.x - shellRect.x,
             y: viewRect.y - shellRect.y,
@@ -285,12 +287,12 @@ export default function Home() {
     if (startup !== 'playing') return
     let disposed = false,
       scene: GameScene | null = null
-    const selectWorshipSpells = (model: WorshipSpellModel) => {
+    const selectAcquisitionPanel = (model: WorshipTargetModel) => {
       if (disposed || store.getWorld() !== world) return null
       // The scene task owns this synchronous commit; React does not call it
       // during render. Automatic native selection preserves spell/build mode.
       flushSync(() => {
-        setTab('spells')
+        setTab(model === 7 ? 'buildings' : 'spells')
         setHover(null)
         update()
       })
@@ -317,7 +319,7 @@ export default function Home() {
             update()
           },
           (cue, attenuation, pan, finished) => audio.current?.cue(cue, attenuation, pan, finished),
-          { select: selectWorshipSpells, measure: measureWorshipHud }
+          { select: selectAcquisitionPanel, measure: measureWorshipHud }
         )
         scene = created
         engine.current = created
@@ -1113,6 +1115,7 @@ export default function Home() {
               {BUILDINGS.map(b => (
                 <button
                   key={b.id}
+                  ref={b.id === 'camp' ? campButton : undefined}
                   disabled={
                     (b.id === 'camp' && !world.unlockedCamp) ||
                     (b.id === 'tower' && !world.unlockedTower) ||

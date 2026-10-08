@@ -1,6 +1,10 @@
+import { BuildingAcquisitionTriangleSurface } from './building-acquisition-drawer.ts'
+import { collectBuildingAcquisitionTriangles } from './building-acquisition-triangles.ts'
 import type { GameScene } from './scene.ts'
 import {
   worshipDrawPoint,
+  buildingDrawPoint,
+  interpolateBuildingSubmissions,
   worshipHandoffGeometry,
   worshipTargetPoint,
   worshipAnchorVisible,
@@ -13,7 +17,7 @@ import {
   type WorshipAcquisitionGeometry,
   type WorshipPoint,
   type WorshipRect,
-  type WorshipSpellModel,
+  type WorshipTargetModel,
 } from './worship-acquisition.ts'
 import {
   startPendingWorshipAcquisitions,
@@ -25,9 +29,9 @@ import effects from './original-effects.json'
 import bodyArt from './original-worship-acquisition.json'
 
 export interface WorshipHudBridge {
-  select: (model: WorshipSpellModel) => WorshipHudGeometry | null
+  select: (model: WorshipTargetModel) => WorshipHudGeometry | null
   measure: (
-    model: WorshipSpellModel,
+    model: WorshipTargetModel,
     fallback: WorshipAcquisitionGeometry
   ) => WorshipHudGeometry | null
 }
@@ -41,9 +45,11 @@ export class WorshipAcquisitionPresentation {
   private sprites = new Map<string, HTMLCanvasElement>()
   private previousCommands: readonly WorshipAcquisitionDrawCommand[] = []
   private previousParticles = new Map<
-    number,
+    string,
     Extract<WorshipAcquisitionDrawCommand, { kind: 'sprite' }>
   >()
+  private buildingSurface?: BuildingAcquisitionTriangleSurface
+  private previousBuilding: Extract<WorshipAcquisitionDrawCommand, { kind: 'building' }> | undefined
   private previousBody: Extract<WorshipAcquisitionDrawCommand, { kind: 'body' }> | undefined
   private canvas = document.createElement('canvas')
   private scene: GameScene
@@ -70,10 +76,17 @@ export class WorshipAcquisitionPresentation {
         this.scene.onSound(0x71)
       },
       geometry: gift => {
-        const current = this.bridge?.select(gift.ordinaryWorship!.model)
+        const current = this.bridge?.select(
+          (gift.buildingAcquisition ?? gift.ordinaryWorship)!.model
+        )
         return current ? worshipHandoffGeometry(current, this.anchors.get(gift.id)) : null
       },
-      failed: gift => this.failed(gift.id, gift.ordinaryWorship!.model, 'handoff geometry'),
+      failed: gift =>
+        this.failed(
+          gift.id,
+          (gift.buildingAcquisition ?? gift.ordinaryWorship)!.model,
+          'handoff geometry'
+        ),
     })
   }
 
@@ -85,7 +98,10 @@ export class WorshipAcquisitionPresentation {
         // The gift clamp still belongs to this visit when its HUD is detached.
       }
       this.failed(
-        this.scene.world.worshipAcquisition.controllers.spell?.giftId ?? -1,
+        (model === 7
+          ? this.scene.world.worshipAcquisition.controllers.building
+          : this.scene.world.worshipAcquisition.controllers.spell
+        )?.giftId ?? -1,
         model,
         'arrival geometry'
       )
@@ -105,7 +121,7 @@ export class WorshipAcquisitionPresentation {
       active = new Set(scene.world.gifts.map(gift => gift.id))
     for (const id of this.anchors.keys()) if (!active.has(id)) this.anchors.delete(id)
     for (const gift of scene.world.gifts) {
-      if (!gift.ordinaryWorship || !gift.phase) continue
+      if (!(gift.ordinaryWorship || gift.buildingAcquisition) || !gift.phase) continue
       const group = scene.fxMeshes.get(gift.id)
       if (!group) {
         this.anchors.delete(gift.id)
@@ -181,10 +197,15 @@ export class WorshipAcquisitionPresentation {
       this.previousCommands = state.previousDrawCommands
       this.previousParticles.clear()
       this.previousBody = undefined
+      this.previousBuilding = undefined
       for (const command of this.previousCommands) {
         if (command.kind === 'body') this.previousBody = command
-        else if (command.particle !== undefined)
-          this.previousParticles.set(command.particle, command)
+        else if (command.kind === 'building') this.previousBuilding = command
+        else if (command.kind === 'sprite' && command.particle !== undefined)
+          this.previousParticles.set(
+            `${command.family}:${command.giftId}:${command.particle}`,
+            command
+          )
       }
     }
     const shell = this.scene.container.parentElement!,
@@ -222,7 +243,9 @@ export class WorshipAcquisitionPresentation {
           const previous =
               command.particle === undefined
                 ? undefined
-                : this.previousParticles.get(command.particle),
+                : this.previousParticles.get(
+                    `${command.family}:${command.giftId}:${command.particle}`
+                  ),
             interpolated = interpolateWorshipPoint(
               command,
               previous?.geometry === command.geometry ? previous : undefined,
@@ -245,7 +268,47 @@ export class WorshipAcquisitionPresentation {
           command.height * current.hudScale
         )
         context.globalAlpha = 1
-      } else {
+      } else if (command.kind === 'building') {
+        const atlas = texture('atlas'),
+          image = atlas.image as HTMLImageElement | undefined
+        if (!image?.complete || !image.naturalWidth) continue
+        const reference = command.geometry,
+          anchor = interpolateWorshipPoint(
+            command.anchor,
+            this.previousBuilding?.giftId === command.giftId &&
+              this.previousBuilding.geometry === command.geometry
+              ? this.previousBuilding.anchor
+              : undefined,
+            fraction
+          ),
+          submissions = interpolateBuildingSubmissions(
+            command,
+            this.previousBuilding,
+            fraction
+          ).map(({ face, transformed, projected, flight }) => ({
+            face,
+            transformed,
+            flight,
+            projected: projected.map(([x, y]) => {
+              const point = buildingDrawPoint({ x, y }, reference, current, flight, anchor)
+              return [point.x, point.y]
+            }),
+          })),
+          // Apply source outcodes after display mapping. A resized shell must
+          // not retain the old window's visibility cuts or stretch the model.
+          triangles = collectBuildingAcquisitionTriangles(
+            { whole: command.whole, submissions },
+            { width, height }
+          )
+        this.buildingSurface ??= new BuildingAcquisitionTriangleSurface(atlas)
+        context.drawImage(
+          this.buildingSurface.draw(triangles, width, height, ratio),
+          0,
+          0,
+          width,
+          height
+        )
+      } else if (command.kind === 'body') {
         const atlas = texture('hud').image as HTMLImageElement | undefined,
           rect = (hud.rects as Record<string, { x: number; y: number; w: number; h: number }>)[
             command.frame
@@ -253,6 +316,8 @@ export class WorshipAcquisitionPresentation {
           art = bodyArt.bodyFrames[String(command.model) as keyof typeof bodyArt.bodyFrames]
         if (!atlas?.complete || !atlas.naturalWidth || !rect || !art) continue
         const previous =
+            this.previousBody?.family === command.family &&
+            this.previousBody?.giftId === command.giftId &&
             this.previousBody?.geometry === command.geometry &&
             !!this.previousBody.radians === !!command.radians
               ? this.previousBody
@@ -293,6 +358,8 @@ export class WorshipAcquisitionPresentation {
   }
 
   dispose() {
+    this.buildingSurface?.dispose()
+    this.buildingSurface = undefined
     this.canvas.remove()
     this.sprites.clear()
     this.anchors.clear()
