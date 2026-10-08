@@ -81,3 +81,30 @@ Reports and raw receipts remain ignored local artifacts, not a new project board
 real local command receipts to test missing evidence, failure precedence, staleness,
 source drift, duplicate receipts, unknown scope, deterministic history and escaping.
 These tests establish the measurement mechanism, not gameplay parity.
+
+## Ordinary Mission 2 checkpoint observation
+
+The additional evidence-only row reads the existing `early-missions.mjs` owned
+harness outer receipt, its `receipt.json` and matching `journey.json`. It is a
+second evidence method for the existing checkpoint capability, so it adds no
+requirement, browser-case or paired-parity percentage credit. Seeded diagnostic
+rows and the dated historical ledger remain unchanged.
+
+The adapter checks raw stream hashes, exact ordinary scenario and reviewed checker
+bytes, matching clean source before/after, commit/tree identity, owned sandboxed
+browser launch, matching result/sidecar, and the actual saved/loaded turn, roster,
+stats and resumed simulation observations. Missing, malformed, interrupted or
+substituted evidence is unknown. A historical pass remains visible with its tested
+commit/date and becomes stale when the current full source tree differs or is
+dirty. This deliberately does not infer source correspondence after a merge.
+
+The retained PR257 observation is on `e76687a`, at 2026-10-07T20:29:54.135Z:
+saved and loaded turn 217, subsequently resumed turn 251. It is stale against the
+newer product tree. It proves that browser checkpoint witness only; it does not
+prove original save serialization, native execution, complete state equality,
+mission victory, graphical parity or hardware performance. Raw receipts stay local.
+
+Newer failed/incomplete recognized attempts take precedence over older passes. The
+adapter never runs the harness and introduces no new browser/native permission.
+`tests/parity-owned-checkpoint.test.mjs` exercises substitution/drift/failure
+boundaries and verifies that this observation cannot inflate the denominator.
