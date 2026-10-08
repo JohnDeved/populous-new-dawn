@@ -12,7 +12,7 @@ assert.equal(resolve(process.env.POPULOUS_GAME_ROOT ?? root), resolve(root))
 process.env.POPULOUS_GAME_ROOT = root
 const configFile = resolve(root, 'scripts/local-render/vite.config.mjs')
 const cacheDir = process.env.POPULOUS_TRANSFORM_CACHE
-assert.ok(cacheDir && isAbsolute(cacheDir) && relative(root, cacheDir).startsWith('work/orchestration/'), 'A dedicated absolute cache under work/orchestration is required')
+assert.ok(cacheDir && isAbsolute(cacheDir) && /^node_modules\/\.vite\/blast-transform-[a-z0-9-]+$/.test(relative(root, cacheDir)), 'A fresh dedicated cache under node_modules/.vite/blast-transform-* is required')
 assert.equal(existsSync(cacheDir), false, 'Preserve old transform caches; use a fresh path')
 const sha256 = value => createHash('sha256').update(value).digest('hex')
 let server
