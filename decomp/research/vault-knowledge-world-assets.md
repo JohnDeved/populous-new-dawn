@@ -97,14 +97,28 @@ rendering. The local Shaman presentation adapter already handles this difference
 by latching before advancement. This slice follows that same pattern: the marker
 cursor retains `displayedFrame`, and the gift uses existing `Effect.sprite.frame`.
 Both are initialized to 0 and latched before their own cursor step. Rendering reads
-the latch. A gift born exactly on a turn/animation boundary therefore first shows
-HFX1417 while its next cursor is 4; the following boundary displays HFX1418.
+the latch. The first presentation visit latches frame 0 (HFX1417) and advances the
+cursor to 4; the second latches frame 1 (HFX1418) and advances the cursor to 8.
 Hidden gift glows stop both cursor and display-latch advancement.
+
+This corrects the earlier claim that the first browser render must show HFX1417.
+`advanceGame` can finish multiple presentation visits before `Scene.animate`
+renders once, including after a gift's birth in the same simulation turn. The
+first actual GPU frame therefore uses the latest latched frame. A rendered
+witness must retain the birth state, independently count intervening presentation
+visits using the same game clock, and compare the displayed body/glow with the
+draw-before-step recurrence while the gift is still in its six-visit visible
+window. The observed Mission 1 continuation showed birth cursor/latch 0 and
+first-render cursor 8/latch 1/HFX1418 in turn 1235; its original strict-HFX1417
+assertion failed. That retained metadata alone does not independently count the
+visits, and no birth PNG was saved by that failed checker.
 
 This reuses the current chronological 24 Hz adapter. It does not change that rate
 or settle issue 214's broad animation-speed report. The native per-visit sequence,
 browser frame-rate independence and absolute original wall-clock cadence remain
-different claims.
+different claims. The accepted native proof establishes the per-visit resource
+mapping and recurrence, not native global animation ownership or whole-frame
+scheduling parity.
 
 ## Verification boundary
 
@@ -169,5 +183,6 @@ The ordinary acceptance route must first earn Land Bridge, cast from the dry
 shore, complete the crossing and handle the authored guard using normal input.
 It then covers genuine Vault acquisition, nonzero-cursor public Save/Load and
 home-island camp construction. A read-only real-render observer must capture the
-short first-visible1077/1417 window; a later screenshot cannot substitute for it.
+first actual visible HFX1077 body and exact glow derived from independently counted
+presentation visits, before the six-visit hide; a later screenshot cannot substitute.
 This note does not claim that the rendered episode or standard gates have passed.
