@@ -2,17 +2,22 @@
 // Live World is read only; every validator that synchronizes terrain receives a detached clone.
 import assert from 'node:assert/strict'
 
+export class Mission1PreclickRejection extends Error {
+  constructor(message, retryable) { super(message); this.retryable = retryable; this.inputAttempted = false }
+}
+
 export function createMission1VaultInput({ page, signal, report, save, originalShamanId }) {
-  const action = async (label, run) => {
+  let prepared = false
+  const action = async (label, run, persist = true) => {
     signal.throwIfAborted()
     if (originalShamanId !== null) await page.evaluate(id => {
       const unit = window.testSceneRef.current.world.units.find(unit => unit.id === id)
       if (!unit || unit.hp <= 0) throw new Error('Original Shaman was lost; stop the ordinary route')
     }, originalShamanId)
-    report.actions.push({ label, phase: 'before', at: new Date().toISOString() }); save()
+    report.actions.push({ label, phase: 'before', at: new Date().toISOString() }); if (persist) save()
     await run()
     signal.throwIfAborted()
-    report.actions.push({ label, phase: 'after', at: new Date().toISOString() }); save()
+    report.actions.push({ label, phase: 'after', at: new Date().toISOString() }); if (persist) save()
   }
   const button = name => action(name, () => page.getByRole('button', { name, exact: true }).click())
   const pause = async () => {
@@ -49,13 +54,15 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
   }
   const prepareDispatch = async () => {
     await page.evaluate(async () => {
-      await Promise.all([import('/app/person-orders.ts'), import('/app/live-command.ts'),
-        import('/qa/erosion-ordinary/input.mjs')])
+      const [orders, input] = await Promise.all([import('/app/person-orders.ts'), import('/qa/erosion-ordinary/input.mjs'),
+        import('/app/live-command.ts'), import('/app/spell-casting.ts'), import('/app/world-terrain-runtime.ts'), import('/app/native-math.ts')])
+      window.mission1VaultDispatchModules = { orders, input }
     })
     await page.waitForFunction(() => {
       const world = window.testSceneRef.current.world
       return world.turn > world.lastOrderTurn
     }, null, { timeout: 5000 })
+    prepared = true
   }
   const entityPoint = (collection, id, expectedCommand, cast = false) => page.evaluate(
     async ({ collection, id, expectedCommand, cast, actorId }) => {
@@ -130,9 +137,12 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
         rejection: rejection ?? (cast && !ground ? 'Spell ground pick disappeared' : null) }
     }, { collection, id, expectedCommand, cast, actorId: originalShamanId })
   const dispatch = async (hit, command, expectedIds) => {
-    const preflight = await page.evaluate(async ({ hit, command, expectedIds }) => {
-      const [{ currentPersonOrder }, { findEntityInput, inspectEntityPoint, createMoveContextProbe, observeEntityPointer, entityInputState }] =
-        await Promise.all([import('/app/person-orders.ts'), import('/qa/erosion-ordinary/input.mjs')])
+    if (!prepared) await prepareDispatch()
+    signal.throwIfAborted()
+    const preflight = await page.evaluate(({ hit, command, expectedIds, actorId }) => {
+      const { orders, input } = window.mission1VaultDispatchModules
+      const { currentPersonOrder } = orders
+      const { findEntityInput, inspectEntityPoint, createMoveContextProbe, observeEntityPointer, entityInputState } = input
       const scene = window.testSceneRef.current, world = scene.world, canvas = scene.renderer.domElement
       const point = hit.collection ? world[hit.collection].find(object => object.id === hit.id) :
         scene.pick({ clientX: hit.x, clientY: hit.y })
@@ -143,7 +153,10 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
         point: point && { id: point.id ?? null, x: point.x, z: point.z }, selected: [...world.selected], lastOrderTurn: world.lastOrderTurn,
         selectedUnits: world.selected.map(id => { const unit = world.units.find(unit => unit.id === id);
           return { id, kind: unit?.kind, team: unit?.team, hp: unit?.hp } }) }
-      const rejection = world.paused || world.mode !== null ? 'Ordinary dispatch requires playing command mode'
+      const actor = world.units.find(unit => unit.id === actorId)
+      const rejection = scene.world !== window.testStore.getWorld() ? 'Scene/store identity changed'
+        : !actor || actor.hp <= 0 || actor.kind !== 'shaman' || actor.team !== 'blue' ? 'Original Shaman was lost'
+        : world.paused || world.mode !== null ? 'Ordinary dispatch requires playing command mode'
         : expectedIds && JSON.stringify(world.selected) !== JSON.stringify(expectedIds)
         ? 'Selected recipients changed before dispatch'
         : command === 8 && (!diagnostics.selectedUnits.length || diagnostics.selectedUnits.some(unit =>
@@ -154,7 +167,7 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
           : !point || (!hit.collection && (!pick.canvasOwned || pick.hitId !== null ||
               Math.hypot(point.x - hit.point.x, point.z - hit.point.z) > 0.05))
             ? 'Ground target became stale before dispatch'
-            : !context.enabled || context.model !== command ? 'Fresh dispatch context rejected' : null
+            : !context?.enabled || context.model !== command ? 'Fresh dispatch context rejected' : null
       if (rejection) return { rejection, diagnostics }
       const ids = [...world.selected]
       const sample = () => ({ turn: world.turn, selected: [...world.selected], lastOrderTurn: world.lastOrderTurn,
@@ -168,21 +181,25 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
             order: person ? structuredClone(currentPersonOrder(world.buildingOrders, person)) : null }
         }) })
       const delivery = observeEntityPointer(scene, document, hit.collection ? hit : null)
-      const record = { before: sample(), context, point, after: null, errors: [] }
+      const record = { before: sample(), context, point, preflight: { rejection: null, diagnostics }, after: null, errors: [] }
       const after = () => { try { record.after = sample() } catch (error) { record.errors.push(String(error)) } }
       canvas.addEventListener('pointerup', after)
       window.mission1VaultDispatch = { finish() {
         canvas.removeEventListener('pointerup', after)
         return { ...record, delivered: delivery.finish() }
       } }
-      return { rejection: null, diagnostics }
-    }, { hit, command, expectedIds })
-    report.actions.push({ label: 'final-dispatch-preflight', command, hit, preflight }); save()
-    assert.equal(preflight.rejection, null, JSON.stringify(preflight))
+      return { rejection: null, turn: world.turn }
+    }, { hit, command, expectedIds, actorId: originalShamanId })
+    const entry = { label: 'final-dispatch-preflight', command, hit, preflight, inputAttempted: false }
+    report.actions.push(entry)
+    if (preflight.rejection) throw new Mission1PreclickRejection(preflight.rejection, command === 3 && !hit.collection &&
+      preflight.rejection === 'Ground target became stale before dispatch')
     let evidence
-    try { await action(`command-${command}-click`, () => page.mouse.click(hit.x, hit.y)) }
+    try { signal.throwIfAborted(); entry.inputAttempted = true; await page.mouse.click(hit.x, hit.y) }
+    catch (error) { if (error instanceof Mission1PreclickRejection) error.inputAttempted = entry.inputAttempted; throw error }
     finally {
       evidence = await page.evaluate(() => { const observer = window.mission1VaultDispatch; delete window.mission1VaultDispatch; return observer?.finish() })
+      entry.preflight = evidence?.preflight ?? preflight
       report.actions.push({ label: 'actual-dispatch', command, hit, evidence }); save()
     }
     const { before, after, delivered, errors } = evidence
@@ -255,7 +272,7 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
   const clickEntity = async (collection, id, command, cast = false, expectedIds = null) => {
     if (!cast) await prepareDispatch()
     const hit = await entityPoint(collection, id, command, cast)
-    report.actions.push({ label: 'rendered-target', hit }); save()
+    report.actions.push({ label: 'rendered-target', hit })
     assert.equal(hit.rejection, null, JSON.stringify(hit.diagnostics))
     if (cast) {
       assert.equal(hit.spellPreflight.rejection, null, JSON.stringify(hit.spellPreflight))
@@ -332,15 +349,15 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
       : 'No owned empty ground pick meets the requested movement target and enabled command3 context',
       caster, minimumMargin, rejected, rejectionCounts, nearestRejectedPoint, diagnostics: entityInputState(scene, null, center) }
   }, { target, spell, actorId: originalShamanId, cellMove })
-  const farBankGround = async target => {
+  const farBankGround = async (target, maxProbes = 3) => {
+    assert.ok(Number.isInteger(maxProbes) && maxProbes >= 1 && maxProbes <= 3)
     let hit
     // Reuse ordinary-shared-training's owned right-drag corridor. Two finite
     // camera adjustments can expose this same destination cell; never drift it.
-    for (let attempt = 0; attempt < 3; attempt++) {
-      await prepareDispatch()
+    for (let attempt = 0; attempt < maxProbes; attempt++) {
       hit = await fixedGround(target, null, true)
-      report.actions.push({ label: 'far-bank-ground-probe', attempt, hit }); save()
-      if (hit.rejection === null || attempt === 2) return hit
+      report.actions.push({ label: 'far-bank-ground-probe', attempt, hit })
+      if (hit.rejection === null || attempt === maxProbes - 1) return { ...hit, probeAttempts: attempt + 1 }
       const corridor = await page.evaluate(() => {
         const canvas = window.testSceneRef.current.renderer.domElement
         for (const y of [750, 650, 550]) {
@@ -351,17 +368,36 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
         }
         return null
       })
-      report.actions.push({ label: 'far-bank-camera-corridor', attempt, corridor }); save()
-      if (!corridor) return hit
+      report.actions.push({ label: 'far-bank-camera-corridor', attempt, corridor })
+      if (!corridor) return { ...hit, probeAttempts: attempt + 1 }
       await action('far-bank-ordinary-camera-rotation', async () => {
         await page.mouse.move(corridor.x, corridor.y); await page.mouse.down({ button: 'right' })
         try { await page.mouse.move(corridor.endX, corridor.y, { steps: 12 }) }
         finally { await page.mouse.up({ button: 'right' }) }
         await page.mouse.move(400, 780)
-      })
+      }, false)
       await settle()
     }
     return hit
   }
-  return { action, button, pause, resume, settle, view, prepareDispatch, entityPoint, dispatch, castInput, fixedGround, farBankGround, clickEntity }
+  const moveGround = async (target, cellMove = false) => {
+    let succeeded = false
+    try {
+      for (let remaining = 3; remaining > 0;) {
+        await prepareDispatch() // All known imports and readiness precede target search.
+        const hit = cellMove ? await farBankGround(target, remaining) : await fixedGround(target)
+        remaining -= hit.probeAttempts ?? 1
+        assert.equal(hit.rejection, null, JSON.stringify(hit))
+        try {
+          const delivered = await dispatch(hit, 3, [originalShamanId])
+          succeeded = true
+          return { hit, delivered }
+        } catch (error) {
+          if (!(error instanceof Mission1PreclickRejection) || error.inputAttempted || !error.retryable || !remaining) throw error
+          report.actions.push({ label: 'ordinary-ground-reprobe', reason: error.message, remaining })
+        }
+      }
+    } finally { if (!succeeded) save() }
+  }
+  return { action, button, pause, resume, settle, view, prepareDispatch, entityPoint, dispatch, castInput, fixedGround, farBankGround, moveGround, clickEntity }
 }

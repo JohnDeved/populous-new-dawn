@@ -102,7 +102,7 @@ export default async function mission1VaultKnowledge({ page, openMission, output
     assert.ok(guard, 'Retain authored record43 Red guard identity at the opening')
     report.guardId = guard.id
     const input = createMission1VaultInput({ page, signal, report, save, originalShamanId })
-    const { button, pause, resume, view, prepareDispatch, fixedGround, dispatch, clickEntity, castInput } = input
+    const { button, pause, resume, view, fixedGround, clickEntity, castInput } = input
     const clear = async () => {
       for (let attempt = 0; attempt < 3; attempt++) {
         const current = await read()
@@ -112,10 +112,8 @@ export default async function mission1VaultKnowledge({ page, openMission, output
       assert.fail('Public Escape did not clear mode and selection')
     }
     const move = async (point, cellMove = false) => {
-      await button('Select and focus shaman'); await view(point); await resume(); await prepareDispatch()
-      const hit = cellMove ? await input.farBankGround(point) : await fixedGround(point)
-      assert.equal(hit.rejection, null, JSON.stringify(hit))
-      const delivered = await dispatch(hit, 3, [originalShamanId])
+      await button('Select and focus shaman'); await view(point); await resume()
+      const { hit, delivered } = await input.moveGround(point, cellMove)
       const recipient = delivered.after.units.find(unit => unit.id === originalShamanId)
       const movement = { hit, delivered, status: 'running' }
       report.movements ??= []; report.movements.push(movement); save()

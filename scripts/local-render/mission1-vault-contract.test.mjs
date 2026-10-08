@@ -205,6 +205,7 @@ test('detached placement uses actual selected Braves, owns canvas hits, and rele
 test('command33 accepts actual work/VaultTask; command27 requires delivered ordinary PersonOrder', async () => {
   for (const command of [27, 33]) {
     const f = fixture(), listeners = new Map(), hit = { id: 91, collection: 'shrines', x: 50, y: 50 }
+    globalThis.document = {}
     f.scene.renderer.domElement.addEventListener = (type, fn) => listeners.set(type, fn)
     f.scene.renderer.domElement.removeEventListener = type => listeners.delete(type)
     const modules = {
@@ -213,7 +214,11 @@ test('command33 accepts actual work/VaultTask; command27 requires delivered ordi
         findEntityInput: () => hit, entityInputState: () => ({}), observeEntityPointer: () => ({ finish: () => ({ errors: [], restored: true,
           events: ['pointerdown', 'pointerup'].map(type => ({ type, button: 0, trusted: true, canvasOwned: true, canvasTarget: true, args: {} })) }) }) },
     }
-    const page = { evaluate: (fn, args) => browserFunction(fn, async path => { assert.ok(modules[path], path); return modules[path] })(args), mouse: { async click() {
+    const page = { waitForFunction: async (fn, args) => { assert.ok(fn(args)) },
+      evaluate: (fn, args) => browserFunction(fn, async path => {
+        if (['/app/live-command.ts', '/app/spell-casting.ts', '/app/world-terrain-runtime.ts', '/app/native-math.ts'].includes(path)) return {}
+        assert.ok(modules[path], path); return modules[path]
+      })(args), mouse: { async click() {
       f.world.lastOrderTurn = 0; f.scene.pointerAck = { target: 91, until: 2 }
       if (command === 33) { f.world.units[0].work = 91; f.world.units[0].vault = { head: 91, phase: 1 } }
       listeners.get('pointerup')()
