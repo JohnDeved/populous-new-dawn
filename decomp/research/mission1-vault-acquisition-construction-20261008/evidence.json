@@ -1,0 +1,503 @@
+{
+  "status": "ordinary-continuation-passed",
+  "productCommit": "8348cad7ff47fd597bfbf84caa09135b24f339dd",
+  "qaCommit": "2bb0a161e0bff6227d11cb57e53ea41767f8590e",
+  "qaTree": "1bc6b792a6a62466be02248745c9559679a59ffc",
+  "driverCommit": "91c9453061e92aa2ada4f4c170904b47c7e56a98",
+  "sourceFingerprint": "cf725c6c9197215c72ed65bb0a2965fae4cdf8fa8973536e2cbb35e4a569266a",
+  "applicationFingerprint": "528967c09831599315a3f97ba8defe4e4bbfcc3344f4a0cb7add9cbcf1ec4f2f",
+  "checkerFingerprint": "a579e0c4aec35b9d41fd5753f92c0de21d7372a0ac1cd9be45550009929f3fe5",
+  "runId": "f2f0fb0f-7cdc-4657-ab00-850f3c1da91a",
+  "finishedAt": "2026-10-08T04:36:31.931Z",
+  "receiptSha256": "88a10fb3a018b8f6f292947fe3e27b585fa572eecbba0c0d27da7775da0690aa",
+  "scenarioSha256": "ff8a5d3690962ac330872caa464c2dd8821a978d5cbc9ed0fd221c27771b3cf2",
+  "sourceRuntimeUnchanged": true,
+  "runtimeErrors": [],
+  "cleanupVerified": true,
+  "continuationVerified": true,
+  "images": {
+    "acquisition-birth-first-real-render.png": {
+      "sha256": "05db34d9cc830e3f35f35100b744f3331f4d0c490efd62f8785c883492879007",
+      "bytes": 2347625
+    },
+    "acquisition-retirement-first-real-render.png": {
+      "sha256": "c4d3efa3e497bbc6392dbb5e4e707fdce41f0996dba3a37d6aacbd0699c0b99f",
+      "bytes": 2343041
+    },
+    "home-island-camp-completed.png": {
+      "sha256": "f41f57b377571810ad035453dc20cc17aac2f858215da99397222ce9c6d2ef4b",
+      "bytes": 1556440
+    }
+  },
+  "saved946": {
+    "checkpoint": {
+      "version": 1,
+      "level": 1,
+      "turn": 946,
+      "time": 78.83333333333333,
+      "checkpointSha256": "d737edcff40882186b99f996a7243df01659bf02f3504eedff36f15398391f33",
+      "actorsSha256": "8a142c897265e89d0e46afa365c3b35ff574e31dfc4c2182b9680caf2215bc7a",
+      "terrainSha256": "ad22b7bc4c2af4d8348d33ec6b8508a272211df0059e959ea622413050b8af31",
+      "stockSha256": "fd37aa2220cfb25ee1919b591c99ca427ca6fb97f329902edecfcc2643f6a4c2"
+    },
+    "storedDigestUnchangedAtEnd": true,
+    "boundedLoadSnapshotEqual": true,
+    "glowCursor": 12,
+    "displayedFrame": 2,
+    "shaman": [
+      {
+        "id": 30,
+        "hp": 100,
+        "x": -4.28515625,
+        "z": 3.11328125
+      }
+    ],
+    "bridges": 1,
+    "equalityScope": "Save/Load equality covers the bounded recorded Mission 1 snapshot, including the glow cursor, Bridge/land state and original Shaman. The full checkpoint digest identifies committed storage only; no full loaded-World digest comparison was performed."
+  },
+  "vaultInput": {
+    "turn": 1016,
+    "selected": [
+      30
+    ],
+    "ackTarget": 2,
+    "unit": {
+      "id": 30,
+      "kind": "shaman",
+      "hp": 100,
+      "inside": null,
+      "work": 2,
+      "vaultTask": {
+        "head": 2,
+        "phase": 0,
+        "entering": true,
+        "remaining": 0
+      },
+      "orderId": 14,
+      "orderOwner": {
+        "native": true,
+        "registered": true,
+        "phase": 0,
+        "workTarget": 0,
+        "flags2": 1107431936,
+        "timer": 0
+      },
+      "order": {
+        "model": 33,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 2,
+        "b": 0
+      }
+    },
+    "dispatchErrors": [],
+    "pointerErrors": []
+  },
+  "birth": {
+    "afterTurn": {
+      "turn": 1231,
+      "time": 102.58333333333333,
+      "paused": false,
+      "speed": 1,
+      "landFlags": 0,
+      "presentationClock": {
+        "sameOwner": true,
+        "animationFrame": 568
+      },
+      "camp": false,
+      "shrine": {
+        "active": false,
+        "remaining": 0,
+        "glow": {
+          "object": 1417,
+          "draw": 43,
+          "morph": 1,
+          "palette": 0,
+          "renderFlags": 260,
+          "f1": 44,
+          "f2": 0,
+          "stamp": 0,
+          "flags3": 1024,
+          "morphTimer": 0,
+          "morphFrames": 0,
+          "displayedFrame": 10
+        }
+      },
+      "gift": {
+        "id": 3540,
+        "x": -5,
+        "z": -3,
+        "height": 25.488888888888887,
+        "remaining": 82,
+        "phase": 6,
+        "frame": 1077,
+        "independentGlow": true,
+        "animation": {
+          "object": 1417,
+          "draw": 43,
+          "morph": 1,
+          "palette": 0,
+          "renderFlags": 260,
+          "f1": 0,
+          "f2": 0,
+          "stamp": 0,
+          "flags3": 1024,
+          "morphTimer": 0,
+          "morphFrames": 0
+        },
+        "sprite": {
+          "sequence": "vault-knowledge-glow",
+          "frame": 0,
+          "fixed": true
+        }
+      }
+    },
+    "postRender": {
+      "state": {
+        "turn": 1231,
+        "time": 102.58333333333333,
+        "paused": false,
+        "speed": 1,
+        "landFlags": 0,
+        "presentationClock": {
+          "sameOwner": true,
+          "animationFrame": 569
+        },
+        "camp": false,
+        "shrine": {
+          "active": false,
+          "remaining": 0,
+          "glow": {
+            "object": 1417,
+            "draw": 43,
+            "morph": 1,
+            "palette": 0,
+            "renderFlags": 260,
+            "f1": 44,
+            "f2": 0,
+            "stamp": 0,
+            "flags3": 1024,
+            "morphTimer": 0,
+            "morphFrames": 0,
+            "displayedFrame": 10
+          }
+        },
+        "gift": {
+          "id": 3540,
+          "x": -5,
+          "z": -3,
+          "height": 25.488888888888887,
+          "remaining": 82,
+          "phase": 6,
+          "frame": 1077,
+          "independentGlow": true,
+          "animation": {
+            "object": 1417,
+            "draw": 43,
+            "morph": 1,
+            "palette": 0,
+            "renderFlags": 260,
+            "f1": 4,
+            "f2": 0,
+            "stamp": 0,
+            "flags3": 1024,
+            "morphTimer": 0,
+            "morphFrames": 0
+          },
+          "sprite": {
+            "sequence": "vault-knowledge-glow",
+            "frame": 0,
+            "fixed": true
+          }
+        }
+      },
+      "marker": {
+        "visible": false,
+        "name": "vault-knowledge-reward",
+        "position": [
+          -5,
+          8.9609375,
+          -3
+        ],
+        "family": "hfx",
+        "body": 1077,
+        "glow": {
+          "visible": true,
+          "frame": 1426,
+          "position": [
+            0,
+            -0.625,
+            0
+          ]
+        },
+        "children": [
+          {
+            "name": "camp-knowledge-hfx",
+            "visible": true,
+            "frame": 1077,
+            "scale": [
+              22,
+              24,
+              1
+            ],
+            "center": [
+              0.5,
+              0
+            ]
+          },
+          {
+            "name": "vault-marker-glow",
+            "visible": true,
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      "gift": {
+        "visible": true,
+        "name": "worship-reward",
+        "position": [
+          -5,
+          8.9609375,
+          -3
+        ],
+        "family": "hfx",
+        "body": 1077,
+        "glow": {
+          "visible": true,
+          "frame": 1417,
+          "position": [
+            0,
+            -0.625,
+            0
+          ]
+        },
+        "children": [
+          {
+            "name": "camp-knowledge-hfx",
+            "visible": true,
+            "frame": 1077,
+            "scale": [
+              22,
+              24,
+              1
+            ],
+            "center": [
+              0.5,
+              0
+            ]
+          },
+          {
+            "name": "worship-reward-glow",
+            "visible": true,
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          }
+        ]
+      }
+    },
+    "presentation": {
+      "birthClock": {
+        "sameOwner": true,
+        "animationFrame": 568
+      },
+      "firstRenderClock": {
+        "sameOwner": true,
+        "animationFrame": 569
+      },
+      "visits": 1,
+      "expectedCursor": 4,
+      "expectedLatch": 0,
+      "expectedHfx": 1417
+    },
+    "validationErrors": []
+  },
+  "retirement": {
+    "turn": 1237,
+    "birthDelta": 6,
+    "remaining": 76,
+    "phase": 0,
+    "visible": false,
+    "camp": false
+  },
+  "payout": {
+    "turn": 1313,
+    "birthDelta": 82,
+    "priorRemaining": 1,
+    "priorCamp": false,
+    "camp": true,
+    "giftRemoved": true
+  },
+  "acquisitionObserver": {
+    "errors": [],
+    "restored": true
+  },
+  "originalShamanAfterAcquisition": {
+    "id": 30,
+    "x": -10.8203125,
+    "z": -2.05859375,
+    "hp": 100,
+    "team": "blue",
+    "kind": "shaman",
+    "work": null,
+    "target": null,
+    "inside": null,
+    "pathLength": 1,
+    "vaultTask": null,
+    "state": 17,
+    "substate": 0
+  },
+  "construction": {
+    "input": {
+      "home": {
+        "x": 4.9990234375,
+        "z": 34.00048828125
+      },
+      "ids": [
+        13,
+        14,
+        16,
+        18,
+        1188
+      ],
+      "plan": {
+        "id": 1023,
+        "x": 6.703125,
+        "z": 33.078125,
+        "kind": "camp",
+        "team": "blue",
+        "hp": 260,
+        "progress": 0,
+        "logs": 0
+      }
+    },
+    "carried": [
+      {
+        "turn": 1454,
+        "id": 13,
+        "cargo": 1,
+        "tree": 25
+      },
+      {
+        "turn": 1620,
+        "id": 14,
+        "cargo": 1,
+        "tree": 25
+      },
+      {
+        "turn": 1748,
+        "id": 18,
+        "cargo": 1,
+        "tree": 25
+      }
+    ],
+    "delivered": [
+      {
+        "turn": 1504,
+        "id": 13,
+        "beforeCargo": 1,
+        "cargo": 0,
+        "beforeLogs": 0,
+        "logs": 1
+      },
+      {
+        "turn": 1668,
+        "id": 13,
+        "beforeCargo": 1,
+        "cargo": 0,
+        "beforeLogs": 1,
+        "logs": 2
+      },
+      {
+        "turn": 1674,
+        "id": 14,
+        "beforeCargo": 1,
+        "cargo": 0,
+        "beforeLogs": 2,
+        "logs": 3
+      },
+      {
+        "turn": 1802,
+        "id": 18,
+        "beforeCargo": 1,
+        "cargo": 0,
+        "beforeLogs": 3,
+        "logs": 4
+      },
+      {
+        "turn": 1876,
+        "id": 13,
+        "beforeCargo": 1,
+        "cargo": 0,
+        "beforeLogs": 4,
+        "logs": 5
+      },
+      {
+        "turn": 1978,
+        "id": 18,
+        "beforeCargo": 1,
+        "cargo": 0,
+        "beforeLogs": 5,
+        "logs": 6
+      },
+      {
+        "turn": 2060,
+        "id": 13,
+        "beforeCargo": 1,
+        "cargo": 0,
+        "beforeLogs": 6,
+        "logs": 7
+      },
+      {
+        "turn": 2160,
+        "id": 18,
+        "beforeCargo": 1,
+        "cargo": 0,
+        "beforeLogs": 7,
+        "logs": 8
+      }
+    ],
+    "completed": {
+      "turn": 2174,
+      "id": 1023,
+      "progress": 1,
+      "logs": 8,
+      "hp": 260
+    },
+    "errors": [],
+    "restored": true
+  },
+  "preservedHistory": [
+    {
+      "run": "ordinary06",
+      "status": "failed",
+      "receiptSha256": "cc8f07c2231a094cb9ac3f42fbb482229fd4df078266be7df269bc72e9c07620",
+      "scope": "Earned Bridge/crossing/guard clearance, visible marker and real Save946/public Load. Later valid phase0 entry rejected by old helper."
+    },
+    {
+      "run": "continuation07",
+      "status": "failed",
+      "receiptSha256": "37f60a31dc196f3d1db1a2e72bf3b3c987a33486b3935892d80668f997bb4e74",
+      "scope": "Public Load946/command33; birth cursor0 then same-turn first-render cursor8/latch1/HFX1418 metadata. Old universal1417 assertion failed; no birth PNG retained. Same946 stored digest preserved."
+    }
+  ],
+  "limits": [
+    "This is the ordinary06 prefix joined through its real saved946 to continuation08, not a single uninterrupted run or a before/after comparison.",
+    "Mission1 authored camp asset/per-visit/display mapping only. Native global animation ownership, whole-frame scheduling/cadence, native final raster and other issue23 Tower artwork remain open.",
+    "Headless software browser pixels do not establish hardware performance.",
+    "No original archive, extracted source bytes or browser profile is included. No campaign completion or parity credit claimed."
+  ],
+  "outerReceipt": {
+    "status": "passed",
+    "exitCode": 0,
+    "finishedAt": "2026-10-08T04:36:34.657Z",
+    "sha256": "0092508fa70ab10e6c0b3324f00a7294c9936a02dbd4500feaa1e2d1491b68ba"
+  }
+}
