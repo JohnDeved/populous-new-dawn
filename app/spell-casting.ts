@@ -412,7 +412,7 @@ export function beginCast(w: World, u: Unit, spell: Spell, p: Point, personId?: 
   // The ordinary direct-person Blast packet instead retains the person's exact pose.
   const direct =
       personId !== undefined && blastPersonTargeting(spell, w.manaWorld.gameFlags)
-        ? blastPersonPosition(w, personId)
+        ? blastPersonPosition(w, personId, nativePosition)
         : null,
     target = direct
       ? browserPosition(direct)

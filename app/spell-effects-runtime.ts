@@ -470,7 +470,7 @@ export function processProjectiles(w: World) {
     if (tracking) {
       // 0x4c1d10 keeps the parent spell point current through the later impact visit.
       if (tracking.personId !== null) {
-        const target = blastPersonPosition(w, tracking.personId)
+        const target = blastPersonPosition(w, tracking.personId, nativePosition)
         if (target) {
           tracking.destination = target
           shot.target = browserPosition(target)
@@ -478,7 +478,7 @@ export function processProjectiles(w: World) {
       }
       // 0x4bae30 clears only the shot's own identity, retaining its last destination.
       if (shot.phase !== 'windup' && tracking.shotPersonId !== null) {
-        const target = blastPersonPosition(w, tracking.shotPersonId)
+        const target = blastPersonPosition(w, tracking.shotPersonId, nativePosition)
         if (target) shot.destination = target
         else tracking.shotPersonId = null
       }

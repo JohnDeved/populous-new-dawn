@@ -24,7 +24,6 @@ import {
   selectFollowers,
   spellTargetError,
   type Building,
-  type Point,
 } from './model'
 import { command } from './live-command.ts'
 import { focusHudPerson } from './hud-selection.ts'
@@ -746,25 +745,21 @@ export function updatePointerFrame(scene: GameScene, now: number) {
         blastPersonTargeting(scene.world.mode, scene.world.manaWorld.gameFlags),
       personId =
         directBlast && scene.pointerScreen ? scene.picking.pickPerson(scene.pointerScreen) : null,
-      person = personId !== null ? blastPersonPosition(scene.world, personId) : null
-    scene.pointer =
-      scene.pointerScreen && scene.world.mode
-        ? person
-          ? browserPosition(person)
-          : scene.pick(scene.pointerScreen)
-        : null
-    scene.hoveredObject =
-      scene.pointerScreen && !scene.pointerButtons && !scene.world.inputMask
-        ? directBlast
-          ? person
-            ? personId
-            : null
-          : !scene.world.mode
-            ? scene.overviewActive
-              ? (scene.pickWorldObject(scene.pointerScreen)?.id ?? null)
-              : scene.picking.pick(scene.pointerScreen)
-            : null
-        : null
+      person =
+        personId === null ? null : blastPersonPosition(scene.world, personId, nativePosition)
+    scene.pointer = null
+    if (scene.pointerScreen && scene.world.mode)
+      scene.pointer = person ? browserPosition(person) : scene.pick(scene.pointerScreen)
+    scene.hoveredObject = null
+    if (scene.pointerScreen && !scene.pointerButtons && !scene.world.inputMask) {
+      if (directBlast) {
+        if (person) scene.hoveredObject = personId
+      } else if (!scene.world.mode) {
+        scene.hoveredObject = scene.overviewActive
+          ? (scene.pickWorldObject(scene.pointerScreen)?.id ?? null)
+          : scene.picking.pick(scene.pointerScreen)
+      }
+    }
     scene.pointerState = pointerState
   }
   scene.selectionOverlay.visible = scene.dragActive.value

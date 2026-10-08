@@ -1,14 +1,17 @@
-import type { NativePoint, World } from './world-types.ts'
+import type { NativePoint, Point, World } from './world-types.ts'
 import { short } from './native-math.ts'
-import { nativePosition } from './world-terrain-runtime.ts'
-import { unitAnimationSource } from './selection-runtime.ts'
+import { unitAnimationSource } from './unit-animation-source.ts'
 
 // 0x4fefe0 selects the ordinary spell-release path; the bit-set path is separate.
 export const blastPersonTargeting = (mode: string | null, gameFlags: number) =>
   mode === 'blast' && !(gameFlags & 32)
 
 // Follow the captured person only. Allegiance, range and hover are not lifetime gates.
-export function blastPersonPosition(w: World, id: number): NativePoint | null {
+export function blastPersonPosition(
+  w: World,
+  id: number,
+  groundPosition: (world: World, point: Point) => NativePoint
+): NativePoint | null {
   const unit = w.units.find(person => person.id === id)
   // Dead airborne/electrocuted people remain allocated until their owning controller retires them.
   if (!unit) return null
@@ -22,5 +25,5 @@ export function blastPersonPosition(w: World, id: number): NativePoint | null {
     (owner?.vehicle ? owner : null)
   return source
     ? { x: short(source.x), y: short(source.y), h: short(source.h) }
-    : nativePosition(w, unit)
+    : groundPosition(w, unit)
 }

@@ -405,7 +405,7 @@ export function cast(w: World, spell: Spell, p: Point, personId?: number) {
   if (w.paused || w.status !== 'playing') return false
   const direct =
     personId !== undefined && blastPersonTargeting(spell, w.manaWorld.gameFlags)
-      ? blastPersonPosition(w, personId)
+      ? blastPersonPosition(w, personId, nativePosition)
       : null
   if (direct) p = browserPosition(direct)
   const error = spellTargetError(w, spell, p)
