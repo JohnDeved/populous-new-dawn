@@ -374,13 +374,14 @@ function enemySample(turn) {
   for (const effect of value.effects) effect.point = browserPoint(aim)
   return value
 }
-function enemyStart(change = () => {}) {
-  const episode = createBlastEpisode({ ...options, phenotype: 'm1-enemy' }), ctx = { ...context, level: 1 }
+function enemyStart(change = () => {}, ground = false) {
+  const episode = createBlastEpisode({ ...options, phenotype: 'm1-enemy', ...(ground && { enemySetup: 'ground-response' }) }), ctx = { ...context, level: 1 }
   const h = { ...hover('candidate'), context: copy(ctx), previousPosition: position(0), targetSame: true, ownerValid: true, renderFrame: 5 }
   const frame = { ...hoverFrame(), context: copy(ctx), pixels: null }, first = enemySample(3)
   const event = { ...release('candidate'), turn: 3, observedAt: 3.2, point: { x: 15, y: 22 }, context: copy(ctx),
     press: { ...release('candidate').press, turn: 3, observedAt: 3, position: position(3), point: { x: 15, y: 22 }, context: copy(ctx) },
     targetCheck: { range: { phase: 'before-handler', turn: 3, targetId: 3, sameOriginal: true, targetError: null }, position: position(3) } }
+  if (ground) { h.previousPosition = copy(h.position); event.targetCheck.movement = { turn: 3, previousTurn: 2, previousPosition: position(2), groundResponse: true } }
   change({ h, frame, event, first })
   episode.hover(h); episode.captureHover(frame); episode.trigger(2, 2); episode.release(event, first)
   return { episode, frame, first, ctx }
@@ -423,4 +424,26 @@ test('enemy natural cue rejects unowned, stationary, fake, changed and post-trig
   assert.throws(() => episode.captureHover(frame), /before trigger/)
   assert.throws(() => episode.frame({ ...frame, position: position(3), pixels: 80 }), /prospective capture/)
   assert.throws(() => createBlastEpisode({ ...options, phenotype: 'm1-enemy', expectation: 'baseline' }), /candidate-only/)
+})
+
+
+test('ground-response preparation binds stationary natural hover to a later moving release', () => {
+  const { episode, first } = enemyStart(() => {}, true)
+  assert.deepEqual(episode.report().hover.position, episode.report().hover.previousPosition)
+  assert.notDeepEqual(episode.report().hover.position, first.target.position)
+  assert.equal(episode.report().release.targetCheck.movement.previousTurn, 2)
+  assert.deepEqual(episode.report().errors, [])
+})
+test('ground-response preparation rejects moving or false hover and stale nonmoving release evidence', () => {
+  for (const change of [
+    ({ h }) => { h.previousPosition = position(0) },
+    ({ frame }) => { frame.position.x++ },
+    ({ frame }) => { frame.renderFrame++ },
+    ({ event }) => { event.targetCheck.movement.previousTurn = 3 },
+    ({ event }) => { event.targetCheck.movement.turn = 2 },
+    ({ event }) => { event.targetCheck.movement.groundResponse = false },
+    ({ event, first }) => { event.targetCheck.movement.previousPosition = copy(first.target.position) },
+    ({ event }) => { event.targetCheck.range.targetError = 'out of range' },
+    ({ event }) => { event.handlerPersonId = null; event.handlerTerrain = true },
+  ]) assert.throws(() => enemyStart(change, true))
 })

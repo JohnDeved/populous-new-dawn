@@ -5,7 +5,7 @@ import ordinaryM1EnemyBlast, { createM1EnemyPreparation, createM1PointerAttempt 
 
 test('enemy admission has no stationary neighborhood helper or pixel offsets', () => {
   const source = readFileSync(new URL('../qa/blast-ordinary/m1-scenario.mjs', import.meta.url), 'utf8')
-  const admission = source.slice(source.indexOf('    const observe = '), source.indexOf("    }, 'one actual preparation move, first natural draw and one admission')"))
+  const admission = source.slice(source.indexOf('    const observe = '), source.indexOf("    }, 'one stationary hover, first ground response and one admission')"))
   assert.ok(admission.length > 0)
   assert.doesNotMatch(admission, /findEntityInput|interiorRadius|\bd[xy]\b/)
   assert.match(admission, /inspectEntityPoint\(s, 'units', point\)/)
@@ -75,6 +75,7 @@ test('missing draw, expired bounds and real observer errors remain failures', as
     [{ ...admissionRow(), errors: ['episode failure'] }, pointerProbe(), /Episode observation failed/],
     [{ ...admissionRow(), withinBounds: false }, pointerProbe(), /window expired/],
     [{ ...admissionRow({ hover: false }), failures: ['scene'] }, pointerProbe(), /Setup observation failed/],
+    [admissionRow({ hover: true, route: false }), pointerProbe(), /Original acknowledged approach changed/],
   ]) {
     const { attempt } = pointerHarness()
     await attempt.move(readyPreparation())
@@ -137,15 +138,16 @@ test('scenario refuses baseline or reused profiles before any browser operation'
 })
 
 
-test('ground primer excludes persons while retaining actual non-person terrain semantics', () => {
+test('enemy route prepares camera and observer before its sole approach and has no primer', () => {
   const source = readFileSync(new URL('../qa/blast-ordinary/m1-scenario.mjs', import.meta.url), 'utf8')
-  const primer = source.slice(source.indexOf('    const primer = await page.evaluate'), source.indexOf('    report.primer = { hit: primer }'))
-  assert.ok(primer.length > 0)
-  assert.doesNotMatch(primer, /pickUnit|pickWorldObject/)
-  assert.match(primer, /const occupied = person !== null/)
-  assert.match(primer, /pickedCell.x === wanted.x && pickedCell.y === wanted.y && error === null/)
+  const approach = source.indexOf("const approach = await move('guard approach'")
+  assert.ok(approach > source.indexOf("await checked(() => input.view({ x: -9, z: -3 }))"))
+  assert.ok(approach > source.indexOf('window.blastEpisode = window.blastHelpers.observeBlastEpisode'))
+  assert.match(source, /enemySetup: 'ground-response'/)
+  assert.doesNotMatch(source.slice(approach), /castInput|page\.screenshot[\s\S]*page\.mouse\.click/)
+  assert.match(source, /observed\.hover && !observed\.probe\.response/)
+  assert.equal((source.match(/page\.mouse\.click\(/g) ?? []).length, 1)
 })
-
 
 test('an unprobed range never becomes the first observed range failure', () => {
   const preparation = createM1EnemyPreparation()
@@ -172,7 +174,9 @@ test('actual route caller delegates once to maintained moveGround and propagates
     input, fn => fn(), async () => {}, { evaluate: async () => ({ done: true, turn: 123 }) }, report, () => {}, async check => assert.equal(await check(), true), () => {}, async () => ({}), assert)
   const result = await route('crossing', point, true)
   assert.deepEqual(calls, [[point, true]]); assert.equal(result.hit, hit); assert.equal(result.delivered, delivered)
+  const approaching = await route('guard approach', point)
+  assert.equal(approaching.arrival, null); assert.equal(approaching.latest, undefined)
   failure = Error('Actual or uncertain input failure')
   await assert.rejects(route('crossing', point, true), error => error === failure)
-  assert.equal(calls.length, 2, 'The caller must not retry a helper failure')
+  assert.equal(calls.length, 3, 'The caller must not retry a helper failure')
 })

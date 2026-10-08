@@ -54,6 +54,7 @@ export function createM1PointerAttempt({ checkStop, signal, move, retain, now = 
       assert.deepEqual(probe.errors, [], 'Pointer observation failed')
       assert.deepEqual(row.errors, [], 'Episode observation failed')
       assert.deepEqual(row.failures, [], 'Setup observation failed')
+      if ('route' in row.gates) assert.equal(row.gates.route, true, 'Original acknowledged approach changed before admission')
       assert.equal(row.withinBounds, true, 'The first-draw admission window expired')
       const missingGates = Object.entries(row.gates).filter(([, passed]) => !passed).map(([gate]) => gate)
       const ready = missingGates.length === 0 && row.rangeStatus === 'probed' && row.targetError === null
@@ -63,7 +64,7 @@ export function createM1PointerAttempt({ checkStop, signal, move, retain, now = 
   }
 }
 
-// Source-only entry point: one fresh Mission1 prefix, one ground primer, and at
+// Source-only entry point: one fresh Mission1 prefix, one ground response, and at
 // most one moving-person click. The maintained harness owns browser and runtime.
 export default async function ordinaryM1EnemyBlast({ page, output, receipt, signal, openMission }) {
   assert.equal(process.env.POPULOUS_BLAST_EXPECTATION, 'candidate')
@@ -74,12 +75,12 @@ export default async function ordinaryM1EnemyBlast({ page, output, receipt, sign
   assert.equal(receipt.profile.previousRun, null)
   const started = Date.now(), commands = resolve(output, 'commands')
   mkdirSync(commands)
-  const limits = { wallMs: 240000, maximumSetupTurn: 1800, primerTurns: 48, lifecycleTurns: 48,
+  const limits = { wallMs: 240000, maximumSetupTurn: 1800, responseTurns: 48, lifecycleTurns: 48,
     cameraMs: 15000, releaseWithinTurns: 4, harnessMs: 300000, outerMs: 330000 }
   const report = { expectation: 'candidate', phenotype: 'm1-enemy', source: receipt.source,
     profileId: receipt.profile.id, runId: receipt.profile.runId, limits, actions: [], route: [] }
   const preparation = createM1EnemyPreparation()
-  let primaryError, episode, setupAttached = false, episodeAttached = false, home, diagnostic, skipPollSleep = false
+  let primaryError, episode, setupAttached = false, episodeAttached = false, diagnostic, skipPollSleep = false
   const save = (name = 'm1-route.json', value = report) => writeFileSync(resolve(output, name), JSON.stringify(value, null, 2) + '\n')
   const checkStop = async () => {
     signal.throwIfAborted()
@@ -112,7 +113,6 @@ export default async function ordinaryM1EnemyBlast({ page, output, receipt, sign
     assert.equal(state.level, 1); assert.equal(state.status, 'playing'); assert.equal(state.paused, false); assert.equal(state.speed, 1)
     assert.equal(state.flags & 32, 0); assert.ok(state.turn < limits.maximumSetupTurn)
     assert.ok(state.actor.hp > 0, 'The original living caster is required')
-    if (home) assert.deepEqual(state.actorPosition, home.position, 'Original caster native position changed')
     assert.ok(state.target.same && state.target.hp > 0 && state.target.team === 'red' && state.target.kind === 'brave' && state.target.inside === null)
   }
   try {
@@ -153,8 +153,10 @@ export default async function ordinaryM1EnemyBlast({ page, output, receipt, sign
       return !s.world.inputMask && !s.cameraMotion.active && !s.resultCamera.active && !s.viewTransition
     }), 'ordinary camera settlement', limits.cameraMs)
     const move = async (name, point, cellMove = false) => {
-      await checked(() => input.button('Select and focus shaman'))
-      await checked(() => input.view(point)); await settle()
+      if (name !== 'guard approach') {
+        await checked(() => input.button('Select and focus shaman'))
+        await checked(() => input.view(point)); await settle()
+      }
       // Reuse the maintained maximum-three pre-click recovery. It never retries
       // a delivered/uncertain click; cellMove retains its finite far-bank view path.
       const { hit, delivered } = await checked(() => input.moveGround(point, cellMove))
@@ -165,6 +167,7 @@ export default async function ordinaryM1EnemyBlast({ page, output, receipt, sign
       assert.ok(recipient?.orderId && recipient.order?.model === 3 && !(recipient.order.flags & 1))
       if (name === 'guard approach')
         assert.deepEqual({ a: recipient.order.a, b: recipient.order.b }, expected, 'The acknowledged approach was coast/building-corrected')
+      if (name === 'guard approach') return route
       await poll(async () => {
         healthy(await current())
         const observation = await page.evaluate(({ orderId, order, acknowledgedTurn }) => {
@@ -210,59 +213,31 @@ export default async function ordinaryM1EnemyBlast({ page, output, receipt, sign
       return false
     }, 'real Bridge projectile and terrain completion')
     await move('crossing', { x: 0.21930, z: 3.58227 }, true)
-    await move('guard approach', { x: -5.01285, z: 3.00167 })
-    // Fix the only combat view before the primer; no camera changes follow it.
+    // All camera/import/observer work precedes the sole response-triggering approach.
+    await checked(() => input.button('Select and focus shaman'))
     await checked(() => input.view({ x: -9, z: -3 })); await settle()
     const before = await current(); healthy(before)
-    assert.equal(before.castCount, 1); assert.equal(before.blastStock, 4); assert.ok(before.selectedActor)
-    home = { x: before.actor.x, z: before.actor.z, position: before.actorPosition }
+    assert.equal(before.castCount, 1); assert.ok(before.blastStock > 0); assert.ok(before.selectedActor)
     await page.evaluate(options => {
       window.blastEpisode = window.blastHelpers.observeBlastEpisode(window.blastOriginal.scene, options)
-    }, { expectation: 'candidate', phenotype: 'm1-enemy', actorId: report.startup.actorId,
+    }, { expectation: 'candidate', phenotype: 'm1-enemy', enemySetup: 'ground-response', actorId: report.startup.actorId,
       targetId: report.startup.targetId, runId: receipt.profile.runId, sourceFingerprint: receipt.source.fingerprint, maxTurns: limits.lifecycleTurns })
     episodeAttached = true
-    report.beforePrimer = before
-    await page.screenshot({ path: resolve(output, 'before-primer.png') }); save()
-    await checked(() => page.keyboard.press('1'))
-    const base = await checked(() => input.fixedGround({ x: -9.06031, z: -2.98577 }, 'blast'))
-    assert.equal(base.rejection, null, JSON.stringify(base))
-    const primer = await page.evaluate(base => {
-      const { scene: s, world: w, actor } = window.blastOriginal
-      const { spellTargetError, nativePosition, spellRange, positionDistance } = window.blastHelpers
-      const probe = structuredClone(w), caster = probe.units.find(u => u.id === actor.id), rejected = []
-      const cell = point => ({ x: (Math.round((point.x + 8) * 256) & 65535) >> 9, y: (Math.round((-point.z - 8) * 256) & 65535) >> 9 })
-      const wanted = cell(base.point), offsets = []
-      for (let dy = -16; dy <= 16; dy += 4) for (let dx = -16; dx <= 16; dx += 4) offsets.push({ dx, dy })
-      offsets.sort((a, b) => a.dx * a.dx + a.dy * a.dy - b.dx * b.dx - b.dy * b.dy)
-      for (const { dx, dy } of offsets) {
-        const hit = { x: Math.round(base.x + dx), y: Math.round(base.y + dy) }, event = { clientX: hit.x, clientY: hit.y }
-        const owned = document.elementFromPoint(hit.x, hit.y) === s.renderer.domElement
-        const person = owned ? s.picking.pickPerson(event) : null
-        const occupied = person !== null
-        const point = owned && !occupied ? s.pick(event) : null, pickedCell = point && cell(point)
-        const error = point ? spellTargetError(probe, 'blast', point) : 'no empty ground'
-        const margin = point ? spellRange(probe, caster, 2) * 256 - positionDistance(nativePosition(probe, caster), nativePosition(probe, point)) : null
-        if (point && pickedCell.x === wanted.x && pickedCell.y === wanted.y && error === null && margin >= 128)
-          return { ...base, ...hit, point, margin, rejected, groundOnly: true, turn: w.turn }
-        rejected.push({ ...hit, owned, person, occupied: !!occupied, point, pickedCell, error, margin })
-      }
-      return { ...base, rejection: 'No owned empty-person primer point in the retained ground cell', rejected }
-    }, base)
-    report.primer = { hit: primer }; save()
-    assert.equal(primer.rejection, null, JSON.stringify(primer))
-    report.primer.delivered = await checked(() => input.castInput(primer, 'blast'))
-    report.primer.armed = await page.evaluate(() => window.blastEpisode.armEnemy())
-    const primerTurn = report.primer.delivered.before.turn
-    await checkStop()
+    report.beforeApproach = before
+    await page.screenshot({ path: resolve(output, 'before-approach.png') }); save()
+    const approach = await move('guard approach', { x: -5.1, z: 0.9 })
+    report.approachArmed = await page.evaluate(() => window.blastEpisode.armEnemy())
+    const approachTurn = approach.delivered.before.turn
+    await checkStop(); signal.throwIfAborted()
     await page.keyboard.press('1')
     let previous, prepared = false
     const pointerAttempt = createM1PointerAttempt({ checkStop, signal,
       move: point => page.mouse.move(point.x, point.y),
       retain: attempt => { report.pointerPreparation = attempt; preparation.observe(attempt.row) },
     })
-    const observe = (stage, pointerProbe = null) => page.evaluate(({ previous, home, primerTurn, limits, stage, pointerProbe }) => {
+    const observe = (stage, pointerProbe = null) => page.evaluate(({ previous, approach, approachTurn, limits, stage, pointerProbe }) => {
         const { scene: s, world: w, actor, target } = window.blastOriginal
-        const { blastPersonSnapshot, inputContext, inspectEntityPoint, spellTargetError, unitAnimationSource } = window.blastHelpers
+        const { blastPersonSnapshot, inputContext, inspectEntityPoint, spellTargetError, unitAnimationSource, currentPersonOrder, personReachedOrder } = window.blastHelpers
         const progress = window.blastEpisode.progress(), sample = window.blastSetup.snapshot()
         const person = blastPersonSnapshot(w, target, target), actorPerson = blastPersonSnapshot(w, actor, target)
         const draw = pointerProbe?.draw
@@ -295,18 +270,25 @@ export default async function ordinaryM1EnemyBlast({ page, output, receipt, sign
         const same = (a, b) => JSON.stringify(a) === JSON.stringify(b)
         const firstDrawHover = !!(draw && hover && capture && draw.matchedMove && capture.turn === draw.turn && capture.renderFrame === draw.renderFrame &&
           same(capture.point, draw.point) && same(capture.position, draw.position) && same(capture.context, draw.context))
-        const withinBounds = w.turn < limits.maximumSetupTurn && w.turn - primerTurn <= limits.primerTurns
+        const withinBounds = w.turn < limits.maximumSetupTurn && w.turn - approachTurn <= limits.responseTurns
+        const acknowledged = approach.delivered.after.units.find(u => u.id === actor.id), nativeActor = actor.native
+        const currentId = nativeActor && (nativeActor.immediateCommand || nativeActor.commands[nativeActor.commandCursor])
+        const order = nativeActor && currentPersonOrder(w.buildingOrders, nativeActor)
+        const routeValid = nativeActor && w.objectCells.objects.get(actor.id) === nativeActor && w.lastOrderTurn === approach.delivered.after.lastOrderTurn &&
+          (currentId ? currentId === acknowledged.orderId && order?.model === 3 && !(order.flags & 1) && order.a === acknowledged.order.a && order.b === acknowledged.order.b
+            : personReachedOrder(nativeActor, acknowledged.order, () => { throw Error('Unexpected vehicle approach') }))
+        const groundResponse = person.orderModel === 21 && !target.flight
+        const awaitingHover = stage === 'preparation'
         const gates = { identity: !!(sample && !sample.failures.length && person.same && person.id === 38 && person.team === 'red' && person.kind === 'brave' &&
-            person.hp > 0 && person.inside === null && person.ownerValid && actorPerson.ownerValid && actor.hp > 0 && actor.x === home.x && actor.z === home.z &&
-            actorPerson.position && home.position && actorPerson.position.x === home.position.x && actorPerson.position.y === home.position.y && actorPerson.position.h === home.position.h),
+            person.hp > 0 && person.inside === null && person.ownerValid && actorPerson.ownerValid && actor.hp > 0),
           live: w.outcome.level === 1 && w.status === 'playing' && !w.paused && w.speed === 1 && !(w.manaWorld.gameFlags & 32) &&
             withinBounds,
           camera: !w.inputMask && !s.cameraMotion.active && !s.resultCamera.active && !s.viewTransition,
-          recipient: w.selected.length === 1 && w.selected[0] === actor.id && w.mode === 'blast' && w.shots.blast > 0 && w.stats.cast === 2,
-          moving, range: false, body: body.visible && body.pickable && body.visibleLayer && !!body.painter,
+          recipient: w.selected.length === 1 && w.selected[0] === actor.id && w.mode === 'blast' && w.shots.blast > 0 && w.stats.cast === 1,
+          moving: awaitingHover ? !moving && !groundResponse : moving && groundResponse, route: !!routeValid, range: false, body: body.visible && body.pickable && body.visibleLayer && !!body.painter,
           pixel: !!pixel, hover: firstDrawHover, context: stage === 'preparation' || !!hover && same(context, hover.context) && same(context, draw?.context),
-          primerRetired: !w.projectiles.some(p => p.team === 'blue' && p.spell === 'blast'), observation: progress.errors.length === 0 }
-        const cheapReady = ['identity', 'live', 'camera', 'recipient', 'moving', 'body', 'pixel', 'primerRetired', 'observation'].every(gate => gates[gate])
+          emptyBlast: !w.projectiles.some(p => p.team === 'blue' && p.spell === 'blast'), observation: progress.errors.length === 0 }
+        const cheapReady = ['identity', 'live', 'camera', 'recipient', 'moving', 'route', 'body', 'pixel', 'emptyBlast', 'observation'].every(gate => gates[gate])
         let rangeStatus = 'unprobed', targetError = 'unprobed'
         // Only actual source readiness may spend the single preparation move.
         // Earlier cheap misses retain an explicit unprobed range, never success.
@@ -315,16 +297,16 @@ export default async function ordinaryM1EnemyBlast({ page, output, receipt, sign
           targetError = clonedTarget ? spellTargetError(probe, 'blast', clonedTarget) : 'target missing'
           rangeStatus = 'probed'; gates.range = targetError === null
         }
-        const preparationReady = stage === 'preparation' && cheapReady && gates.range
+        const preparationReady = !!previous && stage === 'preparation' && cheapReady && gates.range
         const ready = stage === 'admission' && Object.values(gates).every(Boolean)
         const row = { stage, turn: w.turn, position: person.position, person, actor: actorPerson, gates, preparationReady, ready, pixel,
           body, box: box && { x: box.x, y: box.y, width: box.width, height: box.height }, inspection,
-          rangeStatus, targetError, withinBounds, context, hover, firstDrawHover, errors: progress.errors, failures: sample?.failures ?? ['snapshot'] }
+          rangeStatus, targetError, withinBounds, context, hover, firstDrawHover, groundResponse, response: pointerProbe?.response ?? null, errors: progress.errors, failures: sample?.failures ?? ['snapshot'] }
         if (preparationReady) window.blastEpisode.prepareEnemyPointer(pixel)
         // Only metadata is armed here. The host sends the sole ordinary input.
         if (ready) window.blastEpisode.trigger(w.turn)
         return row
-      }, { previous, home, primerTurn, limits, stage, pointerProbe })
+      }, { previous, approach, approachTurn, limits, stage, pointerProbe })
     await poll(async () => {
       if (!prepared) {
         const row = await observe('preparation')
@@ -334,19 +316,24 @@ export default async function ordinaryM1EnemyBlast({ page, output, receipt, sign
           return false
         }
         preparation.observe(row)
-        assert.ok(row.gates.identity, 'Original caster/target identity, health or fixed position changed')
-        assert.ok(row.gates.live, 'Ordinary clock or bounded primer window ended')
+        assert.ok(row.gates.identity, 'Original caster/target identity or health changed')
+        assert.ok(row.gates.live, 'Ordinary clock or bounded response window ended')
+        assert.equal(row.groundResponse, false, 'Response began before the one stationary hover preparation')
+        assert.ok(row.gates.route, 'Original acknowledged approach changed')
         assert.ok(row.gates.recipient, 'Original cast recipient, stock or cast count changed')
         assert.deepEqual(row.errors, [], 'Episode observation failed')
         if (!previous || row.turn > previous.turn) previous = { turn: row.turn, position: row.position }
         return false
       }
-      const observed = await page.evaluate(() => ({ probe: window.blastEpisode.pointerProbe(), turn: window.blastOriginal.world.turn }))
+      const observed = await page.evaluate(() => ({ probe: window.blastEpisode.pointerProbe(), hover: window.blastEpisode.progress().hoverCapture, turn: window.blastOriginal.world.turn }))
       report.pointerProbe = observed
       assert.deepEqual(observed.probe.errors, [], 'Preparation pointer observation failed')
-      assert.ok(observed.turn < limits.maximumSetupTurn && observed.turn - primerTurn <= limits.primerTurns, 'Preparation event/draw window expired')
+      assert.ok(observed.turn < limits.maximumSetupTurn && observed.turn - approachTurn <= limits.responseTurns, 'Preparation event/draw window expired')
       if (!observed.probe.draw) return false
-      // This is the only fresh admission after the first actual natural draw.
+      // A real stationary hover precedes the response. Wait only for its first
+      // passive model21 displacement; never send a second preparation move.
+      if (observed.hover && !observed.probe.response) return false
+      // This is the only fresh admission after that actual draw and response.
       const row = await observe('admission', observed.probe)
       let inputAttempt
       try {
@@ -370,13 +357,13 @@ export default async function ordinaryM1EnemyBlast({ page, output, receipt, sign
         report.pointerAdmission = row
         if (inputAttempt) { inputAttempt.hostAfter = Date.now(); report.personInput = inputAttempt }
       }
-    }, 'one actual preparation move, first natural draw and one admission')
+    }, 'one stationary hover, first ground response and one admission')
     save()
     if (!diagnostic) {
       await poll(async () => {
         const { progress, turn } = await page.evaluate(() => ({ progress: window.blastEpisode.progress(), turn: window.blastOriginal.world.turn }))
         assert.deepEqual(progress.errors, [], 'Moving-enemy lifecycle failed')
-        assert.ok(turn - report.personInput.turn <= limits.lifecycleTurns, 'Second-shot lifecycle/render window expired')
+        assert.ok(turn - report.personInput.turn <= limits.lifecycleTurns, 'Person-shot lifecycle/render window expired')
         return progress.complete
       }, 'moving windup, flight, exact arrival and natural impact')
       await page.screenshot({ path: resolve(output, 'terminal.png') })
@@ -411,7 +398,7 @@ export default async function ordinaryM1EnemyBlast({ page, output, receipt, sign
     save(); save('pointer-preparation.json', preparation.read())
     save('episode.json', { ...report, ...episode, diagnostic, diagnosticComplete: !!diagnostic && !primaryError,
       complete: !primaryError && !diagnostic && episode?.report.complete === true, status: primaryError ? 'failed' : 'passed', failure: primaryError?.stack,
-      method: 'One public Mission1 Bridge prefix, one ground primer and at most one person Blast. Real RAF and trusted public input; original-call-once passive observers and detached-clone predicates. Natural hover/ack artifacts are frozen actual-DOM detached rasters; projectile/impact images are actual game-canvas captures.',
+      method: 'One public Mission1 Bridge prefix, one ground approach, one stationary natural hover and at most one moving-person Blast. Real RAF and trusted public input; original-call-once passive observers and detached-clone predicates. Natural hover/ack artifacts are frozen actual-DOM detached rasters; projectile/impact images are actual game-canvas captures.',
       remainingAcceptance: ['Empty-ground/rejection/interruption controls', 'Active-cast save/reload', 'Comparable paired frame review', 'Hardware performance'] })
   }
   if (primaryError) throw primaryError

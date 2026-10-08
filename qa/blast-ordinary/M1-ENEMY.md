@@ -1,23 +1,81 @@
 # Mission1 moving-enemy extension
 
-This isolated evidence branch extends the accepted Mission2 helper at `c40026937f39dadf86143ef13f73dba22d2e4a9c`. It changes no game application file. The original friendly scenario and reducer phenotype remain available. The Mission1 prefix helper is retained from the reviewed Mission1 Vault driver; its public controls are reused without a new camera search or pause. Ground routing now uses the maintained moveGround method: at most three shared probes, retries only typed retryable pre-click rejection with inputAttempted:false, and no replay of a delivered or uncertain click. The cellMove far-bank branch may use its existing at-most-two public right-drags and settlement checks before the primer if the required destination cell has no empty input pixel; every actual probe/view remains recorded.
+This evidence branch changes no application file. The delivered Blast runtime,
+accepted friendly witness and historical controls remain separate from the still
+incomplete ordinary moving-enemy acceptance. The existing Mission1 route, input
+helper, reducer, passive observer and fresh-profile harness are reused.
 
-`m1-scenario.mjs` uses one fresh candidate profile/output beginning `blast-m1-enemy-candidate-`. It requires `POPULOUS_BLAST_EXPECTATION=candidate` and the maintained ordinary harness. Prepare the exact source/runtime/profile/argv binding before a coordinator-owned attempt. Scenario import does not start a browser.
+## Ground-response attempt
 
-The route binds authored Blue Shaman30 and isolated Red Brave38. It earns Bridge, crosses the actual completed bridge, reaches the guard approach, and fixes the combat view. The observer and imports are ready before one public ground Blast. The observer retains the original handler's actual ground/no-person pick, trusted event, original caster, one payment and exact fresh primer shot. `armEnemy()` consumes that retained receipt and rearms the pointer trace exactly once. It can arm while the primer is flying; the later person release requires the primer to have retired.
+The explicit `enemySetup: 'ground-response'` preserves the earlier primer-based
+contract as a separate historical mode. Bind the original authored Blue Shaman30
+and isolated Red Brave38, earn Bridge, cast it, and cross the completed terrain.
+The maintained `moveGround` helper permits at most three typed retryable pre-click
+probes per call; no delivered or uncertain click is replayed. Its far-bank branch
+may use at most two existing right-drags before combat preparation.
 
-The primer supplies target movement. The current protocol spends exactly one public preparation mouse.move at the first source-ready moving/owned pixel, observes its first natural postdraw, then makes one fresh admission. It never chases a missed first hover. A qualifying admission may send the one person click; an observed nonqualifying gate terminates as diagnosticComplete:true and complete:false, with no person cast. Input errors, missing event/draw within the bound, observer/cleanup failure and source drift remain failures.
+Settle the only combat view, prepare imports/input helpers and install observers
+before the sole final approach to(-5.1,0.9). Retain that actual trusted ground
+handler, selected original caster, exact native command3 payload, unchanged stock
+and cast count. Arm only while that original approach is active and before an
+enemy response. Key1 then arms Blast without changing the approach order.
 
-The first actual attempt at7fb27515 remains failed: primer899, correct live target pixels911/915/918, no natural hover, out of range921, target absent/dead925. The caster stayed fixed and healthy. The earlier records do not time each move/draw or prove the death mechanism. The new passive probe retains exact delivered move point/time/context and only its first matching natural draw; later draws cannot replace that miss. Full World cloning/source validation is deferred until cheap motion/pixel/primer-retired gates pass, while source readiness is still required before the single move and at fresh cast admission. Diagnostic row copying follows the awaited move in finally, and only the optional post-move50ms poll delay is omitted. No latency improvement or reliable delivery window is assumed.
+During the approach, prepare exactly one actual canvas-owned guard pixel while
+its distinct-turn pose is stationary and source readiness/range succeeds. Send
+one public preparation mouse.move. Retain its actual trusted event and only its
+first matching natural post-HUD draw, with original identity, pose, context,
+render token and genuine16-line cue. A response beginning before this hover
+cannot receive credit from a later frame. No second preparation move is allowed.
 
-The enemy phenotype therefore requires neither an idle target nor a commanded follower move. Its natural hover captures the same original registered enemy at its real hover pose; the later trusted release independently proves the actual handler person ID, current pose, source range/readiness and owned canvas pixel. Changing poses and points are allowed between those distinct observations, with fixed camera/context and strict chronology. Wrong recipients, ground misses and replacement owners fail. Trigger-to-release remains at most four turns.
+After the genuine stationary hover, wait for the first passively observed
+original model21 grounded displacement. Make one fresh admission and, if all
+actual current identity/approach/range/pixel/context gates pass, one public person
+click. A later release independently proves its actual handler person ID,
+trusted canvas point, current original owner/pose, before-handler source range,
+and a distinct prior logical-turn displacement. It is not required to equal the
+old stationary hover pose. Trigger-to-release stays at most four turns, measured
+from this final admission. There is no primer, chase or cast retry.
 
-Hover and acknowledgement are frozen after the original natural `drawPointer` call, tied to its preceding natural render token. Their images are detached rasters of the captured live DOM SVG and computed style, not full-game screenshots. Hover raster work waits until the attempted person release or final cleanup. The real16-line hover and32-line acknowledgement remain required. A visible owned shot in flying or arrived phase and a separate impact image are captured from the natural game canvas. Every logical turn still proves windup, moving target during windup and flight, exact shot/parent tracking, arrival and next-turn impact. No observer calls a renderer, game tick or input method.
+Shaman arrival and a fixed caster before release are no longer admission
+requirements. The accepted approach may still be active or may have reached its
+native destination; changed command ownership remains a failure. The real cast
+replaces its movement normally. The caster must then remain fixed and healthy
+through the existing lifecycle checks. Target movement during both windup and
+flight, exact person/shot/parent tracking, logical arrival and next-turn impact
+are unchanged.
 
-Bounds: one prefix, one primer, at most one preparation mouse.move and one person click; setup before turn1800; at most48 turns after primer for admission and48 after the second input for lifecycle/render evidence;240-second scenario inside the existing300-second harness/330-second outer limits. Failed inputs and first rejected predicates survive cleanup and bounded tail eviction. There is no cast retry or target substitution.
+Hover and acknowledgement are detached rasters of immutable actual-DOM SVG and
+computed style captured after natural drawPointer, bound to the preceding natural
+render. Raster work is deferred until attempted release or cleanup. These are not
+full-game cue screenshots. Genuine32-line acknowledgement, a visible owned shot
+in flying or arrived phase, and a separate natural impact canvas frame remain
+required. No observer emits input or calls a renderer or game tick.
 
-The accepted supplied-port model first casts on a moving original guard at turn528 (native distance1598/range2592, target40HP, caster100HP), then observes six moving windup visits, three moving flight visits, arrival537 and parent impact538. This supports feasibility only. Actual browser pixels, later input timing and natural frames remain prospective until a reviewed ordinary receipt exists. The model does not establish subsequent enemy damage. Earlier startup and ordinary failures remain failed; the original trial freeze is unchanged.
+A clean observed pixel/hover/range miss may terminate diagnosticComplete:true,
+complete:false with no person cast. Missing bounded event/draw, input error,
+scene/setup/approach ownership failure, observer/restoration failure or source
+drift remains failed. Both classifications retain first rejected predicates,
+actual attempted input and bounded history. One prefix, one final approach, one
+preparation move and at most one person click are allowed. Setup is before1800;
+admission is within48 turns of the accepted approach; lifecycle/render remains
+within48 turns of person input and the scenario240s/harness300s/outer330s bounds.
 
-Focused checks use the real reducer and observer with synthetic event/DOM records plus pure caller validation. They establish helper contracts and restoration, not gameplay. The inherited full standard and friendly ordinary results remain historical and do not execute this new enemy adapter.
+## Retained evidence and limitations
 
-The first one-event attempt atdc93377b8 remains failed before primer: the far-bank pixel was empty at698 but owned by model object28 at701, with identical camera/projection/terrain. No crossing click was delivered, and no pointer timing probe occurred. The correct object-free command3 preflight remains strict; the caller now reuses the existing typed pre-click recovery rather than bypassing it.
+[Reviewed model checkpoint](https://github.com/JohnDeved/populous-new-dawn/blob/cb4cf600bffe3d5c686a34468f9dfc853d4b8c50/decomp/research/issue74-ground-response-model/README.md)
+records both immediate and one chosen six-turn cases. The latter latches model21
+motion517 and casts523, with six moving windup visits, one flying visit529→530,
+arrival530 and impact531. Both original people enter valid fight owners at530;
+the caster stays fixed and100HP. Six is derived from retained browser
+preparation949→draw953→admission955, which contained no person release. It is a
+chosen model budget, not a delivery bound or proof of prewarmed hover. Natural
+pixels and a real later release remain prospective, especially with only one
+flying turn and one arrived turn.
+
+Earlier outcomes remain unchanged:7fb lost the target after a fast-flight hover
+miss;dc933 stopped before a crossing click on an occupied pixel;68a9 completed its
+one-event diagnostic but no person cast. The last measured preparation-to-draw
+interval was189.3ms/four logical turns with about3.264 world units of target
+motion. The fixed original trial freeze is unchanged. Pure focused contracts
+exercise synthetic event/DOM and actual caller bodies; they are not gameplay or
+rendered evidence. No additional attempt is authorized by importing this module.

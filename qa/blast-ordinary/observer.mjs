@@ -48,9 +48,9 @@ export function blastPersonSnapshot(world, u, target, movementOrder) {
 export function observeBlastEpisode(scene, options) {
   const world = scene.world, actor = world.units.find(u => u.id === options.actorId), target = world.units.find(u => u.id === options.targetId)
   if (!actor || !target || world.projectiles.some(p => p.team === 'blue' && p.spell === 'blast')) throw Error('Fresh actor, target and empty Blue Blast lifecycle required')
-  const enemy = options.phenotype === 'm1-enemy'
+  const enemy = options.phenotype === 'm1-enemy', groundEnemy = enemy && options.enemySetup === 'ground-response'
   const evidence = createBlastEpisode(options), artifacts = {}, wrappers = [], pending = new Set(), admission = createBlastAdmission()
-  let enemyArmed = false, primerShot, deferredHover, priorEnemy, latestEnemy
+  let enemyArmed = false, primerShot, approachOwner, approachOrder, deferredHover, priorEnemy, latestEnemy
   let shot, delivered = false, eventBefore, inputBefore, pressBefore, pointer, disposed = false, moveExpected, moveOwner, movementDelivered = false, movementOrder, plannedGround, deferredAck, hudFrame, movementAttempted = false
   const sameScene = () => window.testSceneRef.current === scene && window.testStore.getWorld() === world && scene.world === world && scene.renderer.domElement.isConnected
   const person = u => blastPersonSnapshot(world, u, target, movementOrder)
@@ -71,6 +71,10 @@ export function observeBlastEpisode(scene, options) {
   latestEnemy = enemy ? { turn: world.turn, ...person(target) } : null
   wrap(scene.gameClock, 'afterTurn', () => {
     if (enemy && !delivered && world.turn !== latestEnemy.turn) { priorEnemy = latestEnemy; latestEnemy = { turn: world.turn, ...person(target) } }
+    if (groundEnemy && !delivered && !artifacts.groundResponse && priorEnemy && latestEnemy.orderModel === 21 &&
+        latestEnemy.same && latestEnemy.ownerValid && latestEnemy.hp > 0 && !target.flight && priorEnemy.position && latestEnemy.position &&
+        (latestEnemy.position.x !== priorEnemy.position.x || latestEnemy.position.y !== priorEnemy.position.y))
+      artifacts.groundResponse = { turn: world.turn, observedAt: performance.now(), before: structuredClone(priorEnemy), after: structuredClone(latestEnemy) }
     observeBlastTurn(evidence, 'after', sample)
   })
   const flushAck = () => { if (deferredHover) { const work = deferredHover; deferredHover = null; work() } if (deferredAck) { const work = deferredAck; deferredAck = null; work() } }
@@ -169,7 +173,8 @@ export function observeBlastEpisode(scene, options) {
       const current = person(target), point = { x: scene.pointerScreen.clientX, y: scene.pointerScreen.clientY }
       if (current.same && current.ownerValid && current.hp > 0 && priorEnemy.same && priorEnemy.ownerValid &&
           priorEnemy.turn < world.turn && current.position && priorEnemy.position &&
-          (current.position.x !== priorEnemy.position.x || current.position.y !== priorEnemy.position.y) &&
+          (groundEnemy ? !artifacts.groundResponse && current.orderModel !== 21 && current.position.x === priorEnemy.position.x && current.position.y === priorEnemy.position.y
+            : current.position.x !== priorEnemy.position.x || current.position.y !== priorEnemy.position.y) &&
           document.elementFromPoint(point.x, point.y) === canvas) {
         evidence.hover({ turn: world.turn, targetId: target.id, mode: world.mode, canvasOwned: true, hitId: feedback.targetId,
           visible: feedback.visible, lines: feedback.lines, context: inputContext(scene), position: current.position,
@@ -217,7 +222,7 @@ export function observeBlastEpisode(scene, options) {
       eventBefore.selected = [...world.selected]
       eventBefore.shotBefore = shot && { id: shot.id, phase: shot.phase, remaining: shot.remaining }
     }
-    if (!delivered && (options.expectation === 'baseline' || enemy && enemyArmed)) guard(() => { eventBefore.targetCheck = { range: captureBlastReleaseRange(world, target, spellTargetError), ...(enemy && { position: person(target).position }) } })
+    if (!delivered && (options.expectation === 'baseline' || enemy && enemyArmed)) guard(() => { eventBefore.targetCheck = { range: captureBlastReleaseRange(world, target, spellTargetError), ...(enemy && { position: person(target).position }), ...(groundEnemy && { movement: { turn: world.turn, previousTurn: priorEnemy?.turn, previousPosition: priorEnemy?.position, groundResponse: person(target).orderModel === 21 && !target.flight } }) } })
   }
   const release = event => {
     if (event.button !== 0 || event.type !== 'pointerup') return
@@ -239,6 +244,19 @@ export function observeBlastEpisode(scene, options) {
       const up = trace.events.find(e => e.type === 'pointerup')
       if (!up || trace.events.filter(e => e.type === 'pointerup').length !== 1) throw Error('Exactly one actual release required')
       const persons = up.picks.filter(p => p.name === 'pickPerson'), terrain = up.picks.find(p => p.name === 'pick' && p.owner === 'scene' && p.point)
+      if (groundEnemy && !enemyArmed) {
+        approachOwner = actor.native; approachOrder = approachOwner && currentPersonOrder(world.buildingOrders, approachOwner)
+        const after = sample(), value = { ...eventBefore, handlerPersonId: persons.at(-1)?.id ?? null, handlerTerrain: terrain?.point ?? null }
+        artifacts.approach = { event: structuredClone(value), trace, after: structuredClone(after), order: approachOrder && { ...approachOrder }, valid: false }
+        if (!sameScene() || !value.trusted || !value.canvasOwned || value.mode !== null || world.mode !== null || value.turn !== world.turn ||
+            !after.actor.same || !after.actor.ownerValid || actor.hp <= 0 || world.selected.length !== 1 || world.selected[0] !== actor.id ||
+            persons.some(p => p.id !== null) || !terrain || approachOrder?.model !== 3 || approachOrder.flags & 1 ||
+            (approachOrder.a & 65535) !== (Math.round((terrain.point.x + 8) * 256) & 65535) ||
+            (approachOrder.b & 65535) !== (Math.round((-terrain.point.z - 8) * 256) & 65535) || world.lastOrderTurn !== world.turn ||
+            after.stock !== value.stockBefore || after.castCount !== value.castCountBefore || world.projectiles.some(p => p.team === 'blue' && p.spell === 'blast'))
+          throw Error('One actual trusted ground approach, original selected caster and unchanged cast count required')
+        artifacts.approach.valid = true; return
+      }
       if (enemy && !enemyArmed) {
         const allocated = world.projectiles.filter(p => p.team === 'blue' && p.spell === 'blast')
         const after = sample(), value = { ...eventBefore, handlerPersonId: persons.at(-1)?.id ?? null, handlerTerrain: terrain?.point ?? null }
@@ -266,7 +284,10 @@ export function observeBlastEpisode(scene, options) {
         eventBefore.targetCheck.pixel = readBlastReleasePixel(scene, event)
         artifacts.deliveredTargetCheck = structuredClone(eventBefore.targetCheck)
       }
-      if (enemy && (!artifacts.primer?.valid || world.projectiles.includes(primerShot) || eventBefore.castCountBefore !== artifacts.primer.after.castCount)) throw Error('Actual ground primer must retire before the person release')
+      if (enemy && (groundEnemy
+        ? !artifacts.approach?.valid || !artifacts.groundResponse || eventBefore.castCountBefore !== artifacts.approach.after.castCount
+        : !artifacts.primer?.valid || world.projectiles.includes(primerShot) || eventBefore.castCountBefore !== artifacts.primer.after.castCount))
+        throw Error('Actual enemy preparation and unchanged cast count must precede the person release')
       const shots = world.projectiles.filter(p => p.team === 'blue' && p.spell === 'blast')
       if (shots.length !== 1) throw Error('One naturally allocated Blue Blast required')
       shot = shots[0]
@@ -305,13 +326,26 @@ export function observeBlastEpisode(scene, options) {
     prepareEnemyPointer(point) {
       if (!enemy || !enemyArmed || disposed || delivered || artifacts.enemyPointer || evidence.report().errors.length ||
           !sameScene() || world.mode !== 'blast' || world.projectiles.includes(primerShot) ||
-          !Number.isInteger(point?.x) || !Number.isInteger(point?.y)) throw Error('One finite pointer preparation after primer retirement required')
+          !Number.isInteger(point?.x) || !Number.isInteger(point?.y)) throw Error('One finite pointer preparation in the armed episode required')
       artifacts.enemyPointer = { prepared: { turn: world.turn, observedAt: performance.now(), point: { ...point },
         context: inputContext(scene), position: person(target).position }, move: null, draw: null, errors: [] }
       return structuredClone(artifacts.enemyPointer.prepared)
     },
-    pointerProbe: () => structuredClone(artifacts.enemyPointer ?? null),
+    pointerProbe: () => artifacts.enemyPointer ? structuredClone({ ...artifacts.enemyPointer, ...(groundEnemy && { response: artifacts.groundResponse ?? null }) }) : null,
     armEnemy() {
+      if (groundEnemy) {
+        if (enemyArmed || disposed || !artifacts.approach?.valid || evidence.report().errors.length || !sameScene() || pointer ||
+            !person(actor).same || !person(actor).ownerValid || actor.hp <= 0 || actor.native !== approachOwner ||
+            currentPersonOrder(world.buildingOrders, approachOwner) !== approachOrder || world.stats.cast !== artifacts.approach.after.castCount ||
+            artifacts.groundResponse || person(target).orderModel === 21)
+          throw Error('One validated active original approach before enemy response required')
+        enemyArmed = true
+        canvas.removeEventListener('pointerup', release, false)
+        pointer = observeEntityPointer(scene, document, { id: target.id, collection: 'units' })
+        canvas.addEventListener('pointerup', release, false)
+        artifacts.enemyArmed = { turn: world.turn, setup: 'ground-response', approachTurn: artifacts.approach.event.turn, stock: world.shots.blast }
+        return structuredClone(artifacts.enemyArmed)
+      }
       if (!enemy || enemyArmed || disposed || !artifacts.primer?.valid || evidence.report().errors.length || !sameScene() ||
           !person(actor).same || !person(actor).ownerValid || actor.hp <= 0 || world.stats.cast !== artifacts.primer.after.castCount ||
           pointer)

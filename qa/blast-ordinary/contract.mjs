@@ -8,13 +8,14 @@ const short = n => (n << 16) >> 16
 const browserPoint = p => ({ x: short(p.x - 2048) / 256, z: -short(p.y + 2048) / 256 })
 
 export function createBlastEpisode(options) {
-  keys(options, ['expectation', 'actorId', 'targetId', 'runId', 'sourceFingerprint', 'maxTurns', 'phenotype'])
+  keys(options, ['expectation', 'actorId', 'targetId', 'runId', 'sourceFingerprint', 'maxTurns', 'phenotype', 'enemySetup'])
   const { expectation, actorId, targetId, runId, sourceFingerprint, maxTurns = 48, phenotype = 'm2-idle-move' } = options
   requireEvidence(['baseline', 'candidate'].includes(expectation), 'Explicit baseline/candidate expectation required')
   requireEvidence(Number.isInteger(actorId) && Number.isInteger(targetId) && actorId !== targetId && runId && sourceFingerprint, 'Bound run and person identities required')
   requireEvidence(Number.isInteger(maxTurns) && maxTurns >= 12 && maxTurns <= 120, 'Bounded cast turn limit required')
   requireEvidence(['m2-idle-move', 'm1-enemy'].includes(phenotype), 'Explicit supported episode phenotype required')
-  const enemy = phenotype === 'm1-enemy'
+  const enemy = phenotype === 'm1-enemy', groundEnemy = enemy && options.enemySetup === 'ground-response'
+  requireEvidence(options.enemySetup === undefined || groundEnemy, 'Explicit enemy ground-response preparation required')
   requireEvidence(!enemy || expectation === 'candidate', 'Enemy extension is candidate-only')
   const rows = [], frames = [], errors = []
   let hoverCapture
@@ -54,7 +55,7 @@ export function createBlastEpisode(options) {
       check(!hover && triggerTurn === undefined && !entry, 'Hover may be accepted only once before the trigger')
       check(Number.isInteger(value.turn) && value.turn >= 0, 'Actual prospective hover turn required')
       check(value.mode === 'blast' && value.targetId === targetId && value.hitId === targetId && value.canvasOwned && (enemy ? value.targetSame && value.ownerValid : value.idle === true), enemy ? 'A real moving enemy hit in Blast mode is required' : 'A real idle person hit in Blast mode is required')
-      check(value.turn > value.previousTurn && (enemy ? moved(value.position, value.previousPosition) : !moved(value.position, value.previousPosition)), enemy ? 'Target motion or distinct-turn preparation is invalid' : 'Idle target moved or stationary sample repeated')
+      check(value.turn > value.previousTurn && (enemy && !groundEnemy ? moved(value.position, value.previousPosition) : !moved(value.position, value.previousPosition)), enemy ? 'Declared hover motion or distinct-turn preparation is invalid' : 'Idle target moved or stationary sample repeated')
       check(value.visible && value.lines === 16, 'Expected visible hover feedback missing')
       check(Number.isFinite(value.observedAt) && Number.isFinite(value.point?.x) && Number.isFinite(value.point?.y), 'Actual hover point and observation time required')
       hover = clone(value)
@@ -88,6 +89,12 @@ export function createBlastEpisode(options) {
       }
       if (enemy) {
         const range = value.targetCheck?.range
+        if (groundEnemy) {
+          const motion = value.targetCheck?.movement
+          check(motion?.turn === value.turn && Number.isInteger(motion.previousTurn) && motion.previousTurn < value.turn &&
+            motion.groundResponse && motion.previousPosition && moved(sample.target.position, motion.previousPosition),
+          'Actual ground-response release lacks distinct-turn moving-person evidence')
+        }
         check(range?.phase === 'before-handler' && range.turn === value.turn && range.targetId === targetId && range.sameOriginal && range.targetError === null &&
           same(value.targetCheck.position, sample.target.position), 'Actual moving enemy release lacks event-time native range or pose proof')
       }
