@@ -54,7 +54,7 @@ function fixture(t, { originalThrow = false, saveThrow = false, invalidBeforeRea
   Object.assign(globalThis, { innerWidth: 1440, innerHeight: 1000, devicePixelRatio: 1,
     MutationObserver: class { constructor(callback) { mutation = callback } observe() {} disconnect() { disconnected = true } } })
   t.after(() => {
-    window.landBridgeFeedback?.close()
+    observer.close()
     for (const key of ['window', 'document', 'getComputedStyle', 'innerWidth', 'innerHeight', 'devicePixelRatio', 'MutationObserver']) delete globalThis[key]
   })
   const modules = { '/app/live-command.ts': { spellTargetError }, '/qa/erosion-ordinary/input.mjs': pointer }
@@ -162,6 +162,16 @@ test('a foreign wrapper is preserved and cleanup is reported as failed', t => {
   const result = f.observer.close()
   assert.equal(result.restored, false); assert.equal(f.scene.animateFx, replacement)
   assert.match(result.errors[0], /ownership changed: animateFx/)
+})
+
+test('a foreign observer API is preserved and cleanup is reported as failed', t => {
+  const f = fixture(t), replacement = { close() { assert.fail('Foreign API must not be called') } }
+  window.landBridgeFeedback = replacement
+  const result = f.observer.close()
+  assert.equal(result.restored, false); assert.equal(window.landBridgeFeedback, replacement)
+  assert.match(result.errors[0], /ownership changed: landBridgeFeedback/)
+  assert.equal(f.observer.close(), result, 'Repeated close preserves the first cleanup outcome')
+  assert.equal(window.landBridgeFeedback, replacement)
 })
 
 test('current source labels, native gates, producer, consumer and owned harness compose', () => {

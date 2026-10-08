@@ -28,7 +28,7 @@ export function installLandBridgeFeedbackWitness({ actorId, expected = 'Land Bri
     message: world.message, messageUntil: world.messageUntil, routeNotice: structuredClone(world.routeNotice),
     landVersion: world.landVersion, actorId, worldMatches: scene.world === world && window.testStore.getWorld() === world })
   const initialEffects = new Set(world.effects.map(effect => effect.id)), restorers = []
-  let projectile = null, effect = null, controller = null, before = null, closed = false
+  let projectile = null, effect = null, controller = null, before = null, closed = false, api = null
   const shotState = shot => ({ id: shot.id, caster: shot.caster, spell: shot.spell, phase: shot.phase,
     remaining: shot.remaining, turns: shot.turns, source: { ...shot.source }, target: { ...shot.target }, destination: { ...shot.destination } })
   const dom = () => {
@@ -76,8 +76,11 @@ export function installLandBridgeFeedbackWitness({ actorId, expected = 'Land Bri
     if (closed) return evidence
     closed = true; mutation.disconnect()
     for (const restore of restorers.reverse()) observe(restore)
+    if (api) {
+      if (window.landBridgeFeedback === api) delete window.landBridgeFeedback
+      else note(Error('Bridge observer ownership changed: landBridgeFeedback'))
+    }
     evidence.restored = evidence.errors.length === 0
-    delete window.landBridgeFeedback
     return evidence
   }
   try {
@@ -140,7 +143,8 @@ export function installLandBridgeFeedbackWitness({ actorId, expected = 'Land Bri
     evidence.initial = snapshot()
     mutation.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true,
       attributeFilter: ['class', 'style', 'hidden', 'role'] })
-    window.landBridgeFeedback = { read: () => structuredClone(evidence), status: () => ({
+    api = { read: () => structuredClone(evidence), status: () => ({
       errors: [...evidence.errors], done: !!evidence.firstVisible }), current: dom, close }
+    window.landBridgeFeedback = api
   } catch (error) { close(); throw error }
 }
