@@ -10,7 +10,7 @@ import { installMission1VaultCheckpointState, installMission1VaultSaveWitness,
 import scenario, { saveMission1BuildingCheckpoint } from '../../scripts/local-render/mission1-building-screen.mjs'
 import componentSmoke, { drawMission1Component } from '../../scripts/local-render/mission1-building-drawer-smoke.mjs'
 import continuation, { assertMission1BuildingRestart, runMission1BuildingRestart,
-  finishMission1BuildingContinuation } from '../../scripts/local-render/mission1-building-screen-continuation.mjs'
+  finishMission1BuildingContinuation, assertMission1SerializedCheckpoint } from '../../scripts/local-render/mission1-building-screen-continuation.mjs'
 import { armMission1BuildingSceneStart, installMission1BuildingRestartWitness } from '../../scripts/local-render/mission1-building-screen-load.mjs'
 import { parseOptions } from '../../scripts/local-render/harness.mjs'
 
@@ -435,6 +435,32 @@ test('Restart caller and final report preserve a primitive input throw through c
   catch (error) { finished = true; assert.equal(error, null) }
   assert.equal(finished, true); assert.match(report.reportSaveFailure, /supplied save failure/)
   assert.throws(() => finishMission1BuildingContinuation(report, save, false), error => error === saveError)
+})
+
+test('actual serialized saved1300 accepts only the identified positive-Infinity duration projection', () => {
+  const serialized = JSON.parse(readFileSync(new URL('./fixtures/saved1300.json', import.meta.url), 'utf8'))
+  const live = structuredClone(serialized)
+  live.buildingGifts[0].duration = Infinity
+  assert.deepEqual(JSON.parse(JSON.stringify(live)), serialized)
+  assert.deepEqual(assertMission1SerializedCheckpoint(live, serialized), {
+    giftId: 3541, field: 'buildingGifts[0].duration', actual: '+Infinity', recorded: null,
+  })
+  const loaded = structuredClone(live)
+  assert.deepEqual(loaded, live); assert.equal(loaded.buildingGifts[0].duration, Infinity)
+  for (const duration of [NaN, -Infinity, null, 82]) {
+    const bad = structuredClone(live); bad.buildingGifts[0].duration = duration
+    assert.throws(() => assertMission1SerializedCheckpoint(bad, serialized))
+    assert.throws(() => assert.deepEqual(bad, live))
+  }
+  for (const change of [x => x.buildingGifts[0].id++, x => x.buildingGifts[0].buildingAcquisition.model++,
+    x => { x.buildingGifts[0].kind = 'blast' }, x => x.turn++,
+    x => { x.time = Infinity }, x => { x.time = NaN }, x => { x.time = -Infinity },
+    x => { x.acquisition.controllers.building.active = false }]) {
+    const bad = structuredClone(live); change(bad)
+    assert.throws(() => assertMission1SerializedCheckpoint(bad, serialized))
+  }
+  assert.equal(live.buildingGifts[0].duration, Infinity)
+  assert.equal(serialized.buildingGifts[0].duration, null)
 })
 
 test('component smoke uses one production-interface draw and disposes its detached owner even after failure', async t => {

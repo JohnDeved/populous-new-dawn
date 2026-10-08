@@ -199,7 +199,7 @@
     },
     {
       "path": "qa/mission1-building-screen/screen-contract.test.mjs",
-      "sha256": "3d8ff5d05214b3cdfebc6aa60cb532ecf7e63482eafb2b644d64f7cd57eadee5"
+      "sha256": "7a0a88591123a2be732319c807bf1c5c3d7b7f24df5f34698e09d481bf9d8f7a"
     },
     {
       "path": "scripts/local-render/mission1-building-drawer-smoke.mjs",
@@ -211,7 +211,7 @@
     },
     {
       "path": "scripts/local-render/mission1-building-screen-continuation.mjs",
-      "sha256": "d2f39acffde3c0315ddb3fc07e9c2320037c73f741ed725c63a4cd604b7fd8e1"
+      "sha256": "5a95dda51cdebed98fa48413cf9fb646f88d1111e6403fca3a95cd3565517bdd"
     }
   ],
   "routeSource": {
@@ -360,6 +360,17 @@
     "scope": "Same product/application/runtime/profile; reviewed checker-only correspondence required. Exact saved1300 Load/active-Restart/remaining-grant tail only. Original start once then passive attachment synchronously before first scheduled RAF callback. Public Pause immediately after Load, actual trusted Restart pre-state. No prefix replay.",
     "launchEnabled": false,
     "innerTimeoutMs": 240000,
-    "outerTimeoutSeconds": 300
+    "outerTimeoutSeconds": 300,
+    "immediatePredecessor": {
+      "status": "FAILED",
+      "runId": "f0f06516-950c-40f4-9430-b1ace631910b",
+      "receiptSha256": "50ffac1c7ce0071c92ff96208ea4e796d4df1da882261726f97ce2e0c0af70da",
+      "reportSha256": "a702eefa8716911b1cafe4ad1e4bb98369422211bb5808924bc943d3e34b5da6"
+    },
+    "comparison": "Read the actual committed snapshot before Load; retain +Infinity for full deep equality with both synchronous Loads and post-Restart committed read. Historical JSON tie projects only exact authored gift3541 duration +Infinity to recorded null; no whole-snapshot JSON normalization.",
+    "fixture": {
+      "path": "qa/mission1-building-screen/fixtures/saved1300.json",
+      "sha256": "b7f9175784e7b34e608c043e00601ae1cda58d85f6b9d9d30c2c4687d66a77f0"
+    }
   }
 }

@@ -5,7 +5,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { resolve } from 'node:path'
 import { bindGame } from '../browser-game.mjs'
-import { readMission1VaultCheckpoint } from './mission1-vault-checkpoint.mjs'
+import { installMission1VaultCheckpointState, readMission1VaultCheckpoint } from './mission1-vault-checkpoint.mjs'
 
 export const continuationSource = {
   output: 'work/orchestration/m1-building-screen-b1e60f4-01',
@@ -16,6 +16,29 @@ export const continuationSource = {
   sourceFingerprint: '5980091c384e59473b1fbedd3392a398ce4e9ce5b8ed7c79655dda72bc0e12f6',
   application: '3a9e326e8389249c66ec0010cc288d4d6652e27b45478ad638ad6876a39e23f0',
   checkpointSha256: '82d1bdbc83e29ca77e210513ff737bb16342a464dc8b6e477c896f997fa2b3ca',
+  predecessor: {
+    output: 'work/orchestration/m1-building-continuation-149a95f-01',
+    receiptSha256: '50ffac1c7ce0071c92ff96208ea4e796d4df1da882261726f97ce2e0c0af70da',
+    runId: 'f0f06516-950c-40f4-9430-b1ace631910b',
+    sourceFingerprint: '2a24b1c27ae26ac641ea397b8b855971a90d1a5f10908f85e5af6fa9a87f4936',
+  },
+}
+
+// JSON lost only this known source-created +Infinity sentinel. Project that
+// exact gift field for the historical tie; live Load comparisons stay lossless.
+export function assertMission1SerializedCheckpoint(actual, serialized) {
+  assert.equal(actual.buildingGifts.length, 1); assert.equal(serialized.buildingGifts.length, 1)
+  const tag = { mission: 1, head: 1, reward: 2, slot: 0, rewardClass: 2, model: 7, completedTurn: 1250, serial: 3541 }
+  for (const gift of [actual.buildingGifts[0], serialized.buildingGifts[0]]) {
+    assert.equal(gift.id, 3541); assert.equal(gift.kind, 'gift'); assert.equal(gift.reward, 'camp')
+    assert.deepEqual(gift.buildingAcquisition, tag)
+  }
+  assert.equal(actual.buildingGifts[0].duration, Infinity)
+  assert.equal(serialized.buildingGifts[0].duration, null)
+  const projected = structuredClone(actual)
+  projected.buildingGifts[0].duration = null
+  assert.deepEqual(projected, serialized)
+  return { giftId: 3541, field: 'buildingGifts[0].duration', actual: '+Infinity', recorded: null }
 }
 
 export function assertMission1BuildingRestart(restart, screen, giftId) {
@@ -62,22 +85,25 @@ export function finishMission1BuildingContinuation(report, save, failed, failure
 
 export default async function mission1BuildingScreenContinuation({ page, root, output, signal, receipt }) {
   const hash = bytes => createHash('sha256').update(bytes).digest('hex')
-  const prior = (name, expected) => {
-    const bytes = readFileSync(resolve(root, continuationSource.output, name))
+  const prior = (name, expected, directory = continuationSource.output) => {
+    const bytes = readFileSync(resolve(root, directory, name))
     assert.equal(hash(bytes), expected, 'Prior failed evidence changed')
     return JSON.parse(bytes)
   }
   const previous = prior('receipt.json', continuationSource.receiptSha256)
   const original = prior('mission1-building-screen.json', continuationSource.reportSha256)
+  const predecessor = prior('receipt.json', continuationSource.predecessor.receiptSha256, continuationSource.predecessor.output)
   assert.equal(previous.status, 'failed'); assert.equal(original.status, 'failed')
+  assert.equal(predecessor.status, 'failed'); assert.deepEqual(predecessor.profile.checkpointAtEnd, previous.profile.checkpointAtEnd)
   assert.equal(receipt.profile.mode, 'reused'); assert.equal(receipt.profile.id, continuationSource.profileId)
-  assert.equal(receipt.profile.previousRun.runId, continuationSource.priorRunId)
-  assert.equal(receipt.profile.previousRun.receiptSha256, continuationSource.receiptSha256)
-  assert.equal(receipt.profile.previousRun.sourceFingerprint, continuationSource.sourceFingerprint)
+  assert.equal(receipt.profile.previousRun.runId, continuationSource.predecessor.runId)
+  assert.equal(receipt.profile.previousRun.receiptSha256, continuationSource.predecessor.receiptSha256)
+  assert.equal(receipt.profile.previousRun.sourceFingerprint, continuationSource.predecessor.sourceFingerprint)
   assert.equal(receipt.profile.inputs.application, continuationSource.application)
   assert.deepEqual(receipt.profile.checkpointAtStart, previous.profile.checkpointAtEnd)
   assert.equal(receipt.profile.checkpointAtStart.checkpointSha256, continuationSource.checkpointSha256)
-  const saved = original.checkpoints.find(entry => entry.label === 'M1 active screen').saved
+  const serializedSaved = original.checkpoints.find(entry => entry.label === 'M1 active screen').saved
+  let saved
   const birth = original.epochs.ordinary.birth, shamanId = original.epochs.ordinary.source.shamanId
   const report = { status: 'running', source: receipt.source, prior: continuationSource, loads: [], frames: {},
     limits: 'Only the genuine saved1300 ownership tail; ordinary01 remains FAILED. No repeated prefix, new acquisition, clock/RAF/state/storage mutation or hardware-performance claim.' }
@@ -126,6 +152,11 @@ export default async function mission1BuildingScreenContinuation({ page, root, o
   }
   let failed = false, failure
   try {
+    await page.evaluate(installMission1VaultCheckpointState)
+    saved = report.committedReference = await page.evaluate(readMission1VaultCheckpoint)
+    save()
+    report.durationSentinel = assertMission1SerializedCheckpoint(saved, serializedSaved)
+    save()
     await load(true, true)
     await button('Game settings').click()
     await page.evaluate(async () => {
