@@ -202,14 +202,18 @@ test('detached placement uses actual selected Braves, owns canvas hits, and rele
   await assert.rejects(() => run({ point: { x: 0, z: 30 }, ids: [1] }), /actual living selected Braves/)
 })
 
-test('command33 accepts actual work/VaultTask; command27 requires delivered ordinary PersonOrder', async () => {
+test('command33 accepts exact queued native ownership; command27 requires delivered ordinary PersonOrder', async () => {
   for (const command of [27, 33]) {
     const f = fixture(), listeners = new Map(), hit = { id: 91, collection: 'shrines', x: 50, y: 50 }
     globalThis.document = {}
+    const person = f.world.units[0].native
+    Object.assign(person, { commandPhase: 0, workTarget: 0, flags2: 0x40000000, timer: 0 })
+    f.world.objectCells = { objects: new Map([[46, person]]) }
     f.scene.renderer.domElement.addEventListener = (type, fn) => listeners.set(type, fn)
     f.scene.renderer.domElement.removeEventListener = type => listeners.delete(type)
     const modules = {
-      '/app/person-orders.ts': { currentPersonOrder: () => command === 27 ? { model: 27, a: 91, flags: 0 } : undefined },
+      '/app/person-orders.ts': { currentPersonOrder: () => person.commands[0]
+        ? { model: command, a: 91, b: 0, flags: 0, references: 1 } : undefined },
       '/qa/erosion-ordinary/input.mjs': { createMoveContextProbe: () => () => ({ enabled: true, model: command }), inspectEntityPoint: () => ({ canvasOwned: true, hitId: 91 }),
         findEntityInput: () => hit, entityInputState: () => ({}), observeEntityPointer: () => ({ finish: () => ({ errors: [], restored: true,
           events: ['pointerdown', 'pointerup'].map(type => ({ type, button: 0, trusted: true, canvasOwned: true, canvasTarget: true, args: {} })) }) }) },
@@ -219,14 +223,14 @@ test('command33 accepts actual work/VaultTask; command27 requires delivered ordi
         if (['/app/live-command.ts', '/app/spell-casting.ts', '/app/world-terrain-runtime.ts', '/app/native-math.ts'].includes(path)) return {}
         assert.ok(modules[path], path); return modules[path]
       })(args), mouse: { async click() {
-      f.world.lastOrderTurn = 0; f.scene.pointerAck = { target: 91, until: 2 }
-      if (command === 33) { f.world.units[0].work = 91; f.world.units[0].vault = { head: 91, phase: 1 } }
+      f.world.lastOrderTurn = 0; f.scene.pointerAck = { target: 91, until: 2 }; person.commands[0] = 1
+      if (command === 33) { f.world.units[0].work = 91; f.world.units[0].vault = { head: 91, phase: 0, entering: true, remaining: 0 } }
       listeners.get('pointerup')()
     } } }
     const input = createMission1VaultInput({ page, signal: new AbortController().signal, report: { actions: [] }, save() {}, originalShamanId: 46 })
     const result = await input.dispatch(hit, command, [46])
     assert.equal(result.context.model, command)
-    assert.equal(result.after.units[0].order?.model, command === 27 ? 27 : undefined)
+    assert.equal(result.after.units[0].order?.model, command)
     if (command === 33) assert.equal(result.after.units[0].vaultTask.head, 91)
     assert.equal(listeners.size, 0)
   }

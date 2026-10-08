@@ -6,6 +6,17 @@ export class Mission1PreclickRejection extends Error {
   constructor(message, retryable) { super(message); this.retryable = retryable; this.inputAttempted = false }
 }
 
+// Public command33 owns a newly queued native task at phase0. Later game
+// visits initialize phase1; entry acceptance does not claim acquisition progress.
+export function isQueuedMission1VaultEntry(unit, id) {
+  const task = unit.vaultTask, order = unit.order, owner = unit.orderOwner
+  return unit.hp > 0 && unit.kind === 'shaman' && Number.isInteger(unit.orderId) && unit.orderId > 0 &&
+    order?.model === 33 && order.a === id && order.b === 0 && !(order.flags & 1) && order.references === 1 &&
+    unit.work === id && task?.head === id && task.phase === 0 && task.entering === true && task.remaining === 0 &&
+    owner?.native === true && owner.registered === true && owner.phase === 0 && !!(owner.flags2 & 0x40000000) &&
+    owner.timer === 0 && (owner.workTarget || order.a) === id
+}
+
 export function createMission1VaultInput({ page, signal, report, save, originalShamanId }) {
   let prepared = false
   const action = async (label, run, persist = true) => {
@@ -178,6 +189,8 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
           return { id, kind: unit?.kind, hp: unit?.hp, inside: unit?.inside, work: unit?.work,
             vaultTask: unit?.vault && { ...unit.vault },
             orderId: person && (person.immediateCommand || person.commands[person.commandCursor]),
+            orderOwner: command === 33 && person ? { native: person === unit.native, registered: world.objectCells.objects.get(id) === person,
+              phase: person.commandPhase, workTarget: person.workTarget, flags2: person.flags2, timer: person.timer } : null,
             order: person ? structuredClone(currentPersonOrder(world.buildingOrders, person)) : null }
         }) })
       const delivery = observeEntityPointer(scene, document, hit.collection ? hit : null)
@@ -213,7 +226,7 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
     assert.deepEqual(after.selected, before.selected)
     if (expectedIds) assert.deepEqual(before.selected, expectedIds)
     else assert.ok(before.units.length > 0 && before.units.every(unit => unit.kind === 'brave' && unit.hp > 0))
-    const recipients = after.units.filter(unit => unit.hp > 0 && (command === 8 ? unit.work === hit.id : command === 33 ? unit.work === hit.id && unit.vaultTask?.head === hit.id && unit.vaultTask.phase >= 1 :
+    const recipients = after.units.filter(unit => unit.hp > 0 && (command === 8 ? unit.work === hit.id : command === 33 ? isQueuedMission1VaultEntry(unit, hit.id) :
       unit.order?.model === command && !(unit.order.flags & 1) && (command !== 27 || unit.order.a === hit.id)))
     assert.ok(recipients.length > 0, 'The actual command must reach a selected recipient')
     assert.deepEqual(recipients.map(unit => unit.id), expectedIds ?? before.selected)
