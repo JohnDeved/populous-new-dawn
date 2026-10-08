@@ -504,7 +504,7 @@ function stepTurn(w: World) {
   for (const gift of w.gifts) {
     if (gift.phase) {
       gift.phase--
-      if (!gift.phase && gift.ordinaryWorship && gift.recipient === w.manaWorld.playerTribe)
+      if (!gift.phase && (gift.ordinaryWorship || gift.buildingAcquisition) && gift.recipient === w.manaWorld.playerTribe)
         w.worshipAcquisition.requests.push(gift.id)
     }
     if (--gift.remaining !== 0) continue

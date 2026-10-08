@@ -135,6 +135,7 @@ function migrateLegacyBridgeOrigins(world: World) {
 
 export function migrateCheckpoint(world: World) {
   world.worshipAcquisition ??= createWorshipAcquisitionRuntime()
+  world.worshipAcquisition.controllers.building ??= null
   restoreSecondaryEffects(world)
   world.outcome.level ??= 1
   world.drawMode ??= 0

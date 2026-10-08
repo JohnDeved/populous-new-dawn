@@ -51,6 +51,7 @@ import type { MessageState } from './messages.ts'
 import type { VaultTask } from './vault.ts'
 import type { UnitKind } from './unit-kinds.ts'
 import type { Armageddon } from './armageddon.ts'
+import type { BuildingAcquisitionSource } from './building-acquisition-source.ts'
 import type { OrdinaryWorshipSource } from './worship-acquisition-source.ts'
 import type { WorshipAcquisitionRuntime } from './worship-acquisition-runtime.ts'
 
@@ -409,6 +410,7 @@ export type Gift = Effect & {
   amount?: number
   recipient?: number
   rewardModel?: number
+  buildingAcquisition?: BuildingAcquisitionSource & { completedTurn: number; serial: number }
   ordinaryWorship?: OrdinaryWorshipSource & { completedTurn: number; serial: number }
   remaining: number
   phase: number

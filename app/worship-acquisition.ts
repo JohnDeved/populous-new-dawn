@@ -1,3 +1,4 @@
+import { initializeBuildingAcquisition, visitBuildingAcquisition, type BuildingAcquisitionController, type BuildingAcquisitionDrawCommand } from './building-acquisition.ts'
 import { movePosition, nativeAngle, positionDistance, short } from './native-math.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import hud from './original-hud.json' with { type: 'json' }
@@ -12,9 +13,12 @@ export interface WorshipRect extends WorshipPoint {
   height: number
 }
 export type WorshipSpellModel = 3 | 4 | 12
+export type WorshipTargetModel = WorshipSpellModel | 7
+export type WorshipAcquisitionFamily = 'spell' | 'building'
 /** Immutable handoff coordinates, in HUD-logical pixels. targetHud is the measured
  * card center relative to the HUD, retained for drawing while its tab is unmounted. */
 export interface WorshipAcquisitionGeometry {
+  shell?: WorshipRect
   viewport: WorshipRect
   origin: WorshipPoint
   target: WorshipPoint
@@ -22,15 +26,14 @@ export interface WorshipAcquisitionGeometry {
   targetHud: WorshipPoint
   hudScale: number
 }
-interface Controller {
+interface Controller extends DrawBinding {
   active: boolean
   step: number
   visits: number
   next: boolean
-  model: WorshipSpellModel
-  geometry: WorshipAcquisitionGeometry
 }
 export interface WorshipSpellController extends Controller {
+  model: WorshipSpellModel
   giftId: number
   position: WorshipPoint
   destination: WorshipPoint
@@ -66,15 +69,15 @@ export interface WorshipCompanionController extends Controller {
   changingColor: boolean
   colorDone: boolean
 }
-export interface WorshipPulse {
+export interface WorshipPulse extends DrawBinding {
   active: boolean
   frame: number
   remaining: number
-  model: WorshipSpellModel
-  geometry: WorshipAcquisitionGeometry
 }
 interface DrawBinding {
-  model: WorshipSpellModel
+  family?: WorshipAcquisitionFamily
+  giftId?: number
+  model: WorshipTargetModel
   geometry: WorshipAcquisitionGeometry
 }
 export interface WorshipSpriteCommand extends DrawBinding {
@@ -91,6 +94,7 @@ export interface WorshipSpriteCommand extends DrawBinding {
   particle?: number
 }
 export interface WorshipBodyCommand extends DrawBinding {
+  model: WorshipSpellModel
   kind: 'body'
   frame: number
   x: number
@@ -100,8 +104,9 @@ export interface WorshipBodyCommand extends DrawBinding {
   flags: 0
   finalLeg: boolean
 }
-export type WorshipAcquisitionDrawCommand = WorshipSpriteCommand | WorshipBodyCommand
+export type WorshipAcquisitionDrawCommand = WorshipSpriteCommand | WorshipBodyCommand | BuildingAcquisitionDrawCommand
 export interface WorshipAcquisitionState {
+  building: BuildingAcquisitionController | null
   spell: WorshipSpellController | null
   companion: WorshipCompanionController | null
   pulse: WorshipPulse | null
@@ -113,7 +118,7 @@ export interface WorshipAcquisitionArrival {
 }
 
 export function createWorshipAcquisitionState(): WorshipAcquisitionState {
-  return { spell: null, companion: null, pulse: null, drawCommands: [] }
+  return { building: null, spell: null, companion: null, pulse: null, drawCommands: [] }
 }
 
 const integerPoint = (p: WorshipPoint): WorshipPoint => ({ x: short(p.x), y: short(p.y) })
@@ -133,7 +138,7 @@ export function startWorshipAcquisition(
   const geometry = structuredClone(request.geometry)
   geometry.origin = integerPoint(geometry.origin)
   geometry.target = integerPoint(geometry.target)
-  const common = { active: true, step: 0, visits: 0, next: true, model: request.model, geometry }
+  const common = { family: 'spell' as const, giftId: request.giftId, active: true, step: 0, visits: 0, next: true, model: request.model, geometry }
   state.spell = {
     ...common,
     giftId: request.giftId,
@@ -145,6 +150,10 @@ export function startWorshipAcquisition(
     spin: 0,
     scale: 0,
   }
+  startCompanion(state, common)
+}
+
+function startCompanion(state: WorshipAcquisitionState, common: Controller) {
   state.companion = {
     ...common,
     particles: Array.from({ length: 200 }, () => ({
@@ -171,6 +180,19 @@ export function startWorshipAcquisition(
   }
 }
 
+/** Building and spell retain separate controllers; either replaces the one shared
+ * companion. Pulse survives until its own visit or a source-owned reinitialization. */
+export function startBuildingAcquisition(
+  state: WorshipAcquisitionState,
+  request: { giftId: number; geometry: WorshipAcquisitionGeometry },
+  random: () => number
+) {
+  const c = initializeBuildingAcquisition(request.giftId, request.geometry, random)
+  state.building = c
+  startCompanion(state, { family: 'building', giftId: c.giftId, model: 7,
+    geometry: c.geometry, active: true, step: 0, visits: 0, next: true })
+}
+
 function move(p: WorshipPoint, angle: number, distance: number) {
   movePosition(p, angle, distance)
   p.x = short(p.x)
@@ -193,6 +215,8 @@ function sprite(
     : effects.animations.sparkle[frame - 1288]
   state.drawCommands.push({
     kind: 'sprite',
+    family: binding.family,
+    giftId: binding.giftId,
     owner,
     model: binding.model,
     geometry: binding.geometry,
@@ -319,8 +343,8 @@ function stepCompanion(state: WorshipAcquisitionState, paused: boolean, random: 
   }
 }
 
-function startPulse(state: WorshipAcquisitionState, c: WorshipSpellController, remaining: number) {
-  state.pulse = { active: true, frame: 0, remaining, model: c.model, geometry: c.geometry }
+function startPulse(state: WorshipAcquisitionState, c: DrawBinding, remaining: number) {
+  state.pulse = { active: true, frame: 0, remaining, family: c.family, giftId: c.giftId, model: c.model, geometry: c.geometry }
 }
 
 function stepSpell(
@@ -399,6 +423,8 @@ function stepSpell(
   }
   state.drawCommands.push({
     kind: 'body',
+    family: c.family,
+    giftId: c.giftId,
     model: c.model,
     geometry: c.geometry,
     frame: 1056 + c.model,
@@ -411,7 +437,7 @@ function stepSpell(
   })
 }
 
-/** One native UI visit: pulse, companion, spell. The caller owns the deadline,
+/** One native UI visit: pulse, companion, building, spell. The caller owns the deadline,
  * panel reselection, saved-gift validation, bit-8 gate, timer clamp and payout. */
 export function stepWorshipAcquisition(
   state: WorshipAcquisitionState,
@@ -425,9 +451,17 @@ export function stepWorshipAcquisition(
     else pulse.frame = (pulse.frame + 1) % 6
   }
   stepCompanion(state, input.paused, input.random)
+  const building = state.building, result = visitBuildingAcquisition(building, input.paused)
+  if (building && result && !('retired' in result)) {
+    const binding = { family: 'building' as const, giftId: building.giftId, model: 7 as const, geometry: building.geometry }
+    if (result.pulse) startPulse(state, binding, result.pulse)
+    state.drawCommands.push({ kind: 'building', ...binding, whole: result.whole,
+      selected: result.selected, submissions: result.submissions })
+  }
+  const buildingArrival = !!(result && 'arrivalAttempt' in result && result.arrivalAttempt)
   const arrivals: WorshipAcquisitionArrival[] = []
   stepSpell(state, input.paused, arrivals)
-  return { arrivals, limiterActive: !!(state.spell?.active || state.companion?.active) }
+  return { arrivals, buildingArrival, limiterActive: !!(state.building?.active || state.spell?.active || state.companion?.active) }
 }
 
 /** Rendering is a read-only consumer of the last UI visit, including its final

@@ -18,6 +18,7 @@ export function interpolateWorshipPoint(
 }
 
 export interface WorshipHudGeometry {
+  shell?: WorshipRect
   viewport: WorshipRect
   targetRect: WorshipRect
   targetHud: WorshipPoint
@@ -82,6 +83,7 @@ export function worshipHandoffGeometry(
       height: Math.trunc(r.height / scale),
     })
   return {
+    ...(current.shell ? { shell: logicalRect(current.shell) } : {}),
     viewport: logicalRect(current.viewport),
     origin: logicalPoint(point),
     target: logicalPoint(worshipTargetPoint(current)),
@@ -89,4 +91,19 @@ export function worshipHandoffGeometry(
     targetHud: { ...current.targetHud },
     hudScale: scale,
   }
+}
+
+/** Building faces use the source countdown's explicit flight fraction. The
+ * spell body's distance heuristic cannot describe independent spinning faces. */
+export function buildingDrawPoint(
+  point: WorshipPoint,
+  reference: WorshipAcquisitionGeometry,
+  current: WorshipHudGeometry,
+  flight: number
+) {
+  const mapped = mapViewport(point, reference.viewport, current.viewport),
+    oldTarget = mapViewport(reference.target, reference.viewport, current.viewport),
+    target = worshipTargetPoint(current)
+  return { x: mapped.x + flight * (target.x - oldTarget.x),
+    y: mapped.y + flight * (target.y - oldTarget.y) }
 }

@@ -1,11 +1,12 @@
 import {
   createWorshipAcquisitionState,
   startWorshipAcquisition,
+  startBuildingAcquisition,
   stepWorshipAcquisition,
   type WorshipAcquisitionGeometry,
   type WorshipAcquisitionState,
   type WorshipAcquisitionDrawCommand,
-  type WorshipSpellModel,
+  type WorshipTargetModel,
 } from './worship-acquisition.ts'
 import { random } from './native-math.ts'
 import type { Gift, World } from './world-types.ts'
@@ -51,14 +52,14 @@ export function startPendingWorshipAcquisitions(world: World, bridge: WorshipHan
   world.worshipAcquisition.requests = []
   const gifts = requests.flatMap(id => {
     const gift = world.gifts.find(candidate => candidate.id === id)
-    return gift?.ordinaryWorship && gift.recipient === world.manaWorld.playerTribe ? [gift] : []
+    return (gift?.ordinaryWorship || gift?.buildingAcquisition) && gift.recipient === world.manaWorld.playerTribe ? [gift] : []
   })
   // Completion-time clones prepend to the native list. Same-turn heads are
   // visited newest authored head first, then their links in ascending slot order.
   // Reverse that clone order here only; the browser payout traversal is unchanged.
   gifts.sort((a, b) => {
-    const first = a.ordinaryWorship!,
-      second = b.ordinaryWorship!
+    const first = (a.ordinaryWorship ?? a.buildingAcquisition)!,
+      second = (b.ordinaryWorship ?? b.buildingAcquisition)!
     return (
       second.completedTurn - first.completedTurn ||
       first.head - second.head ||
@@ -78,6 +79,10 @@ export function startPendingWorshipAcquisitions(world: World, bridge: WorshipHan
       bridge.failed(gift)
       continue
     }
+    if (gift.buildingAcquisition) {
+      startBuildingAcquisition(world.worshipAcquisition.controllers, { giftId: gift.id, geometry }, () => random(world.cosmeticRandom))
+      continue
+    }
     startWorshipAcquisition(world.worshipAcquisition.controllers, {
       giftId: gift.id,
       model: gift.ordinaryWorship!.model,
@@ -88,7 +93,7 @@ export function startPendingWorshipAcquisitions(world: World, bridge: WorshipHan
 
 export function visitWorshipAcquisition(
   world: World,
-  reselectSpells: (model: WorshipSpellModel) => void
+  reselectPanel: (model: WorshipTargetModel) => void
 ) {
   const state = world.worshipAcquisition,
     paused = world.paused || !!(world.land.landFlags & 2)
@@ -98,9 +103,10 @@ export function visitWorshipAcquisition(
     paused,
     random: () => random(world.cosmeticRandom),
   })
+  if (result.buildingArrival) reselectPanel(7)
   for (const arrival of result.arrivals) {
     // Native panel reopening precedes the arrival flag/handle/timer checks.
-    reselectSpells(arrival.model)
+    reselectPanel(arrival.model)
     if (world.land.landFlags & 8) continue
     const gift = world.gifts.find(candidate => candidate.id === arrival.giftId)
     if (gift?.ordinaryWorship && gift.remaining > 1) gift.remaining = 1
