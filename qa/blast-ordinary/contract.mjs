@@ -14,7 +14,7 @@ export function createBlastEpisode(options) {
   requireEvidence(Number.isInteger(actorId) && Number.isInteger(targetId) && actorId !== targetId && runId && sourceFingerprint, 'Bound run and person identities required')
   requireEvidence(Number.isInteger(maxTurns) && maxTurns >= 12 && maxTurns <= 120, 'Bounded cast turn limit required')
   const rows = [], frames = [], errors = []
-  let triggerTurn, before, lastAfter, entry, release, hover, proposal, arrival, impact, retired, windupMotion = false, flightMotion = false
+  let triggerTurn, before, lastAfter, entry, release, hover, proposal, movement, arrival, impact, retired, windupMotion = false, flightMotion = false
   const fail = message => { errors.push(message); throw Error(message) }
   const check = (condition, message) => { if (!condition) fail(message) }
   function live(sample, targetRequired = true) {
@@ -22,6 +22,7 @@ export function createBlastEpisode(options) {
     check(Number.isInteger(sample.turn) && sample.level === 2 && sample.playing && !sample.paused && sample.speed === 1 && !(sample.flags & 32) && sample.sceneMatches, 'Ordinary Mission2 clock/context changed')
     check(sample.actor?.id === actorId && sample.actor.same && sample.actor.hp > 0 && sample.actor.team === 'blue', 'Original Blue Shaman changed or disappeared')
     if (entry) check(sample.actor.position.x === entry.actor.position.x && sample.actor.position.y === entry.actor.position.y, 'Original Shaman moved during the cast')
+    if (movement && targetRequired) check(sample.target.movementOrderSame, 'Original public movement order changed')
     if (targetRequired) check(sample.target?.id === targetId && sample.target.same && sample.target.team === 'blue' && sample.target.kind === 'brave' && sample.target.inside === null && sample.target.ownerValid, 'Original outdoor commanded Blue target changed or disappeared')
   }
   return {
@@ -33,21 +34,21 @@ export function createBlastEpisode(options) {
       triggerTurn = turn
     },
     propose(value) {
-      keys(value, ['kind', 'turn', 'targetId', 'mode', 'canvasOwned', 'hitId', 'context', 'position', 'previousTurn', 'previousPosition', 'orderModel', 'point'])
+      keys(value, ['kind', 'turn', 'targetId', 'mode', 'canvasOwned', 'hitId', 'context', 'position', 'previousTurn', 'previousPosition', 'idle', 'point'])
       check(expectation === 'baseline' && value.kind === 'proposed-pixel', 'Only baseline may use proposed-pixel evidence')
       check(!proposal && !hover && triggerTurn === undefined && !entry, 'One proposed pixel before the trigger required')
       check(Number.isInteger(value.turn) && value.turn >= 0 && Number.isInteger(value.point?.x) && Number.isInteger(value.point?.y), 'Actual proposal turn and integer pixel required')
-      check(value.mode === 'blast' && value.targetId === targetId && value.hitId === targetId && value.canvasOwned && value.orderModel === 3, 'A real commanded person pixel in Blast mode is required')
-      check(value.turn > value.previousTurn && moved(value.position, value.previousPosition), 'Target was stopped or motion sample repeated')
+      check(value.mode === 'blast' && value.targetId === targetId && value.hitId === targetId && value.canvasOwned && value.idle === true, 'A real idle person pixel in Blast mode is required')
+      check(value.turn > value.previousTurn && !moved(value.position, value.previousPosition), 'Idle target moved or stationary sample repeated')
       proposal = clone(value)
     },
     hover(value) {
-      keys(value, ['turn', 'targetId', 'mode', 'canvasOwned', 'hitId', 'visible', 'lines', 'context', 'position', 'previousTurn', 'previousPosition', 'orderModel'])
+      keys(value, ['turn', 'targetId', 'mode', 'canvasOwned', 'hitId', 'visible', 'lines', 'context', 'position', 'previousTurn', 'previousPosition', 'idle'])
       check(expectation === 'candidate', 'Only candidate uses actual hover evidence')
       check(!hover && triggerTurn === undefined && !entry, 'Hover may be accepted only once before the trigger')
       check(Number.isInteger(value.turn) && value.turn >= 0, 'Actual prospective hover turn required')
-      check(value.mode === 'blast' && value.targetId === targetId && value.hitId === targetId && value.canvasOwned && value.orderModel === 3, 'A real commanded person hit in Blast mode is required')
-      check(value.turn > value.previousTurn && moved(value.position, value.previousPosition), 'Target was stopped or motion sample repeated')
+      check(value.mode === 'blast' && value.targetId === targetId && value.hitId === targetId && value.canvasOwned && value.idle === true, 'A real idle person hit in Blast mode is required')
+      check(value.turn > value.previousTurn && !moved(value.position, value.previousPosition), 'Idle target moved or stationary sample repeated')
       check(value.visible && value.lines === 16, 'Expected visible hover feedback missing')
       hover = clone(value)
     },
@@ -71,6 +72,21 @@ export function createBlastEpisode(options) {
       check(sample.stock === value.stockBefore - 1 && sample.castCount === value.castCountBefore + 1, 'Cast payment/count was not observed at release')
       check(expectation === 'candidate' ? sample.shot.tracking?.personId === targetId : sample.shot.tracking === null, 'Allocated identity does not match expectation')
       entry = clone(sample); release = clone(value); rows.push({ stage: 'release', sample: clone(sample) })
+    },
+    move(value, sample) {
+      keys(value, ['turn', 'mode', 'selected', 'trusted', 'canvasOwned', 'point', 'shotBefore', 'order', 'expected', 'handlerPoint', 'handlerPersonId', 'afterMode', 'afterSelected', 'ownerSame'])
+      check(entry && release && !movement, 'One public movement must follow the accepted cast')
+      live(sample)
+      check(value.trusted && value.canvasOwned && value.mode === null && value.afterMode === null &&
+        same(value.selected, [targetId]) && same(value.afterSelected, [targetId]), 'Ground movement lost ordinary mode or original selection')
+      check(value.shotBefore?.id === entry.shot.id && value.shotBefore.phase === 'windup' && value.shotBefore.remaining > 0 &&
+        sample.shot?.id === entry.shot.id && sample.castCount === entry.castCount, 'Movement was late or created another cast')
+      check(value.handlerPersonId === null && value.handlerPoint && value.ownerSame && value.order?.model === 3 &&
+        value.order.a === value.expected.a && value.order.b === value.expected.b && same(value.point, value.expected.pixel) &&
+        (Math.round((value.handlerPoint.x + 8) * 256) & 65535) === value.expected.a &&
+        (Math.round((-value.handlerPoint.z - 8) * 256) & 65535) === value.expected.b, 'Original person did not receive the declared ordinary ground move')
+      check(value.turn === sample.turn && value.turn >= entry.turn && value.turn < entry.turn + 6, 'Movement must be delivered during the original windup')
+      movement = clone(value)
     },
     before(sample) {
       if (!entry || retired) return
@@ -128,8 +144,8 @@ export function createBlastEpisode(options) {
     report(...args) {
       requireEvidence(args.length === 0, 'Cannot seed a success report')
       const required = expectation === 'candidate' ? ['hover', 'ack', 'arrival', 'impact'] : ['arrival', 'impact']
-      const complete = !!(entry && release && arrival && impact && retired && windupMotion && flightMotion && !before && !errors.length && required.every(kind => frames.some(f => f.kind === kind)))
-      return clone({ version: 1, expectation, runId, sourceFingerprint, triggerTurn, actorId, targetId, complete, errors, hover, proposal, release, entry, arrival, impact, retired, windupMotion, flightMotion, rows, frames,
+      const complete = !!(entry && release && movement && arrival && impact && retired && windupMotion && flightMotion && !before && !errors.length && required.every(kind => frames.some(f => f.kind === kind)))
+      return clone({ version: 1, expectation, runId, sourceFingerprint, triggerTurn, actorId, targetId, complete, errors, hover, proposal, release, movement, entry, arrival, impact, retired, windupMotion, flightMotion, rows, frames,
         limits: 'Ordinary rendered browser episode only when accompanied by the harness receipt and retained frame files. No original execution, full parity, hardware performance, ground comparison or save/reload claim.' })
     },
     error(error) { errors.push(String(error?.stack ?? error)) },

@@ -7,63 +7,74 @@ the Blast runtime patch is unchanged. Historical `1bcac93a` standard results rem
 historical. No ordinary baseline/candidate pair has passed, and the candidate has
 not run. Original/native execution and enemy-damage parity are not credited.
 
-## Current friendly-moving-person episode
+## Current idle-target then moving-person episode
 
-Mission2 supplies eight Wildmen around Shaman `(-107,-101)`. The maintained
-startup wave allocates eight real Blue Braves (`level-start-runtime.ts:176–194`;
-`tests/level-start.test.mjs` checks the one-to-nine Blue population transition).
-Ordinary hut births may add more people before browser readiness, so eight is
-not a permanent census invariant. Persist actual readiness, turn, site phases and
-the Blue/Wild census before validation. Focus the original Shaman, clear selection,
-and use the public single-Brave HUD button. Bind the actual selected outdoor Blue
-Brave from that recorded pre-command cohort; never guess its ID, replace it or
-claim conversion genealogy. An ordinary hut-born Brave is also eligible. One ordinary ground click aims at `(-93,-101)`
-(with the existing bounded half-unit ground-pixel alternatives). Record the real
-selected recipient, accepted model3 order and payload, acknowledgement and marker.
-The Shaman stays home. Imports are warmed before movement; the cast observer
-attaches after the ground handler restores and before public key1 arms Blast.
+Use the actual naturally present Blue Brave selected by the ordinary single-Brave
+HUD control from the pre-command census. Record readiness, turn, site phases and
+all Blue/Wild people before validating it. The original Blue Shaman stays home.
+Startup conversion creates eight Braves, but ordinary hut births can add more;
+there is no count minimum or conversion-genealogy claim.
 
-Both expectations wait for the same move owner/order/payload to enter the fixed
-open eastern segment `x=-100..-97, |z+101|<=2`. This is an episode preparation
-window, independently checked against actual source range. Missing the segment,
-losing the move, entering a building, death or identity loss stops the episode.
-There is no second command, target replacement, route or camera sweep. Authored
-cells78–85/46–47 are dry and no building/tree occupies the segment; this supports
-the proposal, but actual route, separation and visibility remain prospective.
-No training, camp, kill credit or enemy travel is needed.
+One public ground click stages this same Brave near `(-99,-101)`. Preserve its
+actual recipient/model3/payload/acknowledgement and wait for real native idle,
+unchanged pose across two distinct normal turns, healthy original identity and
+actual cast range. This replaces the earlier moving-target-before-release QA
+condition. Neither original0x6a selection nor spell range validation requires
+initial target speed; movement is still mandatory during windup and flight.
+The pre-release fixed eastern-segment deadline no longer applies to this staged
+idle episode. Stage acceptance stays within two world units of the declared point.
 
-Prepare the ordinary pointer before pressing. The baseline needs one actual
-canvas-owned pixel; its final proposed record is created only by the fresh held
-read. Candidate preparation retains its owned5×5, distance>=7 margin, visible
-16-line hover and validated natural hover frame. Then issue trusted left-down,
-one fresh synchronous read, and immediate trusted mouse-up. Blast-mode down does
-not select, drag or cast; up consumes its own current pixel. Holding suppresses
-live hover, so the candidate's already captured hover cannot be refreshed or
-relabelled. Its original one-turn freshness remains mandatory. The baseline's
-fresh proposal also expires after one turn; trigger-to-delivered-release remains
-at most four turns. The immediate up skips stop-file/readback work; the fresh
-preparation is guarded, and actual late events remain failed attempts.
+Before casting, precompute one actual empty-ground input near `(-93,-101)` for the
+later movement. All imports, ground-pixel discovery and observer setup happen
+before the cast. Keep the same selected Brave. Candidate preparation still needs
+its owned5×5, distance>=7 margin,16-line visible hover and validated natural hover
+frame; baseline needs one real owned pixel. Pre-position the ordinary pointer,
+press left, make one fresh read, then release. The held interval never refreshes
+candidate hover. Original <=1-turn preparation freshness and <=4-turn release
+bounds remain. Actual source range and delivered target ownership are still checked.
+Failed held preparation still uses two public Escapes, verifies mode=null and
+selection=[], then mouse-up and no additional cast/order; all cleanup is retained.
 
-A failed held preparation uses two public Escapes: clear mode, then selection.
-Read back `mode=null` and `selected=[]` before mouse-up. Retain before/cancelled/
-after state and prove no cleanup cast or new movement order. Failure to clear
-those prerequisites prevents mouse-up and fails the run. Cleanup inputs remain
-available after an ordinary stop so a held gesture can be cancelled safely.
+Immediately after the first release, one concise existing-observer read must prove
+that this run's accepted first shot exists in windup, cast count matches, mode is
+null and the same Brave remains singly selected. It records remaining windup and
+arms exactly one ordinary ground trace. If any check fails, no follow-up click is
+issued. Otherwise immediately click the precomputed ground point. No imports,
+raster waits, file writes, screenshots, reselection, pause or scheduler intervene.
+The actual second trusted release must still find the first shot in windup and
+must create the exact model3 destination for the same native owner while keeping
+mode/selection and cast count correct. The trace completes before the observer
+consumes it; attempted movement survives validation failure. Its order identity
+then remains fixed through the observed pre-impact lifecycle.
 
-Baseline actual-release proof stays separate: detached source-range validation
-before the real handler, one independently labelled geometric target read after
-handler restoration, actual cache effects, and retained attempted release before
-reducer rejection. Candidate requires the actual handler's person ID. Both retain
-same-person motion during windup and flight, stock/count, exact parent/shot
-ownership, arrival and parent impact, and natural rendered phases. Candidate
-also requires hover/ack pixels. Friendly impact follows `blastAllied`; this
-witness covers moving person identity, feedback and aim, not enemy damage.
-Existing 1800-turn setup,140s preparation,240s scenario,48-turn/10s lifecycle and
-300s harness/330s outer limits stay unchanged. The existing diagnostic remains
-available, but ordinary runs explicitly disable it. Later ground, rejection,
-interruption, Save/Load and paired-frame controls remain open.
+The six-turn windup is about500ms at ordinary speed. The prior measured ground
+click took323ms; no timing success is inferred from that budget. A late command,
+no movement within windup or flight, or lost identity fails. The next ground
+click can also replace person acknowledgement before rendering. Candidate still
+requires an actual natural32-line acknowledgement image; there is no forced frame
+or promise that one occurs between events. Missing acknowledgement remains a
+failed experiment. Both products retain actual arrival/parent impact and rendered
+phases; friendly damage follows `blastAllied` and earns no enemy-damage claim.
+
+The baseline's event-time detached range check and separately labelled one
+post-handler geometric read remain unchanged, including their cache/cost limits.
+The original handler trace and attempted release are retained before validation.
+There is no live World mutation or original executable run. Existing setup1800,
+preparation140s, scenario240s, lifecycle48 turns/10s, harness300s/outer330s bounds
+stay. Candidate remains conditional on accepted baseline evidence. Later ground,
+rejection/interruption, Save/Load, paired-frame and final combined-tree gates remain
+open. The passive diagnostic is available but disabled in ordinary bindings.
 
 ## Retained earlier attempts
+
+Baseline `4b3f2a08` bound the real Brave278 and accepted its ordinary move. Reads
+290/297/303/308 all found a current owned target pixel, but none found the target
+under the earlier resting pointer. At303 the target was inside the preparation
+segment and in range; after another public pointer move it had passed the segment
+by308. No held press or cast occurred. The recorded height128→67→62→59 and screen
+motion explain why serial pre-positioning was insufficient for that experiment;
+this was not a target-owner/order/range failure. All four rows are retained.
+
 
 Baseline `8c39a25c` failed before any scenario input on the incorrect exact-eight
 Brave census gate. The failure PNG shows09 in the Brave HUD, while the gate did
