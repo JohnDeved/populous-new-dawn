@@ -78,10 +78,10 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
       const { unitAnimationSource } = await import('/app/selection-runtime.ts')
       const { observeBlastEpisode, responseSnapshot, pointerFeedback } = await import('/qa/blast-ordinary/observer.mjs')
       const { observeBlastPick } = await import('/qa/blast-ordinary/pick-observer.mjs')
-      const { findProposedBlastPixel, bindStagedBlastTarget } = await import('/qa/blast-ordinary/preparation.mjs')
+      const { findProposedBlastPixel, bindStagedBlastTarget, stationaryBlastTarget } = await import('/qa/blast-ordinary/preparation.mjs')
       const { observeEntityPointer, findEntityInput, inspectEntityPoint } = await import('/qa/erosion-ordinary/input.mjs')
       const { spellTargetError } = await import('/app/model.ts'), { wrappedDistance } = await import('/app/world-coordinates.ts')
-      window.blastHelpers = { bindStagedBlastTarget, currentPersonOrder, findProposedBlastPixel, observeBlastPick, unitAnimationSource, observeBlastEpisode, responseSnapshot, pointerFeedback, observeEntityPointer, findEntityInput, inspectEntityPoint, spellTargetError, wrappedDistance }
+      window.blastHelpers = { stationaryBlastTarget, bindStagedBlastTarget, currentPersonOrder, findProposedBlastPixel, observeBlastPick, unitAnimationSource, observeBlastEpisode, responseSnapshot, pointerFeedback, observeEntityPointer, findEntityInput, inspectEntityPoint, spellTargetError, wrappedDistance }
       window.blastSetup = observeBlastSetup(scene, actor, { currentOrder: (w, p) => currentPersonOrder(w.buildingOrders, p) })
       if (window.blastSetup.read().errors.length) throw Error('Setup observation could not attach')
     }, roster)
@@ -166,7 +166,7 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
     await poll(async () => {
       const observed = await page.evaluate(({ previous, expectation, maximumSetupTurn, diagnostic, baselineProposal, minimumDistance }) => {
         const s = window.testSceneRef.current, w = s.world, started = performance.now()
-        const { responseSnapshot, pointerFeedback, spellTargetError, wrappedDistance, findEntityInput, findProposedBlastPixel, inspectEntityPoint } = window.blastHelpers
+        const { stationaryBlastTarget, responseSnapshot, pointerFeedback, spellTargetError, wrappedDistance, findEntityInput, findProposedBlastPixel, inspectEntityPoint } = window.blastHelpers
         const sample = window.blastSetup.snapshot(), actor = window.blastOriginal.actor
         const state = { turn: w.turn, level: w.outcome.level, status: w.status, paused: w.paused, speed: w.speed,
           flags: w.manaWorld.gameFlags, mode: w.mode, stock: w.shots.blast, inputMask: w.inputMask, cameraSettled: !s.cameraMotion.active && !s.resultCamera.active && !s.viewTransition, actor: { id: actor.id, hp: actor.hp, x: actor.x, z: actor.z }, failures: sample?.failures ?? ['snapshot'] }
@@ -206,8 +206,7 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
           painterSource: source ? { bucket: source.bucket, cell: source.cell, phase: source.phase, object: source.object, face: source.face } : null }
         const live = state.turn < maximumSetupTurn && state.failures.length === 0 && state.level === 2 && state.status === 'playing' && !state.paused &&
           state.speed === 1 && !(state.flags & 32) && !state.inputMask && state.cameraSettled && state.mode === 'blast' && state.stock > 0 && state.actor.hp > 0
-        const stationary = !!(motionPosition && p && w.turn > motionTurn && p.idle && !p.fighting && !actor.fight &&
-          p.position.x === motionPosition.x && p.position.y === motionPosition.y)
+        const stationary = stationaryBlastTarget(p, motionTurn, motionPosition, w.turn, !!actor.fight)
         let searchPixels = true, diagnosticComplete = false, diagnosticError = null
         if (diagnostic && live && stationary && distance >= 7 && targetError === null) {
           window.blastPick ??= window.blastHelpers.observeBlastPick(s, { targetId: window.blastOriginal.target.id })

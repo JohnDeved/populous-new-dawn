@@ -138,3 +138,8 @@ export function bindStagedBlastTarget(original, point, currentOrder) {
   if (ready) original.movePerson = person
   return observation
 }
+
+export function stationaryBlastTarget(person, previousTurn, previousPosition, turn, actorFighting = false) {
+  return !!(person && previousPosition && turn > previousTurn && person.idle && !person.fighting && !actorFighting &&
+    person.position.x === previousPosition.x && person.position.y === previousPosition.y)
+}
