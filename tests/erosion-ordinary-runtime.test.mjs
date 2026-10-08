@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { EventEmitter } from 'node:events'
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, resolve } from 'node:path'
 import { observeLoadedModules, sourceCorrespondence } from '../qa/erosion-ordinary/runtime.mjs'
@@ -177,4 +177,75 @@ test('dispose removes its parsed-event listener and detaches without removing ot
   assert.deepEqual(f.session.listeners('Debugger.scriptParsed'), [f.externalListener])
   assert.equal(f.session.detached, true)
   assert.deepEqual(f.calls.map(call => call.method), ['Debugger.enable'])
+})
+
+test('integer input is chosen before probes and retained exactly through dispatch', async () => {
+  // Load the actual pure helper bodies without the detached World probe's imports.
+  // This is a synthetic event composition, not a browser or model execution.
+  const source = readFileSync(new URL('../qa/erosion-ordinary/input.mjs', import.meta.url), 'utf8')
+  const marker = 'export const isOrdinaryMoveContext'
+  assert.ok(source.includes(marker))
+  const { integerInputPoint, findEntityInput, inspectEntityPoint, observeEntityPointer, isOrdinaryMoveContext } =
+    await import('data:text/javascript;base64,' + Buffer.from(source.slice(source.indexOf(marker))).toString('base64'))
+  const proposed = { x: 834.3125000000001, y: 600.875 }, chosen = integerInputPoint(proposed)
+  assert.deepEqual(chosen, { x: 834, y: 601 })
+  const entitySamples = []
+  assert.deepEqual(findEntityInput([proposed], 101, point => {
+    entitySamples.push(point); return { canvasOwned: true, hitId: 101 }
+  }), { ...chosen, interiorRadius: 2 })
+  assert.equal(entitySamples.length, 25)
+  assert.ok(entitySamples.every(point => Number.isInteger(point.x) && Number.isInteger(point.y)))
+  assert.deepEqual(entitySamples[12], chosen)
+  assert.equal(findEntityInput([{ x: Infinity, y: 1 }, { x: 1, y: NaN }], 101, () => assert.fail('invalid input')), null)
+
+  const calls = [], listeners = new Map(), ground = { x: -99, z: -101 }
+  const canvas = {
+    addEventListener(type, fn, capture) { listeners.set(`${type}:${capture}`, fn) },
+    removeEventListener(type, fn, capture) { assert.equal(listeners.get(`${type}:${capture}`), fn); listeners.delete(`${type}:${capture}`) },
+  }
+  const doc = { elementFromPoint(x, y) { calls.push(['canvas', { x, y }]); return canvas } }
+  const scene = { renderer: { domElement: canvas }, world: { turn: 1 },
+    picking: { pickPerson(event) { calls.push(['person', { x: event.clientX, y: event.clientY }]); return null } },
+    pickUnit: () => null, pickWorldObject: () => null,
+    pick(event) { calls.push(['ground', { x: event.clientX, y: event.clientY }]); return ground },
+  }
+  const inspection = inspectEntityPoint(scene, 'units', chosen, doc)
+  assert.equal(inspection.canvasOwned, true); assert.equal(inspection.hitId, null)
+  const event = { clientX: chosen.x, clientY: chosen.y }, picked = scene.pick(event)
+  const sourceProbe = point => {
+    assert.equal(point, ground); calls.push(['source', { x: event.clientX, y: event.clientY }])
+    return { model: 3, enabled: true }
+  }
+  assert.equal(isOrdinaryMoveContext(sourceProbe(picked)), true)
+  assert.deepEqual(calls, ['canvas', 'person', 'ground', 'source'].map(kind => [kind, chosen]))
+
+  const dispatch = point => {
+    const observer = observeEntityPointer(scene, doc)
+    for (const type of ['pointerdown', 'pointerup']) {
+      const delivered = { type, clientX: point.x, clientY: point.y, button: 0,
+        buttons: type === 'pointerdown' ? 1 : 0, isTrusted: true, target: canvas }
+      listeners.get(`${type}:true`)(delivered)
+      scene.pick(delivered)
+      listeners.get(`${type}:false`)(delivered)
+    }
+    const observed = observer.finish()
+    assert.equal(observed.restored, true); assert.deepEqual(observed.errors, [])
+    assert.equal(listeners.size, 0)
+    return observed
+  }
+  const requireExact = observed => {
+    assert.deepEqual(observed.events.map(e => [e.type, e.x, e.y, e.button, e.trusted, e.canvasOwned, e.canvasTarget]),
+      ['pointerdown', 'pointerup'].map(type => [type, chosen.x, chosen.y, 0, true, true, true]))
+    for (const event of observed.events)
+      assert.deepEqual(event.picks.map(pick => [pick.args.clientX, pick.args.clientY]), [[chosen.x, chosen.y]])
+  }
+  const payload = JSON.parse(JSON.stringify(chosen))
+  requireExact(dispatch(payload))
+  // Neither the former fractional delivery nor a genuinely wrong pixel may be
+  // rounded by the observer or accepted with a tolerance, even for the same ground.
+  for (const wrong of [{ x: 834.3125, y: 600.875 }, { ...chosen, x: chosen.x + 1 }, { ...chosen, y: chosen.y + 1 }]) {
+    const observed = dispatch(wrong)
+    assert.deepEqual({ x: observed.events[0].x, y: observed.events[0].y }, wrong)
+    assert.throws(() => requireExact(observed), assert.AssertionError)
+  }
 })
