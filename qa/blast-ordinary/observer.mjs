@@ -1,6 +1,6 @@
 import { createBlastEpisode } from './contract.mjs'
 import { captureRenderedCanvas } from './frame-capture.mjs'
-import { captureBlastReleaseRange, readBlastReleasePixel } from './setup-observer.mjs'
+import { captureBlastReleaseRange, readBlastReleasePixel, recordBlastRelease } from './setup-observer.mjs'
 import { spellTargetError } from '../../app/live-command.ts'
 import { currentPersonOrder } from '../../app/person-orders.ts'
 import { observeEntityPointer } from '../erosion-ordinary/input.mjs'
@@ -123,6 +123,8 @@ export function observeBlastEpisode(scene, options) {
     guard(() => {
       if (delivered) throw Error('Repeated cast input')
       const trace = pointer.finish(); pointer = null
+      artifacts.pointer = trace
+      artifacts.attemptedRelease = { stage: 'handler-trace', event: structuredClone(eventBefore) }
       if (trace.errors.length || !trace.restored) throw Error('Delivered pointer observation did not restore cleanly')
       const up = trace.events.find(e => e.type === 'pointerup')
       if (!up || trace.events.filter(e => e.type === 'pointerup').length !== 1) throw Error('Exactly one actual release required')
@@ -135,8 +137,8 @@ export function observeBlastEpisode(scene, options) {
       const shots = world.projectiles.filter(p => p.team === 'blue' && p.spell === 'blast')
       if (shots.length !== 1) throw Error('One naturally allocated Blue Blast required')
       shot = shots[0]
-      evidence.release({ ...eventBefore, handlerPersonId: persons.at(-1)?.id ?? null, handlerTerrain: !!terrain }, sample())
-      artifacts.pointer = trace; delivered = true
+      recordBlastRelease(artifacts, evidence, { ...eventBefore, handlerPersonId: persons.at(-1)?.id ?? null, handlerTerrain: !!terrain }, sample())
+      delivered = true
     })
   }
   const canvas = scene.renderer.domElement

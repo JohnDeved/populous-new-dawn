@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { observeBlastSetup, captureBlastReleaseRange, readBlastReleasePixel } from '../qa/blast-ordinary/setup-observer.mjs'
+import { observeBlastSetup, captureBlastReleaseRange, readBlastReleasePixel, recordBlastRelease } from '../qa/blast-ordinary/setup-observer.mjs'
 
 // Fake records only: no simulation, browser, runtime module or imported fixture.
 function fixture(clock = {}) {
@@ -184,4 +184,24 @@ test('post-handler pixel evidence uses the actual method result and retains its 
   const failure = new Error('picker failure'); picking.pickPerson = () => { throw failure }
   assert.throws(() => readBlastReleasePixel(scene, event), error => error === failure)
   assert.equal(handlerCalls, 1)
+})
+
+
+test('rejected release retains detached attempted event/sample before validation with unchanged callback semantics', () => {
+  const artifacts = {}, event = { point: { x: 10, y: 20 }, targetCheck: { pixel: { personId: null } } }, sample = { turn: 5, target: { id: 19 } }
+  const failure = new Error('delivered target changed'), result = { accepted: true }
+  let calls = 0, reject = true
+  const evidence = { release(actualEvent, actualSample) {
+    calls++; assert.equal(this, evidence); assert.equal(actualEvent, event); assert.equal(actualSample, sample)
+    assert.deepEqual(artifacts.attemptedRelease, { stage: 'reducer-validation', event, sample })
+    if (reject) throw failure
+    return result
+  } }
+  assert.throws(() => recordBlastRelease(artifacts, evidence, event, sample), error => error === failure)
+  event.point.x = 99; sample.target.id = 99
+  assert.equal(artifacts.attemptedRelease.event.point.x, 10)
+  assert.equal(artifacts.attemptedRelease.sample.target.id, 19)
+  reject = false
+  assert.equal(recordBlastRelease(artifacts, evidence, event, sample), result)
+  assert.equal(calls, 2)
 })

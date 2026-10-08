@@ -105,7 +105,9 @@ to the original handler (which consumes terrain in the baseline). This read can
 update picker caches, and the cloned range check adds event-processing cost;
 neither is claimed timing-equivalent to an unobserved event. Neither advances the
 clock or mutates the live World. A moved, occluded, replaced or out-of-range target
-fails even when the original ground cast itself succeeds.
+fails even when the original ground cast itself succeeds. Original-handler trace
+and detached attempted-release data are retained before validation, including
+failed restoration and rejected delivery checks.
 Candidate hover rejects proposed-pixel records and still requires a natural frame.
 
 The retained quarter-turn baseline `de5f4921` proves why this distinction matters:
