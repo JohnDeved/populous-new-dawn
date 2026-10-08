@@ -20,8 +20,11 @@ The authored patrol is allocated at turn53 and is asserted by turn122 in
 `tests/ai-response-task.test.mjs` separately reaches existing camp territory by
 turn1000 using the original Shaman and an ordinary ground command. It does not
 prove this exact approach point. Approximately one to two simulation minutes is
-a planning estimate only. The bounds (turn1800, 140s approach, 240s overall) are
-explicit experimental stop limits, not previously measured route durations.
+a planning estimate only. The setup must finish before turn1800; after observer
+attachment, hover/pointer setup has its own 12s bound and the released cast has
+a 48-turn lifecycle cap and 10s polling bound. Approach is bounded at 140s and
+the overall scenario at 240s. Turn1800 is a setup-only bound, not an absolute
+post-release turn cap. These are declared experimental limits, not measured durations.
 Failure to reach the point, keep the target in range, retain a current pixel or
 observe motion during both windup and flight fails this attempt.
 

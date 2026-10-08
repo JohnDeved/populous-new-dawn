@@ -15,7 +15,7 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
   assert.ok(basename(output).startsWith(`blast-m2-${expectation}-`), 'Use an expectation-specific fresh output')
   const commands = resolve(output, 'commands'), started = Date.now(), actions = []
   mkdirSync(commands)
-  const limits = { wallMs: 240000, approachMs: 140000, targetMs: 12000, cameraMs: 15000, castMs: 10000, maximumTurn: 1800 }
+  const limits = { wallMs: 240000, approachMs: 140000, targetMs: 12000, cameraMs: 15000, castMs: 10000, maximumSetupTurn: 1800 }
   let attached = false, primaryError, result
   const save = (name, data) => writeFileSync(resolve(output, name), JSON.stringify(data, null, 2) + '\n')
   const checkStop = async () => {
@@ -38,7 +38,7 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
   })
   const healthy = state => {
     assert.equal(state.level, 2); assert.equal(state.status, 'playing'); assert.equal(state.paused, false); assert.equal(state.speed, 1)
-    assert.equal(state.flags & 32, 0); assert.ok(state.actor.hp > 0); assert.ok(state.turn < limits.maximumTurn)
+    assert.equal(state.flags & 32, 0); assert.ok(state.actor.hp > 0); assert.ok(state.turn < limits.maximumSetupTurn)
   }
   const settle = () => poll(() => page.evaluate(() => {
     const s = window.testSceneRef.current
