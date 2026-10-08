@@ -94,7 +94,8 @@ export function createBlastEpisode(options) {
       check(value.shotBefore?.id === entry.shot.id && value.shotBefore.phase === 'windup' && value.shotBefore.remaining > 0 &&
         sample.shot?.id === entry.shot.id && sample.castCount === entry.castCount, 'Movement was late or created another cast')
       check(value.handlerPersonId === null && value.handlerPoint && value.ownerSame && value.order?.model === 3 &&
-        value.order.a === value.expected.a && value.order.b === value.expected.b && same(value.point, value.expected.pixel) &&
+        value.order.a === value.expected.a && value.order.b === value.expected.b &&
+        Number.isInteger(value.point?.x) && Number.isInteger(value.point?.y) && same(value.point, value.expected.pixel) &&
         (Math.round((value.handlerPoint.x + 8) * 256) & 65535) === value.expected.a &&
         (Math.round((-value.handlerPoint.z - 8) * 256) & 65535) === value.expected.b, 'Original person did not receive the declared ordinary ground move')
       check(value.turn === sample.turn && value.turn >= entry.turn && value.turn < entry.turn + 6, 'Movement must be delivered during the original windup')
@@ -152,12 +153,13 @@ export function createBlastEpisode(options) {
           Number.isFinite(value.observedAt) && value.observedAt >= hover.observedAt && same(value.position, hover.position) &&
           same(value.context, hover.context) && same(value.point, hover.point), 'Natural hover frame pose/context/pixel or chronology differs')
         else {
-          check(release && value.turn >= release.turn && value.turn <= release.turn + 3, 'Stale bracket frame or missing input phase')
+          check(release && value.turn >= release.turn, 'Acknowledgment precedes its actual release')
           const observed = value.turn === entry.turn ? entry : rows.find(row => row.stage === 'turn' && row.after.turn === value.turn)?.after
           check(value.targetSame && value.ownerValid && observed?.target.same && observed.target.ownerValid &&
             same(value.position, observed.target.position) && same(value.context, release.context) &&
             Number.isInteger(value.renderFrame) && value.renderFrame >= 0 && Number.isFinite(value.observedAt) &&
-            Number.isFinite(value.drawNow) && Number.isFinite(value.ackUntil) && value.drawNow < value.ackUntil,
+            Number.isFinite(value.drawNow) && Number.isFinite(value.ackUntil) && value.drawNow < value.ackUntil &&
+            value.observedAt >= release.observedAt && value.drawNow <= value.observedAt && value.ackUntil > release.observedAt,
           'Acknowledgment lacks its actual natural HUD time, original target pose or context')
         }
       }

@@ -329,3 +329,37 @@ test('acknowledgment retains consumed natural HUD time, original owner, pose and
     assert.throws(() => episode.frame(bad), /natural HUD time|pose or context/)
   }
 })
+
+test('movement requires the exact canonical inspected integer pixel, never a float tolerance', () => {
+  const first = sample(1, 'baseline'), make = () => {
+    const episode = createBlastEpisode({ ...options, expectation: 'baseline' })
+    episode.propose(proposed()); episode.trigger(1, 1.3); episode.release(release('baseline'), first)
+    return episode
+  }
+  const legacy = movement(); legacy.point = { x: 834.3125, y: 600.875 }; legacy.expected.pixel = { x: 834.3125000000001, y: 600.875 }
+  assert.throws(() => make().move(legacy, first), /declared ordinary ground move/)
+  const canonical = movement(); canonical.point = { x: 834, y: 601 }; canonical.expected.pixel = { ...canonical.point }
+  const episode = make(); episode.move(canonical, first)
+  assert.deepEqual(episode.report().movement.point, canonical.point)
+  const wrong = structuredClone(canonical); wrong.point.x++
+  assert.throws(() => make().move(wrong, first), /declared ordinary ground move/)
+})
+
+test('ack uses consumed source time and actual capture chronology across simulation catch-up', () => {
+  const make = () => {
+    const { episode } = start('baseline')
+    for (let turn = 1; turn < 6; turn++) { episode.before(sample(turn, 'baseline')); episode.after(sample(turn + 1, 'baseline')) }
+    return episode
+  }
+  const frame = { kind: 'ack', turn: 6, targetId: 3, visible: true, lines: 32, pixels: 188, effectId: null,
+    targetSame: true, ownerValid: true, position: position(6), context: copy(context), renderFrame: 9,
+    observedAt: 2.5, drawNow: 1.8, ackUntil: 2 }
+  const episode = make(); episode.frame(frame)
+  assert.equal(episode.report().frames.find(value => value.kind === 'ack').turn, 6)
+  for (const mutate of [value => { value.drawNow = value.ackUntil }, value => { value.observedAt = 1.3 },
+    value => { value.drawNow = 3 }, value => { value.ackUntil = 1.3 }, value => { value.turn = 0 },
+    value => { value.position.x++ }, value => { value.ownerValid = false }, value => { value.context.flags = 32 }]) {
+    const bad = structuredClone(frame); mutate(bad)
+    assert.throws(() => make().frame(bad), /natural HUD time|pose or context|precedes/)
+  }
+})

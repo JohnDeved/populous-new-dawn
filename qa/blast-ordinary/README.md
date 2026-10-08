@@ -32,7 +32,10 @@ check: the source clears speed on resting-slot arrival. Staging and pointer poll
 one140s deadline, rather than allocating a second preparation budget.
 
 Before casting, precompute one actual empty-ground input near `(-93,-101)` for the
-later movement. All imports, ground-pixel discovery and observer setup happen
+later movement. Both ground searches round projected client coordinates to integer
+CSS pixels before canvas ownership, picking and source-command validation. The
+same inspected integer point is retained and delivered, with exact native payload
+and pixel equality; there is no floating-point tolerance. All imports, ground-pixel discovery and observer setup happen
 before the cast. Keep the same selected Brave. Candidate preparation still needs
 its owned5×5, distance>=7 margin,16-line visible hover and validated natural hover
 frame; baseline needs one real owned pixel. Pre-position the ordinary pointer,
@@ -87,6 +90,11 @@ click can also replace person acknowledgement before rendering. Candidate still
 requires actual natural32-line acknowledgement geometry and positive pixels from
 its frozen live DOM SVG. The passive hook runs after the original drawPointer and
 uses the same consumed RAF time, with matching preceding natural render/turn/context.
+The source predicate is drawNow<ackUntil, not a simulation-turn expiry. The actual
+capture follows release, its observedAt is at least drawNow, and ackUntil follows
+the release observation. Capture may finish after expiry while retaining a valid
+consumed RAF time. Turn must still be at least the release turn; original target,
+owner, pose, context,32 lines and positive raster pixels remain required.
 It snapshots SVG, computed style and original target/pose metadata synchronously.
 There is no WebGL readback or full-game acknowledgment PNG. Detached rasterization
 starts only after the attempted second release, or drains during final cleanup;
@@ -117,6 +125,17 @@ rejection/interruption, Save/Load, paired-frame and final combined-tree gates re
 open. The passive diagnostic is available but disabled in ordinary bindings.
 
 ## Retained earlier attempts
+
+Candidate22 (`59e40104`) remains failed. Its person release342 and public move347
+with one windup turn left produced observed windup and flight motion, arrival351
+and tracked parent impact352. The exact move assertion rejected planned pixel
+x834.3125000000001 versus delivered834.3125, although native payload/recipient
+matched. The natural acknowledgment347 contained32 lines and188 raster pixels;
+consumed RAF now40223.2 preceded ackUntil40281.6333, while capture observedAt40352.4
+followed it. A separate release+3 simulation-turn proxy rejected that valid source
+time. The new integer pre-probe pixels and source-time relation require a fresh
+run. The failed move reducer did not bind subsequent order-reference continuity,
+so22 cannot receive retrospective completion credit.
 
 Baseline20 (`b1ee7aba`) passed: release321, public movement325 during windup,
 arrival329 and fixed-ground impact330, with genuine flying/impact images.

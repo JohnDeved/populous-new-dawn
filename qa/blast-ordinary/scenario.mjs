@@ -110,7 +110,8 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
       const probe = createMoveContextProbe(s.world)
       for (const delta of [[0, 0], [0.5, 0], [-0.5, 0], [0, 0.5], [0, -0.5]]) {
         const p = { x: approach.x + delta[0], z: approach.z + delta[1] }, q = s.screen(p)
-        const e = { clientX: rect.left + (q.x + 1) * rect.width / 2, clientY: rect.top + (1 - q.y) * rect.height / 2 }
+        // Inspect, retain and deliver one canonical integer CSS pixel.
+        const e = { clientX: Math.round(rect.left + (q.x + 1) * rect.width / 2), clientY: Math.round(rect.top + (1 - q.y) * rect.height / 2) }
         if (document.elementFromPoint(e.clientX, e.clientY) !== s.renderer.domElement || s.picking.pick(e) !== null) continue
         const picked = s.pick(e)
         if (picked && Math.hypot(picked.x - p.x, picked.z - p.z) < 0.75 && isOrdinaryMoveContext(probe(picked))) return { x: e.clientX, y: e.clientY, point: { x: picked.x, z: picked.z } }
