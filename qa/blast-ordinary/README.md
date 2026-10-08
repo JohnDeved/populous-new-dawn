@@ -417,8 +417,8 @@ stop helper. Any file there stops further input and is retained; a normal stop i
   SVG are observed. `hover/ack.svg` and `*-brackets.png` preserve the actual SVG
   geometry/computed stroke and its detached rasterization. `terminal.png` is a
   full-page screenshot taken after completion.
-- Arrival is captured at its first qualifying render within the exact observed
-  observed flying or arrived turn, retaining the exact phase/shot/visual IDs. An
+- Projectile is captured at its first qualifying render in an observed
+  flying or arrived turn, retaining the exact phase/shot/visual IDs. An
   earlier render without a visible head does not suppress later valid renders;
   unobserved or mismatched turn/phase/visual identity is rejected.
 - Effect frame pixel counts cover the full nontransparent game canvas. They are
