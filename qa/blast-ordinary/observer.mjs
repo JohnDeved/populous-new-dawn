@@ -49,7 +49,7 @@ export function observeBlastEpisode(scene, options) {
   const world = scene.world, actor = world.units.find(u => u.id === options.actorId), target = world.units.find(u => u.id === options.targetId)
   if (!actor || !target || world.projectiles.some(p => p.team === 'blue' && p.spell === 'blast')) throw Error('Fresh actor, target and empty Blue Blast lifecycle required')
   const evidence = createBlastEpisode(options), artifacts = {}, wrappers = [], pending = new Set(), admission = createBlastAdmission()
-  let shot, delivered = false, eventBefore, pressBefore, pointer, disposed = false, moveExpected, moveOwner, movementDelivered = false, movementOrder, plannedGround, deferredAck, hudFrame, movementAttempted = false
+  let shot, delivered = false, eventBefore, inputBefore, pressBefore, pointer, disposed = false, moveExpected, moveOwner, movementDelivered = false, movementOrder, plannedGround, deferredAck, hudFrame, movementAttempted = false
   const sameScene = () => window.testSceneRef.current === scene && window.testStore.getWorld() === world && scene.world === world && scene.renderer.domElement.isConnected
   const person = u => blastPersonSnapshot(world, u, target, movementOrder)
   const sample = () => ({ turn: world.turn, level: world.outcome.level, playing: world.status === 'playing', paused: world.paused,
@@ -159,6 +159,8 @@ export function observeBlastEpisode(scene, options) {
     eventBefore = { observedAt: performance.now(), press: structuredClone(pressBefore), point: { x: event.clientX, y: event.clientY }, turn: world.turn, targetId: target.id, mode: world.mode, trusted: event.isTrusted,
       canvasOwned: event.target === scene.renderer.domElement && document.elementFromPoint(event.clientX, event.clientY) === scene.renderer.domElement,
       context: inputContext(scene), stockBefore: world.shots.blast, castCountBefore: world.stats.cast }
+    inputBefore = { turn: world.turn, mode: world.mode, selected: [...world.selected], stock: world.shots.blast, castCount: world.stats.cast,
+      trusted: eventBefore.trusted, canvasOwned: eventBefore.canvasOwned, point: { ...eventBefore.point } }
     if (delivered) {
       eventBefore.selected = [...world.selected]
       eventBefore.shotBefore = shot && { id: shot.id, phase: shot.phase, remaining: shot.remaining }
@@ -171,6 +173,11 @@ export function observeBlastEpisode(scene, options) {
     if (moving) movementAttempted = true
     try {
       if (delivered && (!moveExpected || movementDelivered)) throw Error('Repeated or unarmed movement input')
+      if (!pointer) {
+        artifacts.unarmedFollowingInput = { before: structuredClone(inputBefore), handlerTrace: false,
+          after: { turn: world.turn, mode: world.mode, selected: [...world.selected], stock: world.shots.blast, castCount: world.stats.cast } }
+        throw Error('Predeclared following input had no accepted armed first release; actual effects retained without handler trace')
+      }
       const trace = pointer.finish(); pointer = null
       if (delivered) artifacts.movePointer = trace
       else artifacts.pointer = trace

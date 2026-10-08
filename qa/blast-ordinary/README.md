@@ -68,12 +68,15 @@ run's release and marks it delivered. It then applies the existing shot/windup,
 cast-count, cleared-mode and exact single-selection checks, arms the next pointer
 trace and resolves the detached admission. The ground plan was copied once before
 the cast; a late subscriber receives the same retained value. No callback issues
-input. The host waits for normal mouse-up and admission, checks its AbortSignal,
-then immediately sends the ordinary precomputed ground click. There is no extra
-post-release evaluate round trip. Failed release, admission, disposal or abort
-rejects the waiter; a missing eligible event has a10s timeout, followed by observer
-cancellation, and cannot issue a ground click. Rejection handlers are attached
-while mouse-up is pending.
+input. After normal mouse-up completes, the host checks its AbortSignal and sends
+exactly one predeclared ordinary ground click without waiting for the admission
+response. It awaits the already-handled latch afterward. This intentionally
+attempts the second input even if first-cast validation fails; the complete run
+then fails, with both attempted events and actual mode/selection/stock/cast effects
+retained. If no accepted first release armed the second handler trace, the observer
+labels that input unarmed and does not invent a trace. No third input or retry is
+issued. A failed normal mouse-up or abort prevents the ground click. The existing
+10s waiter bound, rejection handling and final observer cancellation remain.
 
 The actual second trusted release independently must still find the first shot
 in windup and create the exact model3 destination for the same native owner, with
@@ -125,6 +128,15 @@ rejection/interruption, Save/Load, paired-frame and final combined-tree gates re
 open. The passive diagnostic is available but disabled in ordinary bindings.
 
 ## Retained earlier attempts
+
+Candidate23 (`b848f446`) remains failed. Release/admission336 had six windup turns
+remaining, but the host still waited148ms after mouse-up for the admission response
+before dispatching movement. Actual down/up342 arrived at flying0. Integer pixel
+and native payload matched, and the natural32-line acknowledgment was accepted;
+there was no windup motion. Flight/arrival345/impact346 observations do not complete
+the episode. The approved finite two-input sequence removes only this host wait,
+keeps all actual-event predicates and requires a fresh accepted order-continuity
+record. No timing success is assumed.
 
 Candidate22 (`59e40104`) remains failed. Its person release342 and public move347
 with one windup turn left produced observed windup and flight motion, arrival351

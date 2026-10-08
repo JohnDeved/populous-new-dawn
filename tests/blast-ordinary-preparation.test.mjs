@@ -276,3 +276,33 @@ test('missing input and abort bound the host waiter without an unhandled rejecti
   controller.abort(Error('host abort')); await waiting
   aborted.fail(Error('disposed after abort'))
 })
+
+test('the predeclared move follows normal up but does not await admission transport', async () => {
+  const { sendPlannedBlastMove } = await import('../qa/blast-ordinary/preparation.mjs')
+  const log = [], signal = new AbortController().signal
+  let complete
+  const admission = new Promise(resolve => { complete = resolve })
+  const normalUp = async () => { log.push('up') }
+  await normalUp()
+  const pending = sendPlannedBlastMove({ admission, signal, move: async () => { log.push('move') } })
+  assert.deepEqual(log, ['up', 'move'])
+  complete({ value: { acceptedRelease: true } })
+  assert.deepEqual(await pending, { acceptedRelease: true })
+})
+
+test('failed first admission still fails after the one declared move; abort or failed up prevents dispatch', async () => {
+  const { sendPlannedBlastMove } = await import('../qa/blast-ordinary/preparation.mjs')
+  const failure = Error('first cast failed'), signal = new AbortController().signal
+  let moves = 0
+  await assert.rejects(sendPlannedBlastMove({ admission: Promise.resolve({ error: failure }), signal, move: async () => { moves++ } }), error => error === failure)
+  assert.equal(moves, 1)
+  const stopped = new AbortController(); stopped.abort(Error('stop before second input'))
+  await assert.rejects(sendPlannedBlastMove({ admission: Promise.resolve({ value: {} }), signal: stopped.signal, move: async () => { moves++ } }), /stop before second/)
+  assert.equal(moves, 1)
+  const failedUp = async () => { throw Error('normal up failed') }
+  await assert.rejects(async () => {
+    await failedUp()
+    await sendPlannedBlastMove({ admission: Promise.resolve({ value: {} }), signal, move: async () => { moves++ } })
+  }, /normal up failed/)
+  assert.equal(moves, 1)
+})

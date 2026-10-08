@@ -172,3 +172,13 @@ export function waitForBlastAdmission(promise, signal, timeoutMs = 10000) {
     if (signal.aborted) { signal.removeEventListener('abort', abort); abort() }
   })
 }
+
+// Called only after the normal mouse-up promise completes. The one predeclared
+// public move does not wait for admission transport; validation follows it.
+export async function sendPlannedBlastMove({ admission, signal, move }) {
+  signal.throwIfAborted()
+  await move()
+  const result = await admission
+  if (result.error) throw result.error
+  return result.value
+}

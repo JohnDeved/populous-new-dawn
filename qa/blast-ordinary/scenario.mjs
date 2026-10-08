@@ -3,7 +3,7 @@ import { writeFileSync, mkdirSync } from 'node:fs'
 import { basename, resolve } from 'node:path'
 import { waitForShamanReadiness } from '../../scripts/browser-game.mjs'
 import { pollWithPreservation, readQueuedPreservingStop } from '../erosion-ordinary/stop.mjs'
-import { createBlastPreparation, releaseHeldBlast, waitForBlastAdmission } from './preparation.mjs'
+import { createBlastPreparation, releaseHeldBlast, waitForBlastAdmission, sendPlannedBlastMove } from './preparation.mjs'
 
 // First-stage ordinary witness. This module does not run a browser on import.
 export default async function ordinaryBlast({ page, output, receipt, signal, openMission }) {
@@ -340,14 +340,12 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
           read: readHeld,
           retain: value => { heldCleanup = structuredClone(value) },
         })
-        // The pre-release waiter observes the same checks latched by the actual
-        // release callback. No additional query follows mouse-up.
-        const admission = await movementWait
-        if (admission.error) throw admission.error
-        const movementAdmission = admission.value
-        signal.throwIfAborted()
-        await input('windup-ground-move', { target, ground: movementGround, admission: movementAdmission },
-          () => page.mouse.click(movementGround.x, movementGround.y), false)
+        // This finite second input is predeclared, even if cast validation fails.
+        // Normal mouse-up must finish and abort still stops input. The synchronous
+        // observer latch and actual movement checks decide acceptance afterward.
+        const movementAdmission = await sendPlannedBlastMove({ admission: movementWait, signal,
+          move: () => input('windup-ground-move', { target, ground: movementGround, predeclaredAfterMouseUp: true },
+            () => page.mouse.click(movementGround.x, movementGround.y), false) })
         trigger = { ...trigger, releasedPreparation, movementAdmission, movementGround }
       } finally {
         await page.evaluate(() => window.blastEpisode.abortMove('Held input finished or aborted'))

@@ -54,7 +54,7 @@ function fixture(t, { rejectRelease = false, throwDraw } = {}) {
     handlers++; scene.pointerScreen = event; scene.pointerButtons = 0
     if (world.mode === 'blast') {
       scene.picking.pickPerson(event)
-      if (rejectRelease) return
+      if (rejectRelease && handlers === 1) return
       world.projectiles.push({ id: 44, team: 'blue', spell: 'blast', caster: 1, phase: 'windup', remaining: 6, target: { x: 1, z: 2 },
         destination: { x: 1000, y: 2000, h: 120 }, blastTarget: { personId: 3, shotPersonId: null, destination: { x: 1000, y: 2000, h: 120 } }, visuals: [] })
       world.mode = null; world.shots.blast--; world.stats.cast++; scene.pointerAck = { target: 3, until: performance.now() + 5000 / 24 }
@@ -143,4 +143,20 @@ test('original draw exception and argument identity survive the passive wrapper'
   const failure = Error('original draw failed'), f = fixture(t, { throwDraw: failure }), now = 19
   assert.throws(() => f.scene.drawPointer(now), error => error === failure)
   assert.deepEqual(f.log.at(-1), { name: 'draw', receiver: f.scene, now })
+})
+
+test('failed first release keeps the declared second event and its effects without inventing a trace', async t => {
+  const f = fixture(t, { rejectRelease: true }); await f.prepare()
+  const pending = assert.rejects(f.observer.waitForMove(), /One naturally allocated/)
+  f.canvas.dispatch('pointerup'); await pending
+  f.canvas.dispatch('pointerdown', { x: 50, y: 60 }); f.canvas.dispatch('pointerup', { x: 50, y: 60 })
+  const result = f.observer.read(), attempt = result.artifacts.unarmedFollowingInput
+  assert.equal(f.handlers(), 2); assert.equal(result.report.complete, false)
+  assert.equal(attempt.handlerTrace, false); assert.equal(attempt.before.trusted, true); assert.equal(attempt.before.canvasOwned, true)
+  assert.deepEqual(attempt.before.point, { x: 50, y: 60 }); assert.deepEqual(attempt.before.selected, [3])
+  assert.deepEqual({ mode: attempt.before.mode, stock: attempt.before.stock, cast: attempt.before.castCount }, { mode: 'blast', stock: 4, cast: 0 })
+  assert.deepEqual(attempt.after, { turn: 1, mode: null, selected: [3], stock: 3, castCount: 1 })
+  assert.equal(result.artifacts.movePointer, undefined)
+  assert.ok(result.report.errors.some(error => error.includes('actual effects retained without handler trace')))
+  assert.ok(result.report.errors.every(error => !error.includes('finish') && !error.includes('TypeError')))
 })
