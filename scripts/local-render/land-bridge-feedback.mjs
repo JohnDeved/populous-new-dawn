@@ -10,7 +10,7 @@ export function readLandBridgeRoute() {
   const scene = window.testSceneRef.current,
     world = scene.world
   if (world !== window.testStore.getWorld() || world.outcome.level !== 1)
-    throw Error('M1 scene/store mismatch')
+    throw new Error('M1 scene/store mismatch')
   return {
     turn: world.turn,
     time: world.time,
@@ -71,7 +71,8 @@ export default async function landBridgeFeedback({ page, openMission, output, si
   try {
     await openMission(1)
     report.readiness = await waitForShamanReadiness(page, { timeout: 60000 })
-    const initial = (report.initial = await read())
+    const initial = await read()
+    report.initial = initial
     assert.equal(initial.inputMask, 0)
     assert.equal(initial.bridgeShots, 0)
     assert.equal(initial.bridges, 0)
@@ -90,7 +91,7 @@ export default async function landBridgeFeedback({ page, openMission, output, si
       ({ headId, actorId }) => {
         const world = window.testSceneRef.current.world,
           actor = world.units.find(unit => unit.id === actorId)
-        if (!actor || actor.hp <= 0) throw Error('Original Shaman lost during Bridge worship')
+        if (!actor || actor.hp <= 0) throw new Error('Original Shaman lost during Bridge worship')
         return world.shots.bridge > 0 && world.shrines.find(head => head.id === headId)?.uses > 0
       },
       { headId: initial.bridgeHead.id, actorId: originalShamanId },
@@ -122,7 +123,7 @@ export default async function landBridgeFeedback({ page, openMission, output, si
       await wait(
         () => {
           const evidence = window.mission1MoveEvidence
-          if (evidence.errors.length) throw Error(evidence.errors.join('\n'))
+          if (evidence.errors.length) throw new Error(evidence.errors.join('\n'))
           return !!evidence.completed
         },
         null,
@@ -179,7 +180,7 @@ export default async function landBridgeFeedback({ page, openMission, output, si
     await wait(
       () => {
         const status = window.landBridgeFeedback.status()
-        if (status.errors.length) throw Error(status.errors.join('\n'))
+        if (status.errors.length) throw new Error(status.errors.join('\n'))
         return status.done
       },
       null,

@@ -1,7 +1,7 @@
 // Passive observation of one ordinary Bridge projectile, its real effect consumer,
 // and the first naturally committed, visible success status. No game progression.
 export function installLandBridgeFeedbackWitness({ actorId, expected = 'Land Bridge cast.' }) {
-  if (window.landBridgeFeedback) throw Error('Bridge feedback observer already exists')
+  if (window.landBridgeFeedback) throw new Error('Bridge feedback observer already exists')
   const scene = window.testSceneRef.current,
     world = scene.world,
     clock = scene.gameClock,
@@ -17,7 +17,7 @@ export function installLandBridgeFeedbackWitness({ actorId, expected = 'Land Bri
     restored: false,
   }
   const check = (value, text) => {
-    if (!value) throw Error(text)
+    if (!value) throw new Error(text)
   }
   const note = error => {
     if (evidence.errors.length < 8) evidence.errors.push(String(error?.stack ?? error))
@@ -199,7 +199,7 @@ export function installLandBridgeFeedbackWitness({ actorId, expected = 'Land Bri
     for (const restore of restorers.reverse()) observe(restore)
     if (api) {
       if (window.landBridgeFeedback === api) delete window.landBridgeFeedback
-      else note(Error('Bridge observer ownership changed: landBridgeFeedback'))
+      else note(new Error('Bridge observer ownership changed: landBridgeFeedback'))
     }
     evidence.restored = evidence.errors.length === 0
     return evidence
