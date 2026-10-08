@@ -269,6 +269,7 @@ export function projectBlastReference({ outer, manifest, manifestPath, sourceFil
 
 export function readBlastReference(repo, { path, commandReceipt: outer }, current) {
   try {
+    assert(isBlastReferenceCandidate(outer), 'comparator not explicitly selected')
     const manifests = Object.keys(outer.source?.inputs ?? {}).filter(name => name.startsWith('work/orchestration/') && name.endsWith('/manifest.json'))
     assert(manifests.length === 1, 'missing/ambiguous shard manifest')
     const manifestPath = manifests[0]
