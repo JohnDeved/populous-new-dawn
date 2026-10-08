@@ -191,15 +191,19 @@
   "scenarioModules": [
     {
       "path": "scripts/local-render/mission1-building-screen.mjs",
-      "sha256": "686cf69c536ef99c93c0faa50b3e3f48c5a2ebb1e3ba70c3dc0a46cd3d3a4abf"
+      "sha256": "76e6be145012e6c8e6d12a261162f3ec87e20a8ce51c76a825bc6d21de9e8532"
     },
     {
       "path": "scripts/local-render/mission1-building-screen-witness.mjs",
-      "sha256": "e45442c2efefe50f1ca7618e26efe1d5d8bcad55fd105615198bbe6be1dd4ecd"
+      "sha256": "ca8d06e9fbdf751060fcc25173f4d75faa086a826d017258a098c21debbd95c1"
     },
     {
       "path": "qa/mission1-building-screen/screen-contract.test.mjs",
-      "sha256": "d115d92a58cca89ad3b19682d3797f7b28dbc82a48cd966d43ad0fe42398a358"
+      "sha256": "1319554c45a3e9b63750501aac5473f6e3ed6752cd83e15d8e83546ad9c2f95f"
+    },
+    {
+      "path": "scripts/local-render/mission1-building-drawer-smoke.mjs",
+      "sha256": "d1c62251eef17c39a3686ec4f4de0d26cd6d709a991b254596e27ae2a7e109b8"
     }
   ],
   "routeSource": {
@@ -326,5 +330,17 @@
         "byteIdentical": true
       }
     ]
+  },
+  "gpuFreshness": {
+    "seam": "Same presenter-owned surface/renderer/canvas plus Three info.render.frame before/after natural presenter.draw; exactly one counter increment for existing surface or positive count on first creation. No new wrapper or render.",
+    "sourceCheckedBy": "review_class1_startup_audit",
+    "sourceBoundary": "Installed Three WebGLRenderer.js:1700 increments on render; WebGLInfo.reset leaves frame unchanged. Product drawer renders once only for nonempty vertices. Exact installed runtime remains coordinator-bound before launch."
+  },
+  "componentSmoke": {
+    "scenario": "scripts/local-render/mission1-building-drawer-smoke.mjs",
+    "kind": "Supplied triangles, actual detached production GPU drawer/atlas/collector, one pass, PNG/errors/finally disposal. Separate component evidence only.",
+    "launchEnabled": false,
+    "runner": "Existing scripts/local-render/harness.mjs --scenario; no new argv",
+    "precedes": "Ordinary M1 prefix only after exact coordinator admission"
   }
 }

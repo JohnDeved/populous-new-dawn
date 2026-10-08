@@ -1,0 +1,17 @@
+{
+  "scope": "Read-only installed-source tie-out for the existing render counter. Coordinator must verify exact runtime before browser admission. No package was installed/read/executed by this QA worker.",
+  "verifiedBy": "review_class1_startup_audit",
+  "verifiedAt": "2026-10-08T18:58:55Z",
+  "files": [
+    {
+      "path": "node_modules/three/src/renderers/WebGLRenderer.js",
+      "sha256": "867948b57a6abb84d4cfd7619b38ea14fbb2c100c1b6f78d59de2383662ab7a0",
+      "boundary": "Line1700 increments info.render.frame on render()"
+    },
+    {
+      "path": "node_modules/three/src/renderers/webgl/WebGLInfo.js",
+      "sha256": "eee7c3f0f54643080d478a23acd964fe858143406fea62980f911393d995c532",
+      "boundary": "reset does not change frame"
+    }
+  ]
+}

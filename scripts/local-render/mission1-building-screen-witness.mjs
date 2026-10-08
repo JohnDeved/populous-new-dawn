@@ -2,14 +2,15 @@
 // owners of turns, UI visits, geometry feedback, RNG, and GPU drawing.
 export function installMission1BuildingScreenWitness({ shamanId, birth = null } = {}) {
   if (window.m1BuildingScreen) throw Error('A building-screen observer is already installed')
+  const installation = window.m1BuildingScreenInstallation = { resumed: !!birth, state: null }
   const scene = window.testSceneRef.current, world = scene.world, clock = scene.gameClock,
-    presentation = scene.worshipPresentation, restorers = []
+    presentation = scene.worshipPresentation, renderer = scene.renderer, mainCanvas = renderer.domElement, restorers = []
   const vault = world.shrines.find(s => s.kind === 'vault' && s.mode === 4 && s.reward === 'camp' && s.x === -5 && s.z === -3)
   if (world !== window.testStore.getWorld() || world.outcome.level !== 1 || !vault ||
       !Object.hasOwn(world.worshipAcquisition.controllers, 'building')) throw Error('Current authored M1 screen product required')
   const evidence = { source: { level: 1, vaultId: vault.id, shamanId }, birth: birth && structuredClone(birth),
     handoffs: 0, worldVisits: 0, uiVisits: 0, draws: 0, grants: 0, stages: {}, phases: {},
-    recentUi: [], frames: {}, errors: [], restored: false }
+    recentUi: [], skippedGpuDraws: 0, skippedGpuSamples: [], frames: {}, errors: [], restored: false }
   let giftId = birth?.gift.id ?? null, beforeTurn = null, closed = false,
     controller = world.worshipAcquisition.controllers.building
   const error = failure => { if (evidence.errors.length < 16) evidence.errors.push(String(failure?.stack ?? failure)) }
@@ -18,8 +19,13 @@ export function installMission1BuildingScreenWitness({ shamanId, birth = null } 
     try { return original.apply(receiver, args) } catch (failure) { error(failure); throw failure }
   }
   const check = (condition, message) => { if (!condition) throw Error(message) }
+  const checkOwner = () => {
+    check(window.testSceneRef.current === scene && scene.world === world && window.testStore.getWorld() === world, 'Observed Scene/World identity changed')
+    check(scene.gameClock === clock && scene.worshipPresentation === presentation && scene.renderer === renderer &&
+      renderer.domElement === mainCanvas, 'Observed clock/presentation/main-canvas ownership changed')
+  }
   const state = () => {
-    check(scene.world === world && window.testStore.getWorld() === world, 'Observed World identity changed')
+    checkOwner()
     const actor = world.units.find(unit => unit.id === shamanId)
     check(actor?.hp > 0 && actor.kind === 'shaman' && actor.team === 'blue', 'Original Shaman lost during acquisition')
     const gift = world.gifts.find(gift => gift.id === giftId)
@@ -28,6 +34,11 @@ export function installMission1BuildingScreenWitness({ shamanId, birth = null } 
       animationFrame: clock.animationFrame, acquisition: structuredClone(world.worshipAcquisition),
       cosmeticRandom: structuredClone(world.cosmeticRandom) }
   }
+  installation.state = state()
+  evidence.installation = structuredClone(installation)
+  if (birth) check(installation.state.gift?.id === birth.gift.id &&
+    installation.state.gift.remaining > 0 && controller?.giftId === birth.gift.id && controller.active &&
+    !installation.state.camp, 'Missed resumed active-gift/controller/locked-knowledge boundary')
   const hud = () => {
     const root = scene.container.parentElement, tab = root.querySelector('[aria-label="buildings B"]'),
       card = root.querySelector('[aria-label="Warrior Training Hut, 8 wood"]'),
@@ -39,7 +50,11 @@ export function installMission1BuildingScreenWitness({ shamanId, birth = null } 
       hudScale: panel ? panel.getBoundingClientRect().width / panel.offsetWidth : null }
   }
   const frozen = () => JSON.stringify({ acquisition: world.worshipAcquisition, cosmeticRandom: world.cosmeticRandom })
-  const capture = (label, command) => {
+  const gpuState = () => {
+    const surface = presentation.buildingSurface, renderer = surface?.renderer
+    return { surface, renderer, canvas: renderer?.domElement, frame: renderer?.info.render.frame ?? null }
+  }
+  const capture = (label, command, gpuProof) => {
     if (evidence.frames[label]) return
     const canvas = presentation.canvas, surface = presentation.buildingSurface, gpu = surface?.renderer?.domElement
     check(canvas && canvas.width > 0 && canvas.height > 0 && canvas.width * canvas.height <= 2_000_000,
@@ -47,17 +62,17 @@ export function installMission1BuildingScreenWitness({ shamanId, birth = null } 
     // Retain actual already-drawn PNGs before checking state or visible pixels.
     const frame = evidence.frames[label] = { overlayHidden: canvas.hidden }
     if (!canvas.hidden) frame.overlayPng = canvas.toDataURL('image/png')
-    if (command && gpu && gpu.width * gpu.height <= 2_000_000) frame.buildingPng = gpu.toDataURL('image/png')
+    if (command && gpuProof.fresh && gpu && gpu.width * gpu.height <= 2_000_000) frame.buildingPng = gpu.toDataURL('image/png')
     frame.state = state(); frame.hud = hud(); frame.command = command && structuredClone(command)
-    frame.draw = evidence.draws
+    frame.draw = evidence.draws; frame.gpu = gpuProof
     frame.worldGiftVisible = scene.fxMeshes.get(giftId)?.visible ?? false
     frame.vertices = surface?.geometry.drawRange.count ?? 0
-    if (command && frame.vertices > 0) {
+    if (command && gpuProof.fresh && frame.vertices > 0) {
       const gl = surface.renderer.getContext(), pixels = new Uint8Array(gpu.width * gpu.height * 4)
       gl.readPixels(0, 0, gpu.width, gpu.height, gl.RGBA, gl.UNSIGNED_BYTE, pixels)
       frame.opaquePixels = 0
       for (let offset = 3; offset < pixels.length; offset += 4) if (pixels[offset]) frame.opaquePixels++
-      check(frame.opaquePixels > 0, 'Actual submitted building GPU frame is empty')
+      if (label === 'whole' || label === 'flight') check(frame.opaquePixels > 0, 'Actual submitted building GPU frame is empty')
     }
     if (label === 'handoff') check(!frame.worldGiftVisible, 'Gift body/glow group remains visible after hide')
   }
@@ -120,6 +135,8 @@ export function installMission1BuildingScreenWitness({ shamanId, birth = null } 
         if (visit === 6) {
           evidence.stages.hide = after
           check(gift?.remaining === 76 && gift.phase === 0 && !after.camp, 'Six-visit hide mismatch')
+          check(building?.giftId === giftId && building.active && evidence.handoffs === 1,
+            'Sixth visit did not create the one matching active building handoff')
         }
         if (visit === 81) evidence.stages.beforeGrant = after
         if (!beforeTurn.camp && after.camp) {
@@ -133,7 +150,7 @@ export function installMission1BuildingScreenWitness({ shamanId, birth = null } 
     wrap(presentation, 'visit', original => function (...args) {
       const result = call(original, this, args)
       observe(() => {
-        evidence.uiVisits++
+        checkOwner(); evidence.uiVisits++
         const building = world.worshipAcquisition.controllers.building
         if (!building || building.giftId !== giftId) return
         const row = { turn: world.turn, paused: world.paused, phase: building.phase, visits: building.visits,
@@ -147,16 +164,28 @@ export function installMission1BuildingScreenWitness({ shamanId, birth = null } 
       return result
     })
     wrap(presentation, 'draw', original => function (...args) {
-      const before = observe(frozen), result = call(original, this, args)
+      const before = observe(frozen), priorGpu = observe(gpuState) ?? { failed: true }, result = call(original, this, args)
       observe(() => {
-        evidence.draws++
+        checkOwner(); evidence.draws++
         const building = world.worshipAcquisition.controllers.building,
-          command = world.worshipAcquisition.controllers.drawCommands.find(c => c.kind === 'building' && c.giftId === giftId)
-        if (command && evidence.stages.handoff) capture('handoff', command)
-        if (command?.whole && presentation.buildingSurface?.geometry.drawRange.count > 0) capture('whole', command)
-        if (command && !command.whole && command.submissions.some(face => face.flight > 0) &&
-            presentation.buildingSurface?.geometry.drawRange.count > 0) capture('flight', command)
-        if (building?.giftId === giftId && !building.active && world.unlockedCamp) capture('terminal', command)
+          command = world.worshipAcquisition.controllers.drawCommands.find(c => c.kind === 'building' && c.giftId === giftId),
+          currentGpu = gpuState(), created = !priorGpu.surface && !!currentGpu.surface,
+          sameSurface = priorGpu.surface === currentGpu.surface,
+          sameRenderer = priorGpu.renderer === currentGpu.renderer, sameCanvas = priorGpu.canvas === currentGpu.canvas,
+          fresh = !priorGpu.failed && !!currentGpu.surface && !!currentGpu.renderer && !!currentGpu.canvas && Number.isSafeInteger(currentGpu.frame) &&
+            (created ? currentGpu.frame > 0 : sameSurface && sameRenderer && sameCanvas && Number.isSafeInteger(priorGpu.frame) && currentGpu.frame === priorGpu.frame + 1),
+          gpuProof = { beforeFrame: priorGpu.frame, afterFrame: currentGpu.frame, created, sameSurface, sameRenderer, sameCanvas, fresh }
+        // Three WebGLRenderer.render increments info.render.frame; clear/reset do
+        // not. This drawer calls render once only for a nonempty current pass.
+        if (command && evidence.stages.handoff) capture('handoff', command, gpuProof)
+        if (command && !fresh) {
+          evidence.skippedGpuDraws++
+          if (evidence.skippedGpuSamples.length < 8) evidence.skippedGpuSamples.push({ turn: world.turn, whole: command.whole, gpu: gpuProof })
+        }
+        if (fresh && command?.whole && presentation.buildingSurface.geometry.drawRange.count > 0) capture('whole', command, gpuProof)
+        if (fresh && command && !command.whole && command.submissions.some(face => face.flight > 0) &&
+            presentation.buildingSurface.geometry.drawRange.count > 0) capture('flight', command, gpuProof)
+        if (building?.giftId === giftId && !building.active && world.unlockedCamp) capture('terminal', command, gpuProof)
         check(frozen() === before, 'RAF draw mutated saved acquisition/RNG state')
       })
       return result

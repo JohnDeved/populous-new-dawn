@@ -49,6 +49,42 @@ export function assertMission1ApproachPayload(approach, actorId) {
   return { actorId, orderId: recipient.orderId, pickedNative: expected, order: { ...recipient.order } }
 }
 
+// Keep actual failed Save boundaries and the latest committed read reviewable.
+export async function saveMission1BuildingCheckpoint({ page, button, signal, report, save, observeCheckpoint }, label, active = false) {
+  const entry = { label, boundary: null, saved: null, committed: null, cleanupErrors: [] }
+  report.checkpoints ??= []; report.checkpoints.push(entry)
+  let armed = false, failed = false, failure
+  try {
+    await button('Game settings')
+    await page.evaluate(installMission1VaultSaveWitness); armed = true
+    await button('Save checkpoint')
+  } catch (error) { failed = true; failure = error }
+  finally {
+    if (armed) try { entry.boundary = await page.evaluate(() => window.restoreVaultSaveWitness?.()) }
+    catch (error) { entry.cleanupErrors.push(String(error?.stack ?? error)); if (!failed) { failed = true; failure = error } }
+    try { save() } catch (error) { if (!failed) { failed = true; failure = error } }
+  }
+  if (failed) throw failure
+  assert.equal(entry.boundary?.error, null); assert.ok(entry.boundary.saved)
+  let matched
+  try {
+    matched = await waitForCheckpointReadback(async () => {
+      signal.throwIfAborted(); entry.saved = await page.evaluate(readMission1VaultCheckpoint)
+      return JSON.stringify(entry.saved) === JSON.stringify(entry.boundary.saved)
+    })
+  } catch (error) { failed = true; failure = error; entry.readFailure = String(error?.stack ?? error) }
+  finally { try { save() } catch (error) { if (!failed) { failed = true; failure = error } } }
+  if (failed) throw failure
+  assert.equal(matched, true, 'Committed Save must match its synchronous public click')
+  if (active) {
+    assert.equal(entry.saved.acquisition.controllers.building?.active, true, 'Missed naturally active Save boundary')
+    assert.equal(entry.saved.camp, false); assert.equal(entry.saved.buildingGifts.length, 1)
+  }
+  entry.committed = await observeCheckpoint(label); save()
+  await button('Close menu')
+  return entry.saved
+}
+
 export default async function mission1BuildingScreen({ page, openMission, output, signal, receipt, observeCheckpoint }) {
   assert.equal(receipt.profile?.mode, 'created', 'Changed product requires a fresh task profile')
   assert.equal(receipt.profile.checkpointAtStart, null, 'Fresh M1 entry must not adopt a historical checkpoint')
@@ -215,27 +251,8 @@ export default async function mission1BuildingScreen({ page, openMission, output
       window.mission1VaultCheckpointState(window.testSceneRef.current.world).glow?.f1)); attempt++) {
       await resume(); await wait(() => !!window.mission1VaultCheckpointState(window.testSceneRef.current.world).glow?.f1); await pause()
     }
-    const saveCurrent = async (label, active = false) => {
-      await button('Game settings')
-      await page.evaluate(installMission1VaultSaveWitness)
-      let boundary
-      try { await button('Save checkpoint') }
-      finally { boundary = await page.evaluate(() => window.restoreVaultSaveWitness?.()) }
-      assert.equal(boundary?.error, null); assert.ok(boundary.saved)
-      let saved
-      assert.equal(await waitForCheckpointReadback(async () => {
-        signal.throwIfAborted(); saved = await page.evaluate(readMission1VaultCheckpoint)
-        return JSON.stringify(saved) === JSON.stringify(boundary.saved)
-      }), true, 'Committed Save must match its synchronous public click')
-      if (active) {
-        assert.equal(saved.acquisition.controllers.building?.active, true, 'Missed naturally active Save boundary')
-        assert.equal(saved.camp, false); assert.equal(saved.buildingGifts.length, 1)
-      }
-      const committed = await observeCheckpoint(label)
-      report.checkpoints ??= []; report.checkpoints.push({ label, saved, committed }); save()
-      await button('Close menu')
-      return saved
-    }
+    const saveCurrent = (label, active = false) => saveMission1BuildingCheckpoint(
+      { page, button, signal, report, save, observeCheckpoint }, label, active)
     const loadCurrent = async (saved, startup = false) => {
       if (!startup) await button('Game settings')
       await page.evaluate(installMission1VaultCheckpointState)
@@ -308,7 +325,10 @@ export default async function mission1BuildingScreen({ page, openMission, output
   finally {
     if (installed) try { await retain('unfinished', true) }
     catch (error) { report.cleanupError = String(error?.stack ?? error); if (!failed) { primary = error; failed = true; report.status = 'failed' } }
-    await page.evaluate(() => { window.restoreVaultLoadWitness?.(); window.restoreVaultSaveWitness?.() }).catch(error => {
+    await page.evaluate(() => {
+      window.restoreVaultLoadWitness?.(); window.restoreVaultSaveWitness?.()
+      return window.m1BuildingScreenInstallation ?? null
+    }).then(installation => { report.lastObserverInstallation = installation }).catch(error => {
       report.checkpointCleanupError = String(error); if (!failed) { primary = error; failed = true; report.status = 'failed' }
     })
     try { save() } catch (error) { if (!failed) { primary = error; failed = true } }

@@ -7,10 +7,11 @@ import { fileURLToPath } from 'node:url'
 import { installMission1BuildingScreenWitness } from '../../scripts/local-render/mission1-building-screen-witness.mjs'
 import { installMission1VaultCheckpointState, installMission1VaultSaveWitness,
   installMission1VaultLoadWitness } from '../../scripts/local-render/mission1-vault-checkpoint.mjs'
-import scenario from '../../scripts/local-render/mission1-building-screen.mjs'
+import scenario, { saveMission1BuildingCheckpoint } from '../../scripts/local-render/mission1-building-screen.mjs'
+import componentSmoke, { drawMission1Component } from '../../scripts/local-render/mission1-building-drawer-smoke.mjs'
 import { parseOptions } from '../../scripts/local-render/harness.mjs'
 
-function fixture(t, { pixels = true, mutateDraw = false, initialBirth = null } = {}) {
+function fixture(t, { pixels = true, mutateDraw = false, initialBirth = null, skipGpu = false, skipHandoff = false, lazySurface = false, missedResume = false } = {}) {
   const rect = { x: 3, y: 260, width: 46, height: 52 }, geometry = {
     viewport: { x: 200, y: 0, width: 440, height: 480 }, origin: { x: 350, y: 180 },
     target: { x: 26, y: 286 }, targetRect: rect, targetHud: { x: 26, y: 286 }, hudScale: 1,
@@ -35,7 +36,8 @@ function fixture(t, { pixels = true, mutateDraw = false, initialBirth = null } =
     if (pixels) for (let i = 3; i < bytes.length; i += 4) bytes[i] = 255
   } }
   const token = {}, calls = []
-  const scene = { world, container: { parentElement: root, getBoundingClientRect: () => geometry.viewport },
+  const mainCanvas = {}
+  const scene = { world, renderer: { domElement: mainCanvas }, container: { parentElement: root, getBoundingClientRect: () => geometry.viewport },
     fxMeshes: new Map(), gameClock: { animationFrame: 1 }, worshipPresentation: null }
   const start = () => {
     buildingsSelected = true
@@ -46,12 +48,14 @@ function fixture(t, { pixels = true, mutateDraw = false, initialBirth = null } =
   const originalBefore = function (value) { assert.equal(this, scene.gameClock); assert.equal(value, token); calls.push('before'); return 11 }
   const originalAfter = function (value) {
     assert.equal(this, scene.gameClock); assert.equal(value, token); calls.push('after')
-    if (world.gifts[0]?.phase === 0 && !world.worshipAcquisition.controllers.building) start()
+    if (!skipHandoff && world.gifts[0]?.phase === 0 && !world.worshipAcquisition.controllers.building) start()
     return 12
   }
   scene.gameClock.beforeTurn = originalBefore; scene.gameClock.afterTurn = originalAfter
+  const surface = { geometry: { drawRange: { count: 3 } },
+    renderer: { domElement: canvas, getContext: () => gl, info: { render: { frame: 0 } } } }
   const presentation = scene.worshipPresentation = { canvas, anchors: new Map([[54, { point: geometry.origin, viewport: geometry.viewport, valid: true }]]),
-    buildingSurface: { geometry: { drawRange: { count: 3 } }, renderer: { domElement: canvas, getContext: () => gl } },
+    buildingSurface: lazySurface ? undefined : surface,
     visit(value) {
       assert.equal(this, presentation); assert.equal(value, token); calls.push('ui')
       const b = world.worshipAcquisition.controllers.building
@@ -66,11 +70,15 @@ function fixture(t, { pixels = true, mutateDraw = false, initialBirth = null } =
     draw(value) {
       assert.equal(this, presentation); assert.equal(value, token); calls.push('draw')
       if (scene.fxMeshes.has(54)) scene.fxMeshes.get(54).visible = !!world.gifts[0]?.phase
+      if (!skipGpu && world.worshipAcquisition.controllers.drawCommands.some(command => command.kind === 'building')) {
+        this.buildingSurface ??= surface
+        this.buildingSurface.renderer.info.render.frame++
+      }
       if (mutateDraw) world.cosmeticRandom.randomState++
       return 14
     },
   }
-  const originalUi = presentation.visit, originalDraw = presentation.draw
+  const originalClock = scene.gameClock, originalUi = presentation.visit, originalDraw = presentation.draw
   globalThis.window = { testSceneRef: { current: scene }, testStore: { getWorld: () => world } }
   const birth = () => {
     world.shrines[0].active = false
@@ -91,12 +99,13 @@ function fixture(t, { pixels = true, mutateDraw = false, initialBirth = null } =
   if (initialBirth) {
     birth(); world.turn = initialBirth.turn + 6; world.gifts[0].phase = 0; world.gifts[0].remaining = 76; start()
   }
+  if (missedResume) { world.gifts = []; world.unlockedCamp = true; world.worshipAcquisition.controllers.building.active = false }
   installMission1BuildingScreenWitness({ shamanId: 30, birth: initialBirth })
   const api = window.m1BuildingScreen
-  t.after(() => { if (window.m1BuildingScreen) api.close(); delete globalThis.window })
+  t.after(() => { if (globalThis.window?.m1BuildingScreen === api) api.close(); delete globalThis.window })
   const close = () => {
     const result = api.close()
-    assert.equal(scene.gameClock.beforeTurn, originalBefore); assert.equal(scene.gameClock.afterTurn, originalAfter)
+    assert.equal(originalClock.beforeTurn, originalBefore); assert.equal(originalClock.afterTurn, originalAfter)
     assert.equal(presentation.visit, originalUi); assert.equal(presentation.draw, originalDraw)
     return result
   }
@@ -132,15 +141,85 @@ test('first actual PNG is retained before empty-GPU validation fails', t => {
   f.turn(f.birth); for (let i = 0; i < 6; i++) f.giftVisit()
   f.ui(true); f.draw()
   const evidence = f.close()
-  assert.equal(evidence.frames.handoff.buildingPng, 'data:image/png;base64,AAAA')
+  assert.equal(evidence.frames.whole.buildingPng, 'data:image/png;base64,AAAA')
   assert.ok(evidence.errors.some(error => error.includes('GPU frame is empty')))
   assert.equal(evidence.restored, true)
+})
+
+test('an empty first handoff remains diagnostic without a first-frame visibility requirement', t => {
+  const f = fixture(t, { pixels: false })
+  f.turn(f.birth); for (let i = 0; i < 6; i++) f.giftVisit()
+  f.ui(false); f.draw()
+  const evidence = f.close()
+  assert.equal(evidence.frames.handoff.opaquePixels, 0)
+  assert.deepEqual(evidence.errors, [])
+  assert.equal(evidence.frames.whole, undefined); assert.equal(evidence.frames.flight, undefined)
+})
+
+test('skipped layout cannot label the previous nonempty surface as current whole/flight pixels', t => {
+  const f = fixture(t, { skipGpu: true })
+  f.scene.worshipPresentation.buildingSurface.renderer.info.render.frame = 10
+  f.turn(f.birth); for (let i = 0; i < 6; i++) f.giftVisit()
+  f.ui(true); f.draw(); f.ui(false, 0.2); f.draw()
+  const evidence = f.close()
+  assert.equal(evidence.frames.whole, undefined); assert.equal(evidence.frames.flight, undefined)
+  assert.equal(evidence.frames.handoff.buildingPng, undefined)
+  assert.equal(evidence.skippedGpuDraws, 2)
+  assert.equal(evidence.skippedGpuSamples[0].gpu.beforeFrame, 10)
+  assert.equal(evidence.skippedGpuSamples[0].gpu.afterFrame, 10)
+  assert.equal(evidence.skippedGpuSamples[0].gpu.fresh, false)
+})
+
+test('the first lazily created surface requires a positive actual render counter', t => {
+  const f = fixture(t, { lazySurface: true })
+  f.turn(f.birth); for (let i = 0; i < 6; i++) f.giftVisit()
+  f.ui(true); f.draw()
+  const evidence = f.close()
+  assert.equal(evidence.frames.whole.gpu.created, true)
+  assert.equal(evidence.frames.whole.gpu.beforeFrame, null)
+  assert.equal(evidence.frames.whole.gpu.afterFrame, 1)
+  assert.equal(evidence.frames.whole.gpu.fresh, true)
+})
+
+test('the sixth object visit fails immediately when synchronous handoff did not create a controller', t => {
+  const f = fixture(t, { skipHandoff: true })
+  f.turn(f.birth); for (let i = 0; i < 6; i++) f.giftVisit()
+  const evidence = f.close()
+  assert.ok(evidence.errors.some(error => error.includes('Sixth visit did not create')))
+  assert.equal(evidence.handoffs, 0)
+})
+
+test('equal World data cannot conceal changed Scene, clock, presenter or main canvas ownership', t => {
+  for (const change of [
+    f => { window.testSceneRef.current = { ...f.scene } },
+    f => { f.scene.gameClock = { ...f.scene.gameClock } },
+    f => { f.scene.worshipPresentation = { ...f.scene.worshipPresentation } },
+    f => { f.scene.renderer.domElement = {} },
+  ]) {
+    const f = fixture(t); change(f)
+    // Invoke the retained real presenter; source ownership checks must still reject.
+    f.draw()
+    const evidence = f.close()
+    assert.ok(evidence.errors.some(error => /identity changed|ownership changed/.test(error)))
+  }
 })
 
 test('draw mutation is reported without masking the original result or preventing restoration', t => {
   const f = fixture(t, { mutateDraw: true }); f.draw()
   const evidence = f.close()
   assert.ok(evidence.errors.some(error => error.includes('RAF draw mutated')))
+  assert.equal(evidence.restored, true)
+})
+
+test('a failed GPU diagnostic pre-read cannot suppress the original draw', t => {
+  const f = fixture(t)
+  Object.defineProperty(f.scene.worshipPresentation.buildingSurface.renderer, 'info', {
+    get() { throw Error('supplied GPU diagnostic failed') },
+  })
+  f.draw()
+  const evidence = f.close()
+  assert.equal(f.calls.filter(call => call === 'draw').length, 1)
+  assert.ok(evidence.errors.some(error => error.includes('GPU diagnostic failed')))
   assert.equal(evidence.restored, true)
 })
 
@@ -151,6 +230,34 @@ test('resumed observation uses retained actual birth evidence without reinitiali
   const evidence = f.close()
   assert.equal(f.world.worshipAcquisition.controllers.building, original)
   assert.equal(evidence.handoffs, 0); assert.equal(evidence.grants, 1); assert.deepEqual(evidence.errors, [])
+})
+
+test('a missed resumed boundary retains actual state and fails before installing callbacks', t => {
+  t.after(() => delete globalThis.window)
+  assert.throws(() => fixture(t, { initialBirth: { turn: 11, gift: { id: 54 } }, missedResume: true }), /Missed resumed/)
+  assert.equal(window.m1BuildingScreen, undefined)
+  assert.equal(window.m1BuildingScreenInstallation.state.camp, true)
+  assert.equal(window.m1BuildingScreenInstallation.state.gift, undefined)
+  assert.equal(window.m1BuildingScreenInstallation.state.acquisition.controllers.building.active, false)
+})
+
+test('failed Save prerequisites persist their actual boundary and latest committed read', async () => {
+  const saved = { acquisition: { controllers: { building: { active: false } } }, camp: false, buildingGifts: [] }
+  for (const kind of ['capture', 'inactive', 'unequal']) {
+    const report = {}, persisted = [], boundary = { saved, error: kind === 'capture' ? 'capture failed' : null }
+    let reads = 0
+    const page = { async evaluate(fn) {
+      if (fn === installMission1VaultSaveWitness) return
+      if (fn.name === 'readMission1VaultCheckpoint') { reads++; return kind === 'unequal' ? { actual: 'older checkpoint' } : saved }
+      return boundary
+    } }
+    const signal = { throwIfAborted() { if (reads) throw Error('stop after the retained mismatch') } }
+    await assert.rejects(saveMission1BuildingCheckpoint({ page, button: async () => {}, signal, report,
+      save: () => persisted.push(structuredClone(report)), observeCheckpoint: async () => assert.fail('must not accept') }, 'active', true))
+    assert.deepEqual(persisted[0].checkpoints[0].boundary, boundary)
+    if (kind === 'capture') assert.equal(reads, 0)
+    else assert.deepEqual(persisted.at(-1).checkpoints[0].saved, kind === 'unequal' ? { actual: 'older checkpoint' } : saved)
+  }
 })
 
 test('Save/Load snapshot includes actual shared UI state at synchronous public boundaries', t => {
@@ -183,18 +290,60 @@ test('Save/Load snapshot includes actual shared UI state at synchronous public b
 
 test('named scenario, maintained argv and explicit imports resolve without launching a runtime', () => {
   assert.equal(typeof scenario, 'function')
+  assert.equal(typeof componentSmoke, 'function')
   const root = fileURLToPath(new URL('../../', import.meta.url))
   const scenarioPath = resolve(root, 'scripts/local-render/mission1-building-screen.mjs')
   const options = parseOptions(['--game-root', root, '--scenario', scenarioPath, '--mission', '1', '--timeout', '1200000',
     '--profile', resolve(root, 'work/local-render-profiles/m1-building-screen-review-only'),
     '--output', resolve(root, 'work/orchestration/m1-building-screen-review-only'), '--port', '4188', '--browser', '/unassigned-review-only'])
   assert.equal(options.scenario, scenarioPath); assert.equal(options.mission, 1)
-  for (const file of ['mission1-building-screen.mjs', 'mission1-building-screen-witness.mjs', 'mission1-vault-checkpoint.mjs']) {
+  for (const file of ['mission1-building-screen.mjs', 'mission1-building-screen-witness.mjs', 'mission1-vault-checkpoint.mjs', 'mission1-building-drawer-smoke.mjs']) {
     const source = readFileSync(resolve(root, 'scripts/local-render', file), 'utf8')
     for (const [, relative] of source.matchAll(/from '([^']+)'/g)) {
       if (relative.startsWith('node:')) continue
       assert.ok(existsSync(resolve(root, 'scripts/local-render', relative)), relative)
     }
     assert.doesNotMatch(source, /cancelAnimationFrame|requestAnimationFrame\s*=|\.tick\(|\.animate\(|\.render\(|indexedDB.*readwrite/)
+  }
+})
+
+test('component smoke uses one production-interface draw and disposes its detached owner even after failure', async t => {
+  t.after(() => delete globalThis.window)
+  for (const fails of [false, true]) {
+    const calls = [], atlas = { image: { complete: true, naturalWidth: 2048 }, version: 1, minFilter: 2, magFilter: 3 }
+    const canvas = { toDataURL: () => 'data:image/png;base64,AAAA' }
+    const gl = { RGBA: 1, UNSIGNED_BYTE: 2, NO_ERROR: 0, VERSION: 3, getError: () => 0,
+      getParameter: () => 'WebGL 2.0 supplied fixture',
+      readPixels(_x, _y, width, _height, _format, _type, bytes) {
+        for (const pixel of [0, width - 1]) { bytes[pixel * 4] = 255; bytes[pixel * 4 + 3] = 255 }
+      } }
+    class Surface {
+      constructor(source) { assert.equal(source, atlas); calls.push('create'); this.renderer = { info: { render: { frame: 0 } }, getContext: () => gl } }
+      draw(triangles, width, height, ratio) {
+        calls.push('draw'); assert.equal(triangles.length, 2); assert.deepEqual([width, height, ratio], [640, 480, 1])
+        if (fails) throw Error('supplied draw failure')
+        this.renderer.info.render.frame++; return canvas
+      }
+      dispose() { calls.push('dispose') }
+    }
+    const modules = {
+      '/app/building-acquisition-drawer.ts': { BuildingAcquisitionTriangleSurface: Surface },
+      '/app/building-acquisition-triangles.ts': { collectBuildingAcquisitionTriangles(command) {
+        assert.deepEqual(command.submissions.map(face => face.face), [0, 2]); return [{ mode: 6 }, { mode: 7 }]
+      } },
+      '/app/scene-assets.ts': { texture(name) { assert.equal(name, 'atlas'); return atlas } },
+    }
+    globalThis.window = { testSceneRef: { current: { world: { outcome: { level: 1 }, paused: true,
+      turn: 1, mode: null, shots: { blast: 4 }, unlockedCamp: false, randomState: 1, cosmeticRandom: { randomState: 2 } } } } }
+    const invoke = Function('imports', `return (${drawMission1Component.toString().replaceAll('import(', 'imports(')})`)(async path => modules[path])
+    const result = await invoke()
+    assert.deepEqual(calls, ['create', 'draw', 'dispose']); assert.equal(result.disposed, true)
+    assert.equal(result.sharedAtlasUnchanged, true); assert.equal(result.failed, fails)
+    if (fails) assert.match(result.failure, /supplied draw failure/)
+    else {
+      assert.equal(result.afterFrame, 1); assert.equal(result.png, 'data:image/png;base64,AAAA')
+      assert.deepEqual(result.opaque, [1, 1]); assert.deepEqual(result.colored, [1, 1])
+      assert.equal(result.worldUnchanged, true)
+    }
   }
 })
