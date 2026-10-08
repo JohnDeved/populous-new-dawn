@@ -1,0 +1,142 @@
+{
+  "status": "partial-evidence-run-failed",
+  "productCommit": "8348cad7ff47fd597bfbf84caa09135b24f339dd",
+  "qaCommit": "11e9b4ea2be8a5ee7de4479e35a12d8d13af81af",
+  "qaTree": "ae65124fdf7111aa50335efe9076381572059f95",
+  "applicationFingerprint": "528967c09831599315a3f97ba8defe4e4bbfcc3344f4a0cb7add9cbcf1ec4f2f",
+  "checkerFingerprint": "c3859bc51d33fe7b290f3cf3a90e0b757d0ce2d28a6fa804f500065abe9ffd04",
+  "receiptSha256": "cc8f07c2231a094cb9ac3f42fbb482229fd4df078266be7df269bc72e9c07620",
+  "scenarioSha256": "c68e650ec2c91072f0d84f0d5ce7fd711405ea34373986f4480964de9af6cc03",
+  "images": {
+    "camp-marker-before-save.png": {
+      "sha256": "411c064d9bbbc36d227fef1eb7288390bf06ad3abb2ab4f7ae3fb968a21bc095",
+      "bytes": 1626686
+    },
+    "camp-marker-after-load.png": {
+      "sha256": "8ac32b8fc3df43caf2638bb774c688a07fc0e034d1e39aef3245a665bce1466e",
+      "bytes": 1709891
+    }
+  },
+  "observedMarkers": {
+    "camp-marker-before-save": {
+      "turn": 946,
+      "body": 1077,
+      "family": "hfx",
+      "visible": true,
+      "glow": {
+        "visible": true,
+        "frame": 1419,
+        "position": [
+          0,
+          -0.625,
+          0
+        ]
+      }
+    },
+    "camp-marker-after-load": {
+      "turn": 984,
+      "body": 1077,
+      "family": "hfx",
+      "visible": true,
+      "glow": {
+        "visible": true,
+        "frame": 1425,
+        "position": [
+          0,
+          -0.625,
+          0
+        ]
+      }
+    }
+  },
+  "checkpoint": {
+    "savedTurn": 946,
+    "nativeCursor": {
+      "object": 1417,
+      "draw": 43,
+      "morph": 1,
+      "palette": 0,
+      "renderFlags": 260,
+      "f1": 12,
+      "f2": 0,
+      "stamp": 0,
+      "flags3": 1024,
+      "morphTimer": 0,
+      "morphFrames": 0,
+      "displayedFrame": 2
+    },
+    "committedAndSynchronousLoadedSnapshotsEqual": true,
+    "identity": {
+      "version": 1,
+      "level": 1,
+      "turn": 946,
+      "time": 78.83333333333333,
+      "checkpointSha256": "d737edcff40882186b99f996a7243df01659bf02f3504eedff36f15398391f33",
+      "actorsSha256": "8a142c897265e89d0e46afa365c3b35ff574e31dfc4c2182b9680caf2215bc7a",
+      "terrainSha256": "ad22b7bc4c2af4d8348d33ec6b8508a272211df0059e959ea622413050b8af31",
+      "stockSha256": "fd37aa2220cfb25ee1919b591c99ca427ca6fb97f329902edecfcc2643f6a4c2"
+    },
+    "bridgeCount": 1,
+    "originalShaman": [
+      {
+        "id": 30,
+        "hp": 100,
+        "x": -4.28515625,
+        "z": 3.11328125
+      }
+    ],
+    "scope": "Same browser context; actual reload and public Load Game; no cross-process persistence claim",
+    "equalityScope": "Save/Load equality covers the bounded recorded Mission 1 snapshot, including the glow cursor, Bridge/land state and original Shaman. The full checkpoint digest identifies committed storage only; no full loaded-World digest comparison was performed."
+  },
+  "failure": {
+    "message": "The actual command must reach a selected recipient",
+    "stage": "Immediate command33 recipient assertion after public Load",
+    "deliveredEntry": {
+      "turn": 1008,
+      "selected": [
+        30
+      ],
+      "lastOrderTurn": 1008,
+      "ack": {
+        "target": 2,
+        "until": 14730.533333328864
+      },
+      "worldMatches": true,
+      "units": [
+        {
+          "id": 30,
+          "kind": "shaman",
+          "hp": 100,
+          "inside": null,
+          "work": 2,
+          "vaultTask": {
+            "head": 2,
+            "phase": 0,
+            "entering": true,
+            "remaining": 0
+          },
+          "orderId": 14,
+          "order": {
+            "model": 33,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 2,
+            "b": 0
+          }
+        }
+      ]
+    }
+  },
+  "incomplete": [
+    "Gift birth first body/glow render",
+    "Six-visit hide",
+    "82-visit unlock",
+    "Home-island Warrior Training Hut construction"
+  ],
+  "limits": [
+    "The run is failed and does not establish complete gameplay acceptance.",
+    "Images show different later rendered views/cursor frames; no before/after pixel equality claim.",
+    "Only these two rendered PNGs and bounded metadata are included; no profile, checkpoint payload or original archive bytes."
+  ]
+}
