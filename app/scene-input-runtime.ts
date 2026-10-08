@@ -745,8 +745,7 @@ export function updatePointerFrame(scene: GameScene, now: number) {
         blastPersonTargeting(scene.world.mode, scene.world.manaWorld.gameFlags),
       personId =
         directBlast && scene.pointerScreen ? scene.picking.pickPerson(scene.pointerScreen) : null,
-      person =
-        personId === null ? null : blastPersonPosition(scene.world, personId, nativePosition)
+      person = personId === null ? null : blastPersonPosition(scene.world, personId, nativePosition)
     scene.pointer = null
     if (scene.pointerScreen && scene.world.mode)
       scene.pointer = person ? browserPosition(person) : scene.pick(scene.pointerScreen)
