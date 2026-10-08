@@ -1,0 +1,27 @@
+{
+  "base": "1086322e4444f6cc3fd8b043063df63cf689699e",
+  "baseTree": "066efeda2110d711ebbfa5a19ec63e1ddcd15c81",
+  "appTree": "5ea5dcf66a767e233ca86609eb04015af744bfb0",
+  "deliveredMain": "3a1f845242c6e257aba6b50627703560443e6f98",
+  "deliveredMainTree": "066efeda2110d711ebbfa5a19ec63e1ddcd15c81",
+  "mainCorrespondence": "Coordinator verified remote main whole-tree equality. Merge object not fetched or reconstructed.",
+  "historicalRoute": {
+    "commit": "b45073eb75f8e2c8aa66ef809e76eaf621a68fc0",
+    "path": "qa/campaign-continuity/scenario.mjs",
+    "lines": "634-649 plus public input prerequisites",
+    "scope": "Historical feasibility only; no profile or application reuse."
+  },
+  "helpers": [
+    {
+      "path": "scripts/local-render/mission1-vault-input.mjs",
+      "commit": "e504f73f698bb852c4091fe004e5a043e583772e",
+      "sha256": "bbb7869e1f5ac97c744a434a91269dc867bb5edea71323c058bc4722631b6da3"
+    },
+    {
+      "path": "scripts/local-render/mission1-vault-arrival.mjs",
+      "commit": "e504f73f698bb852c4091fe004e5a043e583772e",
+      "sha256": "4ef7d2f1acf079f1d49ae87a9ba3bc2cff09f88cfa6b5b1e176e5fac4faaab99"
+    }
+  ],
+  "launchEnabled": false
+}
