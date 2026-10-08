@@ -439,10 +439,11 @@ stop helper. Any file there stops further input and is retained; a normal stop i
   report, remaining acceptance and errors. `receipt.json` remains authoritative
   for source drift, browser errors, cancellation and cleanup.
 - `startup.json`, `ground-dispatch.json`, `setup-trace.json`, `target-setup.json`: selection readiness, actual movement dispatch, bounded failure diagnostics and natural response motion.
-- `hover/ack/projectile/impact.png`: actual canvas captured immediately after the
+- `hover/projectile/impact.png`: actual canvas captured immediately after the
   game's own render, when the corresponding phase and submitted visible mesh or
-  SVG are observed. `hover/ack.svg` and `*-brackets.png` preserve the actual SVG
-  geometry/computed stroke and its detached rasterization. `terminal.png` is a
+  SVG are observed. `hover.svg`/`hover-brackets.png` and `ack.svg`/`ack-brackets.png` preserve the
+  actual SVG geometry/computed stroke and its detached rasterization; ack has no
+  full-game canvas PNG. `terminal.png` is a
   full-page screenshot taken after completion.
 - Projectile is captured at its first qualifying render in an observed
   flying or arrived turn, retaining the exact phase/shot/visual IDs. An
