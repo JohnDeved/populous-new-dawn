@@ -85,8 +85,8 @@
     "observerRestored": true
   },
   "pending": [
-    "Restored tail per-visit/grant timeline",
-    "Public Restart observed against its actual synchronous pre-click owner",
+    "Restored remaining gift/grant/terminal timeline after a fresh public Load of the unchanged saved1300 checkpoint",
+    "Real enabled camp-card selection after that restored tail",
     "Final ordinary acceptance and merge readiness"
   ],
   "standards": {
@@ -140,6 +140,26 @@
       "width": 1440,
       "height": 1000,
       "transformation": "none; exact PNG bytes retained"
+    },
+    {
+      "file": "beforeRestart-resize-before-overlay.png",
+      "kind": "isolated-transparent-overlay",
+      "caption": "Continuation02 natural draw at 1440\u00d71000, before active-building Restart. Not a full browser screenshot.",
+      "bytes": 122598,
+      "sha256": "f18205ff8a37e4fca83eebdadc6658bc5bf5a93da5b6021f759bd617d9d10881",
+      "width": 1440,
+      "height": 1000,
+      "transformation": "none; exact PNG bytes retained"
+    },
+    {
+      "file": "beforeRestart-resize-after-overlay.png",
+      "kind": "isolated-transparent-overlay",
+      "caption": "Continuation02 natural draw at 1280\u00d7960, before active-building Restart. Not a full browser screenshot.",
+      "bytes": 114021,
+      "sha256": "0a91836930dcdc3c79e87699225e5187424d67c9177860e674cc5eb27869d493",
+      "width": 1280,
+      "height": 960,
+      "transformation": "none; exact PNG bytes retained"
     }
   ],
   "rawReferences": [
@@ -162,6 +182,39 @@
       "file": "m1-building-standard-01/aggregate.json",
       "sha256": "7990026341704599c3ff9624f4664a16e3d7b328d5b54ee87d77eec5fa9cf1e8",
       "included": false
+    },
+    {
+      "file": "m1-building-continuation-5b691bc-02/mission1-building-continuation.json",
+      "sha256": "3a758d0a60d4f019c846eb0e322f29e2b661daee45cf42f47e45fcbb9aa70166",
+      "included": false
+    },
+    {
+      "file": "m1-building-continuation-5b691bc-02/receipt.json",
+      "sha256": "45f7d71842b4dbd045b029b6381aee7e7c7c111ba08db274340d736789906e35",
+      "included": false
+    },
+    {
+      "file": "m1-building-continuation-5b691bc-02.outer.json",
+      "sha256": "0409dfff3cb515c76f0bc41730881a4d81dd750db1b39c89c1f511daca02f349",
+      "included": false
+    },
+    {
+      "role": "tail01 report",
+      "sha256": "a702eefa8716911b1cafe4ad1e4bb98369422211bb5808924bc943d3e34b5da6",
+      "source": "retained tail01 review identity; raw input not included",
+      "included": false
+    },
+    {
+      "role": "tail01 inner receipt",
+      "sha256": "50ffac1c7ce0071c92ff96208ea4e796d4df1da882261726f97ce2e0c0af70da",
+      "source": "retained tail01 review identity; raw input not included",
+      "included": false
+    },
+    {
+      "role": "tail01 outer receipt",
+      "sha256": "2acc4d451a0522ab37ae5e9aca483cae1f1aa26d586418d7565efb35f55b9c2d",
+      "source": "retained tail01 review identity; raw input not included",
+      "included": false
     }
   ],
   "reviewReferences": [
@@ -179,6 +232,16 @@
       "file": "review-bundles/blast-preparation-c62ea28-review-20261008/issue23-m1-ordinary01-partial-review.md",
       "sha256": "38ea98057bfa16fa7a007687ef9f126d43dc8270831eb76be0d642ccab32ce24",
       "availability": "retained locally; not included in this package"
+    },
+    {
+      "file": "review-bundles/blast-preparation-c62ea28-review-20261008/issue23-m1-tail01-sentinel-review.md",
+      "sha256": "cd4b1e29a697a8447b68bb0f24e9fe1c6a26bb5b65f8384f40516fa1fe2bf912",
+      "availability": "retained locally; not included in this package"
+    },
+    {
+      "file": "review-bundles/blast-preparation-c62ea28-review-20261008/issue23-m1-continuation02-partial-review.md",
+      "sha256": "77fcd27ac662a3b09317b639d92323d3fab24c2bd09b2e8daf09f275e64eede4",
+      "availability": "retained locally; not included in this package"
     }
   ],
   "limits": [
@@ -188,5 +251,128 @@
     "No original GPU pixel identity, complete audio parity, hardware-performance, campaign-completion or parity-percentage claim.",
     "Later phase cues 0xce/0xcd and original stop-audio behavior remain outside the start-cue correction.",
     "No raw report/archive/profile/storage or original binaries are included."
-  ]
+  ],
+  "history": [
+    {
+      "name": "ordinary01",
+      "status": "failed",
+      "finishedAt": "2026-10-08T19:13:48.387Z",
+      "preservedCommit": "2d94a6b3a02d227da008e6d1dad002da3a831b9f",
+      "failure": "Delayed active assertion after synchronous Save/Load equality; original accepted partial facts remain unchanged."
+    },
+    {
+      "name": "tail01",
+      "status": "failed",
+      "finishedAt": "2026-10-08T19:35:24.962Z",
+      "qaCommitPrefix": "149a95f",
+      "failure": "Loaded tagged gift.duration was +Infinity; prior JSON report held null. This was a lossy historical comparison, not established product checkpoint loss.",
+      "accepted": "Successful one-shot start attachment and restoration only; Restart and remaining grant proof were not reached."
+    }
+  ],
+  "continuation02": {
+    "qaCommit": "5b691bce5cac322a1f66a402305a20653a6f8421",
+    "status": "failed",
+    "startedAt": "2026-10-08T19:51:36.503Z",
+    "finishedAt": "2026-10-08T19:53:11.591Z",
+    "failure": "Later post-Restart locked-card locator timed out; no second Load occurred.",
+    "causeLimit": "InputMask and exact click-capture outcome were not retained. Source-consistent HUD input suppression is conditional, not an established runtime defect.",
+    "accepted": {
+      "load": "Exact current committed saved1300 snapshot matched, with an explicit source-backed +Infinity sentinel; observer attached before first natural RAF.",
+      "samples": [
+        {
+          "viewport": [
+            1440,
+            1000
+          ],
+          "freshDraws": 16,
+          "rendererFrames": [
+            27,
+            42
+          ],
+          "hudScale": 2,
+          "mappedEndpoint": [
+            52,
+            586
+          ],
+          "callbackSpanMilliseconds": 1434.8
+        },
+        {
+          "viewport": [
+            1280,
+            960
+          ],
+          "freshDraws": 16,
+          "rendererFrames": [
+            45,
+            60
+          ],
+          "hudScale": 1.92,
+          "mappedEndpoint": [
+            49.91999982833862,
+            562.5600146484375
+          ],
+          "callbackSpanMilliseconds": 1381.4
+        }
+      ],
+      "verticesPerDraw": 525,
+      "trianglesPerDraw": 175,
+      "mappingMatchesActualFloat32Buffers": true,
+      "logicalGeometryUnchanged": true,
+      "perDrawStateAndRngPurity": true,
+      "ownedResourcesReused": [
+        "surface",
+        "renderer",
+        "canvas",
+        "geometry",
+        "material",
+        "atlas",
+        "scene",
+        "camera",
+        "mesh",
+        "attributes",
+        "arrays",
+        "buffers"
+      ],
+      "fourAttributeArrayBytes": 14700,
+      "workloadLimit": "Attribute bytes exclude textures/framebuffers/total GPU memory. Callback spans include observation overhead and are not CPU timing, hardware throughput or a benchmark threshold.",
+      "observedCounts": {
+        "worldVisits": 20,
+        "uiVisits": 181,
+        "draws": 83,
+        "units": "World visits, logical UI visits and draw callbacks are distinct."
+      },
+      "restart": {
+        "trustedPreClick": {
+          "worldTurn": 1320,
+          "giftId": 3541,
+          "giftRemaining": 12,
+          "paused": true,
+          "campUnlocked": false,
+          "buildingActive": true,
+          "buildingPhase": 4,
+          "phaseVisits": 35,
+          "companionActive": false,
+          "pulseActive": false
+        },
+        "synchronousReplacement": {
+          "worldTurn": 0,
+          "campUnlocked": false,
+          "authoredVaultActive": true,
+          "building": null,
+          "companion": null,
+          "pulse": null,
+          "requests": [],
+          "taggedGifts": []
+        },
+        "scope": "Interrupted the active building controller and cleared retained shared owners; companion/pulse were already inactive, so their active interruption is not claimed.",
+        "committedSaveUnchanged": true
+      },
+      "newHandoffs": 0,
+      "grantsBeforeRestart": 0,
+      "browserErrors": 0,
+      "ownedCleanupVerified": true,
+      "observerRestored": true,
+      "logicalGeometryScope": "Frozen handoff geometry; paused UI-owned feedback is not assumed frozen."
+    }
+  }
 }
