@@ -1213,6 +1213,8 @@ function workflowPath(path) {
     'tests/workflow-policy.test.mjs',
     'scripts/parity-measure.mjs',
     'scripts/parity-owned-checkpoint.mjs',
+    'scripts/parity-owned-blast.mjs',
+    'tests/parity-owned-blast.test.mjs',
     'tests/parity-owned-checkpoint.test.mjs',
     'tests/parity-measure.test.mjs',
   ].some(rule => pathMatches(path, rule))

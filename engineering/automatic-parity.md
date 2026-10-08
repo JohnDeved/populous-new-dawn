@@ -108,3 +108,38 @@ Newer failed/incomplete recognized attempts take precedence over older passes. T
 adapter never runs the harness and introduces no new browser/native permission.
 `tests/parity-owned-checkpoint.test.mjs` exercises substitution/drift/failure
 boundaries and verifies that this observation cannot inflate the denominator.
+
+## Ordinary Blast observations
+
+Two additional evidence-only rows read the existing owned person and controls
+harness receipts and their `episode.json` / `controls.json` sidecars. They add no
+requirements, browser cases, or paired-parity credit. Discovery requires the actual
+selected Blast scenario; an unrelated scenario hashing that file as a helper is
+excluded. Person runs explicitly marked `POPULOUS_BLAST_EXPECTATION=baseline` are
+excluded from candidate selection. Newer recognized failed, malformed, interrupted,
+or unsupported-checker attempts suppress older passes.
+
+The adapter shares the Mission 2 raw outer/inner source, stream and terminal-result
+checks. It additionally binds the selected scenario, runtime, fresh owned profile,
+sidecar source/run/result and bounded observations. The reviewed QA checker bytes
+are pinned to `c40026937f39dadf86143ef13f73dba22d2e4a9c` for person observations and
+`2e51cf0a024369221c534d0a72c1fcef7e0065ff` for controls. These QA scripts are not on
+product main: their Git objects are read and compared, never executed or imported.
+Unavailable or changed checker objects produce unknown evidence. Recognizing those
+historical checkers does not establish source equivalence: only an identical full
+clean tested tree can be current, including tooling changes.
+
+The retained person observation finished at `2026-10-08T08:46:36.687Z`: real release
+340, public movement 343 during windup, arrival 349 and impact 350, for a friendly
+Blue Brave. The controls observation finished at `2026-10-08T09:03:54.841Z`: six
+stages passed, active shot 1266 saved and loaded at turn 397, resumed at 421. Both
+are historical/stale on current main. Save/Load equality is the bounded recorded
+projection; the recorded full digest is not an independent full-World recomputation.
+No original-game execution, native paired parity, enemy-target coverage, matched
+full-frame comparison or hardware performance is inferred. Published scope reports:
+[person](https://github.com/JohnDeved/populous-new-dawn/blob/2a33f94cd0661947bb1348b1e1efd48400c8ae91/qa/blast-ordinary/evidence/stage1/README.md),
+[controls](https://github.com/JohnDeved/populous-new-dawn/blob/b126625489a4e2a402afe2c6a699607b421b7af2/qa/blast-ordinary/evidence/controls02-result.md).
+
+`tests/parity-owned-blast.test.mjs` covers these binding and accounting boundaries
+using synthetic receipts. Projection reads local evidence only; it does not launch
+browser/native work, copy dependencies, manipulate profiles, or change parity flags.
