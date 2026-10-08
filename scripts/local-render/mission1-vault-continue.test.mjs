@@ -80,3 +80,32 @@ test('continuation digest failure stops before any public Load or mission action
     assert.equal(f.calls.includes('public-Load-Game'), false)
   } finally { rmSync(output, { recursive: true, force: true }) }
 })
+
+for (const kind of ['snapshot mismatch', 'load error']) test(`public Load ${kind} persists its captured boundary before assertion failure`, async () => {
+  const f = fixture(), output = mkdtempSync(join(tmpdir(), 'mission1-continue-contract-'))
+  const boundary = { loaded: structuredClone(f.saved), error: null }
+  if (kind === 'snapshot mismatch') boundary.loaded.glow.f1++
+  else { boundary.loaded = null; boundary.error = 'controlled Load observer error' }
+  const evaluate = f.page.evaluate.bind(f.page)
+  let retainedBeforeFinalSave
+  f.page.evaluate = async fn => {
+    if (fn.toString().includes('loaded: window.vaultLoadedBoundary')) return structuredClone(boundary)
+    if (!fn.name && fn.toString().includes('restoreVaultLoadWitness')) {
+      retainedBeforeFinalSave = JSON.parse(readFileSync(join(output, 'mission1-vault-knowledge.json'), 'utf8')).checkpoint
+    }
+    return evaluate(fn)
+  }
+  try {
+    await assert.rejects(() => scenario({ page: f.page, output, continueSaved946: true,
+      openMission() { assert.fail('Proven prefix must not replay') }, signal: new AbortController().signal,
+      receipt: { source: { commit: 'controlled-fixture' }, profile: f.profile, errors: [] } }), { code: 'ERR_ASSERTION' })
+    assert.equal(f.calls.filter(c => c === 'public-Load-Game').length, 1)
+    assert.deepEqual(retainedBeforeFinalSave?.saved, f.saved)
+    assert.deepEqual(retainedBeforeFinalSave.loadedBeforeResume, boundary.loaded)
+    assert.equal(retainedBeforeFinalSave.loadError, boundary.error)
+    assert.equal(typeof retainedBeforeFinalSave.scope, 'string')
+    const report = JSON.parse(readFileSync(join(output, 'mission1-vault-knowledge.json'), 'utf8'))
+    assert.equal(report.status, 'failed')
+    assert.deepEqual(report.checkpoint, retainedBeforeFinalSave)
+  } finally { rmSync(output, { recursive: true, force: true }) }
+})
