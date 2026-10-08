@@ -384,11 +384,13 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
       return castInput(hit, cast)
     } else return dispatch(hit, command, expectedIds)
   }
-  const fixedGround = (target, spell = null, cellMove = false) => page.evaluate(async ({ target, spell, actorId, cellMove }) => {
+  const fixedGround = (target, spell = null, cellMove = false, groundRadius = 0.35) => page.evaluate(async ({ target, spell, actorId, cellMove, groundRadius }) => {
     const [{ createMoveContextProbe, entityInputState }, { spellTargetError }, { spellRange }, { nativePosition }, { positionDistance }] = await Promise.all([
       import('/qa/erosion-ordinary/input.mjs'), import('/app/live-command.ts'), import('/app/spell-casting.ts'),
       import('/app/world-terrain-runtime.ts'), import('/app/native-math.ts')])
     const scene = window.testSceneRef.current, world = scene.world, rect = scene.renderer.domElement.getBoundingClientRect()
+    if (groundRadius !== 0.35 && (groundRadius !== 2 || spell || cellMove || world.outcome.level !== 3 || target.x !== 35 || target.z !== 81))
+      throw Error('Only the explicit M3 home-area move may widen ground eligibility')
     const projected = scene.screen(target), center = { x: rect.left + (projected.x + 1) * rect.width / 2,
       y: rect.top + (1 - projected.y) * rect.height / 2 }, candidates = []
     const snap = point => ({ x: Math.floor(point.x / 2) * 2 + 1, z: -Math.floor(-point.z / 2) * 2 - 1 })
@@ -431,7 +433,7 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
       const snapped = snap(point), pointCell = nativeCell(point)
       if (spell ? snapped.x !== wanted.x || snapped.z !== wanted.z : cellMove
         ? pointCell.x !== wantedCell.x || pointCell.y !== wantedCell.y
-        : Math.hypot(point.x - target.x, point.z - target.z) > 0.35) {
+        : Math.hypot(point.x - target.x, point.z - target.z) > groundRadius) {
         reject(spell || cellMove ? 'wrongCell' : 'aimPrecision', hit, point); continue
       }
       const context = spell ? null : probe(point)
@@ -452,7 +454,7 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
       ? 'No owned rendered point in the required native cell meets the shipped predicate and range margin'
       : 'No owned empty ground pick meets the requested movement target and enabled command3 context',
       caster, minimumMargin, rejected, rejectionCounts, nearestRejectedPoint, diagnostics: entityInputState(scene, null, center) }
-  }, { target, spell, actorId: originalShamanId, cellMove })
+  }, { target, spell, actorId: originalShamanId, cellMove, groundRadius })
   const farBankGround = async (target, maxProbes = 3) => {
     assert.ok(Number.isInteger(maxProbes) && maxProbes >= 1 && maxProbes <= 3)
     let hit
@@ -484,12 +486,13 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
     }
     return hit
   }
-  const moveGround = async (target, cellMove = false) => {
+  const moveGround = async (target, cellMove = false, groundRadius = 0.35) => {
+    assert.ok(!cellMove || groundRadius === 0.35, 'Native-cell moves retain their exact original eligibility')
     let succeeded = false
     try {
       for (let remaining = 3; remaining > 0;) {
         await prepareDispatch() // All known imports and readiness precede target search.
-        const hit = cellMove ? await farBankGround(target, remaining) : await fixedGround(target)
+        const hit = cellMove ? await farBankGround(target, remaining) : await fixedGround(target, null, false, groundRadius)
         remaining -= hit.probeAttempts ?? 1
         assert.equal(hit.rejection, null, JSON.stringify(hit))
         try {

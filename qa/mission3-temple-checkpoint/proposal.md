@@ -15,7 +15,14 @@ selection, Ctrl-select five Braves, prepare camera/site at(24,70), select
 `buildings B` then `Temple, 8 wood`, click the legal site, await completion.
 The old implementation's radius12 site search remains bounded; integer pixels
 are chosen before all current ownership/pick/placement checks. Home movement
-uses the maintained native-cell movement target and native arrival witness.
+uses the maintained ground search with an explicit radius2 opt-in around(35,81),
+then the unchanged native arrival witness for the actual acknowledged order.
+M3 construction never requires the Shaman in that exact native cell. The public
+placement caller gates knowledge/site/Braves, while the historical home route
+accepts legal nearby ground. Radius2 changes only target eligibility: canvas
+ownership, empty ground, enabled command3, fresh dispatch, exact Shaman recipient,
+identity/health and native order completion still apply. Original0.35 and same-cell
+helper callers retain their exact existing predicates; spells cannot opt in.
 
 The historical Temple1021 at turn3091 is feasibility only, on a different app
 and an overall failed campaign run. No old checkpoint/profile is reused. Current
@@ -24,13 +31,16 @@ unique Temple Vault, transformed to(-37,-133) from authored record104(-38,-132).
 The scenario resolves actual IDs from the current World, not authored coordinates.
 No Swarm, Bridge, prior construction, training or additional reward is required.
 
-`mission1-vault-input.mjs` and `mission1-vault-arrival.mjs` are unchanged bytes
-from reviewed e504f73f (also byte-identical in a409893c). Their historical names
-are retained to avoid another input framework. The input contract already handles
+`mission1-vault-arrival.mjs` remains unchanged from reviewed e504f73f (also
+byte-identical in a409893c). The input helper has only the explicit M3 radius2
+adaptation over those reviewed bytes; correspondence records original/current
+hashes. Their historical names remain to avoid another framework. The input contract handles
 the actual command33 phase0 queue/native owner and command3 movement. Current
-portable composition reaches one complete object95 Temple1021 at turn2446 using
-the real five-Brave selection caller and an intervening pre-input turn. Direct model turns/synthetic DOM in that
-test are explicitly not browser evidence.
+portable composition reaches one complete object95 Temple1021 at turn2424 after
+native arrival in a neighboring home-area cell, the real five-Brave selection
+caller and an intervening pre-input turn. Direct model turns/synthetic DOM in that
+test are explicitly not browser evidence. The focused search regression rejects
+out-of-area/occupied ground, cell/spell misuse, other destinations and other missions.
 
 ## Maintained browser and evidence contract
 
@@ -90,14 +100,24 @@ launch permission is inferred from this proposal; `launchEnabled` remains false.
 ## Checks and remaining gates
 
 Cheap contracts cover current native readiness, full earned-Vault/home/five-Brave
-model route, unchanged shared input helpers, actual construction recipient
+model route, opt-in/default shared-input contracts, actual construction recipient
 observation, stale-selection rejection, trusted Save/committed summary/full typed
 digest composition, readonly transaction completion and failed-click preservation.
 They use synthetic DOM/inputs where noted. Existing readiness, readback and owned
 profile regression suites supply ownership, typed-array, Map/Set, cleanup and
 source-drift negatives. Source formatting/lint and orchestration validation apply.
 
-The plan lists these new QA paths as unmapped, conservatively selecting the
-standard repository check. `npm run check` and `npm run build` remain not-run
-pending the coordinator's serialized stationary-lane grant. A genuine browser
-checkpoint and independent review remain required before claiming readiness.
+The plan lists these new QA paths as unmapped and conservatively selects the
+standard repository check. Independent changed-consumer review accepts carry of
+unchanged product typecheck/build/parity and261 test files from original501's
+aggregate bed6a801cf5c608591b936e7dbea8ed9e7106901668dec783f1262d60a8a6b71
+(1540 original passes), plus the unchanged262nd zoom-test file's separate9-contract
+proof and accepted ordinary zoom result. These keep their historical source and
+timing; no fresh1540/1549/full aggregate is claimed. Previously failed strict
+product lint remains failed with accepted inherited attribution.
+
+Current QA contracts, formatting/ESLint, scoped Oxlint under the stationary config,
+and context-filtered orchestration tests close affected integration only. The new
+QA tests are outside package.json's top-level test glob and run explicitly.
+No full unchanged check/build replay is required. Fresh browser route, screenshot,
+typed Save, terminal cleanup and exact final profile digest remain mandatory.

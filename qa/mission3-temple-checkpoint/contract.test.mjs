@@ -11,11 +11,17 @@ import { currentPersonOrder, personReachedOrder } from '../../app/person-orders.
 import { nativeUnitModel } from '../../app/unit-kinds.ts'
 import { samePersonCell } from '../../app/person-idle.ts'
 import { selectFollowers } from '../../app/selection-runtime.ts'
-import { buildingStage } from '../../app/world-terrain-runtime.ts'
+import { buildingStage, nativePosition } from '../../app/world-terrain-runtime.ts'
+import { spellTargetError } from '../../app/live-command.ts'
+import { spellRange } from '../../app/spell-casting.ts'
+import { positionDistance } from '../../app/native-math.ts'
 import { campaignShamanReadiness } from '../../scripts/campaign-start-readiness.mjs'
 import rules from '../../app/original-rules.json' with { type: 'json' }
 import { finishLevelStart } from '../../tests/level-start-fixture.mjs'
-import { isQueuedMission1VaultEntry } from '../../scripts/local-render/mission1-vault-input.mjs'
+import {
+  createMission1VaultInput,
+  isQueuedMission1VaultEntry,
+} from '../../scripts/local-render/mission1-vault-input.mjs'
 import { installMission1MoveWitness } from '../../scripts/local-render/mission1-vault-arrival.mjs'
 import {
   installTempleRouteObservation,
@@ -35,7 +41,10 @@ const modules = {
   '/app/original-rules.json': { default: rules },
   '/app/unit-kinds.ts': { nativeUnitModel },
   '/app/person-idle.ts': { samePersonCell },
-  '/app/world-terrain-runtime.ts': { buildingStage },
+  '/app/world-terrain-runtime.ts': { buildingStage, nativePosition },
+  '/app/live-command.ts': { spellTargetError },
+  '/app/spell-casting.ts': { spellRange },
+  '/app/native-math.ts': { positionDistance },
   '/scripts/campaign-start-readiness.mjs': { campaignShamanReadiness },
   '/app/model.ts': { placementError },
   '/qa/erosion-ordinary/input.mjs': pointer,
@@ -126,7 +135,9 @@ test('current M3 earned-Vault, native-arrival and five-Brave construction compos
   until(() => world.unlockedTemple)
   assert.equal(vault.uses, 1)
   select(world, 'shaman')
-  const point = { x: 35, z: 81 }
+  // Same native arrival proof for a legal home-area point in the neighboring
+  // cell, rather than requiring the original requested home's exact cell.
+  const point = { x: 36.25, z: 81 }
   assert.equal(command(world, point), true)
   const current = actor.native
   await evaluate(installMission1MoveWitness, {
@@ -241,6 +252,53 @@ test('current M3 earned-Vault, native-arrival and five-Brave construction compos
   t.diagnostic(
     `Synthetic fixed-turn endpoint: turn ${world.turn}, Temple ${temple.id}, no casts/bridges/training`
   )
+})
+
+test('M3 radius2 is opt-in while default precision, native-cell and spell rules stay exact', async t => {
+  const { world, actor, scene } = fixture(t)
+  const canvas = scene.renderer.domElement,
+    home = { x: 35, z: 81 }
+  canvas.getBoundingClientRect = () => ({ left: 0, top: 0, width: 1440, height: 1000 })
+  document.elementFromPoint = () => canvas
+  let point = { x: 35.8, z: 81 },
+    blocked = false
+  Object.assign(scene, {
+    screen: () => ({ x: 0, y: 0 }),
+    pick: () => point,
+    pickUnit: () => (blocked ? actor : null),
+    pickWorldObject: () => null,
+    picking: { pickPerson: () => null },
+  })
+  const input = createMission1VaultInput({
+    page: { evaluate },
+    signal: new AbortController().signal,
+    report: { actions: [] },
+    save() {},
+    originalShamanId: actor.id,
+  })
+  // Same-cell point outside default 0.35: old cell moves still accept it.
+  assert.notEqual((await input.fixedGround(home)).rejection, null)
+  assert.equal((await input.fixedGround(home, null, true)).rejection, null)
+  point = { x: 36.25, z: 81 }
+  assert.notEqual((await input.fixedGround(home)).rejection, null)
+  assert.notEqual((await input.fixedGround(home, null, true)).rejection, null)
+  const accepted = await input.fixedGround(home, null, false, 2)
+  assert.equal(accepted.rejection, null)
+  assert.deepEqual(accepted.point, point)
+  assert.notDeepEqual(accepted.pointCell, accepted.wantedCell)
+  point = { x: 37.01, z: 81 }
+  assert.notEqual((await input.fixedGround(home, null, false, 2)).rejection, null)
+  point = { x: 36.25, z: 81 }
+  blocked = true
+  assert.notEqual((await input.fixedGround(home, null, false, 2)).rejection, null)
+  blocked = false
+  await assert.rejects(input.fixedGround(home, null, true, 2), /explicit M3 home-area/)
+  await assert.rejects(input.fixedGround(home, 'bridge', false, 2), /explicit M3 home-area/)
+  await assert.rejects(input.fixedGround({ x: 34, z: 81 }, null, false, 2), /explicit M3 home-area/)
+  await assert.rejects(input.moveGround(home, true, 2), /Native-cell moves/)
+  world.outcome.level = 1 // Explicit invalid synthetic caller, not a browser write.
+  await assert.rejects(input.fixedGround(home, null, false, 2), /explicit M3 home-area/)
+  assert.equal((await input.fixedGround(home, null, true)).cellMove, true)
 })
 
 function checkpointFixture(t, { clickFailure = false, malformed = false } = {}) {
@@ -389,7 +447,7 @@ test('committed summary read waits for transaction completion and preserves type
   assert.equal(f.closed(), 1)
 })
 
-test('reused maintained helpers retain the reviewed e504 bytes and public controls still exist', () => {
+test('maintained helper provenance pins the current bytes and public controls still exist', () => {
   const read = path => readFileSync(new URL('../../' + path, import.meta.url))
   const pins = JSON.parse(read('qa/mission3-temple-checkpoint/source-correspondence.json'))
   for (const { path, sha256 } of pins.helpers)
