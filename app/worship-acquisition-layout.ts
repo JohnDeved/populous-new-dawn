@@ -1,3 +1,4 @@
+import type { BuildingAcquisitionDrawCommand } from './building-acquisition.ts'
 import type {
   WorshipAcquisitionGeometry,
   WorshipPoint,
@@ -99,13 +100,45 @@ export function buildingDrawPoint(
   point: WorshipPoint,
   reference: WorshipAcquisitionGeometry,
   current: WorshipHudGeometry,
-  flight: number
+  flight: number,
+  anchor: WorshipPoint = midpoint(reference.viewport)
 ) {
-  const mapped = mapViewport(point, reference.viewport, current.viewport),
-    oldTarget = mapViewport(reference.target, reference.viewport, current.viewport),
-    target = worshipTargetPoint(current)
+  // Resize moves the trajectory anchor while HUD scale alone sizes the model.
+  // Scaling every vertex by viewport width/height would stretch its proportions.
+  const center = mapViewport(anchor, reference.viewport, current.viewport),
+    target = worshipTargetPoint(current),
+    oldTarget = {
+      x: center.x + (reference.target.x - anchor.x) * current.hudScale,
+      y: center.y + (reference.target.y - anchor.y) * current.hudScale,
+    }
   return {
-    x: mapped.x + flight * (target.x - oldTarget.x),
-    y: mapped.y + flight * (target.y - oldTarget.y),
+    x: center.x + (point.x - anchor.x) * current.hudScale + flight * (target.x - oldTarget.x),
+    y: center.y + (point.y - anchor.y) * current.hudScale + flight * (target.y - oldTarget.y),
   }
+}
+
+/** Original corner indices are stable even when the drawer reverses winding.
+ * A new gift cannot interpolate from the prior singleton's fragments. */
+export function interpolateBuildingSubmissions(
+  command: BuildingAcquisitionDrawCommand,
+  previous: BuildingAcquisitionDrawCommand | undefined,
+  fraction: number
+) {
+  if (previous?.giftId !== command.giftId || previous.geometry !== command.geometry)
+    return command.submissions
+  const alpha = Math.max(0, Math.min(1, fraction))
+  return command.submissions.map(submission => {
+    const before = previous.submissions[submission.face]
+    if (!before || before.face !== submission.face) return submission
+    return {
+      ...submission,
+      flight: before.flight + (submission.flight - before.flight) * alpha,
+      projected: submission.projected.map((point, corner) =>
+        point.map(
+          (value, axis) =>
+            before.projected[corner][axis] + (value - before.projected[corner][axis]) * alpha
+        )
+      ),
+    }
+  })
 }

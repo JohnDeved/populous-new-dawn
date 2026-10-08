@@ -496,6 +496,7 @@ export function stepWorshipAcquisition(
     if (result.pulse) startPulse(state, binding, result.pulse)
     state.drawCommands.push({
       kind: 'building',
+      anchor: { x: building.x, y: building.y },
       ...binding,
       whole: result.whole,
       selected: result.selected,

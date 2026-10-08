@@ -43,6 +43,7 @@ export interface BuildingFaceProjection {
 }
 export interface BuildingAcquisitionDrawCommand {
   kind: 'building'
+  anchor: { x: number; y: number }
   family: 'building'
   giftId: number
   model: 7

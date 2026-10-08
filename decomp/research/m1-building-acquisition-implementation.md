@@ -48,10 +48,18 @@ on CPU 4. Its JSON records every changed source/input SHA and the exact command.
 
 ## Remaining gates
 
-The first checkpoint establishes state/caller/HUD ownership. The bounded modes 6/7
-triangle collector/drawer and its actual scene composition are still being
-integrated. Required subsequent gates are independent source review, scoped
-format/lint/type quality, standard check/build, the fresh ordinary M1 public
+The combined source includes the modes 6/7 collector/drawer and scene composition.
+It interpolates original face corners before winding/UV reversal, preserving gift
+identity. Resize remaps trajectory anchors while HUD scale alone sizes geometry;
+this deliberate desktop compatibility behavior preserves model proportions.
+Source outcode rejection uses the current shell after mapping; full GPU clipping
+uses that same shell. CPU face feedback remains in frozen logical coordinates.
+The drawer owns one pooled mesh/material and texture wrapper, reuses the atlas
+image, and is disposed with the existing overlay. Source clamps differ: whole
+shade is 1..63, per-face shade is 0..63 (004738d4..004738e3).
+
+Required subsequent gates are independent source review, combined stationary
+format/lint/type/Three checks, standard check/build, the fresh ordinary M1 public
 Bridge/guard/Vault route and interrupted/resized/save/restart observations, plus
 a bounded acquisition workload check. Component fixtures do not replace that
 ordinary route. No browser, original execution, GPU identity or parity percentage

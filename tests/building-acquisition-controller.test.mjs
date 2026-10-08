@@ -55,3 +55,33 @@ test('building replacement, pure draw and restore keep distinct owners without r
     assert.deepEqual({ state, rng }, restored)
   }
 })
+
+test('face draw interpolation and resize preserve source state and replacement identity', async () => {
+  const { interpolateBuildingSubmissions, buildingDrawPoint } = await import('../app/worship-acquisition-layout.ts')
+  const { collectBuildingAcquisitionTriangles } = await import('../app/building-acquisition-triangles.ts')
+  const state = createWorshipAcquisitionState(), rng = { randomState: 1 }
+  startBuildingAcquisition(state, { giftId: 900, geometry: geometry() }, () => random(rng))
+  for (let ui = 0; ui < 95; ui++) stepWorshipAcquisition(state, { paused: false, random: () => random(rng) })
+  const previous = state.drawCommands.find(command => command.kind === 'building')
+  stepWorshipAcquisition(state, { paused: false, random: () => random(rng) })
+  const current = state.drawCommands.find(command => command.kind === 'building'), before = structuredClone({ state, rng, previous })
+  const resized = { viewport: { x: 150, y: 0, width: 1130, height: 960 }, targetRect: { x: 10, y: 522, width: 92, height: 104 }, targetHud: { x: 28, y: 287 }, hudScale: 2 }
+  for (const fraction of [0, .25, .5, 1]) {
+    const submissions = interpolateBuildingSubmissions(current, previous, fraction)
+    const triangles = collectBuildingAcquisitionTriangles({ whole: current.whole, submissions }, { width: 640, height: 480 })
+    for (const triangle of triangles)
+      for (const point of triangle.points) {
+        const mapped = buildingDrawPoint(point, current.geometry, resized, triangle.flight)
+        assert.ok(Number.isFinite(mapped.x + mapped.y))
+      }
+    assert.deepEqual({ state, rng, previous }, before)
+  }
+  assert.deepEqual(buildingDrawPoint(current.geometry.target, current.geometry, resized, 1), { x: 56, y: 574 })
+  const a = buildingDrawPoint({ x: 370, y: 240 }, current.geometry, resized, 0),
+    b = buildingDrawPoint({ x: 380, y: 250 }, current.geometry, resized, 0)
+  assert.deepEqual({ x: b.x - a.x, y: b.y - a.y }, { x: 20, y: 20 }, 'model proportions follow uniform HUD scale, not viewport aspect')
+  const replaced = { ...current, giftId: 901 }
+  assert.equal(interpolateBuildingSubmissions(replaced, previous, .5), replaced.submissions)
+  const first = interpolateBuildingSubmissions(current, previous, 0)
+  assert.deepEqual(first.map(face => face.projected), previous.submissions.map(face => face.projected))
+})
