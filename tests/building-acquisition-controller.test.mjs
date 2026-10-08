@@ -85,3 +85,20 @@ test('face draw interpolation and resize preserve source state and replacement i
   const first = interpolateBuildingSubmissions(current, previous, 0)
   assert.deepEqual(first.map(face => face.projected), previous.submissions.map(face => face.projected))
 })
+
+test('Buildings reselection belongs to unpaused phase4 entry, independent of the later handle check', () => {
+  for (const pauseEntry of [false, true]) {
+    const state = createWorshipAcquisitionState(), rng = { randomState: 1 }, events = []
+    startBuildingAcquisition(state, { giftId: 900, geometry: geometry() }, () => random(rng))
+    let pausedEntry = false
+    for (let ui = 1; ui <= 150; ui++) {
+      const c = state.building, paused = pauseEntry && c.phase === 3 && c.pending
+      if (paused) pausedEntry = true
+      const result = stepWorshipAcquisition(state, { paused, random: () => random(rng) })
+      if (result.buildingPanel) events.push([ui, c.phase, c.visits])
+    }
+    assert.deepEqual(events, pauseEntry ? [] : [[74, 4, 1]])
+    assert.equal(pausedEntry, pauseEntry)
+    assert.equal(state.building.active, false)
+  }
+})

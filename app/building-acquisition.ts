@@ -258,7 +258,8 @@ export function visitBuildingAcquisition(c: BuildingAcquisitionController | null
     whole = false,
     animateFaces = false,
     pulse = null,
-    arrivalAttempt = false
+    arrivalAttempt = false,
+    selectPanel = false
   if (c.pending) {
     c.pending = false
     c.visits = 0
@@ -299,6 +300,7 @@ export function visitBuildingAcquisition(c: BuildingAcquisitionController | null
       c.spin = short(c.spin - 8)
       whole = true
     } else if (c.phase === 4) {
+      if (first) selectPanel = true
       if (t < 12) whole = true
       else {
         if (t === 12)
@@ -350,5 +352,5 @@ export function visitBuildingAcquisition(c: BuildingAcquisitionController | null
         face.heading = (face.heading + face.countdown) & 2047
       })
   }
-  return { pulse, arrivalAttempt, ...buildingGeometryVisit(c, whole) }
+  return { pulse, arrivalAttempt, selectPanel, ...buildingGeometryVisit(c, whole) }
 }

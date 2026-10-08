@@ -4,6 +4,8 @@ import { createWorld, tick } from '../app/model.ts'
 import { createGift } from '../app/world-effects.ts'
 import { startPendingWorshipAcquisitions, visitWorshipAcquisition } from '../app/worship-acquisition-runtime.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
+import { missionData } from '../app/mission-data.ts'
+import { AUDIO_CUES, cueVariant } from '../app/audio.ts'
 
 const geometry = {
   viewport: { x: 100, y: 0, width: 540, height: 480 },
@@ -35,11 +37,11 @@ test('authored M1 Vault caller queues its camp gift on the sixth visit and start
   assert.equal(gift.ordinaryWorship, undefined)
   const calls = []
   startPendingWorshipAcquisitions(world, {
-    cue: () => calls.push('cue'),
+    cue: cue => calls.push(['cue', cue]),
     geometry: candidate => { calls.push(['geometry', candidate.id]); return geometry },
     failed: () => assert.fail('valid geometry'),
   })
-  assert.deepEqual(calls, ['cue', ['geometry', gift.id]])
+  assert.deepEqual(calls, [['cue', 0xcc], ['cue', 0xcb], ['geometry', gift.id]])
   assert.equal(world.worshipAcquisition.controllers.building.giftId, gift.id)
   assert.deepEqual(world.worshipAcquisition.controllers.building.geometry, geometry)
   assert.equal(world.worshipAcquisition.controllers.spell, null)
@@ -83,7 +85,7 @@ test('active world checkpoint resumes faces, bindings and RNG without a second h
   assert.deepEqual(restored.worshipAcquisition, JSON.parse(JSON.stringify(world.worshipAcquisition)))
   assert.deepEqual(restored.cosmeticRandom, world.cosmeticRandom)
   startPendingWorshipAcquisitions(restored, bridge)
-  assert.equal(cues, 1)
+  assert.equal(cues, 2)
   assert.equal(restored.gifts.find(candidate => candidate.id === gift.id).remaining, 76)
   for (let ui = 0; ui < 40; ui++) {
     world.paused = restored.paused = ui < 3
@@ -96,4 +98,32 @@ test('active world checkpoint resumes faces, bindings and RNG without a second h
   assert.equal(restarted.worshipAcquisition.controllers.building, null)
   assert.equal(restarted.worshipAcquisition.controllers.companion, null)
   assert.deepEqual(restarted.worshipAcquisition.requests, [])
+})
+
+
+test('creation rejects missing, redirected and duplicate authored reward links', { concurrency: false }, () => {
+  const world = createWorld(1), shrine = vault(world),
+    settings = missionData(1).level.objects.find(object => object.index === 1).settings,
+    saved = settings.slice(6, 10)
+  assert.deepEqual(saved, [3, 0, 0, 0], 'pinned source is record1 → record2 in slot0')
+  try {
+    for (const links of [[0, 0, 0, 0], [4, 0, 0, 0], [3, 0, 3, 0]]) {
+      settings.splice(6, 4, ...links)
+      const gift = createGift(world, 'camp', shrine)
+      assert.equal(gift.buildingAcquisition, undefined)
+      assert.equal(gift.ordinaryWorship, undefined)
+      assert.deepEqual([gift.phase, gift.remaining], [6, 82])
+    }
+  } finally {
+    settings.splice(6, 4, ...saved)
+  }
+  assert.equal(createGift(world, 'camp', shrine).buildingAcquisition.reward, 2)
+})
+
+
+test('building start cues use existing preloaded samples through the audio owner', () => {
+  for (const [cue, key] of [[0xcc, 'sound-439'], [0xcb, 'sound-436']]) {
+    assert.ok(AUDIO_CUES.includes(cue), 'Soundscape.enable must load the cue before playback')
+    assert.equal(cueVariant(cue, 1).key, key)
+  }
 })
