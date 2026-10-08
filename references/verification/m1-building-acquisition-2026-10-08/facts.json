@@ -1,0 +1,192 @@
+{
+  "kind": "derived partial evidence summary",
+  "purpose": "Review and reset durability for PR274; not merge readiness or a complete ordinary result.",
+  "pullRequest": "https://github.com/JohnDeved/populous-new-dawn/pull/274",
+  "productCommit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
+  "qaCommit": "b1e60f4da98b2015a365fb4dd6929a8e9bcdadaa",
+  "scope": {
+    "mission": 1,
+    "headRecord": 1,
+    "rewardRecord": 2,
+    "rewardSlot": 0,
+    "rewardClass": 2,
+    "buildingModel": 7,
+    "geometryModel": 103,
+    "supportedModes": [
+      6,
+      7
+    ]
+  },
+  "run": {
+    "name": "ordinary01",
+    "status": "failed",
+    "startedAt": "2026-10-08T19:10:22.792Z",
+    "finishedAt": "2026-10-08T19:13:48.387Z",
+    "failure": "Active ownership retired before restart could be observed",
+    "failureBoundary": "Delayed post-Load assertion at world turn 1334; does not negate synchronous active Save/Load equality at 1300.",
+    "browserErrors": 0,
+    "softwarePerformanceOnly": true
+  },
+  "acceptedPartial": {
+    "giftId": 3541,
+    "birthTurn": 1250,
+    "hideAndHandoffTurn": 1256,
+    "grantTurn": 1332,
+    "handoffs": 1,
+    "grants": 1,
+    "hideObjectVisitsAfterBirth": 6,
+    "grantObjectVisitsAfterBirth": 82,
+    "lockedHandoffCard": {
+      "rectangle": [
+        8,
+        534,
+        91,
+        106
+      ],
+      "hudScale": 2,
+      "logicalDestination": [
+        26,
+        293
+      ],
+      "inputModePreserved": true
+    },
+    "wholeFrame": {
+      "worldTurn": 1282,
+      "controllerPhase": 3,
+      "phaseVisits": 3,
+      "rendererFrameBefore": 12,
+      "rendererFrameAfter": 13,
+      "vertices": 279,
+      "opaquePixels": 64982
+    },
+    "flightFrame": {
+      "worldTurn": 1308,
+      "controllerPhase": 4,
+      "phaseVisits": 15,
+      "rendererFrameBefore": 106,
+      "rendererFrameAfter": 107,
+      "vertices": 525,
+      "flyingSubmissions": 4,
+      "opaquePixels": 67387
+    },
+    "enabledCardSelected": true,
+    "activeSaveLoad": {
+      "worldTurn": 1300,
+      "synchronousEquality": true,
+      "buildingActive": true,
+      "buildingPhase": 4,
+      "phaseVisits": 1,
+      "giftRemaining": 32,
+      "campUnlocked": false,
+      "paused": true,
+      "equalityScope": "Complete mission1VaultCheckpointState retained projection, including acquisition structure, cosmetic RNG and tagged gifts; not an independently recomputed whole-checkpoint digest."
+    },
+    "ownedCleanupVerified": true,
+    "observerRestored": true
+  },
+  "pending": [
+    "Restored tail per-visit/grant timeline",
+    "Public Restart observed against its actual synchronous pre-click owner",
+    "Final ordinary acceptance and merge readiness"
+  ],
+  "standards": {
+    "productCommit": "e6a607bc4617e3c18287b7fe2d82d5b7da17fdcc",
+    "sourceFocusedTests": 61,
+    "tests": 1539,
+    "testFiles": 261,
+    "typecheck": "passed",
+    "parityValidation": "passed",
+    "orchestrationValidation": "passed",
+    "productionBuild": "passed",
+    "strictLint": "failed; inherited diagnostics independently attributed to main9751"
+  },
+  "images": [
+    {
+      "file": "ordinary-whole-overlay.png",
+      "kind": "isolated-transparent-overlay",
+      "caption": "Natural whole-model frame at world turn 1282; not a full browser screenshot.",
+      "bytes": 211765,
+      "sha256": "8e47c6aeb26810e6ee9736b1c569c2778bf3a24022a2f8ca62dc4fa19bde1e82",
+      "width": 1440,
+      "height": 1000,
+      "transformation": "none; exact PNG bytes retained"
+    },
+    {
+      "file": "ordinary-flight-overlay.png",
+      "kind": "isolated-transparent-overlay",
+      "caption": "First source-labelled flight frame at world turn 1308; not a full browser screenshot.",
+      "bytes": 215212,
+      "sha256": "2ae609f6468856f26fe6d297a7bc5eeeb7cc77c293e6ac5771198d57ec57720e",
+      "width": 1440,
+      "height": 1000,
+      "transformation": "none; exact PNG bytes retained"
+    },
+    {
+      "file": "locked-camp-card.png",
+      "kind": "full-browser-screenshot",
+      "caption": "Pre-acquisition locked Warrior Training Hut card.",
+      "bytes": 1729353,
+      "sha256": "70f7e61303c800ec8a9a4b24a90ced7391b03196680fb1e6cd2e34b6964d3d6f",
+      "width": 1440,
+      "height": 1000,
+      "transformation": "none; exact PNG bytes retained"
+    },
+    {
+      "file": "camp-screen-complete.png",
+      "kind": "full-browser-screenshot",
+      "caption": "First-epoch unlocked camp card after the visit 82 grant; overall run still failed later.",
+      "bytes": 1682989,
+      "sha256": "678bc50c225a96f3983a2b7ef590d10c5a7446921baef71bb69b2719014193c7",
+      "width": 1440,
+      "height": 1000,
+      "transformation": "none; exact PNG bytes retained"
+    }
+  ],
+  "rawReferences": [
+    {
+      "file": "m1-building-screen-b1e60f4-01/mission1-building-screen.json",
+      "sha256": "be6126e9f035016d39262ea4d7a02c6f93a775f84801a073c13c43532cd712b6",
+      "included": false
+    },
+    {
+      "file": "m1-building-screen-b1e60f4-01/receipt.json",
+      "sha256": "425a83c54d56018a80964b60dfb029fba284e1b940861c372086ff519770ebec",
+      "included": false
+    },
+    {
+      "file": "m1-building-screen-b1e60f4-01.outer.json",
+      "sha256": "96cd1d3a630ac749958ea8568e7fefcae19dfc1e9d1ddf682f1d6653f93a9f86",
+      "included": false
+    },
+    {
+      "file": "m1-building-standard-01/aggregate.json",
+      "sha256": "7990026341704599c3ff9624f4664a16e3d7b328d5b54ee87d77eec5fa9cf1e8",
+      "included": false
+    }
+  ],
+  "reviewReferences": [
+    {
+      "file": "review-bundles/blast-preparation-c62ea28-review-20261008/issue23-m1-product-e6-review.md",
+      "sha256": "12376492de9a7d359826658afd7ae0c5d18247d340602dafb95a9ebfe33a2fd5",
+      "availability": "retained locally; not included in this package"
+    },
+    {
+      "file": "review-bundles/blast-preparation-c62ea28-review-20261008/issue23-m1-standard-result-review.md",
+      "sha256": "c4d28f1363b600f286ad58385f9e2bcce3dc4a9b61c5354b1e41cda670018514",
+      "availability": "retained locally; not included in this package"
+    },
+    {
+      "file": "review-bundles/blast-preparation-c62ea28-review-20261008/issue23-m1-ordinary01-partial-review.md",
+      "sha256": "38ea98057bfa16fa7a007687ef9f126d43dc8270831eb76be0d642ccab32ce24",
+      "availability": "retained locally; not included in this package"
+    }
+  ],
+  "limits": [
+    "This JSON is derived from retained receipts and independent review, not a raw receipt or attestation of an unpublished archive.",
+    "Overlay PNGs are actual isolated transparent overlay canvases; HUD PNGs are full browser screenshots. None is an original-game pixel reference.",
+    "M3 remains disabled pending the genuine shared ANIBL phase and scoped bank-p sprite/tint integration.",
+    "No original GPU pixel identity, complete audio parity, hardware-performance, campaign-completion or parity-percentage claim.",
+    "Later phase cues 0xce/0xcd and original stop-audio behavior remain outside the start-cue correction.",
+    "No raw report/archive/profile/storage or original binaries are included."
+  ]
+}
