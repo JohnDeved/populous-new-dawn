@@ -15,7 +15,14 @@ No canonical original binary bytes are included here.
   building payout effect. Legacy gifts are never retagged.
 - The existing object caller queues once at its sixth subsequent visit. The
   independent visit 82 grants knowledge. The shared cue/HUD bridge selects
-  Buildings synchronously and measures the disabled camp card.
+  Buildings synchronously and measures the disabled camp card. Building cues
+  0xcc then 0xcb precede that handoff (004819c6..004819fe); spell cue 0x71
+  stays separate. Existing sound-439/sound-436 samples join the bounded preload
+  list so these numeric events are audible through the existing audio owner.
+  The unpaused first phase-4 visit reselects Buildings
+  (00483d0b..00483d3d). Its later companion-handle check is not a panel event
+  and never shortens the building gift timer. Pausing that pending entry consumes
+  it without replaying selection on resume.
 - Building controller and CPU face feedback run on existing logical UI visits.
   Spell and building singletons remain separate; companion, pulse and cosmetic
   RNG are shared in pulse → companion → building → spell order. Rendering reads
@@ -68,3 +75,7 @@ claim is made by this checkpoint.
 Issue #23 remains open. M3 class-2 screen handoff is disabled pending its real
 shared ANIBL phase and scoped bank-p sprite/tint contract. Existing asset bytes,
 world renderer, picker and global clock are outside this slice.
+
+Later phase cues 0xce/0xcd and original stop-audio behavior are outside the accepted
+CPU reference and this start-cue correction. Complete original audio parity is
+not claimed.

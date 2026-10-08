@@ -43,7 +43,7 @@ export function worshipDeadline(clock: WorshipAcquisitionRuntime['clock'], preLi
 
 export interface WorshipHandoffBridge {
   geometry: (gift: Gift) => WorshipAcquisitionGeometry | null
-  cue: () => void
+  cue: (cue: number) => void
   failed: (gift: Gift) => void
 }
 
@@ -71,7 +71,10 @@ export function startPendingWorshipAcquisitions(world: World, bridge: WorshipHan
     )
   })
   for (const gift of gifts) {
-    bridge.cue()
+    if (gift.buildingAcquisition) {
+      bridge.cue(0xcc)
+      bridge.cue(0xcb)
+    } else bridge.cue(0x71)
     let geometry: WorshipAcquisitionGeometry | null = null
     try {
       geometry = bridge.geometry(gift)
@@ -110,7 +113,7 @@ export function visitWorshipAcquisition(
     paused,
     random: () => random(world.cosmeticRandom),
   })
-  if (result.buildingArrival) reselectPanel(7)
+  if (result.buildingPanel) reselectPanel(7)
   for (const arrival of result.arrivals) {
     // Native panel reopening precedes the arrival flag/handle/timer checks.
     reselectPanel(arrival.model)

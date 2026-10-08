@@ -39,6 +39,8 @@ export const AUDIO_CUES = [
   0x58,
   0x66,
   0x70,
+  0xcc, // M1 building acquisition start, then its gathering layer.
+  0xcb,
   0x76,
   0x77,
   0x80,

@@ -72,9 +72,7 @@ export class WorshipAcquisitionPresentation {
 
   handoffs() {
     startPendingWorshipAcquisitions(this.scene.world, {
-      cue: () => {
-        this.scene.onSound(0x71)
-      },
+      cue: cue => this.scene.onSound(cue),
       geometry: gift => {
         const current = this.bridge?.select(
           (gift.buildingAcquisition ?? gift.ordinaryWorship)!.model

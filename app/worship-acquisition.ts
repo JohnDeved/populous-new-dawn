@@ -503,12 +503,12 @@ export function stepWorshipAcquisition(
       submissions: result.submissions,
     })
   }
-  const buildingArrival = !!(result && 'arrivalAttempt' in result && result.arrivalAttempt)
+  const buildingPanel = !!(result && 'selectPanel' in result && result.selectPanel)
   const arrivals: WorshipAcquisitionArrival[] = []
   stepSpell(state, input.paused, arrivals)
   return {
     arrivals,
-    buildingArrival,
+    buildingPanel,
     limiterActive: !!(state.building?.active || state.spell?.active || state.companion?.active),
   }
 }
