@@ -142,6 +142,12 @@ export type Projectile = {
   remaining: number
   turns: number
   visuals: Effect[]
+  // Optional for legacy/ground casts. Parent spell and shot clear identity independently.
+  blastTarget?: {
+    personId: number | null
+    shotPersonId: number | null
+    destination: NativePoint
+  }
   fireball?: boolean
 }
 export type AngelState = {
