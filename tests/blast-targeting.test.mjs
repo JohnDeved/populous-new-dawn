@@ -62,7 +62,7 @@ test('Blast follows the same moving person in flight and updates the later impac
   assert.notEqual(wave.x, arrival.x, 'parent spell continues tracking through the impact visit')
 })
 
-test('loss in windup or flight retains the last destination and never acquires the nearby person', () => {
+test('deletion in windup or flight retains the last destination and never acquires the nearby person', () => {
   for (const phase of ['windup', 'flying']) {
     const { world, target, bystander } = scenario()
     assert.ok(cast(world, 'blast', target, target.id))
@@ -72,6 +72,7 @@ test('loss in windup or flight retains the last destination and never acquires t
     if (phase === 'flying') fire(world, shot)
     const last = { ...shot.blastTarget.destination }
     target.hp = 0
+    world.units = world.units.filter(unit => unit !== target)
     bystander.x = 3
     processProjectiles(world)
     assert.equal(shot.blastTarget.personId, null)
@@ -128,6 +129,36 @@ test('direct-person eligibility does not depend on allegiance and uses native ai
   target.flight.flags2 |= 1
   processProjectiles(world)
   assert.equal(shot.blastTarget.personId, null)
+})
+
+test('dead airborne and electrocution owners remain targetable until actual native invalidation', () => {
+  for (const kind of ['flight', 'electrocution']) {
+    const { world, target } = scenario()
+    const person = createLivePerson(world, target)
+    if (kind === 'flight') target.flight = person
+    else {
+      target.native = person
+      person.state = 44
+    }
+    assert.ok(cast(world, 'blast', target, target.id))
+    const shot = world.projectiles[0]
+    fire(world, shot)
+    target.hp = 0
+    person.life = 0
+    person.x += 256
+    person.h += 300
+    processProjectiles(world)
+    assert.equal(shot.blastTarget.personId, target.id, kind)
+    assert.equal(shot.blastTarget.shotPersonId, target.id, kind)
+    assert.deepEqual(shot.target, browserPosition(person))
+    assert.equal(shot.destination.h, person.h)
+    const last = { ...shot.destination }
+    person.class = 0
+    processProjectiles(world)
+    assert.equal(shot.blastTarget.personId, null)
+    assert.equal(shot.blastTarget.shotPersonId, null)
+    assert.deepEqual(shot.destination, last)
+  }
 })
 
 test('direct aim preserves payment/RNG and rejects out-of-range targets before payment', () => {

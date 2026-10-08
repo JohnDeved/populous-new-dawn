@@ -10,7 +10,8 @@ export const blastPersonTargeting = (mode: string | null, gameFlags: number) =>
 // Follow the captured person only. Allegiance, range and hover are not lifetime gates.
 export function blastPersonPosition(w: World, id: number): NativePoint | null {
   const unit = w.units.find(person => person.id === id)
-  if (!unit || unit.hp <= 0) return null
+  // Dead airborne/electrocuted people remain allocated until their owning controller retires them.
+  if (!unit) return null
   const owner =
     unit.flight ?? unit.fight?.motion ?? unit.native ?? unit.entry?.person ?? unit.builder?.person
   if (owner && (owner.class !== 1 || owner.flags2 & 1)) return null
