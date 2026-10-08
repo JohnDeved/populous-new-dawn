@@ -48,17 +48,26 @@ existing game listener. The observer does not invoke that game listener itself.
 
 Cleanup releases held keys through browser input, removes owned listeners, and
 restores the original renderer descriptor only while ownership still matches.
+The scenario captures the installed API as a browser handle in the installation
+call. Cleanup uses that handle, deletes the global alias only if it still points
+to that API, and retains a foreign replacement untouched. A changed alias is an
+explicit cleanup failure, while owned listeners and renderer are still released
+when their ownership allows it. The handle is disposed after receipt readback.
 Partial receipts and PNGs survive scenario failure or an ownership conflict.
 The harness retains the final browser/server cleanup responsibility.
 
 ## Cheap contracts and verification status
 
-`node --test tests/ordinary-zoom-witness.test.mjs` passed 8 tests. The composed
+`node --test tests/ordinary-zoom-witness.test.mjs` passed 9 tests. The composed
 fixture drives an ordinary-handler stand-in between passive capture/bubble
 listeners and existing-render stand-ins. It covers delivered chronology, a real
 observed fractional versus missed-endpoint reversal, no World/clock mutation,
 same-call PNG capture, callback receiver/return/throw, descriptor restoration,
 readback failure, partial installation, ownership conflicts, and row/time bounds.
+A caller-level scenario negative replaces the API global after delivered input,
+both with and without replacing the renderer: the foreign API is never invoked
+or deleted, own partial evidence survives, and cleanup restores owned resources
+or records the renderer ownership failure explicitly.
 These are contract tests, not browser delivery or visual evidence.
 
 Both new modules passed `node --check`; `git diff --check` passed.

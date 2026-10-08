@@ -1,7 +1,10 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { installOrdinaryZoomWitness } from '../scripts/local-render/ordinary-zoom-witness.mjs'
-import { assertOrdinaryZoomEvidence } from '../scripts/local-render/ordinary-zoom.mjs'
+import ordinaryZoom, { assertOrdinaryZoomEvidence } from '../scripts/local-render/ordinary-zoom.mjs'
 
 function fixture({
   own = false,
@@ -385,6 +388,113 @@ test('time and row caps stop observation while the original game continues drawi
       witness.close()
     } finally {
       f.restore()
+    }
+  }
+})
+
+test('scenario cleanup uses its captured API and preserves a foreign global replacement', async () => {
+  for (const replaceRenderer of [false, true]) {
+    const f = fixture(),
+      output = mkdtempSync(join(tmpdir(), 'ordinary-zoom-cleanup-')),
+      globals = Object.fromEntries(
+        ['innerWidth', 'innerHeight', 'devicePixelRatio'].map(name => [
+          name,
+          Object.getOwnPropertyDescriptor(globalThis, name),
+        ])
+      ),
+      failure = new Error('Delivered input interrupted')
+    let owned,
+      disposed = false,
+      foreignCalls = 0
+    const foreignMethod = () => {
+      foreignCalls++
+      throw new Error('Foreign API must not be invoked')
+    }
+    const foreign = { close: foreignMethod, read: foreignMethod, status: foreignMethod }
+    const foreignRender = () => foreign
+    globalThis.innerWidth = 1440
+    globalThis.innerHeight = 1000
+    globalThis.devicePixelRatio = 1
+    f.scene.cameraMotion = { active: false }
+    f.scene.resultCamera = { active: false }
+    f.renderer.getContext = () => ({
+      RENDERER: 1,
+      drawingBufferWidth: 1440,
+      drawingBufferHeight: 1000,
+      getExtension: () => null,
+      getParameter: () => 'fixture renderer',
+    })
+    const page = {
+      evaluate: async (fn, value) => fn(value),
+      evaluateHandle: async fn => {
+        owned = fn()
+        assert.equal(
+          owned,
+          window.ordinaryZoom,
+          'Handle captures the API returned by this installation'
+        )
+        return {
+          evaluate: async callback => callback(owned),
+          dispose: async () => {
+            disposed = true
+          },
+        }
+      },
+      waitForFunction: async (fn, value) => {
+        if (value === 'before') f.draw()
+        assert.equal(fn(value), true)
+      },
+      locator: () => ({ boundingBox: async () => ({ x: 0, y: 0, width: 1440, height: 1000 }) }),
+      mouse: { move: async () => {} },
+      keyboard: {
+        press: async key => {
+          f.press(key)
+          window.ordinaryZoom = foreign
+          if (replaceRenderer) f.renderer.render = foreignRender
+          throw failure
+        },
+        up: async key => f.dispatch(key, 'keyup'),
+      },
+    }
+    try {
+      await assert.rejects(
+        ordinaryZoom({
+          page,
+          openMission: async () => {},
+          output,
+          signal: new AbortController().signal,
+          receipt: { errors: [] },
+        }),
+        error => error === failure
+      )
+      const report = JSON.parse(readFileSync(join(output, 'ordinary-zoom.json'), 'utf8'))
+      assert.equal(report.status, 'failed')
+      assert.equal(report.observation.closed, true)
+      assert.match(report.observation.cleanupError, /API global ownership changed/)
+      if (replaceRenderer)
+        assert.match(report.observation.cleanupError, /Renderer observer ownership changed/)
+      assert.equal(window.ordinaryZoom, foreign, 'Foreign API remains installed')
+      assert.equal(foreignCalls, 0, 'Cleanup never calls the replacement API')
+      assert.equal(f.renderer.render, replaceRenderer ? foreignRender : f.original)
+      assert.equal(
+        f.listeners.length,
+        0,
+        'Original listeners are removed even after ownership changes'
+      )
+      assert.equal(disposed, true)
+      assert.equal(report.observation.frames['out-before'].png, 'out-before.png')
+      assert.ok(
+        readFileSync(join(output, 'out-before.png')).length > 0,
+        'Own partial frame is retained'
+      )
+      assert.equal(owned.read().closed, true)
+    } finally {
+      f.restore()
+      for (const [name, descriptor] of Object.entries(globals)) {
+        if (descriptor) Object.defineProperty(globalThis, name, descriptor)
+        else delete globalThis[name]
+      }
+      rmSync(output, { recursive: true, force: true })
     }
   }
 })

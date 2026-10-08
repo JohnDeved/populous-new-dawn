@@ -261,7 +261,7 @@ export function installOrdinaryZoomWitness() {
     }
     throw error
   }
-  window.ordinaryZoom = {
+  const api = {
     arm(name) {
       owner()
       budget()
@@ -309,4 +309,6 @@ export function installOrdinaryZoomWitness() {
       else delete renderer.render
     },
   }
+  window.ordinaryZoom = api
+  return api
 }

@@ -79,7 +79,7 @@ export default async function ordinaryZoom({ page, openMission, output, signal, 
     limits:
       'Sampled current-port visual evidence only. Readback perturbs scheduling. No pointer-picking proof, native raster/timing equivalence, hardware FPS or performance nonregression.',
   }
-  let installed = false,
+  let witnessHandle = null,
     failure
   const save = () =>
     writeFileSync(resolve(output, 'ordinary-zoom.json'), `${JSON.stringify(report, null, 2)}\n`)
@@ -148,8 +148,9 @@ export default async function ordinaryZoom({ page, openMission, output, signal, 
     const canvas = await page.locator('.world-viewport canvas[data-engine]').boundingBox()
     assert.ok(canvas)
     await page.mouse.move(canvas.x + canvas.width / 2, canvas.y + canvas.height / 2)
-    await page.evaluate(installOrdinaryZoomWitness)
-    installed = true
+    // Capture this installation's API in the same browser call. Cleanup must
+    // never discover its owner again through a replaceable global alias.
+    witnessHandle = await page.evaluateHandle(installOrdinaryZoomWitness)
     await arm('out')
     await key('-')
     await wait('done')
@@ -190,19 +191,21 @@ export default async function ordinaryZoom({ page, openMission, output, signal, 
           report.releaseFailure = String(error)
         }
       }
-    if (installed) {
+    if (witnessHandle) {
       try {
-        report.observation = await page.evaluate(() => {
-          const witness = window.ordinaryZoom
+        report.observation = await witnessHandle.evaluate(witness => {
           let cleanupError = null
           try {
             witness.close()
           } catch (error) {
             cleanupError = String(error.stack ?? error)
           }
-          const observation = { ...witness.read(), cleanupError }
-          delete window.ordinaryZoom
-          return observation
+          if (window.ordinaryZoom === witness) delete window.ordinaryZoom
+          else
+            cleanupError = [cleanupError, 'Observer API global ownership changed during cleanup']
+              .filter(Boolean)
+              .join('\n')
+          return { ...witness.read(), cleanupError }
         })
         for (const [name, frame] of Object.entries(report.observation.frames)) {
           const match = /^data:image\/png;base64,([A-Za-z0-9+/=]+)$/.exec(frame.png)
@@ -219,6 +222,14 @@ export default async function ordinaryZoom({ page, openMission, output, signal, 
         failure ??= error
         report.status = 'failed'
         report.captureFailure = String(error.stack ?? error)
+      } finally {
+        try {
+          await witnessHandle.dispose()
+        } catch (error) {
+          failure ??= error
+          report.status = 'failed'
+          report.handleCleanupFailure = String(error.stack ?? error)
+        }
       }
     }
     save()
