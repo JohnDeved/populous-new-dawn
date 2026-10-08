@@ -1,4 +1,5 @@
 import { createBlastEpisode } from './contract.mjs'
+import { captureRenderedCanvas } from './frame-capture.mjs'
 import { currentPersonOrder } from '../../app/person-orders.ts'
 import { observeEntityPointer } from '../erosion-ordinary/input.mjs'
 
@@ -63,19 +64,14 @@ export function observeBlastEpisode(scene, options) {
   wrap(scene.gameClock, 'afterTurn', () => { if (delivered) evidence.after(sample()) })
   const saveFrame = (kind, effectId) => {
     if (artifacts[kind]) return
-    const canvas = scene.renderer.domElement, gl = scene.renderer.getContext()
-    if (gl.isContextLost()) throw Error('Rendering context lost')
-    const bytes = new Uint8Array(gl.drawingBufferWidth * gl.drawingBufferHeight * 4)
-    gl.readPixels(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight, gl.RGBA, gl.UNSIGNED_BYTE, bytes)
-    let pixels = 0
-    for (let i = 3; i < bytes.length; i += 4) if (bytes[i]) pixels++
+    const { png, pixels } = captureRenderedCanvas(scene)
     const feedback = pointerFeedback(scene), frame = { turn: world.turn, kind, targetId: feedback.targetId, visible: true, lines: feedback.lines, pixels, effectId }
     const vector = scene.pointerOutline.cloneNode(true), rect = scene.container.getBoundingClientRect(), path = vector.querySelector('path')
     vector.setAttribute('width', String(rect.width)); vector.setAttribute('height', String(rect.height))
     vector.style.width = ''; vector.style.height = ''; vector.style.display = 'block'
     if (path) { const style = getComputedStyle(scene.pointerPath); path.style.stroke = style.stroke; path.style.fill = style.fill; path.style.strokeWidth = style.strokeWidth }
     const svg = new XMLSerializer().serializeToString(vector)
-    artifacts[kind] = { turn: world.turn, png: canvas.toDataURL('image/png'), svg,
+    artifacts[kind] = { turn: world.turn, png, svg,
       feedback, effectId, pixels, pixelScope: 'Nontransparent pixels in the actual post-render game canvas, not an isolated-effect pixel count. Review the PNG and submitted visible effect together.' }
     if (kind !== 'hover' && kind !== 'ack') { evidence.frame(frame); return }
     // Rasterize a detached snapshot of the actual SVG and its computed stroke.

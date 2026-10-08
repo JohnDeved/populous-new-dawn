@@ -2,7 +2,7 @@
 
 Prepared from runtime freeze `4635c1acc9b66c1d54e5e2bc7cad4b88fa30754b` and
 read against the reviewed lifetime repair `7c3ac608917d0b6a3a6c4c779460953905f2738e`.
-The revised driver is prospective. Five baseline attempts failed before casting;
+The revised driver is prospective. Six baseline attempts failed before casting;
 no ordinary Blast episode has passed. Pure helper tests and controlled model probes
 are not ordinary episodes, native comparisons or parity awards.
 
@@ -33,7 +33,14 @@ and no new hover action does not prove every earlier existing-pointer hit was nu
 Baseline `03472e2f` then stopped at its first preparation read, turn309: the original
 Warrior19 was alive with90HP and housed in building71, with zero pixel inspections.
 No outdoor response had yet been observed. The stop wrongly treated initial
-housing as the end of a response; that failed attempt remains preserved.
+housing as the end of a response; that failed attempt remains preserved. After
+that phase repair, baseline `66cfa7b3` observed the original outdoor response at447
+and five live, moving, in-range reads at476–486. Each of those searches rejected
+all nine first-tested interior pixels despite visible/pickable21–22px bodies and
+painter sources. The shared picker later returned19 at547, when the Shaman had
+already died in combat. The first live-window failure now has retained evidence.
+Source tracing supports a later terrain command clearing the person result;
+actual terrain tuples and a matching live-window image were not captured.
 
 The revised proposal keeps public Mission2 entry, introduction skip, original
 Blue Shaman HUD selection and one real ground movement command toward `(58,108)`.
@@ -130,6 +137,41 @@ cover the empty-ground control, rejection/cancel/repeat cases, pause, active-cas
 save/reload, or completed baseline/candidate frame review. These remain listed in
 every result. The maintained early-missions/checkpoint-restart helpers are the
 later public Save/Load route; this first driver does not write storage.
+
+## Bounded pick/render diagnostic
+
+With `POPULOUS_BLAST_PICK_DIAGNOSTIC=1` and the baseline expectation, the same
+public route stops after one state-eligible pixel search and its exact preceding
+natural-frame capture. It issues no person hover or cast. The first otherwise
+eligible state arms the observer; it waits for the game's own next render before
+performing the existing search. Up to eight natural frames may be captured, with
+only the latest image retained. No pick, render or tick call is added.
+
+`pick-observer.mjs` wraps the existing picker/bounds, painter source/command and
+terrain-resolution calls. It preserves receiver, arguments, return identity and
+thrown values, copies at most750 existing pick calls (three per inspected pixel),
+and restores the original descriptors at the search boundary. It records actual
+consumed target bounds/person source/depth and chosen terrain triangle/source/depth,
+plus before/after point-cache fields. These are consumed source records, not a
+direct dump of the picker's private sorted hit stream. Any reconstructed ordering
+must be labelled accordingly.
+
+The shared canvas capture reads pixels and PNG synchronously immediately after a
+natural render, before buffer discard. Admission requires the same Three
+`renderer.info.render.frame`, world turn, camera/view/projection, rectangles and
+rendered group pose/frame/matrix as that capture. `scene.frame` is also recorded,
+but is a scheduled RAF handle and is not used as the rendered-frame identity.
+A mismatch, lost state eligibility, frame/call cap, empty image or restoration
+failure fails the diagnostic. GPU readback can affect timing; this is not a timing
+equivalence claim. No forced rendering or preserved drawing-buffer assumption is
+used. The existing140s/turn1800 preparation,240s scenario and300/330s harness/outer
+limits remain, with fresh baseline profile/output and explicit offline flag.
+
+`pick-render.json` and `pick-render.png` are diagnostic artifacts. A normal
+boundary stop reports diagnostic completion only and leaves ordinary cast
+acceptance incomplete. Historical source/standard and failed-prefix receipts
+remain separate. Transparent-callback, exact-frame mismatch, bounded-record and
+cleanup tests use fake objects only.
 
 ## Run only after coordinator lane assignment
 

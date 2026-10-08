@@ -73,7 +73,7 @@ test('fixed gate failures retain the first raw row without following caller reje
 test('a pixel miss is retained only with the other live, moving, range and camera gates', () => {
   const preparation = createBlastPreparation({ targetId: 19 })
   const misses = { existingHit: null, nextHit: null }
-  for (const overrides of [{ live: false }, { moving: false }, { distance: 6 }, { targetError: 'out of range' },
+  for (const overrides of [{ pixelSearchAttempted: false }, { live: false }, { moving: false }, { distance: 6 }, { targetError: 'out of range' },
     { state: { cameraSettled: false, inputMask: 0 } }, { state: { cameraSettled: true, inputMask: 1 } },
     { nextHit: { x: 25, y: 40 } }]) {
     preparation.observe(observation(100, { ...misses, ...overrides }))

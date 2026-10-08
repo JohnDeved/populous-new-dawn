@@ -8,6 +8,8 @@ import { createBlastPreparation } from './preparation.mjs'
 // First-stage ordinary witness. This module does not run a browser on import.
 export default async function ordinaryBlast({ page, output, receipt, signal, openMission }) {
   const expectation = process.env.POPULOUS_BLAST_EXPECTATION
+  const diagnostic = process.env.POPULOUS_BLAST_PICK_DIAGNOSTIC === '1'
+  if (diagnostic) assert.equal(expectation, 'baseline', 'This diagnostic precedes candidate acceptance')
   assert.ok(['baseline', 'candidate'].includes(expectation), 'Set POPULOUS_BLAST_EXPECTATION explicitly')
   assert.equal(receipt.profile?.mode, 'created', 'Each application product needs its own fresh profile')
   assert.ok(basename(receipt.profile.path).startsWith(`blast-m2-${expectation}-`), 'Use an expectation-specific fresh profile name')
@@ -17,7 +19,7 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
   const commands = resolve(output, 'commands'), started = Date.now(), actions = []
   mkdirSync(commands)
   const limits = { wallMs: 240000, approachMs: 140000, cameraMs: 15000, castMs: 10000, maximumSetupTurn: 1800 }
-  let attached = false, setupAttached = false, primaryError, result
+  let attached = false, setupAttached = false, primaryError, result, diagnosticResult
   const preparation = createBlastPreparation({ targetId: 19, maximumSetupTurn: limits.maximumSetupTurn })
   let admittedObservation
   const save = (name, data) => writeFileSync(resolve(output, name), JSON.stringify(data, null, 2) + '\n')
@@ -74,9 +76,10 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
       const { currentPersonOrder } = await import('/app/person-orders.ts')
       const { unitAnimationSource } = await import('/app/selection-runtime.ts')
       const { observeBlastEpisode, responseSnapshot, pointerFeedback } = await import('/qa/blast-ordinary/observer.mjs')
+      const { observeBlastPick } = await import('/qa/blast-ordinary/pick-observer.mjs')
       const { observeEntityPointer, findEntityInput, inspectEntityPoint } = await import('/qa/erosion-ordinary/input.mjs')
       const { spellTargetError } = await import('/app/model.ts'), { wrappedDistance } = await import('/app/world-coordinates.ts')
-      window.blastHelpers = { unitAnimationSource, observeBlastEpisode, responseSnapshot, pointerFeedback, observeEntityPointer, findEntityInput, inspectEntityPoint, spellTargetError, wrappedDistance }
+      window.blastHelpers = { observeBlastPick, unitAnimationSource, observeBlastEpisode, responseSnapshot, pointerFeedback, observeEntityPointer, findEntityInput, inspectEntityPoint, spellTargetError, wrappedDistance }
       window.blastSetup = observeBlastSetup(scene, actor, { currentOrder: (w, p) => currentPersonOrder(w.buildingOrders, p) })
       if (window.blastSetup.read().errors.length) throw Error('Setup observation could not attach')
     })
@@ -130,7 +133,7 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
     assert.equal((await current()).mode, 'blast')
     let prior, trigger
     await poll(async () => {
-      const observed = await page.evaluate(({ previous, expectation, maximumSetupTurn }) => {
+      const observed = await page.evaluate(({ previous, expectation, maximumSetupTurn, diagnostic }) => {
         const s = window.testSceneRef.current, w = s.world, started = performance.now()
         const { responseSnapshot, pointerFeedback, spellTargetError, wrappedDistance, findEntityInput, inspectEntityPoint } = window.blastHelpers
         const sample = window.blastSetup.snapshot(), actor = window.blastOriginal.actor
@@ -170,23 +173,32 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
             state: activeNative.state, renderFlags: activeNative.renderFlags, flags2: activeNative.flags2 } : null,
           visibleLayer: !!layer, layerHasPainterSource: !!source,
           painterSource: source ? { bucket: source.bucket, cell: source.cell, phase: source.phase, object: source.object, face: source.face } : null }
-        const existingHit = p && event && findEntityInput([{ x: event.clientX, y: event.clientY }], p.id, inspect)
-        const candidates = []
-        if (box) for (const fy of [0.5, 0.35, 0.65]) for (const fx of [0.5, 0.35, 0.65])
-          candidates.push({ x: rect.left + box.x + box.width * fx, y: rect.top + box.y + box.height * fy })
-        const nextHit = existingHit || (p && findEntityInput(candidates, p.id, inspect))
-        const feedback = pointerFeedback(s)
         const live = state.turn < maximumSetupTurn && state.failures.length === 0 && state.level === 2 && state.status === 'playing' && !state.paused &&
           state.speed === 1 && !(state.flags & 32) && !state.inputMask && state.cameraSettled && state.mode === 'blast' && state.stock > 0 && state.actor.hp > 0
         const moving = !!(motionPosition && p && w.turn > motionTurn && p.speed > 0 && !p.fighting && !actor.fight &&
           (p.position.x !== motionPosition.x || p.position.y !== motionPosition.y))
+        let searchPixels = true, diagnosticComplete = false, diagnosticError = null
+        if (diagnostic && live && moving && distance >= 7 && targetError === null) {
+          window.blastPick ??= window.blastHelpers.observeBlastPick(s, { targetId: 19 })
+          try { searchPixels = window.blastPick.beginSearch() }
+          catch (error) { diagnosticError = String(error.message); searchPixels = false }
+        } else if (diagnostic && window.blastPick) {
+          searchPixels = false; diagnosticError = 'State eligibility lost before the matching rendered pick'
+        }
+        const existingHit = searchPixels && p && event && findEntityInput([{ x: event.clientX, y: event.clientY }], p.id, inspect)
+        const candidates = []
+        if (box) for (const fy of [0.5, 0.35, 0.65]) for (const fx of [0.5, 0.35, 0.65])
+          candidates.push({ x: rect.left + box.x + box.width * fx, y: rect.top + box.y + box.height * fy })
+        const nextHit = existingHit || (searchPixels && p && findEntityInput(candidates, p.id, inspect))
+        if (diagnostic && window.blastPick && searchPixels) { window.blastPick.seal(); diagnosticComplete = true }
+        const feedback = pointerFeedback(s)
         const phenotype = expectation === 'candidate' ? feedback.visible && feedback.lines === 16 && feedback.targetId === 19 : !feedback.visible
         const eligible = !!(live && moving && distance >= 7 && targetError === null && existingHit && phenotype)
         let hover = prepared, ready = false, rejection = null, phase = 'preparing'
         if (report.errors.length) rejection = 'episode-observation-error'
         else if (prepared && w.turn > prepared.turn + 1) rejection = 'prospective-hover-expired'
         else if (prepared && JSON.stringify(feedback.context) !== JSON.stringify(prepared.context)) rejection = 'prospective-hover-context-changed'
-        else if (eligible) {
+        else if (eligible && !diagnostic) {
           if (!hover) {
             hover = { turn: w.turn, targetId: p.id, mode: w.mode, canvasOwned: true, hitId: p.id,
               visible: feedback.visible, lines: feedback.lines, context: feedback.context, position: p.position,
@@ -204,36 +216,61 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
         return { turn: w.turn, state, response, distance, targetError, actorFighting: !!actor.fight,
           box: box ? { x: box.x, y: box.y, width: box.width, height: box.height } : null,
           existingHit, nextHit, inspection, renderedBody, feedback: { targetId: feedback.targetId, visible: feedback.visible, lines: feedback.lines },
-          live, moving, phenotype, eligible, phase, rejection, episodeErrors: report.errors, ready, hover, readMilliseconds: performance.now() - started }
-      }, { previous: prior, expectation, maximumSetupTurn: limits.maximumSetupTurn })
+          live, moving, phenotype, eligible, phase, rejection, pixelSearchAttempted: searchPixels, diagnosticComplete, diagnosticError, episodeErrors: report.errors, ready, hover, readMilliseconds: performance.now() - started }
+      }, { previous: prior, expectation, maximumSetupTurn: limits.maximumSetupTurn, diagnostic })
       // Preserve failed/onset rows before assertions. The admitted row is retained
       // after input, keeping diagnostic copying outside the four-turn interval.
       if (observed.ready) { admittedObservation = observed; trigger = observed; return true }
       const { stopReason } = preparation.observe(observed)
       assert.equal(stopReason, null, 'Original response ended or target became unavailable; first observations retained')
       assert.equal(observed.rejection, null, 'Prospective hover admission failed; first observations retained')
+      assert.equal(observed.diagnosticError, null, 'Pick/render diagnostic context did not match')
       assert.deepEqual(observed.state.failures, [], 'Original scene, World or healthy Shaman changed; setup trace retained')
       healthy(observed.state)
+      if (observed.diagnosticComplete) { diagnosticResult = observed; return true }
       prior = observed
-      if (observed.nextHit && !observed.existingHit)
+      if (!diagnostic && observed.nextHit && !observed.existingHit)
         await input('prepare-person-hover', { id: target.id, hit: observed.nextHit, turn: observed.turn }, () => page.mouse.move(observed.nextHit.x, observed.nextHit.y))
       return false
     }, limits.approachMs, 'healthy moving original response target at a real stable pointer pixel and actual Blast range')
-    // One normal trusted click follows the atomic eligibility read. Late delivery
-    // remains a retained failure under the existing actual-release contract.
-    await input('blast-person-release', { id: target.id, hit: trigger.existingHit, turn: trigger.turn }, () => page.mouse.click(trigger.existingHit.x, trigger.existingHit.y))
-    preparation.observe(admittedObservation); admittedObservation = null
-    save('target-setup.json', { prior, trigger, target, releaseWithinTurns: 4 })
-    await poll(async () => {
-      const report = await page.evaluate(() => window.blastEpisode.progress())
-      assert.deepEqual(report.errors, [], 'Ordinary lifecycle observation failed')
-      return report.complete
-    }, limits.castMs, 'moving-target windup, flight, rendered arrival and impact')
-    result = await page.evaluate(() => window.blastEpisode.read())
-    assert.equal(result.report.complete, true)
-    await page.screenshot({ path: resolve(output, 'terminal.png') })
+    if (diagnostic) {
+      const proof = await page.evaluate(() => window.blastPick.read())
+      assert.deepEqual(proof.errors, []); assert.equal(proof.sealed, true)
+      assert.equal(proof.frameMatched, true); assert.equal(proof.cleanupVerified, true)
+      assert.ok(proof.calls.length && proof.frame.pixels > 0)
+    } else {
+      // One normal trusted click follows the atomic eligibility read. Late delivery
+      // remains a retained failure under the existing actual-release contract.
+      await input('blast-person-release', { id: target.id, hit: trigger.existingHit, turn: trigger.turn }, () => page.mouse.click(trigger.existingHit.x, trigger.existingHit.y))
+      preparation.observe(admittedObservation); admittedObservation = null
+      save('target-setup.json', { prior, trigger, target, releaseWithinTurns: 4 })
+      await poll(async () => {
+        const report = await page.evaluate(() => window.blastEpisode.progress())
+        assert.deepEqual(report.errors, [], 'Ordinary lifecycle observation failed')
+        return report.complete
+      }, limits.castMs, 'moving-target windup, flight, rendered arrival and impact')
+      result = await page.evaluate(() => window.blastEpisode.read())
+      assert.equal(result.report.complete, true)
+      await page.screenshot({ path: resolve(output, 'terminal.png') })
+    }
   } catch (error) { primaryError = error }
   finally {
+    if (diagnostic) {
+      try {
+        const proof = await page.evaluate(() => {
+          if (!window.blastPick) return null
+          window.blastPick.dispose(); return window.blastPick.read()
+        })
+        if (proof) {
+          if (proof.frame?.png) {
+            writeFileSync(resolve(output, 'pick-render.png'), Buffer.from(proof.frame.png.split(',')[1], 'base64'))
+            delete proof.frame.png
+          }
+          save('pick-render.json', proof)
+          if ((proof.errors.length || !proof.cleanupVerified || !proof.frameMatched) && !primaryError) primaryError = Error('Pick/render diagnostic failed or did not restore')
+        }
+      } catch (error) { primaryError ??= error }
+    }
     if (attached) {
       try {
         const terminal = await page.evaluate(async () => { window.blastEpisode.dispose(); await window.blastEpisode.settled(); return window.blastEpisode.read() })
@@ -261,12 +298,13 @@ export default async function ordinaryBlast({ page, output, receipt, signal, ope
     }
     if (admittedObservation) preparation.observe(admittedObservation)
     save('pointer-preparation.json', preparation.read())
-    save('episode.json', { expectation, source: receipt.source, profileId: receipt.profile.id, runId: receipt.profile.runId, limits, actions, ...result,
+    save('episode.json', { expectation, diagnostic, diagnosticResult, source: receipt.source, profileId: receipt.profile.id, runId: receipt.profile.runId, limits, actions, ...result,
       status: primaryError ? 'failed' : 'passed', failure: primaryError?.stack,
       remainingAcceptance: ['Empty-ground control', 'Out-of-range/no-stock/cancel/repeat', 'Pause and active-cast save/reload', 'Comparable paired frame review'],
       method: 'Public Mission2 entry, ordinary HUD/minimap/ground/person input and real RAF. Passive original-call-once turn/render/pointer observers; detached-clone diagnostic validators. No injected game state or clock stepping.' })
   }
   if (primaryError) throw primaryError
   assert.deepEqual(receipt.errors, [])
+  if (diagnostic) return { stage: 'person-pick-render-diagnostic', expectation, diagnosticComplete: !!diagnosticResult, complete: false, evidence: resolve(output, 'pick-render.json'), remainingAcceptance: ['ordinary person cast and all later controls'] }
   return { stage: 'ordinary-person-cast-impact', expectation, complete: result.report.complete, evidence: resolve(output, 'episode.json'), remainingAcceptance: ['ground/rejection/interruption controls', 'active-cast save/reload', 'paired frame review'] }
 }
