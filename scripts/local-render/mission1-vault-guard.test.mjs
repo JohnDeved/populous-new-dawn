@@ -3,6 +3,7 @@ import test from 'node:test'
 import { readFileSync } from 'node:fs'
 import { createMission1VaultInput } from './mission1-vault-input.mjs'
 import { readMission1GuardPresentation } from './mission1-vault-guard-observation.mjs'
+import { assertMission1ApproachPayload } from './mission1-vault-knowledge.mjs'
 import { buildingFootprintCells } from '../../app/building-shapes.ts'
 
 function guardBlock() {
@@ -125,7 +126,7 @@ test('one ordinary staging cell is outside the authored Vault and spell mode con
   assert.equal(footprint.includes(cell), false)
   assert.equal((point.x + 9) ** 2 + (point.z + 3) ** 2, 52)
   const driver = readFileSync(new URL('./mission1-vault-knowledge.mjs', import.meta.url), 'utf8')
-  assert.equal(driver.match(/report.guardApproach = await move\(\{ x: -5, z: 3 \}, true\)/g)?.length, 1)
+  assert.equal(driver.match(/report.guardApproach = await move\(\{ x: -5, z: 3 \}\)/g)?.length, 1)
   assert.ok(driver.indexOf('report.guardApproach') < driver.indexOf('for (let attempt = 0; attempt < 6; attempt++)'))
   assert.match(driver, /const hit = await fixedGround\(currentGuard, 'blast'\)/)
   assert.match(driver, /\}, currentGuard, 30000\)/)
@@ -153,4 +154,17 @@ test('guard presentation diagnostics read visibility, eligibility, native flags,
   assert.equal(observed.native.renderFlags, 16); assert.equal(observed.animation.renderFlags, 16)
   assert.equal(observed.animationOwner, 'native'); assert.deepEqual(observed.personBounds, bounds)
   assert.equal(observed.painterSource.object, 38); assert.equal(observed.lastVisibleLayer, 'body'); assert.deepEqual(observed.errors, [])
+})
+
+
+test('approach proof requires the original command3 payload to preserve the rounded picked point', () => {
+  const receipt = { hit: { point: { x: -5.1, z: 3.2 } }, delivered: { after: { units: [{ id: 30, orderId: 7,
+    order: { model: 3, flags: 0, a: Math.round(2.9 * 256), b: Math.round(-11.2 * 256) & 65535 } }] } } }
+  const before = structuredClone(receipt), result = assertMission1ApproachPayload(receipt, 30)
+  assert.deepEqual(receipt, before); assert.equal(result.actorId, 30); assert.equal(result.orderId, 7)
+  receipt.delivered.after.units[0].order.a += 256
+  assert.throws(() => assertMission1ApproachPayload(receipt, 30), /coast\/building-corrected/)
+  assert.throws(() => assertMission1ApproachPayload(before, 99), /Original acknowledged/)
+  before.delivered.after.units[0].order.flags = 1
+  assert.throws(() => assertMission1ApproachPayload(before, 30), /Original acknowledged/)
 })

@@ -39,6 +39,16 @@ export function mission1BlastReady(id) {
   return w.shots.blast > 0 && u.lift <= 0 && !u.casting && castingReady
 }
 
+// The approach feasibility bound requires the actual acknowledged payload to
+// preserve the picked point; native coastal/building corrections must fail it.
+export function assertMission1ApproachPayload(approach, actorId) {
+  const point = approach.hit.point, recipient = approach.delivered.after.units.find(u => u.id === actorId)
+  const expected = { a: Math.round((point.x + 8) * 256) & 65535, b: Math.round((-point.z - 8) * 256) & 65535 }
+  assert.ok(recipient?.orderId && recipient.order?.model === 3 && !(recipient.order.flags & 1), 'Original acknowledged approach order required')
+  assert.deepEqual({ a: recipient.order.a, b: recipient.order.b }, expected, 'Approach payload was coast/building-corrected; range bound does not apply')
+  return { actorId, orderId: recipient.orderId, pickedNative: expected, order: { ...recipient.order } }
+}
+
 export default async function mission1VaultKnowledge({ page, openMission, output, signal, receipt }) {
   const hash = value => createHash('sha256').update(value).digest('hex')
   const files = ['mission1-vault-knowledge.mjs', 'mission1-vault-input.mjs', 'mission1-vault-witness.mjs', 'mission1-vault-checkpoint.mjs', 'mission1-vault-construction.mjs', 'mission1-vault-arrival.mjs', 'mission1-vault-guard-observation.mjs']
@@ -160,7 +170,8 @@ export default async function mission1VaultKnowledge({ page, openMission, output
     assert.ok(report.completedBridge.landVersion > bridgeBefore.landVersion)
     report.crossing = await move({ x: 0, z: 4 }, true)
     // Authored approach cell is outside the Vault footprint; real input and movement still must succeed.
-    report.guardApproach = await move({ x: -5, z: 3 }, true)
+    report.guardApproach = await move({ x: -5, z: 3 })
+    report.guardApproach.payloadCorrespondence = assertMission1ApproachPayload(report.guardApproach, originalShamanId); save()
     // The existing Red guard is an ordinary gameplay prerequisite. If still near
     // the approach, use genuine Blast stock and let normal damage/retreat resolve.
     report.guardCasts = []
