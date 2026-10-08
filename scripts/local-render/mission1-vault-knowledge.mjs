@@ -26,6 +26,17 @@ export function readMission1VaultRoute() {
     buildings: w.buildings.map(b => ({ id: b.id, x: b.x, z: b.z, kind: b.kind, team: b.team, hp: b.hp, progress: b.progress, logs: b.logs })) }
 }
 
+// Match live-command.ts's action gate and spell-casting.ts's tribe cooldown owner.
+// Unit.cooldown belongs to follower combat and cannot establish spell readiness.
+export function mission1BlastReady(id) {
+  const w = window.testSceneRef.current.world, u = w.units.find(u => u.id === id)
+  if (!u || u.hp <= 0 || u.kind !== 'shaman' || u.team !== 'blue')
+    throw Error('Original Shaman lost before Blast')
+  const tribe = w.castingTribes[0], playerType = w.manaTribes[0].playerType
+  const castingReady = !!(tribe.flags & 0x80000) || !tribe.cooldown && (playerType !== 1 || !tribe.aiCooldown)
+  return w.shots.blast > 0 && u.lift <= 0 && !u.casting && castingReady
+}
+
 export default async function mission1VaultKnowledge({ page, openMission, output, signal, receipt }) {
   const hash = value => createHash('sha256').update(value).digest('hex')
   const files = ['mission1-vault-knowledge.mjs', 'mission1-vault-input.mjs', 'mission1-vault-witness.mjs', 'mission1-vault-checkpoint.mjs', 'mission1-vault-construction.mjs']
@@ -136,11 +147,7 @@ export default async function mission1VaultKnowledge({ page, openMission, output
       const current = (await read()).red.find(u => u.id === guard.id)
       if (!current || current.hp <= 0 || Math.hypot(current.x + 5, current.z + 3) > 14) break
       await resume()
-      await wait(id => {
-        const w = window.testSceneRef.current.world, u = w.units.find(u => u.id === id)
-        if (!u || u.hp <= 0) throw Error('Original Shaman lost before Blast')
-        return w.shots.blast > 0 && u.cooldown <= 0 && !u.casting
-      }, originalShamanId, 120000)
+      await wait(mission1BlastReady, originalShamanId, 120000)
       await pause(); await button('Select and focus shaman'); await view(current)
       await page.keyboard.press('1'); assert.equal((await read()).mode, 'blast')
       const hit = await input.entityPoint('units', guard.id, null, 'blast')
