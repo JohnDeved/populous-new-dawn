@@ -1,0 +1,118 @@
+{
+  "kind": "compact reviewed ordinary coverage blocker; no moving-enemy pass",
+  "runtimeCommit": "8b86efc67e6a06f71cd9b51e815b3c2a0722add6",
+  "runtimeAppTree": "ba6df35a5a9fcd06b7c9004cd5a833d24f8d359c",
+  "qaCommit": "e8554cc8e6cd1b86e1f141a2f8b629ce1565ea82",
+  "qaTree": "75ea26abe0df2a6bcac60f89aba5d9f0cef27199",
+  "receipts": {
+    "nestedObserverFailure": {
+      "file": "m1-enemy-candidate-6d9e1c89-offline-ground-response-01.json",
+      "sha256": "d53af98c70e50195af12ac98ff383a89a295b5053b86e48d0bdbf64cfe983a12",
+      "source": "6d9e1c895ab838d4e7755dade9b72cbdd810a3f4",
+      "status": "failed",
+      "exitCode": 1,
+      "startedAt": "2026-10-08T12:53:08.005Z",
+      "finishedAt": "2026-10-08T12:54:59.935Z",
+      "sourceStable": true,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "724b5de22656f3549419c6f38cbbe61ebb604b40349cbb543c83f51a14f1feb9"
+    },
+    "composedFailureFirst": {
+      "file": "approach-owner-failure-first-08.json",
+      "sha256": "a3bc5ecf655d0b31c391bfd3a52e0e698a45996c782a6edf9a4aa20825efe343",
+      "source": "7e23997d41c3ef353eb704a08ac416ff22aec160",
+      "status": "failed",
+      "exitCode": 1,
+      "startedAt": "2026-10-08T13:07:58.299Z",
+      "finishedAt": "2026-10-08T13:07:59.586Z",
+      "sourceStable": true,
+      "stdoutSha256": "465493759cb3919361d21214b2eccdcf0e85f90305d51c0fa84358dfecf9d02f",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "repairedFocused": {
+      "file": "approach-owner-focused-09.json",
+      "sha256": "77e4bf54acabebb59912d2e95c6b2fc7d961dac2c02bfa7d95921478f36521a9",
+      "source": "e8554cc8e6cd1b86e1f141a2f8b629ce1565ea82",
+      "status": "passed",
+      "exitCode": 0,
+      "startedAt": "2026-10-08T13:15:17.202Z",
+      "finishedAt": "2026-10-08T13:15:18.865Z",
+      "sourceStable": true,
+      "stdoutSha256": "db0f50df4d311778da664691a1419a210c8c061c2f90e73c1f0fd1be4098dd46",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "repairedScopedPreflight": {
+      "file": "m1-ground-preflight-02.json",
+      "sha256": "b65f09eebe4d8a51170161bed93cefdc690082ace4fabf7d2f917962878d417f",
+      "source": "e8554cc8e6cd1b86e1f141a2f8b629ce1565ea82",
+      "status": "passed",
+      "exitCode": 0,
+      "startedAt": "2026-10-08T13:16:45.429Z",
+      "finishedAt": "2026-10-08T13:16:49.515Z",
+      "sourceStable": true,
+      "stdoutSha256": "38575cf75b45482342682cac955bd65acece0c9c96b448ac886d680fefe9e1cf",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "repairedOrdinaryAttempt": {
+      "file": "m1-enemy-candidate-e8554cc8-offline-ground-owner-01.json",
+      "sha256": "43eb0b740664b6a8cf390081de5152ff8fac5fe02bf35e6002d1352d6603121d",
+      "source": "e8554cc8e6cd1b86e1f141a2f8b629ce1565ea82",
+      "status": "failed",
+      "exitCode": 1,
+      "startedAt": "2026-10-08T13:23:06.044Z",
+      "finishedAt": "2026-10-08T13:24:58.123Z",
+      "sourceStable": true,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "296a6f09245c12760f00ff828e193c197b25f252507f8b81aa13f8884667e9f0"
+    }
+  },
+  "currentOrdinary": {
+    "status": "failed",
+    "complete": false,
+    "diagnosticComplete": false,
+    "personCast": false,
+    "preparationMove": false,
+    "approachTurn": 879,
+    "approachValid": true,
+    "helperRestored": true,
+    "helperErrors": [],
+    "armedTurn": 882,
+    "episodeErrors": [],
+    "stationarySampleTurns": [
+      885,
+      886,
+      889,
+      891,
+      893,
+      895,
+      897,
+      899
+    ],
+    "movingSampleTurn": 901,
+    "sampledPoints": 90,
+    "sampledBodyPoints": 81,
+    "canvasOwnedPoints": 90,
+    "positiveTargetHits": 0,
+    "range": "unprobed throughout",
+    "cleanupVerified": true,
+    "continuationVerified": true,
+    "sourceStable": true,
+    "runtimeStable": true,
+    "scenarioStable": true
+  },
+  "artifactsSha256": {
+    "episode.json": "9d633aac3c6aa01b7ee885b6a1c5157b04d9aeb79ebce29a7b1a8a372cd778d7",
+    "m1-route.json": "a7fe4a78d66ac51dfed80b3e9c29de2a1094b8bcfaacca51312d2aea38eaa665",
+    "pointer-preparation.json": "8ee882311328ca470c3fb5ed62f5694fc8fa1257627a62c4bbb68570cf83c6cb",
+    "setup-trace.json": "b703136304ad33989b321d0f09c048dc00f4b5911b4d0a5820abb632ce9b7c7c",
+    "receipt.json": "5f3dff7d8ba76452845888792aef655aa83808f1f3da5d3a95ec26aa889b0d09",
+    "before-approach.png": "fba3963785100d38a7a74fb7103fab153a6590a43ca108ab72cbc1d870830e81"
+  },
+  "limits": [
+    "All90 sampled hits were null; unsampled pixels and alternate views remain untested.",
+    "Bounds/painter eligibility was present; the actual winning model/terrain command was not retained.",
+    "The screenshot is genuine before-approach context at844, not a synchronized image of885\u2013901 picking.",
+    "The firstMoving summary key reflects the preparation gate in this phase; actual native poses/turns establish response motion901.",
+    "No original-instruction execution, browser profile/storage publication or new trial slot."
+  ]
+}

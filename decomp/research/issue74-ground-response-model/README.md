@@ -69,3 +69,9 @@ This is a supporting evidence branch, not a runtime change or a new trial slot.
 The exact model source and compact outcome were independently reviewed before
 publication. Re-execution requires its own reviewed environment and finite lane;
 this checkpoint does not request an automatic rerun.
+
+## Later ordinary outcome
+
+The [reviewed ordinary coverage blocker](ordinary-blocker.md) preserves the
+subsequent observer-composition repair, 66-case proof and failed stationary-hover
+attempt. The model scripts and results above remain unchanged.
