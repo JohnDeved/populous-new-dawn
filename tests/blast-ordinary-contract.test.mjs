@@ -33,7 +33,7 @@ function sample(turn, expectation = 'candidate', { still = false } = {}) {
     shot: turn < 10 ? { id: 44, caster: 1, phase, remaining: Math.max(0, 7 - turn), target: candidate ? browserPoint(aim) : { x: 11, z: 17 },
       destination: candidate && phase !== 'windup' ? aim : position(1),
       tracking: candidate ? { personId: 3, shotPersonId: phase === 'windup' ? null : 3, destination: aim } : null,
-      visualIds: phase === 'windup' ? [] : [50] } : null,
+      visualIds: phase === 'windup' ? [] : [50, 51] } : null,
     effects: turn < 10 ? [] : [{ id: 60, kind: 'blastWave', point: candidate ? browserPoint(aim) : { x: 11, z: 17 } }, { id: 61, kind: 'blast', point: candidate ? browserPoint(aim) : { x: 11, z: 17 } }] }
 }
 const movement = () => ({ turn: 1, mode: null, selected: [3], trusted: true, canvasOwned: true,
@@ -92,7 +92,7 @@ test('stale pointer, changed context, wrong handler and synthetic events are rej
   for (const damage of [r => { r.turn = 3 }, r => { r.context.camera.x++ }, r => { r.handlerPersonId = 4 }, r => { r.trusted = false }, r => { r.canvasOwned = false }])
     assert.throws(() => start('candidate', ({ r }) => damage(r)), /Actual release|handler|trusted|matching press/)
 })
-test('missing visible hover, arrival, impact or acknowledgement cannot pass', () => {
+test('missing visible hover, projectile, impact or acknowledgement cannot pass', () => {
   assert.throws(() => start('candidate', ({ h }) => { h.visible = false }), /feedback/)
   for (const omitFrame of ['projectile', 'impact']) assert.equal(finish({ omitFrame }).report().complete, false)
   const { episode } = start()

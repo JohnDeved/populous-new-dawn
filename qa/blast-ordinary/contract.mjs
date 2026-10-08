@@ -156,7 +156,7 @@ export function createBlastEpisode(options) {
       if (value.kind === 'projectile') {
         const observed = rows.find(row => row.stage === 'turn' && row.after.turn === value.turn)?.after.shot
         check(observed && Number.isInteger(value.renderFrame) && value.renderFrame >= 0 && ['flying', 'arrived'].includes(value.phase) && observed.phase === value.phase &&
-          value.shotId === entry.shot.id && observed.id === value.shotId && observed.visualIds.includes(value.effectId),
+          value.shotId === entry.shot.id && observed.id === value.shotId && observed.visualIds[0] === value.effectId,
         'Natural projectile frame lacks the actual owned shot, visible phase or visual identity')
       }
       if (value.kind === 'impact') check(impact && value.turn >= impact.turn && value.effectId === impact.flash.id, 'Rendered impact is stale or absent')
