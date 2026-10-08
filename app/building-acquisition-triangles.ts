@@ -81,7 +81,7 @@ export function collectBuildingAcquisitionTriangles(
       throw new Error('Invalid Mission 1 acquisition face')
     let light = sunlight[model.normals[face][0]] + ((shadeOffset << 24) >> 24)
     if (!command.whole) {
-      const [, , firstDepth] = transformed[0]
+      const [[, , firstDepth]] = transformed
       light = sunlight[faceNormal(transformed[0], transformed[1], transformed[2])]
       if (firstDepth >= 400) light -= 20
       else if (firstDepth <= -400) light += 4
