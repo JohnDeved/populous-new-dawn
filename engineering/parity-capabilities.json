@@ -8,7 +8,9 @@
       "scope": "scenario",
       "mission": 1,
       "parityId": "campaign.mission-one",
-      "browserCheckIds": ["checkpoint-browser"],
+      "browserCheckIds": [
+        "checkpoint-browser"
+      ],
       "originalCheckIds": [],
       "limits": "The browser check removes enemy units and advances a tick to trigger victory before clicking Continue. It proves result continuation, not natural Mission 1 victory or original timing."
     },
@@ -18,7 +20,9 @@
       "scope": "scenario",
       "mission": 2,
       "parityId": "persistence.load",
-      "browserCheckIds": ["checkpoint-browser"],
+      "browserCheckIds": [
+        "checkpoint-browser"
+      ],
       "originalCheckIds": [],
       "limits": "The diagnostic also uses direct commands/ticks and injected state. Browser IndexedDB continuation is a modernization. It does not establish original save-format or whole-world parity."
     },
@@ -28,9 +32,23 @@
       "scope": "scenario",
       "mission": 3,
       "parityId": "campaign.missions",
-      "browserCheckIds": ["mission3-browser"],
+      "browserCheckIds": [
+        "mission3-browser"
+      ],
       "originalCheckIds": [],
       "limits": "The check seeds Mission 2 victory, then exercises shipped continuation. Later Mission 3 behavior and full original comparison remain unknown."
+    },
+    {
+      "id": "mission-two.checkpoint-ordinary",
+      "title": "Mission 2 ordinary public checkpoint restoration",
+      "scope": "observation",
+      "mission": 2,
+      "parityId": "persistence.load",
+      "browserCheckIds": [
+        "mission-two-checkpoint-ordinary"
+      ],
+      "originalCheckIds": [],
+      "limits": "Public save, fresh page and Load with real RAF and read-only observations. An additional evidence method for the existing checkpoint capability, not extra progress credit. Browser checkpoint modernization does not establish original save-format compatibility or native-game parity."
     }
   ]
 }
