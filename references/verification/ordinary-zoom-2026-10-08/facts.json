@@ -1,0 +1,407 @@
+{
+  "kind": "curated-ordinary-zoom-evidence",
+  "testedHead": "1086322e4444f6cc3fd8b043063df63cf689699e",
+  "base": "eac737a0f7411f432ed790202cde63a42e314115",
+  "sourceTree": "066efeda2110d711ebbfa5a19ec63e1ddcd15c81",
+  "sourceFingerprint": "969c95ab96350a4f39fe33154e1ad55375e895c1b95e685940a0ba63250c703c",
+  "sourceStable": true,
+  "attempts": 1,
+  "status": "passed",
+  "independentReview": "ACCEPT for bounded ordinary episode and evidence carry; 12 original PNGs inspected",
+  "reviewReportedAt": "2026-10-08T21:42:23Z",
+  "browser": "Chrome Headless Shell 154.0.8037.92",
+  "sandbox": true,
+  "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+  "viewport": [
+    1440,
+    1000
+  ],
+  "dpr": 1,
+  "canvas": [
+    1240,
+    1000
+  ],
+  "context": "fresh ephemeral; no saved profile",
+  "bounds": {
+    "observationMilliseconds": 15000,
+    "maxRows": 512,
+    "maxPngs": 12,
+    "harnessTimeoutMilliseconds": 120000,
+    "outerTimeoutSeconds": 180
+  },
+  "elapsed": {
+    "observationMilliseconds": 5413.5,
+    "outerSeconds": 48.936
+  },
+  "counts": {
+    "records": 50,
+    "renderReturns": 36,
+    "keyboardEvents": 14,
+    "pngs": 12
+  },
+  "allRenderBoundsAgree": true,
+  "allCasesComplete": true,
+  "errors": {
+    "observer": [],
+    "cleanup": null,
+    "closed": true,
+    "pageErrors": []
+  },
+  "consoleWarnings": {
+    "count": 7,
+    "categories": [
+      "automatic software WebGL fallback deprecation",
+      "GPU stalls due to ReadPixels",
+      "two texture-update-without-image warnings"
+    ]
+  },
+  "reversal": {
+    "keydownOrdinal": 24,
+    "turn": 158,
+    "remainingBefore": 8,
+    "fractionBefore": 0.9862720000000486,
+    "lastRenderOrdinal": 23,
+    "matchesLastRender": true,
+    "trusted": true,
+    "repeat": false,
+    "displayedConfigPreserved": true,
+    "nextRenderOrdinal": 25,
+    "endpointOrdinal": 32,
+    "outgoingImageOrdinal": 19,
+    "outgoingImageIsExactPreEventFrame": false
+  },
+  "combined": {
+    "captureOrdinal": 41,
+    "held": [
+      "w",
+      "q"
+    ],
+    "positionAndBearingChanged": true,
+    "releaseOrdinals": [
+      46,
+      48
+    ],
+    "endpointOrdinal": 50
+  },
+  "keyboardChronology": [
+    {
+      "ordinal": 4,
+      "type": "keydown",
+      "key": "-",
+      "trusted": true,
+      "repeat": false
+    },
+    {
+      "ordinal": 6,
+      "type": "keyup",
+      "key": "-",
+      "trusted": true,
+      "repeat": false
+    },
+    {
+      "ordinal": 13,
+      "type": "keydown",
+      "key": "=",
+      "trusted": true,
+      "repeat": false
+    },
+    {
+      "ordinal": 14,
+      "type": "keyup",
+      "key": "=",
+      "trusted": true,
+      "repeat": false
+    },
+    {
+      "ordinal": 18,
+      "type": "keydown",
+      "key": "-",
+      "trusted": true,
+      "repeat": false
+    },
+    {
+      "ordinal": 20,
+      "type": "keyup",
+      "key": "-",
+      "trusted": true,
+      "repeat": false
+    },
+    {
+      "ordinal": 24,
+      "type": "keydown",
+      "key": "=",
+      "trusted": true,
+      "repeat": false
+    },
+    {
+      "ordinal": 26,
+      "type": "keyup",
+      "key": "=",
+      "trusted": true,
+      "repeat": false
+    },
+    {
+      "ordinal": 36,
+      "type": "keydown",
+      "key": "w",
+      "trusted": true,
+      "repeat": false
+    },
+    {
+      "ordinal": 38,
+      "type": "keydown",
+      "key": "q",
+      "trusted": true,
+      "repeat": false
+    },
+    {
+      "ordinal": 40,
+      "type": "keydown",
+      "key": "-",
+      "trusted": true,
+      "repeat": false
+    },
+    {
+      "ordinal": 42,
+      "type": "keyup",
+      "key": "-",
+      "trusted": true,
+      "repeat": false
+    },
+    {
+      "ordinal": 46,
+      "type": "keyup",
+      "key": "q",
+      "trusted": true,
+      "repeat": false
+    },
+    {
+      "ordinal": 48,
+      "type": "keyup",
+      "key": "w",
+      "trusted": true,
+      "repeat": false
+    }
+  ],
+  "frames": [
+    {
+      "label": "out-before",
+      "ordinal": 1,
+      "rendererFrame": 108,
+      "turn": 124,
+      "preset": 0,
+      "remaining": 0,
+      "fraction": 0,
+      "boundsMode": 1,
+      "diameter": 50,
+      "sha256": "1c0d3fcf252e16dfcc02d4437a2ebf6e4ab73c623d7c7c55773d7644ed3a0619",
+      "bytes": 2049396,
+      "published": true,
+      "file": "out-before.png"
+    },
+    {
+      "label": "out-early",
+      "ordinal": 5,
+      "rendererFrame": 111,
+      "turn": 128,
+      "preset": 2,
+      "remaining": 16,
+      "fraction": 0.7886720000000896,
+      "boundsMode": 0,
+      "diameter": 50,
+      "sha256": "001a81ab7b07d9bfd823674ce5eb4fb6c58a2757995604d6694d458679cda428",
+      "bytes": 2163527,
+      "published": false
+    },
+    {
+      "label": "out-middle",
+      "ordinal": 8,
+      "rendererFrame": 113,
+      "turn": 131,
+      "preset": 2,
+      "remaining": 10,
+      "fraction": 0.3878720000000736,
+      "boundsMode": 0,
+      "diameter": 50,
+      "sha256": "815b0735848735b8843df3729b618c1c89b30f01ef8d27a13d6339bd4a0445d4",
+      "bytes": 2478798,
+      "published": true,
+      "file": "out-middle.png"
+    },
+    {
+      "label": "out-late",
+      "ordinal": 11,
+      "rendererFrame": 116,
+      "turn": 135,
+      "preset": 2,
+      "remaining": 2,
+      "fraction": 0.38707200000005704,
+      "boundsMode": 0,
+      "diameter": 50,
+      "sha256": "2f206223275c06f635ae714889c5c446c9d155eb0d531fafbb15db48c292a74d",
+      "bytes": 2639479,
+      "published": false
+    },
+    {
+      "label": "out-endpoint",
+      "ordinal": 12,
+      "rendererFrame": 117,
+      "turn": 136,
+      "preset": 2,
+      "remaining": 0,
+      "fraction": 0,
+      "boundsMode": 0,
+      "diameter": 75,
+      "sha256": "4ee85e6c01c7bfb415794c102fafc2e8b6f5d6ae44c462ee86335422fa58e0fc",
+      "bytes": 2647519,
+      "published": true,
+      "file": "out-endpoint.png"
+    },
+    {
+      "label": "reversal-before",
+      "ordinal": 15,
+      "rendererFrame": 130,
+      "turn": 151,
+      "preset": 0,
+      "remaining": 0,
+      "fraction": 0,
+      "boundsMode": 1,
+      "diameter": 50,
+      "sha256": "ea7841656a0f8a8554bd41054629b1510d316f12c05fe8bc1877603fc32c1518",
+      "bytes": 2070778,
+      "published": false
+    },
+    {
+      "label": "reversal-outgoing",
+      "ordinal": 19,
+      "rendererFrame": 133,
+      "turn": 154,
+      "preset": 2,
+      "remaining": 16,
+      "fraction": 0.9846720000000994,
+      "boundsMode": 0,
+      "diameter": 50,
+      "sha256": "9ce283872e2d60f3359e1255b2d4c260a97ebe37aff74a95189c22da4218c840",
+      "bytes": 2191633,
+      "published": false
+    },
+    {
+      "label": "reversal-reversed",
+      "ordinal": 25,
+      "rendererFrame": 137,
+      "turn": 159,
+      "preset": 0,
+      "remaining": 16,
+      "fraction": 0.9878720000000837,
+      "boundsMode": 0,
+      "diameter": 50,
+      "sha256": "28a9a87f7ac5487538249cc64fbd51e063aea8f92befbfe36f5fc2fc1af1ba9c",
+      "bytes": 2550757,
+      "published": false
+    },
+    {
+      "label": "reversal-endpoint",
+      "ordinal": 32,
+      "rendererFrame": 143,
+      "turn": 168,
+      "preset": 0,
+      "remaining": 0,
+      "fraction": 0,
+      "boundsMode": 1,
+      "diameter": 50,
+      "sha256": "ca26646d64aab9bb87a3da73f9e4f90d9b4416de16a4aea2ed95af8ef275221b",
+      "bytes": 2084191,
+      "published": false
+    },
+    {
+      "label": "combined-before",
+      "ordinal": 33,
+      "rendererFrame": 146,
+      "turn": 171,
+      "preset": 0,
+      "remaining": 0,
+      "fraction": 0,
+      "boundsMode": 1,
+      "diameter": 50,
+      "sha256": "d26b0d29860444051f595b3a55d8386bf4ac40bfcd8b9b9d93d38b6a89d70ee5",
+      "bytes": 2087593,
+      "published": false
+    },
+    {
+      "label": "combined-moving",
+      "ordinal": 41,
+      "rendererFrame": 151,
+      "turn": 179,
+      "preset": 2,
+      "remaining": 16,
+      "fraction": 0.4024000000000526,
+      "boundsMode": 0,
+      "diameter": 50,
+      "sha256": "7fdabcf49520a70a8b67cca0ecf7eea17a9176a870d03f8fb1f5f84929fb3e1c",
+      "bytes": 2324133,
+      "published": false
+    },
+    {
+      "label": "combined-endpoint",
+      "ordinal": 50,
+      "rendererFrame": 157,
+      "turn": 187,
+      "preset": 2,
+      "remaining": 0,
+      "fraction": 0,
+      "boundsMode": 0,
+      "diameter": 75,
+      "sha256": "7aaf9e9294e9ba7bd7cdea0b3ac56f5048ed113f17d6473a5f6b999142c10117",
+      "bytes": 2685211,
+      "published": false
+    }
+  ],
+  "receiptPins": {
+    "ordinaryReport": {
+      "local": "work/orchestration/ordinary-zoom-1086322e-01/ordinary-zoom.json",
+      "sha256": "81b556d46f83853004036520938512911b02fab1d4801a89e4a84f8d9048c3b6"
+    },
+    "outerReceipt": {
+      "local": "work/orchestration/ordinary-zoom-1086322e-01.outer.json",
+      "sha256": "047a5b7f80c4c36c1ba80841c64b8eee19ea4ebae975075890847d71596d8270"
+    },
+    "cheapCleanup": {
+      "local": "work/orchestration/issue40-ordinary-zoom-cleanup/receipt.json",
+      "sha256": "6b3fd4a6a153c4cda2957ac96e3279f85f7ea61180f4a4db064185e5bac257f8"
+    },
+    "structural": {
+      "local": "work/orchestration/ordinary-zoom-1086322e-final/structural.json",
+      "sha256": "6a55e4e8868a8110ea25546f1c5594c57b1b0ca92b236316f5f9be373f9bfc38"
+    },
+    "context": {
+      "local": "work/orchestration/ordinary-zoom-1086322e-final/context.json",
+      "sha256": "2a18bc6224009927ed274a9beec916c807ca6ec509e5566ec9374fff0bce0a50"
+    },
+    "finalReview": {
+      "local": "issue40-ordinary01-final-result-review.md",
+      "sha256": "c3bad4e9df6d9e3efb5dc77a200730e1b1484b399e4298ee3be573b6613ff8b9"
+    }
+  },
+  "verification": {
+    "newContracts": {
+      "passed": 9,
+      "fresh": true
+    },
+    "scopedFormatOxlintEslint": "passed; 25 Oxlint advisory warnings and isolated React-discovery warning retained",
+    "structural": "passed fresh at tested head",
+    "context": "passed fresh at tested head",
+    "product1540": "historical carry only",
+    "fresh1549": "not run or claimed",
+    "aggregateBuild": "not rerun for this QA-only change",
+    "nativeHardware": "not run"
+  },
+  "limits": [
+    "Sampled current-port visual evidence; no new renderer fix.",
+    "Natural rendered PNGs are samples, not every transition frame or an original-executable comparison.",
+    "No ordinary pointer-picking, resize, torus-seam, flyby, physical-display or hardware-performance acceptance.",
+    "PNG readback perturbs scheduling; elapsed values are observation/run durations, not FPS.",
+    "Raw reports, profiles and archives are retained locally and not published."
+  ],
+  "cleanupScope": "Captured API cleanup succeeded; harness finalized its owned browser/server. Ephemeral context: no persistent-profile cleanupVerified/runtimeAfter fields or after-runtime equality claim.",
+  "runtimePins": "Bound at launch; preserved in local launch/outer receipts."
+}
