@@ -24,10 +24,32 @@ successful `00504060` allocation/reuse precedes setting bit 23. `00504920`
 renews phase 1, clears the latch on expiry, and retires the record. PR290's
 hash-bound `00503f60` proof covers the accepted post-load reset boundary.
 
-`FUN_0040b9c0` is not retained. Its result selects original kind 5 versus 11.
-This change claims automatic request/latch ownership and consumption by the
-existing supported Temple progress UI, not full original panel-selection or
-Temple-specific pixel parity. No new original execution or recovery is needed.
+The initial contract left `FUN_0040b9c0` unresolved. A separately reviewed,
+function-bounded static read of the same verified executable now closes selection
+for the **local-owned state-2 Temple**. The helper returns zero immediately when
+signed building byte `+0x2f` equals the passed player tribe. `00504060` passes
+player global `0x89c6f0`; zero plus model 5, state 2 and descriptor bit 1 selects
+panel kind 5. State 1 would select 8; a nonzero helper result selects 11. Neither
+alternate is the admitted local training caller.
+
+The finite read used GNU objdump 2.44; the independent reviewer additionally
+verified raw PE offsets/bytes. Executable length is 2,275,840 bytes with the SHA256
+above. Exact region bindings are:
+
+- Selector VA `[0x40b9c0,0x40ba1c)`, file `[0xadc0,0xae1c)`, SHA256
+  `ac6397c507769c8744d10afbf9ea46d22ac1c427e2fc2bd8f10979c0b35a41eb`.
+  At `0x40b9d6`, `0f be 4e 2f` reads the signed owner; at `0x40b9e1`,
+  `3b ca 75 05 33 c0 5f 5e c3` compares and returns zero on equality.
+- Allocator VA `[0x50434a,0x504489)`, file `[0x10374a,0x103889)`, SHA256
+  `a7e7e89bfd8ebdf572f5175a1f16c8b15464371e5dde18aadd63a0b79a559c49`.
+  Call is at `0x504359`; zero branch is `0x50441d`, kind-11 write is
+  `0x504424`, and kind-5 write is `0x50444c`.
+- Model-5 flags at VA `0x5a73ec`, file `0x1a51ec`, are `9f 48 00 00`.
+
+Source/design review artifact SHA256:
+`96ea7a4834ba55015b21bf6b664c4c64d02911c9c2d05634ddf7444ea543650c`.
+This closes local selection only. Foreign ownership, complete Temple raster
+output, physical allocation and native cadence remain outside this change.
 
 ## Exact owned fields and consumer boundary
 
@@ -83,3 +105,37 @@ pass. Any runtime change requires fresh profile provenance. Held QA repair `df0`
 is only a future prerequisite and is not copied into this branch. Prior #23
 acquisition/artwork and older suspended-RAF preaching evidence do not satisfy
 this automatic-panel witness.
+
+## Preserved test-only baseline
+
+Application/runtime bytes remain identical to base. At test-only
+`baf197dff75e5ef171f90af4ebbbbac0dcb277d5`, run01 failed all four cases on an
+unsupplied Temple material resource before the product assertions. It is a
+fixture prerequisite failure, not the product red (receipt SHA256
+`4dbee27240a4a54e81133fe965513f98901efa97da65b0ca5ccf46c3db73921a`).
+
+Successor `9aeaedcf8d6d96f1e0552a2cf13f5e036d0edee3` supplies the existing
+`createSharedAniblResource` at that art/texture fixture boundary. CPU 4 command
+`node --test tests/temple-automatic-panel.test.mjs` then reaches four intended
+ownership/consumer failures (0 pass, 4 fail; 12.85 seconds). The actual M3 request
+at turn 2023, Temple 1021 and Brave 312 captures activity/admission true and zero
+trained, but no automatic record, latch or reservation; legacy paint is visible.
+Subsequent assertions in each failing case are future acceptance, not completed
+negative coverage.
+
+Receipts remain under ignored `work/orchestration/`:
+
+- `temple-automatic-first-red-02.json`: SHA256
+  `aeb8217d641c2c8cdb5e3c175d74899f2e6f8cdb18ae2613fd1b386bf6ecec33`,
+  exit 1; stdout SHA256
+  `3c630f17a10d875a8eea83127a25588b3cea18f6fe8db647ee7869b749d6f77e`.
+- `temple-automatic-baseline-eslint-02.json`: SHA256
+  `63e8b619bb2332cd86d5737628e4c26c866b69f31b16b985e8aa9285ff4273f0`,
+  exit 0 for the three changed test/support modules.
+- `temple-automatic-baseline-format-02.json`: SHA256
+  `05863c785e6d128b15ccf522b9d101baf66abf9514097bf60074ec6897c3aa9e`,
+  exit 0 for those same modules.
+
+The standard orchestration plan conservatively requests the repository check
+for these unmapped paths. Full standards and browser/native runs are not run at
+this expressly focused failure-first stage; they are not implied by cheap passes.
