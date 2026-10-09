@@ -1,6 +1,8 @@
 // Verification-only journey. Every mutation is an ordinary shipped command or
 // fixed simulation turn; no actors, timers, tribe flags or outcomes are staged.
 import { command, placeBuilding, select, setSelection, tick } from '../app/model.ts'
+import { currentPersonOrder } from '../app/person-orders.ts'
+import { unitAnimationSource } from '../app/unit-animation-source.ts'
 import { observeCampaignConversions } from './campaign-conversion-observer.mjs'
 
 const assertCondition = (condition, message) => { if (!condition) throw Error(message) }
@@ -39,6 +41,19 @@ export function naturalPreacherJourney(world) {
   assertCondition(command(world, temple), 'Temple training command rejected')
   until('preacher-trained', () => world.units.some(unit => unit.team === 'blue' && unit.kind === 'preacher'))
   const preacher = world.units.find(unit => unit.team === 'blue' && unit.kind === 'preacher')
+  setSelection(world, [preacher.id])
+  assertCondition(command(world, { x: -33, z: -110 }), 'Preacher staging approach rejected')
+  // Let the real defense commit to the staging cell before the final sermon.
+  // This observes its queue ownership; it does not change the enemy task or RNG.
+  until('preacher-response-dispatched', () => world.ai.tasks.some((task, index) =>
+    (task.flags & 1) && task.type === 8 && task.entity === preacher.id &&
+    task.phase === 6 && task.selected > 0 && world.units.some(unit => {
+      if (unit.team !== 'yellow' || unit.kind !== 'preacher' || unit.hp <= 0) return false
+      const person = unitAnimationSource(unit)
+      if (!person || person.computerAssignment !== index + 1) return false
+      const order = currentPersonOrder(world.buildingOrders, person)
+      return order?.model === 3 && !(order.flags & 1) && order.a === 59008 && order.b === 26240
+    })))
   setSelection(world, [preacher.id])
   assertCondition(command(world, preachingPoint), 'Preacher approach rejected')
   until('authored-brave-listening', () => victim.native?.state === 23 && victim.native.workTarget === preacher.id)
