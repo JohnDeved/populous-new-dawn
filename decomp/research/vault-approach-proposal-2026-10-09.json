@@ -1,0 +1,370 @@
+{
+  "version": 1,
+  "kind": "source-only-vault-approach-proposal",
+  "baseCommit": "56115714ede56ac0837110d870c87cc10a344727",
+  "status": "not-ready-for-runtime-door-only-repair",
+  "execution": "No tests, browser, native execution or raw-input reads; source hashing and authored-coordinate arithmetic only.",
+  "nativeProvenance": {
+    "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "ghidraVersion": "12.1.3",
+    "metadataCommit": "60408e4e99b76ab2e5461897c8e1b33756360eaa",
+    "metadataSha256": "61b88ee7e0af403dc0de3158c418bacae37dadf9490adad621c55b3dbb554f31",
+    "snapshot": "Fresh Ghidra analysis followed by ImportMetadata.java with memory/properties disabled; all file-backed section bytes verified before export. Pseudocode is unreviewed where no port is recorded."
+  },
+  "sources": {
+    "app/vault.ts": "d40771d046c920d5c226148a4e6e6c3738a24900e85216c22cfaddc88ca74a20",
+    "app/live-command.ts": "a53f4f0a64104dabacdfb1d2242c1979baa047a89f192a89a52b1c72a702bdca",
+    "app/world-turn.ts": "825867f15f3150095ebb80dcbda4e144786c383f81b5bd7a90b22c78c43492da",
+    "app/live-movement.ts": "a71b3fc358557e7c1d0e25e24c222b1119fe09c20c1b954bcfa4290708ed6bfe",
+    "app/world-tasks.ts": "9017a053c038395fa21eafe8c982107b4f786ef8efc4c8d0b8816ddb3605c0c0",
+    "app/game-store.ts": "e762417959240887e6efe370eb1a6709169b641f777b58a8c1cdf8203b5205bb",
+    "app/building-shapes.ts": "86882bf5526a48035a1ed61b72f710139e0ddcc67d60f94f9279901636aaff92",
+    "app/vault-appearance.ts": "caaaf8cef021efdeaa725e99f803094e15735b246eb6b1e01d65b457fab784dd",
+    "app/world-initialization.ts": "0b2accb95c180d87e71bad8788f9c28f3f49ab8af66d5189fd26af69ab717fe2",
+    "app/world-terrain-runtime.ts": "4fcf001bde3e32f5647a6efa25066dc9332320f244b034a8f41881a15af4a757",
+    "app/live-people.ts": "1b8b2f1c3015317709298d5610067d13c3a17cb1a53a1a0fdd8117000ccb01c3",
+    "app/person-order-start.ts": "8d0ebf7c58bce163b372a78430c7697f39138bc5cc6c30a9fbc81622d72c85cc",
+    "app/person-order-update.ts": "23c2ff6108958715e45dc3caa034e5a3a558fdfcffa936e9129396ec8c48b286",
+    "app/native-math.ts": "223fa6c4dc5d14a66daec1c1a15a5252802e1fa7e4f3cc7c5a2fcc07818435cc",
+    "app/game-clock.ts": "d4f850867943a54ebf86e79b6d71e2f842d0e6c61c70bb2884872bd6d002eef6",
+    "app/live-worship.ts": "31d3a291fa1f8d543f3da918d5eb4eb8208c46e6e9d3192ad14c5f7012ec47e6",
+    "app/stone-head-orientation.ts": "b06c8d10ed2f9b744821c14206d63523a4a9d156a6336ae7edb59756c42c0098",
+    "app/original-shapes.json": "0d0fcd2252efe0bae7cbb9a7f3a9acc4f6f0bb7a6e6e83eb5fe4e34ec247e094",
+    "app/level-one.ts": "e840e4ea8895ada4131c7d2da2ce70330307956ea7a6e647e55e76bf6026bd33",
+    "app/level-three.ts": "7de51508c51d8193ee961de63a79016be4c58de284aefc3a707339b5e9b81e07",
+    "decomp/exports.json": "51e55c295a9956e89be85c98df835f1da141e3e10cb6b16435f55423ff5b26db",
+    "decomp/generated/0043c7a0.c": "b00f06087941eb1784b68895b85be31dae83bf41927d0f56b5ac28f77bd6dd4b",
+    "decomp/generated/004044b0.c": "68da617284e7d39836652e51811649145c806099e864f54e5fbe0589a0300c6e",
+    "decomp/generated/00404420.c": "7404afc3ab0ccb04aa07147df269b6a71dd98d53c82d1e29c104f8a356f4e64e",
+    "decomp/generated/00403610.c": "38873dc24c630181e40a7464761f3a0c6f69d9f6d8ee96a8f490c340c4f3b5ff",
+    "decomp/generated/004fb270.c": "3a61b62275e618be994161ba1ba94fa6b46beab22d3348c483072afc411b1a2a",
+    "decomp/generated/0040a3f0.c": "95f3705f9c5c60b07ad57c49612f1479b2fbe94746bc801ff9091c7d6157df7a",
+    "scripts/check-native-vault.py": "0852c25dbb956ebff40dd443ae864177b4021c12987b109e2252033e9fdf6b7d",
+    "scripts/check-native-building-shapes.py": "cd9e0cc854002c99c3329d6807c621dae04b716192a5335b3cf829c14cb2dcf7",
+    "scripts/local-render/mission3-temple-checkpoint.mjs": "cba34008a00a0a58b377ba24d09e92f19a7bf4884e139fef38b3cc1a7ada4182",
+    "scripts/local-render/mission3-temple-witness.mjs": "7d07df4ba1c098beb2f8c6ce73c4949d2ba9faa7a9648cd490426eae519b126e",
+    "scripts/local-render/mission1-vault-input.mjs": "6516422eadca28e8850a0640ded3ab8a30cdc5b12a1a44e982af14c2a414b913",
+    "scripts/local-render/mission1-vault-arrival.mjs": "4ef7d2f1acf079f1d49ae87a9ba3bc2cff09f88cfa6b5b1e176e5fac4faaab99",
+    "tests/vault-knowledge.test.mjs": "c6ce0abe9e2ae42ef7416b718157e5d0c77d0dbea6efc01130c2b4a0026101b5",
+    "tests/worship-approach.test.mjs": "92e733eeaf8aae9eddae3d18d44068cf96d7a2d1b321beb6f2c73c2ae36a033d",
+    "scripts/check-browser-worship-approach.mjs": "1f62cb0ab3a867196772ffe5b0738d8cc9f4a90eb6c6793306d008255179e383",
+    "decomp/research/stone-head-orientation.md": "4e0feb35d2a2a3c95d9f6a1a91596ecdda5f06af02f8ffc9f9a3dc03e043ab34",
+    "decomp/research/vault-side-fire.md": "f1bb8f046f70486935f89bc6d6c804e973247f40537e02f6358e6a503b8ffa33",
+    "references/reverse-engineering.md": "29da579e7715b1c93fe74dbd78327026f21299e5fa1669676976a94685834a01"
+  },
+  "exportsMatchManifest": {
+    "decomp/generated/0043c7a0.c": true,
+    "decomp/generated/004044b0.c": true,
+    "decomp/generated/00404420.c": true,
+    "decomp/generated/00403610.c": true,
+    "decomp/generated/004fb270.c": true,
+    "decomp/generated/0040a3f0.c": true
+  },
+  "calculation": "anchor = decoded building native position & 0xfe00; inside/outside = anchor - shape x/y *256 + signed shape endpoint *64, wrapped uint16; departure = outside + cardinal native step(heading+1024,1024); mask occupancy uses bit1 of the same shape.",
+  "authoredCases": [
+    {
+      "mission": 1,
+      "levelSourceSha256": "97cdb6e170f68b462b5b36c42c99a598b0466e0131a105f30612f50d7f16e40c",
+      "vaultRecord": {
+        "index": 35,
+        "model": 18,
+        "type": 2,
+        "owner": 255,
+        "x": -6.0,
+        "z": -2.0,
+        "angle": 512
+      },
+      "triggerRecord": {
+        "index": 1,
+        "model": 6,
+        "type": 6,
+        "owner": 0,
+        "x": -5.0,
+        "z": -3.0,
+        "angle": 16777476,
+        "settings": [
+          4,
+          1,
+          0,
+          1,
+          1,
+          0,
+          3,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          32,
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      },
+      "shapeIndex": 60,
+      "anchor": [
+        512,
+        64000
+      ],
+      "inside": [
+        768,
+        64256
+      ],
+      "currentOutside": [
+        256,
+        64256
+      ],
+      "canonicalOutside": [
+        65280,
+        64256
+      ],
+      "currentLeave": [
+        64768,
+        64256
+      ],
+      "canonicalLeave": [
+        64256,
+        64256
+      ],
+      "currentOutsideInOccupiedMask": true,
+      "canonicalOutsideInOccupiedMask": false
+    },
+    {
+      "mission": 3,
+      "levelSourceSha256": "eb239eabebbcde37c1e1633b149d48977cedf432348a12fc5ee6b4be74c049bf",
+      "vaultRecord": {
+        "index": 104,
+        "model": 18,
+        "type": 2,
+        "owner": 255,
+        "x": -38.0,
+        "z": -132.0,
+        "angle": 0
+      },
+      "triggerRecord": {
+        "index": 91,
+        "model": 6,
+        "type": 6,
+        "owner": 0,
+        "x": -37.0,
+        "z": -133.0,
+        "angle": 16777476,
+        "settings": [
+          4,
+          1,
+          0,
+          1,
+          1,
+          0,
+          93,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          100,
+          0,
+          0,
+          0,
+          0,
+          3
+        ]
+      },
+      "shapeIndex": 59,
+      "anchor": [
+        57856,
+        31744
+      ],
+      "inside": [
+        58112,
+        32000
+      ],
+      "currentOutside": [
+        58112,
+        31488
+      ],
+      "canonicalOutside": [
+        58112,
+        30976
+      ],
+      "currentLeave": [
+        58112,
+        30464
+      ],
+      "canonicalLeave": [
+        58112,
+        29952
+      ],
+      "currentOutsideInOccupiedMask": true,
+      "canonicalOutsideInOccupiedMask": false
+    }
+  ],
+  "existingObservation": {
+    "path": "work/orchestration/mission3-swarm-9197b1a6-05/mission3-swarm.json",
+    "sourceCommit": "9197b1a6a584fb982ac2932711296ac5df5d1358",
+    "sha256": "6617e2203185c3f0d5bd55ab0aafeb5683cd91f5f70dd299ac235d3fc478480c",
+    "samples": [
+      {
+        "turn": 878,
+        "unit": {
+          "id": 46,
+          "kind": "shaman",
+          "team": "blue",
+          "hp": 100,
+          "x": -37.0078125,
+          "z": 124.99609375,
+          "inside": null,
+          "work": 92,
+          "orderId": 8,
+          "order": {
+            "model": 33,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 92,
+            "b": 0
+          }
+        },
+        "vault": [
+          {
+            "id": 92,
+            "x": -37,
+            "z": -133,
+            "active": true,
+            "uses": 0,
+            "remaining": 1
+          }
+        ]
+      },
+      {
+        "turn": 1001,
+        "unit": {
+          "id": 46,
+          "kind": "shaman",
+          "team": "blue",
+          "hp": 100,
+          "x": -37.0078125,
+          "z": 124.99609375,
+          "inside": null,
+          "work": 92,
+          "orderId": 8,
+          "order": {
+            "model": 33,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 92,
+            "b": 0
+          }
+        },
+        "vault": [
+          {
+            "id": 92,
+            "x": -37,
+            "z": -133,
+            "active": true,
+            "uses": 0,
+            "remaining": 1
+          }
+        ]
+      },
+      {
+        "turn": 1120,
+        "unit": {
+          "id": 46,
+          "kind": "shaman",
+          "team": "blue",
+          "hp": 100,
+          "x": -37.0078125,
+          "z": 124.99609375,
+          "inside": null,
+          "work": 92,
+          "orderId": 8,
+          "order": {
+            "model": 33,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 92,
+            "b": 0
+          }
+        },
+        "vault": [
+          {
+            "id": 92,
+            "x": -37,
+            "z": -133,
+            "active": true,
+            "uses": 0,
+            "remaining": 1
+          }
+        ]
+      },
+      {
+        "turn": 1243,
+        "unit": {
+          "id": 46,
+          "kind": "shaman",
+          "team": "blue",
+          "hp": 100,
+          "x": -37.0078125,
+          "z": 124.99609375,
+          "inside": null,
+          "work": 92,
+          "orderId": 8,
+          "order": {
+            "model": 33,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 92,
+            "b": 0
+          }
+        },
+        "vault": [
+          {
+            "id": 92,
+            "x": -37,
+            "z": -133,
+            "active": true,
+            "uses": 0,
+            "remaining": 1
+          }
+        ]
+      }
+    ],
+    "queuedPhase": 0,
+    "rewardObservedTurn": 1406,
+    "limits": "Position/order/uses samples only. No pre-reward native goal, commandPhase or shrine work snapshots. The source is a separately retained existing run, not this proposal base or a new execution."
+  }
+}
