@@ -2,17 +2,26 @@
 
 Base: main `d6cf109474379172728a3ccebf46ef72a15f3a58`. Not executed. No product files change.
 
-One `createWorld(3)`, at most 6,000 total `tick(1/12)` turns. At turn 256 use the
+One `createWorld(3)`, at most 6,000 total `tick(1/12)` turns. At turn 372 use the
 established selected-Shaman Vault command; once Temple knowledge is earned, issue
 only PR281's fixed staging move and require its native arrival/idle transition.
 Observe through the same global cap. No casts, alternate routes, state/stock/HP/
 occupancy assignments, input-mask clearing, seed sweeps, browser or native runs.
-Command APIs are model-level actions. Input-mask state is retained as observed;
-their acceptance does not prove browser input eligibility or Skip/readiness.
+Turn 372 is PR281 ordinary05's actual trusted Vault dispatch; its readiness was
+turn 178 with mask zero. This schedules one model command from that retained
+episode, not a browser replay. Preserve actual model readiness/mask divergence;
+no camera/Skip path or input-mask write is introduced. The living selected
+Shaman 46 and accepted command 33 targeting Vault 92 must match. Command API
+acceptance does not prove browser input eligibility or Skip/readiness.
 
 Retain JSON lines through the existing command-receipt runner. Each categorical
 health/stock/range/occupancy transition and each 64-turn sample includes actual
 geometry, admissions, six physical slots and live unit/person cross-checks.
+Occupancy resolves the actual admission owner `unit.entry?.person ?? unit.native`
+and requires its ID to match the slot and unit. Caster diagnostics use the
+shipped `unitAnimationSource`. Progress/slot transitions can occur every turn;
+total JSONL output is capped at 16 MiB, reserving 4 KiB for a short terminal
+failure if exhausted. The raw prefix remains available and the run fails.
 The single prospective impact is PR281 ordinary05's actual snapped `(-43,-107)`;
 its real target was Brave 53. No building acquisition is inferred from that run.
 Range uses the shipped pure range/terrain/distance leaves without synchronizing
@@ -45,7 +54,8 @@ Timeout/failure leaves the raw emitted prefix in the runner's artifact logs.
 
 Freeze inputs: both new proposal files, the two static inputs above, and existing
 `scripts/local-render/mission3-swarm.mjs`, `mission1-vault-arrival.mjs`,
-`scripts/mission3-natural-preacher-scenario.mjs`, `scripts/orchestration/command-receipt.mjs`.
+`scripts/mission3-natural-preacher-scenario.mjs`, `scripts/campaign-start-readiness.mjs`,
+`app/unit-animation-source.ts`, `scripts/orchestration/command-receipt.mjs`.
 The exact clean Git head binds all imported application/JSON source, especially
 `app/model.ts`, `world-initialization.ts`, `world-state.ts`, `live-command.ts`,
 `selection-runtime.ts`, `building-shapes.ts`, `live-building-entry.ts`,
