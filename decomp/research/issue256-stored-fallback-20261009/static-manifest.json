@@ -1,0 +1,244 @@
+{
+  "scope": "Static data decoding only; no original instructions executed. Candidate scans are not a proof excluding indirect/copy writers.",
+  "recordedAt": "2026-10-09T12:40:30.702846+00:00",
+  "exe": {
+    "path": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe",
+    "bytes": 2275840,
+    "sha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "sha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+  },
+  "objdumpVersion": "GNU objdump (GNU Binutils for Debian) 2.44",
+  "objdumpSha256": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+  "scannedExecutableSections": [
+    {
+      "fileOffset": 1024,
+      "size": 1591844,
+      "virtualAddress": 4198400
+    },
+    {
+      "fileOffset": 1593344,
+      "size": 34664,
+      "virtualAddress": 5791744
+    }
+  ],
+  "operandSearch": "Little-endian uint32 byte-pattern search over the two executable sections; addresses identify operand bytes, not necessarily instructions.",
+  "operandCandidates": {
+    "0x5a0": [
+      "0x41a8f5",
+      "0x49bd82",
+      "0x4fb77c",
+      "0x550360",
+      "0x5582f3"
+    ],
+    "0x5a1": [
+      "0x404f46",
+      "0x4bc970"
+    ],
+    "0x5a2": [
+      "0x4c73cf",
+      "0x4dcdb7",
+      "0x4f3295",
+      "0x4f561c",
+      "0x4f6030"
+    ],
+    "0x5a3": [
+      "0x4d353a"
+    ],
+    "0x89d768": [],
+    "0x89d769": [],
+    "0x89d76a": [
+      "0x485b9e"
+    ],
+    "0x89d76b": [],
+    "0x89e3cf": [],
+    "0x89f034": [],
+    "0x89fc99": []
+  },
+  "directCallSearch": "Byte 0xe8 followed by signed rel32 resolving to target, over the same executable sections; each is only a candidate until decoded.",
+  "directCallCandidates": {
+    "0x461d70": [
+      "0x42b69e"
+    ],
+    "0x42b660": [
+      "0x42b8e3"
+    ],
+    "0x42b7f0": [
+      "0x40f22b",
+      "0x410d51",
+      "0x42b5cb",
+      "0x42c858",
+      "0x4a5183",
+      "0x4b1eae",
+      "0x4c34a8"
+    ],
+    "0x485b00": [
+      "0x48502d"
+    ],
+    "0x484a10": [
+      "0x42b3c8"
+    ]
+  },
+  "ranges": [
+    {
+      "start": "0x461d70",
+      "stopExclusive": "0x461dc1",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-Mintel",
+        "--start-address=0x461d70",
+        "--stop-address=0x461dc1",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "exitCode": 0,
+      "stderrBytes": 0,
+      "stdoutSha256": "7ba98f932b7eaab756a25296f1d4deae782af7fabaa338cfa542877fcc208cf9",
+      "inputRangeSha256": "568c2381f27601aed04df26c7808a164f2149061738a571d0cd9aeb808da388c"
+    },
+    {
+      "start": "0x42b660",
+      "stopExclusive": "0x42b6b7",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-Mintel",
+        "--start-address=0x42b660",
+        "--stop-address=0x42b6b7",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "exitCode": 0,
+      "stderrBytes": 0,
+      "stdoutSha256": "857b4e69ba8fc11735a87a7e64125cff391aa2defcdf23edf450f33e8c3164cb",
+      "inputRangeSha256": "2ddb982bd092fdad4ba61802122465dce2448b4a2f0c831c02b27b9a342262a8"
+    },
+    {
+      "start": "0x42b7f0",
+      "stopExclusive": "0x42b909",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-Mintel",
+        "--start-address=0x42b7f0",
+        "--stop-address=0x42b909",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "exitCode": 0,
+      "stderrBytes": 0,
+      "stdoutSha256": "d9c6a0111017881069281c7084ae76f930c2f762289a9966b24fc6b39840ba0f",
+      "inputRangeSha256": "c14f8c5d24887ba758c61d5ac1afd3f2a129b7c1cd51524753edf30cbea93c91"
+    },
+    {
+      "start": "0x42b590",
+      "stopExclusive": "0x42b63d",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-Mintel",
+        "--start-address=0x42b590",
+        "--stop-address=0x42b63d",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "exitCode": 0,
+      "stderrBytes": 0,
+      "stdoutSha256": "b0c8a06964d51e0101a4ff2e6a1d08c82f00d967192aec0c80cd6eb39f2b5406",
+      "inputRangeSha256": "b8eb864f0a24f5b9bcf16ab404b1e5baa035d38cc624702da3e273cb58e78352"
+    },
+    {
+      "start": "0x484a10",
+      "stopExclusive": "0x484a70",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-Mintel",
+        "--start-address=0x484a10",
+        "--stop-address=0x484a70",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "exitCode": 0,
+      "stderrBytes": 0,
+      "stdoutSha256": "7128d5469afcddc54dc9483e87b6a31d6929eaa1a568892d6d30921d09e26bc0",
+      "inputRangeSha256": "73a5d1bb6520f37fde63ca251bf9bbbb6d368613759090a575c11d465c510f55"
+    },
+    {
+      "start": "0x484f70",
+      "stopExclusive": "0x485050",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-Mintel",
+        "--start-address=0x484f70",
+        "--stop-address=0x485050",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "exitCode": 0,
+      "stderrBytes": 0,
+      "stdoutSha256": "bac696efb8ac4e72d0e01fceae5520102f111b0f2d3d26a48b3371ff011eae57",
+      "inputRangeSha256": "e26a820f12a1a9ea8c1cbda4fbc1a06b8cdd80800e67162e8262ce5803ccf587"
+    },
+    {
+      "start": "0x485b00",
+      "stopExclusive": "0x485ba7",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-Mintel",
+        "--start-address=0x485b00",
+        "--stop-address=0x485ba7",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "exitCode": 0,
+      "stderrBytes": 0,
+      "stdoutSha256": "626357ff0905c7736dd94b0568b2c452e0a02f3a4bb0c40c50acc073eddadae5",
+      "inputRangeSha256": "b2046e63784b9d99edc961dea5a95c826258507a2365837f5730d309ec9e3827"
+    },
+    {
+      "start": "0x4f6020",
+      "stopExclusive": "0x4f6040",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-Mintel",
+        "--start-address=0x4f6020",
+        "--stop-address=0x4f6040",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "exitCode": 0,
+      "stderrBytes": 0,
+      "stdoutSha256": "8200645f97ae83248568bd5855715d38b13f25d7ce468e834ec17f70646ad0d2",
+      "inputRangeSha256": "926a09ca8097a066da0d1d771a40099a462b17affddc430ad46c891a0e2094bf"
+    },
+    {
+      "start": "0x4dcdaa",
+      "stopExclusive": "0x4dcdbb",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-Mintel",
+        "--start-address=0x4dcdaa",
+        "--stop-address=0x4dcdbb",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "exitCode": 0,
+      "stderrBytes": 0,
+      "stdoutSha256": "a206cc67a8ed992d85ba0caaa195f09e51adb151b8dac91758d5d67ced4d5100",
+      "inputRangeSha256": "23f84efbecebe3b02731f8ea71c34e67f757c240f98085ce35c207304dd3c1ce"
+    },
+    {
+      "start": "0x4f55d0",
+      "stopExclusive": "0x4f567b",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-Mintel",
+        "--start-address=0x4f55d0",
+        "--stop-address=0x4f567b",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "exitCode": 0,
+      "stderrBytes": 0,
+      "stdoutSha256": "b2f0050108f8ae012de615900b1dee9a64763b44364ff88ff5d3fc38035c3e5d",
+      "inputRangeSha256": "8eb0ec7e245caaaa82730b3fae45984392d9bfbf9bcd3c35beb8993259b45828"
+    }
+  ],
+  "combinedDisassemblySha256": "fcdbced6c9477952f481b7f60c26c0a3fe083914b23ca5f7557af2668ce41f19"
+}

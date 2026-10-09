@@ -1,0 +1,447 @@
+
+/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+00461d70 <.text+0x60d70>:
+  461d70:	53                   	push   ebx
+  461d71:	33 c0                	xor    eax,eax
+  461d73:	56                   	push   esi
+  461d74:	b9 64 01 00 00       	mov    ecx,0x164
+  461d79:	57                   	push   edi
+  461d7a:	55                   	push   ebp
+  461d7b:	8b 6c 24 14          	mov    ebp,DWORD PTR [esp+0x14]
+  461d7f:	8d 7d 36             	lea    edi,[ebp+0x36]
+  461d82:	f3 ab                	rep stos DWORD PTR es:[edi],eax
+  461d84:	66 ab                	stos   WORD PTR es:[edi],ax
+  461d86:	be 78 d8 59 00       	mov    esi,0x59d878
+  461d8b:	b9 3c 00 00 00       	mov    ecx,0x3c
+  461d90:	aa                   	stos   BYTE PTR es:[edi],al
+  461d91:	8d bd 6e 03 00 00    	lea    edi,[ebp+0x36e]
+  461d97:	bb ff ff ff ff       	mov    ebx,0xffffffff
+  461d9c:	f3 a5                	rep movs DWORD PTR es:[edi],DWORD PTR ds:[esi]
+  461d9e:	55                   	push   ebp
+  461d9f:	89 9d 9e 05 00 00    	mov    DWORD PTR [ebp+0x59e],ebx
+  461da5:	c6 85 be 05 00 00 0b 	mov    BYTE PTR [ebp+0x5be],0xb
+  461dac:	e8 0f 35 09 00       	call   0x4f52c0
+  461db1:	83 c4 04             	add    esp,0x4
+  461db4:	8d 8d 76 04 00 00    	lea    ecx,[ebp+0x476]
+  461dba:	c6 85 b4 05 00 00 00 	mov    BYTE PTR [ebp+0x5b4],0x0
+
+/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+0042b660 <.text+0x2a660>:
+  42b660:	8a 54 24 04          	mov    dl,BYTE PTR [esp+0x4]
+  42b664:	56                   	push   esi
+  42b665:	0f be c2             	movsx  eax,dl
+  42b668:	57                   	push   edi
+  42b669:	8b c8                	mov    ecx,eax
+  42b66b:	8d 34 80             	lea    esi,[eax+eax*4]
+  42b66e:	8d 04 71             	lea    eax,[ecx+esi*2]
+  42b671:	8d 34 c0             	lea    esi,[eax+eax*8]
+  42b674:	8d 04 f1             	lea    eax,[ecx+esi*8]
+  42b677:	8d b4 81 c8 d1 89 00 	lea    esi,[ecx+eax*4+0x89d1c8]
+  42b67e:	c6 86 1f 0c 00 00 02 	mov    BYTE PTR [esi+0xc1f],0x2
+  42b685:	f6 05 61 c6 89 00 08 	test   BYTE PTR ds:0x89c661,0x8
+  42b68c:	75 29                	jne    0x42b6b7
+  42b68e:	38 15 f0 c6 89 00    	cmp    BYTE PTR ds:0x89c6f0,dl
+  42b694:	74 12                	je     0x42b6a8
+  42b696:	c6 86 1f 0c 00 00 01 	mov    BYTE PTR [esi+0xc1f],0x1
+  42b69d:	56                   	push   esi
+  42b69e:	e8 cd 66 03 00       	call   0x461d70
+  42b6a3:	83 c4 04             	add    esp,0x4
+  42b6a6:	eb 0f                	jmp    0x42b6b7
+  42b6a8:	8d 7e 36             	lea    edi,[esi+0x36]
+  42b6ab:	33 c0                	xor    eax,eax
+  42b6ad:	b9 64 01 00 00       	mov    ecx,0x164
+  42b6b2:	f3 ab                	rep stos DWORD PTR es:[edi],eax
+  42b6b4:	66 ab                	stos   WORD PTR es:[edi],ax
+  42b6b6:	aa                   	stos   BYTE PTR es:[edi],al
+
+/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+0042b7f0 <.text+0x2a7f0>:
+  42b7f0:	56                   	push   esi
+  42b7f1:	b9 8d 79 89 00       	mov    ecx,0x89798d
+  42b7f6:	57                   	push   edi
+  42b7f7:	33 c0                	xor    eax,eax
+  42b7f9:	ba c8 d1 89 00       	mov    edx,0x89d1c8
+  42b7fe:	89 01                	mov    DWORD PTR [ecx],eax
+  42b800:	89 41 04             	mov    DWORD PTR [ecx+0x4],eax
+  42b803:	66 89 41 08          	mov    WORD PTR [ecx+0x8],ax
+  42b807:	b9 c7 26 89 00       	mov    ecx,0x8926c7
+  42b80c:	a3 c7 26 89 00       	mov    ds:0x8926c7,eax
+  42b811:	89 41 04             	mov    DWORD PTR [ecx+0x4],eax
+  42b814:	8d 8a 27 0a 00 00    	lea    ecx,[edx+0xa27]
+  42b81a:	8d ba 4b 0a 00 00    	lea    edi,[edx+0xa4b]
+  42b820:	88 82 20 0c 00 00    	mov    BYTE PTR [edx+0xc20],al
+  42b826:	81 c2 65 0c 00 00    	add    edx,0xc65
+  42b82c:	81 fa 5c 03 8a 00    	cmp    edx,0x8a035c
+  42b832:	89 82 e4 fc ff ff    	mov    DWORD PTR [edx-0x31c],eax
+  42b838:	89 82 b8 fc ff ff    	mov    DWORD PTR [edx-0x348],eax
+  42b83e:	89 82 c0 fc ff ff    	mov    DWORD PTR [edx-0x340],eax
+  42b844:	89 82 20 fc ff ff    	mov    DWORD PTR [edx-0x3e0],eax
+  42b84a:	89 82 1c fc ff ff    	mov    DWORD PTR [edx-0x3e4],eax
+  42b850:	89 82 e0 fc ff ff    	mov    DWORD PTR [edx-0x320],eax
+  42b856:	89 82 e8 fc ff ff    	mov    DWORD PTR [edx-0x318],eax
+  42b85c:	89 01                	mov    DWORD PTR [ecx],eax
+  42b85e:	89 41 04             	mov    DWORD PTR [ecx+0x4],eax
+  42b861:	89 41 08             	mov    DWORD PTR [ecx+0x8],eax
+  42b864:	89 41 0c             	mov    DWORD PTR [ecx+0xc],eax
+  42b867:	66 89 41 10          	mov    WORD PTR [ecx+0x10],ax
+  42b86b:	8d 8a d4 fd ff ff    	lea    ecx,[edx-0x22c]
+  42b871:	89 01                	mov    DWORD PTR [ecx],eax
+  42b873:	89 41 04             	mov    DWORD PTR [ecx+0x4],eax
+  42b876:	89 41 08             	mov    DWORD PTR [ecx+0x8],eax
+  42b879:	89 41 0c             	mov    DWORD PTR [ecx+0xc],eax
+  42b87c:	66 89 41 10          	mov    WORD PTR [ecx+0x10],ax
+  42b880:	b9 16 00 00 00       	mov    ecx,0x16
+  42b885:	f3 ab                	rep stos DWORD PTR es:[edi],eax
+  42b887:	66 ab                	stos   WORD PTR es:[edi],ax
+  42b889:	8d ba 40 fe ff ff    	lea    edi,[edx-0x1c0]
+  42b88f:	b9 1b 00 00 00       	mov    ecx,0x1b
+  42b894:	f3 ab                	rep stos DWORD PTR es:[edi],eax
+  42b896:	8d ba ac fe ff ff    	lea    edi,[edx-0x154]
+  42b89c:	b9 1b 00 00 00       	mov    ecx,0x1b
+  42b8a1:	f3 ab                	rep stos DWORD PTR es:[edi],eax
+  42b8a3:	8d ba 18 ff ff ff    	lea    edi,[edx-0xe8]
+  42b8a9:	b9 0a 00 00 00       	mov    ecx,0xa
+  42b8ae:	f3 ab                	rep stos DWORD PTR es:[edi],eax
+  42b8b0:	8d 8a 40 ff ff ff    	lea    ecx,[edx-0xc0]
+  42b8b6:	8d ba 4a ff ff ff    	lea    edi,[edx-0xb6]
+  42b8bc:	89 01                	mov    DWORD PTR [ecx],eax
+  42b8be:	89 41 04             	mov    DWORD PTR [ecx+0x4],eax
+  42b8c1:	66 89 41 08          	mov    WORD PTR [ecx+0x8],ax
+  42b8c5:	b9 0a 00 00 00       	mov    ecx,0xa
+  42b8ca:	f3 ab                	rep stos DWORD PTR es:[edi],eax
+  42b8cc:	0f 82 42 ff ff ff    	jb     0x42b814
+  42b8d2:	33 ff                	xor    edi,edi
+  42b8d4:	80 3d c0 ea 96 00 00 	cmp    BYTE PTR ds:0x96eac0,0x0
+  42b8db:	76 29                	jbe    0x42b906
+  42b8dd:	be c8 d1 89 00       	mov    esi,0x89d1c8
+  42b8e2:	57                   	push   edi
+  42b8e3:	e8 78 fd ff ff       	call   0x42b660
+  42b8e8:	83 c4 04             	add    esp,0x4
+  42b8eb:	47                   	inc    edi
+  42b8ec:	56                   	push   esi
+  42b8ed:	e8 fe b6 00 00       	call   0x436ff0
+  42b8f2:	83 c4 04             	add    esp,0x4
+  42b8f5:	81 c6 65 0c 00 00    	add    esi,0xc65
+  42b8fb:	33 c0                	xor    eax,eax
+  42b8fd:	a0 c0 ea 96 00       	mov    al,ds:0x96eac0
+  42b902:	3b c7                	cmp    eax,edi
+  42b904:	7f dc                	jg     0x42b8e2
+  42b906:	5f                   	pop    edi
+  42b907:	5e                   	pop    esi
+  42b908:	c3                   	ret
+
+/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+0042b590 <.text+0x2a590>:
+  42b590:	53                   	push   ebx
+  42b591:	57                   	push   edi
+  42b592:	bf d3 79 89 00       	mov    edi,0x8979d3
+  42b597:	e8 04 0a 00 00       	call   0x42bfa0
+  42b59c:	e8 7f 73 07 00       	call   0x4a2920
+  42b5a1:	33 db                	xor    ebx,ebx
+  42b5a3:	e8 98 5a fd ff       	call   0x401040
+  42b5a8:	e8 83 44 02 00       	call   0x44fa30
+  42b5ad:	33 c0                	xor    eax,eax
+  42b5af:	b9 e2 05 00 00       	mov    ecx,0x5e2
+  42b5b4:	f3 ab                	rep stos DWORD PTR es:[edi],eax
+  42b5b6:	89 1d 84 d1 89 00    	mov    DWORD PTR ds:0x89d184,ebx
+  42b5bc:	e8 6f f6 04 00       	call   0x47ac30
+  42b5c1:	bf a0 f4 64 00       	mov    edi,0x64f4a0
+  42b5c6:	e8 55 2d 01 00       	call   0x43e320
+  42b5cb:	e8 20 02 00 00       	call   0x42b7f0
+  42b5d0:	66 89 1d 7a aa 96 00 	mov    WORD PTR ds:0x96aa7a,bx
+  42b5d7:	33 c0                	xor    eax,eax
+  42b5d9:	b9 cf 07 00 00       	mov    ecx,0x7cf
+  42b5de:	88 1d bb 5e 89 00    	mov    BYTE PTR ds:0x895ebb,bl
+  42b5e4:	66 c7 05 78 aa 96 00 	mov    WORD PTR ds:0x96aa78,0x1
+  42b5eb:	01 00 
+  42b5ed:	88 1d bc 5e 89 00    	mov    BYTE PTR ds:0x895ebc,bl
+  42b5f3:	f3 ab                	rep stos DWORD PTR es:[edi],eax
+  42b5f5:	aa                   	stos   BYTE PTR es:[edi],al
+  42b5f6:	bf ba aa 96 00       	mov    edi,0x96aaba
+  42b5fb:	b9 00 08 00 00       	mov    ecx,0x800
+  42b600:	f3 ab                	rep stos DWORD PTR es:[edi],eax
+  42b602:	bf ba ca 96 00       	mov    edi,0x96caba
+  42b607:	b9 00 08 00 00       	mov    ecx,0x800
+  42b60c:	f3 ab                	rep stos DWORD PTR es:[edi],eax
+  42b60e:	b8 c8 00 00 00       	mov    eax,0xc8
+  42b613:	8b 4c 24 14          	mov    ecx,DWORD PTR [esp+0x14]
+  42b617:	51                   	push   ecx
+  42b618:	a2 5c ce 89 00       	mov    ds:0x89ce5c,al
+  42b61d:	8b 54 24 14          	mov    edx,DWORD PTR [esp+0x14]
+  42b621:	a2 5e ce 89 00       	mov    ds:0x89ce5e,al
+  42b626:	8b 44 24 10          	mov    eax,DWORD PTR [esp+0x10]
+  42b62a:	52                   	push   edx
+  42b62b:	50                   	push   eax
+  42b62c:	88 1d 5d ce 89 00    	mov    BYTE PTR ds:0x89ce5d,bl
+  42b632:	88 1d 5f ce 89 00    	mov    BYTE PTR ds:0x89ce5f,bl
+  42b638:	e8 f3 fb ff ff       	call   0x42b230
+
+/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+00484a10 <.text+0x83a10>:
+  484a10:	81 ec 60 02 00 00    	sub    esp,0x260
+  484a16:	33 c0                	xor    eax,eax
+  484a18:	89 44 24 1c          	mov    DWORD PTR [esp+0x1c],eax
+  484a1c:	53                   	push   ebx
+  484a1d:	89 44 24 24          	mov    DWORD PTR [esp+0x24],eax
+  484a21:	56                   	push   esi
+  484a22:	8b b4 24 6c 02 00 00 	mov    esi,DWORD PTR [esp+0x26c]
+  484a29:	57                   	push   edi
+  484a2a:	89 44 24 30          	mov    DWORD PTR [esp+0x30],eax
+  484a2e:	55                   	push   ebp
+  484a2f:	89 44 24 38          	mov    DWORD PTR [esp+0x38],eax
+  484a33:	89 44 24 18          	mov    DWORD PTR [esp+0x18],eax
+  484a37:	a0 15 a3 89 00       	mov    al,ds:0x89a315
+  484a3c:	3b c6                	cmp    eax,esi
+  484a3e:	75 0c                	jne    0x484a4c
+  484a40:	81 0d 65 c6 89 00 00 	or     DWORD PTR ds:0x89c665,0x200
+  484a47:	02 00 00 
+  484a4a:	eb 0a                	jmp    0x484a56
+  484a4c:	81 25 65 c6 89 00 ff 	and    DWORD PTR ds:0x89c665,0xfffffdff
+  484a53:	fd ff ff 
+  484a56:	33 c0                	xor    eax,eax
+  484a58:	89 44 84 40          	mov    DWORD PTR [esp+eax*4+0x40],eax
+  484a5c:	40                   	inc    eax
+  484a5d:	83 f8 04             	cmp    eax,0x4
+  484a60:	7c f6                	jl     0x484a58
+  484a62:	e8 59 93 fc ff       	call   0x44ddc0
+  484a67:	8d 84 24 60 01 00 00 	lea    eax,[esp+0x160]
+  484a6e:	6a 00                	push   0x0
+
+/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+00484f70 <.text+0x83f70>:
+  484f70:	3c 02                	cmp    al,0x2
+  484f72:	75 63                	jne    0x484fd7
+  484f74:	8b 46 06             	mov    eax,DWORD PTR [esi+0x6]
+  484f77:	8b 0d 43 24 89 00    	mov    ecx,DWORD PTR ds:0x892443
+  484f7d:	99                   	cdq
+  484f7e:	81 e2 ff 01 00 00    	and    edx,0x1ff
+  484f84:	03 c2                	add    eax,edx
+  484f86:	c1 f8 09             	sar    eax,0x9
+  484f89:	89 01                	mov    DWORD PTR [ecx],eax
+  484f8b:	8b 0d 43 24 89 00    	mov    ecx,DWORD PTR ds:0x892443
+  484f91:	8d 44 24 1c          	lea    eax,[esp+0x1c]
+  484f95:	89 59 04             	mov    DWORD PTR [ecx+0x4],ebx
+  484f98:	8b 0d 43 24 89 00    	mov    ecx,DWORD PTR ds:0x892443
+  484f9e:	50                   	push   eax
+  484f9f:	c7 41 08 02 00 00 00 	mov    DWORD PTR [ecx+0x8],0x2
+  484fa6:	8b 0d 43 24 89 00    	mov    ecx,DWORD PTR ds:0x892443
+  484fac:	c7 41 0c ff ff ff ff 	mov    DWORD PTR [ecx+0xc],0xffffffff
+  484fb3:	8b 0d 43 24 89 00    	mov    ecx,DWORD PTR ds:0x892443
+  484fb9:	89 59 10             	mov    DWORD PTR [ecx+0x10],ebx
+  484fbc:	83 05 43 24 89 00 14 	add    DWORD PTR ds:0x892443,0x14
+  484fc3:	c6 05 3a 24 89 00 01 	mov    BYTE PTR ds:0x89243a,0x1
+  484fca:	8a 56 01             	mov    dl,BYTE PTR [esi+0x1]
+  484fcd:	8a 4e ff             	mov    cl,BYTE PTR [esi-0x1]
+  484fd0:	52                   	push   edx
+  484fd1:	8a 06                	mov    al,BYTE PTR [esi]
+  484fd3:	51                   	push   ecx
+  484fd4:	50                   	push   eax
+  484fd5:	eb 3a                	jmp    0x485011
+  484fd7:	3c 01                	cmp    al,0x1
+  484fd9:	75 23                	jne    0x484ffe
+  484fdb:	80 7e ff 07          	cmp    BYTE PTR [esi-0x1],0x7
+  484fdf:	75 0c                	jne    0x484fed
+  484fe1:	0f be c1             	movsx  eax,cl
+  484fe4:	8a 44 84 40          	mov    al,BYTE PTR [esp+eax*4+0x40]
+  484fe8:	88 46 01             	mov    BYTE PTR [esi+0x1],al
+  484feb:	eb 11                	jmp    0x484ffe
+  484fed:	f6 05 61 c6 89 00 08 	test   BYTE PTR ds:0x89c661,0x8
+  484ff4:	74 08                	je     0x484ffe
+  484ff6:	c6 46 01 ff          	mov    BYTE PTR [esi+0x1],0xff
+  484ffa:	c6 46 ff 01          	mov    BYTE PTR [esi-0x1],0x1
+  484ffe:	8d 46 ff             	lea    eax,[esi-0x1]
+  485001:	8d 4c 24 1c          	lea    ecx,[esp+0x1c]
+  485005:	51                   	push   ecx
+  485006:	8a 56 01             	mov    dl,BYTE PTR [esi+0x1]
+  485009:	52                   	push   edx
+  48500a:	8a 46 ff             	mov    al,BYTE PTR [esi-0x1]
+  48500d:	50                   	push   eax
+  48500e:	8a 0e                	mov    cl,BYTE PTR [esi]
+  485010:	51                   	push   ecx
+  485011:	e8 8a 88 06 00       	call   0x4ed8a0
+  485016:	83 c4 10             	add    esp,0x10
+  485019:	8b e8                	mov    ebp,eax
+  48501b:	85 ed                	test   ebp,ebp
+  48501d:	74 19                	je     0x485038
+  48501f:	38 5d 2a             	cmp    BYTE PTR [ebp+0x2a],bl
+  485022:	75 04                	jne    0x485028
+  485024:	c6 46 ff 03          	mov    BYTE PTR [esi-0x1],0x3
+  485028:	8d 46 ff             	lea    eax,[esi-0x1]
+  48502b:	50                   	push   eax
+  48502c:	55                   	push   ebp
+  48502d:	e8 ce 0a 00 00       	call   0x485b00
+  485032:	83 c4 08             	add    esp,0x8
+  485035:	89 7d 08             	mov    DWORD PTR [ebp+0x8],edi
+  485038:	47                   	inc    edi
+  485039:	83 c6 37             	add    esi,0x37
+  48503c:	ff 4c 24 24          	dec    DWORD PTR [esp+0x24]
+  485040:	0f 85 96 fe ff ff    	jne    0x484edc
+  485046:	ff 4c 24 28          	dec    DWORD PTR [esp+0x28]
+  48504a:	0f 85 4a fe ff ff    	jne    0x484e9a
+
+/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+00485b00 <.text+0x84b00>:
+  485b00:	8b 4c 24 08          	mov    ecx,DWORD PTR [esp+0x8]
+  485b04:	83 ec 08             	sub    esp,0x8
+  485b07:	33 c0                	xor    eax,eax
+  485b09:	56                   	push   esi
+  485b0a:	57                   	push   edi
+  485b0b:	8a 41 01             	mov    al,BYTE PTR [ecx+0x1]
+  485b0e:	48                   	dec    eax
+  485b0f:	83 f8 06             	cmp    eax,0x6
+  485b12:	0f 87 9a 02 00 00    	ja     0x485db2
+  485b18:	ff 24 85 b8 5d 48 00 	jmp    DWORD PTR [eax*4+0x485db8]
+  485b1f:	a1 78 d1 89 00       	mov    eax,ds:0x89d178
+  485b24:	8b d0                	mov    edx,eax
+  485b26:	8d 34 c0             	lea    esi,[eax+eax*8]
+  485b29:	8d 04 f2             	lea    eax,[edx+esi*8]
+  485b2c:	8d 04 82             	lea    eax,[edx+eax*4]
+  485b2f:	c1 e0 02             	shl    eax,0x2
+  485b32:	8d 04 c2             	lea    eax,[edx+eax*8]
+  485b35:	05 df 24 00 00       	add    eax,0x24df
+  485b3a:	a3 78 d1 89 00       	mov    ds:0x89d178,eax
+  485b3f:	89 44 24 0c          	mov    DWORD PTR [esp+0xc],eax
+  485b43:	c1 4c 24 0c 0d       	ror    DWORD PTR [esp+0xc],0xd
+  485b48:	8b 44 24 0c          	mov    eax,DWORD PTR [esp+0xc]
+  485b4c:	8b 74 24 14          	mov    esi,DWORD PTR [esp+0x14]
+  485b50:	a3 78 d1 89 00       	mov    ds:0x89d178,eax
+  485b55:	66 25 ff 00          	and    ax,0xff
+  485b59:	66 89 86 87 00 00 00 	mov    WORD PTR [esi+0x87],ax
+  485b60:	8a 01                	mov    al,BYTE PTR [ecx]
+  485b62:	3c 07                	cmp    al,0x7
+  485b64:	75 41                	jne    0x485ba7
+  485b66:	66 8b 46 3d          	mov    ax,WORD PTR [esi+0x3d]
+  485b6a:	66 c1 e8 08          	shr    ax,0x8
+  485b6e:	24 fe                	and    al,0xfe
+  485b70:	88 44 24 0a          	mov    BYTE PTR [esp+0xa],al
+  485b74:	66 8b 46 3f          	mov    ax,WORD PTR [esi+0x3f]
+  485b78:	66 c1 e8 08          	shr    ax,0x8
+  485b7c:	24 fe                	and    al,0xfe
+  485b7e:	88 44 24 0b          	mov    BYTE PTR [esp+0xb],al
+  485b82:	0f be 46 2f          	movsx  eax,BYTE PTR [esi+0x2f]
+  485b86:	8d 34 80             	lea    esi,[eax+eax*4]
+  485b89:	66 8b 54 24 0a       	mov    dx,WORD PTR [esp+0xa]
+  485b8e:	8b c8                	mov    ecx,eax
+  485b90:	8d 04 71             	lea    eax,[ecx+esi*2]
+  485b93:	8d 3c c0             	lea    edi,[eax+eax*8]
+  485b96:	8d 34 f9             	lea    esi,[ecx+edi*8]
+  485b99:	5f                   	pop    edi
+  485b9a:	66 89 94 b1 6a d7 89 	mov    WORD PTR [ecx+esi*4+0x89d76a],dx
+  485ba1:	00 
+  485ba2:	5e                   	pop    esi
+  485ba3:	83 c4 08             	add    esp,0x8
+  485ba6:	c3                   	ret
+
+/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+004f6020 <.text+0xf5020>:
+  4f6020:	8b 44 24 04          	mov    eax,DWORD PTR [esp+0x4]
+  4f6024:	80 b8 b4 05 00 00 00 	cmp    BYTE PTR [eax+0x5b4],0x0
+  4f602b:	75 08                	jne    0x4f6035
+  4f602d:	66 8b 80 a2 05 00 00 	mov    ax,WORD PTR [eax+0x5a2]
+  4f6034:	c3                   	ret
+  4f6035:	66 8b 80 6a 03 00 00 	mov    ax,WORD PTR [eax+0x36a]
+  4f603c:	c3                   	ret
+  4f603d:	cc                   	int3
+  4f603e:	cc                   	int3
+  4f603f:	cc                   	int3
+
+/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+004dcdaa <.text+0xdbdaa>:
+  4dcdaa:	80 4f 76 10          	or     BYTE PTR [edi+0x76],0x10
+  4dcdae:	fe c8                	dec    al
+  4dcdb0:	88 87 a8 00 00 00    	mov    BYTE PTR [edi+0xa8],al
+  4dcdb6:	e9 a2 05 00 00       	jmp    0x4dd35d
+
+/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+004f55d0 <.text+0xf45d0>:
+  4f55d0:	83 ec 04             	sub    esp,0x4
+  4f55d3:	56                   	push   esi
+  4f55d4:	57                   	push   edi
+  4f55d5:	8b 74 24 10          	mov    esi,DWORD PTR [esp+0x10]
+  4f55d9:	56                   	push   esi
+  4f55da:	e8 01 9b fe ff       	call   0x4df0e0
+  4f55df:	83 c4 04             	add    esp,0x4
+  4f55e2:	84 c0                	test   al,al
+  4f55e4:	0f 84 8e 00 00 00    	je     0x4f5678
+  4f55ea:	80 be af 00 00 00 00 	cmp    BYTE PTR [esi+0xaf],0x0
+  4f55f1:	0f 85 81 00 00 00    	jne    0x4f5678
+  4f55f7:	0f be 46 2f          	movsx  eax,BYTE PTR [esi+0x2f]
+  4f55fb:	8b c8                	mov    ecx,eax
+  4f55fd:	8d 14 80             	lea    edx,[eax+eax*4]
+  4f5600:	8d 04 51             	lea    eax,[ecx+edx*2]
+  4f5603:	8d 3c c0             	lea    edi,[eax+eax*8]
+  4f5606:	8d 14 f9             	lea    edx,[ecx+edi*8]
+  4f5609:	8d bc 91 c8 d1 89 00 	lea    edi,[ecx+edx*4+0x89d1c8]
+  4f5610:	80 bf b4 05 00 00 00 	cmp    BYTE PTR [edi+0x5b4],0x0
+  4f5617:	75 09                	jne    0x4f5622
+  4f5619:	66 8b 87 a2 05 00 00 	mov    ax,WORD PTR [edi+0x5a2]
+  4f5620:	eb 07                	jmp    0x4f5629
+  4f5622:	66 8b 87 6a 03 00 00 	mov    ax,WORD PTR [edi+0x36a]
+  4f5629:	66 89 44 24 0a       	mov    WORD PTR [esp+0xa],ax
+  4f562e:	66 8b 46 3d          	mov    ax,WORD PTR [esi+0x3d]
+  4f5632:	66 c1 e8 08          	shr    ax,0x8
+  4f5636:	24 fe                	and    al,0xfe
+  4f5638:	88 44 24 08          	mov    BYTE PTR [esp+0x8],al
+  4f563c:	8b 54 24 0a          	mov    edx,DWORD PTR [esp+0xa]
+  4f5640:	66 8b 46 3f          	mov    ax,WORD PTR [esi+0x3f]
+  4f5644:	66 c1 e8 08          	shr    ax,0x8
+  4f5648:	24 fe                	and    al,0xfe
+  4f564a:	88 44 24 09          	mov    BYTE PTR [esp+0x9],al
+  4f564e:	8b 4c 24 08          	mov    ecx,DWORD PTR [esp+0x8]
+  4f5652:	51                   	push   ecx
+  4f5653:	52                   	push   edx
+  4f5654:	e8 c7 70 fa ff       	call   0x49c720
+  4f5659:	83 c4 08             	add    esp,0x8
+  4f565c:	33 c9                	xor    ecx,ecx
+  4f565e:	8a 8f 6c 03 00 00    	mov    cl,BYTE PTR [edi+0x36c]
+  4f5664:	0f af c9             	imul   ecx,ecx
+  4f5667:	3b c8                	cmp    ecx,eax
+  4f5669:	b8 01 00 00 00       	mov    eax,0x1
+  4f566e:	7d 0a                	jge    0x4f567a
+  4f5670:	5f                   	pop    edi
+  4f5671:	33 c0                	xor    eax,eax
+  4f5673:	5e                   	pop    esi
+  4f5674:	83 c4 04             	add    esp,0x4
+  4f5677:	c3                   	ret
+  4f5678:	33 c0                	xor    eax,eax
+  4f567a:	5f                   	pop    edi

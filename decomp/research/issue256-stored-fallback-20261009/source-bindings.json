@@ -1,0 +1,99 @@
+{
+  "base": "47680b8fd124aab50b0528eea77a81cacb556060",
+  "files": {
+    "decomp/generated/00461d70.c": "b3615d5df13470b64957be7de66ec21d444d9f093f78172cb9ac5ba65c4a8c46",
+    "decomp/generated/0042b660.c": "1a2ceefaefb9ac5d9a9d2c476ad8e5a537c66a1d7fbac6e07017b5f8bf3d5c1a",
+    "decomp/generated/0042b230.c": "241109ebdd842f8a448a43b58d5423b719ee7fe84a51d35e2612ac7b0b5517f2",
+    "decomp/generated/00484a10.c": "8f1433d8bba1ffc5cbc2fa4dad9ef6415a1ea5f2834aa436c8480dcd8a00f9ae",
+    "decomp/generated/00485b00.c": "346a7d08813529a5f716e7641c6580c30b8853070e6c3759b64e8e1ecd899099",
+    "decomp/generated/004f6020.c": "21ada6683311b6a0b0a5f6030306ccee1262a8b7a6be0e630d5698a9c34fa8eb",
+    "app/computer.ts": "7e7425a46cba84fa4eeb4c29be92c25c848f992b94e2912d570b9959027a666d",
+    "app/computer-runtime.ts": "e646a829d87cb65d29588d70bd7ddeb3173e71b6130e6507e46ad5cf68634078",
+    "app/game-store.ts": "300cc63a292b79057bc64457dcfd087b2f7162194e2108d753e899c35861c675",
+    "app/campaign-runtime.ts": "14db77faf860b168dea78e674788b3bc86437e26196e85f38fce6f3dfa541f89",
+    "app/campaign-command-runtime.ts": "5badf47c9b0e55d99f307a1a82c3ba311c835ac78edeabc9f6c7796a39314182",
+    "app/mission-data.ts": "c4859525c084dfcd478a4fb5e08b93bb5f37c2aa1c2b8cd3250d5683b7e957cf",
+    "app/level-one.ts": "e840e4ea8895ada4131c7d2da2ce70330307956ea7a6e647e55e76bf6026bd33",
+    "app/level-two.ts": "c576f47683ab6e58682e78c221eed5f44e91717e2e27097be0f5b5ba9f97c111",
+    "app/level-three.ts": "7de51508c51d8193ee961de63a79016be4c58de284aefc3a707339b5e9b81e07",
+    "app/original-script.json": "ced4ce5323a9c68962f4c0762c799c08102bd75157c24b681047e27e539d342c",
+    "app/original-script-two.json": "2a3b71e046b4935cfb54fa27c04c84f4b90d6f9b7d92c0471e28c505e4a2f94b",
+    "app/original-script-three.json": "7362d19fef54dc06869b9c54c41c2d8229acf2942a4b22e6056aab6208789ccc",
+    "tests/raid-staging.test.mjs": "72a5a47db81e05e47d539a2958aef64961e076b5be9fba32ab0a3d5b64f53a62",
+    "tests/early-mission-ai.test.mjs": "e459de8f768d4c55af6b2a9d26aa8f46b84d9e2a8b95d18b3439ad48b83752ef",
+    "tests/mission2-raid.test.mjs": "6d66db313d7f6fabcfa503eb49680e068b22900a362ffa363bae4f76b33cba81",
+    "tests/mission2-rebuilding.test.mjs": "7c6ba11d8b0dbd27f444bbf4fa916ef9fb3c492e472729b73c1f872a5ea6963d",
+    "references/verification/mission3-raid-recruitment-origin-2026-10-06/README.md": "a6c39a6721e0784596d6ac71cec50718a32b6ab75d20b5c2feb8e3675be9be9d",
+    "decomp/research/mission2-rebuilding.md": "bec7b3fdf0c637387ac39c3f281c48d40e707a879992e0599560996b84d17da6",
+    "decomp/research/early-mission-ai.md": "71509c37d6be849970a824c2b7bbd642669cd03767cfa5bd298f564f3805143b",
+    "decomp/generated/0042b590.c": "59a5348b941df24d5a4cd14b3d19dd2667bf6b1249fc802783a8e16bc1e2ca2f",
+    "decomp/generated/00410d00.c": "1fa9487cb685984a1908e7d285e3fbbb71330e636c493f7e97549ac3d7fb23bf",
+    "decomp/generated/0042c790.c": "c49212bb7ed30d20e15c196fbfaa9cd9b694762a13194ce385d66c168ebb059e",
+    "decomp/generated/004d1420.c": "03b55474219f2b7b177c444b27ea06311b51f93bf51f9d94ebe56b6e3433fc43",
+    "decomp/generated/004f52c0.c": "6abded20f73730c684be6ab4b4e09a933d64c91661475d5918485a5666b9dc5c",
+    "scripts/import-level.py": "d43217184e13df9726f2ba779f022147ab9604439a785757bdc42ec61f562ca5",
+    "app/world-terrain-runtime.ts": "4fcf001bde3e32f5647a6efa25066dc9332320f244b034a8f41881a15af4a757"
+  },
+  "authoredShamans": [
+    {
+      "mission": 1,
+      "objectIndex": 34,
+      "tribe": 0,
+      "x": 9.0,
+      "z": 33.0,
+      "nativeX": 4352,
+      "nativeY": 55040,
+      "cell": "0xd610"
+    },
+    {
+      "mission": 1,
+      "objectIndex": 37,
+      "tribe": 1,
+      "x": 1.0,
+      "z": -37.0,
+      "nativeX": 2304,
+      "nativeY": 7424,
+      "cell": "0x1c08"
+    },
+    {
+      "mission": 2,
+      "objectIndex": 22,
+      "tribe": 3,
+      "x": 91.0,
+      "z": 119.0,
+      "nativeX": 25344,
+      "nativeY": 33024,
+      "cell": "0x8062"
+    },
+    {
+      "mission": 2,
+      "objectIndex": 57,
+      "tribe": 0,
+      "x": -107.0,
+      "z": -101.0,
+      "nativeX": 40192,
+      "nativeY": 23808,
+      "cell": "0x5c9c"
+    },
+    {
+      "mission": 3,
+      "objectIndex": 45,
+      "tribe": 0,
+      "x": 35.0,
+      "z": 81.0,
+      "nativeX": 11008,
+      "nativeY": 42752,
+      "cell": "0xa62a"
+    },
+    {
+      "mission": 3,
+      "objectIndex": 46,
+      "tribe": 2,
+      "x": -45.0,
+      "z": -105.0,
+      "nativeX": 56064,
+      "nativeY": 24832,
+      "cell": "0x60da"
+    }
+  ]
+}
