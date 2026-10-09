@@ -1,4 +1,18 @@
-import assert from 'node:assert/strict'
+// These narrow plain-data contracts also run synchronously inside the browser
+// turn observer. Keep failures local to the observer; never throw into gameplay.
+const assert = Object.assign(
+  (condition, message = 'Hut contract failed') => {
+    if (!condition) throw Error(message)
+  },
+  {
+    equal(actual, expected, message = 'Hut scalar differs') {
+      if (!Object.is(actual, expected)) throw Error(`${message}: ${actual} !== ${expected}`)
+    },
+    deepEqual(actual, expected, message = 'Hut plain-data array differs') {
+      if (JSON.stringify(actual) !== JSON.stringify(expected)) throw Error(message)
+    },
+  }
+)
 
 function workerAlive(snapshot) {
   assert.equal(snapshot.worker?.id, snapshot.workerId)

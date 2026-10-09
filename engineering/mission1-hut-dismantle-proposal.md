@@ -73,8 +73,30 @@ Proposed browser admission budgets:360seconds overall,30seconds after normal
 opening for staffing/panel readiness,120seconds per natural work segment,
 10seconds for committed readback,15seconds for public Load, and20seconds for final
 cleanup. These bound resource use; work counters32–63 do not guarantee wall time.
-No runner or browser process is included in this increment. Source review and
-parent resource admission remain prerequisites to implementing/running that route.
+The maintained-harness scenario is now `scripts/local-render/mission1-hut-dismantle.mjs`.
+It declares one attempt,360seconds inner,400seconds outer and15seconds termination
+grace. Exact wrapper review and parent resource admission remain prerequisites
+to launching it; no browser or server has been started by this work.
+
+Proposed fresh relative paths are
+`work/orchestration/mission1-hut-dismantle/browser-01` for output and
+`work/local-render-profiles/mission1-hut-dismantle-20261009-01` for the private
+profile. Both were absent during preparation. Proposed port4373 is within the
+harness's supported range, but availability is unverified: `ss` reported a
+netlink permission denial, which is retained without retry. The parent owns an
+authorized owned-server bind/fetch/close preflight and the final CPUs5–7 lane
+binding. Canonical installed dependencies remain stationary (device27,
+inode538212); this worktree only holds a symlink to that directory.
+
+The wrapper prewarms imports and public settings controls before work. The
+browser-local witness executes the same portable plain-data contracts on every
+actual fixed-turn callback, forwards the original receiver/arguments, tracks
+contiguous epoch visits and retains at most64 meaningful events. Host polling
+reads scalar status only. It records `hut-partial-work.png` and `hut-terminal.png`
+before their final state assertions, keeping the camera view where possible.
+Failures retain the original error, a bounded terminal screenshot attempt and
+owned-resource cleanup evidence, including synchronous input and Scene-start
+facts even when a host operation throws before its normal result readback.
 
 ## Exact resource and caller contracts
 
@@ -119,10 +141,22 @@ The Node fixture supplies DOM/projection/frame deltas, a click token, a store
 World binding, pause state, and a presentation cleanup adapter. Its Save returns
 false without IndexedDB, which is asserted explicitly. This is model-composed
 caller coverage, not committed Save, trusted browser input, actual rendering,
-fresh Scene installation, ordinary completion, performance, or native acceptance.
+ordinary completion, performance, or native acceptance.
 No application source, checkpoint helper, parity manifest or generated asset is
 changed. Full check/build, native execution and browser execution are not run
 under this bounded source-preparation authorization.
+
+`tests/mission1-hut-dismantle-witness.test.mjs` additionally executes the exact
+Page Load body, actual store replacement and `GameScene.start` with a distinct
+Scene receiver, fresh `ObjectPanels` and real presentation binding. The maintained
+start hook attaches the second epoch before its first supplied RAF; real
+`advanceGame` then drives multiple fixed turns per callback without losing any
+visit. It verifies migrated object/order identities, typed boundary equality,
+event-cap independence, observer-error continuation, skipped/duplicate rejection,
+partial input installation cleanup and foreign-owner preservation. Constructor,
+WebGL/DOM, event trust, disposal and RAF scheduling remain supplied test boundaries;
+this is not an ordinary browser Scene-installation receipt. Seven combined cases
+pass in `wrapper-caller-02.json`, with all tested inputs held unchanged.
 
 All attempts are retained under `work/orchestration/mission1-hut-dismantle/`:
 caller01 rejected adding a Brave to a naturally occupied Hut; caller02 failed an
@@ -134,3 +168,9 @@ receipt-output preflight failure is separately retained under
 `work/mission1-hut-dismantle/receipt-preflight-01.txt`. These are QA preparation
 failures, not evidence of a product defect. Final committed-source receipts and
 review status belong in the PR.
+
+`wrapper-caller-01.json` is retained as invalidated: the new supplied renderer
+lacked a DOMRect method, and the test author completed that fixture correction
+while the attempt was finishing. The subsequent `wrapper-caller-02.json` passed
+with no source drift. The exact preparation source83a42674 received independent
+ACCEPT; the wrapper successor requires its own exact review and quality binding.
