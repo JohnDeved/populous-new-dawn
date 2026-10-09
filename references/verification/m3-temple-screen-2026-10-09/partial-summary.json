@@ -1,0 +1,64 @@
+{
+  "kind": "bounded-ordinary-m3-partial-evidence-summary",
+  "product": "9d88d72126f64b96500b596792b7b938fc594aad",
+  "qa": "7025ead7d1cd9453ce4bdddbd4b43bffba26d1d5",
+  "applicationTree": "b0b7f78c6292c202fe5ef7dfff794abac5d81727",
+  "outcome": "failed",
+  "failure": "Active-owner Restart witness missed after the acquisition naturally expired.",
+  "innerReceiptSha256": "f83a3468ce55b141458386b21d4ea5eae10e9935e1864075265e5d80c78f53ae",
+  "outerReceiptSha256": "54380f3e8a6cb28db0b1f1f1d02b79384a40a7a34efceccaef98ab93a93d9aae",
+  "reportSha256": "be0d64482b31b28014c592e869ed3b8fc7b5d8d40960e6bf0b47a443d70bae63",
+  "finishedAt": "2026-10-09T01:47:54.482Z",
+  "cleanupVerified": true,
+  "continuationVerified": true,
+  "checkpoint": {
+    "version": 1,
+    "level": 3,
+    "turn": 1190,
+    "time": 99.16666666666667,
+    "checkpointSha256": "0e5ebc6902e2834f4a296fd46d6df18e70263f2056e920984aa485ebb50afedf",
+    "actorsSha256": "fa55814c676e0bf4769d9953bdae70ec30a3b8c05b926c2b684349a77dd64e2d",
+    "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+    "stockSha256": "f089a32c2acde409fa0a7961b05d7a4d9905c51c3b7bcf61d6976cd633c93ce6"
+  },
+  "readiness": {
+    "timeoutMs": 60000,
+    "attempts": 5,
+    "first": {
+      "elapsedMs": 12302,
+      "pending": false,
+      "error": {
+        "name": "TimeoutError",
+        "message": "The operation was aborted due to timeout",
+        "cause": ""
+      }
+    },
+    "last": {
+      "elapsedMs": 17928,
+      "pending": false,
+      "status": 200,
+      "ok": true
+    },
+    "elapsedMs": 17928,
+    "listening": true,
+    "ready": true
+  },
+  "images": [
+    {
+      "path": "m3-fresh-whole-overlay.png",
+      "sha256": "139f093dd5f57deba7280e8d5d68ad15f82f15512be5902ddb1ca96d8a5cbe60",
+      "scope": "Unedited natural rendered acquisition canvas, including transparency; not a full page screenshot."
+    },
+    {
+      "path": "m3-beforeRestart-flight-overlay.png",
+      "sha256": "3c1c1105fec263a0c9d471e929413abcb5855cb4ec885afbe9ca85fa32b19e90",
+      "scope": "Unedited natural rendered acquisition canvas, including transparency; not a full page screenshot."
+    },
+    {
+      "path": "m3-fresh-sharedTile-overlay.png",
+      "sha256": "9bb98f91e88a76ac8de87cf7d786583fb50a5f77ce276f2e4de8496749664fee",
+      "scope": "Unedited natural rendered acquisition canvas, including transparency; not a full page screenshot."
+    }
+  ],
+  "rawEvidence": "Retained locally. This summary is not a raw or independently executed receipt. No profile or original binaries are included."
+}
