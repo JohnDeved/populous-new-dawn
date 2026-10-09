@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
 import { installHutTooltipLifecycle } from '../scripts/local-render/hut-tooltip-witness.mjs'
+import { readHutPanelControl } from '../scripts/local-render/hut-tooltip-input.mjs'
 
 const source = readFileSync(new URL('../app/scene.ts', import.meta.url), 'utf8')
 const startBody = source.slice(source.indexOf('  start() {') + '  start() '.length, source.indexOf('\n  makeSky()'))
@@ -162,5 +163,39 @@ test('cleanup reports retained game inspection ownership without silently mutati
     assert.equal(scene.objectPanels.hutHeldPointer, 7)
     assert.match(result.errors[0], /held-pointer owner remains/)
     assert.equal(f.doc.listeners.length, 0)
+  } finally { api?.close(); f.restore() }
+})
+
+test('panel hold counts only actual controller visits with the physical control hovered', () => {
+  const f = fixture(); let api
+  try {
+    api = installHutTooltipLifecycle(f.Scene, f.observe, { deadlineAt: Date.now() + 10000 })
+    const scene = new f.Scene(); scene.start(); window.testSceneRef = { current: scene }
+    let hovered = false
+    const button = { tagName: 'BUTTON', className: 'dismantle-control', isConnected: true, hidden: false, disabled: false,
+      contains: () => false, matches: () => hovered, getAttribute: () => 'Dismantle Hut',
+      getBoundingClientRect: () => ({ x: 20, y: 30, width: 40, height: 40 }) }
+    const panel = { isConnected: true, hidden: false, contains: node => node === button, matches: () => hovered,
+      querySelector: () => button, getAttribute: () => 'Hut: 0 of 3 occupants' }
+    scene.buildingPanels.set(37, panel)
+    scene.objectPanels.hutRecords.set(37, { phase: 1, remaining: 16, hold: 16, automatic: false })
+    f.doc.elementFromPoint = () => button
+    assert.deepEqual(readHutPanelControl(37), { hutId: 37, x: 40, y: 50, label: 'Dismantle Hut', panelLabel: 'Hut: 0 of 3 occupants' })
+    f.doc.elementFromPoint = () => f.canvas
+    assert.throws(() => readHutPanelControl(37), /does not own/)
+    f.doc.elementFromPoint = () => button
+    api.phase('panel-control-hold')
+    for (let i = 0; i < 10; i++) scene.updateTooltipController(i)
+    assert.equal(api.status().phasePanelControlTicks[37], undefined)
+    hovered = true
+    const event = { target: button, isTrusted: true, clientX: 40, clientY: 50, button: 0, buttons: 0 }
+    for (const listener of f.doc.listeners.filter(row => row.type === 'pointermove' && row.capture)) listener.fn(event)
+    for (const listener of f.doc.listeners.filter(row => row.type === 'pointermove' && !row.capture)) listener.fn(event)
+    for (let i = 0; i < 24; i++) scene.updateTooltipController(10 + i)
+    assert.equal(api.status().phasePanelControlInput, 37)
+    assert.equal(api.status().phasePanelControlTicks[37], 24)
+    hovered = false; scene.updateTooltipController(35)
+    assert.equal(api.status().phasePanelControlTicks[37], 24)
+    assert.equal(api.read().records.filter(row => row.kind === 'tick').length, 35)
   } finally { api?.close(); f.restore() }
 })

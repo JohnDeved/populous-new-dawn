@@ -109,6 +109,19 @@ export function assertHutInspectionLifecycle(status) {
   assert.deepEqual(state.pendingInputs, [], 'Actual explicit input queue is drained before departure')
 }
 
+// Existing DOM control only. No focus(), click(), picker, or state mutation.
+export function readHutPanelControl(hutId) {
+  const scene = window.testSceneRef.current, panel = scene.buildingPanels.get(hutId)
+  const button = panel?.querySelector('.dismantle-control')
+  if (!panel?.isConnected || panel.hidden || !button?.isConnected || button.hidden || button.disabled)
+    throw Error('Visible same-Hut panel control unavailable')
+  const rect = button.getBoundingClientRect(), x = Math.round(rect.x + rect.width / 2), y = Math.round(rect.y + rect.height / 2)
+  const receiver = document.elementFromPoint(x, y)
+  if (!(rect.width > 0 && rect.height > 0) || !(receiver === button || button.contains(receiver)))
+    throw Error('Same-Hut panel control does not own its point')
+  return { hutId, x, y, label: button.getAttribute('aria-label'), panelLabel: panel.getAttribute('aria-label') }
+}
+
 // Install after readiness, so the actual page keyboard handler is already
 // registered. Both snapshots belong to the same physical key dispatch.
 export function installHutSelectionClear() {

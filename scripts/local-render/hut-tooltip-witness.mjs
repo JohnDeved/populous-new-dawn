@@ -49,6 +49,9 @@ export function installHutTooltipLifecycle(GameScene, observeEntityPointer, { de
       inspected: scene.objectPanels.hutInspected ?? null, heldPointer: scene.objectPanels.hutHeldPointer ?? null,
       records: [...scene.objectPanels.hutRecords].map(([id, value]) => ({ id, identity: identity(recordIds, value),
         phase: value.phase, remaining: value.remaining, hold: value.hold, automatic: value.automatic })),
+      panels: [...scene.buildingPanels].map(([id, panel]) => ({ id, hidden: panel.hidden,
+        hovered: panel.matches?.(':hover') ?? false, focused: panel.contains?.(document.activeElement) ?? false,
+        controlHovered: panel.querySelector?.('.dismantle-control')?.matches(':hover') ?? false })),
       level: w.outcome.level, status: w.status, turn: w.turn, speed: w.speed, paused: w.paused,
       selected: w.selected, mode: w.mode, inputMask: w.inputMask,
       overview: scene.overviewActive, overviewStage: scene.overviewStage, drag: scene.dragActive.value,
@@ -193,6 +196,10 @@ export function installHutTooltipLifecycle(GameScene, observeEntityPointer, { de
         const begin = event => observe(() => {
           if (epoch.closed || scene.disposed) return
           const row = { kind: 'input', epoch: epoch.id, type, trusted: event.isTrusted, target: node(event.target), relatedTarget: node(event.relatedTarget),
+            panelControl: [...scene.buildingPanels].find(([, panel]) => {
+              const control = panel.querySelector?.('.dismantle-control')
+              return control && (event.target === control || control.contains(event.target))
+            })?.[0] ?? null,
             canvasTarget: event.target === scene.renderer.domElement,
             canvasOwned: Number.isFinite(event.clientX) && document.elementFromPoint(event.clientX, event.clientY) === scene.renderer.domElement,
             key: event.key, x: event.clientX, y: event.clientY, button: event.button, buttons: event.buttons,
@@ -221,6 +228,11 @@ export function installHutTooltipLifecycle(GameScene, observeEntityPointer, { de
   const summary = () => ({ closed, errors: [...errors], phase, recordCount: records.length,
     phaseInspections: records.filter(row => row.phase === phase && row.kind === 'tick')
       .flatMap(row => row.after.controller?.lastVisit?.inspection ?? []),
+    phasePanelControlInput: records.find(row => row.phase === phase && row.kind === 'input' &&
+      row.type === 'pointermove' && row.trusted && row.panelControl !== null)?.panelControl ?? null,
+    phasePanelControlTicks: records.filter(row => row.phase === phase && row.kind === 'tick')
+      .flatMap(row => row.after.panels.filter(panel => !panel.hidden && panel.controlHovered))
+      .reduce((counts, panel) => { counts[panel.id] = (counts[panel.id] ?? 0) + 1; return counts }, {}),
     elapsedMs: performance.now() - initial, captures: Object.fromEntries(Object.entries(frames).map(([key, value]) => [key, !!value.panel])),
     epochs: epochs.map(e => ({ id: e.id, initial: e.initial, state: e.lastState, paint: e.lastPaint, disposed: e.disposed, closed: e.closed,
       omittedIdenticalPointerFrames: e.omittedIdenticalPointerFrames })) })

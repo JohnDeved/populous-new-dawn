@@ -55,7 +55,10 @@ screenshots are adjacent observations, not exact synchronous WebGL frames.
 
 The single route is public Mission1/optional Skip/readiness; Blast; verified
 ordinary blank ground at(-11,39); Escape; DAT42 hover and same-interior movement;
-stationary right down/up; Blast leave; authored unnamed tree20; Hut return;
+stationary right down/up; same-Hut dismantle-control hover without activation
+for24 actually observed controller visits with that control hovered (beyond its
+16-visit hold and3/16/3 unrenewed lifetime); Blast leave and normal
+record expiry; authored unnamed tree20; Hut return;
 settings/Save/Continue Game/Resume; settings/Load; new-scene Hut hover. It uses a
 fresh ephemeral context, normal speed and natural RAF, with a 60-second startup,
 180-second total admission deadline, 12-second witness-phase waits, inherited
@@ -84,6 +87,13 @@ native Encyclopaedia. Scene/disposal cleanup restores only owned wrappers and
 listeners, preserves foreign replacements and retains the original failure even
 when cleanup/persistence also fails. All diagnostic errors fail evidence without
 stopping the next game callback.
+
+The panel-control phase checks an existing control's physical pointer ownership,
+the same retained record identity and visible control beyond its normal hold.
+Leaving returns to the already planned Blast destination and awaits normal
+expiry; no control is clicked or focus injected. This is the explicit browser
+usability retention adapter. Encountered `unsupportedHistory` routes, including
+native-unbound panel/status ownership, remain visible and outside native credit.
 
 ## Current verification and remaining binding
 
