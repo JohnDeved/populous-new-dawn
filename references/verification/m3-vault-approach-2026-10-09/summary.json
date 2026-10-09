@@ -1,0 +1,526 @@
+{
+  "schemaVersion": 1,
+  "preparedAt": "2026-10-09T07:34:05.573188+00:00",
+  "publicationStatus": "Evidence packet; merged product, standards and ordinary03 accepted; provider check succeeded",
+  "productPr": "https://github.com/JohnDeved/populous-new-dawn/pull/282",
+  "issue": "https://github.com/JohnDeved/populous-new-dawn/issues/75",
+  "closesIssue": false,
+  "source": {
+    "productCommit": "25441a1d0967b9e996d103929d7505276da345d9",
+    "productTree": "100f8aad81e8173f524e9058860670a88456762f",
+    "evidenceBase": "a7878ec6666f9aee4e28da5a8894a22436c8cc45",
+    "ordinary01QaCommit": "b4ad1cdf5fc0a03e51b2cf6ce2bb01472a7740e1",
+    "applicationBytesCorrespondToProduct": true,
+    "productionFiles": {
+      "app/vault.ts": "ff4fb2f54e2cec4ef4322e32e91f3ee310dcbf1a9b3009054e59b8096ef48aa6",
+      "app/vault-geometry.ts": "64bcf40c8c861559e29f8b0cf54d6df5a8b6398c4490b6f9c01c3bcb225f8849",
+      "app/vault-appearance.ts": "f4b79b4020d30993aa6a2d903a4cdf8f8a722475c661221dfd46a2eb763ebec9",
+      "app/world-turn.ts": "6d813dc107e9ccb9c86267a7c9cca91c5f30b5f8cbd92f7348b83b075a33a352"
+    },
+    "ordinary03QaCommit": "f4f72326672afa4ee0c78ceaae091d2ecf39d852",
+    "correspondenceLimit": "Actual app/public/package/harness runtime bytes correspond to product254; broad profile fingerprints differ because verification inputs differ. No saved-profile or whole-fingerprint equality claim."
+  },
+  "originalReference": {
+    "kind": "Retained static original function/shape evidence; no new native execution",
+    "functions": [
+      "0043c7a0",
+      "004044b0",
+      "00404420",
+      "00403610",
+      "004fb270",
+      "0040a3f0"
+    ],
+    "sourceProposal": "decomp/research/vault-approach-proposal-2026-10-09.md",
+    "sourceManifestSha256": "959d3a234b87ce1af02cd149ea3441812cba5e1f716d5a249e48d9befb4d0d96",
+    "m3OutsideBefore": [
+      58112,
+      31488
+    ],
+    "m3OutsideAfter": [
+      58112,
+      30976
+    ],
+    "m3Inside": [
+      58112,
+      32000
+    ],
+    "m3Departure": [
+      58112,
+      29952
+    ]
+  },
+  "ordinary01": {
+    "recordedStatus": "observed-pending-pixel-review",
+    "semanticReview": "accepted",
+    "pixelReview": "approach accepted; prayer and entry held for occlusion",
+    "reviewSha256": "b28b8acce23925d35302125c86e8d198eb77f1bb7772bf80b4b6e4112dcc7b66",
+    "reportSha256": "3a459610e70fad5f9ee6b04d95ad879106c2644c951f5802c432a4d876e2bf34",
+    "innerReceiptSha256": "60f8fa61a7e904769d78e7b45f76aec53566a210bee7cdd27a6dab64579b6acc",
+    "inputTurn": 384,
+    "actorId": 46,
+    "vaultId": 92,
+    "orderId": 8,
+    "command": 33,
+    "trustedCanvasPointerInput": true,
+    "consecutiveTurnPairs": 1031,
+    "phaseGoalTurns": {
+      "outsideApproach": 385,
+      "insideEntry": 1281,
+      "outsideExit": 1345,
+      "departure": 1399
+    },
+    "prayer": {
+      "turnBefore": 847,
+      "turnAfter": 848,
+      "workBefore": 1,
+      "workAfter": 2,
+      "nativePosition": [
+        58111,
+        30976
+      ],
+      "vaultModel": 154,
+      "occupiedFootprint": false,
+      "uses": 0,
+      "forced": false
+    },
+    "reward": {
+      "turn": 1321,
+      "usesBefore": 0,
+      "usesAfter": 1,
+      "giftId": 3141,
+      "giftVisits": 82,
+      "unlockTurn": 1403,
+      "orderReleaseTurn": 1415
+    },
+    "closedPhase1And2Boundaries": 1710,
+    "occupiedClosedBoundaries": 0,
+    "samplingLimit": "Finite turn boundaries only; no continuous/interpolated path-clearance proof",
+    "checkpointSaveLoadPerformed": false,
+    "cleanupVerified": true,
+    "frames": [
+      {
+        "label": "approach",
+        "turn": 821,
+        "file": "m3-vault-approach-turn-821-0.png",
+        "sha256": "33371e28c96f0624e9982c6425eaf6351cc740587d3addf3f6d84e8dfd5ff2b8",
+        "included": false,
+        "pixelReview": "accepted visible approach"
+      },
+      {
+        "label": "prayer",
+        "turn": 849,
+        "file": "m3-vault-prayer-turn-849-1.png",
+        "sha256": "dd2e91cc32aba339a066ca3a45f074703420db45524f3f50878b8b7b16a4173c",
+        "included": false,
+        "pixelReview": "held: actor obscured by Vault/tree region"
+      },
+      {
+        "label": "entry",
+        "turn": 1282,
+        "file": "m3-vault-entry-turn-1282-2.png",
+        "sha256": "01a304be00890a97c59ca379ae9e7138b1c0b8938d289bf922cdf516a8411fc9",
+        "included": false,
+        "pixelReview": "held: actor obscured by Vault/tree region"
+      }
+    ],
+    "outerReceiptSha256": "b9e3121c739fa2a26ceed3a7d9df5727d9d4318963bcdf057c8b4d9017a86349"
+  },
+  "callerTests": {
+    "focusedProductSuite": {
+      "source": "8f614fb3a8a1217ccf900664b1b218ff394e315e",
+      "passed": 23,
+      "total": 23,
+      "receiptSha256": "a177358cc8e559c42a5f31b697e43e2e9bf62d2e1ff33b756829f50e19e4f065"
+    },
+    "retainedPrayerSaveLoad": {
+      "source": "489f715ccd728574b86f3d067c606dff3c2a4946",
+      "passed": 2,
+      "total": 2,
+      "scope": "Actual phase2 cloned/migrated model continues through one reward and departure with task/order/RNG equivalence; other phase checkpoints compare three turns",
+      "browserSaveLoad": false,
+      "receiptSha256": "da630f07bf43167ee53c8b8a47147f4931e3ec375f81ba4228ca3a02061b5368"
+    },
+    "failureFirst": {
+      "source": "49d0d325c00b5e6a34d92e7a4a70faa58e4e1569",
+      "receiptSha256": "6bd947b5d8d3a535aa5ef085d8eb9ca38ca057233da80e3cf4119ea541212450",
+      "actualGoal": [
+        58112,
+        31488
+      ],
+      "expectedGoal": [
+        58112,
+        30976
+      ],
+      "phase2Executed": false,
+      "status": "expected failure on actual phase1 goal"
+    }
+  },
+  "standards": {
+    "status": "independently accepted",
+    "source": "25441a1d0967b9e996d103929d7505276da345d9",
+    "profileSha256": "2c5ed55bd8d6458bcb8d716df4fd33fd3f993ee3424a2524f334842630138421",
+    "carriedCompleteStages": 7,
+    "freshStages": 9,
+    "maintainedFiles": 271,
+    "partialFailureCredit": false,
+    "failedAttempts": [
+      {
+        "reference": "issue75-489f715-final-01/tests-04.json",
+        "sha256": "e82f3a8e2ed34adee2265e991126079cbc4b7bed750f363e9b39d1595df54bab",
+        "status": "failed",
+        "exitCode": 124,
+        "source": "489f715ccd728574b86f3d067c606dff3c2a4946",
+        "startedAt": "2026-10-09T06:51:23.445Z",
+        "finishedAt": "2026-10-09T06:53:53.652Z",
+        "stdoutSha256": "777e036abe4da56de3bd777ec7f93a9904db8b5ebd34b4bd275abc93e7699628",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reason": "150-second shard timeout",
+        "coverageCredit": false
+      },
+      {
+        "reference": "issue75-489f715-final-02/tests-05a.json",
+        "sha256": "1112a503a95e4fa2809aa88425b6a167fceea9a64d55320e72adde26359df5cf",
+        "status": "failed",
+        "exitCode": 1,
+        "source": "489f715ccd728574b86f3d067c606dff3c2a4946",
+        "startedAt": "2026-10-09T06:59:51.431Z",
+        "finishedAt": "2026-10-09T07:01:29.736Z",
+        "stdoutSha256": "63bcd74c5a447e64dfb642b8138c76edd2fa8e252d65d061486104388db7c20d",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "passed": 52,
+        "failed": 2,
+        "reason": "Natural Preacher conversion interrupted by actual enemy encounter; no flagged replacement event",
+        "coverageCredit": false
+      }
+    ],
+    "aggregateReference": "issue75-25441a1-final-03/aggregate.json",
+    "aggregateSha256": "4c8c461e54c1a96a4cf7ca427e41636c41b4651be4a92ab04d2941f715c23613",
+    "aggregateRecordedStatus": "passed-pending-independent-review",
+    "reviewSha256": "67a9782d9155715194e2c64d141309146e7210ba19cd5f8b8258988a969df2b9",
+    "maintainedCounts": {
+      "tests": 1594,
+      "pass": 1594,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "buildFinishedAt": "2026-10-09T07:34:27.498Z",
+    "typecheck": "carried accepted489 stage under reviewed correspondence",
+    "parityCheckScope": "Ledger/evidence consistency; no new native execution",
+    "timing": {
+      "successfulCommandSeconds": 779.37,
+      "freshContinuationCommandSeconds": 390.894,
+      "freshContinuationSpanSeconds": 402.066,
+      "scope": "Descriptive accounting; not hardware performance comparison"
+    },
+    "stageReceiptSha256": {
+      "typecheck": "6b6b6027c20105be732139dee3d22f38cf41e4c6daa265e01fca9e94585f402b",
+      "tests-01": "23400f74e21f5c2d3399cdf0b86f9438771791d16115bad9a7dfa053aa47ee3b",
+      "tests-02": "a5359369806416e753c119adf4626c50aaf02c46739e6399602b294332994cd7",
+      "tests-03": "51c482592b7e1294b6a3f48bb6c90dd3b0c202111372c80a5dc438d5a24100c3",
+      "tests-04a": "6f288b94918f34102ef3f08d2cbb8270fa586cf1371142da074dfa3a69085f09",
+      "tests-04b": "034e56321e847548fe4190ae0728106c123286297b0060dba67761304ebec153",
+      "tests-04c": "e47a16fbff1fe94142de3bc0c1ff278ec261918a42ec350410955f7c45f5a805",
+      "tests-05a": "25234fbc5be81f3ffb8cb2e821362fc2869ca739cf7c302ec499af10cefa76bb",
+      "tests-05b": "4ef59ded9948b56a7836eb1dcbb4268b44be3561ba0b5bcee6608ef994f0a3e6",
+      "tests-05c": "5483f5d7eabca3d3032df730bf5a2e69f7c9b7a477fdfeebc6d9b3e152976a8f",
+      "tests-06": "16716d51ea5bfff6180e898eb1bd66bb2a81124a0514107ba57aa6941d291b71",
+      "tests-07": "aee27a8db725f14d458b5d4b6973d53ce51af41a83cddfa96ce025c87a4c5503",
+      "tests-08": "8d6519388d292388f2d2775c2d6374de7d85b0dd4c44750226728ff3dbd4b39b",
+      "parity": "41b26878bc73997d03d121014b15f7396ce7016a7d485122e6ef804bc1939d24",
+      "orchestration": "3b42a218d3e4bfa0f6da4fc9a75e650ab9900113b858de86cc5169f0354f55f0",
+      "build": "bd3bca243c180d78d23a53fae74c8f18d9d2cef332dc728e9f98a38a9de9e2a5"
+    },
+    "carriedStageNames": [
+      "typecheck",
+      "tests-01",
+      "tests-02",
+      "tests-03",
+      "tests-04a",
+      "tests-04b",
+      "tests-04c"
+    ],
+    "freshStageNames": [
+      "tests-05a",
+      "tests-05b",
+      "tests-05c",
+      "tests-06",
+      "tests-07",
+      "tests-08",
+      "parity",
+      "orchestration",
+      "build"
+    ]
+  },
+  "preacherFixtureCorrection": {
+    "source": "5bd47d115f78c9ade709086176d057a05f523932",
+    "changedPath": "scripts/mission3-natural-preacher-scenario.mjs",
+    "productCodeChanged": false,
+    "assertionsChanged": false,
+    "diagnosis": {
+      "candidateOwnedListenerTurn": 2496,
+      "enemyAttackOrderTurn": 2558,
+      "encounterTurn": 2561,
+      "listenerCancellationTurn": 2562,
+      "previousRemaining": 39,
+      "baselineReplacementTurn": 2832,
+      "historicalAiTaskFieldsRecorded": false
+    },
+    "ordinaryInputs": [
+      {
+        "x": -33,
+        "z": -110
+      },
+      {
+        "x": -39,
+        "z": -110
+      }
+    ],
+    "betweenInputs": "Wait within existing4000-turn bound for real active type8 defense targeting the Blue Preacher, phase6/selected>0, with assigned living Yellow Preacher holding uncancelled move3 payload59008/26240",
+    "qualifiedTests": {
+      "passed": 3,
+      "total": 3,
+      "receiptSha256": "4202a6a0a351aa41d3118cf1b5ec16a1d87317676eb3a57677b75be7c1e15a01"
+    }
+  },
+  "qualityLimits": {
+    "productionFormat": "passed",
+    "isolatedEslintFindings": {
+      "baseline": 208,
+      "candidate": 208,
+      "added": 0
+    },
+    "isolatedOxlintFindings": {
+      "baseline": 289,
+      "candidate": 285,
+      "added": 0
+    },
+    "inheritedFindingsRemain": true,
+    "changedPreacherFixtureEslint": "passed on25441a1",
+    "warnings": [
+      "Software WebGL fallback/deprecation",
+      "readPixels/GPU-stall warnings",
+      "Three texture-update missing-image warnings",
+      "npm proxy/environment notices",
+      "Build plugin-timing/chunk-size advisories",
+      "vinext unknown route-classification notice",
+      "Invalid preload-as warning"
+    ]
+  },
+  "limits": [
+    "One current-source Mission3 Vault command33 episode",
+    "Historical Stone Head command27 repair is already integrated; Temple command8 is distinct",
+    "Shared Vault collision registration was not repaired",
+    "No original raster, full navigation, continuous path, audio or hardware-performance parity",
+    "No ordinary-browser Save/Load in this episode",
+    "Exact reported structure and full issue75 clipping scope remain unresolved",
+    "Arbitrary relocated Vaults are not established",
+    "Ordinary browser restart, Save/Load and cancellation are outside this episode"
+  ],
+  "contents": [
+    "README.md",
+    "summary.json",
+    "m3-vault-approach-turn-855-0.png",
+    "m3-vault-prayer-turn-884-1.png",
+    "m3-vault-entry-turn-1317-2.png"
+  ],
+  "ordinary02": {
+    "status": "failed QA camera precondition before drag or Vault command",
+    "qaSource": "ec85b4ffa3f0754e0638032d33a4fc0f93bb34eb",
+    "classification": "QA precondition failure; no product failure or new Vault episode inferred",
+    "actualStartingAngle": 1136,
+    "unsupportedRequiredAngle": 1153,
+    "cameraDragIssued": false,
+    "vaultCommandIssued": false,
+    "outer": {
+      "startedAt": "2026-10-09T07:38:55.715Z",
+      "finishedAt": "2026-10-09T07:40:24.754Z",
+      "status": "failed",
+      "exitCode": 1,
+      "receiptSha256": "c0b388ab5b77e09f9c0b0117f68d01df670e506e97d8bd8069ef10428d705cd5",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "5c6ccdf2c98c8672073c439dc453176846dca29a9d517c7bbdfd4185f2513064"
+    },
+    "innerReceiptSha256": "e4fe7fa545407fb130feec4e1d9aa5b4b610d7b1bba65017b71d8b1ee241fc7e",
+    "reportSha256": "072aacee2fc322bfa2af4b139fd3c36dd02a024e710e728dac227996bae4f55d",
+    "errors": [],
+    "cleanupVerified": true,
+    "continuationVerified": true,
+    "checkpointAtStart": null,
+    "checkpointAtEnd": null,
+    "ownerLockAbsent": true,
+    "pixelAcceptance": "none",
+    "includedImages": []
+  },
+  "ordinary03": {
+    "recordedStatus": "observed-pending-pixel-review",
+    "outerStatus": "passed",
+    "innerStatus": "passed",
+    "finalIndependentReview": "accepted",
+    "pixelVisibilityReview": "all three genuine images independently accepted within stated phase limits",
+    "qaSource": "f4f72326672afa4ee0c78ceaae091d2ecf39d852",
+    "reportSha256": "a696333cc6a239eb100f3075c808cbf41f7071ca505f0c720c67149e7be1c29a",
+    "innerReceiptSha256": "e5595ad5385eccd60501de60f4be0e4ed5ba0b31ffad06ae00655c1e120cf007",
+    "outerReceiptSha256": "07c72173c480a4fcc691c9478d86186ab6b4328fd5882487931abf0004be692c",
+    "outerStartedAt": "2026-10-09T07:47:06.769Z",
+    "outerFinishedAt": "2026-10-09T07:50:08.476Z",
+    "inputTurn": 400,
+    "actorId": 46,
+    "vaultId": 92,
+    "orderId": 8,
+    "command": 33,
+    "trustedCanvasPointerInput": true,
+    "cameraHalfTurn": {
+      "beforeAngle": 1133,
+      "afterAngle": 109,
+      "dragPixels": 1024,
+      "cameraCenterPreserved": true,
+      "selectionPreserved": [
+        46
+      ],
+      "taskOrderIssuedByDrag": false
+    },
+    "consecutiveTurnPairs": 1053,
+    "phaseGoalTurns": {
+      "1": 401,
+      "4": 1317,
+      "7": 1382,
+      "9": 1440
+    },
+    "prayer": {
+      "turnBefore": 883,
+      "turnAfter": 884,
+      "workBefore": 1,
+      "workAfter": 2,
+      "nativePosition": [
+        58111,
+        30977
+      ],
+      "vaultModel": 154,
+      "occupiedFootprint": false,
+      "uses": 0,
+      "forced": false
+    },
+    "openingTurn": 1277,
+    "rewardTurn": 1358,
+    "giftId": 3141,
+    "giftVisits": 82,
+    "unlockTurn": 1440,
+    "orderReleaseTurn": 1453,
+    "closedPhase1And2Boundaries": 1750,
+    "occupiedClosedBoundaries": 0,
+    "errors": [],
+    "cleanupErrors": [],
+    "cleanupVerified": true,
+    "checkpointSaveLoadPerformed": false,
+    "frames": [
+      {
+        "label": "approach",
+        "caption": "Approach to the closed Vault",
+        "turn": 855,
+        "phase": 1,
+        "goal": [
+          58112,
+          30976
+        ],
+        "nativePosition": [
+          59173,
+          29364
+        ],
+        "interpolatedActorPosition": {
+          "x": -32.72813009375045,
+          "y": 1.975,
+          "z": -122.51048446875075
+        },
+        "vaultModel": 154,
+        "beforeFrame": 303,
+        "afterFrame": 304,
+        "width": 1240,
+        "height": 1000,
+        "file": "m3-vault-approach-turn-855-0.png",
+        "sha256": "7d06a8c589697446dd0b72e94a0d21b718ad4f28c466d04fac353fcfb66eebf2",
+        "copiedUnchanged": true,
+        "pixelReview": "independently accepted within stated phase/visibility limit",
+        "limit": "One natural rendered frame"
+      },
+      {
+        "label": "prayer",
+        "caption": "Prayer outside the closed Vault",
+        "turn": 884,
+        "phase": 2,
+        "goal": [
+          58112,
+          30976
+        ],
+        "nativePosition": [
+          58111,
+          30977
+        ],
+        "interpolatedActorPosition": {
+          "x": -37.00390625,
+          "y": 1.803125,
+          "z": 126.99609375
+        },
+        "vaultModel": 154,
+        "beforeFrame": 312,
+        "afterFrame": 313,
+        "width": 1240,
+        "height": 1000,
+        "file": "m3-vault-prayer-turn-884-1.png",
+        "sha256": "e582b22399f5d1ed14bc6451096920b5d4f2ca57940005a572e51eb4b0281c29",
+        "copiedUnchanged": true,
+        "pixelReview": "independently accepted within stated phase/visibility limit",
+        "limit": "One natural rendered frame"
+      },
+      {
+        "label": "entry",
+        "caption": "Open-door entry beginning",
+        "turn": 1317,
+        "phase": 4,
+        "goal": [
+          58112,
+          32000
+        ],
+        "nativePosition": [
+          58111,
+          30977
+        ],
+        "interpolatedActorPosition": {
+          "x": -37.00390625,
+          "y": 1.803125,
+          "z": 126.99609375
+        },
+        "vaultModel": 153,
+        "beforeFrame": 470,
+        "afterFrame": 471,
+        "width": 1240,
+        "height": 1000,
+        "file": "m3-vault-entry-turn-1317-2.png",
+        "sha256": "89f924fb1b44014a283ea77f1d57f1783c7a513c4a13108bdfccd36268e79b20",
+        "copiedUnchanged": true,
+        "pixelReview": "independently accepted within stated phase/visibility limit",
+        "limit": "Executed phase4 begins while interpolated pose remains at the outside endpoint; not completed inside arrival"
+      }
+    ],
+    "reviewSha256": "11d3358139daf104adf267f4b6a193b71a66171f591288bfd39c3f1514f2d4b9"
+  },
+  "delivery": {
+    "merged": true,
+    "mergedAt": "2026-10-09T07:56:33Z",
+    "mergeCommit": "2107ccfabc1737aed55aca3c5579a920dd63a667",
+    "mergeTree": "100f8aad81e8173f524e9058860670a88456762f",
+    "mergeTreeEqualsTestedProduct": true,
+    "providerCheck": {
+      "id": 113726595816,
+      "name": "Workers Builds: populous-new-dawn",
+      "headSha": "2107ccfabc1737aed55aca3c5579a920dd63a667",
+      "status": "completed",
+      "conclusion": "success",
+      "completedAt": "2026-10-09T07:57:38Z",
+      "buildId": "f1a22b29-cbe8-4cc8-b585-63caa944c200",
+      "versionId": "3698e3c4-9d80-4dd3-b559-af278ce58832",
+      "source": "https://api.github.com/repos/JohnDeved/populous-new-dawn/check-runs/113726595816"
+    }
+  }
+}
