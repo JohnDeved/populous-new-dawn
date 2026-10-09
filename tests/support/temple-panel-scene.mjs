@@ -5,7 +5,19 @@ import assert from 'node:assert/strict'
 import { tooltipCallerFixture } from './tooltip-scene.mjs'
 import { supplyPanelDom } from './camp-panel-scene.mjs'
 
-async function buildEmptyTemple({ api, world, frame }) {
+async function buildEmptyTemple({ api, world, scene, frame }) {
+  // Supply the required existing M3 art resource at the same fixture boundary
+  // as texture IO. Its material phase is not this panel ownership proof.
+  const { createSharedAniblResource } = await import('../../app/shared-anibl.ts'),
+    resource = createSharedAniblResource()
+  resource.transition(true)
+  scene.presentationBinding = {
+    isCurrent: () => scene.world === world,
+    snapshot: resource.snapshot,
+    advance: resource.advance,
+    release() {},
+  }
+  scene.templeResourceSnapshot = resource.snapshot()
   const until = (label, condition) => {
     for (let turns = 0; turns < 12000 && !condition(); turns++) frame(1 / 12)
     assert.ok(condition(), `${label} must finish through actual turns: ${world.turn}`)
