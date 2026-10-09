@@ -587,7 +587,7 @@ async function cameraFixture(t, failure = null) {
       assert.equal(options.steps, 16)
       const delta = (x - lastX) / options.steps
       assert.equal(delta, 64)
-      for (let n = 0; n < options.steps; n++)
+      for (let n = 0; n < options.steps - (failure?.skipStep ? 1 : 0); n++)
         dragCamera(f.scene.cameraPosition, f.scene.cameraVelocity, true, delta, 0)
     }
     lastX = x
@@ -618,22 +618,40 @@ async function cameraFixture(t, failure = null) {
 }
 
 test('fixed Vault camera half-turn composes with the shipped drag mapping and unchanged strict input helper', async t => {
-  const f = await cameraFixture(t)
-  const entry = await prepareVaultDoorView(f.options)
-  assert.deepEqual(entry.before.camera, { x: 58044, y: 31972, angle: 1153 })
-  assert.deepEqual(entry.after.camera, { x: 58044, y: 31972, angle: 129 })
-  assert.deepEqual(entry.after.selected, [46])
-  assert.equal(entry.after.lastOrderTurn, entry.before.lastOrderTurn)
-  assert.deepEqual(
-    f.calls.map(call => call[0]),
-    ['move', 'down', 'move', 'up']
-  )
-  assert.equal(f.calls[2][1] - f.calls[0][1], 1024)
-  assert.equal(f.calls[2][2], f.calls[0][2])
-  assert.equal(f.api.vaultApproach, undefined, 'Camera setup precedes observation')
-  const delivered = await f.input.clickEntity('shrines', 92, 33, false, [46])
-  assert.equal(delivered.after.units[0].orderOwner.phase, 0)
-  assert.deepEqual(delivered.after.selected, [46])
+  for (const [before, after] of [
+    [{ x: 58044, y: 31972, angle: 1153 }, 129],
+    [{ x: 58077, y: 32102, angle: 1136 }, 112],
+  ]) {
+    const f = await cameraFixture(t)
+    f.scene.cameraPosition = { ...before }
+    const entry = await prepareVaultDoorView(f.options)
+    assert.deepEqual(entry.before.camera, before)
+    assert.deepEqual(entry.after.camera, { ...before, angle: after })
+    assert.deepEqual(entry.after.selected, [46])
+    assert.equal(entry.after.lastOrderTurn, entry.before.lastOrderTurn)
+    assert.deepEqual(
+      f.calls.map(call => call[0]),
+      ['move', 'down', 'move', 'up']
+    )
+    assert.equal(f.calls[2][1] - f.calls[0][1], 1024)
+    assert.equal(f.calls[2][2], f.calls[0][2])
+    assert.equal(f.api.vaultApproach, undefined, 'Camera setup precedes observation')
+    const delivered = await f.input.clickEntity('shrines', 92, 33, false, [46])
+    assert.equal(delivered.after.units[0].orderOwner.phase, 0)
+    assert.deepEqual(delivered.after.selected, [46])
+    f.api.close()
+  }
+})
+
+test('fixed Vault camera half-turn rejects an incomplete drag from the actual ordinary02 heading', async t => {
+  const f = await cameraFixture(t, { skipStep: true })
+  f.scene.cameraPosition = { x: 58077, y: 32102, angle: 1136 }
+  await assert.rejects(prepareVaultDoorView(f.options), /exactly half a turn/)
+  assert.deepEqual(f.report.cameraView.before.camera, { x: 58077, y: 32102, angle: 1136 })
+  assert.deepEqual(f.report.cameraView.after.camera, { x: 58077, y: 32102, angle: 48 })
+  assert.deepEqual(f.report.cameraView.after.selected, [46])
+  assert.equal(f.calls.at(-1)[0], 'up')
+  assert.equal(f.api.vaultApproach, undefined)
   f.api.close()
 })
 

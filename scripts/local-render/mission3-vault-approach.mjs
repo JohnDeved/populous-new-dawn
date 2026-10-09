@@ -137,9 +137,9 @@ export async function cleanupVaultApproach({ input, routeHandle, report, output 
   }
 }
 
-// Ordinary01's angle1153 hides the outside prayer point behind the Vault/tree.
-// One fixed half-turn uses the existing right-drag control before any witness or
-// order is armed. This prepares a view; only fresh pixels can establish clearance.
+// Ordinary01's view hides the outside prayer point behind the Vault/tree.
+// One fixed half-turn from the actual settled heading uses the existing right-drag
+// control before any witness or order. Only fresh pixels can establish clearance.
 export async function prepareVaultDoorView({ page, input, routeHandle, signal, report, save }) {
   const entry = { before: null, after: null, cleanupErrors: [] }
   report.cameraView = entry
@@ -202,11 +202,8 @@ export async function prepareVaultDoorView({ page, input, routeHandle, signal, r
     assert.equal(entry.before.ready, true)
     assert.deepEqual(entry.before.selected, [46])
     assert.equal(entry.before.mode, null)
-    assert.equal(
-      entry.before.camera.angle,
-      1153,
-      'Fixed door-view setup requires the ordinary01 heading'
-    )
+    assert.ok(Number.isInteger(entry.before.camera.angle))
+    assert.ok(entry.before.camera.angle >= 0 && entry.before.camera.angle <= 2047)
     assert.deepEqual(entry.before.velocity, { turn: 0, forward: 0, side: 0 })
     assert.equal(
       entry.before.corridor.owned,
@@ -254,7 +251,11 @@ export async function prepareVaultDoorView({ page, input, routeHandle, signal, r
   if (failed) throw failure
   signal.throwIfAborted()
   assert.equal(entry.after.ready, true)
-  assert.deepEqual(entry.after.camera, { ...entry.before.camera, angle: 129 })
+  assert.deepEqual(
+    entry.after.camera,
+    { ...entry.before.camera, angle: (entry.before.camera.angle + 1024) & 2047 },
+    'Fixed right-drag must add exactly half a turn and retain the camera center'
+  )
   assert.deepEqual(entry.after.velocity, entry.before.velocity)
   assert.deepEqual(entry.after.selected, [46])
   assert.equal(entry.after.mode, null)
