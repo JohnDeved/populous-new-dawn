@@ -9,8 +9,8 @@
   "payloadFiles": [
     {
       "file": "README.md",
-      "bytes": 5754,
-      "sha256": "83314a980932f5abfb95624482b97d3dab9131992680a3b70bf315e26e766c1d"
+      "bytes": 5777,
+      "sha256": "7ece5e7f6c3dd2d00829b73c87478f81afcb1cb0f1c47a8776f41a530da437a1"
     },
     {
       "file": "artifact-index.json",
@@ -63,7 +63,7 @@
       "sha256": "ab1dc5b788f33e2ec8e7755e63fbc4526d9a0fa5431a7669d751619502b1bf89"
     }
   ],
-  "payloadBytesExcludingManifest": 5983698,
+  "payloadBytesExcludingManifest": 5983721,
   "copyPolicy": "Only bounded text/JSON and four original PNGs. Raw receipts/reports/stdout, game bytes, native executables, profiles, dependency files and credentials are excluded. Original raw evidence remains untouched.",
   "publication": "Local preparation only; no public URLs verified and no push retried."
 }

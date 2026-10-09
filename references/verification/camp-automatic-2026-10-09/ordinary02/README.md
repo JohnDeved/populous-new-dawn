@@ -57,7 +57,7 @@ behavior, not original-game raster or hardware frame-performance equivalence.
 The panel remains visible while the pointer is away and the Blast description is
 visible. This composite is later than the synchronous panel/world capture pair.
 
-![Synchronous Warrior Training Hut panel: one of five occupants and eight percent charge](automatic-active-panel.png)
+![Synchronous Warrior Training Hut panel: one occupant out of the five-person capacity and eight percent charge](automatic-active-panel.png)
 
 The exact panel frame is ordinal 2709/turn 1295, with one occupant and 8% charge.
 The [matching world-only canvas](automatic-active-world.png) excludes the separate
