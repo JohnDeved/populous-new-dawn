@@ -19,7 +19,7 @@ export default async function hutTooltip({ page, root, output, receipt, signal }
     authoredTree: 20, ground: { x: -11, z: 39 }, hud: 'Blast', startupMs: 60000, episodeMs: 180000,
     witnessPhaseMs: 12000, inheritedHelperWaitMs: 45000, panelHoverVisits: 24,
     maxRecords: 8192, maxCaptureGroups: 8, noRetries: true },
-    actions: [], preparations: [], checkpoints: [], limits: 'Ordinary current-browser behavior on the accepted existing flyby-tick mapping. No native wall-time or full pool equivalence, textless positive HUD, forced/HUD-overlap guarantee, off-target held release, named replacement, or hardware performance claim.' }
+    actions: [], preparations: [], checkpoints: [], limits: 'Ordinary current-browser behavior on the accepted existing flyby-tick mapping. Per-tick marker snapshots retain actual allocated feedback; direct onSound dispatch and audible output are unobserved. No native wall-time or full pool equivalence, textless positive HUD, forced/HUD-overlap guarantee, off-target held release, named replacement, or hardware performance claim.' }
   const save = () => {
     for (const [label, group] of Object.entries(report.observation?.frames ?? {}))
       for (const [kind, frame] of Object.entries(group)) if (frame?.png?.startsWith('data:')) {

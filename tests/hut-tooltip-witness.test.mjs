@@ -94,6 +94,31 @@ test('separate natural paint owners retain same-RAF tooltip, WebGL and later HUD
   } finally { api?.close(); f.restore() }
 })
 
+test('actual controller return retains detached bounded marker consequences without requesting audio', () => {
+  const f = fixture(); let api
+  const original = f.Scene.prototype.updateTooltipController
+  let calls = 0
+  f.Scene.prototype.updateTooltipController = function (...args) {
+    calls++
+    const result = original.apply(this, args)
+    this.world.effects.push({ id: 900, kind: 'orderMarker', x: 2, z: 3, height: 4, age: 0, duration: 1, turnsRemaining: 4 })
+    return result
+  }
+  try {
+    api = installHutTooltipLifecycle(f.Scene, f.observe, { deadlineAt: Date.now() + 10000 })
+    const scene = new f.Scene(); scene.world.effects = Array.from({ length: 161 }, (_, id) => ({ id, kind: 'orderMarker', x: id, z: 0 }))
+    scene.world.effects.push({ id: 899, kind: 'blast', x: 0, z: 0 })
+    scene.start()
+    assert.equal(scene.updateTooltipController(500), f.originalReturn); assert.equal(calls, 1)
+    scene.world.effects.at(-1).x = 99
+    const row = api.read().records.find(row => row.kind === 'tick')
+    assert.deepEqual([row.markers.before.count, row.markers.before.omitted, row.markers.before.values.length], [161, 1, 160])
+    assert.deepEqual([row.markers.after.count, row.markers.after.omitted, row.markers.after.values.length], [162, 2, 160])
+    assert.deepEqual(row.markers.after.values.at(-1), { id: 900, kind: 'orderMarker', x: 2, z: 3, height: 4, age: 0, duration: 1, turnsRemaining: 4 })
+    assert.deepEqual(api.close().errors, [])
+  } finally { api?.close(); f.restore() }
+})
+
 test('repeated identical picks stay bounded while changed results, coordinates, route and phase remain actual records', () => {
   const f = fixture(); let api
   try {

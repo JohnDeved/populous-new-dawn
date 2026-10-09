@@ -46,6 +46,11 @@ coordinate or route; counts retain omitted identical frames. Frame/RAF counters
 are not deduplication keys. Turns, animation frames, renderer frames and request
 handles remain separate values.
 
+Controller tick records also retain detached before/after `world.effects`
+order-marker identity, position and lifetime fields, capped at160 with an explicit
+omitted count. This observes actual allocated feedback. Direct `onSound` dispatch
+and audible output are unobserved; the actual caller regression owns that path.
+
 Tooltip canvas pixels are captured after the real tooltip paint; world pixels
 after the actual main renderer return; panel canvas pixels after the later HUD
 paint. Blast keeps its existing immediate DOM description. Its shared controller

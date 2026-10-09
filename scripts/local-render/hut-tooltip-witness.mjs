@@ -39,6 +39,12 @@ export function installHutTooltipLifecycle(GameScene, observeEntityPointer, { de
     units: scene.world.units.map(unit => ({ id: unit.id, work: unit.work, target: unit.target, tree: unit.tree,
       commands: unit.native?.commands, commandCursor: unit.native?.commandCursor, immediateCommand: unit.native?.immediateCommand })),
   })
+  const markers = scene => {
+    const actual = (scene.world.effects ?? []).filter(effect => effect.kind === 'orderMarker')
+    return { count: actual.length, omitted: Math.max(0, actual.length - 160),
+      values: actual.slice(-160).map(({ id, kind, x, z, height, age, duration, turnsRemaining }) =>
+        ({ id, kind, x, z, height, age, duration, turnsRemaining })) }
+  }
   const state = scene => {
     const w = scene.world, c = scene.tooltipController, session = c?.session ?? scene.tooltipSession
     check(scene.objectPanels?.hutRecords instanceof Map, 'Missing actual Hut record observation interface')
@@ -101,9 +107,10 @@ export function installHutTooltipLifecycle(GameScene, observeEntityPointer, { de
     try {
       pointer = observeEntityPointer(scene, document)
       wrap(scene, 'updateTooltipController', original => function (...args) {
-        const before = observe(snapshot)
+        const before = observe(snapshot), markersBefore = observe(() => markers(scene))
         const result = original.apply(this, args)
-        observe(() => add({ kind: 'tick', epoch: epoch.id, receiverMatches: this === scene, now: args[0], before, after: snapshot() }))
+        observe(() => add({ kind: 'tick', epoch: epoch.id, receiverMatches: this === scene, now: args[0], before, after: snapshot(),
+          markers: { before: markersBefore, after: markers(scene) } }))
         return result
       })
       wrap(scene, 'acquireForcedTooltip', original => function (...args) {
