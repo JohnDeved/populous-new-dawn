@@ -62,11 +62,11 @@ export class ObjectPanels {
   private trainingIdentity(building: Building | undefined) {
     return !!(
       building &&
-      building.kind === 'camp' &&
       building.progress >= 1 &&
       building.hp > 0 &&
       building.admission?.class === 2 &&
-      building.admission.model === 7
+      ((building.kind === 'camp' && building.admission.model === 7) ||
+        (building.kind === 'temple' && building.admission.model === 5))
     )
   }
   private trainingActive(building: Building | undefined) {
@@ -90,7 +90,11 @@ export class ObjectPanels {
   inspectBuilding(id: number, source: 'hover' | 'explicit' | 'automatic', pointerId?: number) {
     const { scene } = this,
       building = scene.world.buildings.find(
-        b => b.id === id && retainedBuildingPanel(b) && b.team === 'blue' && b.hp > 0
+        b =>
+          b.id === id &&
+          (retainedBuildingPanel(b) || (source === 'automatic' && this.trainingIdentity(b))) &&
+          b.team === 'blue' &&
+          b.hp > 0
       )
     if (!building || scene.overviewActive || document.querySelector('dialog[open]'))
       return `${source}:rejected`
@@ -116,7 +120,7 @@ export class ObjectPanels {
         )
           owners.add(otherId)
       syncSecondaryReservations(scene)
-      // A visible camp already owns this browser capacity. Transferring it to a
+      // A visible building already owns this browser capacity. Transferring it to a
       // retained record consumes no second slot; native physical allocation is
       // still outside this partial count adapter.
       const addedOwner = Number(!owners.has(id)),
@@ -172,10 +176,16 @@ export class ObjectPanels {
           this.inspectBuilding(building.id, 'automatic')
     for (const [id, record] of this.buildingRecords) {
       let building = scene.world.buildings.find(
-        b => b.id === id && retainedBuildingPanel(b) && b.hp > 0
+        b =>
+          b.id === id &&
+          (retainedBuildingPanel(b) || (record.automatic && this.trainingIdentity(b))) &&
+          b.hp > 0
       )
       const training =
-        record.automatic && (building?.kind === 'camp' || this.automaticTrainingLatches.has(id))
+        record.automatic &&
+        (building?.kind === 'camp' ||
+          building?.kind === 'temple' ||
+          this.automaticTrainingLatches.has(id))
       if (training && !this.trainingIdentity(building)) building = undefined
       const element = scene.buildingPanels.get(id),
         panelInteraction =
@@ -200,7 +210,11 @@ export class ObjectPanels {
         this.automaticTrainingLatches.delete(id)
         if (
           !building ||
-          !(dismantlingCampPanel(building) || (building.kind === 'camp' && panelInteraction))
+          !(
+            dismantlingCampPanel(building) ||
+            (building.kind === 'temple' && (building.admission?.activity ?? 0) & 0x8000) ||
+            ((building.kind === 'camp' || building.kind === 'temple') && panelInteraction)
+          )
         ) {
           element?.remove()
           scene.buildingPanels.delete(id)
