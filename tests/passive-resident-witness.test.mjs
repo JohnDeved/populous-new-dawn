@@ -2,23 +2,34 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
+import { stripTypeScriptTypes } from 'node:module'
 import * as orders from '../app/person-orders.ts'
 import * as idle from '../app/person-idle.ts'
 import * as animation from '../app/unit-animation-source.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
 import { removeBuildingOccupant } from '../app/building-occupants.ts'
 import { selectBuildingOccupants } from '../app/live-building-entry.ts'
-import { cancelInteraction } from '../app/selection-runtime.ts'
+import { cancelInteraction, selectUnit, canOrder } from '../app/selection-runtime.ts'
+import { createNativeTerrain } from '../app/native-terrain.ts'
+import { nativePosition } from '../app/world-terrain-runtime.ts'
+import * as drag from '../app/drag-selection.ts'
+import * as math from '../app/native-math.ts'
+import { blastPersonTargeting } from '../app/blast-targeting.ts'
+import * as pointerObservation from '../qa/erosion-ordinary/input.mjs'
 import { SPELLS } from '../app/world-rules.ts'
 import { installHutResidentWitness, installResidentCheckpointBoundary, readResidentCommitted,
-  installResidentPanelSelection, installResidentSelectionClear } from '../scripts/local-render/hut-resident-witness.mjs'
-import { assertPassiveResident, assertResidentDeparture, assertResidentCommitted, finishResidentHandles } from '../scripts/local-render/hut-resident.mjs'
+  installResidentPanelSelection, installResidentSelectionClear, installOutsideBraveSelection,
+  readHutResidentRoster } from '../scripts/local-render/hut-resident-witness.mjs'
+import { assertPassiveResident, assertResidentDeparture, assertResidentCommitted, finishResidentHandles,
+  assertOutsideBraveReady, assertOutsideBraveSelection } from '../scripts/local-render/hut-resident.mjs'
 
 const modules = { '/app/person-orders.ts': orders, '/app/person-idle.ts': idle,
-  '/app/unit-animation-source.ts': animation, '/app/original-rules.json': { default: rules } }
-const install = spec => Function('imports', `return (${installHutResidentWitness.toString().replaceAll('import(', 'imports(')})`)(async name => {
+  '/app/unit-animation-source.ts': animation, '/app/original-rules.json': { default: rules },
+  '/qa/erosion-ordinary/input.mjs': pointerObservation }
+const browserCall = (fn, spec) => Function('imports', `return (${fn.toString().replaceAll('import(', 'imports(')})`)(async name => {
   assert.ok(Object.hasOwn(modules, name), name); return modules[name]
 })(spec)
+const install = spec => browserCall(installHutResidentWitness, spec)
 function element() {
   const listeners = []
   return { isConnected: true, disabled: false, hidden: false, listeners,
@@ -27,9 +38,10 @@ function element() {
       const index = listeners.findIndex(item => item.type === type && item.fn === fn && item.capture === capture)
       assert.ok(index >= 0); listeners.splice(index, 1)
     },
-    emit(type, more = {}) { const e = { target: this, isTrusted: true, button: 0,
+    emit(type, more = {}) { const e = { type, target: this, isTrusted: true, button: 0,
       ctrlKey: false, shiftKey: false, altKey: false, metaKey: false, ...more }
-      for (const { fn } of [...listeners].filter(item => item.type === type)) fn(e)
+      for (const capture of [true, false])
+        for (const { fn } of [...listeners].filter(item => item.type === type && item.capture === capture)) fn(e)
     }, contains(target) { return target === this } }
 }
 function fixture(t) {
@@ -262,6 +274,81 @@ for (const selection of [[30], [13]]) test(`actual Escape and panel selection co
   assert.equal(f.u.inside, 37); assert.equal(f.w.lastOrderTurn, 799)
   assert.equal(f.w.randomState, 123); assert.equal(f.u.resident.person, f.p)
   window.removeEventListener('keydown', key)
+})
+
+function ownUnitFixture(t, picked = 13) {
+  const f = fixture(t)
+  f.u.entry = undefined; f.u.native = f.p; f.u.work = null; f.p.building = null; f.p.flags2 = 0x20000
+  f.p.state = 19; f.w.selected = []; f.w.manaWorld = { gameFlags: 0 }
+  f.w.land = createNativeTerrain(new Int16Array(16384).fill(64)); f.w.landVersion = f.w.terrainVersion = 0
+  f.w.sounds = []; f.w.soundSerial = 0; f.w.shrines = []; f.w.trees = []; f.w.vehicles = []
+  f.w.units.push({ ...f.u, id: 14, native: { ...f.p, id: 14 } })
+  Object.assign(f.scene, { overviewActive: false, overviewStage: 0, dragActive: { value: false },
+    globeMotion: { dragging: false }, cameraPosition: {}, pointerButtons: 0,
+    unitMeshes: new Map(), selectionOverlay: { visible: false }, acknowledgePointer() {}, onSound() {}, onChange() {},
+    picking: { pickPerson: () => picked, pick: () => picked },
+    pick: () => ({ x: f.u.x, z: f.u.z }), pickWorldObject: () => null })
+  Object.assign(f.canvas, { getBoundingClientRect: () => ({ left: 0, top: 0, width: 1000, height: 800 }), setPointerCapture() {} })
+  globalThis.document = { elementFromPoint: () => f.canvas }
+  const source = readFileSync(new URL('../app/scene-input-runtime.ts', import.meta.url), 'utf8')
+  const bindings = { ...drag, ...math, nativePosition, canOrder, selectUnit, blastPersonTargeting,
+    command: () => assert.fail('An own-unit selection must not dispatch an order') }
+  const actual = name => {
+    const start = source.indexOf(`export function ${name}(`), end = source.indexOf('\nexport function ', start + 1)
+    assert.ok(start >= 0 && end > start)
+    const body = stripTypeScriptTypes(source.slice(start, end).replace('export ', ''))
+    return Function(...Object.keys(bindings), `${body}; return ${name}`)(...Object.values(bindings))
+  }
+  const down = actual('pointerDown'), up = actual('pointerUp'), update = actual('updateDrag'), pickUnit = actual('pickUnit')
+  f.scene.pickUnit = event => pickUnit(f.scene, event)
+  f.scene.updateDrag = event => update(f.scene, event)
+  f.canvas.addEventListener('pointerdown', event => down(f.scene, event))
+  f.canvas.addEventListener('pointerup', event => up(f.scene, event))
+  const point = { x: 420, y: 380 }
+  return { ...f, point, click() {
+    for (const [type, buttons] of [['pointerdown', 1], ['pointerup', 0]])
+      f.canvas.emit(type, { buttons, pointerId: 1, clientX: point.x, clientY: point.y })
+  } }
+}
+
+test('actual own-unit pointerDown/updateDrag/pointerUp/selectUnit select only original Brave13', async t => {
+  const f = ownUnitFixture(t), originalPick = f.scene.pickUnit
+  const api = await browserCall(installOutsideBraveSelection, { unitId: 13, point: f.point })
+  assertOutsideBraveReady(api.read().initial); f.click()
+  assertOutsideBraveSelection(api.close())
+  assert.equal(f.scene.pickUnit, originalPick); assert.equal(f.canvas.listeners.length, 2)
+  assert.deepEqual(f.w.selected, [13]); assert.equal(f.w.lastOrderTurn, 799)
+  assert.equal(f.w.randomState, 123)
+})
+
+test('wrong actual own-unit pick fails after one click and restores the observer', async t => {
+  const f = ownUnitFixture(t, 14), originalPick = f.scene.pickUnit
+  const api = await browserCall(installOutsideBraveSelection, { unitId: 13, point: f.point })
+  f.click(); const e = api.close()
+  assert.throws(() => assertOutsideBraveSelection(e))
+  assert.deepEqual(f.w.selected, [14]); assert.equal(f.scene.pickUnit, originalPick)
+  assert.equal(f.canvas.listeners.length, 2); assert.equal(e.events.length, 2)
+})
+
+test('outside selection rejects changed synchronous orders and an already-inside target', async t => {
+  const f = ownUnitFixture(t)
+  f.canvas.addEventListener('pointerup', () => { f.p.immediateCommand = 1; f.w.lastOrderTurn++ })
+  const api = await browserCall(installOutsideBraveSelection, { unitId: 13, point: f.point })
+  f.click(); assert.throws(() => assertOutsideBraveSelection(api.close()))
+  f.u.inside = 37
+  const closed = await browserCall(installOutsideBraveSelection, { unitId: 13, point: f.point })
+  assert.throws(() => assertOutsideBraveReady(closed.read().initial)); closed.close()
+})
+
+test('roster retains all original identities and current orders even when fixed Hut is empty', async t => {
+  const f = fixture(t); f.b.anchor = { x: 64512, y: 54784 }; f.b.x = -11; f.b.z = 33
+  f.w.speed = 1; f.p.commands[0] = 1
+  const roster = await browserCall(readHutResidentRoster)
+  assert.deepEqual(roster.braves.map(unit => unit.id), [13, 14, 15, 16, 17, 18])
+  assert.deepEqual(roster.residents, []); assert.equal(roster.hut.admission.inside, 0)
+  assert.equal(roster.braves[0].owners.entry.orderId, 1)
+  assert.equal(roster.braves[0].owners.entry.order.model, 3)
+  assert.equal(roster.braves[1].missing, true)
 })
 
 for (const primary of [undefined, null, false, 0, 'failure']) test(`cleanup keeps primitive primary ${String(primary)}`, async () => {

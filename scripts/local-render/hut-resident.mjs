@@ -5,13 +5,46 @@ import { bindGame, waitForShamanReadiness } from '../browser-game.mjs'
 import { createMission1VaultInput } from './mission1-vault-input.mjs'
 import { readCommittedCheckpoint } from './checkpoint-observer.mjs'
 import { installHutResidentWitness, readHutResidentRoster, readResidentCommitted,
-  installResidentCheckpointBoundary, installResidentPanelSelection, installResidentSelectionClear } from './hut-resident-witness.mjs'
+  installResidentCheckpointBoundary, installResidentPanelSelection, installResidentSelectionClear,
+  installOutsideBraveSelection } from './hut-resident-witness.mjs'
 
 export const hutResidentExitPoint = Object.freeze({ x: -11, z: 39 })
 
 export function assertResidentCommitted(committed, saved) {
   assert.equal(committed?.version, 1)
   assert.deepEqual(committed.summary, saved.summary)
+}
+
+export function assertOutsideBraveReady(state) {
+  assert.ok(state.worldMatches && state.actorMatches)
+  assert.equal(state.unit?.id, 13); assert.equal(state.unit?.kind, 'brave'); assert.equal(state.unit?.team, 'blue')
+  assert.ok(state.unit.hp > 0); assert.equal(state.unit.inside, null)
+  assert.deepEqual(state.selected, []); assert.equal(state.mode, null); assert.equal(state.inputMask, 0)
+  assert.equal(state.paused, false); assert.ok(!state.overview && !state.overviewStage && !state.dragActive)
+}
+
+export function assertOutsideBraveSelection(evidence) {
+  assert.deepEqual(evidence.errors, []); assert.equal(evidence.closed, true)
+  assert.equal(evidence.delivered.restored, true); assert.deepEqual(evidence.delivered.errors, [])
+  assert.deepEqual(evidence.events.map(event => event.type), ['pointerdown', 'pointerup'])
+  for (const event of evidence.events) {
+    assertOutsideBraveReady(event.before)
+    assert.ok(event.trusted && event.targetMatches && event.canvasOwned && event.modifiers.every(value => !value))
+    assert.equal(event.button, 0); assert.equal(event.x, evidence.point.x); assert.equal(event.y, evidence.point.y)
+    assert.ok(event.after.worldMatches && event.after.actorMatches)
+    assert.equal(event.after.turn, event.before.turn)
+    assert.equal(event.after.lastOrderTurn, event.before.lastOrderTurn)
+    assert.equal(event.after.randomState, event.before.randomState)
+    assert.deepEqual(event.after.orders, event.before.orders)
+    assert.equal(event.after.unit.work, event.before.unit.work); assert.equal(event.after.unit.inside, null)
+    assert.equal(event.after.down.unit, 13); assert.equal(event.after.down.extend, false)
+    assert.equal(event.after.dragActive, false)
+    const delivered = evidence.delivered.events.find(row => row.type === event.type)
+    assert.ok(delivered?.picks.some(pick => pick.id === 13 && pick.name === (event.type === 'pointerdown' ? 'pickUnit' : 'pickPerson')))
+    assert.ok(delivered.picks.every(pick => pick.receiverMatches && !pick.threw))
+  }
+  assert.deepEqual(evidence.events[0].after.selected, [])
+  assert.deepEqual(evidence.events[1].after.selected, [13])
 }
 
 export function assertPassiveResident(state, unitId, hutId) {
@@ -55,7 +88,8 @@ export async function finishResidentHandles(handles, report, save, primary, reta
 export default async function hutResident({ page, output, receipt, openMission, observeCheckpoint, signal }) {
   const deadlineAt = Date.now() + 300000
   const report = { status: 'running', declaration: { mission: 1, hutObject: 42, hutAnchor: [64512, 54784],
-    exitPoint: hutResidentExitPoint, maxSeconds: 300, route: 'One fixed-Hut resident exit, re-entry, public Save/Load, final departure; no retries.' },
+    exitPoint: hutResidentExitPoint, unitId: 13, maxSeconds: 300,
+    route: 'Select original outside Brave13 once, enter fixed Hut37, public Save/Load, final departure; no retries.' },
     actions: [], epochs: [], preparations: [], errors: [],
     limits: 'New resident identity is proved at synchronous ownership/slot boundaries. PNGs show natural visible entry/occupancy/exit only. No post-handler movement identity, legacy-save recovery, Swarm or original GPU/clock equivalence.' }
   let witness, checkpoint, failed = false, failure, input, unitId, hutId
@@ -97,7 +131,7 @@ export default async function hutResident({ page, output, receipt, openMission, 
     assert.deepEqual(epoch.errors, []); assert.equal(epoch.closed, true)
     return epoch
   }
-  const selectResident = async () => {
+  const clearSelection = async () => {
     let clear, primaryClear = { failed: false }
     const clearing = { kind: 'clear-selection' }; report.actions.push(clearing)
     try {
@@ -112,6 +146,9 @@ export default async function hutResident({ page, output, receipt, openMission, 
     assert.deepEqual(cleared.event.after.selected, []); assert.equal(cleared.event.after.mode, null)
     assert.equal(cleared.event.after.orderCursor, 0)
     assert.equal(cleared.event.after.lastOrderTurn, cleared.before.lastOrderTurn)
+  }
+  const selectResident = async () => {
+    await clearSelection()
     await input.view(report.roster.hut)
     const hit = await input.entityPoint('buildings', hutId, null)
     report.preparations.push({ kind: 'panel-hover', hit }); save()
@@ -150,13 +187,27 @@ export default async function hutResident({ page, output, receipt, openMission, 
     assert.equal(roster.level, 1); assert.equal(roster.inputMask, 0); assert.equal(roster.speed, 1)
     assert.equal(roster.status, 'playing'); assert.equal(roster.paused, false); assert.equal(roster.sceneMatches, true)
     assert.equal(roster.shamanId, 30); assert.equal(roster.hut?.id, 37)
-    assert.ok(roster.hut?.hp > 0 && roster.hut.progress === 1 && roster.residents.length)
-    hutId = roster.hut.id; unitId = roster.residents[0].id
+    assert.ok(roster.hut?.hp > 0 && roster.hut.progress === 1)
+    assert.ok(roster.hut.admission.inside < roster.hut.capacity && roster.hut.admission.occupants.includes(0))
+    const original = roster.braves.find(unit => unit.id === 13)
+    assert.ok(original && original.kind === 'brave' && original.team === 'blue' && original.hp > 0)
+    assert.equal(original.inside, null)
+    hutId = roster.hut.id; unitId = 13
     input = createMission1VaultInput({ page, signal, report, save, originalShamanId: roster.shamanId, deadlineAt })
+    await clearSelection(); await input.view(original)
+    const selectionPoint = await input.entityPoint('units', unitId, null)
+    report.preparations.push({ kind: 'outside-Brave-selection', hit: selectionPoint }); save()
+    assert.equal(selectionPoint.rejection, null)
+    let selection, selectionFailure = { failed: false }
+    try {
+      selection = await page.evaluateHandle(installOutsideBraveSelection, { unitId, point: selectionPoint })
+      report.outsideSelection = await selection.evaluate(api => api.read()); save()
+      assertOutsideBraveReady(report.outsideSelection.initial)
+      await input.action('Select original outside Brave13', () => page.mouse.click(selectionPoint.x, selectionPoint.y))
+    } catch (error) { selectionFailure = { failed: true, failure: error } }
+    await finishResidentHandles([['outsideSelection', selection]], report, save, selectionFailure)
+    assertOutsideBraveSelection(report.outsideSelection)
     witness = await page.evaluateHandle(installHutResidentWitness, { hutId, unitId, deadlineAt })
-    await selectResident(); await move('initial-exit', false)
-    const outside = await read(); assert.equal(outside.latest.unit.inside, null)
-    assert.ok(!outside.latest.building.slots.includes(unitId), 'The fixed physical slot must be free before re-entry')
     await input.view(roster.hut)
     report.entryPreflight = await witness.evaluate(api => api.armEntry()); save()
     assert.equal(report.entryPreflight.unit.inside, null)

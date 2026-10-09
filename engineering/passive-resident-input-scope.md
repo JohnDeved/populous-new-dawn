@@ -2,20 +2,34 @@
 
 The `scripts/local-render/hut-resident.mjs` scenario is preparation for one fresh
 owned-profile candidate episode, after the reviewed product is composed with
-these unchanged checker files. It requires a real resident of this fixed Hut,
-uses one ground exit and one re-entry, observes completion, then uses the public
+these unchanged checker files. It requires the original living outside Brave13,
+uses one ordinary own-unit selection and one Hut entry, observes completion, then uses the public
 Save/Load controls and one final departure. It stops on a missing prerequisite
 or any delivered/uncertain input failure. The internal admission deadline is
 300 seconds; the maintained harness supplies the final process bound. Synchronous
 calls cannot be preempted by that admission deadline.
 
-Each panel selection is preceded by one public Escape, with command mode and
+Each selection is preceded by one public Escape, with command mode and
 the actual keyboard target admitted, then an observed empty selection. The
 existing panel action toggles its occupant and preserves selections elsewhere;
 it cannot safely be treated as an unconditional single-person selector. Tests
 compose the current Page callback, `cancelInteraction` and actual panel selection
 from both a selected Shaman and an already-selected resident. The first actual
 command8 person is captured once; later entry-owner substitution is an error.
+
+Candidate01 remains FAILED at its initial turn151 roster: Hut37 was healthy and
+complete but had zero physical occupants. It had no scenario actions or installed
+observer, and no Save. That report omitted the six individual Brave records, so
+it cannot establish their exact turn151 positions or orders. Source auto-housing
+requires idle conditions and a Hut within eight world units; it does not promise
+an occupant of Hut37 by a chosen turn. The revised route does not wait for one.
+It retains all original IDs13–18, current positions/inside/work/owners/orders,
+then requires fixed Brave13 living and outside. Existing minimap and
+`entityPoint('units',13,null)` prepare its view/pixel; preparation is diagnostic.
+One actual canvas click must execute the shipped pointerDown/pointerUp selection
+path, pick13, select exactly13, and preserve synchronous order/RNG fields.
+Composed tests execute those current source bodies, actual updateDrag/selectUnit,
+and the existing transparent picker observer. There is no alternate actor or Hut.
 
 The observer holds captured JavaScript handles, restores exact callback/Map
 ownership, closes the old Scene observation before Load, and installs a fresh
@@ -76,10 +90,9 @@ These are imported provenance fields; this pass did not re-hash the original DAT
 
 ## Recipient and helper scope
 
-The ordinary actor remains the lowest-ID living **original Brave actually
-occupying this Hut's physical slot**. Retain that captured `braveId` through
-exit, re-entry, Save/Load, and final departure. This pass does not assign a new
-runtime actor ID. Keep the actual original Shaman ID as `originalShamanId`:
+The ordinary actor is the fixed living **original Brave13 outside any building**.
+Retain that `braveId` through entry, Save/Load, and final departure. This pass does
+not assign a new runtime actor ID. Keep the actual original Shaman30 as `originalShamanId`:
 the helper's final preflight separately requires that actor to be a living Blue
 Shaman, even when the selected command recipient is the Brave.
 

@@ -199,7 +199,8 @@ export async function installHutResidentWitness({ hutId, unitId, deadlineAt }) {
   return api
 }
 
-export function readHutResidentRoster() {
+export async function readHutResidentRoster() {
+  const { default: rules } = await import('/app/original-rules.json')
   const world = window.testStore.getWorld(), scene = window.testSceneRef.current
   const hut = world.buildings.find(b => b.team === 'blue' && b.kind === 'hut' && b.anchor?.x === 64512 && b.anchor?.y === 54784)
   const slots = hut?.admission?.occupants.slice(0, 6) ?? []
@@ -210,8 +211,67 @@ export function readHutResidentRoster() {
     sceneMatches: scene.world === world, status: world.status, speed: world.speed,
     shamanId: world.units.find(u => u.team === 'blue' && u.kind === 'shaman' && u.hp > 0)?.id,
     hut: hut && { id: hut.id, x: hut.x, z: hut.z, hp: hut.hp, progress: hut.progress, anchor: { ...hut.anchor },
-      admission: structuredClone(hut.admission) },
-    residents: residents.map(({ slot, unit: u }) => ({ slot, id: u.id, hp: u.hp, inside: u.inside })) }
+      capacity: hut.admission && rules.buildingCapacity[hut.admission.model], admission: structuredClone(hut.admission) },
+    residents: residents.map(({ slot, unit: u }) => ({ slot, id: u.id, hp: u.hp, inside: u.inside })),
+    braves: [13, 14, 15, 16, 17, 18].map(id => {
+      const u = world.units.find(unit => unit.id === id)
+      if (!u) return { id, missing: true }
+      const owners = Object.fromEntries([['native', u.native], ['entry', u.entry?.person],
+        ['resident', u.resident?.person], ['flight', u.flight], ['fight', u.fight?.motion], ['builder', u.builder?.person]]
+        .map(([name, p]) => {
+          const orderId = p && (p.immediateCommand || p.commands?.[p.commandCursor] || 0)
+          return [name, p ? { id: p.id, class: p.class, model: p.model, state: p.state,
+            x: p.x, y: p.y, flags2: p.flags2, flags3: p.flags3, flags4: p.flags4,
+            commands: [...p.commands ?? []], immediateCommand: p.immediateCommand,
+            commandCursor: p.commandCursor, commandStatus: p.commandStatus, orderId,
+            order: orderId ? structuredClone(world.buildingOrders.records[orderId]) : null } : null]
+        }))
+      return { id, kind: u.kind, team: u.team, hp: u.hp, x: u.x, z: u.z, inside: u.inside,
+        work: u.work, pathLength: u.path.length, selected: world.selected.includes(id), owners }
+    }) }
+}
+
+export async function installOutsideBraveSelection({ unitId, point }) {
+  const { observeEntityPointer } = await import('/qa/erosion-ordinary/input.mjs')
+  const scene = window.testSceneRef.current, world = scene.world, canvas = scene.renderer.domElement
+  const unit = world.units.find(u => u.id === unitId)
+  const sample = () => ({ turn: world.turn, lastOrderTurn: world.lastOrderTurn, randomState: world.randomState,
+    worldMatches: scene.world === world && window.testStore.getWorld() === world && window.testSceneRef.current === scene,
+    actorMatches: world.units.find(u => u.id === unitId) === unit,
+    selected: [...world.selected], mode: world.mode, inputMask: world.inputMask, paused: world.paused,
+    overview: scene.overviewActive, overviewStage: scene.overviewStage,
+    unit: unit && { id: unit.id, kind: unit.kind, team: unit.team, hp: unit.hp, inside: unit.inside, work: unit.work },
+    down: scene.down && { ...scene.down }, dragActive: !!scene.drag?.active,
+    orders: [unit?.native, unit?.entry?.person, unit?.resident?.person].map(p => {
+      const id = p && (p.immediateCommand || p.commands[p.commandCursor] || 0)
+      return p ? { id: p.id, commands: [...p.commands], immediateCommand: p.immediateCommand,
+        commandCursor: p.commandCursor, order: id ? structuredClone(world.buildingOrders.records[id]) : null } : null
+    }) })
+  const initial = sample(), events = [], errors = [], listeners = []
+  const delivery = observeEntityPointer(scene, document, { id: unitId, collection: 'units' })
+  let closed = false, delivered = null
+  for (const type of ['pointerdown', 'pointerup']) {
+    const before = event => { try {
+      if (events.length >= 2) throw new Error('Unexpected repeated outside selection input')
+      events.push({ type, trusted: event.isTrusted, button: event.button, x: event.clientX, y: event.clientY,
+        targetMatches: event.target === canvas, canvasOwned: document.elementFromPoint(event.clientX, event.clientY) === canvas,
+        modifiers: [event.ctrlKey, event.shiftKey, event.altKey, event.metaKey], before: sample(), after: null })
+    } catch (e) { if (errors.length < 8) errors.push(String(e)) } }
+    const after = () => { try { if (events.at(-1)?.type === type) events.at(-1).after = sample() }
+      catch (e) { if (errors.length < 8) errors.push(String(e)) } }
+    canvas.addEventListener(type, before, true); canvas.addEventListener(type, after)
+    listeners.push(() => { canvas.removeEventListener(type, before, true); canvas.removeEventListener(type, after) })
+  }
+  const read = () => ({ initial, point, events: structuredClone(events), errors: [...errors], delivered, closed })
+  return { read, close() {
+    if (!closed) {
+      closed = true
+      for (const remove of listeners.reverse()) remove()
+      delivered = delivery.finish()
+      errors.push(...delivered.errors)
+    }
+    return read()
+  } }
 }
 
 export async function readResidentCommitted() {
