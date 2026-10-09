@@ -10,6 +10,15 @@ import {
   finishMissionThreeSwarmObservation,
 } from './mission3-swarm-witness.mjs'
 
+// One predeclared empty terrain pick from ordinary02, before command-context testing.
+// mission3-swarm-42f20635-02/mission3-swarm.json:
+// sha256 bcb3535fa1b1f2fa13d49d2c69795b76970d3dd795f14e29b3336408e147d3f3.
+// Fresh visibility, command3, arrival and range remain required; never adopt a later nearest miss.
+export const missionThreeSwarmStagingPoint = Object.freeze({
+  x: -31.685820678042944,
+  z: -115.69012077842177,
+})
+
 export function closeMissionThreeTempleObservation(api) {
   if (window.m3TempleRoute !== api)
     throw new Error('Temple route API ownership changed; foreign API preserved')
@@ -269,7 +278,7 @@ export default async function missionThreeSwarm({ page, openMission, output, sig
     await readinessInput.button('Select and focus shaman')
     // One ordinary move replaces the continuing Vault route. Its existing
     // native-arrival witness proves completion; this is not a cast idle gate.
-    const stagingPoint = { x: -28.87890625, z: -115.50390625 }
+    const stagingPoint = missionThreeSwarmStagingPoint
     await readinessInput.view(stagingPoint)
     await page.evaluate(async () => {
       await Promise.all([

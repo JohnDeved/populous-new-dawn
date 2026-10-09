@@ -16,6 +16,7 @@ import missionThreeSwarm, {
   installMissionThreeMoveObservation,
   readMissionThreeMoveObservation,
   closeMissionThreeMoveObservation,
+  missionThreeSwarmStagingPoint,
 } from '../../scripts/local-render/mission3-swarm.mjs'
 import {
   attachMissionThreeSwarmObservation,
@@ -945,4 +946,45 @@ test('moveGround retains its exhausted partial probe before rejecting without a 
     report.actions.some(action => action.label === 'actual-dispatch'),
     false
   )
+})
+
+test('the predeclared ordinary02 point keeps exact movement precision and never adopts a new nearest miss', async t => {
+  // Exact retained ordinary02 report SHA bcb3535fa1b1f2fa13d49d2c69795b76970d3dd795f14e29b3336408e147d3f3.
+  assert.deepEqual(missionThreeSwarmStagingPoint, {
+    x: -31.685820678042944,
+    z: -115.69012077842177,
+  })
+  assert.equal(Object.isFrozen(missionThreeSwarmStagingPoint), true)
+  const { actor, scene } = groundFixture(t),
+    report = { actions: [] }
+  const nearest = { x: missionThreeSwarmStagingPoint.x + 0.5, z: missionThreeSwarmStagingPoint.z }
+  scene.pick = () => ({ ...nearest })
+  let inputs = 0
+  const input = createMission1VaultInput({
+    page: {
+      evaluate: (fn, arg) => fn(arg),
+      waitForFunction: async () => {},
+      mouse: {
+        click: () => {
+          inputs++
+        },
+      },
+    },
+    signal: new AbortController().signal,
+    report,
+    save() {},
+    originalShamanId: actor.id,
+  })
+  await assert.rejects(
+    input.moveGround(missionThreeSwarmStagingPoint),
+    /No owned empty ground pick/
+  )
+  const probes = report.actions.filter(action => action.label === 'ordinary-ground-probe')
+  assert.equal(probes.length, 1)
+  assert.deepEqual(probes[0].hit.target, missionThreeSwarmStagingPoint)
+  assert.deepEqual(probes[0].hit.nearestRejectedPoint.point, nearest)
+  assert.equal(probes[0].hit.search.stopReason, 'exhausted')
+  assert.equal(probes[0].hit.search.inspected, 8281)
+  assert.equal(probes[0].hit.rejectionCounts.aimPrecision, 8281)
+  assert.equal(inputs, 0)
 })
