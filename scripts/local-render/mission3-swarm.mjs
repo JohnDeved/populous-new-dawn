@@ -148,11 +148,11 @@ export default async function missionThreeSwarm({ page, openMission, output, sig
       if (window.m3TempleRoute !== api) throw new Error('Temple route API ownership changed')
       return api.read()
     })
-  const clear = async () => {
+  const clear = async (controls = input) => {
     for (let i = 0; i < 3; i++) {
       const state = await read()
       if (!state.mode && !state.selected.length) return
-      await input.action('clear-selection', () => page.keyboard.press('Escape'))
+      await controls.action('clear-selection', () => page.keyboard.press('Escape'))
     }
     assert.fail('Public Escape did not clear selection/mode')
   }
@@ -255,12 +255,22 @@ export default async function missionThreeSwarm({ page, openMission, output, sig
       assert.ok(remaining > 0, 'Swarm staging/readiness window expired')
       return remaining
     }
-    await clear()
-    await input.button('Select and focus shaman')
+    // Only new readiness input is deadline-scoped. The original helper remains
+    // available for best-effort public Pause/restoration during cleanup.
+    const readinessInput = createMission1VaultInput({
+      page,
+      signal,
+      report,
+      save,
+      originalShamanId: shamanId,
+      deadlineAt: readinessDeadline,
+    })
+    await clear(readinessInput)
+    await readinessInput.button('Select and focus shaman')
     // One ordinary move replaces the continuing Vault route. Its existing
     // native-arrival witness proves completion; this is not a cast idle gate.
     const stagingPoint = { x: -28.87890625, z: -115.50390625 }
-    await input.view(stagingPoint)
+    await readinessInput.view(stagingPoint)
     await page.evaluate(async () => {
       await Promise.all([
         import('/scripts/local-render/mission1-vault-arrival.mjs'),
@@ -271,7 +281,7 @@ export default async function missionThreeSwarm({ page, openMission, output, sig
       ])
     })
     remainingReadiness()
-    report.staging = await input.moveGround(stagingPoint)
+    report.staging = await readinessInput.moveGround(stagingPoint)
     save()
     const recipient = report.staging.delivered.after.units.find(unit => unit.id === shamanId)
     moveHandle = await page.evaluateHandle(installMissionThreeMoveObservation, {

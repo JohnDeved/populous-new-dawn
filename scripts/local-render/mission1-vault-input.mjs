@@ -73,32 +73,52 @@ export function isQueuedMission1VaultEntry(unit, id) {
     owner.timer === 0 && (owner.workTarget || order.a) === id
 }
 
-export function createMission1VaultInput({ page, signal, report, save, originalShamanId }) {
+export function createMission1VaultInput({ page, signal, report, save, originalShamanId, deadlineAt = null }) {
+  assert.ok(deadlineAt === null || Number.isFinite(deadlineAt), 'Absolute input deadline must be finite or absent')
+  // Admission only: an in-flight browser operation or attempted input cannot be cancelled here.
+  const admit = () => {
+    signal.throwIfAborted()
+    if (deadlineAt !== null && Date.now() >= deadlineAt) throw new Error(`Input admission deadline expired at ${deadlineAt}`)
+  }
+  const waitOptions = maximum => {
+    admit()
+    if (deadlineAt === null) return maximum === undefined ? undefined : { timeout: maximum }
+    return { timeout: Math.min(maximum ?? 45000, Math.max(1, deadlineAt - Date.now())) }
+  }
   let prepared = false
   const action = async (label, run, persist = true) => {
-    signal.throwIfAborted()
+    admit()
     if (originalShamanId !== null) await page.evaluate(id => {
       const unit = window.testSceneRef.current.world.units.find(unit => unit.id === id)
       if (!unit || unit.hp <= 0) throw new Error('Original Shaman was lost; stop the ordinary route')
     }, originalShamanId)
+    admit()
     report.actions.push({ label, phase: 'before', at: new Date().toISOString() }); if (persist) save()
+    admit()
     await run()
     signal.throwIfAborted()
     report.actions.push({ label, phase: 'after', at: new Date().toISOString() }); if (persist) save()
   }
-  const button = name => action(name, () => page.getByRole('button', { name, exact: true }).click())
+  const button = name => action(name, () => page.getByRole('button', { name, exact: true }).click(waitOptions()))
   const pause = async () => {
+    admit()
     if (!(await page.evaluate(() => window.testSceneRef.current.world.paused))) await button('Pause game')
-    await page.waitForFunction(() => window.testSceneRef.current.world.paused)
+    await page.waitForFunction(() => window.testSceneRef.current.world.paused, null, waitOptions())
+    admit()
   }
   const resume = async () => {
+    admit()
     if (await page.evaluate(() => window.testSceneRef.current.world.paused)) await button('Resume game')
-    await page.waitForFunction(() => !window.testSceneRef.current.world.paused)
+    await page.waitForFunction(() => !window.testSceneRef.current.world.paused, null, waitOptions())
+    admit()
   }
-  const settle = () => page.waitForFunction(() => {
-    const scene = window.testSceneRef.current
-    return !scene.world.inputMask && !scene.cameraMotion.active && !scene.resultCamera.active && !scene.viewTransition
-  })
+  const settle = async () => {
+    await page.waitForFunction(() => {
+      const scene = window.testSceneRef.current
+      return !scene.world.inputMask && !scene.cameraMotion.active && !scene.resultCamera.active && !scene.viewTransition
+    }, null, waitOptions())
+    admit()
+  }
   // Reuse the existing reviewed pure minimap inverse; only the subsequent real
   // pointer event moves the camera. No scene.focus/update/render call is made.
   const view = async target => {
@@ -120,15 +140,18 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
     await settle()
   }
   const prepareDispatch = async () => {
+    admit()
     await page.evaluate(async () => {
       const [orders, input] = await Promise.all([import('/app/person-orders.ts'), import('/qa/erosion-ordinary/input.mjs'),
         import('/app/live-command.ts'), import('/app/spell-casting.ts'), import('/app/world-terrain-runtime.ts'), import('/app/native-math.ts')])
       window.mission1VaultDispatchModules = { orders, input }
     })
+    admit()
     await page.waitForFunction(() => {
       const world = window.testSceneRef.current.world
       return world.turn > world.lastOrderTurn
-    }, null, { timeout: 5000 })
+    }, null, waitOptions(5000))
+    admit()
     prepared = true
   }
   const entityPoint = (collection, id, expectedCommand, cast = false) => page.evaluate(
@@ -204,8 +227,9 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
         rejection: rejection ?? (cast && !ground ? 'Spell ground pick disappeared' : null) }
     }, { collection, id, expectedCommand, cast, actorId: originalShamanId })
   const dispatch = async (hit, command, expectedIds) => {
+    admit()
     if (!prepared) await prepareDispatch()
-    signal.throwIfAborted()
+    admit()
     const preflight = await page.evaluate(({ hit, command, expectedIds, actorId }) => {
       const { orders, input } = window.mission1VaultDispatchModules
       const { currentPersonOrder } = orders
@@ -264,7 +288,7 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
     if (preflight.rejection) throw new Mission1PreclickRejection(preflight.rejection, command === 3 && !hit.collection &&
       preflight.rejection === 'Ground target became stale before dispatch')
     let evidence
-    try { signal.throwIfAborted(); entry.inputAttempted = true; await page.mouse.click(hit.x, hit.y) }
+    try { admit(); entry.inputAttempted = true; await page.mouse.click(hit.x, hit.y) }
     catch (error) { if (error instanceof Mission1PreclickRejection) error.inputAttempted = entry.inputAttempted; throw error }
     finally {
       evidence = await page.evaluate(() => { const observer = window.mission1VaultDispatch; delete window.mission1VaultDispatch; return observer?.finish() })
@@ -289,6 +313,7 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
     return evidence
   }
   const castInput = async (hit, spell) => {
+    admit()
     const owner = randomUUID()
     const preflight = await page.evaluate(async ({ hit, spell, actorId, owner }) => {
       const [{ spellTargetError }, { inspectEntityPoint, observeEntityPointer }] = await Promise.all([import('/app/live-command.ts'), import('/qa/erosion-ordinary/input.mjs')])
@@ -384,10 +409,17 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
       return castInput(hit, cast)
     } else return dispatch(hit, command, expectedIds)
   }
-  const fixedGround = (target, spell = null, cellMove = false, groundRadius = 0.35) => page.evaluate(async ({ target, spell, actorId, cellMove, groundRadius: allowedRadius }) => {
+  const fixedGround = (target, spell = null, cellMove = false, groundRadius = 0.35) => page.evaluate(async ({ target, spell, actorId, cellMove, groundRadius: allowedRadius, deadlineAt }) => {
+    const search = { startedAt: Date.now(), deadlineAt, inspected: 0, maxCandidates: 8281 }
+    const expired = () => deadlineAt !== null && Date.now() >= deadlineAt
+    const finish = (result, stopReason) => ({ ...result, search: { ...search, stopReason,
+      endedAt: Date.now(), elapsedMs: Date.now() - search.startedAt } })
+    const expiredBeforeSetup = () => finish({ target, rejection: 'Ground probe admission deadline expired before setup' }, 'deadline')
+    if (expired()) return expiredBeforeSetup()
     const [{ createMoveContextProbe, entityInputState }, { spellTargetError }, { spellRange }, { nativePosition }, { positionDistance }, { SPELLS }] = await Promise.all([
       import('/qa/erosion-ordinary/input.mjs'), import('/app/live-command.ts'), import('/app/spell-casting.ts'),
       import('/app/world-terrain-runtime.ts'), import('/app/native-math.ts'), import('/app/world-rules.ts')])
+    if (expired()) return expiredBeforeSetup()
     const spec = spell === null ? null : SPELLS.find(candidate => candidate.id === spell)
     if (spell !== null && !spec) throw new Error(`Unsupported ground spell: ${spell}`)
     const scene = window.testSceneRef.current, world = scene.world, rect = scene.renderer.domElement.getBoundingClientRect()
@@ -396,7 +428,7 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
     const projected = scene.screen(target), center = { x: rect.left + (projected.x + 1) * rect.width / 2,
       y: rect.top + (1 - projected.y) * rect.height / 2 }, candidates = []
     const snap = point => ({ x: Math.floor(point.x / 2) * 2 + 1, z: -Math.floor(-point.z / 2) * 2 - 1 })
-    const wanted = snap(target), probe = createMoveContextProbe(world), rejected = []
+    const wanted = snap(target), rejected = []
     // Match nativePosition's rounding/wrap and liveCommandContext's 512-unit cell.
     // Keep the spell cell rule and the accepted shore's 0.35 aim precision unchanged.
     const nativeCell = point => ({ x: (Math.round((point.x + 8) * 256) & 65535) >> 9,
@@ -404,6 +436,11 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
     const wantedCell = nativeCell(target), rejectionCounts = { canvasOwnership: 0, objectHit: 0,
       noTerrainPick: 0, wrongCell: 0, aimPrecision: 0, commandContext: 0, spellPredicate: 0, spellMargin: 0 }
     let nearestRejectedPoint = null
+    let caster = null
+    const expiredDuringSearch = () => finish({ target, wantedCell, cellMove,
+      rejection: 'Ground probe admission deadline expired during search', caster, minimumMargin: 128,
+      rejected, rejectionCounts, nearestRejectedPoint, turn: world.turn,
+      diagnostics: entityInputState(scene, null, search.lastPixel ?? center) }, 'deadline')
     const reject = (reason, hit, point = null, details = {}) => {
       rejectionCounts[reason]++
       if (!point) return
@@ -412,25 +449,42 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
         nearestRejectedPoint = { reason, ...hit, point: { x: point.x, z: point.z },
           pointCell: nativeCell(point), targetDistance, ...details }
     }
+    if (expired()) return expiredDuringSearch()
+    const probe = createMoveContextProbe(world)
+    if (expired()) return expiredDuringSearch()
     const spellWorld = spell ? structuredClone(world) : null
+    if (expired()) return expiredDuringSearch()
     const actor = spellWorld?.units.find(unit => unit.id === actorId)
-    const caster = actor ? { id: actor.id, x: actor.x, z: actor.z, hp: actor.hp, inside: actor.inside,
+    caster = actor ? { id: actor.id, x: actor.x, z: actor.z, hp: actor.hp, inside: actor.inside,
       native: nativePosition(spellWorld, actor), model: spec.model, range: spellRange(spellWorld, actor, spec.model) * 256,
       paused: world.paused, turn: world.turn } : null
+    if (expired()) return expiredDuringSearch()
     const minimumMargin = 128 // A half-world-unit witness margin; the shipped spell range is unchanged.
-    if (spell && (!actor || actor.hp <= 0)) return { target, rejection: 'Original Shaman is unavailable', caster, rejected }
+    if (spell && (!actor || actor.hp <= 0)) return finish({ target, rejection: 'Original Shaman is unavailable', caster, rejected }, 'actor-unavailable')
     for (let dy = -180; dy <= 180; dy += 4) for (let dx = -180; dx <= 180; dx += 4) candidates.push({ dx, dy })
     candidates.sort((a, b) => a.dx * a.dx + a.dy * a.dy - b.dx * b.dx - b.dy * b.dy)
     for (const offset of candidates) {
+      if (expired()) return expiredDuringSearch()
+      search.inspected++
       const hit = { x: Math.round(center.x + offset.dx), y: Math.round(center.y + offset.dy) }
+      search.lastPixel = hit
       const event = { clientX: hit.x, clientY: hit.y }
       if (document.elementFromPoint(hit.x, hit.y) !== scene.renderer.domElement) {
         reject('canvasOwnership', hit); continue
       }
-      if (!spell && (scene.pickUnit(event) || scene.picking.pickPerson(event) || scene.pickWorldObject(event))) {
-        reject('objectHit', hit); continue
+      if (expired()) return expiredDuringSearch()
+      if (!spell) {
+        let object = scene.pickUnit(event)
+        if (expired()) return expiredDuringSearch()
+        if (!object) object = scene.picking.pickPerson(event)
+        if (expired()) return expiredDuringSearch()
+        if (!object) object = scene.pickWorldObject(event)
+        if (expired()) return expiredDuringSearch()
+        if (object) { reject('objectHit', hit); continue }
       }
       const point = scene.pick(event)
+      search.lastPoint = point && { x: point.x, z: point.z }
+      if (expired()) return expiredDuringSearch()
       if (!point) { reject('noTerrainPick', hit); continue }
       const snapped = snap(point), pointCell = nativeCell(point)
       if (spell ? snapped.x !== wanted.x || snapped.z !== wanted.z : cellMove
@@ -439,24 +493,27 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
         reject(spell || cellMove ? 'wrongCell' : 'aimPrecision', hit, point); continue
       }
       const context = spell ? null : probe(point)
+      if (expired()) return expiredDuringSearch()
       const rejection = spell ? spellTargetError(spellWorld, spell, point)
         : context.model !== 3 || !context.enabled ? 'Ground command context rejected' : null
+      if (expired()) return expiredDuringSearch()
       if (!spell && rejection) { reject('commandContext', hit, point, { context }); continue }
       const nativeTarget = spell ? nativePosition(spellWorld, point) : null
       const distance = spell ? positionDistance(caster.native, nativeTarget) : null
       const margin = spell ? caster.range - distance : null
+      if (expired()) return expiredDuringSearch()
       if (spell && (rejection || margin < minimumMargin)) {
         reject(rejection ? 'spellPredicate' : 'spellMargin', hit, point, { rejection, margin })
         rejected.push({ ...hit, point, nativeTarget, rejection, distance, margin }); continue
       }
-      return { ...hit, point, target, snapped, wantedCell, pointCell, cellMove, context, rejection, caster, nativeTarget, distance, margin, minimumMargin, rejected, rejectionCounts, nearestRejectedPoint,
-        diagnostics: entityInputState(scene, null, hit), turn: world.turn }
+      return finish({ ...hit, point, target, snapped, wantedCell, pointCell, cellMove, context, rejection, caster, nativeTarget, distance, margin, minimumMargin, rejected, rejectionCounts, nearestRejectedPoint,
+        diagnostics: entityInputState(scene, null, hit), turn: world.turn }, 'matched')
     }
-    return { target, wantedCell, cellMove, rejection: spell
+    return finish({ target, wantedCell, cellMove, rejection: spell
       ? 'No owned rendered point in the required native cell meets the shipped predicate and range margin'
       : 'No owned empty ground pick meets the requested movement target and enabled command3 context',
-      caster, minimumMargin, rejected, rejectionCounts, nearestRejectedPoint, diagnostics: entityInputState(scene, null, center) }
-  }, { target, spell, actorId: originalShamanId, cellMove, groundRadius })
+      caster, minimumMargin, rejected, rejectionCounts, nearestRejectedPoint, diagnostics: entityInputState(scene, null, center) }, 'exhausted')
+  }, { target, spell, actorId: originalShamanId, cellMove, groundRadius, deadlineAt })
   const farBankGround = async (target, maxProbes = 3) => {
     assert.ok(Number.isInteger(maxProbes) && maxProbes >= 1 && maxProbes <= 3)
     let hit
@@ -465,6 +522,7 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
     for (let attempt = 0; attempt < maxProbes; attempt++) {
       hit = await fixedGround(target, null, true)
       report.actions.push({ label: 'far-bank-ground-probe', attempt, hit })
+      admit()
       if (hit.rejection === null || attempt === maxProbes - 1) return { ...hit, probeAttempts: attempt + 1 }
       const corridor = await page.evaluate(() => {
         const canvas = window.testSceneRef.current.renderer.domElement
@@ -479,9 +537,11 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
       report.actions.push({ label: 'far-bank-camera-corridor', attempt, corridor })
       if (!corridor) return { ...hit, probeAttempts: attempt + 1 }
       await action('far-bank-ordinary-camera-rotation', async () => {
-        await page.mouse.move(corridor.x, corridor.y); await page.mouse.down({ button: 'right' })
-        try { await page.mouse.move(corridor.endX, corridor.y, { steps: 12 }) }
+        await page.mouse.move(corridor.x, corridor.y); admit(); await page.mouse.down({ button: 'right' })
+        try { admit(); await page.mouse.move(corridor.endX, corridor.y, { steps: 12 }) }
+        // An admitted button-down must always be released, even after expiry.
         finally { await page.mouse.up({ button: 'right' }) }
+        admit()
         await page.mouse.move(400, 780)
       }, false)
       await settle()
@@ -493,10 +553,14 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
     let succeeded = false
     try {
       for (let remaining = 3; remaining > 0;) {
+        admit()
+        report.actions.push({ label: 'ordinary-ground-probe-start', remaining, deadlineAt, at: new Date().toISOString() }); save()
         await prepareDispatch() // All known imports and readiness precede target search.
         const hit = cellMove ? await farBankGround(target, remaining) : await fixedGround(target, null, false, groundRadius)
+        report.actions.push({ label: 'ordinary-ground-probe', hit, remaining, deadlineAt }); save()
         remaining -= hit.probeAttempts ?? 1
         assert.equal(hit.rejection, null, JSON.stringify(hit))
+        admit()
         try {
           const delivered = await dispatch(hit, 3, [originalShamanId])
           succeeded = true

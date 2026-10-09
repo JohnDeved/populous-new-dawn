@@ -767,3 +767,182 @@ test('captured movement observation closes real native arrival once before Swarm
   assert.match(report.cleanupErrors.join('\n'), /foreign API preserved/)
   assert.deepEqual(outcome, { failed: true, failure: null })
 })
+
+test('absolute input admission expiry after awaited preparation prevents the next stage', async t => {
+  const { actor } = groundFixture(t)
+  let now = 100,
+    inputs = 0
+  t.mock.method(Date, 'now', () => now)
+  const input = createMission1VaultInput({
+    page: {
+      evaluate: async (fn, arg) => {
+        const result = await fn(arg)
+        now = 200
+        return result
+      },
+      waitForFunction: () => assert.fail('Expired preparation must not reach the next wait'),
+      mouse: {
+        click: () => {
+          inputs++
+        },
+      },
+    },
+    signal: new AbortController().signal,
+    report: { actions: [] },
+    save() {},
+    originalShamanId: actor.id,
+    deadlineAt: 200,
+  })
+  await assert.rejects(input.moveGround({ x: 35, z: 70 }), /admission deadline/)
+  assert.equal(inputs, 0)
+})
+
+test('pixel deadline returns partial diagnostics without resetting the absolute budget', async t => {
+  const { actor, scene } = groundFixture(t)
+  let now = 100,
+    picks = 0
+  t.mock.method(Date, 'now', () => now)
+  scene.pick = () => {
+    if (++picks === 2) now = 200
+    return { x: 38, z: 70 }
+  }
+  const input = createMission1VaultInput({
+    page: { evaluate: (fn, arg) => fn(arg) },
+    signal: new AbortController().signal,
+    report: { actions: [] },
+    save() {},
+    originalShamanId: actor.id,
+    deadlineAt: 200,
+  })
+  const hit = await input.fixedGround({ x: 35, z: 70 })
+  assert.match(hit.rejection, /admission deadline/)
+  assert.equal(picks, 2)
+  assert.equal(hit.search.deadlineAt, 200)
+  assert.equal(hit.search.stopReason, 'deadline')
+  assert.equal(hit.search.inspected, 2)
+  assert.equal(hit.search.maxCandidates, 8281)
+  assert.equal(hit.rejectionCounts.aimPrecision, 1)
+  assert.deepEqual(hit.nearestRejectedPoint.point, { x: 38, z: 70 })
+  const expired = await input.fixedGround({ x: 35, z: 70 })
+  assert.equal(expired.search.inspected, 0)
+  assert.equal(expired.search.deadlineAt, 200)
+  assert.equal(picks, 2, 'A subsequent probe never receives a renewed budget')
+})
+
+test('expiry after the actual dispatch preflight restores its observer without starting input', async t => {
+  const { actor, scene } = groundFixture(t),
+    report = { actions: [] },
+    listeners = new Set()
+  let now = 100,
+    inputs = 0
+  t.mock.method(Date, 'now', () => now)
+  scene.pick = () => ({ x: 35, z: 70 })
+  scene.renderer.domElement.addEventListener = (_type, listener) => listeners.add(listener)
+  scene.renderer.domElement.removeEventListener = (_type, listener) => listeners.delete(listener)
+  const input = createMission1VaultInput({
+    page: {
+      evaluate: async (fn, arg) => {
+        const result = await fn(arg)
+        if (result?.rejection === null && Number.isInteger(result.turn)) now = 200
+        return result
+      },
+      waitForFunction: async () => {},
+      mouse: {
+        click: () => {
+          inputs++
+          throw new Error('Expired input was attempted')
+        },
+      },
+    },
+    signal: new AbortController().signal,
+    report,
+    save() {},
+    originalShamanId: actor.id,
+    deadlineAt: 200,
+  })
+  await assert.rejects(
+    input.dispatch({ x: 720, y: 500, point: { x: 35, z: 70 } }, 3, [actor.id]),
+    /admission deadline/
+  )
+  assert.equal(inputs, 0)
+  assert.equal(listeners.size, 0)
+  assert.equal(window.mission1VaultDispatch, undefined)
+  assert.equal(
+    report.actions.find(action => action.label === 'final-dispatch-preflight').inputAttempted,
+    false
+  )
+  assert.equal(report.actions.filter(action => action.label === 'actual-dispatch').length, 1)
+})
+
+test('expired readiness admission leaves the separate ordinary cleanup Pause available', async t => {
+  const { actor, world } = groundFixture(t),
+    report = { actions: [], cleanupErrors: [] }
+  t.mock.method(Date, 'now', () => 200)
+  let paused = 0
+  const page = {
+    evaluate: (fn, arg) => fn(arg),
+    waitForFunction: fn => assert.equal(fn(), true),
+    getByRole: (_role, { name }) => ({
+      click: async () => {
+        assert.equal(name, 'Pause game')
+        paused++
+        world.paused = true
+      },
+    }),
+  }
+  const options = {
+    page,
+    signal: new AbortController().signal,
+    report,
+    save() {},
+    originalShamanId: actor.id,
+  }
+  const readiness = createMission1VaultInput({ ...options, deadlineAt: 200 })
+  await assert.rejects(readiness.button('Select and focus shaman'), /admission deadline/)
+  assert.equal(paused, 0)
+  const outcome = { failed: true, failure: false }
+  await cleanupMissionThreeSwarm({ input: createMission1VaultInput(options), report }, outcome)
+  assert.equal(paused, 1)
+  assert.deepEqual(report.cleanupErrors, [])
+  assert.deepEqual(outcome, { failed: true, failure: false })
+})
+
+test('moveGround retains its exhausted partial probe before rejecting without a delivered retry', async t => {
+  const { actor, scene } = groundFixture(t),
+    report = { actions: [] }
+  let now = 100,
+    picks = 0,
+    inputs = 0
+  t.mock.method(Date, 'now', () => now)
+  scene.pick = () => {
+    if (++picks === 2) now = 200
+    return { x: 38, z: 70 }
+  }
+  const input = createMission1VaultInput({
+    page: {
+      evaluate: (fn, arg) => fn(arg),
+      waitForFunction: async () => {},
+      mouse: {
+        click: () => {
+          inputs++
+        },
+      },
+    },
+    signal: new AbortController().signal,
+    report,
+    save() {},
+    originalShamanId: actor.id,
+    deadlineAt: 200,
+  })
+  await assert.rejects(input.moveGround({ x: 35, z: 70 }), /Ground probe admission deadline/)
+  const probes = report.actions.filter(action => action.label === 'ordinary-ground-probe')
+  assert.equal(probes.length, 1)
+  assert.equal(probes[0].hit.search.inspected, 2)
+  assert.equal(probes[0].hit.rejectionCounts.aimPrecision, 1)
+  assert.equal(probes[0].hit.diagnostics.currentWorldMatches, true)
+  assert.equal(inputs, 0)
+  assert.equal(
+    report.actions.some(action => action.label === 'actual-dispatch'),
+    false
+  )
+})

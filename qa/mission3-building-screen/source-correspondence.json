@@ -6,9 +6,9 @@
     {
       "path": "scripts/local-render/mission1-vault-input.mjs",
       "commit": "d6565f2a8ab6a020258e777ac548ca5c5ea6a155",
-      "sha256": "91593aa9224aee4f017f9e04941d6a6036d9e34a92e24e13d727d7713d5d30d8",
+      "sha256": "f11a2c71bc4430cafbbbf1fdccc3168a6061e77ef937d59825e416b1add0e414",
       "upstreamSha256": "6516422eadca28e8850a0640ded3ab8a30cdc5b12a1a44e982af14c2a414b913",
-      "adaptation": "Ground spell diagnostics resolve the shipped SPELLS model: Blast 2 and Bridge 12 stay unchanged, Swarm uses 5, and unknown names fail closed. Existing movement geometry and input contracts are unchanged."
+      "adaptation": "Ground spell diagnostics resolve the shipped SPELLS model: Blast 2 and Bridge 12 stay unchanged, Swarm uses 5, and unknown names fail closed. Optional absolute deadlines bound new-input admission and return partial ground-search diagnostics; they do not cancel pending operations. Default movement geometry and input predicates remain unchanged."
     },
     {
       "path": "scripts/local-render/mission1-vault-arrival.mjs",
