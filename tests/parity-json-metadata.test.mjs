@@ -121,6 +121,15 @@ test('time budgets fail closed for both the stream and the full traversal', t =>
   assert.throws(() => readDiscoveryRecord(path, budget), /file time limit/)
 })
 
+test('a final full-object read crossing the traversal deadline cannot return evidence', t => {
+  const { put } = fixture(t), path = put('{"kind":"pnd-command-receipt","parityMeasurements":[]}')
+  let clock = 0
+  const budget = createJsonBudget({ now: () => clock, streamLimits: { totalMs: 2 } })
+  const original = fs.readSync
+  t.mock.method(fs, 'readSync', (...args) => { const count = original(...args); clock = 3; return count })
+  assert.throws(() => readDiscoveryRecord(path, budget), /discovery time limit/)
+})
+
 for (const mutation of ['growth', 'truncate', 'replace', 'remove', 'same-size']) test(`streaming ${mutation} cannot yield metadata`, t => {
   const { put } = fixture(t), path = put('{"kind":1}'), original = fs.readSync
   let changed = false
