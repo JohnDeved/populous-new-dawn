@@ -12,9 +12,9 @@ Temple is class 2/model **5**, with descriptor flags `0x489f`, capacity 5 and
 trained person model **4** (Preacher). Rendered object 95 is a different identity.
 The shipped training order is command 8. `stepLiveTraining` supplies the real
 `stepTrainingConversion` callback before repricing, mana use and conversion.
-Currently `ObjectPanels.trainingIdentity` rejects model 5, while the renderer
-still creates Temple progress DOM from activity/hover. Thus existing progress
-artwork does not establish synchronous allocation, latch or retained lifetime.
+At base `b2990fe5`, `ObjectPanels.trainingIdentity` rejected model 5, while the
+renderer created Temple progress DOM from activity/hover. That progress artwork
+did not establish synchronous allocation, latch or retained lifetime.
 
 Retained exports bound by `camp-manual-inspection-source.json` to executable
 SHA256 `3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`
