@@ -41,10 +41,18 @@ export function assertVaultApproachEvidence(e, { requireFrames = true } = {}) {
     assert.equal(state.vault.forced, false)
   }
   assert.ok(prayer.after.vault.work > prayer.before.vault.work)
-  const opening = row(e.opening), reward = row(e.reward), unlock = row(e.unlock)
-  assert.ok(e.phases[1] < e.prayer.index && e.prayer.index < e.opening.index &&
-    e.opening.index < e.phases[4] && e.phases[4] < e.reward.index &&
-    e.reward.index < e.phases[7] && e.phases[7] < e.phases[9] && e.phases[9] < e.completion.index)
+  const opening = row(e.opening),
+    reward = row(e.reward),
+    unlock = row(e.unlock)
+  assert.ok(
+    e.phases[1] < e.prayer.index &&
+      e.prayer.index < e.opening.index &&
+      e.opening.index < e.phases[4] &&
+      e.phases[4] < e.reward.index &&
+      e.reward.index < e.phases[7] &&
+      e.phases[7] < e.phases[9] &&
+      e.phases[9] < e.completion.index
+  )
   assert.ok(opening.before.vault.work >= opening.before.vault.target)
   assert.equal(opening.after.morph.to, 153)
   assert.deepEqual([reward.before.vault.uses, reward.after.vault.uses], [0, 1])
@@ -56,7 +64,9 @@ export function assertVaultApproachEvidence(e, { requireFrames = true } = {}) {
   assert.equal(unlock.before.gift.remaining, 1)
   assert.equal(unlock.after.unlocked, true)
   const labels = e.frames.map(f => f.label)
-  if (requireFrames) for (const label of ['approach', 'prayer', 'entry']) assert.ok(labels.includes(label), `Missing natural ${label} pixels`)
+  if (requireFrames)
+    for (const label of ['approach', 'prayer', 'entry'])
+      assert.ok(labels.includes(label), `Missing natural ${label} pixels`)
   for (const frame of e.frames) {
     assert.equal(frame.afterFrame, frame.beforeFrame + 1)
     const phase = { approach: 1, prayer: 2, entry: 4, 'entry-gap-phase5': 5 }[frame.label]
@@ -64,22 +74,48 @@ export function assertVaultApproachEvidence(e, { requireFrames = true } = {}) {
     assert.equal(frame.state.entering, false)
     assert.ok(frame.png?.startsWith('data:image/png;base64,') || frame.file)
   }
-  return { endpointWorkOrdering: 'passed', rewardTurn: reward.after.turn, unlockTurn: unlock.after.turn,
-    completionTurn: row(e.completion).after.turn, preOpenFootprintSamples: e.crossings.count,
-    approachPath: e.crossings.count ? 'Residual pre-open footprint crossings observed' : 'No crossing in retained turn samples',
-    pixels: requireFrames ? 'Pending independent inspection of phase-labelled images' : 'Not evaluated by CPU contracts',
-    scope: 'One ordinary M3 endpoint/work/entry/reward/departure. No global collision, native raster, checkpoint or hardware-performance claim.' }
+  return {
+    endpointWorkOrdering: 'passed',
+    rewardTurn: reward.after.turn,
+    unlockTurn: unlock.after.turn,
+    completionTurn: row(e.completion).after.turn,
+    preOpenFootprintSamples: e.crossings.count,
+    approachPath: e.crossings.count
+      ? 'Residual pre-open footprint crossings observed'
+      : 'No crossing in retained turn samples',
+    pixels: requireFrames
+      ? 'Pending independent inspection of phase-labelled images'
+      : 'Not evaluated by CPU contracts',
+    scope:
+      'One ordinary M3 endpoint/work/entry/reward/departure. No global collision, native raster, checkpoint or hardware-performance claim.',
+  }
 }
 
 export async function cleanupVaultApproach({ input, routeHandle, report, output }, outcome) {
   const failure = error => {
     report.cleanupErrors.push(String(error?.stack ?? error))
-    if (!outcome.failed) { outcome.failed = true; outcome.failure = error }
+    if (!outcome.failed) {
+      outcome.failed = true
+      outcome.failure = error
+    }
   }
-  if (input) try { await input.pause() } catch (error) { failure(error) }
+  if (input)
+    try {
+      await input.pause()
+    } catch (error) {
+      failure(error)
+    }
   if (routeHandle) {
-    try { report.evidence = await routeHandle.evaluate(api => api.close()) } catch (error) { failure(error) }
-    try { await routeHandle.dispose() } catch (error) { failure(error) }
+    try {
+      report.evidence = await routeHandle.evaluate(api => api.close())
+    } catch (error) {
+      failure(error)
+    }
+    try {
+      await routeHandle.dispose()
+    } catch (error) {
+      failure(error)
+    }
   }
   if (report.evidence) {
     for (const [index, frame] of report.evidence.frames.entries()) {
@@ -88,18 +124,35 @@ export async function cleanupVaultApproach({ input, routeHandle, report, output 
         writeFileSync(resolve(output, file), Buffer.from(frame.png.split(',')[1], 'base64'))
         frame.file = file
         delete frame.png
-      } catch (error) { failure(error) }
+      } catch (error) {
+        failure(error)
+      }
     }
-    if (!outcome.failed) try { report.result = assertVaultApproachEvidence(report.evidence) } catch (error) { failure(error) }
+    if (!outcome.failed)
+      try {
+        report.result = assertVaultApproachEvidence(report.evidence)
+      } catch (error) {
+        failure(error)
+      }
   }
 }
 
 // The ordinary05/Temple fresh prefix, with no replacement order after reward.
-export default async function missionThreeVaultApproach({ page, openMission, output, signal, receipt }) {
+export default async function missionThreeVaultApproach({
+  page,
+  openMission,
+  output,
+  signal,
+  receipt,
+}) {
   assert.equal(receipt.profile?.mode, 'created')
   assert.equal(receipt.profile.checkpointAtStart, null)
   const report = { source: receipt.source, status: 'running', actions: [], cleanupErrors: [] }
-  const save = () => writeFileSync(resolve(output, 'mission3-vault-approach.json'), JSON.stringify(report, null, 2) + '\n')
+  const save = () =>
+    writeFileSync(
+      resolve(output, 'mission3-vault-approach.json'),
+      JSON.stringify(report, null, 2) + '\n'
+    )
   const outcome = { failed: false, failure: undefined }
   let input, routeHandle, shamanId
   const read = async () => {
@@ -136,12 +189,16 @@ export default async function missionThreeVaultApproach({ page, openMission, out
     await input.view(report.initial.vault[0])
     await input.prepareDispatch()
     await routeHandle.evaluate(async api => {
-      const { armTempleVaultApproach } = await import('/scripts/local-render/mission3-temple-witness.mjs')
+      const { armTempleVaultApproach } =
+        await import('/scripts/local-render/mission3-temple-witness.mjs')
       return armTempleVaultApproach(api)
     })
     report.vaultOrder = await input.clickEntity('shrines', 92, 33, false, [shamanId])
     const started = Date.now()
-    let lastTurn, lastAnimation, turnChanged = started, animationChanged = started
+    let lastTurn,
+      lastAnimation,
+      turnChanged = started,
+      animationChanged = started
     for (;;) {
       const state = await read()
       assert.equal(state.paused, false)
@@ -150,20 +207,36 @@ export default async function missionThreeVaultApproach({ page, openMission, out
       const now = Date.now()
       assert.ok(now - started < 420000, 'Vault host admission window expired')
       assert.deepEqual(observed.errors, [])
-      if (observed.turn !== lastTurn) { lastTurn = observed.turn; turnChanged = now }
-      if (observed.animationFrame !== lastAnimation) { lastAnimation = observed.animationFrame; animationChanged = now }
-      assert.ok(now - turnChanged < 30000 && now - animationChanged < 30000, 'Ordinary Vault clock stopped')
+      if (observed.turn !== lastTurn) {
+        lastTurn = observed.turn
+        turnChanged = now
+      }
+      if (observed.animationFrame !== lastAnimation) {
+        lastAnimation = observed.animationFrame
+        animationChanged = now
+      }
+      assert.ok(
+        now - turnChanged < 30000 && now - animationChanged < 30000,
+        'Ordinary Vault clock stopped'
+      )
       if (observed.complete) break
       await page.waitForTimeout(250)
     }
-  } catch (error) { outcome.failed = true; outcome.failure = error }
-  finally {
+  } catch (error) {
+    outcome.failed = true
+    outcome.failure = error
+  } finally {
     await cleanupVaultApproach({ input, routeHandle, report, output }, outcome)
     report.status = outcome.failed ? 'failed' : 'observed-pending-pixel-review'
     if (outcome.failed) report.failure = String(outcome.failure?.stack ?? outcome.failure)
-    try { save() } catch (error) {
+    try {
+      save()
+    } catch (error) {
       report.cleanupErrors.push(String(error))
-      if (!outcome.failed) { outcome.failed = true; outcome.failure = error }
+      if (!outcome.failed) {
+        outcome.failed = true
+        outcome.failure = error
+      }
     }
   }
   if (outcome.failed) throw outcome.failure
