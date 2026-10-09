@@ -1,0 +1,725 @@
+{
+  "scope": "Accepted finite source-only producer/guard addendum. Runtime implementation and parity claims remain HOLD.",
+  "researchHead": "dee602609ff99a9201c71b0694a3bd0784a88867",
+  "canonicalMain": "47680b8fd124aab50b0528eea77a81cacb556060",
+  "input": {
+    "input": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe",
+    "bytes": 2275840,
+    "sha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "sha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "toolVersion": "GNU objdump (GNU Binutils for Debian) 2.44"
+  },
+  "acceptedOriginalAddendum": {
+    "bytes": 9869,
+    "sha256": "670d0c22cca725ee3c86b0066753d432b505bcb26aba498972892cb92f3c9b20"
+  },
+  "acceptedOriginalReceiptSha256": "56b089558e971732bdaf071ef576726b46adb7f08b5f7d27b6533449e56c5745",
+  "independentReview": {
+    "artifact": "tooltip-input-producer-review-20261009.md",
+    "sha256": "3c80d7f921f96629533223bf7e2538ff8f1b64ec07457394d1bebfaa956c612b",
+    "verdict": "ACCEPT finite source addendum; runtime HOLD",
+    "text": "# Independent review: tooltip inspection input producer\n\n**ACCEPT the finite source addendum. Runtime implementation remains HOLD.**\n\nReviewed `input-producer-addendum.md` SHA256 `670d0c22cca725ee3c86b0066753d432b505bcb26aba498972892cb92f3c9b20` and `receipt.json` SHA256 `56b089558e971732bdaf071ef576726b46adb7f08b5f7d27b6533449e56c5745` in `/workspace/scratch/69fd8163d94e/issue19-tooltip-controller-source-20261009/work/orchestration/tooltip-input-producer-20261009-1225/`. Research head remains clean `dee602609ff99a9201c71b0694a3bd0784a88867`; comparison main is `47680b8fd124aab50b0528eea77a81cacb556060`.\n\nIndependently verified all 22 artifact hashes and 14 source hashes, including the four current application sources at explicit main. Checked eight retained data ranges, all seven 16-byte mouse object records and referenced axis GUIDs against the verified PE's section mapping. Also matched all 1,337 retained disassembly byte lines against the unchanged inert EXE SHA256 `3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`. This byte check did not execute or disassemble original instructions.\n\nThe actual call at `0052cdfb` uses descriptor `00584fb0`, not an assumed default layout. Its header is `{24,16,2,16,7,00584f40}`; the descriptor at `00584f80` requests a button at byte 13 with type `00ffff0c` and a null GUID. The [Microsoft SDK header](https://raw.githubusercontent.com/microsoft/win32metadata/main/generation/WinSDK/RecompiledIdlHeaders/um/dinput.h) confirms the system-mouse GUID, flags and vtable positions: GetDeviceData at +0x28 and SetDataFormat at +0x2c. The [DIDATAFORMAT](https://learn.microsoft.com/en-us/previous-versions/windows/desktop/ee416606(v=vs.85)) and [DIOBJECTDATAFORMAT](https://learn.microsoft.com/en-us/previous-versions/windows/desktop/ee416633(v=vs.85)) documentation support the field interpretation. `ANYINSTANCE` remains significant; the [mouse documentation](https://learn.microsoft.com/en-us/previous-versions/windows/desktop/ee418262(v=vs.85)) describes the second traditional mouse button as generally right and the high bit as pressed state. The addendum correctly qualifies this as the normal configured second-button route, rather than a universal physical-switch or remapping guarantee. SetDataFormat's HRESULT is not checked locally, and this assessment does not assert successful device operation at runtime.\n\nOn the ordinary successful producer/queue path, offset 13 reaches the button branch, `(dwData & 0x80) >> 7` supplies polarity, and `0052d049` stores F1. The 10-byte enqueue/dequeue copies preserve code/state; raw event type 2 becomes callback event type 1. The F1 jump-table entry reaches the mouse callback slot, whose retained table supplies `004aa1c0`. That consumer maps nonzero/zero to resolver events 1/4, subject to its earlier interceptors. The numeric records then resolve to cases 0x72/0x73. Queue availability, device failure and lock failure are not claims of guaranteed delivery. The finite chain closes the previously missing ordinary producer correspondence.\n\nThe direct configuration lifecycle is also supported: `00451330`/`00451350` set/clear bit 0x100 of the 30-byte indexed record; record 2 is at word `005a21d8`. `0045db60` calls `0045ed10`, sets this bit, saves the prior mode and enters 0x11 via `0047a550`; its clear path restores through the same helper. Existing cases 0xb9/0xba reach that owner with their documented conditions. The selected-person count relation in `0047a550`/`00418d70` is accurate but does not prove equivalence for every mode writer or every browser selected ID.\n\nThe current browser down/up, modal, selection and release-cancellation differences are accurately retained as unresolved comparisons. No reduction of native level flags, valid-cell state or configuration ownership to `inputMask`, overview or empty selection is accepted. The prior shared tooltip-cache side effects and fresh-versus-reused inspection record distinction remain controlling.\n\nThe exact next bounded guard question is `0045db60`'s immediate `0045ed10` UI owner and cases 0xb9/0xba, compared with the browser's modal/pause/overview lifecycle. Other named level, valid-cell and mode-writer gaps remain explicit; this verdict does not authorize expanding into them or a generalized input rewrite. No further correction is required for this finite source addendum.\n\nReview activity was limited to retained file/git reads, hash and inert-byte comparison, and official documentation reads. No application edits, dependencies, tests, original execution/emulation, Ghidra, browser application run or new disassembly occurred.\n"
+  },
+  "publicationTransform": "Only links, preservation/review status and trailing whitespace normalized. No new disassembly or source investigation.",
+  "publishedFiles": {
+    "input-producer-addendum.md": {
+      "bytes": 10597,
+      "sha256": "b4b4378096bb897f41a57796bfd21696d849d26a64d596cae6eb30797b9f0653"
+    },
+    "input-producer.asm.txt": {
+      "bytes": 66673,
+      "sha256": "f7c9c365d1333b4c1feaadea7f7a59dd87f3f40912dde62e6dce42551edf8aa9"
+    }
+  },
+  "disassemblySections": [
+    {
+      "originalArtifact": "handler-install-complete.asm.txt",
+      "originalSha256": "c91c18e31cc6a7af8e8160f2103bbbbc718101ad1fd4f80413fe9a298c57266e",
+      "normalizedSha256": "c91c18e31cc6a7af8e8160f2103bbbbc718101ad1fd4f80413fe9a298c57266e"
+    },
+    {
+      "originalArtifact": "handler-setter.asm.txt",
+      "originalSha256": "dd092814b944f6ae070dfe69da54d8c41ba45453529c95e5acdb4fa7cc20decc",
+      "normalizedSha256": "dd092814b944f6ae070dfe69da54d8c41ba45453529c95e5acdb4fa7cc20decc"
+    },
+    {
+      "originalArtifact": "event-pop.asm.txt",
+      "originalSha256": "30bab9680379a52f2f32ea505ba0026a606393b776a7e2cc7d2594eca38b2e29",
+      "normalizedSha256": "30bab9680379a52f2f32ea505ba0026a606393b776a7e2cc7d2594eca38b2e29"
+    },
+    {
+      "originalArtifact": "event-pump.asm.txt",
+      "originalSha256": "cca42ae2d74fcb4561ee596ce35a58dac5bec59572fbca542197b1304b311573",
+      "normalizedSha256": "cca42ae2d74fcb4561ee596ce35a58dac5bec59572fbca542197b1304b311573"
+    },
+    {
+      "originalArtifact": "queue-producer-52c880.asm.txt",
+      "originalSha256": "e4ef49482db8d6549795157d4e0c5df4109a650661ffe35fd693df2ce7b073d5",
+      "normalizedSha256": "e4ef49482db8d6549795157d4e0c5df4109a650661ffe35fd693df2ce7b073d5"
+    },
+    {
+      "originalArtifact": "queue-producer-52cd40.asm.txt",
+      "originalSha256": "0b4693aa8825d08894e9809134bb58bde1f5e92b497b7b30c69e247d5b59ccc9",
+      "normalizedSha256": "0b4693aa8825d08894e9809134bb58bde1f5e92b497b7b30c69e247d5b59ccc9"
+    },
+    {
+      "originalArtifact": "queue-copy.asm.txt",
+      "originalSha256": "daae869032ebe7c101aedb25d47377dc9e84fc5bfd9dbdae02489f7c5cb225d0",
+      "normalizedSha256": "daae869032ebe7c101aedb25d47377dc9e84fc5bfd9dbdae02489f7c5cb225d0"
+    },
+    {
+      "originalArtifact": "configuration-set.asm.txt",
+      "originalSha256": "750f52a543d432a349e4648dc222c023ebbb7e3a3e6fbb4311a44f9abc13b41a",
+      "normalizedSha256": "bb0cedba05e70ebf1b3deff3253235d93905ae7ab1bfd37814fc9d6e25a770d9"
+    },
+    {
+      "originalArtifact": "configuration-clear-test.asm.txt",
+      "originalSha256": "152684c1c32a12290213072d97c6ba615d78cf2654e1762ea2d237cd0b04e03c",
+      "normalizedSha256": "4bc5811ca821d91579445933cc85597e5d2c1f98a1bfe25ac06d8eef0a1f6858"
+    },
+    {
+      "originalArtifact": "configuration-owner-complete.asm.txt",
+      "originalSha256": "fd217ecfd341a45c25e70aa4c01ea292e5d81b71a51d68762876cbb1c8285559",
+      "normalizedSha256": "6cea7258c27ac8598361f570b1b9183f308f2e4f48ee699695452e63ec4a3643"
+    }
+  ],
+  "commands": [
+    {
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x004aa593",
+        "--stop-address=0x004aa5b0",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "exitCode": 0,
+      "outputSha256": "69e7a215008fd6b6c718c39a48512d51154846006e434aee5cb03471fcbb4537"
+    },
+    {
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x4aa593",
+        "--stop-address=0x4aa5a1",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "exitCode": 0,
+      "output": "handler-install-complete.asm.txt",
+      "outputSha256": "c91c18e31cc6a7af8e8160f2103bbbbc718101ad1fd4f80413fe9a298c57266e",
+      "inputSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+    },
+    {
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x526a80",
+        "--stop-address=0x526c10",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "exitCode": 0,
+      "output": "handler-setter.asm.txt",
+      "outputSha256": "dd092814b944f6ae070dfe69da54d8c41ba45453529c95e5acdb4fa7cc20decc",
+      "inputSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+    },
+    {
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x526c10",
+        "--stop-address=0x526d10",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "exitCode": 0,
+      "output": "event-pop.asm.txt",
+      "outputSha256": "30bab9680379a52f2f32ea505ba0026a606393b776a7e2cc7d2594eca38b2e29",
+      "inputSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+    },
+    {
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x52a710",
+        "--stop-address=0x52a790",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "exitCode": 0,
+      "output": "event-pump.asm.txt",
+      "outputSha256": "cca42ae2d74fcb4561ee596ce35a58dac5bec59572fbca542197b1304b311573",
+      "inputSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+    },
+    {
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x52c880",
+        "--stop-address=0x52cbd0",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "exitCode": 0,
+      "output": "queue-producer-52c880.asm.txt",
+      "outputSha256": "e4ef49482db8d6549795157d4e0c5df4109a650661ffe35fd693df2ce7b073d5",
+      "inputSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+    },
+    {
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x52cd40",
+        "--stop-address=0x52d1e0",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "exitCode": 0,
+      "output": "queue-producer-52cd40.asm.txt",
+      "outputSha256": "0b4693aa8825d08894e9809134bb58bde1f5e92b497b7b30c69e247d5b59ccc9",
+      "inputSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+    },
+    {
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x0052c5b0",
+        "--stop-address=0x0052c750",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "exitCode": 0,
+      "output": "queue-copy.asm.txt",
+      "outputSha256": "daae869032ebe7c101aedb25d47377dc9e84fc5bfd9dbdae02489f7c5cb225d0",
+      "inputSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+    },
+    {
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x00451350",
+        "--stop-address=0x00451390",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "exitCode": 0,
+      "output": "configuration-clear-test.asm.txt",
+      "outputSha256": "152684c1c32a12290213072d97c6ba615d78cf2654e1762ea2d237cd0b04e03c",
+      "inputSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+    },
+    {
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x451330",
+        "--stop-address=0x451350",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "exitCode": 0,
+      "output": "configuration-set.asm.txt",
+      "outputSha256": "750f52a543d432a349e4648dc222c023ebbb7e3a3e6fbb4311a44f9abc13b41a",
+      "inputSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+    },
+    {
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x45db60",
+        "--stop-address=0x45dc40",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "exitCode": 0,
+      "output": "configuration-owner.asm.txt",
+      "outputSha256": "ef838620f2a622fc56b7ae15f07635f88d103e17472ff844fab669e67700288b",
+      "inputSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+    },
+    {
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x0045db60",
+        "--stop-address=0x0045dcb0",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "exitCode": 0,
+      "output": "configuration-owner-complete.asm.txt",
+      "outputSha256": "fd217ecfd341a45c25e70aa4c01ea292e5d81b71a51d68762876cbb1c8285559",
+      "inputSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+    }
+  ],
+  "dataReads": {
+    "configuration-call-candidates.json": {
+      "0x451330": [
+        {
+          "callVA": "0x45dbcb",
+          "context": "00e8471100006a02e86037ffff83c404"
+        },
+        {
+          "callVA": "0x486c5c",
+          "context": "48008915d4c99800e8cfa6fcff83c404"
+        },
+        {
+          "callVA": "0x486c92",
+          "context": "c2a6fcff83c404c3e899a6fcff83c404"
+        },
+        {
+          "callVA": "0x4b1e5a",
+          "context": "8900000000046a03e8d1f4f9ff891d48"
+        }
+      ],
+      "0x451350": [
+        {
+          "callVA": "0x45dc34",
+          "context": "c0c0010083c410c3e81737ffff83c404"
+        },
+        {
+          "callVA": "0x486bbf",
+          "context": "04b5bf5689006a04e88ca7fcff83c404"
+        },
+        {
+          "callVA": "0x486c03",
+          "context": "04b5bf5689006a04e848a7fcff83c404"
+        },
+        {
+          "callVA": "0x486c89",
+          "context": "7c2404006a047509e8c2a6fcff83c404"
+        }
+      ]
+    },
+    "configuration-references.json": {
+      "0x5a219c": [
+        {
+          "section": ".text",
+          "operandVA": "0x45135d",
+          "contextHex": "0403c08d0c406681a4899c215a00fffec3cccccccccc"
+        },
+        {
+          "section": ".text",
+          "operandVA": "0x45137f",
+          "contextHex": "c08d0c4033c0668b84899c215a002500010000c3cccc"
+        }
+      ],
+      "0x5a21d8": []
+    },
+    "configuration-setter-references.json": {
+      "0x5a219d": [
+        {
+          "section": ".text",
+          "operandVA": "0x45133c",
+          "contextHex": "03c08d0c40808c899d215a0001c3cccccccc"
+        }
+      ],
+      "guardBoundaryCandidates": [
+        "0x451330",
+        "0x451350",
+        "0x451370",
+        "0x451390",
+        "0x4513e0"
+      ]
+    },
+    "device-and-dispatch-data.json": {
+      "inputSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "rangesHex": {
+        "0x590938": "602b1d6fa0d5cf11bfc7444553540000612b1d6fa0d5cf11bfc7444553540000",
+        "0x584fb0": "1800000010000000020000001000000007000000404f5800",
+        "0x584f38": "ff25a8c5d000",
+        "0x526bf0": "546b5200546b5200186b520000000002010101",
+        "0x526cf4": "5c6c5200806c5200b66c5200c26c5200ce6c5200",
+        "0x52d1b4": "8ccf52008ccf5200b2cf5200a5d0520000030303010303030303030302020202",
+        "0x5cdb98": "909d4a00c0a14a0000000000000000000000000000000000"
+      },
+      "selectedImports": {
+        "0xd0c6c4": "KERNEL32.dll!CreateEventA",
+        "0xd0c6cc": "KERNEL32.dll!WaitForSingleObject",
+        "0xd0c7a4": "KERNEL32.dll!CloseHandle",
+        "0xd0c844": "USER32.dll!PeekMessageA",
+        "0xd0c860": "USER32.dll!TranslateMessage",
+        "0xd0c8d8": "USER32.dll!DispatchMessageA",
+        "0xd0c5a8": "DINPUT.dll!DirectInputCreateA"
+      },
+      "scope": "Referenced static descriptors, handler jump tables and import names only."
+    },
+    "initial-references.json": {
+      "input": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe",
+      "bytes": 2275840,
+      "sha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "sha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "toolVersion": "GNU objdump (GNU Binutils for Debian) 2.44",
+      "literalReferences": {
+        "0x4aa1c0": [
+          {
+            "section": ".data",
+            "operandVA": "0x5cdb9c",
+            "contextHex": "0000909d4a00c0a14a00000000000000"
+          }
+        ],
+        "0x5cdb98": [
+          {
+            "section": ".text",
+            "operandVA": "0x4aa598",
+            "contextHex": "ff6a006a006898db5c00e8dfc4070083"
+          },
+          {
+            "section": ".text",
+            "operandVA": "0x4aa6fc",
+            "contextHex": "ff6a006a006898db5c00e87bc3070083"
+          }
+        ]
+      },
+      "limit": "Literal-address candidates only; not a claim of instruction alignment or complete indirect callers."
+    },
+    "mouse-format-data.json": {
+      "inputSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "virtualRange": [
+        "0x00584f40",
+        "0x00584fb0"
+      ],
+      "hex": "880859000000000003ffff0000000000980859000400000003ffff0000000000a80859000800000003ffff8000000000000000000c0000000cffff0000000000000000000d0000000cffff0000000000000000000e0000000cffff8000000000000000000f0000000cffff8000000000",
+      "objects": [
+        {
+          "address": "0x584f40",
+          "guidPointer": "0x590888",
+          "guidBytes": "e0026da3f3c9cf11bfc7444553540000",
+          "offset": 0,
+          "type": "0xffff03",
+          "flags": "0x0"
+        },
+        {
+          "address": "0x584f50",
+          "guidPointer": "0x590898",
+          "guidBytes": "e1026da3f3c9cf11bfc7444553540000",
+          "offset": 4,
+          "type": "0xffff03",
+          "flags": "0x0"
+        },
+        {
+          "address": "0x584f60",
+          "guidPointer": "0x5908a8",
+          "guidBytes": "e2026da3f3c9cf11bfc7444553540000",
+          "offset": 8,
+          "type": "0x80ffff03",
+          "flags": "0x0"
+        },
+        {
+          "address": "0x584f70",
+          "guidPointer": "0x0",
+          "guidBytes": null,
+          "offset": 12,
+          "type": "0xffff0c",
+          "flags": "0x0"
+        },
+        {
+          "address": "0x584f80",
+          "guidPointer": "0x0",
+          "guidBytes": null,
+          "offset": 13,
+          "type": "0xffff0c",
+          "flags": "0x0"
+        },
+        {
+          "address": "0x584f90",
+          "guidPointer": "0x0",
+          "guidBytes": null,
+          "offset": 14,
+          "type": "0x80ffff0c",
+          "flags": "0x0"
+        },
+        {
+          "address": "0x584fa0",
+          "guidPointer": "0x0",
+          "guidBytes": null,
+          "offset": 15,
+          "type": "0x80ffff0c",
+          "flags": "0x0"
+        }
+      ]
+    },
+    "producer-boundary-candidates.json": {
+      "0x52cafd": [
+        {
+          "start": "0x52c520",
+          "following": "568bf1837904007531a1400b5e008d04"
+        },
+        {
+          "start": "0x52c570",
+          "following": "568b41188bf14885c08946187f288b46"
+        },
+        {
+          "start": "0x52c5b0",
+          "following": "64a100000000558bec6aff6862c65200"
+        },
+        {
+          "start": "0x52c680",
+          "following": "64a100000000558bec6aff683ac75200"
+        },
+        {
+          "start": "0x52c750",
+          "following": "64a100000000558bec6aff68aec75200"
+        },
+        {
+          "start": "0x52c880",
+          "following": "64a100000000558bec6aff68b4cb5200"
+        },
+        {
+          "start": "0x52cbd0",
+          "following": "c3cccccccccccccccccccccccccccccc"
+        },
+        {
+          "start": "0x52cbe0",
+          "following": "64a100000000558bec6aff68a0cc5200"
+        },
+        {
+          "start": "0x52ccc0",
+          "following": "c3cccccccccccccccccccccccccccccc"
+        },
+        {
+          "start": "0x52ccd0",
+          "following": "8b442404565783f806740a83f8077427"
+        }
+      ],
+      "0x52d089": [
+        {
+          "start": "0x52cbd0",
+          "following": "c3cccccccccccccccccccccccccccccc"
+        },
+        {
+          "start": "0x52cbe0",
+          "following": "64a100000000558bec6aff68a0cc5200"
+        },
+        {
+          "start": "0x52ccc0",
+          "following": "c3cccccccccccccccccccccccccccccc"
+        },
+        {
+          "start": "0x52ccd0",
+          "following": "8b442404565783f806740a83f8077427"
+        },
+        {
+          "start": "0x52cd40",
+          "following": "64a100000000558bec6aff689fd15200"
+        },
+        {
+          "start": "0x52d1e0",
+          "following": "83ec0856578b51248d71208b06894424"
+        },
+        {
+          "start": "0x52d230",
+          "following": "8b44240483ec08568b108bf18b400489"
+        }
+      ]
+    },
+    "queue-references.json": {
+      "0xd05940": [
+        {
+          "section": ".text",
+          "operandVA": "0x52690a",
+          "contextHex": "cccc64a100000000558becb94059d0006aff686969520050"
+        },
+        {
+          "section": ".text",
+          "operandVA": "0x526974",
+          "contextHex": "00b8185b5900e97d4e0300b94059d000e9335b0000cccccc"
+        },
+        {
+          "section": ".text",
+          "operandVA": "0x5269fd",
+          "contextHex": "00b8505b5900e9f44d0300b94059d000e9aa5a0000cccccc"
+        },
+        {
+          "section": ".text",
+          "operandVA": "0x526c28",
+          "contextHex": "33c05e83c40cc38d442404b94059d000506a01e84c5a0000"
+        },
+        {
+          "section": ".text",
+          "operandVA": "0x526d21",
+          "contextHex": "c3ccccccccccccccccccccb94059d000e8f657000085c074"
+        },
+        {
+          "section": ".text",
+          "operandVA": "0x526d65",
+          "contextHex": "00b9b459d000e8ac680000b94059d000e902580000ccccb9"
+        },
+        {
+          "section": ".text",
+          "operandVA": "0x526d71",
+          "contextHex": "4059d000e902580000ccccb94059d000e8a657000085c074"
+        },
+        {
+          "section": ".text",
+          "operandVA": "0x526dc0",
+          "contextHex": "00b95c59d000e851680000b94059d000e9a7570000cccccc"
+        },
+        {
+          "section": ".text",
+          "operandVA": "0x52cafd",
+          "contextHex": "c4e829f3ffffe8249fffffb94059d0008845d58d45d450e8"
+        },
+        {
+          "section": ".text",
+          "operandVA": "0x52d089",
+          "contextHex": "a4e89dedffffe89899ffffb94059d0008845d98d45d850e8"
+        }
+      ]
+    }
+  },
+  "originalArtifactHashes": {
+    "handler-install.asm.txt": {
+      "bytes": 693,
+      "sha256": "69e7a215008fd6b6c718c39a48512d51154846006e434aee5cb03471fcbb4537"
+    },
+    "configuration-set.asm.txt": {
+      "bytes": 1020,
+      "sha256": "750f52a543d432a349e4648dc222c023ebbb7e3a3e6fbb4311a44f9abc13b41a"
+    },
+    "event-pop.asm.txt": {
+      "bytes": 5215,
+      "sha256": "30bab9680379a52f2f32ea505ba0026a606393b776a7e2cc7d2594eca38b2e29"
+    },
+    "configuration-call-candidates.json": {
+      "bytes": 787,
+      "sha256": "a82127bfaf67b68b31e3c7101dda4204871c8ea7abb49e9b7289618b3a993fa7"
+    },
+    "configuration-setter-references.json": {
+      "bytes": 267,
+      "sha256": "943290d847e6c77faa01975baf035e59c71976f5cc7bd90bb759105054f3bbcc"
+    },
+    "input-producer-addendum.md": {
+      "bytes": 9869,
+      "sha256": "670d0c22cca725ee3c86b0066753d432b505bcb26aba498972892cb92f3c9b20"
+    },
+    "queue-producer-52c880.asm.txt": {
+      "bytes": 14320,
+      "sha256": "e4ef49482db8d6549795157d4e0c5df4109a650661ffe35fd693df2ce7b073d5"
+    },
+    "configuration-clear-test.asm.txt": {
+      "bytes": 1597,
+      "sha256": "152684c1c32a12290213072d97c6ba615d78cf2654e1762ea2d237cd0b04e03c"
+    },
+    "device-and-dispatch-data.json": {
+      "bytes": 1005,
+      "sha256": "1d9bfa32d1b8395ab0a5134587212d8b2e68042e63387f56e1a59136838b61a5"
+    },
+    "initial-references.json": {
+      "bytes": 995,
+      "sha256": "b1e68f6c4974c1e0419e0bb11871f90aaa3ec1a88ea00fdbda99c90d12bb56c7"
+    },
+    "configuration-owner.asm.txt": {
+      "bytes": 3352,
+      "sha256": "ef838620f2a622fc56b7ae15f07635f88d103e17472ff844fab669e67700288b"
+    },
+    "mouse-format-data.json": {
+      "bytes": 1742,
+      "sha256": "f76b8f36834248656d023b68eb64ddc8fa0c11917510817d954773df5a334d91"
+    },
+    "queue-references.json": {
+      "bytes": 1433,
+      "sha256": "44f76b63b5acd2759b9790d75ce501c84d2c214fb8b6d8633a90bc93f2f3b6e2"
+    },
+    "queue-producer-52cd40.asm.txt": {
+      "bytes": 19765,
+      "sha256": "0b4693aa8825d08894e9809134bb58bde1f5e92b497b7b30c69e247d5b59ccc9"
+    },
+    "handler-install-complete.asm.txt": {
+      "bytes": 396,
+      "sha256": "c91c18e31cc6a7af8e8160f2103bbbbc718101ad1fd4f80413fe9a298c57266e"
+    },
+    "handler-setter.asm.txt": {
+      "bytes": 8018,
+      "sha256": "dd092814b944f6ae070dfe69da54d8c41ba45453529c95e5acdb4fa7cc20decc"
+    },
+    "queue-copy.asm.txt": {
+      "bytes": 7287,
+      "sha256": "daae869032ebe7c101aedb25d47377dc9e84fc5bfd9dbdae02489f7c5cb225d0"
+    },
+    "commands.json": {
+      "bytes": 7421,
+      "sha256": "f4117a0fb38fb49992230c4f1fd6f29bea202e1f9ec9f4f818439d0cebd2db22"
+    },
+    "event-pump.asm.txt": {
+      "bytes": 3229,
+      "sha256": "cca42ae2d74fcb4561ee596ce35a58dac5bec59572fbca542197b1304b311573"
+    },
+    "configuration-owner-complete.asm.txt": {
+      "bytes": 4910,
+      "sha256": "fd217ecfd341a45c25e70aa4c01ea292e5d81b71a51d68762876cbb1c8285559"
+    },
+    "configuration-references.json": {
+      "bytes": 315,
+      "sha256": "ec1f8a888d575440a6f14f0990a1182f69bc4f4b71ff802af355dfe1fb9bf8f1"
+    },
+    "producer-boundary-candidates.json": {
+      "bytes": 1641,
+      "sha256": "66ef502b721d738ae7efd278d4c837e59318707fd8876e4109abaefbc0b69cad"
+    }
+  },
+  "retainedSourceSha256": {
+    "decomp/generated/004aa1c0.c": "ed1bed27fb7d6f77bae82d3238de7411335f29b5f05e6323e5a17c6b2b000141",
+    "decomp/generated/00489470.c": "21e700f6472f6a6b2f9253a86ec8ef7be44d37a9ceabe848ced5629a84be593a",
+    "decomp/generated/004feed0.c": "991324c6879961074b036eb2ac31571f2e613d4353e360de210a23e487aac0e1",
+    "decomp/generated/004ff3f0.c": "dc9a30f0fdbacdcc18d2525d01048368df8a41feed381e91aa9cce4f1c6dc4a1",
+    "decomp/generated/004aab80.c": "a286e361005571ddcba7405348e2582aa061c3f427d1a8e8fed09a5d1e7890a8",
+    "decomp/generated/004aa4e0.c": "4ad72eeddfea6ba92c98cf9cb78bf9f7675dd58079f839f7acc8ad881c6bc84d",
+    "decomp/generated/0047a550.c": "43df219e0d804c15f16e7b66e0e5661331bb506525bea6032aae1af976e87519",
+    "decomp/generated/00418d70.c": "d1a2ead106d0cf6b16c37bdfb053448ad553ad92dc588d9afe2d87fdb8300c36",
+    "decomp/generated/00451370.c": "adc8fe2b1223f745306d64d1a5d124781107a227c9da3d45e8ebc468231180ac",
+    "decomp/generated/004adbb0.c": "57170bb62710a0186e1f3002ede8e7f68b25e6223a2c0ac627dd0e89aeee2220",
+    "app/scene-input-runtime.ts": "7987f8f11abfdf4ea858b612d83d526169b31de05c76f52ce070809409c268a2",
+    "app/object-panels.ts": "9cad36503f3f68b726b221bc2d0c2ea56fc34334f3534d6d48b281c5668fd80b",
+    "app/selection-runtime.ts": "c5330f78ee474ef5dc22fa66541ef2cd32f89ee51b5b551e6d6cfa13baa3f80c",
+    "app/building-panels.ts": "5d4d80feb2afb56d4b6b480f9195019ae42c3d2014a7c306e237671b31721f96"
+  },
+  "officialSources": [
+    {
+      "url": "https://raw.githubusercontent.com/microsoft/win32metadata/main/generation/WinSDK/RecompiledIdlHeaders/um/dinput.h",
+      "used": "GUID_SysMouse; DIDFT_BUTTON/ANYINSTANCE; DIDATAFORMAT/DIOBJECTDATAFORMAT; IDirectInputDeviceA method order; DIMOFS_BUTTON1",
+      "accessed": "2026-10-09"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/previous-versions/windows/desktop/ee416606(v=vs.85)",
+      "used": "data-format header fields"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/previous-versions/windows/desktop/ee416633(v=vs.85)",
+      "used": "object-format field meaning and ANYINSTANCE"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/previous-versions/windows/desktop/ee418262(v=vs.85)",
+      "used": "second traditional mouse button generally right; high-bit convention"
+    }
+  ],
+  "limits": [
+    "Source-only; no runtime approval.",
+    "Actual descriptor uses ANYINSTANCE; physical switch mapping is qualified.",
+    "Exact frontend/modal/selection browser equivalence is not established.",
+    "No category7/plan/five-owner expansion."
+  ]
+}

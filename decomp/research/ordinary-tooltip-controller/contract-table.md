@@ -2,6 +2,8 @@
 
 2026-10-09. Read-only assessment of research branch bed0de0bf8b74302fd5b8b2793637f19592e5d75 against canonical main 47680b8fd124aab50b0528eea77a81cacb556060. The relevant frontend, tooltip, panel, HUD and terrain adapter files are byte-identical to the proposal base d6cf109474379172728a3ccebf46ef72a15f3a58. Resident ownership delivery changes the Hut's simulation contents, not these presentation owners.
 
+**Later accepted producer finding:** the [input producer addendum](input-producer-addendum.md) closes the normal configured second-button route through codeF1 to cases0x72/0x73 using the actual DirectInput format. It also binds the window2/configuration0x100/mode0x11 lifecycle. The physical-producer statements below describe this earlier assessment; selection/modal/overview equivalence remains unproved and runtime remains held.
+
 **Correction to the prior draft:** native input cases0x72/0x73 and numeric codeF1/event masks1/4 are bound below. The actual physical right-button producer and equivalence of native mode0 to current selection/modal/overview guards are not established. Any earlier implication that the complete ordinary right-click action was implementation-ready is withdrawn. Current port right-click behavior is comparison evidence only.
 
 **Result: the existing object-count algorithm is source-supported, but a complete ordinary-Hut integration contract is still held.** Timing variability from a cached frontend count is not itself a source blocker. Missing port ownership is implementation work; missing original producer/name closure is separately identified below. This assessment does not propose a text-only runtime compromise.
