@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "status": "accepted bounded ordinary episode",
+  "productCommit": "4e8356ef043d9963abd16a840c3246abc972fe48",
+  "runtimeSourceCommit": "b34e79e341a1ef754a812a1adedf67ad1319941a",
+  "qaCommit": "191c37ae497b0cb2093d1bee99469303cd8deba2",
+  "resultReviewSha256": "9e20ce9ec401b969492a464480c5cdeec316094f72246df11e14b2a310acaa39",
+  "rawReportSha256": "68bfff7db55e7895db60751649a43df989daa364aea12c2c9c2f004e03fae542",
+  "outerReceiptSha256": "835cd37633d53f9035a6d37173027df86e08ff39b76f3950be22bd60e178e5b1",
+  "images": [
+    {
+      "file": "camp-tooltip.png",
+      "original": "camp-initial-tooltip.png",
+      "sha256": "40c87da1276d64c3908472bcfeb1c92028eb2e8aff943f0e98b6881e28198bd7",
+      "bytes": 4723
+    },
+    {
+      "file": "camp-empty-panel.png",
+      "original": "camp-initial-panel.png",
+      "sha256": "6c90185de6d1148d0a77078638f28be124582f7b75ea69a62a12119ec94f4c4c",
+      "bytes": 1522
+    },
+    {
+      "file": "camp-control-held.png",
+      "original": "panel-control-held-composite.png",
+      "sha256": "567d99134f90d9aca9098b2677494e83a124b09084f740ddec9867401ffed879",
+      "bytes": 1878089
+    },
+    {
+      "file": "camp-after-load.png",
+      "original": "after-load-composite.png",
+      "sha256": "3768926408f238f9e5f5e628833f74cc6618d05828a86e5fbc522c3c42f89427",
+      "bytes": 1620812
+    }
+  ],
+  "limits": [
+    "Initially empty, completed Mission 2 Warrior Training Hut only.",
+    "Composite images show controls; separate natural tooltip canvas establishes glyphs.",
+    "After-close capture has glyph-only credit; its panel was absent.",
+    "The control hold assertion observed 29 controller visits; the complete phase has 72 held visits.",
+    "In-session committed Save/Load in an ephemeral context; no fresh-browser persistence claim.",
+    "Failed ordinary01 retains its missing queue observations; no retroactive attachment credit.",
+    "No natural automatic training, occupied ordinary interaction, audible output or hardware-performance credit."
+  ]
+}
