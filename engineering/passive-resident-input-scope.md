@@ -17,6 +17,19 @@ compose the current Page callback, `cancelInteraction` and actual panel selectio
 from both a selected Shaman and an already-selected resident. The first actual
 command8 person is captured once; later entry-owner substitution is an error.
 
+Candidate02 remains FAILED after trusted command8 at turn336 and same-person
+passive admission at turn408. Its pointerup snapshot correctly had order ID0:
+the public Hut command sets work/route first, and `stepBuildingEntry` allocates
+the native order on the following model visit. The old driver wrongly dereferenced
+that null order. Its reported zero release count was a short-circuit from ID0,
+so it receives no queued-order release credit. The repaired observer retains the
+pointerup fact, then captures the actual first nonzero command8/target37/reference1
+from the same person at an existing clock boundary. Admission must release that
+exact observed order. The composed regression runs the actual public Hut branch
+and entry begin/allocate/attach bodies with supplied route/animation boundaries.
+It advances no model world. Missing, wrong, cancelled and replaced allocations
+fail closed. The successful admission, Save/Load and departure gates are unchanged.
+
 Candidate01 remains FAILED at its initial turn151 roster: Hut37 was healthy and
 complete but had zero physical occupants. It had no scenario actions or installed
 observer, and no Save. That report omitted the six individual Brave records, so
@@ -36,6 +49,8 @@ ownership, closes the old Scene observation before Load, and installs a fresh
 observer on the restored World. The Save capture and read-only committed typed
 record must agree before the existing full-checkpoint digest is retained. The
 synchronous Load publication is captured before Page resumes simulation. The
+public Load consumes the in-session checkpoint; the independent committed-IDB
+read proves persistence, without a fresh-page recovery claim. The
 restored resident is compared within its own World; its reference is never
 compared to the old World. Actual mode1 insertion into the owned registry is
 the departure identity boundary. A later public command is allowed to create

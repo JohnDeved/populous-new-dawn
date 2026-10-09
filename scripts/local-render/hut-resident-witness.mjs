@@ -7,10 +7,10 @@ export async function installHutResidentWitness({ hutId, unitId, deadlineAt }) {
   const unit = world.units.find(u => u.id === unitId), hut = world.buildings.find(b => b.id === hutId)
   if (window.hutResidentWitness || !unit || !hut || unit.kind !== 'brave' || unit.team !== 'blue')
     throw new Error('Exclusive live Brave/Hut observation required')
-  const evidence = { errors: [], events: [], frames: {}, entryInput: null, admission: null, departures: [], moves: [], closed: false }
+  const evidence = { errors: [], events: [], frames: {}, entryInput: null, entryCommand: null, admission: null, departures: [], moves: [], closed: false }
   const restorers = [], canvas = scene.renderer.domElement, registry = world.objectCells.objects
   const captureAttempted = new Set()
-  let phase = 'setup', entryPerson = null, move = null, departurePerson = null, closed = false
+  let phase = 'setup', entryPerson = null, entryOrder = null, move = null, departurePerson = null, closed = false
   const error = e => { if (evidence.errors.length < 12) evidence.errors.push(String(e?.stack ?? e).slice(0, 1000)) }
   const observe = fn => { if (!closed) try {
     if (Date.now() >= deadlineAt) throw new Error('Resident observation deadline expired')
@@ -38,6 +38,24 @@ export async function installHutResidentWitness({ hutId, unitId, deadlineAt }) {
       registered: w.objectCells.objects.has(unitId) }
   }
   const state = () => summary(world)
+  const entryCommand = () => {
+    if (phase !== 'entry' || !unit.entry?.person) return
+    const p = unit.entry.person
+    if (entryPerson && p !== entryPerson) throw new Error('Original entry person replaced')
+    entryPerson ??= p
+    if (!evidence.entryInput?.after) return
+    const id = orderId(p), order = world.buildingOrders.records[id]
+    if (!id || order?.model !== 8 || order.a !== hutId || order.flags & 1 || order.references !== 1)
+      throw new Error('Actual nonzero command8 allocation missing or changed')
+    if (evidence.entryCommand) {
+      if (id !== evidence.entryCommand.orderId || order !== entryOrder)
+        throw new Error('Original command8 allocation replaced')
+    } else {
+      entryOrder = order
+      evidence.entryCommand = { turn: world.turn, orderId: id, order: structuredClone(order),
+        samePerson: p === entryPerson, state: state() }
+    }
+  }
   const push = event => { if (evidence.events.length >= 32) throw new Error('Resident event cap'); evidence.events.push(event) }
   const replace = (object, key, make) => {
     const descriptor = Object.getOwnPropertyDescriptor(object, key), original = object[key]
@@ -65,10 +83,7 @@ export async function installHutResidentWitness({ hutId, unitId, deadlineAt }) {
   replace(scene.gameClock, 'beforeTurn', original => function (...args) {
     const result = original?.apply(this, args)
     observe(() => {
-      if (phase === 'entry' && unit.entry?.person) {
-        if (entryPerson && unit.entry.person !== entryPerson) throw new Error('Original entry person replaced')
-        entryPerson ??= unit.entry.person
-      }
+      entryCommand()
       if (move?.person) move.beforeId = orderId(move.person)
     })
     return result
@@ -76,10 +91,13 @@ export async function installHutResidentWitness({ hutId, unitId, deadlineAt }) {
   replace(scene.gameClock, 'afterTurn', original => function (...args) {
     const result = original?.apply(this, args)
     observe(() => {
+      entryCommand()
       if (phase === 'entry' && !evidence.admission && unit.resident) {
-        const inputOrderId = evidence.entryInput?.after?.orderId
+        const inputOrderId = evidence.entryCommand?.orderId
+        if (!inputOrderId || world.buildingOrders.records[inputOrderId] !== entryOrder)
+          throw new Error('Admission lacks the observed nonzero command8 allocation')
         evidence.admission = { samePerson: !!entryPerson && unit.resident.person === entryPerson, state: state(),
-          entryOrderReferences: inputOrderId && world.buildingOrders.records[inputOrderId].references }
+          entryOrderId: inputOrderId, entryOrderReferences: entryOrder.references }
         push({ kind: 'admission', turn: world.turn })
       }
       if (move?.person && !move.done) {
@@ -129,6 +147,7 @@ export async function installHutResidentWitness({ hutId, unitId, deadlineAt }) {
       if (!p || p.id !== unitId || p.model !== 2) throw new Error('Actual command8 person missing')
       entryPerson = p
       evidence.entryInput.after = { turn: world.turn, lastOrderTurn: world.lastOrderTurn,
+        selected: [...world.selected], work: unit.work, inside: unit.inside,
         orderId: id, order: id ? structuredClone(world.buildingOrders.records[id]) : null }
     }
     if (!move || move.person) return
@@ -178,7 +197,7 @@ export async function installHutResidentWitness({ hutId, unitId, deadlineAt }) {
   }
   const api = {
     summary, world,
-    armEntry() { phase = 'entry'; entryPerson = null; move = null; push({ kind: 'arm-entry', turn: world.turn }); return state() },
+    armEntry() { phase = 'entry'; entryPerson = null; entryOrder = null; move = null; push({ kind: 'arm-entry', turn: world.turn }); return state() },
     armMove(label, exactDeparture = false) {
       phase = exactDeparture ? 'departure' : 'setup'; move = { label, person: null, done: false }
       departurePerson = exactDeparture ? unit.resident?.person : null
