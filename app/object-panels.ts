@@ -125,6 +125,17 @@ export class ObjectPanels {
       const building = scene.world.buildings.find(
         b => b.id === id && b.kind === 'hut' && b.hp > 0 && b.progress >= 1
       )
+      const element = scene.buildingPanels.get(id),
+        panelInteraction =
+          !scene.world.inputMask &&
+          !scene.overviewActive &&
+          !document.querySelector('dialog[open]') &&
+          element &&
+          !element.hidden &&
+          (element.matches(':hover') || element.contains(document.activeElement))
+      // Preserve the browser's existing access to hovered/focused Hut controls.
+      // This UI hold is not a claim about native status-control ownership.
+      if (building && panelInteraction && record.phase >= 1) continue
       const automaticHeld = record.automatic && !!((building?.admission?.activity ?? 0) & 128)
       if (record.automatic && record.phase === 1 && !automaticHeld) record.remaining = 0
       if (!building || !stepPersonPanel(record, automaticHeld)) {

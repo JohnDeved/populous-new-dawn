@@ -224,6 +224,7 @@ export function pointerDown(scene: GameScene, event: PointerEvent) {
       if (scene.world.buildings.some(b => b.id === object.id && b.kind === 'hut'))
         queueHutInspection(scene, event, 'down', object.id)
       else scene.objectPanels.open(object.id)
+    else if (!object) queueHutInspection(scene, event, 'down')
   }
   const unit =
     event.button === 0 &&

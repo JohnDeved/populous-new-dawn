@@ -35,6 +35,7 @@ export interface TooltipController {
   dwell: number
   owners: { hud: string | null; object: number; cell: number; status: number; message: number }
   output: TooltipOutput
+  unsupportedHistory: string[]
   lastVisit: {
     ordinal: number
     now: number
@@ -55,6 +56,7 @@ export function createTooltipController(
     dwell: 0,
     owners: { hud: null, object: 0, cell: 0, status: 0, message: 0 },
     output: { ...state, pointer: null, kind: 'none' },
+    unsupportedHistory: [],
     lastVisit: null,
   }
 }

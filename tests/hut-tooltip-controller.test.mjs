@@ -89,6 +89,7 @@ async function callerFixture(t) {
       getPixelRatio: () => 1,
       domElement: {
         getBoundingClientRect: () => ({ left: 0, top: 0, width: 800, height: 600 }),
+        setPointerCapture: nop,
       },
     },
     container: {
@@ -97,6 +98,9 @@ async function callerFixture(t) {
       getBoundingClientRect: () => ({ left: 0, top: 0, width: 800, height: 600 }),
     },
     selectionOverlay: {},
+    globeMotion: { dragging: false },
+    onChange: nop,
+    onSound: nop,
     dragActive: { value: false },
     pointerButtons: 0,
     pointerScreen: null,
@@ -247,6 +251,8 @@ async function callerFixture(t) {
     hut,
     frame,
     tooltipApi,
+    point,
+    api,
     cameraOwns: value => {
       cameraOwnsFrame = value
     },
@@ -371,4 +377,228 @@ test('existing forced helper retains its public state shape and expiry result', 
   assert.equal(state.remaining, 0)
   assert.equal(state.text, '')
   assert.equal(stepTooltip(state, true, 24), false)
+})
+
+test('composed HUD history, forced overlap and catch-up retain real visit order', async t => {
+  const { scene, world, hut, frame, tooltipApi } = await callerFixture(t)
+  const hud = {
+    getAttribute: () => 'blast',
+    closest: selector => (selector === '[data-tooltip-hud]' ? hud : null),
+  }
+  document.elementFromPoint = () => hud
+  scene.navigationPointer = { x: 40, y: 100, buttons: 0 }
+  frame(0)
+  frame()
+  frame()
+  const owner = scene.tooltipController,
+    key = owner.key
+  assert.equal(owner.category, 'hud')
+  assert.match(key, /^hud:/, 'use live control lifetime identity, never action14 as dwell key')
+  const threshold = owner.session.threshold
+  for (let i = 0; i < threshold + 3; i++) frame()
+  assert.equal(owner.key, key)
+  assert.equal(scene.tooltip.text, 'Blast: {}select. |}toggle on/off.')
+  assert.equal(
+    scene.tooltipElement.hidden,
+    true,
+    'ordinary HUD keeps its existing DOM presentation'
+  )
+  scene.acquireForcedTooltip(tooltipApi.worldTooltipObject(world, hut.id), threshold + 8)
+  for (let i = 0; i < threshold + 3; i++) frame()
+  assert.equal(scene.tooltip.remaining, 5)
+  assert.equal(
+    scene.tooltip.text,
+    'Blast: {}select. |}toggle on/off.',
+    'mature HUD writes the same forced text owner'
+  )
+  assert.equal(owner.output.kind, 'forced')
+  assert.equal(owner.output.draw, 1)
+  const visits = [],
+    original = scene.updateTooltipController.bind(scene),
+    before = owner.session.visits
+  scene.updateTooltipController = now => {
+    original(now)
+    visits.push(structuredClone(owner.lastVisit))
+  }
+  frame(3 / 24)
+  assert.equal(visits.length, 3)
+  assert.deepEqual(
+    visits.map(visit => visit.forced.remaining),
+    [4, 3, 2]
+  )
+  assert.equal(
+    new Set(visits.map(visit => visit.now)).size,
+    1,
+    'catch-up observes the actual RAF timestamp'
+  )
+  assert.equal(owner.session.visits - before, 3)
+  frame(2 / 24)
+  assert.equal(scene.tooltip.remaining, 0)
+  assert.equal(owner.lastVisit.forced.handled, true)
+  assert.equal(scene.tooltipElement.hidden, true)
+  assert.equal(owner.category, 'none')
+})
+
+test('actual right-button callers retain down/up order and cancel skipped-frame input', async t => {
+  const { scene, hut, frame, point, cameraOwns } = await callerFixture(t),
+    { pointerDown, pointerUp } = await import('../app/scene-input-runtime.ts')
+  const event = buttons => ({
+    ...point,
+    button: 2,
+    buttons,
+    pointerId: 3,
+    currentTarget: scene.renderer.domElement,
+  })
+  const before = scene.objectPanels.hutRecords.get(hut.id),
+    panelFrame = scene.objectPanels.frame
+  pointerDown(scene, event(2))
+  pointerUp(scene, event(0))
+  frame(0)
+  assert.deepEqual(
+    scene.tooltipInspectionInputs.map(input => input.kind),
+    ['down', 'up']
+  )
+  frame()
+  assert.deepEqual(scene.tooltipController.lastVisit.inspection.slice(-2), [
+    before ? 'explicit:reused' : 'explicit:created',
+    'release',
+  ])
+  const record = scene.objectPanels.hutRecords.get(hut.id)
+  assert.ok(record)
+  if (before) assert.equal(record, before)
+  else assert.deepEqual(record, { phase: 0, remaining: 2, hold: 16, automatic: false })
+  assert.equal(scene.objectPanels.hutHeldPointer, null)
+  assert.equal(
+    scene.objectPanels.frame,
+    panelFrame,
+    'Hut allocation never resets unrelated panel clock'
+  )
+  const owner = scene.tooltipController
+  assert.equal(
+    owner.dwell,
+    owner.session.threshold + 1,
+    'fresh creation accelerates shared dwell after ordinary acquisition'
+  )
+  const reservations = scene.world.secondaryEffects.reservations.filter(
+    value => value === `building-panel:${hut.id}`
+  )
+  assert.equal(reservations.length, 1, 'retained record reserves once before DOM creation')
+  pointerDown(scene, event(2))
+  cameraOwns(true)
+  frame()
+  assert.deepEqual(scene.tooltipInspectionInputs, [])
+  assert.equal(scene.objectPanels.hutHeldPointer, null)
+  cameraOwns(false)
+  frame()
+  assert.ok(
+    !owner.lastVisit.inspection.some(result => result.startsWith('explicit:')),
+    'old click cannot replay after skipped processing'
+  )
+})
+
+test('retained pick geometry rechecks live object data before a due controller tick', async t => {
+  const { scene, hut, frame } = await callerFixture(t)
+  assert.equal(scene.tooltipInput.object.id, hut.id)
+  const cell = scene.tooltipInput.cell
+  hut.hp = 0 // Controlled invalidation between actual pointer publication and consumption.
+  frame()
+  assert.notEqual(scene.tooltipController.lastVisit.route, 'object')
+  assert.equal(scene.tooltipController.lastVisit.firstDisplay, null)
+  assert.equal(scene.tooltipElement.hidden, true)
+  assert.ok(cell !== null, 'the valid cell survives loss of the sampled object')
+  assert.equal(scene.objectPanels.hutRecords.has(hut.id), false)
+})
+
+test('Hut record adapter preserves reuse, failure retirement, secondary capacity and transient restore', async t => {
+  const { scene, world, hut, api } = await callerFixture(t),
+    { allocateSecondaryEffect } = await import('../app/secondary-effects.ts'),
+    { syncSecondaryReservations } = await import('../app/scene-secondary-effects.ts'),
+    { ObjectPanels } = await import('../app/object-panels.ts'),
+    { createTooltipController } = await import('../app/tooltip-controller.ts')
+  const second = world.buildings.find(
+    b => b.id !== hut.id && b.kind === 'hut' && b.team === 'blue' && b.progress >= 1
+  )
+  assert.ok(second)
+  assert.equal(scene.objectPanels.inspectHut(hut.id, 'explicit', 5), 'explicit:created')
+  const record = scene.objectPanels.hutRecords.get(hut.id),
+    owner = scene.tooltipController
+  scene.objectPanels.stepHutInspections(false)
+  assert.deepEqual(record, { phase: 0, remaining: 2, hold: 16, automatic: false })
+  const snapshot = structuredClone(record),
+    dwell = owner.dwell
+  assert.equal(scene.objectPanels.inspectHut(hut.id, 'explicit', 5), 'explicit:reused')
+  assert.equal(scene.objectPanels.hutRecords.get(hut.id), record)
+  assert.deepEqual(record, snapshot)
+  assert.equal(owner.dwell, dwell)
+  // Controlled occupancy of the same supported inventory: no invented World entities.
+  for (let i = 0; i < 31; i++) scene.objectPanels.panels.set(100000 + i, {})
+  assert.equal(scene.objectPanels.inspectHut(second.id, 'hover'), 'hover:rejected-capacity')
+  assert.equal(record.hold, 0, 'same-class retirement precedes failed allocation')
+  assert.equal(record.remaining, 0)
+  assert.equal(owner.dwell, dwell, 'failure does not accelerate')
+  scene.objectPanels.panels.clear()
+  syncSecondaryReservations(scene)
+  while (
+    allocateSecondaryEffect(world.secondaryEffects, {
+      kind: 'orderMarker',
+      effect: 0,
+      counter: 0,
+    }) !== null
+  ) {}
+  assert.equal(scene.objectPanels.inspectHut(second.id, 'hover'), 'hover:rejected-capacity')
+  assert.equal(
+    scene.objectPanels.inspectHut(hut.id, 'explicit', 5),
+    'explicit:reused',
+    'reuse succeeds at capacity'
+  )
+  const session = owner.session,
+    checkpoint = structuredClone(world),
+    restored = api.migrateCheckpoint(checkpoint)
+  assert.deepEqual(
+    restored.secondaryEffects.reservations,
+    [],
+    'load clears transient reservation adapter'
+  )
+  const next = {
+    world: restored,
+    tooltip: (await import('../app/tooltips.ts')).createTooltip(),
+    tooltipSession: session,
+    buildingPanels: new Map(),
+    cursor: { visible: false },
+  }
+  next.tooltipController = createTooltipController(next.tooltip, session)
+  next.objectPanels = new ObjectPanels(next)
+  syncSecondaryReservations(next)
+  assert.equal(next.tooltipController.session, session)
+  assert.equal(next.tooltipController.session.threshold, owner.session.threshold)
+  assert.equal(next.tooltipController.category, 'none')
+  assert.equal(next.objectPanels.hutRecords.size, 0)
+  assert.deepEqual(next.world.secondaryEffects.reservations, [])
+})
+
+test('retained Hut controls remain usable while hovered or keyboard-focused', async t => {
+  const { scene, hut, frame } = await callerFixture(t)
+  scene.objectPanels.inspectHut(hut.id, 'hover')
+  scene.objectPanels.releaseHutInspection()
+  const record = scene.objectPanels.hutRecords.get(hut.id)
+  for (let i = 0; i < 4; i++) scene.objectPanels.stepHutInspections(false)
+  assert.equal(record.phase, 1)
+  let hovered = true,
+    focused = false
+  const panel = { hidden: false, matches: () => hovered, contains: () => focused, remove: nop }
+  scene.buildingPanels.set(hut.id, panel)
+  const before = structuredClone(record)
+  scene.pointerScreen = null
+  frame(0)
+  for (let i = 0; i < 30; i++) frame()
+  assert.equal(scene.objectPanels.hutRecords.get(hut.id), record)
+  assert.deepEqual(record, before)
+  hovered = false
+  focused = true
+  for (let i = 0; i < 30; i++) frame()
+  assert.equal(scene.objectPanels.hutRecords.get(hut.id), record)
+  focused = false
+  for (let i = 0; i < 30; i++) frame()
+  assert.equal(scene.objectPanels.hutRecords.has(hut.id), false)
+  assert.ok(!scene.world.secondaryEffects.reservations.includes(`building-panel:${hut.id}`))
 })

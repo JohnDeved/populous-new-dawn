@@ -19,6 +19,7 @@ export interface TooltipInputSample {
   pointer: { clientX: number; clientY: number } | null
   object: TooltipObject | null
   cell: number | null
+  inspectionTarget: number | null
   route:
     | 'world'
     | 'hud'
@@ -65,6 +66,25 @@ function hutCell(scene: GameScene, id: number) {
   return building ? packedCell(buildingInsidePoint(buildingPose(building))) : null
 }
 
+function blankCell(scene: GameScene, cell: number) {
+  const index = (cell >> 9) * 128 + ((cell & 255) >> 1)
+  return !(scene.world.land.flags[index] & (0x400 | 0x10000 | 0x4000000))
+}
+function inspectionTarget(scene: GameScene, picked: number | null, cell: number | null) {
+  const building = scene.world.buildings.find(
+    b => b.id === picked && b.kind === 'hut' && b.team === 'blue' && b.hp > 0 && b.progress >= 1
+  )
+  if (building) return building.id
+  if (cell === null) return null
+  const index = (cell >> 9) * 128 + ((cell & 255) >> 1),
+    id = scene.world.land.buildingIds[index] & 1023
+  return (
+    scene.world.buildings.find(
+      b => b.id === id && b.kind === 'hut' && b.team === 'blue' && b.hp > 0 && b.progress >= 1
+    )?.id ?? null
+  )
+}
+
 // The original HUD key is a live allocated control slot, not its action number.
 // A mounted DOM control supplies the equivalent equality/lifetime relationship.
 function hudOwner(scene: GameScene, element: Element) {
@@ -90,6 +110,7 @@ export function publishTooltipInput(scene: GameScene) {
       pointer,
       object: null,
       cell: null,
+      inspectionTarget: null,
       route: 'outside',
       hud: null,
       message: 0,
@@ -127,13 +148,9 @@ export function publishTooltipInput(scene: GameScene) {
       const ground = scene.pick(scene.pointerScreen)
       if (ground) sample.cell = packedCell(nativePosition(scene.world, ground))
     }
-    if (!sample.object && sample.cell !== null) {
-      const index = ((sample.cell >> 8) >> 1) * 128 + ((sample.cell & 255) >> 1)
-      // Named/placement cells need their own proved producer. Do not label them
-      // as the ordinary blank-ground history supported by this Hut slice.
-      if (scene.world.land.flags[index] & (0x400 | 0x10000 | 0x4000000))
-        sample.route = 'unmapped-cell'
-    }
+    sample.inspectionTarget = inspectionTarget(scene, id, sample.cell)
+    if (!sample.object && sample.cell !== null && !blankCell(scene, sample.cell))
+      sample.route = 'unmapped-cell'
   }
   scene.tooltipInput = sample
 }
@@ -179,15 +196,15 @@ export function queueHutInspection(
     cancelTooltipInspection(scene)
     return
   }
-  const building = scene.world.buildings.find(
-    building =>
-      building.id === target &&
-      building.kind === 'hut' &&
-      building.team === 'blue' &&
-      building.hp > 0
-  )
-  if (!building || event.currentTarget !== scene.renderer.domElement) return
-  inputs.push({ kind: 'down', pointerId: event.pointerId, target, cell: hutCell(scene, target) })
+  if (event.currentTarget !== scene.renderer.domElement) return
+  const cell =
+      hutCell(scene, target) ??
+      (() => {
+        const ground = scene.pick(event)
+        return ground ? packedCell(nativePosition(scene.world, ground)) : null
+      })(),
+    id = inspectionTarget(scene, target || null, cell)
+  if (id !== null) inputs.push({ kind: 'down', pointerId: event.pointerId, target: id, cell })
 }
 
 export function acquireForcedTooltip(
@@ -202,11 +219,24 @@ export function updateTooltipController(scene: GameScene, now: number) {
   const owner = getTooltipController(scene),
     state = scene.tooltip,
     sample = scene.tooltipInput,
+    object = sample?.object ? tooltipObject(scene, sample.object.id) : null,
+    currentInspection = sample ? inspectionTarget(scene, object?.id ?? null, sample.cell) : null,
     modal = !!document.querySelector('dialog[open]'),
     blocked = modal || !!scene.world.inputMask || scene.overviewActive || !!scene.overviewStage,
-    ordinary = !blocked && !scene.world.mode && scene.world.status === 'playing',
+    ordinary =
+      !blocked &&
+      !scene.world.mode &&
+      !scene.world.selected.length &&
+      scene.world.status === 'playing',
     entryRemaining = state.remaining,
     inspection: string[] = []
+  if (
+    !blocked &&
+    sample &&
+    (sample.route.startsWith('unmapped-') || sample.route === 'message') &&
+    !owner.unsupportedHistory.includes(sample.route)
+  )
+    owner.unsupportedHistory.push(sample.route)
   state.draw = 0
   sampleTooltipFrontend(owner, now)
   if (!blocked) {
@@ -218,13 +248,15 @@ export function updateTooltipController(scene: GameScene, now: number) {
     firstDisplay: number | null = null
   if (handled && !state.remaining) resetTooltipController(owner, state)
   if (!handled && ordinary && !sample?.hud) {
-    if (sample?.route === 'world' && sample.object) {
+    const worldRoute =
+      sample && ['world', 'unmapped-cell', 'unmapped-object'].includes(sample.route)
+    if (worldRoute && object) {
       route = 'object'
-      if (visitObjectTooltip(owner, state, sample.object)) {
-        firstDisplay = sample.object.id
-        inspection.push(scene.objectPanels.inspectHut(sample.object.id, 'hover'))
+      if (visitObjectTooltip(owner, state, object)) {
+        firstDisplay = object.id
+        inspection.push(scene.objectPanels.inspectHut(currentInspection ?? object.id, 'hover'))
       }
-    } else if (sample?.route === 'world' && sample.cell !== null) {
+    } else if (worldRoute && sample.cell !== null && blankCell(scene, sample.cell)) {
       route = 'cell'
       visitBlankCellTooltip(owner, state, sample.cell)
     }
@@ -240,14 +272,15 @@ export function updateTooltipController(scene: GameScene, now: number) {
       inspection.push('release')
     } else if (
       explicitAdmission(scene) &&
-      sample?.route === 'world' &&
-      sample.object?.id === event.target &&
+      sample &&
+      ['world', 'unmapped-cell', 'unmapped-object'].includes(sample.route) &&
+      currentInspection === event.target &&
       sample.cell === event.cell
     ) {
       inspection.push(scene.objectPanels.inspectHut(event.target, 'explicit', event.pointerId))
     } else inspection.push('cancel-stale')
   }
-  if (!blocked) scene.objectPanels.renewHutInspection(sample?.object?.id ?? null)
+  if (!blocked) scene.objectPanels.renewHutInspection(object?.id ?? null)
   scene.objectPanels.stepHutInspections(!modal && !scene.overviewActive && !scene.overviewStage)
   owner.output = {
     ...state,
