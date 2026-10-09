@@ -42,7 +42,9 @@ population or silently substitute a different method.
    referenced command10 targeting that Hut, and activity `0x8000`. Do not use the
    generic command10 dispatch helper's immediate-order oracle.
 3. Observe every actual fixed turn synchronously. Keep scalar status and only
-   meaningful transfer/drop/ownership events; cap retained events at64. Poll that
+   meaningful transfer/drop/ownership events; cap retained events at64. Track
+   each epoch's contiguous first/last/count of every fixed-turn visit separately
+   from that event cap; a skipped turn or overflow is terminal. Poll that
    lightweight status, never a full World or full-history record. The first
    transfer removes100 of the Hut's300 native timber units. Use public Pause,
    then Game settings immediately. Require100 or200 units still remaining at
@@ -56,8 +58,11 @@ population or silently substitute a different method.
    against Save's `expectedLoadDigest()` (the production migration of a private
    clone), before the actual Page body auto-resumes. Require matching target,
    worker, command references, remaining timber, cargo and individual loose-log
-   IDs. Rebind observations to the new Scene; do not carry old Scene identity
-   claims across replacement. No fresh-page continuation/profile is needed.
+   IDs. Before clicking Load, arm the maintained `armBuildingSceneStart` boundary
+   from `mission3-building-lifecycle.mjs`; attach the new epoch synchronously at
+   Scene start before its first RAF, with no host-roundtrip gap. Do not carry old
+   Scene identity claims across replacement. No fresh-page continuation/profile
+   is needed.
 6. Let normal play finish. Move the pointer away using real input. Require target
    disappearance, the same surviving Brave, released entry/order/work/occupancy,
    cleared footprint and target panel/record/latch/reservation, closed menu, and
