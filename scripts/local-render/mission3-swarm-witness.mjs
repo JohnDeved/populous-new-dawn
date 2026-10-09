@@ -14,6 +14,9 @@ const nativeXY = p => ({
   x: Math.round((p.x + 8) * 256) & 65535,
   y: Math.round((-p.z - 8) * 256) & 65535,
 })
+// Authored M3 Brave (row 52); ordinary03/04 retained this current identity.
+// This episode has no alternate target if fresh eligibility is unmet.
+const requiredTargetId = 53
 
 export async function preloadMissionThreeSwarm() {
   await Promise.all([
@@ -103,9 +106,13 @@ export async function readMissionThreeSwarmCandidates() {
   return {
     ...diagnostic,
     candidates,
+    requiredTargetId,
     target:
       (diagnostic.target &&
-        candidates.find(candidate => !candidate.error && candidate.response.eligible)) ||
+        candidates.find(
+          candidate =>
+            candidate.id === requiredTargetId && !candidate.error && candidate.response.eligible
+        )) ||
       null,
   }
 }

@@ -26,6 +26,7 @@ import {
   installMissionThreeSwarmObservation,
   finishMissionThreeSwarmObservation,
   inspectMissionThreeSwarmTarget,
+  readMissionThreeSwarmCandidates,
 } from '../../scripts/local-render/mission3-swarm-witness.mjs'
 
 const png =
@@ -655,6 +656,56 @@ function groundFixture(t) {
   })
   return { world, actor, scene, input }
 }
+
+test('the ordinary selector requires authored enemy 53 with current eligibility and never falls back', async t => {
+  const { world, actor } = groundFixture(t)
+  const target = world.units.find(unit => unit.id === 53)
+  assert.deepEqual(
+    { id: target.id, team: target.team, kind: target.kind, x: target.x, z: target.z },
+    { id: 53, team: 'yellow', kind: 'brave', x: -43, z: -107 }
+  )
+  // Supplied CPU fixture: the ordinary03/04 staging pose and a nearer enemy.
+  // No fixture assignment is evidence of an ordinary input or future motion.
+  Object.assign(actor, { x: -31.625, z: -115.7578125 })
+  Object.assign(actor.native, nativePosition(world, actor))
+  const nearer = world.units.find(unit => unit.id === 48)
+  Object.assign(nearer, { id: 2665, x: -32, z: -113 })
+  Object.assign(nearer.native, nativePosition(world, nearer), { id: 2665 })
+  world.shots.swarm = 1
+  const before = structuredClone(world)
+  const observed = await readMissionThreeSwarmCandidates()
+  assert.equal(observed.candidates[0].id, 2665)
+  assert.equal(observed.candidates[0].error, null)
+  assert.equal(observed.candidates[0].response.eligible, true)
+  assert.equal(observed.target.id, 53)
+  assert.equal(observed.requiredTargetId, 53)
+  assert.equal(observed.candidates.length, 6)
+  assert.deepEqual(world, before)
+  for (const mutate of [
+    w => (w.units = w.units.filter(unit => unit.id !== 53)),
+    w => (w.units.find(unit => unit.id === 53).native.flags2 |= 0x800000),
+    w =>
+      Object.assign(
+        w.units.find(unit => unit.id === 53),
+        { x: 70, z: 70 }
+      ),
+    w => (w.paused = true),
+    w => (w.shots.swarm = 0),
+  ]) {
+    Object.assign(world, structuredClone(before))
+    mutate(world)
+    const unchanged = structuredClone(world)
+    const rejected = await readMissionThreeSwarmCandidates()
+    assert.equal(rejected.target, null)
+    assert.equal(rejected.requiredTargetId, 53)
+    assert.ok(rejected.candidates.some(candidate => candidate.id === 2665))
+    assert.equal(
+      rejected.candidates.length,
+      world.units.filter(unit => unit.team === 'yellow' && unit.kind !== 'shaman').length
+    )
+    assert.deepEqual(world, unchanged)
+  }
+})
 
 test('actual fixedGround model lookup composes with the Swarm inspector and fails closed', async t => {
   const { world, actor, scene, input } = groundFixture(t)
