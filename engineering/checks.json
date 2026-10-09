@@ -191,7 +191,9 @@
         "tests/parity-owned-checkpoint.test.mjs",
         "tests/parity-owned-blast.test.mjs",
         "tests/parity-discovery.test.mjs",
-        "tests/parity-discovery-reader.test.mjs"
+        "tests/parity-discovery-reader.test.mjs",
+        "tests/parity-streaming-discovery.test.mjs",
+        "tests/parity-json-metadata.test.mjs"
       ],
       "cwd": ".",
       "env": [],
@@ -209,8 +211,11 @@
         "engineering/checks.json",
         "parity.json",
         "scripts/parity-discovery.mjs",
+        "scripts/parity-json-metadata.mjs",
         "tests/parity-discovery.test.mjs",
-        "tests/parity-discovery-reader.test.mjs"
+        "tests/parity-discovery-reader.test.mjs",
+        "tests/parity-streaming-discovery.test.mjs",
+        "tests/parity-json-metadata.test.mjs"
       ],
       "prerequisites": [
         "Node.js >=22.13.0",
