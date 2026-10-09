@@ -153,7 +153,8 @@ export default async function treeHover({ page, root, output, receipt, signal })
     report.readiness = await waitForShamanReadiness(page, { timeout: Math.max(1, 60000 - (Date.now() - start)) })
     await settle(); assert.ok(Date.now() < startupDeadline, 'Startup deadline exhausted'); startupDeadline = null
     page.setDefaultTimeout(12000)
-    report.targets = await page.evaluate(authoredHoverTargets)
+    report.targets = await page.evaluate(authoredHoverTargets); save()
+    assert.equal(report.targets.failure, null, report.targets.failure ?? undefined)
     const tree = { ...report.targets.tree, kind: 'tree' }, building = { ...report.targets.building, kind: 'building' }
     report.entry = await page.evaluate(() => {
       const s = window.testSceneRef.current, w = s.world, gl = s.renderer.getContext(), ext = gl.getExtension('WEBGL_debug_renderer_info')

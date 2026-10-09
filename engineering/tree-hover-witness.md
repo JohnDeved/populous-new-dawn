@@ -7,7 +7,9 @@ commands, camera, uniform or render schedule. No original-game execution is adde
 
 The declared target is DAT object20: type5/model1/neutral255 at browser (3,23).
 Resolve its runtime ID by coordinates/model rather than assuming DAT index equals
-runtime ID. The control is the authored Blue Hut at (-12,34), DAT object42.
+runtime ID. The control is DAT object42, the Blue Hut with authored anchor (-12,34).
+Its runtime anchor is (64512,54784); `addBuilding` separately normalizes the
+rendered origin. Resolve by anchor/owner/kind and use its actual runtime x/z.
 The neutral owner is represented as -1 by the existing browser highlight adapter.
 
 Preparation uses existing rendered model-face candidates and the existing integer
@@ -63,3 +65,20 @@ establish native controller or raster equivalence, hardware performance, tooltip
 behavior, campaign completion, or complete issue19 acceptance. Readback overhead
 perturbs timing. Existing forced-turn/focus highlight scripts remain supporting
 fixtures and cannot substitute for this ordinary witness.
+
+## Retained baseline01 preparation failure
+
+The first ordinary attempt on QA9dcee20/application2107ccf reached real readiness
+at turn405/inputMask0/default Shaman30, then failed before any target/pointer
+preparation. The checker incorrectly compared the Hut's displayed origin with its
+DAT anchor. Exact `createWorld(1)` already places object42/runtime37 at
+(-11.0703125,33.0546875), anchor(64512,54784); the old predicate is false at turn0.
+This attributes a checker prerequisite error without replay or a new target. It
+does not establish which live entities remained at turn405 because that attempt
+did not retain a roster. Future attempts persist a bounded roster and separate
+object20/object42 match counts before asserting target availability. Keep
+`tree-hover-baseline-9dcee20-20261009` failed; no hover reproduction credit applies.
+The same feasibility contract advances that actual model through one fixed405-turn
+`tick` sequence and retains the same tree ID/four logs and Hut ID/anchor. This is
+supporting model evidence; it does not reproduce the browser's RAF, flyby or exact
+readiness timeline and does not fill the first attempt's missing live roster.

@@ -9,6 +9,9 @@ import { minimapPick } from '../app/minimap.ts'
 import { minimapInput } from '../qa/erosion-ordinary/minimap-input.mjs'
 import { findEntityInput } from '../qa/erosion-ordinary/input.mjs'
 import { authoredHoverTargets, hoverInput, hoverMinimapInput } from '../scripts/local-render/tree-hover-input.mjs'
+import { createWorld } from '../app/world-initialization.ts'
+import { tick } from '../app/world-turn.ts'
+import levelOne from '../app/level-one.ts'
 import { zoomPreset } from '../app/camera-view.ts'
 import { installTreeHoverWitness } from '../scripts/local-render/tree-hover-witness.mjs'
 
@@ -40,7 +43,7 @@ function fixture({ failRender, failReadback, own = false } = {}) {
   const win = target(), canvas = Object.assign(target(), { width: 1440, height: 1000, isConnected: true,
     getBoundingClientRect: () => ({ x: 0, y: 0, left: 0, top: 0, width: 1440, height: 1000 }),
     toDataURL() { if (failReadback) throw failReadback; return 'data:image/png;base64,AA==' } })
-  const world = { trees: [{ id: 999, x: 3, z: 23, model: 1, logs: 4 }], buildings: [{ id: 888, x: -12, z: 34, team: 'blue', kind: 'hut' }],
+  const world = { trees: [{ id: 999, x: 3, z: 23, model: 1, logs: 4 }], buildings: [{ id: 888, x: -11.0703125, z: 33.0546875, anchor: { x: 64512, y: 54784 }, team: 'blue', kind: 'hut' }],
     units: [{ id: 1, native: { commands: [0], commandCursor: 0 } }], selected: [1], buildingOrders: { records: [] },
     randomState: 12, cosmeticRandom: { randomState: 13 }, turn: 0, speed: 1, paused: false, status: 'playing',
     mode: null, inputMask: 0, manaWorld: { gameFlags: 0 }, flyby: { flags: 0 } }
@@ -216,4 +219,31 @@ test('complete composed evidence rejects missing delivery, unconsumed camera inp
       value => { value.records.find(r => r.kind === 'render').receiverMatches = false },
     ]) { const bad = structuredClone(evidence); damage(bad); assert.throws(() => assertTreeHoverEvidence(bad)) }
   } finally { api?.close(); f.restore() }
+})
+
+
+test('actual createWorld1 binds object42 by authored anchor, not its normalized display origin', () => {
+  const world = createWorld(1), declared = levelOne.objects.find(o => o.index === 42)
+  const targets = authoredHoverTargets({ world })
+  assert.equal(targets.failure, null); assert.equal(targets.tree.sourceObject, 20)
+  assert.equal(targets.tree.x, 3); assert.equal(targets.tree.z, 23); assert.equal(targets.tree.model, 1)
+  assert.equal(targets.building.sourceObject, 42)
+  assert.deepEqual(targets.building.anchor, { x: Math.round((declared.x + 8) * 256) & 0xfe00,
+    y: Math.round((-declared.z - 8) * 256) & 0xfe00 })
+  const actual = world.buildings.find(b => b.id === targets.building.id)
+  assert.equal(targets.building.x, actual.x); assert.equal(targets.building.z, actual.z)
+  assert.notEqual(actual.x, declared.x); assert.notEqual(actual.z, declared.z)
+  assert.equal(world.buildings.some(b => b.x === -12 && b.z === 34 && b.team === 'blue' && b.kind === 'hut'), false,
+    'Retains baseline01 wrong-coordinate predicate failure at initialization, without replay')
+  assert.equal(targets.roster.truncated, false)
+  const missing = authoredHoverTargets({ world: { ...world, buildings: [] } })
+  assert.equal(missing.tree.id, targets.tree.id); assert.equal(missing.building, null)
+  assert.match(missing.failure, /object42/); assert.equal(missing.roster.buildingCount, 0)
+  // Supporting model feasibility only: a single fixed 405-turn progression.
+  // No browser, frame/readiness replay, forced completion flag or seed sweep.
+  for (let turns = 0; turns < 405; turns++) tick(world, 1 / 12)
+  assert.equal(world.turn, 405)
+  const after = authoredHoverTargets({ world })
+  assert.equal(after.failure, null); assert.equal(after.tree.id, targets.tree.id); assert.equal(after.tree.logs, 4)
+  assert.equal(after.building.id, targets.building.id); assert.deepEqual(after.building.anchor, targets.building.anchor)
 })

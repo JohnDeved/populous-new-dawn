@@ -1,12 +1,27 @@
 // Preparation only: inspect existing authored objects and rendered pick geometry.
 // These queries may refresh picker/matrix caches; they issue no input or world command.
 export function authoredHoverTargets(scene = window.testSceneRef.current) {
-  const tree = scene.world.trees.filter(t => t.x === 3 && t.z === 23 && t.model === 1 && t.logs > 0)
-  const huts = [[-12, 34], [-4, 42]].map(([x, z]) => scene.world.buildings.find(
-    b => b.x === x && b.z === z && b.team === 'blue' && b.kind === 'hut'))
-  if (tree.length !== 1 || !huts[0]) throw Error('Declared authored Mission1 targets unavailable')
-  return { tree: { id: tree[0].id, x: 3, z: 23, model: 1, sourceObject: 20 },
-    building: { id: huts[0].id, x: -12, z: 34, sourceObject: 42 } }
+  const world = scene.world
+  const trees = world.trees.filter(t => t.x === 3 && t.z === 23 && t.model === 1 && t.logs > 0)
+  // addBuilding converts the authored anchor to the model's display origin.
+  // Identify the same declared DAT object42 by its stable authored anchor.
+  const anchor = { x: Math.round((-12 + 8) * 256) & 0xfe00, y: Math.round((-34 - 8) * 256) & 0xfe00 }
+  const huts = world.buildings.filter(b => b.anchor?.x === anchor.x && b.anchor?.y === anchor.y &&
+    b.team === 'blue' && b.kind === 'hut')
+  const treeRow = t => ({ id: t.id, x: t.x, z: t.z, model: t.model, logs: t.logs })
+  const buildingRow = b => ({ id: b.id, x: b.x, z: b.z, anchor: b.anchor && { ...b.anchor },
+    team: b.team, kind: b.kind, level: b.level, object: b.object, angle: b.angle })
+  return {
+    tree: trees.length === 1 ? { ...treeRow(trees[0]), sourceObject: 20 } : null,
+    building: huts.length === 1 ? { ...buildingRow(huts[0]), sourceObject: 42, authored: { x: -12, z: 34 } } : null,
+    // Return failures as data so the host persists the roster before asserting.
+    failure: trees.length !== 1 ? `Declared object20 tree has ${trees.length} matches`
+      : huts.length !== 1 ? `Declared object42 Blue Hut anchor has ${huts.length} matches` : null,
+    roster: { turn: world.turn, inputMask: world.inputMask, selected: [...world.selected],
+      treeCount: world.trees.length, buildingCount: world.buildings.length, expectedBuildingAnchor: anchor,
+      trees: world.trees.slice(0, 64).map(treeRow), buildings: world.buildings.slice(0, 32).map(buildingRow),
+      truncated: world.trees.length > 64 || world.buildings.length > 32 },
+  }
 }
 
 export async function hoverInput({ target, scene = window.testSceneRef.current, findEntityInput, doc = document }) {
