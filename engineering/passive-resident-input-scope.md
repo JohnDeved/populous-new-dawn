@@ -30,6 +30,23 @@ and entry begin/allocate/attach bodies with supplied route/animation boundaries.
 It advances no model world. Missing, wrong, cancelled and replaced allocations
 fail closed. The successful admission, Save/Load and departure gates are unchanged.
 
+Candidate03 remains FAILED at its movement completion guard. It independently
+retained command8 order9/reference1 at turn372, same-person admission and actual
+reference0 at444, exact saved/committed/restored resident summary at492, and
+physical mode1 removal of that restored record at636. The terminal checkpoint
+digest remained unchanged. It did not retain the decisive failed movement
+snapshot, so no exact failed native conjunct is inferred from later position.
+The prospective fix always retains attempted completion before rejecting it.
+Its arrival predicate follows Brave initialization: state17/previous10 can own
+an idle-approach route using the same person; state19/previous17/substate0 has
+assignment1 and releases the route. Neither branch promises zero speed. The
+Shaman-only flag0x400 stopping/substate8 behavior is inapplicable to model2.
+Original command identity, uncancelled payload, actor/registry/World/last-order,
+native reached geometry, four-visit cadence, empty queue and interruption checks
+remain required. Foreign route ownership is rejected. Tests compose actual
+movement/queue/17/19 initializer bodies with supplied physics/terrain/search and
+animation boundaries. They do not establish the historical03 failing branch.
+
 Candidate01 remains FAILED at its initial turn151 roster: Hut37 was healthy and
 complete but had zero physical occupants. It had no scenario actions or installed
 observer, and no Save. That report omitted the six individual Brave records, so

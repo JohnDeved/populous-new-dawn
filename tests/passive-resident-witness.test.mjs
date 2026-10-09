@@ -5,6 +5,10 @@ import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import * as orders from '../app/person-orders.ts'
 import * as idle from '../app/person-idle.ts'
+import { initializePersonState } from '../app/person-state.ts'
+import { stepPersonOrders } from '../app/person-order-update.ts'
+import { clearLivePath, acceptLivePath } from '../app/live-pathfinding.ts'
+import { adoptLiveOrders } from '../app/live-movement.ts'
 import * as animation from '../app/unit-animation-source.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
 import { removeBuildingOccupant } from '../app/building-occupants.ts'
@@ -179,6 +183,84 @@ test('real mode1 removal inserts the exact passive record before indicator clean
   const e = api.close(); assertResidentDeparture(e, 13, 37)
   assert.equal(e.departures[0].personBuilding, 37); assert.ok(e.frames.departure)
   assert.equal(e.moves[0].ended.native.id, 13)
+})
+
+for (const branch of ['resting', 'approach'])
+test(`real movement completion and Brave ${branch} initializer retain native arrival`, async t => {
+  const f = fixture(t)
+  f.u.entry = undefined; f.u.native = f.p; f.u.work = null; f.p.building = 0
+  Object.assign(f.p, { flags2: 0, flags3: 0, flags4: 0, physics: 2, cargo: 0,
+    commands: [1, 0, 0, 0, 0, 0, 0, 0], commandStatus: 3, state: 10,
+    counter: 8, previousState: 17, slowTurn: 0, anchorX: f.p.x, anchorY: f.p.y,
+    motionIndex: 0, supportHeight: 0 })
+  f.w.buildingOrders.records[1].references = 1; f.w.buildingOrders.active = 1
+  f.w.land.categories = new Uint8Array(16384)
+  f.w.motionRoutes = { records: new Uint16Array(109), free: [] }
+  f.w.objectCells.objects.set(13, f.p); f.w.lastOrderTurn = f.w.turn
+  const api = await install(f.spec); api.armMove('final-departure'); f.canvas.emit('pointerup')
+  const stateWorld = { randomState: 123, instantFacing: false, levelFlags: 0,
+    orders: f.w.buildingOrders, tribes: [{ x: 0, y: 0, angle: 0, selectedCount: 0, flags: 0 }] }
+  const unused = () => assert.fail('Unexpected supplied initializer boundary')
+  const orderEffects = { prepare: unused, stopWork: unused, releaseSpell: unused,
+    deleteObject: unused, releaseFight: unused }
+  const initialize = () => initializePersonState(stateWorld, f.p, {
+    deselectPassengers: unused, rebuildTrainingQueue: unused, rebuildFormation() {},
+    releaseMotion: () => clearLivePath(f.w, f.u), startOrders: unused, setAnimation() {},
+    idleApproach: () => {
+      let searched = false
+      idle.initializeIdleApproach(0, f.p, { setAnimation() {}, collision: () => 0,
+        height: () => 64, searchStart: () => 1,
+        searchNext: () => searched ? null : (searched = true, { x: branch === 'approach' ? 1 : 0, y: 0 }),
+        searchEnd() {}, destination(to) {
+          Object.assign(f.p, { goalX: to.x, goalY: to.y }); acceptLivePath(f.w, f.u, f.p)
+        }, allocateOrder: unused, adjacentBuilding: unused, buildingPoint: unused,
+        prepareOrder: unused, occupied: unused, clearOrders: unused, attachOrder: unused, initialize })
+    },
+    resting: () => idle.initializeRestingPerson(f.w, f.p, { setAnimation() {},
+      releaseMotion: () => clearLivePath(f.w, f.u) }),
+  })
+  const source = readFileSync(new URL('../app/live-movement.ts', import.meta.url), 'utf8')
+  const start = source.indexOf('export function stepLiveMovement(')
+  const body = source.slice(start, source.indexOf('// Shared native state-10 completion:', start)).replace('export ', '')
+  // Actual movement dispatcher, movement predicate, queue completion and native
+  // 17/19 initialization run together. Physics, terrain/search and animation
+  // leaves are supplied; no whole-world tick or browser is run.
+  const movement = Function('stepLivePhysics', 'stepLiveRoute', 'stepLiveOrderQueue',
+    'stepMovementOrder', 'clearLivePath', 'changeLivePersonState', 'adoptLiveOrders',
+    `${stripTypeScriptTypes(body)}; return stepLiveMovement`)(() => {}, () => {},
+      (w, _u, p, commands) => stepPersonOrders({ orders: w.buildingOrders, landFlags: 0,
+        levelFlags2: 0, playerTribe: 0, objects: new Map(), survivingTribes: () => 2 }, p,
+      { commands, commandPosition: o => ({ x: o.a, y: o.b }), outside: to => to,
+        remove: slot => orders.removePersonOrder(w.buildingOrders, p, slot, orderEffects),
+        advance: () => false, leaveVehicle: unused, formation: unused }),
+      orders.stepMovementOrder, clearLivePath, (_w, _u, next) => {
+        f.p.previousState = f.p.state; f.p.state = next; initialize()
+      }, adoptLiveOrders)
+  f.scene.gameClock.beforeTurn(); movement(f.w, f.u); f.w.turn++; f.scene.gameClock.afterTurn()
+  const e = api.close()
+  assert.equal(f.p.state, branch === 'resting' ? 19 : 17)
+  assert.equal(f.p.substate, 0); assert.ok(f.p.speed > 0)
+  assert.equal(e.moves[0].ended.route.present, branch === 'approach')
+  assert.equal(e.moves[0].done, true); assert.deepEqual(e.errors, [])
+})
+
+for (const invalid of ['foreign-route', 'geometry', 'cadence', 'queue', 'interruption'])
+test(`failed Brave arrival retains the ${invalid} boundary before rejection`, async t => {
+  const f = fixture(t), api = await install(f.spec)
+  f.u.entry = undefined; f.u.native = f.p; f.u.work = null; f.p.commands[0] = 1
+  f.w.objectCells.objects.set(13, f.p); f.w.lastOrderTurn = f.w.turn
+  api.armMove('final-departure'); f.canvas.emit('pointerup'); f.scene.gameClock.beforeTurn()
+  f.p.commands[0] = 0; f.p.state = 17; f.p.previousState = 10
+  if (invalid === 'foreign-route') f.w.pathfinding.people.set(13, structuredClone(f.p))
+  if (invalid === 'geometry') f.p.x += 1024
+  if (invalid === 'cadence') f.p.counter++
+  if (invalid === 'queue') f.p.commands[1] = 1
+  if (invalid === 'interruption') f.p.flags4 |= 0x10000000
+  f.w.turn++; f.scene.gameClock.afterTurn()
+  const e = api.close(); assert.equal(e.moves.length, 1); assert.equal(e.moves[0].done, false)
+  assert.equal(e.moves[0].before.orderId, 1); assert.ok(e.moves[0].ended.native)
+  assert.ok(Object.values(e.moves[0].ended.checks).some(value => !value))
+  assert.match(e.errors.join('\n'), /Brave command ended without native arrival/)
 })
 
 test('clone admission, live ownership, cancelled/replaced orders and wrong render are rejected', async t => {

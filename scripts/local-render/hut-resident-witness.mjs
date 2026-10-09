@@ -70,21 +70,37 @@ export async function installHutResidentWitness({ hutId, unitId, deadlineAt }) {
   }
   const nativeArrival = (p, order) => {
     const idle = rules.personModels[p.model].idleState
-    return p.commands.every(id => !id) && !p.immediateCommand &&
-      ((p.state === idle && p.previousState === 10) ||
-        (p.state === 19 && p.previousState === idle && p.substate === 8 && !!(p.assignment & 1) &&
-          !p.slowTurn && samePersonCell(p, { x: p.goalX, y: p.goalY }))) &&
-      !(p.counter & 3) && !p.speed && !p.motionGroup && !p.vehicle && !(p.flags4 & 0x10000000) &&
-      unit.inside === null && !unit.path.length && !world.pathfinding.people.has(unitId) &&
-      !unit.work && !unit.lift && !unit.casting && !unit.fight &&
-      personReachedOrder(p, order, () => { throw new Error('Unexpected resident vehicle arrival') })
+    const route = world.pathfinding.people.get(unitId)
+    const checks = {
+      queueEmpty: p.commands.every(id => !id) && !p.immediateCommand,
+      idleTransition: (p.state === idle && p.previousState === 10) ||
+        (p.state === 19 && p.previousState === idle && p.substate === 0 && !!(p.assignment & 1) &&
+          !p.slowTurn && samePersonCell(p, { x: p.goalX, y: p.goalY }) &&
+          !p.motionGroup && !unit.path.length && !route),
+      routeOwner: !route || route === p,
+      routeCoherent: (!unit.path.length && !p.motionGroup) || route === p,
+      cadence: !(p.counter & 3),
+      uninterrupted: !p.vehicle && !(p.flags4 & 0x10000000) &&
+        unit.inside === null && !unit.work && !unit.lift && !unit.casting && !unit.fight,
+      nativeReached: !p.vehicle && personReachedOrder(p, order, () => { throw new Error('Unexpected resident vehicle arrival') }),
+    }
+    return { checks, done: Object.values(checks).every(Boolean), route: { present: !!route,
+      samePerson: route === p, motionGroup: route?.motionGroup, motionIndex: route?.motionIndex } }
   }
   try {
   replace(scene.gameClock, 'beforeTurn', original => function (...args) {
     const result = original?.apply(this, args)
     observe(() => {
       entryCommand()
-      if (move?.person) move.beforeId = orderId(move.person)
+      if (move?.person) {
+        move.beforeId = orderId(move.person)
+        const order = world.buildingOrders.records[move.beforeId]
+        move.before = { turn: world.turn, native: structuredClone(move.person), orderId: move.beforeId,
+          order: order && structuredClone(order) }
+        if (move.beforeId && (move.beforeId !== move.orderId || order?.model !== 3 ||
+          order.a !== move.order.a || order.b !== move.order.b || order.flags & 1))
+          throw new Error('Issued Brave command replaced before completion')
+      }
     })
     return result
   })
@@ -107,11 +123,13 @@ export async function installHutResidentWitness({ hutId, unitId, deadlineAt }) {
         if (id && (id !== move.orderId || order.model !== 3 || order.a !== move.order.a || order.b !== move.order.b || order.flags & 1))
           throw new Error('Issued Brave command replaced')
         if (move.beforeId === move.orderId && !id) {
-          move.done = nativeArrival(p, move.order)
-          move.ended = { turn: world.turn, state: state(), native: structuredClone(p) }
-          if (!move.done) throw new Error('Brave command ended without native arrival')
+          const arrival = nativeArrival(p, move.order)
+          move.done = arrival.done
+          move.ended = { turn: world.turn, state: state(), native: structuredClone(p),
+            checks: arrival.checks, route: arrival.route }
           evidence.moves.push({ label: move.label, turn: move.turn, orderId: move.orderId,
-            order: move.order, input: move.input, done: true, ended: move.ended })
+            order: move.order, input: move.input, before: move.before, done: move.done, ended: move.ended })
+          if (!move.done) throw new Error('Brave command ended without native arrival')
         }
       }
     })
