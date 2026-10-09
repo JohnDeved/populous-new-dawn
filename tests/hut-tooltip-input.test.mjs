@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
-import { closeHutMenu, installHutCheckpointBoundary, finishHutHandles, assertHutInspectionLifecycle } from '../scripts/local-render/hut-tooltip-input.mjs'
+import { closeHutMenu, installHutCheckpointBoundary, finishHutHandles, assertHutInspectionLifecycle, assertHutAdmission } from '../scripts/local-render/hut-tooltip-input.mjs'
 import { checkpointObservation } from '../scripts/local-render/checkpoint-observer.mjs'
 import hutTooltip from '../scripts/local-render/hut-tooltip.mjs'
 
@@ -12,6 +12,26 @@ const bindLoad = bindings => Function(...Object.keys(bindings), `${stripTypeScri
 
 test('named ordinary driver imports without executing the harness or runtime', () => {
   assert.equal(typeof hutTooltip, 'function')
+})
+
+test('actual route prepares ground while selected, clears once, then admits cell and Hut history', async () => {
+  const source = readFileSync(new URL('../scripts/local-render/hut-tooltip.mjs', import.meta.url), 'utf8')
+  const start = source.indexOf("    await hoverBlast('blast-history')"), end = source.indexOf('    const initial = await point(hut)')
+  assert.ok(start >= 0 && end > start)
+  const body = source.slice(start, end), AsyncFunction = Object.getPrototypeOf(async function () {}).constructor
+  const state = { level: 1, status: 'playing', speed: 1, paused: false, inputMask: 0, mode: null, selected: [30] }
+  const events = [], ground = { x: 10, y: 20, rejection: null }, hut = { id: 37 }, report = { declaration: { ground: { x: -11, z: 39 } }, preparations: [] }
+  const bindings = { assert, assertHutAdmission, report, hut, output: 'unused', resolve: (...parts) => parts.join('/'), save() {},
+    hoverBlast: async () => {}, wait: async kind => { if (kind === 'cell') { assertHutAdmission(state); events.push('cell') } },
+    page: { screenshot: async () => {}, evaluate: async () => ({ sceneFrame: 1, rendererFrame: 1 }), mouse: { move: async () => {} } },
+    input: { view: async target => { if (target === hut) { assertHutAdmission(state); events.push('hut-view') } },
+      fixedGround: async () => { assert.deepEqual(state.selected, [30]); events.push('selected-ground'); return ground } },
+    clear: async () => { events.push('Escape'); state.selected = [] },
+    naturalBoundary: async () => { assert.deepEqual(state.selected, []); events.push('natural-boundary') },
+    status: async () => ({ epochs: [{ state }] }), phase: async () => {}, action: async (_label, run) => run() }
+  await new AsyncFunction(...Object.keys(bindings), body)(...Object.values(bindings))
+  assert.deepEqual(events, ['selected-ground', 'Escape', 'natural-boundary', 'cell', 'hut-view'])
+  assert.throws(() => assertHutAdmission({ ...state, selected: [30] }))
 })
 
 test('explicit inspection requires ordered activation then release and cleared actual ownership', () => {
