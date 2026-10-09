@@ -162,6 +162,7 @@ export default async function missionThreeVaultApproach({
       return api.read()
     })
     signal.throwIfAborted()
+    report.latest = state
     assertTempleRouteHealth(state, shamanId, receipt.errors)
     return state
   }

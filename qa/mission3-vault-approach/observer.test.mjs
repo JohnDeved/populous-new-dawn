@@ -111,7 +111,7 @@ function fixture(t) {
     renderer,
     gameClock: clock,
     cameraPosition: { x: 1, y: 2, angle: 0 },
-    view: { projection: {}, screen: () => ({ x: 0, y: 0, z: 0 }) },
+    view: { projection: {}, screen: () => ({ x: 0, y: 0, z: 0 }), visible: () => true },
     pointerAck: { target: 0, until: 0 },
     unitMeshes: new Map([[shaman.id, actorGroup]]),
     shrineMeshes: new Map([[vault.id, { g: vaultGroup }]]),
@@ -509,4 +509,60 @@ test('real host retains falsy startup failures and real named CLI import reaches
   assert.equal(result.status, 1)
   assert.match(result.stderr, /Browser binary does not exist/)
   assert.doesNotMatch(result.stderr, /unsettled top-level await/)
+})
+
+test('null actor projection, off-depth Vault and invisible Vault remain bounded frame rejections', async t => {
+  const f = fixture(t),
+    api = await f.install()
+  await f.input.clickEntity('shrines', 92, 33, false, [46])
+  Object.assign(f.shaman.native, { commandPhase: 1, flags2: 0, x: 58112, y: 30976 })
+  f.scene.unitScreen = () => null
+  f.renderer.render(f.scene.scene, f.scene.camera)
+  f.scene.unitScreen = () => ({ x: 0, y: 0, z: 0 })
+  f.scene.view.screen = () => ({ x: 0, y: 0, z: 2 })
+  f.renderer.render(f.scene.scene, f.scene.camera)
+  f.scene.view.visible = () => false
+  f.renderer.render(f.scene.scene, f.scene.camera)
+  const e = api.close()
+  assert.deepEqual(e.errors, [])
+  assert.equal(e.frames.length, 0)
+  assert.equal(e.rejections['out-of-frame'].count, 2)
+  assert.equal(e.rejections['out-of-frame'].first.phase, 1)
+  assert.equal(e.rejections['vault-not-visible'].count, 1)
+  assert.equal(f.renderer.info.render.frame, 3)
+})
+
+test('actual host preserves a failing first health state and closes its captured API', async t => {
+  const f = fixture(t),
+    output = mkdtempSync(join(tmpdir(), 'vault-health-'))
+  t.after(() => rmSync(output, { recursive: true, force: true }))
+  let disposed = false
+  f.page.waitForSelector = async () => {}
+  f.page.waitForFunction = async () => {}
+  f.page.evaluateHandle = async (fn, arg) => {
+    const api = await fn(arg),
+      read = api.read
+    api.read = () => ({ ...read(), speed: 2 }) // Supplied health failure.
+    return {
+      evaluate: fn => fn(api),
+      async dispose() {
+        disposed = true
+      },
+    }
+  }
+  await assert.rejects(
+    scenario({
+      page: f.page,
+      output,
+      openMission: async () => {},
+      signal: new AbortController().signal,
+      receipt: { errors: [], profile: { mode: 'created', checkpointAtStart: null } },
+    })
+  )
+  const report = JSON.parse(readFileSync(join(output, 'mission3-vault-approach.json')))
+  assert.equal(report.latest.speed, 2)
+  assert.equal(report.latest.level, 3)
+  assert.equal(report.status, 'failed')
+  assert.equal(disposed, true)
+  assert.equal(window.m3TempleRoute, undefined)
 })

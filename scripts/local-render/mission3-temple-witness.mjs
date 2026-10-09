@@ -427,7 +427,15 @@ export function attachTempleVaultApproach(
     })
   }
   const reject = reason => {
-    e.rejections[reason] = (e.rejections[reason] ?? 0) + 1
+    const entry = (e.rejections[reason] ??= {
+      count: 0,
+      first: {
+        turn: world.turn,
+        phase: person.commandPhase,
+        entering: !!(person.flags2 & 0x40000000),
+      },
+    })
+    entry.count++
     return null
   }
   const renderBefore = args => {
@@ -470,6 +478,7 @@ export function attachTempleVaultApproach(
     )
       return reject('presentation-not-ready')
     insist(child.userData.nativeModel === state.vault.model, 'Vault presented model is stale')
+    if (!scene.view.visible(vault)) return reject('vault-not-visible')
     const points = [scene.unitScreen(shaman.id), scene.view.screen(vaultGroup.position, camera)]
     if (!points.every(p => p && Math.abs(p.x) < 0.95 && Math.abs(p.y) < 0.95 && Math.abs(p.z) <= 1))
       return reject('out-of-frame')
@@ -496,7 +505,7 @@ export function attachTempleVaultApproach(
       ),
       viewport: { width: canvas.width, height: canvas.height },
       dpr: window.devicePixelRatio,
-      screen: points.map(p => ({ x: p.x, y: p.y })),
+      screen: points.map(xyz),
     }
   }
   const renderAfter = (_args, frame) => {
