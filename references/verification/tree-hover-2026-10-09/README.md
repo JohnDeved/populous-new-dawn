@@ -2,8 +2,8 @@
 
 Local packaging draft for [PR #283](https://github.com/JohnDeved/populous-new-dawn/pull/283),
 referencing [issue #19](https://github.com/JohnDeved/populous-new-dawn/issues/19).
-**Candidate pixels and final ordinary acceptance are pending. The reviewed before
-evidence is bounded below; do not publish this draft as a completed result.**
+**Candidate 03 passed its seven-phase scenario. Final independent pixel/runtime
+review is pending; hold publication until acceptance.**
 
 The accepted source change is limited to live scenery models 1–6 with logs >= 1:
 the scene's hover descriptor fallback and the render caller's `point.id` match.
@@ -13,8 +13,8 @@ It reuses the existing neutral-owner 200/255 shading. Base application:
 
 The [retained original chain](../../../decomp/research/tree-hover.md) documents
 scope, source provenance and limits. [summary.json](summary.json) records exact
-receipt identities and hashes; raw logs, archives and runtime profiles are not
-copied into this compact report.
+receipt identities and hashes. Four selected natural PNGs are copied byte-for-byte;
+raw logs, archives and runtime profiles are not included.
 
 ## Accepted source and standard evidence
 
@@ -60,13 +60,49 @@ before evidence:
   the exact intercepting DOM node was not recorded. The original scenario did
   not pass, and its failed status must remain visible.
 
-These screenshots are 1240×1000 natural game-canvas frames from sandboxed browser
-154 with software rendering. No candidate pixels or reviewed before/after pair
-exist yet. Source screenshot/receipt hashes are retained in the summary; the files
-have not been copied into this draft. The corrected candidate control must require
-one real Hut pick/render followed by actual canvas leave/zero while preserving the
-tree's four-residue requirement. Candidate pixels and final visual review remain
-pending; no final ordinary acceptance is implied by the bounded baseline review.
+Candidate 03 is terminal **PASSED**, using QA head
+`e18fddfe35ad5424b580f7a07fbd058590d32f72` with application files identical to
+accepted source `1ec5bae`. Its seven completed phases retain 30 natural renders
+and 14 trusted input events. Tree 20/render model 13 receives 200 and 255 across
+all four natural turn residues on hover and re-entry, then 0 after leave. The
+camera pan/zoom and the bounded Hut pick/render/leave control also complete. The
+Hut control policy differs from baseline 02 only by accepting one real natural
+phase followed by actual canvas leave/zero; the tree's four-residue requirement
+is unchanged. Baseline 02's overall failed result remains retained.
+
+The material applies `highlight / 255` to the original texture, yielding a lighter
+textured pulse. It does not turn the whole tree white. The full-frame difference
+is subtle; final target localization and pixel/runtime review are still pending.
+
+## Selected unchanged natural frames
+
+All four PNGs are 1240×1000 game-canvas frames from sandboxed Chrome Headless Shell
+154.0.8037.92, with SwiftShader software rendering. The viewport is 1440×1000 at
+DPR 1. These are browser frames, not original-game reference images or hardware
+performance evidence. The after-leave frame follows the camera-return sequence
+and has a slightly different view; it is a cleanup witness, not an aligned pixel
+difference against the initial-hover frames.
+
+Before: app `2107ccf`, QA `691c7d5`, turn 458, render ordinal 5. The tree is picked
+but its actual uniform is **0**; the original filename's 255 suffix denotes the
+expected phase. Baseline 02 remains failed overall at its later control timeout.
+
+![Baseline tree hover, actual uniform zero](before-tree-hover.png)
+
+After, darker pulse phase: app `1ec5bae`, QA `e18fddf`, turn 449, render ordinal 3,
+actual uniform **200**.
+
+![Candidate textured pulse at uniform 200](after-tree-200.png)
+
+After, lighter pulse phase: the same app/QA, turn 454, render ordinal 5, actual
+uniform **255**.
+
+![Candidate textured pulse at uniform 255](after-tree-255.png)
+
+After HUD leave: the same app/QA, turn 605, render ordinal 38, pointer and hover
+cleared, tree uniform **0**.
+
+![Candidate tree after pointer leave, uniform zero](after-tree-leave.png)
 
 The original release deadline and the broader issue acceptance remain open. This
 slice does not establish full original controller/modal behavior, tooltip parity,

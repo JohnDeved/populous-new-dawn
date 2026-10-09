@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "status": "local-draft-awaiting-ordinary-evidence",
+  "status": "local-draft-candidate-passed-awaiting-final-review",
   "issue": "https://github.com/JohnDeved/populous-new-dawn/issues/19",
   "pullRequest": "https://github.com/JohnDeved/populous-new-dawn/pull/283",
   "application": {
@@ -97,7 +97,7 @@
     }
   },
   "ordinaryEvidence": {
-    "status": "pending",
+    "status": "candidate-passed-final-independent-review-pending",
     "baseline01": {
       "locator": "populous-recovery-20261009/work/orchestration/tree-hover-baseline-9dcee20-20261009.outer.json",
       "sha256": "3503c4c9730b552c6457c0d5d167d1ab267ea3bbe2d4796096c5b9687a450f66",
@@ -223,8 +223,9 @@
         "measuredTargetUniform": 0,
         "width": 1240,
         "height": 1000,
-        "copiedToReport": false,
-        "filenamePhaseSuffix": "expected phase, not measured uniform"
+        "copiedToReport": true,
+        "filenamePhaseSuffix": "expected phase, not measured uniform",
+        "reportPath": "before-tree-hover.png"
       },
       {
         "locator": "populous-recovery-20261009/work/orchestration/tree-hover-baseline-02-20261009/tree-pan.png",
@@ -333,11 +334,170 @@
       },
       "failure": "Later building-live phase timeout: sustained four-residue canvas hover was unsupported by the existing occupancy-popup interaction.",
       "originalScenarioPassed": false
-    }
+    },
+    "candidate03": {
+      "locator": "populous-recovery-20261009/work/orchestration/tree-hover-candidate-03-20261009.outer.json",
+      "sha256": "1dc11e7ad0e64c6660fb722e444d64748f4703ae18731be500b85ab8476aa14e",
+      "status": "passed",
+      "exitCode": 0,
+      "startedAt": "2026-10-09T09:09:07.847Z",
+      "finishedAt": "2026-10-09T09:11:07.200Z",
+      "applicationCommit": "1ec5bae0e1ed91b4ff30cd36556c9adde6a15252",
+      "qaCommit": "e18fddfe35ad5424b580f7a07fbd058590d32f72",
+      "innerReceipt": {
+        "locator": "populous-recovery-20261009/work/orchestration/tree-hover-candidate-03-20261009/receipt.json",
+        "sha256": "2aaecbada79a923c07a60e7a7512215b3e98b714f38e4fbacbe978be8ac3fac5"
+      },
+      "report": {
+        "locator": "populous-recovery-20261009/work/orchestration/tree-hover-candidate-03-20261009/tree-hover.json",
+        "sha256": "21114c5e0a93902d55635a82cb1ee92ffa2d0019c4c578ca19922115a66f9dd8"
+      },
+      "applicationCorrespondence": "git diff 1ec5bae e18fddf changes only engineering/tree-hover-witness.md, three scripts/local-render/tree-hover*.mjs files and tests/tree-hover-witness.test.mjs; all application files identical.",
+      "scenarioPhases": [
+        {
+          "name": "tree-live",
+          "kind": "hover",
+          "residues": [
+            1,
+            0,
+            2,
+            3
+          ],
+          "done": true
+        },
+        {
+          "name": "tree-pan",
+          "kind": "camera",
+          "residues": [
+            2
+          ],
+          "done": true
+        },
+        {
+          "name": "tree-zoom",
+          "kind": "camera",
+          "residues": [
+            0
+          ],
+          "done": true
+        },
+        {
+          "name": "tree-return",
+          "kind": "hover",
+          "residues": [
+            0,
+            1,
+            3,
+            2
+          ],
+          "done": true
+        },
+        {
+          "name": "tree-leave",
+          "kind": "leave",
+          "residues": [
+            1
+          ],
+          "done": true
+        },
+        {
+          "name": "building-live",
+          "kind": "hover",
+          "residues": [
+            1
+          ],
+          "done": true
+        },
+        {
+          "name": "building-leave",
+          "kind": "leave",
+          "residues": [
+            2
+          ],
+          "done": true
+        }
+      ],
+      "records": {
+        "renders": 30,
+        "trustedInputEvents": 14,
+        "naturalCanvasPNGs": 9
+      },
+      "entry": {
+        "level": 1,
+        "turn": 395,
+        "selected": [
+          30
+        ],
+        "speed": 1,
+        "mode": null,
+        "paused": false,
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+        "viewport": [
+          1440,
+          1000
+        ],
+        "dpr": 1,
+        "preset": 0
+      },
+      "browserVersion": "154.0.8037.92",
+      "browserSandbox": true,
+      "finalIndependentReview": "pending"
+    },
+    "materialAppearance": "Original texture multiplied by highlight/255: lighter textured pulse, not a uniformly white tree.",
+    "selectedRawFrames": [
+      {
+        "locator": "populous-recovery-20261009/work/orchestration/tree-hover-baseline-02-20261009/tree-live-255.png",
+        "sha256": "342324ff1ce6c40d63e027e712360e570b63bb27a3ebec2efd864a413cc39200",
+        "reportPath": "before-tree-hover.png",
+        "attempt": "baseline02",
+        "turn": 458,
+        "renderOrdinal": 5,
+        "measuredTargetUniform": 0,
+        "width": 1240,
+        "height": 1000,
+        "byteIdentical": true
+      },
+      {
+        "locator": "populous-recovery-20261009/work/orchestration/tree-hover-candidate-03-20261009/tree-live-200.png",
+        "sha256": "8fd6e68e38a44cd49f5af3d20ce120f3fc7ffd018d676127a4cc3fd90be2f699",
+        "reportPath": "after-tree-200.png",
+        "attempt": "candidate03",
+        "turn": 449,
+        "renderOrdinal": 3,
+        "measuredTargetUniform": 200,
+        "width": 1240,
+        "height": 1000,
+        "byteIdentical": true
+      },
+      {
+        "locator": "populous-recovery-20261009/work/orchestration/tree-hover-candidate-03-20261009/tree-live-255.png",
+        "sha256": "e36adfc00b4829105ad3945b7fb4d94b08b005d7e6e8be97baf2cbf9f6c85930",
+        "reportPath": "after-tree-255.png",
+        "attempt": "candidate03",
+        "turn": 454,
+        "renderOrdinal": 5,
+        "measuredTargetUniform": 255,
+        "width": 1240,
+        "height": 1000,
+        "byteIdentical": true
+      },
+      {
+        "locator": "populous-recovery-20261009/work/orchestration/tree-hover-candidate-03-20261009/tree-leave.png",
+        "sha256": "1bb8297dcc3ab8cf0ae67611e9be7f2a7c6bce8c6958a0295ff93199bdb1771d",
+        "reportPath": "after-tree-leave.png",
+        "attempt": "candidate03",
+        "turn": 605,
+        "renderOrdinal": 38,
+        "measuredTargetUniform": 0,
+        "width": 1240,
+        "height": 1000,
+        "byteIdentical": true
+      }
+    ]
   },
   "limits": [
     "Composed Node callers supply texture IO, painter submission, GPU and unrelated frame boundaries.",
     "Raw receipts/logs remain at their local provenance locators and are not copied into this compact report.",
-    "No completed candidate or reviewed before/after pair, native controller/modal or tooltip parity, native whole-frame pixels/timing, hardware-performance, whole-issue completion or new parity-credit claim."
+    "Final independent candidate/pair acceptance is pending. No native controller/modal or tooltip parity, native whole-frame pixels/timing, hardware-performance, whole-issue completion or new parity-credit claim."
   ]
 }
