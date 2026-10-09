@@ -92,6 +92,7 @@ import {
 import { startArmageddon } from './armageddon.ts'
 import { setDirectPersonDestination } from './person-routes.ts'
 import { blastPersonPosition } from './blast-targeting.ts'
+import { residentPerson } from './building-resident.ts'
 
 const debrisModels: Record<number, NativeModel> = modelAssets
 const SHIELD_TURNS = constants.SHIELD_COUNT_X8 * 8
@@ -184,29 +185,38 @@ export function stepUnitHypnotise(w: World) {
     const tribe = tribeForTeam(status.originalTeam)
     if (tribe >= 0 && w.manaTribes[tribe].defeatTimer) {
       delete u.hypnotise
-      for (const p of retainedPeople(u)) p.flags4 = (p.flags4 & ~0x4000) >>> 0
+      for (const p of [...retainedPeople(u), residentPerson(w, u)])
+        if (p) p.flags4 = (p.flags4 & ~0x4000) >>> 0
     } else replaceHypnotisedUnit(w, u, status.originalTeam)
   }
 }
 
-export function restoreDeadHypnotisedUnit(u: Unit) {
+export function restoreDeadHypnotisedUnit(u: Unit, resident?: LivePerson) {
   if (!u.hypnotise) return
   u.team = u.hypnotise.originalTeam
   delete u.hypnotise
-  for (const p of retainedPeople(u)) {
+  for (const p of [...retainedPeople(u), resident]) {
+    if (!p) continue
     p.tribe = tribeForTeam(u.team)
     p.flags4 = (p.flags4 & ~0x4000) >>> 0
   }
 }
 
-function setUnitShield(u: Unit, turns: number) {
+function setUnitShield(w: World, u: Unit, turns: number) {
   u.shield = turns
-  for (const p of [u.native, u.flight, u.fight?.motion, u.entry?.person, u.builder?.person])
+  for (const p of [
+    u.native,
+    u.flight,
+    u.fight?.motion,
+    u.entry?.person,
+    u.builder?.person,
+    residentPerson(w, u),
+  ])
     if (p) p.flags3 = turns ? (p.flags3 | 0x8000) >>> 0 : (p.flags3 & ~0x8000) >>> 0
 }
 
 export function stepUnitShields(w: World) {
-  for (const u of w.units) if (u.shield) setUnitShield(u, u.shield - 1)
+  for (const u of w.units) if (u.shield) setUnitShield(w, u, u.shield - 1)
 }
 
 export function shieldFollowers(w: World, point: Point, team: Team) {
@@ -228,18 +238,25 @@ export function shieldFollowers(w: World, point: Point, team: Team) {
         positionDistance(nativePosition(w, b), center)
     )
     .slice(0, constants.SHIELD_NUM_PEOPLE)
-  for (const u of targets) setUnitShield(u, SHIELD_TURNS)
+  for (const u of targets) setUnitShield(w, u, SHIELD_TURNS)
   return targets
 }
 
-function setUnitBloodlust(u: Unit, turns: number) {
+function setUnitBloodlust(w: World, u: Unit, turns: number) {
   u.bloodlust = turns
-  for (const p of [u.native, u.flight, u.fight?.motion, u.entry?.person, u.builder?.person])
+  for (const p of [
+    u.native,
+    u.flight,
+    u.fight?.motion,
+    u.entry?.person,
+    u.builder?.person,
+    residentPerson(w, u),
+  ])
     if (p) p.flags3 = turns ? (p.flags3 | 0x80000) >>> 0 : (p.flags3 & ~0x80000) >>> 0
 }
 
 export function stepUnitBloodlust(w: World) {
-  for (const u of w.units) if (u.bloodlust) setUnitBloodlust(u, u.bloodlust - 1)
+  for (const u of w.units) if (u.bloodlust) setUnitBloodlust(w, u, u.bloodlust - 1)
 }
 
 export function bloodlustFollowers(w: World, point: Point, team: Team) {
@@ -272,7 +289,7 @@ export function bloodlustFollowers(w: World, point: Point, team: Team) {
     )
     .slice(0, constants.BLOODLUST_NUM_PEOPLE)
     .map(({ u }) => u)
-  for (const u of targets) setUnitBloodlust(u, BLOODLUST_TURNS)
+  for (const u of targets) setUnitBloodlust(w, u, BLOODLUST_TURNS)
   return targets
 }
 
@@ -286,6 +303,7 @@ export function setUnitInvisibility(w: World, u: Unit, turns: number) {
     u.fight?.motion,
     u.entry?.person,
     u.builder?.person,
+    residentPerson(w, u),
   ])) {
     if (!p) continue
     if (turns) {

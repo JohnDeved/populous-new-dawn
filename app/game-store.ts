@@ -13,6 +13,7 @@ import {
 import { restoreOrdinaryWorshipSource } from './worship-acquisition-source.ts'
 import { createWorshipAcquisitionRuntime } from './worship-acquisition-runtime.ts'
 import { initializeVaultKnowledge } from './vault-appearance.ts'
+import { discardInvalidResident } from './building-resident.ts'
 import { initializeVaultKnowledgeGift } from './world-effects.ts'
 import { createSharedAniblResource, type PresentationBinding } from './shared-anibl.ts'
 
@@ -77,6 +78,7 @@ function migrateLegacyComputerTeam(world: World, tribe: number) {
       unit.entry?.person,
       unit.builder?.person,
       unit.fight?.motion,
+      unit.resident?.person,
     ])
       retag(person ?? undefined)
   }
@@ -135,6 +137,7 @@ function migrateLegacyBridgeOrigins(world: World) {
 }
 
 export function migrateCheckpoint(world: World) {
+  for (const unit of world.units) discardInvalidResident(world, unit)
   world.worshipAcquisition ??= createWorshipAcquisitionRuntime()
   world.worshipAcquisition.controllers.building ??= null
   restoreSecondaryEffects(world)
@@ -233,6 +236,7 @@ export function migrateCheckpoint(world: World) {
       unit.entry?.person,
       unit.builder?.person,
       unit.fight?.motion,
+      unit.resident?.person,
     ])
       if (person) {
         // Legacy checkpoints predate the native ordinary-person animation gate.

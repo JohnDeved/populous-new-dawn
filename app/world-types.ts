@@ -177,6 +177,7 @@ export type Unit = Point & {
   damageAttacker?: number
   supportHeight?: number
   entry?: BuildingEntry
+  resident?: { building: number; slot: number; person: LivePerson }
   native: LivePerson | null
   burnTrail?: number
   flight?: LivePerson

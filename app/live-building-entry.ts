@@ -81,6 +81,7 @@ import { startBuildingOccupantAnimation } from './animation.ts'
 import sprites from './original-units.json' with { type: 'json' }
 import rules from './original-rules.json' with { type: 'json' }
 import { nativePersonModel } from './live-combat.ts'
+import { residentPerson, retainHutResident } from './building-resident.ts'
 import { unitKindFromModel } from './unit-kinds.ts'
 import { stepTowerFirewarrior } from './firewarrior.ts'
 
@@ -109,6 +110,7 @@ function begin(w: World, u: Unit, b: Building): BuildingEntry | undefined {
     orders = w.buildingOrders,
     id = allocatePersonOrder(orders)
   if (!id) return
+  delete u.resident
   u.native = null
   Object.assign(orders.records[id], {
     model: b.admission?.activity && b.admission.activity & 0x8000 ? 10 : 8,
@@ -184,7 +186,8 @@ export function initializeBuildingPerson(w: World, p: EntryPerson) {
           object => setLivePersonAnimation(w, p, object),
           sprites.frameCounts
         )
-        setPersonOccupancy(context(w), p, 0, occupancyEffects(w))
+        const ctx = context(w)
+        setPersonOccupancy(ctx, p, 0, occupancyEffects(w, ctx.people))
         releasePersonRoute(w.motionRoutes, p)
         const u = w.units.find(unit => unit.id === p.id)
         if (u) clearLivePath(w, u)
@@ -284,7 +287,15 @@ function context(w: World) {
   for (const u of w.units) {
     const tribe = tribeForTeam(u.team)
     if (u.hp > 0 && tribe >= 0) tribes[tribe].personCounts[nativePersonModel(u)]++
-    if (u.entry || u.inside !== null) people.set(u.id, u.entry?.person ?? u.native ?? person(w, u))
+    if (u.entry || u.inside !== null) {
+      const resident = residentPerson(w, u)
+      if (resident) {
+        resident.life = (Math.round(u.hp * 20) << 16) >> 16
+        resident.selectionFlags =
+          (resident.selectionFlags & ~128) | (w.selected.includes(u.id) ? 128 : 0)
+      }
+      people.set(u.id, u.entry?.person ?? u.native ?? resident ?? person(w, u))
+    }
   }
   const buildings = new Map<number, BuildingAdmission>()
   for (const b of w.buildings) {
@@ -305,7 +316,7 @@ function context(w: World) {
   }
 }
 
-function occupancyEffects(w: World): OccupancyEffects {
+function occupancyEffects(w: World, people: Map<number, EntryPerson>): OccupancyEffects {
   return {
     orders: orderEffects,
     leaveVehicle: p => {
@@ -337,7 +348,7 @@ function occupancyEffects(w: World): OccupancyEffects {
     planExitPoint: unsupported,
     updateIndicator: b => {
       for (const u of w.units) {
-        const p = u.entry?.person ?? u.native
+        const p = u.entry?.person ?? u.native ?? people.get(u.id)
         if (b.occupants.includes(u.id)) {
           u.inside = b.id
           if (p) p.building = b.id
@@ -345,6 +356,8 @@ function occupancyEffects(w: World): OccupancyEffects {
           u.inside = null
           if (p) p.building = null
         }
+        if (u.resident && u.resident.person === p && u.inside !== u.resident.building)
+          delete u.resident
       }
       // 00407150 / 00407490 reconcile the indicator in the same admission/removal call.
       const building = w.buildings.find(target => target.id === b.id)
@@ -361,7 +374,7 @@ export function leaveBuildingEntry(w: World, u: Unit) {
     ctx = context(w),
     p = u.entry?.person ?? u.native ?? ctx.people.get(u.id)
   if (!p || !b?.admission) return
-  const removed = removeBuildingOccupant(ctx, b.admission, p, occupancyEffects(w)) as
+  const removed = removeBuildingOccupant(ctx, b.admission, p, occupancyEffects(w, ctx.people)) as
     | EntryPerson
     | undefined
   if (!removed) return
@@ -506,6 +519,7 @@ export function stepBuildingEntry(w: World, u: Unit, b?: Building) {
       },
       () => sound(w, 10, u)
     )
+  let admitted = false
   const next = stepLiveOrderQueue(w, u, p, {
     [order.model]: () => {
       let done = 1
@@ -583,7 +597,7 @@ export function stepBuildingEntry(w: World, u: Unit, b?: Building) {
             },
             dropCargo,
             enterBuilding: () => {
-              enterBuilding(ctx, p, state, occupancyEffects(w))
+              admitted = !!enterBuilding(ctx, p, state, occupancyEffects(w, ctx.people))
             },
             workInside: () => (state.model === 13 || state.model === 15 ? 0 : unsupported()),
           })
@@ -612,6 +626,7 @@ export function stepBuildingEntry(w: World, u: Unit, b?: Building) {
       // Reissuing to the same school completes immediately for its resident.
       // Fresh admission keeps the existing browser adapter lifetime.
       if (residentReissue) u.native = p
+      else if (admitted && order.model === 8 && b) retainHutResident(w, u, b, p)
     }
     if (u.inside === null) u.work = null
   } else adoptLiveOrders(w, u, p)
@@ -622,7 +637,7 @@ export function stepLiveTraining(w: World, b: Building) {
   const state = buildingAdmission(w, b),
     ctx = context(w),
     created: Unit[] = []
-  const effects = occupancyEffects(w)
+  const effects = occupancyEffects(w, ctx.people)
   stepTrainingConversion(ctx, state, {
     ...effects,
     orders: {

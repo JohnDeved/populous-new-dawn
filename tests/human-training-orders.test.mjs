@@ -70,6 +70,8 @@ test('AI Hut admission keeps its existing empty-order adapter lifetime', () => {
   assert.equal(w.buildingOrders.records[id].references, 0)
   assert.equal(u.entry, undefined)
   assert.equal(u.native, null, 'fresh Hut admission must not retain a new empty-order native adapter')
+  assert.equal(u.resident?.person, p)
+  assert.equal(b.admission.occupants[u.resident.slot], u.id)
   tick(w, 1 / 12)
   assert.equal(u.inside, b.id)
   assert.equal(w.objectCells.objects.has(u.id), false)

@@ -228,6 +228,7 @@ export function startLiveOrders(w: World, p: LivePerson, rng: { randomState: num
 
 // Keep the person and shared queue intact when a different live controller takes over.
 export function adoptLiveOrders(w: World, u: Unit, p: LivePerson) {
+  delete u.resident
   const order = currentPersonOrder(w.buildingOrders, p)
   if (order?.model === 6 && u.builder) {
     u.builder.person = p
@@ -306,6 +307,7 @@ function issueLiveOrders(
       const { unit: u, retained } = binding
       binding.person ??= createLivePerson(w, u)
       const p = binding.person
+      delete u.resident
       // Queue cancellation precedes command eligibility and allocation.
       clearPersonOrders(w.buildingOrders, p, orderEffects(w))
       delete p.guardInputPending
@@ -320,6 +322,7 @@ function issueLiveOrders(
       const { unit: u, retained } = binding
       binding.person ??= createLivePerson(w, u)
       const p = binding.person
+      delete u.resident
       if (!retained && !u.entry) u.native = p
       p.selectionFlags |= 128
       registerLivePerson(w, p)
@@ -479,6 +482,7 @@ export function returnLivePerson(
 
 export function startLiveOrder(w: World, u: Unit, id: number) {
   const p = u.native ?? createLivePerson(w, u)
+  delete u.resident
   u.native = p
   attachPersonOrder(w.buildingOrders, p, id, 0, orderEffects(w))
   registerLivePerson(w, p)
