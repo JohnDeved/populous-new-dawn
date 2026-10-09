@@ -1,0 +1,96 @@
+{
+  "command": [
+    "/usr/bin/objdump",
+    "-s",
+    "--start-address=0x00510c10",
+    "--stop-address=0x00510c58",
+    "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+  ],
+  "exitCode": 0,
+  "output": "work/orchestration/swarm-building-static-20261009-01/00510c10-00510c58.tables.txt",
+  "outputSha256": "195dcacffe743786899783324773a6fdf70496de226c7d78f0204c734ec81b07",
+  "recordedAt": "2026-10-09T09:41:40.451945+00:00",
+  "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "helperAndLiveSourceBindings": {
+    "decomp/generated/00404420.c": {
+      "readExitCode": 0,
+      "mainSha256": "7404afc3ab0ccb04aa07147df269b6a71dd98d53c82d1e29c104f8a356f4e64e",
+      "stationaryFileSha256": "7404afc3ab0ccb04aa07147df269b6a71dd98d53c82d1e29c104f8a356f4e64e"
+    },
+    "decomp/generated/004044b0.c": {
+      "readExitCode": 0,
+      "mainSha256": "68da617284e7d39836652e51811649145c806099e864f54e5fbe0589a0300c6e",
+      "stationaryFileSha256": "68da617284e7d39836652e51811649145c806099e864f54e5fbe0589a0300c6e"
+    },
+    "decomp/generated/00407490.c": {
+      "readExitCode": 0,
+      "mainSha256": "cd5d02bb16f4c6d1bd794d056b5b51729e7d0641fb45f3f29bb946d5dc5d6e32",
+      "stationaryFileSha256": "cd5d02bb16f4c6d1bd794d056b5b51729e7d0641fb45f3f29bb946d5dc5d6e32"
+    },
+    "decomp/generated/0049c890.c": {
+      "readExitCode": 0,
+      "mainSha256": "14a72c6bf35047a3e5cd03fee142941a38dbf9b47fdb4bbe3fb0595a463d8cc9",
+      "stationaryFileSha256": "14a72c6bf35047a3e5cd03fee142941a38dbf9b47fdb4bbe3fb0595a463d8cc9"
+    },
+    "decomp/generated/004ed640.c": {
+      "readExitCode": 0,
+      "mainSha256": "00fed5e330959a34047a742ae4ce133e93c6cd4fdbdbc2a0222f22b06cda0ecb",
+      "stationaryFileSha256": "00fed5e330959a34047a742ae4ce133e93c6cd4fdbdbc2a0222f22b06cda0ecb"
+    },
+    "decomp/generated/004ed6f0.c": {
+      "readExitCode": 0,
+      "mainSha256": "6ff721df1ddebd3a70d39f02c40db0a9575212122c9e22363cf13eddc2ba9561",
+      "stationaryFileSha256": "6ff721df1ddebd3a70d39f02c40db0a9575212122c9e22363cf13eddc2ba9561"
+    },
+    "decomp/generated/004da080.c": {
+      "readExitCode": 0,
+      "mainSha256": "bb558c5a33179e177e9472c70018133f7a7631d161e27918ce62678756044d8a",
+      "stationaryFileSha256": "bb558c5a33179e177e9472c70018133f7a7631d161e27918ce62678756044d8a"
+    },
+    "decomp/generated/004ef180.c": {
+      "readExitCode": 0,
+      "mainSha256": "021baf2a38e2dcf2062bdffc12aa449b5f2e789898aab1e776f1c1a0913802ae",
+      "stationaryFileSha256": "021baf2a38e2dcf2062bdffc12aa449b5f2e789898aab1e776f1c1a0913802ae"
+    },
+    "decomp/generated/004de7f0.c": {
+      "readExitCode": 0,
+      "mainSha256": "093da2b42a598ae61db21497fa81b631cf2be8c8a8e527eb263f7b3ca2d622ba",
+      "stationaryFileSha256": "093da2b42a598ae61db21497fa81b631cf2be8c8a8e527eb263f7b3ca2d622ba"
+    },
+    "app/swarm.ts": {
+      "readExitCode": 0,
+      "mainSha256": "a388ff1ad7686824445cd9acfe7b0e5c63c102cda87bef31a09bfa7e925312c4",
+      "stationaryFileSha256": "a388ff1ad7686824445cd9acfe7b0e5c63c102cda87bef31a09bfa7e925312c4"
+    },
+    "app/spell-effects-runtime.ts": {
+      "readExitCode": 0,
+      "mainSha256": "ce2f9bcf648e70263c5e76f99ad333b60d8821b6dfcc625acc76441c7964f081",
+      "stationaryFileSha256": "ce2f9bcf648e70263c5e76f99ad333b60d8821b6dfcc625acc76441c7964f081"
+    },
+    "app/live-building-entry.ts": {
+      "readExitCode": 0,
+      "mainSha256": "93b6712ab2adfc466796a428c69822ad7686cb69b87d6c4f5a8b31ec2e567418",
+      "stationaryFileSha256": "93b6712ab2adfc466796a428c69822ad7686cb69b87d6c4f5a8b31ec2e567418"
+    },
+    "app/building-occupants.ts": {
+      "readExitCode": 0,
+      "mainSha256": "24e6458718cd665b52188ac5473bfe265d179bb03ac530217c761addd471797a",
+      "stationaryFileSha256": "24e6458718cd665b52188ac5473bfe265d179bb03ac530217c761addd471797a"
+    },
+    "app/building-shapes.ts": {
+      "readExitCode": 0,
+      "mainSha256": "86882bf5526a48035a1ed61b72f710139e0ddcc67d60f94f9279901636aaff92",
+      "stationaryFileSha256": "86882bf5526a48035a1ed61b72f710139e0ddcc67d60f94f9279901636aaff92"
+    },
+    "app/live-people.ts": {
+      "readExitCode": 0,
+      "mainSha256": "1b8b2f1c3015317709298d5610067d13c3a17cb1a53a1a0fdd8117000ccb01c3",
+      "stationaryFileSha256": "1b8b2f1c3015317709298d5610067d13c3a17cb1a53a1a0fdd8117000ccb01c3"
+    },
+    "tests/mission3-recurring.test.mjs": {
+      "readExitCode": 0,
+      "mainSha256": "f43afa1204bf1503718c446eccb8c624aedda243641ea98477b6efbf5e713a20",
+      "stationaryFileSha256": "f43afa1204bf1503718c446eccb8c624aedda243641ea98477b6efbf5e713a20"
+    }
+  }
+}

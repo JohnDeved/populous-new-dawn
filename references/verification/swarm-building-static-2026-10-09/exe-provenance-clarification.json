@@ -1,0 +1,24 @@
+{
+  "kind": "original-data-provenance-clarification",
+  "recordedAt": "2026-10-09T09:42:58.277543+00:00",
+  "originalVerificationReceipt": {
+    "path": "exe-verified.json",
+    "sha256": "c83e57e25d4733e075550e2dbe7c1ff642b02885c234c15f9ea75c8bc6ac484d"
+  },
+  "clarification": "The original sourceArchiveSha256 field names the extractor source distribution, not the game archive. Its bytes are retained unchanged; use the explicit names below.",
+  "gameArchive": {
+    "path": "PopulousTB-Setup.zip",
+    "bytes": 322676040,
+    "sha256": "6aa6c366809ea1d9575ec1d31a24527a95c7332f0a1d2ab692f7a602e7e10702"
+  },
+  "extractorSourceArchive": {
+    "path": "binary_refinery-0.10.11.tar.gz",
+    "bytes": 3556534,
+    "sha256": "2c2d850ef79dd1da41549203b145b8a26ce556d6b1abe4f6262625727a8483d2"
+  },
+  "gameExecutable": {
+    "path": "game/d3dpoptb.exe",
+    "bytes": 2275840,
+    "sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+  }
+}

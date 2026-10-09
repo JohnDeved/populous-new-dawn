@@ -1,0 +1,155 @@
+{
+  "status": "decoded-static-only",
+  "input": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe",
+  "inputBytes": 2275840,
+  "inputSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "tool": "/usr/bin/objdump",
+  "toolSha256": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+  "version": "GNU objdump (GNU Binutils for Debian) 2.44",
+  "stationaryHead": "e18fddfe35ad5424b580f7a07fbd058590d32f72",
+  "interpretationBase": "d6cf109474379172728a3ccebf46ef72a15f3a58",
+  "commands": [
+    {
+      "startInclusive": "0x00510020",
+      "stopExclusive": "0x00510120",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x00510020",
+        "--stop-address=0x00510120",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "startedAt": "2026-10-09T09:39:49.546177+00:00",
+      "finishedAt": "2026-10-09T09:39:49.573949+00:00",
+      "exitCode": 0,
+      "stdout": "work/orchestration/swarm-building-static-20261009-01/00510020-00510120.asm",
+      "stdoutSha256": "22a539d588fe9480c1cf7e7ab347529ff96068d62e8ea26e45076faace959fb6",
+      "stderr": "work/orchestration/swarm-building-static-20261009-01/00510020-00510120.stderr",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "startInclusive": "0x00510120",
+      "stopExclusive": "0x00510cb0",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x00510120",
+        "--stop-address=0x00510cb0",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "startedAt": "2026-10-09T09:39:49.575479+00:00",
+      "finishedAt": "2026-10-09T09:39:49.587858+00:00",
+      "exitCode": 0,
+      "stdout": "work/orchestration/swarm-building-static-20261009-01/00510120-00510cb0.asm",
+      "stdoutSha256": "d1f1d0a2a264772ec7a4d141b47566a391bc5b5d03688bd673e8a8328fd21bdb",
+      "stderr": "work/orchestration/swarm-building-static-20261009-01/00510120-00510cb0.stderr",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "startInclusive": "0x00510cb0",
+      "stopExclusive": "0x00510d40",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x00510cb0",
+        "--stop-address=0x00510d40",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "startedAt": "2026-10-09T09:39:49.588045+00:00",
+      "finishedAt": "2026-10-09T09:39:49.596500+00:00",
+      "exitCode": 0,
+      "stdout": "work/orchestration/swarm-building-static-20261009-01/00510cb0-00510d40.asm",
+      "stdoutSha256": "47ccf48170d4ae05ab4ede44911eb302d8bbfefd0087aae86452fb2c721f1462",
+      "stderr": "work/orchestration/swarm-building-static-20261009-01/00510cb0-00510d40.stderr",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "startInclusive": "0x00510d40",
+      "stopExclusive": "0x00511020",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x00510d40",
+        "--stop-address=0x00511020",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "startedAt": "2026-10-09T09:39:49.596644+00:00",
+      "finishedAt": "2026-10-09T09:39:49.601145+00:00",
+      "exitCode": 0,
+      "stdout": "work/orchestration/swarm-building-static-20261009-01/00510d40-00511020.asm",
+      "stdoutSha256": "d771d81dee506e6b09d05041cc0c2412c378c9097eeabbc617ebc1815676b48b",
+      "stderr": "work/orchestration/swarm-building-static-20261009-01/00510d40-00511020.stderr",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "startInclusive": "0x00511020",
+      "stopExclusive": "0x00511180",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x00511020",
+        "--stop-address=0x00511180",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "startedAt": "2026-10-09T09:39:49.601291+00:00",
+      "finishedAt": "2026-10-09T09:39:49.608331+00:00",
+      "exitCode": 0,
+      "stdout": "work/orchestration/swarm-building-static-20261009-01/00511020-00511180.asm",
+      "stdoutSha256": "4746c1110dfe51c515fa8558e140f870a40cea55cc6c49a9c7cd2bae36fb4426",
+      "stderr": "work/orchestration/swarm-building-static-20261009-01/00511020-00511180.stderr",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "startInclusive": "0x00511180",
+      "stopExclusive": "0x005112d0",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x00511180",
+        "--stop-address=0x005112d0",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "startedAt": "2026-10-09T09:39:49.608478+00:00",
+      "finishedAt": "2026-10-09T09:39:49.614919+00:00",
+      "exitCode": 0,
+      "stdout": "work/orchestration/swarm-building-static-20261009-01/00511180-005112d0.asm",
+      "stdoutSha256": "3d003b56237820e3df5f50ec4667b47fc9383c99b8d1bc0de3e997a4d30caefe",
+      "stderr": "work/orchestration/swarm-building-static-20261009-01/00511180-005112d0.stderr",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "startInclusive": "0x005112d0",
+      "stopExclusive": "0x00511380",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x005112d0",
+        "--stop-address=0x00511380",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "startedAt": "2026-10-09T09:39:49.615065+00:00",
+      "finishedAt": "2026-10-09T09:39:49.618869+00:00",
+      "exitCode": 0,
+      "stdout": "work/orchestration/swarm-building-static-20261009-01/005112d0-00511380.asm",
+      "stdoutSha256": "b816f0e405f2354ed5491e09b81d32554a619ea9a42f66a5009270bc5effb06a",
+      "stderr": "work/orchestration/swarm-building-static-20261009-01/005112d0-00511380.stderr",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "limits": "No original game instructions executed; no emulation, Ghidra, native probes or fixture generation."
+}

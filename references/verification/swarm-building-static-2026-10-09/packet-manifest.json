@@ -1,0 +1,111 @@
+{
+  "kind": "swarm-building-static-portable-packet",
+  "status": "prepared-local-publication-pending",
+  "baseCommit": "d6cf109474379172728a3ccebf46ef72a15f3a58",
+  "inputSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "files": [
+    {
+      "path": "00510020-00510120.asm",
+      "bytes": 4284,
+      "sha256": "22a539d588fe9480c1cf7e7ab347529ff96068d62e8ea26e45076faace959fb6"
+    },
+    {
+      "path": "00510120-00510cb0.asm",
+      "bytes": 44626,
+      "sha256": "d1f1d0a2a264772ec7a4d141b47566a391bc5b5d03688bd673e8a8328fd21bdb"
+    },
+    {
+      "path": "00510c10-00510c58.tables.txt",
+      "bytes": 493,
+      "sha256": "195dcacffe743786899783324773a6fdf70496de226c7d78f0204c734ec81b07"
+    },
+    {
+      "path": "00510cb0-00510d40.asm",
+      "bytes": 3189,
+      "sha256": "47ccf48170d4ae05ab4ede44911eb302d8bbfefd0087aae86452fb2c721f1462"
+    },
+    {
+      "path": "00510d40-00511020.asm",
+      "bytes": 11088,
+      "sha256": "d771d81dee506e6b09d05041cc0c2412c378c9097eeabbc617ebc1815676b48b"
+    },
+    {
+      "path": "00511020-00511180.asm",
+      "bytes": 6078,
+      "sha256": "4746c1110dfe51c515fa8558e140f870a40cea55cc6c49a9c7cd2bae36fb4426"
+    },
+    {
+      "path": "00511180-005112d0.asm",
+      "bytes": 6253,
+      "sha256": "3d003b56237820e3df5f50ec4667b47fc9383c99b8d1bc0de3e997a4d30caefe"
+    },
+    {
+      "path": "005112d0-00511380.asm",
+      "bytes": 3171,
+      "sha256": "b816f0e405f2354ed5491e09b81d32554a619ea9a42f66a5009270bc5effb06a"
+    },
+    {
+      "path": "exe-provenance-clarification.json",
+      "bytes": 961,
+      "sha256": "c96b217ecabc8fcd14aa43509049386aa98455d8dab10d61af67671ed9726b3e"
+    },
+    {
+      "path": "findings.md",
+      "bytes": 16780,
+      "sha256": "6b5a4811593aca3b9c1090f427c94a604c0cd236dc316f6b2c33a05a388eb87c"
+    },
+    {
+      "path": "integration-followup.md",
+      "bytes": 8246,
+      "sha256": "ad17b6537e37fa3dc3bdcfbf18ebb95db70fb7897eabc51d9e5958ee3a1e0e0f"
+    },
+    {
+      "path": "integration-review.md",
+      "bytes": 2664,
+      "sha256": "d8cbcc74bd85711a110802adcbe97063a7769a8b9716b0a55c944af4d96acc33"
+    },
+    {
+      "path": "integration-source-bindings.json",
+      "bytes": 5564,
+      "sha256": "55362c98c2a909a5041d7c3e4c12f0ae5a7f40eb502c8df3847db145734c70c8"
+    },
+    {
+      "path": "manifest.json",
+      "bytes": 7153,
+      "sha256": "a09a9ac4b78af79dfdd84f839ba036786bbb1ff957e9c518cc3aa44a30226b99"
+    },
+    {
+      "path": "objdump-version.txt",
+      "bytes": 288,
+      "sha256": "aff897e4c6a85eef803f6dc0ed4a813e66726aa1ca6f3afc23280f1d655f32da"
+    },
+    {
+      "path": "review-addendum.json",
+      "bytes": 907,
+      "sha256": "e07ff37400f62bb4982e028c6e85db33cf9c05ff44cffc22797b0443dcab244d"
+    },
+    {
+      "path": "static-review.md",
+      "bytes": 6972,
+      "sha256": "a1ea0e85b8efe10c858cadc687b08d42edc95d9128e329679cdb61951c2faca1"
+    },
+    {
+      "path": "supplement.json",
+      "bytes": 4678,
+      "sha256": "b1344581412af3aece1f09073b2437afbd2c217b12d6b1e2436fb4f8b37d1204"
+    }
+  ],
+  "copyPolicy": "All decoder artifacts and source reports are byte-identical copies except the single documented symbol correction in integration-followup.md. Absolute paths in retained command receipts identify the originating workspace; matching stdout artifacts are supplied by basename. All eight decoder stderr artifacts were empty, with SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855, and are omitted.",
+  "excluded": "No executable, installer, ZIP, original data archive, profiles, credentials or new game asset.",
+  "limits": "Static contract only. No original execution, native/browser equivalence, ordinary building episode or runtime implementation.",
+  "documentCorrections": [
+    {
+      "path": "integration-followup.md",
+      "acceptedSourceSha256": "7717f735d4da9b8b285700c58af7ad987f0ed8bbdc6973ae1fa3c9362d670f46",
+      "currentSha256": "ad17b6537e37fa3dc3bdcfbf18ebb95db70fb7897eabc51d9e5958ee3a1e0e0f",
+      "change": "Correct only the existing function symbol stepBuildingPreparation to prepareBuildingSite; no behavioral interpretation changed.",
+      "priorReviewSha256": "d8cbcc74bd85711a110802adcbe97063a7769a8b9716b0a55c944af4d96acc33",
+      "source": "app/construction-runtime.ts:303 at d6cf109474379172728a3ccebf46ef72a15f3a58"
+    }
+  ]
+}

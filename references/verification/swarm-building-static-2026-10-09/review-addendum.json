@@ -1,0 +1,18 @@
+{
+  "status": "final-static-interpretation-pending-verdict",
+  "recordedAt": "2026-10-09T09:46:19.781259+00:00",
+  "findingsSha256": "6b5a4811593aca3b9c1090f427c94a604c0cd236dc316f6b2c33a05a388eb87c",
+  "additionalSourceBindings": {
+    "decomp/generated/00509c10.c": {
+      "mainSha256": "a0a2c32a6880db40bd55984cf55e8be386d9c3e56967362f46811eb83e8d3a13",
+      "stationarySha256": "a0a2c32a6880db40bd55984cf55e8be386d9c3e56967362f46811eb83e8d3a13"
+    },
+    "decomp/generated/0050a750.c": {
+      "mainSha256": "dc5ef6d241520da22067940d4560a779b4a3eb363681effeb71f4d9b0c3fa9cd",
+      "stationarySha256": "dc5ef6d241520da22067940d4560a779b4a3eb363681effeb71f4d9b0c3fa9cd"
+    }
+  },
+  "inputSha256Final": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "trackedStatus": "",
+  "limits": "Original execution, probes, model/browser checks and runtime implementation not performed."
+}

@@ -1,0 +1,9 @@
+
+/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe:     file format pei-i386
+
+Contents of section .text:
+ 510c10 56015100 64015100 38045100 a5085100  V.Q.d.Q.8.Q...Q.
+ 510c20 7b045100 87045100 bb045100 f7045100  {.Q...Q...Q...Q.
+ 510c30 57055100 a9055100 72065100 91065100  W.Q...Q.r.Q...Q.
+ 510c40 63075100 b5075100 010b5100 0d0b5100  c.Q...Q...Q...Q.
+ 510c50 340b5100 520b5100                    4.Q.R.Q.        
