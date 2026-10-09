@@ -89,9 +89,11 @@ observer/helper composition evidence, not browser pixels or runtime-controller
 acceptance. No browser, native executable, dependency installation, full check or
 build was run for this QA checkpoint.
 
-Before launch, bind the frozen runtime and checker hashes, confirm its exact
-inspection result strings and require completed explicit down/up consumption
-before leaving. Review actual positive acquisition/reuse/leave evidence and the
+Before launch, bind the frozen runtime and checker hashes. The agreed explicit
+outcomes are `explicit:created` / `explicit:reused` plus `release`; rejected and
+stale requests fail immediately. The driver waits for the actual published pick
+before pressing and for completed explicit down/up consumption before leaving.
+Review actual positive acquisition/reuse/leave evidence and the
 retained pixels; a preexisting visible record alone cannot prove inspection.
 The finite route does not guarantee forced/HUD overlap, fresh explicit allocation,
 named-to-named replacement or held off-target release. Absent coverage stays absent.

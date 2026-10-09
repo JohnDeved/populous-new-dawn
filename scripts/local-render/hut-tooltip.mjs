@@ -52,6 +52,14 @@ export default async function hutTooltip({ page, root, output, receipt, signal }
       if (kind === 'cell') return state?.controller.category === 'cell' && !state.tooltip.text
       if (kind === 'tree') return state?.hovered === arg && state.controller.category === 'object' && state.controller.key === arg && !state.tooltip.text
       if (kind === 'record') return state?.records.some(row => row.id === arg)
+      if (kind === 'published-pick') return state?.input?.route === 'world' && state.input.object?.id === arg.id &&
+        state.input.pointer?.clientX === arg.x && state.input.pointer?.clientY === arg.y
+      if (kind === 'inspection') {
+        const events = value.phaseInspections
+        if (events.some(event => event === 'cancel-stale' || event.startsWith('explicit:rejected')))
+          throw Error(`Actual Hut inspection rejected: ${events.join(', ')}`)
+        return events.includes('release') && events.some(event => event === 'explicit:created' || event === 'explicit:reused')
+      }
       return false
     }, { api: witness, kind, arg }, { timeout: remaining(), polling: 25 })
     return status()
@@ -134,12 +142,13 @@ export default async function hutTooltip({ page, root, output, receipt, signal }
     assert.equal(inspection.rejection, null)
     const before = await page.evaluate(() => { const s = window.testSceneRef.current; return { sceneFrame: s.frame, rendererFrame: s.renderer.info.render.frame } })
     await naturalBoundary(before); await phase('explicit-inspection')
+    await action('Move to current DAT42 inspection point', () => page.mouse.move(inspection.x, inspection.y))
+    await wait('published-pick', { id: hut.id, x: inspection.x, y: inspection.y })
     await action('Stationary right-button inspection', async () => {
-      await page.mouse.move(inspection.x, inspection.y)
       await page.mouse.down({ button: 'right' })
       try { remaining() } finally { await page.mouse.up({ button: 'right' }) }
     })
-    await wait('record', hut.id)
+    await wait('inspection')
     await hoverBlast('leave-to-blast')
     await input.view(tree); const treePoint = await point(tree)
     await phase('known-unnamed-tree', 'hidden')
@@ -189,6 +198,7 @@ export default async function hutTooltip({ page, root, output, receipt, signal }
     report.finalCommitted = await readCommittedCheckpoint(page)
     assert.equal(report.finalCommitted.checkpointSha256, committed.checkpointSha256)
     await page.screenshot({ path: resolve(output, 'after-load-composite.png') })
+    assert.deepEqual(receipt.errors, [])
     report.status = 'observed-pending-controller-and-pixel-review'
   } catch (error) { failed = true; failure = error; report.status = 'failed'; report.failure = String(error?.stack ?? error) }
   finally { await finishHutHandles([['checkpointCleanup', checkpoint], ['selectionCleanup', selection], ['observation', witness]], report, save, { failed, failure }) }

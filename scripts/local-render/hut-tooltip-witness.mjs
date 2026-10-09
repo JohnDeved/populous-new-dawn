@@ -46,6 +46,7 @@ export function installHutTooltipLifecycle(GameScene, observeEntityPointer, { de
       sessionIdentity: identity(sessions, session), session: session ?? null,
       controller: c ?? null, input: scene.tooltipInput ?? null, pendingInputs: scene.tooltipInspectionInputs ?? [],
       tooltip: scene.tooltip,
+      inspected: scene.objectPanels.hutInspected ?? null, heldPointer: scene.objectPanels.hutHeldPointer ?? null,
       records: [...scene.objectPanels.hutRecords].map(([id, value]) => ({ id, identity: identity(recordIds, value),
         phase: value.phase, remaining: value.remaining, hold: value.hold, automatic: value.automatic })),
       level: w.outcome.level, status: w.status, turn: w.turn, speed: w.speed, paused: w.paused,
