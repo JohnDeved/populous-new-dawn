@@ -78,7 +78,7 @@ the complete outer object and raw stream attestations; their 4 MiB input limits 
 unchanged. A malformed or uninspected attempt cannot expose an older pass.
 
 Streaming is additionally bounded to 64 KiB chunks, 4 MiB retained metadata per file
-and 16 MiB total, depth 128, eight million grammar tokens per file and sixteen
+and 16 MiB total, depth 128, sixteen million grammar tokens per file and thirty-two
 million total, 4,096 root keys of at most 16 KiB decoded each, and 128-byte numeric
 tokens. Duplicate decoded root keys fail closed; nested captured values preserve
 `JSON.parse` semantics. Discarded strings have no separate allocation and remain

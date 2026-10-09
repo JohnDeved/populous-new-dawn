@@ -110,6 +110,15 @@ test('aggregate metadata and token budgets include every streaming file', t => {
   assert.throws(() => readDiscoveryRecord(put('{}'), budget), DiscoveryLimitError)
 })
 
+test('grammar token accounting is invariant across chunk boundaries', t => {
+  const { put } = fixture(t), path = put('{"unused":[1,true,"x",{},[]],"kind":"ok"}')
+  for (const chunkBytes of [1, 3, 16, 65536]) {
+    const budget = createJsonBudget({ fileLimit: 0, streamLimits: { chunkBytes } })
+    assert.deepEqual(readDiscoveryRecord(path, budget).value, { kind: 'ok' })
+    assert.equal(budget.stream.tokens, 21)
+  }
+})
+
 test('time budgets fail closed for both the stream and the full traversal', t => {
   const { put } = fixture(t), path = put('{}')
   assert.throws(() => readDiscoveryRecord(path, createJsonBudget({ fileLimit: 0, streamLimits: { fileMs: 0 } })), /file time limit/)
@@ -151,7 +160,7 @@ test('streaming rejects symlinks and read errors and cannot raise its bounds', t
   fs.symlinkSync(path, link)
   assert.throws(() => readDiscoveryRecord(link, createJsonBudget({ fileLimit: 0 })), /not a regular file/)
   for (const limits of [{ chunkBytes: 0 }, { chunkBytes: 65537 }, { depth: 129 }, { numberBytes: 129 },
-    { tokens: 8000001 }, { totalTokens: 16000001 }, { fileMs: 30001 }, { totalMs: 120001 }, { unknown: 1 }])
+    { tokens: 16000001 }, { totalTokens: 32000001 }, { fileMs: 30001 }, { totalMs: 120001 }, { unknown: 1 }])
     assert.throws(() => createJsonBudget({ streamLimits: limits }), RangeError)
   t.mock.method(fs, 'readSync', () => { throw Error('simulated read failure') })
   assert.throws(() => readDiscoveryRecord(path, createJsonBudget({ fileLimit: 0 })), /unreadable/)
