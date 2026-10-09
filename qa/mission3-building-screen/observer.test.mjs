@@ -320,4 +320,3 @@ test('final proof requires clean restored evidence, evaluated dynamic UVs and bo
   for (const epoch of Object.values(missingPulse)) delete epoch.materialOwners.pulse
   assert.throws(() => requireScreenProof(missingPulse, 1021), /pulse/)
 })
-

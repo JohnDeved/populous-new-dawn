@@ -162,14 +162,13 @@ export async function prepareM3Replacement({ kind, shamanId, birth }) {
     button.addEventListener('click', capture, { capture: true, once: true })
   } catch (error) { unsubscribe(); start?.close(); throw error }
   const owner = window.m3Replacement = { close() {
-    if (window.m3Replacement !== owner) throw new Error('Replacement observer ownership changed')
-    try { start?.close() }
-    finally {
-      button.removeEventListener('click', capture, true)
-      unsubscribe()
-      delete window.m3Replacement
-    }
+    const owned = window.m3Replacement === owner
+    if (!owned) evidence.errors.push('Replacement observer ownership changed')
+    // Preserve all boundary/PNG evidence even when one cleanup owner changed.
+    // Each owned cleanup still gets its own attempt; never replace the foreign owner.
+    for (const cleanup of [() => start?.close(), () => button.removeEventListener('click', capture, true), unsubscribe])
+      try { cleanup() } catch (error) { evidence.errors.push(String(error?.stack ?? error)) }
+    if (owned) delete window.m3Replacement
     return evidence
   } }
 }
-
