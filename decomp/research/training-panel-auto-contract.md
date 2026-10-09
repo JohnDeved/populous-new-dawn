@@ -45,10 +45,12 @@ animation flags but does not itself reject creation.
 - Existing same-object record: return its index unchanged, including its phase,
   remaining time and hold. `00509290` then marks it automatic and latches the
   building. A preexisting manual record and automatic request share one record.
-- New record: retire eligible same-class records before testing capacity. The
-  class-2 replacement rule requires **both** targets' activity `0x80` clear and
-  excludes model 18. An active training request therefore does not retire another
-  ordinary building record.
+- New record: zero eligible same-class records' hold and remaining time before
+  testing capacity. Their occupied slots, count and UI objects remain live until
+  later `00504920` progression; replacement does not synchronously free capacity.
+  The class-2 replacement rule requires **both** targets' activity `0x80` clear
+  and excludes model 18. An active training request therefore does not expire
+  another ordinary building record.
 - Search the 32-slot table at `00895fb9`, stride `0x9e`. With a free slot,
   [004edae0](../generated/004edae0.c) permits class10/model3 at secondary count
   `<=159`; [004edbd0](../generated/004edbd0.c) can still fail when no physical
