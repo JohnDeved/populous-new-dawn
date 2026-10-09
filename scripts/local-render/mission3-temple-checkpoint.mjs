@@ -300,8 +300,8 @@ export default async function mission3TempleCheckpoint(
     )
     await clear()
     await input.button('Select and focus shaman')
-    await input.view({ x: 35, z: 81 })
-    const movement = await input.moveGround({ x: 35, z: 81 }, false, 2)
+    await input.view({ x: 35, z: 70 })
+    const movement = await input.moveGround({ x: 35, z: 70 })
     report.home = movement
     save()
     const recipient = movement.delivered.after.units.find(u => u.id === shamanId)

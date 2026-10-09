@@ -3,7 +3,10 @@ import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import mission3BuildingScreen from './mission3-building-screen.mjs'
+import mission3BuildingScreen, {
+  requireLoadBoundary,
+  requireRestartBoundary,
+} from './mission3-building-screen.mjs'
 
 export const continuationSource = {
   output: 'work/orchestration/mission3-building-screen-7025ead7-02',
@@ -16,6 +19,14 @@ export const continuationSource = {
   checker: '4ff987b583c1386ea3a6983d464905982eaac265abc0d7b6caf17561bd0cbdf2',
   checkpointSha256: '0e5ebc6902e2834f4a296fd46d6df18e70263f2056e920984aa485ebb50afedf',
   origin: 'http://127.0.0.1:4191',
+  predecessor: {
+    output: 'work/orchestration/mission3-building-screen-305ad68c-03',
+    receiptSha256: '49ac12f5233f9efffae6dad2e12d25f917395c21178d4104f03497ca4042f52d',
+    reportSha256: '3cd528b8e8aea2c11fd5bfbcb29c4c0e2452ff4f19e4adce7229aecf0d1b900c',
+    runId: 'c74c3f99-2f74-486c-964d-92b5db751c77',
+    sourceFingerprint: '3e4446666deef86bf84526a9f7d26da28212550d0e8ee97aea684241fd9f9980',
+    checker: '7d7c63f8ee6293365e2a34468a78a68eb5f0f4512d09dea5461835eb471e2d39',
+  },
 }
 
 // Same narrow historical-JSON bridge as PR274. Live Load comparisons remain
@@ -57,15 +68,52 @@ export function assertMission3SerializedCheckpoint(actual, serialized) {
   assert.equal(controller.pending, false)
 }
 
+export function requireMission3LifecycleCarry(partial, checkpoint) {
+  assert.equal(partial.status, 'failed')
+  assert.equal(partial.acquisition.status, 'failed')
+  assert.match(partial.failure, /after.lastOrderTurn > before.lastOrderTurn/)
+  const transitions = partial.acquisition.transitions
+  assert.deepEqual(
+    transitions.map(value => value.kind),
+    ['load', 'restart', 'load']
+  )
+  for (const transition of transitions) {
+    if (transition.kind === 'load')
+      requireLoadBoundary(transition.evidence, partial.acquisition.activeSave, transition.digest)
+    else requireRestartBoundary(transition.evidence)
+    assert.deepEqual(transition.committed.checkpoint, checkpoint)
+  }
+  const restart = transitions[1].evidence.before.snapshot
+  assert.equal(restart.temple, true)
+  assert.deepEqual(restart.gifts, [])
+  for (const name of ['companion', 'pulse'])
+    assert.equal(restart.acquisition.controllers[name]?.active, false)
+  return transitions
+}
+
 export function readMission3Continuation(root, receipt) {
   const hash = bytes => createHash('sha256').update(bytes).digest('hex')
-  const prior = (name, expected) => {
-    const bytes = readFileSync(resolve(root, continuationSource.output, name))
+  const prior = (name, expected, directory = continuationSource.output) => {
+    const bytes = readFileSync(resolve(root, directory, name))
     assert.equal(hash(bytes), expected, 'Prior failed evidence changed')
     return JSON.parse(bytes)
   }
   const previous = prior('receipt.json', continuationSource.receiptSha256)
   const original = prior('mission3-temple-checkpoint.json', continuationSource.reportSha256)
+  const latest = continuationSource.predecessor
+  const predecessor = prior('receipt.json', latest.receiptSha256, latest.output)
+  const partial = prior('mission3-temple-checkpoint.json', latest.reportSha256, latest.output)
+  assert.equal(predecessor.status, 'failed')
+  assert.deepEqual(predecessor.errors, [])
+  assert.equal(predecessor.profile.cleanupVerified, true)
+  assert.equal(predecessor.profile.continuationVerified, true)
+  assert.equal(predecessor.profile.previousRun.runId, continuationSource.priorRunId)
+  assert.equal(predecessor.profile.previousRun.receiptSha256, continuationSource.receiptSha256)
+  assert.equal(
+    predecessor.profile.previousRun.sourceFingerprint,
+    continuationSource.sourceFingerprint
+  )
+  assert.deepEqual(predecessor.profile.checkpointAtEnd, previous.profile.checkpointAtEnd)
   assert.equal(previous.status, 'failed')
   assert.equal(original.status, 'failed')
   assert.match(original.failure, /Trusted Restart must observe the actual restored active owner/)
@@ -75,10 +123,10 @@ export function readMission3Continuation(root, receipt) {
   assert.equal(receipt.profile.mode, 'reused')
   assert.equal(receipt.profile.id, continuationSource.profileId)
   assert.equal(receipt.profile.origin, continuationSource.origin)
-  assert.equal(receipt.profile.previousRun.runId, continuationSource.priorRunId)
-  assert.equal(receipt.profile.previousRun.receiptSha256, continuationSource.receiptSha256)
-  assert.equal(receipt.profile.previousRun.sourceFingerprint, continuationSource.sourceFingerprint)
-  assert.equal(receipt.profile.previousRun.checker, continuationSource.checker)
+  assert.equal(receipt.profile.previousRun.runId, latest.runId)
+  assert.equal(receipt.profile.previousRun.receiptSha256, latest.receiptSha256)
+  assert.equal(receipt.profile.previousRun.sourceFingerprint, latest.sourceFingerprint)
+  assert.equal(receipt.profile.previousRun.checker, latest.checker)
   assert.equal(receipt.profile.inputs.application, continuationSource.application)
   assert.equal(receipt.profile.correspondence?.decision, 'ACCEPT')
   assert.deepEqual(receipt.profile.checkpointAtStart, previous.profile.checkpointAtEnd)
@@ -89,8 +137,9 @@ export function readMission3Continuation(root, receipt) {
   const acquisition = original.acquisition
   assert.equal(acquisition.status, 'failed')
   assert.deepEqual(acquisition.activeSave.digest.checkpoint, previous.profile.checkpointAtEnd)
-  const epochs = structuredClone(acquisition.epochs)
-  for (const evidence of Object.values(epochs)) {
+  const transitions = requireMission3LifecycleCarry(partial, previous.profile.checkpointAtEnd)
+  const epochs = structuredClone(partial.acquisition.epochs)
+  for (const [label, evidence] of Object.entries(epochs)) {
     assert.equal(evidence.restored, true)
     assert.deepEqual(evidence.errors, [])
     for (const frame of Object.values(evidence.frames))
@@ -98,11 +147,12 @@ export function readMission3Continuation(root, receipt) {
         const image = frame[field]
         if (!image) continue
         assert.match(image.file, /^m3-[a-zA-Z]+-[a-zA-Z]+-(building|overlay)\.png$/)
-        assert.equal(
-          hash(readFileSync(resolve(root, continuationSource.output, image.file))),
-          image.sha256
-        )
-        image.priorOutput = continuationSource.output
+        const directory = ['fresh', 'beforeRestart'].includes(label)
+          ? continuationSource.output
+          : latest.output
+        if (image.priorOutput) assert.equal(image.priorOutput, directory)
+        assert.equal(hash(readFileSync(resolve(root, directory, image.file))), image.sha256)
+        image.priorOutput = directory
       }
   }
   assert.equal(epochs.fresh.source.shamanId, 46)
@@ -110,6 +160,13 @@ export function readMission3Continuation(root, receipt) {
   assert.equal(epochs.fresh.birth.gift.id, 3141)
   return {
     source: continuationSource,
+    completionOnly: true,
+    carriedLifecycle: {
+      source: latest,
+      transitions,
+      limits:
+        'Active building interruption and bank retention only. Knowledge was already granted, companion/pulse inactive; both prior runs remain failed.',
+    },
     epochs,
     shamanId: 46,
     birth: acquisition.epochs.fresh.birth,

@@ -199,3 +199,26 @@ Use the existing harness command with the admitted owned ordinary02 profile,
 The existing 1,500,000ms inner/1,560s outer bounds remain ceilings; the acquisition
 prefix is skipped. `launchEnabled:false` remains preparation provenance. The
 coordinator owns correspondence/admission and any browser execution.
+
+### Current remaining tail after continuation03
+
+Continuation03 also remains failed: all three public lifecycle transitions passed,
+then an actual home pointerdown selected Brave510 and issued no movement order.
+The active building Restart had already-granted knowledge and inactive companion
+and pulse controllers; its carry claims only active-building interruption, normal
+bank retention and owner clearing. Original02 ancestry, current03 predecessor,
+all committed checkpoint identities and carried frames remain explicitly pinned.
+
+The current entry performs one public startup Load of genuine saved1190 and carries
+those accepted lifecycle results. It does not replay the acquisition or Restart.
+The home setup destination is now the declared perimeter point `(35,70)`, eleven
+world units from both the original home center `(35,81)` and Temple site `(24,70)`.
+A fresh source-only probe confirmed enabled ground command3 and no object context;
+retained03 actors were at least8.69 units away and authored trees at least9.43.
+These are source feasibility distances, not a rendered-clearance or path promise.
+
+Only the route's view/move calls change. The existing default0.35 precision,
+unpaused/no-modifier input, fresh sole-Shaman recipient/new-order checks, and exact
+acknowledged native-goal arrival witness remain mandatory. No retry follows a
+delivered wrong-recipient click. Final world-material proof and genuine completed
+Temple Save remain unearned until an admitted ordinary continuation succeeds.

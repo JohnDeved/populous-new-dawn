@@ -231,6 +231,18 @@ test('actual continuation route skips startup/acquisition and enters its guarded
       return {
         button: async name => {
           events.push(name)
+        },
+        view: async point => {
+          assert.deepEqual(point, { x: 35, z: 70 })
+          events.push('home-perimeter view')
+        },
+        moveGround: async (...args) => {
+          assert.deepEqual(
+            args,
+            [{ x: 35, z: 70 }],
+            'Caller preserves default precision with no optional movement flags'
+          )
+          events.push('home-perimeter move')
           throw new Error('existing construction tail reached')
         },
         pause: async () => {},
@@ -257,6 +269,7 @@ test('actual continuation route skips startup/acquisition and enters its guarded
     /existing construction tail reached/
   )
   assert.ok(events.indexOf('genuine restore') < events.indexOf('Select and focus shaman'))
+  assert.ok(events.indexOf('home-perimeter view') < events.indexOf('home-perimeter move'))
   assert.ok(events.includes('route closed'))
   assert.ok(!events.includes('Save checkpoint'))
 })
@@ -270,4 +283,147 @@ test('continuation controls retain the literal startup and in-game public labels
   assert.match(page, /world\.paused \? 'Resume game' : 'Pause game'/)
   assert.match(page, /aria-label="Game settings"/)
   assert.match(page, />\s*Restart world\s*</)
+})
+
+test('completion-only restoration performs one genuine startup Load without replaying accepted lifecycle', async () => {
+  const { installM3CheckpointState, readM3Committed } =
+    await import('../../scripts/local-render/mission3-building-lifecycle.mjs')
+  const source = readFileSync(
+    new URL('../../scripts/local-render/mission3-building-screen.mjs', import.meta.url),
+    'utf8'
+  )
+  const start = source.indexOf('    steps.restore = async '),
+    end = source.indexOf('\n  let failed = false,', start)
+  assert.ok(start >= 0 && end > start)
+  const calls = [],
+    snapshot = { turn: 1190 },
+    committed = { version: 1, snapshot }
+  const continuation = {
+    completionOnly: true,
+    shamanId: 46,
+    birth: { turn: 1133 },
+    source: {},
+    activeSave: { boundary: {} },
+    carriedLifecycle: { source: { runId: 'prior03' } },
+    validateSaved: value => assert.equal(value, committed),
+  }
+  const evidence = {},
+    report = {},
+    page = {
+      evaluate: async fn =>
+        fn === readM3Committed ? committed : assert.equal(fn, installM3CheckpointState),
+      getByRole: () => assert.fail('No repeated Restart/settings input'),
+    }
+  const restore = Function(
+    'dependencies',
+    `let persist, shamanId, birth; const { continuation, evidence, page, replacement, installM3CheckpointState, readM3Committed } = dependencies; const steps = {}; ${source.slice(start, end)}; return steps.restore`
+  )({
+    continuation,
+    evidence,
+    page,
+    replacement: async (...args) => calls.push(args),
+    installM3CheckpointState,
+    readM3Committed,
+  })
+  assert.deepEqual(await restore({ report, save() {} }), { shamanId: 46 })
+  assert.deepEqual(calls, [['load', null, 'startup', { startup: true, pauseImmediately: false }]])
+  assert.equal(evidence.carriedLifecycle, continuation.carriedLifecycle)
+  assert.equal(evidence.activeSave.boundary.snapshot, snapshot)
+})
+
+test('lifecycle carry requires actual active Restart and retains its inactive companion/pulse and granted-knowledge limits', async () => {
+  const { requireMission3LifecycleCarry } =
+    await import('../../scripts/local-render/mission3-building-screen-continuation.mjs')
+  const checkpoint = {
+    level: 3,
+    turn: 1190,
+    time: 99,
+    actorsSha256: 'actors',
+    terrainSha256: 'land',
+    stockSha256: 'stock',
+    checkpointSha256: 'checkpoint',
+  }
+  const snapshot = { turn: 1190 },
+    saved = { boundary: { snapshot }, digest: { checkpoint } }
+  const load = startup => ({
+    kind: 'load',
+    digest: checkpoint,
+    committed: { checkpoint },
+    evidence: {
+      kind: 'load',
+      startup,
+      trusted: true,
+      errors: [],
+      before: { resource: startup ? null : { bank: 'p', epoch: 1 } },
+      after: { snapshot, resource: { bank: 'p', epoch: startup ? 1 : 2, counter: 0, tile: 92 } },
+      start: { calls: 1, attached: true, restored: true, errors: [] },
+    },
+  })
+  const resource = { bank: 'p', epoch: 1, counter: 3, tile: 95 }
+  const restart = {
+    kind: 'restart',
+    committed: { checkpoint },
+    evidence: {
+      kind: 'restart',
+      trusted: true,
+      errors: [],
+      before: {
+        resource,
+        snapshot: {
+          landFlags: 0,
+          temple: true,
+          gifts: [],
+          acquisition: {
+            controllers: {
+              building: { active: true },
+              companion: { active: false },
+              pulse: { active: false },
+            },
+          },
+        },
+      },
+      after: {
+        resource,
+        snapshot: {
+          turn: 0,
+          temple: false,
+          gifts: [],
+          acquisition: {
+            requests: [],
+            controllers: { building: null, companion: null, pulse: null },
+          },
+        },
+      },
+    },
+  }
+  const partial = {
+    status: 'failed',
+    failure: 'assert.ok(after.lastOrderTurn > before.lastOrderTurn)',
+    acquisition: {
+      status: 'failed',
+      activeSave: saved,
+      transitions: [load(true), restart, load(false)],
+    },
+  }
+  assert.equal(requireMission3LifecycleCarry(partial, checkpoint), partial.acquisition.transitions)
+  for (const mutate of [
+    value => {
+      value.after.resource.counter++
+    },
+    value => {
+      value.before.snapshot.acquisition.controllers.building.active = false
+    },
+    value => {
+      value.before.snapshot.temple = false
+    },
+    value => {
+      value.before.snapshot.acquisition.controllers.companion.active = true
+    },
+  ]) {
+    const invalid = structuredClone(partial)
+    // Keep before/after snapshots independent for an actual retention mismatch.
+    invalid.acquisition.transitions[1].evidence.after.resource = { ...resource }
+    mutate(invalid.acquisition.transitions[1].evidence)
+    assert.throws(() => requireMission3LifecycleCarry(invalid, checkpoint))
+  }
 })

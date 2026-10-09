@@ -16,7 +16,7 @@
     {
       "path": "scripts/local-render/mission3-temple-checkpoint.mjs",
       "commit": "d6565f2a8ab6a020258e777ac548ca5c5ea6a155",
-      "sha256": "4a8e22b8242cbfc6b355c4624ce458be0ed116b362bd8746c7a8bc6c96f216cd",
+      "sha256": "cba34008a00a0a58b377ba24d09e92f19a7bf4884e139fef38b3cc1a7ada4182",
       "upstreamSha256": "f74bef212a3bf9a80a6d9dfeac3785e74042cd5489a15952f96971dd99516181",
       "adaptation": "Four optional acquisition steps plus explicit genuine-checkpoint restore entry; default fresh route preserves its original controls and guards."
     },

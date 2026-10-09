@@ -379,13 +379,19 @@ export default async function mission3BuildingScreen(context, continuation = nul
         committed,
       }
       evidence.limits =
-        'Genuine saved1190 continuation. Prior ordinary02 remains failed; clean prefix frames are carried with exact hashes. Session-local bank epochs are not compared across runs.'
+        'Genuine saved1190 continuation. Prior ordinary02 and continuation03 remain failed; accepted lifecycle and clean prefix frames are carried with exact hashes. Session-local bank epochs are not compared across runs.'
       persist()
-      await replacement('load', null, 'startup', { startup: true, pauseImmediately: true })
-      await page.getByRole('button', { name: 'Game settings', exact: true }).click()
-      await replacement('restart', null, 'continuedBeforeRestart')
-      await page.getByRole('button', { name: 'Game settings', exact: true }).click()
-      await replacement('load', null, 'restartWithoutAcquisition')
+      evidence.carriedLifecycle = continuation.carriedLifecycle
+      await replacement('load', null, 'startup', {
+        startup: true,
+        pauseImmediately: !continuation.completionOnly,
+      })
+      if (!continuation.completionOnly) {
+        await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+        await replacement('restart', null, 'continuedBeforeRestart')
+        await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+        await replacement('load', null, 'restartWithoutAcquisition')
+      }
       return { shamanId }
     }
   let failed = false,

@@ -142,9 +142,9 @@ test('current M3 earned-Vault, native-arrival and five-Brave construction compos
   until(() => world.unlockedTemple)
   assert.equal(vault.uses, 1)
   select(world, 'shaman')
-  // Same native arrival proof for a legal home-area point in the neighboring
-  // cell, rather than requiring the original requested home's exact cell.
-  const point = { x: 36.25, z: 81 }
+  // Home-perimeter setup stays away from the idle Brave cluster. Arrival still
+  // proves the exact acknowledged native destination through the same witness.
+  const point = { x: 35, z: 70 }
   assert.equal(command(world, point), true)
   const current = actor.native
   await evaluate(installMission1MoveWitness, {
