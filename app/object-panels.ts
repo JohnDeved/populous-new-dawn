@@ -78,11 +78,7 @@ export class ObjectPanels {
     )
   }
   requestAutomaticTraining(id: number) {
-    if (
-      this.scene.disposed ||
-      (this.scene.presentationBinding && !this.scene.presentationBinding.isCurrent())
-    )
-      return 'automatic:rejected'
+    if (!this.scene.isCurrent()) return 'automatic:rejected'
     if (this.automaticTrainingLatches.has(id)) return 'automatic:latched'
     const building = this.scene.world.buildings.find(b => b.id === id)
     if (!this.trainingActive(building)) return 'automatic:rejected'

@@ -515,6 +515,9 @@ export class GameScene {
     this.setSize()
     this.worshipPresentation = new WorshipAcquisitionPresentation(this, worshipHud)
   }
+  isCurrent() {
+    return !this.disposed && (!this.presentationBinding || this.presentationBinding.isCurrent())
+  }
   start() {
     if (this.presentationBinding && !this.presentationBinding.isCurrent()) return false
     if (this.started) return true
