@@ -3,9 +3,10 @@
 [PR293](https://github.com/JohnDeved/populous-new-dawn/pull/293) has independently
 accepted source review and **1,690/1,690 tests across 281 files**, plus passing
 typecheck, parity, orchestration and build stages. All 17 standard stages are
-fresh. **Ordinary Mission 3 browser acceptance remains pending.** This checkpoint
-does not establish merge readiness or close issue #25; related #23 acquisition
-and artwork work remains separate.
+fresh. This is the earlier source/standard checkpoint; the later
+[accepted ordinary Mission 3 continuation](ordinary02/README.md) supplies the
+natural training, typed Save/Load, rendered and cleanup evidence. Issue #25 remains
+open; related #23 acquisition and artwork work remains separate.
 
 Exact product source is `54f19225a6f005fd4c44b894272c1da829ec421d`, tree
 `1551f44f032fb6b370476a10d856c74fb55dc2a7`, against base
@@ -79,18 +80,20 @@ baseline, accepted base and final source. Passing comparison does not relabel
 absolute lint. Final-head formatting, five-file ESLint, structural checks and
 seven context regressions pass separately after the preflight stopped.
 
-## Remaining ordinary gate
+## Historical ordinary gate
 
-No ordinary M3 training result is included or claimed. The existing acquisition
-route ends with `trained === 0`; a separate public-control continuation must
+At the original `2af3ee2b` checkpoint, no ordinary M3 training result was included. The existing acquisition
+route ends with `trained === 0`; a separate public-control continuation was required to
 prove training, natural conversion, panel lifetime and any claimed checkpoint
 behavior under exact source/profile provenance. Older suspended-RAF preaching
 and #23 acquisition/artwork results do not substitute for that witness.
 
 The immutable aggregate retains its creation-time `independentFinalReview:
 pending`; the later included standard verdict resolves that standard-review
-field only. Neither document resolves the ordinary gate.
+field only. The later [ordinary02 result verdict](ordinary02/result-review.md)
+resolves the bounded ordinary gate separately.
 
-Only bounded review text, the aggregate and digest indexes are published here.
+This source/standard directory retains bounded review text, the aggregate and
+digest indexes; the ordinary02 extension adds three exact browser screenshots.
 Raw streams, browser reports, profiles, archives, executable/game data,
 credentials and held QA source are excluded.

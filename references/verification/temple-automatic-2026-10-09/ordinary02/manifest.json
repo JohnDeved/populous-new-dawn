@@ -1,0 +1,72 @@
+{
+  "kind": "compact-ordinary-evidence-extension",
+  "status": "ACCEPTED_RESULT",
+  "priorEvidenceHead": "2af3ee2b2770694a9a7f28b749519caf5b4714ee",
+  "imageAncestorHead": "832d9dad1eb5e1fb37be568aad1a21d72698f4c1",
+  "productHead": "54f19225a6f005fd4c44b894272c1da829ec421d",
+  "executionHead": "61a200838719857677a73f4ae480b8a46d40f591",
+  "qaHead": "7da59ae56f29ac01ed2dc625be6eda9105e9e1ed",
+  "resultReview": {
+    "file": "result-review.md",
+    "bytes": 12936,
+    "sha256": "a884a8b15d7aa9cfd59776f3e7b136913b43e305ad9bde2e069d64baa4737e99",
+    "included": true,
+    "copyPolicy": "Exact bytes."
+  },
+  "payloadFiles": [
+    {
+      "file": "README.md",
+      "bytes": 6182,
+      "sha256": "922a167898e4f0e9f00dcd9e3904a3776b5fa041ad8b916d59aca3b4057b6435"
+    },
+    {
+      "file": "artifact-index.json",
+      "bytes": 17570,
+      "sha256": "3edeedd24719e7c161fd4851c90e219903f5576f20feeddfd530f72d3d4df2fa"
+    },
+    {
+      "file": "ordinary01-failure.md",
+      "bytes": 2276,
+      "sha256": "8783f0a74409d7637728a43a35fd80420d6c2852f5b47075fdac9c35f24bc690"
+    },
+    {
+      "file": "qa-checks.json",
+      "bytes": 5605,
+      "sha256": "18df59f23904d4016f5ff691cb8474ed5a4638617c37f19469c17f571dfb63c9"
+    },
+    {
+      "file": "result-review.md",
+      "bytes": 12936,
+      "sha256": "a884a8b15d7aa9cfd59776f3e7b136913b43e305ad9bde2e069d64baa4737e99"
+    },
+    {
+      "file": "result.json",
+      "bytes": 5893,
+      "sha256": "2a6065e22944c9cc08bc8a2f8055f279df096815fa6c0f504fd4dd1942b88f8f"
+    },
+    {
+      "file": "temple-training-active-panel.png",
+      "bytes": 2098,
+      "sha256": "0abdcf4f8a9d91ac8362752e129c3159745dea3f1be44e0567c858706571d1c6"
+    },
+    {
+      "file": "temple-training-active.png",
+      "bytes": 1862948,
+      "sha256": "0e2fc12de5c819d25e5bcf0d8c808341bbe6d3328e07cc8e9a3139c9fd726166"
+    },
+    {
+      "file": "temple-training-released.png",
+      "bytes": 1899169,
+      "sha256": "fd93556d11f70eab269cfd5e61f9001a1b97dffcfe1f4cb1c0b449171b92854d"
+    }
+  ],
+  "copyPolicy": "Only bounded report/facts/digest indexes, the exact independent result verdict and three unmodified browser PNGs. No raw scenario, inner/outer reports, streams, browser profile, IndexedDB/checkpoint bytes, archive, executable, dependencies or held QA source.",
+  "strictLint": {
+    "status": "FAILED",
+    "inheritedWarnings": 20,
+    "new": 0,
+    "removed": 0
+  },
+  "priorAttemptStatus": "FAILED",
+  "widerIssue25Closed": false
+}

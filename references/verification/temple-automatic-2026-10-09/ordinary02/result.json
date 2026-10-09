@@ -1,0 +1,199 @@
+{
+  "kind": "compact-accepted-ordinary-result",
+  "status": "PASSED",
+  "reviewDecision": "ACCEPT",
+  "productHead": "54f19225a6f005fd4c44b894272c1da829ec421d",
+  "productTree": "1551f44f032fb6b370476a10d856c74fb55dc2a7",
+  "executionHead": "61a200838719857677a73f4ae480b8a46d40f591",
+  "executionTree": "3d1d055167f31c323928cbb9c3474586bc1eb957",
+  "qaHead": "7da59ae56f29ac01ed2dc625be6eda9105e9e1ed",
+  "startedAt": "2026-10-09T22:27:11.624Z",
+  "finishedAt": "2026-10-09T22:28:36.236Z",
+  "durationSeconds": 84.612,
+  "exitCode": 0,
+  "signal": null,
+  "sourceUnchanged": true,
+  "outerInputCount": 83,
+  "priorAttempt": {
+    "status": "FAILED",
+    "cause": "Initial readiness wrongly required cached legacy DOM absence. Training input was not reached.",
+    "genuineTempleId": 1021,
+    "constructionCompletedTurn": 2668,
+    "publicSaveTurn": 2685,
+    "publicSaveTime": 223.75,
+    "wholeCheckpointSha256": "fe4188c37a1d5667d18019e945da2b3dae5b8f3a45d9141ce8f349118c3d1141",
+    "startupMigrationCount": 2,
+    "startupPublicLoadMatchesExpected": true
+  },
+  "input": {
+    "turn": 2765,
+    "trusted": true,
+    "targetId": 1021,
+    "traineeId": 306,
+    "registeredEntryPersonIdentity": 2,
+    "orderModel": 8,
+    "orderId": 18,
+    "orderTarget": 1021,
+    "references": 1,
+    "pointer": [
+      806,
+      388
+    ]
+  },
+  "epochs": [
+    {
+      "epoch": 1,
+      "initialTurn": 2698,
+      "endTurn": 2856,
+      "rows": 481,
+      "turnRows": 158,
+      "stepRows": 292,
+      "requestRows": 30,
+      "disposeRows": 1,
+      "firstRequestTurn": 2827,
+      "heldVisits": 55,
+      "closed": true,
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "epoch": 2,
+      "initialTurn": 2856,
+      "endTurn": 3103,
+      "rows": 964,
+      "turnRows": 247,
+      "stepRows": 493,
+      "requestRows": 224,
+      "disposeRows": 0,
+      "firstRequestTurn": 2857,
+      "heldVisits": 441,
+      "closed": true,
+      "overflow": false,
+      "errors": []
+    }
+  ],
+  "freshRequest": {
+    "phase": -1,
+    "remaining": 0,
+    "hold": 16,
+    "latch": true,
+    "reservations": 1,
+    "gameplayUnchangedSynchronously": true,
+    "epoch1Dom": "Existing hidden, unfocused, unhovered cache preserved unchanged.",
+    "epoch2Dom": "Absent before and after synchronous request."
+  },
+  "activeFrame": {
+    "turn": 2832,
+    "occupants": 1,
+    "capacity": 5,
+    "chargedPercent": 3,
+    "pointerOffTarget": true
+  },
+  "activeSave": {
+    "version": 1,
+    "level": 3,
+    "turn": 2856,
+    "time": 238,
+    "checkpointSha256": "c69e6334c6f36afdb798434c83e9e3689b127899a3fc8bf94a8f1fb894ef666d",
+    "actorsSha256": "9be4f8a72474209a3885520ed1d5a9b4bcbf6395aa8f5e192ae2608cd4747856",
+    "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+    "stockSha256": "031052eab3b725d7fe679163b71f61152eac3371367e274c3e4d0d50e955f547"
+  },
+  "expectedMigratedLoad": {
+    "version": 1,
+    "level": 3,
+    "turn": 2856,
+    "time": 238,
+    "checkpointSha256": "9fe2c3599b0389560bc5f203b2d68a3c85428a54716449cdf9e7b71dc7b2c640",
+    "actorsSha256": "9be4f8a72474209a3885520ed1d5a9b4bcbf6395aa8f5e192ae2608cd4747856",
+    "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+    "stockSha256": "031052eab3b725d7fe679163b71f61152eac3371367e274c3e4d0d50e955f547"
+  },
+  "actualLoad": {
+    "version": 1,
+    "level": 3,
+    "turn": 2856,
+    "time": 238,
+    "checkpointSha256": "9fe2c3599b0389560bc5f203b2d68a3c85428a54716449cdf9e7b71dc7b2c640",
+    "actorsSha256": "9be4f8a72474209a3885520ed1d5a9b4bcbf6395aa8f5e192ae2608cd4747856",
+    "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+    "stockSha256": "031052eab3b725d7fe679163b71f61152eac3371367e274c3e4d0d50e955f547"
+  },
+  "finalCommitted": {
+    "version": 1,
+    "level": 3,
+    "turn": 2856,
+    "time": 238,
+    "checkpointSha256": "c69e6334c6f36afdb798434c83e9e3689b127899a3fc8bf94a8f1fb894ef666d",
+    "actorsSha256": "9be4f8a72474209a3885520ed1d5a9b4bcbf6395aa8f5e192ae2608cd4747856",
+    "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+    "stockSha256": "031052eab3b725d7fe679163b71f61152eac3371367e274c3e4d0d50e955f547"
+  },
+  "inSessionMigrationCount": 1,
+  "saveCommittedFinalEqual": true,
+  "loadExpectedEqual": true,
+  "loadOwnership": {
+    "oldSceneDisposed": true,
+    "sameControllerSession": true,
+    "newOwnerInitiallyEmpty": true,
+    "observerAttachedBeforeFirstRaf": true
+  },
+  "naturalCompletion": {
+    "conversionTurn": 3080,
+    "replacementPreacherId": 3165,
+    "replacementHp": 55,
+    "trainedDelta": 1,
+    "traineeAbsent": true,
+    "phase2Remaining": [
+      [
+        3080,
+        2
+      ],
+      [
+        3080,
+        1
+      ],
+      [
+        3081,
+        0
+      ]
+    ],
+    "firstReleasedTurn": 3081,
+    "finalObservedTurn": 3103,
+    "targetAlive": true,
+    "targetHp": 260,
+    "occupants": 0,
+    "queue": 0,
+    "entering": 0,
+    "record": null,
+    "latch": false,
+    "reservations": 0,
+    "domPresent": false
+  },
+  "browser": {
+    "version": "154.0.8037.92",
+    "sandbox": true,
+    "softwareRendering": true,
+    "warnings": 6,
+    "pageErrors": 0,
+    "viewport": [
+      1440,
+      1000
+    ]
+  },
+  "cleanup": {
+    "observerErrors": [],
+    "epochsClosed": true,
+    "ownedWrappersRestored": true,
+    "storeSubscriptionsAndDomListenersClosed": true,
+    "maintainedBrowserDisconnectionAndServerStopAccepted": true,
+    "independentDescendantProcessCensusClaimed": false
+  },
+  "limits": [
+    "Camera differs after Load; no stationary pixel comparison.",
+    "No original executable timing, physical allocator or raster equivalence.",
+    "Software rendering supplies no hardware-performance claim.",
+    "Strict product preflight remains FAILED on 20 inherited warnings.",
+    "Broader issue #25 remains open."
+  ]
+}

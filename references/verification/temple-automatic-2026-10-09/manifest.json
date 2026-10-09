@@ -102,8 +102,8 @@
   "payloadFiles": [
     {
       "file": "README.md",
-      "sha256": "f50a28479643f4573952525282f8e02cd6689e89a9e5f537d6f20be11a2f21a8",
-      "bytes": 5845
+      "sha256": "e748f6fdd227f2d6fd4351eb3d7942d39faf8c5002cc196160d3255b020e2449",
+      "bytes": 6129
     },
     {
       "file": "receipt-index.json",
@@ -133,5 +133,5 @@
     "resultCredit": 0,
     "boundary": "No ordinary M3 result is included; source/standard acceptance does not supply natural funding, typed ordinary Save/Load, browser raster, cleanup or merge acceptance."
   },
-  "historicalScope": "The original fixture prerequisite failure, intended red and intermediate 21/22 normalization-boundary failure remain pinned without standard-test credit. The immutable aggregate review-pending field is superseded only by the included final standard verdict."
+  "historicalScope": "The original fixture prerequisite failure, intended red and intermediate 21/22 normalization-boundary failure remain pinned without standard-test credit. The immutable aggregate review-pending field is superseded only by the included final standard verdict. The original ordinaryBrowserGate below describes this earlier source/standard checkpoint only. The separate ordinary02/manifest.json and result verdict supply the later accepted result."
 }

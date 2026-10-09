@@ -1,0 +1,138 @@
+{
+  "kind": "separate-qa-method-checks",
+  "productTestCredit": 0,
+  "qaHead": "7da59ae56f29ac01ed2dc625be6eda9105e9e1ed",
+  "checks": [
+    {
+      "file": "temple-auto-feasibility-20261009/work/orchestration/temple-repair-freeze-01/tests.json",
+      "bytes": 121818,
+      "sha256": "2e8a3aa98c3d63a909d1a74284e7ab25517e245632591c5c8690796e45512edf",
+      "included": false,
+      "check": "tests",
+      "status": "passed",
+      "head": "7da59ae56f29ac01ed2dc625be6eda9105e9e1ed",
+      "sourceUnchanged": true,
+      "startedAt": "2026-10-09T22:21:38.438Z",
+      "finishedAt": "2026-10-09T22:21:44.714Z",
+      "exitCode": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "4",
+        "env",
+        "PND_TEMPLE_RUNTIME_ROOT=/workspace/scratch/69fd8163d94e/temple-automatic-panel-20261009",
+        "node",
+        "--test",
+        "tests/temple-training-cache.test.mjs",
+        "tests/temple-training-checkpoint.test.mjs",
+        "tests/temple-training-witness.test.mjs"
+      ],
+      "commandSha256": "e48492912edbe5c80c3cb5c2e7906b78f6db5520f7a43a4d4d4843d2e25e9e97",
+      "stdout": {
+        "file": "temple-auto-feasibility-20261009/work/orchestration/temple-repair-freeze-01/tests.json.artifacts/stdout.log",
+        "bytes": 4096,
+        "sha256": "af378dca4f1be4fd8c65f92ab01e4abfb562a745c6d1a317660f867d258c520a",
+        "included": false
+      },
+      "stderr": {
+        "file": "temple-auto-feasibility-20261009/work/orchestration/temple-repair-freeze-01/tests.json.artifacts/stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "included": false
+      },
+      "counts": {
+        "tests": 47,
+        "pass": 47,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "file": "temple-auto-feasibility-20261009/work/orchestration/temple-repair-freeze-01/eslint.json",
+      "bytes": 118183,
+      "sha256": "6fbfc7b11dd1d6a9205fc3eeafe0a95cf60579acc223d21c03717ea5eb3be6c1",
+      "included": false,
+      "check": "eslint",
+      "status": "passed",
+      "head": "7da59ae56f29ac01ed2dc625be6eda9105e9e1ed",
+      "sourceUnchanged": true,
+      "startedAt": "2026-10-09T22:21:44.790Z",
+      "finishedAt": "2026-10-09T22:21:47.269Z",
+      "exitCode": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "4",
+        "node",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/node_modules/eslint/bin/eslint.js",
+        "--config",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/eslint.config.mjs",
+        "scripts/local-render/temple-training-auto.mjs",
+        "scripts/local-render/temple-training-checkpoint.mjs",
+        "scripts/local-render/temple-training-contract.mjs",
+        "scripts/local-render/temple-training-continuation.mjs",
+        "scripts/local-render/temple-training-witness.mjs",
+        "tests/temple-training-cache.test.mjs",
+        "tests/temple-training-checkpoint.test.mjs",
+        "tests/temple-training-witness.test.mjs"
+      ],
+      "commandSha256": "214b926a1e35d1ae5193655ab0ed9672f82a72de59a9e5c14831a01922370676",
+      "stdout": {
+        "file": "temple-auto-feasibility-20261009/work/orchestration/temple-repair-freeze-01/eslint.json.artifacts/stdout.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "included": false
+      },
+      "stderr": {
+        "file": "temple-auto-feasibility-20261009/work/orchestration/temple-repair-freeze-01/eslint.json.artifacts/stderr.log",
+        "bytes": 161,
+        "sha256": "272e4c2b0e16e307699713ad6b529510bfa6a765ef48eba689f6f501a403e27f",
+        "included": false
+      }
+    },
+    {
+      "file": "temple-auto-feasibility-20261009/work/orchestration/temple-repair-freeze-01/format.json",
+      "bytes": 118042,
+      "sha256": "467466e9e9235a9f7fd85a3fb012dda46c2e479568f9a2b4e44646d7d7fc186c",
+      "included": false,
+      "check": "format",
+      "status": "passed",
+      "head": "7da59ae56f29ac01ed2dc625be6eda9105e9e1ed",
+      "sourceUnchanged": true,
+      "startedAt": "2026-10-09T22:21:47.333Z",
+      "finishedAt": "2026-10-09T22:21:47.470Z",
+      "exitCode": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "4",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/node_modules/.bin/oxfmt",
+        "--threads=1",
+        "--check",
+        "scripts/local-render/temple-training-auto.mjs",
+        "scripts/local-render/temple-training-checkpoint.mjs",
+        "scripts/local-render/temple-training-contract.mjs",
+        "scripts/local-render/temple-training-continuation.mjs",
+        "scripts/local-render/temple-training-witness.mjs",
+        "tests/temple-training-cache.test.mjs",
+        "tests/temple-training-checkpoint.test.mjs",
+        "tests/temple-training-witness.test.mjs"
+      ],
+      "commandSha256": "523a8ae496c117ddac30dd4b56b8d2f23987df366818c93564ebad3abb0c087b",
+      "stdout": {
+        "file": "temple-auto-feasibility-20261009/work/orchestration/temple-repair-freeze-01/format.json.artifacts/stdout.log",
+        "bytes": 110,
+        "sha256": "f5fb9f6cc7737345eca30627c0fd9795157bd76a22f8c4ccc84eba2315541190",
+        "included": false
+      },
+      "stderr": {
+        "file": "temple-auto-feasibility-20261009/work/orchestration/temple-repair-freeze-01/format.json.artifacts/stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "included": false
+      }
+    }
+  ]
+}

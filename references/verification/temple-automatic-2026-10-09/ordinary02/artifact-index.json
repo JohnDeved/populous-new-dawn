@@ -1,0 +1,207 @@
+{
+  "kind": "digest-only-local-artifact-inventory",
+  "copyPolicy": "Raw reports, streams, profile/checkpoint bytes and executable inputs are excluded. Paths identify retained provenance only.",
+  "artifacts": [
+    {
+      "file": "temple-automatic-ordinary-20261009/work/orchestration/temple-training-ordinary-02.outer.json",
+      "bytes": 5219778,
+      "sha256": "1128faedd579d7f3c2fe88c72e10044270025824f2439ab2fd5a44a6ea9bf66d",
+      "included": false
+    },
+    {
+      "file": "temple-automatic-ordinary-20261009/work/orchestration/temple-training-ordinary-02/receipt.json",
+      "bytes": 14156461,
+      "sha256": "b92dd38b478f013ba909d2e503ceb53e0e066716790359cd98fa1d0e657a567d",
+      "included": false
+    },
+    {
+      "file": "temple-automatic-ordinary-20261009/work/orchestration/temple-training-ordinary-02/temple-training-auto.json",
+      "bytes": 13173353,
+      "sha256": "d56e9062bea0fe142b4403262eba9cecd05e62232028e90d7c815e20dec2a5a1",
+      "included": false
+    },
+    {
+      "file": "temple-automatic-ordinary-20261009/work/orchestration/temple-training-ordinary-02/temple-training-continuation.json",
+      "bytes": 6209,
+      "sha256": "734392bcc4adb5e8f059952e02ab5a54c73d8beff822db26b95246c9a12003d4",
+      "included": false
+    },
+    {
+      "file": "temple-automatic-ordinary-20261009/work/orchestration/temple-training-ordinary-02/server.log",
+      "bytes": 348,
+      "sha256": "bf4709b8927495172c3e6fb7b09f98ab5248ad7984eac989a95f10f14c18d684",
+      "included": false
+    },
+    {
+      "file": "temple-automatic-ordinary-20261009/work/orchestration/temple-training-ordinary-02.outer.json.artifacts/stdout.log",
+      "bytes": 4549955,
+      "sha256": "41d65a755b190d205217b8937fabbf818fac00d24539f81be7f88548c9ec2d1a",
+      "included": false
+    },
+    {
+      "file": "temple-automatic-ordinary-20261009/work/orchestration/temple-training-ordinary-02.outer.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "included": false
+    },
+    {
+      "file": "temple-automatic-ordinary-20261009/work/orchestration/temple-training-ordinary-01.outer.json",
+      "bytes": 27371,
+      "sha256": "0afe94fbf2a5f318312fd37e0632e2389feabc1e10fac3eadabfeb298a6569e0",
+      "included": false
+    },
+    {
+      "file": "temple-automatic-ordinary-20261009/work/orchestration/temple-training-ordinary-01/receipt.json",
+      "bytes": 8464,
+      "sha256": "b5dc24256876106e133197051980083ad4c2423f1988cde4b8afe62e94466513",
+      "included": false
+    },
+    {
+      "file": "temple-automatic-ordinary-20261009/work/orchestration/temple-training-ordinary-01/temple-training-auto.json",
+      "bytes": 5451316,
+      "sha256": "5fe2a858f1e7321df36577b1c9a7361a02de2470baf1737e16215ce5fe6e2f2c",
+      "included": false
+    },
+    {
+      "file": "temple-automatic-ordinary-20261009/work/orchestration/temple-training-ordinary-01/mission3-temple-checkpoint.json",
+      "bytes": 516774,
+      "sha256": "e41e75ff6c487caab69b2453e8c7704261bb685f73c2a26a8ea0131890f2f484",
+      "included": false
+    },
+    {
+      "file": "temple-automatic-ordinary-20261009/work/orchestration/temple-training-ordinary-01.outer.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "included": false
+    },
+    {
+      "file": "temple-automatic-ordinary-20261009/work/orchestration/temple-training-ordinary-01.outer.json.artifacts/stderr.log",
+      "bytes": 1142,
+      "sha256": "ea30de9706f990167dd770072d091b4e104e007f41c3dd3e75dfaebac3218964",
+      "included": false
+    },
+    {
+      "file": "temple-automatic-ordinary-20261009/work/orchestration/temple-training-admission-02.json",
+      "bytes": 40831,
+      "sha256": "2b515a50d9f29d8f134824852aa2d4df04cdeba207f6dbc49f99d604bae2b57f",
+      "included": false
+    },
+    {
+      "file": "temple-training-profile-correspondence-61a20083.json",
+      "bytes": 1181,
+      "sha256": "cb9e27bc3eb8132cea861b48ab4c5fb8344d3795a922ac5eec856539ddd0e8e4",
+      "included": false
+    },
+    {
+      "file": "temple-training-continuation-correspondence-review-20261009.md",
+      "bytes": 4470,
+      "sha256": "8380e621a10012952b664e61cb5849a7d21cc660130a38386760c19d746506c8",
+      "included": false
+    },
+    {
+      "file": "temple-training-ordinary01-failure-review-20261009.md",
+      "bytes": 8214,
+      "sha256": "d46c05a4b65233146cb1142e82a574d2f8cf7f10e1e1f7d7841461dcea16a26f",
+      "included": false
+    },
+    {
+      "file": "temple-training-ordinary02-result-review-20261009.md",
+      "bytes": 12936,
+      "sha256": "a884a8b15d7aa9cfd59776f3e7b136913b43e305ad9bde2e069d64baa4737e99",
+      "included": false
+    },
+    {
+      "file": "/workspace/shared/reviews/temple-training-repair-7da59ae5-1ceb0a4712e45fff.json",
+      "bytes": 5498,
+      "sha256": "1ceb0a4712e45fff9b0d853dfb3fde25ded578a22ba181aadbccdec4e52d8955",
+      "included": false
+    }
+  ],
+  "outerCommandSha256": "70b177fae01bb21ecfff5d57daf3e04083b15abf12d5a33b5470620ac00f86bd",
+  "commandDigestEncoding": "UTF-8 JSON array, compact separators, no trailing newline.",
+  "outerInputs": {
+    "temple-automatic-ordinary-20261009/work/orchestration/temple-training-admission-02.json": "2b515a50d9f29d8f134824852aa2d4df04cdeba207f6dbc49f99d604bae2b57f",
+    "populous-recovery-20261009b/work/orchestration/recovery-20261009b/browser/chrome-headless-shell-linux64/chrome-headless-shell": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+    "temple-auto-feasibility-20261009/tests/temple-training-cache.test.mjs": "a7c9dae723630c20a4df98cd1f10bf9dbe185a7dcab76a391b55cb976fe2c55b",
+    "temple-auto-feasibility-20261009/tests/temple-training-checkpoint.test.mjs": "160b63a0c6243b21836846d32f652ea8b94f41223fbde7ccf87f7807fefd4da1",
+    "temple-auto-feasibility-20261009/tests/temple-training-witness.test.mjs": "9ece29aa69d97340101d4bbcd6eea25bfbe73d84514da05a1d1f1cba933a7082",
+    "temple-auto-feasibility-20261009/work/orchestration/temple-repair-freeze-01/eslint.json": "6fbfc7b11dd1d6a9205fc3eeafe0a95cf60579acc223d21c03717ea5eb3be6c1",
+    "temple-auto-feasibility-20261009/work/orchestration/temple-repair-freeze-01/format.json": "467466e9e9235a9f7fd85a3fb012dda46c2e479568f9a2b4e44646d7d7fc186c",
+    "temple-auto-feasibility-20261009/work/orchestration/temple-repair-freeze-01/tests.json": "2e8a3aa98c3d63a909d1a74284e7ab25517e245632591c5c8690796e45512edf",
+    "temple-auto-feasibility-20261009/work/orchestration/temple-training-freeze-01/eslint.json": "896c22e2d98e2b8fef37fde1f614466a08680729bc70123857130e3e888da193",
+    "temple-auto-feasibility-20261009/work/orchestration/temple-training-freeze-01/format.json": "b0b95a5ae1388a50580b623d3380c5ec3ea6be8f92121e3cd5b38c2a326bfdc8",
+    "temple-auto-feasibility-20261009/work/orchestration/temple-training-freeze-01/plan-corrected.json": "1ae06067bb27e7c9d98bdacb705019324b85dcaa64542b4556aaf7f067c37427",
+    "temple-auto-feasibility-20261009/work/orchestration/temple-training-freeze-01/structure.json": "771cb01e261c7fbfc7b206b5939db9b02b62328f460d3e4185f3bd94e53db641",
+    "temple-auto-feasibility-20261009/work/orchestration/temple-training-freeze-01/tests.json": "50cf24cd0f8e5ec8947f512b246084d9fa29cfca0d7fab3c3ffbddc67b1a6e6d",
+    "temple-auto-ordinary-proposal-review-20261009.md": "cc9cbe8e419ca846a6e2215748b9bec3a0762833519b5ee662cdc0ed49ea5570",
+    "temple-automatic-final-source-review-20261009.md": "5a8df1ca66c95ebe67b76aa0cfa65dfa76848c6b75abeed6ddeb1197748d31d7",
+    "temple-automatic-final-standard-result-review-20261009.md": "e694dc8a467280596f1101e58f4a82097dfbbe9d54663edb6ef001b025ed83f0",
+    "temple-automatic-ordinary-20261009/app/building-occupants.ts": "24e6458718cd665b52188ac5473bfe265d179bb03ac530217c761addd471797a",
+    "temple-automatic-ordinary-20261009/app/building-panels.ts": "7775e23cd519a6887d7bf1a1f4592a10b5596fb79aab440883bec06127663d11",
+    "temple-automatic-ordinary-20261009/app/game-store.ts": "300cc63a292b79057bc64457dcfd087b2f7162194e2108d753e899c35861c675",
+    "temple-automatic-ordinary-20261009/app/hut-smoke-runtime.ts": "8652d3c33cc2c195344c62a7a9d2aba572620742c0dd89458634f576853ac834",
+    "temple-automatic-ordinary-20261009/app/live-building-entry.ts": "e09c7d00e3b32438e9634e2e21b0a11ce79bf38e9d7d547e342fda1011124404",
+    "temple-automatic-ordinary-20261009/app/live-command.ts": "a53f4f0a64104dabacdfb1d2242c1979baa047a89f192a89a52b1c72a702bdca",
+    "temple-automatic-ordinary-20261009/app/live-movement.ts": "9baf56d21547beebeb063e99de94502303a2de15391caf360b03621e8bee488f",
+    "temple-automatic-ordinary-20261009/app/mana.ts": "2db351005682c765353c834cff06e0eea0c8c9e20bd0ca536207fa9e81c77d33",
+    "temple-automatic-ordinary-20261009/app/model.ts": "fc32041efee0a34ae32e26653dd8b45c2b54df8389d4e32ea11fa58e3cde4682",
+    "temple-automatic-ordinary-20261009/app/object-panels.ts": "30723a021414b2fee992277c3491b5286b50641eeef58cabdca1796a937ba1ac",
+    "temple-automatic-ordinary-20261009/app/page.tsx": "af95be6e48354ffec34046eb0c265612ef460d612d69c91e56825c9ce7948765",
+    "temple-automatic-ordinary-20261009/app/person-panel.ts": "2ede0182a7b477006f2ca1adb9e71df0b746785ba701b035456b2354d8b1699f",
+    "temple-automatic-ordinary-20261009/app/scene-input-runtime.ts": "00d9a6f533d763bac87bbac1a12c4da3816df67798b2b57a987d563b3e0dcba0",
+    "temple-automatic-ordinary-20261009/app/scene-secondary-effects.ts": "51a2d73609ed8d8f4af00c2cf5ca2346de9da1867bf3a8998ce457fff18f2338",
+    "temple-automatic-ordinary-20261009/app/scene-tooltip-runtime.ts": "b2a53279069a5fccf2b3760c81672390720045c4bd0970d7cd61bc86a1d4b261",
+    "temple-automatic-ordinary-20261009/app/scene.ts": "c6c88945abbb84909020670ac2069b8da91381ecf6bab121d65519614cac38e1",
+    "temple-automatic-ordinary-20261009/app/tooltip-controller.ts": "578461332a769cb9426c0d14e2b1bd1b09740ee3e6e7511876f59de06fcb07aa",
+    "temple-automatic-ordinary-20261009/app/training-conversion.ts": "6c8cade2447474f1d966cdfad22e9098d2fd4a5535891fe8c942ba7266806bf7",
+    "temple-automatic-ordinary-20261009/app/training-panel-requests.ts": "63c518faf90272876594a896c387360d08264e1d1904ae38b86cdb075e240bba",
+    "temple-automatic-ordinary-20261009/app/training-panel.ts": "15b2c7cc5a354640481ebfc2f67a50cb41c9a168d24d4a724daff38eeaecc52a",
+    "temple-automatic-ordinary-20261009/decomp/research/temple-automatic-panel-contract.md": "cc6aca9f1cdca992533d0ce741974d139ed51a3787dedc07073bf61ee55cbcf1",
+    "temple-automatic-ordinary-20261009/engineering/temple-auto-ordinary-proposal.md": "03d78367d64a6a96da2abeefa861c6d7ad0dabe4845aebb14a5e682e1aad14f6",
+    "temple-automatic-ordinary-20261009/engineering/temple-auto-public-inputs.json": "383127b9f97c978aa8675a5f272f8dabe212d9a48c7f82d46600e77622497e8a",
+    "temple-automatic-ordinary-20261009/node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "temple-automatic-ordinary-20261009/node_modules/playwright-core/lib/coreBundle.js": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+    "temple-automatic-ordinary-20261009/package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+    "temple-automatic-ordinary-20261009/package.json": "3b8a837c172a783bc9517ee15d9d5eba0abaaeadcfebbdab6fd9e2dfa0052304",
+    "temple-automatic-ordinary-20261009/qa/erosion-ordinary/input.mjs": "29afe98c0e35e79fc25b6f9f6f0782de072ef9276d56bd8304ab9b72a99a8e19",
+    "temple-automatic-ordinary-20261009/qa/erosion-ordinary/minimap-input.mjs": "acf622d6277bae5ec3cf734c03cea7a4a8637f1dde9c710c8be6e2234ebd30e5",
+    "temple-automatic-ordinary-20261009/scripts/browser-game.mjs": "061ecb23dbcc5296fa6cdd044f44910af52884bb20d4fce5a9d64eb4391d9ba9",
+    "temple-automatic-ordinary-20261009/scripts/checkpoint-readback.mjs": "256139ba93205ffd091b61b5df93eb6db849c493ecf13e9405431258291ecc80",
+    "temple-automatic-ordinary-20261009/scripts/local-render/checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+    "temple-automatic-ordinary-20261009/scripts/local-render/harness.mjs": "19212b8b57d8f1ec47583ec12a3b33152832c103b91a266aa4a774bf0043a021",
+    "temple-automatic-ordinary-20261009/scripts/local-render/mission1-vault-arrival.mjs": "4ef7d2f1acf079f1d49ae87a9ba3bc2cff09f88cfa6b5b1e176e5fac4faaab99",
+    "temple-automatic-ordinary-20261009/scripts/local-render/mission1-vault-input.mjs": "f11a2c71bc4430cafbbbf1fdccc3168a6061e77ef937d59825e416b1add0e414",
+    "temple-automatic-ordinary-20261009/scripts/local-render/mission3-building-lifecycle.mjs": "86d1a3b65965e77887422a4125d994d45abc39589dfadced16710c4109cfa711",
+    "temple-automatic-ordinary-20261009/scripts/local-render/mission3-temple-checkpoint.mjs": "cba34008a00a0a58b377ba24d09e92f19a7bf4884e139fef38b3cc1a7ada4182",
+    "temple-automatic-ordinary-20261009/scripts/local-render/mission3-temple-witness.mjs": "7d07df4ba1c098beb2f8c6ce73c4949d2ba9faa7a9648cd490426eae519b126e",
+    "temple-automatic-ordinary-20261009/scripts/local-render/owned-profile.mjs": "445a29903f994f7fd4c4d0ee32924400b31b6c73673ec2e04d3f4ad3eee403f5",
+    "temple-automatic-ordinary-20261009/scripts/local-render/temple-training-auto.mjs": "eea94abe05dc07239c7ad9c660526fe4d714289af6a97cb8dbb39e57deb2f9b3",
+    "temple-automatic-ordinary-20261009/scripts/local-render/temple-training-checkpoint.mjs": "d49f985f8cd8c24582d1b068beae13cb57f3b4873e317b860d1320aa14c8f3da",
+    "temple-automatic-ordinary-20261009/scripts/local-render/temple-training-continuation.mjs": "3f11f5008c57fefdfd1e0759790f52591519a5e4e2c881524ab24986499ec0cb",
+    "temple-automatic-ordinary-20261009/scripts/local-render/temple-training-contract.mjs": "5ff48518792e7d3f1b5b0c26987ac5d65e099385167e5d490be7583cc9c08258",
+    "temple-automatic-ordinary-20261009/scripts/local-render/temple-training-witness.mjs": "a962e25abd25cd48bf93b26cb4dceec3746d314089f7d299e110b9cc01b4df69",
+    "temple-automatic-ordinary-20261009/scripts/local-render/vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27",
+    "temple-automatic-ordinary-20261009/scripts/orchestration/command-receipt.mjs": "cb6e670973ddf7e0e83bb7efb79e7b4f2315e575d9764620c539a8683ea6727d",
+    "temple-automatic-ordinary-20261009/scripts/parity-discovery.mjs": "9eda3cff198950bb075a7c918a7eada0440df198c37094a29ab46e9542c86d44",
+    "temple-automatic-ordinary-20261009/scripts/parity-measure.mjs": "4444431753c100e372c3b9583fe0eb8ecd78fb4a3d5fef959f845fe9d49f823e",
+    "temple-automatic-ordinary-20261009/tests/temple-training-checkpoint.test.mjs": "20458c604851bc9d54a86bff31ea4362550ebb3b2e359f9969563d757348942d",
+    "temple-automatic-ordinary-20261009/tests/temple-training-witness.test.mjs": "9055725956513026e9481bdc0b51458870b5bd5aae8755655fb8c324fc1d73cc",
+    "temple-automatic-ordinary-20261009/tsconfig.json": "b91b0d5ff0f30cbfaa9f0bf4ca023a753d70f2ac32845d965186d098edc09fd3",
+    "temple-automatic-ordinary-20261009/work/orchestration/temple-binding-01/preflight.json": "799113e5ed9976d8c25d40f1f889c920f753c2d15c45c6282fc358245e48c0c7",
+    "temple-automatic-ordinary-20261009/work/orchestration/temple-binding-01/tests.json": "57ae8097cac58568e38a582a25532ee6888fa549144e3e75547eba23c6580f74",
+    "temple-automatic-ordinary-20261009/work/orchestration/temple-binding-02/continuation-inputs.json": "e254b0621646c6eb56e270cd6fbc2b7b8d9807f4ceaebbf6a86badf70b59f10d",
+    "temple-automatic-ordinary-20261009/work/orchestration/temple-binding-02/port-fetch.json": "e6197a3ec28d7ee408794dbfdab4856873c09c353e537514dc9263ea083d27b8",
+    "temple-automatic-ordinary-20261009/work/orchestration/temple-binding-02/preflight.json": "ed225f7ff02ed625b889400103a5afa94fa0c88fe8c36885ad58e6c487ff311b",
+    "temple-automatic-ordinary-20261009/work/orchestration/temple-training-ordinary-01.outer.json": "0afe94fbf2a5f318312fd37e0632e2389feabc1e10fac3eadabfeb298a6569e0",
+    "temple-automatic-ordinary-20261009/work/orchestration/temple-training-ordinary-01/mission3-temple-checkpoint.json": "e41e75ff6c487caab69b2453e8c7704261bb685f73c2a26a8ea0131890f2f484",
+    "temple-automatic-ordinary-20261009/work/orchestration/temple-training-ordinary-01/receipt.json": "b5dc24256876106e133197051980083ad4c2423f1988cde4b8afe62e94466513",
+    "temple-automatic-ordinary-20261009/work/orchestration/temple-training-ordinary-01/temple-training-auto.json": "5fe2a858f1e7321df36577b1c9a7361a02de2470baf1737e16215ce5fe6e2f2c",
+    "temple-automatic-panel-20261009/work/orchestration/temple-automatic-final-01/aggregate.json": "4ad263b61e0109e84bbe8037de939b05f650ea529efdf27d19cd4a3dedfb4834",
+    "temple-automatic-panel-20261009/work/orchestration/temple-automatic-final-01/profile.json": "ea2c7af83a022346441d67685f283d10e0175c0b392aeabacc6f7eb63488c705",
+    "temple-training-continuation-correspondence-review-20261009.md": "8380e621a10012952b664e61cb5849a7d21cc660130a38386760c19d746506c8",
+    "temple-training-ordinary01-failure-review-20261009.md": "d46c05a4b65233146cb1142e82a574d2f8cf7f10e1e1f7d7841461dcea16a26f",
+    "temple-training-profile-correspondence-61a20083.json": "cb9e27bc3eb8132cea861b48ab4c5fb8344d3795a922ac5eec856539ddd0e8e4",
+    "/workspace/shared/reviews/temple-training-composed-8f1ec33b-f964723700299959.json": "f964723700299959131d458ae03857b703b930dfa31dbd3c2dc5ff84b5417fa5",
+    "/workspace/shared/reviews/temple-training-repair-7da59ae5-1ceb0a4712e45fff.json": "1ceb0a4712e45fff9b0d853dfb3fde25ded578a22ba181aadbccdec4e52d8955"
+  }
+}
