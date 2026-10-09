@@ -1,0 +1,55 @@
+{
+  "product": "9ab2195ddb8815790e0bbbff337162e9ba99c183",
+  "qa": "964d3385458a2aa6d784c9863dcf5a00e47b269d",
+  "result": "ordinary02 PASS; independent bounded ACCEPT",
+  "reviewSha256": "ec751b51ad08d1835174e053e46469f44218a36f32f2673cd94d7708d3d8acb2",
+  "files": [
+    {
+      "file": "small-hut-tooltip.png",
+      "sourceFile": "hut-initial-tooltip.png",
+      "bytes": 4031,
+      "sha256": "bdf1b7762273b5d28d3c69a9faa18340d598dd618b36fc1133135d07aee3ab58",
+      "caption": "Natural Small Hut tooltip canvas from authored DAT42. The same glyph pixels were captured after public Load."
+    },
+    {
+      "file": "tree-tooltip.png",
+      "sourceFile": "named-tree-history-tooltip.png",
+      "bytes": 4056,
+      "sha256": "8640d3b6c4a926860618ad7f3e4e8df946044ebe0124980f9711f244bc640fb8",
+      "caption": "Natural named Tree tooltip canvas for authored DAT20, matching imported string 835 after dwell matured."
+    },
+    {
+      "file": "hut-control-held.png",
+      "sourceFile": "panel-control-held-composite.png",
+      "bytes": 1833169,
+      "sha256": "7ecc7e5086288d54b18f6ca6855279e208f32083e32c4d732100ba61002b0c63",
+      "caption": "Adjacent full-page screenshot while the actual Hut dismantle control was hovered. The same record remained visible for 31 observed controller visits; no control was activated."
+    },
+    {
+      "file": "hut-after-load.png",
+      "sourceFile": "after-load-composite.png",
+      "bytes": 1601277,
+      "sha256": "527a1a2f1c748613213fc65572ad69104ab5ebe31303446e38bb97a09605b417",
+      "caption": "Adjacent full-page screenshot of the recreated Hut panel after public Load. This image does not simultaneously show the tooltip; small-hut-tooltip.png has the byte-identical glyph observation."
+    }
+  ],
+  "totalImageBytes": 3442533,
+  "excluded": [
+    "blank-cell-history-world.png: captured before actual blank-cell route",
+    "menu-hidden-world.png/menu-hidden-panel.png: captured before actual menu opening",
+    "Raw 44.6 MB hut-tooltip.json, receipts with embedded raw result and raw archive"
+  ],
+  "claims": [
+    "Authored Mission1 DAT42 / live 37 received mature Small Hut naming and right-button inspection; admitted marker creation preceded release and cleared held ownership",
+    "Control remained visible for 31 actual controller visits without activation, then record expired naturally after leaving",
+    "DAT20 is named Tree type 5 / model 1/string 835; named Tree-to-Hut transition observed",
+    "Actual raw Save publication exactly matched committed IndexedDB; public Load preserved actors, terrain, stock, turn 1056 / time 88 while migration cleared transient reservation",
+    "Page-session identity and cached threshold 30 survived Load; scene records and queued inspection ownership were recreated"
+  ],
+  "limits": [
+    "Images are unchanged natural captures; full-page composites are adjacent observations",
+    "No blank-cell or open-menu pixel claim;78 admitted blank-cell controller rows establish its state separately",
+    "No positive textless HUD/unnamed-object/native panel-status/full timing-pool-raster/audible-output/fresh-page recovery claim",
+    "Ordinary01 remains FAILED for incorrect QA unnamed-tree expectation; no runtime fix was needed"
+  ]
+}
