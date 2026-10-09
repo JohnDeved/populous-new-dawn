@@ -1,4 +1,6 @@
 {
+  "status": "historical-feasibility-inputs",
+  "scope": "Original b2990fe5 proposal inputs; not a current execution manifest.",
   "base": "b2990fe5312b0a0da7e9dc1c23bb3bc071bb0d13",
   "paths": [
     {

@@ -1,4 +1,75 @@
-# Mission 3 Temple automatic-panel feasibility
+# Mission 3 Temple automatic-training QA
+
+## Current maintained route
+
+The model-5 automatic consumer shipped in [PR293](https://github.com/JohnDeved/populous-new-dawn/pull/293).
+The reusable scenario is `scripts/local-render/temple-training-auto.mjs`. It earns
+Temple knowledge and builds a Temple through the unchanged public Mission 3 route,
+closes that setup observer, then records one Brave's training, active public
+Save/Load and natural panel retirement in a fresh observation epoch.
+
+Run from a clean checkout with the repository dependencies already installed,
+an installed official sandbox-capable Chrome Headless Shell, an unused supported
+port and an exclusive browser/server lane. Choose new output and owned-profile
+paths for each attempt; the setup requires a newly created profile with no saved
+checkpoint. Freeze the actual checkout, helper/browser/dependency inputs and
+absolute deadlines before admission. For example, after setting
+`POPULOUS_BROWSER` to that executable and confirming port 4193 is available:
+
+```sh
+timeout --signal=TERM --kill-after=15s 1540s env \
+  CLOUDFLARE_CF_FETCH_ENABLED=false WRANGLER_SEND_METRICS=false WRANGLER_WRITE_LOGS=false \
+  node scripts/local-render/harness.mjs \
+  --game-root "$PWD" \
+  --scenario "$PWD/scripts/local-render/temple-training-auto.mjs" \
+  --browser "$POPULOUS_BROWSER" --port 4193 --mission 3 --timeout 1500000 \
+  --output work/orchestration/temple-training-fresh-01 \
+  --profile work/local-render-profiles/temple-training-fresh-01
+```
+
+The harness cap is 1,500 seconds, with a 1,540-second outer cap and 15-second
+termination grace. The unchanged setup bounds are 60/420/300/420 seconds for
+Shaman readiness/knowledge/return/construction. The driver requires 120 seconds
+remaining before training and retains the 20-second readiness/entry,
+10-second committed Save, 15-second Load and 45-second restored conversion bounds.
+Walking, funding, activity and genuine UI readiness decide success; these caps do
+not guarantee it. Failed predicates stop the attempt and retain its report and
+cleanup evidence. No state reconstruction, accelerated ticks or automatic retry
+is part of this route. Existing evidence-discovery limits remain unchanged.
+
+The dependency-free supporting contracts use the current checkout by default:
+
+```sh
+env -u PND_TEMPLE_RUNTIME_ROOT node --test \
+  tests/temple-training-cache.test.mjs \
+  tests/temple-training-checkpoint.test.mjs \
+  tests/temple-training-witness.test.mjs
+```
+
+These 47 cases compose actual consumer, renderer, command and checkpoint callers
+with explicit model/DOM/storage fixtures. They are not ordinary gameplay proof.
+The optional `PND_TEMPLE_RUNTIME_ROOT` adapter is retained only for the exact
+historical product54f comparison; leave it unset for normal local-source tests.
+
+[Accepted ordinary evidence and retained failed01](https://github.com/JohnDeved/populous-new-dawn/blob/994063c15c3a06b20982419443582ddd27cd142e/references/verification/temple-automatic-2026-10-09/ordinary02/README.md)
+bind the genuine construction Save and successful public Load continuation. The
+initial full route stopped before training because its old checker rejected a
+hidden legacy DOM cache. The corrected full fresh route has not been rerun end
+to end; the accepted continuation demonstrates the unchanged four reusable
+training helpers. The one-run private-profile recovery is preserved on immutable
+[QA7da](https://github.com/JohnDeved/populous-new-dawn/blob/7da59ae56f29ac01ed2dc625be6eda9105e9e1ed/scripts/local-render/temple-training-continuation.mjs)
+and [execution61a](https://github.com/JohnDeved/populous-new-dawn/tree/61a200838719857677a73f4ae480b8a46d40f591),
+not maintained as a fresh-checkout scenario or prerequisite. Raw reports and the
+private profile remain local. Native cadence/raster/physical allocation and wider
+issue #25 completion remain outside this witness.
+
+## Historical feasibility proposal at b2990fe5
+
+The remainder records the original pre-implementation assessment. Statements about
+blocked consumers, missing observers and absent profiles apply to that historical
+base only. [The public input pins](temple-auto-public-inputs.json) preserve its
+exact source inputs; they are not a manifest for current execution.
+
 
 Refs #25. This is a source-only proposal on merged public base
 `b2990fe5312b0a0da7e9dc1c23bb3bc071bb0d13`, not browser admission or an ordinary
