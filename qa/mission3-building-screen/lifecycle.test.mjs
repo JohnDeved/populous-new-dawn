@@ -396,7 +396,7 @@ test('startup Load discovers the actual store without a Scene and restores M3 fr
     Scene,
     armBuildingSceneStart,
     () => ref,
-    (_id, _birth) => {
+    () => {
       attached.push(f.store.getWorld())
       f.fakeScreen()
     }
