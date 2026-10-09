@@ -740,8 +740,14 @@ export class GameScene {
     this.updateShrinesFrame()
     const spec = SPELLS.find(s => s.id === this.world.mode)
     this.updatePointerFrame(now)
-    const hovered =
+    let hovered: Parameters<typeof renderSceneFrame>[1] =
       this.hoveredObject === null ? null : worldTooltipObject(this.world, this.hoveredObject)
+    if (!hovered && this.hoveredObject !== null) {
+      const tree = this.world.trees.find(
+        t => t.id === this.hoveredObject && t.logs >= 1 && t.model >= 1 && t.model <= 6
+      )
+      if (tree) hovered = { id: tree.id, type: 5, model: tree.model, owner: -1 }
+    }
     const hoveredBuilding = this.world.buildings.find(b => b.id === this.hoveredObject)
 
     this.updatePlacement()
@@ -788,7 +794,7 @@ export class GameScene {
   }
 
   private renderSceneFrame(
-    hovered: ReturnType<typeof worldTooltipObject>,
+    hovered: Parameters<typeof renderSceneFrame>[1],
     hoveredBuilding: Building | undefined
   ) {
     renderSceneFrame(this, hovered, hoveredBuilding)

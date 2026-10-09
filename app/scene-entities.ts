@@ -810,7 +810,10 @@ export function renderSceneFrame(
   scene.scene.traverse(object => {
     updateModelLighting(object)
     if (!object.userData.highlight) return
-    const id = object.parent?.userData.building ?? object.parent?.userData.shrine
+    const id =
+      object.parent?.userData.building ??
+      object.parent?.userData.shrine ??
+      object.parent?.userData.point?.id
     object.userData.highlight.value =
       hovered && id === hovered.id
         ? modelHighlight(
