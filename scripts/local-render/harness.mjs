@@ -214,7 +214,7 @@ export async function runLocalBrowser(options, scenario) {
     startupTimer = setTimeout(
       () =>
         abort.abort(
-          Error(
+          new Error(
             `Local server readiness exceeded ${readiness.timeoutMs}ms; see readiness facts and server.log`
           )
         ),
