@@ -2,15 +2,16 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
 import { addBuilding, addUnit, command, tick } from '../app/model.ts'
-import { createLivePerson, registerLivePerson } from '../app/live-people.ts'
+import { createLivePerson, registerLivePerson, leaveLiveBuilding } from '../app/live-people.ts'
 import { currentPersonOrder, emptyPersonOrder } from '../app/person-orders.ts'
 import { appendLiveOrders } from '../app/live-movement.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
+import { residentPerson } from '../app/building-resident.ts'
 
 // Supplied unobstructed mechanics fixture; orders always enter through the
 // public player command. The ordinary Mission 3 route is a separate witness.
-function scenario(kind = 'camp', count = 8, team = 'blue') {
-  const w = createStartedWorld()
+function scenario(kind = 'camp', count = 8, team = 'blue', mission = 1) {
+  const w = createStartedWorld(mission)
   retainFixtureUnits(w, u => u.kind === 'shaman')
   w.manaWorld.gameFlags = 32
   w.terrain.fill(3)
@@ -292,4 +293,29 @@ test('death and target destruction release the shared ordinary training referenc
     for (let i = 0; i < 8; i++) tick(w, 1 / 12)
     assert.equal(w.buildingOrders.records[id].references, 0)
   }
+})
+
+
+test('legacy computer-team checkpoint migration retags a valid passive admitted person', () => {
+  const { w, b, units: [u], people: [p] } = scenario('hut', 1, 'green', 2)
+  assert.deepEqual(appendLiveOrders(w, [u], { ...emptyPersonOrder(), model: 8, a: b.id }, true),
+    { accepted: true, count: 1 })
+  until(w, () => u.inside === b.id)
+  assert.equal(u.resident.person, p)
+  const old = structuredClone(w), resident = old.units.find(unit => unit.id === u.id),
+    saved = resident.resident.person, slots = old.buildings.find(building => building.id === b.id).admission.occupants.slice()
+  // Old single-computer saves stored the mission's green tribe as red/1.
+  for (const entity of [...old.units, ...old.buildings]) if (entity.team === 'green') entity.team = 'red'
+  saved.tribe = 1
+  saved.damageAttacker = 1
+  delete old.campaignAIs
+  assert.equal(residentPerson(old, resident), saved)
+  migrateCheckpoint(old)
+  assert.equal(resident.team, 'green')
+  assert.equal(saved.tribe, 3)
+  assert.equal(saved.damageAttacker, 3)
+  assert.equal(residentPerson(old, resident), saved)
+  assert.deepEqual(old.buildings.find(building => building.id === b.id).admission.occupants, slots)
+  assert.equal(leaveLiveBuilding(old, resident), saved)
+  assert.equal(resident.resident, undefined)
 })

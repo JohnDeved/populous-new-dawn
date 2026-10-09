@@ -13,6 +13,7 @@ import { advanceGame } from '../app/game-clock.ts'
 import { buildingAdmission, stepBuildingEntry } from '../app/live-building-entry.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
 import { residentPerson } from '../app/building-resident.ts'
+import { evacuateBuilding } from '../app/building-runtime.ts'
 import { shieldFollowers, bloodlustFollowers, setUnitInvisibility, stepUnitShields, stepUnitBloodlust, stepUnitInvisibility, stepUnitHypnotise } from '../app/spell-effects-runtime.ts'
 
 function scenario(direction = 0, count = 1, level = 1) {
@@ -409,5 +410,36 @@ test('resident departure refreshes only selection bit128 from the current select
     assert.equal(leaveLiveBuilding(w, u), p)
     assert.equal(p.selectionFlags, selected ? 0x280 : 0x200)
     assert.equal(u.resident, undefined)
+  }
+})
+
+
+test('full-Hut evacuation removes each exact passive person without corrupting neighboring slots', () => {
+  const { w, b, people } = scenario(0, 3)
+  until(w, () => people.every(u => u.resident))
+  tick(w, 1 / 12)
+  const owners = new Map(people.map(u => [u.id, u.resident.person])),
+    slots = b.admission.occupants.slice(), objects = w.objectCells.objects,
+    original = objects.set, removed = []
+  objects.set = function (id, value) {
+    if (owners.has(id)) removed.push({ id, person: value, inside: b.admission.inside,
+      slots: b.admission.occupants.slice() })
+    return original.call(this, id, value)
+  }
+  try { evacuateBuilding(w, b) } finally { delete objects.set }
+  assert.equal(removed.length, 3)
+  const retired = new Set()
+  for (const [index, record] of removed.entries()) {
+    assert.equal(record.person, owners.get(record.id))
+    retired.add(record.id)
+    assert.equal(record.inside, 2 - index)
+    assert.deepEqual(record.slots, slots.map(id => retired.has(id) ? 0 : id))
+  }
+  assert.equal(b.admission.inside, 0)
+  assert.deepEqual(b.admission.occupants, [0, 0, 0, 0, 0, 0])
+  for (const u of people) {
+    assert.equal(u.inside, null)
+    assert.equal(u.resident, undefined)
+    assert.equal(owners.get(u.id).building, null)
   }
 })
