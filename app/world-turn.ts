@@ -1,3 +1,4 @@
+import { residentPerson } from './building-resident.ts'
 import { createReincarnationWave, stepReincarnationWave } from './reincarnation-wave-runtime.ts'
 import { reconcileWorldHutSmoke, stepSecondaryEffects } from './hut-smoke-runtime.ts'
 import {
@@ -1682,7 +1683,7 @@ function stepTurn(w: World) {
   stepLiveVehicles(w)
   const dead = w.units.filter(u => u.hp <= 0 && !u.flight && u.native?.state !== 44),
     ordinaryDead = dead.filter(u => !u.ghost)
-  for (const u of ordinaryDead) restoreDeadHypnotisedUnit(u)
+  for (const u of ordinaryDead) restoreDeadHypnotisedUnit(u, residentPerson(w, u))
   for (const u of ordinaryDead) {
     const victim = tribeForTeam(u.team),
       person = u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person,

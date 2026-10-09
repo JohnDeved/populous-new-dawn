@@ -1065,6 +1065,8 @@
         "tests/melee.test.mjs",
         "tests/mission5-angel.test.mjs",
         "tests/shield-spell.test.mjs",
+        "tests/housing-entry.test.mjs",
+        "tests/human-training-orders.test.mjs",
         "decomp/research/loading-art.md",
         "scripts/check-static-loading-art.py",
         "decomp/research/vault-side-fire.md"
@@ -1075,6 +1077,7 @@
         "app/game-store.ts",
         "app/firewarrior.ts",
         "app/live-building-entry.ts",
+        "app/building-resident.ts",
         "app/building-panels.ts",
         "app/building-shapes.ts",
         "app/building-validity.ts",

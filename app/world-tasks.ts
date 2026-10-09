@@ -40,6 +40,7 @@ export function releaseTasks(w: World, u: Unit, preserveOrders = false) {
 // Detach browser task adapters after their native owner has handled cancellation.
 // Player packets restart that owner once, after the shared allocation attempt.
 export function clearTaskBindings(w: World, u: Unit, preserveOrders = false) {
+  delete u.resident
   const directTree = preserveOrders && u.work === null ? u.tree : null
   clearLivePath(w, u)
   u.vault = null

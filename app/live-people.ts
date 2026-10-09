@@ -1,3 +1,4 @@
+import { discardInvalidResident, residentPerson } from './building-resident.ts'
 import { deselectLiveVehiclePassengers } from './live-vehicles.ts'
 import { latchShamanDeathFrame } from './shaman-death-vfx.ts'
 import { buildingPose } from './building-shapes.ts'
@@ -257,17 +258,19 @@ export function createLivePerson(w: World, u: Unit): LivePerson {
 // six-slot admission, training repricing and order ownership remain to be wired.
 export function stepLivePersonHealth(w: World) {
   for (const u of w.units) {
+    discardInvalidResident(w, u)
     if (u.hp <= 0) continue
     const p = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person
     if (p && (rules.personStateFlags[p.state] & 1 || p.flags2 & 0x80000)) continue
 
-    const maxLife = short(Math.round(maxHp(u.kind) * 20)),
+    const resident = residentPerson(w, u),
+      maxLife = short(Math.round(maxHp(u.kind) * 20)),
       health = {
         model: p?.model ?? nativePersonModel(u),
         life: short(Math.round(u.hp * 20)),
         maxLife,
         healthMarker: 0,
-        flags3: p?.flags3 ?? 0,
+        flags3: p?.flags3 ?? resident?.flags3 ?? 0,
       }
     if (w.manaWorld.gameFlags & 128) health.life = maxLife
     else regeneratePersonHealth(health, w.turn)
@@ -276,6 +279,10 @@ export function stepLivePersonHealth(w: World) {
     if (p) {
       p.life = health.life
       p.flags3 = health.flags3
+    }
+    if (resident) {
+      resident.life = health.life
+      resident.flags3 = ((resident.flags3 & ~0x1000) | (health.flags3 & 0x1000)) >>> 0
     }
   }
 }
