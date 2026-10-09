@@ -169,7 +169,7 @@ test('authored tree picking reaches the native hover override through the actual
   for (const gate of ['press', 'input-mask', 'spell', 'leave']) {
     scene.pointerButtons = gate === 'press' ? 1 : 0
     world.inputMask = gate === 'input-mask' ? 1 : 0
-    world.mode = gate === 'spell' ? 'convert' : null
+    world.mode = gate === 'spell' ? 'convertWild' : null
     const pointer = scene.pointerScreen
     if (gate === 'leave') scene.pointerScreen = null
     frame()
