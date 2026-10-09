@@ -1,9 +1,9 @@
-# Authored tree-hover evidence draft
+# Authored tree-hover evidence
 
-Local packaging draft for [PR #283](https://github.com/JohnDeved/populous-new-dawn/pull/283),
+Evidence for [PR #283](https://github.com/JohnDeved/populous-new-dawn/pull/283),
 referencing [issue #19](https://github.com/JohnDeved/populous-new-dawn/issues/19).
-**Candidate 03 passed its seven-phase scenario. Final independent pixel/runtime
-review is pending; hold publication until acceptance.**
+**Candidate 03 passed its seven-phase scenario. Independent review accepted the
+bounded ordinary tree-hover result and its correspondence to the before evidence.**
 
 The accepted source change is limited to live scenery models 1–6 with logs >= 1:
 the scene's hover descriptor fallback and the render caller's `point.id` match.
@@ -25,7 +25,7 @@ raw logs, archives and runtime profiles are not included.
 | Focused candidate | 8/8 passed across tree-hover, scene lifecycle and world-picking tests on exact `1ec5bae`. |
 | Standard candidate | 1,595/1,595 passed across all 272 files, plus fresh typecheck, parity, orchestration and production build. All 16 stages finished with stable source. |
 | Scoped quality | Oxfmt, ESLint, structural and context checks passed. Strict Oxlint **failed** with 19 findings: 17 warnings and two errors, byte-identical to main's baseline diagnostics. |
-| Independent review | Source and standard results accepted; no blocking source finding. Bounded before evidence accepted below; final product acceptance awaits the candidate witness. |
+| Independent review | Source, standard results and bounded ordinary candidate/pixel evidence accepted. No remaining blocker within this tree-hover scope. |
 
 The composed regression supplies texture IO, painter submissions, GPU and
 unrelated frame boundaries. It is not an ordinary rendered gameplay witness.
@@ -34,12 +34,15 @@ unrelated frame boundaries. It is not an ordinary rendered gameplay witness.
 
 Baseline attempt 01 used application `2107ccf` and QA head
 `9dcee20c48e4ecf5c08823fdd16724572c79afc4`. It failed the declared-target prerequisite
-with `Declared authored Mission1 targets unavailable`. QA compared DAT object 42's
-anchor coordinates (-12,34) to the Hut's normalized runtime x/z. Actual
+with `Declared authored Mission1 targets unavailable`. Source diagnosis found that
+QA compared DAT object 42's anchor coordinates (-12,34) to the Hut's normalized
+runtime x/z. Separate actual-world feasibility checks show that
 `addBuilding` produces runtime object 37 at (-11.0703125,33.0546875), with native
 anchor (64512,54784). The same-object anchor correction was independently accepted
 with 13 actual-world/405-turn feasibility contracts. Baseline 01 remains invalid
 for product reproduction and supplies no completed hover or comparison credit.
+Its live roster was not recorded, so that source diagnosis is not a recovered
+runtime roster from the failed attempt.
 
 Baseline 02 remains **FAILED overall** at its later Hut-control phase timeout.
 Its application was `2107ccf`, QA head
@@ -76,12 +79,13 @@ pulse, not a uniformly white tree. Independent pixel review localized the target
 as the rightmost of the three conifers near the obelisk. Page pointer (826,374)
 maps to canvas (626,374) after the 200-pixel HUD offset.
 
-The initial-view target comparison changes 784 pixels within canvas bounds
-[613,360,638,423]. Representative center RGB is baseline (43,53,0), phase 200
+Each initial-view comparison (before→200, before→255, 200→255) changes 784 pixels
+within inclusive canvas bounds [613,360,637,422]. RGB at (626,374) is baseline (43,53,0), phase 200
 (36,44,0), and phase 255 (45,56,0). In the returned view, bounds are
-[599,359,624,422], with phase 200 (42,46,0), phase 255 (54,59,0), and after leave
-(51,55,0). These are localized browser observations; they do not establish exact
-original-game pixels. Final runtime/pair acceptance remains pending.
+[599,359,623,421] inclusive, with RGB at (612,373) of phase 200 (42,46,0), phase 255
+(54,59,0), and after leave (51,55,0). The returned 200→255 and 255→leave comparisons
+change 780 and 779 pixels respectively. These are independently accepted localized
+browser observations; they do not establish exact original-game pixels.
 
 ## Selected unchanged natural frames
 
@@ -91,6 +95,9 @@ DPR 1. These are browser frames, not original-game reference images or hardware
 performance evidence. The after-leave frame follows the camera-return sequence
 and has a slightly different view; it is a cleanup witness, not an aligned pixel
 difference against the initial-hover frames.
+SwiftShader/WebGL, readPixels-stall and two Three missing-image warnings were
+retained; browser errors were empty. The captures do not prove whole-page/compositor
+or audio behavior.
 
 Before: app `2107ccf`, QA `691c7d5`, turn 458, render ordinal 5. The tree is picked
 but its actual uniform is **0**; the original filename's 255 suffix denotes the
