@@ -1,4 +1,5 @@
 import type { GameScene } from './scene.ts'
+import { trainingPanelRequestOwner } from './training-panel-requests.ts'
 
 // Native object panels own class-10/model-3 secondary records. Current person
 // panels and retained building records have their own live lifetime; other buildings retain the existing
@@ -8,6 +9,10 @@ import type { GameScene } from './scene.ts'
 // transient UI reservations are rebuilt on load.
 export function syncSecondaryReservations(scene: GameScene) {
   if (!scene.world.secondaryEffects) return
+  const current = trainingPanelRequestOwner(scene.world)
+  // A replaced Scene may finish disposal after its successor has bound this
+  // same World. Its empty maps must not erase the successor's reservations.
+  if (current && current !== scene.objectPanels) return
   const buildingOwners = new Set(scene.objectPanels?.buildingRecords?.keys() ?? [])
   for (const [id, panel] of scene.buildingPanels ?? [])
     if (

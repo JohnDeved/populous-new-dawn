@@ -20,10 +20,10 @@ export function retainedBuildingPanel(b: Pick<Building, 'kind' | 'progress'>) {
   return b.progress >= 1 && (b.kind === 'hut' || b.kind === 'camp')
 }
 
-// Training activity still owns its existing browser display independently of
-// manual inspection. Its native automatic request/latch is a separate boundary.
-export function activeCampPanel(b: Pick<Building, 'kind' | 'admission'>) {
-  return b.kind === 'camp' && !!((b.admission?.activity ?? 0) & (128 | 0x8000))
+// Dismantling retains the existing independent browser-control adapter. Training
+// activity can allocate only through the live conversion callback's record.
+export function dismantlingCampPanel(b: Pick<Building, 'kind' | 'admission'>) {
+  return b.kind === 'camp' && !!((b.admission?.activity ?? 0) & 0x8000)
 }
 
 export function buildingOccupantPanelProfile(
@@ -104,7 +104,7 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
       scene.buildingPanels.delete(id)
     } else if (
       (retainedBuildingPanel(building) &&
-        !activeCampPanel(building) &&
+        !dismantlingCampPanel(building) &&
         (modal ||
           (!scene.objectPanels.buildingRecords.has(id) &&
             !(building.kind === 'camp' && controlsHeld)))) ||
@@ -136,9 +136,10 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
         existing &&
         !existing.hidden &&
         (existing.matches(':hover') || existing.contains(document.activeElement)),
-      legacyCamp = activeCampPanel(b) || campHeld
-    if (retained && !legacyCamp && (!scene.objectPanels.buildingRecords.has(b.id) || modal))
-      continue
+      legacyCamp = dismantlingCampPanel(b) || campHeld,
+      record = scene.objectPanels.buildingRecords.get(b.id),
+      paintable = record && !(b.kind === 'camp' && record.automatic && record.phase < 0)
+    if (retained && !legacyCamp && (!paintable || modal)) continue
     // Other building types retain the existing visibility adapter.
     if (
       !retained &&
