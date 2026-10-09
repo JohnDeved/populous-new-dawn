@@ -103,13 +103,38 @@
       "finishedAt": "2026-10-09T08:43:48.913Z",
       "interpretation": "Failed declared target prerequisite: Declared authored Mission1 targets unavailable; no completed baseline-hover or pixel-comparison credit.",
       "applicationCommit": "2107ccfabc1737aed55aca3c5579a920dd63a667",
-      "qaCommit": "9dcee20c48e4ecf5c08823fdd16724572c79afc4"
+      "qaCommit": "9dcee20c48e4ecf5c08823fdd16724572c79afc4",
+      "diagnosis": {
+        "authoredDatObject": 42,
+        "authoredCoordinates": {
+          "x": -12,
+          "z": 34
+        },
+        "runtimeObject": 37,
+        "runtimeCoordinates": {
+          "x": -11.0703125,
+          "z": 33.0546875
+        },
+        "nativeAnchor": {
+          "x": 64512,
+          "y": 54784
+        },
+        "cause": "QA compared authored anchor coordinates to the normalized building x/z instead of matching the original native anchor.",
+        "credit": "invalid for product reproduction"
+      }
     },
     "reviewedBaseline": null,
     "reviewedCandidate": null,
     "screenshots": [],
     "pixelComparison": null,
-    "finalAcceptance": null
+    "finalAcceptance": null,
+    "anchorCorrection": {
+      "status": "independently accepted; next bounded pair pending",
+      "actualWorldFeasibilityContracts": 13,
+      "feasibilityTurns": 405,
+      "remainingPrerequisite": "Remove one unused test parameter to clear scoped ESLint.",
+      "source": "Parent evidence update, 2026-10-09T08:49Z"
+    }
   },
   "limits": [
     "Composed Node callers supply texture IO, painter submission, GPU and unrelated frame boundaries.",

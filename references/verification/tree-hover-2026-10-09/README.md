@@ -34,9 +34,13 @@ unrelated frame boundaries. It is not an ordinary rendered gameplay witness.
 
 Baseline attempt 01 used application `2107ccf` and QA head
 `9dcee20c48e4ecf5c08823fdd16724572c79afc4`. It failed the declared-target prerequisite
-with `Declared authored Mission1 targets unavailable`. The exact authored
-object-42 anchor predicate is under correction. This failure supplies no completed
-baseline hover, visual comparison or product acceptance.
+with `Declared authored Mission1 targets unavailable`. QA compared DAT object 42's
+anchor coordinates (-12,34) to the Hut's normalized runtime x/z. Actual
+`addBuilding` produces runtime object 37 at (-11.0703125,33.0546875), with native
+anchor (64512,54784). The same-object anchor correction was independently accepted
+with 13 actual-world/405-turn feasibility contracts; a test-only unused-parameter
+lint fix precedes the next bounded pair. Baseline 01 remains invalid for product
+reproduction and supplies no completed hover or visual-comparison credit.
 
 Actual before/after screenshots, naturally occurring shade phases, leave/re-entry,
 stationary-pointer pan/zoom and the building control remain pending. No screenshot
