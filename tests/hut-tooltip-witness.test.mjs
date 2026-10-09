@@ -447,6 +447,14 @@ test('training pointer snapshot follows real entry.person adoption and detaches 
     assert.equal(input.personId, 278); assert.equal(u.native, null); assert.equal(u.entry.person, p)
     b.admission.activity = 128; b.admission.inside = 1; b.admission.occupants = [278]
     assert.equal(scene.objectPanels.requestAutomaticTraining(b.id), token)
+    Object.assign(scene.objectPanels.buildingRecords.get(b.id), { phase: 1, remaining: 15 })
+    scene.tooltipInput = { object: { id: 0 } }
+    for (let n = 0; n < 4; n++) scene.updateTooltipController(500)
+    assert.equal(api.status().trainingHeldVisits[1], 4)
+    scene.buildingPanels.set(b.id, { hidden: false, contains: () => true })
+    scene.updateTooltipController(500)
+    assert.equal(api.status().trainingHeldVisits[1], 4, 'Focused panel cannot add an off-target held visit')
+    scene.buildingPanels.delete(b.id)
     // Same outer game visit may convert before any host call. Both callback
     // snapshots must retain the earlier admitted person and active occupancy.
     b.admission.activity = 0; b.admission.inside = 0; b.admission.occupants[0] = 0

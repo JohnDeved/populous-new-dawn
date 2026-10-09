@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
-import { trainingReadiness } from '../scripts/local-render/training-panel-input.mjs'
+import { trainingReadiness, assertAutomaticLifecycle } from '../scripts/local-render/training-panel-input.mjs'
 import trainingPanelAuto from '../scripts/local-render/training-panel-auto.mjs'
 import { checkpointObservation } from '../scripts/local-render/checkpoint-observer.mjs'
 
@@ -84,4 +84,90 @@ test('typed training checkpoint digest preserves queues and mana while ignoring 
     if (previous) Object.defineProperty(globalThis, name, previous)
     else delete globalThis[name]
   }
+})
+
+function lifecycleFixture() {
+  const id = 500, traineeId = 100, record = { id, identity: 77, automatic: true, phase: -1, remaining: 0, hold: 16 }
+  const state = { turn: 1000, records: [], panels: [], input: { object: { id: 0 } }, training: {
+    trained: 0, latches: [], camps: [{ id, identity: 44, hp: 800, progress: 1, reservationCount: 0,
+      admission: { model: 7, activity: 128, inside: 1, occupants: [traineeId, 0, 0, 0, 0], queueHead: 0, queueFrom: 0, entering: 0 } }],
+    people: [{ id: traineeId, team: 'blue', kind: 'brave', hp: 50, inside: id }] } }
+  const before = structuredClone(state)
+  state.records = [record]; state.training.latches = [id]; state.training.camps[0].reservationCount = 1
+  const rows = [{ ordinal: 1, epoch: 2, kind: 'automatic-training-request', target: id,
+    receiverMatches: true, threw: false, before, after: structuredClone(state) }]
+  const { stepPersonPanel } = loadBody('person-panel.ts', 'export function stepPersonPanel(', '\nexport interface OrderFocusObject', {}, 'stepPersonPanel')
+  const tick = () => {
+    const before = structuredClone(state), active = !!(state.training.camps[0].admission.activity & 128)
+    if (record.phase === 1 && !active) { state.training.latches = []; record.remaining = 0 }
+    if (!stepPersonPanel(record, active)) {
+      state.records = []; state.panels = []; state.training.camps[0].reservationCount = 0
+    } else state.panels = [{ id, hovered: false, focused: false }]
+    rows.push({ ordinal: rows.length + 1, epoch: 2, kind: 'tick', before, after: structuredClone(state) })
+  }
+  for (let n = 0; n < 8; n++) tick()
+
+  // Execute the actual conversion producer. Geometry and pool bookkeeping are
+  // supplied leaves; replacement allocation/deletion and conversion count are
+  // decided by the real function, with an arbitrary new ID (not id+1).
+  const original = { id: traineeId, class: 1, model: 2, tribe: 0, flags2: 0, flags4: 0,
+    commands: Array(8).fill(0), commandCursor: 0 }
+  const conversionWorld = { turn: 1000, playerTribe: 0, people: new Map([[traineeId, original]]),
+    tribes: [{ playerType: 2 }], orders: { records: [{}, {}] } }
+  const camp = Object.assign(structuredClone(state.training.camps[0].admission), {
+    id, class: 2, tribe: 0, counter: 1, trainingCost: 3500, storedMana: 3500 })
+  const conversions = [], retired = []
+  const { stepTrainingConversion } = loadBody('training-conversion.ts', 'function live(', null, {
+    rules, repriceTraining() {}, trainingOccupantWeight: () => 1,
+    buildingInsidePoint: () => ({ x: 10, y: 20 }), buildingExitPoint: () => ({ x: 11, y: 21 }),
+    allocatePersonOrder: () => 1, hasFollowingPersonOrder: () => false,
+    attachPersonOrder(_pool, person, order) { person.commands[0] = order }, clearPersonOrders() {},
+    removeBuildingOccupant(_w, b, person) { assert.equal(person.id, traineeId); b.inside = 0; b.occupants.fill(0); b.activity &= ~128 },
+  }, 'stepTrainingConversion')
+  stepTrainingConversion(conversionWorld, camp, {
+    updateTrainingPanel(b) { assert.equal(b.inside, 1); assert.equal(b.occupants[0], traineeId) },
+    orders: { prepare() {}, deleteObject(id) { retired.push(id); conversionWorld.people.get(id).class = 0 } },
+    allocateTrainee(model, tribe) {
+      const p = { id: 923, class: 1, model, tribe, flags2: 0, flags4: 0, commands: Array(8).fill(0) }
+      conversions.push(p); conversionWorld.people.set(p.id, p); return p
+    }, addMana() { throw Error('Human conversion must not refund computer mana') },
+  })
+  assert.deepEqual(retired, [traineeId]); assert.equal(conversions.length, 1); assert.equal(conversions[0].model, 3)
+  assert.notEqual(conversions[0].id, traineeId); assert.ok(conversions[0].flags2 & 16)
+  state.training.camps[0].admission = camp
+  state.training.people = [{ id: conversions[0].id, team: 'blue', kind: 'warrior', hp: 50, inside: null }]
+  state.training.trained = conversions.length
+  for (let n = 0; n < 4; n++) tick()
+  return { rows, id, traineeId }
+}
+
+test('lifecycle assertion follows the real conversion replacement and complete 3/16/3 record sequence', () => {
+  const { rows, id, traineeId } = lifecycleFixture()
+  const result = assertAutomaticLifecycle(rows, id, 2, 0, traineeId)
+  assert.equal(result.replacementId, 923); assert.equal(result.traineeId, 100)
+  assert.equal(result.heldVisits, 4)
+  assert.deepEqual(rows.slice(-4).map(row => row.after.records[0]?.remaining ?? null), [2, 1, 0, null])
+})
+
+test('lifecycle assertion rejects unrelated conversion, broken visits and leaked owners', () => {
+  const { rows, id, traineeId } = lifecycleFixture()
+  const changes = [
+    rows => { rows[0].before.training.camps[0].admission.occupants[0] = 101 },
+    rows => { rows.at(-4).after.training.people[0].kind = 'brave' },
+    rows => { rows.at(-4).after.training.trained = 2 },
+    rows => { rows.at(-4).after.training.people.push({ id: traineeId, kind: 'brave', hp: 50 }) },
+    rows => { rows.at(-1).after.training.camps[0].admission.queueHead = 101 },
+    rows => { rows[2].after.records = [] },
+    rows => { rows[2].after.records[0].identity++ },
+    rows => { rows[1].after.records[0].phase = 1 },
+    rows => { rows[2].after.records[0].remaining = 0 },
+    rows => { rows.at(-2).after.records[0].remaining = 1 },
+    rows => { rows.at(-1).after.training.camps[0].reservationCount = 1 },
+    rows => { rows.at(-1).after.panels.push({ id }) },
+    rows => { rows.at(-1).after.training.latches = [id] },
+    rows => { rows[5].after.panels[0].focused = true },
+    rows => { rows.at(-1).after.training.camps[0].hp = 0 },
+    rows => { rows.splice(6, 1) },
+  ]
+  for (const change of changes) { const bad = structuredClone(rows); change(bad); assert.throws(() => assertAutomaticLifecycle(bad, id, 2, 0, traineeId)) }
 })

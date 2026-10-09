@@ -44,11 +44,7 @@ export async function trainingTail({ page, root, output, report, witness, remain
       const record = state.records.find(row => row.id === id)
       if (kind === 'empty') return !record && !state.training.latches.includes(id) &&
         !state.panels.some(panel => panel.id === id) && state.training.camps.find(b => b.id === id)?.reservationCount === 0
-      if (kind === 'held') {
-        const rows = api.read().records.filter(row => row.kind === 'tick' && row.epoch === epoch)
-        return rows.filter(row => row.after.records.some(record => record.id === id && record.automatic &&
-          record.phase === 1 && record.remaining === 15) && row.after.input?.object?.id !== id).length >= 4
-      }
+      if (kind === 'held') return value.trainingHeldVisits[epoch] >= 4
       if (kind === 'pixels') return value.captures['automatic-active'] === true
       if (kind === 'released') return state.training.trained > 0 &&
         !(state.training.camps.find(b => b.id === id)?.admission.activity & 128) && !record &&
@@ -74,7 +70,7 @@ export async function trainingTail({ page, root, output, report, witness, remain
   report.trainingInput = assertSingleTrainingInput(await witness.evaluate(api => api.read().records), hut, target); save()
   await wait('held')
   const requests = await witness.evaluate(api => api.read().records.filter(row => row.kind === 'automatic-training-request'))
-  report.initialAutomaticRecord = assertAutomaticRequest(requests[0], hut.id)
+  report.initialAutomaticRecord = assertAutomaticRequest(requests[0], hut.id, { traineeId: report.trainingInput.personId })
   await phase('automatic-active', 'training-panel')
   await wait('pixels')
   const frame = await witness.evaluate(api => api.read().frames['automatic-active'])
@@ -115,7 +111,7 @@ export async function trainingTail({ page, root, output, report, witness, remain
   await phase('restored-natural-training')
   await wait('released', 2, 35000)
   const observed = await witness.evaluate(api => api.read())
-  report.lifecycle = assertAutomaticLifecycle(observed.records, hut.id, 2, ready.trained)
+  report.lifecycle = assertAutomaticLifecycle(observed.records, hut.id, 2, ready.trained, report.trainingInput.personId)
   report.finalCommitted = await readCommittedCheckpoint(page, options)
   assert.equal(report.finalCommitted.checkpointSha256, committed.checkpointSha256)
   await page.screenshot({ path: resolve(output, 'automatic-released-composite.png'), timeout: remaining() })

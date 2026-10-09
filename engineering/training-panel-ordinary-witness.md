@@ -101,3 +101,24 @@ run in this QA worktree. Browser execution requires the coordinator's lane and
 exact reviewed product source. Native timing, global physical pool allocation,
 frontend sampling/input precedence, audio and hardware performance remain explicit
 adaptations or unproved claims. This witness does not close all of #25.
+
+
+## Reviewed preparation repairs
+
+The initial method review requested three narrow corrections, now implemented:
+held polling reads a target/epoch count from status rather than cloning complete
+history; both fresh requests require the clicked Brave as the target's sole
+living occupant; and lifecycle acceptance checks every actual 3/16/3 visit,
+including phase2 remaining 2→1→0→retirement, unchanged record/building identity,
+exactly one additional trained unit, retirement of the clicked Brave and exactly
+one new living Blue Warrior. Natural births are allowed: replacement linkage
+counts new Warriors, not every new person. Final camp occupancy/queue must be
+clear with no record/latch/reservation/DOM leak.
+
+Direct positive and 16 negative contracts exercise the lifecycle assertion.
+The positive fixture calls the actual `stepTrainingConversion` producer and
+`stepPersonPanel` function. Its geometry, order-pool bookkeeping, occupant-removal
+leaf and allocation mechanism are supplied; the real conversion function decides
+replacement model/count, retires the original ID and applies initialization flags.
+No numeric relationship between old and replacement IDs is assumed. These helper
+contracts still do not replace the actual caller or ordinary browser evidence.

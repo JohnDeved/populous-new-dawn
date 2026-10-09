@@ -293,6 +293,13 @@ export function installHutTooltipLifecycle(GameScene, observeEntityPointer, { de
   }
   GameScene.prototype.start = wrapper
   const summary = () => ({ closed, errors: [...errors], phase, recordCount: records.length,
+    trainingHeldVisits: observeTraining ? Object.fromEntries(epochs.map(epoch => [epoch.id,
+      records.filter(row => row.kind === 'tick' && row.epoch === epoch.id &&
+        row.before.records.some(record => record.id === targetId && record.automatic && record.phase === 1) &&
+        row.after.records.some(record => record.id === targetId && record.automatic && record.phase === 1 && record.remaining === 15) &&
+        (row.before.training.camps.find(b => b.id === targetId)?.admission.activity & 128) &&
+        row.after.input?.object?.id !== targetId &&
+        !row.after.panels.some(panel => panel.id === targetId && (panel.hovered || panel.focused))).length])) : null,
     phaseInspections: records.filter(row => row.phase === phase && row.kind === 'tick')
       .flatMap(row => row.after.controller?.lastVisit?.inspection ?? []),
     phasePanelControlInput: records.find(row => row.phase === phase && row.kind === 'input' &&
