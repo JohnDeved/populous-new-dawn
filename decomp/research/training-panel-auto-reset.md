@@ -53,7 +53,7 @@ clear loaded primary-object latches even though the latch's field lies inside
 the saved state block and the record table lies outside it. Pre-save helper
 transformations and the complete manual-save file codec remain outside this proof.
 
-An active restored model7 building is consequently eligible for a new automatic
+An active restored local model7 building is consequently eligible for a new automatic
 request on its next ordinary `00405b80` visit. The reset itself does not replay a
 request or create a record; no particular real-time delay or frame is established.
 This directly supports clearing transient browser record/latch ownership when
@@ -70,7 +70,7 @@ The supplied archive was verified at 322676040 bytes, SHA-256
 `6aa6c366809ea1d9575ec1d31a24527a95c7332f0a1d2ab692f7a602e7e10702`.
 The unchanged maintained `scripts/extract-reference.py` selected **Component0,
 `d3dpoptb.exe` only**. Extraction completed exit 0 in 6.237 seconds on CPU4, with a
-120-second wall/CPU limit and 4-GiB address-space limit. Archive and script hashes
+120-second wall limit and 4-GiB address-space limit. Archive and script hashes
 were unchanged. Output is 2275840 bytes, SHA-256
 `3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`.
 

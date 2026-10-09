@@ -80,7 +80,7 @@
       "exitCode": 0,
       "nativeExecution": false,
       "publishedExcerpt": "decomp/research/training-panel-auto-reset/00503f60.asm.txt",
-      "publishedSha256": "5bf2a5e0e7e6082e3a7758362b9ead9edb4ad2f14512acba61a8e5e963474773"
+      "publishedSha256": "d4489d66da102b0cb2c609515dd6744bab629077805620b657c177ae83c00a4c"
     },
     "00503230": {
       "command": [
@@ -106,7 +106,7 @@
       "exitCode": 0,
       "nativeExecution": false,
       "publishedExcerpt": "decomp/research/training-panel-auto-reset/00503230.asm.txt",
-      "publishedSha256": "c6e386dd94a2801576eac8a0bb68397bcd6ca890a9ce3c39b7e60a862b422fae"
+      "publishedSha256": "b969fe6ad9d4749063910d1e99fc2053977dc4c09a21eb68299231eeb38994c8"
     }
   },
   "retainedHelpers": {

@@ -11,7 +11,7 @@
   503f6a:	bf ad 5f 89 00       	mov    edi,0x895fad
   503f6f:	f3 ab                	rep stos DWORD PTR es:[edi],eax
   503f71:	66 c7 05 51 ce 89 00 	mov    WORD PTR ds:0x89ce51,0xffff
-  503f78:	ff ff 
+  503f78:	ff ff
   503f7a:	66 a3 cd c6 89 00    	mov    ds:0x89c6cd,ax
   503f80:	a1 30 03 89 00       	mov    eax,ds:0x890330
   503f85:	85 c0                	test   eax,eax
