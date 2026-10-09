@@ -470,8 +470,8 @@ export function attachTempleVaultApproach(
     )
       return reject('presentation-not-ready')
     insist(child.userData.nativeModel === state.vault.model, 'Vault presented model is stale')
-    const points = [actorGroup, vaultGroup].map(g => scene.screen(g.position))
-    if (!points.every(p => Math.abs(p.x) < 0.95 && Math.abs(p.y) < 0.95))
+    const points = [scene.unitScreen(shaman.id), scene.view.screen(vaultGroup.position, camera)]
+    if (!points.every(p => p && Math.abs(p.x) < 0.95 && Math.abs(p.y) < 0.95 && Math.abs(p.z) <= 1))
       return reject('out-of-frame')
     const xyz = p => ({ x: p.x, y: p.y, z: p.z })
     return {

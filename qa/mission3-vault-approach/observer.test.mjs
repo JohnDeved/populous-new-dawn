@@ -111,7 +111,7 @@ function fixture(t) {
     renderer,
     gameClock: clock,
     cameraPosition: { x: 1, y: 2, angle: 0 },
-    view: { projection: {} },
+    view: { projection: {}, screen: () => ({ x: 0, y: 0, z: 0 }) },
     pointerAck: { target: 0, until: 0 },
     unitMeshes: new Map([[shaman.id, actorGroup]]),
     shrineMeshes: new Map([[vault.id, { g: vaultGroup }]]),
@@ -120,6 +120,7 @@ function fixture(t) {
     pick: () => vault,
     picking: { pickPerson: () => null, model: () => [] },
     screen: () => ({ x: 0, y: 0 }),
+    unitScreen: () => ({ x: 0, y: 0, z: 0 }),
   }
   globalThis.window = {
     testSceneRef: { current: scene },
@@ -208,6 +209,9 @@ test('actual input helper and authored Vault caller compose through outside work
   const f = fixture(t),
     api = await f.install()
   const delivery = await f.input.clickEntity('shrines', 92, 33, false, [46])
+  f.scene.screen = () => {
+    throw new Error('Frame observation must use the actual render-pose seams')
+  }
   const e = api.vaultApproach.evidence
   assert.equal(delivery.after.units[0].orderOwner.phase, 0)
   assert.equal(e.input.after.p.commandPhase, 0)
