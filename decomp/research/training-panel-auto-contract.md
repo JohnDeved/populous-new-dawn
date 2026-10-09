@@ -7,6 +7,10 @@ reconciliation remains unproved at `00503f60`**. No runtime change, original/nat
 execution, browser run, asset import or gameplay-parity credit is claimed.
 The [source manifest](training-panel-auto-contract-source.json) pins the inputs.
 
+**Later static closure:** the [load-reset addendum](training-panel-auto-reset.md)
+now proves the two missing routine bodies after verified data-only recovery. The
+initial availability finding below remains preserved as the earlier boundary.
+
 ## Request and ordering
 
 [00403280](../generated/00403280.c) dispatches a live state-2 building to

@@ -1,0 +1,31 @@
+# Static GNU objdump 2.44 excerpt; no original instruction was executed.
+# Canonical EXE SHA256 3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f
+# Range [00503230, 0050329c); stop includes the function return only.
+
+00503230 <.text+0x102230>:
+  503230:	c7 05 5d c6 89 00 00 	mov    DWORD PTR ds:0x89c65d,0x0
+  503237:	00 00 00 
+  50323a:	a1 30 03 89 00       	mov    eax,ds:0x890330
+  50323f:	85 c0                	test   eax,eax
+  503241:	74 21                	je     0x503264
+  503243:	b9 0a 00 00 00       	mov    ecx,0xa
+  503248:	ba 10 00 00 00       	mov    edx,0x10
+  50324d:	38 48 2a             	cmp    BYTE PTR [eax+0x2a],cl
+  503250:	75 0b                	jne    0x50325d
+  503252:	38 50 2b             	cmp    BYTE PTR [eax+0x2b],dl
+  503255:	75 06                	jne    0x50325d
+  503257:	ff 05 5d c6 89 00    	inc    DWORD PTR ds:0x89c65d
+  50325d:	8b 40 04             	mov    eax,DWORD PTR [eax+0x4]
+  503260:	85 c0                	test   eax,eax
+  503262:	75 e9                	jne    0x50324d
+  503264:	c6 05 61 ce 89 00 00 	mov    BYTE PTR ds:0x89ce61,0x0
+  50326b:	83 3d 5d c6 89 00 20 	cmp    DWORD PTR ds:0x89c65d,0x20
+  503272:	7f 07                	jg     0x50327b
+  503274:	c6 05 61 ce 89 00 08 	mov    BYTE PTR ds:0x89ce61,0x8
+  50327b:	83 3d 5d c6 89 00 15 	cmp    DWORD PTR ds:0x89c65d,0x15
+  503282:	7f 07                	jg     0x50328b
+  503284:	c6 05 61 ce 89 00 04 	mov    BYTE PTR ds:0x89ce61,0x4
+  50328b:	83 3d 5d c6 89 00 0c 	cmp    DWORD PTR ds:0x89c65d,0xc
+  503292:	7f 07                	jg     0x50329b
+  503294:	c6 05 61 ce 89 00 02 	mov    BYTE PTR ds:0x89ce61,0x2
+  50329b:	c3                   	ret

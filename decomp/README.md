@@ -35,7 +35,8 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 
 ## Port index
 
-Recent reusable topic notes: [Training panel automatic request and latch](research/training-panel-auto-contract.md),
+Recent reusable topic notes: [Automatic training panel load reset](research/training-panel-auto-reset.md),
+[Training panel automatic request and latch](research/training-panel-auto-contract.md),
 [Preacher sermon gestures and original artwork](research/preacher-sermon-gestures.md),
 [Automatic Preacher sermons and raid ownership](research/automatic-preacher-and-raid-ownership.md),
 [Shrine Erosion activation](research/erosion-activation.md),

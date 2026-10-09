@@ -1,0 +1,59 @@
+# Static GNU objdump 2.44 excerpt; no original instruction was executed.
+# Canonical EXE SHA256 3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f
+# Range [00503f60, 00504010); stop includes the function return only.
+
+00503f60 <.text+0x102f60>:
+  503f60:	53                   	push   ebx
+  503f61:	33 c0                	xor    eax,eax
+  503f63:	56                   	push   esi
+  503f64:	b9 f3 04 00 00       	mov    ecx,0x4f3
+  503f69:	57                   	push   edi
+  503f6a:	bf ad 5f 89 00       	mov    edi,0x895fad
+  503f6f:	f3 ab                	rep stos DWORD PTR es:[edi],eax
+  503f71:	66 c7 05 51 ce 89 00 	mov    WORD PTR ds:0x89ce51,0xffff
+  503f78:	ff ff 
+  503f7a:	66 a3 cd c6 89 00    	mov    ds:0x89c6cd,ax
+  503f80:	a1 30 03 89 00       	mov    eax,ds:0x890330
+  503f85:	85 c0                	test   eax,eax
+  503f87:	74 22                	je     0x503fab
+  503f89:	bb 0a 00 00 00       	mov    ebx,0xa
+  503f8e:	8b 70 04             	mov    esi,DWORD PTR [eax+0x4]
+  503f91:	38 58 2a             	cmp    BYTE PTR [eax+0x2a],bl
+  503f94:	75 0f                	jne    0x503fa5
+  503f96:	80 78 2b 03          	cmp    BYTE PTR [eax+0x2b],0x3
+  503f9a:	75 09                	jne    0x503fa5
+  503f9c:	50                   	push   eax
+  503f9d:	e8 de b1 fe ff       	call   0x4ef180
+  503fa2:	83 c4 04             	add    esp,0x4
+  503fa5:	8b c6                	mov    eax,esi
+  503fa7:	85 f6                	test   esi,esi
+  503fa9:	75 e3                	jne    0x503f8e
+  503fab:	a1 24 03 89 00       	mov    eax,ds:0x890324
+  503fb0:	85 c0                	test   eax,eax
+  503fb2:	74 1b                	je     0x503fcf
+  503fb4:	8b 48 14             	mov    ecx,DWORD PTR [eax+0x14]
+  503fb7:	f7 c1 00 00 80 00    	test   ecx,0x800000
+  503fbd:	74 09                	je     0x503fc8
+  503fbf:	81 e1 ff ff 7f ff    	and    ecx,0xff7fffff
+  503fc5:	89 48 14             	mov    DWORD PTR [eax+0x14],ecx
+  503fc8:	8b 40 04             	mov    eax,DWORD PTR [eax+0x4]
+  503fcb:	85 c0                	test   eax,eax
+  503fcd:	75 e5                	jne    0x503fb4
+  503fcf:	bf 81 76 89 00       	mov    edi,0x897681
+  503fd4:	33 c0                	xor    eax,eax
+  503fd6:	b9 c0 00 00 00       	mov    ecx,0xc0
+  503fdb:	f3 ab                	rep stos DWORD PTR es:[edi],eax
+  503fdd:	bf 81 73 89 00       	mov    edi,0x897381
+  503fe2:	b9 c0 00 00 00       	mov    ecx,0xc0
+  503fe7:	f3 ab                	rep stos DWORD PTR es:[edi],eax
+  503fe9:	a1 79 73 89 00       	mov    eax,ds:0x897379
+  503fee:	8b 0d 7d 73 89 00    	mov    ecx,DWORD PTR ds:0x89737d
+  503ff4:	5f                   	pop    edi
+  503ff5:	a3 91 76 89 00       	mov    ds:0x897691,eax
+  503ffa:	8b c1                	mov    eax,ecx
+  503ffc:	5e                   	pop    esi
+  503ffd:	2b 05 79 73 89 00    	sub    eax,DWORD PTR ds:0x897379
+  504003:	5b                   	pop    ebx
+  504004:	89 0d 95 76 89 00    	mov    DWORD PTR ds:0x897695,ecx
+  50400a:	a3 8d 76 89 00       	mov    ds:0x89768d,eax
+  50400f:	c3                   	ret
