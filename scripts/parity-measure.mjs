@@ -209,6 +209,7 @@ export function discoverReceipts(repo) {
   // Only an initially absent root is empty evidence. A vanished nested directory
   // may have held a newer failure and must abort instead of returning a partial scan.
   if (existsSync(root)) walk(root)
+  checkDiscoveryTime(budget)
   return { receipts, warnings }
 }
 

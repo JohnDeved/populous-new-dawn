@@ -119,11 +119,14 @@ export function readDiscoveryJson(path, budget) {
     }
     if (!sameFile(before, fs.fstatSync(fd, { bigint: true })) || !sameFile(before, metadata(path)))
       throw new DiscoveryReadError('changed during read')
+    let value
     try {
-      return JSON.parse(new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes))
+      value = JSON.parse(new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes))
     } catch {
       throw new DiscoveryReadError('invalid JSON')
     }
+    checkDiscoveryTime(budget)
+    return value
   } catch (error) {
     throw readError(error)
   } finally {

@@ -85,9 +85,10 @@ tokens. Duplicate decoded root keys fail closed; nested captured values preserve
 subject to raw-byte, token and time budgets. File/traversal time limits are 30/120
 seconds. File identity is checked around reads, and successful streamed reads retain
 the raw SHA-256. None of these reads rewrites source evidence or awards new parity.
-File changes, malformed UTF-8/JSON and oversize remain warnings; aggregate/traversal
-exhaustion aborts without partial scores. These limits bound input, not peak memory
-or runtime. Selected owned-adapter sidecar reads keep their separate4MiB limit. Oversized/invalid JSON makes
+File changes, malformed UTF-8/JSON and unsupported owned size remain warnings;
+aggregate/traversal exhaustion aborts without partial scores. These conservative
+input/work bounds are not peak-memory or hardware-performance claims. Selected
+owned-adapter sidecar reads keep their separate 4 MiB limit. Invalid/uninspected JSON makes
 measurement incomplete rather than hiding a possibly newer failed receipt. Refresh
 errors replace the current report with an unavailable notice while preserving history. Old
 arbitrary logs and summaries are not accepted as results. Receipts are trusted local
