@@ -57,6 +57,7 @@ test('oversized owned attempts still warn before any adapter can credit old evid
     status: 'unknown', parityMeasurements: [] })
   const found = discoverReceipts(repo)
   assert.equal(found.warnings.length, 1)
+  assert.match(found.warnings[0], /oversized owned receipt requires complete raw validation/)
   assert.equal(found.receipts.length, 0)
 })
 
@@ -65,5 +66,28 @@ test('malformed trailing bytes after an oversized apparent noncandidate remain a
   oversized('malformed.json', { result: true }, 'garbage')
   const found = discoverReceipts(repo)
   assert.equal(found.warnings.length, 1)
+  assert.match(found.warnings[0], /invalid JSON/)
   assert.equal(found.receipts.length, 0)
 })
+
+test('oversized contract preserves exact measurements and invalidates an outcome mismatch', t => {
+  const { repo, put, oversized } = fixture(t)
+  put('old.json', attempt('passed', '2026-10-09T00:00:00Z'))
+  oversized('contract.json', { identity: { taskId: 'test' }, verification: {
+    results: [{ status: 'failed', parityMeasurements: attempt('passed', '2026-10-09T00:01:00Z').parityMeasurements }] } })
+  const found = discoverReceipts(repo)
+  assert.deepEqual(found.warnings, [])
+  assert.equal(evaluateCheck(check, found.receipts, current).status, 'stale')
+})
+
+for (const scenario of ['scripts/local-render/early-missions.mjs', 'qa/blast-ordinary/controls.mjs'])
+  test(`oversized malformed owned options retain the source fallback for ${scenario}`, t => {
+    const { repo, oversized } = fixture(t)
+    oversized('owned.json', { kind: 'pnd-command-receipt', projected: false,
+      command: ['node', 'scripts/local-render/harness.mjs', '--scenario'],
+      source: { inputs: { [scenario]: 'hash' } }, status: 'unknown', parityMeasurements: [] })
+    const found = discoverReceipts(repo)
+    assert.equal(found.warnings.length, 1)
+    assert.match(found.warnings[0], /oversized owned receipt requires complete raw validation/)
+    assert.equal(found.receipts.length, 0)
+  })
