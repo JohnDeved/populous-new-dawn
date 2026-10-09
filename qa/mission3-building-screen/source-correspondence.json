@@ -1,0 +1,97 @@
+{
+  "scope": "Source-only observer and route preparation; final product correspondence required before launch",
+  "productHead": "b1804f86c6392aeb9e0fe4085cda52ab7d100f0e",
+  "productAppTree": "9001a7befa562a5236c52fa74b77f9f4241cc63d",
+  "helpers": [
+    {
+      "path": "scripts/local-render/mission1-vault-input.mjs",
+      "commit": "d6565f2a8ab6a020258e777ac548ca5c5ea6a155",
+      "sha256": "6516422eadca28e8850a0640ded3ab8a30cdc5b12a1a44e982af14c2a414b913"
+    },
+    {
+      "path": "scripts/local-render/mission1-vault-arrival.mjs",
+      "commit": "d6565f2a8ab6a020258e777ac548ca5c5ea6a155",
+      "sha256": "4ef7d2f1acf079f1d49ae87a9ba3bc2cff09f88cfa6b5b1e176e5fac4faaab99"
+    },
+    {
+      "path": "scripts/local-render/mission3-temple-checkpoint.mjs",
+      "commit": "d6565f2a8ab6a020258e777ac548ca5c5ea6a155",
+      "sha256": "f74bef212a3bf9a80a6d9dfeac3785e74042cd5489a15952f96971dd99516181"
+    },
+    {
+      "path": "scripts/local-render/mission3-temple-witness.mjs",
+      "commit": "d6565f2a8ab6a020258e777ac548ca5c5ea6a155",
+      "sha256": "7d07df4ba1c098beb2f8c6ce73c4949d2ba9faa7a9648cd490426eae519b126e"
+    }
+  ],
+  "observerBasis": {
+    "commit": "a409893cdab222e140f1acc02b69c25d6e6e05b6",
+    "path": "scripts/local-render/mission1-building-screen-witness.mjs",
+    "sha256": "bc0f22fbd4ea700c82d5d5e393bbc0c901f31da58dbc58b8be817f9f77015342",
+    "adaptation": "Authored M3 identity and shared p resource/material capture; retains synchronous visit and separately latched natural-draw semantics. Omits M1 resize workload."
+  },
+  "product": [
+    {
+      "path": "app/game-store.ts",
+      "sha256": "5af36b173f8893c5300458239177465a6a304c09ee67c458bce9ab1fb54e6d7d"
+    },
+    {
+      "path": "app/shared-anibl.ts",
+      "sha256": "c315a03ba2eecb6c2607a0f2dcca8a0fc892bb22205e5953a5fefdd40b1de013"
+    },
+    {
+      "path": "app/scene.ts",
+      "sha256": "8a7c63fb66cad95d7d7662fe26b2c84b3fdaf93065973f125ecc1fe36f2347c0"
+    },
+    {
+      "path": "app/scene-worship-acquisition.ts",
+      "sha256": "fc018935dba7a9912bbd5b58d3fe1c46c4832cc4404f17771ed34e4283aa0d0b"
+    },
+    {
+      "path": "app/scene-entities.ts",
+      "sha256": "1cf400aa2ea6059d9407a96ceef77c776760d8a1fef2700ce4294616cd37ce58"
+    },
+    {
+      "path": "app/scene-assets.ts",
+      "sha256": "f6450204b0a1d1ad6b0346d551959b6cd89e983fbc045b80cf51016e7664a98c"
+    },
+    {
+      "path": "app/temple-art.ts",
+      "sha256": "64169f165c8981573685c11b9ce4ae6ec5cfe825bf1213f871f47ebc54ad947c"
+    },
+    {
+      "path": "app/building-acquisition-source.ts",
+      "sha256": "b3079d59e16fe503d8784c49cc6b0cca0fdf3438fdb8b95ae3dda9b21c2190df"
+    },
+    {
+      "path": "app/building-acquisition-triangles.ts",
+      "sha256": "07a018b1ac53d0ec5dcb50914e94f6c7d79d0d4efcefa15e5d975d433f93c0b3"
+    },
+    {
+      "path": "app/building-acquisition-drawer.ts",
+      "sha256": "061cae62f2a95a098447ade65da3991504b634ce296731f9e4da3801ee8c9014"
+    },
+    {
+      "path": "app/worship-acquisition.ts",
+      "sha256": "71abb53511256bbc163f2000d77c7799f5c2d711ec9a6ad9facdc916162c5707"
+    },
+    {
+      "path": "app/worship-acquisition-runtime.ts",
+      "sha256": "e3e943a7f7045b9be20b43c92cf342bd42f5f2434d4ffd4984db9fc79845f79c"
+    },
+    {
+      "path": "app/page.tsx",
+      "sha256": "93a43d72d08e943c39401be4e0d357afa778fd10207f3fac1f747d56660f829f"
+    },
+    {
+      "path": "app/game-clock.ts",
+      "sha256": "d4f850867943a54ebf86e79b6d71e2f842d0e6c61c70bb2884872bd6d002eef6"
+    },
+    {
+      "path": "app/original-temple-acquisition.json",
+      "sha256": "9418cbe8c5356350b2a971ad699d9fcd51d24187371a4640b9beb5e4a433df6b"
+    }
+  ],
+  "launchEnabled": false,
+  "profileReuse": "Forbidden for the UNKNOWN quarantined PR277 run. Fresh profile only after final application/runtime admission."
+}
