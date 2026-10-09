@@ -1,0 +1,878 @@
+{
+  "kind": "reviewed-receipt-digests",
+  "testedHead": "54f19225a6f005fd4c44b894272c1da829ec421d",
+  "argvDigestEncoding": "SHA256 of UTF-8 compact JSON command array with ensure_ascii default true; full argv remains in pinned raw receipts.",
+  "rawPublication": "Hashes and byte lengths only; raw streams and profile are not included.",
+  "standardInputPins": {
+    "work/orchestration/temple-automatic-final-01/profile.json": "ea2c7af83a022346441d67685f283d10e0175c0b392aeabacc6f7eb63488c705",
+    "package.json": "3b8a837c172a783bc9517ee15d9d5eba0abaaeadcfebbdab6fd9e2dfa0052304",
+    "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+    "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "scripts/orchestration/command-receipt.mjs": "cb6e670973ddf7e0e83bb7efb79e7b4f2315e575d9764620c539a8683ea6727d",
+    "scripts/parity-measure.mjs": "4444431753c100e372c3b9583fe0eb8ecd78fb4a3d5fef959f845fe9d49f823e",
+    "scripts/parity-discovery.mjs": "9eda3cff198950bb075a7c918a7eada0440df198c37094a29ab46e9542c86d44",
+    "scripts/parity-json-metadata.mjs": "bf489880a1f0078c33863c05a14580edff952d0e43750042e9ceea6e77732fb9"
+  },
+  "standardStages": [
+    {
+      "receipt": "work/orchestration/temple-automatic-final-01/tests-new.json",
+      "sha256": "ac496bd56d14e265e77e6ce8f9e9f6b94307b26c9b853fc8d646fbd2f82056b2",
+      "sourceHead": "54f19225a6f005fd4c44b894272c1da829ec421d",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "374a2fc9a27435a7c260e2a5876e3fa6c37c8d844aed616900c594992416a20d",
+          "bytes": 7243
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "eded9cf7ecc50c1b277794233148a4e8aab2e6884dbf27bae92dabee84021a0e",
+      "name": "tests-new",
+      "counts": {
+        "tests": 69,
+        "pass": 69,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "testFiles": 7
+    },
+    {
+      "receipt": "work/orchestration/temple-automatic-final-01/tests-01.json",
+      "sha256": "d161d1a4e59cdc2d1c3a3582ffc13d59bb2d6eb0a510e062298cfc576708aee6",
+      "sourceHead": "54f19225a6f005fd4c44b894272c1da829ec421d",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "8ad7a9c134d5f79c4b00a47491d4d14096479703127e505b732151ba4521710e",
+          "bytes": 16857
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "f9df3bf09cc21ef69102fbe153d030e71f0f2c3753c353c7af90f1e63f041628",
+      "name": "tests-01",
+      "counts": {
+        "tests": 170,
+        "pass": 170,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "testFiles": 33
+    },
+    {
+      "receipt": "work/orchestration/temple-automatic-final-01/tests-02.json",
+      "sha256": "fc4f8cf6b8a8103c27a476c4003816efd9f1fa7af4137dab2a87a3465f179365",
+      "sourceHead": "54f19225a6f005fd4c44b894272c1da829ec421d",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "8550e5f25518e0a615a4f5af27bf90462e17f61380c3723a577ecf6f738f2b6b",
+          "bytes": 17410
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "0ee2682a3c820b3e848a79a16ee9be9aac08cf509bcb92335b63ce64f8765d0f",
+      "name": "tests-02",
+      "counts": {
+        "tests": 165,
+        "pass": 165,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "testFiles": 33
+    },
+    {
+      "receipt": "work/orchestration/temple-automatic-final-01/tests-03.json",
+      "sha256": "a1b13210819744661d62f21d06e2ab58dd35467fd3784fa4ed1147cdc77aedbc",
+      "sourceHead": "54f19225a6f005fd4c44b894272c1da829ec421d",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "1334d7d1a8b5a8a1f7427afe232d0546a3ef982fd48f399d29801870f109d5de",
+          "bytes": 27969
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "a4f33dd170edf799f69b50ebce6c6dd3772606ae9bf92844a567ff6d8459b1f2",
+      "name": "tests-03",
+      "counts": {
+        "tests": 283,
+        "pass": 283,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "testFiles": 34
+    },
+    {
+      "receipt": "work/orchestration/temple-automatic-final-01/tests-04a.json",
+      "sha256": "81c9e9f562564998759bf5a670c0b80bab5b808d08f1f2536bc8de728481db93",
+      "sourceHead": "54f19225a6f005fd4c44b894272c1da829ec421d",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "068f36088e520e53db7bc11c6cb47637fdd94c3bc6400863f2bfe3c1ec1ab649",
+          "bytes": 6739
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "bf0313a874c1b8aebae112e3d33eff8a59d42a68926afd2d8fbdddb01323e966",
+      "name": "tests-04a",
+      "counts": {
+        "tests": 66,
+        "pass": 66,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "testFiles": 13
+    },
+    {
+      "receipt": "work/orchestration/temple-automatic-final-01/tests-04b.json",
+      "sha256": "4d22828c84337232897e8e4157148a632b8931407ef4144f3e582e0676315868",
+      "sourceHead": "54f19225a6f005fd4c44b894272c1da829ec421d",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "532537672c2f78b124be1192a8746a5dcbee2ef87965e17952476f53553bab95",
+          "bytes": 7633
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "e8fc71e77a1a5caa8fdf303b369630390c9cd37c6d84159c92f7f3c44bedcf6b",
+      "name": "tests-04b",
+      "counts": {
+        "tests": 75,
+        "pass": 75,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "testFiles": 11
+    },
+    {
+      "receipt": "work/orchestration/temple-automatic-final-01/tests-04c.json",
+      "sha256": "f264dd403637fe7b5b84b746a28d737010049b96f064e07558ed0bdb94fb8b02",
+      "sourceHead": "54f19225a6f005fd4c44b894272c1da829ec421d",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "402fac27d69b7d978c516bbed3803a0594537a5c23fba1baf40ebf3def348e47",
+          "bytes": 3133
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "77b2d371fa47b96936e05899afb4337fa518054932c4543c0329bac8ed671d53",
+      "name": "tests-04c",
+      "counts": {
+        "tests": 32,
+        "pass": 32,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "testFiles": 11
+    },
+    {
+      "receipt": "work/orchestration/temple-automatic-final-01/tests-05a.json",
+      "sha256": "0faa1b130f96369eb84b7d3475644528b4907224a511dd60a6e913c3f03a41eb",
+      "sourceHead": "54f19225a6f005fd4c44b894272c1da829ec421d",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "3d6729c44f0ebe8fd851f1ee603d75dfeb186e3274455d120156578287bfcc83",
+          "bytes": 5675
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "54c3b14da7d44b8b144a1e08c22c4b061e90b94d58722460538405712e683d2e",
+      "name": "tests-05a",
+      "counts": {
+        "tests": 54,
+        "pass": 54,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "testFiles": 11
+    },
+    {
+      "receipt": "work/orchestration/temple-automatic-final-01/tests-05b.json",
+      "sha256": "a38561c635a73e0520c88114b772f4751295a2755dc2feb406fc4cee3b867647",
+      "sourceHead": "54f19225a6f005fd4c44b894272c1da829ec421d",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "4bba6d6fd866e2093658cb4fea84ead78b8dc330ab8e8951f6a622233ddd0f59",
+          "bytes": 4780
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "b32ffc6e316e792cff7905c6df167be52e52bcaa94fd2ecdd62ebee52d5c4348",
+      "name": "tests-05b",
+      "counts": {
+        "tests": 47,
+        "pass": 47,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "testFiles": 11
+    },
+    {
+      "receipt": "work/orchestration/temple-automatic-final-01/tests-05c.json",
+      "sha256": "5647d866ddce3f4b1421f29c96534c1578fb5bf152585db904c8eab523103bed",
+      "sourceHead": "54f19225a6f005fd4c44b894272c1da829ec421d",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "85a4c94d2c12fab7191da4822c9be0cb3fc088b8556c9b8b0db65e53988ffcd7",
+          "bytes": 9632
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "4ceec8212a3e6c7e9b28baf7a4a74046e292f3960a713b6d555ba98cfe9a49c5",
+      "name": "tests-05c",
+      "counts": {
+        "tests": 90,
+        "pass": 90,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "testFiles": 11
+    },
+    {
+      "receipt": "work/orchestration/temple-automatic-final-01/tests-06.json",
+      "sha256": "3a9d4b39b921d00389d93211a38df5645d6bbcb9651954a3f3be616e99c822a2",
+      "sourceHead": "54f19225a6f005fd4c44b894272c1da829ec421d",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "92dc568be0291d2e43120dfa05873dd3fc3102ec9d6e0ad27d68ffb076a1e502",
+          "bytes": 34074
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "c7d1f843452a4a1ca356bf9da45d49a078d231bc3af4a3978d8f936d781cc73d",
+      "name": "tests-06",
+      "counts": {
+        "tests": 328,
+        "pass": 328,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "testFiles": 34
+    },
+    {
+      "receipt": "work/orchestration/temple-automatic-final-01/tests-07.json",
+      "sha256": "b3f706a8d8ee7815f4061840e55536be4979d29daa916fd9c289aa50cc19d56d",
+      "sourceHead": "54f19225a6f005fd4c44b894272c1da829ec421d",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "600345a2147bf30cf78cb02b1678d2f30497f37e01315fbb1956d67546878007",
+          "bytes": 16356
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "55663f12a3e71e1df59f0883f9e7ce02c416a52390fefea553afc48158653928",
+      "name": "tests-07",
+      "counts": {
+        "tests": 141,
+        "pass": 141,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "testFiles": 33
+    },
+    {
+      "receipt": "work/orchestration/temple-automatic-final-01/tests-08.json",
+      "sha256": "b1a7f5261e96d1e7a8e1f47249d1808bb68b3b82c473fe2c05f48270fdbd914f",
+      "sourceHead": "54f19225a6f005fd4c44b894272c1da829ec421d",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "475174ac0306e5a6fdf4c43d9428ce0d820cb6bab8adaeaa988e518ca69a82ed",
+          "bytes": 17579
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "b3bec1e5dcdbf52404775adbd6dc32f144fd489b85752a57a3a7c7af0df50149",
+      "name": "tests-08",
+      "counts": {
+        "tests": 170,
+        "pass": 170,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "testFiles": 39
+    },
+    {
+      "receipt": "work/orchestration/temple-automatic-final-01/typecheck.json",
+      "sha256": "f98ef84064a4464c6754f1290c1486d0efb8568d3b9a2c489d020682646253b7",
+      "sourceHead": "54f19225a6f005fd4c44b894272c1da829ec421d",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "5b3b688caa668685eebda41ca93c4e60de869bac3645a0b25bf22809e6c84ba5",
+          "bytes": 55
+        },
+        "stderr": {
+          "sha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+          "bytes": 99
+        }
+      },
+      "commandSha256": "93322c849dc68f2341d8af2438ab5e66f69acfc1fa455c4e625889c43afae4f5",
+      "name": "typecheck"
+    },
+    {
+      "receipt": "work/orchestration/temple-automatic-final-01/parity-check.json",
+      "sha256": "e1d134d4ad03abe5ecffe23e8e4fcdfe284baeaf3b2a4532488bc4071e4a06a9",
+      "sourceHead": "54f19225a6f005fd4c44b894272c1da829ec421d",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "f39c8ad20b8013f4e4e4ade55ff5d63ab1c8df3729611db56c2d25cf734b48a9",
+          "bytes": 152
+        },
+        "stderr": {
+          "sha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+          "bytes": 99
+        }
+      },
+      "commandSha256": "e4597df4e95f02e3fb91f836320857a47f86ee79116fe50deeed83bf2de8d5c5",
+      "name": "parity-check"
+    },
+    {
+      "receipt": "work/orchestration/temple-automatic-final-01/orchestration-check.json",
+      "sha256": "1e2e409569e424e45d9eba0c5227fce86f413b8e6bdd85b01dc57fcdb14ed3d1",
+      "sourceHead": "54f19225a6f005fd4c44b894272c1da829ec421d",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "b18d09c73c92014599d480b65ec8bfb1e0c0b21e0a236c56baaee4e0e935f9ac",
+          "bytes": 4971
+        },
+        "stderr": {
+          "sha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+          "bytes": 99
+        }
+      },
+      "commandSha256": "e11d4a388b30a6c0303d9b3f520eebbf5d6c0f097c821563aa214fca0c2f778b",
+      "name": "orchestration-check"
+    },
+    {
+      "receipt": "work/orchestration/temple-automatic-final-01/build.json",
+      "sha256": "8e4f9fd8efb0c18cee462f6fbc1801229110a764d5ca14a1c7983e08bd5411d3",
+      "sourceHead": "54f19225a6f005fd4c44b894272c1da829ec421d",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "d5d5552659041dfce5debb21ddf3115755234c4a14c3b20190511573e59b9e45",
+          "bytes": 1143
+        },
+        "stderr": {
+          "sha256": "90d155be612dbdf53b1e0beaf37350274f36c3a14b364586dc60a791b87faf4f",
+          "bytes": 1488
+        }
+      },
+      "commandSha256": "f8ca8c2c9d3344af6a85fc6c275f4132bce8295f4ec5f99551d3e85a5759d985",
+      "name": "build"
+    }
+  ],
+  "focusedAndQuality": [
+    {
+      "receipt": "work/orchestration/temple-automatic-green-02.json",
+      "sha256": "88bb85833db16165c8ea847ecf0103056d14d1101e652bec01380ce6bec43c62",
+      "sourceHead": "c14fda7dc237f57205f67518805493843c886d61",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "e18ed8fd3034ce1223efa523b76734bf7732b3eeebc3adf676ddffaf17336ddc",
+          "bytes": 3186
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "bb37e0989c54dafa1604bb7c51cf75b3e9db66b71f5f4e6f32a06572b7a85228"
+    },
+    {
+      "receipt": "work/orchestration/temple-automatic-format-01.json",
+      "sha256": "a1387c8594419839823f884711a7a061387ce8f3930e7235d5ac380b517b84f6",
+      "sourceHead": "f859ee8fb9dcaaa80825b580ba8d698df1bc8f5c",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "577f4a67018f44de830a1a173e0e7ba6c81172c7c23cab55e54bfb83196a09e9",
+          "bytes": 111
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "bd675ba521bb138becc028ebbea642bcbd161deb19b9a0f565f976e6d902f068"
+    },
+    {
+      "receipt": "work/orchestration/temple-automatic-format-02.json",
+      "sha256": "fc672d50968bd1c927a10ada68ce83c01e651cdbaec44f83e00df7a6a8b25258",
+      "sourceHead": "c14fda7dc237f57205f67518805493843c886d61",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "248f44fe790de60e16645d82721b70c1e4a620b568c36887b428ddf53ec715ce",
+          "bytes": 111
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "bd675ba521bb138becc028ebbea642bcbd161deb19b9a0f565f976e6d902f068"
+    },
+    {
+      "receipt": "work/orchestration/temple-automatic-eslint-01.json",
+      "sha256": "b250143183d97218b9e7dea47f4f0e238dfcd0c7c3948b0fc456b5c078fde729",
+      "sourceHead": "f859ee8fb9dcaaa80825b580ba8d698df1bc8f5c",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "5ffd48538e864cadeece57f1720f2c6b6ab1099633ffc9802b4c109644518da8"
+    },
+    {
+      "receipt": "work/orchestration/temple-automatic-eslint-02.json",
+      "sha256": "f9fdcc83b1951e69b8d0a1379544a7797e1b20158ee7bcd38aa39af3da990275",
+      "sourceHead": "c14fda7dc237f57205f67518805493843c886d61",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "5ffd48538e864cadeece57f1720f2c6b6ab1099633ffc9802b4c109644518da8"
+    },
+    {
+      "receipt": "work/orchestration/temple-automatic-type-01.json",
+      "sha256": "c8a0f59646f0309fa73e2dd4f81d15990dd07ea25d97c176857b51f3bf023090",
+      "sourceHead": "f859ee8fb9dcaaa80825b580ba8d698df1bc8f5c",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "7582d2a43e288131003e83086a5c501777ddfd51ba349435c39ebaf1b61bae05"
+    },
+    {
+      "receipt": "work/orchestration/temple-automatic-oxlint-01.json",
+      "sha256": "a80a371556a329cadcec9f84e7cd8952a286845dc8084dabaa27599b226dce89",
+      "sourceHead": "f859ee8fb9dcaaa80825b580ba8d698df1bc8f5c",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "28721e69d1de621191fab5d152cf2cf24f61dd48d2a17f019de44cd368a37b07",
+          "bytes": 3691
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "e4e26097f58501308a87dcd2b0a8faefa3fa46046c736cab9e8228484e26aac2"
+    },
+    {
+      "receipt": "work/orchestration/temple-automatic-baseline-format-01.json",
+      "sha256": "8e39fdacb8a5423de983326ed08a41f131d45b5ee916a4c8264c00bdfebd65b3",
+      "sourceHead": "baf197dff75e5ef171f90af4ebbbbac0dcb277d5",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "ea42194af1fbb4fbb5178ccd52ec32728f4a4b91523de4b431828d4cd055bb9f",
+          "bytes": 111
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "ab12607bdab88801e3bfc8a4f36dfcb09ac5fd250228e6bd43100126bf996758"
+    },
+    {
+      "receipt": "work/orchestration/temple-automatic-baseline-format-02.json",
+      "sha256": "05863c785e6d128b15ccf522b9d101baf66abf9514097bf60074ec6897c3aa9e",
+      "sourceHead": "9aeaedcf8d6d96f1e0552a2cf13f5e036d0edee3",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "106758699a3c4efbaab4644c30c6a7c03f33795c9001af5b17506d62264c6ff1",
+          "bytes": 110
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "ab12607bdab88801e3bfc8a4f36dfcb09ac5fd250228e6bd43100126bf996758"
+    },
+    {
+      "receipt": "work/orchestration/temple-automatic-baseline-eslint-01.json",
+      "sha256": "6336fc6029a79def0d4cc0d03868c2f9a9224b713652c4e48562637bcacb4c8c",
+      "sourceHead": "baf197dff75e5ef171f90af4ebbbbac0dcb277d5",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "5ffd48538e864cadeece57f1720f2c6b6ab1099633ffc9802b4c109644518da8"
+    },
+    {
+      "receipt": "work/orchestration/temple-automatic-baseline-eslint-02.json",
+      "sha256": "63e8b619bb2332cd86d5737628e4c26c866b69f31b16b985e8aa9285ff4273f0",
+      "sourceHead": "9aeaedcf8d6d96f1e0552a2cf13f5e036d0edee3",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "5ffd48538e864cadeece57f1720f2c6b6ab1099633ffc9802b4c109644518da8"
+    }
+  ],
+  "finalCheap": [
+    {
+      "receipt": "work/orchestration/temple-final-cheap-01/preflight.json",
+      "sha256": "df0799203b0336951227f911a19d66693ba24a0a28885113cb298ca9a8f1f90a",
+      "sourceHead": "54f19225a6f005fd4c44b894272c1da829ec421d",
+      "status": "failed",
+      "exitCode": 1,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "eddbd33c347a069a134e1ff1dcb19307ec1886fadebc2865c35b3515bd20fb1b",
+          "bytes": 4910
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "e31e7182e78891f5cff4d2681522157cf0685ad4f0bfca033998376878cb0d47"
+    },
+    {
+      "receipt": "work/orchestration/temple-final-cheap-01/eslint.json",
+      "sha256": "413f6dd6d6791019fb35f8edba618578a1c026c39cb654174bc7443c4503031f",
+      "sourceHead": "54f19225a6f005fd4c44b894272c1da829ec421d",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "b451e4277c363898e7e43eda28a102082177484ed23b33c7de8808bbe765ec82"
+    },
+    {
+      "receipt": "work/orchestration/temple-final-cheap-01/structural.json",
+      "sha256": "400e690d840bcd6cae8da7dd9a1c6ad466c677d76c3cfd9b147d2bd0ebce6fa9",
+      "sourceHead": "54f19225a6f005fd4c44b894272c1da829ec421d",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "43c002bd9919d33decacd72f244f2342112451d4d6cbf5087cb824f92e45a75d",
+          "bytes": 4878
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "9f2c14dc38d4c6f75bb7a16c3bb5ae3456bccb9a1586fa74b2eaa0f47c0122f7"
+    },
+    {
+      "receipt": "work/orchestration/temple-final-cheap-01/context.json",
+      "sha256": "bd3081ed9635fb6f8ffe0414eb8de9e78c1bc180e7b6af4b3a1595b9266fe2bf",
+      "sourceHead": "54f19225a6f005fd4c44b894272c1da829ec421d",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "b6ff0e607b8554c4776eef718d62a5a5655b8e5a6d96120eda4c553d7484029b",
+          "bytes": 818
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "a7020621ca2e6fc6af0768dc9b5ef44fb8b8cec0627bc6676ee0f3e5f3a292f6"
+    }
+  ],
+  "preservedBaselines": [
+    {
+      "receipt": "work/orchestration/temple-automatic-first-red-01.json",
+      "sha256": "4dbee27240a4a54e81133fe965513f98901efa97da65b0ca5ccf46c3db73921a",
+      "sourceHead": "baf197dff75e5ef171f90af4ebbbbac0dcb277d5",
+      "status": "failed",
+      "exitCode": 1,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "f2ad9a4544452026e62ffeec1ddd8301e4f31f803a6185ad0760717044d7a4de",
+          "bytes": 5511
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "90d4831680b7d54c7c052432cc7072ab4052f4bbfb1b5ff0814fce3e48f75a80",
+      "meaning": "Four fixture prerequisite failures, before product assertions; missing Temple material resource.",
+      "standardResultCredit": 0
+    },
+    {
+      "receipt": "work/orchestration/temple-automatic-first-red-02.json",
+      "sha256": "aeb8217d641c2c8cdb5e3c175d74899f2e6f8cdb18ae2613fd1b386bf6ecec33",
+      "sourceHead": "9aeaedcf8d6d96f1e0552a2cf13f5e036d0edee3",
+      "status": "failed",
+      "exitCode": 1,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "3c630f17a10d875a8eea83127a25588b3cea18f6fe8db647ee7869b749d6f77e",
+          "bytes": 4334
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "90d4831680b7d54c7c052432cc7072ab4052f4bbfb1b5ff0814fce3e48f75a80",
+      "meaning": "Four intended product ownership/consumer failures reached after actual M3 input/admission.",
+      "standardResultCredit": 0
+    },
+    {
+      "receipt": "work/orchestration/temple-automatic-green-01.json",
+      "sha256": "566b405fabd531967180ee0bbbc5a49942a37f4f2789def05b99ccb608d385c9",
+      "sourceHead": "f859ee8fb9dcaaa80825b580ba8d698df1bc8f5c",
+      "status": "failed",
+      "exitCode": 1,
+      "signal": null,
+      "sourceStable": true,
+      "raw": {
+        "stdout": {
+          "sha256": "3feb93315e14d961b1244675e2d35629318a17e2fa523d22018bec221c690929",
+          "bytes": 3921
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "bb37e0989c54dafa1604bb7c51cf75b3e9db66b71f5f4e6f32a06572b7a85228",
+      "meaning": "21/22 intermediate result; supplied malformed-model case was normalized before the callback. Assertion retained at bound consumer without a runtime change.",
+      "standardResultCredit": 0
+    }
+  ],
+  "strictOxlint": {
+    "status": "FAILED",
+    "warnings": 20,
+    "errors": 0,
+    "newDiagnostics": 0,
+    "removedDiagnostics": 0,
+    "correspondence": {
+      "path": "work/orchestration/temple-final-cheap-01/inherited-oxlint.json",
+      "sha256": "f0e473ca1d3f78fcc057cc150b798b024793a274244f47e1b8aa86df92c39111",
+      "bytes": 11807,
+      "included": false
+    },
+    "boundary": "Scoped two-file strict preflight; complete diagnostic source spans and rule/message/severity match retained baseline, accepted base and final source. No full-repository lint-clean claim."
+  }
+}

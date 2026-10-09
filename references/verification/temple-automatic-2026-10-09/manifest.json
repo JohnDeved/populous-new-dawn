@@ -1,0 +1,137 @@
+{
+  "kind": "public-source-standard-checkpoint",
+  "recordedAt": "2026-10-09T22:07:17.890248+00:00",
+  "testedHead": "54f19225a6f005fd4c44b894272c1da829ec421d",
+  "testedTree": "1551f44f032fb6b370476a10d856c74fb55dc2a7",
+  "sourceBase": "b2990fe5312b0a0da7e9dc1c23bb3bc071bb0d13",
+  "runtimePullRequest": "https://github.com/JohnDeved/populous-new-dawn/pull/293",
+  "sourceProofPullRequest": "https://github.com/JohnDeved/populous-new-dawn/pull/290",
+  "sourceProofHead": "7c83191052253866311fb86b74d106ce37719fec",
+  "sourceFiles": [
+    {
+      "path": "app/building-panels.ts",
+      "gitBlob": "f951a933e585d6185825140030e236eb5d3d210b",
+      "sha256": "7775e23cd519a6887d7bf1a1f4592a10b5596fb79aab440883bec06127663d11"
+    },
+    {
+      "path": "app/object-panels.ts",
+      "gitBlob": "20b7fe7d1d5660f5807c3b60193111e26a5f9009",
+      "sha256": "30723a021414b2fee992277c3491b5286b50641eeef58cabdca1796a937ba1ac"
+    },
+    {
+      "path": "decomp/research/temple-automatic-panel-contract.md",
+      "gitBlob": "a60bdb94fb0671e25847f635be501a84bccbe571",
+      "sha256": "cc6aca9f1cdca992533d0ce741974d139ed51a3787dedc07073bf61ee55cbcf1"
+    },
+    {
+      "path": "tests/support/camp-panel-scene.mjs",
+      "gitBlob": "0239055be628159af23e97e6d250c448b3fc999f",
+      "sha256": "a842bf2423093002d2800abc1af4a8b1539d6cca634fc1eb9a1a311a07c1807e"
+    },
+    {
+      "path": "tests/support/temple-panel-scene.mjs",
+      "gitBlob": "95b15575311dcfc36343d7f5e968b81b73070c42",
+      "sha256": "f3eec3144b686154cfb3d297c9b96bdd47c8010aa3423c8392f6c4aca40cb18d"
+    },
+    {
+      "path": "tests/temple-automatic-panel.test.mjs",
+      "gitBlob": "f431a5599c72cd6ddeca009cb71b569597b15bfb",
+      "sha256": "9498cfea3cf3e269a640c3e910ae03985c2e955fc775f57f49c76d170d73fd9a"
+    }
+  ],
+  "staticProof": {
+    "scope": "Same-owner, class-2/model-5, state-2 training caller selects kind5. Foreign/alternate-state behavior and native execution/raster/cadence are not claimed.",
+    "executable": {
+      "bytes": 2275840,
+      "sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "included": false
+    },
+    "selector": {
+      "va": "[0x40b9c0,0x40ba1c)",
+      "fileOffsets": "[0xadc0,0xae1c)",
+      "sha256": "ac6397c507769c8744d10afbf9ea46d22ac1c427e2fc2bd8f10979c0b35a41eb"
+    },
+    "allocator": {
+      "va": "[0x50434a,0x504489)",
+      "fileOffsets": "[0x10374a,0x103889)",
+      "sha256": "a7e7e89bfd8ebdf572f5175a1f16c8b15464371e5dde18aadd63a0b79a559c49"
+    },
+    "descriptor": {
+      "va": "0x5a73ec",
+      "fileOffset": "0x1a51ec",
+      "bytesHex": "9f480000"
+    },
+    "contractUrl": "https://github.com/JohnDeved/populous-new-dawn/blob/54f19225a6f005fd4c44b894272c1da829ec421d/decomp/research/temple-automatic-panel-contract.md"
+  },
+  "originalReviews": [
+    {
+      "file": "source-caller-review.md",
+      "originalFilename": "temple-automatic-final-source-review-20261009.md",
+      "originalSha256": "5a8df1ca66c95ebe67b76aa0cfa65dfa76848c6b75abeed6ddeb1197748d31d7",
+      "copyPolicy": "Exact bytes."
+    },
+    {
+      "file": "standard-result-review.md",
+      "originalFilename": "temple-automatic-final-standard-result-review-20261009.md",
+      "originalSha256": "e694dc8a467280596f1101e58f4a82097dfbbe9d54663edb6ef001b025ed83f0",
+      "copyPolicy": "Exact bytes."
+    }
+  ],
+  "supportingReviewDigests": [
+    {
+      "file": "temple-automatic-source-contract-review-20261009.md",
+      "sha256": "96ea7a4834ba55015b21bf6b664c4c64d02911c9c2d05634ddf7444ea543650c",
+      "included": false
+    },
+    {
+      "file": "temple-automatic-red02-review-20261009.md",
+      "sha256": "7bf2dcce7ad5937c19b4a852decf98532bec2e055db9a5948f4b5b300fde4d44",
+      "included": false
+    },
+    {
+      "file": "temple-automatic-cheap-result-review-20261009.md",
+      "sha256": "a83f51ee62a3b465930b92cae3a92a4fa1256a40c471ffffa4c56d5daa577c44",
+      "included": false
+    },
+    {
+      "file": "temple-automatic-standard-profile-review-20261009.md",
+      "sha256": "343412c6f87e4450e14558afcbd71c2f61f68c986711e841912572b228b4cf37",
+      "included": false
+    }
+  ],
+  "payloadFiles": [
+    {
+      "file": "README.md",
+      "sha256": "f50a28479643f4573952525282f8e02cd6689e89a9e5f537d6f20be11a2f21a8",
+      "bytes": 5845
+    },
+    {
+      "file": "receipt-index.json",
+      "sha256": "73d19f2fba1f5430b8df59c955f2f1f3162ce2742a40ff590dca636f440ab8d1",
+      "bytes": 30723
+    },
+    {
+      "file": "source-caller-review.md",
+      "sha256": "5a8df1ca66c95ebe67b76aa0cfa65dfa76848c6b75abeed6ddeb1197748d31d7",
+      "bytes": 7147
+    },
+    {
+      "file": "standard-aggregate.json",
+      "sha256": "4ad263b61e0109e84bbe8037de939b05f650ea529efdf27d19cd4a3dedfb4834",
+      "bytes": 11500
+    },
+    {
+      "file": "standard-result-review.md",
+      "sha256": "e694dc8a467280596f1101e58f4a82097dfbbe9d54663edb6ef001b025ed83f0",
+      "bytes": 4150
+    }
+  ],
+  "copyPolicy": "Only allowlisted bounded Markdown reviews/report, immutable standard aggregate and digest indexes. No raw streams, browser reports, profile, archive, executable/game bytes, credentials, dependency files or held QA source.",
+  "ordinaryBrowserGate": {
+    "status": "PENDING",
+    "acceptedResult": false,
+    "resultCredit": 0,
+    "boundary": "No ordinary M3 result is included; source/standard acceptance does not supply natural funding, typed ordinary Save/Load, browser raster, cleanup or merge acceptance."
+  },
+  "historicalScope": "The original fixture prerequisite failure, intended red and intermediate 21/22 normalization-boundary failure remain pinned without standard-test credit. The immutable aggregate review-pending field is superseded only by the included final standard verdict."
+}
