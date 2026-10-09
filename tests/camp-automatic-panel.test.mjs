@@ -239,7 +239,20 @@ test('automatic admission rejects wrong-class, nonlocal and blocked targets; own
   source()
   assert.equal(records(scene).size, 0)
   world.manaWorld.gameFlags &= ~32
+  scene.overviewStage = 1
+  const dwell = scene.tooltipController.dwell
   source()
+  assert.equal(records(scene).size, 0)
+  assert.equal(scene.objectPanels.automaticTrainingLatches.size, 0)
+  assert.equal(scene.tooltipController.dwell, dwell, 'overview transition cannot accelerate D')
+  scene.overviewStage = 0
+  source()
+  assert.equal(
+    records(scene).get(camp.id)?.automatic,
+    true,
+    'a later callback retries after overview transition'
+  )
+  assert.equal(scene.objectPanels.automaticTrainingLatches.has(camp.id), true)
   for (let visit = 0; visit < 4; visit++) step()
   camp.team = 'red'
   camp.admission.tribe = 1
