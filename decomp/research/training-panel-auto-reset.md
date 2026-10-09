@@ -89,3 +89,5 @@ retained helper hashes and the extraction receipt. Raw archives, executable and
 runtime dependency files remain local. This is static source evidence, not a
 dynamic save/load or full-game equivalence result. Gameplay implementation,
 ordinary runtime acceptance and parity credit remain separate.
+
+The next proposed port step is the [model7 implementation contract](training-panel-auto-implementation.md), which keeps source facts separate from browser adaptations.
