@@ -149,3 +149,10 @@ test('disappearing nested cache during fallback cannot return an older partial p
   assert.throws(() => discoverReceipts(root), /ENOENT/)
   assert.equal(removed, true)
 })
+
+
+test('an initially absent orchestration root remains empty evidence', async t => {
+  const { discoverReceipts } = await import('../scripts/parity-measure.mjs')
+  const { root } = fixture(t)
+  assert.deepEqual(discoverReceipts(root), { receipts: [], warnings: [] })
+})

@@ -172,7 +172,6 @@ export function discoverReceipts(repo) {
   let count = 0
   const budget = createJsonBudget()
   function walk(directory) {
-    if (!existsSync(directory)) return
     for (const entry of boundedDirectoryEntries(directory, RECEIPT_ENTRY_LIMIT - count)) {
       if (++count > RECEIPT_ENTRY_LIMIT) throw new DiscoveryLimitError('Receipt discovery limit reached; no partial report written')
       if (entry.isSymbolicLink()) continue
@@ -201,7 +200,9 @@ export function discoverReceipts(repo) {
       }
     }
   }
-  walk(root)
+  // Only an initially absent root is empty evidence. A vanished nested directory
+  // may have held a newer failure and must abort instead of returning a partial scan.
+  if (existsSync(root)) walk(root)
   return { receipts, warnings }
 }
 
