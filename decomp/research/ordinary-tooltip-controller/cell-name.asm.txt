@@ -1,0 +1,92 @@
+
+/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+004f1160 <.text+0xf0160>:
+  4f1160:	66 8b 54 24 04       	mov    dx,WORD PTR [esp+0x4]
+  4f1165:	83 ec 04             	sub    esp,0x4
+  4f1168:	33 c0                	xor    eax,eax
+  4f116a:	33 c9                	xor    ecx,ecx
+  4f116c:	66 8b c2             	mov    ax,dx
+  4f116f:	53                   	push   ebx
+  4f1170:	66 8b ca             	mov    cx,dx
+  4f1173:	25 fe 00 00 00       	and    eax,0xfe
+  4f1178:	03 c0                	add    eax,eax
+  4f117a:	81 e1 00 fe 00 00    	and    ecx,0xfe00
+  4f1180:	0b c1                	or     eax,ecx
+  4f1182:	b3 ff                	mov    bl,0xff
+  4f1184:	8d 14 85 e4 03 8a 00 	lea    edx,[eax*4+0x8a03e4]
+  4f118b:	33 c0                	xor    eax,eax
+  4f118d:	80 7c 24 10 07       	cmp    BYTE PTR [esp+0x10],0x7
+  4f1192:	88 44 24 07          	mov    BYTE PTR [esp+0x7],al
+  4f1196:	0f 84 ad 00 00 00    	je     0x4f1249
+  4f119c:	f6 05 a8 5d 89 00 04 	test   BYTE PTR ds:0x895da8,0x4
+  4f11a3:	74 13                	je     0x4f11b8
+  4f11a5:	f6 02 08             	test   BYTE PTR [edx],0x8
+  4f11a8:	0f 85 a0 00 00 00    	jne    0x4f124e
+  4f11ae:	b8 49 03 00 00       	mov    eax,0x349
+  4f11b3:	e9 96 00 00 00       	jmp    0x4f124e
+  4f11b8:	8b 0a                	mov    ecx,DWORD PTR [edx]
+  4f11ba:	f6 c5 04             	test   ch,0x4
+  4f11bd:	74 36                	je     0x4f11f5
+  4f11bf:	33 c9                	xor    ecx,ecx
+  4f11c1:	66 8b 4a 08          	mov    cx,WORD PTR [edx+0x8]
+  4f11c5:	8a 15 f0 c6 89 00    	mov    dl,BYTE PTR ds:0x89c6f0
+  4f11cb:	81 e1 ff 03 00 00    	and    ecx,0x3ff
+  4f11d1:	8b 0c 8d 90 03 89 00 	mov    ecx,DWORD PTR [ecx*4+0x890390]
+  4f11d8:	38 51 2f             	cmp    BYTE PTR [ecx+0x2f],dl
+  4f11db:	75 71                	jne    0x4f124e
+  4f11dd:	33 d2                	xor    edx,edx
+  4f11df:	8a 91 9e 00 00 00    	mov    dl,BYTE PTR [ecx+0x9e]
+  4f11e5:	8d 0c d2             	lea    ecx,[edx+edx*8]
+  4f11e8:	8d 14 4a             	lea    edx,[edx+ecx*2]
+  4f11eb:	0f bf 04 95 30 72 5a 	movsx  eax,WORD PTR [edx*4+0x5a7230]
+  4f11f2:	00
+  4f11f3:	eb 59                	jmp    0x4f124e
+  4f11f5:	f7 c1 00 00 01 00    	test   ecx,0x10000
+  4f11fb:	75 0f                	jne    0x4f120c
+  4f11fd:	f7 c1 00 00 00 04    	test   ecx,0x4000000
+  4f1203:	74 49                	je     0x4f124e
+  4f1205:	b8 48 03 00 00       	mov    eax,0x348
+  4f120a:	eb 42                	jmp    0x4f124e
+  4f120c:	8a 5a 0b             	mov    bl,BYTE PTR [edx+0xb]
+  4f120f:	b8 85 03 00 00       	mov    eax,0x385
+  4f1214:	80 e3 0f             	and    bl,0xf
+  4f1217:	fe cb                	dec    bl
+  4f1219:	f6 05 61 c6 89 00 08 	test   BYTE PTR ds:0x89c661,0x8
+  4f1220:	75 1b                	jne    0x4f123d
+  4f1222:	0f be 0d f0 c6 89 00 	movsx  ecx,BYTE PTR ds:0x89c6f0
+  4f1229:	33 d2                	xor    edx,edx
+  4f122b:	8a d3                	mov    dl,bl
+  4f122d:	3b ca                	cmp    ecx,edx
+  4f122f:	74 1d                	je     0x4f124e
+  4f1231:	c6 44 24 07 01       	mov    BYTE PTR [esp+0x7],0x1
+  4f1236:	b8 96 03 00 00       	mov    eax,0x396
+  4f123b:	eb 11                	jmp    0x4f124e
+  4f123d:	c6 44 24 07 01       	mov    BYTE PTR [esp+0x7],0x1
+  4f1242:	b8 97 03 00 00       	mov    eax,0x397
+  4f1247:	eb 05                	jmp    0x4f124e
+  4f1249:	e8 22 8e fa ff       	call   0x49a070
+  4f124e:	8b 4c 24 14          	mov    ecx,DWORD PTR [esp+0x14]
+  4f1252:	8a 54 24 07          	mov    dl,BYTE PTR [esp+0x7]
+  4f1256:	88 11                	mov    BYTE PTR [ecx],dl
+  4f1258:	8b 4c 24 18          	mov    ecx,DWORD PTR [esp+0x18]
+  4f125c:	88 19                	mov    BYTE PTR [ecx],bl
+  4f125e:	5b                   	pop    ebx
+  4f125f:	83 c4 04             	add    esp,0x4
+  4f1262:	c3                   	ret
+  4f1263:	cc                   	int3
+  4f1264:	cc                   	int3
+  4f1265:	cc                   	int3
+  4f1266:	cc                   	int3
+  4f1267:	cc                   	int3
+  4f1268:	cc                   	int3
+  4f1269:	cc                   	int3
+  4f126a:	cc                   	int3
+  4f126b:	cc                   	int3
+  4f126c:	cc                   	int3
+  4f126d:	cc                   	int3
+  4f126e:	cc                   	int3
+  4f126f:	cc                   	int3

@@ -1,6 +1,6 @@
 # Ordinary object tooltip: finite implementation proposal
 
-2026-10-09, issue 19. **Implementation held; proposal only.** The accepted static
+2026-10-09, issue 19. **Implementation held; proposal only.** See the [current source contract and explicit input-binding correction](contract-table.md), reconciled against main `47680b8`. It supersedes any implementation-readiness implication below; runtime remains held. The accepted static
 [source assessment](../ordinary-tooltip-controller.md) establishes original
 behavior, not acceptance of this browser mapping. Shared HUD/cell cache history
 and inspection timing can change visible output. Preserve this handoff while the

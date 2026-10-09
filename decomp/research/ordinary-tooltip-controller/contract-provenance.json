@@ -1,0 +1,123 @@
+{
+  "scope": "Accepted source-only contract reconciliation. Runtime implementation remains held; physical mouse producer and native mode0/current-selection equivalence are unproved.",
+  "canonicalMain": "47680b8fd124aab50b0528eea77a81cacb556060",
+  "researchBase": "bed0de0bf8b74302fd5b8b2793637f19592e5d75",
+  "acceptedCorrectedTableSha256": "07ea1fd8ba4daffe8d4762baacaef2bdc7093dad4ca67da4e45cad1556e98de8",
+  "supersededLocalFindingsSha256": "6c27f2cca0b406368900cefa0315ecc75a7d6c59e459a975cec83518375b5ca4",
+  "originalReceiptSha256": "ee8794ec9f0844dbd0d6f3876efdf3a5945bd723e2f61fe4bd323d8ef974dce7",
+  "bindingAddendumSha256": "ab470359d71f114ea87649d853b87f66d9c3bc9a2a59532bc009d2ad2d3835e6",
+  "bindingAddendumReceiptSha256": "709b731fffd0b546fa91a8aab3df14389ce40791e4177f52d0ee51f5cb7db41e",
+  "preservationChanges": [
+    "Updated three artifact links to the compact tracked names.",
+    "Added links to existing retained source files.",
+    "Changed the final local-work statement to reflect documentation preservation; no semantic contract change.",
+    "Trimmed trailing whitespace only in objdump output."
+  ],
+  "input": {
+    "path": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe",
+    "bytes": 2275840,
+    "sha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "sha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+  },
+  "cellHelper": {
+    "toolVersion": "GNU objdump (GNU Binutils for Debian) 2.44",
+    "command": [
+      "/usr/bin/objdump",
+      "-d",
+      "-M",
+      "intel",
+      "--start-address=0x004f1160",
+      "--stop-address=0x004f1270",
+      "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+    ],
+    "virtualRange": [
+      "0x004f1160",
+      "0x004f1270"
+    ],
+    "exitCode": 0,
+    "outputSha256": "55c163eef96eedd4c6f1ec158f0c08b14f0a9eb4eca6969d7d649e77cff5c6c7"
+  },
+  "numericBindings": {
+    "source": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe",
+    "sha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "sha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "virtualRange": [
+      "0x005d6598",
+      "0x005d65b0"
+    ],
+    "fileOffset": 1917848,
+    "hex": "f172000000090001d0ee4f00f1730000000c0001f0f34f00",
+    "format": "<BIBBBI, two 12-byte records",
+    "records": [
+      [
+        241,
+        114,
+        9,
+        0,
+        1,
+        5238480
+      ],
+      [
+        241,
+        115,
+        12,
+        0,
+        1,
+        5239792
+      ]
+    ],
+    "scope": "Data read only. Confirms numeric input bindings; does not establish physical mouse-event producer or mode/selection equivalence."
+  },
+  "numericBindingsReadMethod": "Read verified PE bytes using Python standard-library pathlib/struct/hashlib; e_lfanew at0x3c, section count COFF+6, optional-header size COFF+20, image base optional+28, section virtual/raw mapping. Read24 bytes at VA0x005d6598 (file offset1917848), unpack two <BIBBBI records. Original instructions were not executed.",
+  "retainedSourceSha256": {
+    "decomp/research/ordinary-tooltip-controller/controllers.asm.txt": "810426a436c1f0f52fac8005c97ff01b29b9e43a1dbbe0f4994e22c748982683",
+    "decomp/research/ordinary-tooltip-controller/clock-and-caller.asm.txt": "d18d7a2a84dad746f5711c76230036d86303642dc882f2f1c5fedd2ead8f6c36",
+    "decomp/generated/0044d7f0.c": "ad88c7f051cc071dd9f3d9a3f8ecf9e84a88278877855633ae1f46df5951da8f",
+    "decomp/generated/0044db60.c": "330b5dbf8540b8b29c4ab49ec004251c0b61c82d61d90615bb4fd892c34549d5",
+    "decomp/generated/0047ae00.c": "fac01fd16c714eeea273ffd6e94e4b28617b9196bbf4714e9befe8fa7afaf37a",
+    "decomp/generated/0047b1d0.c": "311cc00a58fff83e9915bba6ccc6034e0bd620b587424504dbaa4ceb16b2f90e",
+    "decomp/generated/00504060.c": "2038be12309b51322ae2f3536f9a257fe865b3554c5952decc5239bd06d9ea97",
+    "decomp/generated/00504920.c": "f5314cd673045e9887159198815e6a17dfbe6c2927e55d9c9135246f71f50e9e",
+    "decomp/generated/00504660.c": "8d631ad4f8ea1bed8ed2d1367c571bcca501e29cdaa4431b2bbad1af00efde3c",
+    "decomp/generated/004adbb0.c": "57170bb62710a0186e1f3002ede8e7f68b25e6223a2c0ac627dd0e89aeee2220",
+    "decomp/generated/004aa4e0.c": "4ad72eeddfea6ba92c98cf9cb78bf9f7675dd58079f839f7acc8ad881c6bc84d",
+    "decomp/generated/004a4960.c": "082373c8c2c9244af20a64d81e6e70f981ff3a3785103dd0ad7858e9ccdbf7df",
+    "decomp/generated/004ec6f0.c": "497df5820bfebb7f79eb9cbaf2b887295f7933431958ab4c992ebb33f39e7923",
+    "decomp/generated/004aab80.c": "a286e361005571ddcba7405348e2582aa061c3f427d1a8e8fed09a5d1e7890a8",
+    "decomp/generated/004afff0.c": "ea01bc763ba0b0735435a0633d201d413f65723c5e57627b461eeeb9c6e72be7",
+    "decomp/generated/004feed0.c": "991324c6879961074b036eb2ac31571f2e613d4353e360de210a23e487aac0e1",
+    "decomp/generated/004ff3f0.c": "dc9a30f0fdbacdcc18d2525d01048368df8a41feed381e91aa9cce4f1c6dc4a1",
+    "decomp/generated/00489470.c": "21e700f6472f6a6b2f9253a86ec8ef7be44d37a9ceabe848ced5629a84be593a",
+    "scripts/check-native-person-panel.py": "6d8e74febc84e9ef626fb9671816701cffdeb221198cd4db68aa7664904ab820"
+  },
+  "artifacts": {
+    "contract-table.md": {
+      "bytes": 14016,
+      "sha256": "5f3a31a968aee8039183db02730723761e6e14281a0916a7b88033b6f173575c"
+    },
+    "cell-name.asm.txt": {
+      "bytes": 4418,
+      "sha256": "e27fd039b02d2ed20de4af48ca88f2e81b0a7282f651bd204753d58dfcd55cc1"
+    }
+  },
+  "checks": {
+    "whitespace": {
+      "command": "git diff --cached --check",
+      "status": "passed"
+    },
+    "json": {
+      "command": "Python standard-library json.loads on contract-provenance.json",
+      "status": "passed"
+    },
+    "runtime": "not run; source documentation only",
+    "nativeExecution": "not run",
+    "browser": "not run",
+    "dependencies": "none installed"
+  },
+  "independentReview": {
+    "artifact": "/workspace/scratch/69fd8163d94e/tooltip-contract-table-review-20261009.md",
+    "sha256": "7703a01cca7ba95942eb6f5d5aa7d1de0fe8c09c79056909e036304129438bbc",
+    "verdict": "ACCEPT corrected source documentation only; runtime HOLD",
+    "acceptedTableSha256": "07ea1fd8ba4daffe8d4762baacaef2bdc7093dad4ca67da4e45cad1556e98de8"
+  }
+}
