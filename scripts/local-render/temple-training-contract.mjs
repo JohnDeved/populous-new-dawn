@@ -11,6 +11,24 @@ const empty = s =>
   !s.target.admission.entering &&
   !s.target.workers.length
 const released = s => !s.record && !s.latch && s.reservations === 0 && !s.dom.present
+const unpainted = s => !s.dom.focused && !s.dom.hovered && (!s.dom.present || s.dom.hidden)
+export const templeIdleReady = s =>
+  s.target?.hp > 0 &&
+  s.target.progress >= 1 &&
+  s.target.builders.every(id => !id) &&
+  !(s.target.admission.activity & 0x8000) &&
+  empty(s) &&
+  !s.record &&
+  !s.latch &&
+  s.reservations === 0 &&
+  unpainted(s)
+export function assertTempleIdleReadiness(s) {
+  assert(
+    templeIdleReady(s),
+    'Idle Temple requires empty gameplay and ownership; a hidden inactive cache is allowed'
+  )
+}
+
 export function assertTempleTrainInput(evidence, targetId, traineeId) {
   assert.equal(evidence.restored, true)
   assert.deepEqual(evidence.errors, [])
@@ -72,7 +90,14 @@ export function assertTempleFreshRequest(row, targetId, traineeId) {
   )
   assert.equal(after.latch, true)
   assert.equal(after.reservations, 1)
-  assert.equal(after.dom.present, false)
+  // The chosen idle precondition is separate from this source boundary: actual
+  // input may hover an existing cache before admission. This callback must not
+  // create, reveal, hide, focus or remove any DOM itself.
+  assert.deepEqual(
+    after.dom,
+    before.dom,
+    'Automatic callback must preserve the preexisting DOM cache'
+  )
   assert.deepEqual(after.target, before.target)
   assert.deepEqual(after.trainee, before.trainee)
   assert.deepEqual(after.preachers, before.preachers)

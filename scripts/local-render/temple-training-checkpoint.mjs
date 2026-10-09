@@ -213,3 +213,39 @@ export function armTempleCheckpoint({ kind, store, button, snapshot }) {
     close,
   }
 }
+
+// Fresh-page restore migrates the committed record once, then public Load
+// migrates its private checkpoint again. Both expected Worlds stay in this call.
+export async function readTempleCommittedLoad() {
+  if (!(await indexedDB.databases()).some(db => db.name === 'populous-new-dawn'))
+    throw Error('Genuine committed Temple checkpoint database required')
+  const db = await new Promise((resolve, reject) => {
+    const request = indexedDB.open('populous-new-dawn')
+    request.onupgradeneeded = () => {
+      request.transaction.abort()
+      reject(Error('Temple checkpoint database unexpectedly missing'))
+    }
+    request.onsuccess = () => resolve(request.result)
+    request.onerror = () => reject(request.error)
+  })
+  try {
+    const record = await new Promise((resolve, reject) => {
+      const transaction = db.transaction('checkpoints', 'readonly')
+      const request = transaction.objectStore('checkpoints').get('latest')
+      transaction.oncomplete = () => resolve(request.result)
+      transaction.onerror = () => reject(transaction.error)
+      transaction.onabort = () =>
+        reject(transaction.error ?? Error('Temple checkpoint read aborted'))
+    })
+    if (record?.version !== 1 || record.world?.outcome?.level !== 3)
+      throw Error('Committed Mission 3 checkpoint required')
+    const restored = migrateCheckpoint(structuredClone(record.world))
+    const loaded = migrateCheckpoint(structuredClone(restored))
+    return {
+      committed: await observePrivate(record),
+      expectedLoad: await observePrivate({ version: record.version, world: loaded }),
+    }
+  } finally {
+    db.close()
+  }
+}
