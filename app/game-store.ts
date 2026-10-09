@@ -14,6 +14,7 @@ import { restoreOrdinaryWorshipSource } from './worship-acquisition-source.ts'
 import { createWorshipAcquisitionRuntime } from './worship-acquisition-runtime.ts'
 import { initializeVaultKnowledge } from './vault-appearance.ts'
 import { initializeVaultKnowledgeGift } from './world-effects.ts'
+import { createSharedAniblResource, type PresentationBinding } from './shared-anibl.ts'
 
 const CHECKPOINT_DATABASE = 'populous-new-dawn',
   CHECKPOINT_STORE = 'checkpoints',
@@ -340,6 +341,8 @@ export function createGameStore() {
     checkpoint: World | null = null,
     observedCompletion = world.outcome.completedLevel,
     revision = 0
+  const presentation = createSharedAniblResource()
+  let presentationToken: symbol | null = null
   const completedMissions = new Set<number>()
   const listeners = new Set<() => void>()
   const update = () => {
@@ -361,13 +364,35 @@ export function createGameStore() {
     revision++
     for (const listener of listeners) listener()
   }
-  const replaceWorld = (next: World) => {
+  const replaceWorld = (next: World, retainResource = false) => {
+    // Preparation has already succeeded. Commit both owners before publication;
+    // old Scene callbacks lose authority even when Restart retains the resource.
+    presentation.transition(next.outcome.level === 3, retainResource)
     world = next
+    presentationToken = null
     observedCompletion = world.outcome.completedLevel
     update()
   }
   return {
     getWorld: () => world,
+    getPresentationSnapshot: presentation.snapshot,
+    bindPresentation: (boundWorld: World): PresentationBinding => {
+      const token = Symbol()
+      let released = false
+      if (boundWorld === world) presentationToken = token
+      const isCurrent = () => !released && presentationToken === token && boundWorld === world
+      return {
+        isCurrent,
+        snapshot: () => (isCurrent() ? presentation.snapshot() : null),
+        advance: () => {
+          if (isCurrent()) presentation.advance()
+        },
+        release: () => {
+          released = true
+          if (presentationToken === token) presentationToken = null
+        },
+      }
+    },
     getSnapshot: () => revision,
     subscribe: (listener: () => void) => {
       listeners.add(listener)
@@ -416,7 +441,8 @@ export function createGameStore() {
       return true
     },
     restart: () => {
-      replaceWorld(createWorld(world.outcome.level))
+      const retainResource = world.outcome.level === 3 && !(world.land.landFlags & 8)
+      replaceWorld(createWorld(world.outcome.level), retainResource)
     },
     startMission: (mission: number) => {
       replaceWorld(createWorld(mission))

@@ -1,3 +1,4 @@
+import { templeArt } from './temple-art.ts'
 import * as THREE from 'three'
 import nativeModelData from './original-models.json'
 import { modelDepthBias, modelStage, modelTextureModes, type NativeModel } from './model-faces.ts'
@@ -57,7 +58,12 @@ export function loadTexture(kind: string) {
   t.wrapT = THREE.RepeatWrapping
   t.wrapS = THREE.RepeatWrapping
   t.anisotropy = 8
-  if (kind === 'atlas' || kind.startsWith('sky') || kind.startsWith('clouds')) {
+  if (
+    kind === 'atlas' ||
+    kind === templeArt.modelAtlas ||
+    kind.startsWith('sky') ||
+    kind.startsWith('clouds')
+  ) {
     // 0x47cc60 / 0x47d6f0: ordinary smoothed textures use bilinear
     // filtering of encoded palette colors, without mipmaps or anisotropy.
     t.colorSpace = THREE.NoColorSpace
@@ -70,6 +76,7 @@ export function loadTexture(kind: string) {
   if (
     kind === nativeUnits.atlas ||
     kind === 'effects' ||
+    kind === templeArt.sparkleAtlas ||
     kind === 'vault-knowledge' ||
     kind === 'vault-knowledge-camp' ||
     kind === 'selection' ||
@@ -103,7 +110,7 @@ export function effectFrame(sprite: THREE.Sprite, frame: { index: number; w: num
   )
   sprite.scale.set(frame.w, frame.h, 1)
 }
-export function nativeModel(id: number, scale = 2, stage = 4) {
+export function nativeModel(id: number, scale = 2, stage = 4, temple = false) {
   const data = nativeModels[id]
   const geo = geometry(`original-${id}-${stage}`, () => {
     const { p, uv } = modelStage(data, stage),
@@ -127,7 +134,7 @@ export function nativeModel(id: number, scale = 2, stage = 4) {
     // Native screen-space winding is clockwise after the WebGL Y inversion.
     // 0x4708d0 culls rear faces; 0x471c40 keeps both construction-stage sides.
     new THREE.MeshBasicMaterial({
-      map: texture('atlas'),
+      map: texture(temple ? templeArt.modelAtlas : 'atlas'),
       side: stage === 4 ? THREE.BackSide : THREE.DoubleSide,
       alphaTest: 0.5,
     })
@@ -138,10 +145,12 @@ export function nativeModel(id: number, scale = 2, stage = 4) {
   mesh.userData.stage = stage
   mesh.userData.nativeScale = data.scale
   mesh.userData.highlight = { value: 0 }
+  if (temple) mesh.userData.templeTileOffset = { value: new THREE.Vector2() }
   mesh.material.onBeforeCompile = shader => {
     shader.uniforms.modelHighlight = mesh.userData.highlight
+    if (temple) shader.uniforms.templeTileOffset = mesh.userData.templeTileOffset
     shader.vertexShader =
-      `attribute float faceShade;
+      `${temple ? 'uniform vec2 templeTileOffset;\n' : ''}attribute float faceShade;
 attribute vec3 faceAnchor;
 attribute float textureMode;
 varying float modelLight;
@@ -159,6 +168,11 @@ varying float modelTextureMode;
       modelLight=float(depth>-3328?max(1,int(faceShade)+nativeMul(-3328-depth,32)/8192):int(faceShade));
     `
     )
+    if (temple)
+      shader.vertexShader = shader.vertexShader.replace(
+        '#include <uv_vertex>',
+        '#include <uv_vertex>\nif(textureMode==32.) vMapUv += templeTileOffset;'
+      )
     shader.fragmentShader =
       'uniform float modelHighlight;\nvarying float modelLight;\nvarying float modelTextureMode;\n' +
       shader.fragmentShader
@@ -175,7 +189,8 @@ varying float modelTextureMode;
     `
     )
   }
-  mesh.material.customProgramCacheKey = () => 'native-model-light'
+  mesh.material.customProgramCacheKey = () =>
+    temple ? 'native-model-light-temple' : 'native-model-light'
   return mesh
 }
 export function updateModelLighting(object: THREE.Object3D) {

@@ -124,7 +124,12 @@ export function interpolateBuildingSubmissions(
   previous: BuildingAcquisitionDrawCommand | undefined,
   fraction: number
 ) {
-  if (previous?.giftId !== command.giftId || previous.geometry !== command.geometry)
+  if (
+    previous?.giftId !== command.giftId ||
+    previous.model !== command.model ||
+    previous.geometryModel !== command.geometryModel ||
+    previous.geometry !== command.geometry
+  )
     return command.submissions
   const alpha = Math.max(0, Math.min(1, fraction))
   return command.submissions.map(submission => {

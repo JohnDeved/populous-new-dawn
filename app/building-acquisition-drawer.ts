@@ -22,7 +22,8 @@ type TriangleRenderer = Pick<
  * building command. There is no scheduling, projection, or controller mutation. */
 export class BuildingAcquisitionTriangleSurface {
   private readonly renderer: TriangleRenderer
-  private readonly atlas: THREE.Texture
+  private atlas: THREE.Texture
+  private atlasSource: THREE.Texture
   private readonly geometry = new THREE.BufferGeometry()
   private readonly scene = new THREE.Scene()
   private readonly camera = new THREE.Camera()
@@ -64,6 +65,7 @@ export class BuildingAcquisitionTriangleSurface {
     this.renderer.setClearColor(0, 0)
     // Own only the texture wrapper. The existing atlas image/source is shared;
     // disposing this surface must never dispose the world's texture.
+    this.atlasSource = atlas
     this.atlas = atlas.clone()
     this.atlas.colorSpace = THREE.NoColorSpace
     this.atlas.minFilter = THREE.LinearFilter
@@ -121,6 +123,20 @@ void main() {
     this.scene.add(mesh)
   }
 
+  setAtlas(atlas: THREE.Texture) {
+    if (this.disposed) throw new Error('Acquisition triangle surface is disposed')
+    if (this.atlasSource === atlas) return
+    this.atlas.dispose()
+    this.atlasSource = atlas
+    this.atlas = atlas.clone()
+    this.atlas.colorSpace = THREE.NoColorSpace
+    this.atlas.minFilter = THREE.LinearFilter
+    this.atlas.magFilter = THREE.LinearFilter
+    this.atlas.generateMipmaps = false
+    this.atlas.anisotropy = 1
+    this.material.uniforms.atlas.value = this.atlas
+  }
+
   draw(
     triangles: readonly BuildingAcquisitionTriangle[],
     width: number,
@@ -129,7 +145,7 @@ void main() {
   ) {
     if (this.disposed) throw new Error('Acquisition triangle surface is disposed')
     if (triangles.length > BUILDING_ACQUISITION_TRIANGLE_CAPACITY)
-      throw new Error('Mission 1 acquisition triangle capacity exceeded')
+      throw new Error('Acquisition triangle capacity exceeded')
     if (!(width > 0 && height > 0 && ratio > 0) || !Number.isFinite(width + height + ratio))
       throw new Error('Invalid acquisition surface size')
     if (this.width !== width || this.height !== height || this.ratio !== ratio) {
@@ -146,7 +162,7 @@ void main() {
         this.position.setXYZ(vertex, point.x, point.y, 0)
         this.uv.setXY(vertex, point.u, point.v)
         this.light.setX(vertex, triangle.diffuse / 255)
-        this.cutout.setX(vertex, triangle.mode === 7 ? 1 : 0)
+        this.cutout.setX(vertex, triangle.mode === 7 || triangle.mode === 32 ? 1 : 0)
         vertex++
       }
     }

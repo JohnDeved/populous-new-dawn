@@ -1,3 +1,4 @@
+import { templeWorldMaterial } from './temple-art.ts'
 import { hutSmokeState } from './hut-smoke-runtime.ts'
 import type { GameScene } from './scene.ts'
 import * as THREE from 'three'
@@ -161,7 +162,7 @@ function makeUnit(u: Unit) {
   return g
 }
 
-function makeBuilding(b: Building, stage: number) {
+function makeBuilding(b: Building, stage: number, temple = false) {
   const g = new THREE.Group(),
     id = buildingObject(b),
     base = rules.buildingObjects[buildingModel(b)],
@@ -170,7 +171,7 @@ function makeBuilding(b: Building, stage: number) {
     renderId =
       originalTrainingHutObject(b) ??
       (nativeModels[id] ? id : nativeModels[base] ? base : rules.buildingObjects[13])
-  const model = nativeModel(renderId, b.kind === 'temple' ? 1.65 : 2, stage)
+  const model = nativeModel(renderId, b.kind === 'temple' ? 1.65 : 2, stage, temple)
   g.add(model)
   const health = new THREE.Group(),
     top = b.kind === 'tower' ? 6 : 4.8
@@ -183,6 +184,7 @@ function makeBuilding(b: Building, stage: number) {
     health,
     healthFill,
   }
+  if (temple) g.userData.signature += '-p'
   return g
 }
 
@@ -661,9 +663,17 @@ export function updateBuildingsFrame(scene: GameScene) {
     }
   for (const b of scene.world.buildings) {
     if (b.preparation) continue
-    const stage = buildingStage(b)
+    const stage = buildingStage(b),
+      temple = templeWorldMaterial(
+        scene.world.outcome.level,
+        b,
+        buildingObject(b),
+        stage,
+        scene.templeResourceSnapshot
+      ),
+      signature = `${buildingObject(b)}-${stage}${temple ? '-p' : ''}`
     let g = scene.buildingMeshes.get(b.id)
-    if (g && g.userData.signature !== `${buildingObject(b)}-${stage}`) {
+    if (g && g.userData.signature !== signature) {
       releaseHutSmoke(scene, g)
       scene.objects.remove(g)
       scene.releaseGroup(g)
@@ -671,7 +681,7 @@ export function updateBuildingsFrame(scene: GameScene) {
       g = undefined
     }
     if (!g) {
-      g = makeBuilding(b, stage)
+      g = makeBuilding(b, stage, !!temple)
       scene.buildingMeshes.set(b.id, g)
       scene.objects.add(g)
       if (b.progress < 1) {
@@ -679,6 +689,11 @@ export function updateBuildingsFrame(scene: GameScene) {
         scene.decorations.clear()
         scene.makeDecorations()
       }
+    }
+    if (temple) {
+      const [model] = g.children
+      model.userData.templeTileOffset.value.set(...temple.offset)
+      model.userData.templeResourceEpoch = temple.epoch
     }
     scene.locate(g, b, b.foundation)
     scene.orientModel(g, b.angle)
