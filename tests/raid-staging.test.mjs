@@ -16,7 +16,7 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
     })
     t.diagnostic(result.stdout)
     assert.equal(result.error, undefined)
-    assert.match(result.stdout, /tests 37\b/, 'all thirty-seven child cases must report')
+    assert.match(result.stdout, /tests 39\b/, 'all thirty-nine child cases must report')
     assert.equal(result.status, 0, result.stderr + result.stdout)
   })
 } else {
@@ -79,14 +79,16 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
     { name: 'Mission 3 legacy recruitment retains loaded origin', level: 3, shaman: 'moved', checkpoint: 'legacy', phase: 3, quota: true, expected: 0x60da },
     { name: 'Mission 3 recruitment retains established base priority', level: 3, base: 0x60d8, shaman: 'moved', phase: 3, quota: true, expected: 0x60d8 },
     { name: 'Mission 3 established cell zero precedes loaded origin', level: 3, base: 0, shaman: 'moved', expected: 0 },
+    { name: 'later Mission 5 retains enabled defence fallback', level: 5, tribe: 1, memberKind: 'warrior', shaman: 'moved', shamanPoint: { x: 24, z: -40 }, expected: 0x8232 },
+    { name: 'later Mission 5 retains live Shaman fallback', level: 5, tribe: 1, memberKind: 'warrior', shaman: 'moved', shamanPoint: { x: 24, z: -40 }, defence: false, expected: 0x2020 },
   ]
   for (const c of cases) test(c.name, () => {
-    const level = c.level ?? 2, tribe = [0, 1, 3, 2][level],
+    const level = c.level ?? 2, tribe = c.tribe ?? [0, 1, 3, 2][level],
       team = ['blue', 'red', 'yellow', 'green'][tribe]
     let world = createWorld(level)
     const shaman = world.units.find(u => u.team === team && u.kind === 'shaman')
     assert.ok(shaman)
-    if (c.shaman === 'moved') Object.assign(shaman, { x: -8, z: -8 })
+    if (c.shaman === 'moved') Object.assign(shaman, c.shamanPoint ?? { x: -8, z: -8 })
     if (c.shaman === 'dead') {
       shaman.hp = 0
       if (shaman.native) shaman.native.life = 0
@@ -136,7 +138,7 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
     assert.equal(ai.constructionBase, c.base)
     ai.cursor = 0
     for (const task of ai.tasks) task.flags = 0
-    const members = world.units.filter(u => u.team === team && u.kind === 'brave' && u.hp > 0).slice(0, 2)
+    const members = world.units.filter(u => u.team === team && u.kind === (c.memberKind ?? 'brave') && u.hp > 0).slice(0, 2)
     assert.equal(members.length, 2)
     const task = ai.tasks[0], phase = c.phase ?? 5
     Object.assign(task, { flags: 1, type: 20, phase, target: 0x2468, regroup: 0x1357,
