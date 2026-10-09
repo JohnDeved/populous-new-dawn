@@ -67,7 +67,7 @@ function fixture({ failRender, failReadback, own = false } = {}) {
     zoom(inward) { this.viewPreset = zoomPreset(this.viewPreset, inward) }, focus(p, options) { scene.focused = { p, options } },
     listen(t, type, fn) { t.addEventListener(type, fn, false) } }
   globalThis.window = Object.assign(win, { testSceneRef: { current: scene }, testStore: { getWorld: () => world } })
-  globalThis.document = Object.assign(target(), { elementFromPoint: (x, y) => x < 1000 ? canvas : null })
+  globalThis.document = Object.assign(target(), { elementFromPoint: x => x < 1000 ? canvas : null })
   installInput(scene, mini)
   const dispatch = (type, x = 60, y = 50) => {
     const e = { type, clientX: x, clientY: y, buttons: 0, button: 0, isTrusted: true, target: canvas }
