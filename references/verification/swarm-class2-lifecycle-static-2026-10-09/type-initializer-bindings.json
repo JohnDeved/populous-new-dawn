@@ -1,0 +1,15 @@
+{
+  "base": "d6cf109474379172728a3ccebf46ef72a15f3a58",
+  "sourceBindings": [
+    {
+      "path": "decomp/generated/004ed580.c",
+      "sha256": "30f96739bcd6f1703d38d8937b3a5890bffaaf282be069067360bd7a1da118c8"
+    },
+    {
+      "path": "decomp/generated/00402ec0.c",
+      "sha256": "6c85a925be43fd270f058e2edc63f1a1b5a2f17e1d6d00019d5d69e13e8eeb22"
+    }
+  ],
+  "interpretation": "The type initializer dispatcher 004ed580 selects 00402ec0 for class2; its building model cases invoke 00403610. Model18 case0x11 forces tribe255 and object0x9a after common initialization. Older export symbol names overload init_unit_class; routine addresses distinguish this type initialization from the state dispatcher004ed640. This supplements the immediate relocation interpretation without changing decision4a6280a0.",
+  "checks": "Source-only byte comparison; no execution/disassembly in this addendum."
+}

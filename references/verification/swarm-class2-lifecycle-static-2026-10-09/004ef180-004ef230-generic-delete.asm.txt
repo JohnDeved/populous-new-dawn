@@ -1,0 +1,72 @@
+
+/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+004ef180 <.text+0xee180>:
+  4ef180:	83 ec 04             	sub    esp,0x4
+  4ef183:	33 c0                	xor    eax,eax
+  4ef185:	56                   	push   esi
+  4ef186:	57                   	push   edi
+  4ef187:	8b 74 24 10          	mov    esi,DWORD PTR [esp+0x10]
+  4ef18b:	8a 46 2a             	mov    al,BYTE PTR [esi+0x2a]
+  4ef18e:	83 f8 0a             	cmp    eax,0xa
+  4ef191:	77 07                	ja     0x4ef19a
+  4ef193:	ff 24 85 14 f7 4e 00 	jmp    DWORD PTR [eax*4+0x4ef714]
+  4ef19a:	f6 46 0e 02          	test   BYTE PTR [esi+0xe],0x2
+  4ef19e:	74 09                	je     0x4ef1a9
+  4ef1a0:	56                   	push   esi
+  4ef1a1:	e8 4a f3 ff ff       	call   0x4ee4f0
+  4ef1a6:	83 c4 04             	add    esp,0x4
+  4ef1a9:	c6 46 2a 00          	mov    BYTE PTR [esi+0x2a],0x0
+  4ef1ad:	83 4e 0c 01          	or     DWORD PTR [esi+0xc],0x1
+  4ef1b1:	56                   	push   esi
+  4ef1b2:	e8 e9 29 f1 ff       	call   0x401ba0
+  4ef1b7:	83 c4 04             	add    esp,0x4
+  4ef1ba:	c6 46 2e 03          	mov    BYTE PTR [esi+0x2e],0x3
+  4ef1be:	56                   	push   esi
+  4ef1bf:	e8 cc ef ff ff       	call   0x4ee190
+  4ef1c4:	83 c4 04             	add    esp,0x4
+  4ef1c7:	5f                   	pop    edi
+  4ef1c8:	5e                   	pop    esi
+  4ef1c9:	83 c4 04             	add    esp,0x4
+  4ef1cc:	c3                   	ret
+  4ef1cd:	56                   	push   esi
+  4ef1ce:	e8 7d 59 fe ff       	call   0x4d4b50
+  4ef1d3:	83 c4 04             	add    esp,0x4
+  4ef1d6:	5f                   	pop    edi
+  4ef1d7:	5e                   	pop    esi
+  4ef1d8:	83 c4 04             	add    esp,0x4
+  4ef1db:	c3                   	ret
+  4ef1dc:	56                   	push   esi
+  4ef1dd:	e8 3e 46 f1 ff       	call   0x403820
+  4ef1e2:	83 c4 04             	add    esp,0x4
+  4ef1e5:	5f                   	pop    edi
+  4ef1e6:	5e                   	pop    esi
+  4ef1e7:	83 c4 04             	add    esp,0x4
+  4ef1ea:	c3                   	ret
+  4ef1eb:	56                   	push   esi
+  4ef1ec:	e8 af 9a f5 ff       	call   0x448ca0
+  4ef1f1:	83 c4 04             	add    esp,0x4
+  4ef1f4:	5f                   	pop    edi
+  4ef1f5:	5e                   	pop    esi
+  4ef1f6:	83 c4 04             	add    esp,0x4
+  4ef1f9:	c3                   	ret
+  4ef1fa:	8d 44 24 08          	lea    eax,[esp+0x8]
+  4ef1fe:	50                   	push   eax
+  4ef1ff:	56                   	push   esi
+  4ef200:	e8 8b 6f f7 ff       	call   0x466190
+  4ef205:	83 c4 08             	add    esp,0x8
+  4ef208:	80 be 9e 00 00 00 00 	cmp    BYTE PTR [esi+0x9e],0x0
+  4ef20f:	74 19                	je     0x4ef22a
+  4ef211:	8d 44 24 08          	lea    eax,[esp+0x8]
+  4ef215:	50                   	push   eax
+  4ef216:	6a 00                	push   0x0
+  4ef218:	56                   	push   esi
+  4ef219:	e8 b2 67 f7 ff       	call   0x4659d0
+  4ef21e:	83 c4 0c             	add    esp,0xc
+  4ef221:	80 be 9e 00 00 00 00 	cmp    BYTE PTR [esi+0x9e],0x0
+  4ef228:	75 e7                	jne    0x4ef211
+  4ef22a:	f6 46 0e 02          	test   BYTE PTR [esi+0xe],0x2
+  4ef22e:	74 09                	je     0x4ef239

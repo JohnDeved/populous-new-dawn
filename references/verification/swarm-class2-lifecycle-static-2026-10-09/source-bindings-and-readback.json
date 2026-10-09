@@ -1,0 +1,322 @@
+{
+  "base": "d6cf109474379172728a3ccebf46ef72a15f3a58",
+  "stationaryHead": "8cff0e24fdb4277268eaadb7c6ba1e9e3ea59b6a",
+  "stationaryStatus": "",
+  "sourceBindings": [
+    {
+      "path": "decomp/generated/00484a10.c",
+      "baseSha256": "8f1433d8bba1ffc5cbc2fa4dad9ef6415a1ea5f2834aa436c8480dcd8a00f9ae",
+      "stationarySha256": "8f1433d8bba1ffc5cbc2fa4dad9ef6415a1ea5f2834aa436c8480dcd8a00f9ae"
+    },
+    {
+      "path": "decomp/generated/004ed8a0.c",
+      "baseSha256": "0a3e6654f1c046935bf0a75e32d8691f641fa13fad6c82dc06f3783ba520e5c9",
+      "stationarySha256": "0a3e6654f1c046935bf0a75e32d8691f641fa13fad6c82dc06f3783ba520e5c9"
+    },
+    {
+      "path": "decomp/generated/00403610.c",
+      "baseSha256": "38873dc24c630181e40a7464761f3a0c6f69d9f6d8ee96a8f490c340c4f3b5ff",
+      "stationarySha256": "38873dc24c630181e40a7464761f3a0c6f69d9f6d8ee96a8f490c340c4f3b5ff"
+    },
+    {
+      "path": "decomp/generated/004b8470.c",
+      "baseSha256": "e99734b6e278810068a6c50d03f09a6b6301274e211d5a607c21a2b151468f3c",
+      "stationarySha256": "e99734b6e278810068a6c50d03f09a6b6301274e211d5a607c21a2b151468f3c"
+    },
+    {
+      "path": "decomp/generated/004050c0.c",
+      "baseSha256": "32639b081bbccedaf7a9d2edceea3e3e33817b515514b2199640d04a9a04af50",
+      "stationarySha256": "32639b081bbccedaf7a9d2edceea3e3e33817b515514b2199640d04a9a04af50"
+    },
+    {
+      "path": "decomp/generated/00403280.c",
+      "baseSha256": "2714dbc7a2fc7a7f5baa9ea51b2f171f2df08f009df923b40cb13f2cedea327d",
+      "stationarySha256": "2714dbc7a2fc7a7f5baa9ea51b2f171f2df08f009df923b40cb13f2cedea327d"
+    },
+    {
+      "path": "decomp/generated/004ec6f0.c",
+      "baseSha256": "497df5820bfebb7f79eb9cbaf2b887295f7933431958ab4c992ebb33f39e7923",
+      "stationarySha256": "497df5820bfebb7f79eb9cbaf2b887295f7933431958ab4c992ebb33f39e7923"
+    },
+    {
+      "path": "decomp/generated/004866a0.c",
+      "baseSha256": "6f20adf46ccad225bbdfda8cda8803517aef6ee671208c737a19ff2dc7288235",
+      "stationarySha256": "6f20adf46ccad225bbdfda8cda8803517aef6ee671208c737a19ff2dc7288235"
+    },
+    {
+      "path": "decomp/generated/004edf50.c",
+      "baseSha256": "52ec65ffdf2501f7c15d1fa1468dc2e4ecb6218f96871f9bae387ad9b0b42d8c",
+      "stationarySha256": "52ec65ffdf2501f7c15d1fa1468dc2e4ecb6218f96871f9bae387ad9b0b42d8c"
+    },
+    {
+      "path": "decomp/generated/004ee470.c",
+      "baseSha256": "ea580251ff6bd4de4efa0984310f41086acc964695584aafa2f4caf5c006e29d",
+      "stationarySha256": "ea580251ff6bd4de4efa0984310f41086acc964695584aafa2f4caf5c006e29d"
+    },
+    {
+      "path": "decomp/generated/004ee4f0.c",
+      "baseSha256": "41a9628238bb14cfd8a6e945df0de187ba5df7525a56a17bdcc5e33479b0ba1a",
+      "stationarySha256": "41a9628238bb14cfd8a6e945df0de187ba5df7525a56a17bdcc5e33479b0ba1a"
+    },
+    {
+      "path": "decomp/generated/004ee580.c",
+      "baseSha256": "c4114595ecdc2931b5e3dff4827297807a7d97cb121327851fb3d5dbb2e197ef",
+      "stationarySha256": "c4114595ecdc2931b5e3dff4827297807a7d97cb121327851fb3d5dbb2e197ef"
+    },
+    {
+      "path": "decomp/generated/00406f40.c",
+      "baseSha256": "235e5c6511db13c161c3678b7b89a272d6cb96df1149a48bec04e59f9cbbc58e",
+      "stationarySha256": "235e5c6511db13c161c3678b7b89a272d6cb96df1149a48bec04e59f9cbbc58e"
+    },
+    {
+      "path": "decomp/generated/0043c7a0.c",
+      "baseSha256": "b00f06087941eb1784b68895b85be31dae83bf41927d0f56b5ac28f77bd6dd4b",
+      "stationarySha256": "b00f06087941eb1784b68895b85be31dae83bf41927d0f56b5ac28f77bd6dd4b"
+    },
+    {
+      "path": "decomp/generated/00407060.c",
+      "baseSha256": "09dde34fd06f61a5e36ffa7beb62cce72e1c0afe9fe6dec1c46c870c77de4868",
+      "stationarySha256": "09dde34fd06f61a5e36ffa7beb62cce72e1c0afe9fe6dec1c46c870c77de4868"
+    },
+    {
+      "path": "decomp/generated/004030c0.c",
+      "baseSha256": "de57a2ea51b582b12864a014e4b5555b194d50770e4833cbc68f0703de7353d1",
+      "stationarySha256": "de57a2ea51b582b12864a014e4b5555b194d50770e4833cbc68f0703de7353d1"
+    },
+    {
+      "path": "decomp/generated/00403860.c",
+      "baseSha256": "cfceac97381d275f7a6f1b922a52e5d2430581cbb72d77811d247ffc92f331c7",
+      "stationarySha256": "cfceac97381d275f7a6f1b922a52e5d2430581cbb72d77811d247ffc92f331c7"
+    },
+    {
+      "path": "app/object-cells.ts",
+      "baseSha256": "cc693d083d0829c69f6295d9710b3c7762bd70f407ff9c5c408380dbd7465909",
+      "stationarySha256": "cc693d083d0829c69f6295d9710b3c7762bd70f407ff9c5c408380dbd7465909"
+    },
+    {
+      "path": "app/construction-runtime.ts",
+      "baseSha256": "2ea49ae789ae747732c3bc327d58735f501b52dfcff84c17eef83ca4386c0653",
+      "stationarySha256": "2ea49ae789ae747732c3bc327d58735f501b52dfcff84c17eef83ca4386c0653"
+    },
+    {
+      "path": "app/world-initialization.ts",
+      "baseSha256": "0b2accb95c180d87e71bad8788f9c28f3f49ab8af66d5189fd26af69ab717fe2",
+      "stationarySha256": "0b2accb95c180d87e71bad8788f9c28f3f49ab8af66d5189fd26af69ab717fe2"
+    },
+    {
+      "path": "app/world-turn.ts",
+      "baseSha256": "6d813dc107e9ccb9c86267a7c9cca91c5f30b5f8cbd92f7348b83b075a33a352",
+      "stationarySha256": "6d813dc107e9ccb9c86267a7c9cca91c5f30b5f8cbd92f7348b83b075a33a352"
+    },
+    {
+      "path": "app/building-runtime.ts",
+      "baseSha256": "d62fca552e99bf96792f21361fd73047b3fe064f2fcfbfb8af2307ba9e732463",
+      "stationarySha256": "d62fca552e99bf96792f21361fd73047b3fe064f2fcfbfb8af2307ba9e732463"
+    },
+    {
+      "path": "app/live-building-entry.ts",
+      "baseSha256": "93b6712ab2adfc466796a428c69822ad7686cb69b87d6c4f5a8b31ec2e567418",
+      "stationarySha256": "93b6712ab2adfc466796a428c69822ad7686cb69b87d6c4f5a8b31ec2e567418"
+    },
+    {
+      "path": "app/live-building-combat.ts",
+      "baseSha256": "da6d3bb16903a741ac9d4ce925d7e188ec1113071fd46d5791d7d163c0b1cb30",
+      "stationarySha256": "da6d3bb16903a741ac9d4ce925d7e188ec1113071fd46d5791d7d163c0b1cb30"
+    },
+    {
+      "path": "app/computer-runtime.ts",
+      "baseSha256": "e646a829d87cb65d29588d70bd7ddeb3173e71b6130e6507e46ad5cf68634078",
+      "stationarySha256": "e646a829d87cb65d29588d70bd7ddeb3173e71b6130e6507e46ad5cf68634078"
+    },
+    {
+      "path": "app/armageddon.ts",
+      "baseSha256": "6cd2ad4301e6aaf4680b1413398e16f159b0e26f41792c7415b4bb64564a2280",
+      "stationarySha256": "6cd2ad4301e6aaf4680b1413398e16f159b0e26f41792c7415b4bb64564a2280"
+    },
+    {
+      "path": "app/game-store.ts",
+      "baseSha256": "e762417959240887e6efe370eb1a6709169b641f777b58a8c1cdf8203b5205bb",
+      "stationarySha256": "e762417959240887e6efe370eb1a6709169b641f777b58a8c1cdf8203b5205bb"
+    },
+    {
+      "path": "app/vault.ts",
+      "baseSha256": "ff4fb2f54e2cec4ef4322e32e91f3ee310dcbf1a9b3009054e59b8096ef48aa6",
+      "stationarySha256": "ff4fb2f54e2cec4ef4322e32e91f3ee310dcbf1a9b3009054e59b8096ef48aa6"
+    },
+    {
+      "path": "app/vault-geometry.ts",
+      "baseSha256": "64bcf40c8c861559e29f8b0cf54d6df5a8b6398c4490b6f9c01c3bcb225f8849",
+      "stationarySha256": "64bcf40c8c861559e29f8b0cf54d6df5a8b6398c4490b6f9c01c3bcb225f8849"
+    },
+    {
+      "path": "app/scene-entities.ts",
+      "baseSha256": "4f7fdb9e6fe509df834631b411b1fc54f9cec83e8a6146380e7a4d1af8fad3ce",
+      "stationarySha256": "4f7fdb9e6fe509df834631b411b1fc54f9cec83e8a6146380e7a4d1af8fad3ce"
+    },
+    {
+      "path": "app/level-three.ts",
+      "baseSha256": "7de51508c51d8193ee961de63a79016be4c58de284aefc3a707339b5e9b81e07",
+      "stationarySha256": "7de51508c51d8193ee961de63a79016be4c58de284aefc3a707339b5e9b81e07"
+    },
+    {
+      "path": "app/secondary-effects.ts",
+      "baseSha256": "d3cd7bcadad17a6bb95204040a1da6a43f66cd7488295ae38440e42420582417",
+      "stationarySha256": "d3cd7bcadad17a6bb95204040a1da6a43f66cd7488295ae38440e42420582417"
+    }
+  ],
+  "m3Class2": [
+    {
+      "index": 0,
+      "model": 1,
+      "type": 2,
+      "owner": 0,
+      "x": 28.0,
+      "z": 98.0,
+      "angle": 1024
+    },
+    {
+      "index": 104,
+      "model": 18,
+      "type": 2,
+      "owner": 255,
+      "x": -38.0,
+      "z": -132.0,
+      "angle": 0
+    }
+  ],
+  "m3TriggerLinks": [
+    {
+      "index": 91,
+      "mode": 4,
+      "linkedObjects": [
+        {
+          "index": 92,
+          "model": 2,
+          "type": 6,
+          "owner": 255,
+          "x": -37.0,
+          "z": -133.0,
+          "angle": 16844034,
+          "settings": [
+            2,
+            5,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "index": 101,
+      "mode": 0,
+      "linkedObjects": [
+        {
+          "index": 103,
+          "model": 23,
+          "type": 7,
+          "owner": 0,
+          "x": -15.0,
+          "z": 111.0,
+          "angle": 0
+        }
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "00403610-00403750-building-init.asm.txt",
+      "sha256": "c769d0357f70e0ae27f8091a222badac307328588e751ca9c58828f537b7474a",
+      "bytes": 5222
+    },
+    {
+      "path": "00403820-00403860-building-delete.asm.txt",
+      "sha256": "b40cc3381715fbfd673e5fcfff4bc07fd35389875f6c43cadd9d817184075cb4",
+      "bytes": 1537
+    },
+    {
+      "path": "004050c0-004052b0-upgrade.asm.txt",
+      "sha256": "cff01b6e37dc2051435f333c018f265c7bd24c7e32e4539a8d1a40c57f8ff697",
+      "bytes": 7545
+    },
+    {
+      "path": "00484db0-00484ed0-loader-tail.asm.txt",
+      "sha256": "05b84c661a54bfa20014b2d89e06bd4f79d410da85ced09006ae7d150bab6d3c",
+      "bytes": 4659
+    },
+    {
+      "path": "00484ecb-00485100-loader-object-loop.asm.txt",
+      "sha256": "ad7629db2d577574eca6e1467a16c8b7849bcd13551568b0aad592244482cc06",
+      "bytes": 9283
+    },
+    {
+      "path": "004edcf0-004ede10-retirement.asm.txt",
+      "sha256": "0447d80aee8518fb4bd5c03bc517fb653b9a37ea16aa0fd83d3d7d09ebddc9fb",
+      "bytes": 5378
+    },
+    {
+      "path": "004ef180-004ef230-generic-delete.asm.txt",
+      "sha256": "eb71720d06837b4e9d92e7d02af1d065cc4ac160a58c328ec7fc845acb0fd474",
+      "bytes": 3327
+    },
+    {
+      "path": "004ef71c-004ef720-class2-delete-dispatch.txt",
+      "sha256": "c74b98f3e478761924f50b5b39ecf99a9f393476b0bbfc059a76def891d3d0e3",
+      "bytes": 245
+    },
+    {
+      "path": "decision.md",
+      "sha256": "4a6280a094aa5e3342405da018b2ababaa9963f5d368000697e2cf16d4de5b45",
+      "bytes": 12556
+    },
+    {
+      "path": "manifest.json",
+      "sha256": "73fe8b3f22c8f933168bed594054f90729f7485023305e345e4f7fb8bf639918",
+      "bytes": 2863
+    },
+    {
+      "path": "objdump-version.txt",
+      "sha256": "aff897e4c6a85eef803f6dc0ed4a813e66726aa1ca6f3afc23280f1d655f32da",
+      "bytes": 288
+    },
+    {
+      "path": "supplement-01.json",
+      "sha256": "34f3737461ef3951c80fe6b148e31688f21289bc98e2800bb1f8e9e0d00e9ae4",
+      "bytes": 1929
+    },
+    {
+      "path": "supplement-02.json",
+      "sha256": "69170e807fab1f29528b523045f9b7d49bc07dd1ebc52300a483a26b07347ad5",
+      "bytes": 607
+    }
+  ],
+  "finalExeSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "limits": "Static interpretation only. Runtime is held. No newly proposed identity or legacy policy is accepted."
+}
