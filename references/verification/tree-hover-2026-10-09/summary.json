@@ -20,6 +20,11 @@
       "locator": "tree-hover-scope-review-20261009/product-review-1ec5bae.md",
       "sha256": "b546bad94b19c37e683ff678b258aaaa90ee0dbc82bc3ea3993ba669b2d18856",
       "verdict": "accepted source and standard results; ordinary rendered acceptance pending"
+    },
+    "baseline02": {
+      "locator": "/tmp/issue19-tree-hover-baseline02-result-review-20261009.md",
+      "sha256": "e2078b005b8055c03ed58997ae23256a6990d2c7f2740934b258e99566714966",
+      "verdict": "accept bounded tree reproduction and observed controls; overall FAILED retained; candidate unexecuted"
     }
   },
   "portableEvidence": {
@@ -123,22 +128,216 @@
         "credit": "invalid for product reproduction"
       }
     },
-    "reviewedBaseline": null,
+    "reviewedBaseline": {
+      "attempt": "baseline02",
+      "acceptedScope": "Bounded authored-tree reproduction, ordinary camera/leave controls and one Hut pick/render followed by canvas leave/zero.",
+      "tree": {
+        "id": 20,
+        "sceneryModel": 1,
+        "renderModel": 13,
+        "logs": 4,
+        "x": 3,
+        "z": 23,
+        "measuredUniform": 0,
+        "initialResidues": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "reentryResidues": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "records": {
+        "renders": 96,
+        "trustedInputEvents": 14,
+        "naturalCanvasPNGs": 8
+      },
+      "inputSnapshots": "All retained synchronous before/after selection, orders/ownership and RNG matched.",
+      "controls": [
+        "stationary-pointer W pan",
+        "minus/equals zoom and return",
+        "minimap return",
+        "HUD leave with zero uniforms"
+      ],
+      "building": {
+        "id": 37,
+        "datObject": 42,
+        "renderModel": 119,
+        "turn": 627,
+        "renderOrdinal": 36,
+        "measuredUniform": 255,
+        "observedResidues": [
+          3
+        ],
+        "trustedCanvasLeaveOrdinal": 37,
+        "zeroUniformFromTurn": 632,
+        "exactInterceptingDomNodeRecorded": false
+      },
+      "entry": {
+        "turn": 398,
+        "speed": 1,
+        "paused": false,
+        "mode": null,
+        "viewPreset": 0,
+        "selected": [
+          30
+        ]
+      },
+      "browser": {
+        "majorVersion": 154,
+        "sandbox": true,
+        "softwareRendering": true,
+        "hardwarePerformanceClaim": false,
+        "canvasWidth": 1240,
+        "canvasHeight": 1000
+      },
+      "candidateControlRequirement": "One actual Hut pick/render with correct natural-turn uniform, followed by actual canvas leave/zero; preserve tree four-residue requirement."
+    },
     "reviewedCandidate": null,
-    "screenshots": [],
+    "screenshots": [
+      {
+        "locator": "populous-recovery-20261009/work/orchestration/tree-hover-baseline-02-20261009/tree-live-200.png",
+        "sha256": "cb3b7a8f60c15b7f5cbedeaa349262479937f8079043cb4d993d1709a65f54e1",
+        "role": "baseline02",
+        "name": "tree-live-200",
+        "turn": 452,
+        "renderOrdinal": 3,
+        "measuredTargetUniform": 0,
+        "width": 1240,
+        "height": 1000,
+        "copiedToReport": false,
+        "filenamePhaseSuffix": "expected phase, not measured uniform"
+      },
+      {
+        "locator": "populous-recovery-20261009/work/orchestration/tree-hover-baseline-02-20261009/tree-live-255.png",
+        "sha256": "342324ff1ce6c40d63e027e712360e570b63bb27a3ebec2efd864a413cc39200",
+        "role": "baseline02",
+        "name": "tree-live-255",
+        "turn": 458,
+        "renderOrdinal": 5,
+        "measuredTargetUniform": 0,
+        "width": 1240,
+        "height": 1000,
+        "copiedToReport": false,
+        "filenamePhaseSuffix": "expected phase, not measured uniform"
+      },
+      {
+        "locator": "populous-recovery-20261009/work/orchestration/tree-hover-baseline-02-20261009/tree-pan.png",
+        "sha256": "194618339f557242ad6f95a7970ed8a84028095843df652bf262bee60d0f0094",
+        "role": "baseline02",
+        "name": "tree-pan",
+        "turn": 469,
+        "renderOrdinal": 10,
+        "measuredTargetUniform": 0,
+        "width": 1240,
+        "height": 1000,
+        "copiedToReport": false,
+        "filenamePhaseSuffix": null
+      },
+      {
+        "locator": "populous-recovery-20261009/work/orchestration/tree-hover-baseline-02-20261009/tree-zoom.png",
+        "sha256": "d6cc4540ac1af67b826934f0bba11c398aaf7046fc659cc4aa787b621d24a821",
+        "role": "baseline02",
+        "name": "tree-zoom",
+        "turn": 491,
+        "renderOrdinal": 19,
+        "measuredTargetUniform": 0,
+        "width": 1240,
+        "height": 1000,
+        "copiedToReport": false,
+        "filenamePhaseSuffix": null
+      },
+      {
+        "locator": "populous-recovery-20261009/work/orchestration/tree-hover-baseline-02-20261009/tree-return-200.png",
+        "sha256": "eb7190b02e3c9e2c6126cff568d618ee806bbfb34958365dcaf9e65b2752c590",
+        "role": "baseline02",
+        "name": "tree-return-200",
+        "turn": 549,
+        "renderOrdinal": 26,
+        "measuredTargetUniform": 0,
+        "width": 1240,
+        "height": 1000,
+        "copiedToReport": false,
+        "filenamePhaseSuffix": "expected phase, not measured uniform"
+      },
+      {
+        "locator": "populous-recovery-20261009/work/orchestration/tree-hover-baseline-02-20261009/tree-return-255.png",
+        "sha256": "fe14edd0a96fd67e270d1c76a7fd7bf40b401c7af60aa26c3b1d49aa2001966e",
+        "role": "baseline02",
+        "name": "tree-return-255",
+        "turn": 555,
+        "renderOrdinal": 28,
+        "measuredTargetUniform": 0,
+        "width": 1240,
+        "height": 1000,
+        "copiedToReport": false,
+        "filenamePhaseSuffix": "expected phase, not measured uniform"
+      },
+      {
+        "locator": "populous-recovery-20261009/work/orchestration/tree-hover-baseline-02-20261009/tree-leave.png",
+        "sha256": "85ded88a81c78f9d01a724c81330b8aa72749533805558e8fef6387770864843",
+        "role": "baseline02",
+        "name": "tree-leave",
+        "turn": 577,
+        "renderOrdinal": 32,
+        "measuredTargetUniform": 0,
+        "width": 1240,
+        "height": 1000,
+        "copiedToReport": false,
+        "filenamePhaseSuffix": null
+      },
+      {
+        "locator": "populous-recovery-20261009/work/orchestration/tree-hover-baseline-02-20261009/building-live-255.png",
+        "sha256": "d451b5bd98899cf16e7ffa8f8835479477883175e7a11741d816d6dfd0c5f985",
+        "role": "baseline02",
+        "name": "building-live-255",
+        "turn": 627,
+        "renderOrdinal": 36,
+        "measuredTargetUniform": 255,
+        "width": 1240,
+        "height": 1000,
+        "copiedToReport": false,
+        "filenamePhaseSuffix": null
+      }
+    ],
     "pixelComparison": null,
     "finalAcceptance": null,
     "anchorCorrection": {
       "status": "independently accepted; next bounded pair pending",
       "actualWorldFeasibilityContracts": 13,
       "feasibilityTurns": 405,
-      "remainingPrerequisite": "Remove one unused test parameter to clear scoped ESLint.",
+      "remainingPrerequisite": null,
       "source": "Parent evidence update, 2026-10-09T08:49Z"
+    },
+    "baseline02": {
+      "locator": "populous-recovery-20261009/work/orchestration/tree-hover-baseline-02-20261009.outer.json",
+      "sha256": "040f2ecb711cbd960bdc792f94813f925eba7bd68c2eb7937925db7d1f3661f4",
+      "status": "failed",
+      "exitCode": 1,
+      "startedAt": "2026-10-09T08:52:23.957Z",
+      "finishedAt": "2026-10-09T08:54:22.918Z",
+      "applicationCommit": "2107ccfabc1737aed55aca3c5579a920dd63a667",
+      "qaCommit": "691c7d5e71961f157a34d4f73fcd0d8d61ef748b",
+      "innerReceipt": {
+        "locator": "populous-recovery-20261009/work/orchestration/tree-hover-baseline-02-20261009/receipt.json",
+        "sha256": "295bc16035defd551f308ba1bd4f20b9f3f3f84759dbcea5f072e574cc1526b5"
+      },
+      "report": {
+        "locator": "populous-recovery-20261009/work/orchestration/tree-hover-baseline-02-20261009/tree-hover.json",
+        "sha256": "8aa181c9f0e043b9637121b9aef3008586841ba0e63e6383835403fc2967fc02"
+      },
+      "failure": "Later building-live phase timeout: sustained four-residue canvas hover was unsupported by the existing occupancy-popup interaction.",
+      "originalScenarioPassed": false
     }
   },
   "limits": [
     "Composed Node callers supply texture IO, painter submission, GPU and unrelated frame boundaries.",
     "Raw receipts/logs remain at their local provenance locators and are not copied into this compact report.",
-    "No completed ordinary before/after witness, native controller/modal or tooltip parity, native whole-frame pixels/timing, hardware-performance, whole-issue completion or new parity-credit claim."
+    "No completed candidate or reviewed before/after pair, native controller/modal or tooltip parity, native whole-frame pixels/timing, hardware-performance, whole-issue completion or new parity-credit claim."
   ]
 }

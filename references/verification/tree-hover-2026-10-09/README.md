@@ -2,8 +2,8 @@
 
 Local packaging draft for [PR #283](https://github.com/JohnDeved/populous-new-dawn/pull/283),
 referencing [issue #19](https://github.com/JohnDeved/populous-new-dawn/issues/19).
-**Ordinary rendered acceptance and the before/after screenshots are pending. Do
-not publish this draft as a completed result.**
+**Candidate pixels and final ordinary acceptance are pending. The reviewed before
+evidence is bounded below; do not publish this draft as a completed result.**
 
 The accepted source change is limited to live scenery models 1–6 with logs >= 1:
 the scene's hover descriptor fallback and the render caller's `point.id` match.
@@ -25,7 +25,7 @@ copied into this compact report.
 | Focused candidate | 8/8 passed across tree-hover, scene lifecycle and world-picking tests on exact `1ec5bae`. |
 | Standard candidate | 1,595/1,595 passed across all 272 files, plus fresh typecheck, parity, orchestration and production build. All 16 stages finished with stable source. |
 | Scoped quality | Oxfmt, ESLint, structural and context checks passed. Strict Oxlint **failed** with 19 findings: 17 warnings and two errors, byte-identical to main's baseline diagnostics. |
-| Independent review | Source and standard results accepted; no blocking source finding. Final product acceptance awaits ordinary rendered evidence. |
+| Independent review | Source and standard results accepted; no blocking source finding. Bounded before evidence accepted below; final product acceptance awaits the candidate witness. |
 
 The composed regression supplies texture IO, painter submissions, GPU and
 unrelated frame boundaries. It is not an ordinary rendered gameplay witness.
@@ -38,15 +38,35 @@ with `Declared authored Mission1 targets unavailable`. QA compared DAT object 42
 anchor coordinates (-12,34) to the Hut's normalized runtime x/z. Actual
 `addBuilding` produces runtime object 37 at (-11.0703125,33.0546875), with native
 anchor (64512,54784). The same-object anchor correction was independently accepted
-with 13 actual-world/405-turn feasibility contracts; a test-only unused-parameter
-lint fix precedes the next bounded pair. Baseline 01 remains invalid for product
-reproduction and supplies no completed hover or visual-comparison credit.
+with 13 actual-world/405-turn feasibility contracts. Baseline 01 remains invalid
+for product reproduction and supplies no completed hover or comparison credit.
 
-Actual before/after screenshots, naturally occurring shade phases, leave/re-entry,
-stationary-pointer pan/zoom and the building control remain pending. No screenshot
-placeholder is presented as evidence. The reviewed pair must bind application/QA
-commits, target identity, normal input and clock conditions, selected IDs/orders,
-viewport/renderer details and captured pixels before this report is finalized.
+Baseline 02 remains **FAILED overall** at its later Hut-control phase timeout.
+Its application was `2107ccf`, QA head
+`691c7d5e71961f157a34d4f73fcd0d8d61ef748b`. Independent review accepted eight natural
+game-canvas PNGs, 96 original-render records and 14 trusted input events as bounded
+before evidence:
+
+- Authored tree 20, scenery model 1/render model 13, remained at uniform 0 through
+  all four natural turn residues on initial hover and re-entry. Expected 200/255
+  phase classes appeared in screenshot filenames; **measured baseline uniforms
+  were 0**, not those suffix values.
+- Trusted stationary-pointer pan, zoom/return and HUD leave worked. Each retained
+  input's synchronous before/after selection, orders/ownership and RNG matched.
+- The actual Blue Hut 37 was picked and naturally rendered once at uniform 255,
+  followed by trusted same-coordinate canvas leave and zero-uniform renders.
+  Only residue 3 was observed for this secondary control. Sustained four-residue
+  canvas hover was unsupported by the existing occupancy-popup interaction;
+  the exact intercepting DOM node was not recorded. The original scenario did
+  not pass, and its failed status must remain visible.
+
+These screenshots are 1240×1000 natural game-canvas frames from sandboxed browser
+154 with software rendering. No candidate pixels or reviewed before/after pair
+exist yet. Source screenshot/receipt hashes are retained in the summary; the files
+have not been copied into this draft. The corrected candidate control must require
+one real Hut pick/render followed by actual canvas leave/zero while preserving the
+tree's four-residue requirement. Candidate pixels and final visual review remain
+pending; no final ordinary acceptance is implied by the bounded baseline review.
 
 The original release deadline and the broader issue acceptance remain open. This
 slice does not establish full original controller/modal behavior, tooltip parity,
