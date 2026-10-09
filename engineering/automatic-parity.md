@@ -63,7 +63,15 @@ with environment-substituted commands are not automatically bound by this v1 exa
 command adapter. They stay unknown rather than manufacturing an original result.
 
 Discovery scans repository-local JSON under ignored `work/orchestration`, skipping
-symlinks, raw-log directories and generated reports. Oversized/invalid JSON makes
+symlinks, raw-log directories and generated reports. Directory enumeration is bounded
+before sorting, with a10,000-entry traversal limit. A fixed-depth Node compile-cache
+shape under a direct `*-tmp` child is excluded only after a bounded metadata probe
+proves all descendants have non-JSON cache filenames; unexpected JSON, nesting,
+symlinks, changed metadata or probe exhaustion falls back to ordinary discovery.
+Sequential JSON reads have a64MiB per-file and256MiB aggregate actual-byte budget.
+File changes, malformed UTF-8/JSON and oversize remain warnings; aggregate/traversal
+exhaustion aborts without partial scores. These limits bound input, not peak memory
+or runtime. Selected owned-adapter sidecar reads keep their separate4MiB limit. Oversized/invalid JSON makes
 measurement incomplete rather than hiding a possibly newer failed receipt. Refresh
 errors replace the current report with an unavailable notice while preserving history. Old
 arbitrary logs and summaries are not accepted as results. Receipts are trusted local

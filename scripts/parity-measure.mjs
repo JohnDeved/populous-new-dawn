@@ -3,10 +3,11 @@
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
-import { existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, renameSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { fingerprintPaths, safeRepoPath } from './orchestration/cli.mjs'
+import { RECEIPT_ENTRY_LIMIT, DiscoveryLimitError, boundedDirectoryEntries, createJsonBudget, readDiscoveryJson, verifiedNodeCompileCache } from './parity-discovery.mjs'
 import { ORDINARY_M2, isOrdinaryCheckpointCandidate, readOrdinaryCheckpoint, selectOrdinaryCheckpoint } from './parity-owned-checkpoint.mjs'
 import { BLAST_BINDINGS, BLAST_REFERENCE, isOrdinaryBlastCandidate, readOrdinaryBlast, selectOrdinaryBlast, isBlastReferenceCandidate, readBlastReference, selectBlastReference } from './parity-owned-blast.mjs'
 
@@ -169,18 +170,23 @@ export function discoverReceipts(repo) {
   const receipts = [], warnings = []
   const root = resolve(repo, 'work/orchestration')
   let count = 0
+  const budget = createJsonBudget()
   function walk(directory) {
     if (!existsSync(directory)) return
-    for (const entry of readdirSync(directory, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
-      if (++count > 10000) throw new Error('Receipt discovery limit reached; no partial report written')
+    for (const entry of boundedDirectoryEntries(directory, RECEIPT_ENTRY_LIMIT - count)) {
+      if (++count > RECEIPT_ENTRY_LIMIT) throw new DiscoveryLimitError('Receipt discovery limit reached; no partial report written')
       if (entry.isSymbolicLink()) continue
       const path = resolve(directory, entry.name), local = relative(repo, path)
       if (path === resolve(repo, OUTPUT) || entry.name.endsWith('.artifacts')) continue
-      if (entry.isDirectory()) walk(path)
+      if (entry.isDirectory()) {
+        if (!verifiedNodeCompileCache(path, root)) walk(path)
+      }
       else if (entry.isFile() && entry.name.endsWith('.json')) {
-        if (lstatSync(path).size > 4 * 1024 * 1024) { warnings.push(`Not inspected (oversized): ${local}`); continue }
         let value
-        try { value = JSON.parse(readFileSync(path, 'utf8')) } catch { warnings.push(`Not inspected (invalid JSON): ${local}`); continue }
+        try { value = readDiscoveryJson(path, budget) } catch (error) {
+          if (error instanceof DiscoveryLimitError) throw error
+          warnings.push(`Not inspected (${error.message}): ${local}`); continue
+        }
         let measurements
         if (value.kind === 'pnd-command-receipt') {
           measurements = value.parityMeasurements?.map(e => ({ ...e, status: value.status === e.status ? e.status : 'invalidated' }))
