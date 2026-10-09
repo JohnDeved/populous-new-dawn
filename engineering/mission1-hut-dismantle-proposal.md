@@ -193,10 +193,11 @@ at311,374,441 and entry/order release at442. The full snapshot at445 had target
 gone, worker1186 alive with100 carried and logs1190/1191 totaling200, with cleanup
 complete. This is observed evidence within a failed episode, not an acceptance.
 
-Observation continued while awaiting the screenshot. By close456, normal native
-resting had dropped the last100 as log1192. The still-attached dismantle observer
-rejected that drop because its unchanged oracle requires a prior command10.
-The exact failing pair was not retained; its visit is bounded only to446–456.
+Observation continued while awaiting the screenshot. By close456, the last100
+had become log1192, consistent with the existing native resting path. The
+still-attached dismantle observer rejected a drop because its unchanged oracle
+requires a prior command10. The actual failing adjacent pair and callback were
+not retained; the failing visit is bounded only to446–456.
 `live-resting.ts` and `person-idle.ts` establish the distinct resting caller,
 not a permanent command10 or registered-owner guarantee after completion.
 
