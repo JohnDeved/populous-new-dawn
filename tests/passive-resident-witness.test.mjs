@@ -246,7 +246,7 @@ for (const selection of [[30], [13]]) test(`actual Escape and panel selection co
   // Execute the actual current Page key callback, supplying only its React,
   // audio and unrelated key boundaries; Escape consumes real cancelInteraction.
   const pageSource = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8')
-  const match = /const key = (\(e: KeyboardEvent\) => \{[\s\S]*?\n    \})\n    window\.addEventListener\('keydown', key\)/.exec(pageSource)
+  const match = /const key = (\(e: KeyboardEvent\) => \{[\s\S]*?\n {4}\})\n {4}window\.addEventListener\('keydown', key\)/.exec(pageSource)
   assert.ok(match)
   const source = match[1].replace(': KeyboardEvent', '').replaceAll(' as HTMLElement', '')
   const key = Function('world', 'store', 'ready', 'SPELLS', 'tutorialLevel', 'cancelInteraction', 'update',
