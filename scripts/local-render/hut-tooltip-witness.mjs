@@ -1,18 +1,18 @@
 // One finite scenario observer. It never invokes a game update, picker, input,
 // render, clock, or command. The installed wrappers forward actual calls once.
-export async function installHutTooltipWitness(page, { deadlineAt, maxRecords = 8192, buildingRecordPrefix = 'hut', observeConstruction = false } = {}) {
+export async function installHutTooltipWitness(page, { deadlineAt, maxRecords = 8192, buildingRecordPrefix = 'hut', observeConstruction = false, observeTraining = false } = {}) {
   return page.evaluateHandle(async ({ source, limits }) => {
     const [{ GameScene }, { observeEntityPointer }] = await Promise.all([
       import('/app/scene.ts'), import('/qa/erosion-ordinary/input.mjs')])
     // Only the scenario's own passive observer is serialized; no runtime source
     // replacement or game state is evaluated here.
     return (0, eval)(`(${source})`)(GameScene, observeEntityPointer, limits)
-  }, { source: installHutTooltipLifecycle.toString(), limits: { deadlineAt, maxRecords, buildingRecordPrefix, observeConstruction } })
+  }, { source: installHutTooltipLifecycle.toString(), limits: { deadlineAt, maxRecords, buildingRecordPrefix, observeConstruction, observeTraining } })
 }
 
 // Dependency-supplied only so cheap contracts can exercise real wrapper behavior
 // without a browser or installing dependencies. Production invocation is above.
-export function installHutTooltipLifecycle(GameScene, observeEntityPointer, { deadlineAt, maxRecords = 8192, buildingRecordPrefix = 'hut', observeConstruction = false }) {
+export function installHutTooltipLifecycle(GameScene, observeEntityPointer, { deadlineAt, maxRecords = 8192, buildingRecordPrefix = 'hut', observeConstruction = false, observeTraining = false }) {
   const records = [], epochs = [], frames = {}, errors = [], initial = performance.now()
   const originalStart = GameScene.prototype.start
   const startDescriptor = Object.getOwnPropertyDescriptor(GameScene.prototype, 'start')
@@ -53,7 +53,29 @@ export function installHutTooltipLifecycle(GameScene, observeEntityPointer, { de
           commands: person?.commands, commandCursor: person?.commandCursor, immediateCommand: person?.immediateCommand }
       }) }
   }
+  const training = scene => {
+    if (!observeTraining) return null
+    const w = scene.world, panels = scene.objectPanels
+    check(panels.automaticTrainingLatches instanceof Set, 'Missing actual automatic training latch owner')
+    const camps = w.buildings.filter(b => b.team === 'blue' && b.kind === 'camp')
+    check(camps.length <= 4, 'Bounded training camp roster exceeded')
+    return { trained: w.stats.trained, manaTribes: w.manaTribes, manaWorld: w.manaWorld,
+      reservations: w.secondaryEffects?.reservations ?? [], latches: [...panels.automaticTrainingLatches],
+      camps: camps.map(b => ({ id: b.id, identity: identity(buildings, b), hp: b.hp, progress: b.progress,
+        timer: b.timer, admission: b.admission,
+        reservationCount: (w.secondaryEffects?.reservations ?? []).filter(key => key === `building-panel:${b.id}`).length })),
+      people: w.units.filter(u => u.team === 'blue').map(u => {
+        const person = u.entry?.person ?? u.native
+        return { id: u.id, kind: u.kind, team: u.team, hp: u.hp, x: u.x, z: u.z, work: u.work, inside: u.inside,
+          orderOwner: u.entry?.person ? 'entry.person' : u.native ? 'native' : null,
+          orderOwnerIdentity: identity(people, person), registeredIdentity: identity(people, w.objectCells?.objects.get(u.id)),
+          orderPersonId: person?.id, orderState: person?.state, orderWorkTarget: person?.workTarget,
+          commands: person?.commands, commandCursor: person?.commandCursor, immediateCommand: person?.immediateCommand,
+          entryOrdersMatch: u.entry ? u.entry.orders === w.buildingOrders : null }
+      }) }
+  }
   const simulation = scene => structuredClone({
+    training: training(scene),
     construction: construction(scene),
     turn: scene.world.turn, selected: scene.world.selected, mode: scene.world.mode,
     orderCursor: scene.world.orderCursor, lastOrderTurn: scene.world.lastOrderTurn,
@@ -74,7 +96,7 @@ export function installHutTooltipLifecycle(GameScene, observeEntityPointer, { de
     return structuredClone({
       sessionIdentity: identity(sessions, session), session: session ?? null,
       controller: c ?? null, input: scene.tooltipInput ?? null, pendingInputs: scene.tooltipInspectionInputs ?? [],
-      tooltip: scene.tooltip, construction: construction(scene), targetId,
+      tooltip: scene.tooltip, construction: construction(scene), training: training(scene), targetId,
       inspected: scene.objectPanels[inspectedKey] ?? null, heldPointer: scene.objectPanels[heldKey] ?? null,
       records: [...scene.objectPanels[recordKey]].map(([id, value]) => ({ id, identity: identity(recordIds, value),
         phase: value.phase, remaining: value.remaining, hold: value.hold, automatic: value.automatic })),
@@ -129,6 +151,14 @@ export function installHutTooltipLifecycle(GameScene, observeEntityPointer, { de
     epoch.finish = finish
     try {
       pointer = observeEntityPointer(scene, document)
+      if (observeTraining) wrap(scene.objectPanels, 'requestAutomaticTraining', original => function (...args) {
+        const before = observe(snapshot)
+        let result, threw = false
+        try { result = original.apply(this, args); return result }
+        catch (error) { threw = true; throw error }
+        finally { observe(() => add({ kind: 'automatic-training-request', epoch: epoch.id, target: args[0],
+          receiverMatches: this === scene.objectPanels, threw, before, after: snapshot() })) }
+      })
       wrap(scene, 'updateTooltipController', original => function (...args) {
         const before = observe(snapshot), markersBefore = observe(() => markers(scene))
         const result = original.apply(this, args)

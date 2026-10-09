@@ -2,25 +2,24 @@ import assert from 'node:assert/strict'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { hoverInput } from './tree-hover-input.mjs'
+import { authoredHoverTargets, hoverInput } from './tree-hover-input.mjs'
 import { createMission1VaultInput } from './mission1-vault-input.mjs'
 import { checkpointObservation, readCommittedCheckpoint } from './checkpoint-observer.mjs'
 import { waitForCheckpointReadback } from '../checkpoint-readback.mjs'
 import { installHutTooltipWitness } from './hut-tooltip-witness.mjs'
-import { campStartup, assertCampStartup, campGround, selectCampPlan, assertCampPlacement, campCompletion, assertEmptyCampPanel } from './camp-inspection-input.mjs'
 import { enterHutMission, closeHutMenu, assertHutAdmission, installHutCheckpointBoundary,
   installHutSelectionClear, assertHutCheckpointRestore, finishHutHandles, assertHutInspectionLifecycle, readHutPanelControl } from './hut-tooltip-input.mjs'
 
 // No automatic replay: input, picking, startup and interrupted-flow failures are
 // preserved as prerequisites, not converted into controller failures or passes.
-export default async function campInspection({ page, root, output, receipt, signal, trainingTail = null }) {
-  const startedAt = Date.now(), deadlineAt = startedAt + 300000
-  let startup = true, tail = false, witness, checkpoint, selection, failed = false, failure
-  const report = { status: 'running', declaration: { mission: 2, ground: { x: -99, z: -105 }, hud: 'Blast', startupMs: 60000, episodeMs: 300000,
-    constructionMs: 180000, reservedTailMs: 60000,
+export default async function hutTooltip({ page, root, output, receipt, signal }) {
+  const startedAt = Date.now(), deadlineAt = startedAt + 180000
+  let startup = true, witness, checkpoint, selection, failed = false, failure
+  const report = { status: 'running', declaration: { mission: 1, authoredHut: 42, anchor: [64512, 54784],
+    authoredTree: 20, ground: { x: -11, z: 39 }, hud: 'Blast', startupMs: 60000, episodeMs: 180000,
     witnessPhaseMs: 12000, inheritedHelperWaitMs: 45000, panelHoverVisits: 24,
     maxRecords: 8192, maxCaptureGroups: 8, noRetries: true },
-    actions: [], preparations: [], checkpoints: [], limits: 'Completed initially empty Mission 2 camp, ordinary current-browser behavior on the accepted existing flyby-tick mapping. Per-tick marker snapshots retain actual allocated feedback; direct onSound dispatch and audible output are unobserved. No native wall-time or full pool equivalence, textless positive HUD, unnamed-object coverage, forced/HUD-overlap guarantee, off-target held release, or hardware performance claim.' }
+    actions: [], preparations: [], checkpoints: [], limits: 'Ordinary current-browser behavior on the accepted existing flyby-tick mapping. Per-tick marker snapshots retain actual allocated feedback; direct onSound dispatch and audible output are unobserved. No native wall-time or full pool equivalence, textless positive HUD, unnamed-object coverage, forced/HUD-overlap guarantee, off-target held release, or hardware performance claim.' }
   const save = () => {
     for (const [label, group] of Object.entries(report.observation?.frames ?? {}))
       for (const [kind, frame] of Object.entries(group)) if (frame?.png?.startsWith('data:')) {
@@ -29,12 +28,12 @@ export default async function campInspection({ page, root, output, receipt, sign
         const file = `${label}-${kind}.png`
         writeFileSync(resolve(output, file), Buffer.from(match[1], 'base64')); frame.png = file
       }
-    writeFileSync(resolve(output, 'camp-inspection.json'), JSON.stringify(report, null, 2) + '\n')
+    writeFileSync(resolve(output, 'hut-tooltip.json'), JSON.stringify(report, null, 2) + '\n')
   }
   const remaining = (maximum = 12000) => {
     signal.throwIfAborted()
-    const left = (startup ? Math.min(deadlineAt, startedAt + 60000) : tail ? deadlineAt : deadlineAt - report.declaration.reservedTailMs) - Date.now()
-    assert.ok(left > 0, 'Ordinary camp episode deadline exhausted')
+    const left = (startup ? Math.min(deadlineAt, startedAt + 60000) : deadlineAt) - Date.now()
+    assert.ok(left > 0, 'Ordinary Hut episode deadline exhausted')
     return Math.min(maximum, left)
   }
   const action = async (label, run) => {
@@ -51,10 +50,14 @@ export default async function campInspection({ page, root, output, receipt, sign
       if (value.errors.length) throw Error(value.errors.join('\n'))
       const state = value.epochs.at(-1)?.state
       if (kind === 'capture') return value.captures[arg] === true
+      if (kind === 'cell') return state?.controller.category === 'cell' && !state.tooltip.text
+      if (kind === 'tree') return state?.hovered === arg.id && state.input?.picked === arg.id &&
+        state.input.object?.id === arg.id && state.controller.category === 'object' && state.controller.key === arg.id &&
+        state.tooltip.text === arg.text && state.tooltip.draw === 1 && state.controller.dwell > state.session.threshold
       if (kind === 'record') return state?.records.some(row => row.id === arg)
       if (kind === 'panel-held') {
         const record = state?.records.find(row => row.id === arg.id)
-        if (!record || record.identity !== arg.identity) throw Error('Same-camp record expired/replaced during control hover')
+        if (!record || record.identity !== arg.identity) throw Error('Same-Hut record expired/replaced during control hover')
         return state.panels.some(panel => panel.id === arg.id && !panel.hidden && panel.controlHovered) &&
           record.phase === 1 && record.remaining > 0 && value.phasePanelControlInput === arg.id &&
           value.phasePanelControlTicks[arg.id] >= arg.minimum
@@ -65,7 +68,7 @@ export default async function campInspection({ page, root, output, receipt, sign
       if (kind === 'inspection') {
         const events = value.phaseInspections
         if (events.some(event => event === 'cancel-stale' || event.startsWith('explicit:rejected')))
-          throw Error(`Actual camp inspection rejected: ${events.join(', ')}`)
+          throw Error(`Actual Hut inspection rejected: ${events.join(', ')}`)
         return events.includes('release') && events.some(event => event === 'explicit:created' || event === 'explicit:reused')
       }
       return false
@@ -92,7 +95,7 @@ export default async function campInspection({ page, root, output, receipt, sign
     return prepared.point
   }
   const clear = async () => {
-    selection = await page.evaluateHandle(installHutSelectionClear, { mission: 2 })
+    selection = await page.evaluateHandle(installHutSelectionClear)
     await action('Escape clears selection', () => page.keyboard.press('Escape'))
     const result = await selection.evaluate(api => api.close()); await selection.dispose(); selection = null
     report.selectionClear = result; save()
@@ -100,14 +103,14 @@ export default async function campInspection({ page, root, output, receipt, sign
     assert.deepEqual(result.event.after.selected, []); assert.equal(result.event.after.mode, null)
     for (const key of ['turn', 'lastOrderTurn', 'randomState', 'orders']) assert.deepEqual(result.event.after[key], result.event.before[key])
   }
-  const boundary = async (kind, observation = {}) => {
+  const boundary = async kind => {
     checkpoint = await page.evaluateHandle(installHutCheckpointBoundary, { kind })
     const menu = page.locator('dialog.game-dialog')
     await action(kind === 'save' ? 'Save checkpoint' : 'Load checkpoint', () => menu.getByRole('button', {
       name: kind === 'save' ? 'Save checkpoint' : 'Load checkpoint', exact: true }).click({ timeout: remaining() }))
     const observed = await checkpoint.evaluate(api => api.read())
     assert.deepEqual(observed.errors, []); assert.ok(observed.admitted && observed.captured)
-    const typed = await page.evaluate(checkpointObservation, { observationName: observed.observationName, ...observation })
+    const typed = await page.evaluate(checkpointObservation, { observationName: observed.observationName })
     report.checkpoints.push({ ...observed, typed }); save()
     const cleanup = await checkpoint.evaluate(api => api.close()); await checkpoint.dispose(); checkpoint = null
     assert.deepEqual(cleanup.errors, [])
@@ -116,52 +119,18 @@ export default async function campInspection({ page, root, output, receipt, sign
   try {
     assert.equal(receipt.profile, undefined, 'This finite one-page Save/Load episode uses an ephemeral context')
     page.setDefaultTimeout(60000)
-    witness = await installHutTooltipWitness(page, { deadlineAt, maxRecords: report.declaration.maxRecords, buildingRecordPrefix: 'building', observeConstruction: true, observeTraining: !!trainingTail })
-    report.readiness = await enterHutMission({ page, root, remaining: () => remaining(60000), action, mission: 2 })
+    witness = await installHutTooltipWitness(page, { deadlineAt, maxRecords: report.declaration.maxRecords })
+    report.readiness = await enterHutMission({ page, root, remaining: () => remaining(60000), action })
     startup = false; page.setDefaultTimeout(12000)
-    report.startup = await page.evaluate(campStartup); save(); assertCampStartup(report.startup)
-    const preTailDeadline = deadlineAt - report.declaration.reservedTailMs
-    let input = createMission1VaultInput({ page, signal, report, save, originalShamanId: report.startup.shaman[0].id, deadlineAt: preTailDeadline })
-    await input.settle()
-    await input.view(report.declaration.ground)
-    const ground = await page.evaluate(campGround, { preferred: report.declaration.ground, deadlineAt: preTailDeadline })
-    report.preparations.push({ kind: 'clone-safe-camp-placement', ground }); save()
-    await naturalBoundary(ground)
-    report.selectedWorkers = await selectCampPlan({ page, action, remaining }); save()
-    await phase('place-camp')
-    await action('Place camp once on rendered ground', () => page.mouse.click(ground.x, ground.y))
-    report.placement = assertCampPlacement(await witness.evaluate(api => api.read().records.filter(row => row.phase === 'place-camp')), ground)
-    const hut = { ...report.placement.camp, kind: 'building' }
-    await witness.evaluate((api, id) => api.target(id), hut.id)
-    save()
-    await phase('natural-construction')
-    const constructionDeadline = Math.min(preTailDeadline, Date.now() + report.declaration.constructionMs)
-    const completionSource = campCompletion.toString()
-    await page.waitForFunction(({ api, target, source }) => {
-      const value = api.status()
-      if (value.errors.length) throw Error(value.errors.join('\n'))
-      return (0, eval)(`(${source})`)(value.epochs.at(-1)?.state, target)
-    }, { api: witness, target: hut, source: completionSource }, { timeout: Math.max(1, constructionDeadline - Date.now()), polling: 100 })
-    remaining()
-    report.completed = (await status()).epochs.at(-1).state
-    assert.ok(campCompletion(report.completed, hut)); save()
-    assert.ok(Date.now() <= preTailDeadline, 'Construction must leave the declared 60-second tail reserve')
-    tail = true
-    input = createMission1VaultInput({ page, signal, report, save, originalShamanId: report.startup.shaman[0].id, deadlineAt })
-    if (trainingTail) {
-      await trainingTail({ page, root, output, receipt, report, witness, remaining, action, status, phase,
-        clear, boundary, naturalBoundary, point, input, save, hut, deadlineAt })
-      assert.deepEqual(receipt.errors, [])
-      report.status = 'observed-pending-controller-and-pixel-review'
-      return report
-    }
-    await clear()
-    await action('Spells tab', () => page.getByLabel('spells 1–3', { exact: true }).click({ timeout: remaining() }))
+    report.targets = await page.evaluate(authoredHoverTargets); save()
+    assert.equal(report.targets.failure, null)
+    const hut = { ...report.targets.building, kind: 'building' }, tree = { ...report.targets.tree, kind: 'tree' }
     const palette = JSON.parse(readFileSync(resolve(root, 'app/original-tooltips.json'), 'utf8'))
-    const stringId = palette.names[2][7][0], text = palette.strings[stringId]
-    assert.equal(stringId, 912); assert.ok(text.startsWith('Warrior Training Hut:'))
-    report.description = { type: 2, model: 7, stringId, text }; save()
-    const named = { kind: 'named-object', id: hut.id, text }
+    const treeStringId = palette.names[5][tree.model][0], treeText = palette.strings[treeStringId]
+    assert.equal(treeStringId, 835); assert.ok(typeof treeText === 'string' && treeText.length > 0)
+    report.treeDescription = { type: 5, model: tree.model, stringId: treeStringId, text: treeText }; save()
+    const input = createMission1VaultInput({ page, signal, report, save, originalShamanId: 30, deadlineAt })
+    await input.settle()
     const blast = page.getByRole('button', { name: /^Blast, \d+ shots$/ })
     const hoverBlast = async label => {
       const rect = await blast.boundingBox(); assert.ok(rect, 'Actual named Blast HUD control unavailable')
@@ -169,21 +138,33 @@ export default async function campInspection({ page, root, output, receipt, sign
       await action('Hover named Blast HUD', () => page.mouse.move(Math.round(rect.x + rect.width / 2), Math.round(rect.y + rect.height / 2)))
     }
     await hoverBlast('blast-history'); await wait('capture', 'blast-history')
-    await page.screenshot({ path: resolve(output, 'blast-history-composite.png'), timeout: remaining() })
+    await page.screenshot({ path: resolve(output, 'blast-history-composite.png') })
+    await input.view(report.declaration.ground)
+    const ground = await input.fixedGround(report.declaration.ground)
+    report.preparations.push({ kind: 'ordinary-ground', ground }); save(); assert.equal(ground.rejection, null)
+    // The inherited movement-context probe needs the selected Shaman; the
+    // actual ordinary cell controller then needs deselection before hovering.
+    await clear()
+    const groundPrepared = await page.evaluate(() => { const s = window.testSceneRef.current; return {
+      sceneFrame: s.frame, rendererFrame: s.renderer.info.render.frame } })
+    await naturalBoundary(groundPrepared)
+    assertHutAdmission((await status()).epochs.at(-1).state)
+    await phase('blank-cell-history', 'hidden')
+    await action('Hover verified ordinary blank cell', () => page.mouse.move(ground.x, ground.y))
+    await wait('cell'); await wait('capture', 'blank-cell-history')
     await input.view(hut)
-    assertHutAdmission((await status()).epochs.at(-1).state, 2)
+    assertHutAdmission((await status()).epochs.at(-1).state)
     const initial = await point(hut)
-    await phase('camp-initial', named)
-    await action('Acquire completed empty camp hover', () => page.mouse.move(initial.x, initial.y))
-    await wait('capture', 'camp-initial'); await wait('record', hut.id)
-    assertEmptyCampPanel(await witness.evaluate(api => api.read().frames['camp-initial']), hut.id)
-    await page.screenshot({ path: resolve(output, 'camp-initial-composite.png'), timeout: remaining() })
+    await phase('hut-initial', 'hut')
+    await action('Acquire DAT42 hover', () => page.mouse.move(initial.x, initial.y))
+    await action('Move within same DAT42 interior', () => page.mouse.move(initial.x + 1, initial.y))
+    await wait('capture', 'hut-initial'); await wait('record', hut.id)
     const inspection = await input.entityPoint('buildings', hut.id, null)
     report.preparations.push({ kind: 'explicit-inspection', inspection }); save()
     assert.equal(inspection.rejection, null)
     const before = await page.evaluate(() => { const s = window.testSceneRef.current; return { sceneFrame: s.frame, rendererFrame: s.renderer.info.render.frame } })
     await naturalBoundary(before); await phase('explicit-inspection')
-    await action('Move to current constructed camp inspection point', () => page.mouse.move(inspection.x, inspection.y))
+    await action('Move to current DAT42 inspection point', () => page.mouse.move(inspection.x, inspection.y))
     await wait('published-pick', { id: hut.id, x: inspection.x, y: inspection.y })
     await action('Stationary right-button inspection', async () => {
       await page.mouse.down({ button: 'right' })
@@ -192,21 +173,25 @@ export default async function campInspection({ page, root, output, receipt, sign
     const inspected = await wait('inspection'); assertHutInspectionLifecycle(inspected)
     const inspectedState = inspected.epochs.at(-1).state
     const inspectedRecord = inspectedState.records.find(record => record.id === hut.id)
-    assert.ok(inspectedRecord); assert.equal(inspectedRecord.automatic, false, 'Initially empty camp uses observed manual record acquisition')
+    assert.ok(inspectedRecord); assert.equal(inspectedRecord.automatic, false, 'Ordinary M1 uses proved hover/explicit record acquisition')
     const control = await page.evaluate(readHutPanelControl, hut.id)
-    report.preparations.push({ kind: 'same-camp-control', control }); save()
+    report.preparations.push({ kind: 'same-Hut-control', control }); save()
     await phase('panel-control-hold')
-    await action('Hover same-camp control without activating it', () => page.mouse.move(control.x, control.y))
+    await action('Hover same-Hut control without activating it', () => page.mouse.move(control.x, control.y))
     report.panelControlHold = await wait('panel-held', { id: hut.id, identity: inspectedRecord.identity,
       minimum: report.declaration.panelHoverVisits })
-    await page.screenshot({ path: resolve(output, 'panel-control-held-composite.png'), timeout: remaining() })
+    await page.screenshot({ path: resolve(output, 'panel-control-held-composite.png') })
     await hoverBlast('leave-to-blast')
     report.panelAfterLeave = await wait('record-expired', hut.id)
+    await input.view(tree); const treePoint = await point(tree)
+    await phase('named-tree-history', { kind: 'named-object', id: tree.id, text: treeText })
+    await action('Hover DAT20 tree', () => page.mouse.move(treePoint.x, treePoint.y))
+    await wait('tree', { id: tree.id, text: treeText }); await wait('capture', 'named-tree-history')
     await input.view(hut); const returned = await point(hut)
-    await phase('camp-return', named)
-    await action('Reacquire constructed camp', () => page.mouse.move(returned.x, returned.y))
-    await wait('capture', 'camp-return')
-    await phase('menu-hidden', 'modal-hidden')
+    await phase('hut-return', 'hut')
+    await action('Reacquire DAT42', () => page.mouse.move(returned.x, returned.y))
+    await wait('capture', 'hut-return')
+    await phase('menu-hidden', 'hidden')
     await action('Game settings', () => page.getByRole('button', { name: 'Game settings', exact: true }).click({ timeout: remaining() }))
     await page.locator('dialog.game-dialog').waitFor({ state: 'visible', timeout: remaining() })
     await wait('capture', 'menu-hidden')
@@ -220,8 +205,8 @@ export default async function campInspection({ page, root, output, receipt, sign
     report.committed = committed; save()
     await closeHutMenu({ page, remaining, action })
     await input.view(hut); const resumed = await point(hut)
-    await phase('after-close', named)
-    await action('Hover constructed camp after close and resume', () => page.mouse.move(resumed.x, resumed.y))
+    await phase('after-close', 'hut')
+    await action('Hover DAT42 after close and resume', () => page.mouse.move(resumed.x, resumed.y))
     await wait('capture', 'after-close')
     await action('Game settings before Load', () => page.getByRole('button', { name: 'Game settings', exact: true }).click({ timeout: remaining() }))
     await page.locator('dialog.game-dialog').waitFor({ state: 'visible', timeout: remaining() })
@@ -231,11 +216,7 @@ export default async function campInspection({ page, root, output, receipt, sign
     assert.deepEqual(loaded.reservations, [], 'restoreSecondaryEffects clears transient saved reservations at migration')
     const { bindGame } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
     await bindGame(page); await input.settle()
-    report.loadedTarget = await page.evaluate(id => {
-      const b = window.testSceneRef.current.world.buildings.find(b => b.id === id)
-      return b && { id: b.id, x: b.x, z: b.z, anchor: b.anchor, kind: b.kind, hp: b.hp, progress: b.progress }
-    }, hut.id)
-    save(); assert.equal(report.loadedTarget?.kind, 'camp'); assert.deepEqual(report.loadedTarget.anchor, hut.anchor)
+    report.loadedTargets = await page.evaluate(authoredHoverTargets); save(); assert.equal(report.loadedTargets.failure, null)
     const loadStatus = await status()
     assert.equal(loadStatus.epochs.length, 2); assert.equal(loadStatus.epochs[0].disposed, true)
     assert.equal(loadStatus.epochs[1].initial.sessionIdentity, loadStatus.epochs[0].initial.sessionIdentity)
@@ -243,16 +224,15 @@ export default async function campInspection({ page, root, output, receipt, sign
       'Load retains the exact page-session sample/cache without advancing it between scenes')
     assert.deepEqual(loadStatus.epochs[1].initial.records, [])
     assert.equal(loadStatus.epochs[1].state.paused, false, 'Public Load automatically resumes')
-    await input.view(report.loadedTarget); const loadedPoint = await point({ ...report.loadedTarget, kind: 'building' })
-    await phase('after-load', named)
-    await action('Hover constructed camp after public Load', () => page.mouse.move(loadedPoint.x, loadedPoint.y))
+    await input.view(report.loadedTargets.building); const loadedPoint = await point({ ...report.loadedTargets.building, kind: 'building' })
+    await phase('after-load', 'hut')
+    await action('Hover DAT42 after public Load', () => page.mouse.move(loadedPoint.x, loadedPoint.y))
     await wait('capture', 'after-load')
-    assertEmptyCampPanel(await witness.evaluate(api => api.read().frames['after-load']), hut.id)
     assert.equal((await status()).epochs.at(-1).state.heldPointer, null, 'Episode tail has no held inspection owner')
     report.unsupportedHistory = [...new Set(report.latest.epochs.flatMap(epoch => epoch.state?.controller?.unsupportedHistory ?? []))]
     report.finalCommitted = await readCommittedCheckpoint(page)
     assert.equal(report.finalCommitted.checkpointSha256, committed.checkpointSha256)
-    await page.screenshot({ path: resolve(output, 'after-load-composite.png'), timeout: remaining() })
+    await page.screenshot({ path: resolve(output, 'after-load-composite.png') })
     assert.deepEqual(receipt.errors, [])
     report.status = 'observed-pending-controller-and-pixel-review'
   } catch (error) { failed = true; failure = error; report.status = 'failed'; report.failure = String(error?.stack ?? error) }

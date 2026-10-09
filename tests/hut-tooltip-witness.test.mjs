@@ -5,6 +5,7 @@ import { resolve } from 'node:path'
 import { stripTypeScriptTypes } from 'node:module'
 import { installHutTooltipLifecycle } from '../scripts/local-render/hut-tooltip-witness.mjs'
 import { assertCampPlacement } from '../scripts/local-render/camp-inspection-input.mjs'
+import { assertSingleTrainingInput, assertAutomaticRequest } from '../scripts/local-render/training-panel-input.mjs'
 import { readHutPanelControl } from '../scripts/local-render/hut-tooltip-input.mjs'
 
 const source = readFileSync(new URL('../app/scene.ts', import.meta.url), 'utf8')
@@ -410,4 +411,77 @@ test('actual adoptLiveOrders transfer is observed through the pointer boundary a
     }
     assert.deepEqual(api.close().errors, [])
   } finally { api?.close(); f.restore() }
+})
+
+
+test('training pointer snapshot follows real entry.person adoption and detaches synchronous callback state', () => {
+  const movement = readFileSync(new URL('../app/live-movement.ts', import.meta.url), 'utf8')
+  const adoptBody = movement.slice(movement.indexOf('export function adoptLiveOrders('), movement.indexOf('\n// Player clicks append'))
+  const adopt = Function('currentPersonOrder', `${stripTypeScriptTypes(adoptBody.replace(/^export /, ''))};return adoptLiveOrders`)(
+    (pool, p) => pool.records[p.commands[p.commandCursor]])
+  const f = fixture(); let api
+  try {
+    const scene = new f.Scene(), p = { id: 278, commands: Array(8).fill(0), commandCursor: 0, immediateCommand: 0 },
+      u = { id: 278, kind: 'brave', team: 'blue', hp: 50, work: null, inside: null, native: p },
+      b = { id: 1022, kind: 'camp', team: 'blue', hp: 800, progress: 1, admission: { activity: 0, inside: 0, occupants: [] } }
+    Object.assign(scene.world, { outcome: { level: 2 }, units: [u], buildings: [b], selected: [278],
+      stats: { trained: 0 }, manaTribes: [], manaWorld: {}, objectCells: { objects: new Map([[278, p]]) },
+      buildingOrders: { records: [{}, { model: 8, a: 1022, flags: 0, references: 1 }] }, secondaryEffects: { reservations: [] } })
+    const token = {}, consumer = function (id) {
+      assert.equal(this, scene.objectPanels)
+      this.buildingRecords.set(id, { automatic: true, phase: -1, remaining: 0, hold: 16 })
+      this.automaticTrainingLatches.add(id); scene.world.secondaryEffects.reservations.push(`building-panel:${id}`)
+      return token
+    }
+    scene.objectPanels = { buildingRecords: new Map(), automaticTrainingLatches: new Set(), requestAutomaticTraining: consumer }
+    api = installHutTooltipLifecycle(f.Scene, f.observe, { deadlineAt: Date.now() + 10000,
+      buildingRecordPrefix: 'building', observeTraining: true })
+    scene.start(); api.target(b.id); api.phase('train-one-brave')
+    for (const type of ['pointerdown', 'pointerup']) {
+      const e = { type, target: f.canvas, isTrusted: true, clientX: 400, clientY: 300, button: 0 }
+      for (const l of f.doc.listeners.filter(l => l.type === type && l.capture)) l.fn(e)
+      if (type === 'pointerup') { p.commands[0] = 1; adopt(scene.world, u, p) }
+      for (const l of f.doc.listeners.filter(l => l.type === type && !l.capture)) l.fn(e)
+    }
+    const input = assertSingleTrainingInput(api.read().records, b, { x: 400, y: 300 })
+    assert.equal(input.personId, 278); assert.equal(u.native, null); assert.equal(u.entry.person, p)
+    b.admission.activity = 128; b.admission.inside = 1; b.admission.occupants = [278]
+    assert.equal(scene.objectPanels.requestAutomaticTraining(b.id), token)
+    // Same outer game visit may convert before any host call. Both callback
+    // snapshots must retain the earlier admitted person and active occupancy.
+    b.admission.activity = 0; b.admission.inside = 0; b.admission.occupants[0] = 0
+    p.commands[0] = 0; scene.world.stats.trained = 1
+    const row = api.read().records.find(row => row.kind === 'automatic-training-request')
+    assertAutomaticRequest(row, b.id)
+    assert.equal(row.after.training.people[0].commands[0], 1)
+    assert.equal(row.after.training.camps[0].admission.occupants[0], 278)
+    const bad = structuredClone(api.read().records)
+    bad.find(row => row.type === 'pointerup').after.training.people[0].orderOwner = 'native'
+    assert.throws(() => assertSingleTrainingInput(bad, b, { x: 400, y: 300 }))
+    assert.deepEqual(api.close().errors, [])
+    assert.equal(scene.objectPanels.requestAutomaticTraining, consumer)
+  } finally { api?.close(); f.restore() }
+})
+
+test('missing training consumer closes partial wrappers; thrown consumer is forwarded once and restored', () => {
+  for (const missing of [true, false]) {
+    const f = fixture(); let api
+    try {
+      const scene = new f.Scene(), sentinel = Error('original consumer failure'); let calls = 0
+      Object.assign(scene.world, { stats: { trained: 0 }, manaTribes: [], manaWorld: {}, secondaryEffects: { reservations: [] } })
+      const original = function () { calls++; throw sentinel }
+      scene.objectPanels = { buildingRecords: new Map(), automaticTrainingLatches: new Set(), ...(missing ? {} : { requestAutomaticTraining: original }) }
+      api = installHutTooltipLifecycle(f.Scene, f.observe, { deadlineAt: Date.now() + 10000,
+        buildingRecordPrefix: 'building', observeTraining: true })
+      scene.start()
+      if (missing) {
+        assert.match(api.status().errors[0], /requestAutomaticTraining/)
+        assert.equal(api.status().epochs[0].closed, true)
+      } else {
+        assert.throws(() => scene.objectPanels.requestAutomaticTraining(17), error => error === sentinel)
+        assert.equal(calls, 1); assert.equal(api.read().records.at(-1).threw, true)
+        api.close(); assert.equal(scene.objectPanels.requestAutomaticTraining, original)
+      }
+    } finally { api?.close(); f.restore() }
+  }
 })
