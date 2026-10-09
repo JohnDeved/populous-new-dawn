@@ -286,7 +286,8 @@ export default async function ({ page, output, receipt, openMission, observeChec
       const s = value.current.current
       return !s.panel && !s.record && !s.latch && !s.hovered && !s.menuOpen && !s.reservations
     })
-    report.final = await runtime('snapshot')
+    report.finished = await runtime('finish')
+    report.final = report.finished.final
     save()
     await page.screenshot({ path: resolve(output, 'hut-terminal.png'), ...options(5000) })
     report.terminalScreenshot = 'hut-terminal.png'

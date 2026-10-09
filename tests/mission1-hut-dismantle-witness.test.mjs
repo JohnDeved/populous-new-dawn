@@ -10,6 +10,7 @@ import {
   assertHutResidentReady,
   assertHutPartialCheckpoint,
   assertHutDismantleFinished,
+  assertHutTimberVisit,
 } from '../scripts/local-render/mission1-hut-dismantle-contract.mjs'
 
 const noop = () => {}
@@ -281,8 +282,13 @@ test('Hut witness follows real input, partial Save/Load and a fresh Scene before
   assert.doesNotThrow(() => frame(1 / 4))
   const observedTurns = world.turn - initialTurn
   const injectedStatus = injected.status()
+  assert.throws(() => injected.finish(), /preserves prior observation errors/)
   injected.close()
   const cappedStatus = capped.status()
+  assert.throws(
+    () => capped.finish(),
+    /preserves prior observer\/checkpoint\/start errors or overflow/
+  )
   const cappedResult = capped.close()
   const runtimeStatus = runtime.status().current
   for (const status of [runtimeStatus, cappedStatus.current, injectedStatus]) {
@@ -453,6 +459,26 @@ test('Hut witness follows real input, partial Save/Load and a fresh Scene before
   assert.equal(loadedWorld.buildingFootprints instanceof Map, true)
   assert.equal(loadedWorld.objectCells.objects instanceof Map, true)
   assert.equal(ArrayBuffer.isView(loadedWorld.land.flags), true)
+  await t.test('early finish rejects partial work without detaching either owner', () => {
+    const attached = next.gameClock.afterTurn,
+      before = runtime.status().current
+    assert.throws(() => runtime.finish())
+    assert.equal(next.gameClock.afterTurn, attached)
+    assert.deepEqual(runtime.status().current, before)
+    assert.equal(runtime.status().current.closed, false)
+    const epoch = createHutDismantleEpoch({ scene: next, store, ids, baseline, record: noop }),
+      wrapped = next.gameClock.afterTurn
+    try {
+      assert.throws(() => epoch.finish())
+      assert.equal(next.gameClock.afterTurn, wrapped)
+      assert.equal(epoch.status().closed, false)
+      assert.deepEqual(epoch.status().errors, [])
+    } finally {
+      assert.deepEqual(epoch.close().errors, [])
+    }
+    assert.equal(next.gameClock.afterTurn, attached)
+  })
+
   const newInitialTurn = loadedWorld.turn
   queued.shift()()
   assert(loadedWorld.turn - newInitialTurn > 1, 'one supplied RAF contains multiple fixed turns')
@@ -478,9 +504,126 @@ test('Hut witness follows real input, partial Save/Load and a fresh Scene before
     Array.from({ length: originalNewCalls.length }, (_, i) => newInitialTurn + i + 1)
   )
   assert.deepEqual(runtime.status().current.errors, [])
+
+  const rejectedEpochs = []
+  for (const fault of ['foreign callback', 'captured observer failure'])
+    await t.test(`finish rejects ${fault} even when the actual endpoint is valid`, () => {
+      const localClock = { animationTime: 0, animationFrame: 0, afterTurn: noop },
+        receiver = Object.assign(Object.create(GameScene.prototype), next, {
+          gameClock: localClock,
+        }),
+        epoch = createHutDismantleEpoch({
+          scene: receiver,
+          store,
+          ids,
+          baseline,
+          record: noop,
+        }),
+        foreign = () => 'foreign callback'
+      assertHutDismantleFinished(baseline, epoch.snapshot())
+      try {
+        if (fault === 'foreign callback') localClock.afterTurn = foreign
+        else {
+          assert.doesNotThrow(() => localClock.afterTurn())
+          assert.match(epoch.status().errors.join(), /Skipped or duplicate/)
+        }
+        assert.throws(() => epoch.finish())
+        if (fault === 'foreign callback') assert.equal(localClock.afterTurn, foreign)
+      } finally {
+        const closed = epoch.close()
+        assert.match(
+          closed.errors.join(),
+          fault === 'foreign callback' ? /ownership|Foreign afterTurn/ : /Skipped or duplicate/
+        )
+        assert.equal(localClock.afterTurn, fault === 'foreign callback' ? foreign : noop)
+        rejectedEpochs.push({ epoch, closed })
+      }
+      assert.deepEqual(runtime.status().current.errors, [])
+    })
+
+  const finishVisits = runtime.status().current.visits,
+    finished = runtime.finish()
+  assert.deepEqual(finished, { final, recovery: ledger, turn: final.turn })
+  assert.equal(next.gameClock.afterTurn, newAfter, 'finish synchronously detaches the observer')
+  assert.equal(runtime.status().current.closed, true)
+
+  // Continue ordinary gameplay through the same follower's native resting caller.
+  // This observed Node turn is not the unrecorded drop turn in a browser attempt.
+  let restingDrop = null
+  for (let turns = 0; turns < 120; turns++) {
+    const before = hutDismantleSnapshot(loadedWorld, { ...ids, scene: next }),
+      nativeBefore = loadedWorker.native && {
+        state: loadedWorker.native.state,
+        substate: loadedWorker.native.substate,
+        cargo: loadedWorker.native.cargo,
+      }
+    assert.doesNotThrow(() => api.advanceGame(loadedWorld, next.gameClock, 1 / 12))
+    const current = hutDismantleSnapshot(loadedWorld, { ...ids, scene: next })
+    assert.equal(current.turn, before.turn + 1)
+    assert.equal(
+      loadedWorld.units.find(unit => unit.id === ids.workerId),
+      loadedWorker
+    )
+    if (current.worker.cargo === 0) {
+      restingDrop = {
+        before,
+        current,
+        nativeBefore,
+        nativeAfter: {
+          state: loadedWorker.native.state,
+          substate: loadedWorker.native.substate,
+          cargo: loadedWorker.native.cargo,
+        },
+      }
+      break
+    }
+  }
+  assert(restingDrop, 'actual resting turns must release the final carried 100 units')
+  assert.equal(restingDrop.nativeBefore.state, 19)
+  assert.equal(restingDrop.nativeBefore.cargo, 100)
+  assert.equal(restingDrop.nativeAfter.cargo, 0)
+  assert.equal(restingDrop.before.worker.order, null)
+  const restingLedger = assertHutDismantleFinished(baseline, restingDrop.current)
+  assert.deepEqual(
+    { carried: restingLedger.carried, loose: restingLedger.loose },
+    { carried: 0, loose: 300 }
+  )
+  assert.equal(new Set(restingLedger.droppedIds).size, 3)
+  assert.deepEqual(
+    restingLedger.droppedIds.filter(id => !ledger.droppedIds.includes(id)),
+    restingDrop.current.timber
+      .filter(tree => !final.timber.some(previous => previous.id === tree.id))
+      .map(tree => tree.id)
+  )
+  assert.throws(
+    () => assertHutTimberVisit(baseline, restingDrop.before, restingDrop.current),
+    /undefined !== 10/,
+    'the command-10 drop ownership contract remains strict outside the completed episode'
+  )
+  assert.deepEqual(finished, { final, recovery: ledger, turn: final.turn })
+  assert.deepEqual(runtime.status().current.visits, finishVisits)
+  assert.deepEqual(runtime.status().current.errors, [])
+  assert.equal(originalNewCalls.length, loadedWorld.turn - newInitialTurn)
+  assert.equal(originalNewCalls.at(-1), restingDrop.current.turn)
+  assert(originalNewCalls.length > finishVisits.count, 'the original afterTurn still runs')
+  t.diagnostic(
+    JSON.stringify({
+      evidence: 'Node actual advanceGame after successful finish; not browser timing',
+      finishedTurn: final.turn,
+      restingDropTurn: restingDrop.current.turn,
+      nativeBefore: restingDrop.nativeBefore,
+      nativeAfter: restingDrop.nativeAfter,
+      recoveredLogIds: restingLedger.droppedIds,
+    })
+  )
+  for (const { epoch, closed } of rejectedEpochs)
+    assert.deepEqual(epoch.close(), closed, 'later cleanup preserves captured failure and snapshot')
+
   const result = runtime.close()
   assert.deepEqual(result.errors, [])
   assert.equal(result.epochs.length, 2)
+  assert.deepEqual(result.epochs[1].final, final, 'cleanup retains the exact finished snapshot')
+  assert.deepEqual(result.epochs[1].visits, finishVisits)
   assert.deepEqual(
     result.epochs[0].input,
     capturedInput,

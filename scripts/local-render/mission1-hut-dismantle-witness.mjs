@@ -1,6 +1,7 @@
 import { hutDismantleSnapshot, hutResidentIdentity } from './mission1-hut-dismantle-snapshot.mjs'
 import {
   assertHutDismantleStarted,
+  assertHutDismantleFinished,
   assertHutTimberLedger,
   assertHutTimberVisit,
 } from './mission1-hut-dismantle-contract.mjs'
@@ -26,6 +27,7 @@ export function createHutDismantleEpoch({ scene, store, ids, baseline = null, re
   const errors = [],
     visits = { initial: world.turn, first: null, last: world.turn, count: 0 }
   let closed = false,
+    closedResult = null,
     started = !!baseline,
     input = null,
     removeInput = null
@@ -83,7 +85,7 @@ export function createHutDismantleEpoch({ scene, store, ids, baseline = null, re
     }
   }
   clock.afterTurn = wrapped
-  return {
+  const api = {
     snapshot,
     initial: () => structuredClone(initial),
     armInput(button) {
@@ -188,7 +190,29 @@ export function createHutDismantleEpoch({ scene, store, ids, baseline = null, re
         },
       }
     },
+    finish() {
+      if (closed) throw Error('Hut epoch is already closed')
+      if (
+        world !== store.getWorld() ||
+        !scene.isCurrent() ||
+        clock.afterTurn !== wrapped ||
+        world.turn !== visits.last
+      ) {
+        error(Error('Hut finalize requires the current uninterrupted observer owner'))
+        throw Error('Hut finalize ownership failed')
+      }
+      if (errors.length) throw Error('Hut finalize preserves prior observation errors')
+      // End the dismantle-specific observation at the unchanged full completion
+      // predicate, in this synchronous task. Later resting belongs to its own
+      // controller and must not inherit command10 ownership requirements.
+      const final = snapshot(),
+        recovery = assertHutDismantleFinished(baseline, final)
+      const observation = api.close()
+      if (observation.errors.length) throw Error('Hut finalize cleanup failed')
+      return { final, recovery, turn: final.turn }
+    },
     close() {
+      if (closedResult) return structuredClone(closedResult)
       if (!closed) {
         closed = true
         if (world.turn !== visits.last) error(Error('Unobserved turn before epoch cleanup'))
@@ -211,7 +235,7 @@ export function createHutDismantleEpoch({ scene, store, ids, baseline = null, re
       } catch (failure) {
         error(failure)
       }
-      return {
+      closedResult = {
         initial,
         final,
         input: structuredClone(input),
@@ -220,8 +244,10 @@ export function createHutDismantleEpoch({ scene, store, ids, baseline = null, re
         closed,
         errors: [...errors],
       }
+      return structuredClone(closedResult)
     },
   }
+  return api
 }
 
 export function installHutDismantleRuntime({
@@ -327,6 +353,27 @@ export function installHutDismantleRuntime({
         digest: await boundaries.load.digest(),
         initial: current().initial(),
       }
+    },
+    finish() {
+      if (
+        closed ||
+        overflow ||
+        errors.length ||
+        epochs.some(epoch => epoch.status().errors.length) ||
+        Object.values(boundaries).some(boundary => boundary.status().errorCount) ||
+        start?.evidence.errors.length ||
+        start?.evidence.originalThrew
+      )
+        throw Error('Hut finalize preserves prior observer/checkpoint/start errors or overflow')
+      if (
+        epochs.length !== 2 ||
+        !start?.evidence.attached ||
+        !start?.evidence.restored ||
+        !boundaries.save?.status().captured ||
+        !boundaries.load?.status().captured
+      )
+        throw Error('Hut finalize requires the observed public Save/Load and Scene handoff')
+      return current().finish()
     },
     close() {
       if (closed) return { closed, errors: [...errors], overflow, events: structuredClone(events) }

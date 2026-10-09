@@ -1,7 +1,7 @@
 # Ordinary Mission 1 Hut dismantling acceptance
 
-Refs #25. QA coverage of existing gameplay; no runtime fix, browser result or new
-parity credit is claimed by this source proposal.
+Refs #25. QA coverage of existing gameplay; no runtime fix or new parity credit.
+Ordinary01 is retained as a failed browser episode below.
 
 ## Source and staffing boundary
 
@@ -66,7 +66,11 @@ population or silently substitute a different method.
 6. Let normal play finish. Move the pointer away using real input. Require target
    disappearance, the same surviving Brave, released entry/order/work/occupancy,
    cleared footprint and target panel/record/latch/reservation, closed menu, and
-   exactly300 recovered native units. Close every owned observer on success or
+   exactly300 recovered native units. In one synchronous browser task, reject
+   any earlier observer/checkpoint/start error or overflow, validate the unchanged
+   full completion predicate, retain that snapshot and turn, and detach the
+   dismantle-specific turn observer. Only then serialize the result and await the
+   terminal screenshot. Close every remaining owned resource on success or
    failure and retain the first failure plus cleanup results.
 
 Proposed browser admission budgets:360seconds overall,30seconds after normal
@@ -75,25 +79,27 @@ opening for staffing/panel readiness,120seconds per natural work segment,
 cleanup. These bound resource use; work counters32–63 do not guarantee wall time.
 The maintained-harness scenario is now `scripts/local-render/mission1-hut-dismantle.mjs`.
 It declares one attempt,360seconds inner,400seconds outer and15seconds termination
-grace. Exact wrapper review and parent resource admission remain prerequisites
-to launching it; no browser or server has been started by this work.
+grace. Exact changed-wrapper review and parent resource admission remain
+prerequisites to another launch.
 
-Proposed fresh relative paths are
-`work/orchestration/mission1-hut-dismantle/browser-01` for output and
-`work/local-render-profiles/mission1-hut-dismantle-20261009-01` for the private
-profile. Both were absent during preparation. Proposed port4373 is within the
-harness's supported range, but availability is unverified: `ss` reported a
-netlink permission denial, which is retained without retry. The parent owns an
-authorized owned-server bind/fetch/close preflight and the final CPUs5–7 lane
-binding. Canonical installed dependencies remain stationary (device27,
+The next proposed attempt uses fresh output
+`work/orchestration/mission1-hut-dismantle-ordinary-02` and private profile
+`work/local-render-profiles/mission1-hut-dismantle-ordinary-02`. The original
+ordinary01 profile and committed Save remain untouched. Port4373 is within the
+harness's supported range; its earlier `ss` netlink permission denial is retained
+without retry. The parent owns an authorized owned-server bind/fetch/close
+preflight and the final CPUs5–7 lane binding. Canonical installed dependencies
+remain stationary (device27,
 inode538212); this worktree only holds a symlink to that directory.
 
 The wrapper prewarms imports and public settings controls before work. The
 browser-local witness executes the same portable plain-data contracts on every
 actual fixed-turn callback, forwards the original receiver/arguments, tracks
 contiguous epoch visits and retains at most64 meaningful events. Host polling
-reads scalar status only. It records `hut-partial-work.png` and `hut-terminal.png`
-before their final state assertions, keeping the camera view where possible.
+reads scalar status only. It records `hut-partial-work.png` before its host state
+assertion. The terminal snapshot is validated and detached synchronously first;
+`hut-terminal.png` then precedes the repeated host assertion on that frozen
+snapshot, keeping the camera view where possible.
 Failures retain the original error, a bounded terminal screenshot attempt and
 owned-resource cleanup evidence, including synchronous input and Scene-start
 facts even when a host operation throws before its normal result readback.
@@ -143,8 +149,8 @@ false without IndexedDB, which is asserted explicitly. This is model-composed
 caller coverage, not committed Save, trusted browser input, actual rendering,
 ordinary completion, performance, or native acceptance.
 No application source, checkpoint helper, parity manifest or generated asset is
-changed. Full check/build, native execution and browser execution are not run
-under this bounded source-preparation authorization.
+changed. Full check/build and native execution are not run. Browser admission is
+separate from this bounded source-preparation authorization.
 
 `tests/mission1-hut-dismantle-witness.test.mjs` additionally executes the exact
 Page Load body, actual store replacement and `GameScene.start` with a distinct
@@ -174,3 +180,34 @@ lacked a DOMRect method, and the test author completed that fixture correction
 while the attempt was finishing. The subsequent `wrapper-caller-02.json` passed
 with no source drift. The exact preparation source83a42674 received independent
 ACCEPT; the wrapper successor requires its own exact review and quality binding.
+
+## Ordinary01 failure and bounded observation repair
+
+The independently accepted wrapper `aef6c7ca` ran once under the parent's exact
+admission. `work/orchestration/mission1-hut-dismantle-ordinary-01/` retains the
+terminal failed receipt, raw episode JSON, partial/terminal screenshots and
+original profile. Actual Save325 contained200 remaining units and log1190;
+its committed typed digest matched, and public Load matched the expected
+production-migrated digest before the new Scene's first frame. Transfers occurred
+at311,374,441 and entry/order release at442. The full snapshot at445 had target
+gone, worker1186 alive with100 carried and logs1190/1191 totaling200, with cleanup
+complete. This is observed evidence within a failed episode, not an acceptance.
+
+Observation continued while awaiting the screenshot. By close456, normal native
+resting had dropped the last100 as log1192. The still-attached dismantle observer
+rejected that drop because its unchanged oracle requires a prior command10.
+The exact failing pair was not retained; its visit is bounded only to446–456.
+`live-resting.ts` and `person-idle.ts` establish the distinct resting caller,
+not a permanent command10 or registered-owner guarantee after completion.
+
+The repair adds a narrow synchronous `finish()` at the existing epoch close
+boundary. Early completion, ownership loss, prior observation/checkpoint/start
+errors and overflow cannot yield a successful finish. Successful close caches
+the exact terminal snapshot and visits; later cleanup cannot replace them with
+resting state. The driver still performs the same public inputs and full
+completion assertions. The composed regression continues real `advanceGame`
+after detaching until the same worker's native resting drops the final cargo,
+checks continued original callbacks and frozen evidence, and proves that the
+command10 drop assertion remains strict. Its exact drop turn is Node fixture
+evidence and does not identify the missing ordinary01 visit. A fresh ordinary02,
+with the same360/400/15 bounds and one attempt, requires exact review and admission.
