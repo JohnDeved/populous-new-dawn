@@ -70,9 +70,18 @@ Hut control policy differs from baseline 02 only by accepting one real natural
 phase followed by actual canvas leave/zero; the tree's four-residue requirement
 is unchanged. Baseline 02's overall failed result remains retained.
 
-The material applies `highlight / 255` to the original texture, yielding a lighter
-textured pulse. It does not turn the whole tree white. The full-frame difference
-is subtle; final target localization and pixel/runtime review are still pending.
+The material applies `highlight / 255` to the original texture, replaces ordinary
+diffuse lighting and suppresses additive light. It produces a textured brightness
+pulse, not a uniformly white tree. Independent pixel review localized the target
+as the rightmost of the three conifers near the obelisk. Page pointer (826,374)
+maps to canvas (626,374) after the 200-pixel HUD offset.
+
+The initial-view target comparison changes 784 pixels within canvas bounds
+[613,360,638,423]. Representative center RGB is baseline (43,53,0), phase 200
+(36,44,0), and phase 255 (45,56,0). In the returned view, bounds are
+[599,359,624,422], with phase 200 (42,46,0), phase 255 (54,59,0), and after leave
+(51,55,0). These are localized browser observations; they do not establish exact
+original-game pixels. Final runtime/pair acceptance remains pending.
 
 ## Selected unchanged natural frames
 
