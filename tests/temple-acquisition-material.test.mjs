@@ -6,7 +6,7 @@ import { collectBuildingAcquisitionTriangles } from '../app/building-acquisition
 import { templeTileOffset, templeWorldMaterial, templeSpriteMaterial } from '../app/temple-art.ts'
 import { createSharedAniblResource } from '../app/shared-anibl.ts'
 
-const model = models[95],
+const { 95: model } = models,
   shell = { width: 640, height: 480, model: 95 }
 const projection = face => {
   const { [face * 2]: n } = model.faces

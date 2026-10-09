@@ -9,6 +9,9 @@ import * as THREE from 'three'
 import { loadSceneFixture } from './support/bloodlust-scene.mjs'
 import { makeHutSmokeScene } from './support/hut-smoke-scene.mjs'
 
+const nop = () => {}
+const disposable = () => ({ dispose: nop, remove: nop })
+
 const sceneSource = ts.createSourceFile(
   'scene.ts',
   readFileSync(new URL('../app/scene.ts', import.meta.url), 'utf8'),
@@ -114,8 +117,6 @@ test('actual Scene preload/start/animate/dispose and Page retry respect the curr
   })
   const store = createGameStore()
   store.startMission(3)
-  const nop = () => {},
-    disposable = () => ({ dispose: nop, remove: nop })
   function makeScene() {
     const world = store.getWorld(),
       presentationBinding = store.bindPresentation(world),
@@ -254,7 +255,7 @@ test('actual Scene preload/start/animate/dispose and Page retry respect the curr
   )
   page.beginLoad({ kind: 'checkpoint' })
   const firstLoad = store.getWorld(),
-    epoch = store.getPresentationSnapshot().epoch
+    { epoch } = store.getPresentationSnapshot()
   failures = new Set(['temple-sparkles-p'])
   const rejected = makeScene()
   await assert.rejects(
@@ -318,8 +319,8 @@ test('actual world building caller binds the Temple shader across nine selection
   try {
     fixture.scene.templeResourceSnapshot = binding.snapshot()
     fixture.render()
-    const mesh = fixture.scene.buildingMeshes.get(temple.id).children[0],
-      originalUV = Array.from(mesh.geometry.getAttribute('uv').array),
+    const [mesh] = fixture.scene.buildingMeshes.get(temple.id).children,
+      originalUV = [...mesh.geometry.getAttribute('uv').array],
       shader = {
         uniforms: {},
         vertexShader: '#include <uv_vertex>\n#include <begin_vertex>',
@@ -330,14 +331,14 @@ test('actual world building caller binds the Temple shader across nine selection
     mesh.material.onBeforeCompile(shader)
     assert.equal(shader.uniforms.templeTileOffset, mesh.userData.templeTileOffset)
     assert.match(shader.vertexShader, /if\(textureMode==32\.\) vMapUv \+= templeTileOffset/)
-    const geometry = mesh.geometry
+    const { geometry } = mesh
     for (let visit = 0; visit < 9; visit++) {
       const snapshot = binding.snapshot()
       fixture.scene.templeResourceSnapshot = snapshot
       fixture.render()
       assert.equal(fixture.scene.buildingMeshes.get(temple.id).children[0], mesh)
       assert.equal(mesh.geometry, geometry)
-      assert.deepEqual(Array.from(mesh.geometry.getAttribute('uv').array), originalUV)
+      assert.deepEqual([...mesh.geometry.getAttribute('uv').array], originalUV)
       assert.deepEqual(
         shader.uniforms.templeTileOffset.value.toArray(),
         templeTileOffset(snapshot.tile)
@@ -356,7 +357,7 @@ test('actual world building caller binds the Temple shader across nine selection
     assert.equal(legacy.material.map.image.src, '/original/atlas.png')
     assert.equal(unchanged.uniforms.templeTileOffset, undefined)
     assert.doesNotMatch(unchanged.vertexShader, /templeTileOffset/)
-    assert.deepEqual(Array.from(legacy.geometry.getAttribute('uv').array), originalUV)
+    assert.deepEqual([...legacy.geometry.getAttribute('uv').array], originalUV)
     assert.equal(legacy.material.customProgramCacheKey(), 'native-model-light')
     assert.equal(mesh.material.customProgramCacheKey(), 'native-model-light-temple')
   } finally {
@@ -410,11 +411,9 @@ test('actual Page async import and rejection callbacks cannot publish from a rep
   store.restart()
   assert.doesNotThrow(() =>
     imported({
-      GameScene: class {
-        constructor() {
-          events.push('construct')
-          throw new Error('obsolete constructor')
-        }
+      GameScene: function ObsoleteScene() {
+        events.push('construct')
+        throw new Error('obsolete constructor')
       },
     })
   )
