@@ -1,6 +1,7 @@
 import type { GameScene } from './scene.ts'
 import { buildingInsidePoint, buildingPose } from './building-shapes.ts'
 import { browserPosition, effect, nativePosition } from './model.ts'
+import { retainedBuildingPanel } from './building-panels.ts'
 import { stepTooltip, tooltipPalette, worldTooltipObject, type TooltipObject } from './tooltips.ts'
 import {
   acquireForcedTooltip as acquireForced,
@@ -74,7 +75,7 @@ function blankCell(scene: GameScene, cell: number) {
 }
 function inspectionTarget(scene: GameScene, picked: number | null, cell: number | null) {
   const building = scene.world.buildings.find(
-    b => b.id === picked && b.kind === 'hut' && b.team === 'blue' && b.hp > 0 && b.progress >= 1
+    b => b.id === picked && retainedBuildingPanel(b) && b.team === 'blue' && b.hp > 0
   )
   if (building) return building.id
   if (picked !== null || cell === null) return null
@@ -82,7 +83,7 @@ function inspectionTarget(scene: GameScene, picked: number | null, cell: number 
     id = scene.world.land.buildingIds[index] & 1023
   return (
     scene.world.buildings.find(
-      b => b.id === id && b.kind === 'hut' && b.team === 'blue' && b.hp > 0 && b.progress >= 1
+      b => b.id === id && retainedBuildingPanel(b) && b.team === 'blue' && b.hp > 0
     )?.id ?? null
   )
 }
@@ -165,7 +166,7 @@ export function publishTooltipInput(scene: GameScene, geometryChanged = true) {
 
 export function cancelTooltipInspection(scene: GameScene) {
   if (scene.tooltipInspectionInputs) scene.tooltipInspectionInputs.length = 0
-  scene.objectPanels?.releaseHutInspection?.()
+  scene.objectPanels?.releaseBuildingInspection?.()
 }
 
 function explicitAdmission(scene: GameScene) {
@@ -182,7 +183,7 @@ function explicitAdmission(scene: GameScene) {
   )
 }
 
-export function queueHutInspection(
+export function queueBuildingInspection(
   scene: GameScene,
   event: PointerEvent,
   kind: 'down' | 'up',
@@ -267,7 +268,7 @@ export function updateTooltipController(scene: GameScene, now: number) {
       route = 'object'
       if (visitObjectTooltip(owner, state, object)) {
         firstDisplay = object.id
-        inspection.push(scene.objectPanels.inspectHut(object.id, 'hover'))
+        inspection.push(scene.objectPanels.inspectBuilding(object.id, 'hover'))
       }
     } else if (worldRoute && sample.cell !== null && blankCell(scene, sample.cell)) {
       route = 'cell'
@@ -284,7 +285,7 @@ export function updateTooltipController(scene: GameScene, now: number) {
   const pending = scene.tooltipInspectionInputs?.splice(0) ?? []
   for (const event of pending) {
     if (event.kind === 'up') {
-      scene.objectPanels.releaseHutButton(event.pointerId)
+      scene.objectPanels.releaseBuildingButton(event.pointerId)
       inspection.push('release')
     } else if (
       explicitAdmission(scene) &&
@@ -293,7 +294,7 @@ export function updateTooltipController(scene: GameScene, now: number) {
       currentInspection === event.target &&
       sample.cell === event.cell
     ) {
-      inspection.push(scene.objectPanels.inspectHut(event.target, 'explicit', event.pointerId))
+      inspection.push(scene.objectPanels.inspectBuilding(event.target, 'explicit', event.pointerId))
       const building = scene.world.buildings.find(candidate => candidate.id === event.target)!
       // 0047ae00 -> 004afff0 keeps feedback after the allocation attempt, even
       // on capacity failure. Keep the existing browser coordinate/marker adapter;
@@ -306,8 +307,8 @@ export function updateTooltipController(scene: GameScene, now: number) {
       scene.onSound(0x6a)
     } else inspection.push('cancel-stale')
   }
-  if (!blocked) scene.objectPanels.renewHutInspection(object?.id ?? null)
-  scene.objectPanels.stepHutInspections(!modal && !scene.overviewActive && !scene.overviewStage)
+  if (!blocked) scene.objectPanels.renewBuildingInspection(object?.id ?? null)
+  scene.objectPanels.stepBuildingInspections(!modal && !scene.overviewActive && !scene.overviewStage)
   owner.output = {
     ...state,
     pointer: sample?.pointer ? { ...sample.pointer } : null,

@@ -197,7 +197,7 @@ test('actual right-button callers retain down/up order and cancel skipped-frame 
     pointerId: 3,
     currentTarget: scene.renderer.domElement,
   })
-  const before = scene.objectPanels.hutRecords.get(hut.id),
+  const before = scene.objectPanels.buildingRecords.get(hut.id),
     panelFrame = scene.objectPanels.frame,
     randomState = scene.world.randomState,
     markers = scene.world.effects.filter(effect => effect.kind === 'orderMarker').length,
@@ -215,11 +215,11 @@ test('actual right-button callers retain down/up order and cancel skipped-frame 
     before ? 'explicit:reused' : 'explicit:created',
     'release',
   ])
-  const record = scene.objectPanels.hutRecords.get(hut.id)
+  const record = scene.objectPanels.buildingRecords.get(hut.id)
   assert.ok(record)
   if (before) assert.equal(record, before)
   else assert.deepEqual(record, { phase: 0, remaining: 2, hold: 16, automatic: false })
-  assert.equal(scene.objectPanels.hutHeldPointer, null)
+  assert.equal(scene.objectPanels.buildingHeldPointer, null)
   assert.equal(
     scene.world.effects.filter(effect => effect.kind === 'orderMarker').length,
     markers + 1
@@ -245,7 +245,7 @@ test('actual right-button callers retain down/up order and cancel skipped-frame 
   cameraOwns(true)
   frame()
   assert.deepEqual(scene.tooltipInspectionInputs, [])
-  assert.equal(scene.objectPanels.hutHeldPointer, null)
+  assert.equal(scene.objectPanels.buildingHeldPointer, null)
   cameraOwns(false)
   frame()
   assert.ok(
@@ -264,7 +264,7 @@ test('retained pick geometry rechecks live object data before a due controller t
   assert.equal(scene.tooltipController.lastVisit.firstDisplay, null)
   assert.equal(scene.tooltipElement.hidden, true)
   assert.ok(cell !== null, 'the valid cell survives loss of the sampled object')
-  assert.equal(scene.objectPanels.hutRecords.has(hut.id), false)
+  assert.equal(scene.objectPanels.buildingRecords.has(hut.id), false)
   scene.picking.pick = () => null
   const { browserPosition } = await import('../app/model.ts')
   scene.pick = () => browserPosition({ x: (cell & 255) << 8, y: cell & 0xff00 })
@@ -291,20 +291,20 @@ test('Hut record adapter preserves reuse, failure retirement, secondary capacity
     b => b.id !== hut.id && b.kind === 'hut' && b.team === 'blue' && b.progress >= 1
   )
   assert.ok(second)
-  assert.equal(scene.objectPanels.inspectHut(hut.id, 'explicit', 5), 'explicit:created')
-  const record = scene.objectPanels.hutRecords.get(hut.id),
+  assert.equal(scene.objectPanels.inspectBuilding(hut.id, 'explicit', 5), 'explicit:created')
+  const record = scene.objectPanels.buildingRecords.get(hut.id),
     owner = scene.tooltipController
-  scene.objectPanels.stepHutInspections(false)
+  scene.objectPanels.stepBuildingInspections(false)
   assert.deepEqual(record, { phase: 0, remaining: 2, hold: 16, automatic: false })
   const snapshot = structuredClone(record),
     dwell = owner.dwell
-  assert.equal(scene.objectPanels.inspectHut(hut.id, 'explicit', 5), 'explicit:reused')
-  assert.equal(scene.objectPanels.hutRecords.get(hut.id), record)
+  assert.equal(scene.objectPanels.inspectBuilding(hut.id, 'explicit', 5), 'explicit:reused')
+  assert.equal(scene.objectPanels.buildingRecords.get(hut.id), record)
   assert.deepEqual(record, snapshot)
   assert.equal(owner.dwell, dwell)
   // Controlled occupancy of the same supported inventory: no invented World entities.
   for (let i = 0; i < 31; i++) scene.objectPanels.panels.set(100000 + i, {})
-  assert.equal(scene.objectPanels.inspectHut(second.id, 'hover'), 'hover:rejected-capacity')
+  assert.equal(scene.objectPanels.inspectBuilding(second.id, 'hover'), 'hover:rejected-capacity')
   assert.equal(record.hold, 0, 'same-class retirement precedes failed allocation')
   assert.equal(record.remaining, 0)
   assert.equal(owner.dwell, dwell, 'failure does not accelerate')
@@ -319,9 +319,9 @@ test('Hut record adapter preserves reuse, failure retirement, secondary capacity
   ) {
     // Fill through the actual capacity adapter until it rejects allocation.
   }
-  assert.equal(scene.objectPanels.inspectHut(second.id, 'hover'), 'hover:rejected-capacity')
+  assert.equal(scene.objectPanels.inspectBuilding(second.id, 'hover'), 'hover:rejected-capacity')
   assert.equal(
-    scene.objectPanels.inspectHut(hut.id, 'explicit', 5),
+    scene.objectPanels.inspectBuilding(hut.id, 'explicit', 5),
     'explicit:reused',
     'reuse succeeds at capacity'
   )
@@ -346,16 +346,16 @@ test('Hut record adapter preserves reuse, failure retirement, secondary capacity
   assert.equal(next.tooltipController.session, session)
   assert.equal(next.tooltipController.session.threshold, owner.session.threshold)
   assert.equal(next.tooltipController.category, 'none')
-  assert.equal(next.objectPanels.hutRecords.size, 0)
+  assert.equal(next.objectPanels.buildingRecords.size, 0)
   assert.deepEqual(next.world.secondaryEffects.reservations, [])
 })
 
 test('retained Hut controls remain usable while hovered or keyboard-focused', async t => {
   const { scene, hut, frame } = await callerFixture(t)
-  scene.objectPanels.inspectHut(hut.id, 'hover')
-  scene.objectPanels.releaseHutInspection()
-  const record = scene.objectPanels.hutRecords.get(hut.id)
-  for (let i = 0; i < 4; i++) scene.objectPanels.stepHutInspections(false)
+  scene.objectPanels.inspectBuilding(hut.id, 'hover')
+  scene.objectPanels.releaseBuildingInspection()
+  const record = scene.objectPanels.buildingRecords.get(hut.id)
+  for (let i = 0; i < 4; i++) scene.objectPanels.stepBuildingInspections(false)
   assert.equal(record.phase, 1)
   let hovered = true,
     focused = false
@@ -365,15 +365,15 @@ test('retained Hut controls remain usable while hovered or keyboard-focused', as
   scene.pointerScreen = null
   frame(0)
   for (let i = 0; i < 30; i++) frame()
-  assert.equal(scene.objectPanels.hutRecords.get(hut.id), record)
+  assert.equal(scene.objectPanels.buildingRecords.get(hut.id), record)
   assert.deepEqual(record, before)
   hovered = false
   focused = true
   for (let i = 0; i < 30; i++) frame()
-  assert.equal(scene.objectPanels.hutRecords.get(hut.id), record)
+  assert.equal(scene.objectPanels.buildingRecords.get(hut.id), record)
   focused = false
   for (let i = 0; i < 30; i++) frame()
-  assert.equal(scene.objectPanels.hutRecords.has(hut.id), false)
+  assert.equal(scene.objectPanels.buildingRecords.has(hut.id), false)
   assert.ok(!scene.world.secondaryEffects.reservations.includes(`building-panel:${hut.id}`))
 })
 
@@ -419,7 +419,7 @@ test('a named non-Hut winner cannot allocate the Hut beneath its retained cell',
   frame(0)
   assert.equal(scene.tooltipInput.picked, shrine.id)
   assert.equal(scene.tooltipInput.inspectionTarget, null)
-  const oldRecord = scene.objectPanels.hutRecords.get(hut.id)
+  const oldRecord = scene.objectPanels.buildingRecords.get(hut.id)
   frame()
   assert.match(scene.tooltip.text, /^Stone Head:/, 'the selected real head has a named acquisition')
   frame()
@@ -428,7 +428,7 @@ test('a named non-Hut winner cannot allocate the Hut beneath its retained cell',
   for (let i = 0; i < threshold + 15 && !scene.tooltip.draw; i++) frame()
   assert.equal(scene.tooltip.draw, 1)
   assert.match(scene.tooltip.text, /^Stone Head:/)
-  assert.equal(scene.objectPanels.hutRecords.get(hut.id), oldRecord)
+  assert.equal(scene.objectPanels.buildingRecords.get(hut.id), oldRecord)
   assert.deepEqual(scene.tooltipController.lastVisit.inspection, ['hover:rejected'])
 })
 
@@ -456,7 +456,7 @@ test('pause, dialog, hidden and input-lock guards cancel pending and held browse
     }
     frame(0)
     assert.deepEqual(scene.tooltipInspectionInputs, [], guard)
-    assert.equal(scene.objectPanels.hutHeldPointer, null, guard)
+    assert.equal(scene.objectPanels.buildingHeldPointer, null, guard)
     assert.deepEqual(
       { category: scene.tooltipController.category, dwell: scene.tooltipController.dwell },
       before
@@ -473,13 +473,13 @@ test('pause, dialog, hidden and input-lock guards cancel pending and held browse
   }
   pointerDown(scene, event)
   frame()
-  assert.equal(scene.objectPanels.hutHeldPointer, 7)
-  const record = scene.objectPanels.hutRecords.get(hut.id)
+  assert.equal(scene.objectPanels.buildingHeldPointer, 7)
+  const record = scene.objectPanels.buildingRecords.get(hut.id)
   world.paused = true
   frame(0)
-  assert.equal(scene.objectPanels.hutHeldPointer, null)
+  assert.equal(scene.objectPanels.buildingHeldPointer, null)
   assert.equal(
-    scene.objectPanels.hutRecords.get(hut.id),
+    scene.objectPanels.buildingRecords.get(hut.id),
     record,
     'guard cancellation retains the record'
   )
