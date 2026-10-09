@@ -10,9 +10,16 @@ import { secondaryEffectCount } from './secondary-effects.ts'
 import { getTooltipController } from './scene-tooltip-runtime.ts'
 import { tooltipThreshold } from './tooltip-controller.ts'
 import { syncSecondaryReservations } from './scene-secondary-effects.ts'
-import { activeCampPanel, retainedBuildingPanel } from './building-panels.ts'
+import { dismantlingCampPanel, retainedBuildingPanel } from './building-panels.ts'
 import type { GameScene } from './scene.ts'
-import { browserPosition, effect, maxHp, nativePosition, unitAnimationSource } from './model.ts'
+import {
+  browserPosition,
+  effect,
+  maxHp,
+  nativePosition,
+  unitAnimationSource,
+  type Building,
+} from './model.ts'
 import {
   personOrderFocus,
   personOrderIcons,
@@ -46,9 +53,44 @@ export class ObjectPanels {
   // These records contain no DOM/World references and use only the composed
   // tooltip opportunity. Existing panels keep their animationFrame clock.
   buildingRecords = new Map<number, PersonPanelTime & { automatic: boolean }>()
+  // 00509290's successful-allocation latch is distinct from record.automatic:
+  // activity expiry clears the latch while the automatic record exits.
+  automaticTrainingLatches = new Set<number>()
   buildingInspected: number | null = null
   buildingHeldPointer: number | null = null
   constructor(readonly scene: GameScene) {}
+  private trainingIdentity(building: Building | undefined) {
+    return !!(
+      building &&
+      building.kind === 'camp' &&
+      building.progress >= 1 &&
+      building.hp > 0 &&
+      building.admission?.class === 2 &&
+      building.admission.model === 7
+    )
+  }
+  private trainingActive(building: Building | undefined) {
+    return !!(
+      this.trainingIdentity(building) &&
+      building!.team === 'blue' &&
+      building!.admission!.tribe === this.scene.world.manaWorld.playerTribe &&
+      building!.admission!.activity & 0x80
+    )
+  }
+  requestAutomaticTraining(id: number) {
+    if (
+      this.scene.disposed ||
+      (this.scene.presentationBinding && !this.scene.presentationBinding.isCurrent())
+    )
+      return 'automatic:rejected'
+    if (this.automaticTrainingLatches.has(id)) return 'automatic:latched'
+    const building = this.scene.world.buildings.find(b => b.id === id)
+    if (!this.trainingActive(building)) return 'automatic:rejected'
+    const result = this.inspectBuilding(id, 'automatic')
+    if (result === 'automatic:created' || result === 'automatic:reused')
+      this.automaticTrainingLatches.add(id)
+    return result
+  }
   inspectBuilding(id: number, source: 'hover' | 'explicit' | 'automatic', pointerId?: number) {
     const { scene } = this,
       building = scene.world.buildings.find(
@@ -133,9 +175,12 @@ export class ObjectPanels {
         )
           this.inspectBuilding(building.id, 'automatic')
     for (const [id, record] of this.buildingRecords) {
-      const building = scene.world.buildings.find(
+      let building = scene.world.buildings.find(
         b => b.id === id && retainedBuildingPanel(b) && b.hp > 0
       )
+      const training =
+        record.automatic && (building?.kind === 'camp' || this.automaticTrainingLatches.has(id))
+      if (training && !this.trainingIdentity(building)) building = undefined
       const element = scene.buildingPanels.get(id),
         panelInteraction =
           !scene.world.inputMask &&
@@ -146,14 +191,20 @@ export class ObjectPanels {
           (element.matches(':hover') || element.contains(document.activeElement))
       // Preserve the browser's existing access to hovered/focused controls.
       // This UI hold is not a claim about native status-control ownership.
-      if (building && panelInteraction && record.phase >= 1) continue
-      const automaticHeld = record.automatic && !!((building?.admission?.activity ?? 0) & 128)
-      if (record.automatic && record.phase === 1 && !automaticHeld) record.remaining = 0
+      if (building && panelInteraction && record.phase >= 1 && !training) continue
+      const automaticHeld =
+        record.automatic &&
+        (training ? this.trainingActive(building) : !!((building?.admission?.activity ?? 0) & 128))
+      if (record.automatic && record.phase === 1 && !automaticHeld) {
+        record.remaining = 0
+        if (training) this.automaticTrainingLatches.delete(id)
+      }
       if (!building || !stepPersonPanel(record, automaticHeld)) {
         this.buildingRecords.delete(id)
+        this.automaticTrainingLatches.delete(id)
         if (
           !building ||
-          !(activeCampPanel(building) || (building.kind === 'camp' && panelInteraction))
+          !(dismantlingCampPanel(building) || (building.kind === 'camp' && panelInteraction))
         ) {
           element?.remove()
           scene.buildingPanels.delete(id)
@@ -590,6 +641,7 @@ export class ObjectPanels {
     for (const panel of this.panels.values()) panel.element.remove()
     this.panels.clear()
     this.buildingRecords.clear()
+    this.automaticTrainingLatches.clear()
     this.releaseBuildingInspection()
     syncSecondaryReservations(this.scene)
     this.automaticSamples.clear()

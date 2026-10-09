@@ -89,19 +89,19 @@ test('real camp right-button edges queue inspection before one composed visit an
   )
 })
 
-test('existing active-training paint stays independent of manual inspection records', async t => {
+test('existing dismantling paint stays independent of manual inspection records', async t => {
   const { scene, camp, frame, paint } = await campFixture(t)
-  // Supplied activity projection tests the current browser display owner only.
+  // Supplied dismantling tests the existing independent browser display owner.
   // This is not an automatic request, natural training or native timing witness.
   assert.ok(camp.admission)
-  camp.admission.activity |= 128
+  camp.admission.activity |= 0x8000
   scene.pointerScreen = null
   scene.hoveredObject = null
   const before = structuredClone(camp.admission)
   frame(0)
   paint()
   const panel = scene.buildingPanels.get(camp.id)
-  assert.equal(panel.hidden, false, 'existing activity still exposes training controls')
+  assert.equal(panel.hidden, false, 'dismantling still exposes its independent controls')
   assert.equal(records(scene).size, 0, 'activity alone creates no manual or automatic record')
   frame()
   paint()
@@ -136,7 +136,7 @@ async function inspectWithPointer({ scene, point, frame }, pointerId = 21) {
   frame()
 }
 
-test('manual camp record survives activity start and its expiry preserves independent training controls', async t => {
+test('manual camp record survives dismantling start and its expiry preserves independent controls', async t => {
   const fixture = await campFixture(t),
     { scene, camp, frame, paint } = fixture
   await inspectWithPointer(fixture)
@@ -144,8 +144,8 @@ test('manual camp record survives activity start and its expiry preserves indepe
   assert.ok(record)
   const before = structuredClone(record),
     dwell = scene.tooltipController.dwell
-  // Supplied activity exercises the browser-owner handoff, not natural training.
-  camp.admission.activity |= 128
+  // Supplied dismantling exercises the independent browser-owner handoff.
+  camp.admission.activity |= 0x8000
   frame(0)
   paint()
   assert.deepEqual(record, before, 'activity start does not reset the manual phase')
@@ -169,7 +169,7 @@ test('manual camp record survives activity start and its expiry preserves indepe
     ),
     [`building-panel:${camp.id}`]
   )
-  camp.admission.activity &= ~128
+  camp.admission.activity &= ~0x8000
   panel.matches = () => true
   paint()
   assert.equal(panel.hidden, false, 'existing pointer-held controls survive activity ending')
@@ -187,7 +187,7 @@ test('visible camp transfers into the full supported inventory without a second 
     { scene, world, camp, paint } = fixture,
     { syncSecondaryReservations } = await import('../app/scene-secondary-effects.ts'),
     { allocateSecondaryEffect, secondaryEffectCount } = await import('../app/secondary-effects.ts')
-  camp.admission.activity |= 128
+  camp.admission.activity |= 0x8000
   paint()
   // Controlled inventory occupancy isolates the already-supported count adapter.
   for (let id = 0; id < 31; id++) scene.objectPanels.panels.set(100000 + id, {})

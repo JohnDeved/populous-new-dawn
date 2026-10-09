@@ -38,6 +38,7 @@ import {
   type TrainingBuilding,
 } from './training.ts'
 import { stepTrainingConversion, type ConvertingBuilding } from './training-conversion.ts'
+import { requestTrainingPanel } from './training-panel-requests.ts'
 import { adoptLiveOrders, startLiveOrders, stepLiveOrderQueue } from './live-movement.ts'
 import {
   allocatePersonOrder,
@@ -658,9 +659,7 @@ export function stepLiveTraining(w: World, b: Building) {
         cancelBuildingEntry(w, u)
       },
     },
-    // The renderer observes admission for panel art; native allocation/lifetime
-    // and remaining panel commands still need their original UI controller.
-    updateTrainingPanel: () => {},
+    updateTrainingPanel: training => requestTrainingPanel(w, training.id),
     addMana: (tribe, amount) => {
       w.manaTribes[tribe].available = (w.manaTribes[tribe].available + amount) | 0
     },

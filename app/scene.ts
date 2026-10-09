@@ -12,6 +12,7 @@ import { type FlybyCamera } from './flyby.ts'
 import { FpsGraph } from './fps-graph.ts'
 import { levelStartCamera } from './level-start.ts'
 import { advanceGame } from './game-clock.ts'
+import { bindTrainingPanelRequests } from './training-panel-requests.ts'
 import {
   WorshipAcquisitionPresentation,
   type WorshipHudBridge,
@@ -519,12 +520,14 @@ export class GameScene {
     if (this.started) return true
     if (this.disposed || this.terrainLoad.signal.aborted) return false
     this.started = true
+    this.releaseTrainingPanelRequests = bindTrainingPanelRequests(this.world, this.objectPanels)
     this.previous = null
     this.drawMinimap()
     installInputListeners(this, this.mini)
     this.frame = requestAnimationFrame(this.animate)
     return true
   }
+  private releaseTrainingPanelRequests: (() => void) | null = null
   makeSky() {
     makeSky(this)
   }
@@ -857,6 +860,8 @@ export class GameScene {
   dispose() {
     if (this.disposed) return
     this.disposed = true
+    this.releaseTrainingPanelRequests?.()
+    this.releaseTrainingPanelRequests = null
     this.presentationBinding?.release()
     if (this.frame) cancelAnimationFrame(this.frame)
     for (const stop of this.ownedSounds.values()) stop()

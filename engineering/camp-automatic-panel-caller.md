@@ -1,4 +1,4 @@
-# Automatic camp panel caller baseline
+# Automatic camp panel ownership and caller evidence
 
 Refs #25. The accepted source contract is frozen in
 [PR290](https://github.com/JohnDeved/populous-new-dawn/pull/290), research head
@@ -6,7 +6,7 @@ Refs #25. The accepted source contract is frozen in
 `8563f81eb4f95c3f9f9d09475f479151e013ece8`. The later PR289 merge
 `a7a500dcc835ea26e9c39d4e8bc96d1940510613` changes tooling, not the application.
 
-## Failure-first boundary
+## Frozen failure-first boundary
 
 `tests/camp-automatic-panel.test.mjs` shares the existing manual camp fixture.
 It executes the Mission2 authored opening, actual placement/construction and
@@ -27,10 +27,48 @@ It does not execute the full WebGL Scene constructor or an ordinary browser.
   have phase -1 and one reservation, with no painted DOM. Main's live callback
   is a no-op, so the record and reservation are missing.
 
-This is intentionally red evidence before implementation. Passing manual tests
-verify that sharing the unchanged fixture did not alter the existing baseline.
-Full check/build, native comparisons and browser acceptance remain implementation
-gates, not claims made by this test-only checkpoint.
+The preserved red source sequence is `bf429f3e` (initial callers), `d26ac24b`
+(distinct latch sample), then independently accepted `f4b4e502` (actual paint
+before and after the controller step). Exact raw receipts remain under
+`work/orchestration/camp-auto-baseline/`. Seven manual tests passed unchanged at
+that historical baseline. These are intentionally red implementation prerequisites.
+
+## Runtime candidate
+
+The live conversion callback now dispatches synchronously through a transient
+World-to-ObjectPanels binding installed by actual Scene.start. Scene.dispose
+releases only its own binding. A replaced Scene cannot clear its successor's
+reservations, and a stale store presentation binding cannot request new UI.
+Headless Worlds have no consumer. Gameplay checkpoints acquire no new fields.
+
+`requestAutomaticTraining(id)` admits only the local completed class2/model7
+camp through the existing shared allocator. `automaticTrainingLatches` is a
+separate Set and is set only after successful admission. Existing records retain
+phase/hold/remaining and D; a new record uses -1/0/16 and the established T/D
+side effect. Capacity failure leaves the latch clear for a later actual request.
+
+Automatic phase1 renews to16 before decrementing to15 while eligible. Lost
+activity/ownership clears its latch and enters phase2; the record remains
+automatic. A new request can reuse/relatch phase2 without restarting its exit.
+Retirement clears the latch again. DOM hover/focus can retain controls independently
+but cannot freeze the automatic record. One shared reservation counts these owners.
+
+Three manual test scenarios deliberately replace their earlier supplied 0x80
+independent-paint expectations with the existing 0x8000 dismantling adapter.
+They are **not unchanged assertions after implementation**. The original
+seven-pass baseline is preserved, and the new tests cover manual-to-automatic
+reuse through actual `stepLiveTraining`. Bare 0x80 no longer authorizes DOM;
+a fresh automatic record reserves immediately and waits for a controller step
+before painting. Dismantling and independently held controls retain their adapter.
+
+Focused regressions additionally exercise ordered same-turn requests, secondary
+capacity failure/retry, pre-conversion creation even when conversion clears
+activity, entry-stop ordering, phase2 reuse, held DOM retirement, invalid/local/
+modal/overview guards, stale Scene disposal, the existing previous-sample T-cache
+boundary, and controlled in-session Save/Load/Restart with stale saved bit23.
+The original training/panel fixture comparisons run from retained data; no original
+executable is run. Full standard gates, final independent review and the ordinary
+browser episode below remain separate acceptance evidence.
 
 ## Ordinary Mission2 episode contract
 
@@ -51,8 +89,8 @@ exit and reservation release, without direct ticks or clock replacement.
 The passive consumer wrapper must clone pre/post record fields, the separate
 Scene latch, reservation multiplicity, DOM state, activity/occupants/mana and
 turn/T-cache state inside the original call, before returning or serializing to
-the host. Proposed stable consumer names are `requestAutomaticTraining(id)` and
-`automaticTrainingLatches`; neither exists at this baseline checkpoint.
+the host. Stable consumer names are `requestAutomaticTraining(id)` and
+`automaticTrainingLatches`.
 
 Save while active through the actual UI and prove the typed IndexedDB `latest`
 write commits. Save keeps the current Scene owner. Then use actual Load, observe
