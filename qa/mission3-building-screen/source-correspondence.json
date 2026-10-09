@@ -1,0 +1,119 @@
+{
+  "scope": "Complete bounded source-only orchestration; final product standards/runtime admission remain coordinator-owned",
+  "productHead": "9d88d72126f64b96500b596792b7b938fc594aad",
+  "productAppTree": "b0b7f78c6292c202fe5ef7dfff794abac5d81727",
+  "helpers": [
+    {
+      "path": "scripts/local-render/mission1-vault-input.mjs",
+      "commit": "d6565f2a8ab6a020258e777ac548ca5c5ea6a155",
+      "sha256": "6516422eadca28e8850a0640ded3ab8a30cdc5b12a1a44e982af14c2a414b913"
+    },
+    {
+      "path": "scripts/local-render/mission1-vault-arrival.mjs",
+      "commit": "d6565f2a8ab6a020258e777ac548ca5c5ea6a155",
+      "sha256": "4ef7d2f1acf079f1d49ae87a9ba3bc2cff09f88cfa6b5b1e176e5fac4faaab99"
+    },
+    {
+      "path": "scripts/local-render/mission3-temple-checkpoint.mjs",
+      "commit": "d6565f2a8ab6a020258e777ac548ca5c5ea6a155",
+      "sha256": "cba34008a00a0a58b377ba24d09e92f19a7bf4884e139fef38b3cc1a7ada4182",
+      "upstreamSha256": "f74bef212a3bf9a80a6d9dfeac3785e74042cd5489a15952f96971dd99516181",
+      "adaptation": "Four optional acquisition steps plus explicit genuine-checkpoint restore entry; default fresh route preserves its original controls and guards."
+    },
+    {
+      "path": "scripts/local-render/mission3-temple-witness.mjs",
+      "commit": "d6565f2a8ab6a020258e777ac548ca5c5ea6a155",
+      "sha256": "7d07df4ba1c098beb2f8c6ce73c4949d2ba9faa7a9648cd490426eae519b126e"
+    }
+  ],
+  "observerBasis": {
+    "commit": "a409893cdab222e140f1acc02b69c25d6e6e05b6",
+    "path": "scripts/local-render/mission1-building-screen-witness.mjs",
+    "sha256": "bc0f22fbd4ea700c82d5d5e393bbc0c901f31da58dbc58b8be817f9f77015342",
+    "adaptation": "Authored M3 identity and shared p resource/material capture; retains synchronous visit and separately latched natural-draw semantics. Omits M1 resize workload."
+  },
+  "product": [
+    {
+      "path": "app/game-store.ts",
+      "sha256": "e762417959240887e6efe370eb1a6709169b641f777b58a8c1cdf8203b5205bb"
+    },
+    {
+      "path": "app/shared-anibl.ts",
+      "sha256": "c315a03ba2eecb6c2607a0f2dcca8a0fc892bb22205e5953a5fefdd40b1de013"
+    },
+    {
+      "path": "app/scene.ts",
+      "sha256": "998ff3a389e956452d95dddbc2ee2ed56700ee280eba35c4fc0152aa4bd9caab"
+    },
+    {
+      "path": "app/scene-worship-acquisition.ts",
+      "sha256": "06c545104e0ab208806061261b79af93c1cef7236692660c703b6fefe49b18bb"
+    },
+    {
+      "path": "app/scene-entities.ts",
+      "sha256": "ea61c26e1cf62f38a902d9b7015b57e98f2b2fdc204618bac65f7ce69e16cf41"
+    },
+    {
+      "path": "app/scene-assets.ts",
+      "sha256": "5f7186c631dc98d8a0830fe8c11a705aea909a0068f9e1a724a47e7592b9e940"
+    },
+    {
+      "path": "app/temple-art.ts",
+      "sha256": "46200dde8a9e336eecba25258da35c44cfcd6794fbf6c8f124f4da007fc81ac8"
+    },
+    {
+      "path": "app/building-acquisition-source.ts",
+      "sha256": "5c0c1a377a239f7a94fc3d2d003f00dfcb403783169bebf056e57f495f1abd8d"
+    },
+    {
+      "path": "app/building-acquisition-triangles.ts",
+      "sha256": "9ddbf181021d46fbc0cd9ad7c4afa5358f56c788f3725fcf94a6d3658b62e8dc"
+    },
+    {
+      "path": "app/building-acquisition-drawer.ts",
+      "sha256": "e92d7d2706e4dbb7974d019ac3948446fddf44b840b60d8cf575b4df4279deaf"
+    },
+    {
+      "path": "app/worship-acquisition.ts",
+      "sha256": "df99e45e7b391333ca0d8abf53024dc401fac4f4ff9cc8152ceb485d9e55ebcb"
+    },
+    {
+      "path": "app/worship-acquisition-runtime.ts",
+      "sha256": "e3e943a7f7045b9be20b43c92cf342bd42f5f2434d4ffd4984db9fc79845f79c"
+    },
+    {
+      "path": "app/page.tsx",
+      "sha256": "0cf9516e222122024b509abd54dacb08bf1f95f5f7e6cfa7fd5ce9aec2446a7f"
+    },
+    {
+      "path": "app/game-clock.ts",
+      "sha256": "d4f850867943a54ebf86e79b6d71e2f842d0e6c61c70bb2884872bd6d002eef6"
+    },
+    {
+      "path": "app/original-temple-acquisition.json",
+      "sha256": "9418cbe8c5356350b2a971ad699d9fcd51d24187371a4640b9beb5e4a433df6b"
+    },
+    {
+      "path": "app/worship-acquisition-layout.ts",
+      "sha256": "f0d45a76e3b923db549ee43d3244f67d69bb96cea36f71107110da17259e21d7"
+    },
+    {
+      "path": "public/original/temple-model-p.png",
+      "sha256": "7f06367b105170ef58f2ff617e74c0426d57c55d2ce087f4bf84c3cdd60f31a1"
+    },
+    {
+      "path": "public/original/temple-sparkles-p.png",
+      "sha256": "51286931cda1a245f0e035d19cb89e54628faa1c5efba2f2f23cea14fc806899"
+    }
+  ],
+  "launchEnabled": false,
+  "profileReuse": "Forbidden for the UNKNOWN quarantined PR277 run. Fresh profile only after final application/runtime admission.",
+  "lifecycleBasis": {
+    "commit": "a409893cdab222e140f1acc02b69c25d6e6e05b6",
+    "path": "scripts/local-render/mission1-building-screen-load.mjs",
+    "scope": "Unchanged early successful Scene.start attachment mechanism; M3 resource and snapshot adapter."
+  },
+  "entry": "scripts/local-render/mission3-building-screen.mjs",
+  "innerTimeoutMs": 1500000,
+  "outerTimeoutSeconds": 1560
+}
