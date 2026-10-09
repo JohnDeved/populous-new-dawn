@@ -1,0 +1,1515 @@
+{
+  "version": 1,
+  "source": {
+    "head": "cf5fc834d1d079d65fb49bd4e21932d05bfdd5d9",
+    "tree": "f345dc403617164d92d3204b1742cff9fa36d568",
+    "clean": true,
+    "trackedDiffHash": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126"
+  },
+  "scopeHash": "c815b6a4b6dacfab748bb13f3319594abc4acd30c5006ca28832b8838511421c",
+  "discovery": "open",
+  "knownScope": {
+    "total": 181,
+    "counts": {
+      "verified": 0,
+      "failed": 0,
+      "blocked": 0,
+      "stale": 0,
+      "unknown": 181
+    },
+    "percent": 0,
+    "requirements": [
+      {
+        "id": "world.level-one",
+        "title": "Original first-mission terrain and object layout",
+        "group": "world",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "world.projection",
+        "title": "Native terrain and model projection",
+        "group": "world",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "world.terrain",
+        "title": "Stored terrain diagonals and height sampling",
+        "group": "world",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "world.water",
+        "title": "Water texture, wave geometry and shoreline diffuse shading",
+        "group": "world",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "world.flyby",
+        "title": "First-mission opening camera tour",
+        "group": "world",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "world.camera",
+        "title": "Complete camera movement and visibility behavior",
+        "group": "world",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "world.wrap.followers",
+        "title": "Ordinary ground orders and resting across the world without a cropped boundary",
+        "group": "world",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "world.wrap.lifecycle",
+        "title": "Complete full-world commands, interactions, terrain ownership and special-class simulation",
+        "group": "world",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "world.deform",
+        "title": "All terrain deformation and propagation",
+        "group": "world",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.models",
+        "title": "Original static model geometry and face textures",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.orientation",
+        "title": "Building shape anchors, headings and entrance geometry",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.sprites.layers",
+        "title": "Imported unit pieces, tribe layers, signed offsets and mirroring",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.sprites.shadows",
+        "title": "Standing and airborne shadow selection and placement",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.sprites.states",
+        "title": "Complete action-to-sprite state ownership",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.sprites.roster",
+        "title": "Remaining tribes and unit-class sprite variants",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.sprites.ghosts",
+        "title": "Ghost, invisibility and special sprite blending",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.sprites.interpolation",
+        "title": "Original presentation-position interpolation",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.animation.celebration",
+        "title": "Original celebration poses and visible playback",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.animation.states",
+        "title": "Complete animation state transitions",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.animation.clock",
+        "title": "Original outer presentation scheduling",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.materials.alpha",
+        "title": "Original object-atlas alpha decoding",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.materials.sampling",
+        "title": "Default encoded-color bilinear sampling and sprite point sampling",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.materials.palettes",
+        "title": "Complete alternate palette and color-mode coverage",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.materials.order",
+        "title": "Deferred alpha ordering for sprites and model triangles",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.materials.blending",
+        "title": "Complete alpha and additive pass ownership",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.materials.settings",
+        "title": "Original graphics settings and per-batch sampler ownership",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.lighting.models",
+        "title": "Default model sunlight, face normals and depth attenuation",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.lighting.highlight",
+        "title": "Native hovered-model highlight",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.lighting.local",
+        "title": "Opening spell/fire terrain light allocation, falloff and cleanup",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.lighting.globe",
+        "title": "Globe diffuse, specular and rim lighting",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.lighting.sun",
+        "title": "Dynamic sunlight propagation and sun rotation",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.lighting.producers",
+        "title": "Remaining colored light producers and full allocation ordering",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.lighting.debris",
+        "title": "Full debris lighting and attachment shading",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.raster.cell-bounds",
+        "title": "Native visible-cell row/column boundaries",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.raster.terrain-uv",
+        "title": "Close-terrain texel-center UV endpoints",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.raster.sky-horizon",
+        "title": "Type-2 sky horizon, clouds and defeat-flash bounds",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.raster.transition",
+        "title": "Ground/globe camera morph and restored input",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.raster.footprints",
+        "title": "Overview building footprints and basic icons",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.raster.primitive-order",
+        "title": "Mixed triangle bucket and constant-depth primitives",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.raster.queue",
+        "title": "Complete cell/object submission, ties and batching",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.raster.clipping",
+        "title": "All original polygon clipping and culling paths",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.raster.concealment",
+        "title": "All mission/mode reveal and concealment ownership",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.raster.texture-cache",
+        "title": "Full original texture-cache and UV/fog fallback behavior",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.raster.overview",
+        "title": "Remaining overview markers and effects",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.raster.frames",
+        "title": "Matched whole frames in original playable camera views",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.raster.unit-trails",
+        "title": "Follower footprint history, density and close-terrain palette rendering",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.variants.huts",
+        "title": "Original hut families, levels and tribe models",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.variants.stages",
+        "title": "Native construction face visibility and cap replacement",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.variants.vault",
+        "title": "Complete vault morph and object lifecycle",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "graphics.variants.remaining",
+        "title": "Remaining variants and original allocation/initialization",
+        "group": "graphics",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "effects.blast",
+        "title": "Blast impact flash animation and lifetime",
+        "group": "effects",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "effects.lightning",
+        "title": "Lightning bolt geometry and texture",
+        "group": "effects",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "effects.trails",
+        "title": "Opening spell projectile trail geometry",
+        "group": "effects",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "effects.smoke",
+        "title": "Building collapse smoke sockets and particle lifecycle",
+        "group": "effects",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "effects.debris",
+        "title": "Complete building debris behavior and rendering",
+        "group": "effects",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "effects.fire.burning",
+        "title": "Complete building/scenery ignition and burning controllers",
+        "group": "effects",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "effects.fire.panic",
+        "title": "Building occupant panic initialization, timed movement and presentation",
+        "group": "effects",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "effects.fire.trails",
+        "title": "Follower fire-trail emission, particle phases and presentation",
+        "group": "effects",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "effects.fire.propagation",
+        "title": "Fire propagation and repair interactions",
+        "group": "effects",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "effects.fire.sunlight",
+        "title": "Fire sunlight and full lighting ownership",
+        "group": "effects",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "effects.reincarnation",
+        "title": "Reincarnation effects and site lifecycle",
+        "group": "effects",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "effects.remaining",
+        "title": "All remaining environmental and spell effects",
+        "group": "effects",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "interface.glyphs",
+        "title": "Original English HUD glyph selection and advances",
+        "group": "interface",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "interface.selection",
+        "title": "Selection indicator geometry and gating",
+        "group": "interface",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "interface.plans",
+        "title": "Building plan rotation and entrance-arrow preview",
+        "group": "interface",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "interface.hud.spell-art",
+        "title": "Spell-button artwork, stock markers and charge fills",
+        "group": "interface",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "interface.hud.health",
+        "title": "Shaman health frame, palette and integer fill",
+        "group": "interface",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "interface.hud.portrait",
+        "title": "Directional shaman portrait layers and borders",
+        "group": "interface",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "interface.hud.mana",
+        "title": "Production-meter stripes, thresholds and warning display",
+        "group": "interface",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "interface.hud.population",
+        "title": "Follower-count glyphs, class icons and housing feedback",
+        "group": "interface",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "interface.hud.axis-scale",
+        "title": "Independent desktop HUD X/Y coordinate scaling",
+        "group": "interface",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "interface.hud.spell-dispatch",
+        "title": "Complete spell-slot availability, locked states and charge sparks",
+        "group": "interface",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "interface.hud.minimap-terrain",
+        "title": "Minimap terrain palette, toroidal scroll and camera rotation",
+        "group": "interface",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "interface.hud.minimap-markers",
+        "title": "Minimap object markers, visibility and animated indicators",
+        "group": "interface",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "interface.hud.minimap-input",
+        "title": "Minimap picking and camera-command routing",
+        "group": "interface",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "interface.hud.control-layout",
+        "title": "Complete native control placement and rasterization across resolutions",
+        "group": "interface",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "interface.hud.control-ownership",
+        "title": "Native HUD state ownership and presentation scheduling",
+        "group": "interface",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "interface.hud.training-art",
+        "title": "Floating warrior-training panel artwork, occupant slots and layered charge feedback",
+        "group": "interface",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "interface.hud.training-selection",
+        "title": "Warrior-training occupant selection and group toggles",
+        "group": "interface",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "interface.hud.remaining-panels",
+        "title": "Remaining HUD tabs, building panels and contextual controls",
+        "group": "interface",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "interface.hud.construction-panel",
+        "title": "Construction-plan worker/timber artwork and dismantling controls",
+        "group": "interface",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "interface.hud.tower-panel",
+        "title": "Ordinary guard-tower occupant panel and selection controls",
+        "group": "interface",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "interface.commands.follower-flags",
+        "title": "Ordinary follower click/deselect flags, default modifiers and group voices",
+        "group": "interface",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "interface.commands.world-drag",
+        "title": "Camera-oriented drag geometry and ordinary outdoor follower admission",
+        "group": "interface",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "interface.commands.drag-feedback",
+        "title": "Exact terrain-projected selection fill, border/corners and painter feedback",
+        "group": "interface",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "interface.commands.input-ownership",
+        "title": "Complete bindings, settings, modal transitions, input buffers and order queues",
+        "group": "interface",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "interface.commands.mixed-selection",
+        "title": "Mixed-class hit resolution and full HUD, occupant, vehicle and passenger selection ownership",
+        "group": "interface",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "interface.targeting",
+        "title": "All placement/targeting cursors and validity feedback",
+        "group": "interface",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "interface.messages",
+        "title": "Complete tooltips, notifications and localized text",
+        "group": "interface",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "interface.menus",
+        "title": "Original front end, options and mission selection",
+        "group": "interface",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "audio.samples",
+        "title": "Original sound sample playback and cue mapping",
+        "group": "audio",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "audio.triggers",
+        "title": "All gameplay sound and speech triggers",
+        "group": "audio",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "audio.pitch",
+        "title": "Native pitch/random selection with exact RNG consumption",
+        "group": "audio",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "audio.spatial",
+        "title": "Camera-relative positioning and distance mixing",
+        "group": "audio",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "audio.voices",
+        "title": "Voice limits, priorities, interruption and ownership",
+        "group": "audio",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "audio.ambience",
+        "title": "Environmental ambience scheduling",
+        "group": "audio",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "audio.music.playback",
+        "title": "Original drone tracks and percussion banks playable through browser audio",
+        "group": "audio",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "audio.music.selection",
+        "title": "Native adaptive percussion selection and activity transitions",
+        "group": "audio",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "audio.music.lifecycle",
+        "title": "Complete music lifecycle, frontend modes and settings",
+        "group": "audio",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "audio.pause",
+        "title": "Audio pause, restart and game-state transitions",
+        "group": "audio",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "simulation.turns",
+        "title": "Exact outer game loop and clock phases",
+        "group": "simulation",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "simulation.tribes",
+        "title": "Complete tribe-turn scheduling and integration",
+        "group": "simulation",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "simulation.objects",
+        "title": "Mixed-class object update order and lifetime ownership",
+        "group": "simulation",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "simulation.rng",
+        "title": "Seed initialization and complete RNG draw order",
+        "group": "simulation",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "simulation.allocation",
+        "title": "Original allocation limits, reuse and failure behavior",
+        "group": "simulation",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "simulation.orders.ground-waypoints",
+        "title": "Ordinary on-foot player ground waypoint sequences and destination handoff",
+        "group": "simulation",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "simulation.orders.lifecycle",
+        "title": "Complete mixed-command, class, settings and dispatcher lifecycle",
+        "group": "simulation",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "simulation.replay",
+        "title": "Cross-engine deterministic scenario replays",
+        "group": "simulation",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "simulation.modes",
+        "title": "All pause, speed, result and mode transitions",
+        "group": "simulation",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "movement.routes",
+        "title": "Ordinary first-mission order route planning and advance",
+        "group": "movement",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "movement.ground",
+        "title": "Complete ground movement, slope and steering dispatch",
+        "group": "movement",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "movement.collision",
+        "title": "All person/building/scenery collision and access rules",
+        "group": "movement",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "movement.airborne",
+        "title": "Falling, knockback, landing and drowning",
+        "group": "movement",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "movement.groups.resting",
+        "title": "Ordinary outdoor resting rings and live slot ownership",
+        "group": "movement",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "movement.groups.marching",
+        "title": "Ordinary ground move orders, marching slots and live controller handoff",
+        "group": "movement",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "movement.groups.lifecycle",
+        "title": "Complete group movement, avoidance, orders and special-class formation lifecycle",
+        "group": "movement",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "movement.boats",
+        "title": "Boat construction, boarding, navigation and combat",
+        "group": "movement",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "movement.balloons",
+        "title": "Balloon construction, boarding, flight and combat",
+        "group": "movement",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "movement.recovery",
+        "title": "All blocked, idle, panic and recovery states",
+        "group": "movement",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "combat.melee.decisions",
+        "title": "Ready fighter attack choices against ready and busy group opponents",
+        "group": "combat",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "combat.melee.recovery",
+        "title": "Ordinary attack/recoil timing and terrain-aware knockback",
+        "group": "combat",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "combat.melee.placement",
+        "title": "Fight-site validity, building exit and periodic terrain relocation",
+        "group": "combat",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "combat.melee.approach",
+        "title": "Melee approach speed, destination, ready-slot transitions and native motion",
+        "group": "combat",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "combat.melee.targets",
+        "title": "Ordinary area-command candidate selection, target priorities and attacker reservations",
+        "group": "combat",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "combat.melee.encounter",
+        "title": "Ordinary outdoor encounter approach, opening strike, knockback and melee handoff",
+        "group": "combat",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "combat.melee.lifecycle",
+        "title": "Complete melee grouping, approach, damage, effects and order handoff",
+        "group": "combat",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "combat.braves",
+        "title": "Complete brave work, combat and task transitions",
+        "group": "combat",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "combat.warriors",
+        "title": "Complete warrior attack, pursuit and recovery",
+        "group": "combat",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "combat.firewarriors",
+        "title": "Firewarrior attacks, range and behavior",
+        "group": "combat",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "combat.preachers",
+        "title": "Preaching, conversion and preacher combat",
+        "group": "combat",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "combat.spies",
+        "title": "Disguise, sabotage and spy behavior",
+        "group": "combat",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "combat.shamans",
+        "title": "All shaman combat, death and reincarnation behavior",
+        "group": "combat",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "combat.other",
+        "title": "Wildmen, special units and cross-class interactions",
+        "group": "combat",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "economy.mana",
+        "title": "Follower mana generation and first-mission distribution",
+        "group": "economy",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "economy.plans",
+        "title": "Complete building validity, allocation and construction",
+        "group": "economy",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "economy.wood",
+        "title": "Timber harvesting, carrying, delivery and regrowth",
+        "group": "economy",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "economy.housing.entry",
+        "title": "Original first-mission housing approach and staged entry",
+        "group": "economy",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "economy.housing.occupancy",
+        "title": "Occupant slots, admission, release and indicators",
+        "group": "economy",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "economy.housing.birth",
+        "title": "Native birth scheduling, allocation and newborn ownership",
+        "group": "economy",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "economy.housing.upgrade",
+        "title": "Complete hut maturity and upgrade lifecycle",
+        "group": "economy",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "economy.housing.population",
+        "title": "All population limits, registration and housing ownership",
+        "group": "economy",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "economy.housing.tower-entry",
+        "title": "Ordinary guard-tower admission, raised occupants and exit restoration",
+        "group": "economy",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "economy.training.warriors",
+        "title": "First-mission warrior training approach, queue, admission, funding and batch conversion",
+        "group": "economy",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "economy.training.schools",
+        "title": "All other training schools and resulting person classes",
+        "group": "economy",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "economy.training.special",
+        "title": "Special occupants, priority, ejection and exceptional training paths",
+        "group": "economy",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "economy.training.ownership",
+        "title": "Global allocation, shared command tails, registration and training UI ownership",
+        "group": "economy",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "economy.repair.dismantling",
+        "title": "Ordinary warrior-hut dismantling, workers and timber recovery",
+        "group": "economy",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "economy.repair.remaining",
+        "title": "Remaining damage, evacuation, repair and demolition lifecycle",
+        "group": "economy",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "economy.classes",
+        "title": "All building classes and special structures",
+        "group": "economy",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "economy.territory",
+        "title": "Full territory, occupancy and ownership lifecycle",
+        "group": "economy",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "spells.entry",
+        "title": "Opening spell range, payment and casting cooldowns",
+        "group": "spells",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "spells.blast",
+        "title": "Complete Blast behavior and interactions",
+        "group": "spells",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "spells.lightning.cell-hits",
+        "title": "Lightning cell victim eligibility, cap and attacker attribution",
+        "group": "spells",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "spells.lightning.electrocution",
+        "title": "Native electrocution state entry, phase clock and sprite selection",
+        "group": "spells",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "spells.lightning.secondary",
+        "title": "Complete Lightning shockwave, fire, lighting and world consequences",
+        "group": "spells",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "spells.lightning.lifecycle",
+        "title": "Full Lightning allocation, scheduling and person lifecycle ownership",
+        "group": "spells",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "spells.terrain.bridge-heights",
+        "title": "Land Bridge native height evolution and controller lifetime",
+        "group": "spells",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "spells.terrain.bridge-lifecycle",
+        "title": "Complete Land Bridge cast, visual and object lifecycle",
+        "group": "spells",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "spells.terrain.flatten",
+        "title": "Complete Flatten deformation and lifecycle",
+        "group": "spells",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "spells.terrain.erosion",
+        "title": "Complete Erosion deformation and lifecycle",
+        "group": "spells",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "spells.terrain.ownership",
+        "title": "Shared terrain-spell occupancy, movement and object consequences",
+        "group": "spells",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "spells.summons",
+        "title": "Creature/summoning spells and spawned behavior",
+        "group": "spells",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "spells.status",
+        "title": "Conversion, concealment and defensive spells",
+        "group": "spells",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "spells.disasters",
+        "title": "Disaster and area attack spells",
+        "group": "spells",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "spells.interactions",
+        "title": "All spell interactions, reflection, AI use and scheduling",
+        "group": "spells",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "campaign.mission-one",
+        "title": "Complete first-mission behavior against the original",
+        "group": "campaign",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "campaign.vm",
+        "title": "Complete campaign VM and engine command bindings",
+        "group": "campaign",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "campaign.worship",
+        "title": "All worship, knowledge and reward lifecycles",
+        "group": "campaign",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "campaign.ai",
+        "title": "Complete computer economy, attacks and difficulty",
+        "group": "campaign",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "campaign.objectives",
+        "title": "All objective, victory, defeat and celebration behaviors",
+        "group": "campaign",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "campaign.missions",
+        "title": "Every remaining original campaign mission",
+        "group": "campaign",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "campaign.progression",
+        "title": "Campaign progression, unlocks and world selection",
+        "group": "campaign",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "campaign.tutorials",
+        "title": "All original tutorials and special scripted sequences",
+        "group": "campaign",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "persistence.save",
+        "title": "Original save serialization and compatibility",
+        "group": "persistence",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "persistence.load",
+        "title": "Load and resume exact world state",
+        "group": "persistence",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "persistence.profile",
+        "title": "Profile, options and campaign persistence",
+        "group": "persistence",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "persistence.lobby",
+        "title": "Multiplayer lobby and match setup",
+        "group": "persistence",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "persistence.network",
+        "title": "Original protocol and command synchronization",
+        "group": "persistence",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "persistence.lockstep",
+        "title": "Multiplayer lockstep and desync handling",
+        "group": "persistence",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "persistence.rules",
+        "title": "All multiplayer maps, rules and outcomes",
+        "group": "persistence",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      },
+      {
+        "id": "persistence.recovery",
+        "title": "Disconnect, reconnect and match lifecycle",
+        "group": "persistence",
+        "status": "unknown",
+        "reason": "Whole requirement has no complete automatic evidence binding"
+      }
+    ]
+  },
+  "browserIntegration": {
+    "total": 3,
+    "verified": 0,
+    "percent": 0
+  },
+  "missionCases": {
+    "total": 3,
+    "counts": {
+      "verified": 0,
+      "failed": 0,
+      "blocked": 0,
+      "stale": 0,
+      "unknown": 3
+    },
+    "observations": 3,
+    "percent": 0,
+    "capabilities": [
+      {
+        "id": "mission-one.continuation",
+        "title": "Mission 1 result continuation to Mission 2 (injected outcome)",
+        "scope": "scenario",
+        "mission": 1,
+        "parityId": "campaign.mission-one",
+        "browserCheckIds": [
+          "checkpoint-browser"
+        ],
+        "originalCheckIds": [],
+        "limits": "The browser check removes enemy units and advances a tick to trigger victory before clicking Continue. It proves result continuation, not natural Mission 1 victory or original timing.",
+        "browserStatus": "unknown",
+        "originalStatus": "unknown",
+        "status": "unknown",
+        "regression": false
+      },
+      {
+        "id": "mission-two.checkpoint",
+        "title": "Mission 2 fresh-page checkpoint restoration",
+        "scope": "scenario",
+        "mission": 2,
+        "parityId": "persistence.load",
+        "browserCheckIds": [
+          "checkpoint-browser"
+        ],
+        "originalCheckIds": [],
+        "limits": "The diagnostic also uses direct commands/ticks and injected state. Browser IndexedDB continuation is a modernization. It does not establish original save-format or whole-world parity.",
+        "browserStatus": "unknown",
+        "originalStatus": "unknown",
+        "status": "unknown",
+        "regression": false
+      },
+      {
+        "id": "mission-three.opening",
+        "title": "Mission 3 opening, first construction and Preacher",
+        "scope": "scenario",
+        "mission": 3,
+        "parityId": "campaign.missions",
+        "browserCheckIds": [
+          "mission3-browser"
+        ],
+        "originalCheckIds": [],
+        "limits": "The check seeds Mission 2 victory, then exercises shipped continuation. Later Mission 3 behavior and full original comparison remain unknown.",
+        "browserStatus": "unknown",
+        "originalStatus": "unknown",
+        "status": "unknown",
+        "regression": false
+      },
+      {
+        "id": "mission-two.checkpoint-ordinary",
+        "title": "Mission 2 ordinary public checkpoint restoration",
+        "scope": "observation",
+        "mission": 2,
+        "parityId": "persistence.load",
+        "browserCheckIds": [
+          "mission-two-checkpoint-ordinary"
+        ],
+        "originalCheckIds": [],
+        "limits": "Public save, fresh page and Load with real RAF and read-only observations. An additional evidence method for the existing checkpoint capability, not extra progress credit. Browser checkpoint modernization does not establish original save-format compatibility or native-game parity.",
+        "browserStatus": "unknown",
+        "originalStatus": "unknown",
+        "status": "unknown",
+        "regression": false
+      },
+      {
+        "id": "blast.person-ordinary",
+        "title": "Blast ordinary person cast and impact",
+        "scope": "observation",
+        "mission": 2,
+        "parityId": "spells.blast",
+        "browserCheckIds": [
+          "blast-person-ordinary"
+        ],
+        "originalCheckIds": [],
+        "limits": "Owned public Mission 2 person release, real windup move and friendly Blue Brave tracking through arrival/impact. Historical browser observations only when source differs; no enemy-target, native execution, paired-frame, hardware-performance or whole-spell claim.",
+        "browserStatus": "unknown",
+        "originalStatus": "unknown",
+        "status": "unknown",
+        "regression": false
+      },
+      {
+        "id": "blast.controls-ordinary",
+        "title": "Blast ordinary controls and active checkpoint",
+        "scope": "observation",
+        "mission": 2,
+        "parityId": "spells.blast",
+        "browserCheckIds": [
+          "blast-controls-ordinary"
+        ],
+        "originalCheckIds": [],
+        "limits": "Six public Mission 2 control stages including active-cast Save and fresh-page Load. Equality covers the bounded saved/loaded projection; the recorded digest is not an independent full-World recomputation. No original execution, save-format or paired parity claim.",
+        "browserStatus": "unknown",
+        "originalStatus": "unknown",
+        "status": "unknown",
+        "regression": false
+      }
+    ]
+  },
+  "checks": [
+    {
+      "id": "blast-impact-original-reference",
+      "status": "unknown",
+      "receipt": "work/orchestration/camp-discovery-final-01/tests-01.json",
+      "finishedAt": "2026-10-09T18:10:59.671Z",
+      "evidenceClass": "historical-reference",
+      "provenanceGrade": "historical-reference",
+      "rawNativeAttestation": "missing",
+      "originalExecutionStatus": "unknown",
+      "reason": "Rejected historical Blast reference evidence: missing/ambiguous shard manifest",
+      "kind": "portable",
+      "coveredBehavior": [
+        "Six compared arrival/head-retirement and first enemy/friendly impulse snapshots"
+      ],
+      "limits": [
+        "Historical-reference provenance; raw native execution attestation is missing and original execution remains unknown, including on a matching port source tree.",
+        "Supplied gameFlags32 and a ground cast do not validate the ordinary bit-clear person-selection path. Native allocation, deletion and person bodies are supplied; the full fixture event log is not port-compared.",
+        "Unscored check detail only. No complete Blast, native whole-game, native timing, matched-frame or hardware-performance credit."
+      ]
+    },
+    {
+      "id": "blast-controls-ordinary",
+      "status": "unknown",
+      "reason": "No owned ordinary Blast controls receipt",
+      "kind": "browser",
+      "coveredBehavior": [
+        "Evidence-only ordinary Blast controls observation"
+      ],
+      "limits": [
+        "Six public Mission 2 control stages including active-cast Save and fresh-page Load. Equality covers the bounded saved/loaded projection; the recorded digest is not an independent full-World recomputation. No original execution, save-format or paired parity claim."
+      ]
+    },
+    {
+      "id": "blast-person-ordinary",
+      "status": "unknown",
+      "reason": "No owned ordinary Blast person receipt",
+      "kind": "browser",
+      "coveredBehavior": [
+        "Evidence-only ordinary Blast person observation"
+      ],
+      "limits": [
+        "Owned public Mission 2 person release, real windup move and friendly Blue Brave tracking through arrival/impact. Historical browser observations only when source differs; no enemy-target, native execution, paired-frame, hardware-performance or whole-spell claim."
+      ]
+    },
+    {
+      "id": "mission-two-checkpoint-ordinary",
+      "status": "unknown",
+      "reason": "No owned ordinary Mission 2 receipt",
+      "kind": "browser",
+      "coveredBehavior": [
+        "Public Save checkpoint, fresh reload, public Load, retained turn/roster/stats and real-clock resumption"
+      ],
+      "limits": [
+        "Only the exact reviewed ordinary scenario and source-bound owned harness are accepted. This is browser checkpoint modernization, not original save compatibility or full mission parity. Historical source changes produce stale evidence."
+      ]
+    },
+    {
+      "id": "checkpoint-browser",
+      "status": "unknown",
+      "reason": "No measurement-capable receipt",
+      "kind": "browser",
+      "coveredBehavior": [
+        "First visit offers Missions 1 through 4 before scene creation",
+        "Mission 1 mouse and Mission 4 keyboard selection",
+        "Injected Mission 1 enemy removal and one simulation tick reach the result UI; Continue then starts Mission 2",
+        "The injected Mission 1 outcome persists a completion mark and Mission 2 recommendation",
+        "Mission 2 Totem route and one-shot Tornado-use instruction",
+        "Mission 2 marker-triggered Matak tower counterattack",
+        "Returning-player mission and Load Game choice before scene creation",
+        "Exact Mission 2 checkpoint restore after reload",
+        "Fresh-world isolation and in-session completion/checkpoint fallback when storage is unavailable"
+      ],
+      "limits": [
+        "Removes enemy units and ticks to seed Mission 1 victory; later diagnostics use direct commands/ticks and injected state. This is not natural Mission 1 victory. Uses browser-native IndexedDB and one latest checkpoint; it does not prove original save-format, slot, broader profile, or front-end parity."
+      ]
+    },
+    {
+      "id": "mission3-browser",
+      "status": "unknown",
+      "reason": "No measurement-capable receipt",
+      "kind": "browser",
+      "coveredBehavior": [
+        "Mission 2 result continuation into Mission 3 data and objectives",
+        "Mission 3 original opening flyby and one-shot Convert Wild cast",
+        "Mission 3 autonomous Chumara settlement construction through ordinary type-0 tasks",
+        "Mission 3 first naturally requested and trained Chumara Preacher",
+        "Mission 3 checkpoint and restart identity, construction, Preacher, and script-latch preservation"
+      ],
+      "limits": [
+        "Seeds Mission 2 victory before exercising the real continuation path; it does not prove natural Mission 2 or Mission 3 victory.",
+        "Later Mission 3 recurring raids, warnings, marker behavior, and broader tutorial presentation remain deferred."
+      ]
+    }
+  ],
+  "historical": {
+    "date": "2026-09-11T06:19:44.962Z",
+    "revision": 28,
+    "percent": 26.94176228183581,
+    "label": "Historical manually assessed checkpoint-share coverage; not current automatic measurement"
+  },
+  "limits": [
+    "Unknown is unmeasured, not evidence that the game has zero implemented behavior.",
+    "Mission cases and whole-game requirements overlap and are never added together.",
+    "Browser integration, supplied-state native components and natural original execution are different claims.",
+    "No full original-game execution or matched full-frame visual score is established.",
+    "Receipts are local development evidence, not tamper-proof attestations."
+  ],
+  "warnings": []
+}

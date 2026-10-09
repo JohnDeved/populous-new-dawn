@@ -1,0 +1,419 @@
+{
+  "kind": "parity-streaming-evidence-checkpoint",
+  "source": {
+    "head": "cf5fc834d1d079d65fb49bd4e21932d05bfdd5d9",
+    "tree": "f345dc403617164d92d3204b1742cff9fa36d568",
+    "pr": "https://github.com/JohnDeved/populous-new-dawn/pull/289"
+  },
+  "projection": {
+    "receiptPin": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/work/orchestration/parity-streaming-projection-01/receipt.json",
+      "bytes": 2674,
+      "sha256": "58fcfb63bccc079bce437a020930abaa562890b88817a9ee9c85051d9f1d2eba"
+    },
+    "receipt": {
+      "version": 1,
+      "kind": "pnd-command-receipt",
+      "runId": "dc531460-6a38-4353-aac9-b2a81100ce85",
+      "status": "failed",
+      "phase": "finished",
+      "source": {
+        "headOid": "cf5fc834d1d079d65fb49bd4e21932d05bfdd5d9",
+        "branch": "",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {
+          "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+          "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+          "scripts/parity-json-metadata.mjs": "bf489880a1f0078c33863c05a14580edff952d0e43750042e9ceea6e77732fb9",
+          "scripts/parity-discovery.mjs": "9eda3cff198950bb075a7c918a7eada0440df198c37094a29ab46e9542c86d44",
+          "scripts/parity-measure.mjs": "4444431753c100e372c3b9583fe0eb8ecd78fb4a3d5fef959f845fe9d49f823e"
+        }
+      },
+      "command": [
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=10s",
+        "120s",
+        "taskset",
+        "-c",
+        "5-7",
+        "node",
+        "scripts/parity-measure.mjs"
+      ],
+      "cwd": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b",
+      "startedAt": "2026-10-09T19:29:29.679Z",
+      "artifacts": {
+        "stdout": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/work/orchestration/parity-streaming-projection-01/receipt.json.artifacts/stdout.log",
+        "stderr": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/work/orchestration/parity-streaming-projection-01/receipt.json.artifacts/stderr.log"
+      },
+      "parityMeasurements": [],
+      "finishedAt": "2026-10-09T19:29:34.136Z",
+      "exitCode": 2,
+      "signal": null,
+      "stdout": "Automatic evidence: 0/181 known requirements; 0/3 mission gates. work/orchestration/parity-measure/index.html\n",
+      "stderr": "",
+      "stdoutSha256": "c26f9aeb1b12c6b6c388e98c901d86baef7a9da0e217bdc8e76f23402b1a8b34",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceAfter": {
+        "headOid": "cf5fc834d1d079d65fb49bd4e21932d05bfdd5d9",
+        "branch": "",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {
+          "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+          "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+          "scripts/parity-json-metadata.mjs": "bf489880a1f0078c33863c05a14580edff952d0e43750042e9ceea6e77732fb9",
+          "scripts/parity-discovery.mjs": "9eda3cff198950bb075a7c918a7eada0440df198c37094a29ab46e9542c86d44",
+          "scripts/parity-measure.mjs": "4444431753c100e372c3b9583fe0eb8ecd78fb4a3d5fef959f845fe9d49f823e"
+        }
+      }
+    },
+    "interpretation": "Complete report written; CLI exit 2 / receipt failed because evidence is incomplete. No parity pass."
+  },
+  "render": {
+    "receiptPin": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/work/orchestration/parity-streaming-projection-01/render-receipt.json",
+      "bytes": 641,
+      "sha256": "b7fc71e853d9d0b4674ea25e8a6032902b0892580836e48d08af2efc7a06123f"
+    },
+    "receipt": {
+      "startedAt": "2026-10-09T19:31:05.439Z",
+      "reportSha256": "12555bfbc1d4fec212a425e3ebe08601461caa358cd711511a21ed1a9afd3ba9",
+      "htmlSha256": "e89debb59533e5941ca628f537edf3efee59da5290c98be764b92cacaf9ee0c3",
+      "sandbox": true,
+      "requests": [],
+      "cleanupVerified": true,
+      "version": "154.0.8037.92",
+      "headings": [
+        "Automatic parity evidence",
+        "0/181 known requirements automatically verified",
+        "Browser integration: 0/3 declared mission cases",
+        "Missions 1\u20133: 0/3 paired evidence gates",
+        "Checks",
+        "Historical ledger",
+        "Limits"
+      ],
+      "status": "passed",
+      "finishedAt": "2026-10-09T19:31:05.829Z"
+    },
+    "report": {
+      "path": "report.json",
+      "sha256": "12555bfbc1d4fec212a425e3ebe08601461caa358cd711511a21ed1a9afd3ba9"
+    },
+    "png": {
+      "path": "current-report.png",
+      "sha256": "0dd308b52ea7e14cc467f9f40130ff16511be10b409eb0256c7d3a92022fc619"
+    }
+  },
+  "readerCorpus": {
+    "receipt": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/parity-streaming-discovery-20261009/work/orchestration/parity-streaming-token-audit-20261009-02/receipt.json",
+      "bytes": 14394,
+      "sha256": "b3aaef7c33d3b24e25f85b995de97a4b8f892ec2ab293cf8a0fef12297207ff6",
+      "status": "passed",
+      "exitCode": 0,
+      "source": {
+        "headOid": "cf5fc834d1d079d65fb49bd4e21932d05bfdd5d9",
+        "branch": "fix/parity-streaming-discovery-20261009",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {
+          "work/orchestration/parity-streaming-token-audit-20261009-02/audit.mjs": "5820797247023f3e97de6b49fb322a5ef8ccd1f94c8607c510c4c90a061d1028",
+          "scripts/parity-json-metadata.mjs": "bf489880a1f0078c33863c05a14580edff952d0e43750042e9ceea6e77732fb9",
+          "scripts/parity-discovery.mjs": "9eda3cff198950bb075a7c918a7eada0440df198c37094a29ab46e9542c86d44"
+        }
+      },
+      "sourceAfter": {
+        "headOid": "cf5fc834d1d079d65fb49bd4e21932d05bfdd5d9",
+        "branch": "fix/parity-streaming-discovery-20261009",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {
+          "work/orchestration/parity-streaming-token-audit-20261009-02/audit.mjs": "5820797247023f3e97de6b49fb322a5ef8ccd1f94c8607c510c4c90a061d1028",
+          "scripts/parity-json-metadata.mjs": "bf489880a1f0078c33863c05a14580edff952d0e43750042e9ceea6e77732fb9",
+          "scripts/parity-discovery.mjs": "9eda3cff198950bb075a7c918a7eada0440df198c37094a29ab46e9542c86d44"
+        }
+      },
+      "stdoutSha256": "bd9e1723a33c9928e3faf4f201eef7fe98b2718c5c41840fd778b08175f9e2dd",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "rawDiagnosticPin": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/parity-streaming-discovery-20261009/work/orchestration/parity-streaming-token-audit-20261009-02/receipt.json.artifacts/stdout.log",
+      "bytes": 10600,
+      "sha256": "bd9e1723a33c9928e3faf4f201eef7fe98b2718c5c41840fd778b08175f9e2dd"
+    },
+    "at": "2026-10-09T19:27:31.485Z",
+    "entries": 4265,
+    "jsonFiles": 53,
+    "actualBytesRead": 248822710,
+    "totalTokens": 22835655,
+    "rawHeadroomBytes": 19612746,
+    "limits": {
+      "chunkBytes": 65536,
+      "metadataBytes": 4194304,
+      "totalMetadataBytes": 16777216,
+      "depth": 128,
+      "tokens": 16000000,
+      "totalTokens": 32000000,
+      "keyBytes": 16384,
+      "keys": 4096,
+      "numberBytes": 128,
+      "fileMs": 30000,
+      "totalMs": 120000
+    },
+    "streamedRows": [
+      {
+        "path": "camp-inspection-ordinary-02/camp-inspection.json",
+        "size": 92586223,
+        "mode": "projected",
+        "rawSha256": "68bfff7db55e7895db60751649a43df989daa364aea12c2c9c2f004e03fae542",
+        "bytesRead": 92586223,
+        "tokens": 11417719,
+        "totalTokens": 11417719
+      },
+      {
+        "path": "camp-inspection-ordinary-02/receipt.json",
+        "size": 99689717,
+        "mode": "projected",
+        "rawSha256": "2c65bd273da9819f6ebd102ad61cb6a06f77a3826f3bf1e08335fe7311365860",
+        "bytesRead": 99689717,
+        "tokens": 11417936,
+        "totalTokens": 22835655
+      }
+    ],
+    "errors": []
+  },
+  "retainedFailures": {
+    "baseline": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/parity-streaming-discovery-20261009/work/orchestration/parity-streaming-red-20261009-01/node-tests.json",
+      "bytes": 7347,
+      "sha256": "1e964c23d6980bb2f527deb466559a0e59e61a34afff0c675c9f4ac50530a80d",
+      "status": "failed",
+      "exitCode": 1,
+      "source": {
+        "headOid": "805166befa2903f9ff820d44fe320f81ac3c0364",
+        "branch": "fix/parity-streaming-discovery-20261009",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {
+          "tests/parity-streaming-discovery.test.mjs": "6fe42ba643e2b5a0e502b3ab34d816c3fc6e0c239edc91b79678ac90975ab936",
+          "scripts/parity-discovery.mjs": "5cbdbcfeefef6bb7d1ab91cb9809a43073f69790f2f1bbeb15444381aa95a2ad",
+          "scripts/parity-measure.mjs": "73187a3ff1827d6406f337069b256f26f016c56a6c1589d0ab0546230a801827"
+        }
+      },
+      "sourceAfter": {
+        "headOid": "805166befa2903f9ff820d44fe320f81ac3c0364",
+        "branch": "fix/parity-streaming-discovery-20261009",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {
+          "tests/parity-streaming-discovery.test.mjs": "6fe42ba643e2b5a0e502b3ab34d816c3fc6e0c239edc91b79678ac90975ab936",
+          "scripts/parity-discovery.mjs": "5cbdbcfeefef6bb7d1ab91cb9809a43073f69790f2f1bbeb15444381aa95a2ad",
+          "scripts/parity-measure.mjs": "73187a3ff1827d6406f337069b256f26f016c56a6c1589d0ab0546230a801827"
+        }
+      },
+      "stdoutSha256": "308af30318b7947a58704ff150a575773313d075133124a43cc433ab9231e0c2",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tests": 6,
+      "passed": 2,
+      "failed": 4
+    },
+    "deadlineRegression": {
+      "originalPath": "/workspace/scratch/69fd8163d94e/parity-streaming-discovery-20261009/work/orchestration/parity-streaming-time-red-20261009-01/node-tests.json",
+      "bytes": 3303,
+      "sha256": "b5191a4bbafc35f463d0cba3091506b0e82745fa64d6fbf9facf9f69fa1afe1a",
+      "status": "failed",
+      "exitCode": 1,
+      "source": {
+        "headOid": "ec1feb34e29f9fe6a73a628419b230cdc4fcbb18",
+        "branch": "fix/parity-streaming-discovery-20261009",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {
+          "scripts/parity-discovery.mjs": "b18ca81e97cb6bc1771b8bb4a432b9a8cbcf70806ecc09303f9b42eddbe68746",
+          "scripts/parity-json-metadata.mjs": "38e5f147ba472415578ba9064fe30ffac6db968b4b56f641564bc52f3c0379c7",
+          "tests/parity-json-metadata.test.mjs": "77f7fd641414a3e98f8e86a8b5801e7b2a58d3ea6eef6e2de81ccd99121aafc1"
+        }
+      },
+      "sourceAfter": {
+        "headOid": "ec1feb34e29f9fe6a73a628419b230cdc4fcbb18",
+        "branch": "fix/parity-streaming-discovery-20261009",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {
+          "scripts/parity-discovery.mjs": "b18ca81e97cb6bc1771b8bb4a432b9a8cbcf70806ecc09303f9b42eddbe68746",
+          "scripts/parity-json-metadata.mjs": "38e5f147ba472415578ba9064fe30ffac6db968b4b56f641564bc52f3c0379c7",
+          "tests/parity-json-metadata.test.mjs": "77f7fd641414a3e98f8e86a8b5801e7b2a58d3ea6eef6e2de81ccd99121aafc1"
+        }
+      },
+      "stdoutSha256": "55b1770e3b26cc3cffbdfa8945eea7d5063c32008ddd5211f485574727b0ce13",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tests": 1,
+      "passed": 0,
+      "failed": 1
+    },
+    "originalTokenGuard": {
+      "receipt": {
+        "originalPath": "/workspace/scratch/69fd8163d94e/parity-streaming-discovery-20261009/work/orchestration/parity-streaming-token-audit-20261009-01/receipt.json",
+        "bytes": 10822,
+        "sha256": "12f9406d9a6a0ec71654648e6446d8710c13cea91067e912267634e9cdc37fda",
+        "status": "passed",
+        "exitCode": 0,
+        "source": {
+          "headOid": "eb8f50cfd33c988bda304c1d3a3115df284040e3",
+          "branch": "fix/parity-streaming-discovery-20261009",
+          "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "inputs": {
+            "work/orchestration/parity-streaming-token-audit-20261009-01/audit.mjs": "e1aa695e51c326b110bb3d26a458beaa1e1e6ab65da9584c052b519f2f4b0bdc",
+            "scripts/parity-json-metadata.mjs": "38e5f147ba472415578ba9064fe30ffac6db968b4b56f641564bc52f3c0379c7",
+            "scripts/parity-discovery.mjs": "9eda3cff198950bb075a7c918a7eada0440df198c37094a29ab46e9542c86d44"
+          }
+        },
+        "sourceAfter": {
+          "headOid": "eb8f50cfd33c988bda304c1d3a3115df284040e3",
+          "branch": "fix/parity-streaming-discovery-20261009",
+          "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "inputs": {
+            "work/orchestration/parity-streaming-token-audit-20261009-01/audit.mjs": "e1aa695e51c326b110bb3d26a458beaa1e1e6ab65da9584c052b519f2f4b0bdc",
+            "scripts/parity-json-metadata.mjs": "38e5f147ba472415578ba9064fe30ffac6db968b4b56f641564bc52f3c0379c7",
+            "scripts/parity-discovery.mjs": "9eda3cff198950bb075a7c918a7eada0440df198c37094a29ab46e9542c86d44"
+          }
+        },
+        "stdoutSha256": "82a6841465e86e964883a9d55bb27bc7f2bf498edea5823da65bd0bf9cfec6a9",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "rawDiagnosticPin": {
+        "originalPath": "/workspace/scratch/69fd8163d94e/parity-streaming-discovery-20261009/work/orchestration/parity-streaming-token-audit-20261009-01/receipt.json.artifacts/stdout.log",
+        "bytes": 7491,
+        "sha256": "82a6841465e86e964883a9d55bb27bc7f2bf498edea5823da65bd0bf9cfec6a9"
+      },
+      "discoveryOutcome": "failed",
+      "commandInterpretation": "Diagnostic command passed while recording a caught discovery failure",
+      "failure": "Receipt JSON token limit reached; no partial report written",
+      "limits": {
+        "chunkBytes": 65536,
+        "metadataBytes": 4194304,
+        "totalMetadataBytes": 16777216,
+        "depth": 128,
+        "tokens": 8000000,
+        "totalTokens": 16000000,
+        "keyBytes": 16384,
+        "keys": 4096,
+        "numberBytes": 128,
+        "fileMs": 30000,
+        "totalMs": 120000
+      },
+      "rows": [
+        {
+          "path": "camp-inspection-ordinary-02/camp-inspection.json",
+          "size": 92586223,
+          "bytesRead": 65929216,
+          "tokens": 8000001,
+          "totalTokens": 8000001,
+          "error": "streaming token limit reached",
+          "fatal": false
+        },
+        {
+          "path": "camp-inspection-ordinary-02/receipt.json",
+          "size": 99689717,
+          "bytesRead": 70909952,
+          "tokens": 8000000,
+          "totalTokens": 16000001,
+          "error": "Receipt JSON token limit reached; no partial report written",
+          "fatal": true
+        }
+      ]
+    }
+  },
+  "focused": {
+    "originalPath": "/workspace/scratch/69fd8163d94e/parity-streaming-discovery-20261009/work/orchestration/parity-streaming-green-20261009-03/node-tests.json",
+    "bytes": 15742,
+    "sha256": "9b16a0625a1ddaa64778b0db9e6d4817413bc393b89587c7653ddd942d5eb593",
+    "status": "passed",
+    "exitCode": 0,
+    "source": {
+      "headOid": "cf5fc834d1d079d65fb49bd4e21932d05bfdd5d9",
+      "branch": "fix/parity-streaming-discovery-20261009",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "inputs": {
+        "scripts/parity-json-metadata.mjs": "bf489880a1f0078c33863c05a14580edff952d0e43750042e9ceea6e77732fb9",
+        "scripts/parity-discovery.mjs": "9eda3cff198950bb075a7c918a7eada0440df198c37094a29ab46e9542c86d44",
+        "scripts/parity-measure.mjs": "4444431753c100e372c3b9583fe0eb8ecd78fb4a3d5fef959f845fe9d49f823e",
+        "scripts/orchestration/cli.mjs": "a599d69190b89a8e8493dc5cd1e2e56ef82c09ae64845d8b82d356e76dfb6c2a",
+        "engineering/checks.json": "21928aa9f2f0cde5519cdf1fe03b53a4a18ca2f0534449cbd0768eee2f786075",
+        "tests/parity-json-metadata.test.mjs": "2f32cb454b4d167477567eff30a02eed298dc9d8abe936ec8b743f1e0bb73ab4",
+        "tests/parity-streaming-discovery.test.mjs": "293b09b409d45fa3400432928abeaf9a1f33ff0a50f494315538662104978566",
+        "tests/workflow-handoff.test.mjs": "c236b6515e08d8ebb5046d383aa97196770542bc0442f2ac1957cd19e9584b56"
+      }
+    },
+    "sourceAfter": {
+      "headOid": "cf5fc834d1d079d65fb49bd4e21932d05bfdd5d9",
+      "branch": "fix/parity-streaming-discovery-20261009",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "inputs": {
+        "scripts/parity-json-metadata.mjs": "bf489880a1f0078c33863c05a14580edff952d0e43750042e9ceea6e77732fb9",
+        "scripts/parity-discovery.mjs": "9eda3cff198950bb075a7c918a7eada0440df198c37094a29ab46e9542c86d44",
+        "scripts/parity-measure.mjs": "4444431753c100e372c3b9583fe0eb8ecd78fb4a3d5fef959f845fe9d49f823e",
+        "scripts/orchestration/cli.mjs": "a599d69190b89a8e8493dc5cd1e2e56ef82c09ae64845d8b82d356e76dfb6c2a",
+        "engineering/checks.json": "21928aa9f2f0cde5519cdf1fe03b53a4a18ca2f0534449cbd0768eee2f786075",
+        "tests/parity-json-metadata.test.mjs": "2f32cb454b4d167477567eff30a02eed298dc9d8abe936ec8b743f1e0bb73ab4",
+        "tests/parity-streaming-discovery.test.mjs": "293b09b409d45fa3400432928abeaf9a1f33ff0a50f494315538662104978566",
+        "tests/workflow-handoff.test.mjs": "c236b6515e08d8ebb5046d383aa97196770542bc0442f2ac1957cd19e9584b56"
+      }
+    },
+    "stdoutSha256": "b448ace8e9b5e7c10288cdf3fb1836b60bda4bc6d4ba425763dc29fa8fcb9f1f",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests": 122,
+    "passed": 122,
+    "failed": 0,
+    "skipped": 0
+  },
+  "reviews": [
+    {
+      "anchor": "source-and-focused",
+      "originalFile": "parity-streaming-source-focused-review-20261009.md",
+      "sha256": "91885bda54dbf9b19cc030b2a2793b92007383c53a1a57aca0eeb6ca2ab6a0c7"
+    },
+    {
+      "anchor": "token-adjustment",
+      "originalFile": "parity-streaming-token-adjustment-review-20261009.md",
+      "sha256": "1d4ed718731a043ba6d40847676c183ec7ba72604e8627c521b0b57e5532f57c"
+    },
+    {
+      "anchor": "complete-reader-corpus",
+      "originalFile": "parity-streaming-cf5-source-corpus-review-20261009.md",
+      "sha256": "f03d238e141137bd314aa2dac099b3090b20d29200241d8bd8ce185a08c8a9f8"
+    },
+    {
+      "anchor": "actual-projection-and-render",
+      "originalFile": "parity-streaming-final-admission-projection-review-20261009.md",
+      "sha256": "34f594b5b4f8157d990d5b13de4e0c69da32702d3580fdccd8e1e26d76a49136"
+    },
+    {
+      "anchor": "final-standards",
+      "originalFile": "parity-streaming-final-result-review-20261009.md",
+      "sha256": "7aa4e60f51d9dff07d3199de48675978bf870694753794e175692bb6797fbc02"
+    }
+  ],
+  "finalStandards": {
+    "status": "ACCEPT: exact source, qualified fresh/carried aggregate, current report and scoped quality",
+    "aggregate": {
+      "path": "final-aggregate.json",
+      "sha256": "f86dd300abe5b7be1053722e03e2abbfd3a19472bb5daca39b8ee1558ee9790e"
+    },
+    "carryCorrespondence": {
+      "path": "carry-correspondence.json",
+      "sha256": "ac241daae32fd36c391bb8c6cf9e34da483242993e3c0d436870844a50a4bef8"
+    },
+    "freshTests": 642,
+    "freshFiles": 89,
+    "carriedTests": 1033,
+    "carriedFiles": 190,
+    "totalTests": 1675,
+    "totalFiles": 279,
+    "strictLint": "Earlier eb8f changed-path preflight FAILED with three inherited CLI diagnostics; exact cf5 parser/test lint passed. No universal lint pass.",
+    "reviewSha256": "7aa4e60f51d9dff07d3199de48675978bf870694753794e175692bb6797fbc02",
+    "cf5ParserTestLintReceiptSha256": "afa7884995f612de063f05af46866fce931440727906464d64cf9191b716a959",
+    "originalInterruptedStandard07": "UNKNOWN / zero credit; accepted recovery supplies the carried tests-07 row"
+  },
+  "limits": [
+    "Evidence tooling only; no new gameplay or original-parity credit",
+    "Historical 373-file raw corpus is unavailable",
+    "Current corpus count and headroom are a finite snapshot, not future capacity",
+    "Oversized owned candidates still require complete raw attestations and remain fail-closed",
+    "Original raw 92/99 MB JSON, game inputs, archives and profiles are not included"
+  ]
+}
