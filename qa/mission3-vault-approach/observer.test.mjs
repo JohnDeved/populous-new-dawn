@@ -149,16 +149,14 @@ function fixture(t) {
             metaKey: false,
             pointerType: 'mouse',
           }
-          const captureListeners = listeners[type][0].slice()
-          for (const fn of captureListeners) fn(event)
+          for (const fn of listeners[type][0]) fn(event)
           // Supplied DOM handler boundary invokes the normal model command. Real
           // pointer dispatch/trust and rendered geometry still require the browser.
           if (type === 'pointerup') {
             assert.equal(command(world, scene.pickWorldObject(event)), true)
             scene.pointerAck = { target: vault.id, until: scene.pointerAck.until + 1 }
           }
-          const bubbleListeners = listeners[type][1].slice()
-          for (const fn of bubbleListeners) fn(event)
+          for (const fn of listeners[type][1]) fn(event)
         }
       },
     },
