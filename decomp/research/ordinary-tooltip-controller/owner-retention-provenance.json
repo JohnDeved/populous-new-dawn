@@ -1,0 +1,976 @@
+{
+  "researchHead": "e19faec0ecfdbd796dd78b17e1ecf85a8bf63f58",
+  "input": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe",
+  "inputBeforeSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "inputAfterSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "sourcePins": [
+    {
+      "path": "decomp/research/ordinary-tooltip-controller/controllers.asm.txt",
+      "sha256": "810426a436c1f0f52fac8005c97ff01b29b9e43a1dbbe0f4994e22c748982683"
+    },
+    {
+      "path": "decomp/research/ordinary-tooltip-controller/clock-and-caller.asm.txt",
+      "sha256": "d18d7a2a84dad746f5711c76230036d86303642dc882f2f1c5fedd2ead8f6c36"
+    },
+    {
+      "path": "decomp/research/ordinary-tooltip-controller/contract-table.md",
+      "sha256": "f58e4dcad608fff5047ccd9530aaaf5f5fa62fc310f3290be4487be68d80e9a2"
+    },
+    {
+      "path": "decomp/research/ordinary-tooltip-controller/window2-control-closure.md",
+      "sha256": "ad35f0da5e881fce5e8a88a3e400fde2685a359433e1cffbee0ab39440c4d608"
+    },
+    {
+      "path": "decomp/research/ordinary-tooltip-controller/encyclopaedia-layout.md",
+      "sha256": "98d9778f7bbcee6db8ff56a1f2455256d1067d2cd934b1507c21b792a701e80f"
+    },
+    {
+      "path": "decomp/generated/0049daf0.c",
+      "sha256": "6697934b709a4c3f8cd22d6993d9766483210732fbe6e376fc4fd8f6d0bd2a1c"
+    },
+    {
+      "path": "decomp/generated/004a32d0.c",
+      "sha256": "8dd8eb28c14e935dfac6049fbf4c7a025ab582a58eac9e1483655de2c5d3ef70"
+    },
+    {
+      "path": "decomp/generated/004314c0.c",
+      "sha256": "2e621d130bafbaf37f6e53c860243eb4a61ccb5752588027953433106bd49800"
+    },
+    {
+      "path": "decomp/generated/00504bc0.c",
+      "sha256": "073b8e8c7c9827136952d8721f90665199f8f3bb45951251a3a28e4b71ff168e"
+    },
+    {
+      "path": "decomp/generated/00522570.c",
+      "sha256": "4efeb8286886c646ac71325127a1d06715f51aea23e6064cc7a8c4df3d7ec2a7"
+    },
+    {
+      "path": "decomp/generated/004a4960.c",
+      "sha256": "082373c8c2c9244af20a64d81e6e70f981ff3a3785103dd0ad7858e9ccdbf7df"
+    },
+    {
+      "path": "decomp/generated/004aa4e0.c",
+      "sha256": "4ad72eeddfea6ba92c98cf9cb78bf9f7675dd58079f839f7acc8ad881c6bc84d"
+    },
+    {
+      "path": "decomp/generated/004aab80.c",
+      "sha256": "a286e361005571ddcba7405348e2582aa061c3f427d1a8e8fed09a5d1e7890a8"
+    },
+    {
+      "path": "app/scene-input-runtime.ts",
+      "sha256": "7987f8f11abfdf4ea858b612d83d526169b31de05c76f52ce070809409c268a2"
+    },
+    {
+      "path": "app/scene.ts",
+      "sha256": "e137dbf7813d903c2aae5d52d5ba5434c701716c3fc32a187f869166f05e50e7"
+    }
+  ],
+  "artifacts": [
+    {
+      "file": "adjacent-array-writes-aligned.asm.txt",
+      "size": 7802,
+      "sha256": "3781cb14e9141ac5ea2615622a69e069cad912aff6f3a33cc5e75b691548aab7"
+    },
+    {
+      "file": "adjacent-array-writes.asm.txt",
+      "size": 4001,
+      "sha256": "ed25d27e3d18946b92a5b2878301a984414b8afddeb5861adc761e69416f836e"
+    },
+    {
+      "file": "adjacent-block-reset-exact.asm.txt",
+      "size": 876,
+      "sha256": "84aa546a84442fbf28ee533a75bf8fc80ccd4558dba7e1e68e818e3d08805f01"
+    },
+    {
+      "file": "adjacent-block-reset.asm.txt",
+      "size": 955,
+      "sha256": "6680fea2c4ed6fbe3fceb6b3583a0f32e7523b573acd0658ea72046271b3e8ae"
+    },
+    {
+      "file": "adjacent-reset.asm.txt",
+      "size": 850,
+      "sha256": "7fbb6428c0e291d988f111802624afb91ed833fd02fc6bf27de665d36bd56def"
+    },
+    {
+      "file": "commands.json",
+      "size": 5676,
+      "sha256": "222388610abd77939ccee85173a6f5e4d8c9b9607373642daa33e9fe98fc7c39"
+    },
+    {
+      "file": "hud-owner-entry.asm.txt",
+      "size": 608,
+      "sha256": "aad5ba219852021ee599c8ed072cea740b4938f7373dcd2989ee999acceab91c"
+    },
+    {
+      "file": "message-owner-entry.asm.txt",
+      "size": 1163,
+      "sha256": "86eed5d87c02c85a24cf83275b65a429d95512ed0e7e2e1961fcacc5dfb5b212"
+    },
+    {
+      "file": "noncode-address-candidates.json",
+      "size": 171,
+      "sha256": "c7a831619d926249abc74528d12e1e0effc855781542710417e640a441dbf111"
+    },
+    {
+      "file": "objdump-version.txt",
+      "size": 288,
+      "sha256": "aff897e4c6a85eef803f6dc0ed4a813e66726aa1ca6f3afc23280f1d655f32da"
+    },
+    {
+      "file": "owner-address-candidates.json",
+      "size": 10365,
+      "sha256": "9ea67960805d62d50e674bf17742687e195b97b4e999d4ac064a6c6cd41ea84b"
+    },
+    {
+      "file": "owner-call-candidates.json",
+      "size": 1378,
+      "sha256": "b269b44ba679595d7cfef0f1413e4fdfe3171123fec3341e869f8c2c9b342d82"
+    },
+    {
+      "file": "owner-enable.asm.txt",
+      "size": 520,
+      "sha256": "556c01d04a09bf899ce9f063866d0401c0b77332860e19679eaf79fab2497bd2"
+    },
+    {
+      "file": "owner-retention.md",
+      "size": 10086,
+      "sha256": "2ba4c26cd10c5b3d0fe5ad731eb9547d18419311c428868d1c0eb27930e9fe3c"
+    },
+    {
+      "file": "prerequisite-row-update.json",
+      "size": 1490,
+      "sha256": "15dddc444cedd85436f0ea046075f1b45293dad82972d5e78d525e2fe4ccedf1"
+    },
+    {
+      "file": "status-clear.asm.txt",
+      "size": 568,
+      "sha256": "68e17d8fbbf62a52c9166c22b4622fdd43196c9f7e4c8bedd8cc6dbce0809383"
+    }
+  ],
+  "limits": [
+    "source only",
+    "no original execution",
+    "no runtime implementation",
+    "no fixed-Hz translation",
+    "ordinary no-handler closure; no universal physical pointerleave claim"
+  ],
+  "scope": "Finite ordinary five-owner reset/retention and no-handler leave/re-entry closure",
+  "runtime": "HOLD: source findings accepted; behavioral implementation requires the complete admitted port contract and validation.",
+  "acceptedOriginalReceiptSha256": "1a68b3bea5db23b1b879c3df838b0a8cf3990deaa4545f4add4bf11879a10bdf",
+  "commandsAndInput": {
+    "input": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe",
+    "beforeSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "outputs": [
+      {
+        "file": "owner-enable.asm.txt",
+        "start": "0044cf80",
+        "stop": "0044cf90",
+        "reason": "Immediate helper preceding owner writers",
+        "command": [
+          "/usr/bin/objdump",
+          "-d",
+          "-Mintel",
+          "--start-address=0x0044cf80",
+          "--stop-address=0x0044cf90",
+          "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+        ],
+        "exitCode": 0,
+        "sha256": "556c01d04a09bf899ce9f063866d0401c0b77332860e19679eaf79fab2497bd2"
+      },
+      {
+        "file": "adjacent-reset.asm.txt",
+        "start": "0049dad0",
+        "stop": "0049daf0",
+        "reason": "Direct neighboring globals reset",
+        "command": [
+          "/usr/bin/objdump",
+          "-d",
+          "-Mintel",
+          "--start-address=0x0049dad0",
+          "--stop-address=0x0049daf0",
+          "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+        ],
+        "exitCode": 0,
+        "sha256": "7fbb6428c0e291d988f111802624afb91ed833fd02fc6bf27de665d36bd56def"
+      },
+      {
+        "file": "adjacent-array-writes.asm.txt",
+        "start": "0049dc20",
+        "stop": "0049dcf0",
+        "reason": "Bound direct neighboring indirect byte-write loops",
+        "command": [
+          "/usr/bin/objdump",
+          "-d",
+          "-Mintel",
+          "--start-address=0x0049dc20",
+          "--stop-address=0x0049dcf0",
+          "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+        ],
+        "exitCode": 0,
+        "sha256": "ed25d27e3d18946b92a5b2878301a984414b8afddeb5861adc761e69416f836e"
+      },
+      {
+        "file": "status-clear.asm.txt",
+        "start": "005231e0",
+        "stop": "00523200",
+        "reason": "Second literal status-owner clear context",
+        "command": [
+          "/usr/bin/objdump",
+          "-d",
+          "-Mintel",
+          "--start-address=0x005231e0",
+          "--stop-address=0x00523200",
+          "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+        ],
+        "exitCode": 0,
+        "sha256": "68e17d8fbbf62a52c9166c22b4622fdd43196c9f7e4c8bedd8cc6dbce0809383"
+      },
+      {
+        "file": "adjacent-block-reset.asm.txt",
+        "start": "0042bfa0",
+        "stop": "0042bfd0",
+        "reason": "Check db50 forward block-clear bound",
+        "command": [
+          "/usr/bin/objdump",
+          "-d",
+          "-Mintel",
+          "--start-address=0x0042bfa0",
+          "--stop-address=0x0042bfd0",
+          "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+        ],
+        "exitCode": 0,
+        "sha256": "6680fea2c4ed6fbe3fceb6b3583a0f32e7523b573acd0658ea72046271b3e8ae"
+      },
+      {
+        "file": "adjacent-array-writes-aligned.asm.txt",
+        "start": "0049daf0",
+        "stop": "0049dce6",
+        "reason": "Aligned function entry through exact end of bounded neighboring array stores, includes loop initialization; supersedes first partial-instruction start49dc20",
+        "command": [
+          "/usr/bin/objdump",
+          "-d",
+          "-Mintel",
+          "--start-address=0x0049daf0",
+          "--stop-address=0x0049dce6",
+          "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+        ],
+        "exitCode": 0,
+        "sha256": "3781cb14e9141ac5ea2615622a69e069cad912aff6f3a33cc5e75b691548aab7"
+      },
+      {
+        "file": "adjacent-block-reset-exact.asm.txt",
+        "start": "0042bfa0",
+        "stop": "0042bfce",
+        "reason": "Ends immediately after REP STOSD; excludes mid-call tail from previous window",
+        "command": [
+          "/usr/bin/objdump",
+          "-d",
+          "-Mintel",
+          "--start-address=0x0042bfa0",
+          "--stop-address=0x0042bfce",
+          "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+        ],
+        "exitCode": 0,
+        "sha256": "84aa546a84442fbf28ee533a75bf8fc80ccd4558dba7e1e68e818e3d08805f01"
+      },
+      {
+        "file": "hud-owner-entry.asm.txt",
+        "start": "0044b130",
+        "stop": "0044b146",
+        "reason": "Exact HUD per-visit owner clear",
+        "command": [
+          "/usr/bin/objdump",
+          "-d",
+          "-Mintel",
+          "--start-address=0x0044b130",
+          "--stop-address=0x0044b146",
+          "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+        ],
+        "exitCode": 0,
+        "sha256": "aad5ba219852021ee599c8ed072cea740b4938f7373dcd2989ee999acceab91c"
+      },
+      {
+        "file": "message-owner-entry.asm.txt",
+        "start": "004314c0",
+        "stop": "0043150b",
+        "reason": "Function entry through exact message-owner clear",
+        "command": [
+          "/usr/bin/objdump",
+          "-d",
+          "-Mintel",
+          "--start-address=0x004314c0",
+          "--stop-address=0x0043150b",
+          "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+        ],
+        "exitCode": 0,
+        "sha256": "86eed5d87c02c85a24cf83275b65a429d95512ed0e7e2e1961fcacc5dfb5b212"
+      }
+    ],
+    "afterSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+  },
+  "dataAddressCandidates": {
+    "input": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe",
+    "size": 2275840,
+    "beforeSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "sections": [
+      {
+        "name": ".text",
+        "virtual": "0x401000",
+        "virtualSize": 1591844,
+        "size": 1592320,
+        "offset": 1024
+      },
+      {
+        "name": "CSEG",
+        "virtual": "0x586000",
+        "virtualSize": 34664,
+        "size": 34816,
+        "offset": 1593344
+      },
+      {
+        "name": ".rdata",
+        "virtual": "0x58f000",
+        "virtualSize": 34168,
+        "size": 34304,
+        "offset": 1628160
+      },
+      {
+        "name": ".data",
+        "virtual": "0x598000",
+        "virtualSize": 7813552,
+        "size": 361984,
+        "offset": 1662464
+      },
+      {
+        "name": ".idata",
+        "virtual": "0xd0c000",
+        "virtualSize": 7892,
+        "size": 8192,
+        "offset": 2024448
+      },
+      {
+        "name": "CSEG",
+        "virtual": "0xd0e000",
+        "virtualSize": 53284,
+        "size": 53760,
+        "offset": 2032640
+      },
+      {
+        "name": "DSEG",
+        "virtual": "0xd1c000",
+        "virtualSize": 4136,
+        "size": 4608,
+        "offset": 2086400
+      },
+      {
+        "name": "IDCT_DAT",
+        "virtual": "0xd1e000",
+        "virtualSize": 5720,
+        "size": 6144,
+        "offset": 2091008
+      },
+      {
+        "name": "UVA_DATA",
+        "virtual": "0xd20000",
+        "virtualSize": 19148,
+        "size": 19456,
+        "offset": 2097152
+      },
+      {
+        "name": ".rsrc",
+        "virtual": "0xd25000",
+        "virtualSize": 12228,
+        "size": 12288,
+        "offset": 2116608
+      },
+      {
+        "name": ".reloc",
+        "virtual": "0xd28000",
+        "virtualSize": 146710,
+        "size": 146944,
+        "offset": 2128896
+      }
+    ],
+    "candidateRange": [
+      "0098da00",
+      "0098dc00"
+    ],
+    "method": "Every unaligned little-endian32 candidate in PE .text; candidates require instruction-context verification, not asserted references. Covers five owner words and neighboring bases.",
+    "candidates": [
+      {
+        "operand": "0042bfaa",
+        "value": "0098db50",
+        "bytes": "d7095733dbbf50db9800b9000100006a"
+      },
+      {
+        "operand": "0042bfbb",
+        "value": "0098db50",
+        "bytes": "a378d189006850db9800881dd5ea9600"
+      },
+      {
+        "operand": "00431507",
+        "value": "0098db40",
+        "bytes": "d1890066890d40db98002b05843b6800"
+      },
+      {
+        "operand": "00431884",
+        "value": "0098db40",
+        "bytes": "ff6603c166a340db9800834e21048b76"
+      },
+      {
+        "operand": "0044b095",
+        "value": "0098db0c",
+        "bytes": "c333c966390d0cdb9800755866390d48"
+      },
+      {
+        "operand": "0044b09e",
+        "value": "0098db48",
+        "bytes": "00755866390d48db9800754f66390d44"
+      },
+      {
+        "operand": "0044b0a7",
+        "value": "0098db44",
+        "bytes": "00754f66390d44db9800754666390d2c"
+      },
+      {
+        "operand": "0044b0b0",
+        "value": "0098db2c",
+        "bytes": "00754666390d2cdb9800753d66390d40"
+      },
+      {
+        "operand": "0044b0b9",
+        "value": "0098db40",
+        "bytes": "00753d66390d40db9800753466890da5"
+      },
+      {
+        "operand": "0044b13b",
+        "value": "0098db0c",
+        "bytes": "5733f66689350cdb9800558935ccc668"
+      },
+      {
+        "operand": "0044b3dd",
+        "value": "0098db0c",
+        "bytes": "668b452066a30cdb9800eb276639756b"
+      },
+      {
+        "operand": "0044b3ec",
+        "value": "0098db0c",
+        "bytes": "6b75210fbf050cdb98008bc8c1e0032b"
+      },
+      {
+        "operand": "0044b406",
+        "value": "0098db0c",
+        "bytes": "00740766893d0cdb98000fbf4d6d8bc1"
+      },
+      {
+        "operand": "0044b4ef",
+        "value": "0098db0c",
+        "bytes": "0099f7f966a30cdb9800c705ccc66800"
+      },
+      {
+        "operand": "0044b50a",
+        "value": "0098db0c",
+        "bytes": "0000000fbf050cdb98008bc8c1e0032b"
+      },
+      {
+        "operand": "0044b51a",
+        "value": "0098db0c",
+        "bytes": "c103c066833d0cdb9800008db4c12c45"
+      },
+      {
+        "operand": "0044cf9f",
+        "value": "0098db40",
+        "bytes": "24045666c70540db980000008d50ff0f"
+      },
+      {
+        "operand": "0044cfb7",
+        "value": "0098db40",
+        "bytes": "c668000666a340db980075570fbf05a5"
+      },
+      {
+        "operand": "0044d0c3",
+        "value": "0098db48",
+        "bytes": "0c5ec366c70548db9800000083ec0483"
+      },
+      {
+        "operand": "0044d0f4",
+        "value": "0098db48",
+        "bytes": "c668000466a348db98000f85a7000000"
+      },
+      {
+        "operand": "0044d2a3",
+        "value": "0098db44",
+        "bytes": "cccccc66c70544db9800000083ec0483"
+      },
+      {
+        "operand": "0044d2c7",
+        "value": "0098db44",
+        "bytes": "54241466890d44db98003915a1c66800"
+      },
+      {
+        "operand": "0045e0e7",
+        "value": "0098db08",
+        "bytes": "9096a15900a208db9800e800fa030083"
+      },
+      {
+        "operand": "0045e0f5",
+        "value": "0098db08",
+        "bytes": "0083c404881d08db98005d5f5e5b81c4"
+      },
+      {
+        "operand": "0045eed7",
+        "value": "0098db0c",
+        "bytes": "00eb2f66833d0cdb9800007e250fbf05"
+      },
+      {
+        "operand": "0045eee1",
+        "value": "0098db0c",
+        "bytes": "007e250fbf050cdb98008bc8be160400"
+      },
+      {
+        "operand": "0049cde8",
+        "value": "0098db50",
+        "bytes": "010083c4046850db98006a026a1068e0"
+      },
+      {
+        "operand": "0049ceb4",
+        "value": "0098db50",
+        "bytes": "15cfc689006850db98006a015033ff51"
+      },
+      {
+        "operand": "0049dad3",
+        "value": "0098db3c",
+        "bytes": "cccccc33c0a33cdb9800a338db9800a3"
+      },
+      {
+        "operand": "0049dad8",
+        "value": "0098db38",
+        "bytes": "a33cdb9800a338db9800a334db9800a3"
+      },
+      {
+        "operand": "0049dadd",
+        "value": "0098db34",
+        "bytes": "a338db9800a334db9800a330db9800c3"
+      },
+      {
+        "operand": "0049dae2",
+        "value": "0098db30",
+        "bytes": "a334db9800a330db9800c3cccccccccc"
+      },
+      {
+        "operand": "0049db32",
+        "value": "0098db08",
+        "bytes": "98000000380508db98007409a008db98"
+      },
+      {
+        "operand": "0049db39",
+        "value": "0098db08",
+        "bytes": "db98007409a008db9800894424108b8c"
+      },
+      {
+        "operand": "0049dc33",
+        "value": "0098db10",
+        "bytes": "2424c744245c10db980003c09983e203"
+      },
+      {
+        "operand": "0049dcdc",
+        "value": "0098db24",
+        "bytes": "ffff33c0fe8024db98004083f8057cf4"
+      },
+      {
+        "operand": "0049dd68",
+        "value": "0098db30",
+        "bytes": "ce2bfe4f890d30db980033c9893d38db"
+      },
+      {
+        "operand": "0049dd70",
+        "value": "0098db38",
+        "bytes": "980033c9893d38db9800890d34db9800"
+      },
+      {
+        "operand": "0049dd76",
+        "value": "0098db34",
+        "bytes": "38db9800890d34db9800a33cdb980088"
+      },
+      {
+        "operand": "0049dd7b",
+        "value": "0098db3c",
+        "bytes": "0d34db9800a33cdb9800880da0d25c00"
+      },
+      {
+        "operand": "0049dfb8",
+        "value": "0098db0b",
+        "bytes": "83c4088d94890bdb98003bce89542458"
+      },
+      {
+        "operand": "004af35b",
+        "value": "0098db40",
+        "bytes": "8844240366a140db98006685c0740d0f"
+      },
+      {
+        "operand": "004af3b2",
+        "value": "0098db44",
+        "bytes": "0007751d66a144db9800663b44240275"
+      },
+      {
+        "operand": "004af3cf",
+        "value": "0098db2c",
+        "bytes": "83c40cc366a12cdb98006685c0740a50"
+      },
+      {
+        "operand": "005058cb",
+        "value": "0098db2c",
+        "bytes": "407c0966c7052cdb98005f038b442434"
+      },
+      {
+        "operand": "00505a81",
+        "value": "0098db2c",
+        "bytes": "f87c0966c7052cdb98005e03837c2470"
+      },
+      {
+        "operand": "00505c27",
+        "value": "0098db2c",
+        "bytes": "f87c0966c7052cdb9800610383c60683"
+      },
+      {
+        "operand": "00505dbc",
+        "value": "0098db2c",
+        "bytes": "f87c0966c7052cdb9800550383c60683"
+      },
+      {
+        "operand": "00505f55",
+        "value": "0098db2c",
+        "bytes": "a000000066a32cdb980083c60683bc24"
+      },
+      {
+        "operand": "00506123",
+        "value": "0098db2c",
+        "bytes": "5f890066c7052cdb98005403807c2460"
+      },
+      {
+        "operand": "005062b0",
+        "value": "0098db2c",
+        "bytes": "407c0966c7052cdb980054038b842498"
+      },
+      {
+        "operand": "005069fe",
+        "value": "0098db2c",
+        "bytes": "78500066c7052cdb98005903eb2a66c7"
+      },
+      {
+        "operand": "00506a09",
+        "value": "0098db2c",
+        "bytes": "03eb2a66c7052cdb98005903eb1f66c7"
+      },
+      {
+        "operand": "00506a14",
+        "value": "0098db2c",
+        "bytes": "03eb1f66c7052cdb98005b03eb1466c7"
+      },
+      {
+        "operand": "00506a1f",
+        "value": "0098db2c",
+        "bytes": "03eb1466c7052cdb98005803eb0966c7"
+      },
+      {
+        "operand": "00506a2a",
+        "value": "0098db2c",
+        "bytes": "03eb0966c7052cdb98005a0383bc2480"
+      },
+      {
+        "operand": "00506bc1",
+        "value": "0098db2c",
+        "bytes": "00ffff66c7052cdb98005c03807c2418"
+      },
+      {
+        "operand": "00506dca",
+        "value": "0098db2c",
+        "bytes": "00feff66c7052cdb98005d03807c2414"
+      },
+      {
+        "operand": "0050743b",
+        "value": "0098db2c",
+        "bytes": "78500066c7052cdb98005903eb2a66c7"
+      },
+      {
+        "operand": "00507446",
+        "value": "0098db2c",
+        "bytes": "03eb2a66c7052cdb98005903eb1f66c7"
+      },
+      {
+        "operand": "00507451",
+        "value": "0098db2c",
+        "bytes": "03eb1f66c7052cdb98005b03eb1466c7"
+      },
+      {
+        "operand": "0050745c",
+        "value": "0098db2c",
+        "bytes": "03eb1466c7052cdb98005803eb0966c7"
+      },
+      {
+        "operand": "00507467",
+        "value": "0098db2c",
+        "bytes": "03eb0966c7052cdb98005a038b8424bc"
+      },
+      {
+        "operand": "005076dc",
+        "value": "0098db2c",
+        "bytes": "05750b66c7052cdb98005603eb1c3c01"
+      },
+      {
+        "operand": "005076eb",
+        "value": "0098db2c",
+        "bytes": "01750b66c7052cdb98005303eb0d3c09"
+      },
+      {
+        "operand": "005076fa",
+        "value": "0098db2c",
+        "bytes": "09750966c7052cdb98005703895c241c"
+      },
+      {
+        "operand": "0050777a",
+        "value": "0098db2c",
+        "bytes": "00750a66833d2cdb98000074158b8c24"
+      },
+      {
+        "operand": "005226ab",
+        "value": "0098db2c",
+        "bytes": "8d0c5066c7052cdb980000008d1cc98d"
+      },
+      {
+        "operand": "005231f9",
+        "value": "0098db2c",
+        "bytes": "5f890066c7052cdb98000000c381ec8c"
+      }
+    ],
+    "afterSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+  },
+  "noncodeAddressCandidates": {
+    "method": "Every unaligned little-endian32 candidate in all other initialized PE sections; no candidate is automatically asserted as a pointer.",
+    "candidates": []
+  },
+  "callCandidates": {
+    "method": "Unaligned relative E8/E9 candidate scan over .text; each hit requires aligned instruction context.",
+    "targets": {
+      "0044d0c0": [
+        {
+          "address": "004af3fc",
+          "opcode": "e8",
+          "bytes": "e8bfdcf9ff"
+        },
+        {
+          "address": "004af41f",
+          "opcode": "e8",
+          "bytes": "e89cdcf9ff"
+        }
+      ],
+      "0044d2a0": [
+        {
+          "address": "004af3c4",
+          "opcode": "e8",
+          "bytes": "e8d7def9ff"
+        },
+        {
+          "address": "004af433",
+          "opcode": "e8",
+          "bytes": "e868def9ff"
+        }
+      ],
+      "0044b090": [
+        {
+          "address": "004aa58e",
+          "opcode": "e8",
+          "bytes": "e8fd0afaff"
+        }
+      ],
+      "0044b100": [
+        {
+          "address": "00493158",
+          "opcode": "e8",
+          "bytes": "e8a37ffbff"
+        },
+        {
+          "address": "00499d4a",
+          "opcode": "e8",
+          "bytes": "e8b113fbff"
+        },
+        {
+          "address": "004acdda",
+          "opcode": "e8",
+          "bytes": "e821e3f9ff"
+        },
+        {
+          "address": "004ace2a",
+          "opcode": "e8",
+          "bytes": "e8d1e2f9ff"
+        },
+        {
+          "address": "004acea3",
+          "opcode": "e8",
+          "bytes": "e858e2f9ff"
+        }
+      ],
+      "005231e0": [
+        {
+          "address": "0041ebf7",
+          "opcode": "e8",
+          "bytes": "e8e4451000"
+        }
+      ]
+    }
+  },
+  "consolidatedRowUpdate": {
+    "sourcePath": "decomp/research/ordinary-tooltip-controller/window2-control-closure.md",
+    "sourceSha256": "ad35f0da5e881fce5e8a88a3e400fde2685a359433e1cffbee0ab39440c4d608",
+    "oldRow": "| Leave/cleanup |0044b090's all-five-owner test and0044b070 draw/scroll behavior are retained. Owner identities: HUD0098db0c, object0098db48, cell0098db44, status0098db2c from00504bc0, message0098db40 from004314c0. | Bind owner reset/retention lifecycle, including indirect paths, before universal leave/re-entry behavior. The bounded dispatcher does not prove universal clear or retention. This is a specific five-word producer/reset closure, not permission for a broad UI inventory. |",
+    "newRow": "| Leave/cleanup |0044b090 tests HUD0098db0c, object0098db48, cell0098db44, status0098db2c and message0098db40. Object/cell helpers clear and repopulate only their own words when invoked. The ordinary no-handler return leaves owners unchanged;0044b070 only changes scroll fields, so any retained nonzero word prevents cleanup. Neighboring indirect writes are bounded away. | Native ordinary retention is proved (A). Implement caller-conditioned no-handler retention, blank-cell/unnamed-object category transitions, all-five-zero cleanup and independent forced/explicit resets. A browser canvas leave does not itself establish which native owner branch occurred; preserve actual HUD/cell history and renderer draw ownership. |",
+    "scope": "Only Leave/cleanup row; no other native area reopened."
+  },
+  "disassemblySections": [
+    {
+      "file": "owner-enable.asm.txt",
+      "start": "0044cf80",
+      "stop": "0044cf90",
+      "reason": "Immediate helper preceding owner writers",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-Mintel",
+        "--start-address=0x0044cf80",
+        "--stop-address=0x0044cf90",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "exitCode": 0,
+      "sha256": "556c01d04a09bf899ce9f063866d0401c0b77332860e19679eaf79fab2497bd2",
+      "normalizedSectionSha256": "c888985b404f6fcf6bd253274498a93f2a08b89d98e0c0c1ced1601501143a59"
+    },
+    {
+      "file": "adjacent-reset.asm.txt",
+      "start": "0049dad0",
+      "stop": "0049daf0",
+      "reason": "Direct neighboring globals reset",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-Mintel",
+        "--start-address=0x0049dad0",
+        "--stop-address=0x0049daf0",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "exitCode": 0,
+      "sha256": "7fbb6428c0e291d988f111802624afb91ed833fd02fc6bf27de665d36bd56def",
+      "normalizedSectionSha256": "8c8d089cd36aba2f9656e95d8ee6ffb814f42ade9726634e157616e9a7458b6b"
+    },
+    {
+      "file": "status-clear.asm.txt",
+      "start": "005231e0",
+      "stop": "00523200",
+      "reason": "Second literal status-owner clear context",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-Mintel",
+        "--start-address=0x005231e0",
+        "--stop-address=0x00523200",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "exitCode": 0,
+      "sha256": "68e17d8fbbf62a52c9166c22b4622fdd43196c9f7e4c8bedd8cc6dbce0809383",
+      "normalizedSectionSha256": "c6a92cf953c58f2bed342f79dfb1f77efd4b233ff6d836e572b68997cebac78e"
+    },
+    {
+      "file": "adjacent-array-writes-aligned.asm.txt",
+      "start": "0049daf0",
+      "stop": "0049dce6",
+      "reason": "Aligned function entry through exact end of bounded neighboring array stores, includes loop initialization; supersedes first partial-instruction start49dc20",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-Mintel",
+        "--start-address=0x0049daf0",
+        "--stop-address=0x0049dce6",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "exitCode": 0,
+      "sha256": "3781cb14e9141ac5ea2615622a69e069cad912aff6f3a33cc5e75b691548aab7",
+      "normalizedSectionSha256": "4ed4aa419e4ef4b1b3e1cf2cd35832a252cbb638e720f8bff9f695160ce8d687"
+    },
+    {
+      "file": "adjacent-block-reset-exact.asm.txt",
+      "start": "0042bfa0",
+      "stop": "0042bfce",
+      "reason": "Ends immediately after REP STOSD; excludes mid-call tail from previous window",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-Mintel",
+        "--start-address=0x0042bfa0",
+        "--stop-address=0x0042bfce",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "exitCode": 0,
+      "sha256": "84aa546a84442fbf28ee533a75bf8fc80ccd4558dba7e1e68e818e3d08805f01",
+      "normalizedSectionSha256": "37a77777a817fae35e321164bd3f6a0bd65177467465a93f2e28637528855dad"
+    },
+    {
+      "file": "hud-owner-entry.asm.txt",
+      "start": "0044b130",
+      "stop": "0044b146",
+      "reason": "Exact HUD per-visit owner clear",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-Mintel",
+        "--start-address=0x0044b130",
+        "--stop-address=0x0044b146",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "exitCode": 0,
+      "sha256": "aad5ba219852021ee599c8ed072cea740b4938f7373dcd2989ee999acceab91c",
+      "normalizedSectionSha256": "77f32711afd7534e43c9bc8d67ec6a8af8833cd5853bc789c59dc01f9608b7d5"
+    },
+    {
+      "file": "message-owner-entry.asm.txt",
+      "start": "004314c0",
+      "stop": "0043150b",
+      "reason": "Function entry through exact message-owner clear",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-Mintel",
+        "--start-address=0x004314c0",
+        "--stop-address=0x0043150b",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "exitCode": 0,
+      "sha256": "86eed5d87c02c85a24cf83275b65a429d95512ed0e7e2e1961fcacc5dfb5b212",
+      "normalizedSectionSha256": "32b772b45f478faef73cb2f54caf63c54087263c77f7848417ebe18e5404c2de"
+    }
+  ],
+  "publicationTransform": [
+    "accepted findings with local artifact references converted to tracked links",
+    "trailing-whitespace normalization of seven aligned/exact sections",
+    "two superseded discovery fragments stay local; their provenance remains recorded",
+    "update only consolidated Leave/cleanup row plus corresponding transition/link context",
+    "prior identity/layout publication hashes bound to immutable e19faec0"
+  ],
+  "publishedFiles": {
+    "owner-retention.md": {
+      "bytes": 10904,
+      "sha256": "40dff9c66d8b4fd31c1626069253974ffca387f487e8c97c45ed28a8a5c97e3a"
+    },
+    "owner-retention.asm.txt": {
+      "bytes": 11933,
+      "sha256": "f887ae42e7f72b24157788cf1a3b367e0a13889a490b3a86c0de08eb6345650f"
+    },
+    "window2-control-closure.md": {
+      "bytes": 14414,
+      "sha256": "32355c416e694452305d10dd971d2c16bcfd14050f1d498d6b915f1bb64ddf25"
+    }
+  },
+  "independentReview": {
+    "path": "/workspace/scratch/69fd8163d94e/tooltip-owner-retention-review-20261009.md",
+    "sha256": "2ac612f80a7ee1d1937c11a59ec98f8acb3887e0ae73be88b6f08c90a0f78ad0",
+    "text": "# Five-owner tooltip retention review\n\nACCEPT the finite ordinary owner-retention source closure and exact Leave/cleanup prerequisite-row update. The ordinary native behavior is proved sufficiently for port design; runtime implementation and a complete playable contract remain HOLD. This verdict does not equate a DOM canvas leave with an original no-handler visit.\n\nAccepted source: `issue19-tooltip-controller-source-20261009/work/orchestration/tooltip-owner-retention-20261009-1338/owner-retention.md`, SHA256 `2ba4c26cd10c5b3d0fe5ad731eb9547d18419311c428868d1c0eb27930e9fe3c`; receipt `1a68b3bea5db23b1b879c3df838b0a8cf3990deaa4545f4add4bf11879a10bdf`; row update `15dddc444cedd85436f0ea046075f1b45293dad82972d5e78d525e2fe4ccedf1`. Research commit `e19faec0ecfdbd796dd78b17e1ecf85a8bf63f58` remained clean.\n\nIndependent validation matched15 source pins against that commit/current files and16 retained artifact hashes/sizes. All306 new disassembly byte lines match the unchanged inert EXE SHA256 `3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`. This count includes the retained misaligned/truncated discovery windows; those bytes are not used as instruction or boundary proof. The aligned array window and exact block-reset window supersede them. Independent inert-data enumeration reproduced all69 unaligned address candidates in the stated range, zero candidates in other initialized sections, and11 direct call/jump candidates. Candidate scans remain a finite inventory, not a proof against arbitrary indirect aliases or writes.\n\nThe decisive retention result follows a closed control-flow interval. On the true no-handler branch of `004af340`, the function returns at `004af43e` without invoking a tooltip helper. The caller then executes only `0044b070`, which conditionally writes scroll/hold fields, before `0044b090`. The latter returns without controller reset when any of HUD0098db0c, object0098db48, cell0098db44, status0098db2c or message0098db40 is nonzero. Thus a preexisting nonzero object/cell owner survives that interval and prevents category/key/D/text cleanup. This finding does not rely on the candidate scan's negative results.\n\nThe five-owner timing and transitions are accurately scoped:\n\n- HUD entry clears its own word before recomputing control ownership; an unvisited HUD producer must not be replaced by a synthetic zero. HUD processing precedes forced handling.\n- Object and cell helpers clear only their own owner word on entry and copy their identity/coordinate before naming when enabled. Unnamed/blank acquisition is distinct from not invoking a helper. Packed cell zero is numerically zero and cannot alone block all-five-zero cleanup.\n- Message refresh occurs in the retained pre-input draw-main sequence. Its selected helper also clears and conditionally republishes its word. Normal landscape painting clears status ownership later; input can consume the preceding paint's status. The additional status reset is a named helper/caller, not an invented per-frame reset.\n- All-five-zero cleanup and explicit/forced controller resets do not clear the five words or cached thresholdT. Independent resets and another controller's category/key transition remain effective despite an old object/cell owner.\n\nThe exact no-handler re-entry case preserves dwell without incrementing it or requesting a new draw. Existing draw-latch consumption is a separate renderer responsibility. A valid blank-cell or unnamed-object transition changes the shared category/key and clears text, so returning to the named Hut is a fresh named acquisition and resetsD. HUD/message/status transit follows its actual controller. Forced expiry remains a handled visit after HUD processing and suppresses ordinary dispatch/scroll/cleanup; it does not restore a saved object-hover state.\n\nThe neighboring indirect-write candidates are adequately bounded for this finite question. The aligned0049daf0 loop initializer and row bound confine its stores to the reported byte spans throughdb28; its four dwords occupydb30..3f. The db0b-derived cursor is read only. The palette block begins atdb50, with the retained forward reset and escaped-pointer fixed offsets above the owner block. These supplementary bounds do not expand the primary closed-interval claim into universal startup/save/memory ownership.\n\nThe row update matches its pinned base and changes exactly one row from missing native closure to proved ordinary native behavior awaiting port mapping. It preserves the key remaining design obligation: classify actual no-handler, blank-cell, unnamed-object, HUD/message/status, forced and explicit-reset opportunities in the existing caller order. Physical canvas leave, browser dialogs and renderer visits cannot silently stand in for those native owners. Existing clock/cache, inspection, optional Encyclopaedia and separately named admission-guard boundaries remain as accepted.\n\nNo runtime, browser, native/emulator/Ghidra or test execution was performed by this reviewer. The result supports compact source preservation and the next bounded port-design review; it supplies no fixed-Hz translation, generic event framework, universal alias proof or playable parity credit.\n"
+  }
+}
