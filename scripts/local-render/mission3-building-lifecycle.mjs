@@ -199,19 +199,34 @@ export async function readM3Committed() {
 
 // Same replacement subscription and early-start mechanism as PR274. Resource
 // snapshots are observed separately: only World/UI state belongs to the save.
-export async function prepareM3Replacement({ kind, shamanId, birth }) {
+export async function prepareM3Replacement({ kind, shamanId, birth, startup = false }) {
   if (!['load', 'restart'].includes(kind) || window.m3Replacement)
     throw new Error('One declared replacement at a time')
   const { GameScene } = kind === 'load' ? await import('/app/scene.ts') : {}
-  const name = kind === 'load' ? 'Load checkpoint' : 'Restart world'
+  if (startup && kind !== 'load') throw new Error('Startup supports only public Load Game')
+  const name = startup ? 'Load Game' : kind === 'load' ? 'Load checkpoint' : 'Restart world'
   const button = [...document.querySelectorAll('button')].find(
     button => button.textContent.trim() === name
   )
   if (!button?.isConnected || button.disabled) throw new Error(`Public ${name} unavailable`)
-  const store = window.testStore,
-    prior = store.getWorld()
+  // Same actual React-store discovery as PR274's startup Load witness.
+  let store = window.testStore
+  if (startup) {
+    store = null
+    const main = document.querySelector('main')
+    let fiber = main?.[Object.keys(main).find(key => key.startsWith('__reactFiber'))]
+    for (; fiber && !store; fiber = fiber.return)
+      for (let hook = fiber.memoizedState; hook; hook = hook.next)
+        if (hook.memoizedState?.getWorld && hook.memoizedState?.subscribe) {
+          store = hook.memoizedState
+          break
+        }
+  }
+  if (!store) throw new Error('Store unavailable before public Load')
+  const prior = store.getWorld()
   const evidence = {
     kind,
+    startup,
     trusted: false,
     before: null,
     after: null,
@@ -243,7 +258,13 @@ export async function prepareM3Replacement({ kind, shamanId, birth }) {
       if (!event.isTrusted || (event.target !== button && !button.contains(event.target)))
         throw new Error(`Trusted public ${name} required`)
       evidence.trusted = true
-      evidence.before = read(store.getWorld())
+      if (store.getWorld() !== prior) throw new Error('World replaced before trusted input')
+      evidence.before = startup
+        ? {
+            snapshot: { level: prior.outcome.level, turn: prior.turn },
+            resource: structuredClone(store.getPresentationSnapshot()),
+          }
+        : read(prior)
       if (window.m3BuildingScreen) evidence.screen = window.m3BuildingScreen.close()
       window.m3TempleRoute?.close()
     } catch (error) {

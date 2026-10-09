@@ -157,3 +157,45 @@ All material and timing conclusions are browser-implementation evidence.
 They do not establish original wall-time cadence, one GPU frame per logical visit,
 native GPU pixel equality, hardware performance, campaign victory, other tribes,
 construction-cap art, or persistence of transient ANIBL state.
+
+## Genuine saved1190 continuation after ordinary02
+
+Ordinary02 at `7025ead7` remains failed. It retained the actual Vault birth1133,
+hide1139, whole1163, trusted active Save1190, exact Load reset, flight1198 and
+grant1215. Host bind/PNG/report/digest work delayed Pause until the controller had
+retired; the trusted Restart at1263 therefore failed the active-owner predicate.
+Its bank retention was correct. The failed report also retains the later route
+read after intentional observer detachment; that cleanup limitation is not erased.
+
+`mission3-building-screen-continuation.mjs` pins that failed receipt/report and all
+retained PNGs. It admits only the normally closed owned profile with the intact
+checkpoint digest `0e5ebc6902e2834f4a296fd46d6df18e70263f2056e920984aa485ebb50afedf`.
+Application, runtime, source root and loopback origin4191 stay bound by the existing
+profile contract. Checker-only changes require the coordinator's exact reviewed
+correspondence, naming the prior run, previous/current fingerprints and checker
+hashes. The current application fingerprint remains
+`3bdc2b425b8e99e88a31b913e7ed83d8cc1e307640f30d67d6832b16024b0b25`.
+No profile metadata, checkpoint, World or transient bank is reconstructed.
+
+The entry reads the actual committed saved1190 snapshot before startup Load Game.
+Only the known gift3141 duration Infinity→null JSON serialization is projected for
+comparison with the historical report; subsequent live comparisons stay lossless.
+The existing early Scene.start observer attaches to the restored actual World.
+Startup discovers the actual React store and admits its null prior session bank;
+new epoch numbers are never compared with the prior page session's epoch numbers.
+
+The first two trusted locator inputs are Load Game then Pause game, with no host
+read, bind, report, PNG or digest work between them. The same immediate pair repairs
+the in-session Load path. Ordinary Restart must still capture an active controller
+at its exact trusted click and retain the current bank. A second public Load resumes
+the protected Save. The unchanged route tail earns the remaining grant, moves the
+actual restored Shaman home, selects five Braves, constructs Temple and proves two
+natural world-bank tiles before its final genuine public Save. No Vault prefix is
+replayed and no fallback Save is added.
+
+Use the existing harness command with the admitted owned ordinary02 profile,
+`--scenario GAME_ROOT/scripts/local-render/mission3-building-screen-continuation.mjs`,
+`--profile-correspondence REVIEWED_FILE`, port4191 and a fresh output directory.
+The existing 1,500,000ms inner/1,560s outer bounds remain ceilings; the acquisition
+prefix is skipped. `launchEnabled:false` remains preparation provenance. The
+coordinator owns correspondence/admission and any browser execution.

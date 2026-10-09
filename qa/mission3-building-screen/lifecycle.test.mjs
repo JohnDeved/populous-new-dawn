@@ -359,3 +359,70 @@ test('foreign Scene.start cleanup keeps that owner and returns captured boundary
   )
   assert.ok(f.buttons.every(button => button.listeners.size === 0))
 })
+
+test('startup Load discovers the actual store without a Scene and restores M3 from a null session bank', async t => {
+  const f = fixture(t)
+  f.store.saveCheckpoint()
+  const saved = { boundary: { snapshot: window.m3CheckpointState(f.world) } }
+  globalThis.testCheckpoint = { version: 1, world: structuredClone(f.world) }
+  saved.digest = { checkpoint: await checkpointObservation({ observationName: 'testCheckpoint' }) }
+  f.store.startMission(1)
+  assert.equal(f.store.getPresentationSnapshot(), null)
+  delete window.testStore
+  delete window.m3BuildingScreen
+  const load = f.buttons.find(button => button.textContent === 'Load checkpoint')
+  load.textContent = 'Load Game'
+  document.querySelector = selector =>
+    selector === 'main'
+      ? { __reactFiber_fixture: { memoizedState: { memoizedState: f.store } } }
+      : null
+  class Scene {
+    constructor(world) {
+      this.world = world
+    }
+    start() {
+      return true
+    }
+  }
+  const ref = { current: null },
+    attached = []
+  const prepare = Function(
+    'suppliedScene',
+    'armBuildingSceneStart',
+    'currentSceneRef',
+    'installM3Screen',
+    `return (${prepareM3Replacement.toString().replace("import('/app/scene.ts')", 'Promise.resolve({ GameScene: suppliedScene })')})`
+  )(
+    Scene,
+    armBuildingSceneStart,
+    () => ref,
+    (_id, _birth) => {
+      attached.push(f.store.getWorld())
+      f.fakeScreen()
+    }
+  )
+  await prepare({ kind: 'load', startup: true, shamanId: 46 })
+  await f.click('Load Game', () => {
+    f.store.loadCheckpoint()
+    f.store.change(world => {
+      world.paused = false
+    })
+  })
+  ref.current = new Scene(f.store.getWorld())
+  ref.current.start()
+  const transition = window.m3Replacement.close()
+  globalThis.testCheckpoint = window.m3LoadedBoundary
+  requireLoadBoundary(
+    transition,
+    saved,
+    await checkpointObservation({ observationName: 'testCheckpoint' })
+  )
+  assert.equal(transition.before.snapshot.level, 1)
+  assert.equal(transition.before.resource, null)
+  assert.equal(window.testStore, f.store)
+  assert.equal(attached[0], f.store.getWorld())
+  assert.notEqual(attached[0], f.world)
+  const invalid = structuredClone(transition)
+  invalid.before.resource = { bank: 'p', epoch: 55 }
+  assert.throws(() => requireLoadBoundary(invalid, saved, saved.digest.checkpoint))
+})

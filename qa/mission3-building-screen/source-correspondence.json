@@ -16,9 +16,9 @@
     {
       "path": "scripts/local-render/mission3-temple-checkpoint.mjs",
       "commit": "d6565f2a8ab6a020258e777ac548ca5c5ea6a155",
-      "sha256": "5c27bd58b6c22422da9173decd3201f7ddd96e2be9a3d14c5d83b63324af0a85",
+      "sha256": "4a8e22b8242cbfc6b355c4624ce458be0ed116b362bd8746c7a8bc6c96f216cd",
       "upstreamSha256": "f74bef212a3bf9a80a6d9dfeac3785e74042cd5489a15952f96971dd99516181",
-      "adaptation": "Four optional acquisition steps; default route unchanged and no added awaits without steps."
+      "adaptation": "Four optional acquisition steps plus explicit genuine-checkpoint restore entry; default fresh route preserves its original controls and guards."
     },
     {
       "path": "scripts/local-render/mission3-temple-witness.mjs",

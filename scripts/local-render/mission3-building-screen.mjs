@@ -8,7 +8,11 @@ import { bindGame } from '../browser-game.mjs'
 import { waitForCheckpointReadback } from '../checkpoint-readback.mjs'
 import { checkpointObservation } from './checkpoint-observer.mjs'
 import { installTempleRouteObservation } from './mission3-temple-witness.mjs'
-import { armM3Save, readM3Committed } from './mission3-building-lifecycle.mjs'
+import {
+  armM3Save,
+  readM3Committed,
+  installM3CheckpointState,
+} from './mission3-building-lifecycle.mjs'
 import { templeTileOffset, templeSpriteMaterial } from '../../app/temple-art.ts'
 
 export function requireLoadBoundary(transition, saved, digest) {
@@ -23,7 +27,10 @@ export function requireLoadBoundary(transition, saved, digest) {
   assert.equal(transition.after.resource.bank, 'p')
   assert.equal(transition.after.resource.counter, 0)
   assert.equal(transition.after.resource.tile, 92)
-  assert.ok(transition.after.resource.epoch > transition.before.resource.epoch)
+  if (transition.startup) {
+    assert.equal(transition.before.resource, null, 'Startup has no prior session bank')
+    assert.ok(transition.after.resource.epoch > 0)
+  } else assert.ok(transition.after.resource.epoch > transition.before.resource.epoch)
   assert.equal(transition.start.calls, 1)
   assert.equal(transition.start.attached, true)
   assert.equal(transition.start.restored, true)
@@ -123,11 +130,11 @@ export function requireScreenProof(epochs, templeId) {
   }
 }
 
-export default async function mission3BuildingScreen(context) {
+export default async function mission3BuildingScreen(context, continuation = null) {
   const { page, signal, receipt, output, observeCheckpoint } = context
   const evidence = {
     product: receipt.source,
-    epochs: {},
+    epochs: continuation ? structuredClone(continuation.epochs) : {},
     transitions: [],
     activeSave: null,
     status: 'running',
@@ -170,7 +177,12 @@ export default async function mission3BuildingScreen(context) {
     signal.throwIfAborted()
     assert.deepEqual(receipt.errors, [])
   }
-  const replacement = async (kind, input, label) => {
+  const replacement = async (
+    kind,
+    input,
+    label,
+    { startup = false, pauseImmediately = false } = {}
+  ) => {
     const transition = { kind, evidence: null, digest: null }
     evidence.transitions.push(transition)
     let armed = false,
@@ -183,10 +195,24 @@ export default async function mission3BuildingScreen(context) {
             await import('/scripts/local-render/mission3-building-lifecycle.mjs')
           await prepareM3Replacement(options)
         },
-        { kind, shamanId, birth }
+        { kind, shamanId, birth, startup }
       )
       armed = true
-      await input.button(kind === 'load' ? 'Load checkpoint' : 'Restart world')
+      const name = kind === 'load' ? 'Load checkpoint' : 'Restart world'
+      const click = async () => {
+        if (startup)
+          await page
+            .getByRole('dialog', { name: 'Start game', exact: true })
+            .getByRole('button', { name: 'Load Game', exact: true })
+            .click()
+        else await page.getByRole('button', { name, exact: true }).click()
+        // PR274's proven continuation ordering: the next public input is Pause.
+        // No health read, report write, bind, PNG serialization or digest in between.
+        if (pauseImmediately)
+          await page.getByRole('button', { name: 'Pause game', exact: true }).click()
+      }
+      if (input) await input.action(pauseImmediately ? `${name} then Pause game` : name, click)
+      else await click()
       await bindGame(page)
     } catch (error) {
       failed = true
@@ -310,8 +336,7 @@ export default async function mission3BuildingScreen(context) {
       persist()
       assert.equal(saved.digest.checkpoint.turn, saved.boundary.snapshot.turn)
       assert.equal(saved.digest.checkpoint.time, saved.boundary.snapshot.time)
-      await replacement('load', input, 'fresh')
-      await input.pause()
+      await replacement('load', input, 'fresh', { pauseImmediately: true })
       await input.button('Game settings')
       await replacement('restart', input, 'beforeRestart')
       // The fresh restart scene has completed binding; its opening need not be
@@ -338,6 +363,31 @@ export default async function mission3BuildingScreen(context) {
       persist()
     },
   }
+  if (continuation)
+    steps.restore = async ({ report, save }) => {
+      persist = save
+      report.acquisition = evidence
+      report.prior = continuation.source
+      shamanId = continuation.shamanId
+      birth = continuation.birth
+      await page.evaluate(installM3CheckpointState)
+      const committed = await page.evaluate(readM3Committed)
+      continuation.validateSaved(committed)
+      evidence.activeSave = {
+        ...continuation.activeSave,
+        boundary: { ...continuation.activeSave.boundary, snapshot: committed.snapshot },
+        committed,
+      }
+      evidence.limits =
+        'Genuine saved1190 continuation. Prior ordinary02 remains failed; clean prefix frames are carried with exact hashes. Session-local bank epochs are not compared across runs.'
+      persist()
+      await replacement('load', null, 'startup', { startup: true, pauseImmediately: true })
+      await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+      await replacement('restart', null, 'continuedBeforeRestart')
+      await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+      await replacement('load', null, 'restartWithoutAcquisition')
+      return { shamanId }
+    }
   let failed = false,
     failure,
     result

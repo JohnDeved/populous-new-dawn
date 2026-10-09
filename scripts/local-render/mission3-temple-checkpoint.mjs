@@ -177,8 +177,17 @@ export default async function mission3TempleCheckpoint(
   { page, openMission, output, signal, receipt, observeCheckpoint },
   acquisitionSteps = null
 ) {
-  assert.equal(receipt.profile?.mode, 'created', 'Use a new owned profile for this one-time route')
-  assert.equal(receipt.profile.checkpointAtStart, null)
+  const continuing = typeof acquisitionSteps?.restore === 'function'
+  if (continuing)
+    assert.equal(receipt.profile?.mode, 'reused', 'Continuation requires its genuine owned profile')
+  else {
+    assert.equal(
+      receipt.profile?.mode,
+      'created',
+      'Use a new owned profile for this one-time route'
+    )
+    assert.equal(receipt.profile.checkpointAtStart, null)
+  }
   const report = {
     source: receipt.source,
     status: 'running',
@@ -250,28 +259,40 @@ export default async function mission3TempleCheckpoint(
     assert.fail('Public Escape did not clear mode and selection')
   }
   try {
-    await openMission(3)
-    report.readiness = await waitForShamanReadiness(page, { timeout: 60000 })
-    const initial = await page.evaluate(installTempleRouteObservation)
-    report.initial = initial
-    installed = true
-    shamanId = report.readiness.after.shaman.id
-    save()
-    assertTempleRouteHealth(initial, shamanId, receipt.errors)
-    assert.equal(initial.unlocked, false)
-    assert.deepEqual(initial.temples, [])
-    assert.equal(initial.vault.length, 1)
-    assert.equal(initial.vault[0].uses, 0)
-    input = createMission1VaultInput({ page, signal, report, save, originalShamanId: shamanId })
+    if (continuing) {
+      installed = true
+      const restored = await acquisitionSteps.restore({ page, report, save })
+      shamanId = restored.shamanId
+      report.initial = await read()
+      assertTempleRouteHealth(report.initial, shamanId, receipt.errors)
+      assert.deepEqual(report.initial.temples, [])
+      assert.equal(report.initial.vault[0].uses, 1)
+      input = createMission1VaultInput({ page, signal, report, save, originalShamanId: shamanId })
+    } else {
+      await openMission(3)
+      report.readiness = await waitForShamanReadiness(page, { timeout: 60000 })
+      const initial = await page.evaluate(installTempleRouteObservation)
+      report.initial = initial
+      installed = true
+      shamanId = report.readiness.after.shaman.id
+      save()
+      assertTempleRouteHealth(initial, shamanId, receipt.errors)
+      assert.equal(initial.unlocked, false)
+      assert.deepEqual(initial.temples, [])
+      assert.equal(initial.vault.length, 1)
+      assert.equal(initial.vault[0].uses, 0)
+      input = createMission1VaultInput({ page, signal, report, save, originalShamanId: shamanId })
+      const acquisitionContext = { page, input, report, save, shamanId, read }
+      if (acquisitionSteps) await acquisitionSteps.begin(acquisitionContext)
+      await clear()
+      await input.button('Select and focus shaman')
+      await input.view(initial.vault[0])
+      report.vaultOrder = await input.clickEntity('shrines', initial.vault[0].id, 33, false, [
+        shamanId,
+      ])
+      if (acquisitionSteps) await acquisitionSteps.preserveActive(acquisitionContext)
+    }
     const acquisitionContext = { page, input, report, save, shamanId, read }
-    if (acquisitionSteps) await acquisitionSteps.begin(acquisitionContext)
-    await clear()
-    await input.button('Select and focus shaman')
-    await input.view(initial.vault[0])
-    report.vaultOrder = await input.clickEntity('shrines', initial.vault[0].id, 33, false, [
-      shamanId,
-    ])
-    if (acquisitionSteps) await acquisitionSteps.preserveActive(acquisitionContext)
     report.reward = await wait(
       'earned-temple-knowledge',
       state => state.unlocked && state.vault[0].uses === 1,
@@ -431,7 +452,7 @@ export default async function mission3TempleCheckpoint(
     // No failure fallback Save: a genuine committed checkpoint is never replaced.
     report.cleanupErrors = []
     if (installed) {
-      if (!signal.aborted && failed)
+      if (!signal.aborted && failed && (!continuing || input))
         try {
           await input?.pause()
           report.terminal = await read()
