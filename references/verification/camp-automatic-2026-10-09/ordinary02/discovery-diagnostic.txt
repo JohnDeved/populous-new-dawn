@@ -1,0 +1,2 @@
+Original command-receipt process diagnostic copied from tool result chunk473a54 at2026-10-09T21:07:21Z (not the child stderr artifact, which is empty):
+Automatic parity report unavailable: Receipt JSON byte limit reached; no partial report written

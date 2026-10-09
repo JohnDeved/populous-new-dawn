@@ -1,0 +1,61 @@
+{
+  "kind": "bounded-artifact-index",
+  "runtimeHead": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+  "qaHead": "df0f42b02fa44a1cc89b24893239af6a4a62148d",
+  "artifacts": [
+    {
+      "path": "work/orchestration/training-panel-ordinary-02.outer.json",
+      "bytes": 75754563,
+      "sha256": "88c14ec33ffdc7fb6fa0d1dc41cd7fd9438f92e1eeb8e2afeb1702a73e8bb309",
+      "included": false
+    },
+    {
+      "path": "work/orchestration/training-panel-ordinary-02/receipt.json",
+      "bytes": 209556520,
+      "sha256": "2370f62e6b317465f33338c15f49a8830fa0d23b5c1709dc424847e1b47b0563",
+      "included": false
+    },
+    {
+      "path": "work/orchestration/training-panel-ordinary-02/camp-inspection.json",
+      "bytes": 194807968,
+      "sha256": "8c8cca0ce3ad9be1911be6175ce54f7ac65c8e3d73175c410558dc57f70f339b",
+      "included": false
+    },
+    {
+      "path": "work/orchestration/training-panel-ordinary-02.outer.json.artifacts/stdout.log",
+      "bytes": 66267225,
+      "sha256": "d09e042877726ec0a88916b3d233e540904aafb427971b0ccf1eb390c6320f12",
+      "included": false
+    },
+    {
+      "path": "work/orchestration/training-panel-ordinary-02.outer.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "included": false
+    },
+    {
+      "path": "work/orchestration/training-panel-ordinary-02/automatic-active-composite.png",
+      "bytes": 1858278,
+      "sha256": "092b76b02059ddbb284445d10af2641d6175075833ada468850ee8a812b7ee5d",
+      "included": true
+    },
+    {
+      "path": "work/orchestration/training-panel-ordinary-02/automatic-active-panel.png",
+      "bytes": 2103,
+      "sha256": "5d62ec7794bdf50cf232a5c1587297765dad29367299a9bd7707824081ab65fd",
+      "included": true
+    },
+    {
+      "path": "work/orchestration/training-panel-ordinary-02/automatic-active-world.png",
+      "bytes": 2533602,
+      "sha256": "80b0c5389de75aa558411718d467b3d3d721a444c249aa702c6dc042dcc04f88",
+      "included": true
+    },
+    {
+      "path": "work/orchestration/training-panel-ordinary-02/automatic-released-composite.png",
+      "bytes": 1552075,
+      "sha256": "41ddd66cabbf210d3e98e8fab7f85b091cee563f35f59ecc37052343ea141975",
+      "included": true
+    }
+  ]
+}

@@ -1,0 +1,344 @@
+{
+  "kind": "reviewed-ordinary-automatic-training-result",
+  "status": "accepted",
+  "runtimeHead": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+  "runtimeTree": "9a45d71258b6fed77b808d4901648903067f313d",
+  "qaHead": "df0f42b02fa44a1cc89b24893239af6a4a62148d",
+  "qaTree": "7602a57c6f4b0b8f1d4672093c2d7583c5858e21",
+  "qaPublication": "Local only at collection; PR292 remains 91a5ea6d7bb9c37d40fbc26e4be8376dc0328aa8. Cancelled publication is not retried by this packet.",
+  "admissionSha256": "0feea5c3a0da61eb7eb62eacd22402d09b0398ea0193b554b31651afce5a6806",
+  "bindingInputCount": 88,
+  "outer": {
+    "startedAt": "2026-10-09T21:03:30.922Z",
+    "finishedAt": "2026-10-09T21:07:09.453Z",
+    "durationSeconds": 218.531,
+    "status": "passed",
+    "exitCode": 0,
+    "signal": null
+  },
+  "inner": {
+    "startedAt": "2026-10-09T21:03:30.990Z",
+    "finishedAt": "2026-10-09T21:07:05.905Z",
+    "status": "passed",
+    "errors": [],
+    "retainedBrowserWarnings": 8
+  },
+  "browser": {
+    "version": "154.0.8037.92",
+    "sandboxed": true,
+    "headless": true,
+    "context": "ephemeral game-only",
+    "cpus": "5-7",
+    "port": 4193,
+    "harnessLimitSeconds": 480,
+    "outerLimitSeconds": 520,
+    "hardwarePerformanceClaim": false
+  },
+  "declaration": {
+    "mission": 2,
+    "ground": {
+      "x": -99,
+      "z": -105
+    },
+    "hud": "Blast",
+    "startupMs": 60000,
+    "episodeMs": 300000,
+    "constructionMs": 180000,
+    "reservedTailMs": 60000,
+    "witnessPhaseMs": 12000,
+    "inheritedHelperWaitMs": 45000,
+    "panelHoverVisits": 24,
+    "maxRecords": 8192,
+    "maxCaptureGroups": 8,
+    "noRetries": true,
+    "training": {
+      "selectedBraves": 1,
+      "readinessMs": 12000,
+      "activeHoldVisits": 4,
+      "conservativeFundingSeconds": 25,
+      "tailMs": 60000,
+      "naturalClockOnly": true
+    }
+  },
+  "construction": {
+    "campId": 1022,
+    "turn": 1115,
+    "recipients": [
+      278,
+      319,
+      281,
+      284,
+      170,
+      173,
+      176,
+      275,
+      1247
+    ],
+    "hp": 260,
+    "progress": 1,
+    "occupancyQueueAndCrewClear": true
+  },
+  "readiness": {
+    "turn": 1249,
+    "selected": [
+      281
+    ],
+    "braves": [
+      278,
+      319,
+      281,
+      284,
+      170,
+      173,
+      176,
+      275,
+      1247,
+      1264
+    ],
+    "warriors": [],
+    "shaman": [
+      54
+    ],
+    "generatedMana": 101,
+    "singleCost": 3500,
+    "tribe": {
+      "id": 0,
+      "spellOwner": 0,
+      "playerType": 2,
+      "active": true,
+      "defeatTimer": 0,
+      "flags2": 0,
+      "mana": 0,
+      "pending": 0,
+      "available": 0,
+      "totalProgress": 0,
+      "previousRate": 82,
+      "estimatedRate": 0,
+      "releaseDelay": 0,
+      "releaseRate": 0,
+      "spellProgress": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "shamanGuards": 0,
+      "shamanGuardChanged": 0
+    },
+    "camp": {
+      "id": 1022,
+      "timer": 0,
+      "admission": {
+        "object": 103,
+        "angle": 0,
+        "anchorX": 41984,
+        "anchorY": 24576,
+        "id": 1022,
+        "class": 2,
+        "model": 7,
+        "tribe": 0,
+        "flags2": 0,
+        "flags3": 0,
+        "activity": 8,
+        "inside": 0,
+        "occupants": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "trainingTimer": 0,
+        "trainingCost": 0,
+        "entryDelay": 0,
+        "lastActivity": 0,
+        "queueHead": 0,
+        "queueFrom": 0,
+        "entering": 0,
+        "entryTimer": 0,
+        "counter": 43,
+        "storedMana": 0,
+        "manaNext": 0
+      }
+    },
+    "trained": 0,
+    "level": 2,
+    "speed": 1,
+    "paused": false
+  },
+  "input": {
+    "personId": 281,
+    "personIdentity": 47,
+    "orderId": 59,
+    "inputOrdinal": 2602
+  },
+  "initialAutomaticRecord": {
+    "id": 1022,
+    "identity": 2669,
+    "phase": -1,
+    "remaining": 0,
+    "hold": 16,
+    "automatic": true
+  },
+  "trace": {
+    "records": 3167,
+    "ticks": 2911,
+    "callbacks": 122,
+    "initial": {
+      "callbacks": 49,
+      "ticks": 2640,
+      "firstRequestOrdinal": 2670,
+      "firstRequestTurn": 1283,
+      "heldVisits": 95
+    },
+    "restored": {
+      "callbacks": 73,
+      "ticks": 271,
+      "firstRequestOrdinal": 2852,
+      "firstRequestTurn": 1332,
+      "heldVisits": 138
+    },
+    "lifecycleSubsetRows": 226
+  },
+  "checkpoints": [
+    {
+      "kind": "save",
+      "observationName": "hutTooltipCheckpointBoundary",
+      "admitted": true,
+      "captured": true,
+      "errors": [],
+      "closed": false,
+      "reservations": [
+        "building-panel:1022"
+      ],
+      "typed": {
+        "version": 1,
+        "level": 2,
+        "turn": 1331,
+        "time": 110.91666666666667,
+        "checkpointSha256": "7ce36595e54c9bf799180edef1a8bc5bc75d6f258542c3e53f6cb5acd2203281",
+        "trainingSha256": "8a172fc85e96daf9ca0ba7c183f6ff48e4a978753612284e9f1aa57245e8c1a7",
+        "actorsSha256": "75fd0ced6ceed79a1f25439488784092187ed01b2bbcbba8efcd4217d7cf4197",
+        "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+        "stockSha256": "9aa8d2473ed8bcebd9b3d68309a062629e6d899c64caa0e3898d147d07d6d23d"
+      }
+    },
+    {
+      "kind": "load",
+      "observationName": "hutTooltipCheckpointBoundary",
+      "admitted": true,
+      "captured": true,
+      "errors": [],
+      "closed": false,
+      "reservations": [],
+      "typed": {
+        "version": 1,
+        "level": 2,
+        "turn": 1331,
+        "time": 110.91666666666667,
+        "checkpointSha256": "4e24c733382c7a5945e00947b24f2a54bf6a1d12a145b4222620371ba38b23d9",
+        "trainingSha256": "8a172fc85e96daf9ca0ba7c183f6ff48e4a978753612284e9f1aa57245e8c1a7",
+        "actorsSha256": "75fd0ced6ceed79a1f25439488784092187ed01b2bbcbba8efcd4217d7cf4197",
+        "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+        "stockSha256": "9aa8d2473ed8bcebd9b3d68309a062629e6d899c64caa0e3898d147d07d6d23d"
+      }
+    }
+  ],
+  "committed": {
+    "version": 1,
+    "level": 2,
+    "turn": 1331,
+    "time": 110.91666666666667,
+    "checkpointSha256": "7ce36595e54c9bf799180edef1a8bc5bc75d6f258542c3e53f6cb5acd2203281",
+    "trainingSha256": "8a172fc85e96daf9ca0ba7c183f6ff48e4a978753612284e9f1aa57245e8c1a7",
+    "actorsSha256": "75fd0ced6ceed79a1f25439488784092187ed01b2bbcbba8efcd4217d7cf4197",
+    "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+    "stockSha256": "9aa8d2473ed8bcebd9b3d68309a062629e6d899c64caa0e3898d147d07d6d23d"
+  },
+  "finalCommitted": {
+    "version": 1,
+    "level": 2,
+    "turn": 1331,
+    "time": 110.91666666666667,
+    "checkpointSha256": "7ce36595e54c9bf799180edef1a8bc5bc75d6f258542c3e53f6cb5acd2203281",
+    "trainingSha256": "8a172fc85e96daf9ca0ba7c183f6ff48e4a978753612284e9f1aa57245e8c1a7",
+    "actorsSha256": "75fd0ced6ceed79a1f25439488784092187ed01b2bbcbba8efcd4217d7cf4197",
+    "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+    "stockSha256": "9aa8d2473ed8bcebd9b3d68309a062629e6d899c64caa0e3898d147d07d6d23d"
+  },
+  "checkpointComparison": "Save publication equals the complete typed committed checkpoint; final committed digest is unchanged. Load complete digest differs after normal migration. Required training/actors/terrain/stock digests and level/turn/time match exactly. Transient reservation clearing is directly observed, but is not claimed to be the sole whole-record difference.",
+  "lifecycle": {
+    "firstRequest": 2852,
+    "heldVisits": 138,
+    "expiry": 3068,
+    "release": 3071,
+    "traineeId": 281,
+    "replacementId": 1266,
+    "trained": 1
+  },
+  "release": {
+    "expiryTurn": 1404,
+    "retirementTurn": 1405,
+    "newWarriorHp": 90,
+    "originalTraineeRetired": true,
+    "onlyOneNewLivingBlueWarrior": true,
+    "trainedDelta": 1,
+    "campAliveComplete": true,
+    "occupantsInsideQueueClear": true,
+    "recordLatchReservationDomClear": true
+  },
+  "observerCleanup": {
+    "closed": true,
+    "errors": [],
+    "bothEpochsClosed": true,
+    "bothInputObserversRestored": true,
+    "heldPointerClear": true
+  },
+  "resourceCleanup": "Passed final receipt plus maintained finally control flow supports browser.close/disconnection check and owned stopServer completion. This is not an independent process census or proof that every descendant was separately reaped.",
+  "automaticDiscovery": {
+    "status": "failed",
+    "diagnostic": "Automatic parity report unavailable: Receipt JSON byte limit reached; no partial report written",
+    "provenance": "Original outer tool-result diagnostic copied separately; child stderr is empty.",
+    "guardUnchanged": true,
+    "rawEvidenceRetained": true,
+    "partialReportWritten": false
+  },
+  "priorAttempt": {
+    "name": "ordinary01",
+    "status": "failed",
+    "outerFinishedAt": "2026-10-09T20:24:03.386Z",
+    "primaryFailure": "12-second held-count timeout",
+    "observerRestoration": "Unverified after Target crashed",
+    "saveLoadReached": false,
+    "crashCause": "Not proved",
+    "evidence": "See ordinary01-failure-review.md and the prior checkpoint manifest."
+  },
+  "limits": [
+    "Ordinary Mission2 construction and one-Brave automatic-training panel ownership. Native wall time, physical secondary slots, full frontend ordering, audio and hardware performance remain unproved.",
+    "Public in-session Load only; fresh-page recovery is not established.",
+    "Post-Load camera changed, so images are not a stationary before/after pixel comparison.",
+    "No original executable or native probe ran.",
+    "No general parity credit or closure of issue 25.",
+    "Product strict Oxlint remains failed with 11 inherited errors and 52 inherited warnings; zero added.",
+    "QA repair is local-only and packet/publication URLs remain unverified until publication."
+  ]
+}

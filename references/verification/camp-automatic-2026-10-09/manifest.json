@@ -74,8 +74,8 @@
   "payloadFiles": [
     {
       "file": "README.md",
-      "sha256": "e0ebff8cfc65d2bfa1d5897f89117983aed2293c5094ce324e1fe3805a28c328",
-      "bytes": 6055
+      "sha256": "6062594a6e29a3095cee842478a0752c2fd0c961b210cf546b7944a91e591783",
+      "bytes": 6278
     },
     {
       "file": "receipt-index.json",
@@ -137,5 +137,6 @@
         "included": false
       }
     ]
-  }
+  },
+  "historicalScope": "This source/standard checkpoint retains ordinary01 failure state. The later ordinary02/manifest.json supplies separate accepted ordinary evidence."
 }

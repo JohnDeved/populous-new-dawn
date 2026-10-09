@@ -1,5 +1,9 @@
 # Automatic Warrior Training Hut panel: source and standard checkpoint
 
+This is the earlier source/standard checkpoint. The later [accepted ordinary02
+result](ordinary02/README.md) supplies the separate gameplay, Save/Load, pixel and
+cleanup evidence; the failed ordinary01 below remains preserved.
+
 The bounded implementation in [PR291](https://github.com/JohnDeved/populous-new-dawn/pull/291)
 has independently accepted source/caller review and **1,686/1,686 tests across
 280 files**, plus passing typecheck, parity-ledger, orchestration and build stages.
@@ -65,7 +69,7 @@ allocated DOM/capacity, and natural M2 admission reached the live callback witho
 an automatic record/latch/reservation. Their raw receipts and the historical manual
 passes are pinned in the index and receive no additional standard-test credit.
 
-## Ordinary episode is not accepted
+## Ordinary01 was not accepted
 
 The first ordinary attempt is terminal **FAILED**: its outer receipt ended at
 2026-10-09 20:24:03.386 UTC with exit 1. The inner receipt preserves a 12-second

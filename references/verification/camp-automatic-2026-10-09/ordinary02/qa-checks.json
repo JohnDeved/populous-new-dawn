@@ -1,0 +1,108 @@
+{
+  "qaHead": "df0f42b02fa44a1cc89b24893239af6a4a62148d",
+  "checks": [
+    {
+      "status": "passed",
+      "source": {
+        "headOid": "df0f42b02fa44a1cc89b24893239af6a4a62148d",
+        "branch": "qa/training-panel-ordinary-20261009",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {
+          "scripts/local-render/hut-tooltip-witness.mjs": "2bfb802042358370bbb1f47c38f09dc8cca82f386d48f10118aae600dbfce296",
+          "scripts/local-render/camp-inspection.mjs": "97030038be19c4e1bea04b98b166b6859269758f59b2c110322ca9efa202c88e",
+          "scripts/local-render/training-panel-auto.mjs": "184db032ba1081ef7fea458115bf841d057fd22d0e8e9ebe27f9efb6c6f10876",
+          "tests/hut-tooltip-witness.test.mjs": "ef512157202d98b89f41839d57fa025ae54e674c75d9f0c86314e0461e6a6563"
+        }
+      },
+      "command": [
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=10s",
+        "60s",
+        "taskset",
+        "-c",
+        "4",
+        "node",
+        "--test",
+        "tests/training-panel-input.test.mjs",
+        "tests/hut-tooltip-witness.test.mjs",
+        "tests/camp-inspection-input.test.mjs",
+        "tests/hut-tooltip-input.test.mjs",
+        "tests/browser-checkpoint-readback.test.mjs"
+      ],
+      "startedAt": "2026-10-09T20:52:46.599Z",
+      "finishedAt": "2026-10-09T20:52:47.589Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdoutSha256": "e505a9cff06e681fc1cfe889f64e886a0d7cbc379687ce1e4f3847121fb131ae",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceAfter": {
+        "headOid": "df0f42b02fa44a1cc89b24893239af6a4a62148d",
+        "branch": "qa/training-panel-ordinary-20261009",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {
+          "scripts/local-render/hut-tooltip-witness.mjs": "2bfb802042358370bbb1f47c38f09dc8cca82f386d48f10118aae600dbfce296",
+          "scripts/local-render/camp-inspection.mjs": "97030038be19c4e1bea04b98b166b6859269758f59b2c110322ca9efa202c88e",
+          "scripts/local-render/training-panel-auto.mjs": "184db032ba1081ef7fea458115bf841d057fd22d0e8e9ebe27f9efb6c6f10876",
+          "tests/hut-tooltip-witness.test.mjs": "ef512157202d98b89f41839d57fa025ae54e674c75d9f0c86314e0461e6a6563"
+        }
+      },
+      "receiptPath": "work/orchestration/training-filtered-reads/frozen-tests-01.json",
+      "receiptSha256": "437be2e669ae1d4c14107fb98a1f60c910adfae5b14ac89cd75c94b971350b7b",
+      "passedTests": 43,
+      "projectionPolicy": "Command path prefixes shortened; source/input hashes, exact argv tokens otherwise unchanged. No stdout/stderr payload included."
+    },
+    {
+      "status": "passed",
+      "source": {
+        "headOid": "df0f42b02fa44a1cc89b24893239af6a4a62148d",
+        "branch": "qa/training-panel-ordinary-20261009",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {
+          "scripts/local-render/hut-tooltip-witness.mjs": "2bfb802042358370bbb1f47c38f09dc8cca82f386d48f10118aae600dbfce296",
+          "scripts/local-render/camp-inspection.mjs": "97030038be19c4e1bea04b98b166b6859269758f59b2c110322ca9efa202c88e",
+          "scripts/local-render/training-panel-auto.mjs": "184db032ba1081ef7fea458115bf841d057fd22d0e8e9ebe27f9efb6c6f10876",
+          "tests/hut-tooltip-witness.test.mjs": "ef512157202d98b89f41839d57fa025ae54e674c75d9f0c86314e0461e6a6563"
+        }
+      },
+      "command": [
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=10s",
+        "60s",
+        "taskset",
+        "-c",
+        "4",
+        "populous-recovery-20261009b/node_modules/.bin/eslint",
+        "--config",
+        "populous-recovery-20261009b/eslint.config.mjs",
+        "scripts/local-render/hut-tooltip-witness.mjs",
+        "scripts/local-render/camp-inspection.mjs",
+        "scripts/local-render/training-panel-auto.mjs",
+        "tests/hut-tooltip-witness.test.mjs"
+      ],
+      "startedAt": "2026-10-09T20:53:18.091Z",
+      "finishedAt": "2026-10-09T20:53:20.379Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "272e4c2b0e16e307699713ad6b529510bfa6a765ef48eba689f6f501a403e27f",
+      "sourceAfter": {
+        "headOid": "df0f42b02fa44a1cc89b24893239af6a4a62148d",
+        "branch": "qa/training-panel-ordinary-20261009",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {
+          "scripts/local-render/hut-tooltip-witness.mjs": "2bfb802042358370bbb1f47c38f09dc8cca82f386d48f10118aae600dbfce296",
+          "scripts/local-render/camp-inspection.mjs": "97030038be19c4e1bea04b98b166b6859269758f59b2c110322ca9efa202c88e",
+          "scripts/local-render/training-panel-auto.mjs": "184db032ba1081ef7fea458115bf841d057fd22d0e8e9ebe27f9efb6c6f10876",
+          "tests/hut-tooltip-witness.test.mjs": "ef512157202d98b89f41839d57fa025ae54e674c75d9f0c86314e0461e6a6563"
+        }
+      },
+      "receiptPath": "work/orchestration/training-filtered-reads/frozen-eslint-01.json",
+      "receiptSha256": "fea0e4fa9cbbfc00b85bf9e649384a9f2a3b37845de39d10454189d7de329033",
+      "passedTests": null,
+      "projectionPolicy": "Command path prefixes shortened; source/input hashes, exact argv tokens otherwise unchanged. No stdout/stderr payload included."
+    }
+  ],
+  "limits": "Focused QA contracts and scoped ESLint only. Inherited five-file formatting failures are retained; no full QA-tree standard-pass claim."
+}

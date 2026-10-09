@@ -1,0 +1,69 @@
+{
+  "kind": "public-reviewed-ordinary-result",
+  "priorEvidenceCommit": "de23f13c8b64df07b40ebe8851f034f8d6a77e8f",
+  "runtimeHead": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+  "qaHead": "df0f42b02fa44a1cc89b24893239af6a4a62148d",
+  "qaPublication": "Local only at collection; PR292 remains 91a5ea6d7bb9c37d40fbc26e4be8376dc0328aa8. Cancelled publication is not retried by this packet.",
+  "resultReviewSha256": "c68ce0736654141fdd85d71450b7f88799ef2ba4753954a14bff93fab2b9445b",
+  "resultReviewCopyPolicy": "Exact bytes.",
+  "payloadFiles": [
+    {
+      "file": "README.md",
+      "bytes": 5754,
+      "sha256": "83314a980932f5abfb95624482b97d3dab9131992680a3b70bf315e26e766c1d"
+    },
+    {
+      "file": "artifact-index.json",
+      "bytes": 2269,
+      "sha256": "46c250ca07c96536ffc3ebdb1215f6333e8e0bb9923f5d5feeda676f0578b68b"
+    },
+    {
+      "file": "automatic-active-composite.png",
+      "bytes": 1858278,
+      "sha256": "092b76b02059ddbb284445d10af2641d6175075833ada468850ee8a812b7ee5d"
+    },
+    {
+      "file": "automatic-active-panel.png",
+      "bytes": 2103,
+      "sha256": "5d62ec7794bdf50cf232a5c1587297765dad29367299a9bd7707824081ab65fd"
+    },
+    {
+      "file": "automatic-active-world.png",
+      "bytes": 2533602,
+      "sha256": "80b0c5389de75aa558411718d467b3d3d721a444c249aa702c6dc042dcc04f88"
+    },
+    {
+      "file": "automatic-released-composite.png",
+      "bytes": 1552075,
+      "sha256": "41ddd66cabbf210d3e98e8fab7f85b091cee563f35f59ecc37052343ea141975"
+    },
+    {
+      "file": "discovery-diagnostic.txt",
+      "bytes": 248,
+      "sha256": "0b5c78a82e7f6a4fc3ebdb5c358f35cb97a48ec0a661bc85b758ae028c11133b"
+    },
+    {
+      "file": "ordinary01-failure-review.md",
+      "bytes": 2733,
+      "sha256": "e8718d40a142932b1781398904af041763c204cac6452d1b5be00b589ed7e1f2"
+    },
+    {
+      "file": "qa-checks.json",
+      "bytes": 5671,
+      "sha256": "634efac71bc5bcfda494ddd8bbdc66181abe7c386954f29583ef2eb5ea16eafe"
+    },
+    {
+      "file": "result-review.md",
+      "bytes": 10887,
+      "sha256": "c68ce0736654141fdd85d71450b7f88799ef2ba4753954a14bff93fab2b9445b"
+    },
+    {
+      "file": "result.json",
+      "bytes": 10078,
+      "sha256": "ab1dc5b788f33e2ec8e7755e63fbc4526d9a0fa5431a7669d751619502b1bf89"
+    }
+  ],
+  "payloadBytesExcludingManifest": 5983698,
+  "copyPolicy": "Only bounded text/JSON and four original PNGs. Raw receipts/reports/stdout, game bytes, native executables, profiles, dependency files and credentials are excluded. Original raw evidence remains untouched.",
+  "publication": "Local preparation only; no public URLs verified and no push retried."
+}
