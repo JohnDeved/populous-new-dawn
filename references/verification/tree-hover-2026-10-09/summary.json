@@ -19,7 +19,7 @@
     "sourceAndStandards": {
       "locator": "tree-hover-scope-review-20261009/product-review-1ec5bae.md",
       "sha256": "b546bad94b19c37e683ff678b258aaaa90ee0dbc82bc3ea3993ba669b2d18856",
-      "verdict": "accepted source and standard results; ordinary rendered acceptance pending"
+      "verdict": "Accepted source and standard results at this checkpoint; final rendered acceptance is bound by finalProduct."
     },
     "baseline02": {
       "locator": "/tmp/issue19-tree-hover-baseline02-result-review-20261009.md",
@@ -30,6 +30,11 @@
       "locator": "/tmp/issue19-tree-hover-candidate03-result-review-20261009.md",
       "sha256": "bacac0c94a9720353cc72637ee9328e3f0a85594194f2f7780b94b337fb8aff3",
       "verdict": "ACCEPT bounded ordinary tree-hover result and before-evidence correspondence; baseline01 and baseline02 remain failed overall."
+    },
+    "finalProduct": {
+      "locator": "tree-hover-scope-review-20261009/final-product-verdict.md",
+      "sha256": "1b87da5bb6fddb69588fdcd063dd7f2f17f6f6838c27b52513f9c754a670baa9",
+      "verdict": "ACCEPT exact product1ec5bae and bounded ordinary/pixel correspondence; no blockers; full issue19 remains open."
     }
   },
   "portableEvidence": {
@@ -311,10 +316,11 @@
       "reviewSha256": "bacac0c94a9720353cc72637ee9328e3f0a85594194f2f7780b94b337fb8aff3",
       "issue19Closed": false,
       "nativeWholeFrameParityClaim": false,
-      "hardwarePerformanceClaim": false
+      "hardwarePerformanceClaim": false,
+      "productReviewSha256": "1b87da5bb6fddb69588fdcd063dd7f2f17f6f6838c27b52513f9c754a670baa9"
     },
     "anchorCorrection": {
-      "status": "independently accepted; next bounded pair pending",
+      "status": "Independently accepted and exercised by baseline02/candidate03.",
       "actualWorldFeasibilityContracts": 13,
       "feasibilityTurns": 405,
       "remainingPrerequisite": null,
