@@ -1,6 +1,9 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { readFileSync, mkdtempSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { resolve } from 'node:path'
+import treeHover, { assertTreeHoverEvidence } from '../scripts/local-render/tree-hover.mjs'
 import { stripTypeScriptTypes } from 'node:module'
 import { minimapPick } from '../app/minimap.ts'
 import { minimapInput } from '../qa/erosion-ordinary/minimap-input.mjs'
@@ -23,9 +26,12 @@ const unsupported = () => { throw Error('Undeclared branch') }
 const updatePointerFrame = shipped('updatePointerFrame', { blastPersonTargeting: () => false,
   blastPersonPosition: unsupported, nativePosition: unsupported, browserPosition: unsupported })
 const pointerMove = shipped('pointerMove')
+const cameraDeclaration = inputSource.slice(inputSource.indexOf('const cameraKeys:'), inputSource.indexOf('\n}', inputSource.indexOf('const cameraKeys:')) + 2)
+const cameraKeys = Function(`${stripTypeScriptTypes(cameraDeclaration)};return cameraKeys`)()
+const keyDown = shipped('keyDown', { cameraKeys, cameraBookmark: unsupported })
 const installInput = shipped('installInputListeners', { minimapPick,
   nativePosition: (_world, p) => ({ x: ((p.x + 8) * 256) << 16 >> 16, y: ((-p.z - 8) * 256) << 16 >> 16 }),
-  browserPosition: p => ({ x: (p.x - 2048) << 16 >> 16, z: -((p.y + 2048) << 16 >> 16) }) })
+  browserPosition: p => ({ x: ((p.x - 2048) << 16 >> 16) / 256, z: -((p.y + 2048) << 16 >> 16) / 256 }) })
 
 function fixture({ failRender, failReadback, own = false } = {}) {
   const prior = Object.fromEntries(['window', 'document'].map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]))
@@ -44,15 +50,18 @@ function fixture({ failRender, failReadback, own = false } = {}) {
   const body = { visible: true, userData: { nativeModel: 13, highlight: { value: 0 } },
     geometry: { getAttribute: () => ({ array: [7, 7, 7] }) } }
   const group = { visible: true, userData: { point: world.trees[0] }, traverse(fn) { fn(body) } }; body.parent = group
+  const buildingBody = { ...body, userData: { nativeModel: 10, highlight: { value: 0 } } }
+  const buildingGroup = { visible: true, userData: { building: 888 }, traverse(fn) { fn(buildingBody) } }; buildingBody.parent = buildingGroup
   const mini = Object.assign(target(), { width: 200, height: 192, getBoundingClientRect: () => ({ x: 20, y: 30, left: 20, top: 30, width: 200, height: 192 }) })
   const scene = { world, renderer, frame: 1, gameClock: { animationFrame: 0 }, scene: {}, camera: { position: { toArray: () => [0, 0, 0] } },
-    decorations: { children: [group] }, buildingMeshes: new Map(), mini, view: { projection: {} }, viewPreset: 0,
+    decorations: { children: [group] }, buildingMeshes: new Map([[888, buildingGroup]]), mini, testHit: 999, view: { projection: {} }, viewPreset: 0,
     viewPoint: { x: 0, z: 0 }, cameraBearing: 0, viewTransition: null, overviewActive: false,
     pointerScreen: null, hoveredObject: null, pointerButtons: 0, pointerState: '', container: { clientWidth: 1440, clientHeight: 1000 },
     selectionOverlay: {}, dragActive: { value: false }, keys: new Set(), updateSpellHalo() {},
     updatePointerFrame(now) { return updatePointerFrame(this, now) },
-    picking: { pick() { return 999 }, model() { return [{ kind: 'model', points: [{ x: 40, y: 40 }, { x: 80, y: 40 }, { x: 60, y: 80 }] }] } },
-    pointerMove(event) { return pointerMove(scene, event) }, focus(p, options) { scene.focused = { p, options } },
+    picking: { pick() { return scene.testHit }, model() { return [{ kind: 'model', points: [{ x: 40, y: 40 }, { x: 80, y: 40 }, { x: 60, y: 80 }] }] } },
+    pointerMove(event) { return pointerMove(scene, event) }, keyDown(event) { return keyDown(scene, event) },
+    zoom(inward) { this.viewPreset = zoomPreset(this.viewPreset, inward) }, focus(p, options) { scene.focused = { p, options } },
     listen(t, type, fn) { t.addEventListener(type, fn, false) } }
   globalThis.window = Object.assign(win, { testSceneRef: { current: scene }, testStore: { getWorld: () => world } })
   globalThis.document = Object.assign(target(), { elementFromPoint: (x, y) => x < 1000 ? canvas : null })
@@ -62,8 +71,15 @@ function fixture({ failRender, failReadback, own = false } = {}) {
     for (const row of [...canvas.listeners].filter(r => r.type === type && r.capture)) row.fn(e)
     for (const row of [...canvas.listeners].filter(r => r.type === type && !r.capture)) row.fn(e)
   }
-  return { scene, world, body, canvas, renderer, original, result, calls, dispatch, mini,
+  const key = (value, type = 'keydown') => {
+    const e = { type, key: value, code: value === 'w' ? 'KeyW' : value === '-' ? 'Minus' : 'Equal',
+      isTrusted: true, target: { closest: () => null }, defaultPrevented: false, preventDefault() { this.defaultPrevented = true } }
+    for (const row of [...win.listeners].filter(r => r.type === type && r.capture)) row.fn(e)
+    for (const row of [...win.listeners].filter(r => r.type === type && !r.capture)) row.fn(e)
+  }
+  return { scene, world, body, canvas, renderer, original, result, calls, dispatch, mini, key,
     draw(turn) { world.turn = turn; scene.gameClock.animationFrame++; scene.updatePointerFrame(turn); body.userData.highlight.value = scene.hoveredObject === 999 ? (turn & 2 ? 255 : 200) : 0
+      buildingBody.userData.highlight.value = scene.hoveredObject === 888 ? (turn & 2 ? 255 : 200) : 0
       const value = renderer.render(scene.scene, scene.camera); scene.frame++; return value },
     restore() { for (const [key, descriptor] of Object.entries(prior)) if (descriptor) Object.defineProperty(globalThis, key, descriptor); else delete globalThis[key] } }
 }
@@ -129,8 +145,8 @@ test('actual shipped minimap handler matches prepared inverse at variable camera
         doc: { elementFromPoint: () => f.mini } })
       assert.ok(prepared)
       listener({ clientX: prepared.x, clientY: prepared.y, button: 0 })
-      assert.deepEqual(f.scene.focused, { p: { x: (prepared.native.x - 2048) << 16 >> 16,
-        z: -((prepared.native.y + 2048) << 16 >> 16) }, options: { animate: true } })
+      assert.deepEqual(f.scene.focused, { p: { x: ((prepared.native.x - 2048) << 16 >> 16) / 256,
+        z: -((prepared.native.y + 2048) << 16 >> 16) / 256 }, options: { animate: true } })
       assert.ok(prepared.distance <= 2048)
     }
   } finally { f.restore() }
@@ -158,4 +174,46 @@ test('actual shipped keyboard handler chooses W navigation and normal-to-bird zo
       assert.equal(f.scene.cameraBearing, heading)
     }
   } finally { f.restore() }
+})
+
+
+for (const primary of [null, undefined, false, 0, 'plain failure'])
+  test(`scenario retains primitive failure ${String(primary)} through a later persistence failure`, async () => {
+    const output = mkdtempSync(resolve(tmpdir(), 'tree-hover-error-'))
+    const page = { setDefaultTimeout() {}, getByRole() { rmSync(output, { recursive: true }); throw primary } }
+    let caught = false, value
+    try {
+      await treeHover({ page, root: resolve(import.meta.dirname, '..'), output, receipt: { errors: [] },
+        signal: { throwIfAborted() {} } })
+    } catch (error) { caught = true; value = error }
+    finally { rmSync(output, { recursive: true, force: true }) }
+    assert.equal(caught, true); assert.strictEqual(value, primary)
+  })
+
+
+test('complete composed evidence rejects missing delivery, unconsumed camera input, baseline uniform and immediate orders', () => {
+  const f = fixture(); let api
+  try {
+    api = installTreeHoverWitness([{ id: 999, kind: 'tree' }, { id: 888, kind: 'building' }])
+    const point = { x: 60, y: 50, preparation: { sceneFrame: -1 }, boundary: { rendererFrame: 0 } }
+    let turn = 0
+    const hover = (name, id) => {
+      f.scene.testHit = id; api.arm({ name, kind: 'hover', id, point }); f.dispatch('pointermove')
+      for (let n = 0; n < 4; n++) f.draw(turn++)
+    }
+    const leave = name => { api.arm({ name, kind: 'leave' }); f.dispatch('pointerleave', 1200); f.draw(turn++) }
+    hover('tree-live', 999)
+    api.arm({ name: 'tree-pan', kind: 'camera', change: 'pan', point }); f.key('w'); f.scene.viewPoint.x++; f.draw(turn++); f.key('w', 'keyup')
+    api.arm({ name: 'tree-zoom', kind: 'camera', change: 'zoom', point }); f.key('-'); f.draw(turn++); f.key('-', 'keyup')
+    f.key('='); f.key('=', 'keyup')
+    hover('tree-return', 999); leave('tree-leave'); hover('building-live', 888); leave('building-leave')
+    api.close(); const evidence = api.read(); assertTreeHoverEvidence(evidence)
+    for (const damage of [
+      value => { value.records = value.records.filter(r => !(r.phase === 'tree-return' && r.type === 'pointermove')) },
+      value => { value.records.find(r => r.type === 'keydown' && r.key === '-').defaultPrevented = false },
+      value => { value.records.find(r => r.kind === 'render').bodies[999][0].uniform = 0 },
+      value => { value.records.find(r => r.kind === 'event').after.units[0].immediateCommand = 77 },
+      value => { value.records.find(r => r.kind === 'render').receiverMatches = false },
+    ]) { const bad = structuredClone(evidence); damage(bad); assert.throws(() => assertTreeHoverEvidence(bad)) }
+  } finally { api?.close(); f.restore() }
 })

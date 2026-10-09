@@ -24,7 +24,7 @@ export function installTreeHoverWitness(targets) {
     return structuredClone({ sceneFrame: scene.frame, turn: world.turn, animationFrame: clock.animationFrame,
       rendererFrame: renderer.info.render.frame, speed: world.speed, paused: world.paused,
       status: world.status, mode: world.mode, inputMask: world.inputMask, selected: world.selected,
-      pointer: scene.pointerScreen, buttons: scene.pointerButtons, hovered: scene.hoveredObject,
+      keys: [...scene.keys], pointer: scene.pointerScreen, buttons: scene.pointerButtons, hovered: scene.hoveredObject,
       camera: { point: scene.viewPoint, bearing: scene.cameraBearing, preset: scene.viewPreset,
         transition: scene.viewTransition?.remaining ?? 0, overview: scene.overviewActive },
       flyby: world.flyby.flags })
@@ -84,17 +84,20 @@ export function installTreeHoverWitness(targets) {
       return result
     })
     wrap(renderer, 'render', original => function (...args) {
+      let beforeRendererFrame
+      try { beforeRendererFrame = renderer.info.render.frame } catch (e) { error(e) }
       const result = original.apply(this, args)
       if (args[0] !== scene.scene || args[1] !== scene.camera || !phase || phase.done) return result
       observe(() => {
         const current = state()
+        check(this === renderer && current.rendererFrame > beforeRendererFrame, 'Main render receiver/frame did not advance')
         check(performance.now() - phase.startedAt <= 12000, '12-second tree-hover phase bound exceeded')
         check(current.speed === 1 && current.paused === false && current.status === 'playing' &&
           current.mode === null && current.inputMask === 0 && current.buttons === 0 &&
           !current.camera.overview && !(current.flyby & 1), 'Ordinary hover prerequisites changed')
         check(JSON.stringify(current.selected) === JSON.stringify(phase.selected), 'Hover changed selection')
-        const row = add({ kind: 'render', phase: phase.name, state: current, bodies: bodies(), pointerUpdate: lastPointer })
-        const changed = phase.kind === 'camera' && current.pointer?.clientX === phase.point.x && current.pointer?.clientY === phase.point.y &&
+        const row = add({ kind: 'render', phase: phase.name, receiverMatches: this === renderer, beforeRendererFrame, state: current, bodies: bodies(), pointerUpdate: lastPointer })
+        const changed = phase.kind === 'camera' && phase.inputOrdinal && current.pointer?.clientX === phase.point.x && current.pointer?.clientY === phase.point.y &&
           (phase.change === 'pan' ? JSON.stringify(current.camera.point) !== JSON.stringify(phase.initial.camera.point)
             : current.camera.preset === 2 && current.camera.transition === 0)
         const matches = phase.kind === 'camera' ? changed : phase.kind === 'leave' ? current.hovered === null && current.pointer === null
@@ -114,7 +117,8 @@ export function installTreeHoverWitness(targets) {
       orders: world.buildingOrders,
       units: world.units.map(unit => ({ id: unit.id, target: unit.target, work: unit.work, tree: unit.tree,
         commands: unit.native?.commands, commandCursor: unit.native?.commandCursor,
-        commandStatus: unit.native?.commandStatus, nativeTarget: unit.native?.target })) })
+        commandStatus: unit.native?.commandStatus, nativeTarget: unit.native?.target,
+        immediateCommand: unit.native?.immediateCommand, workTarget: unit.native?.workTarget, orderLocation: unit.native?.orderLocation })) })
     for (const [target, types] of [[canvas, ['pointermove', 'pointerleave']], [scene.mini, ['pointerdown']], [window, ['keydown', 'keyup']]])
       for (const type of types) {
         const begin = event => observe(() => {
@@ -129,7 +133,10 @@ export function installTreeHoverWitness(targets) {
         const end = event => observe(() => {
           const row = pending.get(event)
           if (!row) return
-          row.after = simulation(); row.afterState = state(); pending.delete(event)
+          row.after = simulation(); row.afterState = state(); row.defaultPrevented = event.defaultPrevented
+          if (phase.kind === 'camera' && !phase.done && type === 'keydown' && event.defaultPrevented &&
+            event.key === (phase.change === 'pan' ? 'w' : '-')) phase.inputOrdinal = row.ordinal
+          pending.delete(event)
         })
         // Capture precedes the game's handler; bubble follows it in one dispatch.
         target.addEventListener(type, begin, true); listeners.push([target, type, begin, true])

@@ -10,17 +10,41 @@ export function assertTreeHoverEvidence(evidence) {
   assert.equal(evidence.closed, true); assert.deepEqual(evidence.errors, [])
   assert.deepEqual(evidence.phases.map(p => p.name),
     ['tree-live', 'tree-pan', 'tree-zoom', 'tree-return', 'tree-leave', 'building-live', 'building-leave'])
+  const events = evidence.records.filter(r => r.kind === 'event')
   for (const phase of evidence.phases) {
     assert.ok(phase.done, `${phase.name} incomplete`)
     const renders = evidence.records.filter(r => r.kind === 'render' && r.phase === phase.name)
     assert.ok(renders.length)
     if (phase.kind === 'hover') {
       assert.deepEqual([...phase.residues].sort(), [0, 1, 2, 3])
-      assert.ok(renders.some(row => row.pointerUpdate?.picks.some(p => p.id === phase.id && p.canvasOwned && p.receiverMatches &&
+      const event = events.find(row => row.phase === phase.name && row.type === 'pointermove' &&
+        row.trusted && row.canvasTarget && row.canvasOwned && row.x === phase.point.x && row.y === phase.point.y)
+      assert.ok(event, `${phase.name} lacks a matching trusted canvas pointermove`)
+      assert.ok(renders.some(row => row.ordinal > event.ordinal && row.pointerUpdate?.picks.some(p =>
+        p.id === phase.id && p.canvasOwned && p.receiverMatches &&
         p.sceneFrame !== phase.point.preparation.sceneFrame && p.rendererFrame >= phase.point.boundary.rendererFrame)),
-        `${phase.name} lacks an actual ordinary picker result`)
+      `${phase.name} lacks a post-event, post-preparation ordinary picker result`)
+
+    }
+    if (phase.kind === 'leave') {
+      const event = events.find(row => row.phase === phase.name && row.type === 'pointerleave' && row.trusted && row.canvasTarget)
+      assert.ok(event, `${phase.name} lacks a trusted canvas leave`)
+      assert.ok(renders.some(row => row.ordinal > event.ordinal && row.state.hovered === null && row.state.pointer === null))
+    }
+    if (phase.kind === 'camera') {
+      const event = evidence.records.find(row => row.ordinal === phase.inputOrdinal)
+      assert.ok(event?.trusted && event.type === 'keydown' && event.defaultPrevented,
+        `${phase.name} has no consumed trusted camera key`)
+      assert.equal(event.key, phase.change === 'pan' ? 'w' : '-')
+      if (phase.change === 'pan') assert.ok(event.afterState.keys.includes('w'))
+      else assert.equal(event.afterState.camera.preset, 2)
+      assert.ok(renders.some(row => row.ordinal > event.ordinal && row.pointerUpdate.picks.length &&
+        row.state.pointer?.clientX === phase.point.x && row.state.pointer?.clientY === phase.point.y &&
+        (phase.change === 'pan' ? JSON.stringify(row.state.camera.point) !== JSON.stringify(event.afterState.camera.point)
+          : row.state.camera.preset === 2 && row.state.camera.transition === 0)), `${phase.name} lacks linked natural camera frame`)
     }
     for (const row of renders) {
+      assert.ok(row.receiverMatches && row.state.rendererFrame > row.beforeRendererFrame, 'Unproved main render return')
       assert.ok(row.pointerUpdate?.receiverMatches, 'Actual pointer-update receiver changed')
       assert.equal(row.pointerUpdate.state.turn, row.state.turn)
       assert.deepEqual(row.pointerUpdate.state.pointer, row.state.pointer)
@@ -37,10 +61,10 @@ export function assertTreeHoverEvidence(evidence) {
       }
     }
   }
-  const events = evidence.records.filter(r => r.kind === 'event')
-  assert.ok(events.some(e => e.type === 'pointerleave' && e.phase === 'tree-leave'))
-  assert.ok(events.some(e => e.type === 'pointermove' && e.phase === 'tree-live'))
+  assert.deepEqual(events.filter(e => e.type === 'keydown' || e.type === 'keyup').map(e => [e.type, e.key]),
+    [['keydown', 'w'], ['keyup', 'w'], ['keydown', '-'], ['keyup', '-'], ['keydown', '='], ['keyup', '=']])
   for (const event of events) {
+    if (event.type === 'keydown') assert.equal(event.defaultPrevented, true)
     assert.ok(event.trusted && !event.repeat && event.after, 'Missing trusted synchronous input boundary')
     assert.deepEqual(event.after, event.before, `${event.type} changed selection/orders/RNG synchronously`)
   }
@@ -59,8 +83,10 @@ export default async function treeHover({ page, root, output, receipt, signal })
       createHash('sha256').update(readFileSync(new URL(name, import.meta.url))).digest('hex')])),
     method: 'Public Mission1 entry/Skip and actual trusted minimap, pointer and keyboard inputs; natural RAF picker/render-return observation. Candidate probing is diagnostic preparation that may refresh picker/matrix caches.',
     limits: 'Current-port ordinary rendered feedback only. No native execution/controller equivalence, raster equivalence, tooltip behavior, hardware performance, or complete issue19 acceptance. PNG readback perturbs scheduling.' }
-  let witness, failure, held = false, startupDeadline = null
+  let witness, failure, failed = false, held = false, startupDeadline = null
+  const retainFailure = error => { if (!failed) { failed = true; failure = error } report.status = 'failed' }
   const save = () => writeFileSync(resolve(output, 'tree-hover.json'), JSON.stringify(report, null, 2) + '\n')
+  const persistFailure = () => { try { save() } catch (error) { retainFailure(error); report.persistenceFailure = String(error?.stack ?? error) } }
   const action = async (label, run) => {
     signal.throwIfAborted(); if (startupDeadline !== null) {
       const remaining = startupDeadline - Date.now(); assert.ok(remaining > 0, 'Startup deadline exhausted')
@@ -150,9 +176,9 @@ export default async function treeHover({ page, root, output, receipt, signal })
     await hover('tree-return', tree, returned); await leave('tree-leave')
     await view(building); await hover('building-live', building, await point(building)); await leave('building-leave')
     report.status = 'observed'
-  } catch (error) { failure = error; report.status = 'failed'; report.failure = String(error.stack ?? error); save() }
+  } catch (error) { retainFailure(error); report.failure = String(error?.stack ?? error); persistFailure() }
   finally {
-    if (held) try { await page.keyboard.up('w') } catch (error) { report.releaseFailure = String(error); failure ??= error }
+    if (held) try { await page.keyboard.up('w') } catch (error) { report.releaseFailure = String(error); retainFailure(error) }
     if (witness) {
       try {
         report.observation = await witness.evaluate(api => { api.close(); return api.read() })
@@ -164,12 +190,12 @@ export default async function treeHover({ page, root, output, receipt, signal })
           writeFileSync(resolve(output, `${name}.png`), Buffer.from(match[1], 'base64')); frame.png = `${name}.png`
         }
         save()
-        if (!failure) { assertTreeHoverEvidence(report.observation); assert.deepEqual(receipt.errors, []); report.status = 'passed' }
-      } catch (error) { failure ??= error; report.status = 'failed'; report.evidenceFailure = String(error.stack ?? error) }
-      finally { try { await witness.dispose() } catch (error) { failure ??= error; report.status = 'failed'; report.disposeFailure = String(error) } }
+        if (!failed) { assertTreeHoverEvidence(report.observation); assert.deepEqual(receipt.errors, []); report.status = 'passed' }
+      } catch (error) { retainFailure(error); report.evidenceFailure = String(error?.stack ?? error) }
+      finally { try { await witness.dispose() } catch (error) { retainFailure(error); report.disposeFailure = String(error) } }
     }
-    save()
+    persistFailure()
   }
-  if (failure) throw failure
+  if (failed) throw failure
   return report
 }
