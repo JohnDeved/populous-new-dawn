@@ -16,18 +16,23 @@ export function assertTreeHoverEvidence(evidence) {
     const renders = evidence.records.filter(r => r.kind === 'render' && r.phase === phase.name)
     assert.ok(renders.length)
     if (phase.kind === 'hover') {
-      assert.deepEqual([...phase.residues].sort(), [0, 1, 2, 3])
+      if (phase.name === 'building-live') { assert.equal(phase.singleFrame, true); assert.equal(phase.residues.length, 1) }
+      else { assert.notEqual(phase.singleFrame, true); assert.deepEqual([...phase.residues].sort(), [0, 1, 2, 3]) }
       const event = events.find(row => row.phase === phase.name && row.type === 'pointermove' &&
         row.trusted && row.canvasTarget && row.canvasOwned && row.x === phase.point.x && row.y === phase.point.y)
       assert.ok(event, `${phase.name} lacks a matching trusted canvas pointermove`)
-      assert.ok(renders.some(row => row.ordinal > event.ordinal && row.pointerUpdate?.picks.some(p =>
+      assert.ok(renders.some(row => row.ordinal > event.ordinal &&
+        (phase.name !== 'building-live' || row.ordinal === phase.hitOrdinal) && row.pointerUpdate?.picks.some(p =>
         p.id === phase.id && p.canvasOwned && p.receiverMatches &&
         p.sceneFrame !== phase.point.preparation.sceneFrame && p.rendererFrame >= phase.point.boundary.rendererFrame)),
       `${phase.name} lacks a post-event, post-preparation ordinary picker result`)
 
     }
     if (phase.kind === 'leave') {
-      const event = events.find(row => row.phase === phase.name && row.type === 'pointerleave' && row.trusted && row.canvasTarget)
+      const event = phase.name === 'building-leave'
+        ? events.find(row => row.ordinal === phase.leaveOrdinal && row.type === 'pointerleave' && row.trusted &&
+          row.canvasTarget && !row.canvasOwned && row.ordinal > phase.afterHitOrdinal && phase.continuationOf === 'building-live')
+        : events.find(row => row.phase === phase.name && row.type === 'pointerleave' && row.trusted && row.canvasTarget)
       assert.ok(event, `${phase.name} lacks a trusted canvas leave`)
       assert.ok(renders.some(row => row.ordinal > event.ordinal && row.state.hovered === null && row.state.pointer === null))
     }
@@ -69,8 +74,10 @@ export function assertTreeHoverEvidence(evidence) {
     assert.deepEqual(event.after, event.before, `${event.type} changed selection/orders/RNG synchronously`)
   }
   for (const name of ['tree-live-200', 'tree-live-255', 'tree-pan', 'tree-zoom',
-    'tree-return-200', 'tree-return-255', 'tree-leave', 'building-live-200', 'building-live-255', 'building-leave'])
+    'tree-return-200', 'tree-return-255', 'tree-leave', 'building-leave'])
     assert.ok(evidence.frames[name], `Natural PNG missing: ${name}`)
+  const controlFrames = ['building-live-200', 'building-live-255'].filter(name => evidence.frames[name])
+  assert.equal(controlFrames.length, 1, 'Hut control needs one natural-phase frame before the popup handoff')
 }
 
 export default async function treeHover({ page, root, output, receipt, signal }) {
@@ -78,6 +85,7 @@ export default async function treeHover({ page, root, output, receipt, signal })
     declaration: { mission: 1, tree: { object: 20, type: 5, model: 1, owner: 255, x: 3, z: 23 },
       building: { object: 42, team: 'blue', kind: 'hut', x: -12, z: 34 },
       startupMs: 60000, observationMs: 120000, phaseMs: 12000, maxRecords: 512, maxPNGs: 10,
+      buildingControl: 'One actual pick and natural-phase override, then trusted canvas leave and zero-render; existing popup may own the leave before the host arms its continuation.',
       routes: 'One start, one optional Skip, minimap to tree, hover, stationary-pointer W pan and - zoom, = and minimap return, re-hover/leave, minimap to Blue Hut, hover/leave. No retries.' },
     inputs: Object.fromEntries(['tree-hover.mjs', 'tree-hover-input.mjs', 'tree-hover-witness.mjs'].map(name => [name,
       createHash('sha256').update(readFileSync(new URL(name, import.meta.url))).digest('hex')])),
@@ -130,13 +138,13 @@ export default async function treeHover({ page, root, output, receipt, signal })
     return status.phase.done
   }, witness, { timeout: 12000, polling: 25 })
   const hover = async (name, target, p) => {
-    await arm({ name, kind: 'hover', id: target.id, point: p })
+    await arm({ name, kind: 'hover', id: target.id, point: p, ...(target.kind === 'building' ? { singleFrame: true } : {}) })
     await action(name, () => page.mouse.move(p.x, p.y)); await wait()
   }
   const leave = async name => {
     const box = await page.getByRole('button', { name: 'Game settings', exact: true }).boundingBox()
     assert.ok(box, 'Actual HUD destination unavailable')
-    await arm({ name, kind: 'leave' })
+    await arm({ name, kind: 'leave', ...(name === 'building-leave' ? { continuationOf: 'building-live' } : {}) })
     await action(name, () => page.mouse.move(Math.round(box.x + box.width / 2), Math.round(box.y + box.height / 2)))
     await wait()
   }
