@@ -1,0 +1,1056 @@
+{
+  "version": 1,
+  "purpose": "Compact public index of independently reviewed source-bound evidence; retained receipts and verdicts are not included in this packet.",
+  "createdAt": "2026-10-09",
+  "pullRequest": "https://github.com/JohnDeved/populous-new-dawn/pull/285",
+  "issue": "https://github.com/JohnDeved/populous-new-dawn/issues/256",
+  "status": {
+    "sourceFocusedAndFixture": "accepted",
+    "finalStandards": "accepted",
+    "finalQuality": "accepted with retained strict Oxlint failure",
+    "merge": "pending",
+    "providerChecks": "pending",
+    "distinguishingOrdinaryEpisode": "not-run",
+    "standardContinuationAdmission": "accepted"
+  },
+  "source": {
+    "base": "47680b8fd124aab50b0528eea77a81cacb556060",
+    "focusedHead": "7bc41bd09c4f65e5c1a70677af61aa4625a3897d",
+    "focusedTree": "7110593c11fc0f68bf027fbe469d7a6ec836f78d",
+    "finalHead": "27c3fb261b445c642b06e53721f19b6581e72826",
+    "finalTree": "35e6ceddebaba1185898a1999c79a2da372f8999",
+    "changedFiles": {
+      "app/computer-runtime.ts": "01138df49ada0d61f724a8daca63028c48b7a44c4636e7045ae72a18880c37c4",
+      "scripts/mission3-raid-recruitment-pair.mjs": "81e0338bf45fb9c478076fb2b065df0bf615d0a21cd6abd2279d871e261d517f",
+      "tests/game.test.mjs": "cddd58d38a28cea7310612ca7bb1afce7145f27ce6db58c3f595395f5107dbf3",
+      "tests/raid-staging.test.mjs": "b0f43a440a32d825d631b8c26817a38fcd9d6c4ba5d13d4a96537b377b9b61dc"
+    },
+    "finalVsFocused": {
+      "paths": [
+        "tests/game.test.mjs"
+      ],
+      "diffSha256": "56f4e6dae87c9aead28c5f60ac61f7245d05a8484771f2b0246a75e5da320e22",
+      "description": "Only tests/game.test.mjs: add established-relocated-base comment and constructionBase=staging. All application and other tracked bytes unchanged."
+    }
+  },
+  "originalStatic": {
+    "publishedCommit": "ef5d26329ac0f6b011746d556afdf655d6563013",
+    "url": "https://github.com/JohnDeved/populous-new-dawn/blob/ef5d26329ac0f6b011746d556afdf655d6563013/decomp/research/issue256-stored-fallback-20261009/findings.md",
+    "inputExecutableBytes": 2275840,
+    "inputExecutableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "method": "GNU objdump 2.44 as inert data decoder, with before/after hash verification; no original execution.",
+    "files": {
+      "bounded-disassembly.txt": {
+        "bytes": 22141,
+        "sha256": "fcdbced6c9477952f481b7f60c26c0a3fe083914b23ca5f7557af2668ce41f19"
+      },
+      "findings.md": {
+        "bytes": 8538,
+        "sha256": "321f9fc401473a1b52e058b5e3740a2dda49e5ca680ea19e547e2a883ee77859"
+      },
+      "source-bindings.json": {
+        "bytes": 4501,
+        "sha256": "74498bb8b5095cb66e5e1e50ef82270d53e5d796f9e04ac86226f70d072d3065"
+      },
+      "static-manifest.json": {
+        "bytes": 8233,
+        "sha256": "bfedd1e3490c00c5d89fe8ae44255cd9311a9cb2703901926ed03eb91539b8de"
+      }
+    },
+    "limit": "Named authored load/reset chain and M1\u20133 single-Shaman projection; not universal alias/copy/reset or original binary-save ownership."
+  },
+  "receipts": [
+    {
+      "id": "red-01",
+      "retainedReceipt": "early-raid-stored-origin-20261009/work/orchestration/issue256-stored-origin-red-01/receipt.json",
+      "receiptSha256": "d42838f737d8936cc1873cd518825d72fe12c3b57bbccfa26c3a0e04846d76d1",
+      "status": "failed",
+      "exitCode": 1,
+      "sourceHead": "47680b8fd124aab50b0528eea77a81cacb556060",
+      "trackedDiffSha256": "8030acac2e48348d9b545f6556a9514fa40fc944121a1c2bad170cae6f5d69e6",
+      "sourceBeforeAfterEqual": true,
+      "inputCount": 10,
+      "inputMapSha256": "fd5f652f4146c528550d5d9fc5f1f4fa03d97d785012ab4b0a5beab35eebe851",
+      "selectedInputBindings": {
+        "tests/raid-staging.test.mjs": "8d8b695a622defb0c964b40b7e21c591593c0ad4f0dc11844c4221d60e0afab8",
+        "app/computer-runtime.ts": "e646a829d87cb65d29588d70bd7ddeb3173e71b6130e6507e46ad5cf68634078"
+      },
+      "command": [
+        "taskset",
+        "-c",
+        "4",
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=5s",
+        "120s",
+        "node",
+        "--max-old-space-size=768",
+        "--experimental-test-module-mocks",
+        "--test",
+        "tests/raid-staging.test.mjs"
+      ],
+      "startedAt": "2026-10-09T12:50:58.748Z",
+      "finishedAt": "2026-10-09T12:51:02.581Z",
+      "counts": {
+        "tests": 37,
+        "pass": 13,
+        "fail": 24,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "stdoutSha256": "b3a71420d03988af34252de2610e8ec8bf7f3eb94dd1929066e7ec64a74764fb",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "Expected failure on unchanged prior-main application with test-only assertions."
+    },
+    {
+      "id": "green-01",
+      "retainedReceipt": "early-raid-stored-origin-20261009/work/orchestration/issue256-stored-origin-green-01/receipt.json",
+      "receiptSha256": "30254e8b6adee3efa56bf7d505b7c01f5f9c6589ed5dd7dde4cd3d789c24d3e0",
+      "status": "failed",
+      "exitCode": 1,
+      "sourceHead": "f49e3bf9b44dc8391abfa9b7da24cefdaaba3054",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceBeforeAfterEqual": true,
+      "inputCount": 19,
+      "inputMapSha256": "e3ca6dde8e485af4c4046898957b622d61192e4943e1e688a82d0b3cb577c18a",
+      "selectedInputBindings": {
+        "tests/raid-staging.test.mjs": "b0f43a440a32d825d631b8c26817a38fcd9d6c4ba5d13d4a96537b377b9b61dc",
+        "app/computer-runtime.ts": "01138df49ada0d61f724a8daca63028c48b7a44c4636e7045ae72a18880c37c4",
+        "scripts/mission3-raid-recruitment-pair.mjs": "feaefbac2e861c77b11c0b2e266f030507484aac6b416bbf5e78de191f31baa5"
+      },
+      "command": [
+        "taskset",
+        "-c",
+        "4",
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=5s",
+        "120s",
+        "node",
+        "--max-old-space-size=768",
+        "--experimental-test-module-mocks",
+        "--test",
+        "--test-concurrency=1",
+        "tests/raid-staging.test.mjs",
+        "tests/mission3-raid-loaded-cell.test.mjs",
+        "tests/raid-state33-release.test.mjs",
+        "tests/raid-phase6-settlement.test.mjs"
+      ],
+      "startedAt": "2026-10-09T12:55:02.845Z",
+      "finishedAt": "2026-10-09T12:55:13.845Z",
+      "counts": {
+        "tests": 54,
+        "pass": 53,
+        "fail": 1,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "stdoutSha256": "da45e1aefaf9eaff51a7ffdd4ef3bf806af3c2b598dd26ff3fb747e2de2e2a8d",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "Failed obsolete recruitment-observer staging expectation; not credited as final green."
+    },
+    {
+      "id": "green-02",
+      "retainedReceipt": "early-raid-stored-origin-20261009/work/orchestration/issue256-stored-origin-green-02/receipt.json",
+      "receiptSha256": "490da349f7069931debd9a8902c44f98c06246c41a51150d6928b2982d38a759",
+      "status": "passed",
+      "exitCode": 0,
+      "sourceHead": "7bc41bd09c4f65e5c1a70677af61aa4625a3897d",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceBeforeAfterEqual": true,
+      "inputCount": 23,
+      "inputMapSha256": "26cadf79573a2d5104b17074a5699b11de522af49c6bc0026ecf6f49cb569453",
+      "selectedInputBindings": {
+        "tests/raid-staging.test.mjs": "b0f43a440a32d825d631b8c26817a38fcd9d6c4ba5d13d4a96537b377b9b61dc",
+        "app/computer-runtime.ts": "01138df49ada0d61f724a8daca63028c48b7a44c4636e7045ae72a18880c37c4",
+        "scripts/mission3-raid-recruitment-pair.mjs": "81e0338bf45fb9c478076fb2b065df0bf615d0a21cd6abd2279d871e261d517f"
+      },
+      "command": [
+        "taskset",
+        "-c",
+        "4",
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=5s",
+        "120s",
+        "node",
+        "--max-old-space-size=768",
+        "--experimental-test-module-mocks",
+        "--test",
+        "--test-concurrency=1",
+        "tests/raid-staging.test.mjs",
+        "tests/mission3-raid-loaded-cell.test.mjs",
+        "tests/mission3-raid-recruitment.test.mjs",
+        "tests/raid-state33-release.test.mjs",
+        "tests/raid-phase6-settlement.test.mjs"
+      ],
+      "startedAt": "2026-10-09T12:56:45.208Z",
+      "finishedAt": "2026-10-09T12:57:01.259Z",
+      "counts": {
+        "tests": 61,
+        "pass": 61,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "stdoutSha256": "87a3bae77dff2bc93ba2fa597590ee5607391661ed21a2697ecfe4a01a5efb46",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "61 focused actual-caller and retained regression cases."
+    },
+    {
+      "id": "m2-01",
+      "retainedReceipt": "early-raid-stored-origin-20261009/work/orchestration/issue256-stored-origin-m2-01/receipt.json",
+      "receiptSha256": "afe1860a64f684107f4ce868680fcdcab06d55a5cc499c57b547050168bf0260",
+      "status": "passed",
+      "exitCode": 0,
+      "sourceHead": "7bc41bd09c4f65e5c1a70677af61aa4625a3897d",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceBeforeAfterEqual": true,
+      "inputCount": 8,
+      "inputMapSha256": "718f3d9e3c1ee38ff95f8025969140609f8e9cc9d29c085ed3d13536938b39a9",
+      "selectedInputBindings": {
+        "app/computer-runtime.ts": "01138df49ada0d61f724a8daca63028c48b7a44c4636e7045ae72a18880c37c4"
+      },
+      "command": [
+        "taskset",
+        "-c",
+        "4",
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=5s",
+        "90s",
+        "node",
+        "--max-old-space-size=768",
+        "--test",
+        "--test-concurrency=1",
+        "tests/mission2-raid.test.mjs"
+      ],
+      "startedAt": "2026-10-09T12:57:10.823Z",
+      "finishedAt": "2026-10-09T12:57:20.355Z",
+      "counts": {
+        "tests": 3,
+        "pass": 3,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "stdoutSha256": "0cfd75bc4f7f1a3c27d09db69735bba411d54c1993c6d894736cca594295d0df",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "Three existing Mission 2 natural-model/checkpoint/targeting regressions."
+    },
+    {
+      "id": "m3-01",
+      "retainedReceipt": "early-raid-stored-origin-20261009/work/orchestration/issue256-stored-origin-m3-01/receipt.json",
+      "receiptSha256": "d18b66aac8e9452bbcb3204494d4087b6ce05d8baaecbbfb1fa94a79b074ca5b",
+      "status": "passed",
+      "exitCode": 0,
+      "sourceHead": "7bc41bd09c4f65e5c1a70677af61aa4625a3897d",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceBeforeAfterEqual": true,
+      "inputCount": 9,
+      "inputMapSha256": "fd31f38589659d418682a7e2859b7b9d1249b5eb509451012210099480e5e76e",
+      "selectedInputBindings": {
+        "app/computer-runtime.ts": "01138df49ada0d61f724a8daca63028c48b7a44c4636e7045ae72a18880c37c4"
+      },
+      "command": [
+        "taskset",
+        "-c",
+        "4",
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=5s",
+        "90s",
+        "node",
+        "--max-old-space-size=768",
+        "--test",
+        "--test-concurrency=1",
+        "tests/early-mission-ai.test.mjs"
+      ],
+      "startedAt": "2026-10-09T12:57:51.761Z",
+      "finishedAt": "2026-10-09T12:58:18.980Z",
+      "counts": {
+        "tests": 2,
+        "pass": 2,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "stdoutSha256": "18377996a290e86a816fd9369a0d14e6f20dbf21a755ac3b53fe4d0b97b7fd9a",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "Two existing Mission 3 periodic/natural-model regressions."
+    },
+    {
+      "id": "standard03-failed",
+      "retainedReceipt": "populous-recovery-20261009/work/orchestration/issue256-7bc41bd-final-02/tests-03.json",
+      "receiptSha256": "99bdd3b03b27836b1b2ab3f700a0ac1799abfd99e50e22dd5570ac3edbc87de3",
+      "status": "failed",
+      "exitCode": 1,
+      "sourceHead": "7bc41bd09c4f65e5c1a70677af61aa4625a3897d",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceBeforeAfterEqual": true,
+      "inputCount": 282,
+      "inputMapSha256": "3d5862f38609e13911c889ffc56133f40df0ae198ab30666d3d09ba1518026ef",
+      "selectedInputBindings": {
+        "tests/game.test.mjs": "eabfd9bb0dcece9e7da8bdedf59c70a53ebbd968d614ede0ddb5ac286ee6bc17",
+        "tests/raid-staging.test.mjs": "b0f43a440a32d825d631b8c26817a38fcd9d6c4ba5d13d4a96537b377b9b61dc",
+        "work/orchestration/issue256-7bc41bd-final-02/profile.json": "9d1532155d5349e7c79f8c5b5ae6d3b463c96aadbb56568adfadd017e69b7ccd",
+        "work/orchestration/issue256-7bc41bd-final-02/admission.json": "08facf37631a1d50dbac58b961de91cad0d3f023e561fa7a03be6ca14da77f7a",
+        "work/orchestration/issue256-7bc41bd-final-02/run-stage.mjs": "1687004eb4f82c620ddffe1523d5c3f339e4b73dad3639f477fafc6fdbf4d366"
+      },
+      "command": [
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=15s",
+        "150s",
+        "taskset",
+        "-c",
+        "5-7",
+        "node",
+        "--test",
+        "tests/erosion-ordinary-route.test.mjs",
+        "tests/erosion-ordinary-runtime.test.mjs",
+        "tests/erosion-shrine-activation.test.mjs",
+        "tests/erosion.test.mjs",
+        "tests/fight-cleanup.test.mjs",
+        "tests/firestorm.test.mjs",
+        "tests/firewarrior-firing-artwork.test.mjs",
+        "tests/firewarrior-firing-phase.test.mjs",
+        "tests/firewarrior-resting-artwork.test.mjs",
+        "tests/flatten.test.mjs",
+        "tests/follower-class-controls.test.mjs",
+        "tests/follower-task-runtime.test.mjs",
+        "tests/follower-tasks.test.mjs",
+        "tests/follower-transport-owner-consumers.test.mjs",
+        "tests/follower-transport-runtime.test.mjs",
+        "tests/follower-transports.test.mjs",
+        "tests/footprints.test.mjs",
+        "tests/formation-phase.test.mjs",
+        "tests/game-clock.test.mjs",
+        "tests/game.test.mjs",
+        "tests/ghost-army.test.mjs",
+        "tests/globe.test.mjs",
+        "tests/ground-waypoints.test.mjs",
+        "tests/healing.test.mjs",
+        "tests/housing-entry.test.mjs",
+        "tests/hud-layout.test.mjs",
+        "tests/hud-selection.test.mjs",
+        "tests/hud-texture-readiness.test.mjs",
+        "tests/hud.test.mjs",
+        "tests/human-training-orders.test.mjs",
+        "tests/hut-birth.test.mjs",
+        "tests/hut-occupancy-smoke.test.mjs",
+        "tests/hut-smoke-events.test.mjs",
+        "tests/hut-smoke-first-visit.test.mjs"
+      ],
+      "startedAt": "2026-10-09T13:08:52.746Z",
+      "finishedAt": "2026-10-09T13:09:59.959Z",
+      "counts": {
+        "tests": 283,
+        "pass": 282,
+        "fail": 1,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "stdoutSha256": "d296a1b775164a2e06f4e2498b0b3cdfe9958874b00c6555b7a92510ce0df2e4",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "Failed standard shard: 282/283 passed; no partial pass carried from this shard."
+    },
+    {
+      "id": "diagnostic-01",
+      "retainedReceipt": "early-raid-stored-origin-20261009/work/orchestration/issue256-marker-diagnostic-01/receipt.json",
+      "receiptSha256": "67eba2411d70e91b4ef0dc2a57fb32aa9d46ee30f2c1fc7271daf7948bf82925",
+      "status": "failed",
+      "exitCode": 1,
+      "sourceHead": "7bc41bd09c4f65e5c1a70677af61aa4625a3897d",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceBeforeAfterEqual": true,
+      "inputCount": 7,
+      "inputMapSha256": "667f247a86081e19f6128c244f1c8468976c2a74e4f4c178133e6021f41a0e99",
+      "selectedInputBindings": {
+        "tests/game.test.mjs": "eabfd9bb0dcece9e7da8bdedf59c70a53ebbd968d614ede0ddb5ac286ee6bc17",
+        "work/orchestration/issue256-marker-diagnostic-01/game-observer.test.mjs": "0ce8ce464cb971b838afc7f6c3b2ed95567b252172530eb8572bf76634f74a54",
+        "work/orchestration/issue256-marker-diagnostic-01/observer-manifest.json": "550d8186560a52f077e2e0bdda72c6f1b3154d286464f79e1662494f4b1fb9a9",
+        "app/computer-runtime.ts": "01138df49ada0d61f724a8daca63028c48b7a44c4636e7045ae72a18880c37c4"
+      },
+      "command": [
+        "taskset",
+        "-c",
+        "4",
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=5s",
+        "30s",
+        "node",
+        "--max-old-space-size=768",
+        "--test",
+        "--test-name-pattern=^mission-one Dakini launches its native attack route when Blue enters marker three$",
+        "work/orchestration/issue256-marker-diagnostic-01/game-observer.test.mjs"
+      ],
+      "startedAt": "2026-10-09T13:13:51.482Z",
+      "finishedAt": "2026-10-09T13:13:53.738Z",
+      "counts": {
+        "tests": 1,
+        "pass": 0,
+        "fail": 1,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "stdoutSha256": "802c7898dd95b47f0cb8fbfd7719d0f515253d55e4ede681a62747cde91b11b0",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "Failed unchanged marker fixture; terminal task slot was reused, original cohort not retained."
+    },
+    {
+      "id": "diagnostic-02",
+      "retainedReceipt": "early-raid-stored-origin-20261009/work/orchestration/issue256-marker-diagnostic-02/receipt.json",
+      "receiptSha256": "725c18e8f3194ce98cbe8c722b3947c4fb0e36935cf728e28cc08c79046a0200",
+      "status": "failed",
+      "exitCode": 1,
+      "sourceHead": "7bc41bd09c4f65e5c1a70677af61aa4625a3897d",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceBeforeAfterEqual": true,
+      "inputCount": 7,
+      "inputMapSha256": "1e9ad0c3a2e2261ccb4d6a3a4885ea388a5f141f5d7e0d675718dc7a68b96716",
+      "selectedInputBindings": {
+        "tests/game.test.mjs": "eabfd9bb0dcece9e7da8bdedf59c70a53ebbd968d614ede0ddb5ac286ee6bc17",
+        "work/orchestration/issue256-marker-diagnostic-02/game-observer.test.mjs": "e9675d486d3bf7f783544d71ad2b962150f4bf7edbea6b9da5d2f44fd94eec7e",
+        "work/orchestration/issue256-marker-diagnostic-02/observer-manifest.json": "21eac92daa3aa9c57f23ef35877ae0c680f3677e18eb4c54b614b2c1ad73c68a",
+        "app/computer-runtime.ts": "01138df49ada0d61f724a8daca63028c48b7a44c4636e7045ae72a18880c37c4"
+      },
+      "command": [
+        "taskset",
+        "-c",
+        "4",
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=5s",
+        "30s",
+        "node",
+        "--max-old-space-size=768",
+        "--test",
+        "--test-name-pattern=^mission-one Dakini launches its native attack route when Blue enters marker three$",
+        "work/orchestration/issue256-marker-diagnostic-02/game-observer.test.mjs"
+      ],
+      "startedAt": "2026-10-09T13:15:36.516Z",
+      "finishedAt": "2026-10-09T13:15:38.685Z",
+      "counts": {
+        "tests": 1,
+        "pass": 0,
+        "fail": 1,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "stdoutSha256": "3c127ce367509fc02e12154121665591dc333ff12ddcb1026ba0b5c52d26b068",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "Failed unchanged marker fixture; first phase6 and original-cohort terminal ownership retained."
+    },
+    {
+      "id": "fixture-green-01",
+      "retainedReceipt": "early-raid-stored-origin-20261009/work/orchestration/issue256-marker-fixture-green-01/receipt.json",
+      "receiptSha256": "59d40aca44f6b8c67bc4d53445b973cb6796f83e59990dc749b52474b0422e31",
+      "status": "passed",
+      "exitCode": 0,
+      "sourceHead": "27c3fb261b445c642b06e53721f19b6581e72826",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceBeforeAfterEqual": true,
+      "inputCount": 5,
+      "inputMapSha256": "3e16cf900b6245bbb80aca9e48c84c92a72ef099120aecf622091044990c0507",
+      "selectedInputBindings": {
+        "tests/game.test.mjs": "cddd58d38a28cea7310612ca7bb1afce7145f27ce6db58c3f595395f5107dbf3",
+        "app/computer-runtime.ts": "01138df49ada0d61f724a8daca63028c48b7a44c4636e7045ae72a18880c37c4"
+      },
+      "command": [
+        "taskset",
+        "-c",
+        "4",
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=5s",
+        "30s",
+        "node",
+        "--max-old-space-size=768",
+        "--test",
+        "--test-name-pattern=^mission-one Dakini launches its native attack route when Blue enters marker three$",
+        "tests/game.test.mjs"
+      ],
+      "startedAt": "2026-10-09T13:17:01.936Z",
+      "finishedAt": "2026-10-09T13:17:04.391Z",
+      "counts": {
+        "tests": 1,
+        "pass": 1,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "stdoutSha256": "8814ee8cac6860ce5249b5422140a4c7383064ec17fe2716f07071e3e75e5fbd",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "Full named marker-three case passed after explicit established-base fixture precondition."
+    }
+  ],
+  "inputMapEncoding": "SHA-256 of UTF-8 JSON.stringify-equivalent object with keys sorted and compact separators. Selected input bindings expose changed or untracked observer files; complete original input maps remain in the hashed receipts.",
+  "reviews": [
+    {
+      "id": "source",
+      "retainedVerdict": "issue256-stored-fallback-source-review-20261009.md",
+      "sha256": "9cb417e47d6879b7b6268823e96fdf2afc49afa0a320a9348fffe5b4ecd22557",
+      "disposition": "ACCEPT",
+      "scope": "Accepted bounded original-source/portable-checkpoint contract and targeted caller proposal."
+    },
+    {
+      "id": "red",
+      "retainedVerdict": "issue256-stored-fallback-red-review-20261009.md",
+      "sha256": "2c875a431ef7609b2bd9b4fe673bc596022c91b946ed22cadb2ee5fbc46a899a",
+      "disposition": "ACCEPT",
+      "scope": "Accepted measured 24 intended failures and minimal production scope."
+    },
+    {
+      "id": "focused",
+      "retainedVerdict": "issue256-stored-fallback-candidate-review-20261009.md",
+      "sha256": "ab3c59a95a75b559d143461224a9413083116c3e4c8890b6da64d35ee16421fc",
+      "disposition": "ACCEPT",
+      "scope": "Accepted exact three-file 7bc source and 61-case focused result."
+    },
+    {
+      "id": "natural-model",
+      "retainedVerdict": "issue256-natural-regression-review-20261009.md",
+      "sha256": "c043b1d34a1c4e1fa6e64bfa4dbd45f19cc0865d34698b19012b2cb9caca715e",
+      "disposition": "ACCEPT",
+      "scope": "Accepted the five existing natural-model preservation cases."
+    },
+    {
+      "id": "fixture",
+      "retainedVerdict": "issue256-marker-fixture-review-20261009.md",
+      "sha256": "87aa674ec733ac118a52974fee9e0d3d1864d60b94b9b0f8cb17097e135b5f9c",
+      "disposition": "ACCEPT",
+      "scope": "Accepted exact 27c two-line fixture delta and full named-case green; standard continuation remains separately gated."
+    },
+    {
+      "id": "quality-and-standard-admission",
+      "retainedVerdict": "issue256-standard-continuation-review-20261009.md",
+      "sha256": "c4059783d373c85f8e730819ba7df41dc673f3a2c831344279bf4c29d88c16dd",
+      "disposition": "ACCEPT",
+      "scope": "Accepted final quality attribution and continuation admission only; final standards remain pending."
+    },
+    {
+      "id": "final-product",
+      "retainedVerdict": "issue256-final-product-verdict-20261009.md",
+      "sha256": "fca6c53134e52b0955c402646283ff5609e4a180c532964ca067199675ba181e",
+      "disposition": "ACCEPT",
+      "scope": "Final product/source/quality/standards at 27c; 1607 tests across 272 files, explicit carried/fresh split and inherited lint/ordinary limits."
+    }
+  ],
+  "limits": [
+    "Actual-caller staging observation stops before order attachment and pathing.",
+    "Existing natural-model regressions preserve their routes; they do not distinguish absent-base stored origin from live Shaman/defense in an ordinary browser history.",
+    "Portable checkpoint coverage includes modern clones and supported legacy single-AI migration; no original binary-save claim.",
+    "No new native execution, rendered browser episode, screenshot, full-mission parity, hardware performance or later-mission projection claim.",
+    "Merge and provider outcomes remain pending."
+  ],
+  "quality": {
+    "receipts": [
+      {
+        "id": "preflight",
+        "retainedReceipt": "populous-recovery-20261009/work/orchestration/issue256-27c3fb2-preflight-01/preflight.json",
+        "receiptSha256": "3cc80490813d24f70713e19a9aa52e4c0fb05bc478f9ffd2cf8e77072ca890b9",
+        "status": "failed",
+        "exitCode": 1,
+        "sourceHead": "27c3fb261b445c642b06e53721f19b6581e72826",
+        "sourceBeforeAfterEqual": true,
+        "command": [
+          "timeout",
+          "--signal=TERM",
+          "--kill-after=10s",
+          "90s",
+          "taskset",
+          "-c",
+          "5-7",
+          "node",
+          "scripts/orchestration/preflight.mjs",
+          "--base",
+          "47680b8fd124aab50b0528eea77a81cacb556060"
+        ],
+        "startedAt": "2026-10-09T13:18:03.898Z",
+        "finishedAt": "2026-10-09T13:18:04.584Z",
+        "stdoutSha256": "65139030a358845931dfbdb0e53a952760f48929454a5e3660434218e4b05399",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "id": "eslint",
+        "retainedReceipt": "populous-recovery-20261009/work/orchestration/issue256-27c3fb2-preflight-01/eslint.json",
+        "receiptSha256": "2d5f8051ab6143f2499443538a593ba27bbf75b6f49ea03bf3ef8330c1120487",
+        "status": "passed",
+        "exitCode": 0,
+        "sourceHead": "27c3fb261b445c642b06e53721f19b6581e72826",
+        "sourceBeforeAfterEqual": true,
+        "command": [
+          "timeout",
+          "--signal=TERM",
+          "--kill-after=10s",
+          "90s",
+          "taskset",
+          "-c",
+          "5-7",
+          "node_modules/.bin/eslint",
+          "--max-warnings",
+          "0",
+          "--",
+          "app/computer-runtime.ts",
+          "scripts/mission3-raid-recruitment-pair.mjs",
+          "tests/raid-staging.test.mjs",
+          "tests/game.test.mjs"
+        ],
+        "startedAt": "2026-10-09T13:18:04.671Z",
+        "finishedAt": "2026-10-09T13:18:09.060Z",
+        "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "id": "structural",
+        "retainedReceipt": "populous-recovery-20261009/work/orchestration/issue256-27c3fb2-preflight-01/structural.json",
+        "receiptSha256": "32d3a91c53ea079a1b1420fec4d4c82954c5940081bf295b5853e84efa0de951",
+        "status": "passed",
+        "exitCode": 0,
+        "sourceHead": "27c3fb261b445c642b06e53721f19b6581e72826",
+        "sourceBeforeAfterEqual": true,
+        "command": [
+          "timeout",
+          "--signal=TERM",
+          "--kill-after=10s",
+          "90s",
+          "taskset",
+          "-c",
+          "5-7",
+          "node",
+          "scripts/orchestration/cli.mjs",
+          "check"
+        ],
+        "startedAt": "2026-10-09T13:18:09.127Z",
+        "finishedAt": "2026-10-09T13:18:09.544Z",
+        "stdoutSha256": "615ed8cad1ae53fe57850bc70c7bb35e56ef57ee474c12df99ca3686fa5368f3",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "id": "context",
+        "retainedReceipt": "populous-recovery-20261009/work/orchestration/issue256-27c3fb2-preflight-01/context.json",
+        "receiptSha256": "19ddf34e24a180bcf9ac05ad1986afc68ab909450965306b0865b3314eeabfaa",
+        "status": "passed",
+        "exitCode": 0,
+        "sourceHead": "27c3fb261b445c642b06e53721f19b6581e72826",
+        "sourceBeforeAfterEqual": true,
+        "command": [
+          "timeout",
+          "--signal=TERM",
+          "--kill-after=10s",
+          "90s",
+          "taskset",
+          "-c",
+          "5-7",
+          "node",
+          "--test",
+          "--test-name-pattern=context",
+          "tests/orchestration.test.mjs"
+        ],
+        "startedAt": "2026-10-09T13:18:09.602Z",
+        "finishedAt": "2026-10-09T13:18:12.538Z",
+        "stdoutSha256": "8716cdd84f2a5d350df166d6c1d571127771ea395d01ffc9ba5f78080f7a70a3",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "format": "passed for changed application file",
+    "eslint": "passed for all four changed files",
+    "structural": "passed",
+    "context": "7/7 passed",
+    "strictOxlint": {
+      "status": "failed",
+      "errors": 16,
+      "warnings": 57,
+      "total": 73,
+      "disposition": "Inherited diagnostics accepted by exact runtime/baseline attribution; not a clean lint result.",
+      "baselineAttributionSha256": "886e09a756167dc3f8802633ad80099cd3ab05de920ca74ea0a67b1acc8a3585"
+    }
+  },
+  "standardAdmission": {
+    "carriedSource": "7bc41bd09c4f65e5c1a70677af61aa4625a3897d",
+    "freshSource": "27c3fb261b445c642b06e53721f19b6581e72826",
+    "carriedStages": [
+      {
+        "name": "typecheck",
+        "status": "passed",
+        "receiptSha256": "5c22a32f1edc77aab712ef6a0c9a74359b9d29cb8d651d69e15624a272ece366"
+      },
+      {
+        "name": "tests01",
+        "status": "passed",
+        "tests": 170,
+        "receiptSha256": "07c32d23b0fa8fdedbe25717d4d9bdf0debe6e11dc7647e76460696e8640a437"
+      },
+      {
+        "name": "tests02",
+        "status": "passed",
+        "tests": 165,
+        "receiptSha256": "3ea8d27dbc817d834c7b198520172f925c970d80439adedddc5ac80df1646680"
+      }
+    ],
+    "freshStageCount": 13,
+    "maintainedTestFiles": 272,
+    "carriedTestFiles": 66,
+    "freshTestFiles": 206,
+    "condition": "All 13 fresh stages completed successfully; the failed prior tests03 remains separately retained, with no partial pass carried."
+  },
+  "standardResult": {
+    "retainedAggregate": "populous-recovery-20261009/work/orchestration/issue256-27c3fb2-final-03/aggregate.json",
+    "aggregateSha256": "35286e6ce721bcc851f0aabc401358ae4d681f7fb58273ef62f4bfc346af61de",
+    "status": "passed",
+    "aggregateAcceptanceText": "raw aggregate; independent final review pending",
+    "sourceCommit": "27c3fb261b445c642b06e53721f19b6581e72826",
+    "sourceTree": "35e6ceddebaba1185898a1999c79a2da372f8999",
+    "profileSha256": "9a49ed76364ce69f7a236e8ed3922a7feb6616d63164327844b084da77127846",
+    "coverage": {
+      "fileCount": 272,
+      "standardTestCommand": "node --test tests/*.test.mjs",
+      "allFilesExactlyOnce": true,
+      "carriedTestFiles": 66,
+      "freshTestFiles": 206
+    },
+    "counts": {
+      "tests": 1607,
+      "suites": 0,
+      "pass": 1607,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "carriedTestCount": 335,
+    "freshTestCount": 1272,
+    "rows": [
+      {
+        "name": "typecheck",
+        "carried": true,
+        "testedSource": "7bc41bd09c4f65e5c1a70677af61aa4625a3897d",
+        "receipt": "work/orchestration/issue256-7bc41bd-final-02/typecheck.json",
+        "receiptSha256": "5c22a32f1edc77aab712ef6a0c9a74359b9d29cb8d651d69e15624a272ece366",
+        "stdoutSha256": "5b3b688caa668685eebda41ca93c4e60de869bac3645a0b25bf22809e6c84ba5",
+        "stderrSha256": "7d61cb2e2deb776dfec4d6f54693f9edeed0af5c4da52f091c53c995d862fb65",
+        "startedAt": "2026-10-09T13:06:47.523Z",
+        "finishedAt": "2026-10-09T13:07:06.566Z",
+        "durationSeconds": 19.043,
+        "counts": null
+      },
+      {
+        "name": "tests-01",
+        "carried": true,
+        "testedSource": "7bc41bd09c4f65e5c1a70677af61aa4625a3897d",
+        "receipt": "work/orchestration/issue256-7bc41bd-final-02/tests-01.json",
+        "receiptSha256": "07c32d23b0fa8fdedbe25717d4d9bdf0debe6e11dc7647e76460696e8640a437",
+        "stdoutSha256": "afaac650e2d0cc9ea8bbbc02fd31edb5c1019738326744909b83096e377914f0",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "startedAt": "2026-10-09T13:07:12.574Z",
+        "finishedAt": "2026-10-09T13:07:57.188Z",
+        "durationSeconds": 44.614,
+        "counts": {
+          "tests": 170,
+          "suites": 0,
+          "pass": 170,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "name": "tests-02",
+        "carried": true,
+        "testedSource": "7bc41bd09c4f65e5c1a70677af61aa4625a3897d",
+        "receipt": "work/orchestration/issue256-7bc41bd-final-02/tests-02.json",
+        "receiptSha256": "3ea8d27dbc817d834c7b198520172f925c970d80439adedddc5ac80df1646680",
+        "stdoutSha256": "b9164e9a632859f265c71ed30b833d8935846b263e757ad3d134183261a2a03d",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "startedAt": "2026-10-09T13:07:58.861Z",
+        "finishedAt": "2026-10-09T13:08:51.286Z",
+        "durationSeconds": 52.425,
+        "counts": {
+          "tests": 165,
+          "suites": 0,
+          "pass": 165,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "name": "tests-03",
+        "carried": false,
+        "testedSource": "27c3fb261b445c642b06e53721f19b6581e72826",
+        "receipt": "work/orchestration/issue256-27c3fb2-final-03/tests-03.json",
+        "receiptSha256": "cccab3f576d74988e9875efe898fbb081eaea3ea3638a9dc3b305b82a9e33de4",
+        "stdoutSha256": "6d2ef23f0f84bd83154bf6d6ccbc172a2a9d1658d86d57b064b40a2c92de0fd1",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "startedAt": "2026-10-09T13:20:57.235Z",
+        "finishedAt": "2026-10-09T13:22:09.220Z",
+        "durationSeconds": 71.985,
+        "counts": {
+          "tests": 283,
+          "suites": 0,
+          "pass": 283,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "name": "tests-04a",
+        "carried": false,
+        "testedSource": "27c3fb261b445c642b06e53721f19b6581e72826",
+        "receipt": "work/orchestration/issue256-27c3fb2-final-03/tests-04a.json",
+        "receiptSha256": "10ea9ba9f8da84c6abf7660d7c505c0953298ce3dccfdf80819cafd2389a8645",
+        "stdoutSha256": "826bcfeb75954e8d16cf95d0d5d0a26c8940fb26a6d765296e6c3302b54c5169",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "startedAt": "2026-10-09T13:22:13.228Z",
+        "finishedAt": "2026-10-09T13:22:40.440Z",
+        "durationSeconds": 27.212,
+        "counts": {
+          "tests": 52,
+          "suites": 0,
+          "pass": 52,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "name": "tests-04b",
+        "carried": false,
+        "testedSource": "27c3fb261b445c642b06e53721f19b6581e72826",
+        "receipt": "work/orchestration/issue256-27c3fb2-final-03/tests-04b.json",
+        "receiptSha256": "8b9aa7d13717f7cb6c35ebc404679f580c39c5e89d05cf03c81c70593555c5c0",
+        "stdoutSha256": "0a318a67aa2e57d5a35b672129445e70cb2aa97e25a4c1061b1d3fc049e183da",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "startedAt": "2026-10-09T13:22:42.520Z",
+        "finishedAt": "2026-10-09T13:23:11.040Z",
+        "durationSeconds": 28.52,
+        "counts": {
+          "tests": 75,
+          "suites": 0,
+          "pass": 75,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "name": "tests-04c",
+        "carried": false,
+        "testedSource": "27c3fb261b445c642b06e53721f19b6581e72826",
+        "receipt": "work/orchestration/issue256-27c3fb2-final-03/tests-04c.json",
+        "receiptSha256": "f0d6dea4f43ca5d2e5d00237baf748508ce5445fc34fa250c44ec17101a86d70",
+        "stdoutSha256": "19f65b0a1646cd35b80ca680f1a4b5a6f5b7eff646fd8369552b9ec970649da5",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "startedAt": "2026-10-09T13:23:12.503Z",
+        "finishedAt": "2026-10-09T13:23:53.001Z",
+        "durationSeconds": 40.498,
+        "counts": {
+          "tests": 32,
+          "suites": 0,
+          "pass": 32,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "name": "tests-05a",
+        "carried": false,
+        "testedSource": "27c3fb261b445c642b06e53721f19b6581e72826",
+        "receipt": "work/orchestration/issue256-27c3fb2-final-03/tests-05a.json",
+        "receiptSha256": "73496af25236fcc797202e7d3d4b9d4583ddc3244d5eb23fef19e9af40fe41df",
+        "stdoutSha256": "ed51b2adcb41955ea81c438c2e84cb024bda575de75aeaf12752f29109f2fc44",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "startedAt": "2026-10-09T13:23:54.349Z",
+        "finishedAt": "2026-10-09T13:25:01.536Z",
+        "durationSeconds": 67.187,
+        "counts": {
+          "tests": 54,
+          "suites": 0,
+          "pass": 54,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "name": "tests-05b",
+        "carried": false,
+        "testedSource": "27c3fb261b445c642b06e53721f19b6581e72826",
+        "receipt": "work/orchestration/issue256-27c3fb2-final-03/tests-05b.json",
+        "receiptSha256": "8d6ee0fc18deab6cf278a6bb665545a2489b1e0a43abb3019a8bbdd592cff2c3",
+        "stdoutSha256": "8871020df060cca1d36760e465e6788b1d6210080b627217372af65d967d13b9",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "startedAt": "2026-10-09T13:25:03.250Z",
+        "finishedAt": "2026-10-09T13:26:44.861Z",
+        "durationSeconds": 101.611,
+        "counts": {
+          "tests": 47,
+          "suites": 0,
+          "pass": 47,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "name": "tests-05c",
+        "carried": false,
+        "testedSource": "27c3fb261b445c642b06e53721f19b6581e72826",
+        "receipt": "work/orchestration/issue256-27c3fb2-final-03/tests-05c.json",
+        "receiptSha256": "0700969218c94e0cea86710657e48b05ce9b48ddcc56d415b83230b59dcb7f89",
+        "stdoutSha256": "2999aa997aff671518f31b1d41228bd263ea7a048fd1514af509d8e43b6af9a6",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "startedAt": "2026-10-09T13:26:47.514Z",
+        "finishedAt": "2026-10-09T13:27:03.095Z",
+        "durationSeconds": 15.581,
+        "counts": {
+          "tests": 90,
+          "suites": 0,
+          "pass": 90,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "name": "tests-06",
+        "carried": false,
+        "testedSource": "27c3fb261b445c642b06e53721f19b6581e72826",
+        "receipt": "work/orchestration/issue256-27c3fb2-final-03/tests-06.json",
+        "receiptSha256": "e2e573d3f5e5c0c109798c89adb1f1b65462a8bfe73c7e8c1849ab6a57f0075d",
+        "stdoutSha256": "a39b9192506eb75b2524c4f9f9b1b9fe3c402c732b428e4fbd71b08957b485da",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "startedAt": "2026-10-09T13:27:04.715Z",
+        "finishedAt": "2026-10-09T13:28:00.454Z",
+        "durationSeconds": 55.739,
+        "counts": {
+          "tests": 328,
+          "suites": 0,
+          "pass": 328,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "name": "tests-07",
+        "carried": false,
+        "testedSource": "27c3fb261b445c642b06e53721f19b6581e72826",
+        "receipt": "work/orchestration/issue256-27c3fb2-final-03/tests-07.json",
+        "receiptSha256": "e555fa9ea777c26b411419cc67cfdd9ada5c51beeca41f48460f12968a6c82f3",
+        "stdoutSha256": "ce759a456df9325e6ac2b8636543d22d53ca01c9e69c8aab074a3e9f3b24394b",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "startedAt": "2026-10-09T13:28:02.157Z",
+        "finishedAt": "2026-10-09T13:28:48.925Z",
+        "durationSeconds": 46.768,
+        "counts": {
+          "tests": 141,
+          "suites": 0,
+          "pass": 141,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "name": "tests-08",
+        "carried": false,
+        "testedSource": "27c3fb261b445c642b06e53721f19b6581e72826",
+        "receipt": "work/orchestration/issue256-27c3fb2-final-03/tests-08.json",
+        "receiptSha256": "43b83992071354b41d7f61bf9186bd851eafe4e4ab82e2b13213bbf34773586d",
+        "stdoutSha256": "9882d9347c652a9cbd53c9472991b4fe1497c78641ed47da99601ce8401c0c8a",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "startedAt": "2026-10-09T13:28:51.949Z",
+        "finishedAt": "2026-10-09T13:29:51.909Z",
+        "durationSeconds": 59.96,
+        "counts": {
+          "tests": 170,
+          "suites": 0,
+          "pass": 170,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "name": "parity",
+        "carried": false,
+        "testedSource": "27c3fb261b445c642b06e53721f19b6581e72826",
+        "receipt": "work/orchestration/issue256-27c3fb2-final-03/parity.json",
+        "receiptSha256": "925290cba0b5ee7fd76370ff2c1a946e8174506cc25071ceff300f1d42ffa24a",
+        "stdoutSha256": "f39c8ad20b8013f4e4e4ade55ff5d63ab1c8df3729611db56c2d25cf734b48a9",
+        "stderrSha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+        "startedAt": "2026-10-09T13:29:54.285Z",
+        "finishedAt": "2026-10-09T13:29:55.030Z",
+        "durationSeconds": 0.745,
+        "counts": null
+      },
+      {
+        "name": "orchestration",
+        "carried": false,
+        "testedSource": "27c3fb261b445c642b06e53721f19b6581e72826",
+        "receipt": "work/orchestration/issue256-27c3fb2-final-03/orchestration.json",
+        "receiptSha256": "bec5b3721cc25ee3265dbb6aec0d73b2acefe3cbd553d0085bec77a622bf3acd",
+        "stdoutSha256": "fa916bb77d6b2e1e78be229584c7c8ab037e701fd3368d398b11e2d7451f22db",
+        "stderrSha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+        "startedAt": "2026-10-09T13:29:56.608Z",
+        "finishedAt": "2026-10-09T13:29:57.308Z",
+        "durationSeconds": 0.7,
+        "counts": null
+      },
+      {
+        "name": "build",
+        "carried": false,
+        "testedSource": "27c3fb261b445c642b06e53721f19b6581e72826",
+        "receipt": "work/orchestration/issue256-27c3fb2-final-03/build.json",
+        "receiptSha256": "ef47451ac81812726aa49b70b3cb2220e865ad28a456254ac20a1181d6f0bd60",
+        "stdoutSha256": "03fae796e2eda08e6606e3638c6df2bd27e5c5f4c9333a56a4f0ea874d2d5c6c",
+        "stderrSha256": "d2f0c4cc20d2cecee845a31242d6aba7c64e5754894dc9dd28b9c85911305334",
+        "startedAt": "2026-10-09T13:29:58.836Z",
+        "finishedAt": "2026-10-09T13:30:40.343Z",
+        "durationSeconds": 41.507,
+        "counts": null
+      }
+    ],
+    "timing": {
+      "freshStartedAt": "2026-10-09T13:20:57.235Z",
+      "freshFinishedAt": "2026-10-09T13:30:40.343Z",
+      "freshCommandSeconds": 558.013,
+      "freshSpanSeconds": 583.108,
+      "carriedCommandSeconds": 116.082
+    },
+    "retainedFailure": "work/orchestration/issue256-7bc41bd-final-02/tests-03.json",
+    "limits": [
+      "Three stages retain their actual7bc source with independently reviewed game.test-only correspondence.",
+      "All of the failed tests03 and all unrun stages were executed on27c.",
+      "Nested child-test diagnostic summaries are excluded; the final top-level summary per shard is used.",
+      "No distinct-coordinate ordinary-browser or original binary-save parity claim."
+    ],
+    "independentVerdictSha256": "fca6c53134e52b0955c402646283ff5609e4a180c532964ca067199675ba181e"
+  }
+}
