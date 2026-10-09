@@ -121,7 +121,7 @@ or establish native pixel equivalence.
 
 The run used software WebGL. It makes no hardware-performance, native-pixel,
 full original-history, cancellation or restart claim. The public Load was in the
-same session; the exact native cleanup proof is supplied by scalar observations,
+same session; exact cleanup is established by scalar observations,
 not by reading every identity from the images.
 
 This evidence directory is limited to this report, a compact source/hash
