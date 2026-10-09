@@ -4,6 +4,8 @@
 
 **Later accepted producer finding:** the [input producer addendum](input-producer-addendum.md) closes the normal configured second-button route through codeF1 to cases0x72/0x73 using the actual DirectInput format. It also binds the window2/configuration0x100/mode0x11 lifecycle. The physical-producer statements below describe this earlier assessment; selection/modal/overview equivalence remains unproved and runtime remains held.
 
+**Later accepted guard finding:** the [window2 addendum](window2-guard-addendum.md) binds context-topic selection and the mode17 F1-release route to b9 before ordinary inspection73. Browser menu/pause/overview ownership is distinct. Repeated enable still depends on the unbound active-window producer004513d0, and the topic title/text presenter is unbound; runtime remains held.
+
 **Correction to the prior draft:** native input cases0x72/0x73 and numeric codeF1/event masks1/4 are bound below. The actual physical right-button producer and equivalence of native mode0 to current selection/modal/overview guards are not established. Any earlier implication that the complete ordinary right-click action was implementation-ready is withdrawn. Current port right-click behavior is comparison evidence only.
 
 **Result: the existing object-count algorithm is source-supported, but a complete ordinary-Hut integration contract is still held.** Timing variability from a cached frontend count is not itself a source blocker. Missing port ownership is implementation work; missing original producer/name closure is separately identified below. This assessment does not propose a text-only runtime compromise.
