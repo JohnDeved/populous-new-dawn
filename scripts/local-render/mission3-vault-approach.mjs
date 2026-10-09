@@ -137,6 +137,131 @@ export async function cleanupVaultApproach({ input, routeHandle, report, output 
   }
 }
 
+// Ordinary01's angle1153 hides the outside prayer point behind the Vault/tree.
+// One fixed half-turn uses the existing right-drag control before any witness or
+// order is armed. This prepares a view; only fresh pixels can establish clearance.
+export async function prepareVaultDoorView({ page, input, routeHandle, signal, report, save }) {
+  const entry = { before: null, after: null, cleanupErrors: [] }
+  report.cameraView = entry
+  const read = () =>
+    routeHandle.evaluate(api => {
+      const { scene, world, shaman } = api,
+        canvas = scene.renderer.domElement
+      const rect = canvas.getBoundingClientRect()
+      const x = Math.round(rect.left + (rect.width - 1024) / 2)
+      const y = Math.round(rect.top + rect.height * 0.75)
+      return {
+        camera: { ...scene.cameraPosition },
+        velocity: { ...scene.cameraVelocity },
+        selected: [...world.selected],
+        mode: world.mode,
+        turn: world.turn,
+        lastOrderTurn: world.lastOrderTurn,
+        ready:
+          window.m3TempleRoute === api &&
+          window.testSceneRef.current === scene &&
+          window.testStore.getWorld() === world &&
+          scene.world === world &&
+          canvas.isConnected &&
+          world.units.find(u => u.id === 46) === shaman &&
+          shaman.hp > 0 &&
+          world.status === 'playing' &&
+          !world.paused &&
+          !world.inputMask &&
+          !scene.overviewActive &&
+          !scene.cameraMotion.active &&
+          !scene.resultCamera.active &&
+          !scene.viewTransition,
+        corridor: {
+          x,
+          y,
+          end: x + 1024,
+          steps: 16,
+          owned:
+            rect.width >= 1152 &&
+            rect.height >= 128 &&
+            Array.from({ length: 17 }, (_, index) => x + index * 64).every(
+              clientX => document.elementFromPoint(clientX, y) === canvas
+            ),
+        },
+      }
+    })
+  let failed = false,
+    failure
+  const fail = error => {
+    if (!failed) {
+      failed = true
+      failure = error
+    }
+  }
+  try {
+    await input.settle()
+    signal.throwIfAborted()
+    entry.before = await read()
+    signal.throwIfAborted()
+    assert.equal(entry.before.ready, true)
+    assert.deepEqual(entry.before.selected, [46])
+    assert.equal(entry.before.mode, null)
+    assert.equal(
+      entry.before.camera.angle,
+      1153,
+      'Fixed door-view setup requires the ordinary01 heading'
+    )
+    assert.deepEqual(entry.before.velocity, { turn: 0, forward: 0, side: 0 })
+    assert.equal(
+      entry.before.corridor.owned,
+      true,
+      'Fixed right-drag corridor must belong to the canvas'
+    )
+    await input.action('vault-door-half-turn', async () => {
+      const { x, y, end, steps } = entry.before.corridor
+      await page.mouse.move(x, y)
+      signal.throwIfAborted()
+      try {
+        await page.mouse.down({ button: 'right' })
+        signal.throwIfAborted()
+        await page.mouse.move(end, y, { steps })
+      } catch (error) {
+        fail(error)
+      } finally {
+        try {
+          await page.mouse.up({ button: 'right' })
+        } catch (error) {
+          entry.cleanupErrors.push(String(error))
+          fail(error)
+        }
+      }
+      if (failed) throw failure
+    })
+    await input.settle()
+    signal.throwIfAborted()
+  } catch (error) {
+    fail(error)
+  } finally {
+    try {
+      entry.after = await read()
+    } catch (error) {
+      entry.cleanupErrors.push(String(error))
+      fail(error)
+    }
+    try {
+      save()
+    } catch (error) {
+      entry.cleanupErrors.push(String(error))
+      fail(error)
+    }
+  }
+  if (failed) throw failure
+  signal.throwIfAborted()
+  assert.equal(entry.after.ready, true)
+  assert.deepEqual(entry.after.camera, { ...entry.before.camera, angle: 129 })
+  assert.deepEqual(entry.after.velocity, entry.before.velocity)
+  assert.deepEqual(entry.after.selected, [46])
+  assert.equal(entry.after.mode, null)
+  assert.equal(entry.after.lastOrderTurn, entry.before.lastOrderTurn)
+  return entry
+}
+
 // The ordinary05/Temple fresh prefix, with no replacement order after reward.
 export default async function missionThreeVaultApproach({
   page,
@@ -188,6 +313,7 @@ export default async function missionThreeVaultApproach({
     assert.ok(!cleared.mode && !cleared.selected.length)
     await input.button('Select and focus shaman')
     await input.view(report.initial.vault[0])
+    await prepareVaultDoorView({ page, input, routeHandle, signal, report, save })
     await input.prepareDispatch()
     await routeHandle.evaluate(async api => {
       const { armTempleVaultApproach } =

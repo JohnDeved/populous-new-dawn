@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url'
 import { createWorld, command, select, tick } from '../../app/model.ts'
 import { currentPersonOrder } from '../../app/person-orders.ts'
 import { buildingFootprintCells } from '../../app/building-shapes.ts'
+import { dragCamera } from '../../app/camera-input.ts'
 import { finishLevelStart } from '../../tests/level-start-fixture.mjs'
 import {
   installTempleRouteObservation,
@@ -19,6 +20,7 @@ import { createMission1VaultInput } from '../../scripts/local-render/mission1-va
 import scenario, {
   assertVaultApproachEvidence,
   cleanupVaultApproach,
+  prepareVaultDoorView,
 } from '../../scripts/local-render/mission3-vault-approach.mjs'
 
 function fixture(t) {
@@ -565,4 +567,97 @@ test('actual host preserves a failing first health state and closes its captured
   assert.equal(report.status, 'failed')
   assert.equal(disposed, true)
   assert.equal(window.m3TempleRoute, undefined)
+})
+
+async function cameraFixture(t, failure = null) {
+  const f = fixture(t)
+  f.scene.cameraPosition = { x: 58044, y: 31972, angle: 1153 }
+  f.scene.cameraVelocity = { turn: 0, forward: 0, side: 0 }
+  f.scene.cameraMotion = { active: 0 }
+  f.scene.resultCamera = { active: 0 }
+  const api = await installTempleRouteObservation({ returnApi: true })
+  const calls = [],
+    report = {}
+  let held = false,
+    lastX = 0
+  f.page.mouse.move = async (x, y, options) => {
+    calls.push(['move', x, y, options])
+    if (held) {
+      if (failure?.move) throw failure.value
+      assert.equal(options.steps, 16)
+      const delta = (x - lastX) / options.steps
+      assert.equal(delta, 64)
+      for (let n = 0; n < options.steps; n++)
+        dragCamera(f.scene.cameraPosition, f.scene.cameraVelocity, true, delta, 0)
+    }
+    lastX = x
+  }
+  f.page.mouse.down = async options => {
+    calls.push(['down', options])
+    held = true
+  }
+  f.page.mouse.up = async options => {
+    calls.push(['up', options])
+    held = false
+    if (failure?.release) throw new Error('right release failed')
+  }
+  return {
+    ...f,
+    api,
+    calls,
+    report,
+    options: {
+      page: f.page,
+      input: f.input,
+      routeHandle: { evaluate: fn => fn(api) },
+      signal: new AbortController().signal,
+      report,
+      save() {},
+    },
+  }
+}
+
+test('fixed Vault camera half-turn composes with the shipped drag mapping and unchanged strict input helper', async t => {
+  const f = await cameraFixture(t)
+  const entry = await prepareVaultDoorView(f.options)
+  assert.deepEqual(entry.before.camera, { x: 58044, y: 31972, angle: 1153 })
+  assert.deepEqual(entry.after.camera, { x: 58044, y: 31972, angle: 129 })
+  assert.deepEqual(entry.after.selected, [46])
+  assert.equal(entry.after.lastOrderTurn, entry.before.lastOrderTurn)
+  assert.deepEqual(
+    f.calls.map(call => call[0]),
+    ['move', 'down', 'move', 'up']
+  )
+  assert.equal(f.calls[2][1] - f.calls[0][1], 1024)
+  assert.equal(f.calls[2][2], f.calls[0][2])
+  assert.equal(f.api.vaultApproach, undefined, 'Camera setup precedes observation')
+  const delivered = await f.input.clickEntity('shrines', 92, 33, false, [46])
+  assert.equal(delivered.after.units[0].orderOwner.phase, 0)
+  assert.deepEqual(delivered.after.selected, [46])
+  f.api.close()
+})
+
+test('fixed Vault camera half-turn rejects foreign corridors and preserves failures through mandatory right release', async t => {
+  const f = await cameraFixture(t)
+  document.elementFromPoint = () => null
+  await assert.rejects(prepareVaultDoorView(f.options), /corridor must belong/)
+  assert.deepEqual(f.calls, [])
+  assert.equal(f.report.cameraView.before.corridor.owned, false)
+  assert.ok(f.report.cameraView.after)
+  f.api.close()
+  const g = await cameraFixture(t, { move: true, release: true, value: 0 })
+  let actual = Symbol('not thrown')
+  try {
+    await prepareVaultDoorView(g.options)
+  } catch (error) {
+    actual = error
+  }
+  assert.equal(actual, 0)
+  assert.deepEqual(
+    g.calls.map(call => call[0]),
+    ['move', 'down', 'move', 'up']
+  )
+  assert.match(g.report.cameraView.cleanupErrors.join('\n'), /right release failed/)
+  assert.ok(g.report.cameraView.after)
+  g.api.close()
 })
