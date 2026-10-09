@@ -178,7 +178,8 @@
       "automation": "safe",
       "purpose": "Validate receipt-derived automatic parity measurement without executing game checks.",
       "coveredBehavior": [
-        "Evidence freshness, failure precedence, unknown scope, deterministic history and report escaping"
+        "Evidence freshness, failure precedence, unknown scope, deterministic history and report escaping",
+        "Bounded sequential JSON reads, conservative cache exclusion and malformed/interrupted candidate retention"
       ],
       "knownLimits": [
         "Synthetic evidence validates measurement, not actual game parity."
@@ -188,7 +189,9 @@
         "--test",
         "tests/parity-measure.test.mjs",
         "tests/parity-owned-checkpoint.test.mjs",
-        "tests/parity-owned-blast.test.mjs"
+        "tests/parity-owned-blast.test.mjs",
+        "tests/parity-discovery.test.mjs",
+        "tests/parity-discovery-reader.test.mjs"
       ],
       "cwd": ".",
       "env": [],
@@ -204,7 +207,10 @@
         "tests/parity-measure.test.mjs",
         "engineering/parity-capabilities.json",
         "engineering/checks.json",
-        "parity.json"
+        "parity.json",
+        "scripts/parity-discovery.mjs",
+        "tests/parity-discovery.test.mjs",
+        "tests/parity-discovery-reader.test.mjs"
       ],
       "prerequisites": [
         "Node.js >=22.13.0",
