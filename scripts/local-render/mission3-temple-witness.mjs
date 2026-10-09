@@ -427,15 +427,16 @@ export function attachTempleVaultApproach(
     })
   }
   const reject = reason => {
-    const entry = (e.rejections[reason] ??= {
-      count: 0,
-      first: {
-        turn: world.turn,
-        phase: person.commandPhase,
-        entering: !!(person.flags2 & 0x40000000),
-      },
-    })
-    entry.count++
+    if (e.rejections[reason]) e.rejections[reason].count++
+    else
+      e.rejections[reason] = {
+        count: 1,
+        first: {
+          turn: world.turn,
+          phase: person.commandPhase,
+          entering: !!(person.flags2 & 0x40000000),
+        },
+      }
     return null
   }
   const renderBefore = args => {
