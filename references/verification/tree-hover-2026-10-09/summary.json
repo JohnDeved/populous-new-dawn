@@ -9,7 +9,7 @@
     "candidateTree": "1a4a7b1a4c9a134001909a0baf64b789c4186af4"
   },
   "scope": "Normal-world live tree models 1\u20136 with logs >= 1: hover descriptor fallback and point.id render match; existing neutral-owner 200/255 material.",
-  "retainedSource": "../../../decomp/research/tree-hover.md",
+  "retainedSource": "https://github.com/JohnDeved/populous-new-dawn/blob/1ec5bae0e1ed91b4ff30cd36556c9adde6a15252/decomp/research/tree-hover.md",
   "independentReviews": {
     "scope": {
       "locator": "tree-hover-scope-review-20261009/scope-verdict.md",
@@ -199,113 +199,6 @@
       "candidateControlRequirement": "One actual Hut pick/render with correct natural-turn uniform, followed by actual canvas leave/zero; preserve tree four-residue requirement."
     },
     "reviewedCandidate": null,
-    "screenshots": [
-      {
-        "locator": "populous-recovery-20261009/work/orchestration/tree-hover-baseline-02-20261009/tree-live-200.png",
-        "sha256": "cb3b7a8f60c15b7f5cbedeaa349262479937f8079043cb4d993d1709a65f54e1",
-        "role": "baseline02",
-        "name": "tree-live-200",
-        "turn": 452,
-        "renderOrdinal": 3,
-        "measuredTargetUniform": 0,
-        "width": 1240,
-        "height": 1000,
-        "copiedToReport": false,
-        "filenamePhaseSuffix": "expected phase, not measured uniform"
-      },
-      {
-        "locator": "populous-recovery-20261009/work/orchestration/tree-hover-baseline-02-20261009/tree-live-255.png",
-        "sha256": "342324ff1ce6c40d63e027e712360e570b63bb27a3ebec2efd864a413cc39200",
-        "role": "baseline02",
-        "name": "tree-live-255",
-        "turn": 458,
-        "renderOrdinal": 5,
-        "measuredTargetUniform": 0,
-        "width": 1240,
-        "height": 1000,
-        "copiedToReport": true,
-        "filenamePhaseSuffix": "expected phase, not measured uniform",
-        "reportPath": "before-tree-hover.png"
-      },
-      {
-        "locator": "populous-recovery-20261009/work/orchestration/tree-hover-baseline-02-20261009/tree-pan.png",
-        "sha256": "194618339f557242ad6f95a7970ed8a84028095843df652bf262bee60d0f0094",
-        "role": "baseline02",
-        "name": "tree-pan",
-        "turn": 469,
-        "renderOrdinal": 10,
-        "measuredTargetUniform": 0,
-        "width": 1240,
-        "height": 1000,
-        "copiedToReport": false,
-        "filenamePhaseSuffix": null
-      },
-      {
-        "locator": "populous-recovery-20261009/work/orchestration/tree-hover-baseline-02-20261009/tree-zoom.png",
-        "sha256": "d6cc4540ac1af67b826934f0bba11c398aaf7046fc659cc4aa787b621d24a821",
-        "role": "baseline02",
-        "name": "tree-zoom",
-        "turn": 491,
-        "renderOrdinal": 19,
-        "measuredTargetUniform": 0,
-        "width": 1240,
-        "height": 1000,
-        "copiedToReport": false,
-        "filenamePhaseSuffix": null
-      },
-      {
-        "locator": "populous-recovery-20261009/work/orchestration/tree-hover-baseline-02-20261009/tree-return-200.png",
-        "sha256": "eb7190b02e3c9e2c6126cff568d618ee806bbfb34958365dcaf9e65b2752c590",
-        "role": "baseline02",
-        "name": "tree-return-200",
-        "turn": 549,
-        "renderOrdinal": 26,
-        "measuredTargetUniform": 0,
-        "width": 1240,
-        "height": 1000,
-        "copiedToReport": false,
-        "filenamePhaseSuffix": "expected phase, not measured uniform"
-      },
-      {
-        "locator": "populous-recovery-20261009/work/orchestration/tree-hover-baseline-02-20261009/tree-return-255.png",
-        "sha256": "fe14edd0a96fd67e270d1c76a7fd7bf40b401c7af60aa26c3b1d49aa2001966e",
-        "role": "baseline02",
-        "name": "tree-return-255",
-        "turn": 555,
-        "renderOrdinal": 28,
-        "measuredTargetUniform": 0,
-        "width": 1240,
-        "height": 1000,
-        "copiedToReport": false,
-        "filenamePhaseSuffix": "expected phase, not measured uniform"
-      },
-      {
-        "locator": "populous-recovery-20261009/work/orchestration/tree-hover-baseline-02-20261009/tree-leave.png",
-        "sha256": "85ded88a81c78f9d01a724c81330b8aa72749533805558e8fef6387770864843",
-        "role": "baseline02",
-        "name": "tree-leave",
-        "turn": 577,
-        "renderOrdinal": 32,
-        "measuredTargetUniform": 0,
-        "width": 1240,
-        "height": 1000,
-        "copiedToReport": false,
-        "filenamePhaseSuffix": null
-      },
-      {
-        "locator": "populous-recovery-20261009/work/orchestration/tree-hover-baseline-02-20261009/building-live-255.png",
-        "sha256": "d451b5bd98899cf16e7ffa8f8835479477883175e7a11741d816d6dfd0c5f985",
-        "role": "baseline02",
-        "name": "building-live-255",
-        "turn": 627,
-        "renderOrdinal": 36,
-        "measuredTargetUniform": 255,
-        "width": 1240,
-        "height": 1000,
-        "copiedToReport": false,
-        "filenamePhaseSuffix": null
-      }
-    ],
     "pixelComparison": {
       "status": "independent target localization and pixel finding received; final runtime/pair acceptance pending",
       "source": "Parent transmitted independent reviewer findings, 2026-10-09T09:18Z",

@@ -11,7 +11,7 @@ It reuses the existing neutral-owner 200/255 shading. Base application:
 `2107ccfabc1737aed55aca3c5579a920dd63a667`; candidate application:
 `1ec5bae0e1ed91b4ff30cd36556c9adde6a15252`.
 
-The [retained original chain](../../../decomp/research/tree-hover.md) documents
+The [retained original chain](https://github.com/JohnDeved/populous-new-dawn/blob/1ec5bae0e1ed91b4ff30cd36556c9adde6a15252/decomp/research/tree-hover.md) documents
 scope, source provenance and limits. [summary.json](summary.json) records exact
 receipt identities and hashes. Four selected natural PNGs are copied byte-for-byte;
 raw logs, archives and runtime profiles are not included.
@@ -113,6 +113,6 @@ cleared, tree uniform **0**.
 
 ![Candidate tree after pointer leave, uniform zero](after-tree-leave.png)
 
-The original release deadline and the broader issue acceptance remain open. This
-slice does not establish full original controller/modal behavior, tooltip parity,
+The broader issue #19 remains open. This slice does not establish full original
+controller/modal behavior, tooltip parity,
 native whole-frame pixels/timing, hardware performance or additional parity credit.
