@@ -180,10 +180,11 @@ function makeBuilding(b: Building, stage: number, temple = false) {
   g.add(health)
   g.userData = {
     building: b.id,
-    signature: `${id}-${stage}-${temple ? 'p' : 'c'}`,
+    signature: `${id}-${stage}`,
     health,
     healthFill,
   }
+  if (temple) g.userData.signature += '-p'
   return g
 }
 
@@ -670,7 +671,7 @@ export function updateBuildingsFrame(scene: GameScene) {
         stage,
         scene.templeResourceSnapshot
       ),
-      signature = `${buildingObject(b)}-${stage}-${temple ? 'p' : 'c'}`
+      signature = `${buildingObject(b)}-${stage}${temple ? '-p' : ''}`
     let g = scene.buildingMeshes.get(b.id)
     if (g && g.userData.signature !== signature) {
       releaseHutSmoke(scene, g)
