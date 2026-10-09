@@ -1,0 +1,367 @@
+{
+  "schemaVersion": 1,
+  "preparedAt": "2026-10-09T05:34:00Z",
+  "scope": "One fresh Mission 3 Vault-to-stocked-player-Swarm episode through public controls, natural simulation callbacks and the actual renderer.",
+  "source": {
+    "gameBaselineCommit": "56115714ede56ac0837110d870c87cc10a344727",
+    "qaCommit": "9197b1a6a584fb982ac2932711296ac5df5d1358",
+    "gameBytesMatchBaseline": true,
+    "changedFiles": [
+      "qa/mission3-building-screen/source-correspondence.json",
+      "qa/mission3-swarm/observer.test.mjs",
+      "qa/mission3-temple-checkpoint/contract.test.mjs",
+      "scripts/local-render/mission1-vault-input.mjs",
+      "scripts/local-render/mission3-swarm-witness.mjs",
+      "scripts/local-render/mission3-swarm.mjs"
+    ],
+    "productionChanges": false
+  },
+  "review": {
+    "ordinary05": "accepted",
+    "naturalPngs": "all three independently accepted",
+    "recordedBy": "coordinator result review",
+    "finalStandardGates": "independently accepted exact source-bound aggregate",
+    "publication": "local preparation only; no remote writes; normal Git authentication unavailable"
+  },
+  "ordinary05": {
+    "earnedVaultReward": true,
+    "targetId": 53,
+    "casterId": 46,
+    "castTurn": 1770,
+    "trustedCanvasInput": true,
+    "stockBefore": 1,
+    "stockAfter": 0,
+    "immediateManaDebit": 0,
+    "projectileId": 3147,
+    "effectId": 3201,
+    "arrival": {
+      "turn": 1779,
+      "controllerRemaining": 200,
+      "insects": 0
+    },
+    "firstVisit": {
+      "turn": 1780,
+      "controllerRemaining": 199,
+      "insects": 60
+    },
+    "response": {
+      "turn": 1780,
+      "targetId": 53,
+      "hpBefore": 50,
+      "hpAfter": 45,
+      "stateBefore": 19,
+      "stateAfter": 26,
+      "damageAttacker": 0,
+      "uncontested": true,
+      "attribution": "Expected pre-turn eligibility and actual after-turn panic/net health/attacker; no competing response observed. Not a leaf damage trace."
+    },
+    "frames": [
+      {
+        "turn": 1793,
+        "beforeFrame": 581,
+        "afterFrame": 582,
+        "visibleInsects": 60,
+        "remaining": 186,
+        "width": 1240,
+        "height": 1000,
+        "file": "m3-swarm-turn-1793-frame-1.png",
+        "sha256": "b6856ea3770f03bf9b38a109a7b00e2bee67d22cca52fefa827955796276faa2",
+        "bytes": 2413797,
+        "pixelReview": "independently accepted",
+        "copiedUnchanged": true
+      },
+      {
+        "turn": 1797,
+        "beforeFrame": 582,
+        "afterFrame": 583,
+        "visibleInsects": 60,
+        "remaining": 182,
+        "width": 1240,
+        "height": 1000,
+        "file": "m3-swarm-turn-1797-frame-2.png",
+        "sha256": "c61102eac882fa6beab35e0f0b1ad9a2ffdcaf9a131c64960674c60f7d514c42",
+        "bytes": 2416037,
+        "pixelReview": "independently accepted",
+        "copiedUnchanged": true
+      },
+      {
+        "turn": 1800,
+        "beforeFrame": 583,
+        "afterFrame": 584,
+        "visibleInsects": 60,
+        "remaining": 179,
+        "width": 1240,
+        "height": 1000,
+        "file": "m3-swarm-turn-1800-frame-3.png",
+        "sha256": "499afeda29e97700cf347912e6f305db710837580922c2e3fd40755b3b42b4a4",
+        "bytes": 2417351,
+        "pixelReview": "independently accepted",
+        "copiedUnchanged": true
+      }
+    ],
+    "soundCue": {
+      "cue": 164,
+      "hex": "0xa4",
+      "turn": 1779,
+      "serial": 118,
+      "scope": "Cue observation only; audible output and mixer were not tested"
+    },
+    "stop": {
+      "turn": 1827,
+      "paused": true,
+      "controllerRemaining": 152,
+      "insects": 60,
+      "callbacksRestored": true,
+      "observerErrors": [],
+      "cleanupErrors": []
+    },
+    "rawReportStatus": "observed-pending-pixel-review",
+    "rawReportPixelStatus": "Pending independent inspection of retained natural frames"
+  },
+  "attempts": [
+    {
+      "attempt": "01",
+      "sourceCommit": "6044f446009019ab8bc4583e470f11449ee51498",
+      "status": "failed-before-cast",
+      "castDelivered": false,
+      "boundary": "Entity-center candidate was castable, but the body-owned pixel picked different terrain: the paused turn-1466 impact scan already excluded target 53. Final turn 1493 also failed range (distance 7344, range 5784, margin -1560). Earlier retained caster movement is distinct from the ground-pick mismatch.",
+      "reportStatusUnchanged": "failed",
+      "harnessStatus": "failed",
+      "harnessErrors": [],
+      "cleanupErrors": [],
+      "normalCleanup": "accepted by independent terminal review",
+      "receipts": {
+        "report": {
+          "name": "mission3-swarm-6044f446-01/mission3-swarm.json",
+          "sha256": "7e9fb0f6e72510a4c525a44892dc2206c99d3473e69010928f2231e195beb0e1"
+        },
+        "harness": {
+          "name": "mission3-swarm-6044f446-01/receipt.json",
+          "sha256": "a16f9d08d2276ffdc92311ca38dedf9634286d1e9bce3955b24149009a6b5788"
+        },
+        "outer": {
+          "name": "mission3-swarm-6044f446-01.outer.json",
+          "sha256": "c97f49161edc1f6847866d34c575d0e64cfa43caf28e7f6ac1a9d4ccc09f6d7b"
+        }
+      }
+    },
+    {
+      "attempt": "02",
+      "sourceCommit": "42f206352736425759689d85cc52391049c3bb1d",
+      "status": "failed-before-staging-input",
+      "castDelivered": false,
+      "stagingMoveDelivered": false,
+      "boundary": "Strict 0.35 ground search exhausted all 8281 candidates: 925 object hits, 1492 missing terrain picks, 5864 aim-precision failures. Nearest actual point was 2.813084509 units from the planned staging point. Rejected before command dispatch. The then-missing inner deadline admission was repaired later; no cancellation claim.",
+      "reportStatusUnchanged": "failed",
+      "harnessStatus": "failed",
+      "harnessErrors": [],
+      "cleanupErrors": [],
+      "normalCleanup": "accepted by independent terminal review",
+      "receipts": {
+        "report": {
+          "name": "mission3-swarm-42f20635-02/mission3-swarm.json",
+          "sha256": "bcb3535fa1b1f2fa13d49d2c69795b76970d3dd795f14e29b3336408e147d3f3"
+        },
+        "harness": {
+          "name": "mission3-swarm-42f20635-02/receipt.json",
+          "sha256": "4626d166188043d46ef08686d804e59bde7be9b24beafa276577c590eb9705b4"
+        },
+        "outer": {
+          "name": "mission3-swarm-42f20635-02.outer.json",
+          "sha256": "36cf1326908b204565dcf5099a33589e7794c5737eeab396f78916f8c5537d1e"
+        }
+      }
+    },
+    {
+      "attempt": "03",
+      "sourceCommit": "3ac18234b1ab79b0fd1d53e0129e237c90311b20",
+      "status": "failed-render-witness",
+      "castDelivered": true,
+      "castTurn": 1698,
+      "arrivalTurn": 1707,
+      "responseTurn": 1708,
+      "framesRetained": 0,
+      "boundary": "Stock 1 to 0, projectile, controller 200 to 199/60 insects and target 53 net HP 50 to 45/panic/attacker 0 were observed. Combined wait expired at 240 turns with zero retained frames. Source review proved a QA observer parent mismatch (objects versus the actual ground parent); the later repair supplies no retrospective pixel credit.",
+      "reportStatusUnchanged": "failed",
+      "harnessStatus": "failed",
+      "harnessErrors": [],
+      "cleanupErrors": [],
+      "normalCleanup": "accepted by independent terminal review",
+      "receipts": {
+        "report": {
+          "name": "mission3-swarm-3ac18234-03/mission3-swarm.json",
+          "sha256": "820641f69a69ba19ff616c70cc45dd6ff19284b58c14a5a7136c6a748f9c17fa"
+        },
+        "harness": {
+          "name": "mission3-swarm-3ac18234-03/receipt.json",
+          "sha256": "e93cc5b9a25411b23ce458eab064b41a50b84624969fcb6e9f3f30d7010c191c"
+        },
+        "outer": {
+          "name": "mission3-swarm-3ac18234-03.outer.json",
+          "sha256": "6987a6170ead6eaa6d9e6e0743dadad9bd0bbc4926f938683e34a112582740b8"
+        }
+      }
+    },
+    {
+      "attempt": "04",
+      "sourceCommit": "5f1a9ad5f8b34cd0219215f7b9e3fd666038beb0",
+      "status": "failed-before-cast",
+      "castDelivered": false,
+      "boundary": "At turn 1716 the nearest eligible candidate 2665 was selected; eligible authored target 53 was also retained in the full array. By final preflight 1787, target 2665 had moved to (-34.25,-99), outside the fixed impact scan at (-23,-109). The scan gate correctly stopped input. The repaired render observer was not exercised.",
+      "reportStatusUnchanged": "failed",
+      "harnessStatus": "failed",
+      "harnessErrors": [],
+      "cleanupErrors": [],
+      "normalCleanup": "accepted by independent terminal review",
+      "receipts": {
+        "report": {
+          "name": "mission3-swarm-5f1a9ad5-04/mission3-swarm.json",
+          "sha256": "7a120b8a5cbaaea54d620b512b92a055dd0eb48a8b10cacca37536c3500cc82c"
+        },
+        "harness": {
+          "name": "mission3-swarm-5f1a9ad5-04/receipt.json",
+          "sha256": "a3db127d002cb248f7316781902af7bb8ccb215d54cbfaa4df055b5c1bab0bd1"
+        },
+        "outer": {
+          "name": "mission3-swarm-5f1a9ad5-04.outer.json",
+          "sha256": "8d608b75d142636d191216058a2c949f71c6f73c6a273d63b470b06fa517a264"
+        }
+      }
+    },
+    {
+      "attempt": "05",
+      "sourceCommit": "9197b1a6a584fb982ac2932711296ac5df5d1358",
+      "status": "accepted-bounded-player-episode",
+      "castDelivered": true,
+      "boundary": "Independent source/report and all three natural-frame pixel reviews accepted, as reported by the coordinator. Final standard validation is independently accepted; see standardValidation.",
+      "reportStatusUnchanged": "observed-pending-pixel-review",
+      "harnessStatus": "passed",
+      "harnessErrors": [],
+      "cleanupErrors": [],
+      "normalCleanup": "accepted by independent terminal review",
+      "receipts": {
+        "report": {
+          "name": "mission3-swarm-9197b1a6-05/mission3-swarm.json",
+          "sha256": "6617e2203185c3f0d5bd55ab0aafeb5683cd91f5f70dd299ac235d3fc478480c"
+        },
+        "harness": {
+          "name": "mission3-swarm-9197b1a6-05/receipt.json",
+          "sha256": "5fbc2b9953b868d5b24cba5968cbd64f5370fc42051d5b6bc03ab98cc2ea15ca"
+        },
+        "outer": {
+          "name": "mission3-swarm-9197b1a6-05.outer.json",
+          "sha256": "6a7c24b68832db4e77b3b618ba6d240ea2e2591f4257e701855452bebfd58897"
+        }
+      }
+    }
+  ],
+  "limits": [
+    "No original executable or native oracle execution in this episode.",
+    "No original AI Swarm acceptance.",
+    "No audible output or mixer acceptance.",
+    "No full lifetime or expiry acceptance: paused with 152 controller visits remaining.",
+    "No checkpoint reload or full campaign acceptance.",
+    "No full issue 61 closure or new production defect/fix is established.",
+    "Standard validation is independently accepted with separate retained preflight limits; normal Git publication remains separate and pending."
+  ],
+  "contents": "README.md, summary.json and the three unchanged natural PNGs only; raw receipts, profiles, archives, credentials and standalone original assets are excluded.",
+  "issues": {
+    "85": {
+      "scope": "cast/control acceptance",
+      "fullyClosedByThisEpisode": false
+    },
+    "61": {
+      "scope": "broader visible-effect report",
+      "fullyClosedByThisEpisode": false
+    }
+  },
+  "renderEnvironment": {
+    "capture": "Game-canvas PNGs from actual natural render calls; no browser or desktop chrome",
+    "softwarePerformanceOnly": true,
+    "knownWarnings": [
+      "Software WebGL fallback/deprecation",
+      "GPU stall due to readPixels",
+      "THREE.WebGLRenderer texture marked for update without image data"
+    ],
+    "hardwareRendererEquivalenceClaim": false,
+    "gpuTimingEquivalenceClaim": false
+  },
+  "standardValidation": {
+    "sourceCommit": "9197b1a6a584fb982ac2932711296ac5df5d1358",
+    "status": "independently accepted",
+    "final01": {
+      "stoppedAt": "tests-05",
+      "status": "failed",
+      "exitCode": 124,
+      "finishedAt": "2026-10-09T05:45:22.869Z",
+      "elapsedSeconds": 150.066,
+      "rawSummary": {
+        "pass": 100,
+        "assertionFailures": 0,
+        "cancelled": 9
+      },
+      "failedShardCoverageCredit": false,
+      "receipt": {
+        "name": "swarm-9197b1a-final-01/tests-05.json",
+        "sha256": "d33ddf6ad44a6b12594748df87083b14be3a2418e9695b033021987a5c06a3d4"
+      }
+    },
+    "retainedSourceBoundPasses": {
+      "supplementalQa": 28,
+      "typecheck": "passed",
+      "maintainedShards": [
+        "01",
+        "02",
+        "03",
+        "04"
+      ],
+      "maintainedTests": 765
+    },
+    "laterStages": "completed in accepted continuation",
+    "continuation": {
+      "scope": "same-source exact required coverage",
+      "status": "completed and independently accepted",
+      "launched": true
+    },
+    "ordinary05Acceptance": "unchanged",
+    "aggregate": {
+      "name": "swarm-9197b1a-final-02/aggregate.json",
+      "sha256": "b648277f7ae593f80167a16cac6daa4f86aee62ca50162aeae6d7878dc6d2ca4",
+      "rawStatusUnchanged": "passed-pending-independent-review",
+      "independentReview": "accepted, reported by coordinator",
+      "independentVerdictSha256": "d83368be2ce0f3d027ca91e713acca80ed3b734c7c7bd0453e5133743f9c19b3"
+    },
+    "maintained": {
+      "passed": 1585,
+      "required": 1585,
+      "files": 267
+    },
+    "supplementalQa": {
+      "passed": 28,
+      "required": 28
+    },
+    "gates": {
+      "typecheck": "passed",
+      "parity": "passed",
+      "orchestration": "passed",
+      "build": "passed"
+    },
+    "composition": {
+      "sameSourceCarriedTerminalStages": 6,
+      "freshStages": 9
+    },
+    "timing": {
+      "successfulCommandSeconds": 731.081,
+      "freshContinuationCommandSeconds": 387.659,
+      "freshContinuationSpanSeconds": 425.406,
+      "allAttemptSpanSeconds": 1337.802,
+      "speedClaim": false
+    }
+  },
+  "acceptedPreflightLimits": {
+    "sharedHelperOxlint": "Inherited Error(...) construction error and existing warnings retained; one new serialized deadlineAt shadow-name warning independently accepted as nonblocking",
+    "sharedHelperFormatting": "Full shared helper is not formatting-clean",
+    "globalLintGreenClaim": false,
+    "globalFormattingGreenClaim": false
+  }
+}
