@@ -213,7 +213,12 @@ export async function tooltipCallerFixture(t, { level = 1, prepareTarget } = {})
           pose.anchorY === 54784
         )
       })
-  assert.ok(hut, prepareTarget ? 'resolve the prepared building' : 'resolve authored Blue Hut DAT42 by its native anchor')
+  assert.ok(
+    hut,
+    prepareTarget
+      ? 'resolve the prepared building'
+      : 'resolve authored Blue Hut DAT42 by its native anchor'
+  )
   api.cancelInteraction(world)
   assert.equal(world.mode, null)
   assert.deepEqual(world.selected, [])
@@ -258,4 +263,3 @@ export async function tooltipCallerFixture(t, { level = 1, prepareTarget } = {})
     },
   }
 }
-

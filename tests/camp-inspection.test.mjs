@@ -13,9 +13,12 @@ async function buildEmptyCamp({ api, world, frame }) {
   api.select(world, 'brave')
   assert.ok(world.selected.length)
   assert.ok(api.placeBuilding(world, 'camp', { x: -99, z: -105 }))
-  const camp = world.buildings.find(building => !before.has(building.id) && building.kind === 'camp')
+  const camp = world.buildings.find(
+    building => !before.has(building.id) && building.kind === 'camp'
+  )
   assert.ok(camp, 'actual placement creates the model7 plan')
-  const complete = () => camp.progress === 1 &&
+  const complete = () =>
+    camp.progress === 1 &&
     !(camp.builders ?? []).some(Boolean) &&
     !world.units.some(unit => unit.work === camp.id || unit.inside === camp.id)
   for (let visits = 0; visits < 20000 && !complete(); visits++) frame(1 / 12)
@@ -33,23 +36,39 @@ function supplyPanelDom(t, scene) {
     oldStyle = Object.getOwnPropertyDescriptor(globalThis, 'getComputedStyle')
   doc.createElement = tag => {
     const element = {
-      tag, children: [], hidden: false, style: {}, dataset: {}, attributes: {},
+      tag,
+      children: [],
+      hidden: false,
+      style: {},
+      dataset: {},
+      attributes: {},
       classList: { add: nop, toggle: nop },
-      append(child) { this.children.push(child) },
+      append(child) {
+        this.children.push(child)
+      },
       addEventListener: nop,
-      setAttribute(name, value) { this.attributes[name] = value },
+      setAttribute(name, value) {
+        this.attributes[name] = value
+      },
       matches: () => false,
       contains: () => false,
-      remove() { this.removed = true },
-      get firstElementChild() { return this.children[0] },
-      get lastElementChild() { return this.children.at(-1) },
+      remove() {
+        this.removed = true
+      },
+      get firstElementChild() {
+        return this.children[0]
+      },
+      get lastElementChild() {
+        return this.children.at(-1)
+      },
       getContext: () => ({ drawImage: nop, fillRect: nop }),
     }
     return element
   }
   scene.container.appendChild = nop
   Object.defineProperty(globalThis, 'getComputedStyle', {
-    configurable: true, value: () => ({ getPropertyValue: () => '1' }),
+    configurable: true,
+    value: () => ({ getPropertyValue: () => '1' }),
   })
   t.after(() => {
     if (oldCreate) doc.createElement = oldCreate
@@ -71,13 +90,23 @@ test('completed camp panel waits for actual first-display inspection instead of 
   const { scene, camp, frame, paint } = await campFixture(t)
   frame(0)
   paint()
-  assert.equal(scene.buildingPanels.get(camp.id)?.hidden ?? true, true,
-    'a zero-tick hover paint cannot expose the camp inspection panel')
+  assert.equal(
+    scene.buildingPanels.get(camp.id)?.hidden ?? true,
+    true,
+    'a zero-tick hover paint cannot expose the camp inspection panel'
+  )
   frame()
-  assert.match(scene.tooltip.text, /^Warrior Training Hut:/, 'existing imported string912 is acquired')
+  assert.match(
+    scene.tooltip.text,
+    /^Warrior Training Hut:/,
+    'existing imported string912 is acquired'
+  )
   assert.equal(scene.tooltip.draw, 0)
   for (let visits = 0; visits < 120 && !records(scene).has(camp.id); visits++) frame()
-  assert.ok(records(scene).has(camp.id), 'actual first-display callback creates the manual camp record')
+  assert.ok(
+    records(scene).has(camp.id),
+    'actual first-display callback creates the manual camp record'
+  )
   assert.equal(scene.tooltipController.lastVisit.firstDisplay, camp.id)
   assert.equal(records(scene).get(camp.id).automatic, false)
   paint()
@@ -85,8 +114,13 @@ test('completed camp panel waits for actual first-display inspection instead of 
   assert.equal(panel.hidden, false)
   assert.match(panel.attributes['aria-label'], /^Warrior training: 0 of 5 occupants/)
   assert.equal(panel.lastElementChild.attributes['aria-label'], 'Dismantle warrior hut')
-  assert.deepEqual(scene.world.secondaryEffects.reservations.filter(owner => owner === `building-panel:${camp.id}`),
-    [`building-panel:${camp.id}`], 'retained record and visible DOM reserve once')
+  assert.deepEqual(
+    scene.world.secondaryEffects.reservations.filter(
+      owner => owner === `building-panel:${camp.id}`
+    ),
+    [`building-panel:${camp.id}`],
+    'retained record and visible DOM reserve once'
+  )
 })
 
 test('real camp right-button edges queue inspection before one composed visit and emit one feedback', async t => {
@@ -95,22 +129,68 @@ test('real camp right-button edges queue inspection before one composed visit an
   const cues = []
   scene.onSound = cue => cues.push(cue)
   const event = {
-    ...point, button: 2, buttons: 2, pointerId: 17,
-    currentTarget: scene.renderer.domElement, preventDefault: nop,
-    shiftKey: false, ctrlKey: false, altKey: false, metaKey: false,
+    ...point,
+    button: 2,
+    buttons: 2,
+    pointerId: 17,
+    currentTarget: scene.renderer.domElement,
+    preventDefault: nop,
+    shiftKey: false,
+    ctrlKey: false,
+    altKey: false,
+    metaKey: false,
   }
   const beforeMarkers = new Set(world.effects.map(effect => effect.id))
   pointerDown(scene, event)
   pointerUp(scene, { ...event, buttons: 0 })
-  assert.equal(scene.tooltipInspectionInputs?.length ?? 0, 2,
-    'actual camp down and release must both survive until the due controller visit')
+  assert.equal(
+    scene.tooltipInspectionInputs?.length ?? 0,
+    2,
+    'actual camp down and release must both survive until the due controller visit'
+  )
   assert.equal(records(scene).size, 0, 'input itself does not allocate a presentation record')
   frame()
   assert.equal(records(scene).size, 1)
   assert.equal(records(scene).get(camp.id).automatic, false)
   assert.deepEqual(scene.tooltipController.lastVisit.inspection, ['explicit:created', 'release'])
-  assert.equal('buildingHeldPointer' in scene.objectPanels
-    ? scene.objectPanels.buildingHeldPointer : scene.objectPanels.hutHeldPointer, null)
+  assert.equal(
+    'buildingHeldPointer' in scene.objectPanels
+      ? scene.objectPanels.buildingHeldPointer
+      : scene.objectPanels.hutHeldPointer,
+    null
+  )
   assert.deepEqual(cues, [0x6a])
-  assert.equal(world.effects.filter(effect => !beforeMarkers.has(effect.id) && effect.kind === 'orderMarker').length, 1)
+  assert.equal(
+    world.effects.filter(effect => !beforeMarkers.has(effect.id) && effect.kind === 'orderMarker')
+      .length,
+    1
+  )
+})
+
+test('existing active-training paint stays independent of manual inspection records', async t => {
+  const { scene, camp, frame, paint } = await campFixture(t)
+  // Supplied activity projection tests the current browser display owner only.
+  // This is not an automatic request, natural training or native timing witness.
+  assert.ok(camp.admission)
+  camp.admission.activity |= 128
+  scene.pointerScreen = null
+  scene.hoveredObject = null
+  const before = structuredClone(camp.admission)
+  frame(0)
+  paint()
+  const panel = scene.buildingPanels.get(camp.id)
+  assert.equal(panel.hidden, false, 'existing activity still exposes training controls')
+  assert.equal(records(scene).size, 0, 'activity alone creates no manual or automatic record')
+  frame()
+  paint()
+  assert.equal(panel.hidden, false)
+  assert.equal(records(scene).size, 0)
+  assert.deepEqual(camp.admission, before, 'presentation does not change training state')
+  assert.deepEqual(
+    scene.world.secondaryEffects.reservations.filter(
+      owner => owner === `building-panel:${camp.id}`
+    ),
+    [`building-panel:${camp.id}`],
+    'the legacy visible activity owner reserves once'
+  )
 })
