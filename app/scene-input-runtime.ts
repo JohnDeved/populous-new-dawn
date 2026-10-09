@@ -48,7 +48,12 @@ import { buildingPlanCells, type BuildingShapePose } from './building-shapes.ts'
 import { groundOverlay, groundOverlayTriangles } from './ground-overlay.ts'
 import { texture } from './scene-assets.ts'
 import { drawTooltip } from './tooltip-layout.ts'
-import { createTooltip, showObjectTooltip, worldTooltipObject } from './tooltips.ts'
+import { worldTooltipObject } from './tooltips.ts'
+import {
+  cancelTooltipInspection,
+  publishTooltipInput,
+  queueHutInspection,
+} from './scene-tooltip-runtime.ts'
 
 const cameraKeys: Record<string, number> = {
   w: 1,
@@ -216,7 +221,10 @@ export function pointerDown(scene: GameScene, event: PointerEvent) {
         !vehicle.passengerCount ||
         liveVehiclePassengers(scene.world, vehicle).some(({ person }) => person.tribe === 0))
     )
-      scene.objectPanels.open(object.id)
+      if (scene.world.buildings.some(b => b.id === object.id && b.kind === 'hut'))
+        queueHutInspection(scene, event, 'down', object.id)
+      else scene.objectPanels.open(object.id)
+    else if (!object) queueHutInspection(scene, event, 'down')
   }
   const unit =
     event.button === 0 &&
@@ -325,6 +333,7 @@ export function updateDrag(scene: GameScene, event: { clientX: number; clientY: 
 }
 
 export function pointerUp(scene: GameScene, event: PointerEvent) {
+  queueHutInspection(scene, event, 'up')
   scene.pointerButtons = event.buttons
   if (!(event.buttons & 6)) scene.globeMotion.dragging = false
   if (scene.world.inputMask || scene.overviewStage) return
@@ -448,6 +457,7 @@ export function installInputListeners(scene: GameScene, minimap: HTMLCanvasEleme
   })
   scene.listen(scene.renderer.domElement, 'pointerup', scene.pointerUp)
   scene.listen(scene.renderer.domElement, 'pointercancel', () => {
+    cancelTooltipInspection(scene)
     scene.pointerButtons = 0
     scene.drag = null
     scene.dragActive.value = false
@@ -478,13 +488,18 @@ export function installInputListeners(scene: GameScene, minimap: HTMLCanvasEleme
   }
   for (const event of ['pointermove', 'pointerdown', 'pointerup'])
     scene.listen(window, event, trackNavigation)
+  scene.listen(globalThis, 'pointerup', e => {
+    if (e.target !== scene.renderer.domElement) queueHutInspection(scene, e as PointerEvent, 'up')
+  })
   scene.listen(window, 'pointerout', e => {
     if (!(e as PointerEvent).relatedTarget) scene.navigationPointer = null
   })
   scene.listen(window, 'pointercancel', () => {
+    cancelTooltipInspection(scene)
     scene.navigationPointer = null
   })
   const pause = () => {
+    cancelTooltipInspection(scene)
     scene.previous = null
     scene.globeMotion.dragging = false
     scene.globeMotion.velocity = { x: 0, y: 0 }
@@ -646,23 +661,21 @@ export function acknowledgePointer(scene: GameScene, target: number) {
 }
 
 export function renderTooltip(scene: GameScene) {
-  let state = scene.tooltip
-  if (!state.draw && scene.hoveredObject !== null) {
-    // ponytail: hover uses native names but immediate browser hit testing;
-    // connect the original hover delay/ownership when its controller is ported.
-    state = createTooltip()
-    showObjectTooltip(state, worldTooltipObject(scene.world, scene.hoveredObject), 1)
-    state.draw = 1
-  }
-  const object = worldTooltipObject(scene.world, state.target),
+  const output = scene.tooltipController?.output,
+    state = output ?? scene.tooltip,
+    ordinary = output?.kind === 'object',
+    pointer = ordinary ? output.pointer : null,
+    object = ordinary ? null : worldTooltipObject(scene.world, state.target),
     element = scene.tooltipElement
-  element.hidden = !state.draw || !state.text || !object
-  if (element.hidden || !object) return
+  element.hidden =
+    !state.draw || !state.text || !(pointer || object) || !!document.querySelector('dialog[open]')
+  if (element.hidden) return
   const p =
-    object.type === 1
+    object &&
+    (object.type === 1
       ? scene.unitScreen(object.id, 1)
-      : scene.screen(object, scene.y(object) + 512 / 45)
-  if (!p || (object.type !== 1 && !scene.visible(object))) {
+      : scene.screen(object, scene.y(object) + 512 / 45))
+  if (!pointer && (!p || (object && object.type !== 1 && !scene.visible(object)))) {
     element.hidden = true
     return
   }
@@ -670,7 +683,7 @@ export function renderTooltip(scene: GameScene) {
     'aria-label',
     state.text.replaceAll('{}', 'Left-click ').replaceAll('|}', 'Right-click ')
   )
-  const { width, height } = scene.container.getBoundingClientRect()
+  const { left = 0, top = 0, width, height } = scene.container.getBoundingClientRect()
   drawTooltip(
     scene.tooltipCanvas,
     texture('hud').image as HTMLImageElement,
@@ -678,8 +691,10 @@ export function renderTooltip(scene: GameScene) {
     window.innerWidth,
     Math.trunc(height)
   )
-  element.style.left = `${Math.max(4, Math.min(width - element.offsetWidth - 4, ((p.x + 1) * width) / 2))}px`
-  element.style.top = `${Math.max(4, Math.min(height - element.offsetHeight - 4, ((1 - p.y) * height) / 2))}px`
+  const x = pointer ? pointer.clientX - left : ((p!.x + 1) * width) / 2,
+    y = pointer ? pointer.clientY - top : ((1 - p!.y) * height) / 2
+  element.style.left = `${Math.max(4, Math.min(width - element.offsetWidth - 4, x))}px`
+  element.style.top = `${Math.max(4, Math.min(height - element.offsetHeight - 4, y))}px`
 }
 
 export function drawPointer(scene: GameScene, now: number) {
@@ -738,7 +753,8 @@ export function updatePointerFrame(scene: GameScene, now: number) {
     scene.container.clientWidth,
     scene.container.clientHeight,
   ].join(',')
-  if (pointerState !== scene.pointerState) {
+  const pointerChanged = pointerState !== scene.pointerState
+  if (pointerChanged) {
     if (scene.pointerButtons === 1 && scene.pointerScreen) scene.updateDrag(scene.pointerScreen)
     const directBlast =
         !scene.overviewActive &&
@@ -762,6 +778,7 @@ export function updatePointerFrame(scene: GameScene, now: number) {
     scene.pointerState = pointerState
   }
   scene.selectionOverlay.visible = scene.dragActive.value
+  publishTooltipInput(scene, pointerChanged)
 }
 
 export function updateSpellPointerFrame(

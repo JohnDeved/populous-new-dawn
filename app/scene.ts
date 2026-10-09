@@ -36,7 +36,24 @@ import { loadTexture, releaseGroup, retryFailedTexture, texture } from './scene-
 import { ScenePicking } from './scene-picking.ts'
 import { createSkyMotion } from './sky.ts'
 import { terrainAtlas, type TerrainTextures } from './terrain-texture.ts'
-import { createTooltip, tooltipPalette, worldTooltipObject } from './tooltips.ts'
+import {
+  createTooltip,
+  tooltipPalette,
+  worldTooltipObject,
+  type TooltipObject,
+} from './tooltips.ts'
+import {
+  createTooltipController,
+  createTooltipSession,
+  type TooltipSession,
+} from './tooltip-controller.ts'
+import {
+  acquireForcedTooltip,
+  cancelTooltipInspection,
+  updateTooltipController,
+  type TooltipInputSample,
+  type TooltipInspectionInput,
+} from './scene-tooltip-runtime.ts'
 import { UnitMotion } from './unit-motion.ts'
 
 import { type BuildingShapePose } from './building-shapes.ts'
@@ -248,6 +265,12 @@ export class GameScene {
   cameraPreviewButtons: number | null = null
   resultTurn = 0
   tooltip = createTooltip()
+  tooltipSession = createTooltipSession()
+  tooltipController = createTooltipController(this.tooltip, this.tooltipSession)
+  tooltipInput: TooltipInputSample | null = null
+  tooltipInspectionInputs: TooltipInspectionInput[] = []
+  tooltipHudOwners = new WeakMap<Element, string>()
+  tooltipHudSerial = 0
   tooltipElement = document.createElement('div')
   tooltipCanvas = document.createElement('canvas')
   objectPanels = new ObjectPanels(this)
@@ -323,12 +346,17 @@ export class GameScene {
       finished?: () => void
     ) => (() => void) | void,
     worshipHud?: WorshipHudBridge,
-    presentationBinding?: PresentationBinding
+    presentationBinding?: PresentationBinding,
+    tooltipSession?: TooltipSession
   ) {
     this.presentationBinding = presentationBinding
     this.templeResourceSnapshot = presentationBinding?.snapshot() ?? null
     if (world.outcome.level === 3 && !this.templeResourceSnapshot)
       throw new Error('Mission 3 requires its presentation resource binding')
+    if (tooltipSession) {
+      this.tooltipSession = tooltipSession
+      this.tooltipController = createTooltipController(this.tooltip, tooltipSession)
+    }
     this.container = container
     this.mini = minimap
     this.portrait = portrait
@@ -621,6 +649,15 @@ export class GameScene {
   previewCamera(buttons: number) {
     return previewCamera(this, buttons)
   }
+  acquireForcedTooltip(object: TooltipObject | null, duration: number) {
+    acquireForcedTooltip(this, object, duration)
+  }
+  updateTooltipController(now: number) {
+    updateTooltipController(this, now)
+  }
+  cancelTooltipInspection() {
+    cancelTooltipInspection(this)
+  }
   updateFlyby(dt: number) {
     return updateFlyby(this, dt)
   }
@@ -729,9 +766,20 @@ export class GameScene {
     this.playWorldSounds()
     this.updateTerrainFrame()
     this.updateDecorationsFrame()
-    if (!this.updateCameraMotion(dt) && !this.updateFlyby(dt)) {
-      this.updateView()
-    }
+    const cameraOwnsFrame = this.updateCameraMotion(dt)
+    if (
+      cameraOwnsFrame ||
+      this.world.paused ||
+      this.world.inputMask ||
+      this.world.mode ||
+      this.world.selected.length ||
+      this.overviewActive ||
+      this.overviewStage ||
+      document.hidden ||
+      document.querySelector('dialog[open]')
+    )
+      this.cancelTooltipInspection()
+    if (!cameraOwnsFrame && !this.updateFlyby(dt)) this.updateView()
     this.updateUnitsFrame()
     updateVehiclesFrame(this)
     this.renderTooltip()
@@ -825,6 +873,8 @@ export class GameScene {
     this.renderer.dispose()
     this.renderer.domElement.remove()
     this.fpsGraph?.element.remove()
+    this.cancelTooltipInspection()
+    this.tooltipInput = null
     this.tooltipElement.remove()
     this.pointerOutline.remove()
     for (const canvas of this.buildingPanels.values()) canvas.remove()

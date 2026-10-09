@@ -421,9 +421,11 @@
         "app/camera-motion.ts",
         "app/camera-view.ts",
         "app/game-clock.ts",
-        "app/unit-motion.ts"
+        "app/unit-motion.ts",
+        "app/tooltip-controller.ts",
+        "app/scene-tooltip-runtime.ts"
       ],
-      "sharedPaths": ["app/flyby.ts", "app/model.ts", "app/render-view.ts", "app/scene.ts"],
+      "sharedPaths": ["app/flyby.ts", "app/model.ts", "app/render-view.ts", "app/scene.ts", "app/scene-camera-runtime.ts", "app/scene-input-runtime.ts", "app/object-panels.ts", "app/building-panels.ts", "app/scene-secondary-effects.ts", "app/page.tsx"],
       "entrySymbols": [
         { "path": "app/scene.ts", "symbol": "animate" },
         { "path": "app/game-clock.ts", "symbol": "GameClock" },

@@ -1,5 +1,5 @@
 """Import message/tooltip text, native string IDs and interface artwork.
-Usage: python3 scripts/import-messages.py /path/to/extracted/game [--messages-only | --message NUMBER]
+Usage: python3 scripts/import-messages.py /path/to/extracted/game [--messages-only | --message NUMBER | --tooltip-string NUMBER]
 """
 import hashlib
 import importlib.util
@@ -39,6 +39,24 @@ if '--message' in sys.argv[2:]:
     existing['messages'][str(number)] = {'stringId': string_id, 'text': strings[string_id]}
     output.write_text(json.dumps(existing, indent=2) + '\n')
     print(f'Imported campaign message {number}, original string {string_id}; other entries retained')
+    raise SystemExit(0)
+
+# Import a newly source-bound HUD description without regenerating unrelated
+# message tables, profiles, images, tooltip metadata or sky assets.
+if '--tooltip-string' in sys.argv[2:]:
+    if len(sys.argv) != 4 or sys.argv[2] != '--tooltip-string':
+        raise SystemExit('Use --tooltip-string NUMBER alone after the game directory')
+    number = int(sys.argv[3])
+    if number != 814:
+        raise ValueError('Only the source-bound Blast tooltip string 814 is admitted')
+    output = ROOT / 'app/original-tooltips.json'
+    existing = json.loads(output.read_text())
+    assert existing['executableSha256'] == identity['sha256']
+    assert existing['languageSha256'] == hashlib.sha256(lang).hexdigest()
+    assert strings[number] == 'Blast: {}select. |}toggle on/off.'
+    existing['strings'][str(number)] = strings[number]
+    output.write_text(json.dumps(existing, indent=2) + '\n')
+    print(f'Imported tooltip string {number}; all other entries and metadata retained')
     raise SystemExit(0)
 
 messages={}
@@ -116,7 +134,7 @@ names={}
 for kind,address,count,stride,offset,pair in [(1,0x5a7060,9,50,0,True),(2,0x5a7228,20,76,4,True),
                                             (4,0x5a7938,5,23,6,False),(5,0x5a79b0,20,24,2,False)]:
     names[kind]=[list(struct.unpack('<hh' if pair else '<h',read(address+i*stride+offset,4 if pair else 2))) for i in range(count)]
-ids={848,*range(888,900),597,598,600,601,609}
+ids={814,848,*range(888,900),597,598,600,601,609}
 for entries in names.values():
     for entry in entries:
         ids.update(n for n in entry if n)

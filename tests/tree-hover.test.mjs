@@ -20,9 +20,12 @@ const sceneClass = source.statements.find(
 )
 const animate = sceneClass.members.find(node => node.name?.getText(source) === 'animate')
 function bindAnimate(scene, bindings) {
-  const javascript = ts.transpileModule(`(function(){return ${animate.initializer.getText(source)}})`, {
-    compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext },
-  }).outputText
+  const javascript = ts.transpileModule(
+    `(function(){return ${animate.initializer.getText(source)}})`,
+    {
+      compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext },
+    }
+  ).outputText
   return new Function(...Object.keys(bindings), `return ${javascript}`)(
     ...Object.values(bindings)
   ).call(scene)
@@ -31,6 +34,7 @@ function bindAnimate(scene, bindings) {
 test('authored tree picking reaches the native hover override through the actual frame caller', async t => {
   const api = await loadSceneFixture(),
     { GameScene } = await import('../app/scene.ts'),
+    { ObjectPanels } = await import('../app/object-panels.ts'),
     { ScenePicking } = await import('../app/scene-picking.ts'),
     { RenderView } = await import('../app/render-view.ts'),
     { createTooltip, worldTooltipObject } = await import('../app/tooltips.ts'),
@@ -69,28 +73,44 @@ test('authored tree picking reaches the native hover override through the actual
     pointerButtons: 0,
     pointerScreen: null,
     hoveredObject: null,
+    buildingPanels: new Map(),
     frame: 1,
     worshipPresentation: { rememberBodies: nop },
     updateCameraMotion: () => true,
     pick: () => null,
   })
+  scene.objectPanels = new ObjectPanels(scene)
   // Keep actual updatePointerFrame and renderSceneFrame methods. Do not replace
   // the picked object, hover descriptor, identity match or lighting decision.
   for (const name of [
-    'playWorldSounds', 'updateTerrainFrame', 'updateDecorationsFrame', 'updateView',
-    'updateUnitsFrame', 'renderTooltip', 'updateBuildingsFrame', 'updateEffectsFrame',
-    'updateShrinesFrame', 'updatePlacement', 'updateSpellPointerFrame',
-    'updateEnvironmentFrame', 'updateHudFrame', 'updateSpellHalo', 'updateDrag',
-    'commitSky', 'cancelOverview',
-  ]) scene[name] = nop
+    'playWorldSounds',
+    'updateTerrainFrame',
+    'updateDecorationsFrame',
+    'updateView',
+    'updateUnitsFrame',
+    'renderTooltip',
+    'updateBuildingsFrame',
+    'updateEffectsFrame',
+    'updateShrinesFrame',
+    'updatePlacement',
+    'updateSpellPointerFrame',
+    'updateEnvironmentFrame',
+    'updateHudFrame',
+    'updateSpellHalo',
+    'updateDrag',
+    'commitSky',
+    'cancelOverview',
+  ])
+    scene[name] = nop
   scene.view.prepare = nop
   scene.view.pickCandidates = () => []
   scene.view.pickSubmissionKey = () => 'supplied-empty-terrain'
   scene.view.resolvePickCandidates = () => null
   let submitted
-  scene.view.painter.source = mesh => mesh === submitted
-    ? { slot: 0, alpha: false, bucket: 0, cell: 0, object: 0, face: 0, phase: 0, order: 0 }
-    : null
+  scene.view.painter.source = mesh =>
+    mesh === submitted
+      ? { slot: 0, alpha: false, bucket: 0, cell: 0, object: 0, face: 0, phase: 0, order: 0 }
+      : null
   scene.picking = new ScenePicking(scene)
   scene.scene.add(scene.objects, scene.decorations)
   // The authored intro starts with inputMask 128 and later its flyby owns 64.
@@ -123,12 +143,15 @@ test('authored tree picking reaches the native hover override through the actual
   })
   const trees = world.trees.filter(tree => tree.model >= 1 && tree.model <= 6 && tree.logs >= 1),
     [tree, otherTree] = trees,
-    treeMesh = id => scene.decorations.children.find(group => group.userData.point?.id === id).children[0],
+    treeMesh = id =>
+      scene.decorations.children.find(group => group.userData.point?.id === id).children[0],
     mesh = treeMesh(tree.id),
     otherMesh = treeMesh(otherTree.id),
     highlight = object => object.userData.highlight.value
   assert.ok(trees.length > 1)
-  assert.ok(world.selected.some(id => world.units.some(unit => unit.id === id && unit.kind === 'shaman')))
+  assert.ok(
+    world.selected.some(id => world.units.some(unit => unit.id === id && unit.kind === 'shaman'))
+  )
   assert.equal(worldTooltipObject(world, tree.id), null, 'trees still have no tooltip descriptor')
   function pointAt(object, record) {
     submitted = object
@@ -154,7 +177,13 @@ test('authored tree picking reaches the native hover override through the actual
     scene.animate(0)
   }
   pointAt(mesh, tree)
-  for (const [turn, expected] of [[0, 200], [1, 200], [2, 255], [3, 255], [4, 200]]) {
+  for (const [turn, expected] of [
+    [0, 200],
+    [1, 200],
+    [2, 255],
+    [3, 255],
+    [4, 200],
+  ]) {
     world.turn = turn
     frame()
     assert.equal(scene.hoveredObject, tree.id, 'the actual picker resolves the authored tree')
@@ -182,11 +211,18 @@ test('authored tree picking reaches the native hover override through the actual
   world.mode = null
   frame()
   assert.equal(highlight(mesh), 200, 'ordinary hover returns after the guards clear')
-  for (const state of [{ logs: 0, model: tree.model }, { logs: 1, model: 11 }]) {
+  for (const state of [
+    { logs: 0, model: tree.model },
+    { logs: 1, model: 11 },
+  ]) {
     const original = { logs: tree.logs, model: tree.model }
     Object.assign(tree, state)
     frame()
-    assert.equal(scene.hoveredObject, tree.id, 'a stale submitted mesh cannot bypass activity/type checks')
+    assert.equal(
+      scene.hoveredObject,
+      tree.id,
+      'a stale submitted mesh cannot bypass activity/type checks'
+    )
     assert.equal(highlight(mesh), 0)
     Object.assign(tree, original)
   }
@@ -194,7 +230,8 @@ test('authored tree picking reaches the native hover override through the actual
   // and modelHighlight eligibility. These are controlled render attachments.
   for (const record of [world.buildings[0], world.shrines[0]]) {
     assert.ok(record)
-    const group = new THREE.Group(), control = nativeModel(13)
+    const group = new THREE.Group(),
+      control = nativeModel(13)
     group.userData[world.buildings.includes(record) ? 'building' : 'shrine'] = record.id
     group.add(control)
     scene.locate(group, record)
@@ -202,7 +239,10 @@ test('authored tree picking reaches the native hover override through the actual
     pointAt(control, record)
     if (world.buildings.includes(record)) {
       const team = record.team
-      for (const [owner, expected] of [['blue', 200], ['red', 0]]) {
+      for (const [owner, expected] of [
+        ['blue', 200],
+        ['red', 0],
+      ]) {
         record.team = owner
         frame()
         assert.equal(scene.hoveredObject, record.id)
