@@ -1,0 +1,119 @@
+{
+  "version": 1,
+  "status": "local-draft-awaiting-ordinary-evidence",
+  "issue": "https://github.com/JohnDeved/populous-new-dawn/issues/19",
+  "pullRequest": "https://github.com/JohnDeved/populous-new-dawn/pull/283",
+  "application": {
+    "base": "2107ccfabc1737aed55aca3c5579a920dd63a667",
+    "candidate": "1ec5bae0e1ed91b4ff30cd36556c9adde6a15252",
+    "candidateTree": "1a4a7b1a4c9a134001909a0baf64b789c4186af4"
+  },
+  "scope": "Normal-world live tree models 1\u20136 with logs >= 1: hover descriptor fallback and point.id render match; existing neutral-owner 200/255 material.",
+  "retainedSource": "../../../decomp/research/tree-hover.md",
+  "independentReviews": {
+    "scope": {
+      "locator": "tree-hover-scope-review-20261009/scope-verdict.md",
+      "sha256": "bf72b7e7b29e7617b8ed1d0f93fdb22435047a5483e457264d821c3a5b17340f",
+      "verdict": "accepted narrow scope"
+    },
+    "sourceAndStandards": {
+      "locator": "tree-hover-scope-review-20261009/product-review-1ec5bae.md",
+      "sha256": "b546bad94b19c37e683ff678b258aaaa90ee0dbc82bc3ea3993ba669b2d18856",
+      "verdict": "accepted source and standard results; ordinary rendered acceptance pending"
+    }
+  },
+  "portableEvidence": {
+    "red01": {
+      "locator": "populous-recovery-20261009/work/orchestration/issue19-c27c46c-red-01/receipt.json",
+      "sha256": "8696f201324ca06424b7b29f23b9153ef0115cfe63c3c63c3a0d981f7ce43b49",
+      "status": "failed",
+      "exitCode": 1,
+      "sourceCommit": "c27c46ce47263c57433c321c8610d6b40e60f6a8",
+      "startedAt": "2026-10-09T08:18:35.958Z",
+      "finishedAt": "2026-10-09T08:18:48.101Z",
+      "interpretation": "Opening input-mask prerequisite failed; not product-regression evidence."
+    },
+    "red02": {
+      "locator": "populous-recovery-20261009/work/orchestration/issue19-c0d4f8b-red-02/receipt.json",
+      "sha256": "53cb30d715f333a8ebce1ebf5231f17d3510e9429333a857f386c8f9b2ea9ee4",
+      "status": "failed",
+      "exitCode": 1,
+      "sourceCommit": "c0d4f8bc14e1daf8b83e2462b2550fa220d36ba1",
+      "startedAt": "2026-10-09T08:24:40.761Z",
+      "finishedAt": "2026-10-09T08:24:50.932Z",
+      "interpretation": "Actual authored-tree picking passed after campaign/flyby input unlock; intended highlight failure 0 !== 200."
+    },
+    "focused": {
+      "locator": "populous-recovery-20261009/work/orchestration/issue19-1ec5bae-focused-01/receipt.json",
+      "sha256": "f1ba7d12e6e6b1410e3ecd9fddf4063a6fdb0537e31c0846885a1de4ca6875f3",
+      "status": "passed",
+      "exitCode": 0,
+      "sourceCommit": "1ec5bae0e1ed91b4ff30cd36556c9adde6a15252",
+      "startedAt": "2026-10-09T08:25:55.679Z",
+      "finishedAt": "2026-10-09T08:26:19.231Z",
+      "interpretation": "Actual composed caller regression and neighboring lifecycle/picking suites passed.",
+      "passed": 8,
+      "total": 8
+    },
+    "standards": {
+      "locator": "populous-recovery-20261009/work/orchestration/issue19-1ec5bae-final-01/aggregate.json",
+      "sha256": "9c47823f748578f3d68030f76fedb703ec39ff414648cc1d48b6b281c4e9dbce",
+      "status": "passed",
+      "passed": 1595,
+      "total": 1595,
+      "testFiles": 272,
+      "stages": 16,
+      "sourceStable": true,
+      "freshGates": [
+        "typecheck",
+        "all maintained Node tests",
+        "parity",
+        "orchestration",
+        "production build"
+      ]
+    },
+    "quality": {
+      "passed": [
+        "scoped Oxfmt",
+        "scoped ESLint",
+        "structural",
+        "context"
+      ],
+      "strictOxlint": {
+        "locator": "populous-recovery-20261009/work/orchestration/issue19-1ec5bae-preflight-01/oxlint-attribution.json",
+        "sha256": "f6aadd3f1e4b6e9f5fe9a29488995542d9b134ed01044b1fcb801e81855ae38c",
+        "status": "failed",
+        "findings": 19,
+        "warnings": 17,
+        "errors": 2,
+        "baselineDiagnosticsIdentical": true,
+        "introducedFindings": 0
+      }
+    }
+  },
+  "ordinaryEvidence": {
+    "status": "pending",
+    "baseline01": {
+      "locator": "populous-recovery-20261009/work/orchestration/tree-hover-baseline-9dcee20-20261009.outer.json",
+      "sha256": "3503c4c9730b552c6457c0d5d167d1ab267ea3bbe2d4796096c5b9687a450f66",
+      "status": "failed",
+      "exitCode": 1,
+      "sourceCommit": "9dcee20c48e4ecf5c08823fdd16724572c79afc4",
+      "startedAt": "2026-10-09T08:42:26.976Z",
+      "finishedAt": "2026-10-09T08:43:48.913Z",
+      "interpretation": "Failed declared target prerequisite: Declared authored Mission1 targets unavailable; no completed baseline-hover or pixel-comparison credit.",
+      "applicationCommit": "2107ccfabc1737aed55aca3c5579a920dd63a667",
+      "qaCommit": "9dcee20c48e4ecf5c08823fdd16724572c79afc4"
+    },
+    "reviewedBaseline": null,
+    "reviewedCandidate": null,
+    "screenshots": [],
+    "pixelComparison": null,
+    "finalAcceptance": null
+  },
+  "limits": [
+    "Composed Node callers supply texture IO, painter submission, GPU and unrelated frame boundaries.",
+    "Raw receipts/logs remain at their local provenance locators and are not copied into this compact report.",
+    "No completed ordinary before/after witness, native controller/modal or tooltip parity, native whole-frame pixels/timing, hardware-performance, whole-issue completion or new parity-credit claim."
+  ]
+}
