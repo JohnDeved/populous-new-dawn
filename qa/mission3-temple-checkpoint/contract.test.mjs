@@ -21,6 +21,7 @@ import { selectFollowers } from '../../app/selection-runtime.ts'
 import { buildingStage, nativePosition } from '../../app/world-terrain-runtime.ts'
 import { spellTargetError } from '../../app/live-command.ts'
 import { spellRange } from '../../app/spell-casting.ts'
+import { SPELLS } from '../../app/world-rules.ts'
 import { positionDistance } from '../../app/native-math.ts'
 import { campaignShamanReadiness } from '../../scripts/campaign-start-readiness.mjs'
 import rules from '../../app/original-rules.json' with { type: 'json' }
@@ -51,6 +52,7 @@ const modules = {
   '/app/world-terrain-runtime.ts': { buildingStage, nativePosition },
   '/app/live-command.ts': { spellTargetError },
   '/app/spell-casting.ts': { spellRange },
+  '/app/world-rules.ts': { SPELLS },
   '/app/native-math.ts': { positionDistance },
   '/scripts/campaign-start-readiness.mjs': { campaignShamanReadiness },
   '/app/model.ts': { placementError },
