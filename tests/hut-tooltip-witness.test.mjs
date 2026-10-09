@@ -102,6 +102,7 @@ test('repeated identical picks stay bounded while changed results, coordinates, 
     for (let frame = 1; frame <= 100; frame++) {
       scene.frame = frame; scene.previous = frame * 3; scene.world.turn = frame; scene.renderer.info.render.frame = frame
       scene.updatePointerFrame()
+      scene.updateTooltipController(scene.previous)
     }
     scene.fixturePick = 20; scene.updatePointerFrame()
     scene.updatePointerFrame({ clientX: 41, clientY: 50 })
@@ -109,6 +110,8 @@ test('repeated identical picks stay bounded while changed results, coordinates, 
     api.phase('new phase'); scene.updatePointerFrame({ clientX: 41, clientY: 50 })
     const data = api.read(), picks = data.records.filter(row => row.kind === 'pointer-frame')
     assert.equal(picks.length, 5); assert.equal(data.epochs[0].omittedIdenticalPointerFrames, 100)
+    assert.equal(data.records.filter(row => row.kind === 'tick').length, 100)
+    assert.equal(data.records.filter(row => row.kind === 'tick').at(-1).after.session.visits, 100)
     assert.equal(picks[1].omittedIdenticalBefore, 100)
     assert.deepEqual(picks.map(row => [row.picks[0].id, row.picks[0].x]), [[37, 40], [20, 40], [20, 41], [20, 41], [20, 41]])
     assert.equal(picks.at(-1).phase, 'new phase')
@@ -147,4 +150,17 @@ test('installation and PNG diagnostics do not stop original start or paints and 
       assert.equal(f.doc.listeners.length, 0)
     } finally { api?.close(); f.restore() }
   }
+})
+
+test('cleanup reports retained game inspection ownership without silently mutating it', () => {
+  const f = fixture(); let api
+  try {
+    api = installHutTooltipLifecycle(f.Scene, f.observe, { deadlineAt: Date.now() + 10000 })
+    const scene = new f.Scene(); scene.start(); scene.objectPanels.hutHeldPointer = 7
+    const result = api.close()
+    assert.equal(result.closed, true); assert.equal(result.epochs[0].cleanupHeldPointer, 7)
+    assert.equal(scene.objectPanels.hutHeldPointer, 7)
+    assert.match(result.errors[0], /held-pointer owner remains/)
+    assert.equal(f.doc.listeners.length, 0)
+  } finally { api?.close(); f.restore() }
 })

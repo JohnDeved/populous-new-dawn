@@ -97,10 +97,16 @@ acceptance. No browser, native executable, dependency installation, full check o
 build was run for this QA checkpoint.
 
 Before launch, bind the frozen runtime and checker hashes. The agreed explicit
-outcomes are `explicit:created` / `explicit:reused` plus `release`; rejected and
-stale requests fail immediately. The driver waits for the actual published pick
-before pressing and for completed explicit down/up consumption before leaving.
+outcomes are `explicit:created` / `explicit:reused` followed by `release`; rejected
+and stale requests fail immediately. The driver waits for the actual published
+pick before pressing and requires ordered explicit down/up consumption, a drained
+queue and no actual held-pointer owner before leaving. Tail and cleanup also
+check that held owner. Ground preparation, like object preparation, crosses a
+later natural-render boundary before its credited pointer input.
 Review actual positive acquisition/reuse/leave evidence and the
 retained pixels; a preexisting visible record alone cannot prove inspection.
 The finite route does not guarantee forced/HUD overlap, fresh explicit allocation,
 named-to-named replacement or held off-target release. Absent coverage stays absent.
+There is no proved natural model-1 Hut automatic-activity admission in this M1
+scope. This route injects no activity and must credit only observed hover/explicit
+record creation. Conditional prior-browser automatic compatibility is separate.

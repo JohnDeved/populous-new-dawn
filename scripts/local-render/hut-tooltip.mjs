@@ -8,7 +8,7 @@ import { checkpointObservation, readCommittedCheckpoint } from './checkpoint-obs
 import { waitForCheckpointReadback } from '../checkpoint-readback.mjs'
 import { installHutTooltipWitness } from './hut-tooltip-witness.mjs'
 import { enterHutMission, closeHutMenu, assertHutAdmission, installHutCheckpointBoundary,
-  installHutSelectionClear, assertHutCheckpointRestore, finishHutHandles } from './hut-tooltip-input.mjs'
+  installHutSelectionClear, assertHutCheckpointRestore, finishHutHandles, assertHutInspectionLifecycle } from './hut-tooltip-input.mjs'
 
 // No automatic replay: input, picking, startup and interrupted-flow failures are
 // preserved as prerequisites, not converted into controller failures or passes.
@@ -127,6 +127,9 @@ export default async function hutTooltip({ page, root, output, receipt, signal }
     await input.view(report.declaration.ground)
     const ground = await input.fixedGround(report.declaration.ground)
     report.preparations.push({ kind: 'ordinary-ground', ground }); save(); assert.equal(ground.rejection, null)
+    const groundPrepared = await page.evaluate(() => { const s = window.testSceneRef.current; return {
+      sceneFrame: s.frame, rendererFrame: s.renderer.info.render.frame } })
+    await naturalBoundary(groundPrepared)
     await phase('blank-cell-history', 'hidden')
     await action('Hover verified ordinary blank cell', () => page.mouse.move(ground.x, ground.y))
     await wait('cell'); await wait('capture', 'blank-cell-history')
@@ -148,7 +151,7 @@ export default async function hutTooltip({ page, root, output, receipt, signal }
       await page.mouse.down({ button: 'right' })
       try { remaining() } finally { await page.mouse.up({ button: 'right' }) }
     })
-    await wait('inspection')
+    assertHutInspectionLifecycle(await wait('inspection'))
     await hoverBlast('leave-to-blast')
     await input.view(tree); const treePoint = await point(tree)
     await phase('known-unnamed-tree', 'hidden')
@@ -195,6 +198,7 @@ export default async function hutTooltip({ page, root, output, receipt, signal }
     await phase('after-load', 'hut')
     await action('Hover DAT42 after public Load', () => page.mouse.move(loadedPoint.x, loadedPoint.y))
     await wait('capture', 'after-load')
+    assert.equal((await status()).epochs.at(-1).state.heldPointer, null, 'Episode tail has no held inspection owner')
     report.finalCommitted = await readCommittedCheckpoint(page)
     assert.equal(report.finalCommitted.checkpointSha256, committed.checkpointSha256)
     await page.screenshot({ path: resolve(output, 'after-load-composite.png') })

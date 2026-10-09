@@ -98,6 +98,17 @@ export function assertHutCheckpointRestore(saved, loaded) {
   // presentation reservation rebuilding may change the whole-record digest.
 }
 
+export function assertHutInspectionLifecycle(status) {
+  const events = status.phaseInspections
+  const activation = events.findIndex(event => event === 'explicit:created' || event === 'explicit:reused')
+  const release = events.indexOf('release')
+  assert.ok(activation >= 0 && release > activation, 'Actual explicit acquisition must precede its consumed release')
+  assert.ok(!events.some(event => event === 'cancel-stale' || event.startsWith('explicit:rejected')))
+  const state = status.epochs.at(-1).state
+  assert.equal(state.heldPointer, null, 'Consumed release clears the actual Hut held-pointer owner')
+  assert.deepEqual(state.pendingInputs, [], 'Actual explicit input queue is drained before departure')
+}
+
 // Install after readiness, so the actual page keyboard handler is already
 // registered. Both snapshots belong to the same physical key dispatch.
 export function installHutSelectionClear() {

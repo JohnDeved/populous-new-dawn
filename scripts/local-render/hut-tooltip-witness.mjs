@@ -84,6 +84,8 @@ export function installHutTooltipLifecycle(GameScene, observeEntityPointer, { de
     const finish = () => {
       if (epoch.closed) return
       epoch.closed = true
+      epoch.cleanupHeldPointer = scene.objectPanels.hutHeldPointer ?? null
+      if (epoch.cleanupHeldPointer !== null) error('Actual Hut held-pointer owner remains at observer cleanup')
       for (const [owner, type, fn, capture] of epoch.listeners) try { owner.removeEventListener(type, fn, capture) } catch (e) { error(e) }
       for (const entry of epoch.wrappers.toReversed()) try {
         if (entry.owner[entry.key] !== entry.wrapper) { error(`Hut observer lost ${entry.key}`); continue }
@@ -235,6 +237,7 @@ export function installHutTooltipLifecycle(GameScene, observeEntityPointer, { de
     status: summary,
     read() { return structuredClone({ ...summary(), records, frames, epochs: epochs.map(e => ({ id: e.id, initial: e.initial,
       lastState: e.lastState, disposed: e.disposed, closed: e.closed, delivered: e.delivered,
+      cleanupHeldPointer: e.cleanupHeldPointer,
       omittedIdenticalPointerFrames: e.omittedIdenticalPointerFrames, omittedSincePointerRecord: e.omittedSincePointerRecord })) }) },
     close() {
       if (!closed) {

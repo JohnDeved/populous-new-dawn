@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
-import { closeHutMenu, installHutCheckpointBoundary, finishHutHandles } from '../scripts/local-render/hut-tooltip-input.mjs'
+import { closeHutMenu, installHutCheckpointBoundary, finishHutHandles, assertHutInspectionLifecycle } from '../scripts/local-render/hut-tooltip-input.mjs'
 import { checkpointObservation } from '../scripts/local-render/checkpoint-observer.mjs'
 import hutTooltip from '../scripts/local-render/hut-tooltip.mjs'
 
@@ -12,6 +12,17 @@ const bindLoad = bindings => Function(...Object.keys(bindings), `${stripTypeScri
 
 test('named ordinary driver imports without executing the harness or runtime', () => {
   assert.equal(typeof hutTooltip, 'function')
+})
+
+test('explicit inspection requires ordered activation then release and cleared actual ownership', () => {
+  const status = { phaseInspections: ['explicit:reused', 'release'], epochs: [{ state: { heldPointer: null, pendingInputs: [] } }] }
+  assert.doesNotThrow(() => assertHutInspectionLifecycle(status))
+  for (const change of [
+    s => { s.phaseInspections.reverse() },
+    s => { s.phaseInspections = ['explicit:rejected', 'release'] },
+    s => { s.epochs[0].state.heldPointer = 7 },
+    s => { s.epochs[0].state.pendingInputs = [{ kind: 'up' }] },
+  ]) { const bad = structuredClone(status); change(bad); assert.throws(() => assertHutInspectionLifecycle(bad)) }
 })
 
 function checkpointFixture(kind) {
