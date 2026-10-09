@@ -94,6 +94,35 @@ test('separate natural paint owners retain same-RAF tooltip, WebGL and later HUD
   } finally { api?.close(); f.restore() }
 })
 
+test('named DAT20 capture requires its actual pick, imported835 text and mature draw at paint', () => {
+  const palette = JSON.parse(readFileSync(new URL('../app/original-tooltips.json', import.meta.url), 'utf8'))
+  assert.equal(palette.names[5][1][0], 835)
+  const text = palette.strings[835]
+  assert.ok(text.startsWith('Tree:'))
+  const f = fixture(); let api
+  try {
+    api = installHutTooltipLifecycle(f.Scene, f.observe, { deadlineAt: Date.now() + 10000 })
+    const scene = new f.Scene(); scene.start()
+    api.phase('named-tree-history', { kind: 'named-object', id: 20, text })
+    const good = () => {
+      scene.tooltipInput = { picked: 20, object: { id: 20, type: 5, model: 1 } }
+      Object.assign(scene.tooltipController, { category: 'object', key: 20, dwell: 13 })
+      Object.assign(scene.tooltip, { draw: 1, text })
+    }
+    for (const invalidate of [s => { s.tooltip.draw = 0 }, s => { s.tooltip.text = '' },
+      s => { s.tooltipInput.picked = 37 }, s => { s.tooltipInput.object.id = 37 },
+      s => { s.tooltipController.key = 37 }, s => { s.tooltipController.dwell = 12 }]) {
+      good(); invalidate(scene); scene.renderTooltip()
+      assert.equal(api.read().frames['named-tree-history'], undefined)
+    }
+    good(); scene.renderTooltip(); scene.renderer.render(scene.scene, scene.camera); scene.updateHudFrame()
+    const frame = api.read().frames['named-tree-history']
+    assert.equal(frame.tooltip.label, text); assert.equal(frame.tooltip.hidden, false)
+    assert.equal(frame.tooltip.state.input.picked, 20); assert.equal(frame.tooltip.state.controller.dwell, 13)
+    assert.equal(api.status().captures['named-tree-history'], true)
+  } finally { api?.close(); f.restore() }
+})
+
 test('actual controller return retains detached bounded marker consequences without requesting audio', () => {
   const f = fixture(); let api
   const original = f.Scene.prototype.updateTooltipController

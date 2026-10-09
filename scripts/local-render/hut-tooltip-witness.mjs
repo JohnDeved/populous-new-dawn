@@ -158,7 +158,12 @@ export function installHutTooltipLifecycle(GameScene, observeEntityPointer, { de
           const matches = capture.when === 'hidden' ? element.hidden : capture.when === 'hut'
             ? !element.hidden && label.startsWith('Small Hut:') : capture.when === 'blast'
               ? hudVisible && hudText.startsWith('Blast') && scene.tooltipController.category === 'hud' &&
-                scene.tooltipController.owners.hud && scene.tooltip.draw === 1 : true
+                scene.tooltipController.owners.hud && scene.tooltip.draw === 1 : capture.when?.kind === 'named-object'
+                ? !element.hidden && label === capture.when.text && scene.tooltip.text === capture.when.text &&
+                  scene.tooltip.draw === 1 && scene.tooltipInput?.picked === capture.when.id &&
+                  scene.tooltipInput.object?.id === capture.when.id && scene.tooltipController.category === 'object' &&
+                  scene.tooltipController.key === capture.when.id &&
+                  scene.tooltipController.dwell > scene.tooltipController.session.threshold : true
           if (!matches) return
           const frame = frames[capture.label] ??= { epoch: epoch.id, phase, ordinal, rafTimestamp: scene.previous }
           frame.tooltip = { ...epoch.lastPaint, state: snapshot(), png: element.hidden ? null : pixels(scene.tooltipCanvas) }

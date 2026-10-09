@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { writeFileSync } from 'node:fs'
+import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { authoredHoverTargets, hoverInput } from './tree-hover-input.mjs'
@@ -19,7 +19,7 @@ export default async function hutTooltip({ page, root, output, receipt, signal }
     authoredTree: 20, ground: { x: -11, z: 39 }, hud: 'Blast', startupMs: 60000, episodeMs: 180000,
     witnessPhaseMs: 12000, inheritedHelperWaitMs: 45000, panelHoverVisits: 24,
     maxRecords: 8192, maxCaptureGroups: 8, noRetries: true },
-    actions: [], preparations: [], checkpoints: [], limits: 'Ordinary current-browser behavior on the accepted existing flyby-tick mapping. Per-tick marker snapshots retain actual allocated feedback; direct onSound dispatch and audible output are unobserved. No native wall-time or full pool equivalence, textless positive HUD, forced/HUD-overlap guarantee, off-target held release, named replacement, or hardware performance claim.' }
+    actions: [], preparations: [], checkpoints: [], limits: 'Ordinary current-browser behavior on the accepted existing flyby-tick mapping. Per-tick marker snapshots retain actual allocated feedback; direct onSound dispatch and audible output are unobserved. No native wall-time or full pool equivalence, textless positive HUD, unnamed-object coverage, forced/HUD-overlap guarantee, off-target held release, or hardware performance claim.' }
   const save = () => {
     for (const [label, group] of Object.entries(report.observation?.frames ?? {}))
       for (const [kind, frame] of Object.entries(group)) if (frame?.png?.startsWith('data:')) {
@@ -51,7 +51,9 @@ export default async function hutTooltip({ page, root, output, receipt, signal }
       const state = value.epochs.at(-1)?.state
       if (kind === 'capture') return value.captures[arg] === true
       if (kind === 'cell') return state?.controller.category === 'cell' && !state.tooltip.text
-      if (kind === 'tree') return state?.hovered === arg && state.controller.category === 'object' && state.controller.key === arg && !state.tooltip.text
+      if (kind === 'tree') return state?.hovered === arg.id && state.input?.picked === arg.id &&
+        state.input.object?.id === arg.id && state.controller.category === 'object' && state.controller.key === arg.id &&
+        state.tooltip.text === arg.text && state.tooltip.draw === 1 && state.controller.dwell > state.session.threshold
       if (kind === 'record') return state?.records.some(row => row.id === arg)
       if (kind === 'panel-held') {
         const record = state?.records.find(row => row.id === arg.id)
@@ -123,6 +125,10 @@ export default async function hutTooltip({ page, root, output, receipt, signal }
     report.targets = await page.evaluate(authoredHoverTargets); save()
     assert.equal(report.targets.failure, null)
     const hut = { ...report.targets.building, kind: 'building' }, tree = { ...report.targets.tree, kind: 'tree' }
+    const palette = JSON.parse(readFileSync(resolve(root, 'app/original-tooltips.json'), 'utf8'))
+    const treeStringId = palette.names[5][tree.model][0], treeText = palette.strings[treeStringId]
+    assert.equal(treeStringId, 835); assert.ok(typeof treeText === 'string' && treeText.length > 0)
+    report.treeDescription = { type: 5, model: tree.model, stringId: treeStringId, text: treeText }; save()
     const input = createMission1VaultInput({ page, signal, report, save, originalShamanId: 30, deadlineAt })
     await input.settle()
     const blast = page.getByRole('button', { name: /^Blast, \d+ shots$/ })
@@ -178,9 +184,9 @@ export default async function hutTooltip({ page, root, output, receipt, signal }
     await hoverBlast('leave-to-blast')
     report.panelAfterLeave = await wait('record-expired', hut.id)
     await input.view(tree); const treePoint = await point(tree)
-    await phase('known-unnamed-tree', 'hidden')
+    await phase('named-tree-history', { kind: 'named-object', id: tree.id, text: treeText })
     await action('Hover DAT20 tree', () => page.mouse.move(treePoint.x, treePoint.y))
-    await wait('tree', tree.id); await wait('capture', 'known-unnamed-tree')
+    await wait('tree', { id: tree.id, text: treeText }); await wait('capture', 'named-tree-history')
     await input.view(hut); const returned = await point(hut)
     await phase('hut-return', 'hut')
     await action('Reacquire DAT42', () => page.mouse.move(returned.x, returned.y))

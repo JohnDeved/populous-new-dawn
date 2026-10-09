@@ -64,7 +64,7 @@ render and admitted ordinary blank-cell hover; DAT42 hover and same-interior mov
 stationary right down/up; same-Hut dismantle-control hover without activation
 for24 actually observed controller visits with that control hovered (beyond its
 16-visit hold and3/16/3 unrenewed lifetime); Blast leave and normal
-record expiry; authored unnamed tree20; Hut return;
+record expiry; authored named tree20 (type5/model1/string835); Hut return;
 settings/Save/Continue Game/Resume; settings/Load; new-scene Hut hover. It uses a
 fresh ephemeral context, normal speed and natural RAF, with a 60-second startup,
 180-second total admission deadline, 12-second witness-phase waits, inherited
@@ -121,8 +121,12 @@ check that held owner. Ground preparation, like object preparation, crosses a
 later natural-render boundary before its credited pointer input.
 Review actual positive acquisition/reuse/leave evidence and the
 retained pixels; a preexisting visible record alone cannot prove inspection.
-The finite route does not guarantee forced/HUD overlap, fresh explicit allocation,
-named-to-named replacement or held off-target release. Absent coverage stays absent.
+The tree capture requires actual input/picked20, exact imported string835 and
+mature draw at the same real paint. Ordinary01's earlier hidden frame and later
+timeout remain a failed QA expectation, not unnamed-tree evidence. The tree is
+named; unnamed-object and positive textless-HUD coverage remain absent.
+The finite route does not guarantee forced/HUD overlap, fresh explicit allocation
+or held off-target release. Absent coverage stays absent.
 There is no proved natural model-1 Hut automatic-activity admission in this M1
 scope. This route injects no activity and must credit only observed hover/explicit
 record creation. Conditional prior-browser automatic compatibility is separate.
