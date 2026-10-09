@@ -85,9 +85,14 @@ tooltip visit in `updateFlyby`. This proposal **preserves that existing browser
 frontend order**: synchronous automatic admission/D writes occur during simulation;
 a later same-frame tooltip acquisition follows the current controller rules.
 No exact native precedence is claimed for simultaneous new input/tooltip
-acquisition. Do not conceal this difference by buffering requests or globally
-moving the established controller/forced-acquisition clock as part of this slice.
-Tests must describe the actual sequence and preserve existing manual acceptance.
+acquisition. Admission also precedes `sampleTooltipFrontend`: if T is still unset
+at a one-second sampling boundary, the automatic request can cache the previous
+sample permanently before the controller publishes the new one, even without a
+new input acquisition. Preserve and regression-test that actual boundary sequence;
+do not imply the sampling difference is limited to simultaneous input. Do not
+conceal these differences by buffering requests or globally moving the established
+controller/forced-acquisition clock as part of this slice. Existing manual
+acceptance and Page-session threshold persistence remain required regressions.
 
 ## Save, load and new Scene
 
@@ -116,9 +121,15 @@ conversion, activity clearing, exit and reservation release. No injected people,
 activity, mana, requests, direct ticks, clock replacement or training completion.
 This is an attainable planned witness, not evidence of a run by this source task.
 
-Before implementation, retain failure-first actual-caller cases for: no record
-from zero-tick paint; pre-conversion request even when conversion clears activity
-in that same turn; ordered repeated callbacks/multiple buildings; allocation
+Before implementation, retain failure-first actual-caller cases. With a fresh
+Scene, bare activity and no independent owner, zero-tick painting must create no
+camp record, latch, DOM panel or panel reservation. Separately, the genuine
+callback must immediately own its record/latch/reservation while leaving the panel
+unpainted until the first existing controller step. These observable-owner checks
+must fail against today's activity-polled renderer, not merely assert its already
+absent automatic record. Also cover pre-conversion requests even when conversion
+clears activity in that same turn; ordered repeated callbacks/multiple buildings;
+first T initialization at a one-second sampling boundary; allocation
 failure/retry; existing manual reuse with no D reset; entry-stop and phase1 expiry;
 phase2 restart/reuse; DOM hold without frozen automatic lifetime; stale/dead/enemy
 target cleanup; no duplicate shared reservation; and Save/Load/new Scene with a
