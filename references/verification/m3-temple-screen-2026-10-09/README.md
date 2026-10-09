@@ -29,8 +29,16 @@ Another naturally selected shared resource tile:
 
 ![Natural shared-tile Temple acquisition canvas](m3-fresh-sharedTile-overlay.png)
 
+## Later continuation03: active-building Restart accepted, tail still failed
+
+A separately reviewed continuation on driver `305ad68cadee16ac73a47d2307799b95a5b2b986` loaded the genuine turn1190 checkpoint with adjacent trusted Load/Pause controls. At the subsequent trusted Restart, turn1218, the building controller was still active (phase4/visit100). Restart cleared acquisition and reset the World while retaining bank-p epoch1/counter3/tile95. The second Load restored the exact saved1190 state and reset the resource to epoch2/counter0/tile92. Companion/pulse were already inactive and knowledge was already granted before Restart; interruption credit is limited to the active building controller.
+
+This continuation also **FAILED**, at its later ordinary home move. Preflight frame237 was clear with Shaman46 selected; the trusted pointerdown on frame238 hit Brave510. Camera/projection/terrain coordinates stayed unchanged, the actual acknowledgement selected510, and no new movement order was issued. The existing strict recipient/freshness predicate correctly stopped the attempt. A different home-perimeter setup point requires its own ordinary input/arrival evidence; no failed click is reclassified as accepted.
+
+Outer exit1 was terminal at02:09:44.106Z. Cleanup and continuation were verified, browser errors were empty, the owner lock was released, and the genuine1190 Save remained intact. `continuation03-summary.json` binds this additional failed attempt and its accepted lifecycle partial.
+
 ## What remains open
 
-Active-acquisition Restart, the second Load, ordinary Blue Temple construction, shared-resource world-Temple frames and final Save are not accepted by this attempt. The acquisition observer's full final predicate was not reached. Raw source-bound evidence is retained locally; `partial-summary.json` binds these public images and records hashes without publishing any browser profile/storage.
+Across the two attempts, ordinary Blue Temple construction, shared-resource world-Temple frames and final Save remain unaccepted. The acquisition observer's full final predicate was not reached. Raw source-bound evidence is retained locally; `partial-summary.json` binds these public images and records hashes without publishing any browser profile/storage.
 
 The original static/source and data proofs have separate limits. This browser evidence does not establish original GPU equality, native wall-clock/24Hz/RAF cadence, hidden-tab scheduling, complete audio, other tribes or all construction stages. Campaign progress and passing tests do not imply full original-game parity.
