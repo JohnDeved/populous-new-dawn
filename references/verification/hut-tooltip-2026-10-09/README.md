@@ -13,4 +13,4 @@ The first episode remains a failed QA expectation: DAT20 is named Tree, not an u
 
 All images are copied without editing. The two tooltip images plus the held-control composite are the smallest useful set (about 1.84 MB); the post-Load composite is optional (about 1.60 MB). Source identities, image hashes and exact captions are in manifest.json.
 
-See [the independent result review](result-review.md) for exact source and receipt identities, observed boundaries and exclusions. Final standard checks and product integration remain pending.
+See [the independent ordinary result review](result-review.md) for exact browser identities, observed boundaries and exclusions. [Final standard validation is accepted](final-acceptance.md); the [exact compact aggregate](final-standard-aggregate.json) records 1,621 passing tests with explicit reviewed carry. The original ordinary review retains its historical publication status. Product integration is tracked separately.
