@@ -33,7 +33,7 @@ test('authored tree picking reaches the native hover override through the actual
     { GameScene } = await import('../app/scene.ts'),
     { ScenePicking } = await import('../app/scene-picking.ts'),
     { RenderView } = await import('../app/render-view.ts'),
-    { worldTooltipObject } = await import('../app/tooltips.ts'),
+    { createTooltip, worldTooltipObject } = await import('../app/tooltips.ts'),
     { syncSecondaryReservations } = await import('../app/scene-secondary-effects.ts'),
     { nativeModel } = await import('../app/scene-assets.ts'),
     world = api.createWorld(1),
@@ -54,6 +54,10 @@ test('authored tree picking reaches the native hover override through the actual
     camera: new THREE.PerspectiveCamera(),
     view: new RenderView(),
     viewPoint: { x: 0, z: 0 },
+    overviewActive: false,
+    flybyTime: 0,
+    flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 },
+    tooltip: createTooltip(),
     renderer: {
       getPixelRatio: () => 1,
       domElement: { getBoundingClientRect: () => ({ left: 0, top: 0, width: 800, height: 600 }) },
@@ -77,6 +81,7 @@ test('authored tree picking reaches the native hover override through the actual
     'updateUnitsFrame', 'renderTooltip', 'updateBuildingsFrame', 'updateEffectsFrame',
     'updateShrinesFrame', 'updatePlacement', 'updateSpellPointerFrame',
     'updateEnvironmentFrame', 'updateHudFrame', 'updateSpellHalo', 'updateDrag',
+    'commitSky', 'cancelOverview',
   ]) scene[name] = nop
   scene.view.prepare = nop
   scene.view.pickCandidates = () => []
@@ -88,6 +93,14 @@ test('authored tree picking reaches the native hover override through the actual
     : null
   scene.picking = new ScenePicking(scene)
   scene.scene.add(scene.objects, scene.decorations)
+  // The authored intro starts with inputMask 128 and later its flyby owns 64.
+  // Reach ordinary input through the existing campaign/clock/flyby callers;
+  // the controlled phase samples below do not claim startup or clock parity.
+  for (let frames = 0; frames < 24 * 60 && world.inputMask; frames++) {
+    api.advanceGame(world, scene.gameClock, 1 / 24)
+    scene.updateFlyby(1 / 24)
+  }
+  assert.equal(world.inputMask, 0, 'the authored opening must release ordinary hover input')
   scene.makeDecorations()
   scene.animate = bindAnimate(scene, {
     syncSecondaryReservations,
