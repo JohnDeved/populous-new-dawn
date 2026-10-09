@@ -16,7 +16,7 @@ export function installHutTooltipLifecycle(GameScene, observeEntityPointer, { de
   const records = [], epochs = [], frames = {}, errors = [], initial = performance.now()
   const originalStart = GameScene.prototype.start
   const startDescriptor = Object.getOwnPropertyDescriptor(GameScene.prototype, 'start')
-  const sessions = new WeakMap(), recordIds = new WeakMap(), buildings = new WeakMap()
+  const sessions = new WeakMap(), recordIds = new WeakMap(), buildings = new WeakMap(), people = new WeakMap()
   let targetId = null
   const recordKey = `${buildingRecordPrefix}Records`, inspectedKey = `${buildingRecordPrefix}Inspected`, heldKey = `${buildingRecordPrefix}HeldPointer`
   let phase = 'startup', ordinal = 0, closed = false, capture = null
@@ -41,10 +41,17 @@ export function installHutTooltipLifecycle(GameScene, observeEntityPointer, { de
     return { camps: camps.map(b => ({ id: b.id, identity: identity(buildings, b), kind: b.kind, team: b.team,
       x: b.x, z: b.z, anchor: b.anchor, hp: b.hp, progress: b.progress, preparation: b.preparation,
       builders: b.builders, admission: b.admission, dismantle: b.dismantle })),
-      workers: world.units.filter(u => ids.has(u.work) || ids.has(u.inside)).map(u => ({ id: u.id,
-        kind: u.kind, team: u.team, hp: u.hp, work: u.work, inside: u.inside, cargo: u.cargo, tree: u.tree,
-        builder: u.builder && { task: u.builder.task, phase: u.builder.phase, busy: u.builder.busy, restart: u.builder.restart },
-        commands: u.native?.commands, commandCursor: u.native?.commandCursor, immediateCommand: u.native?.immediateCommand })) }
+      workers: world.units.filter(u => ids.has(u.work) || ids.has(u.inside)).map(u => {
+        // adoptLiveOrders transfers model6 ownership into builder.person and
+        // clears native. Preserve that actual object and its queue, not an alias.
+        const person = u.builder?.person ?? u.native
+        return { id: u.id, kind: u.kind, team: u.team, hp: u.hp, work: u.work, inside: u.inside, cargo: u.cargo, tree: u.tree,
+          builder: u.builder && { task: u.builder.task, phase: u.builder.phase, busy: u.builder.busy, restart: u.builder.restart },
+          orderOwner: u.builder?.person ? 'builder.person' : u.native ? 'native' : null,
+          orderOwnerIdentity: identity(people, person), orderPersonId: person?.id, orderWorkTarget: person?.workTarget,
+          orderState: person?.state, orderSubstate: person?.substate, orderPhase: person?.commandPhase,
+          commands: person?.commands, commandCursor: person?.commandCursor, immediateCommand: person?.immediateCommand }
+      }) }
   }
   const simulation = scene => structuredClone({
     construction: construction(scene),

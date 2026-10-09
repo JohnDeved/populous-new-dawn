@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { stripTypeScriptTypes } from 'node:module'
 import { installHutTooltipLifecycle } from '../scripts/local-render/hut-tooltip-witness.mjs'
+import { assertCampPlacement } from '../scripts/local-render/camp-inspection-input.mjs'
 import { readHutPanelControl } from '../scripts/local-render/hut-tooltip-input.mjs'
 
 const source = readFileSync(new URL('../app/scene.ts', import.meta.url), 'utf8')
@@ -354,6 +355,59 @@ test('shared camp owners capture dynamic construction identity, all ticks and ac
     scene.buildingPanels.set(1010, { hidden: true, style: {}, getAttribute: () => 'Warrior training: 0 of 5 occupants; 0% charged' })
     scene.updateHudFrame()
     assert.equal(api.read().frames.menu.panel.id, 1010); assert.equal(api.status().captures.menu, true)
+    assert.deepEqual(api.close().errors, [])
+  } finally { api?.close(); f.restore() }
+})
+
+
+test('actual adoptLiveOrders transfer is observed through the pointer boundary and admitted by the camp assertion', () => {
+  const product = process.env.CAMP_INSPECTION_PRODUCT_ROOT ?? new URL('..', import.meta.url).pathname
+  const movement = readFileSync(resolve(product, 'app/live-movement.ts'), 'utf8')
+  const ordersSource = readFileSync(resolve(product, 'app/person-orders.ts'), 'utf8')
+  const adoptBody = movement.slice(movement.indexOf('export function adoptLiveOrders('), movement.indexOf('\n// Player clicks append'))
+  const lookupBody = ordersSource.slice(ordersSource.indexOf('export function currentPersonOrder('), ordersSource.indexOf('\nfunction descriptor('))
+  const lookup = Function(`${stripTypeScriptTypes(lookupBody.replace(/^export /, ''))};return currentPersonOrder`)()
+  const adopt = Function('currentPersonOrder', `${stripTypeScriptTypes(adoptBody.replace(/^export /, ''))};return adoptLiveOrders`)(lookup)
+  const f = fixture(); let api
+  try {
+    api = installHutTooltipLifecycle(f.Scene, f.observe, { deadlineAt: Date.now() + 10000,
+      buildingRecordPrefix: 'building', observeConstruction: true })
+    const scene = new f.Scene(), person = { id: 278, commands: Array(8).fill(0), commandCursor: 0,
+      immediateCommand: 0, state: 10, substate: 1, workTarget: 1022, commandPhase: 0 }
+    const unit = { id: 278, team: 'blue', kind: 'brave', hp: 50, work: null, inside: null, native: person }
+    Object.assign(scene.world, { outcome: { level: 2 }, selected: [54, 278], mode: 'camp', units: [unit], buildings: [],
+      buildingOrders: { records: Array.from({ length: 30 }, () => ({ model: 0, flags: 0, references: 0, a: 0, b: 0, object: 0 })) } })
+    scene.objectPanels = { buildingRecords: new Map(), buildingHeldPointer: null }
+    scene.start(); api.phase('place-camp')
+    const event = type => ({ type, target: f.canvas, isTrusted: true, clientX: 816, clientY: 405, button: 0, buttons: type === 'pointerdown' ? 1 : 0 })
+    const send = (event, mutate = () => {}) => {
+      for (const listener of f.doc.listeners.filter(l => l.type === event.type && l.capture)) listener.fn(event)
+      mutate()
+      for (const listener of f.doc.listeners.filter(l => l.type === event.type && !l.capture)) listener.fn(event)
+    }
+    send(event('pointerdown'))
+    send(event('pointerup'), () => {
+      scene.world.buildingOrders.records[29] = { model: 6, flags: 0, references: 1, object: 0, a: 1022, b: 0 }
+      person.commands[0] = 29; unit.builder = { task: 1, phase: 0, busy: 0, restart: true }
+      scene.world.buildings.push({ id: 1022, kind: 'camp', team: 'blue', hp: 260, progress: 0,
+        anchor: { x: 41984, y: 24576 }, builders: [278, 0, 0] })
+      adopt(scene.world, unit, person); scene.world.mode = null
+    })
+    assert.equal(unit.native, null); assert.equal(unit.builder.person, person)
+    const rows = api.read().records, ground = { x: 816, y: 405, anchor: { x: 41984, y: 24576 } }
+    assert.deepEqual(assertCampPlacement(rows, ground).recipients, [278])
+    const worker = rows.find(r => r.kind === 'input' && r.type === 'pointerup').after.construction.workers[0]
+    assert.equal(worker.orderOwner, 'builder.person'); assert.equal(worker.orderPersonId, 278)
+    assert.deepEqual([worker.orderState, worker.orderSubstate, worker.orderWorkTarget, worker.orderPhase], [10, 1, 1022, 0])
+    scene.updateTooltipController(500)
+    assert.equal(api.read().records.at(-1).after.construction.workers[0].orderOwnerIdentity, worker.orderOwnerIdentity)
+    person.commands[0] = 0
+    assert.equal(worker.commands[0], 29, 'The observed queue remains detached')
+    for (const alter of [w => { delete w.commands }, w => { w.commands = [] }, w => { w.commandCursor = undefined },
+      w => { w.orderOwner = 'native' }, w => { w.orderOwnerIdentity = null }]) {
+      const bad = structuredClone(rows), copied = bad.find(r => r.kind === 'input' && r.type === 'pointerup').after.construction.workers[0]
+      alter(copied); assert.throws(() => assertCampPlacement(bad, ground), { name: 'AssertionError' })
+    }
     assert.deepEqual(api.close().errors, [])
   } finally { api?.close(); f.restore() }
 })

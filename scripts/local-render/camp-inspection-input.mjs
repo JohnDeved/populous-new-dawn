@@ -83,6 +83,15 @@ export function assertCampPlacement(records, ground) {
     assert.ok(camp.builders.includes(worker.id))
     // The active movement command can be inserted ahead of construction model6.
     // Retain the complete actual queue and require its original camp request.
+    assert.equal(worker.orderOwner, 'builder.person', `Actual construction queue owner missing for worker ${worker.id}`)
+    assert.ok(Number.isInteger(worker.orderOwnerIdentity) && worker.orderOwnerIdentity > 0,
+      `Actual construction person identity missing for worker ${worker.id}`)
+    assert.equal(worker.orderPersonId, worker.id, 'Construction person must belong to the actual worker')
+    assert.ok(Array.isArray(worker.commands) && worker.commands.length === 8 &&
+      worker.commands.every(id => Number.isInteger(id) && id >= 0) &&
+      Number.isInteger(worker.commandCursor) && worker.commandCursor >= 0 && worker.commandCursor < 8 &&
+      Number.isInteger(worker.immediateCommand) && worker.immediateCommand >= 0,
+    `Actual construction queue missing or malformed for worker ${worker.id}`)
     const orders = worker.commands.map(id => after.orders.records[id]).filter(Boolean)
     assert.ok(orders.some(order => order.model === 6 && order.a === camp.id && !(order.flags & 1)))
   }

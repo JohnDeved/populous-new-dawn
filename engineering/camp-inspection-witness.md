@@ -109,3 +109,29 @@ driver requires committed equality. These tests do not claim natural constructio
 timing or pixels. After the ordinary result is independently accepted, publish only
 the concise facts and relevant exact images, embed screenshots inline in future
 issues/PRs, verify their public URLs and inspect the rendered GitHub presentation.
+
+## Retained ordinary01 observation failure
+
+The first real episode on product `4e8356ef` and QA `a342caf5` failed after its
+trusted placement. Camp 1022 was created at anchor (41984, 24576), nine selected
+Braves owned its builder slots, and shared order 29 was model 6 with nine
+references. The observer sampled only `unit.native`; the actual
+`adoptLiveOrders` caller transfers construction ownership into `unit.builder.person`
+and clears `native`. Consequently the per-worker queues were absent and the
+assertion failed on `undefined.map`. Their attachment cannot be credited from
+this failed observation. Completion, inspection and checkpoints were not reached.
+
+The raw report SHA256 is
+`dcdd2a379f38ce78c5dea741fe69f7daec5026b2fed57e7df40ec67d90a229b2`;
+the outer failure receipt SHA256 is
+`1447f3da751d1dfc4587f7d697d583a20d46608e3b313c3f2e7fc6002ac3226f`.
+Observer cleanup closed without errors, restored the actual pointer wrappers and
+left no held inspection owner. The original failure remains intact.
+
+The narrow repair reads the actual construction owner, preserving its owner kind,
+object identity, person ID/state/work target and queue fields. Missing or malformed
+queue observations now fail an explicit assertion. A compact exact projection of
+the failed boundary remains a negative regression; a separate contract composes
+the shipped `adoptLiveOrders` transfer through the real observer into
+`assertCampPlacement`, including detachment and missing-shape rejection. The
+application, ordinary inputs, episode bounds and cleanup flow are unchanged.

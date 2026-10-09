@@ -69,9 +69,11 @@ test('public camp prefix preserves Shift selection, actual tab labels and mode p
 
 test('actual placeBuilding body assigns selected reachable workers and a created plan alone is insufficient', () => {
   const placeBody = body('app/live-command.ts', 'export function placeBuilding(', '\n// Shared browser target adapter')
+  const adopt = Function('currentPersonOrder', `${body('app/live-movement.ts', 'export function adoptLiveOrders(', '\n// Player clicks append')};return adoptLiveOrders`)(
+    (pool, person) => pool.records[person.immediateCommand || person.commands[person.commandCursor]])
   const world = { paused: false, status: 'playing', unlockedCamp: true, mode: 'camp', selected: [57, 1000, 1001],
     buildings: [], units: [{ id: 57, kind: 'shaman', team: 'blue', hp: 100 },
-      ...[1000, 1001].map(id => ({ id, kind: 'brave', team: 'blue', hp: 100, native: { commands: [], commandCursor: 0 } }))],
+      ...[1000, 1001].map(id => ({ id, kind: 'brave', team: 'blue', hp: 100, native: { id, commands: Array(8).fill(0), commandCursor: 0, immediateCommand: 0 } }))],
     buildingOrders: { records: [null], cursor: 0 } }
   const bindings = { BUILDINGS: [{ id: 'camp', name: 'Warrior Training Hut', cost: 8 }], tell() {},
     buildingPlanPose: () => ({ anchorX: 2, anchorY: 4, angle: 0 }), browserPosition: () => ({ x: -99, z: -105 }),
@@ -79,12 +81,12 @@ test('actual placeBuilding body assigns selected reachable workers and a created
     rules: { buildingMaxWorkers: { 7: 16 } }, buildingModel: () => 7,
     addBuilding(w, team, kind) { const b = { id: 1010, team, kind, hp: 800, progress: 0, anchor: { x: 2, y: 4 } }; w.buildings.push(b); return b },
     allocatePersonOrder(pool) { pool.records.push({}); return 1 }, writePersonOrder(order, model, a, b, flags) { Object.assign(order, { model, a, b, flags }) },
-    release() {}, startLiveOrder(_w, u, id) { u.native.commands.push(id) },
-    startLiveConstructionOrder(w, u) { u.work = 1010; u.builder = {}; w.buildings[0].builders[0] = u.id; return true },
+    release() {}, startLiveOrder(_w, u, id) { u.native.commands[0] = id },
+    startLiveConstructionOrder(w, u) { u.builder = {}; w.buildings[0].builders[0] = u.id; adopt(w, u, u.native); return true },
     route() {}, entrance: () => ({}) }
   const place = Function(...Object.keys(bindings), `${placeBody};return placeBuilding`)(...Object.values(bindings))
   const snapshot = () => structuredClone({ turn: 10, selected: world.selected, mode: world.mode, orders: world.buildingOrders,
-    construction: { camps: world.buildings, workers: world.units.filter(u => u.builder).map(u => ({ ...u, commands: u.native.commands })) } })
+    construction: { camps: world.buildings, workers: world.units.filter(u => u.builder).map(u => ({ ...u, orderOwner: 'builder.person', orderOwnerIdentity: 1, orderPersonId: u.builder.person.id, commands: u.builder.person.commands, commandCursor: u.builder.person.commandCursor, immediateCommand: u.builder.person.immediateCommand })) } })
   const before = snapshot(); assert.equal(place(world, 'camp', { x: -99, z: -105 }), true); const after = snapshot()
   const row = type => ({ phase: 'place-camp', kind: 'input', type, trusted: true, canvasOwned: true, canvasTarget: true,
     button: 0, x: 400, y: 300, modifiers: [false, false, false, false], before, after })
@@ -107,4 +109,14 @@ test('progress completion waits for actual crew departure and empty admission ow
   }
   const replaced = structuredClone(state); replaced.construction.camps[0].identity++
   assert.throws(() => campCompletion(replaced, camp), /replaced/)
+})
+
+
+test('retained ordinary01 boundary fails closed when the queue owner was not observed', () => {
+  const observed = JSON.parse(readFileSync(new URL('./fixtures/camp-inspection-ordinary01-placement.json', import.meta.url), 'utf8'))
+  assert.equal(observed.provenance.reportSha256, 'dcdd2a379f38ce78c5dea741fe69f7daec5026b2fed57e7df40ec67d90a229b2')
+  assert.equal(observed.records[1].after.construction.camps[0].id, 1022)
+  assert.equal(observed.records[1].after.construction.workers.length, 9)
+  assert.equal(observed.records[1].after.orders.records[29].references, 9)
+  assert.throws(() => assertCampPlacement(observed.records, observed.ground), /Actual construction queue owner missing for worker 278/)
 })
