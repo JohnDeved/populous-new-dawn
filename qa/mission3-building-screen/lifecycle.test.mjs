@@ -13,34 +13,75 @@ import { finishLevelStart } from '../../tests/level-start-fixture.mjs'
 import { installTempleRouteObservation } from '../../scripts/local-render/mission3-temple-witness.mjs'
 import { createMission1VaultInput } from '../../scripts/local-render/mission1-vault-input.mjs'
 import { startPendingWorshipAcquisitions } from '../../app/worship-acquisition-runtime.ts'
-import { armBuildingSceneStart, armM3Save, installM3CheckpointState, prepareM3Replacement } from '../../scripts/local-render/mission3-building-lifecycle.mjs'
-import { requireLoadBoundary, requireRestartBoundary } from '../../scripts/local-render/mission3-building-screen.mjs'
+import {
+  armBuildingSceneStart,
+  armM3Save,
+  installM3CheckpointState,
+  prepareM3Replacement,
+} from '../../scripts/local-render/mission3-building-lifecycle.mjs'
+import {
+  requireLoadBoundary,
+  requireRestartBoundary,
+} from '../../scripts/local-render/mission3-building-screen.mjs'
 import { checkpointObservation } from '../../scripts/local-render/checkpoint-observer.mjs'
 
-const installRoute = () => Function('imports', `return (${installTempleRouteObservation.toString().replaceAll('import(', 'imports(')})()`)(async path => {
-  const modules = { '/app/person-orders.ts': { currentPersonOrder }, '/app/world-terrain-runtime.ts': { buildingStage },
-    '/scripts/campaign-start-readiness.mjs': { campaignShamanReadiness } }
-  assert.ok(modules[path]); return modules[path]
-})
+const installRoute = () =>
+  Function(
+    'imports',
+    `return (${installTempleRouteObservation.toString().replaceAll('import(', 'imports(')})()`
+  )(async path => {
+    const modules = {
+      '/app/person-orders.ts': { currentPersonOrder },
+      '/app/world-terrain-runtime.ts': { buildingStage },
+      '/scripts/campaign-start-readiness.mjs': { campaignShamanReadiness },
+    }
+    assert.ok(modules[path])
+    return modules[path]
+  })
 
 function fixture(t) {
   const store = createGameStore()
   store.startMission(3)
-  const world = store.getWorld(), vault = world.shrines.find(head => head.kind === 'vault')
-  vault.forced = true; vault.reset = false
+  const world = store.getWorld(),
+    vault = world.shrines.find(head => head.kind === 'vault')
+  vault.forced = true
+  vault.reset = false
   tick(world, 1 / 12)
   for (let i = 0; i < 6; i++) tick(world, 1 / 12)
-  startPendingWorshipAcquisitions(world, { cue() {}, failed() { assert.fail('Supplied HUD geometry') }, geometry: () => ({
-    viewport: { x: 100, y: 0, width: 540, height: 480 }, origin: { x: 420, y: 180 }, target: { x: 25, y: 230 },
-    targetRect: { x: 2, y: 204, width: 46, height: 52 }, targetHud: { x: 25, y: 230 }, hudScale: 1,
-  }) })
-  world.paused = true
-  const events = [], buttons = ['Save checkpoint', 'Load checkpoint', 'Restart world'].map(name => {
-    const listeners = new Set()
-    return { textContent: name, isConnected: true, disabled: false, contains: () => false,
-      addEventListener(type, callback) { assert.equal(type, 'click'); listeners.add(callback) },
-      removeEventListener(type, callback) { assert.equal(type, 'click'); listeners.delete(callback) }, listeners }
+  startPendingWorshipAcquisitions(world, {
+    cue() {},
+    failed() {
+      assert.fail('Supplied HUD geometry')
+    },
+    geometry: () => ({
+      viewport: { x: 100, y: 0, width: 540, height: 480 },
+      origin: { x: 420, y: 180 },
+      target: { x: 25, y: 230 },
+      targetRect: { x: 2, y: 204, width: 46, height: 52 },
+      targetHud: { x: 25, y: 230 },
+      hudScale: 1,
+    }),
   })
+  world.paused = true
+  const events = [],
+    buttons = ['Save checkpoint', 'Load checkpoint', 'Restart world'].map(name => {
+      const listeners = new Set()
+      return {
+        textContent: name,
+        isConnected: true,
+        disabled: false,
+        contains: () => false,
+        addEventListener(type, callback) {
+          assert.equal(type, 'click')
+          listeners.add(callback)
+        },
+        removeEventListener(type, callback) {
+          assert.equal(type, 'click')
+          listeners.delete(callback)
+        },
+        listeners,
+      }
+    })
   globalThis.window = { testStore: store }
   globalThis.document = { querySelectorAll: () => buttons, querySelector: () => null }
   installM3CheckpointState()
@@ -51,45 +92,77 @@ function fixture(t) {
     events.push(name)
     return action?.()
   }
-  const fakeScreen = () => { window.m3BuildingScreen = { close() {
-    delete window.m3BuildingScreen
-    return { restored: true, errors: [], frames: {} }
-  } } }
+  const fakeScreen = () => {
+    window.m3BuildingScreen = {
+      close() {
+        delete window.m3BuildingScreen
+        return { restored: true, errors: [], frames: {} }
+      },
+    }
+  }
   fakeScreen()
   t.after(() => {
-    window.m3Replacement?.close(); window.finishM3Save?.()
+    window.m3Replacement?.close()
+    window.finishM3Save?.()
     for (const name of ['window', 'document', 'testCheckpoint']) delete globalThis[name]
   })
   return { world, store, click, buttons, events, fakeScreen }
 }
 
 test('trusted Save → synchronous Load reset → early attachment → active Restart uses exact public labels and owners', async t => {
-  const f = fixture(t), binding = f.store.bindPresentation(f.world)
+  const f = fixture(t),
+    binding = f.store.bindPresentation(f.world)
   class Scene {
     constructor(world) {
-      this.world = world; this.started = true; this.gameClock = { animationFrame: 1 }
-      this.renderer = { domElement: { isConnected: true }, getContext: () => ({ isContextLost: () => false }) }
+      this.world = world
+      this.started = true
+      this.gameClock = { animationFrame: 1 }
+      this.renderer = {
+        domElement: { isConnected: true },
+        getContext: () => ({ isContextLost: () => false }),
+      }
     }
-    start() { f.events.push('original Scene.start'); return true }
+    start() {
+      f.events.push('original Scene.start')
+      return true
+    }
   }
   const ref = { current: new Scene(f.world) }
   window.testSceneRef = ref
   await installRoute()
-  const originalRoute = window.m3TempleRoute, originalActor = originalRoute.shaman
+  const originalRoute = window.m3TempleRoute,
+    originalActor = originalRoute.shaman
   const inputActors = []
-  const input = createMission1VaultInput({ originalShamanId: originalActor.id, signal: new AbortController().signal,
-    report: { actions: [] }, save() {}, page: {
+  const input = createMission1VaultInput({
+    originalShamanId: originalActor.id,
+    signal: new AbortController().signal,
+    report: { actions: [] },
+    save() {},
+    page: {
       async evaluate(fn, arg) {
-        inputActors.push(window.testSceneRef.current.world.units.find(unit => unit.id === originalActor.id))
+        inputActors.push(
+          window.testSceneRef.current.world.units.find(unit => unit.id === originalActor.id)
+        )
         return fn(arg)
       },
       getByRole(role, options) {
-        assert.equal(role, 'button'); assert.equal(options.exact, true); assert.equal(options.name, 'Pause game')
-        return { click: async () => f.store.change(world => { world.paused = true }) }
+        assert.equal(role, 'button')
+        assert.equal(options.exact, true)
+        assert.equal(options.name, 'Pause game')
+        return {
+          click: async () =>
+            f.store.change(world => {
+              world.paused = true
+            }),
+        }
       },
-      async waitForFunction(predicate) { assert.equal(predicate(), true) },
-    } })
-  binding.advance(); binding.advance()
+      async waitForFunction(predicate) {
+        assert.equal(predicate(), true)
+      },
+    },
+  })
+  binding.advance()
+  binding.advance()
   armM3Save()
   await f.click('Save checkpoint', () => f.store.saveCheckpoint())
   const saved = { boundary: window.finishM3Save() }
@@ -103,16 +176,33 @@ test('trusted Save → synchronous Load reset → early attachment → active Re
   const originalStart = Scene.prototype.start
   // Only resolve the browser's /app/scene.ts import and supplied Scene/DOM here;
   // execute the actual preparation function and unchanged early-start wrapper.
-  const prepare = Function('suppliedScene', 'armBuildingSceneStart', 'currentSceneRef', 'installM3Screen',
-    `return (${prepareM3Replacement.toString().replace("import('/app/scene.ts')", 'Promise.resolve({ GameScene: suppliedScene })')})`)(
-      Scene, armBuildingSceneStart, () => ref, (id, birth) => {
-        attached.push({ id, birth, world: f.store.getWorld(), resource: f.store.getPresentationSnapshot() })
-        f.events.push('attach before scheduled RAF'); f.fakeScreen()
+  const prepare = Function(
+    'suppliedScene',
+    'armBuildingSceneStart',
+    'currentSceneRef',
+    'installM3Screen',
+    `return (${prepareM3Replacement.toString().replace("import('/app/scene.ts')", 'Promise.resolve({ GameScene: suppliedScene })')})`
+  )(
+    Scene,
+    armBuildingSceneStart,
+    () => ref,
+    (id, birth) => {
+      attached.push({
+        id,
+        birth,
+        world: f.store.getWorld(),
+        resource: f.store.getPresentationSnapshot(),
       })
+      f.events.push('attach before scheduled RAF')
+      f.fakeScreen()
+    }
+  )
   await prepare({ kind: 'load', shamanId: 46, birth: { turn: 1, gift: { id: 55 } } })
   await f.click('Load checkpoint', () => {
     assert.equal(f.store.loadCheckpoint(), true)
-    f.store.change(world => { world.paused = false }) // Actual page.beginLoad's subsequent public behavior.
+    f.store.change(world => {
+      world.paused = false
+    }) // Actual page.beginLoad's subsequent public behavior.
   })
   assert.equal(window.m3TempleRoute, undefined, 'Trusted Load detached the original route observer')
   const scene = new Scene(f.store.getWorld())
@@ -138,23 +228,36 @@ test('trusted Save → synchronous Load reset → early attachment → active Re
   wrong.after.resource.counter = 1
   assert.throws(() => requireLoadBoundary(wrong, saved, digest))
   await input.pause()
-  assert.equal(inputActors.at(-1), restoredRoute.shaman, 'The existing input helper reads the restored actor, not its predecessor')
+  assert.equal(
+    inputActors.at(-1),
+    restoredRoute.shaman,
+    'The existing input helper reads the restored actor, not its predecessor'
+  )
   const currentBinding = f.store.bindPresentation(f.store.getWorld())
   currentBinding.advance()
   await prepareM3Replacement({ kind: 'restart', shamanId: 46 })
   await f.click('Restart world', () => f.store.restart())
   const restarted = window.m3Replacement.close()
   requireRestartBoundary(restarted)
-  assert.equal(window.m3TempleRoute, undefined, 'Trusted Restart detached the restored route observer')
+  assert.equal(
+    window.m3TempleRoute,
+    undefined,
+    'Trusted Restart detached the restored route observer'
+  )
   assert.equal(restoredRoute.read().sceneMatches, false)
   await prepare({ kind: 'load', shamanId: originalActor.id, birth: { turn: 1, gift: { id: 55 } } })
   await f.click('Load checkpoint', () => {
-    f.store.loadCheckpoint(); f.store.change(world => { world.paused = false })
+    f.store.loadCheckpoint()
+    f.store.change(world => {
+      world.paused = false
+    })
   })
-  ref.current = new Scene(f.store.getWorld()); ref.current.start()
+  ref.current = new Scene(f.store.getWorld())
+  ref.current.start()
   window.m3Replacement.close()
   await installRoute()
-  const finalRoute = window.m3TempleRoute, finalWorld = finalRoute.world
+  const finalRoute = window.m3TempleRoute,
+    finalWorld = finalRoute.world
   assert.equal(finalWorld, f.store.getWorld())
   assert.notEqual(finalRoute.shaman, restoredRoute.shaman)
   assert.notEqual(finalRoute.shaman, originalActor)
@@ -162,22 +265,34 @@ test('trusted Save → synchronous Load reset → early attachment → active Re
   for (let turn = 0; !finalWorld.unlockedTemple && turn < 100; turn++) tick(finalWorld, 1 / 12)
   assert.equal(finalWorld.unlockedTemple, true)
   setSelection(finalWorld, [])
-  selectFollowers(finalWorld, nativeUnitModel('brave'), { x: (35 + 8) * 256, y: (-81 - 8) * 256 }, 'five')
+  selectFollowers(
+    finalWorld,
+    nativeUnitModel('brave'),
+    { x: (35 + 8) * 256, y: (-81 - 8) * 256 },
+    'five'
+  )
   assert.equal(finalWorld.selected.length, 5)
   assert.equal(placeBuilding(finalWorld, 'temple', { x: 24, z: 70 }), true)
-  const temple = finalWorld.buildings.find(building => building.team === 'blue' && building.kind === 'temple')
+  const temple = finalWorld.buildings.find(
+    building => building.team === 'blue' && building.kind === 'temple'
+  )
   for (let turn = 0; temple.progress !== 1 && turn < 6000; turn++) tick(finalWorld, 1 / 12)
   assert.equal(temple.progress, 1)
   assert.equal(finalRoute.read().sceneMatches, true)
   assert.equal(finalRoute.read().actorMatches, true)
   assert.equal(f.world.unlockedTemple, false)
-  assert.equal(f.world.buildings.some(building => building.kind === 'temple' && building.team === 'blue'), false)
+  assert.equal(
+    f.world.buildings.some(building => building.kind === 'temple' && building.team === 'blue'),
+    false
+  )
   await f.click('Save checkpoint', () => f.store.saveCheckpoint())
   finalRoute.close()
   assert.equal(f.store.loadCheckpoint(), true, 'Read back the actual final in-session save')
   assert.equal(f.store.getWorld().buildings.find(building => building.id === temple.id).progress, 1)
-  assert.deepEqual(f.events.filter(name => name.endsWith('checkpoint') || name === 'Restart world'),
-    ['Save checkpoint', 'Load checkpoint', 'Restart world', 'Load checkpoint', 'Save checkpoint'])
+  assert.deepEqual(
+    f.events.filter(name => name.endsWith('checkpoint') || name === 'Restart world'),
+    ['Save checkpoint', 'Load checkpoint', 'Restart world', 'Load checkpoint', 'Save checkpoint']
+  )
   assert.ok(f.buttons.every(button => button.listeners.size === 0))
 })
 
@@ -204,14 +319,29 @@ test('foreign Scene.start cleanup keeps that owner and returns captured boundary
   const f = fixture(t)
   await f.store.saveCheckpoint()
   const png = 'data:image/png;base64,AAAA'
-  window.m3BuildingScreen = { close() {
-    delete window.m3BuildingScreen
-    return { restored: true, errors: [], frames: { whole: { overlayPng: png } } }
-  } }
-  class Scene { start() { return true } }
-  const prepare = Function('suppliedScene', 'armBuildingSceneStart', 'currentSceneRef', 'installM3Screen',
-    `return (${prepareM3Replacement.toString().replace("import('/app/scene.ts')", 'Promise.resolve({ GameScene: suppliedScene })')})`)(
-      Scene, armBuildingSceneStart, () => null, () => assert.fail('No Scene starts in this interrupted fixture'))
+  window.m3BuildingScreen = {
+    close() {
+      delete window.m3BuildingScreen
+      return { restored: true, errors: [], frames: { whole: { overlayPng: png } } }
+    },
+  }
+  class Scene {
+    start() {
+      return true
+    }
+  }
+  const prepare = Function(
+    'suppliedScene',
+    'armBuildingSceneStart',
+    'currentSceneRef',
+    'installM3Screen',
+    `return (${prepareM3Replacement.toString().replace("import('/app/scene.ts')", 'Promise.resolve({ GameScene: suppliedScene })')})`
+  )(
+    Scene,
+    armBuildingSceneStart,
+    () => null,
+    () => assert.fail('No Scene starts in this interrupted fixture')
+  )
   await prepare({ kind: 'load', shamanId: 46 })
   await f.click('Load checkpoint', () => f.store.loadCheckpoint())
   const foreign = () => false
@@ -224,6 +354,8 @@ test('foreign Scene.start cleanup keeps that owner and returns captured boundary
   assert.equal(evidence.after.resource.counter, 0)
   assert.equal(evidence.screen.frames.whole.overlayPng, png)
   assert.equal(evidence.start.restored, false)
-  assert.ok(evidence.errors.some(error => error.includes('Scene start observation ownership changed')))
+  assert.ok(
+    evidence.errors.some(error => error.includes('Scene start observation ownership changed'))
+  )
   assert.ok(f.buttons.every(button => button.listeners.size === 0))
 })

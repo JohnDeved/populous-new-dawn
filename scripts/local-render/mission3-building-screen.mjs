@@ -15,7 +15,11 @@ export function requireLoadBoundary(transition, saved, digest) {
   assert.equal(transition.kind, 'load')
   assert.equal(transition.trusted, true)
   assert.deepEqual(transition.errors, [])
-  assert.deepEqual(transition.after.snapshot, saved.boundary.snapshot, 'Actual synchronous Load restores the exact saved UI/gift/actor state')
+  assert.deepEqual(
+    transition.after.snapshot,
+    saved.boundary.snapshot,
+    'Actual synchronous Load restores the exact saved UI/gift/actor state'
+  )
   assert.equal(transition.after.resource.bank, 'p')
   assert.equal(transition.after.resource.counter, 0)
   assert.equal(transition.after.resource.tile, 92)
@@ -32,9 +36,16 @@ export function requireRestartBoundary(transition) {
   assert.equal(transition.kind, 'restart')
   assert.equal(transition.trusted, true)
   assert.deepEqual(transition.errors, [])
-  assert.equal(transition.before.snapshot.landFlags & 8, 0, 'Only normal same-resource Restart is admitted')
-  assert.equal(transition.before.snapshot.acquisition.controllers.building?.active, true,
-    'Trusted Restart must observe the actual restored active owner')
+  assert.equal(
+    transition.before.snapshot.landFlags & 8,
+    0,
+    'Only normal same-resource Restart is admitted'
+  )
+  assert.equal(
+    transition.before.snapshot.acquisition.controllers.building?.active,
+    true,
+    'Trusted Restart must observe the actual restored active owner'
+  )
   assert.deepEqual(transition.after.resource, transition.before.resource)
   assert.equal(transition.after.snapshot.turn, 0)
   assert.equal(transition.after.snapshot.temple, false)
@@ -45,7 +56,9 @@ export function requireRestartBoundary(transition) {
 }
 
 export function requireScreenProof(epochs, templeId) {
-  const values = Object.values(epochs), fresh = epochs.fresh, final = epochs.final
+  const values = Object.values(epochs),
+    fresh = epochs.fresh,
+    final = epochs.final
   assert.ok(fresh && final)
   for (const evidence of values) {
     assert.equal(evidence.restored, true)
@@ -63,18 +76,35 @@ export function requireScreenProof(epochs, templeId) {
   assert.equal(final.stages.grant.after.turn - final.birth.turn, 82)
   assert.equal(final.stages.grant.before.gift.remaining, 1)
   const frames = label => values.map(evidence => evidence.frames[label]).filter(Boolean)
-  const valid = frame => frame.gpu.fresh && frame.opaquePixels > 0 && frame.vertices > 0 &&
-    frame.command.model === 5 && frame.command.geometryModel === 95 && frame.resource.bank === 'p' &&
-    frame.material?.uvValidated === true && frame.material.src.split('?')[0].endsWith('/temple-model-p.png') &&
-    !!frame.buildingFile?.sha256 && !!frame.overlayFile?.sha256
-  for (const label of ['whole', 'flight']) assert.ok(frames(label).some(valid), `Missing validated natural ${label} frame`)
-  assert.ok(frames('sharedTile').some(frame => valid(frame) && frame.resource.tile !== 92 &&
-    frame.material.sharedVertices > 0 && frame.material.tiles.includes(frame.resource.tile)),
-    'Actual submitted UVs must visibly select a non-base shared tile')
+  const valid = frame =>
+    frame.gpu.fresh &&
+    frame.opaquePixels > 0 &&
+    frame.vertices > 0 &&
+    frame.command.model === 5 &&
+    frame.command.geometryModel === 95 &&
+    frame.resource.bank === 'p' &&
+    frame.material?.uvValidated === true &&
+    frame.material.src.split('?')[0].endsWith('/temple-model-p.png') &&
+    !!frame.buildingFile?.sha256 &&
+    !!frame.overlayFile?.sha256
+  for (const label of ['whole', 'flight'])
+    assert.ok(frames(label).some(valid), `Missing validated natural ${label} frame`)
+  assert.ok(
+    frames('sharedTile').some(
+      frame =>
+        valid(frame) &&
+        frame.resource.tile !== 92 &&
+        frame.material.sharedVertices > 0 &&
+        frame.material.tiles.includes(frame.resource.tile)
+    ),
+    'Actual submitted UVs must visibly select a non-base shared tile'
+  )
   for (const owner of ['companion', 'pulse']) {
     const sample = values.map(evidence => evidence.materialOwners?.[owner]).find(Boolean)
-    assert.ok(sample && sample.key === `temple-sparkles-p:${sample.frame}:${sample.resolvedRgb}`,
-      `Missing actual ${owner} p crop/tint consumption`)
+    assert.ok(
+      sample && sample.key === `temple-sparkles-p:${sample.frame}:${sample.resolvedRgb}`,
+      `Missing actual ${owner} p crop/tint consumption`
+    )
     const expected = templeSpriteMaterial(sample.frame, sample.palette, sample.resource)
     assert.equal(sample.resolvedRgb, expected.rgb)
     assert.deepEqual(sample.crop, expected.crop)
@@ -95,60 +125,95 @@ export function requireScreenProof(epochs, templeId) {
 
 export default async function mission3BuildingScreen(context) {
   const { page, signal, receipt, output, observeCheckpoint } = context
-  const evidence = { product: receipt.source, epochs: {}, transitions: [], activeSave: null,
-    status: 'running', cleanupErrors: [],
-    limits: 'Live structured checkpoint fields are compared before JSON reporting. No original wall-time/GPU equality, transient ANIBL persistence or old-profile reuse.' }
+  const evidence = {
+    product: receipt.source,
+    epochs: {},
+    transitions: [],
+    activeSave: null,
+    status: 'running',
+    cleanupErrors: [],
+    limits:
+      'Live structured checkpoint fields are compared before JSON reporting. No original wall-time/GPU equality, transient ANIBL persistence or old-profile reuse.',
+  }
   let persist, shamanId, birth
   const retain = (label, screen) => {
     if (!screen) return
     evidence.epochs[label] = screen
-    for (const [phase, frame] of Object.entries(screen.frames)) for (const field of ['overlay', 'building']) {
-      const encoded = frame[`${field}Png`]
-      if (!encoded) continue
-      assert.match(encoded, /^data:image\/png;base64,[A-Za-z0-9+/=]+$/)
-      const bytes = Buffer.from(encoded.slice('data:image/png;base64,'.length), 'base64')
-      const file = `m3-${label}-${phase}-${field}.png`
-      writeFileSync(resolve(output, file), bytes, { flag: 'wx' })
-      frame[`${field}File`] = { file, sha256: createHash('sha256').update(bytes).digest('hex') }
-      delete frame[`${field}Png`]
-    }
+    for (const [phase, frame] of Object.entries(screen.frames))
+      for (const field of ['overlay', 'building']) {
+        const encoded = frame[`${field}Png`]
+        if (!encoded) continue
+        assert.match(encoded, /^data:image\/png;base64,[A-Za-z0-9+/=]+$/)
+        const bytes = Buffer.from(encoded.slice('data:image/png;base64,'.length), 'base64')
+        const file = `m3-${label}-${phase}-${field}.png`
+        writeFileSync(resolve(output, file), bytes, { flag: 'wx' })
+        frame[`${field}File`] = { file, sha256: createHash('sha256').update(bytes).digest('hex') }
+        delete frame[`${field}Png`]
+      }
     persist?.()
   }
   const screenWait = async goal => {
     signal.throwIfAborted()
-    await page.waitForFunction(goal => {
-      const api = window.m3BuildingScreen
-      if (!api) throw new Error('Acquisition observer disappeared')
-      const status = api.status()
-      if (status.errors.length) throw new Error(status.errors.join('\n'))
-      return goal === 'whole' ? status.whole && status.buildingActive : api.read().worldTempleSamples.length >= 2
-    }, goal, { timeout: goal === 'whole' ? 420000 : 30000, polling: 50 })
+    await page.waitForFunction(
+      goal => {
+        const api = window.m3BuildingScreen
+        if (!api) throw new Error('Acquisition observer disappeared')
+        const status = api.status()
+        if (status.errors.length) throw new Error(status.errors.join('\n'))
+        return goal === 'whole'
+          ? status.whole && status.buildingActive
+          : api.read().worldTempleSamples.length >= 2
+      },
+      goal,
+      { timeout: goal === 'whole' ? 420000 : 30000, polling: 50 }
+    )
     signal.throwIfAborted()
     assert.deepEqual(receipt.errors, [])
   }
   const replacement = async (kind, input, label) => {
     const transition = { kind, evidence: null, digest: null }
     evidence.transitions.push(transition)
-    let armed = false, failed = false, failure
+    let armed = false,
+      failed = false,
+      failure
     try {
-      await page.evaluate(async options => {
-        const { prepareM3Replacement } = await import('/scripts/local-render/mission3-building-lifecycle.mjs')
-        await prepareM3Replacement(options)
-      }, { kind, shamanId, birth })
+      await page.evaluate(
+        async options => {
+          const { prepareM3Replacement } =
+            await import('/scripts/local-render/mission3-building-lifecycle.mjs')
+          await prepareM3Replacement(options)
+        },
+        { kind, shamanId, birth }
+      )
       armed = true
       await input.button(kind === 'load' ? 'Load checkpoint' : 'Restart world')
       await bindGame(page)
-    } catch (error) { failed = true; failure = error }
-    finally {
-      if (armed) try { transition.evidence = await page.evaluate(() => window.m3Replacement.close()) }
-      catch (error) { transition.cleanupError = String(error); if (!failed) { failed = true; failure = error } }
+    } catch (error) {
+      failed = true
+      failure = error
+    } finally {
+      if (armed)
+        try {
+          transition.evidence = await page.evaluate(() => window.m3Replacement.close())
+        } catch (error) {
+          transition.cleanupError = String(error)
+          if (!failed) {
+            failed = true
+            failure = error
+          }
+        }
       try {
         if (transition.evidence?.screen) {
           retain(label, transition.evidence.screen)
           delete transition.evidence.screen
         }
         persist()
-      } catch (error) { if (!failed) { failed = true; failure = error } }
+      } catch (error) {
+        if (!failed) {
+          failed = true
+          failure = error
+        }
+      }
     }
     if (failed) throw failure
     if (evidence.epochs[label]) {
@@ -156,24 +221,38 @@ export default async function mission3BuildingScreen(context) {
       assert.deepEqual(evidence.epochs[label].errors, [])
     }
     if (kind === 'load') {
-      try { transition.digest = await page.evaluate(checkpointObservation, { observationName: 'm3LoadedBoundary' }) }
-      finally { await page.evaluate(() => { delete window.m3LoadedBoundary }); persist() }
+      try {
+        transition.digest = await page.evaluate(checkpointObservation, {
+          observationName: 'm3LoadedBoundary',
+        })
+      } finally {
+        await page.evaluate(() => {
+          delete window.m3LoadedBoundary
+        })
+        persist()
+      }
       requireLoadBoundary(transition.evidence, evidence.activeSave, transition.digest)
       await page.evaluate(installTempleRouteObservation)
     } else requireRestartBoundary(transition.evidence)
     const committed = await observeCheckpoint(`M3 ${kind} preserves active Save`)
     transition.committed = committed
     persist()
-    assert.equal(committed.checkpoint.checkpointSha256, evidence.activeSave.digest.checkpoint.checkpointSha256)
+    assert.equal(
+      committed.checkpoint.checkpointSha256,
+      evidence.activeSave.digest.checkpoint.checkpointSha256
+    )
     return transition
   }
   const steps = {
     async begin({ report, save, shamanId: id }) {
       report.acquisition = evidence
-      persist = save; shamanId = id
+      persist = save
+      shamanId = id
       await page.evaluate(async id => {
-        const { installM3Screen, installM3CheckpointState } = await import('/scripts/local-render/mission3-building-lifecycle.mjs')
-        installM3CheckpointState(); installM3Screen(id)
+        const { installM3Screen, installM3CheckpointState } =
+          await import('/scripts/local-render/mission3-building-lifecycle.mjs')
+        installM3CheckpointState()
+        installM3Screen(id)
       }, shamanId)
       persist()
     },
@@ -182,15 +261,29 @@ export default async function mission3BuildingScreen(context) {
       birth = await page.evaluate(() => window.m3BuildingScreen.read().birth)
       await input.pause()
       await input.button('Game settings')
-      const saved = evidence.activeSave = { boundary: null, committed: null, digest: null }
-      let armed = false, failed = false, failure
+      evidence.activeSave = { boundary: null, committed: null, digest: null }
+      const saved = evidence.activeSave
+      let armed = false,
+        failed = false,
+        failure
       try {
-        await page.evaluate(armM3Save); armed = true
+        await page.evaluate(armM3Save)
+        armed = true
         await input.button('Save checkpoint')
-      } catch (error) { failed = true; failure = error }
-      finally {
-        if (armed) try { saved.boundary = await page.evaluate(() => window.finishM3Save()) }
-        catch (error) { saved.cleanupError = String(error); if (!failed) { failed = true; failure = error } }
+      } catch (error) {
+        failed = true
+        failure = error
+      } finally {
+        if (armed)
+          try {
+            saved.boundary = await page.evaluate(() => window.finishM3Save())
+          } catch (error) {
+            saved.cleanupError = String(error)
+            if (!failed) {
+              failed = true
+              failure = error
+            }
+          }
         persist()
       }
       if (failed) throw failure
@@ -198,12 +291,18 @@ export default async function mission3BuildingScreen(context) {
       assert.equal(saved.boundary.trusted, true)
       assert.equal(saved.boundary.snapshot.paused, true)
       assert.equal(saved.boundary.snapshot.temple, false)
-      assert.equal(saved.boundary.snapshot.acquisition.controllers.building?.active, true,
-        'Public Save missed the naturally active UI controller')
+      assert.equal(
+        saved.boundary.snapshot.acquisition.controllers.building?.active,
+        true,
+        'Public Save missed the naturally active UI controller'
+      )
       const matched = await waitForCheckpointReadback(async () => {
         signal.throwIfAborted()
         saved.committed = await page.evaluate(readM3Committed)
-        return saved.committed?.version === 1 && isDeepStrictEqual(saved.committed.snapshot, saved.boundary.snapshot)
+        return (
+          saved.committed?.version === 1 &&
+          isDeepStrictEqual(saved.committed.snapshot, saved.boundary.snapshot)
+        )
       })
       persist()
       assert.equal(matched, true, 'Typed committed active Save differs from its trusted boundary')
@@ -230,25 +329,51 @@ export default async function mission3BuildingScreen(context) {
       persist()
     },
     async finish() {
-      assert.equal(evidence.proofAccepted, true, 'Complete acquisition/lifecycle proof precedes final Save')
+      assert.equal(
+        evidence.proofAccepted,
+        true,
+        'Complete acquisition/lifecycle proof precedes final Save'
+      )
       evidence.status = 'passed'
       persist()
     },
   }
-  let failed = false, failure, result
-  try { result = await route(context, steps) }
-  catch (error) { failed = true; failure = error; evidence.status = 'failed'; evidence.failure = String(error?.stack ?? error) }
-  finally {
+  let failed = false,
+    failure,
+    result
+  try {
+    result = await route(context, steps)
+  } catch (error) {
+    failed = true
+    failure = error
+    evidence.status = 'failed'
+    evidence.failure = String(error?.stack ?? error)
+  } finally {
     try {
       const partial = await page.evaluate(() => window.m3BuildingScreen?.close() ?? null)
       if (partial) retain('failure', partial)
-    } catch (error) { evidence.cleanupErrors.push(String(error)); if (!failed) { failed = true; failure = error } }
-    if (failed) {
-      evidence.status = 'failed'; evidence.failure ??= String(failure?.stack ?? failure)
-      if (result) { result.status = 'failed'; result.failure ??= evidence.failure }
+    } catch (error) {
+      evidence.cleanupErrors.push(String(error))
+      if (!failed) {
+        failed = true
+        failure = error
+      }
     }
-    try { persist?.() } catch (error) {
-      if (!failed) { failed = true; failure = error }
+    if (failed) {
+      evidence.status = 'failed'
+      evidence.failure ??= String(failure?.stack ?? failure)
+      if (result) {
+        result.status = 'failed'
+        result.failure ??= evidence.failure
+      }
+    }
+    try {
+      persist?.()
+    } catch (error) {
+      if (!failed) {
+        failed = true
+        failure = error
+      }
       evidence.status = 'failed'
       if (result) result.status = 'failed'
     }

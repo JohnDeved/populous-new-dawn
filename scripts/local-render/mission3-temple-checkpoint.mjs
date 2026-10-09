@@ -173,14 +173,10 @@ export async function saveTempleCheckpoint({
 
 // Direct M3 startup is a QA entry point, not campaign unlocking. Every mutation
 // below is a shipped DOM input; the harness owns real RAF, profile and shutdown.
-export default async function mission3TempleCheckpoint({
-  page,
-  openMission,
-  output,
-  signal,
-  receipt,
-  observeCheckpoint,
-}, acquisitionSteps = null) {
+export default async function mission3TempleCheckpoint(
+  { page, openMission, output, signal, receipt, observeCheckpoint },
+  acquisitionSteps = null
+) {
   assert.equal(receipt.profile?.mode, 'created', 'Use a new owned profile for this one-time route')
   assert.equal(receipt.profile.checkpointAtStart, null)
   const report = {
