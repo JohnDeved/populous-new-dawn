@@ -600,7 +600,8 @@
         "scripts/controlled-scene-frames.mjs",
         "scripts/shaman-worship-ground-observer.mjs",
         "tests/controlled-scene-frames.test.mjs",
-        "decomp/research/shaman-death-vfx.md"
+        "decomp/research/shaman-death-vfx.md",
+        "decomp/research/shaman-death-support.md"
       ],
       "sharedPaths": [
         "app/scene-entities.ts",
@@ -655,6 +656,10 @@
         {
           "path": "decomp/research/shaman-death-vfx.md",
           "heading": "Phase1 ground"
+        },
+        {
+          "path": "decomp/research/shaman-death-support.md",
+          "heading": "Shaman death entry and phase2 support audit (#30)"
         }
       ],
       "nativeAddresses": [
