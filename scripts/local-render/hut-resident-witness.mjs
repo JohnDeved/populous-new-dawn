@@ -65,7 +65,10 @@ export async function installHutResidentWitness({ hutId, unitId, deadlineAt }) {
   replace(scene.gameClock, 'beforeTurn', original => function (...args) {
     const result = original?.apply(this, args)
     observe(() => {
-      if (phase === 'entry' && unit.entry?.person) entryPerson = unit.entry.person
+      if (phase === 'entry' && unit.entry?.person) {
+        if (entryPerson && unit.entry.person !== entryPerson) throw new Error('Original entry person replaced')
+        entryPerson ??= unit.entry.person
+      }
       if (move?.person) move.beforeId = orderId(move.person)
     })
     return result
@@ -123,6 +126,8 @@ export async function installHutResidentWitness({ hutId, unitId, deadlineAt }) {
   const pointer = event => observe(() => {
     if (phase === 'entry' && evidence.entryInput && !evidence.entryInput.after) {
       const p = unit.entry?.person ?? unit.native, id = orderId(p)
+      if (!p || p.id !== unitId || p.model !== 2) throw new Error('Actual command8 person missing')
+      entryPerson = p
       evidence.entryInput.after = { turn: world.turn, lastOrderTurn: world.lastOrderTurn,
         orderId: id, order: id ? structuredClone(world.buildingOrders.records[id]) : null }
     }
@@ -283,4 +288,24 @@ export function installResidentPanelSelection({ hutId, unitId }) {
   button.addEventListener('click', click)
   return { close() { if (!closed) { closed = true; button.removeEventListener('click', click) }
     return { event: eventRecord, closed } } }
+}
+
+export function installResidentSelectionClear() {
+  const scene = window.testSceneRef.current, world = scene.world, active = document.activeElement
+  if (window.testStore.getWorld() !== world || world.mode !== null || world.inputMask || world.paused ||
+    world.outcome.level !== 1 || active?.closest('input,dialog'))
+    throw new Error('Ordinary Escape selection-clear prerequisite missing')
+  const sample = () => ({ selected: [...world.selected], mode: world.mode, orderCursor: world.orderCursor,
+    turn: world.turn, lastOrderTurn: world.lastOrderTurn, randomState: world.randomState })
+  const before = sample(); let eventRecord = null, closed = false
+  const key = event => {
+    if (event.key !== 'Escape') return
+    eventRecord = { trusted: event.isTrusted, key: event.key,
+      modifiers: [event.ctrlKey, event.shiftKey, event.altKey, event.metaKey],
+      blockedTarget: !!event.target?.closest('input,dialog'), inputMask: world.inputMask,
+      worldMatches: window.testStore.getWorld() === world && scene.world === world, after: sample() }
+  }
+  window.addEventListener('keydown', key)
+  return { close() { if (!closed) { closed = true; window.removeEventListener('keydown', key) }
+    return { before, event: eventRecord, closed } } }
 }

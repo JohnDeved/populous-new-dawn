@@ -1,14 +1,18 @@
 // Supplied World/DOM/render boundaries; no model turns or browser execution.
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { readFileSync } from 'node:fs'
 import * as orders from '../app/person-orders.ts'
 import * as idle from '../app/person-idle.ts'
 import * as animation from '../app/unit-animation-source.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
 import { removeBuildingOccupant } from '../app/building-occupants.ts'
+import { selectBuildingOccupants } from '../app/live-building-entry.ts'
+import { cancelInteraction } from '../app/selection-runtime.ts'
+import { SPELLS } from '../app/world-rules.ts'
 import { installHutResidentWitness, installResidentCheckpointBoundary, readResidentCommitted,
-  installResidentPanelSelection } from '../scripts/local-render/hut-resident-witness.mjs'
-import { assertPassiveResident, assertResidentDeparture, finishResidentHandles } from '../scripts/local-render/hut-resident.mjs'
+  installResidentPanelSelection, installResidentSelectionClear } from '../scripts/local-render/hut-resident-witness.mjs'
+import { assertPassiveResident, assertResidentDeparture, assertResidentCommitted, finishResidentHandles } from '../scripts/local-render/hut-resident.mjs'
 
 const modules = { '/app/person-orders.ts': orders, '/app/person-idle.ts': idle,
   '/app/unit-animation-source.ts': animation, '/app/original-rules.json': { default: rules } }
@@ -39,7 +43,8 @@ function fixture(t) {
   const b = { id: 37, kind: 'hut', team: 'blue', hp: 100, progress: 1,
     admission: { id: 37, class: 2, model: 1, tribe: 0, object: 107, angle: 0,
       anchorX: 64512, anchorY: 54784, inside: 0, occupants: Array(6).fill(0), activity: 8, flags2: 0, flags3: 0 } }
-  const w = { turn: 800, time: 40, paused: false, status: 'playing', inputMask: 0,
+  const w = { turn: 800, time: 40, paused: false, status: 'playing', inputMask: 0, mode: null,
+    orderCursor: 0, outcome: { level: 1 }, land: { landFlags: 0 },
     selected: [13], randomState: 123, units: [u], buildings: [b], lastOrderTurn: 799,
     objectCells: { objects: new Map() }, pathfinding: { people: new Map() },
     buildingOrders: { records: [orders.emptyPersonOrder(), { ...orders.emptyPersonOrder(), model: 3, a: p.x, b: p.y }] },
@@ -57,7 +62,7 @@ function fixture(t) {
     subscribe(fn) { subscriptions.add(fn); return () => subscriptions.delete(fn) },
     // Supplied store publication boundary, with actual typed structuredClone.
     publish(world) { current = world; for (const fn of subscriptions) fn() } }
-  globalThis.window = { testSceneRef: { current: scene }, testStore: store }
+  globalThis.window = Object.assign(element(), { testSceneRef: { current: scene }, testStore: store })
   t.after(() => { window.hutResidentWitness?.close(); delete globalThis.window; delete globalThis.document; delete globalThis.indexedDB })
   const complete = () => { u.entry = undefined; u.native = null; u.inside = 37; u.work = null
     u.resident = { building: 37, slot: 0, person: p }; b.admission.inside = 1; b.admission.occupants[0] = 13 }
@@ -137,6 +142,14 @@ test('clone admission, live ownership, cancelled/replaced orders and wrong rende
   assert.match(api.read().errors.join('\n'), /command replaced/)
 })
 
+test('the first actual entry owner cannot be replaced by a later entry visit', async t => {
+  const f = fixture(t), api = await install(f.spec)
+  api.armEntry(); f.scene.gameClock.beforeTurn()
+  f.u.entry.person = structuredClone(f.p); f.scene.gameClock.beforeTurn()
+  f.complete(); f.scene.gameClock.afterTurn()
+  assert.match(api.read().errors.join('\n'), /Original entry person replaced/)
+})
+
 test('missing render resources, observer exceptions and original primitive throws stay transparent', async t => {
   const f = fixture(t)
   f.scene.gameClock.beforeTurn = () => { throw null }
@@ -181,7 +194,13 @@ test('trusted Save/typed committed read and Load publication preserve within-wor
       return tx
     } }; request.onsuccess() }); return request
   } }
-  assert.deepEqual((await readResidentCommitted()).summary, saved.summary)
+  assertResidentCommitted(await readResidentCommitted(), saved)
+  const life = committed.world.units[0].resident.person.life
+  committed.world.units[0].resident.person.life--
+  assert.throws(() => assertResidentCommitted({ version: 2, summary: saved.summary }, saved))
+  assert.throws(() => assertResidentCommitted({ version: 1, summary: api.summary(committed.world) }, saved))
+  assert.notDeepEqual((await readResidentCommitted()).summary, saved.summary)
+  committed.world.units[0].resident.person.life = life
   assert.deepEqual(save.close().errors, [])
   const load = installResidentCheckpointBoundary({ kind: 'load' })
   api.close(); loadButton.emit('click')
@@ -216,6 +235,33 @@ test('resident panel observes selection after its existing public handler and re
   button.emit('click'); const e = observer.close()
   assert.deepEqual(e.event.selected, [13]); assert.equal(e.event.trusted, true)
   assert.equal(e.event.inside, 37); assert.equal(button.listeners.length, 1)
+})
+
+for (const selection of [[30], [13]]) test(`actual Escape and panel selection compose from ${selection}`, t => {
+  const f = fixture(t); f.complete(); f.w.selected = [...selection]
+  f.w.units.push({ id: 30, kind: 'shaman', team: 'blue', hp: 100, inside: null, path: [] })
+  const button = element(), panel = { hidden: false, querySelector: () => button }
+  f.scene.buildingPanels.set(37, panel)
+  const active = { closest: () => null }; globalThis.document = { activeElement: active }
+  // Execute the actual current Page key callback, supplying only its React,
+  // audio and unrelated key boundaries; Escape consumes real cancelInteraction.
+  const pageSource = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8')
+  const match = /const key = (\(e: KeyboardEvent\) => \{[\s\S]*?\n    \})\n    window\.addEventListener\('keydown', key\)/.exec(pageSource)
+  assert.ok(match)
+  const source = match[1].replace(': KeyboardEvent', '').replaceAll(' as HTMLElement', '')
+  const key = Function('world', 'store', 'ready', 'SPELLS', 'tutorialLevel', 'cancelInteraction', 'update',
+    `return (${source})`)(f.w, { getWorld: () => f.w, change: fn => fn(f.w) }, true, SPELLS, 0, cancelInteraction, () => {})
+  window.addEventListener('keydown', key)
+  const clearing = installResidentSelectionClear()
+  window.emit('keydown', { key: 'Escape', code: 'Escape', target: active })
+  const cleared = clearing.close(); assert.equal(cleared.event.trusted, true)
+  assert.deepEqual(cleared.event.after.selected, []); assert.equal(cleared.event.after.mode, null)
+  button.addEventListener('click', () => selectBuildingOccupants(f.w, f.b, 13, false))
+  const selecting = installResidentPanelSelection({ hutId: 37, unitId: 13 })
+  button.emit('click'); assert.deepEqual(selecting.close().event.selected, [13])
+  assert.equal(f.u.inside, 37); assert.equal(f.w.lastOrderTurn, 799)
+  assert.equal(f.w.randomState, 123); assert.equal(f.u.resident.person, f.p)
+  window.removeEventListener('keydown', key)
 })
 
 for (const primary of [undefined, null, false, 0, 'failure']) test(`cleanup keeps primitive primary ${String(primary)}`, async () => {
