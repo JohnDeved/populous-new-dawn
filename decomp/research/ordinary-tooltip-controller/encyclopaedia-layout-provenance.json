@@ -1,0 +1,375 @@
+{
+  "researchHead": "0bc8f287b7bee4820c5440a6174a0230a6a4e4bd",
+  "canonicalApplicationMain": "47680b8fd124aab50b0528eea77a81cacb556060",
+  "scope": "Named topic/layout closure, one supplied language member, and required ordinary-slice assessment only. No parser expansion.",
+  "sourceSha256": {
+    "decomp/generated/004aa4e0.c": "4ad72eeddfea6ba92c98cf9cb78bf9f7675dd58079f839f7acc8ad881c6bc84d",
+    "decomp/generated/00522570.c": "4efeb8286886c646ac71325127a1d06715f51aea23e6064cc7a8c4df3d7ec2a7",
+    "decomp/generated/00451370.c": "adc8fe2b1223f745306d64d1a5d124781107a227c9da3d45e8ebc468231180ac",
+    "decomp/generated/004f0f90.c": "49084d3a46ac32514b4eed26659f0fdb4e6b354c56bef666a922f70b39727ff0",
+    "decomp/generated/0045ddf0.c": "3ab927c5c80461d675b4826943da4a19f6a3f576b8573a98ac18d874a90169fd",
+    "decomp/generated/004aab80.c": "a286e361005571ddcba7405348e2582aa061c3f427d1a8e8fed09a5d1e7890a8",
+    "app/original-tooltips.json": "3d835a11ece7bc94bf227e44037eac496e47fd672eb62bb19997823dbb4af8aa",
+    "app/original-messages.json": "c5de281ea8a3f7ce146992f2d10afb500620dbbb9e6e690d6afc1b95fba4235a",
+    "app/tooltips.ts": "7cb5133c90a9633b609b10267c8f923c5cabaf240a0ca03b475f601af287caa2",
+    "app/messages.ts": "84f307387f09a3a787c11c491d08f05bcbfa797242d0f0320ee1f0e9f7537d78",
+    "app/page.tsx": "0cf9516e222122024b509abd54dacb08bf1f95f5f7e6cfa7fd5ce9aec2446a7f",
+    "scripts/import-messages.py": "eac756d47311be9189ac5bd5bf101733dcad41b99212c99532751e9e1a382d06",
+    "scripts/extract-reference.py": "43870b6e06aeb43f8ea9103f3e601e4236397cbb1e49d72c43e570d4e13ffd7e",
+    "decomp/research/ordinary-tooltip-controller/window2-control-closure.md": "f94273daf376ca80c2c378575cffd0d0bbe10818242b04df4e0c14c612d888e7",
+    "decomp/research/ordinary-tooltip-controller/window2-guard-provenance.json": "6cdd69288d2a4ea362252ca0edc6ba74a3470035373f0a13001e09ab6e232d1a"
+  },
+  "artifacts": {
+    "0045d8c0.asm.txt": {
+      "bytes": 9743,
+      "sha256": "21d4442fc56697dc0640288b6cb489fd81790b789c0bb5c097cd1b9c93b16e08"
+    },
+    "0045dcb0.asm.txt": {
+      "bytes": 4304,
+      "sha256": "be31c1cd4ad0c9d04217934426d9648f08429105a6fda4abe29425517a0f7899"
+    },
+    "commands.json": {
+      "bytes": 2213,
+      "sha256": "b97c091cdd04d5e7d3ed42fb344e89e3a9b77c39991b8ba05baa0c8cb59fdd02"
+    },
+    "imported-language-inventory.json": {
+      "bytes": 1517,
+      "sha256": "2684801fe5b9f710ced48e742a36673259e35d8bc1f0e6c8ad08cf6c8b63095d"
+    },
+    "language-extraction.json": {
+      "bytes": 2302,
+      "sha256": "b58f1fc02486acd2336c434f6be7399679041f97db300ced5039e62f1aabe97f"
+    },
+    "language-recovery-plan.json": {
+      "bytes": 1092,
+      "sha256": "83b560668d91d3beed81df804eb543addfd7ac57f1e76a458cc8413e1dae6aba"
+    },
+    "prerequisite-row-update.json": {
+      "bytes": 1954,
+      "sha256": "9a28c9e0521a4bf20ef7ba5ef8c96873535af6dfe40e7251ea55e916dc4d5053"
+    },
+    "presenter-admission.asm.txt": {
+      "bytes": 1626,
+      "sha256": "d7410ccbb656f2d087e382c26e5439530aa5d329993100b92168954cfe671c63"
+    },
+    "presenter-caller-references.json": {
+      "bytes": 1215,
+      "sha256": "8b9d34a70dbe782854cb0307b61ae5aa3dbf26699d42bbd93e09bf30cd2332d0"
+    },
+    "selected-topic-strings.json": {
+      "bytes": 3384,
+      "sha256": "0e8e8dff8cdf6ffb1878818c8397ca5d12d3245f97ad3cf56d8b0ff32663d9cf"
+    },
+    "topic-content-manifest.json": {
+      "bytes": 1476,
+      "sha256": "c39c5f181497e255ff95392e702f8c7b27e6df5e92e9565614f4a54159c78cba"
+    },
+    "topic-layout-assessment.md": {
+      "bytes": 9803,
+      "sha256": "dfd224510338111983ac9b27e1cd2afd53f20a6309d6daed59d8aeb11c858a58"
+    }
+  },
+  "dataOnlyInput": {
+    "path": "/workspace/scratch/69fd8163d94e/issue19-tooltip-controller-source-20261009/work/orchestration/tooltip-topic-layout-20261009-1317/data/language/lang00.dat",
+    "bytes": 207264,
+    "sha256": "e826c478746d666a3ea9ea36cb7804d1d226d5f83084230987b1de293066cf7d",
+    "publishRaw": false
+  },
+  "publicationLimits": [
+    "Do not include raw language/archive/EXE.",
+    "Selected full articles remain local review material; publish only title/ID/hash/tag evidence if needed.",
+    "Update the existing consolidated prerequisite row; do not create a second current table."
+  ],
+  "runtime": "HOLD pending ordinary contract and playable validation; Encyclopaedia parser is not an ordinary closed-window prerequisite.",
+  "acceptedOriginalReceiptSha256": "56c81c85b628b724e4d0137935ebe5a28c44d4562116bea012814d61099e5fc4",
+  "commandsAndInput": {
+    "input": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe",
+    "bytes": 2275840,
+    "sha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "sha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "toolVersion": "GNU objdump (GNU Binutils for Debian) 2.44",
+    "commands": [
+      {
+        "command": [
+          "/usr/bin/objdump",
+          "-d",
+          "-M",
+          "intel",
+          "--start-address=0x0045d8c0",
+          "--stop-address=0x0045db60",
+          "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+        ],
+        "exitCode": 0,
+        "output": "0045d8c0.asm.txt",
+        "outputSha256": "21d4442fc56697dc0640288b6cb489fd81790b789c0bb5c097cd1b9c93b16e08"
+      },
+      {
+        "command": [
+          "/usr/bin/objdump",
+          "-d",
+          "-M",
+          "intel",
+          "--start-address=0x0045dcb0",
+          "--stop-address=0x0045ddf0",
+          "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+        ],
+        "exitCode": 0,
+        "output": "0045dcb0.asm.txt",
+        "outputSha256": "be31c1cd4ad0c9d04217934426d9648f08429105a6fda4abe29425517a0f7899"
+      },
+      {
+        "command": [
+          "/usr/bin/objdump",
+          "-d",
+          "-M",
+          "intel",
+          "--start-address=0x0052277d",
+          "--stop-address=0x005227db",
+          "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+        ],
+        "exitCode": 0,
+        "output": "presenter-admission.asm.txt",
+        "outputSha256": "d7410ccbb656f2d087e382c26e5439530aa5d329993100b92168954cfe671c63",
+        "inputSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+        "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+        "scope": "Only direct configuration guard for named presenter, not renderer expansion"
+      }
+    ],
+    "scope": "Named topic/title/layout data closure only; no original execution."
+  },
+  "callerReferences": {
+    "inputSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "scope": "Immediate existing draw_1 configuration checks and Encyclopaedia presenter call only",
+    "candidates": [
+      {
+        "call": "0x52277f",
+        "target": "0x451370",
+        "contextStart": "0x522773",
+        "contextHex": "e81833efffe8e31af9ff6a02e8ecebf2ff83c40485c075286a04e8deeb"
+      },
+      {
+        "call": "0x52278d",
+        "target": "0x451370",
+        "contextStart": "0x522781",
+        "contextHex": "ebf2ff83c40485c075286a04e8deebf2ff83c40485c0751af6056cc689"
+      },
+      {
+        "call": "0x5227b5",
+        "target": "0x451370",
+        "contextStart": "0x5227a9",
+        "contextHex": "027407e83f250000eb286a02e8b6ebf2ff83c40485c07407e86abff3ff"
+      },
+      {
+        "call": "0x5227c1",
+        "target": "0x45e730",
+        "contextStart": "0x5227b5",
+        "contextHex": "e8b6ebf2ff83c40485c07407e86abff3ffeb136a04e8a1ebf2ff83c404"
+      },
+      {
+        "call": "0x5227ca",
+        "target": "0x451370",
+        "contextStart": "0x5227be",
+        "contextHex": "c07407e86abff3ffeb136a04e8a1ebf2ff83c40485c07405e88542f6ff"
+      }
+    ]
+  },
+  "importedLanguageInventory": {
+    "languageSha256": "e826c478746d666a3ea9ea36cb7804d1d226d5f83084230987b1de293066cf7d",
+    "messageLanguageSha256": "e826c478746d666a3ea9ea36cb7804d1d226d5f83084230987b1de293066cf7d",
+    "requiredTopicIDs": {
+      "983": {
+        "tooltipSubset": false,
+        "campaignSubset": false
+      },
+      "984": {
+        "tooltipSubset": false,
+        "campaignSubset": false
+      },
+      "996": {
+        "tooltipSubset": false,
+        "campaignSubset": false
+      }
+    },
+    "sourceSha256": {
+      "app/original-tooltips.json": "3d835a11ece7bc94bf227e44037eac496e47fd672eb62bb19997823dbb4af8aa",
+      "app/original-messages.json": "c5de281ea8a3f7ce146992f2d10afb500620dbbb9e6e690d6afc1b95fba4235a",
+      "app/tooltips.ts": "7cb5133c90a9633b609b10267c8f923c5cabaf240a0ca03b475f601af287caa2",
+      "app/messages.ts": "84f307387f09a3a787c11c491d08f05bcbfa797242d0f0320ee1f0e9f7537d78",
+      "app/page.tsx": "0cf9516e222122024b509abd54dacb08bf1f95f5f7e6cfa7fd5ce9aec2446a7f",
+      "scripts/import-messages.py": "eac756d47311be9189ac5bd5bf101733dcad41b99212c99532751e9e1a382d06"
+    },
+    "callers": {
+      "ordinaryTooltip": "app/tooltips.ts:91 uses imported native.strings[name.stringId]",
+      "campaign": "app/messages.ts:18 searches imported messages by stringId",
+      "browserHelp": "app/page.tsx:1478-1518 contains static instructions; no topic-window lookup"
+    },
+    "rawInventory": "rg --files --hidden --no-ignore of both workspace roots, excluding dependency/git trees, found no lang00.dat; canonical supplied ZIP exists and hash verified."
+  },
+  "languageExtraction": {
+    "command": [
+      "timeout",
+      "-k",
+      "5s",
+      "120s",
+      "taskset",
+      "-c",
+      "4",
+      "env",
+      "PYTHONPATH=work/orchestration/original-data-recovery-20261009/extractor-deps:work/orchestration/original-data-recovery-20261009/extractor-source/binary_refinery-0.10.11",
+      "python",
+      "scripts/extract-reference.py",
+      "work/orchestration/original-data-recovery-20261009/PopulousTB-Setup.zip",
+      "/workspace/scratch/69fd8163d94e/issue19-tooltip-controller-source-20261009/work/orchestration/tooltip-topic-layout-20261009-1317/data",
+      "language/lang00.dat",
+      "--component",
+      "Component0"
+    ],
+    "cwd": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009",
+    "startedAt": "2026-10-09T13:22:13.760751+00:00",
+    "inputBefore": {
+      "archiveBytes": 322676040,
+      "archiveSha256": "6aa6c366809ea1d9575ec1d31a24527a95c7332f0a1d2ab692f7a602e7e10702",
+      "scriptSha256": "43870b6e06aeb43f8ea9103f3e601e4236397cbb1e49d72c43e570d4e13ffd7e",
+      "extractorSourceArchiveSha256": "2c2d850ef79dd1da41549203b145b8a26ce556d6b1abe4f6262625727a8483d2"
+    },
+    "tools": {
+      "python": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "pythonVersion": "Python 3.12.14",
+      "pythonSha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+      "refineryVersion": "0.10.11",
+      "timeout": "/usr/bin/timeout",
+      "taskset": "/usr/bin/taskset"
+    },
+    "limits": "Only one data member, CPU4,120s timeout; no original installer execution/package changes/tracked import.",
+    "finishedAt": "2026-10-09T13:22:28.605904+00:00",
+    "elapsedSeconds": 13.079433731996687,
+    "exitCode": 0,
+    "stdout": "language/lang00.dat 207264 e826c478746d666a3ea9ea36cb7804d1d226d5f83084230987b1de293066cf7d\n",
+    "stderr": "",
+    "inputAfter": {
+      "archiveSha256": "6aa6c366809ea1d9575ec1d31a24527a95c7332f0a1d2ab692f7a602e7e10702",
+      "scriptSha256": "43870b6e06aeb43f8ea9103f3e601e4236397cbb1e49d72c43e570d4e13ffd7e"
+    },
+    "output": {
+      "path": "/workspace/scratch/69fd8163d94e/issue19-tooltip-controller-source-20261009/work/orchestration/tooltip-topic-layout-20261009-1317/data/language/lang00.dat",
+      "exists": true,
+      "bytes": 207264,
+      "sha256": "e826c478746d666a3ea9ea36cb7804d1d226d5f83084230987b1de293066cf7d"
+    },
+    "verified": true
+  },
+  "topicContent": {
+    "languageBytes": 207264,
+    "languageSha256": "e826c478746d666a3ea9ea36cb7804d1d226d5f83084230987b1de293066cf7d",
+    "encoding": "UTF-16LE NUL-separated; same indexing as retained import-messages.py",
+    "rawAssetIncluded": false,
+    "pointerTableBase": "00972ba8",
+    "sideListPointerSlot": "00973b04",
+    "sideListIndex": 983,
+    "topicEntries": [
+      {
+        "id": 983,
+        "offset": 80930,
+        "bytes": 310,
+        "sha256": "c73c8d874777ac8b99043bc3774415cf73a71bef115ee41605b5143e404e5d0a",
+        "title": "Main Menu",
+        "linkTargets": [
+          63,
+          2,
+          12,
+          22,
+          39,
+          46
+        ],
+        "insertTagIndices": [],
+        "literalTextPublished": false
+      },
+      {
+        "id": 984,
+        "offset": 81240,
+        "bytes": 1654,
+        "sha256": "a3151d0aed41bd7827216041eb2e173e45810756dd787e57aa8e51cf88ba2943",
+        "title": "Populous Encyclopaedia",
+        "linkTargets": [],
+        "insertTagIndices": [],
+        "literalTextPublished": false
+      },
+      {
+        "id": 996,
+        "offset": 96988,
+        "bytes": 2630,
+        "sha256": "668d160db73b05ccb42ce7f3136ad611363b6a2b780aadf99dc7bf05662c028a",
+        "title": "Hut",
+        "linkTargets": [
+          75,
+          75
+        ],
+        "insertTagIndices": [
+          0,
+          5,
+          14,
+          20,
+          12,
+          0,
+          6,
+          14,
+          17,
+          12,
+          0,
+          7,
+          14,
+          14,
+          12
+        ],
+        "literalTextPublished": false
+      }
+    ]
+  },
+  "consolidatedRowUpdate": {
+    "target": "decomp/research/ordinary-tooltip-controller/window2-control-closure.md",
+    "baseCommit": "0bc8f287b7bee4820c5440a6174a0230a6a4e4bd",
+    "baseSha256": "f94273daf376ca80c2c378575cffd0d0bbe10818242b04df4e0c14c612d888e7",
+    "replaceExactly": "| Physical input and context window |Actual DirectInput format/F0/F1 delivery, case72/73 predicates, mode17 b9 priority, saved-mode/configuration transitions and this control-index closure are retained. | Map event-time versus last-painted control ownership and preserve repeated-enable mode history. Bind direct title/layout consumers0045d8c0/0045dcb0 if the contextual window is included. Current settings/pause/overview owners are not a proved equivalent. |",
+    "replacement": "| Physical input and separate Encyclopaedia |Actual DirectInput format/F0/F1 delivery, case72/73 predicates, mode17 b9 priority, saved-mode/configuration transitions and last-painted control ownership are retained. IDs983/984/996 and0045d8c0/0045dcb0 now identify the Encyclopaedia and bind its pane/text/scroll path; its presenter and input consumer are gated by configuration2. | For the bounded ordinary slice, admit explicit inspection in native mode0 with configuration2 clear and preserve existing shared tooltip/inspection history. Keep mode17 release and repeated-enable history in the native contract; configuration-clear alone does not establish ordinary mode. Browser Help is a separate compatibility dialog, not this native owner. Encyclopaedia rich-text/link rendering is a separate absent feature, not an ordinary closed-Encyclopaedia Hut prerequisite. No parser expansion is required for the ordinary slice; its Hut name already uses imported ID908 (small local class2/model1), not Encyclopaedia ID996. |",
+    "scope": "Update only the existing consolidated prerequisite row to distinguish ordinary admission/history from the separate absent Encyclopaedia rendering feature. Other seven rows unchanged."
+  },
+  "disassemblySections": [
+    {
+      "originalArtifact": "0045d8c0.asm.txt",
+      "originalSha256": "21d4442fc56697dc0640288b6cb489fd81790b789c0bb5c097cd1b9c93b16e08",
+      "normalizedSha256": "a261fc240ea4bee940d9e0654fe6eb2c56456b7d84c0bf3f40753606520f6ce8"
+    },
+    {
+      "originalArtifact": "0045dcb0.asm.txt",
+      "originalSha256": "be31c1cd4ad0c9d04217934426d9648f08429105a6fda4abe29425517a0f7899",
+      "normalizedSha256": "c1d0655eaf66b3c4db3265466b84e0fbeddae2fe0a66a46f2a57a5c7a7a21521"
+    },
+    {
+      "originalArtifact": "presenter-admission.asm.txt",
+      "originalSha256": "d7410ccbb656f2d087e382c26e5439530aa5d329993100b92168954cfe671c63",
+      "normalizedSha256": "fcc942e5cc428918f47b579c93aba90ebfa10f3d4466fa5223175632c22e9ae1"
+    }
+  ],
+  "independentReview": {
+    "artifact": "tooltip-encyclopaedia-scope-review-20261009.md",
+    "sha256": "186259812b260bb14cd5a133e25bebfa2d26fdd725025f9df88def454a0eb65d",
+    "verdict": "ACCEPT finite source and required-slice distinction; runtime HOLD",
+    "text": "# Encyclopaedia identity and ordinary-Hut scope review\n\nACCEPT the finite source assessment and exact single-row prerequisite update. Encyclopaedia rich-text/link rendering is not required for the bounded ordinary Mission1 Hut interaction while that native window remains closed. Runtime implementation remains HOLD for the ordinary shared-owner/guard contract and playable validation.\n\nBound assessment: `issue19-tooltip-controller-source-20261009/work/orchestration/tooltip-topic-layout-20261009-1317/topic-layout-assessment.md`, SHA256 `dfd224510338111983ac9b27e1cd2afd53f20a6309d6daed59d8aeb11c858a58`; receipt `56c81c85b628b724e4d0137935ebe5a28c44d4562116bea012814d61099e5fc4`. Research head is `0bc8f287b7bee4820c5440a6174a0230a6a4e4bd`; explicit application comparison is `47680b8fd124aab50b0528eea77a81cacb556060`.\n\nIndependent readback verified all 15 source pins against the named commits/current files, 12 artifact hashes/sizes, 294 disassembly byte lines in three windows against the unchanged inert EXE, and five direct caller context/call targets. The recovered language member is exactly 207,264 bytes with SHA256 `e826c478746d666a3ea9ea36cb7804d1d226d5f83084230987b1de293066cf7d`, matching the existing imported language identity. UTF-16LE/NUL indexing independently reproduces offsets, lengths and hashes of entries983,984,996. The retained extraction receipt records the approved one-member data recovery; this review neither re-extracted data nor ran any original/application/test code. Research checkout remained clean.\n\nThe source distinction is concrete:\n\n- `005227b3` supplies configuration index2 to `00451370`; a zero result skips the `0045e730` presenter. The already-retained `004aa4e0` input route likewise requires configuration2 plus pending input before `0045ea00`. Excluding this window therefore excludes these two rich-text entry routes, without asserting universal absence of unrelated or indirect text calls.\n- Language index983 identifies the side list as Main Menu; default984 identifies Populous Encyclopaedia; class2 topic table `0059d814` maps Hut models1\u20133 to article996. The current ordinary local small-Hut name uses imported string908. Its imported bytes agree with the recovered language, and indices983/984/996 are absent from the existing tooltip/campaign subsets. Ordinary Hut naming does not require importing the Encyclopaedia article.\n- `0045d8c0` owns pane and scrollbar geometry; its neighboring topic984 setter is distinguished from the layout function. `0045dcb0` loads the current topic text, refreshes the body widget, resets its own scroll/range on dirty content, and computes offsets/thumb/range in the stated order. The signed content-offset division, unsigned thumb division and lack of an invented final range clamp are preserved. These scroll fields are distinct from tooltip D/T.\n- The accepted earlier control-hit work occurs before the body extents are recomputed in that presenter visit. Last-painted ownership and repeated-enable saved-mode overwrite remain relevant native history.\n\nThe exact one-row update SHA256 `9a28c9e0521a4bf20ef7ba5ef8c96873535af6dfe40e7251ea55e916dc4d5053` matches its pinned base `window2-control-closure.md` and replaces exactly one row. It retains mode0 and configuration2-clear admission under the other native predicates; configuration clear alone cannot imply ordinary mode after repeated enable. The earlier mode17 release binding remains prior to ordinary case73. Browser Help/settings is a separate current feature whose interruption behavior needs port integration proof, not a claim of native Encyclopaedia equivalence.\n\nThe other seven shared-state/guard rows remain unchanged. The ordinary witness must preserve startup and HUD/cell/forced/inspection history rather than resetting caches on first hover. This source result does not itself approve the proposed broad witness or an implementation mapping. It removes a demonstrated unrelated rendering prerequisite from the closed-window scope, and does not erase admitted original history.\n\nGeneric text/link widgets and history helpers, including the meaning of article insertion tags, remain unresolved only for the separate Encyclopaedia feature. No parser expansion or new external-input blocker follows this result. Publication may retain titles, numeric IDs/tags, hashes, bounded code and provenance; raw archive/EXE/language and full articles remain excluded. No new runtime or research authorization is created by this verdict.\n"
+  },
+  "publicationTransform": "Links/status adapted; accepted existing table-row replacement applied; historical published-file pins explicitly bound to their immutable commit; normalized static excerpts. No raw language or full articles included.",
+  "publishedFiles": {
+    "encyclopaedia-layout.md": {
+      "bytes": 10277,
+      "sha256": "98d9778f7bbcee6db8ff56a1f2455256d1067d2cd934b1507c21b792a701e80f"
+    },
+    "encyclopaedia-layout.asm.txt": {
+      "bytes": 16103,
+      "sha256": "2e5e9b77e7aa453c8a2c42a31b6769db23be3dca9bb4084c17f847324a40c4fa"
+    },
+    "window2-control-closure.md": {
+      "bytes": 13850,
+      "sha256": "ad35f0da5e881fce5e8a88a3e400fde2685a359433e1cffbee0ab39440c4d608"
+    }
+  }
+}

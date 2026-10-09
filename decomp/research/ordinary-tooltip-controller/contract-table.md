@@ -6,7 +6,7 @@
 
 **Later accepted guard finding:** the [window2 addendum](window2-guard-addendum.md) binds context-topic selection and the mode17 F1-release route to b9 before ordinary inspection73. Browser menu/pause/overview ownership is distinct.
 
-**Control-owner correction:** the [accepted control closure and consolidated prerequisites](window2-control-closure.md) establish that004513d0 returns the last-painted hovered control index, not an active-window identity. Repeated enable can overwrite the saved mode with17. The remaining direct text/layout consumers are0045d8c0 and0045dcb0; runtime remains held.
+**Control-owner correction:** the [accepted control closure and consolidated prerequisites](window2-control-closure.md) establish that004513d0 returns the last-painted hovered control index, not an active-window identity. Repeated enable can overwrite the saved mode with17. The [accepted Encyclopaedia identity/layout assessment](encyclopaedia-layout.md) closes0045d8c0/0045dcb0 and places that separate window's rich-text rendering outside the ordinary closed-Encyclopaedia Hut slice. Runtime remains held for the actual ordinary contract and playable validation.
 
 **Correction to the prior draft:** native input cases0x72/0x73 and numeric codeF1/event masks1/4 are bound below. The actual physical right-button producer and equivalence of native mode0 to current selection/modal/overview guards are not established. Any earlier implication that the complete ordinary right-click action was implementation-ready is withdrawn. Current port right-click behavior is comparison evidence only.
 
