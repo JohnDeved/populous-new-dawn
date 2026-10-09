@@ -9,6 +9,14 @@ or any delivered/uncertain input failure. The internal admission deadline is
 300 seconds; the maintained harness supplies the final process bound. Synchronous
 calls cannot be preempted by that admission deadline.
 
+Each panel selection is preceded by one public Escape, with command mode and
+the actual keyboard target admitted, then an observed empty selection. The
+existing panel action toggles its occupant and preserves selections elsewhere;
+it cannot safely be treated as an unconditional single-person selector. Tests
+compose the current Page callback, `cancelInteraction` and actual panel selection
+from both a selected Shaman and an already-selected resident. The first actual
+command8 person is captured once; later entry-owner substitution is an error.
+
 The observer holds captured JavaScript handles, restores exact callback/Map
 ownership, closes the old Scene observation before Load, and installs a fresh
 observer on the restored World. The Save capture and read-only committed typed

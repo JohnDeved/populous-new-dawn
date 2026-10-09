@@ -5,9 +5,14 @@ import { bindGame, waitForShamanReadiness } from '../browser-game.mjs'
 import { createMission1VaultInput } from './mission1-vault-input.mjs'
 import { readCommittedCheckpoint } from './checkpoint-observer.mjs'
 import { installHutResidentWitness, readHutResidentRoster, readResidentCommitted,
-  installResidentCheckpointBoundary, installResidentPanelSelection } from './hut-resident-witness.mjs'
+  installResidentCheckpointBoundary, installResidentPanelSelection, installResidentSelectionClear } from './hut-resident-witness.mjs'
 
 export const hutResidentExitPoint = Object.freeze({ x: -11, z: 39 })
+
+export function assertResidentCommitted(committed, saved) {
+  assert.equal(committed?.version, 1)
+  assert.deepEqual(committed.summary, saved.summary)
+}
 
 export function assertPassiveResident(state, unitId, hutId) {
   assert.ok(state.correspondence && state.activeAbsent && state.animationAbsent)
@@ -93,6 +98,20 @@ export default async function hutResident({ page, output, receipt, openMission, 
     return epoch
   }
   const selectResident = async () => {
+    let clear, primaryClear = { failed: false }
+    const clearing = { kind: 'clear-selection' }; report.actions.push(clearing)
+    try {
+      clear = await page.evaluateHandle(installResidentSelectionClear)
+      await input.action('Escape clears prior selection', () => page.keyboard.press('Escape'))
+    } catch (error) { primaryClear = { failed: true, failure: error } }
+    await finishResidentHandles([['selectionClear', clear]], clearing, save, primaryClear)
+    const cleared = clearing.selectionClear
+    assert.ok(cleared.event?.trusted && cleared.event.worldMatches)
+    assert.equal(cleared.event.key, 'Escape'); assert.ok(cleared.event.modifiers.every(value => !value))
+    assert.equal(cleared.event.blockedTarget, false); assert.equal(cleared.event.inputMask, 0)
+    assert.deepEqual(cleared.event.after.selected, []); assert.equal(cleared.event.after.mode, null)
+    assert.equal(cleared.event.after.orderCursor, 0)
+    assert.equal(cleared.event.after.lastOrderTurn, cleared.before.lastOrderTurn)
     await input.view(report.roster.hut)
     const hit = await input.entityPoint('buildings', hutId, null)
     report.preparations.push({ kind: 'panel-hover', hit }); save()
@@ -130,6 +149,7 @@ export default async function hutResident({ page, output, receipt, openMission, 
     const roster = report.roster
     assert.equal(roster.level, 1); assert.equal(roster.inputMask, 0); assert.equal(roster.speed, 1)
     assert.equal(roster.status, 'playing'); assert.equal(roster.paused, false); assert.equal(roster.sceneMatches, true)
+    assert.equal(roster.shamanId, 30); assert.equal(roster.hut?.id, 37)
     assert.ok(roster.hut?.hp > 0 && roster.hut.progress === 1 && roster.residents.length)
     hutId = roster.hut.id; unitId = roster.residents[0].id
     input = createMission1VaultInput({ page, signal, report, save, originalShamanId: roster.shamanId, deadlineAt })
@@ -162,10 +182,11 @@ export default async function hutResident({ page, output, receipt, openMission, 
     const committedDeadline = Date.now() + remaining(15000)
     for (;;) {
       report.committed = await page.evaluate(readResidentCommitted); save()
-      if (report.committed && JSON.stringify(report.committed.summary) === JSON.stringify(report.saved.summary)) break
+      if (report.committed?.version === 1 && JSON.stringify(report.committed.summary) === JSON.stringify(report.saved.summary)) break
       assert.ok(Date.now() < committedDeadline, 'Public Save did not commit the exact resident')
       await page.waitForTimeout(100)
     }
+    assertResidentCommitted(report.committed, report.saved)
     report.savedDigest = await observeCheckpoint('Passive Hut resident committed Save'); save()
     assert.match(report.savedDigest.checkpoint.checkpointSha256, /^[a-f0-9]{64}$/)
     report.saveCleanup = await checkpoint.evaluate(api => api.close()); await checkpoint.dispose(); checkpoint = null
