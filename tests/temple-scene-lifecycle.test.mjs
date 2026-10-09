@@ -327,6 +327,7 @@ test('actual world building caller binds the Temple shader across nine selection
         fragmentShader: '#include <colorspace_fragment>',
       }
     assert.equal(mesh.userData.nativeModel, 95)
+    assert.equal(fixture.scene.buildingMeshes.get(temple.id).userData.signature, '95-4-p')
     assert.equal(mesh.material.map.image.src, '/original/temple-model-p.png')
     mesh.material.onBeforeCompile(shader)
     assert.equal(shader.uniforms.templeTileOffset, mesh.userData.templeTileOffset)
@@ -337,6 +338,7 @@ test('actual world building caller binds the Temple shader across nine selection
       fixture.scene.templeResourceSnapshot = snapshot
       fixture.render()
       assert.equal(fixture.scene.buildingMeshes.get(temple.id).children[0], mesh)
+      assert.equal(fixture.scene.buildingMeshes.get(temple.id).userData.signature, '95-4-p')
       assert.equal(mesh.geometry, geometry)
       assert.deepEqual([...mesh.geometry.getAttribute('uv').array], originalUV)
       assert.deepEqual(
@@ -365,6 +367,68 @@ test('actual world building caller binds the Temple shader across nine selection
     legacy?.material.dispose()
     fixture.close()
     binding.release()
+  }
+})
+
+test('actual training factories retain legacy keys and reuse all16 meshes at all five stages', async () => {
+  const api = await loadSceneFixture(),
+    world = api.createWorld(1),
+    fixture = await makeHutSmokeScene(world)
+  const teams = ['blue', 'red', 'yellow', 'green'],
+    families = { temple: 95, spyHut: 91, camp: 103, firewarriorHut: 99 }
+  let index = 0
+  try {
+    for (const [kind, base] of Object.entries(families)) {
+      for (const [tribe, team] of teams.entries()) {
+        const building = api.addBuilding(
+          world,
+          team,
+          kind,
+          { x: -30 + (index % 4) * 12, z: 20 + Math.floor(index / 4) * 12 },
+          true
+        )
+        index++
+        for (let stage = 0; stage <= 4; stage++) {
+          // Controlled renderer-stage fixture, not construction/gameplay proof.
+          building.damageState = { stage, tilt: 0, roll: 0 }
+          const identity = () => ({
+            kind: building.kind,
+            team: building.team,
+            object: building.object,
+            level: building.level,
+            progress: building.progress,
+            anchor: structuredClone(building.anchor),
+          })
+          const before = identity()
+          fixture.render()
+          const group = fixture.scene.buildingMeshes.get(building.id),
+            [mesh] = group.children,
+            { geometry, material } = mesh
+          assert.equal(group.userData.signature, `${base + tribe}-${stage}`)
+          assert.equal(mesh.userData.nativeModel, base + tribe)
+          assert.equal(mesh.userData.stage, stage)
+          assert.equal(material.map.image.src, '/original/atlas.png')
+          assert.deepEqual(
+            material.color.toArray(),
+            [1, 1, 1],
+            'tribe color comes from original artwork'
+          )
+          fixture.render()
+          assert.equal(fixture.scene.buildingMeshes.get(building.id), group)
+          assert.equal(group.children[0], mesh)
+          assert.equal(mesh.geometry, geometry)
+          assert.equal(mesh.material, material)
+          assert.deepEqual(
+            identity(),
+            before,
+            'factory/update does not alter building identity or gameplay fields'
+          )
+        }
+      }
+    }
+    assert.equal(index, 16)
+  } finally {
+    fixture.close()
   }
 })
 
