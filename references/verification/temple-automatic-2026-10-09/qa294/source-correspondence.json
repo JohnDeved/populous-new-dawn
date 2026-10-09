@@ -1,0 +1,41 @@
+{
+  "head": "1564ee1d7bf90401ccf3c52efc270df20df831b9",
+  "tree": "e907c10122481fc15420e7b9097ebd2e020e1784",
+  "base": "ec0316dc8555c547a9762e314c2c74ef92ead0a2",
+  "changedPaths": [
+    "engineering/temple-auto-ordinary-proposal.md",
+    "engineering/temple-auto-public-inputs.json",
+    "scripts/local-render/temple-training-auto.mjs",
+    "scripts/local-render/temple-training-checkpoint.mjs",
+    "scripts/local-render/temple-training-contract.mjs",
+    "scripts/local-render/temple-training-witness.mjs",
+    "tests/temple-training-cache.test.mjs",
+    "tests/temple-training-checkpoint.test.mjs",
+    "tests/temple-training-witness.test.mjs"
+  ],
+  "allBaseFilesUnchanged": 3809,
+  "helperCorrespondence": {
+    "source": "61a200838719857677a73f4ae480b8a46d40f591",
+    "paths": [
+      "scripts/local-render/temple-training-auto.mjs",
+      "scripts/local-render/temple-training-checkpoint.mjs",
+      "scripts/local-render/temple-training-contract.mjs",
+      "scripts/local-render/temple-training-witness.mjs"
+    ]
+  },
+  "testFiles": 284,
+  "inputs": {
+    "engineering/temple-auto-ordinary-proposal.md": "d0e84f0dcf1aa938908656daa3e2d074053387404889826a1330f8733102a3cf",
+    "engineering/temple-auto-public-inputs.json": "b3b647aeb4e5d8d4889248da5cac7dfafa61fce6fec985b8d48f2a5f9d9f8505",
+    "scripts/local-render/temple-training-auto.mjs": "eea94abe05dc07239c7ad9c660526fe4d714289af6a97cb8dbb39e57deb2f9b3",
+    "scripts/local-render/temple-training-checkpoint.mjs": "d49f985f8cd8c24582d1b068beae13cb57f3b4873e317b860d1320aa14c8f3da",
+    "scripts/local-render/temple-training-contract.mjs": "5ff48518792e7d3f1b5b0c26987ac5d65e099385167e5d490be7583cc9c08258",
+    "scripts/local-render/temple-training-witness.mjs": "a962e25abd25cd48bf93b26cb4dceec3746d314089f7d299e110b9cc01b4df69",
+    "tests/temple-training-cache.test.mjs": "a7c9dae723630c20a4df98cd1f10bf9dbe185a7dcab76a391b55cb976fe2c55b",
+    "tests/temple-training-checkpoint.test.mjs": "160b63a0c6243b21836846d32f652ea8b94f41223fbde7ccf87f7807fefd4da1",
+    "tests/temple-training-witness.test.mjs": "9ece29aa69d97340101d4bbcd6eea25bfbe73d84514da05a1d1f1cba933a7082"
+  },
+  "scope": "Nine QA/documentation additions; no existing main file changed. Historical one-run continuation remains on immutable 7da/61a history.",
+  "priorStandardEvidence": "https://github.com/JohnDeved/populous-new-dawn/blob/994063c15c3a06b20982419443582ddd27cd142e/references/verification/temple-automatic-2026-10-09/README.md",
+  "ordinaryEvidence": "https://github.com/JohnDeved/populous-new-dawn/blob/994063c15c3a06b20982419443582ddd27cd142e/references/verification/temple-automatic-2026-10-09/ordinary02/README.md"
+}
