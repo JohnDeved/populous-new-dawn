@@ -1,0 +1,131 @@
+# Ordinary Mission 1 Hut dismantling acceptance
+
+Refs #25. QA coverage of existing gameplay; no runtime fix, browser result or new
+parity credit is claimed by this source proposal.
+
+## Source and staffing boundary
+
+Base: `1a9314fc0a047f9f1effba6826ccfd46e07ad39c` (PR294 merged). The previous
+product base was `ec0316dc8555c547a9762e314c2c74ef92ead0a2`; PR294 adds the
+maintained typed checkpoint observer without changing gameplay.
+
+`mission1Huts()` resolves the two authored Blue model1 Huts (DAT indexes41/42)
+by native anchor and angle, then records their actual live IDs. DAT indexes are
+never used as runtime IDs. The ordinary opening can already have generated and
+admitted residents: the composed opening at turn380 resolves live Huts36/37 with
+one resident each, IDs1186/1188. Those numbers are evidence from that run, not
+inputs to the proposed browser episode.
+
+The smallest viable method is to reuse one naturally singly staffed Hut. Require
+a healthy, complete, unburned, non-upgrading level1 Blue Hut and one living Brave
+in its exact physical slot with a valid retained resident record, no incoming
+workers/queue/builders, no carried cargo and no concurrent timber work. Clear
+selection through the public control before pointer dwell. Recheck readiness at
+the actual Dismantle click. A later population arrival invalidates readiness.
+
+This freezes one method. If neither authored Hut becomes eligible within the
+declared readiness budget, stop with the observed roster. Public housing command8
+or moving existing occupants out would be separate setup work requiring its own
+composed test before browser use. Do not add residents, delete residents, suppress
+population or silently substitute a different method.
+
+## Finite public episode proposed for independent review
+
+1. Start Mission1 through shipped controls. Prewarm observer imports, public
+   settings/save/load controls and the maintained input geometry helpers before
+   work starts. Wait for the real opening and camera/input readiness. Resolve
+   authored Hut identities and one eligible resident dynamically.
+2. Use maintained minimap/pointer inputs to view that Hut. Clear selection and
+   let the actual pointer dwell open its inspection panel. Click the shipped
+   **Dismantle hut** control. A synchronous before/after event observation must
+   show the retained resident object become the registered `entry.person`, one
+   referenced command10 targeting that Hut, and activity `0x8000`. Do not use the
+   generic command10 dispatch helper's immediate-order oracle.
+3. Observe every actual fixed turn synchronously. Keep scalar status and only
+   meaningful transfer/drop/ownership events; cap retained events at64. Poll that
+   lightweight status, never a full World or full-history record. The first
+   transfer removes100 of the Hut's300 native timber units. Use public Pause,
+   then Game settings immediately. Require100 or200 units still remaining at
+   the paused Save click; completion before pause is a failed checkpoint episode.
+4. Reuse `armTempleCheckpoint({kind, store, button, snapshot})` unchanged from
+   PR294, supplying `hutDismantleSnapshot`. Its historical Temple name imposes no
+   model5 restriction. Require the trusted Save click's synchronous publication,
+   committed IndexedDB full typed digest equality, and a valid partial-work
+   snapshot. Keep the captured World private inside the accepted helper.
+5. Click public Load in the same session. Compare its synchronous replacement
+   against Save's `expectedLoadDigest()` (the production migration of a private
+   clone), before the actual Page body auto-resumes. Require matching target,
+   worker, command references, remaining timber, cargo and individual loose-log
+   IDs. Rebind observations to the new Scene; do not carry old Scene identity
+   claims across replacement. No fresh-page continuation/profile is needed.
+6. Let normal play finish. Move the pointer away using real input. Require target
+   disappearance, the same surviving Brave, released entry/order/work/occupancy,
+   cleared footprint and target panel/record/latch/reservation, closed menu, and
+   exactly300 recovered native units. Close every owned observer on success or
+   failure and retain the first failure plus cleanup results.
+
+Proposed browser admission budgets:360seconds overall,30seconds after normal
+opening for staffing/panel readiness,120seconds per natural work segment,
+10seconds for committed readback,15seconds for public Load, and20seconds for final
+cleanup. These bound resource use; work counters32–63 do not guarantee wall time.
+No runner or browser process is included in this increment. Source review and
+parent resource admission remain prerequisites to implementing/running that route.
+
+## Exact resource and caller contracts
+
+`hutDismantleSnapshot()` reads existing owners without creating admission, damage
+or person records. `hutResidentIdentity()` retains a private resident reference
+solely to prove the synchronous owner handoff. Neither writes gameplay state.
+
+The ledger counts remaining plan timber plus the worker's net cargo plus newly
+created, individually identified model11 loose logs. It rejects baseline timber
+loss, unrelated harvesting/delivery/cargo, reservations, burning, damaged workers,
+extra staff, retained orders and missing/duplicate recovered logs. Each actual
+turn must be observed. A work-phase transfer changes remaining/cargo by100 with
+no new log; a separate drop changes cargo by-100 and allocates exactly one log.
+Baseline scenery may grow; it may never shrink between adjacent observations.
+
+Building health legally follows dismantle progress on the following building
+visit (`building-runtime.ts`), so per-turn health is compared to the preceding
+progress instead of requiring170 throughout. Target damage/burn fields still
+must remain clear. `world.wood` is the displayed scenery total, recomputed before
+the later unit work (`world-turn.ts`); it is diagnostic only and contributes no
+recovery credit. The composed result is100 carried +200 in two dropped logs,
+not an asserted three-log bank credit.
+
+Actual callers: `building-panels.ts` Dismantle listener →
+`live-building-entry.ts` resident reassignment/order10 → `building-dismantle.ts`
+work phases → `timber.ts` transfer/drop → ordinary world cleanup. Retained native
+producers00497a30/00498140/004a7860/004ba2c0/004d58c0 remain historical component
+evidence only. This work neither executes native tools nor reconstructs missing
+original-game history.
+
+## Verification and explicit limitations
+
+`tests/mission1-hut-dismantle.test.mjs` composes the authored M1 opening and natural
+resident with the real pointer-dwell caller, shipped Dismantle listener, fixed-turn
+work, actual store Save/Load, unchanged PR294 observer and exact Page Load body.
+It verifies the full typed production-migrated Load digest, then completes work
+and checks300-unit recovery and cleanup. Failure-first mutations cover extra
+residents/workers, damage, unrelated timber work, missing original/recovered
+timber, wrong scenery model, retained order/panel/menu/reservation.
+
+The Node fixture supplies DOM/projection/frame deltas, a click token, a store
+World binding, pause state, and a presentation cleanup adapter. Its Save returns
+false without IndexedDB, which is asserted explicitly. This is model-composed
+caller coverage, not committed Save, trusted browser input, actual rendering,
+fresh Scene installation, ordinary completion, performance, or native acceptance.
+No application source, checkpoint helper, parity manifest or generated asset is
+changed. Full check/build, native execution and browser execution are not run
+under this bounded source-preparation authorization.
+
+All attempts are retained under `work/orchestration/mission1-hut-dismantle/`:
+caller01 rejected adding a Brave to a naturally occupied Hut; caller02 failed an
+unnecessary preliminary occupant-control setup before dwell; caller03 exposed the
+following-visit health contract; caller04 rejected an incorrect unchanged-global-
+wood assumption. Caller05 passed the finite model sequence; caller06 additionally
+passed the maintained typed observer and actual Page Load body. The initial
+receipt-output preflight failure is separately retained under
+`work/mission1-hut-dismantle/receipt-preflight-01.txt`. These are QA preparation
+failures, not evidence of a product defect. Final committed-source receipts and
+review status belong in the PR.
