@@ -380,8 +380,7 @@ export function createGameStore() {
       const token = Symbol()
       let released = false
       if (boundWorld === world) presentationToken = token
-      const isCurrent = () =>
-        !released && presentationToken === token && boundWorld === world
+      const isCurrent = () => !released && presentationToken === token && boundWorld === world
       return {
         isCurrent,
         snapshot: () => (isCurrent() ? presentation.snapshot() : null),

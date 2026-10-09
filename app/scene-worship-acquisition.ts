@@ -146,15 +146,21 @@ export class WorshipAcquisitionPresentation {
   }
 
   private sprite(command: Extract<WorshipAcquisitionDrawCommand, { kind: 'sprite' }>) {
-    const material = templeSpriteMaterial(command.frame, command.palette, this.scene.templeResourceSnapshot),
+    const material = templeSpriteMaterial(
+        command.frame,
+        command.palette,
+        this.scene.templeResourceSnapshot
+      ),
       rgb = material?.rgb ?? command.rgb,
       atlasName = material?.atlas ?? 'effects',
       key = `${atlasName}:${command.frame}:${rgb}`,
       cached = this.sprites.get(key)
     if (cached) return cached
-    const frame = material?.crop ?? Object.values(effects.animations)
-        .flat()
-        .find(frame => frame.source === command.frame),
+    const frame =
+        material?.crop ??
+        Object.values(effects.animations)
+          .flat()
+          .find(frame => frame.source === command.frame),
       atlas = texture(atlasName).image as HTMLImageElement | undefined
     if (!frame || !atlas?.complete || !atlas.naturalWidth) return null
     const canvas = document.createElement('canvas')

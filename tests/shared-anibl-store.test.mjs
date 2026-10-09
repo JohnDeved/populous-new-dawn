@@ -8,15 +8,20 @@ test('M3 resources publish atomically with World and expose immutable shared sel
   const store = createGameStore()
   assert.equal(store.getPresentationSnapshot(), null)
   const published = []
-  store.subscribe(() => published.push({
-    world: store.getWorld(), resource: store.getPresentationSnapshot(),
-  }))
+  store.subscribe(() =>
+    published.push({
+      world: store.getWorld(),
+      resource: store.getPresentationSnapshot(),
+    })
+  )
   store.startMission(3)
   const first = store.getPresentationSnapshot()
   assert.equal(published[0].world, store.getWorld())
   assert.deepEqual(published[0].resource, first)
-  assert.deepEqual({ bank: first.bank, counter: first.counter, tile: first.tile },
-    { bank: 'p', counter: 0, tile: 92 })
+  assert.deepEqual(
+    { bank: first.bank, counter: first.counter, tile: first.tile },
+    { bank: 'p', counter: 0, tile: 92 }
+  )
   assert.ok(Object.isFrozen(first))
   const binding = store.bindPresentation(store.getWorld())
   const frames = []
@@ -37,7 +42,8 @@ test('M3 resources publish atomically with World and expose immutable shared sel
 test('Save and storage restore preserve the bank; Load atomically resets it while restoring the World clock', async () => {
   const store = createGameStore()
   store.startMission(3)
-  const world = store.getWorld(), old = store.bindPresentation(world)
+  const world = store.getWorld(),
+    old = store.bindPresentation(world)
   old.advance()
   old.advance()
   world.worshipAcquisition.clock.elapsed = 17
@@ -79,7 +85,8 @@ test('Save and storage restore preserve the bank; Load atomically resets it whil
 test('same-resource Restart retains phase and epoch, replaces the World clock, and rejects the old binding', () => {
   const store = createGameStore()
   store.startMission(3)
-  const previousWorld = store.getWorld(), old = store.bindPresentation(previousWorld)
+  const previousWorld = store.getWorld(),
+    old = store.bindPresentation(previousWorld)
   old.advance()
   old.advance()
   previousWorld.worshipAcquisition.clock.elapsed = 17
@@ -93,8 +100,13 @@ test('same-resource Restart retains phase and epoch, replaces the World clock, a
   store.restart()
   assert.notEqual(publication.world, previousWorld)
   assert.deepEqual(publication.resource, retained)
-  assert.deepEqual(store.getWorld().worshipAcquisition.clock,
-    { elapsed: 0, nextVisit: 0, lastVisit: 0, limiter: 0, normalRate: 40 })
+  assert.deepEqual(store.getWorld().worshipAcquisition.clock, {
+    elapsed: 0,
+    nextVisit: 0,
+    lastVisit: 0,
+    limiter: 0,
+    normalRate: 40,
+  })
   assert.equal(old.isCurrent(), false)
   old.advance()
   assert.deepEqual(store.getPresentationSnapshot(), retained)
@@ -111,9 +123,11 @@ test('same-resource Restart retains phase and epoch, replaces the World clock, a
 test('same-World Scene replacement revokes only the superseded binding and disposal retains phase', () => {
   const store = createGameStore()
   store.startMission(3)
-  const world = store.getWorld(), old = store.bindPresentation(world)
+  const world = store.getWorld(),
+    old = store.bindPresentation(world)
   old.advance()
-  const newer = store.bindPresentation(world), retained = newer.snapshot()
+  const newer = store.bindPresentation(world),
+    retained = newer.snapshot()
   old.advance()
   old.release()
   old.release()
@@ -123,7 +137,11 @@ test('same-World Scene replacement revokes only the superseded binding and dispo
   assert.deepEqual(newer.snapshot(), retained)
   newer.release()
   newer.advance()
-  assert.deepEqual(store.getPresentationSnapshot(), retained, 'failed/disposed Scene does not roll back a committed bank')
+  assert.deepEqual(
+    store.getPresentationSnapshot(),
+    retained,
+    'failed/disposed Scene does not roll back a committed bank'
+  )
   const retryScene = store.bindPresentation(world)
   assert.deepEqual(retryScene.snapshot(), retained)
   retryScene.advance()
@@ -133,7 +151,8 @@ test('same-World Scene replacement revokes only the superseded binding and dispo
 test('missing checkpoints and failed preparation preserve World, resource, and live binding', async t => {
   const store = createGameStore()
   store.startMission(3)
-  const world = store.getWorld(), binding = store.bindPresentation(world)
+  const world = store.getWorld(),
+    binding = store.bindPresentation(world)
   binding.advance()
   const retained = binding.snapshot()
   assert.equal(store.loadCheckpoint(), false)
@@ -142,7 +161,9 @@ test('missing checkpoints and failed preparation preserve World, resource, and l
   await store.saveCheckpoint()
   let publications = 0
   store.subscribe(() => publications++)
-  t.mock.method(globalThis, 'structuredClone', () => { throw new Error('checkpoint preparation failed') })
+  t.mock.method(globalThis, 'structuredClone', () => {
+    throw new Error('checkpoint preparation failed')
+  })
   assert.throws(() => store.loadCheckpoint(), /checkpoint preparation failed/)
   assert.equal(publications, 0)
   assert.equal(store.getWorld(), world)
@@ -155,15 +176,15 @@ test('fresh starts, leaving M3, and non-normal Restart cannot retain the old M3 
   store.startMission(3)
   const first = store.bindPresentation(store.getWorld())
   first.advance()
-  let epoch = first.snapshot().epoch
+  let { epoch } = first.snapshot()
   store.startMission(3)
   assert.ok(store.getPresentationSnapshot().epoch > epoch)
   assert.equal(store.getPresentationSnapshot().counter, 0)
-  epoch = store.getPresentationSnapshot().epoch
+  ;({ epoch } = store.getPresentationSnapshot())
   store.getWorld().land.landFlags |= 8
   store.restart()
   assert.ok(store.getPresentationSnapshot().epoch > epoch)
-  epoch = store.getPresentationSnapshot().epoch
+  ;({ epoch } = store.getPresentationSnapshot())
   store.startMission(1)
   const unsupported = store.bindPresentation(store.getWorld())
   assert.equal(unsupported.isCurrent(), true, 'Scene liveness is independent of resource support')
@@ -177,11 +198,13 @@ test('fresh starts, leaving M3, and non-normal Restart cannot retain the old M3 
 test('the existing nominal clock owns catch-up and visible-pause visits, not draw reads or 24-Hz animation', () => {
   const store = createGameStore()
   store.startMission(3)
-  const world = store.getWorld(), binding = store.bindPresentation(world)
+  const world = store.getWorld(),
+    binding = store.bindPresentation(world)
   world.paused = true
   let hidden = false
   const clock = {
-    animationTime: 0, animationFrame: 0,
+    animationTime: 0,
+    animationFrame: 0,
     presentationHidden: () => hidden,
     worshipVisit: () => {
       binding.advance()
@@ -189,7 +212,11 @@ test('the existing nominal clock owns catch-up and visible-pause visits, not dra
     },
   }
   advanceGame(world, clock, 0.1)
-  assert.equal(binding.snapshot().counter, 5, 'nominal visits include 0,25,50,75,100ms in one catch-up call')
+  assert.equal(
+    binding.snapshot().counter,
+    5,
+    'nominal visits include 0,25,50,75,100ms in one catch-up call'
+  )
   assert.equal(clock.animationFrame, 0)
   hidden = true
   advanceGame(world, clock, 1)

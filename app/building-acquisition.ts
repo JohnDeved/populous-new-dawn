@@ -57,12 +57,19 @@ export interface BuildingAcquisitionDrawCommand {
 // Undo the existing import's exact model scaling/reflected Z. Six-decimal
 // positions recover all original integer coordinates, verified against FACS/PNTS.
 function modelCorners(id: 103 | 95) {
-  const model = models[id], result: number[][][] = []
+  const model = models[id],
+    result: number[][][] = []
   for (let face = 0, vertex = 0; face < model.faces.length; face += 2) {
     const corners = model.faces[face] === 3 ? [0, 1, 2] : [0, 1, 2, 5]
-    result.push(corners.map(corner => [0, 1, 2].map(axis =>
-      Math.round(model.p[(vertex + corner) * 3 + axis] * model.scale * 3) * (axis === 2 ? -1 : 1)
-    )))
+    result.push(
+      corners.map(corner =>
+        [0, 1, 2].map(
+          axis =>
+            Math.round(model.p[(vertex + corner) * 3 + axis] * model.scale * 3) *
+            (axis === 2 ? -1 : 1)
+        )
+      )
+    )
     vertex += corners.length === 3 ? 3 : 6
   }
   return result
