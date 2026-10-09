@@ -136,13 +136,17 @@ export default async function hutTooltip({ page, root, output, receipt, signal }
     await input.view(report.declaration.ground)
     const ground = await input.fixedGround(report.declaration.ground)
     report.preparations.push({ kind: 'ordinary-ground', ground }); save(); assert.equal(ground.rejection, null)
+    // The inherited movement-context probe needs the selected Shaman; the
+    // actual ordinary cell controller then needs deselection before hovering.
+    await clear()
     const groundPrepared = await page.evaluate(() => { const s = window.testSceneRef.current; return {
       sceneFrame: s.frame, rendererFrame: s.renderer.info.render.frame } })
     await naturalBoundary(groundPrepared)
+    assertHutAdmission((await status()).epochs.at(-1).state)
     await phase('blank-cell-history', 'hidden')
     await action('Hover verified ordinary blank cell', () => page.mouse.move(ground.x, ground.y))
     await wait('cell'); await wait('capture', 'blank-cell-history')
-    await clear(); await input.view(hut)
+    await input.view(hut)
     assertHutAdmission((await status()).epochs.at(-1).state)
     const initial = await point(hut)
     await phase('hut-initial', 'hut')

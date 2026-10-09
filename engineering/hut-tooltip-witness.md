@@ -58,8 +58,9 @@ history is observed, and a natural page screenshot captures that DOM presentatio
 No ordinary native-tooltip glyph canvas is invented for Blast. Composite
 screenshots are adjacent observations, not exact synchronous WebGL frames.
 
-The single route is public Mission1/optional Skip/readiness; Blast; verified
-ordinary blank ground at(-11,39); Escape; DAT42 hover and same-interior movement;
+The single route is public Mission1/optional Skip/readiness; Blast; prepare
+verified blank ground at(-11,39) with the selected Shaman; Escape; later natural
+render and admitted ordinary blank-cell hover; DAT42 hover and same-interior movement;
 stationary right down/up; same-Hut dismantle-control hover without activation
 for24 actually observed controller visits with that control hovered (beyond its
 16-visit hold and3/16/3 unrenewed lifetime); Blast leave and normal
