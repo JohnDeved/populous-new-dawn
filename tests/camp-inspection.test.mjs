@@ -43,8 +43,9 @@ function supplyPanelDom(t, scene) {
       dataset: {},
       attributes: {},
       classList: { add: nop, toggle: nop },
-      append(child) {
+      appendChild(child) {
         this.children.push(child)
+        return child
       },
       addEventListener: nop,
       setAttribute(name, value) {
