@@ -1,0 +1,752 @@
+{
+  "packetStatus": "scoped-result-accepted-awaiting-packet-review",
+  "publication": "pending; local evidence only",
+  "pullRequest": "https://github.com/JohnDeved/populous-new-dawn/pull/284",
+  "issueReferences": [
+    "https://github.com/JohnDeved/populous-new-dawn/issues/61"
+  ],
+  "source": {
+    "base": "d6cf109474379172728a3ccebf46ef72a15f3a58",
+    "product": "64c72dbc786639ad399e81ca13583263acedaae3",
+    "tree": "ed3b2e6691d4d2bc9ad350fee0ab1d8ddaa6341c",
+    "sourceReview": "accepted",
+    "reviewSha256": "2cf6749f95b32bd2ffd903e5e01c4e965f32afad2acb2ca8dc504b4ca5326dad",
+    "ordinaryUnion": "5d2fa7c342d016c54e833f1d08aa10d1fee445c2",
+    "ordinaryUnionTree": "e3a0721cfc692bc91d8b9d6a283f8cf27a94f8aa",
+    "identicalApplicationTree": "56a914f4fb51cf91e81180851568b69f4114692e",
+    "unionDifference": "Exactly five QA/scope/test files differ from product64c72db; application tree is identical.",
+    "finalProductVerdictSha256": "627d2bfcf77be1e73448633387434804fa9aebfd80440e70b73ec6aaa81bad57",
+    "finalVerdictTurnCorrectionSha256": "2a48fb1af7ec1f0f1a4facb3478635eaa77fc3c9f12463704b201e69c856f1c7"
+  },
+  "red": {
+    "status": "expected-failure",
+    "receiptSha256": "12fc778e6e3ca8c18cc3b60565b3b9bae4ab4f7b9fd1504f694714e5180a71fc",
+    "command": [
+      "taskset",
+      "-c",
+      "4",
+      "node",
+      "--test",
+      "--test-name-pattern=followers visibly cross",
+      "tests/housing-entry.test.mjs"
+    ],
+    "head": "d6cf109474379172728a3ccebf46ef72a15f3a58",
+    "trackedDiffSha256": "0964d82ee1af1ac38609c6f540864d18ca73978859d1529842b56143dec5a5f1",
+    "appUnchanged": true,
+    "testSha256": "7a2dec7197a874c9bbcdab5982676244696d8565af653229707fb72a6bfbdc60",
+    "exitCode": 1,
+    "stdoutSha256": "c604d83ba0cd2cc24562930d80ffc1776bed16c64fe2d63897ae1b8d5a3e4a04",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "scope": "Only the first housing level/orientation reaches the new resident-identity assertion; later loop cases do not execute after that failure."
+  },
+  "focused": [
+    {
+      "receipt": "focused-committed-e823abb.json",
+      "receiptSha256": "c1d78569de996951ce0214a33c56629dead1c7c12899d97bc8451f1ff15bc649",
+      "source": "e823abb5c8e691182790b371d71b6dff6f4ad2b8",
+      "status": "passed",
+      "command": [
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "tests/housing-entry.test.mjs",
+        "tests/human-training-orders.test.mjs",
+        "tests/training-entry.test.mjs",
+        "tests/training-panel.test.mjs",
+        "tests/tower-entry.test.mjs",
+        "tests/tower-panel.test.mjs",
+        "tests/mixed-building-orders.test.mjs",
+        "tests/ai-training-capacity.test.mjs",
+        "tests/building-exits.test.mjs",
+        "tests/building-ground.test.mjs",
+        "tests/shield-spell.test.mjs",
+        "tests/invisibility-spell.test.mjs",
+        "tests/hypnotise.test.mjs",
+        "tests/mission16-bloodlust.test.mjs"
+      ],
+      "counts": {
+        "tests": 71,
+        "pass": 71,
+        "fail": 0
+      },
+      "stdoutSha256": "7911767396986150a66f56ad316e8183252fd245c41b6b7d78ce8e945a003ddc",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "startedAt": "2026-10-09T10:47:55.299Z",
+      "finishedAt": "2026-10-09T10:48:43.898Z"
+    },
+    {
+      "receipt": "focused-final.json",
+      "receiptSha256": "4865c467d0efc1e2ff0b958b56fb922c23e612feb13ec4b3ffe31130276b625d",
+      "source": "64c72dbc786639ad399e81ca13583263acedaae3",
+      "status": "passed",
+      "command": [
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "tests/housing-entry.test.mjs",
+        "tests/human-training-orders.test.mjs"
+      ],
+      "counts": {
+        "tests": 31,
+        "pass": 31,
+        "fail": 0
+      },
+      "stdoutSha256": "0d5d9435f450cdfbc1e1ac0a0bf92216ef7f52920d1c560d3b3a80098feb71eb",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "startedAt": "2026-10-09T10:53:08.767Z",
+      "finishedAt": "2026-10-09T10:53:20.783Z"
+    }
+  ],
+  "focusedSourceCorrespondence": "All application bytes are identical between e823abb and 64c72db; only the two caller tests changed for the final31 run.",
+  "standard": {
+    "status": "passed-independently-accepted",
+    "aggregateSha256": "b934612245058d54f5da916b99e3ce2e09c10989c1f9d7de4bd609113da8e0e2",
+    "aggregateOriginalStatus": "passed",
+    "aggregateOriginalScope": "Fresh equivalent full npm check plus build; independent result review pending. Strict inherited lint failures remain separate.",
+    "reviewSha256": "4c5b776edc1c05b8af4d918ab28ed3acbfd9ccdd621cee81104b50fbea4d8cbd",
+    "source": "64c72dbc786639ad399e81ca13583263acedaae3",
+    "tree": "ed3b2e6691d4d2bc9ad350fee0ab1d8ddaa6341c",
+    "testFiles": 272,
+    "totals": {
+      "tests": 1607,
+      "pass": 1607,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "stageCount": 16,
+    "stages": [
+      {
+        "name": "typecheck",
+        "sha256": "5f75db490079b9139b9aa193530c3a13dd4871924e22b58c6415b53431e88390",
+        "status": "passed",
+        "source": "64c72dbc786639ad399e81ca13583263acedaae3",
+        "counts": {}
+      },
+      {
+        "name": "tests-01",
+        "sha256": "fc91d3f7cfcfd0bc875c6d44ce259ee74e73c1fa4b5387c323a7d684fcf5fe31",
+        "status": "passed",
+        "source": "64c72dbc786639ad399e81ca13583263acedaae3",
+        "counts": {
+          "tests": 170,
+          "pass": 170,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "name": "tests-02",
+        "sha256": "0807d8db2d9bca3f94b676c9b31e1221e4e3aa7b054ec640a7742bb7f060eef7",
+        "status": "passed",
+        "source": "64c72dbc786639ad399e81ca13583263acedaae3",
+        "counts": {
+          "tests": 165,
+          "pass": 165,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "name": "tests-03",
+        "sha256": "73513477617cbd4db14614930de2eeb08062bd6fe4087073d0aed95cbeb87629",
+        "status": "passed",
+        "source": "64c72dbc786639ad399e81ca13583263acedaae3",
+        "counts": {
+          "tests": 283,
+          "pass": 283,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "name": "tests-04a",
+        "sha256": "0672d9cc098c96e6f29a8b4fee607c3487cc311521179eb31cdf7f2230fe2a55",
+        "status": "passed",
+        "source": "64c72dbc786639ad399e81ca13583263acedaae3",
+        "counts": {
+          "tests": 52,
+          "pass": 52,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "name": "tests-04b",
+        "sha256": "7ab03963f44328a377d9ab2cbbacf01006f78138b4b670953205f21564a5a62f",
+        "status": "passed",
+        "source": "64c72dbc786639ad399e81ca13583263acedaae3",
+        "counts": {
+          "tests": 75,
+          "pass": 75,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "name": "tests-04c",
+        "sha256": "a42de009c4d261634f6fcaed082c197599fb5263a58e8d0e1998352b29d7736b",
+        "status": "passed",
+        "source": "64c72dbc786639ad399e81ca13583263acedaae3",
+        "counts": {
+          "tests": 32,
+          "pass": 32,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "name": "tests-05a",
+        "sha256": "6f1031821b784d56a364a1d32c375bfb507598cd2cb3c81bdf27ef7f5c0c358b",
+        "status": "passed",
+        "source": "64c72dbc786639ad399e81ca13583263acedaae3",
+        "counts": {
+          "tests": 54,
+          "pass": 54,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "name": "tests-05b",
+        "sha256": "c8daf56ace6299ac5e0cb20a368104535d633e8b8e0e9bf837f575c88ba8fff2",
+        "status": "passed",
+        "source": "64c72dbc786639ad399e81ca13583263acedaae3",
+        "counts": {
+          "tests": 47,
+          "pass": 47,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "name": "tests-05c",
+        "sha256": "4ccd074c9c124a4e72eabbbd1d0ccacbeb5c6eabb358f7e930b252032c1bfa2c",
+        "status": "passed",
+        "source": "64c72dbc786639ad399e81ca13583263acedaae3",
+        "counts": {
+          "tests": 90,
+          "pass": 90,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "name": "tests-06",
+        "sha256": "3de202b3ab5803d85dab49a828f9b2a2d934ed657a9f4e2d5b6c858c9ec69356",
+        "status": "passed",
+        "source": "64c72dbc786639ad399e81ca13583263acedaae3",
+        "counts": {
+          "tests": 328,
+          "pass": 328,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "name": "tests-07",
+        "sha256": "6029649e610fea8253506c49250158da1babe51b1c7c432b188164b6e1ff5355",
+        "status": "passed",
+        "source": "64c72dbc786639ad399e81ca13583263acedaae3",
+        "counts": {
+          "tests": 141,
+          "pass": 141,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "name": "tests-08",
+        "sha256": "86cf2b811c5e7336a2fe9e2b63fec5a8d938166047f6c1b9fa5b2951e3bae741",
+        "status": "passed",
+        "source": "64c72dbc786639ad399e81ca13583263acedaae3",
+        "counts": {
+          "tests": 170,
+          "pass": 170,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "name": "parity",
+        "sha256": "74be16cdfe0a8a2d1f3a9d8099823d4b94f028877e992beabbde94b5c878f63e",
+        "status": "passed",
+        "source": "64c72dbc786639ad399e81ca13583263acedaae3",
+        "counts": {}
+      },
+      {
+        "name": "orchestration",
+        "sha256": "a5878af2fe5821852841abe00cb8b49d57b4d61d49789f77f18cc7cf60ff6683",
+        "status": "passed",
+        "source": "64c72dbc786639ad399e81ca13583263acedaae3",
+        "counts": {}
+      },
+      {
+        "name": "build",
+        "sha256": "58a02789a234f95a6385ad5ec27117050411bbdabdc4e3bd0f2d53a320d69a37",
+        "status": "passed",
+        "source": "64c72dbc786639ad399e81ca13583263acedaae3",
+        "counts": {}
+      }
+    ],
+    "aggregation": "Only the anchored final outer summary is counted. The initial attempt rejected tests06 because its stdout also contains a nested13-test summary; no tests rerun or receipt changed."
+  },
+  "quality": {
+    "format": "passed for changed application paths",
+    "oxlint": {
+      "status": "failed-inherited",
+      "errors": 329,
+      "warnings": 92,
+      "total": 421
+    },
+    "eslint": {
+      "status": "failed-inherited",
+      "errors": 209,
+      "warnings": 0,
+      "total": 209
+    },
+    "addedDiagnostics": 0,
+    "removedDiagnostics": 0,
+    "comparisonSha256": "43ac8fafdf9a7b895ec7ce49aa5464317d91fad904860bdafdee62112be81c82",
+    "limit": "Scoped base attribution is not a claim of passing strict or global lint."
+  },
+  "routing": {
+    "remainingPlannerUnknown": "app/world-tasks.ts",
+    "reviewedAttribution": "The sole passive-owner delete in clearTaskBindings belongs to movement-orders/orders-portable and the focused housing/human lifecycle checks; source review accepted this mapping."
+  },
+  "ordinary": {
+    "status": "accepted-scoped-result",
+    "acceptedResult": "ordinary04",
+    "images": [
+      {
+        "phase": "entry",
+        "path": "entry-turn303.png",
+        "originalFilename": "resident-1-entry.png",
+        "turn": 303,
+        "rendererFrame": 146,
+        "sha256": "d797d7ab3e73ddd24ee05f10a4ff97352a25cf0c43f1c381376e4bc3ca5426f1",
+        "bytes": 2473643,
+        "width": 1240,
+        "height": 1000,
+        "actorDrawn": true,
+        "capture": "Unchanged PNG from a natural renderer callback; game canvas only, with each frame retaining its actual camera/scene.",
+        "pixelReview": "independently accepted qualitative natural-frame/state correspondence"
+      },
+      {
+        "phase": "resident",
+        "path": "resident-turn370.png",
+        "originalFilename": "resident-1-resident.png",
+        "turn": 370,
+        "rendererFrame": 170,
+        "sha256": "9bb18b16a7fc8987846b6aba9bad153b2bbee7dbbcc1932535e9e4e719aa6121",
+        "bytes": 2498969,
+        "width": 1240,
+        "height": 1000,
+        "actorDrawn": false,
+        "capture": "Unchanged PNG from a natural renderer callback; game canvas only, with each frame retaining its actual camera/scene.",
+        "pixelReview": "independently accepted qualitative natural-frame/state correspondence"
+      },
+      {
+        "phase": "departure",
+        "path": "departure-turn618.png",
+        "originalFilename": "resident-2-departure.png",
+        "turn": 618,
+        "rendererFrame": 106,
+        "sha256": "f502d8fd67824457d385f1d87cddd3a0e4bbe90d45d64b72cff3e491c7f6e4c6",
+        "bytes": 2205404,
+        "width": 1240,
+        "height": 1000,
+        "actorDrawn": true,
+        "capture": "Unchanged PNG from a natural renderer callback; game canvas only, with each frame retaining its actual camera/scene.",
+        "pixelReview": "independently accepted qualitative natural-frame/state correspondence"
+      }
+    ],
+    "attempts": [
+      {
+        "id": "ordinary01",
+        "status": "failed-prerequisite",
+        "source": "439f665e71d6d682993befc57a1b7db79ea8f10c",
+        "receiptSha256": "52b3422a89b1b761ecea82c0623a05295de5ea937d1f1375537b7a1a8cf5f8fb",
+        "reportSha256": "fa7c7ba4015d07785d56879f99e1465fd9e298d2311ca963ee1d705259b08bc9",
+        "outerSha256": "2cc4c37a72c52c32fe83b4e2b72ab86a059eaa69abb8b359ecb4b8d09318a3a9",
+        "reviewSha256": "5bc65f65db024c3edde12a81dd090682e803fa1429dad43803a00ac14bb45eb0",
+        "boundary": "After startup controls, before resident-route input/observers: authored Hut37 was empty at turn151. No causal explanation or successful resident behavior is inferred.",
+        "readiness": {
+          "turn": 149,
+          "inputMask": 0
+        },
+        "hut": {
+          "turn": 151,
+          "id": 37,
+          "hp": 170,
+          "progress": 1,
+          "inside": 0,
+          "physicalSlots": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "checkpointAtStart": null,
+        "checkpointAtEnd": null,
+        "ownedCleanupVerified": true,
+        "continuationVerified": true,
+        "behaviorEvidenceCredited": false
+      },
+      {
+        "id": "ordinary02",
+        "status": "failed-after-observed-admission",
+        "resultReview": "Independent review accepted the failed result and owned cleanup, verified 55 outer bound inputs and both raw log hashes, excluded ID0 reference-count proof, and found no product blocker. A fresh successful ordinary tail is still required.",
+        "source": "2ac846003a7caa46a8f6603a795a909d12c87b7a",
+        "tree": "a2391931460aff9630160d9b3f4d8f436c10c087",
+        "sourceStable": true,
+        "receiptSha256": "d55d5ba83687875e4d17164bb2474c303eff97b26b8ec531da14e63cdcf66e97",
+        "reportSha256": "b1ca6630a6c16e9725a85f88baf322b4586a42b50598b7a9bab435fdc9aaa9ce",
+        "outerSha256": "07c1ec5de9e9706ff00234e8abeae83373a842056920797a91a8233e1265456e",
+        "startedAt": "2026-10-09T11:26:54.032Z",
+        "finishedAt": "2026-10-09T11:28:28.004Z",
+        "durationSeconds": 93.972,
+        "observedInput": {
+          "turn": 336,
+          "trusted": true,
+          "after": {
+            "turn": 336,
+            "lastOrderTurn": 336,
+            "orderId": 0,
+            "order": null
+          }
+        },
+        "observedAdmission": {
+          "turn": 408,
+          "unit": 13,
+          "hut": 37,
+          "slot": 1,
+          "samePerson": true,
+          "activeAbsent": true,
+          "animationAbsent": true,
+          "registered": false,
+          "physicalSlots": [
+            1188,
+            13,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "boundary": "Null order.model dereference at hut-resident.mjs:223 stops the driver before Save/Load/departure. The episode remains failed and incomplete.",
+        "images": [
+          {
+            "sourceFile": "witnessCleanup-entry.png",
+            "turn": 339,
+            "rendererFrame": 135,
+            "sha256": "d3d0ad3f996bd9af2cc6fed00d619297eddf2d8bb6587b58a28ccfbe6e25f49a",
+            "bytes": 2494481,
+            "pixelReview": "pending",
+            "includedInPacket": false
+          },
+          {
+            "sourceFile": "witnessCleanup-resident.png",
+            "turn": 408,
+            "rendererFrame": 168,
+            "sha256": "bcd8a12bbd2e1f57a031931cf1e9e432d7d65b6a73046622257c392165cb4dad",
+            "bytes": 2495023,
+            "pixelReview": "Parent inspected genuine retained scene: Brave no longer drawn outside, consistent with actor:null. No complete-episode acceptance.",
+            "includedInPacket": false
+          }
+        ],
+        "errors": [],
+        "observerErrors": [],
+        "ownedCleanupVerified": true,
+        "continuationVerified": true,
+        "checkpointAtStart": null,
+        "checkpointAtEnd": null,
+        "completeBehaviorEvidenceCredited": false,
+        "sourceAttribution": "Public click sets work37 without command8 allocation; the next world-turn entry consumer creates the command. The driver dereferenced a null synchronous order.",
+        "commandReleaseEvidenceCredited": false,
+        "commandReleaseLimit": "entryOrderReferences0 derived from order ID0 is vacuous and receives no release credit.",
+        "reviewSha256": "04fa2e491b6c2fd0153f86e168b16e5fefa19357d00a5f09a5fce35eec59c299"
+      },
+      {
+        "id": "ordinary03",
+        "status": "failed-after-checkpoint-and-physical-departure",
+        "resultReview": "Independent review accepted the failed-result provenance and confirmed the named partial milestones. Complete ordinary result remains pending.",
+        "source": "55dc10fb43c283ecedff65a5ead2f4bbbe54f5e4",
+        "tree": "6dd74a2d4917a1cea9a11c299637241a61577159",
+        "sourceStable": true,
+        "receiptSha256": "1d7f16b2b1672ef31f0c518d4699382f940d7591375418419b550581e45fc248",
+        "reportSha256": "4ff8739c7f65c6e90f738dc7bb8c938be2623b37097f1083cac093a775ec74b1",
+        "outerSha256": "1fcf36e7a09ddd7aa4a55702bd06217075e360b2598b983895521ab9c71972c5",
+        "startedAt": "2026-10-09T11:39:59.586Z",
+        "finishedAt": "2026-10-09T11:42:08.644Z",
+        "durationSeconds": 129.058,
+        "entryCommand": {
+          "turn": 372,
+          "id": 9,
+          "model": 8,
+          "building": 37,
+          "references": 1,
+          "samePerson": true
+        },
+        "admission": {
+          "turn": 444,
+          "samePerson": true,
+          "entryOrderId": 9,
+          "entryOrderReferences": 0,
+          "hut": 37,
+          "slot": 1
+        },
+        "checkpoint": {
+          "publicSaveTurn": 492,
+          "committedTurn": 492,
+          "inSessionLoadTurn": 492,
+          "allThreeSummariesEqual": true,
+          "digest": "d770ae05c3cd552217c2cd434663e60356504765b553288c2ea866f13387ff33",
+          "scope": "Typed public Save, committed readback and in-session Load; no process-reopen claim."
+        },
+        "departure": {
+          "turn": 636,
+          "key": 13,
+          "samePerson": true,
+          "slotCleared": true,
+          "receiverMatches": true,
+          "returnMatches": true,
+          "registeredSame": true
+        },
+        "movement": {
+          "status": "failed-nativeArrival-gate",
+          "moveDone": false,
+          "moveCompletionRecords": 0,
+          "departureFrameRetained": false,
+          "latestUnit": {
+            "id": 13,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "x": -11,
+            "z": 39,
+            "inside": null,
+            "work": null,
+            "entry": false,
+            "native": true,
+            "pathLength": 0
+          },
+          "limit": "Healthy terminal browser position(-11,39) does not reconstruct the missing failed native snapshot or prove arrival.",
+          "sourceFinding": "The Brave observer includes Shaman-only arrival predicates. The exact conjunct that failed in ordinary03 remains unknown because its failed native snapshot was not retained."
+        },
+        "images": [
+          {
+            "sourceFile": "resident-1-entry.png",
+            "turn": 377,
+            "rendererFrame": 145,
+            "sha256": "f955404b3080fb626ea09c1acc65b28d1ced2a262491a78d8d0a014c6c6a32f0",
+            "bytes": 2499663,
+            "pixelReview": "pending",
+            "includedInPacket": false
+          },
+          {
+            "sourceFile": "resident-1-resident.png",
+            "turn": 444,
+            "rendererFrame": 162,
+            "sha256": "d05f88925deb5d2ff0ff9ea3d6fcb98372d3e81c08ba3b995fa084a2b3ff81fe",
+            "bytes": 2479151,
+            "pixelReview": "pending",
+            "includedInPacket": false
+          }
+        ],
+        "harnessErrors": [],
+        "reportErrors": [],
+        "witnessError": "Brave command ended without native arrival",
+        "scenarioCleanupError": "witnessCleanup retained an assertion reporting the same observer error; this is distinct from the owned-profile cleanup result.",
+        "ownedCleanupVerified": true,
+        "continuationVerified": true,
+        "checkpointAtStart": null,
+        "checkpointAtEndDigest": "d770ae05c3cd552217c2cd434663e60356504765b553288c2ea866f13387ff33",
+        "completeBehaviorEvidenceCredited": false,
+        "reviewSha256": "cd3705e4b9632204398bf600195dd40c1cadc7fdde91b58f1684fe16a66f8850"
+      },
+      {
+        "id": "ordinary04",
+        "status": "passed-independently-accepted",
+        "source": "5d2fa7c342d016c54e833f1d08aa10d1fee445c2",
+        "tree": "e3a0721cfc692bc91d8b9d6a283f8cf27a94f8aa",
+        "sourceStable": true,
+        "receiptSha256": "3a7846c4fb859ea171b5e132d1dbd7a902357e876cfe2c4cd3cde938f831fae8",
+        "reportSha256": "b85b4da8d4f7b913167cc17c87c7d17315571a271b872eb69c232a2c3b52b546",
+        "outerSha256": "daa7ee0879e19b34a82034db227b285b625672894320da388db90f715b24c719",
+        "startedAt": "2026-10-09T11:51:23.623Z",
+        "finishedAt": "2026-10-09T11:53:23.185Z",
+        "durationSeconds": 119.562,
+        "exitCode": 0,
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputTurn": 300,
+        "entryCommand": {
+          "turn": 301,
+          "id": 9,
+          "model": 8,
+          "building": 37,
+          "references": 1,
+          "samePerson": true
+        },
+        "admission": {
+          "turn": 368,
+          "samePerson": true,
+          "entryOrderId": 9,
+          "entryOrderReferences": 0,
+          "hut": 37,
+          "slot": 1,
+          "activeAbsent": true,
+          "animationAbsent": true,
+          "registered": false
+        },
+        "checkpoint": {
+          "publicSaveTurn": 412,
+          "committedTurn": 412,
+          "inSessionLoadTurn": 412,
+          "allThreeSummariesEqual": true,
+          "digest": "b1c52db68a88bcea6473221ebab6903db1c0487454564b794663ac3a1adadd82",
+          "saveObserverClosed": true,
+          "loadObserverClosed": true,
+          "scope": "Separately committed typed IndexedDB readback plus in-session public Load. No fresh-page/process-reopen recovery claim and no cross-World JavaScript identity comparison."
+        },
+        "departure": {
+          "turn": 601,
+          "key": 13,
+          "samePerson": true,
+          "slotCleared": true,
+          "receiverMatches": true,
+          "returnMatches": true,
+          "registeredSame": true
+        },
+        "movement": {
+          "inputTurn": 601,
+          "orderId": 10,
+          "model": 3,
+          "done": true,
+          "completionTurn": 617,
+          "checks": {
+            "queueEmpty": true,
+            "idleTransition": true,
+            "routeOwner": true,
+            "routeCoherent": true,
+            "cadence": true,
+            "uninterrupted": true,
+            "nativeReached": true
+          },
+          "scope": "Separate subsequent Brave command3 completion. It does not establish that the old passive object remains the active movement owner."
+        },
+        "images": [
+          {
+            "phase": "entry",
+            "path": "entry-turn303.png",
+            "originalFilename": "resident-1-entry.png",
+            "turn": 303,
+            "rendererFrame": 146,
+            "sha256": "d797d7ab3e73ddd24ee05f10a4ff97352a25cf0c43f1c381376e4bc3ca5426f1",
+            "bytes": 2473643,
+            "width": 1240,
+            "height": 1000,
+            "actorDrawn": true,
+            "capture": "Unchanged PNG from a natural renderer callback; game canvas only, with each frame retaining its actual camera/scene.",
+            "pixelReview": "independently accepted qualitative natural-frame/state correspondence"
+          },
+          {
+            "phase": "resident",
+            "path": "resident-turn370.png",
+            "originalFilename": "resident-1-resident.png",
+            "turn": 370,
+            "rendererFrame": 170,
+            "sha256": "9bb18b16a7fc8987846b6aba9bad153b2bbee7dbbcc1932535e9e4e719aa6121",
+            "bytes": 2498969,
+            "width": 1240,
+            "height": 1000,
+            "actorDrawn": false,
+            "capture": "Unchanged PNG from a natural renderer callback; game canvas only, with each frame retaining its actual camera/scene.",
+            "pixelReview": "independently accepted qualitative natural-frame/state correspondence"
+          },
+          {
+            "phase": "departure",
+            "path": "departure-turn618.png",
+            "originalFilename": "resident-2-departure.png",
+            "turn": 618,
+            "rendererFrame": 106,
+            "sha256": "f502d8fd67824457d385f1d87cddd3a0e4bbe90d45d64b72cff3e491c7f6e4c6",
+            "bytes": 2205404,
+            "width": 1240,
+            "height": 1000,
+            "actorDrawn": true,
+            "capture": "Unchanged PNG from a natural renderer callback; game canvas only, with each frame retaining its actual camera/scene.",
+            "pixelReview": "independently accepted qualitative natural-frame/state correspondence"
+          }
+        ],
+        "harnessErrors": [],
+        "reportErrors": [],
+        "epochErrors": [
+          [],
+          []
+        ],
+        "epochsClosed": [
+          true,
+          true
+        ],
+        "ownedCleanupVerified": true,
+        "continuationVerified": true,
+        "checkpointAtStart": null,
+        "checkpointAtEndDigest": "b1c52db68a88bcea6473221ebab6903db1c0487454564b794663ac3a1adadd82",
+        "renderLimits": [
+          "Software WebGL fallback/deprecation warnings",
+          "GPU-stall/readPixels warnings",
+          "Three.js texture-update warnings about missing image data",
+          "No hardware GPU performance, original renderer parity, or identical camera framing claim."
+        ],
+        "reviewSha256": "627d2bfcf77be1e73448633387434804fa9aebfd80440e70b73ec6aaa81bad57",
+        "originalReportStatus": "observed-pending-pixel-review",
+        "reviewedOuterInputBindings": 88,
+        "reviewTurnCorrespondence": {
+          "admissionTurn": 368,
+          "residentFrameTurn": 370,
+          "note": "The immutable final verdict used resident frame370 as the admission turn. Its separate accepted correction binds actual admission368 and resident frame370; scope acceptance is unchanged.",
+          "correctionSha256": "2a48fb1af7ec1f0f1a4facb3478635eaa77fc3c9f12463704b201e69c856f1c7"
+        }
+      }
+    ]
+  },
+  "limits": [
+    "Completed ordinary Hut admission only; birth/bootstrap and older saves without the optional field keep the legacy fallback.",
+    "Identity is established at physical removal; later callers that discard the release return have no new continuity guarantee.",
+    "Passive storage does not become active animation, dispatch, cell-list or eligibility ownership.",
+    "Existing health/status masks and timing are retained; no full original hidden-person cadence claim.",
+    "Checkpoint validation covers the tested optional-field/person/slot guards, not arbitrary corrupt-World recovery.",
+    "The public full-Hut Shaman-entry route remains gated by existing training capacity checks; the accepted caller proof uses actual evacuation.",
+    "No Swarm building phase, native shared allocator/slot reuse, original-executable execution, full campaign acceptance, or global parity claim."
+  ],
+  "contentsPolicy": "README, compact summary and three unchanged natural PNGs; no raw receipt, profile, archive, credential, executable or standalone original asset."
+}
