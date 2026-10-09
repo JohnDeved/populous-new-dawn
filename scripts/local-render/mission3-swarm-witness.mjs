@@ -283,7 +283,10 @@ export function attachMissionThreeSwarmObservation(
   const world = scene.world,
     clock = scene.gameClock,
     renderer = scene.renderer,
-    canvas = renderer.domElement
+    canvas = renderer.domElement,
+    root = scene.scene,
+    ground = scene.ground,
+    camera = scene.camera
   const shaman = world.units.find(u => u.id === expected.shamanId),
     target = world.units.find(u => u.id === expected.targetId)
   const e = {
@@ -295,6 +298,7 @@ export function attachMissionThreeSwarmObservation(
     scans: [],
     response: null,
     frames: [],
+    renderObservation: { calls: 0, rejections: {} },
     cue: null,
     audio: 'Cue observation only; audible output and mixer not tested',
     errors: [],
@@ -326,6 +330,9 @@ export function attachMissionThreeSwarmObservation(
         scene.world === world &&
         store.getWorld() === world &&
         scene.gameClock === clock &&
+        scene.scene === root &&
+        scene.ground === ground &&
+        scene.camera === camera &&
         scene.renderer === renderer &&
         renderer.domElement === canvas &&
         canvas.isConnected,
@@ -545,12 +552,58 @@ export function attachMissionThreeSwarmObservation(
     }
     e.latest = after
   }
-  const renderBefore = () => {
+  const rejectRender = (reason, group, sprites = []) => {
+    const prior = e.renderObservation.rejections[reason]
+    if (prior) {
+      prior.count++
+      return null
+    }
+    const source = sprites[0]?.material?.map?.image
+    e.renderObservation.rejections[reason] = {
+      count: 1,
+      first: {
+        turn: world.turn,
+        renderFrame: renderer.info.render.frame,
+        effectId: effect?.id ?? null,
+        effectPresent: world.effects.includes(effect),
+        groupPresent: !!group,
+        groupVisible: group?.visible ?? null,
+        parent: !group?.parent
+          ? 'none'
+          : group.parent === ground
+            ? 'ground'
+            : group.parent === scene.objects
+              ? 'objects'
+              : 'other',
+        children: group?.children.length ?? 0,
+        visibleInsects: sprites.length,
+        texture: source
+          ? { source: source.currentSrc || source.src, width: source.width, height: source.height }
+          : null,
+        camera: scene.cameraPosition && {
+          x: scene.cameraPosition.x,
+          y: scene.cameraPosition.y,
+          angle: scene.cameraPosition.angle,
+        },
+        overviewActive: !!scene.overviewActive,
+      },
+    }
+    return null
+  }
+  const renderBefore = args => {
+    e.renderObservation.calls++
     if (!effect || e.frames.length >= 3 || e.frames.some(f => f.turn === world.turn)) return null
     owner()
     const group = scene.fxMeshes.get(effect.id),
       sprites = group?.children.filter(s => s.visible)
-    if (!group?.visible || group.parent !== scene.objects || !sprites?.length) return null
+    if (args[0] !== root || args[1] !== camera) {
+      rejectRender('render-owner', group, sprites)
+      insist(false, 'Swarm render scene/camera changed')
+    }
+    if (!group) return rejectRender('missing-group', group)
+    if (group.parent !== ground) return rejectRender('wrong-parent', group, sprites)
+    if (!group.visible) return rejectRender('hidden-group', group, sprites)
+    if (!sprites.length) return rejectRender('no-visible-insects', group, sprites)
     const rows = sprites.map(s => ({
       name: s.name,
       nativeSize: s.userData.nativeSize,
@@ -563,7 +616,8 @@ export function attachMissionThreeSwarmObservation(
       width: s.material?.map?.image?.width,
       height: s.material?.map?.image?.height,
     }))
-    if (!rows.every(s => s.width === 32 && s.height === 32)) return null
+    if (!rows.every(s => s.width === 32 && s.height === 32))
+      return rejectRender('texture-not-ready', group, sprites)
     insist(
       group.name === 'swarm-insects' &&
         rows.every(

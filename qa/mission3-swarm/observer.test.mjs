@@ -109,6 +109,9 @@ function fixture() {
   const scene = {
     world,
     objects: {},
+    ground: {},
+    scene: {},
+    camera: {},
     fxMeshes: new Map(),
     gameClock: {
       animationFrame: 0,
@@ -190,7 +193,7 @@ function fixture() {
       })
       world.sounds.push({ serial: ++world.soundSerial, cue: 0xa4, x: 1, z: -1 })
     })
-  const respond = () =>
+  const respond = (supplyMeshes = true) =>
     step(() => {
       Object.assign(world.effects[0].swarm, {
         phase: 'wandering',
@@ -200,23 +203,25 @@ function fixture() {
       target.hp = 45.2
       target.native.state = 26
       target.native.damageAttacker = 0
-      scene.fxMeshes.set(20, {
-        name: 'swarm-insects',
-        visible: true,
-        parent: scene.objects,
-        children: Array.from({ length: 60 }, () => ({
-          name: 'swarm-insect',
+      if (supplyMeshes)
+        scene.fxMeshes.set(20, {
+          name: 'swarm-insects',
           visible: true,
-          userData: { nativePrimitive: 0x11, nativeSize: 7 },
-          position: { x: 0, y: 0, z: 0 },
-          scale: { x: 14, y: 14 },
-          material: {
-            map: { image: { width: 32, height: 32, src: 'http://test/original/insect.png' } },
-          },
-        })),
-      })
+          parent: scene.ground,
+          children: Array.from({ length: 60 }, () => ({
+            name: 'swarm-insect',
+            visible: true,
+            userData: { nativePrimitive: 0x11, nativeSize: 7 },
+            position: { x: 0, y: 0, z: 0 },
+            scale: { x: 14, y: 14 },
+            material: {
+              map: { image: { width: 32, height: 32, src: 'http://test/original/insect.png' } },
+            },
+          })),
+        })
     })
-  const render = () => assert.equal(scene.renderer.render(scene.objects, 'camera'), 'render-result')
+  const render = () =>
+    assert.equal(scene.renderer.render(scene.scene, scene.camera), 'render-result')
   const twoFrames = () => {
     render()
     step(() => world.effects[0].swarm.remaining--)
@@ -343,7 +348,7 @@ test('composed input, natural callback and evidence contracts retain200→199, n
   assert.deepEqual(f.listeners, { before: [], after: [] })
   for (const call of f.calls)
     assert.equal(call.receiver, call.key === 'render' ? f.scene.renderer : f.scene.gameClock)
-  assert.deepEqual(f.calls.find(c => c.key === 'render').args, [f.scene.objects, 'camera'])
+  assert.deepEqual(f.calls.find(c => c.key === 'render').args, [f.scene.scene, f.scene.camera])
 })
 
 test('a cast receipt cannot accept wrong terrain, owner, phase, payment or pointer evidence', () => {
@@ -987,4 +992,115 @@ test('the predeclared ordinary02 point keeps exact movement precision and never 
   assert.equal(probes[0].hit.search.inspected, 8281)
   assert.equal(probes[0].hit.rejectionCounts.aimPrecision, 8281)
   assert.equal(inputs, 0)
+})
+
+test('actual production FX producer composes with the observer and rejects the wrong parent', async t => {
+  // CPU-only supplied World/texture/renderer boundaries. Real Three and the
+  // existing TS loader execute unchanged makeFx/animateFx/updateEffectsFrame
+  // and renderSceneFrame. This does not establish GPU pixels or ordinary play.
+  const { loadSceneFixture } = await import('../../tests/support/bloodlust-scene.mjs')
+  const api = await loadSceneFixture()
+  const THREE = await import('three')
+  const { makeFx, animateFx, updateEffectsFrame } = await import('../../app/scene-effects.ts')
+  const originalLoad = THREE.TextureLoader.prototype.load
+  const requested = []
+  THREE.TextureLoader.prototype.load = function (url, onLoad) {
+    requested.push(url)
+    const loaded = new THREE.Texture({ src: `http://test${url}`, width: 32, height: 32 })
+    queueMicrotask(() => onLoad?.(loaded))
+    return loaded
+  }
+  const f = fixture()
+  Object.assign(f.scene, {
+    scene: new THREE.Scene(),
+    ground: new THREE.Group(),
+    objects: new THREE.Group(),
+    camera: new THREE.PerspectiveCamera(),
+    locate: (group, point, height = 0) => group.position.set(point.x, height, point.z),
+    projectileMotion: { position() {} },
+    releaseGroup: group => group.traverse(object => object.material?.dispose()),
+    view: {
+      painter: {},
+      prepare(root) {
+        assert.equal(root, f.scene.scene)
+      },
+    },
+    worshipPresentation: { rememberBodies() {} },
+  })
+  f.world.land = { flags: 0 }
+  f.scene.scene.add(f.scene.ground)
+  f.scene.ground.add(f.scene.objects)
+  f.scene.makeFx = effect => makeFx(f.scene, effect)
+  f.scene.animateFx = (group, effect) => animateFx(f.scene, group, effect)
+  t.after(() => {
+    f.observer?.finish()
+    for (const group of f.scene.fxMeshes.values()) f.scene.releaseGroup(group)
+    THREE.TextureLoader.prototype.load = originalLoad
+  })
+  f.install()
+  f.release()
+  f.arrival()
+  f.respond(false)
+  const effect = f.world.effects[0]
+  effect.swarm.insects = Array.from({ length: 60 }, (_, index) => ({
+    x: effect.swarm.x + index,
+    y: effect.swarm.y,
+    h: effect.swarm.h + 1,
+  }))
+  updateEffectsFrame(f.scene)
+  const group = f.scene.fxMeshes.get(effect.id)
+  assert.equal(group.parent, f.scene.ground)
+  assert.notEqual(group.parent, f.scene.objects)
+  assert.equal(group.children.length, 60)
+  assert.ok(group.children.every(sprite => sprite instanceof THREE.Sprite))
+  assert.deepEqual(requested, ['/original/insect.png'])
+  const render = () => api.renderSceneFrame(f.scene, null, undefined)
+  // Wrong-parent negative uses the real producer's group, not a handcrafted mesh.
+  f.scene.objects.add(group)
+  render()
+  assert.equal(f.observer.evidence.frames.length, 0)
+  f.scene.ground.add(group)
+  render()
+  f.step(() => effect.swarm.remaining--)
+  updateEffectsFrame(f.scene)
+  render()
+  const evidence = f.observer.finish()
+  assert.equal(evidence.frames.length, 2)
+  assert.equal(evidence.renderObservation.rejections['wrong-parent'].count, 1)
+  assert.equal(evidence.renderObservation.rejections['wrong-parent'].first.parent, 'objects')
+  assert.ok(evidence.frames.every(frame => frame.visibleInsects === 60))
+  assert.ok(
+    f.calls
+      .filter(call => call.key === 'render')
+      .every(call => call.args[0] === f.scene.scene && call.args[1] === f.scene.camera)
+  )
+  assert.deepEqual(evidence.errors, [])
+  assertMissionThreeSwarmEvidence(evidence)
+})
+
+test('render rejections keep one detached sample per reason and preserve original render calls', () => {
+  const f = fixture()
+  f.install()
+  f.release()
+  f.arrival()
+  f.respond()
+  const group = f.scene.fxMeshes.get(20)
+  group.parent = f.scene.objects
+  for (let count = 0; count < 8; count++) f.render()
+  const rejected = f.observer.evidence.renderObservation.rejections['wrong-parent']
+  assert.equal(rejected.count, 8)
+  assert.equal(rejected.first.parent, 'objects')
+  assert.equal(Object.keys(rejected).length, 2)
+  group.parent = f.scene.ground
+  assert.equal(rejected.first.parent, 'objects', 'Retained diagnostics are detached scalar data')
+  group.children[0].material.map.image.width = 0
+  f.render()
+  assert.equal(f.observer.evidence.renderObservation.rejections['texture-not-ready'].count, 1)
+  group.children[0].material.map.image.width = 32
+  assert.equal(f.scene.renderer.render(f.scene.scene, {}), 'render-result')
+  const evidence = f.observer.finish()
+  assert.equal(evidence.frames.length, 0)
+  assert.match(evidence.errors.join('\n'), /render scene\/camera changed/)
+  assert.equal(evidence.renderObservation.rejections['render-owner'].count, 1)
+  assert.equal(f.calls.filter(call => call.key === 'render').length, 10)
 })
