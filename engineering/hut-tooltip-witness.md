@@ -40,8 +40,11 @@ command as observation.
 The agreed actual seams are `updateTooltipController(now)` once per existing
 updateFlyby tick, `acquireForcedTooltip(object,duration)`, the data-only
 `tooltipController`, and DOM-free `objectPanels.hutRecords`. Every real tick is
-captured separately, including multiple ticks sharing one RAF timestamp. Turns,
-animation frames, renderer frames and request handles remain separate values.
+captured separately, including multiple ticks sharing one RAF timestamp. Actual
+pointer results retain the first result per phase and each changed result,
+coordinate or route; counts retain omitted identical frames. Frame/RAF counters
+are not deduplication keys. Turns, animation frames, renderer frames and request
+handles remain separate values.
 
 Tooltip canvas pixels are captured after the real tooltip paint; world pixels
 after the actual main renderer return; panel canvas pixels after the later HUD
@@ -55,8 +58,11 @@ ordinary blank ground at(-11,39); Escape; DAT42 hover and same-interior movement
 stationary right down/up; Blast leave; authored unnamed tree20; Hut return;
 settings/Save/Continue Game/Resume; settings/Load; new-scene Hut hover. It uses a
 fresh ephemeral context, normal speed and natural RAF, with a 60-second startup,
-180-second total admission deadline, 12-second phase bounds, 8192 records and
-eight capture groups. No replay, panel suppression, pointer chasing, new objects,
+180-second total admission deadline, 12-second witness-phase waits, inherited
+Mission1VaultInput helper waits of up to45 seconds, 8192 records and eight capture
+groups. All inherited waits remain clipped to the same global deadline; no
+uncancelled operation is raced to impose a different bound. No replay, panel
+suppression, pointer chasing, new objects,
 world/clock manipulation, dependency or browser setup is added.
 
 ## Checkpoint and cleanup contract
@@ -83,7 +89,8 @@ stopping the next game callback.
 
 The cheap helper tests execute the exact shipped start and beginLoad bodies with
 supplied browser boundaries. They cover startup ordering, same-RAF multi-tick and
-forced-edge capture, distinct canvas paint owners, typed checkpoint capture,
+forced-edge capture, distinct canvas paint owners, supplied Save-publication
+typed-clone capture (not execution of saveCheckpoint),
 menu labels/resume, disposal/session continuity and cleanup failures. This is
 observer/helper composition evidence, not browser pixels or runtime-controller
 acceptance. No browser, native executable, dependency installation, full check or

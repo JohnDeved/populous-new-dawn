@@ -69,7 +69,8 @@ export function installHutTooltipLifecycle(GameScene, observeEntityPointer, { de
   const attach = scene => {
     check(epochs.length < 2, 'Ordinary Hut episode permits entry and one Load scene only')
     const epoch = { id: epochs.length + 1, scene, wrappers: [], listeners: [], disposed: false, closed: false,
-      initial: state(scene), lastState: null, lastPaint: null, delivered: null, captureEvents: [] }
+      initial: state(scene), lastState: null, lastPaint: null, delivered: null,
+      omittedIdenticalPointerFrames: 0, omittedSincePointerRecord: 0 }
     epochs.push(epoch)
     // start has already installed shipped listeners, but the same JS call stack
     // has not returned to RAF. Passive bubble listeners therefore follow input.
@@ -106,7 +107,7 @@ export function installHutTooltipLifecycle(GameScene, observeEntityPointer, { de
           duration: args[1], receiverMatches: this === scene, before, after: snapshot() }))
         return result
       })
-      let picking = null
+      let picking = null, lastPointerSignature = null
       wrap(scene.picking, 'pick', original => function (...args) {
         const result = original.apply(this, args)
         if (picking) observe(() => picking.push({ id: result, x: args[0]?.clientX, y: args[0]?.clientY, receiverMatches: this === scene.picking }))
@@ -118,7 +119,20 @@ export function installHutTooltipLifecycle(GameScene, observeEntityPointer, { de
         try { result = original.apply(this, args) }
         catch (e) { picking = null; throw e }
         const picks = picking; picking = null
-        observe(() => { if (picks.length) add({ kind: 'pointer-frame', epoch: epoch.id, picks, after: snapshot() }) })
+        observe(() => {
+          if (!picks.length) return
+          const input = scene.tooltipInput
+          const signature = JSON.stringify([phase, picks, input?.route ?? null, input?.object?.id ?? null,
+            input?.cell ?? null, input?.hud?.owner ?? null, input?.message ?? 0])
+          if (signature === lastPointerSignature) {
+            epoch.omittedIdenticalPointerFrames++; epoch.omittedSincePointerRecord++
+            return
+          }
+          lastPointerSignature = signature
+          add({ kind: 'pointer-frame', epoch: epoch.id, picks, after: snapshot(),
+            omittedIdenticalBefore: epoch.omittedSincePointerRecord })
+          epoch.omittedSincePointerRecord = 0
+        })
         return result
       })
       wrap(scene, 'renderTooltip', original => function (...args) {
@@ -206,7 +220,8 @@ export function installHutTooltipLifecycle(GameScene, observeEntityPointer, { de
     phaseInspections: records.filter(row => row.phase === phase && row.kind === 'tick')
       .flatMap(row => row.after.controller?.lastVisit?.inspection ?? []),
     elapsedMs: performance.now() - initial, captures: Object.fromEntries(Object.entries(frames).map(([key, value]) => [key, !!value.panel])),
-    epochs: epochs.map(e => ({ id: e.id, initial: e.initial, state: e.lastState, paint: e.lastPaint, disposed: e.disposed, closed: e.closed })) })
+    epochs: epochs.map(e => ({ id: e.id, initial: e.initial, state: e.lastState, paint: e.lastPaint, disposed: e.disposed, closed: e.closed,
+      omittedIdenticalPointerFrames: e.omittedIdenticalPointerFrames })) })
   return {
     phase(label, when = null) {
       check(!closed && !errors.length, 'Hut observation unavailable')
@@ -219,7 +234,8 @@ export function installHutTooltipLifecycle(GameScene, observeEntityPointer, { de
     },
     status: summary,
     read() { return structuredClone({ ...summary(), records, frames, epochs: epochs.map(e => ({ id: e.id, initial: e.initial,
-      lastState: e.lastState, disposed: e.disposed, closed: e.closed, delivered: e.delivered })) }) },
+      lastState: e.lastState, disposed: e.disposed, closed: e.closed, delivered: e.delivered,
+      omittedIdenticalPointerFrames: e.omittedIdenticalPointerFrames, omittedSincePointerRecord: e.omittedSincePointerRecord })) }) },
     close() {
       if (!closed) {
         for (const epoch of epochs) epoch.finish()

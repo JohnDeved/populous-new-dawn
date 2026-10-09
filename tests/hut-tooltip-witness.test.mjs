@@ -25,7 +25,7 @@ function fixture({ pointerFailure = false, failPixels = false } = {}) {
       this.mini = {}; this.scene = {}; this.camera = {}; this.tooltipCanvas = canvas
       this.tooltipElement = { hidden: true, style: {}, getAttribute: () => this.tooltip.text }
       this.renderer = { domElement: canvas, info: { render: { frame: 0 } }, render() { this.info.render.frame++; return originalReturn } }
-      this.picking = { pick: () => 37 }; this.animate = () => {}
+      this.fixturePick = 37; this.picking = { pick: () => this.fixturePick }; this.animate = () => {}
     }
     updateTooltipController(now) {
       this.tooltipController.session.visits++
@@ -35,7 +35,7 @@ function fixture({ pointerFailure = false, failPixels = false } = {}) {
       return originalReturn
     }
     acquireForcedTooltip(object, duration) { this.tooltip.remaining = duration; return object }
-    updatePointerFrame() { this.hoveredObject = this.picking.pick({ clientX: 40, clientY: 50 }) }
+    updatePointerFrame(event = { clientX: 40, clientY: 50 }) { this.hoveredObject = this.picking.pick(event) }
     renderTooltip() { this.tooltipElement.hidden = !this.tooltip.draw; return originalReturn }
     updateHudFrame() { return originalReturn }
     dispose() { this.disposed = true; this.objectPanels.hutRecords.clear() }
@@ -90,6 +90,28 @@ test('separate natural paint owners retain same-RAF tooltip, WebGL and later HUD
     assert.equal(frame.tooltip.state.rendererFrame, 0); assert.equal(frame.world.state.rendererFrame, 1)
     assert.equal(frame.panel.state.rendererFrame, 1); assert.equal(frame.panel.hidden, false)
     assert.equal(api.status().captures.named, true)
+  } finally { api?.close(); f.restore() }
+})
+
+test('repeated identical picks stay bounded while changed results, coordinates, route and phase remain actual records', () => {
+  const f = fixture(); let api
+  try {
+    api = installHutTooltipLifecycle(f.Scene, f.observe, { deadlineAt: Date.now() + 10000 })
+    const scene = new f.Scene(); scene.start(); scene.tooltipInput = { route: 'world', object: { id: 37 }, cell: 1 }
+    scene.updatePointerFrame()
+    for (let frame = 1; frame <= 100; frame++) {
+      scene.frame = frame; scene.previous = frame * 3; scene.world.turn = frame; scene.renderer.info.render.frame = frame
+      scene.updatePointerFrame()
+    }
+    scene.fixturePick = 20; scene.updatePointerFrame()
+    scene.updatePointerFrame({ clientX: 41, clientY: 50 })
+    scene.tooltipInput.route = 'outside'; scene.updatePointerFrame({ clientX: 41, clientY: 50 })
+    api.phase('new phase'); scene.updatePointerFrame({ clientX: 41, clientY: 50 })
+    const data = api.read(), picks = data.records.filter(row => row.kind === 'pointer-frame')
+    assert.equal(picks.length, 5); assert.equal(data.epochs[0].omittedIdenticalPointerFrames, 100)
+    assert.equal(picks[1].omittedIdenticalBefore, 100)
+    assert.deepEqual(picks.map(row => [row.picks[0].id, row.picks[0].x]), [[37, 40], [20, 40], [20, 41], [20, 41], [20, 41]])
+    assert.equal(picks.at(-1).phase, 'new phase')
   } finally { api?.close(); f.restore() }
 })
 

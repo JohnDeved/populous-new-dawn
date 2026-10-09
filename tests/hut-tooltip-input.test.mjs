@@ -54,7 +54,7 @@ test('public modal closure matches the actual arrow name and explicitly resumes'
   assert.deepEqual(calls, ['Continue Game ↗', 'Resume game'])
 })
 
-test('Save boundary captures the actual synchronous post-rebuild publication with typed values', async () => {
+test('supplied Save publication preserves the typed clone and its immutable digest', async () => {
   const f = checkpointFixture('save'); let api
   try {
     api = installHutCheckpointBoundary({ kind: 'save' }); f.publish()
