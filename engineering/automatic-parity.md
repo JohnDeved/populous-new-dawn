@@ -68,10 +68,27 @@ before sorting, with a10,000-entry traversal limit. A fixed-depth Node compile-c
 shape under a direct `*-tmp` child is excluded only after a bounded metadata probe
 proves all descendants have non-JSON cache filenames; unexpected JSON, nesting,
 symlinks, changed metadata or probe exhaustion falls back to ordinary discovery.
-Sequential JSON reads have a64MiB per-file and256MiB aggregate actual-byte budget.
-File changes, malformed UTF-8/JSON and oversize remain warnings; aggregate/traversal
-exhaustion aborts without partial scores. These limits bound input, not peak memory
-or runtime. Selected owned-adapter sidecar reads keep their separate4MiB limit. Oversized/invalid JSON makes
+Whole-object JSON reads have a 64 MiB per-file limit. Oversized discovery inputs
+instead receive complete streaming UTF-8/JSON validation through EOF, retaining only
+`kind`, `status`, `parityMeasurements`, `identity`, `verification`, `command` and
+`source`. Every raw byte still counts toward the unchanged 256 MiB aggregate limit.
+Reader-owned projection metadata cannot be supplied by JSON. Oversized owned
+checkpoint/Blast/reference candidates remain warnings because their adapters require
+the complete outer object and raw stream attestations; their 4 MiB input limits stay
+unchanged. A malformed or uninspected attempt cannot expose an older pass.
+
+Streaming is additionally bounded to 64 KiB chunks, 4 MiB retained metadata per file
+and 16 MiB total, depth 128, sixteen million grammar tokens per file and thirty-two
+million total, 4,096 root keys of at most 16 KiB decoded each, and 128-byte numeric
+tokens. Duplicate decoded root keys fail closed; nested captured values preserve
+`JSON.parse` semantics. Discarded strings have no separate allocation and remain
+subject to raw-byte, token and time budgets. File/traversal time limits are 30/120
+seconds. File identity is checked around reads, and successful streamed reads retain
+the raw SHA-256. None of these reads rewrites source evidence or awards new parity.
+File changes, malformed UTF-8/JSON and unsupported owned size remain warnings;
+aggregate/traversal exhaustion aborts without partial scores. These conservative
+input/work bounds are not peak-memory or hardware-performance claims. Selected
+owned-adapter sidecar reads keep their separate 4 MiB limit. Invalid/uninspected JSON makes
 measurement incomplete rather than hiding a possibly newer failed receipt. Refresh
 errors replace the current report with an unavailable notice while preserving history. Old
 arbitrary logs and summaries are not accepted as results. Receipts are trusted local

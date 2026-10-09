@@ -1,6 +1,8 @@
 // Bounded filesystem reads for evidence discovery. No receipt interpretation here.
 import fs from 'node:fs'
+import { createHash } from 'node:crypto'
 import { basename, dirname, resolve } from 'node:path'
+import { MetadataError, MetadataParser, checkMetadataTime, createMetadataBudget } from './parity-json-metadata.mjs'
 
 export const RECEIPT_ENTRY_LIMIT = 10000
 export const RECEIPT_FILE_LIMIT = 64 * 1024 * 1024
@@ -16,13 +18,79 @@ function reducedLimit(value, maximum) {
   return value
 }
 
-export function createJsonBudget({ fileLimit = RECEIPT_FILE_LIMIT, totalLimit = RECEIPT_TOTAL_LIMIT } = {}) {
+export function createJsonBudget({ fileLimit = RECEIPT_FILE_LIMIT, totalLimit = RECEIPT_TOTAL_LIMIT,
+  streamLimits = {}, now } = {}) {
   return { fileLimit: reducedLimit(fileLimit, RECEIPT_FILE_LIMIT),
-    totalLimit: reducedLimit(totalLimit, RECEIPT_TOTAL_LIMIT), bytesRead: 0 }
+    totalLimit: reducedLimit(totalLimit, RECEIPT_TOTAL_LIMIT), bytesRead: 0,
+    stream: createMetadataBudget(streamLimits, now) }
 }
 
 const sameFile = (a, b) => ['dev', 'ino', 'mode', 'size', 'mtimeNs', 'ctimeNs'].every(key => a[key] === b[key])
 const metadata = path => fs.lstatSync(path, { bigint: true })
+
+function readError(error) {
+  if (error instanceof DiscoveryLimitError || error instanceof DiscoveryReadError) return error
+  if (error instanceof MetadataError)
+    return error.fatal ? new DiscoveryLimitError(error.message) : new DiscoveryReadError(error.message)
+  return new DiscoveryReadError('unreadable')
+}
+
+export function checkDiscoveryTime(budget) {
+  try { checkMetadataTime(budget.stream) } catch (error) { throw readError(error) }
+}
+
+// The mode is generated here, never read from JSON. Projected owned candidates
+// cannot satisfy the existing adapters' complete outer/raw-stream attestations.
+export function readDiscoveryRecord(path, budget) {
+  try {
+    checkDiscoveryTime(budget)
+    if (metadata(path).size <= BigInt(budget.fileLimit))
+      return { projected: false, value: readDiscoveryJson(path, budget) }
+    return readMetadata(path, budget)
+  } catch (error) { throw readError(error) }
+}
+
+function readMetadata(path, budget) {
+  let fd
+  try {
+    const before = metadata(path)
+    if (!before.isFile()) throw new DiscoveryReadError('not a regular file')
+    if (before.size > BigInt(budget.totalLimit - budget.bytesRead))
+      throw new DiscoveryLimitError('Receipt JSON byte limit reached; no partial report written')
+    fd = fs.openSync(path, fs.constants.O_RDONLY | fs.constants.O_NOFOLLOW | fs.constants.O_NONBLOCK)
+    if (!sameFile(before, fs.fstatSync(fd, { bigint: true })) || !sameFile(before, metadata(path)))
+      throw new DiscoveryReadError('changed during read')
+    const parser = new MetadataParser(budget.stream), decoder = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }),
+      bytes = Buffer.allocUnsafe(budget.stream.limits.chunkBytes), hash = createHash('sha256')
+    let offset = 0
+    while (offset < Number(before.size)) {
+      checkMetadataTime(budget.stream, parser.started)
+      const read = fs.readSync(fd, bytes, 0, Math.min(bytes.length, Number(before.size) - offset), offset)
+      budget.bytesRead += read
+      if (budget.bytesRead > budget.totalLimit)
+        throw new DiscoveryLimitError('Receipt JSON byte limit reached; no partial report written')
+      if (!read) throw new DiscoveryReadError('changed during read')
+      offset += read
+      const chunk = bytes.subarray(0, read)
+      hash.update(chunk)
+      let text
+      try { text = decoder.decode(chunk, { stream: true }) } catch { throw new DiscoveryReadError('invalid JSON UTF-8') }
+      parser.write(text)
+    }
+    const extra = fs.readSync(fd, bytes, 0, 1, offset)
+    budget.bytesRead += extra
+    if (budget.bytesRead > budget.totalLimit)
+      throw new DiscoveryLimitError('Receipt JSON byte limit reached; no partial report written')
+    if (extra || !sameFile(before, fs.fstatSync(fd, { bigint: true })) || !sameFile(before, metadata(path)))
+      throw new DiscoveryReadError('changed during read')
+    try { parser.write(decoder.decode()) } catch (error) {
+      if (error instanceof MetadataError) throw error
+      throw new DiscoveryReadError('invalid JSON UTF-8')
+    }
+    return { projected: true, value: parser.finish(), rawSha256: hash.digest('hex') }
+  } catch (error) { throw readError(error) }
+  finally { if (fd !== undefined) fs.closeSync(fd) }
+}
 
 export function readDiscoveryJson(path, budget) {
   reducedLimit(budget.fileLimit, RECEIPT_FILE_LIMIT)
@@ -43,6 +111,7 @@ export function readDiscoveryJson(path, budget) {
     const size = Number(before.size), bytes = Buffer.allocUnsafe(size)
     let offset = 0
     while (offset < size) {
+      checkDiscoveryTime(budget)
       const read = fs.readSync(fd, bytes, offset, Math.min(1024 * 1024, size - offset), offset)
       budget.bytesRead += read
       if (read === 0) throw new DiscoveryReadError('changed during read')
@@ -50,14 +119,16 @@ export function readDiscoveryJson(path, budget) {
     }
     if (!sameFile(before, fs.fstatSync(fd, { bigint: true })) || !sameFile(before, metadata(path)))
       throw new DiscoveryReadError('changed during read')
+    let value
     try {
-      return JSON.parse(new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes))
+      value = JSON.parse(new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes))
     } catch {
       throw new DiscoveryReadError('invalid JSON')
     }
+    checkDiscoveryTime(budget)
+    return value
   } catch (error) {
-    if (error instanceof DiscoveryLimitError || error instanceof DiscoveryReadError) throw error
-    throw new DiscoveryReadError('unreadable')
+    throw readError(error)
   } finally {
     if (fd !== undefined) fs.closeSync(fd)
   }

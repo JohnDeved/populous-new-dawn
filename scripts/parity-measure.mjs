@@ -7,7 +7,7 @@ import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from '
 import { relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { fingerprintPaths, safeRepoPath } from './orchestration/cli.mjs'
-import { RECEIPT_ENTRY_LIMIT, DiscoveryLimitError, boundedDirectoryEntries, createJsonBudget, readDiscoveryJson, verifiedNodeCompileCache } from './parity-discovery.mjs'
+import { RECEIPT_ENTRY_LIMIT, DiscoveryLimitError, boundedDirectoryEntries, checkDiscoveryTime, createJsonBudget, readDiscoveryRecord, verifiedNodeCompileCache } from './parity-discovery.mjs'
 import { ORDINARY_M2, isOrdinaryCheckpointCandidate, readOrdinaryCheckpoint, selectOrdinaryCheckpoint } from './parity-owned-checkpoint.mjs'
 import { BLAST_BINDINGS, BLAST_REFERENCE, isOrdinaryBlastCandidate, readOrdinaryBlast, selectOrdinaryBlast, isBlastReferenceCandidate, readBlastReference, selectBlastReference } from './parity-owned-blast.mjs'
 
@@ -173,6 +173,7 @@ export function discoverReceipts(repo) {
   const budget = createJsonBudget()
   function walk(directory) {
     for (const entry of boundedDirectoryEntries(directory, RECEIPT_ENTRY_LIMIT - count)) {
+      checkDiscoveryTime(budget)
       if (++count > RECEIPT_ENTRY_LIMIT) throw new DiscoveryLimitError('Receipt discovery limit reached; no partial report written')
       if (entry.isSymbolicLink()) continue
       const path = resolve(directory, entry.name), local = relative(repo, path)
@@ -181,11 +182,12 @@ export function discoverReceipts(repo) {
         if (!verifiedNodeCompileCache(path, root)) walk(path)
       }
       else if (entry.isFile() && entry.name.endsWith('.json')) {
-        let value
-        try { value = readDiscoveryJson(path, budget) } catch (error) {
+        let record
+        try { record = readDiscoveryRecord(path, budget) } catch (error) {
           if (error instanceof DiscoveryLimitError) throw error
           warnings.push(`Not inspected (${error.message}): ${local}`); continue
         }
+        const value = record.value
         let measurements
         if (value.kind === 'pnd-command-receipt') {
           measurements = value.parityMeasurements?.map(e => ({ ...e, status: value.status === e.status ? e.status : 'invalidated' }))
@@ -194,6 +196,10 @@ export function discoverReceipts(repo) {
             .map(e => ({ ...e, status: result.status === e.status ? e.status : 'invalidated' })))
         }
         const owned = isOrdinaryCheckpointCandidate(value) || BLAST_BINDINGS.some(binding => isOrdinaryBlastCandidate(value, binding)) || isBlastReferenceCandidate(value)
+        if (record.projected && owned) {
+          warnings.push(`Not inspected (oversized owned receipt requires complete raw validation): ${local}`)
+          continue
+        }
         if (Array.isArray(measurements) || owned)
           receipts.push({ path: local, measurements: measurements ?? [],
             ...(owned ? { commandReceipt: value } : {}) })
@@ -203,6 +209,7 @@ export function discoverReceipts(repo) {
   // Only an initially absent root is empty evidence. A vanished nested directory
   // may have held a newer failure and must abort instead of returning a partial scan.
   if (existsSync(root)) walk(root)
+  checkDiscoveryTime(budget)
   return { receipts, warnings }
 }
 
