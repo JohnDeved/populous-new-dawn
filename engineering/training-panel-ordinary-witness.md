@@ -26,13 +26,13 @@ After construction, clear selection, expose Blast, inspect the public Save contr
 once while training is inactive, resume and prepare the actual camp point. Move to
 Blast and await empty record/latch/DOM/reservation ownership. Ordinary unmodified
 `Select brave` chooses one person (`chooseFollowers` uses single mode). One trusted
-camp click gives that Brave shared order model8; immediately move to Blast.
+camp click gives that Brave shared order model 8; immediately move to Blast.
 Require the actual pointer-up snapshot's registered `entry.person` identity,
-eight command slots, shared pool identity, model8 target and reference count1.
+eight command slots, shared pool identity, model 8 target and reference count 1.
 
 Capture the actual automatic callback synchronously before conversion. Require
 new record -1/0/16, latch, exactly one reservation and no DOM yet. Observe four
-real phase1 visits at remaining15 with pointer/control focus away. Save active
+real phase1 visits at remaining 15 with pointer/control focus away. Save active
 pre-conversion state using the public paused menu, await the exact typed committed
 IDB hash, then Load immediately. Check same-Scene record survival on Save; old
 Scene disposal; new empty record/latch/reservation ownership and retained Page T.
@@ -43,18 +43,18 @@ record removal and reservation/DOM release. Retain active and released composite
 
 The construction cohort remains nine Braves. Training all nine adds several
 batches without improving the ownership claim. At zero existing Warriors,
-`nativeTrainingCost(0,3,2,1)` is3500. Eight idle Braves, one working Brave and the
+`nativeTrainingCost(0,3,2,1)` is 3500. Eight idle Braves, one working Brave and the
 Shaman generate floor((8×4+15+30)×320/256)=96 mana every four turns. The first
-distribution pass gives the only training building48; retaining a costly spell
+distribution pass gives the only training building 48; retaining a costly spell
 charging prevents reliance on the more favorable second pass. Actual composed
-`generateFollowerMana` and `distributeMana` bodies reach3500 on turn292, or
-24.333 seconds at12 turns/second, starting with zero available/stored mana.
+`generateFollowerMana` and `distributeMana` bodies reach 3500 on turn 292, or
+24.333 seconds at 12 turns/second, starting with zero available/stored mana.
 This source test is not an ordinary game run. It does not bound walking, startup,
 renderer throughput, interruptions or scene setup.
 
 The live pre-order read records the actual roster, generated mana, tribe, cost,
 storage and trained count. It requires at least nine living Braves, one Shaman,
-zero Warriors, single cost3500 and idle generation at least82. Input requires one
+zero Warriors, single cost 3500 and idle generation at least 82. Input requires one
 actual selected Brave. Travel, changed roster or active-Save timing failure is an
 unmet prerequisite, not permission to manufacture mana/activity or widen the run.
 
@@ -92,9 +92,9 @@ Cheap CPU4 Node contracts cover existing construction/manual helpers, real
 adoptLiveOrders transfer composed with the passive pointer observer, synchronous
 callback detachment before later mutation, wrapper return/throw/restoration,
 source-derived funding and typed checkpoint comparison. First combined run:
-26 passed,1 import failure because carried Hut input tests required the unchanged
-Hut scenario; the missing source was then carried from191c37ae. Second run:
-39 passed,0 failed. This preserves the failed preparation attempt.
+26 passed, 1 import failure because carried Hut input tests required the unchanged
+Hut scenario; the missing source was then carried from 191c37ae. Second run:
+39 passed, 0 failed. This preserves the failed preparation attempt.
 
 No browser, build, full tests, npm install, dependency transfer or native probe has
 run in this QA worktree. Browser execution requires the coordinator's lane and
