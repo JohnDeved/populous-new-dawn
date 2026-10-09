@@ -224,7 +224,8 @@ test('Temple automatic renewal and phase2 reuse preserve clocks while held contr
 
 test('Temple automatic identity rejects mismatched native class/model and retires a dead owner', async t => {
   const { scene, world, temple } = await templePanelFixture(t),
-    { stepLiveTraining } = await import('../app/live-building-entry.ts')
+    { stepLiveTraining } = await import('../app/live-building-entry.ts'),
+    { requestTrainingPanel } = await import('../app/training-panel-requests.ts')
   startScene(t, scene)
   temple.admission.activity |= 0x80
   temple.admission.class = 9
@@ -232,7 +233,9 @@ test('Temple automatic identity rejects mismatched native class/model and retire
   assert.equal(records(scene).has(temple.id), false)
   temple.admission.class = 2
   temple.admission.model = 7
-  stepLiveTraining(world, temple)
+  // buildingAdmission restores model from kind before the simulation callback.
+  // Exercise this supplied malformed identity at the real bound consumer seam.
+  requestTrainingPanel(world, temple.id)
   assert.equal(records(scene).has(temple.id), false, 'Temple kind cannot impersonate camp model7')
   temple.admission.model = 5
   temple.admission.tribe = 1
