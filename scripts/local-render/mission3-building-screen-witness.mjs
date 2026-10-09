@@ -189,7 +189,8 @@ export function installMission3BuildingScreenWitness({
         atlas.source === surface.atlasSource.source,
       'Acquisition atlas clone/uniform owner changed'
     )
-    const uv = [...surface.uv.array.slice(0, surface.geometry.drawRange.count * 2)]
+    const submittedUv = surface.uv.array.slice(0, surface.geometry.drawRange.count * 2)
+    const uv = [...submittedUv]
     const current = presentation.bridge.measure(command.model, command.geometry),
       shell = scene.container.parentElement
     check(current, 'Actual screen target measurement disappeared')
