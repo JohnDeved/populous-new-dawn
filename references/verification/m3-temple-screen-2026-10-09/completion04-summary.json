@@ -1,0 +1,262 @@
+{
+  "kind": "bounded-ordinary-m3-completion-summary",
+  "outcome": "passed",
+  "product": "9d88d72126f64b96500b596792b7b938fc594aad",
+  "qa": "0456d44b189a838905622801b4888c7e70ac12e8",
+  "applicationTree": "b0b7f78c6292c202fe5ef7dfff794abac5d81727",
+  "innerReceiptSha256": "346bf4e65514037bbd32cfbae3cd0dd8d8da5c64bc91f8dc50758e6424c9d1e6",
+  "outerReceiptSha256": "f69c3f18fa546c4b7560ea261513f3ec468eaed5b6acab89edee332c4235d5c1",
+  "reportSha256": "7023ac1cd391ba63f07cb5926c6d89bc62a3092d0148e9c5232adafbd418f3d8",
+  "startedAt": "2026-10-09T02:26:47.752Z",
+  "finishedAt": "2026-10-09T02:29:29.944Z",
+  "proofAccepted": true,
+  "sourceRuntimeScenarioUnchanged": true,
+  "cleanupVerified": true,
+  "continuationVerified": true,
+  "browserErrors": [],
+  "warningCount": 9,
+  "temple": {
+    "id": 1021,
+    "kind": "temple",
+    "team": "blue",
+    "object": 95,
+    "x": 24.99609375,
+    "z": 71.07421875,
+    "hp": 260,
+    "progress": 1,
+    "logs": 8,
+    "stage": 4,
+    "builders": [
+      522,
+      303,
+      300,
+      306,
+      312,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "shaman": {
+    "id": 46,
+    "kind": "shaman",
+    "hp": 100,
+    "x": 34.890625,
+    "z": 69.91796875
+  },
+  "presentation": {
+    "id": 1021,
+    "frame": 1254,
+    "signature": "95-4-p",
+    "visible": true,
+    "meshes": [
+      {
+        "nativeModel": 95,
+        "stage": 4,
+        "visible": true,
+        "material": "MeshBasicMaterial",
+        "texture": "http://127.0.0.1:4191/original/temple-model-p.png",
+        "imageWidth": 256,
+        "imageHeight": 1024,
+        "colorSpace": "",
+        "minFilter": 1006,
+        "magFilter": 1006,
+        "vertices": 666
+      }
+    ],
+    "screen": {
+      "x": 818.1875,
+      "y": 389.0625
+    },
+    "canvasOwned": true,
+    "viewport": {
+      "width": 1440,
+      "height": 1000,
+      "dpr": 1
+    }
+  },
+  "worldTempleSamples": [
+    {
+      "id": 1021,
+      "hp": 260,
+      "logs": 8,
+      "x": 24.99609375,
+      "z": 71.07421875,
+      "turn": 2618,
+      "resource": {
+        "bank": "p",
+        "epoch": 1,
+        "counter": 6,
+        "tile": 102
+      },
+      "offset": [
+        0.25,
+        -0.03125
+      ],
+      "src": "http://127.0.0.1:4191/original/temple-model-p.png",
+      "beforeFrame": 1196,
+      "afterFrame": 1197
+    },
+    {
+      "id": 1021,
+      "hp": 260,
+      "logs": 8,
+      "x": 24.99609375,
+      "z": 71.07421875,
+      "turn": 2620,
+      "resource": {
+        "bank": "p",
+        "epoch": 1,
+        "counter": 4,
+        "tile": 100
+      },
+      "offset": [
+        0,
+        -0.03125
+      ],
+      "src": "http://127.0.0.1:4191/original/temple-model-p.png",
+      "beforeFrame": 1197,
+      "afterFrame": 1198
+    },
+    {
+      "id": 1021,
+      "hp": 260,
+      "logs": 8,
+      "x": 24.99609375,
+      "z": 71.07421875,
+      "turn": 2621,
+      "resource": {
+        "bank": "p",
+        "epoch": 1,
+        "counter": 7,
+        "tile": 103
+      },
+      "offset": [
+        0.375,
+        -0.03125
+      ],
+      "src": "http://127.0.0.1:4191/original/temple-model-p.png",
+      "beforeFrame": 1198,
+      "afterFrame": 1199
+    },
+    {
+      "id": 1021,
+      "hp": 260,
+      "logs": 8,
+      "x": 24.99609375,
+      "z": 71.07421875,
+      "turn": 2622,
+      "resource": {
+        "bank": "p",
+        "epoch": 1,
+        "counter": 1,
+        "tile": 93
+      },
+      "offset": [
+        0.125,
+        0
+      ],
+      "src": "http://127.0.0.1:4191/original/temple-model-p.png",
+      "beforeFrame": 1199,
+      "afterFrame": 1200
+    },
+    {
+      "id": 1021,
+      "hp": 260,
+      "logs": 8,
+      "x": 24.99609375,
+      "z": 71.07421875,
+      "turn": 2623,
+      "resource": {
+        "bank": "p",
+        "epoch": 1,
+        "counter": 5,
+        "tile": 101
+      },
+      "offset": [
+        0.125,
+        -0.03125
+      ],
+      "src": "http://127.0.0.1:4191/original/temple-model-p.png",
+      "beforeFrame": 1200,
+      "afterFrame": 1201
+    },
+    {
+      "id": 1021,
+      "hp": 260,
+      "logs": 8,
+      "x": 24.99609375,
+      "z": 71.07421875,
+      "turn": 2624,
+      "resource": {
+        "bank": "p",
+        "epoch": 1,
+        "counter": 0,
+        "tile": 92
+      },
+      "offset": [
+        0,
+        0
+      ],
+      "src": "http://127.0.0.1:4191/original/temple-model-p.png",
+      "beforeFrame": 1201,
+      "afterFrame": 1202
+    },
+    {
+      "id": 1021,
+      "hp": 260,
+      "logs": 8,
+      "x": 24.99609375,
+      "z": 71.07421875,
+      "turn": 2625,
+      "resource": {
+        "bank": "p",
+        "epoch": 1,
+        "counter": 3,
+        "tile": 95
+      },
+      "offset": [
+        0.375,
+        0
+      ],
+      "src": "http://127.0.0.1:4191/original/temple-model-p.png",
+      "beforeFrame": 1202,
+      "afterFrame": 1203
+    }
+  ],
+  "checkpoint": {
+    "version": 1,
+    "level": 3,
+    "turn": 2653,
+    "time": 221.08333333333334,
+    "checkpointSha256": "a35f0f254f196de10c2b3ba191199f0f0a67fb1688ca8749f58ac171b788eba5",
+    "actorsSha256": "82cd782b003ba573cbcd5a2f15354229e90b38d34712e76e8dcd551b346e2383",
+    "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+    "stockSha256": "031052eab3b725d7fe679163b71f61152eac3371367e274c3e4d0d50e955f547"
+  },
+  "image": {
+    "path": "mission3-completed-temple.png",
+    "sha256": "9360b28d28b1d5d2b5536ba6bad3e3379faa0006ea584bb3f8bd62efc86bab25",
+    "scope": "Unedited actual paused-page screenshot after ordinary Temple completion; software browser,1440x1000/DPR1."
+  },
+  "composition": "02 acquisition/Save prefix and03 active-building Restart/two Loads remain FAILED attempts with accepted partials;04 loads the same genuine1190 state once and completes native movement, building/material and finalSave. No retrospective attempt pass.",
+  "limits": [
+    "No original-GPU equality or paired before screenshot",
+    "No native wall-clock,24Hz,RAF or hidden-tab equivalence",
+    "No full audio/other-tribe/all-construction-stage claim",
+    "No full-game parity or hardware-performance claim"
+  ],
+  "rawEvidence": "Raw source-bound reports/receipts remain local. This summary is not an independently executed receipt. No profile/storage/original binaries included."
+}
