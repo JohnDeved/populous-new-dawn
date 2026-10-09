@@ -1,0 +1,304 @@
+{
+  "source": {
+    "base": "1a9314fc0a047f9f1effba6826ccfd46e07ad39c",
+    "head": "b0344af55af0c0d62f55804fb31a8c8e3635a753",
+    "tree": "0c9d373b5579df0b74d9c12fc7f00130a691c2a7",
+    "qaFiles": [
+      {
+        "path": "engineering/mission1-hut-dismantle-proposal.md",
+        "sha256": "3a72c112e0d951249dfa8acf39011f48c1d10391d366c51bdda930d836fec926"
+      },
+      {
+        "path": "scripts/local-render/mission1-hut-dismantle-contract.mjs",
+        "sha256": "a66a04e41e7e7dd141dd416cab0eb57728108b317766f0315def269fb29014b3"
+      },
+      {
+        "path": "scripts/local-render/mission1-hut-dismantle-snapshot.mjs",
+        "sha256": "7bd7d369e8ae8773aa861d1aa933db954e7063671bb418c69e062b7b4d793e03"
+      },
+      {
+        "path": "scripts/local-render/mission1-hut-dismantle-witness.mjs",
+        "sha256": "6cb4dbada4c96eaa7f8d8e02fb6ea0c3832893875ca2887d9b33844e4e552925"
+      },
+      {
+        "path": "scripts/local-render/mission1-hut-dismantle.mjs",
+        "sha256": "da49c1338edf4caec18936000cbb397966132952bb185de8a62fbd0ee7d2bd8b"
+      },
+      {
+        "path": "tests/mission1-hut-dismantle-witness.test.mjs",
+        "sha256": "53a228266ccf9801d2ada100c149463ad125634d14ce6920b20c1ab2f41ddd3b"
+      },
+      {
+        "path": "tests/mission1-hut-dismantle.test.mjs",
+        "sha256": "a9920b94a0f6ae7fe00804a7b596f7219634ee3afdb5011c206d7d3e005b3c41"
+      }
+    ],
+    "unchanged": [
+      {
+        "path": "app",
+        "oid": "8cab336002b8ec6541a4e7bc960c74e3bf038110"
+      },
+      {
+        "path": "package.json",
+        "oid": "5aa847c2acfe5a16dab8b8494ee521ba92cb07ba"
+      },
+      {
+        "path": "package-lock.json",
+        "oid": "97cd9ade0190af96e99b389c93d4ee20bef5065c"
+      },
+      {
+        "path": "scripts/orchestration",
+        "oid": "9ad3a92fca490eb0373f010b63e20310ec2a7a01"
+      },
+      {
+        "path": "scripts/local-render/temple-training-checkpoint.mjs",
+        "oid": "ed3788b8ac8d34938dd2696ba524397076b6376d"
+      },
+      {
+        "path": "scripts/local-render/mission3-building-lifecycle.mjs",
+        "oid": "e48307f78d2f0ce22dfc5207d2f39048f44e4e65"
+      }
+    ]
+  },
+  "validation": {
+    "freshCases": 10,
+    "carriedCases": 1737,
+    "representedCases": 1747,
+    "baseTestFiles": 284,
+    "totalTestFiles": 286,
+    "broadChecksRerun": false,
+    "receipts": [
+      {
+        "name": "finalize-caller-01.json",
+        "sha256": "545b8ab8ebf9323797cca4ed8dc0f6108c53ad642fe9f425ea92e78e6cde7fd0",
+        "head": "58a98a813675ec7d7b43b5616bad62e909f4bbb6",
+        "status": "passed"
+      },
+      {
+        "name": "finalize-lint-01.json",
+        "sha256": "65d41318fb66fbed41c732ad85c2db774ec1ea0b17d33e77229f9cadc082ad77",
+        "head": "58a98a813675ec7d7b43b5616bad62e909f4bbb6",
+        "status": "passed"
+      },
+      {
+        "name": "finalize-format-01.json",
+        "sha256": "9de787a573e5d334abef4b57d529f8c4c94b1caec6cd8c61c9a22cc39269e96b",
+        "head": "b0344af55af0c0d62f55804fb31a8c8e3635a753",
+        "status": "passed"
+      },
+      {
+        "name": "finalize-structural-01.json",
+        "sha256": "896c52d37db66e4d3818b4883f08df2501db15bfb60056a8925fa44e26bb9e71",
+        "head": "b0344af55af0c0d62f55804fb31a8c8e3635a753",
+        "status": "passed"
+      },
+      {
+        "name": "finalize-plan-01.json",
+        "sha256": "f074d5dda617690788177eb46cc5c805e0605d71987761fd6b042a98695f0de2",
+        "head": "b0344af55af0c0d62f55804fb31a8c8e3635a753",
+        "status": "passed"
+      }
+    ]
+  },
+  "ordinary01": {
+    "status": "failed",
+    "source": "aef6c7caa4748ae5a4ae1daae58508153eee615e",
+    "receiptSha256": "80b8f12abd53ed6a53188822f69781db4e5df33b14c275795a8ad8d5339e6d30",
+    "episodeSha256": "3a864ee9f75bc05c976cd74c4198865cf494f4b1944407981c401b72743543a1",
+    "cleanSnapshotTurn": 445,
+    "failingVisitBounds": [
+      446,
+      456
+    ],
+    "exactFailingPairRetained": false,
+    "outerReceiptSha256": "86ac2e781d6b3596cd1a22096e8afebe4b79f2c9f5408adfd60c7a295aec4f5d"
+  },
+  "ordinary02": {
+    "status": "passed",
+    "independentResultReview": "accepted",
+    "startedAt": "2026-10-09T23:38:54.023Z",
+    "finishedAt": "2026-10-09T23:40:10.529Z",
+    "receiptSha256": "13ab0374457938127a7e0628ed3bfef16afc0b15cf96d703c07cec0c04d16e18",
+    "episodeSha256": "272fe620a2f3628b732fd211f996c3d495b53fd8979951147f4f8ed9938f14ad",
+    "sourceIndex": 41,
+    "targetId": 36,
+    "workerId": 1186,
+    "trustedInput": true,
+    "sameResidentPerson": true,
+    "inputTurn": 250,
+    "save": {
+      "turn": 325,
+      "remaining": 200,
+      "carried": 100,
+      "fullDigest": "9676bf22f2f0d699929e60cb304f114d5037c6655502ec6dbcff921c513ddd20"
+    },
+    "load": {
+      "turn": 325,
+      "fullDigest": "290462528d5882c7d691e8b29cf07fe77783a81f58070263c453e09c40da0194",
+      "equalsExpectedMigratedDigest": true
+    },
+    "finish": {
+      "turn": 450,
+      "remaining": 0,
+      "carried": 100,
+      "loose": 200,
+      "recovered": 300,
+      "droppedIds": [
+        1190,
+        1191
+      ],
+      "workerHp": 50,
+      "targetPresent": false,
+      "entry": false,
+      "orderId": 0,
+      "work": null,
+      "staff": [],
+      "footprint": false,
+      "reservations": 0,
+      "presentation": {
+        "currentWorld": true,
+        "record": false,
+        "latch": false,
+        "panel": false,
+        "panelHidden": null,
+        "hovered": false,
+        "menuOpen": false
+      }
+    },
+    "events": [
+      {
+        "epoch": 1,
+        "kind": "input",
+        "turn": 250
+      },
+      {
+        "epoch": 1,
+        "kind": "work",
+        "turn": 313,
+        "transferred": 100,
+        "dropped": [],
+        "targetPresent": true,
+        "entry": true
+      },
+      {
+        "epoch": 2,
+        "kind": "work",
+        "turn": 328,
+        "transferred": 0,
+        "dropped": [
+          1190
+        ],
+        "targetPresent": true,
+        "entry": true
+      },
+      {
+        "epoch": 2,
+        "kind": "work",
+        "turn": 378,
+        "transferred": 100,
+        "dropped": [],
+        "targetPresent": true,
+        "entry": true
+      },
+      {
+        "epoch": 2,
+        "kind": "work",
+        "turn": 392,
+        "transferred": 0,
+        "dropped": [
+          1191
+        ],
+        "targetPresent": true,
+        "entry": true
+      },
+      {
+        "epoch": 2,
+        "kind": "work",
+        "turn": 447,
+        "transferred": 100,
+        "dropped": [],
+        "targetPresent": false,
+        "entry": true
+      },
+      {
+        "epoch": 2,
+        "kind": "work",
+        "turn": 448,
+        "transferred": 0,
+        "dropped": [],
+        "targetPresent": false,
+        "entry": false
+      }
+    ],
+    "epochs": [
+      {
+        "visits": {
+          "initial": 216,
+          "first": 217,
+          "last": 325,
+          "count": 109
+        },
+        "errors": [],
+        "closed": true
+      },
+      {
+        "visits": {
+          "initial": 325,
+          "first": 326,
+          "last": 450,
+          "count": 125
+        },
+        "errors": [],
+        "closed": true
+      }
+    ],
+    "observerErrors": [],
+    "cleanupErrors": [],
+    "browserErrors": [],
+    "eventOverflow": false,
+    "sceneStart": {
+      "calls": 1,
+      "result": true,
+      "originalThrew": false,
+      "attached": true,
+      "restored": true,
+      "errors": []
+    },
+    "oldDisposed": true,
+    "profileCleanupVerified": true,
+    "profileContinuationVerified": true,
+    "bounds": {
+      "innerMs": 360000,
+      "outerMs": 400000,
+      "killGraceMs": 15000,
+      "readinessMs": 30000,
+      "workMs": 120000,
+      "committedMs": 10000,
+      "loadMs": 15000,
+      "cleanupMs": 20000,
+      "maxEvents": 64,
+      "attempts": 1
+    },
+    "softwarePerformanceOnly": true,
+    "screenshots": [
+      {
+        "file": "ordinary02-partial.png",
+        "sha256": "334b0e5f7f632e19f6a53c31255f16014a10a5a367d30beb669a40d1b362f0eb",
+        "caption": "Paused partial work at turn 325: 200 remaining and 100 carried."
+      },
+      {
+        "file": "ordinary02-terminal.png",
+        "sha256": "7b8c93a48873889e847a23ed531b546748abb91aa7f465f0f966d8c39f21116d",
+        "caption": "Rendered view after atomic finish at turn 450; camera differs after public Load; pixels do not pin the exact validated turn."
+      }
+    ],
+    "outerReceiptSha256": "d0157f59e4fb10aa10381b4e50efb7fb739c667924719a4022e7a1848af374a4"
+  },
+  "reviewHashes": {
+    "finalize": "bdb73aebf30b66e58ed11fbc6baf6a1e5514af07fbe8e61c51badc35254f104f",
+    "carry": "92cf99f7e51511f9102ffb52c12506e53570e77f71565769762466e4fccdcd91",
+    "binding02": "20f60a695c230cb3b1bc79d040c5559cb354e43eea23b15bb264efd7be073c6c",
+    "failure01": "245acfb7b1fb957be077b4dab59488030c83ca135c724b0fc530ef8bad1c7130",
+    "result02": "36151209c607b1857617468046f0cbc09942e3549a625dd19feaaa6482d2e13b"
+  }
+}
