@@ -186,6 +186,15 @@ python3 -B scripts/check-static-mission18-sky.py /path/to/d3dpoptb.exe
 
 For the later authored patrol, exact 4×4 texture average and projected-lens binding, see [Mission 18’s implementation evidence](research/mission18.md#bank-g-sky). Non-lens configuration and device/exact-presentation limits remain there. This tracked checker rejects an unexpected EXE SHA and does not execute or emulate it. Optional `--output /path/to/new-report.json` retains decoded bytes/conditions without overwriting a file. Only the EXE is required; optional `--data-root` checks supplied HDR/palette identity. No scratch/head/Ghidra dependency or new framework. Actual runtime path/open/UI/palette/lens state and pixels remain unproved; the historical 410-assertion receipt is not current runtime acceptance.
 
+## Ordinary tooltip controller — 2026-10-09
+
+[Bounded static evidence](research/ordinary-tooltip-controller.md) now identifies
+ordinary object acquisition, shared cached frontend-rate dwell, target/owner reset
+boundaries, forced-callout precedence and the first-display inspection callback.
+The packet includes exact original byte excerpts and provenance. It proves a gap
+in the current immediate browser tooltip, without choosing a fixed-Hz/seconds
+adapter, running the original game, changing runtime code or claiming parity.
+
 ## Forced tooltip comparison
 
 ```sh

@@ -1,0 +1,263 @@
+# Exact accepted objdump bytes; trailing spaces trimmed; labels describe scope only.
+# Input SHA256: 3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f
+# GNU objdump (GNU Binutils for Debian) 2.44; -d -M intel
+
+# Input eligibility, HUD then forced then ordinary ordering
+# Range [0x004aa4e0, 0x004aa593)
+  4aa4e0:	83 ec 0c             	sub    esp,0xc
+  4aa4e3:	53                   	push   ebx
+  4aa4e4:	57                   	push   edi
+  4aa4e5:	e8 86 81 00 00       	call   0x4b2670
+  4aa4ea:	85 c0                	test   eax,eax
+  4aa4ec:	0f 84 b0 03 00 00    	je     0x4aa8a2
+  4aa4f2:	32 db                	xor    bl,bl
+  4aa4f4:	f6 05 1c e9 98 00 03 	test   BYTE PTR ds:0x98e91c,0x3
+  4aa4fb:	74 02                	je     0x4aa4ff
+  4aa4fd:	b3 01                	mov    bl,0x1
+  4aa4ff:	f6 05 1c e9 98 00 0c 	test   BYTE PTR ds:0x98e91c,0xc
+  4aa506:	74 03                	je     0x4aa50b
+  4aa508:	80 cb 02             	or     bl,0x2
+  4aa50b:	f6 05 1c e9 98 00 30 	test   BYTE PTR ds:0x98e91c,0x30
+  4aa512:	74 03                	je     0x4aa517
+  4aa514:	80 cb 04             	or     bl,0x4
+  4aa517:	e8 74 56 05 00       	call   0x4ffb90
+  4aa51c:	8b 08                	mov    ecx,DWORD PTR [eax]
+  4aa51e:	89 0d 80 45 98 00    	mov    DWORD PTR ds:0x984580,ecx
+  4aa524:	8b 50 04             	mov    edx,DWORD PTR [eax+0x4]
+  4aa527:	89 15 84 45 98 00    	mov    DWORD PTR ds:0x984584,edx
+  4aa52d:	e8 6e 34 00 00       	call   0x4ad9a0
+  4aa532:	f6 05 6c c6 89 00 10 	test   BYTE PTR ds:0x89c66c,0x10
+  4aa539:	0f 85 b3 01 00 00    	jne    0x4aa6f2
+  4aa53f:	e8 4c 56 05 00       	call   0x4ffb90
+  4aa544:	8b 08                	mov    ecx,DWORD PTR [eax]
+  4aa546:	8b 50 04             	mov    edx,DWORD PTR [eax+0x4]
+  4aa549:	33 c0                	xor    eax,eax
+  4aa54b:	89 0d 08 42 68 00    	mov    DWORD PTR ds:0x684208,ecx
+  4aa551:	a0 18 ea 98 00       	mov    al,ds:0x98ea18
+  4aa556:	89 15 0c 42 68 00    	mov    DWORD PTR ds:0x68420c,edx
+  4aa55c:	a3 80 cd 59 00       	mov    ds:0x59cd80,eax
+  4aa561:	33 c0                	xor    eax,eax
+  4aa563:	a0 19 ea 98 00       	mov    al,ds:0x98ea19
+  4aa568:	a3 84 cd 59 00       	mov    ds:0x59cd84,eax
+  4aa56d:	e8 be 0b fa ff       	call   0x44b130
+  4aa572:	e8 e9 35 fa ff       	call   0x44db60
+  4aa577:	84 c0                	test   al,al
+  4aa579:	75 18                	jne    0x4aa593
+  4aa57b:	e8 e0 0a fa ff       	call   0x44b060
+  4aa580:	85 c0                	test   eax,eax
+  4aa582:	75 05                	jne    0x4aa589
+  4aa584:	e8 b7 4d 00 00       	call   0x4af340
+  4aa589:	e8 e2 0a fa ff       	call   0x44b070
+  4aa58e:	e8 fd 0a fa ff       	call   0x44b090
+
+# Frontend counter increment, game draw dispatch, rate cap
+# Range [0x004a46e1, 0x004a47cc)
+  4a46e1:	e8 0a 83 ff ff       	call   0x49c9f0
+  4a46e6:	80 3d 00 f0 88 00 02 	cmp    BYTE PTR ds:0x88f000,0x2
+  4a46ed:	74 17                	je     0x4a4706
+  4a46ef:	80 3d 00 f0 88 00 07 	cmp    BYTE PTR ds:0x88f000,0x7
+  4a46f6:	74 0e                	je     0x4a4706
+  4a46f8:	80 3d 00 f0 88 00 0a 	cmp    BYTE PTR ds:0x88f000,0xa
+  4a46ff:	74 05                	je     0x4a4706
+  4a4701:	e8 8a 66 fd ff       	call   0x47ad90
+  4a4706:	e8 a5 b8 fd ff       	call   0x47ffb0
+  4a470b:	b9 01 00 00 00       	mov    ecx,0x1
+  4a4710:	ff 05 81 79 89 00    	inc    DWORD PTR ds:0x897981
+  4a4716:	a1 84 d1 89 00       	mov    eax,ds:0x89d184
+  4a471b:	2b d2                	sub    edx,edx
+  4a471d:	f7 f1                	div    ecx
+  4a471f:	24 01                	and    al,0x1
+  4a4721:	41                   	inc    ecx
+  4a4722:	83 f9 08             	cmp    ecx,0x8
+  4a4725:	88 81 84 79 89 00    	mov    BYTE PTR [ecx+0x897984],al
+  4a472b:	7c e9                	jl     0x4a4716
+  4a472d:	e8 2e df ff ff       	call   0x4a2660
+  4a4732:	e8 99 b4 fa ff       	call   0x44fbd0
+  4a4737:	33 c0                	xor    eax,eax
+  4a4739:	a0 00 f0 88 00       	mov    al,ds:0x88f000
+  4a473e:	83 e8 02             	sub    eax,0x2
+  4a4741:	83 f8 0a             	cmp    eax,0xa
+  4a4744:	77 30                	ja     0x4a4776
+  4a4746:	33 c9                	xor    ecx,ecx
+  4a4748:	8a 88 54 49 4a 00    	mov    cl,BYTE PTR [eax+0x4a4954]
+  4a474e:	ff 24 8d 38 49 4a 00 	jmp    DWORD PTR [ecx*4+0x4a4938]
+  4a4755:	e8 06 02 00 00       	call   0x4a4960
+  4a475a:	eb 1a                	jmp    0x4a4776
+  4a475c:	e8 ff 32 fb ff       	call   0x457a60
+  4a4761:	eb 13                	jmp    0x4a4776
+  4a4763:	e8 b8 c6 f6 ff       	call   0x410e20
+  4a4768:	eb 0c                	jmp    0x4a4776
+  4a476a:	e8 81 06 00 00       	call   0x4a4df0
+  4a476f:	eb 05                	jmp    0x4a4776
+  4a4771:	e8 0a 4c 00 00       	call   0x4a9380
+  4a4776:	e8 e5 81 ff ff       	call   0x49c960
+  4a477b:	e8 80 e8 ff ff       	call   0x4a3000
+  4a4780:	e8 eb de 00 00       	call   0x4b2670
+  4a4785:	85 c0                	test   eax,eax
+  4a4787:	74 09                	je     0x4a4792
+  4a4789:	53                   	push   ebx
+  4a478a:	e8 41 de 00 00       	call   0x4b25d0
+  4a478f:	83 c4 04             	add    esp,0x4
+  4a4792:	e8 29 88 ff ff       	call   0x49cfc0
+  4a4797:	84 c0                	test   al,al
+  4a4799:	74 24                	je     0x4a47bf
+  4a479b:	e8 40 88 ff ff       	call   0x49cfe0
+  4a47a0:	8b f8                	mov    edi,eax
+  4a47a2:	ff d6                	call   esi
+  4a47a4:	89 45 ec             	mov    DWORD PTR [ebp-0x14],eax
+  4a47a7:	39 05 cc e7 98 00    	cmp    DWORD PTR ds:0x98e7cc,eax
+  4a47ad:	7f f3                	jg     0x4a47a2
+  4a47af:	39 3d 50 a8 5c 00    	cmp    DWORD PTR ds:0x5ca850,edi
+  4a47b5:	7e 15                	jle    0x4a47cc
+  4a47b7:	89 3d 50 a8 5c 00    	mov    DWORD PTR ds:0x5ca850,edi
+  4a47bd:	eb 0d                	jmp    0x4a47cc
+  4a47bf:	ff d6                	call   esi
+  4a47c1:	89 45 ec             	mov    DWORD PTR [ebp-0x14],eax
+  4a47c4:	39 05 e0 e7 98 00    	cmp    DWORD PTR ds:0x98e7e0,eax
+  4a47ca:	7f f3                	jg     0x4a47bf
+
+# Game draw eligibility and ordinary controller call
+# Range [0x004a4aea, 0x004a4b2a)
+  4a4aea:	85 db                	test   ebx,ebx
+  4a4aec:	0f 85 42 02 00 00    	jne    0x4a4d34
+  4a4af2:	e8 89 70 fa ff       	call   0x44bb80
+  4a4af7:	e8 14 d4 00 00       	call   0x4b1f10
+  4a4afc:	e8 bf c9 f8 ff       	call   0x4314c0
+  4a4b01:	e8 1a 48 fa ff       	call   0x449320
+  4a4b06:	e8 65 af 00 00       	call   0x4afa70
+  4a4b0b:	e8 70 b5 00 00       	call   0x4b0080
+  4a4b10:	f6 05 6c c6 89 00 80 	test   BYTE PTR ds:0x89c66c,0x80
+  4a4b17:	74 0c                	je     0x4a4b25
+  4a4b19:	e8 92 36 fb ff       	call   0x4581b0
+  4a4b1e:	e8 0d 36 fb ff       	call   0x458130
+  4a4b23:	eb 05                	jmp    0x4a4b2a
+  4a4b25:	e8 b6 59 00 00       	call   0x4aa4e0
+
+# Frontend and world-turn sample owners
+# Range [0x0049c9f0, 0x0049ca7b)
+  49c9f0:	ff 15 84 c7 d0 00    	call   DWORD PTR ds:0xd0c784
+  49c9f6:	8b 0d 44 a8 5c 00    	mov    ecx,DWORD PTR ds:0x5ca844
+  49c9fc:	81 c1 e8 03 00 00    	add    ecx,0x3e8
+  49ca02:	3b c8                	cmp    ecx,eax
+  49ca04:	77 75                	ja     0x49ca7b
+  49ca06:	8b 15 84 d1 89 00    	mov    edx,DWORD PTR ds:0x89d184
+  49ca0c:	2b 15 38 a8 5c 00    	sub    edx,DWORD PTR ds:0x5ca838
+  49ca12:	89 15 4c a8 5c 00    	mov    DWORD PTR ds:0x5ca84c,edx
+  49ca18:	79 0a                	jns    0x49ca24
+  49ca1a:	c7 05 4c a8 5c 00 00 	mov    DWORD PTR ds:0x5ca84c,0x0
+  49ca21:	00 00 00
+  49ca24:	8b 0d 84 d1 89 00    	mov    ecx,DWORD PTR ds:0x89d184
+  49ca2a:	8b 15 81 79 89 00    	mov    edx,DWORD PTR ds:0x897981
+  49ca30:	2b 15 3c a8 5c 00    	sub    edx,DWORD PTR ds:0x5ca83c
+  49ca36:	89 0d 38 a8 5c 00    	mov    DWORD PTR ds:0x5ca838,ecx
+  49ca3c:	89 15 50 a8 5c 00    	mov    DWORD PTR ds:0x5ca850,edx
+  49ca42:	79 02                	jns    0x49ca46
+  49ca44:	33 d2                	xor    edx,edx
+  49ca46:	8b 0d 81 79 89 00    	mov    ecx,DWORD PTR ds:0x897981
+  49ca4c:	a3 44 a8 5c 00       	mov    ds:0x5ca844,eax
+  49ca51:	80 3d 00 f0 88 00 02 	cmp    BYTE PTR ds:0x88f000,0x2
+  49ca58:	89 0d 3c a8 5c 00    	mov    DWORD PTR ds:0x5ca83c,ecx
+  49ca5e:	75 0f                	jne    0x49ca6f
+  49ca60:	80 3d d4 ea 96 00 00 	cmp    BYTE PTR ds:0x96ead4,0x0
+  49ca67:	89 15 50 a8 5c 00    	mov    DWORD PTR ds:0x5ca850,edx
+  49ca6d:	75 0c                	jne    0x49ca7b
+  49ca6f:	89 15 50 a8 5c 00    	mov    DWORD PTR ds:0x5ca850,edx
+  49ca75:	89 15 48 a8 5c 00    	mov    DWORD PTR ds:0x5ca848,edx
+
+# Saved frontend-rate restoration
+# Range [0x0049cfa0, 0x0049cfc0)
+  49cfa0:	8a 44 24 04          	mov    al,BYTE PTR [esp+0x4]
+  49cfa4:	f6 d0                	not    al
+  49cfa6:	20 05 d4 ea 96 00    	and    BYTE PTR ds:0x96ead4,al
+  49cfac:	75 0a                	jne    0x49cfb8
+  49cfae:	a1 48 a8 5c 00       	mov    eax,ds:0x5ca848
+  49cfb3:	a3 50 a8 5c 00       	mov    ds:0x5ca850,eax
+  49cfb8:	c3                   	ret
+  49cfb9:	cc                   	int3
+  49cfba:	cc                   	int3
+  49cfbb:	cc                   	int3
+  49cfbc:	cc                   	int3
+  49cfbd:	cc                   	int3
+  49cfbe:	cc                   	int3
+  49cfbf:	cc                   	int3
+
+# Controller initialization, excluding cached threshold
+# Range [0x0044a280, 0x0044a2f0)
+  44a280:	57                   	push   edi
+  44a281:	33 c0                	xor    eax,eax
+  44a283:	bf 10 42 68 00       	mov    edi,0x684210
+  44a288:	b9 2e 21 00 00       	mov    ecx,0x212e
+  44a28d:	f3 ab                	rep stos DWORD PTR es:[edi],eax
+  44a28f:	66 ab                	stos   WORD PTR es:[edi],ax
+  44a291:	c6 05 c9 c6 68 00 ff 	mov    BYTE PTR ds:0x68c6c9,0xff
+  44a298:	c7 05 b7 c6 68 00 00 	mov    DWORD PTR ds:0x68c6b7,0x0
+  44a29f:	00 00 00
+  44a2a2:	b8 01 00 00 00       	mov    eax,0x1
+  44a2a7:	a3 10 42 68 00       	mov    ds:0x684210,eax
+  44a2ac:	a3 08 45 68 00       	mov    ds:0x684508,eax
+  44a2b1:	6a 00                	push   0x0
+  44a2b3:	a3 18 42 68 00       	mov    ds:0x684218,eax
+  44a2b8:	a3 c5 c6 68 00       	mov    ds:0x68c6c5,eax
+  44a2bd:	a1 50 a8 5c 00       	mov    eax,ds:0x5ca850
+  44a2c2:	03 c0                	add    eax,eax
+  44a2c4:	a3 b3 c6 68 00       	mov    ds:0x68c6b3,eax
+  44a2c9:	e8 52 83 05 00       	call   0x4a2620
+  44a2ce:	83 c4 04             	add    esp,0x4
+  44a2d1:	e8 0a 83 05 00       	call   0x4a25e0
+  44a2d6:	a1 c5 c6 68 00       	mov    eax,ds:0x68c6c5
+  44a2db:	50                   	push   eax
+  44a2dc:	e8 6f 23 00 00       	call   0x44c650
+  44a2e1:	83 c4 04             	add    esp,0x4
+  44a2e4:	5f                   	pop    edi
+  44a2e5:	c3                   	ret
+  44a2e6:	cc                   	int3
+  44a2e7:	cc                   	int3
+  44a2e8:	cc                   	int3
+  44a2e9:	cc                   	int3
+  44a2ea:	cc                   	int3
+  44a2eb:	cc                   	int3
+  44a2ec:	cc                   	int3
+  44a2ed:	cc                   	int3
+  44a2ee:	cc                   	int3
+  44a2ef:	cc                   	int3
+
+# Tooltip enable and disable setters
+# Range [0x0044cf70, 0x0044cf90)
+  44cf70:	c7 05 18 42 68 00 01 	mov    DWORD PTR ds:0x684218,0x1
+  44cf77:	00 00 00
+  44cf7a:	c3                   	ret
+  44cf7b:	cc                   	int3
+  44cf7c:	cc                   	int3
+  44cf7d:	cc                   	int3
+  44cf7e:	cc                   	int3
+  44cf7f:	cc                   	int3
+  44cf80:	c7 05 18 42 68 00 00 	mov    DWORD PTR ds:0x684218,0x0
+  44cf87:	00 00 00
+  44cf8a:	c3                   	ret
+  44cf8b:	cc                   	int3
+  44cf8c:	cc                   	int3
+  44cf8d:	cc                   	int3
+  44cf8e:	cc                   	int3
+  44cf8f:	cc                   	int3
+
+# Lazy threshold initialization and accelerated dwell
+# Range [0x004a2530, 0x004a2560)
+  4a2530:	a1 90 ae 5c 00       	mov    eax,ds:0x5cae90
+  4a2535:	85 c0                	test   eax,eax
+  4a2537:	75 14                	jne    0x4a254d
+  4a2539:	a1 50 a8 5c 00       	mov    eax,ds:0x5ca850
+  4a253e:	a3 90 ae 5c 00       	mov    ds:0x5cae90,eax
+  4a2543:	83 f8 0c             	cmp    eax,0xc
+  4a2546:	7d 05                	jge    0x4a254d
+  4a2548:	b8 0c 00 00 00       	mov    eax,0xc
+  4a254d:	a3 90 ae 5c 00       	mov    ds:0x5cae90,eax
+  4a2552:	40                   	inc    eax
+  4a2553:	a3 af c6 68 00       	mov    ds:0x68c6af,eax
+  4a2558:	c3                   	ret
+  4a2559:	cc                   	int3
+  4a255a:	cc                   	int3
+  4a255b:	cc                   	int3
+  4a255c:	cc                   	int3
+  4a255d:	cc                   	int3
+  4a255e:	cc                   	int3
+  4a255f:	cc                   	int3

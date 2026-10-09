@@ -1,0 +1,372 @@
+{
+  "version": 1,
+  "kind": "bounded-static-tooltip-controller-evidence",
+  "issue": 19,
+  "baseCommit": "d6cf109474379172728a3ccebf46ef72a15f3a58",
+  "analysisCheckout": "e18fddfe35ad5424b580f7a07fbd058590d32f72",
+  "dateUtc": "2026-10-09",
+  "input": {
+    "name": "d3dpoptb.exe",
+    "bytes": 2275840,
+    "sha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "sha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "fileIncluded": false
+  },
+  "decoder": {
+    "path": "/usr/bin/objdump",
+    "version": "GNU objdump (GNU Binutils for Debian) 2.44",
+    "mode": "PE i386, Intel syntax, data-only decoding"
+  },
+  "acceptedAssessment": {
+    "findingsSha256": "74647ae4f1a264ed0243f8671f39c6070961ea67bde1656137ab59697b9c14c1",
+    "receiptSha256": "3b1bd0ce15620103db377b804369a8cac0ef7b026aabc1ad65c1d4f1c69a9a0d",
+    "review": "Independent source-only review accepted bounded findings; implementation cadence and ownership adapter not accepted."
+  },
+  "sections": [
+    {
+      "name": ".text",
+      "virtualAddress": "0x00401000",
+      "fileOffset": "0x00000400",
+      "bytes": 1591844
+    },
+    {
+      "name": ".data",
+      "virtualAddress": "0x00598000",
+      "fileOffset": "0x00195e00",
+      "bytes": 361984
+    }
+  ],
+  "initializedData": [
+    {
+      "address": "0x005cae90",
+      "fileOffset": "0x1c8c90",
+      "encoding": "little-endian signed32",
+      "value": 0
+    }
+  ],
+  "excerpts": [
+    {
+      "file": "controllers.asm.txt",
+      "start": "0x0044b060",
+      "endExclusive": "0x0044b130",
+      "scope": "World-owner gate, scroll reset, five-owner reset, explicit reset",
+      "excerptSha256": "481fb57894c91d59fe69088b122eb7cd2f0a9bef317a670b8164b34d29113d12",
+      "rawOutputSha256": "c06b9fe4d4448214789be7a2738d0be205a09d8d009d6ee7d8ee266aa2ccfacc",
+      "originalCommand": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x0044b060",
+        "--stop-address=0x0044b770",
+        "<verified-exe>"
+      ],
+      "originalExitCode": 0,
+      "rawExcerptSha256": "826472c9ea179cc8724330aea78c01335a033616b9e44d5799c2a54e92fd0b63"
+    },
+    {
+      "file": "controllers.asm.txt",
+      "start": "0x0044b507",
+      "endExclusive": "0x0044b54f",
+      "scope": "Active HUD control handoff",
+      "excerptSha256": "58beda995f116ad2c4e4523bce2ede0ddf3dbb776ccbc714d5cf3da4f1473ed9",
+      "rawOutputSha256": "c06b9fe4d4448214789be7a2738d0be205a09d8d009d6ee7d8ee266aa2ccfacc",
+      "originalCommand": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x0044b060",
+        "--stop-address=0x0044b770",
+        "<verified-exe>"
+      ],
+      "originalExitCode": 0,
+      "rawExcerptSha256": "2dbba2bc89bec698543362417654ea0c21fd805e1c807df9570aa7f1450c6760"
+    },
+    {
+      "file": "controllers.asm.txt",
+      "start": "0x0044cf90",
+      "endExclusive": "0x0044d7f0",
+      "scope": "Complete immediate entry/object/cell/HUD/status tooltip controllers",
+      "excerptSha256": "c814e9ec67093817b115f53e50cdec0845b9c27a700f8adb862622e63c26fd1b",
+      "rawOutputSha256": "5a5c691eb91bce09e25b5d391011170b754382a1b66829fd308a56c648c30eb2",
+      "originalCommand": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x0044cf90",
+        "--stop-address=0x0044d7f0",
+        "<verified-exe>"
+      ],
+      "originalExitCode": 0,
+      "rawExcerptSha256": "183426ef6972e44312486d67ce985782b0a2f27c8c3fbfde1ab184e63697c00b"
+    },
+    {
+      "file": "controllers.asm.txt",
+      "start": "0x004af340",
+      "endExclusive": "0x004af440",
+      "scope": "Complete world tooltip priority dispatcher",
+      "excerptSha256": "82e5cc1c733d6a2daf4718cc45ca92c6bcbf01a353e1598a9e4a38ee1ec4ac30",
+      "rawOutputSha256": "d97fad418f7b928a7737bafdc5dd7db84391a76e181083f745046601a7709fda",
+      "originalCommand": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x004af340",
+        "--stop-address=0x004af800",
+        "<verified-exe>"
+      ],
+      "originalExitCode": 0,
+      "rawExcerptSha256": "1088eba74e876f7a29e8e1db1d1f01145e38581be56f61f605b632f473bcb991"
+    },
+    {
+      "file": "controllers.asm.txt",
+      "start": "0x00508fe0",
+      "endExclusive": "0x00509000",
+      "scope": "Complete first-object-display callback",
+      "excerptSha256": "feaef251df648d421e901c880dc422033c479abb5752411acb8bb0bc53650e11",
+      "rawOutputSha256": "6bd91a71399f76892e97e1752e3881044cea435ec727e944070430c40d72ae1b",
+      "originalCommand": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x00508fe0",
+        "--stop-address=0x00509110",
+        "<verified-exe>"
+      ],
+      "originalExitCode": 0,
+      "rawExcerptSha256": "feaef251df648d421e901c880dc422033c479abb5752411acb8bb0bc53650e11"
+    },
+    {
+      "file": "clock-and-caller.asm.txt",
+      "start": "0x004aa4e0",
+      "endExclusive": "0x004aa593",
+      "scope": "Input eligibility, HUD then forced then ordinary ordering",
+      "excerptSha256": "1f732647f7b4fa19f85cb1dcf3dd64ef2acd6583630fb747333462cc0001f432",
+      "rawOutputSha256": "90142b65046a2a14465179422e0aa781e917f57150a37dcb8ab5c85d6075cbd5",
+      "originalCommand": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x004aa4e0",
+        "--stop-address=0x004aa5ba",
+        "<verified-exe>"
+      ],
+      "originalExitCode": 0,
+      "rawExcerptSha256": "1f732647f7b4fa19f85cb1dcf3dd64ef2acd6583630fb747333462cc0001f432"
+    },
+    {
+      "file": "clock-and-caller.asm.txt",
+      "start": "0x004a46e1",
+      "endExclusive": "0x004a47cc",
+      "scope": "Frontend counter increment, game draw dispatch, rate cap",
+      "excerptSha256": "123e0a1ca20504ba34cfe6d7114450f554967f62a47e4c6aef1b2750727d3c44",
+      "rawOutputSha256": "a8ad884a791805cd66d895f462394e0ad53e0d2012d131ba5a222b1ebc2abb47",
+      "originalCommand": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x004a46e1",
+        "--stop-address=0x004a47cc",
+        "<verified-exe>"
+      ],
+      "originalExitCode": 0,
+      "rawExcerptSha256": "123e0a1ca20504ba34cfe6d7114450f554967f62a47e4c6aef1b2750727d3c44"
+    },
+    {
+      "file": "clock-and-caller.asm.txt",
+      "start": "0x004a4aea",
+      "endExclusive": "0x004a4b2a",
+      "scope": "Game draw eligibility and ordinary controller call",
+      "excerptSha256": "e8a667858db38a5fbd830ad423ac7fe31d5d3ca2dcbd6edb65ed1c288a7a1b29",
+      "rawOutputSha256": "f5cf34062bae33fd0d1daba0b01f2a9ba7946e9adb5f9e4ba9f92b1035d3320c",
+      "originalCommand": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x004a4ac0",
+        "--stop-address=0x004a4b50",
+        "<verified-exe>"
+      ],
+      "originalExitCode": 0,
+      "rawExcerptSha256": "e8a667858db38a5fbd830ad423ac7fe31d5d3ca2dcbd6edb65ed1c288a7a1b29"
+    },
+    {
+      "file": "clock-and-caller.asm.txt",
+      "start": "0x0049c9f0",
+      "endExclusive": "0x0049ca7b",
+      "scope": "Frontend and world-turn sample owners",
+      "excerptSha256": "fdc36cc5af1ffe2bc928597fe30c808bc33152516159dce8acb139ce6fc30b4c",
+      "rawOutputSha256": "be8389bc5ab3b0cbb560433c6776c75719208c3763bad5b3d5bfb878f3a73324",
+      "originalCommand": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x0049c9f0",
+        "--stop-address=0x0049ca90",
+        "<verified-exe>"
+      ],
+      "originalExitCode": 0,
+      "rawExcerptSha256": "00669510bcb142eca613a0b54447a76e1615e9480c69838395d53878b39cf65e"
+    },
+    {
+      "file": "clock-and-caller.asm.txt",
+      "start": "0x0049cfa0",
+      "endExclusive": "0x0049cfc0",
+      "scope": "Saved frontend-rate restoration",
+      "excerptSha256": "068072341ae10290223c37cb5b8b056630b474558acc5f053cbc92154690cd51",
+      "rawOutputSha256": "c7f326c735b8ca38e9cb9e302cb2de57e2c73c6d257eb510203f4be73ed49ae9",
+      "originalCommand": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x0049cfa0",
+        "--stop-address=0x0049cfc0",
+        "<verified-exe>"
+      ],
+      "originalExitCode": 0,
+      "rawExcerptSha256": "068072341ae10290223c37cb5b8b056630b474558acc5f053cbc92154690cd51"
+    },
+    {
+      "file": "clock-and-caller.asm.txt",
+      "start": "0x0044a280",
+      "endExclusive": "0x0044a2f0",
+      "scope": "Controller initialization, excluding cached threshold",
+      "excerptSha256": "f4a651f2fd7f2cfff7274ae3f23401c60a939272f83a4b8d8998eae422bd849c",
+      "rawOutputSha256": "36516dfe27d3dcf82f8f08c7fbd8a89de8301e273b102ea7c96166536515d3f2",
+      "originalCommand": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x0044a280",
+        "--stop-address=0x0044a2f0",
+        "<verified-exe>"
+      ],
+      "originalExitCode": 0,
+      "rawExcerptSha256": "155519cd225f6bcc1583b142cf5ab2aa90a217d49db4d3350f0d0ce120c898d5"
+    },
+    {
+      "file": "clock-and-caller.asm.txt",
+      "start": "0x0044cf70",
+      "endExclusive": "0x0044cf90",
+      "scope": "Tooltip enable and disable setters",
+      "excerptSha256": "9a724925244793b84c34d4d9dc2a825c4588ef2af795f0e07cc5ed1ee6183bf7",
+      "rawOutputSha256": "e392369f7e19954ea1ccbec4fadad529e208dcfa24c9a682f6d79b88c1287b89",
+      "originalCommand": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x0044cf70",
+        "--stop-address=0x0044cf90",
+        "<verified-exe>"
+      ],
+      "originalExitCode": 0,
+      "rawExcerptSha256": "e2222b84497c31c23f1cb9a4a41efd723467f907e1df991056ca67abfb160290"
+    },
+    {
+      "file": "clock-and-caller.asm.txt",
+      "start": "0x004a2530",
+      "endExclusive": "0x004a2560",
+      "scope": "Lazy threshold initialization and accelerated dwell",
+      "excerptSha256": "37ce43aa2809dd6ec9b9e0c3adea5f2ea7d3cbd646acfd8f6ad9beb8870cddcd",
+      "rawOutputSha256": "cccf1cc1a6edc4f979437beb83b9f962dcdee0364c1e9b40b4b5d531a14b1abc",
+      "originalCommand": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x004a2530",
+        "--stop-address=0x004a2560",
+        "<verified-exe>"
+      ],
+      "originalExitCode": 0,
+      "rawExcerptSha256": "37ce43aa2809dd6ec9b9e0c3adea5f2ea7d3cbd646acfd8f6ad9beb8870cddcd"
+    }
+  ],
+  "retainedSources": {
+    "decomp/generated/0044a2f0.c": "6d55c744f1db7e39c268308f3ed1fbcedcfaff12f9122bec10e7a571deb5c42a",
+    "decomp/generated/0044db60.c": "330b5dbf8540b8b29c4ab49ec004251c0b61c82d61d90615bb4fd892c34549d5",
+    "decomp/generated/0044d7f0.c": "ad88c7f051cc071dd9f3d9a3f8ecf9e84a88278877855633ae1f46df5951da8f",
+    "decomp/generated/004f0f90.c": "49084d3a46ac32514b4eed26659f0fdb4e6b354c56bef666a922f70b39727ff0",
+    "decomp/generated/004aa4e0.c": "4ad72eeddfea6ba92c98cf9cb78bf9f7675dd58079f839f7acc8ad881c6bc84d",
+    "decomp/generated/004a4450.c": "282e4f65a430b360d390d3f6221409683392c4f32ff4683da7cde0b57585d867",
+    "decomp/generated/004a4960.c": "082373c8c2c9244af20a64d81e6e70f981ff3a3785103dd0ad7858e9ccdbf7df",
+    "decomp/generated/0049c9f0.c": "b8e9ca8e71c95892f6eb70f7ab37a3cc859917cac325c148a0c4dd644aad7b0e",
+    "decomp/generated/0049cfe0.c": "39d6fb7bf480bf740246babebeb9bfcc8eb4faad6db2326b002d3ebcaa2e475a",
+    "decomp/generated/0049cfc0.c": "2fd374ff3a12f9759948c218af07fb3425a4cf36ae30040b95e9269e84589b36",
+    "decomp/generated/0042b230.c": "241109ebdd842f8a448a43b58d5423b719ee7fe84a51d35e2612ac7b0b5517f2",
+    "decomp/generated/004314c0.c": "2e621d130bafbaf37f6e53c860243eb4a61ccb5752588027953433106bd49800",
+    "decomp/generated/00522570.c": "4efeb8286886c646ac71325127a1d06715f51aea23e6064cc7a8c4df3d7ec2a7",
+    "decomp/generated/0047ae00.c": "fac01fd16c714eeea273ffd6e94e4b28617b9196bbf4714e9befe8fa7afaf37a",
+    "decomp/generated/0047b1d0.c": "311cc00a58fff83e9915bba6ccc6034e0bd620b587424504dbaa4ceb16b2f90e",
+    "decomp/generated/00504060.c": "2038be12309b51322ae2f3536f9a257fe865b3554c5952decc5239bd06d9ea97",
+    "app/scene-input-runtime.ts": "7987f8f11abfdf4ea858b612d83d526169b31de05c76f52ce070809409c268a2",
+    "app/scene.ts": "e137dbf7813d903c2aae5d52d5ba5434c701716c3fc32a187f869166f05e50e7",
+    "app/tooltips.ts": "7cb5133c90a9633b609b10267c8f923c5cabaf240a0ca03b475f601af287caa2"
+  },
+  "limits": [
+    "Original input was never executed or emulated; no Ghidra, browser, tests, dependencies or runtime edits.",
+    "Byte listings preserve bounded accepted objdump addresses/bytes/mnemonics, with added provenance headers and trailing-space removal; not recovered original source or Ghidra exports.",
+    "No executable/archive/profile data is included.",
+    "No fixed milliseconds, fixed 12/24/40 Hz implementation contract, runtime parity or complete hover-controller claim.",
+    "Literal absolute-reference scan does not exclude indirect writes; no-handler leave retention remains conditional."
+  ],
+  "files": {
+    "controllers.asm.txt": {
+      "bytes": 37764,
+      "sha256": "810426a436c1f0f52fac8005c97ff01b29b9e43a1dbbe0f4994e22c748982683"
+    },
+    "clock-and-caller.asm.txt": {
+      "bytes": 12551,
+      "sha256": "d18d7a2a84dad746f5711c76230036d86303642dc882f2f1c5fedd2ead8f6c36"
+    }
+  },
+  "packagingValidation": {
+    "staticByteCheck": {
+      "status": "passed",
+      "exactExcerptHashes": 13,
+      "originalBytesCompared": 3553,
+      "retainedSourceHashes": 19,
+      "links": 17,
+      "executableHashUnchanged": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "method": "Static PE byte comparison and file/link checks only; never execute input"
+    },
+    "structural": {
+      "command": "node scripts/orchestration/cli.mjs check",
+      "exitCode": 0,
+      "status": "passed",
+      "checks": 135,
+      "subsystems": 11,
+      "generatedOwners": 6,
+      "unmappedSourceCount": 161
+    },
+    "plan": {
+      "command": "node scripts/orchestration/cli.mjs plan --base d6cf109474379172728a3ccebf46ef72a15f3a58",
+      "exitCode": 0,
+      "selectedChecks": 66,
+      "unknownPaths": [
+        "decomp/research/ordinary-tooltip-controller.md",
+        "decomp/research/ordinary-tooltip-controller/clock-and-caller.asm.txt",
+        "decomp/research/ordinary-tooltip-controller/controllers.asm.txt",
+        "decomp/research/ordinary-tooltip-controller/provenance.json"
+      ],
+      "assessment": "All four unknown paths are explicitly reviewed research documentation, disassembly excerpts and provenance. README campaign mapping and project-map metadata conservatively select broader checks; runtime/build/native/browser/test suites are not applicable to this source-only preservation change. Structural, link, hash and original-byte correspondence checks cover the changed content."
+    },
+    "runtimeTests": "not-run",
+    "nativeExecution": "not-run",
+    "browser": "not-run",
+    "build": "not-applicable: no runtime, dependency or configuration changes",
+    "priorAttempt": "A local research-note link check initially failed because the QA-only tree-hover-witness document is absent at the main base; the note now supplies the target recipe directly and all links pass."
+  },
+  "excerptNormalization": "Only trailing whitespace removed from instruction lines; address, byte and mnemonic text preserved. Raw excerpt and raw output hashes retained separately."
+}

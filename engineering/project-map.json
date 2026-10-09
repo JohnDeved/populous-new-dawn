@@ -120,6 +120,7 @@
         "graphics.raster.queue"
       ],
       "evidence": [
+        { "path": "decomp/research/ordinary-tooltip-controller.md", "heading": "Ordinary tooltip activation and ownership" },
         { "path": "decomp/research/blast-targeting.md", "heading": "Blast person targeting" },
         { "path": "decomp/research/follower-frame-alpha.md", "heading": "Disabled follower frames" },
         { "path": "decomp/research/follower-task-panel.md", "heading": "Native Followers task panel" },
