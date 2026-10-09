@@ -1,8 +1,9 @@
 # Ordinary Mission 3 acquisition and shared p art
 
-Source-only preparation against product b1804f86. Its type/format repairs are
-still in progress elsewhere. The final product must receive reviewed exact-byte
-correspondence before admission. This branch has no dependency tree/link, browser,
+Source-only preparation now composes product9d88d721, including the accepted
+p-only world cache-key repair over8f7f05de, through normal Git merges. Exact app
+and consumer/asset pins are in `source-correspondence.json`; final standard
+results and admission remain coordinator-owned. This branch has no dependency tree/link, browser,
 server or profile. No original executable, archive or raw profile is consumed.
 The former PR277 browser run is UNKNOWN and quarantined; none of its checkpoint
 or cleanup state qualifies for reuse. `launchEnabled` remains false.
@@ -12,10 +13,13 @@ or cleanup state qualifies for reuse. `launchEnabled` remains false.
 PR277/d6565f2a supplies unchanged public startup/native readiness, actual authored
 Vault33 input, home-area movement, native arrival, five-Brave selection, legal
 Temple placement, completed-world identity and typed committed Save machinery.
-Its four maintained modules are pinned in `source-correspondence.json`. The
-borrowed contract reads this new correspondence; old application/profile metadata
-is not carried forward. The existing route is not yet wired to this new screen
-observer or the lifecycle steps below.
+Its four maintained modules are pinned in `source-correspondence.json`. The route
+has four narrowly named optional acquisition steps; its default remains the
+PR277 journey, with no extra awaits when those steps are absent. The other three
+modules are unchanged. The borrowed contract reads this new correspondence;
+old application/profile metadata is not carried forward. The named entry point
+`scripts/local-render/mission3-building-screen.mjs` now runs the complete bounded
+journey below with no command-file handoffs.
 
 `mission3-building-screen-witness.mjs` is a bounded adaptation of PR274/a409893c's
 accepted M1 witness. It retains synchronous clock before/after, UI visit and draw
@@ -36,7 +40,10 @@ At actual drawing, `Scene.templeResourceSnapshot` must be the same immutable
 snapshot returned by `GameStore.getPresentationSnapshot()`. This comparison is
 not imposed inside logical visits, before Scene's post-advance latch. Actual
 screen surface atlas/uniform/source ownership, submitted UV buffer and sampled
-tiles are retained with naturally drawn whole/flight PNGs. Original draw calls
+tiles are evaluated against the same latched command, actual current measurement,
+interpolation and shared resource through the established pure production mapping.
+Every submitted UV must match. A separate natural frame must prove mode32 vertices
+sampling a non-base shared tile. All actual data remains with the PNG. Original draw calls
 alone render. Shared companion/pulse sprite samples bind the real returned cache
 entry, p crop, dimensions and resolved RGB; `command.rgb` is retained only as input
 diagnostic because it still describes the old c calculation. Ghost trails keep
@@ -57,7 +64,8 @@ lineage must be explicit, especially across the intentional Load reset.
    Vault order, then keep PR277's recipient, identity, health and route guards.
 2. Observe the authored gift birth, sixth-visit hide/handoff, automatic
    `buildings B` selection and disabled actual Temple target. Retain the first
-   natural whole and flight frames independently of logical phase samples.
+   natural whole frame independently of logical phase samples. Flight may be
+   observed before Save or during a separately identified restored epoch.
    A visible locked button by itself does not prove the automatic handoff.
 3. During a genuinely active building controller, use `Pause game`,
    `Game settings`, then `Save checkpoint`. Pause freezes gameplay, but visible
@@ -94,7 +102,9 @@ lineage must be explicit, especially across the intentional Load reset.
    Complete object95 at stage4/logs8/positive HP, capture its actual shared p world
    material and two natural tile selections, then public Pause and the real
    screenshot. A final ordinary Save may replace the active checkpoint only after
-   all requested lifecycle proof is complete. Leave settings open until normal
+   all requested lifecycle, UV/material and clean observer-restoration proof is
+   complete. The final validator rejects retained partial images with errors.
+   Leave settings open until normal
    harness shutdown, because closing it resumes the game.
 
 Public labels were checked in current page/store source: `Game settings`,
@@ -119,13 +129,29 @@ neither committed IndexedDB nor an ordinary browser journey. PR277's composed
 route/Save tests and the product's existing shared-store tests run separately.
 
 Node-only tests and syntax/diff checks are allowed in this source preparation.
-No installed dependencies are used, so formatting/lint/real-Three checks and any
-browser admission remain separate. Final product interfaces and application
-bytes must first be frozen and reviewed. Then wire the described lifecycle
-orchestration with the existing early-start/typed-Save helpers, run its cheap
-composed caller/cleanup checks, and declare exact runtime/port/profile/output and
-finite phase budgets before browser launch. No acquisition-prefix replay or old
-profile adoption is currently admitted.
+No installed dependencies are used here, so formatting/lint/real-Three checks and
+browser admission remain separate. Public event contracts now compose actual
+store Save/Load/Restart with the unchanged early-start mechanism and a supplied
+DOM/Scene callback. They verify exact pre-auto-resume replacement, active Restart,
+missing/untrusted controls and cleanup. The final proof predicate separately
+rejects unrestored/errors, wrong UV/resource correspondence and missing p owners.
+
+Use one maintained harness invocation with the coordinator's exact admitted values:
+
+```
+node scripts/local-render/harness.mjs --game-root GAME_ROOT --browser BROWSER \
+  --port PORT --mission 3 --timeout 1500000 \
+  --profile GAME_ROOT/work/local-render-profiles/FRESH_NAME \
+  --scenario GAME_ROOT/scripts/local-render/mission3-building-screen.mjs \
+  --output GAME_ROOT/work/orchestration/FRESH_OUTPUT
+```
+
+The inner ceiling is1500000ms and proposed outer bound1560s. It contains existing
+startup/native readiness60s, Vault/whole420s, home300s and construction420s ceilings;
+replacement binding uses the maintained45s page/scene waits, committed readback
+has100 sequential attempts, and two distinct natural world tiles have30s. All
+inputs remain single-shot. There is no automated prefix replay, failed-Save
+fallback, separate tactical input queue or old-profile adoption.
 
 All material and timing conclusions are browser-implementation evidence.
 They do not establish original wall-time cadence, one GPU frame per logical visit,

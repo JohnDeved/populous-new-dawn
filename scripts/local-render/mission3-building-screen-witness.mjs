@@ -1,7 +1,7 @@
 // Derived from PR274/a409893c's accepted synchronous visit/latched-draw witness.
 // Resize sampling is omitted. The original callbacks alone own turns, UI visits,
 // geometry feedback, shared-resource advancement, RNG and GPU drawing.
-export function installMission3BuildingScreenWitness({ shamanId, birth = null, templeArt, templeSpriteMaterial, templeTileOffset } = {}) {
+export function installMission3BuildingScreenWitness({ shamanId, birth = null, templeArt, templeSpriteMaterial, templeTileOffset, mapDraw } = {}) {
   if (window.m3BuildingScreen) throw new Error('A building-screen observer is already installed')
   const installation = window.m3BuildingScreenInstallation = { resumed: !!birth, state: null }
   const scene = window.testSceneRef.current, world = scene.world, clock = scene.gameClock,
@@ -10,12 +10,12 @@ export function installMission3BuildingScreenWitness({ shamanId, birth = null, t
   if (world !== window.testStore.getWorld() || world.outcome.level !== 3 || !vault ||
       !Object.hasOwn(world.worshipAcquisition.controllers, 'building') ||
       typeof window.testStore.getPresentationSnapshot !== 'function' ||
-      typeof templeSpriteMaterial !== 'function' || typeof templeTileOffset !== 'function' ||
+      typeof templeSpriteMaterial !== 'function' || typeof templeTileOffset !== 'function' || typeof mapDraw !== 'function' ||
       templeArt?.modelAtlas !== 'temple-model-p' || templeArt?.sparkleAtlas !== 'temple-sparkles-p')
     throw new Error('Current authored M3 screen/material product required')
   const evidence = { source: { level: 3, vaultId: vault.id, shamanId }, birth: birth && structuredClone(birth),
     handoffs: 0, worldVisits: 0, uiVisits: 0, draws: 0, grants: 0, stages: {}, phases: {},
-    recentUi: [], skippedGpuDraws: 0, skippedGpuSamples: [], frames: {}, materialSamples: [], worldTempleSamples: [], errors: [], restored: false }
+    recentUi: [], skippedGpuDraws: 0, skippedGpuSamples: [], frames: {}, materialSamples: [], materialOwners: {}, worldTempleSamples: [], errors: [], restored: false }
   let giftId = birth?.gift.id ?? null, beforeTurn = null, closed = false,
     controller = world.worshipAcquisition.controllers.building
   const error = failure => { if (evidence.errors.length < 16) evidence.errors.push(String(failure?.stack ?? failure)) }
@@ -66,15 +66,33 @@ export function installMission3BuildingScreenWitness({ shamanId, birth = null, t
     return structuredClone(resource)
   }
   const imageSource = map => map?.image?.currentSrc || map?.image?.src || null
-  const modelMaterial = surface => {
+  const modelMaterial = (surface, command) => {
     const atlas = surface?.atlas, src = imageSource(atlas)
     check(src?.split('?')[0].endsWith(`/${templeArt.modelAtlas}.png`), 'Actual acquisition material is not the p atlas')
+    check(atlas.image.width === 256 && atlas.image.height === 1024 && atlas.colorSpace === '',
+      'Actual p model atlas dimensions or encoded color space changed')
     check(surface.material.uniforms.atlas.value === atlas && atlas.source === surface.atlasSource.source,
       'Acquisition atlas clone/uniform owner changed')
     const uv = Array.from(surface.uv.array.slice(0, surface.geometry.drawRange.count * 2))
+    const current = presentation.bridge.measure(command.model, command.geometry), shell = scene.container.parentElement
+    check(current, 'Actual screen target measurement disappeared')
+    const interval = world.worshipAcquisition.clock.nextVisit - world.worshipAcquisition.clock.lastVisit
+    const fraction = world.paused || world.land.landFlags & 2 || !interval ? 1 :
+      Math.max(0, Math.min(1, (world.worshipAcquisition.clock.elapsed - world.worshipAcquisition.clock.lastVisit) / interval))
+    const triangles = mapDraw(command, current, shell.clientWidth, shell.clientHeight,
+      presentation.previousBuilding, fraction, scene.templeResourceSnapshot)
+    check(triangles.length * 3 === surface.geometry.drawRange.count, 'Actual screen triangle count differs from the latched production mapping')
+    let vertex = 0, sharedVertices = 0
+    for (const triangle of triangles) for (const point of triangle.points) {
+      check(uv[vertex * 2] === Math.fround(point.u) && uv[vertex * 2 + 1] === Math.fround(point.v),
+        'Actual submitted screen UV does not consume the recorded p resource')
+      if (triangle.mode === 32) sharedVertices++
+      vertex++
+    }
     const tiles = [...new Set(Array.from({ length: uv.length / 2 }, (_, index) =>
       Math.floor((1 - uv[index * 2 + 1]) * 1024 / 32) * 8 + Math.floor(uv[index * 2] * 256 / 32)))]
-    return { src, colorSpace: atlas.colorSpace, minFilter: atlas.minFilter, magFilter: atlas.magFilter, uv, tiles }
+    return { src, colorSpace: atlas.colorSpace, minFilter: atlas.minFilter, magFilter: atlas.magFilter,
+      uv, tiles, uvValidated: true, sharedVertices }
   }
   const gpuState = () => {
     const surface = presentation.buildingSurface, renderer = surface?.renderer
@@ -96,7 +114,7 @@ export function installMission3BuildingScreenWitness({ shamanId, birth = null, t
     frame.vertices = surface?.geometry.drawRange.count ?? 0
     if (command && gpuProof.fresh && frame.vertices > 0) {
       check(command.model === 5 && command.geometryModel === 95, 'Latched screen command is not the actual Temple geometry')
-      frame.material = modelMaterial(surface)
+      frame.material = modelMaterial(surface, command)
       const gl = surface.renderer.getContext(), pixels = new Uint8Array(gpu.width * gpu.height * 4)
       gl.readPixels(0, 0, gpu.width, gpu.height, gl.RGBA, gl.UNSIGNED_BYTE, pixels)
       frame.opaquePixels = 0
@@ -206,10 +224,12 @@ export function installMission3BuildingScreenWitness({ shamanId, birth = null, t
         check(resolved.atlas === templeArt.sparkleAtlas && presentation.sprites.get(key) === result,
           'Actual shared sprite did not consume the resolved p crop/tint cache entry')
         check(result.width === resolved.crop.w && result.height === resolved.crop.h, 'Shared p crop dimensions changed')
-        if (evidence.materialSamples.length < 32 && !evidence.materialSamples.some(sample => sample.key === key))
-          evidence.materialSamples.push({ key, owner: command.owner, frame: command.frame, palette: command.palette,
+        const sample = { key, owner: command.owner, frame: command.frame, palette: command.palette,
             commandRgb: command.rgb, resolvedRgb: resolved.rgb, crop: structuredClone(resolved.crop), resource,
-            width: result.width, height: result.height })
+            width: result.width, height: result.height }
+        evidence.materialOwners[command.owner] ??= sample
+        if (evidence.materialSamples.length < 32 && !evidence.materialSamples.some(prior => prior.key === key && prior.owner === command.owner))
+          evidence.materialSamples.push(sample)
       })
       return result
     })
@@ -265,6 +285,9 @@ export function installMission3BuildingScreenWitness({ shamanId, birth = null, t
         if (fresh && command?.whole && presentation.buildingSurface.geometry.drawRange.count > 0) capture('whole', command, gpuProof)
         if (fresh && command && !command.whole && command.submissions.some(face => face.flight > 0) &&
             presentation.buildingSurface.geometry.drawRange.count > 0) capture('flight', command, gpuProof)
+        if (!evidence.frames.sharedTile && fresh && command && scene.templeResourceSnapshot.tile !== 92 &&
+            presentation.buildingSurface.geometry.drawRange.count > 0 && modelMaterial(presentation.buildingSurface, command).sharedVertices > 0)
+          capture('sharedTile', command, gpuProof)
         if (building?.giftId === giftId && !building.active && world.unlockedTemple) capture('terminal', command, gpuProof)
         check(frozen() === before, 'RAF draw mutated saved acquisition/RNG state')
       })

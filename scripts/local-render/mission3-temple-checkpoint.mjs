@@ -180,7 +180,7 @@ export default async function mission3TempleCheckpoint({
   signal,
   receipt,
   observeCheckpoint,
-}) {
+}, acquisitionSteps = null) {
   assert.equal(receipt.profile?.mode, 'created', 'Use a new owned profile for this one-time route')
   assert.equal(receipt.profile.checkpointAtStart, null)
   const report = {
@@ -267,12 +267,15 @@ export default async function mission3TempleCheckpoint({
     assert.equal(initial.vault.length, 1)
     assert.equal(initial.vault[0].uses, 0)
     input = createMission1VaultInput({ page, signal, report, save, originalShamanId: shamanId })
+    const acquisitionContext = { page, input, report, save, shamanId, read }
+    if (acquisitionSteps) await acquisitionSteps.begin(acquisitionContext)
     await clear()
     await input.button('Select and focus shaman')
     await input.view(initial.vault[0])
     report.vaultOrder = await input.clickEntity('shrines', initial.vault[0].id, 33, false, [
       shamanId,
     ])
+    if (acquisitionSteps) await acquisitionSteps.preserveActive(acquisitionContext)
     report.reward = await wait(
       'earned-temple-knowledge',
       state => state.unlocked && state.vault[0].uses === 1,
@@ -396,6 +399,7 @@ export default async function mission3TempleCheckpoint({
         ),
       420000
     )
+    if (acquisitionSteps) await acquisitionSteps.observeWorld(acquisitionContext)
     await input.pause()
     await clear()
     await input.view(temple)
@@ -420,6 +424,7 @@ export default async function mission3TempleCheckpoint({
     save()
     assertTempleRouteHealth(report.terminal, shamanId, receipt.errors)
     assert.equal(report.terminal.paused, true)
+    if (acquisitionSteps) await acquisitionSteps.finish(acquisitionContext)
     report.status = 'passed'
   } catch (error) {
     failed = true

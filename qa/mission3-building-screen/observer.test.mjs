@@ -8,6 +8,7 @@ import { createSharedAniblResource } from '../../app/shared-anibl.ts'
 import { createGameStore } from '../../app/game-store.ts'
 import { tick } from '../../app/model.ts'
 import { startPendingWorshipAcquisitions, visitWorshipAcquisition } from '../../app/worship-acquisition-runtime.ts'
+import { requireScreenProof } from '../../scripts/local-render/mission3-building-screen.mjs'
 
 function fixture(t, { pixels = true, mutateDraw = false, initialBirth = null, skipGpu = false, skipHandoff = false, lazySurface = false, missedResume = false, wrongAtlas = false, wrongWorldEpoch = false, throwDraw = false } = {}) {
   const rect = { x: 3, y: 260, width: 46, height: 52 }, geometry = {
@@ -16,14 +17,14 @@ function fixture(t, { pixels = true, mutateDraw = false, initialBirth = null, sk
   }
   const world = { turn: 10, speed: 1, paused: false, mode: 'blast', unlockedTemple: false, outcome: { level: 3 },
     units: [{ id: 30, hp: 100, kind: 'shaman', team: 'blue' }], manaWorld: { playerTribe: 0 },
-    buildings: [], shrines: [{ id: 2, kind: 'vault', mode: 4, reward: 'temple', x: -37, z: -133, active: true }], gifts: [],
+    land: { landFlags: 0 }, buildings: [], shrines: [{ id: 2, kind: 'vault', mode: 4, reward: 'temple', x: -37, z: -133, active: true }], gifts: [],
     cosmeticRandom: { randomState: 1 }, worshipAcquisition: {
       controllers: { building: null, spell: null, companion: null, pulse: null, drawCommands: [] },
       previousDrawCommands: [], requests: [], clock: { elapsed: 0, nextVisit: 0, lastVisit: 0, limiter: 0, normalRate: 40 },
     } }
   let buildingsSelected = false, uiWhole = true, uiFlight = 0
   const card = { get disabled() { return !world.unlockedTemple }, getBoundingClientRect: () => rect }
-  const root = { getBoundingClientRect: () => ({ x: 0, y: 0 }), querySelector(selector) {
+  const root = { clientWidth: 640, clientHeight: 480, getBoundingClientRect: () => ({ x: 0, y: 0 }), querySelector(selector) {
     if (selector.includes('buildings B')) return { getAttribute: () => String(buildingsSelected) }
     if (selector.includes('Temple')) return buildingsSelected ? card : null
     if (selector === '.native-hud') return { offsetWidth: 200, getBoundingClientRect: () => ({ width: 200 }) }
@@ -56,7 +57,7 @@ function fixture(t, { pixels = true, mutateDraw = false, initialBirth = null, sk
   const surface = { atlas, atlasSource: { source }, material: { uniforms: { atlas: { value: atlas } } }, uv: { array: new Float32Array(6) }, geometry: { drawRange: { count: 3 } },
     renderer: { domElement: canvas, getContext: () => gl, info: { render: { frame: 0 } } } }
   const presentation = scene.worshipPresentation = { canvas, anchors: new Map([[54, { point: geometry.origin, viewport: geometry.viewport, valid: true }]]),
-    buildingSurface: lazySurface ? undefined : surface, sprites: new Map(),
+    buildingSurface: lazySurface ? undefined : surface, sprites: new Map(), bridge: { measure: () => geometry },
     sprite(command) {
       const material = templeSpriteMaterial(command.frame, command.palette, scene.templeResourceSnapshot)
       const key = `${material.atlas}:${command.frame}:${material.rgb}`
@@ -111,7 +112,12 @@ function fixture(t, { pixels = true, mutateDraw = false, initialBirth = null, sk
     birth(); world.turn = initialBirth.turn + 6; world.gifts[0].phase = 0; world.gifts[0].remaining = 76; start()
   }
   if (missedResume) { world.gifts = []; world.unlockedTemple = true; world.worshipAcquisition.controllers.building.active = false }
-  installMission3BuildingScreenWitness({ shamanId: 30, birth: initialBirth, templeArt, templeSpriteMaterial, templeTileOffset })
+  installMission3BuildingScreenWitness({ shamanId: 30, birth: initialBirth, templeArt, templeSpriteMaterial, templeTileOffset,
+    mapDraw(_command, _current, _width, _height, _previous, _fraction, resource) {
+      return [{ mode: 32, points: Array.from({ length: 3 }, () => ({
+        u: ((resource.tile & 7) * 32 + .5) / 256, v: 1 - ((resource.tile >> 3) * 32 + .5) / 1024,
+      })) }]
+    } })
   const api = window.m3BuildingScreen
   t.after(() => { if (globalThis.window?.m3BuildingScreen === api) api.close(); delete globalThis.window })
   const close = () => {
@@ -280,5 +286,38 @@ test('proposed controls and Load/Restart resource owners match the current produ
   assert.ok(store.includes('replaceWorld(migrateCheckpoint(structuredClone(checkpoint)))'))
   assert.ok(store.includes('world.outcome.level === 3 && !(world.land.landFlags & 8)'))
   assert.ok(scene.includes('this.templeResourceSnapshot = this.presentationBinding?.snapshot() ?? null'))
+})
+
+test('final proof requires clean restored evidence, evaluated dynamic UVs and both actual p sprite owners', t => {
+  const f = fixture(t)
+  f.turn(f.birth); for (let i = 0; i < 6; i++) f.giftVisit()
+  f.ui(true); f.draw(); f.ui(false, .2); f.draw()
+  f.scene.worshipPresentation.sprite({ family: 'building', giftId: 54, owner: 'pulse',
+    frame: templeArt.frames[0].source, palette: 0, rgb: 0 })
+  for (let i = 6; i < 82; i++) f.giftVisit()
+  f.world.worshipAcquisition.controllers.building.active = false
+  f.draw(); f.worldDraw(); f.worldDraw()
+  const fresh = f.close()
+  for (const frame of Object.values(fresh.frames)) {
+    // Supplied artifact metadata exercises only the pure final predicate.
+    frame.overlayFile = { sha256: 'a'.repeat(64) }
+    frame.buildingFile = { sha256: 'b'.repeat(64) }
+  }
+  const final = structuredClone(fresh)
+  final.handoffs = 0
+  const epochs = { fresh, final }
+  requireScreenProof(epochs, 1021)
+  const dirty = structuredClone(epochs)
+  dirty.fresh.errors.push('Retained failed partial')
+  assert.throws(() => requireScreenProof(dirty, 1021), /Partial frame presence/)
+  const unrestored = structuredClone(epochs)
+  unrestored.final.restored = false
+  assert.throws(() => requireScreenProof(unrestored, 1021))
+  const wrongUv = structuredClone(epochs)
+  for (const epoch of Object.values(wrongUv)) epoch.frames.sharedTile.material.tiles = [92]
+  assert.throws(() => requireScreenProof(wrongUv, 1021), /non-base shared tile/)
+  const missingPulse = structuredClone(epochs)
+  for (const epoch of Object.values(missingPulse)) delete epoch.materialOwners.pulse
+  assert.throws(() => requireScreenProof(missingPulse, 1021), /pulse/)
 })
 
