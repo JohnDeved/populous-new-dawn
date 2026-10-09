@@ -1,0 +1,522 @@
+{
+  "schema": "pnd-bounded-model-observation-1",
+  "issue": 61,
+  "result": "FAILED",
+  "source": {
+    "base": "d6cf109474379172728a3ccebf46ef72a15f3a58",
+    "head": "8cff0e24fdb4277268eaadb7c6ba1e9e3ea59b6a",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "beforeAfterInputsEqual": true,
+    "script": {
+      "path": "qa/mission3-swarm/building-feasibility.mjs",
+      "sha256": "7992b0d6908366fe8518771e781454b640e62f5026fc14b4478c8ede3af8c5e7"
+    }
+  },
+  "run": {
+    "command": [
+      "timeout",
+      "90s",
+      "taskset",
+      "-c",
+      "4",
+      "node",
+      "qa/mission3-swarm/building-feasibility.mjs"
+    ],
+    "startedAt": "2026-10-09T10:08:51.985Z",
+    "finishedAt": "2026-10-09T10:09:03.336Z",
+    "wallMs": 11351,
+    "exitCode": 1,
+    "signal": null,
+    "rowCount": 345,
+    "sampleRows": 337,
+    "declaredTurnCap": 6000,
+    "reachedTurn": 5864,
+    "byteCap": 16777216,
+    "failure": "Original Shaman lost",
+    "finalRetainedCasterHp": 0,
+    "scope": "Model command scheduling only; no player Swarm cast, browser/renderer, checkpoint or native execution."
+  },
+  "artifacts": [
+    {
+      "path": "work/orchestration/issue61-building-feasibility-01/receipt.json",
+      "bytes": 3951372,
+      "sha256": "dfcf83f8d78c4b5f485a638912b23f2732fa66fdb44185710b8529424b6d72f0"
+    },
+    {
+      "path": "work/orchestration/issue61-building-feasibility-01/receipt.json.artifacts/stdout.log",
+      "bytes": 3429169,
+      "sha256": "1b8e8e0ce0f1f8330060c7d508c1319430888aa90de87bc1a7d8a5309af90114"
+    },
+    {
+      "path": "work/orchestration/issue61-building-feasibility-01/receipt.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "sourceAcceptance": {
+    "path": "/tmp/issue61-building-feasibility-8cff0e2-review-20261009.md",
+    "bytes": 3378,
+    "sha256": "9b299af5b78bc3e4afcb6c9fb43f499fd4488304a68855a942e71710aefab401",
+    "decision": "ACCEPT exact source; execution separately admitted"
+  },
+  "resultReview": {
+    "path": "/tmp/issue61-building-feasibility-01-result-review-20261009.md",
+    "bytes": 6717,
+    "sha256": "7130da09055c1c86bfa08a94ab73acbd4f13651abe1262970344c97c449cfff1",
+    "decision": "ACCEPT partial model observations; run remains FAILED"
+  },
+  "route": {
+    "vaultDispatchTurn": 372,
+    "vaultTarget": 92,
+    "commandModel": 33,
+    "selectedShamanId": 46,
+    "modelInputMask": 64,
+    "retainedOrdinaryInputMask": 0,
+    "modelReadinessReady": false,
+    "knowledgeAndStagingCommandTurn": 1403,
+    "nativeStagingArrivalTurn": 1452,
+    "arrival": {
+      "x": -31.7109375,
+      "z": -116.4140625,
+      "hp": 100
+    },
+    "firstRetainedDamageTurn": 5245
+  },
+  "temple": {
+    "firstRetainedCompletedTurn": 2098,
+    "firstRetainedOwnedOccupancyTurn": 2121,
+    "lastRetainedOwnedOccupancyTurn": 2240,
+    "firstRetainedEmptyAfterwardTurn": 2252,
+    "identity": {
+      "id": 1022,
+      "kind": "temple",
+      "team": "yellow",
+      "tribe": 2,
+      "nativeModel": 5,
+      "pose": {
+        "object": 97,
+        "angle": 1536,
+        "anchorX": 58368,
+        "anchorY": 23040
+      },
+      "displayed": {
+        "x": -34.15625,
+        "z": -99.015625
+      },
+      "modelOrigin": {
+        "x": 58840,
+        "y": 23300
+      },
+      "outside": {
+        "x": 60096,
+        "y": 23296
+      },
+      "insidePoint": {
+        "x": 58816,
+        "y": 23296
+      }
+    },
+    "firstAdmission": {
+      "id": 1022,
+      "class": 2,
+      "model": 5,
+      "tribe": 2,
+      "inside": 1,
+      "occupants": [
+        2631,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "flags2": 0,
+      "flags3": 0,
+      "activity": 136
+    },
+    "firstPhysicalSlot": {
+      "slot": 0,
+      "id": 2631,
+      "unit": {
+        "id": 2631,
+        "hp": 50,
+        "team": "yellow",
+        "kind": "brave",
+        "inside": 1022
+      },
+      "personOwner": "entry.person",
+      "person": {
+        "id": 2631,
+        "class": 1,
+        "model": 2,
+        "tribe": 2,
+        "state": 10,
+        "building": 1022,
+        "flags2": 1115820544,
+        "flags3": 264192,
+        "flags4": 536871170,
+        "life": 1000
+      },
+      "occupied": true
+    },
+    "fixedDiagnosticImpact": {
+      "x": -43,
+      "z": -107
+    },
+    "rangeAtQualifiedSamples": {
+      "origin": {
+        "x": 59466,
+        "y": 27754
+      },
+      "range": 5952,
+      "distance": 3763,
+      "margin": 2189,
+      "meetsMargin": true
+    },
+    "qualifiedRetainedSamples": [
+      {
+        "turn": 2121,
+        "buildingId": 1022,
+        "admissionInside": 1,
+        "admissionFlags3": 0,
+        "slot": 0,
+        "unitId": 2631,
+        "personOwner": "entry.person",
+        "personId": 2631,
+        "personBuilding": 1022,
+        "personFlags2": 1115820544,
+        "personState": 10,
+        "unitHp": 50,
+        "casterHp": 100,
+        "stock": 2,
+        "rangeMargin": 2189,
+        "inputMask": 64
+      },
+      {
+        "turn": 2122,
+        "buildingId": 1022,
+        "admissionInside": 1,
+        "admissionFlags3": 0,
+        "slot": 0,
+        "unitId": 2631,
+        "personOwner": "entry.person",
+        "personId": 2631,
+        "personBuilding": 1022,
+        "personFlags2": 1115816448,
+        "personState": 10,
+        "unitHp": 50,
+        "casterHp": 100,
+        "stock": 2,
+        "rangeMargin": 2189,
+        "inputMask": 64
+      },
+      {
+        "turn": 2124,
+        "buildingId": 1022,
+        "admissionInside": 1,
+        "admissionFlags3": 4096,
+        "slot": 0,
+        "unitId": 2631,
+        "personOwner": "entry.person",
+        "personId": 2631,
+        "personBuilding": 1022,
+        "personFlags2": 1115816448,
+        "personState": 10,
+        "unitHp": 50,
+        "casterHp": 100,
+        "stock": 2,
+        "rangeMargin": 2189,
+        "inputMask": 64
+      },
+      {
+        "turn": 2125,
+        "buildingId": 1022,
+        "admissionInside": 1,
+        "admissionFlags3": 4096,
+        "slot": 0,
+        "unitId": 2631,
+        "personOwner": "entry.person",
+        "personId": 2631,
+        "personBuilding": 1022,
+        "personFlags2": 1115820544,
+        "personState": 10,
+        "unitHp": 50,
+        "casterHp": 100,
+        "stock": 2,
+        "rangeMargin": 2189,
+        "inputMask": 64
+      },
+      {
+        "turn": 2128,
+        "buildingId": 1022,
+        "admissionInside": 1,
+        "admissionFlags3": 4096,
+        "slot": 0,
+        "unitId": 2631,
+        "personOwner": "entry.person",
+        "personId": 2631,
+        "personBuilding": 1022,
+        "personFlags2": 1115816448,
+        "personState": 10,
+        "unitHp": 50,
+        "casterHp": 100,
+        "stock": 2,
+        "rangeMargin": 2189,
+        "inputMask": 64
+      },
+      {
+        "turn": 2175,
+        "buildingId": 1022,
+        "admissionInside": 1,
+        "admissionFlags3": 4096,
+        "slot": 0,
+        "unitId": 2631,
+        "personOwner": "entry.person",
+        "personId": 2631,
+        "personBuilding": 1022,
+        "personFlags2": 1115816448,
+        "personState": 10,
+        "unitHp": 50,
+        "casterHp": 100,
+        "stock": 2,
+        "rangeMargin": 2189,
+        "inputMask": 64
+      },
+      {
+        "turn": 2176,
+        "buildingId": 1022,
+        "admissionInside": 1,
+        "admissionFlags3": 4096,
+        "slot": 0,
+        "unitId": 2631,
+        "personOwner": "entry.person",
+        "personId": 2631,
+        "personBuilding": 1022,
+        "personFlags2": 1115816448,
+        "personState": 10,
+        "unitHp": 50,
+        "casterHp": 100,
+        "stock": 2,
+        "rangeMargin": 2189,
+        "inputMask": 64
+      },
+      {
+        "turn": 2240,
+        "buildingId": 1022,
+        "admissionInside": 1,
+        "admissionFlags3": 4096,
+        "slot": 0,
+        "unitId": 2631,
+        "personOwner": "entry.person",
+        "personId": 2631,
+        "personBuilding": 1022,
+        "personFlags2": 1115816448,
+        "personState": 10,
+        "unitHp": 50,
+        "casterHp": 100,
+        "stock": 2,
+        "rangeMargin": 2189,
+        "inputMask": 64
+      }
+    ]
+  },
+  "hutFirstInsideRecords": [
+    {
+      "firstRetainedTurn": 2958,
+      "buildingId": 1021,
+      "inside": 1,
+      "slots": [
+        {
+          "slot": 0,
+          "id": 2597,
+          "unitHp": 50,
+          "unitInside": 1021,
+          "personOwner": null,
+          "person": null,
+          "qualified": false
+        }
+      ]
+    },
+    {
+      "firstRetainedTurn": 3666,
+      "buildingId": 1020,
+      "inside": 1,
+      "slots": [
+        {
+          "slot": 0,
+          "id": 2495,
+          "unitHp": 50,
+          "unitInside": 1020,
+          "personOwner": null,
+          "person": null,
+          "qualified": false
+        }
+      ]
+    },
+    {
+      "firstRetainedTurn": 4290,
+      "buildingId": 1019,
+      "inside": 1,
+      "slots": [
+        {
+          "slot": 0,
+          "id": 52,
+          "unitHp": 50,
+          "unitInside": 1019,
+          "personOwner": null,
+          "person": null,
+          "qualified": false
+        }
+      ]
+    },
+    {
+      "firstRetainedTurn": 5114,
+      "buildingId": 1018,
+      "inside": 2,
+      "slots": [
+        {
+          "slot": 0,
+          "id": 2665,
+          "unitHp": 50,
+          "unitInside": 1018,
+          "personOwner": null,
+          "person": null,
+          "qualified": false
+        },
+        {
+          "slot": 1,
+          "id": 53,
+          "unitHp": 50,
+          "unitInside": 1018,
+          "personOwner": null,
+          "person": null,
+          "qualified": false
+        }
+      ]
+    },
+    {
+      "firstRetainedTurn": 5844,
+      "buildingId": 1017,
+      "inside": 2,
+      "slots": [
+        {
+          "slot": 0,
+          "id": 3033,
+          "unitHp": 50,
+          "unitInside": 1017,
+          "personOwner": null,
+          "person": null,
+          "qualified": false
+        },
+        {
+          "slot": 1,
+          "id": 2975,
+          "unitHp": 50,
+          "unitInside": 1017,
+          "personOwner": null,
+          "person": null,
+          "qualified": false
+        }
+      ]
+    }
+  ],
+  "acquisition": {
+    "sourceDerivedCellCount": 167,
+    "indices": [
+      0,
+      166
+    ],
+    "extraCenterVisit": false,
+    "initialHistory": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "nonemptyClass2PrefixSamples": 0,
+    "predictedTarget": null,
+    "blocker": "Port lacks class-2 object-list producer and native membership/order correspondence; neutral authored class-2 Vault is absent from world.buildings. Position, entrance and footprint are not substitute memberships."
+  },
+  "limits": [
+    "Eight qualified retained Temple records are partial model occupancy/stock/range evidence, not a passed run or continuous browser interval.",
+    "Range is to one diagnostic impact origin; the Temple was never acquired, pursued or ejected by Swarm.",
+    "Model inputMask64 differs from prior ordinary UI mask0; no Skip/readiness replay is claimed.",
+    "Null Hut person owners never qualify, despite living unit.inside and admission-slot records.",
+    "No player Swarm cast, forced stock/HP/occupancy, alternative route, extended budget or rerun.",
+    "No native selection/history/controller, lifetime sufficiency, insect entry/exit, damage/ejection, checkpoint, rendered pixels, audio, performance or parity closure.",
+    "Raw receipt/logs remain in ignored storage; no raw logs, archives or browser profiles are published."
+  ],
+  "independentFacts": {
+    "path": "/tmp/issue61-building-feasibility-01-independent-facts.json",
+    "bytes": 9975,
+    "sha256": "faedd44f2a562e9d3c8e2b6f5116611831ebb9eace68117696c1549634315ad2"
+  },
+  "ownerlessYellowResidents": {
+    "distinctPairs": 14,
+    "pairs": [
+      {
+        "buildingId": 1017,
+        "unitId": 2975
+      },
+      {
+        "buildingId": 1017,
+        "unitId": 3033
+      },
+      {
+        "buildingId": 1018,
+        "unitId": 53
+      },
+      {
+        "buildingId": 1018,
+        "unitId": 2665
+      },
+      {
+        "buildingId": 1019,
+        "unitId": 48
+      },
+      {
+        "buildingId": 1019,
+        "unitId": 51
+      },
+      {
+        "buildingId": 1019,
+        "unitId": 52
+      },
+      {
+        "buildingId": 1020,
+        "unitId": 2495
+      },
+      {
+        "buildingId": 1020,
+        "unitId": 2529
+      },
+      {
+        "buildingId": 1020,
+        "unitId": 2563
+      },
+      {
+        "buildingId": 1021,
+        "unitId": 49
+      },
+      {
+        "buildingId": 1021,
+        "unitId": 50
+      },
+      {
+        "buildingId": 1021,
+        "unitId": 2597
+      },
+      {
+        "buildingId": 1021,
+        "unitId": 2879
+      }
+    ],
+    "interpretation": "Real port slot/Unit.inside residency, not fully owned native-person target evidence; removal context constructs defaults when entry/native owner is absent."
+  }
+}
