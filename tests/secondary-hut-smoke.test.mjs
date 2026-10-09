@@ -174,7 +174,13 @@ test('native free-list reuse and checkpoint reconstruction preserve physical slo
 
 test('panel and preview reservations are derived from live adapter owners', async () => {
   const { syncSecondaryReservations } = await import('../app/scene-secondary-effects.ts')
-  const world = { secondaryEffects: createSecondaryEffects() },
+  const world = {
+      secondaryEffects: createSecondaryEffects(),
+      buildings: [
+        { id: 20, kind: 'camp', team: 'blue', progress: 1, hp: 100 },
+        { id: 21, kind: 'tower', team: 'blue', progress: 1, hp: 100 },
+      ],
+    },
     scene = {
       world,
       objectPanels: {
