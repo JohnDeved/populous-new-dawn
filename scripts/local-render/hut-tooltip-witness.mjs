@@ -159,7 +159,8 @@ export function installHutTooltipLifecycle(GameScene, observeEntityPointer, { de
             ? !element.hidden && label.startsWith('Small Hut:') : capture.when === 'blast'
               ? hudVisible && hudText.startsWith('Blast') && scene.tooltipController.category === 'hud' &&
                 scene.tooltipController.owners.hud && scene.tooltip.draw === 1 : capture.when?.kind === 'named-object'
-                ? !element.hidden && label === capture.when.text && scene.tooltip.text === capture.when.text &&
+                ? !element.hidden && label === capture.when.text.replaceAll('{}', 'Left-click ').replaceAll('|}', 'Right-click ') &&
+                  scene.tooltip.text === capture.when.text &&
                   scene.tooltip.draw === 1 && scene.tooltipInput?.picked === capture.when.id &&
                   scene.tooltipInput.object?.id === capture.when.id && scene.tooltipController.category === 'object' &&
                   scene.tooltipController.key === capture.when.id &&

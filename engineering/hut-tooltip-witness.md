@@ -121,8 +121,10 @@ check that held owner. Ground preparation, like object preparation, crosses a
 later natural-render boundary before its credited pointer input.
 Review actual positive acquisition/reuse/leave evidence and the
 retained pixels; a preexisting visible record alone cannot prove inspection.
-The tree capture requires actual input/picked20, exact imported string835 and
-mature draw at the same real paint. Ordinary01's earlier hidden frame and later
+The tree capture requires actual input/picked20, exact imported raw string835,
+the renderer's Left-click/Right-click expanded label and mature draw at the same
+real paint. A cheap contract executes the exact selected renderer body.
+Ordinary01's earlier hidden frame and later
 timeout remain a failed QA expectation, not unnamed-tree evidence. The tree is
 named; unnamed-object and positive textless-HUD coverage remain absent.
 The finite route does not guarantee forced/HUD overlap, fresh explicit allocation

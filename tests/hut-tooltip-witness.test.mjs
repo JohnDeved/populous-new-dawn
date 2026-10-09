@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { stripTypeScriptTypes } from 'node:module'
 import { installHutTooltipLifecycle } from '../scripts/local-render/hut-tooltip-witness.mjs'
 import { readHutPanelControl } from '../scripts/local-render/hut-tooltip-input.mjs'
 
@@ -94,30 +96,51 @@ test('separate natural paint owners retain same-RAF tooltip, WebGL and later HUD
   } finally { api?.close(); f.restore() }
 })
 
-test('named DAT20 capture requires its actual pick, imported835 text and mature draw at paint', () => {
+test('actual renderTooltip body binds DAT20 pick, imported835 raw text, expanded label and mature paint', () => {
   const palette = JSON.parse(readFileSync(new URL('../app/original-tooltips.json', import.meta.url), 'utf8'))
   assert.equal(palette.names[5][1][0], 835)
   const text = palette.strings[835]
   assert.ok(text.startsWith('Tree:'))
   const f = fixture(); let api
+  const renderSource = readFileSync(process.env.HUT_TOOLTIP_PRODUCT_ROOT
+    ? resolve(process.env.HUT_TOOLTIP_PRODUCT_ROOT, 'app/scene-input-runtime.ts')
+    : new URL('../app/scene-input-runtime.ts', import.meta.url), 'utf8')
+  const renderBody = renderSource.slice(renderSource.indexOf('export function renderTooltip('), renderSource.indexOf('\nexport function drawPointer('))
+  assert.ok(renderBody.startsWith('export function renderTooltip('))
+  const paintInputs = []
+  const render = Function('worldTooltipObject', 'drawTooltip', 'texture',
+    `${stripTypeScriptTypes(renderBody.replace(/^export /, ''))}; return renderTooltip`)(
+    () => ({ id: 20, type: 5, model: 1 }), (_canvas, _texture, raw) => paintInputs.push(raw), () => ({ image: {} }))
+  f.Scene.prototype.renderTooltip = function () { return render(this) }
   try {
     api = installHutTooltipLifecycle(f.Scene, f.observe, { deadlineAt: Date.now() + 10000 })
     const scene = new f.Scene(); scene.start()
+    const labels = new Map()
+    Object.assign(scene.tooltipElement, { offsetWidth: 100, offsetHeight: 20,
+      setAttribute: (name, value) => labels.set(name, value), getAttribute: name => labels.get(name) })
+    scene.container = { getBoundingClientRect: () => ({ left: 0, top: 0, width: 800, height: 600 }) }
+    scene.screen = () => ({ x: 0, y: 0 }); scene.y = () => 0; scene.visible = () => true
     api.phase('named-tree-history', { kind: 'named-object', id: 20, text })
     const good = () => {
       scene.tooltipInput = { picked: 20, object: { id: 20, type: 5, model: 1 } }
       Object.assign(scene.tooltipController, { category: 'object', key: 20, dwell: 13 })
       Object.assign(scene.tooltip, { draw: 1, text })
     }
+    const paint = () => {
+      scene.tooltipController.output = { ...scene.tooltip, kind: 'object', pointer: { clientX: 40, clientY: 50 } }
+      scene.renderTooltip()
+    }
     for (const invalidate of [s => { s.tooltip.draw = 0 }, s => { s.tooltip.text = '' },
       s => { s.tooltipInput.picked = 37 }, s => { s.tooltipInput.object.id = 37 },
       s => { s.tooltipController.key = 37 }, s => { s.tooltipController.dwell = 12 }]) {
-      good(); invalidate(scene); scene.renderTooltip()
+      good(); invalidate(scene); paint()
       assert.equal(api.read().frames['named-tree-history'], undefined)
     }
-    good(); scene.renderTooltip(); scene.renderer.render(scene.scene, scene.camera); scene.updateHudFrame()
+    good(); paint(); scene.renderer.render(scene.scene, scene.camera); scene.updateHudFrame()
     const frame = api.read().frames['named-tree-history']
-    assert.equal(frame.tooltip.label, text); assert.equal(frame.tooltip.hidden, false)
+    assert.equal(frame.tooltip.label, text.replaceAll('{}', 'Left-click ').replaceAll('|}', 'Right-click '))
+    assert.notEqual(frame.tooltip.label, text); assert.equal(paintInputs.at(-1), text)
+    assert.equal(frame.tooltip.hidden, false)
     assert.equal(frame.tooltip.state.input.picked, 20); assert.equal(frame.tooltip.state.controller.dwell, 13)
     assert.equal(api.status().captures['named-tree-history'], true)
   } finally { api?.close(); f.restore() }
