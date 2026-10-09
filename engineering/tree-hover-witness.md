@@ -23,7 +23,11 @@ No arbitrary turn-age cutoff or cache clearing is used.
 
 The finite route is tree hover, stationary-pointer W pan, stationary-pointer zoom
 out, zoom-in/minimap return, tree re-hover, actual HUD leave, Blue Hut hover and HUD
-leave. Each live object hover observes all four natural turn residues. Uniforms
+leave. Each tree hover observes all four natural turn residues. The secondary Hut control
+requires one actual post-input pick and natural-phase highlight, then a real trusted
+canvas leave and later zero-render transition. Its existing interactive panel may
+own the leave before the host arms the final continuation; that actual event must
+follow the credited Hut hit. No panel suppression or pointer chasing is used. Uniforms
 must be200 for residues0/1 and255 for2/3; both inspected models must be0 when not
 hovered. Actual input handlers have synchronous before/after selection, order and
 RNG snapshots. Natural world evolution between input events is allowed.
@@ -82,3 +86,18 @@ The same feasibility contract advances that actual model through one fixed405-tu
 `tick` sequence and retains the same tree ID/four logs and Hut ID/anchor. This is
 supporting model evidence; it does not reproduce the browser's RAF, flyby or exact
 readiness timeline and does not fill the first attempt's missing live roster.
+
+## Retained baseline02 panel-handoff failure
+
+The second ordinary run on QA691c7d5/application2107ccf retains completed tree
+live/return residues, stationary-pointer pan/zoom and tree HUD leave. The actual
+tree picker returned20 but all tree highlight uniforms remained0. The same Blue
+Hut control received trusted pointer(828,400), actual picker37 and natural-turn627
+highlight255. A trusted canvas leave at the unchanged coordinates then cleared
+hover; later natural frames retained0. A visible occupant panel and the shipped
+`renderBuildingPanels`/CSS ownership contract explain why sustained canvas hover
+is unsupported at that point. The report did not identify the exact receiving
+DOM node. Baseline02 remains FAILED at the original12-second control timeout;
+there is no retrospective overall pass or claim of a deliberate final HUD leave.
+The independently reviewed tree-before captures and bounded Hut hit/leave facts
+may be compared with a fresh candidate using this corrected secondary contract.

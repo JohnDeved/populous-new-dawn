@@ -103,11 +103,19 @@ export function installTreeHoverWitness(targets) {
         const matches = phase.kind === 'camera' ? changed : phase.kind === 'leave' ? current.hovered === null && current.pointer === null
           : current.hovered === phase.id && current.pointer?.clientX === phase.point.x && current.pointer?.clientY === phase.point.y
         if (!matches) return
+        if (phase.kind === 'leave' && phase.continuationOf) {
+          const leave = records.find(event => event.kind === 'event' && event.type === 'pointerleave' &&
+            event.trusted && event.canvasTarget && !event.canvasOwned &&
+            event.ordinal > phase.afterHitOrdinal)
+          if (!leave) return
+          phase.leaveOrdinal = leave.ordinal
+        }
+        if (phase.singleFrame) phase.hitOrdinal ??= row.ordinal
         phase.residues = [...new Set([...phase.residues, current.turn & 3])]
         if (phase.kind === 'leave' || phase.kind === 'camera') { retain(phase.name, row); phase.done = true }
         else {
           retain(`${phase.name}-${(current.turn & 3) < 2 ? 200 : 255}`, row)
-          phase.done = phase.residues.length === 4
+          phase.done = phase.singleFrame === true || phase.residues.length === 4
         }
       })
       return result
@@ -123,10 +131,13 @@ export function installTreeHoverWitness(targets) {
       for (const type of types) {
         const begin = event => observe(() => {
           if (!phase) return
+          const hit = Number.isFinite(event.clientX) ? document.elementFromPoint(event.clientX, event.clientY) : null
+          const node = value => value ? { tag: value.tagName ?? null,
+            className: typeof value.className === 'string' ? value.className : null, role: value.getAttribute?.('role') ?? null } : null
           const row = add({ kind: 'event', phase: phase.name, type, trusted: event.isTrusted,
             x: event.clientX ?? null, y: event.clientY ?? null, key: event.key ?? null,
             repeat: !!event.repeat, buttons: event.buttons ?? null, canvasTarget: event.target === canvas,
-            canvasOwned: Number.isFinite(event.clientX) && document.elementFromPoint(event.clientX, event.clientY) === canvas,
+            canvasOwned: hit === canvas, hitNode: node(hit), relatedTarget: node(event.relatedTarget),
             before: simulation(), state: state(), after: null })
           pending.set(event, row)
         })
@@ -148,7 +159,9 @@ export function installTreeHoverWitness(targets) {
     arm(spec) {
       owner(); check(!phase || phase.done, 'Previous tree-hover phase incomplete')
       check(phases.length < 8, 'Eight-phase tree-hover bound exceeded')
-      phase = { ...spec, initial: state(), selected: [...world.selected], startedAt: performance.now(), residues: [], done: false }
+      const afterHitOrdinal = spec.continuationOf ? phase?.name === spec.continuationOf && phase.hitOrdinal : undefined
+      check(!spec.continuationOf || Number.isInteger(afterHitOrdinal), 'Missing prior actual hover render')
+      phase = { ...spec, afterHitOrdinal, initial: state(), selected: [...world.selected], startedAt: performance.now(), residues: [], done: false }
       phases.push(phase); lastPointer = null
     },
     status() { observe(owner); return structuredClone({ phase, errors, closed }) },

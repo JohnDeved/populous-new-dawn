@@ -194,17 +194,22 @@ for (const primary of [null, undefined, false, 0, 'plain failure'])
   })
 
 
-test('complete composed evidence rejects missing delivery, unconsumed camera input, baseline uniform and immediate orders', () => {
+for (const handoffBeforeArm of [true, false]) test(`complete composed evidence accepts ${handoffBeforeArm ? 'panel' : 'HUD'} leave and rejects broken control ownership`, () => {
   const f = fixture(); let api
   try {
     api = installTreeHoverWitness([{ id: 999, kind: 'tree' }, { id: 888, kind: 'building' }])
     const point = { x: 60, y: 50, preparation: { sceneFrame: -1 }, boundary: { rendererFrame: 0 } }
     let turn = 0
     const hover = (name, id) => {
-      f.scene.testHit = id; api.arm({ name, kind: 'hover', id, point }); f.dispatch('pointermove')
-      for (let n = 0; n < 4; n++) f.draw(turn++)
+      f.scene.testHit = id; api.arm({ name, kind: 'hover', id, point, singleFrame: id === 888 }); f.dispatch('pointermove')
+      for (let n = 0; n < (id === 888 ? 1 : 4); n++) f.draw(turn++)
     }
-    const leave = name => { api.arm({ name, kind: 'leave' }); f.dispatch('pointerleave', 1200); f.draw(turn++) }
+    const leave = name => {
+      if (name === 'building-leave' && handoffBeforeArm) f.dispatch('pointerleave', 1200) // Real panel handoff can precede host arm.
+      api.arm({ name, kind: 'leave', ...(name === 'building-leave' ? { continuationOf: 'building-live' } : {}) })
+      if (name !== 'building-leave' || !handoffBeforeArm) f.dispatch('pointerleave', 1200)
+      f.draw(turn++)
+    }
     hover('tree-live', 999)
     api.arm({ name: 'tree-pan', kind: 'camera', change: 'pan', point }); f.key('w'); f.scene.viewPoint.x++; f.draw(turn++); f.key('w', 'keyup')
     api.arm({ name: 'tree-zoom', kind: 'camera', change: 'zoom', point }); f.key('-'); f.draw(turn++); f.key('-', 'keyup')
@@ -217,6 +222,11 @@ test('complete composed evidence rejects missing delivery, unconsumed camera inp
       value => { value.records.find(r => r.kind === 'render').bodies[999][0].uniform = 0 },
       value => { value.records.find(r => r.kind === 'event').after.units[0].immediateCommand = 77 },
       value => { value.records.find(r => r.kind === 'render').receiverMatches = false },
+      value => { value.records.find(r => r.phase === 'building-live' && r.type === 'pointermove').canvasOwned = false },
+      value => { value.records.find(r => r.type === 'pointerleave' && ['building-live', 'building-leave'].includes(r.phase)).canvasTarget = false },
+      value => { value.records.find(r => r.phase === 'building-live' && r.kind === 'render').bodies[888][0].uniform = 0 },
+      value => { value.records = value.records.filter(r => !(r.type === 'pointerleave' && ['building-live', 'building-leave'].includes(r.phase))) },
+      value => { value.records.find(r => r.phase === 'building-leave' && r.kind === 'render').bodies[888][0].uniform = 255 },
     ]) { const bad = structuredClone(evidence); damage(bad); assert.throws(() => assertTreeHoverEvidence(bad)) }
   } finally { api?.close(); f.restore() }
 })
