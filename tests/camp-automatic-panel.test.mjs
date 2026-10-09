@@ -47,10 +47,11 @@ test('bare camp activity cannot allocate automatic DOM or capacity on a zero-tur
   assert.deepEqual(
     {
       record: records(scene).has(camp.id),
+      latched: scene.objectPanels.automaticTrainingLatches?.has(camp.id) ?? false,
       dom: scene.buildingPanels.has(camp.id),
       reservations: world.secondaryEffects.reservations.filter(owner => owner === reservation(camp)),
     },
-    { record: false, dom: false, reservations: [] },
+    { record: false, latched: false, dom: false, reservations: [] },
     'activity is a producer guard, not independent render-time allocation authority'
   )
 })
@@ -103,6 +104,7 @@ test('actual M2 training input creates a shared automatic record before the fixe
       // work and host serialization cannot repair this producer-boundary sample.
       observed = {
         automatic: record?.automatic ?? false,
+        latched: scene.objectPanels.automaticTrainingLatches?.has(camp.id) ?? false,
         phase: record?.phase ?? null,
         reservations: world.secondaryEffects.reservations.filter(owner => owner === reservation(camp)),
         dom: scene.buildingPanels.has(camp.id),
@@ -123,7 +125,7 @@ test('actual M2 training input creates a shared automatic record before the fixe
   }))
   assert.deepEqual(
     observed,
-    { automatic: true, phase: -1, reservations: [reservation(camp)], dom: false },
+    { automatic: true, latched: true, phase: -1, reservations: [reservation(camp)], dom: false },
     'live training callback must reserve the fresh record synchronously before frontend stepping'
   )
 })

@@ -83,4 +83,3 @@ export async function campPanelFixture(t) {
   const paint = () => renderBuildingPanels(fixture.scene, { complete: true, naturalWidth: 2048 })
   return { ...fixture, camp: fixture.hut, paint }
 }
-
