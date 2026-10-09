@@ -6,7 +6,7 @@ const sources = [
   { mission: 3, head: 91, reward: 92, model: 5, kind: 'temple' },
 ] as const
 
-export type BuildingAcquisitionSource = {
+export interface BuildingAcquisitionSource {
   mission: 1 | 3
   head: 1 | 91
   reward: 2 | 92
@@ -18,10 +18,13 @@ export type BuildingAcquisitionSource = {
 /** Creation-only provenance. Coordinates/artwork or a building-valued gift do not
  * establish the authored head → reward link, and legacy gifts are never retagged. */
 export function buildingAcquisitionSource(world: World, reward: Gift['reward'], point: Point) {
-  const source = sources.find(candidate => candidate.mission === world.outcome.level && candidate.kind === reward)
+  const source = sources.find(
+    candidate => candidate.mission === world.outcome.level && candidate.kind === reward
+  )
   if (!source) return
   const shrine = world.shrines.find(candidate => candidate === point)
-  if (!shrine || shrine.kind !== 'vault' || shrine.mode !== 4 || shrine.reward !== source.kind) return
+  if (!shrine || shrine.kind !== 'vault' || shrine.mode !== 4 || shrine.reward !== source.kind)
+    return
   if ((shrine.rewardRecipient ?? 0) !== world.manaWorld.playerTribe) return
   const { objects } = missionData(source.mission).level
   const head = objects.find(object => object.index === source.head),

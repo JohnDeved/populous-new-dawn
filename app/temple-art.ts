@@ -3,7 +3,7 @@ import fire from './original-fire.json' with { type: 'json' }
 import type { SharedAniblSnapshot } from './shared-anibl.ts'
 import type { Building } from './world-types.ts'
 
-export { art as templeArt }
+export { default as templeArt } from './original-temple-acquisition.json' with { type: 'json' }
 
 /** Immutable source UVs remain in tile92; this discrete resource selection is
  * supplied by the shared presentation owner, never inferred from effect age. */
@@ -20,7 +20,13 @@ export function templeWorldMaterial(
   stage: number,
   resource: SharedAniblSnapshot | null
 ) {
-  if (mission !== 3 || building.kind !== 'temple' || building.team !== 'blue' || object !== 95 || stage !== 4)
+  if (
+    mission !== 3 ||
+    building.kind !== 'temple' ||
+    building.team !== 'blue' ||
+    object !== 95 ||
+    stage !== 4
+  )
     return null
   if (!resource) throw new Error('Temple material resource is unavailable')
   return { atlas: art.modelAtlas, offset: templeTileOffset(resource.tile), epoch: resource.epoch }

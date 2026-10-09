@@ -41,22 +41,30 @@ interface AcquisitionFace {
 
 const sunlight = sunlightShades()
 function acquisitionFaces(id: 103 | 95) {
-  const model = models[id], faces = model.modes.map((mode, face): AcquisitionFace => {
-    if (mode !== 6 && mode !== 7 && mode !== 32) throw new Error('Unsupported acquisition material')
-    if (mode === 32 && id !== 95) throw new Error('Unsupported acquisition material')
-    return { mode, count: model.faces[face * 2], tile: model.tiles[face], uv: [] }
-  })
+  const model = models[id],
+    faces = model.modes.map((mode, face): AcquisitionFace => {
+      if (mode !== 6 && mode !== 7 && mode !== 32)
+        throw new Error('Unsupported acquisition material')
+      if (mode === 32 && id !== 95) throw new Error('Unsupported acquisition material')
+      return { mode, count: model.faces[face * 2], tile: model.tiles[face], uv: [] }
+    })
   let vertex = 0
   for (const face of faces) {
     // Preserve original four corners and source023,012 queue insertion.
     face.uv = (face.count === 3 ? [0, 1, 2] : [0, 1, 2, 5]).map(corner =>
-      modelTextureUV(face.tile, model.uv[(vertex + corner) * 2], model.uv[(vertex + corner) * 2 + 1]))
+      modelTextureUV(
+        face.tile,
+        model.uv[(vertex + corner) * 2],
+        model.uv[(vertex + corner) * 2 + 1]
+      )
+    )
     vertex += face.count === 3 ? 3 : 6
   }
   return { model, faces }
 }
 const geometry = { 103: acquisitionFaces(103), 95: acquisitionFaces(95) }
-export const BUILDING_ACQUISITION_TRIANGLE_CAPACITY = Math.max(models[103].p.length, models[95].p.length) / 9
+export const BUILDING_ACQUISITION_TRIANGLE_CAPACITY =
+  Math.max(models[103].p.length, models[95].p.length) / 9
 
 // The screen producer uses a different depth origin from world polygons.
 export function buildingAcquisitionBucket(depths: number[], bias: number) {
@@ -101,15 +109,16 @@ export function collectBuildingAcquisitionTriangles(
       if (firstDepth >= 400) light -= 20
       else if (firstDepth <= -400) light += 4
     }
-    const shade = Math.max(command.whole ? 1 : 0, Math.min(63, light)),
-      diffuse = data.mode === 32 ? 255 : shade < 32 ? shade * 8 : 255,
-      corners =
-        data.count === 3
-          ? [[0, 1, 2]]
-          : [
-              [0, 2, 3],
-              [0, 1, 2],
-            ]
+    const shade = Math.max(command.whole ? 1 : 0, Math.min(63, light))
+    let diffuse = shade < 32 ? shade * 8 : 255
+    if (data.mode === 32) diffuse = 255
+    const corners =
+      data.count === 3
+        ? [[0, 1, 2]]
+        : [
+            [0, 2, 3],
+            [0, 1, 2],
+          ]
     for (const [triangle, indices] of corners.entries()) {
       const insertion = order++,
         points = indices.map(corner => ({
@@ -117,7 +126,10 @@ export function collectBuildingAcquisitionTriangles(
           x: projected[corner][0],
           y: projected[corner][1],
           // Only tile226 in geometry103 has the original tribe-remap bit.
-          u: data.uv[corner][0] + (data.tile === 226 ? tribe / 8 : 0) + (data.mode === 32 ? animatedOffset[0] : 0),
+          u:
+            data.uv[corner][0] +
+            (data.tile === 226 ? tribe / 8 : 0) +
+            (data.mode === 32 ? animatedOffset[0] : 0),
           v: data.uv[corner][1] + (data.mode === 32 ? animatedOffset[1] : 0),
         }))
       if (
@@ -146,7 +158,7 @@ export function collectBuildingAcquisitionTriangles(
         shade,
         diffuse,
         mode: data.mode,
-        flags: data.mode === 32 ? 0x92 : data.mode === 7 ? 0x82 : 0x80,
+        flags: ({ 6: 0x80, 7: 0x82, 32: 0x92 } as const)[data.mode],
       })
     }
   }

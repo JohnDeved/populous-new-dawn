@@ -355,9 +355,12 @@ export class GameScene {
         nativeUnits.atlas === 'atlas' ? atlasAsset : retryFailedTexture(nativeUnits.atlas),
       knowledgeAtlas = vaultKnowledgeAtlas(world.outcome.level),
       knowledgeAtlasAsset = knowledgeAtlas ? retryFailedTexture(knowledgeAtlas) : null,
-      templeAssets = world.outcome.level === 3
-        ? [templeArt.modelAtlas, templeArt.sparkleAtlas].map(name => [name, retryFailedTexture(name), true] as const)
-        : [],
+      templeAssets =
+        world.outcome.level === 3
+          ? [templeArt.modelAtlas, templeArt.sparkleAtlas].map(
+              name => [name, retryFailedTexture(name), true] as const
+            )
+          : [],
       preload = (
         [
           ['effects', loadTexture('effects'), false],

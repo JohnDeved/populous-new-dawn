@@ -663,7 +663,13 @@ export function updateBuildingsFrame(scene: GameScene) {
   for (const b of scene.world.buildings) {
     if (b.preparation) continue
     const stage = buildingStage(b),
-      temple = templeWorldMaterial(scene.world.outcome.level, b, buildingObject(b), stage, scene.templeResourceSnapshot),
+      temple = templeWorldMaterial(
+        scene.world.outcome.level,
+        b,
+        buildingObject(b),
+        stage,
+        scene.templeResourceSnapshot
+      ),
       signature = `${buildingObject(b)}-${stage}-${temple ? 'p' : 'c'}`
     let g = scene.buildingMeshes.get(b.id)
     if (g && g.userData.signature !== signature) {
@@ -684,7 +690,7 @@ export function updateBuildingsFrame(scene: GameScene) {
       }
     }
     if (temple) {
-      const model = g.children[0]
+      const [model] = g.children
       model.userData.templeTileOffset.value.set(...temple.offset)
       model.userData.templeResourceEpoch = temple.epoch
     }

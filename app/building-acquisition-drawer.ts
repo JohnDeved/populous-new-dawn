@@ -130,7 +130,8 @@ void main() {
     this.atlasSource = atlas
     this.atlas = atlas.clone()
     this.atlas.colorSpace = THREE.NoColorSpace
-    this.atlas.minFilter = this.atlas.magFilter = THREE.LinearFilter
+    this.atlas.minFilter = THREE.LinearFilter
+    this.atlas.magFilter = THREE.LinearFilter
     this.atlas.generateMipmaps = false
     this.atlas.anisotropy = 1
     this.material.uniforms.atlas.value = this.atlas

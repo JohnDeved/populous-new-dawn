@@ -7,7 +7,10 @@ import { collectBuildingAcquisitionTriangles } from '../app/building-acquisition
 // Real Three geometry/material/texture objects, supplied GPU renderer stub.
 // These tests prove buffer, shader and ownership contracts, not rendered pixels.
 function setup() {
-  const calls = [], snapshots = [], canvas = {}, atlas = new THREE.Texture({ width: 256, height: 1024 }),
+  const calls = [],
+    snapshots = [],
+    canvas = {},
+    atlas = new THREE.Texture({ width: 256, height: 1024 }),
     renderer = {
       domElement: canvas,
       setClearColor: (...args) => calls.push(['clearColor', ...args]),
@@ -16,7 +19,16 @@ function setup() {
       clear: () => calls.push(['clear']),
       render(scene, camera) {
         const mesh = scene.children[0]
-        snapshots.push({ mesh, camera, attributes: Object.fromEntries(Object.entries(mesh.geometry.attributes).map(([name, attribute]) => [name, Array.from(attribute.array)])) })
+        snapshots.push({
+          mesh,
+          camera,
+          attributes: Object.fromEntries(
+            Object.entries(mesh.geometry.attributes).map(([name, attribute]) => [
+              name,
+              Array.from(attribute.array),
+            ])
+          ),
+        })
       },
       dispose: () => calls.push(['dispose']),
       forceContextLoss: () => calls.push(['loseContext']),
@@ -24,21 +36,51 @@ function setup() {
     surface = new BuildingAcquisitionTriangleSurface(atlas, () => renderer)
   return { surface, renderer, atlas, calls, snapshots, canvas }
 }
-const triangles = (face = 0) => collectBuildingAcquisitionTriangles({ whole: false, submissions: [{
-  face, transformed: [[0, 0, 0], [100, 0, 0], [100, 100, 0], [0, 100, 0]],
-  projected: [[10, 10], [110, 10], [110, 110], [10, 110]], flight: 0,
-}] }, { width: 640, height: 480 })
+const triangles = (face = 0) =>
+  collectBuildingAcquisitionTriangles(
+    {
+      whole: false,
+      submissions: [
+        {
+          face,
+          transformed: [
+            [0, 0, 0],
+            [100, 0, 0],
+            [100, 100, 0],
+            [0, 100, 0],
+          ],
+          projected: [
+            [10, 10],
+            [110, 10],
+            [110, 110],
+            [10, 110],
+          ],
+          flight: 0,
+        },
+      ],
+    },
+    { width: 640, height: 480 }
+  )
 
 test('detached pass preserves painter buffers, affine W1, encoded RGB and strict cutout', () => {
-  const { surface, renderer, atlas, snapshots, canvas } = setup(), commands = [...triangles(), ...triangles(2)]
+  const { surface, renderer, atlas, snapshots, canvas } = setup(),
+    commands = [...triangles(), ...triangles(2)]
   assert.equal(surface.draw(commands, 640, 480, 2), canvas)
-  const { mesh, attributes } = snapshots[0], material = mesh.material, owned = material.uniforms.atlas.value
+  const { mesh, attributes } = snapshots[0],
+    material = mesh.material,
+    owned = material.uniforms.atlas.value
   assert.equal(renderer.sortObjects, false)
   assert.equal(mesh.frustumCulled, false)
   assert.equal(mesh.geometry.drawRange.count, 12)
-  assert.deepEqual(attributes.position.slice(0, 36), commands.flatMap(t => t.points.flatMap(p => [p.x, p.y, 0])))
+  assert.deepEqual(
+    attributes.position.slice(0, 36),
+    commands.flatMap(t => t.points.flatMap(p => [p.x, p.y, 0]))
+  )
   assert.deepEqual(attributes.alphaCutout.slice(0, 12), [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0])
-  assert.deepEqual(attributes.faceLight.slice(0, 12), commands.flatMap(t => Array(3).fill(Math.fround(t.diffuse / 255))))
+  assert.deepEqual(
+    attributes.faceLight.slice(0, 12),
+    commands.flatMap(t => Array(3).fill(Math.fround(t.diffuse / 255)))
+  )
   assert.equal(material.depthTest, false)
   assert.equal(material.depthWrite, false)
   assert.equal(material.blending, THREE.NoBlending)
@@ -57,8 +99,14 @@ test('detached pass preserves painter buffers, affine W1, encoded RGB and strict
 })
 
 test('repeat draws reuse resources, clear stale geometry and never mutate commands', () => {
-  const { surface, calls, snapshots } = setup(), commands = triangles(), before = structuredClone(commands)
-  for (const triangle of commands) { triangle.points.forEach(Object.freeze); Object.freeze(triangle.points); Object.freeze(triangle) }
+  const { surface, calls, snapshots } = setup(),
+    commands = triangles(),
+    before = structuredClone(commands)
+  for (const triangle of commands) {
+    triangle.points.forEach(Object.freeze)
+    Object.freeze(triangle.points)
+    Object.freeze(triangle)
+  }
   Object.freeze(commands)
   surface.draw(commands, 640, 480)
   surface.draw(commands, 640, 480)
@@ -78,11 +126,14 @@ test('repeat draws reuse resources, clear stale geometry and never mutate comman
 test('overlay disposal releases only its own texture, geometry, material and context once', () => {
   const { surface, atlas, snapshots, calls } = setup()
   surface.draw(triangles(), 640, 480)
-  const { mesh } = snapshots[0], disposed = []
+  const { mesh } = snapshots[0],
+    disposed = []
   atlas.addEventListener('dispose', () => disposed.push('shared'))
   mesh.geometry.addEventListener('dispose', () => disposed.push('geometry'))
   mesh.material.addEventListener('dispose', () => disposed.push('material'))
-  mesh.material.uniforms.atlas.value.addEventListener('dispose', () => disposed.push('owned texture'))
+  mesh.material.uniforms.atlas.value.addEventListener('dispose', () =>
+    disposed.push('owned texture')
+  )
   surface.dispose()
   surface.dispose()
   assert.deepEqual(disposed, ['geometry', 'material', 'owned texture'])
@@ -92,11 +143,33 @@ test('overlay disposal releases only its own texture, geometry, material and con
 })
 
 test('Temple mode32 is fullbright cutout and bank replacement owns only its wrapper', () => {
-  const { surface, atlas, snapshots, calls } = setup(), p = new THREE.Texture({ width: 256, height: 1024 }), disposed = []
-  const command = collectBuildingAcquisitionTriangles({ whole: false, submissions: [{
-    face: 127, transformed: [[0, 0, 500], [100, 0, 500], [100, 100, 500], [0, 100, 500]],
-    projected: [[10, 10], [110, 10], [110, 110], [10, 110]], flight: 0,
-  }] }, { width: 640, height: 480, model: 95, templeTile: 100 })
+  const { surface, atlas, snapshots, calls } = setup(),
+    p = new THREE.Texture({ width: 256, height: 1024 }),
+    disposed = []
+  const command = collectBuildingAcquisitionTriangles(
+    {
+      whole: false,
+      submissions: [
+        {
+          face: 127,
+          transformed: [
+            [0, 0, 500],
+            [100, 0, 500],
+            [100, 100, 500],
+            [0, 100, 500],
+          ],
+          projected: [
+            [10, 10],
+            [110, 10],
+            [110, 110],
+            [10, 110],
+          ],
+          flight: 0,
+        },
+      ],
+    },
+    { width: 640, height: 480, model: 95, templeTile: 100 }
+  )
   surface.draw(triangles(), 640, 480)
   const first = snapshots[0].mesh.material.uniforms.atlas.value
   first.addEventListener('dispose', () => disposed.push('old wrapper'))

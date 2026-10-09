@@ -123,7 +123,12 @@ export default function Home() {
   const shell = useRef<HTMLElement>(null)
   const hudPanel = useRef<HTMLElement>(null)
   const spellButtons = useRef(new Map<number, HTMLButtonElement>())
-  const campButton = useRef<HTMLButtonElement>(null), templeButton = useRef<HTMLButtonElement>(null)
+  const campButton = useRef<HTMLButtonElement>(null),
+    templeButton = useRef<HTMLButtonElement>(null)
+  const buildingButtonRefs = new Map([
+    ['camp', campButton],
+    ['temple', templeButton],
+  ])
   const followerPress = useRef<EventTarget | null>(null)
   const loadRequest = useRef<LoadRequest | null>(null)
   const messageDetails = useRef(new Map<number, HTMLDetailsElement>())
@@ -179,10 +184,12 @@ export default function Home() {
       model: WorshipTargetModel,
       fallback?: WorshipAcquisitionGeometry
     ): WorshipHudGeometry | null => {
+      let button: HTMLButtonElement | null | undefined = spellButtons.current.get(model)
+      if (model === 7) button = campButton.current
+      else if (model === 5) button = templeButton.current
       const root = shell.current,
         panel = hudPanel.current,
-        view = viewport.current,
-        button = model === 7 ? campButton.current : model === 5 ? templeButton.current : spellButtons.current.get(model)
+        view = viewport.current
       if (!root?.isConnected || !panel?.isConnected || !view?.isConnected) return null
       const shellRect = root.getBoundingClientRect(),
         panelRect = panel.getBoundingClientRect(),
@@ -304,7 +311,14 @@ export default function Home() {
       })
     import('./scene')
       .then(({ GameScene }) => {
-        if (disposed || !viewport.current || !minimap.current || !portrait.current) return
+        if (
+          disposed ||
+          store.getWorld() !== world ||
+          !viewport.current ||
+          !minimap.current ||
+          !portrait.current
+        )
+          return
         const created = new GameScene(
           viewport.current,
           minimap.current,
@@ -327,11 +341,17 @@ export default function Home() {
         setHudCamera({ x: created.cameraPosition.x, y: created.cameraPosition.y })
         if (world.drawMode === 2) created.overview()
         return created.ready.then(() => {
-          if (!disposed && engine.current === created && created.start()) setReady(true)
+          if (
+            !disposed &&
+            store.getWorld() === world &&
+            engine.current === created &&
+            created.start()
+          )
+            setReady(true)
         })
       })
       .catch(e => {
-        if (disposed || scene?.terrainLoad.signal.aborted) return
+        if (disposed || store.getWorld() !== world || scene?.terrainLoad.signal.aborted) return
         scene?.dispose()
         if (engine.current === scene) engine.current = null
         setError(e instanceof Error ? e.message : 'Unable to finish loading the 3D world.')
@@ -1116,7 +1136,7 @@ export default function Home() {
               {BUILDINGS.map(b => (
                 <button
                   key={b.id}
-                  ref={b.id === 'camp' ? campButton : b.id === 'temple' ? templeButton : undefined}
+                  ref={buildingButtonRefs.get(b.id)}
                   disabled={
                     (b.id === 'camp' && !world.unlockedCamp) ||
                     (b.id === 'tower' && !world.unlockedTower) ||
