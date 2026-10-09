@@ -130,3 +130,22 @@ test('test-only reductions cannot increase any production bound', () => {
   assert.throws(() => boundedDirectoryEntries('unused', RECEIPT_ENTRY_LIMIT + 1), RangeError)
   assert.throws(() => verifiedNodeCompileCache('unused', 'unused', { maxEntries: 1025 }), RangeError)
 })
+
+test('disappearing nested cache during fallback cannot return an older partial pass', async t => {
+  const { discoverReceipts } = await import('../scripts/parity-measure.mjs')
+  const { root, put } = fixture(t)
+  put('work/orchestration/a-old.json', JSON.stringify({ kind: 'pnd-command-receipt', status: 'passed', parityMeasurements: [] }))
+  put('work/orchestration/z-tmp/node-compile-cache/v24.19.0-x64-cf738c9d-1000/new.json',
+    JSON.stringify({ kind: 'pnd-command-receipt', status: 'unknown', parityMeasurements: [] }))
+  const cache = join(root, 'work/orchestration/z-tmp/node-compile-cache'), originalOpen = fs.opendirSync
+  let removed = false
+  t.mock.method(fs, 'opendirSync', path => {
+    if (path === cache && !removed) {
+      removed = true
+      fs.renameSync(cache, join(root, 'removed-cache'))
+    }
+    return originalOpen(path)
+  })
+  assert.throws(() => discoverReceipts(root), /ENOENT/)
+  assert.equal(removed, true)
+})
