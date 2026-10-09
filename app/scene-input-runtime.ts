@@ -4,6 +4,7 @@ import { liveVehiclePassengers } from './vehicle-panel-runtime.ts'
 import { hudTaskPeople, selectFollowerTask } from './follower-tasks-runtime.ts'
 import { focusTaskFollower, type FollowerTask } from './hud-tasks.ts'
 import { syncSecondaryReservations } from './scene-secondary-effects.ts'
+import { retainedBuildingPanel } from './building-panels.ts'
 import type { GameScene } from './scene.ts'
 import * as THREE from 'three'
 import {
@@ -52,7 +53,7 @@ import { worldTooltipObject } from './tooltips.ts'
 import {
   cancelTooltipInspection,
   publishTooltipInput,
-  queueHutInspection,
+  queueBuildingInspection,
 } from './scene-tooltip-runtime.ts'
 
 const cameraKeys: Record<string, number> = {
@@ -221,10 +222,10 @@ export function pointerDown(scene: GameScene, event: PointerEvent) {
         !vehicle.passengerCount ||
         liveVehiclePassengers(scene.world, vehicle).some(({ person }) => person.tribe === 0))
     )
-      if (scene.world.buildings.some(b => b.id === object.id && b.kind === 'hut'))
-        queueHutInspection(scene, event, 'down', object.id)
+      if (scene.world.buildings.some(b => b.id === object.id && retainedBuildingPanel(b)))
+        queueBuildingInspection(scene, event, 'down', object.id)
       else scene.objectPanels.open(object.id)
-    else if (!object) queueHutInspection(scene, event, 'down')
+    else if (!object) queueBuildingInspection(scene, event, 'down')
   }
   const unit =
     event.button === 0 &&
@@ -333,7 +334,7 @@ export function updateDrag(scene: GameScene, event: { clientX: number; clientY: 
 }
 
 export function pointerUp(scene: GameScene, event: PointerEvent) {
-  queueHutInspection(scene, event, 'up')
+  queueBuildingInspection(scene, event, 'up')
   scene.pointerButtons = event.buttons
   if (!(event.buttons & 6)) scene.globeMotion.dragging = false
   if (scene.world.inputMask || scene.overviewStage) return
@@ -489,7 +490,8 @@ export function installInputListeners(scene: GameScene, minimap: HTMLCanvasEleme
   for (const event of ['pointermove', 'pointerdown', 'pointerup'])
     scene.listen(window, event, trackNavigation)
   scene.listen(globalThis, 'pointerup', e => {
-    if (e.target !== scene.renderer.domElement) queueHutInspection(scene, e as PointerEvent, 'up')
+    if (e.target !== scene.renderer.domElement)
+      queueBuildingInspection(scene, e as PointerEvent, 'up')
   })
   scene.listen(window, 'pointerout', e => {
     if (!(e as PointerEvent).relatedTarget) scene.navigationPointer = null

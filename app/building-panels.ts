@@ -16,6 +16,16 @@ import {
   workshopWorkBlocks,
 } from './workshop-panel.ts'
 
+export function retainedBuildingPanel(b: Pick<Building, 'kind' | 'progress'>) {
+  return b.progress >= 1 && (b.kind === 'hut' || b.kind === 'camp')
+}
+
+// Training activity still owns its existing browser display independently of
+// manual inspection. Its native automatic request/latch is a separate boundary.
+export function activeCampPanel(b: Pick<Building, 'kind' | 'admission'>) {
+  return b.kind === 'camp' && !!((b.admission?.activity ?? 0) & (128 | 0x8000))
+}
+
 export function buildingOccupantPanelProfile(
   b: Pick<Building, 'kind' | 'level' | 'progress'>
 ): { kind: 'resident' | 'training' | 'workshop'; capacity: 1 | 3 | 4 | 5 | 6 } | null {
@@ -84,17 +94,23 @@ function createPanel(scene: GameScene, b: Building) {
 }
 
 export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement | null) {
-  const { world } = scene
+  const { world } = scene,
+    modal = !!document.querySelector('dialog[open]')
   for (const [id, panel] of scene.buildingPanels) {
-    if (!world.buildings.some(b => b.id === id && b.hp > 0)) {
+    const building = world.buildings.find(b => b.id === id && b.hp > 0),
+      controlsHeld = panel.matches(':hover') || panel.contains(document.activeElement)
+    if (!building) {
       panel.remove()
       scene.buildingPanels.delete(id)
     } else if (
-      (world.buildings.some(b => b.id === id && b.kind === 'hut' && b.progress >= 1) &&
-        (!scene.objectPanels.hutRecords.has(id) || !!document.querySelector('dialog[open]'))) ||
+      (retainedBuildingPanel(building) &&
+        !activeCampPanel(building) &&
+        (modal ||
+          (!scene.objectPanels.buildingRecords.has(id) &&
+            !(building.kind === 'camp' && controlsHeld)))) ||
       world.inputMask ||
       scene.overviewActive ||
-      (!panel.matches(':hover') && !panel.contains(document.activeElement))
+      !controlsHeld
     )
       panel.hidden = true
   }
@@ -112,15 +128,20 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
       admission = b.admission,
       activity = admission?.activity ?? 0
     if ((!plan && !profile) || b.team !== 'blue' || b.hp <= 0 || !scene.visible(b)) continue
-    if (
-      hut &&
-      !plan &&
-      (!scene.objectPanels.hutRecords.has(b.id) || document.querySelector('dialog[open]'))
-    )
+    const retained = retainedBuildingPanel(b),
+      existing = scene.buildingPanels.get(b.id),
+      campHeld =
+        b.kind === 'camp' &&
+        !modal &&
+        existing &&
+        !existing.hidden &&
+        (existing.matches(':hover') || existing.contains(document.activeElement)),
+      legacyCamp = activeCampPanel(b) || campHeld
+    if (retained && !legacyCamp && (!scene.objectPanels.buildingRecords.has(b.id) || modal))
       continue
     // Other building types retain the existing visibility adapter.
     if (
-      !(hut && !plan) &&
+      !retained &&
       !(activity & (128 | 0x8000)) &&
       !(plan && b.builders?.some(Boolean)) &&
       !(tower && admission?.inside) &&

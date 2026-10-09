@@ -1,263 +1,11 @@
-// Failure-first production-caller regression for issue19's accepted compatibility
-// clock. Uses authored Mission1, real opening/clock/flyby, actual building geometry,
-// ScenePicking, pointerMove, updatePointerFrame and the production animate body.
-// Texture IO, terrain occlusion, DOM/projection/glyph submissions and unrelated
-// frame stages are supplied. The real tooltip paint decision remains in scope.
-// This is controlled caller coverage, not the ordinary browser witness.
+// Actual composed Scene regression; shared controlled fixture retains the real
+// opening, picker, frontend visits and tooltip paint decision.
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { readFileSync } from 'node:fs'
-import ts from 'typescript'
-import * as THREE from 'three'
 import { loadSceneFixture } from './support/bloodlust-scene.mjs'
-import { makeHutSmokeScene } from './support/hut-smoke-scene.mjs'
+import { tooltipCallerFixture as callerFixture } from './support/tooltip-scene.mjs'
 
 const nop = () => {}
-const source = ts.createSourceFile(
-  'scene.ts',
-  readFileSync(new URL('../app/scene.ts', import.meta.url), 'utf8'),
-  ts.ScriptTarget.Latest,
-  true
-)
-const sceneClass = source.statements.find(
-  node => ts.isClassDeclaration(node) && node.name?.text === 'GameScene'
-)
-const animate = sceneClass.members.find(node => node.name?.getText(source) === 'animate')
-const inputSource = ts.createSourceFile(
-  'scene-input-runtime.ts',
-  readFileSync(new URL('../app/scene-input-runtime.ts', import.meta.url), 'utf8'),
-  ts.ScriptTarget.Latest,
-  true
-)
-const tooltipPaint = inputSource.statements.find(
-  node => ts.isFunctionDeclaration(node) && node.name?.text === 'renderTooltip'
-)
-function bindAnimate(scene, bindings) {
-  const javascript = ts.transpileModule(
-    `(function(){return ${animate.initializer.getText(source)}})`,
-    {
-      compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext },
-    }
-  ).outputText
-  return new Function(...Object.keys(bindings), `return ${javascript}`)(
-    ...Object.values(bindings)
-  ).call(scene)
-}
-function bindTooltipPaint(scene, bindings) {
-  const javascript = ts.transpileModule(
-    `(function(){${tooltipPaint.getText(inputSource).replace(/^export /, '')};return () => renderTooltip(this)})`,
-    { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext } }
-  ).outputText
-  return new Function(...Object.keys(bindings), `return ${javascript}`)(
-    ...Object.values(bindings)
-  ).call(scene)
-}
-
-async function callerFixture(t) {
-  const api = await loadSceneFixture(),
-    { GameScene } = await import('../app/scene.ts'),
-    { ScenePicking } = await import('../app/scene-picking.ts'),
-    { RenderView } = await import('../app/render-view.ts'),
-    { ObjectPanels } = await import('../app/object-panels.ts'),
-    tooltipApi = await import('../app/tooltips.ts'),
-    { pointerMove } = await import('../app/scene-input-runtime.ts'),
-    { syncSecondaryReservations } = await import('../app/scene-secondary-effects.ts'),
-    world = api.createWorld(1),
-    fixture = await makeHutSmokeScene(world),
-    { scene } = fixture,
-    globals = new Map()
-  let frameSerial = 0,
-    cameraOwnsFrame = false
-  Object.setPrototypeOf(scene, GameScene.prototype)
-  for (const [name, value] of Object.entries({
-    devicePixelRatio: 1,
-    requestAnimationFrame: () => ++frameSerial,
-  })) {
-    globals.set(name, Object.getOwnPropertyDescriptor(globalThis, name))
-    Object.defineProperty(globalThis, name, { configurable: true, writable: true, value })
-  }
-  Object.assign(scene, {
-    scene: new THREE.Group(),
-    view: new RenderView(),
-    viewPoint: { x: 0, z: 0 },
-    overviewActive: false,
-    overviewStage: 0,
-    flybyTime: 0,
-    flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 },
-    tooltip: tooltipApi.createTooltip(),
-    renderer: {
-      getPixelRatio: () => 1,
-      domElement: {
-        getBoundingClientRect: () => ({ left: 0, top: 0, width: 800, height: 600 }),
-        setPointerCapture: nop,
-      },
-    },
-    container: {
-      clientWidth: 800,
-      clientHeight: 600,
-      getBoundingClientRect: () => ({ left: 0, top: 0, width: 800, height: 600 }),
-    },
-    selectionOverlay: {},
-    globeMotion: { dragging: false },
-    onChange: nop,
-    onSound: nop,
-    dragActive: { value: false },
-    pointerButtons: 0,
-    pointerScreen: null,
-    hoveredObject: null,
-    frame: 1,
-    previous: 0,
-    worshipPresentation: { rememberBodies: nop },
-    buildingPanels: new Map(),
-    updateCameraMotion: () => cameraOwnsFrame,
-    pick: () => null,
-    screen: () => ({ x: 0, y: 0, z: 0 }),
-    visible: () => true,
-    tooltipCanvas: { submissions: [] },
-    tooltipElement: {
-      hidden: true,
-      style: {},
-      offsetWidth: 200,
-      offsetHeight: 40,
-      attributes: {},
-      setAttribute(name, value) {
-        this.attributes[name] = value
-      },
-    },
-  })
-  scene.objectPanels = new ObjectPanels(scene)
-  scene.renderTooltip = bindTooltipPaint(scene, {
-    ...tooltipApi,
-    texture: () => ({ image: {} }),
-    window: { innerWidth: 800 },
-    drawTooltip: (canvas, _atlas, text) => {
-      canvas.submissions.push(text)
-    },
-  })
-  for (const name of [
-    'playWorldSounds',
-    'updateTerrainFrame',
-    'updateDecorationsFrame',
-    'updateView',
-    'updateUnitsFrame',
-    'updateBuildingsFrame',
-    'updateEffectsFrame',
-    'updateShrinesFrame',
-    'updatePlacement',
-    'updateSpellPointerFrame',
-    'updateEnvironmentFrame',
-    'updateHudFrame',
-    'updateSpellHalo',
-    'updateDrag',
-    'renderSceneFrame',
-    'commitSky',
-    'cancelOverview',
-  ])
-    scene[name] = nop
-  scene.view.pickCandidates = () => []
-  scene.view.pickSubmissionKey = () => 'supplied-empty-terrain'
-  scene.view.resolvePickCandidates = () => null
-  scene.picking = new ScenePicking(scene)
-  scene.scene.add(scene.objects, scene.decorations)
-  scene.animate = bindAnimate(scene, {
-    syncSecondaryReservations,
-    advanceGame: api.advanceGame,
-    updateVehiclesFrame: nop,
-    SPELLS: api.SPELLS,
-    worldTooltipObject: tooltipApi.worldTooltipObject,
-  })
-  t.after(() => {
-    scene.view.dispose()
-    fixture.close()
-    for (const [name, descriptor] of globals) {
-      if (descriptor) Object.defineProperty(globalThis, name, descriptor)
-      else delete globalThis[name]
-    }
-  })
-
-  // Retain actual campaign and forced history. No stamping inputMask, deleting
-  // the intro, or initializing a cache at the first Hut hover.
-  let now = 0,
-    sawInputLock = world.inputMask !== 0,
-    sawFlyby = !!(world.flyby.flags & 1)
-  for (let frames = 0; frames < 24 * 60; frames++) {
-    now += 1000 / 24
-    scene.animate(now)
-    sawInputLock ||= world.inputMask !== 0
-    sawFlyby ||= !!(world.flyby.flags & 1)
-    if (
-      sawInputLock &&
-      sawFlyby &&
-      !world.inputMask &&
-      !(world.flyby.flags & 1) &&
-      !scene.tooltip.remaining
-    )
-      break
-  }
-  assert.equal(sawInputLock, true, 'fixture observes actual opening input ownership')
-  assert.equal(sawFlyby, true, 'fixture observes the authored flyby before claiming completion')
-  assert.equal(world.flyby.flags & 1, 0, 'authored flyby has finished')
-  assert.equal(world.inputMask, 0, 'authored opening releases ordinary input')
-  assert.equal(scene.tooltip.remaining, 0, 'opening forced lifetime has completed')
-  api.cancelInteraction(world)
-  assert.equal(world.mode, null)
-  assert.deepEqual(world.selected, [])
-  // Isolate subsequent presentation visits from new simulation commands; this
-  // controlled fixture is explicitly not normal-speed browser acceptance.
-  world.speed = 0
-  fixture.render()
-  const hut = world.buildings.find(building => {
-    const pose = api.buildingPose(building)
-    return (
-      building.team === 'blue' &&
-      building.kind === 'hut' &&
-      pose.anchorX === 64512 &&
-      pose.anchorY === 54784
-    )
-  })
-  assert.ok(hut, 'resolve authored Blue Hut DAT42 by its native anchor')
-  const group = scene.buildingMeshes.get(hut.id),
-    mesh = group?.children.find(object => object.userData.nativeModel !== undefined)
-  assert.ok(mesh, 'actual building-frame caller created the Hut model')
-  scene.view.painter.source = object =>
-    object === mesh
-      ? { slot: 0, alpha: false, bucket: 0, cell: 0, object: 0, face: 0, phase: 0, order: 0 }
-      : null
-  scene.view.update(800, 600, hut, 0, 0, false)
-  scene.viewPoint = { x: hut.x, z: hut.z }
-  const faces = scene.picking.model(mesh, '').filter(command => command.kind === 'model')
-  let point
-  for (const face of faces) {
-    const candidate = {
-      clientX: Math.floor(face.points.reduce((sum, vertex) => sum + vertex.x, 0) / 3),
-      clientY: Math.floor(face.points.reduce((sum, vertex) => sum + vertex.y, 0) / 3),
-    }
-    if (scene.picking.pick(candidate) === hut.id) {
-      point = candidate
-      break
-    }
-  }
-  assert.ok(point, 'actual native Hut geometry supplies a picked face')
-  pointerMove(scene, { ...point, buttons: 0 })
-  scene.animate(now)
-  assert.equal(scene.hoveredObject, hut.id, 'actual pointer-frame caller publishes the Hut')
-  const frame = (seconds = 1 / 24) => {
-    now += seconds * 1000
-    scene.animate(now)
-  }
-  return {
-    scene,
-    world,
-    hut,
-    frame,
-    tooltipApi,
-    point,
-    api,
-    cameraOwns: value => {
-      cameraOwnsFrame = value
-    },
-  }
-}
 
 test('actual Hut paint waits for admitted controller visits before its first display', async t => {
   const { scene, hut, frame } = await callerFixture(t)
@@ -449,7 +197,7 @@ test('actual right-button callers retain down/up order and cancel skipped-frame 
     pointerId: 3,
     currentTarget: scene.renderer.domElement,
   })
-  const before = scene.objectPanels.hutRecords.get(hut.id),
+  const before = scene.objectPanels.buildingRecords.get(hut.id),
     panelFrame = scene.objectPanels.frame,
     randomState = scene.world.randomState,
     markers = scene.world.effects.filter(effect => effect.kind === 'orderMarker').length,
@@ -467,11 +215,11 @@ test('actual right-button callers retain down/up order and cancel skipped-frame 
     before ? 'explicit:reused' : 'explicit:created',
     'release',
   ])
-  const record = scene.objectPanels.hutRecords.get(hut.id)
+  const record = scene.objectPanels.buildingRecords.get(hut.id)
   assert.ok(record)
   if (before) assert.equal(record, before)
   else assert.deepEqual(record, { phase: 0, remaining: 2, hold: 16, automatic: false })
-  assert.equal(scene.objectPanels.hutHeldPointer, null)
+  assert.equal(scene.objectPanels.buildingHeldPointer, null)
   assert.equal(
     scene.world.effects.filter(effect => effect.kind === 'orderMarker').length,
     markers + 1
@@ -497,7 +245,7 @@ test('actual right-button callers retain down/up order and cancel skipped-frame 
   cameraOwns(true)
   frame()
   assert.deepEqual(scene.tooltipInspectionInputs, [])
-  assert.equal(scene.objectPanels.hutHeldPointer, null)
+  assert.equal(scene.objectPanels.buildingHeldPointer, null)
   cameraOwns(false)
   frame()
   assert.ok(
@@ -516,7 +264,7 @@ test('retained pick geometry rechecks live object data before a due controller t
   assert.equal(scene.tooltipController.lastVisit.firstDisplay, null)
   assert.equal(scene.tooltipElement.hidden, true)
   assert.ok(cell !== null, 'the valid cell survives loss of the sampled object')
-  assert.equal(scene.objectPanels.hutRecords.has(hut.id), false)
+  assert.equal(scene.objectPanels.buildingRecords.has(hut.id), false)
   scene.picking.pick = () => null
   const { browserPosition } = await import('../app/model.ts')
   scene.pick = () => browserPosition({ x: (cell & 255) << 8, y: cell & 0xff00 })
@@ -543,20 +291,20 @@ test('Hut record adapter preserves reuse, failure retirement, secondary capacity
     b => b.id !== hut.id && b.kind === 'hut' && b.team === 'blue' && b.progress >= 1
   )
   assert.ok(second)
-  assert.equal(scene.objectPanels.inspectHut(hut.id, 'explicit', 5), 'explicit:created')
-  const record = scene.objectPanels.hutRecords.get(hut.id),
+  assert.equal(scene.objectPanels.inspectBuilding(hut.id, 'explicit', 5), 'explicit:created')
+  const record = scene.objectPanels.buildingRecords.get(hut.id),
     owner = scene.tooltipController
-  scene.objectPanels.stepHutInspections(false)
+  scene.objectPanels.stepBuildingInspections(false)
   assert.deepEqual(record, { phase: 0, remaining: 2, hold: 16, automatic: false })
   const snapshot = structuredClone(record),
     dwell = owner.dwell
-  assert.equal(scene.objectPanels.inspectHut(hut.id, 'explicit', 5), 'explicit:reused')
-  assert.equal(scene.objectPanels.hutRecords.get(hut.id), record)
+  assert.equal(scene.objectPanels.inspectBuilding(hut.id, 'explicit', 5), 'explicit:reused')
+  assert.equal(scene.objectPanels.buildingRecords.get(hut.id), record)
   assert.deepEqual(record, snapshot)
   assert.equal(owner.dwell, dwell)
   // Controlled occupancy of the same supported inventory: no invented World entities.
   for (let i = 0; i < 31; i++) scene.objectPanels.panels.set(100000 + i, {})
-  assert.equal(scene.objectPanels.inspectHut(second.id, 'hover'), 'hover:rejected-capacity')
+  assert.equal(scene.objectPanels.inspectBuilding(second.id, 'hover'), 'hover:rejected-capacity')
   assert.equal(record.hold, 0, 'same-class retirement precedes failed allocation')
   assert.equal(record.remaining, 0)
   assert.equal(owner.dwell, dwell, 'failure does not accelerate')
@@ -571,9 +319,9 @@ test('Hut record adapter preserves reuse, failure retirement, secondary capacity
   ) {
     // Fill through the actual capacity adapter until it rejects allocation.
   }
-  assert.equal(scene.objectPanels.inspectHut(second.id, 'hover'), 'hover:rejected-capacity')
+  assert.equal(scene.objectPanels.inspectBuilding(second.id, 'hover'), 'hover:rejected-capacity')
   assert.equal(
-    scene.objectPanels.inspectHut(hut.id, 'explicit', 5),
+    scene.objectPanels.inspectBuilding(hut.id, 'explicit', 5),
     'explicit:reused',
     'reuse succeeds at capacity'
   )
@@ -598,16 +346,16 @@ test('Hut record adapter preserves reuse, failure retirement, secondary capacity
   assert.equal(next.tooltipController.session, session)
   assert.equal(next.tooltipController.session.threshold, owner.session.threshold)
   assert.equal(next.tooltipController.category, 'none')
-  assert.equal(next.objectPanels.hutRecords.size, 0)
+  assert.equal(next.objectPanels.buildingRecords.size, 0)
   assert.deepEqual(next.world.secondaryEffects.reservations, [])
 })
 
 test('retained Hut controls remain usable while hovered or keyboard-focused', async t => {
   const { scene, hut, frame } = await callerFixture(t)
-  scene.objectPanels.inspectHut(hut.id, 'hover')
-  scene.objectPanels.releaseHutInspection()
-  const record = scene.objectPanels.hutRecords.get(hut.id)
-  for (let i = 0; i < 4; i++) scene.objectPanels.stepHutInspections(false)
+  scene.objectPanels.inspectBuilding(hut.id, 'hover')
+  scene.objectPanels.releaseBuildingInspection()
+  const record = scene.objectPanels.buildingRecords.get(hut.id)
+  for (let i = 0; i < 4; i++) scene.objectPanels.stepBuildingInspections(false)
   assert.equal(record.phase, 1)
   let hovered = true,
     focused = false
@@ -617,15 +365,15 @@ test('retained Hut controls remain usable while hovered or keyboard-focused', as
   scene.pointerScreen = null
   frame(0)
   for (let i = 0; i < 30; i++) frame()
-  assert.equal(scene.objectPanels.hutRecords.get(hut.id), record)
+  assert.equal(scene.objectPanels.buildingRecords.get(hut.id), record)
   assert.deepEqual(record, before)
   hovered = false
   focused = true
   for (let i = 0; i < 30; i++) frame()
-  assert.equal(scene.objectPanels.hutRecords.get(hut.id), record)
+  assert.equal(scene.objectPanels.buildingRecords.get(hut.id), record)
   focused = false
   for (let i = 0; i < 30; i++) frame()
-  assert.equal(scene.objectPanels.hutRecords.has(hut.id), false)
+  assert.equal(scene.objectPanels.buildingRecords.has(hut.id), false)
   assert.ok(!scene.world.secondaryEffects.reservations.includes(`building-panel:${hut.id}`))
 })
 
@@ -671,7 +419,7 @@ test('a named non-Hut winner cannot allocate the Hut beneath its retained cell',
   frame(0)
   assert.equal(scene.tooltipInput.picked, shrine.id)
   assert.equal(scene.tooltipInput.inspectionTarget, null)
-  const oldRecord = scene.objectPanels.hutRecords.get(hut.id)
+  const oldRecord = scene.objectPanels.buildingRecords.get(hut.id)
   frame()
   assert.match(scene.tooltip.text, /^Stone Head:/, 'the selected real head has a named acquisition')
   frame()
@@ -680,7 +428,7 @@ test('a named non-Hut winner cannot allocate the Hut beneath its retained cell',
   for (let i = 0; i < threshold + 15 && !scene.tooltip.draw; i++) frame()
   assert.equal(scene.tooltip.draw, 1)
   assert.match(scene.tooltip.text, /^Stone Head:/)
-  assert.equal(scene.objectPanels.hutRecords.get(hut.id), oldRecord)
+  assert.equal(scene.objectPanels.buildingRecords.get(hut.id), oldRecord)
   assert.deepEqual(scene.tooltipController.lastVisit.inspection, ['hover:rejected'])
 })
 
@@ -708,7 +456,7 @@ test('pause, dialog, hidden and input-lock guards cancel pending and held browse
     }
     frame(0)
     assert.deepEqual(scene.tooltipInspectionInputs, [], guard)
-    assert.equal(scene.objectPanels.hutHeldPointer, null, guard)
+    assert.equal(scene.objectPanels.buildingHeldPointer, null, guard)
     assert.deepEqual(
       { category: scene.tooltipController.category, dwell: scene.tooltipController.dwell },
       before
@@ -725,13 +473,13 @@ test('pause, dialog, hidden and input-lock guards cancel pending and held browse
   }
   pointerDown(scene, event)
   frame()
-  assert.equal(scene.objectPanels.hutHeldPointer, 7)
-  const record = scene.objectPanels.hutRecords.get(hut.id)
+  assert.equal(scene.objectPanels.buildingHeldPointer, 7)
+  const record = scene.objectPanels.buildingRecords.get(hut.id)
   world.paused = true
   frame(0)
-  assert.equal(scene.objectPanels.hutHeldPointer, null)
+  assert.equal(scene.objectPanels.buildingHeldPointer, null)
   assert.equal(
-    scene.objectPanels.hutRecords.get(hut.id),
+    scene.objectPanels.buildingRecords.get(hut.id),
     record,
     'guard cancellation retains the record'
   )

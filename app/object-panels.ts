@@ -10,6 +10,7 @@ import { secondaryEffectCount } from './secondary-effects.ts'
 import { getTooltipController } from './scene-tooltip-runtime.ts'
 import { tooltipThreshold } from './tooltip-controller.ts'
 import { syncSecondaryReservations } from './scene-secondary-effects.ts'
+import { activeCampPanel, retainedBuildingPanel } from './building-panels.ts'
 import type { GameScene } from './scene.ts'
 import { browserPosition, effect, maxHp, nativePosition, unitAnimationSource } from './model.ts'
 import {
@@ -44,24 +45,24 @@ export class ObjectPanels {
   automaticSamples = new Map<number, number>()
   // These records contain no DOM/World references and use only the composed
   // tooltip opportunity. Existing panels keep their animationFrame clock.
-  hutRecords = new Map<number, PersonPanelTime & { automatic: boolean }>()
-  hutInspected: number | null = null
-  hutHeldPointer: number | null = null
+  buildingRecords = new Map<number, PersonPanelTime & { automatic: boolean }>()
+  buildingInspected: number | null = null
+  buildingHeldPointer: number | null = null
   constructor(readonly scene: GameScene) {}
-  inspectHut(id: number, source: 'hover' | 'explicit' | 'automatic', pointerId?: number) {
+  inspectBuilding(id: number, source: 'hover' | 'explicit' | 'automatic', pointerId?: number) {
     const { scene } = this,
       building = scene.world.buildings.find(
-        b => b.id === id && b.kind === 'hut' && b.team === 'blue' && b.hp > 0 && b.progress >= 1
+        b => b.id === id && retainedBuildingPanel(b) && b.team === 'blue' && b.hp > 0
       )
     if (!building || scene.overviewActive || document.querySelector('dialog[open]'))
       return `${source}:rejected`
-    let record = this.hutRecords.get(id)
+    let record = this.buildingRecords.get(id)
     const created = !record
     if (!record) {
       // 00504060 retires eligible same-class records before testing capacity.
       // Active automatic buildings are excluded from that retirement predicate.
       if (!((building.admission?.activity ?? 0) & 128)) {
-        for (const [oldId, old] of this.hutRecords) {
+        for (const [oldId, old] of this.buildingRecords) {
           const oldBuilding = scene.world.buildings.find(b => b.id === oldId && b.hp > 0)
           if (old.phase < 2 && oldBuilding && !((oldBuilding.admission?.activity ?? 0) & 128)) {
             old.remaining = 0
@@ -69,7 +70,7 @@ export class ObjectPanels {
           }
         }
       }
-      const owners = new Set([...this.panels.keys(), ...this.hutRecords.keys()])
+      const owners = new Set([...this.panels.keys(), ...this.buildingRecords.keys()])
       for (const [otherId, panel] of scene.buildingPanels)
         if (
           !panel.hidden &&
@@ -77,39 +78,49 @@ export class ObjectPanels {
         )
           owners.add(otherId)
       syncSecondaryReservations(scene)
-      // Bounded browser count adapter only: UI reservations do not occupy
-      // physical secondary slots. Native allocator/reuse parity is not claimed.
-      if (owners.size >= 32 || secondaryEffectCount(scene.world.secondaryEffects) > 159) {
-        if (source !== 'automatic') this.releaseHutInspection()
+      // A visible camp already owns this browser capacity. Transferring it to a
+      // retained record consumes no second slot; native physical allocation is
+      // still outside this partial count adapter.
+      const addedOwner = Number(!owners.has(id)),
+        addedReservation = Number(
+          !scene.world.secondaryEffects.reservations.includes(`building-panel:${id}`)
+        )
+      if (
+        owners.size + addedOwner > 32 ||
+        secondaryEffectCount(scene.world.secondaryEffects) + addedReservation > 160
+      ) {
+        if (source !== 'automatic') this.releaseBuildingInspection()
         return `${source}:rejected-capacity`
       }
       record = { phase: -1, remaining: 0, hold: 16, automatic: source === 'automatic' }
-      this.hutRecords.set(id, record)
+      this.buildingRecords.set(id, record)
       const owner = getTooltipController(scene)
       owner.dwell = tooltipThreshold(owner, 'inspection') + 1
       syncSecondaryReservations(scene)
     } else if (source === 'automatic') record.automatic = true
     if (source !== 'automatic') {
-      this.hutInspected = id
-      if (source === 'explicit') this.hutHeldPointer = pointerId ?? null
+      this.buildingInspected = id
+      if (source === 'explicit') this.buildingHeldPointer = pointerId ?? null
     }
     return `${source}:${created ? 'created' : 'reused'}`
   }
-  releaseHutButton(pointerId: number) {
-    if (this.hutHeldPointer === pointerId) this.hutHeldPointer = null
+  releaseBuildingButton(pointerId: number) {
+    if (this.buildingHeldPointer === pointerId) this.buildingHeldPointer = null
   }
-  releaseHutInspection() {
-    this.hutInspected = null
-    this.hutHeldPointer = null
+  releaseBuildingInspection() {
+    this.buildingInspected = null
+    this.buildingHeldPointer = null
   }
-  renewHutInspection(hovered: number | null) {
-    const record = this.hutInspected === null ? null : this.hutRecords.get(this.hutInspected)
+  renewBuildingInspection(hovered: number | null) {
+    const record =
+      this.buildingInspected === null ? null : this.buildingRecords.get(this.buildingInspected)
     // The native consumer renews first, then drops selected ownership after
     // release when neither pick matches. Departure therefore keeps this renewal.
     if (record?.phase === 1) record.remaining = record.hold
-    if (this.hutHeldPointer === null && hovered !== this.hutInspected) this.hutInspected = null
+    if (this.buildingHeldPointer === null && hovered !== this.buildingInspected)
+      this.buildingInspected = null
   }
-  stepHutInspections(allowCreate = true) {
+  stepBuildingInspections(allowCreate = true) {
     const { scene } = this
     if (allowCreate)
       for (const building of scene.world.buildings)
@@ -120,10 +131,10 @@ export class ObjectPanels {
           building.progress >= 1 &&
           (building.admission?.activity ?? 0) & 128
         )
-          this.inspectHut(building.id, 'automatic')
-    for (const [id, record] of this.hutRecords) {
+          this.inspectBuilding(building.id, 'automatic')
+    for (const [id, record] of this.buildingRecords) {
       const building = scene.world.buildings.find(
-        b => b.id === id && b.kind === 'hut' && b.hp > 0 && b.progress >= 1
+        b => b.id === id && retainedBuildingPanel(b) && b.hp > 0
       )
       const element = scene.buildingPanels.get(id),
         panelInteraction =
@@ -133,16 +144,21 @@ export class ObjectPanels {
           element &&
           !element.hidden &&
           (element.matches(':hover') || element.contains(document.activeElement))
-      // Preserve the browser's existing access to hovered/focused Hut controls.
+      // Preserve the browser's existing access to hovered/focused controls.
       // This UI hold is not a claim about native status-control ownership.
       if (building && panelInteraction && record.phase >= 1) continue
       const automaticHeld = record.automatic && !!((building?.admission?.activity ?? 0) & 128)
       if (record.automatic && record.phase === 1 && !automaticHeld) record.remaining = 0
       if (!building || !stepPersonPanel(record, automaticHeld)) {
-        this.hutRecords.delete(id)
-        scene.buildingPanels.get(id)?.remove()
-        scene.buildingPanels.delete(id)
-        if (this.hutInspected === id) this.releaseHutInspection()
+        this.buildingRecords.delete(id)
+        if (
+          !building ||
+          !(activeCampPanel(building) || (building.kind === 'camp' && panelInteraction))
+        ) {
+          element?.remove()
+          scene.buildingPanels.delete(id)
+        }
+        if (this.buildingInspected === id) this.releaseBuildingInspection()
         syncSecondaryReservations(scene)
       }
     }
@@ -573,8 +589,8 @@ export class ObjectPanels {
   dispose() {
     for (const panel of this.panels.values()) panel.element.remove()
     this.panels.clear()
-    this.hutRecords.clear()
-    this.releaseHutInspection()
+    this.buildingRecords.clear()
+    this.releaseBuildingInspection()
     syncSecondaryReservations(this.scene)
     this.automaticSamples.clear()
   }
