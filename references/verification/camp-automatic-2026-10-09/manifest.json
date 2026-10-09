@@ -1,0 +1,141 @@
+{
+  "kind": "public-source-standard-checkpoint",
+  "recordedAt": "2026-10-09T21:02:00Z",
+  "testedHead": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+  "testedTree": "9a45d71258b6fed77b808d4901648903067f313d",
+  "sourceBase": "a7a500dcc835ea26e9c39d4e8bc96d1940510613",
+  "runtimePullRequest": "https://github.com/JohnDeved/populous-new-dawn/pull/291",
+  "sourceProofPullRequest": "https://github.com/JohnDeved/populous-new-dawn/pull/290",
+  "sourceProofHead": "7c83191052253866311fb86b74d106ce37719fec",
+  "sourceFiles": [
+    {
+      "path": "app/building-panels.ts",
+      "gitBlob": "f0037f15fe9ad3d0c0aa767a19e862f5f937dbdd",
+      "sha256": "c18385ea0297adcc6ba0a7ccdd32e672bff1dcfe86d7a08cada35f5e22b85629"
+    },
+    {
+      "path": "app/live-building-entry.ts",
+      "gitBlob": "98cdee0ef0869b86319a060212812a66af77a0b7",
+      "sha256": "e09c7d00e3b32438e9634e2e21b0a11ce79bf38e9d7d547e342fda1011124404"
+    },
+    {
+      "path": "app/object-panels.ts",
+      "gitBlob": "e562ced6061d3bd9561e264b69114e119d16821e",
+      "sha256": "247c27e63e3753dd3065bb299c9001535e34253d800c5ba238ce7d875194bdcf"
+    },
+    {
+      "path": "app/scene-secondary-effects.ts",
+      "gitBlob": "157f96b4f233a25fdd0645f540172a4f46a1bcc3",
+      "sha256": "51a2d73609ed8d8f4af00c2cf5ca2346de9da1867bf3a8998ce457fff18f2338"
+    },
+    {
+      "path": "app/scene.ts",
+      "gitBlob": "ee8aac52a1a57259a2f6be3ece61743ec3836d52",
+      "sha256": "c6c88945abbb84909020670ac2069b8da91381ecf6bab121d65519614cac38e1"
+    },
+    {
+      "path": "app/training-panel-requests.ts",
+      "gitBlob": "fd996f62e702f01c1f0736e63366184a1ba180b7",
+      "sha256": "63c518faf90272876594a896c387360d08264e1d1904ae38b86cdb075e240bba"
+    },
+    {
+      "path": "engineering/camp-automatic-panel-caller.md",
+      "gitBlob": "7454198b9c09d6755ac995fcc3cfd682d184c631",
+      "sha256": "bd8cb77f0df2411ba66dd5c67b5d1b7de76a71a49123fc405aa3ee937a7af137"
+    },
+    {
+      "path": "tests/camp-automatic-panel.test.mjs",
+      "gitBlob": "31bc1be34d2c2c4e6cda18b1efac70577cfcc564",
+      "sha256": "5a0db279d1a0b9119cdf4e79c3033b52a88f622bc65c448d85508602fa16881d"
+    },
+    {
+      "path": "tests/camp-inspection.test.mjs",
+      "gitBlob": "8688c8894fe6bcf44af47333b91a63b5c93c5308",
+      "sha256": "cc9be37f2525c7f8625a59f294e6f8dec90923b3a39a491120555d5d0f42ce91"
+    },
+    {
+      "path": "tests/support/camp-panel-scene.mjs",
+      "gitBlob": "74cb40f15595750ad65b8485508ff4bf64cff8c4",
+      "sha256": "628fcdb9a9bceb793ae0ce53c53060ded4e8ddd782c09c668eae01c95fd9346b"
+    }
+  ],
+  "originalReviews": [
+    {
+      "file": "source-caller-review.json",
+      "originalSha256": "65dc4a2e67520259e5a17624e31656e77544d4f48ff51a568b81a8a9075df939",
+      "copyPolicy": "Public projection: receipt locations made repository-relative and coordination identifier omitted; review scope, verdict, findings and receipt hashes preserved."
+    },
+    {
+      "file": "standard-result-review.md",
+      "originalSha256": "f5c6584e669bddc2017093a37cd5e46d762acb92c9252dfc950b3fd2f49f9996",
+      "copyPolicy": "Exact bytes."
+    }
+  ],
+  "payloadFiles": [
+    {
+      "file": "README.md",
+      "sha256": "e0ebff8cfc65d2bfa1d5897f89117983aed2293c5094ce324e1fe3805a28c328",
+      "bytes": 6055
+    },
+    {
+      "file": "receipt-index.json",
+      "sha256": "ab7098e5548d47387c7c568160ad5002cd637b5bdeefa3fcfbaa97e8a4105303",
+      "bytes": 23595
+    },
+    {
+      "file": "source-caller-review.json",
+      "sha256": "c66811d9a2acaca83714144db69ac2524b19e842a1780439d214ffef58d91c72",
+      "bytes": 6813
+    },
+    {
+      "file": "standard-aggregate.json",
+      "sha256": "6927b0343137532f00e90a267433feb088824368b65da434ef909d259f6a72e6",
+      "bytes": 8392
+    },
+    {
+      "file": "standard-result-review.md",
+      "sha256": "f5c6584e669bddc2017093a37cd5e46d762acb92c9252dfc950b3fd2f49f9996",
+      "bytes": 5100
+    }
+  ],
+  "copyPolicy": "No raw streams, large browser reports, archive, profile, executable, credentials, screenshots or dependency files included. Runtime and QA source unchanged.",
+  "ordinaryBrowserGate": {
+    "attemptStatus": "FAILED",
+    "acceptanceStatus": "NOT_ESTABLISHED",
+    "sourceHead": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+    "qaHead": "91a5ea6d7bb9c37d40fbc26e4be8376dc0328aa8",
+    "outerFinishedAt": "2026-10-09T20:24:03.386Z",
+    "innerFinishedAt": "2026-10-09T20:24:00.383Z",
+    "exitCode": 1,
+    "signal": null,
+    "failure": "12-second held-count wait timeout; observer restoration subsequently reported Target crashed.",
+    "retainedEvidence": "Input summary only; no complete raw event/callback evidence; Save/Load not reached.",
+    "cleanupBoundary": "Finalized receipt preserves the primary timeout: maintained harness browser close/disconnection and stopServer signal completion are supported; independent descendant-process reaping is not established.",
+    "productCause": "Not proved.",
+    "resultCredit": 0,
+    "harnessSource": {
+      "path": "scripts/local-render/harness.mjs",
+      "sha256": "19212b8b57d8f1ec47583ec12a3b33152832c103b91a266aa4a774bf0043a021"
+    },
+    "artifacts": [
+      {
+        "path": "work/orchestration/training-panel-ordinary-01/receipt.json",
+        "sha256": "037d5ba3922dbfd838d9779a6deff9f2d5f99c3d1948f539704b48fd7946bae8",
+        "bytes": 3391,
+        "included": false
+      },
+      {
+        "path": "work/orchestration/training-panel-ordinary-01.outer.json",
+        "sha256": "98d307ccf59fcd2a429c5f7af8f7a35e937282ce62125920222ecc43c8cb264e",
+        "bytes": 31023,
+        "included": false
+      },
+      {
+        "path": "work/orchestration/training-panel-ordinary-01/camp-inspection.json",
+        "sha256": "6e2dab4e5a31ecf49b223ec946c5d0c1cba87756c4a9b57899499f5f75070242",
+        "bytes": 360294,
+        "included": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,151 @@
+{
+  "kind": "independent-source-caller-review",
+  "verdict": "ACCEPT",
+  "head": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+  "base": "a7a500dcc835ea26e9c39d4e8bc96d1940510613",
+  "reviewCompletedAt": "2026-10-09T20:08:54Z",
+  "artifactRecordedAt": "2026-10-09T20:21:43Z",
+  "scope": {
+    "fullChangedFileCount": 10,
+    "description": "Read-only review of the full runtime, tests and caller-evidence diff against the exact main base, using the independently accepted retained-source/reset/implementation contract at 7c83191052253866311fb86b74d106ce37719fec.",
+    "checked": [
+      "Synchronous pre-conversion training callback and World-to-Scene binding",
+      "Separate successful-admission latch and automatic record flag",
+      "Shared record reuse, capacity failure/retry and immediate reservation",
+      "Phase1 renewal/expiry and phase2 restart/reuse/retirement",
+      "Phase -1 paint gate and removal of bare activity DOM authority",
+      "Independent DOM hold and dismantling adapter",
+      "Current Scene, stale disposal, load/reset and nonserialized UI ownership",
+      "Actual-caller tests, natural M2 admission prerequisites, controlled fixtures and deliberate manual-test changes",
+      "Exact-head receipt provenance and raw log hashes"
+    ],
+    "execution": "No runtime edits, native executable runs or browser execution performed by this review."
+  },
+  "resolvedFindings": [
+    {
+      "file": "app/object-panels.ts",
+      "line": 80,
+      "finding": "New automatic admission was allowed during overviewStage while overviewActive was false.",
+      "resolution": "99f8a890 rejects overviewStage before latch/allocation. The focused regression verifies no record/latch/D mutation during the transition and a successful actual-callback retry after it clears.",
+      "status": "resolved"
+    }
+  ],
+  "outstandingSourceFindings": [],
+  "validationAtReview": {
+    "focusedTestsPassed": 59,
+    "receiptCount": 6,
+    "gitDiffCheck": "passed against exact base/head",
+    "worktree": "clean at terminal source review",
+    "lintBoundary": "Changed-file lint diagnostics match the retained inherited baseline; absolute lint still has 11 inherited errors and 52 warnings."
+  },
+  "receipts": [
+    {
+      "name": "focused",
+      "path": "work/orchestration/camp-auto-baseline/focused-99f8a890.json",
+      "sha256": "9f8255488971c3e60cc52a5012867bfae04565a58cf645415518a2997553de65",
+      "status": "passed",
+      "exitCode": 0,
+      "artifacts": {
+        "stdout": {
+          "path": "work/orchestration/camp-auto-baseline/focused-99f8a890.json.artifacts/stdout.log",
+          "sha256": "6d70a09e2219600f286c2f29089f65dbef3e52e5f8980e7634fbdf766c9e4ecd"
+        },
+        "stderr": {
+          "path": "work/orchestration/camp-auto-baseline/focused-99f8a890.json.artifacts/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "name": "typecheck",
+      "path": "work/orchestration/camp-auto-baseline/typecheck-99f8a890.json",
+      "sha256": "b898718f606cc102f00c0a0e2b6e23f5b9c4f9e9303a1a5537f0684fc6fba01f",
+      "status": "passed",
+      "exitCode": 0,
+      "artifacts": {
+        "stdout": {
+          "path": "work/orchestration/camp-auto-baseline/typecheck-99f8a890.json.artifacts/stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "path": "work/orchestration/camp-auto-baseline/typecheck-99f8a890.json.artifacts/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "name": "format",
+      "path": "work/orchestration/camp-auto-baseline/format-99f8a890.json",
+      "sha256": "23f2a708881c9bec939e5221a4a5bd461375a4d9c831a360e7cc78a18921c9ec",
+      "status": "passed",
+      "exitCode": 0,
+      "artifacts": {
+        "stdout": {
+          "path": "work/orchestration/camp-auto-baseline/format-99f8a890.json.artifacts/stdout.log",
+          "sha256": "778b5ef77c51b019c97e200177e98148d16438826a65ab141f69213bf8533629"
+        },
+        "stderr": {
+          "path": "work/orchestration/camp-auto-baseline/format-99f8a890.json.artifacts/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "name": "lint-delta",
+      "path": "work/orchestration/camp-auto-baseline/lint-delta-99f8a890.json",
+      "sha256": "d866e2f6f0383f17f3bf40c88c9108c6012a23c85a27d25e980a9953ed3f531a",
+      "status": "passed",
+      "exitCode": 0,
+      "artifacts": {
+        "stdout": {
+          "path": "work/orchestration/camp-auto-baseline/lint-delta-99f8a890.json.artifacts/stdout.log",
+          "sha256": "f522cd0cd22bba473147decee4b6ceef9ef5ffb9fa499f5569e6ce50b75ece81"
+        },
+        "stderr": {
+          "path": "work/orchestration/camp-auto-baseline/lint-delta-99f8a890.json.artifacts/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "name": "plan",
+      "path": "work/orchestration/camp-auto-baseline/plan-99f8a890.json",
+      "sha256": "d75a0aa0bcec787e24e76007c6c9f89e67f9b99ce560c574e696bb2cbff5a21b",
+      "status": "passed",
+      "exitCode": 0,
+      "artifacts": {
+        "stdout": {
+          "path": "work/orchestration/camp-auto-baseline/plan-99f8a890.json.artifacts/stdout.log",
+          "sha256": "f102aaab8cd4fc6cd3240ca971de1e9e92b3904e6381ea8b6deb553b7e5285dc"
+        },
+        "stderr": {
+          "path": "work/orchestration/camp-auto-baseline/plan-99f8a890.json.artifacts/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "name": "structure",
+      "path": "work/orchestration/camp-auto-baseline/structure-99f8a890.json",
+      "sha256": "ef0d68c934090805093710789f7b8698c4d4d54b143e99551de0b2cdcad3d074",
+      "status": "passed",
+      "exitCode": 0,
+      "artifacts": {
+        "stdout": {
+          "path": "work/orchestration/camp-auto-baseline/structure-99f8a890.json.artifacts/stdout.log",
+          "sha256": "43c002bd9919d33decacd72f244f2342112451d4d6cbf5087cb824f92e45a75d"
+        },
+        "stderr": {
+          "path": "work/orchestration/camp-auto-baseline/structure-99f8a890.json.artifacts/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    }
+  ],
+  "acceptanceLimitsAtReview": {
+    "sourceAndCallerReview": "accepted",
+    "fullStandardGates": "pending separate evidence at review time",
+    "typedOrdinaryBrowserEpisode": "pending separate evidence at review time",
+    "gameplayParity": "not established by this source review"
+  }
+}

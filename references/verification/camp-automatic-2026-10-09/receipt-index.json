@@ -1,0 +1,710 @@
+{
+  "kind": "reviewed-receipt-digests",
+  "testedHead": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+  "argvDigestEncoding": "SHA256 of UTF-8 compact JSON command array, ensure_ascii default true; full command arrays remain in the pinned raw receipts.",
+  "rawPublication": "Hashes and byte lengths only; raw streams and profile are not included.",
+  "standardStages": [
+    {
+      "receipt": "work/orchestration/camp-automatic-final-01/tests-new.json",
+      "sha256": "02b9ba1d53af480fc01078d1c168141b8dc90005f2ff40dc5b82c093f4575235",
+      "sourceHead": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "raw": {
+        "stdout": {
+          "sha256": "5836644de02244450d1ec3715ed7112a5f3d58538291b4b093289abbcfb0c9e8",
+          "bytes": 6556
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "f526868933b47f91b69171963af702f363560955c64eb2339e355a3f4a6d0df6",
+      "name": "tests-new",
+      "counts": {
+        "tests": 65,
+        "pass": 65,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "testFiles": 6
+    },
+    {
+      "receipt": "work/orchestration/camp-automatic-final-01/tests-01.json",
+      "sha256": "0d315a21d777c1d913cb9fb9bdb6910b5ef2df2e9e5f16e85b0e9584c26bf1e5",
+      "sourceHead": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "raw": {
+        "stdout": {
+          "sha256": "0bc97a7ccd0a729742002cb0a8070e2777c4d045f421feacb5b6a3c6fcb208c7",
+          "bytes": 16849
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "f9df3bf09cc21ef69102fbe153d030e71f0f2c3753c353c7af90f1e63f041628",
+      "name": "tests-01",
+      "counts": {
+        "tests": 170,
+        "pass": 170,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "testFiles": 33
+    },
+    {
+      "receipt": "work/orchestration/camp-automatic-final-01/tests-02.json",
+      "sha256": "b478e1b4cbf793ae6d73623ab7da154956a20d4fef7593b986b589280025794f",
+      "sourceHead": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "raw": {
+        "stdout": {
+          "sha256": "0b82ebb7b1e86823d8b9b0e98f06e13ec44b23770d95ff8177211a48be14518c",
+          "bytes": 17407
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "0ee2682a3c820b3e848a79a16ee9be9aac08cf509bcb92335b63ce64f8765d0f",
+      "name": "tests-02",
+      "counts": {
+        "tests": 165,
+        "pass": 165,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "testFiles": 33
+    },
+    {
+      "receipt": "work/orchestration/camp-automatic-final-01/tests-03.json",
+      "sha256": "4b9e964dcc0ed9d541bc7974fe85772a3893a226698a6a3d57781a33b72a937b",
+      "sourceHead": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "raw": {
+        "stdout": {
+          "sha256": "9b1a0fd0c7f0f15649ea7b18b386f4263069dcbe946a6d0215987f9f838ec0da",
+          "bytes": 27965
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "a4f33dd170edf799f69b50ebce6c6dd3772606ae9bf92844a567ff6d8459b1f2",
+      "name": "tests-03",
+      "counts": {
+        "tests": 283,
+        "pass": 283,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "testFiles": 34
+    },
+    {
+      "receipt": "work/orchestration/camp-automatic-final-01/tests-04a.json",
+      "sha256": "cb71d5fd9de9c96b3c0e2d2c3ca257231ec8df50e29f162a9a25972de6a320e3",
+      "sourceHead": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "raw": {
+        "stdout": {
+          "sha256": "2c14ceaec33756b60de150dc7a1003fcbf2d51289df7d341587829895bb29417",
+          "bytes": 6745
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "bf0313a874c1b8aebae112e3d33eff8a59d42a68926afd2d8fbdddb01323e966",
+      "name": "tests-04a",
+      "counts": {
+        "tests": 66,
+        "pass": 66,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "testFiles": 13
+    },
+    {
+      "receipt": "work/orchestration/camp-automatic-final-01/tests-04b.json",
+      "sha256": "4efe19ed40044a15f797161d4526b1011d2e1d61687bcefb80a6417cd2cc5807",
+      "sourceHead": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "raw": {
+        "stdout": {
+          "sha256": "53f09c42553aae4cf1502c9d6d9beda5dd40a89a950913f55fe9543b557093d5",
+          "bytes": 7631
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "e8fc71e77a1a5caa8fdf303b369630390c9cd37c6d84159c92f7f3c44bedcf6b",
+      "name": "tests-04b",
+      "counts": {
+        "tests": 75,
+        "pass": 75,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "testFiles": 11
+    },
+    {
+      "receipt": "work/orchestration/camp-automatic-final-01/tests-04c.json",
+      "sha256": "184df7c96fdaf495eb2b02460847e90110b6ec98c3ed47fb8dc06f825db2fab5",
+      "sourceHead": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "raw": {
+        "stdout": {
+          "sha256": "f3c8cd8cc06d95dffd4b2167dfc40ae46a18c33707901b9b44932a1bac7a8544",
+          "bytes": 3136
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "77b2d371fa47b96936e05899afb4337fa518054932c4543c0329bac8ed671d53",
+      "name": "tests-04c",
+      "counts": {
+        "tests": 32,
+        "pass": 32,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "testFiles": 11
+    },
+    {
+      "receipt": "work/orchestration/camp-automatic-final-01/tests-05a.json",
+      "sha256": "fa8faceeee9772be6a1148a2a4eb43b7e039b60a364ea60fc44ad896b9200be1",
+      "sourceHead": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "raw": {
+        "stdout": {
+          "sha256": "f3bdb83a0e75a223133bff4be2ebca026758d4286448f1933d210f2c1b7b83d4",
+          "bytes": 5676
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "54c3b14da7d44b8b144a1e08c22c4b061e90b94d58722460538405712e683d2e",
+      "name": "tests-05a",
+      "counts": {
+        "tests": 54,
+        "pass": 54,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "testFiles": 11
+    },
+    {
+      "receipt": "work/orchestration/camp-automatic-final-01/tests-05b.json",
+      "sha256": "adad26242488d7d7daac0fc5ab1d84277d4562bd72a68dcd63fe9eea0f527c21",
+      "sourceHead": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "raw": {
+        "stdout": {
+          "sha256": "40f89157f85d0fee4e780713aefb2324868559055795814a2dacf27251a9264f",
+          "bytes": 4778
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "b32ffc6e316e792cff7905c6df167be52e52bcaa94fd2ecdd62ebee52d5c4348",
+      "name": "tests-05b",
+      "counts": {
+        "tests": 47,
+        "pass": 47,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "testFiles": 11
+    },
+    {
+      "receipt": "work/orchestration/camp-automatic-final-01/tests-05c.json",
+      "sha256": "6c4b3c9751d6b5a2e02be724ef62ed30c53efaac5949547cffda22c07dca324e",
+      "sourceHead": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "raw": {
+        "stdout": {
+          "sha256": "9dce34d498d64d5b11c2568aa1b16747106160ef4dcca9683ae4511187aee46a",
+          "bytes": 9625
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "4ceec8212a3e6c7e9b28baf7a4a74046e292f3960a713b6d555ba98cfe9a49c5",
+      "name": "tests-05c",
+      "counts": {
+        "tests": 90,
+        "pass": 90,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "testFiles": 11
+    },
+    {
+      "receipt": "work/orchestration/camp-automatic-final-01/tests-06.json",
+      "sha256": "be46427e318f6bdfc71f6ac66cb3028d6c875fafe24e70b56d7c95270626ded9",
+      "sourceHead": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "raw": {
+        "stdout": {
+          "sha256": "580b08ed548a7f12b155a9524188b111275f794a567d4489e75f294cc801b905",
+          "bytes": 34053
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "c7d1f843452a4a1ca356bf9da45d49a078d231bc3af4a3978d8f936d781cc73d",
+      "name": "tests-06",
+      "counts": {
+        "tests": 328,
+        "pass": 328,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "testFiles": 34
+    },
+    {
+      "receipt": "work/orchestration/camp-automatic-final-01/tests-07.json",
+      "sha256": "3410161ce9d7117f8dd5fdfd69d998c40f7d3cc2d87b70fa13355eb44ecd20a4",
+      "sourceHead": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "raw": {
+        "stdout": {
+          "sha256": "29e78c22bdeb5593338997c08cc3d79c5397e797a796f5be651607671df9f075",
+          "bytes": 16344
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "55663f12a3e71e1df59f0883f9e7ce02c416a52390fefea553afc48158653928",
+      "name": "tests-07",
+      "counts": {
+        "tests": 141,
+        "pass": 141,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "testFiles": 33
+    },
+    {
+      "receipt": "work/orchestration/camp-automatic-final-01/tests-08.json",
+      "sha256": "025ea375deef73013d357498033c51b287ecffd931a23c923b89750dc26232d1",
+      "sourceHead": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "raw": {
+        "stdout": {
+          "sha256": "8bcb1bdf1f0daa85b4958713cb29baf17bc8936c9615c57e799e30adb4599ba0",
+          "bytes": 17572
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "commandSha256": "b3bec1e5dcdbf52404775adbd6dc32f144fd489b85752a57a3a7c7af0df50149",
+      "name": "tests-08",
+      "counts": {
+        "tests": 170,
+        "pass": 170,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "testFiles": 39
+    },
+    {
+      "receipt": "work/orchestration/camp-automatic-final-01/typecheck.json",
+      "sha256": "940a7ea13d07bcddb54434d333193c1daa54f58f39c500d0a248b39e7b002592",
+      "sourceHead": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "raw": {
+        "stdout": {
+          "sha256": "5b3b688caa668685eebda41ca93c4e60de869bac3645a0b25bf22809e6c84ba5",
+          "bytes": 55
+        },
+        "stderr": {
+          "sha256": "7d61cb2e2deb776dfec4d6f54693f9edeed0af5c4da52f091c53c995d862fb65",
+          "bytes": 307
+        }
+      },
+      "commandSha256": "93322c849dc68f2341d8af2438ab5e66f69acfc1fa455c4e625889c43afae4f5",
+      "name": "typecheck"
+    },
+    {
+      "receipt": "work/orchestration/camp-automatic-final-01/parity-check.json",
+      "sha256": "bb66407eabc1e9c1fcd410d34ec1ffe57cfc8ef2f89ecbf02b297afa886c4242",
+      "sourceHead": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "raw": {
+        "stdout": {
+          "sha256": "f39c8ad20b8013f4e4e4ade55ff5d63ab1c8df3729611db56c2d25cf734b48a9",
+          "bytes": 152
+        },
+        "stderr": {
+          "sha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+          "bytes": 99
+        }
+      },
+      "commandSha256": "e4597df4e95f02e3fb91f836320857a47f86ee79116fe50deeed83bf2de8d5c5",
+      "name": "parity-check"
+    },
+    {
+      "receipt": "work/orchestration/camp-automatic-final-01/orchestration-check.json",
+      "sha256": "40bfb330b9152ab10d983723e8a7cd87756825bccec6339a8e507eade298f4a8",
+      "sourceHead": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "raw": {
+        "stdout": {
+          "sha256": "b18d09c73c92014599d480b65ec8bfb1e0c0b21e0a236c56baaee4e0e935f9ac",
+          "bytes": 4971
+        },
+        "stderr": {
+          "sha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+          "bytes": 99
+        }
+      },
+      "commandSha256": "e11d4a388b30a6c0303d9b3f520eebbf5d6c0f097c821563aa214fca0c2f778b",
+      "name": "orchestration-check"
+    },
+    {
+      "receipt": "work/orchestration/camp-automatic-final-01/build.json",
+      "sha256": "1f2c461015a79303e7bda2a1bec17ca734efb801faf209116556f31b323c634b",
+      "sourceHead": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "raw": {
+        "stdout": {
+          "sha256": "11707f75f86c02f9d05823fb0d9f1dc3ccd73efc6952d91a87998a8c1cce6771",
+          "bytes": 1143
+        },
+        "stderr": {
+          "sha256": "207a020f405889926eeee34c225ed985112de7b76ae039523c7ab45cc003a0c3",
+          "bytes": 1439
+        }
+      },
+      "commandSha256": "f8ca8c2c9d3344af6a85fc6c275f4132bce8295f4ec5f99551d3e85a5759d985",
+      "name": "build"
+    }
+  ],
+  "focusedAndQuality": [
+    {
+      "receipt": "work/orchestration/camp-auto-baseline/focused-99f8a890.json",
+      "sha256": "9f8255488971c3e60cc52a5012867bfae04565a58cf645415518a2997553de65",
+      "sourceHead": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "raw": {
+        "stdout": {
+          "sha256": "6d70a09e2219600f286c2f29089f65dbef3e52e5f8980e7634fbdf766c9e4ecd",
+          "bytes": 6697
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "name": "focused"
+    },
+    {
+      "receipt": "work/orchestration/camp-auto-baseline/typecheck-99f8a890.json",
+      "sha256": "b898718f606cc102f00c0a0e2b6e23f5b9c4f9e9303a1a5537f0684fc6fba01f",
+      "sourceHead": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "raw": {
+        "stdout": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "name": "typecheck"
+    },
+    {
+      "receipt": "work/orchestration/camp-auto-baseline/format-99f8a890.json",
+      "sha256": "23f2a708881c9bec939e5221a4a5bd461375a4d9c831a360e7cc78a18921c9ec",
+      "sourceHead": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "raw": {
+        "stdout": {
+          "sha256": "778b5ef77c51b019c97e200177e98148d16438826a65ab141f69213bf8533629",
+          "bytes": 111
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "name": "format"
+    },
+    {
+      "receipt": "work/orchestration/camp-auto-baseline/lint-delta-99f8a890.json",
+      "sha256": "d866e2f6f0383f17f3bf40c88c9108c6012a23c85a27d25e980a9953ed3f531a",
+      "sourceHead": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "raw": {
+        "stdout": {
+          "sha256": "f522cd0cd22bba473147decee4b6ceef9ef5ffb9fa499f5569e6ce50b75ece81",
+          "bytes": 33684
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "name": "lint-delta"
+    },
+    {
+      "receipt": "work/orchestration/camp-auto-baseline/plan-99f8a890.json",
+      "sha256": "d75a0aa0bcec787e24e76007c6c9f89e67f9b99ce560c574e696bb2cbff5a21b",
+      "sourceHead": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "raw": {
+        "stdout": {
+          "sha256": "f102aaab8cd4fc6cd3240ca971de1e9e92b3904e6381ea8b6deb553b7e5285dc",
+          "bytes": 114488
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "name": "plan"
+    },
+    {
+      "receipt": "work/orchestration/camp-auto-baseline/structure-99f8a890.json",
+      "sha256": "ef0d68c934090805093710789f7b8698c4d4d54b143e99551de0b2cdcad3d074",
+      "sourceHead": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "raw": {
+        "stdout": {
+          "sha256": "43c002bd9919d33decacd72f244f2342112451d4d6cbf5087cb824f92e45a75d",
+          "bytes": 4878
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "name": "structure"
+    },
+    {
+      "receipt": "work/orchestration/camp-auto-baseline/eslint-tests-99f8a890.json",
+      "sha256": "3ffdc953cafb4e2348ee65f2b6d3b2bf9f79cde5e726d58e6cee39e56c923ba8",
+      "sourceHead": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "raw": {
+        "stdout": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "name": "eslint-tests"
+    }
+  ],
+  "preservedBaselines": [
+    {
+      "receipt": "work/orchestration/camp-auto-baseline/red-bf429f3e.json",
+      "sha256": "b95861a4b9da88221ed72513a04e9d41f8544dbc4f3aee53df45e66f7ffec014",
+      "sourceHead": "bf429f3e0bec8f37f8cde8dfab5acc45c9abc9a1",
+      "status": "failed",
+      "exitCode": 1,
+      "signal": null,
+      "raw": {
+        "stdout": {
+          "sha256": "8570c147dfb2133328acd114d2d53628ecbd9ed2700cf14654dbd03bffa480b6",
+          "bytes": 2627
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "name": "red-bf429f3e",
+      "meaning": "expected failure before runtime implementation; zero standard credit"
+    },
+    {
+      "receipt": "work/orchestration/camp-auto-baseline/red-d26ac24b.json",
+      "sha256": "aae1970dbe58413934d80e600ba1325131519d8cabff7ca554b89db46fc4bfaf",
+      "sourceHead": "d26ac24bd9f2ef19ac11fb629725459bac3fbc62",
+      "status": "failed",
+      "exitCode": 1,
+      "signal": null,
+      "raw": {
+        "stdout": {
+          "sha256": "f639b5d3d6f98befa488a8d96211311cc0d0c4da2650dc34dc49b7a376989957",
+          "bytes": 2771
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "name": "red-d26ac24b",
+      "meaning": "expected failure before runtime implementation; zero standard credit"
+    },
+    {
+      "receipt": "work/orchestration/camp-auto-baseline/red-first-paint.json",
+      "sha256": "9a2c66e7597b05fa8ae798bb7115d50d8d28693ea77b471e1a230e4f6c97bfc1",
+      "sourceHead": "f4b4e502cbdd3a3272867ec058d521ecc1e12d60",
+      "status": "failed",
+      "exitCode": 1,
+      "signal": null,
+      "raw": {
+        "stdout": {
+          "sha256": "fbb01d067b837c66da96a567f91724695947e1502df19ad7142f34cf41895fa4",
+          "bytes": 2786
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "name": "red-first-paint",
+      "meaning": "expected failure before runtime implementation; zero standard credit"
+    },
+    {
+      "receipt": "work/orchestration/camp-auto-baseline/manual-bf429f3e.json",
+      "sha256": "2eca4235efdb428c520127cefc579ce25f73d3e3ccbc905eb584dbc067af236c",
+      "sourceHead": "bf429f3e0bec8f37f8cde8dfab5acc45c9abc9a1",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "raw": {
+        "stdout": {
+          "sha256": "09b7ad2747b076759a69de8ecdcfd39b5195defcce0e482894041f3f1589f5fe",
+          "bytes": 888
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "name": "manual-bf429f3e",
+      "meaning": "historical unchanged manual fixture baseline; zero added standard credit"
+    },
+    {
+      "receipt": "work/orchestration/camp-auto-baseline/manual-d26ac24b.json",
+      "sha256": "bff4375ad9502447b34fda7120f8dc3c3498c21c64923950e40a724cc25ff196",
+      "sourceHead": "d26ac24bd9f2ef19ac11fb629725459bac3fbc62",
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "raw": {
+        "stdout": {
+          "sha256": "e29fcfc2ec8652bfb447350320cb6e34f05e65f530049ca2980336895da13f5e",
+          "bytes": 889
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "name": "manual-d26ac24b",
+      "meaning": "historical unchanged manual fixture baseline; zero added standard credit"
+    }
+  ],
+  "strictOxlint": {
+    "status": "FAILED",
+    "exitCode": 1,
+    "inheritedErrors": 11,
+    "inheritedWarnings": 52,
+    "addedDiagnostics": 0,
+    "proof": "lint-delta receipt plus standard-result-review.md; the passing delta wrapper does not mean absolute lint passed."
+  }
+}
