@@ -1,0 +1,51 @@
+{
+  "kind": "public-standard-review-checkpoint",
+  "testedHead": "4e8356ef043d9963abd16a840c3246abc972fe48",
+  "testedTree": "158391790e41b3b4f72f9340fba05885c6837654",
+  "featureHead": "b34e79e341a1ef754a812a1adedf67ad1319941a",
+  "files": [
+    {
+      "file": "standard-aggregate.json",
+      "sha256": "a485c01dcd604b9d81fd42b5d9271622e9f5779759cfee27f33ea42bd7b5e9fe",
+      "bytes": 41467,
+      "sourceArtifact": "populous-recovery-20261009b/work/orchestration/camp-discovery-final-01/aggregate.json"
+    },
+    {
+      "file": "standard-result-review.md",
+      "sha256": "72a92657b5d2f58fb5726ad65b6efb8714c3b2228dd8c9956a2713282e1d14df",
+      "bytes": 3981,
+      "sourceArtifact": "populous-recovery-20261009b/work/orchestration/camp-discovery-final-01/result-review.md"
+    },
+    {
+      "file": "profile-review.md",
+      "sha256": "c768f508e58ccb2015b20f5e2fe7bd23eebd352ad81c685b0fc15eed75774a51",
+      "bytes": 4166,
+      "sourceArtifact": "camp-discovery-final-profile-review-20261009.md"
+    },
+    {
+      "file": "quality-review.md",
+      "sha256": "c5fc3d63c34442adcbede53dfc4c71b6ac8fa188d6159d0878e31fc5ef688bcc",
+      "bytes": 2833,
+      "sourceArtifact": "camp-discovery-quality-admission-review-20261009.md"
+    },
+    {
+      "file": "stage07-recovery-review.md",
+      "sha256": "e98a380c953432ebd5306e3a857b1a9c3a24ba4bee85d26cbd98fe35060c04d7",
+      "bytes": 2985,
+      "sourceArtifact": "camp-discovery-stage07-recovery-review-20261009.md"
+    },
+    {
+      "file": "camp-source-focused-review.md",
+      "sha256": "b84d9d37b991181e1381c491b65c373e19a30fbe8d1971d7014bdbc2131258aa",
+      "bytes": 4851,
+      "sourceArtifact": "camp-inspection-source-focused-review-20261009.md"
+    },
+    {
+      "file": "discovery-source-focused-review.md",
+      "sha256": "1d0d7d704046cfef640fa5a327a36b4197b65b78f455e4adb654bac2a56226e2",
+      "bytes": 6558,
+      "sourceArtifact": "parity-discovery-implementation-review-20261009.md"
+    }
+  ],
+  "copyPolicy": "Exact bytes of accepted aggregate and reviews; no raw streams, archive, browser profile, original binary or screenshots included."
+}
