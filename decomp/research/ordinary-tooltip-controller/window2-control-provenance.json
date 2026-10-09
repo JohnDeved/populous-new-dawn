@@ -1,0 +1,453 @@
+{
+  "researchHead": "13311c8b3afe961dd4ca25d9ba3c70d19551c82f",
+  "canonicalApplicationMain": "47680b8fd124aab50b0528eea77a81cacb556060",
+  "scope": "Only the three authorized function windows and the getter returned-state direct writer/consumer closure; source-only.",
+  "runtime": "HOLD",
+  "sourceSha256": {
+    "decomp/generated/0042b230.c": "241109ebdd842f8a448a43b58d5423b719ee7fe84a51d35e2612ac7b0b5517f2",
+    "decomp/generated/00451370.c": "adc8fe2b1223f745306d64d1a5d124781107a227c9da3d45e8ebc468231180ac",
+    "decomp/generated/0045ddf0.c": "3ab927c5c80461d675b4826943da4a19f6a3f576b8573a98ac18d874a90169fd",
+    "decomp/generated/004aab80.c": "a286e361005571ddcba7405348e2582aa061c3f427d1a8e8fed09a5d1e7890a8",
+    "decomp/generated/004aa1c0.c": "ed1bed27fb7d6f77bae82d3238de7411335f29b5f05e6323e5a17c6b2b000141",
+    "decomp/generated/004aa4e0.c": "4ad72eeddfea6ba92c98cf9cb78bf9f7675dd58079f839f7acc8ad881c6bc84d",
+    "decomp/generated/0047a550.c": "43df219e0d804c15f16e7b66e0e5661331bb506525bea6032aae1af976e87519",
+    "decomp/generated/00418d70.c": "d1a2ead106d0cf6b16c37bdfb053448ad553ad92dc588d9afe2d87fdb8300c36",
+    "decomp/generated/00522570.c": "4efeb8286886c646ac71325127a1d06715f51aea23e6064cc7a8c4df3d7ec2a7",
+    "decomp/generated/00504060.c": "2038be12309b51322ae2f3536f9a257fe865b3554c5952decc5239bd06d9ea97",
+    "decomp/generated/00504920.c": "f5314cd673045e9887159198815e6a17dfbe6c2927e55d9c9135246f71f50e9e",
+    "decomp/generated/004adbb0.c": "57170bb62710a0186e1f3002ede8e7f68b25e6223a2c0ac627dd0e89aeee2220",
+    "decomp/research/ordinary-tooltip-controller.md": "75b5427304741d73394438f746f33a233cba1e62c636a22cbea75a0a265d3594",
+    "decomp/research/ordinary-tooltip-controller/contract-table.md": "07f9853f1945aecee3b7c26b3fe3d676e03f7640118f0084a6396019c95df4bc",
+    "decomp/research/ordinary-tooltip-controller/input-producer-addendum.md": "b4b4378096bb897f41a57796bfd21696d849d26a64d596cae6eb30797b9f0653",
+    "decomp/research/ordinary-tooltip-controller/window2-guard-addendum.md": "21d0397d392024e14c18c32a2e824f90b617b92ee6277584c0cef097dbecfbf1",
+    "decomp/research/ordinary-tooltip-controller/controllers.asm.txt": "810426a436c1f0f52fac8005c97ff01b29b9e43a1dbbe0f4994e22c748982683",
+    "decomp/research/ordinary-tooltip-controller/clock-and-caller.asm.txt": "d18d7a2a84dad746f5711c76230036d86303642dc882f2f1c5fedd2ead8f6c36",
+    "app/page.tsx": "0cf9516e222122024b509abd54dacb08bf1f95f5f7e6cfa7fd5ce9aec2446a7f",
+    "app/scene.ts": "e137dbf7813d903c2aae5d52d5ba5434c701716c3fc32a187f869166f05e50e7",
+    "app/scene-input-runtime.ts": "7987f8f11abfdf4ea858b612d83d526169b31de05c76f52ce070809409c268a2",
+    "app/scene-camera-runtime.ts": "72e419cb58a4682b62c7611f0f0ba4f51e2f61a2c1e1ea254a84db436d272880",
+    "app/scene-hud-runtime.ts": "74a9ee8dd15b5b4790ea758d29156fe91a09ab51c20c1e35c3dad364a3c0e29d",
+    "app/object-panels.ts": "9cad36503f3f68b726b221bc2d0c2ea56fc34334f3534d6d48b281c5668fd80b",
+    "app/building-panels.ts": "5d4d80feb2afb56d4b6b480f9195019ae42c3d2014a7c306e237671b31721f96",
+    "app/game-clock.ts": "d4f850867943a54ebf86e79b6d71e2f842d0e6c61c70bb2884872bd6d002eef6",
+    "app/tooltips.ts": "7cb5133c90a9633b609b10267c8f923c5cabaf240a0ca03b475f601af287caa2"
+  },
+  "artifacts": {
+    "00451390.asm.txt": {
+      "bytes": 1485,
+      "sha256": "b7311c25fbef9002262ac0a3d6b4d0b4596d0b34f3926462e5291b0588fcd743"
+    },
+    "004513d0.asm.txt": {
+      "bytes": 610,
+      "sha256": "22e415e6acaf98cc55e0a291e35cb6f4dc857ac84790be1f67e627b1d553e151"
+    },
+    "0045e1e0.asm.txt": {
+      "bytes": 8778,
+      "sha256": "846645cbe2085680f3d307310fba054a776c36c861511448cd43a1b1c6a0c1e3"
+    },
+    "0045e400.asm.txt": {
+      "bytes": 11989,
+      "sha256": "56706b9650d5e064ef2cd77c1f9a8787826bf9bbc68bf604291b97a9c730e55e"
+    },
+    "0045e730.asm.txt": {
+      "bytes": 10412,
+      "sha256": "ced1033cf9ddd3771258f3feb47e5c669de3af65c8eee8ba264c1f1d7d919b27"
+    },
+    "0045ea00.asm.txt": {
+      "bytes": 7336,
+      "sha256": "6cd1012050097c05e02ea6431dc40200b522cbdc7357d67b405e11f508e5730c"
+    },
+    "closure-addendum.md": {
+      "bytes": 11993,
+      "sha256": "339acc09eb1e925edda9f621fbd9baeb1377798c12120f92f716d1bb7164581f"
+    },
+    "commands.json": {
+      "bytes": 6659,
+      "sha256": "04fb7cc00a166f09efaedc7d035ede995dd3ac7c26225b5156a86bec0b324a25"
+    },
+    "control-index-references.json": {
+      "bytes": 2265,
+      "sha256": "318bd94c2087874e17fd1210951c3bcf4da405f11096b3e8a6306b7133bdeaaf"
+    },
+    "input-switch-data.json": {
+      "bytes": 421,
+      "sha256": "61814d982ea68f36942d6b9666275c6c6a52ca9541f92849f9e0bcd5cd8f80ef"
+    },
+    "other-control-writer-discovery.asm.txt": {
+      "bytes": 11013,
+      "sha256": "19b79d177ce2be6e7164b197c52458feedb6b00cbeb859aa3ab7595c54b5e5ec"
+    },
+    "other-control-writer.asm.txt": {
+      "bytes": 9874,
+      "sha256": "fc670d321ed13f7dd9d3821be09ec75be2c339c081f5ee95ba6a4f202f1f1266"
+    },
+    "other-getter-consumer.asm.txt": {
+      "bytes": 1660,
+      "sha256": "2ab1aa5d7628b309a834131f68bc4bf5456599ccc0b78927ec209b991de85486"
+    },
+    "other-reset-site.asm.txt": {
+      "bytes": 298,
+      "sha256": "094907d2f06852830c2ff68c09abcb70588c128527d8a50fd99a4a1c15a5d54f"
+    },
+    "writer-boundary-candidates.json": {
+      "bytes": 860,
+      "sha256": "8ca87d07f1a2938a98a00609843c19f2ea7d00bfa7a4b6d036f2ae5ca5f5ba68"
+    }
+  },
+  "sourceValidation": "Current application pins match canonical main; no runtime or tests.",
+  "limits": [
+    "Direct/literal references cannot exclude indirect aliases or writes.",
+    "Other consumer00486b70 only dispatch excerpt; broader UI actions not expanded.",
+    "Title/layout leaves0045d8c0 and0045dcb0 are named unbound local consumers.",
+    "Shared-state prerequisite table preserves prior accepted findings; no fixedHz or partial runtime substitute."
+  ],
+  "preservedOriginal": {
+    "addendumSha256": "339acc09eb1e925edda9f621fbd9baeb1377798c12120f92f716d1bb7164581f",
+    "receiptSha256": "0e0ea53ece43db7afd5998ef54001a3e6df6f929d93fe98dde042b901c052bb9"
+  },
+  "reviewCorrections": [
+    "Widget return and control dispatch compare !=-1, without asserting an unbound helper return domain.",
+    "Presenter resets only the named control fields and flag bits, not all slot bytes."
+  ],
+  "correctedArtifact": {
+    "path": "closure-addendum-corrected.md",
+    "bytes": 12108,
+    "sha256": "b290c6de17e3e38a53f26ad10f35a80cd71593023859ebe41b9a8a1741e55a8f"
+  },
+  "acceptedCorrectedReceiptSha256": "ef76c10bf33e9531fa80d593f1831572b6e96fc1bfeed70c8a842b7cba135cdb",
+  "commandsAndInput": {
+    "input": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe",
+    "bytes": 2275840,
+    "sha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "sha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "toolVersion": "GNU objdump (GNU Binutils for Debian) 2.44",
+    "commands": [
+      {
+        "command": [
+          "/usr/bin/objdump",
+          "-d",
+          "-M",
+          "intel",
+          "--start-address=0x004513d0",
+          "--stop-address=0x004513e0",
+          "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+        ],
+        "exitCode": 0,
+        "output": "004513d0.asm.txt",
+        "outputSha256": "22e415e6acaf98cc55e0a291e35cb6f4dc857ac84790be1f67e627b1d553e151"
+      },
+      {
+        "command": [
+          "/usr/bin/objdump",
+          "-d",
+          "-M",
+          "intel",
+          "--start-address=0x0045e730",
+          "--stop-address=0x0045ea00",
+          "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+        ],
+        "exitCode": 0,
+        "output": "0045e730.asm.txt",
+        "outputSha256": "ced1033cf9ddd3771258f3feb47e5c669de3af65c8eee8ba264c1f1d7d919b27"
+      },
+      {
+        "command": [
+          "/usr/bin/objdump",
+          "-d",
+          "-M",
+          "intel",
+          "--start-address=0x0045ea00",
+          "--stop-address=0x0045ec10",
+          "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+        ],
+        "exitCode": 0,
+        "output": "0045ea00.asm.txt",
+        "outputSha256": "6cd1012050097c05e02ea6431dc40200b522cbdc7357d67b405e11f508e5730c"
+      },
+      {
+        "command": [
+          "/usr/bin/objdump",
+          "-d",
+          "-M",
+          "intel",
+          "--start-address=0x0045e1e0",
+          "--stop-address=0x0045e400",
+          "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+        ],
+        "exitCode": 0,
+        "output": "0045e1e0.asm.txt",
+        "outputSha256": "846645cbe2085680f3d307310fba054a776c36c861511448cd43a1b1c6a0c1e3",
+        "inputSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+        "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+      },
+      {
+        "command": [
+          "/usr/bin/objdump",
+          "-d",
+          "-M",
+          "intel",
+          "--start-address=0x0045e400",
+          "--stop-address=0x0045e730",
+          "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+        ],
+        "exitCode": 0,
+        "output": "0045e400.asm.txt",
+        "outputSha256": "56706b9650d5e064ef2cd77c1f9a8787826bf9bbc68bf604291b97a9c730e55e",
+        "inputSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+        "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+      },
+      {
+        "command": [
+          "/usr/bin/objdump",
+          "-d",
+          "-M",
+          "intel",
+          "--start-address=0x00451390",
+          "--stop-address=0x004513d0",
+          "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+        ],
+        "exitCode": 0,
+        "output": "00451390.asm.txt",
+        "outputSha256": "b7311c25fbef9002262ac0a3d6b4d0b4596d0b34f3926462e5291b0588fcd743",
+        "inputSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+        "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+      },
+      {
+        "command": [
+          "/usr/bin/objdump",
+          "-d",
+          "-M",
+          "intel",
+          "--start-address=0x00486fb0",
+          "--stop-address=0x00487240",
+          "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+        ],
+        "exitCode": 0,
+        "output": "other-control-writer-discovery.asm.txt",
+        "outputSha256": "19b79d177ce2be6e7164b197c52458feedb6b00cbeb859aa3ab7595c54b5e5ec",
+        "inputSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+        "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+      },
+      {
+        "command": [
+          "/usr/bin/objdump",
+          "-d",
+          "-M",
+          "intel",
+          "--start-address=0x0042cd30",
+          "--stop-address=0x0042cd39",
+          "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+        ],
+        "exitCode": 0,
+        "output": "other-reset-site.asm.txt",
+        "outputSha256": "094907d2f06852830c2ff68c09abcb70588c128527d8a50fd99a4a1c15a5d54f",
+        "inputSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+        "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+      },
+      {
+        "command": [
+          "/usr/bin/objdump",
+          "-d",
+          "-M",
+          "intel",
+          "--start-address=0x00486fb0",
+          "--stop-address=0x00487200",
+          "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+        ],
+        "exitCode": 0,
+        "output": "other-control-writer.asm.txt",
+        "outputSha256": "fc670d321ed13f7dd9d3821be09ec75be2c339c081f5ee95ba6a4f202f1f1266",
+        "inputSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+        "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+      },
+      {
+        "command": [
+          "/usr/bin/objdump",
+          "-d",
+          "-M",
+          "intel",
+          "--start-address=0x00486b60",
+          "--stop-address=0x00486ba0",
+          "/workspace/scratch/69fd8163d94e/populous-recovery-20261009/work/orchestration/original-data-recovery-20261009/game/d3dpoptb.exe"
+        ],
+        "exitCode": 0,
+        "output": "other-getter-consumer.asm.txt",
+        "outputSha256": "2ab1aa5d7628b309a834131f68bc4bf5456599ccc0b78927ec209b991de85486",
+        "inputSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+        "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+      }
+    ],
+    "scope": "Only the three authorized function windows and the getter returned-state direct writer/consumer closure; source-only."
+  },
+  "dataReads": {
+    "control-index-references.json": {
+      "inputSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "target": "0089ce7a",
+      "literalAddressReferences": [
+        {
+          "operandVA": "0x42b4db",
+          "contextStart": "0x42b4d3",
+          "contextHex": "e898bdfeff66c7057ace8900ffff83c408e897ed0100e892"
+        },
+        {
+          "operandVA": "0x42cd33",
+          "contextStart": "0x42cd2b",
+          "contextHex": "cccccccccc66c7057ace8900ffffe842d50100e83d020200"
+        },
+        {
+          "operandVA": "0x4513d3",
+          "contextStart": "0x4513cb",
+          "contextHex": "c05f5ec3cc0fbf057ace8900c3cccccccccccccccc83ec04"
+        },
+        {
+          "operandVA": "0x45dc9c",
+          "contextStart": "0x45dc94",
+          "contextHex": "0d489e740066c7057ace8900ffff880d81ce8900c3cccccc"
+        },
+        {
+          "operandVA": "0x45e329",
+          "contextStart": "0x45e321",
+          "contextHex": "814698000066891d7ace89007455803d8147980000754c8d"
+        },
+        {
+          "operandVA": "0x45e4a5",
+          "contextStart": "0x45e49d",
+          "contextHex": "1085c0742a66c7057ace89000400a114df590005280e0000"
+        },
+        {
+          "operandVA": "0x45e594",
+          "contextStart": "0x45e58c",
+          "contextHex": "1085c0742a66c7057ace89000500a114df590005300e0000"
+        },
+        {
+          "operandVA": "0x45e68d",
+          "contextStart": "0x45e685",
+          "contextHex": "1085c0740966c7057ace89000600803d8146980000740980"
+        },
+        {
+          "operandVA": "0x45e97f",
+          "contextStart": "0x45e977",
+          "contextHex": "68bc215a0066c7057ace8900ffffe856f8ffff83c404830d"
+        },
+        {
+          "operandVA": "0x487010",
+          "contextStart": "0x487008",
+          "contextHex": "080fbf6e060fbf057ace890066c7057ace8900ffffa3b0c9"
+        },
+        {
+          "operandVA": "0x487017",
+          "contextStart": "0x48700f",
+          "contextHex": "057ace890066c7057ace8900ffffa3b0c998008b460c03c0"
+        },
+        {
+          "operandVA": "0x48711f",
+          "contextStart": "0x487117",
+          "contextHex": "814698000066891d7ace8900740f803d814798000075066a"
+        }
+      ],
+      "limit": "Literal candidates only, not instruction-alignment or indirect-write completeness.",
+      "directCallCandidatesToGetter": [
+        "0x45dba7",
+        "0x45e970",
+        "0x45e9a1",
+        "0x45eab3",
+        "0x486b71",
+        "0x4871ce"
+      ]
+    },
+    "input-switch-data.json": {
+      "inputSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "address": "0045ebf8",
+      "hex": "6ceb45009ceb4500b7eb4500e2eb4500",
+      "targets": [
+        "0x45eb6c",
+        "0x45eb9c",
+        "0x45ebb7",
+        "0x45ebe2"
+      ],
+      "limit": "Four input action targets only; no inferred generic widget semantics."
+    },
+    "writer-boundary-candidates.json": {
+      "inputSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "boundedDiscoveryWindows": {
+        "0x486fd0": "85c0741933c0a0d92889008b0c85d0cb870051e858abfcff83c404eb1c33c0a0d92889008b0c85d0cb8700516888165900e82afd080083c4080fbf6e060fbf05",
+        "0x487180": "3d83ec08a09c48980089642438508b4c243ce8d9edf8ff8b449e18500fbf4e020fbf470203c183c004500fbf0e0fbf0703c183c00650e8a5070a0083c41483ed044383c711395e080f8f80feffffe8fda1fcff83f8ff74203905b0c99800750f",
+        "0x42cd28": "cccccccccccccccc66c7057ace8900ffffe842d50100e83d020200f605a95d89"
+      },
+      "limit": "Padding/prologue candidates only for direct writers of0089ce7a; no broader window semantics.",
+      "otherDirectWriterPaddingCandidates": [
+        {
+          "paddingStart": "0x486fa6",
+          "candidateEntry": "0x486fb0",
+          "followingHex": "83ec2433c08944241453894424145657"
+        }
+      ]
+    }
+  },
+  "disassemblySections": [
+    {
+      "originalArtifact": "004513d0.asm.txt",
+      "originalSha256": "22e415e6acaf98cc55e0a291e35cb6f4dc857ac84790be1f67e627b1d553e151",
+      "normalizedSha256": "22e415e6acaf98cc55e0a291e35cb6f4dc857ac84790be1f67e627b1d553e151"
+    },
+    {
+      "originalArtifact": "00451390.asm.txt",
+      "originalSha256": "b7311c25fbef9002262ac0a3d6b4d0b4596d0b34f3926462e5291b0588fcd743",
+      "normalizedSha256": "b7311c25fbef9002262ac0a3d6b4d0b4596d0b34f3926462e5291b0588fcd743"
+    },
+    {
+      "originalArtifact": "0045e1e0.asm.txt",
+      "originalSha256": "846645cbe2085680f3d307310fba054a776c36c861511448cd43a1b1c6a0c1e3",
+      "normalizedSha256": "ecff5d4b405932676f19e6dff632eb473e81c28f69238c775cf92a5de131c5a4"
+    },
+    {
+      "originalArtifact": "0045e400.asm.txt",
+      "originalSha256": "56706b9650d5e064ef2cd77c1f9a8787826bf9bbc68bf604291b97a9c730e55e",
+      "normalizedSha256": "f703ebfa7a9bf0120bdc1a6cd986a349a043314c49243ab200a847f97b9bee7b"
+    },
+    {
+      "originalArtifact": "0045e730.asm.txt",
+      "originalSha256": "ced1033cf9ddd3771258f3feb47e5c669de3af65c8eee8ba264c1f1d7d919b27",
+      "normalizedSha256": "227e4cd2d092951f027042b1ab8acbbf24a5401241f11c780db262dd22969e3d"
+    },
+    {
+      "originalArtifact": "0045ea00.asm.txt",
+      "originalSha256": "6cd1012050097c05e02ea6431dc40200b522cbdc7357d67b405e11f508e5730c",
+      "normalizedSha256": "47a60f941928e22af58274a7c35099871287dda8d6b0a0e583108f43de1a72cc"
+    },
+    {
+      "originalArtifact": "other-control-writer.asm.txt",
+      "originalSha256": "fc670d321ed13f7dd9d3821be09ec75be2c339c081f5ee95ba6a4f202f1f1266",
+      "normalizedSha256": "804b30a16224a429719ccfa8b82e3b1aa6a58c0507a291034445b2f783b6934a"
+    },
+    {
+      "originalArtifact": "other-getter-consumer.asm.txt",
+      "originalSha256": "2ab1aa5d7628b309a834131f68bc4bf5456599ccc0b78927ec209b991de85486",
+      "normalizedSha256": "2ab1aa5d7628b309a834131f68bc4bf5456599ccc0b78927ec209b991de85486"
+    },
+    {
+      "originalArtifact": "other-reset-site.asm.txt",
+      "originalSha256": "094907d2f06852830c2ff68c09abcb70588c128527d8a50fd99a4a1c15a5d54f",
+      "normalizedSha256": "bea5fb0857eb01d6ce71901b5207174801b41150ccdd480dc03722ec09f26834"
+    }
+  ],
+  "publicationTransform": "Only links and preservation/review status changed from corrected accepted text; trailing whitespace normalized in static excerpts. No new decode.",
+  "publishedFiles": {
+    "window2-control-closure.md": {
+      "bytes": 12908,
+      "sha256": "f94273daf376ca80c2c378575cffd0d0bbe10818242b04df4e0c14c612d888e7"
+    },
+    "window2-control.asm.txt": {
+      "bytes": 53159,
+      "sha256": "f203fe9fff6f0b034abad98b4549690f5f398bdb3a67aad414380b24afeb0e9c"
+    }
+  },
+  "independentReview": {
+    "artifact": "tooltip-window2-closure-review-20261009.md",
+    "sha256": "87d3d6f27842128f7f2df3c6f9c98a7c4a2a751134ec514d7ee11381421168c9",
+    "verdict": "ACCEPT corrected source documentation; runtime HOLD",
+    "text": "# Tooltip window 2 closure review\n\nDecision: ACCEPT the corrected finite source findings for documentation. Runtime implementation remains HOLD. Review performed on 2026-10-09 against research commit `13311c8b3afe961dd4ca25d9ba3c70d19551c82f` and explicit application main `47680b8fd124aab50b0528eea77a81cacb556060`.\n\nAccepted artifact: `issue19-tooltip-controller-source-20261009/work/orchestration/tooltip-window2-closure-20261009-1257/closure-addendum-corrected.md`, SHA256 `b290c6de17e3e38a53f26ad10f35a80cd71593023859ebe41b9a8a1741e55a8f`; corrected receipt SHA256 `ef76c10bf33e9531fa80d593f1831572b6e96fc1bfeed70c8a842b7cba135cdb`. Original addendum `339acc09eb1e925edda9f621fbd9baeb1377798c12120f92f716d1bb7164581f` and receipt `0e0ea53ece43db7afd5998ef54001a3e6df6f929d93fe98dde042b901c052bb9` are preserved unchanged.\n\nIndependent readback verified 27 source hashes against the named commits/current files, all 15 original artifact hashes/sizes, and 1,234 disassembly byte lines across ten retained windows against the inert PE. This count includes padding and the explicitly superseded discovery window; it is byte correspondence, not executed coverage. The 12 literal-address contexts, six direct getter calls and four input jump-table entries also match the original bytes. Original EXE SHA256 remains `3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`. The research checkout was clean. No original, application, browser or test execution was performed for this review.\n\nThe material findings are supported:\n\n- `004513d0` returns signed word `0089ce7a`. The window presenter resets it to -1 and its hit-test producers publish indices 0\u20136. It denotes the last-painted control index. It is not an active-window identity. Half-open control rectangles remain distinct from case ba's inclusive window rectangle.\n- `0045e730` compares the old and new index and increments the separate word `0089ce7e` only when equal and different from -1; otherwise it resets that counter. This does not supply tooltip dwell `0068c6af`. The generic renderer has its own retained conditional counter handling and is not claimed equivalent in every branch.\n- Already-enabled window 2 can re-enter enable when the retained index is -1. The retained unconditional saved-mode writes then permit saving mode 17 over the earlier mode. A universal promise to restore the first pre-window mode would alter this behavior.\n- The presenter directly owns record 2 geometry and its illustration call. It clears only words at slot offsets +0/+2/+4/+6/+0xa and flag bits 0x3c at +0xf across 32 slots. The corrected text no longer claims whole-slot zeroing.\n- `0045ea00` tests widget/control results against -1, without a signed nonnegative guard. The corrected text preserves that exact predicate and does not infer the unexpanded widget helper's return domain. Its action table supports the stated scroll, history-call and close routing. Caller eligibility and earlier input interception remain relevant.\n\nThe eight-row prerequisite table is an accurate separation of retained native findings and missing port ownership. It preserves shared dwell/history, fresh inspection-record acceleration, forced precedence, five-owner cleanup uncertainty, and the absence of a fixed-Hz substitution. No independently complete playable tooltip slice is established by this pass.\n\nThe smallest named next source prerequisite for the included contextual window is the two direct local text/layout consumers `0045d8c0` and `0045dcb0`. Literal title/label data and full widget semantics are not recovered here; \u201ccontextual help\u201d remains inference. Their absence is a local source boundary, not a demonstrated missing external input. Other rows' explicitly named owner/guard mappings remain required only as the admitted complete interaction scope demands. This verdict authorizes preservation of these source findings, not application changes or expanded research.\n"
+  }
+}
