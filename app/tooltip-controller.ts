@@ -62,7 +62,7 @@ export function createTooltipController(
 }
 
 export function sampleTooltipFrontend(controller: TooltipController, now: number) {
-  const session = controller.session
+  const { session } = controller
   if (session.sampleAt === null) session.sampleAt = now
   if (now - session.sampleAt >= 1000) {
     session.sample = Math.max(0, session.visits - session.sampleCount)
@@ -76,7 +76,7 @@ export function tooltipThreshold(
   controller: TooltipController,
   owner: TooltipSession['initializedBy']
 ) {
-  const session = controller.session
+  const { session } = controller
   if (!session.threshold) {
     session.threshold = Math.max(session.sample, 12)
     session.initializedBy = owner

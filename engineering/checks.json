@@ -4308,13 +4308,14 @@
         "12 Hz simulation",
         "pause",
         "long frames",
-        "5-240 Hz schedules"
+        "5-240 Hz schedules",
+        "Shared tooltip visits and retained Hut records on the existing flyby opportunity"
       ],
       "knownLimits": [
         "Does not prove browser RAF, input, GPU presentation, or complete native outer scheduling."
       ],
       "executable": "node",
-      "args": ["--test", "tests/game-clock.test.mjs", "tests/unit-interpolation.test.mjs"],
+      "args": ["--test", "tests/game-clock.test.mjs", "tests/unit-interpolation.test.mjs", "tests/hut-tooltip-controller.test.mjs", "tests/import-tooltip-string.test.mjs"],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -4322,7 +4323,22 @@
         "app/unit-motion.ts",
         "app/model.ts",
         "app/world-turn.ts",
-        "tests/game-clock.test.mjs"
+        "tests/game-clock.test.mjs",
+        "tests/hut-tooltip-controller.test.mjs",
+        "tests/import-tooltip-string.test.mjs",
+        "tests/support/bloodlust-scene.mjs",
+        "tests/support/hut-smoke-scene.mjs",
+        "app/tooltip-controller.ts",
+        "app/scene-tooltip-runtime.ts",
+        "app/scene.ts",
+        "app/scene-camera-runtime.ts",
+        "app/scene-input-runtime.ts",
+        "app/object-panels.ts",
+        "app/building-panels.ts",
+        "app/scene-secondary-effects.ts",
+        "app/tooltips.ts",
+        "app/original-tooltips.json",
+        "scripts/import-messages.py"
       ],
       "prerequisites": ["Installed npm dependencies"],
       "sideEffects": [],

@@ -18,6 +18,7 @@ import {
 export interface TooltipInputSample {
   pointer: { clientX: number; clientY: number } | null
   object: TooltipObject | null
+  picked: number | null
   cell: number | null
   inspectionTarget: number | null
   route:
@@ -54,7 +55,8 @@ function tooltipObject(scene: GameScene, id: number): TooltipObject | null {
     return { id, x, z, type, model, owner, tutorial, head }
   }
   const tree = scene.world.trees.find(
-    tree => tree.id === id && tree.logs >= 1 && tree.model >= 1 && tree.model <= 6
+    candidate =>
+      candidate.id === id && candidate.logs >= 1 && candidate.model >= 1 && candidate.model <= 6
   )
   return tree
     ? { id, x: tree.x, z: tree.z, type: 5, model: tree.model, owner: -1, tutorial: 0, head: null }
@@ -62,7 +64,7 @@ function tooltipObject(scene: GameScene, id: number): TooltipObject | null {
 }
 
 function hutCell(scene: GameScene, id: number) {
-  const building = scene.world.buildings.find(building => building.id === id && building.hp > 0)
+  const building = scene.world.buildings.find(candidate => candidate.id === id && candidate.hp > 0)
   return building ? packedCell(buildingInsidePoint(buildingPose(building))) : null
 }
 
@@ -75,7 +77,7 @@ function inspectionTarget(scene: GameScene, picked: number | null, cell: number 
     b => b.id === picked && b.kind === 'hut' && b.team === 'blue' && b.hp > 0 && b.progress >= 1
   )
   if (building) return building.id
-  if (cell === null) return null
+  if (picked !== null || cell === null) return null
   const index = (cell >> 9) * 128 + ((cell & 255) >> 1),
     id = scene.world.land.buildingIds[index] & 1023
   return (
@@ -109,6 +111,7 @@ export function publishTooltipInput(scene: GameScene) {
     sample: TooltipInputSample = {
       pointer,
       object: null,
+      picked: null,
       cell: null,
       inspectionTarget: null,
       route: 'outside',
@@ -139,6 +142,7 @@ export function publishTooltipInput(scene: GameScene) {
   else if (scene.pointerScreen) {
     sample.route = 'world'
     const id = scene.picking.pick(scene.pointerScreen)
+    sample.picked = id
     if (id !== null) {
       sample.object = tooltipObject(scene, id)
       sample.cell = hutCell(scene, id)
@@ -181,7 +185,8 @@ export function queueHutInspection(
   target = 0
 ) {
   if (event.button !== 2) return
-  const inputs = (scene.tooltipInspectionInputs ??= [])
+  scene.tooltipInspectionInputs ??= []
+  const inputs = scene.tooltipInspectionInputs
   if (kind === 'up') {
     inputs.push({ kind: 'up', pointerId: event.pointerId, target, cell: null })
     return
@@ -197,6 +202,7 @@ export function queueHutInspection(
     return
   }
   if (event.currentTarget !== scene.renderer.domElement) return
+  if (!target && scene.picking.pick(event) !== null) return
   const cell =
       hutCell(scene, target) ??
       (() => {
@@ -220,7 +226,7 @@ export function updateTooltipController(scene: GameScene, now: number) {
     state = scene.tooltip,
     sample = scene.tooltipInput,
     object = sample?.object ? tooltipObject(scene, sample.object.id) : null,
-    currentInspection = sample ? inspectionTarget(scene, object?.id ?? null, sample.cell) : null,
+    currentInspection = sample ? inspectionTarget(scene, sample.picked, sample.cell) : null,
     modal = !!document.querySelector('dialog[open]'),
     blocked = modal || !!scene.world.inputMask || scene.overviewActive || !!scene.overviewStage,
     ordinary =
@@ -244,8 +250,10 @@ export function updateTooltipController(scene: GameScene, now: number) {
     visitHudTooltip(owner, state, sample?.hud ?? null)
   }
   const handled = stepTooltip(state, !!worldTooltipObject(scene.world, state.target), 24)
-  let route = handled ? 'forced' : blocked ? 'blocked' : (sample?.route ?? 'outside'),
-    firstDisplay: number | null = null
+  let route: string = sample?.route ?? 'outside'
+  if (blocked) route = 'blocked'
+  if (handled) route = 'forced'
+  let firstDisplay: number | null = null
   if (handled && !state.remaining) resetTooltipController(owner, state)
   if (!handled && ordinary && !sample?.hud) {
     const worldRoute =
@@ -254,11 +262,14 @@ export function updateTooltipController(scene: GameScene, now: number) {
       route = 'object'
       if (visitObjectTooltip(owner, state, object)) {
         firstDisplay = object.id
-        inspection.push(scene.objectPanels.inspectHut(currentInspection ?? object.id, 'hover'))
+        inspection.push(scene.objectPanels.inspectHut(object.id, 'hover'))
       }
     } else if (worldRoute && sample.cell !== null && blankCell(scene, sample.cell)) {
       route = 'cell'
       visitBlankCellTooltip(owner, state, sample.cell)
+    } else if (worldRoute && sample.cell !== null) {
+      route = 'unmapped-cell'
+      if (!owner.unsupportedHistory.includes(route)) owner.unsupportedHistory.push(route)
     }
     if (route === 'object' || route === 'cell' || route === 'outside')
       finishOrdinaryTooltip(owner, state)

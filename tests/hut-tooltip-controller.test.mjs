@@ -507,6 +507,14 @@ test('retained pick geometry rechecks live object data before a due controller t
   assert.equal(scene.tooltipElement.hidden, true)
   assert.ok(cell !== null, 'the valid cell survives loss of the sampled object')
   assert.equal(scene.objectPanels.hutRecords.has(hut.id), false)
+  const index = (cell >> 9) * 128 + ((cell & 255) >> 1)
+  scene.world.land.flags[index] |= 0x400
+  frame()
+  assert.equal(scene.tooltipController.lastVisit.route, 'unmapped-cell')
+  assert.ok(
+    scene.tooltipController.unsupportedHistory.includes('unmapped-cell'),
+    'current cell-name eligibility must qualify the consumed route'
+  )
 })
 
 test('Hut record adapter preserves reuse, failure retirement, secondary capacity and transient restore', async t => {
@@ -544,7 +552,9 @@ test('Hut record adapter preserves reuse, failure retirement, secondary capacity
       effect: 0,
       counter: 0,
     }) !== null
-  ) {}
+  ) {
+    // Fill through the actual capacity adapter until it rejects allocation.
+  }
   assert.equal(scene.objectPanels.inspectHut(second.id, 'hover'), 'hover:rejected-capacity')
   assert.equal(
     scene.objectPanels.inspectHut(hut.id, 'explicit', 5),
@@ -601,4 +611,108 @@ test('retained Hut controls remain usable while hovered or keyboard-focused', as
   for (let i = 0; i < 30; i++) frame()
   assert.equal(scene.objectPanels.hutRecords.has(hut.id), false)
   assert.ok(!scene.world.secondaryEffects.reservations.includes(`building-panel:${hut.id}`))
+})
+
+test('shared object/cell helpers preserve flags and every existing named-class dispatch', async () => {
+  await loadSceneFixture()
+  const api = await import('../app/tooltip-controller.ts'),
+    old = await import('../app/tooltips.ts')
+  const state = old.createTooltip(),
+    owner = api.createTooltipController(state, api.createTooltipSession())
+  for (const [type, model, head] of [
+    [2, 4, null],
+    [2, 5, null],
+    [5, 9, { type: 3, flags: 0 }],
+    [4, 1, null],
+  ]) {
+    const object = { id: type * 100 + model, x: 0, z: 0, type, model, owner: 0, tutorial: 0, head },
+      previous = old.createTooltip()
+    old.showObjectTooltip(previous, object, 1)
+    state.flags = 0x41
+    api.visitObjectTooltip(owner, state, object)
+    assert.equal(state.text, previous.text)
+    assert.ok(state.text, `existing type${type}/model${model} keeps its name`)
+    assert.equal(state.flags, 0x41, 'object acquisition preserves shared flags')
+    for (let i = 0; i < owner.session.threshold + 15 && !state.draw; i++)
+      api.visitObjectTooltip(owner, state, object)
+    assert.equal(state.draw, 1)
+    state.draw = 0
+  }
+  api.visitBlankCellTooltip(owner, state, 2)
+  assert.equal(state.flags, 0x40, 'blank-cell acquisition clears only pending bit1')
+})
+
+test('a named non-Hut winner cannot allocate the Hut beneath its retained cell', async t => {
+  const { scene, world, hut, frame } = await callerFixture(t)
+  const shrine = world.shrines.find(head => head.kind !== 'vault')
+  assert.ok(shrine)
+  // Supply only the pick/terrain boundary; production publication, live naming,
+  // shared visits and first-display dispatch still run through actual animate.
+  scene.picking.pick = () => shrine.id
+  scene.pick = () => hut
+  scene.acquireForcedTooltip(null, 0)
+  frame(0)
+  assert.equal(scene.tooltipInput.picked, shrine.id)
+  assert.equal(scene.tooltipInput.inspectionTarget, null)
+  const oldRecord = scene.objectPanels.hutRecords.get(hut.id)
+  frame()
+  const threshold = scene.tooltipController.session.threshold
+  for (let i = 0; i < threshold + 15 && !scene.tooltip.draw; i++) frame()
+  assert.equal(scene.tooltip.draw, 1)
+  assert.match(scene.tooltip.text, /^Stone Head:/)
+  assert.equal(scene.objectPanels.hutRecords.get(hut.id), oldRecord)
+  assert.deepEqual(scene.tooltipController.lastVisit.inspection, ['hover:rejected'])
+})
+
+test('pause, dialog, hidden and input-lock guards cancel pending and held browser inspection', async t => {
+  const { scene, world, hut, frame, point } = await callerFixture(t),
+    { pointerDown } = await import('../app/scene-input-runtime.ts')
+  const event = {
+    ...point,
+    button: 2,
+    buttons: 2,
+    pointerId: 7,
+    currentTarget: scene.renderer.domElement,
+  }
+  const query = document.querySelector
+  for (const guard of ['pause', 'dialog', 'hidden', 'input']) {
+    pointerDown(scene, event)
+    assert.equal(scene.tooltipInspectionInputs.length, 1)
+    if (guard === 'pause') world.paused = true
+    if (guard === 'dialog') document.querySelector = () => ({})
+    if (guard === 'hidden') document.hidden = true
+    if (guard === 'input') world.inputMask = 64
+    const before = {
+      category: scene.tooltipController.category,
+      dwell: scene.tooltipController.dwell,
+    }
+    frame(0)
+    assert.deepEqual(scene.tooltipInspectionInputs, [], guard)
+    assert.equal(scene.objectPanels.hutHeldPointer, null, guard)
+    assert.deepEqual(
+      { category: scene.tooltipController.category, dwell: scene.tooltipController.dwell },
+      before
+    )
+    world.paused = false
+    world.inputMask = 0
+    document.hidden = false
+    document.querySelector = query
+    frame()
+    assert.ok(
+      !scene.tooltipController.lastVisit.inspection.some(result => result.startsWith('explicit:')),
+      guard
+    )
+  }
+  pointerDown(scene, event)
+  frame()
+  assert.equal(scene.objectPanels.hutHeldPointer, 7)
+  const record = scene.objectPanels.hutRecords.get(hut.id)
+  world.paused = true
+  frame(0)
+  assert.equal(scene.objectPanels.hutHeldPointer, null)
+  assert.equal(
+    scene.objectPanels.hutRecords.get(hut.id),
+    record,
+    'guard cancellation retains the record'
+  )
 })
