@@ -490,7 +490,8 @@ export function installInputListeners(scene: GameScene, minimap: HTMLCanvasEleme
   for (const event of ['pointermove', 'pointerdown', 'pointerup'])
     scene.listen(window, event, trackNavigation)
   scene.listen(globalThis, 'pointerup', e => {
-    if (e.target !== scene.renderer.domElement) queueBuildingInspection(scene, e as PointerEvent, 'up')
+    if (e.target !== scene.renderer.domElement)
+      queueBuildingInspection(scene, e as PointerEvent, 'up')
   })
   scene.listen(window, 'pointerout', e => {
     if (!(e as PointerEvent).relatedTarget) scene.navigationPointer = null

@@ -10,7 +10,10 @@ export function syncSecondaryReservations(scene: GameScene) {
   if (!scene.world.secondaryEffects) return
   const buildingOwners = new Set(scene.objectPanels?.buildingRecords?.keys() ?? [])
   for (const [id, panel] of scene.buildingPanels ?? [])
-    if (!panel.hidden && !scene.world.buildings.some(b => b.id === id && b.kind === 'hut' && b.progress >= 1))
+    if (
+      !panel.hidden &&
+      !scene.world.buildings.some(b => b.id === id && b.kind === 'hut' && b.progress >= 1)
+    )
       buildingOwners.add(id)
   scene.world.secondaryEffects.reservations = [
     ...[...(scene.objectPanels?.panels.keys() ?? [])].map(id => `object-panel:${id}`),

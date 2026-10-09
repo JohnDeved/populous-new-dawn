@@ -4315,7 +4315,7 @@
         "Does not prove browser RAF, input, GPU presentation, or complete native outer scheduling."
       ],
       "executable": "node",
-      "args": ["--test", "tests/game-clock.test.mjs", "tests/unit-interpolation.test.mjs", "tests/hut-tooltip-controller.test.mjs", "tests/import-tooltip-string.test.mjs"],
+      "args": ["--test", "tests/game-clock.test.mjs", "tests/unit-interpolation.test.mjs", "tests/hut-tooltip-controller.test.mjs", "tests/camp-inspection.test.mjs", "tests/import-tooltip-string.test.mjs"],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -4325,6 +4325,8 @@
         "app/world-turn.ts",
         "tests/game-clock.test.mjs",
         "tests/hut-tooltip-controller.test.mjs",
+        "tests/camp-inspection.test.mjs",
+        "tests/support/tooltip-scene.mjs",
         "tests/import-tooltip-string.test.mjs",
         "tests/support/bloodlust-scene.mjs",
         "tests/support/hut-smoke-scene.mjs",

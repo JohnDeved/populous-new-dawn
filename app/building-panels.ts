@@ -105,7 +105,9 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
     } else if (
       (retainedBuildingPanel(building) &&
         !activeCampPanel(building) &&
-        (modal || (!scene.objectPanels.buildingRecords.has(id) && !(building.kind === 'camp' && controlsHeld)))) ||
+        (modal ||
+          (!scene.objectPanels.buildingRecords.has(id) &&
+            !(building.kind === 'camp' && controlsHeld)))) ||
       world.inputMask ||
       scene.overviewActive ||
       !controlsHeld
@@ -128,13 +130,14 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
     if ((!plan && !profile) || b.team !== 'blue' || b.hp <= 0 || !scene.visible(b)) continue
     const retained = retainedBuildingPanel(b),
       existing = scene.buildingPanels.get(b.id),
-      campHeld = b.kind === 'camp' && !modal && existing && !existing.hidden &&
+      campHeld =
+        b.kind === 'camp' &&
+        !modal &&
+        existing &&
+        !existing.hidden &&
         (existing.matches(':hover') || existing.contains(document.activeElement)),
       legacyCamp = activeCampPanel(b) || campHeld
-    if (
-      retained && !legacyCamp &&
-      (!scene.objectPanels.buildingRecords.has(b.id) || modal)
-    )
+    if (retained && !legacyCamp && (!scene.objectPanels.buildingRecords.has(b.id) || modal))
       continue
     // Other building types retain the existing visibility adapter.
     if (

@@ -308,7 +308,9 @@ export function updateTooltipController(scene: GameScene, now: number) {
     } else inspection.push('cancel-stale')
   }
   if (!blocked) scene.objectPanels.renewBuildingInspection(object?.id ?? null)
-  scene.objectPanels.stepBuildingInspections(!modal && !scene.overviewActive && !scene.overviewStage)
+  scene.objectPanels.stepBuildingInspections(
+    !modal && !scene.overviewActive && !scene.overviewStage
+  )
   owner.output = {
     ...state,
     pointer: sample?.pointer ? { ...sample.pointer } : null,

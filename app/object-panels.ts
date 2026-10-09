@@ -82,8 +82,13 @@ export class ObjectPanels {
       // retained record consumes no second slot; native physical allocation is
       // still outside this partial count adapter.
       const addedOwner = Number(!owners.has(id)),
-        addedReservation = Number(!scene.world.secondaryEffects.reservations.includes(`building-panel:${id}`))
-      if (owners.size + addedOwner > 32 || secondaryEffectCount(scene.world.secondaryEffects) + addedReservation > 160) {
+        addedReservation = Number(
+          !scene.world.secondaryEffects.reservations.includes(`building-panel:${id}`)
+        )
+      if (
+        owners.size + addedOwner > 32 ||
+        secondaryEffectCount(scene.world.secondaryEffects) + addedReservation > 160
+      ) {
         if (source !== 'automatic') this.releaseBuildingInspection()
         return `${source}:rejected-capacity`
       }
@@ -107,11 +112,13 @@ export class ObjectPanels {
     this.buildingHeldPointer = null
   }
   renewBuildingInspection(hovered: number | null) {
-    const record = this.buildingInspected === null ? null : this.buildingRecords.get(this.buildingInspected)
+    const record =
+      this.buildingInspected === null ? null : this.buildingRecords.get(this.buildingInspected)
     // The native consumer renews first, then drops selected ownership after
     // release when neither pick matches. Departure therefore keeps this renewal.
     if (record?.phase === 1) record.remaining = record.hold
-    if (this.buildingHeldPointer === null && hovered !== this.buildingInspected) this.buildingInspected = null
+    if (this.buildingHeldPointer === null && hovered !== this.buildingInspected)
+      this.buildingInspected = null
   }
   stepBuildingInspections(allowCreate = true) {
     const { scene } = this
@@ -144,7 +151,10 @@ export class ObjectPanels {
       if (record.automatic && record.phase === 1 && !automaticHeld) record.remaining = 0
       if (!building || !stepPersonPanel(record, automaticHeld)) {
         this.buildingRecords.delete(id)
-        if (!building || !(activeCampPanel(building) || (building.kind === 'camp' && panelInteraction))) {
+        if (
+          !building ||
+          !(activeCampPanel(building) || (building.kind === 'camp' && panelInteraction))
+        ) {
           element?.remove()
           scene.buildingPanels.delete(id)
         }
