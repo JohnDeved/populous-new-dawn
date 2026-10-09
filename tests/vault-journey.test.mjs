@@ -32,13 +32,21 @@ function snapshot(world, shamanId, vaultId) {
   })
 }
 
-test('ordinary M3 Vault opens before intentional entry, exits, departs and preserves Save/Load continuation', t => {
+test('authored M3 Vault caller opens before entry and preserves a prayer Save/Load through reward and departure', t => {
   const { world, shaman, vault } = journey()
   const savedPhases = new Set()
   const goals = new Map([[1, outside], [2, outside], [4, inside], [7, outside], [9, leave]])
+  let prayerRestored
+  const advance = () => {
+    tick(world, 1 / 12)
+    if (prayerRestored) {
+      tick(prayerRestored, 1 / 12)
+      assert.deepEqual(snapshot(prayerRestored, shaman.id, vault.id), snapshot(world, shaman.id, vault.id))
+    }
+  }
   let completed = false
   for (let turn = 0; turn < 4000 && !(completed && world.unlockedTemple); turn++) {
-    tick(world, 1 / 12)
+    advance()
     assert.ok(shaman.hp > 0)
     const person = shaman.native
     const order = person && currentPersonOrder(world.buildingOrders, person)
@@ -53,9 +61,12 @@ test('ordinary M3 Vault opens before intentional entry, exits, departs and prese
         savedPhases.add(phase)
         t.diagnostic(JSON.stringify({ phase, turn: world.turn, goal: goals.get(phase) }))
         const restored = migrateCheckpoint(structuredClone(world))
+        // Retain the actual prayer checkpoint through the same finite caller history.
+        // The other four checkpoints check three-turn restored-state equivalence.
+        if (phase === 2) prayerRestored = restored
         for (let resumed = 0; resumed < 3; resumed++) {
-          tick(world, 1 / 12)
-          tick(restored, 1 / 12)
+          advance()
+          if (restored !== prayerRestored) tick(restored, 1 / 12)
           assert.deepEqual(snapshot(restored, shaman.id, vault.id), snapshot(world, shaman.id, vault.id))
         }
       }
@@ -68,10 +79,15 @@ test('ordinary M3 Vault opens before intentional entry, exits, departs and prese
   assert.deepEqual([...savedPhases], [1, 2, 4, 7, 9])
   assert.equal(completed, true)
   assert.equal(world.unlockedTemple, true)
-  assert.equal(vault.uses, 1, 'Save/Load continuation must not duplicate the reward')
+  assert.equal(vault.uses, 1)
+  assert.ok(prayerRestored)
+  assert.equal(prayerRestored.unlockedTemple, true)
+  assert.equal(prayerRestored.shrines.find(shrine => shrine.id === vault.id).uses, 1,
+    'the retained prayer Save/Load must receive exactly one reward')
+  assert.deepEqual(snapshot(prayerRestored, shaman.id, vault.id), snapshot(world, shaman.id, vault.id))
 })
 
-test('ordinary replacement cancels approach/prayer work and a later Vault command starts a fresh approach', () => {
+test('public command replacement cancels approach/prayer work and a later Vault command starts a fresh approach', () => {
   for (const targetPhase of [1, 2]) {
     const { world, shaman, vault, home } = journey()
     let ready = false
