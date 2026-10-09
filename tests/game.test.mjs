@@ -999,6 +999,8 @@ test('mission-one Dakini launches its native attack route when Blue enters marke
  addUnit(w,'blue','warrior',{x:marker.x,z:marker.z+12});
  const redStart=nativeCellPoint(staging);
  for(const unit of w.units.filter(u=>u.team==='red'&&u.kind!=='shaman'))Object.assign(unit,redStart);
+ // This relocated roster has an established base: native +5b4/+36a shadows the loaded Shaman cell.
+ w.ai.constructionBase=staging;
  w.ai.defencePosition=staging;w.ai.variables[50]=1;w.ai.variables[2]=0;w.turn=201;tick(w,1/12);
  const task=w.ai.tasks.find(t=>t.flags&1&&t.type===20);
  assert.deepEqual(task&&{phase:task.phase,target:task.target,requested:task.requested,damage:task.extra,marker:task.mode,retreatPercent:task.retreatPercent,quotas:task.quotas},{phase:3,target:level.markers[3],requested:3,damage:999,marker:3,retreatPercent:50,quotas:[11,12,13,16,17,19].map(index=>w.ai.attributes[index])});

@@ -1735,13 +1735,23 @@ export function stepComputerTasks(w: World, tribe: number) {
       return
     }
     if (task.type === 20) {
-      let selection: ReturnType<typeof computerSelectionWorld> | undefined
+      let selection: ReturnType<typeof computerSelectionWorld> | undefined,
+        loadedOrigin: number | undefined
+      if (w.ai.constructionBase === undefined && [1, 2, 3].includes(w.outcome.level)) {
+        const team = campaignTeam(w, tribe)
+        if (team === 'wild') throw new Error('Invalid computer staging tribe')
+        // 0x485b00 retains the loaded Shaman cell at tribe+0x5a2. These missions
+        // each have one authored Shaman per tribe, independent of its live owner.
+        const position = nativePosition(w, campaignPosition(w, team))
+        loadedOrigin = ((position.x >>> 8) & 254) | (position.y & 0xfe00)
+      }
       const shaman = w.units.find(
           u => u.team === campaignTeam(w, tribe) && isShaman(u) && u.hp > 0
         ),
         shamanPosition = shaman && nativePosition(w, shaman),
         staging =
           w.ai.constructionBase ??
+          loadedOrigin ??
           (w.ai.flags & 0x100
             ? w.ai.defencePosition
             : shamanPosition
