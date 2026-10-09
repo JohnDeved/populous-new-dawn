@@ -428,7 +428,13 @@ import {
   type WorshipState,
 } from './worship.ts'
 import type { ModelMorph } from './morph.ts'
-import { processVaultTask, stepVaultWork, stepVaultTask, type VaultTask } from './vault.ts'
+import {
+  processVaultTask,
+  stepVaultWork,
+  stepVaultTask,
+  vaultWorkEligible,
+  type VaultTask,
+} from './vault.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import type { UnitKind } from './unit-kinds.ts'
 import { stepArmageddon } from './armageddon.ts'
@@ -888,14 +894,7 @@ function stepTurn(w: World) {
     let fired = false
     if (shrine.kind === 'vault') {
       const shaman = w.units.find(u => u.team === 'blue' && isShaman(u) && u.hp > 0)
-      // ponytail: native coarse-cell/adjacent-building eligibility awaits the occupancy port.
-      const eligible =
-        !!shaman &&
-        shaman.vault?.head === shrine.id &&
-        shaman.lift === 0 &&
-        !shaman.fight &&
-        !shaman.casting &&
-        wrappedDistance(shaman, shrine) < 3
+      const eligible = vaultWorkEligible(w, shaman, shrine)
       if (shrine.enabled && !(w.turn & 3)) shrine.followers = Number(eligible)
       fired = stepVaultWork(shrine, w.turn, eligible, shrine.forced)
       shrine.progress = shrine.target > 0 ? shrine.work / shrine.target : 0
