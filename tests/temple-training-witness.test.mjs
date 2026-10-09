@@ -301,6 +301,12 @@ test('direct lifecycle negatives reject unrelated conversion, replaced owners, b
     'loaded activity missing': r => {
       r.initial.target.admission.activity &= ~128
     },
+    'loaded hidden cache leak': r => {
+      r.initial.dom = { present: true, hidden: true, focused: false, hovered: false }
+    },
+    'final hidden cache leak': r => {
+      r.final.dom = { present: true, hidden: true, focused: false, hovered: false }
+    },
     'loaded transient owner': r => {
       r.initial.latch = true
     },

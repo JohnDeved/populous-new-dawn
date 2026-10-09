@@ -10,6 +10,8 @@ import {
   assertTempleTrainInput,
   assertTempleFreshRequest,
   assertTempleLifecycle,
+  assertTempleIdleReadiness,
+  templeIdleReady,
 } from './temple-training-contract.mjs'
 
 export const templeTrainingBounds = Object.freeze({
@@ -57,14 +59,16 @@ export function assertTempleTrainingReadiness(r) {
   assert.equal(r.target.admission.class, 2)
   assert.equal(r.target.admission.model, 5)
   assert.equal(r.target.admission.tribe, 0)
-  assert(idleTemple(r) && clearOwnership(r))
+  assertTempleIdleReadiness(r)
 }
 
 // The unchanged public prefix closes its observer before this training-only epoch starts.
-export default async function templeTrainingAuto(context) {
+export default async function templeTrainingAuto(context, continuation = null) {
   const { page, signal, output, receipt, observeCheckpoint } = context
-  const deadline = Date.parse(receipt.startedAt) + templeTrainingBounds.harnessMs
-  const prefix = await setupTemple(context)
+  const deadline =
+    Date.parse(receipt.startedAt) + (continuation?.harnessMs ?? templeTrainingBounds.harnessMs)
+  const prefix = continuation?.prefix ?? (await setupTemple(context))
+  const setupFile = continuation?.setupFile ?? resolve(output, 'mission3-temple-checkpoint.json')
   assert.equal(prefix.status, 'passed')
   assert.deepEqual(prefix.cleanupErrors, [])
   assert.equal(prefix.terminal.stats.trained, 0)
@@ -77,8 +81,9 @@ export default async function templeTrainingAuto(context) {
     bounds: templeTrainingBounds,
     source: receipt.source,
     setup: {
-      file: 'mission3-temple-checkpoint.json',
-      sha256: sha(readFileSync(resolve(output, 'mission3-temple-checkpoint.json'))),
+      file: setupFile,
+      sha256: sha(readFileSync(setupFile)),
+      continuation: continuation?.evidence ?? null,
       targetId: prefix.plan.id,
       committed: prefix.checkpoint.digest,
     },
@@ -166,7 +171,7 @@ export default async function templeTrainingAuto(context) {
     await wait(
       'crew-departed-and-inspection-retired',
       templeTrainingBounds.readinessMs,
-      value => idleTemple(value.current) && clearOwnership(value.current),
+      value => templeIdleReady(value.current),
       readinessEnd
     )
     await clearSelection()

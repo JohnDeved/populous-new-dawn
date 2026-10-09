@@ -6,7 +6,10 @@ import { buildingAdmission } from '../app/live-building-entry.ts'
 import { createLivePerson, registerLivePerson } from '../app/live-people.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
 import { checkpointObservation } from '../scripts/local-render/checkpoint-observer.mjs'
-import { armTempleCheckpoint } from '../scripts/local-render/temple-training-checkpoint.mjs'
+import {
+  armTempleCheckpoint,
+  readTempleCommittedLoad,
+} from '../scripts/local-render/temple-training-checkpoint.mjs'
 
 // Supporting contracts only: injected active model-5 state, trusted event token,
 // and a controllable IDB transaction boundary. Production createGameStore,
@@ -371,6 +374,101 @@ test('active Temple Save observes post-normalization publication, committed IDB 
   assert.equal(button.listeners.size, 1, 'the public handler survives cleanup')
   assert.equal(loadButton.listeners.size, 1)
   assert.equal(db.closed, 2, 'both readback database handles close')
+})
+
+test('fresh store restores committed active Temple and public Load Game publishes before Page unpause', async t => {
+  const db = await storage(t),
+    f = activeFixture(db.createGameStore),
+    saved = f.store.saveCheckpoint()
+  ;(await db.transaction('readwrite')).complete()
+  assert.equal(await saved, true)
+  const committedBefore = await db.read(),
+    recordsBefore = structuredClone(db.records),
+    read = readTempleCommittedLoad()
+  ;(await db.transaction('readonly')).complete()
+  const expected = await read
+  assert.deepEqual(expected.committed, committedBefore)
+  assert.deepEqual(db.records, recordsBefore, 'detached restore/Load prediction cannot alter IDB')
+  assert.notEqual(expected.expectedLoad.checkpointSha256, committedBefore.checkpointSha256)
+
+  // A new store has no in-session checkpoint. Its actual restore publication
+  // enables the selector; the Load handler subsequently replaces its World.
+  const store = db.createGameStore(),
+    before = store.getWorld(),
+    snapshot = context =>
+      context.world.outcome.level === 3
+        ? f.snapshot(context)
+        : { phase: context.phase, level: context.world.outcome.level },
+    disabled = new Button()
+  assert.equal(store.hasCheckpoint(), false)
+  disabled.disabled = !store.hasCheckpoint()
+  for (const button of [null, disabled])
+    assert.throws(
+      () => armTempleCheckpoint({ kind: 'load', store, button, snapshot }),
+      /Available public Temple Save\/Load controls and store required/
+    )
+  assert.equal(disabled.listeners.size, 0)
+  const restoring = store.restoreCheckpoint()
+  assert.equal(store.hasCheckpoint(), false, 'Load is unavailable before the IDB read completes')
+  ;(await db.transaction('readonly')).complete()
+  assert.equal(await restoring, true)
+  assert.equal(store.hasCheckpoint(), true)
+  assert.equal(store.getWorld(), before, 'restore retains startup World until public Load')
+
+  // Verify the actual selector label, availability and Page callback wiring,
+  // then execute that unchanged callback body and the existing Page body adapter.
+  const selector = readFileSync(new URL('../app/world-selector.tsx', import.meta.url), 'utf8'),
+    selectorUse = page.match(/<WorldSelector\b[\s\S]*?\n\s*\/>/)?.[0],
+    handlerName = selectorUse?.match(/\bonLoad=\{(\w+)\}/)?.[1]
+  assert.match(
+    selector,
+    /\{hasCheckpoint && \(\s*<button autoFocus onClick=\{onLoad\}>\s*Load Game\s*<\/button>/
+  )
+  assert.match(selectorUse, /hasCheckpoint=\{store\.hasCheckpoint\(\)\}/)
+  assert.ok(handlerName)
+  const handlerStart = page.indexOf(`  function ${handlerName}() {`),
+    handlerEnd = page.indexOf('\n  function ', handlerStart + 1)
+  assert.ok(handlerStart >= 0 && handlerEnd > handlerStart)
+  const handler = new Function(
+      'beginLoad',
+      `${page.slice(handlerStart, handlerEnd)}; return ${handlerName};`
+    )(publicLoad(store)),
+    button = new Button(),
+    capture = armTempleCheckpoint({ kind: 'load', store, button, snapshot }),
+    publications = [],
+    unsubscribe = store.subscribe(() => {
+      publications.push({ paused: store.getWorld().paused, captured: capture.status().captured })
+    })
+  t.after(() => capture.close())
+  t.after(unsubscribe)
+  button.addEventListener('click', handler)
+  button.click()
+  assert.notEqual(store.getWorld(), before)
+  assert.deepEqual(publications, [
+    { paused: true, captured: true },
+    { paused: false, captured: true },
+  ])
+  assert.equal(capture.status().publications, 1)
+  assert.equal(capture.status().publication.paused, true)
+  assert.equal(capture.status().publication.target.activity & 128, 128)
+  assert.equal(capture.status().publication.target.storedMana, 123)
+  assert.equal(capture.status().publication.target.ordersShared, true)
+  assert.equal(capture.status().publication.target.registered, true)
+  assert.deepEqual(await capture.digest(), expected.expectedLoad)
+  assert.equal(store.getWorld().paused, false)
+  assert.notEqual(
+    (await typed(store.getWorld())).checkpointSha256,
+    expected.expectedLoad.checkpointSha256
+  )
+  assert.deepEqual(
+    await db.read(),
+    committedBefore,
+    'typed committed checkpoint survives restore and Load'
+  )
+  assert.deepEqual(db.records, recordsBefore)
+  assert.deepEqual(capture.close().cleanup, { listener: true, subscription: true })
+  assert.deepEqual(capture.close().errors, [])
+  assert.equal(button.listeners.size, 1, 'observation cleanup preserves the public Load callback')
 })
 
 test('full typed digest rejects wrong active training, stored mana, shared orders and iteration order despite matching summary digests', async t => {
