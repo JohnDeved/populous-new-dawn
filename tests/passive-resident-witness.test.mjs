@@ -110,6 +110,49 @@ test('entry captures original record, natural main render only, and exact restor
   assert.equal(f.calls[0].receiver, f.scene.gameClock); assert.deepEqual(f.calls[0].args, ['turn'])
 })
 
+test('actual public Hut command defers allocation until the entry producer, with nonzero release proof', async t => {
+  const f = fixture(t)
+  f.u.entry = undefined; f.u.native = f.p; f.u.work = null
+  f.w.buildingOrders.cursor = 1; f.w.buildingOrders.active = 0
+  f.w.manaWorld = { gameFlags: 0 }
+  const commandSource = readFileSync(new URL('../app/live-command.ts', import.meta.url), 'utf8')
+  const body = commandSource.slice(commandSource.indexOf('  // Non-ground commands retain'))
+  // Execute the actual ordinary-Hut command branch. Route planning, terrain,
+  // release and message boundaries are supplied; no model turn is run.
+  const command = Function('canOrder', 'acceptsPersonOrder', 'combatPerson', 'entrance',
+    'planLivePath', 'release', 'acceptLivePath', 'tell',
+    `return ${stripTypeScriptTypes(`function command(w, p, model, context) { ${body}`)}`)(canOrder, orders.acceptsPersonOrder,
+      () => f.p, () => ({ x: -11, z: 36.5 }), () => f.p, () => {},
+      (_w, u, p) => { u.native = p; u.path = [{ x: -11, z: 36.5 }] }, () => {})
+  const entrySource = readFileSync(new URL('../app/live-building-entry.ts', import.meta.url), 'utf8')
+  const beginSource = entrySource.slice(entrySource.indexOf('function begin('), entrySource.indexOf('export function rebuildLiveTrainingQueue'))
+  const effects = { prepare() { assert.fail('Unexpected order preparation') }, stopWork() {},
+    releaseSpell() {}, deleteObject() {}, releaseFight() {} }
+  // Actual begin/allocate/attach bodies own the delayed queue and same-person
+  // handoff. State-animation initialization is a supplied boundary.
+  const begin = Function('allocatePersonOrder', 'attachPersonOrder', 'orderEffects',
+    'defaultPersonState', 'initializeBuildingPerson', 'person',
+    `${stripTypeScriptTypes(beginSource)}; return begin`)(orders.allocatePersonOrder,
+      orders.attachPersonOrder, effects, () => 10, () => {}, () => assert.fail('Existing person required'))
+  const api = await install(f.spec); api.armEntry(); f.canvas.emit('pointerdown')
+  assert.equal(command(f.w, f.b, 8, { building: f.b }), true)
+  f.w.lastOrderTurn = f.w.turn; f.canvas.emit('pointerup')
+  assert.equal(f.u.work, 37); assert.equal(api.read().entryInput.after.order, null)
+  assert.equal(api.read().entryCommand ?? null, null)
+  f.scene.gameClock.beforeTurn()
+  f.u.entry = begin(f.w, f.u, f.b); f.w.turn++
+  f.scene.gameClock.afterTurn()
+  const allocated = api.read().entryCommand
+  assert.ok(allocated?.orderId > 0); assert.equal(allocated.order.model, 8)
+  assert.equal(allocated.order.a, 37); assert.equal(allocated.order.references, 1)
+  assert.equal(allocated.samePerson, true)
+  orders.clearPersonOrders(f.w.buildingOrders, f.p, effects); f.complete()
+  f.w.turn++; f.scene.gameClock.afterTurn()
+  assert.equal(api.read().admission.entryOrderId, allocated.orderId)
+  assert.equal(api.read().admission.entryOrderReferences, 0)
+  assert.equal(api.read().admission.samePerson, true); assert.deepEqual(api.close().errors, [])
+})
+
 test('real mode1 removal inserts the exact passive record before indicator cleanup', async t => {
   const f = fixture(t), api = await install(f.spec)
   f.complete(); api.armMove('final-departure', true)
@@ -140,7 +183,10 @@ test('real mode1 removal inserts the exact passive record before indicator clean
 
 test('clone admission, live ownership, cancelled/replaced orders and wrong render are rejected', async t => {
   const f = fixture(t), api = await install(f.spec)
-  api.armEntry(); f.scene.gameClock.beforeTurn(); f.complete()
+  api.armEntry(); f.canvas.emit('pointerdown')
+  orders.prepareBuildingEntryOrder(f.w.buildingOrders.records[1], 37, 0, 0, false)
+  f.w.buildingOrders.records[1].references = 1; f.p.commands[0] = 1
+  f.canvas.emit('pointerup'); f.scene.gameClock.beforeTurn(); f.complete()
   f.u.resident.person = structuredClone(f.p); f.scene.gameClock.afterTurn()
   assert.equal(api.read().admission.samePerson, false)
   f.u.native = f.p
@@ -148,10 +194,40 @@ test('clone admission, live ownership, cancelled/replaced orders and wrong rende
   f.scene.renderer.render.call({ ...f.scene.renderer }, f.scene.scene, f.scene.camera)
   assert.deepEqual(api.read().frames, {})
   f.u.native = f.p; f.u.inside = null; f.u.work = null; f.p.commands[0] = 1
+  Object.assign(f.w.buildingOrders.records[1], { model: 3, a: f.p.x, b: f.p.y })
   f.w.objectCells.objects.set(13, f.p); f.w.lastOrderTurn = 800
   api.armMove('initial-exit'); f.canvas.emit('pointerup')
   f.w.buildingOrders.records[1].flags |= 1; f.scene.gameClock.afterTurn()
   assert.match(api.read().errors.join('\n'), /command replaced/)
+})
+
+test('entry without an observed nonzero allocation cannot claim released references', async t => {
+  const f = fixture(t), api = await install(f.spec)
+  f.u.entry = undefined; f.u.native = f.p
+  api.armEntry(); f.canvas.emit('pointerdown'); f.canvas.emit('pointerup')
+  f.complete(); f.scene.gameClock.afterTurn()
+  assert.equal(api.read().admission, null)
+  assert.match(api.close().errors.join('\n'), /lacks the observed nonzero command8 allocation/)
+})
+
+for (const invalid of ['missing', 'wrong-target', 'cancelled', 'references', 'replaced'])
+test(`first entry allocation rejects ${invalid}`, async t => {
+  const f = fixture(t), api = await install(f.spec)
+  f.u.entry = undefined; f.u.native = f.p
+  api.armEntry(); f.canvas.emit('pointerdown'); f.canvas.emit('pointerup')
+  f.u.native = null; f.u.entry = { person: f.p }
+  orders.prepareBuildingEntryOrder(f.w.buildingOrders.records[1], 37, 0, 0, false)
+  f.w.buildingOrders.records[1].references = 1; f.p.commands[0] = 1
+  if (invalid === 'missing') f.p.commands[0] = 0
+  if (invalid === 'wrong-target') f.w.buildingOrders.records[1].a = 38
+  if (invalid === 'cancelled') f.w.buildingOrders.records[1].flags |= 1
+  if (invalid === 'references') f.w.buildingOrders.records[1].references = 0
+  f.scene.gameClock.afterTurn()
+  if (invalid === 'replaced') {
+    f.w.buildingOrders.records[2] = structuredClone(f.w.buildingOrders.records[1])
+    f.p.commands[0] = 2; f.scene.gameClock.beforeTurn()
+  }
+  assert.match(api.close().errors.join('\n'), /command8 allocation (missing or changed|replaced)/)
 })
 
 test('the first actual entry owner cannot be replaced by a later entry visit', async t => {
