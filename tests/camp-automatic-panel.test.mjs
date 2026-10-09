@@ -57,7 +57,7 @@ test('bare camp activity cannot allocate automatic DOM or capacity on a zero-tur
 })
 
 test('actual M2 training input creates a shared automatic record before the fixed-turn observer returns', async t => {
-  const { scene, world, camp, point, api, frame } = await campPanelFixture(t),
+  const { scene, world, camp, point, api, frame, paint } = await campPanelFixture(t),
     { pointerDown, pointerMove, pointerUp } = await import('../app/scene-input-runtime.ts')
   startScene(t, scene)
   frame(0)
@@ -107,8 +107,11 @@ test('actual M2 training input creates a shared automatic record before the fixe
         latched: scene.objectPanels.automaticTrainingLatches?.has(camp.id) ?? false,
         phase: record?.phase ?? null,
         reservations: world.secondaryEffects.reservations.filter(owner => owner === reservation(camp)),
-        dom: scene.buildingPanels.has(camp.id),
       }
+      // Exercise the renderer here: an absent call would not prove that a fresh
+      // phase -1 record stays unpainted before the existing controller visit.
+      paint()
+      observed.dom = scene.buildingPanels.has(camp.id)
     }
   }
   for (let visits = 0; visits < 4000 && !observed; visits++) frame(1 / 12)
@@ -128,4 +131,7 @@ test('actual M2 training input creates a shared automatic record before the fixe
     { automatic: true, latched: true, phase: -1, reservations: [reservation(camp)], dom: false },
     'live training callback must reserve the fresh record synchronously before frontend stepping'
   )
+  assert.ok(records(scene).get(camp.id).phase >= 0, 'the existing same-frame controller steps the record')
+  paint()
+  assert.equal(scene.buildingPanels.get(camp.id)?.hidden, false, 'the stepped record can now paint')
 })
