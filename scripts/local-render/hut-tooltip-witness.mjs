@@ -1,0 +1,233 @@
+// One finite scenario observer. It never invokes a game update, picker, input,
+// render, clock, or command. The installed wrappers forward actual calls once.
+export async function installHutTooltipWitness(page, { deadlineAt, maxRecords = 8192 } = {}) {
+  return page.evaluateHandle(async ({ source, limits }) => {
+    const [{ GameScene }, { observeEntityPointer }] = await Promise.all([
+      import('/app/scene.ts'), import('/qa/erosion-ordinary/input.mjs')])
+    // Only the scenario's own passive observer is serialized; no runtime source
+    // replacement or game state is evaluated here.
+    return (0, eval)(`(${source})`)(GameScene, observeEntityPointer, limits)
+  }, { source: installHutTooltipLifecycle.toString(), limits: { deadlineAt, maxRecords } })
+}
+
+// Dependency-supplied only so cheap contracts can exercise real wrapper behavior
+// without a browser or installing dependencies. Production invocation is above.
+export function installHutTooltipLifecycle(GameScene, observeEntityPointer, { deadlineAt, maxRecords = 8192 }) {
+  const records = [], epochs = [], frames = {}, errors = [], initial = performance.now()
+  const originalStart = GameScene.prototype.start
+  const startDescriptor = Object.getOwnPropertyDescriptor(GameScene.prototype, 'start')
+  const sessions = new WeakMap(), recordIds = new WeakMap()
+  let phase = 'startup', ordinal = 0, closed = false, capture = null
+  const error = e => { if (errors.length < 8) errors.push(String(e?.stack ?? e)) }
+  const check = (ok, message) => { if (!ok) throw Error(message) }
+  const observe = fn => { if (!closed && !errors.length) try { return fn() } catch (e) { error(e) } }
+  const identity = (map, value) => {
+    if (!value || typeof value !== 'object') return null
+    if (!map.has(value)) map.set(value, ++ordinal)
+    return map.get(value)
+  }
+  const add = row => {
+    check(records.length < maxRecords, 'Hut tooltip record bound exceeded')
+    check(Date.now() <= deadlineAt, 'Hut tooltip observation deadline exceeded')
+    records.push({ ordinal: ++ordinal, phase, ...row })
+  }
+  const simulation = scene => structuredClone({
+    turn: scene.world.turn, selected: scene.world.selected, mode: scene.world.mode,
+    orderCursor: scene.world.orderCursor, lastOrderTurn: scene.world.lastOrderTurn,
+    random: scene.world.randomState, cosmeticRandom: scene.world.cosmeticRandom?.randomState,
+    orders: scene.world.buildingOrders,
+    units: scene.world.units.map(unit => ({ id: unit.id, work: unit.work, target: unit.target, tree: unit.tree,
+      commands: unit.native?.commands, commandCursor: unit.native?.commandCursor, immediateCommand: unit.native?.immediateCommand })),
+  })
+  const state = scene => {
+    const w = scene.world, c = scene.tooltipController, session = c?.session ?? scene.tooltipSession
+    check(scene.objectPanels?.hutRecords instanceof Map, 'Missing actual Hut record observation interface')
+    return structuredClone({
+      sessionIdentity: identity(sessions, session), session: session ?? null,
+      controller: c ?? null, input: scene.tooltipInput ?? null, pendingInputs: scene.tooltipInspectionInputs ?? [],
+      tooltip: scene.tooltip,
+      records: [...scene.objectPanels.hutRecords].map(([id, value]) => ({ id, identity: identity(recordIds, value),
+        phase: value.phase, remaining: value.remaining, hold: value.hold, automatic: value.automatic })),
+      level: w.outcome.level, status: w.status, turn: w.turn, speed: w.speed, paused: w.paused,
+      selected: w.selected, mode: w.mode, inputMask: w.inputMask,
+      overview: scene.overviewActive, overviewStage: scene.overviewStage, drag: scene.dragActive.value,
+      flying: w.flyby.flags & 1, camera: scene.cameraMotion.active, transition: !!scene.viewTransition,
+      dialog: !!document.querySelector('dialog[open]'),
+      pointer: scene.pointerScreen, buttons: scene.pointerButtons, hovered: scene.hoveredObject,
+      animationFrame: scene.gameClock.animationFrame, sceneFrame: scene.frame,
+      rendererFrame: scene.renderer.info.render.frame, rafTimestamp: scene.previous,
+    })
+  }
+  const node = n => n ? { tag: n.tagName ?? null, role: n.getAttribute?.('role') ?? null,
+    label: n.getAttribute?.('aria-label') ?? null, text: n.textContent?.trim().slice(0, 100) ?? null,
+    className: typeof n.className === 'string' ? n.className : null } : null
+  const pixels = canvas => {
+    check(canvas && canvas.width > 0 && canvas.height > 0 && canvas.width * canvas.height <= 2_000_000, 'Hut canvas capture bounds')
+    return canvas.toDataURL('image/png')
+  }
+  const attach = scene => {
+    check(epochs.length < 2, 'Ordinary Hut episode permits entry and one Load scene only')
+    const epoch = { id: epochs.length + 1, scene, wrappers: [], listeners: [], disposed: false, closed: false,
+      initial: state(scene), lastState: null, lastPaint: null, delivered: null, captureEvents: [] }
+    epochs.push(epoch)
+    // start has already installed shipped listeners, but the same JS call stack
+    // has not returned to RAF. Passive bubble listeners therefore follow input.
+    let pointer
+    const wrap = (owner, key, build) => {
+      const original = owner[key], descriptor = Object.getOwnPropertyDescriptor(owner, key)
+      check(typeof original === 'function', `Missing Hut observation boundary ${key}`)
+      const wrapper = build(original); epoch.wrappers.push({ owner, key, original, descriptor, wrapper }); owner[key] = wrapper
+    }
+    const snapshot = () => { epoch.lastState = state(scene); return epoch.lastState }
+    const finish = () => {
+      if (epoch.closed) return
+      epoch.closed = true
+      for (const [owner, type, fn, capture] of epoch.listeners) try { owner.removeEventListener(type, fn, capture) } catch (e) { error(e) }
+      for (const entry of epoch.wrappers.toReversed()) try {
+        if (entry.owner[entry.key] !== entry.wrapper) { error(`Hut observer lost ${entry.key}`); continue }
+        if (entry.descriptor) Object.defineProperty(entry.owner, entry.key, entry.descriptor)
+        else delete entry.owner[entry.key]
+      } catch (e) { error(e) }
+      if (pointer) try { epoch.delivered = pointer.finish(); check(epoch.delivered.restored, 'Actual-pointer cleanup failed'); epoch.delivered.errors.forEach(error) } catch (e) { error(e) }
+    }
+    epoch.finish = finish
+    try {
+      pointer = observeEntityPointer(scene, document)
+      wrap(scene, 'updateTooltipController', original => function (...args) {
+        const before = observe(snapshot)
+        const result = original.apply(this, args)
+        observe(() => add({ kind: 'tick', epoch: epoch.id, receiverMatches: this === scene, now: args[0], before, after: snapshot() }))
+        return result
+      })
+      wrap(scene, 'acquireForcedTooltip', original => function (...args) {
+        const before = observe(snapshot), result = original.apply(this, args)
+        observe(() => add({ kind: 'forced-acquisition', epoch: epoch.id, target: args[0]?.id ?? null,
+          duration: args[1], receiverMatches: this === scene, before, after: snapshot() }))
+        return result
+      })
+      let picking = null
+      wrap(scene.picking, 'pick', original => function (...args) {
+        const result = original.apply(this, args)
+        if (picking) observe(() => picking.push({ id: result, x: args[0]?.clientX, y: args[0]?.clientY, receiverMatches: this === scene.picking }))
+        return result
+      })
+      wrap(scene, 'updatePointerFrame', original => function (...args) {
+        picking = []
+        let result
+        try { result = original.apply(this, args) }
+        catch (e) { picking = null; throw e }
+        const picks = picking; picking = null
+        observe(() => { if (picks.length) add({ kind: 'pointer-frame', epoch: epoch.id, picks, after: snapshot() }) })
+        return result
+      })
+      wrap(scene, 'renderTooltip', original => function (...args) {
+        const result = original.apply(this, args)
+        observe(() => {
+          const element = scene.tooltipElement, label = element.getAttribute('aria-label') ?? ''
+          const hud = document.querySelector('.hud-description'), hudText = hud?.textContent?.trim() ?? ''
+          const hudVisible = !!hud?.getClientRects().length
+          epoch.lastPaint = { hidden: element.hidden, label, left: element.style.left, top: element.style.top }
+          if (!capture || capture.epoch !== epoch.id || frames[capture.label]?.tooltip) return
+          const matches = capture.when === 'hidden' ? element.hidden : capture.when === 'hut'
+            ? !element.hidden && label.startsWith('Small Hut:') : capture.when === 'blast'
+              ? hudVisible && hudText.startsWith('Blast') && scene.tooltipController.category === 'hud' &&
+                scene.tooltipController.owners.hud && scene.tooltip.draw === 1 : true
+          if (!matches) return
+          const frame = frames[capture.label] ??= { epoch: epoch.id, phase, ordinal, rafTimestamp: scene.previous }
+          frame.tooltip = { ...epoch.lastPaint, state: snapshot(), png: element.hidden ? null : pixels(scene.tooltipCanvas) }
+          if (capture.when === 'blast') frame.hud = { text: hudText, visible: hudVisible,
+            bounds: { x: hud.getBoundingClientRect().x, y: hud.getBoundingClientRect().y,
+              width: hud.getBoundingClientRect().width, height: hud.getBoundingClientRect().height },
+            pixels: 'blast-history-composite.png', owner: 'existing DOM hud-description' }
+        })
+        return result
+      })
+      wrap(scene.renderer, 'render', original => function (...args) {
+        const result = original.apply(this, args)
+        if (args[0] === scene.scene && args[1] === scene.camera) observe(() => {
+          snapshot()
+          const frame = capture?.epoch === epoch.id && frames[capture.label]
+          if (frame?.tooltip && !frame.world) frame.world = { state: epoch.lastState, png: pixels(scene.renderer.domElement) }
+        })
+        return result
+      })
+      wrap(scene, 'updateHudFrame', original => function (...args) {
+        const result = original.apply(this, args)
+        observe(() => {
+          const frame = capture?.epoch === epoch.id && frames[capture.label]
+          if (frame?.world && !frame.panel) {
+            const b = scene.world.buildings.find(b => b.kind === 'hut' && b.team === 'blue' && b.anchor?.x === 64512 && b.anchor?.y === 54784)
+            const panel = b && scene.buildingPanels.get(b.id)
+            frame.panel = { id: b?.id ?? null, hidden: panel?.hidden ?? true, label: panel?.getAttribute('aria-label') ?? null,
+              left: panel?.style.left, top: panel?.style.top, state: snapshot(),
+              png: panel && !panel.hidden ? pixels(panel.firstElementChild) : null }
+          }
+        })
+        return result
+      })
+      wrap(scene, 'dispose', original => function (...args) {
+        observe(() => add({ kind: 'dispose', epoch: epoch.id, before: snapshot() }))
+        try { return original.apply(this, args) }
+        finally { epoch.disposed = true; finish() }
+      })
+      const pending = new WeakMap()
+      for (const type of ['pointerdown', 'pointerup', 'pointermove', 'pointerleave', 'pointercancel', 'keydown', 'keyup', 'click', 'focusin', 'focusout']) {
+        const owner = type === 'pointerleave' ? scene.renderer.domElement : ['keydown', 'keyup'].includes(type) ? window : document
+        const begin = event => observe(() => {
+          if (epoch.closed || scene.disposed) return
+          const row = { kind: 'input', epoch: epoch.id, type, trusted: event.isTrusted, target: node(event.target), relatedTarget: node(event.relatedTarget),
+            canvasTarget: event.target === scene.renderer.domElement,
+            canvasOwned: Number.isFinite(event.clientX) && document.elementFromPoint(event.clientX, event.clientY) === scene.renderer.domElement,
+            key: event.key, x: event.clientX, y: event.clientY, button: event.button, buttons: event.buttons,
+            modifiers: [event.shiftKey, event.ctrlKey, event.altKey, event.metaKey].map(Boolean),
+            hit: Number.isFinite(event.clientX) ? node(document.elementFromPoint(event.clientX, event.clientY)) : null,
+            before: simulation(scene), state: snapshot() }
+          add(row); pending.set(event, records.at(-1))
+        })
+        const end = event => observe(() => {
+          const row = pending.get(event); if (!row) return
+          row.after = simulation(scene); row.afterState = snapshot(); row.defaultPrevented = event.defaultPrevented
+          pending.delete(event)
+        })
+        owner.addEventListener(type, begin, true); epoch.listeners.push([owner, type, begin, true])
+        owner.addEventListener(type, end, false); epoch.listeners.push([owner, type, end, false])
+      }
+      add({ kind: 'start', epoch: epoch.id, before: epoch.initial })
+    } catch (e) { finish(); throw e }
+  }
+  const wrapper = function (...args) {
+    const result = originalStart.apply(this, args)
+    if (result && !closed && !epochs.some(epoch => epoch.scene === this)) observe(() => attach(this))
+    return result
+  }
+  GameScene.prototype.start = wrapper
+  const summary = () => ({ closed, errors: [...errors], phase, recordCount: records.length,
+    phaseInspections: records.filter(row => row.phase === phase && row.kind === 'tick')
+      .flatMap(row => row.after.controller?.lastVisit?.inspection ?? []),
+    elapsedMs: performance.now() - initial, captures: Object.fromEntries(Object.entries(frames).map(([key, value]) => [key, !!value.panel])),
+    epochs: epochs.map(e => ({ id: e.id, initial: e.initial, state: e.lastState, paint: e.lastPaint, disposed: e.disposed, closed: e.closed })) })
+  return {
+    phase(label, when = null) {
+      check(!closed && !errors.length, 'Hut observation unavailable')
+      phase = label
+      if (when) {
+        check(Object.keys(frames).length < 8 && !frames[label], 'Eight capture bound or duplicate label')
+        check(!capture || frames[capture.label]?.panel, 'Earlier pixel capture incomplete')
+        capture = { label, when, epoch: epochs.at(-1)?.id }
+      }
+    },
+    status: summary,
+    read() { return structuredClone({ ...summary(), records, frames, epochs: epochs.map(e => ({ id: e.id, initial: e.initial,
+      lastState: e.lastState, disposed: e.disposed, closed: e.closed, delivered: e.delivered })) }) },
+    close() {
+      if (!closed) {
+        for (const epoch of epochs) epoch.finish()
+        if (GameScene.prototype.start !== wrapper) error('Foreign Scene.start wrapper preserved')
+        else if (startDescriptor) Object.defineProperty(GameScene.prototype, 'start', startDescriptor)
+        else delete GameScene.prototype.start
+        closed = true
+      }
+      return this.read()
+    },
+  }
+}
