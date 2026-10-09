@@ -27,7 +27,7 @@ async function buildEmptyCamp({ api, world, frame }) {
   return camp
 }
 
-function supplyPanelDom(t, scene) {
+export function supplyPanelDom(t, scene) {
   const doc = document,
     oldCreate = doc.createElement,
     oldStyle = Object.getOwnPropertyDescriptor(globalThis, 'getComputedStyle')

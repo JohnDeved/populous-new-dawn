@@ -26,6 +26,16 @@ export function dismantlingCampPanel(b: Pick<Building, 'kind' | 'admission'>) {
   return b.kind === 'camp' && !!((b.admission?.activity ?? 0) & 0x8000)
 }
 
+// Temple manual hover keeps its existing DOM adapter. Active training and its
+// exiting automatic record instead require synchronous callback ownership.
+function templeTrainingOwnsPanel(b: Building, record: { automatic: boolean } | undefined) {
+  return (
+    b.kind === 'temple' &&
+    b.progress >= 1 &&
+    (!!((b.admission?.activity ?? 0) & 0x80) || !!record?.automatic)
+  )
+}
+
 export function buildingOccupantPanelProfile(
   b: Pick<Building, 'kind' | 'level' | 'progress'>
 ): { kind: 'resident' | 'training' | 'workshop'; capacity: 1 | 3 | 4 | 5 | 6 } | null {
@@ -98,11 +108,15 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
     modal = !!document.querySelector('dialog[open]')
   for (const [id, panel] of scene.buildingPanels) {
     const building = world.buildings.find(b => b.id === id && b.hp > 0),
+      record = scene.objectPanels.buildingRecords.get(id),
       controlsHeld = panel.matches(':hover') || panel.contains(document.activeElement)
     if (!building) {
       panel.remove()
       scene.buildingPanels.delete(id)
     } else if (
+      (templeTrainingOwnsPanel(building, record) &&
+        !((building.admission?.activity ?? 0) & 0x8000) &&
+        (modal || !record || record.phase < 0)) ||
       (retainedBuildingPanel(building) &&
         !dismantlingCampPanel(building) &&
         (modal ||
@@ -128,7 +142,8 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
       admission = b.admission,
       activity = admission?.activity ?? 0
     if ((!plan && !profile) || b.team !== 'blue' || b.hp <= 0 || !scene.visible(b)) continue
-    const retained = retainedBuildingPanel(b),
+    const record = scene.objectPanels.buildingRecords.get(b.id),
+      retained = retainedBuildingPanel(b) || templeTrainingOwnsPanel(b, record),
       existing = scene.buildingPanels.get(b.id),
       campHeld =
         b.kind === 'camp' &&
@@ -136,10 +151,12 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
         existing &&
         !existing.hidden &&
         (existing.matches(':hover') || existing.contains(document.activeElement)),
-      legacyCamp = dismantlingCampPanel(b) || campHeld,
-      record = scene.objectPanels.buildingRecords.get(b.id),
-      paintable = record && !(b.kind === 'camp' && record.automatic && record.phase < 0)
-    if (retained && !legacyCamp && (!paintable || modal)) continue
+      independentControls =
+        dismantlingCampPanel(b) || campHeld || (b.kind === 'temple' && !!(activity & 0x8000)),
+      paintable =
+        record &&
+        !((b.kind === 'camp' || b.kind === 'temple') && record.automatic && record.phase < 0)
+    if (retained && !independentControls && (!paintable || modal)) continue
     // Other building types retain the existing visibility adapter.
     if (
       !retained &&
