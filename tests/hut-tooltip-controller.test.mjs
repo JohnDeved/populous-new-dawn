@@ -450,7 +450,11 @@ test('actual right-button callers retain down/up order and cancel skipped-frame 
     currentTarget: scene.renderer.domElement,
   })
   const before = scene.objectPanels.hutRecords.get(hut.id),
-    panelFrame = scene.objectPanels.frame
+    panelFrame = scene.objectPanels.frame,
+    randomState = scene.world.randomState,
+    markers = scene.world.effects.filter(effect => effect.kind === 'orderMarker').length,
+    sounds = []
+  scene.onSound = cue => sounds.push(cue)
   pointerDown(scene, event(2))
   pointerUp(scene, event(0))
   frame(0)
@@ -468,6 +472,12 @@ test('actual right-button callers retain down/up order and cancel skipped-frame 
   if (before) assert.equal(record, before)
   else assert.deepEqual(record, { phase: 0, remaining: 2, hold: 16, automatic: false })
   assert.equal(scene.objectPanels.hutHeldPointer, null)
+  assert.equal(
+    scene.world.effects.filter(effect => effect.kind === 'orderMarker').length,
+    markers + 1
+  )
+  assert.deepEqual(sounds, [0x6a], 'one admitted press emits feedback; release does not')
+  assert.equal(scene.world.randomState, randomState, 'inspection feedback consumes no gameplay RNG')
   assert.equal(
     scene.objectPanels.frame,
     panelFrame,
@@ -507,6 +517,12 @@ test('retained pick geometry rechecks live object data before a due controller t
   assert.equal(scene.tooltipElement.hidden, true)
   assert.ok(cell !== null, 'the valid cell survives loss of the sampled object')
   assert.equal(scene.objectPanels.hutRecords.has(hut.id), false)
+  scene.picking.pick = () => null
+  const { browserPosition } = await import('../app/model.ts')
+  scene.pick = () => browserPosition({ x: (cell & 255) << 8, y: cell & 0xff00 })
+  scene.pointerState = '' // A new supplied terrain geometry publication.
+  frame(0)
+  assert.equal(scene.tooltipInput.cell, cell)
   const index = (cell >> 9) * 128 + ((cell & 255) >> 1)
   scene.world.land.flags[index] |= 0x400
   frame()
@@ -649,6 +665,7 @@ test('a named non-Hut winner cannot allocate the Hut beneath its retained cell',
   // Supply only the pick/terrain boundary; production publication, live naming,
   // shared visits and first-display dispatch still run through actual animate.
   scene.picking.pick = () => shrine.id
+  scene.pointerState = '' // Publish the supplied new pick geometry.
   scene.pick = () => hut
   scene.acquireForcedTooltip(null, 0)
   frame(0)
@@ -656,7 +673,10 @@ test('a named non-Hut winner cannot allocate the Hut beneath its retained cell',
   assert.equal(scene.tooltipInput.inspectionTarget, null)
   const oldRecord = scene.objectPanels.hutRecords.get(hut.id)
   frame()
+  assert.match(scene.tooltip.text, /^Stone Head:/, 'the selected real head has a named acquisition')
+  frame()
   const threshold = scene.tooltipController.session.threshold
+  assert.ok(threshold >= 12, 'read T only after its actual lazy initializer ran')
   for (let i = 0; i < threshold + 15 && !scene.tooltip.draw; i++) frame()
   assert.equal(scene.tooltip.draw, 1)
   assert.match(scene.tooltip.text, /^Stone Head:/)
@@ -715,4 +735,33 @@ test('pause, dialog, hidden and input-lock guards cancel pending and held browse
     record,
     'guard cancellation retains the record'
   )
+})
+
+test('actual pointer publication retains the existing world geometry cache and refreshes DOM ownership', async t => {
+  const { scene, frame, point } = await callerFixture(t),
+    { pointerMove } = await import('../app/scene-input-runtime.ts')
+  let picks = 0
+  const original = scene.picking.pick.bind(scene.picking)
+  scene.picking.pick = event => {
+    picks++
+    return original(event)
+  }
+  frame(0)
+  frame(0)
+  assert.equal(picks, 0, 'stable world frames reuse the existing pointer/view geometry key')
+  pointerMove(scene, { ...point, clientX: point.clientX + 1, buttons: 0 })
+  frame(0)
+  assert.ok(picks > 0, 'a changed pointer key publishes actual geometry again')
+  const count = picks,
+    hud = {
+      getAttribute: () => 'blast',
+      closest: selector => (selector === '[data-tooltip-hud]' ? hud : null),
+    }
+  document.elementFromPoint = () => hud
+  frame(0)
+  assert.equal(scene.tooltipInput.route, 'hud')
+  assert.equal(picks, count, 'DOM ownership refreshes without a world re-pick')
+  document.elementFromPoint = () => null
+  frame(0)
+  assert.ok(picks > count, 'HUD-to-world entry republishes geometry even with the same key')
 })

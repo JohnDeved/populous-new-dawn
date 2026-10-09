@@ -1,6 +1,6 @@
 import type { GameScene } from './scene.ts'
 import { buildingInsidePoint, buildingPose } from './building-shapes.ts'
-import { nativePosition } from './model.ts'
+import { browserPosition, effect, nativePosition } from './model.ts'
 import { stepTooltip, tooltipPalette, worldTooltipObject, type TooltipObject } from './tooltips.ts'
 import {
   acquireForcedTooltip as acquireForced,
@@ -100,7 +100,7 @@ function hudOwner(scene: GameScene, element: Element) {
   return owner
 }
 
-export function publishTooltipInput(scene: GameScene) {
+export function publishTooltipInput(scene: GameScene, geometryChanged = true) {
   const pointer = scene.navigationPointer
       ? { clientX: scene.navigationPointer.x, clientY: scene.navigationPointer.y }
       : scene.pointerScreen,
@@ -141,14 +141,18 @@ export function publishTooltipInput(scene: GameScene) {
   else if (hit?.closest('aside')) sample.route = 'unmapped-hud'
   else if (scene.pointerScreen) {
     sample.route = 'world'
-    const id = scene.picking.pick(scene.pointerScreen)
+    const previous = scene.tooltipInput,
+      reuse =
+        !geometryChanged &&
+        previous &&
+        ['world', 'unmapped-cell', 'unmapped-object'].includes(previous.route),
+      id = reuse ? previous.picked : scene.picking.pick(scene.pointerScreen)
     sample.picked = id
-    if (id !== null) {
-      sample.object = tooltipObject(scene, id)
-      sample.cell = hutCell(scene, id)
-      if (!sample.object) sample.route = 'unmapped-object'
-    }
-    if (sample.cell === null) {
+    sample.object = id === null ? null : tooltipObject(scene, id)
+    if (reuse) sample.cell = previous.cell
+    else if (id !== null) sample.cell = hutCell(scene, id)
+    if (id !== null && !sample.object) sample.route = 'unmapped-object'
+    if (!reuse && sample.cell === null) {
       const ground = scene.pick(scene.pointerScreen)
       if (ground) sample.cell = packedCell(nativePosition(scene.world, ground))
     }
@@ -225,7 +229,7 @@ export function updateTooltipController(scene: GameScene, now: number) {
   const owner = getTooltipController(scene),
     state = scene.tooltip,
     sample = scene.tooltipInput,
-    object = sample?.object ? tooltipObject(scene, sample.object.id) : null,
+    object = sample?.picked != null ? tooltipObject(scene, sample.picked) : null,
     currentInspection = sample ? inspectionTarget(scene, sample.picked, sample.cell) : null,
     modal = !!document.querySelector('dialog[open]'),
     blocked = modal || !!scene.world.inputMask || scene.overviewActive || !!scene.overviewStage,
@@ -270,8 +274,8 @@ export function updateTooltipController(scene: GameScene, now: number) {
     } else if (worldRoute && sample.cell !== null) {
       route = 'unmapped-cell'
       if (!owner.unsupportedHistory.includes(route)) owner.unsupportedHistory.push(route)
-    }
-    if (route === 'object' || route === 'cell' || route === 'outside')
+    } else if (sample?.route === 'world' && sample.picked === null) route = 'no-handler'
+    if (route === 'object' || route === 'cell' || route === 'outside' || route === 'no-handler')
       finishOrdinaryTooltip(owner, state)
   } else if (!handled && !blocked && sample?.hud) finishOrdinaryTooltip(owner, state)
 
@@ -289,6 +293,16 @@ export function updateTooltipController(scene: GameScene, now: number) {
       sample.cell === event.cell
     ) {
       inspection.push(scene.objectPanels.inspectHut(event.target, 'explicit', event.pointerId))
+      const building = scene.world.buildings.find(candidate => candidate.id === event.target)!
+      // 0047ae00 -> 004afff0 keeps feedback after the allocation attempt, even
+      // on capacity failure. Keep the existing browser coordinate/marker adapter;
+      // native packed-plan placement and physical allocation are separate limits.
+      effect(
+        scene.world,
+        'orderMarker',
+        browserPosition(buildingInsidePoint(buildingPose(building)))
+      )
+      scene.onSound(0x6a)
     } else inspection.push('cancel-stale')
   }
   if (!blocked) scene.objectPanels.renewHutInspection(object?.id ?? null)

@@ -753,7 +753,8 @@ export function updatePointerFrame(scene: GameScene, now: number) {
     scene.container.clientWidth,
     scene.container.clientHeight,
   ].join(',')
-  if (pointerState !== scene.pointerState) {
+  const pointerChanged = pointerState !== scene.pointerState
+  if (pointerChanged) {
     if (scene.pointerButtons === 1 && scene.pointerScreen) scene.updateDrag(scene.pointerScreen)
     const directBlast =
         !scene.overviewActive &&
@@ -777,7 +778,7 @@ export function updatePointerFrame(scene: GameScene, now: number) {
     scene.pointerState = pointerState
   }
   scene.selectionOverlay.visible = scene.dragActive.value
-  publishTooltipInput(scene)
+  publishTooltipInput(scene, pointerChanged)
 }
 
 export function updateSpellPointerFrame(
