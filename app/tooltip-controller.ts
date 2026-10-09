@@ -17,7 +17,12 @@ export interface TooltipSession {
   initializedBy: Category | 'inspection' | null
 }
 export const createTooltipSession = (): TooltipSession => ({
-  visits: 0, sampleAt: null, sampleCount: 0, sample: 0, threshold: 0, initializedBy: null,
+  visits: 0,
+  sampleAt: null,
+  sampleCount: 0,
+  sample: 0,
+  threshold: 0,
+  initializedBy: null,
 })
 export interface TooltipOutput extends TooltipState {
   pointer: { clientX: number; clientY: number } | null
@@ -39,9 +44,15 @@ export interface TooltipController {
     inspection: string[]
   } | null
 }
-export function createTooltipController(state: TooltipState, session: TooltipSession): TooltipController {
+export function createTooltipController(
+  state: TooltipState,
+  session: TooltipSession
+): TooltipController {
   return {
-    session, category: 'none', key: null, dwell: 0,
+    session,
+    category: 'none',
+    key: null,
+    dwell: 0,
     owners: { hud: null, object: 0, cell: 0, status: 0, message: 0 },
     output: { ...state, pointer: null, kind: 'none' },
     lastVisit: null,
@@ -59,7 +70,10 @@ export function sampleTooltipFrontend(controller: TooltipController, now: number
   session.visits++
 }
 
-export function tooltipThreshold(controller: TooltipController, owner: TooltipSession['initializedBy']) {
+export function tooltipThreshold(
+  controller: TooltipController,
+  owner: TooltipSession['initializedBy']
+) {
   const session = controller.session
   if (!session.threshold) {
     session.threshold = Math.max(session.sample, 12)
@@ -94,7 +108,11 @@ export function objectTooltipText(object: TooltipObject) {
   return text
 }
 
-export function visitObjectTooltip(controller: TooltipController, state: TooltipState, object: TooltipObject | null) {
+export function visitObjectTooltip(
+  controller: TooltipController,
+  state: TooltipState,
+  object: TooltipObject | null
+) {
   controller.owners.object = object?.id ?? 0
   if (!object) return false
   if (controller.category !== 'object' || controller.key !== object.id) {
@@ -102,7 +120,6 @@ export function visitObjectTooltip(controller: TooltipController, state: Tooltip
     controller.key = object.id
     state.text = objectTooltipText(object)
     state.fixed = 0
-    state.flags = 0
     if (state.text) controller.dwell = 0
     return false
   }
@@ -118,14 +135,18 @@ export function visitObjectTooltip(controller: TooltipController, state: Tooltip
   return true
 }
 
-export function visitBlankCellTooltip(controller: TooltipController, state: TooltipState, cell: number) {
+export function visitBlankCellTooltip(
+  controller: TooltipController,
+  state: TooltipState,
+  cell: number
+) {
   controller.owners.cell = cell
   if (controller.category !== 'cell' || controller.key !== cell) {
     controller.category = 'cell'
     controller.key = cell
     state.text = ''
     state.fixed = 0
-    state.flags = 0
+    state.flags &= ~1
     return
   }
   if (controller.dwell <= tooltipThreshold(controller, 'cell')) controller.dwell++
@@ -137,7 +158,11 @@ export interface HudTooltip {
   repeatable: boolean
   enabled: boolean
 }
-export function visitHudTooltip(controller: TooltipController, state: TooltipState, hud: HudTooltip | null) {
+export function visitHudTooltip(
+  controller: TooltipController,
+  state: TooltipState,
+  hud: HudTooltip | null
+) {
   controller.owners.hud = hud?.owner ?? null
   if (!hud) return
   if (controller.category !== 'hud' || controller.key !== hud.owner || !hud.repeatable) {

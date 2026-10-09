@@ -60,6 +60,7 @@ import { hudTaskPeople } from './follower-tasks-runtime'
 import type { FollowerTask } from './hud-tasks'
 import type { TransportKind } from './hud-transports'
 import { hudTransports } from './follower-transports-runtime'
+import { createTooltipSession } from './tooltip-controller'
 import { spellHudButton, spellHudRoster, spellHudVisibility } from './spell-visibility'
 import { nativeUnitModel } from './unit-kinds'
 import { missionComputerTribes, missionNumbers, tutorialLevel } from './mission-data'
@@ -177,6 +178,7 @@ export default function Home() {
     portrait = useRef<HTMLCanvasElement>(null),
     startupDialog = useRef<HTMLDialogElement>(null),
     dialog = useRef<HTMLDialogElement>(null)
+  const tooltipSession = useRef(createTooltipSession())
   const engine = useRef<GameScene | null>(null),
     audio = useRef<Soundscape | null>(null)
   const measureWorshipHud = useCallback(
@@ -334,7 +336,8 @@ export default function Home() {
           },
           (cue, attenuation, pan, finished) => audio.current?.cue(cue, attenuation, pan, finished),
           { select: selectAcquisitionPanel, measure: measureWorshipHud },
-          store.bindPresentation(world)
+          store.bindPresentation(world),
+          tooltipSession.current
         )
         scene = created
         engine.current = created
@@ -1116,6 +1119,7 @@ export default function Home() {
                               w.charging = !(w.manaWorld.spells[player].disabled & bit)
                           })
                       }}
+                      data-tooltip-hud={s.id === 'blast' && !undiscovered ? 'blast' : undefined}
                       onMouseEnter={() => {
                         if (!undiscovered) setHover(s.id)
                       }}

@@ -90,6 +90,8 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
       panel.remove()
       scene.buildingPanels.delete(id)
     } else if (
+      (world.buildings.some(b => b.id === id && b.kind === 'hut' && b.progress >= 1) &&
+        (!scene.objectPanels.hutRecords.has(id) || !!document.querySelector('dialog[open]'))) ||
       world.inputMask ||
       scene.overviewActive ||
       (!panel.matches(':hover') && !panel.contains(document.activeElement))
@@ -110,8 +112,15 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
       admission = b.admission,
       activity = admission?.activity ?? 0
     if ((!plan && !profile) || b.team !== 'blue' || b.hp <= 0 || !scene.visible(b)) continue
-    // ponytail: activity/hover owns visibility until native panel allocation/lifetime is ported.
     if (
+      hut &&
+      !plan &&
+      (!scene.objectPanels.hutRecords.has(b.id) || document.querySelector('dialog[open]'))
+    )
+      continue
+    // Other building types retain the existing visibility adapter.
+    if (
+      !(hut && !plan) &&
       !(activity & (128 | 0x8000)) &&
       !(plan && b.builders?.some(Boolean)) &&
       !(tower && admission?.inside) &&

@@ -6,6 +6,9 @@ import {
   unloadLiveVehicle,
 } from './vehicle-panel-runtime.ts'
 import { originalVehicleMesh } from './vehicle-appearance.ts'
+import { secondaryEffectCount } from './secondary-effects.ts'
+import { getTooltipController } from './scene-tooltip-runtime.ts'
+import { tooltipThreshold } from './tooltip-controller.ts'
 import { syncSecondaryReservations } from './scene-secondary-effects.ts'
 import type { GameScene } from './scene.ts'
 import { browserPosition, effect, maxHp, nativePosition, unitAnimationSource } from './model.ts'
@@ -39,7 +42,100 @@ export class ObjectPanels {
   inspected: number | null = null
   frame = 0
   automaticSamples = new Map<number, number>()
+  // These records contain no DOM/World references and use only the composed
+  // tooltip opportunity. Existing panels keep their animationFrame clock.
+  hutRecords = new Map<number, PersonPanelTime & { automatic: boolean }>()
+  hutInspected: number | null = null
+  hutHeldPointer: number | null = null
   constructor(readonly scene: GameScene) {}
+  inspectHut(id: number, source: 'hover' | 'explicit' | 'automatic', pointerId?: number) {
+    const { scene } = this,
+      building = scene.world.buildings.find(
+        b => b.id === id && b.kind === 'hut' && b.team === 'blue' && b.hp > 0 && b.progress >= 1
+      )
+    if (!building || scene.overviewActive || document.querySelector('dialog[open]'))
+      return `${source}:rejected`
+    let record = this.hutRecords.get(id)
+    const created = !record
+    if (!record) {
+      // 00504060 retires eligible same-class records before testing capacity.
+      // Active automatic buildings are excluded from that retirement predicate.
+      if (!((building.admission?.activity ?? 0) & 128)) {
+        for (const [oldId, old] of this.hutRecords) {
+          const oldBuilding = scene.world.buildings.find(b => b.id === oldId && b.hp > 0)
+          if (old.phase < 2 && oldBuilding && !((oldBuilding.admission?.activity ?? 0) & 128)) {
+            old.remaining = 0
+            old.hold = 0
+          }
+        }
+      }
+      const owners = new Set([...this.panels.keys(), ...this.hutRecords.keys()])
+      for (const [otherId, panel] of scene.buildingPanels)
+        if (
+          !panel.hidden &&
+          !scene.world.buildings.some(b => b.id === otherId && b.kind === 'hut' && b.progress >= 1)
+        )
+          owners.add(otherId)
+      syncSecondaryReservations(scene)
+      // Bounded browser count adapter only: UI reservations do not occupy
+      // physical secondary slots. Native allocator/reuse parity is not claimed.
+      if (owners.size >= 32 || secondaryEffectCount(scene.world.secondaryEffects) > 159) {
+        if (source !== 'automatic') this.releaseHutInspection()
+        return `${source}:rejected-capacity`
+      }
+      record = { phase: -1, remaining: 0, hold: 16, automatic: source === 'automatic' }
+      this.hutRecords.set(id, record)
+      const owner = getTooltipController(scene)
+      owner.dwell = tooltipThreshold(owner, 'inspection') + 1
+      syncSecondaryReservations(scene)
+    } else if (source === 'automatic') record.automatic = true
+    if (source !== 'automatic') {
+      this.hutInspected = id
+      if (source === 'explicit') this.hutHeldPointer = pointerId ?? null
+    }
+    return `${source}:${created ? 'created' : 'reused'}`
+  }
+  releaseHutButton(pointerId: number) {
+    if (this.hutHeldPointer === pointerId) this.hutHeldPointer = null
+  }
+  releaseHutInspection() {
+    this.hutInspected = null
+    this.hutHeldPointer = null
+  }
+  renewHutInspection(hovered: number | null) {
+    const record = this.hutInspected === null ? null : this.hutRecords.get(this.hutInspected)
+    // The native consumer renews first, then drops selected ownership after
+    // release when neither pick matches. Departure therefore keeps this renewal.
+    if (record?.phase === 1) record.remaining = record.hold
+    if (this.hutHeldPointer === null && hovered !== this.hutInspected) this.hutInspected = null
+  }
+  stepHutInspections(allowCreate = true) {
+    const { scene } = this
+    if (allowCreate)
+      for (const building of scene.world.buildings)
+        if (
+          building.kind === 'hut' &&
+          building.team === 'blue' &&
+          building.hp > 0 &&
+          building.progress >= 1 &&
+          (building.admission?.activity ?? 0) & 128
+        )
+          this.inspectHut(building.id, 'automatic')
+    for (const [id, record] of this.hutRecords) {
+      const building = scene.world.buildings.find(
+        b => b.id === id && b.kind === 'hut' && b.hp > 0 && b.progress >= 1
+      )
+      const automaticHeld = record.automatic && !!((building?.admission?.activity ?? 0) & 128)
+      if (record.automatic && record.phase === 1 && !automaticHeld) record.remaining = 0
+      if (!building || !stepPersonPanel(record, automaticHeld)) {
+        this.hutRecords.delete(id)
+        scene.buildingPanels.get(id)?.remove()
+        scene.buildingPanels.delete(id)
+        if (this.hutInspected === id) this.releaseHutInspection()
+        syncSecondaryReservations(scene)
+      }
+    }
+  }
   open(id: number, immediate = false, automatic = false) {
     const { scene } = this
     const u = scene.world.units.find(
@@ -466,6 +562,8 @@ export class ObjectPanels {
   dispose() {
     for (const panel of this.panels.values()) panel.element.remove()
     this.panels.clear()
+    this.hutRecords.clear()
+    this.releaseHutInspection()
     syncSecondaryReservations(this.scene)
     this.automaticSamples.clear()
   }

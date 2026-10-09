@@ -16,12 +16,7 @@ import {
   stepCameraMotion,
   interpolateCamera,
 } from './camera-motion.ts'
-import {
-  showObjectTooltip,
-  stepTooltip,
-  forcedTooltipObject,
-  worldTooltipObject,
-} from './tooltips.ts'
+import { forcedTooltipObject } from './tooltips.ts'
 import {
   zoomPreset,
   viewTransitionFrames,
@@ -436,15 +431,14 @@ export function updateFlyby(scene: GameScene, dt: number) {
     while (scene.flybyTime + 1e-9 >= 1 / 24) {
       for (const event of stepFlyby(state, scene.flybyCamera, 24)) {
         if (event.kind === 5)
-          showObjectTooltip(
-            scene.tooltip,
+          scene.acquireForcedTooltip(
             forcedTooltipObject(scene.world, event.flags, event.value),
             event.duration
           )
       }
-      // Native render_land_ui consumes the request before the next frame.
-      scene.tooltip.draw = 0
-      stepTooltip(scene.tooltip, !!worldTooltipObject(scene.world, scene.tooltip.target), 24)
+      // One composed compatibility visit per existing tick. Catch-up visits use
+      // the actual outer RAF observation time, never invented earlier timestamps.
+      scene.updateTooltipController(scene.previous ?? performance.now())
       scene.flybyTime = Math.max(0, scene.flybyTime - 1 / 24)
       if (active) scene.commitSky(scene.flybyCamera, scene.flybyTime)
     }
