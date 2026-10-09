@@ -4,8 +4,18 @@ import test from 'node:test'
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { registerHooks } from 'node:module'
+import { createWorld, command, select, tick } from '../../app/model.ts'
+import { finishLevelStart } from '../../tests/level-start-fixture.mjs'
+import { currentPersonOrder } from '../../app/person-orders.ts'
+import { nativePosition } from '../../app/world-terrain-runtime.ts'
+import { spellRange } from '../../app/spell-casting.ts'
+import { createMission1VaultInput } from '../../scripts/local-render/mission1-vault-input.mjs'
 import missionThreeSwarm, {
   cleanupMissionThreeSwarm,
+  installMissionThreeMoveObservation,
+  readMissionThreeMoveObservation,
+  closeMissionThreeMoveObservation,
 } from '../../scripts/local-render/mission3-swarm.mjs'
 import {
   attachMissionThreeSwarmObservation,
@@ -14,6 +24,7 @@ import {
   swarmCandidate,
   installMissionThreeSwarmObservation,
   finishMissionThreeSwarmObservation,
+  inspectMissionThreeSwarmTarget,
 } from '../../scripts/local-render/mission3-swarm-witness.mjs'
 
 const png =
@@ -586,4 +597,173 @@ test('actual post-install cleanup uses both captured APIs, preserves replacement
       assert.match(report.evidence.cleanupErrors.join('\n'), /Swarm global API ownership changed/)
     } else assert.equal(Object.keys(window).length, 0)
   }
+})
+
+// Real QA callers and source validators, supplied DOM only. These model fixture
+// assignments and fixed turns never stand in for ordinary browser evidence.
+function groundFixture(t) {
+  const hooks = registerHooks({
+    resolve(specifier, context, nextResolve) {
+      const resolved = nextResolve(
+        /^\/(app|qa|scripts)\//.test(specifier)
+          ? new URL(`../..${specifier}`, import.meta.url).href
+          : specifier,
+        context
+      )
+      return specifier === '/app/original-rules.json'
+        ? { ...resolved, importAttributes: { type: 'json' } }
+        : resolved
+    },
+  })
+  const priorWindow = globalThis.window,
+    priorDocument = globalThis.document
+  t.after(() => {
+    hooks.deregister()
+    if (priorWindow === undefined) delete globalThis.window
+    else globalThis.window = priorWindow
+    if (priorDocument === undefined) delete globalThis.document
+    else globalThis.document = priorDocument
+  })
+  const world = finishLevelStart(createWorld(3))
+  world.inputMask = 0
+  select(world, 'shaman')
+  const actor = world.units.find(unit => unit.id === world.selected[0])
+  const canvas = { getBoundingClientRect: () => ({ left: 0, top: 0, width: 1440, height: 1000 }) }
+  const scene = {
+    world,
+    renderer: { domElement: canvas },
+    screen: () => ({ x: 0, y: 0 }),
+    pickUnit: () => null,
+    pickWorldObject: () => null,
+    picking: { pickPerson: () => null },
+    gameClock: { beforeTurn() {}, afterTurn() {} },
+  }
+  globalThis.window = { testSceneRef: { current: scene }, testStore: { getWorld: () => world } }
+  globalThis.document = { elementFromPoint: () => canvas }
+  const input = createMission1VaultInput({
+    page: { evaluate: (fn, arg) => fn(arg) },
+    signal: new AbortController().signal,
+    report: { actions: [] },
+    save() {},
+    originalShamanId: actor.id,
+  })
+  return { world, actor, scene, input }
+}
+
+test('actual fixedGround model lookup composes with the Swarm inspector and fails closed', async t => {
+  const { world, actor, scene, input } = groundFixture(t)
+  const point = { x: 35, z: 77 },
+    target = world.units.find(unit => unit.team === 'yellow' && unit.kind === 'brave')
+  Object.assign(target, point, { inside: null })
+  Object.assign(target.native, nativePosition(world, target))
+  world.shots.swarm = 1
+  world.mode = 'swarm'
+  scene.pick = () => ({ ...point })
+  const before = structuredClone(world)
+  for (const [spell, model] of [
+    ['blast', 2],
+    ['bridge', 12],
+    ['swarm', 5],
+  ]) {
+    const hit = await input.fixedGround(point, spell)
+    assert.equal(hit.rejection, null, JSON.stringify(hit))
+    assert.equal(hit.caster.model, model)
+    assert.equal(
+      hit.caster.range,
+      spellRange(structuredClone(world), structuredClone(actor), model) * 256
+    )
+    if (spell === 'swarm') {
+      assert.equal(hit.spellPreflight, undefined, 'Exercise the actual ground helper shape')
+      const expected = await inspectMissionThreeSwarmTarget({
+        hit,
+        targetId: target.id,
+        shamanId: actor.id,
+      })
+      assert.deepEqual(expected.errors, [])
+      assert.deepEqual(expected.point, point)
+      assert.deepEqual(expected.caster.native, actor.native)
+      assert.equal(expected.caster.x, actor.x)
+      assert.equal(expected.caster.z, actor.z)
+      const changed = { ...hit, point: { x: point.x + 2, z: point.z } }
+      assert.match(
+        (
+          await inspectMissionThreeSwarmTarget({
+            hit: changed,
+            targetId: target.id,
+            shamanId: actor.id,
+          })
+        ).errors.join('\n'),
+        /Terrain target changed/
+      )
+      const oldShape = { ...hit, point: undefined, spellPreflight: { point } }
+      assert.deepEqual(
+        (
+          await inspectMissionThreeSwarmTarget({
+            hit: oldShape,
+            targetId: target.id,
+            shamanId: actor.id,
+          })
+        ).errors,
+        []
+      )
+    }
+  }
+  await assert.rejects(input.fixedGround(point, 'unsupported'), /Unsupported ground spell/)
+  await assert.rejects(input.fixedGround(point, ''), /Unsupported ground spell/)
+  scene.pick = () => ({ x: point.x + 2, z: point.z })
+  const wrongCell = await input.fixedGround(point, 'swarm')
+  assert.notEqual(wrongCell.rejection, null)
+  assert.ok(wrongCell.rejectionCounts.wrongCell > 0)
+  assert.deepEqual(world, before, 'Source validators may only synchronize detached Worlds')
+})
+
+test('captured movement observation closes real native arrival once before Swarm and preserves foreign cleanup', async t => {
+  const { world, actor, scene } = groundFixture(t),
+    beforeTurn = scene.gameClock.beforeTurn,
+    afterTurn = scene.gameClock.afterTurn,
+    point = { x: 35, z: 70 }
+  assert.equal(command(world, point), true)
+  const owner = await installMissionThreeMoveObservation({
+    id: actor.id,
+    point,
+    orderId: actor.native.immediateCommand || actor.native.commands[actor.native.commandCursor],
+    order: { ...currentPersonOrder(world.buildingOrders, actor.native) },
+    acknowledgedTurn: world.lastOrderTurn,
+  })
+  for (let turns = 0; !readMissionThreeMoveObservation(owner) && turns < 240; turns++) {
+    scene.gameClock.beforeTurn()
+    tick(world, 1 / 12)
+    scene.gameClock.afterTurn()
+  }
+  assert.equal(readMissionThreeMoveObservation(owner), true)
+  const evidence = closeMissionThreeMoveObservation(owner)
+  assert.equal(evidence.restored, true)
+  assert.equal(evidence.callbacksRestored, true)
+  assert.equal(scene.gameClock.beforeTurn, beforeTurn)
+  assert.equal(scene.gameClock.afterTurn, afterTurn)
+  assert.throws(() => closeMissionThreeMoveObservation(owner), /ownership changed/)
+  let foreignCalls = 0
+  window.restoreMission1MoveWitness = () => {
+    foreignCalls++
+  }
+  const report = { cleanupErrors: [], staging: {} },
+    outcome = { failed: true, failure: null }
+  let disposed = 0
+  await cleanupMissionThreeSwarm(
+    {
+      moveHandle: {
+        evaluate: fn => fn(owner),
+        dispose: async () => {
+          disposed++
+        },
+      },
+      report,
+    },
+    outcome
+  )
+  assert.equal(foreignCalls, 0)
+  assert.equal(disposed, 1)
+  assert.equal(report.staging.observation, undefined, 'Disposal is not restored evidence')
+  assert.match(report.cleanupErrors.join('\n'), /foreign API preserved/)
+  assert.deepEqual(outcome, { failed: true, failure: null })
 })

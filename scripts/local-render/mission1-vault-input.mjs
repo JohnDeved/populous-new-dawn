@@ -385,9 +385,11 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
     } else return dispatch(hit, command, expectedIds)
   }
   const fixedGround = (target, spell = null, cellMove = false, groundRadius = 0.35) => page.evaluate(async ({ target, spell, actorId, cellMove, groundRadius: allowedRadius }) => {
-    const [{ createMoveContextProbe, entityInputState }, { spellTargetError }, { spellRange }, { nativePosition }, { positionDistance }] = await Promise.all([
+    const [{ createMoveContextProbe, entityInputState }, { spellTargetError }, { spellRange }, { nativePosition }, { positionDistance }, { SPELLS }] = await Promise.all([
       import('/qa/erosion-ordinary/input.mjs'), import('/app/live-command.ts'), import('/app/spell-casting.ts'),
-      import('/app/world-terrain-runtime.ts'), import('/app/native-math.ts')])
+      import('/app/world-terrain-runtime.ts'), import('/app/native-math.ts'), import('/app/world-rules.ts')])
+    const spec = spell === null ? null : SPELLS.find(candidate => candidate.id === spell)
+    if (spell !== null && !spec) throw new Error(`Unsupported ground spell: ${spell}`)
     const scene = window.testSceneRef.current, world = scene.world, rect = scene.renderer.domElement.getBoundingClientRect()
     if (allowedRadius !== 0.35 && (allowedRadius !== 2 || spell || cellMove || world.outcome.level !== 3 || target.x !== 35 || target.z !== 81))
       throw new Error('Only the explicit M3 home-area move may widen ground eligibility')
@@ -413,7 +415,7 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
     const spellWorld = spell ? structuredClone(world) : null
     const actor = spellWorld?.units.find(unit => unit.id === actorId)
     const caster = actor ? { id: actor.id, x: actor.x, z: actor.z, hp: actor.hp, inside: actor.inside,
-      native: nativePosition(spellWorld, actor), range: spellRange(spellWorld, actor, spell === 'bridge' ? 12 : 2) * 256,
+      native: nativePosition(spellWorld, actor), model: spec.model, range: spellRange(spellWorld, actor, spec.model) * 256,
       paused: world.paused, turn: world.turn } : null
     const minimumMargin = 128 // A half-world-unit witness margin; the shipped spell range is unchanged.
     if (spell && (!actor || actor.hp <= 0)) return { target, rejection: 'Original Shaman is unavailable', caster, rejected }

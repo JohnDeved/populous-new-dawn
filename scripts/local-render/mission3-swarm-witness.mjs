@@ -21,6 +21,7 @@ export async function preloadMissionThreeSwarm() {
     import('/app/world-terrain-runtime.ts'),
     import('/app/spell-casting.ts'),
     import('/app/native-math.ts'),
+    import('/app/world-rules.ts'),
     import('/qa/erosion-ordinary/input.mjs'),
   ])
 }
@@ -145,6 +146,15 @@ export async function inspectMissionThreeSwarmTarget({ hit, targetId, shamanId }
     turn: world.turn,
     shamanId,
     targetId,
+    caster: {
+      id: actor.id,
+      x: actor.x,
+      z: actor.z,
+      hp: actor.hp,
+      inside: actor.inside,
+      native: structuredClone(world.units.find(unit => unit.id === shamanId).native),
+      origin: { ...origin },
+    },
     point: { x: point.x, z: point.z },
     impact,
     impactNative,
@@ -188,8 +198,9 @@ export async function inspectMissionThreeSwarmTarget({ hit, targetId, shamanId }
     response.eligible && scan.includes(cell(response.person)),
     'Chosen enemy is not eligible in the expected impact scan'
   )
+  const intended = hit.point ?? hit.spellPreflight?.point
   check(
-    Math.hypot(point.x - hit.spellPreflight.point.x, point.z - hit.spellPreflight.point.z) <= 0.05,
+    intended && Math.hypot(point.x - intended.x, point.z - intended.z) <= 0.05,
     'Terrain target changed'
   )
   return result
