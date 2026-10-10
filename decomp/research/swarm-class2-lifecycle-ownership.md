@@ -18,8 +18,11 @@ The later [bootstrap correspondence][bootstrap] binds `0048506f → 004edf50`
 to trigger-linked deactivation, not full-list reconstruction. Its retained body
 was already described by earlier smoke/Boat research. The finite authored M1–3
 inventory finds no linked class-2 target, so that specific omission does not
-justify an M1–3 runtime patch. Earlier fresh-level pool/cell setup, complete
-allocation history, neutral Vault identity and Load remain separate gaps.
+justify an M1–3 runtime patch. The [fresh reset follow-up][reset] now binds
+`0042b258 → 004eef50 → 004ee300`: class/deleted reset, empty cell heads and
+conditional free-pool reconstruction at reset return. Earlier actual physical-
+index/range setup, intervening allocation history, neutral Vault identity and
+Load remain separate gaps.
 
 This extends the accepted [Swarm controller contract][controller] and
 [integration review][review] at `74b74346f2d67e94aed013fc9e1960e20ef36ceb`;
@@ -145,11 +148,13 @@ port ownership mistakes; it must not silently change the native raw-ID predicate
    [follow-up][bootstrap] binds the old `load_level_init_units` symbol to
    `004edf50`. It walks fixed unit storage, visits ten head links, and deactivates
    linked records without equating that step with retirement. Existing M1–3
-   authored links contain no class-2 target. The earlier fresh-level caller's
-   pool/cell setup and complete initializer allocation stream remain unbound;
-   current aliases still omit neutral bodies and separate lifetimes. No current
-   save can supply history it never recorded. Define a supported initialization/
-   continuation boundary before claiming exact first-target order.
+   authored links contain no class-2 target. The [reset follow-up][reset]
+   binds a concrete fresh-level list rebuild and cell clear, conditional on the
+   already documented range/index setup. The actual earlier invocation of
+   `004ed820/004ed880` and effects between reset and authored allocation remain
+   unbound. Current aliases still omit neutral bodies and separate lifetimes.
+   No current save can supply history it never recorded. Define a supported
+   initialization/continuation boundary before claiming exact first-target order.
 
 The accepted ejection queue/returned-person mapping is unchanged and is not a
 new blocker. PR284's successful-Hut passive storage and the earlier ground-Swarm
@@ -163,3 +168,4 @@ follow-up records its additional data-only decoding and independent review.
 [review]: https://github.com/JohnDeved/populous-new-dawn/blob/74b74346f2d67e94aed013fc9e1960e20ef36ceb/references/verification/swarm-building-static-2026-10-09/integration-review.md
 [retirement]: https://github.com/JohnDeved/populous-new-dawn/blob/d2606766f736a4640d469fb0a2b5384aec43fa84/references/verification/swarm-class2-retirement-static-2026-10-10/README.md
 [bootstrap]: https://github.com/JohnDeved/populous-new-dawn/blob/00e5a1e5b8780f1ef8b6f4a89e5edf171a2bf228/references/verification/swarm-class2-bootstrap-static-2026-10-10/README.md
+[reset]: https://github.com/JohnDeved/populous-new-dawn/blob/8311fa1508ac6c85f4b8852dac48a54aa5336039/references/verification/swarm-class2-fresh-reset-static-2026-10-10/README.md
