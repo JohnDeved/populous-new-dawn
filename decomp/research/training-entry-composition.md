@@ -86,3 +86,7 @@ The [bounded static follow-up](../../references/verification/mission3-callback-c
 ## Mission 3 constructor preflight
 
 The [reviewed static preflight](../../references/verification/mission3-constructor-preflight-2026-10-10/README.md) binds the complete 2,000-slot record input and corrected header/predicate bytes. Execution was not admitted: actual campaign mode inputs and setup provenance remain unclosed, and the retained disabled driver requires repairs. The unknown reset word alone is not demonstrated seed dependence. No original instruction was executed or exact startup seed recovered.
+
+## Original pool/terrain prerequisite
+
+The [reviewed original run](../../references/verification/mission3-pool-reset-2026-10-10/README.md) establishes deterministic free-list reconstruction and complete terrain clearing despite unknown prior bytes. It does not run an allocator or constructor and leaves the class1 seed unknown. The retained mode proof supplies the New Game tutorial clear and globe interface predicate conditionally; land-mode history and full setup remain open.
