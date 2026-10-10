@@ -182,6 +182,7 @@ import type {
 import { selectHudPeople, type HudSelectionMode } from './hud-selection.ts'
 import { worshipHeadPose } from './live-worship.ts'
 import { recordWorshipPanelActivity } from './worship-panel-activity.ts'
+import { requestVaultPanel } from './training-panel-requests.ts'
 import {
   cancelLiveOrder,
   stepLiveConversionVictim,
@@ -896,6 +897,19 @@ function stepTurn(w: World) {
     let fired = false
     if (shrine.kind === 'vault') {
       const shaman = w.units.find(u => u.team === 'blue' && isShaman(u) && u.hp > 0)
+      const person = shaman?.native
+      // The linked Vault requests using the previous cached count, before this
+      // sample checks proximity or replaces the count/work. Approach is enough.
+      if (
+        shrine.enabled &&
+        !(w.turn & 3) &&
+        shrine.model &&
+        person?.tribe === w.manaWorld.playerTribe &&
+        person.state === 10 &&
+        person.commandStatus === 33 &&
+        w.objectCells.objects.get(shaman!.id) === person
+      )
+        requestVaultPanel(w, shrine.id)
       const eligible = vaultWorkEligible(w, shaman, shrine)
       if (shrine.enabled && !(w.turn & 3)) shrine.followers = Number(eligible)
       fired = stepVaultWork(shrine, w.turn, eligible, shrine.forced)

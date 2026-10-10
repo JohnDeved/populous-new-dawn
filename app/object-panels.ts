@@ -29,7 +29,7 @@ import {
 } from './person-panel.ts'
 import { liveWorshippers, selectWorshippers } from './live-worship.ts'
 import { worshipPanel } from './worship-panel.ts'
-import { automaticWorshipPanelActive } from './worship-panel-activity.ts'
+import { automaticVaultPanelActive, automaticWorshipPanelActive } from './worship-panel-activity.ts'
 import { nativeUnitModel } from './unit-kinds.ts'
 import models from './original-models.json' with { type: 'json' }
 import { paintPanel } from './training-panel.ts'
@@ -56,6 +56,7 @@ export class ObjectPanels {
   // 00509290's successful-allocation latch is distinct from record.automatic:
   // activity expiry clears the latch while the automatic record exits.
   automaticTrainingLatches = new Set<number>()
+  automaticVaultLatches = new Set<number>()
   buildingInspected: number | null = null
   buildingHeldPointer: number | null = null
   constructor(readonly scene: GameScene) {}
@@ -86,6 +87,36 @@ export class ObjectPanels {
     if (result === 'automatic:created' || result === 'automatic:reused')
       this.automaticTrainingLatches.add(id)
     return result
+  }
+  requestAutomaticVault(id: number) {
+    const { scene } = this,
+      head = scene.world.shrines.find(shrine => shrine.id === id)
+    if (
+      !scene.isCurrent() ||
+      scene.overviewStage ||
+      scene.overviewActive ||
+      document.querySelector('dialog[open]') ||
+      !head ||
+      !automaticVaultPanelActive(head)
+    )
+      return 'automatic:rejected'
+    if (this.automaticVaultLatches.has(id)) return 'automatic:latched'
+    const created = !this.panels.has(id)
+    if (created) {
+      const owners = new Set([...this.panels.keys(), ...this.buildingRecords.keys()])
+      for (const [otherId, panel] of scene.buildingPanels)
+        if (
+          !panel.hidden &&
+          !scene.world.buildings.some(b => b.id === otherId && b.kind === 'hut' && b.progress >= 1)
+        )
+          owners.add(otherId)
+      syncSecondaryReservations(scene)
+      if (owners.size >= 32 || secondaryEffectCount(scene.world.secondaryEffects) >= 160)
+        return 'automatic:rejected-capacity'
+    }
+    this.open(id, false, true)
+    this.automaticVaultLatches.add(id)
+    return `automatic:${created ? 'created' : 'reused'}`
   }
   inspectBuilding(id: number, source: 'hover' | 'explicit' | 'automatic', pointerId?: number) {
     const { scene } = this,
@@ -309,7 +340,7 @@ export class ObjectPanels {
         offset,
         phase: -1,
         remaining: 0,
-        hold: 20,
+        hold: head?.kind === 'vault' ? 16 : 20,
         key: '',
         automatic,
       }
@@ -331,6 +362,7 @@ export class ObjectPanels {
     const { scene, panels } = this,
       { world } = scene
     for (const head of world.shrines) {
+      if (head.kind === 'vault') continue
       const sample = head.panelActivity
       if (!sample || this.automaticSamples.get(head.id) === sample.turn) continue
       this.automaticSamples.set(head.id, sample.turn)
@@ -353,25 +385,42 @@ export class ObjectPanels {
         panels.delete(id)
         syncSecondaryReservations(scene)
         this.automaticSamples.delete(id)
+        this.automaticVaultLatches.delete(id)
         continue
       }
-      const automaticHeld = !!head && panel.automatic && automaticWorshipPanelActive(head)
-      if (panel.automatic && panel.phase === 1 && !automaticHeld) {
+      const automaticVault = head?.kind === 'vault' && panel.automatic,
+        automaticHeld =
+          !!head &&
+          panel.automatic &&
+          (automaticVault ? automaticVaultPanelActive(head) : automaticWorshipPanelActive(head))
+      if (!automaticVault && panel.automatic && panel.phase === 1 && !automaticHeld) {
         panel.automatic = false
         panel.remaining = 0
       }
       let alive = true
-      for (let i = 0; i < elapsed && alive; i++)
+      for (let i = 0; i < elapsed && alive; i++) {
+        // Every elapsed visit that reaches phase 1 reads the post-sample count,
+        // including entry and exit crossed during one long presentation frame.
+        if (automaticVault && panel.phase === 1) {
+          if (automaticHeld) this.automaticVaultLatches.add(id)
+          else {
+            this.automaticVaultLatches.delete(id)
+            panel.remaining = 0
+          }
+        }
         alive = stepPersonPanel(
           panel,
           automaticHeld ||
-            this.inspected === id ||
-            panel.element.matches(':hover') ||
-            panel.element.contains(document.activeElement)
+            (!automaticVault &&
+              (this.inspected === id ||
+                panel.element.matches(':hover') ||
+                panel.element.contains(document.activeElement)))
         )
+      }
       if (!alive) {
         panel.element.remove()
         panels.delete(id)
+        this.automaticVaultLatches.delete(id)
         syncSecondaryReservations(scene)
         continue
       }
@@ -654,6 +703,7 @@ export class ObjectPanels {
     this.panels.clear()
     this.buildingRecords.clear()
     this.automaticTrainingLatches.clear()
+    this.automaticVaultLatches.clear()
     this.releaseBuildingInspection()
     syncSecondaryReservations(this.scene)
     this.automaticSamples.clear()

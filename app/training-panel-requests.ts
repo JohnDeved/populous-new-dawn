@@ -2,6 +2,7 @@ import type { World } from './model.ts'
 
 interface TrainingPanelOwner {
   requestAutomaticTraining(id: number): void
+  requestAutomaticVault(id: number): void
 }
 
 // The original request is synchronous, before conversion and later allocators.
@@ -22,4 +23,8 @@ export function bindTrainingPanelRequests(world: World, owner: TrainingPanelOwne
 
 export function requestTrainingPanel(world: World, id: number) {
   owners.get(world)?.requestAutomaticTraining(id)
+}
+
+export function requestVaultPanel(world: World, id: number) {
+  owners.get(world)?.requestAutomaticVault(id)
 }
