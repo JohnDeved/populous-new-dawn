@@ -311,8 +311,23 @@ test('authored M1 quarter-turn Vault uses socket 0 in the actual panel consumer'
   scene.objectPanels.open(vault.id, true)
   paint(0, true)
   const point = projections.at(-1)
+  const terrain = terrainPointHeight(world.land, { x: 768, y: 64256 })
   assert.deepEqual([point.x, point.z], [-5, -3])
-  assert.equal(point.y * 128, terrainPointHeight(world.land, { x: 768, y: 64256 }) + 480)
+  await t.test('authored quarter-turn height', () => {
+    assert.equal(point.y * 128, terrain + 480)
+  })
+  await t.test('retained panel synchronizes newer authoritative browser terrain', () => {
+    // Supplied terrain edit at the existing compatibility-grid boundary. The
+    // actual nativePosition call must perform syncNativeTerrain on presentation.
+    for (const x of [-6, -4])
+      for (const z of [-4, -2]) world.terrain[(z + 48) * 97 + x + 48] += 64 / 45
+    world.terrainVersion++
+    assert.notEqual(world.landVersion, world.terrainVersion)
+    paint(0, true)
+    assert.equal(world.landVersion, world.terrainVersion)
+    assert.equal(terrainPointHeight(world.land, { x: 768, y: 64256 }), terrain + 64)
+    assert.equal(projections.at(-1).y * 128, terrain + 64 + 480)
+  })
 })
 
 test('non-Vault scenery retains its own panelHeight in the actual panel consumer', async t => {
