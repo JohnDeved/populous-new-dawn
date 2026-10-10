@@ -1,0 +1,14 @@
+BEFORE_COMBAT {"turn":6372,"green":[{"id":4,"kind":"brave","hp":50},{"id":5,"kind":"brave","hp":50},{"id":6,"kind":"warrior","hp":90},{"id":7,"kind":"warrior","hp":90},{"id":8,"kind":"brave","hp":50},{"id":9,"kind":"brave","hp":50},{"id":10,"kind":"brave","hp":50},{"id":11,"kind":"brave","hp":50},{"id":12,"kind":"brave","hp":50},{"id":13,"kind":"warrior","hp":90},{"id":14,"kind":"warrior","hp":90},{"id":15,"kind":"brave","hp":50},{"id":16,"kind":"brave","hp":50},{"id":17,"kind":"brave","hp":50},{"id":18,"kind":"brave","hp":50},{"id":19,"kind":"warrior","hp":90},{"id":20,"kind":"shaman","hp":100},{"id":21,"kind":"warrior","hp":90},{"id":1207,"kind":"brave","hp":50},{"id":1245,"kind":"brave","hp":50},{"id":1249,"kind":"brave","hp":50},{"id":1251,"kind":"brave","hp":50},{"id":1253,"kind":"brave","hp":50},{"id":1255,"kind":"brave","hp":50},{"id":1260,"kind":"brave","hp":50},{"id":1262,"kind":"brave","hp":50},{"id":1266,"kind":"brave","hp":50}],"blue":30}
+AFTER_TARGET {"turn":6985,"target":21,"green":22,"warriors":3,"blue":32}
+AFTER_TARGET {"turn":7278,"target":6,"green":15,"warriors":2,"blue":33}
+AFTER_TARGET {"turn":7285,"target":14,"green":14,"warriors":1,"blue":32}
+POST_COMBAT {"turn":7285,"green":[{"id":4,"kind":"brave","hp":50},{"id":7,"kind":"warrior","hp":54.9},{"id":8,"kind":"brave","hp":50},{"id":9,"kind":"brave","hp":50},{"id":10,"kind":"brave","hp":50},{"id":11,"kind":"brave","hp":21.55},{"id":12,"kind":"brave","hp":32.6},{"id":15,"kind":"brave","hp":24.85},{"id":16,"kind":"brave","hp":30.05},{"id":20,"kind":"shaman","hp":100},{"id":1245,"kind":"brave","hp":2.1},{"id":1249,"kind":"brave","hp":50},{"id":1255,"kind":"brave","hp":50},{"id":1266,"kind":"brave","hp":36.3}],"blue":32}
+✔ Mission 2 explicitly trains replacement Warriors after natural combat despite zero producer preferences (7860.674604ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8968.99988

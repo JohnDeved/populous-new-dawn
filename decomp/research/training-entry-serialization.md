@@ -721,3 +721,24 @@ Temple `44/46/48/50/52` → `43/45/49/51/51`, Spy Hut `30/30/34/34/34` →
 `29/31/35/35/35`, and Firewarrior Hut `44/48/48/50/50` → `45/47/49/51/51`.
 Both versions retain five residents and overflow. Multiple same-turn admissions
 remain; these supplied fixtures do not establish original visual behavior.
+
+### Candidate rejected by full acceptance
+
+The counter candidate `bd420fd252182e8e28fdeb03a6577f844a04a746` is **unmerged and
+not accepted**. Its build passes, but the full check passes only 1,928/1,929 tests.
+`mission2-replacement.test.mjs` fails its required post-combat Matak population
+`>10` precondition. Paired unchanged-assertion diagnostics reach combat on both
+versions at turn 6372 with the same 27 Matak IDs/HP and 30 Blue people. The base
+finishes the required Warrior assaults with 14 Matak; the candidate finishes with
+9. This is a consequential downstream battle difference, not an economy setup
+failure. Independent review rejects integration pending a source-backed resolution;
+no target, army, delay, threshold or assertion was tuned to obtain green.
+
+Ordinary rendered Mission 3 construction followed by a ten-Brave training order
+also retains the original reported symptom on the candidate: five simultaneous
+approach entrants, including three actual admissions on one turn. Both versions
+reach five occupants and a complete five-person overflow queue. These real-clock
+runs establish ordinary current-game behavior, not equivalent original-game
+fixtures or matched crossing pixels. Issue 29 remains open, with no gameplay fix
+or parity credit claimed. The finite evidence and remaining inputs are retained in
+`references/verification/training-entry-2026-10-10/README.md`.
