@@ -1,0 +1,294 @@
+{
+  "kind": "finite-human-plan-validator-source-result",
+  "currentMain": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+  "researchHead": "ed00e8e506b20354652b127cf39e1968a7141e01",
+  "sourceBindings": [
+    {
+      "sourceRevision": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+      "path": "decomp/exports.json",
+      "sha256": "51e55c295a9956e89be85c98df835f1da141e3e10cb6b16435f55423ff5b26db",
+      "bytes": 115741,
+      "matchesResearchCheckout": true
+    },
+    {
+      "sourceRevision": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+      "path": "decomp/generated/0043e8e0.c",
+      "sha256": "39b7c6e645760a599abecb4e44861da69ebc08c3d3370dff0c3835934e9fd309",
+      "bytes": 84068,
+      "matchesResearchCheckout": true
+    },
+    {
+      "sourceRevision": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+      "path": "decomp/generated/004aab80.c",
+      "sha256": "a286e361005571ddcba7405348e2582aa061c3f427d1a8e8fed09a5d1e7890a8",
+      "bytes": 43824,
+      "matchesResearchCheckout": true
+    },
+    {
+      "sourceRevision": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+      "path": "decomp/generated/004b9190.c",
+      "sha256": "3d0874b6eaebdd713763b5f051c08287b03eadd3c077c7d258c6c57bfa7ccdc9",
+      "bytes": 10804,
+      "matchesResearchCheckout": true
+    },
+    {
+      "sourceRevision": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+      "path": "decomp/generated/004b9cc0.c",
+      "sha256": "cb935e6f9c17fb328b3f23c13a2a2eac009e2c669146963c8a9b7eea6bc7ae86",
+      "bytes": 1216,
+      "matchesResearchCheckout": true
+    },
+    {
+      "sourceRevision": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+      "path": "scripts/check-native-building-plan.py",
+      "sha256": "3c72c9f5ef6008bab7fd0f9a2d014307c786473e0d5eb11a00ec99079f93ecd5",
+      "bytes": 4185,
+      "matchesResearchCheckout": true
+    },
+    {
+      "sourceRevision": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+      "path": "scripts/check-native-unbuilt-plan.py",
+      "sha256": "f787d8055d5ba414233e9e7a502cbd7f1311aaec87212ff67c12e48cd143c637",
+      "bytes": 7078,
+      "matchesResearchCheckout": true
+    },
+    {
+      "sourceRevision": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+      "path": "scripts/check-native-plan-attack.py",
+      "sha256": "cdb17f6ac87d1d108e09b32bf8c03d091b0bf3f730972982e4d99cd2449c6342",
+      "bytes": 11789,
+      "matchesResearchCheckout": true
+    },
+    {
+      "sourceRevision": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+      "path": "scripts/check-native-building-ground.py",
+      "sha256": "db87555223242a3f233b8e0c66be53430b8730c4d6a73c0c2ce7ed3f00b96e2f",
+      "bytes": 6302,
+      "matchesResearchCheckout": true
+    },
+    {
+      "sourceRevision": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+      "path": "app/construction-runtime.ts",
+      "sha256": "2ea49ae789ae747732c3bc327d58735f501b52dfcff84c17eef83ca4386c0653",
+      "bytes": 16414,
+      "matchesResearchCheckout": true
+    },
+    {
+      "sourceRevision": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+      "path": "app/live-command.ts",
+      "sha256": "a53f4f0a64104dabacdfb1d2242c1979baa047a89f192a89a52b1c72a702bdca",
+      "bytes": 29207,
+      "matchesResearchCheckout": true
+    },
+    {
+      "sourceRevision": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+      "path": "decomp/generated/0044ee50.c",
+      "sha256": "8b998431bd0e6c4d85e6f9385573d2f6b7c3ce49715bbc90883bc142af3bb072",
+      "bytes": 6340,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+      "path": "decomp/generated/00518200.c",
+      "sha256": "6a0319382583aa6d56ff71f3ea184f0ac71cd6983471ff54747cc87dc0316e7e",
+      "bytes": 2097,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+      "path": "decomp/generated/004ed8a0.c",
+      "sha256": "0a3e6654f1c046935bf0a75e32d8691f641fa13fad6c82dc06f3783ba520e5c9",
+      "bytes": 4171,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+      "path": "decomp/generated/004ed580.c",
+      "sha256": "30f96739bcd6f1703d38d8937b3a5890bffaaf282be069067360bd7a1da118c8",
+      "bytes": 961,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "ed00e8e506b20354652b127cf39e1968a7141e01",
+      "path": "references/verification/swarm-class9-plan-initializer-2026-10-10/README.md",
+      "sha256": "4c1599d0963dcca7bb91997f6a199954b74d3db501a31e475f13fcbfacbcffd3",
+      "bytes": 8806
+    },
+    {
+      "sourceRevision": "ed00e8e506b20354652b127cf39e1968a7141e01",
+      "path": "references/verification/swarm-class2-constructor-request-2026-10-10/README.md",
+      "sha256": "502e32ce5e187fd2b56f38c39aa8bf093296174f2ab6a8e6cad2b7c52fd2bf83",
+      "bytes": 10212
+    }
+  ],
+  "selectedBody": {
+    "start": "004b9a20",
+    "stopExclusive": "004b9cb5",
+    "returns": [
+      "004b9caa",
+      "004b9cb4"
+    ],
+    "bytes": 661,
+    "paddingBytes": 11,
+    "completeLocalBody": true,
+    "directCalls": [
+      {
+        "at": "004b9a3b",
+        "target": "0041b4c0"
+      },
+      {
+        "at": "004b9b7a",
+        "target": "0044ee50"
+      },
+      {
+        "at": "004b9b91",
+        "target": "0044eca0"
+      },
+      {
+        "at": "004b9bb0",
+        "target": "0044eca0"
+      },
+      {
+        "at": "004b9bc4",
+        "target": "0044fa50"
+      },
+      {
+        "at": "004b9c85",
+        "target": "00518200"
+      }
+    ]
+  },
+  "scopeReviewSha256": "128356a0c483e1ffaaff60211f1bc696500c8dd67236efc3853ecfb91d81da93",
+  "nativeExecution": false,
+  "newInstructionWindows": 1,
+  "childInstructionDecoding": false,
+  "runtimeChanges": false,
+  "testsRun": false,
+  "browserRun": false,
+  "stop": "Validator own control flow closes, not missing admission helper effects. Direct class9 allocator vs preceding004ba7a0 and success-side callbacks separated. Queue transport and supported shared input state remain.",
+  "sourceArtifacts": [
+    {
+      "path": "findings.md",
+      "sha256": "92becbfc77efe5b28bd340af5f239e81059f27e1e3442853ac73d460c253da8b",
+      "bytes": 9933
+    },
+    {
+      "path": "availability.json",
+      "sha256": "1a0ddd0edba50b1121275336a9b420b7e76289a3b8e73eb0e305e44d28ff57b9",
+      "bytes": 4337
+    },
+    {
+      "path": "proposal.json",
+      "sha256": "d6d40ead2d985453110e5271c4d3561979a38f88fac64626016e5c076f8113e1",
+      "bytes": 4336
+    },
+    {
+      "path": "decode-bounded.py",
+      "sha256": "c7dfe3a82a87d07739e3dbb2f3c9ff127f271eabbeaf1761e7e181e535f46f7d",
+      "bytes": 1968
+    },
+    {
+      "path": "preflight.json",
+      "sha256": "807fcba6c362ecb884a6d8961f26daa35633ba559b558201a490bca0794528ac",
+      "bytes": 452
+    },
+    {
+      "path": "decode-receipt.json",
+      "sha256": "1a534e7dd217de3c2acf122918d374472e4405a80e40d3498ddff3257c64229b",
+      "bytes": 1337
+    },
+    {
+      "path": "004b9a20-004b9cc0.asm",
+      "sha256": "911a8d1e35665afecbc38affc95af87abbc270c506a39044a9787103271fbcbe",
+      "bytes": 11106
+    },
+    {
+      "path": "004b9a20-004b9cc0.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "callee-availability.json",
+      "sha256": "e643bbf5d1f784029a879a8c0aac18a862fd9ec9e5e8f848b77f94f176221128",
+      "bytes": 937
+    }
+  ],
+  "files": {
+    "004b9a20-004b9cc0.asm": {
+      "sha256": "911a8d1e35665afecbc38affc95af87abbc270c506a39044a9787103271fbcbe",
+      "bytes": 11106
+    },
+    "README.md": {
+      "sha256": "92becbfc77efe5b28bd340af5f239e81059f27e1e3442853ac73d460c253da8b",
+      "bytes": 9933
+    }
+  },
+  "independentSourceReviewSha256": "2f9c9494032f713941a713f01bb6c821f3e7ca358e517d1946e62e91d75da018",
+  "reviewInputsSha256": "d26a9318a5176853669effe72f8833d81102ea2f1712030fc9f15ff0c5197554",
+  "decoderReceipt": {
+    "inputSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "toolSha256Before": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+    "toolVersion": "GNU objdump (GNU Binutils for Debian) 2.44",
+    "extractorSha256": "c7dfe3a82a87d07739e3dbb2f3c9ff127f271eabbeaf1761e7e181e535f46f7d",
+    "proposalSha256": "d6d40ead2d985453110e5271c4d3561979a38f88fac64626016e5c076f8113e1",
+    "nativeExecution": false,
+    "argv": [
+      "/usr/bin/objdump",
+      "-d",
+      "-M",
+      "intel",
+      "--start-address=0x004b9a20",
+      "--stop-address=0x004b9cc0",
+      "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe"
+    ],
+    "startedAt": "2026-10-10T05:02:33.013069+00:00",
+    "elapsedSeconds": 0.006331470998702571,
+    "exitCode": 0,
+    "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "toolSha256After": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+    "stdoutSha256": "911a8d1e35665afecbc38affc95af87abbc270c506a39044a9787103271fbcbe",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "start": "004b9a20",
+    "stopExclusive": "004b9cc0",
+    "windowBytes": 672,
+    "scope": "Only named human plan validator window; neighboring entry is a cap, completeness requires actual flow."
+  },
+  "selectedExportAvailability": {
+    "sourceRevision": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+    "targets": {
+      "0041b4c0": {
+        "inSelectedManifest": false,
+        "fileExistsAtMain": false
+      },
+      "0044ee50": {
+        "inSelectedManifest": true,
+        "fileExistsAtMain": true
+      },
+      "0044eca0": {
+        "inSelectedManifest": false,
+        "fileExistsAtMain": false
+      },
+      "0044fa50": {
+        "inSelectedManifest": false,
+        "fileExistsAtMain": false
+      },
+      "00518200": {
+        "inSelectedManifest": true,
+        "fileExistsAtMain": true
+      },
+      "004ba7a0": {
+        "inSelectedManifest": false,
+        "fileExistsAtMain": false
+      },
+      "004ba9b0": {
+        "inSelectedManifest": false,
+        "fileExistsAtMain": false
+      },
+      "004e3300": {
+        "inSelectedManifest": false,
+        "fileExistsAtMain": false
+      }
+    },
+    "meaning": "Selected availability only. No child disassembly; no inferred pool-write or purity for missing bodies."
+  }
+}
