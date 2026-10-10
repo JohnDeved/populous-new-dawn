@@ -1,0 +1,2022 @@
+{
+  "status": "passed",
+  "independentReview": "ACCEPT",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/vault-panel-socket-anchor-20261010",
+    "commit": "a58a94a7313218e3811455e641a223d8dab8543c",
+    "tree": "14a34ccc6d70de0f74e761ea8ec937bcb35398ef",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "0e33a565cfcac8f7c1ef657c5cec5181ddcc53d16ed20a223851c7ed52f2f292"
+  },
+  "rawReceipts": {
+    "vault-anchor-ordinary-01-command.json": {
+      "sha256": "5f4f09bb246c122588289534c99f289ff0f5209d4eddfb8021ad6ab1a4782a05",
+      "retainedPath": "work/orchestration/vault-anchor-ordinary-01-command.json"
+    },
+    "receipt.json": {
+      "sha256": "d7032d583ecded03796ac9b151db357c080b02ac8ecb1d16434fa1207039e5c2",
+      "retainedPath": "work/orchestration/vault-anchor-ordinary-01/receipt.json"
+    },
+    "mission3-vault-prayer.json": {
+      "sha256": "5f61ad1d01e8967e8c7296814476d9bb10ac22c90c6f338ba8d62ee8888ce938",
+      "retainedPath": "work/orchestration/vault-anchor-ordinary-01/mission3-vault-prayer.json"
+    }
+  },
+  "outerCommand": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=15s",
+    "780s",
+    "node",
+    "scripts/local-render/harness.mjs",
+    "--game-root",
+    "/workspace/scratch/69fd8163d94e/vault-panel-socket-anchor-20261010",
+    "--port",
+    "4398",
+    "--output",
+    "/workspace/scratch/69fd8163d94e/vault-panel-socket-anchor-20261010/work/orchestration/vault-anchor-ordinary-01",
+    "--profile",
+    "/workspace/scratch/69fd8163d94e/vault-panel-socket-anchor-20261010/work/local-render-profiles/vault-anchor-prayer-01",
+    "--browser",
+    "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/work/orchestration/recovery-20261009b/browser/chrome-headless-shell-linux64/chrome-headless-shell",
+    "--mission",
+    "3",
+    "--timeout",
+    "750000",
+    "--scenario",
+    "/workspace/scratch/69fd8163d94e/vault-panel-socket-anchor-20261010/scripts/local-render/mission3-vault-prayer.mjs"
+  ],
+  "startedAt": "2026-10-10T11:01:44.470Z",
+  "finishedAt": "2026-10-10T11:04:17.087Z",
+  "browserVersion": "154.0.8037.92",
+  "launch": {
+    "executablePath": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/work/orchestration/recovery-20261009b/browser/chrome-headless-shell-linux64/chrome-headless-shell",
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": true,
+    "args": [
+      "--remote-debugging-pipe",
+      "--user-data-dir=/workspace/scratch/69fd8163d94e/vault-panel-socket-anchor-20261010/work/local-render-profiles/vault-anchor-prayer-01/browser",
+      "about:blank"
+    ],
+    "timeout": 30000,
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "acceptDownloads": false,
+    "serviceWorkers": "block"
+  },
+  "runtime": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64",
+    "browserPath": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/work/orchestration/recovery-20261009b/browser/chrome-headless-shell-linux64/chrome-headless-shell",
+    "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+    "playwright": "1.63.0",
+    "playwrightCoreSha256": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+    "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "harness": {
+      "harness.mjs": "19212b8b57d8f1ec47583ec12a3b33152832c103b91a266aa4a774bf0043a021",
+      "owned-profile.mjs": "445a29903f994f7fd4c4d0ee32924400b31b6c73673ec2e04d3f4ad3eee403f5",
+      "checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+      "vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+    }
+  },
+  "softwarePerformanceOnly": true,
+  "warnings": [
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0x1cbc001be600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x1cbc001be600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x1cbc001be600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x1cbc001be600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)",
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content."
+  ],
+  "errors": [],
+  "cleanupVerified": true,
+  "continuationVerified": true,
+  "summary": {
+    "creationTurns": [
+      664,
+      800
+    ],
+    "interruptionTurn": 714,
+    "interruptionWork": 14,
+    "expiryTurn": 720,
+    "departureTurn": 1396,
+    "earnedUseTurn": 1276,
+    "templeUnlockTurn": 1358,
+    "actualDepartureTurn": 1373,
+    "observerCloseTurn": 1396,
+    "reportedDepartureTurnMeaning": "Raw summary.departureTurn is the final observer snapshot, not the exact departure event."
+  },
+  "observer": {
+    "errors": [],
+    "overflow": false,
+    "closed": true,
+    "automaticOpens": 2,
+    "manualOrReusedOpens": 0,
+    "cleanupErrors": []
+  },
+  "stages": [
+    {
+      "name": "vault-first-automatic-panel",
+      "before": {
+        "current": {
+          "turn": 678,
+          "time": 56.5,
+          "animationFrame": 1356,
+          "panelFrame": 1356,
+          "current": true,
+          "level": 3,
+          "speed": 1,
+          "paused": false,
+          "status": "playing",
+          "inputMask": 0,
+          "mode": null,
+          "selected": [
+            46
+          ],
+          "unlocked": false,
+          "trained": 0,
+          "cast": 0,
+          "head": {
+            "id": 92,
+            "kind": "vault",
+            "model": 154,
+            "x": -37,
+            "z": -133,
+            "active": true,
+            "enabled": true,
+            "followers": 1,
+            "work": 5,
+            "target": 100,
+            "progress": 0.05,
+            "uses": 0,
+            "forced": false
+          },
+          "shaman": {
+            "id": 46,
+            "kind": "shaman",
+            "team": "blue",
+            "hp": 100,
+            "work": 92,
+            "vault": {
+              "head": 92,
+              "phase": 2,
+              "entering": false,
+              "remaining": 0
+            },
+            "orderId": 6,
+            "order": {
+              "model": 33,
+              "a": 92,
+              "flags": 0,
+              "references": 1
+            }
+          },
+          "record": {
+            "identity": 1,
+            "elementIdentity": 2,
+            "automatic": true,
+            "phase": 1,
+            "remaining": 15,
+            "hold": 16
+          },
+          "latch": true,
+          "inspected": null,
+          "dom": {
+            "present": true,
+            "connected": true,
+            "hidden": false,
+            "focused": false,
+            "hovered": false,
+            "label": "Vault of Knowledge: shaman learning; 5% complete",
+            "width": 32,
+            "height": 62,
+            "visibleButtons": 0
+          },
+          "offTarget": true,
+          "reservations": 1
+        },
+        "anchor": {
+          "turn": 678,
+          "animationFrame": 1356,
+          "panelFrame": 1356,
+          "head": {
+            "id": 92,
+            "kind": "vault",
+            "mode": 4,
+            "model": 154,
+            "x": -37,
+            "z": -133,
+            "angle": 0
+          },
+          "socket": {
+            "x": 58112,
+            "y": 32000,
+            "heightOffset": 480
+          },
+          "ground": 229,
+          "renderer": {
+            "left": 200,
+            "top": 0,
+            "width": 1240,
+            "height": 1000
+          },
+          "container": {
+            "left": 200,
+            "top": 0,
+            "width": 1240,
+            "height": 1000
+          },
+          "scale": 2,
+          "width": 32,
+          "height": 62,
+          "camera": {
+            "center": {
+              "x": 58107,
+              "y": 32045
+            },
+            "rawCenter": {
+              "x": -7429,
+              "y": -33491
+            },
+            "angle": 1135,
+            "overview": false,
+            "projection": {
+              "curvature": 35248,
+              "diameter": 50,
+              "scale": 40786,
+              "spriteScale": 40786,
+              "depth": 6500,
+              "perspective": 11,
+              "pitch": 1932,
+              "offsetX": 0,
+              "offsetY": -77,
+              "horizon": 425,
+              "width": 1240,
+              "height": 1000,
+              "shamanScale": 280,
+              "bounds": [
+                -18,
+                -20,
+                18,
+                -20,
+                32,
+                54,
+                -32,
+                54
+              ],
+              "boundsMode": 1,
+              "scaledSprites": 0,
+              "matrix": [
+                -15443,
+                0,
+                5472,
+                -1908,
+                15357,
+                -5382,
+                -5130,
+                -5709,
+                -14475
+              ],
+              "centerX": 620,
+              "centerY": 423,
+              "fractionX": 4,
+              "fractionY": 4,
+              "pixelScaleX": 0.0625,
+              "pixelScaleY": 0.0625
+            }
+          },
+          "expected": {
+            "socket0": {
+              "heightOffset": 480,
+              "projected": {
+                "x": -10,
+                "y": 670,
+                "z": -228,
+                "screenX": 617.9375,
+                "screenY": 286.875,
+                "flags": 0
+              },
+              "raw": {
+                "x": 617.9375,
+                "y": 286.875
+              },
+              "clamped": {
+                "x": 617.9375,
+                "y": 286.875
+              }
+            },
+            "legacy": {
+              "heightOffset": 1028,
+              "projected": {
+                "x": -10,
+                "y": 1180,
+                "z": -419,
+                "screenX": 617.875,
+                "screenY": 175.75,
+                "flags": 0
+              },
+              "raw": {
+                "x": 617.875,
+                "y": 175.75
+              },
+              "clamped": {
+                "x": 617.875,
+                "y": 175.75
+              }
+            },
+            "reward": {
+              "heightOffset": 1072,
+              "projected": {
+                "x": -10,
+                "y": 1220,
+                "z": -434,
+                "screenX": 617.875,
+                "screenY": 166.6875,
+                "flags": 0
+              },
+              "raw": {
+                "x": 617.875,
+                "y": 166.6875
+              },
+              "clamped": {
+                "x": 617.875,
+                "y": 166.6875
+              }
+            }
+          },
+          "dom": {
+            "connected": true,
+            "hidden": false,
+            "bounds": {
+              "left": 785.9375,
+              "top": 162.875,
+              "width": 64,
+              "height": 124
+            },
+            "inline": {
+              "x": 617.938,
+              "y": 286.875
+            },
+            "tail": {
+              "x": 617.9375,
+              "y": 286.875
+            }
+          }
+        }
+      },
+      "after": {
+        "current": {
+          "turn": 698,
+          "time": 58.166666666666664,
+          "animationFrame": 1397,
+          "panelFrame": 1397,
+          "current": true,
+          "level": 3,
+          "speed": 1,
+          "paused": false,
+          "status": "playing",
+          "inputMask": 0,
+          "mode": null,
+          "selected": [
+            46
+          ],
+          "unlocked": false,
+          "trained": 0,
+          "cast": 0,
+          "head": {
+            "id": 92,
+            "kind": "vault",
+            "model": 154,
+            "x": -37,
+            "z": -133,
+            "active": true,
+            "enabled": true,
+            "followers": 1,
+            "work": 10,
+            "target": 100,
+            "progress": 0.1,
+            "uses": 0,
+            "forced": false
+          },
+          "shaman": {
+            "id": 46,
+            "kind": "shaman",
+            "team": "blue",
+            "hp": 100,
+            "work": 92,
+            "vault": {
+              "head": 92,
+              "phase": 2,
+              "entering": false,
+              "remaining": 0
+            },
+            "orderId": 6,
+            "order": {
+              "model": 33,
+              "a": 92,
+              "flags": 0,
+              "references": 1
+            }
+          },
+          "record": {
+            "identity": 1,
+            "elementIdentity": 2,
+            "automatic": true,
+            "phase": 1,
+            "remaining": 15,
+            "hold": 16
+          },
+          "latch": true,
+          "inspected": null,
+          "dom": {
+            "present": true,
+            "connected": true,
+            "hidden": false,
+            "focused": false,
+            "hovered": false,
+            "label": "Vault of Knowledge: shaman learning; 10% complete",
+            "width": 32,
+            "height": 62,
+            "visibleButtons": 0
+          },
+          "offTarget": true,
+          "reservations": 1
+        },
+        "anchor": {
+          "turn": 698,
+          "animationFrame": 1397,
+          "panelFrame": 1397,
+          "head": {
+            "id": 92,
+            "kind": "vault",
+            "mode": 4,
+            "model": 154,
+            "x": -37,
+            "z": -133,
+            "angle": 0
+          },
+          "socket": {
+            "x": 58112,
+            "y": 32000,
+            "heightOffset": 480
+          },
+          "ground": 229,
+          "renderer": {
+            "left": 200,
+            "top": 0,
+            "width": 1240,
+            "height": 1000
+          },
+          "container": {
+            "left": 200,
+            "top": 0,
+            "width": 1240,
+            "height": 1000
+          },
+          "scale": 2,
+          "width": 32,
+          "height": 62,
+          "camera": {
+            "center": {
+              "x": 58107,
+              "y": 32045
+            },
+            "rawCenter": {
+              "x": -7429,
+              "y": -33491
+            },
+            "angle": 1135,
+            "overview": false,
+            "projection": {
+              "curvature": 35248,
+              "diameter": 50,
+              "scale": 40786,
+              "spriteScale": 40786,
+              "depth": 6500,
+              "perspective": 11,
+              "pitch": 1932,
+              "offsetX": 0,
+              "offsetY": -77,
+              "horizon": 425,
+              "width": 1240,
+              "height": 1000,
+              "shamanScale": 280,
+              "bounds": [
+                -18,
+                -20,
+                18,
+                -20,
+                32,
+                54,
+                -32,
+                54
+              ],
+              "boundsMode": 1,
+              "scaledSprites": 0,
+              "matrix": [
+                -15443,
+                0,
+                5472,
+                -1908,
+                15357,
+                -5382,
+                -5130,
+                -5709,
+                -14475
+              ],
+              "centerX": 620,
+              "centerY": 423,
+              "fractionX": 4,
+              "fractionY": 4,
+              "pixelScaleX": 0.0625,
+              "pixelScaleY": 0.0625
+            }
+          },
+          "expected": {
+            "socket0": {
+              "heightOffset": 480,
+              "projected": {
+                "x": -10,
+                "y": 670,
+                "z": -228,
+                "screenX": 617.9375,
+                "screenY": 286.875,
+                "flags": 0
+              },
+              "raw": {
+                "x": 617.9375,
+                "y": 286.875
+              },
+              "clamped": {
+                "x": 617.9375,
+                "y": 286.875
+              }
+            },
+            "legacy": {
+              "heightOffset": 1028,
+              "projected": {
+                "x": -10,
+                "y": 1180,
+                "z": -419,
+                "screenX": 617.875,
+                "screenY": 175.75,
+                "flags": 0
+              },
+              "raw": {
+                "x": 617.875,
+                "y": 175.75
+              },
+              "clamped": {
+                "x": 617.875,
+                "y": 175.75
+              }
+            },
+            "reward": {
+              "heightOffset": 1072,
+              "projected": {
+                "x": -10,
+                "y": 1220,
+                "z": -434,
+                "screenX": 617.875,
+                "screenY": 166.6875,
+                "flags": 0
+              },
+              "raw": {
+                "x": 617.875,
+                "y": 166.6875
+              },
+              "clamped": {
+                "x": 617.875,
+                "y": 166.6875
+              }
+            }
+          },
+          "dom": {
+            "connected": true,
+            "hidden": false,
+            "bounds": {
+              "left": 785.9375,
+              "top": 162.875,
+              "width": 64,
+              "height": 124
+            },
+            "inline": {
+              "x": 617.938,
+              "y": 286.875
+            },
+            "tail": {
+              "x": 617.9375,
+              "y": 286.875
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "vault-interrupted-panel-expired",
+      "before": {
+        "current": {
+          "turn": 730,
+          "time": 60.833333333333336,
+          "animationFrame": 1461,
+          "panelFrame": 1461,
+          "current": true,
+          "level": 3,
+          "speed": 1,
+          "paused": false,
+          "status": "playing",
+          "inputMask": 0,
+          "mode": null,
+          "selected": [
+            46
+          ],
+          "unlocked": false,
+          "trained": 0,
+          "cast": 0,
+          "head": {
+            "id": 92,
+            "kind": "vault",
+            "model": 154,
+            "x": -37,
+            "z": -133,
+            "active": true,
+            "enabled": true,
+            "followers": 0,
+            "work": 10,
+            "target": 100,
+            "progress": 0.1,
+            "uses": 0,
+            "forced": false
+          },
+          "shaman": {
+            "id": 46,
+            "kind": "shaman",
+            "team": "blue",
+            "hp": 100,
+            "work": null,
+            "vault": null,
+            "orderId": 0,
+            "order": {
+              "model": 0,
+              "a": 0,
+              "flags": 0,
+              "references": 0
+            }
+          },
+          "record": null,
+          "latch": false,
+          "inspected": null,
+          "dom": {
+            "present": false,
+            "connected": false,
+            "hidden": null,
+            "focused": false,
+            "hovered": false,
+            "label": null,
+            "width": 0,
+            "height": 0,
+            "visibleButtons": 0
+          },
+          "offTarget": true,
+          "reservations": 0
+        },
+        "anchor": {
+          "turn": 730,
+          "animationFrame": 1461,
+          "panelFrame": 1461,
+          "head": {
+            "id": 92,
+            "kind": "vault",
+            "mode": 4,
+            "model": 154,
+            "x": -37,
+            "z": -133,
+            "angle": 0
+          },
+          "socket": {
+            "x": 58112,
+            "y": 32000,
+            "heightOffset": 480
+          },
+          "ground": 229,
+          "renderer": {
+            "left": 200,
+            "top": 0,
+            "width": 1240,
+            "height": 1000
+          },
+          "container": {
+            "left": 200,
+            "top": 0,
+            "width": 1240,
+            "height": 1000
+          },
+          "scale": null,
+          "width": 0,
+          "height": 0,
+          "camera": {
+            "center": {
+              "x": 58107,
+              "y": 32045
+            },
+            "rawCenter": {
+              "x": -7429,
+              "y": -33491
+            },
+            "angle": 1135,
+            "overview": false,
+            "projection": {
+              "curvature": 35248,
+              "diameter": 50,
+              "scale": 40786,
+              "spriteScale": 40786,
+              "depth": 6500,
+              "perspective": 11,
+              "pitch": 1932,
+              "offsetX": 0,
+              "offsetY": -77,
+              "horizon": 425,
+              "width": 1240,
+              "height": 1000,
+              "shamanScale": 280,
+              "bounds": [
+                -18,
+                -20,
+                18,
+                -20,
+                32,
+                54,
+                -32,
+                54
+              ],
+              "boundsMode": 1,
+              "scaledSprites": 0,
+              "matrix": [
+                -15443,
+                0,
+                5472,
+                -1908,
+                15357,
+                -5382,
+                -5130,
+                -5709,
+                -14475
+              ],
+              "centerX": 620,
+              "centerY": 423,
+              "fractionX": 4,
+              "fractionY": 4,
+              "pixelScaleX": 0.0625,
+              "pixelScaleY": 0.0625
+            }
+          },
+          "expected": {
+            "socket0": {
+              "heightOffset": 480,
+              "projected": {
+                "x": -10,
+                "y": 670,
+                "z": -228,
+                "screenX": 617.9375,
+                "screenY": 286.875,
+                "flags": 0
+              },
+              "raw": {
+                "x": 617.9375,
+                "y": 286.875
+              },
+              "clamped": {
+                "x": 617.9375,
+                "y": 286.875
+              }
+            },
+            "legacy": {
+              "heightOffset": 1028,
+              "projected": {
+                "x": -10,
+                "y": 1180,
+                "z": -419,
+                "screenX": 617.875,
+                "screenY": 175.75,
+                "flags": 0
+              },
+              "raw": {
+                "x": 617.875,
+                "y": 175.75
+              },
+              "clamped": {
+                "x": 617.875,
+                "y": 175.75
+              }
+            },
+            "reward": {
+              "heightOffset": 1072,
+              "projected": {
+                "x": -10,
+                "y": 1220,
+                "z": -434,
+                "screenX": 617.875,
+                "screenY": 166.6875,
+                "flags": 0
+              },
+              "raw": {
+                "x": 617.875,
+                "y": 166.6875
+              },
+              "clamped": {
+                "x": 617.875,
+                "y": 166.6875
+              }
+            }
+          },
+          "dom": null
+        }
+      },
+      "after": {
+        "current": {
+          "turn": 750,
+          "time": 62.5,
+          "animationFrame": 1500,
+          "panelFrame": 1500,
+          "current": true,
+          "level": 3,
+          "speed": 1,
+          "paused": false,
+          "status": "playing",
+          "inputMask": 0,
+          "mode": null,
+          "selected": [
+            46
+          ],
+          "unlocked": false,
+          "trained": 0,
+          "cast": 0,
+          "head": {
+            "id": 92,
+            "kind": "vault",
+            "model": 154,
+            "x": -37,
+            "z": -133,
+            "active": true,
+            "enabled": true,
+            "followers": 0,
+            "work": 5,
+            "target": 100,
+            "progress": 0.05,
+            "uses": 0,
+            "forced": false
+          },
+          "shaman": {
+            "id": 46,
+            "kind": "shaman",
+            "team": "blue",
+            "hp": 100,
+            "work": null,
+            "vault": null,
+            "orderId": 0,
+            "order": {
+              "model": 0,
+              "a": 0,
+              "flags": 0,
+              "references": 0
+            }
+          },
+          "record": null,
+          "latch": false,
+          "inspected": null,
+          "dom": {
+            "present": false,
+            "connected": false,
+            "hidden": null,
+            "focused": false,
+            "hovered": false,
+            "label": null,
+            "width": 0,
+            "height": 0,
+            "visibleButtons": 0
+          },
+          "offTarget": true,
+          "reservations": 0
+        },
+        "anchor": {
+          "turn": 750,
+          "animationFrame": 1500,
+          "panelFrame": 1500,
+          "head": {
+            "id": 92,
+            "kind": "vault",
+            "mode": 4,
+            "model": 154,
+            "x": -37,
+            "z": -133,
+            "angle": 0
+          },
+          "socket": {
+            "x": 58112,
+            "y": 32000,
+            "heightOffset": 480
+          },
+          "ground": 229,
+          "renderer": {
+            "left": 200,
+            "top": 0,
+            "width": 1240,
+            "height": 1000
+          },
+          "container": {
+            "left": 200,
+            "top": 0,
+            "width": 1240,
+            "height": 1000
+          },
+          "scale": null,
+          "width": 0,
+          "height": 0,
+          "camera": {
+            "center": {
+              "x": 58107,
+              "y": 32045
+            },
+            "rawCenter": {
+              "x": -7429,
+              "y": -33491
+            },
+            "angle": 1135,
+            "overview": false,
+            "projection": {
+              "curvature": 35248,
+              "diameter": 50,
+              "scale": 40786,
+              "spriteScale": 40786,
+              "depth": 6500,
+              "perspective": 11,
+              "pitch": 1932,
+              "offsetX": 0,
+              "offsetY": -77,
+              "horizon": 425,
+              "width": 1240,
+              "height": 1000,
+              "shamanScale": 280,
+              "bounds": [
+                -18,
+                -20,
+                18,
+                -20,
+                32,
+                54,
+                -32,
+                54
+              ],
+              "boundsMode": 1,
+              "scaledSprites": 0,
+              "matrix": [
+                -15443,
+                0,
+                5472,
+                -1908,
+                15357,
+                -5382,
+                -5130,
+                -5709,
+                -14475
+              ],
+              "centerX": 620,
+              "centerY": 423,
+              "fractionX": 4,
+              "fractionY": 4,
+              "pixelScaleX": 0.0625,
+              "pixelScaleY": 0.0625
+            }
+          },
+          "expected": {
+            "socket0": {
+              "heightOffset": 480,
+              "projected": {
+                "x": -10,
+                "y": 670,
+                "z": -228,
+                "screenX": 617.9375,
+                "screenY": 286.875,
+                "flags": 0
+              },
+              "raw": {
+                "x": 617.9375,
+                "y": 286.875
+              },
+              "clamped": {
+                "x": 617.9375,
+                "y": 286.875
+              }
+            },
+            "legacy": {
+              "heightOffset": 1028,
+              "projected": {
+                "x": -10,
+                "y": 1180,
+                "z": -419,
+                "screenX": 617.875,
+                "screenY": 175.75,
+                "flags": 0
+              },
+              "raw": {
+                "x": 617.875,
+                "y": 175.75
+              },
+              "clamped": {
+                "x": 617.875,
+                "y": 175.75
+              }
+            },
+            "reward": {
+              "heightOffset": 1072,
+              "projected": {
+                "x": -10,
+                "y": 1220,
+                "z": -434,
+                "screenX": 617.875,
+                "screenY": 166.6875,
+                "flags": 0
+              },
+              "raw": {
+                "x": 617.875,
+                "y": 166.6875
+              },
+              "clamped": {
+                "x": 617.875,
+                "y": 166.6875
+              }
+            }
+          },
+          "dom": null
+        }
+      }
+    },
+    {
+      "name": "vault-recreated-automatic-panel",
+      "before": {
+        "current": {
+          "turn": 813,
+          "time": 67.75,
+          "animationFrame": 1626,
+          "panelFrame": 1626,
+          "current": true,
+          "level": 3,
+          "speed": 1,
+          "paused": false,
+          "status": "playing",
+          "inputMask": 0,
+          "mode": null,
+          "selected": [
+            46
+          ],
+          "unlocked": false,
+          "trained": 0,
+          "cast": 0,
+          "head": {
+            "id": 92,
+            "kind": "vault",
+            "model": 154,
+            "x": -37,
+            "z": -133,
+            "active": true,
+            "enabled": true,
+            "followers": 1,
+            "work": 5,
+            "target": 100,
+            "progress": 0.05,
+            "uses": 0,
+            "forced": false
+          },
+          "shaman": {
+            "id": 46,
+            "kind": "shaman",
+            "team": "blue",
+            "hp": 100,
+            "work": 92,
+            "vault": {
+              "head": 92,
+              "phase": 2,
+              "entering": false,
+              "remaining": 0
+            },
+            "orderId": 11,
+            "order": {
+              "model": 33,
+              "a": 92,
+              "flags": 0,
+              "references": 1
+            }
+          },
+          "record": {
+            "identity": 3,
+            "elementIdentity": 4,
+            "automatic": true,
+            "phase": 1,
+            "remaining": 15,
+            "hold": 16
+          },
+          "latch": true,
+          "inspected": null,
+          "dom": {
+            "present": true,
+            "connected": true,
+            "hidden": false,
+            "focused": false,
+            "hovered": false,
+            "label": "Vault of Knowledge: shaman learning; 5% complete",
+            "width": 32,
+            "height": 62,
+            "visibleButtons": 0
+          },
+          "offTarget": true,
+          "reservations": 1
+        },
+        "anchor": {
+          "turn": 813,
+          "animationFrame": 1626,
+          "panelFrame": 1626,
+          "head": {
+            "id": 92,
+            "kind": "vault",
+            "mode": 4,
+            "model": 154,
+            "x": -37,
+            "z": -133,
+            "angle": 0
+          },
+          "socket": {
+            "x": 58112,
+            "y": 32000,
+            "heightOffset": 480
+          },
+          "ground": 229,
+          "renderer": {
+            "left": 200,
+            "top": 0,
+            "width": 1240,
+            "height": 1000
+          },
+          "container": {
+            "left": 200,
+            "top": 0,
+            "width": 1240,
+            "height": 1000
+          },
+          "scale": 2,
+          "width": 32,
+          "height": 62,
+          "camera": {
+            "center": {
+              "x": 58107,
+              "y": 32045
+            },
+            "rawCenter": {
+              "x": -7429,
+              "y": -33491
+            },
+            "angle": 1135,
+            "overview": false,
+            "projection": {
+              "curvature": 35248,
+              "diameter": 50,
+              "scale": 40786,
+              "spriteScale": 40786,
+              "depth": 6500,
+              "perspective": 11,
+              "pitch": 1932,
+              "offsetX": 0,
+              "offsetY": -77,
+              "horizon": 425,
+              "width": 1240,
+              "height": 1000,
+              "shamanScale": 280,
+              "bounds": [
+                -18,
+                -20,
+                18,
+                -20,
+                32,
+                54,
+                -32,
+                54
+              ],
+              "boundsMode": 1,
+              "scaledSprites": 0,
+              "matrix": [
+                -15443,
+                0,
+                5472,
+                -1908,
+                15357,
+                -5382,
+                -5130,
+                -5709,
+                -14475
+              ],
+              "centerX": 620,
+              "centerY": 423,
+              "fractionX": 4,
+              "fractionY": 4,
+              "pixelScaleX": 0.0625,
+              "pixelScaleY": 0.0625
+            }
+          },
+          "expected": {
+            "socket0": {
+              "heightOffset": 480,
+              "projected": {
+                "x": -10,
+                "y": 670,
+                "z": -228,
+                "screenX": 617.9375,
+                "screenY": 286.875,
+                "flags": 0
+              },
+              "raw": {
+                "x": 617.9375,
+                "y": 286.875
+              },
+              "clamped": {
+                "x": 617.9375,
+                "y": 286.875
+              }
+            },
+            "legacy": {
+              "heightOffset": 1028,
+              "projected": {
+                "x": -10,
+                "y": 1180,
+                "z": -419,
+                "screenX": 617.875,
+                "screenY": 175.75,
+                "flags": 0
+              },
+              "raw": {
+                "x": 617.875,
+                "y": 175.75
+              },
+              "clamped": {
+                "x": 617.875,
+                "y": 175.75
+              }
+            },
+            "reward": {
+              "heightOffset": 1072,
+              "projected": {
+                "x": -10,
+                "y": 1220,
+                "z": -434,
+                "screenX": 617.875,
+                "screenY": 166.6875,
+                "flags": 0
+              },
+              "raw": {
+                "x": 617.875,
+                "y": 166.6875
+              },
+              "clamped": {
+                "x": 617.875,
+                "y": 166.6875
+              }
+            }
+          },
+          "dom": {
+            "connected": true,
+            "hidden": false,
+            "bounds": {
+              "left": 785.9375,
+              "top": 162.875,
+              "width": 64,
+              "height": 124
+            },
+            "inline": {
+              "x": 617.938,
+              "y": 286.875
+            },
+            "tail": {
+              "x": 617.9375,
+              "y": 286.875
+            }
+          }
+        }
+      },
+      "after": {
+        "current": {
+          "turn": 831,
+          "time": 69.25,
+          "animationFrame": 1663,
+          "panelFrame": 1663,
+          "current": true,
+          "level": 3,
+          "speed": 1,
+          "paused": false,
+          "status": "playing",
+          "inputMask": 0,
+          "mode": null,
+          "selected": [
+            46
+          ],
+          "unlocked": false,
+          "trained": 0,
+          "cast": 0,
+          "head": {
+            "id": 92,
+            "kind": "vault",
+            "model": 154,
+            "x": -37,
+            "z": -133,
+            "active": true,
+            "enabled": true,
+            "followers": 1,
+            "work": 9,
+            "target": 100,
+            "progress": 0.09,
+            "uses": 0,
+            "forced": false
+          },
+          "shaman": {
+            "id": 46,
+            "kind": "shaman",
+            "team": "blue",
+            "hp": 100,
+            "work": 92,
+            "vault": {
+              "head": 92,
+              "phase": 2,
+              "entering": false,
+              "remaining": 0
+            },
+            "orderId": 11,
+            "order": {
+              "model": 33,
+              "a": 92,
+              "flags": 0,
+              "references": 1
+            }
+          },
+          "record": {
+            "identity": 3,
+            "elementIdentity": 4,
+            "automatic": true,
+            "phase": 1,
+            "remaining": 15,
+            "hold": 16
+          },
+          "latch": true,
+          "inspected": null,
+          "dom": {
+            "present": true,
+            "connected": true,
+            "hidden": false,
+            "focused": false,
+            "hovered": false,
+            "label": "Vault of Knowledge: shaman learning; 9% complete",
+            "width": 32,
+            "height": 62,
+            "visibleButtons": 0
+          },
+          "offTarget": true,
+          "reservations": 1
+        },
+        "anchor": {
+          "turn": 831,
+          "animationFrame": 1663,
+          "panelFrame": 1663,
+          "head": {
+            "id": 92,
+            "kind": "vault",
+            "mode": 4,
+            "model": 154,
+            "x": -37,
+            "z": -133,
+            "angle": 0
+          },
+          "socket": {
+            "x": 58112,
+            "y": 32000,
+            "heightOffset": 480
+          },
+          "ground": 229,
+          "renderer": {
+            "left": 200,
+            "top": 0,
+            "width": 1240,
+            "height": 1000
+          },
+          "container": {
+            "left": 200,
+            "top": 0,
+            "width": 1240,
+            "height": 1000
+          },
+          "scale": 2,
+          "width": 32,
+          "height": 62,
+          "camera": {
+            "center": {
+              "x": 58107,
+              "y": 32045
+            },
+            "rawCenter": {
+              "x": -7429,
+              "y": -33491
+            },
+            "angle": 1135,
+            "overview": false,
+            "projection": {
+              "curvature": 35248,
+              "diameter": 50,
+              "scale": 40786,
+              "spriteScale": 40786,
+              "depth": 6500,
+              "perspective": 11,
+              "pitch": 1932,
+              "offsetX": 0,
+              "offsetY": -77,
+              "horizon": 425,
+              "width": 1240,
+              "height": 1000,
+              "shamanScale": 280,
+              "bounds": [
+                -18,
+                -20,
+                18,
+                -20,
+                32,
+                54,
+                -32,
+                54
+              ],
+              "boundsMode": 1,
+              "scaledSprites": 0,
+              "matrix": [
+                -15443,
+                0,
+                5472,
+                -1908,
+                15357,
+                -5382,
+                -5130,
+                -5709,
+                -14475
+              ],
+              "centerX": 620,
+              "centerY": 423,
+              "fractionX": 4,
+              "fractionY": 4,
+              "pixelScaleX": 0.0625,
+              "pixelScaleY": 0.0625
+            }
+          },
+          "expected": {
+            "socket0": {
+              "heightOffset": 480,
+              "projected": {
+                "x": -10,
+                "y": 670,
+                "z": -228,
+                "screenX": 617.9375,
+                "screenY": 286.875,
+                "flags": 0
+              },
+              "raw": {
+                "x": 617.9375,
+                "y": 286.875
+              },
+              "clamped": {
+                "x": 617.9375,
+                "y": 286.875
+              }
+            },
+            "legacy": {
+              "heightOffset": 1028,
+              "projected": {
+                "x": -10,
+                "y": 1180,
+                "z": -419,
+                "screenX": 617.875,
+                "screenY": 175.75,
+                "flags": 0
+              },
+              "raw": {
+                "x": 617.875,
+                "y": 175.75
+              },
+              "clamped": {
+                "x": 617.875,
+                "y": 175.75
+              }
+            },
+            "reward": {
+              "heightOffset": 1072,
+              "projected": {
+                "x": -10,
+                "y": 1220,
+                "z": -434,
+                "screenX": 617.875,
+                "screenY": 166.6875,
+                "flags": 0
+              },
+              "raw": {
+                "x": 617.875,
+                "y": 166.6875
+              },
+              "clamped": {
+                "x": 617.875,
+                "y": 166.6875
+              }
+            }
+          },
+          "dom": {
+            "connected": true,
+            "hidden": false,
+            "bounds": {
+              "left": 785.9375,
+              "top": 162.875,
+              "width": 64,
+              "height": 124
+            },
+            "inline": {
+              "x": 617.938,
+              "y": 286.875
+            },
+            "tail": {
+              "x": 617.9375,
+              "y": 286.875
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "vault-earned-knowledge-and-departure",
+      "before": {
+        "current": {
+          "turn": 1378,
+          "time": 114.83333333333333,
+          "animationFrame": 2757,
+          "panelFrame": 2757,
+          "current": true,
+          "level": 3,
+          "speed": 1,
+          "paused": false,
+          "status": "playing",
+          "inputMask": 0,
+          "mode": null,
+          "selected": [
+            46
+          ],
+          "unlocked": true,
+          "trained": 0,
+          "cast": 0,
+          "head": {
+            "id": 92,
+            "kind": "vault",
+            "model": 152,
+            "x": -37,
+            "z": -133,
+            "active": false,
+            "enabled": true,
+            "followers": 1,
+            "work": 0,
+            "target": 100,
+            "progress": 0,
+            "uses": 1,
+            "forced": true
+          },
+          "shaman": {
+            "id": 46,
+            "kind": "shaman",
+            "team": "blue",
+            "hp": 100,
+            "work": null,
+            "vault": null,
+            "orderId": 0,
+            "order": {
+              "model": 0,
+              "a": 0,
+              "flags": 0,
+              "references": 0
+            }
+          },
+          "record": null,
+          "latch": false,
+          "inspected": null,
+          "dom": {
+            "present": false,
+            "connected": false,
+            "hidden": null,
+            "focused": false,
+            "hovered": false,
+            "label": null,
+            "width": 0,
+            "height": 0,
+            "visibleButtons": 0
+          },
+          "offTarget": true,
+          "reservations": 0
+        },
+        "anchor": {
+          "turn": 1378,
+          "animationFrame": 2757,
+          "panelFrame": 2757,
+          "head": {
+            "id": 92,
+            "kind": "vault",
+            "mode": 4,
+            "model": 152,
+            "x": -37,
+            "z": -133,
+            "angle": 0
+          },
+          "socket": {
+            "x": 58112,
+            "y": 32000,
+            "heightOffset": 480
+          },
+          "ground": 229,
+          "renderer": {
+            "left": 200,
+            "top": 0,
+            "width": 1240,
+            "height": 1000
+          },
+          "container": {
+            "left": 200,
+            "top": 0,
+            "width": 1240,
+            "height": 1000
+          },
+          "scale": null,
+          "width": 0,
+          "height": 0,
+          "camera": {
+            "center": {
+              "x": 58107,
+              "y": 32045
+            },
+            "rawCenter": {
+              "x": -7429,
+              "y": -33491
+            },
+            "angle": 1135,
+            "overview": false,
+            "projection": {
+              "curvature": 35248,
+              "diameter": 50,
+              "scale": 40786,
+              "spriteScale": 40786,
+              "depth": 6500,
+              "perspective": 11,
+              "pitch": 1932,
+              "offsetX": 0,
+              "offsetY": -77,
+              "horizon": 425,
+              "width": 1240,
+              "height": 1000,
+              "shamanScale": 280,
+              "bounds": [
+                -18,
+                -20,
+                18,
+                -20,
+                32,
+                54,
+                -32,
+                54
+              ],
+              "boundsMode": 1,
+              "scaledSprites": 0,
+              "matrix": [
+                -15443,
+                0,
+                5472,
+                -1908,
+                15357,
+                -5382,
+                -5130,
+                -5709,
+                -14475
+              ],
+              "centerX": 620,
+              "centerY": 423,
+              "fractionX": 4,
+              "fractionY": 4,
+              "pixelScaleX": 0.0625,
+              "pixelScaleY": 0.0625
+            }
+          },
+          "expected": {
+            "socket0": {
+              "heightOffset": 480,
+              "projected": {
+                "x": -10,
+                "y": 670,
+                "z": -228,
+                "screenX": 617.9375,
+                "screenY": 286.875,
+                "flags": 0
+              },
+              "raw": {
+                "x": 617.9375,
+                "y": 286.875
+              },
+              "clamped": {
+                "x": 617.9375,
+                "y": 286.875
+              }
+            },
+            "legacy": {
+              "heightOffset": 1028,
+              "projected": {
+                "x": -10,
+                "y": 1180,
+                "z": -419,
+                "screenX": 617.875,
+                "screenY": 175.75,
+                "flags": 0
+              },
+              "raw": {
+                "x": 617.875,
+                "y": 175.75
+              },
+              "clamped": {
+                "x": 617.875,
+                "y": 175.75
+              }
+            },
+            "reward": {
+              "heightOffset": 1072,
+              "projected": {
+                "x": -10,
+                "y": 1220,
+                "z": -434,
+                "screenX": 617.875,
+                "screenY": 166.6875,
+                "flags": 0
+              },
+              "raw": {
+                "x": 617.875,
+                "y": 166.6875
+              },
+              "clamped": {
+                "x": 617.875,
+                "y": 166.6875
+              }
+            }
+          },
+          "dom": null
+        }
+      },
+      "after": {
+        "current": {
+          "turn": 1395,
+          "time": 116.25,
+          "animationFrame": 2791,
+          "panelFrame": 2791,
+          "current": true,
+          "level": 3,
+          "speed": 1,
+          "paused": false,
+          "status": "playing",
+          "inputMask": 0,
+          "mode": null,
+          "selected": [
+            46
+          ],
+          "unlocked": true,
+          "trained": 0,
+          "cast": 0,
+          "head": {
+            "id": 92,
+            "kind": "vault",
+            "model": 152,
+            "x": -37,
+            "z": -133,
+            "active": false,
+            "enabled": true,
+            "followers": 1,
+            "work": 0,
+            "target": 100,
+            "progress": 0,
+            "uses": 1,
+            "forced": true
+          },
+          "shaman": {
+            "id": 46,
+            "kind": "shaman",
+            "team": "blue",
+            "hp": 100,
+            "work": null,
+            "vault": null,
+            "orderId": 0,
+            "order": {
+              "model": 0,
+              "a": 0,
+              "flags": 0,
+              "references": 0
+            }
+          },
+          "record": null,
+          "latch": false,
+          "inspected": null,
+          "dom": {
+            "present": false,
+            "connected": false,
+            "hidden": null,
+            "focused": false,
+            "hovered": false,
+            "label": null,
+            "width": 0,
+            "height": 0,
+            "visibleButtons": 0
+          },
+          "offTarget": true,
+          "reservations": 0
+        },
+        "anchor": {
+          "turn": 1395,
+          "animationFrame": 2791,
+          "panelFrame": 2791,
+          "head": {
+            "id": 92,
+            "kind": "vault",
+            "mode": 4,
+            "model": 152,
+            "x": -37,
+            "z": -133,
+            "angle": 0
+          },
+          "socket": {
+            "x": 58112,
+            "y": 32000,
+            "heightOffset": 480
+          },
+          "ground": 229,
+          "renderer": {
+            "left": 200,
+            "top": 0,
+            "width": 1240,
+            "height": 1000
+          },
+          "container": {
+            "left": 200,
+            "top": 0,
+            "width": 1240,
+            "height": 1000
+          },
+          "scale": null,
+          "width": 0,
+          "height": 0,
+          "camera": {
+            "center": {
+              "x": 58107,
+              "y": 32045
+            },
+            "rawCenter": {
+              "x": -7429,
+              "y": -33491
+            },
+            "angle": 1135,
+            "overview": false,
+            "projection": {
+              "curvature": 35248,
+              "diameter": 50,
+              "scale": 40786,
+              "spriteScale": 40786,
+              "depth": 6500,
+              "perspective": 11,
+              "pitch": 1932,
+              "offsetX": 0,
+              "offsetY": -77,
+              "horizon": 425,
+              "width": 1240,
+              "height": 1000,
+              "shamanScale": 280,
+              "bounds": [
+                -18,
+                -20,
+                18,
+                -20,
+                32,
+                54,
+                -32,
+                54
+              ],
+              "boundsMode": 1,
+              "scaledSprites": 0,
+              "matrix": [
+                -15443,
+                0,
+                5472,
+                -1908,
+                15357,
+                -5382,
+                -5130,
+                -5709,
+                -14475
+              ],
+              "centerX": 620,
+              "centerY": 423,
+              "fractionX": 4,
+              "fractionY": 4,
+              "pixelScaleX": 0.0625,
+              "pixelScaleY": 0.0625
+            }
+          },
+          "expected": {
+            "socket0": {
+              "heightOffset": 480,
+              "projected": {
+                "x": -10,
+                "y": 670,
+                "z": -228,
+                "screenX": 617.9375,
+                "screenY": 286.875,
+                "flags": 0
+              },
+              "raw": {
+                "x": 617.9375,
+                "y": 286.875
+              },
+              "clamped": {
+                "x": 617.9375,
+                "y": 286.875
+              }
+            },
+            "legacy": {
+              "heightOffset": 1028,
+              "projected": {
+                "x": -10,
+                "y": 1180,
+                "z": -419,
+                "screenX": 617.875,
+                "screenY": 175.75,
+                "flags": 0
+              },
+              "raw": {
+                "x": 617.875,
+                "y": 175.75
+              },
+              "clamped": {
+                "x": 617.875,
+                "y": 175.75
+              }
+            },
+            "reward": {
+              "heightOffset": 1072,
+              "projected": {
+                "x": -10,
+                "y": 1220,
+                "z": -434,
+                "screenX": 617.875,
+                "screenY": 166.6875,
+                "flags": 0
+              },
+              "raw": {
+                "x": 617.875,
+                "y": 166.6875
+              },
+              "clamped": {
+                "x": 617.875,
+                "y": 166.6875
+              }
+            }
+          },
+          "dom": null
+        }
+      }
+    }
+  ],
+  "images": {
+    "vault-first-automatic-panel.png": {
+      "sha256": "71d6e3c5cf2c4783ca87a5019072c3cda1fe3e7b8e37c134f77f01722d6d1785",
+      "bytes": 1811671
+    },
+    "vault-interrupted-panel-expired.png": {
+      "sha256": "cbb808461e03bb8a2fb1216464fed562ef9c39e5432b624b308d6e37d6074038",
+      "bytes": 1827273
+    },
+    "vault-recreated-automatic-panel.png": {
+      "sha256": "8a5d04a7453742a730c22c80af2b8618ccfb3d4b86ee1fc340dae679ad013c32",
+      "bytes": 1832568
+    },
+    "vault-earned-knowledge-and-departure.png": {
+      "sha256": "f0a73e9a6ff390c982f25aa9a96971dfb58e6dbf745868934e1fcba51d8c71e5",
+      "bytes": 1850410
+    }
+  },
+  "limits": [
+    "Bracketed screenshots from one candidate run, not matched historical pixel proof.",
+    "CPU supplied consumer tests and browser stage observations support distinct claims.",
+    "Raw episode records, profiles and large logs remain retained locally and are not duplicated here."
+  ]
+}

@@ -1,0 +1,8 @@
+Independent review: ACCEPT for source contract, corrected same-test RED/GREEN, final runtime, QA changes, documentation and quality attribution.
+Final source: a58a94a7313218e3811455e641a223d8dab8543c; clean tree 14a34ccc6d70de0f74e761ea8ec937bcb35398ef.
+Standards: all 17 fresh stages, 1876 tests across 301 current test files once, zero failures. Typecheck, parity, orchestration and build passed.
+Ordinary: terminal source/input stability and cleanup accepted; all four screenshots inspected. Exactly two automatic fresh opens, ordinary interruption/reissue, earned reward and departure verified.
+Both visible-stage brackets have exact DOM-tail/socket0 agreement at container-local (617.9375,286.875). Inline CSS rounding differs by 0.0005px in x.
+The 111.125/120.1875px alternative projections use the same candidate camera and hypothetical legacy/reward heights; they are not measured historical pixel deltas.
+Actual earned use 1276, Temple unlock 1358 and Shaman departure 1373; 1396 is final observer closure.
+Full global formatting/ESLint/Oxlint legacy failures remain explicit. This acceptance is for the bounded completed authored anchor correction, not closure of issue #72.

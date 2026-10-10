@@ -1,0 +1,38 @@
+{
+  "kind": "bounded-static-descriptor-summary",
+  "input": "Canonical recovered d3dpoptb.exe; no executable bytes included.",
+  "descriptor": {
+    "assessment": "Data-only read; no original/native/emulator execution",
+    "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "mappingSource": "scripts/inspect-executable.py:10-20",
+    "peHeaderOffset": "0x80",
+    "imageBase": "0x400000",
+    "section": {
+      "name": ".data",
+      "virtualRva": "0x198000",
+      "virtualSize": 7813552,
+      "rawOffset": "0x195e00",
+      "rawSize": 361984
+    },
+    "descriptor": {
+      "buildingModel": 18,
+      "va": "0x5a7780",
+      "fileOffset": "0x1a5580",
+      "size": 76,
+      "sha256": "dcb4d453dee2f768d5b52e0f88b6362262ccf104157d67c9a1acb7f1b734b301",
+      "baseObject": 152,
+      "panelSocketIndex": 0,
+      "panelSocketVA": "0x5a77b3",
+      "panelSocketFileOffset": "0x1a55b3",
+      "flags": "0x78000"
+    }
+  },
+  "rawReportSha256": "5b1d6ae61cd6389b9760b887d54b1f014a194fe9f94a377096383b5d595eb707",
+  "rawDescriptorReceiptSha256": "30daeb84fdd5a72c718b1e09875313fa13c306821f1e228828f940a092facbf6",
+  "durableSource": "../../../decomp/research/vault-prayer-panel-anchor.md",
+  "independentSourceReview": "ACCEPT for completed authored M1/M3 Vaults",
+  "limits": [
+    "Data-only canonical descriptor read, no native execution.",
+    "Construction-state scaling, zero-height fallback, modified-body binding and terminal lifecycle remain outside this correction."
+  ]
+}

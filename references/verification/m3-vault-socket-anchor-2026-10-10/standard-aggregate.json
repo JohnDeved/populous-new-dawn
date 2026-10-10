@@ -1,0 +1,282 @@
+{
+  "version": 1,
+  "kind": "fresh-standard-profile-aggregate",
+  "status": "passed",
+  "source": "a58a94a7313218e3811455e641a223d8dab8543c",
+  "tree": "14a34ccc6d70de0f74e761ea8ec937bcb35398ef",
+  "profileSha256": "581858d350301eaeff234733375a397bdc6558004011fb6473224e0671cd379c",
+  "standardTestFiles": 301,
+  "tests": 1876,
+  "pass": 1876,
+  "fail": 0,
+  "cancelled": 0,
+  "skipped": 0,
+  "todo": 0,
+  "startedAt": "2026-10-10T10:53:52.125Z",
+  "finishedAt": "2026-10-10T11:00:33.180Z",
+  "summedCommandSeconds": 384.254,
+  "wallIntervalSeconds": 401.055,
+  "betweenCommandSeconds": 16.801,
+  "counting": "Last top-level Node summary per test stage; nested wrappers not counted twice.",
+  "coverage": "All301 current standard files once, type/parity/orchestration/build fresh; no result carry.",
+  "limitations": [
+    "Changed-path ESLint and TS formatting passed; full repository ESLint/Oxlint/format retain independently attributed legacy findings.",
+    "Ordinary rendered M3 evidence and result review remain pending.",
+    "Original static/source and supplied caller proof; no new native execution."
+  ],
+  "stages": [
+    {
+      "name": "typecheck",
+      "receipt": "work/orchestration/vault-anchor-final-01/typecheck.json",
+      "receiptSha256": "2bebc3beb4515c6342365ce8ea8656cef1aeb5966e329c89ff78a93a407071b5",
+      "startedAt": "2026-10-10T10:53:52.125Z",
+      "finishedAt": "2026-10-10T10:54:03.655Z",
+      "seconds": 11.53
+    },
+    {
+      "name": "tests-new",
+      "receipt": "work/orchestration/vault-anchor-final-01/tests-new.json",
+      "receiptSha256": "1dce0b48c37ebb0713d59ebcc5ddae45d43070de6c151ec94cbdd45960b84560",
+      "startedAt": "2026-10-10T10:54:04.662Z",
+      "finishedAt": "2026-10-10T10:54:56.808Z",
+      "seconds": 52.146,
+      "files": 27,
+      "counts": {
+        "tests": 238,
+        "pass": 238,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-01",
+      "receipt": "work/orchestration/vault-anchor-final-01/tests-01.json",
+      "receiptSha256": "6cb6e488e43867d275e3b7dd1a8aa10c00f284cc92d5e6ac7b766f142a336288",
+      "startedAt": "2026-10-10T10:54:57.796Z",
+      "finishedAt": "2026-10-10T10:55:16.003Z",
+      "seconds": 18.207,
+      "files": 33,
+      "counts": {
+        "tests": 170,
+        "pass": 170,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-02",
+      "receipt": "work/orchestration/vault-anchor-final-01/tests-02.json",
+      "receiptSha256": "a7954249df51a42c6b29a1e9371b2cf049f0a98c244d340e809bc45acbce04ac",
+      "startedAt": "2026-10-10T10:55:17.028Z",
+      "finishedAt": "2026-10-10T10:55:37.732Z",
+      "seconds": 20.704,
+      "files": 33,
+      "counts": {
+        "tests": 165,
+        "pass": 165,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-03",
+      "receipt": "work/orchestration/vault-anchor-final-01/tests-03.json",
+      "receiptSha256": "4d6c356b954c2f76ed73bb6f26fd2de67720e9b0942cad7167e5fce0dda1c054",
+      "startedAt": "2026-10-10T10:55:38.726Z",
+      "finishedAt": "2026-10-10T10:56:09.916Z",
+      "seconds": 31.19,
+      "files": 34,
+      "counts": {
+        "tests": 285,
+        "pass": 285,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-04a",
+      "receipt": "work/orchestration/vault-anchor-final-01/tests-04a.json",
+      "receiptSha256": "61344df68dd6679ccb140d3b2efd66be9691957eb48177c3327ea1d2f924dca8",
+      "startedAt": "2026-10-10T10:56:10.951Z",
+      "finishedAt": "2026-10-10T10:56:26.951Z",
+      "seconds": 16.0,
+      "files": 13,
+      "counts": {
+        "tests": 66,
+        "pass": 66,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-04b",
+      "receipt": "work/orchestration/vault-anchor-final-01/tests-04b.json",
+      "receiptSha256": "75ae3dac66e059fa90f4f9854e51c7ba868ff5af413cc9c46ae1c5692485bb95",
+      "startedAt": "2026-10-10T10:56:27.972Z",
+      "finishedAt": "2026-10-10T10:56:44.620Z",
+      "seconds": 16.648,
+      "files": 11,
+      "counts": {
+        "tests": 75,
+        "pass": 75,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-04c",
+      "receipt": "work/orchestration/vault-anchor-final-01/tests-04c.json",
+      "receiptSha256": "f802d2d764591d670ed543eb2fd38d3f9c90320f55f787e135c5ec0b19bfd2fa",
+      "startedAt": "2026-10-10T10:56:45.795Z",
+      "finishedAt": "2026-10-10T10:57:05.649Z",
+      "seconds": 19.854,
+      "files": 11,
+      "counts": {
+        "tests": 32,
+        "pass": 32,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-05a",
+      "receipt": "work/orchestration/vault-anchor-final-01/tests-05a.json",
+      "receiptSha256": "9df14de46732af27521022823720a4b71f5231f7127f7f156be99e3d3cd3e4e7",
+      "startedAt": "2026-10-10T10:57:06.863Z",
+      "finishedAt": "2026-10-10T10:57:47.875Z",
+      "seconds": 41.012,
+      "files": 11,
+      "counts": {
+        "tests": 54,
+        "pass": 54,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-05b",
+      "receipt": "work/orchestration/vault-anchor-final-01/tests-05b.json",
+      "receiptSha256": "8d467c80e4304705f3fcb6d22df8dfa569af27574ff89040b2c8ba26ca14f1dd",
+      "startedAt": "2026-10-10T10:57:49.052Z",
+      "finishedAt": "2026-10-10T10:58:42.669Z",
+      "seconds": 53.617,
+      "files": 11,
+      "counts": {
+        "tests": 47,
+        "pass": 47,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-05c",
+      "receipt": "work/orchestration/vault-anchor-final-01/tests-05c.json",
+      "receiptSha256": "d19e7831537a4516720f58f746ab5662f6ae5f47146840e439e3f374f53ab235",
+      "startedAt": "2026-10-10T10:58:43.630Z",
+      "finishedAt": "2026-10-10T10:58:51.235Z",
+      "seconds": 7.605,
+      "files": 11,
+      "counts": {
+        "tests": 90,
+        "pass": 90,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-06",
+      "receipt": "work/orchestration/vault-anchor-final-01/tests-06.json",
+      "receiptSha256": "900fa9b490cb945dfa9cbd52fc0b0282110b9aeb500cd0ef0e81270808696df9",
+      "startedAt": "2026-10-10T10:58:52.268Z",
+      "finishedAt": "2026-10-10T10:59:19.161Z",
+      "seconds": 26.893,
+      "files": 34,
+      "counts": {
+        "tests": 328,
+        "pass": 328,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-07",
+      "receipt": "work/orchestration/vault-anchor-final-01/tests-07.json",
+      "receiptSha256": "388722512932cc3178a3f477ecf0dc47fa96792ec4609e76f5ff6462bd4863e5",
+      "startedAt": "2026-10-10T10:59:20.224Z",
+      "finishedAt": "2026-10-10T10:59:36.540Z",
+      "seconds": 16.316,
+      "files": 33,
+      "counts": {
+        "tests": 141,
+        "pass": 141,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-08",
+      "receipt": "work/orchestration/vault-anchor-final-01/tests-08.json",
+      "receiptSha256": "08115a8e3c0c73252afe7decbcbd5a95d51c99a8543387f98adec84ac64d73d7",
+      "startedAt": "2026-10-10T10:59:37.584Z",
+      "finishedAt": "2026-10-10T11:00:02.590Z",
+      "seconds": 25.006,
+      "files": 39,
+      "counts": {
+        "tests": 185,
+        "pass": 185,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "parity-check",
+      "receipt": "work/orchestration/vault-anchor-final-01/parity-check.json",
+      "receiptSha256": "032025308496571acab18c29bc5d3ef96e023563cc2b242e12ae71e7bd4b030b",
+      "startedAt": "2026-10-10T11:00:03.643Z",
+      "finishedAt": "2026-10-10T11:00:04.021Z",
+      "seconds": 0.378
+    },
+    {
+      "name": "orchestration-check",
+      "receipt": "work/orchestration/vault-anchor-final-01/orchestration-check.json",
+      "receiptSha256": "18cabf10e03ad016ff236cf926e1b3086204d31d4159755a31fa47e1df78d4ed",
+      "startedAt": "2026-10-10T11:00:05.017Z",
+      "finishedAt": "2026-10-10T11:00:05.609Z",
+      "seconds": 0.592
+    },
+    {
+      "name": "build",
+      "receipt": "work/orchestration/vault-anchor-final-01/build.json",
+      "receiptSha256": "6f54330844477f6e0acd2e263d415af0309d71028a0c35330d20709c8537e9f2",
+      "startedAt": "2026-10-10T11:00:06.624Z",
+      "finishedAt": "2026-10-10T11:00:33.180Z",
+      "seconds": 26.556
+    }
+  ]
+}
