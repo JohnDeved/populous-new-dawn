@@ -5,6 +5,7 @@ import { buildingFootprintCells, buildingOutsidePoint } from '../app/building-sh
 import { currentPersonOrder } from '../app/person-orders.ts'
 import levelThree from '../app/level-three.ts'
 import { finishLevelStart } from './level-start-fixture.mjs'
+import { bindTrainingPanelRequests } from '../app/training-panel-requests.ts'
 
 const cell = point => ((point.y & 65535) >>> 9) * 128 + ((point.x & 65535) >>> 9)
 
@@ -90,4 +91,72 @@ test('authored M3 Vault command approaches its original outside point and earns 
   }
   assert.equal(approached, true, 'ordinary command 33 must reach its first approach phase within 4,000 turns')
   assert.equal(prayerWork, true, 'ordinary phase-2 work must grow at the canonical outside point within 4,000 turns')
+})
+
+test('ordinary M3 Vault samples request the panel before replacing the cached count and prayer work', t => {
+  const world = createWorld(3)
+  const shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman')
+  const vault = world.shrines.find(shrine => shrine.kind === 'vault' && shrine.reward === 'temple')
+  finishLevelStart(world)
+  select(world, 'shaman')
+  assert.deepEqual(world.selected, [shaman.id])
+  assert.equal(command(world, vault), true)
+  const requests = []
+  const release = bindTrainingPanelRequests(world, {
+    requestAutomaticTraining() {},
+    requestAutomaticVault(id) {
+      if (id !== vault.id) return
+      requests.push({
+        turn: world.turn,
+        followers: vault.followers,
+        work: vault.work,
+        state: shaman.native.state,
+        command: shaman.native.commandStatus,
+      })
+    },
+  })
+  t.after(release)
+  let firstPositive
+  let repeatedPositive
+  for (let turns = 0; turns < 4000 && !repeatedPositive; turns++) {
+    const before = { followers: vault.followers, work: vault.work }
+    tick(world, 1 / 12)
+    const request = requests.findLast(sample => sample.turn === world.turn)
+    if (request) {
+      assert.equal(world.turn & 3, 0)
+      assert.equal(request.state, 10)
+      assert.equal(request.command, 33)
+      assert.equal(request.followers, before.followers)
+      assert.equal(request.work, before.work)
+    }
+    if (!before.followers && vault.followers) {
+      assert.ok(request, 'the first actual 0→1 sample must request before its count write')
+      firstPositive = request
+      assert.equal(request.followers, 0)
+      assert.equal(vault.work, request.work + 1)
+    } else if (firstPositive && request?.followers === 1) repeatedPositive = request
+  }
+  assert.ok(firstPositive, 'ordinary original Shaman reaches a positive prayer sample')
+  assert.ok(repeatedPositive, 'a later actual sample must request with the previous positive count')
+  assert.equal(repeatedPositive.turn - firstPositive.turn, 4)
+  assert.equal(shaman.native, world.objectCells.objects.get(shaman.id))
+  assert.equal(currentPersonOrder(world.buildingOrders, shaman.native)?.model, 33)
+  assert.equal(vault.uses, 0)
+  assert.equal(vault.forced, false)
+  t.diagnostic(JSON.stringify({ boundary: 'vault-request-order', firstPositive, repeatedPositive }))
+
+  // Ordinary command cancellation must update the cached count to zero, then
+  // ordinary reissue can produce a fresh 0→1 sample through the same caller.
+  assert.equal(command(world, { x: 35, z: 81 }), true)
+  for (let turns = 0; turns < 4 && vault.followers; turns++) tick(world, 1 / 12)
+  assert.equal(vault.followers, 0)
+  assert.equal(command(world, vault), true)
+  let resumed
+  for (let turns = 0; turns < 4000 && !resumed; turns++) {
+    const before = vault.followers
+    tick(world, 1 / 12)
+    if (!before && vault.followers) resumed = requests.findLast(sample => sample.turn === world.turn)
+  }
+  assert.ok(resumed)
+  assert.equal(resumed.followers, 0)
 })
