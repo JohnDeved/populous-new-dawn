@@ -3,7 +3,7 @@ import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { waitForShamanReadiness } from '../browser-game.mjs'
 import { createMission1VaultInput } from './mission1-vault-input.mjs'
-import { assertVaultPrayerHealth, assertVaultVisible, assertVaultPrayerEpisode, assertVaultUninspectedCommand, vaultLowWorkLimit, vaultReleased } from './vault-prayer-contract.mjs'
+import { assertVaultPrayerHealth, assertVaultVisible, assertVaultPrayerEpisode, assertVaultUninspectedCommand, assertVaultPanelAnchorBracket, vaultLowWorkLimit, vaultReleased } from './vault-prayer-contract.mjs'
 
 // Fresh ordinary M3, without Temple construction or a fabricated saved state.
 export default async function mission3VaultPrayer({ page, openMission, output, signal, receipt }) {
@@ -11,13 +11,16 @@ export default async function mission3VaultPrayer({ page, openMission, output, s
   assert.equal(receipt.profile.checkpointAtStart, null)
   const deadline = Date.parse(receipt.startedAt) + 720000
   const report = { source: receipt.source, status: 'running', actions: [], stages: [], records: [], cleanupErrors: [],
-    scope: 'One ordinary M3 automatic Vault panel interruption/reissue and earned reward/departure. No native timing, physical allocator, socket anchor, clickable-slot or hardware-performance claim.' }
+    scope: 'One ordinary M3 automatic Vault panel interruption/reissue, earned reward/departure, and stage-time socket0-to-DOM anchor proof. No native timing, physical allocator, clickable-slot, matched historical pixel displacement or hardware-performance claim.' }
   const save = () => writeFileSync(resolve(output, 'mission3-vault-prayer.json'), JSON.stringify(report, null, 2) + '\n')
   let installed = false, shamanId, targetId, input, failure
   const admitted = () => { signal.throwIfAborted(); assert(Date.now() < deadline, 'Declared M3 Vault episode budget expired') }
-  const read = async () => {
+  const read = async (anchor = false) => {
     admitted()
-    const value = await page.evaluate(() => window.vaultPrayer.status())
+    const value = anchor ? await page.evaluate(async targetId => {
+      const { readVaultPanelAnchor } = await import('/scripts/local-render/vault-panel-anchor.mjs')
+      return { ...window.vaultPrayer.status(), anchor: readVaultPanelAnchor(window.testSceneRef.current, targetId) }
+    }, targetId) : await page.evaluate(() => window.vaultPrayer.status())
     report.latest = value
     assert.deepEqual(value.errors, [])
     assert(!value.closed && !value.overflow)
@@ -31,13 +34,16 @@ export default async function mission3VaultPrayer({ page, openMission, output, s
     save()
   }
   const stage = async name => {
-    const entry = { name, before: await read() }
+    const entry = { name, before: await read(true) }
     report.stages.push(entry)
     await retain()
     // Preserve the partial stage and unaltered screenshot before its assertions.
     await page.screenshot({ path: resolve(output, `${name}.png`) })
-    entry.after = await read()
+    entry.after = await read(true)
     save()
+    if (entry.before.current.dom.present)
+      assertVaultPanelAnchorBracket(entry.before.anchor, entry.after.anchor)
+    else assert.equal(entry.after.anchor.dom, null)
     return entry
   }
   const wait = async (name, duration, predicate) => {
@@ -57,13 +63,15 @@ export default async function mission3VaultPrayer({ page, openMission, output, s
     report.readiness = await waitForShamanReadiness(page, { timeout: 60000 })
     shamanId = report.readiness.after.shaman.id
     const route = await page.evaluate(async shamanId => {
-      const [{ vaultPoints }, { browserPosition }, { installVaultPrayerWitness }] = await Promise.all([
-        import('/app/vault-geometry.ts'), import('/app/world-coordinates.ts'), import('/scripts/local-render/vault-prayer-witness.mjs')])
+      const [{ vaultPoints }, { browserPosition }, { installVaultPrayerWitness }, { readVaultPanelAnchor }] = await Promise.all([
+        import('/app/vault-geometry.ts'), import('/app/world-coordinates.ts'), import('/scripts/local-render/vault-prayer-witness.mjs'),
+        import('/scripts/local-render/vault-panel-anchor.mjs')])
       const world = window.testStore.getWorld(), heads = world.shrines.filter(s => s.kind === 'vault' && s.reward === 'temple')
       if (heads.length !== 1 || world.unlockedTemple || heads[0].uses !== 0) throw Error('Fresh authored M3 Vault required')
       const target = heads[0], points = vaultPoints(target)
       installVaultPrayerWitness({ targetId: target.id, shamanId })
-      return { target: { id: target.id, x: target.x, z: target.z }, points,
+      const initialAnchor = readVaultPanelAnchor(window.testSceneRef.current, target.id)
+      return { target: { id: target.id, x: target.x, z: target.z }, points, initialAnchor,
         ground: browserPosition(points.leave), initial: window.vaultPrayer.status() }
     }, shamanId)
     installed = true
