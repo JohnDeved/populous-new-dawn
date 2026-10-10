@@ -1,4 +1,10 @@
-import { tribeForTeam, type Building, type NativePoint, type Tree, type World } from './world-types.ts'
+import {
+  tribeForTeam,
+  type Building,
+  type NativePoint,
+  type Tree,
+  type World,
+} from './world-types.ts'
 import {
   queueTerrain,
   processTerrain,
