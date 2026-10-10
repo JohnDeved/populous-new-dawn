@@ -155,7 +155,18 @@ export function migrateCheckpoint(world: World) {
   world.campaignAIs ??= Array(4).fill(null)
   world.campaignAIs[computerTribe] ??= world.ai
   for (const ai of new Set([world.ai, ...world.campaignAIs]))
-    if (ai) ai.producers ??= createComputerProducers()
+    if (ai) {
+      ai.producers ??= createComputerProducers()
+      // Compatibility only: an unestablished old owner has no accumulated
+      // radius. Established or malformed history stays unknown. Membership is
+      // retained by full-graph cloning, or waits for the next real object turn.
+      if (
+        [1, 2, 3].includes(world.outcome.level) &&
+        ai.constructionBase === undefined &&
+        !Object.hasOwn(ai, 'constructionRadius')
+      )
+        ai.constructionRadius = 0
+    }
   world.spellScans ??= Array.from({ length: 4 }, (_, id) =>
     id === computerTribe
       ? world.spellScan
