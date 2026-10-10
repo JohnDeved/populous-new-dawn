@@ -89,8 +89,10 @@ explicit controlled Node cases, not ordinary campaign evidence.
    and one-draw tests; maintain person/tree behavior.
 4. Through the new helper after implementation, supplied allocation failure sees
    the already decremented stage and repair-state plan, returns false, produces
-   no tree/nextId/work/progress/hp loss, but retains stage decrement and source
-   attacker/repair/debris behavior. Include 0-to-255 byte wrap as component state.
+   no tree or work/progress/hp loss, but retains stage decrement and source
+   attacker/repair/debris behavior. Debris legitimately consumes later effect IDs;
+   failure forbids the wood allocation, not all nextId changes. Include 0-to-255
+   byte wrap as component state.
 5. Final-stage-unchanged success suppresses debris/sound18 even though stage was
    temporarily decremented, so this case also asserts exactly one total nextId
    increment and no RNG draw from the wood adapter. Attacker255 preserves prior attribution; retired plan
