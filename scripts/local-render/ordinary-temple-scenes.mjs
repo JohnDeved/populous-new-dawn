@@ -20,6 +20,26 @@ assert.ok(
   'Explicit authored or construction route required'
 )
 
+// The minimap shows a local projection, so distant authored Temples need
+// intermediate real clicks. This pure planner never changes the live camera.
+export function templeViewWaypoints(center, target) {
+  for (const point of [center, target])
+    assert.ok(Number.isFinite(point?.x) && Number.isFinite(point?.z))
+  const wrap = value => ((((value + 128) % 256) + 256) % 256) - 128
+  const dx = wrap(target.x - center.x),
+    dz = wrap(target.z - center.z)
+  const count = Math.max(1, Math.ceil(Math.hypot(dx, dz) / 32))
+  assert.ok(count <= 6)
+  return Array.from({ length: count }, (_, index) =>
+    index === count - 1
+      ? { x: target.x, z: target.z }
+      : {
+          x: wrap(center.x + (dx * (index + 1)) / count),
+          z: wrap(center.z + (dz * (index + 1)) / count),
+        }
+  )
+}
+
 // Synchronous read-only resource lineage at the trusted shipped click. A later
 // browser/host sample cannot prove counter zero or retained phase at replacement.
 export function armTempleResourceAction({ kind, label }) {
@@ -306,7 +326,14 @@ export default async function ordinaryTempleScenes(context) {
         })
         await startObserver(targets.map(b => b.id))
         for (const target of targets) {
-          await input.view(target)
+          const center = await page.evaluate(() => ({
+            x: window.testSceneRef.current.viewPoint.x,
+            z: window.testSceneRef.current.viewPoint.z,
+          }))
+          const waypoints = templeViewWaypoints(center, target)
+          report.actions.push({ label: 'authored-Temple-camera-route', target, center, waypoints })
+          save()
+          for (const point of waypoints) await input.view(point)
           await waitTwo(target.id)
         }
         await finishObserver(

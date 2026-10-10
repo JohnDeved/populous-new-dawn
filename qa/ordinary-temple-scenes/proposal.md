@@ -10,7 +10,11 @@ source. No application, asset, checkpoint, native archive or executable changes.
   Both have authored completed Temples. M10 covers supported p/2 Blue and Green;
   M17 covers supported c/2 Blue, Red, Yellow and Green. The existing reviewed
   minimap input inverse only computes a hit; a real pointer click moves the view.
-  A target requires two different naturally rendered shared tiles before moving on.
+  Distant targets use up to six shortest-wrap minimap waypoints, each no more than
+  32 world units from the previous point; every view retains the existing strict
+  input ownership and eight-unit endpoint tolerance. The final waypoint is the
+  exact authored Temple position. A target requires two different naturally
+  rendered shared tiles before moving on.
 - `POPULOUS_TEMPLE_ROUTE=construction`: the existing ordinary M3 route earns
   Temple knowledge from its real Vault, returns home, selects five Braves,
   places and completes a Temple, and commits a genuine Save. Its existing

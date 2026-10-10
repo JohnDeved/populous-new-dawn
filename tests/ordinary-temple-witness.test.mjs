@@ -9,6 +9,7 @@ import {
   requireTempleCoverage,
 } from '../scripts/local-render/ordinary-temple-witness.mjs'
 import {
+  templeViewWaypoints,
   armTempleResourceAction,
   requireTempleTransition,
 } from '../scripts/local-render/ordinary-temple-scenes.mjs'
@@ -431,4 +432,40 @@ test('phase drift within a real draw cannot yield a coherent Temple frame', t =>
   assert.ok(observer.status().errors.some(error => /phase changed/.test(error)))
   assert.equal(f.canvas.copies, 0)
   observer.close()
+})
+
+test('distant Temple views use bounded shortest-wrap minimap waypoints and preserve the exact endpoint', () => {
+  const wrap = value => ((((value + 128) % 256) + 256) % 256) - 128
+  for (const [center, target] of [
+    [
+      { x: 111.125, z: -32.4 },
+      { x: -8.7890625, z: 62.8671875 },
+    ],
+    [
+      { x: -72.92578125, z: 47.00390625 },
+      { x: 82.234375, z: 67.0546875 },
+    ],
+    [
+      { x: 127, z: 127 },
+      { x: -127, z: -127 },
+    ],
+    [
+      { x: 0, z: 0 },
+      { x: 128, z: 128 },
+    ],
+    [
+      { x: 8, z: -133 },
+      { x: 8, z: -133 },
+    ],
+  ]) {
+    const waypoints = templeViewWaypoints(center, target)
+    assert.ok(waypoints.length >= 1 && waypoints.length <= 6)
+    assert.deepEqual(waypoints.at(-1), target)
+    let previous = center
+    for (const point of waypoints) {
+      assert.ok(Math.hypot(wrap(point.x - previous.x), wrap(point.z - previous.z)) <= 32.000001)
+      previous = point
+    }
+  }
+  assert.throws(() => templeViewWaypoints({ x: NaN, z: 0 }, { x: 0, z: 0 }))
 })
