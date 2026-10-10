@@ -63,8 +63,10 @@ checks after that same failing offset assertion.
 
 Focused changed TypeScript formatting and ESLint pass. Oxlint reports the same 14
 normalized diagnostics as base; this is not a clean Oxlint claim. Full standard
-check/build results are in their named receipts. Fallow is advisory and does not
-establish unused native probe consumers.
+check/build results are in their named receipts. Fallow health is still running at publication; its receipt is nonterminal, and
+duplication/unused checks are queued behind it. No Fallow pass is claimed. These
+advisories do not establish unused native probe consumers. The completed standard
+check/build and independent product review are separate results.
 
 See [the source contract](../../engineering/water-shore-animation.md) and
 `native-inputs.sha256` for retained decompilation and exact landscape/wave inputs.
