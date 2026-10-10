@@ -7,9 +7,11 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
   test('Mission 3 Convert Wild origin through the actual dispatcher', t => {
     const env = { ...process.env, NODE_OPTIONS: '', NODE_PATH: '' }
     delete env.NODE_TEST_CONTEXT
-    const result = spawnSync(process.execPath, [
-      '--experimental-test-module-mocks', '--test', fileURLToPath(import.meta.url),
-    ], { encoding: 'utf8', timeout: 15_000, maxBuffer: 1024 * 1024, env })
+    const result = spawnSync(
+      process.execPath,
+      ['--experimental-test-module-mocks', '--test', fileURLToPath(import.meta.url)],
+      { encoding: 'utf8', timeout: 15_000, maxBuffer: 1024 * 1024, env }
+    )
     t.diagnostic(result.stdout)
     assert.equal(result.error, undefined)
     assert.match(result.stdout, /tests 12\b/, 'all twelve caller controls must run')
@@ -71,7 +73,8 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
           if (unit.team === 'yellow') unit.team = 'red'
           if (unit.native?.tribe === 2) unit.native.tribe = 1
         }
-        for (const building of saved.buildings) if (building.team === 'yellow') building.team = 'red'
+        for (const building of saved.buildings)
+          if (building.team === 'yellow') building.team = 'red'
         for (const footprint of saved.buildingFootprints.values())
           if (footprint.tribe === 2) footprint.tribe = 1
         delete saved.campaignAIs
@@ -106,7 +109,11 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
 
   function assertSearch(world, origin, expected) {
     const task = visit(world)
-    assert.equal(task.target, expected, 'actual phase0 must choose the region near its source-owned origin')
+    assert.equal(
+      task.target,
+      expected,
+      'actual phase0 must choose the region near its source-owned origin'
+    )
     assert.deepEqual(queries, [{ origin, minimum: 0, maximum: 32, target: expected, count: 2 }])
     assert.deepEqual([task.phase, task.remaining, task.elapsed, task.extra], [2, 360, 0, 20])
     assert.equal(world.ai.flags & 0x40, 0)
@@ -124,7 +131,8 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
 
   for (const base of [undefined, 0x1010, 0])
     test(`authored marker99 overrides ${base === undefined ? 'absent' : base} base`, () => {
-      const world = scenario({ base, marker: true }), task = visit(world)
+      const world = scenario({ base, marker: true }),
+        task = visit(world)
       assert.equal(task.target, 0x52dc)
       assert.deepEqual(queries, [])
       assert.deepEqual([task.phase, task.remaining, task.elapsed, task.extra], [2, 360, 0, 20])

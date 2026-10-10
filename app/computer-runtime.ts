@@ -354,7 +354,12 @@ function stepComputerConvert(w: World, tribe: number, index: number) {
   }
   if (!unit || !p) return
   if (task.phase === 0) {
-    task.target = w.ai.constructionBase ?? ((p.x >>> 8) & 254) | (p.y & 0xfe00)
+    // Mission 3's stored fallback is the authored Shaman's loaded cell.
+    const origin =
+      tribe === 2 && w.ai.constructionBase === undefined
+        ? nativePosition(w, campaignPosition(w, 'yellow'))
+        : p
+    task.target = w.ai.constructionBase ?? ((origin.x >>> 8) & 254) | (origin.y & 0xfe00)
     let target: number | null
     if (w.ai.flags & 0x40) {
       target = w.ai.coordinateLatch
