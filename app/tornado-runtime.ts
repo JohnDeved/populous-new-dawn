@@ -1,4 +1,4 @@
-import { damageDisasterBuilding, damageTornadoTree } from './building-runtime.ts'
+import { damageTornadoBuilding, damageTornadoTree } from './building-runtime.ts'
 import { buildingModel } from './building-shapes.ts'
 import {
   createLivePerson,
@@ -84,7 +84,7 @@ export function stepLiveTornado(w: World, fx: Effect) {
         browserPosition(p)
       )
     },
-    damage: candidate => damageDisasterBuilding(w, buildings.get(candidate.id)!, w, tornado.tribe),
+    damage: candidate => damageTornadoBuilding(w, buildings.get(candidate.id)!, tornado.tribe),
     damageScenery: candidate => damageTornadoTree(w, trees.get(candidate.id)!),
     sound: stop => {
       const event = sound(w, 163, fx, fx.id)

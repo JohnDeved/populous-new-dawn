@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { addBuilding, browserPosition, createWorld, nativePosition, tick } from '../app/model.ts'
 import { ensureBuildingDamage } from '../app/building-damage.ts'
+import { damageTornadoBuilding } from '../app/building-runtime.ts'
 import { stepLiveTornado } from '../app/tornado-runtime.ts'
 import { buildingStage, syncLandscapeObjects } from '../app/world-terrain-runtime.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
@@ -123,5 +124,97 @@ test('live Tornado leaves protected, rejected, unactivated and retired buildings
     assert.deepEqual(world.trees, [], control)
     assert.equal(world.nextId, beforeId, control)
     assert.equal(world.randomState, control === 'rejected' ? 0x96100004 : 0, control)
+  }
+})
+
+test('supplied Tornado allocation failure keeps work while stage, attribution and debris advance', () => {
+  const { world, building } = setup()
+  const state = ensureBuildingDamage(building)
+  const plan = state.plan
+  const before = { hp: building.hp, progress: building.progress, logs: building.logs }
+  const beforeId = world.nextId
+  const point = nativePosition(world, building)
+  let attempts = 0
+  // This is supplied component failure, not an actual production allocator path.
+  damageTornadoBuilding(world, building, 2, position => {
+    attempts++
+    assert.deepEqual(position, point)
+    assert.equal(state.stage, 3, 'Stage decrements before wood allocation')
+    assert.equal(state.state, 1, 'Completed building enters repair state before allocation')
+    assert.equal(state.plan, plan)
+    assert.equal(plan.remaining, 300)
+    assert.equal(world.nextId, beforeId)
+    return false
+  })
+  assert.equal(attempts, 1)
+  assert.deepEqual(world.trees, [])
+  assert.equal(plan.remaining, 300)
+  assert.equal(buildingStage(building), 3)
+  assert.deepEqual({ hp: building.hp, progress: building.progress, logs: building.logs }, before)
+  assert.equal(state.attacker, 2)
+  assert.equal(plan.attacker, 2)
+  assert.equal(plan.repairDelay, rules.buildingRepairDelay)
+  assert.equal(world.sounds.filter(sound => sound.cue === 18).length, 1)
+  assert.ok(world.effects.some(effect => effect.kind === 'debris'))
+  assert.ok(world.nextId > beforeId, 'Legitimate debris effects retain their own allocations')
+})
+
+test('Tornado byte decrement wraps on supplied failure and neutral attacker preserves attribution', () => {
+  const { world, building } = setup()
+  const state = ensureBuildingDamage(building)
+  state.stage = 0
+  state.attacker = 2
+  state.plan.attacker = 3
+  damageTornadoBuilding(world, building, 255, () => {
+    assert.equal(state.stage, 255)
+    return false
+  })
+  assert.equal(buildingStage(building), 255)
+  assert.equal(state.plan.remaining, 300)
+  assert.equal(state.attacker, 2)
+  assert.equal(state.plan.attacker, 3)
+  assert.equal(state.plan.repairDelay, rules.buildingRepairDelay)
+})
+
+test('Tornado compares final stage with the saved stage before emitting debris', () => {
+  const { world, building } = setup()
+  const state = ensureBuildingDamage(building)
+  // Reach this split through two supplied failures; native pool failure itself
+  // remains unimplemented by the production unbounded scenery adapter.
+  damageTornadoBuilding(world, building, 0, () => false)
+  damageTornadoBuilding(world, building, 0, () => false)
+  assert.equal(state.stage, 2)
+  assert.equal(state.plan.remaining, 300)
+  const before = { id: world.nextId, random: world.randomState, effects: world.effects.length,
+    sounds: world.sounds.length }
+  damageTornadoBuilding(world, building, 0)
+  assert.equal(state.stage, 2)
+  assert.equal(state.plan.remaining, 200)
+  assert.deepEqual(world.trees, [{ id: before.id, ...browserPosition(nativePosition(world, building)),
+    logs: 1, model: 11 }])
+  assert.equal(world.nextId, before.id + 1)
+  assert.equal(world.randomState, before.random)
+  assert.equal(world.effects.length, before.effects)
+  assert.equal(world.sounds.length, before.sounds)
+})
+
+test('Tornado exhausted work retires without allocation or post-retirement plan bookkeeping', () => {
+  for (const remaining of [0, -1, 100]) {
+    const { world, building } = setup()
+    const state = ensureBuildingDamage(building)
+    Object.assign(state.plan, { remaining, repairDelay: 17, attacker: 2 })
+    let attempts = 0
+    damageTornadoBuilding(world, building, 3, () => {
+      attempts++
+      return true
+    })
+    assert.equal(attempts, remaining > 0 ? 1 : 0)
+    assert.equal(state.plan.remaining, remaining > 0 ? 0 : remaining)
+    assert.equal(state.plan.repairDelay, 17)
+    assert.equal(state.plan.attacker, 2)
+    assert.equal(state.attacker, 3)
+    assert.equal(building.hp, 0)
+    assert.equal(building.progress, 0)
+    assert.equal(world.sounds.filter(sound => sound.cue === 18).length, 1)
   }
 })
