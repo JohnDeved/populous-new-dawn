@@ -1,0 +1,192 @@
+{
+  "kind": "accepted-static-class2-retirement-packet",
+  "assessmentBase": "f9675f56c597ec83adf02f28e9801bfc6bbd0490",
+  "priorMappingHead": "7b3f4b775e4b7b7ca162c3ba98f33ea664a064fb",
+  "status": "independent-static-source-accepted",
+  "inputSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "inputBytes": 2275840,
+  "tool": "/usr/bin/objdump",
+  "toolSha256": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+  "toolVersion": "GNU objdump (GNU Binutils for Debian) 2.44",
+  "cpuAffinity": [
+    4
+  ],
+  "nativeExecution": false,
+  "originalFindingsSha256": "61e603fe1ffeb83107b5f70c0cb7afa01b0c32b0f4ed5d35e5eb2a1f3037bbdc",
+  "originalReviewInputsSha256": "ce2ae21b07619d57490d77b58dcb0ad5136dd112fd521635fb564b4919fde20f",
+  "independentReviewSha256": "31799b405e47dae32310970d0d878c4197c1b2a620e9b533f7e61adaff278e65",
+  "files": {
+    "00403820-00403860.asm": {
+      "bytes": 1493,
+      "sha256": "c9de1ba2ef7481959335a3216ed667307515eb1136366659d682abac4d8bdfdf"
+    },
+    "004edcf0-004ede10.asm": {
+      "bytes": 5334,
+      "sha256": "57f57df32f580771139e6e999b4757f438517da8adc455a065d68971e2c33a7b"
+    },
+    "004ec6f0-004ecac0.asm": {
+      "bytes": 15366,
+      "sha256": "abdb323a5dd272efcecc52c75ca4d6e0b0e1b145ac7579dae610637249cabb0b"
+    },
+    "00401b40-00401b9a.asm": {
+      "bytes": 1907,
+      "sha256": "a4ee818c286463382839470f99faadd12e5a3a4a498c748f7f2936f4c9ab3b19"
+    }
+  },
+  "retainedSourceBindings": {
+    "decomp/generated/00403860.c": "cfceac97381d275f7a6f1b922a52e5d2430581cbb72d77811d247ffc92f331c7",
+    "decomp/generated/004ef180.c": "021baf2a38e2dcf2062bdffc12aa449b5f2e789898aab1e776f1c1a0913802ae",
+    "decomp/generated/004ec6f0.c": "497df5820bfebb7f79eb9cbaf2b887295f7933431958ab4c992ebb33f39e7923",
+    "decomp/generated/004ee300.c": "530622e00689118a11eac9031402d9b6409ef242c69ac3fdbb0d20e28f1cd726",
+    "decomp/generated/004ed8a0.c": "0a3e6654f1c046935bf0a75e32d8691f641fa13fad6c82dc06f3783ba520e5c9",
+    "decomp/generated/00401140.c": "c0c85a38220051f21ee68aa748f1a2366a625356d33a4fb7a241025a44b5a033",
+    "decomp/generated/0041b550.c": "d4176065c0b4232622fe185568a3cccb69a852a3426a7203545f858fc876d039",
+    "app/game-store.ts": "300cc63a292b79057bc64457dcfd087b2f7162194e2108d753e899c35861c675",
+    "app/construction-runtime.ts": "2ea49ae789ae747732c3bc327d58735f501b52dfcff84c17eef83ca4386c0653",
+    "app/world-turn.ts": "20b2290596d9059bc1dda421ce45798a6d547f94c9aa9e0a98a4e8f64068f93c"
+  },
+  "interpretedRanges": {
+    "00403820": {
+      "endExclusive": "00403856",
+      "returns": [
+        "00403855"
+      ]
+    },
+    "004edcf0": {
+      "endExclusive": "004ede08",
+      "returns": [
+        "004eddf8",
+        "004ede07"
+      ]
+    },
+    "00401b40": {
+      "endExclusive": "00401b9a",
+      "returns": [
+        "00401b99"
+      ]
+    },
+    "004ec6f0": {
+      "selectedBlock": "004ec94c\u2013004ec98b",
+      "claim": "pending-free consumer only; no full scheduler proof"
+    }
+  },
+  "commands": [
+    {
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x00403820",
+        "--stop-address=0x00403860",
+        "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "startInclusive": "00403820",
+      "stopExclusive": "00403860",
+      "startedAt": "2026-10-10T01:58:41.208343+00:00",
+      "finishedAt": "2026-10-10T01:58:41.212502+00:00",
+      "exitCode": 0,
+      "stdout": "00403820-00403860.asm",
+      "stdoutSha256": "c9de1ba2ef7481959335a3216ed667307515eb1136366659d682abac4d8bdfdf",
+      "stderr": "00403820-00403860.stderr",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x004edcf0",
+        "--stop-address=0x004ede10",
+        "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "startInclusive": "004edcf0",
+      "stopExclusive": "004ede10",
+      "startedAt": "2026-10-10T01:58:41.212534+00:00",
+      "finishedAt": "2026-10-10T01:58:41.216203+00:00",
+      "exitCode": 0,
+      "stdout": "004edcf0-004ede10.asm",
+      "stdoutSha256": "57f57df32f580771139e6e999b4757f438517da8adc455a065d68971e2c33a7b",
+      "stderr": "004edcf0-004ede10.stderr",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x004ec6f0",
+        "--stop-address=0x004ecac0",
+        "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "startedAt": "2026-10-10T01:59:15.310415+00:00",
+      "finishedAt": "2026-10-10T01:59:15.315691+00:00",
+      "exitCode": 0,
+      "stdout": "004ec6f0-004ecac0.asm",
+      "stdoutSha256": "abdb323a5dd272efcecc52c75ca4d6e0b0e1b145ac7579dae610637249cabb0b",
+      "stderr": "004ec6f0-004ecac0.stderr",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x00401b40",
+        "--stop-address=0x00401c40",
+        "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "startedAt": "2026-10-10T01:59:41.886793+00:00",
+      "finishedAt": "2026-10-10T01:59:41.890967+00:00",
+      "exitCode": 0,
+      "stdout": "00401b40-00401c40.asm",
+      "stdoutSha256": "47662a7d43311ca8bb7820b77c3847d5f020c328f2425e08b342f6f704d70656",
+      "stderr": "00401b40-00401c40.stderr",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x00401b40",
+        "--stop-address=0x00401b9a",
+        "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "startedAt": "2026-10-10T02:00:11.107433+00:00",
+      "finishedAt": "2026-10-10T02:00:11.111796+00:00",
+      "exitCode": 0,
+      "stdout": "00401b40-00401b9a.asm",
+      "stdoutSha256": "a4ee818c286463382839470f99faadd12e5a3a4a498c748f7f2936f4c9ab3b19",
+      "stderr": "00401b40-00401b9a.stderr",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "originalReceiptHashes": {
+    "preflight.json": "b28a9709a1896942109fbd5179960792ccbd42fce7b8765190cceccfea297045",
+    "decode-initial.json": "bc5fa83afdbe926cc9c3335f27623d2c2ec24c04c7407cee33eb06009a80f858",
+    "decode-consumer.json": "99ba8d91caad25b9c947abf5606f1b50f942b753e2fa4aaaa1254c1f7b4a8d25",
+    "decode-free-helper.json": "04350df6648470c04e837e077a47f4b132c872589300b3dccc961b62871d5874",
+    "decode-free-helper-exact.json": "63de22de6b61ee9ba8f881647d848162786f987eb3f691fd224f94c9be78d424"
+  },
+  "omittedArtifacts": {
+    "00401b40-00401c40.asm": {
+      "sha256": "47662a7d43311ca8bb7820b77c3847d5f020c328f2425e08b342f6f704d70656",
+      "reason": "Initial bounded exploration retained locally; exact helper published without unrelated neighboring routines."
+    },
+    "stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "limits": [
+    "Static source operations only; no original or browser execution equivalence.",
+    "No full scheduler or native save-file format claim.",
+    "Port identity/alias ownership, bootstrap/Load ordering and legacy history remain open.",
+    "No executable, archive, binary game asset, profile or credential is included."
+  ]
+}
