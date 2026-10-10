@@ -233,7 +233,11 @@ export function requestComputerPreacher(w: World, tribe: number, marker: number)
 export function returnComputerGuards(w: World, tribe: number) {
   const team = campaignTeam(w, tribe),
     shaman = w.units.find(u => u.hp > 0 && u.team === team && isShaman(u)),
-    p = shaman && nativePosition(w, shaman),
+    // Mission 3's stored fallback survives movement or loss of its live Shaman.
+    p =
+      w.outcome.level === 3 && tribe === 2 && w.ai.constructionBase === undefined
+        ? nativePosition(w, campaignPosition(w, 'yellow'))
+        : shaman && nativePosition(w, shaman),
     cell = w.ai.constructionBase ?? (p ? ((p.x >>> 8) & 254) | (p.y & 0xfe00) : 0),
     point = { x: (cell & 254) << 8, y: cell & 0xfe00 }
   for (const u of w.units) {
