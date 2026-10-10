@@ -34,7 +34,7 @@ test('authored scene callers select independent terrain and full ordinary model 
       Object.assign(scene, {
         terrainLoad: new AbortController(), terrainMap: new THREE.DataTexture(),
         waterMap: new THREE.DataTexture(new Uint8Array(256 * 256 * 4), 256, 256),
-        waterScroll: { value: 0 }, updateTerrainTexture: nop, terrainTextures: null,
+        updateTerrainTexture: nop, terrainTextures: null,
         renderer: { initTexture: nop }, decorations: new THREE.Group(),
       })
       try {
@@ -141,7 +141,7 @@ test('supported terrain failure rejects scene readiness and disposed IO cannot a
   const originalFetch = globalThis.fetch
   t.after(() => { globalThis.fetch = originalFetch })
   const make = async () => {
-    const scene = { world: api.createWorld(2), terrainLoad: new AbortController(), terrainMap: new THREE.DataTexture(), waterMap: new THREE.DataTexture(new Uint8Array(256 * 256 * 4), 256, 256), waterScroll: { value: 0 }, renderer: { initTexture: nop }, updateTerrainTexture: nop, terrainTextures: null }
+    const scene = { world: api.createWorld(2), terrainLoad: new AbortController(), terrainMap: new THREE.DataTexture(), waterMap: new THREE.DataTexture(new Uint8Array(256 * 256 * 4), 256, 256), renderer: { initTexture: nop }, updateTerrainTexture: nop, terrainTextures: null }
     await bindSceneEnvironment(scene)
     return scene
   }
