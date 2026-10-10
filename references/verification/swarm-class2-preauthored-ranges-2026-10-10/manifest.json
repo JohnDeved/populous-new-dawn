@@ -1,0 +1,293 @@
+{
+  "kind": "accepted-grouped-preauthored-ranges-and-view-child-source-packet",
+  "assessmentBase": "f9675f56c597ec83adf02f28e9801bfc6bbd0490",
+  "priorResearchHead": "05cfd90942f122b08dbb1bba0509b3eda76b562b",
+  "inputSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "tool": "/usr/bin/objdump",
+  "toolVersion": "GNU objdump (GNU Binutils for Debian) 2.44",
+  "toolSha256": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+  "cpuAffinity": [
+    4
+  ],
+  "nativeExecution": false,
+  "files": {
+    "00493a40-00493af0.asm": {
+      "sha256": "dd88e40dc1a417c5887bc3edd30f916a13b237cbab822f9ffdd909a821b5489a",
+      "bytes": 2407
+    },
+    "0042b34e-0042b3db.asm": {
+      "sha256": "7c189a0fe178b617dde34137a3703ceb7f1a8c65fac63c9979181900ad111add",
+      "bytes": 2020
+    },
+    "00417270-00417310.asm": {
+      "sha256": "198baef561f3089156c055d1946a29ec8c4bad9ac11581e6f8fac44ed09eeebb",
+      "bytes": 2638
+    }
+  },
+  "packets": [
+    {
+      "findingsPath": "ranges-and-callers.md",
+      "acceptedFindingsSha256": "5f15e44b6ad924e93b889e7b3208ba081977c882327904ae27e3e4fec0b1c69a",
+      "acceptedReviewInputsSha256": "9b9cb600d806f2f916543b3bac03d5fd7d46a5255fd8a4614309e6562ae8eb81",
+      "independentSourceReviewSha256": "edcf64d8515937abc0ea501692d028bd926b88934d83e08e6fba4303643c86ea",
+      "proposalSha256": "1a1731905948c6f74a0ac859ecb78df505c9f34f0c78b499baebf73caa11113b",
+      "sourceBindings": [
+        {
+          "path": "decomp/generated/00493a40.c",
+          "sha256": "2906913583b66d064b3410c8ba568e8b17703f2e0f652e666d6acc532d923caf",
+          "bytes": 1263,
+          "sourceRevision": "05cfd90942f122b08dbb1bba0509b3eda76b562b",
+          "verifiedExportManifest": true
+        },
+        {
+          "path": "decomp/generated/00493af0.c",
+          "sha256": "6e81e47e87af4341f4367928b6601ec6a776d4be4a6e24da185739ddf3b00088",
+          "bytes": 4825,
+          "sourceRevision": "05cfd90942f122b08dbb1bba0509b3eda76b562b",
+          "verifiedExportManifest": true
+        },
+        {
+          "path": "decomp/generated/0042b230.c",
+          "sha256": "241109ebdd842f8a448a43b58d5423b719ee7fe84a51d35e2612ac7b0b5517f2",
+          "bytes": 4196,
+          "sourceRevision": "05cfd90942f122b08dbb1bba0509b3eda76b562b",
+          "verifiedExportManifest": true
+        },
+        {
+          "path": "decomp/generated/00479f00.c",
+          "sha256": "6ff959d185c343a1f14762df4e305c702f6d6ba738bff40cc5f44c66b08c820c",
+          "bytes": 7248,
+          "sourceRevision": "05cfd90942f122b08dbb1bba0509b3eda76b562b",
+          "verifiedExportManifest": true
+        },
+        {
+          "path": "decomp/generated/0040c670.c",
+          "sha256": "a7c9562a78bf3806a2ee1324b92381273401ee33fb9ab49ba8595065db9af0ce",
+          "bytes": 284,
+          "sourceRevision": "05cfd90942f122b08dbb1bba0509b3eda76b562b",
+          "verifiedExportManifest": true
+        },
+        {
+          "path": "decomp/generated/0040c690.c",
+          "sha256": "ff6f629ff652360ea84cbd78849a45b987310c5cafac1771f02c402f3205d101",
+          "bytes": 2465,
+          "sourceRevision": "05cfd90942f122b08dbb1bba0509b3eda76b562b",
+          "verifiedExportManifest": true
+        },
+        {
+          "path": "decomp/generated/004ed820.c",
+          "sha256": "2ad39ba7c56959eab017534655d27df09ea7023f2992035d5dd403d74c167c1d",
+          "bytes": 631,
+          "sourceRevision": "05cfd90942f122b08dbb1bba0509b3eda76b562b",
+          "verifiedExportManifest": true
+        },
+        {
+          "path": "decomp/generated/004ed880.c",
+          "sha256": "f9eff68f56844047a9a33529ad92c277c7ac75b16e9dcd3203efc4cfc5167b84",
+          "bytes": 409,
+          "sourceRevision": "05cfd90942f122b08dbb1bba0509b3eda76b562b",
+          "verifiedExportManifest": true
+        },
+        {
+          "path": "decomp/generated/004ee300.c",
+          "sha256": "530622e00689118a11eac9031402d9b6409ef242c69ac3fdbb0d20e28f1cd726",
+          "bytes": 2994,
+          "sourceRevision": "05cfd90942f122b08dbb1bba0509b3eda76b562b",
+          "verifiedExportManifest": true
+        },
+        {
+          "path": "decomp/generated/004af1c0.c",
+          "sha256": "411a9a6ef9fc1c728032ca3dba927273313219223a97e7e9be8cc810d1330a67",
+          "bytes": 2158,
+          "sourceRevision": "05cfd90942f122b08dbb1bba0509b3eda76b562b",
+          "verifiedExportManifest": true
+        },
+        {
+          "path": "decomp/exports.json",
+          "sha256": "51e55c295a9956e89be85c98df835f1da141e3e10cb6b16435f55423ff5b26db",
+          "bytes": 115741,
+          "sourceRevision": "05cfd90942f122b08dbb1bba0509b3eda76b562b"
+        },
+        {
+          "path": "decomp/research/swarm-class2-lifecycle-ownership.md",
+          "sha256": "48de1ff675734bc98d4a3aa58bab36b52854ae329d9ce17a451b409fe70f43a5",
+          "bytes": 16950,
+          "sourceRevision": "05cfd90942f122b08dbb1bba0509b3eda76b562b"
+        },
+        {
+          "path": "decomp/research/swarm-class2-lifecycle-bindings.json",
+          "sha256": "7ddfb286c7c05c9138fac7565d8f3fafdb613ce5865ecd90250461442d57a514",
+          "bytes": 13687,
+          "sourceRevision": "05cfd90942f122b08dbb1bba0509b3eda76b562b"
+        },
+        {
+          "path": "references/verification/swarm-class2-preauthored-static-2026-10-10/README.md",
+          "sha256": "e2af31e3ab443c7eb59fe0877f9fe842314e81a81fdaef12d5ddf6cc3b6cf2c3",
+          "bytes": 8454,
+          "sourceRevision": "05cfd90942f122b08dbb1bba0509b3eda76b562b"
+        },
+        {
+          "path": "references/verification/swarm-class2-preauthored-static-2026-10-10/0042b286-0042b34e.asm",
+          "sha256": "560db1ef1b568dd403fd5e77703f7c22ec547820788e7c618b1e58f662faee10",
+          "bytes": 2564,
+          "sourceRevision": "05cfd90942f122b08dbb1bba0509b3eda76b562b"
+        },
+        {
+          "path": "references/verification/swarm-class2-fresh-reset-static-2026-10-10/README.md",
+          "sha256": "55b2f1cd63eeb342648e86265c075e7c228124b00576ab40659d3c09b9e00ce7",
+          "bytes": 8153,
+          "sourceRevision": "05cfd90942f122b08dbb1bba0509b3eda76b562b"
+        },
+        {
+          "path": "references/verification/swarm-class2-initial-index-callers-2026-10-10/README.md",
+          "sha256": "1b869d24e32487b4cd6901832382242f51b1557d483a4b5698d63b712bc05c14",
+          "bytes": 7798,
+          "sourceRevision": "05cfd90942f122b08dbb1bba0509b3eda76b562b"
+        }
+      ],
+      "decoderReceiptSha256": "4ca41b636e8edaea75e358d3c589bae95ec3c4fb9e60736027400a409c2a25f1",
+      "decodes": [
+        {
+          "argv": [
+            "/usr/bin/objdump",
+            "-d",
+            "-M",
+            "intel",
+            "--start-address=0x00493a40",
+            "--stop-address=0x00493af0",
+            "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe"
+          ],
+          "startedAt": "2026-10-10T03:18:27.613621+00:00",
+          "finishedAt": "2026-10-10T03:18:27.617720+00:00",
+          "elapsedSeconds": 0.004091563998372294,
+          "exitCode": 0,
+          "stdout": "00493a40-00493af0.asm",
+          "stdoutSha256": "dd88e40dc1a417c5887bc3edd30f916a13b237cbab822f9ffdd909a821b5489a",
+          "stderr": "00493a40-00493af0.stderr",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "argv": [
+            "/usr/bin/objdump",
+            "-d",
+            "-M",
+            "intel",
+            "--start-address=0x0042b34e",
+            "--stop-address=0x0042b3db",
+            "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe"
+          ],
+          "startedAt": "2026-10-10T03:18:27.617734+00:00",
+          "finishedAt": "2026-10-10T03:18:27.620043+00:00",
+          "elapsedSeconds": 0.0023114860014175065,
+          "exitCode": 0,
+          "stdout": "0042b34e-0042b3db.asm",
+          "stdoutSha256": "7c189a0fe178b617dde34137a3703ceb7f1a8c65fac63c9979181900ad111add",
+          "stderr": "0042b34e-0042b3db.stderr",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "postGroupIdentities": {
+        "postInputSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+        "postToolSha256": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f"
+      },
+      "limits": [
+        "No child decode or resource transitive noninterference claim",
+        "No full pre-authored allocation-state or native Save proof",
+        "No runtime or native execution"
+      ]
+    },
+    {
+      "findingsPath": "view-child.md",
+      "acceptedFindingsSha256": "9c32ab62176266c57b431738ced096f4d79dd63a43a789d78715c61b852355f3",
+      "acceptedReviewInputsSha256": "af57fa07e7add36e326053a0935e8b9c0e51740577a7ded068d4307eec227804",
+      "independentSourceReviewSha256": "5d440e4a5bcc42df3683c773a27ad9cb459d47f9bfdde50d742fa680f318e7e5",
+      "proposalSha256": "b65bce95834035ca7c2974e54912eced237bfe297203bd5555c6d88012a0a785",
+      "sourceBindings": [
+        {
+          "path": "decomp/generated/00479f00.c",
+          "sha256": "6ff959d185c343a1f14762df4e305c702f6d6ba738bff40cc5f44c66b08c820c",
+          "bytes": 7248,
+          "sourceRevision": "05cfd90942f122b08dbb1bba0509b3eda76b562b",
+          "verifiedExportManifest": true
+        },
+        {
+          "path": "decomp/generated/004171f0.c",
+          "sha256": "e1d15f0a92555a9234ecda20ae95337021d9f3fb2cd0c54ec7d5f668be4f2bc5",
+          "bytes": 1019,
+          "sourceRevision": "05cfd90942f122b08dbb1bba0509b3eda76b562b",
+          "verifiedExportManifest": true
+        },
+        {
+          "path": "decomp/generated/00417310.c",
+          "sha256": "59f09bdf37ef9effc1887832fe942db923b84fa6aecccc9e42160874d9dcdb69",
+          "bytes": 1914,
+          "sourceRevision": "05cfd90942f122b08dbb1bba0509b3eda76b562b",
+          "verifiedExportManifest": true
+        },
+        {
+          "path": "decomp/generated/004ed820.c",
+          "sha256": "2ad39ba7c56959eab017534655d27df09ea7023f2992035d5dd403d74c167c1d",
+          "bytes": 631,
+          "sourceRevision": "05cfd90942f122b08dbb1bba0509b3eda76b562b",
+          "verifiedExportManifest": true
+        },
+        {
+          "path": "decomp/research/swarm-class2-lifecycle-ownership.md",
+          "sha256": "48de1ff675734bc98d4a3aa58bab36b52854ae329d9ce17a451b409fe70f43a5",
+          "bytes": 16950,
+          "sourceRevision": "05cfd90942f122b08dbb1bba0509b3eda76b562b"
+        },
+        {
+          "path": "decomp/research/swarm-class2-lifecycle-bindings.json",
+          "sha256": "7ddfb286c7c05c9138fac7565d8f3fafdb613ce5865ecd90250461442d57a514",
+          "bytes": 13687,
+          "sourceRevision": "05cfd90942f122b08dbb1bba0509b3eda76b562b"
+        },
+        {
+          "path": "references/verification/swarm-class2-preauthored-static-2026-10-10/0042b286-0042b34e.asm",
+          "sha256": "560db1ef1b568dd403fd5e77703f7c22ec547820788e7c618b1e58f662faee10",
+          "bytes": 2564,
+          "sourceRevision": "05cfd90942f122b08dbb1bba0509b3eda76b562b"
+        }
+      ],
+      "decoderReceiptSha256": "85320e7c0aa8868904a86d8e728ac06f4dba70dabb1053f4d15c82b7cce47c44",
+      "decodes": [
+        {
+          "argv": [
+            "/usr/bin/objdump",
+            "-d",
+            "-M",
+            "intel",
+            "--start-address=0x00417270",
+            "--stop-address=0x00417310",
+            "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe"
+          ],
+          "startedAt": "2026-10-10T03:23:34.839406+00:00",
+          "finishedAt": "2026-10-10T03:23:34.851682+00:00",
+          "elapsedSeconds": 0.007261070000822656,
+          "exitCode": 0,
+          "stdout": "00417270-00417310.asm",
+          "stdoutSha256": "198baef561f3089156c055d1946a29ec8c4bad9ac11581e6f8fac44ed09eeebb",
+          "stderr": "00417270-00417310.stderr",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "postInputSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+          "postToolSha256": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f"
+        }
+      ],
+      "postGroupIdentities": {
+        "postInputSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+        "postToolSha256": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f"
+      },
+      "limits": [
+        "No child decoding or transitive renderer absence claim",
+        "No Save/Load or authored allocation composition proof",
+        "No runtime or native execution"
+      ]
+    }
+  ],
+  "residualEdge": {
+    "callsite": "0041729c",
+    "target": "0044bb80",
+    "qualification": "Uninspected conditional width-related call; no demonstrated unit-owner effect. Renderer recursion stopped."
+  }
+}
