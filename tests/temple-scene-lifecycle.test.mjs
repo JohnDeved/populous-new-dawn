@@ -374,7 +374,7 @@ test('actual world building caller binds the Temple shader across nine selection
   }
 })
 
-test('actual training factories retain legacy keys and reuse all16 meshes at all five stages', async () => {
+test('actual training factories reuse all16 meshes and qualify completed Temple animation', async () => {
   const api = await loadSceneFixture(),
     world = api.createWorld(1),
     fixture = await makeHutSmokeScene(world)

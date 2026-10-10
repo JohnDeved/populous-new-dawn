@@ -50,3 +50,22 @@ the selected object record. Equal source scale160 retains timber growth/burn sca
 Focused checks use verified stationary dependencies by read-only symlink, CPU4,
 private temporary paths and a 60-second bound. Full check/build/browser admission
 is serialized by the coordinator. No parity completion claim is made here.
+
+## Retained validation
+
+- Exact repaired pre-runtime caller RED: `3ce2517c4`, exit1; actual M2/M3/M10
+  c fetch, M3/M5 bank2 geometry/picking and shadow ownership failures.
+- Scoped generation: `3ce2517c4`, exit0. Six outputs were committed as
+  `ce3749bc0`; c resource hashes and all78 original model records were preserved.
+- Independent Temple RED: PR #316, `de457e7a`; portable inputs/receipt retained
+  under `qa/shared-temple-material-red-20261010/`.
+- Combined focused caller/material/lifecycle suite: `71dadcb29`, exit0,61/61
+  tests in32.97seconds. The first environment attempt exposed a test setup
+  expectation for existing high shadow bits; the repair compares the exact
+  pre-load bits, and the legacy Load control passes.
+- TypeScript passed after environment changes and again after combined Temple
+  changes. Source-bound final quality, standard check/build and ordinary rendered
+  evidence remain separate required review inputs.
+
+Ignored raw command receipts are retained under
+`work/orchestration/authored-world-themes/` on the implementation executor.
