@@ -62,7 +62,7 @@ export function assertTempleTrainInput(evidence, targetId, traineeId) {
   return { traineeId, targetId, personIdentity: person.entryIdentity, orderId: person.orderId }
 }
 
-export function assertTempleFreshRequest(row, targetId, traineeId) {
+function assertTempleRequest(row, targetId, traineeId) {
   assert.equal(row.kind, 'request')
   assert.equal(row.receiverMatches, true)
   assert.equal(row.threw, false)
@@ -80,14 +80,7 @@ export function assertTempleFreshRequest(row, targetId, traineeId) {
   assert.equal(before.trainee.id, traineeId)
   assert.equal(before.target.admission.inside, 1)
   assert.deepEqual(before.target.admission.occupants.filter(Boolean), [traineeId])
-  assert.equal(before.record, null)
   assert.equal(before.latch, false)
-  assert.equal(before.reservations, 0)
-  assert.equal(row.result, 'automatic:created')
-  assert.deepEqual(
-    { ...after.record, identity: 0 },
-    { identity: 0, automatic: true, phase: -1, remaining: 0, hold: 16 }
-  )
   assert.equal(after.latch, true)
   assert.equal(after.reservations, 1)
   // The chosen idle precondition is separate from this source boundary: actual
@@ -105,9 +98,42 @@ export function assertTempleFreshRequest(row, targetId, traineeId) {
   return after.record.identity
 }
 
+export function assertTempleFreshRequest(row, targetId, traineeId) {
+  const identity = assertTempleRequest(row, targetId, traineeId)
+  assert.equal(row.before.record, null)
+  assert.equal(row.before.reservations, 0)
+  assert.equal(row.result, 'automatic:created')
+  assert.deepEqual(
+    { ...row.after.record, identity: 0 },
+    { identity: 0, automatic: true, phase: -1, remaining: 0, hold: 16 }
+  )
+  return identity
+}
+
+export function assertTempleReusedRequest(row, targetId, traineeId, manual) {
+  const identity = assertTempleRequest(row, targetId, traineeId)
+  assert.equal(manual.terminalKind, 'approach')
+  assert.equal(manual.closed, true)
+  assert.deepEqual(manual.errors, [])
+  assert.equal(manual.creation.after.record.automatic, false)
+  assert.equal(manual.creation.after.record.phase, -1)
+  assert.equal(manual.creation.after.record.remaining, 0)
+  assert.equal(manual.creation.after.record.hold, 16)
+  assert.equal(manual.creation.before.record, null)
+  assert.equal(row.before.record.identity, manual.creation.after.record.identity)
+  assert.equal(row.before.record.automatic, false)
+  assert.equal(row.before.reservations, 1)
+  assert.equal(row.result, 'automatic:reused')
+  assert.deepEqual(row.after.record, { ...row.before.record, automatic: true })
+  assert.deepEqual(manual.request.before.record, row.before.record)
+  assert.deepEqual(manual.request.after.record, row.after.record)
+  assert.equal(manual.request.result, row.result)
+  return identity
+}
+
 export function assertTempleLifecycle(
   epoch,
-  { targetId, traineeId, initialPreachers, initialTrained, complete = true }
+  { targetId, traineeId, initialPreachers, initialTrained, complete = true, manual = null }
 ) {
   assert(epoch.closed && !epoch.overflow)
   assert.deepEqual(epoch.errors, [])
@@ -117,7 +143,9 @@ export function assertTempleLifecycle(
   }
   const requests = epoch.records.filter(row => row.kind === 'request')
   assert(requests.length > 0)
-  const identity = assertTempleFreshRequest(requests[0], targetId, traineeId)
+  const identity = manual
+    ? assertTempleReusedRequest(requests[0], targetId, traineeId, manual)
+    : assertTempleFreshRequest(requests[0], targetId, traineeId)
   const targetIdentity = requests[0].after.target.identity
   for (const row of requests) {
     assert(row.receiverMatches && !row.threw)
@@ -134,7 +162,7 @@ export function assertTempleLifecycle(
   const steps = epoch.records.filter(
     row => row.kind === 'step' && row.ordinal > requests[0].ordinal
   )
-  let previous = { phase: -1, remaining: 0, hold: 16 },
+  let previous = { ...requests[0].after.record },
     held = 0,
     exit = 0,
     retired = false

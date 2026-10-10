@@ -467,6 +467,7 @@ export async function installTempleTrainingRuntime({ targetId }) {
   }
   const api = {
     status: () => current().status(),
+    snapshot: () => current().snapshot(),
     readiness() {
       const w = store.getWorld(),
         people = w.units.filter(u => u.team === 'blue' && u.hp > 0)
