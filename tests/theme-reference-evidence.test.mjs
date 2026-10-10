@@ -52,7 +52,7 @@ function experiment(fn) {
       mkdirSync(dirname(join(root, s.path)), { recursive: true })
       cpSync(join(fixtureRoot, s.path), join(root, s.path))
     }
-    
+
     return fn(root, structuredClone(req))
   }
   finally {
