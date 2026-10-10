@@ -271,11 +271,16 @@ test('ordinary M3 prayer panel projects its live building socket through the act
   const terrain = terrainPointHeight(world.land, socket)
   await t.test('canonical socket 0, separate from scenery height and reward socket 1', () => {
     const point = projections.at(-1)
-    assert.deepEqual([point.x, point.z], [-37, -133])
+    // browserPosition wraps the authored z=-133 to z=123. RenderView owns
+    // camera-relative wrapping; assert the canonical native XY at this boundary.
+    assert.deepEqual([
+      Math.round((point.x + 8) * 256) & 65535,
+      Math.round((-point.z - 8) * 256) & 65535,
+    ], [58112, 32000])
     t.diagnostic(JSON.stringify({ nativeXY: socket, terrain, actualHeight: point.y * 128, expectedHeight: terrain + 480 }))
     assert.equal(point.y * 128, terrain + 480, 'Vault panel must use terrain + 480, not mesh panelHeight 1028')
     assert.equal(panel.offset, 0, 'the class-2/model-18 panel record contributes no second height')
-    assert.deepEqual(vaultKnowledgePlacement(vault), { x: -37, z: -133, heightOffset: 1072 })
+    assert.deepEqual(vaultKnowledgePlacement(vault), { x: -37, z: 123, heightOffset: 1072 })
     assert.equal(panel.element.style.left, `${200 + ((-37 / 128 + 1) * 1000) / 2}px`)
     assert.equal(panel.element.style.top, `${40 + ((1 - (terrain + 480) / 128 / 32) * 700) / 2}px`)
   })
