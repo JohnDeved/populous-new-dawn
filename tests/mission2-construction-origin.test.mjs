@@ -216,7 +216,9 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
   })
   test('full real task table prevents producer visits without changing the startup pool', () => {
     const world = scenario()
-    while (requestConstruction(world.ai, 4, 0x8234)) {}
+    while (requestConstruction(world.ai, 4, 0x8234)) {
+      // Fill remaining task slots through the actual allocator until it refuses.
+    }
     assert.equal(world.ai.tasks.filter(t => t.flags & 1).length, 10)
     visit(world, 0)
   })
