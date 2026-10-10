@@ -37,7 +37,7 @@ export const campaignTeam = (_w: World, tribe: number) => teamForTribe(tribe)
 // Missing/malformed history retains the complete prior selection adapter. A
 // present zero is authoritative; Load cannot reconstruct a historical maximum.
 export function knownConstructionHistory(w: World) {
-  const ai = w.ai
+  const { ai } = w
   return (
     [1, 2, 3].includes(w.outcome.level) &&
     Number.isInteger(ai.constructionRadius) &&

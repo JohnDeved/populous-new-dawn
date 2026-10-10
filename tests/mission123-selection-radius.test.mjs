@@ -52,7 +52,8 @@ function radiusVisit(w, expectedRadius) {
   assert.deepEqual(w, expected)
 }
 function memberAt(w, x, y) {
-  const b = w.buildings.find(b => b.team === teams[w.activeCampaignTribe]) ?? w.buildings[0]
+  const b =
+    w.buildings.find(building => building.team === teams[w.activeCampaignTribe]) ?? w.buildings[0]
   assert.ok(b)
   Object.assign(b, browserPosition({ x: x << 8, y: y << 8 }))
   return b
@@ -140,7 +141,7 @@ test('radius consumes retained references with current coordinates even after re
 
 test('actual object turn rebuild admits incomplete class 2, excludes plans and uses shallow references', () => {
   const w = createWorld(2),
-    b = w.buildings.find(b => b.team === 'green' && b.kind === 'hut')
+    b = w.buildings.find(building => building.team === 'green' && building.kind === 'hut')
   b.progress = 0.5
   const plan = addBuilding(w, 'green', 'hut', b, false, { plan: true })
   const prison = addBuilding(w, 'green', 'prison', b)
@@ -168,7 +169,7 @@ test('new allocation waits for the next completed object turn', () => {
     w,
     'green',
     'hut',
-    w.buildings.find(b => b.team === 'green')
+    w.buildings.find(building => building.team === 'green')
   )
   assert.ok(!previous.includes(b))
   assert.equal(w.ai.constructionBuildings, previous)
@@ -179,7 +180,7 @@ test('new allocation waits for the next completed object turn', () => {
 
 test('an actual Hut upgrade precedes the completed-object membership capture', () => {
   const w = createWorld(1),
-    b = w.buildings.find(b => b.team === 'blue' && b.kind === 'hut')
+    b = w.buildings.find(building => building.team === 'blue' && building.kind === 'hut')
   // Supplied ownership/resident/timber inputs reach the genuine upgrade body in
   // one object turn; all authored entities and startup orders remain present.
   b.team = 'red'
@@ -188,10 +189,11 @@ test('an actual Hut upgrade precedes the completed-object membership capture', (
   Object.assign(resident, { inside: b.id, work: b.id, path: [] })
   b.builders = [resident.id, 0, 0, 0, 0, 0]
   b.counter = 15
-  b.upgrade = rules.hutUpgradeWork[0]
+  const [upgradeWork] = rules.hutUpgradeWork
+  b.upgrade = upgradeWork
   b.timer = -20000
   const entrance = buildingOutsidePoint(buildingPose(b)),
-    wood = w.trees[0]
+    [wood] = w.trees
   Object.assign(wood, browserPosition(entrance), { model: 11, logs: 3 })
   tick(w, 1 / 12)
   assert.equal(b.level, 2, 'the real upgrade must occur before claiming its membership')
@@ -230,7 +232,7 @@ for (const legacy of [false, true])
       own = w.buildings.filter(b => b.team === 'green')
     w.ai.constructionRadius = 23
     w.ai.constructionBuildings = own.slice(0, 2)
-    const removed = own[1]
+    const [, removed] = own
     w.buildings = w.buildings.filter(b => b !== removed)
     const restored = checkpoint(w, legacy)
     assert.equal(restored.ai, restored.campaignAIs[3])
@@ -314,7 +316,7 @@ for (const [name, base, extra, valid, beforeRadius, afterRadius] of [
     else w.ai.constructionBase = base
     assert.equal(requestConstruction(w.ai, 4, 0x8062), true)
     const task = w.ai.tasks.find(t => t.flags & 1 && t.type === 0),
-      b = w.buildings.find(b => b.team === 'green' && b.kind === 'tower')
+      b = w.buildings.find(building => building.team === 'green' && building.kind === 'tower')
     Object.assign(task, { phase: 3, extra, entity: valid ? b.id : 0xffff })
     w.ai.cursor = w.ai.tasks.indexOf(task)
     w.turn = 1
@@ -342,7 +344,7 @@ function preacher({
   oldAdapter = false,
 } = {}) {
   const w = knownWorld(3, 0, radius),
-    u = w.units.find(u => u.team === 'yellow' && u.kind === 'brave')
+    u = w.units.find(unit => unit.team === 'yellow' && unit.kind === 'brave')
   if (base === undefined) delete w.ai.constructionBase
   else w.ai.constructionBase = base
   assert.equal(u.native, null)
@@ -373,7 +375,7 @@ function preacher({
   w.ai.flags &= ~0x100
   w.ai.defencePosition = 0x1010
   w.ai.defenceRadius = 0
-  const shaman = w.units.find(u => u.team === 'yellow' && u.kind === 'shaman')
+  const shaman = w.units.find(unit => unit.team === 'yellow' && unit.kind === 'shaman')
   Object.assign(shaman, browserPosition({ x: 0x1000, y: 0x1000 }))
   Object.assign(shaman.native, { x: 0x1000, y: 0x1000 })
   if (oldAdapter) {

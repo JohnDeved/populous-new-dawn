@@ -194,14 +194,18 @@ export function computerSelectionWorld(w: World, tribe: number, rawNative = fals
         p = known
           ? nativePosition(w, campaignPosition(w, campaignTeam(w, id)))
           : shaman && nativePosition(w, shaman)
-      return {
-        hasBase: known
-          ? w.ai.constructionBase !== undefined
-          : id === tribe && !!(w.ai.flags & 0x100),
-        base: known ? (w.ai.constructionBase ?? 0) : id === tribe ? w.ai.defencePosition : 0,
+      const selected = {
+        hasBase: id === tribe && !!(w.ai.flags & 0x100),
+        base: id === tribe ? w.ai.defencePosition : 0,
         shaman: p ? ((p.x >>> 8) & 254) | (p.y & 0xfe00) : 0,
-        radius: known ? w.ai.constructionRadius! : id === tribe ? w.ai.defenceRadius : 0,
+        radius: id === tribe ? w.ai.defenceRadius : 0,
       }
+      if (known) {
+        selected.hasBase = w.ai.constructionBase !== undefined
+        selected.base = w.ai.constructionBase ?? 0
+        selected.radius = w.ai.constructionRadius!
+      }
+      return selected
     }),
     buildingAt: cell =>
       w.land.buildingIds[((cell & 0xfe00) >>> 9) * 128 + ((cell & 254) >>> 1)] & 1023,
