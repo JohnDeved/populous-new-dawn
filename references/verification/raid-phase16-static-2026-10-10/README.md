@@ -1,0 +1,9 @@
+# Raid phase16 static evidence checkpoint
+
+Refs #248. [Corrected findings](../../../decomp/research/raid-phase16-target-persistence.md) distinguish target-list persistence, the per-visit member tally, Preacher command predicates and current-owner identity. This checkpoint changes no runtime or test code and claims no gameplay/parity credit.
+
+The four assembly files are addressed instruction-line selections with only trailing whitespace stripped from the verified, data-only objdump packet. Their half-open address intervals and source/output hashes are in `provenance.json`. Existing registered exports supply the collector, membership and order predicates; their source hashes are recorded rather than copying them again. No executable, installer/archive, level data, profile, screenshot or broad source archive is included.
+
+`independent-review.md` is the unchanged initial verdict (SHA-256 recorded in the manifest). Its precision corrections are applied to the topic note: the returned value is a per-visit tally, model5 has preliminary cadence work, models5/7 can clear assignment after increment, and task+0x26 routing plus the pre-dispatch state23 assist remain caller-binding requirements. Mission6 target removal occurs only in a separate conversion clone; the raid-world nonempty-list/retry invariant remains untested.
+
+The original local 29-file packet remains unchanged. The manifest identifies its report, provenance and inventory hashes; this compact checkpoint does not claim to reproduce the full packet. No native/emulated execution, test, browser or dependency operation was run. Documentation/metadata validation consists of JSON parsing, excerpt/source hash and instruction-byte comparison, and `git diff --check`. Independent changed-only review is required before publication.

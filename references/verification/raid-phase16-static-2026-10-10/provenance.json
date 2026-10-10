@@ -1,0 +1,200 @@
+{
+  "scope": "Bounded static source contract; no native/emulated execution or runtime/probe changes.",
+  "source_commit": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+  "executable": {
+    "name": "d3dpoptb.exe",
+    "bytes": 2275840,
+    "sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "included": false
+  },
+  "tool": {
+    "name": "GNU objdump",
+    "version": "GNU objdump (GNU Binutils for Debian) 2.44",
+    "sha256": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+    "operations": [
+      "-d -M intel with bounded start/stop addresses",
+      "-s with bounded start/stop addresses"
+    ]
+  },
+  "retained_local_packet": {
+    "files": 29,
+    "findings_sha256": "5ed1dc207a3c550b37425b8fe14ad88fe6fc150cfaf938fb884294aabfd847b4",
+    "provenance_sha256": "59b91f4e442f0082833a1c58215e0b3dee3484226077ef4d9e74681cf159c0ee",
+    "inventory_sha256": "3c8d77263a42e797855f0105b6c48b82264cbcb64b7660bde35f3d32dfa8689c",
+    "included": false
+  },
+  "source_inputs": [
+    {
+      "path": "app/computer-runtime.ts",
+      "commit": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+      "sha256": "96b148458340f9803c5342c605a0294b615a03d7e06276185bf212bf0ce17ea8"
+    },
+    {
+      "path": "app/computer.ts",
+      "commit": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+      "sha256": "d35abab3a7adb5e6a6092dcba96921180d33b91b42c1b182bec48b4a7d958f2d"
+    },
+    {
+      "path": "app/live-movement.ts",
+      "commit": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+      "sha256": "9baf56d21547beebeb063e99de94502303a2de15391caf360b03621e8bee488f"
+    },
+    {
+      "path": "app/person-orders.ts",
+      "commit": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+      "sha256": "27600291a988813415ce88a4b046101fb772894490d44607b84f739a433eb1f3"
+    },
+    {
+      "path": "decomp/generated/004f5950.c",
+      "commit": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+      "sha256": "9b8fa2dd911c1724077c688ffa7fac5dc0f5783374ba37ca99bbc1559c8e9585"
+    },
+    {
+      "path": "decomp/generated/004f2460.c",
+      "commit": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+      "sha256": "d59c9298778eb7ea45678580e424c18b5ee00293bebef7004503b6f90a25efec"
+    },
+    {
+      "path": "decomp/generated/004df0e0.c",
+      "commit": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+      "sha256": "e95f3d77d9ef66b7ff2f6c608b482820e6c7fe41e095034f2cb6b6222d645b09"
+    },
+    {
+      "path": "decomp/generated/004f62c0.c",
+      "commit": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+      "sha256": "76800b7eade48767e7c68e118c8f90036b56268a70c887f709307c0ae5c62dcb"
+    },
+    {
+      "path": "scripts/check-native-computer-attack.py",
+      "commit": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+      "sha256": "0a9694bd36f0d60c1bb4772531d3a670bc0c1f60d502569c1af25d81cfb72942"
+    },
+    {
+      "path": "app/computer-defense.ts",
+      "commit": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+      "sha256": "663472843e8fed4a8bca9aaea10c16870e6e538ad94d35674a145f4e2f4a76f5"
+    },
+    {
+      "path": "app/unit-animation-source.ts",
+      "commit": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+      "sha256": "9b1ec3617b5db4fa6672f0ba75e5a85afe7c425cdf76bbf300a2ffebe2a736cd"
+    },
+    {
+      "path": "tests/mission3-defense-task.test.mjs",
+      "commit": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+      "sha256": "4ab9ce9a2ede8ec77485c10f1354b228fc25197f82705d19b213a186c2b8a36e"
+    },
+    {
+      "path": "scripts/check-native-mission3-defense-task.py",
+      "commit": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+      "sha256": "0e790b8723a6016c8e0bd7bbf3d49a0968bbc785288679009e2ff72a2dc23a1d"
+    },
+    {
+      "path": "decomp/research/mission3-defense-task.md",
+      "commit": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+      "sha256": "154c02a953139ee2180734015e65a49e66e8bb677320de02d3fedadcf75f90ce"
+    },
+    {
+      "path": "decomp/research/automatic-preacher-and-raid-ownership.md",
+      "commit": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+      "sha256": "d00a5184eba1544cb832b7ed45770af45c5e652917e3cd1b3fd518f0681cef30"
+    },
+    {
+      "path": "decomp/generated/0043b540.c",
+      "commit": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+      "sha256": "89dec5d9a60489abfe7d05f71f75ee03774bbb7ca20a17a8c97a304fa7eeadc4"
+    },
+    {
+      "path": "decomp/generated/00404420.c",
+      "commit": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+      "sha256": "7404afc3ab0ccb04aa07147df269b6a71dd98d53c82d1e29c104f8a356f4e64e"
+    },
+    {
+      "path": "decomp/exports.json",
+      "commit": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+      "sha256": "51e55c295a9956e89be85c98df835f1da141e3e10cb6b16435f55423ff5b26db"
+    }
+  ],
+  "excerpts": [
+    {
+      "path": "caller.asm.txt",
+      "sha256": "0998d3a692d7c33bd816a1014ba542c219b8d9b2f09e9586c21a3df4db103a47",
+      "original_artifact": "004cb400-entry.asm.txt",
+      "original_sha256": "da7c1949f252c198e6ef89b7dc62b91f132acf1bcd81aad72f167addcd493a87",
+      "address_ranges_half_open": [
+        [
+          "004cb400",
+          "004cb448"
+        ],
+        [
+          "004cb473",
+          "004cb55e"
+        ]
+      ],
+      "normalization": "Strip trailing whitespace only; instruction addresses and bytes unchanged."
+    },
+    {
+      "path": "phase16.asm.txt",
+      "sha256": "af2745302196d49b18c7c458143e2606d2b04925f1bfa43a24fa4327bd1e9b5f",
+      "original_artifact": "004cc0bd-phase14-16.asm.txt",
+      "original_sha256": "638c6c5368c8c27ce71d92a3dd327a2fffa0ef72d2ee7fbca8ca04630c184f04",
+      "address_ranges_half_open": [
+        [
+          "004cc112",
+          "004cc308"
+        ]
+      ],
+      "normalization": "Strip trailing whitespace only; instruction addresses and bytes unchanged."
+    },
+    {
+      "path": "maintenance.asm.txt",
+      "sha256": "283fc4a722790cc4bf46aca877c21ac89a0c04b2b44a16426369f751792c75aa",
+      "original_artifact": "004ce2c0-maintenance.asm.txt",
+      "original_sha256": "d610c715e1d43ad03cc87749900960cacde9159dd65030bceef73b3137a3f483",
+      "address_ranges_half_open": [
+        [
+          "004ce2c0",
+          "004ce649"
+        ],
+        [
+          "004ce7f0",
+          "004ce7fd"
+        ],
+        [
+          "004ce8c0",
+          "004ce8d3"
+        ],
+        [
+          "004ceab5",
+          "004ceac2"
+        ],
+        [
+          "004cebdc",
+          "004cebf4"
+        ]
+      ],
+      "normalization": "Strip trailing whitespace only; instruction addresses and bytes unchanged."
+    },
+    {
+      "path": "coordinate-selector.asm.txt",
+      "sha256": "88124d0487db15b0ff33586f14f091fa0ec51dd5d092823ea90984a09b81fc8e",
+      "original_artifact": "004f2e40-coordinate-selector.asm.txt",
+      "original_sha256": "981ab984acb457a7960109921b046c3762cf2720c5fcf12f1a3be18540d00ba4",
+      "address_ranges_half_open": [
+        [
+          "004f2e40",
+          "004f2f46"
+        ]
+      ],
+      "normalization": "Strip trailing whitespace only; instruction addresses and bytes unchanged."
+    }
+  ],
+  "independent_review_sha256": "487982f69e7d58a223009eb4c7831db34267ebc63fca79697de5c6c9ee7566a2",
+  "verification": {
+    "native_execution": "not-run",
+    "tests": "not-run",
+    "runtime_changes": "not-applicable",
+    "byte_source_comparison": "passed",
+    "independent_static_review": "accepted with precision corrections carried into topic note"
+  }
+}
