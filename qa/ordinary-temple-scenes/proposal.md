@@ -16,7 +16,8 @@ source. No application, asset, checkpoint, native archive or executable changes.
   places and completes a Temple, and commits a genuine Save. Its existing
   observation-only hooks install/close this witness; there is no altered route,
   synthetic object, new time owner or checkpoint seeding. The route then uses
-  public Load, Restart and Load again, retaining the exact saved typed digest.
+  public Load, Restart and Load again, checking saved level/turn/time plus typed actor, terrain and stock digests at
+  Load, and the complete persisted checkpoint digest after Restart/final Load.
   Synchronous trusted-click store notifications establish Load phase reset and
   normal same-resource Restart retention. Later natural frames establish loaded
   completed-Temple material consumption; they are not counter-zero samples.
@@ -46,7 +47,8 @@ Fresh private output/profile/cache/dependency paths are mandatory for each run.
 ## Coverage and limits
 
 The M3 route must retain at least one actual unfinished Temple construction-cap
-frame, two completed shared tiles, exact Save/Load digest equality, Restart
+frame, two completed shared tiles, synchronous Load continuity of level/turn/time
+and typed actor/terrain/stock digests, complete persisted-Save integrity, Restart
 resource retention and a post-Restart Load rendering. M10/M17 require every named
 tribe's authored completed Temple to submit two live tiles. Different camera
 samples may show different tribes, but every sample shares its actual per-Scene
@@ -59,3 +61,8 @@ It does not establish original pixel equality, original cadence, campaign victor
 or hardware performance. Software rendering identity and source/runtime/helper
 hashes are retained by the harness and enclosing command receipts. The world-theme
 scenario separately supplies comparable baseline/candidate M1/M2/M3 images.
+
+The Load boundary digest is intentionally scoped: the imported checkpoint migrator
+may legitimately normalize other fields. Full graph identity is asserted for the
+unchanged committed Save, not claimed for the migrated live World. The loaded
+Temple itself must separately submit matching staged geometry and shared material.
