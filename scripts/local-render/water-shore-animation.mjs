@@ -10,7 +10,7 @@ export default async function waterShoreAnimation({ page, openMission, output, s
   const read = () => page.evaluate(() => {
     const s = window.testSceneRef.current, w = s.world, p = s.terrain.geometry.getAttribute('position'), light = s.terrain.geometry.getAttribute('light')
     const hash = array => { let h = 2166136261; for (const x of new Uint8Array(array.buffer, array.byteOffset, array.byteLength)) h = Math.imul(h ^ x, 16777619); return h >>> 0 }
-    return { at: performance.now(), mission: w.outcome.level, turn: w.turn, speed: w.speed, paused: w.paused, camera: s.camera.position.toArray(), scroll: s.terrain.material.uniforms.scroll?.value ?? null, positions: hash(p.array), light: hash(light.array), water: hash(s.waterMap.image.data), landscape: s.environment.landscape, waves: hash(s.waves) }
+    return { at: performance.now(), mission: w.outcome.level, turn: w.turn, speed: w.speed, paused: w.paused, camera: s.camera.position.toArray(), nativeCamera: { ...s.cameraPosition }, rawCenter: { ...s.view.rawCenter }, bearing: s.cameraBearing, scroll: s.terrain.material.uniforms.scroll?.value ?? null, positions: hash(p.array), light: hash(light.array), water: hash(s.waterMap.image.data), landscape: s.environment.landscape, waves: hash(s.waves) }
   })
   const sequence = async name => {
     const phase = { name, frames: [] }; report.phases.push(phase)
