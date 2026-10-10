@@ -497,3 +497,33 @@ test('actual RenderView.prepare composes the precise native mesh shader cache ke
     material.dispose()
   }
 })
+
+test('persisted JSON permits only signed-zero normalization, never an inexact Temple offset', async t => {
+  const f = fixture(t),
+    observer = installOrdinaryTempleObserver()
+  f.renderer.render(f.scene.scene, f.scene.camera)
+  f.phase(1)
+  f.renderer.render(f.scene.scene, f.scene.camera)
+  observer.close()
+  const saved = JSON.parse(JSON.stringify(await observer.read()))
+  for (const frame of saved.frames) requireOrdinaryTempleFrame(frame, expected())
+  requireTempleCoverage(saved, { ids: [1] })
+  saved.frames[0].buildings[0].offset[0] = Number.EPSILON
+  assert.throws(() => requireOrdinaryTempleFrame(saved.frames[0], expected()), /Exact shared tile/)
+})
+
+test('startup Load observes the actual React store without a stale Scene alias', t => {
+  const f = fixture(t)
+  let resource = Object.freeze({ bank: 'c', modelAtlas: 'atlas', epoch: 1, counter: 0, tile: 92 })
+  const store = { ...f.store, getPresentationSnapshot: () => resource }
+  delete window.testStore
+  document.querySelector = () => ({ __reactFiberTest: { memoizedState: { memoizedState: store } } })
+  const observer = armTempleResourceAction({ kind: 'load', label: 'Load Game' })
+  f.click('Load Game', () => {
+    f.replace({ ...f.world, turn: 2877 })
+    resource = Object.freeze({ bank: 'p', modelAtlas: 'atlas-p', epoch: 2, counter: 0, tile: 92 })
+  })
+  const result = observer.close()
+  requireTempleTransition(result, { startup: true })
+  assert.throws(() => requireTempleTransition(result), /Expected values/)
+})

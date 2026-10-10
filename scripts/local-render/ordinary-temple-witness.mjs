@@ -262,10 +262,13 @@ export function requireOrdinaryTempleFrame(frame, expected) {
     if (row.stage === 4) {
       assert.equal(row.program, 'native-mesh-true-false-native-model-light-temple')
       assert.equal(row.epoch, frame.resource.epoch)
-      assert.deepEqual(row.offset, [
-        ((frame.resource.tile & 7) - 4) / 8,
-        -((frame.resource.tile >> 3) - 11) / 32,
-      ])
+      const offset = [((frame.resource.tile & 7) - 4) / 8, -((frame.resource.tile >> 3) - 11) / 32]
+      assert.equal(row.offset?.length, 2)
+      for (let index = 0; index < 2; index++)
+        assert.ok(
+          Number.isFinite(row.offset[index]) && row.offset[index] === offset[index],
+          'Exact shared tile offset, allowing JSON signed-zero normalization'
+        )
       assert.ok(row.mode32Vertices > 0)
     } else {
       assert.equal(row.program, 'native-mesh-true-false-native-model-light')

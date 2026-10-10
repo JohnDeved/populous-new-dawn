@@ -70,3 +70,29 @@ The Load boundary digest is intentionally scoped: the imported checkpoint migrat
 may legitimately normalize other fields. Full graph identity is asserted for the
 unchanged committed Save, not claimed for the migrated live World. The loaded
 Temple itself must separately submit matching staged geometry and shared material.
+
+## Genuine completed-Save continuation
+
+A run that completed ordinary construction and committed Save but failed only the
+original uncomposed shader-key assertion can be continued through the maintained
+owned-profile correspondence flow. The previous run remains failed. A frozen local
+admission input binds its unchanged raw receipt, ordinary report, completed-prefix
+report and every retained PNG. It requires verified prior cleanup, identical
+application/runtime/origin/profile identity, exact predecessor/checker fingerprints,
+a reviewed correspondence and unchanged full committed checkpoint digest.
+
+`ordinary-temple-continuation.mjs` first revalidates those retained construction
+records with the corrected exact RenderView-composed cache keys and numeric offset
+comparison (JSON may normalize signed zero; nonzero coordinates remain exact).
+It then performs newly executed public startup Load Game, two completed Temple
+tiles, normal Restart, and another Load with two more tiles. The initial startup
+resource is c/atlas; actual Load replaces it with p/atlas-p at counter0/tile92.
+There is no replay, profile seeding, storage write, reconstructed World or carried
+lifecycle pass. Incidental submitted meshes do not prove unobstructed visual pixels;
+only separately inspected target views count as non-Blue visual evidence.
+
+The continuation uses the same game root, loopback origin and runtime as its clean
+predecessor, a fresh output and reviewed correspondence, with600000ms inner and660s
+outer bounds. Local admission/profile correspondence files are private run inputs,
+not published browser profiles or credentials. A missing/mismatched artifact or
+checkpoint blocks continuation.

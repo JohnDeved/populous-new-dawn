@@ -43,7 +43,15 @@ export function templeViewWaypoints(center, target) {
 // Synchronous read-only resource lineage at the trusted shipped click. A later
 // browser/host sample cannot prove counter zero or retained phase at replacement.
 export function armTempleResourceAction({ kind, label }) {
-  const store = window.testStore
+  let store = window.testStore
+  if (!store) {
+    const main = document.querySelector('main')
+    let fiber = main?.[Object.keys(main).find(key => key.startsWith('__reactFiber'))]
+    for (; fiber && !store; fiber = fiber.return)
+      for (let hook = fiber.memoizedState; hook; hook = hook.next)
+        if (hook.memoizedState?.getWorld && hook.memoizedState?.subscribe)
+          store = hook.memoizedState
+  }
   if (!store?.getWorld || !store?.getPresentationSnapshot) throw Error('Temple store unavailable')
   const result = { kind, label, errors: [], captured: false, closed: false }
   let active = null,
@@ -102,7 +110,7 @@ export function armTempleResourceAction({ kind, label }) {
   }
 }
 
-export function requireTempleTransition(result) {
+export function requireTempleTransition(result, { startup = false } = {}) {
   assert.deepEqual(result.errors, [])
   assert.equal(result.closed, true)
   assert.equal(result.captured, true)
@@ -117,21 +125,25 @@ export function requireTempleTransition(result) {
     assert.deepEqual(result.after.temples, [])
   } else {
     assert.equal(result.kind, 'load')
+    if (startup) {
+      assert.equal(before.bank, 'c')
+      assert.equal(before.modelAtlas, 'atlas')
+    }
     assert.ok(after.epoch > before.epoch)
     assert.equal(after.counter, 0)
     assert.equal(after.tile, 92)
-    assert.equal(after.bank, before.bank)
-    assert.equal(after.modelAtlas, before.modelAtlas)
+    assert.equal(after.bank, startup ? 'p' : before.bank)
+    assert.equal(after.modelAtlas, startup ? 'atlas-p' : before.modelAtlas)
   }
 }
 
-export default async function ordinaryTempleScenes(context) {
+export default async function ordinaryTempleScenes(context, continuation = null) {
   const { page, root, output, signal, receipt, observeCheckpoint } = context
-  assert.equal(receipt.profile?.mode, 'created')
-  assert.equal(receipt.profile.checkpointAtStart, null)
+  assert.equal(receipt.profile?.mode, continuation ? 'reused' : 'created')
+  if (!continuation) assert.equal(receipt.profile.checkpointAtStart, null)
   const report = {
     status: 'running',
-    route,
+    route: continuation ? 'construction-continuation' : route,
     source: receipt.source,
     actions: [],
     epochs: [],
@@ -254,7 +266,7 @@ export default async function ordinaryTempleScenes(context) {
     await waitForShamanReadiness(page, { timeout: 60000 })
     assert.equal(await page.evaluate(() => window.testStore.getWorld().outcome.level), level)
   }
-  const action = async (kind, label) => {
+  const action = async (kind, label, startup = false) => {
     const handle = await page.evaluateHandle(armTempleResourceAction, { kind, label })
     let observed, boundary
     try {
@@ -274,7 +286,7 @@ export default async function ordinaryTempleScenes(context) {
       report.transitions.push({ kind, label, observed, boundary })
       save()
     }
-    requireTempleTransition(boundary)
+    requireTempleTransition(boundary, { startup })
     return observed
   }
   try {
@@ -343,37 +355,47 @@ export default async function ordinaryTempleScenes(context) {
         )
       }
     } else {
-      const prefix = await buildTemple(context, {
-        begin: async () => startObserver(null),
-        preserveActive: async () => {},
-        observeWorld: async ({ read }) => {
-          const temple = (await read()).temples.find(b => b.team === 'blue' && b.progress === 1)
-          assert.ok(temple)
-          await waitTwo(temple.id)
-        },
-        finish: async () => {},
-      })
+      const prefix =
+        continuation?.prefix ??
+        (await buildTemple(context, {
+          begin: async () => startObserver(null),
+          preserveActive: async () => {},
+          observeWorld: async ({ read }) => {
+            const temple = (await read()).temples.find(b => b.team === 'blue' && b.progress === 1)
+            assert.ok(temple)
+            await waitTwo(temple.id)
+          },
+          finish: async () => {},
+        }))
       assert.equal(prefix.status, 'passed')
       assert.deepEqual(prefix.cleanupErrors, [])
       const id = prefix.plan.id,
         expected = { level: 3, bank: 'p', atlas: 'atlas-p', objects: 6 },
         saved = prefix.checkpoint.digest.checkpoint
       report.prefix = {
-        file: 'mission3-temple-checkpoint.json',
-        sha256: sha(readFileSync(resolve(output, 'mission3-temple-checkpoint.json'))),
+        file: continuation?.prefixPath ?? 'mission3-temple-checkpoint.json',
+        sha256:
+          continuation?.prefixSha256 ??
+          sha(readFileSync(resolve(output, 'mission3-temple-checkpoint.json'))),
         id,
         saved,
       }
-      await finishObserver('m3-construction', expected, [id], true)
-      const loadAndObserve = async label => {
-        const loaded = await action('load', 'Load checkpoint')
+      if (continuation) {
+        for (const frame of continuation.epoch.evidence.frames)
+          requireOrdinaryTempleFrame(frame, { ...expected, models })
+        requireTempleCoverage(continuation.epoch.evidence, { ids: [id], construction: true })
+        report.carried = continuation.carried
+        save()
+      } else await finishObserver('m3-construction', expected, [id], true)
+      const loadAndObserve = async (label, startup = false) => {
+        const loaded = await action('load', startup ? 'Load Game' : 'Load checkpoint', startup)
         requireThemeCheckpoint(loaded.digest, saved)
         await ready(3)
         await startObserver([id])
         await waitTwo(id)
         await finishObserver(label, expected, [id])
       }
-      await loadAndObserve('m3-loaded')
+      await loadAndObserve('m3-loaded', !!continuation)
       await page.getByRole('button', { name: 'Game settings', exact: true }).click()
       await action('restart', 'Restart world')
       await ready(3)
