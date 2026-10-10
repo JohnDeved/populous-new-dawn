@@ -58,8 +58,8 @@ try {
     report.bytes += Buffer.byteLength(result.code)
     assert(report.bytes <= bounds.bytes, 'Transform closure exceeded byte bound')
     report.modules.push({ url, sha256: sha(result.code), bytes: Buffer.byteLength(result.code) })
-    const module = await server.moduleGraph.getModuleByUrl(url)
-    for (const imported of module.importedModules)
+    const graphNode = await server.moduleGraph.getModuleByUrl(url)
+    for (const imported of graphNode.importedModules)
       if (/^\/(app|qa|scripts)\//.test(imported.url)) queue.push(imported.url)
   }
   assert(report.modules.some(row => row.url === '/qa/erosion-ordinary/input.mjs'))
