@@ -1,0 +1,104 @@
+{
+  "boundary": "0044a000..0044d7f0 known UI subsystem; byte-pattern candidates for constructor-owned callback fields, not yet instruction-proven",
+  "candidateCalls": [],
+  "rootRecords": [
+    {
+      "address": "005cd080",
+      "id": 0,
+      "children": [
+        "00000000",
+        "00000000"
+      ],
+      "rectangle": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "address": "005cd0be",
+      "id": 1,
+      "children": [
+        "005caea0",
+        "005caea0"
+      ],
+      "rectangle": [
+        0,
+        0,
+        100,
+        480
+      ]
+    },
+    {
+      "address": "005cd0fc",
+      "id": 2,
+      "children": [
+        "005cb830",
+        "005cbcd8"
+      ],
+      "rectangle": [
+        0,
+        204,
+        100,
+        277
+      ]
+    },
+    {
+      "address": "005cd13a",
+      "id": 3,
+      "children": [
+        "005cc458",
+        "005cc458"
+      ],
+      "rectangle": [
+        0,
+        204,
+        100,
+        277
+      ]
+    },
+    {
+      "address": "005cd178",
+      "id": 4,
+      "children": [
+        "005cc6f0",
+        "005cc6f0"
+      ],
+      "rectangle": [
+        0,
+        204,
+        100,
+        277
+      ]
+    },
+    {
+      "address": "005cd1b6",
+      "id": 6,
+      "children": [
+        "005cb558",
+        "005cb558"
+      ],
+      "rectangle": [
+        99,
+        444,
+        106,
+        32
+      ]
+    },
+    {
+      "address": "005cd1f4",
+      "id": 7,
+      "children": [
+        "005cc1c0",
+        "005cc1c0"
+      ],
+      "rectangle": [
+        0,
+        204,
+        100,
+        277
+      ]
+    }
+  ]
+}

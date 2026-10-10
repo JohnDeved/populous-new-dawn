@@ -1,0 +1,13 @@
+{
+  "type3PressDispatchIndex": 1,
+  "type3PressTarget": "0044c08f",
+  "type3ReleaseTarget": "0044c4fe",
+  "type3HeldLeftTarget": "0044b61d",
+  "type3HeldRightTarget": "0044b61d",
+  "hudSpritePresence": {
+    "875": true,
+    "876": false,
+    "877": false,
+    "878": false
+  }
+}

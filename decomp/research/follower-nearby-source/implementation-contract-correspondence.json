@@ -1,0 +1,31 @@
+{
+  "assessedHead": "92907866646e418747dd2bda44236d9949835bc5",
+  "contract": "implementation-contract-v2.md",
+  "contractSha256": "e2d9e598e257c2a8e415520455e12ea0fb50f27669b1f1ef6ebbad044f1b7330",
+  "supersededDraftSha256": "b920d42724ac7172dfaad1710907ede1da7eeb38716a9c3972bf1753e9592deb",
+  "trackedSourceHashes": {
+    "app/page.tsx": "af95be6e48354ffec34046eb0c265612ef460d612d69c91e56825c9ce7948765",
+    "app/scene.ts": "c6c88945abbb84909020670ac2069b8da91381ecf6bab121d65519614cac38e1",
+    "app/game-store.ts": "9f3095fe6f351011e03124899e5693a21eb172855e61e11cd3d50bd5bf32c612",
+    "app/game-clock.ts": "d4f850867943a54ebf86e79b6d71e2f842d0e6c61c70bb2884872bd6d002eef6",
+    "app/world-rules.ts": "5688538516b4f908930dbcd46ebb807a958ee3f7edbbcd59e7067d04bf74fd2a",
+    "app/hud-tasks.ts": "44cd23ac03bf35405e8b50bfdf616b625c07a0c2e7fca7ae799e45d1f4a13644",
+    "app/hud-population.ts": "c80b9f11dcb6561c7a98c8ea4ceeee8f69b5991427593ba4a644305aac48a1fc",
+    "app/follower-tasks-runtime.ts": "0796f92af4c6290e2ec78fec4105d2e2cf8fa9a6e426cc84485284ae43c5a622",
+    "app/follower-tasks-view.tsx": "51586206c7867c7d348b146f721ce7938df73b0aa205a79b55c0d42d1ce82bea",
+    "app/scene-input-runtime.ts": "a0d6e101c78b4fa4e4cc5d4ee671b2c97dc6509fdca12d68889224dcd5c7724b",
+    "app/selection-runtime.ts": "c5330f78ee474ef5dc22fa66541ef2cd32f89ee51b5b551e6d6cfa13baa3f80c",
+    "app/hud.tsx": "a864ecf785e4f3090682834452c7385f17040a0088a9f9704130d48d0fab8e19",
+    "app/globals.css": "4503b77f2bbce07b00977040376a9e62ebaeba9a7c8faaf19ee28879d4051d32",
+    "app/audio.ts": "fc767de4f8e607f0fe257bda7f99bfecbbb9059de171aa5d89720b94b9889bb0",
+    "app/original-hud.json": "3b24abb207a0ad2fc92f7225866352f0d485cf9ac7d13fb8b76842fecc928929",
+    "app/original-sound.json": "5ddccef0c8990ebf26f125f0c5aa19e946c20f23def8e887902b8f20d132557f",
+    "scripts/import-hud.py": "6dcfa221c84b2c6b16fc42f04fbf1ecabf6b12b3b390cc081d2e6de2ac84ae80",
+    "scripts/import-original.py": "02127ee637d42c033119a16045c26b01adaa7d8c2833a82c3bedd03d247039e0",
+    "engineering/generated-files.json": "03f94a787819a23811b006f1635c30cc375e2cd3e5de7c6cd28e8c041d94cd69",
+    "decomp/generated/004ecac0.c": "ae2bea39e8c0eb1fc50757a1b73390854057e82545afc391ef9527a2c44249c4",
+    "public/original/audio/sound-148.wav": "2d3db0e6a0daa2ad2c63b9ed37445be665f35ec3d85e7e2193ef45cd3bd3e790",
+    "public/original/audio/sound-149.wav": "ee86c9eba7f9bd4ff4a21d000740ae706c37b5c27de47a48b339200ab7859c8b"
+  },
+  "method": "Source-only implementation proposal. No runtime edits, tests, dependency commands, importers, browser or native execution."
+}
