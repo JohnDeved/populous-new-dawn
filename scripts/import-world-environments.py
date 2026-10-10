@@ -64,7 +64,11 @@ def generate(archive_path, project):
     current = json.loads((project / 'app/original-models.json').read_text())
     shapes = json.loads((project / 'app/original-shapes.json').read_text())
     source_shapes = decoder.building_shapes(raw['objects/shapes.dat'], raw['objects/objs0-2.dat'])
-    assert source_shapes == shapes
+    # socketOffsets also depend on smoke.txt, outside this DATA-only import.
+    # The complete preserved file is hash-pinned above; compare only fields
+    # actually decoded from the admitted SHAPES/OBJS inputs.
+    for field in ['objects', 'origins', 'shapes', 'cells']:
+        assert source_shapes[field] == shapes[field], 'Changed shape field: ' + field
     _, _, base_atlas = decoder.read_owned_rgba_png(project / 'public/original/atlas.png')
     files, decoded_hashes = {}, {}
     with tempfile.TemporaryDirectory(prefix='world-environment-') as temporary:
