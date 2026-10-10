@@ -32,6 +32,12 @@ direct helper chain and complete limiter leaf. None changes native unit pools,
 physical IDs or cell membership, or allocates records. This closes those named
 effects only; the complete pre-authored allocation state remains unproved.
 
+The grouped [range/caller and view-child follow-up][ranges] binds the remaining
+`00493a40` bulk clear above fixed unit storage, the exact authored call
+`0042b3c8 → 00484a10`, and the direct view-only writes of `00417270`. Its
+conditional `0044bb80` child remains uninspected. Resource-call composition and
+native Save/Load state ownership are still separate from the proved reset.
+
 This extends the accepted [Swarm controller contract][controller] and
 [integration review][review] at `74b74346f2d67e94aed013fc9e1960e20ef36ceb`;
 those documents are not in this main tree. Their insertion, relocation and
@@ -183,3 +189,4 @@ follow-up records its additional data-only decoding and independent review.
 [reset]: https://github.com/JohnDeved/populous-new-dawn/blob/8311fa1508ac6c85f4b8852dac48a54aa5336039/references/verification/swarm-class2-fresh-reset-static-2026-10-10/README.md
 [startup]: https://github.com/JohnDeved/populous-new-dawn/blob/4d733f97b3fe2e880d34b90a02df7f4909c53822/references/verification/swarm-class2-initial-index-callers-2026-10-10/README.md
 [preauthored]: https://github.com/JohnDeved/populous-new-dawn/blob/c59bacf774894b0e35a53a2c15eeee1a2284a49a/references/verification/swarm-class2-preauthored-static-2026-10-10/README.md
+[ranges]: https://github.com/JohnDeved/populous-new-dawn/blob/2c693d12f4fd9efb08f5cd172ce22ffa6cf92a4b/references/verification/swarm-class2-preauthored-ranges-2026-10-10/README.md
