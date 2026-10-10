@@ -5,7 +5,7 @@
   "currentTree": "babd82b3787182ef91e09ae27baedb70a6fa753a",
   "priorAcceptedPacket": "74b74346f2d67e94aed013fc9e1960e20ef36ceb",
   "priorInterpretationMain": "d6cf109474379172728a3ccebf46ef72a15f3a58",
-  "contractSha256": "ce83bd1b1926615407d6e9afa849909684f8e013028a82475ad91224418d2234",
+  "contractSha256": "8f9c1e5ca6e338510947af276b0783c0ab67bb9b87c1d3fde0db6df858c47751",
   "retainedExportProvenance": {
     "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
     "ghidraVersion": "12.1.3",
@@ -313,5 +313,13 @@
     "sourceFindingsSha256": "fe9cbd6314eb81d82926a73a6ccdb89eb73bf14efe10f8a9f1ae3b6a0a03f777",
     "necessityClarifiedFindingsSha256": "99008ceed89cd93f1d734864ca0b67160fd0ba99ab7d41a28d8839c8f74f06e2",
     "closure": "Complete 00431970 auxiliary copy and 004434e0 wrapper only. Missing child representation effects remain named residuals, not automatic modern semantic checkpoint prerequisites. Live class2 ownership/history and supported initialization/order remain open."
+  },
+  "currentLiveContractFollowup": {
+    "packetCommit": "e5aaa360427cc74b402c2280a71c5f52dc2e3d98",
+    "packetPath": "references/verification/swarm-class2-live-contract-2026-10-10",
+    "assessmentMain": "3b13a7ff534ab95797b0b06330055cead956160d",
+    "assessmentTree": "f821f3d711694cbb74e4c2c70e4ab2ce4ff5834c",
+    "independentSourceReviewSha256": "af1e28b203651c5af2caaf29fa2a6fbc38a7b295afb2f8f79a640caa2117a066",
+    "closure": "Finite current-main event/owner reconciliation; real shared allocation/lifetime request producers and supported initial state remain the next prerequisite. No disconnected runtime component, candidate admission or binary-save requirement."
   }
 }

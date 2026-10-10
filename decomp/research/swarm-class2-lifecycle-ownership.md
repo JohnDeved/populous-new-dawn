@@ -94,6 +94,18 @@ the class-2 or tribe predicate. See the accepted controller's address-level
 citations. A generation guard, nearest-object choice, occupied-only roster or
 automatic purge of remembered IDs would add unproved behavior.
 
+## Current-main lifecycle consolidation
+
+The [reviewed event/owner table][live-contract] reconciles the historical mapping
+against main `3b13a7ff534ab95797b0b06330055cead956160d`. Nineteen of twenty original
+port-owner files remain byte-identical; four AI origin fallbacks do not change
+allocation ownership. The finite table identifies the shared live request and
+slot/lifetime transaction boundary, separate class-2 membership/alias events,
+and the supported initial-state requirement. Modern checkpoint graph retention
+is available; missing old-checkpoint history cannot be reconstructed from arrays.
+It proposes no detached allocator component or Swarm candidate admission.
+The original `f9675f56` assessment and each earlier checkpoint remain historical.
+
 ## Current producers and their exact gaps
 
 All paths below refer to the pinned main. These are current owners, not a proposal
@@ -212,3 +224,5 @@ follow-up records its additional data-only decoding and independent review.
 [ranges]: https://github.com/JohnDeved/populous-new-dawn/blob/2c693d12f4fd9efb08f5cd172ce22ffa6cf92a4b/references/verification/swarm-class2-preauthored-ranges-2026-10-10/README.md
 [save]: https://github.com/JohnDeved/populous-new-dawn/blob/ef04928ae0923e8a658eb4c8549af4c8b89d634d/references/verification/swarm-class2-save-ownership-2026-10-10/README.md
 [preparation]: https://github.com/JohnDeved/populous-new-dawn/blob/a21054da4b342325bf82e02545db3a56849e7f91/references/verification/swarm-class2-save-preparation-2026-10-10/README.md
+
+[live-contract]: https://github.com/JohnDeved/populous-new-dawn/blob/e5aaa360427cc74b402c2280a71c5f52dc2e3d98/references/verification/swarm-class2-live-contract-2026-10-10/README.md
