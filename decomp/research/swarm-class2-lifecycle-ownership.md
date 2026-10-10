@@ -241,3 +241,18 @@ shared request state remain the plan-admission prerequisite. No initial slot
 history, runtime implementation or Swarm candidacy follows from this refinement.
 
 [constructor-request]: https://github.com/JohnDeved/populous-new-dawn/blob/25d318a7c1ff65a93af77378eb76d8305d210d78/references/verification/swarm-class2-constructor-request-2026-10-10/README.md
+
+## Class-9 initializer closure
+
+The [reviewed plan-initializer body][plan-initializer] now closes the previously
+missing `004b8070`: its complete 220-byte body is bound to canonical bytes.
+An admitted model1 plan is inserted at its supplied position before context
+fields and state1 initialization. Retained state1 support then relocates it to
+the shape-centered position; same-cell versus cross-cell order must survive.
+The initializer uses an existing physical ID and returns before the outer
+activation writes. The class-9 constructor body is no longer a missing input.
+Actual placement/AI request feeders and supported incoming shared allocation
+state remain the connected implementation boundary; current final arrays cannot
+reconstruct these events. No runtime implementation or Swarm admission follows.
+
+[plan-initializer]: https://github.com/JohnDeved/populous-new-dawn/blob/021520a3f54235134d7ef5c157429f4f1784ca6b/references/verification/swarm-class9-plan-initializer-2026-10-10/README.md
