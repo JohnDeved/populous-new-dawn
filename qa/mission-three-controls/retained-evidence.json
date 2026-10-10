@@ -1,0 +1,299 @@
+{
+  "scope": "Historical fixed-turn evidence inspected for planning only; not a new browser result",
+  "evidenceCommit": "f962bc090f9e3649a03ec69e5d14e81b70c9b16a",
+  "archivePath": "evidence/campaign-regression-20261004/campaign-proof-20261004.tar.gz",
+  "archiveSha256": "9ef8284e59d0de2d5f2f6ada1a0a4f84f42f821de7b7e3cc4ed16fe52e08e82f",
+  "archiveMember": "browser/browser-401bcf4-attempt6/campaign.json",
+  "archiveMemberSha256": "84358171338b1d641436d2667a0b04aea6ac827459f2d4edac68bb60bd2055a6",
+  "originalMethod": "Diagnostic fixed-turn simulation via direct tick(world, 1/12), suspended RAF, internal camera focus and read-only targeting/picking helpers; rendered HUD/mouse orders. No injected entities, resources, victory, AI state, or campaign profile.",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-regression",
+    "commit": "401bcf4ff4a102595fd0ee9623ff6f43c3659ac5",
+    "tree": "31ee86650db636f11a3518cf6d03c7037d36efcb",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "a4138716e60598f1ca929c62224c7cfaa785c67803848d51686c94c1ae55da6e"
+  },
+  "milestones": [
+    {
+      "name": "mission-3-continued",
+      "turn": 53,
+      "time": 4.416666666666667,
+      "status": "playing",
+      "completedMissions": [
+        2
+      ],
+      "stats": {
+        "built": 0,
+        "cast": 0,
+        "bridges": 0,
+        "trained": 0,
+        "battlesWon": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "population": {
+        "blue": 13,
+        "green": 0,
+        "yellow": 7,
+        "red": 0
+      },
+      "conversionCount": 0,
+      "trainingOwnership": []
+    },
+    {
+      "name": "mission-3-shrine-101-rotation-1-before",
+      "turn": 7339,
+      "time": 611.5833333333334,
+      "status": "playing",
+      "completedMissions": [
+        2
+      ],
+      "stats": {
+        "built": 8,
+        "cast": 4,
+        "bridges": 0,
+        "trained": 5,
+        "battlesWon": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "population": {
+        "blue": 13,
+        "green": 0,
+        "yellow": 25,
+        "red": 0
+      },
+      "conversionCount": 0,
+      "trainingOwnership": [
+        {
+          "building": 1021,
+          "turnBefore": 1630,
+          "turnAfter": 6630,
+          "selected": [
+            309,
+            513,
+            510,
+            303,
+            507
+          ],
+          "retainedBefore": [
+            312,
+            519,
+            516,
+            300,
+            522,
+            306,
+            589
+          ],
+          "retainedAfter": [
+            312,
+            519,
+            516,
+            300,
+            522,
+            306,
+            589
+          ],
+          "modifier": "Control",
+          "turns": 5000
+        }
+      ]
+    },
+    {
+      "name": "mission-3-shrine-101-rotation-1-after",
+      "turn": 7339,
+      "time": 611.5833333333334,
+      "status": "playing",
+      "completedMissions": [
+        2
+      ],
+      "stats": {
+        "built": 8,
+        "cast": 4,
+        "bridges": 0,
+        "trained": 5,
+        "battlesWon": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "population": {
+        "blue": 13,
+        "green": 0,
+        "yellow": 25,
+        "red": 0
+      },
+      "conversionCount": 0,
+      "trainingOwnership": [
+        {
+          "building": 1021,
+          "turnBefore": 1630,
+          "turnAfter": 6630,
+          "selected": [
+            309,
+            513,
+            510,
+            303,
+            507
+          ],
+          "retainedBefore": [
+            312,
+            519,
+            516,
+            300,
+            522,
+            306,
+            589
+          ],
+          "retainedAfter": [
+            312,
+            519,
+            516,
+            300,
+            522,
+            306,
+            589
+          ],
+          "modifier": "Control",
+          "turns": 5000
+        }
+      ]
+    },
+    {
+      "name": "mission-3-won",
+      "turn": 17568,
+      "time": 1464,
+      "status": "won",
+      "completedMissions": [
+        2,
+        3
+      ],
+      "stats": {
+        "built": 11,
+        "cast": 4,
+        "bridges": 0,
+        "trained": 18,
+        "battlesWon": [
+          39,
+          0,
+          11,
+          0
+        ]
+      },
+      "population": {
+        "blue": 10,
+        "green": 0,
+        "yellow": 0,
+        "red": 0
+      },
+      "conversionCount": 0,
+      "trainingOwnership": [
+        {
+          "building": 1021,
+          "turnBefore": 1630,
+          "turnAfter": 6630,
+          "selected": [
+            309,
+            513,
+            510,
+            303,
+            507
+          ],
+          "retainedBefore": [
+            312,
+            519,
+            516,
+            300,
+            522,
+            306,
+            589
+          ],
+          "retainedAfter": [
+            312,
+            519,
+            516,
+            300,
+            522,
+            306,
+            589
+          ],
+          "modifier": "Control",
+          "turns": 5000
+        }
+      ]
+    },
+    {
+      "name": "mission-3-result",
+      "turn": 17930,
+      "time": 1494.1666666666667,
+      "status": "won",
+      "completedMissions": [
+        2,
+        3
+      ],
+      "stats": {
+        "built": 11,
+        "cast": 4,
+        "bridges": 0,
+        "trained": 18,
+        "battlesWon": [
+          39,
+          0,
+          11,
+          0
+        ]
+      },
+      "population": {
+        "blue": 10,
+        "green": 0,
+        "yellow": 0,
+        "red": 0
+      },
+      "conversionCount": 0,
+      "trainingOwnership": [
+        {
+          "building": 1021,
+          "turnBefore": 1630,
+          "turnAfter": 6630,
+          "selected": [
+            309,
+            513,
+            510,
+            303,
+            507
+          ],
+          "retainedBefore": [
+            312,
+            519,
+            516,
+            300,
+            522,
+            306,
+            589
+          ],
+          "retainedAfter": [
+            312,
+            519,
+            516,
+            300,
+            522,
+            306,
+            589
+          ],
+          "modifier": "Control",
+          "turns": 5000
+        }
+      ]
+    }
+  ]
+}
