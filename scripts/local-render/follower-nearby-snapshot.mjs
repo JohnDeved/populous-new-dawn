@@ -86,12 +86,22 @@ export function nearbySurface(document, state, { pressed = false } = {}) {
         number: readNumber(button), expected: expectedNumber(counts.tasks[model][rowIndex + 1], false, active) }
     }))
   const meter = one('[role="meter"]', 'Population capacity')
+  const bounds = node => {
+    const r = node.getBoundingClientRect()
+    return { x: r.x, y: r.y, width: r.width, height: r.height }
+  }
   return {
     toggle: { pressed: toggle.getAttribute('aria-pressed'), disabled: toggle.disabled,
       sprite: readSprite(toggle.querySelector('.hud-sprite')),
       expectedSprite: sprite(875 + Number(active) * 2 + Number(pressed)) },
     meter: meter.getAttribute('aria-valuetext'),
     expectedMeter: `${state.population} of ${state.capacity}`, classes, tasks,
+    layout: {
+      viewport: [document.documentElement.clientWidth, document.documentElement.clientHeight],
+      dpr: document.defaultView.devicePixelRatio, toggle: bounds(toggle),
+      sprite: bounds(toggle.querySelector('.hud-sprite')),
+      controls: [...document.querySelectorAll('.tribe-classes button,.follower-tasks button')].map(bounds),
+    },
   }
 }
 

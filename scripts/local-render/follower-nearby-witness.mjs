@@ -1,20 +1,22 @@
 // Passive observation of the actual Page -> Scene request and elapsed dispatch.
 // This helper never invokes a game action, writes a World or changes a clock.
-export function createNearbyFollowerWitness({ scene, store, read, root, maxEvents = 128 }) {
+export function createNearbyFollowerWitness({ scene, store, read, root, maxEvents = 128, maxBytes = 2 * 1024 * 1024 }) {
   if (
     !scene?.isCurrent?.() || scene.world !== store?.getWorld?.() ||
     typeof read !== 'function' || !root?.addEventListener ||
-    !Number.isInteger(maxEvents) || maxEvents < 1
+    !Number.isInteger(maxEvents) || maxEvents < 1 || !Number.isInteger(maxBytes) || maxBytes < 262144
   ) throw Error('Current nearby Scene/store, snapshot and event root required')
   const world = scene.world, records = [], errors = [], restorers = [], listeners = [],
     counters = { requests: 0, commits: 0, selections: 0, cancellations: 0 },
     clock = { calls: 0, first: null, last: null },
-    add = root.addEventListener, remove = root.removeEventListener
-  let closed = false, exported = false, phase = 'entry', event = null, request = null,
-    overflow = false, errorCount = 0, ordinal = 0
+    add = root.addEventListener, remove = root.removeEventListener,
+    sizes = new Map(), size = value => new TextEncoder().encode(JSON.stringify(value)).length
+  let closed = false, exported = false, phase = 'entry', event = null, request = null, selection = null,
+    overflow = false, errorCount = 0, ordinal = 0, recordBytes = 0, terminal = null
   const error = value => {
     errorCount++
     if (errors.length < 16) errors.push(String(value?.stack ?? value).slice(0, 2048))
+    if (!closed) close()
   }
   const observe = action => {
     if (closed) return
@@ -35,8 +37,25 @@ export function createNearbyFollowerWitness({ scene, store, read, root, maxEvent
     }
     row.ordinal = ++ordinal
     row.phase = phase
+    const bytes = size(row)
+    if (recordBytes + bytes > maxBytes - 131072) {
+      overflow = true
+      throw Error('Nearby complete-export byte budget exhausted')
+    }
+    recordBytes += bytes
+    sizes.set(row, bytes)
     records.push(row)
     return row
+  }
+  const patch = (row, fields) => {
+    const bytes = size({ ...row, ...fields }), next = recordBytes - sizes.get(row) + bytes
+    if (next > maxBytes - 131072) {
+      overflow = true
+      throw Error('Nearby complete-export byte budget exhausted')
+    }
+    Object.assign(row, fields)
+    recordBytes = next
+    sizes.set(row, bytes)
   }
   const input = () => event?.eventPhase ? {
     type: event.type, trusted: event.isTrusted, phase: event.eventPhase,
@@ -49,7 +68,7 @@ export function createNearbyFollowerWitness({ scene, store, read, root, maxEvent
     const descriptor = Object.getOwnPropertyDescriptor(scene, name), original = scene[name]
     if (typeof original !== 'function') throw Error(`Actual Scene.${name} unavailable`)
     function wrapped(...args) {
-      const row = observe(() => before?.(args))
+      const row = observe(() => before?.(args, this))
       let result, failed = false, thrown
       try { result = original.apply(this, args) }
       catch (failure) { failed = true; thrown = failure }
@@ -66,16 +85,19 @@ export function createNearbyFollowerWitness({ scene, store, read, root, maxEvent
   }
   const finish = (row, failed) => {
     if (!row) return
-    row.threw = failed
-    row.after = snapshot()
+    patch(row, { threw: failed, after: snapshot() })
   }
   const capture = value => { if (!closed) event = value }
   const release = value => { if (event === value) event = null }
   function close() {
     if (closed) return status()
     closed = true
+    if (!errorCount) {
+      try { terminal = snapshot() } catch (failure) { error(failure) }
+    }
     event = null
     request = null
+    selection = null
     for (const args of listeners) {
       try { remove.call(root, ...args) } catch (failure) { error(failure) }
     }
@@ -86,7 +108,8 @@ export function createNearbyFollowerWitness({ scene, store, read, root, maxEvent
   }
   function status() {
     return { closed, exported, overflow, errorCount, errors: [...errors],
-      ...counters, clock: { ...clock }, records: records.length, phase }
+      ...counters, clock: { ...clock }, records: records.length, recordBytes, maxBytes, phase,
+      terminalMode: terminal?.nearby, terminalTurn: terminal?.turn }
   }
   try {
     wrap('requestNearbyFollowers', () => {
@@ -94,12 +117,14 @@ export function createNearbyFollowerWitness({ scene, store, read, root, maxEvent
       return request = append({ kind: 'request', input: input(), before: snapshot(), cues: [] })
     }, (row, args, result, failed) => {
       finish(row, failed)
-      if (row) row.admitted = result
+      if (row) patch(row, { admitted: result })
       request = null
     })
     wrap('onSound', args => {
-      if (request && [0x6e, 0x6f].includes(args[0]))
-        request.cues.push({ cue: args[0], attenuation: args[1], pan: args[2] })
+      if (request && [0x6e, 0x6f].includes(args[0])) {
+        if (request.cues.length >= 8) throw Error('Unexpected nearby cue repetition')
+        patch(request, { cues: [...request.cues, { cue: args[0], attenuation: args[1], pan: args[2] }] })
+      }
     })
     wrap('dispatchNearbyFollowers', args => {
       clock.calls++
@@ -115,11 +140,17 @@ export function createNearbyFollowerWitness({ scene, store, read, root, maxEvent
       })
     wrap('chooseFollowers', args => {
       counters.selections++
-      return append({ kind: 'selection', input: input(),
+      return selection = append({ kind: 'selection', input: input(), focusCalls: [],
         command: { model: args[0], shift: !!args[1]?.shiftKey,
           ctrl: !!args[1]?.ctrlKey, focus: !!args[2], category: args[3] ?? null },
         before: snapshot() })
-    }, (row, args, result, failed) => finish(row, failed))
+    }, (row, args, result, failed) => { finish(row, failed); selection = null })
+    wrap('focus', (args, receiver) => {
+      if (!selection) return
+      if (selection.focusCalls.length) throw Error('Unexpected repeated follower focus call')
+      patch(selection, { focusCalls: [{ point: structuredClone(args[0]),
+        options: structuredClone(args[1]), receiverMatches: receiver === scene }] })
+    })
     wrap('cancelNearbyFollowers', () => { counters.cancellations++ })
     for (const type of ['pointerdown', 'pointerup', 'pointercancel', 'click', 'contextmenu', 'keydown', 'keyup'])
       for (const [callback, capturing] of [[capture, true], [release, false]]) {
@@ -145,7 +176,9 @@ export function createNearbyFollowerWitness({ scene, store, read, root, maxEvent
       if (exported) throw Error('Nearby terminal evidence already exported')
       close()
       exported = true
-      return structuredClone({ ...status(), records })
+      const result = structuredClone({ ...status(), records, terminal })
+      if (size(result) > maxBytes) throw Error('Nearby complete export exceeds byte cap')
+      return result
     },
   }
 }

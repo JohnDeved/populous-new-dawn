@@ -6,12 +6,14 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createNearbyFollowerWitness } from '../scripts/local-render/follower-nearby-witness.mjs'
 import { assertNearbyEvidence } from '../scripts/local-render/follower-nearby-contract.mjs'
-import { selectTaskFollowers } from '../app/hud-tasks.ts'
+import { selectTaskFollowers, focusTaskFollower } from '../app/hud-tasks.ts'
+import { browserPosition } from '../app/world-coordinates.ts'
 
-function fixture({ own = false, readError = null, installFailure = false, maxEvents = 128 } = {}) {
+function fixture({ own = false, readError = null, installFailure = false, maxEvents = 128, largeRead = false } = {}) {
   const world = { castingTribes: [{ flags: 0x4000 }], turn: 12, selected: [] },
     people = [{ id: 1, model: 2, category: 2, x: 256, y: 256,
       flags4: 0x20000000, flags3: 0, selectionFlags: 0, assignment: 0 }],
+    focus = Array(8).fill(0), taskFocus = Array(48).fill(0), panels = [],
     listeners = [], calls = [], result = {}, root = {
       addEventListener(type, callback, capture) {
         assert.equal(this, root)
@@ -47,9 +49,17 @@ function fixture({ own = false, readError = null, installFailure = false, maxEve
       return result
     },
     cancelNearbyFollowers() { assert.equal(this, scene); pending = null; return result },
+    focus(point, options) { assert.equal(this, scene); calls.push(['focus', point, options]); return result },
     chooseFollowers(model, modifiers, focus, category) {
       assert.equal(this, scene)
-      assert.equal(focus, false)
+      if (focus) {
+        const index = model * 6 + category,
+          id = focusTaskFollower(people, model, category, { x: 0, y: 0 }, taskFocus[index],
+            modifiers.shiftKey, !!(world.castingTribes[0].flags & 128))
+        taskFocus[index] = id
+        if (id) { this.focus(browserPosition(people.find(p => p.id === id)), { animate: true }); panels.push(id) }
+        return result
+      }
       selectTaskFollowers(people, model, category, { x: 0, y: 0 },
         modifiers.shiftKey ? 'all' : modifiers.ctrlKey ? 'five' : 'single',
         !!(world.castingTribes[0].flags & 128))
@@ -66,20 +76,23 @@ function fixture({ own = false, readError = null, installFailure = false, maxEve
       return { flags: world.castingTribes[0].flags, nearby: !!(world.castingTribes[0].flags & 128),
         turn: world.turn, selected: [...world.selected], center: { x: 0, y: 0 },
         people: structuredClone(people), classPeople: structuredClone(people),
-        focus: Array(8).fill(0), taskFocus: Array(48).fill(0), panels: [] }
+        focus: [...focus], taskFocus: [...taskFocus], panels: [...panels],
+        ...(largeRead ? { suppliedLargeValue: 'x'.repeat(2 * 1024 * 1024) } : {}) }
     },
     api = createNearbyFollowerWitness({ scene, store, root, read, maxEvents })
-  const fire = async (action, { type = 'pointerup', microtask = false, trusted = true } = {}) => {
-    const button = { getAttribute: () => 'Nearby followers' },
-      event = { type, isTrusted: trusted, eventPhase: 1, button: 0, detail: 1,
-        target: { closest: () => button }, timeStamp: ++now }
+  const fire = async (action, { type = 'pointerup', microtask = false, trusted = true,
+    label = 'Nearby followers', button = 0 } = {}) => {
+    const targetButton = { getAttribute: () => label },
+      event = { type, isTrusted: trusted, eventPhase: 1, button, detail: 1,
+        target: { closest: () => targetButton }, timeStamp: ++now }
     for (const item of [...listeners]) if (item.type === type && item.capture) item.callback(event)
     if (microtask) await Promise.resolve()
     event.eventPhase = 3
-    const value = action()
-    for (const item of [...listeners]) if (item.type === type && !item.capture) item.callback(event)
-    event.eventPhase = 0
-    return value
+    try {
+      const value = action()
+      for (const item of [...listeners]) if (item.type === type && !item.capture) item.callback(event)
+      return value
+    } finally { event.eventPhase = 0 }
   }
   return { api, scene, world, store, root, prototype, descriptor, calls, listeners, result, fire,
     replace: () => { current = false }, failOriginal: error => { thrown = error } }
@@ -93,7 +106,8 @@ for (const own of [false, true]) test(`request, cue, deferred commit and actual 
   assert.equal(f.world.castingTribes[0].flags, 0x4000)
   assert.equal(f.scene.dispatchNearbyFollowers(100), f.result)
   assert.equal(f.world.castingTribes[0].flags, 0x4080)
-  assert.equal(await f.fire(() => f.scene.chooseFollowers(2, { shiftKey: false, ctrlKey: false }, false, 2)), f.result)
+  assert.equal(await f.fire(() => f.scene.chooseFollowers(2, { shiftKey: false, ctrlKey: false }, false, 2),
+    { type: 'click', label: 'Idle Braves' }), f.result)
   assert.deepEqual(f.world.selected, [1])
   const summary = f.api.status()
   assert.equal(summary.requests, 2)
@@ -120,6 +134,7 @@ test('observer failures never replace original result or exact thrown object', a
   const broken = fixture({ readError: Error('read-only snapshot failed') })
   assert.equal(await broken.fire(() => broken.scene.requestNearbyFollowers()), true)
   assert.ok(broken.api.take().errorCount > 0)
+  assert.equal(broken.api.status().closed, true, 'Observation failure immediately detaches')
   assert.equal(broken.listeners.length, 0)
 })
 
@@ -160,4 +175,36 @@ test('stale owners, absent trusted dispatch and overflow cannot claim ordinary p
   await bounded.fire(() => bounded.scene.requestNearbyFollowers())
   assert.equal(bounded.scene.dispatchNearbyFollowers(100), bounded.result)
   assert.equal(bounded.api.take().overflow, true)
+  assert.equal(bounded.scene.dispatchNearbyFollowers, bounded.prototype.dispatchNearbyFollowers)
+  const large = fixture({ largeRead: true })
+  assert.equal(await large.fire(() => large.scene.requestNearbyFollowers()), true)
+  const evidence = large.api.take()
+  assert.equal(evidence.closed, true)
+  assert.equal(evidence.overflow, true)
+  assert.ok(Buffer.byteLength(JSON.stringify(evidence)) <= evidence.maxBytes)
+})
+
+test('wrong control/event/modifiers/focus recipient, detached commits and empty endpoints fail', async () => {
+  const f = fixture()
+  await f.fire(() => f.scene.requestNearbyFollowers())
+  f.scene.dispatchNearbyFollowers(100)
+  await f.fire(() => f.scene.chooseFollowers(2, { shiftKey: false, ctrlKey: false }, true, 2),
+    { type: 'contextmenu', button: 2, label: 'Idle Braves' })
+  const evidence = f.api.take()
+  assertNearbyEvidence(evidence, { phases: ['entry'], nearby: true })
+  const tamper = change => {
+    const wrong = structuredClone(evidence)
+    change(wrong)
+    assert.throws(() => assertNearbyEvidence(wrong, { phases: ['entry'], nearby: true }))
+  }
+  tamper(value => { value.records[0].input.label = 'Planet overview' })
+  tamper(value => { value.records[0].input.type = 'pointerdown' })
+  tamper(value => { value.records[0].admitted = false })
+  tamper(value => { value.records[1].phase = 'unrelated' })
+  tamper(value => { value.records[2].input.shift = true })
+  tamper(value => { value.records[2].input.type = 'click' })
+  tamper(value => { value.records[2].focusCalls[0].point.x++ })
+  tamper(value => { value.records[2].focusCalls = [] })
+  tamper(value => { value.terminal.nearby = false })
+  tamper(value => { value.records = []; value.requests = 0; value.commits = 0 })
 })

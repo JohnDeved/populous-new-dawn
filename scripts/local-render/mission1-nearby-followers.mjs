@@ -17,7 +17,7 @@ export default async function ({ page, openMission, output, receipt, signal, obs
     deadline = Date.now() + 210000,
     save = () => writeFileSync(resolve(output, 'mission1-nearby-followers.json'), `${JSON.stringify(report, null, 2)}\n`),
     witnesses = []
-  let witness, checkpoint, failure, input, heldPrimary = false
+  let witness, checkpoint, failure, input, cdp, heldPrimary = false
   const admit = () => { signal.throwIfAborted(); assert.ok(Date.now() < deadline, 'Nearby episode deadline expired') }
   const wait = async (read, accepts, label, duration = 5000) => {
     const end = Math.min(deadline, Date.now() + duration)
@@ -56,12 +56,21 @@ export default async function ({ page, openMission, output, receipt, signal, obs
   }
   const inspect = async (label, pressed = false) => {
     admit()
-    await wait(() => witness.evaluate((api, pressed) => api.inspectStatus(pressed), pressed),
-      value => value.matched, `${label} DOM commit`)
-    const observed = await witness.evaluate((api, pressed) => api.inspect(pressed), pressed)
-    assertNearbySurface(observed.state, observed.surface)
+    let observed, observationError
+    try {
+      await wait(() => witness.evaluate((api, pressed) => api.inspectStatus(pressed), pressed),
+        value => value.matched, `${label} DOM commit`)
+      observed = await witness.evaluate((api, pressed) => api.inspect(pressed), pressed)
+    } catch (error) { observationError = error }
+    try { await screenshot(label) }
+    catch (error) {
+      if (observationError) report.errors.push(String(error))
+      else observationError = error
+    }
+    if (observationError) throw observationError
     report.stages.push({ label, ...observed })
     save()
+    assertNearbySurface(observed.state, observed.surface)
     return observed.state
   }
   const screenshot = name => page.screenshot({ path: resolve(output, `${name}.png`), timeout: 5000 })
@@ -73,11 +82,14 @@ export default async function ({ page, openMission, output, receipt, signal, obs
     }
     assert.equal(await witness.evaluate(api => api.snapshot().selected.length), 0)
   }
-  const toggle = async label => {
+  const toggle = async (label, keyboard = false) => {
     await mark(label)
     const before = await status(), state = await witness.evaluate(api => api.snapshot()),
       button = page.getByRole('button', { name: 'Nearby followers', exact: true })
-    await input.action(label, () => button.click())
+    await input.action(label, async () => {
+      if (keyboard) { await button.focus(); await page.keyboard.press('Enter') }
+      else await button.click()
+    })
     await wait(status, value => value.requests === before.requests + 1 && value.commits === before.commits + 1,
       `${label} real elapsed commit`)
     const after = await inspect(label)
@@ -117,7 +129,6 @@ export default async function ({ page, openMission, output, receipt, signal, obs
     assert.equal(report.home.status, 'playing')
     assert.equal(report.home.overview, false)
     assert.equal(report.home.inputMask, 0)
-    await screenshot('global-home')
 
     // Hold through real dispatcher frames; no injected timestamp or arbitrary
     // settle sleep decides when the feature has committed.
@@ -127,13 +138,11 @@ export default async function ({ page, openMission, output, receipt, signal, obs
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
     await page.mouse.down(); heldPrimary = true
     await wait(status, value => value.clock.last - heldBefore.clock.last >= 200, 'Natural held dispatch frames')
-    assert.equal((await status()).requests, heldBefore.requests)
     await inspect('global-pressed', true)
-    await screenshot('global-pressed')
+    assert.equal((await status()).requests, heldBefore.requests)
     await page.mouse.up(); heldPrimary = false
     await wait(status, value => value.commits === heldBefore.commits + 1, 'Release elapsed commit')
     await inspect('nearby-home')
-    await screenshot('nearby-home')
 
     const home = report.home.blue.find(unit => unit.id === report.readiness.after.shaman.id)
     assert.ok(home)
@@ -143,7 +152,6 @@ export default async function ({ page, openMission, output, receipt, signal, obs
     assert.ok(away.global.displayTotals[2] > 0 && away.global.tasks[2][2] > 0)
     assert.equal(away.local.displayTotals[2], 0)
     assert.equal(away.local.tasks[2][2], 0)
-    await screenshot('nearby-away')
     for (const [label, modifiers, button] of [
       ['Idle Braves', [], 'left'], ['Idle Braves', ['Shift'], 'left'],
       ['Idle Braves', [], 'right'], ['Select brave', [], 'left'],
@@ -155,13 +163,14 @@ export default async function ({ page, openMission, output, receipt, signal, obs
     const globalAway = await toggle('global-away')
     assert.deepEqual(globalAway.center, away.center)
     assert.equal(globalAway.global.displayTotals[2], away.global.displayTotals[2])
-    await screenshot('global-away')
     await mark('global-away-select')
     await input.button('Idle Braves')
+    await inspect('global-away-selected')
     assert.equal((await witness.evaluate(api => api.snapshot().selected)).length, 1)
     await mark('global-away-focus')
     await input.action('Idle Brave focus', () => page.getByRole('button', { name: 'Idle Braves', exact: true }).click({ button: 'right' }))
     await input.settle()
+    await inspect('global-focused')
     await input.view(home)
     await clear()
     await mark('global-home-five')
@@ -175,12 +184,11 @@ export default async function ({ page, openMission, output, receipt, signal, obs
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
     await page.mouse.down(); heldPrimary = true
     await inspect('nearby-pressed', true)
-    await screenshot('nearby-pressed')
     await page.mouse.move(600, 400)
     await page.mouse.up(); heldPrimary = false
     await input.action('Secondary mode input', () => page.getByRole('button', { name: 'Nearby followers', exact: true }).click({ button: 'right' }))
-    assert.equal((await status()).requests, canceled.requests)
     await inspect('nearby-canceled')
+    assert.equal((await status()).requests, canceled.requests)
 
     await input.button('Game settings')
     await page.locator('dialog.game-dialog').waitFor({ state: 'visible' })
@@ -246,20 +254,35 @@ export default async function ({ page, openMission, output, receipt, signal, obs
     await followers()
     await install()
     await inspect('loaded-nearby')
-    await screenshot('loaded-nearby')
     await toggle('loaded-global')
+    // Same maintained CDP device-metrics path as check-browser-display-audio.
+    // Browser display emulation does not touch World, camera or simulation time.
+    cdp = await page.context().newCDPSession(page)
+    await page.setViewportSize({ width: 1280, height: 720 })
+    await cdp.send('Emulation.setDeviceMetricsOverride', {
+      width: 1280, height: 720, deviceScaleFactor: 2, mobile: false,
+    })
+    await wait(() => page.evaluate(() => ({ width: innerWidth, height: innerHeight, dpr: devicePixelRatio })),
+      value => value.width === 1280 && value.height === 720 && value.dpr === 2, 'Compact DPR2 presentation')
+    await inspect('compact-global')
+    await toggle('compact-nearby')
+    await toggle('compact-keyboard-global', true)
     assert.deepEqual(receipt.errors, [])
     report.status = 'observed'
   } catch (error) {
     failure = error; report.status = 'failed'; report.failure = String(error?.stack ?? error)
   } finally {
+    if (failure) try { await screenshot('nearby-terminal-failure') }
+    catch (error) { report.errors.push(String(error)) }
     if (heldPrimary) try { await page.mouse.up() } catch (error) { report.errors.push(String(error)) }
     report.epochs = []
     for (const handle of witnesses) {
       try {
         const evidence = await handle.evaluate(api => api.take())
         report.epochs.push(evidence)
-        assertNearbyEvidence(evidence)
+        assertNearbyEvidence(evidence, report.epochs.length === 1
+          ? { phases: ['global-held', 'global-away', 'nearby-before-save'], nearby: true }
+          : { phases: ['loaded-global', 'compact-nearby', 'compact-keyboard-global'], nearby: false })
       } catch (error) { report.errors.push(String(error?.stack ?? error)) }
       finally { try { await handle.dispose() } catch (error) { report.errors.push(String(error)) } }
     }
@@ -273,7 +296,12 @@ export default async function ({ page, openMission, output, receipt, signal, obs
           assert.deepEqual(state.cleanup, { listener: true, subscription: true })
         }
       } catch (error) { report.errors.push(String(error?.stack ?? error)) }
-      finally { await checkpoint.dispose() }
+      finally { try { await checkpoint.dispose() } catch (error) { report.errors.push(String(error)) } }
+    }
+    if (cdp) {
+      try { await cdp.send('Emulation.clearDeviceMetricsOverride') }
+      catch (error) { report.errors.push(String(error)) }
+      try { await cdp.detach() } catch (error) { report.errors.push(String(error)) }
     }
     if (report.status === 'observed' && !report.errors.length) report.status = 'passed'
     else report.status = 'failed'
