@@ -1,6 +1,19 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { tornadoWoodImpact, attachTornadoBuildingObservation } from '../scripts/local-render/tornado-building-witness.mjs'
+import { createWorld, cast } from '../app/model.ts'
+import { advanceGame } from '../app/game-clock.ts'
+import { UnitMotion } from '../app/unit-motion.ts'
+
+const expected = { targetId: 1, shamanId: 54, projectileId: 20 }
+function fixture(clock = { beforeTurn() {}, afterTurn() {} }) {
+  const world = { turn: 0, outcome: { level: 2 },
+    buildings: [{ id: 1, kind: 'camp', team: 'green', level: 1, x: 1, z: -1, hp: 260, progress: 1 }],
+    units: [{ id: 54, kind: 'shaman', team: 'blue', hp: 100 }],
+    projectiles: [{ id: 20, spell: 'tornado', caster: 54 }], effects: [], trees: [] }
+  const scene = { world, gameClock: clock }, store = { getWorld: () => world }
+  return { world, scene, store, clock }
+}
 
 function impact() {
   const before = { turn: 10, competing: [], building: { id: 7, x: 1, z: -1,
@@ -43,20 +56,14 @@ test('Tornado witness requires owned effect, cell, work, log and competing-owner
 })
 
 test('Tornado witness preserves callback receiver, arguments, result and owned cleanup', () => {
-  const building = { id: 7, kind: 'hut', level: 1, x: 1, z: -1, hp: 170, progress: 1 }
-  const shaman = { id: 8, kind: 'shaman', hp: 100 }
-  const projectile = { id: 20, spell: 'tornado', caster: 8 }
-  const world = { turn: 0, buildings: [building], units: [shaman], projectiles: [projectile],
-    effects: [], trees: [] }
   const calls = []
   const clock = {
     beforeTurn(...args) { calls.push(['before', this === clock, args]); return 17 },
     afterTurn(...args) { calls.push(['after', this === clock, args]); return 18 },
   }
   const before = clock.beforeTurn, after = clock.afterTurn
-  const scene = { world, gameClock: clock }
-  const observer = attachTornadoBuildingObservation(scene, { getWorld: () => world },
-    { targetId: 7, shamanId: 8, projectileId: 20 })
+  const { world, scene, store } = fixture(clock)
+  const observer = attachTornadoBuildingObservation(scene, store, expected)
   assert.equal(clock.beforeTurn('a'), 17)
   world.turn++
   assert.equal(clock.afterTurn('b'), 18)
@@ -70,21 +77,123 @@ test('Tornado witness preserves callback receiver, arguments, result and owned c
   assert.equal(observer.finish(), evidence)
 })
 
-test('Tornado witness retains ownership failures without replacing foreign callbacks', () => {
-  const world = { turn: 0, buildings: [{ id: 7, kind: 'hut', level: 1, x: 1, z: -1,
-    hp: 170, progress: 1 }], units: [{ id: 8, hp: 100 }],
-    projectiles: [{ id: 20, spell: 'tornado', caster: 8 }], effects: [], trees: [] }
-  const clock = { beforeTurn() {}, afterTurn() {} }, scene = { world, gameClock: clock }
-  const observer = attachTornadoBuildingObservation(scene, { getWorld: () => world },
-    { targetId: 7, shamanId: 8, projectileId: 20 })
+test('Tornado witness detaches on error and retains foreign callback ownership', () => {
+  const { world, clock, scene, store } = fixture()
+  const before = clock.beforeTurn, after = clock.afterTurn
+  const observer = attachTornadoBuildingObservation(scene, store, expected)
   clock.beforeTurn()
   world.turn += 2
   clock.afterTurn()
   assert.match(observer.status().errors[0], /Missing or duplicate turn/)
+  assert.equal(clock.beforeTurn, before)
+  assert.equal(clock.afterTurn, after)
+  assert.equal(observer.finish().restored, true)
+  const second = attachTornadoBuildingObservation(scene, store, expected)
   const foreign = () => 42
   clock.afterTurn = foreign
-  const evidence = observer.finish()
+  const evidence = second.finish()
   assert.equal(evidence.restored, false)
   assert.equal(clock.afterTurn, foreign)
   assert.deepEqual(evidence.cleanupErrors, ['afterTurn ownership changed'])
+})
+
+test('Tornado observer forwards original throw identity and rolls back partial installation', () => {
+  for (const phase of ['beforeTurn', 'afterTurn']) {
+    const failure = new Error(`${phase} original failure`)
+    const clock = { beforeTurn() {}, afterTurn() {} }
+    clock[phase] = () => { throw failure }
+    const original = clock[phase], { scene, store } = fixture(clock)
+    const observer = attachTornadoBuildingObservation(scene, store, expected)
+    assert.throws(() => clock[phase](), error => error === failure)
+    assert.equal(clock[phase], original)
+    assert.match(observer.finish().errors[0], /original failure/)
+  }
+  const failure = new Error('afterTurn install failed')
+  const original = { beforeTurn() {}, afterTurn() {} }
+  const clock = new Proxy({ ...original }, { set(target, key, value) {
+    if (key === 'afterTurn') throw failure
+    return Reflect.set(target, key, value)
+  } })
+  const { scene, store } = fixture(clock)
+  assert.throws(() => attachTornadoBuildingObservation(scene, store, expected), error => error === failure)
+  assert.equal(clock.beforeTurn, original.beforeTurn)
+  assert.equal(clock.afterTurn, original.afterTurn)
+})
+
+test('Tornado observer attempts both restorations and stops after the turn cap', () => {
+  let rejectRestore = false
+  const originals = { beforeTurn() {}, afterTurn() {} }
+  const clock = new Proxy({ ...originals }, { defineProperty(target, key, descriptor) {
+    if (rejectRestore && key === 'beforeTurn') throw Error('before restore failed')
+    return Reflect.defineProperty(target, key, descriptor)
+  } })
+  const { world, scene, store } = fixture(clock)
+  const observer = attachTornadoBuildingObservation(scene, store, expected)
+  for (let turn = 0; turn < 320; turn++) { clock.beforeTurn(); world.turn++; clock.afterTurn() }
+  assert.equal(observer.status().visits, 320)
+  assert.match(observer.status().errors[0], /320-turn/)
+  assert.equal(clock.afterTurn, originals.afterTurn)
+  clock.beforeTurn(); world.turn++; clock.afterTurn()
+  assert.equal(observer.status().visits, 320)
+  const second = attachTornadoBuildingObservation(scene, store, expected)
+  rejectRestore = true
+  const evidence = second.finish()
+  assert.equal(evidence.restored, false)
+  assert.match(evidence.cleanupErrors[0], /before restore failed/)
+  assert.equal(clock.afterTurn, originals.afterTurn)
+})
+
+test('Tornado observer rejects wrong and second live effect identities', () => {
+  for (const mode of ['wrong-tribe', 'second-effect']) {
+    const { world, clock, scene, store } = fixture()
+    const observer = attachTornadoBuildingObservation(scene, store, expected)
+    clock.beforeTurn()
+    const effect = { id: 21, kind: 'tornado', tornado: { tribe: mode === 'wrong-tribe' ? 3 : 0,
+      x: 2304, y: -1792, phase: 0, remaining: 200 } }
+    world.effects.push(effect)
+    world.turn++
+    clock.afterTurn()
+    if (mode === 'second-effect') {
+      clock.beforeTurn()
+      world.effects.push({ ...effect, id: 22 })
+      world.turn++
+      clock.afterTurn()
+    }
+    assert.ok(observer.status().errors.length > 0, mode)
+    assert.equal(observer.finish().restored, true)
+  }
+})
+
+test('Tornado observer composes actual advanceGame, projectile impact and live building damage', () => {
+  const world = createWorld(2)
+  const target = world.buildings.find(b => b.id === 1), shaman = world.units.find(u => u.id === 54)
+  // Supplied Node setup only. It cannot establish the separate earned-stock UI witness.
+  world.units = [shaman]
+  world.buildings = [target]
+  world.effects = []
+  world.trees = []
+  Object.assign(shaman, { x: target.x, z: target.z + 8, path: [], native: null, casting: null })
+  world.selected = [shaman.id]
+  world.shots.tornado = 1
+  const motion = new UnitMotion()
+  const clock = { animationTime: 0, animationFrame: 0,
+    beforeTurn: () => motion.beforeTurn(world), afterTurn: () => motion.afterTurn(world) }
+  const scene = { world, gameClock: clock }, store = { getWorld: () => world }
+  const observer = attachTornadoBuildingObservation(scene, store, { targetId: 1, shamanId: 54 })
+  assert.ok(cast(world, 'tornado', target))
+  const projectileId = world.projectiles.find(p => p.spell === 'tornado').id
+  for (let turn = 0; !observer.status().terminal && turn < 320; turn++) advanceGame(world, clock, 1 / 12)
+  const evidence = observer.finish()
+  assert.deepEqual(evidence.errors, [])
+  assert.deepEqual(evidence.cleanupErrors, [])
+  assert.equal(evidence.restored, true)
+  assert.equal(evidence.terminal.reason, 'impact')
+  assert.equal(observer.status().projectileId, projectileId)
+  assert.equal(evidence.impacts.length, 1)
+  const impact = evidence.impacts[0]
+  assert.equal(impact.before.work - impact.after.work, 100)
+  assert.ok(world.trees.some(tree => tree.id === impact.log.id && tree.model === 11 && tree.logs === 1))
+  const visits = evidence.visits.length
+  advanceGame(world, clock, 1 / 12)
+  assert.equal(evidence.visits.length, visits, 'First accepted impact detaches atomically')
 })

@@ -40,14 +40,23 @@ export function attachTornadoBuildingObservation(scene, store, expected, current
   const world = scene.world, clock = scene.gameClock
   const building = world.buildings.find(b => b.id === expected.targetId)
   const shaman = world.units.find(u => u.id === expected.shamanId)
-  const projectile = world.projectiles.find(p => p.id === expected.projectileId)
-  insist(building && shaman && projectile?.spell === 'tornado' && projectile.caster === shaman.id,
-    'Actual target, original caster and accepted Tornado projectile required')
+  let projectile = world.projectiles.find(p => p.id === expected.projectileId)
+  insist(building && shaman && (!expected.projectileId ||
+    projectile?.spell === 'tornado' && projectile.caster === shaman.id),
+    'Actual target, original caster and optional accepted Tornado projectile required')
+  insist(world.outcome.level === 2 && expected.targetId === 1 && expected.shamanId === 54 &&
+    shaman.team === 'blue' && shaman.kind === 'shaman' && shaman.hp > 0 &&
+    building.team === 'green' && building.kind === 'camp' && buildingModel(building) === 7 &&
+    building.hp > 0 && !building.preparation && !building.burn && !building.upgrading,
+    'Original Blue Shaman54 and live authored Green Camp1 required')
   insist(!world.effects.some(f => f.tornado), 'Earlier Tornado prevents effect attribution')
+  insist(!world.projectiles.some(p => p !== projectile && p.spell === 'tornado'),
+    'Earlier Tornado projectile prevents attribution')
   const originalIds = new Set(world.effects.map(f => f.id))
+  const originalProjectiles = new Set(world.projectiles.map(p => p.id))
   const treeIds = new Set(world.trees.map(tree => tree.id))
   const evidence = { expected, initialTurn: world.turn, visits: [], impacts: [], errors: [],
-    cleanupErrors: [], restored: false }
+    cleanupErrors: [], restored: false, terminal: null }
   const descriptors = new Map(['beforeTurn', 'afterTurn'].map(name =>
     [name, Object.getOwnPropertyDescriptor(clock, name)]))
   const originals = { beforeTurn: clock.beforeTurn, afterTurn: clock.afterTurn }
@@ -56,24 +65,35 @@ export function attachTornadoBuildingObservation(scene, store, expected, current
   const checkOwner = () => {
     insist(currentScene() === scene && scene.world === world && store.getWorld() === world &&
       scene.gameClock === clock, 'Scene/store/clock ownership changed')
-    insist(world.units.find(u => u.id === shaman.id) === shaman && shaman.hp > 0,
+    insist(world.units.find(u => u.id === shaman.id) === shaman && shaman.hp > 0 &&
+      shaman.team === 'blue' && shaman.kind === 'shaman',
       'Original Shaman lost during observation')
     const target = world.buildings.find(b => b.id === building.id)
     insist(!target || target === building, 'Building identity replaced during observation')
+    insist(building.kind === 'camp' && building.team === 'green' && buildingModel(building) === 7,
+      'Authored Camp model/ownership changed')
   }
   const capture = () => {
     checkOwner()
+    if (!projectile) {
+      const fresh = world.projectiles.filter(p => !originalProjectiles.has(p.id) && p.spell === 'tornado')
+      insist(fresh.length <= 1 && (!fresh.length || fresh[0].caster === shaman.id),
+        'New Tornado projectile has ambiguous ownership')
+      if (fresh.length) projectile = fresh[0]
+    }
     const fresh = world.effects.filter(f => f.tornado && !originalIds.has(f.id))
     if (!owned && fresh.length) {
-      insist(fresh.length === 1 && fresh[0].tornado.tribe === 0, 'Ambiguous Tornado ownership')
+      insist(projectile && fresh.length === 1 && fresh[0].tornado.tribe === 0, 'Ambiguous Tornado ownership')
       owned = fresh[0]
     }
+    insist(fresh.length <= 1 && (!fresh.length || fresh[0] === owned) &&
+      (!owned || owned.tornado.tribe === 0), 'Owned Tornado was replaced or joined by a second effect')
     const model = buildingModel(building), life = rules.buildingLife[model]
     const work = building.damageState?.plan.remaining ??
       Math.trunc(Math.min(building.progress, building.hp / buildingHp(building.kind)) * life)
     const competing = [
       ...world.effects.filter(f => f !== owned && harmful.has(f.kind)).map(f => `effect:${f.id}`),
-      ...world.projectiles.filter(p => p.id !== projectile.id).map(p => `projectile:${p.id}`),
+      ...world.projectiles.filter(p => p.id !== projectile?.id).map(p => `projectile:${p.id}`),
       ...world.units.filter(u => u.hp > 0 && (u.target === building.id ||
         (u.work === building.id && (u.builder || u.delivery || u.cargo > 0))))
         .map(u => `worker:${u.id}`),
@@ -89,24 +109,53 @@ export function attachTornadoBuildingObservation(scene, store, expected, current
       present: world.buildings.includes(building), attacker: building.damageState?.attacker ?? null },
       tornado: tornado && { id: owned.id, x: tornado.x, y: tornado.y, phase: tornado.phase,
         remaining: tornado.remaining, tribe: tornado.tribe },
-      projectilePresent: world.projectiles.includes(projectile) }
+      projectilePresent: !!projectile && world.projectiles.includes(projectile) }
+  }
+  const errorText = error => String(error?.stack ?? error)
+  const close = reason => {
+    if (finished) return evidence
+    finished = true
+    evidence.terminal = { reason, turn: world.turn }
+    for (const [name, wrapper] of [['beforeTurn', wrappedBefore], ['afterTurn', wrappedAfter]]) {
+      try {
+        if (clock[name] === originals[name]) continue
+        if (clock[name] !== wrapper) evidence.cleanupErrors.push(`${name} ownership changed`)
+        else if (descriptors.get(name)) Object.defineProperty(clock, name, descriptors.get(name))
+        else delete clock[name]
+      } catch (error) { evidence.cleanupErrors.push(`${name}: ${errorText(error)}`) }
+    }
+    evidence.restored = !evidence.cleanupErrors.length
+    return evidence
   }
   const safe = fn => {
+    if (finished) return
     try { fn() } catch (error) {
-      if (evidence.errors.length < 8) evidence.errors.push(String(error?.stack ?? error))
+      evidence.errors.push(errorText(error))
+      close('error')
     }
   }
   const wrappedBefore = function (...args) {
-    const result = originals.beforeTurn.apply(this, args)
+    let result
+    try { result = originals.beforeTurn.apply(this, args) }
+    catch (error) {
+      evidence.errors.push(errorText(error))
+      close('original-before-throw')
+      throw error
+    }
     safe(() => { before = capture() })
     return result
   }
   const wrappedAfter = function (...args) {
-    try { return originals.afterTurn.apply(this, args) }
-    finally { safe(() => {
+    let result
+    try { result = originals.afterTurn.apply(this, args) }
+    catch (error) {
+      evidence.errors.push(errorText(error))
+      close('original-after-throw')
+      throw error
+    }
+    safe(() => {
       const after = capture()
       insist(before && after.turn === before.turn + 1, 'Missing or duplicate turn observation')
-      insist(evidence.visits.length < 320, 'Declared 320-turn Tornado observation exhausted')
       const logs = world.trees.filter(tree => !treeIds.has(tree.id) && tree.model === 11 &&
         tree.x === building.x && tree.z === building.z).map(tree =>
         ({ id: tree.id, x: tree.x, z: tree.z, model: tree.model, logs: tree.logs }))
@@ -114,28 +163,26 @@ export function attachTornadoBuildingObservation(scene, store, expected, current
       const impact = tornadoWoodImpact(before, after, logs)
       if (impact) evidence.impacts.push(impact)
       evidence.visits.push({ before, after, logs })
-    }) }
+      if (impact) close('impact')
+      else if (evidence.visits.length === 320)
+        throw Error('Declared 320-turn Tornado observation exhausted')
+    })
+    return result
   }
-  clock.beforeTurn = wrappedBefore
-  clock.afterTurn = wrappedAfter
+  try {
+    clock.beforeTurn = wrappedBefore
+    clock.afterTurn = wrappedAfter
+  } catch (error) {
+    evidence.errors.push(errorText(error))
+    close('installation-error')
+    throw error
+  }
   return {
     status() {
-      checkOwner()
-      return { turn: world.turn, impacts: evidence.impacts.length, visits: evidence.visits.length,
-        effectId: owned?.id ?? null, ended: !!owned && !world.effects.includes(owned),
-        errors: [...evidence.errors] }
+      return { turn: evidence.terminal?.turn ?? world.turn, impacts: evidence.impacts.length, visits: evidence.visits.length,
+        projectileId: projectile?.id ?? null, effectId: owned?.id ?? null, ended: !!owned && !world.effects.includes(owned),
+        terminal: evidence.terminal, errors: [...evidence.errors], cleanupErrors: [...evidence.cleanupErrors] }
     },
-    finish() {
-      if (finished) return evidence
-      finished = true
-      for (const [name, wrapper] of [['beforeTurn', wrappedBefore], ['afterTurn', wrappedAfter]]) {
-        if (clock[name] !== wrapper) evidence.cleanupErrors.push(`${name} ownership changed`)
-        else if (descriptors.get(name)) Object.defineProperty(clock, name, descriptors.get(name))
-        else delete clock[name]
-      }
-      evidence.restored = !evidence.cleanupErrors.length &&
-        Object.keys(originals).every(name => clock[name] === originals[name])
-      return evidence
-    },
+    finish: () => close('manual'),
   }
 }
