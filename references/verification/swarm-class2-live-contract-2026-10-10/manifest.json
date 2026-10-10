@@ -1,0 +1,258 @@
+{
+  "kind": "finite-current-live-class2-event-owner-contract",
+  "currentMain": "3b13a7ff534ab95797b0b06330055cead956160d",
+  "currentTree": "f821f3d711694cbb74e4c2c70e4ab2ce4ff5834c",
+  "researchHead": "cdaa0771cf2bc8809543b00dcd521d642b74ccb4",
+  "priorAssessmentMain": "f9675f56c597ec83adf02f28e9801bfc6bbd0490",
+  "sourceBindings": [
+    {
+      "path": "app/object-cells.ts",
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "sha256": "cc693d083d0829c69f6295d9710b3c7762bd70f407ff9c5c408380dbd7465909",
+      "bytes": 2522,
+      "matchesPriorOwnerAudit": true
+    },
+    {
+      "path": "app/construction-runtime.ts",
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "sha256": "2ea49ae789ae747732c3bc327d58735f501b52dfcff84c17eef83ca4386c0653",
+      "bytes": 16414,
+      "matchesPriorOwnerAudit": true
+    },
+    {
+      "path": "app/world-initialization.ts",
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "sha256": "0b2accb95c180d87e71bad8788f9c28f3f49ab8af66d5189fd26af69ab717fe2",
+      "bytes": 19595,
+      "matchesPriorOwnerAudit": true
+    },
+    {
+      "path": "app/computer-runtime.ts",
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "sha256": "b527c2c854b6e0b0a49f9c096057e738b1f8cd4bc3060a53bec8284501cf0273",
+      "bytes": 77598,
+      "matchesPriorOwnerAudit": false
+    },
+    {
+      "path": "app/world-turn.ts",
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "sha256": "20b2290596d9059bc1dda421ce45798a6d547f94c9aa9e0a98a4e8f64068f93c",
+      "bytes": 66311,
+      "matchesPriorOwnerAudit": true
+    },
+    {
+      "path": "app/world-terrain-runtime.ts",
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "sha256": "4fcf001bde3e32f5647a6efa25066dc9332320f244b034a8f41881a15af4a757",
+      "bytes": 9814,
+      "matchesPriorOwnerAudit": true
+    },
+    {
+      "path": "app/live-people.ts",
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "sha256": "2ff72ddb1fd4448b5afc8bde03fc50ce625eb75768f184c746988609aa86527b",
+      "bytes": 45119,
+      "matchesPriorOwnerAudit": true
+    },
+    {
+      "path": "app/live-building-entry.ts",
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "sha256": "e09c7d00e3b32438e9634e2e21b0a11ce79bf38e9d7d547e342fda1011124404",
+      "bytes": 24651,
+      "matchesPriorOwnerAudit": true
+    },
+    {
+      "path": "app/world-types.ts",
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "sha256": "f37b4780e5bc0a949431c08fadb2db059b32f395449daaeee4a06ed648719909",
+      "bytes": 15648,
+      "matchesPriorOwnerAudit": true
+    },
+    {
+      "path": "app/world-state.ts",
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "sha256": "880c00574e29d9f9e2cffd59d79ff337dcfe07d023d45b95481c09ff9e056ff6",
+      "bytes": 12421,
+      "matchesPriorOwnerAudit": true
+    },
+    {
+      "path": "app/game-store.ts",
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "sha256": "300cc63a292b79057bc64457dcfd087b2f7162194e2108d753e899c35861c675",
+      "bytes": 18440,
+      "matchesPriorOwnerAudit": true
+    },
+    {
+      "path": "app/building-shapes.ts",
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "sha256": "86882bf5526a48035a1ed61b72f710139e0ddcc67d60f94f9279901636aaff92",
+      "bytes": 17581,
+      "matchesPriorOwnerAudit": true
+    },
+    {
+      "path": "app/vault-geometry.ts",
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "sha256": "64bcf40c8c861559e29f8b0cf54d6df5a8b6398c4490b6f9c01c3bcb225f8849",
+      "bytes": 1705,
+      "matchesPriorOwnerAudit": true
+    },
+    {
+      "path": "app/vault.ts",
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "sha256": "ff4fb2f54e2cec4ef4322e32e91f3ee310dcbf1a9b3009054e59b8096ef48aa6",
+      "bytes": 7420,
+      "matchesPriorOwnerAudit": true
+    },
+    {
+      "path": "app/building-runtime.ts",
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "sha256": "d62fca552e99bf96792f21361fd73047b3fe064f2fcfbfb8af2307ba9e732463",
+      "bytes": 10174,
+      "matchesPriorOwnerAudit": true
+    },
+    {
+      "path": "app/live-building-combat.ts",
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "sha256": "da6d3bb16903a741ac9d4ce925d7e188ec1113071fd46d5791d7d163c0b1cb30",
+      "bytes": 28337,
+      "matchesPriorOwnerAudit": true
+    },
+    {
+      "path": "app/live-command.ts",
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "sha256": "a53f4f0a64104dabacdfb1d2242c1979baa047a89f192a89a52b1c72a702bdca",
+      "bytes": 29207,
+      "matchesPriorOwnerAudit": true
+    },
+    {
+      "path": "app/armageddon.ts",
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "sha256": "6cd2ad4301e6aaf4680b1413398e16f159b0e26f41792c7415b4bb64564a2280",
+      "bytes": 9227,
+      "matchesPriorOwnerAudit": true
+    },
+    {
+      "path": "app/swarm.ts",
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "sha256": "a388ff1ad7686824445cd9acfe7b0e5c63c102cda87bef31a09bfa7e925312c4",
+      "bytes": 5234,
+      "matchesPriorOwnerAudit": true
+    },
+    {
+      "path": "app/spell-effects-runtime.ts",
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "sha256": "3ff1e427906790f8f16ee7bf97dfa5003cb4e80c4e8777344ae63b449146123e",
+      "bytes": 43296,
+      "matchesPriorOwnerAudit": true
+    },
+    {
+      "path": "app/world-effects.ts",
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "sha256": "265779df0ac4a6a576acd8f342b22ee174864a5f7515f2f25f8ca3d5ff3d354d",
+      "bytes": 15021
+    },
+    {
+      "path": "decomp/generated/004ed8a0.c",
+      "sourceRevision": "cdaa0771cf2bc8809543b00dcd521d642b74ccb4",
+      "sha256": "0a3e6654f1c046935bf0a75e32d8691f641fa13fad6c82dc06f3783ba520e5c9",
+      "bytes": 4171
+    },
+    {
+      "path": "decomp/generated/004b8470.c",
+      "sourceRevision": "cdaa0771cf2bc8809543b00dcd521d642b74ccb4",
+      "sha256": "e99734b6e278810068a6c50d03f09a6b6301274e211d5a607c21a2b151468f3c",
+      "bytes": 14168
+    },
+    {
+      "path": "decomp/generated/004050c0.c",
+      "sourceRevision": "cdaa0771cf2bc8809543b00dcd521d642b74ccb4",
+      "sha256": "32639b081bbccedaf7a9d2edceea3e3e33817b515514b2199640d04a9a04af50",
+      "bytes": 9674
+    },
+    {
+      "path": "decomp/research/swarm-class2-lifecycle-ownership.md",
+      "sourceRevision": "cdaa0771cf2bc8809543b00dcd521d642b74ccb4",
+      "sha256": "ce83bd1b1926615407d6e9afa849909684f8e013028a82475ad91224418d2234",
+      "bytes": 19177
+    },
+    {
+      "path": "decomp/research/swarm-class2-lifecycle-bindings.json",
+      "sourceRevision": "cdaa0771cf2bc8809543b00dcd521d642b74ccb4",
+      "sha256": "258213b2c0099312b4c49d1cd744dc83ae521eca0e3236841f2727362d6f8513",
+      "bytes": 16003
+    },
+    {
+      "path": "references/verification/swarm-class2-retirement-static-2026-10-10/README.md",
+      "sourceRevision": "cdaa0771cf2bc8809543b00dcd521d642b74ccb4",
+      "sha256": "b3498bafaf1bddfc4f078e5a3c2deaa826e6a3354007f0efcb2e7f5415735d2c",
+      "bytes": 6523
+    },
+    {
+      "path": "references/verification/swarm-class2-bootstrap-static-2026-10-10/README.md",
+      "sourceRevision": "cdaa0771cf2bc8809543b00dcd521d642b74ccb4",
+      "sha256": "bf4532f6ea019005d9e0dbbaa6ea6825f51dbb16be299694884185b31610b252",
+      "bytes": 11231
+    },
+    {
+      "path": "references/verification/swarm-class2-fresh-reset-static-2026-10-10/README.md",
+      "sourceRevision": "cdaa0771cf2bc8809543b00dcd521d642b74ccb4",
+      "sha256": "55b2f1cd63eeb342648e86265c075e7c228124b00576ab40659d3c09b9e00ce7",
+      "bytes": 8153
+    },
+    {
+      "path": "references/verification/swarm-class2-initial-index-callers-2026-10-10/README.md",
+      "sourceRevision": "cdaa0771cf2bc8809543b00dcd521d642b74ccb4",
+      "sha256": "1b869d24e32487b4cd6901832382242f51b1557d483a4b5698d63b712bc05c14",
+      "bytes": 7798
+    },
+    {
+      "path": "references/verification/swarm-class2-save-ownership-2026-10-10/README.md",
+      "sourceRevision": "cdaa0771cf2bc8809543b00dcd521d642b74ccb4",
+      "sha256": "d16586a41d87aefc855a1e23562b21a4a3f56f1810ef93038341e147504d2f86",
+      "bytes": 2917
+    },
+    {
+      "path": "references/verification/swarm-class2-save-preparation-2026-10-10/README.md",
+      "sourceRevision": "cdaa0771cf2bc8809543b00dcd521d642b74ccb4",
+      "sha256": "99008ceed89cd93f1d734864ca0b67160fd0ba99ab7d41a28d8839c8f74f06e2",
+      "bytes": 6430
+    },
+    {
+      "path": "decomp/research/swarm-building-pursuit.md",
+      "sourceRevision": "74b74346f2d67e94aed013fc9e1960e20ef36ceb",
+      "sha256": "c6697213176b078744874decf355d0dfec4040c4fd8102665241447646b03e20",
+      "bytes": 3082
+    },
+    {
+      "path": "references/verification/swarm-building-static-2026-10-09/integration-review.md",
+      "sourceRevision": "74b74346f2d67e94aed013fc9e1960e20ef36ceb",
+      "sha256": "d8cbcc74bd85711a110802adcbe97063a7769a8b9716b0a55c944af4d96acc33",
+      "bytes": 2664
+    }
+  ],
+  "scope": "Reconcile the existing accepted native lifecycle and 20 current port owners; one extra exact current effect constructor only. No broad source search or new native decode.",
+  "result": "No source-backed observable Swarm building slice proposed; exact gap is shared slot/lifetime transaction ownership plus supported initial event state, separate from modern Save graph preservation and native binary encoding.",
+  "nativeExecution": false,
+  "decoderRun": false,
+  "runtimeChanges": false,
+  "testsRun": false,
+  "browserRun": false,
+  "files": {
+    "README.md": {
+      "sha256": "ab8862b0e6c5d9e8f586b68c787af442cdcf529aceae1a0c8c97da236aaec848",
+      "bytes": 12742
+    },
+    "current-owner-changes.diff": {
+      "sha256": "9f67621aa69713cdb8a4c601b06caa03ab7038ddfbba481859cca96bf011da25",
+      "bytes": 3096
+    },
+    "current-owner-comparison.json": {
+      "sha256": "075d5030c331ce06233344f04c9b7e796bb45cba58a2bc68195547a0c6a79408",
+      "bytes": 5883
+    }
+  },
+  "independentSourceReviewSha256": "af1e28b203651c5af2caaf29fa2a6fbc38a7b295afb2f8f79a640caa2117a066",
+  "reviewInputsSha256": "399eff0f1e79644acfab1ddfc2eabfa8cdcce4db2e44b93e0742b78a9b817685",
+  "wordingCorrection": "Class9 plans are allocated; cancellation before class2 body allocation is not class2 retirement.",
+  "limits": "Current-main event/owner source contract only. No disconnected allocator implementation, runtime candidate admission or binary-save prerequisite."
+}

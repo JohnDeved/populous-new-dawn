@@ -1,0 +1,57 @@
+diff --git a/app/computer-runtime.ts b/app/computer-runtime.ts
+index 84c1163b..b9e20186 100644
+--- a/app/computer-runtime.ts
++++ b/app/computer-runtime.ts
+@@ -233,7 +233,11 @@ export function requestComputerPreacher(w: World, tribe: number, marker: number)
+ export function returnComputerGuards(w: World, tribe: number) {
+   const team = campaignTeam(w, tribe),
+     shaman = w.units.find(u => u.hp > 0 && u.team === team && isShaman(u)),
+-    p = shaman && nativePosition(w, shaman),
++    // Mission 3's stored fallback survives movement or loss of its live Shaman.
++    p =
++      w.outcome.level === 3 && tribe === 2 && w.ai.constructionBase === undefined
++        ? nativePosition(w, campaignPosition(w, 'yellow'))
++        : shaman && nativePosition(w, shaman),
+     cell = w.ai.constructionBase ?? (p ? ((p.x >>> 8) & 254) | (p.y & 0xfe00) : 0),
+     point = { x: (cell & 254) << 8, y: cell & 0xfe00 }
+   for (const u of w.units) {
+@@ -354,7 +358,12 @@ function stepComputerConvert(w: World, tribe: number, index: number) {
+   }
+   if (!unit || !p) return
+   if (task.phase === 0) {
+-    task.target = w.ai.constructionBase ?? ((p.x >>> 8) & 254) | (p.y & 0xfe00)
++    // Mission 3's stored fallback is the authored Shaman's loaded cell.
++    const origin =
++      tribe === 2 && w.ai.constructionBase === undefined
++        ? nativePosition(w, campaignPosition(w, 'yellow'))
++        : p
++    task.target = w.ai.constructionBase ?? ((origin.x >>> 8) & 254) | (origin.y & 0xfe00)
+     let target: number | null
+     if (w.ai.flags & 0x40) {
+       target = w.ai.coordinateLatch
+@@ -809,7 +818,11 @@ function produceMissionBuilding(w: World, tribe: number) {
+       : availableTrainingPeople(selection.world)
+   if (available < 2) return false
+   const shaman = w.units.find(unit => unit.team === team && isShaman(unit) && unit.hp > 0),
+-    position = shaman && nativePosition(w, shaman),
++    // 0x4e5580 captures the loaded origin before an ordinary base is established.
++    position =
++      w.outcome.level === 2 && tribe === 3 && w.ai.constructionBase === undefined
++        ? nativePosition(w, campaignPosition(w, 'green'))
++        : shaman && nativePosition(w, shaman),
+     origin =
+       w.outcome.level === 2 && w.ai.constructionBase !== undefined
+         ? w.ai.constructionBase
+@@ -1384,7 +1397,11 @@ function stepComputerDefense(w: World, tribe: number, index: number) {
+       }
+       if (!targets.people.length && !targets.buildings.length) {
+         const shaman = w.units.find(u => u.team === team && isShaman(u) && u.hp > 0),
+-          shamanPosition = shaman && nativePosition(w, shaman),
++          // 0x4f6020 retains the loaded origin when no construction base exists.
++          shamanPosition =
++            w.outcome.level === 3 && tribe === 2 && w.ai.constructionBase === undefined
++              ? nativePosition(w, campaignPosition(w, 'yellow'))
++              : shaman && nativePosition(w, shaman),
+           cell =
+             w.ai.constructionBase ??
+             (shamanPosition ? ((shamanPosition.x >>> 8) & 254) | (shamanPosition.y & 0xfe00) : 0)

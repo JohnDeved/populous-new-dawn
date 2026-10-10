@@ -1,0 +1,147 @@
+{
+  "currentMain": "3b13a7ff534ab95797b0b06330055cead956160d",
+  "currentTree": "f821f3d711694cbb74e4c2c70e4ab2ce4ff5834c",
+  "priorAssessmentMain": "f9675f56c597ec83adf02f28e9801bfc6bbd0490",
+  "files": [
+    {
+      "path": "app/object-cells.ts",
+      "currentSha256": "cc693d083d0829c69f6295d9710b3c7762bd70f407ff9c5c408380dbd7465909",
+      "currentBytes": 2522,
+      "priorSha256": "cc693d083d0829c69f6295d9710b3c7762bd70f407ff9c5c408380dbd7465909",
+      "changed": false
+    },
+    {
+      "path": "app/construction-runtime.ts",
+      "currentSha256": "2ea49ae789ae747732c3bc327d58735f501b52dfcff84c17eef83ca4386c0653",
+      "currentBytes": 16414,
+      "priorSha256": "2ea49ae789ae747732c3bc327d58735f501b52dfcff84c17eef83ca4386c0653",
+      "changed": false
+    },
+    {
+      "path": "app/world-initialization.ts",
+      "currentSha256": "0b2accb95c180d87e71bad8788f9c28f3f49ab8af66d5189fd26af69ab717fe2",
+      "currentBytes": 19595,
+      "priorSha256": "0b2accb95c180d87e71bad8788f9c28f3f49ab8af66d5189fd26af69ab717fe2",
+      "changed": false
+    },
+    {
+      "path": "app/computer-runtime.ts",
+      "currentSha256": "b527c2c854b6e0b0a49f9c096057e738b1f8cd4bc3060a53bec8284501cf0273",
+      "currentBytes": 77598,
+      "priorSha256": "01138df49ada0d61f724a8daca63028c48b7a44c4636e7045ae72a18880c37c4",
+      "changed": true
+    },
+    {
+      "path": "app/world-turn.ts",
+      "currentSha256": "20b2290596d9059bc1dda421ce45798a6d547f94c9aa9e0a98a4e8f64068f93c",
+      "currentBytes": 66311,
+      "priorSha256": "20b2290596d9059bc1dda421ce45798a6d547f94c9aa9e0a98a4e8f64068f93c",
+      "changed": false
+    },
+    {
+      "path": "app/world-terrain-runtime.ts",
+      "currentSha256": "4fcf001bde3e32f5647a6efa25066dc9332320f244b034a8f41881a15af4a757",
+      "currentBytes": 9814,
+      "priorSha256": "4fcf001bde3e32f5647a6efa25066dc9332320f244b034a8f41881a15af4a757",
+      "changed": false
+    },
+    {
+      "path": "app/live-people.ts",
+      "currentSha256": "2ff72ddb1fd4448b5afc8bde03fc50ce625eb75768f184c746988609aa86527b",
+      "currentBytes": 45119,
+      "priorSha256": "2ff72ddb1fd4448b5afc8bde03fc50ce625eb75768f184c746988609aa86527b",
+      "changed": false
+    },
+    {
+      "path": "app/live-building-entry.ts",
+      "currentSha256": "e09c7d00e3b32438e9634e2e21b0a11ce79bf38e9d7d547e342fda1011124404",
+      "currentBytes": 24651,
+      "priorSha256": "e09c7d00e3b32438e9634e2e21b0a11ce79bf38e9d7d547e342fda1011124404",
+      "changed": false
+    },
+    {
+      "path": "app/world-types.ts",
+      "currentSha256": "f37b4780e5bc0a949431c08fadb2db059b32f395449daaeee4a06ed648719909",
+      "currentBytes": 15648,
+      "priorSha256": "f37b4780e5bc0a949431c08fadb2db059b32f395449daaeee4a06ed648719909",
+      "changed": false
+    },
+    {
+      "path": "app/world-state.ts",
+      "currentSha256": "880c00574e29d9f9e2cffd59d79ff337dcfe07d023d45b95481c09ff9e056ff6",
+      "currentBytes": 12421,
+      "priorSha256": "880c00574e29d9f9e2cffd59d79ff337dcfe07d023d45b95481c09ff9e056ff6",
+      "changed": false
+    },
+    {
+      "path": "app/game-store.ts",
+      "currentSha256": "300cc63a292b79057bc64457dcfd087b2f7162194e2108d753e899c35861c675",
+      "currentBytes": 18440,
+      "priorSha256": "300cc63a292b79057bc64457dcfd087b2f7162194e2108d753e899c35861c675",
+      "changed": false
+    },
+    {
+      "path": "app/building-shapes.ts",
+      "currentSha256": "86882bf5526a48035a1ed61b72f710139e0ddcc67d60f94f9279901636aaff92",
+      "currentBytes": 17581,
+      "priorSha256": "86882bf5526a48035a1ed61b72f710139e0ddcc67d60f94f9279901636aaff92",
+      "changed": false
+    },
+    {
+      "path": "app/vault-geometry.ts",
+      "currentSha256": "64bcf40c8c861559e29f8b0cf54d6df5a8b6398c4490b6f9c01c3bcb225f8849",
+      "currentBytes": 1705,
+      "priorSha256": "64bcf40c8c861559e29f8b0cf54d6df5a8b6398c4490b6f9c01c3bcb225f8849",
+      "changed": false
+    },
+    {
+      "path": "app/vault.ts",
+      "currentSha256": "ff4fb2f54e2cec4ef4322e32e91f3ee310dcbf1a9b3009054e59b8096ef48aa6",
+      "currentBytes": 7420,
+      "priorSha256": "ff4fb2f54e2cec4ef4322e32e91f3ee310dcbf1a9b3009054e59b8096ef48aa6",
+      "changed": false
+    },
+    {
+      "path": "app/building-runtime.ts",
+      "currentSha256": "d62fca552e99bf96792f21361fd73047b3fe064f2fcfbfb8af2307ba9e732463",
+      "currentBytes": 10174,
+      "priorSha256": "d62fca552e99bf96792f21361fd73047b3fe064f2fcfbfb8af2307ba9e732463",
+      "changed": false
+    },
+    {
+      "path": "app/live-building-combat.ts",
+      "currentSha256": "da6d3bb16903a741ac9d4ce925d7e188ec1113071fd46d5791d7d163c0b1cb30",
+      "currentBytes": 28337,
+      "priorSha256": "da6d3bb16903a741ac9d4ce925d7e188ec1113071fd46d5791d7d163c0b1cb30",
+      "changed": false
+    },
+    {
+      "path": "app/live-command.ts",
+      "currentSha256": "a53f4f0a64104dabacdfb1d2242c1979baa047a89f192a89a52b1c72a702bdca",
+      "currentBytes": 29207,
+      "priorSha256": "a53f4f0a64104dabacdfb1d2242c1979baa047a89f192a89a52b1c72a702bdca",
+      "changed": false
+    },
+    {
+      "path": "app/armageddon.ts",
+      "currentSha256": "6cd2ad4301e6aaf4680b1413398e16f159b0e26f41792c7415b4bb64564a2280",
+      "currentBytes": 9227,
+      "priorSha256": "6cd2ad4301e6aaf4680b1413398e16f159b0e26f41792c7415b4bb64564a2280",
+      "changed": false
+    },
+    {
+      "path": "app/swarm.ts",
+      "currentSha256": "a388ff1ad7686824445cd9acfe7b0e5c63c102cda87bef31a09bfa7e925312c4",
+      "currentBytes": 5234,
+      "priorSha256": "a388ff1ad7686824445cd9acfe7b0e5c63c102cda87bef31a09bfa7e925312c4",
+      "changed": false
+    },
+    {
+      "path": "app/spell-effects-runtime.ts",
+      "currentSha256": "3ff1e427906790f8f16ee7bf97dfa5003cb4e80c4e8777344ae63b449146123e",
+      "currentBytes": 43296,
+      "priorSha256": "3ff1e427906790f8f16ee7bf97dfa5003cb4e80c4e8777344ae63b449146123e",
+      "changed": false
+    }
+  ]
+}
