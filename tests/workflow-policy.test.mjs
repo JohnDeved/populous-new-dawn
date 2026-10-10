@@ -23,7 +23,7 @@ test('live aggregate coverage includes every maintained workflow integrity suite
   const { checks } = JSON.parse(read('engineering/checks.json'))
   assert.deepEqual(checks.find(check => check.id === 'orchestration-tests').args, [
     '--test', 'tests/orchestration.test.mjs', 'tests/workflow-handoff.test.mjs',
-    'tests/workflow-policy.test.mjs', 'tests/research-evidence.test.mjs',
+    'tests/workflow-policy.test.mjs', 'tests/research-evidence.test.mjs', 'tests/theme-reference-evidence.test.mjs',
   ])
   for (const id of ['orchestration-tests', 'repository-check']) {
     assert.ok(checks.find(check => check.id === id).inputs.includes('.codex/config.toml'),
