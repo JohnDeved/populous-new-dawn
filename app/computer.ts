@@ -39,6 +39,8 @@ export type ComputerQueue = {
   coordinateLatch: number
   // Native construction base (tribe +0x36a), present only after +0x5b4 is set.
   constructionBase?: number
+  // Native historical radius byte (+0x36c); absent means an unknown legacy history.
+  constructionRadius?: number
   selectionOwner: number
   commandDelay: number
   markerValue: number

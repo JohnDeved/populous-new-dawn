@@ -1,7 +1,11 @@
 import { initializeLevelStart } from './level-start-runtime.ts'
 import type { Point, Shrine, World } from './world-types.ts'
 import { addBuilding } from './construction-runtime.ts'
-import { campaignPosition, withCampaignTribe } from './campaign-runtime.ts'
+import {
+  campaignPosition,
+  withCampaignTribe,
+  rebuildConstructionBuildings,
+} from './campaign-runtime.ts'
 import { campaignCommand } from './campaign-command-runtime.ts'
 import { nativePosition, syncLandscapeObjects } from './world-terrain-runtime.ts'
 import { distance } from './world-coordinates.ts'
@@ -487,5 +491,9 @@ export function createWorld(missionNumber = 1): World {
     initializeVaultKnowledge(shrine, missionNumber)
   }
   initializeLevelStart(w)
+  // 0x461d70 reset and 0x42b230's initial rebuild, for the authored early owners.
+  if ([1, 2, 3].includes(missionNumber))
+    for (const ai of w.campaignAIs) if (ai) ai.constructionRadius = 0
+  rebuildConstructionBuildings(w)
   return w
 }

@@ -431,6 +431,8 @@ export type CampaignAI = ScriptState &
     includeIncompleteBuildings: boolean
     pendingCommands: { opcode: number; args: number[] }[]
     trainingSelections: number[][]
+    // Previous completed object turn's class-2 membership; retain object aliases.
+    constructionBuildings?: Building[]
   }
 
 export type World = {

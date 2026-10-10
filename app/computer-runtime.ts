@@ -1,4 +1,4 @@
-import { tribeForTeam, type Point, type Unit, type World } from './world-types.ts'
+import { TRIBE_TEAMS, tribeForTeam, type Point, type Unit, type World } from './world-types.ts'
 import {
   createLivePerson,
   registerLivePerson,
@@ -44,6 +44,7 @@ import { isShaman, SPELLS } from './world-rules.ts'
 import {
   campaignPersonCount,
   campaignPosition,
+  knownConstructionHistory,
   campaignAttackEntity,
   campaignAttackTarget,
   campaignTeam,
@@ -124,6 +125,7 @@ const mission11TowerRequested = 0x80000000,
 
 export function computerSelectionWorld(w: World, tribe: number, rawNative = false) {
   const team = campaignTeam(w, tribe),
+    knownHistory = knownConstructionHistory(w),
     sources = new Map<number, LivePerson>(),
     people: SelectionUnit[] = []
   for (const u of w.units) {
@@ -188,13 +190,22 @@ export function computerSelectionWorld(w: World, tribe: number, rawNative = fals
     orders,
     tribes: Array.from({ length: 4 }, (_, id) => {
       const shaman = w.units.find(u => u.hp > 0 && isShaman(u) && u.team === campaignTeam(w, id)),
-        p = shaman && nativePosition(w, shaman)
-      return {
+        known = id === tribe && knownHistory,
+        p = known
+          ? nativePosition(w, campaignPosition(w, TRIBE_TEAMS[id]))
+          : shaman && nativePosition(w, shaman)
+      const selected = {
         hasBase: id === tribe && !!(w.ai.flags & 0x100),
         base: id === tribe ? w.ai.defencePosition : 0,
         shaman: p ? ((p.x >>> 8) & 254) | (p.y & 0xfe00) : 0,
         radius: id === tribe ? w.ai.defenceRadius : 0,
       }
+      if (known) {
+        selected.hasBase = w.ai.constructionBase !== undefined
+        selected.base = w.ai.constructionBase ?? 0
+        selected.radius = w.ai.constructionRadius!
+      }
+      return selected
     }),
     buildingAt: cell =>
       w.land.buildingIds[((cell & 0xfe00) >>> 9) * 128 + ((cell & 254) >>> 1)] & 1023,
@@ -1003,6 +1014,7 @@ function stepComputerConstruction(w: World, tribe: number, index: number) {
     if (!task.extra && w.ai.constructionBase === undefined && building) {
       const outside = buildingOutsidePoint(buildingPose(building))
       w.ai.constructionBase = ((outside.x >>> 8) & 254) | (outside.y & 0xfe00)
+      w.ai.constructionRadius = 0
     }
     task.phase = 4
     return
@@ -1447,6 +1459,27 @@ export function stepComputerTasks(w: World, tribe: number) {
     }
   }
   const phase = computerPhase(w.turn, tribe)
+  if (phase === 'radius') {
+    if (w.ai.constructionBase !== undefined && knownConstructionHistory(w)) {
+      const base = w.ai.constructionBase
+      let maximum = 0
+      for (const building of w.ai.constructionBuildings!) {
+        // Read the retained member's current stored model origin. Native uses
+        // even building bytes but does not mask the established base again.
+        const p = nativePosition(w, building),
+          x = Math.abs(((p.x >>> 8) & 254) - (base & 255)),
+          y = Math.abs(((p.y >>> 8) & 254) - ((base >>> 8) & 255)),
+          dx = Math.min(x, 256 - x),
+          dy = Math.min(y, 256 - y)
+        maximum = Math.max(maximum, dx * dx + dy * dy)
+      }
+      // 0x586000 equals integer sqrt over this bounded 0..32768 domain.
+      // Compare the full candidate before storing its low byte, including wrap.
+      const radius = Math.floor(Math.sqrt(maximum) / 2) + (w.ai.attributes[14] & 255)
+      if (w.ai.constructionRadius! < radius) w.ai.constructionRadius = radius & 255
+    }
+    return
+  }
   if (phase === 'produce') {
     if (w.outcome.level >= 1 && w.outcome.level <= 3) {
       produceComputerTasks(
