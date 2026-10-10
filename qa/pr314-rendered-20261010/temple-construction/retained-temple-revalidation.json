@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "e989fbb71849f2530692f896ea3d045afd6432bf",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/revalidate-retained-temple.mjs": "f530f7f5f8d3ee0857042ab50c79ec391ea5f6ff5c999c23ce65077151ff25c0",
+      "scripts/local-render/ordinary-temple-witness.mjs": "e72cced4639e6d56aedcef776c0b05c11c8d229ccacc3648b83c1497dad8126a",
+      "work/orchestration/browser-01/ordinary-temple-scenes.json": "7d50914b829a64ffbdfe981bd029096da78234932e820a06b21c63f02cd1fb25",
+      "work/orchestration/browser-01/m3-construction-0.png": "13422c0592f0acced27ee25e8d5f6e1cc66d11270a27888f3ba07f3045181f08",
+      "work/orchestration/browser-01/m3-construction-1.png": "5d5b800dd2e76cf96d219ac08f85bd66f91c5b9abb87a3469165c76ebd3cf280",
+      "work/orchestration/browser-01/m3-construction-2.png": "aa5d640194b50fe090c0e6ee4e10bfb9d002eece291893e74bc4ac3eca4ef16f",
+      "work/orchestration/browser-01/m3-construction-3.png": "e106c0694def48196f28eefb0451a4ba655fbb0415a11ef6b61039c603a1bd9c",
+      "work/orchestration/browser-01/m3-construction-4.png": "5a95c0090a1e0f72a3aef59cd4c2a3aec33c85893b8ffb83a1c90d38cc3dddc5",
+      "work/orchestration/browser-01/m3-construction-5.png": "14bd6a991b953db3788d7f732609f4f8618b5efaefbd13a2ad34060ed1aa7933",
+      "work/orchestration/browser-01/m3-construction-6.png": "03aa974ae3f66c463c3fe57d45bdd756d8cdcf0dcad621cb3b0f8fc01946a1bf",
+      "work/orchestration/browser-01/m3-construction-7.png": "a81a8ff2f5baf74054d384e46a1340501cb6c3fce42028ba03efd0990973d057",
+      "work/orchestration/browser-01/m3-construction-8.png": "4c8a32884eb8198cca43107ff56c2ba3bc5f680499d22414ea6861b88a70d029",
+      "work/orchestration/browser-01/m3-construction-9.png": "74f4bd6b886cfdd63e002a2d4857099163f3d07636babc080b3df665389eccbf",
+      "work/orchestration/browser-01/m3-construction-10.png": "a31fb460ce71004d73534321928816695fa15ef6e0fc2c7c81f6dd3964473cdd",
+      "work/orchestration/browser-01/m3-construction-11.png": "41c5fe0d1e7ac11c9d6f1140d768be7333a459a71c5168a8be91567ca08f1cf3"
+    }
+  },
+  "command": [
+    "taskset",
+    "-c",
+    "0",
+    "node",
+    "work/orchestration/revalidate-retained-temple.mjs"
+  ],
+  "cwd": "<workspace>/world-temple-browser-construction-20261010",
+  "startedAt": "2026-10-10T18:45:13.006Z",
+  "artifacts": {
+    "stdout": "<workspace>/world-temple-browser-construction-20261010/work/orchestration/retained-temple-revalidation.json.artifacts/stdout.log",
+    "stderr": "<workspace>/world-temple-browser-construction-20261010/work/orchestration/retained-temple-revalidation.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-10T18:45:13.276Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\"status\":\"passed\",\"blueTemple\":1021,\"stages\":[0,1,2,3,4,4],\"tiles\":[101,93,93,100,94,92]}",
+  "stderr": "",
+  "stdoutSha256": "8877b762d2c224eaa5691c46fa4cab950fbd18aea2f4f91909f4dc5c1233fec2",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "e989fbb71849f2530692f896ea3d045afd6432bf",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/revalidate-retained-temple.mjs": "f530f7f5f8d3ee0857042ab50c79ec391ea5f6ff5c999c23ce65077151ff25c0",
+      "scripts/local-render/ordinary-temple-witness.mjs": "e72cced4639e6d56aedcef776c0b05c11c8d229ccacc3648b83c1497dad8126a",
+      "work/orchestration/browser-01/ordinary-temple-scenes.json": "7d50914b829a64ffbdfe981bd029096da78234932e820a06b21c63f02cd1fb25",
+      "work/orchestration/browser-01/m3-construction-0.png": "13422c0592f0acced27ee25e8d5f6e1cc66d11270a27888f3ba07f3045181f08",
+      "work/orchestration/browser-01/m3-construction-1.png": "5d5b800dd2e76cf96d219ac08f85bd66f91c5b9abb87a3469165c76ebd3cf280",
+      "work/orchestration/browser-01/m3-construction-2.png": "aa5d640194b50fe090c0e6ee4e10bfb9d002eece291893e74bc4ac3eca4ef16f",
+      "work/orchestration/browser-01/m3-construction-3.png": "e106c0694def48196f28eefb0451a4ba655fbb0415a11ef6b61039c603a1bd9c",
+      "work/orchestration/browser-01/m3-construction-4.png": "5a95c0090a1e0f72a3aef59cd4c2a3aec33c85893b8ffb83a1c90d38cc3dddc5",
+      "work/orchestration/browser-01/m3-construction-5.png": "14bd6a991b953db3788d7f732609f4f8618b5efaefbd13a2ad34060ed1aa7933",
+      "work/orchestration/browser-01/m3-construction-6.png": "03aa974ae3f66c463c3fe57d45bdd756d8cdcf0dcad621cb3b0f8fc01946a1bf",
+      "work/orchestration/browser-01/m3-construction-7.png": "a81a8ff2f5baf74054d384e46a1340501cb6c3fce42028ba03efd0990973d057",
+      "work/orchestration/browser-01/m3-construction-8.png": "4c8a32884eb8198cca43107ff56c2ba3bc5f680499d22414ea6861b88a70d029",
+      "work/orchestration/browser-01/m3-construction-9.png": "74f4bd6b886cfdd63e002a2d4857099163f3d07636babc080b3df665389eccbf",
+      "work/orchestration/browser-01/m3-construction-10.png": "a31fb460ce71004d73534321928816695fa15ef6e0fc2c7c81f6dd3964473cdd",
+      "work/orchestration/browser-01/m3-construction-11.png": "41c5fe0d1e7ac11c9d6f1140d768be7333a459a71c5168a8be91567ca08f1cf3"
+    }
+  }
+}

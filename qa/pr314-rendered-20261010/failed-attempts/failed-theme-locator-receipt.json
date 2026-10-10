@@ -1,0 +1,119 @@
+{
+  "startedAt": "2026-10-10T18:30:36.385Z",
+  "source": {
+    "root": "<workspace>/world-theme-browser-reference-20261010",
+    "commit": "f6d293e79478946487a04a60b8d9981f600d9d59",
+    "tree": "644235417861c8edfc93a096615284638f8dbb8c",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "948a8e2d2b3485ac1639da5171b8bbf76c01d8795262a1150c98f0a34610e7e5"
+  },
+  "launch": {
+    "executablePath": "<workspace>/recovery-20261010b/browser/chrome-headless-shell-linux64/chrome-headless-shell",
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": true,
+    "args": [
+      "--remote-debugging-pipe",
+      "--user-data-dir=<private-profile>",
+      "about:blank"
+    ],
+    "timeout": 30000,
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "acceptDownloads": false,
+    "serviceWorkers": "block"
+  },
+  "softwarePerformanceOnly": true,
+  "errors": [],
+  "warnings": [
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0x260c001bb600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x260c001bb600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x260c001bb600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x260c001bb600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+  ],
+  "status": "failed",
+  "runtime": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64",
+    "browserPath": "<workspace>/recovery-20261010b/browser/chrome-headless-shell-linux64/chrome-headless-shell",
+    "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+    "playwright": "1.63.0",
+    "playwrightCoreSha256": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+    "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "harness": {
+      "harness.mjs": "19212b8b57d8f1ec47583ec12a3b33152832c103b91a266aa4a774bf0043a021",
+      "owned-profile.mjs": "445a29903f994f7fd4c4d0ee32924400b31b6c73673ec2e04d3f4ad3eee403f5",
+      "checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+      "vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+    }
+  },
+  "scenario": {
+    "path": "<workspace>/world-theme-browser-reference-20261010/scripts/local-render/world-theme-switch.mjs",
+    "sha256": "9a2aa7872e8bac735669181aea60148f3737488b97d05b3eaf92fd67f729f40d"
+  },
+  "readiness": {
+    "timeoutMs": 60000,
+    "attempts": 6,
+    "first": {
+      "elapsedMs": 16342,
+      "pending": false,
+      "error": {
+        "name": "TimeoutError",
+        "message": "The operation was aborted due to timeout",
+        "cause": ""
+      }
+    },
+    "last": {
+      "elapsedMs": 24844,
+      "pending": false,
+      "status": 200,
+      "ok": true
+    },
+    "elapsedMs": 24849,
+    "listening": true,
+    "ready": true
+  },
+  "browserVersion": "154.0.8037.92",
+  "runtimeAfter": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64",
+    "browserPath": "<workspace>/recovery-20261010b/browser/chrome-headless-shell-linux64/chrome-headless-shell",
+    "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+    "playwright": "1.63.0",
+    "playwrightCoreSha256": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+    "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "harness": {
+      "harness.mjs": "19212b8b57d8f1ec47583ec12a3b33152832c103b91a266aa4a774bf0043a021",
+      "owned-profile.mjs": "445a29903f994f7fd4c4d0ee32924400b31b6c73673ec2e04d3f4ad3eee403f5",
+      "checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+      "vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+    }
+  },
+  "scenarioAfter": {
+    "path": "<workspace>/world-theme-browser-reference-20261010/scripts/local-render/world-theme-switch.mjs",
+    "sha256": "9a2aa7872e8bac735669181aea60148f3737488b97d05b3eaf92fd67f729f40d"
+  },
+  "failure": "locator.click: Timeout 45000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Select shaman', exact: true })\u001b[22m\n\n    at views (<workspace>/world-theme-browser-reference-20261010/scripts/local-render/world-theme-switch.mjs:317:35)\n    at worldThemeSwitch (<workspace>/world-theme-browser-reference-20261010/scripts/local-render/world-theme-switch.mjs:345:11)\n    at async runLocalBrowser (<workspace>/world-theme-browser-reference-20261010/scripts/local-render/harness.mjs:399:20)\n    at async file://<workspace>/world-theme-browser-reference-20261010/scripts/local-render/harness.mjs:592:21",
+  "finishedAt": "2026-10-10T18:32:34.217Z",
+  "sourceAfter": {
+    "root": "<workspace>/world-theme-browser-reference-20261010",
+    "commit": "f6d293e79478946487a04a60b8d9981f600d9d59",
+    "tree": "644235417861c8edfc93a096615284638f8dbb8c",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "948a8e2d2b3485ac1639da5171b8bbf76c01d8795262a1150c98f0a34610e7e5"
+  },
+  "ownedBrowserCleanupVerified": true,
+  "checkpointProvenanceVerified": true
+}

@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "f758a2d443e7c1b815914e1ee58988dc065b9415",
+    "branch": "test/world-theme-switch-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/orchestration/command-receipt.mjs": "cb6e670973ddf7e0e83bb7efb79e7b4f2315e575d9764620c539a8683ea6727d",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "node_modules/.bin/eslint",
+    "scripts/local-render/world-theme-switch.mjs",
+    "scripts/local-render/world-theme-witness.mjs",
+    "scripts/local-render/ordinary-temple-scenes.mjs",
+    "scripts/local-render/ordinary-temple-witness.mjs",
+    "scripts/local-render/ordinary-temple-continuation.mjs",
+    "tests/world-theme-witness.test.mjs",
+    "tests/ordinary-temple-witness.test.mjs",
+    "tests/ordinary-temple-continuation.test.mjs"
+  ],
+  "cwd": "<workspace>/world-theme-switch-qa-recovered-20261010",
+  "startedAt": "2026-10-10T18:43:57.083Z",
+  "artifacts": {
+    "stdout": "<workspace>/world-theme-switch-qa-recovered-20261010/work/orchestration/ordinary-temple-helper-05/quality.json.artifacts/stdout.log",
+    "stderr": "<workspace>/world-theme-switch-qa-recovered-20261010/work/orchestration/ordinary-temple-helper-05/quality.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-10T18:43:58.908Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "f758a2d443e7c1b815914e1ee58988dc065b9415",
+    "branch": "test/world-theme-switch-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/orchestration/command-receipt.mjs": "cb6e670973ddf7e0e83bb7efb79e7b4f2315e575d9764620c539a8683ea6727d",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}
