@@ -207,7 +207,7 @@ export function damageTornadoBuilding(
   }
 ) {
   const state = ensureBuildingDamage(b),
-    plan = state.plan,
+    { plan } = state,
     oldStage = state.stage
   state.stage = (oldStage - 1) & 255
   if (state.state === 2 && !(state.flags2 & 0x100000)) state.state = 1
