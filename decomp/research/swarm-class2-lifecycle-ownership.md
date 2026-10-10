@@ -38,6 +38,17 @@ The grouped [range/caller and view-child follow-up][ranges] binds the remaining
 conditional `0044bb80` child remains uninspected. Resource-call composition and
 native Save/Load state ownership are still separate from the proved reset.
 
+The [ordinary Save ownership follow-up][save] now binds command `0x9c` mode 3
+through `00427220` and `00426d70` to a request for `[0089d178,0096eadc)`.
+Unit-record and terrain/cell addresses are included; global pool/count/range/
+lookup addresses lie outside the direct span. Preparation `004434e0(1/0)` and
+`00431970`, the output leaf, and the actual Load target `00427730` remain
+uninspected. Range inclusion does not prove unchanged ID encoding, and excluded
+addresses may have encoded counterparts or be rebuilt. The follow-up also
+corrects the earlier `004f0bd0` retained-body wording while preserving its valid
+scheduler call edge. A modern checkpoint contract can preserve proved state
+without promising the original binary-save format.
+
 This extends the accepted [Swarm controller contract][controller] and
 [integration review][review] at `74b74346f2d67e94aed013fc9e1960e20ef36ceb`;
 those documents are not in this main tree. Their insertion, relocation and
@@ -190,3 +201,4 @@ follow-up records its additional data-only decoding and independent review.
 [startup]: https://github.com/JohnDeved/populous-new-dawn/blob/4d733f97b3fe2e880d34b90a02df7f4909c53822/references/verification/swarm-class2-initial-index-callers-2026-10-10/README.md
 [preauthored]: https://github.com/JohnDeved/populous-new-dawn/blob/c59bacf774894b0e35a53a2c15eeee1a2284a49a/references/verification/swarm-class2-preauthored-static-2026-10-10/README.md
 [ranges]: https://github.com/JohnDeved/populous-new-dawn/blob/2c693d12f4fd9efb08f5cd172ce22ffa6cf92a4b/references/verification/swarm-class2-preauthored-ranges-2026-10-10/README.md
+[save]: https://github.com/JohnDeved/populous-new-dawn/blob/ef04928ae0923e8a658eb4c8549af4c8b89d634d/references/verification/swarm-class2-save-ownership-2026-10-10/README.md
