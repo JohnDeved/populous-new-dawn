@@ -13,6 +13,8 @@ import {
 import { dirname, extname, isAbsolute, normalize, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { compactResearch, evaluateResearchClaims, readResearchFile, retrieveResearch } from './research-evidence.mjs'
+
 export const ROOT = fileURLToPath(new URL('../../', import.meta.url))
 export const INDEX_VERSION = 1
 export const DEFAULT_CONTEXT_BUDGET = 24_000
@@ -1211,6 +1213,7 @@ function workflowPath(path) {
     'tests/orchestration.test.mjs',
     'tests/workflow-handoff.test.mjs',
     'tests/workflow-policy.test.mjs',
+    'tests/research-evidence.test.mjs',
     'scripts/parity-measure.mjs',
     'scripts/parity-discovery.mjs',
     'scripts/parity-json-metadata.mjs',
@@ -1340,7 +1343,7 @@ export function repositoryCheckCoverage(repo, manifests = validateRepository(rep
       scripts.check !== 'npm run typecheck && npm test && npm run parity:check && npm run orchestration:check') return []
   return [
     ...(scripts.test === 'node --test tests/*.test.mjs' &&
-      matches('orchestration-tests', ['node', '--test', 'tests/orchestration.test.mjs', 'tests/workflow-handoff.test.mjs', 'tests/workflow-policy.test.mjs'])
+      matches('orchestration-tests', ['node', '--test', 'tests/orchestration.test.mjs', 'tests/workflow-handoff.test.mjs', 'tests/workflow-policy.test.mjs', 'tests/research-evidence.test.mjs'])
       ? ['orchestration-tests'] : []),
     ...(scripts['orchestration:check'] === 'node scripts/orchestration/cli.mjs check' &&
       matches('orchestration-structural', ['node', 'scripts/orchestration/cli.mjs', 'check'])
@@ -1624,11 +1627,21 @@ export function main(argv = process.argv.slice(2), repo = ROOT) {
   const options = parseOptions(rest)
   const accepted = {
     check: [], index: [], plan: ['base'], audit: ['contract'],
+    'research-view': ['packet', 'source-fingerprint', 'query', 'adapter-version'],
+    'research-read': ['packet', 'source-fingerprint', 'query', 'adapter-version', 'dossier', 'field'],
+    'research-claims': ['packet', 'source-fingerprint', 'query', 'adapter-version'],
     context: ['subsystem', 'query', 'budget', 'role', 'contract', 'research-output', 'output'],
   }[command]
   assert(accepted, `Unknown orchestration command: ${command}`)
   for (const key of Object.keys(options))
     assert(accepted.includes(key), `Unknown ${command} option: --${key}`)
+  if (command.startsWith('research-')) {
+    const packet = JSON.parse(readResearchFile(repo, options.packet))
+    const expected = { sourceFingerprint: options['source-fingerprint'], query: options.query, adapterVersion: options['adapter-version'] }
+    if (command === 'research-view') return compactResearch(repo, packet, expected)
+    if (command === 'research-read') return retrieveResearch(repo, packet, expected, options.dossier, options.field)
+    return evaluateResearchClaims(repo, packet, expected)
+  }
   if (command === 'check') {
     assert(!Object.keys(options).length, 'check accepts no options')
     const result = validateRepository(repo)
@@ -1709,7 +1722,9 @@ export function main(argv = process.argv.slice(2), repo = ROOT) {
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
-    console.log(JSON.stringify(main(), null, 2))
+    const result = main()
+    console.log(JSON.stringify(result, null, 2))
+    if (process.argv[2] === 'research-claims' && result.status !== 'passed') process.exitCode = 1
   } catch (error) {
     console.error(`orchestration: ${error.message}`)
     process.exitCode = 1

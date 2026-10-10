@@ -91,3 +91,9 @@ and input fingerprints. Commit the candidate before final verification when prac
 If relevant code, fixture, dependency, or runtime input changes, rerun affected checks.
 A portable bundle verifies identities and transport integrity, not gameplay correctness.
 Never include credentials, browser profiles, session data, or arbitrary machine logs.
+
+For function-level research, optional [compact views and claim bindings](research-evidence.md)
+keep conclusions and evidence boundaries visible while deferring raw assembly and
+pseudocode. They supplement these receipts/bundles; they neither replace raw review
+nor grant native/pixel/gameplay credit. Keep expected source/query/adapter identity
+in the trusted handoff and require a separate proof claim for each needed callback.

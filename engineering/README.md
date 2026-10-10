@@ -68,6 +68,9 @@ npm run orchestration:receipt -- --output work/orchestration/task/build.json -- 
 - `context` retrieves bounded mapped evidence, current parity scope, source hashes,
   and omitted paths/headings. It rebuilds a stale ignored index. Follow relevant
   omitted sources; a packet is not an exhaustive proof inventory.
+- Optional `research-view`, `research-read`, and `research-claims` commands add
+  hash-linked raw retrieval and finite proof bindings; see [research evidence](research-evidence.md).
+  They retain evidence limits and never replace full review or award parity.
 - `plan` routes branch/staged/unstaged/deleted/renamed/untracked changes to reviewed
   checks. Unknown paths stay explicit. It does not execute checks.
 - `check` validates manifests, paths, ownership, and parity references; it does not

@@ -816,13 +816,14 @@
         "Git change routing",
         "Contract audit",
         "Portable review bundle integrity",
-        "Source-bound raw command receipts"
+        "Source-bound raw command receipts",
+        "Hash-linked research navigation and finite claim bindings"
       ],
       "knownLimits": [
         "Synthetic repositories validate mechanics; live assertions cover only the mapped performance boundaries named by this suite."
       ],
       "executable": "node",
-      "args": ["--test", "tests/orchestration.test.mjs", "tests/workflow-handoff.test.mjs", "tests/workflow-policy.test.mjs"],
+      "args": ["--test", "tests/orchestration.test.mjs", "tests/workflow-handoff.test.mjs", "tests/workflow-policy.test.mjs", "tests/research-evidence.test.mjs"],
       "cwd": ".",
       "env": [],
       "inputs": [
