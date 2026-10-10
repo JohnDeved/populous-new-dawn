@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createHash } from 'node:crypto'
+import { zoomPreset } from '../app/camera-view.ts'
 import {
   armThemeAction,
   observeThemeAction,
@@ -14,6 +15,7 @@ import {
   admitThemeMode,
   referenceSource,
   requireThemeFrame,
+  themeViewSequence,
 } from '../scripts/local-render/world-theme-switch.mjs'
 
 // Supplied browser/IO boundary, executing the actual maintained helper exports.
@@ -390,10 +392,27 @@ function frameFixture(t) {
       overviewStage: null,
       viewPreset: 0,
       cameraPosition: { x: 3, y: 4 },
-      view: { rawCenter: { x: 3, y: 4 }, projection: { width: 1440 } },
-      visible: () => true,
+      view: {
+        rawCenter: { x: 3, y: 4 },
+        projection: { width: 1440 },
+        screen: () => ({ x: 0, y: 0, z: 0 }),
+        project: () => ({ flags: 0 }),
+      },
+      visible() {
+        this.world.terrain[0]++
+        throw Error('Observer must not invoke nativePosition through scene.visible')
+      },
       mini: { toDataURL: () => 'data:image/png;base64,AQID' },
-      decorations: { children: [{ visible: true, userData: { point: tree }, children: [mesh] }] },
+      decorations: {
+        children: [
+          {
+            visible: true,
+            position: { x: 1, y: 8, z: 2 },
+            userData: { point: tree },
+            children: [mesh],
+          },
+        ],
+      },
       buildingMeshes: new Map(),
       terrainTextures: {
         palette: new Uint8Array(buffer, 0, 1024),
@@ -415,6 +434,8 @@ test('natural frame observer preserves the real call and hashes captured live by
   assert.equal(f.renderer.render(f.scene.scene, f.scene.camera), 'original result')
   assert.equal(f.renderer.calls.length, 1)
   assert.equal(f.renderer.render, original)
+  assert.equal(observer.status().captured, false, 'HUD callback has not returned yet')
+  await Promise.resolve()
   assert.equal(observer.status().captured, true)
   const before = await observer.read()
   new Uint8Array(f.buffer)[0] = 15
@@ -442,6 +463,7 @@ test('default frame mode rejects absent identities; explicit reference still req
   observer.close()
   observer = installThemeFrame({ requireIdentity: false })
   f.renderer.render(f.scene.scene, f.scene.camera)
+  await Promise.resolve()
   assert.equal((await observer.read()).environment, null)
   assert.equal((await observer.read()).trees[0].bank, null)
   observer.close()
@@ -531,6 +553,11 @@ test('candidate frame assertion rejects wrong live terrain, model bytes and mate
   const frame = {
     level: 3,
     rendererFrame: 1,
+    minimap: {
+      boundary: 'post-animate-microtask',
+      before: { rendererFrame: 2, level: 3 },
+      after: { rendererFrame: 2, level: 3 },
+    },
     terrainSha256: 'a07fc142b38441dd65bc99e55e2eb8f33a6423b4d02b3662f3be78e4eb4880f9',
     environment: {
       landscape: {
@@ -586,4 +613,103 @@ test('candidate frame assertion rejects wrong live terrain, model bytes and mate
     () => requireThemeFrame(temple, expected, { reference: true }),
     'Only explicit historical reference permits its old selective Temple atlas'
   )
+})
+
+test('visibility observes rendered group positions without nativePosition or terrain synchronization', async t => {
+  const f = frameFixture(t),
+    group = f.scene.decorations.children[0],
+    terrain = [...f.world.terrain],
+    calls = []
+  group.parent = { visible: true, parent: { visible: true } }
+  f.scene.view.screen = (position, camera) => {
+    assert.equal(position, group.position)
+    assert.equal(camera, f.scene.camera)
+    calls.push('screen')
+    return { x: 0.25, y: -0.5, z: 0 }
+  }
+  f.scene.view.project = (position, height) => {
+    assert.equal(position, group.position)
+    assert.equal(height, (group.position.y * 128) / 45)
+    calls.push('project')
+    return { flags: 0 }
+  }
+  for (const hidden of [false, true]) {
+    group.parent.parent.visible = !hidden
+    const observer = installThemeFrame()
+    f.renderer.render(f.scene.scene, f.scene.camera)
+    await Promise.resolve()
+    assert.deepEqual((await observer.read()).visibleTreeIds, hidden ? [] : [9])
+    assert.deepEqual(f.world.terrain, new Uint16Array(terrain))
+    assert.deepEqual(observer.close().errors, [])
+  }
+  assert.deepEqual(calls, ['screen', 'project', 'screen', 'project'])
+})
+
+test('minimap copies the post-HUD pixels with its own frame and pose bracket', async t => {
+  const f = frameFixture(t)
+  let hudFinished = false,
+    pixels = 'stale',
+    reads = 0
+  f.scene.mini.toDataURL = () => {
+    assert.equal(hudFinished, true, 'Reading during renderer return would predate drawMinimap')
+    reads++
+    return pixels
+  }
+  const observer = installThemeFrame()
+  f.renderer.render(f.scene.scene, f.scene.camera)
+  assert.equal(reads, 0)
+  // Supplied synchronous remainder of GameScene.animate, after renderSceneFrame.
+  pixels = 'post-HUD pixels'
+  hudFinished = true
+  f.renderer.info.render.frame = 2
+  f.scene.cameraPosition.x = 5
+  await Promise.resolve()
+  const frame = await observer.read()
+  assert.equal(frame.rendererFrame, 1)
+  assert.equal(frame.camera.position.x, 3)
+  assert.equal(frame.minimap.png, pixels)
+  assert.equal(frame.minimap.before.rendererFrame, 2)
+  assert.equal(frame.minimap.before.camera.x, 5)
+  assert.deepEqual(frame.minimap.before, frame.minimap.after)
+  assert.equal(reads, 1)
+  observer.close()
+})
+
+test('pending minimap reads are discarded after cancellation, disposal or replacement', async t => {
+  const f = frameFixture(t)
+  let reads = 0
+  f.scene.mini.toDataURL = () => {
+    reads++
+    return 'pixels'
+  }
+  for (const interrupt of ['close', 'dispose', 'replace']) {
+    f.scene.disposed = false
+    globalThis.testSceneRef.current = f.scene
+    const observer = installThemeFrame()
+    f.renderer.render(f.scene.scene, f.scene.camera)
+    if (interrupt === 'close') observer.close()
+    else if (interrupt === 'dispose') f.scene.disposed = true
+    else globalThis.testSceneRef.current = { world: f.world }
+    await Promise.resolve()
+    assert.equal(observer.status().captured, false)
+    await assert.rejects(observer.read(), /not captured|owner replaced/)
+    observer.close()
+  }
+  assert.equal(reads, 0)
+})
+
+test('exported ordinary view sequence follows the shipped zoomPreset order', () => {
+  let preset = 0
+  const captures = []
+  for (const step of themeViewSequence) {
+    preset = zoomPreset(preset, step.key === '=')
+    assert.equal(preset, step.preset)
+    assert.equal(preset === 4, step.overview)
+    if (step.capture) captures.push([step.capture, preset])
+  }
+  assert.deepEqual(captures, [
+    ['ground', 2],
+    ['overview', 4],
+  ])
+  assert.equal(preset, 0)
 })

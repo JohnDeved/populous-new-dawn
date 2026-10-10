@@ -178,8 +178,9 @@ export function readThemePose() {
   })
 }
 
-// One natural render-return sample. Digests run only after that stage-time copy,
-// outside the draw callback. No forced draw, camera adjustment, or per-frame hash.
+// One natural render-return world sample, followed by a separately bracketed
+// minimap copy after the synchronous animate callback finishes its HUD update.
+// Digests run after those copies. No forced draw, camera adjustment, or per-frame hash.
 export function installThemeFrame({ requireIdentity = true } = {}) {
   const scene = window.testSceneRef?.current,
     store = window.testStore,
@@ -190,6 +191,7 @@ export function installThemeFrame({ requireIdentity = true } = {}) {
     original = renderer.render,
     descriptor = Object.getOwnPropertyDescriptor(renderer, 'render')
   let frame = null,
+    minimap = null,
     closed = false
   const errors = []
   const restore = () => {
@@ -198,19 +200,40 @@ export function installThemeFrame({ requireIdentity = true } = {}) {
     else delete renderer.render
   }
   const fail = error => errors.push(String(error?.stack ?? error))
+  const requireOwner = () => {
+    if (
+      window.testSceneRef.current !== scene ||
+      store.getWorld() !== world ||
+      !canvas.isConnected ||
+      scene.disposed ||
+      document.querySelector('.loading-world')
+    )
+      throw Error('Theme frame owner replaced')
+  }
+  const pose = () =>
+    structuredClone({
+      rendererFrame: renderer.info.render.frame,
+      level: world.outcome.level,
+      turn: world.turn,
+      speed: world.speed,
+      paused: world.paused,
+      inputMask: world.inputMask,
+      overview: scene.overviewActive,
+      overviewStage: scene.overviewStage,
+      preset: scene.viewPreset,
+      camera: scene.cameraPosition,
+      viewCenter: scene.view.rawCenter,
+      projection: scene.view.projection,
+      viewport: [innerWidth, innerHeight],
+      dpr: devicePixelRatio,
+      canvas: [canvas.width, canvas.height],
+    })
   function wrapped(...args) {
     const beforeFrame = renderer.info.render.frame
     const result = original.apply(this, args)
     if (args[0] !== scene.scene || args[1] !== scene.camera || frame || errors.length) return result
     try {
-      if (
-        window.testSceneRef.current !== scene ||
-        store.getWorld() !== world ||
-        !canvas.isConnected ||
-        scene.disposed ||
-        document.querySelector('.loading-world')
-      )
-        throw Error('Theme frame owner replaced')
+      requireOwner()
       if (renderer.info.render.frame !== beforeFrame + 1)
         throw Error('Missing fresh natural render')
       if (
@@ -266,7 +289,19 @@ export function installThemeFrame({ requireIdentity = true } = {}) {
         if (!tree || tree.model === 11) continue
         if (!world.trees.includes(tree))
           throw Error('Decoration does not own an authored world tree')
-        if (group.visible && scene.visible(tree) && visibleTreeIds.length < 32)
+        const clip = scene.view.screen(group.position, scene.camera),
+          projected = scene.view.project(group.position, (group.position.y * 128) / 45)
+        let visible = group.visible && group.children[0]?.visible !== false
+        for (let parent = group.parent; parent; parent = parent.parent) visible &&= parent.visible
+        if (
+          visible &&
+          Number.isFinite(clip.x) &&
+          Number.isFinite(clip.y) &&
+          Math.abs(clip.x) <= 1 &&
+          Math.abs(clip.y) <= 1 &&
+          (scene.overviewActive ? clip.z !== 2 : !(projected.flags & 0x1e)) &&
+          visibleTreeIds.length < 32
+        )
           visibleTreeIds.push(tree.id)
         const mesh = group.children[0],
           resource = material(mesh),
@@ -312,8 +347,22 @@ export function installThemeFrame({ requireIdentity = true } = {}) {
         canvas: [canvas.width, canvas.height],
         renderer: gl.getParameter(debug ? debug.UNMASKED_RENDERER_WEBGL : gl.RENDERER),
         png: canvas.toDataURL('image/png'),
-        minimapPng: scene.mini.toDataURL('image/png'),
       }
+      queueMicrotask(() => {
+        if (closed) return
+        try {
+          requireOwner()
+          const before = pose(),
+            png = scene.mini.toDataURL('image/png'),
+            after = pose()
+          requireOwner()
+          if (JSON.stringify(before) !== JSON.stringify(after))
+            throw Error('Minimap pose changed during copy')
+          minimap = { boundary: 'post-animate-microtask', before, after, png }
+        } catch (error) {
+          fail(error)
+        }
+      })
     } catch (error) {
       fail(error)
     } finally {
@@ -327,14 +376,19 @@ export function installThemeFrame({ requireIdentity = true } = {}) {
   }
   renderer.render = wrapped
   return {
-    status: () => ({ captured: !!frame, errors: [...errors], closed }),
+    status: () => ({ captured: !!frame && !!minimap, errors: [...errors], closed }),
     async read() {
-      if (!frame || errors.length) throw Error(errors.join('\n') || 'Theme frame not captured')
+      if (!frame || !minimap || errors.length)
+        throw Error(errors.join('\n') || 'Theme frame not captured')
       const sha = async bytes =>
         Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)), value =>
           value.toString(16).padStart(2, '0')
         ).join('')
-      const result = { ...frame, terrainSha256: await sha(frame.terrain) }
+      const result = {
+        ...frame,
+        minimap: structuredClone(minimap),
+        terrainSha256: await sha(frame.terrain),
+      }
       delete result.terrain
       result.trees = await Promise.all(
         frame.trees.map(async tree => {
@@ -365,7 +419,7 @@ export function installThemeFrame({ requireIdentity = true } = {}) {
           fail(Error('Theme render observer replaced before capture'))
         closed = true
       }
-      return { captured: !!frame, errors: [...errors], closed }
+      return { captured: !!frame && !!minimap, errors: [...errors], closed }
     },
   }
 }

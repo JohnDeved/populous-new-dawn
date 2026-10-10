@@ -14,6 +14,12 @@ import {
 } from './world-theme-witness.mjs'
 
 export const referenceSource = '219384134d21200f80df0496a4866fb02fb200db'
+export const themeViewSequence = Object.freeze([
+  Object.freeze({ key: '-', preset: 2, overview: false, capture: 'ground' }),
+  Object.freeze({ key: '-', preset: 4, overview: true, capture: 'overview' }),
+  Object.freeze({ key: '=', preset: 2, overview: false }),
+  Object.freeze({ key: '=', preset: 0, overview: false }),
+])
 const sha = value => createHash('sha256').update(value).digest('hex')
 // Raw PAL/BIGF/CLIFF/DISP/FADE oracle: reviewed PR312 inventory, not the selector.
 const terrainHashes = {
@@ -63,6 +69,10 @@ const referenceAdmission =
 export function requireThemeFrame(frame, expected, { reference = false } = {}) {
   assert.equal(frame.level, expected.level)
   assert.ok(frame.rendererFrame > 0)
+  assert.equal(frame.minimap.boundary, 'post-animate-microtask')
+  assert.ok(frame.minimap.before.rendererFrame >= frame.rendererFrame)
+  assert.deepEqual(frame.minimap.before, frame.minimap.after)
+  assert.equal(frame.minimap.before.level, frame.level)
   assert.equal(frame.terrainSha256, terrainHashes[reference ? 'c' : expected.landscape])
   if (!reference) {
     assert.deepEqual(frame.environment.landscape, {
@@ -271,13 +281,16 @@ export default async function worldThemeSwitch({
           bodies.has(new URL(material.src).pathname),
           'Loaded material must have its actual served-byte receipt'
         )
-      for (const key of ['png', 'minimapPng']) {
-        const match = /^data:image\/png;base64,([A-Za-z0-9+/=]+)$/.exec(frame[key])
+      for (const [owner, key] of [
+        [frame, 'png'],
+        [frame.minimap, 'minimapPng'],
+      ]) {
+        const match = /^data:image\/png;base64,([A-Za-z0-9+/=]+)$/.exec(owner.png)
         assert.ok(match, 'Natural frame must be PNG')
         const name = `${label}-${key}.png`,
           bytes = Buffer.from(match[1], 'base64')
         writeFileSync(resolve(output, name), bytes)
-        frame[key] = { file: name, sha256: sha(bytes) }
+        owner.png = { file: name, sha256: sha(bytes) }
       }
       const before = await page.evaluate(readThemePose)
       await page.screenshot({ path: resolve(output, `${label}-viewport.png`) })
@@ -303,24 +316,17 @@ export default async function worldThemeSwitch({
     // inventing exact cross-run camera/turn correspondence.
     await button('Select shaman').click({ button: 'right' })
     await settled()
-    for (let i = 0; i < 2; i++) {
-      await page.keyboard.press('-')
+    const initial = await page.evaluate(readThemePose)
+    assert.equal(initial.preset, 0)
+    assert.equal(initial.overview, false)
+    for (const step of themeViewSequence) {
+      await page.keyboard.press(step.key)
       await settled()
-    }
-    await capture(`${label}-ground`, level)
-    for (let i = 0; i < 4 && !(await page.evaluate(readThemePose)).overview; i++) {
-      await page.keyboard.press('-')
-      await settled()
-    }
-    assert.equal((await page.evaluate(readThemePose)).overview, true)
-    await capture(`${label}-overview`, level)
-    for (let i = 0; i < 5; i++) {
       const pose = await page.evaluate(readThemePose)
-      if (!pose.overview && pose.preset === 0) break
-      await page.keyboard.press('=')
-      await settled()
+      assert.equal(pose.preset, step.preset)
+      assert.equal(pose.overview, step.overview)
+      if (step.capture) await capture(`${label}-${step.capture}`, level)
     }
-    assert.equal((await page.evaluate(readThemePose)).preset, 0)
   }
   const switchTo = async level => {
     await button('Game settings').click()
