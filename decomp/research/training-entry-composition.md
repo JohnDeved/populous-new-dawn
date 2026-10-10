@@ -70,3 +70,7 @@ Existing ordinary browser evidence is separate from this model comparison.
 ## Ordinary owner provenance follow-up
 
 The [reviewed main-source observation](../../references/verification/training-owner-2026-10-10/README.md) establishes synchronized counters before training input and exact retained owner identity through the click. All observed resting/builder assignments equal ordinary increments; route assignments preserve values. This does not independently prove those writes erroneous. The next proof boundary is original startup conversion allocation phase and first scheduled visit. No product repair is accepted.
+
+## Conditional startup conversion proof
+
+A [single original eight-Wildman fixture](../../references/verification/training-startup-phase-2026-10-10/README.md) confirms a replacement inherits the next class-allocation counter and waits until the next primary pass for its first person visit. It does not recover Mission 3's prior allocation ledger, justify a seed of 52, or establish a safe product repair.
