@@ -66,3 +66,7 @@ which original `004ed700` copies to record `+0x18`), partially inspected `004f0e
 rendering are excluded. Training is disabled, limiting inference to approach
 and admission before conversion; completion and exit scheduling are unproved.
 Existing ordinary browser evidence is separate from this model comparison.
+
+## Ordinary owner provenance follow-up
+
+The [reviewed main-source observation](../../references/verification/training-owner-2026-10-10/README.md) establishes synchronized counters before training input and exact retained owner identity through the click. All observed resting/builder assignments equal ordinary increments; route assignments preserve values. This does not independently prove those writes erroneous. The next proof boundary is original startup conversion allocation phase and first scheduled visit. No product repair is accepted.

@@ -1,0 +1,30 @@
+{
+  "archiveSha256": "d4b94554b37a93fb939b48afbc9d6cb231b56942e82794ae0dc9b76d6e16a0ce",
+  "members": {
+    "FINDINGS.md": "294ca2120e2013bf4305c3df4750b63cc4d67f201eb9a59719471e48a249d1c2",
+    "cleanup.json": "41a73c8558399feb4d7a5adfcb1b52611a1cd14b10d92e11e73ab2824c715aca",
+    "source-instrumentation.json": "667da6d2e78b8ebc5031a2c7f3537bad9011e169cd1a076336adbac90f58311b",
+    "install-observer.py": "4086be0cb02193c7a6a89e1afe18ccfe63f1ba7f8e4b57e656f07154edefb22e",
+    "preflight.json": "d085d48858684aea14a9d2901266a5b73bf1bc15764e5e6f87b882afcf00bc22",
+    "instrumentation.patch": "1e428e856541e8e12ef9bbeecab2304dc8d6a137f2d837812ec27631cf29d1ef",
+    "ordinary-m3-owner.mjs": "68ad94373c620444cb5808c873aa7a0c459b925b9092733854ddb69da489f286",
+    "run-witness.sh": "45b858cbb66807e5fdbf4fd5e03878f2f4c32997ccb5dbb221199032e9147966",
+    "ordinary1-exit-code.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "summarize.mjs": "9938f7d17edd61033c00636a68b955c7a43b958158018f41793eda97dd649f9d",
+    "ordinary1-command.log": "ee0be9de670278c322ad742993ec354076475fe2ad5f3097810d49b9826c96ec",
+    "artifact-sha256.json": "47ce6848ab02d5fa814dd12d9fbed0d8d2f3a93ecf0f0a360ba4571ce16a4691",
+    "ordinary1/owner-source-events.json": "ed507b057f063db078e512b25fbeac08b4859bd04a54084334ed6a9bc9f56325",
+    "ordinary1/owner-summary.json": "b1611358324382bb6078e7c29028702264123a61517d275edec43ea1d834316a",
+    "ordinary1/ordinary-m3.json": "746c98e0b99d526a0d7baffb9d6314b3cf0cffa9c0e76be8640c7d8e50eb1416",
+    "ordinary1/receipt.json": "2a5576b6416a766bad497027ca91f6f368c18f8155d4eb805f568ecd4294bc23",
+    "ordinary1/screencast-correlation.json": "983ed53173e4495bc8cf26e7dea946d43d49221c6c85dd7ad77b5f13926d917f",
+    "ordinary1/ordinary-admitted-and-waiting.png": "bbbc6af0c4960f68759c56aca48e4f05f336b5b1a3ecd96ab98fa33d60a30332",
+    "ordinary1/ordinary-completed-warrior-hut.png": "abe0ad9215c8ec26f623f813b6d9f83b32fb355d6c29a5c3e55cf533ebc4c57c",
+    "app/issue29-owner-observer.ts": "6b0d706566317c93abf2f720b9c75bf5738962a38e89c19e3a8251ccfad79b70"
+  },
+  "checks": {
+    "safeRelativePaths": true,
+    "members": 20,
+    "rawJsonUnmodified": true
+  }
+}
