@@ -1,0 +1,139 @@
+{
+  "kind": "bounded-static-selection-radius-closure",
+  "status": "Code windows extracted; dependent32-byte seed read not yet performed",
+  "sourceHead": "b2213c221f9037573093ccdf4248c0d081b806bf",
+  "executable": "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe",
+  "executableBytes": 2275840,
+  "executableSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "executableSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "tool": "/usr/bin/objdump",
+  "toolSha256": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+  "toolVersion": "GNU objdump (GNU Binutils for Debian) 2.44",
+  "imageBase": "0x400000",
+  "sections": [
+    {
+      "name": ".text",
+      "virtualAddress": 4096,
+      "virtualSize": 1591844,
+      "rawSize": 1592320,
+      "rawOffset": 1024
+    },
+    {
+      "name": "CSEG",
+      "virtualAddress": 1597440,
+      "virtualSize": 34664,
+      "rawSize": 34816,
+      "rawOffset": 1593344
+    },
+    {
+      "name": ".rdata",
+      "virtualAddress": 1634304,
+      "virtualSize": 34168,
+      "rawSize": 34304,
+      "rawOffset": 1628160
+    },
+    {
+      "name": ".data",
+      "virtualAddress": 1671168,
+      "virtualSize": 7813552,
+      "rawSize": 361984,
+      "rawOffset": 1662464
+    },
+    {
+      "name": ".idata",
+      "virtualAddress": 9486336,
+      "virtualSize": 7892,
+      "rawSize": 8192,
+      "rawOffset": 2024448
+    },
+    {
+      "name": "CSEG",
+      "virtualAddress": 9494528,
+      "virtualSize": 53284,
+      "rawSize": 53760,
+      "rawOffset": 2032640
+    },
+    {
+      "name": "DSEG",
+      "virtualAddress": 9551872,
+      "virtualSize": 4136,
+      "rawSize": 4608,
+      "rawOffset": 2086400
+    },
+    {
+      "name": "IDCT_DAT",
+      "virtualAddress": 9560064,
+      "virtualSize": 5720,
+      "rawSize": 6144,
+      "rawOffset": 2091008
+    },
+    {
+      "name": "UVA_DATA",
+      "virtualAddress": 9568256,
+      "virtualSize": 19148,
+      "rawSize": 19456,
+      "rawOffset": 2097152
+    },
+    {
+      "name": ".rsrc",
+      "virtualAddress": 9588736,
+      "virtualSize": 12228,
+      "rawSize": 12288,
+      "rawOffset": 2116608
+    },
+    {
+      "name": ".reloc",
+      "virtualAddress": 9601024,
+      "virtualSize": 146710,
+      "rawSize": 146944,
+      "rawOffset": 2128896
+    }
+  ],
+  "windows": [
+    {
+      "name": "producer",
+      "argv": [
+        "/usr/bin/objdump",
+        "-d",
+        "-Mintel",
+        "--start-address=0x4615f0",
+        "--stop-address=0x4617de",
+        "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "virtualStart": "0x4615f0",
+      "virtualStop": "0x4617de",
+      "byteCount": 494,
+      "section": ".text",
+      "fileOffset": 395760,
+      "fileStop": 396254,
+      "rangeSha256": "5222885ba16e1cc736f5cc968b9d60cdd77645c62dba853f94b33d1a86e378ed",
+      "output": "/workspace/scratch/69fd8163d94e/mission2-construction-origin-20261010/work/orchestration/selection-radius-source/producer-sqrt-20261010T031700Z/producer.asm",
+      "outputSha256": "4e6edbf2ccd812c8d5304f1361ca73b28d1b81c122dfd4362a11b28f014c04e2",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exitCode": 0
+    },
+    {
+      "name": "sqrt",
+      "argv": [
+        "/usr/bin/objdump",
+        "-d",
+        "-Mintel",
+        "--start-address=0x586000",
+        "--stop-address=0x586074",
+        "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "virtualStart": "0x586000",
+      "virtualStop": "0x586074",
+      "byteCount": 116,
+      "section": "CSEG",
+      "fileOffset": 1593344,
+      "fileStop": 1593460,
+      "rangeSha256": "58e70a72034a5a034f31b54117b8a0487c7b874921470ebbb1527c39da806c1f",
+      "output": "/workspace/scratch/69fd8163d94e/mission2-construction-origin-20261010/work/orchestration/selection-radius-source/producer-sqrt-20261010T031700Z/sqrt.asm",
+      "outputSha256": "30a09270f629842c60aa972bd8982dabe72139be88e06814590afbd99980300f",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exitCode": 0
+    }
+  ],
+  "originalExecution": false
+}

@@ -1,0 +1,51 @@
+{
+  "sourceHead": "b2213c221f9037573093ccdf4248c0d081b806bf",
+  "equivalentMergedMain": "3b13a7ff534ab95797b0b06330055cead956160d",
+  "kind": "compact static source checkpoint; original artifacts copied byte-for-byte",
+  "artifacts": {
+    "check-static-arithmetic.py": {
+      "sha256": "c3383310276560800a3f1af39d32bef4217fee2425ad3c620719952dbeb2fb84",
+      "bytes": 1299
+    },
+    "code-manifest.json": {
+      "sha256": "223d4c607ad0697101430c72b51e0a0ed364bd8e5180772945b4afa0b0e1a68a",
+      "bytes": 4273
+    },
+    "contract.json": {
+      "sha256": "a8aaa04d6bbf8c796d812466ae9a593935d6c17544481c78e1e752926a8f29e0",
+      "bytes": 13125
+    },
+    "delta-manifest.json": {
+      "sha256": "812b0bc9a402ce9c399c8ed4826694c3c8095c5d72695b1d9363ae89f224fb72",
+      "bytes": 1458
+    },
+    "delta.asm": {
+      "sha256": "8e8e9bb11881367f3dade3d155033fb86fd0b44d8dd0d3bc03d7b422b04e3923",
+      "bytes": 1288
+    },
+    "producer.asm": {
+      "sha256": "4e6edbf2ccd812c8d5304f1361ca73b28d1b81c122dfd4362a11b28f014c04e2",
+      "bytes": 8179
+    },
+    "scope-review.json": {
+      "sha256": "1d4b1d1e66ad327d663c6a0c6abd45abbf85a31d1b26c12a951f8fc6a69c84f3",
+      "bytes": 2184
+    },
+    "seed-table.json": {
+      "sha256": "11e96468391b95bcfa0fdb773cc532256cde611deba5ae8b18d259c9b0de0216",
+      "bytes": 2999
+    },
+    "source-review.json": {
+      "sha256": "f9fce35603542b8831db84d6270b68c563612cc809466a141dfb97a480e0a319",
+      "bytes": 6397
+    },
+    "sqrt.asm": {
+      "sha256": "30a09270f629842c60aa972bd8982dabe72139be88e06814590afbd99980300f",
+      "bytes": 2385
+    },
+    "static-arithmetic.json": {
+      "sha256": "24eed32b7c52cc482adfc743c6f573e8a7c7548053fb2ecc75861822a062e976",
+      "bytes": 480
+    }
+  }
+}

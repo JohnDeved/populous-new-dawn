@@ -1,0 +1,152 @@
+{
+  "status": "Named native producer/reset/math contract closed for byte-coordinate input domain. Port integration and proposed legacy compatibility await independent review; native list-to-port membership remains a precise prerequisite.",
+  "sourceHead": "b2213c221f9037573093ccdf4248c0d081b806bf",
+  "frozenProduct": "PR303 source remains unchanged; this is a separate ignored source-only artifact.",
+  "retainedSourceHashes": {
+    "decomp/generated/004615f0.c": "467eff666ecdd8e530b6b9cc7f90a8ca11f3c1b208f4603164c898ce7df8a0ce",
+    "decomp/generated/00461d70.c": "b3615d5df13470b64957be7de66ec21d444d9f093f78172cb9ac5ba65c4a8c46",
+    "decomp/generated/004c6da0.c": "491545b5e77c46412ec44e1178720eca14aa6b1b38b992f57176a948d64d2afd",
+    "decomp/generated/004f55d0.c": "f75fa8a3d89aa472d2fabcf37947324accf489f329da4d2861e17ac27cd45021",
+    "decomp/generated/00586000.c": "d85e28e48dc851210be026c619613a156941c66fd369ce7ca2ef4ad9654b217c"
+  },
+  "decodedLeaf": {
+    "entry": "00461d40",
+    "manifest": "/workspace/scratch/69fd8163d94e/mission2-construction-origin-20261010/work/orchestration/selection-radius-source/math-leaf-00461d40-20261010T031227Z/static-manifest.json",
+    "manifestSha256": "812b0bc9a402ce9c399c8ed4826694c3c8095c5d72695b1d9363ae89f224fb72",
+    "disassemblySha256": "8e8e9bb11881367f3dade3d155033fb86fd0b44d8dd0d3bc03d7b422b04e3923",
+    "originalExecution": false
+  },
+  "consumer": {
+    "source": "app/computer-selection.ts:80-86; app/computer-runtime.ts:189-197",
+    "native": "004f55d0 / accepted ef5d2632 disassembly 4f5610-4f566e",
+    "center": "tribe+0x5b4 selects established word+0x36a, otherwise loaded word+0x5a2",
+    "radius": "unsigned byte tribe+0x36c; distinct from script defenceRadius+0x5be and defencePosition+0x46e",
+    "eligibility": "Original current enabled order17/31/32 in state10/33, no computer assignment; selector bit2 enabled and bit16 disabled. Non-idle is necessary to distinguish admission because idle eligibility is independent. Existing other eligibility and selector modes must stay unchanged."
+  },
+  "qualifyingCurrentCallers": [
+    {
+      "caller": "requestComputerPreacher",
+      "line": 225,
+      "mode": 1,
+      "flags": "0x47"
+    },
+    {
+      "caller": "Mission3 type8 selection",
+      "line": 1313,
+      "mode": 1,
+      "flags": "0x47"
+    },
+    {
+      "caller": "type7 Tower staffing",
+      "line": 1561,
+      "mode": 1,
+      "flags": "0x4a"
+    },
+    {
+      "caller": "type20 phase3 recruitment",
+      "line": 1813,
+      "mode": 1,
+      "flags": "7"
+    },
+    {
+      "caller": "type6 training",
+      "line": 1909,
+      "mode": 1,
+      "flags": "6"
+    }
+  ],
+  "producer": {
+    "source": "decomp/generated/004615f0.c:46-84",
+    "internalPredicate": "461684-46169a sign-extends tribe byte+0xc22, adds global DWORD0x89d188, then tests low six bits after+13; script0048c6b0 was called first.",
+    "baseGate": "Only byte+0x5b4 nonzero; no live Shaman, script defence flag, mission number or further person predicate in this block.",
+    "baseCoordinates": "Read retained word+0x36a bytewise, without another even mask at the producer.",
+    "enumeration": "Follow this tribe record head pointer+0x885 and each node+8 until null; no explicit model/class/hp/state/tribe filter inside this loop. Meaning and upkeep of the linked-list owner must not be replaced by an invented filter.",
+    "buildingCoordinates": "Unsigned coordinate words at node+0x3d/+0x3f shifted by8, packed and masked0xfefe.",
+    "distance": "Call00461d40 for each axis, square the returned ints, sum and retain the maximum starting at0; no pre-sqrt halving.",
+    "candidate": "461741 calls00586000; 461752 halves its nonnegative result with SAR1; 461758 zero-extends CP attribute14 at0x9607f8 + signed tribe*48. Candidate = floor(sqrt(maxSquaredDistance)/2) + unsigned attribute14.",
+    "write": "461763 zero-extends existing+0x36c; 461769-46176d compares it as signed integer against candidate, then stores AL only when prior<candidate. Both comparison operands are nonnegative and at most345 here, so signed and unsigned comparison agree. Values256..345 wrap to0..89; no saturation.",
+    "history": "No decrease for in-byte-range candidates; candidate>255 can wrap a written byte downward if reachable. Destroying a far building does not itself clear the retained radius in this function.",
+    "rng": "No RNG call in the displayed radius block.",
+    "cadenceLimit": "This is the internal predicate, not proof of actual invocation cadence or a binding of the native global counter to browser world.turn."
+  },
+  "math": {
+    "delta": "00461d40 is bound by the earlier single decode. Actual caller4616cb-461719 zero-extends each base/building byte before both calls, so d=min(abs(a-b),256-abs(a-b)), including128.",
+    "coordinates": "Building x/y high bytes are each masked254 before zero extension. Base bytes come from+0x36a without a fresh even mask. Neither axis is halved before squaring.",
+    "domain": "Each wrapped delta is0..128, sum of squares0..32768, integer products/sum fit signed32.",
+    "sqrtBinding": "Direct call at461741 targets00586000. Its seed load at586011 is movzx ebx,word[eax*2+0x586034], with BSR(input) selecting entries0..15 in this domain.",
+    "seeds": [
+      1,
+      2,
+      2,
+      4,
+      5,
+      8,
+      11,
+      16,
+      22,
+      32,
+      45,
+      64,
+      90,
+      128,
+      181,
+      256
+    ],
+    "sqrtAlgorithm": "Input0 returns0. Otherwise positive unsigned16-bit seed; repeat q=floor(input/seed), while q<seed set seed=floor((seed+q)/2). Signed compare is equivalent to unsigned for this bounded domain.",
+    "arithmeticProof": "A pure host reconstruction compared all32769 integers0..32768 against math.isqrt with zero mismatches, max3 Newton updates and maximum root181. Static seed inequalities also establish positive seeds at least floor(sqrt(n)) throughout each input band. This is static mathematical equivalence, not native execution.",
+    "result": "floor(sqrt(maxSquaredDistance)/2)+unsigned attr14 ranges0..345; store candidate&255 only when old radius byte<candidate.",
+    "nonEquivalentShortcut": "Do not reuse0049c720/cellDistanceSquared blindly: it halves each axis before squaring rather than halving after sqrt.",
+    "existingEvidence": "The same-address Convert cases remain sampled native component evidence; the new exhaustive claim is explicitly pure host arithmetic from decoded bytes and instruction-bound table data."
+  },
+  "reset": {
+    "initializer": "00461d70:13-30 clears+0x36..+0x5c8, including+0x36c. The copied producer table starts+0x36e. It separately sets script radius+0x5be to11 and clears base flag+0x5b4.",
+    "firstBase": "004c6da0 phase3:85-103 requires non-exact request, unset+0x5b4 and valid nonzero plan handle without deleted flag and with nonzero class. It obtains the exterior point, clears+0x36c, sets+0x5b4=1 and stores the even+0x36a cell. Existing base, exact request or unavailable handle do not perform this reset; phase advances to4 regardless.",
+    "acceptedStartupOwner": "ef5d2632 reset/load packet binds the ordinary M1-3 nonplayer level-reset paths. Universal alias/bulk-copy/native binary-save histories remain outside that packet.",
+    "writerCoverageLimit": "Finite retained generated-source search finds the periodic write and first-base clear. The accepted+0x5a2 displacement scan did not audit+0x36c and is not exhaustive writer proof for this field."
+  },
+  "portableSave": {
+    "proposedField": "Optional native constructionRadius byte on the owning ComputerQueue, distinct from script defenceRadius. Undefined means unknown legacy history; present0 is authoritative.",
+    "newWorld": "Initialize0 in newly created queues used by authored M1-3 computer tribes; missionAI already constructs them via createComputerQueue. Keep later-mission adapter behavior outside this slice.",
+    "baseEstablishment": "At the existing M2/M3 ordinary first-Tower phase3 writer, set constructionRadius0 together with constructionBase. Preserve exact-placement/existing-base/invalid-plan gates and phase4 advance.",
+    "knownModernSave": "World structuredClone Save/Load retains the field and alias ownership; migrate a present valid uint8 without recomputing or replacing0. Tests would need direct/modern and legacy tribe-owner paths.",
+    "legacyAbsentBaseProposal": "For supported authored M1-3 legacy checkpoints lacking both a radius value and an established constructionBase, initialize0 under the existing explicit port meaning that absent constructionBase is unestablished. This is a bounded compatibility rule, not original binary-save recovery.",
+    "legacyEstablishedBaseProposal": "When constructionBase is present (including0) but radius is missing, leave it unknown. Preserve the complete previous selection-world center/radius adapter and skip native-radius accumulation for that unknown owner until an explicit fresh initialization obtains authoritative state. Do not mix a corrected center with an invented radius or reconstruct past maxima from surviving buildings.",
+    "modernSelectorProposal": "Only for the supported authored tribe with a known radius, supply hasBase from constructionBase presence, base from constructionBase, loaded fallback from the accepted authored owner, and this native radius. Keep current selector flags/modes and all other eligibility/side effects unchanged.",
+    "decision": "These are proposed explicit compatibility boundaries for independent review, not runtime changes or accepted migration behavior."
+  },
+  "nextSourcePrerequisites": [
+    "The native loop iterates every node in tribe+0x885 without additional model/hp/state filters. Before runtime producer implementation, bind the maintained port membership/position projection to that native owner (especially preparation/under-construction/destroyed buildings); this pass does not invent that filter.",
+    "Independent review must accept the per-existing-visit scope and the proposed unknown-history compatibility rule. Full original cadence and universal native save/reset histories stay excluded."
+  ],
+  "stoppingCondition": "Accepted two code windows and instruction-bound first32 seed bytes extracted; finite pure host arithmetic comparison completed. Named math leaves now close. No further decode, tracked edits or runtime mapping performed.",
+  "supersedesAssessment": {
+    "path": "/workspace/scratch/69fd8163d94e/mission2-construction-origin-20261010/work/orchestration/selection-radius-source/radius-contract-20261010.json",
+    "sha256": "e623262b2246641f7fc26fe06ada63dd4c78b0db91fbcb0e8526bcfddb435823"
+  },
+  "staticClosure": {
+    "codeManifest": {
+      "path": "/workspace/scratch/69fd8163d94e/mission2-construction-origin-20261010/work/orchestration/selection-radius-source/producer-sqrt-20261010T031700Z/code-manifest.json",
+      "sha256": "223d4c607ad0697101430c72b51e0a0ed364bd8e5180772945b4afa0b0e1a68a"
+    },
+    "seedTable": {
+      "path": "/workspace/scratch/69fd8163d94e/mission2-construction-origin-20261010/work/orchestration/selection-radius-source/producer-sqrt-20261010T031700Z/seed-table.json",
+      "sha256": "11e96468391b95bcfa0fdb773cc532256cde611deba5ae8b18d259c9b0de0216"
+    },
+    "arithmeticSource": {
+      "path": "/workspace/scratch/69fd8163d94e/mission2-construction-origin-20261010/work/orchestration/selection-radius-source/producer-sqrt-20261010T031700Z/check-static-arithmetic.py",
+      "sha256": "c3383310276560800a3f1af39d32bef4217fee2425ad3c620719952dbeb2fb84"
+    },
+    "arithmeticResult": {
+      "path": "/workspace/scratch/69fd8163d94e/mission2-construction-origin-20261010/work/orchestration/selection-radius-source/producer-sqrt-20261010T031700Z/static-arithmetic.json",
+      "sha256": "24eed32b7c52cc482adfc743c6f573e8a7c7548053fb2ecc75861822a062e976"
+    },
+    "claims": "Only data decoding and pure host integer arithmetic; no original instructions executed/emulated, game model run or browser route."
+  },
+  "maintainedOpportunity": {
+    "call": "world-turn.ts:462-491 calls processTribes before incrementing w.turn. The computer callback uses withCampaignTribe, cooldown, campaignRules, stepComputerTasks and spells in that order.",
+    "gates": "Existing world-turn gates landFlags2/0x800000 and gameFlags2; processTribes:30-37 retains loadFlags0x200, gameFlags32, levelFlags2 0x100000, active tribe, defeatTimer<97, flags2 bit64 clear and playerType1 gates.",
+    "phase": "computer.ts:265-269 already computes radius when((w.turn+signed tribe+13)&63)==0, producer when((w.turn+signed tribe+1)&63)==0, otherwise dispatcher. computer-runtime.ts:1475 currently returns for the radius phase.",
+    "possibleInsertion": "A reviewed M1-3 radius updater could fill that existing radius branch and return, without advancing task cursor, allocating tasks/orders, drawing RNG or creating a second scheduler.",
+    "limits": "This is a concrete maintained browser caller opportunity with the matching internal predicate. It does not establish original caller invocation cadence, full original frame timing or wall-time parity."
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "claim": "Static host arithmetic equivalence on the instruction-bound radius domain",
+  "inputRangeInclusive": [
+    0,
+    32768
+  ],
+  "comparedInputs": 32769,
+  "mismatches": 0,
+  "maximumNewtonUpdates": 3,
+  "maximumRoot": 181,
+  "seedArtifactSha256": "11e96468391b95bcfa0fdb773cc532256cde611deba5ae8b18d259c9b0de0216",
+  "originalInstructionsExecutedOrEmulated": false,
+  "limits": "No original runtime, caller cadence, building membership or ordinary gameplay claim."
+}

@@ -1,0 +1,149 @@
+{
+  "kind": "instruction-bound-static-sqrt-seeds",
+  "instruction": "00586011 movzx ebx, WORD PTR [eax*2+0x586034]",
+  "codeManifestSha256": "223d4c607ad0697101430c72b51e0a0ed364bd8e5180772945b4afa0b0e1a68a",
+  "virtualStart": "0x586034",
+  "virtualStop": "0x586054",
+  "byteCount": 32,
+  "section": "CSEG",
+  "fileOffset": 1593396,
+  "fileStop": 1593428,
+  "bytesHex": "0100020002000400050008000b001000160020002d0040005a008000b5000001",
+  "dataSha256": "1338fa00f4c5daef92df5443ca598ef55ae8565f6fe4cec43f838a28d8633ecf",
+  "littleEndianWords": [
+    1,
+    2,
+    2,
+    4,
+    5,
+    8,
+    11,
+    16,
+    22,
+    32,
+    45,
+    64,
+    90,
+    128,
+    181,
+    256
+  ],
+  "callerDomain": "Instruction-bound zero-extended coordinates and wrapped deltas establish 0 <= input <= 32768.",
+  "bands": [
+    {
+      "bit": 0,
+      "minInput": 1,
+      "maxInput": 1,
+      "seed": 1,
+      "upperBoundCheck": true
+    },
+    {
+      "bit": 1,
+      "minInput": 2,
+      "maxInput": 3,
+      "seed": 2,
+      "upperBoundCheck": true
+    },
+    {
+      "bit": 2,
+      "minInput": 4,
+      "maxInput": 7,
+      "seed": 2,
+      "upperBoundCheck": true
+    },
+    {
+      "bit": 3,
+      "minInput": 8,
+      "maxInput": 15,
+      "seed": 4,
+      "upperBoundCheck": true
+    },
+    {
+      "bit": 4,
+      "minInput": 16,
+      "maxInput": 31,
+      "seed": 5,
+      "upperBoundCheck": true
+    },
+    {
+      "bit": 5,
+      "minInput": 32,
+      "maxInput": 63,
+      "seed": 8,
+      "upperBoundCheck": true
+    },
+    {
+      "bit": 6,
+      "minInput": 64,
+      "maxInput": 127,
+      "seed": 11,
+      "upperBoundCheck": true
+    },
+    {
+      "bit": 7,
+      "minInput": 128,
+      "maxInput": 255,
+      "seed": 16,
+      "upperBoundCheck": true
+    },
+    {
+      "bit": 8,
+      "minInput": 256,
+      "maxInput": 511,
+      "seed": 22,
+      "upperBoundCheck": true
+    },
+    {
+      "bit": 9,
+      "minInput": 512,
+      "maxInput": 1023,
+      "seed": 32,
+      "upperBoundCheck": true
+    },
+    {
+      "bit": 10,
+      "minInput": 1024,
+      "maxInput": 2047,
+      "seed": 45,
+      "upperBoundCheck": true
+    },
+    {
+      "bit": 11,
+      "minInput": 2048,
+      "maxInput": 4095,
+      "seed": 64,
+      "upperBoundCheck": true
+    },
+    {
+      "bit": 12,
+      "minInput": 4096,
+      "maxInput": 8191,
+      "seed": 90,
+      "upperBoundCheck": true
+    },
+    {
+      "bit": 13,
+      "minInput": 8192,
+      "maxInput": 16383,
+      "seed": 128,
+      "upperBoundCheck": true
+    },
+    {
+      "bit": 14,
+      "minInput": 16384,
+      "maxInput": 32767,
+      "seed": 181,
+      "upperBoundCheck": true
+    },
+    {
+      "bit": 15,
+      "minInput": 32768,
+      "maxInput": 32768,
+      "seed": 256,
+      "upperBoundCheck": true
+    }
+  ],
+  "executableSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "executableSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "originalExecution": false
+}

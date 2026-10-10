@@ -1,0 +1,34 @@
+{
+  "scope": "Single static data decode only. No original instructions executed.",
+  "recordedAt": "2026-10-10T03:12:48.429413+00:00",
+  "sourceHead": "b2213c221f9037573093ccdf4248c0d081b806bf",
+  "recipeSource": "ef5d26329ac0f6b011746d556afdf655d6563013:decomp/research/issue256-stored-fallback-20261009/static-manifest.json",
+  "exe": {
+    "path": "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe",
+    "bytes": 2275840,
+    "sha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "sha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+  },
+  "tool": {
+    "path": "/usr/bin/objdump",
+    "version": "GNU objdump (GNU Binutils for Debian) 2.44",
+    "sha256": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f"
+  },
+  "start": "0x461d40",
+  "stopExclusive": "0x461d70",
+  "inputFileOffset": 397632,
+  "inputRangeSha256": "0547a5c239c60e8ad978d44166df1b2a207164cfecd697c1451606e4bb35ec0f",
+  "command": [
+    "/usr/bin/objdump",
+    "-d",
+    "-Mintel",
+    "--start-address=0x461d40",
+    "--stop-address=0x461d70",
+    "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe"
+  ],
+  "exitCode": 0,
+  "stdoutBytes": 1288,
+  "stdoutSha256": "8e8e9bb11881367f3dade3d155033fb86fd0b44d8dd0d3bc03d7b422b04e3923",
+  "stderrBytes": 0,
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

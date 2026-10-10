@@ -1,0 +1,68 @@
+{
+  "kind": "independent-selection-radius-source-math-and-compatibility-review",
+  "decision": "ACCEPT named math/reset source and explicit compatibility direction; HOLD runtime producer admission pending list membership/position correspondence",
+  "contract": {
+    "path": "/workspace/scratch/69fd8163d94e/mission2-construction-origin-20261010/work/orchestration/selection-radius-source/radius-contract-complete-20261010.json",
+    "sha256": "a8aaa04d6bbf8c796d812466ae9a593935d6c17544481c78e1e752926a8f29e0"
+  },
+  "staticScopeReview": {
+    "path": "/workspace/scratch/69fd8163d94e/selection-radius-static-scope-review-20261010.json",
+    "sha256": "1d4b1d1e66ad327d663c6a0c6abd45abbf85a31d1b26c12a951f8fc6a69c84f3"
+  },
+  "staticArtifacts": {
+    "codeManifest": {
+      "path": "/workspace/scratch/69fd8163d94e/mission2-construction-origin-20261010/work/orchestration/selection-radius-source/producer-sqrt-20261010T031700Z/code-manifest.json",
+      "sha256": "223d4c607ad0697101430c72b51e0a0ed364bd8e5180772945b4afa0b0e1a68a"
+    },
+    "seedTable": {
+      "path": "/workspace/scratch/69fd8163d94e/mission2-construction-origin-20261010/work/orchestration/selection-radius-source/producer-sqrt-20261010T031700Z/seed-table.json",
+      "sha256": "11e96468391b95bcfa0fdb773cc532256cde611deba5ae8b18d259c9b0de0216"
+    },
+    "arithmeticSource": {
+      "path": "/workspace/scratch/69fd8163d94e/mission2-construction-origin-20261010/work/orchestration/selection-radius-source/producer-sqrt-20261010T031700Z/check-static-arithmetic.py",
+      "sha256": "c3383310276560800a3f1af39d32bef4217fee2425ad3c620719952dbeb2fb84"
+    },
+    "arithmeticResult": {
+      "path": "/workspace/scratch/69fd8163d94e/mission2-construction-origin-20261010/work/orchestration/selection-radius-source/producer-sqrt-20261010T031700Z/static-arithmetic.json",
+      "sha256": "24eed32b7c52cc482adfc743c6f573e8a7c7548053fb2ecc75861822a062e976"
+    },
+    "claims": "Only data decoding and pure host integer arithmetic; no original instructions executed/emulated, game model run or browser route."
+  },
+  "verified": [
+    "Canonical PE and decoder identity, all source/artifact hashes and original byte ranges correspond.",
+    "Producer window covers exact zero-extended arguments, signed tribe/global predicate, established-base gate, full linked-list maximum, sqrt call, attribute14 and byte write.",
+    "PE section mapping independently resolves seed VA0x586034 to file offset1593396; exact first32 bytes match the sixteen declared little-endian words.",
+    "Sqrt instructions return0 for input0; otherwise BSR selects a positive seed followed by unsigned division and descending integer Newton updates. Recorded host arithmetic checks all32769 values in the proven domain; this is mathematical evidence, not original execution.",
+    "Initializer clears radius+0x36c distinctly from script radius+0x5be. First-base phase3 clears+0x36c only under its retained non-exact/unestablished/valid-handle gates.",
+    "Maintained world-turn/processTribes ordering already calls campaignRules before stepComputerTasks with a radius phase, under existing world/tribe gates. Filling that opportunity does not prove original invocation cadence."
+  ],
+  "formula": {
+    "coordinates": "Base bytes are zero-extended without a new even mask. Each building coordinate word high byte is masked254 and zero-extended.",
+    "delta": "min(abs(a-b),256-abs(a-b)) for byte inputs, each in0..128.",
+    "maximum": "Start squared maximum at0 and scan every linked tribe+0x885 node via next+8; no extra model/class/HP/state filter appears in this block.",
+    "candidate": "floor(isqrt(maxSquaredDistance)/2) + unsigned attribute14; squared domain0..32768, candidate0..345.",
+    "write": "Only if old unsigned radius byte < full candidate, store candidate &255. Do not clamp; candidates256..345 wrap to0..89. Do not apply cellDistanceSquared pre-axis halving.",
+    "emptyList": "With an established base, an empty list still produces the margin candidate. Without a base, skip the update.",
+    "rng": "No RNG call occurs in this producer block."
+  },
+  "compatibilityDirection": {
+    "fresh": "Explicit authoritative0 for supported fresh authored M1-3 computer owners only; keep later missions and unrelated createComputerQueue callers outside this slice.",
+    "firstBase": "Reset authoritative0 at the existing corresponding first-base transition, preserving gates and advancement.",
+    "knownSaved": "Preserve an explicit valid uint8, including0, and queue/tribe aliases across modern and supported legacy-owner migration.",
+    "legacyNoBaseMissing": "Accept explicit port compatibility initialization0 when both native radius history and established constructionBase are absent; label this as compatibility, not recovery of original save history.",
+    "legacyEstablishedMissing": "Retain unknown when constructionBase is present, including0, and radius is missing. Keep the entire previous selection center/radius adapter and skip native accumulation. Do not reconstruct from present buildings or script defenceRadius.",
+    "selector": "For known supported owners, switch base-presence/base/loaded fallback/native radius together; preserve every selector mode, flag, filter, ranking and side effect.",
+    "validationBoundary": "Only a present valid uint8 is authoritative; any invalid/malformed saved value needs an explicit tested handling rule rather than silently becoming a claimed native value."
+  },
+  "remainingBlocker": {
+    "scope": "Exact maintained projection of native tribe+0x885 membership and node coordinates, including plans, incomplete construction, completed buildings and destruction/retirement lifetimes.",
+    "why": "A guessed world.buildings model/HP/progress filter can alter the maximum and retained history. The native producer scans its linked owner without these filters.",
+    "nextGate": "Review the finite ownership/projection proposal, then actual-caller failure-first tests and full campaign gates before any selection behavior acceptance."
+  },
+  "limits": [
+    "No universal writer/alias/reset/native binary-save history proof.",
+    "No new native execution, emulator, model or browser run by reviewer.",
+    "Original cadence/global-counter correspondence and physical object identity remain bounded limitations.",
+    "Runtime implementation is not admitted by this verdict."
+  ]
+}

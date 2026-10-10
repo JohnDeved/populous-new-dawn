@@ -1,0 +1,48 @@
+{
+  "kind": "independent-selection-radius-static-extraction-scope-review",
+  "decision": "ACCEPT bounded data-only extraction; source conclusions pending outputs",
+  "partialContract": {
+    "path": "/workspace/scratch/69fd8163d94e/mission2-construction-origin-20261010/work/orchestration/selection-radius-source/radius-contract-20261010.json",
+    "sha256": "e623262b2246641f7fc26fe06ada63dd4c78b0db91fbcb0e8526bcfddb435823"
+  },
+  "verifiedInputs": {
+    "pe": {
+      "path": "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe",
+      "size": 2275840,
+      "sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+    },
+    "objdump": {
+      "path": "/usr/bin/objdump",
+      "sha256": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f"
+    }
+  },
+  "allowedRanges": [
+    {
+      "start": "0x004615f0",
+      "stopExclusive": "0x004617de",
+      "bytes": 494,
+      "purpose": "Actual caller extensions, counter/tribe/base gate, list reads, margin and radius write"
+    },
+    {
+      "start": "0x00586000",
+      "stopExclusive": "0x00586074",
+      "bytes": 116,
+      "purpose": "Exact sqrt loop and immediate seed-table address"
+    },
+    {
+      "address": "Derive from decoded sqrt instruction and PE section mapping",
+      "bytes": 32,
+      "purpose": "First sixteen unsigned 16-bit sqrt seed entries; only after caller proves squared-distance domain at most 32768"
+    }
+  ],
+  "conditions": [
+    "GNU objdump treats canonical EXE as data; no original instruction execution.",
+    "Bind exact commands, VA/file mappings, tool/input/range/output hashes and unchanged before/after PE identity.",
+    "Stop if caller extension/domain, seed table address/extent or another required leaf differs; do not silently enlarge scope.",
+    "Write receipts outside tracked source; no raw archives, held df0, runtime/test changes or native probe."
+  ],
+  "limits": [
+    "This is static-extraction admission only.",
+    "Actual invocation cadence/global-counter mapping, linked-list lifecycle ownership, exhaustive field writer history and missing legacy checkpoint history remain separate questions."
+  ]
+}
