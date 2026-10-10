@@ -597,7 +597,10 @@ test('proposed controls and Load/Restart resource owners match the current produ
   assert.ok(page.includes('Temple'))
   assert.ok(store.includes('getPresentationSnapshot: presentation.snapshot'))
   assert.ok(store.includes('replaceWorld(migrateCheckpoint(structuredClone(checkpoint)))'))
-  assert.ok(store.includes('world.outcome.level === 3 && !(world.land.landFlags & 8)'))
+  assert.ok(store.includes('const retainResource = !(world.land.landFlags & 8)'))
+  assert.ok(
+    store.includes('presentation.transition(worldEnvironment(next).landscape, retainResource)')
+  )
   assert.ok(
     scene.includes('this.templeResourceSnapshot = this.presentationBinding?.snapshot() ?? null')
   )
