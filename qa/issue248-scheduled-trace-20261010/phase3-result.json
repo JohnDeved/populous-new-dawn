@@ -1,0 +1,1080 @@
+{
+  "schema": 1,
+  "status": "accepted bounded port cohort; no production repair or native parity",
+  "sourceHead": "cf6b03f34bf6ffc9e9d6f59b9a033ea90c679e32",
+  "productionBase": "4754e12d3590bde18656416514871b033de164be",
+  "allocation": {
+    "turn": 6475,
+    "index": 2,
+    "arguments": [
+      12858,
+      0,
+      4,
+      20,
+      [
+        0,
+        80,
+        30,
+        0,
+        0,
+        0
+      ],
+      25,
+      true,
+      2,
+      291,
+      []
+    ]
+  },
+  "visits": [
+    {
+      "beforeController": {
+        "turn": 6479,
+        "index": 2,
+        "task": {
+          "flags": 1,
+          "type": 20,
+          "phase": 3,
+          "requested": 4,
+          "selected": 0,
+          "remaining": 0,
+          "members": []
+        },
+        "queue": {
+          "cursor": 2,
+          "flags": 25938,
+          "selectionOwner": 2
+        }
+      },
+      "calls": [
+        {
+          "name": "select",
+          "args": [
+            3,
+            3,
+            47244
+          ],
+          "result": [
+            377,
+            378,
+            540
+          ],
+          "afterCallback": {
+            "turn": 6479,
+            "index": 2,
+            "task": {
+              "flags": 1,
+              "type": 20,
+              "phase": 3,
+              "requested": 4,
+              "selected": 0,
+              "remaining": 2,
+              "members": []
+            },
+            "queue": {
+              "cursor": 2,
+              "flags": 25938,
+              "selectionOwner": 2
+            }
+          }
+        }
+      ],
+      "actions": [
+        {
+          "kind": "select",
+          "id": 377
+        },
+        {
+          "kind": "select",
+          "id": 378
+        },
+        {
+          "kind": "select",
+          "id": 540
+        }
+      ],
+      "afterController": {
+        "turn": 6479,
+        "index": 2,
+        "task": {
+          "flags": 1,
+          "type": 20,
+          "phase": 3,
+          "requested": 4,
+          "selected": 3,
+          "remaining": 2,
+          "members": [
+            377,
+            378,
+            540
+          ]
+        },
+        "queue": {
+          "cursor": 2,
+          "flags": 25938,
+          "selectionOwner": 2
+        }
+      },
+      "afterDispatch": {
+        "turn": 6479,
+        "index": 2,
+        "task": {
+          "flags": 1,
+          "type": 20,
+          "phase": 3,
+          "requested": 4,
+          "selected": 3,
+          "remaining": 2,
+          "members": [
+            377,
+            378,
+            540
+          ]
+        },
+        "queue": {
+          "cursor": 3,
+          "flags": 25938,
+          "selectionOwner": 2
+        }
+      },
+      "outcome": null,
+      "hasDecisiveCapture": false
+    },
+    {
+      "beforeController": {
+        "turn": 6482,
+        "index": 2,
+        "task": {
+          "flags": 1,
+          "type": 20,
+          "phase": 3,
+          "requested": 4,
+          "selected": 3,
+          "remaining": 2,
+          "members": [
+            377,
+            378,
+            540
+          ]
+        },
+        "queue": {
+          "cursor": 2,
+          "flags": 25938,
+          "selectionOwner": 2
+        }
+      },
+      "calls": [
+        {
+          "name": "select",
+          "args": [
+            4,
+            1,
+            47244
+          ],
+          "result": [
+            455
+          ],
+          "afterCallback": {
+            "turn": 6482,
+            "index": 2,
+            "task": {
+              "flags": 1,
+              "type": 20,
+              "phase": 3,
+              "requested": 4,
+              "selected": 3,
+              "remaining": 3,
+              "members": [
+                377,
+                378,
+                540
+              ]
+            },
+            "queue": {
+              "cursor": 2,
+              "flags": 25938,
+              "selectionOwner": 2
+            }
+          }
+        }
+      ],
+      "actions": [
+        {
+          "kind": "select",
+          "id": 455
+        }
+      ],
+      "afterController": {
+        "turn": 6482,
+        "index": 2,
+        "task": {
+          "flags": 1,
+          "type": 20,
+          "phase": 3,
+          "requested": 4,
+          "selected": 4,
+          "remaining": 3,
+          "members": [
+            377,
+            378,
+            540,
+            455
+          ]
+        },
+        "queue": {
+          "cursor": 2,
+          "flags": 25938,
+          "selectionOwner": 2
+        }
+      },
+      "afterDispatch": {
+        "turn": 6482,
+        "index": 2,
+        "task": {
+          "flags": 1,
+          "type": 20,
+          "phase": 3,
+          "requested": 4,
+          "selected": 4,
+          "remaining": 3,
+          "members": [
+            377,
+            378,
+            540,
+            455
+          ]
+        },
+        "queue": {
+          "cursor": 3,
+          "flags": 25938,
+          "selectionOwner": 2
+        }
+      },
+      "outcome": null,
+      "hasDecisiveCapture": false
+    },
+    {
+      "beforeController": {
+        "turn": 6485,
+        "index": 2,
+        "task": {
+          "flags": 1,
+          "type": 20,
+          "phase": 3,
+          "requested": 4,
+          "selected": 4,
+          "remaining": 3,
+          "members": [
+            377,
+            378,
+            540,
+            455
+          ]
+        },
+        "queue": {
+          "cursor": 2,
+          "flags": 25938,
+          "selectionOwner": 2
+        }
+      },
+      "calls": [
+        {
+          "name": "select",
+          "args": [
+            -1,
+            0,
+            47244
+          ],
+          "result": [],
+          "afterCallback": {
+            "turn": 6485,
+            "index": 2,
+            "task": {
+              "flags": 1,
+              "type": 20,
+              "phase": 3,
+              "requested": 4,
+              "selected": 4,
+              "remaining": 6,
+              "members": [
+                377,
+                378,
+                540,
+                455
+              ]
+            },
+            "queue": {
+              "cursor": 2,
+              "flags": 25938,
+              "selectionOwner": 2
+            }
+          }
+        }
+      ],
+      "actions": [],
+      "afterController": {
+        "turn": 6485,
+        "index": 2,
+        "task": {
+          "flags": 1,
+          "type": 20,
+          "phase": 4,
+          "requested": 4,
+          "selected": 4,
+          "remaining": 6,
+          "members": [
+            377,
+            378,
+            540,
+            455
+          ]
+        },
+        "queue": {
+          "cursor": 2,
+          "flags": 25938,
+          "selectionOwner": 2
+        }
+      },
+      "afterDispatch": {
+        "turn": 6485,
+        "index": 2,
+        "task": {
+          "flags": 1,
+          "type": 20,
+          "phase": 4,
+          "requested": 4,
+          "selected": 4,
+          "remaining": 6,
+          "members": [
+            377,
+            378,
+            540,
+            455
+          ]
+        },
+        "queue": {
+          "cursor": 3,
+          "flags": 25938,
+          "selectionOwner": 2
+        }
+      },
+      "outcome": "completed-positive",
+      "hasDecisiveCapture": true
+    }
+  ],
+  "completion": {
+    "turn": 6485,
+    "index": 2,
+    "tribe": 2,
+    "task": {
+      "flags": 1,
+      "type": 20,
+      "phase": 4,
+      "target": 12858,
+      "requested": 4,
+      "extra": 20,
+      "selected": 4,
+      "remaining": 6,
+      "elapsed": 0,
+      "mode": 0,
+      "fallback": 0,
+      "regroup": 0,
+      "origin": 12858,
+      "entity": 291,
+      "damage": 0,
+      "retries": 0,
+      "retreatPercent": 25,
+      "spells": [
+        0,
+        0,
+        0
+      ],
+      "quotas": [
+        0,
+        80,
+        30,
+        0,
+        0,
+        0
+      ],
+      "members": [
+        377,
+        378,
+        540,
+        455
+      ],
+      "route": [
+        {
+          "marker": 0,
+          "secondary": 0,
+          "quotas": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "marker": 0,
+          "secondary": 0,
+          "quotas": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "marker": 0,
+          "secondary": 0,
+          "quotas": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "marker": 0,
+          "secondary": 0,
+          "quotas": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    "captureSha256": "79368e7a9253dc13d3e163ae6e73a9ced7bad690172f509d2f98a806778ec236",
+    "captureBytes": 1400432,
+    "captureBoundary": "after the complete real phase3 action batch, before later gameplay",
+    "registeredPersonCount": 11,
+    "state14RegistryKeys": [
+      377,
+      378,
+      455,
+      540
+    ],
+    "unlistedState14RegistryKeys": [],
+    "unmatchedAliasRegistryKeys": []
+  },
+  "registeredPeople": [
+    {
+      "registryKey": 16,
+      "registryKeyMatchesPersonId": true,
+      "listedInTask": false,
+      "person": {
+        "id": 16,
+        "class": 1,
+        "model": 7,
+        "tribe": 2,
+        "state": 19,
+        "previousState": 17,
+        "flags2": 131072,
+        "flags3": 262144,
+        "flags4": 536871168,
+        "computerAssignment": 0,
+        "assignment": 1,
+        "vehicle": 0
+      },
+      "absentFields": [],
+      "units": [
+        {
+          "unitIndex": 11,
+          "id": 16,
+          "team": "yellow",
+          "kind": "shaman",
+          "hp": 100,
+          "inside": null,
+          "nativeFlags7f": null,
+          "hasNativeFlags7f": false,
+          "authoritativeAliases": [
+            "native"
+          ],
+          "aliases": [
+            {
+              "name": "native",
+              "isRegisteredPerson": true,
+              "person": {
+                "id": 16,
+                "class": 1,
+                "model": 7,
+                "tribe": 2,
+                "state": 19,
+                "previousState": 17,
+                "flags2": 131072,
+                "flags3": 262144,
+                "flags4": 536871168,
+                "computerAssignment": 0,
+                "assignment": 1,
+                "vehicle": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "registryKey": 347,
+      "registryKeyMatchesPersonId": true,
+      "listedInTask": false,
+      "person": {
+        "id": 347,
+        "class": 1,
+        "model": 3,
+        "tribe": 2,
+        "state": 19,
+        "previousState": 17,
+        "flags2": 131072,
+        "flags3": 262144,
+        "flags4": 671088896,
+        "computerAssignment": 99,
+        "assignment": 281,
+        "vehicle": 0
+      },
+      "absentFields": [],
+      "units": [
+        {
+          "unitIndex": 187,
+          "id": 347,
+          "team": "yellow",
+          "kind": "warrior",
+          "hp": 90,
+          "inside": null,
+          "nativeFlags7f": null,
+          "hasNativeFlags7f": false,
+          "authoritativeAliases": [
+            "native"
+          ],
+          "aliases": [
+            {
+              "name": "native",
+              "isRegisteredPerson": true,
+              "person": {
+                "id": 347,
+                "class": 1,
+                "model": 3,
+                "tribe": 2,
+                "state": 19,
+                "previousState": 17,
+                "flags2": 131072,
+                "flags3": 262144,
+                "flags4": 671088896,
+                "computerAssignment": 99,
+                "assignment": 281,
+                "vehicle": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "registryKey": 377,
+      "registryKeyMatchesPersonId": true,
+      "listedInTask": true,
+      "person": {
+        "id": 377,
+        "class": 1,
+        "model": 3,
+        "tribe": 2,
+        "state": 14,
+        "previousState": 19,
+        "flags2": 1090654336,
+        "flags3": 262144,
+        "flags4": 671088896,
+        "computerAssignment": 0,
+        "assignment": 281,
+        "vehicle": 0
+      },
+      "absentFields": [],
+      "units": [
+        {
+          "unitIndex": 197,
+          "id": 377,
+          "team": "yellow",
+          "kind": "warrior",
+          "hp": 90,
+          "inside": null,
+          "nativeFlags7f": null,
+          "hasNativeFlags7f": false,
+          "authoritativeAliases": [
+            "native"
+          ],
+          "aliases": [
+            {
+              "name": "native",
+              "isRegisteredPerson": true,
+              "person": {
+                "id": 377,
+                "class": 1,
+                "model": 3,
+                "tribe": 2,
+                "state": 14,
+                "previousState": 19,
+                "flags2": 1090654336,
+                "flags3": 262144,
+                "flags4": 671088896,
+                "computerAssignment": 0,
+                "assignment": 281,
+                "vehicle": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "registryKey": 378,
+      "registryKeyMatchesPersonId": true,
+      "listedInTask": true,
+      "person": {
+        "id": 378,
+        "class": 1,
+        "model": 3,
+        "tribe": 2,
+        "state": 14,
+        "previousState": 19,
+        "flags2": 1090654336,
+        "flags3": 262144,
+        "flags4": 671088896,
+        "computerAssignment": 0,
+        "assignment": 281,
+        "vehicle": 0
+      },
+      "absentFields": [],
+      "units": [
+        {
+          "unitIndex": 198,
+          "id": 378,
+          "team": "yellow",
+          "kind": "warrior",
+          "hp": 90,
+          "inside": null,
+          "nativeFlags7f": null,
+          "hasNativeFlags7f": false,
+          "authoritativeAliases": [
+            "native"
+          ],
+          "aliases": [
+            {
+              "name": "native",
+              "isRegisteredPerson": true,
+              "person": {
+                "id": 378,
+                "class": 1,
+                "model": 3,
+                "tribe": 2,
+                "state": 14,
+                "previousState": 19,
+                "flags2": 1090654336,
+                "flags3": 262144,
+                "flags4": 671088896,
+                "computerAssignment": 0,
+                "assignment": 281,
+                "vehicle": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "registryKey": 455,
+      "registryKeyMatchesPersonId": true,
+      "listedInTask": true,
+      "person": {
+        "id": 455,
+        "class": 1,
+        "model": 4,
+        "tribe": 2,
+        "state": 14,
+        "previousState": 10,
+        "flags2": 1090654336,
+        "flags3": 264192,
+        "flags4": 536871168,
+        "computerAssignment": 0,
+        "assignment": 272,
+        "vehicle": 0
+      },
+      "absentFields": [],
+      "units": [
+        {
+          "unitIndex": 212,
+          "id": 455,
+          "team": "yellow",
+          "kind": "preacher",
+          "hp": 55,
+          "inside": null,
+          "nativeFlags7f": null,
+          "hasNativeFlags7f": false,
+          "authoritativeAliases": [
+            "native"
+          ],
+          "aliases": [
+            {
+              "name": "native",
+              "isRegisteredPerson": true,
+              "person": {
+                "id": 455,
+                "class": 1,
+                "model": 4,
+                "tribe": 2,
+                "state": 14,
+                "previousState": 10,
+                "flags2": 1090654336,
+                "flags3": 264192,
+                "flags4": 536871168,
+                "computerAssignment": 0,
+                "assignment": 272,
+                "vehicle": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "registryKey": 482,
+      "registryKeyMatchesPersonId": true,
+      "listedInTask": false,
+      "person": {
+        "id": 482,
+        "class": 1,
+        "model": 4,
+        "tribe": 2,
+        "state": 10,
+        "previousState": 17,
+        "flags2": 35783168,
+        "flags3": 262145,
+        "flags4": 536871168,
+        "computerAssignment": 0,
+        "assignment": 272,
+        "vehicle": 0
+      },
+      "absentFields": [],
+      "units": [
+        {
+          "unitIndex": 221,
+          "id": 482,
+          "team": "yellow",
+          "kind": "preacher",
+          "hp": 55,
+          "inside": null,
+          "nativeFlags7f": null,
+          "hasNativeFlags7f": false,
+          "authoritativeAliases": [
+            "native"
+          ],
+          "aliases": [
+            {
+              "name": "native",
+              "isRegisteredPerson": true,
+              "person": {
+                "id": 482,
+                "class": 1,
+                "model": 4,
+                "tribe": 2,
+                "state": 10,
+                "previousState": 17,
+                "flags2": 35783168,
+                "flags3": 262145,
+                "flags4": 536871168,
+                "computerAssignment": 0,
+                "assignment": 272,
+                "vehicle": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "registryKey": 540,
+      "registryKeyMatchesPersonId": true,
+      "listedInTask": true,
+      "person": {
+        "id": 540,
+        "class": 1,
+        "model": 3,
+        "tribe": 2,
+        "state": 14,
+        "previousState": 19,
+        "flags2": 1090654336,
+        "flags3": 262144,
+        "flags4": 671088896,
+        "computerAssignment": 0,
+        "assignment": 281,
+        "vehicle": 0
+      },
+      "absentFields": [],
+      "units": [
+        {
+          "unitIndex": 231,
+          "id": 540,
+          "team": "yellow",
+          "kind": "warrior",
+          "hp": 90,
+          "inside": null,
+          "nativeFlags7f": null,
+          "hasNativeFlags7f": false,
+          "authoritativeAliases": [
+            "native"
+          ],
+          "aliases": [
+            {
+              "name": "native",
+              "isRegisteredPerson": true,
+              "person": {
+                "id": 540,
+                "class": 1,
+                "model": 3,
+                "tribe": 2,
+                "state": 14,
+                "previousState": 19,
+                "flags2": 1090654336,
+                "flags3": 262144,
+                "flags4": 671088896,
+                "computerAssignment": 0,
+                "assignment": 281,
+                "vehicle": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "registryKey": 541,
+      "registryKeyMatchesPersonId": true,
+      "listedInTask": false,
+      "person": {
+        "id": 541,
+        "class": 1,
+        "model": 3,
+        "tribe": 2,
+        "state": 19,
+        "previousState": 17,
+        "flags2": 131072,
+        "flags3": 262144,
+        "flags4": 671088896,
+        "computerAssignment": 0,
+        "assignment": 281,
+        "vehicle": 0
+      },
+      "absentFields": [],
+      "units": [
+        {
+          "unitIndex": 232,
+          "id": 541,
+          "team": "yellow",
+          "kind": "warrior",
+          "hp": 90,
+          "inside": null,
+          "nativeFlags7f": null,
+          "hasNativeFlags7f": false,
+          "authoritativeAliases": [
+            "native"
+          ],
+          "aliases": [
+            {
+              "name": "native",
+              "isRegisteredPerson": true,
+              "person": {
+                "id": 541,
+                "class": 1,
+                "model": 3,
+                "tribe": 2,
+                "state": 19,
+                "previousState": 17,
+                "flags2": 131072,
+                "flags3": 262144,
+                "flags4": 671088896,
+                "computerAssignment": 0,
+                "assignment": 281,
+                "vehicle": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "registryKey": 560,
+      "registryKeyMatchesPersonId": true,
+      "listedInTask": false,
+      "person": {
+        "id": 560,
+        "class": 1,
+        "model": 4,
+        "tribe": 2,
+        "state": 10,
+        "previousState": 17,
+        "flags2": 35783168,
+        "flags3": 262145,
+        "flags4": 536871168,
+        "computerAssignment": 0,
+        "assignment": 272,
+        "vehicle": 0
+      },
+      "absentFields": [],
+      "units": [
+        {
+          "unitIndex": 239,
+          "id": 560,
+          "team": "yellow",
+          "kind": "preacher",
+          "hp": 55,
+          "inside": null,
+          "nativeFlags7f": null,
+          "hasNativeFlags7f": false,
+          "authoritativeAliases": [
+            "native"
+          ],
+          "aliases": [
+            {
+              "name": "native",
+              "isRegisteredPerson": true,
+              "person": {
+                "id": 560,
+                "class": 1,
+                "model": 4,
+                "tribe": 2,
+                "state": 10,
+                "previousState": 17,
+                "flags2": 35783168,
+                "flags3": 262145,
+                "flags4": 536871168,
+                "computerAssignment": 0,
+                "assignment": 272,
+                "vehicle": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "registryKey": 567,
+      "registryKeyMatchesPersonId": true,
+      "listedInTask": false,
+      "person": {
+        "id": 567,
+        "class": 1,
+        "model": 2,
+        "tribe": 2,
+        "state": 19,
+        "previousState": 17,
+        "flags2": 131072,
+        "flags3": 262144,
+        "flags4": 536871168,
+        "computerAssignment": 0,
+        "assignment": 1,
+        "vehicle": 0
+      },
+      "absentFields": [],
+      "units": [
+        {
+          "unitIndex": 241,
+          "id": 567,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "inside": null,
+          "nativeFlags7f": null,
+          "hasNativeFlags7f": false,
+          "authoritativeAliases": [
+            "native"
+          ],
+          "aliases": [
+            {
+              "name": "native",
+              "isRegisteredPerson": true,
+              "person": {
+                "id": 567,
+                "class": 1,
+                "model": 2,
+                "tribe": 2,
+                "state": 19,
+                "previousState": 17,
+                "flags2": 131072,
+                "flags3": 262144,
+                "flags4": 536871168,
+                "computerAssignment": 0,
+                "assignment": 1,
+                "vehicle": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "registryKey": 11,
+      "registryKeyMatchesPersonId": true,
+      "listedInTask": false,
+      "person": {
+        "id": 11,
+        "class": 1,
+        "model": 2,
+        "tribe": 2,
+        "state": 10,
+        "previousState": 10,
+        "flags2": 1107427840,
+        "flags3": 262144,
+        "flags4": 536871170,
+        "computerAssignment": 0,
+        "assignment": 272,
+        "vehicle": 0
+      },
+      "absentFields": [],
+      "units": [
+        {
+          "unitIndex": 7,
+          "id": 11,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "inside": null,
+          "nativeFlags7f": null,
+          "hasNativeFlags7f": false,
+          "authoritativeAliases": [
+            "entry"
+          ],
+          "aliases": [
+            {
+              "name": "entry",
+              "isRegisteredPerson": true,
+              "person": {
+                "id": 11,
+                "class": 1,
+                "model": 2,
+                "tribe": 2,
+                "state": 10,
+                "previousState": 10,
+                "flags2": 1107427840,
+                "flags3": 262144,
+                "flags4": 536871170,
+                "computerAssignment": 0,
+                "assignment": 272,
+                "vehicle": 0
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "nativeFields": {
+    "task31": null,
+    "nativePersonChainOrder": null,
+    "task26": null,
+    "task08VisitCounter": null
+  },
+  "limits": [
+    "Ordinary identity is inside this decoded graph only; original typed backing and native chain order are unproved",
+    "computerAssignment and person.assignment are distinct stored fields",
+    "No later member lifetime, specialist maintenance, native admission implementation or Mission1\u20133 impact is established"
+  ]
+}

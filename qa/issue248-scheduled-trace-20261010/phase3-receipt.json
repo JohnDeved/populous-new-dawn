@@ -1,0 +1,128 @@
+{
+  "schema": 1,
+  "sourceHead": "cf6b03f34bf6ffc9e9d6f59b9a033ea90c679e32",
+  "productionBase": "4754e12d3590bde18656416514871b033de164be",
+  "appSourceFiles": 333,
+  "allAppHashesSource": "reviewed prelaunch manifest, retained locally",
+  "qaSourceSha256": {
+    "observe.mjs": "a901d39d8736d53f8460759f3e2d940e0e1a3b2c512f263ddf5de744b5cdbab7",
+    "proposal.md": "a433fa12b7a631ef465b4346a77ec3c77e5d71f0f5a9eec868348f4394e734c5",
+    "purity.test.mjs": "991a8ec86e4966a72d93bc630e767cc15bc268d50300f1a806c3343a547633bd",
+    "purity-inventory.md": "497cb45070b2dd5515fcdb9ecedbbd76a2caafbdda9f372acbb4d8bfd57ca1aa",
+    "project-phase3.mjs": "8001f05a8efcf0a50c4bf7cbabad5277dcfd68886875b910b9753391fb1698e9"
+  },
+  "dependencyIdentity": {
+    "symlinkTarget": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/node_modules",
+    "device": 27,
+    "inode": 538212
+  },
+  "limits": {
+    "worlds": 1,
+    "turns": 22064,
+    "wallMilliseconds": 180000,
+    "phase3Completions": 1
+  },
+  "externalSeconds": 190,
+  "killGraceSeconds": 5,
+  "totalOutputByteLimit": 71303168,
+  "mission": {
+    "command": [
+      "taskset",
+      "-c",
+      "4",
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=5s",
+      "190s",
+      "node",
+      "--experimental-test-module-mocks",
+      "qa/issue248-scheduled-trace-20261010/observe.mjs"
+    ],
+    "started": "2026-10-10T09:27:04.704852+00:00",
+    "ended": "2026-10-10T09:27:25.152973+00:00",
+    "exitCode": 0,
+    "limitFailure": null,
+    "inputGuardError": null,
+    "inputGuardsBefore": "passed",
+    "inputGuardsAfter": "passed",
+    "cleanup": "Owned foreground child wait returned; no browser, server or detached worker launched"
+  },
+  "offline": {
+    "command": [
+      "taskset",
+      "-c",
+      "4",
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=2s",
+      "20s",
+      "node",
+      "qa/issue248-scheduled-trace-20261010/project-phase3.mjs"
+    ],
+    "started": "2026-10-10T09:28:09.146222+00:00",
+    "ended": "2026-10-10T09:28:09.357536+00:00",
+    "seconds": 0.2112024950038176,
+    "exitCode": 0,
+    "inputsUnchanged": true,
+    "sourceGuardsAfter": "passed",
+    "cleanup": "Owned foreground offline child returned; no runtime/model import or worker launched"
+  },
+  "localArtifactSha256": {
+    "phase3-capture-prelaunch-manifest.json": "a213cb6c18e50b170a5e8caf0dc0ca31d30ce33a7aa212e9f80df66187e7a894",
+    "phase3-capture-launch.py": "c5c7dd28d48b2831aa86484b656d69160d405f4bb999707709559450fb8b1b64",
+    "phase3-capture-command-receipt.json": "eb6fcf3efb86751cb785866965c43c5dd886f6e99ff6e700e4adb70324e3bea1",
+    "phase3-capture-offline-receipt.json": "f0ad316ee4fba2d6005e6a075e55101e55a4ddf1b758644a36731d59934ce9be",
+    "phase3-capture-run.jsonl": "f6f263d25178ab7835081ab3cdf7701e6c8e852df766dc51284306a0c5f96f85",
+    "phase3-capture-run.summary.json": "d361dffe90eee54d66359df661dd2e4c137a13b18630cf21225c74aea4880cd9",
+    "phase3-capture-run.completion.bin": "79368e7a9253dc13d3e163ae6e73a9ced7bad690172f509d2f98a806778ec236",
+    "phase3-capture-run.cohort.json": "ca5ed62c80a414923ceefcfd1454a72526eb9383d9335ab3659f5af8c21d7372",
+    "phase3-capture-stdout.log": "505583837b663e3162da4f87b0f99b1c579468f62900b1d1612654ae03e7f0cf",
+    "phase3-capture-stderr.log": "b2b330fd2a558b0e35ba16b0d022d979b1f7d74c6512237172ce4aec79a39a03",
+    "phase3-capture-offline-stdout.log": "5c1ceeaf0313e0b5815eb761ad9a1fdceffba96537a34cfbc04341b2b5c230c8",
+    "phase3-capture-offline-stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "localArtifactBytes": {
+    "phase3-capture-prelaunch-manifest.json": 39047,
+    "phase3-capture-launch.py": 4543,
+    "phase3-capture-command-receipt.json": 2300,
+    "phase3-capture-offline-receipt.json": 1713,
+    "phase3-capture-run.jsonl": 50859,
+    "phase3-capture-run.summary.json": 25132,
+    "phase3-capture-run.completion.bin": 1400432,
+    "phase3-capture-run.cohort.json": 22444,
+    "phase3-capture-stdout.log": 25133,
+    "phase3-capture-stderr.log": 284,
+    "phase3-capture-offline-stdout.log": 356,
+    "phase3-capture-offline-stderr.log": 0
+  },
+  "qualification": {
+    "receiptSha256": "93c704bfa10263142e3e365ccd530e3488204c92ffdd397295fc77c34f23597f",
+    "stdoutSha256": "e2638a07d56525c927ce3ee6d92ac3736eb4c49dbbb4a3ebcd4ccc31c89bdbc6",
+    "passed": 7,
+    "failed": 0
+  },
+  "nonqualifyingFeasibility": {
+    "receiptSha256": "525df76575d0127aa201498c12eaf2628ba9e483124ff35ef0da891166ce9e7f",
+    "input": "failed pre-controller turn6479 capture; not accepted cohort evidence",
+    "exitCode": 0
+  },
+  "priorFailedAttempts": [
+    {
+      "source": "f957ea23a40ab5f29723ec5073d8f5173748d8a4",
+      "boundary": "turn7637 guard; no accepted phase16 visit",
+      "receiptSha256": "a08abcbde2702346f2273e14a62653efaff94ce161906ff811677e4a5c6f52ba"
+    },
+    {
+      "source": "485ed5c3aeae59ae2756685786555c2bbfc75d13",
+      "boundary": "overall FAILED at7649; only prior guarded dispatch/three visits accepted",
+      "receiptSha256": "78bdc4e24f5d946fd377f4a94037a271b1b63c1933deea3c2282ba0611700183"
+    },
+    {
+      "source": "be6e8df218e32e9a13f0bb90a5e2d3881a4d0d9b",
+      "boundary": "turn6479 pre-controller; zero accepted phase3 visits",
+      "receiptSha256": "099c88d5cafe8910d8d4c0ab89bfb87c8ff677cc922aa990dd78b984b893455b",
+      "byteDifference": "two signed-integer to double encodings of equal z values103/111; trigger/original backing unresolved"
+    }
+  ],
+  "publication": "No raw world captures, rejection buffers, cache files or broad archives are included"
+}
