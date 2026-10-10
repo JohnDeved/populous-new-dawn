@@ -1,0 +1,295 @@
+{
+  "schema": 1,
+  "reviewedAt": "2026-10-10T04:38:18.549570+00:00",
+  "decision": "ACCEPT ordinary M2 startup/rebuild and typed Save/Load membership-ownership result",
+  "product": {
+    "head": "91604757ca7060bc94f27c9db918e3f30ee50441",
+    "tree": "3ee8317ab37bdaf44e29b85f67fc7831bdf49ba4",
+    "onlyDifference": [
+      "scripts/local-render/harness.mjs",
+      "scripts/local-render/mission2-selection-radius-checkpoint.mjs",
+      "scripts/local-render/vite.config.mjs"
+    ]
+  },
+  "qaSource": {
+    "root": "/workspace/scratch/69fd8163d94e/mission2-selection-radius-checkpoint-20261010",
+    "commit": "4decb7c2c84f7d266cb5f0dbba2030227e944378",
+    "tree": "6bc6634ec1405fe4984d021f865b21fa5c10f8c3",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "c1788a3090d32c4242fbbce24a6b7d777170053fd4e0555a122bd734865261d8"
+  },
+  "manifest": {
+    "path": "/workspace/scratch/69fd8163d94e/mission2-selection-radius-checkpoint-20261010/work/orchestration/radius-checkpoint-qa/launch-proposal04.json",
+    "sha256": "0fd500243cba0f26dc91ab28927955321a93668edf893a5bcd306e7d8336367a",
+    "bytes": 14196
+  },
+  "admissionReview": {
+    "path": "/workspace/scratch/69fd8163d94e/selection-radius-checkpoint-launch-review-20261010.json",
+    "sha256": "ec6c3e4e38fd6f6c7ede26b90060f703821709743765d33c9fa2dd41e362db01",
+    "bytes": 6634
+  },
+  "standardReview": {
+    "path": "/workspace/scratch/69fd8163d94e/selection-radius-final-standard-review-20261010.json",
+    "sha256": "7fa28e17cc844e91656c2e1a3b9d360737e630b477afc619e859b32869ec13a0",
+    "bytes": 3033
+  },
+  "artifacts": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/mission2-selection-radius-checkpoint-20261010/work/orchestration/radius-checkpoint-qa/ordinary01.json",
+      "sha256": "4af4dd8813867e4ef78d7cfa385cc97b82f46e3c239657da3c1eeb8f0b5ad3e0",
+      "bytes": 30273
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/mission2-selection-radius-checkpoint-20261010/work/orchestration/radius-checkpoint-ordinary-01/receipt.json",
+      "sha256": "d5de5b43f269189b4543e0785305112596730cb02a3b1ff6bbc50287044b25e6",
+      "bytes": 50685
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/mission2-selection-radius-checkpoint-20261010/work/orchestration/radius-checkpoint-ordinary-01/mission2-selection-radius-checkpoint.json",
+      "sha256": "09d3930bdaa244377b8e30b7a1c7bd05e476b4bcb40b50c51a24e7261f24c18d",
+      "bytes": 39075
+    }
+  ],
+  "timing": {
+    "outerStartedAt": "2026-10-10T04:35:37.594Z",
+    "outerFinishedAt": "2026-10-10T04:36:38.003Z",
+    "outerSeconds": 60.409,
+    "innerStartedAt": "2026-10-10T04:35:37.899Z",
+    "innerFinishedAt": "2026-10-10T04:36:35.312Z",
+    "collectedAtReported": "2026-10-10T04:36:38.914Z"
+  },
+  "actual": {
+    "mission": 2,
+    "tribe": 3,
+    "saveTurn": 129,
+    "radius": 37,
+    "base": 33846,
+    "baseHex": "0x8436",
+    "authoredSourceIndices": [
+      1,
+      3,
+      5,
+      24,
+      79
+    ],
+    "liveMemberIds": [
+      1,
+      2,
+      3,
+      22,
+      71
+    ],
+    "memberModels": [
+      7,
+      3,
+      3,
+      4,
+      3
+    ],
+    "memberCount": 5,
+    "everyMemberAliasesLiveBuilding": true,
+    "sourceHeaderIdentity": {
+      "sourceSha256": "83f5c446975398b163ef00526567f7a86b2666d26f9f026231ec0b36bf5a289f",
+      "headerSha256": "44be9f709f03f4b4d936d86056256e7bb98683088332b4bb47354ad709ea8a49"
+    },
+    "exactMemberRecords": [
+      {
+        "id": 1,
+        "team": "green",
+        "model": 7,
+        "x": 68.921875,
+        "z": 100.703125,
+        "anchor": {
+          "x": 19456,
+          "y": 37376
+        },
+        "angle": 512,
+        "present": true,
+        "sameObject": true
+      },
+      {
+        "id": 2,
+        "team": "green",
+        "model": 3,
+        "x": 82.8828125,
+        "z": 100.921875,
+        "anchor": {
+          "x": 23040,
+          "y": 37376
+        },
+        "angle": 512,
+        "present": true,
+        "sameObject": true
+      },
+      {
+        "id": 3,
+        "team": "green",
+        "model": 3,
+        "x": 76.8828125,
+        "z": 112.9296875,
+        "anchor": {
+          "x": 21504,
+          "y": 34304
+        },
+        "angle": 512,
+        "present": true,
+        "sameObject": true
+      },
+      {
+        "id": 22,
+        "team": "green",
+        "model": 4,
+        "x": 117.16796875,
+        "z": 123.02734375,
+        "anchor": {
+          "x": 31744,
+          "y": 31744
+        },
+        "angle": 512,
+        "present": true,
+        "sameObject": true
+      },
+      {
+        "id": 71,
+        "team": "green",
+        "model": 3,
+        "x": 103.1171875,
+        "z": 117.0703125,
+        "anchor": {
+          "x": 28160,
+          "y": 33280
+        },
+        "angle": 1536,
+        "present": true,
+        "sameObject": true
+      }
+    ],
+    "saveAndFirstLoadPublicationTargetsEqual": true,
+    "saveTrusted": true,
+    "loadTrusted": true,
+    "publicationCountEach": 1,
+    "pausedAtSynchronousSaveAndLoad": true,
+    "resumedAndPausedTurn": 162
+  },
+  "typedCheckpoint": {
+    "saved": {
+      "version": 1,
+      "level": 2,
+      "turn": 129,
+      "time": 10.75,
+      "checkpointSha256": "5a924378bba5f9ffe48824b7f43f68c9e392da98ef82203500bdaf8b622baf10",
+      "actorsSha256": "3b148730403d294ad11b11ebc9f424803c75a5613ae5afc18dac216a3d9c35d8",
+      "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+      "stockSha256": "8b334f123b6b6ebb032638482a50ca8eadc5736ea9ca6d1f0697e613634e45ef"
+    },
+    "committed": {
+      "version": 1,
+      "level": 2,
+      "turn": 129,
+      "time": 10.75,
+      "checkpointSha256": "5a924378bba5f9ffe48824b7f43f68c9e392da98ef82203500bdaf8b622baf10",
+      "actorsSha256": "3b148730403d294ad11b11ebc9f424803c75a5613ae5afc18dac216a3d9c35d8",
+      "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+      "stockSha256": "8b334f123b6b6ebb032638482a50ca8eadc5736ea9ca6d1f0697e613634e45ef"
+    },
+    "expectedMigratedLoad": {
+      "version": 1,
+      "level": 2,
+      "turn": 129,
+      "time": 10.75,
+      "checkpointSha256": "5a924378bba5f9ffe48824b7f43f68c9e392da98ef82203500bdaf8b622baf10",
+      "actorsSha256": "3b148730403d294ad11b11ebc9f424803c75a5613ae5afc18dac216a3d9c35d8",
+      "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+      "stockSha256": "8b334f123b6b6ebb032638482a50ca8eadc5736ea9ca6d1f0697e613634e45ef"
+    },
+    "actualFirstLoad": {
+      "version": 1,
+      "level": 2,
+      "turn": 129,
+      "time": 10.75,
+      "checkpointSha256": "5a924378bba5f9ffe48824b7f43f68c9e392da98ef82203500bdaf8b622baf10",
+      "actorsSha256": "3b148730403d294ad11b11ebc9f424803c75a5613ae5afc18dac216a3d9c35d8",
+      "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+      "stockSha256": "8b334f123b6b6ebb032638482a50ca8eadc5736ea9ca6d1f0697e613634e45ef"
+    },
+    "allFullAndComponentDigestsEqualInThisRun": true,
+    "finalStorageUnchangedAtSaveTurn": true,
+    "note": "Load is judged against exact production-migrated expected clone; equality to the original Save happens in this run and is not assumed for other checkpoints."
+  },
+  "cleanup": {
+    "observerErrors": [],
+    "observerCleanupErrors": [],
+    "bothObserversClosed": true,
+    "bothListenerAndSubscriptionCleanupVerified": true,
+    "harnessErrors": [],
+    "browserDisconnected": true,
+    "ownedServerCleanup": "Terminal PASS and maintained finally path require successful stopServer; any error would replace PASS.",
+    "profileCleanupVerified": true,
+    "profileContinuationVerified": true,
+    "profileMarkerInnerReceiptSha256": "d5de5b43f269189b4543e0785305112596730cb02a3b1ff6bbc50287044b25e6",
+    "ownerAndChromeMarkersAbsent": true,
+    "sourceRuntimeScenarioBeforeAfterIdentical": true
+  },
+  "images": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/mission2-selection-radius-checkpoint-20261010/work/orchestration/radius-checkpoint-ordinary-01/radius-saved-settings.png",
+      "sha256": "9cd6d528163592d998e061e907302cc92cc5c9ad4dd78befa68a3fc7ad3cbd5c",
+      "bytes": 751258,
+      "width": 1440,
+      "height": 1000,
+      "visuallyInspected": true,
+      "description": "Actual paused Mission2 Game settings dialog with public Save/Load controls; internal radius and aliases are established by the typed evidence, not these pixels."
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/mission2-selection-radius-checkpoint-20261010/work/orchestration/radius-checkpoint-ordinary-01/radius-loaded-paused.png",
+      "sha256": "f5db9bb7be53032c464508f93f6f8f36b0af701db62db982745b8ef0871c4a0b",
+      "bytes": 1563190,
+      "width": 1440,
+      "height": 1000,
+      "visuallyInspected": true,
+      "description": "Actual restored Mission2 world, natural resume then public Pause; changed camera after Load, not an identical visual-frame comparison."
+    }
+  ],
+  "retainedWarnings": [
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0x1b2c00cea000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x1b2c00cea000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x1b2c00cea000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x1b2c00cea000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)",
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content."
+  ],
+  "readiness": {
+    "timeoutMs": 60000,
+    "attempts": 6,
+    "first": {
+      "elapsedMs": 13318,
+      "pending": false,
+      "error": {
+        "name": "TimeoutError",
+        "message": "The operation was aborted due to timeout",
+        "cause": ""
+      }
+    },
+    "last": {
+      "elapsedMs": 20666,
+      "pending": false,
+      "status": 200,
+      "ok": true
+    },
+    "elapsedMs": 20666,
+    "listening": true,
+    "ready": true
+  },
+  "limits": [
+    "Bounded early Mission2 observation on the maintained active-building adapter. No removed-member ordinary episode, battle improvement, whole native allocation history or original cadence equivalence.",
+    "No native execution or hardware timing claim; software WebGL warnings remain retained.",
+    "The separate Tornado allocation/work mismatch and strict inherited lint failures remain explicit.",
+    "Source/config/method development failures and the first failed product typecheck remain preserved.",
+    "QA union differs from product only in the three admitted scenario/harness/cache files; these supporting files are not implicitly admitted for main maintenance.",
+    "Reviewer did not rerun browser/tests or modify source."
+  ]
+}

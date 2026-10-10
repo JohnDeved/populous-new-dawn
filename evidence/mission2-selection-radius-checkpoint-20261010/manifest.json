@@ -1,0 +1,60 @@
+{
+  "product": "91604757ca7060bc94f27c9db918e3f30ee50441",
+  "qa": "4decb7c2c84f7d266cb5f0dbba2030227e944378",
+  "artifacts": [
+    {
+      "path": "ordinary-command-receipt.json",
+      "source": "/workspace/scratch/69fd8163d94e/mission2-selection-radius-checkpoint-20261010/work/orchestration/radius-checkpoint-qa/ordinary01.json",
+      "bytes": 30273,
+      "sha256": "4af4dd8813867e4ef78d7cfa385cc97b82f46e3c239657da3c1eeb8f0b5ad3e0"
+    },
+    {
+      "path": "ordinary-harness-receipt.json",
+      "source": "/workspace/scratch/69fd8163d94e/mission2-selection-radius-checkpoint-20261010/work/orchestration/radius-checkpoint-ordinary-01/receipt.json",
+      "bytes": 50685,
+      "sha256": "d5de5b43f269189b4543e0785305112596730cb02a3b1ff6bbc50287044b25e6"
+    },
+    {
+      "path": "ordinary-result.json",
+      "source": "/workspace/scratch/69fd8163d94e/mission2-selection-radius-checkpoint-20261010/work/orchestration/radius-checkpoint-ordinary-01/mission2-selection-radius-checkpoint.json",
+      "bytes": 39075,
+      "sha256": "09d3930bdaa244377b8e30b7a1c7bd05e476b4bcb40b50c51a24e7261f24c18d"
+    },
+    {
+      "path": "ordinary-launch.json",
+      "source": "/workspace/scratch/69fd8163d94e/mission2-selection-radius-checkpoint-20261010/work/orchestration/radius-checkpoint-qa/launch-proposal04.json",
+      "bytes": 14196,
+      "sha256": "0fd500243cba0f26dc91ab28927955321a93668edf893a5bcd306e7d8336367a"
+    },
+    {
+      "path": "ordinary-review.json",
+      "source": "/workspace/scratch/69fd8163d94e/selection-radius-ordinary-result-review-20261010.json",
+      "bytes": 11315,
+      "sha256": "23728c1331483adafebd351e6f10074ea5bb2fa84d9e653fcbf1b701ef7eaa5c"
+    },
+    {
+      "path": "standard-aggregate.json",
+      "source": "/workspace/scratch/69fd8163d94e/mission123-selection-radius-20261010/work/orchestration/selection-radius-final-02/aggregate.json",
+      "bytes": 28690,
+      "sha256": "b090155f25b27f875f5450f8a2c3915997621dfc85e7ca89276cf7793efff3d3"
+    },
+    {
+      "path": "standard-review.json",
+      "source": "/workspace/scratch/69fd8163d94e/selection-radius-final-standard-review-20261010.json",
+      "bytes": 3033,
+      "sha256": "7fa28e17cc844e91656c2e1a3b9d360737e630b477afc619e859b32869ec13a0"
+    },
+    {
+      "path": "radius-saved-settings.png",
+      "source": "/workspace/scratch/69fd8163d94e/mission2-selection-radius-checkpoint-20261010/work/orchestration/radius-checkpoint-ordinary-01/radius-saved-settings.png",
+      "bytes": 751258,
+      "sha256": "9cd6d528163592d998e061e907302cc92cc5c9ad4dd78befa68a3fc7ad3cbd5c"
+    },
+    {
+      "path": "radius-loaded-paused.png",
+      "source": "/workspace/scratch/69fd8163d94e/mission2-selection-radius-checkpoint-20261010/work/orchestration/radius-checkpoint-ordinary-01/radius-loaded-paused.png",
+      "bytes": 1563190,
+      "sha256": "f5db9bb7be53032c464508f93f6f8f36b0af701db62db982745b8ef0871c4a0b"
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "schema": 1,
+  "reviewedAt": "2026-10-10T04:35:59.927946+00:00",
+  "decision": "ACCEPT final standard result on exact91604757 with explicitly reviewed test carry",
+  "source": "91604757ca7060bc94f27c9db918e3f30ee50441",
+  "tree": "3ee8317ab37bdaf44e29b85f67fc7831bdf49ba4",
+  "base": "3b13a7ff534ab95797b0b06330055cead956160d",
+  "aggregate": {
+    "path": "/workspace/scratch/69fd8163d94e/mission123-selection-radius-20261010/work/orchestration/selection-radius-final-02/aggregate.json",
+    "sha256": "b090155f25b27f875f5450f8a2c3915997621dfc85e7ca89276cf7793efff3d3"
+  },
+  "accounting": {
+    "acceptedStages": 17,
+    "standardTests": 1822,
+    "standardFiles": 294,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0,
+    "carriedTestStages": 13,
+    "carriedTestSource": "ac7e894be7a61eb58ab5a689bc1bfd8a50c597ce",
+    "freshSuccessor": [
+      "typecheck",
+      "parity-check",
+      "orchestration-check",
+      "build"
+    ],
+    "supplementalAffectedTests": 53,
+    "supplementalIncludedInStandardCount": false
+  },
+  "verified": [
+    "All17 stage receipt hashes, exact argv, all recorded input hashes, rawstdout/stderr hashes, clean sourceBefore==sourceAfter and terminal results independently read back.",
+    "294 unique files equal the current package test glob. Final contiguous outer Node footer counted per shard; tests06 counts328, excluding nested fixture summaries.",
+    "All non-computer-runtime tracked blobs unchanged from tested predecessor. Exact four-tribe value substitution carries tests through reviewed runtime equivalence.",
+    "Source remains clean91604757/tree3ee8317a; final build ended2026-10-10T04:32:43.314Z."
+  ],
+  "sourceReview": {
+    "path": "/workspace/scratch/69fd8163d94e/selection-radius-source-quality-review-20261010.json",
+    "sha256": "6bc700555fbdf8aaddaaa6b89dd7ab0aabda41997af9ecbd6f15eb166003bb62"
+  },
+  "carryReview": {
+    "path": "/workspace/scratch/69fd8163d94e/selection-radius-typefix-carry-admission-review-20261010.json",
+    "sha256": "2ad07de64e54fd93773538ad42b1cdd3cef276f2bd7bdf70d4dea86221c3cfc3"
+  },
+  "retainedFailure": {
+    "receipt": "work/orchestration/selection-radius-final-01/typecheck.json",
+    "receiptSha256": "ef589f372c955f622d9691a67ac6480cd533f08b2b39bc972466b51dced1ba8e",
+    "source": "ac7e894be7a61eb58ab5a689bc1bfd8a50c597ce",
+    "status": "failed",
+    "startedAt": "2026-10-10T04:25:59.464Z",
+    "finishedAt": "2026-10-10T04:26:10.898Z",
+    "stdoutSha256": "0cf85f5fdbb3da6a3b2be37459f36dc3baeb4ec0d1834c197c3daac061bbb897",
+    "stderrSha256": "7d61cb2e2deb776dfec4d6f54693f9edeed0af5c4da52f091c53c995d862fb65"
+  },
+  "limits": [
+    "Strict scoped inherited Oxlint440 and ESLint210 remain FAILED; no new diagnostic signatures.",
+    "No ordinary browser result, native cadence or complete preceding allocation-history equivalence.",
+    "Any later main integration must verify the actual merge tree; this verdict binds the stated source.",
+    "Reviewer ran no test/build/browser/native instructions."
+  ]
+}

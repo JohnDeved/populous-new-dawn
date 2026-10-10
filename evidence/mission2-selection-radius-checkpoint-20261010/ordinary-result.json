@@ -1,0 +1,1488 @@
+{
+  "status": "passed",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/mission2-selection-radius-checkpoint-20261010",
+    "commit": "4decb7c2c84f7d266cb5f0dbba2030227e944378",
+    "tree": "6bc6634ec1405fe4984d021f865b21fa5c10f8c3",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "c1788a3090d32c4242fbbce24a6b7d777170053fd4e0555a122bd734865261d8"
+  },
+  "bounds": {
+    "innerMs": 180000,
+    "outerMs": 220000,
+    "killGraceMs": 15000,
+    "committedMs": 10000,
+    "resumeMs": 15000,
+    "maximumTurn": 2048,
+    "attempts": 1
+  },
+  "requiredMembers": [
+    {
+      "sourceIndex": 1,
+      "id": 1,
+      "model": 7,
+      "owner": 3,
+      "x": 68,
+      "z": 102,
+      "angle": 512
+    },
+    {
+      "sourceIndex": 3,
+      "id": 2,
+      "model": 3,
+      "owner": 3,
+      "x": 82,
+      "z": 102,
+      "angle": 512
+    },
+    {
+      "sourceIndex": 5,
+      "id": 3,
+      "model": 3,
+      "owner": 3,
+      "x": 76,
+      "z": 114,
+      "angle": 512
+    },
+    {
+      "sourceIndex": 24,
+      "id": 22,
+      "model": 4,
+      "owner": 3,
+      "x": 116,
+      "z": -132,
+      "angle": 512
+    },
+    {
+      "sourceIndex": 79,
+      "id": 71,
+      "model": 3,
+      "owner": 3,
+      "x": 102,
+      "z": 118,
+      "angle": 1536
+    }
+  ],
+  "requiredSource": {
+    "sourceSha256": "83f5c446975398b163ef00526567f7a86b2666d26f9f026231ec0b36bf5a289f",
+    "headerSha256": "44be9f709f03f4b4d936d86056256e7bb98683088332b4bb47354ad709ea8a49"
+  },
+  "method": "Public Mission 2 entry, real clock, settings pause and trusted Save/Load. Read-only queue/alias snapshots and unchanged typed checkpoint observer.",
+  "limits": "Startup/rebuild and actual storage ownership only. No original save-history recovery, removed-member ordinary episode, battle improvement or hardware-performance claim.",
+  "actions": [
+    {
+      "name": "Game settings",
+      "phase": "before",
+      "at": "2026-10-10T04:36:21.015Z"
+    },
+    {
+      "name": "Game settings",
+      "phase": "after",
+      "at": "2026-10-10T04:36:22.228Z"
+    },
+    {
+      "name": "Save checkpoint",
+      "phase": "before",
+      "at": "2026-10-10T04:36:23.203Z"
+    },
+    {
+      "name": "Save checkpoint",
+      "phase": "after",
+      "at": "2026-10-10T04:36:24.280Z"
+    },
+    {
+      "name": "Load checkpoint",
+      "phase": "before",
+      "at": "2026-10-10T04:36:27.239Z"
+    },
+    {
+      "name": "Load checkpoint",
+      "phase": "after",
+      "at": "2026-10-10T04:36:28.759Z"
+    },
+    {
+      "name": "Pause game",
+      "phase": "before",
+      "at": "2026-10-10T04:36:31.309Z"
+    },
+    {
+      "name": "Pause game",
+      "phase": "after",
+      "at": "2026-10-10T04:36:32.317Z"
+    }
+  ],
+  "cleanupErrors": [],
+  "before": {
+    "level": 2,
+    "turn": 129,
+    "tribe": 3,
+    "aiAlias": true,
+    "radius": 37,
+    "basePresent": true,
+    "base": 33846,
+    "hasMembership": true,
+    "source": {
+      "sourceSha256": "83f5c446975398b163ef00526567f7a86b2666d26f9f026231ec0b36bf5a289f",
+      "headerSha256": "44be9f709f03f4b4d936d86056256e7bb98683088332b4bb47354ad709ea8a49"
+    },
+    "sources": [
+      {
+        "sourceIndex": 1,
+        "id": 1,
+        "model": 7,
+        "owner": 3,
+        "x": 68,
+        "z": 102,
+        "angle": 512
+      },
+      {
+        "sourceIndex": 3,
+        "id": 2,
+        "model": 3,
+        "owner": 3,
+        "x": 82,
+        "z": 102,
+        "angle": 512
+      },
+      {
+        "sourceIndex": 5,
+        "id": 3,
+        "model": 3,
+        "owner": 3,
+        "x": 76,
+        "z": 114,
+        "angle": 512
+      },
+      {
+        "sourceIndex": 24,
+        "id": 22,
+        "model": 4,
+        "owner": 3,
+        "x": 116,
+        "z": -132,
+        "angle": 512
+      },
+      {
+        "sourceIndex": 79,
+        "id": 71,
+        "model": 3,
+        "owner": 3,
+        "x": 102,
+        "z": 118,
+        "angle": 1536
+      }
+    ],
+    "members": [
+      {
+        "id": 1,
+        "team": "green",
+        "model": 7,
+        "x": 68.921875,
+        "z": 100.703125,
+        "anchor": {
+          "x": 19456,
+          "y": 37376
+        },
+        "angle": 512,
+        "present": true,
+        "sameObject": true
+      },
+      {
+        "id": 2,
+        "team": "green",
+        "model": 3,
+        "x": 82.8828125,
+        "z": 100.921875,
+        "anchor": {
+          "x": 23040,
+          "y": 37376
+        },
+        "angle": 512,
+        "present": true,
+        "sameObject": true
+      },
+      {
+        "id": 3,
+        "team": "green",
+        "model": 3,
+        "x": 76.8828125,
+        "z": 112.9296875,
+        "anchor": {
+          "x": 21504,
+          "y": 34304
+        },
+        "angle": 512,
+        "present": true,
+        "sameObject": true
+      },
+      {
+        "id": 22,
+        "team": "green",
+        "model": 4,
+        "x": 117.16796875,
+        "z": 123.02734375,
+        "anchor": {
+          "x": 31744,
+          "y": 31744
+        },
+        "angle": 512,
+        "present": true,
+        "sameObject": true
+      },
+      {
+        "id": 71,
+        "team": "green",
+        "model": 3,
+        "x": 103.1171875,
+        "z": 117.0703125,
+        "anchor": {
+          "x": 28160,
+          "y": 33280
+        },
+        "angle": 1536,
+        "present": true,
+        "sameObject": true
+      }
+    ]
+  },
+  "saved": {
+    "status": {
+      "kind": "save",
+      "trusted": true,
+      "captured": true,
+      "closed": true,
+      "publications": 1,
+      "click": {
+        "turn": 129,
+        "paused": true,
+        "target": {
+          "level": 2,
+          "turn": 129,
+          "tribe": 3,
+          "aiAlias": true,
+          "radius": 37,
+          "basePresent": true,
+          "base": 33846,
+          "hasMembership": true,
+          "source": {
+            "sourceSha256": "83f5c446975398b163ef00526567f7a86b2666d26f9f026231ec0b36bf5a289f",
+            "headerSha256": "44be9f709f03f4b4d936d86056256e7bb98683088332b4bb47354ad709ea8a49"
+          },
+          "sources": [
+            {
+              "sourceIndex": 1,
+              "id": 1,
+              "model": 7,
+              "owner": 3,
+              "x": 68,
+              "z": 102,
+              "angle": 512
+            },
+            {
+              "sourceIndex": 3,
+              "id": 2,
+              "model": 3,
+              "owner": 3,
+              "x": 82,
+              "z": 102,
+              "angle": 512
+            },
+            {
+              "sourceIndex": 5,
+              "id": 3,
+              "model": 3,
+              "owner": 3,
+              "x": 76,
+              "z": 114,
+              "angle": 512
+            },
+            {
+              "sourceIndex": 24,
+              "id": 22,
+              "model": 4,
+              "owner": 3,
+              "x": 116,
+              "z": -132,
+              "angle": 512
+            },
+            {
+              "sourceIndex": 79,
+              "id": 71,
+              "model": 3,
+              "owner": 3,
+              "x": 102,
+              "z": 118,
+              "angle": 1536
+            }
+          ],
+          "members": [
+            {
+              "id": 1,
+              "team": "green",
+              "model": 7,
+              "x": 68.921875,
+              "z": 100.703125,
+              "anchor": {
+                "x": 19456,
+                "y": 37376
+              },
+              "angle": 512,
+              "present": true,
+              "sameObject": true
+            },
+            {
+              "id": 2,
+              "team": "green",
+              "model": 3,
+              "x": 82.8828125,
+              "z": 100.921875,
+              "anchor": {
+                "x": 23040,
+                "y": 37376
+              },
+              "angle": 512,
+              "present": true,
+              "sameObject": true
+            },
+            {
+              "id": 3,
+              "team": "green",
+              "model": 3,
+              "x": 76.8828125,
+              "z": 112.9296875,
+              "anchor": {
+                "x": 21504,
+                "y": 34304
+              },
+              "angle": 512,
+              "present": true,
+              "sameObject": true
+            },
+            {
+              "id": 22,
+              "team": "green",
+              "model": 4,
+              "x": 117.16796875,
+              "z": 123.02734375,
+              "anchor": {
+                "x": 31744,
+                "y": 31744
+              },
+              "angle": 512,
+              "present": true,
+              "sameObject": true
+            },
+            {
+              "id": 71,
+              "team": "green",
+              "model": 3,
+              "x": 103.1171875,
+              "z": 117.0703125,
+              "anchor": {
+                "x": 28160,
+                "y": 33280
+              },
+              "angle": 1536,
+              "present": true,
+              "sameObject": true
+            }
+          ]
+        }
+      },
+      "publication": {
+        "turn": 129,
+        "paused": true,
+        "target": {
+          "level": 2,
+          "turn": 129,
+          "tribe": 3,
+          "aiAlias": true,
+          "radius": 37,
+          "basePresent": true,
+          "base": 33846,
+          "hasMembership": true,
+          "source": {
+            "sourceSha256": "83f5c446975398b163ef00526567f7a86b2666d26f9f026231ec0b36bf5a289f",
+            "headerSha256": "44be9f709f03f4b4d936d86056256e7bb98683088332b4bb47354ad709ea8a49"
+          },
+          "sources": [
+            {
+              "sourceIndex": 1,
+              "id": 1,
+              "model": 7,
+              "owner": 3,
+              "x": 68,
+              "z": 102,
+              "angle": 512
+            },
+            {
+              "sourceIndex": 3,
+              "id": 2,
+              "model": 3,
+              "owner": 3,
+              "x": 82,
+              "z": 102,
+              "angle": 512
+            },
+            {
+              "sourceIndex": 5,
+              "id": 3,
+              "model": 3,
+              "owner": 3,
+              "x": 76,
+              "z": 114,
+              "angle": 512
+            },
+            {
+              "sourceIndex": 24,
+              "id": 22,
+              "model": 4,
+              "owner": 3,
+              "x": 116,
+              "z": -132,
+              "angle": 512
+            },
+            {
+              "sourceIndex": 79,
+              "id": 71,
+              "model": 3,
+              "owner": 3,
+              "x": 102,
+              "z": 118,
+              "angle": 1536
+            }
+          ],
+          "members": [
+            {
+              "id": 1,
+              "team": "green",
+              "model": 7,
+              "x": 68.921875,
+              "z": 100.703125,
+              "anchor": {
+                "x": 19456,
+                "y": 37376
+              },
+              "angle": 512,
+              "present": true,
+              "sameObject": true
+            },
+            {
+              "id": 2,
+              "team": "green",
+              "model": 3,
+              "x": 82.8828125,
+              "z": 100.921875,
+              "anchor": {
+                "x": 23040,
+                "y": 37376
+              },
+              "angle": 512,
+              "present": true,
+              "sameObject": true
+            },
+            {
+              "id": 3,
+              "team": "green",
+              "model": 3,
+              "x": 76.8828125,
+              "z": 112.9296875,
+              "anchor": {
+                "x": 21504,
+                "y": 34304
+              },
+              "angle": 512,
+              "present": true,
+              "sameObject": true
+            },
+            {
+              "id": 22,
+              "team": "green",
+              "model": 4,
+              "x": 117.16796875,
+              "z": 123.02734375,
+              "anchor": {
+                "x": 31744,
+                "y": 31744
+              },
+              "angle": 512,
+              "present": true,
+              "sameObject": true
+            },
+            {
+              "id": 71,
+              "team": "green",
+              "model": 3,
+              "x": 103.1171875,
+              "z": 117.0703125,
+              "anchor": {
+                "x": 28160,
+                "y": 33280
+              },
+              "angle": 1536,
+              "present": true,
+              "sameObject": true
+            }
+          ]
+        }
+      },
+      "errors": [],
+      "errorCount": 0,
+      "cleanup": {
+        "listener": true,
+        "subscription": true
+      }
+    },
+    "digest": {
+      "version": 1,
+      "level": 2,
+      "turn": 129,
+      "time": 10.75,
+      "checkpointSha256": "5a924378bba5f9ffe48824b7f43f68c9e392da98ef82203500bdaf8b622baf10",
+      "actorsSha256": "3b148730403d294ad11b11ebc9f424803c75a5613ae5afc18dac216a3d9c35d8",
+      "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+      "stockSha256": "8b334f123b6b6ebb032638482a50ca8eadc5736ea9ca6d1f0697e613634e45ef"
+    },
+    "expectedLoad": {
+      "version": 1,
+      "level": 2,
+      "turn": 129,
+      "time": 10.75,
+      "checkpointSha256": "5a924378bba5f9ffe48824b7f43f68c9e392da98ef82203500bdaf8b622baf10",
+      "actorsSha256": "3b148730403d294ad11b11ebc9f424803c75a5613ae5afc18dac216a3d9c35d8",
+      "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+      "stockSha256": "8b334f123b6b6ebb032638482a50ca8eadc5736ea9ca6d1f0697e613634e45ef"
+    }
+  },
+  "committed": {
+    "version": 1,
+    "level": 2,
+    "turn": 129,
+    "time": 10.75,
+    "checkpointSha256": "5a924378bba5f9ffe48824b7f43f68c9e392da98ef82203500bdaf8b622baf10",
+    "actorsSha256": "3b148730403d294ad11b11ebc9f424803c75a5613ae5afc18dac216a3d9c35d8",
+    "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+    "stockSha256": "8b334f123b6b6ebb032638482a50ca8eadc5736ea9ca6d1f0697e613634e45ef"
+  },
+  "profileSave": {
+    "label": "M2 selection-radius ownership Save",
+    "observedAt": "2026-10-10T04:36:26.240Z",
+    "profileId": "c6e99e6f-b3ca-4b26-84f9-a440747ee7c4",
+    "runId": "a4d3f3d5-65b6-4951-a8f3-a7c5f6e7e9e2",
+    "sourceFingerprint": "c1788a3090d32c4242fbbce24a6b7d777170053fd4e0555a122bd734865261d8",
+    "checkpoint": {
+      "version": 1,
+      "level": 2,
+      "turn": 129,
+      "time": 10.75,
+      "checkpointSha256": "5a924378bba5f9ffe48824b7f43f68c9e392da98ef82203500bdaf8b622baf10",
+      "actorsSha256": "3b148730403d294ad11b11ebc9f424803c75a5613ae5afc18dac216a3d9c35d8",
+      "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+      "stockSha256": "8b334f123b6b6ebb032638482a50ca8eadc5736ea9ca6d1f0697e613634e45ef"
+    }
+  },
+  "loaded": {
+    "status": {
+      "kind": "load",
+      "trusted": true,
+      "captured": true,
+      "closed": true,
+      "publications": 1,
+      "click": {
+        "turn": 129,
+        "paused": true,
+        "target": {
+          "level": 2,
+          "turn": 129,
+          "tribe": 3,
+          "aiAlias": true,
+          "radius": 37,
+          "basePresent": true,
+          "base": 33846,
+          "hasMembership": true,
+          "source": {
+            "sourceSha256": "83f5c446975398b163ef00526567f7a86b2666d26f9f026231ec0b36bf5a289f",
+            "headerSha256": "44be9f709f03f4b4d936d86056256e7bb98683088332b4bb47354ad709ea8a49"
+          },
+          "sources": [
+            {
+              "sourceIndex": 1,
+              "id": 1,
+              "model": 7,
+              "owner": 3,
+              "x": 68,
+              "z": 102,
+              "angle": 512
+            },
+            {
+              "sourceIndex": 3,
+              "id": 2,
+              "model": 3,
+              "owner": 3,
+              "x": 82,
+              "z": 102,
+              "angle": 512
+            },
+            {
+              "sourceIndex": 5,
+              "id": 3,
+              "model": 3,
+              "owner": 3,
+              "x": 76,
+              "z": 114,
+              "angle": 512
+            },
+            {
+              "sourceIndex": 24,
+              "id": 22,
+              "model": 4,
+              "owner": 3,
+              "x": 116,
+              "z": -132,
+              "angle": 512
+            },
+            {
+              "sourceIndex": 79,
+              "id": 71,
+              "model": 3,
+              "owner": 3,
+              "x": 102,
+              "z": 118,
+              "angle": 1536
+            }
+          ],
+          "members": [
+            {
+              "id": 1,
+              "team": "green",
+              "model": 7,
+              "x": 68.921875,
+              "z": 100.703125,
+              "anchor": {
+                "x": 19456,
+                "y": 37376
+              },
+              "angle": 512,
+              "present": true,
+              "sameObject": true
+            },
+            {
+              "id": 2,
+              "team": "green",
+              "model": 3,
+              "x": 82.8828125,
+              "z": 100.921875,
+              "anchor": {
+                "x": 23040,
+                "y": 37376
+              },
+              "angle": 512,
+              "present": true,
+              "sameObject": true
+            },
+            {
+              "id": 3,
+              "team": "green",
+              "model": 3,
+              "x": 76.8828125,
+              "z": 112.9296875,
+              "anchor": {
+                "x": 21504,
+                "y": 34304
+              },
+              "angle": 512,
+              "present": true,
+              "sameObject": true
+            },
+            {
+              "id": 22,
+              "team": "green",
+              "model": 4,
+              "x": 117.16796875,
+              "z": 123.02734375,
+              "anchor": {
+                "x": 31744,
+                "y": 31744
+              },
+              "angle": 512,
+              "present": true,
+              "sameObject": true
+            },
+            {
+              "id": 71,
+              "team": "green",
+              "model": 3,
+              "x": 103.1171875,
+              "z": 117.0703125,
+              "anchor": {
+                "x": 28160,
+                "y": 33280
+              },
+              "angle": 1536,
+              "present": true,
+              "sameObject": true
+            }
+          ]
+        }
+      },
+      "publication": {
+        "turn": 129,
+        "paused": true,
+        "target": {
+          "level": 2,
+          "turn": 129,
+          "tribe": 3,
+          "aiAlias": true,
+          "radius": 37,
+          "basePresent": true,
+          "base": 33846,
+          "hasMembership": true,
+          "source": {
+            "sourceSha256": "83f5c446975398b163ef00526567f7a86b2666d26f9f026231ec0b36bf5a289f",
+            "headerSha256": "44be9f709f03f4b4d936d86056256e7bb98683088332b4bb47354ad709ea8a49"
+          },
+          "sources": [
+            {
+              "sourceIndex": 1,
+              "id": 1,
+              "model": 7,
+              "owner": 3,
+              "x": 68,
+              "z": 102,
+              "angle": 512
+            },
+            {
+              "sourceIndex": 3,
+              "id": 2,
+              "model": 3,
+              "owner": 3,
+              "x": 82,
+              "z": 102,
+              "angle": 512
+            },
+            {
+              "sourceIndex": 5,
+              "id": 3,
+              "model": 3,
+              "owner": 3,
+              "x": 76,
+              "z": 114,
+              "angle": 512
+            },
+            {
+              "sourceIndex": 24,
+              "id": 22,
+              "model": 4,
+              "owner": 3,
+              "x": 116,
+              "z": -132,
+              "angle": 512
+            },
+            {
+              "sourceIndex": 79,
+              "id": 71,
+              "model": 3,
+              "owner": 3,
+              "x": 102,
+              "z": 118,
+              "angle": 1536
+            }
+          ],
+          "members": [
+            {
+              "id": 1,
+              "team": "green",
+              "model": 7,
+              "x": 68.921875,
+              "z": 100.703125,
+              "anchor": {
+                "x": 19456,
+                "y": 37376
+              },
+              "angle": 512,
+              "present": true,
+              "sameObject": true
+            },
+            {
+              "id": 2,
+              "team": "green",
+              "model": 3,
+              "x": 82.8828125,
+              "z": 100.921875,
+              "anchor": {
+                "x": 23040,
+                "y": 37376
+              },
+              "angle": 512,
+              "present": true,
+              "sameObject": true
+            },
+            {
+              "id": 3,
+              "team": "green",
+              "model": 3,
+              "x": 76.8828125,
+              "z": 112.9296875,
+              "anchor": {
+                "x": 21504,
+                "y": 34304
+              },
+              "angle": 512,
+              "present": true,
+              "sameObject": true
+            },
+            {
+              "id": 22,
+              "team": "green",
+              "model": 4,
+              "x": 117.16796875,
+              "z": 123.02734375,
+              "anchor": {
+                "x": 31744,
+                "y": 31744
+              },
+              "angle": 512,
+              "present": true,
+              "sameObject": true
+            },
+            {
+              "id": 71,
+              "team": "green",
+              "model": 3,
+              "x": 103.1171875,
+              "z": 117.0703125,
+              "anchor": {
+                "x": 28160,
+                "y": 33280
+              },
+              "angle": 1536,
+              "present": true,
+              "sameObject": true
+            }
+          ]
+        }
+      },
+      "errors": [],
+      "errorCount": 0,
+      "cleanup": {
+        "listener": true,
+        "subscription": true
+      }
+    },
+    "digest": {
+      "version": 1,
+      "level": 2,
+      "turn": 129,
+      "time": 10.75,
+      "checkpointSha256": "5a924378bba5f9ffe48824b7f43f68c9e392da98ef82203500bdaf8b622baf10",
+      "actorsSha256": "3b148730403d294ad11b11ebc9f424803c75a5613ae5afc18dac216a3d9c35d8",
+      "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+      "stockSha256": "8b334f123b6b6ebb032638482a50ca8eadc5736ea9ca6d1f0697e613634e45ef"
+    }
+  },
+  "resumed": {
+    "turn": 162,
+    "paused": true
+  },
+  "profileLoad": {
+    "label": "M2 selection-radius ownership after Load",
+    "observedAt": "2026-10-10T04:36:34.038Z",
+    "profileId": "c6e99e6f-b3ca-4b26-84f9-a440747ee7c4",
+    "runId": "a4d3f3d5-65b6-4951-a8f3-a7c5f6e7e9e2",
+    "sourceFingerprint": "c1788a3090d32c4242fbbce24a6b7d777170053fd4e0555a122bd734865261d8",
+    "checkpoint": {
+      "version": 1,
+      "level": 2,
+      "turn": 129,
+      "time": 10.75,
+      "checkpointSha256": "5a924378bba5f9ffe48824b7f43f68c9e392da98ef82203500bdaf8b622baf10",
+      "actorsSha256": "3b148730403d294ad11b11ebc9f424803c75a5613ae5afc18dac216a3d9c35d8",
+      "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+      "stockSha256": "8b334f123b6b6ebb032638482a50ca8eadc5736ea9ca6d1f0697e613634e45ef"
+    }
+  },
+  "cleanup": [
+    {
+      "kind": "save",
+      "status": {
+        "kind": "save",
+        "trusted": true,
+        "captured": true,
+        "closed": true,
+        "publications": 1,
+        "click": {
+          "turn": 129,
+          "paused": true,
+          "target": {
+            "level": 2,
+            "turn": 129,
+            "tribe": 3,
+            "aiAlias": true,
+            "radius": 37,
+            "basePresent": true,
+            "base": 33846,
+            "hasMembership": true,
+            "source": {
+              "sourceSha256": "83f5c446975398b163ef00526567f7a86b2666d26f9f026231ec0b36bf5a289f",
+              "headerSha256": "44be9f709f03f4b4d936d86056256e7bb98683088332b4bb47354ad709ea8a49"
+            },
+            "sources": [
+              {
+                "sourceIndex": 1,
+                "id": 1,
+                "model": 7,
+                "owner": 3,
+                "x": 68,
+                "z": 102,
+                "angle": 512
+              },
+              {
+                "sourceIndex": 3,
+                "id": 2,
+                "model": 3,
+                "owner": 3,
+                "x": 82,
+                "z": 102,
+                "angle": 512
+              },
+              {
+                "sourceIndex": 5,
+                "id": 3,
+                "model": 3,
+                "owner": 3,
+                "x": 76,
+                "z": 114,
+                "angle": 512
+              },
+              {
+                "sourceIndex": 24,
+                "id": 22,
+                "model": 4,
+                "owner": 3,
+                "x": 116,
+                "z": -132,
+                "angle": 512
+              },
+              {
+                "sourceIndex": 79,
+                "id": 71,
+                "model": 3,
+                "owner": 3,
+                "x": 102,
+                "z": 118,
+                "angle": 1536
+              }
+            ],
+            "members": [
+              {
+                "id": 1,
+                "team": "green",
+                "model": 7,
+                "x": 68.921875,
+                "z": 100.703125,
+                "anchor": {
+                  "x": 19456,
+                  "y": 37376
+                },
+                "angle": 512,
+                "present": true,
+                "sameObject": true
+              },
+              {
+                "id": 2,
+                "team": "green",
+                "model": 3,
+                "x": 82.8828125,
+                "z": 100.921875,
+                "anchor": {
+                  "x": 23040,
+                  "y": 37376
+                },
+                "angle": 512,
+                "present": true,
+                "sameObject": true
+              },
+              {
+                "id": 3,
+                "team": "green",
+                "model": 3,
+                "x": 76.8828125,
+                "z": 112.9296875,
+                "anchor": {
+                  "x": 21504,
+                  "y": 34304
+                },
+                "angle": 512,
+                "present": true,
+                "sameObject": true
+              },
+              {
+                "id": 22,
+                "team": "green",
+                "model": 4,
+                "x": 117.16796875,
+                "z": 123.02734375,
+                "anchor": {
+                  "x": 31744,
+                  "y": 31744
+                },
+                "angle": 512,
+                "present": true,
+                "sameObject": true
+              },
+              {
+                "id": 71,
+                "team": "green",
+                "model": 3,
+                "x": 103.1171875,
+                "z": 117.0703125,
+                "anchor": {
+                  "x": 28160,
+                  "y": 33280
+                },
+                "angle": 1536,
+                "present": true,
+                "sameObject": true
+              }
+            ]
+          }
+        },
+        "publication": {
+          "turn": 129,
+          "paused": true,
+          "target": {
+            "level": 2,
+            "turn": 129,
+            "tribe": 3,
+            "aiAlias": true,
+            "radius": 37,
+            "basePresent": true,
+            "base": 33846,
+            "hasMembership": true,
+            "source": {
+              "sourceSha256": "83f5c446975398b163ef00526567f7a86b2666d26f9f026231ec0b36bf5a289f",
+              "headerSha256": "44be9f709f03f4b4d936d86056256e7bb98683088332b4bb47354ad709ea8a49"
+            },
+            "sources": [
+              {
+                "sourceIndex": 1,
+                "id": 1,
+                "model": 7,
+                "owner": 3,
+                "x": 68,
+                "z": 102,
+                "angle": 512
+              },
+              {
+                "sourceIndex": 3,
+                "id": 2,
+                "model": 3,
+                "owner": 3,
+                "x": 82,
+                "z": 102,
+                "angle": 512
+              },
+              {
+                "sourceIndex": 5,
+                "id": 3,
+                "model": 3,
+                "owner": 3,
+                "x": 76,
+                "z": 114,
+                "angle": 512
+              },
+              {
+                "sourceIndex": 24,
+                "id": 22,
+                "model": 4,
+                "owner": 3,
+                "x": 116,
+                "z": -132,
+                "angle": 512
+              },
+              {
+                "sourceIndex": 79,
+                "id": 71,
+                "model": 3,
+                "owner": 3,
+                "x": 102,
+                "z": 118,
+                "angle": 1536
+              }
+            ],
+            "members": [
+              {
+                "id": 1,
+                "team": "green",
+                "model": 7,
+                "x": 68.921875,
+                "z": 100.703125,
+                "anchor": {
+                  "x": 19456,
+                  "y": 37376
+                },
+                "angle": 512,
+                "present": true,
+                "sameObject": true
+              },
+              {
+                "id": 2,
+                "team": "green",
+                "model": 3,
+                "x": 82.8828125,
+                "z": 100.921875,
+                "anchor": {
+                  "x": 23040,
+                  "y": 37376
+                },
+                "angle": 512,
+                "present": true,
+                "sameObject": true
+              },
+              {
+                "id": 3,
+                "team": "green",
+                "model": 3,
+                "x": 76.8828125,
+                "z": 112.9296875,
+                "anchor": {
+                  "x": 21504,
+                  "y": 34304
+                },
+                "angle": 512,
+                "present": true,
+                "sameObject": true
+              },
+              {
+                "id": 22,
+                "team": "green",
+                "model": 4,
+                "x": 117.16796875,
+                "z": 123.02734375,
+                "anchor": {
+                  "x": 31744,
+                  "y": 31744
+                },
+                "angle": 512,
+                "present": true,
+                "sameObject": true
+              },
+              {
+                "id": 71,
+                "team": "green",
+                "model": 3,
+                "x": 103.1171875,
+                "z": 117.0703125,
+                "anchor": {
+                  "x": 28160,
+                  "y": 33280
+                },
+                "angle": 1536,
+                "present": true,
+                "sameObject": true
+              }
+            ]
+          }
+        },
+        "errors": [],
+        "errorCount": 0,
+        "cleanup": {
+          "listener": true,
+          "subscription": true
+        }
+      }
+    },
+    {
+      "kind": "load",
+      "status": {
+        "kind": "load",
+        "trusted": true,
+        "captured": true,
+        "closed": true,
+        "publications": 1,
+        "click": {
+          "turn": 129,
+          "paused": true,
+          "target": {
+            "level": 2,
+            "turn": 129,
+            "tribe": 3,
+            "aiAlias": true,
+            "radius": 37,
+            "basePresent": true,
+            "base": 33846,
+            "hasMembership": true,
+            "source": {
+              "sourceSha256": "83f5c446975398b163ef00526567f7a86b2666d26f9f026231ec0b36bf5a289f",
+              "headerSha256": "44be9f709f03f4b4d936d86056256e7bb98683088332b4bb47354ad709ea8a49"
+            },
+            "sources": [
+              {
+                "sourceIndex": 1,
+                "id": 1,
+                "model": 7,
+                "owner": 3,
+                "x": 68,
+                "z": 102,
+                "angle": 512
+              },
+              {
+                "sourceIndex": 3,
+                "id": 2,
+                "model": 3,
+                "owner": 3,
+                "x": 82,
+                "z": 102,
+                "angle": 512
+              },
+              {
+                "sourceIndex": 5,
+                "id": 3,
+                "model": 3,
+                "owner": 3,
+                "x": 76,
+                "z": 114,
+                "angle": 512
+              },
+              {
+                "sourceIndex": 24,
+                "id": 22,
+                "model": 4,
+                "owner": 3,
+                "x": 116,
+                "z": -132,
+                "angle": 512
+              },
+              {
+                "sourceIndex": 79,
+                "id": 71,
+                "model": 3,
+                "owner": 3,
+                "x": 102,
+                "z": 118,
+                "angle": 1536
+              }
+            ],
+            "members": [
+              {
+                "id": 1,
+                "team": "green",
+                "model": 7,
+                "x": 68.921875,
+                "z": 100.703125,
+                "anchor": {
+                  "x": 19456,
+                  "y": 37376
+                },
+                "angle": 512,
+                "present": true,
+                "sameObject": true
+              },
+              {
+                "id": 2,
+                "team": "green",
+                "model": 3,
+                "x": 82.8828125,
+                "z": 100.921875,
+                "anchor": {
+                  "x": 23040,
+                  "y": 37376
+                },
+                "angle": 512,
+                "present": true,
+                "sameObject": true
+              },
+              {
+                "id": 3,
+                "team": "green",
+                "model": 3,
+                "x": 76.8828125,
+                "z": 112.9296875,
+                "anchor": {
+                  "x": 21504,
+                  "y": 34304
+                },
+                "angle": 512,
+                "present": true,
+                "sameObject": true
+              },
+              {
+                "id": 22,
+                "team": "green",
+                "model": 4,
+                "x": 117.16796875,
+                "z": 123.02734375,
+                "anchor": {
+                  "x": 31744,
+                  "y": 31744
+                },
+                "angle": 512,
+                "present": true,
+                "sameObject": true
+              },
+              {
+                "id": 71,
+                "team": "green",
+                "model": 3,
+                "x": 103.1171875,
+                "z": 117.0703125,
+                "anchor": {
+                  "x": 28160,
+                  "y": 33280
+                },
+                "angle": 1536,
+                "present": true,
+                "sameObject": true
+              }
+            ]
+          }
+        },
+        "publication": {
+          "turn": 129,
+          "paused": true,
+          "target": {
+            "level": 2,
+            "turn": 129,
+            "tribe": 3,
+            "aiAlias": true,
+            "radius": 37,
+            "basePresent": true,
+            "base": 33846,
+            "hasMembership": true,
+            "source": {
+              "sourceSha256": "83f5c446975398b163ef00526567f7a86b2666d26f9f026231ec0b36bf5a289f",
+              "headerSha256": "44be9f709f03f4b4d936d86056256e7bb98683088332b4bb47354ad709ea8a49"
+            },
+            "sources": [
+              {
+                "sourceIndex": 1,
+                "id": 1,
+                "model": 7,
+                "owner": 3,
+                "x": 68,
+                "z": 102,
+                "angle": 512
+              },
+              {
+                "sourceIndex": 3,
+                "id": 2,
+                "model": 3,
+                "owner": 3,
+                "x": 82,
+                "z": 102,
+                "angle": 512
+              },
+              {
+                "sourceIndex": 5,
+                "id": 3,
+                "model": 3,
+                "owner": 3,
+                "x": 76,
+                "z": 114,
+                "angle": 512
+              },
+              {
+                "sourceIndex": 24,
+                "id": 22,
+                "model": 4,
+                "owner": 3,
+                "x": 116,
+                "z": -132,
+                "angle": 512
+              },
+              {
+                "sourceIndex": 79,
+                "id": 71,
+                "model": 3,
+                "owner": 3,
+                "x": 102,
+                "z": 118,
+                "angle": 1536
+              }
+            ],
+            "members": [
+              {
+                "id": 1,
+                "team": "green",
+                "model": 7,
+                "x": 68.921875,
+                "z": 100.703125,
+                "anchor": {
+                  "x": 19456,
+                  "y": 37376
+                },
+                "angle": 512,
+                "present": true,
+                "sameObject": true
+              },
+              {
+                "id": 2,
+                "team": "green",
+                "model": 3,
+                "x": 82.8828125,
+                "z": 100.921875,
+                "anchor": {
+                  "x": 23040,
+                  "y": 37376
+                },
+                "angle": 512,
+                "present": true,
+                "sameObject": true
+              },
+              {
+                "id": 3,
+                "team": "green",
+                "model": 3,
+                "x": 76.8828125,
+                "z": 112.9296875,
+                "anchor": {
+                  "x": 21504,
+                  "y": 34304
+                },
+                "angle": 512,
+                "present": true,
+                "sameObject": true
+              },
+              {
+                "id": 22,
+                "team": "green",
+                "model": 4,
+                "x": 117.16796875,
+                "z": 123.02734375,
+                "anchor": {
+                  "x": 31744,
+                  "y": 31744
+                },
+                "angle": 512,
+                "present": true,
+                "sameObject": true
+              },
+              {
+                "id": 71,
+                "team": "green",
+                "model": 3,
+                "x": 103.1171875,
+                "z": 117.0703125,
+                "anchor": {
+                  "x": 28160,
+                  "y": 33280
+                },
+                "angle": 1536,
+                "present": true,
+                "sameObject": true
+              }
+            ]
+          }
+        },
+        "errors": [],
+        "errorCount": 0,
+        "cleanup": {
+          "listener": true,
+          "subscription": true
+        }
+      }
+    }
+  ]
+}
