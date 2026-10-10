@@ -1,0 +1,228 @@
+{
+  "schema": 1,
+  "productionBase": "4754e12d3590bde18656416514871b033de164be",
+  "previousEvidenceHead": "32ad31ce01d0a95a0da2cbd002e96fa1d7f0b8ff",
+  "method": "Byte-identical compact accepted reports; no raw executable, archive, serialized world, or new execution.",
+  "copies": [
+    {
+      "artifact": "specialist-source.md",
+      "acceptedPacket": "issue248-phase16-specialist-release-static-20261010/findings.md",
+      "sha256": "aa40dc8f11f64b15e7d9ed0069c806135860fdb2a43bb7d3a29ee6484b00ae41"
+    },
+    {
+      "artifact": "specialist-review.md",
+      "acceptedPacket": "issue248-phase16-specialist-release-review-20261010.md",
+      "sha256": "b6b27f362ab402cc17080ad6016adee20c17a88248400499b786bf747ad8932f"
+    },
+    {
+      "artifact": "historical-input-inventory.md",
+      "acceptedPacket": "issue248-model4-input-inventory-20261010/mapping.md",
+      "sha256": "b7db4e0c58d7f5279a91c5580de5b57d3c5e2329d8365994de2a35519c17b4d7"
+    },
+    {
+      "artifact": "historical-input-review.md",
+      "acceptedPacket": "issue248-model4-input-inventory-review-20261010.md",
+      "sha256": "3ad6b583da65e9089f1b6c20b127eff92f4de569a8418c65d7430cbd56f1de0a"
+    },
+    {
+      "artifact": "proposal-disposition.md",
+      "acceptedPacket": "issue248-raid-integrated-repair-proposal-review-20261010.md",
+      "sha256": "c14e4da0f96d3dd2f8a82c46a7b3426bc839d2b21f2e1120d0d1525a07179cc6"
+    },
+    {
+      "artifact": "preacher-source.md",
+      "acceptedPacket": "issue248-model4-maintenance-static-20261010/findings.md",
+      "sha256": "f770760ce167832ef2b4314323eaf5c818693b40447c2445702d122f88c35567"
+    },
+    {
+      "artifact": "004f5770.asm.txt",
+      "acceptedPacket": "issue248-model4-maintenance-static-20261010/004f5770.asm.txt",
+      "sha256": "0bdbd9e712333bb6e644d48365318706b13caa7e8bc4d78e1137ddbf6dd2e2a8"
+    },
+    {
+      "artifact": "0043b790.asm.txt",
+      "acceptedPacket": "issue248-model4-maintenance-static-20261010/0043b790.asm.txt",
+      "sha256": "37a4880630ac4dea73c41b4f99050c978585b4ddab76c11116de7216267c0e0b"
+    },
+    {
+      "artifact": "command17-table.json",
+      "acceptedPacket": "issue248-model4-maintenance-static-20261010/command17-table.json",
+      "sha256": "b52eff91e7b98ae1887f834e6ce909184986012dbc819b6295ee06a4b22c0c00"
+    },
+    {
+      "artifact": "preacher-review.md",
+      "acceptedPacket": "issue248-model4-maintenance-review-20261010.md",
+      "sha256": "702ee168d77acb32558221c505f159ca36d07a1231bfff5ce0bdb24ee58e20a7"
+    }
+  ],
+  "frozenLocalManifests": {
+    "specialistProvenance": "228cb0bc0b2d3750c2e1239085639fc5a5eae8b90d2b9bf54cd4ee5c3a1ec0ce",
+    "specialistInventory": "4cafef8871d0a5daa5d3d6071ffbbd9f4adacc214cc8f250c541ab72b2cfcbf8",
+    "historicalInventoryProvenance": "102ca4333e7a315fe12ff19d525146a1a0ef24f0bb28f8c89f45b238ff9d3215",
+    "preacherProvenance": "186329ce5793a953a87736f0fa857a1414a8d602e5a2dab2631a203232076193",
+    "preacherInventory": "0ebb9d35637f2d10daacba2115058c08af754fba8b03ce8963b98014a4dc3193"
+  },
+  "preacherDecode": {
+    "ranges": [
+      {
+        "entry": "004f5770",
+        "endExclusive": "004f594b",
+        "instructionBytes": 475,
+        "bytesSha256": "38e68b1da1d84b699f7e26abfb73674a7816876b6fe6920976e811187a87ff0a",
+        "asm": "004f5770.asm.txt",
+        "asmSha256": "0bdbd9e712333bb6e644d48365318706b13caa7e8bc4d78e1137ddbf6dd2e2a8"
+      },
+      {
+        "entry": "0043b790",
+        "endExclusive": "0043b8da",
+        "instructionBytes": 330,
+        "bytesSha256": "88475fe0b668dd3f80d883baff89bcda91833a7d25ec9e08856c547f52a1996d",
+        "asm": "0043b790.asm.txt",
+        "asmSha256": "37a4880630ac4dea73c41b4f99050c978585b4ddab76c11116de7216267c0e0b"
+      }
+    ],
+    "tool": {
+      "path": "/usr/bin/objdump",
+      "version": "GNU objdump (GNU Binutils for Debian) 2.44",
+      "sha256": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f"
+    },
+    "executable": {
+      "bytes": 2275840,
+      "sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+    },
+    "commandRecipe": "objdump -d -M intel --start-address=<entry> --stop-address=<padding-end> <hash-verified EXE>"
+  },
+  "preacherImmutableInputs": [
+    {
+      "path": "decomp/generated/00438730.c",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "6a5ce0e68b07b0dab9837b53d8f0cc657495077a2069f0c43ba8bd594651e660",
+      "registryMatched": true,
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/00438730.c"
+    },
+    {
+      "path": "decomp/generated/00436d00.c",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "0c5d9dc7ca2e531605137b19aca83933dff51c8d843d0f2f9ab734b421cf2e13",
+      "registryMatched": true,
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/00436d00.c"
+    },
+    {
+      "path": "decomp/generated/004f5680.c",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "be5845ff36846d73b4a297424fd8ffe12b91a2474e3a87059710e915e124809e",
+      "registryMatched": true,
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/004f5680.c"
+    },
+    {
+      "path": "decomp/generated/00518200.c",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "6a0319382583aa6d56ff71f3ea184f0ac71cd6983471ff54747cc87dc0316e7e",
+      "registryMatched": true,
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/00518200.c"
+    },
+    {
+      "path": "decomp/generated/0044e940.c",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "9b4f12d75594c49b0b2733e708da25043ffbd16317804e7469442e5b45beb538",
+      "registryMatched": true,
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/0044e940.c"
+    },
+    {
+      "path": "decomp/generated/0049c890.c",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "14a72c6bf35047a3e5cd03fee142941a38dbf9b47fdb4bbe3fb0595a463d8cc9",
+      "registryMatched": true,
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/0049c890.c"
+    },
+    {
+      "path": "decomp/generated/004df0e0.c",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "e95f3d77d9ef66b7ff2f6c608b482820e6c7fe41e095034f2cb6b6222d645b09",
+      "registryMatched": true,
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/004df0e0.c"
+    },
+    {
+      "path": "decomp/generated/0043b010.c",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "e1ecd52f78b79873e832f0de798dccf817befb91bcc285ddb9c15356e5864be4",
+      "registryMatched": true,
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/0043b010.c"
+    },
+    {
+      "path": "decomp/generated/004364d0.c",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "694cf0f4dfbfe3ec7ada8b812b360d227443c43e44910bcd5a0dc0187a852553",
+      "registryMatched": true,
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/004364d0.c"
+    },
+    {
+      "path": "decomp/generated/004da1d0.c",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "e80a2a24b40c424b9d6867a26c2a8aad383695b703e80c26c9b01184113916a0",
+      "registryMatched": true,
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/004da1d0.c"
+    },
+    {
+      "path": "decomp/generated/00501be0.c",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "8d73cfd000427bf623ca938d9f22c9bb5b6cc7a91a55826604e437336e12d822",
+      "registryMatched": true,
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/00501be0.c"
+    },
+    {
+      "path": "app/original-rules.json",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/app/original-rules.json"
+    },
+    {
+      "path": "app/computer-runtime.ts",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "96b148458340f9803c5342c605a0294b615a03d7e06276185bf212bf0ce17ea8",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/app/computer-runtime.ts"
+    },
+    {
+      "path": "app/person-orders.ts",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "27600291a988813415ce88a4b046101fb772894490d44607b84f739a433eb1f3",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/app/person-orders.ts"
+    },
+    {
+      "path": "decomp/research/automatic-preacher-and-raid-ownership.md",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "d00a5184eba1544cb832b7ed45770af45c5e652917e3cd1b3fd518f0681cef30",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/research/automatic-preacher-and-raid-ownership.md"
+    },
+    {
+      "path": "decomp/research/mission3-person-task.md",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "9231ae425b9d03c545b37c54f5717fd37035f77018b11d13998a5feb53e89324",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/research/mission3-person-task.md"
+    },
+    {
+      "path": "tests/preacher-automatic-response.test.mjs",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "6e80d44d91ac8cb4a2c0f484587c73bd18fe7795f037f0db2664ba4c8b80594f",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/tests/preacher-automatic-response.test.mjs"
+    },
+    {
+      "path": "tests/preacher-terminal-restart.test.mjs",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "685e50448b7b4be8b7cbf4588750638acb669ae493619a642394db77ee69a423",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/tests/preacher-terminal-restart.test.mjs"
+    },
+    {
+      "path": "references/reverse-engineering.md",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "29da579e7715b1c93fe74dbd78327026f21299e5fa1669676976a94685834a01",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/references/reverse-engineering.md"
+    },
+    {
+      "path": "decomp/exports.json",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "51e55c295a9956e89be85c98df835f1da141e3e10cb6b16435f55423ff5b26db",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/exports.json"
+    }
+  ]
+}
