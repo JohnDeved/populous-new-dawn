@@ -105,6 +105,7 @@ test('Page switches, checkpoint Load, Restart and failed-resource retry bind eac
     refreshSceneryShadow(blank, old, index => { visited.add(index); return 0 }, noop)
     assert.equal(visited.size, 4, 'legacy mesh15 owns bank2 shape5')
     for (const index of visited) { world.land.flags[index] &= ~16; world.land.shadows[index] |= 0xa0 }
+    const highBits = new Map([...visited].map(index => [index, world.land.shadows[index] & 0xf0]))
     const outside = Array.from({ length: 16384 }, (_, index) => index).find(index => !visited.has(index)), outsideValue = world.land.shadows[outside]
     await store.saveCheckpoint()
     page.beginLoad({ kind: 'checkpoint' })
@@ -112,7 +113,7 @@ test('Page switches, checkpoint Load, Restart and failed-resource retry bind eac
     assert.equal(restored.sceneryShadows.get(tree.id).shapeIndex, 1, 'migration reconciles before constructing a scene')
     for (const index of visited) {
       assert.ok(restored.land.flags[index] & 16, 'retirement visits the stored old footprint')
-      assert.equal(restored.land.shadows[index] & 0xf0, 0xa0, 'preserve high shadow bits')
+      assert.equal(restored.land.shadows[index] & 0xf0, highBits.get(index), 'preserve high shadow bits')
     }
     assert.equal(restored.land.shadows[outside], outsideValue)
     const loaded = await sceneForWorld()
