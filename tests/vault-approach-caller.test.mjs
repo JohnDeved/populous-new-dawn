@@ -198,6 +198,7 @@ async function vaultSceneFixture(t, world = createWorld(3)) {
   }
   const scene = Object.assign(Object.create(GameScene.prototype), {
     world, started: false, disposed: false,
+    flybyCamera: { zoom: 0 }, onChange: nop,
     terrainLoad: { signal: { aborted: false }, abort: nop },
     drawMinimap: nop, listen: nop, mini: {}, animate: nop,
     gameClock: { animationFrame: 0 },
@@ -251,6 +252,7 @@ const reservationCount = (world, id) =>
 // not original full-frame pixels, artwork or GPU rendering.
 test('ordinary M3 prayer panel projects its live building socket through the actual scene consumer', async t => {
   const { scene, world, vault, paint, projections, draws, setScreen } = await vaultSceneFixture(t)
+  scene.skipIntroduction()
   finishLevelStart(world)
   select(world, 'shaman')
   assert.equal(command(world, vault), true)
@@ -301,6 +303,7 @@ test('ordinary M3 prayer panel projects its live building socket through the act
 
 test('authored M1 quarter-turn Vault uses socket 0 in the actual panel consumer', async t => {
   const { scene, world, paint, projections } = await vaultSceneFixture(t, createWorld(1))
+  scene.skipIntroduction()
   finishLevelStart(world)
   const vault = world.shrines.find(shrine => shrine.kind === 'vault')
   const body = levelOne.objects.find(object => object.index === 35)
@@ -332,6 +335,7 @@ test('authored M1 quarter-turn Vault uses socket 0 in the actual panel consumer'
 
 test('non-Vault scenery retains its own panelHeight in the actual panel consumer', async t => {
   const { scene, world, paint, projections } = await vaultSceneFixture(t)
+  scene.skipIntroduction()
   finishLevelStart(world)
   const head = world.shrines.find(shrine => shrine.kind !== 'vault')
   assert.ok(head, 'use an authored scenery head, not an injected Vault substitute')
