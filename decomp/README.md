@@ -5018,6 +5018,17 @@ direct unsupported entry. Constants and mapped search bytes are guarded. Supplie
 post-death terrain fixtures, rendered shipped-spell acceptance and native raster
 remain distinct evidence boundaries; this does not complete issue #30.
 
+### 2026-10-09 — Shaman death support caller audit
+
+[The static caller/field audit](research/shaman-death-support.md) establishes that
+the model12 initializer queries the linked source person's complete drowning
+predicate, while phase2 queries only the corpse death-point coastal support.
+The complete predicate already exists as `personIsDrowning`; the app's phase2
+mapping agrees at its coordinate-only boundary. Death-entry differences remain
+conditional on actual source-person exemptions, with no ordinary Mission1–3
+counterexample established. Pinned byte excerpts close the operand ambiguity;
+no original execution, runtime change or parity credit is claimed.
+
 ## 2026-09-17 — Mission 17 Armageddon
 
 `check-native-mission17-armageddon.py EXE` verifies the authored trigger/reward,

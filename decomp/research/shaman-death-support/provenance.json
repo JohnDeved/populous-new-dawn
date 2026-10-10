@@ -1,0 +1,74 @@
+{
+  "evidence": "Static PE byte inspection and disassembly only; no original instructions executed.",
+  "baseCommit": "56115714ede56ac0837110d870c87cc10a344727",
+  "baseTree": "60aef91f489515de2d8cb836e648eab369edacea",
+  "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "tool": "GNU objdump (GNU Binutils for Debian) 2.44",
+  "normalization": "The executable input pathname is replaced with d3dpoptb.exe; trailing line whitespace is removed from objdump output.",
+  "excerpts": [
+    {
+      "path": "initializer.asm",
+      "start": "0x502910",
+      "endExclusive": "0x5029c5",
+      "byteSha256": "5e2b4ad96b2ead21f871a1e136857b5a0c26448b21f141a7f9bc51d561bdc282",
+      "outputSha256": "31d0a44561e486021bb5c60a2cb75966e9aa882af802a133cc79050cdd7c0d0b",
+      "command": [
+        "objdump",
+        "-d",
+        "-Mintel",
+        "--start-address=0x502910",
+        "--stop-address=0x5029c5",
+        "<verified-d3dpoptb.exe>"
+      ],
+      "exitCode": 0
+    },
+    {
+      "path": "phase2.asm",
+      "start": "0x502aea",
+      "endExclusive": "0x502ba3",
+      "byteSha256": "7079d04b5b0f28c0ce49236f6c48e5ac4139478f4f0892b15ff19c8bae032cf1",
+      "outputSha256": "ce556331d815331af93803b23d15bf4793e090c66586a0c5391fb1b43d3386b6",
+      "command": [
+        "objdump",
+        "-d",
+        "-Mintel",
+        "--start-address=0x502aea",
+        "--stop-address=0x502ba3",
+        "<verified-d3dpoptb.exe>"
+      ],
+      "exitCode": 0
+    },
+    {
+      "path": "drowning-predicate.asm",
+      "start": "0x4eeff0",
+      "endExclusive": "0x4ef0f4",
+      "byteSha256": "a56e9cde2cfb84977358036732640bee624c94f162ac34ff20fbe2b9b5b5e200",
+      "outputSha256": "075d91d9ec4fee7d4f83a81a968b842851d376b556503f51c6ab67155612ceea",
+      "command": [
+        "objdump",
+        "-d",
+        "-Mintel",
+        "--start-address=0x4eeff0",
+        "--stop-address=0x4ef0f4",
+        "<verified-d3dpoptb.exe>"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "data": {
+    "shamanPhysics": {
+      "address": "0x5a71c4",
+      "value": 18
+    },
+    "shamanPhysicsFlags": {
+      "address": "0x5a7d7c",
+      "value": 1
+    }
+  },
+  "limits": [
+    "No native/Unicorn/Wine/Ghidra execution",
+    "No browser or model simulation",
+    "No ordinary counterexample established",
+    "No absolute elapsed-cadence proof"
+  ]
+}
