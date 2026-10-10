@@ -59,7 +59,9 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
     assert.ok(guard)
     Object.assign(shaman, browserPosition({ x: 0x1000, y: 0x1000 }))
     assert.ok(shaman.native, 'preserve the actual startup person and its command18')
-    Object.assign(shaman.native, { x: 0x1000, y: 0x1000 })
+    // Supply a stationary Shaman while retaining its startup command ownership;
+    // releasing the final guard must not invoke the unrelated speed RNG branch.
+    Object.assign(shaman.native, { x: 0x1000, y: 0x1000, speed: 0 })
     assert.equal(shaman.native.speed, 0, 'this controlled release has no Shaman speed RNG')
     if (unavailable === 'missing') {
       actual.clearPersonOrders(world.buildingOrders, shaman.native, orderEffects(world))
