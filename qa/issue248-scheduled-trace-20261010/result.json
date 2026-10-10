@@ -1,0 +1,1091 @@
+{
+  "status": "FAILED overall run; ACCEPTED guarded prefix only",
+  "testedHead": "485ed5c3aeae59ae2756685786555c2bbfc75d13",
+  "productionBase": "4754e12d3590bde18656416514871b033de164be",
+  "seed": 1,
+  "setup": "One unchanged createWorld(6); both authored opponents active; tick(1/12); no checkpoints or game-state edits",
+  "allocation": {
+    "turn": 6475,
+    "index": 2,
+    "args": [
+      12858,
+      0,
+      4,
+      20,
+      [
+        0,
+        80,
+        30,
+        0,
+        0,
+        0
+      ],
+      25,
+      true,
+      2,
+      291,
+      []
+    ],
+    "task": {
+      "flags": 1,
+      "type": 20,
+      "phase": 0,
+      "target": 12858,
+      "requested": 4,
+      "extra": 20,
+      "selected": 0,
+      "remaining": 0,
+      "elapsed": 0,
+      "mode": 0,
+      "fallback": 0,
+      "regroup": 0,
+      "origin": 12858,
+      "entity": 291,
+      "damage": 0,
+      "retries": 0,
+      "retreatPercent": 25,
+      "spells": [
+        0,
+        0,
+        0
+      ],
+      "quotas": [
+        0,
+        80,
+        30,
+        0,
+        0,
+        0
+      ],
+      "members": [],
+      "route": [
+        {
+          "marker": 0,
+          "secondary": 0,
+          "quotas": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "marker": 0,
+          "secondary": 0,
+          "quotas": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "marker": 0,
+          "secondary": 0,
+          "quotas": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "marker": 0,
+          "secondary": 0,
+          "quotas": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  },
+  "prefix": [
+    {
+      "kind": "mixed-dispatch",
+      "turn": 7637,
+      "tribe": 2,
+      "taskIndex": 2,
+      "before": {
+        "phase": 15,
+        "target": 12858,
+        "entity": 291,
+        "elapsed": 1801,
+        "damage": 0,
+        "extra": 20,
+        "retries": 0,
+        "retreatPercent": 25,
+        "requested": 4,
+        "mode": 0
+      },
+      "actualControllerCalls": [],
+      "actions": [
+        {
+          "kind": "attack",
+          "target": 12858,
+          "replace": true
+        }
+      ],
+      "afterController": {
+        "phase": 16,
+        "target": 12858,
+        "entity": 291,
+        "elapsed": 1801,
+        "damage": 0,
+        "extra": 20,
+        "retries": 0,
+        "retreatPercent": 25,
+        "requested": 4,
+        "mode": 0
+      },
+      "candidateListsAtBeforeTarget": {
+        "center": 12858,
+        "registeredCells": {
+          "people": [
+            292,
+            281,
+            95,
+            291
+          ],
+          "buildings": []
+        },
+        "defenseAdapter": {
+          "people": [
+            292,
+            281,
+            95,
+            291
+          ],
+          "buildings": []
+        }
+      },
+      "ordersBefore": [
+        {
+          "id": 377,
+          "owner": [
+            "native"
+          ],
+          "state": 10,
+          "commandId": 216,
+          "immediateId": 216,
+          "cursor": 0,
+          "order": {
+            "model": 21,
+            "flags": 32,
+            "a": 13372,
+            "b": 0
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        },
+        {
+          "id": 378,
+          "owner": [
+            "flight",
+            "fight"
+          ],
+          "state": 29,
+          "commandId": 191,
+          "immediateId": 0,
+          "cursor": 0,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "a": 14976,
+            "b": 12928
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        },
+        {
+          "id": 540,
+          "owner": [
+            "fight"
+          ],
+          "state": 29,
+          "commandId": 191,
+          "immediateId": 0,
+          "cursor": 0,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "a": 14976,
+            "b": 12928
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        },
+        {
+          "id": 455,
+          "owner": [
+            "native"
+          ],
+          "state": 10,
+          "commandId": 213,
+          "immediateId": 213,
+          "cursor": 0,
+          "order": {
+            "model": 32,
+            "flags": 32,
+            "a": 15716,
+            "b": 14968
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        }
+      ],
+      "ordersAfterDispatch": [
+        {
+          "id": 377,
+          "owner": [
+            "native"
+          ],
+          "state": 10,
+          "commandId": 217,
+          "immediateId": 0,
+          "cursor": 0,
+          "order": {
+            "model": 19,
+            "flags": 0,
+            "a": 12858,
+            "b": 2056
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        },
+        {
+          "id": 378,
+          "owner": [
+            "flight",
+            "fight"
+          ],
+          "state": 29,
+          "commandId": 217,
+          "immediateId": 0,
+          "cursor": 0,
+          "order": {
+            "model": 19,
+            "flags": 0,
+            "a": 12858,
+            "b": 2056
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        },
+        {
+          "id": 540,
+          "owner": [
+            "fight"
+          ],
+          "state": 29,
+          "commandId": 217,
+          "immediateId": 0,
+          "cursor": 0,
+          "order": {
+            "model": 19,
+            "flags": 0,
+            "a": 12858,
+            "b": 2056
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        },
+        {
+          "id": 455,
+          "owner": [
+            "native"
+          ],
+          "state": 10,
+          "commandId": 218,
+          "immediateId": 0,
+          "cursor": 0,
+          "order": {
+            "model": 17,
+            "flags": 0,
+            "a": 32896,
+            "b": 12928
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        }
+      ],
+      "rng": {
+        "before": 2079282252,
+        "afterController": 2079282252,
+        "afterDispatch": 212426547,
+        "afterTurn": 3554188242
+      },
+      "allFourSnapshotGuardsCompleted": true
+    },
+    {
+      "kind": "phase16",
+      "turn": 7640,
+      "tribe": 2,
+      "taskIndex": 2,
+      "before": {
+        "phase": 16,
+        "target": 12858,
+        "entity": 291,
+        "elapsed": 1801,
+        "damage": 0,
+        "extra": 20,
+        "retries": 0,
+        "retreatPercent": 25,
+        "requested": 4,
+        "mode": 0
+      },
+      "actualControllerCalls": [
+        {
+          "name": "activeMembers",
+          "args": [],
+          "result": 4
+        },
+        {
+          "name": "entity",
+          "args": [
+            291
+          ],
+          "result": {
+            "id": 291,
+            "target": 13372,
+            "direct": false,
+            "contained": false
+          }
+        }
+      ],
+      "actions": [
+        {
+          "kind": "attack",
+          "target": 13372,
+          "replace": true
+        }
+      ],
+      "afterController": {
+        "phase": 16,
+        "target": 13372,
+        "entity": 291,
+        "elapsed": 1801,
+        "damage": 0,
+        "extra": 20,
+        "retries": 0,
+        "retreatPercent": 25,
+        "requested": 4,
+        "mode": 0
+      },
+      "candidateListsAtBeforeTarget": {
+        "center": 12858,
+        "registeredCells": {
+          "people": [
+            292,
+            95,
+            291,
+            281
+          ],
+          "buildings": []
+        },
+        "defenseAdapter": {
+          "people": [
+            292,
+            95,
+            291,
+            281
+          ],
+          "buildings": []
+        }
+      },
+      "ordersBefore": [
+        {
+          "id": 377,
+          "owner": [
+            "fight"
+          ],
+          "state": 25,
+          "commandId": 217,
+          "immediateId": 0,
+          "cursor": 0,
+          "order": {
+            "model": 19,
+            "flags": 0,
+            "a": 12858,
+            "b": 2056
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        },
+        {
+          "id": 378,
+          "owner": [
+            "fight"
+          ],
+          "state": 29,
+          "commandId": 217,
+          "immediateId": 0,
+          "cursor": 0,
+          "order": {
+            "model": 19,
+            "flags": 0,
+            "a": 12858,
+            "b": 2056
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        },
+        {
+          "id": 540,
+          "owner": [
+            "fight"
+          ],
+          "state": 25,
+          "commandId": 217,
+          "immediateId": 0,
+          "cursor": 0,
+          "order": {
+            "model": 19,
+            "flags": 0,
+            "a": 12858,
+            "b": 2056
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        },
+        {
+          "id": 455,
+          "owner": [
+            "native"
+          ],
+          "state": 10,
+          "commandId": 218,
+          "immediateId": 0,
+          "cursor": 0,
+          "order": {
+            "model": 17,
+            "flags": 0,
+            "a": 32896,
+            "b": 12928
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        }
+      ],
+      "ordersAfterDispatch": [
+        {
+          "id": 377,
+          "owner": [
+            "fight"
+          ],
+          "state": 25,
+          "commandId": 219,
+          "immediateId": 0,
+          "cursor": 0,
+          "order": {
+            "model": 19,
+            "flags": 0,
+            "a": 13372,
+            "b": 2056
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        },
+        {
+          "id": 378,
+          "owner": [
+            "fight"
+          ],
+          "state": 29,
+          "commandId": 219,
+          "immediateId": 0,
+          "cursor": 0,
+          "order": {
+            "model": 19,
+            "flags": 0,
+            "a": 13372,
+            "b": 2056
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        },
+        {
+          "id": 540,
+          "owner": [
+            "fight"
+          ],
+          "state": 25,
+          "commandId": 219,
+          "immediateId": 0,
+          "cursor": 0,
+          "order": {
+            "model": 19,
+            "flags": 0,
+            "a": 13372,
+            "b": 2056
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        },
+        {
+          "id": 455,
+          "owner": [
+            "native"
+          ],
+          "state": 10,
+          "commandId": 220,
+          "immediateId": 0,
+          "cursor": 0,
+          "order": {
+            "model": 17,
+            "flags": 0,
+            "a": 32896,
+            "b": 13440
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        }
+      ],
+      "rng": {
+        "before": 4222660224,
+        "afterController": 4222660224,
+        "afterDispatch": 452531519,
+        "afterTurn": 654373561
+      },
+      "allFourSnapshotGuardsCompleted": true
+    },
+    {
+      "kind": "phase16",
+      "turn": 7643,
+      "tribe": 2,
+      "taskIndex": 2,
+      "before": {
+        "phase": 16,
+        "target": 13372,
+        "entity": 291,
+        "elapsed": 1801,
+        "damage": 0,
+        "extra": 20,
+        "retries": 0,
+        "retreatPercent": 25,
+        "requested": 4,
+        "mode": 0
+      },
+      "actualControllerCalls": [
+        {
+          "name": "activeMembers",
+          "args": [],
+          "result": 4
+        },
+        {
+          "name": "entity",
+          "args": [
+            291
+          ],
+          "result": {
+            "id": 291,
+            "target": 13372,
+            "direct": false,
+            "contained": false
+          }
+        },
+        {
+          "name": "targetsRemain",
+          "args": [
+            13372
+          ],
+          "result": false
+        }
+      ],
+      "actions": [
+        {
+          "kind": "attack",
+          "target": 13372,
+          "replace": true
+        }
+      ],
+      "afterController": {
+        "phase": 16,
+        "target": 13372,
+        "entity": 291,
+        "elapsed": 1801,
+        "damage": 0,
+        "extra": 20,
+        "retries": 0,
+        "retreatPercent": 25,
+        "requested": 4,
+        "mode": 0
+      },
+      "candidateListsAtBeforeTarget": {
+        "center": 13372,
+        "registeredCells": {
+          "people": [
+            281,
+            291,
+            292,
+            95
+          ],
+          "buildings": []
+        },
+        "defenseAdapter": {
+          "people": [
+            281,
+            291,
+            292,
+            95
+          ],
+          "buildings": []
+        }
+      },
+      "ordersBefore": [
+        {
+          "id": 377,
+          "owner": [
+            "fight"
+          ],
+          "state": 25,
+          "commandId": 219,
+          "immediateId": 0,
+          "cursor": 0,
+          "order": {
+            "model": 19,
+            "flags": 0,
+            "a": 13372,
+            "b": 2056
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        },
+        {
+          "id": 378,
+          "owner": [
+            "fight"
+          ],
+          "state": 25,
+          "commandId": 219,
+          "immediateId": 0,
+          "cursor": 0,
+          "order": {
+            "model": 19,
+            "flags": 0,
+            "a": 13372,
+            "b": 2056
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        },
+        {
+          "id": 540,
+          "owner": [
+            "fight"
+          ],
+          "state": 25,
+          "commandId": 219,
+          "immediateId": 0,
+          "cursor": 0,
+          "order": {
+            "model": 19,
+            "flags": 0,
+            "a": 13372,
+            "b": 2056
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        },
+        {
+          "id": 455,
+          "owner": [
+            "native"
+          ],
+          "state": 10,
+          "commandId": 220,
+          "immediateId": 0,
+          "cursor": 0,
+          "order": {
+            "model": 17,
+            "flags": 0,
+            "a": 32896,
+            "b": 13440
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        }
+      ],
+      "ordersAfterDispatch": [
+        {
+          "id": 377,
+          "owner": [
+            "fight"
+          ],
+          "state": 25,
+          "commandId": 221,
+          "immediateId": 0,
+          "cursor": 0,
+          "order": {
+            "model": 19,
+            "flags": 0,
+            "a": 13372,
+            "b": 2056
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        },
+        {
+          "id": 378,
+          "owner": [
+            "fight"
+          ],
+          "state": 25,
+          "commandId": 221,
+          "immediateId": 0,
+          "cursor": 0,
+          "order": {
+            "model": 19,
+            "flags": 0,
+            "a": 13372,
+            "b": 2056
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        },
+        {
+          "id": 540,
+          "owner": [
+            "fight"
+          ],
+          "state": 25,
+          "commandId": 221,
+          "immediateId": 0,
+          "cursor": 0,
+          "order": {
+            "model": 19,
+            "flags": 0,
+            "a": 13372,
+            "b": 2056
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        },
+        {
+          "id": 455,
+          "owner": [
+            "native"
+          ],
+          "state": 10,
+          "commandId": 222,
+          "immediateId": 0,
+          "cursor": 0,
+          "order": {
+            "model": 17,
+            "flags": 0,
+            "a": 32896,
+            "b": 13440
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        }
+      ],
+      "rng": {
+        "before": 3492482201,
+        "afterController": 3492482201,
+        "afterDispatch": 2831664836,
+        "afterTurn": 4067062232
+      },
+      "allFourSnapshotGuardsCompleted": true
+    },
+    {
+      "kind": "phase16",
+      "turn": 7646,
+      "tribe": 2,
+      "taskIndex": 2,
+      "before": {
+        "phase": 16,
+        "target": 13372,
+        "entity": 291,
+        "elapsed": 1801,
+        "damage": 0,
+        "extra": 20,
+        "retries": 0,
+        "retreatPercent": 25,
+        "requested": 4,
+        "mode": 0
+      },
+      "actualControllerCalls": [
+        {
+          "name": "activeMembers",
+          "args": [],
+          "result": 4
+        },
+        {
+          "name": "entity",
+          "args": [
+            291
+          ],
+          "result": {
+            "id": 291,
+            "target": 13372,
+            "direct": false,
+            "contained": false
+          }
+        },
+        {
+          "name": "targetsRemain",
+          "args": [
+            13372
+          ],
+          "result": false
+        }
+      ],
+      "actions": [
+        {
+          "kind": "attack",
+          "target": 13372,
+          "replace": true
+        }
+      ],
+      "afterController": {
+        "phase": 16,
+        "target": 13372,
+        "entity": 291,
+        "elapsed": 1801,
+        "damage": 0,
+        "extra": 20,
+        "retries": 0,
+        "retreatPercent": 25,
+        "requested": 4,
+        "mode": 0
+      },
+      "candidateListsAtBeforeTarget": {
+        "center": 13372,
+        "registeredCells": {
+          "people": [
+            281,
+            291,
+            292,
+            95
+          ],
+          "buildings": []
+        },
+        "defenseAdapter": {
+          "people": [
+            281,
+            291,
+            292,
+            95
+          ],
+          "buildings": []
+        }
+      },
+      "ordersBefore": [
+        {
+          "id": 377,
+          "owner": [
+            "fight"
+          ],
+          "state": 25,
+          "commandId": 221,
+          "immediateId": 0,
+          "cursor": 0,
+          "order": {
+            "model": 19,
+            "flags": 0,
+            "a": 13372,
+            "b": 2056
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        },
+        {
+          "id": 378,
+          "owner": [
+            "fight"
+          ],
+          "state": 25,
+          "commandId": 221,
+          "immediateId": 0,
+          "cursor": 0,
+          "order": {
+            "model": 19,
+            "flags": 0,
+            "a": 13372,
+            "b": 2056
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        },
+        {
+          "id": 540,
+          "owner": [
+            "fight"
+          ],
+          "state": 25,
+          "commandId": 221,
+          "immediateId": 0,
+          "cursor": 0,
+          "order": {
+            "model": 19,
+            "flags": 0,
+            "a": 13372,
+            "b": 2056
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        },
+        {
+          "id": 455,
+          "owner": [
+            "native"
+          ],
+          "state": 10,
+          "commandId": 222,
+          "immediateId": 0,
+          "cursor": 0,
+          "order": {
+            "model": 17,
+            "flags": 0,
+            "a": 32896,
+            "b": 13440
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        }
+      ],
+      "ordersAfterDispatch": [
+        {
+          "id": 377,
+          "owner": [
+            "fight"
+          ],
+          "state": 25,
+          "commandId": 223,
+          "immediateId": 0,
+          "cursor": 0,
+          "order": {
+            "model": 19,
+            "flags": 0,
+            "a": 13372,
+            "b": 2056
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        },
+        {
+          "id": 378,
+          "owner": [
+            "fight"
+          ],
+          "state": 25,
+          "commandId": 223,
+          "immediateId": 0,
+          "cursor": 0,
+          "order": {
+            "model": 19,
+            "flags": 0,
+            "a": 13372,
+            "b": 2056
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        },
+        {
+          "id": 540,
+          "owner": [
+            "fight"
+          ],
+          "state": 25,
+          "commandId": 223,
+          "immediateId": 0,
+          "cursor": 0,
+          "order": {
+            "model": 19,
+            "flags": 0,
+            "a": 13372,
+            "b": 2056
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        },
+        {
+          "id": 455,
+          "owner": [
+            "native"
+          ],
+          "state": 10,
+          "commandId": 224,
+          "immediateId": 0,
+          "cursor": 0,
+          "order": {
+            "model": 17,
+            "flags": 0,
+            "a": 32896,
+            "b": 13440
+          },
+          "assignment": 0,
+          "nativeFlags7f": null,
+          "oldLookupUsesRegisteredOwner": true
+        }
+      ],
+      "rng": {
+        "before": 2809595177,
+        "afterController": 2809595177,
+        "afterDispatch": 1027634337,
+        "afterTurn": 3436774650
+      },
+      "allFourSnapshotGuardsCompleted": true
+    }
+  ],
+  "fourthVisitRejection": {
+    "turn": 7649,
+    "where": "pre-controller snapshot",
+    "scope": "detached projection input",
+    "liveWorldByteGuard": "passed",
+    "beforeBytes": 1458021,
+    "afterBytes": 1459082,
+    "deepStrictEqualDeserializedValues": true,
+    "ordinaryObjectAliasKeyOrderMapSetOrderValueDifferences": 0,
+    "typedViews": 26,
+    "typedViewLayoutDifferences": 22,
+    "backingRelationshipPaths": [
+      "world.footprints.positions",
+      "world.footprints.totals"
+    ],
+    "originalBackingIdentityAndSemanticMutation": "unresolved; deserialization may use capture-buffer or aligned pooled backing"
+  },
+  "nativeLimits": [
+    "constructor routing0 is a separate source fact, not retained route+0x26/history proof",
+    "native visit-counter+0x08 and per-visit coordinate-selector cadence are unbound",
+    "member computerAssignment=0 and nativeFlags7f absent cannot prove native admitted tally or prelude exclusion",
+    "port candidate list order does not prove native full-world/tribe-chain composition",
+    "this is the live-entity replacement branch, not no-entity retry behavior",
+    "Mission1\u20133 impact and full parity remain unknown"
+  ],
+  "staticSource": "https://github.com/JohnDeved/populous-new-dawn/blob/48e026922b62a75d1b964a8292cccc3aa833bde1/decomp/research/raid-phase16-target-persistence.md"
+}

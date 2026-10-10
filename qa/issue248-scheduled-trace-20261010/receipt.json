@@ -1,0 +1,117 @@
+{
+  "command": [
+    "taskset",
+    "-c",
+    "4",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=5s",
+    "190s",
+    "node",
+    "--experimental-test-module-mocks",
+    "qa/issue248-scheduled-trace-20261010/observe.mjs"
+  ],
+  "sourceHead": "485ed5c3aeae59ae2756685786555c2bbfc75d13",
+  "status": "terminal",
+  "started": "2026-10-10T07:27:35.725737+00:00",
+  "ended": "2026-10-10T07:28:00.733818+00:00",
+  "exitCode": 1,
+  "outerDeadline": "2026-10-10T07:30:45.725737+00:00",
+  "killDeadline": "2026-10-10T07:30:50.725737+00:00",
+  "dependencyIdentityAfter": {
+    "device": 27,
+    "inode": 538212
+  },
+  "inputsUnchanged": true,
+  "trackedStatusAfter": "",
+  "appDiffAfter": "",
+  "cleanup": "Owned foreground child wait returned; no browser, server or detached worker launched",
+  "limits": {
+    "worlds": 1,
+    "turns": 22064,
+    "internalSeconds": 180,
+    "externalSeconds": 190,
+    "graceSeconds": 5,
+    "phase16Visits": 4,
+    "cpu": 4
+  },
+  "primaryArtifacts": {
+    "revised-command-receipt.json": {
+      "sha256": "78bdc4e24f5d946fd377f4a94037a271b1b63c1933deea3c2282ba0611700183",
+      "bytes": 2963,
+      "published": false
+    },
+    "revised-admission-source.json": {
+      "sha256": "d9dde5cf3b19837e7980ea895fe7729695faa5393a75514a62469d81b40d7065",
+      "bytes": 34446,
+      "published": false
+    },
+    "revised-admission-guards.json": {
+      "sha256": "4387ecd918d27cefb86d930727bf4b138a7d8cf4c8d82d11b109bf41071a3fdb",
+      "bytes": 1434,
+      "published": false
+    },
+    "revised-run.jsonl": {
+      "sha256": "dc7508cc7a271ec3fa57e90fcc3644b3225f66fd9a23ce696fed779b900de774",
+      "bytes": 823077,
+      "published": false
+    },
+    "revised-run.summary.json": {
+      "sha256": "f19b50b52f4bb7b62f4528db4a1a97b74488fe0529094cd1b1b04b2125538d41",
+      "bytes": 26911,
+      "published": false
+    },
+    "revised-stdout.log": {
+      "sha256": "a38cc7e289c76e81eea106b89526ae2d72f401b08176961ea41ac09c18bb7fbe",
+      "bytes": 26912,
+      "published": false
+    },
+    "revised-stderr.log": {
+      "sha256": "f47fff90f918b08d92170c0be85ea8f248e0795b4265a4168bc91e110ff24e30",
+      "bytes": 284,
+      "published": false
+    },
+    "revised-run.guard-before.bin": {
+      "sha256": "60a05b5d0f7d88ebd13f50bb67bd036557cef29bd213c101bf215195cf9c3786",
+      "bytes": 1458021,
+      "published": false
+    },
+    "revised-run.guard-after.bin": {
+      "sha256": "b0ab9ed3bf01c42e6478bfb675e6f19829aece01bcce95db832388c02f7d5905",
+      "bytes": 1459082,
+      "published": false
+    },
+    "revised-run.guard-data-review.json": {
+      "sha256": "92e0d26e473f359b12ca044b09f1f25258001f6c9a2fde35e6f3854ffc7e8551",
+      "bytes": 380,
+      "published": false
+    }
+  },
+  "bufferIndependentReviewSha256": "5d8fb96b94c5ba4d68bb288ab4402ac87422157b5b3f82702a3ef7aa88267eb7",
+  "publishedProjectionSha256": "74a442aa1c0f0bfe0f82f7304ac0678cb412c1e42aa3db5075a5407382cbd903",
+  "priorAttempts": [
+    {
+      "kind": "mission trace",
+      "head": "f957ea23a40ab5f29723ec5073d8f5173748d8a4",
+      "status": "FAILED",
+      "turn": 7637,
+      "acceptedPhase16Visits": 0,
+      "reason": "after-dispatch observation guard; exact changed fields not retained",
+      "receiptSha256": "a08abcbde2702346f2273e14a62653efaff94ce161906ff811677e4a5c6f52ba"
+    },
+    {
+      "kind": "controlled purity import",
+      "status": "FAILED",
+      "casesExecuted": 0,
+      "reason": "eight relative imports/source reads resolved outside repository",
+      "receiptSha256": "f3db03ee789c600454ccf9d4095fe1441f57ad0a7362f7429c6393359200c614"
+    },
+    {
+      "kind": "controlled purity repaired",
+      "status": "PASSED",
+      "casesPassed": 4,
+      "scope": "small supplied fixture and guard contract only; no mission or lost-field reproduction",
+      "receiptSha256": "c882f2221789e8c9a42a602f87c399653bcef3e99c17d03eef6033f15c43e753"
+    }
+  ]
+}
