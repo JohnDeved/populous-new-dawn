@@ -7,6 +7,7 @@ export function createTempleTrainingEpoch({
   session = controller?.session,
   epoch = 1,
   maxRecords = 8192,
+  trackInspection = false,
   doc = document,
 }) {
   if (!Number.isInteger(targetId) || !Number.isInteger(maxRecords) || maxRecords < 1)
@@ -151,6 +152,10 @@ export function createTempleTrainingEpoch({
             hold: record.hold,
           }
         : null,
+      inspection: {
+        selected: scene.objectPanels.buildingInspected,
+        held: scene.objectPanels.buildingHeldPointer,
+      },
       latch: scene.objectPanels.automaticTrainingLatches.has(targetId),
       reservations: world.secondaryEffects.reservations.filter(
         key => key === `building-panel:${targetId}`
@@ -215,6 +220,7 @@ export function createTempleTrainingEpoch({
               typeof result === 'string' || typeof result === 'boolean' || result === null
                 ? result
                 : null,
+            ...(kind === 'renew' ? { hovered: args[0] } : {}),
             ...(threw ? { error: String(failure?.stack ?? failure) } : {}),
           }
         push(row)
@@ -271,6 +277,7 @@ export function createTempleTrainingEpoch({
     restorers.push(() => doc.removeEventListener('pointermove', pointer, true))
     wrap(scene.objectPanels, 'requestAutomaticTraining', 'request', args => args[0] === targetId)
     wrap(scene.objectPanels, 'stepBuildingInspections', 'step')
+    if (trackInspection) wrap(scene.objectPanels, 'renewBuildingInspection', 'renew')
     wrap(scene.gameClock, 'afterTurn', 'turn')
     wrap(scene, 'dispose', 'dispose')
     initial = snapshot()
@@ -371,7 +378,7 @@ export function createTempleTrainingEpoch({
 }
 
 // Browser-local ownership; full saved Worlds live only inside checkpoint closures.
-export async function installTempleTrainingRuntime({ targetId }) {
+export async function installTempleTrainingRuntime({ targetId, trackInspection = false }) {
   const [
     { getTooltipController },
     { armBuildingSceneStart },
@@ -407,6 +414,7 @@ export async function installTempleTrainingRuntime({ targetId }) {
       targetId,
       controller,
       epoch: epochs.length + 1,
+      trackInspection: trackInspection && epochs.length === 0,
     })
     try {
       if (traineeId !== null) next.setTrainee(traineeId)
@@ -467,6 +475,7 @@ export async function installTempleTrainingRuntime({ targetId }) {
   }
   const api = {
     status: () => current().status(),
+    snapshot: () => current().snapshot(),
     readiness() {
       const w = store.getWorld(),
         people = w.units.filter(u => u.team === 'blue' && u.hp > 0)

@@ -1,4 +1,136 @@
 // Page-serializable observations. Live World, time and storage are never written.
+export function armTempleHomeFocus(shamanId) {
+  const scene = window.testSceneRef.current,
+    world = scene.world
+  if (window.finishTempleHomeFocus) throw Error('Home focus observer already installed')
+  const receipt = { events: [], calls: [], errors: [], restored: false },
+    restores = []
+  let active = null,
+    closed = false
+  const observe = fn => {
+    try {
+      return fn()
+    } catch (error) {
+      receipt.errors.push(String(error?.stack ?? error))
+    }
+  }
+  const snapshot = () => {
+    const state = window.m3TempleRoute.read()
+    return {
+      turn: state.turn,
+      selected: state.selected,
+      shaman: state.units.find(u => u.id === shamanId),
+      sceneMatches:
+        state.sceneMatches && window.testSceneRef.current === scene && scene.world === world,
+    }
+  }
+  const capture = event =>
+    observe(() => {
+      if (
+        closed ||
+        event.target?.closest?.('button')?.getAttribute('aria-label') !== 'Select brave'
+      )
+        return
+      if (receipt.events.length >= 1) throw Error('Home focus event cap exceeded')
+      active = {
+        type: event.type,
+        trusted: event.isTrusted,
+        button: event.button,
+        modifiers: ['ctrlKey', 'shiftKey', 'altKey', 'metaKey'].map(key => !!event[key]),
+        before: snapshot(),
+        calls: [],
+      }
+      receipt.events.push(active)
+    })
+  const bubble = () => {
+    observe(() => {
+      if (active) active.after = snapshot()
+    })
+    active = null
+  }
+  const finish = () => {
+    if (closed) throw Error('Home focus observation already exported')
+    closed = true
+    active = null
+    for (const restore of restores.reverse()) observe(restore)
+    observe(() => {
+      if (window.finishTempleHomeFocus === finish) delete window.finishTempleHomeFocus
+      else if (window.finishTempleHomeFocus) throw Error('Foreign home focus owner preserved')
+    })
+    receipt.restored = true
+    return receipt
+  }
+  try {
+    for (const name of ['chooseFollowers', 'focus']) {
+      const original = scene[name],
+        descriptor = Object.getOwnPropertyDescriptor(scene, name)
+      const wrapper = function (...args) {
+        let row
+        if (!closed)
+          observe(() => {
+            if (receipt.calls.length >= 4) throw Error('Home focus call cap exceeded')
+            const target = world.units.find(u => u.id === scene.hudFocus[2])
+            row = {
+              name,
+              receiverMatches: this === scene,
+              inEvent: !!active,
+              before: snapshot(),
+              args:
+                name === 'chooseFollowers'
+                  ? [args[0], { ctrlKey: !!args[1].ctrlKey, shiftKey: !!args[1].shiftKey }, args[2]]
+                  : structuredClone(args),
+              target:
+                name === 'focus' && target
+                  ? {
+                      id: target.id,
+                      kind: target.kind,
+                      team: target.team,
+                      hp: target.hp,
+                      x: target.x,
+                      z: target.z,
+                    }
+                  : null,
+            }
+            receipt.calls.push(row)
+            active?.calls.push(row)
+          })
+        try {
+          return Reflect.apply(original, this, args)
+        } catch (error) {
+          if (row) row.threw = String(error)
+          throw error
+        } finally {
+          if (row)
+            observe(() => {
+              row.after = snapshot()
+            })
+        }
+      }
+      scene[name] = wrapper
+      restores.push(() => {
+        if (scene[name] !== wrapper) throw Error(`${name} owner changed; preserved`)
+        if (descriptor) Object.defineProperty(scene, name, descriptor)
+        else delete scene[name]
+      })
+    }
+    for (const [listener, capturePhase] of [
+      [capture, true],
+      [bubble, false],
+    ]) {
+      restores.push(() => document.removeEventListener('contextmenu', listener, capturePhase))
+      document.addEventListener('contextmenu', listener, capturePhase)
+    }
+    window.finishTempleHomeFocus = finish
+  } catch (error) {
+    receipt.errors.push(String(error?.stack ?? error))
+    finish()
+    throw new AggregateError(
+      receipt.errors.map(message => Error(message)),
+      receipt.errors.join('\n')
+    )
+  }
+}
+
 export async function installTempleRouteObservation() {
   const [{ currentPersonOrder }, { buildingStage }, { campaignShamanReadiness }] =
     await Promise.all([

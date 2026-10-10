@@ -9,6 +9,7 @@ import { waitForCheckpointReadback } from '../checkpoint-readback.mjs'
 import {
   assertTempleTrainInput,
   assertTempleFreshRequest,
+  assertTempleReusedRequest,
   assertTempleLifecycle,
   assertTempleIdleReadiness,
   templeIdleReady,
@@ -63,8 +64,14 @@ export function assertTempleTrainingReadiness(r) {
 }
 
 // The unchanged public prefix closes its observer before this training-only epoch starts.
-export default async function templeTrainingAuto(context, continuation = null) {
+export default async function templeTrainingAuto(
+  context,
+  continuation = null,
+  inspectionSteps = null
+) {
   const { page, signal, output, receipt, observeCheckpoint } = context
+  const reservedTailMs = templeTrainingBounds.reservedTailMs + (inspectionSteps?.budgetMs ?? 0)
+  assert(Number.isFinite(reservedTailMs) && reservedTailMs <= 150000)
   const deadline =
     Date.parse(receipt.startedAt) + (continuation?.harnessMs ?? templeTrainingBounds.harnessMs)
   const prefix = continuation?.prefix ?? (await setupTemple(context))
@@ -72,13 +79,10 @@ export default async function templeTrainingAuto(context, continuation = null) {
   assert.equal(prefix.status, 'passed')
   assert.deepEqual(prefix.cleanupErrors, [])
   assert.equal(prefix.terminal.stats.trained, 0)
-  assert(
-    Date.now() + templeTrainingBounds.reservedTailMs < deadline,
-    'Setup left insufficient declared tail budget'
-  )
+  assert(Date.now() + reservedTailMs < deadline, 'Setup left insufficient declared tail budget')
   const report = {
     status: 'running',
-    bounds: templeTrainingBounds,
+    bounds: { ...templeTrainingBounds, reservedTailMs },
     source: receipt.source,
     setup: {
       file: setupFile,
@@ -98,7 +102,7 @@ export default async function templeTrainingAuto(context, continuation = null) {
     )
   const targetId = prefix.plan.id,
     shamanId = prefix.readiness.after.shaman.id
-  const tailDeadline = Math.min(deadline, Date.now() + templeTrainingBounds.reservedTailMs)
+  const tailDeadline = Math.min(deadline, Date.now() + reservedTailMs)
   const input = createMission1VaultInput({
     page,
     signal,
@@ -154,12 +158,12 @@ export default async function templeTrainingAuto(context, continuation = null) {
   }
   try {
     report.initial = await page.evaluate(
-      async ({ targetId }) => {
+      async ({ targetId, trackInspection }) => {
         const { installTempleTrainingRuntime } =
           await import('/scripts/local-render/temple-training-witness.mjs')
-        return installTempleTrainingRuntime({ targetId })
+        return installTempleTrainingRuntime({ targetId, trackInspection })
       },
-      { targetId }
+      { targetId, trackInspection: !!inspectionSteps }
     )
     installed = true
     save()
@@ -175,6 +179,24 @@ export default async function templeTrainingAuto(context, continuation = null) {
       readinessEnd
     )
     await clearSelection()
+    const inspectionContext = {
+      page,
+      input,
+      signal,
+      report,
+      save,
+      targetId,
+      shamanId,
+      target: prefix.plan,
+      deadlineAt: tailDeadline,
+    }
+    if (inspectionSteps) {
+      await inspectionSteps.idle(inspectionContext)
+      assert(templeIdleReady((await status()).current))
+    }
+    const trainingEnd = inspectionSteps
+      ? Date.now() + templeTrainingBounds.readinessMs
+      : readinessEnd
     await input.button('Select brave')
     await input.view(prefix.plan)
     report.readiness = baseline = await page.evaluate(() => window.templeTraining.readiness())
@@ -188,23 +210,41 @@ export default async function templeTrainingAuto(context, continuation = null) {
     report.hit = await input.entityPoint('buildings', targetId, 8)
     save()
     assert.equal(report.hit.rejection, null)
-    await page.evaluate(id => window.templeTraining.armInput(id), traineeId)
-    try {
-      report.dispatch = await input.dispatch(report.hit, 8, [traineeId])
-    } finally {
-      report.trainingInput = await page.evaluate(() => window.templeTraining.finishInput())
-      save()
+    const dispatch = async () => {
+      await page.evaluate(id => window.templeTraining.armInput(id), traineeId)
+      try {
+        report.dispatch = await input.dispatch(report.hit, 8, [traineeId])
+      } finally {
+        report.trainingInput = await page.evaluate(() => window.templeTraining.finishInput())
+        save()
+      }
+      report.recipient = assertTempleTrainInput(report.trainingInput, targetId, traineeId)
+      return report.dispatch
     }
-    report.recipient = assertTempleTrainInput(report.trainingInput, targetId, traineeId)
+    if (inspectionSteps)
+      report.manualTransition = await inspectionSteps.approach({
+        ...inspectionContext,
+        traineeId,
+        hit: report.hit,
+        dispatch,
+      })
+    else await dispatch()
     await page.mouse.move(20, 975)
     report.active = await wait(
       'actual-entry-and-four-held-visits',
       templeTrainingBounds.readinessMs,
       value => !!value.firstRequest && value.heldVisits >= 4,
-      readinessEnd
+      trainingEnd
     )
     save()
-    assertTempleFreshRequest(report.active.firstRequest, targetId, traineeId)
+    if (inspectionSteps)
+      assertTempleReusedRequest(
+        report.active.firstRequest,
+        targetId,
+        traineeId,
+        report.manualTransition
+      )
+    else assertTempleFreshRequest(report.active.firstRequest, targetId, traineeId)
     assert.equal(report.active.current.trained, baseline.trained)
     assert.equal(report.active.current.preachers.length, 0)
     assert(report.active.current.record?.automatic && report.active.current.offTarget)
@@ -332,6 +372,7 @@ export default async function templeTrainingAuto(context, continuation = null) {
           initialPreachers: baseline.preachers.map(p => p.id),
           initialTrained: baseline.trained,
           complete: index === 1,
+          manual: index === 0 ? report.manualTransition : null,
         })
       )
       for (const boundary of Object.values(report.observation.boundaries))

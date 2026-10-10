@@ -123,18 +123,42 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
   // pointer event moves the camera. No scene.focus/update/render call is made.
   const view = async target => {
     await settle()
-    const hit = await page.evaluate(async target => {
+    const observation = await page.evaluate(async target => {
       const scene = window.testSceneRef.current
       const { minimapPick } = await import('/app/minimap.ts')
       const { minimapInput } = await import('/qa/erosion-ordinary/minimap-input.mjs')
-      return minimapInput({ width: scene.mini.width, height: scene.mini.height,
-        rect: scene.mini.getBoundingClientRect(),
+      const rect = scene.mini.getBoundingClientRect()
+      const geometry = { width: scene.mini.width, height: scene.mini.height,
+        rect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
         center: { x: Math.round((scene.viewPoint.x + 8) * 256), y: Math.round((-scene.viewPoint.z - 8) * 256) },
         heading: Math.round(scene.cameraBearing * 1024 / Math.PI),
         target: { x: Math.round((target.x + 8) * 256), y: Math.round((-target.z - 8) * 256) },
-        maxDistance: 8 * 256 }, minimapPick,
-      point => document.elementFromPoint(point.x, point.y) === scene.mini)
+        maxDistance: 8 * 256 }
+      const diagnostics = { geometry, turn: scene.world.turn, projected: 0, ownershipChecks: 0,
+        ownershipRejected: 0, nearestProjected: null, nearestOwned: null }
+      const wrap = v => ((v + 32768) % 65536 + 65536) % 65536 - 32768
+      let candidate
+      const hit = minimapInput(geometry, (...args) => {
+        const native = minimapPick(...args), point = args[4]
+        candidate = { native, local: point,
+          distance: Math.hypot(wrap(native.x - geometry.target.x), wrap(native.y - geometry.target.y)) }
+        diagnostics.projected++
+        if (!diagnostics.nearestProjected || candidate.distance < diagnostics.nearestProjected.distance)
+          diagnostics.nearestProjected = candidate
+        return native
+      }, point => {
+        const owner = document.elementFromPoint(point.x, point.y), owned = owner === scene.mini
+        Object.assign(candidate, { point, owned, ownerTag: owner?.tagName ?? null,
+          ownerLabel: owner?.getAttribute?.('aria-label') ?? null })
+        diagnostics.ownershipChecks++
+        if (owned) diagnostics.nearestOwned = { ...candidate, point }
+        else diagnostics.ownershipRejected++
+        return owned
+      })
+      return { hit, diagnostics }
     }, target)
+    report.actions.push({ label: 'minimap-probe', ...observation }); save()
+    const { hit } = observation
     assert.ok(hit, 'No owned minimap input near the actual target')
     await action('minimap-view', () => page.mouse.click(hit.x, hit.y))
     await settle()
