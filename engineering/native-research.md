@@ -127,3 +127,23 @@ never upgrade an intercepted probe into proof of the complete original game path
 
 On the next related task, cite that note and investigate only remaining gaps. The
 parent can perform this entire flow directly when delegation adds no value.
+
+## Optional compact research views and finite claims
+
+Use the existing orchestration CLI to package retained evidence; no REA service,
+provider, runtime dependency, socket, or global configuration is needed. The local
+implementation is inspired by the offline REA 6.3.0 dossier/coverage experiment;
+it does not copy REA code or emit native REA snapshots. See
+[research evidence format and commands](research-evidence.md).
+
+A compact view retains all facts, inferences, unknowns, source IDs and locations,
+and omits only exact, source-verified pseudocode/assembly fields. Read raw evidence
+on demand and keep it available to the reviewer. Zero direct calls never proves
+that indirect callbacks are absent. A view is navigation, not an exhaustive proof.
+
+For a narrow handoff, declare the actual claim dimensions and authority. Browser
+owner observation does not establish original counter policy or matched doorway
+pixels. Required callbacks need their own required claims with passing evidence;
+inventory presence alone is insufficient. Missing, unknown, failing, stale, future,
+or incompatible latest results block the claim. Human review still owns whether
+the chosen sources, dimensions, dependencies and contract are adequate.
