@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
+import { spawnSync } from 'node:child_process'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import test from 'node:test'
 import { repositoryCheckCoverage } from '../scripts/orchestration/cli.mjs'
 
@@ -64,4 +67,102 @@ test('preflight stops on findings or unavailable tools rather than claiming a pa
   assert.equal(unavailable.status, 'blocked')
   assert.match(unavailable.results[0].error, /missing lane/)
   assert.throws(() => runPreflight(process.cwd(), ''), /Requires --base/)
+})
+
+function whitespaceFixture(t) {
+  const repo = mkdtempSync(join(tmpdir(), 'pnd-preflight-'))
+  t.after(() => rmSync(repo, { recursive: true, force: true }))
+  const git = (...args) => {
+    const result = spawnSync('git', args, { cwd: repo, encoding: 'utf8' })
+    assert.equal(result.status, 0, result.stderr)
+    return result.stdout.trim()
+  }
+  git('init', '-q')
+  git('config', 'user.name', 'Preflight test')
+  git('config', 'user.email', 'preflight@example.invalid')
+  git('config', 'core.whitespace', 'blank-at-eol,blank-at-eof,space-before-tab')
+  writeFileSync(join(repo, 'history.txt'), 'old trailing   \nkeep\n')
+  writeFileSync(join(repo, 'changed.txt'), 'clean\n')
+  git('add', '.')
+  git('commit', '-qm', 'base')
+  return { repo, git, base: git('rev-parse', 'HEAD') }
+}
+
+async function inspectWhitespace(repo, base) {
+  const { runPreflight } = await import('../scripts/orchestration/preflight.mjs')
+  const attempts = []
+  const result = runPreflight(repo, base, (command, args, options) => {
+    attempts.push([command, ...args])
+    // Exercise real Git; unrelated repository validators need the actual checkout.
+    return command === 'git'
+      ? spawnSync(command, args, { ...options, stdio: 'pipe', encoding: 'utf8' })
+      : { status: 0 }
+  })
+  return { ...result, attempts }
+}
+
+for (const source of ['branch', 'staged', 'unstaged', 'untracked']) {
+  test(`preflight catches ${source} whitespace before lint/tests without changing files`, async t => {
+    const { repo, git, base } = whitespaceFixture(t)
+    const path = source === 'untracked' ? '-new file.txt' : 'changed.txt'
+    writeFileSync(join(repo, path), 'clean\n    \n')
+    if (source === 'branch' || source === 'staged') git('add', '--', path)
+    if (source === 'branch') git('commit', '-qm', 'whitespace')
+    // An unstaged repair does not conceal index/branch defects.
+    if (source === 'branch' || source === 'staged') writeFileSync(join(repo, path), 'clean\n')
+    const before = readFileSync(join(repo, path))
+    const statusBefore = git('status', '--porcelain=v1')
+    const result = await inspectWhitespace(repo, base)
+    assert.equal(result.status, 'failed')
+    assert.equal(result.finalGate, false)
+    assert.ok(result.attempts.every(command => command[0] === 'git'))
+    const expected = { branch: 1, staged: 2, unstaged: 3, untracked: 4 }[source]
+    assert.equal(result.attempts.length, expected)
+    assert.deepEqual(readFileSync(join(repo, path)), before)
+    assert.equal(git('status', '--porcelain=v1'), statusBefore)
+  })
+}
+
+test('preflight allows clean changes, historical whitespace, deletions, binaries and local symlinks', async t => {
+  const { repo, git, base } = whitespaceFixture(t)
+  writeFileSync(join(repo, 'history.txt'), 'old trailing   \nkeep\nnew clean line\n')
+  rmSync(join(repo, 'changed.txt'))
+  writeFileSync(join(repo, 'binary.dat'), Buffer.from([0, 32, 32, 10]))
+  git('add', '.')
+  git('commit', '-qm', 'clean branch and deletion')
+  symlinkSync('history.txt', join(repo, 'tracked-link'))
+  git('add', 'tracked-link')
+  symlinkSync('history.txt', join(repo, 'untracked-link'))
+  writeFileSync(join(repo, 'untracked-binary.dat'), Buffer.from([0, 32, 32, 10]))
+  writeFileSync(join(repo, '-clean file.txt'), 'clean\n')
+  writeFileSync(join(repo, 'empty.txt'), '')
+  const result = await inspectWhitespace(repo, base)
+  assert.equal(result.status, 'passed')
+  assert.ok(!result.paths.includes('changed.txt'))
+  assert.equal(result.attempts.filter(command => command[0] === 'git').length, 6)
+  assert.ok(!result.attempts.some(command => command.includes('untracked-link')))
+  assert.deepEqual(result.attempts.at(-1),
+    ['node', '--test', '--test-name-pattern=context', 'tests/orchestration.test.mjs'])
+})
+
+test('preflight retains path safety and rejects an invalid base before executing commands', async t => {
+  const { repo, base } = whitespaceFixture(t)
+  const { runPreflight } = await import('../scripts/orchestration/preflight.mjs')
+  let calls = 0
+  const execute = () => { calls++; return { status: 0 } }
+  assert.throws(() => runPreflight(repo, 'missing-base', execute), /Base ref is not a commit/)
+  symlinkSync(tmpdir(), join(repo, 'outside-link'))
+  assert.throws(() => runPreflight(repo, base, execute), /outside repository/)
+  assert.equal(calls, 0)
+})
+
+test('preflight whitespace checks work in an isolated linked worktree', async t => {
+  const { repo, git, base } = whitespaceFixture(t)
+  const worktree = join(repo, 'linked')
+  git('worktree', 'add', '--detach', worktree, base)
+  writeFileSync(join(worktree, 'changed.txt'), 'new trailing   \n')
+  const result = await inspectWhitespace(worktree, base)
+  assert.equal(result.status, 'failed')
+  assert.equal(result.attempts.length, 3)
+  assert.equal(readFileSync(join(repo, 'changed.txt'), 'utf8'), 'clean\n')
 })
