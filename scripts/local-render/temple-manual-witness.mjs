@@ -6,7 +6,7 @@ export const templeManualBounds = Object.freeze({
   rows: 2048,
   exportBytes: 8 * 1024 * 1024,
 })
-const require = (condition, message) => {
+const ensure = (condition, message) => {
   if (!condition) throw Error(message)
 }
 const released = s => !s.record && !s.latch && s.reservations === 0 && !s.dom.present
@@ -21,10 +21,11 @@ export function createTempleManualObservation({
   pointerObserver = observeEntityPointer,
   maxRows = templeManualBounds.rows,
 }) {
-  require(['expiry', 'approach'].includes(mode), 'Finite Temple manual segment required')
-  require(Number.isInteger(maxRows) &&
-    maxRows > 0 &&
-    maxRows <= templeManualBounds.rows, 'Finite manual row bound required')
+  ensure(['expiry', 'approach'].includes(mode), 'Finite Temple manual segment required')
+  ensure(
+    Number.isInteger(maxRows) && maxRows > 0 && maxRows <= templeManualBounds.rows,
+    'Finite manual row bound required'
+  )
   const targetId = snapshot().target.id,
     controller = scene.tooltipController,
     rows = [],
@@ -99,98 +100,125 @@ export function createTempleManualObservation({
     detach()
   }
   const push = row => {
-    require(rows.length < maxRows, 'Temple manual row cap exceeded')
+    ensure(rows.length < maxRows, 'Temple manual row cap exceeded')
     const next = { ordinal: rows.length + 1, ...row }
     const bytes = new TextEncoder().encode(JSON.stringify(next)).byteLength
-    require(rowBytes + bytes <=
-      templeManualBounds.exportBytes / 2, 'Temple manual row byte cap exceeded')
+    ensure(
+      rowBytes + bytes <= templeManualBounds.exportBytes / 2,
+      'Temple manual row byte cap exceeded'
+    )
     rowBytes += bytes
     rows.push(next)
     return next
   }
   const validateInput = () => {
     finishInput()
-    require(input?.restored && !input.errors.length, 'Manual pointer observation must restore')
-    require(input.events.length === 2, 'Exactly one manual right-down/right-up pair required')
+    ensure(input?.restored && !input.errors.length, 'Manual pointer observation must restore')
+    ensure(input.events.length === 2, 'Exactly one manual right-down/right-up pair required')
     const down = input.events[0],
       picks = down.picks.filter(
         pick => pick.owner === 'scene' && ['pickUnit', 'pickWorldObject'].includes(pick.name)
       )
-    require(picks.length === 2 &&
-      picks[0].name === 'pickUnit' &&
-      picks[0].id === null &&
-      picks[1].name === 'pickWorldObject' &&
-      picks[1].id === targetId, 'Actual right-down must miss a person and pick this Temple')
+    ensure(
+      picks.length === 2 &&
+        picks[0].name === 'pickUnit' &&
+        picks[0].id === null &&
+        picks[1].name === 'pickWorldObject' &&
+        picks[1].id === targetId,
+      'Actual right-down must miss a person and pick this Temple'
+    )
     for (const pick of picks)
-      require(pick.receiverMatches &&
-        !pick.threw &&
-        JSON.stringify(pick.args) ===
-          JSON.stringify(down.args), 'Actual right-down picker receiver or input changed')
+      ensure(
+        pick.receiverMatches &&
+          !pick.threw &&
+          JSON.stringify(pick.args) === JSON.stringify(down.args),
+        'Actual right-down picker receiver or input changed'
+      )
     const inspected = mode === 'expiry' ? reuse : creation
-    require(inspected &&
-      inspected.args[2] === inspected.after.inspection.held &&
-      release?.args[0] ===
-        inspected.args[2], 'Actual controller press and release pointer must match')
+    ensure(
+      inspected &&
+        inspected.args[2] === inspected.after.inspection.held &&
+        release?.args[0] === inspected.args[2],
+      'Actual controller press and release pointer must match'
+    )
     for (const [index, event] of input.events.entries()) {
-      require(event.type === ['pointerdown', 'pointerup'][index], 'Manual pointer order mismatch')
-      require(event.trusted &&
-        event.canvasTarget &&
-        event.canvasOwned &&
-        event.button === 2, 'Trusted owned canvas right-button input required')
-      require(['ctrlKey', 'shiftKey', 'altKey', 'metaKey'].every(
-        key => !event.args[key]
-      ), 'Unmodified manual input required')
+      ensure(event.type === ['pointerdown', 'pointerup'][index], 'Manual pointer order mismatch')
+      ensure(
+        event.trusted && event.canvasTarget && event.canvasOwned && event.button === 2,
+        'Trusted owned canvas right-button input required'
+      )
+      ensure(
+        ['ctrlKey', 'shiftKey', 'altKey', 'metaKey'].every(key => !event.args[key]),
+        'Unmodified manual input required'
+      )
     }
   }
   const complete = (kind, after) => {
-    require(!errors.length && !closed, 'Manual endpoint cannot complete after an error')
-    require(after.current &&
-      after.level === 3 &&
-      after.speed === 1 &&
-      !after.paused &&
-      after.status === 'playing' &&
-      after.shamanAlive &&
-      !after.inputMask &&
-      after.target?.id === targetId &&
-      after.target.identity === initial.target.identity &&
-      after.target.hp > 0 &&
-      after.target.progress >= 1, 'Current living Temple and uninterrupted ordinary game required')
-    require(creation &&
-      creation.after.record.hold === 16, 'Actual fresh manual allocation required')
-    require(creation.after.record.automatic === false, 'Creation must precede automatic ownership')
-    require(creation.before.record === null &&
-      creation.after.record.phase === -1 &&
-      creation.after.record.remaining ===
-        0, 'Fresh manual allocation must be captured before the creating controller step')
+    ensure(!errors.length && !closed, 'Manual endpoint cannot complete after an error')
+    ensure(
+      after.current &&
+        after.level === 3 &&
+        after.speed === 1 &&
+        !after.paused &&
+        after.status === 'playing' &&
+        after.shamanAlive &&
+        !after.inputMask &&
+        after.target?.id === targetId &&
+        after.target.identity === initial.target.identity &&
+        after.target.hp > 0 &&
+        after.target.progress >= 1,
+      'Current living Temple and uninterrupted ordinary game required'
+    )
+    ensure(creation && creation.after.record.hold === 16, 'Actual fresh manual allocation required')
+    ensure(creation.after.record.automatic === false, 'Creation must precede automatic ownership')
+    ensure(
+      creation.before.record === null &&
+        creation.after.record.phase === -1 &&
+        creation.after.record.remaining === 0,
+      'Fresh manual allocation must be captured before the creating controller step'
+    )
     validateInput()
     if (kind === 'expiry') {
-      require(firstDisplay && firstFrame, 'Genuine first name display and rendered frame required')
-      require(reuse &&
-        reuse.after.record.identity ===
-          creation.after.record.identity, 'Same manual record reuse required')
-      require(release && heldVisits >= 4, 'Held renewal and actual matching release required')
-      require(released(after), 'Complete manual retirement endpoint required')
-      require(after.target.builders.every(id => !id) &&
-        !after.target.workers.length &&
-        !after.target.admission.inside &&
-        after.target.admission.occupants.every(id => !id) &&
-        !after.target.admission.queueHead &&
-        !after.target.admission.queueFrom &&
-        !after.target.admission.entering, 'Empty Temple endpoint required')
-      require(!(after.target.admission.activity & 128) &&
-        !after.trained, 'Idle manual segment started training')
+      ensure(firstDisplay && firstFrame, 'Genuine first name display and rendered frame required')
+      ensure(
+        reuse && reuse.after.record.identity === creation.after.record.identity,
+        'Same manual record reuse required'
+      )
+      ensure(release && heldVisits >= 4, 'Held renewal and actual matching release required')
+      ensure(released(after), 'Complete manual retirement endpoint required')
+      ensure(
+        after.target.builders.every(id => !id) &&
+          !after.target.workers.length &&
+          !after.target.admission.inside &&
+          after.target.admission.occupants.every(id => !id) &&
+          !after.target.admission.queueHead &&
+          !after.target.admission.queueFrom &&
+          !after.target.admission.entering,
+        'Empty Temple endpoint required'
+      )
+      ensure(
+        !(after.target.admission.activity & 128) && !after.trained,
+        'Idle manual segment started training'
+      )
     } else {
-      require(request && request.result === 'automatic:reused', 'Actual automatic reuse required')
-      require(request.before.record?.identity ===
-        creation.after.record.identity, 'Automatic producer replaced manual identity')
-      require(request.before.record.automatic === false &&
-        request.after.record.automatic, 'Actual manual-to-automatic transition required')
+      ensure(request && request.result === 'automatic:reused', 'Actual automatic reuse required')
+      ensure(
+        request.before.record?.identity === creation.after.record.identity,
+        'Automatic producer replaced manual identity'
+      )
+      ensure(
+        request.before.record.automatic === false && request.after.record.automatic,
+        'Actual manual-to-automatic transition required'
+      )
       for (const key of ['identity', 'phase', 'remaining', 'hold'])
-        require(request.after.record[key] ===
-          request.before.record[key], `Automatic reuse reset ${key}`)
-      require(!request.before.latch &&
-        request.after.latch &&
-        request.after.reservations === 1, 'Automatic successful-request ownership required')
+        ensure(
+          request.after.record[key] === request.before.record[key],
+          `Automatic reuse reset ${key}`
+        )
+      ensure(
+        !request.before.latch && request.after.latch && request.after.reservations === 1,
+        'Automatic successful-request ownership required'
+      )
     }
     terminal = after
     terminalKind = kind
@@ -200,7 +228,7 @@ export function createTempleManualObservation({
   const wrap = (owner, key, kind, relevant = () => true) => {
     const descriptor = Object.getOwnPropertyDescriptor(owner, key),
       original = owner[key]
-    require(typeof original === 'function', `Missing actual manual caller ${key}`)
+    ensure(typeof original === 'function', `Missing actual manual caller ${key}`)
     function replacement(...args) {
       const observe = !closed && relevant(args)
       let before
@@ -253,7 +281,7 @@ export function createTempleManualObservation({
           }
           if (kind === 'request') {
             request ??= row
-            require(mode === 'approach', 'Automatic activity interrupted idle manual segment')
+            ensure(mode === 'approach', 'Automatic activity interrupted idle manual segment')
             complete('approach', after)
           }
           if (
@@ -265,7 +293,7 @@ export function createTempleManualObservation({
             !after.name.hidden
           ) {
             const canvas = scene.buildingPanels.get(targetId)?.querySelector('canvas')
-            require(canvas, 'Manual panel canvas missing')
+            ensure(canvas, 'Manual panel canvas missing')
             firstFrame = { snapshot: after, panel: canvas.toDataURL('image/png') }
           }
         } catch (failure) {
@@ -275,7 +303,7 @@ export function createTempleManualObservation({
     }
     owner[key] = replacement
     restorers.push(() => {
-      require(owner[key] === replacement, `Foreign replacement of manual ${key}; preserved`)
+      ensure(owner[key] === replacement, `Foreign replacement of manual ${key}; preserved`)
       if (descriptor) Object.defineProperty(owner, key, descriptor)
       else delete owner[key]
     })
@@ -296,7 +324,7 @@ export function createTempleManualObservation({
   }
   return {
     armInput() {
-      require(!closed && !pointer && !input, 'One owned manual pointer pair required')
+      ensure(!closed && !pointer && !input, 'One owned manual pointer pair required')
       pointer = pointerObserver(scene, doc, { id: targetId, collection: 'buildings' })
     },
     finishInput,
@@ -322,7 +350,7 @@ export function createTempleManualObservation({
       }
     },
     take() {
-      require(!taken, 'Manual evidence may be exported only once')
+      ensure(!taken, 'Manual evidence may be exported only once')
       taken = true
       if (!closed) {
         terminal = read()
@@ -346,8 +374,11 @@ export function createTempleManualObservation({
         input,
         rows,
       }
-      require(new TextEncoder().encode(JSON.stringify(result)).byteLength <=
-        templeManualBounds.exportBytes, 'Manual evidence export exceeds byte cap')
+      ensure(
+        new TextEncoder().encode(JSON.stringify(result)).byteLength <=
+          templeManualBounds.exportBytes,
+        'Manual evidence export exceeds byte cap'
+      )
       return result
     },
   }
