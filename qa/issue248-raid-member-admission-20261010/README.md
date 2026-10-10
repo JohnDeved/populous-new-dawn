@@ -7,7 +7,7 @@ not a product fix or a merge-ready change.
 
 The [accepted original-game contract](https://github.com/JohnDeved/populous-new-dawn/blob/15470e43c06cebb5bc03db4707b449a6e69f9c1b/decomp/research/raid-phase16-target-persistence.md)
 identifies the phase3 completion admission writer and phase23 matching-owner
-release. The [test source review](test-source-review.md), [proposal](proposal.md),
+release. The [test source review](test-source-review.md), [result review](test-result-review.md), [proposal](proposal.md),
 [preflight hashes](preflight.json) and [receipt projection](receipt.json) bound this
 run to those operations. Production remains byte-identical to
 `4754e12d3590bde18656416514871b033de164be`.
