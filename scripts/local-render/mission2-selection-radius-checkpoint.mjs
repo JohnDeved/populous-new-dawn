@@ -25,12 +25,17 @@ export const radiusCheckpointBounds = Object.freeze({
   killGraceMs: 15000,
   committedMs: 10000,
   resumeMs: 15000,
+  maximumTurn: 2048,
   attempts: 1,
 })
 
 function assertSnapshot(snapshot) {
   assert.equal(snapshot.level, 2)
   assert.ok(snapshot.turn > 0, 'At least one ordinary object turn must complete')
+  assert.ok(
+    snapshot.turn <= radiusCheckpointBounds.maximumTurn,
+    'Startup storage observation exceeded its turn cap'
+  )
   assert.equal(snapshot.tribe, 3)
   assert.equal(snapshot.aiAlias, true)
   assert.ok(Number.isInteger(snapshot.radius) && snapshot.radius >= 0 && snapshot.radius <= 255)
@@ -267,6 +272,7 @@ export default async function ({ page, output, receipt, openMission, observeChec
       paused: window.testStore.getWorld().paused,
     }))
     assert.equal(report.resumed.paused, true)
+    assert.ok(report.resumed.turn <= radiusCheckpointBounds.maximumTurn)
     await page.screenshot({ path: resolve(output, 'radius-loaded-paused.png'), ...options() })
     report.profileLoad = await observeCheckpoint('M2 selection-radius ownership after Load')
     assert.equal(report.profileLoad.checkpoint.checkpointSha256, report.committed.checkpointSha256)
