@@ -364,7 +364,8 @@ test('actual idle host step composes with maintained input and the observed Scen
       const text = fn.toString()
       // Only minimap projection and rendered interior search are supplied. The
       // real host caller, input admission, observer, Scene and dispatch run.
-      if (text.includes('minimapPick')) return { x: 1, y: 1 }
+      if (text.includes('minimapPick'))
+        return { hit: { x: 1, y: 1 }, diagnostics: { supplied: true } }
       if (text.includes('findEntityInput')) {
         assert.equal(scene.picking.pick(f.point), temple.id)
         return {

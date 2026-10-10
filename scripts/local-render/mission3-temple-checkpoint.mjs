@@ -12,7 +12,84 @@ import {
   readTemplePresentation,
   armTempleSave,
   readCommittedTempleSummary,
+  armTempleHomeFocus,
 } from './mission3-temple-witness.mjs'
+
+export function assertTempleHomeFocus(evidence, shamanId) {
+  assert.deepEqual(evidence.errors, [])
+  assert.equal(evidence.restored, true)
+  assert.equal(evidence.events.length, 1)
+  const event = evidence.events[0]
+  assert.equal(event.type, 'contextmenu')
+  assert.equal(event.trusted, true)
+  assert.equal(event.button, 2)
+  assert.deepEqual(event.modifiers, [false, false, false, false])
+  assert.equal(event.before.shaman?.id, shamanId)
+  assert.deepEqual(
+    evidence.calls.map(row => row.name),
+    ['chooseFollowers', 'focus']
+  )
+  assert.deepEqual(event.calls, evidence.calls)
+  assert.deepEqual(evidence.calls[0].args, [2, { ctrlKey: false, shiftKey: false }, true])
+  const focus = evidence.calls[1],
+    target = focus.target
+  assert.equal(target?.kind, 'brave')
+  assert.equal(target.team, 'blue')
+  assert(target.hp > 0)
+  assert(Number.isInteger(target.id) && target.id > 0 && target.id !== shamanId)
+  assert.deepEqual(focus.args, [{ x: target.x, z: target.z }, { animate: true }])
+  for (const row of evidence.calls) {
+    assert.equal(row.receiverMatches, true)
+    assert.equal(row.inEvent, true)
+    assert.equal(row.threw, undefined)
+  }
+  for (const sample of [
+    event.before,
+    event.after,
+    ...evidence.calls.flatMap(row => [row.before, row.after]),
+  ]) {
+    assert.equal(sample.sceneMatches, true)
+    assert.equal(sample.turn, event.before.turn)
+    assert.deepEqual(sample.selected, [shamanId])
+    assert.deepEqual(
+      sample.shaman,
+      event.before.shaman,
+      'Focus must preserve the Shaman and its synchronous order'
+    )
+  }
+}
+
+export async function focusTempleHome({ page, input, report, save, shamanId }) {
+  await page.evaluate(armTempleHomeFocus, shamanId)
+  let failure,
+    failed = false
+  report.homeFocusCleanupErrors = []
+  try {
+    await input.action('focus-home-Brave', () =>
+      page
+        .getByRole('button', { name: 'Select brave', exact: true })
+        .click({ button: 'right', timeout: 5000 })
+    )
+  } catch (error) {
+    failed = true
+    failure = error
+    report.homeFocusFailure = String(error?.stack ?? error)
+  } finally {
+    try {
+      report.homeFocus = await page.evaluate(() => window.finishTempleHomeFocus())
+    } catch (error) {
+      report.homeFocusCleanupErrors.push(String(error?.stack ?? error))
+    }
+    try {
+      save()
+    } catch (error) {
+      report.homeFocusCleanupErrors.push(String(error?.stack ?? error))
+    }
+  }
+  if (failed) throw failure
+  assert.deepEqual(report.homeFocusCleanupErrors, [])
+  assertTempleHomeFocus(report.homeFocus, shamanId)
+}
 
 export function assertTempleRouteHealth(state, shamanId, errors = []) {
   assert.deepEqual(errors, [])
@@ -300,6 +377,7 @@ export default async function mission3TempleCheckpoint(
     )
     await clear()
     await input.button('Select and focus shaman')
+    await focusTempleHome({ page, input, report, save, shamanId })
     await input.view({ x: 35, z: 70 })
     const movement = await input.moveGround({ x: 35, z: 70 })
     report.home = movement
