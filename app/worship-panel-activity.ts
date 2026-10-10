@@ -7,6 +7,7 @@ type AutomaticWorshipHead = Pick<
 
 // Shrine is the browser's combined Vault body/trigger. Its active flag records
 // finite trigger retirement; enabled is only the refill/sampling gate.
+// Nonzero model is its live-body adapter, not native class2/model18 pool identity.
 export function automaticVaultPanelActive(
   head: Pick<Shrine, 'kind' | 'mode' | 'model' | 'active' | 'followers'>
 ) {

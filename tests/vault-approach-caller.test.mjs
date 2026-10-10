@@ -300,12 +300,21 @@ test('Vault allocation rejects full shared capacity without a latch and reuses t
   const panels = scene.objectPanels
   // Supplied consumer capacity/lifecycle boundary, separate from ordinary play.
   vault.followers = 1
+  const identity = { kind: vault.kind, mode: vault.mode, model: vault.model, active: vault.active, followers: vault.followers }
+  for (const invalid of [{ kind: 'bridge' }, { mode: 0 }, { model: 0 }, { active: false }, { followers: 256 }]) {
+    Object.assign(vault, invalid)
+    assert.equal(panels.requestAutomaticVault(vault.id), 'automatic:rejected')
+    assert.equal(panels.automaticVaultLatches.has(vault.id), false)
+    Object.assign(vault, identity)
+  }
   for (let id = 100000; id < 100032; id++) panels.buildingRecords.set(id, {})
   assert.equal(panels.requestAutomaticVault(vault.id), 'automatic:rejected-capacity')
   assert.equal(panels.automaticVaultLatches.has(vault.id), false)
   assert.equal(panels.panels.has(vault.id), false)
   assert.equal(reservationCount(world, vault.id), 0)
   panels.buildingRecords.clear()
+  const { syncSecondaryReservations } = await import('../app/scene-secondary-effects.ts')
+  syncSecondaryReservations(scene)
   const { allocateSecondaryEffect, releaseSecondaryEffect } = await import('../app/secondary-effects.ts')
   while (world.secondaryEffects.order.length < 160)
     assert.notEqual(allocateSecondaryEffect(world.secondaryEffects, { kind: 'orderMarker', effect: -1, counter: 0 }), null)
@@ -384,6 +393,9 @@ test('Vault Save/Load and replacement Scene rebuild only on the next live reques
   assert.equal(restored.scene.objectPanels.panels.size, 0, 'saved positive count cannot open during paint')
   until(restored.world, 'loaded live request', () => restored.scene.objectPanels.panels.has(restored.vault.id))
   const replacement = await vaultSceneFixture(t, restored.world)
+  replacement.scene.presentationBinding = store.bindPresentation(restored.world)
+  assert.equal(restored.scene.isCurrent(), false)
+  assert.equal(restored.scene.objectPanels.requestAutomaticVault(restored.vault.id), 'automatic:rejected')
   until(restored.world, 'replacement live request', () => replacement.scene.objectPanels.panels.has(restored.vault.id))
   restored.scene.dispose()
   current.scene.dispose()
@@ -396,4 +408,55 @@ test('Vault Save/Load and replacement Scene rebuild only on the next live reques
   for (let turns = 0; turns < 4; turns++) tick(restored.world, 1 / 12)
   assert.equal(replacement.scene.objectPanels.panels.size, 0, 'headless requests cannot recreate a disposed owner')
   t.diagnostic('Controlled in-session Save/Load; committed IndexedDB and fresh-page evidence belong to browser QA.')
+})
+
+test('Vault sampler rejects invalid local task owners and requests the sampled linked body rather than the order target', t => {
+  const base = createWorld(3)
+  finishLevelStart(base)
+  select(base, 'shaman')
+  assert.equal(command(base, base.shrines.find(shrine => shrine.kind === 'vault')), true)
+  while ((base.turn + 1) & 3) tick(base, 1 / 12)
+  // Supplied negative boundaries after real task admission. Each next actual
+  // sampler runs at the same ordinary approach turn; no arrival/work injection.
+  for (const [label, invalidate] of [
+    ['nonlocal native tribe', (_world, shaman) => { shaman.native.tribe = 1 }],
+    ['wrong state', (_world, shaman) => { shaman.native.state = 9 }],
+    ['wrong command', (_world, shaman) => { shaman.native.commandStatus = 34 }],
+    ['different object-cell owner', (world, shaman) => { world.objectCells.objects.set(shaman.id, { ...shaman.native }) }],
+    ['missing modeled body', (_world, _shaman, vault) => { vault.model = 0 }],
+    ['inactive finite trigger', (_world, _shaman, vault) => { vault.active = false }],
+    ['disabled sampler', (_world, _shaman, vault) => { vault.enabled = false }],
+  ]) {
+    const world = structuredClone(base)
+    const shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman')
+    const vault = world.shrines.find(shrine => shrine.kind === 'vault')
+    const requests = []
+    const release = bindTrainingPanelRequests(world, {
+      requestAutomaticTraining() {},
+      requestAutomaticVault(id) { requests.push(id) },
+    })
+    invalidate(world, shaman, vault)
+    tick(world, 1 / 12)
+    assert.deepEqual(requests, [], label)
+    release()
+  }
+
+  const world = structuredClone(base)
+  const shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman')
+  const vault = world.shrines.find(shrine => shrine.kind === 'vault')
+  // Explicit supplied second linked-body seam, not an authored second M3 Vault
+  // or proof of the original separate class2/model18 physical object identity.
+  const second = { ...structuredClone(vault), id: world.nextId++, x: vault.x + 64 }
+  world.shrines.push(second)
+  const requests = []
+  const release = bindTrainingPanelRequests(world, {
+    requestAutomaticTraining() {},
+    requestAutomaticVault(id) { requests.push(id) },
+  })
+  t.after(release)
+  tick(world, 1 / 12)
+  assert.equal(currentPersonOrder(world.buildingOrders, shaman.native).a, vault.id)
+  assert.deepEqual(requests, [vault.id, second.id])
+  assert.equal(vault.followers, 0)
+  assert.equal(second.followers, 0)
 })
