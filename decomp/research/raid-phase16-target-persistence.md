@@ -119,3 +119,21 @@ The successful assist reaches shared payload preparation `00438730`, order relea
 Task `+0x08` increments after the prelude, before dispatch; phase0 resets it. The coordinate-selector cadence uses this incremented native visit counter. Current port `elapsed` is not evidence of that counter. The phase16 collector/tally snapshot must therefore be after the prelude and increment, while the resolved entity pointer comes from before the prelude.
 
 The existing first Mission6 Chumara script has routing token1078 and target token1071. Its decoded native constructor consequently writes routing0 without the Shaman override. This is a source-derived constructor fact, not a retained route byte or complete-history observation. Current port `task.mode` corresponds to marker byte `+0x23`, and the task retains no direct `+0x26` or native visit-counter projection. Keep those missing captured fields unknown; do not substitute zero. Assigned-person/special-flag ownership, exact lists, native cadence and prelude exclusion/composition remain admission gaps. Mission1–3 mixed-phase16 reachability remains unestablished.
+
+## Member admission and release supplement
+
+The [accepted membership extension](../../references/verification/raid-member-lifetime-2026-10-10/README.md) resolves the missing native assignment producer at source `4754e12d3590bde18656416514871b033de164be`. Its [manifest](../../references/verification/raid-member-lifetime-2026-10-10/provenance.json) and [independent verdict](../../references/verification/raid-member-lifetime-2026-10-10/independent-review.md) preserve exact hashes and audit links. This establishes a bounded source mismatch and justifies an actual-caller failing regression; no runtime repair is accepted by that finding.
+
+Ordinary phase3 first completes quota/fallback selection and requires cursor7 plus nonzero selected WORD `+0x0c`. Its completion loop at `004cb7d0–004cb807` then admits every tribe-chain person currently in state14 through `004f2440(person, slot+1)`, independent of returned IDs, previous assignment, model, deletion or special flags. Zero selected count skips admission. A selected person blocked from becoming state14 is not admitted merely because its ID was returned. The helper writes assignment `+0xaf` and clears only `+0x7f` bit0; the caller optionally ORs person `+0x14` mask0x2000 from task `+0x31` bit0, preserving an existing mask when that task bit is clear. Task bit1 can select phase7 instead of4.
+
+Selection-lock release does not release person assignment. Initial phase15 dispatch consumes the earlier assignment; phase16 retains its separate ordinary-tally and explicit mid-task release behavior. Phase23 calls `004f2520(tribe, slot+1)` before task cleanup/freeing, clearing only matching person assignments and the two documented masks while retaining people reassigned elsewhere. The port's phase3 completion omits the native full-chain write after its state14 actions; phase23/direct retirement also omit matched-person-field cleanup. An unconditional write on each selection or order dispatch is therefore insufficient.
+
+Five runtime requirements remain open:
+
+1. Represent or explicitly bound task `+0x31` producer/phase behavior.
+2. Preserve unknown `+0x7f` upper bits; clearing bit0 is not recovery of a zero byte.
+3. Reconcile person ownership, `task.members`, reassignment and every retirement exit.
+4. Distinguish retained registered-owner transfer from fresh-owner replacement and stale native pointers.
+5. Separate new checkpoint continuity from migration of legacy zero-valued raid owners.
+
+Historical phase6 fixtures and their deliberate raw-zero/array-admission boundary remain unchanged. The later diagnostic is still overall **FAILED**, with only dispatch7637 and fully guarded visits7640/7643/7646 accepted; this writer finding does not upgrade that prefix to native admission proof. The existing route/counter/prelude/world-list and shared cleanup limits still apply. No Mission1–3 impact or gameplay/parity credit is claimed.

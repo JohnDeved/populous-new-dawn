@@ -1,0 +1,362 @@
+{
+  "scope": "Compact source-only projection of the accepted issue248 controller membership lifetime; no runtime/tests, world dumps, binaries, archives, or native/browser equivalence claim.",
+  "source_commit": "4754e12d3590bde18656416514871b033de164be",
+  "previous_evidence_commit": "48e026922b62a75d1b964a8292cccc3aa833bde1",
+  "executable": {
+    "name": "d3dpoptb.exe",
+    "bytes": 2275840,
+    "sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "included": false
+  },
+  "tool": {
+    "name": "GNU objdump",
+    "version": "GNU objdump (GNU Binutils for Debian) 2.44",
+    "sha256": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+    "operation": "data-only -d -M intel with bounded address ranges"
+  },
+  "retained_local_packet": {
+    "artifact_reads": 46,
+    "registered_exports": 26,
+    "reused_inputs": 10,
+    "inventory_entries": 48,
+    "findings_sha256": "01d618aebc971d04688e60c560f4e0f91535ab338e1f445e1825146a18f60cbe",
+    "provenance_sha256": "831f6d51770c996487a38a6a4ecbabb7e1022aee6a8a792022ddc9252b4b91c2",
+    "inventory_sha256": "de63abf4b5a7a5ab5e721ce3176bb5ce34bf46323b653cdc66b0a40accb9ca1f",
+    "included": false
+  },
+  "independent_review": {
+    "path": "independent-review.md",
+    "sha256": "86a050ce922167808cb566ffedc8de1c00c08a50b5b64e181b6e6832f6078854",
+    "verdict": "ACCEPT finite source contract; not acceptance of a runtime byte-write patch or future publication diff."
+  },
+  "source_inputs": [
+    {
+      "path": "app/computer-runtime.ts",
+      "sha256": "96b148458340f9803c5342c605a0294b615a03d7e06276185bf212bf0ce17ea8",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/app/computer-runtime.ts"
+    },
+    {
+      "path": "app/computer.ts",
+      "sha256": "d35abab3a7adb5e6a6092dcba96921180d33b91b42c1b182bec48b4a7d958f2d",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/app/computer.ts"
+    },
+    {
+      "path": "app/live-people.ts",
+      "sha256": "2ff72ddb1fd4448b5afc8bde03fc50ce625eb75768f184c746988609aa86527b",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/app/live-people.ts"
+    },
+    {
+      "path": "app/live-movement.ts",
+      "sha256": "9baf56d21547beebeb063e99de94502303a2de15391caf360b03621e8bee488f",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/app/live-movement.ts"
+    },
+    {
+      "path": "app/person-state.ts",
+      "sha256": "da771659e4da644ce0aa7eb6a988907888a9971e77745e3afeb95215f983cc17",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/app/person-state.ts"
+    },
+    {
+      "path": "app/computer-selection.ts",
+      "sha256": "ec5835a2285376120c23bb9c12a25cc14b82512157e192cb144f012f936074cd",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/app/computer-selection.ts"
+    },
+    {
+      "path": "tests/raid-phase6-settlement.test.mjs",
+      "sha256": "8c46f6620fccb87e5805681b83de9e757fe10fd8f17d58344e166b131c81506c",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/tests/raid-phase6-settlement.test.mjs"
+    },
+    {
+      "path": "tests/raid-state33-release.test.mjs",
+      "sha256": "6ab77f55999d2cd6452d54ef35644c90e0cb3f353223cc8777afa01eb4a24413",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/tests/raid-state33-release.test.mjs"
+    },
+    {
+      "path": "decomp/exports.json",
+      "sha256": "51e55c295a9956e89be85c98df835f1da141e3e10cb6b16435f55423ff5b26db",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/exports.json"
+    },
+    {
+      "path": "decomp/generated/004f8490.c",
+      "sha256": "dbb15088aa9d2fffa03e725a29acb51592e28f82f9f276fcc9f682a3eb43ee57",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/004f8490.c"
+    },
+    {
+      "path": "decomp/generated/004f2440.c",
+      "sha256": "04a91d4a807f6699716900b0104f660ef0ede67e7f24644cfc05c7b0a73f5328",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/004f2440.c"
+    },
+    {
+      "path": "decomp/generated/004f2460.c",
+      "sha256": "d59c9298778eb7ea45678580e424c18b5ee00293bebef7004503b6f90a25efec",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/004f2460.c"
+    },
+    {
+      "path": "decomp/generated/004f2520.c",
+      "sha256": "71fd92696a1c8a78a000629a3e4e3c040554b6ff9c08e76e1d290508c58b2454",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/004f2520.c"
+    },
+    {
+      "path": "decomp/generated/004f39f0.c",
+      "sha256": "2c48580c7a176068e3e541e08043f0557dc51f21094983bb7e0f1e93ab0f994c",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/004f39f0.c"
+    },
+    {
+      "path": "decomp/generated/0043b010.c",
+      "sha256": "e1ecd52f78b79873e832f0de798dccf817befb91bcc285ddb9c15356e5864be4",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/0043b010.c"
+    },
+    {
+      "path": "decomp/generated/004364d0.c",
+      "sha256": "694cf0f4dfbfe3ec7ada8b812b360d227443c43e44910bcd5a0dc0187a852553",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/004364d0.c"
+    },
+    {
+      "path": "decomp/generated/004ed6f0.c",
+      "sha256": "6ff721df1ddebd3a70d39f02c40db0a9575212122c9e22363cf13eddc2ba9561",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/004ed6f0.c"
+    },
+    {
+      "path": "decomp/generated/004ed640.c",
+      "sha256": "00fed5e330959a34047a742ae4ce133e93c6cd4fdbdbc2a0222f22b06cda0ecb",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/004ed640.c"
+    },
+    {
+      "path": "decomp/generated/00436ca0.c",
+      "sha256": "1f9230efa60fe8029321ddab04755b8d073e5d8a8f53c87b90fbd9d6c2e854e6",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/00436ca0.c"
+    },
+    {
+      "path": "app/game-store.ts",
+      "sha256": "9f3095fe6f351011e03124899e5693a21eb172855e61e11cd3d50bd5bf32c612",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/app/game-store.ts"
+    },
+    {
+      "path": "app/world-tasks.ts",
+      "sha256": "160697d501e99cb299b54d572774d0fab08f7401d5f10d671f43320a323b9a7e",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/app/world-tasks.ts"
+    },
+    {
+      "path": "app/live-combat.ts",
+      "sha256": "f4849f9e46f7b10fba1ba0e0989451e2a3a5715eda978b317a850c04266ffdf3",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/app/live-combat.ts"
+    },
+    {
+      "path": "app/world-types.ts",
+      "sha256": "9ebdd9dc5bf1a6b87eb7f058a28c1706ff059198995b538740ae5a0d3afc6baf",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/app/world-types.ts"
+    },
+    {
+      "path": "app/person-orders.ts",
+      "sha256": "27600291a988813415ce88a4b046101fb772894490d44607b84f739a433eb1f3",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/app/person-orders.ts"
+    },
+    {
+      "path": "app/unit-animation-source.ts",
+      "sha256": "9b1ec3617b5db4fa6672f0ba75e5a85afe7c425cdf76bbf300a2ffebe2a736cd",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/app/unit-animation-source.ts"
+    },
+    {
+      "path": "decomp/generated/004f25b0.c",
+      "sha256": "116fa119b3e91dcf7bb6c5d74d75ea0fb405fe123e14ef69832a8c591a9654e3",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/004f25b0.c"
+    },
+    {
+      "path": "decomp/generated/004f55d0.c",
+      "sha256": "f75fa8a3d89aa472d2fabcf37947324accf489f329da4d2861e17ac27cd45021",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/004f55d0.c"
+    },
+    {
+      "path": "decomp/generated/004f39d0.c",
+      "sha256": "dc9a901ff4cadbd20123543c13efdbe70bbd86918d4335fcb7647606e288b0d4",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/004f39d0.c"
+    },
+    {
+      "path": "decomp/generated/004f61f0.c",
+      "sha256": "1b5c31ac701d208645e35bc3d5060571937cbe50557c8123f2e29fa4480e2f89",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/004f61f0.c"
+    },
+    {
+      "path": "decomp/generated/004f6720.c",
+      "sha256": "5f9f1b14c465e9167da46ff800e51b501d1f1c91403dc6eb4647af7b09b4c7e0",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/004f6720.c"
+    },
+    {
+      "path": "decomp/generated/004f7720.c",
+      "sha256": "55abd322c42651366bd55778e85f873d3d5afe75440af2fd79b327f64b2568a6",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/004f7720.c"
+    },
+    {
+      "path": "decomp/generated/00501be0.c",
+      "sha256": "8d73cfd000427bf623ca938d9f22c9bb5b6cc7a91a55826604e437336e12d822",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/00501be0.c"
+    },
+    {
+      "path": "decomp/generated/00418ce0.c",
+      "sha256": "b1dc805015313c1679ca920b51bdca88e2da70a0d3015588f38247b169e6b20c",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/00418ce0.c"
+    },
+    {
+      "path": "decomp/generated/0041b180.c",
+      "sha256": "fd2507e099e7e0c566bbc190ad06fa2b7302a517dd0f30091a0ee8123615fddf",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/0041b180.c"
+    },
+    {
+      "path": "decomp/generated/004f5c80.c",
+      "sha256": "a9ea2c9fb1563a9d881fa19f58aacd2c2c10d4b3acc80188ae7eea814df9fec1",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/004f5c80.c"
+    },
+    {
+      "path": "decomp/generated/004f5d10.c",
+      "sha256": "8d8520f405a9b2893b4d1483816be5883a53941d99e2f2eefc45a33e3cf073f4",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/004f5d10.c"
+    },
+    {
+      "path": "decomp/generated/004f6440.c",
+      "sha256": "61dd86b4d74c5944628f3c10f899e3e87704db472970bf38e31117221cd1ca7a",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/004f6440.c"
+    },
+    {
+      "path": "decomp/generated/004d2740.c",
+      "sha256": "02dd6d6bcdebfd1fbb5065c50af5e8f40d33140676e99c316ceb3ebe85835747",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/004d2740.c"
+    },
+    {
+      "path": "decomp/generated/004d47d0.c",
+      "sha256": "6b49ff975df8853455a07e2d8939349658f57c7687b87848ff77d8fa6a63215d",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/004d47d0.c"
+    },
+    {
+      "path": "decomp/generated/004e9b40.c",
+      "sha256": "964ecf5fabb3c247b4b1c569652b101cc59ad32648932e44ad33275f6fce581c",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/004e9b40.c"
+    },
+    {
+      "path": "decomp/generated/00432260.c",
+      "sha256": "23e7e3767d6ab658025e4a0474e86bdad7264b2852b401a48b65c07f1a33ca3d",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/00432260.c"
+    },
+    {
+      "path": "scripts/check-native-computer-attack.py",
+      "sha256": "0a9694bd36f0d60c1bb4772531d3a670bc0c1f60d502569c1af25d81cfb72942",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/scripts/check-native-computer-attack.py"
+    },
+    {
+      "path": "decomp/research/automatic-preacher-and-raid-ownership.md",
+      "sha256": "d00a5184eba1544cb832b7ed45770af45c5e652917e3cd1b3fd518f0681cef30",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/research/automatic-preacher-and-raid-ownership.md"
+    }
+  ],
+  "static_disassembly_inputs": [
+    {
+      "artifact": "004ce0a0-initial-dispatch.asm.txt",
+      "sha256": "ba3df191ac4d1447e033a427e048d809a34dbac391de20c710ae6a9714b25440",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x4ce0a0",
+        "--stop-address=0x4ce2c0",
+        "<verified-d3dpoptb.exe>"
+      ],
+      "exit_code": 0,
+      "included": false
+    },
+    {
+      "artifact": "004f2430-membership.asm.txt",
+      "sha256": "b52dfe4ba96ab0aa712b00fdbae59354c2cfbf7f153cb9a21f24e46412754f11",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x4f2430",
+        "--stop-address=0x4f2560",
+        "<verified-d3dpoptb.exe>"
+      ],
+      "exit_code": 0,
+      "included": false
+    },
+    {
+      "artifact": "004f8490-selection.asm.txt",
+      "sha256": "e525a71ef0e913e98c4e32cd09a4a418c6348721cb7e6987b3ebd0a1b075f847",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x4f8490",
+        "--stop-address=0x4f8820",
+        "<verified-d3dpoptb.exe>"
+      ],
+      "exit_code": 0,
+      "included": false
+    }
+  ],
+  "excerpts": [
+    {
+      "path": "controller-membership.asm.txt",
+      "source_artifact": "004cb400-ordinary-controller.asm.txt",
+      "source_sha256": "e3fe1a309a2bda69e04a2ec964282148ea21bd200b632448cc9f6bc821eb5d1c",
+      "address_ranges_half_open": [
+        [
+          "004cb72d",
+          "004cb737"
+        ],
+        [
+          "004cb7b2",
+          "004cb819"
+        ],
+        [
+          "004cca6b",
+          "004ccab0"
+        ]
+      ],
+      "transform": "Select original addressed instruction lines within the half-open intervals; strip trailing whitespace only.",
+      "sha256": "c1626878305f8816b57c4ab3adedf19928739c46753fc5179dabd80b811cac6a",
+      "source_manifest_url": "https://github.com/JohnDeved/populous-new-dawn/blob/48e026922b62a75d1b964a8292cccc3aa833bde1/references/verification/raid-phase16-admission-2026-10-10/provenance.json"
+    }
+  ],
+  "preserved_fixtures": [
+    {
+      "path": "decomp/research/raid-phase6-settlement/captured-combat-timeout/fixture.json",
+      "sha256": "29ab6fd7cc29d93633d5d7bfc4d3bd19ec26901ca0d6837a180cc58862775130",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/research/raid-phase6-settlement/captured-combat-timeout/fixture.json",
+      "capture_turn": 8370,
+      "member_ids": [
+        386,
+        415,
+        445,
+        398
+      ],
+      "computer_assignments": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "included": false,
+      "status": "Unchanged historical supplied-array admission; not rewritten or upgraded by the new producer proof."
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/captured-moving-not-settled/fixture.json",
+      "sha256": "3f596d308d96c7e5ae11d7698b3bea66fa48e2f2819fa61c81c42aa0ddedf8d4",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/research/raid-phase6-settlement/captured-moving-not-settled/fixture.json",
+      "capture_turn": 8417,
+      "member_ids": [
+        386,
+        415,
+        445,
+        398
+      ],
+      "computer_assignments": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "included": false,
+      "status": "Unchanged historical supplied-array admission; not rewritten or upgraded by the new producer proof."
+    }
+  ]
+}
