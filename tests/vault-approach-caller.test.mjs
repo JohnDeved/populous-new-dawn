@@ -252,8 +252,9 @@ const reservationCount = (world, id) =>
 // not original full-frame pixels, artwork or GPU rendering.
 test('ordinary M3 prayer panel projects its live building socket through the actual scene consumer', async t => {
   const { scene, world, vault, paint, projections, draws, setScreen } = await vaultSceneFixture(t)
-  scene.skipIntroduction()
   finishLevelStart(world)
+  scene.skipIntroduction()
+  assert.equal(world.inputMask, 0)
   select(world, 'shaman')
   assert.equal(command(world, vault), true)
   until(world, 'ordinary automatic Vault record', () => scene.objectPanels.panels.has(vault.id))
@@ -303,8 +304,9 @@ test('ordinary M3 prayer panel projects its live building socket through the act
 
 test('authored M1 quarter-turn Vault uses socket 0 in the actual panel consumer', async t => {
   const { scene, world, paint, projections } = await vaultSceneFixture(t, createWorld(1))
-  scene.skipIntroduction()
   finishLevelStart(world)
+  scene.skipIntroduction()
+  assert.equal(world.inputMask, 0)
   const vault = world.shrines.find(shrine => shrine.kind === 'vault')
   const body = levelOne.objects.find(object => object.index === 35)
   assert.deepEqual([body.type, body.model, body.x, body.z, body.angle], [2, 18, -6, -2, 512])
@@ -335,8 +337,9 @@ test('authored M1 quarter-turn Vault uses socket 0 in the actual panel consumer'
 
 test('non-Vault scenery retains its own panelHeight in the actual panel consumer', async t => {
   const { scene, world, paint, projections } = await vaultSceneFixture(t)
-  scene.skipIntroduction()
   finishLevelStart(world)
+  scene.skipIntroduction()
+  assert.equal(world.inputMask, 0)
   const head = world.shrines.find(shrine => shrine.kind !== 'vault')
   assert.ok(head, 'use an authored scenery head, not an injected Vault substitute')
   const { default: models } = await import('../app/original-models.json', { with: { type: 'json' } })
