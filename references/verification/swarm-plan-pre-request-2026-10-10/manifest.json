@@ -1,0 +1,292 @@
+{
+  "kind": "finite-plan-pre-request-source-result",
+  "currentMain": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+  "researchHead": "93d851455ca86e0150243b6c18868874201892fe",
+  "sourceBindings": [
+    {
+      "sourceRevision": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+      "path": "decomp/exports.json",
+      "sha256": "51e55c295a9956e89be85c98df835f1da141e3e10cb6b16435f55423ff5b26db",
+      "bytes": 115741
+    },
+    {
+      "sourceRevision": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+      "path": "decomp/generated/004b9190.c",
+      "sha256": "3d0874b6eaebdd713763b5f051c08287b03eadd3c077c7d258c6c57bfa7ccdc9",
+      "bytes": 10804
+    },
+    {
+      "sourceRevision": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+      "path": "decomp/generated/0043e8e0.c",
+      "sha256": "39b7c6e645760a599abecb4e44861da69ebc08c3d3370dff0c3835934e9fd309",
+      "bytes": 84068
+    },
+    {
+      "sourceRevision": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+      "path": "decomp/generated/004baab0.c",
+      "sha256": "657b3d0d7d867a2e71253533484001645a1d2d804087dc674ea2623a97b7eea3",
+      "bytes": 497
+    },
+    {
+      "sourceRevision": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+      "path": "scripts/check-native-building-plan.py",
+      "sha256": "3c72c9f5ef6008bab7fd0f9a2d014307c786473e0d5eb11a00ec99079f93ecd5",
+      "bytes": 4185
+    },
+    {
+      "sourceRevision": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+      "path": "scripts/check-native-unbuilt-plan.py",
+      "sha256": "f787d8055d5ba414233e9e7a502cbd7f1311aaec87212ff67c12e48cd143c637",
+      "bytes": 7078
+    },
+    {
+      "sourceRevision": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+      "path": "scripts/check-native-plan-attack.py",
+      "sha256": "cdb17f6ac87d1d108e09b32bf8c03d091b0bf3f730972982e4d99cd2449c6342",
+      "bytes": 11789
+    },
+    {
+      "sourceRevision": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+      "path": "scripts/check-native-building-ground.py",
+      "sha256": "db87555223242a3f233b8e0c66be53430b8730c4d6a73c0c2ce7ed3f00b96e2f",
+      "bytes": 6302
+    },
+    {
+      "sourceRevision": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+      "path": "decomp/generated/004b9ef0.c",
+      "sha256": "2b8872c6369b8b1666ebc9ff509645129e240e8c584914f362c06ca9be6ed0c2",
+      "bytes": 1375,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+      "path": "decomp/generated/004b9d50.c",
+      "sha256": "fc9e8c0ac0e82839a3e0fddd0471dc3129ed185891a98781bb9ba878e3d197ea",
+      "bytes": 1381,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+      "path": "decomp/generated/004ed6f0.c",
+      "sha256": "6ff721df1ddebd3a70d39f02c40db0a9575212122c9e22363cf13eddc2ba9561",
+      "bytes": 219,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+      "path": "decomp/generated/004ed640.c",
+      "sha256": "00fed5e330959a34047a742ae4ce133e93c6cd4fdbdbc2a0222f22b06cda0ecb",
+      "bytes": 853,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+      "path": "decomp/generated/004ef180.c",
+      "sha256": "021baf2a38e2dcf2062bdffc12aa449b5f2e789898aab1e776f1c1a0913802ae",
+      "bytes": 8514,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+      "path": "decomp/generated/004d2740.c",
+      "sha256": "02dd6d6bcdebfd1fbb5065c50af5e8f40d33140676e99c316ceb3ebe85835747",
+      "bytes": 12962,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+      "path": "decomp/generated/004ed8a0.c",
+      "sha256": "0a3e6654f1c046935bf0a75e32d8691f641fa13fad6c82dc06f3783ba520e5c9",
+      "bytes": 4171,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "93d851455ca86e0150243b6c18868874201892fe",
+      "path": "references/verification/swarm-class2-retirement-static-2026-10-10/README.md",
+      "sha256": "b3498bafaf1bddfc4f078e5a3c2deaa826e6a3354007f0efcb2e7f5415735d2c",
+      "bytes": 6523
+    },
+    {
+      "sourceRevision": "93d851455ca86e0150243b6c18868874201892fe",
+      "path": "references/verification/swarm-plan-admission-validator-2026-10-10/README.md",
+      "sha256": "92becbfc77efe5b28bd340af5f239e81059f27e1e3442853ac73d460c253da8b",
+      "bytes": 9933
+    },
+    {
+      "sourceRevision": "93d851455ca86e0150243b6c18868874201892fe",
+      "path": "references/verification/swarm-class9-plan-initializer-2026-10-10/README.md",
+      "sha256": "4c1599d0963dcca7bb91997f6a199954b74d3db501a31e475f13fcbfacbcffd3",
+      "bytes": 8806
+    }
+  ],
+  "selectedBody": {
+    "start": "004ba7a0",
+    "stopExclusive": "004ba93e",
+    "return": "004ba93d",
+    "bytes": 414,
+    "completeLocalBody": true,
+    "incidentalNeighbor": "004ba940",
+    "incidentalBehaviorInterpreted": false,
+    "directCalls": [
+      {
+        "at": "004ba822",
+        "target": "004b9ef0"
+      },
+      {
+        "at": "004ba829",
+        "target": "004b9d50"
+      },
+      {
+        "at": "004ba8df",
+        "target": "004ed6f0"
+      },
+      {
+        "at": "004ba8ec",
+        "target": "004ed640"
+      },
+      {
+        "at": "004ba916",
+        "target": "004b9190"
+      }
+    ]
+  },
+  "scopeReviewSha256": "072f7ab3ad01c2500f467909ba331de999e2cd84ae46461d8878c116c90c46d8",
+  "nativeExecution": false,
+  "newInstructionWindows": 1,
+  "childInstructionDecoding": false,
+  "runtimeChanges": false,
+  "testsRun": false,
+  "browserRun": false,
+  "stop": "Actual-class alias-sensitive pre-request effects and order closed locally; class9 removal004ba410 and state initializer effects remain separate. No complete shared input history or runtime admission.",
+  "supersedes": {
+    "findingsSha256": "9dd6c9eb7cdf7e4c9a218cec9a46d0d990687b3932f483bc804dc178b4a2d6cc",
+    "reviewInputsSha256": "2ce7574ec406ac516ae972ce66ffe2e9a2a7401740ba3c4c63b36e314623bd70",
+    "correction": "Retained enumerators mask their shape-index argument to16bits; caller descriptor access uses signed byte."
+  },
+  "priorRevision": {
+    "findingsSha256": "3c0430358918300b44a703ef87700cb37c7a62549d4a416b6dfe01de05145447",
+    "reviewInputsSha256": "9e2d4d85cffc298e0793384920acc8dba64d2853d087013ae8db6d08c56c48da",
+    "correction": "All three mode3 terrain writes are gated by shape mask bit1."
+  },
+  "sourceArtifacts": [
+    {
+      "path": "findings-v3.md",
+      "sha256": "6e2e0a91307efe2da31237750cdd742de14aec233abe8198f61d879a063a2de0",
+      "bytes": 10254
+    },
+    {
+      "path": "availability.json",
+      "sha256": "084c42227b33cb813bede21725991e5b41725bfedf1d5a59c870466ea5ecd100",
+      "bytes": 3111
+    },
+    {
+      "path": "proposal.json",
+      "sha256": "9ba751b3b924d69727dc3065ccb6082773a007d0ffd1674e1f49b10c8af0fdcd",
+      "bytes": 3364
+    },
+    {
+      "path": "decode-bounded.py",
+      "sha256": "7551edf310064ec213fb00314f399bf1c5e39ca94ff3716978b06dff3e441e8f",
+      "bytes": 2000
+    },
+    {
+      "path": "preflight.json",
+      "sha256": "d384fdcdeaa147e56df7f3f4b0ccfe77bffdbff684cb817861f0416b3594e948",
+      "bytes": 452
+    },
+    {
+      "path": "decode-receipt.json",
+      "sha256": "71649bff7e203b38f6650d419e5749c1d60646c7274cf095b05a0e06a192752d",
+      "bytes": 1369
+    },
+    {
+      "path": "004ba7a0-004ba9b0.asm",
+      "sha256": "f43189f2b18c9278923d040227a28c852f5126ed032770cd014ab1289566c985",
+      "bytes": 8952
+    },
+    {
+      "path": "004ba7a0-004ba9b0.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "callee-availability.json",
+      "sha256": "9b89789fa8df8e1177795b8d93ea38f85707f42a570c974a9bc53560aab917b6",
+      "bytes": 777
+    }
+  ],
+  "files": {
+    "004ba7a0-004ba9b0.asm": {
+      "sha256": "f43189f2b18c9278923d040227a28c852f5126ed032770cd014ab1289566c985",
+      "bytes": 8952
+    },
+    "README.md": {
+      "sha256": "6e2e0a91307efe2da31237750cdd742de14aec233abe8198f61d879a063a2de0",
+      "bytes": 10254
+    }
+  },
+  "independentSourceReviewSha256": "326a9cacf154c0ee1b2cc5e7bf5484ae829f62edf602216949c15e28e1d06e33",
+  "reviewInputsSha256": "7c1400613179bd55fa686669d430f1a2d04379df7d9903ef60f08aa3117890bd",
+  "decoderReceipt": {
+    "inputSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "toolSha256Before": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+    "toolVersion": "GNU objdump (GNU Binutils for Debian) 2.44",
+    "extractorSha256": "7551edf310064ec213fb00314f399bf1c5e39ca94ff3716978b06dff3e441e8f",
+    "proposalSha256": "9ba751b3b924d69727dc3065ccb6082773a007d0ffd1674e1f49b10c8af0fdcd",
+    "nativeExecution": false,
+    "argv": [
+      "/usr/bin/objdump",
+      "-d",
+      "-M",
+      "intel",
+      "--start-address=0x004ba7a0",
+      "--stop-address=0x004ba9b0",
+      "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe"
+    ],
+    "startedAt": "2026-10-10T05:13:42.085315+00:00",
+    "elapsedSeconds": 0.006215968998731114,
+    "exitCode": 0,
+    "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "toolSha256After": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+    "stdoutSha256": "f43189f2b18c9278923d040227a28c852f5126ed032770cd014ab1289566c985",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "start": "004ba7a0",
+    "stopExclusive": "004ba9b0",
+    "windowBytes": 528,
+    "scope": "Only named plan pre-request window; separate named success-side target is a cap, completeness requires actual flow. No child decoding."
+  },
+  "selectedExportAvailability": {
+    "assessmentMain": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+    "entries": {
+      "004b9ef0.c": {
+        "inSelectedManifest": true,
+        "fileExists": true
+      },
+      "004b9d50.c": {
+        "inSelectedManifest": true,
+        "fileExists": true
+      },
+      "004ed6f0.c": {
+        "inSelectedManifest": true,
+        "fileExists": true
+      },
+      "004ed640.c": {
+        "inSelectedManifest": true,
+        "fileExists": true
+      },
+      "004ef180.c": {
+        "inSelectedManifest": true,
+        "fileExists": true
+      },
+      "004ba410.c": {
+        "inSelectedManifest": false,
+        "fileExists": false
+      },
+      "004d2740.c": {
+        "inSelectedManifest": true,
+        "fileExists": true
+      }
+    },
+    "meaning": "Selected body availability only. No absence-of-side-effects inference."
+  }
+}
