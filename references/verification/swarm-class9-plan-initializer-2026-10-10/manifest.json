@@ -1,0 +1,309 @@
+{
+  "kind": "finite-class9-plan-initializer-source-result",
+  "assessmentMain": "3b13a7ff534ab95797b0b06330055cead956160d",
+  "researchHead": "675c3ee3a79300a56214a5cc543c37f3782dbb6d",
+  "sourceBindings": [
+    {
+      "sourceRevision": "675c3ee3a79300a56214a5cc543c37f3782dbb6d",
+      "path": "decomp/generated/004ed8a0.c",
+      "sha256": "0a3e6654f1c046935bf0a75e32d8691f641fa13fad6c82dc06f3783ba520e5c9",
+      "bytes": 4171,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "675c3ee3a79300a56214a5cc543c37f3782dbb6d",
+      "path": "decomp/generated/004ed580.c",
+      "sha256": "30f96739bcd6f1703d38d8937b3a5890bffaaf282be069067360bd7a1da118c8",
+      "bytes": 961,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "675c3ee3a79300a56214a5cc543c37f3782dbb6d",
+      "path": "decomp/generated/004ee470.c",
+      "sha256": "ea580251ff6bd4de4efa0984310f41086acc964695584aafa2f4caf5c006e29d",
+      "bytes": 841,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "675c3ee3a79300a56214a5cc543c37f3782dbb6d",
+      "path": "decomp/generated/004ed6f0.c",
+      "sha256": "6ff721df1ddebd3a70d39f02c40db0a9575212122c9e22363cf13eddc2ba9561",
+      "bytes": 219,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "675c3ee3a79300a56214a5cc543c37f3782dbb6d",
+      "path": "decomp/generated/004ed640.c",
+      "sha256": "00fed5e330959a34047a742ae4ce133e93c6cd4fdbdbc2a0222f22b06cda0ecb",
+      "bytes": 853,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "675c3ee3a79300a56214a5cc543c37f3782dbb6d",
+      "path": "decomp/generated/004b8150.c",
+      "sha256": "23564359313609cfbd2aad8247217b71ab93e4526aa4619f547e53e5239c3bfc",
+      "bytes": 879,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "675c3ee3a79300a56214a5cc543c37f3782dbb6d",
+      "path": "decomp/generated/004b8220.c",
+      "sha256": "b8c4911a77e742b80860d06cd48b12509308be2a4e4f608d378928a930e6253d",
+      "bytes": 3647,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "675c3ee3a79300a56214a5cc543c37f3782dbb6d",
+      "path": "decomp/generated/004b9fc0.c",
+      "sha256": "49e0070284ae704d3a975f64fab5dcea4ff5fd33cbefc703240a938acd4327b0",
+      "bytes": 1725,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "675c3ee3a79300a56214a5cc543c37f3782dbb6d",
+      "path": "decomp/generated/004ee580.c",
+      "sha256": "c4114595ecdc2931b5e3dff4827297807a7d97cb121327851fb3d5dbb2e197ef",
+      "bytes": 2278,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "675c3ee3a79300a56214a5cc543c37f3782dbb6d",
+      "path": "decomp/generated/004b9190.c",
+      "sha256": "3d0874b6eaebdd713763b5f051c08287b03eadd3c077c7d258c6c57bfa7ccdc9",
+      "bytes": 10804,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "675c3ee3a79300a56214a5cc543c37f3782dbb6d",
+      "path": "decomp/generated/00498140.c",
+      "sha256": "26b6f2bfaadb9218915371100d512590eaddc3dc54f97b3d918ebb81a9e6aff7",
+      "bytes": 2328,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "675c3ee3a79300a56214a5cc543c37f3782dbb6d",
+      "path": "decomp/generated/004b8470.c",
+      "sha256": "e99734b6e278810068a6c50d03f09a6b6301274e211d5a607c21a2b151468f3c",
+      "bytes": 14168,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "675c3ee3a79300a56214a5cc543c37f3782dbb6d",
+      "path": "decomp/exports.json",
+      "sha256": "51e55c295a9956e89be85c98df835f1da141e3e10cb6b16435f55423ff5b26db",
+      "bytes": 115741
+    },
+    {
+      "sourceRevision": "675c3ee3a79300a56214a5cc543c37f3782dbb6d",
+      "path": "references/verification/swarm-class2-constructor-request-2026-10-10/README.md",
+      "sha256": "502e32ce5e187fd2b56f38c39aa8bf093296174f2ab6a8e6cad2b7c52fd2bf83",
+      "bytes": 10212
+    },
+    {
+      "sourceRevision": "675c3ee3a79300a56214a5cc543c37f3782dbb6d",
+      "path": "references/verification/swarm-class2-live-contract-2026-10-10/README.md",
+      "sha256": "ab8862b0e6c5d9e8f586b68c787af442cdcf529aceae1a0c8c97da236aaec848",
+      "bytes": 12742
+    },
+    {
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "path": "app/building-shapes.ts",
+      "sha256": "86882bf5526a48035a1ed61b72f710139e0ddcc67d60f94f9279901636aaff92",
+      "bytes": 17581
+    },
+    {
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "path": "app/construction-runtime.ts",
+      "sha256": "2ea49ae789ae747732c3bc327d58735f501b52dfcff84c17eef83ca4386c0653",
+      "bytes": 16414
+    },
+    {
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "path": "app/object-cells.ts",
+      "sha256": "cc693d083d0829c69f6295d9710b3c7762bd70f407ff9c5c408380dbd7465909",
+      "bytes": 2522
+    },
+    {
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "path": "app/building-workers.ts",
+      "sha256": "1ed0901d343fe9d1d6e9335f43e069acc5ef3ec9bedb1235c643786dcd3ca290",
+      "bytes": 5822
+    },
+    {
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "path": "app/live-command.ts",
+      "sha256": "a53f4f0a64104dabacdfb1d2242c1979baa047a89f192a89a52b1c72a702bdca",
+      "bytes": 29207
+    },
+    {
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "path": "tests/building-preparation.test.mjs",
+      "sha256": "0276af6c92df2da9013d5d20d20ba18df59191062e51cf8e9313812a96de4e54",
+      "bytes": 9093
+    },
+    {
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "path": "tests/level-start-fixture.mjs",
+      "sha256": "9a3421df185be19f8423d3363a79fd867bbafa2e105aa97071242fce3a28072b",
+      "bytes": 1717
+    },
+    {
+      "sourceRevision": "9694f1f2156c4c06a6128278f16c6eac1dd35ba2",
+      "path": "decomp/research/selection-radius-source-20261010/membership/plan-activation/findings.json",
+      "sha256": "94beb4b77e849ecd74661072a1f312242dc4056649e68515529c5e38bbc85dd3",
+      "bytes": 2009
+    },
+    {
+      "sourceRevision": "9694f1f2156c4c06a6128278f16c6eac1dd35ba2",
+      "path": "decomp/research/selection-radius-source-20261010/membership/plan-activation/manifest.json",
+      "sha256": "2969a767229a42404849de1c8701136abc2e74f54b0dbd8347cf26c272d3935f",
+      "bytes": 2041
+    },
+    {
+      "sourceRevision": "9694f1f2156c4c06a6128278f16c6eac1dd35ba2",
+      "path": "decomp/research/selection-radius-source-20261010/membership/plan-activation/success-tail.asm",
+      "sha256": "ba8a4e0072cd3615d2dcd6ef8bda4b6d53d94c67e449a5ab4805b23f2b3313df",
+      "bytes": 2342
+    }
+  ],
+  "selectedBody": {
+    "start": "004b8070",
+    "stopExclusive": "004b814c",
+    "return": "004b814b",
+    "bytes": 220,
+    "paddingBytes": 4,
+    "completeLocalBody": true,
+    "calls": [
+      "004ee470",
+      "004ed6f0",
+      "004ed640",
+      "004b9fc0"
+    ]
+  },
+  "scopeReviewSha256": "60d4b9d995656305556673d7942621a26efc76fa60f60c409639b9b91f00dd47",
+  "priorPublicationReadbackSha256": "040856cfd9b98a1a08022a3e964ec1bdd03a415a9489750b5b9b243c390e3973",
+  "reusedActivationReviewSha256": "d19267857bd09da6767238ddb068f578ce3046c057db733da540b0e1a06624e0",
+  "nativeExecution": false,
+  "newInstructionWindows": 1,
+  "childInstructionDecoding": false,
+  "runtimeChanges": false,
+  "testsRun": false,
+  "browserRun": false,
+  "stop": "Class9 initializer body closed; real public/AI request feeder and supported incoming shared allocator state remain. Model10 special leaf and full transitive helper absence are not claimed.",
+  "files": {
+    "004b8070-004b8150.asm": {
+      "sha256": "44278ab85654975c12ecb59e4d17cdee4073bec3a7fcf529e66c4a2d88f9a5db",
+      "bytes": 3673
+    },
+    "README.md": {
+      "sha256": "4c1599d0963dcca7bb91997f6a199954b74d3db501a31e475f13fcbfacbcffd3",
+      "bytes": 8806
+    }
+  },
+  "independentSourceReviewSha256": "907136329132958452d23fbd59cfd981d82671ac31365d5f38d2641e737f48b2",
+  "reviewInputsSha256": "ce39486d83d3a6119acba56a97701d4a5ac277787b11e7f768c2cc994d58a167",
+  "decoderReceipt": {
+    "inputSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "toolSha256Before": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+    "toolVersion": "GNU objdump (GNU Binutils for Debian) 2.44",
+    "extractorSha256": "5f94a17eda6704c51cb014b8e63d0d7a5a9d4d169a53b22baa6b46d9c059b7a4",
+    "proposalSha256": "5df938ee77f24f21bdeba6fdc5fe94102318bce70de3d58544206565e1834c53",
+    "nativeExecution": false,
+    "argv": [
+      "/usr/bin/objdump",
+      "-d",
+      "-M",
+      "intel",
+      "--start-address=0x004b8070",
+      "--stop-address=0x004b8150",
+      "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe"
+    ],
+    "startedAt": "2026-10-10T04:48:08.229247+00:00",
+    "elapsedSeconds": 0.005860092998773325,
+    "exitCode": 0,
+    "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "toolSha256After": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+    "stdoutSha256": "44278ab85654975c12ecb59e4d17cdee4073bec3a7fcf529e66c4a2d88f9a5db",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "start": "004b8070",
+    "stopExclusive": "004b8150",
+    "windowBytes": 224,
+    "scope": "Only named class9 initializer window; neighboring entry is a cap, completeness requires actual flow."
+  },
+  "sourceArtifacts": [
+    {
+      "path": "findings.md",
+      "sha256": "4c1599d0963dcca7bb91997f6a199954b74d3db501a31e475f13fcbfacbcffd3",
+      "bytes": 8806
+    },
+    {
+      "path": "proposal.json",
+      "sha256": "5df938ee77f24f21bdeba6fdc5fe94102318bce70de3d58544206565e1834c53",
+      "bytes": 2431
+    },
+    {
+      "path": "decode-bounded.py",
+      "sha256": "5f94a17eda6704c51cb014b8e63d0d7a5a9d4d169a53b22baa6b46d9c059b7a4",
+      "bytes": 1966
+    },
+    {
+      "path": "preflight.json",
+      "sha256": "ed4e83ed6c754a09498e7d63b1b8b8782393b5ac8419c30375e19a5a3b36e376",
+      "bytes": 452
+    },
+    {
+      "path": "decode-receipt.json",
+      "sha256": "e460646549cf87c7da42e8597327e7f367d98b098ebbeeb0b28fdad635755f50",
+      "bytes": 1335
+    },
+    {
+      "path": "004b8070-004b8150.asm",
+      "sha256": "44278ab85654975c12ecb59e4d17cdee4073bec3a7fcf529e66c4a2d88f9a5db",
+      "bytes": 3673
+    },
+    {
+      "path": "004b8070-004b8150.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "availability.json",
+      "sha256": "90a883a5114842a05cb1c2e43350ed52e6e136ed4de6638b3e82e7f090eb62af",
+      "bytes": 892
+    }
+  ],
+  "selectedExportAvailability": {
+    "sourceRevision": "675c3ee3a79300a56214a5cc543c37f3782dbb6d",
+    "meaning": "Selected export availability; new004b8070 body is now supplied by bounded assembly.",
+    "entries": {
+      "004b8070.c": {
+        "inSelectedManifest": false,
+        "fileExistsAtResearchHead": false
+      },
+      "0042cfc0.c": {
+        "inSelectedManifest": false,
+        "fileExistsAtResearchHead": false
+      },
+      "004fc330.c": {
+        "inSelectedManifest": false,
+        "fileExistsAtResearchHead": false
+      },
+      "004b8220.c": {
+        "inSelectedManifest": true,
+        "fileExistsAtResearchHead": true
+      },
+      "004b9fc0.c": {
+        "inSelectedManifest": true,
+        "fileExistsAtResearchHead": true
+      },
+      "004b8150.c": {
+        "inSelectedManifest": true,
+        "fileExistsAtResearchHead": true
+      },
+      "00518200.c": {
+        "inSelectedManifest": true,
+        "fileExistsAtResearchHead": true
+      }
+    }
+  }
+}
