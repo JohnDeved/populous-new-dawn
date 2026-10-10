@@ -1,0 +1,64 @@
+--- native/attempt08/driver.py
++++ retirement/driver.py
+@@ -100,6 +100,37 @@
+   if name=='allocate':index.update(resultPointer=c.reg_read(UC_X86_REG_EAX),resultId=ident(c.reg_read(UC_X86_REG_EAX)))
+   if name=='admit':index.update(result=c.reg_read(UC_X86_REG_EAX)&255,after=bs())
+ for a in WATCH:cpu.hook_add(UC_HOOK_CODE,watch,begin=a,end=a)
++
++
++# Observation only: native guest state is never changed by these hooks.
++lifecycle=[];life_returns={};life_hooks={};formation_records=set()
++def record_state(p):
++ return dict(pointer=p,id=ident(p),class_=read(p+0x2a,'B'),nativeModel=read(p+0x2b,'B'),personModel=read(p+0x2d,'B'),counter=read(p+0x2e,'B'),flags2=read(p+0xc,'I'),previous=ident(read(p,'I')),primaryNext=ident(read(p+4,'I')),tribeNext=ident(read(p+8,'I')),count=read(p+0x68,'B'),members=list(struct.unpack('<12H',cpu.mem_read(p+0x6a,24))))
++def life_snapshot(boundary,p=0):
++ d=dict(turn=turn,phase=phase,boundary=boundary,primary=[ident(q) for q in chain(read(0x890324,'I'))],tribe=[record_state(q) for q in chain(read(0x89da55,'I'),8)],deferred=[record_state(q) for q in chain(read(0x890328,'I'))],freeHighHead=ident(read(0x89031c,'I')),freeLowHead=ident(read(0x890320,'I')),primaryAllocated=read(0x89c651,'I'),lowAllocated=read(0x89c659,'I'),formationRecords=[record_state(q) for q in sorted(formation_records)])
++ if p:d['record']=record_state(p)
++ lifecycle.append(d)
++ return d
++LIFE_WATCH={0x4edcf0:'retire',0x401b40:'releaseDeferred',0x4ed8a0:'allocate',0x4ecac0:'rebuildTribes',0x501000:'formationController',0x5018c0:'recruit'}
++def life_watch(c,a,n,u):
++ sp=c.reg_read(UC_X86_REG_ESP);name=LIFE_WATCH[a]
++ args=list(struct.unpack('<4I',cpu.mem_read(sp+4,16)))
++ if name=='allocate' and args[0]!=10:return
++ if name=='rebuildTribes':p=0
++ elif name=='allocate':p=0
++ else:p=args[0]
++ d=life_snapshot(name+'Entry',p);d.update(address=hex(a),caller=hex(read(sp,'I')),args=args)
++ ret=read(sp,'I');life_returns[(ret,sp+4)]=(name,p,args)
++ if ret not in life_hooks:life_hooks[ret]=cpu.hook_add(UC_HOOK_CODE,life_return,begin=ret,end=ret)
++def life_return(c,a,n,u):
++ item=life_returns.pop((a,c.reg_read(UC_X86_REG_ESP)),None)
++ if item:
++  name,p,args=item
++  if name=='allocate':
++   p=c.reg_read(UC_X86_REG_EAX)
++   if p:formation_records.add(p)
++  life_snapshot(name+'Return',p)
++for address in LIFE_WATCH:cpu.hook_add(UC_HOOK_CODE,life_watch,begin=address,end=address)
+ 
+ def run():
+  global phase,turn,building,people,person_id
+@@ -151,11 +182,14 @@
+   assert read(0x89d188,'I')==turn
+   assert read(0x89035c,'I')==0 and read(0x890358,'I')==0,'unsupported fight world'
+   assert read(0x890360,'I')==0,'unsupported guard-control world'
++  life_snapshot('afterHeader')
+   phase='objects';cpu.reg_write(UC_X86_REG_ESP,STACK);cpu.emu_start(0x4ec898,0x4ec8cb,count=3000000);assert cpu.reg_read(UC_X86_REG_EIP)==0x4ec8cb
++  life_snapshot('afterObjects')
+   guard_snapshots.append(guard_snapshot('before-4ef7f0-4f0460'))
+   phase='secondary-and-tribe-rebuild';cpu.reg_write(UC_X86_REG_ESP,STACK);cpu.emu_start(0x4ec924,0x4ec947,count=3000000);assert cpu.reg_read(UC_X86_REG_EIP)==0x4ec947
+   guard_snapshots.append(guard_snapshot('before-sunlight'))
+   phase='deferred-free';cpu.reg_write(UC_X86_REG_ESP,STACK);cpu.emu_start(0x4ec94c,0x4ec98d,count=3000000);assert cpu.reg_read(UC_X86_REG_EIP)==0x4ec98d
++  life_snapshot('afterDeferredFree')
+   guard_snapshots.append(guard_snapshot('late-world-tail'))
+   phase='terrain-processing';before_terrain=terrain_snapshot(True);call(0x44df40);terrain_trace.append(dict(turn=turn,before=before_terrain,after=terrain_snapshot(True)))
+   phase='failed-route-aging';call(0x4ec390)
+@@ -170,6 +204,6 @@
+  print(json.dumps({'event':'blocked','error':error}),flush=True)
+ else:error=None
+ sources=[Path(__file__),ROOT/'scripts/decomp.py',ROOT/'decomp/tools.json',ROOT/'decomp/research/training-entry-serialization.md',EXE,*[EXE.parent/p for p in ['levels/constant.dat','data/mwsearch.dat','data/vstart-0.ani','data/vfra-0.ani','data/aniob0-0.dat','objects/objs0-2.dat','objects/shapes.dat']]]
+-result=dict(status=status,identity=identity,sourceHead='50aefe1d49f70057380bf9a5fa8f0b319c8ad441',tools=dict(python=sys.version,unicorn=unicorn.__version__,capstone=capstone.__version__,platform=platform.platform()),sources=[dict(path=str(p),sha256=hashlib.sha256(p.read_bytes()).hexdigest()) for p in sources],hooks={'replaced':[],'observed':{hex(a):name for a,name in WATCH.items()},'counts':dict(calls),'abort':['invalid memory','interrupt','execution outside original text','bounded instructions']},error=error,terrainTrace=terrain_trace,excludedGuardSnapshots=guard_snapshots,final=snapshot(True),admissions=admissions,events=events,turnVisits=visits,timeline=timeline,limits=['isolated flat-terrain synthetic fixture','no PE startup, OS, imports or network bridge','animation VSTART frame counts projected from original verified data','native header, command maintenance, formation, primary/secondary object, tribe rebuild, deferred-free, terrain processing and failed-route-aging phases; unrelated globals/effects/phases excluded','gameFlags32 disables training completion and exit'])
+-(RUN/'result.json').write_text(json.dumps(result));print(json.dumps({'status':status,'turn':turn,'inside':bs(),'admissions':len(admissions),'result':str(RUN/'result.json')}),flush=True)
++result=dict(status=status,identity=identity,sourceHead='96a465d1b3dfb7ff7aae34865088308dc26d4783',tools=dict(python=sys.version,unicorn=unicorn.__version__,capstone=capstone.__version__,platform=platform.platform()),sources=[dict(path=str(p),sha256=hashlib.sha256(p.read_bytes()).hexdigest()) for p in sources],hooks={'replaced':[],'observed':{hex(a):name for a,name in WATCH.items()},'counts':dict(calls),'abort':['invalid memory','interrupt','execution outside original text','bounded instructions']},error=error,terrainTrace=terrain_trace,excludedGuardSnapshots=guard_snapshots,final=snapshot(True),admissions=admissions,events=events,turnVisits=visits,timeline=timeline,limits=['isolated flat-terrain synthetic fixture','no PE startup, OS, imports or network bridge','animation VSTART frame counts projected from original verified data','native header, command maintenance, formation, primary/secondary object, tribe rebuild, deferred-free, terrain processing and failed-route-aging phases; unrelated globals/effects/phases excluded','gameFlags32 disables training completion and exit'])
++(RUN/'lifecycle.json').write_text(json.dumps(lifecycle));(RUN/'result.json').write_text(json.dumps(result));print(json.dumps({'status':status,'turn':turn,'inside':bs(),'admissions':len(admissions),'result':str(RUN/'result.json')}),flush=True)
+ raise SystemExit(0 if status=='completed' else 2)
