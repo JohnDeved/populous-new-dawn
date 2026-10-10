@@ -79,8 +79,9 @@ does not depend on whether a Temple or acquisition currently exists.
 - Required full atlas readiness comes from the theme preload. A supported atlas
   failure is a failure, not fallback permission. Failed preparation preserves the
   previous World/resource; failure after commit does not roll it back. Explicit
-  retry repeats the existing store action. GPU wrappers and caches remain Scene
-  owned; texture identity and generated shader mode must not leak across scenes.
+  retry repeats the existing store action. Renderer/material/sprite state remains
+  Scene-owned; shared asset caches stay keyed by immutable resource identity.
+  Texture identity and generated shader mode must not leak across scenes.
 
 ## Ordinary material and acquisition separation
 
