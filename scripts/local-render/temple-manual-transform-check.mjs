@@ -15,7 +15,7 @@ const file = 'scripts/local-render/temple-manual-witness.mjs'
 // Controlled lexical regression fixture, not historical application source.
 // A local guard named require must reproduce the maintained plugin boundary.
 const old = `const require = (value, message) => { if (!value) throw Error(message) }
-require(true, 'controlled local guard')
+export const check = value => require(value, 'controlled local guard')
 `
 const sha = bytes => createHash('sha256').update(bytes).digest('hex')
 const report = {
