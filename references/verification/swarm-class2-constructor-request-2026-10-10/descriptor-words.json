@@ -1,0 +1,230 @@
+{
+  "inputSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "inputBytes": 2275840,
+  "extractorSha256": "0014d993c887eab5840c32f5e64eebf202541d7d7f0d29c8d53c0fb958840500",
+  "pythonExecutable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+  "pythonExecutableSha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+  "base": "005a7228",
+  "stride": 76,
+  "fieldOffset": 62,
+  "models": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+  ],
+  "wordBytes": 40,
+  "words": [
+    {
+      "model": 0,
+      "address": "005a7266",
+      "fileOffset": 1724518,
+      "fileBytesHex": "0000",
+      "fileSignedWord": 0,
+      "configuredSignedWord": 0,
+      "overridden": false
+    },
+    {
+      "model": 1,
+      "address": "005a72b2",
+      "fileOffset": 1724594,
+      "fileBytesHex": "0000",
+      "fileSignedWord": 0,
+      "configuredSignedWord": 0,
+      "overridden": false
+    },
+    {
+      "model": 2,
+      "address": "005a72fe",
+      "fileOffset": 1724670,
+      "fileBytesHex": "0100",
+      "fileSignedWord": 1,
+      "configuredSignedWord": 1,
+      "overridden": false
+    },
+    {
+      "model": 3,
+      "address": "005a734a",
+      "fileOffset": 1724746,
+      "fileBytesHex": "0100",
+      "fileSignedWord": 1,
+      "configuredSignedWord": 1,
+      "overridden": false
+    },
+    {
+      "model": 4,
+      "address": "005a7396",
+      "fileOffset": 1724822,
+      "fileBytesHex": "0000",
+      "fileSignedWord": 0,
+      "configuredSignedWord": 0,
+      "overridden": false
+    },
+    {
+      "model": 5,
+      "address": "005a73e2",
+      "fileOffset": 1724898,
+      "fileBytesHex": "0000",
+      "fileSignedWord": 0,
+      "configuredSignedWord": 0,
+      "overridden": false
+    },
+    {
+      "model": 6,
+      "address": "005a742e",
+      "fileOffset": 1724974,
+      "fileBytesHex": "0000",
+      "fileSignedWord": 0,
+      "configuredSignedWord": 0,
+      "overridden": false
+    },
+    {
+      "model": 7,
+      "address": "005a747a",
+      "fileOffset": 1725050,
+      "fileBytesHex": "0000",
+      "fileSignedWord": 0,
+      "configuredSignedWord": 0,
+      "overridden": false
+    },
+    {
+      "model": 8,
+      "address": "005a74c6",
+      "fileOffset": 1725126,
+      "fileBytesHex": "0000",
+      "fileSignedWord": 0,
+      "configuredSignedWord": 0,
+      "overridden": false
+    },
+    {
+      "model": 9,
+      "address": "005a7512",
+      "fileOffset": 1725202,
+      "fileBytesHex": "0000",
+      "fileSignedWord": 0,
+      "configuredSignedWord": 0,
+      "overridden": false
+    },
+    {
+      "model": 10,
+      "address": "005a755e",
+      "fileOffset": 1725278,
+      "fileBytesHex": "0000",
+      "fileSignedWord": 0,
+      "configuredSignedWord": 0,
+      "overridden": false
+    },
+    {
+      "model": 11,
+      "address": "005a75aa",
+      "fileOffset": 1725354,
+      "fileBytesHex": "0000",
+      "fileSignedWord": 0,
+      "configuredSignedWord": 0,
+      "overridden": false
+    },
+    {
+      "model": 12,
+      "address": "005a75f6",
+      "fileOffset": 1725430,
+      "fileBytesHex": "0000",
+      "fileSignedWord": 0,
+      "configuredSignedWord": 0,
+      "overridden": false
+    },
+    {
+      "model": 13,
+      "address": "005a7642",
+      "fileOffset": 1725506,
+      "fileBytesHex": "0000",
+      "fileSignedWord": 0,
+      "configuredSignedWord": 0,
+      "overridden": false
+    },
+    {
+      "model": 14,
+      "address": "005a768e",
+      "fileOffset": 1725582,
+      "fileBytesHex": "0000",
+      "fileSignedWord": 0,
+      "configuredSignedWord": 0,
+      "overridden": false
+    },
+    {
+      "model": 15,
+      "address": "005a76da",
+      "fileOffset": 1725658,
+      "fileBytesHex": "0000",
+      "fileSignedWord": 0,
+      "configuredSignedWord": 0,
+      "overridden": false
+    },
+    {
+      "model": 16,
+      "address": "005a7726",
+      "fileOffset": 1725734,
+      "fileBytesHex": "0000",
+      "fileSignedWord": 0,
+      "configuredSignedWord": 0,
+      "overridden": false
+    },
+    {
+      "model": 17,
+      "address": "005a7772",
+      "fileOffset": 1725810,
+      "fileBytesHex": "0000",
+      "fileSignedWord": 0,
+      "configuredSignedWord": 0,
+      "overridden": false
+    },
+    {
+      "model": 18,
+      "address": "005a77be",
+      "fileOffset": 1725886,
+      "fileBytesHex": "0000",
+      "fileSignedWord": 0,
+      "configuredSignedWord": 0,
+      "overridden": false
+    },
+    {
+      "model": 19,
+      "address": "005a780a",
+      "fileOffset": 1725962,
+      "fileBytesHex": "0000",
+      "fileSignedWord": 0,
+      "configuredSignedWord": 0,
+      "overridden": false
+    }
+  ],
+  "constants": {
+    "tableBase": "005aa5f0",
+    "stride": 31,
+    "maximumEntries": 512,
+    "readEntries": 342,
+    "zeroNameTerminator": 341,
+    "readBytesSha256": "efb94b96215a13d3c4a3eb4829ff2f7e1f89d554dd5431acea89dcc881edbcbe",
+    "configPath": "app/original-constants.json",
+    "configSha256": "ce71bff4c5971d1aae1539b4d014d69378ddc30067068d70353b5b78979fb47c",
+    "overlappingRecords": []
+  },
+  "limits": "File defaults plus only the existing import recipe applied to the pinned config. No claim about unbound runtime writes or game execution.",
+  "elapsedSeconds": 0.09389628400094807,
+  "nativeExecution": false
+}

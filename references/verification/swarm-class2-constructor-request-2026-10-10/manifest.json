@@ -1,0 +1,262 @@
+{
+  "kind": "finite-class2-constructor-nested-request-source-result",
+  "currentMain": "3b13a7ff534ab95797b0b06330055cead956160d",
+  "priorResearchHead": "d92fe982cb14d8315e98ae359a9ef97b06c6e29d",
+  "files": {
+    "README.md": {
+      "sha256": "502e32ce5e187fd2b56f38c39aa8bf093296174f2ab6a8e6cad2b7c52fd2bf83",
+      "bytes": 10212
+    },
+    "descriptor-words.json": {
+      "sha256": "ac93106b64a9b87b2b34e90baae6ef11e456c44c2d23a78df058b3559d2dabaa",
+      "bytes": 5496
+    },
+    "read-descriptor-words.py": {
+      "sha256": "0014d993c887eab5840c32f5e64eebf202541d7d7f0d29c8d53c0fb958840500",
+      "bytes": 3653
+    }
+  },
+  "independentSourceReviewSha256": "5b3df254de34f7da6a768a2257dd468f72339835212d192dd6b0dc918da91a5a",
+  "findingsSha256": "502e32ce5e187fd2b56f38c39aa8bf093296174f2ab6a8e6cad2b7c52fd2bf83",
+  "reviewInputsSha256": "9fa8b6e748fe1753e770fab4be6db5051a1ec73663061e3709c06ada087f0f2a",
+  "sourceBindings": [
+    {
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "path": "app/building-shapes.ts",
+      "sha256": "86882bf5526a48035a1ed61b72f710139e0ddcc67d60f94f9279901636aaff92",
+      "bytes": 17581
+    },
+    {
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "path": "app/construction-runtime.ts",
+      "sha256": "2ea49ae789ae747732c3bc327d58735f501b52dfcff84c17eef83ca4386c0653",
+      "bytes": 16414
+    },
+    {
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "path": "app/building-workers.ts",
+      "sha256": "1ed0901d343fe9d1d6e9335f43e069acc5ef3ec9bedb1235c643786dcd3ca290",
+      "bytes": 5822
+    },
+    {
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "path": "app/live-command.ts",
+      "sha256": "a53f4f0a64104dabacdfb1d2242c1979baa047a89f192a89a52b1c72a702bdca",
+      "bytes": 29207
+    },
+    {
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "path": "app/world-state.ts",
+      "sha256": "880c00574e29d9f9e2cffd59d79ff337dcfe07d023d45b95481c09ff9e056ff6",
+      "bytes": 12421
+    },
+    {
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "path": "app/world-effects.ts",
+      "sha256": "265779df0ac4a6a576acd8f342b22ee174864a5f7515f2f25f8ca3d5ff3d354d",
+      "bytes": 15021
+    },
+    {
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "path": "tests/building-preparation.test.mjs",
+      "sha256": "0276af6c92df2da9013d5d20d20ba18df59191062e51cf8e9313812a96de4e54",
+      "bytes": 9093
+    },
+    {
+      "sourceRevision": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "path": "tests/level-start-fixture.mjs",
+      "sha256": "9a3421df185be19f8423d3363a79fd867bbafa2e105aa97071242fce3a28072b",
+      "bytes": 1717
+    },
+    {
+      "sourceRevision": "d92fe982cb14d8315e98ae359a9ef97b06c6e29d",
+      "path": "decomp/generated/00403610.c",
+      "sha256": "38873dc24c630181e40a7464761f3a0c6f69d9f6d8ee96a8f490c340c4f3b5ff",
+      "bytes": 3138,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "d92fe982cb14d8315e98ae359a9ef97b06c6e29d",
+      "path": "decomp/generated/004ed8a0.c",
+      "sha256": "0a3e6654f1c046935bf0a75e32d8691f641fa13fad6c82dc06f3783ba520e5c9",
+      "bytes": 4171,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "d92fe982cb14d8315e98ae359a9ef97b06c6e29d",
+      "path": "decomp/generated/004ed580.c",
+      "sha256": "30f96739bcd6f1703d38d8937b3a5890bffaaf282be069067360bd7a1da118c8",
+      "bytes": 961,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "d92fe982cb14d8315e98ae359a9ef97b06c6e29d",
+      "path": "decomp/generated/004fa530.c",
+      "sha256": "2c5ea368a4c6eaf9c5d0dc491ec5abce54cc94be3275fc8889ebdfe09c8c521c",
+      "bytes": 4027,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "d92fe982cb14d8315e98ae359a9ef97b06c6e29d",
+      "path": "decomp/generated/00402ec0.c",
+      "sha256": "6c85a925be43fd270f058e2edc63f1a1b5a2f17e1d6d00019d5d69e13e8eeb22",
+      "bytes": 3444,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "d92fe982cb14d8315e98ae359a9ef97b06c6e29d",
+      "path": "decomp/generated/0040b170.c",
+      "sha256": "0d675794fda84699c635a07742fef4ba3ec03c7cbfec96ad0a5e1793e8a9e042",
+      "bytes": 1206,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "d92fe982cb14d8315e98ae359a9ef97b06c6e29d",
+      "path": "decomp/generated/00484a10.c",
+      "sha256": "8f1433d8bba1ffc5cbc2fa4dad9ef6415a1ea5f2834aa436c8480dcd8a00f9ae",
+      "bytes": 9507,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "d92fe982cb14d8315e98ae359a9ef97b06c6e29d",
+      "path": "decomp/generated/004050c0.c",
+      "sha256": "32639b081bbccedaf7a9d2edceea3e3e33817b515514b2199640d04a9a04af50",
+      "bytes": 9674,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "d92fe982cb14d8315e98ae359a9ef97b06c6e29d",
+      "path": "decomp/generated/004b8470.c",
+      "sha256": "e99734b6e278810068a6c50d03f09a6b6301274e211d5a607c21a2b151468f3c",
+      "bytes": 14168,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "d92fe982cb14d8315e98ae359a9ef97b06c6e29d",
+      "path": "decomp/generated/004b9190.c",
+      "sha256": "3d0874b6eaebdd713763b5f051c08287b03eadd3c077c7d258c6c57bfa7ccdc9",
+      "bytes": 10804,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "d92fe982cb14d8315e98ae359a9ef97b06c6e29d",
+      "path": "decomp/generated/00498140.c",
+      "sha256": "26b6f2bfaadb9218915371100d512590eaddc3dc54f97b3d918ebb81a9e6aff7",
+      "bytes": 2328,
+      "verifiedSelectedManifest": true
+    },
+    {
+      "sourceRevision": "d92fe982cb14d8315e98ae359a9ef97b06c6e29d",
+      "path": "decomp/exports.json",
+      "sha256": "51e55c295a9956e89be85c98df835f1da141e3e10cb6b16435f55423ff5b26db",
+      "bytes": 115741
+    },
+    {
+      "sourceRevision": "d92fe982cb14d8315e98ae359a9ef97b06c6e29d",
+      "path": "scripts/inspect-executable.py",
+      "sha256": "e926dbfba27443eb0ab8f3ee9e6510a68ceaea0d4cabe0062ed28063ac65a207",
+      "bytes": 12314
+    },
+    {
+      "sourceRevision": "d92fe982cb14d8315e98ae359a9ef97b06c6e29d",
+      "path": "app/original-constants.json",
+      "sha256": "ce71bff4c5971d1aae1539b4d014d69378ddc30067068d70353b5b78979fb47c",
+      "bytes": 6992
+    },
+    {
+      "sourceRevision": "d92fe982cb14d8315e98ae359a9ef97b06c6e29d",
+      "path": "references/verification/swarm-class2-live-contract-2026-10-10/README.md",
+      "sha256": "ab8862b0e6c5d9e8f586b68c787af442cdcf529aceae1a0c8c97da236aaec848",
+      "bytes": 12742
+    },
+    {
+      "sourceRevision": "9694f1f2156c4c06a6128278f16c6eac1dd35ba2",
+      "path": "decomp/research/selection-radius-source-20261010/membership/plan-activation/findings.json",
+      "sha256": "94beb4b77e849ecd74661072a1f312242dc4056649e68515529c5e38bbc85dd3",
+      "bytes": 2009
+    },
+    {
+      "sourceRevision": "9694f1f2156c4c06a6128278f16c6eac1dd35ba2",
+      "path": "decomp/research/selection-radius-source-20261010/membership/plan-activation/manifest.json",
+      "sha256": "2969a767229a42404849de1c8701136abc2e74f54b0dbd8347cf26c272d3935f",
+      "bytes": 2041
+    },
+    {
+      "sourceRevision": "9694f1f2156c4c06a6128278f16c6eac1dd35ba2",
+      "path": "decomp/research/selection-radius-source-20261010/membership/plan-activation/success-tail.asm",
+      "sha256": "ba8a4e0072cd3615d2dcd6ef8bda4b6d53d94c67e449a5ab4805b23f2b3313df",
+      "bytes": 2342
+    }
+  ],
+  "reusedActivationReviewSha256": "d19267857bd09da6767238ddb068f578ce3046c057db733da540b0e1a06624e0",
+  "acceptedIntegrationDesignSha256": "b4ccd33f30cd017e373032ed200c56763924d5c2f4b5225ff97191664db489d1",
+  "acceptedIntegrationReviewSha256": "83f2665b75ab1eafe1429146701c9f0603654fb3c02106946ed721c72c9e5204",
+  "availability": {
+    "sourceRevision": "d92fe982cb14d8315e98ae359a9ef97b06c6e29d",
+    "meaning": "Selected export availability only; no claim about inaccessible canonical bytes or all historical export sets.",
+    "entries": {
+      "004fc330.c": {
+        "inSelectedManifest": false,
+        "fileExistsAtResearchHead": false
+      },
+      "004b8070.c": {
+        "inSelectedManifest": false,
+        "fileExistsAtResearchHead": false
+      }
+    }
+  },
+  "dataReadProposal": {
+    "kind": "reviewer-accepted-finite-data-only-read",
+    "canonicalExpectedSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "addresses": [
+      "005a7266",
+      "005a72b2",
+      "005a72fe",
+      "005a734a",
+      "005a7396",
+      "005a73e2",
+      "005a742e",
+      "005a747a",
+      "005a74c6",
+      "005a7512",
+      "005a755e",
+      "005a75aa",
+      "005a75f6",
+      "005a7642",
+      "005a768e",
+      "005a76da",
+      "005a7726",
+      "005a7772",
+      "005a77be",
+      "005a780a"
+    ],
+    "wordSize": 2,
+    "constantsDescriptorBound": {
+      "base": "005aa5f0",
+      "stride": 31,
+      "maximumEntries": 512,
+      "purpose": "Concrete write overlap only; stop at existing empty-name terminator."
+    },
+    "command": [
+      "taskset",
+      "-c",
+      "4",
+      "timeout",
+      "20s",
+      "python3",
+      "work/orchestration/swarm-class2-constructor-request-20261010-01/read-descriptor-words.py"
+    ],
+    "extractorSha256": "0014d993c887eab5840c32f5e64eebf202541d7d7f0d29c8d53c0fb958840500",
+    "instructionDecoding": false,
+    "nativeExecution": false,
+    "grant": "Parent finite constructor producer task and independent exact data-scope acceptance, 2026-10-10 04:36 UTC."
+  },
+  "dataReaderExit": 0,
+  "nativeExecution": false,
+  "instructionDecoding": false,
+  "runtimeChanges": false,
+  "testsRun": false,
+  "browserRun": false,
+  "stop": "Selected tail closed for models other than2/3; model9 constructor004fc330 remains absent selected body. Existing class9 request sites are available; constructor004b8070 and supported incoming shared history remain separate.",
+  "wordingCorrection": "Separate new player plans for Hut1/Camp/Temple from the native model18 Vault constructor; no player-placeable Vault route claim."
+}
