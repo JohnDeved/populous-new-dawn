@@ -1,6 +1,6 @@
 # Mission 3 automatic Vault prayer panel
 
-PR [#310](https://github.com/JohnDeved/populous-new-dawn/pull/310), refs [#72](https://github.com/JohnDeved/populous-new-dawn/issues/72). This is a bounded slice; #72 remains open.
+PR [#310](https://github.com/JohnDeved/populous-new-dawn/pull/310), refs [#72](https://github.com/JohnDeved/populous-new-dawn/issues/72). This is a bounded slice; #72 remains open. Product PR310 merged2026-10-10T10:22:32Z as `35de8e6ca6864a98aff3bca0f263e87eee7fa65c`; its GitHub tree exactly matches the tested tree. [Integration readback](integration-readback.json) records provider status as in_progress at10:23:29Z; no provider-pass claim is made here.
 
 Source: `79618d3323a6062dd2b7fc1c4e37e8055d2f86a0`, base `4754e12d3590bde18656416514871b033de164be`.
 

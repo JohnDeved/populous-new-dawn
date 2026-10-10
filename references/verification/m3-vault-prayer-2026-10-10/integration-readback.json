@@ -1,0 +1,18 @@
+{
+  "observedAt": "2026-10-10T10:23:29.094026+00:00",
+  "pr": 310,
+  "merged": true,
+  "mergedAt": "2026-10-10T10:22:32Z",
+  "acceptedHead": "79618d3323a6062dd2b7fc1c4e37e8055d2f86a0",
+  "base": "4754e12d3590bde18656416514871b033de164be",
+  "main": "35de8e6ca6864a98aff3bca0f263e87eee7fa65c",
+  "tree": "697c47d853096e9c71130499d6de953f34421d25",
+  "testedTreeEqual": true,
+  "readback": "GitHub REST pull310 and git/commits/35de8e6 via authenticated gh; exact expected-head merge",
+  "provider": {
+    "id": 114191701593,
+    "status": "in_progress",
+    "startedAt": "2026-10-10T10:22:36Z",
+    "buildId": "d90bca2e-ad32-43ee-a53c-d17ee0a512ea"
+  }
+}

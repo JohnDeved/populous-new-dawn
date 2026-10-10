@@ -417,5 +417,13 @@
     "route classification"
   ],
   "rawEvidence": "Raw receipts/logs are retained under the listed local paths. This public packet is a hash-bound compact summary; it contains no browser profiles, original executable/data bytes, or raw archive.",
-  "parityDiscoveryLimit": "Empty parityMeasurements: maintained local-render scenario name is outside current reporter discovery; no computed parity credit or ledger change."
+  "parityDiscoveryLimit": "Empty parityMeasurements: maintained local-render scenario name is outside current reporter discovery; no computed parity credit or ledger change.",
+  "integration": {
+    "mergedAt": "2026-10-10T10:22:32Z",
+    "main": "35de8e6ca6864a98aff3bca0f263e87eee7fa65c",
+    "testedTreeEqual": true,
+    "readbackSha256": "0bf2d71c4e13431de1b0327949332106119d89f354233e3be8ee56d6d5e45298",
+    "providerObservedAt": "2026-10-10T10:23:29.094026+00:00",
+    "providerStatus": "in_progress"
+  }
 }
