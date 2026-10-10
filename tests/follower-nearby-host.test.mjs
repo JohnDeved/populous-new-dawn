@@ -54,3 +54,38 @@ for (const reportFailure of [false, true]) test(`actual host finally retains the
     assert.deepEqual(bindings.receipt.errors, report.errors)
   }
 })
+
+for (const mode of ['snapshot', 'read failure', 'overflow', 'write failure'])
+  test(`actual failed inspect keeps one bounded diagnostic, screenshot and original error: ${mode}`, async () => {
+    const source = ts.createSourceFile('mission1-nearby-followers.mjs',
+      readFileSync(new URL('../scripts/local-render/mission1-nearby-followers.mjs', import.meta.url), 'utf8'),
+      ts.ScriptTarget.Latest, true),
+      scenario = source.statements.find(node => ts.isFunctionDeclaration(node) &&
+        node.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.DefaultKeyword)),
+      inspect = scenario.body.statements.filter(ts.isVariableStatement)
+        .flatMap(node => [...node.declarationList.declarations]).find(node => node.name.getText(source) === 'inspect'),
+      primary = Error('original DOM mismatch'), events = [], report = { errors: [], stages: [] },
+      diagnostic = { state: { nearby: false }, surface: { sprite: { position: '0px -535px' } } },
+      bindings = {
+        admit: () => {}, report,
+        wait: async () => { events.push('poll'); throw primary },
+        witness: { evaluate: async (callback, pressed) => callback({ inspect(value) {
+          events.push('diagnostic'); assert.equal(value, true)
+          if (mode === 'read failure') throw Error('actual diagnostic read failed')
+          return mode === 'overflow' ? { value: 'x'.repeat(262145) } : diagnostic
+        } }, pressed) },
+        screenshot: async () => { events.push('screenshot') },
+        save: () => {
+          events.push('save')
+          assert.equal(report.failedInspection.label, 'global-pressed')
+          if (mode === 'write failure') throw Error('diagnostic write failed')
+        },
+      },
+      run = Function(...Object.keys(bindings), `return (${inspect.initializer.getText(source)})`)(...Object.values(bindings))
+    await assert.rejects(run('global-pressed', true), error => error === primary)
+    assert.deepEqual(events, ['poll', 'diagnostic', 'screenshot', 'save'])
+    assert.deepEqual(report.stages, [])
+    if (['snapshot', 'write failure'].includes(mode)) assert.deepEqual(report.failedInspection.diagnostic, diagnostic)
+    else assert.match(report.failedInspection.readFailure, mode === 'overflow' ? /256 KiB/ : /read failed/)
+    if (mode === 'write failure') assert.match(report.errors[0], /diagnostic write failed/)
+  })

@@ -47,7 +47,7 @@ export function nearbySnapshot(scene, store) {
 const sprite = id => {
   const rect = art.rects[id]
   if (!rect) throw Error(`Canonical nearby HFX${id} is unavailable`)
-  return { position: `-${rect.x}px -${rect.y}px`, width: `${rect.w}px`, height: `${rect.h}px` }
+  return { position: `${-rect.x}px ${-rect.y}px`, width: `${rect.w}px`, height: `${rect.h}px` }
 }
 const readSprite = node => node ? {
   position: node.style.backgroundPosition, width: node.style.width, height: node.style.height,

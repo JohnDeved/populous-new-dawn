@@ -61,13 +61,28 @@ export default async function ({ page, openMission, output, receipt, signal, obs
       await wait(() => witness.evaluate((api, pressed) => api.inspectStatus(pressed), pressed),
         value => value.matched, `${label} DOM commit`)
       observed = await witness.evaluate((api, pressed) => api.inspect(pressed), pressed)
-    } catch (error) { observationError = error }
+    } catch (error) {
+      observationError = error
+      try {
+        report.failedInspection = { label, pressed, diagnostic: await witness.evaluate((api, pressed) => {
+          const value = api.inspect(pressed)
+          if (new TextEncoder().encode(JSON.stringify(value)).length > 262144)
+            throw Error('Failed nearby DOM diagnostic exceeds 256 KiB')
+          return value
+        }, pressed) }
+      } catch (failure) {
+        report.failedInspection = { label, pressed, readFailure: String(failure?.stack ?? failure).slice(0, 2048) }
+      }
+    }
     try { await screenshot(label) }
     catch (error) {
       if (observationError) report.errors.push(String(error))
       else observationError = error
     }
-    if (observationError) throw observationError
+    if (observationError) {
+      try { save() } catch (error) { report.errors.push(String(error?.stack ?? error)) }
+      throw observationError
+    }
     report.stages.push({ label, ...observed })
     save()
     assertNearbySurface(observed.state, observed.surface)
