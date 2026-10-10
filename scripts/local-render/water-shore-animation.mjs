@@ -24,8 +24,15 @@ export default async function waterShoreAnimation({ page, openMission, output, s
     const first = phase.frames[0], last = phase.frames.at(-1)
     assert.equal(first.water, last.water, 'acquired water texture stays fixed')
     assert.equal(first.waves, last.waves)
-    if (first.paused) assert.equal(first.turn, last.turn, 'pause stops wave clock')
-    else assert.ok(last.turn > first.turn, 'normal game clock progresses')
+    if (first.paused) {
+      assert.equal(first.turn, last.turn, 'pause stops wave clock')
+      assert.equal(first.positions, last.positions, 'pause holds wave heights')
+      assert.equal(first.light, last.light, 'pause holds wave lighting')
+    } else {
+      assert.ok(last.turn > first.turn, 'normal game clock progresses')
+      assert.notEqual(first.positions, last.positions, 'normal wave heights animate')
+      assert.notEqual(first.light, last.light, 'normal wave lighting animates')
+    }
     writeFileSync(resolve(output, 'water-sequence.json'), JSON.stringify(report, null, 2))
   }
   const settings = async () => {
