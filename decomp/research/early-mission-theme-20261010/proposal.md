@@ -84,7 +84,7 @@ indices. This shadow ownership belongs in the coherent vegetation correction.
 
 ## Current shared consumers and smallest coherent implementation
 
-1. Add one immutable environment selection from the actual mission header data.
+1. Add one immutable, generic environment selection from actual header data.
    Resolve landscape12/28/25 to c/s/p terrain and full model atlas, and resolve
    object0/6 to2/6 independently. Keep existing sky selection and authored
    scenery placements. Never mutate a process-global active palette/model bank.
@@ -121,10 +121,17 @@ indices. This shadow ownership belongs in the coherent vegetation correction.
    selected terrain/model resources before readiness. Preserve scene-owned
    minimap/globe invalidation and atlas/model cache separation on M3→M1→M2.
 
-The bank-level selector can be reusable while its initial production admission
-is explicitly M1–3. A shared bank in another mission is not evidence of complete
-theme acceptance there. Preserve current unsupported-level behavior or obtain a
-separately reviewed expansion; do not silently route every bank 6 mission.
+M1–3 bounds this evidence and the ordinary comparison witnesses, not runtime
+selection. Use generic authored resource lookups with explicitly supported
+landscape c/s/p and object-bank 2/6 identities; do not add a mission-number
+allowlist. Other callers using these same identities receive the same resources.
+The 78 imported-model comparison supports sharing these records across callers,
+but the reviewer must inspect each relevant model/material consumer, including
+ordinary effects, buildings, scenery and reincarnation, before integration.
+Keep unsupported resource identities on an explicit existing fallback/unknown
+path. A failed load of a supported identity must retain required-resource failure
+semantics rather than silently substituting c. Shared resource reuse does not
+establish ordinary behavior or complete theme/campaign parity for other missions.
 
 ## Temple boundary
 
@@ -141,6 +148,8 @@ atlas/tints and timing. A theme change must not reset, fork or broaden its clock
 The boundary should allow Temple materials to consume the scene's bank-selected
 atlas once their independent admission is reviewed; ordinary theme loading does
 not authorize new acquisition VFX, sprite recoloring or new Temple gameplay.
+Do not merely delete the existing Mission 3 gate: any broader animation admission
+must follow the actual shared resource/controller lifetime and readiness contract.
 
 ## Failure-first and ordinary comparison plan (not run)
 
