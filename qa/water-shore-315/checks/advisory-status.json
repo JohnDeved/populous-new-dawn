@@ -1,0 +1,10 @@
+{
+  "health": "inconclusive",
+  "receiptStatus": "unknown; preserved without fabricating a terminal result",
+  "observedSessionExitCode": 130,
+  "stop": "Owned foreground advisory session interrupted after about11.5 minutes without useful output",
+  "dupes": "not-run",
+  "unused": "not-run",
+  "standardCheck": "passed; 1914 tests",
+  "build": "passed"
+}

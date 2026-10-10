@@ -63,10 +63,12 @@ checks after that same failing offset assertion.
 
 Focused changed TypeScript formatting and ESLint pass. Oxlint reports the same 14
 normalized diagnostics as base; this is not a clean Oxlint claim. Full standard
-check/build results are in their named receipts. Fallow health is still running at publication; its receipt is nonterminal, and
-duplication/unused checks are queued behind it. No Fallow pass is claimed. These
-advisories do not establish unused native probe consumers. The completed standard
-check/build and independent product review are separate results.
+check/build results are in their named receipts. Fallow health produced no useful output beyond configuration/cache setup for
+about11.5 minutes. Its owned foreground session was interrupted (exit130). The
+original receipt remains nonterminal/unknown; health is inconclusive, and queued
+duplication/unused checks were not run. No Fallow pass is claimed. These advisory
+limits were independently accepted as nonblocking for this narrow removal. The
+completed standard check/build and product review remain separate results.
 
 See [the source contract](../../engineering/water-shore-animation.md) and
 `native-inputs.sha256` for retained decompilation and exact landscape/wave inputs.

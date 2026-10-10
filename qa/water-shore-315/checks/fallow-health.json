@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "34688eff-31c5-49b7-8790-8354196d7cbd",
+  "status": "unknown",
+  "phase": "prepared",
+  "source": {
+    "headOid": "8c4c45f32e49765afc6972d76b9c3dd8f1ce520e",
+    "branch": "fix/water-shore-animation-315",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "taskset",
+    "-c",
+    "0-2",
+    "npm",
+    "run",
+    "quality:health"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/water-shore-animation-20261010",
+  "startedAt": "2026-10-10T19:29:02.099Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/water-shore-animation-20261010/work/orchestration/water-shore/fallow-health.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/water-shore-animation-20261010/work/orchestration/water-shore/fallow-health.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": []
+}
