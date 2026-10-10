@@ -1,0 +1,51 @@
+{
+  "verdict": "ACCEPT exact combined source adoption and fresh standard/affected-QA admission",
+  "reviewedAt": "2026-10-10T04:44:50.265436+00:00",
+  "product": "92907866646e418747dd2bda44236d9949835bc5",
+  "productTree": "c35d4fda6617bf905942cc783b0c5d82d32c73a1",
+  "qa": "d37f8899a583b10e58d2e0c257709fcd80ec4768",
+  "qaTree": "3594b2b9e7415fd2cde66a48a05671ea5c0d5194",
+  "main": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+  "radius": "91604757ca7060bc94f27c9db918e3f30ee50441",
+  "adoptionSha256": "638fc19122eb4dee7913b04e97fd8073e5f40c76bf14e0748ff7e2c79a4c087f",
+  "profileSha256": "1e7fec691d49bfeae0385d57900ca946a520bd1c03d71fc61e99a2fbcdc6175e",
+  "standardFiles": 295,
+  "stageCount": 17,
+  "profileDifference": "Exact prior stages and bounds; existing typecheck moved first, sole radius test appended to tests-new. All301 previous common/test hashes unchanged, one radius test pin added.",
+  "unionVerification": "Independently compared every tracked mode/type/blob/path: main equals accepted radius tree; product3854 entries equal actual main plus four unchanged Tornado paths; QA3857 entries equal product plus six unchanged QA paths. Main does not overlap those four Tornado paths relative to prior3b13.",
+  "carriedSourceReviews": {
+    "selection-radius-source-quality-review-20261010.json": "6bc700555fbdf8aaddaaa6b89dd7ab0aabda41997af9ecbd6f15eb166003bb62",
+    "selection-radius-typefix-carry-admission-review-20261010.json": "2ad07de64e54fd93773538ad42b1cdd3cef276f2bd7bdf70d4dea86221c3cfc3",
+    "selection-radius-final-standard-review-20261010.json": "7fa28e17cc844e91656c2e1a3b9d360737e630b477afc619e859b32869ec13a0",
+    "selection-radius-ordinary-result-review-20261010.json": "23728c1331483adafebd351e6f10074ea5bb2fa84d9e653fcbf1b701ef7eaa5c"
+  },
+  "tornadoSourceReviewSha256": "4b1664a08bb97dd54b49299dac6a8675cb285ae37fad3b8258264539b757c9d0",
+  "qaMethodReviewSha256": "e385e805a7594cf5cbac217af942e01abaa8b5c9ce6fbdb4f4ff822b2b4c169d",
+  "standardAdmission": {
+    "cpu": "5-7",
+    "innerSeconds": 180,
+    "outerSeconds": 200,
+    "killGraceSeconds": 15,
+    "offlineEnv": {
+      "CLOUDFLARE_CF_FETCH_ENABLED": "false",
+      "WRANGLER_SEND_METRICS": "false",
+      "WRANGLER_WRITE_LOGS": "false"
+    },
+    "dependencyInode": 538212,
+    "dependencyDevice": 27,
+    "method": "Parent unchanged constructionStandardCommand with exact profile/root/output substitutions and fresh private TMP/cache; stop on nonzero/unknown/drift."
+  },
+  "affectedQAAdmission": {
+    "cpu": "4",
+    "source": "d37f8899a583b10e58d2e0c257709fcd80ec4768",
+    "tests": "One fresh ten-case tornado-building-witness file",
+    "transform": "One fresh maintained no-listener native-loader check with explicit Tornado helper; changed seven application modules require fresh closure.",
+    "bounds": "65s TERM+15s grace outside maintained45s/1024 modules/64MiB; fresh work/tornado-combined-d37 paths, TMP/node_modules/.vite, registry and offline flags."
+  },
+  "limits": [
+    "Old standards/transform/ordinary manifest remain attributed to old sources. New combined results and fresh ordinary binding still required.",
+    "No new native execution or Swarm ownership admission.",
+    "No browser launch granted by this source/profile verdict."
+  ],
+  "reviewerExecution": "Read-only tracked-tree/profile/hash/receipt correspondence; no tests/build/transform/browser execution."
+}

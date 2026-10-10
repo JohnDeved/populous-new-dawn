@@ -1,0 +1,15 @@
+app/building-runtime.ts:44:42: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.
+app/building-runtime.ts:40:37: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.
+app/building-runtime.ts:29:31: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.
+app/building-runtime.ts:28:74: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.
+app/building-runtime.ts:39:25: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.
+app/building-runtime.ts:156:38: warning eslint(no-shadow): 'u' is already declared in the upper scope. help: Consider renaming 'u' to avoid shadowing the variable from the outer scope.
+app/building-runtime.ts:163:34: warning eslint(no-shadow): 'u' is already declared in the upper scope. help: Consider renaming 'u' to avoid shadowing the variable from the outer scope.
+app/building-runtime.ts:314:30: warning eslint(no-shadow): 'u' is already declared in the upper scope. help: Consider renaming 'u' to avoid shadowing the variable from the outer scope.
+app/building-runtime.ts:254:18: error eslint(no-multi-assign): Do not use chained assignment help: Separate each assignment into its own statement
+app/building-runtime.ts:273:20: warning eslint(prefer-destructuring): Use Object destructuring. help: Use object destructuring rather than direct member access.
+app/tornado-runtime.ts:1:58: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.
+app/tornado-runtime.ts:8:8: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.
+app/tornado-runtime.ts:19:35: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.
+app/tornado-runtime.ts:20:39: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.
+app/tornado-runtime.ts:83:9: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.

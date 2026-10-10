@@ -1,0 +1,42 @@
+{
+  "status": "exact-actual-union-verified",
+  "main": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+  "radius": "91604757ca7060bc94f27c9db918e3f30ee50441",
+  "previousProduct": "4c65f1800844f8f69c1d762354a5ae19d7b9df9e",
+  "product": "92907866646e418747dd2bda44236d9949835bc5",
+  "productTree": "c35d4fda6617bf905942cc783b0c5d82d32c73a1",
+  "previousQA": "c351f4a2eee3d13538aee247afb6b4db6e24968a",
+  "qa": "d37f8899a583b10e58d2e0c257709fcd80ec4768",
+  "qaTree": "3594b2b9e7415fd2cde66a48a05671ea5c0d5194",
+  "productFileCount": 3854,
+  "qaFileCount": 3857,
+  "standardTestFiles": 295,
+  "productDeltaOnMain": [
+    "app/building-runtime.ts",
+    "app/tornado-runtime.ts",
+    "decomp/research/tornado-building-wood-20261010.md",
+    "tests/tornado-building-wood.test.mjs"
+  ],
+  "qaOnlyPaths": [
+    "scripts/local-render/harness.mjs",
+    "scripts/local-render/mission2-tornado-building.mjs",
+    "scripts/local-render/temple-manual-transform-check.mjs",
+    "scripts/local-render/tornado-building-witness.mjs",
+    "scripts/local-render/vite.config.mjs",
+    "tests/tornado-building-witness.test.mjs"
+  ],
+  "allProductTrackedEntriesMatchActualMainPlusTornado": true,
+  "allQATrackedEntriesMatchProductPlusUnchangedQA": true,
+  "all295TestBlobsMatchProspectiveUnion": true,
+  "directAppPublicPackageCorrespondence": {
+    "app": "e38dee7ecdec335f9c9cc407870ed2be063c8ea9",
+    "public": "0130401487c23e722271cb0236c85197fdcdf98f",
+    "package.json": "5aa847c2acfe5a16dab8b8494ee521ba92cb07ba",
+    "package-lock.json": "97cd9ade0190af96e99b389c93d4ee20bef5065c"
+  },
+  "checkPlan": {
+    "path": "work/orchestration/tornado-radius-prospective-final-check-plan.json",
+    "sha256": "50a635cdffac832490a1eaa5d7122d3cf6c7ad5d4ac0811dca2783ed8abb238f"
+  },
+  "limits": "No runtime or QA method bytes edited during adoption. Prior results preserve old source identity; combined standard and ordinary claims await fresh execution/review."
+}

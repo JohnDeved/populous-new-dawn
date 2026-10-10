@@ -1,0 +1,21 @@
+✔ Earthquake matches the native initializer and central deformation phase (5.386943ms)
+✔ Earthquake building scans preserve protected models, RNG and ejection-before-damage (0.456455ms)
+✔ live Earthquake casts, damages and deforms independently of refresh rate (270.382239ms)
+✔ live Tornado releases one loose log at the damaged building before debris allocation (64.510986ms)
+✔ live Tornado reuses plan work and retires exhausted buildings through normal turn cleanup (77.052712ms)
+✔ live Tornado leaves protected, rejected, unactivated and retired buildings alone (116.417327ms)
+✔ supplied Tornado allocation failure keeps work while stage, attribution and debris advance (23.230293ms)
+✔ Tornado byte decrement wraps on supplied failure and neutral attacker preserves attribution (24.097006ms)
+✔ Tornado compares final stage with the saved stage before emitting debris (24.427502ms)
+✔ Tornado exhausted work retires without allocation or post-retirement plan bookkeeping (66.837613ms)
+✔ Tornado replays native initialization, lifetime, carry and throw (4.139118ms)
+✔ Tornado uses the native building protection and one-draw damage gate (0.47951ms)
+✔ live Tornado casts, captures and throws independently of refresh rate (350.832575ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3482.963011

@@ -1,0 +1,275 @@
+{
+  "verdict": "ACCEPT",
+  "scope": "Exact combined Tornado and radius product full standard result; ordinary Tornado witness remains pending",
+  "reviewedAt": "2026-10-10T04:57:52.173954+00:00",
+  "source": "92907866646e418747dd2bda44236d9949835bc5",
+  "tree": "c35d4fda6617bf905942cc783b0c5d82d32c73a1",
+  "aggregate": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/aggregate.json",
+  "aggregateSha256": "ce9710778b44ee9f01a2bb1e51531e77e7ae9e64f1ff2563a7342fbf3bf0cc85",
+  "profile": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/profile-proposal.json",
+  "profileSha256": "1e7fec691d49bfeae0385d57900ca946a520bd1c03d71fc61e99a2fbcdc6175e",
+  "independentChecks": [
+    "All 17 raw receipts and stdout/stderr bytes/hash correspondence, preserving CR bytes; terminal pass/exit0/no signal",
+    "Exact admitted commands and source before/after equality; 303 input hashes recomputed from current files",
+    "All 295 current package test files appear exactly once; final top-level summaries sum to 1829 passes with no failures/skips/cancellations/todos",
+    "Fresh typecheck, parity, orchestration and build pass; raw warnings remain retained",
+    "Current product clean at exact head and tree; prior source/quality/adoption verdict hashes verified"
+  ],
+  "counts": {
+    "tests": 1829,
+    "pass": 1829,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "standardTestFiles": 295,
+  "freshStages": 17,
+  "startedAt": "2026-10-10T04:45:24.684Z",
+  "finishedAt": "2026-10-10T04:52:18.209Z",
+  "summedCommandSeconds": 389.657,
+  "wallIntervalSeconds": 413.525,
+  "stages": [
+    {
+      "name": "typecheck",
+      "receipt": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/typecheck.json",
+      "receiptSha256": "41539c32b4dc8f322e983d5bb91ed8efbaa24212bd44e6db7267897e07c86eb8",
+      "stdoutSha256": "5b3b688caa668685eebda41ca93c4e60de869bac3645a0b25bf22809e6c84ba5",
+      "stderrSha256": "7d61cb2e2deb776dfec4d6f54693f9edeed0af5c4da52f091c53c995d862fb65",
+      "counts": null
+    },
+    {
+      "name": "tests-new",
+      "receipt": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-new.json",
+      "receiptSha256": "f84989d0631e82707154665567ed36f75524806cb735691598bb48927dde19d9",
+      "stdoutSha256": "7238673f08ccfd31a5ae881b07ba80d316129e1cb06a03d0fc130fbf09cefd44",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "counts": {
+        "tests": 208,
+        "pass": 208,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-01",
+      "receipt": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-01.json",
+      "receiptSha256": "d42c8848e636c94530af7ed19b9084cf1a7ae76ec4e88bd6c6d3b3c65c17bc50",
+      "stdoutSha256": "f2582bbbafb835690f907fa51733938e55e342837b49ff0b582a66e19126ab76",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "counts": {
+        "tests": 170,
+        "pass": 170,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-02",
+      "receipt": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-02.json",
+      "receiptSha256": "d891643715deaae0ad052aafcc1c2afb80aae67a2677aa46cc9f57e6b5ae9126",
+      "stdoutSha256": "1a4d5e9bfdfffaa39466cb6301f45672c13fb2158b797c4ddd8e6e28d4c17053",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "counts": {
+        "tests": 165,
+        "pass": 165,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-03",
+      "receipt": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-03.json",
+      "receiptSha256": "be06d3a501c5252cdf31f758c1262bf27e2cd734a9b1906ff31e5bbb85d0eb1f",
+      "stdoutSha256": "18dc9de954eb743c4bf7189af1016233cd093a47b51e037eb60aedd4985eee38",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "counts": {
+        "tests": 283,
+        "pass": 283,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-04a",
+      "receipt": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-04a.json",
+      "receiptSha256": "a0685323370763dfc9f9f340517343271e720f2d6f719e69d469d5298c1c271a",
+      "stdoutSha256": "8f4e6611b2ca64376ea2eb631243d7c5730c02c6a474e23a983a3746cc0ff688",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "counts": {
+        "tests": 66,
+        "pass": 66,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-04b",
+      "receipt": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-04b.json",
+      "receiptSha256": "69275ed147a23f5884dc5b10de769c8ef949a5328990fa63f6ac7f76373df902",
+      "stdoutSha256": "7db5fed1bbe1210041c702e4a29a85ca797244b5b21c2b3b1e8887f91524a4ce",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "counts": {
+        "tests": 75,
+        "pass": 75,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-04c",
+      "receipt": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-04c.json",
+      "receiptSha256": "d6fb13f447d1db3d41b54764a67a3dfb5bfefb50f534db2f3e28bab46cd750ab",
+      "stdoutSha256": "62afa3623cfab8622f26280a74e9efb543f9b4ce88f3ac0ab9edb675e6b77a70",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "counts": {
+        "tests": 32,
+        "pass": 32,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-05a",
+      "receipt": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-05a.json",
+      "receiptSha256": "f0612bfff5672752b49c3ea1536a373b6351da4f2acc58dab3fc7289f5529b0f",
+      "stdoutSha256": "428a4dd65d64ab9900c9d2d73cb3bab28e887d7bac4e83a7f6f8edd8de69f02e",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "counts": {
+        "tests": 54,
+        "pass": 54,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-05b",
+      "receipt": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-05b.json",
+      "receiptSha256": "aac87acba11c4717b1b2e4b3d9adc087c89b03e723632aefe5804deea5641123",
+      "stdoutSha256": "fad805f92f93d23080c4de11f23b06b43a2252a8d3aaf2863085d0cd552667a5",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "counts": {
+        "tests": 47,
+        "pass": 47,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-05c",
+      "receipt": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-05c.json",
+      "receiptSha256": "33cb076f6802a09e95ea426bc19a213a8f27c325419a79c7c0b1d47aa7b4956a",
+      "stdoutSha256": "cb6ff8125690f15c6e7cfa7a3bac305cb448fc42411a5db6e32c3b99bccc4e39",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "counts": {
+        "tests": 90,
+        "pass": 90,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-06",
+      "receipt": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-06.json",
+      "receiptSha256": "45bac9409714ba708c0d3d3bc36ca610e729833cbd341cd06a05bce0dc8e8430",
+      "stdoutSha256": "58ee2520335f7d366f68885f3d2953fbfcd5bd27bdfdbd92f55cc4aa710ec2f4",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "counts": {
+        "tests": 328,
+        "pass": 328,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-07",
+      "receipt": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-07.json",
+      "receiptSha256": "8c42992f5a13ab03fd1cd6d3afb2eb47a2eff965fe76d28d7a950d2558fbda1c",
+      "stdoutSha256": "8f4274bdfad8b25e8e4ed4044b13a576c80611948501ab19f4d749ad9709f676",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "counts": {
+        "tests": 141,
+        "pass": 141,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-08",
+      "receipt": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-08.json",
+      "receiptSha256": "d22243419c0fb45af894f04169831b3bd74819c36a57bb7a77d11cda5544c7c6",
+      "stdoutSha256": "f961667f51d95bc8f387dafb75fcce7dd7635828d1498cbbd99fbddb31854fed",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "counts": {
+        "tests": 170,
+        "pass": 170,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "parity-check",
+      "receipt": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/parity-check.json",
+      "receiptSha256": "6528a02d2b74c6e1cc880427cda8bce5ba8184475da2e9855912f390b80f82f0",
+      "stdoutSha256": "f39c8ad20b8013f4e4e4ade55ff5d63ab1c8df3729611db56c2d25cf734b48a9",
+      "stderrSha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+      "counts": null
+    },
+    {
+      "name": "orchestration-check",
+      "receipt": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/orchestration-check.json",
+      "receiptSha256": "29800af6e6e0525db10a3e08e045d606ec3a6bfda2607a01fe4cf4da3d7272aa",
+      "stdoutSha256": "b18d09c73c92014599d480b65ec8bfb1e0c0b21e0a236c56baaee4e0e935f9ac",
+      "stderrSha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+      "counts": null
+    },
+    {
+      "name": "build",
+      "receipt": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/build.json",
+      "receiptSha256": "10b404e9b20aea43db010b2f57980568798e3313777b36795f8729c7536f016c",
+      "stdoutSha256": "1572c5c18fe22327a67f1c928bbfb36a7d20340798cc55cdc80f48e88c91d500",
+      "stderrSha256": "f66ea317a845572df679add6da19af1b570fc3af112d9edbd8c616d066ea5e1f",
+      "counts": null
+    }
+  ],
+  "priorReviews": {
+    "tornado-radius-source-profile-admission-review-20261010.json": "a6becef309af3e8c39071ee96f79bfc5272990ea961f3ae17af3775fcaf389d0",
+    "tornado-building-wood-implementation-review-4c65f180-20261010.json": "4b1664a08bb97dd54b49299dac6a8675cb285ae37fad3b8258264539b757c9d0",
+    "tornado-building-wood-final-result-review-20261010.json": "4b6c10c6408de1cbe8054eff3d8dcb0eda8c015c39215a4bb006971070067baa",
+    "selection-radius-typefix-carry-admission-review-20261010.json": "2ad07de64e54fd93773538ad42b1cdd3cef276f2bd7bdf70d4dea86221c3cfc3",
+    "selection-radius-final-standard-review-20261010.json": "7fa28e17cc844e91656c2e1a3b9d360737e630b477afc619e859b32869ec13a0",
+    "tornado-combined-qa-result-review-d37f8899-20261010.json": "fcdcfb2d4f925cc9905eaef9c12bc955a0f24df821d7a2e9e01abedeedd7991d"
+  },
+  "limitations": [
+    "Ordinary M2 Tornado witness still pending; this verdict alone does not accept gameplay result or merge.",
+    "Scoped Oxlint remains failed with 15 inherited diagnostics, accepted by exact baseline correspondence; format and ESLint scopes unchanged.",
+    "Initial transform exit124 has cleanup UNKNOWN; corrected no-listener transform result is separately accepted.",
+    "No native execution or historical allocation equivalence is claimed."
+  ]
+}

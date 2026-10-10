@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "5a712323-0002-4ea9-9cd8-c787f017416a",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "1675b5c20c90b9f22fd154f5f243f06772113b22",
+    "branch": "qa/tornado-class2-ordinary-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/local-render/tornado-building-witness.mjs": "144ef8640c48292e0d27c3cccc61281c2f25bab55d71086dd1996ff3c3172aa7",
+      "scripts/local-render/mission2-tornado-building.mjs": "0cc215b9ed90724378f248bae715ee25762659be6dce9ae80401571763eab33c",
+      "scripts/local-render/temple-manual-transform-check.mjs": "e575c3ec4bcc95b7fa61ded028e465367ef7d613c40b6f9c60195874c12757dc"
+    }
+  },
+  "command": [
+    "timeout",
+    "65s",
+    "node",
+    "scripts/local-render/temple-manual-transform-check.mjs",
+    "/scripts/local-render/tornado-building-witness.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010",
+  "startedAt": "2026-10-10T04:21:31.590Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-transform-1675b5c2.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-transform-1675b5c2.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-10T04:22:36.624Z",
+  "exitCode": 124,
+  "signal": null,
+  "stdout": "12:21:34 AM [vite] (rsc) [optimizer] scanning dependencies...\n12:21:34 AM [vite] (ssr) [optimizer] scanning dependencies...\n{\"bounds\":{\"ms\":45000,\"modules\":1024,\"bytes\":67108864},\"baselineKind\":\"controlled local require-function fixture\",\"baselineSha256\":\"852bae2ec8df0d672373a1839e4b86945b2086d4786b337844afb21b9ed786ea\",\"currentSha256\":\"a059c96f372162977c3229544a42d2a926000b91f7b361a0bd3fbc46323645f3\",\"extraEntries\":[{\"entry\":\"/scripts/local-render/tornado-building-witness.mjs\",\"sha256\":\"144ef8640c48292e0d27c3cccc61281c2f25bab55d71086dd1996ff3c3172aa7\"}],\"modules\":[],\"bytes\":0,\"status\":\"failed\",\"failure\":\"Error: ENOENT: no such file or directory, mkdir '/home/agent/.config/.wrangler/registry'\\n    at mkdirSync (node:fs:1411:26)\\n    at DevRegistry.register (/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/node_modules/miniflare/dist/src/index.js:87128:36)\\n    at #registerWorkers (/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/node_modules/miniflare/dist/src/index.js:89338:23)\\n    at #assembleAndUpdateConfig (/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/node_modules/miniflare/dist/src/index.js:89246:32)\\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\\n    at async Mutex.runWith (/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/node_modules/miniflare/dist/src/index.js:58160:48)\",\"closed\":false,\"elapsedMs\":3472}\n",
+  "stderr": "\u001b[33m▲ \u001b[43;33m[\u001b[43;30mWARNING\u001b[43;33m]\u001b[0m \u001b[1mProxy environment variables detected. We'll use your proxy for fetch requests.\u001b[0m\n\n\n",
+  "stdoutSha256": "c7dfca6caa9c0199f2b2c4a55a08eb504ddbcd8f1e862dfefa8aaa047fe234c6",
+  "stderrSha256": "6205e22497347c74bf6517d7c67792b17cc2051d7b12f33098353c4b1b9bed4a",
+  "sourceAfter": {
+    "headOid": "1675b5c20c90b9f22fd154f5f243f06772113b22",
+    "branch": "qa/tornado-class2-ordinary-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/local-render/tornado-building-witness.mjs": "144ef8640c48292e0d27c3cccc61281c2f25bab55d71086dd1996ff3c3172aa7",
+      "scripts/local-render/mission2-tornado-building.mjs": "0cc215b9ed90724378f248bae715ee25762659be6dce9ae80401571763eab33c",
+      "scripts/local-render/temple-manual-transform-check.mjs": "e575c3ec4bcc95b7fa61ded028e465367ef7d613c40b6f9c60195874c12757dc"
+    }
+  }
+}

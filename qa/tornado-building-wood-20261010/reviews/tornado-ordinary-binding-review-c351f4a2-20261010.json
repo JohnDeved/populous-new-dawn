@@ -1,0 +1,64 @@
+{
+  "verdict": "ACCEPT exact one-attempt ordinary binding, conditional on immediate unchanged guards and coordinator resource grant",
+  "reviewedAt": "2026-10-10T04:35:32.631549+00:00",
+  "manifestPath": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-ordinary-prelaunch-c351f4a2-r2.json",
+  "manifestSha256": "e0f864721cd4d3a99089b0b9a8bb4246622448b5f24b76fc5b8ebdcda04f4ed7",
+  "source": "c351f4a2eee3d13538aee247afb6b4db6e24968a",
+  "tree": "0b8718c6d0e740c924dafc28189abaecba84dd49",
+  "sourceFingerprint": "32c46e54e83c7ff25befc299fa2d24b1122498b2a874df0e9a71dd0938b38dec",
+  "profileInputs": {
+    "application": "2dc49113f71696830e9f99149dfa2e18b1e8823e4ccacf83b8b8312a1a62247f",
+    "checker": "e775e00e195e2ad00543120cea7e75bd063aa97e539b0cc41c37f747fde9a4dc"
+  },
+  "qaReviewSha256": "e385e805a7594cf5cbac217af942e01abaa8b5c9ce6fbdb4f4ff822b2b4c169d",
+  "productReviewSha256": "4b6c10c6408de1cbe8054eff3d8dcb0eda8c015c39215a4bb006971070067baa",
+  "verifiedPins": 100,
+  "outerInputsIncludingManifest": 101,
+  "argvSha256": "013e68715b815efa99b04b260eea7332eebf10a7901f6d2dcec8729547089b4f",
+  "bounds": {
+    "routeMs": 720000,
+    "impactMs": 45000,
+    "observerVisits": 320,
+    "exportBytes": 4194304,
+    "readinessMs": 60000,
+    "harnessMs": 900000,
+    "outerSeconds": 930,
+    "outerKillGraceSeconds": 15,
+    "maximumOuterSeconds": 945
+  },
+  "resource": {
+    "cpu": "5-7",
+    "port": 4393,
+    "browser": {
+      "path": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/work/orchestration/recovery-20261009b/browser/chrome-headless-shell-linux64/chrome-headless-shell",
+      "sha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+      "inode": 656632,
+      "device": 27,
+      "size": 197868872,
+      "sandbox": true
+    },
+    "dependencies": {
+      "realpath": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/node_modules",
+      "inode": 538212,
+      "device": 27
+    }
+  },
+  "verification": [
+    "All16 source and84 evidence hashes match; exact101 outer inputs include the manifest itself.",
+    "Only prepared-manifest changes are finite TERM+15s timeout, immutable evidence/self pins and accepted gate status.",
+    "Exact supported CLI, offline environment, native config loader, task-local registry and node_modules/.vite cache are bound.",
+    "Fresh game-only profile/output/private paths and outer receipt remain absent; current head/tree are clean and application equals accepted4c65."
+  ],
+  "immediateGuards": [
+    "Repeat manifest/source/input/browser/dependency hashes and profile/output/receipt/cache absence.",
+    "Verify exact source/profile fingerprints and ordinary own-port bind\u2192Node fetch\u2192close readiness on4393, without socket enumeration.",
+    "Record actual session/start and900s harness,930s TERM,945s hard cutoff; one attempt only, stop on any guard failure."
+  ],
+  "limits": [
+    "No actual production allocator exhaustion; supplied failure control remains separately labelled",
+    "No native execution, pixel parity or hardware performance proof",
+    "Late final-active-turn phase0 to phase1 damage intentionally rejected",
+    "First transform failed exit124 and createServer/worker cleanup remains UNKNOWN; paths quarantined"
+  ],
+  "reviewerExecution": "Read-only source/pin/path/argv checks; no listener, browser or test execution."
+}

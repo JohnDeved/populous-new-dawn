@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "682a6cbc-0839-4007-b892-8ab51a19901d",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "d37f8899a583b10e58d2e0c257709fcd80ec4768",
+    "branch": "qa/tornado-class2-ordinary-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/local-render/tornado-building-witness.mjs": "3ec8679546957db5da3b722c7e2b690be44f259f66e2002fe8dc552cbccbd333",
+      "scripts/local-render/mission2-tornado-building.mjs": "ddd7e09fa2a6dbbb52e70c1f5f8d6a775a71ad0497993186a2820a3ef486d3fb",
+      "tests/tornado-building-witness.test.mjs": "d31e2109b00856b91089d9d43fd2df07edffd92fb158385618be234c5aabba0b",
+      "app/campaign-runtime.ts": "b8c23bacf9a3310b541091864b68623a6641734f81c4a4265894dbc0919176e8",
+      "app/computer-runtime.ts": "96b148458340f9803c5342c605a0294b615a03d7e06276185bf212bf0ce17ea8",
+      "app/computer.ts": "d35abab3a7adb5e6a6092dcba96921180d33b91b42c1b182bec48b4a7d958f2d",
+      "app/game-store.ts": "9f3095fe6f351011e03124899e5693a21eb172855e61e11cd3d50bd5bf32c612",
+      "app/world-initialization.ts": "f9c94b937a6c84aaa9ca9064f3d5983330f0ade374a8b96edc75ee10753aaca9",
+      "app/world-turn.ts": "bce117719a8045e1943df2fad8b9500d26e3f90221e333289362df08ab3fee20",
+      "app/world-types.ts": "9ebdd9dc5bf1a6b87eb7f058a28c1706ff059198995b538740ae5a0d3afc6baf"
+    }
+  },
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=15s",
+    "65s",
+    "node",
+    "--test",
+    "tests/tornado-building-witness.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010",
+  "startedAt": "2026-10-10T04:44:10.923Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-witness-contract-d37f8899.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-witness-contract-d37f8899.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-10T04:44:12.223Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ Tornado witness requires owned effect, cell, work, log and competing-owner exclusion (1.980529ms)\n✔ Tornado witness preserves callback receiver, arguments, result and owned cleanup (1.668079ms)\n✔ Tornado witness detaches on error and retains foreign callback ownership (0.599242ms)\n✔ Tornado observer forwards original throw identity and rolls back partial installation (0.842157ms)\n✔ Tornado observer attempts both restorations and stops after the turn cap (3.913938ms)\n✔ Tornado observer rejects wrong and second live effect identities (0.54509ms)\n✔ Tornado observer composes actual advanceGame, projectile impact and live building damage (132.114088ms)\n✔ Tornado cast consumer binds actual delivered terrain pick and quantized projectile (0.820034ms)\n✔ Tornado route cleanup attempts finish, dispose and save while preserving primary failure (1.052914ms)\n✔ Tornado evidence export rejects oversize data instead of truncating any record (11.732798ms)\nℹ tests 10\nℹ suites 0\nℹ pass 10\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1220.125428\n",
+  "stderr": "",
+  "stdoutSha256": "efc140401bdabbaaa91ca01be82590921b21fdcd3bd09bf308940435b44c4e60",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "d37f8899a583b10e58d2e0c257709fcd80ec4768",
+    "branch": "qa/tornado-class2-ordinary-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/local-render/tornado-building-witness.mjs": "3ec8679546957db5da3b722c7e2b690be44f259f66e2002fe8dc552cbccbd333",
+      "scripts/local-render/mission2-tornado-building.mjs": "ddd7e09fa2a6dbbb52e70c1f5f8d6a775a71ad0497993186a2820a3ef486d3fb",
+      "tests/tornado-building-witness.test.mjs": "d31e2109b00856b91089d9d43fd2df07edffd92fb158385618be234c5aabba0b",
+      "app/campaign-runtime.ts": "b8c23bacf9a3310b541091864b68623a6641734f81c4a4265894dbc0919176e8",
+      "app/computer-runtime.ts": "96b148458340f9803c5342c605a0294b615a03d7e06276185bf212bf0ce17ea8",
+      "app/computer.ts": "d35abab3a7adb5e6a6092dcba96921180d33b91b42c1b182bec48b4a7d958f2d",
+      "app/game-store.ts": "9f3095fe6f351011e03124899e5693a21eb172855e61e11cd3d50bd5bf32c612",
+      "app/world-initialization.ts": "f9c94b937a6c84aaa9ca9064f3d5983330f0ade374a8b96edc75ee10753aaca9",
+      "app/world-turn.ts": "bce117719a8045e1943df2fad8b9500d26e3f90221e333289362df08ab3fee20",
+      "app/world-types.ts": "9ebdd9dc5bf1a6b87eb7f058a28c1706ff059198995b538740ae5a0d3afc6baf"
+    }
+  }
+}

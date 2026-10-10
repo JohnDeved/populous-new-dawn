@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "ac94f68c-f369-47fd-ac5d-c1aa41244273",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "c351f4a2eee3d13538aee247afb6b4db6e24968a",
+    "branch": "qa/tornado-class2-ordinary-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "node_modules/eslint/bin/eslint.js",
+    "scripts/local-render/harness.mjs",
+    "scripts/local-render/mission2-tornado-building.mjs",
+    "scripts/local-render/temple-manual-transform-check.mjs",
+    "scripts/local-render/tornado-building-witness.mjs",
+    "scripts/local-render/vite.config.mjs",
+    "tests/tornado-building-witness.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010",
+  "startedAt": "2026-10-10T04:30:55.612Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-qa-eslint-final.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-qa-eslint-final.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-10T04:30:58.254Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "c351f4a2eee3d13538aee247afb6b4db6e24968a",
+    "branch": "qa/tornado-class2-ordinary-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

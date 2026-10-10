@@ -1,0 +1,141 @@
+{
+  "verdict": "ACCEPT implementation, focused red/green and scoped quality attribution; full standards and ordinary witness pending",
+  "reviewedAt": "2026-10-10T04:07:58.475394+00:00",
+  "head": "4c65f1800844f8f69c1d762354a5ae19d7b9df9e",
+  "tree": "38fbf129daae13526fe0027937b1e481c429a499",
+  "base": "3b13a7ff534ab95797b0b06330055cead956160d",
+  "scopeReviewSha256": "e3463850301468c4a2b18d4638c3cc46a9f39bf26cd5a2758f4229cda0d69c69",
+  "changedInputs": [
+    {
+      "path": "app/building-runtime.ts",
+      "sha256": "6961ea2ad389b58aaaa5614bfca4a3c1dbd83e4a22e45996e0a6199ce155e1b9",
+      "bytes": 11703
+    },
+    {
+      "path": "app/tornado-runtime.ts",
+      "sha256": "bcf6650f46cdb263fa192c85c1dda0d6e94333176c50a5a950ee9275a0264d98",
+      "bytes": 3999
+    },
+    {
+      "path": "decomp/research/tornado-building-wood-20261010.md",
+      "sha256": "4004a12397891975955b62009362fefcf16f5c94f63d2f0eb7c9733c6aae8a2d",
+      "bytes": 11094
+    },
+    {
+      "path": "tests/tornado-building-wood.test.mjs",
+      "sha256": "e196729ec34803fb9b2ab824e06d4b9a0b315be2648cbb80bf0137d8ffdc45d4",
+      "bytes": 8936
+    }
+  ],
+  "receipts": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-red-3c9f88cf.json",
+      "sha256": "50968484fb704ee70a702b9eef23bf193a82f0cb9837c0d7159bf506d70fd4b3",
+      "head": "3c9f88cfa0f2615d6c283f39212f2af73768062c",
+      "exitCode": 1,
+      "stdoutSha256": "d2bd009abb1543ee4d9a7d34606bb3ba02e7379b03acc488e3b1cd646938a099",
+      "command": [
+        "node",
+        "--test",
+        "tests/tornado-building-wood.test.mjs"
+      ],
+      "status": "failed"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-green-7dddafa2.json",
+      "sha256": "a7b050867a1fb6068375b4307e0ef78e50ed4614418176d515d8d697096428a5",
+      "head": "7dddafa24d7256f813d0d4e75db73212f03a4a8e",
+      "exitCode": 0,
+      "stdoutSha256": "ceeefa52c2c477ea5f8929d24f3ef2fa6dcd485d7f1768007452648d70a9752d",
+      "command": [
+        "node",
+        "--test",
+        "tests/tornado-building-wood.test.mjs",
+        "tests/tornado.test.mjs",
+        "tests/earthquake.test.mjs"
+      ],
+      "status": "passed"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-format-4c65f180.json",
+      "sha256": "22973e61a58be192023f127a8e2ec6a2ce1ec3f954d7b4c5ba7090348a103ee6",
+      "head": "4c65f1800844f8f69c1d762354a5ae19d7b9df9e",
+      "exitCode": 0,
+      "stdoutSha256": "55a462e393ef21ad9c618978684a3e7b5fb4b3eadcb3d5754ff6e7cb9ea88d96",
+      "command": [
+        "node_modules/.bin/oxfmt",
+        "--check",
+        "app/building-runtime.ts",
+        "app/tornado-runtime.ts"
+      ],
+      "status": "passed"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-eslint-4c65f180.json",
+      "sha256": "a593b1760139b7414df4fdc39da87e3259567a03633c86202da16dd2df3f8615",
+      "head": "4c65f1800844f8f69c1d762354a5ae19d7b9df9e",
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command": [
+        "node_modules/.bin/eslint",
+        "app/building-runtime.ts",
+        "app/tornado-runtime.ts"
+      ],
+      "status": "passed"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-oxlint-4c65f180.json",
+      "sha256": "54cad1cd216a8e75db346045056d93a956d48d9cf1dbfd3b63128ceec98cad5e",
+      "head": "4c65f1800844f8f69c1d762354a5ae19d7b9df9e",
+      "exitCode": 1,
+      "stdoutSha256": "f5ffa12b024ddd836c96ebbc8d26e90cd691245d06fc02c4cf46d0cbb353e8f6",
+      "command": [
+        "node_modules/.bin/oxlint",
+        "app/building-runtime.ts",
+        "app/tornado-runtime.ts"
+      ],
+      "status": "failed"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/tornado-class2-baseline-20261010/work/orchestration/tornado-oxlint-base-3b13a7ff.json",
+      "sha256": "5a74bd21e7cbbd0bb55891467a43c4b49cb715d87b203c0426bef7982138c65b",
+      "head": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "exitCode": 1,
+      "stdoutSha256": "ab5f1414bc61e082fbfd416219b2ec317c50149c030421c46b3c7730da03f4ec",
+      "command": [
+        "node_modules/.bin/oxlint",
+        "app/building-runtime.ts",
+        "app/tornado-runtime.ts"
+      ],
+      "status": "failed"
+    }
+  ],
+  "focusedCarry": {
+    "testedHead": "7dddafa24d7256f813d0d4e75db73212f03a4a8e",
+    "cases": 13,
+    "newCases": 7,
+    "existingTornado": 3,
+    "existingEarthquake": 3,
+    "successorDifference": "Only multiline type import and equivalent const plan destructuring; verified exact remainder byte correspondence. No repeated run needed for those two style-only edits."
+  },
+  "findings": [
+    "Actual stepLiveTornado damage callback reaches the narrow helper; admission RNG/protection and person/tree branches are unchanged.",
+    "Saved stage precedes byte decrement, supported completed-plan repair transition and exactly one positive signed-work log attempt. Work changes through maintained -100 helper only on allocation success.",
+    "Exhausted signed work reaches existing hp-zero/loss-credit endpoint; subsequent building attacker updates occur while retired plan receives no repair-delay/attacker update. Positive initial terrain footprint and real tick cleanup are asserted.",
+    "Retirement or final stage difference gates real debris/sound18. Supplied failures preserve work yet decrement stage; same-final-stage success emits no debris and consumes one wood ID with no RNG.",
+    "Building-owned eager plan and unbounded model11/logs1 adapter retain explicit limits. Supplied failure is controlled component evidence, not an ordinary/native pool failure.",
+    "Red fails exactly two missing-log caller assertions while exclusion controls pass; green passes all 13. Existing shared disaster helper is byte-identical and Earthquake is unchanged."
+  ],
+  "quality": {
+    "readability": "Small named helper reuses maintained work, coordinate, debris, sound and credit owners. No broad framework or native-address logic added. No functional defect found.",
+    "diffWhitespace": "PASS",
+    "scopedFormat": "PASS two runtime files",
+    "scopedESLint": "PASS two runtime files",
+    "scopedOxlint": "FAIL exit1 with 15 inherited diagnostics, exact baseline correspondence after only line/column normalization; introduced prefer-destructuring warning removed. No broad legacy cleanup requested.",
+    "fullCheckBuildAndAdvisoryHealth": "Pending coordinator lane; no full pass claimed",
+    "ordinaryM2": "Pending exact observer/input/bounds and separate run grant; no ordinary acquisition/cast proof in controlled tests"
+  },
+  "reviewerExecution": "Read-only code, receipts and hash checks; no tests/native/browser run",
+  "reviewMethodNote": "Initial immutable-head check stopped when author advanced from 7ddd to dcb import-formatting successor. Final accepted freeze is 4c65 with exact style-only carry and fresh quality receipts.",
+  "finalMergeAcceptance": false
+}

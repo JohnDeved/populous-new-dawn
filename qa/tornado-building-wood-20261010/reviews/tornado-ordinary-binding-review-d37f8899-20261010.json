@@ -1,0 +1,71 @@
+{
+  "verdict": "ACCEPT",
+  "scope": "One exact fresh ordinary M2 attempt under existing parent grant after immediate unchanged guards",
+  "reviewedAt": "2026-10-10T04:59:20.167784+00:00",
+  "manifest": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-ordinary-prelaunch-d37f8899-final.json",
+  "manifestSha256": "399c6ae5d0f76f0feb606c09394c55b8cd6c9147af531715f26f665128b705fa",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010",
+    "commit": "d37f8899a583b10e58d2e0c257709fcd80ec4768",
+    "tree": "3594b2b9e7415fd2cde66a48a05671ea5c0d5194",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "6fed3896808bfe83f7085bcabf2c71aa5a607e648ee3c82641d070ace6c855da"
+  },
+  "product": "92907866646e418747dd2bda44236d9949835bc5",
+  "profileInputs": {
+    "application": "fe84222a872bf93250cb2be2833e46a3af8c175fe114bf4d746e300409bc75e5",
+    "checker": "e775e00e195e2ad00543120cea7e75bd063aa97e539b0cc41c37f747fde9a4dc"
+  },
+  "sourceEntries": 3857,
+  "pinnedInputs": 163,
+  "outerInputsIncludingManifest": 164,
+  "commandSha256": "253c406a456727cf5def5be52dfcb45bcf3d1000d2d4fb976ce71bdc77c36eb9",
+  "bounds": {
+    "routeMs": 720000,
+    "impactMs": 45000,
+    "observerVisits": 320,
+    "exportBytes": 4194304,
+    "readinessMs": 60000,
+    "harnessMs": 900000,
+    "outerSeconds": 930,
+    "outerKillGraceSeconds": 15,
+    "maximumOuterSeconds": 945
+  },
+  "browser": {
+    "path": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/work/orchestration/recovery-20261009b/browser/chrome-headless-shell-linux64/chrome-headless-shell",
+    "sha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+    "inode": 656632,
+    "device": 27,
+    "size": 197868872,
+    "sandbox": true
+  },
+  "dependencies": {
+    "realpath": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/node_modules",
+    "inode": 538212,
+    "device": 27
+  },
+  "port": 4393,
+  "cpu": "5-7",
+  "checks": [
+    "Recomputed all 3857 source/profile input records and both fingerprints",
+    "Verified all 163 source/evidence hashes and exact 164-input receipt argv including manifest",
+    "Application/public/package/lock correspondence to accepted combined929 product",
+    "Unchanged previously reviewed route, passive observer, public input and witness consumer; exact native loader/private cache configuration",
+    "Current clean d37 source, fresh profile/output/TMP/cache/registry paths and browser/dependency identities",
+    "Bound independently accepted fresh17-stage product and10-case/321-module QA results"
+  ],
+  "immediateGuards": [
+    "Recheck unchanged source, all pins, profile/output/private-path absence, browser and dependency identities",
+    "Use only approved own4393 bind/Node-fetch/close readiness; stop on any failure",
+    "Retain actual session/start and900s/930s/945s cutoffs separately; normal owned cleanup; no automatic retry"
+  ],
+  "limits": [
+    "No actual production allocator exhaustion; supplied failure control remains separately labelled",
+    "No native execution, pixel parity or hardware performance proof",
+    "Late final-active-turn phase0 to phase1 damage intentionally rejected",
+    "First transform failed exit124 and createServer/worker cleanup remains UNKNOWN; paths quarantined"
+  ],
+  "ordinaryResult": "pending"
+}

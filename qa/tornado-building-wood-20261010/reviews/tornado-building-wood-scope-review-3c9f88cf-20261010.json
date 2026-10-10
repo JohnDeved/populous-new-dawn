@@ -1,0 +1,65 @@
+{
+  "decision": "ACCEPT source/test scope and failure-first execution; runtime candidate requires result review",
+  "reviewedAt": "2026-10-10T04:01:36.304337+00:00",
+  "head": "3c9f88cfa0f2615d6c283f39212f2af73768062c",
+  "tree": "1ad3a022deb7f2f371b32b4fdbd5fe5b7efb65d3",
+  "base": "3b13a7ff534ab95797b0b06330055cead956160d",
+  "worktree": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010",
+  "changedInputs": [
+    {
+      "path": "decomp/research/tornado-building-wood-20261010.md",
+      "bytes": 11094,
+      "sha256": "4004a12397891975955b62009362fefcf16f5c94f63d2f0eb7c9733c6aae8a2d"
+    },
+    {
+      "path": "tests/tornado-building-wood.test.mjs",
+      "bytes": 4848,
+      "sha256": "e16e263db49a7d60aa3f62d06cbc2b142e72473f794f5fc486090cc2605b4bc2"
+    }
+  ],
+  "acceptedSourceCommit": "9694f1f2156c4c06a6128278f16c6eac1dd35ba2",
+  "acceptedSourceReviewSha256": "43c5473526e6020bf203394c21293dc5207bf0581f89d2e1c8737d9da6cbe3cd",
+  "acceptedSourceManifestSha256s": [
+    "db1b70b89667a9946f3d73b6ed74357756552d06ccff60bf3bc5bb27ac7abfd5",
+    "5d0e8dc40f4a1ca6cd7cbd0bc450a7573083bf34b183a67cb84c7edee04528db",
+    "98c857934b5e40203542ad20aa85107f84cd87fa45f32410bb34d6f66f7d8e9f"
+  ],
+  "readSources": [
+    "app/building-runtime.ts",
+    "app/building-damage.ts",
+    "app/tornado-runtime.ts",
+    "app/tornado.ts",
+    "app/world-effects.ts",
+    "app/world-terrain-runtime.ts",
+    "app/world-coordinates.ts",
+    "app/construction-runtime.ts",
+    "app/live-construction-runtime.ts",
+    "app/world-turn.ts",
+    "app/world-initialization.ts",
+    "app/level-two.ts",
+    "decomp/generated/00498140.c",
+    "tests/tornado.test.mjs",
+    "references/verification/mission-two-controls-2026-10-04/README.md"
+  ],
+  "findings": [
+    "Proposed Tornado-only callback preserves saved stage then byte decrement, supported eager plan repair state, one model-11/logs-1 allocation at current wrapped position, allocation-gated signed -100 work, exhausted-work retirement, later attacker/live-plan bookkeeping and final stage/retirement debris gate.",
+    "Established unbounded wood adapter is explicitly limited; supplied failure is a component case, not native pool-exhaustion parity. No global allocator, Earthquake, radius or scheduling changes are admitted.",
+    "Three initial tests compose actual stepLiveTornado to stepTornado and production damage callback. They assert missing loose wood, plan identity through repeated exhaustion, actual tick cleanup and protected/rejected/preparation/retired exclusions. Stationary fixtures are controlled Node evidence only.",
+    "Reviewer allocation-attribution correction is incorporated: debris legitimately consumes effect IDs; log has initial nextId before debris and exact total +1 belongs to the final-stage-unchanged component case.",
+    "Retirement case now captures a nonempty initial terrain footprint, then requires those exact indices and all target membership to be removed by real tick.",
+    "Fresh M2 acquisition is supported as a preparation direction by authored linked rewards and retained ordinary observations. Prior failed checker envelope stays failed. Current real recipient, route, stock, public cast, source/clock and synchronous impact evidence remain future run acceptance."
+  ],
+  "requiredCandidateCoverage": [
+    "Retain exact failing-base receipt before runtime edits and passing candidate receipt afterward.",
+    "Add the proposed helper failure/order, zero-to-255 stage wrap, same-final-stage no debris/no wood RNG, attacker 255, no writes to retired plan and already-exhausted no-allocation cases.",
+    "Keep existing Tornado refresh/person/tree/gate and Earthquake checks; quality and full standards remain coordinated gates."
+  ],
+  "ordinaryWitnessScope": "Preparation only. Freeze actual caller/observer implementation and numeric row/time/export limits, passive forwarding and cleanup, target/current-world/input identity before separately reviewed browser admission. No launch or profile reconstruction accepted here.",
+  "quality": {
+    "diffCheck": "PASS",
+    "runtimeTypeScript": "Not changed at this scope freeze",
+    "focusedTests": "Not run by reviewer; author may now use parent-granted CPU 4 failure-first lane",
+    "fullStandardsBrowserNative": "Not run and not admitted by this review"
+  },
+  "noReDecodeOrNativeExecution": true
+}

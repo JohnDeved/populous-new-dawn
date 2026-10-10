@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "7858ff13-a898-4884-9656-a4ac4105d463",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "7dddafa24d7256f813d0d4e75db73212f03a4a8e",
+    "branch": "fix/tornado-class2-wood-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/tornado-building-wood.test.mjs": "e196729ec34803fb9b2ab824e06d4b9a0b315be2648cbb80bf0137d8ffdc45d4"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/tornado-building-wood.test.mjs",
+    "tests/tornado.test.mjs",
+    "tests/earthquake.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010",
+  "startedAt": "2026-10-10T04:03:15.332Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-green-7dddafa2.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-green-7dddafa2.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-10T04:03:18.875Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ Earthquake matches the native initializer and central deformation phase (5.386943ms)\n✔ Earthquake building scans preserve protected models, RNG and ejection-before-damage (0.456455ms)\n✔ live Earthquake casts, damages and deforms independently of refresh rate (270.382239ms)\n✔ live Tornado releases one loose log at the damaged building before debris allocation (64.510986ms)\n✔ live Tornado reuses plan work and retires exhausted buildings through normal turn cleanup (77.052712ms)\n✔ live Tornado leaves protected, rejected, unactivated and retired buildings alone (116.417327ms)\n✔ supplied Tornado allocation failure keeps work while stage, attribution and debris advance (23.230293ms)\n✔ Tornado byte decrement wraps on supplied failure and neutral attacker preserves attribution (24.097006ms)\n✔ Tornado compares final stage with the saved stage before emitting debris (24.427502ms)\n✔ Tornado exhausted work retires without allocation or post-retirement plan bookkeeping (66.837613ms)\n✔ Tornado replays native initialization, lifetime, carry and throw (4.139118ms)\n✔ Tornado uses the native building protection and one-draw damage gate (0.47951ms)\n✔ live Tornado casts, captures and throws independently of refresh rate (350.832575ms)\nℹ tests 13\nℹ suites 0\nℹ pass 13\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 3482.963011\n",
+  "stderr": "",
+  "stdoutSha256": "ceeefa52c2c477ea5f8929d24f3ef2fa6dcd485d7f1768007452648d70a9752d",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "7dddafa24d7256f813d0d4e75db73212f03a4a8e",
+    "branch": "fix/tornado-class2-wood-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/tornado-building-wood.test.mjs": "e196729ec34803fb9b2ab824e06d4b9a0b315be2648cbb80bf0137d8ffdc45d4"
+    }
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "verdict": "ACCEPT exact ordinary QA source, focused tests, transform and quality correspondence; final launch binding and coordinator resource grant remain separate",
+  "reviewedAt": "2026-10-10T04:33:41.473668+00:00",
+  "head": "c351f4a2eee3d13538aee247afb6b4db6e24968a",
+  "tree": "0b8718c6d0e740c924dafc28189abaecba84dd49",
+  "productHead": "4c65f1800844f8f69c1d762354a5ae19d7b9df9e",
+  "productStandardsReviewSha256": "4b6c10c6408de1cbe8054eff3d8dcb0eda8c015c39215a4bb006971070067baa",
+  "sourceFingerprint": "32c46e54e83c7ff25befc299fa2d24b1122498b2a874df0e9a71dd0938b38dec",
+  "profileInputs": {
+    "application": "2dc49113f71696830e9f99149dfa2e18b1e8823e4ccacf83b8b8312a1a62247f",
+    "checker": "e775e00e195e2ad00543120cea7e75bd063aa97e539b0cc41c37f747fde9a4dc"
+  },
+  "verifiedProfileFiles": 3856,
+  "receipts": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-witness-contract-c0d3c380.json",
+      "sha256": "19f55fb421ed8ec7fb785c4e1f2cc56bd4b3e9372c56f432099be419fa0f2208",
+      "head": "c0d3c3801d4223991f8b3f47ed60be22610e4e4c",
+      "status": "passed",
+      "exitCode": 0,
+      "stdoutSha256": "ae1182f09d17ccab55523faea017fc115af4b757102816ba0bec7a722dfd566a",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-transform-c0d3c380-r2.json",
+      "sha256": "3169e233660fb74f715c157922352dcf32e38f5e47ad6ccd83bba710bb66dc6c",
+      "head": "c0d3c3801d4223991f8b3f47ed60be22610e4e4c",
+      "status": "passed",
+      "exitCode": 0,
+      "stdoutSha256": "cf3e18eb1981133e64c9fa57c3b9178505d0da24fc25b0e02e2e7cdcb21dd61d",
+      "stderrSha256": "6205e22497347c74bf6517d7c67792b17cc2051d7b12f33098353c4b1b9bed4a"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-qa-eslint-final.json",
+      "sha256": "cc5f060b536ea0c122138ea34ba9e4d8218bd95a561df979a574a891b62bdc49",
+      "head": "c351f4a2eee3d13538aee247afb6b4db6e24968a",
+      "status": "passed",
+      "exitCode": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-transform-1675b5c2.json",
+      "sha256": "b86d8fcbca0d66bc89a2bd79c7fa5b425237616796c1ca91576ff8c1b3730101",
+      "head": "1675b5c20c90b9f22fd154f5f243f06772113b22",
+      "status": "failed",
+      "exitCode": 124,
+      "stdoutSha256": "c7dfca6caa9c0199f2b2c4a55a08eb504ddbcd8f1e862dfefa8aaa047fe234c6",
+      "stderrSha256": "6205e22497347c74bf6517d7c67792b17cc2051d7b12f33098353c4b1b9bed4a"
+    }
+  ],
+  "transformCarry": {
+    "testedHead": "c0d3c3801d4223991f8b3f47ed60be22610e4e4c",
+    "modules": 321,
+    "all321ModuleBlobsEqual": true,
+    "bytes": 10325256,
+    "elapsedMs": 20188,
+    "closed": true,
+    "difference": "Only ordinary cacheDir suffix changed; transform already supplied private TMP/node_modules/.vite. Native config loader and both plugins unchanged."
+  },
+  "findings": [
+    "Actual advanceGame/UnitMotion, cast projectile, natural Tornado movement and live building callback compose in the positive contract; controlled setup remains distinct from earned ordinary stock.",
+    "Passive clock wrappers preserve receiver/args/result/throw, roll back partial installation, attempt independent restoration and preserve foreign owners. Validated impact/error/320-visit cap atomically detaches.",
+    "Original Blue54, authored Green Camp1/model7, unique new projectile/effect, exact current cell/work/log identity and conservative competing writer exclusions are enforced.",
+    "Maintained actual trusted pointerup and scene.pick receipt binds receiver/args, current and armed World/canvas, synchronous stock/caster and quantized projectile destination.",
+    "Fresh M2 public shrine55 bridge and head56 gifts precede ordinary movement/cast. Detached-clone16-point path planning never mutates live game.",
+    "Twelve-minute whole route,45s impact,320 visits,4MiB complete evidence bound; initial relevant paused frame precedes installation assertions. One terminal full export retains primary and cleanup failures."
+  ],
+  "quality": "Six-file ESLint and full diff whitespace pass. Product scoped format/Oxlint attribution remains as accepted; no new all-formatter claim.",
+  "limits": [
+    "The first transform failed before any module, exit124; createServer/worker cleanup remains UNKNOWN.",
+    "The witness intentionally rejects last active-turn phase0-to1 hits and reports a failed observation, not a product defect.",
+    "No browser run, actual allocator exhaustion, native execution, pixel parity or hardware performance proof.",
+    "Prepared a08c7658 manifest needs explicit finite TERM+15s outer grace and immutable review/receipt/self pins before final admission."
+  ],
+  "reviewerExecution": "Read-only source/receipt/hash checks; all321 browser-module blobs and all profile inputs recomputed. No browser, repeated transform or tests."
+}

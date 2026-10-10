@@ -1,0 +1,18 @@
+✔ Tornado witness requires owned effect, cell, work, log and competing-owner exclusion (1.733036ms)
+✔ Tornado witness preserves callback receiver, arguments, result and owned cleanup (1.670322ms)
+✔ Tornado witness detaches on error and retains foreign callback ownership (0.53839ms)
+✔ Tornado observer forwards original throw identity and rolls back partial installation (0.711931ms)
+✔ Tornado observer attempts both restorations and stops after the turn cap (2.954383ms)
+✔ Tornado observer rejects wrong and second live effect identities (0.483668ms)
+✔ Tornado observer composes actual advanceGame, projectile impact and live building damage (110.209042ms)
+✔ Tornado cast consumer binds actual delivered terrain pick and quantized projectile (0.998372ms)
+✔ Tornado route cleanup attempts finish, dispose and save while preserving primary failure (0.997139ms)
+✔ Tornado evidence export rejects oversize data instead of truncating any record (10.918301ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1022.811851

@@ -1,0 +1,45 @@
+{
+  "decision": "ACCEPT exact Tornado standard profile under unchanged maintained runner",
+  "reviewedAt": "2026-10-10T04:11:50.397620+00:00",
+  "profile": {
+    "path": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/profile-proposal.json",
+    "sha256": "4d344a6e62f375a634d53a99918fad6e36d2bc6b730d4748e048947549d060e0"
+  },
+  "source": "4c65f1800844f8f69c1d762354a5ae19d7b9df9e",
+  "tree": "38fbf129daae13526fe0027937b1e481c429a499",
+  "implementationReviewSha256": "4b1664a08bb97dd54b49299dac6a8675cb285ae37fad3b8258264539b757c9d0",
+  "priorProfile": {
+    "path": "/workspace/scratch/69fd8163d94e/mission2-construction-origin-20261010/work/orchestration/construction-origin-final-01/profile-proposal.json",
+    "sha256": "ed7b9bb88009827b21577df9d8b402b316ce0b8f6e9845b3aada016264c61b63"
+  },
+  "priorAdmissionReviewSha256": "33a46b3ff5c687d890e2ebf23847c0f12c39d94302ff97f37f73217c118ab8b1",
+  "coverage": {
+    "stages": 17,
+    "packageStandardTestFiles": 294,
+    "exactOnce": true,
+    "freshAll": true,
+    "carry": false,
+    "commonInputHashesVerified": 7,
+    "testHashesVerified": 294,
+    "onlyAddedTest": "tests/tornado-building-wood.test.mjs",
+    "unchangedPriorInputs": true,
+    "unchangedPriorTests": true
+  },
+  "correspondence": "Every prior stage definition and actual successful inner argv matches exactly; only the new Tornado test is appended to tests-new. Common input hashes, receipt wrapper, CPU, offline env and bounds are unchanged. Coordinator reuses constructionStandardCommand with only worktree/profile/output path and profile hash substitutions; no new runner flow is admitted.",
+  "cpu": "5-7",
+  "innerSeconds": 180,
+  "outerSeconds": 200,
+  "killGraceSeconds": 15,
+  "dependencyInode": 538212,
+  "dependencyDevice": 27,
+  "offlineEnv": {
+    "CLOUDFLARE_CF_FETCH_ENABLED": "false",
+    "WRANGLER_SEND_METRICS": "false",
+    "WRANGLER_WRITE_LOGS": "false"
+  },
+  "freshReceiptDirectoryVerified": true,
+  "executionCondition": "Immediate per-stage clean source/input/dependency revalidation, fresh private TMP/cache, maintained receipt wrapper, serial awaited stages, stop on nonzero/unknown/drift. Keep exact actual command/start/terminal receipts.",
+  "reviewMethodNote": "Initial read-only validator expected limitSeconds on non-test stages; corrected to verify their explicit unchanged 180s argv, preserving full stage equality. No stage executed.",
+  "noStagesLaunchedByReviewer": true,
+  "limits": "This admits the bounded standard sequence only. No ordinary browser/native run or final product acceptance is supplied."
+}

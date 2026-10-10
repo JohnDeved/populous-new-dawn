@@ -1,0 +1,56 @@
+{
+  "verdict": "ACCEPT exact combined affected-QA results",
+  "reviewedAt": "2026-10-10T04:46:09.657841+00:00",
+  "qa": "d37f8899a583b10e58d2e0c257709fcd80ec4768",
+  "tree": "3594b2b9e7415fd2cde66a48a05671ea5c0d5194",
+  "product": "92907866646e418747dd2bda44236d9949835bc5",
+  "sourceAdmissionSha256": "a6becef309af3e8c39071ee96f79bfc5272990ea961f3ae17af3775fcaf389d0",
+  "methodReviewSha256": "e385e805a7594cf5cbac217af942e01abaa8b5c9ce6fbdb4f4ff822b2b4c169d",
+  "receipts": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-witness-contract-d37f8899.json",
+      "sha256": "bd834a2f17d5e19043301696561cc5409f7e4520be677295ecc4e0cb42eaa0a7",
+      "head": "d37f8899a583b10e58d2e0c257709fcd80ec4768",
+      "status": "passed",
+      "exitCode": 0,
+      "stdoutSha256": "efc140401bdabbaaa91ca01be82590921b21fdcd3bd09bf308940435b44c4e60",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "inputCount": 10
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-transform-d37f8899.json",
+      "sha256": "217a48ff4943943edb8b2e8cb7d06b234951e128d3b584eaac77694ece1b8c1f",
+      "head": "d37f8899a583b10e58d2e0c257709fcd80ec4768",
+      "status": "passed",
+      "exitCode": 0,
+      "stdoutSha256": "4d397cf49edaafc2e588f8bd916839613c9a09c88258678de4f987ee601e50d0",
+      "stderrSha256": "6205e22497347c74bf6517d7c67792b17cc2051d7b12f33098353c4b1b9bed4a",
+      "inputCount": 15
+    }
+  ],
+  "tests": {
+    "files": 1,
+    "cases": 10,
+    "pass": 10,
+    "fail": 0,
+    "skipped": 0,
+    "cancelled": 0
+  },
+  "transform": {
+    "modules": 321,
+    "bytes": 10328703,
+    "elapsedMs": 21721,
+    "closed": true,
+    "controlledRequireFixtureRejected": true,
+    "nativeLoader": true,
+    "middlewareNoListener": true,
+    "privateCache": "TMP/node_modules/.vite",
+    "sevenChangedApplicationModulesFreshlyExercised": true
+  },
+  "qualityCarry": "Six QA file bytes unchanged from c351, whose six-file ESLint pass is carried. Prior first transform exit124/createServer cleanupUNKNOWN remains distinct.",
+  "limits": [
+    "This is affected source/helper evidence, not ordinary earned stock/cast proof.",
+    "Combined295-file standards and new exact ordinary manifest/binding are still pending."
+  ],
+  "reviewerExecution": "Read-only source,raw receipt/log and exact input hashes; no repeated tests or transform."
+}

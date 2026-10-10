@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "7af5d53f-bf7e-493f-af84-f7f32b8f248a",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "1675b5c20c90b9f22fd154f5f243f06772113b22",
+    "branch": "qa/tornado-class2-ordinary-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/tornado-building-witness.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010",
+  "startedAt": "2026-10-10T04:19:17.035Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-witness-contract-1675b5c2.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-witness-contract-1675b5c2.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-10T04:19:19.792Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ Tornado witness requires owned effect, cell, work, log and competing-owner exclusion (9.6186ms)\n✔ Tornado witness preserves callback receiver, arguments, result and owned cleanup (7.748134ms)\n✔ Tornado witness detaches on error and retains foreign callback ownership (0.594345ms)\n✔ Tornado observer forwards original throw identity and rolls back partial installation (0.572942ms)\n✔ Tornado observer attempts both restorations and stops after the turn cap (7.966253ms)\n✔ Tornado observer rejects wrong and second live effect identities (0.487073ms)\n✔ Tornado observer composes actual advanceGame, projectile impact and live building damage (347.681137ms)\n✔ Tornado cast consumer binds actual delivered terrain pick and quantized projectile (7.201993ms)\n✔ Tornado route cleanup attempts finish, dispose and save while preserving primary failure (0.580454ms)\nℹ tests 9\nℹ suites 0\nℹ pass 9\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 2580.095493\n",
+  "stderr": "",
+  "stdoutSha256": "895ce6f99688bc3515d9a130042c70ef6a317a3f984aac1a723be3208c902742",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "1675b5c20c90b9f22fd154f5f243f06772113b22",
+    "branch": "qa/tornado-class2-ordinary-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "a23c90c1-ab4a-4ebe-9e88-3c7dd3f4a5f4",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "c0d3c3801d4223991f8b3f47ed60be22610e4e4c",
+    "branch": "qa/tornado-class2-ordinary-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/local-render/tornado-building-witness.mjs": "3ec8679546957db5da3b722c7e2b690be44f259f66e2002fe8dc552cbccbd333",
+      "scripts/local-render/mission2-tornado-building.mjs": "ddd7e09fa2a6dbbb52e70c1f5f8d6a775a71ad0497993186a2820a3ef486d3fb",
+      "tests/tornado-building-witness.test.mjs": "d31e2109b00856b91089d9d43fd2df07edffd92fb158385618be234c5aabba0b"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/tornado-building-witness.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010",
+  "startedAt": "2026-10-10T04:29:12.847Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-witness-contract-c0d3c380.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-witness-contract-c0d3c380.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-10T04:29:13.940Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ Tornado witness requires owned effect, cell, work, log and competing-owner exclusion (1.733036ms)\n✔ Tornado witness preserves callback receiver, arguments, result and owned cleanup (1.670322ms)\n✔ Tornado witness detaches on error and retains foreign callback ownership (0.53839ms)\n✔ Tornado observer forwards original throw identity and rolls back partial installation (0.711931ms)\n✔ Tornado observer attempts both restorations and stops after the turn cap (2.954383ms)\n✔ Tornado observer rejects wrong and second live effect identities (0.483668ms)\n✔ Tornado observer composes actual advanceGame, projectile impact and live building damage (110.209042ms)\n✔ Tornado cast consumer binds actual delivered terrain pick and quantized projectile (0.998372ms)\n✔ Tornado route cleanup attempts finish, dispose and save while preserving primary failure (0.997139ms)\n✔ Tornado evidence export rejects oversize data instead of truncating any record (10.918301ms)\nℹ tests 10\nℹ suites 0\nℹ pass 10\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1022.811851\n",
+  "stderr": "",
+  "stdoutSha256": "ae1182f09d17ccab55523faea017fc115af4b757102816ba0bec7a722dfd566a",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "c0d3c3801d4223991f8b3f47ed60be22610e4e4c",
+    "branch": "qa/tornado-class2-ordinary-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/local-render/tornado-building-witness.mjs": "3ec8679546957db5da3b722c7e2b690be44f259f66e2002fe8dc552cbccbd333",
+      "scripts/local-render/mission2-tornado-building.mjs": "ddd7e09fa2a6dbbb52e70c1f5f8d6a775a71ad0497993186a2820a3ef486d3fb",
+      "tests/tornado-building-witness.test.mjs": "d31e2109b00856b91089d9d43fd2df07edffd92fb158385618be234c5aabba0b"
+    }
+  }
+}

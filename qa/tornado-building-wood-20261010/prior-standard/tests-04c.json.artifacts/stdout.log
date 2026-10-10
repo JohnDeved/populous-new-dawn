@@ -1,0 +1,40 @@
+✔ Mission 12 opens with all three enemy tribes and original knowledge (106.382058ms)
+✔ Mission 12 starts its original turn-7 flyby once (136.41041ms)
+✔ Mission 12 opponents request their first Guard Towers on native cadence (296.827024ms)
+✔ Mission 12 opening remains deterministic through checkpoint migration (747.540442ms)
+✔ Mission 13 opens with both enemy tribes and original knowledge (55.827019ms)
+✔ Mission 13 starts its original Yellow turn-6 flyby once (77.980368ms)
+✔ Mission 13 Balloon Hut knowledge is visible before construction (115.780705ms)
+✔ Mission 13 Land Bridge uses native surface categories at low shore (31.715622ms)
+✔ Mission 13 Balloon Hut repeatedly produces occupied airborne transport (527.564548ms)
+✔ Mission 13 opening remains deterministic through checkpoint migration (460.133733ms)
+✔ Mission 14 delivers both linked gifts and a castable Angel through shipped paths (516.436098ms)
+✔ Mission 15 ordinary Prison attack frees the captive and cancels the timer (363.697955ms)
+✔ Mission 15 timer expiry locks input and kills the captive with enemy Lightning (117.903294ms)
+✔ Mission 15 expiry stays latched if the Prison falls before Lightning lands (121.563459ms)
+✔ Mission 15 captive Lightning branch requires an enemy caster, not the Prison cell (62.366774ms)
+✔ Mission 16 worship grants Bloodlust and live combat consumes its status (299.140286ms)
+✔ old checkpoints default Bloodlust stock without disturbing their world (44.263255ms)
+✔ Mission 17 grants Armageddon and stages the native arena through the live cast path (926.811533ms)
+✔ Armageddon uses generic victory and defeat outcomes and restores control (1089.904345ms)
+✔ Mission 18 loads its authored tribes and grants Armageddon and both Volcano rewards (2182.52119ms)
+✔ Mission 18 starts its authored Red marker patrol through normal AI orders (124.622964ms)
+✔ Mission 18 Armageddon restores its arena checkpoint and reaches both result directions (1984.250162ms)
+✔ Mission 19 loads its authored objective and grants all three worship rewards (883.510396ms)
+✔ Mission 19 Teleport spends only accepted stock and resumes identically from a checkpoint (179.922252ms)
+✔ Mission 19 warns once and gives Chumara loss priority over Dakini defeat (463.359571ms)
+✔ Mission 2 naturally earns Matak kills and launches the organized raid (2234.970565ms)
+✔ Mission 2 checkpoints retain kill ownership from the old red slot (51.459584ms)
+✔ Mission 2 camp targeting takes the first model match without RNG (32.48397ms)
+✔ Mission 2 producer matches native base, loss, capacity and resource boundary cases (361.932481ms)
+✔ Mission 2 naturally establishes a new home Tower base and preserves phase3 checkpoint continuation (1298.014762ms)
+✔ Mission 2 rebuilds after a real player army destroys both Towers, retaining its first construction base (6728.944652ms)
+✔ Mission 2 explicitly trains replacement Warriors after natural combat despite zero producer preferences (6344.832843ms)
+ℹ tests 32
+ℹ suites 0
+ℹ pass 32
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 18914.438563

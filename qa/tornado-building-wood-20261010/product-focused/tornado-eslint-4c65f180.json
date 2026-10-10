@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "8fa5460f-7923-4e52-875a-5a74bde197e0",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "4c65f1800844f8f69c1d762354a5ae19d7b9df9e",
+    "branch": "fix/tornado-class2-wood-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node_modules/.bin/eslint",
+    "app/building-runtime.ts",
+    "app/tornado-runtime.ts"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010",
+  "startedAt": "2026-10-10T04:06:13.570Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-eslint-4c65f180.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-eslint-4c65f180.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-10T04:06:15.082Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "4c65f1800844f8f69c1d762354a5ae19d7b9df9e",
+    "branch": "fix/tornado-class2-wood-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

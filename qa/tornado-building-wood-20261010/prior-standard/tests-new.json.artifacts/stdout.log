@@ -1,0 +1,280 @@
+✔ bare camp activity cannot allocate automatic DOM or capacity on a zero-turn paint (5019.474594ms)
+✔ ordered live callbacks reserve immediately, latch only admission, and retry a later source visit (800.775489ms)
+✔ secondary-capacity failure leaves no latch or feedback and retries when a physical slot is released (671.005398ms)
+✔ manual reuse preserves D and phase; phase1 expiry clears only the latch; phase2 reuse still retires (495.968061ms)
+✔ stopping during entry waits for the next phase1 test, and hovered controls cannot freeze automatic exit (388.900133ms)
+✔ automatic admission rejects wrong-class, nonlocal and blocked targets; ownership loss exits and death retires (426.596351ms)
+✔ first automatic T initialization uses the previous sample before the same-frame one-second sample update (588.548268ms)
+✔ actual training callback creates its owner before an affordable conversion clears source activity (503.872036ms)
+✔ replacement binding survives stale Scene disposal and headless Worlds create no owner (598.837511ms)
+✔ Save preserves the current owner; Load clears transient ownership and stale bit23 cannot suppress the next request (568.51085ms)
+ℹ Controlled in-session Save/Load only; typed committed IndexedDB belongs to the ordinary browser witness.
+✔ actual M2 training input creates a shared automatic record before the fixed-turn observer returns (492.189609ms)
+ℹ {"selectedBraves":9,"sharedOrderModel":8,"camp":1022,"turn":1039,"inside":2,"activity":136,"observed":{"automatic":true,"latched":true,"phase":-1,"reservations":["building-panel:1022"],"dom":false}}
+✔ completed camp panel waits for actual first-display inspection instead of zero-tick hover paint (4948.292955ms)
+✔ real camp right-button edges queue inspection before one composed visit and emit one feedback (481.144542ms)
+✔ existing dismantling paint stays independent of manual inspection records (729.807508ms)
+✔ manual camp record survives dismantling start and its expiry preserves independent controls (429.238068ms)
+✔ visible camp transfers into the full supported inventory without a second capacity charge (552.691824ms)
+✔ new camp allocation failure still feeds back once and rejects stale or blocked presses (616.546845ms)
+✔ actual store migration and Scene disposal separate saved camps from transient inspection owners (616.139829ms)
+▶ Hut witness follows real input, partial Save/Load and a fresh Scene before its first RAF
+  ✔ input cleanup uses captured methods and preserves foreign replacements (1.567798ms)
+  ✔ a failing capture cleanup still removes bubble input and restores the clock (0.610068ms)
+  ✔ partial input installation removes both attempted listeners (0.568074ms)
+  ✔ early finish rejects partial work without detaching either owner (1.350441ms)
+  ✔ finish rejects foreign callback even when the actual endpoint is valid (0.955236ms)
+  ✔ finish rejects captured observer failure even when the actual endpoint is valid (0.490177ms)
+  ✔ skipped and duplicate fixed-turn observations are rejected without breaking their caller (1.332945ms)
+  ✔ cleanup restores inherited callbacks and preserves a foreign replacement (0.608275ms)
+✔ Hut witness follows real input, partial Save/Load and a fresh Scene before its first RAF (5664.310082ms)
+ℹ {"evidence":"Node actual advanceGame after successful finish; not browser timing","finishedTurn":597,"restingDropTurn":612,"nativeBefore":{"state":19,"substate":4,"cargo":100},"nativeAfter":{"state":19,"substate":5,"cargo":0},"recoveredLogIds":[1190,1191,1192]}
+✔ authored Hut resident reaches shipped dismantle input, partial Save/Load and exact recovery (5822.606835ms)
+ℹ {"openingTurn":380,"huts":[{"sourceIndex":41,"id":36,"anchorX":1024,"anchorY":52736,"residents":[1186]},{"sourceIndex":42,"id":37,"anchorX":64512,"anchorY":54784,"residents":[1188]}]}
+✔ Mission 2 construction origin through the actual producer (1713.337561ms)
+ℹ (node:95) ExperimentalWarning: Module mocking is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:95) DeprecationWarning: mock.module(): options.namedExports is deprecated. Use options.exports instead.
+✔ moved Shaman retains loaded construction origin after direct ownership (100.292763ms)
+✔ moved Shaman retains loaded construction origin after modern ownership (102.955863ms)
+✔ moved Shaman retains loaded construction origin after legacy ownership (46.696993ms)
+✔ dead Shaman does not substitute the authored outpost for loaded origin (34.142973ms)
+✔ missing Shaman does not substitute the authored outpost for loaded origin (30.212522ms)
+✔ coincident initial Shaman preserves the existing authored construction request (34.769636ms)
+✔ present nonzero base wins unchanged for an explicitly requested housing shortfall (27.65ms)
+✔ present base zero retains the existing adapter no-origin rejection (31.929835ms)
+✔ present base and sufficient authored housing suppress construction (27.104549ms)
+✔ one idle non-Shaman person does not satisfy construction admission (30.908519ms)
+✔ disabled construction state preserves tasks and orders (28.844085ms)
+✔ disabled Tower mode retains sufficient-housing suppression (29.331268ms)
+✔ occupied construction limit preserves its existing request and startup tasks (28.698936ms)
+✔ full real task table prevents producer visits without changing the startup pool (26.860592ms)
+✔ authored Tower latch overrides search center while preserving request origin (35.963051ms)
+✔ supplied latch-disabled Tower search consumes the loaded request origin (56.791417ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1633.018044
+
+✔ Mission 3 Convert Wild origin through the actual dispatcher (1307.387161ms)
+ℹ (node:118) ExperimentalWarning: Module mocking is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:118) DeprecationWarning: mock.module(): options.namedExports is deprecated. Use options.exports instead.
+✔ absent-base generic search uses loaded origin after direct ownership (72.299642ms)
+✔ absent-base generic search uses loaded origin after modern ownership (49.616902ms)
+✔ absent-base generic search uses loaded origin after legacy ownership (60.23133ms)
+✔ established base 4112 retains search priority (26.172317ms)
+✔ established base 0 retains search priority (26.159499ms)
+✔ authored marker99 overrides absent base (37.999934ms)
+✔ authored marker99 overrides 4112 base (23.403363ms)
+✔ authored marker99 overrides 0 base (22.78244ms)
+✔ consumed marker99 does not replace the next generic search origin (28.82763ms)
+✔ missing live Shaman still cancels before origin search (26.063003ms)
+✔ dead live Shaman still cancels before origin search (23.198496ms)
+✔ assigned live Shaman still cancels before origin search (24.983349ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1205.313124
+
+✔ Mission 3 defense completion origin through the actual dispatcher (1481.312879ms)
+ℹ (node:145) ExperimentalWarning: Module mocking is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:145) DeprecationWarning: mock.module(): options.namedExports is deprecated. Use options.exports instead.
+✔ no-target defense uses the loaded origin after direct ownership (68.271415ms)
+✔ no-target defense uses the loaded origin after modern ownership (63.846892ms)
+✔ no-target defense uses the loaded origin after legacy ownership (36.854151ms)
+✔ no-target defense retains loaded origin with dead Shaman (26.276044ms)
+✔ no-target defense retains loaded origin with missing Shaman (25.84866ms)
+✔ established base 33589 preserves exact uncentered even coordinates (38.212493ms)
+✔ established base 0 preserves exact uncentered even coordinates (41.004011ms)
+✔ flight-owned assigned non30 member receives return and matching retirement (40.855919ms)
+✔ allocation exhaustion preserves people and orders but still advances and retires the task (41.79457ms)
+✔ real remaining targets keep phase6 and do not use the return origin (23.170463ms)
+✔ cancelled phase6 retires matching ownership without target collection or return (24.291168ms)
+✔ no assigned members completes without returning unrelated owners (24.025649ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1398.90151
+
+✔ Mission 3 guard return origin through campaign command1103 (1645.38036ms)
+ℹ (node:168) ExperimentalWarning: Module mocking is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:168) DeprecationWarning: mock.module(): options.namedExports is deprecated. Use options.exports instead.
+✔ absent base uses loaded origin with a moved Shaman after direct ownership (74.969118ms)
+✔ absent base uses loaded origin with a moved Shaman after modern ownership (55.658232ms)
+✔ absent base uses loaded origin with a moved Shaman after legacy ownership (33.865266ms)
+✔ absent base retains loaded origin with a dead live Shaman (25.126264ms)
+✔ absent base retains loaded origin with a missing live Shaman (26.838744ms)
+✔ present base 33589 wins and preserves uncentered even masking (33.34902ms)
+✔ present base 0 wins and preserves uncentered even masking (33.466777ms)
+✔ state33 queued order30 is replaced through the actual host (41.195039ms)
+✔ immediate non30 suppresses queued order30 (43.772654ms)
+✔ immediate cancelled30 suppresses queued order30 (43.266604ms)
+✔ state17 person or order remains untouched (41.824435ms)
+✔ cancelled person or order remains untouched (42.589375ms)
+✔ non30 person or order remains untouched (24.19231ms)
+✔ dead person or order remains untouched (24.263427ms)
+✔ other-tribe person or order remains untouched (23.618446ms)
+✔ full pool preserves a genuinely eligible immediate guard (24.140152ms)
+✔ full pool preserves a genuinely eligible queued guard (23.722443ms)
+✔ returned order survives a modern checkpoint and repeated command1103 is a no-op (29.16624ms)
+✔ direct Mission2 caller retains its existing live-Shaman fallback (23.004123ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1537.365924
+
+✔ exact per-file and aggregate byte boundaries admit complete JSON only (7.355661ms)
+✔ malformed JSON consumes actual aggregate bytes and cannot leave budget for another file (0.745251ms)
+✔ empty, invalid UTF-8 and JSON syntax remain visible read errors (3.375536ms)
+✔ growth during read rejects the file after counting bytes (1.496711ms)
+✔ truncation during read rejects the file after counting bytes (0.706853ms)
+✔ replacement during read rejects the file after counting bytes (0.605591ms)
+✔ symlink file and read failure are not parsed or silently discarded (2.346454ms)
+✔ directory enumeration stops at remaining allowance plus one before sorting (0.206991ms)
+✔ bounded enumeration preserves locale ordering and the exact empty boundary (8.183917ms)
+✔ cache probe is limited per root and rejects unexpected shape and symlinks (2.948253ms)
+✔ cache directory change during probing falls back to ordinary discovery (1.018972ms)
+✔ test-only reductions cannot increase any production bound (0.27255ms)
+✔ disappearing nested cache during fallback cannot return an older partial pass (6.553945ms)
+✔ an initially absent orchestration root remains empty evidence (0.774284ms)
+✔ valid large unrelated sidecar fits the reviewed discovery budget without tainting receipts (44.327979ms)
+✔ large newer failed attempt remains visible and suppresses old pass (43.406584ms)
+✔ large newer unknown attempt remains visible and suppresses old pass (16.780744ms)
+✔ verified binary compile caches do not exhaust receipt traversal (437.331487ms)
+✔ cache-shaped directory preserves candidate new.json (2.376775ms)
+✔ cache-shaped directory preserves candidate unexpected/new.json (1.140014ms)
+✔ malformed large JSON remains a discovery warning (11.893665ms)
+✔ existing raw-log, generated-report and symlink exclusions stay intact (1.326706ms)
+✔ chunk boundaries preserve exact selected values and whole raw digest (33.995792ms)
+✔ escaped root names are decoded, nested duplicates retain JSON.parse semantics (7.669703ms)
+✔ JSON fields cannot spoof the reader projection mode (2.807933ms)
+✔ discarded values still require complete strict JSON through EOF (26.782766ms)
+✔ number grammar and retained values match JSON.parse without coercion (10.358347ms)
+✔ exact byte, token, depth, key and metadata ceilings are enforced before overflow (6.163589ms)
+✔ aggregate metadata and token budgets include every streaming file (13.910819ms)
+✔ grammar token accounting is invariant across chunk boundaries (3.095495ms)
+✔ time budgets fail closed for both the stream and the full traversal (6.737581ms)
+✔ a final full-object read crossing the traversal deadline cannot return evidence (2.74009ms)
+✔ streaming growth cannot yield metadata (1.135748ms)
+✔ streaming truncate cannot yield metadata (0.894085ms)
+✔ streaming replace cannot yield metadata (0.903308ms)
+✔ streaming remove cannot yield metadata (0.828997ms)
+✔ streaming same-size cannot yield metadata (0.856208ms)
+✔ streaming rejects symlinks and read errors and cannot raise its bounds (2.086337ms)
+✔ oversized unrelated result is completely inspected without tainting a smaller receipt (1490.530732ms)
+✔ oversized newer failed receipt retains late metadata and suppresses an older pass (1015.580586ms)
+✔ oversized newer unknown receipt retains late metadata and suppresses an older pass (1357.625144ms)
+✔ oversized newer invalidated receipt retains late metadata and suppresses an older pass (1355.128558ms)
+✔ oversized owned attempts still warn before any adapter can credit old evidence (1255.075536ms)
+✔ malformed trailing bytes after an oversized apparent noncandidate remain a warning (1260.726691ms)
+✔ oversized contract preserves exact measurements and invalidates an outcome mismatch (1098.86347ms)
+✔ oversized malformed owned options retain the source fallback for scripts/local-render/early-missions.mjs (1299.995218ms)
+✔ oversized malformed owned options retain the source fallback for qa/blast-ordinary/controls.mjs (1284.353415ms)
+✔ actual M3 Temple input reserves its automatic owner synchronously before frontend paint or conversion (6094.401317ms)
+ℹ {"temple":1021,"brave":312,"turn":2023,"observed":{"activity":true,"entered":true,"trained":0,"automatic":true,"latched":true,"phase":-1,"reservations":["building-panel:1021"],"visible":false}}
+✔ Temple independent controls yield to active training, failed capacity and fresh automatic entry (1024.858849ms)
+✔ Temple automatic renewal and phase2 reuse preserve clocks while held controls outlive only the retired record (848.140866ms)
+✔ Temple automatic identity rejects mismatched native class/model and retires a dead owner (795.695086ms)
+✔ public Page Brave contextmenu focuses home while preserving the actual selected Shaman order (5526.217836ms)
+✔ maintained minimap view retains an exact rejected geometry and never clicks a covered candidate (10.125307ms)
+✔ home focus observation forwards once through capture faults, preserves throws and cleans independently (2.050173ms)
+✔ home focus host retains the primary click failure and separate cleanup failure (0.496226ms)
+✔ actual Temple dwell, trusted held-input observer and natural expiry complete atomically (3110.286687ms)
+✔ actual Page Escape and explicit approach input feed the same record into the real training producer (1370.940704ms)
+✔ row overflow preserves its error, detaches actual callers and rejects premature success (1210.463485ms)
+✔ actual idle host step composes with maintained input and the observed Scene callers (986.741402ms)
+✔ approach host attaches before actual dispatch and inspects through intervening turns without relocating (1059.771739ms)
+✔ approach host attaches before actual dispatch and preserves dispatch failure with cleanup (945.936661ms)
+✔ completed Temple waits for actual first name display to own its manual painter (5792.198882ms)
+✔ fresh manual Temple ownership hides existing held controls until its first composed step (956.153825ms)
+✔ Temple explicit held input reuses one record, releases off-target and expires at the existing opportunity (848.618454ms)
+✔ manual Temple admission binds local completed class2/model5, without activity or roster restrictions (833.951313ms)
+✔ Temple manual failure leaves paint hidden and retains explicit feedback and stale-input rejection (922.588434ms)
+✔ actual Brave training callback reuses the manual Temple owner without reset or duplicate reservation (1009.152164ms)
+✔ Temple phase2 manual-to-automatic reuse exits without restarting and held controls remain independent (1044.913173ms)
+✔ typed Save and first Load publication preserve gameplay and discard manual Temple ownership (1360.208272ms)
+(node:240) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ production Temple renderer hides a live cache, automatic ownership acquires it without paint, then normal retirement deletes it (69.364689ms)
+ℹ {"runtimeRoot":"/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010","publicHead":"54f19225a6f005fd4c44b894272c1da829ec421d","objectPanelsSha256":"5486daffc93a2df6f9f14e85693229f2b68d40792adb92f8874a2db773f80b53","buildingPanelsSha256":"403b2e4e6e77d1a5ef4aeca32646535f14844277c55aa7af45ae1485677cd4f6"}
+✔ idle readiness rejects actual visible, focused or hovered cache and leaked owners independently (51.608868ms)
+✔ fresh acquisition preserves existing DOM state while rejecting leaked owners and synchronous DOM changes (29.006779ms)
+✔ active Temple Save observes post-normalization publication, committed IDB and first Page Load before unpause (636.801393ms)
+✔ fresh store restores committed active Temple and public Load Game publishes before Page unpause (500.39257ms)
+✔ full typed digest rejects wrong active training, stored mana, shared orders and iteration order despite matching summary digests (635.489571ms)
+✔ native-dispatch microtasks do not expire capture and Load skips same-World publications (164.515119ms)
+✔ publication read or snapshot errors are retained without rejecting the production Save (121.552819ms)
+✔ untrusted, absent, delayed and wrong-world publications fail closed without changing public behavior (496.684337ms)
+✔ passive observation forwards receivers, retains errors, bounds evidence and preserves foreign ownership on cleanup (48.598401ms)
+✔ cleanup failures attempt both resources and installation or target-copy failures leave close usable (49.796683ms)
+✔ aborted Save cannot claim committed IDB even though its synchronous in-session boundary exists (107.873818ms)
+✔ actual command uses entry.person; snapshots detach before host reads, with bounded fresh-epoch status (79.005046ms)
+✔ real training callback precedes real Preacher replacement, full panel progression and release (57.017071ms)
+✔ initial active epoch can close only after actual disposal for the Load boundary (29.653382ms)
+✔ request original result/throw identity and receivers are preserved (22.580256ms)
+✔ foreign method replacement is preserved; other wrappers and listeners still restore (26.553951ms)
+✔ record overflow is an explicit incomplete-evidence failure (28.359537ms)
+▶ direct lifecycle negatives reject unrelated conversion, replaced owners, bad sequence and leaks
+  ✔ loaded activity missing (1.579675ms)
+  ✔ loaded hidden cache leak (0.754184ms)
+  ✔ final hidden cache leak (0.878441ms)
+  ✔ loaded transient owner (0.624229ms)
+  ✔ worker still exiting (0.988787ms)
+  ✔ wrong trainee (0.596477ms)
+  ✔ unrelated occupant (0.869818ms)
+  ✔ missing request (0.700813ms)
+  ✔ premature record (0.741545ms)
+  ✔ replaced record (0.746323ms)
+  ✔ bad remaining (0.724049ms)
+  ✔ bad phase (0.629156ms)
+  ✔ entry transition plus only three held visits (0.822007ms)
+  ✔ no held visits (0.599221ms)
+  ✔ reservation leak (0.821335ms)
+  ✔ latch leak (0.979443ms)
+  ✔ DOM leak (0.703829ms)
+  ✔ activity leak (0.801675ms)
+  ✔ queued occupant (0.641926ms)
+  ✔ original still living (0.666792ms)
+  ✔ no training increment (0.733443ms)
+  ✔ two Preachers (0.861295ms)
+  ✔ wrong replacement team (0.765621ms)
+  ✔ dead replacement (0.662777ms)
+  ✔ target replaced (0.617939ms)
+✔ direct lifecycle negatives reject unrelated conversion, replaced owners, bad sequence and leaks (44.10888ms)
+✔ fresh request contract rejects wrong model and synchronous gameplay mutation (22.821348ms)
+✔ partial installation restores every prior wrapper and pointer listener (22.530461ms)
+✔ armed input cleanup failure cannot skip other owned restoration (22.658834ms)
+✔ live Tornado releases one loose log at the damaged building before debris allocation (64.978193ms)
+✔ live Tornado reuses plan work and retires exhausted buildings through normal turn cleanup (49.068027ms)
+✔ live Tornado leaves protected, rejected, unactivated and retired buildings alone (123.721689ms)
+✔ supplied Tornado allocation failure keeps work while stage, attribution and debris advance (23.217174ms)
+✔ Tornado byte decrement wraps on supplied failure and neutral attacker preserves attribution (22.292242ms)
+✔ Tornado compares final stage with the saved stage before emitting debris (21.876377ms)
+✔ Tornado exhausted work retires without allocation or post-retirement plan bookkeeping (66.270025ms)
+ℹ tests 155
+ℹ suites 0
+ℹ pass 155
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 48643.381754

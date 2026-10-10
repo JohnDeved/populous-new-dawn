@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "dd901174-9e9f-4527-9134-1d635977fcc3",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "7dddafa24d7256f813d0d4e75db73212f03a4a8e",
+    "branch": "fix/tornado-class2-wood-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node_modules/.bin/oxfmt",
+    "--check",
+    "app/building-runtime.ts",
+    "app/tornado-runtime.ts"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010",
+  "startedAt": "2026-10-10T04:04:48.614Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-format-7dddafa2.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-format-7dddafa2.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-10T04:04:48.736Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "Checking formatting...\n\napp/building-runtime.ts (1ms)\n\nFormat issues found in above 1 files. Run without `--check` to fix.\nFinished in 2ms on 2 files using 1 threads.\n",
+  "stderr": "",
+  "stdoutSha256": "2abaae641cdad25ef1ca5dec8b2e86f16c271ea3c668a6608a90ab82fea2c2bf",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "7dddafa24d7256f813d0d4e75db73212f03a4a8e",
+    "branch": "fix/tornado-class2-wood-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

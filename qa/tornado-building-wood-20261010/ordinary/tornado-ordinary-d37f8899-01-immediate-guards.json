@@ -1,0 +1,19 @@
+{
+  "status": "passed-immediately-before-launch",
+  "checkedAt": "2026-10-10T04:59:42.544215+00:00",
+  "manifestSha256": "399c6ae5d0f76f0feb606c09394c55b8cd6c9147af531715f26f665128b705fa",
+  "bindingReviewSha256": "223a3f71c4472ae4b6d12ff1c4ee7a468f9b0182a6faa3b0b31df80de0de0f71",
+  "sourceFingerprint": "6fed3896808bfe83f7085bcabf2c71aa5a607e648ee3c82641d070ace6c855da",
+  "all163PinsVerified": true,
+  "allPathsFresh": true,
+  "port4393BindProbe": "passed-closed-before-launch",
+  "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+  "dependency": {
+    "inode": 538212,
+    "device": 27
+  },
+  "harnessNominalDeadline": "2026-10-10T05:14:42.544215+00:00",
+  "outerTERMDeadline": "2026-10-10T05:15:12.544215+00:00",
+  "outerKILLDeadline": "2026-10-10T05:15:27.544215+00:00",
+  "limits": "Driver12min deadline begins at scenario entry; actual readiness/start/cleanup facts belong to terminal harness receipt."
+}

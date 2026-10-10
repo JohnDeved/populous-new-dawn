@@ -1,0 +1,11 @@
+✔ Tornado witness requires owned effect, cell, work, log and competing-owner exclusion (1.37646ms)
+✔ Tornado witness preserves callback receiver, arguments, result and owned cleanup (1.618364ms)
+✔ Tornado witness retains ownership failures without replacing foreign callbacks (0.55218ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 207.767535

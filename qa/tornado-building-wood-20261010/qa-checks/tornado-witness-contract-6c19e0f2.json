@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "4f499a34-0155-48cb-bd05-50e8f302d59a",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "6c19e0f2770f3eb373a5b2a538c7f3c6a2270fae",
+    "branch": "qa/tornado-class2-ordinary-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/tornado-building-witness.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010",
+  "startedAt": "2026-10-10T04:11:46.124Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-witness-contract-6c19e0f2.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-witness-contract-6c19e0f2.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-10T04:11:46.398Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ Tornado witness requires owned effect, cell, work, log and competing-owner exclusion (1.37646ms)\n✔ Tornado witness preserves callback receiver, arguments, result and owned cleanup (1.618364ms)\n✔ Tornado witness retains ownership failures without replacing foreign callbacks (0.55218ms)\nℹ tests 3\nℹ suites 0\nℹ pass 3\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 207.767535\n",
+  "stderr": "",
+  "stdoutSha256": "a5684924f6ddc7bbc66514e756dab5500243cf681140f3f1f4b3e3afa28d2e2e",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "6c19e0f2770f3eb373a5b2a538c7f3c6a2270fae",
+    "branch": "qa/tornado-class2-ordinary-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

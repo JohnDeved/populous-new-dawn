@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "3e367af7-8a34-4e30-93ee-d2411a7ea9c2",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "3c9f88cfa0f2615d6c283f39212f2af73768062c",
+    "branch": "fix/tornado-class2-wood-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/tornado-building-wood.test.mjs": "e16e263db49a7d60aa3f62d06cbc2b142e72473f794f5fc486090cc2605b4bc2"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/tornado-building-wood.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010",
+  "startedAt": "2026-10-10T04:01:49.615Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-red-3c9f88cf.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-red-3c9f88cf.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-10T04:01:50.862Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "✖ live Tornado releases one loose log at the damaged building before debris allocation (106.209537ms)\n✖ live Tornado reuses plan work and retires exhausted buildings through normal turn cleanup (54.229035ms)\n✔ live Tornado leaves protected, rejected, unactivated and retired buildings alone (119.466426ms)\nℹ tests 3\nℹ suites 0\nℹ pass 1\nℹ fail 2\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1180.454538\n\n✖ failing tests:\n\ntest at tests/tornado-building-wood.test.mjs:53:1\n✖ live Tornado releases one loose log at the damaged building before debris allocation (106.209537ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n  + actual - expected\n  ... Skipped lines\n  \n    [\n      {\n        id: 40,\n        logs: 2,\n        model: 11,\n  ...\n      },\n  -   {\n  -     id: 41,\n  -     logs: 1,\n  -     model: 11,\n  -     x: 0.9296875,\n  -     z: 7.0546875\n  -   }\n    ]\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/tests/tornado-building-wood.test.mjs:63:10)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.start (node:internal/test_runner/test:1242:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: [ { id: 40, x: 40, z: 40, model: 11, logs: 2 } ],\n    expected: [ { id: 40, x: 40, z: 40, model: 11, logs: 2 }, { id: 41, x: 0.9296875, z: 7.0546875, logs: 1, model: 11 } ],\n    operator: 'deepStrictEqual',\n    diff: 'simple'\n  }\n\ntest at tests/tornado-building-wood.test.mjs:80:1\n✖ live Tornado reuses plan work and retires exhausted buildings through normal turn cleanup (54.229035ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  0 !== 1\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/tests/tornado-building-wood.test.mjs:93:12)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 0,\n    expected: 1,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n",
+  "stderr": "",
+  "stdoutSha256": "d2bd009abb1543ee4d9a7d34606bb3ba02e7379b03acc488e3b1cd646938a099",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "3c9f88cfa0f2615d6c283f39212f2af73768062c",
+    "branch": "fix/tornado-class2-wood-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/tornado-building-wood.test.mjs": "e16e263db49a7d60aa3f62d06cbc2b142e72473f794f5fc486090cc2605b4bc2"
+    }
+  }
+}

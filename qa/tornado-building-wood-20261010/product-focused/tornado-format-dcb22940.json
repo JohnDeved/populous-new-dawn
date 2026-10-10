@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "46eed0bf-bb10-4883-bce0-bf4e94fdc2ad",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "dcb2294025285158fb05d728d958e06b75f2d66a",
+    "branch": "fix/tornado-class2-wood-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node_modules/.bin/oxfmt",
+    "--check",
+    "app/building-runtime.ts",
+    "app/tornado-runtime.ts"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010",
+  "startedAt": "2026-10-10T04:05:10.075Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-format-dcb22940.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-format-dcb22940.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-10T04:05:10.328Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 5ms on 2 files using 1 threads.\n",
+  "stderr": "",
+  "stdoutSha256": "d9a54992510ce4efe0b9e9a5e3a0ad4bc3c68d68feeaab4493d44be72905b719",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "dcb2294025285158fb05d728d958e06b75f2d66a",
+    "branch": "fix/tornado-class2-wood-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

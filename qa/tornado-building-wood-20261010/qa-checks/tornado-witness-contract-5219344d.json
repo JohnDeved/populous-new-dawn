@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "eb373057-c8fa-4373-88de-15c59f1df819",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "5219344d41caf11ed0ad5a352b737ee6b2492d44",
+    "branch": "qa/tornado-class2-ordinary-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/local-render/mission2-tornado-building.mjs": "b58400189cdb234c5eb18ef32a55dddd92fbde16f2b8b4d65e9babba09332c9c"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/tornado-building-witness.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010",
+  "startedAt": "2026-10-10T04:16:22.449Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-witness-contract-5219344d.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-witness-contract-5219344d.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-10T04:16:23.590Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ Tornado witness requires owned effect, cell, work, log and competing-owner exclusion (1.49312ms)\n✔ Tornado witness preserves callback receiver, arguments, result and owned cleanup (1.772401ms)\n✔ Tornado witness detaches on error and retains foreign callback ownership (0.563749ms)\n✔ Tornado observer forwards original throw identity and rolls back partial installation (0.719024ms)\n✔ Tornado observer attempts both restorations and stops after the turn cap (3.405412ms)\n✔ Tornado observer rejects wrong and second live effect identities (0.63713ms)\n✔ Tornado observer composes actual advanceGame, projectile impact and live building damage (125.27091ms)\nℹ tests 7\nℹ suites 0\nℹ pass 7\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1067.244292\n",
+  "stderr": "",
+  "stdoutSha256": "edac9e16e525d88b977a092f130724ea53b8c0d9fecfade19aa80ea21aa89c23",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "5219344d41caf11ed0ad5a352b737ee6b2492d44",
+    "branch": "qa/tornado-class2-ordinary-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/local-render/mission2-tornado-building.mjs": "b58400189cdb234c5eb18ef32a55dddd92fbde16f2b8b4d65e9babba09332c9c"
+    }
+  }
+}

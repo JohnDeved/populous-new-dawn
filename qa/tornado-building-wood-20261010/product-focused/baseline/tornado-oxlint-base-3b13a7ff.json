@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "62a83b3d-cc1c-4797-9c37-8b4acab2b168",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "3b13a7ff534ab95797b0b06330055cead956160d",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node_modules/.bin/oxlint",
+    "app/building-runtime.ts",
+    "app/tornado-runtime.ts"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/tornado-class2-baseline-20261010",
+  "startedAt": "2026-10-10T04:06:37.663Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/tornado-class2-baseline-20261010/work/orchestration/tornado-oxlint-base-3b13a7ff.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/tornado-class2-baseline-20261010/work/orchestration/tornado-oxlint-base-3b13a7ff.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-10T04:06:37.818Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "app/building-runtime.ts:38:42: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.\napp/building-runtime.ts:34:37: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.\napp/building-runtime.ts:23:31: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.\napp/building-runtime.ts:22:74: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.\napp/building-runtime.ts:33:25: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.\napp/building-runtime.ts:150:38: warning eslint(no-shadow): 'u' is already declared in the upper scope. help: Consider renaming 'u' to avoid shadowing the variable from the outer scope.\napp/building-runtime.ts:157:34: warning eslint(no-shadow): 'u' is already declared in the upper scope. help: Consider renaming 'u' to avoid shadowing the variable from the outer scope.\napp/building-runtime.ts:268:30: warning eslint(no-shadow): 'u' is already declared in the upper scope. help: Consider renaming 'u' to avoid shadowing the variable from the outer scope.\napp/building-runtime.ts:208:18: error eslint(no-multi-assign): Do not use chained assignment help: Separate each assignment into its own statement\napp/building-runtime.ts:227:20: warning eslint(prefer-destructuring): Use Object destructuring. help: Use object destructuring rather than direct member access.\napp/tornado-runtime.ts:1:59: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.\napp/tornado-runtime.ts:8:8: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.\napp/tornado-runtime.ts:19:35: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.\napp/tornado-runtime.ts:20:39: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.\napp/tornado-runtime.ts:83:9: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\n",
+  "stderr": "",
+  "stdoutSha256": "ab5f1414bc61e082fbfd416219b2ec317c50149c030421c46b3c7730da03f4ec",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "3b13a7ff534ab95797b0b06330055cead956160d",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

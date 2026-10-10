@@ -1,0 +1,38 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+[33m[PLUGIN_TIMINGS] [0mYour build spent significant time in plugins. Here is a breakdown:
+  - rsc:virtual-client-package (26%)
+  - vinext:css-data-url (21%)
+  - vinext:og-inline-fetch-assets (18%)
+  - alias (9%)
+  - rsc:react-server-dom-webpack-alias (6%)
+See https://rolldown.rs/options/checks#plugintimings for more details.
+
+[33m[PLUGIN_TIMINGS] [0mYour build spent significant time in plugins. Here is a breakdown:
+  - vinext:css-data-url (45%)
+  - rsc:load-environment-module (10%)
+  - rsc:rsc-css-export-transform (6%)
+  - vinext:validate-middleware-exports (4%)
+  - vinext:middleware-server-only (4%)
+See https://rolldown.rs/options/checks#plugintimings for more details.
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+[33m[PLUGIN_TIMINGS] [0mYour build spent significant time in plugins. Here is a breakdown:
+  - vinext:middleware-server-only (20%)
+  - vinext:og-inline-fetch-assets (15%)
+  - vinext:css-data-url (11%)
+  - alias (10%)
+  - rsc:virtual-client-package (10%)
+See https://rolldown.rs/options/checks#plugintimings for more details.
+
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

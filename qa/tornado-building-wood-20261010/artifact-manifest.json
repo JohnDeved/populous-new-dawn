@@ -1,0 +1,1062 @@
+{
+  "status": "preparing-ordinary-attempt-running",
+  "entries": [
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-format-7dddafa2.json",
+      "path": "product-focused/tornado-format-7dddafa2.json",
+      "bytes": 1670,
+      "sha256": "f732afdc9768a7d84b51c9b2d3daed9c5884ff7de78e7f79e9e23f95c2ea993a"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-format-7dddafa2.json.artifacts/stdout.log",
+      "path": "product-focused/tornado-format-7dddafa2.json.artifacts/stdout.log",
+      "bytes": 167,
+      "sha256": "2abaae641cdad25ef1ca5dec8b2e86f16c271ea3c668a6608a90ab82fea2c2bf"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-format-7dddafa2.json.artifacts/stderr.log",
+      "path": "product-focused/tornado-format-7dddafa2.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-eslint-4c65f180.json",
+      "path": "product-focused/tornado-eslint-4c65f180.json",
+      "bytes": 1483,
+      "sha256": "a593b1760139b7414df4fdc39da87e3259567a03633c86202da16dd2df3f8615"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-eslint-4c65f180.json.artifacts/stdout.log",
+      "path": "product-focused/tornado-eslint-4c65f180.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-eslint-4c65f180.json.artifacts/stderr.log",
+      "path": "product-focused/tornado-eslint-4c65f180.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-oxlint-dcb22940.json",
+      "path": "product-focused/tornado-oxlint-dcb22940.json",
+      "bytes": 4503,
+      "sha256": "67cb72e1080599ea4bd827a8af43afbedeca2c4545a37fedb0c0e7043dd983cd"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-oxlint-dcb22940.json.artifacts/stdout.log",
+      "path": "product-focused/tornado-oxlint-dcb22940.json.artifacts/stdout.log",
+      "bytes": 3004,
+      "sha256": "86bc0082fd2641d3d1336d46db42bba098aa8b7d270d8a5f735d03ec541f3327"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-oxlint-dcb22940.json.artifacts/stderr.log",
+      "path": "product-focused/tornado-oxlint-dcb22940.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-format-4c65f180.json",
+      "path": "product-focused/tornado-format-4c65f180.json",
+      "bytes": 1611,
+      "sha256": "22973e61a58be192023f127a8e2ec6a2ce1ec3f954d7b4c5ba7090348a103ee6"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-format-4c65f180.json.artifacts/stdout.log",
+      "path": "product-focused/tornado-format-4c65f180.json.artifacts/stdout.log",
+      "bytes": 110,
+      "sha256": "55a462e393ef21ad9c618978684a3e7b5fb4b3eadcb3d5754ff6e7cb9ea88d96"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-format-4c65f180.json.artifacts/stderr.log",
+      "path": "product-focused/tornado-format-4c65f180.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-eslint-dcb22940.json",
+      "path": "product-focused/tornado-eslint-dcb22940.json",
+      "bytes": 1483,
+      "sha256": "c432af3bc5f4cb4cbdc76bfee3f11e55a1186b279227193f47185ff864881bc0"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-eslint-dcb22940.json.artifacts/stdout.log",
+      "path": "product-focused/tornado-eslint-dcb22940.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-eslint-dcb22940.json.artifacts/stderr.log",
+      "path": "product-focused/tornado-eslint-dcb22940.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-oxlint-4c65f180.json",
+      "path": "product-focused/tornado-oxlint-4c65f180.json",
+      "bytes": 4341,
+      "sha256": "54cad1cd216a8e75db346045056d93a956d48d9cf1dbfd3b63128ceec98cad5e"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-oxlint-4c65f180.json.artifacts/stdout.log",
+      "path": "product-focused/tornado-oxlint-4c65f180.json.artifacts/stdout.log",
+      "bytes": 2843,
+      "sha256": "f5ffa12b024ddd836c96ebbc8d26e90cd691245d06fc02c4cf46d0cbb353e8f6"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-oxlint-4c65f180.json.artifacts/stderr.log",
+      "path": "product-focused/tornado-oxlint-4c65f180.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-red-3c9f88cf.json",
+      "path": "product-focused/tornado-wood-red-3c9f88cf.json",
+      "bytes": 4327,
+      "sha256": "50968484fb704ee70a702b9eef23bf193a82f0cb9837c0d7159bf506d70fd4b3"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-red-3c9f88cf.json.artifacts/stdout.log",
+      "path": "product-focused/tornado-wood-red-3c9f88cf.json.artifacts/stdout.log",
+      "bytes": 2558,
+      "sha256": "d2bd009abb1543ee4d9a7d34606bb3ba02e7379b03acc488e3b1cd646938a099"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-red-3c9f88cf.json.artifacts/stderr.log",
+      "path": "product-focused/tornado-wood-red-3c9f88cf.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-format-dcb22940.json",
+      "path": "product-focused/tornado-format-dcb22940.json",
+      "bytes": 1611,
+      "sha256": "ac6039d3abc40dc90b3065f5a7136decd2cb75f8a670aee9b21dcd1ab901b97d"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-format-dcb22940.json.artifacts/stdout.log",
+      "path": "product-focused/tornado-format-dcb22940.json.artifacts/stdout.log",
+      "bytes": 110,
+      "sha256": "d9a54992510ce4efe0b9e9a5e3a0ad4bc3c68d68feeaab4493d44be72905b719"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-format-dcb22940.json.artifacts/stderr.log",
+      "path": "product-focused/tornado-format-dcb22940.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-green-7dddafa2.json",
+      "path": "product-focused/tornado-wood-green-7dddafa2.json",
+      "bytes": 3169,
+      "sha256": "a7b050867a1fb6068375b4307e0ef78e50ed4614418176d515d8d697096428a5"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-green-7dddafa2.json.artifacts/stdout.log",
+      "path": "product-focused/tornado-wood-green-7dddafa2.json.artifacts/stdout.log",
+      "bytes": 1381,
+      "sha256": "ceeefa52c2c477ea5f8929d24f3ef2fa6dcd485d7f1768007452648d70a9752d"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-green-7dddafa2.json.artifacts/stderr.log",
+      "path": "product-focused/tornado-wood-green-7dddafa2.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-baseline-20261010/work/orchestration/tornado-oxlint-base-3b13a7ff.json",
+      "path": "product-focused/baseline/tornado-oxlint-base-3b13a7ff.json",
+      "bytes": 4299,
+      "sha256": "5a74bd21e7cbbd0bb55891467a43c4b49cb715d87b203c0426bef7982138c65b"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-baseline-20261010/work/orchestration/tornado-oxlint-base-3b13a7ff.json.artifacts/stdout.log",
+      "path": "product-focused/baseline/tornado-oxlint-base-3b13a7ff.json.artifacts/stdout.log",
+      "bytes": 2843,
+      "sha256": "ab5f1414bc61e082fbfd416219b2ec317c50149c030421c46b3c7730da03f4ec"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-baseline-20261010/work/orchestration/tornado-oxlint-base-3b13a7ff.json.artifacts/stderr.log",
+      "path": "product-focused/baseline/tornado-oxlint-base-3b13a7ff.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/aggregate.json",
+      "path": "prior-standard/aggregate.json",
+      "bytes": 26074,
+      "sha256": "839bf5fec25983af71f7615938bbefb8a7a60db2b8dc5095e74c251bb2b4a16d"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/profile-proposal.json",
+      "path": "prior-standard/profile-proposal.json",
+      "bytes": 77257,
+      "sha256": "4d344a6e62f375a634d53a99918fad6e36d2bc6b730d4748e048947549d060e0"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-new.json",
+      "path": "prior-standard/tests-new.json",
+      "bytes": 91771,
+      "sha256": "a60ff67ba0bab7446c8d75c57ab08fb001da89224bcce87c4df37c7da289eb22"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-new.json.artifacts/stdout.log",
+      "path": "prior-standard/tests-new.json.artifacts/stdout.log",
+      "bytes": 22167,
+      "sha256": "c64195f02dd258c6ce5141224e0c84b478706821f1539e5d2c1bd337f81269c4"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-new.json.artifacts/stderr.log",
+      "path": "prior-standard/tests-new.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-01.json",
+      "path": "prior-standard/tests-01.json",
+      "bytes": 86698,
+      "sha256": "4b9a1ce1ebdef5502aafaa5276b47b26598ca52639a97ccd6200277e20c4c459"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-01.json.artifacts/stdout.log",
+      "path": "prior-standard/tests-01.json.artifacts/stdout.log",
+      "bytes": 16848,
+      "sha256": "f92f6d840c4debcfed3553ce344f97372bd9f3712f01c0dddeee7eba4084a332"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-01.json.artifacts/stderr.log",
+      "path": "prior-standard/tests-01.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-02.json",
+      "path": "prior-standard/tests-02.json",
+      "bytes": 87356,
+      "sha256": "9045d30fa48b034e30e62523fa9cc632c190791babc8c066c3badc3e5970628d"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-02.json.artifacts/stdout.log",
+      "path": "prior-standard/tests-02.json.artifacts/stdout.log",
+      "bytes": 17410,
+      "sha256": "f3edd2b37d2c8abca911a0872f70f99f3584414bf738ec20a719dd50a0b046ba"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-02.json.artifacts/stderr.log",
+      "path": "prior-standard/tests-02.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-03.json",
+      "path": "prior-standard/tests-03.json",
+      "bytes": 97869,
+      "sha256": "37ad999c3f7d2cd9b9a7adf6db2f6ddf7bb682a65efa57c62f166a3f67edcbee"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-03.json.artifacts/stdout.log",
+      "path": "prior-standard/tests-03.json.artifacts/stdout.log",
+      "bytes": 27964,
+      "sha256": "2ade2112ab604e820576eccb830c604ee5da671b7f620dea33d35fd964faef23"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-03.json.artifacts/stderr.log",
+      "path": "prior-standard/tests-03.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-04a.json",
+      "path": "prior-standard/tests-04a.json",
+      "bytes": 75604,
+      "sha256": "4dd118b4e21ba25168247cd6013a701f55e7e09a1144889557c15777d98fea58"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-04a.json.artifacts/stdout.log",
+      "path": "prior-standard/tests-04a.json.artifacts/stdout.log",
+      "bytes": 6736,
+      "sha256": "da6b3e1b90861a20f2d88ffae5ccbfad8ba4f8be4410aac570c1e5be5f3cd3c7"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-04a.json.artifacts/stderr.log",
+      "path": "prior-standard/tests-04a.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-04b.json",
+      "path": "prior-standard/tests-04b.json",
+      "bytes": 76428,
+      "sha256": "c84f65400e32025e84f5f4117d631625534d1311e8e16a7c7d36e09921e204f4"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-04b.json.artifacts/stdout.log",
+      "path": "prior-standard/tests-04b.json.artifacts/stdout.log",
+      "bytes": 7630,
+      "sha256": "fdda324594d8f9943f146270dafda300ff09f2c32c37e241e64f9646dd0cf15d"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-04b.json.artifacts/stderr.log",
+      "path": "prior-standard/tests-04b.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-04c.json",
+      "path": "prior-standard/tests-04c.json",
+      "bytes": 71899,
+      "sha256": "d47b2e5be793b244657d2b0bd68a977eb75321f09a78cae575454577be7ef99f"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-04c.json.artifacts/stdout.log",
+      "path": "prior-standard/tests-04c.json.artifacts/stdout.log",
+      "bytes": 3140,
+      "sha256": "3f1b0898dc3a2e115aaf74a7370ebbe835188b3797ebe76d76d5835b63d2f54e"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-04c.json.artifacts/stderr.log",
+      "path": "prior-standard/tests-04c.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-05a.json",
+      "path": "prior-standard/tests-05a.json",
+      "bytes": 74482,
+      "sha256": "eca63e89051fc02355feb60091c573a9922b4eba7cfbe7e1821ba43f21ba1cb8"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-05a.json.artifacts/stdout.log",
+      "path": "prior-standard/tests-05a.json.artifacts/stdout.log",
+      "bytes": 5680,
+      "sha256": "860fef11ba969e0d9700147e1f26302b3976216fae0ecf33d256c570d07ff9f5"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-05a.json.artifacts/stderr.log",
+      "path": "prior-standard/tests-05a.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-05b.json",
+      "path": "prior-standard/tests-05b.json",
+      "bytes": 73565,
+      "sha256": "e1ba4ade06af398a7c89aab5f2db458476e051f077f659326c114b24e5b1172c"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-05b.json.artifacts/stdout.log",
+      "path": "prior-standard/tests-05b.json.artifacts/stdout.log",
+      "bytes": 4776,
+      "sha256": "ad663f8fe7bc99855f270491f2813cc33592a428b53852d04d7d63a1d066aaaa"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-05b.json.artifacts/stderr.log",
+      "path": "prior-standard/tests-05b.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-05c.json",
+      "path": "prior-standard/tests-05c.json",
+      "bytes": 78455,
+      "sha256": "4d86415df725fc780d8457f3d5cd725ae5b34ae533331a63bfb25148ed60bfa6"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-05c.json.artifacts/stdout.log",
+      "path": "prior-standard/tests-05c.json.artifacts/stdout.log",
+      "bytes": 9623,
+      "sha256": "59b0c48d4d649e82e6c09aa14d624dff878d1c68967f8a25abbbf56b5afa41a6"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-05c.json.artifacts/stderr.log",
+      "path": "prior-standard/tests-05c.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-06.json",
+      "path": "prior-standard/tests-06.json",
+      "bytes": 104115,
+      "sha256": "1241df3100a17afbd714076f6641f0cddb925a2980a1c980623e2f064b46625c"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-06.json.artifacts/stdout.log",
+      "path": "prior-standard/tests-06.json.artifacts/stdout.log",
+      "bytes": 34058,
+      "sha256": "ccff78cd37804e6cb61e6d37f59cd52c80a28706fb2b3dc962656ac13a3eee29"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-06.json.artifacts/stderr.log",
+      "path": "prior-standard/tests-06.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-07.json",
+      "path": "prior-standard/tests-07.json",
+      "bytes": 86171,
+      "sha256": "b490a1a1cae0094184086862c23200c9473fe550a9950b9cf48e8a65016298bc"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-07.json.artifacts/stdout.log",
+      "path": "prior-standard/tests-07.json.artifacts/stdout.log",
+      "bytes": 16349,
+      "sha256": "685a4c5c08c7379196ed9ce4fe40cb351ed138370ef2fa311a8b99139f127107"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-07.json.artifacts/stderr.log",
+      "path": "prior-standard/tests-07.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-08.json",
+      "path": "prior-standard/tests-08.json",
+      "bytes": 87710,
+      "sha256": "9ff0c9dddffa26e9c2fc8c9ea88900e63f01994d45b45eb8b53427326df30ade"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-08.json.artifacts/stdout.log",
+      "path": "prior-standard/tests-08.json.artifacts/stdout.log",
+      "bytes": 17584,
+      "sha256": "b5d4e8c6a49d824c008b731d805c274bf6135b5f51defa6ec5c7c089dcf3d7f3"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/tests-08.json.artifacts/stderr.log",
+      "path": "prior-standard/tests-08.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/typecheck.json",
+      "path": "prior-standard/typecheck.json",
+      "bytes": 68677,
+      "sha256": "4492a95226e5507d2a347604e41f9ed74e2be2fce1056ff5dd43bb6d2f8976ed"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/typecheck.json.artifacts/stdout.log",
+      "path": "prior-standard/typecheck.json.artifacts/stdout.log",
+      "bytes": 55,
+      "sha256": "5b3b688caa668685eebda41ca93c4e60de869bac3645a0b25bf22809e6c84ba5"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/typecheck.json.artifacts/stderr.log",
+      "path": "prior-standard/typecheck.json.artifacts/stderr.log",
+      "bytes": 307,
+      "sha256": "7d61cb2e2deb776dfec4d6f54693f9edeed0af5c4da52f091c53c995d862fb65"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/parity-check.json",
+      "path": "prior-standard/parity-check.json",
+      "bytes": 68571,
+      "sha256": "5ea2f50bd130ea79e11d0655a5fe2e16f94f7fc236e607818a13a4a1349a87ba"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/parity-check.json.artifacts/stdout.log",
+      "path": "prior-standard/parity-check.json.artifacts/stdout.log",
+      "bytes": 152,
+      "sha256": "f39c8ad20b8013f4e4e4ade55ff5d63ab1c8df3729611db56c2d25cf734b48a9"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/parity-check.json.artifacts/stderr.log",
+      "path": "prior-standard/parity-check.json.artifacts/stderr.log",
+      "bytes": 99,
+      "sha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/orchestration-check.json",
+      "path": "prior-standard/orchestration-check.json",
+      "bytes": 73919,
+      "sha256": "8ba0efbbc86d1bd75da48a276b2d0b9df422c4338508831de2566e1de4c365a6"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/orchestration-check.json.artifacts/stdout.log",
+      "path": "prior-standard/orchestration-check.json.artifacts/stdout.log",
+      "bytes": 4971,
+      "sha256": "b18d09c73c92014599d480b65ec8bfb1e0c0b21e0a236c56baaee4e0e935f9ac"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/orchestration-check.json.artifacts/stderr.log",
+      "path": "prior-standard/orchestration-check.json.artifacts/stderr.log",
+      "bytes": 99,
+      "sha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/build.json",
+      "path": "prior-standard/build.json",
+      "bytes": 71432,
+      "sha256": "f2c72d9c519155fd1f2920045cb131c6c579efc05dd55562d946987a2e623bc4"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/build.json.artifacts/stdout.log",
+      "path": "prior-standard/build.json.artifacts/stdout.log",
+      "bytes": 1143,
+      "sha256": "298bc2c8b3c6763a83f2834fa71d1d3a1c94e9c9bc60f270d2d8b5c482207cbd"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-wood-final-01/build.json.artifacts/stderr.log",
+      "path": "prior-standard/build.json.artifacts/stderr.log",
+      "bytes": 1816,
+      "sha256": "44dff57eb969b730de5434cda7300e1be1689a91ba250a0256d956a190ee1c40"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/aggregate.json",
+      "path": "combined-standard/aggregate.json",
+      "bytes": 26162,
+      "sha256": "ce9710778b44ee9f01a2bb1e51531e77e7ae9e64f1ff2563a7342fbf3bf0cc85"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/profile-proposal.json",
+      "path": "combined-standard/profile-proposal.json",
+      "bytes": 77470,
+      "sha256": "1e7fec691d49bfeae0385d57900ca946a520bd1c03d71fc61e99a2fbcdc6175e"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/typecheck.json",
+      "path": "combined-standard/typecheck.json",
+      "bytes": 68925,
+      "sha256": "41539c32b4dc8f322e983d5bb91ed8efbaa24212bd44e6db7267897e07c86eb8"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/typecheck.json.artifacts/stdout.log",
+      "path": "combined-standard/typecheck.json.artifacts/stdout.log",
+      "bytes": 55,
+      "sha256": "5b3b688caa668685eebda41ca93c4e60de869bac3645a0b25bf22809e6c84ba5"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/typecheck.json.artifacts/stderr.log",
+      "path": "combined-standard/typecheck.json.artifacts/stderr.log",
+      "bytes": 307,
+      "sha256": "7d61cb2e2deb776dfec4d6f54693f9edeed0af5c4da52f091c53c995d862fb65"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-new.json",
+      "path": "combined-standard/tests-new.json",
+      "bytes": 96554,
+      "sha256": "f84989d0631e82707154665567ed36f75524806cb735691598bb48927dde19d9"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-new.json.artifacts/stdout.log",
+      "path": "combined-standard/tests-new.json.artifacts/stdout.log",
+      "bytes": 26589,
+      "sha256": "7238673f08ccfd31a5ae881b07ba80d316129e1cb06a03d0fc130fbf09cefd44"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-new.json.artifacts/stderr.log",
+      "path": "combined-standard/tests-new.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-01.json",
+      "path": "combined-standard/tests-01.json",
+      "bytes": 86952,
+      "sha256": "d42c8848e636c94530af7ed19b9084cf1a7ae76ec4e88bd6c6d3b3c65c17bc50"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-01.json.artifacts/stdout.log",
+      "path": "combined-standard/tests-01.json.artifacts/stdout.log",
+      "bytes": 16854,
+      "sha256": "f2582bbbafb835690f907fa51733938e55e342837b49ff0b582a66e19126ab76"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-01.json.artifacts/stderr.log",
+      "path": "combined-standard/tests-01.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-02.json",
+      "path": "combined-standard/tests-02.json",
+      "bytes": 87607,
+      "sha256": "d891643715deaae0ad052aafcc1c2afb80aae67a2677aa46cc9f57e6b5ae9126"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-02.json.artifacts/stdout.log",
+      "path": "combined-standard/tests-02.json.artifacts/stdout.log",
+      "bytes": 17413,
+      "sha256": "1a4d5e9bfdfffaa39466cb6301f45672c13fb2158b797c4ddd8e6e28d4c17053"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-02.json.artifacts/stderr.log",
+      "path": "combined-standard/tests-02.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-03.json",
+      "path": "combined-standard/tests-03.json",
+      "bytes": 98106,
+      "sha256": "be06d3a501c5252cdf31f758c1262bf27e2cd734a9b1906ff31e5bbb85d0eb1f"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-03.json.artifacts/stdout.log",
+      "path": "combined-standard/tests-03.json.artifacts/stdout.log",
+      "bytes": 27953,
+      "sha256": "18dc9de954eb743c4bf7189af1016233cd093a47b51e037eb60aedd4985eee38"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-03.json.artifacts/stderr.log",
+      "path": "combined-standard/tests-03.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-04a.json",
+      "path": "combined-standard/tests-04a.json",
+      "bytes": 75851,
+      "sha256": "a0685323370763dfc9f9f340517343271e720f2d6f719e69d469d5298c1c271a"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-04a.json.artifacts/stdout.log",
+      "path": "combined-standard/tests-04a.json.artifacts/stdout.log",
+      "bytes": 6735,
+      "sha256": "8f4e6611b2ca64376ea2eb631243d7c5730c02c6a474e23a983a3746cc0ff688"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-04a.json.artifacts/stderr.log",
+      "path": "combined-standard/tests-04a.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-04b.json",
+      "path": "combined-standard/tests-04b.json",
+      "bytes": 76681,
+      "sha256": "69275ed147a23f5884dc5b10de769c8ef949a5328990fa63f6ac7f76373df902"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-04b.json.artifacts/stdout.log",
+      "path": "combined-standard/tests-04b.json.artifacts/stdout.log",
+      "bytes": 7635,
+      "sha256": "7db5fed1bbe1210041c702e4a29a85ca797244b5b21c2b3b1e8887f91524a4ce"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-04b.json.artifacts/stderr.log",
+      "path": "combined-standard/tests-04b.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-04c.json",
+      "path": "combined-standard/tests-04c.json",
+      "bytes": 72145,
+      "sha256": "d6fb13f447d1db3d41b54764a67a3dfb5bfefb50f534db2f3e28bab46cd750ab"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-04c.json.artifacts/stdout.log",
+      "path": "combined-standard/tests-04c.json.artifacts/stdout.log",
+      "bytes": 3138,
+      "sha256": "62afa3623cfab8622f26280a74e9efb543f9b4ce88f3ac0ab9edb675e6b77a70"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-04c.json.artifacts/stderr.log",
+      "path": "combined-standard/tests-04c.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-05a.json",
+      "path": "combined-standard/tests-05a.json",
+      "bytes": 74729,
+      "sha256": "f0612bfff5672752b49c3ea1536a373b6351da4f2acc58dab3fc7289f5529b0f"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-05a.json.artifacts/stdout.log",
+      "path": "combined-standard/tests-05a.json.artifacts/stdout.log",
+      "bytes": 5679,
+      "sha256": "428a4dd65d64ab9900c9d2d73cb3bab28e887d7bac4e83a7f6f8edd8de69f02e"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-05a.json.artifacts/stderr.log",
+      "path": "combined-standard/tests-05a.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-05b.json",
+      "path": "combined-standard/tests-05b.json",
+      "bytes": 73816,
+      "sha256": "aac87acba11c4717b1b2e4b3d9adc087c89b03e723632aefe5804deea5641123"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-05b.json.artifacts/stdout.log",
+      "path": "combined-standard/tests-05b.json.artifacts/stdout.log",
+      "bytes": 4779,
+      "sha256": "fad805f92f93d23080c4de11f23b06b43a2252a8d3aaf2863085d0cd552667a5"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-05b.json.artifacts/stderr.log",
+      "path": "combined-standard/tests-05b.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-05c.json",
+      "path": "combined-standard/tests-05c.json",
+      "bytes": 78713,
+      "sha256": "33cb076f6802a09e95ea426bc19a213a8f27c325419a79c7c0b1d47aa7b4956a"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-05c.json.artifacts/stdout.log",
+      "path": "combined-standard/tests-05c.json.artifacts/stdout.log",
+      "bytes": 9633,
+      "sha256": "cb6ff8125690f15c6e7cfa7a3bac305cb448fc42411a5db6e32c3b99bccc4e39"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-05c.json.artifacts/stderr.log",
+      "path": "combined-standard/tests-05c.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-06.json",
+      "path": "combined-standard/tests-06.json",
+      "bytes": 104355,
+      "sha256": "45bac9409714ba708c0d3d3bc36ca610e729833cbd341cd06a05bce0dc8e8430"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-06.json.artifacts/stdout.log",
+      "path": "combined-standard/tests-06.json.artifacts/stdout.log",
+      "bytes": 34050,
+      "sha256": "58ee2520335f7d366f68885f3d2953fbfcd5bd27bdfdbd92f55cc4aa710ec2f4"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-06.json.artifacts/stderr.log",
+      "path": "combined-standard/tests-06.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-07.json",
+      "path": "combined-standard/tests-07.json",
+      "bytes": 86422,
+      "sha256": "8c42992f5a13ab03fd1cd6d3afb2eb47a2eff965fe76d28d7a950d2558fbda1c"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-07.json.artifacts/stdout.log",
+      "path": "combined-standard/tests-07.json.artifacts/stdout.log",
+      "bytes": 16352,
+      "sha256": "8f4274bdfad8b25e8e4ed4044b13a576c80611948501ab19f4d749ad9709f676"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-07.json.artifacts/stderr.log",
+      "path": "combined-standard/tests-07.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-08.json",
+      "path": "combined-standard/tests-08.json",
+      "bytes": 87956,
+      "sha256": "d22243419c0fb45af894f04169831b3bd74819c36a57bb7a77d11cda5544c7c6"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-08.json.artifacts/stdout.log",
+      "path": "combined-standard/tests-08.json.artifacts/stdout.log",
+      "bytes": 17582,
+      "sha256": "f961667f51d95bc8f387dafb75fcce7dd7635828d1498cbbd99fbddb31854fed"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/tests-08.json.artifacts/stderr.log",
+      "path": "combined-standard/tests-08.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/parity-check.json",
+      "path": "combined-standard/parity-check.json",
+      "bytes": 68819,
+      "sha256": "6528a02d2b74c6e1cc880427cda8bce5ba8184475da2e9855912f390b80f82f0"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/parity-check.json.artifacts/stdout.log",
+      "path": "combined-standard/parity-check.json.artifacts/stdout.log",
+      "bytes": 152,
+      "sha256": "f39c8ad20b8013f4e4e4ade55ff5d63ab1c8df3729611db56c2d25cf734b48a9"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/parity-check.json.artifacts/stderr.log",
+      "path": "combined-standard/parity-check.json.artifacts/stderr.log",
+      "bytes": 99,
+      "sha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/orchestration-check.json",
+      "path": "combined-standard/orchestration-check.json",
+      "bytes": 74167,
+      "sha256": "29800af6e6e0525db10a3e08e045d606ec3a6bfda2607a01fe4cf4da3d7272aa"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/orchestration-check.json.artifacts/stdout.log",
+      "path": "combined-standard/orchestration-check.json.artifacts/stdout.log",
+      "bytes": 4971,
+      "sha256": "b18d09c73c92014599d480b65ec8bfb1e0c0b21e0a236c56baaee4e0e935f9ac"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/orchestration-check.json.artifacts/stderr.log",
+      "path": "combined-standard/orchestration-check.json.artifacts/stderr.log",
+      "bytes": 99,
+      "sha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/build.json",
+      "path": "combined-standard/build.json",
+      "bytes": 71642,
+      "sha256": "10b404e9b20aea43db010b2f57980568798e3313777b36795f8729c7536f016c"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/build.json.artifacts/stdout.log",
+      "path": "combined-standard/build.json.artifacts/stdout.log",
+      "bytes": 1143,
+      "sha256": "1572c5c18fe22327a67f1c928bbfb36a7d20340798cc55cdc80f48e88c91d500"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-radius-final-02/build.json.artifacts/stderr.log",
+      "path": "combined-standard/build.json.artifacts/stderr.log",
+      "bytes": 1778,
+      "sha256": "f66ea317a845572df679add6da19af1b570fc3af112d9edbd8c616d066ea5e1f"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-witness-contract-6c19e0f2.json",
+      "path": "qa-checks/tornado-witness-contract-6c19e0f2.json",
+      "bytes": 1921,
+      "sha256": "fca035e528b5d60fd8203e20243f233aee4e7d0a8a58d483fca66bb05c656d3c"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-witness-contract-6c19e0f2.json.artifacts/stdout.log",
+      "path": "qa-checks/tornado-witness-contract-6c19e0f2.json.artifacts/stdout.log",
+      "bytes": 409,
+      "sha256": "a5684924f6ddc7bbc66514e756dab5500243cf681140f3f1f4b3e3afa28d2e2e"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-witness-contract-6c19e0f2.json.artifacts/stderr.log",
+      "path": "qa-checks/tornado-witness-contract-6c19e0f2.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-witness-contract-5219344d.json",
+      "path": "qa-checks/tornado-witness-contract-5219344d.json",
+      "bytes": 2566,
+      "sha256": "652cb70944caff4d0309b21f1627a58ae49a927af9b72fdef28f9826d9daf7d4"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-witness-contract-5219344d.json.artifacts/stdout.log",
+      "path": "qa-checks/tornado-witness-contract-5219344d.json.artifacts/stdout.log",
+      "bytes": 786,
+      "sha256": "edac9e16e525d88b977a092f130724ea53b8c0d9fecfade19aa80ea21aa89c23"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-witness-contract-5219344d.json.artifacts/stderr.log",
+      "path": "qa-checks/tornado-witness-contract-5219344d.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-witness-contract-1675b5c2.json",
+      "path": "qa-checks/tornado-witness-contract-1675b5c2.json",
+      "bytes": 2511,
+      "sha256": "27616bb75693a84f5e4b610eb5db77522cd27b22ec20397dacf4aa7b088e5fb2"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-witness-contract-1675b5c2.json.artifacts/stdout.log",
+      "path": "qa-checks/tornado-witness-contract-1675b5c2.json.artifacts/stdout.log",
+      "bytes": 993,
+      "sha256": "895ce6f99688bc3515d9a130042c70ef6a317a3f984aac1a723be3208c902742"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-witness-contract-1675b5c2.json.artifacts/stderr.log",
+      "path": "qa-checks/tornado-witness-contract-1675b5c2.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-witness-contract-c0d3c380.json",
+      "path": "qa-checks/tornado-witness-contract-c0d3c380.json",
+      "bytes": 3364,
+      "sha256": "19f55fb421ed8ec7fb785c4e1f2cc56bd4b3e9372c56f432099be419fa0f2208"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-witness-contract-c0d3c380.json.artifacts/stdout.log",
+      "path": "qa-checks/tornado-witness-contract-c0d3c380.json.artifacts/stdout.log",
+      "bytes": 1093,
+      "sha256": "ae1182f09d17ccab55523faea017fc115af4b757102816ba0bec7a722dfd566a"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-witness-contract-c0d3c380.json.artifacts/stderr.log",
+      "path": "qa-checks/tornado-witness-contract-c0d3c380.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-witness-contract-d37f8899.json",
+      "path": "qa-checks/tornado-witness-contract-d37f8899.json",
+      "bytes": 4807,
+      "sha256": "bd834a2f17d5e19043301696561cc5409f7e4520be677295ecc4e0cb42eaa0a7"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-witness-contract-d37f8899.json.artifacts/stdout.log",
+      "path": "qa-checks/tornado-witness-contract-d37f8899.json.artifacts/stdout.log",
+      "bytes": 1093,
+      "sha256": "efc140401bdabbaaa91ca01be82590921b21fdcd3bd09bf308940435b44c4e60"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-witness-contract-d37f8899.json.artifacts/stderr.log",
+      "path": "qa-checks/tornado-witness-contract-d37f8899.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-qa-eslint-final.json",
+      "path": "qa-checks/tornado-qa-eslint-final.json",
+      "bytes": 1769,
+      "sha256": "cc5f060b536ea0c122138ea34ba9e4d8218bd95a561df979a574a891b62bdc49"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-qa-eslint-final.json.artifacts/stdout.log",
+      "path": "qa-checks/tornado-qa-eslint-final.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-qa-eslint-final.json.artifacts/stderr.log",
+      "path": "qa-checks/tornado-qa-eslint-final.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-transform-1675b5c2.json",
+      "path": "qa-checks/tornado-transform-1675b5c2.json",
+      "bytes": 4004,
+      "sha256": "b86d8fcbca0d66bc89a2bd79c7fa5b425237616796c1ca91576ff8c1b3730101"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-transform-1675b5c2.json.artifacts/stdout.log",
+      "path": "qa-checks/tornado-transform-1675b5c2.json.artifacts/stdout.log",
+      "bytes": 1419,
+      "sha256": "c7dfca6caa9c0199f2b2c4a55a08eb504ddbcd8f1e862dfefa8aaa047fe234c6"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-transform-1675b5c2.json.artifacts/stderr.log",
+      "path": "qa-checks/tornado-transform-1675b5c2.json.artifacts/stderr.log",
+      "bytes": 136,
+      "sha256": "6205e22497347c74bf6517d7c67792b17cc2051d7b12f33098353c4b1b9bed4a"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-transform-c0d3c380-r2.json",
+      "path": "qa-checks/tornado-transform-c0d3c380-r2.json",
+      "bytes": 47707,
+      "sha256": "3169e233660fb74f715c157922352dcf32e38f5e47ad6ccd83bba710bb66dc6c"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-transform-c0d3c380-r2.json.artifacts/stdout.log",
+      "path": "qa-checks/tornado-transform-c0d3c380-r2.json.artifacts/stdout.log",
+      "bytes": 40756,
+      "sha256": "cf3e18eb1981133e64c9fa57c3b9178505d0da24fc25b0e02e2e7cdcb21dd61d"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-transform-c0d3c380-r2.json.artifacts/stderr.log",
+      "path": "qa-checks/tornado-transform-c0d3c380-r2.json.artifacts/stderr.log",
+      "bytes": 136,
+      "sha256": "6205e22497347c74bf6517d7c67792b17cc2051d7b12f33098353c4b1b9bed4a"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-transform-d37f8899.json",
+      "path": "qa-checks/tornado-transform-d37f8899.json",
+      "bytes": 49181,
+      "sha256": "217a48ff4943943edb8b2e8cb7d06b234951e128d3b584eaac77694ece1b8c1f"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-transform-d37f8899.json.artifacts/stdout.log",
+      "path": "qa-checks/tornado-transform-d37f8899.json.artifacts/stdout.log",
+      "bytes": 40818,
+      "sha256": "4d397cf49edaafc2e588f8bd916839613c9a09c88258678de4f987ee601e50d0"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-transform-d37f8899.json.artifacts/stderr.log",
+      "path": "qa-checks/tornado-transform-d37f8899.json.artifacts/stderr.log",
+      "bytes": 136,
+      "sha256": "6205e22497347c74bf6517d7c67792b17cc2051d7b12f33098353c4b1b9bed4a"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-ordinary-binding-review-d37f8899-20261010.json",
+      "path": "reviews/tornado-ordinary-binding-review-d37f8899-20261010.json",
+      "bytes": 3462,
+      "sha256": "223a3f71c4472ae4b6d12ff1c4ee7a468f9b0182a6faa3b0b31df80de0de0f71"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-ordinary-binding-review-c351f4a2-20261010.json",
+      "path": "reviews/tornado-ordinary-binding-review-c351f4a2-20261010.json",
+      "bytes": 3410,
+      "sha256": "a2a7a8259a942208719b8caede9ef30042ffa3a0c0a3de089cfeaacb2cad2ca5"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-ordinary-source-review-c351f4a2-20261010.json",
+      "path": "reviews/tornado-ordinary-source-review-c351f4a2-20261010.json",
+      "bytes": 5272,
+      "sha256": "e385e805a7594cf5cbac217af942e01abaa8b5c9ce6fbdb4f4ff822b2b4c169d"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-radius-source-profile-admission-review-20261010.json",
+      "path": "reviews/tornado-radius-source-profile-admission-review-20261010.json",
+      "bytes": 3394,
+      "sha256": "a6becef309af3e8c39071ee96f79bfc5272990ea961f3ae17af3775fcaf389d0"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-building-wood-implementation-review-4c65f180-20261010.json",
+      "path": "reviews/tornado-building-wood-implementation-review-4c65f180-20261010.json",
+      "bytes": 7193,
+      "sha256": "4b1664a08bb97dd54b49299dac6a8675cb285ae37fad3b8258264539b757c9d0"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-building-wood-standard-admission-review-20261010.json",
+      "path": "reviews/tornado-building-wood-standard-admission-review-20261010.json",
+      "bytes": 2623,
+      "sha256": "aed558236c8ce92e7246f560f4962d3a3b73000f53a616b477155dcc4e0b6de9"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-building-wood-scope-review-3c9f88cf-20261010.json",
+      "path": "reviews/tornado-building-wood-scope-review-3c9f88cf-20261010.json",
+      "bytes": 4363,
+      "sha256": "e3463850301468c4a2b18d4638c3cc46a9f39bf26cd5a2758f4229cda0d69c69"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-combined-qa-result-review-d37f8899-20261010.json",
+      "path": "reviews/tornado-combined-qa-result-review-d37f8899-20261010.json",
+      "bytes": 2492,
+      "sha256": "fcdcfb2d4f925cc9905eaef9c12bc955a0f24df821d7a2e9e01abedeedd7991d"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-building-wood-final-result-review-20261010.json",
+      "path": "reviews/tornado-building-wood-final-result-review-20261010.json",
+      "bytes": 7615,
+      "sha256": "4b6c10c6408de1cbe8054eff3d8dcb0eda8c015c39215a4bb006971070067baa"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-radius-final-result-review-20261010.json",
+      "path": "reviews/tornado-radius-final-result-review-20261010.json",
+      "bytes": 12728,
+      "sha256": "583c51c58daa57c4ab0fd217d76fd2e2d0af5cb2cbd5e1bdd64c5f39e5ab3bd6"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-actual-main-adoption-92907866.json",
+      "path": "ordinary/tornado-actual-main-adoption-92907866.json",
+      "bytes": 1938,
+      "sha256": "638fc19122eb4dee7913b04e97fd8073e5f40c76bf14e0748ff7e2c79a4c087f"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-ordinary-prelaunch-d37f8899-final.json",
+      "path": "ordinary/tornado-ordinary-prelaunch-d37f8899-final.json",
+      "bytes": 62365,
+      "sha256": "399c6ae5d0f76f0feb606c09394c55b8cd6c9147af531715f26f665128b705fa"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-ordinary-d37f8899-01-immediate-guards.json",
+      "path": "ordinary/tornado-ordinary-d37f8899-01-immediate-guards.json",
+      "bytes": 948,
+      "sha256": "89ea1a9401efee5318dc97c3c3308a5a9c6e6c7d858a445b06b8e4eb3f28e159"
+    }
+  ],
+  "scope": "Exact copied completed gates and reviews; no profile, save, browser storage, held archive or original executable included."
+}
