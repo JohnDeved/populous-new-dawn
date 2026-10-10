@@ -9,10 +9,10 @@ import { pathToFileURL, fileURLToPath } from 'node:url'
 
 // One authored world, no scenario edits, no restore, no search over seeds.
 const root = '/workspace/scratch/69fd8163d94e/issue248-scheduled-trace-20261010'
-const output = '/workspace/scratch/69fd8163d94e/issue248-scheduled-trace-packet-20261010/revised-run'
+const output = '/workspace/scratch/69fd8163d94e/issue248-scheduled-trace-packet-20261010/phase3-run'
 const base = '4754e12d3590bde18656416514871b033de164be'
 const qaPrefix = 'qa/issue248-scheduled-trace-20261010/'
-const limits = { worlds: 1, turns: 22064, wallMilliseconds: 180000, phase16Visits: 4 }
+const limits = { worlds: 1, turns: 22064, wallMilliseconds: 180000, phase3Completions: 1 }
 const byteLimits = { jsonl: 32 * 1024 * 1024, world: 16 * 1024 * 1024, summary: 1024 * 1024 }
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
 const git = (...args) => execFileSync('git', ['-C', root, ...args], { encoding: 'utf8' }).trim()
@@ -33,17 +33,16 @@ assert.ok(changedFromBase.every(path => path.startsWith(qaPrefix)), 'Only the re
 assert.equal(git('diff', '--name-only', base, '--', 'app'), '')
 assert.equal(initial.status, '')
 assert.equal(fileURLToPath(import.meta.url), `${root}/${qaPrefix}observe.mjs`)
-initial.qaFiles = Object.fromEntries(['observe.mjs', 'proposal.md'].map(name => {
+initial.qaFiles = Object.fromEntries(['observe.mjs', 'proposal.md', 'purity.test.mjs'].map(name => {
   const path = `${qaPrefix}${name}`, bytes = readFileSync(`${root}/${path}`)
   assert.equal(hash(bytes), hash(execFileSync('git', ['-C', root, 'show', `HEAD:${path}`])),
     `Executed QA bytes must match the pushed source commit: ${name}`)
   return [path, hash(bytes)]
 }))
 const runtimeText = readFileSync(`${root}/app/computer-runtime.ts`, 'utf8')
-assert.equal(runtimeText.split('function computerResponseWorld(').length, 2)
 assert.equal(runtimeText.split('export function stepComputerTasks(').length, 2)
 assert.ok(runtimeText.includes('actions = stepAttackTask(w.ai, index, {'))
-assert.ok(runtimeText.includes('computerAttackHasOrder(w, index, 19, target) &&'))
+assert.ok(runtimeText.includes('changeLivePersonState(w, u, 14)'))
 if (process.argv.includes('--verify-source-only')) {
   console.log(JSON.stringify({ kind: 'source-only', ...initial, limits }, null, 2))
   process.exit(0)
@@ -64,15 +63,13 @@ const emit = event => {
 emit({ kind: 'start', initial, limits, byteLimits, node: process.version, seed: 'createWorld(6) default' })
 
 // Visibility and a pass-through wrapper: all original function bodies stay intact.
-// This is the existing defense adapter, observed as a candidate world projection;
-// it is not called by production phase16 and is not asserted native-equivalent.
-const callbackKey = Symbol.for('issue248.scheduled.afterTasks')
+// Capture immediately after the actual complete selection action batch.
+const callbackKey = Symbol.for('issue248.phase3.afterTasks')
 assert.equal(globalThis[callbackKey], undefined)
 const suffix = `
-export { computerResponseWorld };
 export function stepComputerTasks(w, tribe) {
   const result = issue248OriginalStepComputerTasks(w, tribe);
-  globalThis[Symbol.for('issue248.scheduled.afterTasks')]?.(w, tribe);
+  globalThis[Symbol.for('issue248.phase3.afterTasks')]?.(w, tribe);
   return result;
 }
 `
@@ -91,10 +88,7 @@ registerHooks({
 })
 
 const actualComputer = await import(url('app/computer.ts'))
-const { collectDefenseTargets } = await import(url('app/computer-defense.ts'))
-const { objectsInCell } = await import(url('app/object-cells.ts'))
-const { currentPersonOrder } = await import(url('app/person-orders.ts'))
-let world, runtime, pending = [], allocation = null, dispatch = null, mixedDispatch = false, visits = 0
+let world, pending = [], allocation = null, completion = null, visits = 0
 let stopReason = null, failure = null
 // The controlled purity regression extracts this bounded helper block only.
 function assertNeutral(scope, beforeBytes, afterBytes) {
@@ -109,42 +103,38 @@ function assertNeutral(scope, beforeBytes, afterBytes) {
   }
   assert.equal(hash(afterBytes), hash(beforeBytes), `${scope} changed during observation`)
 }
-const personFields = ['id', 'class', 'model', 'tribe', 'state', 'substate', 'flags2',
-  'flags3', 'flags4', 'computerAssignment', 'x', 'y', 'h', 'speed', 'assignment',
-  'vehicle', 'disguise', 'immediateCommand', 'commandCursor', 'cellNext', 'cellPrevious']
+const personFields = ['id', 'class', 'model', 'tribe', 'state', 'previousState',
+  'substate', 'flags2', 'flags3', 'flags4', 'computerAssignment', 'assignment',
+  'vehicle', 'x', 'y', 'immediateCommand', 'commandCursor']
 const pick = (object, keys) => Object.fromEntries(keys.map(key => [key, object?.[key] ?? null]))
-function ownerRow(world, unit) {
-  const registered = world.objectCells.objects.get(unit.id)
-  const owners = { flight: unit.flight, fight: unit.fight?.motion, native: unit.native,
-    entry: unit.entry?.person, builder: unit.builder?.person }
-  const person = registered && Object.values(owners).includes(registered) ? registered : null
-  const order = person && currentPersonOrder(world.buildingOrders, person)
-  const selectedByOldPredicate = unit.native ?? unit.fight?.motion
-  return { id: unit.id, team: unit.team, kind: unit.kind, hp: unit.hp, inside: unit.inside,
-    owner: Object.entries(owners).filter(([, p]) => p && p === registered).map(([name]) => name),
-    registered: registered ? pick(registered, personFields) : null,
-    person: person ? pick(person, personFields) : null,
-    nativeFlags7f: Object.hasOwn(unit, 'nativeFlags7f') ? unit.nativeFlags7f : null,
-    commands: person ? [...person.commands] : null,
-    immediate: person ? { id: person.immediateCommand,
-      record: structuredClone(world.buildingOrders.records[person.immediateCommand] ?? null) } : null,
-    queued: person ? { id: person.commands[person.commandCursor] ?? null,
-      record: structuredClone(world.buildingOrders.records[person.commands[person.commandCursor]] ?? null) } : null,
-    currentOrder: structuredClone(order ?? null),
-    oldPredicateUsesRegisteredOwner: !!person && selectedByOldPredicate === person,
-    oldPredicatePerson: selectedByOldPredicate ? pick(selectedByOldPredicate, personFields) : null,
-    oldPredicateOrder: structuredClone(selectedByOldPredicate
-      ? currentPersonOrder(world.buildingOrders, selectedByOldPredicate) : null) }
+const aliases = unit => ({ flight: unit.flight, fight: unit.fight?.motion,
+  native: unit.native, entry: unit.entry?.person, builder: unit.builder?.person,
+  resident: unit.resident?.person })
+function registeredPeople(observed, tribe, task) {
+  // The registry is authoritative. No hp, task.members, model or alias eligibility filter.
+  return [...observed.objectCells.objects.entries()]
+    .filter(([, person]) => person.class === 1 && person.tribe === tribe)
+    .map(([registryKey, person]) => ({ registryKey, person: pick(person, personFields),
+      absentFields: personFields.filter(key => !Object.hasOwn(person, key)),
+      listedInTask: task.members.includes(person.id),
+      registryKeyMatchesPersonId: registryKey === person.id,
+      units: observed.units.flatMap((unit, unitIndex) => {
+        const owners = Object.entries(aliases(unit)).filter(([, owner]) => owner)
+        if (unit.id !== registryKey && unit.id !== person.id &&
+          !owners.some(([, owner]) => owner === person)) return []
+        return [{ unitIndex, ...pick(unit, ['id', 'team', 'kind', 'hp', 'inside']),
+          nativeFlags7f: Object.hasOwn(unit, 'nativeFlags7f') ? unit.nativeFlags7f : null,
+          hasNativeFlags7f: Object.hasOwn(unit, 'nativeFlags7f'),
+          authoritativeAliases: owners.filter(([, owner]) => owner === person).map(([name]) => name),
+          aliases: owners.map(([name, owner]) => ({ name, isRegisteredPerson: owner === person,
+            person: pick(owner, personFields) })) }]
+      }) }))
 }
-function lists(world, tribe, target, objects) {
-  const cells = []
-  const collected = collectDefenseTargets(tribe, world.outcome.alliances[tribe], target, cell => {
-    const row = [...objects(cell)]
-    cells.push({ cell, objects: row.map(p => pick(p,
-      ['id', 'class', 'model', 'tribe', 'state', 'flags2', 'flags4', 'disguise', 'x', 'y'])) })
-    return row
-  }, 10, 7)
-  return { people: collected.people.map(p => p.id), buildings: collected.buildings.map(p => p.id), cells }
+function phase3Outcome(before, after) {
+  if (before.phase !== 3) return null
+  if (after.phase === 4 && after.selected > 0 && (after.flags & 1)) return 'completed-positive'
+  if (!(after.flags & 1)) return 'retired-without-admission'
+  return after.phase === 3 ? null : 'unexpected-phase-exit'
 }
 function snapshot(index) {
   const liveBefore = serialize(world)
@@ -152,30 +142,22 @@ function snapshot(index) {
   const observed = structuredClone(world), detachedBefore = serialize(observed)
   try {
     const task = observed.campaignAIs[2].tasks[index]
-    const members = task.members.map(id => observed.units.find(u => u.id === id)).map(u =>
-      u ? ownerRow(observed, u) : { missingUnit: true })
-    const tribePeople = observed.units.filter(u => u.team === 'yellow').map(u => ownerRow(observed, u))
-    const assigned = tribePeople.filter(row => row.person?.computerAssignment === index + 1)
-    const adapter = runtime.computerResponseWorld(observed, 2)
-    const result = { turn: observed.turn, index, task: structuredClone(task),
+    const people = registeredPeople(observed, 2, task)
+    return { turn: observed.turn, index, task: structuredClone(task),
       randomState: observed.randomState, cosmeticRandom: observed.cosmeticRandom.randomState,
       queue: { cursor: observed.campaignAIs[2].cursor, flags: observed.campaignAIs[2].flags,
         selectionOwner: observed.campaignAIs[2].selectionOwner },
-      members, tribePeople, assignedState23: assigned.filter(row => row.person.state === 23).map(row => row.id),
-      registeredAssigned: assigned.map(row => row.id),
-      knownOrdinaryAssigned: assigned.filter(row => !(row.person.flags2 & 1) &&
-        row.nativeFlags7f !== null && !(row.nativeFlags7f & 1)).map(row => row.id),
-      unknownSpecialFlagAssigned: assigned.filter(row => row.nativeFlags7f === null).map(row => row.id),
-      nativeFields: { task26: null, task08VisitCounter: null, task23BuildingModel: null,
-        task2cCondition: null, nativePersonChainOrder: null,
-        reason: 'No retained port projection; absence is not zero or native admission proof' },
-      registeredCellLists: lists(observed, 2, task.target, cell => objectsInCell(observed.objectCells, cell)),
-      defenseAdapterLists: lists(observed, 2, task.target, cell => adapter.cells.get(cell) ?? []),
-      derivedOldAll19PayloadPredicate: members.some(row => row.hp > 0) && members.filter(row => row.hp > 0).every(row =>
-        row.oldPredicateOrder?.model === 19 && row.oldPredicateOrder.a === task.target),
-      returns: { damageReached: task.damage >= task.extra, retriesExceeded: task.retries > 32,
-        retreatThreshold: Math.trunc(((task.retreatPercent & 255) * task.requested) / 100) } }
-    return result
+      registeredPeople: people,
+      state14RegistryKeys: people.filter(row => row.person.state === 14).map(row => row.registryKey),
+      unlistedState14RegistryKeys: people.filter(row => row.person.state === 14 && !row.listedInTask)
+        .map(row => row.registryKey),
+      unmatchedAliasRegistryKeys: people.filter(row => !row.units.some(unit => unit.authoritativeAliases.length))
+        .map(row => row.registryKey),
+      taskMemberRegistry: task.members.map(id => ({ id,
+        registered: pick(observed.objectCells.objects.get(id), ['id', 'class', 'tribe', 'model', 'state']),
+        present: observed.objectCells.objects.has(id) })),
+      nativeFields: { task31: null, nativePersonChainOrder: null, task26: null, task08VisitCounter: null,
+        reason: 'Port registry order and task fields do not establish the missing native projections' } }
   } catch (error) {
     emit({ kind: 'observer-helper-error', name: error.name, message: error.message, stack: error.stack })
     throw error
@@ -200,35 +182,45 @@ const computerMock = mock.module(url('app/computer.ts'), { cache: true, namedExp
     return result
   },
   stepAttackTask(ai, index, input) {
-    if (!world || ai !== world.campaignAIs[2]) return actualComputer.stepAttackTask(ai, index, input)
-    const phase = ai.tasks[index].phase
-    if (![15, 16].includes(phase)) return actualComputer.stepAttackTask(ai, index, input)
-    const before = snapshot(index)
-    const calls = []
-    const observedInput = { ...input }
-    for (const name of ['activeMembers', 'targetsRemain', 'entity', 'random']) {
+    if (!world || ai !== world.campaignAIs[2] || index !== allocation?.index ||
+      ai.tasks[index].phase !== 3) return actualComputer.stepAttackTask(ai, index, input)
+    const beforeController = snapshot(index), calls = [], observedInput = { ...input }
+    for (const name of ['select', 'selectShaman']) {
       if (!input[name]) continue
       observedInput[name] = (...args) => {
         const result = input[name](...args)
-        calls.push({ name, args: structuredClone(args), result: structuredClone(result) })
+        // Production has consumed the callback, but its returned select actions have not run.
+        calls.push({ name, args: structuredClone(args), result: structuredClone(result),
+          afterCallback: snapshot(index) })
         return result
       }
     }
     const actions = actualComputer.stepAttackTask(ai, index, observedInput)
-    const event = { kind: phase === 15 ? 'mixed-dispatch' : 'phase16', before,
-      calls, actions: structuredClone(actions), afterController: snapshot(index) }
-    pending.push(event)
+    const afterController = snapshot(index)
+    pending.push({ kind: 'phase3-visit', beforeController, calls,
+      actions: structuredClone(actions), afterController,
+      outcome: phase3Outcome(beforeController.task, afterController.task) })
     return actions
   },
 } })
 
 try {
   globalThis[callbackKey] = (w, tribe) => {
-    if (w === world && tribe === 2)
-      for (const event of pending)
-        if (!event.afterDispatch) event.afterDispatch = snapshot(event.before.index)
+    if (w !== world || tribe !== 2) return
+    for (const event of pending) {
+      assert.equal(event.afterDispatch, undefined, 'Exactly one dispatcher completion per visit')
+      event.afterDispatch = snapshot(event.beforeController.index)
+      assert.equal(event.afterDispatch.turn, event.beforeController.turn)
+      emit(event)
+      visits++
+      if (event.outcome) {
+        completion = event
+        stopReason = event.outcome
+      }
+    }
+    pending = []
   }
-  runtime = await import(url('app/computer-runtime.ts'))
+  await import(url('app/computer-runtime.ts'))
   const { createWorld, tick } = await import(url('app/model.ts'))
   world = createWorld(6)
   emit({ kind: 'world', turn: world.turn, randomState: world.randomState,
@@ -238,21 +230,7 @@ try {
   while (world.turn < limits.turns && !stopReason) {
     if (performance.now() - started >= limits.wallMilliseconds) { stopReason = 'wall-bound'; break }
     tick(world, 1 / 12)
-    for (const event of pending) {
-      event.afterTurn = snapshot(event.before.index)
-      emit(event)
-      if (event.kind === 'mixed-dispatch') {
-        dispatch = event
-        const models = event.afterDispatch.members.map(row => row.currentOrder?.model)
-        mixedDispatch = models.includes(17) && models.includes(19)
-        if (!mixedDispatch) stopReason = 'first-dispatch-not-mixed'
-      } else {
-        visits++
-        if (event.afterController.task.phase !== 16) stopReason = 'first-phase16-exit'
-        else if (visits >= limits.phase16Visits) stopReason = 'phase16-visit-bound'
-      }
-    }
-    pending = []
+    assert.equal(pending.length, 0, 'Every intercepted controller visit must finish its dispatcher')
     if (world.turn % 2048 === 0) emit({ kind: 'progress', turn: world.turn,
       elapsedMilliseconds: Math.round(performance.now() - started),
       activeAttacks: world.campaignAIs[2].tasks.filter(t => t.flags & 1 && t.type === 20).map(t =>
@@ -267,7 +245,8 @@ try {
   const trackedDiff = git('diff', '--name-only', base, '--', 'app')
   const result = { kind: 'result', stopReason, failure, turn: world?.turn ?? null,
     elapsedMilliseconds: Math.round(performance.now() - started), allocation: !!allocation,
-    firstDispatch: !!dispatch, mixedDispatch, phase16Visits: visits, productionUnchanged: unchanged,
+    completedPositive: completion?.outcome === 'completed-positive', phase3Visits: visits,
+    completionTurn: completion?.afterDispatch.turn ?? null, productionUnchanged: unchanged,
     terminal: world ? { turn: world.turn, randomState: world.randomState,
       cosmeticRandom: world.cosmeticRandom.randomState,
       chumaraAI: structuredClone(world.campaignAIs[2]),
@@ -275,7 +254,7 @@ try {
       livingCounts: Object.fromEntries(['blue', 'yellow', 'green', 'wild'].map(team =>
         [team, world.units.filter(unit => unit.team === team && unit.hp > 0).length])) } : null,
     trackedDiff, status: git('status', '--short'),
-    claim: 'Port-only observation; missing retained native fields prevent native-equivalent admission and caller proof' }
+    claim: 'Port-only full registered state14 input at phase3 completion; no admission writes, specialist maintenance or native parity proved' }
   emit(result)
   const summary = JSON.stringify(result, null, 2) + '\n'
   assert.ok(Buffer.byteLength(summary) <= byteLimits.summary, 'Summary byte bound')
@@ -284,5 +263,5 @@ try {
   computerMock.restore()
   console.log(summary)
   if (failure || !unchanged || trackedDiff) process.exitCode = 1
-  else if (!mixedDispatch || !visits) process.exitCode = 2
+  else if (completion?.outcome !== 'completed-positive') process.exitCode = 2
 }
