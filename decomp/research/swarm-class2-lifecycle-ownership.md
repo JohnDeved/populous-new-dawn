@@ -226,3 +226,18 @@ follow-up records its additional data-only decoding and independent review.
 [preparation]: https://github.com/JohnDeved/populous-new-dawn/blob/a21054da4b342325bf82e02545db3a56849e7f91/references/verification/swarm-class2-save-preparation-2026-10-10/README.md
 
 [live-contract]: https://github.com/JohnDeved/populous-new-dawn/blob/e5aaa360427cc74b402c2280a71c5f52dc2e3d98/references/verification/swarm-class2-live-contract-2026-10-10/README.md
+
+## Constructor request refinement
+
+The [reviewed constructor follow-up][constructor-request] binds descriptor
+`+0x3e`: only models 2/3 enable the selected RNG-gated class-6/model-9 request
+under canonical defaults and the pinned imported constants. Ordinary new Hut1,
+Camp and Temple plans skip that tail; native Vault model18 also has a zero
+word, without implying a player-placement route. The model-9 leaf `004fc330`
+remains unread. Reused radius evidence binds delayed plan activation to
+`004b8a94 → 004ed580`. Class-9 request sites `004b9190` case2 and `00498140` are
+already retained; the separate constructor `004b8070` and supported incoming
+shared request state remain the plan-admission prerequisite. No initial slot
+history, runtime implementation or Swarm candidacy follows from this refinement.
+
+[constructor-request]: https://github.com/JohnDeved/populous-new-dawn/blob/25d318a7c1ff65a93af77378eb76d8305d210d78/references/verification/swarm-class2-constructor-request-2026-10-10/README.md
