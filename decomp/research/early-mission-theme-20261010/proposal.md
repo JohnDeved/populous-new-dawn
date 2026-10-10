@@ -5,7 +5,7 @@ terrain, skies and ambience. Johann's October 10 report says Missions 2 and 3
 retain Mission 1's appearance instead of their original colors and trees.
 This inventory establishes source/data differences and current loader gaps; it
 does **not** independently reproduce a rendered defect or complete the issue.
-The existing early-mission sky implementation and sky-only PR162 do not cover
+The existing early-mission sky implementation and sky-only PR #162 do not cover
 the terrain and vegetation work below.
 
 ## Frozen source and permitted work
@@ -59,10 +59,10 @@ case. All alpha bytes remain equal. The full c result exactly equals the shipped
 atlas. This preserves the existing AL color/nibble alpha, ARGB4444 quantization
 and edge expansion; approximate RGB tinting would discard original behavior.
 
-Every one of the 78 currently imported model records equals decoded bank2.
-Only meshes 13–18 differ between banks2 and6 within that imported set. All six
+Every one of the 78 currently imported model records equals decoded bank 2.
+Only meshes 13–18 differ between banks 2 and6 within that imported set. All six
 have changed positions, UVs, faces, tiles, normals, modes, biases and panel
-height; scale remains160. This does not inventory unimported model records.
+height; scale remains 160. This does not inventory unimported model records.
 
 | Tree mesh | Bank2 triangles | Bank6 triangles | Bank2 tiles | Bank6 tiles |
 | --- | ---: | ---: | --- | --- |
@@ -70,15 +70,15 @@ height; scale remains160. This does not inventory unimported model records.
 | 14 / 17 | 69 | 38 | 129,136 | 129,222 |
 | 15 / 18 | 81 | 29 | 129,136 | 222,231 |
 
-Tree tiles129/136/222/231 have identical decoded pixels in c/s/p. In these
-inputs, Mission3's distinct tree artwork follows its object geometry/UV choice,
-not a tree recoloring. Mission2 shares object bank2 but has a different authored
+Tree tiles 129/136/222/231 have identical decoded pixels in c/s/p. In these
+inputs, Mission 3's distinct tree artwork follows its object geometry/UV choice,
+not a tree recoloring. Mission 2 shares object bank 2 but has a different authored
 tree distribution and landscape; do not invent a different geometry bank for it.
 
-Bank6 assigns shadow-shape index1 to meshes13–18. Bank2 uses0/1/5 for
+Bank6 assigns shadow-shape index1 to meshes 13–18. Bank2 uses0/1/5 for
 13/14/15 and repeats for16/17/18. The existing scenery routine maps0 to1, so
-the material difference is meshes15/18 changing shape5 (4×4) to1 (3×3).
-These are Mission3's dominant model3 trees and its model6 tree. The original
+the material difference is meshes 15/18 changing shape 5 (4×4) to1 (3×3).
+These are Mission 3's dominant model 3 trees and its model 6 tree. The original
 SHAPES table matches the imported table; the missing bank selection is in object
 indices. This shadow ownership belongs in the coherent vegetation correction.
 
@@ -89,7 +89,7 @@ indices. This shadow ownership belongs in the coherent vegetation correction.
    object0/6 to2/6 independently. Keep existing sky selection and authored
    scenery placements. Never mutate a process-global active palette/model bank.
 2. Add a **scoped** importer/check mode for only s/p terrain bundles, s/p full
-   model atlases, and bank6 mesh13–18 plus their shape-index metadata. Reuse the
+   model atlases, and bank 6 mesh 13–18 plus their shape-index metadata. Reuse the
    pinned pure helpers; preserve every existing c byte/model index. Retain raw
    source and output hashes, and generated-file ownership. Existing
    `import-temple-acquisition.py` is a useful scoped pattern, but its selective
@@ -105,11 +105,11 @@ indices. This shadow ownership belongs in the coherent vegetation correction.
    `nativeModel` currently defaults to `atlas`. Keep required-texture preload,
    encoded-color filtering, quantization, alpha and failure/retry semantics.
    Sprite/HUD palette conversion and ambient audio are separate unproved scope;
-   this proposal cannot close all of issue14.
-5. Bind bank6 trees to their actual model records. Geometry cache keys must
+   this proposal cannot close all of issue #14.
+5. Bind bank 6 trees to their actual model records. Geometry cache keys must
    include model-bank identity. Rendering, `updateModelLighting`/wave offsets,
    `ScenePicking`, bounds and hover must consume the same selected model data;
-   those currently independently read the global bank2 map. Carry identity on
+   those currently independently read the global bank 2 map. Carry identity on
    the mesh or a shared immutable resource, rather than replacing global data.
    The scenery shadow caller must resolve the selected object's first shape
    index, preserving its zero fallback and lifecycle notifications. The equal
@@ -124,19 +124,19 @@ indices. This shadow ownership belongs in the coherent vegetation correction.
 The bank-level selector can be reusable while its initial production admission
 is explicitly M1–3. A shared bank in another mission is not evidence of complete
 theme acceptance there. Preserve current unsupported-level behavior or obtain a
-separately reviewed expansion; do not silently route every bank6 mission.
+separately reviewed expansion; do not silently route every bank 6 mission.
 
 ## Temple boundary
 
 The concurrent Temple source inventory found that `temple-model-p` patches only
-12 Blue95-verified crops over the c atlas. It must not become the generic p
-atlas. This inventory independently finds that Temple95–98 geometry is equal
-across banks2/6, while each tribe has distinct texture tiles. Full c/s/p decoding
+12 Blue 95-verified crops over the c atlas. It must not become the generic p
+atlas. This inventory independently finds that Temple 95–98 geometry is equal
+across banks 2/6, while each tribe has distinct texture tiles. Full c/s/p decoding
 can supply a shared bank-correct atlas without inventing geometry or colors.
 
 Shared ANIBL clock ownership, ordinary Temple material admission, stages/tribes,
 and resource snapshots remain the Temple workstream's decision. Preserve the
-already accepted Mission3 Blue animation/acquisition path, its scoped sparkle
+already accepted Mission 3 Blue animation/acquisition path, its scoped sparkle
 atlas/tints and timing. A theme change must not reset, fork or broaden its clock.
 The boundary should allow Temple materials to consume the scene's bank-selected
 atlas once their independent admission is reviewed; ordinary theme loading does
@@ -147,10 +147,10 @@ not authorize new acquisition VFX, sprite recoloring or new Temple gameplay.
 - Establish a source-bound failing caller witness for the actual M2/M3 terrain
   fetch/resource identity: current code requests c. Use imported mission data,
   not a fabricated theme ID. Contrast expected raw-derived s/p hashes.
-- Through actual authored decoration construction, show M3 model3 selects
-  mesh15 with bank2's81 triangles instead of bank6's29, then require the same
-  bank6 record in geometry, lighting/waves, picking and shadow-shape ownership.
-  Preserve M1/M2 bank2, authored counts and logical scenery identity.
+- Through actual authored decoration construction, show M3 model 3 selects
+  mesh 15 with bank 2's81 triangles instead of bank 6's29, then require the same
+  bank 6 record in geometry, lighting/waves, picking and shadow-shape ownership.
+  Preserve M1/M2 bank 2, authored counts and logical scenery identity.
 - Validate s/p decoded RGBA including alpha/edge treatment, with source-pinned
   crops outside the Blue Temple subset. Exercise real required-resource
   readiness, failed load/retry, aborted old loads and warm-cache M3→M1→M2.
@@ -165,7 +165,7 @@ not authorize new acquisition VFX, sprite recoloring or new Temple gameplay.
 - Follow real save/load, restart and available campaign continuation in M1–3;
   include reload with warm caches, tree hover/pick and ordinary wood depletion
   or burning when naturally available. Check growth scale, removal and shadow
-  refresh. Retain Mission3 Blue Temple and an ordinary non-Blue Temple control
+  refresh. Retain Mission 3 Blue Temple and an ordinary non-Blue Temple control
   coordinated with that workstream. Do not inject a tree or award a spell and
   call the resulting scene ordinary play.
 - After implementation review selects scope, run normal check/build and the
