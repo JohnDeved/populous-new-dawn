@@ -270,3 +270,18 @@ are later boundaries. Queue transport and supported incoming shared allocation
 state remain separate. This source result adds no runtime admission.
 
 [plan-validator]: https://github.com/JohnDeved/populous-new-dawn/blob/a9dad1d488f636434bef060bd5c8811605a7388c/references/verification/swarm-plan-admission-validator-2026-10-10/README.md
+
+## Pre-request ownership closure
+
+The [reviewed pre-request body][plan-pre-request] closes `004ba7a0`'s local
+control flow. Before the new class-9 request it resolves existing cell handles,
+changes eligible linked records to state `0x23`, then invokes mode3 removal.
+Neither lookup adds a class9/person guard. Removal re-resolves the terrain
+handle and dispatches by actual class, so pointer/slot aliases and callback
+effects matter. These effects precede even a failed new allocation; the caller
+contains no rollback. Class9 removal `004ba410` and actual-class initializer
+effects remain distinct unclassified leaves. An empty overlap result only
+avoids these callbacks for that invocation; it does not establish incoming
+shared allocation history. No runtime implementation or Swarm admission follows.
+
+[plan-pre-request]: https://github.com/JohnDeved/populous-new-dawn/blob/016b2f0850f2047a5b6b0a05d914f6a7be664c7e/references/verification/swarm-plan-pre-request-2026-10-10/README.md
