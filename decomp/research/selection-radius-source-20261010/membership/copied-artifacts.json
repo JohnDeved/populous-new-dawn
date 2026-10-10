@@ -1,0 +1,34 @@
+{
+  "review.json": {
+    "bytes": 7690,
+    "sha256": "d19267857bd09da6767238ddb068f578ce3046c057db733da540b0e1a06624e0"
+  },
+  "initial-publication-review.json": {
+    "bytes": 1727,
+    "sha256": "6a2420e78a7481727e36ac99fe933c036304d911f2f80bee7965e99460151564"
+  },
+  "assessment.json": {
+    "bytes": 8856,
+    "sha256": "28655ddfd6d15f4982d84d5197bc42527bf1ed35820dc54d105c2df73010ff25"
+  },
+  "plan-activation/success-tail.asm": {
+    "bytes": 2342,
+    "sha256": "ba8a4e0072cd3615d2dcd6ef8bda4b6d53d94c67e449a5ab4805b23f2b3313df"
+  },
+  "plan-activation/entry-to-tail.asm": {
+    "bytes": 26311,
+    "sha256": "10cb4919111381df37894824aea49318068f5cd37b227c87e1ba96696f06ad8b"
+  },
+  "plan-activation/findings.json": {
+    "bytes": 2009,
+    "sha256": "94beb4b77e849ecd74661072a1f312242dc4056649e68515529c5e38bbc85dd3"
+  },
+  "plan-activation/manifest.json": {
+    "bytes": 2041,
+    "sha256": "2969a767229a42404849de1c8701136abc2e74f54b0dbd8347cf26c272d3935f"
+  },
+  "plan-activation/stderr.txt": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

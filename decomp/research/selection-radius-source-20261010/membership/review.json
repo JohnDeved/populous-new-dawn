@@ -1,0 +1,86 @@
+{
+  "kind": "Independent finite selection-radius membership and activation source review",
+  "decision": "ACCEPT named source boundaries; HOLD integrated runtime membership pending reachable Tornado retirement tail",
+  "sourceHead": "b2213c221f9037573093ccdf4248c0d081b806bf",
+  "equivalentMain": "3b13a7ff534ab95797b0b06330055cead956160d",
+  "tree": "f821f3d711694cbb74e4c2c70e4ab2ce4ff5834c",
+  "reviewedInputs": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/selection-radius-source-20261010/work/membership-assessment-20261010.json",
+      "bytes": 8856,
+      "sha256": "28655ddfd6d15f4982d84d5197bc42527bf1ed35820dc54d105c2df73010ff25"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/selection-radius-source-20261010/work/plan-activation-static-20261010T034250Z/manifest.json",
+      "bytes": 2041,
+      "sha256": "2969a767229a42404849de1c8701136abc2e74f54b0dbd8347cf26c272d3935f"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/selection-radius-source-20261010/work/plan-activation-static-20261010T034250Z/findings.json",
+      "bytes": 2009,
+      "sha256": "94beb4b77e849ecd74661072a1f312242dc4056649e68515529c5e38bbc85dd3"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/selection-radius-source-20261010/work/plan-activation-static-20261010T034250Z/entry-to-tail.asm",
+      "bytes": 26311,
+      "sha256": "10cb4919111381df37894824aea49318068f5cd37b227c87e1ba96696f06ad8b"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/selection-radius-source-20261010/work/plan-activation-static-20261010T034250Z/success-tail.asm",
+      "bytes": 2342,
+      "sha256": "ba8a4e0072cd3615d2dcd6ef8bda4b6d53d94c67e449a5ab4805b23f2b3313df"
+    }
+  ],
+  "accepted": [
+    "004ecac0 rebuilds tribe+0x885 from primary allocated units with flags4 bit0x20000000 and class2, excluding models18/19. State2 changes completed counters, not membership; class9 plans are separate. No generic HP/completion filter belongs to the native producer.",
+    "004a5590 invokes tribe processing before the subsequent object turn; 004ec6f0 rebuilds after its primary/secondary object loops. The radius consumes the preceding rebuilt membership. 0042b230 also establishes startup membership after successful level load.",
+    "004615f0 reads the saved member chain and current coordinate words at consumption, without class/HP/deletion revalidation. Maximum distance does not require list ordering but does require exact membership and coordinate ownership.",
+    "Normal activation004ed580 sets flags4 bit0x20000000. The new bounded decoder independently proves delayed plan allocation004b8a47->004ed8a0, EBP result and null guard, old-plan state init004b8a74->004ed640, and successful new class2 activation004b8a94->004ed580. The interpreted success tail is004b8a47..004b8aa4,93 bytes.",
+    "Plan allocation004b8470 and Hut replacement004050c0 supply constructor metadata;00403610 immediately resolves the model/angle position through00403d50. These coordinate values correspond to the maintained prepareBuildingSite/buildingPosition and in-place upgrade values at the following rebuild. Native physical lifetime identities and allocation failure remain separate.",
+    "The accepted d2606766 retirement source shows class-zero/deleted and allocation/cell removal with pending counter3; its direct writes retain next+8 and XY words. Previously captured membership may therefore retain a readable retired object until the following rebuild.",
+    "A shallow per-tribe array of Building references captured at the matching maintained completed-object boundary is a suitable proposed representation of membership/current-coordinate semantics. New allocations wait for the next rebuild; removed entries remain reachable through the prior snapshot. This eliminates the need for a general epilogue coordinate-invariance audit."
+  ],
+  "retirementCorrespondence": {
+    "ordinaryDamage": "004092a0 explicitly retires exhausted plan and class2 building; app/building-runtime.ts processBuildingDamage.removeBuilding sets hp0.",
+    "fire": "00408ab0 timer79 explicitly retires exhausted plan and building; the port burn damage clamps exhausted work to hp0 in that branch.",
+    "terrain": "00406f40 ejects at delay1 and invokes cleanup/retirement at zero after collapse or sinking allocation; stepTerrainCollapse.destroy marks the port body removed at that endpoint.",
+    "dismantle": "00497a30 exhausted-work branch calls004ef180 on plan and building; stepDismantling.removeBuilding marks hp0.",
+    "excludedClass9": "Computer cancellation, preparation removal and attackCombatPlan target class9 before allocation, so they are excluded from class2 membership.",
+    "remaining": "damageDisasterBuilding immediately clamps hp to work/progress and the common filter removes hp<=0. M2 Tornado calls this adapter. Its actual native exhausted-work retirement tail remains to be bound; this review does not infer it from helper naming."
+  },
+  "reachability": {
+    "Tornado": "Relevant to supported M2: authored head at204,96 provides Tornado gifts and mission2-message-103 instructs attacking enemy buildings. Retained mission-two-controls-2026-10-04 report records real gift acquisition and casts during Matak defeat. Its complete checker envelope remains FAILED and is not upgraded by this reachability use.",
+    "Earthquake": "Shared adapter alone does not prove supported M1-3 reachability. No later-mission coverage is demanded by this review."
+  },
+  "compatibilityRequirements": [
+    "Known radius requires integer0..255, including0. Missing/malformed radius must not be masked or clamped into native history.",
+    "Present valid radius does not imply valid historical membership. Missing/malformed membership retains the entire prior selector center/radius adapter and skips accumulation until an actual maintained rebuild supplies membership; Load must not fabricate the preceding list.",
+    "Established-base/missing-radius stays unknown even after a rebuild. Fresh authored supported owners may initialize radius0 at the actual initialization boundary under the previously accepted compatibility contract.",
+    "Modern full-World reference alias storage is a separately completed parent-owned audit; this review accepts it as an independent input rather than claiming a new storage execution."
+  ],
+  "exactRemainingGate": "Bind the actual reachable Tornado class2 exhausted-work retirement tail. Then freeze the proposed rebuild placement, membership admission and compatibility test matrix before runtime edits. No arbitrary refresh at radius or deep-cloned coordinate snapshot is accepted.",
+  "verification": {
+    "all21AssessmentSourceHashesMatch": true,
+    "activationManifestAndAllOutputHashesMatch": true,
+    "activationPEFullAndLocatorRangeHashesMatch": true,
+    "sourceMutation": false,
+    "testsOrOriginalExecutionRunByReviewer": false
+  },
+  "priorMathReview": {
+    "path": "/workspace/scratch/69fd8163d94e/selection-radius-source-contract-review-20261010.json",
+    "bytes": 6397,
+    "sha256": "f9fce35603542b8831db84d6270b68c563612cc809466a141dfb97a480e0a319"
+  },
+  "priorPublicationReview": {
+    "path": "/workspace/scratch/69fd8163d94e/selection-radius-publication-review-20261010.json",
+    "bytes": 1727,
+    "sha256": "6a2420e78a7481727e36ac99fe933c036304d911f2f80bee7965e99460151564"
+  },
+  "limits": [
+    "No runtime/test implementation admission",
+    "No original execution or emulation",
+    "No universal object allocator/history or original cadence claim",
+    "No new ordinary selection effect or parity credit",
+    "Missing epilogue bodies are not further blockers for the retained-reference representation"
+  ]
+}

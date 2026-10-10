@@ -1,0 +1,61 @@
+{
+  "kind": "instruction-bound delayed class2 plan initialization; static data only",
+  "sourceHead": "b2213c221f9037573093ccdf4248c0d081b806bf",
+  "executableSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "executableSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "executableBytes": 2275840,
+  "tool": "/usr/bin/objdump",
+  "toolSha256": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+  "toolVersion": "GNU objdump (GNU Binutils for Debian) 2.44",
+  "imageBase": "0x400000",
+  "section": {
+    "name": ".text",
+    "virtualAddress": 4096,
+    "virtualSize": 1591844,
+    "rawSize": 1592320,
+    "rawOffset": 1024
+  },
+  "locator": {
+    "virtualStart": "0x4b8470",
+    "virtualStop": "0x4b8b48",
+    "fileStart": 751728,
+    "fileStop": 753480,
+    "bytes": 1752,
+    "sha256": "3231e44a717c0e61ff0ae9c6757cb6e64d233fa54eeea2b24379180231680cde",
+    "uniqueE8Candidates": [
+      "0x4b8a47"
+    ],
+    "target": "0x4ed8a0",
+    "boundary": "Unique raw E8 locator matched a call instruction in the complete straight disassembly from known entry004b8470; interpreted branches retain the admitted range."
+  },
+  "command": [
+    "taskset",
+    "-c",
+    "4",
+    "/usr/bin/objdump",
+    "-d",
+    "-Mintel",
+    "--start-address=0x4b8470",
+    "--stop-address=0x4b8b48",
+    "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe"
+  ],
+  "exitCode": 0,
+  "tailVirtualStart": "0x4b8a47",
+  "tailStopBound": "0x4b8ae7",
+  "tailMaxBytes": 160,
+  "artifacts": {
+    "entry-to-tail.asm": {
+      "bytes": 26311,
+      "sha256": "10cb4919111381df37894824aea49318068f5cd37b227c87e1ba96696f06ad8b"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "success-tail.asm": {
+      "bytes": 2342,
+      "sha256": "ba8a4e0072cd3615d2dcd6ef8bda4b6d53d94c67e449a5ab4805b23f2b3313df"
+    }
+  },
+  "originalInstructionsExecutedOrEmulated": false
+}

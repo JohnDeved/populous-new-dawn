@@ -80,3 +80,45 @@ Swarm cell/global allocation ownership must not be mistaken for this list.
 Universal writer/alias/native binary-save history, original caller cadence,
 ordinary distinguishing selection effects, and runtime implementation remain
 unproved. This checkpoint requires no merge PR or product dependency.
+
+## Reviewed membership follow-up
+
+The [partial membership review](membership/review.json), SHA-256
+`d19267857bd09da6767238ddb068f578ce3046c057db733da540b0e1a06624e0`,
+accepts these additional source boundaries. The earlier assessment remains
+unchanged in [its original form](membership/assessment.json).
+
+- `004ecac0` rebuilds the own-tribe list from active class-2 allocations,
+  excluding models 18/19. Incomplete class-2 buildings belong; class-9 plans
+  belong to a separate list. No HP, completion, or state filter admits members.
+- `004ec6f0:128` rebuilds after object processing, followed by epilogue work.
+  `004a5590` calls the next tribe visit before its next object turn. Membership
+  therefore comes from the preceding rebuild, while coordinates are read from
+  those retained members at consumption. Initial rebuild is `0042b230:82`.
+- Plan allocation and Hut replacement supply constructor metadata, and
+  `00403610` resolves model-origin geometry before returning. The port's
+  `buildingPosition(buildingPose(b))` supplies those coordinate values.
+- The [bounded delayed-plan decode](membership/plan-activation/findings.json)
+  distinguishes old-plan state initialization `004b8a74 → 004ed640` from new
+  building activation `004b8a94 → 004ed580`. The latter sets active bit
+  `0x20000000`. The canonical byte window is 1,752 bytes; the interpreted
+  successful-allocation tail is 93 bytes. No original instructions ran.
+- A shallow array of Building references can represent retained membership
+  and current coordinates without the full physical-ID allocator. Removed
+  references must remain readable; an in-place port upgrade must occur before
+  the applicable rebuild. [Modern Save/Load preserves these graph aliases](membership/modern-alias-audit.md).
+  Missing legacy membership is not recoverable from surviving buildings.
+
+**Runtime remains on hold:** ordinary Mission 2 Tornado grants and casts are
+retained in the [Tornado instruction](../mission2-message-103.md) and
+[ordinary controls observation](../../../references/verification/mission-two-controls-2026-10-04/README.md).
+The latter retains a failed checker envelope, despite its bounded observed
+gifts/casts. `tornado-runtime.ts:87 → damageDisasterBuilding` immediately
+clamps HP, but its corresponding native damage/retirement tail is not yet
+accepted. The current HP filter must not be declared equivalent to native
+active membership. Earthquake remains a separate reachability question.
+
+[Copied-artifact hashes](membership/copied-artifacts.json) bind this follow-up.
+The [initial publication review](membership/initial-publication-review.json)
+records two exact raw objdump trailing-space exceptions. Raw assembly is
+preserved byte-for-byte; no clean all-files whitespace result is claimed.

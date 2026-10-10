@@ -1,0 +1,35 @@
+{
+  "kind": "independent-source-checkpoint-publication-review",
+  "decision": "ACCEPT exact publication correspondence",
+  "commit": "85b3f30c39a9955b84dad164d5df2ef9e7ed94aa",
+  "tree": "dfa41a81f53e6346c218af4b5fd0abddfb72fddd",
+  "parent": "3b13a7ff534ab95797b0b06330055cead956160d",
+  "pathPrefix": "decomp/research/selection-radius-source-20261010/",
+  "files": 13,
+  "bytes": 50592,
+  "copiedArtifacts": 11,
+  "copiedArtifactBytes": 44067,
+  "readmeSha256": "dd109883e2d0886327c1d163c21f3bd32a9cf50e1ccd917c92d67f6b0fc6a2f8",
+  "manifestSha256": "77b601bff1902a18f1f4400bbf05e36c502e569090671eb7d936dbd3d26a710f",
+  "controllingSourceReviewSha256": "f9fce35603542b8831db84d6270b68c563612cc809466a141dfb97a480e0a319",
+  "verified": [
+    "All eleven copied artifacts exactly match declared hashes and sizes.",
+    "README local links resolve and claims preserve accepted math/reset/compatibility limits.",
+    "b2213c22 product and merged3b13a7ff share treef821f3d7.",
+    "Only thirteen source checkpoint paths differ; no app/runtime/test/profile/archive content added.",
+    "Working tree is clean."
+  ],
+  "whitespaceException": {
+    "command": "git diff --check HEAD^ HEAD",
+    "exitCode": 2,
+    "findings": [
+      "producer.asm line74: retained raw objdump continuation trailing space",
+      "sqrt.asm line17: retained raw objdump continuation trailing space"
+    ],
+    "disposition": "Accepted exact raw-byte preservation; do not claim whitespace check passed or rewrite immutable source artifacts."
+  },
+  "limits": [
+    "Runtime admission remains held on membership/position correspondence.",
+    "No remote pixel rendering, new native execution, gameplay result or product merge dependency claimed."
+  ]
+}

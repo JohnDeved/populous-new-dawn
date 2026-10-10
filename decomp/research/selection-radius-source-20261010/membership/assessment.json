@@ -1,0 +1,67 @@
+{
+  "kind": "finite selection-radius membership and interval assessment",
+  "sourceHead": "b2213c221f9037573093ccdf4248c0d081b806bf",
+  "equivalentMain": "3b13a7ff534ab95797b0b06330055cead956160d",
+  "acceptedMathCheckpoint": "85b3f30c39a9955b84dad164d5df2ef9e7ed94aa",
+  "status": "Exact native list producer and relative caller order bound; proposed port projection still requires independent scope admission. No runtime/test changes.",
+  "nativeMembership": {
+    "reset": "004ecac0:74-89 resets all four tribe heads including +0x885.",
+    "admission": "004ecac0:157-160 requires allocated_units membership and flags4 bit0x20000000; class2:249-271 prepends into owning signed-tribe building list except models18 and19. State2 affects only completed counters; no HP/progress/state admission filter. Class9:383-390 joins a separate shape list.",
+    "consumer": "004615f0:50-73 traverses preserved node+8 pointers and reads current node+0x3d/+0x3f at consumption. It does not revalidate class/tribe/state/deletion. List order is irrelevant to maximum; membership and current coordinates remain relevant."
+  },
+  "nativeOrder": {
+    "startup": "0042b230:82 rebuilds after successful level load, before set_tribe_start_pos and process_tribe_1.",
+    "recurring": "004a5590:98-101,149-152,195-198 calls tribe processing before the following object turn. 004ec6f0:91-128 completes primary and secondary object loops then rebuilds. Radius therefore sees the preceding rebuilt list, not a fresh rebuild immediately before itself.",
+    "postRebuild": "004ec6f0:129-142 delayed frees follow rebuild; 144-171 includes other epilogue calls. Outer process_tribes_cmd and command-buffer handling precede next tribe processing. Full member-coordinate invariance across these leaves has not been established by this finite retained-source read.",
+    "retirement": "Accepted d2606766 retirement packet shows 004edcf0 class-zero/deleted and primary allocation/cell removal, pending counter3. Its direct writes preserve +8 and XY words. This permits a previously rebuilt list to retain old members; it is not synchronous +0x885 unlink or instant native slot reuse."
+  },
+  "position": {
+    "accepted": "00403d50 / 004ee580 model-origin mapping corresponds to buildingPosition(buildingPose(b)), not anchors or footprint centers. Reuse accepted 05cfd909 lifecycle mapping and existing building-ground native-fixture comparisons.",
+    "planAndUpgrade": "004b8470:303-331 and004050c0:57-85 supply constructor metadata; 00403610:45-62 resolves geometry in the metadata branch. Current prepareBuildingSite:345-354 clears preparation and computes model origin; world-turn:1233-1248 upgrades the object/level and computes the successor origin. Physical lifetime identities differ, but those values can correspond at the subsequent rebuild.",
+    "startupCaution": "The constructor without metadata leaves geometry pending for a later object visit. No global claim that authored position already equals recomputed origin at every startup point is made; the radius requires established base."
+  },
+  "portProjection": {
+    "existing": "world-turn:1763 filters hp<=0; no native tribe-building snapshot field exists. Class9 plan objects already occupy world.buildings until prepareBuildingSite allocation clears preparation.",
+    "candidateAdmission": "Supported authored M1-3 ordinary computer buildings with preparation absent, interpreted at completed-object rebuild, excluding native models18/19. Do not call a generic hp/progress filter native admission. Active membership and actual destruction callbacks must correspond.",
+    "candidateSnapshot": "A per-tribe array of Building references captured at the matching completed-object boundary can retain membership while reading current coordinates and surviving removal from world.buildings. This avoids full native physical-ID allocator work and a detached-coordinate invariance assumption, but is only a proposal. Upgrade is in-place in the port; its placement before rebuild must remain explicit.",
+    "admissionLimit": "Native active-bit deactivation is separate from retirement. Accepted bootstrap packet finds no authored M1-3 class2 trigger-linked target; that bounded absence is not universal active-field equivalence. Native allocator exhaustion/replacement failure and unsupported bodies remain outside this port adapter."
+  },
+  "maintainedInterval": {
+    "scripts": "campaign-command-runtime:798-817 fixes M1 slices382:1524, M2 251:938 and M3 308:457,457:460,504:530,570:715,729:796,796:833,833:984. Static DO-token enumeration and host read finds AI/order requests, reads, person return/selection, head flags/removal and UI, without direct enemy building geometry or membership mutation. This is a maintained-source statement, not execution or full native command closure.",
+    "input": "live-command:404-449 cast starts the Shaman casting task; it does not immediately damage a building. live-command:355 creates a Blue class9 plan. Rotating a plan changes future Blue plan direction. Dismantle processing runs as object/person work.",
+    "unclosed": "Original post-rebuild epilogue and complete command path are not exhaustively classified here. New members before radius must wait for the next rebuild; removed prior members must remain readable through the retained snapshot. A fresh array filter cannot stand in for that contract without proof."
+  },
+  "compatibilityAddendum": {
+    "known": "Only an integer0..255 saved native radius is authoritative, including0.",
+    "malformedProposal": "Treat any present malformed radius as unknown, preserve the entire legacy selector adapter and skip accumulation; do not byte-mask, clamp or invent a historical value. This proposed rule needs direct/modern/legacy tests and independent acceptance.",
+    "missing": "Previously accepted missing-value rules remain: fresh supported owners zero; legacy absent-base missing history may explicitly initialize0; established-base missing history preserves the complete previous adapter and skips accumulation."
+  },
+  "nextGate": "Independent finite membership/projection review before any test-only fixture. If native interval or supported retirement mapping remains unresolved, name that exact missing owner rather than requiring a general allocator rewrite. Early existing M1/M2/M3 AI caller regressions are required after admission; preserve all existing attack/response expectations until source-proved.",
+  "limits": [
+    "No model, browser, original instruction execution, emulation or new static decode.",
+    "No implementation admission, ordinary distinguishing selection effect, universal save/reset/alias or wall-time cadence claim."
+  ],
+  "sourceSha256": {
+    "decomp/generated/004ecac0.c": "ae2bea39e8c0eb1fc50757a1b73390854057e82545afc391ef9527a2c44249c4",
+    "decomp/generated/004ec6f0.c": "497df5820bfebb7f79eb9cbaf2b887295f7933431958ab4c992ebb33f39e7923",
+    "decomp/generated/004a5590.c": "15d94e01036d5a77f5a3235d4e331a6558a6c83671b64221306b75a750270ff2",
+    "decomp/generated/0042b230.c": "241109ebdd842f8a448a43b58d5423b719ee7fe84a51d35e2612ac7b0b5517f2",
+    "decomp/generated/00461510.c": "6c3848d3b71ed863fa713c52875c0875bc57b1fc1bece57d7b04fbbd3272fb3e",
+    "decomp/generated/004615f0.c": "467eff666ecdd8e530b6b9cc7f90a8ca11f3c1b208f4603164c898ce7df8a0ce",
+    "decomp/generated/00403610.c": "38873dc24c630181e40a7464761f3a0c6f69d9f6d8ee96a8f490c340c4f3b5ff",
+    "decomp/generated/00403d50.c": "e29bfcdbe28a69937c7c64623b345594357436c99c956fefdf02ea04ba1ced5e",
+    "decomp/generated/004b8470.c": "e99734b6e278810068a6c50d03f09a6b6301274e211d5a607c21a2b151468f3c",
+    "decomp/generated/004050c0.c": "32639b081bbccedaf7a9d2edceea3e3e33817b515514b2199640d04a9a04af50",
+    "decomp/generated/00408ab0.c": "249f8b331263202d709d20c2c315bf9e0fce72be2a90878d48552460f4236512",
+    "decomp/generated/004edf50.c": "52ec65ffdf2501f7c15d1fa1468dc2e4ecb6218f96871f9bae387ad9b0b42d8c",
+    "app/computer-runtime.ts": "b527c2c854b6e0b0a49f9c096057e738b1f8cd4bc3060a53bec8284501cf0273",
+    "app/computer-selection.ts": "ec5835a2285376120c23bb9c12a25cc14b82512157e192cb144f012f936074cd",
+    "app/world-turn.ts": "20b2290596d9059bc1dda421ce45798a6d547f94c9aa9e0a98a4e8f64068f93c",
+    "app/construction-runtime.ts": "2ea49ae789ae747732c3bc327d58735f501b52dfcff84c17eef83ca4386c0653",
+    "app/building-shapes.ts": "86882bf5526a48035a1ed61b72f710139e0ddcc67d60f94f9279901636aaff92",
+    "app/building-runtime.ts": "d62fca552e99bf96792f21361fd73047b3fe064f2fcfbfb8af2307ba9e732463",
+    "app/campaign-command-runtime.ts": "5badf47c9b0e55d99f307a1a82c3ba311c835ac78edeabc9f6c7796a39314182",
+    "app/live-command.ts": "a53f4f0a64104dabacdfb1d2242c1979baa047a89f192a89a52b1c72a702bdca",
+    "app/world-initialization.ts": "0b2accb95c180d87e71bad8788f9c28f3f49ab8af66d5189fd26af69ab717fe2"
+  }
+}

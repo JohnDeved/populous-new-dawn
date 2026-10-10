@@ -1,0 +1,36 @@
+{
+  "kind": "delayed successful class2 plan activation source result",
+  "manifestSha256": "2969a767229a42404849de1c8701136abc2e74f54b0dbd8347cf26c272d3935f",
+  "result": "The delayed initializer is004ed580 (type initializer/active-bit writer), not004ed640 (state initializer).",
+  "callChain": [
+    {
+      "at": "004b8a47",
+      "target": "004ed8a0",
+      "meaning": "Allocate class2; EAX retained as EBP; zero branches to004b8aa4 before activation."
+    },
+    {
+      "at": "004b8a74",
+      "target": "004ed640",
+      "meaning": "Conditional state initialization of existing plan at ESI after state2 write."
+    },
+    {
+      "at": "004b8a94",
+      "target": "004ed580",
+      "meaning": "Unconditional on successful allocation: new pointer EBP is pushed; its metadata flag0x400 has been set if pending unit_allocation_flag was nonzero."
+    }
+  ],
+  "interpretedTail": {
+    "start": "004b8a47",
+    "stopExclusive": "004b8aa4",
+    "bytes": 93,
+    "limits": "Following worker instructions displayed in the at-most160-byte derived view are not part of the activation claim. The entry-to-tail decode includes only the admitted locator interval; full-function exit behavior is not claimed."
+  },
+  "retainedConsequences": {
+    "decomp/generated/004ed580.c": "Class2 dispatch to00402ec0, then flags4|=0x20000000 atline42.",
+    "decomp/generated/00402ec0.c": "Supported ordinary building models invoke00403610.",
+    "decomp/generated/00403610.c": "The supplied constructor metadata branch uses model/angle and00403d50 immediately before return.",
+    "decomp/generated/004ecac0.c": "At next real list rebuild, active class2 is admitted exceptmodels18/19; no completion/HP/state predicate."
+  },
+  "evidenceType": "Static canonical bytes plus retained reviewed decompilation. No original execution/emulation or model/browser run.",
+  "remainingBoundary": "Actual port rebuild member projection, destruction callbacks, saved membership compatibility and independent review; no runtime admission."
+}
