@@ -20,9 +20,11 @@ was already described by earlier smoke/Boat research. The finite authored M1–3
 inventory finds no linked class-2 target, so that specific omission does not
 justify an M1–3 runtime patch. The [fresh reset follow-up][reset] now binds
 `0042b258 → 004eef50 → 004ee300`: class/deleted reset, empty cell heads and
-conditional free-pool reconstruction at reset return. Earlier actual physical-
-index/range setup, intervening allocation history, neutral Vault identity and
-Load remain separate gaps.
+conditional free-pool reconstruction at reset return. The [startup caller
+follow-up][startup] binds main `004a457a → 004a4f70` and its sequential
+`004a5125 → 004ed820`, `004a512a → 004ed880` calls. Intervening allocation
+history, neutral Vault identity and Load remain separate gaps; the reset-return
+order is not promoted to a final pre-authored allocation state.
 
 This extends the accepted [Swarm controller contract][controller] and
 [integration review][review] at `74b74346f2d67e94aed013fc9e1960e20ef36ceb`;
@@ -42,7 +44,7 @@ and used bounded data-only decoding; it executed no original instructions.
 
 | Owner/field | Source-backed contract | Port consequence |
 | --- | --- | --- |
-| Object identity | `004ed880` initializes physical `+0x24` indices; `004ed8a0` takes a free record, clears it while preserving that index, then assigns class/model/tribe/position. Allocation-list links differ from cell links. | Browser IDs, authored record indices and terrain handles cannot be equated with native object identity. Reuse is observable to remembered-ID consumers. |
+| Object identity | `004ed880` initializes physical `+0x24` indices; its [actual startup caller][startup] is now bound. `004ed8a0` takes a free record, clears it while preserving that index, then assigns class/model/tribe/position. Allocation-list links differ from cell links. | Browser IDs, authored record indices and terrain handles cannot be equated with native object identity. Reuse is observable to remembered-ID consumers. |
 | Cell membership | `00403610:19–28` saves aligned anchors and inserts the actual supplied position. `004ee470` prepends to the 512-unit cell: `+0x20` next, `+0x22` previous, cell head, flags2 `0x20000`. | Record insertion at the real class-2 allocation opportunity, before subsequent geometry relocation; never insert a class-9 plan as class 2. |
 | Relocation | `00403d50` derives model origin from anchor `+0x7a/+0x7c`, object `+0x33` and rotation `+0x26`; `004ee580` splices only across XY cell boundaries and always copies position. `00403280:17–25` consumes pending geometry flag `0x8000000`. | Same-cell and height-only changes retain order. Footprints and inside/outside points do not define membership. |
 | Removal mechanics | `004ee4f0` splices neighbors/head and clears membership, retaining the removed record's own links. The [static closure][retirement] binds class-2 `00403820` to immediate `004edcf0` cell/allocation retirement. | The native invocation is now proved; a corresponding port lifetime producer remains absent. |
@@ -150,11 +152,13 @@ port ownership mistakes; it must not silently change the native raw-ID predicate
    linked records without equating that step with retirement. Existing M1–3
    authored links contain no class-2 target. The [reset follow-up][reset]
    binds a concrete fresh-level list rebuild and cell clear, conditional on the
-   already documented range/index setup. The actual earlier invocation of
-   `004ed820/004ed880` and effects between reset and authored allocation remain
-   unbound. Current aliases still omit neutral bodies and separate lifetimes.
-   No current save can supply history it never recorded. Define a supported
-   initialization/continuation boundary before claiming exact first-target order.
+   already documented range/index setup. The [startup follow-up][startup] binds
+   the actual `004ed820/004ed880` calls on the normally returning startup path.
+   Effects between reset and authored allocation, and complete shared allocation
+   history, remain unbound. Current aliases still omit neutral bodies and
+   separate lifetimes. No current save can supply history it never recorded.
+   Define a supported initialization/continuation boundary before claiming exact
+   first-target order.
 
 The accepted ejection queue/returned-person mapping is unchanged and is not a
 new blocker. PR284's successful-Hut passive storage and the earlier ground-Swarm
@@ -169,3 +173,4 @@ follow-up records its additional data-only decoding and independent review.
 [retirement]: https://github.com/JohnDeved/populous-new-dawn/blob/d2606766f736a4640d469fb0a2b5384aec43fa84/references/verification/swarm-class2-retirement-static-2026-10-10/README.md
 [bootstrap]: https://github.com/JohnDeved/populous-new-dawn/blob/00e5a1e5b8780f1ef8b6f4a89e5edf171a2bf228/references/verification/swarm-class2-bootstrap-static-2026-10-10/README.md
 [reset]: https://github.com/JohnDeved/populous-new-dawn/blob/8311fa1508ac6c85f4b8852dac48a54aa5336039/references/verification/swarm-class2-fresh-reset-static-2026-10-10/README.md
+[startup]: https://github.com/JohnDeved/populous-new-dawn/blob/4d733f97b3fe2e880d34b90a02df7f4909c53822/references/verification/swarm-class2-initial-index-callers-2026-10-10/README.md
