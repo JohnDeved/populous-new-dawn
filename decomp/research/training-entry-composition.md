@@ -82,3 +82,7 @@ The [reviewed finite ledger](../../references/verification/mission3-allocation-l
 ## Closed callback frontier
 
 The [bounded static follow-up](../../references/verification/mission3-callback-closure-2026-10-10/README.md) excludes the two authored buildings' conditional model9 child from descriptor bytes and closes the named single-player post-load callbacks as nonproducers. Exact successful loader allocation and runtime startup history remain unresolved; the next proposed trace is a turn-zero constructor ledger with explicit segmented-state and OS-boundary requirements.
+
+## Mission 3 constructor preflight
+
+The [reviewed static preflight](../../references/verification/mission3-constructor-preflight-2026-10-10/README.md) binds the complete 2,000-slot record input and corrected header/predicate bytes. Execution was not admitted: actual campaign mode inputs and setup provenance remain unclosed, and the retained disabled driver requires repairs. The unknown reset word alone is not demonstrated seed dependence. No original instruction was executed or exact startup seed recovered.
