@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "298fdd45-2347-4453-a61d-a71d481eb648",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "4fdf367db4eb6d15d9a05d84f85758a2893c0526",
+    "branch": "fix/water-shore-animation-315",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/water-animation-callers.test.mjs": "5e24b4cd1bb78c829320c892a3d47e43ace5143fb6d0bb477ed6baea72a64f7b"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/water-animation-callers.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/water-shore-animation-20261010",
+  "startedAt": "2026-10-10T19:06:38.469Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/water-shore-animation-20261010/work/orchestration/water-shore/red-callers.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/water-shore-animation-20261010/work/orchestration/water-shore/red-callers.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-10T19:06:45.591Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "▶ authored water callers keep surface coordinates fixed while shared coastal points animate\n  ✖ Mission 1 (164.582683ms)\n  ✖ Mission 2 (131.190836ms)\n  ✖ Mission 3 (53.258102ms)\n✖ authored water callers keep surface coordinates fixed while shared coastal points animate (6180.202654ms)\nℹ tests 4\nℹ suites 0\nℹ pass 0\nℹ fail 4\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 6979.395072\n\n✖ failing tests:\n\ntest at tests/water-animation-callers.test.mjs:20:44\n✖ Mission 1 (164.582683ms)\n  AssertionError [ERR_ASSERTION]: ordinary water update must not move sea texture independently of shore\n  + actual - expected\n  \n    {\n  +   scroll: 0.08984375\n  -   scroll: 0\n    }\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/water-shore-animation-20261010/tests/water-animation-callers.test.mjs:43:12)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/water-shore-animation-20261010/tests/water-animation-callers.test.mjs:20:36)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: { scroll: 0.08984375 },\n    expected: { scroll: 0 },\n    operator: 'deepStrictEqual',\n    diff: 'simple'\n  }\n\ntest at tests/water-animation-callers.test.mjs:20:44\n✖ Mission 2 (131.190836ms)\n  AssertionError [ERR_ASSERTION]: ordinary water update must not move sea texture independently of shore\n  + actual - expected\n  \n    {\n  +   scroll: 0.08984375\n  -   scroll: 0\n    }\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/water-shore-animation-20261010/tests/water-animation-callers.test.mjs:43:12)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/water-shore-animation-20261010/tests/water-animation-callers.test.mjs:20:36)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: { scroll: 0.08984375 },\n    expected: { scroll: 0 },\n    operator: 'deepStrictEqual',\n    diff: 'simple'\n  }\n\ntest at tests/water-animation-callers.test.mjs:20:44\n✖ Mission 3 (53.258102ms)\n  AssertionError [ERR_ASSERTION]: ordinary water update must not move sea texture independently of shore\n  + actual - expected\n  \n    {\n  +   scroll: 0.08984375\n  -   scroll: 0\n    }\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/water-shore-animation-20261010/tests/water-animation-callers.test.mjs:43:12)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/water-shore-animation-20261010/tests/water-animation-callers.test.mjs:20:36)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: { scroll: 0.08984375 },\n    expected: { scroll: 0 },\n    operator: 'deepStrictEqual',\n    diff: 'simple'\n  }\n",
+  "stderr": "",
+  "stdoutSha256": "3c8214d11f8abaaa2910b4a5370ce8344d3607b02384bb1a72561a70f5333044",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "4fdf367db4eb6d15d9a05d84f85758a2893c0526",
+    "branch": "fix/water-shore-animation-315",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/water-animation-callers.test.mjs": "5e24b4cd1bb78c829320c892a3d47e43ace5143fb6d0bb477ed6baea72a64f7b"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+app/scene-terrain-runtime.ts:107:41: warning eslint(no-shadow): 'site' is already declared in the upper scope. help: Consider renaming 'site' to avoid shadowing the variable from the outer scope.
+app/scene-terrain-runtime.ts:53:17: warning eslint(prefer-destructuring): Use Object destructuring. help: Use object destructuring rather than direct member access.
+app/scene-terrain-runtime.ts:109:33: error eslint(eqeqeq): Expected !== and instead saw != help: Prefer !== operator
+app/scene-terrain-runtime.ts:113:43: error eslint(eqeqeq): Expected !== and instead saw != help: Prefer !== operator
+app/scene.ts:730:5: warning eslint(no-shadow): 'focus' is already declared in the upper scope. help: Consider renaming 'focus' to avoid shadowing the variable from the outer scope.
+app/scene.ts:41:1: error typescript(consistent-type-imports): Imports terrainAtlas are only used as type. help: Mark all type-only imports with the type specifier
+app/scene.ts:450:15: warning unicorn(prefer-dom-node-append): Prefer `Node#append()` over `Node#appendChild()` for DOM nodes. help: Replace `Node#appendChild()` with `Node#append()`.
+app/scene.ts:451:34: warning unicorn(prefer-dom-node-append): Prefer `Node#append()` over `Node#appendChild()` for DOM nodes. help: Replace `Node#appendChild()` with `Node#append()`.
+app/scene.ts:466:25: warning unicorn(prefer-dom-node-append): Prefer `Node#append()` over `Node#appendChild()` for DOM nodes. help: Replace `Node#appendChild()` with `Node#append()`.
+app/scene.ts:467:15: warning unicorn(prefer-dom-node-append): Prefer `Node#append()` over `Node#appendChild()` for DOM nodes. help: Replace `Node#appendChild()` with `Node#append()`.
+app/scene.ts:472:25: warning unicorn(prefer-dom-node-append): Prefer `Node#append()` over `Node#appendChild()` for DOM nodes. help: Replace `Node#appendChild()` with `Node#append()`.
+app/scene.ts:474:15: warning unicorn(prefer-dom-node-append): Prefer `Node#append()` over `Node#appendChild()` for DOM nodes. help: Replace `Node#appendChild()` with `Node#append()`.
+app/scene.ts:480:25: warning unicorn(prefer-dom-node-append): Prefer `Node#append()` over `Node#appendChild()` for DOM nodes. help: Replace `Node#appendChild()` with `Node#append()`.
+app/scene.ts:483:15: warning unicorn(prefer-dom-node-append): Prefer `Node#append()` over `Node#appendChild()` for DOM nodes. help: Replace `Node#appendChild()` with `Node#append()`.

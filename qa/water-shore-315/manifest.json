@@ -1,0 +1,223 @@
+{
+  "note": "Real natural-render screenshots. GIFs downscale to 960 pixels wide and use a 256-color palette; no interpolation. See sequence timestamps for capture timing. Before/after poses are comparable, not pixel-aligned.",
+  "runs": {
+    "before": {
+      "source": {
+        "root": "/workspace/scratch/69fd8163d94e/water-shore-baseline-20261010",
+        "commit": "4fdf367db4eb6d15d9a05d84f85758a2893c0526",
+        "tree": "e724ce4018995a5c421fa7d7c4b0f475c2cca073",
+        "status": "?? scripts/local-render/water-shore-animation.mjs",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "untracked": [
+          {
+            "path": "scripts/local-render/water-shore-animation.mjs",
+            "mode": 33188,
+            "sha256": "4d03a75be227f46537e35139e796934d26f398b2129ff2c1901efcb4a3620f0a"
+          }
+        ],
+        "fingerprint": "ab6386a1549c325525e11cdd3f818cc846817d6c3a19770bbaaf1d710a9eba85"
+      },
+      "browserVersion": "154.0.8037.92",
+      "screenshotSha256": {
+        "m3-loaded-3.png": "d8d43665d648955f379cb2c67b63406de9f8dfaa78945db3de1eca292b390e3a",
+        "m1-loaded-1.png": "ee0bb0859fd7c3e36aa72e280f154aba2208d628f3e88e6dec61e70003bdab3c",
+        "m1-speed2-2.png": "def7f6ea996edf9cf1ec457ab74c0661945a6a02807176074ef2b8f73bca4386",
+        "m3-speed1-1.png": "c1c668149cf49e5cc6529403fa2e8fab67f67a7dae3c8ab60608afade6051f60",
+        "m1-restarted-3.png": "103bdde3b5f31f67e87d35d6b3a8ffd766da7ee26ff28eb5628535b061b22b9b",
+        "m2-restarted-3.png": "7cbd31d0efabc22c4d352eb1c28cefa1250bca9094c5560a22b5ed090ac9af24",
+        "m3-speed1-3.png": "4117152b422f8dcf0e2cebbccf06771e54eee7de97b3ffc80ff9967bbad134f0",
+        "m1-loaded-0.png": "9398d7036cf3afec51ac0cbd6d0558a436ad3ed0ce94b16464815afd1477c401",
+        "m2-loaded-2.png": "0a197dac3b08fb471d87032da0239d9bf4491ce29e4eff86ea07121e0b293763",
+        "m1-restarted-1.png": "2d957ff2a6fd769054271b750529ee3298d392ad625b483e67b61b5369c90ed3",
+        "m3-restarted-2.png": "c6584e24df3fc0c7d4ae0ea6ad8e15b7fdfe1d29eb1bbd8690d68af88c3b3380",
+        "m3-paused-2.png": "86aaba72fe48615859187b536f9a1c275041a7703d2f7e24b6c90b4f8a84fc12",
+        "m2-paused-1.png": "4e25e66c2f52cc3457529de08bf13ba0aea3603d3ac407e8befcc412364c4499",
+        "m1-loaded-2.png": "0bd7391f4ec16e97863a56bdf8d44be00ac93e2dda83040c170f2d420df987d1",
+        "m2-loaded-3.png": "f8a8a13ccba18831d2bb8cca12ec914d2af14ccf99de59d7593c7ba15445c647",
+        "m3-restarted-0.png": "c1fa255355c120ace43a02f205fffc6f9ec5ca240518baae2476a52fbb17ff6f",
+        "m3-speed2-2.png": "1dc02d21d7257e5bb329bf2339f084acd3e09ae520af1b1a471f3f2c4bdf5e09",
+        "m3-speed1-0.png": "37252d6bd65fdee5d587a053b96c06493c6495dbe5bb0a1fb5799f703a0f0306",
+        "m2-speed2-2.png": "b039791e2b4a70078106ceda2cbad9df920c3a975b9f3ae7dda904d7ae9b7583",
+        "m2-speed1-2.png": "392231f7bd8a3d671807bfae4ac833eebd850f2ff294969747faec491f977cdc",
+        "m3-restarted-3.png": "dad36212501092769f7400a350c7c4406fb738cd8307033a5a48b3dc802490dd",
+        "m1-speed2-3.png": "26d7eba70eb8079af47c086c95a7be30688b4f28c0a04c9aa4afa6616c486aac",
+        "m2-speed1-1.png": "cdfcdd53b1f412ec21eab7022e51eae72ca4e74ab91da378bb65311e181eaf34",
+        "m1-restarted-2.png": "e081d7e760a2ab334d1f86654768c7348183f473c99dda6a3bc767777a8dc31d",
+        "m1-paused-1.png": "9e17f10afaf8a6b32303865ce51d87e0e8cdaadc98ffece5afa3830b6466defb",
+        "m2-speed1-0.png": "e8e5f38038f654b959bd44644eba37da392738cf76a24d9943119f9c7fb2ad63",
+        "m1-paused-2.png": "460fae0b95c33212129e7fad152b021394736678b5f0d10a975bb091d6700952",
+        "m2-speed2-3.png": "3c21c48f716d58833b294b852686afdd160252ffdd69f162ec4b14ce54c51fd2",
+        "m2-paused-2.png": "8487dd845ca34bcd15d06f3554a38877bdb1b1c1f4ab53cc2254b989c53b7503",
+        "m1-speed1-1.png": "2eb94fdc85b18a6ba57159afbf4f74350e4a01e73208e83776710ece8b49d44e",
+        "m1-loaded-3.png": "cac9fedf2e4f29e836899a53860ca914383f2f941758c2d47fc587dc24a513af",
+        "m3-loaded-2.png": "58f4c820c3c1c7d1ea31b4dbf792d2b4d2cebeb6f4e440740759014b60f167ce",
+        "m2-restarted-0.png": "47b030c85d79fa5676e9dddd2323fc00f852bb1a3fae9cdec18b422459a8cc0e",
+        "m1-speed2-0.png": "d6adbd64cc9dfc2ecc1a46d6307c8d178db38aa7bff7d291c3687514626d6479",
+        "m2-loaded-0.png": "d252938764654c6026e964a657fea0628aef166d02b208469ea234a53ef4ef10",
+        "m3-paused-0.png": "f06ee5740a506ca0b2460e2b8217ae336438c95099dccb19306034b850f42145",
+        "m1-restarted-0.png": "a5a8ac034022adabd31ac61e7d77f0c912ad29a69024ed00c3089fc3aa8e88ee",
+        "m3-loaded-0.png": "29ff42a2652c777b965e54e5f77cfe1e53408c8e56fa732cfff120c1e2bb0c71",
+        "m3-paused-3.png": "a43b11e93459ffd530bb1668318d39f6c5eed4d430786653b495d2246c0cc8f0",
+        "m2-speed2-1.png": "bd0bb0f66d1f5bf012ac2696da47b939321edd56f1dc79776343e1b09da93ea1",
+        "m1-speed1-3.png": "f9071201dd9af0f2bc64e425a6833288da277dab8679f2d95b2f7567d5b460c2",
+        "m1-speed1-2.png": "b53dbdb3ea3a9114fa35ac4c933182a54046495ea9e4eb365afa8fe1949b0af3",
+        "m3-speed2-1.png": "64f25a411891c6f9ce528e7a94ebf6bec423725da7a41cd5a509b8ae6bd70a49",
+        "m1-paused-3.png": "01f72b5f074e736bc39b03786760db07bb8c1d4f9d5f0a0eaa19326f2bc31773",
+        "m2-restarted-2.png": "d7f93dba838dffefaf963831f6d5c3723258de573c1cf0a1bf86fa9cfc5d6a55",
+        "m3-loaded-1.png": "c03979032c04f8e329174f1e9dfa5318b8aa899a0eb633ecdf625ba858dbdbab",
+        "m2-loaded-1.png": "d8305d9c1b0106ef924dbf7b2f61d276fe39e6990301fa7acd0ae74771d3ad08",
+        "m2-speed2-0.png": "81d88457b85e02a937ce3e4c89acc527a54643b8c7af0ca70b8ef7b8c20a55a5",
+        "m3-speed2-3.png": "9a8790692971e165a8dc9a8fbf7f0a100833e485be81da1ecb11e49d96a2dd1e",
+        "m3-speed2-0.png": "31c95d68d8801778c4ad9001bef1b11f70e3e5873e7a066a947ff0cb1ae90363",
+        "m3-paused-1.png": "49ca6f57590ed0798374af37f33ecfc73d92e8c294243d0f0be754ee5700a238",
+        "m1-paused-0.png": "d971722b7ee0cfc5b4893cc044b1538616fc893ba3184df1421ab0098a62bfd9",
+        "m2-speed1-3.png": "94eafb0731130c631f88bafc8a7181a46f006138d777113c6e1647a26811b08a",
+        "m2-paused-0.png": "1c1321e8d75eb6a951c1ae454d9732ab6371debfe3616c9ab7d5ceeb401af05a",
+        "m3-restarted-1.png": "904c21b156fadafce59636168e7a4cfc8f35f2f9d83fcda439557e685cb7d5fc",
+        "m2-restarted-1.png": "5db01ab4321eed1d2da5879c57914b4d67131e4c37d9fc40ac02d8e378dd19be",
+        "m1-speed1-0.png": "98e268ca09bf4cf10ab6ccf707e45090c7e588d3742541de9448241df701962e",
+        "m3-speed1-2.png": "ae8f430a6beebe210080070a02764ff2fa7e31eeae9a9ead8b7bd779f7e17200",
+        "m2-paused-3.png": "aaa82a57231ea3ac7ab0a9437e31776c209ca8a5066a846c6be6fad1d7495b76",
+        "m1-speed2-1.png": "bddf92b13fe6b8dbb2266007211e4608e9c6d2d800195c38792185d5a83e9667"
+      },
+      "published": [
+        {
+          "file": "before/m1-speed1.gif",
+          "sha256": "2f19244a80e39da5f116fa56ae1b0f7d99f87c937937fd4bdcace821d9051e40",
+          "sourceFrames": [
+            "m1-speed1-0.png",
+            "m1-speed1-1.png",
+            "m1-speed1-2.png",
+            "m1-speed1-3.png"
+          ]
+        },
+        {
+          "file": "before/m2-speed1.gif",
+          "sha256": "0fbf4bf0783ecde568a530aa8e7542898a72335ab4737d92241a760ea29a907d",
+          "sourceFrames": [
+            "m2-speed1-0.png",
+            "m2-speed1-1.png",
+            "m2-speed1-2.png",
+            "m2-speed1-3.png"
+          ]
+        },
+        {
+          "file": "before/m3-speed1.gif",
+          "sha256": "0fc08f06042579eb47294af5b550bac6cf421d007b207f64157348237eece3f0",
+          "sourceFrames": [
+            "m3-speed1-0.png",
+            "m3-speed1-1.png",
+            "m3-speed1-2.png",
+            "m3-speed1-3.png"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "source": {
+        "root": "/workspace/scratch/69fd8163d94e/water-shore-animation-20261010",
+        "commit": "8c4c45f32e49765afc6972d76b9c3dd8f1ce520e",
+        "tree": "756d48d55e5cc0a35bec8bc0fe15915b8909456b",
+        "status": "",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "untracked": [],
+        "fingerprint": "15598e9978f2089c5c6a941cd27474114f062efd527ed8ff5bb735a7ed91da23"
+      },
+      "browserVersion": "154.0.8037.92",
+      "screenshotSha256": {
+        "m3-loaded-3.png": "d301d8a507809a1420e6669555513c9efd128135ff53de51a45cd8c6f5fb13ef",
+        "m1-loaded-1.png": "8fe28f332b7dfa7fc17ea65547ffb98eb20365e0165077836fabe0238a05823f",
+        "m1-speed2-2.png": "591f6fb8885cf9dcfd4c33b2c00582beb1c73a64f92f785bf3207bc30754208e",
+        "m3-speed1-1.png": "bfb6e37d9510955a0599d0b169039bc2ef61c7a7b050293e6e02891ccf0a20be",
+        "m1-restarted-3.png": "219adb237cf4709e4ae178be0c9681e9a9594914224fb28c02b1de31528afe0b",
+        "m2-restarted-3.png": "712ed59c69e188fb1aa02b690c374d91585292af6678d7560d2af9ca92ac7760",
+        "m3-speed1-3.png": "cee44b5407ae6e16d3c03d05f39232d1ee0f547e40143929e7cc377c125208d5",
+        "m1-loaded-0.png": "31cfac229a56be26bbc1df93ef915bdc7657fdc6719371136f4a5b8d288a6392",
+        "m2-loaded-2.png": "122436b132f54c148111093581ee71d0d084a0575484b0985708c9589f4f355f",
+        "m1-restarted-1.png": "30936958109af7143411f7722ed30d19fc749f267275565332667cb834909581",
+        "m3-restarted-2.png": "26b868f4c6f126e2e5dca2a8b68bfa5d7e126a234adadbe1db9c2f9d3a7d51ef",
+        "m3-paused-2.png": "e057ecb41f6dc3b9aa94973be4dec13fa8686a6385fd05f941ba9763e9c4487a",
+        "m2-paused-1.png": "59f3dcca7b90ea21fe9c009ee1348cd5781a8ebe63d326f0cfe05a4a7ed2d7a6",
+        "m1-loaded-2.png": "946a3ec80e10cb87041ffdda8ddc3d5a8e96b8ad0beaec60611b1b0d38aabeee",
+        "m2-loaded-3.png": "4241195ebfd3664bac17c90ee9df1a2a2e973b0aaf6a60da2887b74d20582157",
+        "m3-restarted-0.png": "65add820885cdbb87406f3f46ca6f57df4c01dcc2821976f833791f5d91c9862",
+        "m3-speed2-2.png": "e4b918d41b65cdb7c68bf61a9113b2ea5fc1bdb20430e0759ce15cc8ace5084f",
+        "m3-speed1-0.png": "7c3a4e287a02f3e0e5daa6a54a046f01b6a18758b55fe4627d76d036c7988d55",
+        "m2-speed2-2.png": "48b3cb659bcb767e8887afdf43ed62a3b162b9ac3c24fdb3c65ed86ec05d4d2d",
+        "m2-speed1-2.png": "77b467c8a1b93a5c85aaa894499e1a22f92ffac77e9d93177986809d136a23f0",
+        "m3-restarted-3.png": "7c5a0dda6b9b12adb863873c5343183b45d9b89efe95348a5dc1b9b1369c04e4",
+        "m1-speed2-3.png": "ca6bdbcf97dab74bde80507e5db732bc7d7ed6f63d0fcfa7a7caa1b636ace563",
+        "m2-speed1-1.png": "c079e48bca03bfa44827d68404ecd8f868bbea7f01eb7da99a5b53172fb7c1e3",
+        "m1-restarted-2.png": "0b0d8bf28b39a7d4ae5c34ae0537a21a9f3d39195efe349b2309a9c1e31f9e07",
+        "m1-paused-1.png": "8fd9572e11602eadea0fa606e60690f33f7603a6567e15c524aedb35dd3a3841",
+        "m2-speed1-0.png": "a47a5d5512c0b8945fa468cdd26a5a7f8957321938fb74ff48fc0864a3ae0ba5",
+        "m1-paused-2.png": "b1c66402c5017cb9d3090a56364c5213e5b9b1f0b0ffcb49a7d9fd77f5eb7183",
+        "m2-speed2-3.png": "24687b741d3235307a84315a3f729f4f1543770fea8c2c6fc209bbd28171b77e",
+        "m2-paused-2.png": "91ad0c85efe5193dd3a2888aa512a7d77d9b1766a2200c7ac06e832cd1510a7d",
+        "m1-speed1-1.png": "1aac8bfaef31fed391df1586edc6034fcef515d4e322fab6a46ba73392b743a8",
+        "m1-loaded-3.png": "5e366b8f3a5b1f5cf121a7e5c6bb015dbf9910dd5ce31d5ae8271c6ffdd823ab",
+        "m3-loaded-2.png": "fceffdeb3f1751bcb8e2231cf4663547b90327d148bc834c4ff733cd03b7802e",
+        "m2-restarted-0.png": "5bb70f3e5efaa8868b86c3c6b52ea729d408830e2c935dbd6e37e46138d1d9d0",
+        "m1-speed2-0.png": "c89a06dbf3c7af63bdd24a76ecafd6a0a4c02746f10b20703f135255dd5b788f",
+        "m2-loaded-0.png": "e66744840f79285dae3c64f250b5583e4ee9bdc15f7ebfbf89d25ee63abf60fe",
+        "m3-paused-0.png": "9236dbb44feb7fde23987912f92d8f2b1be42332ffa853dc86dd7778f71dad9e",
+        "m1-restarted-0.png": "09132c6b4a6c91bb33da81410b4f134913c4127ea64a1d6256f6acf2b3f046b0",
+        "m3-loaded-0.png": "5ab3cb419f04b96db270f85e10711f7e8aebe8d032c1cbdc12f150bff1cf908b",
+        "m3-paused-3.png": "dee71d0f553b1dcb530a408947b72ec46ed2edb44fe5f7dfa0d436ce9006fcd3",
+        "m2-speed2-1.png": "99faf7204329eaf03eb9851e73a54fbeb7b59252064c185e322a43ab11d69f62",
+        "m1-speed1-3.png": "21ddd66d063f9ae2532138226550eb662daaca91fd52d83bfe8bd2e8192eeff8",
+        "m1-speed1-2.png": "6b6ab87f539a2c7f8e4fc6f5c20bc5c6dfc2cf884d863d6f947aca6ea50cf29b",
+        "m3-speed2-1.png": "d6e457998829618088849573ea25fb4fc97445dc1c51f0969347561c3a8dbba4",
+        "m1-paused-3.png": "dc80ef15b98c7e25d6394e1bd8b7a9a3eb0d7680a26798c09a08ae1dcee29a0b",
+        "m2-restarted-2.png": "0eb47732f83a985714ae2d6ec1d341f152db388f60485039b1d462db5d2f3318",
+        "m3-loaded-1.png": "0bd79fe809c777c9542fc8b6668b4858797f1d592b202bdac7dffd85aee1eb0b",
+        "m2-loaded-1.png": "99fbe1cc07bc9ac097aebb18ea2ad42010391fe61694b7c80660fe0e0c7bb1ab",
+        "m2-speed2-0.png": "61dbb66f9d0f89941acf2dcf4c8036d07cefd0e70d7a35bd097d6937e0639641",
+        "m3-speed2-3.png": "94412ff2ceb1fca9816c375b102804d9f349d1887bcb6b67cd2e2d464c5a44a8",
+        "m3-speed2-0.png": "36d93d6a298b272af6958b6700c019441642feec291835bd40deaf05b4a557be",
+        "m3-paused-1.png": "67d00ff81dd6c9ffe5658ab052a749665822721c5b606fa04c440e0c814ce548",
+        "m1-paused-0.png": "f55afe2ba98dfe9ad742ad179f61b124f55de0adf8f90b9335418fa7aae8b447",
+        "m2-speed1-3.png": "0c655eede1c95ac05988bea94ce83aa3c2142e28c1ffc0eb589b79edbed24daf",
+        "m2-paused-0.png": "6273f2b686e9741cd90a9dd9cc4b99ed1da2030cfe45f0009276c14cee69869a",
+        "m3-restarted-1.png": "5af879bb175db1bbcd8d5cb4aa1b3eb853c9e714f903597dcd2aa0ab781f0f67",
+        "m2-restarted-1.png": "646a8af775c084ddef0c16db18b3407aec8586399d59a08a0751bab182a2ac89",
+        "m1-speed1-0.png": "eb31dd6e12d3d4d30b8c7662717dfdfd1524bc52f7d96f189979864f2e85fd83",
+        "m3-speed1-2.png": "7bfb786e8186aefd3d53c694833a281e651dc373dbfed96af7fc791d5ea04087",
+        "m2-paused-3.png": "2e67c84575ac2bb8819f83af33d1fbfa973efcfdb5a55a1546e7bd1c9bb56971",
+        "m1-speed2-1.png": "1fff1185b416d8feac44029e8819050e32f3d5df64ed018b328731c055d1543b"
+      },
+      "published": [
+        {
+          "file": "after/m1-speed1.gif",
+          "sha256": "5b44f574d03ab80c141b2708affb00b2ec5214f6bc0aef4071e8734fd86abe7d",
+          "sourceFrames": [
+            "m1-speed1-0.png",
+            "m1-speed1-1.png",
+            "m1-speed1-2.png",
+            "m1-speed1-3.png"
+          ]
+        },
+        {
+          "file": "after/m2-speed1.gif",
+          "sha256": "4b3282e8c9281ac820b0aa72e07e7e951a24cfb95574b2f3e52e37edfbf4f490",
+          "sourceFrames": [
+            "m2-speed1-0.png",
+            "m2-speed1-1.png",
+            "m2-speed1-2.png",
+            "m2-speed1-3.png"
+          ]
+        },
+        {
+          "file": "after/m3-speed1.gif",
+          "sha256": "2e801df123c4581c68cd8366d33bd1c81ed93036e79f53005904ad07ae5fcef4",
+          "sourceFrames": [
+            "m3-speed1-0.png",
+            "m3-speed1-1.png",
+            "m3-speed1-2.png",
+            "m3-speed1-3.png"
+          ]
+        }
+      ]
+    }
+  }
+}

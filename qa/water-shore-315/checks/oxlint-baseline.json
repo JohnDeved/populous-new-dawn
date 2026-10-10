@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "1cf19390-c89b-4ca3-b4aa-01332e94b55d",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "4fdf367db4eb6d15d9a05d84f85758a2893c0526",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "./node_modules/.bin/oxlint",
+    "app/scene-terrain-runtime.ts",
+    "app/scene.ts"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/water-shore-baseline-20261010",
+  "startedAt": "2026-10-10T19:12:21.380Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/water-shore-baseline-20261010/work/orchestration/water-shore/oxlint-baseline02.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/water-shore-baseline-20261010/work/orchestration/water-shore/oxlint-baseline02.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-10T19:12:21.595Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "app/scene-terrain-runtime.ts:109:41: warning eslint(no-shadow): 'site' is already declared in the upper scope. help: Consider renaming 'site' to avoid shadowing the variable from the outer scope.\napp/scene-terrain-runtime.ts:53:17: warning eslint(prefer-destructuring): Use Object destructuring. help: Use object destructuring rather than direct member access.\napp/scene-terrain-runtime.ts:111:33: error eslint(eqeqeq): Expected !== and instead saw != help: Prefer !== operator\napp/scene-terrain-runtime.ts:115:43: error eslint(eqeqeq): Expected !== and instead saw != help: Prefer !== operator\napp/scene.ts:731:5: warning eslint(no-shadow): 'focus' is already declared in the upper scope. help: Consider renaming 'focus' to avoid shadowing the variable from the outer scope.\napp/scene.ts:41:1: error typescript(consistent-type-imports): Imports terrainAtlas are only used as type. help: Mark all type-only imports with the type specifier\napp/scene.ts:451:15: warning unicorn(prefer-dom-node-append): Prefer `Node#append()` over `Node#appendChild()` for DOM nodes. help: Replace `Node#appendChild()` with `Node#append()`.\napp/scene.ts:452:34: warning unicorn(prefer-dom-node-append): Prefer `Node#append()` over `Node#appendChild()` for DOM nodes. help: Replace `Node#appendChild()` with `Node#append()`.\napp/scene.ts:467:25: warning unicorn(prefer-dom-node-append): Prefer `Node#append()` over `Node#appendChild()` for DOM nodes. help: Replace `Node#appendChild()` with `Node#append()`.\napp/scene.ts:468:15: warning unicorn(prefer-dom-node-append): Prefer `Node#append()` over `Node#appendChild()` for DOM nodes. help: Replace `Node#appendChild()` with `Node#append()`.\napp/scene.ts:473:25: warning unicorn(prefer-dom-node-append): Prefer `Node#append()` over `Node#appendChild()` for DOM nodes. help: Replace `Node#appendChild()` with `Node#append()`.\napp/scene.ts:475:15: warning unicorn(prefer-dom-node-append): Prefer `Node#append()` over `Node#appendChild()` for DOM nodes. help: Replace `Node#appendChild()` with `Node#append()`.\napp/scene.ts:481:25: warning unicorn(prefer-dom-node-append): Prefer `Node#append()` over `Node#appendChild()` for DOM nodes. help: Replace `Node#appendChild()` with `Node#append()`.\napp/scene.ts:484:15: warning unicorn(prefer-dom-node-append): Prefer `Node#append()` over `Node#appendChild()` for DOM nodes. help: Replace `Node#appendChild()` with `Node#append()`.\n",
+  "stderr": "",
+  "stdoutSha256": "44a5cb9641e51fd506f521c7d28799f271f77935d328fa63c15be86c5e18e8c7",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "4fdf367db4eb6d15d9a05d84f85758a2893c0526",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

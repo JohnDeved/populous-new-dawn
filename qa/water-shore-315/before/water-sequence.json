@@ -1,0 +1,1581 @@
+{
+  "method": "Ordinary UI and natural rendered coastal time sequences",
+  "phases": [
+    {
+      "name": "m1-speed1",
+      "frames": [
+        {
+          "at": 18730,
+          "mission": 1,
+          "turn": 122,
+          "speed": 1,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.4765625,
+          "positions": 521386410,
+          "light": 2844225157,
+          "water": 713394938,
+          "landscape": {
+            "requested": 12,
+            "bank": "c",
+            "supported": true,
+            "terrain": "landscape.bin",
+            "modelAtlas": "atlas"
+          },
+          "waves": 2719411104,
+          "file": "m1-speed1-0.png"
+        },
+        {
+          "at": 20861.299999999814,
+          "mission": 1,
+          "turn": 148,
+          "speed": 1,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.578125,
+          "positions": 4186844950,
+          "light": 4192410373,
+          "water": 713394938,
+          "landscape": {
+            "requested": 12,
+            "bank": "c",
+            "supported": true,
+            "terrain": "landscape.bin",
+            "modelAtlas": "atlas"
+          },
+          "waves": 2719411104,
+          "file": "m1-speed1-1.png"
+        },
+        {
+          "at": 22760.39999999944,
+          "mission": 1,
+          "turn": 171,
+          "speed": 1,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.66796875,
+          "positions": 3827257950,
+          "light": 3362201285,
+          "water": 713394938,
+          "landscape": {
+            "requested": 12,
+            "bank": "c",
+            "supported": true,
+            "terrain": "landscape.bin",
+            "modelAtlas": "atlas"
+          },
+          "waves": 2719411104,
+          "file": "m1-speed1-2.png"
+        },
+        {
+          "at": 24704.599999999627,
+          "mission": 1,
+          "turn": 194,
+          "speed": 1,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.7578125,
+          "positions": 629464342,
+          "light": 3987662101,
+          "water": 713394938,
+          "landscape": {
+            "requested": 12,
+            "bank": "c",
+            "supported": true,
+            "terrain": "landscape.bin",
+            "modelAtlas": "atlas"
+          },
+          "waves": 2719411104,
+          "file": "m1-speed1-3.png"
+        }
+      ]
+    },
+    {
+      "name": "m1-paused",
+      "frames": [
+        {
+          "at": 26590.699999999255,
+          "mission": 1,
+          "turn": 214,
+          "speed": 1,
+          "paused": true,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.8359375,
+          "positions": 150153974,
+          "light": 506635077,
+          "water": 713394938,
+          "landscape": {
+            "requested": 12,
+            "bank": "c",
+            "supported": true,
+            "terrain": "landscape.bin",
+            "modelAtlas": "atlas"
+          },
+          "waves": 2719411104,
+          "file": "m1-paused-0.png"
+        },
+        {
+          "at": 28505.199999999255,
+          "mission": 1,
+          "turn": 214,
+          "speed": 1,
+          "paused": true,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.8359375,
+          "positions": 150153974,
+          "light": 506635077,
+          "water": 713394938,
+          "landscape": {
+            "requested": 12,
+            "bank": "c",
+            "supported": true,
+            "terrain": "landscape.bin",
+            "modelAtlas": "atlas"
+          },
+          "waves": 2719411104,
+          "file": "m1-paused-1.png"
+        },
+        {
+          "at": 30384.599999999627,
+          "mission": 1,
+          "turn": 214,
+          "speed": 1,
+          "paused": true,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.8359375,
+          "positions": 150153974,
+          "light": 506635077,
+          "water": 713394938,
+          "landscape": {
+            "requested": 12,
+            "bank": "c",
+            "supported": true,
+            "terrain": "landscape.bin",
+            "modelAtlas": "atlas"
+          },
+          "waves": 2719411104,
+          "file": "m1-paused-2.png"
+        },
+        {
+          "at": 32231.799999999814,
+          "mission": 1,
+          "turn": 214,
+          "speed": 1,
+          "paused": true,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.8359375,
+          "positions": 150153974,
+          "light": 506635077,
+          "water": 713394938,
+          "landscape": {
+            "requested": 12,
+            "bank": "c",
+            "supported": true,
+            "terrain": "landscape.bin",
+            "modelAtlas": "atlas"
+          },
+          "waves": 2719411104,
+          "file": "m1-paused-3.png"
+        }
+      ]
+    },
+    {
+      "name": "m1-speed2",
+      "frames": [
+        {
+          "at": 36036,
+          "mission": 1,
+          "turn": 230,
+          "speed": 2,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.8984375,
+          "positions": 3897978982,
+          "light": 2469692597,
+          "water": 713394938,
+          "landscape": {
+            "requested": 12,
+            "bank": "c",
+            "supported": true,
+            "terrain": "landscape.bin",
+            "modelAtlas": "atlas"
+          },
+          "waves": 2719411104,
+          "file": "m1-speed2-0.png"
+        },
+        {
+          "at": 37957.5,
+          "mission": 1,
+          "turn": 277,
+          "speed": 2,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.08203125,
+          "positions": 1999343982,
+          "light": 3461592869,
+          "water": 713394938,
+          "landscape": {
+            "requested": 12,
+            "bank": "c",
+            "supported": true,
+            "terrain": "landscape.bin",
+            "modelAtlas": "atlas"
+          },
+          "waves": 2719411104,
+          "file": "m1-speed2-1.png"
+        },
+        {
+          "at": 39869.299999999814,
+          "mission": 1,
+          "turn": 323,
+          "speed": 2,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.26171875,
+          "positions": 801144434,
+          "light": 2717302949,
+          "water": 713394938,
+          "landscape": {
+            "requested": 12,
+            "bank": "c",
+            "supported": true,
+            "terrain": "landscape.bin",
+            "modelAtlas": "atlas"
+          },
+          "waves": 2719411104,
+          "file": "m1-speed2-2.png"
+        },
+        {
+          "at": 41823.39999999944,
+          "mission": 1,
+          "turn": 369,
+          "speed": 2,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.44140625,
+          "positions": 548671286,
+          "light": 826530837,
+          "water": 713394938,
+          "landscape": {
+            "requested": 12,
+            "bank": "c",
+            "supported": true,
+            "terrain": "landscape.bin",
+            "modelAtlas": "atlas"
+          },
+          "waves": 2719411104,
+          "file": "m1-speed2-3.png"
+        }
+      ]
+    },
+    {
+      "name": "m1-loaded",
+      "frames": [
+        {
+          "at": 47854.89999999944,
+          "mission": 1,
+          "turn": 445,
+          "speed": 2,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.73828125,
+          "positions": 2957695690,
+          "light": 980939061,
+          "water": 713394938,
+          "landscape": {
+            "requested": 12,
+            "bank": "c",
+            "supported": true,
+            "terrain": "landscape.bin",
+            "modelAtlas": "atlas"
+          },
+          "waves": 2719411104,
+          "file": "m1-loaded-0.png"
+        },
+        {
+          "at": 49904.59999999963,
+          "mission": 1,
+          "turn": 493,
+          "speed": 2,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.92578125,
+          "positions": 2179738106,
+          "light": 481244629,
+          "water": 713394938,
+          "landscape": {
+            "requested": 12,
+            "bank": "c",
+            "supported": true,
+            "terrain": "landscape.bin",
+            "modelAtlas": "atlas"
+          },
+          "waves": 2719411104,
+          "file": "m1-loaded-1.png"
+        },
+        {
+          "at": 51749.09999999963,
+          "mission": 1,
+          "turn": 539,
+          "speed": 2,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.10546875,
+          "positions": 122028094,
+          "light": 2355268885,
+          "water": 713394938,
+          "landscape": {
+            "requested": 12,
+            "bank": "c",
+            "supported": true,
+            "terrain": "landscape.bin",
+            "modelAtlas": "atlas"
+          },
+          "waves": 2719411104,
+          "file": "m1-loaded-2.png"
+        },
+        {
+          "at": 53614.799999999814,
+          "mission": 1,
+          "turn": 583,
+          "speed": 2,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.27734375,
+          "positions": 715343890,
+          "light": 2387134597,
+          "water": 713394938,
+          "landscape": {
+            "requested": 12,
+            "bank": "c",
+            "supported": true,
+            "terrain": "landscape.bin",
+            "modelAtlas": "atlas"
+          },
+          "waves": 2719411104,
+          "file": "m1-loaded-3.png"
+        }
+      ]
+    },
+    {
+      "name": "m1-restarted",
+      "frames": [
+        {
+          "at": 66480.39999999944,
+          "mission": 1,
+          "turn": 111,
+          "speed": 1,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.43359375,
+          "positions": 1953153410,
+          "light": 3022351893,
+          "water": 713394938,
+          "landscape": {
+            "requested": 12,
+            "bank": "c",
+            "supported": true,
+            "terrain": "landscape.bin",
+            "modelAtlas": "atlas"
+          },
+          "waves": 2719411104,
+          "file": "m1-restarted-0.png"
+        },
+        {
+          "at": 68405.79999999981,
+          "mission": 1,
+          "turn": 134,
+          "speed": 1,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.5234375,
+          "positions": 3479430202,
+          "light": 3026191493,
+          "water": 713394938,
+          "landscape": {
+            "requested": 12,
+            "bank": "c",
+            "supported": true,
+            "terrain": "landscape.bin",
+            "modelAtlas": "atlas"
+          },
+          "waves": 2719411104,
+          "file": "m1-restarted-1.png"
+        },
+        {
+          "at": 70463.5,
+          "mission": 1,
+          "turn": 159,
+          "speed": 1,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.62109375,
+          "positions": 589878990,
+          "light": 1978291525,
+          "water": 713394938,
+          "landscape": {
+            "requested": 12,
+            "bank": "c",
+            "supported": true,
+            "terrain": "landscape.bin",
+            "modelAtlas": "atlas"
+          },
+          "waves": 2719411104,
+          "file": "m1-restarted-2.png"
+        },
+        {
+          "at": 72339.79999999981,
+          "mission": 1,
+          "turn": 181,
+          "speed": 1,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.70703125,
+          "positions": 3332186090,
+          "light": 2600066245,
+          "water": 713394938,
+          "landscape": {
+            "requested": 12,
+            "bank": "c",
+            "supported": true,
+            "terrain": "landscape.bin",
+            "modelAtlas": "atlas"
+          },
+          "waves": 2719411104,
+          "file": "m1-restarted-3.png"
+        }
+      ]
+    },
+    {
+      "name": "m2-speed1",
+      "frames": [
+        {
+          "at": 89282.29999999981,
+          "mission": 2,
+          "turn": 128,
+          "speed": 1,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.5,
+          "positions": 1512939420,
+          "light": 3515375509,
+          "water": 3865044217,
+          "landscape": {
+            "requested": 28,
+            "bank": "s",
+            "supported": true,
+            "terrain": "landscape-s.bin",
+            "modelAtlas": "atlas-s"
+          },
+          "waves": 2719411104,
+          "file": "m2-speed1-0.png"
+        },
+        {
+          "at": 91885.79999999981,
+          "mission": 2,
+          "turn": 160,
+          "speed": 1,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.625,
+          "positions": 384401068,
+          "light": 615430693,
+          "water": 3865044217,
+          "landscape": {
+            "requested": 28,
+            "bank": "s",
+            "supported": true,
+            "terrain": "landscape-s.bin",
+            "modelAtlas": "atlas-s"
+          },
+          "waves": 2719411104,
+          "file": "m2-speed1-1.png"
+        },
+        {
+          "at": 93856.5,
+          "mission": 2,
+          "turn": 183,
+          "speed": 1,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.71484375,
+          "positions": 1035343889,
+          "light": 496116037,
+          "water": 3865044217,
+          "landscape": {
+            "requested": 28,
+            "bank": "s",
+            "supported": true,
+            "terrain": "landscape-s.bin",
+            "modelAtlas": "atlas-s"
+          },
+          "waves": 2719411104,
+          "file": "m2-speed1-2.png"
+        },
+        {
+          "at": 95941.69999999925,
+          "mission": 2,
+          "turn": 206,
+          "speed": 1,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.8046875,
+          "positions": 3253937317,
+          "light": 900501861,
+          "water": 3865044217,
+          "landscape": {
+            "requested": 28,
+            "bank": "s",
+            "supported": true,
+            "terrain": "landscape-s.bin",
+            "modelAtlas": "atlas-s"
+          },
+          "waves": 2719411104,
+          "file": "m2-speed1-3.png"
+        }
+      ]
+    },
+    {
+      "name": "m2-paused",
+      "frames": [
+        {
+          "at": 98095.19999999925,
+          "mission": 2,
+          "turn": 232,
+          "speed": 1,
+          "paused": true,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.90625,
+          "positions": 2075831089,
+          "light": 2536391877,
+          "water": 3865044217,
+          "landscape": {
+            "requested": 28,
+            "bank": "s",
+            "supported": true,
+            "terrain": "landscape-s.bin",
+            "modelAtlas": "atlas-s"
+          },
+          "waves": 2719411104,
+          "file": "m2-paused-0.png"
+        },
+        {
+          "at": 100011,
+          "mission": 2,
+          "turn": 232,
+          "speed": 1,
+          "paused": true,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.90625,
+          "positions": 2075831089,
+          "light": 2536391877,
+          "water": 3865044217,
+          "landscape": {
+            "requested": 28,
+            "bank": "s",
+            "supported": true,
+            "terrain": "landscape-s.bin",
+            "modelAtlas": "atlas-s"
+          },
+          "waves": 2719411104,
+          "file": "m2-paused-1.png"
+        },
+        {
+          "at": 101982,
+          "mission": 2,
+          "turn": 232,
+          "speed": 1,
+          "paused": true,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.90625,
+          "positions": 2075831089,
+          "light": 2536391877,
+          "water": 3865044217,
+          "landscape": {
+            "requested": 28,
+            "bank": "s",
+            "supported": true,
+            "terrain": "landscape-s.bin",
+            "modelAtlas": "atlas-s"
+          },
+          "waves": 2719411104,
+          "file": "m2-paused-2.png"
+        },
+        {
+          "at": 103788.39999999944,
+          "mission": 2,
+          "turn": 232,
+          "speed": 1,
+          "paused": true,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.90625,
+          "positions": 2075831089,
+          "light": 2536391877,
+          "water": 3865044217,
+          "landscape": {
+            "requested": 28,
+            "bank": "s",
+            "supported": true,
+            "terrain": "landscape-s.bin",
+            "modelAtlas": "atlas-s"
+          },
+          "waves": 2719411104,
+          "file": "m2-paused-3.png"
+        }
+      ]
+    },
+    {
+      "name": "m2-speed2",
+      "frames": [
+        {
+          "at": 108527.09999999963,
+          "mission": 2,
+          "turn": 249,
+          "speed": 2,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.97265625,
+          "positions": 1298355409,
+          "light": 10036485,
+          "water": 3865044217,
+          "landscape": {
+            "requested": 28,
+            "bank": "s",
+            "supported": true,
+            "terrain": "landscape-s.bin",
+            "modelAtlas": "atlas-s"
+          },
+          "waves": 2719411104,
+          "file": "m2-speed2-0.png"
+        },
+        {
+          "at": 110441.39999999944,
+          "mission": 2,
+          "turn": 295,
+          "speed": 2,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.15234375,
+          "positions": 266267929,
+          "light": 2017897413,
+          "water": 3865044217,
+          "landscape": {
+            "requested": 28,
+            "bank": "s",
+            "supported": true,
+            "terrain": "landscape-s.bin",
+            "modelAtlas": "atlas-s"
+          },
+          "waves": 2719411104,
+          "file": "m2-speed2-1.png"
+        },
+        {
+          "at": 112275.69999999925,
+          "mission": 2,
+          "turn": 339,
+          "speed": 2,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.32421875,
+          "positions": 1950563221,
+          "light": 175936901,
+          "water": 3865044217,
+          "landscape": {
+            "requested": 28,
+            "bank": "s",
+            "supported": true,
+            "terrain": "landscape-s.bin",
+            "modelAtlas": "atlas-s"
+          },
+          "waves": 2719411104,
+          "file": "m2-speed2-2.png"
+        },
+        {
+          "at": 114261.39999999944,
+          "mission": 2,
+          "turn": 387,
+          "speed": 2,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.51171875,
+          "positions": 1822838793,
+          "light": 3317603445,
+          "water": 3865044217,
+          "landscape": {
+            "requested": 28,
+            "bank": "s",
+            "supported": true,
+            "terrain": "landscape-s.bin",
+            "modelAtlas": "atlas-s"
+          },
+          "waves": 2719411104,
+          "file": "m2-speed2-3.png"
+        }
+      ]
+    },
+    {
+      "name": "m2-loaded",
+      "frames": [
+        {
+          "at": 121196,
+          "mission": 2,
+          "turn": 477,
+          "speed": 2,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.86328125,
+          "positions": 2952841513,
+          "light": 3870591749,
+          "water": 3865044217,
+          "landscape": {
+            "requested": 28,
+            "bank": "s",
+            "supported": true,
+            "terrain": "landscape-s.bin",
+            "modelAtlas": "atlas-s"
+          },
+          "waves": 2719411104,
+          "file": "m2-loaded-0.png"
+        },
+        {
+          "at": 123180.5,
+          "mission": 2,
+          "turn": 522,
+          "speed": 2,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.0390625,
+          "positions": 4074461821,
+          "light": 392562149,
+          "water": 3865044217,
+          "landscape": {
+            "requested": 28,
+            "bank": "s",
+            "supported": true,
+            "terrain": "landscape-s.bin",
+            "modelAtlas": "atlas-s"
+          },
+          "waves": 2719411104,
+          "file": "m2-loaded-1.png"
+        },
+        {
+          "at": 125207.79999999981,
+          "mission": 2,
+          "turn": 573,
+          "speed": 2,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.23828125,
+          "positions": 822639045,
+          "light": 538945701,
+          "water": 3865044217,
+          "landscape": {
+            "requested": 28,
+            "bank": "s",
+            "supported": true,
+            "terrain": "landscape-s.bin",
+            "modelAtlas": "atlas-s"
+          },
+          "waves": 2719411104,
+          "file": "m2-loaded-2.png"
+        },
+        {
+          "at": 127198.59999999963,
+          "mission": 2,
+          "turn": 621,
+          "speed": 2,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.42578125,
+          "positions": 1257565849,
+          "light": 274790725,
+          "water": 3865044217,
+          "landscape": {
+            "requested": 28,
+            "bank": "s",
+            "supported": true,
+            "terrain": "landscape-s.bin",
+            "modelAtlas": "atlas-s"
+          },
+          "waves": 2719411104,
+          "file": "m2-loaded-3.png"
+        }
+      ]
+    },
+    {
+      "name": "m2-restarted",
+      "frames": [
+        {
+          "at": 140478.59999999963,
+          "mission": 2,
+          "turn": 110,
+          "speed": 1,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.4296875,
+          "positions": 3286478256,
+          "light": 2074291989,
+          "water": 3865044217,
+          "landscape": {
+            "requested": 28,
+            "bank": "s",
+            "supported": true,
+            "terrain": "landscape-s.bin",
+            "modelAtlas": "atlas-s"
+          },
+          "waves": 2719411104,
+          "file": "m2-restarted-0.png"
+        },
+        {
+          "at": 142522.19999999925,
+          "mission": 2,
+          "turn": 135,
+          "speed": 1,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.52734375,
+          "positions": 3085717504,
+          "light": 2651834965,
+          "water": 3865044217,
+          "landscape": {
+            "requested": 28,
+            "bank": "s",
+            "supported": true,
+            "terrain": "landscape-s.bin",
+            "modelAtlas": "atlas-s"
+          },
+          "waves": 2719411104,
+          "file": "m2-restarted-1.png"
+        },
+        {
+          "at": 144509.5,
+          "mission": 2,
+          "turn": 159,
+          "speed": 1,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.62109375,
+          "positions": 2122344476,
+          "light": 3997461,
+          "water": 3865044217,
+          "landscape": {
+            "requested": 28,
+            "bank": "s",
+            "supported": true,
+            "terrain": "landscape-s.bin",
+            "modelAtlas": "atlas-s"
+          },
+          "waves": 2719411104,
+          "file": "m2-restarted-2.png"
+        },
+        {
+          "at": 146463.7999999998,
+          "mission": 2,
+          "turn": 183,
+          "speed": 1,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.71484375,
+          "positions": 1035343889,
+          "light": 496116037,
+          "water": 3865044217,
+          "landscape": {
+            "requested": 28,
+            "bank": "s",
+            "supported": true,
+            "terrain": "landscape-s.bin",
+            "modelAtlas": "atlas-s"
+          },
+          "waves": 2719411104,
+          "file": "m2-restarted-3.png"
+        }
+      ]
+    },
+    {
+      "name": "m3-speed1",
+      "frames": [
+        {
+          "at": 158406.39999999944,
+          "mission": 3,
+          "turn": 75,
+          "speed": 1,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.29296875,
+          "positions": 2683766252,
+          "light": 462567093,
+          "water": 389477306,
+          "landscape": {
+            "requested": 25,
+            "bank": "p",
+            "supported": true,
+            "terrain": "landscape-p.bin",
+            "modelAtlas": "atlas-p"
+          },
+          "waves": 2719411104,
+          "file": "m3-speed1-0.png"
+        },
+        {
+          "at": 160382.2999999998,
+          "mission": 3,
+          "turn": 99,
+          "speed": 1,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.38671875,
+          "positions": 687913932,
+          "light": 3005090037,
+          "water": 389477306,
+          "landscape": {
+            "requested": 25,
+            "bank": "p",
+            "supported": true,
+            "terrain": "landscape-p.bin",
+            "modelAtlas": "atlas-p"
+          },
+          "waves": 2719411104,
+          "file": "m3-speed1-1.png"
+        },
+        {
+          "at": 162434.19999999925,
+          "mission": 3,
+          "turn": 124,
+          "speed": 1,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.484375,
+          "positions": 896758168,
+          "light": 895143749,
+          "water": 389477306,
+          "landscape": {
+            "requested": 25,
+            "bank": "p",
+            "supported": true,
+            "terrain": "landscape-p.bin",
+            "modelAtlas": "atlas-p"
+          },
+          "waves": 2719411104,
+          "file": "m3-speed1-2.png"
+        },
+        {
+          "at": 164502.2999999998,
+          "mission": 3,
+          "turn": 149,
+          "speed": 1,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.58203125,
+          "positions": 1313715500,
+          "light": 3205102629,
+          "water": 389477306,
+          "landscape": {
+            "requested": 25,
+            "bank": "p",
+            "supported": true,
+            "terrain": "landscape-p.bin",
+            "modelAtlas": "atlas-p"
+          },
+          "waves": 2719411104,
+          "file": "m3-speed1-3.png"
+        }
+      ]
+    },
+    {
+      "name": "m3-paused",
+      "frames": [
+        {
+          "at": 166667.89999999944,
+          "mission": 3,
+          "turn": 172,
+          "speed": 1,
+          "paused": true,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.671875,
+          "positions": 1492511570,
+          "light": 3547121621,
+          "water": 389477306,
+          "landscape": {
+            "requested": 25,
+            "bank": "p",
+            "supported": true,
+            "terrain": "landscape-p.bin",
+            "modelAtlas": "atlas-p"
+          },
+          "waves": 2719411104,
+          "file": "m3-paused-0.png"
+        },
+        {
+          "at": 168579.89999999944,
+          "mission": 3,
+          "turn": 172,
+          "speed": 1,
+          "paused": true,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.671875,
+          "positions": 1492511570,
+          "light": 3547121621,
+          "water": 389477306,
+          "landscape": {
+            "requested": 25,
+            "bank": "p",
+            "supported": true,
+            "terrain": "landscape-p.bin",
+            "modelAtlas": "atlas-p"
+          },
+          "waves": 2719411104,
+          "file": "m3-paused-1.png"
+        },
+        {
+          "at": 170501.5,
+          "mission": 3,
+          "turn": 172,
+          "speed": 1,
+          "paused": true,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.671875,
+          "positions": 1492511570,
+          "light": 3547121621,
+          "water": 389477306,
+          "landscape": {
+            "requested": 25,
+            "bank": "p",
+            "supported": true,
+            "terrain": "landscape-p.bin",
+            "modelAtlas": "atlas-p"
+          },
+          "waves": 2719411104,
+          "file": "m3-paused-2.png"
+        },
+        {
+          "at": 172385.5,
+          "mission": 3,
+          "turn": 172,
+          "speed": 1,
+          "paused": true,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.671875,
+          "positions": 1492511570,
+          "light": 3547121621,
+          "water": 389477306,
+          "landscape": {
+            "requested": 25,
+            "bank": "p",
+            "supported": true,
+            "terrain": "landscape-p.bin",
+            "modelAtlas": "atlas-p"
+          },
+          "waves": 2719411104,
+          "file": "m3-paused-3.png"
+        }
+      ]
+    },
+    {
+      "name": "m3-speed2",
+      "frames": [
+        {
+          "at": 176753.5,
+          "mission": 3,
+          "turn": 191,
+          "speed": 2,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.74609375,
+          "positions": 1625888580,
+          "light": 1462084741,
+          "water": 389477306,
+          "landscape": {
+            "requested": 25,
+            "bank": "p",
+            "supported": true,
+            "terrain": "landscape-p.bin",
+            "modelAtlas": "atlas-p"
+          },
+          "waves": 2719411104,
+          "file": "m3-speed2-0.png"
+        },
+        {
+          "at": 178757.5,
+          "mission": 3,
+          "turn": 238,
+          "speed": 2,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.9296875,
+          "positions": 3594105852,
+          "light": 3211005013,
+          "water": 389477306,
+          "landscape": {
+            "requested": 25,
+            "bank": "p",
+            "supported": true,
+            "terrain": "landscape-p.bin",
+            "modelAtlas": "atlas-p"
+          },
+          "waves": 2719411104,
+          "file": "m3-speed2-1.png"
+        },
+        {
+          "at": 180856.89999999944,
+          "mission": 3,
+          "turn": 289,
+          "speed": 2,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.12890625,
+          "positions": 2619177348,
+          "light": 4139424005,
+          "water": 389477306,
+          "landscape": {
+            "requested": 25,
+            "bank": "p",
+            "supported": true,
+            "terrain": "landscape-p.bin",
+            "modelAtlas": "atlas-p"
+          },
+          "waves": 2719411104,
+          "file": "m3-speed2-2.png"
+        },
+        {
+          "at": 182665,
+          "mission": 3,
+          "turn": 333,
+          "speed": 2,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.30078125,
+          "positions": 3740572124,
+          "light": 2562477877,
+          "water": 389477306,
+          "landscape": {
+            "requested": 25,
+            "bank": "p",
+            "supported": true,
+            "terrain": "landscape-p.bin",
+            "modelAtlas": "atlas-p"
+          },
+          "waves": 2719411104,
+          "file": "m3-speed2-3.png"
+        }
+      ]
+    },
+    {
+      "name": "m3-loaded",
+      "frames": [
+        {
+          "at": 189610,
+          "mission": 3,
+          "turn": 411,
+          "speed": 2,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.60546875,
+          "positions": 3630929136,
+          "light": 2444598437,
+          "water": 389477306,
+          "landscape": {
+            "requested": 25,
+            "bank": "p",
+            "supported": true,
+            "terrain": "landscape-p.bin",
+            "modelAtlas": "atlas-p"
+          },
+          "waves": 2719411104,
+          "file": "m3-loaded-0.png"
+        },
+        {
+          "at": 191496.19999999925,
+          "mission": 3,
+          "turn": 457,
+          "speed": 2,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.78515625,
+          "positions": 2623038468,
+          "light": 3663308965,
+          "water": 389477306,
+          "landscape": {
+            "requested": 25,
+            "bank": "p",
+            "supported": true,
+            "terrain": "landscape-p.bin",
+            "modelAtlas": "atlas-p"
+          },
+          "waves": 2719411104,
+          "file": "m3-loaded-1.png"
+        },
+        {
+          "at": 193515,
+          "mission": 3,
+          "turn": 505,
+          "speed": 2,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.97265625,
+          "positions": 3584321636,
+          "light": 2123242021,
+          "water": 389477306,
+          "landscape": {
+            "requested": 25,
+            "bank": "p",
+            "supported": true,
+            "terrain": "landscape-p.bin",
+            "modelAtlas": "atlas-p"
+          },
+          "waves": 2719411104,
+          "file": "m3-loaded-2.png"
+        },
+        {
+          "at": 195400.39999999944,
+          "mission": 3,
+          "turn": 549,
+          "speed": 2,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.14453125,
+          "positions": 2323462388,
+          "light": 19946053,
+          "water": 389477306,
+          "landscape": {
+            "requested": 25,
+            "bank": "p",
+            "supported": true,
+            "terrain": "landscape-p.bin",
+            "modelAtlas": "atlas-p"
+          },
+          "waves": 2719411104,
+          "file": "m3-loaded-3.png"
+        }
+      ]
+    },
+    {
+      "name": "m3-restarted",
+      "frames": [
+        {
+          "at": 206628.39999999944,
+          "mission": 3,
+          "turn": 68,
+          "speed": 1,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.265625,
+          "positions": 2379282480,
+          "light": 991154117,
+          "water": 389477306,
+          "landscape": {
+            "requested": 25,
+            "bank": "p",
+            "supported": true,
+            "terrain": "landscape-p.bin",
+            "modelAtlas": "atlas-p"
+          },
+          "waves": 2719411104,
+          "file": "m3-restarted-0.png"
+        },
+        {
+          "at": 209027,
+          "mission": 3,
+          "turn": 98,
+          "speed": 1,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.3828125,
+          "positions": 2161336864,
+          "light": 875432421,
+          "water": 389477306,
+          "landscape": {
+            "requested": 25,
+            "bank": "p",
+            "supported": true,
+            "terrain": "landscape-p.bin",
+            "modelAtlas": "atlas-p"
+          },
+          "waves": 2719411104,
+          "file": "m3-restarted-1.png"
+        },
+        {
+          "at": 211079.89999999944,
+          "mission": 3,
+          "turn": 122,
+          "speed": 1,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.4765625,
+          "positions": 1957162768,
+          "light": 2375404005,
+          "water": 389477306,
+          "landscape": {
+            "requested": 25,
+            "bank": "p",
+            "supported": true,
+            "terrain": "landscape-p.bin",
+            "modelAtlas": "atlas-p"
+          },
+          "waves": 2719411104,
+          "file": "m3-restarted-2.png"
+        },
+        {
+          "at": 213658.7999999998,
+          "mission": 3,
+          "turn": 151,
+          "speed": 1,
+          "paused": false,
+          "camera": [
+            30,
+            155,
+            0
+          ],
+          "scroll": 0.58984375,
+          "positions": 1935317416,
+          "light": 2720710629,
+          "water": 389477306,
+          "landscape": {
+            "requested": 25,
+            "bank": "p",
+            "supported": true,
+            "terrain": "landscape-p.bin",
+            "modelAtlas": "atlas-p"
+          },
+          "waves": 2719411104,
+          "file": "m3-restarted-3.png"
+        }
+      ]
+    }
+  ],
+  "limits": "Headless software renderer; source-backed scheduling correction, not original executable raster equivalence or hardware performance."
+}

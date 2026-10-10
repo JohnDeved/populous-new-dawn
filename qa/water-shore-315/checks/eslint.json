@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "dcc4a439-7bc9-450f-bd86-7afaffeb593a",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "5dd28fc808f8a2cd057cc01389d7123831e95c88",
+    "branch": "fix/water-shore-animation-315",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "./node_modules/.bin/eslint",
+    "app/scene-terrain-runtime.ts",
+    "app/scene.ts"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/water-shore-animation-20261010",
+  "startedAt": "2026-10-10T19:11:23.026Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/water-shore-animation-20261010/work/orchestration/water-shore/eslint.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/water-shore-animation-20261010/work/orchestration/water-shore/eslint.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-10T19:11:26.248Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "5dd28fc808f8a2cd057cc01389d7123831e95c88",
+    "branch": "fix/water-shore-animation-315",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

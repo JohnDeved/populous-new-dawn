@@ -1,0 +1,41 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+[33m[PLUGIN_TIMINGS] [0mYour build spent significant time in plugins. Here is a breakdown:
+  - rsc:virtual-client-package (25%)
+  - vinext:og-inline-fetch-assets (24%)
+  - alias (11%)
+  - vinext:css-data-url (11%)
+  - vinext:image-imports (9%)
+See https://rolldown.rs/options/checks#plugintimings for more details.
+
+[33m[PLUGIN_TIMINGS] [0mYour build spent significant time in plugins. Here is a breakdown:
+  - vinext:og-inline-fetch-assets (35%)
+  - vinext:middleware-server-only (17%)
+  - vinext:validate-middleware-exports (11%)
+  - rsc:virtual-client-package (8%)
+  - rsc:load-environment-module (8%)
+See https://rolldown.rs/options/checks#plugintimings for more details.
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+[33m[PLUGIN_TIMINGS] [0mYour build spent significant time in plugins. Here is a breakdown:
+  - vinext:middleware-server-only (27%)
+  - rsc:virtual-client-package (14%)
+  - alias (10%)
+  - vinext:og-inline-fetch-assets (9%)
+  - vinext:css-data-url (8%)
+See https://rolldown.rs/options/checks#plugintimings for more details.
+
+[33m[PLUGIN_TIMINGS] [0mYour build spent significant time in plugins. Here is a breakdown:
+  - vinext:css-data-url (31%)
+  - rsc:virtual-client-package (11%)
+  - vinext:middleware-server-only (9%)
+  - alias (8%)
+  - vinext:og-inline-fetch-assets (7%)
+See https://rolldown.rs/options/checks#plugintimings for more details.
+
