@@ -6,6 +6,7 @@ import { waitForCheckpointReadback } from '../checkpoint-readback.mjs'
 import { checkpointObservation } from './checkpoint-observer.mjs'
 import { createMission1VaultInput } from './mission1-vault-input.mjs'
 import { assertNearbySurface, assertNearbyEvidence } from './follower-nearby-contract.mjs'
+import { captureNearbyDisplay, assertNearbyDisplayCapture } from './nearby-display-capture.mjs'
 
 // One authored M1 opening. Real controls own every action and elapsed visit.
 // Polling exports small status only; each epoch's bounded records leave once.
@@ -88,7 +89,14 @@ export default async function ({ page, openMission, output, receipt, signal, obs
     assertNearbySurface(observed.state, observed.surface)
     return observed.state
   }
-  const screenshot = name => page.screenshot({ path: resolve(output, `${name}.png`), timeout: 5000 })
+  const screenshot = async name => {
+    const path = resolve(output, `${name}.png`)
+    if (!cdp) return page.screenshot({ path, timeout: 5000 })
+    const capture = await captureNearbyDisplay(page, cdp, path)
+    ;(report.displayCaptures ??= []).push({ name, ...capture })
+    save()
+    assertNearbyDisplayCapture(capture)
+  }
   const followers = () => input.action('Followers tab', () => page.getByTitle('followers', { exact: true }).click())
   const clear = async () => {
     for (let attempt = 0; attempt < 2; attempt++) {
