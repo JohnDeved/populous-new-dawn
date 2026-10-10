@@ -1,0 +1,304 @@
+{
+  "scope": "Compact source-only projection of the finite issue248 routing/prelude pass; no runtime or observer changes, no native/browser equivalence claim.",
+  "source_commit": "4754e12d3590bde18656416514871b033de164be",
+  "prior_evidence_commit": "47d922bf0122a2ca7c37643d1968d72f2c74fd4f",
+  "executable": {
+    "name": "d3dpoptb.exe",
+    "bytes": 2275840,
+    "sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "included": false
+  },
+  "tool": {
+    "name": "GNU objdump",
+    "version": "GNU objdump (GNU Binutils for Debian) 2.44",
+    "sha256": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+    "operation": "data-only -d -M intel with bounded start/stop addresses"
+  },
+  "retained_local_packet": {
+    "command_artifacts": 24,
+    "reused_accepted_inputs": 7,
+    "original_findings_sha256": "29caecbbc07b90f6f102778ebbd7528379c16d497bcc04105318d1ea4c10aaea",
+    "revised_findings_sha256": "94d4c38ea671048b1d5e48e6ee3a91e1383b028eced1208d4952bfc089a64de8",
+    "provenance_sha256": "40c8faa8918f3a38e368d05ef7454851124397bb13aabc328a4014aa644b5543",
+    "inventory_sha256": "b8f729261f5765bde23c45b8ed3326356df5960290f684050123d98ab0ae4197",
+    "included": false
+  },
+  "review_correction": "Make 00436d00 queued/order-start branch conditional on current signed cursor, which 0043b540 rereads after uncomposed release calls. Preserve immediate-order branch; no new leaf research.",
+  "source_inputs": [
+    {
+      "path": "decomp/exports.json",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "51e55c295a9956e89be85c98df835f1da141e3e10cb6b16435f55423ff5b26db",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/exports.json"
+    },
+    {
+      "path": "engineering/generated-files.json",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "6d289cebd4ed8060879e122d70c1f8c55fcd0885cf41ae103d002f36594a27eb",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/engineering/generated-files.json"
+    },
+    {
+      "path": "app/computer.ts",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "d35abab3a7adb5e6a6092dcba96921180d33b91b42c1b182bec48b4a7d958f2d",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/app/computer.ts"
+    },
+    {
+      "path": "app/computer-runtime.ts",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "96b148458340f9803c5342c605a0294b615a03d7e06276185bf212bf0ce17ea8",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/app/computer-runtime.ts"
+    },
+    {
+      "path": "app/campaign-command-runtime.ts",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "5badf47c9b0e55d99f307a1a82c3ba311c835ac78edeabc9f6c7796a39314182",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/app/campaign-command-runtime.ts"
+    },
+    {
+      "path": "decomp/research/mission6.md",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "fa63655127fd1ef46837d20730b5d8f50cef2610a70a357737b10bca84f10b70",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/research/mission6.md"
+    },
+    {
+      "path": "decomp/research/follower-task-panel.md",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "2f94011297dd1447f6e0e9abfb9cbc142f057abd8383ba4eff1afce02d598af4",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/research/follower-task-panel.md"
+    },
+    {
+      "path": "decomp/generated/0043b540.c",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "89dec5d9a60489abfe7d05f71f75ee03774bbb7ca20a17a8c97a304fa7eeadc4",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/0043b540.c"
+    },
+    {
+      "path": "decomp/generated/004f2460.c",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "d59c9298778eb7ea45678580e424c18b5ee00293bebef7004503b6f90a25efec",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/004f2460.c"
+    },
+    {
+      "path": "decomp/generated/004f2290.c",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "df19cd6973ca4a2e4e1eedb0957b10e911c9a764b180ec24c283599571b83b50",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/004f2290.c"
+    },
+    {
+      "path": "decomp/generated/00462790.c",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "37b954f8aaf36bc06f45f64e48f3f68f87b3343340ec5aed0fa2f9cb8a6ae58d",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/00462790.c"
+    },
+    {
+      "path": "decomp/generated/00462ca0.c",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "ee0ec380302b73a4a94ca6488f2dee3059fb0d7512d77a82c56d1974878ac986",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/00462ca0.c"
+    },
+    {
+      "path": "decomp/generated/004623e0.c",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "dfdf0577f9073f7ceb5d65ea7037d06ef314bff61d72840276d8b3880768bb4f",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/004623e0.c"
+    },
+    {
+      "path": "decomp/generated/0048cc60.c",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "310e7ad50f3709b1b17c9a7c19cacf68477f146ef0a021d4f8b97174053b17d3",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/0048cc60.c"
+    },
+    {
+      "path": "decomp/generated/00438730.c",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "6a5ce0e68b07b0dab9837b53d8f0cc657495077a2069f0c43ba8bd594651e660",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/00438730.c"
+    },
+    {
+      "path": "decomp/generated/004364d0.c",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "694cf0f4dfbfe3ec7ada8b812b360d227443c43e44910bcd5a0dc0187a852553",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/004364d0.c"
+    },
+    {
+      "path": "decomp/generated/00436d00.c",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "0c5d9dc7ca2e531605137b19aca83933dff51c8d843d0f2f9ab734b421cf2e13",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/00436d00.c"
+    },
+    {
+      "path": "decomp/generated/004e6640.c",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "d36a8928b8a69c77fb7a68eaa0f34b981e5efc7e6932d6a31ecf6db5a54e8608",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/004e6640.c"
+    },
+    {
+      "path": "decomp/generated/004c14c0.c",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "sha256": "4d6389740f08a00ed06a7336d9df2ddd9aaeb5dd39652fb6a39dcfebcf62bc3d",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/4754e12d3590bde18656416514871b033de164be/decomp/generated/004c14c0.c"
+    }
+  ],
+  "excerpts": [
+    {
+      "path": "decoder-routing.asm.txt",
+      "source_artifact": "0048fc50-attack-decoder.asm.txt",
+      "source_sha256": "7338d6c076aac35aed7fc56e85f1a1b8a80759664129bd72e700cebfcd049cfb",
+      "address_ranges_half_open": [
+        [
+          "0048fd04",
+          "0048fd3a"
+        ],
+        [
+          "0048fe10",
+          "0048fe49"
+        ],
+        [
+          "0048fef4",
+          "0048ff57"
+        ]
+      ],
+      "transform": "Select original addressed instruction lines within the half-open intervals; strip trailing whitespace only.",
+      "sha256": "c94db860a39125a848f8f77313cfa4d43da6db9bcdcd9875eb26279272d5db55"
+    },
+    {
+      "path": "allocator-routing.asm.txt",
+      "source_artifact": "004e5fd0-attack-producer.asm.txt",
+      "source_sha256": "aa58de74adcedfef1e0766d660eb1edf4dcda486bb99c8e136bcffff983e6a10",
+      "address_ranges_half_open": [
+        [
+          "004e6192",
+          "004e61d1"
+        ],
+        [
+          "004e6234",
+          "004e62dd"
+        ]
+      ],
+      "transform": "Select original addressed instruction lines within the half-open intervals; strip trailing whitespace only.",
+      "sha256": "447e91bb9ebc2fc23a69ed892bd1e5ea2c402c1ee62828426978fae687879742"
+    },
+    {
+      "path": "caller-prelude.asm.txt",
+      "source_artifact": "004cb400-ordinary-controller.asm.txt",
+      "source_sha256": "e3fe1a309a2bda69e04a2ec964282148ea21bd200b632448cc9f6bc821eb5d1c",
+      "address_ranges_half_open": [
+        [
+          "004cb400",
+          "004cb575"
+        ]
+      ],
+      "transform": "Select original addressed instruction lines within the half-open intervals; strip trailing whitespace only.",
+      "sha256": "65694c99e56482398e1f5ad60d8abae0bf626091fcb079604cffce0a7d7c0b99"
+    },
+    {
+      "path": "alternate-entry.asm.txt",
+      "source_artifact": "004cceb0-alternate-entry.asm.txt",
+      "source_sha256": "9be857baf73ec4b041709e862a9793b2ae0ddcfc9c251c949bce4b0cba7c0039",
+      "address_ranges_half_open": [
+        [
+          "004cceb0",
+          "004ccf0d"
+        ]
+      ],
+      "transform": "Select original addressed instruction lines within the half-open intervals; strip trailing whitespace only.",
+      "sha256": "285e75f37e63f46e266b47f9dc735570e53f08c887986a65ef2d48bd846a6b40"
+    },
+    {
+      "path": "assist-order.asm.txt",
+      "source_artifact": "0043b540-assist-order.asm.txt",
+      "source_sha256": "7b665c262b1f6e41c0a3fa17e927b9ecf384e0b3270bd3196244b2c0ab5df14c",
+      "address_ranges_half_open": [
+        [
+          "0043b540",
+          "0043b668"
+        ]
+      ],
+      "transform": "Select original addressed instruction lines within the half-open intervals; strip trailing whitespace only.",
+      "sha256": "1cb79a586aba43295ed9f5065e26a93234f64c5f3eae90a4d189e6d78ba7f559"
+    }
+  ],
+  "full_disassembly_inputs": [
+    {
+      "artifact": "0048fc50-attack-decoder.asm.txt",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x48fc50",
+        "--stop-address=0x48ff57",
+        "<verified-d3dpoptb.exe>"
+      ],
+      "sha256": "7338d6c076aac35aed7fc56e85f1a1b8a80759664129bd72e700cebfcd049cfb",
+      "exit_code": 0,
+      "included": false
+    },
+    {
+      "artifact": "004e5fd0-attack-producer.asm.txt",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x4e5fd0",
+        "--stop-address=0x4e643d",
+        "<verified-d3dpoptb.exe>"
+      ],
+      "sha256": "aa58de74adcedfef1e0766d660eb1edf4dcda486bb99c8e136bcffff983e6a10",
+      "exit_code": 0,
+      "included": false
+    },
+    {
+      "artifact": "004cb400-ordinary-controller.asm.txt",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x4cb400",
+        "--stop-address=0x4ccac4",
+        "<verified-d3dpoptb.exe>"
+      ],
+      "sha256": "e3fe1a309a2bda69e04a2ec964282148ea21bd200b632448cc9f6bc821eb5d1c",
+      "exit_code": 0,
+      "included": false
+    },
+    {
+      "artifact": "004cceb0-alternate-entry.asm.txt",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x4cceb0",
+        "--stop-address=0x4ccf0d",
+        "<verified-d3dpoptb.exe>"
+      ],
+      "sha256": "9be857baf73ec4b041709e862a9793b2ae0ddcfc9c251c949bce4b0cba7c0039",
+      "exit_code": 0,
+      "included": false
+    },
+    {
+      "artifact": "0043b540-assist-order.asm.txt",
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x43b540",
+        "--stop-address=0x43b668",
+        "<verified-d3dpoptb.exe>"
+      ],
+      "sha256": "7b665c262b1f6e41c0a3fa17e927b9ecf384e0b3270bd3196244b2c0ab5df14c",
+      "exit_code": 0,
+      "included": false
+    }
+  ],
+  "independent_review": {
+    "path": "independent-review.md",
+    "sha256": "e40d74a204cf42559dd17c86f238be5783b3a0e3522f645befd9130cd228536c",
+    "verdict": "ACCEPT revised findings for bounded static contract; publication projection separately reviewed."
+  }
+}
