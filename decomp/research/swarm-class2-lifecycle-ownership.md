@@ -26,6 +26,12 @@ follow-up][startup] binds main `004a457a → 004a4f70` and its sequential
 history, neutral Vault identity and Load remain separate gaps; the reset-return
 order is not promoted to a final pre-authored allocation state.
 
+The [three-callee classification][preauthored] now binds `0042b2a7 → 0042c8f0`,
+`0042b309 → 00430bb0` and `0042b30e → 00448ea0`, including the first call's
+direct helper chain and complete limiter leaf. None changes native unit pools,
+physical IDs or cell membership, or allocates records. This closes those named
+effects only; the complete pre-authored allocation state remains unproved.
+
 This extends the accepted [Swarm controller contract][controller] and
 [integration review][review] at `74b74346f2d67e94aed013fc9e1960e20ef36ceb`;
 those documents are not in this main tree. Their insertion, relocation and
@@ -154,8 +160,10 @@ port ownership mistakes; it must not silently change the native raw-ID predicate
    binds a concrete fresh-level list rebuild and cell clear, conditional on the
    already documented range/index setup. The [startup follow-up][startup] binds
    the actual `004ed820/004ed880` calls on the normally returning startup path.
-   Effects between reset and authored allocation, and complete shared allocation
-   history, remain unbound. Current aliases still omit neutral bodies and
+   The [three-callee follow-up][preauthored] excludes unit-owner effects from
+   `0042c8f0`, `00430bb0` and `00448ea0`, preserving their caller order. The
+   remaining effects between reset and authored allocation, and complete shared
+   allocation history, remain unbound. Current aliases still omit neutral bodies and
    separate lifetimes. No current save can supply history it never recorded.
    Define a supported initialization/continuation boundary before claiming exact
    first-target order.
@@ -174,3 +182,4 @@ follow-up records its additional data-only decoding and independent review.
 [bootstrap]: https://github.com/JohnDeved/populous-new-dawn/blob/00e5a1e5b8780f1ef8b6f4a89e5edf171a2bf228/references/verification/swarm-class2-bootstrap-static-2026-10-10/README.md
 [reset]: https://github.com/JohnDeved/populous-new-dawn/blob/8311fa1508ac6c85f4b8852dac48a54aa5336039/references/verification/swarm-class2-fresh-reset-static-2026-10-10/README.md
 [startup]: https://github.com/JohnDeved/populous-new-dawn/blob/4d733f97b3fe2e880d34b90a02df7f4909c53822/references/verification/swarm-class2-initial-index-callers-2026-10-10/README.md
+[preauthored]: https://github.com/JohnDeved/populous-new-dawn/blob/c59bacf774894b0e35a53a2c15eeee1a2284a49a/references/verification/swarm-class2-preauthored-static-2026-10-10/README.md

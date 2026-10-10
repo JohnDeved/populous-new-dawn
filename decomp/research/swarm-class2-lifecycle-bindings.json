@@ -284,5 +284,11 @@
     "packetPath": "references/verification/swarm-class2-initial-index-callers-2026-10-10",
     "independentStaticReviewSha256": "5744b30fa4bbeca37d005e2b204fe89b635846573815f55bf38e1ea31e516bee",
     "closure": "Actual main 004a457a \u2192 startup 004a4f70; normal local startup path invokes 004ed820 then 004ed880, tribe initialization, and 004ee300. Reset-return qualification, intervening allocation stream, Save restoration and current port identity ownership remain separate."
+  },
+  "preauthoredThreeCalleeFollowup": {
+    "packetCommit": "c59bacf774894b0e35a53a2c15eeee1a2284a49a",
+    "packetPath": "references/verification/swarm-class2-preauthored-static-2026-10-10",
+    "independentStaticReviewSha256": "23ad13c0c723c50903e042b249a14bb6151a21af2ddeebda3193ba6e7dc35cb6",
+    "closure": "Exact caller order and complete 0042c8f0 / 00430bb0 / 00448ea0 effects, including direct helpers and final 0049cfa0 leaf: no unit pool/count, physical-ID, cell-membership or record-allocation effects. Full pre-authored composition, Save and current port identity remain separate."
   }
 }
