@@ -1,0 +1,514 @@
+{
+  "kind": "accepted-grouped-ordinary-save-ownership-source-packet",
+  "assessmentBase": "f9675f56c597ec83adf02f28e9801bfc6bbd0490",
+  "priorResearchHead": "4037f8ba17eafb34b3cebdcbab5105fabbbba332",
+  "inputSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "tool": "/usr/bin/objdump",
+  "toolVersion": "GNU objdump (GNU Binutils for Debian) 2.44",
+  "toolSha256": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+  "cpuAffinity": [
+    4
+  ],
+  "nativeExecution": false,
+  "saveFileOperations": false,
+  "files": {
+    "00426d70-00427220.asm": {
+      "sha256": "d429456d1b2ed06430d9bf6d7a2ffc745763e55e58c420f391c3c1f4ac25d9f7",
+      "bytes": 17079
+    },
+    "00427220-00427730.asm": {
+      "sha256": "c3df25ebb119c817954adf98381ef2de354c629e052cb8c5ec88be2ea4564ae6",
+      "bytes": 18844
+    },
+    "004aab80-004aac80.asm": {
+      "sha256": "6b1b9f1010c6666e12a5a94228824958c29e01e2b23a232780013d571a99ef4c",
+      "bytes": 3609
+    },
+    "004ab6e2-004ab962.asm": {
+      "sha256": "f11da83df18c9fdccda7c78f42453095716757a47c10c4c66c36fd7bab5e26a0",
+      "bytes": 8750
+    },
+    "README.md": {
+      "sha256": "d16586a41d87aefc855a1e23562b21a4a3f56f1810ef93038341e147504d2f86",
+      "bytes": 2917
+    },
+    "dispatch-table.json": {
+      "sha256": "da4bad664ce5da3ff4539d5d7430a948d354338001cf1719a2a04368bee44c33",
+      "bytes": 2482
+    },
+    "dispatch.md": {
+      "sha256": "a72c6f5f930ad0e3f908d53a838b8893904389d7d4c732b8c1473b128974dae0",
+      "bytes": 5983
+    },
+    "orchestrator.md": {
+      "sha256": "320bf4f6de1bf630a12416a8f6f2251a62fb4f8f0267e6971db26b01e7e5b0d5",
+      "bytes": 6426
+    },
+    "state-buffer.md": {
+      "sha256": "43768dd7a3c9c45ea840fa333d1af8684d22b8da40451ff9daf470686c66de72",
+      "bytes": 5600
+    }
+  },
+  "packets": [
+    {
+      "findingsPath": "dispatch.md",
+      "acceptedFindingsSha256": "a72c6f5f930ad0e3f908d53a838b8893904389d7d4c732b8c1473b128974dae0",
+      "acceptedReviewInputsSha256": "9d00512fd2609ebd47c083a99bdac0ae725694b95b35d72ed8ace01b48ddf680",
+      "independentSourceReviewSha256": "fe46c8ba449a4184459d32ee5824da6f654ec5e66596a8519d1a035b85344465",
+      "proposalSha256": "f37b17e109617d5d4d4e889a39c455b90bdf74faf89f115c824b62ae18e81df3",
+      "sourceBindings": [
+        {
+          "path": "decomp/exports.json",
+          "sha256": "51e55c295a9956e89be85c98df835f1da141e3e10cb6b16435f55423ff5b26db",
+          "bytes": 115741,
+          "sourceRevision": "4037f8ba17eafb34b3cebdcbab5105fabbbba332"
+        },
+        {
+          "path": "decomp/generated/004aab80.c",
+          "sha256": "a286e361005571ddcba7405348e2582aa061c3f427d1a8e8fed09a5d1e7890a8",
+          "bytes": 43824,
+          "sourceRevision": "4037f8ba17eafb34b3cebdcbab5105fabbbba332",
+          "verifiedExportManifest": true
+        },
+        {
+          "path": "decomp/generated/004ad9a0.c",
+          "sha256": "319a209e4ccfaeb44c46bd0857c2ae5761aa3946c34318b254f265e63a205c95",
+          "bytes": 2972,
+          "sourceRevision": "4037f8ba17eafb34b3cebdcbab5105fabbbba332",
+          "verifiedExportManifest": true
+        },
+        {
+          "path": "decomp/generated/004ec6f0.c",
+          "sha256": "497df5820bfebb7f79eb9cbaf2b887295f7933431958ab4c992ebb33f39e7923",
+          "bytes": 5529,
+          "sourceRevision": "4037f8ba17eafb34b3cebdcbab5105fabbbba332",
+          "verifiedExportManifest": true
+        },
+        {
+          "path": "references/verification/swarm-class2-retirement-static-2026-10-10/004ec6f0-004ecac0.asm",
+          "sha256": "abdb323a5dd272efcecc52c75ca4d6e0b0e1b145ac7579dae610637249cabb0b",
+          "bytes": 15366,
+          "sourceRevision": "4037f8ba17eafb34b3cebdcbab5105fabbbba332"
+        },
+        {
+          "path": "references/verification/swarm-class2-preauthored-ranges-2026-10-10/view-child.md",
+          "sha256": "9c32ab62176266c57b431738ced096f4d79dd63a43a789d78715c61b852355f3",
+          "bytes": 4259,
+          "sourceRevision": "4037f8ba17eafb34b3cebdcbab5105fabbbba332"
+        },
+        {
+          "path": "references/verification/swarm-class2-bootstrap-static-2026-10-10/README.md",
+          "sha256": "bf4532f6ea019005d9e0dbbaa6ea6825f51dbb16be299694884185b31610b252",
+          "bytes": 11231,
+          "sourceRevision": "4037f8ba17eafb34b3cebdcbab5105fabbbba332"
+        },
+        {
+          "path": "decomp/research/campaign-progression.md",
+          "sha256": "430a90bd482bf5485570ff0614a231c629361bb2bdbf95309a9329bba90470eb",
+          "bytes": 1237,
+          "sourceRevision": "4037f8ba17eafb34b3cebdcbab5105fabbbba332"
+        },
+        {
+          "path": "decomp/research/recorded-demo-provenance.md",
+          "sha256": "0c32d9c15063a7c7fbd95d3698d1cbf18ce307b9b61aef9f95213dbf410313f6",
+          "bytes": 8062,
+          "sourceRevision": "4037f8ba17eafb34b3cebdcbab5105fabbbba332"
+        },
+        {
+          "path": "decomp/research/swarm-class2-lifecycle-ownership.md",
+          "sha256": "e124a1e84847b1e0b572620d4074821edde483275e01f32977f16e61e5a398c1",
+          "bytes": 17514,
+          "sourceRevision": "4037f8ba17eafb34b3cebdcbab5105fabbbba332"
+        },
+        {
+          "path": "app/game-store.ts",
+          "sha256": "300cc63a292b79057bc64457dcfd087b2f7162194e2108d753e899c35861c675",
+          "bytes": 18440,
+          "sourceRevision": "4037f8ba17eafb34b3cebdcbab5105fabbbba332"
+        }
+      ],
+      "decoderReceipts": [
+        {
+          "argv": [
+            "/usr/bin/objdump",
+            "-d",
+            "-M",
+            "intel",
+            "--start-address=0x004aab80",
+            "--stop-address=0x004aac80",
+            "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe"
+          ],
+          "exitCode": 0,
+          "elapsedSeconds": 0.0037212960014585406,
+          "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+          "toolSha256After": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+          "stdoutSha256": "6b1b9f1010c6666e12a5a94228824958c29e01e2b23a232780013d571a99ef4c",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "start": "004aab80",
+          "stopExclusive": "004aac80",
+          "meaning": "bounded dispatcher entry slice; no complete body claim"
+        },
+        {
+          "argv": [
+            "/usr/bin/objdump",
+            "-d",
+            "-M",
+            "intel",
+            "--start-address=0x004ab6e2",
+            "--stop-address=0x004ab962",
+            "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe"
+          ],
+          "exitCode": 0,
+          "elapsedSeconds": 0.004332796001108363,
+          "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+          "toolSha256After": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+          "stdoutSha256": "f11da83df18c9fdccda7c78f42453095716757a47c10c4c66c36fd7bab5e26a0",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "start": "004ab6e2",
+          "stopExclusive": "004ab962",
+          "meaning": "selected command contiguous block; 640-byte cap, no complete dispatcher body claim"
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "004aab80-004aac80.asm",
+          "sha256": "6b1b9f1010c6666e12a5a94228824958c29e01e2b23a232780013d571a99ef4c",
+          "bytes": 3609
+        },
+        {
+          "path": "004aab80-004aac80.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "004ab6e2-004ab962.asm",
+          "sha256": "f11da83df18c9fdccda7c78f42453095716757a47c10c4c66c36fd7bab5e26a0",
+          "bytes": 8750
+        },
+        {
+          "path": "004ab6e2-004ab962.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "body-availability.json",
+          "sha256": "aa98b44ba9f82a25f51714f160314c29da40135ba8049fcf9d26ae474c02b992",
+          "bytes": 998
+        },
+        {
+          "path": "decode-prefix.json",
+          "sha256": "bbbf59a3ddae22b29742ebb3e8e48a1bf8d8beb87fb5024ce190cd54f5eb8846",
+          "bytes": 770
+        },
+        {
+          "path": "decode-selected.json",
+          "sha256": "3ab156702ed97afa112f4261264263f90ecd258baea510d9a5e279863eb7802d",
+          "bytes": 797
+        },
+        {
+          "path": "dispatch-table.json",
+          "sha256": "da4bad664ce5da3ff4539d5d7430a948d354338001cf1719a2a04368bee44c33",
+          "bytes": 2482
+        },
+        {
+          "path": "findings.md",
+          "sha256": "a72c6f5f930ad0e3f908d53a838b8893904389d7d4c732b8c1473b128974dae0",
+          "bytes": 5983
+        },
+        {
+          "path": "preflight.json",
+          "sha256": "1f91383148b8b368a7e1e97df65477e87c3aff9f66b7c03d1d7fd5e5479a9173",
+          "bytes": 417
+        },
+        {
+          "path": "prior-label-correction.md",
+          "sha256": "be4dc526e447eaae144e9d78b12b7ff17e66abeb24aca1e4a3b6a9f522ef7bac",
+          "bytes": 965
+        },
+        {
+          "path": "proposal.json",
+          "sha256": "f37b17e109617d5d4d4e889a39c455b90bdf74faf89f115c824b62ae18e81df3",
+          "bytes": 2520
+        }
+      ]
+    },
+    {
+      "findingsPath": "orchestrator.md",
+      "acceptedFindingsSha256": "320bf4f6de1bf630a12416a8f6f2251a62fb4f8f0267e6971db26b01e7e5b0d5",
+      "acceptedReviewInputsSha256": "c3636178002241ca71b2b17734c3c997ecabfd14de8b3db96f3a048fc56198e5",
+      "independentSourceReviewSha256": "b481885c8592fe88d65053f22a2fa179eb2257d8e13acb04a59ab2beb5e4ec14",
+      "proposalSha256": "8b9b3e9ecd3daf5785b367774fad09962f8ed37a6869cbc53383e2b50fbdffa0",
+      "sourceBindings": [
+        {
+          "path": "decomp/exports.json",
+          "sha256": "51e55c295a9956e89be85c98df835f1da141e3e10cb6b16435f55423ff5b26db",
+          "bytes": 115741,
+          "sourceRevision": "4037f8ba17eafb34b3cebdcbab5105fabbbba332"
+        },
+        {
+          "path": "decomp/generated/004860c0.c",
+          "sha256": "cbf09af1961d2bb3d1592473f5d65445428147e4019902ea1b81f3dcfe901fc5",
+          "bytes": 1630,
+          "sourceRevision": "4037f8ba17eafb34b3cebdcbab5105fabbbba332",
+          "verifiedExportManifest": true
+        },
+        {
+          "path": "decomp/generated/004a3200.c",
+          "sha256": "551479e010ef5ae481384a3b8b2d7e14ac72147089b8bd19d576585c648d9431",
+          "bytes": 1257,
+          "sourceRevision": "4037f8ba17eafb34b3cebdcbab5105fabbbba332",
+          "verifiedExportManifest": true
+        },
+        {
+          "path": "decomp/generated/005001b0.c",
+          "sha256": "55c51c19acf20bb463fda3319f86f04480352baccfb2e45edd7342a5faf2925a",
+          "bytes": 2500,
+          "sourceRevision": "4037f8ba17eafb34b3cebdcbab5105fabbbba332",
+          "verifiedExportManifest": true
+        },
+        {
+          "path": "decomp/research/campaign-progression.md",
+          "sha256": "430a90bd482bf5485570ff0614a231c629361bb2bdbf95309a9329bba90470eb",
+          "bytes": 1237,
+          "sourceRevision": "4037f8ba17eafb34b3cebdcbab5105fabbbba332"
+        },
+        {
+          "path": "decomp/research/mission18-sky.md",
+          "sha256": "e79b0eaffe9d8c730a15684cf713679bf90f7142dc23a20409c23a13aadc43b0",
+          "bytes": 11145,
+          "sourceRevision": "4037f8ba17eafb34b3cebdcbab5105fabbbba332"
+        },
+        {
+          "path": "references/verification/swarm-class2-fresh-reset-static-2026-10-10/README.md",
+          "sha256": "55b2f1cd63eeb342648e86265c075e7c228124b00576ab40659d3c09b9e00ce7",
+          "bytes": 8153,
+          "sourceRevision": "4037f8ba17eafb34b3cebdcbab5105fabbbba332"
+        },
+        {
+          "path": "decomp/research/swarm-class2-lifecycle-ownership.md",
+          "sha256": "e124a1e84847b1e0b572620d4074821edde483275e01f32977f16e61e5a398c1",
+          "bytes": 17514,
+          "sourceRevision": "4037f8ba17eafb34b3cebdcbab5105fabbbba332"
+        }
+      ],
+      "decoderReceipts": [
+        {
+          "argv": [
+            "/usr/bin/objdump",
+            "-d",
+            "-M",
+            "intel",
+            "--start-address=0x00427220",
+            "--stop-address=0x00427730",
+            "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe"
+          ],
+          "exitCode": 0,
+          "elapsedSeconds": 0.0046724470012122765,
+          "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+          "toolSha256After": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+          "stdoutSha256": "c3df25ebb119c817954adf98381ef2de354c629e052cb8c5ec88be2ea4564ae6",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "start": "00427220",
+          "stopExclusive": "00427730",
+          "meaning": "capped ordinary Save target body; actual flow determines completeness; no child decoding"
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "00427220-00427730.asm",
+          "sha256": "c3df25ebb119c817954adf98381ef2de354c629e052cb8c5ec88be2ea4564ae6",
+          "bytes": 18844
+        },
+        {
+          "path": "00427220-00427730.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "callee-availability.json",
+          "sha256": "0cbdea2f5a1352ab9335cb2d9695bd4a7b04b3b2661aa0a24a1c22bd3b35cf4d",
+          "bytes": 3014
+        },
+        {
+          "path": "decode-writer.json",
+          "sha256": "2153a4fdc126965558ee263241436b5542ecb8a144742208cfc7169a22955e4f",
+          "bytes": 804
+        },
+        {
+          "path": "findings-v2.md",
+          "sha256": "320bf4f6de1bf630a12416a8f6f2251a62fb4f8f0267e6971db26b01e7e5b0d5",
+          "bytes": 6426
+        },
+        {
+          "path": "findings.md",
+          "sha256": "84fa7c378792e21c540293316313fa42dbe7ca1eb9ce687ed25005d481217946",
+          "bytes": 6332
+        },
+        {
+          "path": "preflight.json",
+          "sha256": "1f91383148b8b368a7e1e97df65477e87c3aff9f66b7c03d1d7fd5e5479a9173",
+          "bytes": 417
+        },
+        {
+          "path": "proposal.json",
+          "sha256": "8b9b3e9ecd3daf5785b367774fad09962f8ed37a6869cbc53383e2b50fbdffa0",
+          "bytes": 1877
+        },
+        {
+          "path": "review-inputs.json",
+          "sha256": "ac5e6cace684209b7ab696df5df95cf14559c52da2bd3138f8d276e77a1aff51",
+          "bytes": 4350
+        }
+      ],
+      "priorWordingCorrection": {
+        "reviewInputsSha256": "ac5e6cace684209b7ab696df5df95cf14559c52da2bd3138f8d276e77a1aff51",
+        "reason": "Narrow address exclusion to direct memory ranges; do not exclude derived or encoded identity in header bytes."
+      }
+    },
+    {
+      "findingsPath": "state-buffer.md",
+      "acceptedFindingsSha256": "43768dd7a3c9c45ea840fa333d1af8684d22b8da40451ff9daf470686c66de72",
+      "acceptedReviewInputsSha256": "d783c78be0f363aff3aafe95d764695fea6111592a305bbf39bb418a54fce510",
+      "independentSourceReviewSha256": "16e251f13892385e3154c951e0bb71d44f782f4453ee855a2bec0aaad01f3f60",
+      "proposalSha256": "90fe474e42e134863954182e2d9b4f97182987a639992f280c4642f45cb55ad9",
+      "sourceBindings": [
+        {
+          "path": "decomp/exports.json",
+          "sha256": "51e55c295a9956e89be85c98df835f1da141e3e10cb6b16435f55423ff5b26db",
+          "bytes": 115741,
+          "sourceRevision": "4037f8ba17eafb34b3cebdcbab5105fabbbba332"
+        },
+        {
+          "path": "decomp/generated/0048b3e0.c",
+          "sha256": "2673bf28b393d6fcd5da5b6d50e025d2470babe296983fc4a87ec0ea864d940e",
+          "bytes": 470,
+          "sourceRevision": "4037f8ba17eafb34b3cebdcbab5105fabbbba332",
+          "verifiedExportManifest": true
+        },
+        {
+          "path": "decomp/generated/004ed820.c",
+          "sha256": "2ad39ba7c56959eab017534655d27df09ea7023f2992035d5dd403d74c167c1d",
+          "bytes": 631,
+          "sourceRevision": "4037f8ba17eafb34b3cebdcbab5105fabbbba332",
+          "verifiedExportManifest": true
+        },
+        {
+          "path": "decomp/generated/004ed880.c",
+          "sha256": "f9eff68f56844047a9a33529ad92c277c7ac75b16e9dcd3203efc4cfc5167b84",
+          "bytes": 409,
+          "sourceRevision": "4037f8ba17eafb34b3cebdcbab5105fabbbba332",
+          "verifiedExportManifest": true
+        },
+        {
+          "path": "decomp/generated/004ee300.c",
+          "sha256": "530622e00689118a11eac9031402d9b6409ef242c69ac3fdbb0d20e28f1cd726",
+          "bytes": 2994,
+          "sourceRevision": "4037f8ba17eafb34b3cebdcbab5105fabbbba332",
+          "verifiedExportManifest": true
+        },
+        {
+          "path": "decomp/research/recorded-demo-provenance.md",
+          "sha256": "0c32d9c15063a7c7fbd95d3698d1cbf18ce307b9b61aef9f95213dbf410313f6",
+          "bytes": 8062,
+          "sourceRevision": "4037f8ba17eafb34b3cebdcbab5105fabbbba332"
+        },
+        {
+          "path": "references/verification/swarm-class2-fresh-reset-static-2026-10-10/README.md",
+          "sha256": "55b2f1cd63eeb342648e86265c075e7c228124b00576ab40659d3c09b9e00ce7",
+          "bytes": 8153,
+          "sourceRevision": "4037f8ba17eafb34b3cebdcbab5105fabbbba332"
+        },
+        {
+          "path": "references/verification/swarm-class2-retirement-static-2026-10-10/README.md",
+          "sha256": "b3498bafaf1bddfc4f078e5a3c2deaa826e6a3354007f0efcb2e7f5415735d2c",
+          "bytes": 6523,
+          "sourceRevision": "4037f8ba17eafb34b3cebdcbab5105fabbbba332"
+        },
+        {
+          "path": "decomp/research/swarm-class2-lifecycle-ownership.md",
+          "sha256": "e124a1e84847b1e0b572620d4074821edde483275e01f32977f16e61e5a398c1",
+          "bytes": 17514,
+          "sourceRevision": "4037f8ba17eafb34b3cebdcbab5105fabbbba332"
+        }
+      ],
+      "decoderReceipts": [
+        {
+          "argv": [
+            "/usr/bin/objdump",
+            "-d",
+            "-M",
+            "intel",
+            "--start-address=0x00426d70",
+            "--stop-address=0x00427220",
+            "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe"
+          ],
+          "exitCode": 0,
+          "elapsedSeconds": 0.004397623997647315,
+          "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+          "toolSha256After": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+          "stdoutSha256": "d429456d1b2ed06430d9bf6d7a2ffc745763e55e58c420f391c3c1f4ac25d9f7",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "start": "00426d70",
+          "stopExclusive": "00427220",
+          "meaning": "capped ordinary Save prerequisite; actual flow determines completeness; no child decoding"
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "00426d70-00427220.asm",
+          "sha256": "d429456d1b2ed06430d9bf6d7a2ffc745763e55e58c420f391c3c1f4ac25d9f7",
+          "bytes": 17079
+        },
+        {
+          "path": "00426d70-00427220.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "callee-availability.json",
+          "sha256": "5d526fa5b2cda59417e5133dfe7e54d2aec9d2fe8b60ce327e858c02d5f0515a",
+          "bytes": 1326
+        },
+        {
+          "path": "decode-state-child.json",
+          "sha256": "84780422ff8e2a4375648edc7243694b7a337170bc01ba3d0fbe5f0e1d88a45f",
+          "bytes": 804
+        },
+        {
+          "path": "findings.md",
+          "sha256": "43768dd7a3c9c45ea840fa333d1af8684d22b8da40451ff9daf470686c66de72",
+          "bytes": 5600
+        },
+        {
+          "path": "preflight.json",
+          "sha256": "1f91383148b8b368a7e1e97df65477e87c3aff9f66b7c03d1d7fd5e5479a9173",
+          "bytes": 417
+        },
+        {
+          "path": "proposal.json",
+          "sha256": "90fe474e42e134863954182e2d9b4f97182987a639992f280c4642f45cb55ad9",
+          "bytes": 1634
+        },
+        {
+          "path": "retained-availability.json",
+          "sha256": "5fde914b1d93fd8d2fcd8f7f0def702b53a5fe9fe8a318f185dd208e4d62d35a",
+          "bytes": 326
+        }
+      ]
+    }
+  ],
+  "priorSchedulerLabelCorrection": "004ec9fa to 004f0bd0 remains proved; selected callee body and ordinary Save relationship remain unknown. Prior retained-body wording is explicitly corrected without editing historical packets.",
+  "remainingIdentityPreparation": [
+    "0048b450",
+    "004434e0",
+    "00431970"
+  ],
+  "uninspectedOutput": "00526130",
+  "actualUserLoadTargetUninspected": "00427730",
+  "limits": [
+    "Direct range membership does not establish unchanged field values or output encoding",
+    "Out-of-range globals can have copied/encoded counterparts or reader reconstruction",
+    "Incidental neighbor bytes are not actual Load-route proof",
+    "No full original save codec, modern identity implementation or Swarm runtime parity claim"
+  ]
+}

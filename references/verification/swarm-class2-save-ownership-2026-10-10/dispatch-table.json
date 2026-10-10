@@ -1,0 +1,127 @@
+{
+  "imageBase": 4194304,
+  "sections": [
+    {
+      "name": ".text",
+      "va": 4198400,
+      "rawOffset": 1024,
+      "rawSize": 1592320,
+      "virtualSize": 1591844
+    },
+    {
+      "name": "CSEG",
+      "va": 5791744,
+      "rawOffset": 1593344,
+      "rawSize": 34816,
+      "virtualSize": 34664
+    },
+    {
+      "name": ".rdata",
+      "va": 5828608,
+      "rawOffset": 1628160,
+      "rawSize": 34304,
+      "virtualSize": 34168
+    },
+    {
+      "name": ".data",
+      "va": 5865472,
+      "rawOffset": 1662464,
+      "rawSize": 361984,
+      "virtualSize": 7813552
+    },
+    {
+      "name": ".idata",
+      "va": 13680640,
+      "rawOffset": 2024448,
+      "rawSize": 8192,
+      "virtualSize": 7892
+    },
+    {
+      "name": "CSEG",
+      "va": 13688832,
+      "rawOffset": 2032640,
+      "rawSize": 53760,
+      "virtualSize": 53284
+    },
+    {
+      "name": "DSEG",
+      "va": 13746176,
+      "rawOffset": 2086400,
+      "rawSize": 4608,
+      "virtualSize": 4136
+    },
+    {
+      "name": "IDCT_DAT",
+      "va": 13754368,
+      "rawOffset": 2091008,
+      "rawSize": 6144,
+      "virtualSize": 5720
+    },
+    {
+      "name": "UVA_DATA",
+      "va": 13762560,
+      "rawOffset": 2097152,
+      "rawSize": 19456,
+      "virtualSize": 19148
+    },
+    {
+      "name": ".rsrc",
+      "va": 13783040,
+      "rawOffset": 2116608,
+      "rawSize": 12288,
+      "virtualSize": 12228
+    },
+    {
+      "name": ".reloc",
+      "va": 13795328,
+      "rawOffset": 2128896,
+      "rawSize": 146944,
+      "virtualSize": 146710
+    }
+  ],
+  "command": 156,
+  "selector": 143,
+  "remap": 67,
+  "entry": "004ab6e2",
+  "reads": [
+    {
+      "address": "004ad7cf",
+      "size": 1,
+      "section": ".text",
+      "fileOffset": 707535,
+      "bytes": "43",
+      "value": 67
+    },
+    {
+      "address": "004ad6d0",
+      "size": 4,
+      "section": ".text",
+      "fileOffset": 707280,
+      "bytes": "e2b64a00",
+      "value": 4896482
+    }
+  ],
+  "inputSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "submodeReads": [
+    {
+      "submode": 2,
+      "index": 1,
+      "address": "004ad808",
+      "size": 4,
+      "section": ".text",
+      "fileOffset": 707592,
+      "bytes": "6db74a00",
+      "target": "004ab76d"
+    },
+    {
+      "submode": 3,
+      "index": 2,
+      "address": "004ad80c",
+      "size": 4,
+      "section": ".text",
+      "fileOffset": 707596,
+      "bytes": "07b84a00",
+      "target": "004ab807"
+    }
+  ]
+}
