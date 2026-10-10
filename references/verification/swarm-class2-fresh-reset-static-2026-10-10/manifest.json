@@ -1,0 +1,240 @@
+{
+  "kind": "accepted-fresh-level-reset-static-source-packet",
+  "assessmentBase": "f9675f56c597ec83adf02f28e9801bfc6bbd0490",
+  "priorResearchHead": "4fc7f904243e06901314215eebce8284cd929f4e",
+  "inputSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "inputBytes": 2275840,
+  "tool": "/usr/bin/objdump",
+  "toolSha256": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+  "toolVersion": "GNU objdump (GNU Binutils for Debian) 2.44",
+  "cpuAffinity": [
+    4
+  ],
+  "nativeExecution": false,
+  "acceptedFindingsSha256": "99792eec4d7e6721ba11bf44975e776375609924fa8f84aa5c4d9f03242633e6",
+  "acceptedReviewInputsSha256": "c63762189b0fd693408fc1f3259c553608ab23603323e5d7efdf1d721635ffb2",
+  "independentSourceReviewSha256": "bb55d3f92296db343f46a75f9ec5d8a6de6376169eb3c4b8714fbd38dd90cc33",
+  "files": {
+    "0042b230-0042b286.asm": {
+      "bytes": 1322,
+      "sha256": "21536edc31c062b6e07229ac1bddfd04b2c617ffe46605c9bac1e196ccbbb65a"
+    },
+    "00448c80-00448ca0.asm": {
+      "bytes": 1058,
+      "sha256": "0b9f1291a3c849abd474bd411690ec46fb9c3f259c16bdb779f4800148f370e3"
+    },
+    "004eef50-004eefd0.asm": {
+      "bytes": 2073,
+      "sha256": "6c5a6e2b4e0544925fc790d3d18f60cd2e95b4d71e37a762be6fb0957d8e89a0"
+    },
+    "004ee300-004ee470.asm": {
+      "bytes": 6117,
+      "sha256": "49a21a731250d38fbb4122d8e4ee0f55b17aff6caeecddcc9479e189b3378776"
+    }
+  },
+  "sourceBindings": [
+    {
+      "path": "decomp/generated/0042b230.c",
+      "sha256": "241109ebdd842f8a448a43b58d5423b719ee7fe84a51d35e2612ac7b0b5517f2",
+      "bytes": 4196,
+      "verifiedExportManifest": true
+    },
+    {
+      "path": "decomp/generated/0042b590.c",
+      "sha256": "59a5348b941df24d5a4cd14b3d19dd2667bf6b1249fc802783a8e16bc1e2ca2f",
+      "bytes": 1507,
+      "verifiedExportManifest": true
+    },
+    {
+      "path": "decomp/generated/004ed820.c",
+      "sha256": "2ad39ba7c56959eab017534655d27df09ea7023f2992035d5dd403d74c167c1d",
+      "bytes": 631,
+      "verifiedExportManifest": true
+    },
+    {
+      "path": "decomp/generated/004ed880.c",
+      "sha256": "f9eff68f56844047a9a33529ad92c277c7ac75b16e9dcd3203efc4cfc5167b84",
+      "bytes": 409,
+      "verifiedExportManifest": true
+    },
+    {
+      "path": "decomp/generated/004ed8a0.c",
+      "sha256": "0a3e6654f1c046935bf0a75e32d8691f641fa13fad6c82dc06f3783ba520e5c9",
+      "bytes": 4171,
+      "verifiedExportManifest": true
+    },
+    {
+      "path": "decomp/generated/004ee300.c",
+      "sha256": "530622e00689118a11eac9031402d9b6409ef242c69ac3fdbb0d20e28f1cd726",
+      "bytes": 2994,
+      "verifiedExportManifest": true
+    },
+    {
+      "path": "decomp/exports.json",
+      "sha256": "51e55c295a9956e89be85c98df835f1da141e3e10cb6b16435f55423ff5b26db",
+      "bytes": 115741,
+      "unchangedFromAssessmentBase": true
+    },
+    {
+      "path": "decomp/research/hut-smoke-secondary-owner.md",
+      "sha256": "776586e7f11d1ea1894e369f947005ccb1924b36a5cfd777f1e03fc0c43d1dc4",
+      "bytes": 8480,
+      "unchangedFromAssessmentBase": true
+    },
+    {
+      "path": "app/world-state.ts",
+      "sha256": "880c00574e29d9f9e2cffd59d79ff337dcfe07d023d45b95481c09ff9e056ff6",
+      "bytes": 12421,
+      "unchangedFromAssessmentBase": true
+    },
+    {
+      "path": "app/world-initialization.ts",
+      "sha256": "0b2accb95c180d87e71bad8788f9c28f3f49ab8af66d5189fd26af69ab717fe2",
+      "bytes": 19595,
+      "unchangedFromAssessmentBase": true
+    },
+    {
+      "path": "app/construction-runtime.ts",
+      "sha256": "2ea49ae789ae747732c3bc327d58735f501b52dfcff84c17eef83ca4386c0653",
+      "bytes": 16414,
+      "unchangedFromAssessmentBase": true
+    },
+    {
+      "path": "app/game-store.ts",
+      "sha256": "300cc63a292b79057bc64457dcfd087b2f7162194e2108d753e899c35861c675",
+      "bytes": 18440,
+      "unchangedFromAssessmentBase": true
+    }
+  ],
+  "calls": [
+    {
+      "site": "0042b258",
+      "target": "004eef50"
+    },
+    {
+      "site": "004eefc9",
+      "target": "004ee300"
+    },
+    {
+      "site": "0042b281",
+      "target": "00448c80"
+    }
+  ],
+  "boundaries": {
+    "caller": "0042b230..0042b286 exclusive, selected slice only",
+    "otherArrayClear": "00448c80..00448c91 exclusive; return 00448c90",
+    "unitReset": "004eef50..004eefd0 exclusive; return 004eefcf",
+    "listBuilder": "004ee300..004ee466 exclusive; return 004ee465"
+  },
+  "commands": [
+    {
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x0042b230",
+        "--stop-address=0x0042b2c0",
+        "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "startedAt": "2026-10-10T02:32:28.087552+00:00",
+      "finishedAt": "2026-10-10T02:32:28.090951+00:00",
+      "exitCode": 0,
+      "stdout": "0042b230-0042b2c0.asm",
+      "stdoutSha256": "221b6f7680234f982427ef4cfb6469c4d01910ecfa81c6c0143930871b5c3255",
+      "stderr": "0042b230-0042b2c0.stderr",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "toolSha256After": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+      "limit": "Caller entry slice; arbitrary range stop is not claimed as function end."
+    },
+    {
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x0042b230",
+        "--stop-address=0x0042b286",
+        "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "startedAt": "2026-10-10T02:33:06.960179+00:00",
+      "finishedAt": "2026-10-10T02:33:06.964543+00:00",
+      "exitCode": 0,
+      "stdout": "0042b230-0042b286.asm",
+      "stdoutSha256": "21536edc31c062b6e07229ac1bddfd04b2c617ffe46605c9bac1e196ccbbb65a",
+      "stderr": "0042b230-0042b286.stderr",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x00448c80",
+        "--stop-address=0x00448ca0",
+        "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "startedAt": "2026-10-10T02:33:06.964560+00:00",
+      "finishedAt": "2026-10-10T02:33:06.968499+00:00",
+      "exitCode": 0,
+      "stdout": "00448c80-00448ca0.asm",
+      "stdoutSha256": "0b9f1291a3c849abd474bd411690ec46fb9c3f259c16bdb779f4800148f370e3",
+      "stderr": "00448c80-00448ca0.stderr",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x004eef50",
+        "--stop-address=0x004eefd0",
+        "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "startedAt": "2026-10-10T02:33:32.660546+00:00",
+      "finishedAt": "2026-10-10T02:33:32.665494+00:00",
+      "exitCode": 0,
+      "stdout": "004eef50-004eefd0.asm",
+      "stdoutSha256": "6c5a6e2b4e0544925fc790d3d18f60cd2e95b4d71e37a762be6fb0957d8e89a0",
+      "stderr": "004eef50-004eefd0.stderr",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "toolSha256After": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f"
+    },
+    {
+      "command": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x004ee300",
+        "--stop-address=0x004ee470",
+        "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "startedAt": "2026-10-10T02:34:21.766519+00:00",
+      "finishedAt": "2026-10-10T02:34:21.769724+00:00",
+      "exitCode": 0,
+      "stdout": "004ee300-004ee470.asm",
+      "stdoutSha256": "49a21a731250d38fbb4122d8e4ee0f55b17aff6caeecddcc9479e189b3378776",
+      "stderr": "004ee300-004ee470.stderr",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "toolSha256After": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f"
+    }
+  ],
+  "rawReceiptSha256": {
+    "decode-caller.json": "7d9d1ec48ca52ff57540fae013cadeb54496dfec1188ec656c6e5e33e59f3de0",
+    "decode-selected-target.json": "339d1da8a71b80f4d479b366045df7e89e5afcd1b3f7744e8a181d55247af6e5",
+    "decode-unit-reset.json": "8fc5e5a4b0e3e7271a863f31414ea16e0c0dd39f81e2b05d711bbd81dee7bda7",
+    "decode-list-rebuild.json": "cfbe42f42d37b9a794bbed8dafd4747013d268e8dbac9b4cc77d2b5d8853fc4a"
+  },
+  "limits": [
+    "Only reset-return state plus following caller terrain clear",
+    "Known layout/index producers are preconditions; actual earlier native invocation unbound",
+    "Intervening initialization until 00484a10 not composed",
+    "No runtime/native execution, mission identity prediction or Save restoration claim"
+  ]
+}
