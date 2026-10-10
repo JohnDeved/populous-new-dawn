@@ -41,13 +41,22 @@ native Save/Load state ownership are still separate from the proved reset.
 The [ordinary Save ownership follow-up][save] now binds command `0x9c` mode 3
 through `00427220` and `00426d70` to a request for `[0089d178,0096eadc)`.
 Unit-record and terrain/cell addresses are included; global pool/count/range/
-lookup addresses lie outside the direct span. Preparation `004434e0(1/0)` and
-`00431970`, the output leaf, and the actual Load target `00427730` remain
-uninspected. Range inclusion does not prove unchanged ID encoding, and excluded
+lookup addresses lie outside the direct span. Transitive preparation effects,
+the output leaf, and the actual Load target `00427730` remain uninspected.
+Range inclusion does not prove unchanged ID encoding, and excluded
 addresses may have encoded counterparts or be rebuilt. The follow-up also
 corrects the earlier `004f0bd0` retained-body wording while preserving its valid
 scheduler call edge. A modern checkpoint contract can preserve proved state
 without promising the original binary-save format.
+
+The [preparation/restoration follow-up][preparation] closes `00431970` as a
+call-free 32-slot auxiliary copy into `[0096a1bf,0096a4bf)`, with no direct
+unit/cell-owner writes. The complete `004434e0` wrapper binds missing
+`00462d70`, conditional `0041b5c0`, and unconditional `00494930`; their effects
+remain unknown. These native representation residuals are not automatic
+prerequisites for a modern semantic checkpoint. The separate live class-2
+owner, omitted old identity history and supported initialization/order boundary
+remain the necessary port responsibilities.
 
 This extends the accepted [Swarm controller contract][controller] and
 [integration review][review] at `74b74346f2d67e94aed013fc9e1960e20ef36ceb`;
@@ -202,3 +211,4 @@ follow-up records its additional data-only decoding and independent review.
 [preauthored]: https://github.com/JohnDeved/populous-new-dawn/blob/c59bacf774894b0e35a53a2c15eeee1a2284a49a/references/verification/swarm-class2-preauthored-static-2026-10-10/README.md
 [ranges]: https://github.com/JohnDeved/populous-new-dawn/blob/2c693d12f4fd9efb08f5cd172ce22ffa6cf92a4b/references/verification/swarm-class2-preauthored-ranges-2026-10-10/README.md
 [save]: https://github.com/JohnDeved/populous-new-dawn/blob/ef04928ae0923e8a658eb4c8549af4c8b89d634d/references/verification/swarm-class2-save-ownership-2026-10-10/README.md
+[preparation]: https://github.com/JohnDeved/populous-new-dawn/blob/a21054da4b342325bf82e02545db3a56849e7f91/references/verification/swarm-class2-save-preparation-2026-10-10/README.md

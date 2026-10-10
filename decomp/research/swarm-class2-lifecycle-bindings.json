@@ -5,7 +5,7 @@
   "currentTree": "babd82b3787182ef91e09ae27baedb70a6fa753a",
   "priorAcceptedPacket": "74b74346f2d67e94aed013fc9e1960e20ef36ceb",
   "priorInterpretationMain": "d6cf109474379172728a3ccebf46ef72a15f3a58",
-  "contractSha256": "37f1d280cc2d70513f1a58a7ef1ab7237bd59c4375f5e27c1292df5f33c2762f",
+  "contractSha256": "ce83bd1b1926615407d6e9afa849909684f8e013028a82475ad91224418d2234",
   "retainedExportProvenance": {
     "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
     "ghidraVersion": "12.1.3",
@@ -305,5 +305,13 @@
     "independentOrchestratorReviewSha256": "b481885c8592fe88d65053f22a2fa179eb2257d8e13acb04a59ab2beb5e4ec14",
     "independentStateBufferReviewSha256": "16e251f13892385e3154c951e0bb71d44f782f4453ee855a2bec0aaad01f3f60",
     "closure": "Actual ordinary Save dispatcher/orchestrator/state-buffer request, including unit-record and terrain/cell addresses. Preparation/output/actual Load remain uninspected; copied or encoded owners are not excluded. No original codec compatibility, modern identity implementation or runtime parity claim."
+  },
+  "savePreparationFollowup": {
+    "packetCommit": "a21054da4b342325bf82e02545db3a56849e7f91",
+    "packetPath": "references/verification/swarm-class2-save-preparation-2026-10-10",
+    "independentDirectSourceReviewSha256": "cf9b43f0f8d91a1af1bbe06e991aad240584f86679f711e6a1aadb1736654fb9",
+    "sourceFindingsSha256": "fe9cbd6314eb81d82926a73a6ccdb89eb73bf14efe10f8a9f1ae3b6a0a03f777",
+    "necessityClarifiedFindingsSha256": "99008ceed89cd93f1d734864ca0b67160fd0ba99ab7d41a28d8839c8f74f06e2",
+    "closure": "Complete 00431970 auxiliary copy and 004434e0 wrapper only. Missing child representation effects remain named residuals, not automatic modern semantic checkpoint prerequisites. Live class2 ownership/history and supported initialization/order remain open."
   }
 }
