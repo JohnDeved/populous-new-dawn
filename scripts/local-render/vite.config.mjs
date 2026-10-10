@@ -8,7 +8,7 @@ if (!root) throw Error('POPULOUS_GAME_ROOT is required')
 const hosting = JSON.parse(readFileSync(resolve(root, '.openai/hosting.json'), 'utf8'))
 export default {
   root,
-  cacheDir: resolve(root, 'work/local-render-vite-cache-nearby-4395-02/node_modules/.vite'),
+  cacheDir: resolve(root, 'work/local-render-vite-cache-nearby-4395/node_modules/.vite'),
   server: { watch: { ignored: ['**/work/**'] } },
   plugins: [vinext(), cloudflare({
     inspectorPort: false,
