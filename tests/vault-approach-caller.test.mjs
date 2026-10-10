@@ -4,7 +4,7 @@ import { command, createWorld, select, tick } from '../app/model.ts'
 import { buildingFootprintCells, buildingOutsidePoint, buildingSocketPoint } from '../app/building-shapes.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { terrainPointHeight } from '../app/native-terrain.ts'
-import { vaultPrayerPoint, vaultShapePose } from '../app/vault-geometry.ts'
+import { vaultShapePose } from '../app/vault-geometry.ts'
 import { vaultKnowledgePlacement } from '../app/vault-appearance.ts'
 import levelOne from '../app/level-one.ts'
 import levelThree from '../app/level-three.ts'
@@ -360,8 +360,8 @@ test('non-Vault scenery retains its own panelHeight in the actual panel consumer
 test('Vault frames and quarter turns preserve distinct prayer and reward sockets', () => {
   for (const model of [152, 153, 154, 155]) {
     for (const angle of [0, Math.PI / 2, Math.PI, Math.PI * 1.5]) {
-      const vault = { x: -37, z: -133, model, angle }, pose = vaultShapePose(vault)
-      assert.deepEqual(vaultPrayerPoint(vault), { x: 58112, y: 32000, heightOffset: 480 })
+      const pose = vaultShapePose({ x: -37, z: -133, model, angle })
+      assert.deepEqual(buildingSocketPoint(pose, 0), { x: 58112, y: 32000, heightOffset: 480 })
       assert.deepEqual(buildingSocketPoint(pose, 1), { x: 58112, y: 32000, heightOffset: 1072 })
     }
   }
