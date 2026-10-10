@@ -1,4 +1,4 @@
-import { tribeForTeam, type Point, type Unit, type World } from './world-types.ts'
+import { TRIBE_TEAMS, tribeForTeam, type Point, type Unit, type World } from './world-types.ts'
 import {
   createLivePerson,
   registerLivePerson,
@@ -192,7 +192,7 @@ export function computerSelectionWorld(w: World, tribe: number, rawNative = fals
       const shaman = w.units.find(u => u.hp > 0 && isShaman(u) && u.team === campaignTeam(w, id)),
         known = id === tribe && knownHistory,
         p = known
-          ? nativePosition(w, campaignPosition(w, campaignTeam(w, id)))
+          ? nativePosition(w, campaignPosition(w, TRIBE_TEAMS[id]))
           : shaman && nativePosition(w, shaman)
       const selected = {
         hasBase: id === tribe && !!(w.ai.flags & 0x100),
