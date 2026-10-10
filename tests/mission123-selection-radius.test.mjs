@@ -147,6 +147,10 @@ test('actual object turn rebuild admits incomplete class 2, excludes plans and u
   tick(w, 1 / 12)
   assert.ok(w.buildings.includes(b) && b.progress < 1)
   assert.ok(
+    Array.isArray(w.ai.constructionBuildings),
+    'the real object turn must capture membership'
+  )
+  assert.ok(
     w.ai.constructionBuildings.includes(b),
     'incomplete allocated building joins the snapshot'
   )
@@ -192,6 +196,7 @@ test('an actual Hut upgrade precedes the completed-object membership capture', (
   tick(w, 1 / 12)
   assert.equal(b.level, 2, 'the real upgrade must occur before claiming its membership')
   assert.deepEqual({ x: b.x, z: b.z }, browserPosition(buildingPosition(buildingPose(b))))
+  assert.ok(Array.isArray(w.ai.constructionBuildings), 'the upgrade turn must capture membership')
   assert.ok(w.ai.constructionBuildings.includes(b))
   assert.equal(
     w.ai.constructionBuildings.find(member => member.id === b.id),
