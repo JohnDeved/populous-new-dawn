@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "c91d55a4-7e4f-4f6f-ac15-4be4554fd633",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "8b8ad6e840fb26cc3e51fecf7763bc68173be58b",
+    "branch": "qa/issue60-nearby-mission1-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/nearby-dpr-capture-probe.mjs": "cdfc638049a978aea4e86c7d50786b785ed1eec9ac0ae06af27f823fc94e50dd",
+      "scripts/local-render/harness.mjs": "70b8d5ef6f9d7092e60eea4427cf11aaa5f9a8ae950bfebea5aba250fc4194df",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "node_modules/playwright-core/lib/coreBundle.js": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+      "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/work/orchestration/recovery-20261009b/browser/chrome-headless-shell-linux64/chrome-headless-shell": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706"
+    }
+  },
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=5s",
+    "30s",
+    "node",
+    "work/orchestration/nearby-dpr-capture-probe.mjs",
+    "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/work/orchestration/recovery-20261009b/browser/chrome-headless-shell-linux64/chrome-headless-shell"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010",
+  "startedAt": "2026-10-10T06:31:40.978Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-dpr-capture-01.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-dpr-capture-01.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-10T06:31:41.825Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "{\"status\":\"failed\",\"requests\":[],\"errors\":[],\"browser\":\"154.0.8037.92\",\"playwright\":{\"before\":{\"width\":1280,\"height\":720,\"dpr\":2},\"pixels\":[1280,720],\"after\":{\"width\":1280,\"height\":720,\"dpr\":1}},\"sameSession\":{\"before\":{\"width\":1280,\"height\":720,\"dpr\":1},\"pixels\":[2560,1440],\"after\":{\"width\":1280,\"height\":720,\"dpr\":2}},\"failure\":\"AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\\n+ actual - expected\\n\\n  {\\n+   dpr: 1,\\n-   dpr: 2,\\n    height: 720,\\n    width: 1280\\n  }\\n\\n    at file:///workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-dpr-capture-probe.mjs:31:10\",\"closed\":true}\n",
+  "stderr": "",
+  "stdoutSha256": "c7e7f32134528b05e04b294f2448556167de2ec04f98b28f29cd5718356fe408",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "8b8ad6e840fb26cc3e51fecf7763bc68173be58b",
+    "branch": "qa/issue60-nearby-mission1-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/nearby-dpr-capture-probe.mjs": "cdfc638049a978aea4e86c7d50786b785ed1eec9ac0ae06af27f823fc94e50dd",
+      "scripts/local-render/harness.mjs": "70b8d5ef6f9d7092e60eea4427cf11aaa5f9a8ae950bfebea5aba250fc4194df",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "node_modules/playwright-core/lib/coreBundle.js": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+      "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/work/orchestration/recovery-20261009b/browser/chrome-headless-shell-linux64/chrome-headless-shell": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706"
+    }
+  }
+}

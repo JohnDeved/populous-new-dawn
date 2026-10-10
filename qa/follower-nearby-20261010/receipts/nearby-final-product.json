@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "0b6b098a-a3c3-47a1-9b4b-f1ec34e1d23f",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+    "branch": "feature/issue60-nearby-followers-20261010",
+    "trackedDiffSha256": "4f0937ac08de23522a77c380d72813c3c5b51a00b964181d339f89a8ca54757e",
+    "inputs": {
+      "app/follower-nearby.ts": "5dde90cd34c57c60c6d91ae44b67acf528ae6725e606c6a2e656e0dd396606c0",
+      "scripts/import-follower-nearby.py": "a9efc6a2e107cd09ba8380e29e220071e83d56a1ce9a5ea4c28e7aa29e764d22",
+      "scripts/import-spell-hud-icons.py": "b58cd57fb44b1b35f3ba096dc793ea955064f7f338edf4f573308bd312257439",
+      "scripts/import-original.py": "02127ee637d42c033119a16045c26b01adaa7d8c2833a82c3bedd03d247039e0",
+      "tests/follower-nearby-page.test.mjs": "8992c378a9b266618c331018aad240b99b46d91580b5a6b19801bb4a523cdf11",
+      "tests/follower-nearby-scene.test.mjs": "5a1f48ab765a4713994fc185d56e68ca38dc4e8c14953c39132afe21898701c7",
+      "tests/follower-nearby-art.test.mjs": "8290f0ce7c3595abea24201ccabba1e43684e677ca45029af67e86fb2ab4aa7e",
+      "tests/follower-nearby.test.mjs": "121ec3534287dfb5e2ed670913f52e5157dc25cdcee445c877f5c9bcc75e233b",
+      "tests/support/follower-nearby-page.mjs": "896f0008823e646977c1c55f1343feb20e08c803fd9f5d8a62a9bf133892984e"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/follower-nearby.test.mjs",
+    "tests/follower-nearby-page.test.mjs",
+    "tests/follower-nearby-scene.test.mjs",
+    "tests/follower-nearby-art.test.mjs",
+    "tests/follower-class-controls.test.mjs",
+    "tests/follower-task-runtime.test.mjs",
+    "tests/follower-tasks.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010",
+  "startedAt": "2026-10-10T05:50:23.235Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-checks-20261010/nearby-final-product.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-checks-20261010/nearby-final-product.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-10T05:50:34.190Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ persistent follower controls retain native descriptor order and class HFX ownership (1.484022ms)\n✔ live own class totals enable controls independently of training knowledge or occupancy (91.86905ms)\n✔ reading the follower strip does not mutate simulation or selection state (153.852773ms)\n✔ nearby displayed zero keeps a globally present class enabled and in its original position (0.43858ms)\n✔ nearby appender preserves all old pixels/metadata, is idempotent, and rejects unsafe inputs (820.923298ms)\n✔ actual HFX875 Page activation requests follower mode instead of opening overview (96.467575ms)\n✔ all four native follower mode frames are available without placeholder artwork (0.283467ms)\n✔ actual persistent Total uses nearby display counts and the alternate number font (11.787279ms)\n✔ actual Page press cancellation, wrong release and secondary input never request mode (122.665556ms)\n✔ Ctrl-primary and Shift-primary release exactly once; keyboard completes without held repeats (104.949021ms)\n✔ Page ready/modal/load/owner gates reject arming and recheck ownership at release (99.583872ms)\n✔ four actual Page states read only committed mode and the separately held press (46.262367ms)\n✔ actual Page readiness effect owns Scene HUD admission and cancels only its own press (38.056437ms)\n✔ actual Page Escape, window blur, visibility and unmount listeners clear held input (36.003448ms)\n✔ actual Page release reaches Scene first-wins dispatch before simulation, even while paused (5151.294032ms)\n✔ a second valid held press survives earlier commitment and releases against the new mode (104.590612ms)\n✔ actual elapsed dispatch continues at speed zero and across an ordinary speed change (80.501483ms)\n✔ blocked, modal and hidden visits cancel pending and armed input without deferred actions (76.652634ms)\n✔ actual store replacement and same-World rebinding reject stale callbacks before disposal (190.599998ms)\n✔ actual Save clones committed mode without flushing; ordinary menu cancels synchronously (124.865094ms)\n✔ actual Scene disposal cancels pending input and the elapsed phase (42.425808ms)\n✔ first pending desired value wins, cues are per release, and other flag bits survive (1.502539ms)\n✔ first frame only anchors; equality is eligible and just-after arrival waits (0.228954ms)\n✔ catch-up cannot consume an opportunity before arrival or replay crossed visits (0.21956ms)\n✔ elapsed schedules agree and invalid/equal/backward visits cannot move phase (0.350968ms)\n✔ cancel, reset and a different World cannot inherit transient desired state (0.187712ms)\n✔ shipped G task classification follows deferred native adoption without mutating HUD reads (182.557109ms)\n✔ specific legacy work overrides dormant idle while real native disruption remains authoritative (104.020207ms)\n✔ construction, pre-entry, actual entry and native idle routes use their own categories (43.648944ms)\n✔ task selection preserves orders and RNG during a real movement command and propagates occupied groups (44.689349ms)\n✔ live task count reads nearby camera coordinates without creating or registering people (34.273304ms)\n✔ real boarding through a route owner overrides a dormant native person for Selected task propagation (42.974619ms)\n✔ task classifier preserves every recovered native state and command category (0.931321ms)\n✔ inside classification follows building category and the Preacher command exception (1.980999ms)\n✔ global existence and nearby task counts are independent; selected overlays preserve native addition (0.991622ms)\n✔ display totals share active/ghost and raw-radius count boundaries without summing overlapping rows (0.358069ms)\n✔ task selection ignores persistent-strip assignment priority and uses category nearest (0.434644ms)\n✔ Selected row click/Shift deselect, Ctrl reselects nearest without changing its work or the group (0.3389ms)\n✔ Total single/five can select the Shaman while Shift excludes it (0.360703ms)\n✔ task focus filters category and cycles with the Shaman nearby exemption without mutation (0.253131ms)\nℹ tests 40\nℹ suites 0\nℹ pass 40\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 10888.122779\n",
+  "stderr": "",
+  "stdoutSha256": "75247aa30e6fa01a14583bbaad083d5bd99ca8974c54743001b56a60952fa89e",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+    "branch": "feature/issue60-nearby-followers-20261010",
+    "trackedDiffSha256": "4f0937ac08de23522a77c380d72813c3c5b51a00b964181d339f89a8ca54757e",
+    "inputs": {
+      "app/follower-nearby.ts": "5dde90cd34c57c60c6d91ae44b67acf528ae6725e606c6a2e656e0dd396606c0",
+      "scripts/import-follower-nearby.py": "a9efc6a2e107cd09ba8380e29e220071e83d56a1ce9a5ea4c28e7aa29e764d22",
+      "scripts/import-spell-hud-icons.py": "b58cd57fb44b1b35f3ba096dc793ea955064f7f338edf4f573308bd312257439",
+      "scripts/import-original.py": "02127ee637d42c033119a16045c26b01adaa7d8c2833a82c3bedd03d247039e0",
+      "tests/follower-nearby-page.test.mjs": "8992c378a9b266618c331018aad240b99b46d91580b5a6b19801bb4a523cdf11",
+      "tests/follower-nearby-scene.test.mjs": "5a1f48ab765a4713994fc185d56e68ca38dc4e8c14953c39132afe21898701c7",
+      "tests/follower-nearby-art.test.mjs": "8290f0ce7c3595abea24201ccabba1e43684e677ca45029af67e86fb2ab4aa7e",
+      "tests/follower-nearby.test.mjs": "121ec3534287dfb5e2ed670913f52e5157dc25cdcee445c877f5c9bcc75e233b",
+      "tests/support/follower-nearby-page.mjs": "896f0008823e646977c1c55f1343feb20e08c803fd9f5d8a62a9bf133892984e"
+    }
+  }
+}

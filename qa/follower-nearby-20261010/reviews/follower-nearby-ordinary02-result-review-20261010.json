@@ -1,0 +1,423 @@
+{
+  "verdict": "ACCEPT ordinary behavior and cleanup; required compact DPR2 visual coverage INCOMPLETE",
+  "rawTerminalStatus": "passed",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010",
+    "commit": "8b8ad6e840fb26cc3e51fecf7763bc68173be58b",
+    "tree": "2efa6d9453e9e7f02738ae03d6c446cf2e3e5290",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "8835a23eaa031ba48a72f3c752b4450fa85fbdd3a022d43100f53153ed2ed95c"
+  },
+  "product": "01fa014624be98eaac74a4f9a9268e8b32966973",
+  "manifestSha256": "111c75a9a3580567d6b5a9488a92fe6a71993b674ce3f9cde8ea2937e852784f",
+  "innerStartedAt": "2026-10-10T06:25:12.176Z",
+  "innerFinishedAt": "2026-10-10T06:26:48.851Z",
+  "outerStartedAt": "2026-10-10T06:25:11.813Z",
+  "outerFinishedAt": "2026-10-10T06:26:51.530Z",
+  "verified": [
+    "Exact admitted command, all source/input/raw log hashes and stable before/after source/runtime",
+    "Maintained pure receipt consumers independently validate all16 surfaces and both complete sealed epochs from retained data; no game/test rerun",
+    "Six trusted mode requests and same-phase commits, only bit128 changes, zero observer/scenario errors, immediate validated terminal detachment",
+    "Seven trusted selection/focus calls: four empty nearby-away actions; global Idle selects14; actual right-focus recipient(11,33) preserves14; Ctrl-Brave selects13..17",
+    "Global178 Total/Braves8/Idle6/Housed2; nearby-home7/6/1; nearby-away0 with globally enabled Brave; same-camera global8/6/2",
+    "All four original toggle frames and both font modes observed; all16 natural PNGs independently visually inspected",
+    "Public trusted Save178 complete typed committed digest equals captured save; loaded publication equals expected production-migrated digest; initial Load178 nearby then actual resume207",
+    "Both checkpoint observers and first-RAF hook closed/restored, profile cleanup and continuation true; lease/browser markers absent and profile marker binds final receipt"
+  ],
+  "checkpoint": {
+    "saved": {
+      "version": 1,
+      "level": 1,
+      "turn": 178,
+      "time": 14.833333333333334,
+      "checkpointSha256": "0bf40ac842cf730bf0ebe73987f5faf24e5d349cd6bdce5c3c489e1e2b207fe7",
+      "actorsSha256": "93b23e2f47857a7d3a87895ca71783059928841dad6bd124153b43b7e481b68c",
+      "terrainSha256": "5abb688e9200d582bcc87c627f117f885747d40089cb4a2ea2657bb07f18d109",
+      "stockSha256": "4369697845b0f3503debcf150b76b0fab1f596e34e60d2635217defd191f9af0"
+    },
+    "loaded": {
+      "version": 1,
+      "level": 1,
+      "turn": 178,
+      "time": 14.833333333333334,
+      "checkpointSha256": "443bf3194778550730cb3a594c863feaeb804170afdeb3e7138bb520263436bc",
+      "actorsSha256": "93b23e2f47857a7d3a87895ca71783059928841dad6bd124153b43b7e481b68c",
+      "terrainSha256": "5abb688e9200d582bcc87c627f117f885747d40089cb4a2ea2657bb07f18d109",
+      "stockSha256": "4369697845b0f3503debcf150b76b0fab1f596e34e60d2635217defd191f9af0"
+    },
+    "profileId": "d60f3d0b-c95d-40ab-8686-9283e919c1e7",
+    "runId": "1b9c11fc-1dae-450a-be58-29b72dd0ffc2"
+  },
+  "epochs": [
+    {
+      "requests": 3,
+      "commits": 3,
+      "selections": 7,
+      "records": 13,
+      "recordBytes": 89109,
+      "sealed": {
+        "phases": [
+          "global-held",
+          "global-away",
+          "nearby-before-save"
+        ],
+        "nearby": true
+      },
+      "terminalTurn": 178
+    },
+    {
+      "requests": 3,
+      "commits": 3,
+      "selections": 0,
+      "records": 6,
+      "recordBytes": 34608,
+      "sealed": {
+        "phases": [
+          "loaded-global",
+          "compact-nearby",
+          "compact-keyboard-global"
+        ],
+        "nearby": false
+      },
+      "terminalTurn": 207
+    }
+  ],
+  "stages": [
+    {
+      "label": "global-home",
+      "turn": 178,
+      "nearby": false,
+      "viewport": [
+        1440,
+        1000
+      ],
+      "observedDprBeforeScreenshot": 1,
+      "pngPixels": [
+        1440,
+        1000
+      ]
+    },
+    {
+      "label": "global-pressed",
+      "turn": 178,
+      "nearby": false,
+      "viewport": [
+        1440,
+        1000
+      ],
+      "observedDprBeforeScreenshot": 1,
+      "pngPixels": [
+        1440,
+        1000
+      ]
+    },
+    {
+      "label": "nearby-home",
+      "turn": 178,
+      "nearby": true,
+      "viewport": [
+        1440,
+        1000
+      ],
+      "observedDprBeforeScreenshot": 1,
+      "pngPixels": [
+        1440,
+        1000
+      ]
+    },
+    {
+      "label": "nearby-away",
+      "turn": 178,
+      "nearby": true,
+      "viewport": [
+        1440,
+        1000
+      ],
+      "observedDprBeforeScreenshot": 1,
+      "pngPixels": [
+        1440,
+        1000
+      ]
+    },
+    {
+      "label": "global-away",
+      "turn": 178,
+      "nearby": false,
+      "viewport": [
+        1440,
+        1000
+      ],
+      "observedDprBeforeScreenshot": 1,
+      "pngPixels": [
+        1440,
+        1000
+      ]
+    },
+    {
+      "label": "global-away-selected",
+      "turn": 178,
+      "nearby": false,
+      "viewport": [
+        1440,
+        1000
+      ],
+      "observedDprBeforeScreenshot": 1,
+      "pngPixels": [
+        1440,
+        1000
+      ]
+    },
+    {
+      "label": "global-focused",
+      "turn": 178,
+      "nearby": false,
+      "viewport": [
+        1440,
+        1000
+      ],
+      "observedDprBeforeScreenshot": 1,
+      "pngPixels": [
+        1440,
+        1000
+      ]
+    },
+    {
+      "label": "global-selected",
+      "turn": 178,
+      "nearby": false,
+      "viewport": [
+        1440,
+        1000
+      ],
+      "observedDprBeforeScreenshot": 1,
+      "pngPixels": [
+        1440,
+        1000
+      ]
+    },
+    {
+      "label": "nearby-before-save",
+      "turn": 178,
+      "nearby": true,
+      "viewport": [
+        1440,
+        1000
+      ],
+      "observedDprBeforeScreenshot": 1,
+      "pngPixels": [
+        1440,
+        1000
+      ]
+    },
+    {
+      "label": "nearby-pressed",
+      "turn": 178,
+      "nearby": true,
+      "viewport": [
+        1440,
+        1000
+      ],
+      "observedDprBeforeScreenshot": 1,
+      "pngPixels": [
+        1440,
+        1000
+      ]
+    },
+    {
+      "label": "nearby-canceled",
+      "turn": 178,
+      "nearby": true,
+      "viewport": [
+        1440,
+        1000
+      ],
+      "observedDprBeforeScreenshot": 1,
+      "pngPixels": [
+        1440,
+        1000
+      ]
+    },
+    {
+      "label": "loaded-nearby",
+      "turn": 207,
+      "nearby": true,
+      "viewport": [
+        1440,
+        1000
+      ],
+      "observedDprBeforeScreenshot": 1,
+      "pngPixels": [
+        1440,
+        1000
+      ]
+    },
+    {
+      "label": "loaded-global",
+      "turn": 207,
+      "nearby": false,
+      "viewport": [
+        1440,
+        1000
+      ],
+      "observedDprBeforeScreenshot": 1,
+      "pngPixels": [
+        1440,
+        1000
+      ]
+    },
+    {
+      "label": "compact-global",
+      "turn": 207,
+      "nearby": false,
+      "viewport": [
+        1280,
+        720
+      ],
+      "observedDprBeforeScreenshot": 2,
+      "pngPixels": [
+        1280,
+        720
+      ]
+    },
+    {
+      "label": "compact-nearby",
+      "turn": 207,
+      "nearby": true,
+      "viewport": [
+        1280,
+        720
+      ],
+      "observedDprBeforeScreenshot": 1,
+      "pngPixels": [
+        1280,
+        720
+      ]
+    },
+    {
+      "label": "compact-keyboard-global",
+      "turn": 207,
+      "nearby": false,
+      "viewport": [
+        1280,
+        720
+      ],
+      "observedDprBeforeScreenshot": 1,
+      "pngPixels": [
+        1280,
+        720
+      ]
+    }
+  ],
+  "visualGap": "compact-global snapshot reports DPR2 before screenshot, but its PNG is1280x720; subsequent compact-nearby and keyboard-global snapshots reportDPR1 with1280x720 PNGs. Required all-state compact DPR2 capture is not established. Preserve rawPASS and obtain a bounded capture supplement.",
+  "warnings": [
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0x293c0019d000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x293c0019d000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x293c0019d000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x293c0019d000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)",
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content."
+  ],
+  "limits": [
+    "No original raster/hardware performance/native cadence or full follower-panel parity claim",
+    "Loaded world frames contain dark distant silhouettes; HUD/count/input observations remain readable; no unrelated renderer qualification",
+    "Prior failed01 remains failed and CSSOM probe attribution remains separate"
+  ],
+  "evidence": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02/receipt.json",
+      "sha256": "bf5ac5d1a1cb0a0bc1ea7719edf8ec7f92bf856770e96541815f750f24ee3a96"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02/mission1-nearby-followers.json",
+      "sha256": "39eb7db2d0ee3d21d9f72b7ab7a0c81cd03a3ed7ebc5b8a5ce00ba3d9a31dd22"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02/server.log",
+      "sha256": "a389d38fa201acf74a23d3a74d50b104b0eb3bb8bd2c094aca7cef2c4fdb31a2"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02-command.json",
+      "sha256": "6c3b82504481fc0402ebc0540612b563bdd34a1e9b9c31cf690d81f1c07af731"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02-guards.json",
+      "sha256": "5f1560f577173ac7fbfd0887e4e2642ed860320ac1b878ca95579ea829826504"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02/compact-global.png",
+      "sha256": "5681c632e55134c2378b83b0ead85afae123fbaec48b8cd8d65a84c7b98e4b0f"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02/compact-keyboard-global.png",
+      "sha256": "49b025c679617ee2832cdf9cf97f77c012c0907ab8878c457de29fefa1b0fb84"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02/compact-nearby.png",
+      "sha256": "f9d5ca0f395c75ccb6da78ede0993c36aaecdbf1ac732de5ef2b971fe517170f"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02/global-away-selected.png",
+      "sha256": "072bbe94541d468299250bd3be68e1c52a8d40b087d4a0fe2a93993f473050ef"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02/global-away.png",
+      "sha256": "f5ff49891ad9194e91e0031bf4bb16b5e779f6250a27c8b040c2d12cf4462c99"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02/global-focused.png",
+      "sha256": "9d2009889ea4c767a6014f65a7fafbd33e29c1c1803dc1c4735ec3988aee3db3"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02/global-home.png",
+      "sha256": "de0401db27fa6165f9f1a255292f59c2c6b0d627ae4c495925546c2f3f77ee11"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02/global-pressed.png",
+      "sha256": "975e73cfe971f2441d16b42dcaf6ff3787286a570ddf284b4c847db76a823be8"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02/global-selected.png",
+      "sha256": "d4119879098b051f4f1806c00ecb0f748895ff2888ddac4ba6756184affdece0"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02/loaded-global.png",
+      "sha256": "fca694594078b53968ba556fe608a6e9644d0e986e47824c8b686aec7bba9166"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02/loaded-nearby.png",
+      "sha256": "ba6ff9cfb47e722d1bb63ea369033ad6d1b2675ef782bbc318d2be93811d92d4"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02/nearby-away.png",
+      "sha256": "ffa62444cb56352c14d55bb6c8b2e932608610e940e50f73e88a0585691ce594"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02/nearby-before-save.png",
+      "sha256": "11065b2e556d0b6bb62361f85c53ccc7c7bdce16308a42cf350d37455c3c3a7c"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02/nearby-canceled.png",
+      "sha256": "4a69c3947d57ddcb427079b0567cbd4df29f21ba75466966e0ccb73b66329d0c"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02/nearby-home.png",
+      "sha256": "e065f33c4b9cf47922570c9ad5143e8bee292d35b32933afb4655694ce708b55"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02/nearby-pressed.png",
+      "sha256": "01f8354315742403bb6ce8959f63cb24404ba355722afaa6307f2d8beaa72261"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02-command.json.artifacts/stdout.log",
+      "sha256": "a98634bf237f4ac206fd6cb8c6e68d5be36cc4cef21663ba90e6141a9fbe1605"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02-command.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

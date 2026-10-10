@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "3c398d8b-a9b5-4c2c-bc2f-0f594f28a64a",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "8b8ad6e840fb26cc3e51fecf7763bc68173be58b",
+    "branch": "qa/issue60-nearby-mission1-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/nearby-dpr-capture-probe-02.mjs": "9d8ca4ae885c91cf9c4372763acefd76a81bf72f7f4fd0e2d540770cc8fbe690",
+      "scripts/local-render/harness.mjs": "70b8d5ef6f9d7092e60eea4427cf11aaa5f9a8ae950bfebea5aba250fc4194df",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "node_modules/playwright-core/lib/coreBundle.js": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+      "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/work/orchestration/recovery-20261009b/browser/chrome-headless-shell-linux64/chrome-headless-shell": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706"
+    }
+  },
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=5s",
+    "30s",
+    "node",
+    "work/orchestration/nearby-dpr-capture-probe-02.mjs",
+    "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/work/orchestration/recovery-20261009b/browser/chrome-headless-shell-linux64/chrome-headless-shell"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010",
+  "startedAt": "2026-10-10T06:34:24.220Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-dpr-capture-02.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-dpr-capture-02.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-10T06:34:29.957Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "{\"status\":\"failed\",\"requests\":[],\"errors\":[],\"browser\":\"154.0.8037.92\",\"playwright\":{\"before\":{\"width\":1280,\"height\":720,\"dpr\":2},\"pixels\":[1280,720],\"after\":{\"width\":1280,\"height\":720,\"dpr\":1}},\"failure\":\"page.waitForFunction: Timeout 5000ms exceeded.\\n    at set (/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-dpr-capture-probe-02.mjs:23:16)\\n    at async file:///workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-dpr-capture-probe-02.mjs:30:3\",\"closed\":true}\n",
+  "stderr": "",
+  "stdoutSha256": "15994a5aabdfff8deb194df5c26c47a762a12b94622fedba2caed1d307947d4e",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "8b8ad6e840fb26cc3e51fecf7763bc68173be58b",
+    "branch": "qa/issue60-nearby-mission1-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/nearby-dpr-capture-probe-02.mjs": "9d8ca4ae885c91cf9c4372763acefd76a81bf72f7f4fd0e2d540770cc8fbe690",
+      "scripts/local-render/harness.mjs": "70b8d5ef6f9d7092e60eea4427cf11aaa5f9a8ae950bfebea5aba250fc4194df",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "node_modules/playwright-core/lib/coreBundle.js": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+      "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/work/orchestration/recovery-20261009b/browser/chrome-headless-shell-linux64/chrome-headless-shell": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706"
+    }
+  }
+}

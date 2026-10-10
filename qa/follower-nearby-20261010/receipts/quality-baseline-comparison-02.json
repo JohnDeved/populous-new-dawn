@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "4f7d8048-d2b5-4c48-a97b-925da251d87c",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "01fa014624be98eaac74a4f9a9268e8b32966973",
+    "branch": "feature/issue60-nearby-followers-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/nearby-checks-20261010/compare-quality.mjs": "75e3414b2e68c3070cd3913974c74da67bf9d615f72470902e0e9353dcd7b3b1",
+      "eslint.config.mjs": "9578a25ed5bb7d9d6cd35f99459aa4b7987c9e32612ef1e020fa58826dc35543",
+      ".oxlintrc.json": "caa0057ea1cbbc87402c3942667be83c2298b3a167957cea7153d0d72444ccff"
+    }
+  },
+  "command": [
+    "node",
+    "work/orchestration/nearby-checks-20261010/compare-quality.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010",
+  "startedAt": "2026-10-10T05:54:52.230Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-checks-20261010/quality-baseline-comparison-02.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-checks-20261010/quality-baseline-comparison-02.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-10T05:54:59.566Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\n  \"base\": \"721c3b08950fee0e19e4117bc7c516fe73d773c8\",\n  \"head\": \"01fa014624be98eaac74a4f9a9268e8b32966973\",\n  \"files\": [\n    \"app/follower-nearby.ts\",\n    \"app/page.tsx\",\n    \"app/scene.ts\",\n    \"app/hud-population.ts\",\n    \"app/hud-tasks.ts\",\n    \"app/audio.ts\",\n    \"app/follower-tasks-view.tsx\"\n  ],\n  \"normalization\": \"Compare per-file rule/severity/message multisets; retain full raw diagnostics and their original line/column positions separately. ESLint embedded source excerpts are omitted only from comparison, never raw output.\",\n  \"eslint\": {\n    \"baselineStatus\": \"failed\",\n    \"candidateStatus\": \"failed\",\n    \"baselineCount\": 4,\n    \"candidateCount\": 4,\n    \"baseline\": [\n      \"app/audio.ts|prefer-const|2|'voice' is never reassigned. Use 'const' instead.\",\n      \"app/page.tsx|@next/next/no-img-element|1|Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element\",\n      \"app/page.tsx|@next/next/no-img-element|1|Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element\",\n      \"app/page.tsx|react-hooks/set-state-in-effect|2|Error: Calling setState synchronously within an effect can trigger cascading renders\"\n    ],\n    \"candidate\": [\n      \"app/audio.ts|prefer-const|2|'voice' is never reassigned. Use 'const' instead.\",\n      \"app/page.tsx|@next/next/no-img-element|1|Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element\",\n      \"app/page.tsx|@next/next/no-img-element|1|Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element\",\n      \"app/page.tsx|react-hooks/set-state-in-effect|2|Error: Calling setState synchronously within an effect can trigger cascading renders\"\n    ],\n    \"added\": [],\n    \"removed\": []\n  },\n  \"oxlint\": {\n    \"baselineExit\": 1,\n    \"candidateExit\": 1,\n    \"baselineCount\": 58,\n    \"candidateCount\": 58,\n    \"added\": [],\n    \"removed\": []\n  }\n}\n",
+  "stderr": "",
+  "stdoutSha256": "14ca056cfe24f1b965feb236965e90639ca97732679ed24395f6071b12434c4e",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "01fa014624be98eaac74a4f9a9268e8b32966973",
+    "branch": "feature/issue60-nearby-followers-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/nearby-checks-20261010/compare-quality.mjs": "75e3414b2e68c3070cd3913974c74da67bf9d615f72470902e0e9353dcd7b3b1",
+      "eslint.config.mjs": "9578a25ed5bb7d9d6cd35f99459aa4b7987c9e32612ef1e020fa58826dc35543",
+      ".oxlintrc.json": "caa0057ea1cbbc87402c3942667be83c2298b3a167957cea7153d0d72444ccff"
+    }
+  }
+}

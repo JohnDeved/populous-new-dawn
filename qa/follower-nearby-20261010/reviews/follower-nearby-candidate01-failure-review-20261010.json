@@ -1,0 +1,100 @@
+{
+  "verdict": "ACCEPT retained failure and cleanup; ordinary feature qualification FAILED",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010",
+    "commit": "cfaff7b5e727f73ee367004d8a72de4f9b69b621",
+    "tree": "d9c1a43ad33bb4886bdbe9e12b0cc770a576dccb",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "ea6154f39c7349256c89b866909c53a130a5f6fca8bbca021329a05f7c9cc4d8"
+  },
+  "product": "01fa014624be98eaac74a4f9a9268e8b32966973",
+  "manifestSha256": "b9e47e0eb80ed3630a73656c41f8d6d43b2d1a076cd8677eff868a18810625be",
+  "failure": "AssertionError [ERR_ASSERTION]: global-pressed DOM commit: {\"matched\":false,\"turn\":176,\"nearby\":false}\n    at wait (file:///workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/scripts/local-render/mission1-nearby-followers.mjs:28:14)\n    at async inspect (file:///workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/scripts/local-render/mission1-nearby-followers.mjs:61:7)\n    at async default (file:///workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/scripts/local-render/mission1-nearby-followers.mjs:141:5)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/scripts/local-render/harness.mjs:401:20)\n    at async file:///workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/scripts/local-render/harness.mjs:594:21",
+  "retainedScenarioErrors": [
+    "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n1 !== 0\n\n    at assertNearbyEvidence (file:///workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/scripts/local-render/follower-nearby-contract.mjs:82:10)\n    at default (file:///workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/scripts/local-render/mission1-nearby-followers.mjs:287:9)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/scripts/local-render/harness.mjs:401:20)\n    at async file:///workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/scripts/local-render/harness.mjs:594:21"
+  ],
+  "retainedWitnessErrors": [
+    "Error: Nearby endpoint has unfinished requests, wrong phases or wrong final mode\n    at seal (http://127.0.0.1:4395/scripts/local-render/follower-nearby-witness.mjs:146:212)\n    at Object.take (http://127.0.0.1:4395/scripts/local-render/follower-nearby-witness.mjs:307:6)\n    at eval (eval at evaluate (:311:30), <anonymous>:1:24)\n    at UtilityScript.evaluate (<anonymous>:313:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+  ],
+  "observed": {
+    "globalHome": true,
+    "turn": 176,
+    "globalPressedDomPredicate": false,
+    "cleanupReleaseRequests": 1,
+    "observedCommits": 0,
+    "savedCheckpoint": false
+  },
+  "innerStartedAt": "2026-10-10T06:14:03.454Z",
+  "innerFinishedAt": "2026-10-10T06:15:05.994Z",
+  "outerStartedAt": "2026-10-10T06:14:03.117Z",
+  "outerFinishedAt": "2026-10-10T06:15:08.633Z",
+  "cleanupVerified": true,
+  "continuationVerified": true,
+  "verified": [
+    "Exact admitted command, all receipt input/raw log hashes and unchanged source/runtime",
+    "Fresh profile with no Save or checkpoint; final marker receipt hash matches; lease/browser markers absent",
+    "All three natural PNGs visually inspected; global-home and visibly pressed globe frames preserve current M1 Followers surface"
+  ],
+  "interpretation": [
+    "QA expected HFX876 position is literal -0px -535px; zero CSS serialization is a concrete source-backed suspect, awaiting separate exact-browser CSSOM probe.",
+    "Failed inspect exported only matched:false/turn/nearby; the failed DOM sprite text itself is not retained and cannot be claimed observed.",
+    "The finally block releases the actually held primary pointer; this explains one trusted request before witness seal and zero observed commits. Incomplete endpoint remains failed."
+  ],
+  "limits": [
+    "No nearby transition, count/selection episode, compact DPR2 or typed Save/Load qualified in this run.",
+    "No product defect attribution or automatic retry admission."
+  ],
+  "warnings": [
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0x171400e35a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x171400e35a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x171400e35a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x171400e35a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+  ],
+  "evidence": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-01/receipt.json",
+      "sha256": "919fcb79816981f663983d9e560bcdf9f3ed52fffeb070cc5414651cabec0822"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-01/mission1-nearby-followers.json",
+      "sha256": "0e2f77ad9432e9cb8e233a13591c79218c51a2c48d1dff7697eb06f3158c2056"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-01/global-home.png",
+      "sha256": "6311764d9c2d26381ae913492f181552a945accb668b9d861897908084a11392"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-01/global-pressed.png",
+      "sha256": "e2a146f3fc0dfab201683649c36eabc347e922951361c36fcf648f0b50e6253e"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-01/nearby-terminal-failure.png",
+      "sha256": "ecd6f9c3c5c660f467ab2ad58b3ce93f17979f88af129179be64ff0b3dae6168"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-01/server.log",
+      "sha256": "64337734d71f796b6376c6e054d52e8e85efa6b34dfdc499bec4e2e525ad0413"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-01-command.json",
+      "sha256": "e8a599ab7c899930d2899fc4f0e19fd4d100f1ad7671ef440b5a28b54779505e"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-01-guards.json",
+      "sha256": "67eb5934001d8780c5f290488a90ce240fe5047dd5ad23dfaf460a36a3b01a8f"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-01-command.json.artifacts/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-01-command.json.artifacts/stderr.log",
+      "sha256": "c4474c79c9e71d79788127396b2a8a2074d9918ec7f705ee13ea9bfb32f3d928"
+    }
+  ]
+}

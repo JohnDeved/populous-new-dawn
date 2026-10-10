@@ -1,0 +1,276 @@
+{
+  "status": "all-result-and-final-publication-reviews-accepted",
+  "product": "01fa014624be98eaac74a4f9a9268e8b32966973",
+  "productTree": "d6a1a8908770143136e8d223a955b78cfd9015ff",
+  "base": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+  "entries": [
+    {
+      "original": "/workspace/scratch/69fd8163d94e/follower-nearby-source-standard-admission-review-01fa0146-20261010.json",
+      "path": "reviews/follower-nearby-source-standard-admission-review-01fa0146-20261010.json",
+      "bytes": 18300,
+      "sha256": "3d3db8a33803fcede9ccfd6c54bc01ac5e12645652244901e5610f3d02b6594c"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/follower-nearby-artwork-review-20261010.json",
+      "path": "reviews/follower-nearby-artwork-review-20261010.json",
+      "bytes": 7129,
+      "sha256": "424a8f3b9a62e2948084d29264419b1c242fe251b0f7f9bfddca7264042477e8"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/follower-nearby-final-standard-result-review-01fa0146-20261010.json",
+      "path": "reviews/follower-nearby-final-standard-result-review-01fa0146-20261010.json",
+      "bytes": 14246,
+      "sha256": "1ed6855e6caea8e01f23c410b007990a5726e1bc1fb12be79d76527e9afa4dc5"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/follower-nearby-baseline-result-review-18113c77-20261010.json",
+      "path": "reviews/follower-nearby-baseline-result-review-18113c77-20261010.json",
+      "bytes": 5367,
+      "sha256": "6d78b2ee6778ed1afc415b46d765070ac547ec958ba5586f4556ec138b5bf1e9"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/follower-nearby-candidate01-failure-review-20261010.json",
+      "path": "reviews/follower-nearby-candidate01-failure-review-20261010.json",
+      "bytes": 7533,
+      "sha256": "f0949efc4ed111bb96340d6291a49c7f8524c907113b9e10b9e848893b8fdd51"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/follower-nearby-cssom-probe-result-review-20261010.json",
+      "path": "reviews/follower-nearby-cssom-probe-result-review-20261010.json",
+      "bytes": 1493,
+      "sha256": "5929c0865a4ff92fd22f36bf98b4c8e310bb0730284654e820015a92bafbb659"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/follower-nearby-qa-repair-review-09d95ea6-20261010.json",
+      "path": "reviews/follower-nearby-qa-repair-review-09d95ea6-20261010.json",
+      "bytes": 4071,
+      "sha256": "dfd2b2cd9f4a1d010d455ea9fc7d830106ef2733fd641138bfc8f76dfc90862d"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-checks-20261010/baseline-page-red.json",
+      "path": "receipts/baseline-page-red.json",
+      "bytes": 5468,
+      "sha256": "e829695f8a079397e97a0d4590413562c77055c01fb229c116f4cc5654fa7994"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-checks-20261010/typecheck-final-product.json",
+      "path": "receipts/typecheck-final-product.json",
+      "bytes": 1744,
+      "sha256": "8b67ef8e14fe47f17d0e67c0feb6fb7f0ab6f7bc122f66fa2c07f885101e6ab5"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-checks-20261010/nearby-final-product.json",
+      "path": "receipts/nearby-final-product.json",
+      "bytes": 8058,
+      "sha256": "75ad748ba882c18e6ab6f3d461e6739e91f4f6b7c261a16fc87e739ace0b2652"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-checks-20261010/format-final.json",
+      "path": "receipts/format-final.json",
+      "bytes": 1802,
+      "sha256": "33298ee43d2030d1b2a33c01c6794da69090dd348f81b998b17ce0bc6e35971c"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-checks-20261010/quality-baseline-comparison-02.json",
+      "path": "receipts/quality-baseline-comparison-02.json",
+      "bytes": 5034,
+      "sha256": "02d1ee04df88e9fb1faf8ef1bf9403f3810cde99a32ab7b2e58a2df1cccce117"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-checks-20261010/canonical-art-check.json",
+      "path": "receipts/canonical-art-check.json",
+      "bytes": 3240,
+      "sha256": "be6bd058b7e19f30fb065a8436c98a0742e230fa5e0f3834059c7e6a3156cbcb"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-checks-20261010/quality-comparison/comparison.json",
+      "path": "receipts/quality-comparison.json",
+      "bytes": 2688,
+      "sha256": "14ca056cfe24f1b965feb236965e90639ca97732679ed24395f6071b12434c4e"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/aggregate.json",
+      "path": "receipts/standard-aggregate.json",
+      "bytes": 11756,
+      "sha256": "81ed589e284968ff9cf457e8cdad6c8a23c01e88fd4705df7a7ee99016ca907f"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-art-inputs-20261010/extraction-receipt.json",
+      "path": "receipts/extraction-receipt.json",
+      "bytes": 1739,
+      "sha256": "f5067e60695249e3c5374221bf9332c6fad20acb0a5fa9ce422a0cf90063935e"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-art-inputs-20261010/append.stdout.json",
+      "path": "receipts/append.stdout.json",
+      "bytes": 1602,
+      "sha256": "7019295ef9ec5492b454ddb5151e1d196223615a50aad35b318f6d1f5387a3a9"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/issue60-followers-baseline-20261010/work/orchestration/followers-baseline-4396-01/before-global-followers.png",
+      "path": "screenshots/before-global-followers.png",
+      "bytes": 1423828,
+      "sha256": "c96a58c953bc3291d85bb3d25ac5a1cf35dbfbec6d89e128836a56d6d4b62f11"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-01/global-pressed.png",
+      "path": "screenshots/attempt01-held-frame.png",
+      "bytes": 1444718,
+      "sha256": "e2a146f3fc0dfab201683649c36eabc347e922951361c36fcf648f0b50e6253e"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02/nearby-home.png",
+      "path": "screenshots/nearby-home.png",
+      "bytes": 1443947,
+      "sha256": "e065f33c4b9cf47922570c9ad5143e8bee292d35b32933afb4655694ce708b55"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02/nearby-away.png",
+      "path": "screenshots/nearby-away.png",
+      "bytes": 1315508,
+      "sha256": "ffa62444cb56352c14d55bb6c8b2e932608610e940e50f73e88a0585691ce594"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02/global-away.png",
+      "path": "screenshots/global-away.png",
+      "bytes": 1331438,
+      "sha256": "f5ff49891ad9194e91e0031bf4bb16b5e779f6250a27c8b040c2d12cf4462c99"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02/loaded-nearby.png",
+      "path": "screenshots/loaded-nearby.png",
+      "bytes": 1534717,
+      "sha256": "ba6ff9cfb47e722d1bb63ea369033ad6d1b2675ef782bbc318d2be93811d92d4"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02/receipt.json",
+      "path": "receipts/candidate02-browser.json",
+      "bytes": 7986,
+      "sha256": "bf5ac5d1a1cb0a0bc1ea7719edf8ec7f92bf856770e96541815f750f24ee3a96"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02-command.json",
+      "path": "receipts/candidate02-command.json",
+      "bytes": 12500,
+      "sha256": "6c3b82504481fc0402ebc0540612b563bdd34a1e9b9c31cf690d81f1c07af731"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02-guards.json",
+      "path": "receipts/candidate02-guards.json",
+      "bytes": 1240,
+      "sha256": "5f1560f577173ac7fbfd0887e4e2642ed860320ac1b878ca95579ea829826504"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-compact-load-4395-01/compact-global.png",
+      "path": "screenshots/dpr2-compact-global.png",
+      "bytes": 3250924,
+      "sha256": "370ee6f1fca3c05054efaab1c48eb7e64bc0767b723e665ce1b3e148f9bd7b3d"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-compact-load-4395-01/compact-nearby.png",
+      "path": "screenshots/dpr2-compact-nearby.png",
+      "bytes": 3216928,
+      "sha256": "bf25de308e4be7f984afcd3223e3f54c179e6dfbcc38afef0ab33a573f8de982"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-dpr-capture-01.json",
+      "path": "receipts/nearby-dpr-capture-01.json",
+      "bytes": 3842,
+      "sha256": "880eed96d351a278f4cffadc534ea540c176d0c3ea0b842bb10b398179d84816"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-dpr-capture-01.json.artifacts/stdout.log",
+      "path": "receipts/nearby-dpr-capture-01.json.stdout.log",
+      "bytes": 653,
+      "sha256": "c7e7f32134528b05e04b294f2448556167de2ec04f98b28f29cd5718356fe408"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-dpr-capture-02.json",
+      "path": "receipts/nearby-dpr-capture-02.json",
+      "bytes": 3717,
+      "sha256": "8b0be147bdf68c47b9eab1fa647e6a214683dd377fdd41234a31783dc356a894"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-dpr-capture-02.json.artifacts/stdout.log",
+      "path": "receipts/nearby-dpr-capture-02.json.stdout.log",
+      "bytes": 547,
+      "sha256": "15994a5aabdfff8deb194df5c26c47a762a12b94622fedba2caed1d307947d4e"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-dpr-capture-03.json",
+      "path": "receipts/nearby-dpr-capture-03.json",
+      "bytes": 3671,
+      "sha256": "ca5eb38cff16739fd65b424862a1f183a53be5ed8113f39c7ec8c13d57da6147"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-dpr-capture-03.json.artifacts/stdout.log",
+      "path": "receipts/nearby-dpr-capture-03.json.stdout.log",
+      "bytes": 465,
+      "sha256": "bcd9d292e39c6e02ed99427bfbbbf74091dbe13e7606da02b6693d056ae8618f"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-compact-load-4395-01/receipt.json",
+      "path": "receipts/compact-browser.json",
+      "bytes": 9920,
+      "sha256": "4eff187321c44252ca00451f6b4ab5ba09acd1af3dab4201eaf754f380ebeb13"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-compact-load-4395-01-command.json",
+      "path": "receipts/compact-command.json",
+      "bytes": 15741,
+      "sha256": "82a6095c34dda8e333a58278256466f9903eb3151580ba82a2ddf861dc8c29f9"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-compact-load-4395-01-cleanup.json",
+      "path": "receipts/compact-cleanup.json",
+      "bytes": 3882,
+      "sha256": "ce7befada0d6f527d9ceefb663fef9972a22be27917b2776929f07aa082c7a3c"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/follower-nearby-ordinary02-result-review-20261010.json",
+      "path": "reviews/follower-nearby-ordinary02-result-review-20261010.json",
+      "bytes": 14977,
+      "sha256": "a4127fecd8b7ae4db02c499c15bee25c46209ab41d7117a22b5695cd353a1108"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/follower-nearby-dpr-capture-probe03-result-review-20261010.json",
+      "path": "reviews/follower-nearby-dpr-capture-probe03-result-review-20261010.json",
+      "bytes": 2485,
+      "sha256": "80020d01ab33d490dbbc273479bd57431255379673f4755787f334a7cf3010ea"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/follower-nearby-compact-source-review-f1f7db4e-20261010.json",
+      "path": "reviews/follower-nearby-compact-source-review-f1f7db4e-20261010.json",
+      "bytes": 4147,
+      "sha256": "0b0cbfcf02c1a2876f7318f2a58a45d7844906b4e6709b8959434f5ab16337be"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/follower-nearby-compact-result-review-f1f7db4e-20261010.json",
+      "path": "reviews/follower-nearby-compact-result-review-f1f7db4e-20261010.json",
+      "bytes": 9037,
+      "sha256": "b5232deb3d362fded41319c8b3046bf2c8d4e103cdeaf697f13cf59e685f988e"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/follower-nearby-publication-review-20261010.json",
+      "path": "reviews/follower-nearby-publication-review-20261010.json",
+      "bytes": 2587,
+      "sha256": "677c9b835668122e64086f50b0aaf019be97f68d47f79aaa462cd2aa5e042912"
+    }
+  ],
+  "candidate02": "8b8ad6e840fb26cc3e51fecf7763bc68173be58b",
+  "derived": [
+    {
+      "path": "receipts/candidate02-summary.json",
+      "bytes": 42519,
+      "sha256": "af4f09f91f8ba5e2fc0f9db208b2f387b7eca50c57002030829abe33a5f103eb",
+      "derivedFromSha256": "39eb7db2d0ee3d21d9f72b7ab7a0c81cd03a3ed7ebc5b8a5ce00ba3d9a31dd22"
+    },
+    {
+      "path": "receipts/compact-summary.json",
+      "bytes": 8245,
+      "sha256": "da9ac4c5bf02205fc4a233533953f689f67dbe2f5187d9a742f795a3aabf1701",
+      "derivedFromSha256": "6246b61759bdac4a5fc42628d821cdcff731c0238de088cd05be5360d49af808"
+    }
+  ],
+  "compactSupplement": "f1f7db4e842a2ccef2eac4148fffe42fe760421a"
+}

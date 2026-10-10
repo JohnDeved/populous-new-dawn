@@ -1,0 +1,46 @@
+{
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+    "-B",
+    "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/scripts/extract-reference.py",
+    "--component",
+    "Component0",
+    "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/PopulousTB-Setup.zip",
+    "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-art-inputs-20261010/game",
+    "data/hfx0-0.dat",
+    "data/pal0-c.dat"
+  ],
+  "startedAt": "2026-10-10T05:30:43.242995+00:00",
+  "limits": {
+    "cpuAffinity": [
+      4
+    ],
+    "wallTimeoutSeconds": 120,
+    "addressSpaceBytes": 4294967296
+  },
+  "archiveSha256": "6aa6c366809ea1d9575ec1d31a24527a95c7332f0a1d2ab692f7a602e7e10702",
+  "scriptSha256": "43870b6e06aeb43f8ea9103f3e601e4236397cbb1e49d72c43e570d4e13ffd7e",
+  "runtime": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "binaryRefineryArchiveSha256": "2c2d850ef79dd1da41549203b145b8a26ce556d6b1abe4f6262625727a8483d2",
+    "binaryRefineryInnoModuleSha256": "40cc671060cc062e5545852558207f031afa2095dc7e69312a4928e58c403626",
+    "pureMagicWheelSha256": "5ef3709472b86b270b9b9831fcb6675fceb886bae0501b0b697844ea81239d34",
+    "pureMagicInstalledMatchesWheel": true
+  },
+  "status": "passed",
+  "exitCode": 0,
+  "elapsedSeconds": 5.287,
+  "outputs": {
+    "data/hfx0-0.dat": {
+      "size": 1094550,
+      "sha256": "681eb1734fd73f86a6a52a8540415ec69a241a378161b60e9c9da1263d4ee0bf"
+    },
+    "data/pal0-c.dat": {
+      "size": 1024,
+      "sha256": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53"
+    }
+  },
+  "inputsVerified": true,
+  "archiveUnchanged": true,
+  "scriptUnchanged": true
+}

@@ -1,0 +1,203 @@
+{
+  "verdict": "ACCEPT compact supplement; required nearby-control ordinary coverage COMPLETE with accepted02",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010",
+    "commit": "f1f7db4e842a2ccef2eac4148fffe42fe760421a",
+    "tree": "52fbb694bcbfdd881153813d68436dafb4e6f0d3",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "808e82fc24fba28013aa99262b2ee4a6b637862382501fc0360220eab0ce2da7"
+  },
+  "product": "01fa014624be98eaac74a4f9a9268e8b32966973",
+  "manifestSha256": "51efdc3232d301ee9a5ca37580122e3e0e2042d289cd71e159a8fa62cd2bdf35",
+  "innerStartedAt": "2026-10-10T06:47:11.130Z",
+  "innerFinishedAt": "2026-10-10T06:48:06.589Z",
+  "outerStartedAt": "2026-10-10T06:47:10.762Z",
+  "outerFinishedAt": "2026-10-10T06:48:09.300Z",
+  "verified": [
+    "Exact admitted source/runtime/command and all44 source input/raw log hashes",
+    "Public trusted Load genuine saved178; first Scene nearby; full typed migrated digest443bf319 matches accepted02; later public pause at226",
+    "Three actual pointer/pointer/Enter mode requests and commits with existing strict input/cue/flag/endpoint consumer; all three surfaces pass exact font/art/count/layout validation",
+    "All three captures retain actual pre/post1280x720 DPR2 and independently parsed2560x1440 PNG dimensions/hashes; original PNGs visually inspected",
+    "Original acquired images show readable HUD/global/nearby and keyboard focus; no edited/reconstructed frames",
+    "Stored checkpoint0bf40ac8 remains unchanged before/after; closed sealed epoch; checkpoint listener/subscription/start restoration verified",
+    "Normal browser/profile/port cleanup, current marker receipt digest, unchanged private/shared cache identities verified"
+  ],
+  "stages": [
+    {
+      "label": "compact-global",
+      "turn": 226,
+      "nearby": false,
+      "capture": {
+        "before": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 2
+        },
+        "after": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 2
+        },
+        "pixels": [
+          2560,
+          1440
+        ],
+        "bytes": 3250924,
+        "sha256": "370ee6f1fca3c05054efaab1c48eb7e64bc0767b723e665ce1b3e148f9bd7b3d"
+      }
+    },
+    {
+      "label": "compact-nearby",
+      "turn": 226,
+      "nearby": true,
+      "capture": {
+        "before": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 2
+        },
+        "after": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 2
+        },
+        "pixels": [
+          2560,
+          1440
+        ],
+        "bytes": 3216928,
+        "sha256": "bf25de308e4be7f984afcd3223e3f54c179e6dfbcc38afef0ab33a573f8de982"
+      }
+    },
+    {
+      "label": "compact-keyboard-global",
+      "turn": 226,
+      "nearby": false,
+      "capture": {
+        "before": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 2
+        },
+        "after": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 2
+        },
+        "pixels": [
+          2560,
+          1440
+        ],
+        "bytes": 3179009,
+        "sha256": "273ccebe99e32ce93cc425c130c963b21013c175a05afab3c6bb1c29c4301547"
+      }
+    }
+  ],
+  "checkpointBefore": {
+    "version": 1,
+    "level": 1,
+    "turn": 178,
+    "time": 14.833333333333334,
+    "checkpointSha256": "0bf40ac842cf730bf0ebe73987f5faf24e5d349cd6bdce5c3c489e1e2b207fe7",
+    "actorsSha256": "93b23e2f47857a7d3a87895ca71783059928841dad6bd124153b43b7e481b68c",
+    "terrainSha256": "5abb688e9200d582bcc87c627f117f885747d40089cb4a2ea2657bb07f18d109",
+    "stockSha256": "4369697845b0f3503debcf150b76b0fab1f596e34e60d2635217defd191f9af0"
+  },
+  "checkpointLoaded": {
+    "version": 1,
+    "level": 1,
+    "turn": 178,
+    "time": 14.833333333333334,
+    "checkpointSha256": "443bf3194778550730cb3a594c863feaeb804170afdeb3e7138bb520263436bc",
+    "actorsSha256": "93b23e2f47857a7d3a87895ca71783059928841dad6bd124153b43b7e481b68c",
+    "terrainSha256": "5abb688e9200d582bcc87c627f117f885747d40089cb4a2ea2657bb07f18d109",
+    "stockSha256": "4369697845b0f3503debcf150b76b0fab1f596e34e60d2635217defd191f9af0"
+  },
+  "checkpointAfter": {
+    "version": 1,
+    "level": 1,
+    "turn": 178,
+    "time": 14.833333333333334,
+    "checkpointSha256": "0bf40ac842cf730bf0ebe73987f5faf24e5d349cd6bdce5c3c489e1e2b207fe7",
+    "actorsSha256": "93b23e2f47857a7d3a87895ca71783059928841dad6bd124153b43b7e481b68c",
+    "terrainSha256": "5abb688e9200d582bcc87c627f117f885747d40089cb4a2ea2657bb07f18d109",
+    "stockSha256": "4369697845b0f3503debcf150b76b0fab1f596e34e60d2635217defd191f9af0"
+  },
+  "epoch": {
+    "requests": 3,
+    "commits": 3,
+    "records": 6,
+    "sealed": {
+      "phases": [
+        "compact-global",
+        "compact-nearby",
+        "compact-keyboard-global"
+      ],
+      "nearby": false
+    }
+  },
+  "priorCoreReview": {
+    "path": "/workspace/scratch/69fd8163d94e/follower-nearby-ordinary02-result-review-20261010.json",
+    "sha256": "a4127fecd8b7ae4db02c499c15bee25c46209ab41d7117a22b5695cd353a1108"
+  },
+  "limitations": [
+    "Ordinary02 DPR2 gap and both failed mixed-session probes remain retained; this separate genuine-Load supplement closes the declared visual gap",
+    "Source/rendered evidence only for bounded #60 slice, no full follower-panel/native timing/raster/performance parity",
+    "Normal software-WebGL warnings and dark distant silhouettes remain; unrelated renderer behavior not qualified"
+  ],
+  "warnings": [
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0x33cc001d1400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x33cc001d1400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x33cc001d1400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x33cc001d1400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+  ],
+  "evidence": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-compact-load-4395-01/nearby-compact-load.json",
+      "sha256": "6246b61759bdac4a5fc42628d821cdcff731c0238de088cd05be5360d49af808"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-compact-load-4395-01/receipt.json",
+      "sha256": "4eff187321c44252ca00451f6b4ab5ba09acd1af3dab4201eaf754f380ebeb13"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-compact-load-4395-01/server.log",
+      "sha256": "10ac629998583f377628250d343930eba9812eb6345c718a632807a434a470d7"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-compact-load-4395-01-command.json",
+      "sha256": "82a6095c34dda8e333a58278256466f9903eb3151580ba82a2ddf861dc8c29f9"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-compact-load-4395-01-guards.json",
+      "sha256": "b5ba76ceba9d66ba4ae5e55d81bc770c84b09b47ae5c47425daf2e990763ecd3"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-compact-load-4395-01-cleanup.json",
+      "sha256": "ce7befada0d6f527d9ceefb663fef9972a22be27917b2776929f07aa082c7a3c"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-compact-load-4395-01/compact-global.png",
+      "sha256": "370ee6f1fca3c05054efaab1c48eb7e64bc0767b723e665ce1b3e148f9bd7b3d"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-compact-load-4395-01/compact-nearby.png",
+      "sha256": "bf25de308e4be7f984afcd3223e3f54c179e6dfbcc38afef0ab33a573f8de982"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-compact-load-4395-01/compact-keyboard-global.png",
+      "sha256": "273ccebe99e32ce93cc425c130c963b21013c175a05afab3c6bb1c29c4301547"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-compact-load-4395-01-command.json.artifacts/stdout.log",
+      "sha256": "f5e26ca94bcb8bbee20b26964e8e983dcca47078a25fcca99418bd73137b51eb"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-compact-load-4395-01-command.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

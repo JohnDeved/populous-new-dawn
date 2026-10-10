@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "bd0e8be2-5d5e-44ec-a498-db1a6a2fc7ad",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+    "branch": "feature/issue60-nearby-followers-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/follower-nearby-page.test.mjs": "b2b50bd697ffaab42b8c817d67a83c17fc20575e9d440385dac3590a78d130be",
+      "app/page.tsx": "af95be6e48354ffec34046eb0c265612ef460d612d69c91e56825c9ce7948765",
+      "app/original-hud.json": "3b24abb207a0ad2fc92f7225866352f0d485cf9ac7d13fb8b76842fecc928929"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/follower-nearby-page.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010",
+  "startedAt": "2026-10-10T05:33:13.707Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-checks-20261010/baseline-page-red.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-checks-20261010/baseline-page-red.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-10T05:33:14.242Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "✖ actual HFX875 Page activation requests follower mode instead of opening overview (37.276703ms)\n✖ all four native follower mode frames are available without placeholder artwork (0.389737ms)\n✖ actual persistent Total uses nearby display counts and the alternate number font (12.669194ms)\nℹ tests 3\nℹ suites 0\nℹ pass 0\nℹ fail 3\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 463.534016\n\n✖ failing tests:\n\ntest at tests/follower-nearby-page.test.mjs:34:1\n✖ actual HFX875 Page activation requests follower mode instead of opening overview (37.276703ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n  + actual - expected\n  \n    [\n  +   'overview'\n  -   'nearby'\n    ]\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/tests/follower-nearby-page.test.mjs:41:10)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.start (node:internal/test_runner/test:1242:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: [ 'overview' ],\n    expected: [ 'nearby' ],\n    operator: 'deepStrictEqual',\n    diff: 'simple'\n  }\n\ntest at tests/follower-nearby-page.test.mjs:45:1\n✖ all four native follower mode frames are available without placeholder artwork (0.389737ms)\n  AssertionError [ERR_ASSERTION]: Missing original HFX876\n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/tests/follower-nearby-page.test.mjs:47:12)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: undefined,\n    expected: true,\n    operator: '==',\n    diff: 'simple'\n  }\n\ntest at tests/follower-nearby-page.test.mjs:52:1\n✖ actual persistent Total uses nearby display counts and the alternate number font (12.669194ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n  + actual - expected\n  \n    [\n  +   6,\n  -   0,\n      true,\n  +   undefined\n  -   true\n    ]\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/tests/follower-nearby-page.test.mjs:60:10)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: [ 6, true, undefined ],\n    expected: [ 0, true, true ],\n    operator: 'deepStrictEqual',\n    diff: 'simple'\n  }\n",
+  "stderr": "",
+  "stdoutSha256": "e6a329fa5bea4a58ceb8c18b2ae53d1dc77c3735e8f59633d047236c5dcf710d",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+    "branch": "feature/issue60-nearby-followers-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/follower-nearby-page.test.mjs": "b2b50bd697ffaab42b8c817d67a83c17fc20575e9d440385dac3590a78d130be",
+      "app/page.tsx": "af95be6e48354ffec34046eb0c265612ef460d612d69c91e56825c9ce7948765",
+      "app/original-hud.json": "3b24abb207a0ad2fc92f7225866352f0d485cf9ac7d13fb8b76842fecc928929"
+    }
+  }
+}

@@ -1,0 +1,344 @@
+{
+  "kind": "compact-derived-dpr2-supplement",
+  "status": "passed",
+  "independentReview": "ACCEPT",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010",
+    "commit": "f1f7db4e842a2ccef2eac4148fffe42fe760421a",
+    "tree": "52fbb694bcbfdd881153813d68436dafb4e6f0d3",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "808e82fc24fba28013aa99262b2ee4a6b637862382501fc0360220eab0ce2da7"
+  },
+  "originalScenario": {
+    "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-compact-load-4395-01/nearby-compact-load.json",
+    "bytes": 243332,
+    "sha256": "6246b61759bdac4a5fc42628d821cdcff731c0238de088cd05be5360d49af808"
+  },
+  "innerFinishedAt": "2026-10-10T06:48:06.589Z",
+  "outerFinishedAt": "2026-10-10T06:48:09.300Z",
+  "stages": [
+    {
+      "label": "compact-global",
+      "state": {
+        "level": 1,
+        "turn": 226,
+        "paused": true,
+        "flags": 2,
+        "selected": [],
+        "nearby": false,
+        "center": {
+          "x": 4352,
+          "y": 55040,
+          "angle": 0
+        },
+        "speed": 1,
+        "population": 9,
+        "capacity": 12
+      },
+      "capture": {
+        "before": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 2
+        },
+        "after": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 2
+        },
+        "pixels": [
+          2560,
+          1440
+        ],
+        "bytes": 3250924,
+        "sha256": "370ee6f1fca3c05054efaab1c48eb7e64bc0767b723e665ce1b3e148f9bd7b3d"
+      },
+      "toggle": {
+        "pressed": "false",
+        "disabled": false,
+        "sprite": {
+          "position": "-938px -26px",
+          "width": "19px",
+          "height": "16px"
+        },
+        "expectedSprite": {
+          "position": "-938px -26px",
+          "width": "19px",
+          "height": "16px"
+        }
+      },
+      "classes": [
+        {
+          "label": "Select follower",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select brave",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select warrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select firewarrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select preacher",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select spy",
+          "count": null,
+          "disabled": true
+        }
+      ],
+      "meter": "9 of 12"
+    },
+    {
+      "label": "compact-nearby",
+      "state": {
+        "level": 1,
+        "turn": 226,
+        "paused": true,
+        "flags": 130,
+        "selected": [],
+        "nearby": true,
+        "center": {
+          "x": 4352,
+          "y": 55040,
+          "angle": 0
+        },
+        "speed": 1,
+        "population": 9,
+        "capacity": 12
+      },
+      "capture": {
+        "before": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 2
+        },
+        "after": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 2
+        },
+        "pixels": [
+          2560,
+          1440
+        ],
+        "bytes": 3216928,
+        "sha256": "bf25de308e4be7f984afcd3223e3f54c179e6dfbcc38afef0ab33a573f8de982"
+      },
+      "toggle": {
+        "pressed": "true",
+        "disabled": false,
+        "sprite": {
+          "position": "-20px -535px",
+          "width": "19px",
+          "height": "16px"
+        },
+        "expectedSprite": {
+          "position": "-20px -535px",
+          "width": "19px",
+          "height": "16px"
+        }
+      },
+      "classes": [
+        {
+          "label": "Select follower",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select brave",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select warrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select firewarrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select preacher",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select spy",
+          "count": null,
+          "disabled": true
+        }
+      ],
+      "meter": "9 of 12"
+    },
+    {
+      "label": "compact-keyboard-global",
+      "state": {
+        "level": 1,
+        "turn": 226,
+        "paused": true,
+        "flags": 2,
+        "selected": [],
+        "nearby": false,
+        "center": {
+          "x": 4352,
+          "y": 55040,
+          "angle": 0
+        },
+        "speed": 1,
+        "population": 9,
+        "capacity": 12
+      },
+      "capture": {
+        "before": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 2
+        },
+        "after": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 2
+        },
+        "pixels": [
+          2560,
+          1440
+        ],
+        "bytes": 3179009,
+        "sha256": "273ccebe99e32ce93cc425c130c963b21013c175a05afab3c6bb1c29c4301547"
+      },
+      "toggle": {
+        "pressed": "false",
+        "disabled": false,
+        "sprite": {
+          "position": "-938px -26px",
+          "width": "19px",
+          "height": "16px"
+        },
+        "expectedSprite": {
+          "position": "-938px -26px",
+          "width": "19px",
+          "height": "16px"
+        }
+      },
+      "classes": [
+        {
+          "label": "Select follower",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select brave",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select warrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select firewarrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select preacher",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select spy",
+          "count": null,
+          "disabled": true
+        }
+      ],
+      "meter": "9 of 12"
+    }
+  ],
+  "epoch": {
+    "closed": true,
+    "exported": true,
+    "overflow": false,
+    "errorCount": 0,
+    "errors": [],
+    "requests": 3,
+    "commits": 3,
+    "selections": 0,
+    "sealed": {
+      "phases": [
+        "compact-global",
+        "compact-nearby",
+        "compact-keyboard-global"
+      ],
+      "nearby": false
+    },
+    "terminalMode": false,
+    "terminalTurn": 226
+  },
+  "checkpointBefore": {
+    "version": 1,
+    "level": 1,
+    "turn": 178,
+    "time": 14.833333333333334,
+    "checkpointSha256": "0bf40ac842cf730bf0ebe73987f5faf24e5d349cd6bdce5c3c489e1e2b207fe7",
+    "actorsSha256": "93b23e2f47857a7d3a87895ca71783059928841dad6bd124153b43b7e481b68c",
+    "terrainSha256": "5abb688e9200d582bcc87c627f117f885747d40089cb4a2ea2657bb07f18d109",
+    "stockSha256": "4369697845b0f3503debcf150b76b0fab1f596e34e60d2635217defd191f9af0"
+  },
+  "checkpointAfter": {
+    "version": 1,
+    "level": 1,
+    "turn": 178,
+    "time": 14.833333333333334,
+    "checkpointSha256": "0bf40ac842cf730bf0ebe73987f5faf24e5d349cd6bdce5c3c489e1e2b207fe7",
+    "actorsSha256": "93b23e2f47857a7d3a87895ca71783059928841dad6bd124153b43b7e481b68c",
+    "terrainSha256": "5abb688e9200d582bcc87c627f117f885747d40089cb4a2ea2657bb07f18d109",
+    "stockSha256": "4369697845b0f3503debcf150b76b0fab1f596e34e60d2635217defd191f9af0"
+  },
+  "load": {
+    "status": {
+      "kind": "load",
+      "trusted": true,
+      "captured": true,
+      "publications": 1,
+      "errorCount": 0,
+      "errors": []
+    },
+    "initial": {
+      "level": 1,
+      "turn": 178,
+      "paused": false,
+      "flags": 130,
+      "selected": [],
+      "nearby": true,
+      "center": {
+        "x": 4352,
+        "y": 55040,
+        "angle": 0
+      },
+      "speed": 1,
+      "population": 9,
+      "capacity": 12
+    }
+  },
+  "errors": [],
+  "cleanupVerified": true,
+  "continuationVerified": true
+}

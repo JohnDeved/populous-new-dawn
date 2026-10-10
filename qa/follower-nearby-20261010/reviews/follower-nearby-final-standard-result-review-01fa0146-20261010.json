@@ -1,0 +1,248 @@
+{
+  "verdict": "ACCEPT",
+  "scope": "Fresh exact product standard result; ordinary M1 rendered witness remains pending",
+  "source": "01fa014624be98eaac74a4f9a9268e8b32966973",
+  "tree": "d6a1a8908770143136e8d223a955b78cfd9015ff",
+  "aggregate": {
+    "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/aggregate.json",
+    "sha256": "81ed589e284968ff9cf457e8cdad6c8a23c01e88fd4705df7a7ee99016ca907f"
+  },
+  "profile": {
+    "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/profile-proposal.json",
+    "sha256": "d79f5fcdbc92afcf78c4ddb41429a70e9c4cd64c75200775575299d974857a58"
+  },
+  "sourceAdmission": {
+    "path": "/workspace/scratch/69fd8163d94e/follower-nearby-source-standard-admission-review-01fa0146-20261010.json",
+    "sha256": "3d3db8a33803fcede9ccfd6c54bc01ac5e12645652244901e5610f3d02b6594c"
+  },
+  "independentlyVerified": {
+    "stages": 17,
+    "testFilesExactlyOnce": 299,
+    "inputHashes": 307,
+    "counts": {
+      "tests": 1853,
+      "pass": 1853,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "commandsMatchProfile": true,
+    "sourceBeforeAfterEqualClean": true,
+    "rawLogsMatchReceiptsAndAggregate": true,
+    "counting": "Last top-level Node summary only; nested summaries not counted twice"
+  },
+  "startedAt": "2026-10-10T05:56:50.224Z",
+  "finishedAt": "2026-10-10T06:03:19.725Z",
+  "limitations": [
+    "Original source/static references and supplied caller tests; no new native execution.",
+    "Genuine M1 nearby-control rendered and typed-checkpoint witness is still pending.",
+    "Scoped ESLint remains failed with4 inherited diagnostics; Oxlint remains failed with58 inherited diagnostics, independently attributed."
+  ],
+  "evidence": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/typecheck.json.artifacts/stdout.log",
+      "sha256": "5b3b688caa668685eebda41ca93c4e60de869bac3645a0b25bf22809e6c84ba5"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/typecheck.json.artifacts/stderr.log",
+      "sha256": "7d61cb2e2deb776dfec4d6f54693f9edeed0af5c4da52f091c53c995d862fb65"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/typecheck.json",
+      "sha256": "8b75b27e195fcb3fb90a2e004f63f8650b17842ea04e7468f78f0566d024a3f1"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-new.json.artifacts/stdout.log",
+      "sha256": "290fe17f17c25fe5e5649b13dd0902b0002b3fbcb6182058c376f726ff58d23a"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-new.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-new.json",
+      "sha256": "586a482e053c7323b7a9f4670ba4813c377c5350a8dab5718c45f0cf2bc353e3"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-01.json.artifacts/stdout.log",
+      "sha256": "865e546ffa0bb121e0fa4a1efa8084464e293ec78a13314e80cdbc0a90bd7d8b"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-01.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-01.json",
+      "sha256": "1eeef72fbb008118e1531fa9a2b65dc59c0088e1e7ae7067f44ecdabb51c7137"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-02.json.artifacts/stdout.log",
+      "sha256": "b0a176ca65021369a8004a80832f9d4c909303d521234e843678b06eab79afb3"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-02.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-02.json",
+      "sha256": "8791d55898fad8bffeadc96a7ca32d7d166e12bf1ff4846442053bfbb3b52746"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-03.json.artifacts/stdout.log",
+      "sha256": "2c557c145167dab215ccda96ed1bb13ab83dfc96ea26a954a2f0b130208db08c"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-03.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-03.json",
+      "sha256": "a714c3dfe1ddd3806b8a1ca99aa51d01ba4b0827bdef2aec9064a793c3c44555"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-04a.json.artifacts/stdout.log",
+      "sha256": "f1d0d5ad2d05d744ad798abb3b27a611140463cf7bb6683c4daf3bac9f654245"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-04a.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-04a.json",
+      "sha256": "bddf6950c155136f4d4d59ef7204ac684dd173382935aef5f903e944ad03a976"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-04b.json.artifacts/stdout.log",
+      "sha256": "7b6a6f7974c68fb1bced5782db7c6c20b2d18baadae47ba7c6673017b434d66d"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-04b.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-04b.json",
+      "sha256": "07d3d834ac3e991eef15c6244ac77530ce2327d1bcc46d8ceea9708067c6db0f"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-04c.json.artifacts/stdout.log",
+      "sha256": "f47fc2a4346155cb5fc99818e0b3a4814f05a52fc41408535c8ba7dd32689ce6"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-04c.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-04c.json",
+      "sha256": "9cdecae0658ba46a0ce4fcc4b66a79fd7ef16975e7a4d7f34cc4326c642431c7"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-05a.json.artifacts/stdout.log",
+      "sha256": "487d458421dc0fbb67e8e846125bbb5ac423e96c3fa337d299a47f06a0eaf52a"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-05a.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-05a.json",
+      "sha256": "7189733415c13226353c89aa35feed63d5d4af67828035a4e822e189ec3782e5"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-05b.json.artifacts/stdout.log",
+      "sha256": "733bbc3d9a94da1e406921baabcd2a51e18c94e7906894eb0de7008f4af0699f"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-05b.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-05b.json",
+      "sha256": "e3d406ea1e7297af6e704717a8acd7071aa9d27546020244c0fb5087975fda30"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-05c.json.artifacts/stdout.log",
+      "sha256": "22f61ebad248dafaf0fd8704647bae6ac8e173857f718d1591444bc473ec1433"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-05c.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-05c.json",
+      "sha256": "e97fd5369eafb86b76329b1106a9b9f68e2fe31883b995890755a88b94821d09"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-06.json.artifacts/stdout.log",
+      "sha256": "d94c136fdbd18c3924a8ec23cfb03014d62518e72425f5e048268712fe1141d3"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-06.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-06.json",
+      "sha256": "a2f351fc4592ddd9666890fa08b034d664fac362a1d2af6e96a72f4a694aad8b"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-07.json.artifacts/stdout.log",
+      "sha256": "24a614ccf3720dbb4f91726a36ec8021374b991f18e3ba6289adaa1a7705e58d"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-07.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-07.json",
+      "sha256": "9cf8dd1954e2a8388d95a70203ea707a60a684070877b6a037b317d2dc4d358b"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-08.json.artifacts/stdout.log",
+      "sha256": "16d430ce642a9d4fb0701c8f94cc9356c2c90a7a6aa67b85f9b15313db19350e"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-08.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/tests-08.json",
+      "sha256": "85d65ef88785350caee4bb47bd4982dc9ac5f9b11d5e867496cf88ec427e94e6"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/parity-check.json.artifacts/stdout.log",
+      "sha256": "f39c8ad20b8013f4e4e4ade55ff5d63ab1c8df3729611db56c2d25cf734b48a9"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/parity-check.json.artifacts/stderr.log",
+      "sha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/parity-check.json",
+      "sha256": "0184cab439cdff50f9eedf75bf8126bc7aed10d80a102979470449b57b9bc3cf"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/orchestration-check.json.artifacts/stdout.log",
+      "sha256": "702de661103b811c6de5276d248a68ddca4fa7fbcdc78e60d75ca622d3b70166"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/orchestration-check.json.artifacts/stderr.log",
+      "sha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/orchestration-check.json",
+      "sha256": "66212a3576a07406aed9a1a37a9c058f40bbce6e353f61d18e54c9eac7435eb8"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/build.json.artifacts/stdout.log",
+      "sha256": "d3be94e60988f500a2da79c0b96431519d3cea5bf865e4cada401fea28d207ce"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/build.json.artifacts/stderr.log",
+      "sha256": "cc5dc7e95cc1b92b8707c2b7a5a371b8ea84afae0846d8c9eb3040a9855e87bb"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-final-01/build.json",
+      "sha256": "406ae0200bbf6f19cfbec4d8d3b9216eeaa96027ac4dcd886ade5a140bd00c6f"
+    }
+  ]
+}

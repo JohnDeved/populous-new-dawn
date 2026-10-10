@@ -1,0 +1,1917 @@
+{
+  "kind": "compact-derived-ordinary-result",
+  "status": "passed",
+  "independentReview": "core-and-cleanup-accepted; compact DPR2 qualification supplied separately",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010",
+    "commit": "8b8ad6e840fb26cc3e51fecf7763bc68173be58b",
+    "tree": "2efa6d9453e9e7f02738ae03d6c446cf2e3e5290",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "8835a23eaa031ba48a72f3c752b4450fa85fbdd3a022d43100f53153ed2ed95c"
+  },
+  "originalScenario": {
+    "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02/mission1-nearby-followers.json",
+    "bytes": 980036,
+    "sha256": "39eb7db2d0ee3d21d9f72b7ab7a0c81cd03a3ed7ebc5b8a5ce00ba3d9a31dd22"
+  },
+  "stages": [
+    {
+      "label": "global-home",
+      "state": {
+        "level": 1,
+        "turn": 178,
+        "paused": true,
+        "flags": 2,
+        "selected": [
+          30
+        ],
+        "nearby": false,
+        "center": {
+          "x": 5378,
+          "y": 55599,
+          "angle": 1435
+        },
+        "speed": 1,
+        "population": 9,
+        "capacity": 12
+      },
+      "viewport": [
+        1440,
+        1000
+      ],
+      "dpr": 1,
+      "toggle": {
+        "pressed": "false",
+        "disabled": false,
+        "sprite": {
+          "position": "-938px -26px",
+          "width": "19px",
+          "height": "16px"
+        },
+        "expectedSprite": {
+          "position": "-938px -26px",
+          "width": "19px",
+          "height": "16px"
+        }
+      },
+      "classes": [
+        {
+          "label": "Select follower",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select brave",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select warrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select firewarrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select preacher",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select spy",
+          "count": null,
+          "disabled": true
+        }
+      ],
+      "tasks": [
+        {
+          "label": "Currently selected Braves",
+          "count": 0,
+          "disabled": false
+        },
+        {
+          "label": "Idle Braves",
+          "count": 6,
+          "disabled": false
+        }
+      ],
+      "meter": "9 of 12"
+    },
+    {
+      "label": "global-pressed",
+      "state": {
+        "level": 1,
+        "turn": 178,
+        "paused": true,
+        "flags": 2,
+        "selected": [
+          30
+        ],
+        "nearby": false,
+        "center": {
+          "x": 5378,
+          "y": 55599,
+          "angle": 1435
+        },
+        "speed": 1,
+        "population": 9,
+        "capacity": 12
+      },
+      "viewport": [
+        1440,
+        1000
+      ],
+      "dpr": 1,
+      "toggle": {
+        "pressed": "false",
+        "disabled": false,
+        "sprite": {
+          "position": "0px -535px",
+          "width": "19px",
+          "height": "16px"
+        },
+        "expectedSprite": {
+          "position": "0px -535px",
+          "width": "19px",
+          "height": "16px"
+        }
+      },
+      "classes": [
+        {
+          "label": "Select follower",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select brave",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select warrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select firewarrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select preacher",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select spy",
+          "count": null,
+          "disabled": true
+        }
+      ],
+      "tasks": [
+        {
+          "label": "Currently selected Braves",
+          "count": 0,
+          "disabled": false
+        },
+        {
+          "label": "Idle Braves",
+          "count": 6,
+          "disabled": false
+        }
+      ],
+      "meter": "9 of 12"
+    },
+    {
+      "label": "nearby-home",
+      "state": {
+        "level": 1,
+        "turn": 178,
+        "paused": true,
+        "flags": 130,
+        "selected": [
+          30
+        ],
+        "nearby": true,
+        "center": {
+          "x": 5378,
+          "y": 55599,
+          "angle": 1435
+        },
+        "speed": 1,
+        "population": 9,
+        "capacity": 12
+      },
+      "viewport": [
+        1440,
+        1000
+      ],
+      "dpr": 1,
+      "toggle": {
+        "pressed": "true",
+        "disabled": false,
+        "sprite": {
+          "position": "-20px -535px",
+          "width": "19px",
+          "height": "16px"
+        },
+        "expectedSprite": {
+          "position": "-20px -535px",
+          "width": "19px",
+          "height": "16px"
+        }
+      },
+      "classes": [
+        {
+          "label": "Select follower",
+          "count": 7,
+          "disabled": false
+        },
+        {
+          "label": "Select brave",
+          "count": 7,
+          "disabled": false
+        },
+        {
+          "label": "Select warrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select firewarrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select preacher",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select spy",
+          "count": null,
+          "disabled": true
+        }
+      ],
+      "tasks": [
+        {
+          "label": "Currently selected Braves",
+          "count": 0,
+          "disabled": false
+        },
+        {
+          "label": "Idle Braves",
+          "count": 6,
+          "disabled": false
+        }
+      ],
+      "meter": "9 of 12"
+    },
+    {
+      "label": "nearby-away",
+      "state": {
+        "level": 1,
+        "turn": 178,
+        "paused": true,
+        "flags": 130,
+        "selected": [],
+        "nearby": true,
+        "center": {
+          "x": 20634,
+          "y": 55069,
+          "angle": 1435
+        },
+        "speed": 1,
+        "population": 9,
+        "capacity": 12
+      },
+      "viewport": [
+        1440,
+        1000
+      ],
+      "dpr": 1,
+      "toggle": {
+        "pressed": "true",
+        "disabled": false,
+        "sprite": {
+          "position": "-20px -535px",
+          "width": "19px",
+          "height": "16px"
+        },
+        "expectedSprite": {
+          "position": "-20px -535px",
+          "width": "19px",
+          "height": "16px"
+        }
+      },
+      "classes": [
+        {
+          "label": "Select follower",
+          "count": 0,
+          "disabled": false
+        },
+        {
+          "label": "Select brave",
+          "count": 0,
+          "disabled": false
+        },
+        {
+          "label": "Select warrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select firewarrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select preacher",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select spy",
+          "count": null,
+          "disabled": true
+        }
+      ],
+      "tasks": [
+        {
+          "label": "Currently selected Braves",
+          "count": 0,
+          "disabled": false
+        },
+        {
+          "label": "Idle Braves",
+          "count": 0,
+          "disabled": false
+        }
+      ],
+      "meter": "9 of 12"
+    },
+    {
+      "label": "global-away",
+      "state": {
+        "level": 1,
+        "turn": 178,
+        "paused": true,
+        "flags": 2,
+        "selected": [],
+        "nearby": false,
+        "center": {
+          "x": 20634,
+          "y": 55069,
+          "angle": 1435
+        },
+        "speed": 1,
+        "population": 9,
+        "capacity": 12
+      },
+      "viewport": [
+        1440,
+        1000
+      ],
+      "dpr": 1,
+      "toggle": {
+        "pressed": "false",
+        "disabled": false,
+        "sprite": {
+          "position": "-938px -26px",
+          "width": "19px",
+          "height": "16px"
+        },
+        "expectedSprite": {
+          "position": "-938px -26px",
+          "width": "19px",
+          "height": "16px"
+        }
+      },
+      "classes": [
+        {
+          "label": "Select follower",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select brave",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select warrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select firewarrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select preacher",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select spy",
+          "count": null,
+          "disabled": true
+        }
+      ],
+      "tasks": [
+        {
+          "label": "Currently selected Braves",
+          "count": 0,
+          "disabled": false
+        },
+        {
+          "label": "Idle Braves",
+          "count": 6,
+          "disabled": false
+        }
+      ],
+      "meter": "9 of 12"
+    },
+    {
+      "label": "global-away-selected",
+      "state": {
+        "level": 1,
+        "turn": 178,
+        "paused": true,
+        "flags": 2,
+        "selected": [
+          14
+        ],
+        "nearby": false,
+        "center": {
+          "x": 20634,
+          "y": 55069,
+          "angle": 1435
+        },
+        "speed": 1,
+        "population": 9,
+        "capacity": 12
+      },
+      "viewport": [
+        1440,
+        1000
+      ],
+      "dpr": 1,
+      "toggle": {
+        "pressed": "false",
+        "disabled": false,
+        "sprite": {
+          "position": "-938px -26px",
+          "width": "19px",
+          "height": "16px"
+        },
+        "expectedSprite": {
+          "position": "-938px -26px",
+          "width": "19px",
+          "height": "16px"
+        }
+      },
+      "classes": [
+        {
+          "label": "Select follower",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select brave",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select warrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select firewarrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select preacher",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select spy",
+          "count": null,
+          "disabled": true
+        }
+      ],
+      "tasks": [
+        {
+          "label": "Currently selected Braves",
+          "count": 1,
+          "disabled": false
+        },
+        {
+          "label": "Idle Braves",
+          "count": 6,
+          "disabled": false
+        }
+      ],
+      "meter": "9 of 12"
+    },
+    {
+      "label": "global-focused",
+      "state": {
+        "level": 1,
+        "turn": 178,
+        "paused": true,
+        "flags": 2,
+        "selected": [
+          14
+        ],
+        "nearby": false,
+        "center": {
+          "x": 4864,
+          "y": 55040,
+          "angle": 1435
+        },
+        "speed": 1,
+        "population": 9,
+        "capacity": 12
+      },
+      "viewport": [
+        1440,
+        1000
+      ],
+      "dpr": 1,
+      "toggle": {
+        "pressed": "false",
+        "disabled": false,
+        "sprite": {
+          "position": "-938px -26px",
+          "width": "19px",
+          "height": "16px"
+        },
+        "expectedSprite": {
+          "position": "-938px -26px",
+          "width": "19px",
+          "height": "16px"
+        }
+      },
+      "classes": [
+        {
+          "label": "Select follower",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select brave",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select warrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select firewarrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select preacher",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select spy",
+          "count": null,
+          "disabled": true
+        }
+      ],
+      "tasks": [
+        {
+          "label": "Currently selected Braves",
+          "count": 1,
+          "disabled": false
+        },
+        {
+          "label": "Idle Braves",
+          "count": 6,
+          "disabled": false
+        }
+      ],
+      "meter": "9 of 12"
+    },
+    {
+      "label": "global-selected",
+      "state": {
+        "level": 1,
+        "turn": 178,
+        "paused": true,
+        "flags": 2,
+        "selected": [
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        "nearby": false,
+        "center": {
+          "x": 4340,
+          "y": 55085,
+          "angle": 1435
+        },
+        "speed": 1,
+        "population": 9,
+        "capacity": 12
+      },
+      "viewport": [
+        1440,
+        1000
+      ],
+      "dpr": 1,
+      "toggle": {
+        "pressed": "false",
+        "disabled": false,
+        "sprite": {
+          "position": "-938px -26px",
+          "width": "19px",
+          "height": "16px"
+        },
+        "expectedSprite": {
+          "position": "-938px -26px",
+          "width": "19px",
+          "height": "16px"
+        }
+      },
+      "classes": [
+        {
+          "label": "Select follower",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select brave",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select warrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select firewarrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select preacher",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select spy",
+          "count": null,
+          "disabled": true
+        }
+      ],
+      "tasks": [
+        {
+          "label": "Currently selected Braves",
+          "count": 5,
+          "disabled": false
+        },
+        {
+          "label": "Idle Braves",
+          "count": 6,
+          "disabled": false
+        }
+      ],
+      "meter": "9 of 12"
+    },
+    {
+      "label": "nearby-before-save",
+      "state": {
+        "level": 1,
+        "turn": 178,
+        "paused": true,
+        "flags": 130,
+        "selected": [],
+        "nearby": true,
+        "center": {
+          "x": 4340,
+          "y": 55085,
+          "angle": 1435
+        },
+        "speed": 1,
+        "population": 9,
+        "capacity": 12
+      },
+      "viewport": [
+        1440,
+        1000
+      ],
+      "dpr": 1,
+      "toggle": {
+        "pressed": "true",
+        "disabled": false,
+        "sprite": {
+          "position": "-20px -535px",
+          "width": "19px",
+          "height": "16px"
+        },
+        "expectedSprite": {
+          "position": "-20px -535px",
+          "width": "19px",
+          "height": "16px"
+        }
+      },
+      "classes": [
+        {
+          "label": "Select follower",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select brave",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select warrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select firewarrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select preacher",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select spy",
+          "count": null,
+          "disabled": true
+        }
+      ],
+      "tasks": [
+        {
+          "label": "Currently selected Braves",
+          "count": 0,
+          "disabled": false
+        },
+        {
+          "label": "Idle Braves",
+          "count": 6,
+          "disabled": false
+        }
+      ],
+      "meter": "9 of 12"
+    },
+    {
+      "label": "nearby-pressed",
+      "state": {
+        "level": 1,
+        "turn": 178,
+        "paused": true,
+        "flags": 130,
+        "selected": [],
+        "nearby": true,
+        "center": {
+          "x": 4340,
+          "y": 55085,
+          "angle": 1435
+        },
+        "speed": 1,
+        "population": 9,
+        "capacity": 12
+      },
+      "viewport": [
+        1440,
+        1000
+      ],
+      "dpr": 1,
+      "toggle": {
+        "pressed": "true",
+        "disabled": false,
+        "sprite": {
+          "position": "-40px -535px",
+          "width": "19px",
+          "height": "16px"
+        },
+        "expectedSprite": {
+          "position": "-40px -535px",
+          "width": "19px",
+          "height": "16px"
+        }
+      },
+      "classes": [
+        {
+          "label": "Select follower",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select brave",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select warrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select firewarrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select preacher",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select spy",
+          "count": null,
+          "disabled": true
+        }
+      ],
+      "tasks": [
+        {
+          "label": "Currently selected Braves",
+          "count": 0,
+          "disabled": false
+        },
+        {
+          "label": "Idle Braves",
+          "count": 6,
+          "disabled": false
+        }
+      ],
+      "meter": "9 of 12"
+    },
+    {
+      "label": "nearby-canceled",
+      "state": {
+        "level": 1,
+        "turn": 178,
+        "paused": true,
+        "flags": 130,
+        "selected": [],
+        "nearby": true,
+        "center": {
+          "x": 4340,
+          "y": 55085,
+          "angle": 1435
+        },
+        "speed": 1,
+        "population": 9,
+        "capacity": 12
+      },
+      "viewport": [
+        1440,
+        1000
+      ],
+      "dpr": 1,
+      "toggle": {
+        "pressed": "true",
+        "disabled": false,
+        "sprite": {
+          "position": "-20px -535px",
+          "width": "19px",
+          "height": "16px"
+        },
+        "expectedSprite": {
+          "position": "-20px -535px",
+          "width": "19px",
+          "height": "16px"
+        }
+      },
+      "classes": [
+        {
+          "label": "Select follower",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select brave",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select warrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select firewarrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select preacher",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select spy",
+          "count": null,
+          "disabled": true
+        }
+      ],
+      "tasks": [
+        {
+          "label": "Currently selected Braves",
+          "count": 0,
+          "disabled": false
+        },
+        {
+          "label": "Idle Braves",
+          "count": 6,
+          "disabled": false
+        }
+      ],
+      "meter": "9 of 12"
+    },
+    {
+      "label": "loaded-nearby",
+      "state": {
+        "level": 1,
+        "turn": 207,
+        "paused": true,
+        "flags": 130,
+        "selected": [],
+        "nearby": true,
+        "center": {
+          "x": 4352,
+          "y": 55040,
+          "angle": 0
+        },
+        "speed": 1,
+        "population": 9,
+        "capacity": 12
+      },
+      "viewport": [
+        1440,
+        1000
+      ],
+      "dpr": 1,
+      "toggle": {
+        "pressed": "true",
+        "disabled": false,
+        "sprite": {
+          "position": "-20px -535px",
+          "width": "19px",
+          "height": "16px"
+        },
+        "expectedSprite": {
+          "position": "-20px -535px",
+          "width": "19px",
+          "height": "16px"
+        }
+      },
+      "classes": [
+        {
+          "label": "Select follower",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select brave",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select warrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select firewarrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select preacher",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select spy",
+          "count": null,
+          "disabled": true
+        }
+      ],
+      "tasks": [
+        {
+          "label": "Currently selected Braves",
+          "count": 0,
+          "disabled": false
+        },
+        {
+          "label": "Idle Braves",
+          "count": 6,
+          "disabled": false
+        }
+      ],
+      "meter": "9 of 12"
+    },
+    {
+      "label": "loaded-global",
+      "state": {
+        "level": 1,
+        "turn": 207,
+        "paused": true,
+        "flags": 2,
+        "selected": [],
+        "nearby": false,
+        "center": {
+          "x": 4352,
+          "y": 55040,
+          "angle": 0
+        },
+        "speed": 1,
+        "population": 9,
+        "capacity": 12
+      },
+      "viewport": [
+        1440,
+        1000
+      ],
+      "dpr": 1,
+      "toggle": {
+        "pressed": "false",
+        "disabled": false,
+        "sprite": {
+          "position": "-938px -26px",
+          "width": "19px",
+          "height": "16px"
+        },
+        "expectedSprite": {
+          "position": "-938px -26px",
+          "width": "19px",
+          "height": "16px"
+        }
+      },
+      "classes": [
+        {
+          "label": "Select follower",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select brave",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select warrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select firewarrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select preacher",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select spy",
+          "count": null,
+          "disabled": true
+        }
+      ],
+      "tasks": [
+        {
+          "label": "Currently selected Braves",
+          "count": 0,
+          "disabled": false
+        },
+        {
+          "label": "Idle Braves",
+          "count": 6,
+          "disabled": false
+        }
+      ],
+      "meter": "9 of 12"
+    },
+    {
+      "label": "compact-global",
+      "state": {
+        "level": 1,
+        "turn": 207,
+        "paused": true,
+        "flags": 2,
+        "selected": [],
+        "nearby": false,
+        "center": {
+          "x": 4352,
+          "y": 55040,
+          "angle": 0
+        },
+        "speed": 1,
+        "population": 9,
+        "capacity": 12
+      },
+      "viewport": [
+        1280,
+        720
+      ],
+      "dpr": 2,
+      "toggle": {
+        "pressed": "false",
+        "disabled": false,
+        "sprite": {
+          "position": "-938px -26px",
+          "width": "19px",
+          "height": "16px"
+        },
+        "expectedSprite": {
+          "position": "-938px -26px",
+          "width": "19px",
+          "height": "16px"
+        }
+      },
+      "classes": [
+        {
+          "label": "Select follower",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select brave",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select warrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select firewarrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select preacher",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select spy",
+          "count": null,
+          "disabled": true
+        }
+      ],
+      "tasks": [
+        {
+          "label": "Currently selected Braves",
+          "count": 0,
+          "disabled": false
+        },
+        {
+          "label": "Idle Braves",
+          "count": 6,
+          "disabled": false
+        }
+      ],
+      "meter": "9 of 12"
+    },
+    {
+      "label": "compact-nearby",
+      "state": {
+        "level": 1,
+        "turn": 207,
+        "paused": true,
+        "flags": 130,
+        "selected": [],
+        "nearby": true,
+        "center": {
+          "x": 4352,
+          "y": 55040,
+          "angle": 0
+        },
+        "speed": 1,
+        "population": 9,
+        "capacity": 12
+      },
+      "viewport": [
+        1280,
+        720
+      ],
+      "dpr": 1,
+      "toggle": {
+        "pressed": "true",
+        "disabled": false,
+        "sprite": {
+          "position": "-20px -535px",
+          "width": "19px",
+          "height": "16px"
+        },
+        "expectedSprite": {
+          "position": "-20px -535px",
+          "width": "19px",
+          "height": "16px"
+        }
+      },
+      "classes": [
+        {
+          "label": "Select follower",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select brave",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select warrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select firewarrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select preacher",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select spy",
+          "count": null,
+          "disabled": true
+        }
+      ],
+      "tasks": [
+        {
+          "label": "Currently selected Braves",
+          "count": 0,
+          "disabled": false
+        },
+        {
+          "label": "Idle Braves",
+          "count": 6,
+          "disabled": false
+        }
+      ],
+      "meter": "9 of 12"
+    },
+    {
+      "label": "compact-keyboard-global",
+      "state": {
+        "level": 1,
+        "turn": 207,
+        "paused": true,
+        "flags": 2,
+        "selected": [],
+        "nearby": false,
+        "center": {
+          "x": 4352,
+          "y": 55040,
+          "angle": 0
+        },
+        "speed": 1,
+        "population": 9,
+        "capacity": 12
+      },
+      "viewport": [
+        1280,
+        720
+      ],
+      "dpr": 1,
+      "toggle": {
+        "pressed": "false",
+        "disabled": false,
+        "sprite": {
+          "position": "-938px -26px",
+          "width": "19px",
+          "height": "16px"
+        },
+        "expectedSprite": {
+          "position": "-938px -26px",
+          "width": "19px",
+          "height": "16px"
+        }
+      },
+      "classes": [
+        {
+          "label": "Select follower",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select brave",
+          "count": 8,
+          "disabled": false
+        },
+        {
+          "label": "Select warrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select firewarrior",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select preacher",
+          "count": null,
+          "disabled": true
+        },
+        {
+          "label": "Select spy",
+          "count": null,
+          "disabled": true
+        }
+      ],
+      "tasks": [
+        {
+          "label": "Currently selected Braves",
+          "count": 0,
+          "disabled": false
+        },
+        {
+          "label": "Idle Braves",
+          "count": 6,
+          "disabled": false
+        }
+      ],
+      "meter": "9 of 12"
+    }
+  ],
+  "epochs": [
+    {
+      "closed": true,
+      "exported": true,
+      "overflow": false,
+      "errorCount": 0,
+      "errors": [],
+      "requests": 3,
+      "commits": 3,
+      "selections": 7,
+      "sealed": {
+        "phases": [
+          "global-held",
+          "global-away",
+          "nearby-before-save"
+        ],
+        "nearby": true
+      },
+      "terminalMode": true,
+      "terminalTurn": 178,
+      "selectionEvents": [
+        {
+          "phase": "nearby-away-Idle Braves-left-",
+          "input": {
+            "type": "click",
+            "trusted": true,
+            "phase": 3,
+            "button": 0,
+            "detail": 1,
+            "key": null,
+            "repeat": false,
+            "ctrl": false,
+            "shift": false,
+            "label": "Idle Braves"
+          },
+          "command": {
+            "model": 2,
+            "shift": false,
+            "ctrl": false,
+            "focus": false,
+            "category": 2
+          },
+          "focusCalls": [],
+          "before": {
+            "level": 1,
+            "turn": 178,
+            "paused": true,
+            "flags": 130,
+            "selected": [],
+            "nearby": true,
+            "center": {
+              "x": 20634,
+              "y": 55069,
+              "angle": 1435
+            },
+            "speed": 1,
+            "population": 9,
+            "capacity": 12
+          },
+          "after": {
+            "level": 1,
+            "turn": 178,
+            "paused": true,
+            "flags": 130,
+            "selected": [],
+            "nearby": true,
+            "center": {
+              "x": 20634,
+              "y": 55069,
+              "angle": 1435
+            },
+            "speed": 1,
+            "population": 9,
+            "capacity": 12
+          }
+        },
+        {
+          "phase": "nearby-away-Idle Braves-left-Shift",
+          "input": {
+            "type": "click",
+            "trusted": true,
+            "phase": 3,
+            "button": 0,
+            "detail": 1,
+            "key": null,
+            "repeat": false,
+            "ctrl": false,
+            "shift": true,
+            "label": "Idle Braves"
+          },
+          "command": {
+            "model": 2,
+            "shift": true,
+            "ctrl": false,
+            "focus": false,
+            "category": 2
+          },
+          "focusCalls": [],
+          "before": {
+            "level": 1,
+            "turn": 178,
+            "paused": true,
+            "flags": 130,
+            "selected": [],
+            "nearby": true,
+            "center": {
+              "x": 20634,
+              "y": 55069,
+              "angle": 1435
+            },
+            "speed": 1,
+            "population": 9,
+            "capacity": 12
+          },
+          "after": {
+            "level": 1,
+            "turn": 178,
+            "paused": true,
+            "flags": 130,
+            "selected": [],
+            "nearby": true,
+            "center": {
+              "x": 20634,
+              "y": 55069,
+              "angle": 1435
+            },
+            "speed": 1,
+            "population": 9,
+            "capacity": 12
+          }
+        },
+        {
+          "phase": "nearby-away-Idle Braves-right-",
+          "input": {
+            "type": "contextmenu",
+            "trusted": true,
+            "phase": 3,
+            "button": 2,
+            "detail": 0,
+            "key": null,
+            "repeat": false,
+            "ctrl": false,
+            "shift": false,
+            "label": "Idle Braves"
+          },
+          "command": {
+            "model": 2,
+            "shift": false,
+            "ctrl": false,
+            "focus": true,
+            "category": 2
+          },
+          "focusCalls": [],
+          "before": {
+            "level": 1,
+            "turn": 178,
+            "paused": true,
+            "flags": 130,
+            "selected": [],
+            "nearby": true,
+            "center": {
+              "x": 20634,
+              "y": 55069,
+              "angle": 1435
+            },
+            "speed": 1,
+            "population": 9,
+            "capacity": 12
+          },
+          "after": {
+            "level": 1,
+            "turn": 178,
+            "paused": true,
+            "flags": 130,
+            "selected": [],
+            "nearby": true,
+            "center": {
+              "x": 20634,
+              "y": 55069,
+              "angle": 1435
+            },
+            "speed": 1,
+            "population": 9,
+            "capacity": 12
+          }
+        },
+        {
+          "phase": "nearby-away-Select brave-left-",
+          "input": {
+            "type": "click",
+            "trusted": true,
+            "phase": 3,
+            "button": 0,
+            "detail": 1,
+            "key": null,
+            "repeat": false,
+            "ctrl": false,
+            "shift": false,
+            "label": "Select brave"
+          },
+          "command": {
+            "model": 2,
+            "shift": false,
+            "ctrl": false,
+            "focus": false,
+            "category": null
+          },
+          "focusCalls": [],
+          "before": {
+            "level": 1,
+            "turn": 178,
+            "paused": true,
+            "flags": 130,
+            "selected": [],
+            "nearby": true,
+            "center": {
+              "x": 20634,
+              "y": 55069,
+              "angle": 1435
+            },
+            "speed": 1,
+            "population": 9,
+            "capacity": 12
+          },
+          "after": {
+            "level": 1,
+            "turn": 178,
+            "paused": true,
+            "flags": 130,
+            "selected": [],
+            "nearby": true,
+            "center": {
+              "x": 20634,
+              "y": 55069,
+              "angle": 1435
+            },
+            "speed": 1,
+            "population": 9,
+            "capacity": 12
+          }
+        },
+        {
+          "phase": "global-away-select",
+          "input": {
+            "type": "click",
+            "trusted": true,
+            "phase": 3,
+            "button": 0,
+            "detail": 1,
+            "key": null,
+            "repeat": false,
+            "ctrl": false,
+            "shift": false,
+            "label": "Idle Braves"
+          },
+          "command": {
+            "model": 2,
+            "shift": false,
+            "ctrl": false,
+            "focus": false,
+            "category": 2
+          },
+          "focusCalls": [],
+          "before": {
+            "level": 1,
+            "turn": 178,
+            "paused": true,
+            "flags": 2,
+            "selected": [],
+            "nearby": false,
+            "center": {
+              "x": 20634,
+              "y": 55069,
+              "angle": 1435
+            },
+            "speed": 1,
+            "population": 9,
+            "capacity": 12
+          },
+          "after": {
+            "level": 1,
+            "turn": 178,
+            "paused": true,
+            "flags": 2,
+            "selected": [
+              14
+            ],
+            "nearby": false,
+            "center": {
+              "x": 20634,
+              "y": 55069,
+              "angle": 1435
+            },
+            "speed": 1,
+            "population": 9,
+            "capacity": 12
+          }
+        },
+        {
+          "phase": "global-away-focus",
+          "input": {
+            "type": "contextmenu",
+            "trusted": true,
+            "phase": 3,
+            "button": 2,
+            "detail": 0,
+            "key": null,
+            "repeat": false,
+            "ctrl": false,
+            "shift": false,
+            "label": "Idle Braves"
+          },
+          "command": {
+            "model": 2,
+            "shift": false,
+            "ctrl": false,
+            "focus": true,
+            "category": 2
+          },
+          "focusCalls": [
+            {
+              "point": {
+                "x": 11,
+                "z": 33
+              },
+              "options": {
+                "animate": true
+              },
+              "receiverMatches": true
+            }
+          ],
+          "before": {
+            "level": 1,
+            "turn": 178,
+            "paused": true,
+            "flags": 2,
+            "selected": [
+              14
+            ],
+            "nearby": false,
+            "center": {
+              "x": 20634,
+              "y": 55069,
+              "angle": 1435
+            },
+            "speed": 1,
+            "population": 9,
+            "capacity": 12
+          },
+          "after": {
+            "level": 1,
+            "turn": 178,
+            "paused": true,
+            "flags": 2,
+            "selected": [
+              14
+            ],
+            "nearby": false,
+            "center": {
+              "x": 20634,
+              "y": 55069,
+              "angle": 1435
+            },
+            "speed": 1,
+            "population": 9,
+            "capacity": 12
+          }
+        },
+        {
+          "phase": "global-home-five",
+          "input": {
+            "type": "pointerup",
+            "trusted": true,
+            "phase": 3,
+            "button": 0,
+            "detail": 0,
+            "key": null,
+            "repeat": false,
+            "ctrl": true,
+            "shift": false,
+            "label": "Select brave"
+          },
+          "command": {
+            "model": 2,
+            "shift": false,
+            "ctrl": true,
+            "focus": false,
+            "category": null
+          },
+          "focusCalls": [],
+          "before": {
+            "level": 1,
+            "turn": 178,
+            "paused": true,
+            "flags": 2,
+            "selected": [],
+            "nearby": false,
+            "center": {
+              "x": 4340,
+              "y": 55085,
+              "angle": 1435
+            },
+            "speed": 1,
+            "population": 9,
+            "capacity": 12
+          },
+          "after": {
+            "level": 1,
+            "turn": 178,
+            "paused": true,
+            "flags": 2,
+            "selected": [
+              13,
+              14,
+              15,
+              16,
+              17
+            ],
+            "nearby": false,
+            "center": {
+              "x": 4340,
+              "y": 55085,
+              "angle": 1435
+            },
+            "speed": 1,
+            "population": 9,
+            "capacity": 12
+          }
+        }
+      ]
+    },
+    {
+      "closed": true,
+      "exported": true,
+      "overflow": false,
+      "errorCount": 0,
+      "errors": [],
+      "requests": 3,
+      "commits": 3,
+      "selections": 0,
+      "sealed": {
+        "phases": [
+          "loaded-global",
+          "compact-nearby",
+          "compact-keyboard-global"
+        ],
+        "nearby": false
+      },
+      "terminalMode": false,
+      "terminalTurn": 207,
+      "selectionEvents": []
+    }
+  ],
+  "checkpoint": {
+    "saved": {
+      "digest": {
+        "version": 1,
+        "level": 1,
+        "turn": 178,
+        "time": 14.833333333333334,
+        "checkpointSha256": "0bf40ac842cf730bf0ebe73987f5faf24e5d349cd6bdce5c3c489e1e2b207fe7",
+        "actorsSha256": "93b23e2f47857a7d3a87895ca71783059928841dad6bd124153b43b7e481b68c",
+        "terrainSha256": "5abb688e9200d582bcc87c627f117f885747d40089cb4a2ea2657bb07f18d109",
+        "stockSha256": "4369697845b0f3503debcf150b76b0fab1f596e34e60d2635217defd191f9af0"
+      },
+      "status": {
+        "kind": "save",
+        "trusted": true,
+        "captured": true,
+        "closed": false,
+        "publications": 1,
+        "errorCount": 0,
+        "errors": [],
+        "cleanup": {
+          "listener": false,
+          "subscription": false
+        }
+      }
+    },
+    "loaded": {
+      "digest": {
+        "version": 1,
+        "level": 1,
+        "turn": 178,
+        "time": 14.833333333333334,
+        "checkpointSha256": "443bf3194778550730cb3a594c863feaeb804170afdeb3e7138bb520263436bc",
+        "actorsSha256": "93b23e2f47857a7d3a87895ca71783059928841dad6bd124153b43b7e481b68c",
+        "terrainSha256": "5abb688e9200d582bcc87c627f117f885747d40089cb4a2ea2657bb07f18d109",
+        "stockSha256": "4369697845b0f3503debcf150b76b0fab1f596e34e60d2635217defd191f9af0"
+      },
+      "status": {
+        "kind": "load",
+        "trusted": true,
+        "captured": true,
+        "closed": false,
+        "publications": 1,
+        "errorCount": 0,
+        "errors": [],
+        "cleanup": {
+          "listener": false,
+          "subscription": false
+        }
+      },
+      "initial": {
+        "level": 1,
+        "turn": 178,
+        "paused": false,
+        "flags": 130,
+        "selected": [],
+        "nearby": true,
+        "center": {
+          "x": 4352,
+          "y": 55040,
+          "angle": 0
+        },
+        "speed": 1,
+        "population": 9,
+        "capacity": 12
+      }
+    },
+    "cleanup": {
+      "errors": [],
+      "save": {
+        "kind": "save",
+        "trusted": true,
+        "captured": true,
+        "closed": true,
+        "publications": 1,
+        "errorCount": 0,
+        "errors": [],
+        "cleanup": {
+          "listener": true,
+          "subscription": true
+        }
+      },
+      "load": {
+        "kind": "load",
+        "trusted": true,
+        "captured": true,
+        "closed": true,
+        "publications": 1,
+        "errorCount": 0,
+        "errors": [],
+        "cleanup": {
+          "listener": true,
+          "subscription": true
+        }
+      }
+    }
+  },
+  "errors": [],
+  "limits": "Ordinary M1 current-port proof. Paused UI cues are requests, not audible playback. No native execution, full panel, specialist/transport or hardware-performance claim."
+}

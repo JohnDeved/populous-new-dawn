@@ -1,0 +1,71 @@
+{
+  "verdict": "ACCEPT",
+  "scope": "Finite compact-only genuine Save178 public Load supplement and capture repair",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010",
+    "commit": "f1f7db4e842a2ccef2eac4148fffe42fe760421a",
+    "tree": "52fbb694bcbfdd881153813d68436dafb4e6f0d3",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "808e82fc24fba28013aa99262b2ee4a6b637862382501fc0360220eab0ce2da7"
+  },
+  "profileInputs": {
+    "application": "5b90b5ff9308cdc8103175c986b20e0b9cb8ffeacf984b0dffbba97193bd87c3",
+    "checker": "c47d5e887332b1204e6318b52f3ab2e7275a8ee8c4be303f7713789ba00a3fe6"
+  },
+  "changedFiles": [
+    {
+      "path": "qa/follower-nearby-compact-host.test.mjs",
+      "sha256": "2a68166a608229924ccd2acc4641ae60cb1178210c542ff6a28e370acba64f63"
+    },
+    {
+      "path": "qa/follower-nearby-display-capture.test.mjs",
+      "sha256": "38a4a7390d6d7eee7dd4b3f7a0a6667a94f1a2b0d3be6bdcc2971954f46da21f"
+    },
+    {
+      "path": "scripts/local-render/mission1-nearby-compact-load.mjs",
+      "sha256": "04b2dc0188c0488f32a97763f0a0e5391fc4a92730711bb509cc707b97b8a12d"
+    },
+    {
+      "path": "scripts/local-render/mission1-nearby-followers.mjs",
+      "sha256": "2ea01c823b191e027e8bc4cf3afd57a68bf61d821721e9e94c921bb55e58b362"
+    },
+    {
+      "path": "scripts/local-render/nearby-display-capture.mjs",
+      "sha256": "59597f0d2b4fb2bb9aba332410a297f7801bd5f24bc8a8573de45b345b0deea1"
+    }
+  ],
+  "focusedReceipt": {
+    "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-witness-node-07.json",
+    "sha256": "31209a7bb337c6ffd1be6ffbfaf11e05810bb17657e3a3ff58a66ca0e1b8df30",
+    "cases": 25,
+    "attribution": "17 existing QA cases plus8 supporting capture/finalizer cases; no addition to1853/299 product standard count"
+  },
+  "findings": [
+    "Existing full driver changes only compact screenshot capture; repaired PNG acquisition writes before post-metrics read and retains original read failure",
+    "New exact-run adapter uses real Start game Load Game, maintained typed checkpoint and first-Scene-start observers; binds committed178 to expected migrated digest before normal readiness/Pause/Followers",
+    "Three actual pointer/pointer/Enter mode transitions are observed with existing trusted witness and atomic endpoint validation",
+    "Fresh same-session CDP override uses bounded actual1280x720/DPR2 readiness; all three captures enforce pre/postDPR2 and2560x1440 PNG dimensions; unchanged surface validation",
+    "All errors and primary failure preserved through independent witness/checkpoint/CDP disposal and terminal report writes",
+    "Application/public/package/runtime inputs byte-identical; exact prior02 profile and saved178 marker have verified normal cleanup and no ownership locks",
+    "Adapter and support tests are run-specific continuation support, not automatically maintained package source"
+  ],
+  "priorResult": {
+    "path": "/workspace/scratch/69fd8163d94e/follower-nearby-ordinary02-result-review-20261010.json",
+    "sha256": "a4127fecd8b7ae4db02c499c15bee25c46209ab41d7117a22b5695cd353a1108"
+  },
+  "captureProof": {
+    "path": "/workspace/scratch/69fd8163d94e/follower-nearby-dpr-capture-probe03-result-review-20261010.json",
+    "sha256": "80020d01ab33d490dbbc273479bd57431255379673f4755787f334a7cf3010ea"
+  },
+  "profileMarker": {
+    "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/local-render-profiles/nearby-mission1-4395-02/populous-profile.json",
+    "sha256": "8beb306260b455aa9c8e56b44743b7a90564f5c2995a75f3c01fe474b7855a2e"
+  },
+  "limits": [
+    "Product standards and ordinary02 behavior carry; compactDPR2 product coverage still pending actual supplement",
+    "No new browser import transform needed: changed modules are Node host capture/driver/support; browser observer/snapshot modules unchanged since accepted09d repair",
+    "One exact final manifest and immediate guards still required under parent conditional grant"
+  ]
+}

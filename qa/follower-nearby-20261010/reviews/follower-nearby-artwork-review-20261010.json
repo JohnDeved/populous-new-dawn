@@ -1,0 +1,130 @@
+{
+  "verdict": "ACCEPT frozen original artwork, bounded importer, generated ownership and portable test source; final execution qualification remains separately bound",
+  "reviewedAtUtc": "2026-10-10T05:44:00Z",
+  "worktree": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010",
+  "baseHead": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+  "frozenHashes": {
+    "scripts/import-follower-nearby.py": "a9efc6a2e107cd09ba8380e29e220071e83d56a1ce9a5ea4c28e7aa29e764d22",
+    "tests/follower-nearby-art.test.mjs": "8290f0ce7c3595abea24201ccabba1e43684e677ca45029af67e86fb2ab4aa7e",
+    "engineering/generated-files.json": "6d289cebd4ed8060879e122d70c1f8c55fcd0885cf41ae103d002f36594a27eb",
+    "app/original-hud.json": "48497414995d90ae0e7de3bb4b667e83d8121a024d24d4b7a620412520c98931",
+    "public/original/hud.png": "28ac4447747ebddd500e00d590ab497ff87bb9c9b5d8bf2a9079a8a2ad71f493"
+  },
+  "reusedImporterHashes": {
+    "scripts/import-spell-hud-icons.py": "b58cd57fb44b1b35f3ba096dc793ea955064f7f338edf4f573308bd312257439",
+    "scripts/import-original.py": "02127ee637d42c033119a16045c26b01adaa7d8c2833a82c3bedd03d247039e0"
+  },
+  "inputHashes": {
+    "data/hfx0-0.dat": "681eb1734fd73f86a6a52a8540415ec69a241a378161b60e9c9da1263d4ee0bf",
+    "data/pal0-c.dat": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53"
+  },
+  "independentReadback": {
+    "method": "Python standard-library PNG CRC/filter decoding and bounded four-sprite PSFB/palette data reads; no imported project code, packages, test runner, browser or original/native execution. Read-only comparison to git base.",
+    "oldSize": [
+      1024,
+      534
+    ],
+    "newSize": [
+      1024,
+      551
+    ],
+    "preservedPixels": 546816,
+    "preservedRectangles": 1755,
+    "oldAndPreservedRgbaSha256": "c50ab43d869de09b9924592365ccbb76ff38d7bc59320184771edb82ea6d9019",
+    "metadataChanges": "Only additional rectangles876,877,878 and atlas height; all previous metadata/rectangles equal base.",
+    "frames": {
+      "875": {
+        "rectangle": [
+          938,
+          26,
+          19,
+          16
+        ],
+        "rgbaSha256": "f7079766bbad34ee8c6cf17bca7aaf3451cb9444f29f552a4fd16f24d594af9c",
+        "verifiedBeforeAndAfter": true
+      },
+      "876": {
+        "rectangle": [
+          0,
+          535,
+          19,
+          16
+        ],
+        "rgbaSha256": "f58a199ab488eccbb14765ea573f70fef205c6f9b776c7c9d9a4af4decb6f63a"
+      },
+      "877": {
+        "rectangle": [
+          20,
+          535,
+          19,
+          16
+        ],
+        "rgbaSha256": "9522098cc4f7c39e513026a2239a34fb9951da401bf39b55164b4b27cac600e6"
+      },
+      "878": {
+        "rectangle": [
+          40,
+          535,
+          19,
+          16
+        ],
+        "rgbaSha256": "36af3ae85d1407b0481c9c6513d09b0684ede349f0c176e93276dbb306bfc8ac"
+      }
+    }
+  },
+  "sourceReview": [
+    "Importer validates canonical input hashes, dimensions and existing875 before any append or idempotent result. Adds only876\u2013878 through the existing preserving append helper.",
+    "Existing installed frames require exact canonical pixels; partial append and invalid source/metadata reject without repair. Check-only and idempotent prepare return no output writes.",
+    "Generated ownership registers only the bounded876\u2013878 metadata/image appender. No unrelated atlas regeneration.",
+    "Portable fixture test meaningfully covers old pixels/metadata, initial check-only rejection, actual main append, idempotence/check-only no writes, partial append,875/877 corruption, wrong EXE metadata and wrong palette. Synthetic identities are confined to the fixture process."
+  ],
+  "receipts": {
+    "work/orchestration/nearby-art-inputs-20261010/extraction-receipt.json": {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-art-inputs-20261010/extraction-receipt.json",
+      "sha256": "f5067e60695249e3c5374221bf9332c6fad20acb0a5fa9ce422a0cf90063935e"
+    },
+    "work/orchestration/nearby-art-inputs-20261010/append.stdout.json": {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-art-inputs-20261010/append.stdout.json",
+      "sha256": "7019295ef9ec5492b454ddb5151e1d196223615a50aad35b318f6d1f5387a3a9"
+    },
+    "work/orchestration/nearby-checks-20261010/focused-initial.json": {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-checks-20261010/focused-initial.json",
+      "sha256": "fbb8114af586c35b9c61c8cac6e5ab67e475479185a335965ed2e7bba8f01091",
+      "status": "passed",
+      "exitCode": 0,
+      "logs": {
+        "stdout": {
+          "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-checks-20261010/focused-initial.json.artifacts/stdout.log",
+          "sha256": "8f20f4d7393dcf97280d8e538406b203b9a1fc48e1c8b318f14bcf3c0ec21f8b"
+        },
+        "stderr": {
+          "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-checks-20261010/focused-initial.json.artifacts/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    "work/orchestration/nearby-checks-20261010/canonical-art-check.json": {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-checks-20261010/canonical-art-check.json",
+      "sha256": "be6bd058b7e19f30fb065a8436c98a0742e230fa5e0f3834059c7e6a3156cbcb",
+      "status": "passed",
+      "exitCode": 0,
+      "logs": {
+        "stdout": {
+          "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-checks-20261010/canonical-art-check.json.artifacts/stdout.log",
+          "sha256": "12de6e53fe78bb778c9665ecabb8e10a952a7de084aa086e5602a97e7664587d"
+        },
+        "stderr": {
+          "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-checks-20261010/canonical-art-check.json.artifacts/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    }
+  },
+  "qualificationRequirement": "Final portable execution must run on the committed final source, or explicitly pin scripts/import-follower-nearby.py, scripts/import-spell-hud-icons.py and scripts/import-original.py alongside the test. focused-initial pins the art test but omitted the then-untracked importer; do not upgrade it to full frozen-importer execution proof. canonical-art-check correctly pins importer/helper and verifies the installed canonical art.",
+  "limits": [
+    "No code findings in this bounded scope.",
+    "Main reviewer owns actual Page/CSS art-state consumption and live input/count/checkpoint behavior.",
+    "No new test/package/browser/native execution by this reviewer. No original renderer or live browser visual equivalence claimed.",
+    "Only this review JSON is written; implementation and source artifacts remain untouched."
+  ]
+}

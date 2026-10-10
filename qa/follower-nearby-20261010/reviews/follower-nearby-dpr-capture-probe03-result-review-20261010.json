@@ -1,0 +1,89 @@
+{
+  "verdict": "ACCEPT",
+  "receipt": {
+    "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-dpr-capture-03.json",
+    "sha256": "ca5eb38cff16739fd65b424862a1f183a53be5ed8113f39c7ec8c13d57da6147"
+  },
+  "source": "8b8ad6e840fb26cc3e51fecf7763bc68173be58b",
+  "result": {
+    "status": "passed",
+    "requests": [],
+    "errors": [],
+    "captures": [
+      {
+        "index": 0,
+        "before": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 2
+        },
+        "pixels": [
+          2560,
+          1440
+        ],
+        "after": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 2
+        }
+      },
+      {
+        "index": 1,
+        "before": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 2
+        },
+        "pixels": [
+          2560,
+          1440
+        ],
+        "after": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 2
+        }
+      },
+      {
+        "index": 2,
+        "before": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 2
+        },
+        "pixels": [
+          2560,
+          1440
+        ],
+        "after": {
+          "width": 1280,
+          "height": 720,
+          "dpr": 2
+        }
+      }
+    ],
+    "browser": "154.0.8037.92",
+    "closed": true
+  },
+  "startedAt": "2026-10-10T06:36:55.712Z",
+  "finishedAt": "2026-10-10T06:36:56.629Z",
+  "rawLogs": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-dpr-capture-03.json.artifacts/stdout.log",
+      "sha256": "bcd9d292e39c6e02ed99427bfbbbf74091dbe13e7606da02b6693d056ae8618f"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-dpr-capture-03.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "admission": {
+    "path": "/workspace/scratch/69fd8163d94e/follower-nearby-dpr-capture-probe03-admission-20261010.json",
+    "sha256": "840efca6171ff22174e41c26a8bd764b320403e684fb913608b8bd0bd7e39936"
+  },
+  "finding": "Fresh same-session CDP-only capture preserves actualDPR2 across three screenshots and emits2560x1440 PNGs for1280x720 viewport.",
+  "limits": [
+    "No game/ordinary visual claim yet; compact saved-checkpoint supplement remains pending.",
+    "Both earlier mixed-session probe failures remain retained."
+  ]
+}

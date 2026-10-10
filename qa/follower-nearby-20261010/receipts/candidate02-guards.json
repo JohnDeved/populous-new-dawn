@@ -1,0 +1,49 @@
+{
+  "manifest": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-mission1-4395-02-prelaunch.json",
+  "manifestSha256": "111c75a9a3580567d6b5a9488a92fe6a71993b674ce3f9cde8ea2937e852784f",
+  "source": "8835a23eaa031ba48a72f3c752b4450fa85fbdd3a022d43100f53153ed2ed95c",
+  "beforeSharedCache": {
+    "exists": true,
+    "device": 27,
+    "inode": 666002,
+    "mtimeMs": 1791612175230.8586,
+    "entries": []
+  },
+  "beforeTaskCache": {
+    "exists": true,
+    "device": 27,
+    "inode": 1355005,
+    "mtimeMs": 1791612857505.606,
+    "entries": [
+      "deps",
+      "deps_rsc",
+      "deps_ssr"
+    ]
+  },
+  "startedAt": "2026-10-10T06:25:11.447Z",
+  "maximumDeadline": "2026-10-10T06:30:56.447Z",
+  "finishedAt": "2026-10-10T06:26:52.634Z",
+  "exitCode": 0,
+  "signal": null,
+  "afterSharedCache": {
+    "exists": true,
+    "device": 27,
+    "inode": 666002,
+    "mtimeMs": 1791612175230.8586,
+    "entries": []
+  },
+  "afterTaskCache": {
+    "exists": true,
+    "device": 27,
+    "inode": 1355005,
+    "mtimeMs": 1791612857505.606,
+    "entries": [
+      "deps",
+      "deps_rsc",
+      "deps_ssr"
+    ]
+  },
+  "sharedCacheUnchanged": true,
+  "listenerAfter": false,
+  "profileLockExists": false
+}

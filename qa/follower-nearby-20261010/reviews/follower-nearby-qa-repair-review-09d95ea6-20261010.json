@@ -1,0 +1,74 @@
+{
+  "verdict": "ACCEPT",
+  "scope": "Changed-only QA serialization and failed-inspect evidence repair; exact product unchanged",
+  "source": "09d95ea6337946f217406babde7863f3db601319",
+  "tree": "2efa6d9453e9e7f02738ae03d6c446cf2e3e5290",
+  "base": "cfaff7b5e727f73ee367004d8a72de4f9b69b621",
+  "changedFiles": [
+    {
+      "path": "scripts/local-render/follower-nearby-snapshot.mjs",
+      "sha256": "29a55ad383205e1240e32f5dd1e3d2790f6ed2eae123750fa3e4ca488fe43b07"
+    },
+    {
+      "path": "scripts/local-render/mission1-nearby-followers.mjs",
+      "sha256": "e62fa1bf34aeb0b2a62a9d81bb029425c4e1c45e8b137bde4b99e869240b72c9"
+    },
+    {
+      "path": "tests/follower-nearby-host.test.mjs",
+      "sha256": "0a0cdfe8a9e1224f02f06a6c74465a7cf17f2dfaa571fe3033f6e920c4b5bd3a"
+    },
+    {
+      "path": "tests/follower-nearby-surface.test.mjs",
+      "sha256": "795f20d1dc63483539d5c663783f4f155bba330f95b52c77aef17f3a0239b841"
+    }
+  ],
+  "receipt": {
+    "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-witness-node-06.json",
+    "sha256": "472e19fc036fc5b90c00e2e19887b469cade85d2ce1955887b24a69e9e08514c"
+  },
+  "tests": 17,
+  "rawLogs": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-witness-node-06.json.artifacts/stdout.log",
+      "sha256": "a29e55fa7b390c02099ced51b67dc59c4dfaabd52bb19a84f1cdbb0819fbd0ee"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-witness-node-06.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "findings": [
+    "Single expression changes numeric sign formatting so zero serializes as 0px; exact nonzero coordinates, dimensions, units and atlas/frame comparisons remain strict.",
+    "Exact separately accepted Chrome154 CSSOM probe establishes serialization. Supplied tests verify consumer and wrong-coordinate/frame/unit/dimension rejection.",
+    "Actual inspect caller retains one <=256 KiB failed state/surface diagnostic, then original screenshot attempt and report write, preserving original primary error across diagnostic/read/overflow/write failures.",
+    "Existing actual Page/Scene/typed checkpoint and observer ownership/endpoint tests remain in the fresh 17-case pass.",
+    "All app/public/package/lock trees remain exactly product01fa; complete standard result and baseline screenshot carry unchanged."
+  ],
+  "transformCarry": {
+    "receipt": "nearby-transform-02.json",
+    "exactSource": "cfaff7b5e727f73ee367004d8a72de4f9b69b621",
+    "limit": "Retained transform result remains attributed to cfaff. Its only changed browser module is the inspected single arithmetic interpolation in snapshot; import graph/config/checker unchanged, exercised by new consumer tests. Host diagnostic branch is Node-only. No claim that old transformed snapshot hash describes new bytes."
+  },
+  "evidenceReviews": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/follower-nearby-candidate01-failure-review-20261010.json",
+      "sha256": "f0949efc4ed111bb96340d6291a49c7f8524c907113b9e10b9e848893b8fdd51"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/follower-nearby-cssom-probe-result-review-20261010.json",
+      "sha256": "5929c0865a4ff92fd22f36bf98b4c8e310bb0730284654e820015a92bafbb659"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/follower-nearby-final-standard-result-review-01fa0146-20261010.json",
+      "sha256": "1ed6855e6caea8e01f23c410b007990a5726e1bc1fb12be79d76527e9afa4dc5"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/follower-nearby-qa-source-transform-admission-cfaff7b5-20261010.json",
+      "sha256": "5662df75a8952ea534638c5d089276ed3cda8a81dbc06d31b4e52b4f88edc862"
+    }
+  ],
+  "limits": [
+    "Failed01 and no-checkpoint fact retained.",
+    "Ordinary02 requires a new exact fresh-profile/output manifest and parent resource grant; no retry is authorized by this source verdict."
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "91b3c962-d6c7-4b6d-bab4-be578cd63f4e",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+    "branch": "feature/issue60-nearby-followers-20261010",
+    "trackedDiffSha256": "4f0937ac08de23522a77c380d72813c3c5b51a00b964181d339f89a8ca54757e",
+    "inputs": {
+      "app/follower-nearby.ts": "5dde90cd34c57c60c6d91ae44b67acf528ae6725e606c6a2e656e0dd396606c0"
+    }
+  },
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010",
+  "startedAt": "2026-10-10T05:49:55.670Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-checks-20261010/typecheck-final-product.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-checks-20261010/typecheck-final-product.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-10T05:50:08.582Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+    "branch": "feature/issue60-nearby-followers-20261010",
+    "trackedDiffSha256": "4f0937ac08de23522a77c380d72813c3c5b51a00b964181d339f89a8ca54757e",
+    "inputs": {
+      "app/follower-nearby.ts": "5dde90cd34c57c60c6d91ae44b67acf528ae6725e606c6a2e656e0dd396606c0"
+    }
+  }
+}

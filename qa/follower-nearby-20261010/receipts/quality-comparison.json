@@ -1,0 +1,42 @@
+{
+  "base": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+  "head": "01fa014624be98eaac74a4f9a9268e8b32966973",
+  "files": [
+    "app/follower-nearby.ts",
+    "app/page.tsx",
+    "app/scene.ts",
+    "app/hud-population.ts",
+    "app/hud-tasks.ts",
+    "app/audio.ts",
+    "app/follower-tasks-view.tsx"
+  ],
+  "normalization": "Compare per-file rule/severity/message multisets; retain full raw diagnostics and their original line/column positions separately. ESLint embedded source excerpts are omitted only from comparison, never raw output.",
+  "eslint": {
+    "baselineStatus": "failed",
+    "candidateStatus": "failed",
+    "baselineCount": 4,
+    "candidateCount": 4,
+    "baseline": [
+      "app/audio.ts|prefer-const|2|'voice' is never reassigned. Use 'const' instead.",
+      "app/page.tsx|@next/next/no-img-element|1|Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element",
+      "app/page.tsx|@next/next/no-img-element|1|Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element",
+      "app/page.tsx|react-hooks/set-state-in-effect|2|Error: Calling setState synchronously within an effect can trigger cascading renders"
+    ],
+    "candidate": [
+      "app/audio.ts|prefer-const|2|'voice' is never reassigned. Use 'const' instead.",
+      "app/page.tsx|@next/next/no-img-element|1|Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element",
+      "app/page.tsx|@next/next/no-img-element|1|Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element",
+      "app/page.tsx|react-hooks/set-state-in-effect|2|Error: Calling setState synchronously within an effect can trigger cascading renders"
+    ],
+    "added": [],
+    "removed": []
+  },
+  "oxlint": {
+    "baselineExit": 1,
+    "candidateExit": 1,
+    "baselineCount": 58,
+    "candidateCount": 58,
+    "added": [],
+    "removed": []
+  }
+}

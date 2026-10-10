@@ -1,0 +1,36 @@
+{
+  "verdict": "ACCEPT for compact technical evidence publication and final PR308 body",
+  "reviewedAt": "2026-10-10T06:55:41.024102+00:00",
+  "product": "01fa014624be98eaac74a4f9a9268e8b32966973",
+  "productTree": "d6a1a8908770143136e8d223a955b78cfd9015ff",
+  "base": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+  "packet": "/workspace/scratch/69fd8163d94e/follower-nearby-evidence-20261010/qa/follower-nearby-20261010",
+  "readmeSha256": "7fa38f8b79da4071839f604805c86c275ce79297400441ffcf0a1af81f772cc8",
+  "manifestSha256": "95895584faecb8b2986123fd3bd15636e42e297b22e6e092851fb5e2d37df17a",
+  "prBodyTemplate": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-checks-20261010/final-pr-body-reviewed-template.md",
+  "prBodyTemplateSha256": "a55aa8c6375f0f112f6ef282fcdb29e59a5cc07440493d4d35db0c048568c367",
+  "verified": {
+    "copiedArtifacts": 41,
+    "derivedSummaries": 2,
+    "allowlistedFiles": 45,
+    "originalPngs": 8,
+    "allCopiesByteEqualToBoundOriginals": true,
+    "allReportedSummaryFieldsMatchRawProducers": true,
+    "relativeLinksResolve": true,
+    "payloadScope": "Technical receipts, reviews, bounded derived scalars and eight original screenshots only; no profile, storage database, source banks, executable, archive or complete gameplay history.",
+    "claims": "Source/art/full1853-in299 standards, truthful inherited failed lint, failed01 and uncaptured failed-game DOM value, failed capture probes, ordinary02 core with original DPR limitation, independently accepted strict compact supplement and distinct Save/Load/capture chronology.",
+    "visuals": "Previously independently viewed original pixels carried by exact hashes. DPR2 global/nearby substitutions use distinct filenames and exact final supplement PNGs. Keyboard-global image is hash-bound in summary and retained locally, not advertised as published."
+  },
+  "acceptedMechanicalSuccessorChanges": [
+    "README publication status pending to accepted",
+    "manifest status pending to accepted",
+    "append this verdict JSON and its exact hash to artifact manifest",
+    "replace EVIDENCE_SHA in final PR body with actual evidence commit after normal push/readback"
+  ],
+  "finalConditions": [
+    "Verify exact committed packet allowlist and mechanical changes only",
+    "Verify immutable report/inline image public bytes and final PR body/rendered image links",
+    "Parent immediate expected-head01fa/base721 readback before merge"
+  ],
+  "execution": "No new browser, native, dependency or test jobs performed for this publication review."
+}

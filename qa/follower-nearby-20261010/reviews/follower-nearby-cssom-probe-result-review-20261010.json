@@ -1,0 +1,36 @@
+{
+  "verdict": "ACCEPT",
+  "receipt": {
+    "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-cssom-01.json",
+    "sha256": "6577e3e9995709ed239cddc432f138bdf720abedbf7a69b294d39126a1e7560d"
+  },
+  "source": "cfaff7b5e727f73ee367004d8a72de4f9b69b621",
+  "probeResult": {
+    "status": "passed",
+    "requests": [],
+    "input": "-0px -535px",
+    "browser": "154.0.8037.92",
+    "result": {
+      "connected": false,
+      "serialized": "0px -535px"
+    },
+    "closed": true
+  },
+  "startedAt": "2026-10-10T06:18:35.495Z",
+  "finishedAt": "2026-10-10T06:18:36.188Z",
+  "rawLogs": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-cssom-01.json.artifacts/stdout.log",
+      "sha256": "9f3a2b6414e15f2963baa81efd59f5edaa626bd726a5fd0fdc2217e8d53d3945"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-cssom-01.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "finding": "Exact admitted Chrome154 CSSOM turns assigned -0px -535px into 0px -535px, confirming the QA literal serializer defect for HFX876 at x=0. Normal close and no requests verified.",
+  "limits": [
+    "Separate detached-element probe; missing failed-game DOM field is not retroactively observed.",
+    "No product defect or full ordinary episode pass inferred."
+  ]
+}

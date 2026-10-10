@@ -1,0 +1,85 @@
+{
+  "childExitCode": 0,
+  "signal": null,
+  "collectedAt": "2026-10-10T06:48:10.469Z",
+  "sourceAfter": {
+    "root": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010",
+    "commit": "f1f7db4e842a2ccef2eac4148fffe42fe760421a",
+    "tree": "52fbb694bcbfdd881153813d68436dafb4e6f0d3",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "808e82fc24fba28013aa99262b2ee4a6b637862382501fc0360220eab0ce2da7"
+  },
+  "cacheAfter": {
+    "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/local-render-vite-cache-nearby-4395/node_modules/.vite",
+    "device": 27,
+    "inode": 1355005,
+    "mtimeMs": 1791612857505.606,
+    "entries": [
+      "deps",
+      "deps_rsc",
+      "deps_ssr"
+    ]
+  },
+  "sharedAfter": {
+    "path": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/node_modules/.vite-temp",
+    "device": 27,
+    "inode": 666002,
+    "mtimeMs": 1791612175230.8586,
+    "entries": []
+  },
+  "profile": {
+    "version": 1,
+    "purpose": "populous-local-render-game-only",
+    "id": "d60f3d0b-c95d-40ab-8686-9283e919c1e7",
+    "path": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/local-render-profiles/nearby-mission1-4395-02",
+    "createdAt": "2026-10-10T06:25:13.021Z",
+    "binding": {
+      "root": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010",
+      "origin": "http://127.0.0.1:4395",
+      "application": "5b90b5ff9308cdc8103175c986b20e0b9cb8ffeacf984b0dffbba97193bd87c3",
+      "runtime": {
+        "node": "v24.19.0",
+        "platform": "linux",
+        "arch": "x64",
+        "browserPath": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/work/orchestration/recovery-20261009b/browser/chrome-headless-shell-linux64/chrome-headless-shell",
+        "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+        "playwright": "1.63.0",
+        "playwrightCoreSha256": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+        "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+        "harness": {
+          "harness.mjs": "70b8d5ef6f9d7092e60eea4427cf11aaa5f9a8ae950bfebea5aba250fc4194df",
+          "owned-profile.mjs": "445a29903f994f7fd4c4d0ee32924400b31b6c73673ec2e04d3f4ad3eee403f5",
+          "checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+          "vite.config.mjs": "13ff777419ab32742029721ecd754175a3d4c6700221147ea95bebc6713fb8aa"
+        }
+      }
+    },
+    "lastRun": {
+      "runId": "09913219-5bc9-427a-bb52-9092670da3aa",
+      "sourceFingerprint": "808e82fc24fba28013aa99262b2ee4a6b637862382501fc0360220eab0ce2da7",
+      "sourceCommit": "f1f7db4e842a2ccef2eac4148fffe42fe760421a",
+      "checker": "c47d5e887332b1204e6318b52f3ab2e7275a8ee8c4be303f7713789ba00a3fe6",
+      "receiptPath": "/workspace/scratch/69fd8163d94e/issue60-nearby-mission1-20261010/work/orchestration/nearby-compact-load-4395-01/receipt.json",
+      "receiptSha256": "4eff187321c44252ca00451f6b4ab5ba09acd1af3dab4201eaf754f380ebeb13",
+      "status": "passed",
+      "cleanupVerified": true,
+      "continuationVerified": true,
+      "checkpointAtEnd": {
+        "version": 1,
+        "level": 1,
+        "turn": 178,
+        "time": 14.833333333333334,
+        "checkpointSha256": "0bf40ac842cf730bf0ebe73987f5faf24e5d349cd6bdce5c3c489e1e2b207fe7",
+        "actorsSha256": "93b23e2f47857a7d3a87895ca71783059928841dad6bd124153b43b7e481b68c",
+        "terrainSha256": "5abb688e9200d582bcc87c627f117f885747d40089cb4a2ea2657bb07f18d109",
+        "stockSha256": "4369697845b0f3503debcf150b76b0fab1f596e34e60d2635217defd191f9af0"
+      }
+    }
+  },
+  "ownedCleanup": {
+    "profileMarkersAbsent": true,
+    "portUnbound": true
+  }
+}

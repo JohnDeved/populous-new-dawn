@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "0f0c0ceb-47c0-42f4-9354-850d8c850c57",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+    "branch": "feature/issue60-nearby-followers-20261010",
+    "trackedDiffSha256": "a425895128a2fb1c7bf357bd0f1a9c546bc8525a4be70b2d6daad3b28703c102",
+    "inputs": {
+      "scripts/import-follower-nearby.py": "a9efc6a2e107cd09ba8380e29e220071e83d56a1ce9a5ea4c28e7aa29e764d22",
+      "scripts/import-spell-hud-icons.py": "b58cd57fb44b1b35f3ba096dc793ea955064f7f338edf4f573308bd312257439",
+      "app/original-hud.json": "48497414995d90ae0e7de3bb4b667e83d8121a024d24d4b7a620412520c98931",
+      "public/original/hud.png": "28ac4447747ebddd500e00d590ab497ff87bb9c9b5d8bf2a9079a8a2ad71f493"
+    }
+  },
+  "command": [
+    "python",
+    "-B",
+    "scripts/import-follower-nearby.py",
+    "work/orchestration/nearby-art-inputs-20261010/game",
+    "--check"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010",
+  "startedAt": "2026-10-10T05:42:30.106Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-checks-20261010/canonical-art-check.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/work/orchestration/nearby-checks-20261010/canonical-art-check.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-10T05:42:30.457Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\n  \"status\": \"PASS_ORIGINAL_FOLLOWER_NEARBY_ART\",\n  \"changed\": false,\n  \"frames\": {\n    \"875\": {\n      \"width\": 19,\n      \"height\": 16,\n      \"rgbaSha256\": \"f7079766bbad34ee8c6cf17bca7aaf3451cb9444f29f552a4fd16f24d594af9c\"\n    },\n    \"876\": {\n      \"width\": 19,\n      \"height\": 16,\n      \"rgbaSha256\": \"f58a199ab488eccbb14765ea573f70fef205c6f9b776c7c9d9a4af4decb6f63a\"\n    },\n    \"877\": {\n      \"width\": 19,\n      \"height\": 16,\n      \"rgbaSha256\": \"9522098cc4f7c39e513026a2239a34fb9951da401bf39b55164b4b27cac600e6\"\n    },\n    \"878\": {\n      \"width\": 19,\n      \"height\": 16,\n      \"rgbaSha256\": \"36af3ae85d1407b0481c9c6513d09b0684ede349f0c176e93276dbb306bfc8ac\"\n    }\n  },\n  \"size\": [\n    1024,\n    551\n  ]\n}\n",
+  "stderr": "",
+  "stdoutSha256": "12de6e53fe78bb778c9665ecabb8e10a952a7de084aa086e5602a97e7664587d",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+    "branch": "feature/issue60-nearby-followers-20261010",
+    "trackedDiffSha256": "a425895128a2fb1c7bf357bd0f1a9c546bc8525a4be70b2d6daad3b28703c102",
+    "inputs": {
+      "scripts/import-follower-nearby.py": "a9efc6a2e107cd09ba8380e29e220071e83d56a1ce9a5ea4c28e7aa29e764d22",
+      "scripts/import-spell-hud-icons.py": "b58cd57fb44b1b35f3ba096dc793ea955064f7f338edf4f573308bd312257439",
+      "app/original-hud.json": "48497414995d90ae0e7de3bb4b667e83d8121a024d24d4b7a620412520c98931",
+      "public/original/hud.png": "28ac4447747ebddd500e00d590ab497ff87bb9c9b5d8bf2a9079a8a2ad71f493"
+    }
+  }
+}

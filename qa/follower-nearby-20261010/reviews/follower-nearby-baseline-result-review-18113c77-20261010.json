@@ -1,0 +1,121 @@
+{
+  "verdict": "ACCEPT",
+  "scope": "Exact prior-product ordinary M1 global Followers screenshot baseline",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/issue60-followers-baseline-20261010",
+    "commit": "18113c7725b2d1a268b5ce3c971e5e5afe467096",
+    "tree": "ef9e5ba08f872b323fad65cc6811708f383969c7",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "3cc41507700021830c795ba8514cb55ad467eb60c79e5b425ca07d28aa033b60"
+  },
+  "manifestSha256": "32bbfc6132d6cc1a9290f6d247e3bc20cd09aab5b2f9354a945bd7a7cd97d7f5",
+  "observed": {
+    "level": 1,
+    "turn": 154,
+    "paused": true,
+    "current": true,
+    "camera": {
+      "x": 5384,
+      "y": 55589,
+      "angle": 1447
+    },
+    "viewport": [
+      1440,
+      1000
+    ],
+    "dpr": 1,
+    "classes": [
+      {
+        "label": "Select follower",
+        "disabled": false,
+        "count": "8"
+      },
+      {
+        "label": "Select brave",
+        "disabled": false,
+        "count": "8"
+      },
+      {
+        "label": "Select warrior",
+        "disabled": true,
+        "count": null
+      },
+      {
+        "label": "Select firewarrior",
+        "disabled": true,
+        "count": null
+      },
+      {
+        "label": "Select preacher",
+        "disabled": true,
+        "count": null
+      },
+      {
+        "label": "Select spy",
+        "disabled": true,
+        "count": null
+      }
+    ],
+    "originalButton": "Planet overview"
+  },
+  "innerStartedAt": "2026-10-10T06:12:37.554Z",
+  "innerFinishedAt": "2026-10-10T06:13:31.343Z",
+  "outerStartedAt": "2026-10-10T06:12:37.225Z",
+  "outerFinishedAt": "2026-10-10T06:13:34.010Z",
+  "verified": [
+    "Outer passed and input/log hashes match; exact admitted command",
+    "Inner and outer source before/after equal; runtime and scenario equal",
+    "Fresh game-only profile with no checkpoint; cleanup and continuation true; lease and browser ownership markers absent",
+    "Committed profile marker matches final receipt digest",
+    "Original PNG independently visually inspected: full 1440x1000 global Followers HUD, original globe, counts, naturally rendered paused M1 island"
+  ],
+  "warnings": [
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0x20fc00197600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x20fc00197600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x20fc00197600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x20fc00197600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+  ],
+  "limits": [
+    "Exact original application M1 global Followers surface at normal DPR. Screenshot baseline only; no nearby behavior, matching-turn or native-raster claim.",
+    "Pixel baseline does not prove nearby behavior or matching turn across runs."
+  ],
+  "evidence": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-followers-baseline-20261010/work/orchestration/followers-baseline-4396-01/receipt.json",
+      "sha256": "0dda0f0e4e14ab2d3a5a20b06913bfcce689911f6593344718459a85dfb9b9c1"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-followers-baseline-20261010/work/orchestration/followers-baseline-4396-01/baseline.json",
+      "sha256": "835edb1e0d583c96c2ee3e29f90cbcd2abdf408beca7e5286ba48c2bc3255902"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-followers-baseline-20261010/work/orchestration/followers-baseline-4396-01/before-global-followers.png",
+      "sha256": "c96a58c953bc3291d85bb3d25ac5a1cf35dbfbec6d89e128836a56d6d4b62f11"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-followers-baseline-20261010/work/orchestration/followers-baseline-4396-01/server.log",
+      "sha256": "024c56377951ab94424102db134c02a069d132bac775654bf2dfaef81bed5176"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-followers-baseline-20261010/work/orchestration/followers-baseline-4396-01-command.json",
+      "sha256": "c6999658a31ec2931afebd58844dbff56bc7784e355c533af93cfde9f558043a"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-followers-baseline-20261010/work/orchestration/followers-baseline-4396-01-guards.json",
+      "sha256": "8048ccb7324072c33228357a248d6e3013697aeda8b84138a9f1da16d4d216c8"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-followers-baseline-20261010/work/orchestration/followers-baseline-4396-01-command.json.artifacts/stdout.log",
+      "sha256": "d445c36b38b03b04fe31c8f04358225c70c64885cf2dee064f5f1fa5e4740ca9"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/issue60-followers-baseline-20261010/work/orchestration/followers-baseline-4396-01-command.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

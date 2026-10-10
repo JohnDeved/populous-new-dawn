@@ -1,0 +1,51 @@
+{
+  "status": "APPENDED_ORIGINAL_FOLLOWER_NEARBY_ART",
+  "changed": true,
+  "appended": [
+    876,
+    877,
+    878
+  ],
+  "oldSize": [
+    1024,
+    534
+  ],
+  "newSize": [
+    1024,
+    551
+  ],
+  "oldPixelsSha256": "c50ab43d869de09b9924592365ccbb76ff38d7bc59320184771edb82ea6d9019",
+  "preservedOldPixelsSha256": "c50ab43d869de09b9924592365ccbb76ff38d7bc59320184771edb82ea6d9019",
+  "oldRectanglesPreserved": 1755,
+  "priorMetadataPreserved": true,
+  "frames": {
+    "875": {
+      "width": 19,
+      "height": 16,
+      "rgbaSha256": "f7079766bbad34ee8c6cf17bca7aaf3451cb9444f29f552a4fd16f24d594af9c"
+    },
+    "876": {
+      "width": 19,
+      "height": 16,
+      "rgbaSha256": "f58a199ab488eccbb14765ea573f70fef205c6f9b776c7c9d9a4af4decb6f63a"
+    },
+    "877": {
+      "width": 19,
+      "height": 16,
+      "rgbaSha256": "9522098cc4f7c39e513026a2239a34fb9951da401bf39b55164b4b27cac600e6"
+    },
+    "878": {
+      "width": 19,
+      "height": 16,
+      "rgbaSha256": "36af3ae85d1407b0481c9c6513d09b0684ede349f0c176e93276dbb306bfc8ac"
+    }
+  },
+  "inputs": {
+    "data/hfx0-0.dat": "681eb1734fd73f86a6a52a8540415ec69a241a378161b60e9c9da1263d4ee0bf",
+    "data/pal0-c.dat": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53"
+  },
+  "outputs": {
+    "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/public/original/hud.png": "28ac4447747ebddd500e00d590ab497ff87bb9c9b5d8bf2a9079a8a2ad71f493",
+    "/workspace/scratch/69fd8163d94e/issue60-nearby-followers-20261010/app/original-hud.json": "48497414995d90ae0e7de3bb4b667e83d8121a024d24d4b7a620412520c98931"
+  }
+}
