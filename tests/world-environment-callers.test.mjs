@@ -25,7 +25,7 @@ test('authored scene callers select independent terrain and full ordinary model 
     { missionData } = await import('../app/mission-data.ts')
   const originalFetch = globalThis.fetch
   t.after(() => { globalThis.fetch = originalFetch })
-  for (const [mission, bank, objectBank, override] of [[3, 'p', 6], [1, 'c', 2], [2, 's', 2], [10, 'p', 2], [3, 'c', 6, 255]]) {
+  for (const [mission, bank, objectBank, override] of [[3, 'p', 6], [1, 'c', 2], [2, 's', 2], [10, 'p', 2], [5, 'c', 6], [3, 'c', 6, 255]]) {
     await t.test(`mission ${mission}, landscape ${bank}, objects ${objectBank}${override ? ' (controlled unsupported header)' : ''}`, async () => {
       const level = missionData(mission).level, previous = level.landscapeBank
       if (override) level.landscapeBank = override
@@ -57,7 +57,7 @@ test('authored scene callers select independent terrain and full ordinary model 
         assert.equal(mesh.geometry.getAttribute('position').count / 3, objectBank === 6 ? 29 : 81)
         assert.equal(mesh.userData.nativeResource.bank, objectBank)
         assert.equal(scene.environment.landscape.requested, override ?? previous)
-        assert.equal(scene.environment.landscape.supported, !override)
+        assert.equal(scene.environment.landscape.supported, !override && [12, 25, 28].includes(previous))
         assert.ok(Object.isFrozen(scene.environment) && Object.isFrozen(scene.environment.landscape))
         terrain.terrain.geometry.dispose()
         terrain.terrain.material.dispose()
@@ -95,7 +95,8 @@ test('authored bank6 tree reaches lighting, waves, picking bounds and shadow rep
     assert.equal(mesh.userData.nativeResource.bank, 6)
     assert.ok(Object.isFrozen(mesh.userData.nativeResource))
     tree.shake = 1
-    tree.shakeOrigin = api.nativePosition(world, tree).h
+    const point = api.nativePosition(world, tree)
+    tree.shakeOrigin = ((point.x >>> 8) & 254) | (point.y & 0xfe00)
     updateDecorationsFrame(scene)
     updateModelLighting(mesh)
     for (const name of ['faceShade', 'faceAnchor', 'nativeWaveOffset']) {
@@ -103,6 +104,11 @@ test('authored bank6 tree reaches lighting, waves, picking bounds and shadow rep
       assert.equal(attribute.count, 87)
       assert.ok(attribute.array.every(Number.isFinite), name)
     }
+    // Hash-pinned bank6 model15 starts at raw PNTS (-3,602,0),
+    // (-13,518,25), (16,513,8). The authored tree is cell-centered,
+    // scale160, heading0, phase1: original integer wave offsets are these.
+    assert.deepEqual(Array.from(mesh.geometry.getAttribute('nativeWaveOffset').array.slice(0, 6)), [-9, 0, -5, 7, 8, 4])
+    assert.ok(mesh.geometry.getAttribute('nativeWaveOffset').array.some(value => value !== 0))
     assert.equal(mesh.userData.nativeSize, 160, 'existing wood/growth scale remains source scale')
     tree.burn = { scale: 73 }
     updateDecorationsFrame(scene)
