@@ -218,7 +218,9 @@ export function createNearbyFollowerWitness({ scene, store, read, root, maxEvent
     seal,
     take(expected) {
       if (exported) throw Error('Nearby terminal evidence already exported')
-      if (expected) seal(expected)
+      if (expected) {
+        try { seal(expected) } catch (failure) { error(failure) }
+      }
       close()
       exported = true
       const result = structuredClone({ ...status(), records, terminal })

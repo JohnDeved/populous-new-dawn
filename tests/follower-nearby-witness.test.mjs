@@ -183,6 +183,14 @@ test('stale owners, absent trusted dispatch and overflow cannot claim ordinary p
   assert.equal(evidence.closed, true)
   assert.equal(evidence.overflow, true)
   assert.ok(Buffer.byteLength(JSON.stringify(evidence)) <= evidence.maxBytes)
+  const failed = fixture({ readError: Error('retained original observation error') })
+  await failed.fire(() => failed.scene.requestNearbyFollowers())
+  const failedEvidence = failed.api.take({ phases: ['entry'], nearby: true })
+  assert.match(failedEvidence.errors[0], /retained original observation error/)
+  assert.match(failedEvidence.errors.at(-1), /endpoint was not sealed/)
+  assert.equal(failedEvidence.exported, true)
+  assert.throws(() => assertNearbyEvidence(failedEvidence, { phases: ['entry'], nearby: true }))
+  assert.throws(() => failed.api.take(), /already exported/)
 })
 
 test('wrong control/event/modifiers/focus recipient, detached commits and empty endpoints fail', async () => {

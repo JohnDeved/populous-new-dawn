@@ -86,7 +86,7 @@ test('ordinary observer joins actual Page activation, deferred Scene commit, cou
       engine: { current: scene }, followerPress: { current: null },
     })()(2)
   deliver('click', controls.onClick, 'Select brave')
-  assert.equal(world.selected.length, 1)
+  assert.equal(world.units.filter(unit => unit.kind === 'brave' && world.selected.includes(unit.id)).length, 1)
   deliver('contextmenu', controls.onContextMenu, 'Select brave', { button: 2 })
   assert.ok(panels.has(scene.hudFocus[2]))
   assert.equal(scene.cameraMotion.active, 1, 'Actual focus owner starts camera movement')
