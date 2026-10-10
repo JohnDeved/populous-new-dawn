@@ -1,0 +1,506 @@
+{
+  "kind": "read-only-decoded-record-inventory",
+  "assessmentBase": "f9675f56c597ec83adf02f28e9801bfc6bbd0490",
+  "scriptSha256": "6058b80ce56b7486cb1824012a1b618bd8168bbe5c0c3ad7c99b944a49a85bb0",
+  "sourceBindings": [
+    {
+      "path": "scripts/import-level.py",
+      "sha256": "d43217184e13df9726f2ba779f022147ab9604439a785757bdc42ec61f562ca5",
+      "bytes": 2522
+    },
+    {
+      "path": "app/world-initialization.ts",
+      "sha256": "0b2accb95c180d87e71bad8788f9c28f3f49ab8af66d5189fd26af69ab717fe2",
+      "bytes": 19595
+    },
+    {
+      "path": "app/mission-data.ts",
+      "sha256": "c4859525c084dfcd478a4fb5e08b93bb5f37c2aa1c2b8cd3250d5683b7e957cf",
+      "bytes": 7435
+    }
+  ],
+  "missions": [
+    {
+      "mission": 1,
+      "path": "app/level-one.ts",
+      "fileSha256": "e840e4ea8895ada4131c7d2da2ce70330307956ea7a6e647e55e76bf6026bd33",
+      "fileBytes": 9197,
+      "declaredOriginalSourceSha256": "97cdb6e170f68b462b5b36c42c99a598b0466e0131a105f30612f50d7f16e40c",
+      "declaredOriginalHeaderSha256": "4b89ef6d64e4010bb3ec3b5985d0edc8e710504e8b1bc75a6ae688bd6eb070a6",
+      "objectCount": 44,
+      "headCount": 3,
+      "slotsInspected": 30,
+      "headSlots": [
+        {
+          "authoredIndex": 1,
+          "authoredOrdinal": 2,
+          "owner": 0,
+          "linkWords": [
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "zeroSlots": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "duplicateNonzeroOrdinals": []
+        },
+        {
+          "authoredIndex": 28,
+          "authoredOrdinal": 29,
+          "owner": 0,
+          "linkWords": [
+            30,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "zeroSlots": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "duplicateNonzeroOrdinals": []
+        },
+        {
+          "authoredIndex": 30,
+          "authoredOrdinal": 31,
+          "owner": 0,
+          "linkWords": [
+            32,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "zeroSlots": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "duplicateNonzeroOrdinals": []
+        }
+      ],
+      "nonzeroLinks": [
+        {
+          "headAuthoredIndex": 1,
+          "headAuthoredOrdinal": 2,
+          "slot": 0,
+          "linkedAuthoredOrdinal": 3,
+          "withinNativeAuthoredRange": true,
+          "resolved": true,
+          "targetType": 6,
+          "targetModel": 2,
+          "targetOwner": 255,
+          "ordinaryBuildingBranchAdmits": false
+        },
+        {
+          "headAuthoredIndex": 28,
+          "headAuthoredOrdinal": 29,
+          "slot": 0,
+          "linkedAuthoredOrdinal": 30,
+          "withinNativeAuthoredRange": true,
+          "resolved": true,
+          "targetType": 6,
+          "targetModel": 2,
+          "targetOwner": 255,
+          "ordinaryBuildingBranchAdmits": false
+        },
+        {
+          "headAuthoredIndex": 30,
+          "headAuthoredOrdinal": 31,
+          "slot": 0,
+          "linkedAuthoredOrdinal": 32,
+          "withinNativeAuthoredRange": true,
+          "resolved": true,
+          "targetType": 6,
+          "targetModel": 2,
+          "targetOwner": 255,
+          "ordinaryBuildingBranchAdmits": false
+        }
+      ],
+      "class2Records": [
+        {
+          "authoredIndex": 0,
+          "authoredOrdinal": 1,
+          "model": 3,
+          "owner": 1
+        },
+        {
+          "authoredIndex": 35,
+          "authoredOrdinal": 36,
+          "model": 18,
+          "owner": 255
+        },
+        {
+          "authoredIndex": 36,
+          "authoredOrdinal": 37,
+          "model": 7,
+          "owner": 1
+        },
+        {
+          "authoredIndex": 41,
+          "authoredOrdinal": 42,
+          "model": 1,
+          "owner": 0
+        },
+        {
+          "authoredIndex": 42,
+          "authoredOrdinal": 43,
+          "model": 1,
+          "owner": 0
+        }
+      ],
+      "linkedClass2Count": 0,
+      "admittedLinkedClass2Count": 0,
+      "unresolvedNonzeroLinks": 0,
+      "outOfRangeNonzeroLinks": 0
+    },
+    {
+      "mission": 2,
+      "path": "app/level-two.ts",
+      "fileSha256": "c576f47683ab6e58682e78c221eed5f44e91717e2e27097be0f5b5ba9f97c111",
+      "fileBytes": 24752,
+      "declaredOriginalSourceSha256": "83f5c446975398b163ef00526567f7a86b2666d26f9f026231ec0b36bf5a289f",
+      "declaredOriginalHeaderSha256": "44be9f709f03f4b4d936d86056256e7bb98683088332b4bb47354ad709ea8a49",
+      "objectCount": 81,
+      "headCount": 3,
+      "slotsInspected": 30,
+      "headSlots": [
+        {
+          "authoredIndex": 25,
+          "authoredOrdinal": 26,
+          "owner": 0,
+          "linkWords": [
+            27,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "zeroSlots": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "duplicateNonzeroOrdinals": []
+        },
+        {
+          "authoredIndex": 59,
+          "authoredOrdinal": 60,
+          "owner": 0,
+          "linkWords": [
+            61,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "zeroSlots": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "duplicateNonzeroOrdinals": []
+        },
+        {
+          "authoredIndex": 63,
+          "authoredOrdinal": 64,
+          "owner": 0,
+          "linkWords": [
+            63,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "zeroSlots": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "duplicateNonzeroOrdinals": []
+        }
+      ],
+      "nonzeroLinks": [
+        {
+          "headAuthoredIndex": 25,
+          "headAuthoredOrdinal": 26,
+          "slot": 0,
+          "linkedAuthoredOrdinal": 27,
+          "withinNativeAuthoredRange": true,
+          "resolved": true,
+          "targetType": 6,
+          "targetModel": 2,
+          "targetOwner": 255,
+          "ordinaryBuildingBranchAdmits": false
+        },
+        {
+          "headAuthoredIndex": 59,
+          "headAuthoredOrdinal": 60,
+          "slot": 0,
+          "linkedAuthoredOrdinal": 61,
+          "withinNativeAuthoredRange": true,
+          "resolved": true,
+          "targetType": 7,
+          "targetModel": 24,
+          "targetOwner": 0,
+          "ordinaryBuildingBranchAdmits": false
+        },
+        {
+          "headAuthoredIndex": 63,
+          "headAuthoredOrdinal": 64,
+          "slot": 0,
+          "linkedAuthoredOrdinal": 63,
+          "withinNativeAuthoredRange": true,
+          "resolved": true,
+          "targetType": 6,
+          "targetModel": 2,
+          "targetOwner": 255,
+          "ordinaryBuildingBranchAdmits": false
+        }
+      ],
+      "class2Records": [
+        {
+          "authoredIndex": 0,
+          "authoredOrdinal": 1,
+          "model": 18,
+          "owner": 255
+        },
+        {
+          "authoredIndex": 1,
+          "authoredOrdinal": 2,
+          "model": 7,
+          "owner": 3
+        },
+        {
+          "authoredIndex": 3,
+          "authoredOrdinal": 4,
+          "model": 3,
+          "owner": 3
+        },
+        {
+          "authoredIndex": 5,
+          "authoredOrdinal": 6,
+          "model": 3,
+          "owner": 3
+        },
+        {
+          "authoredIndex": 24,
+          "authoredOrdinal": 25,
+          "model": 4,
+          "owner": 3
+        },
+        {
+          "authoredIndex": 79,
+          "authoredOrdinal": 80,
+          "model": 3,
+          "owner": 3
+        },
+        {
+          "authoredIndex": 80,
+          "authoredOrdinal": 81,
+          "model": 3,
+          "owner": 0
+        }
+      ],
+      "linkedClass2Count": 0,
+      "admittedLinkedClass2Count": 0,
+      "unresolvedNonzeroLinks": 0,
+      "outOfRangeNonzeroLinks": 0
+    },
+    {
+      "mission": 3,
+      "path": "app/level-three.ts",
+      "fileSha256": "7de51508c51d8193ee961de63a79016be4c58de284aefc3a707339b5e9b81e07",
+      "fileBytes": 32468,
+      "declaredOriginalSourceSha256": "eb239eabebbcde37c1e1633b149d48977cedf432348a12fc5ee6b4be74c049bf",
+      "declaredOriginalHeaderSha256": "219dd7611a4e3f6c2d4e78620a4d5bb9cf61bf0e9c66c21b2b43b89c8ba4d3f0",
+      "objectCount": 109,
+      "headCount": 2,
+      "slotsInspected": 20,
+      "headSlots": [
+        {
+          "authoredIndex": 91,
+          "authoredOrdinal": 92,
+          "owner": 0,
+          "linkWords": [
+            93,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "zeroSlots": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "duplicateNonzeroOrdinals": []
+        },
+        {
+          "authoredIndex": 101,
+          "authoredOrdinal": 102,
+          "owner": 0,
+          "linkWords": [
+            104,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "zeroSlots": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "duplicateNonzeroOrdinals": []
+        }
+      ],
+      "nonzeroLinks": [
+        {
+          "headAuthoredIndex": 91,
+          "headAuthoredOrdinal": 92,
+          "slot": 0,
+          "linkedAuthoredOrdinal": 93,
+          "withinNativeAuthoredRange": true,
+          "resolved": true,
+          "targetType": 6,
+          "targetModel": 2,
+          "targetOwner": 255,
+          "ordinaryBuildingBranchAdmits": false
+        },
+        {
+          "headAuthoredIndex": 101,
+          "headAuthoredOrdinal": 102,
+          "slot": 0,
+          "linkedAuthoredOrdinal": 104,
+          "withinNativeAuthoredRange": true,
+          "resolved": true,
+          "targetType": 7,
+          "targetModel": 23,
+          "targetOwner": 0,
+          "ordinaryBuildingBranchAdmits": false
+        }
+      ],
+      "class2Records": [
+        {
+          "authoredIndex": 0,
+          "authoredOrdinal": 1,
+          "model": 1,
+          "owner": 0
+        },
+        {
+          "authoredIndex": 104,
+          "authoredOrdinal": 105,
+          "model": 18,
+          "owner": 255
+        }
+      ],
+      "linkedClass2Count": 0,
+      "admittedLinkedClass2Count": 0,
+      "unresolvedNonzeroLinks": 0,
+      "outOfRangeNonzeroLinks": 0
+    }
+  ],
+  "limits": [
+    "Original DAT/HDR hashes are declared provenance from committed generated files; original files were not re-read or decoded in this inventory.",
+    "No game code, importer, native instructions, browser or tests executed.",
+    "Authored ordinals are not physical native IDs; allocation success, initial free-pool order and runtime reachability are not established.",
+    "Native target flags4 0x20000000 and flags2 0x20000/0x100000 are runtime initializer state, absent from these decoded authored records; this inventory does not infer their actual final values.",
+    "Zero linked class-2 rows would exclude this particular authored M1-3 mismatch, not the separate neutral Vault or runtime replacement/identity gaps."
+  ]
+}
