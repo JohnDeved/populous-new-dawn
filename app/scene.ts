@@ -387,7 +387,10 @@ export class GameScene {
     // Passive texture()/loadTexture() lookups still reuse failures; only this new-scene
     // preload boundary may replace a completed required failure.
     const atlasAsset = retryFailedTexture(this.environment.landscape.modelAtlas),
-      selectionAtlasAsset = this.environment.landscape.modelAtlas === 'atlas' ? atlasAsset : retryFailedTexture('atlas'),
+      selectionAtlasAsset =
+        this.environment.landscape.modelAtlas === 'atlas'
+          ? atlasAsset
+          : retryFailedTexture('atlas'),
       unitAtlasAsset =
         nativeUnits.atlas === 'atlas' ? selectionAtlasAsset : retryFailedTexture(nativeUnits.atlas),
       knowledgeAtlas = vaultKnowledgeAtlas(world.outcome.level),
@@ -404,7 +407,9 @@ export class GameScene {
           ['hud', loadTexture('hud'), false],
           ['unit-health', loadTexture('unit-health'), false],
           [this.environment.landscape.modelAtlas, atlasAsset, true],
-          ...(this.environment.landscape.modelAtlas === 'atlas' ? [] : [['atlas', selectionAtlasAsset, true] as const]),
+          ...(this.environment.landscape.modelAtlas === 'atlas'
+            ? []
+            : [['atlas', selectionAtlasAsset, true] as const]),
           [nativeUnits.atlas, unitAtlasAsset, true],
           ...(knowledgeAtlasAsset ? [[knowledgeAtlas!, knowledgeAtlasAsset, true] as const] : []),
           ...templeAssets,

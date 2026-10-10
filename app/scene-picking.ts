@@ -53,7 +53,9 @@ export class ScenePicking {
     ].join(',')
     const cached = this.models.get(mesh)
     if (cached?.key === key && cached.position === position) return cached.commands
-    const resource = (shape.nativeResource as NativeModelResource | undefined) ?? nativeModelResource(shape.nativeModel),
+    const resource =
+        (shape.nativeResource as NativeModelResource | undefined) ??
+        nativeModelResource(shape.nativeModel),
       data = resource.data,
       { stage } = shape
     const origin = new THREE.Vector3().setFromMatrixPosition(mesh.matrixWorld)

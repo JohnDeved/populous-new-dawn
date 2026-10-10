@@ -1,6 +1,13 @@
 import { rebuildSecondaryLists } from './secondary-effects.ts'
 import { restoreSecondaryEffects } from './hut-smoke-runtime.ts'
-import { campaignCommand, createGift, createWorld, syncLandscapeObjects, type Gift, type World } from './model.ts'
+import {
+  campaignCommand,
+  createGift,
+  createWorld,
+  syncLandscapeObjects,
+  type Gift,
+  type World,
+} from './model.ts'
 import { missionData, missionEnemyTribe, missionNumbers } from './mission-data.ts'
 import { teamForTribe, type Point } from './world-types.ts'
 import { createComputerProducers } from './computer.ts'

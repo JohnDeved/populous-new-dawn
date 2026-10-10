@@ -174,7 +174,10 @@ export function syncLandscapeObjects(w: World) {
     const p = nativePosition(w, tree)
     scenery.set(tree.id, {
       object: rules.sceneryObjects[tree.model],
-      shapeIndex: nativeModelResource(rules.sceneryObjects[tree.model], worldEnvironment(w).objects.bank).shapeIndices[0],
+      shapeIndex: nativeModelResource(
+        rules.sceneryObjects[tree.model],
+        worldEnvironment(w).objects.bank
+      ).shapeIndices[0],
       anchorX: p.x & 0xfe00,
       anchorY: p.y & 0xfe00,
     })

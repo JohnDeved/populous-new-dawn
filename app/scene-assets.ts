@@ -2,7 +2,7 @@ import { templeArt } from './temple-art.ts'
 import * as THREE from 'three'
 import { nativeModelResource, type NativeModelResource } from './model-resources.ts'
 import { compatibilityEnvironment, type WorldEnvironment } from './world-environment.ts'
-import { modelDepthBias, modelStage, modelTextureModes, } from './model-faces.ts'
+import { modelDepthBias, modelStage, modelTextureModes } from './model-faces.ts'
 import { modelLighting, modelWaveOffsets } from './model-lighting.ts'
 import nativeUnits from './original-units.json'
 import nativeEffects from './original-effects.json'
@@ -60,7 +60,9 @@ export function loadTexture(kind: string) {
   t.wrapS = THREE.RepeatWrapping
   t.anisotropy = 8
   if (
-    kind === 'atlas' || kind === 'atlas-s' || kind === 'atlas-p' ||
+    kind === 'atlas' ||
+    kind === 'atlas-s' ||
+    kind === 'atlas-p' ||
     kind === templeArt.modelAtlas ||
     kind.startsWith('sky') ||
     kind.startsWith('clouds')
@@ -111,8 +113,15 @@ export function effectFrame(sprite: THREE.Sprite, frame: { index: number; w: num
   )
   sprite.scale.set(frame.w, frame.h, 1)
 }
-export function nativeModel(id: number, scale = 2, stage = 4, temple = false, environment: WorldEnvironment = compatibilityEnvironment) {
-  const resource = nativeModelResource(id, environment.objects.bank), data = resource.data
+export function nativeModel(
+  id: number,
+  scale = 2,
+  stage = 4,
+  temple = false,
+  environment: WorldEnvironment = compatibilityEnvironment
+) {
+  const resource = nativeModelResource(id, environment.objects.bank),
+    data = resource.data
   const geo = geometry(`original-${resource.bank}-${id}-${stage}`, () => {
     const { p, uv } = modelStage(data, stage),
       g = new THREE.BufferGeometry()
@@ -198,7 +207,9 @@ varying float modelTextureMode;
 export function updateModelLighting(object: THREE.Object3D) {
   if (!(object instanceof THREE.Mesh) || object.userData.nativeModel === undefined) return
   const { nativeModel: id, nativeSize, stage } = object.userData,
-    resource = (object.userData.nativeResource as NativeModelResource | undefined) ?? nativeModelResource(id),
+    resource =
+      (object.userData.nativeResource as NativeModelResource | undefined) ??
+      nativeModelResource(id),
     data = resource.data,
     heading = object.parent?.userData.nativeHeading ?? 0,
     tilt = object.parent?.userData.nativeTilt ?? 0,

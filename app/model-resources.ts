@@ -24,7 +24,9 @@ export function nativeModelResource(id: number, bank: 2 | 6 = 2): NativeModelRes
       id,
       bank,
       data,
-      shapeIndices: Object.freeze([...(bank === 6 && treeShapes[id] ? treeShapes[id] : shapes.objects[id])]),
+      shapeIndices: Object.freeze([
+        ...(bank === 6 && treeShapes[id] ? treeShapes[id] : shapes.objects[id]),
+      ]),
     })
     resources.set(key, resource)
   }

@@ -171,7 +171,13 @@ function makeBuilding(scene: GameScene, b: Building, stage: number, temple = fal
     renderId =
       originalTrainingHutObject(b) ??
       (nativeModels[id] ? id : nativeModels[base] ? base : rules.buildingObjects[13])
-  const model = nativeModel(renderId, b.kind === 'temple' ? 1.65 : 2, stage, temple, scene.environment)
+  const model = nativeModel(
+    renderId,
+    b.kind === 'temple' ? 1.65 : 2,
+    stage,
+    temple,
+    scene.environment
+  )
   g.add(model)
   const health = new THREE.Group(),
     top = b.kind === 'tower' ? 6 : 4.8
@@ -313,7 +319,15 @@ export function updateWaveShake(
 
 function makeShrine(scene: GameScene, shrine: Shrine) {
   const g = new THREE.Group()
-  g.add(nativeModel(stoneHead149Model(shrine, scene.world.outcome.level), 2, 4, false, scene.environment))
+  g.add(
+    nativeModel(
+      stoneHead149Model(shrine, scene.world.outcome.level),
+      2,
+      4,
+      false,
+      scene.environment
+    )
+  )
   scene.locate(g, shrine)
   scene.orientModel(g, stoneHeadAngle(shrine, scene.world.outcome.level))
   scene.objects.add(g)
