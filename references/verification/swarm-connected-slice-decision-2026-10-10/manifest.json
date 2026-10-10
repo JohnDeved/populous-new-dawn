@@ -1,0 +1,159 @@
+{
+  "kind": "connected-slice-decision-only",
+  "assessmentMain": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+  "sourceBindings": [
+    {
+      "sourceRevision": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+      "path": "app/construction-runtime.ts",
+      "sha256": "2ea49ae789ae747732c3bc327d58735f501b52dfcff84c17eef83ca4386c0653",
+      "bytes": 16414,
+      "priorAssessment": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "sameAsPriorAssessment": true
+    },
+    {
+      "sourceRevision": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+      "path": "app/live-command.ts",
+      "sha256": "a53f4f0a64104dabacdfb1d2242c1979baa047a89f192a89a52b1c72a702bdca",
+      "bytes": 29207,
+      "priorAssessment": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "sameAsPriorAssessment": true
+    },
+    {
+      "sourceRevision": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+      "path": "app/world-initialization.ts",
+      "sha256": "f9c94b937a6c84aaa9ca9064f3d5983330f0ade374a8b96edc75ee10753aaca9",
+      "bytes": 19860,
+      "priorAssessment": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "sameAsPriorAssessment": false
+    },
+    {
+      "sourceRevision": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+      "path": "app/world-state.ts",
+      "sha256": "880c00574e29d9f9e2cffd59d79ff337dcfe07d023d45b95481c09ff9e056ff6",
+      "bytes": 12421,
+      "priorAssessment": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "sameAsPriorAssessment": true
+    },
+    {
+      "sourceRevision": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+      "path": "app/game-store.ts",
+      "sha256": "9f3095fe6f351011e03124899e5693a21eb172855e61e11cd3d50bd5bf32c612",
+      "bytes": 18887,
+      "priorAssessment": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "sameAsPriorAssessment": false
+    },
+    {
+      "sourceRevision": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+      "path": "app/live-construction-runtime.ts",
+      "sha256": "232fe5fd59ead259fc09d94ec524fba173549e32fc07ab14f6b1006d631cd6fa",
+      "bytes": 20713,
+      "priorAssessment": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "sameAsPriorAssessment": true
+    },
+    {
+      "sourceRevision": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+      "path": "tests/building-preparation.test.mjs",
+      "sha256": "0276af6c92df2da9013d5d20d20ba18df59191062e51cf8e9313812a96de4e54",
+      "bytes": 9093,
+      "priorAssessment": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "sameAsPriorAssessment": true
+    },
+    {
+      "sourceRevision": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+      "path": "tests/level-start-fixture.mjs",
+      "sha256": "9a3421df185be19f8423d3363a79fd867bbafa2e105aa97071242fce3a28072b",
+      "bytes": 1717,
+      "priorAssessment": "3b13a7ff534ab95797b0b06330055cead956160d",
+      "sameAsPriorAssessment": true
+    },
+    {
+      "sourceRevision": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+      "path": "app/campaign-runtime.ts",
+      "sha256": "b8c23bacf9a3310b541091864b68623a6641734f81c4a4265894dbc0919176e8",
+      "bytes": 13937
+    },
+    {
+      "sourceRevision": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+      "path": "app/world-types.ts",
+      "sha256": "9ebdd9dc5bf1a6b87eb7f058a28c1706ff059198995b538740ae5a0d3afc6baf",
+      "bytes": 15770
+    },
+    {
+      "sourceRevision": "fc8e0ab32766920523f3085888a563b87c6d7cf7",
+      "path": "references/verification/swarm-class2-constructor-request-2026-10-10/README.md",
+      "sha256": "502e32ce5e187fd2b56f38c39aa8bf093296174f2ab6a8e6cad2b7c52fd2bf83",
+      "bytes": 10212
+    },
+    {
+      "sourceRevision": "fc8e0ab32766920523f3085888a563b87c6d7cf7",
+      "path": "references/verification/swarm-class9-plan-initializer-2026-10-10/README.md",
+      "sha256": "4c1599d0963dcca7bb91997f6a199954b74d3db501a31e475f13fcbfacbcffd3",
+      "bytes": 8806
+    },
+    {
+      "sourceRevision": "fc8e0ab32766920523f3085888a563b87c6d7cf7",
+      "path": "references/verification/swarm-plan-admission-validator-2026-10-10/README.md",
+      "sha256": "92becbfc77efe5b28bd340af5f239e81059f27e1e3442853ac73d460c253da8b",
+      "bytes": 9933
+    },
+    {
+      "sourceRevision": "fc8e0ab32766920523f3085888a563b87c6d7cf7",
+      "path": "references/verification/swarm-plan-pre-request-2026-10-10/README.md",
+      "sha256": "6e2e0a91307efe2da31237750cdd742de14aec233abe8198f61d879a063a2de0",
+      "bytes": 10254
+    },
+    {
+      "sourceRevision": "fc8e0ab32766920523f3085888a563b87c6d7cf7",
+      "path": "references/verification/swarm-class9-removal-2026-10-10/README.md",
+      "sha256": "4f8ac75083851811a76cb68c25bd683c1beea3f7c5d7eb2141ef1b7b5def1477",
+      "bytes": 9267
+    },
+    {
+      "sourceRevision": "fc8e0ab32766920523f3085888a563b87c6d7cf7",
+      "path": "references/verification/swarm-class2-live-contract-2026-10-10/README.md",
+      "sha256": "ab8862b0e6c5d9e8f586b68c787af442cdcf529aceae1a0c8c97da236aaec848",
+      "bytes": 12742
+    }
+  ],
+  "priorAcceptedIntegrationFindingsSha256": "b4ccd33f30cd017e373032ed200c56763924d5c2f4b5225ff97191664db489d1",
+  "priorAcceptedIntegrationReviewSha256": "83f2665b75ab1eafe1429146701c9f0603654fb3c02106946ed721c72c9e5204",
+  "latestSourceReviewSha256": "7ba1c65408b3423a0c2b1cc6b5707469156cd56041a6f1da7837cbb93b81d314",
+  "latestPublicationReadbackSha256": "d433810e713c6f432fa4bd9475b4a9e60efc316f9ebab6c4618302d16aaf07ef",
+  "runtimeChanges": false,
+  "newDecoding": false,
+  "testsRun": false,
+  "stop": "No ordinary exact owner can be initialized from existing arrays/history. Real connected initial/request stream remains; controlled caller design only.",
+  "sourceArtifacts": [
+    {
+      "path": "decision.md",
+      "sha256": "4ac7adfb5665bcb3c5a802f26cdad5560e72167744245bd5280accf997edb62f",
+      "bytes": 9015
+    },
+    {
+      "path": "current-consumer-comparison.json",
+      "sha256": "83cb9ec4a5b424d4d11c9f550efddd3dbac55ab154db49ce0bce1e6ee54636e7",
+      "bytes": 2559
+    },
+    {
+      "path": "current-owner-diff.patch",
+      "sha256": "1c2948577158de72da4f0f66cf9bd9c279c544d9b87df90f22c7087d96a4ab13",
+      "bytes": 2215
+    }
+  ],
+  "files": {
+    "README.md": {
+      "sha256": "4ac7adfb5665bcb3c5a802f26cdad5560e72167744245bd5280accf997edb62f",
+      "bytes": 9015
+    },
+    "current-consumer-comparison.json": {
+      "sha256": "83cb9ec4a5b424d4d11c9f550efddd3dbac55ab154db49ce0bce1e6ee54636e7",
+      "bytes": 2559
+    },
+    "current-owner-diff.patch": {
+      "sha256": "1c2948577158de72da4f0f66cf9bd9c279c544d9b87df90f22c7087d96a4ab13",
+      "bytes": 2215
+    }
+  },
+  "independentDecisionReviewSha256": "ce47dc29abad7475b6349ef870f0a8f4f6de59c50e0818806762a260fa519587",
+  "reviewInputsSha256": "43981a8b757e64bf600193e2b761df6978865ee25e02d6a58bfdb802ddc4c0a6"
+}

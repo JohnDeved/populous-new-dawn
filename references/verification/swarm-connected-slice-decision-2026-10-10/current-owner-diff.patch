@@ -1,0 +1,51 @@
+diff --git a/app/game-store.ts b/app/game-store.ts
+index a42a8807..d6e94764 100644
+--- a/app/game-store.ts
++++ b/app/game-store.ts
+@@ -155,7 +155,18 @@ export function migrateCheckpoint(world: World) {
+   world.campaignAIs ??= Array(4).fill(null)
+   world.campaignAIs[computerTribe] ??= world.ai
+   for (const ai of new Set([world.ai, ...world.campaignAIs]))
+-    if (ai) ai.producers ??= createComputerProducers()
++    if (ai) {
++      ai.producers ??= createComputerProducers()
++      // Compatibility only: an unestablished old owner has no accumulated
++      // radius. Established or malformed history stays unknown. Membership is
++      // retained by full-graph cloning, or waits for the next real object turn.
++      if (
++        [1, 2, 3].includes(world.outcome.level) &&
++        ai.constructionBase === undefined &&
++        !Object.hasOwn(ai, 'constructionRadius')
++      )
++        ai.constructionRadius = 0
++    }
+   world.spellScans ??= Array.from({ length: 4 }, (_, id) =>
+     id === computerTribe
+       ? world.spellScan
+diff --git a/app/world-initialization.ts b/app/world-initialization.ts
+index fc8d5371..8a96acd7 100644
+--- a/app/world-initialization.ts
++++ b/app/world-initialization.ts
+@@ -1,7 +1,11 @@
+ import { initializeLevelStart } from './level-start-runtime.ts'
+ import type { Point, Shrine, World } from './world-types.ts'
+ import { addBuilding } from './construction-runtime.ts'
+-import { campaignPosition, withCampaignTribe } from './campaign-runtime.ts'
++import {
++  campaignPosition,
++  withCampaignTribe,
++  rebuildConstructionBuildings,
++} from './campaign-runtime.ts'
+ import { campaignCommand } from './campaign-command-runtime.ts'
+ import { nativePosition, syncLandscapeObjects } from './world-terrain-runtime.ts'
+ import { distance } from './world-coordinates.ts'
+@@ -487,5 +491,9 @@ export function createWorld(missionNumber = 1): World {
+     initializeVaultKnowledge(shrine, missionNumber)
+   }
+   initializeLevelStart(w)
++  // 0x461d70 reset and 0x42b230's initial rebuild, for the authored early owners.
++  if ([1, 2, 3].includes(missionNumber))
++    for (const ai of w.campaignAIs) if (ai) ai.constructionRadius = 0
++  rebuildConstructionBuildings(w)
+   return w
+ }

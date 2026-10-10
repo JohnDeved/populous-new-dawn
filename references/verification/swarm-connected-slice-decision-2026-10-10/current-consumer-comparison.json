@@ -1,0 +1,66 @@
+[
+  {
+    "sourceRevision": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+    "path": "app/construction-runtime.ts",
+    "sha256": "2ea49ae789ae747732c3bc327d58735f501b52dfcff84c17eef83ca4386c0653",
+    "bytes": 16414,
+    "priorAssessment": "3b13a7ff534ab95797b0b06330055cead956160d",
+    "sameAsPriorAssessment": true
+  },
+  {
+    "sourceRevision": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+    "path": "app/live-command.ts",
+    "sha256": "a53f4f0a64104dabacdfb1d2242c1979baa047a89f192a89a52b1c72a702bdca",
+    "bytes": 29207,
+    "priorAssessment": "3b13a7ff534ab95797b0b06330055cead956160d",
+    "sameAsPriorAssessment": true
+  },
+  {
+    "sourceRevision": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+    "path": "app/world-initialization.ts",
+    "sha256": "f9c94b937a6c84aaa9ca9064f3d5983330f0ade374a8b96edc75ee10753aaca9",
+    "bytes": 19860,
+    "priorAssessment": "3b13a7ff534ab95797b0b06330055cead956160d",
+    "sameAsPriorAssessment": false
+  },
+  {
+    "sourceRevision": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+    "path": "app/world-state.ts",
+    "sha256": "880c00574e29d9f9e2cffd59d79ff337dcfe07d023d45b95481c09ff9e056ff6",
+    "bytes": 12421,
+    "priorAssessment": "3b13a7ff534ab95797b0b06330055cead956160d",
+    "sameAsPriorAssessment": true
+  },
+  {
+    "sourceRevision": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+    "path": "app/game-store.ts",
+    "sha256": "9f3095fe6f351011e03124899e5693a21eb172855e61e11cd3d50bd5bf32c612",
+    "bytes": 18887,
+    "priorAssessment": "3b13a7ff534ab95797b0b06330055cead956160d",
+    "sameAsPriorAssessment": false
+  },
+  {
+    "sourceRevision": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+    "path": "app/live-construction-runtime.ts",
+    "sha256": "232fe5fd59ead259fc09d94ec524fba173549e32fc07ab14f6b1006d631cd6fa",
+    "bytes": 20713,
+    "priorAssessment": "3b13a7ff534ab95797b0b06330055cead956160d",
+    "sameAsPriorAssessment": true
+  },
+  {
+    "sourceRevision": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+    "path": "tests/building-preparation.test.mjs",
+    "sha256": "0276af6c92df2da9013d5d20d20ba18df59191062e51cf8e9313812a96de4e54",
+    "bytes": 9093,
+    "priorAssessment": "3b13a7ff534ab95797b0b06330055cead956160d",
+    "sameAsPriorAssessment": true
+  },
+  {
+    "sourceRevision": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+    "path": "tests/level-start-fixture.mjs",
+    "sha256": "9a3421df185be19f8423d3363a79fd867bbafa2e105aa97071242fce3a28072b",
+    "bytes": 1717,
+    "priorAssessment": "3b13a7ff534ab95797b0b06330055cead956160d",
+    "sameAsPriorAssessment": true
+  }
+]
