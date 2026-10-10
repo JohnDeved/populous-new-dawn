@@ -13,6 +13,10 @@ import {
   waitForThemeSave,
 } from './world-theme-witness.mjs'
 
+export async function focusThemeShaman(page) {
+  await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+}
+
 export const referenceSource = '219384134d21200f80df0496a4866fb02fb200db'
 export const themeViewSequence = Object.freeze([
   Object.freeze({ key: '-', preset: 2, overview: false, capture: 'ground' }),
@@ -314,7 +318,7 @@ export default async function worldThemeSwitch({
   const views = async (label, level) => {
     // Same delivered controls in both modes; retain actual poses rather than
     // inventing exact cross-run camera/turn correspondence.
-    await button('Select shaman').click({ button: 'right' })
+    await focusThemeShaman(page)
     await settled()
     const initial = await page.evaluate(readThemePose)
     assert.equal(initial.preset, 0)

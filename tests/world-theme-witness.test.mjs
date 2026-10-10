@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createHash } from 'node:crypto'
+import { pageButton, pageSource, evaluatePage } from './support/follower-nearby-page.mjs'
 import { zoomPreset } from '../app/camera-view.ts'
 import {
   armThemeAction,
@@ -12,6 +13,7 @@ import {
 } from '../scripts/local-render/world-theme-witness.mjs'
 import { checkpointObservation } from '../scripts/local-render/checkpoint-observer.mjs'
 import {
+  focusThemeShaman,
   admitThemeMode,
   referenceSource,
   requireThemeFrame,
@@ -712,4 +714,40 @@ test('exported ordinary view sequence follows the shipped zoomPreset order', () 
     ['overview', 4],
   ])
   assert.equal(preset, 0)
+})
+
+test('theme camera focus uses the shipped primary portrait action and its exact accessible label', async () => {
+  const calls = [],
+    world = {},
+    shaman = { id: 17, x: 3, z: 4 }
+  const button = evaluatePage(pageButton(['portrait']).getText(pageSource), {
+    world,
+    shaman,
+    HOME: {},
+    portrait: {},
+    select: (...args) => calls.push(['select', ...args]),
+    audio: { current: { cue: value => calls.push(['cue', value]) } },
+    update: () => calls.push(['update']),
+    engine: { current: { focus: (...args) => calls.push(['focus', ...args]) } },
+  })
+  assert.equal(button.props['aria-label'], 'Select and focus shaman')
+  assert.equal(button.props.onContextMenu, undefined)
+  await focusThemeShaman({
+    getByRole(role, options) {
+      assert.equal(role, 'button')
+      assert.deepEqual(options, { name: button.props['aria-label'], exact: true })
+      return {
+        click(options) {
+          assert.equal(options, undefined)
+          button.props.onClick()
+        },
+      }
+    },
+  })
+  assert.deepEqual(calls, [
+    ['select', world, 'shaman'],
+    ['cue', 0x18],
+    ['update'],
+    ['focus', shaman, { animate: true }],
+  ])
 })
