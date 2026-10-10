@@ -14,6 +14,13 @@ original removal-body gap. The original mapping remains immutable at
 the assessment base above and the remaining bootstrap/Load/alias limits are
 unchanged. This update does not add a runtime owner.
 
+The later [bootstrap correspondence][bootstrap] binds `0048506f → 004edf50`
+to trigger-linked deactivation, not full-list reconstruction. Its retained body
+was already described by earlier smoke/Boat research. The finite authored M1–3
+inventory finds no linked class-2 target, so that specific omission does not
+justify an M1–3 runtime patch. Earlier fresh-level pool/cell setup, complete
+allocation history, neutral Vault identity and Load remain separate gaps.
+
 This extends the accepted [Swarm controller contract][controller] and
 [integration review][review] at `74b74346f2d67e94aed013fc9e1960e20ef36ceb`;
 those documents are not in this main tree. Their insertion, relocation and
@@ -39,7 +46,7 @@ and used bounded data-only decoding; it executed no original instructions.
 | Class-2 allocation from plan | `004b8470:303–331` allocates a separate class-2 object and stores its index in the existing plan's `+0x92`; initialization is explicitly staged. | Plan identity and allocated building identity are distinct even when the port exposes one Building. |
 | Hut upgrade | `004050c0:57–85` allocates the successor class-2 building first. Only successful allocation then cleans up and retires the old object. | Upgrade is replacement with new insertion order and identity, not only movement or model mutation. Failure retains the old object. |
 | Neutral Vault | `00402ec0:95–109` runs building initialization for model 18, then forces tribe `0xff`. `004866a0:44–60` can also allocate a model-18 Vault during level postprocessing. | Neutral Vaults remain class-2 candidates; the separate trigger/reward object is not their identity. |
-| Authored startup | `00484a10:180–255` walks file records, allocates eligible objects, writes authored ordinal to `+8`, then performs trigger and Vault postprocessing. | Authored ordinal `+8` is distinct from physical ID `+0x24`. Final arrays do not recover all allocation/postprocessing history. |
+| Authored startup | `00484a10:180–255` walks file records, allocates eligible objects, writes authored ordinal to `+8`, then performs trigger and Vault postprocessing. The [bootstrap correspondence][bootstrap] binds the following `004edf50` linked deactivation: active clear and conditional cell unlink, separate from retirement. | Authored ordinal `+8` is distinct from physical ID `+0x24`. Allocated-but-unlinked state cannot be reconstructed from final Building arrays; no M1–3 authored class-2 link was found. |
 | Deferred reuse | `004ee300` rebuilds primary free/allocated/pending-free lists from physical records and class/deleted state. The [static closure][retirement] proves counter 3, the `004ec6f0` countdown and exact `00401b40` pool prepend. | Immediate browser handle reuse is not proof of native reuse timing or free-list choice. Preserve countdown opportunities and list history. |
 
 The accepted Swarm acquisition predicate is first class-2 object of another tribe
@@ -134,11 +141,15 @@ port ownership mistakes; it must not silently change the native raw-ID predicate
    remains unchanged; the new evidence is retained as bounded assembly. Existing
    cleanup/associated-object owners retain their scope. This closes the named
    original-body gap, not browser identity aliases or save reconstruction.
-3. **Bootstrap/legacy order incomplete:** the retained loader proves authored
-   allocation before Vault postprocessing, but current aliases omit some of
-   those records and its `load_level_init_units` tail is not bound here. No
-   current save can supply history it never recorded. Define a supported
-   initialization/continuation boundary before claiming exact first-target order.
+3. **Bootstrap tail bound; earlier setup/legacy order incomplete:** the
+   [follow-up][bootstrap] binds the old `load_level_init_units` symbol to
+   `004edf50`. It walks fixed unit storage, visits ten head links, and deactivates
+   linked records without equating that step with retirement. Existing M1–3
+   authored links contain no class-2 target. The earlier fresh-level caller's
+   pool/cell setup and complete initializer allocation stream remain unbound;
+   current aliases still omit neutral bodies and separate lifetimes. No current
+   save can supply history it never recorded. Define a supported initialization/
+   continuation boundary before claiming exact first-target order.
 
 The accepted ejection queue/returned-person mapping is unchanged and is not a
 new blocker. PR284's successful-Hut passive storage and the earlier ground-Swarm
@@ -151,3 +162,4 @@ follow-up records its additional data-only decoding and independent review.
 [controller]: https://github.com/JohnDeved/populous-new-dawn/blob/74b74346f2d67e94aed013fc9e1960e20ef36ceb/decomp/research/swarm-building-pursuit.md
 [review]: https://github.com/JohnDeved/populous-new-dawn/blob/74b74346f2d67e94aed013fc9e1960e20ef36ceb/references/verification/swarm-building-static-2026-10-09/integration-review.md
 [retirement]: https://github.com/JohnDeved/populous-new-dawn/blob/d2606766f736a4640d469fb0a2b5384aec43fa84/references/verification/swarm-class2-retirement-static-2026-10-10/README.md
+[bootstrap]: https://github.com/JohnDeved/populous-new-dawn/blob/00e5a1e5b8780f1ef8b6f4a89e5edf171a2bf228/references/verification/swarm-class2-bootstrap-static-2026-10-10/README.md
