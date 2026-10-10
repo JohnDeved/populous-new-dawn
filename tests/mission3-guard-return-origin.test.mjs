@@ -66,7 +66,13 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
     if (queued) p.commands[3] = 1
     else p.immediateCommand = 1
     p.commands[6] = 2
-    assert.equal(world.buildingOrders.active, 0)
+    // This supplied two-person roster uses its own declared order pool; the
+    // authored startup orders belong to the roster omitted from this fixture.
+    world.buildingOrders = {
+      records: Array.from({ length: world.buildingOrders.records.length }, actual.emptyPersonOrder),
+      cursor: 4,
+      active: 0,
+    }
     Object.assign(world.buildingOrders.records[1], { model: 30, references: 1 })
     Object.assign(world.buildingOrders.records[2], {
       model: 3,
