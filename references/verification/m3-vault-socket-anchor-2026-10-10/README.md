@@ -2,7 +2,7 @@
 
 PR [#311](https://github.com/JohnDeved/populous-new-dawn/pull/311), refs [#72](https://github.com/JohnDeved/populous-new-dawn/issues/72). Product source: `a58a94a7313218e3811455e641a223d8dab8543c`, clean tree `14a34ccc6d70de0f74e761ea8ec937bcb35398ef`; base `35de8e6ca6864a98aff3bca0f263e87eee7fa65c`.
 
-Completed authored M1/M3 Vault prayer panels now use building socket 0 at fresh terrain +480, correcting the scenery-height 1028 anchor. The separate reward marker keeps socket 1 (+1072). Existing shape geometry, terrain synchronization, projection and viewport clamps are reused. Request ordering, work, reward and lifetime retain their existing owners.
+Vault prayer panels now use shared building socket 0 at fresh terrain +480, correcting the scenery-height 1028 anchor. There is no mission-specific runtime branch; the verified authored cases are M1/M3. The separate reward marker keeps socket 1 (+1072). Existing shape geometry, terrain synchronization, projection and viewport clamps are reused. Request ordering, work, reward and lifetime retain their existing owners.
 
 ## Source and caller proof
 
@@ -50,7 +50,11 @@ Earned Temple knowledge and departure, turns 1378–1395: Temple HUD/message vis
 
 ![Earned Temple knowledge and departure](vault-earned-knowledge-and-departure.png)
 
-The [historical first-panel image from PR #310](https://raw.githubusercontent.com/JohnDeved/populous-new-dawn/b70c1b82a17231331f8021920828a84251bd97d8/references/verification/m3-vault-prayer-2026-10-10/vault-first-automatic-panel.png) is an unmatched-camera reference. The candidate's hypothetical legacy/reward projections differ vertically by 111.125/120.1875px under its own camera. These are candidate projection alternatives, not a measured historical before/after pixel displacement.
+Historical first-panel image from PR #310, source `79618d33`: an unmatched-camera reference, separate from the four candidate images above.
+
+![Historical PR310 panel, unmatched camera](https://raw.githubusercontent.com/JohnDeved/populous-new-dawn/b70c1b82a17231331f8021920828a84251bd97d8/references/verification/m3-vault-prayer-2026-10-10/vault-first-automatic-panel.png)
+
+ The candidate's hypothetical legacy/reward projections differ vertically by 111.125/120.1875px under its own camera. These are candidate projection alternatives, not a measured historical before/after pixel displacement.
 
 ## Limits
 
