@@ -1,0 +1,10 @@
+{
+  "path": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/node_modules",
+  "device": 27,
+  "inode": 538212,
+  "rootLockSha256": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+  "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "reuse": "Parent-authorized read-only symlink; no install, dependency copy/move or writes.",
+  "fixtureSha256": "1f1c9c6df121ef1b0b8c311cab7e9af2d2686d22fc9aae20642f1d165181a5fc",
+  "fixtureOwner": "fix/authored-world-themes-20261010; same fixture supplied untracked in test branch to avoid shared-file ownership."
+}
