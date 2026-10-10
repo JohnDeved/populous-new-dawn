@@ -92,7 +92,8 @@ export class ObjectPanels {
       building = scene.world.buildings.find(
         b =>
           b.id === id &&
-          (retainedBuildingPanel(b) || (source === 'automatic' && this.trainingIdentity(b))) &&
+          (retainedBuildingPanel(b, scene.world.manaWorld.playerTribe) ||
+            (source === 'automatic' && this.trainingIdentity(b))) &&
           b.team === 'blue' &&
           b.hp > 0
       )
@@ -178,7 +179,8 @@ export class ObjectPanels {
       let building = scene.world.buildings.find(
         b =>
           b.id === id &&
-          (retainedBuildingPanel(b) || (record.automatic && this.trainingIdentity(b))) &&
+          (retainedBuildingPanel(b, scene.world.manaWorld.playerTribe) ||
+            (record.automatic && this.trainingIdentity(b))) &&
           b.hp > 0
       )
       const training =

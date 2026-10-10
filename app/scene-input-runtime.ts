@@ -222,7 +222,11 @@ export function pointerDown(scene: GameScene, event: PointerEvent) {
         !vehicle.passengerCount ||
         liveVehiclePassengers(scene.world, vehicle).some(({ person }) => person.tribe === 0))
     )
-      if (scene.world.buildings.some(b => b.id === object.id && retainedBuildingPanel(b)))
+      if (
+        scene.world.buildings.some(
+          b => b.id === object.id && retainedBuildingPanel(b, scene.world.manaWorld.playerTribe)
+        )
+      )
         queueBuildingInspection(scene, event, 'down', object.id)
       else scene.objectPanels.open(object.id)
     else if (!object) queueBuildingInspection(scene, event, 'down')

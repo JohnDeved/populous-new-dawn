@@ -130,7 +130,7 @@ test('Temple explicit held input reuses one record, releases off-target and expi
   const before = world.effects.length
   pointerDown(scene, event)
   assert.equal(
-    scene.tooltipInspectionInputs.length,
+    scene.tooltipInspectionInputs?.length ?? 0,
     1,
     'real picked Temple queues explicit admission'
   )
@@ -151,6 +151,10 @@ test('Temple explicit held input reuses one record, releases off-target and expi
   assert.equal(records(scene).get(temple.id), record)
   assert.equal(record.remaining, 1, 'repeated explicit input advances rather than restarts entry')
   assert.deepEqual(scene.tooltipController.lastVisit.inspection, ['explicit:reused'])
+  // Supply the unrelated camera accumulator; the real drag/input path runs.
+  scene.cameraMotion = { active: 0 }
+  scene.cameraPreviewButtons = null
+  scene.cameraVelocity = { turn: 0, forward: 0, side: 0 }
   pointerMove(scene, { clientX: 799, clientY: 1, buttons: 2 })
   for (let visits = 0; visits < 30; visits++) frame()
   assert.equal(records(scene).get(temple.id), record)
@@ -268,6 +272,7 @@ test('actual Brave training callback reuses the manual Temple owner without rese
     { scene, world, temple, api, frame } = fixture,
     { pointerDown, pointerUp } = await import('../app/scene-input-runtime.ts')
   startScene(t, scene)
+  frame(0)
   const brave = world.units.find(
     unit => unit.team === 'blue' && unit.kind === 'brave' && unit.hp > 0 && unit.inside === null
   )
@@ -316,6 +321,7 @@ test('Temple phase2 manual-to-automatic reuse exits without restarting and held 
     { stepLiveTraining } = await import('../app/live-building-entry.ts'),
     { pointerMove } = await import('../app/scene-input-runtime.ts')
   startScene(t, scene)
+  frame(0)
   await inspect(fixture)
   const record = records(scene).get(temple.id)
   assert.ok(record)
@@ -362,6 +368,7 @@ test('typed Save and first Load publication preserve gameplay and discard manual
     store = createGameStore()
   store.change(target => Object.assign(target, structuredClone(fixture.world)))
   scene.world = store.getWorld()
+  scene.presentationBinding = store.bindPresentation(scene.world)
   await inspect(fixture)
   paint()
   const record = records(scene).get(temple.id)
@@ -385,6 +392,38 @@ test('typed Save and first Load publication preserve gameplay and discard manual
   assert.deepEqual(await typed(publication), await typed(expectedLoad))
   assert.deepEqual(await typed(saved), savedDigest, 'Load cannot mutate the captured Save boundary')
   assert.deepEqual(publication.secondaryEffects.reservations, [])
+  assert.equal(scene.isCurrent(), false, 'Load makes the former Scene binding stale')
+  const panel = scene.buildingPanels.get(temple.id),
+    oldCancelFrame = Object.getOwnPropertyDescriptor(globalThis, 'cancelAnimationFrame')
+  Object.defineProperty(globalThis, 'cancelAnimationFrame', { configurable: true, value: nop })
+  t.after(() => {
+    if (oldCancelFrame) Object.defineProperty(globalThis, 'cancelAnimationFrame', oldCancelFrame)
+    else delete globalThis.cancelAnimationFrame
+  })
+  // Actual Scene disposal; only unrelated graphics/audio resources are supplied.
+  Object.assign(scene, {
+    ownedSounds: new Map(),
+    terrainLoad: { abort: nop },
+    resize: { disconnect: nop },
+    disposeListeners: [],
+    globe: { dispose: nop },
+    waterMap: { dispose: nop },
+    terrainMap: { dispose: nop },
+    pointerOutline: { remove: nop },
+    spellPointer: { remove: nop },
+  })
+  scene.renderer.dispose = nop
+  scene.renderer.domElement.remove = nop
+  scene.tooltipElement.remove = nop
+  scene.worshipPresentation.dispose = nop
+  scene.dispose()
+  assert.equal(records(scene).size, 0)
+  assert.equal(scene.objectPanels.buildingInspected, null)
+  assert.equal(scene.objectPanels.buildingHeldPointer, null)
+  assert.deepEqual(scene.tooltipInspectionInputs, [])
+  assert.equal(scene.tooltipInput, null)
+  assert.equal(panel.removed, true)
+  assert.deepEqual(scene.world.secondaryEffects.reservations, [])
   const session = getTooltipController(scene).session,
     sessionBefore = structuredClone(session),
     next = {
