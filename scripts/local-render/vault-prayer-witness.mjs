@@ -68,7 +68,7 @@ export function createVaultPrayerWitness({ scene, store, targetId, shamanId, doc
       catch (value) { failure = value; threw = true }
       if (observe) {
         const after = safe(), changed = signature(before) !== signature(after)
-        if (kind === 'request' || kind === 'dispose' || changed ||
+        if (kind === 'request' || kind === 'open' || kind === 'dispose' || changed ||
           (kind === 'turn' && signature(after) !== previousTurn))
           push({ kind, receiverMatches: this === owner, before, after, threw,
             result: typeof result === 'string' ? result : null,

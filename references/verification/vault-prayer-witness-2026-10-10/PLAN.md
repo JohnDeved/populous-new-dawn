@@ -14,6 +14,13 @@ ordinary gameplay or rendered evidence. The product change is a separate input.
   and `clickEntity`. The episode uses returned ground `{point,context,rejection}`
   and command `before`/`after`/`delivered` receipts. Its existing observer checks
   actual pointer events, picker ownership, command context and selected recipient.
+- `scene-input-runtime.ts:pointerDown` opens manual object panels only for an
+  unmodified right click without selection; this route sends a left click with
+  the Shaman selected. `scene-tooltip-runtime.ts:updateTooltipController` admits
+  ordinary hover inspection only without selection, and only via building
+  inspection. The observer records every actual target `open` call plus inspected,
+  hovered and focused ownership. Each command-33 capture must show no Vault panel
+  before/after, checked immediately before entering the long wait.
 - `vaultPoints` in `app/vault-geometry.ts` supplies the original shape-derived
   outside/inside/departure points. `browserPosition(points.leave)` is the bounded
   ordinary cancellation destination. It is preflighted in the actual Vault camera

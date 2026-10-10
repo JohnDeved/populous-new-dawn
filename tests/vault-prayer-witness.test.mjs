@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createVaultPrayerWitness } from '../scripts/local-render/vault-prayer-witness.mjs'
-import { assertVaultPrayerEpisode, vaultLowWorkLimit } from '../scripts/local-render/vault-prayer-contract.mjs'
+import { assertVaultPrayerEpisode, assertVaultUninspectedCommand, vaultLowWorkLimit } from '../scripts/local-render/vault-prayer-contract.mjs'
 import { createMission1VaultInput } from '../scripts/local-render/mission1-vault-input.mjs'
 
 // Supplied callbacks and DOM validate the observation contract only, not gameplay.
@@ -119,6 +119,20 @@ test('cancellation close, stale Scene and disposal restore exact owners and remo
     assert.equal(evidence.errors.length, Number(reason === 'stale'))
     assert.equal(f.listeners.length, 0)
     assert.deepEqual([f.panels.requestAutomaticVault, f.panels.open, f.panels.update, f.scene.gameClock.afterTurn, f.scene.dispose], f.originals)
+  }
+})
+
+test('manual, hovered or focused ownership at command33 fails before the long approach', () => {
+  for (const kind of ['manual', 'hovered', 'focused', 'inspected']) {
+    const f = fixture()
+    if (kind === 'manual') f.panels.open(92, false, false)
+    f.input(33)
+    const row = f.witness.range().findLast(row => row.kind === 'input')
+    if (kind === 'hovered') row.after.dom.hovered = true
+    if (kind === 'focused') row.after.dom.focused = true
+    if (kind === 'inspected') row.after.inspected = 92
+    assert.throws(() => assertVaultUninspectedCommand(row, 92))
+    f.witness.close()
   }
 })
 

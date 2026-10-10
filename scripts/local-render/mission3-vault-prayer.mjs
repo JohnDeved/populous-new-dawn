@@ -3,7 +3,7 @@ import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { waitForShamanReadiness } from '../browser-game.mjs'
 import { createMission1VaultInput } from './mission1-vault-input.mjs'
-import { assertVaultPrayerHealth, assertVaultVisible, assertVaultPrayerEpisode, vaultLowWorkLimit, vaultReleased } from './vault-prayer-contract.mjs'
+import { assertVaultPrayerHealth, assertVaultVisible, assertVaultPrayerEpisode, assertVaultUninspectedCommand, vaultLowWorkLimit, vaultReleased } from './vault-prayer-contract.mjs'
 
 // Fresh ordinary M3, without Temple construction or a fabricated saved state.
 export default async function mission3VaultPrayer({ page, openMission, output, signal, receipt }) {
@@ -84,9 +84,12 @@ export default async function mission3VaultPrayer({ page, openMission, output, s
     assert.equal(report.hit.rejection, null, JSON.stringify(report.hit))
     report.firstInput = await input.dispatch(report.hit, 33, [shamanId])
     await input.action('pointer-away-from-Vault', () => page.mouse.move(20, 975))
+    await retain()
+    assertVaultUninspectedCommand(report.records.findLast(row => row.kind === 'input'), targetId)
     await wait('first-automatic-visible', 420000, value => {
       const s = value.current
-      return s.record?.phase === 1 && s.head.work > 0 && (value.held[s.record.identity] ?? 0) >= 4 && !s.dom.hidden && s.offTarget
+      return s.head.work > vaultLowWorkLimit(s.head.target) ||
+        (s.record?.phase === 1 && s.head.work > 0 && (value.held[s.record.identity] ?? 0) >= 4 && !s.dom.hidden && s.offTarget)
     })
     const first = await stage('vault-first-automatic-panel')
     assertVaultVisible(first.before.current)
@@ -99,6 +102,8 @@ export default async function mission3VaultPrayer({ page, openMission, output, s
     // Re-resolve the rendered Vault against the unchanged real camera before input.
     report.reissue = await input.clickEntity('shrines', targetId, 33, false, [shamanId])
     await input.action('pointer-away-after-reissue', () => page.mouse.move(20, 975))
+    await retain()
+    assertVaultUninspectedCommand(report.records.findLast(row => row.kind === 'input'), targetId)
     await wait('recreated-automatic-panel', 60000, value => {
       const s = value.current
       return s.record?.phase === 1 && s.head.work > 0 && (value.held[s.record.identity] ?? 0) >= 4 && !s.dom.hidden && s.offTarget
@@ -124,9 +129,14 @@ export default async function mission3VaultPrayer({ page, openMission, output, s
     save()
   }
   if (failure) throw failure
-  assert.deepEqual(report.cleanupErrors, [])
-  report.summary = assertVaultPrayerEpisode(report.evidence, targetId, shamanId)
-  report.status = 'passed'
-  save()
+  try {
+    assert.deepEqual(report.cleanupErrors, [])
+    report.summary = assertVaultPrayerEpisode(report.evidence, targetId, shamanId)
+    report.status = 'passed'
+  } catch (error) {
+    report.status = 'failed'
+    report.failure = String(error?.stack ?? error)
+    throw error
+  } finally { save() }
   return report
 }

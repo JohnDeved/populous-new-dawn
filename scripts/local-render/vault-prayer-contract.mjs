@@ -24,6 +24,15 @@ export function assertVaultVisible(s) {
 }
 export const vaultReleased = s => !s.record && !s.latch && !s.dom.present && s.reservations === 0
 
+export function assertVaultUninspectedCommand(row, targetId) {
+  assert(row?.kind === 'input' && row.trusted && row.button === 0)
+  assert.equal(row.after.shaman.order?.model, 33)
+  for (const s of [row.before, row.after]) {
+    assert(vaultReleased(s), 'Command33 must not create or reuse a manually opened Vault panel')
+    assert(s.inspected !== targetId && !s.dom.focused && !s.dom.hovered)
+  }
+}
+
 export function assertVaultPrayerEpisode(evidence, targetId, shamanId) {
   assert(evidence.closed && !evidence.overflow && !evidence.disposed)
   assert.deepEqual(evidence.errors, [])
@@ -62,6 +71,8 @@ export function assertVaultPrayerEpisode(evidence, targetId, shamanId) {
     assert.deepEqual(row.after.selected, [shamanId])
   }
   assert.deepEqual(inputs.map(row => row.after.shaman.order?.model), [33, 3, 33])
+  assertVaultUninspectedCommand(inputs[0], targetId)
+  assertVaultUninspectedCommand(inputs[2], targetId)
   const interrupted = inputs[1]
   assert(interrupted.before.head.work > 0 && interrupted.before.head.work <= vaultLowWorkLimit(interrupted.before.head.target))
   const expired = rows.find(row => row.ordinal > interrupted.ordinal && row.ordinal < inputs[2].ordinal &&
