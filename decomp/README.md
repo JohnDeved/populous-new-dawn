@@ -5018,6 +5018,17 @@ direct unsupported entry. Constants and mapped search bytes are guarded. Supplie
 post-death terrain fixtures, rendered shipped-spell acceptance and native raster
 remain distinct evidence boundaries; this does not complete issue #30.
 
+### 2026-10-06 — final Shaman burst remains uncomposed
+
+The [source-only final-burst assessment](research/reincarnation-final-burst.md)
+verifies that accepted mode2 and phase1-ground fixes survive inspected main
+`1c7e6b05`, then isolates a different missing edge: phase5's `004da0f0`
+requests a class7/model9 burst after its person allocation; current live spawn
+only adds the Shaman. Retained static PE bytes establish the call and distinguish
+person retry from the earlier one-shot wave. The note bounds the required real
+allocator/initializer/order proof and ordinary Mission2 witness before runtime
+changes. No native/application/browser execution or new parity claim was made.
+
 ## 2026-09-17 — Mission 17 Armageddon
 
 `check-native-mission17-armageddon.py EXE` verifies the authored trigger/reward,
