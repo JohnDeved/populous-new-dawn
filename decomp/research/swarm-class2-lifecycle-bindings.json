@@ -1,0 +1,262 @@
+{
+  "version": 1,
+  "kind": "source-only-lifecycle-mapping",
+  "currentMain": "f9675f56c597ec83adf02f28e9801bfc6bbd0490",
+  "currentTree": "babd82b3787182ef91e09ae27baedb70a6fa753a",
+  "priorAcceptedPacket": "74b74346f2d67e94aed013fc9e1960e20ef36ceb",
+  "priorInterpretationMain": "d6cf109474379172728a3ccebf46ef72a15f3a58",
+  "contractSha256": "a5415089b21985eff64f37b3118e1616de9b349c333b9014d3d610186e4ccb67",
+  "retainedExportProvenance": {
+    "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "ghidraVersion": "12.1.3",
+    "manifestSha256": "51e55c295a9956e89be85c98df835f1da141e3e10cb6b16435f55423ff5b26db",
+    "selectedExportCount": 19,
+    "directExecutableVerification": "not-run; reused retained manifest identity"
+  },
+  "acceptedSources": {
+    "decomp/research/swarm-building-pursuit.md": {
+      "sha256": "c6697213176b078744874decf355d0dfec4040c4fd8102665241447646b03e20",
+      "bytes": 3082
+    },
+    "references/verification/swarm-building-static-2026-10-09/integration-review.md": {
+      "sha256": "d8cbcc74bd85711a110802adcbe97063a7769a8b9716b0a55c944af4d96acc33",
+      "bytes": 2664
+    },
+    "references/verification/swarm-building-static-2026-10-09/integration-followup.md": {
+      "sha256": "ad17b6537e37fa3dc3bdcfbf18ebb95db70fb7897eabc51d9e5958ee3a1e0e0f",
+      "bytes": 8246
+    },
+    "references/verification/swarm-building-static-2026-10-09/findings.md": {
+      "sha256": "6b5a4811593aca3b9c1090f427c94a604c0cd236dc316f6b2c33a05a388eb87c",
+      "bytes": 16780
+    }
+  },
+  "sourceBindings": {
+    "decomp/generated/00403610.c": {
+      "sha256": "38873dc24c630181e40a7464761f3a0c6f69d9f6d8ee96a8f490c340c4f3b5ff",
+      "bytes": 3138,
+      "matchesRetainedExportManifest": true,
+      "priorAcceptedSha256": "38873dc24c630181e40a7464761f3a0c6f69d9f6d8ee96a8f490c340c4f3b5ff",
+      "unchangedFromPriorAcceptedBinding": true
+    },
+    "decomp/generated/004ee470.c": {
+      "sha256": "ea580251ff6bd4de4efa0984310f41086acc964695584aafa2f4caf5c006e29d",
+      "bytes": 841,
+      "matchesRetainedExportManifest": true,
+      "priorAcceptedSha256": "ea580251ff6bd4de4efa0984310f41086acc964695584aafa2f4caf5c006e29d",
+      "unchangedFromPriorAcceptedBinding": true
+    },
+    "decomp/generated/004ee580.c": {
+      "sha256": "c4114595ecdc2931b5e3dff4827297807a7d97cb121327851fb3d5dbb2e197ef",
+      "bytes": 2278,
+      "matchesRetainedExportManifest": true,
+      "priorAcceptedSha256": "c4114595ecdc2931b5e3dff4827297807a7d97cb121327851fb3d5dbb2e197ef",
+      "unchangedFromPriorAcceptedBinding": true
+    },
+    "decomp/generated/004ee4f0.c": {
+      "sha256": "41a9628238bb14cfd8a6e945df0de187ba5df7525a56a17bdcc5e33479b0ba1a",
+      "bytes": 842,
+      "matchesRetainedExportManifest": true
+    },
+    "decomp/generated/00403d50.c": {
+      "sha256": "e29bfcdbe28a69937c7c64623b345594357436c99c956fefdf02ea04ba1ced5e",
+      "bytes": 2323,
+      "matchesRetainedExportManifest": true,
+      "priorAcceptedSha256": "e29bfcdbe28a69937c7c64623b345594357436c99c956fefdf02ea04ba1ced5e",
+      "unchangedFromPriorAcceptedBinding": true
+    },
+    "decomp/generated/00403280.c": {
+      "sha256": "2714dbc7a2fc7a7f5baa9ea51b2f171f2df08f009df923b40cb13f2cedea327d",
+      "bytes": 5456,
+      "matchesRetainedExportManifest": true,
+      "priorAcceptedSha256": "2714dbc7a2fc7a7f5baa9ea51b2f171f2df08f009df923b40cb13f2cedea327d",
+      "unchangedFromPriorAcceptedBinding": true
+    },
+    "decomp/generated/004ed8a0.c": {
+      "sha256": "0a3e6654f1c046935bf0a75e32d8691f641fa13fad6c82dc06f3783ba520e5c9",
+      "bytes": 4171,
+      "matchesRetainedExportManifest": true
+    },
+    "decomp/generated/004ed880.c": {
+      "sha256": "f9eff68f56844047a9a33529ad92c277c7ac75b16e9dcd3203efc4cfc5167b84",
+      "bytes": 409,
+      "matchesRetainedExportManifest": true
+    },
+    "decomp/generated/004ee300.c": {
+      "sha256": "530622e00689118a11eac9031402d9b6409ef242c69ac3fdbb0d20e28f1cd726",
+      "bytes": 2994,
+      "matchesRetainedExportManifest": true
+    },
+    "decomp/generated/004ec6f0.c": {
+      "sha256": "497df5820bfebb7f79eb9cbaf2b887295f7933431958ab4c992ebb33f39e7923",
+      "bytes": 5529,
+      "matchesRetainedExportManifest": true
+    },
+    "decomp/generated/004050c0.c": {
+      "sha256": "32639b081bbccedaf7a9d2edceea3e3e33817b515514b2199640d04a9a04af50",
+      "bytes": 9674,
+      "matchesRetainedExportManifest": true
+    },
+    "decomp/generated/004b8470.c": {
+      "sha256": "e99734b6e278810068a6c50d03f09a6b6301274e211d5a607c21a2b151468f3c",
+      "bytes": 14168,
+      "matchesRetainedExportManifest": true
+    },
+    "decomp/generated/00402ec0.c": {
+      "sha256": "6c85a925be43fd270f058e2edc63f1a1b5a2f17e1d6d00019d5d69e13e8eeb22",
+      "bytes": 3444,
+      "matchesRetainedExportManifest": true
+    },
+    "decomp/generated/004866a0.c": {
+      "sha256": "6f20adf46ccad225bbdfda8cda8803517aef6ee671208c737a19ff2dc7288235",
+      "bytes": 2510,
+      "matchesRetainedExportManifest": true
+    },
+    "decomp/generated/00484a10.c": {
+      "sha256": "8f1433d8bba1ffc5cbc2fa4dad9ef6415a1ea5f2834aa436c8480dcd8a00f9ae",
+      "bytes": 9507,
+      "matchesRetainedExportManifest": true
+    },
+    "decomp/generated/00403860.c": {
+      "sha256": "cfceac97381d275f7a6f1b922a52e5d2430581cbb72d77811d247ffc92f331c7",
+      "bytes": 2507,
+      "matchesRetainedExportManifest": true
+    },
+    "decomp/generated/004ef180.c": {
+      "sha256": "021baf2a38e2dcf2062bdffc12aa449b5f2e789898aab1e776f1c1a0913802ae",
+      "bytes": 8514,
+      "matchesRetainedExportManifest": true
+    },
+    "decomp/generated/00407060.c": {
+      "sha256": "09dde34fd06f61a5e36ffa7beb62cce72e1c0afe9fe6dec1c46c870c77de4868",
+      "bytes": 1473,
+      "matchesRetainedExportManifest": true
+    },
+    "decomp/generated/004030c0.c": {
+      "sha256": "de57a2ea51b582b12864a014e4b5555b194d50770e4833cbc68f0703de7353d1",
+      "bytes": 2605,
+      "matchesRetainedExportManifest": true
+    },
+    "app/object-cells.ts": {
+      "sha256": "cc693d083d0829c69f6295d9710b3c7762bd70f407ff9c5c408380dbd7465909",
+      "bytes": 2522,
+      "priorAcceptedSha256": "cc693d083d0829c69f6295d9710b3c7762bd70f407ff9c5c408380dbd7465909",
+      "unchangedFromPriorAcceptedBinding": true
+    },
+    "app/construction-runtime.ts": {
+      "sha256": "2ea49ae789ae747732c3bc327d58735f501b52dfcff84c17eef83ca4386c0653",
+      "bytes": 16414,
+      "priorAcceptedSha256": "2ea49ae789ae747732c3bc327d58735f501b52dfcff84c17eef83ca4386c0653",
+      "unchangedFromPriorAcceptedBinding": true
+    },
+    "app/world-initialization.ts": {
+      "sha256": "0b2accb95c180d87e71bad8788f9c28f3f49ab8af66d5189fd26af69ab717fe2",
+      "bytes": 19595,
+      "priorAcceptedSha256": "0b2accb95c180d87e71bad8788f9c28f3f49ab8af66d5189fd26af69ab717fe2",
+      "unchangedFromPriorAcceptedBinding": true
+    },
+    "app/computer-runtime.ts": {
+      "sha256": "01138df49ada0d61f724a8daca63028c48b7a44c4636e7045ae72a18880c37c4",
+      "bytes": 76652,
+      "priorAcceptedSha256": "e646a829d87cb65d29588d70bd7ddeb3173e71b6130e6507e46ad5cf68634078",
+      "unchangedFromPriorAcceptedBinding": false
+    },
+    "app/world-turn.ts": {
+      "sha256": "20b2290596d9059bc1dda421ce45798a6d547f94c9aa9e0a98a4e8f64068f93c",
+      "bytes": 66311,
+      "priorAcceptedSha256": "6d813dc107e9ccb9c86267a7c9cca91c5f30b5f8cbd92f7348b83b075a33a352",
+      "unchangedFromPriorAcceptedBinding": false
+    },
+    "app/world-terrain-runtime.ts": {
+      "sha256": "4fcf001bde3e32f5647a6efa25066dc9332320f244b034a8f41881a15af4a757",
+      "bytes": 9814,
+      "priorAcceptedSha256": "4fcf001bde3e32f5647a6efa25066dc9332320f244b034a8f41881a15af4a757",
+      "unchangedFromPriorAcceptedBinding": true
+    },
+    "app/live-people.ts": {
+      "sha256": "2ff72ddb1fd4448b5afc8bde03fc50ce625eb75768f184c746988609aa86527b",
+      "bytes": 45119,
+      "priorAcceptedSha256": "1b8b2f1c3015317709298d5610067d13c3a17cb1a53a1a0fdd8117000ccb01c3",
+      "unchangedFromPriorAcceptedBinding": false
+    },
+    "app/live-building-entry.ts": {
+      "sha256": "e09c7d00e3b32438e9634e2e21b0a11ce79bf38e9d7d547e342fda1011124404",
+      "bytes": 24651,
+      "priorAcceptedSha256": "93b6712ab2adfc466796a428c69822ad7686cb69b87d6c4f5a8b31ec2e567418",
+      "unchangedFromPriorAcceptedBinding": false
+    },
+    "app/world-types.ts": {
+      "sha256": "f37b4780e5bc0a949431c08fadb2db059b32f395449daaeee4a06ed648719909",
+      "bytes": 15648
+    },
+    "app/world-state.ts": {
+      "sha256": "880c00574e29d9f9e2cffd59d79ff337dcfe07d023d45b95481c09ff9e056ff6",
+      "bytes": 12421
+    },
+    "app/game-store.ts": {
+      "sha256": "300cc63a292b79057bc64457dcfd087b2f7162194e2108d753e899c35861c675",
+      "bytes": 18440
+    },
+    "app/building-shapes.ts": {
+      "sha256": "86882bf5526a48035a1ed61b72f710139e0ddcc67d60f94f9279901636aaff92",
+      "bytes": 17581
+    },
+    "app/vault-geometry.ts": {
+      "sha256": "64bcf40c8c861559e29f8b0cf54d6df5a8b6398c4490b6f9c01c3bcb225f8849",
+      "bytes": 1705
+    },
+    "app/vault.ts": {
+      "sha256": "ff4fb2f54e2cec4ef4322e32e91f3ee310dcbf1a9b3009054e59b8096ef48aa6",
+      "bytes": 7420
+    },
+    "app/building-runtime.ts": {
+      "sha256": "d62fca552e99bf96792f21361fd73047b3fe064f2fcfbfb8af2307ba9e732463",
+      "bytes": 10174
+    },
+    "app/live-building-combat.ts": {
+      "sha256": "da6d3bb16903a741ac9d4ce925d7e188ec1113071fd46d5791d7d163c0b1cb30",
+      "bytes": 28337
+    },
+    "app/live-command.ts": {
+      "sha256": "a53f4f0a64104dabacdfb1d2242c1979baa047a89f192a89a52b1c72a702bdca",
+      "bytes": 29207
+    },
+    "app/armageddon.ts": {
+      "sha256": "6cd2ad4301e6aaf4680b1413398e16f159b0e26f41792c7415b4bb64564a2280",
+      "bytes": 9227
+    },
+    "app/swarm.ts": {
+      "sha256": "a388ff1ad7686824445cd9acfe7b0e5c63c102cda87bef31a09bfa7e925312c4",
+      "bytes": 5234
+    },
+    "app/spell-effects-runtime.ts": {
+      "sha256": "3ff1e427906790f8f16ee7bf97dfa5003cb4e80c4e8777344ae63b449146123e",
+      "bytes": 43296
+    },
+    "references/reverse-engineering.md": {
+      "sha256": "29da579e7715b1c93fe74dbd78327026f21299e5fa1669676976a94685834a01",
+      "bytes": 611048,
+      "priorAcceptedSha256": "29da579e7715b1c93fe74dbd78327026f21299e5fa1669676976a94685834a01",
+      "unchangedFromPriorAcceptedBinding": true
+    }
+  },
+  "missingSelectedExports": {
+    "00403820.c": {
+      "pathExists": false,
+      "inManifest": false
+    },
+    "004edcf0.c": {
+      "pathExists": false,
+      "inManifest": false
+    }
+  },
+  "verification": {
+    "sourceHashBinding": "passed",
+    "runtimeTests": "not-run",
+    "browser": "not-run",
+    "nativeExecution": "not-run",
+    "extractionOrDisassembly": "not-run",
+    "runtimeChanges": false,
+    "scope": "lifecycle source correspondence and exact open producer boundaries only"
+  }
+}
