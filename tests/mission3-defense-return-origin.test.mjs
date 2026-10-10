@@ -72,7 +72,7 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
     const shaman = world.units.find(u => u.team === 'yellow' && u.kind === 'shaman'),
       blue = world.units.find(u => u.team === 'blue' && u.kind === 'shaman'),
       own = world.units.filter(u => u.team === 'yellow' && u.kind === 'brave').slice(0, 3),
-      foreign = world.units.find(u => u.team === 'blue' && u.kind === 'brave')
+      foreign = blue
     assert.ok(shaman?.native && blue?.native && foreign)
     assert.equal(own.length, 3)
     const moved = { x: 0x1000, y: 0x1000, h: shaman.native.h }
@@ -93,7 +93,6 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
       [own[0], 1],
       [own[1], 0],
       [own[2], 2],
-      [foreign, 1],
     ]) {
       assert.equal(unit.native, null)
       const p = (unit.native = createLivePerson(world, unit))
@@ -113,6 +112,11 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
       orders.attachPersonOrder(world.buildingOrders, p, id, 0, orderEffects(world))
       p.commandStatus = 19
     }
+    // Mission 3 starts with a Blue Shaman but no Blue Brave. Retain that actual
+    // foreign person's startup command18 while supplying a matching slot byte.
+    foreign.native.computerAssignment = 1
+    foreign.native.flags3 |= 0x2000
+    foreign.nativeFlags7f = 255
     if (flight) {
       own[0].flight = own[0].native
       own[0].native = null
