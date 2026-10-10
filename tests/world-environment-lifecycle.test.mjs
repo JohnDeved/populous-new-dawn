@@ -69,6 +69,57 @@ test('Page switches, checkpoint Load, Restart and failed-resource retry bind eac
     assert.equal(second.scene.environment.landscape.bank, 's')
   })
   failS = false
+  await t.test('actual checkpoint Load and Restart reconstruct c and s resources too', async () => {
+    for (const [mission, bank] of [[1, 'c'], [2, 's']]) {
+      page.beginLoad({ kind: 'mission', mission })
+      await store.saveCheckpoint()
+      page.beginLoad({ kind: 'mission', mission: 3 })
+      page.beginLoad({ kind: 'checkpoint' })
+      const loaded = await sceneForWorld()
+      await loaded.ready
+      assert.equal(loaded.scene.world.outcome.level, mission)
+      assert.equal(loaded.scene.environment.landscape.bank, bank)
+      page.beginLoad({ kind: 'restart' })
+      const restarted = await sceneForWorld()
+      await restarted.ready
+      assert.notEqual(restarted.scene.world, loaded.scene.world)
+      assert.equal(restarted.scene.environment.landscape.bank, bank)
+      assert.equal(restarted.scene.environment.objects.bank, 2)
+    }
+  })
+  await t.test('legacy M3 checkpoint retires its stored bank2 footprint before scene readiness', async () => {
+    const { missionData } = await import('../app/mission-data.ts'),
+      { syncLandscapeObjects } = await import('../app/world-terrain-runtime.ts'),
+      { refreshSceneryShadow } = await import('../app/building-shapes.ts')
+    page.beginLoad({ kind: 'mission', mission: 3 })
+    const world = store.getWorld(), header = missionData(3).level, previous = header.objectBank
+    // Reconstruct the legacy stored poses with the actual old bank2 caller,
+    // then remove only metadata that old checkpoints did not contain.
+    try {
+      header.objectBank = 2
+      syncLandscapeObjects(world)
+      for (const pose of world.sceneryShadows.values()) delete pose.shapeIndex
+    } finally { header.objectBank = previous }
+    const tree = world.trees.find(tree => tree.model === 3), old = world.sceneryShadows.get(tree.id),
+      visited = new Set(), blank = { flags: new Uint32Array(16384), shadows: new Uint8Array(16384) }
+    refreshSceneryShadow(blank, old, index => { visited.add(index); return 0 }, noop)
+    assert.equal(visited.size, 4, 'legacy mesh15 owns bank2 shape5')
+    for (const index of visited) { world.land.flags[index] &= ~16; world.land.shadows[index] |= 0xa0 }
+    const outside = Array.from({ length: 16384 }, (_, index) => index).find(index => !visited.has(index)), outsideValue = world.land.shadows[outside]
+    await store.saveCheckpoint()
+    page.beginLoad({ kind: 'checkpoint' })
+    const restored = store.getWorld()
+    assert.equal(restored.sceneryShadows.get(tree.id).shapeIndex, 1, 'migration reconciles before constructing a scene')
+    for (const index of visited) {
+      assert.ok(restored.land.flags[index] & 16, 'retirement visits the stored old footprint')
+      assert.equal(restored.land.shadows[index] & 0xf0, 0xa0, 'preserve high shadow bits')
+    }
+    assert.equal(restored.land.shadows[outside], outsideValue)
+    const loaded = await sceneForWorld()
+    await loaded.ready
+    assert.equal(loaded.scene.environment.objects.bank, 6)
+    assert.equal(loaded.scene.world.sceneryShadows.get(tree.id).shapeIndex, 1)
+  })
   await t.test('M3 → M1 → M2 → checkpoint M3 → Restart retains independent frozen scene identities', async () => {
     const scenes = []
     for (const request of [{ kind: 'mission', mission: 3 }, { kind: 'mission', mission: 1 }, { kind: 'mission', mission: 2 }, { kind: 'checkpoint' }, { kind: 'restart' }]) {

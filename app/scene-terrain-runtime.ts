@@ -1,7 +1,7 @@
 import { tribeForTeam } from './world-types.ts'
 import type { GameScene } from './scene.ts'
 import * as THREE from 'three'
-import { nativeModels, nativeModel } from './scene-assets.ts'
+import { nativeModel } from './scene-assets.ts'
 import {
   readTerrainTextures,
   terrainAtlas,
@@ -37,7 +37,7 @@ export function initializeTerrain(scene: GameScene) {
   scene.waterMap.minFilter = THREE.LinearFilter
   scene.waterMap.magFilter = THREE.LinearFilter
   const ready = Promise.all(
-    ['landscape.bin', 'waves.bin'].map(name =>
+    [scene.environment.landscape.terrain, 'waves.bin'].map(name =>
       fetch(`/original/${name}`, { signal: scene.terrainLoad.signal }).then(response => {
         if (!response.ok) throw new Error(`Terrain texture load failed: ${response.status}`)
         return response.arrayBuffer()
@@ -295,7 +295,7 @@ export function makeDecorations(scene: GameScene) {
       continue
     }
     const g = new THREE.Group()
-    g.add(nativeModel(rules.sceneryObjects[tree.model]))
+    g.add(nativeModel(rules.sceneryObjects[tree.model], 2, 4, false, scene.environment))
     scene.locate(g, tree)
     g.userData.point = tree
     scene.decorations.add(g)
@@ -309,7 +309,7 @@ export function makeDecorations(scene: GameScene) {
       group.userData.startTribe = tribeForTeam(team)
       group.userData.startStone = index
       group.userData.groundPoint = browserPosition(stone)
-      group.add(nativeModel(30))
+      group.add(nativeModel(30, 2, 4, false, scene.environment))
       scene.locate(group, group.userData.groundPoint)
       scene.orientModel(group, (stone.heading * Math.PI) / 1024)
       placeReincarnationStone(scene, group)
@@ -350,7 +350,7 @@ export function updateDecorationsFrame(scene: GameScene) {
         timberScale(
           Math.round(tree.logs * 100),
           rules.sceneryWood[tree.model],
-          nativeModels[rules.sceneryObjects[tree.model]].scale
+          mesh.userData.nativeScale
         )
       group.visible = tree.logs > 0
     }

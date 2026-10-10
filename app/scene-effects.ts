@@ -121,13 +121,13 @@ export function makeFx(scene: GameScene, f: Effect) {
   )
     return g
   if (f.sinking) {
-    const mesh = nativeModel(f.sinking.object, 2, f.sinking.stage)
+    const mesh = nativeModel(f.sinking.object, 2, f.sinking.stage, false, scene.environment)
     mesh.name = 'sinking-building'
     g.add(mesh)
     return g
   }
   if (f.fire) {
-    const mesh = nativeModel(5)
+    const mesh = nativeModel(5, 2, 4, false, scene.environment)
     mesh.material.transparent = true
     mesh.material.alphaTest = 0
     mesh.material.depthWrite = false
@@ -144,7 +144,7 @@ export function makeFx(scene: GameScene, f: Effect) {
       new THREE.Mesh(
         geometry,
         new THREE.MeshBasicMaterial({
-          map: texture('atlas'),
+          map: texture(scene.environment.landscape.modelAtlas),
           side: THREE.DoubleSide,
           alphaTest: 0.5,
         })

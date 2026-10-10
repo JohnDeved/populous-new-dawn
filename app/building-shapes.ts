@@ -12,7 +12,7 @@ export interface BuildingShapePose {
   anchorY: number
 }
 export type RegisteredBuilding = BuildingShapePose & { id: number; tribe: number }
-export type SceneryShapePose = Omit<BuildingShapePose, 'angle'>
+export type SceneryShapePose = Omit<BuildingShapePose, 'angle'> & { shapeIndex?: number }
 export interface BuildingCells {
   flags: Uint32Array
   buildingIds: Uint16Array
@@ -224,7 +224,7 @@ export function refreshSceneryShadow(
   shade: (index: number) => number,
   refresh: (cell: number, radius: number) => void
 ) {
-  const s = data.shapes[data.objects[p.object][0] || 1]
+  const s = data.shapes[(p.shapeIndex ?? data.objects[p.object][0]) || 1]
   for (const { index: i } of shapeCells(s, p.anchorX, p.anchorY)) {
     land.flags[i] |= 16
     land.shadows[i] = (land.shadows[i] & 240) | (Math.min(15, shade(i)) & 255)

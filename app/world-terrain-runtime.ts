@@ -1,3 +1,5 @@
+import { worldEnvironment } from './world-environment.ts'
+import { nativeModelResource } from './model-resources.ts'
 import {
   tribeForTeam,
   type World,
@@ -172,6 +174,7 @@ export function syncLandscapeObjects(w: World) {
     const p = nativePosition(w, tree)
     scenery.set(tree.id, {
       object: rules.sceneryObjects[tree.model],
+      shapeIndex: nativeModelResource(rules.sceneryObjects[tree.model], worldEnvironment(w).objects.bank).shapeIndices[0],
       anchorX: p.x & 0xfe00,
       anchorY: p.y & 0xfe00,
     })
@@ -182,6 +185,7 @@ export function syncLandscapeObjects(w: World) {
     if (
       !next ||
       old.object !== next.object ||
+      old.shapeIndex !== next.shapeIndex ||
       old.anchorX !== next.anchorX ||
       old.anchorY !== next.anchorY
     ) {

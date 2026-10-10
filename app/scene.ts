@@ -1,3 +1,4 @@
+import { worldEnvironment, type WorldEnvironment } from './world-environment.ts'
 import type { PresentationBinding, SharedAniblSnapshot } from './shared-anibl.ts'
 import { templeArt } from './temple-art.ts'
 import type { TransportKind } from './hud-transports.ts'
@@ -218,6 +219,7 @@ export class GameScene {
   waterState = ''
   waterScroll = { value: 0 }
   terrainMap = new THREE.DataTexture(new Uint8Array(4096 * 4096 * 4), 4096, 4096)
+  readonly environment: WorldEnvironment
   terrainTextures: TerrainTextures | null = null
   terrainUpload = new THREE.DataTexture()
   terrainAtlasState: ReturnType<typeof terrainAtlas> | undefined
@@ -366,6 +368,7 @@ export class GameScene {
     this.mini = minimap
     this.portrait = portrait
     this.world = world
+    this.environment = worldEnvironment(world)
     this.soundSerial = world.soundSerial
     for (const effect of world.effects) if (effect.fire) effect.fire.soundPlaying = false
     for (const building of world.buildings) if (building.burn) building.burn.soundPlaying = false
@@ -383,9 +386,10 @@ export class GameScene {
     // Resolve failed required textures before constructing anything that captures them.
     // Passive texture()/loadTexture() lookups still reuse failures; only this new-scene
     // preload boundary may replace a completed required failure.
-    const atlasAsset = retryFailedTexture('atlas'),
+    const atlasAsset = retryFailedTexture(this.environment.landscape.modelAtlas),
+      selectionAtlasAsset = this.environment.landscape.modelAtlas === 'atlas' ? atlasAsset : retryFailedTexture('atlas'),
       unitAtlasAsset =
-        nativeUnits.atlas === 'atlas' ? atlasAsset : retryFailedTexture(nativeUnits.atlas),
+        nativeUnits.atlas === 'atlas' ? selectionAtlasAsset : retryFailedTexture(nativeUnits.atlas),
       knowledgeAtlas = vaultKnowledgeAtlas(world.outcome.level),
       knowledgeAtlasAsset = knowledgeAtlas ? retryFailedTexture(knowledgeAtlas) : null,
       templeAssets =
@@ -399,7 +403,8 @@ export class GameScene {
           ['effects', loadTexture('effects'), false],
           ['hud', loadTexture('hud'), false],
           ['unit-health', loadTexture('unit-health'), false],
-          ['atlas', atlasAsset, true],
+          [this.environment.landscape.modelAtlas, atlasAsset, true],
+          ...(this.environment.landscape.modelAtlas === 'atlas' ? [] : [['atlas', selectionAtlasAsset, true] as const]),
           [nativeUnits.atlas, unitAtlasAsset, true],
           ...(knowledgeAtlasAsset ? [[knowledgeAtlas!, knowledgeAtlasAsset, true] as const] : []),
           ...templeAssets,

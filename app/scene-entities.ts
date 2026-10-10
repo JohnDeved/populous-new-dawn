@@ -162,7 +162,7 @@ function makeUnit(u: Unit) {
   return g
 }
 
-function makeBuilding(b: Building, stage: number, temple = false) {
+function makeBuilding(scene: GameScene, b: Building, stage: number, temple = false) {
   const g = new THREE.Group(),
     id = buildingObject(b),
     base = rules.buildingObjects[buildingModel(b)],
@@ -171,7 +171,7 @@ function makeBuilding(b: Building, stage: number, temple = false) {
     renderId =
       originalTrainingHutObject(b) ??
       (nativeModels[id] ? id : nativeModels[base] ? base : rules.buildingObjects[13])
-  const model = nativeModel(renderId, b.kind === 'temple' ? 1.65 : 2, stage, temple)
+  const model = nativeModel(renderId, b.kind === 'temple' ? 1.65 : 2, stage, temple, scene.environment)
   g.add(model)
   const health = new THREE.Group(),
     top = b.kind === 'tower' ? 6 : 4.8
@@ -278,10 +278,10 @@ function updateHutSmokePuffs(scene: GameScene) {
   }
 }
 
-function makeVehicle(v: Vehicle) {
+function makeVehicle(scene: GameScene, v: Vehicle) {
   const g = new THREE.Group(),
     resource = originalVehicleMesh(v.model),
-    mesh = nativeModel(resource)
+    mesh = nativeModel(resource, 2, 4, false, scene.environment)
   if (!mesh) throw new Error(`Missing original vehicle mesh ${resource}`)
   // Reuse the original model UV/material, integer transform, lighting and
   // painter/picking consumers. The vehicle's gameplay position stays unchanged.
@@ -313,7 +313,7 @@ export function updateWaveShake(
 
 function makeShrine(scene: GameScene, shrine: Shrine) {
   const g = new THREE.Group()
-  g.add(nativeModel(stoneHead149Model(shrine, scene.world.outcome.level)))
+  g.add(nativeModel(stoneHead149Model(shrine, scene.world.outcome.level), 2, 4, false, scene.environment))
   scene.locate(g, shrine)
   scene.orientModel(g, stoneHeadAngle(shrine, scene.world.outcome.level))
   scene.objects.add(g)
@@ -613,7 +613,7 @@ export function updateVehiclesFrame(scene: GameScene) {
   for (const v of scene.world.vehicles.filter(v => v.active || v.destructionState)) {
     let g = scene.vehicleMeshes.get(v.id)
     if (!g) {
-      g = makeVehicle(v)
+      g = makeVehicle(scene, v)
       scene.vehicleMeshes.set(v.id, g)
       scene.objects.add(g)
     }
@@ -681,7 +681,7 @@ export function updateBuildingsFrame(scene: GameScene) {
       g = undefined
     }
     if (!g) {
-      g = makeBuilding(b, stage, !!temple)
+      g = makeBuilding(scene, b, stage, !!temple)
       scene.buildingMeshes.set(b.id, g)
       scene.objects.add(g)
       if (b.progress < 1) {
@@ -759,7 +759,7 @@ export function updateShrinesFrame(scene: GameScene) {
       entry.g.remove(mesh)
       mesh.geometry.dispose()
       mesh.material.dispose()
-      mesh = nativeModel(model)
+      mesh = nativeModel(model, 2, 4, false, scene.environment)
       entry.g.add(mesh)
     }
     const stone = initializeStoneHead(shrine, scene.world.outcome.level)

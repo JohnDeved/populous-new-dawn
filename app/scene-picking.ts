@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import type { GameScene } from './scene.ts'
 import type { Command } from './painter.ts'
 import { modelMatrix, modelPoint, projectPoint } from './projection.ts'
-import { modelFaceVisible, type NativeModel } from './model-faces.ts'
+import { modelFaceVisible } from './model-faces.ts'
 import { modelTriangleVisible, polygonBucket } from './painter-order.ts'
 import {
   inHitBounds,
@@ -12,7 +12,7 @@ import {
   modelHitBounds,
   type PickCommand,
 } from './world-picking.ts'
-import models from './original-models.json' with { type: 'json' }
+import { nativeModelResource, type NativeModelResource } from './model-resources.ts'
 import frames from './original-units.json' with { type: 'json' }
 
 type ModelCommand = PickCommand & { bucket: number; face: number }
@@ -44,6 +44,7 @@ export class ScenePicking {
       position.version,
       ...mesh.matrixWorld.elements,
       shape.nativeModel,
+      shape.nativeResource?.bank,
       shape.stage,
       shape.nativeSize,
       meta.nativeHeading,
@@ -52,7 +53,8 @@ export class ScenePicking {
     ].join(',')
     const cached = this.models.get(mesh)
     if (cached?.key === key && cached.position === position) return cached.commands
-    const data = (models as Record<number, NativeModel>)[shape.nativeModel],
+    const resource = (shape.nativeResource as NativeModelResource | undefined) ?? nativeModelResource(shape.nativeModel),
+      data = resource.data,
       { stage } = shape
     const origin = new THREE.Vector3().setFromMatrixPosition(mesh.matrixWorld)
     const nativeOrigin = s.view.relative(origin, (origin.y * 128) / 45)
