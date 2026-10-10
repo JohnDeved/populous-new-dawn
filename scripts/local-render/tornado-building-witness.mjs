@@ -11,6 +11,12 @@ const cell = point => ((point.y & 0xfe00) | ((point.x >>> 8) & 254)) >>> 0
 const harmful = new Set(['blast', 'blastWave', 'lightning', 'fire', 'firestorm',
   'swamp', 'swarm', 'tornado', 'earthquake', 'volcano', 'erosion', 'angel', 'firewarriorShot'])
 
+export function boundedTornadoEvidence(evidence) {
+  const bytes = new TextEncoder().encode(JSON.stringify(evidence)).byteLength
+  insist(bytes <= 4 * 1024 * 1024, `Complete Tornado evidence exceeds 4MiB export bound: ${bytes}`)
+  return evidence // No truncated rows, errors or partially successful evidence.
+}
+
 export function assertTornadoBuildingCast({ before, after, pointer }, shamanId) {
   insist(before.mode === 'tornado' && after.mode === null && !before.overviewActive,
     'Actual Tornado mode did not complete')
@@ -225,6 +231,6 @@ export function attachTornadoBuildingObservation(scene, store, expected, current
         projectileId: projectile?.id ?? null, effectId: owned?.id ?? null, ended: !!owned && !world.effects.includes(owned),
         terminal: evidence.terminal, errors: [...evidence.errors], cleanupErrors: [...evidence.cleanupErrors] }
     },
-    finish: () => close('manual'),
+    finish: () => boundedTornadoEvidence(close('manual')),
   }
 }

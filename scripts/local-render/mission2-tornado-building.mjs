@@ -155,13 +155,13 @@ export default async function missionTwoTornadoBuilding({ page, openMission, out
       state.shaman.z - report.approach.chosen.point.z) < 2, 180000)
     await input.view(report.approach.target)
     await input.pause()
+    await page.screenshot({ path: resolve(output, 'camp-before-tornado.png') })
     await page.evaluate(() => import('/scripts/local-render/tornado-building-witness.mjs'))
     observation = await page.evaluateHandle(async expected => {
       const { attachTornadoBuildingObservation } = await import('/scripts/local-render/tornado-building-witness.mjs')
       return attachTornadoBuildingObservation(window.testSceneRef.current, window.testStore,
         expected, () => window.testSceneRef.current)
     }, { targetId: 1, shamanId })
-    await page.screenshot({ path: resolve(output, 'camp-before-tornado.png') })
     await input.resume()
     await input.action('choose-Spells-panel', () => page.getByLabel(/spells/).click())
     await input.action('choose-earned-Tornado', () => page.getByRole('button', { name: /^Tornado, / }).click())
@@ -170,6 +170,7 @@ export default async function missionTwoTornadoBuilding({ page, openMission, out
     const impactStart = Date.now()
     for (;;) {
       signal.throwIfAborted()
+      assert.ok(Date.now() < deadlineAt, 'Declared twelve-minute route window expired after cast')
       const status = await observation.evaluate(api => api.status())
       assert.deepEqual(status.errors, [])
       assert.deepEqual(status.cleanupErrors, [])

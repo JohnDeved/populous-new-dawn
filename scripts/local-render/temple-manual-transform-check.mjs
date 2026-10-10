@@ -34,6 +34,7 @@ let server
 try {
   server = await createServer({
     configFile: resolve(root, 'scripts/local-render/vite.config.mjs'),
+    configLoader: 'native',
     cacheDir: resolve(process.env.TMPDIR, 'node_modules/.vite'),
     server: { middlewareMode: true, hmr: false, watch: null },
   })

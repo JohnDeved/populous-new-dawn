@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { tornadoWoodImpact, attachTornadoBuildingObservation, assertTornadoBuildingCast } from '../scripts/local-render/tornado-building-witness.mjs'
+import { tornadoWoodImpact, attachTornadoBuildingObservation, assertTornadoBuildingCast, boundedTornadoEvidence } from '../scripts/local-render/tornado-building-witness.mjs'
 import { finishTornadoBuildingRun } from '../scripts/local-render/mission2-tornado-building.mjs'
 import { createWorld, cast } from '../app/model.ts'
 import { advanceGame } from '../app/game-clock.ts'
@@ -246,4 +246,12 @@ test('Tornado route cleanup attempts finish, dispose and save while preserving p
   assert.deepEqual(attempts, ['finish', 'dispose', 'save'])
   assert.equal(report.cleanupErrors.length, 3)
   assert.equal(report.status, 'failed')
+})
+
+test('Tornado evidence export rejects oversize data instead of truncating any record', () => {
+  const small = { visits: [], errors: ['complete error'] }
+  assert.equal(boundedTornadoEvidence(small), small)
+  const large = { errors: ['x'.repeat(4 * 1024 * 1024)] }
+  assert.throws(() => boundedTornadoEvidence(large), /4MiB export bound/)
+  assert.equal(large.errors[0].length, 4 * 1024 * 1024)
 })

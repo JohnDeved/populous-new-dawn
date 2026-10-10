@@ -225,6 +225,8 @@ export async function runLocalBrowser(options, scenario) {
       [
         '--config',
         resolve(here, 'vite.config.mjs'),
+        '--configLoader',
+        'native',
         '--host',
         '127.0.0.1',
         '--port',
