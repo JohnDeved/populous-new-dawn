@@ -1,0 +1,299 @@
+{
+  "status": "passed",
+  "meaning": "Corrected strict validation of unchanged retained pixel/geometry records only. Original episode stays failed; Load/Restart not yet executed.",
+  "priorReportSha256": "7d50914b829a64ffbdfe981bd029096da78234932e820a06b21c63f02cd1fb25",
+  "productSource": {
+    "root": "<workspace>/world-temple-browser-construction-20261010",
+    "commit": "e989fbb71849f2530692f896ea3d045afd6432bf",
+    "tree": "e724ce4018995a5c421fa7d7c4b0f475c2cca073",
+    "status": "?? scripts/local-render/ordinary-temple-scenes.mjs\n?? scripts/local-render/ordinary-temple-witness.mjs\n?? scripts/local-render/world-theme-witness.mjs",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [
+      {
+        "path": "scripts/local-render/ordinary-temple-scenes.mjs",
+        "mode": 33188,
+        "sha256": "6b7d8a95e5ad8af8fc9a9a73d02c83c09206c224b23d306cb551f5a881be5d58"
+      },
+      {
+        "path": "scripts/local-render/ordinary-temple-witness.mjs",
+        "mode": 33188,
+        "sha256": "5fdba3f8fee41f72a4ec1adecce5e5a04d065254c9d4159d8aa79c77504d68e7"
+      },
+      {
+        "path": "scripts/local-render/world-theme-witness.mjs",
+        "mode": 33188,
+        "sha256": "d51e1580ac3bb3c2d43516df9b43a0663036193b75e1ddee8f4d9742ababacb2"
+      }
+    ],
+    "fingerprint": "9fb7bb80af002764b8abae32b0711a2d25ec6b744d45d6fc240c072a04108295"
+  },
+  "helperSource": "f758a2d443e7c1b815914e1ee58988dc065b9415",
+  "blueTemple": 1021,
+  "blueFrames": [
+    {
+      "file": "m3-construction-6.png",
+      "sha256": "03aa974ae3f66c463c3fe57d45bdd756d8cdcf0dcad621cb3b0f8fc01946a1bf",
+      "turn": 2398,
+      "resource": {
+        "bank": "p",
+        "modelAtlas": "atlas-p",
+        "epoch": 2,
+        "counter": 5,
+        "tile": 101
+      },
+      "building": {
+        "id": 1021,
+        "team": "blue",
+        "x": 24.99609375,
+        "z": 69.07421875,
+        "hp": 260,
+        "progress": 0.125,
+        "logs": 1,
+        "model": 95,
+        "stage": 0,
+        "bank": 6,
+        "source": "http://127.0.0.1:4414/original/atlas-p.png",
+        "encoded": true,
+        "alphaTest": 0.5,
+        "side": 2,
+        "program": "native-mesh-true-false-native-model-light",
+        "offset": null,
+        "epoch": null,
+        "clip": {
+          "x": -0.048286290322580694,
+          "y": 0.20762499999999995,
+          "z": -0.6148681640625
+        },
+        "vertices": 81,
+        "mode32Vertices": 0,
+        "capVertices": 81,
+        "trustedRenderSubmission": true,
+        "positionsSha256": "5e0c9dbedfa8f61cf817dfb46829b51548cfe23038a569f46e2ccd0529b3305c",
+        "uvSha256": "ae5d246bc6d0b58946092014870728367f12a3c75c35fe0e8eed6aec77ed746d",
+        "modesSha256": "e79f24a89b9455b54eb575ff7e8778cd24a90285317b8f57b8a1e371322a90fa"
+      }
+    },
+    {
+      "file": "m3-construction-7.png",
+      "sha256": "a81a8ff2f5baf74054d384e46a1340501cb6c3fce42028ba03efd0990973d057",
+      "turn": 2496,
+      "resource": {
+        "bank": "p",
+        "modelAtlas": "atlas-p",
+        "epoch": 2,
+        "counter": 1,
+        "tile": 93
+      },
+      "building": {
+        "id": 1021,
+        "team": "blue",
+        "x": 24.99609375,
+        "z": 69.07421875,
+        "hp": 260,
+        "progress": 0.375,
+        "logs": 3,
+        "model": 95,
+        "stage": 1,
+        "bank": 6,
+        "source": "http://127.0.0.1:4414/original/atlas-p.png",
+        "encoded": true,
+        "alphaTest": 0.5,
+        "side": 2,
+        "program": "native-mesh-true-false-native-model-light",
+        "offset": null,
+        "epoch": null,
+        "clip": {
+          "x": -0.048286290322580694,
+          "y": 0.20762499999999995,
+          "z": -0.6148681640625
+        },
+        "vertices": 171,
+        "mode32Vertices": 0,
+        "capVertices": 171,
+        "trustedRenderSubmission": true,
+        "positionsSha256": "c5b0624c912c5b6b9502030989a922587f989698403812a73f7f3be05b2ca94c",
+        "uvSha256": "aed8eb823ed7d189bff6c60bb247d4b082c2897ea2669ab7fc453989576ba511",
+        "modesSha256": "601967750cec4b03a9c89914d4ec176cbf048382be53b94fe17c2c1f491973b3"
+      }
+    },
+    {
+      "file": "m3-construction-8.png",
+      "sha256": "4c8a32884eb8198cca43107ff56c2ba3bc5f680499d22414ea6861b88a70d029",
+      "turn": 2594,
+      "resource": {
+        "bank": "p",
+        "modelAtlas": "atlas-p",
+        "epoch": 2,
+        "counter": 1,
+        "tile": 93
+      },
+      "building": {
+        "id": 1021,
+        "team": "blue",
+        "x": 24.99609375,
+        "z": 69.07421875,
+        "hp": 260,
+        "progress": 0.5,
+        "logs": 4,
+        "model": 95,
+        "stage": 2,
+        "bank": 6,
+        "source": "http://127.0.0.1:4414/original/atlas-p.png",
+        "encoded": true,
+        "alphaTest": 0.5,
+        "side": 2,
+        "program": "native-mesh-true-false-native-model-light",
+        "offset": null,
+        "epoch": null,
+        "clip": {
+          "x": -0.048286290322580694,
+          "y": 0.20762499999999995,
+          "z": -0.6148681640625
+        },
+        "vertices": 264,
+        "mode32Vertices": 0,
+        "capVertices": 216,
+        "trustedRenderSubmission": true,
+        "positionsSha256": "6b04da57f74f781f22b7ffe1eb9616e8268a344d577b6c87c3375bf0e348f341",
+        "uvSha256": "a42ff11d30d10641b97f666b194c568c087ac33e98570c8582ce6787e1da5017",
+        "modesSha256": "cc85f2905feb8eb3a22f1362dbf0f59bc059641a8e63bbe93c69b5fe97acd5a9"
+      }
+    },
+    {
+      "file": "m3-construction-9.png",
+      "sha256": "74f4bd6b886cfdd63e002a2d4857099163f3d07636babc080b3df665389eccbf",
+      "turn": 2732,
+      "resource": {
+        "bank": "p",
+        "modelAtlas": "atlas-p",
+        "epoch": 2,
+        "counter": 4,
+        "tile": 100
+      },
+      "building": {
+        "id": 1021,
+        "team": "blue",
+        "x": 24.99609375,
+        "z": 69.07421875,
+        "hp": 260,
+        "progress": 0.75,
+        "logs": 6,
+        "model": 95,
+        "stage": 3,
+        "bank": 6,
+        "source": "http://127.0.0.1:4414/original/atlas-p.png",
+        "encoded": true,
+        "alphaTest": 0.5,
+        "side": 2,
+        "program": "native-mesh-true-false-native-model-light",
+        "offset": null,
+        "epoch": null,
+        "clip": {
+          "x": -0.048286290322580694,
+          "y": 0.20762499999999995,
+          "z": -0.6148681640625
+        },
+        "vertices": 438,
+        "mode32Vertices": 0,
+        "capVertices": 327,
+        "trustedRenderSubmission": true,
+        "positionsSha256": "7d8ef240737aad82dd90ea407b7e4385d57b354f6f43e88b7973f8ebcbfa2ffa",
+        "uvSha256": "7fae91d6f3070e98f6edc6abf740ee41e7b55db7c1e9e78d73a90581bac369ec",
+        "modesSha256": "9182f7315fbc1f99d04b7235aac7d380c5a189ceaf927d095e3993a533b0a902"
+      }
+    },
+    {
+      "file": "m3-construction-10.png",
+      "sha256": "a31fb460ce71004d73534321928816695fa15ef6e0fc2c7c81f6dd3964473cdd",
+      "turn": 2856,
+      "resource": {
+        "bank": "p",
+        "modelAtlas": "atlas-p",
+        "epoch": 2,
+        "counter": 2,
+        "tile": 94
+      },
+      "building": {
+        "id": 1021,
+        "team": "blue",
+        "x": 24.99609375,
+        "z": 69.07421875,
+        "hp": 260,
+        "progress": 1,
+        "logs": 8,
+        "model": 95,
+        "stage": 4,
+        "bank": 6,
+        "source": "http://127.0.0.1:4414/original/atlas-p.png",
+        "encoded": true,
+        "alphaTest": 0.5,
+        "side": 1,
+        "program": "native-mesh-true-false-native-model-light-temple",
+        "offset": [
+          0.25,
+          0
+        ],
+        "epoch": 2,
+        "clip": {
+          "x": -0.048286290322580694,
+          "y": 0.20762499999999995,
+          "z": -0.6148681640625
+        },
+        "vertices": 666,
+        "mode32Vertices": 96,
+        "capVertices": 351,
+        "trustedRenderSubmission": true,
+        "positionsSha256": "dfd15686c2fc96876eae8f68f251baf36ea3db494abb59aa30dbebdfe49f71ea",
+        "uvSha256": "2d058a03f47ba8ca1fa055e5d66f77072c311a0e7af113b907c571db4706353f",
+        "modesSha256": "098b95f47f9cb2c723bebf8dacfb4b35a83000c394b842ce6ce649ca001e360a"
+      }
+    },
+    {
+      "file": "m3-construction-11.png",
+      "sha256": "41c5fe0d1e7ac11c9d6f1140d768be7333a459a71c5168a8be91567ca08f1cf3",
+      "turn": 2858,
+      "resource": {
+        "bank": "p",
+        "modelAtlas": "atlas-p",
+        "epoch": 2,
+        "counter": 0,
+        "tile": 92
+      },
+      "building": {
+        "id": 1021,
+        "team": "blue",
+        "x": 24.99609375,
+        "z": 69.07421875,
+        "hp": 260,
+        "progress": 1,
+        "logs": 8,
+        "model": 95,
+        "stage": 4,
+        "bank": 6,
+        "source": "http://127.0.0.1:4414/original/atlas-p.png",
+        "encoded": true,
+        "alphaTest": 0.5,
+        "side": 1,
+        "program": "native-mesh-true-false-native-model-light-temple",
+        "offset": [
+          0,
+          0
+        ],
+        "epoch": 2,
+        "clip": {
+          "x": -0.048286290322580694,
+          "y": 0.20762499999999995,
+          "z": -0.6148681640625
+        },
+        "vertices": 666,
+        "mode32Vertices": 96,
+        "capVertices": 351,
+        "trustedRenderSubmission": true,
+        "positionsSha256": "dfd15686c2fc96876eae8f68f251baf36ea3db494abb59aa30dbebdfe49f71ea",
+        "uvSha256": "2d058a03f47ba8ca1fa055e5d66f77072c311a0e7af113b907c571db4706353f",
+        "modesSha256": "098b95f47f9cb2c723bebf8dacfb4b35a83000c394b842ce6ce649ca001e360a"
+      }
+    }
+  ],
+  "limits": "Natural mesh submission does not establish unobstructed pixels for incidental other tribes. Blue1021 construction/completion inspected separately."
+}
