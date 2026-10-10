@@ -1,4 +1,9 @@
-# Issue 248: one scheduled Mission 6 port trace, proposal v3
+# Issue 248: one revised scheduled Mission 6 port trace, proposal v4
+
+This is a new-run proposal after the retained f957ea23 attempt stopped on an
+observer equality guard. Its earlier acceptance does not authorize this run.
+The corrected observer's four controlled purity cases passed; fresh independent
+source/binding review and coordinator admission remain required before simulation.
 
 ## Outcome and exact scope
 
@@ -33,7 +38,7 @@ This observer is preserved on its dedicated research branch, not proposed for ma
 
 ## Observer and verification
 
-`observe.mjs` SHA256 `a974b738efed2202b8e54130bc6ed8d65d2ee231d07e7e80fa1901c0c4c133d9`.
+`observe.mjs` SHA256 `1f3b56604348f6bd30b91189796f0fd23fe7cbf6350ad07176074f91a11e6b61`.
 The executable must be this committed QA file, and it verifies its own bytes and
 this proposal against HEAD before importing any production code. HEAD must descend
 from the stated base with all changed paths confined to this exact QA directory;
@@ -45,8 +50,8 @@ and returns its exact result. It logs actual delegated inputs/results for
 activeMembers, entity, targetsRemain, and RNG without extra calls to those inputs.
 The wrapper's world is the same object used by the normal tick/scheduler.
 
-One `registerHooks` load hook exposes existing private `computerResponseWorld` and
-`computerAttackTargetsRemain` for read-only observation. It also renames only the
+One `registerHooks` load hook exposes existing private `computerResponseWorld`
+for a candidate projection on detached data. It also renames only the
 `stepComputerTasks` declaration, then exports a same-name wrapper that invokes the
 original body once, invokes a read-only after-dispatch callback, and returns the
 original result. The callback uses a task-specific Symbol, asserts that it was
@@ -54,9 +59,13 @@ previously absent, and is removed after the run. It checks the entire original
 source text and records original and evaluated hashes. Every original function
 body stays unchanged. This avoids a late module mock that cyclic model imports
 would bypass; that unrun v1 proposal/observer is preserved separately.
-Every snapshot hashes V8 serialization of the entire world before and after
-observation and fails on any change. The observer does not use wall time or logs
-as simulation inputs.
+Every snapshot clones the world, passes only that detached graph to projection
+helpers, and keeps strict before/after V8 serialization guards on both the live
+world and detached input. Guards run in finally, including when a helper throws;
+the original helper exception is recorded first. The first mismatch preserves
+the exact bounded before/after buffers locally, then fails. The observer does not
+use wall time or logs as simulation inputs. See `purity-inventory.md` for the finite
+transitive helper audit and output bounds.
 
 Capture allocation arguments and scheduled turn; task/queue state; registered
 identity versus retained native/fight/flight/entry/builder owners; current immediate
@@ -64,12 +73,16 @@ and queued order records, command17/19 payloads and cancellation/state gates;
 all current yellow people, retained assignment+0xaf and optional flag+0x7f;
 assigned-state23 prelude candidates; ordered actual registered cell chains and
 separately the existing defense-adapter rows; both cap10/radius7 collector results;
-old all19/payload and distance-world predicates; actual returned actions;
+derived old all19/payload comparison and actual consumed callback results; actual returned actions;
 controller, after-dispatch, and after-turn retry/target/order/RNG state.
 
 The runtime does not retain native task+0x26, task+0x08 visit counter, task+0x23
 building selector model, task+0x2c condition, or native tribe-person list ordering.
-Those are null/unbound in the packet. Optional nativeFlags7f absence is also null,
+Those native projections are null/unbound in the packet. Raw `task.mode` and
+`elapsed` are retained separately; they must not be substituted for route+0x26 or
+visit-counter+0x08. A separate static report maps mode to+0x23; this observation
+does not invent coordinate-selector execution from that source fact.
+Optional nativeFlags7f absence is also null,
 never inferred zero. Native assignment projection can disagree with task.members.
 The existing defense adapter is labeled a candidate projection, and direct
 registered lists are separate; neither is asserted to compose the native world.
@@ -90,6 +103,23 @@ fixed the binding but its derived predicate failed to exclude dead/missing membe
 its summary used dispatch existence as mixed qualification, and a bounded miss did
 not retain the exact final queue. All were caught before any run. Unrun v1/v2
 artifacts remain in the local review packet; v3 addresses the three review findings.
+
+The single v3 mission run then failed at turn7637 after an allocation at6475;
+no mixed-dispatch record or phase16 visit was accepted. The optional extra distance
+query could invoke `nativePosition → syncNativeTerrain`; no field diff survived
+to prove the exact cause of that run's serialization mismatch. V4 deletes that
+query/export, keeps actual targetsRemain callback evidence, uses detached projection
+inputs and preserves rejection buffers. The old failed run stays invalid.
+
+Controlled observer-contract check: four cases passed at
+`2026-10-10T07:24:08.032022+00:00`, exit0, under the separate20s CPU4 grant.
+Test SHA256 `996821fcdc2c674b5df93b1e162f384f5c406e7d22bf98e47edf29530adb527e`;
+inventory SHA256 `34561fea07b089be17f93337abf846ec21adfb7eef1744ab459f0ba09ee9c345`.
+Receipt SHA256 `c882f2221789e8c9a42a602f87c399653bcef3e99c17d03eef6033f15c43e753`;
+stdout SHA256 `aa034a9d9b0ac98564b45d06bb5153bd7ec5b09b38ff02664156eb58924a5e9f`.
+An earlier controlled invocation failed import resolution before any cases ran;
+its source and receipt remain preserved. These controlled cases do not reproduce
+the lost field difference or establish scheduled gameplay/native behavior.
 
 The first native invariant assertion would require proved ordinary-call routing,
 prelude exclusion, nonzero ordinary admitted per-visit tally, nonempty native-bound
@@ -116,8 +146,9 @@ Run once from the isolated worktree, with raw stdout/stderr and exit retained:
 taskset -c 4 timeout --signal=TERM --kill-after=5s 190s node --experimental-test-module-mocks qa/issue248-scheduled-trace-20261010/observe.mjs
 ```
 
-Raw records append to the external review packet's `run.jsonl`, never overwrite;
-result to `run.summary.json`. Use fresh task-local TMP/cache directories and retain
+Raw records append to the external review packet's `revised-run.jsonl`, never overwrite;
+result to `revised-run.summary.json`. Preserve all old `run.*` and purity receipts.
+Use fresh task-local TMP/cache directories and a fresh outer receipt, and retain
 the command/start/session/deadline/exit, raw stdout/stderr, and dependency identity.
 An existing raw run causes refusal. Exceptions and failed eligibility survive.
 Record exact command, start/end, exit, observer/source hashes, dependency identity,

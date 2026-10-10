@@ -9,10 +9,11 @@ import { pathToFileURL, fileURLToPath } from 'node:url'
 
 // One authored world, no scenario edits, no restore, no search over seeds.
 const root = '/workspace/scratch/69fd8163d94e/issue248-scheduled-trace-20261010'
-const output = '/workspace/scratch/69fd8163d94e/issue248-scheduled-trace-packet-20261010/run'
+const output = '/workspace/scratch/69fd8163d94e/issue248-scheduled-trace-packet-20261010/revised-run'
 const base = '4754e12d3590bde18656416514871b033de164be'
 const qaPrefix = 'qa/issue248-scheduled-trace-20261010/'
 const limits = { worlds: 1, turns: 22064, wallMilliseconds: 180000, phase16Visits: 4 }
+const byteLimits = { jsonl: 32 * 1024 * 1024, world: 16 * 1024 * 1024, summary: 1024 * 1024 }
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
 const git = (...args) => execFileSync('git', ['-C', root, ...args], { encoding: 'utf8' }).trim()
 const url = path => pathToFileURL(`${root}/${path}`).href
@@ -40,7 +41,6 @@ initial.qaFiles = Object.fromEntries(['observe.mjs', 'proposal.md'].map(name => 
 }))
 const runtimeText = readFileSync(`${root}/app/computer-runtime.ts`, 'utf8')
 assert.equal(runtimeText.split('function computerResponseWorld(').length, 2)
-assert.equal(runtimeText.split('function computerAttackTargetsRemain(').length, 2)
 assert.equal(runtimeText.split('export function stepComputerTasks(').length, 2)
 assert.ok(runtimeText.includes('actions = stepAttackTask(w.ai, index, {'))
 assert.ok(runtimeText.includes('computerAttackHasOrder(w, index, 19, target) &&'))
@@ -52,12 +52,16 @@ assert.ok(process.execArgv.includes('--experimental-test-module-mocks'))
 assert.ok(!existsSync(`${output}.jsonl`), 'Never overwrite a previous attempt')
 const started = performance.now()
 const events = []
+let writtenBytes = 0
 const emit = event => {
   const row = { sequence: events.length, ...event }
+  const line = JSON.stringify(row) + '\n'
+  assert.ok(writtenBytes + Buffer.byteLength(line) <= byteLimits.jsonl, 'JSONL byte bound')
   events.push(row)
-  appendFileSync(`${output}.jsonl`, JSON.stringify(row) + '\n')
+  appendFileSync(`${output}.jsonl`, line)
+  writtenBytes += Buffer.byteLength(line)
 }
-emit({ kind: 'start', initial, limits, node: process.version, seed: 'createWorld(6) default' })
+emit({ kind: 'start', initial, limits, byteLimits, node: process.version, seed: 'createWorld(6) default' })
 
 // Visibility and a pass-through wrapper: all original function bodies stay intact.
 // This is the existing defense adapter, observed as a candidate world projection;
@@ -65,7 +69,7 @@ emit({ kind: 'start', initial, limits, node: process.version, seed: 'createWorld
 const callbackKey = Symbol.for('issue248.scheduled.afterTasks')
 assert.equal(globalThis[callbackKey], undefined)
 const suffix = `
-export { computerResponseWorld, computerAttackTargetsRemain };
+export { computerResponseWorld };
 export function stepComputerTasks(w, tribe) {
   const result = issue248OriginalStepComputerTasks(w, tribe);
   globalThis[Symbol.for('issue248.scheduled.afterTasks')]?.(w, tribe);
@@ -92,11 +96,24 @@ const { objectsInCell } = await import(url('app/object-cells.ts'))
 const { currentPersonOrder } = await import(url('app/person-orders.ts'))
 let world, runtime, pending = [], allocation = null, dispatch = null, mixedDispatch = false, visits = 0
 let stopReason = null, failure = null
+// The controlled purity regression extracts this bounded helper block only.
+function assertNeutral(scope, beforeBytes, afterBytes) {
+  assert.ok(beforeBytes.length <= byteLimits.world && afterBytes.length <= byteLimits.world,
+    'Serialized world byte bound')
+  if (!beforeBytes.equals(afterBytes)) {
+    writeFileSync(`${output}.guard-before.bin`, beforeBytes, { flag: 'wx' })
+    writeFileSync(`${output}.guard-after.bin`, afterBytes, { flag: 'wx' })
+    emit({ kind: 'observer-rejection', scope, before: hash(beforeBytes), after: hash(afterBytes),
+      beforeBytes: beforeBytes.length, afterBytes: afterBytes.length,
+      diagnostics: ['guard-before.bin', 'guard-after.bin'] })
+  }
+  assert.equal(hash(afterBytes), hash(beforeBytes), `${scope} changed during observation`)
+}
 const personFields = ['id', 'class', 'model', 'tribe', 'state', 'substate', 'flags2',
   'flags3', 'flags4', 'computerAssignment', 'x', 'y', 'h', 'speed', 'assignment',
   'vehicle', 'disguise', 'immediateCommand', 'commandCursor', 'cellNext', 'cellPrevious']
 const pick = (object, keys) => Object.fromEntries(keys.map(key => [key, object?.[key] ?? null]))
-function ownerRow(unit) {
+function ownerRow(world, unit) {
   const registered = world.objectCells.objects.get(unit.id)
   const owners = { flight: unit.flight, fight: unit.fight?.motion, native: unit.native,
     entry: unit.entry?.person, builder: unit.builder?.person }
@@ -119,7 +136,7 @@ function ownerRow(unit) {
     oldPredicateOrder: structuredClone(selectedByOldPredicate
       ? currentPersonOrder(world.buildingOrders, selectedByOldPredicate) : null) }
 }
-function lists(tribe, target, objects) {
+function lists(world, tribe, target, objects) {
   const cells = []
   const collected = collectDefenseTargets(tribe, world.outcome.alliances[tribe], target, cell => {
     const row = [...objects(cell)]
@@ -130,34 +147,42 @@ function lists(tribe, target, objects) {
   return { people: collected.people.map(p => p.id), buildings: collected.buildings.map(p => p.id), cells }
 }
 function snapshot(index) {
-  const before = hash(serialize(world))
-  const task = world.campaignAIs[2].tasks[index]
-  const members = task.members.map(id => world.units.find(u => u.id === id)).map(u =>
-    u ? ownerRow(u) : { missingUnit: true })
-  const tribePeople = world.units.filter(u => u.team === 'yellow').map(ownerRow)
-  const assigned = tribePeople.filter(row => row.person?.computerAssignment === index + 1)
-  const adapter = runtime.computerResponseWorld(world, 2)
-  const result = { turn: world.turn, index, task: structuredClone(task),
-    randomState: world.randomState, cosmeticRandom: world.cosmeticRandom.randomState,
-    queue: { cursor: world.campaignAIs[2].cursor, flags: world.campaignAIs[2].flags,
-      selectionOwner: world.campaignAIs[2].selectionOwner },
-    members, tribePeople, assignedState23: assigned.filter(row => row.person.state === 23).map(row => row.id),
-    registeredAssigned: assigned.map(row => row.id),
-    knownOrdinaryAssigned: assigned.filter(row => !(row.person.flags2 & 1) &&
-      row.nativeFlags7f !== null && !(row.nativeFlags7f & 1)).map(row => row.id),
-    unknownSpecialFlagAssigned: assigned.filter(row => row.nativeFlags7f === null).map(row => row.id),
-    nativeFields: { task26: null, task08VisitCounter: null, task23BuildingModel: null,
-      task2cCondition: null, nativePersonChainOrder: null,
-      reason: 'No retained port projection; absence is not zero or native admission proof' },
-    registeredCellLists: lists(2, task.target, cell => objectsInCell(world.objectCells, cell)),
-    defenseAdapterLists: lists(2, task.target, cell => adapter.cells.get(cell) ?? []),
-    oldDistanceWorldPredicate: runtime.computerAttackTargetsRemain(world, 2, task.target),
-    derivedOldAll19PayloadPredicate: members.some(row => row.hp > 0) && members.filter(row => row.hp > 0).every(row =>
-      row.oldPredicateOrder?.model === 19 && row.oldPredicateOrder.a === task.target),
-    returns: { damageReached: task.damage >= task.extra, retriesExceeded: task.retries > 32,
-      retreatThreshold: Math.trunc(((task.retreatPercent & 255) * task.requested) / 100) } }
-  assert.equal(hash(serialize(world)), before, 'Observation changed world state')
-  return result
+  const liveBefore = serialize(world)
+  assert.ok(liveBefore.length <= byteLimits.world, 'Serialized world byte bound')
+  const observed = structuredClone(world), detachedBefore = serialize(observed)
+  try {
+    const task = observed.campaignAIs[2].tasks[index]
+    const members = task.members.map(id => observed.units.find(u => u.id === id)).map(u =>
+      u ? ownerRow(observed, u) : { missingUnit: true })
+    const tribePeople = observed.units.filter(u => u.team === 'yellow').map(u => ownerRow(observed, u))
+    const assigned = tribePeople.filter(row => row.person?.computerAssignment === index + 1)
+    const adapter = runtime.computerResponseWorld(observed, 2)
+    const result = { turn: observed.turn, index, task: structuredClone(task),
+      randomState: observed.randomState, cosmeticRandom: observed.cosmeticRandom.randomState,
+      queue: { cursor: observed.campaignAIs[2].cursor, flags: observed.campaignAIs[2].flags,
+        selectionOwner: observed.campaignAIs[2].selectionOwner },
+      members, tribePeople, assignedState23: assigned.filter(row => row.person.state === 23).map(row => row.id),
+      registeredAssigned: assigned.map(row => row.id),
+      knownOrdinaryAssigned: assigned.filter(row => !(row.person.flags2 & 1) &&
+        row.nativeFlags7f !== null && !(row.nativeFlags7f & 1)).map(row => row.id),
+      unknownSpecialFlagAssigned: assigned.filter(row => row.nativeFlags7f === null).map(row => row.id),
+      nativeFields: { task26: null, task08VisitCounter: null, task23BuildingModel: null,
+        task2cCondition: null, nativePersonChainOrder: null,
+        reason: 'No retained port projection; absence is not zero or native admission proof' },
+      registeredCellLists: lists(observed, 2, task.target, cell => objectsInCell(observed.objectCells, cell)),
+      defenseAdapterLists: lists(observed, 2, task.target, cell => adapter.cells.get(cell) ?? []),
+      derivedOldAll19PayloadPredicate: members.some(row => row.hp > 0) && members.filter(row => row.hp > 0).every(row =>
+        row.oldPredicateOrder?.model === 19 && row.oldPredicateOrder.a === task.target),
+      returns: { damageReached: task.damage >= task.extra, retriesExceeded: task.retries > 32,
+        retreatThreshold: Math.trunc(((task.retreatPercent & 255) * task.requested) / 100) } }
+    return result
+  } catch (error) {
+    emit({ kind: 'observer-helper-error', name: error.name, message: error.message, stack: error.stack })
+    throw error
+  } finally {
+    assertNeutral('live world', liveBefore, serialize(world))
+    assertNeutral('detached projection input', detachedBefore, serialize(observed))
+  }
 }
 const computerMock = mock.module(url('app/computer.ts'), { cache: true, namedExports: {
   ...actualComputer,
@@ -252,10 +277,12 @@ try {
     trackedDiff, status: git('status', '--short'),
     claim: 'Port-only observation; missing retained native fields prevent native-equivalent admission and caller proof' }
   emit(result)
-  writeFileSync(`${output}.summary.json`, JSON.stringify(result, null, 2) + '\n')
+  const summary = JSON.stringify(result, null, 2) + '\n'
+  assert.ok(Buffer.byteLength(summary) <= byteLimits.summary, 'Summary byte bound')
+  writeFileSync(`${output}.summary.json`, summary, { flag: 'wx' })
   delete globalThis[callbackKey]
   computerMock.restore()
-  console.log(JSON.stringify(result, null, 2))
+  console.log(summary)
   if (failure || !unchanged || trackedDiff) process.exitCode = 1
   else if (!mixedDispatch || !visits) process.exitCode = 2
 }
