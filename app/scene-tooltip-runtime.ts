@@ -75,7 +75,11 @@ function blankCell(scene: GameScene, cell: number) {
 }
 function inspectionTarget(scene: GameScene, picked: number | null, cell: number | null) {
   const building = scene.world.buildings.find(
-    b => b.id === picked && retainedBuildingPanel(b) && b.team === 'blue' && b.hp > 0
+    b =>
+      b.id === picked &&
+      retainedBuildingPanel(b, scene.world.manaWorld.playerTribe) &&
+      b.team === 'blue' &&
+      b.hp > 0
   )
   if (building) return building.id
   if (picked !== null || cell === null) return null
@@ -83,7 +87,11 @@ function inspectionTarget(scene: GameScene, picked: number | null, cell: number 
     id = scene.world.land.buildingIds[index] & 1023
   return (
     scene.world.buildings.find(
-      b => b.id === id && retainedBuildingPanel(b) && b.team === 'blue' && b.hp > 0
+      b =>
+        b.id === id &&
+        retainedBuildingPanel(b, scene.world.manaWorld.playerTribe) &&
+        b.team === 'blue' &&
+        b.hp > 0
     )?.id ?? null
   )
 }

@@ -118,29 +118,31 @@ test('actual M3 Temple input reserves its automatic owner synchronously before f
   assert.equal(records(scene).has(temple.id), true)
 })
 
-test('Temple manual DOM stays independent but yields to active training, failed capacity and fresh automatic entry', async t => {
+test('Temple independent controls yield to active training, failed capacity and fresh automatic entry', async t => {
   const fixture = await templePanelFixture(t),
-    { scene, world, temple, frame, paint } = fixture,
+    { scene, world, temple, paint } = fixture,
     { stepLiveTraining } = await import('../app/live-building-entry.ts')
   startScene(t, scene)
   paint()
-  const panel = scene.buildingPanels.get(temple.id)
-  assert.equal(panel?.hidden, false, 'inactive ordinary hover keeps the existing Temple DOM')
-  assert.equal(scene.objectPanels.inspectBuilding(temple.id, 'hover'), 'hover:rejected')
-  await clickBuilding(fixture, 2)
-  frame()
-  assert.equal(records(scene).has(temple.id), false, 'right-click gains no manual retained record')
-  assert.equal(scene.objectPanels.buildingInspected, null)
+  assert.equal(
+    scene.buildingPanels.has(temple.id),
+    false,
+    'manual hover now requires a retained record'
+  )
+  // Completed Temple manual inspection supersedes PR293's intentional inactive
+  // hover exclusion. Establish the same independent DOM through dismantling;
+  // preserve every downstream automatic authority/capacity assertion below.
   scene.hoveredObject = null
+  temple.admission.activity |= 0x8000
+  paint()
+  const panel = scene.buildingPanels.get(temple.id)
+  assert.equal(panel.hidden, false, 'dismantling remains independent without hover or records')
+  assert.equal(records(scene).has(temple.id), false)
+  temple.admission.activity &= ~0x8000
   panel.matches = () => true
   paint()
   assert.equal(panel.hidden, false, 'inactive held controls remain independently visible')
   panel.matches = () => false
-  temple.admission.activity |= 0x8000
-  paint()
-  assert.equal(panel.hidden, false, 'dismantling remains independent without hover or records')
-  assert.equal(records(scene).has(temple.id), false)
-  temple.admission.activity &= ~0x8000
   scene.hoveredObject = temple.id
 
   temple.admission.activity |= 0x80 // Supplied negative authority/capacity boundary only.

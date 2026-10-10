@@ -210,10 +210,14 @@ function fixture(t) {
 }
 
 function cachedHidden(f) {
+  // Manual Temple hover now requires a record. Use the existing independent
+  // dismantling adapter to establish the same real cached DOM without one.
+  f.admission.activity |= 0x8000
   f.paint()
   const panel = f.scene.buildingPanels.get(f.temple.id)
-  assert.ok(panel && !panel.hidden, 'production hover rendering must first create the cache')
-  assert.equal(f.current().reservations, 1, 'the visible manual cache owns capacity')
+  assert.ok(panel && !panel.hidden, 'production dismantling rendering must first create the cache')
+  assert.equal(f.current().reservations, 1, 'the visible independent cache owns capacity')
+  f.admission.activity &= ~0x8000
   f.scene.hoveredObject = null
   f.paint()
   assert.equal(f.scene.buildingPanels.get(f.temple.id), panel)
