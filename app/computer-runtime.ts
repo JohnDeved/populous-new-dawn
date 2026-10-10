@@ -1393,7 +1393,11 @@ function stepComputerDefense(w: World, tribe: number, index: number) {
       }
       if (!targets.people.length && !targets.buildings.length) {
         const shaman = w.units.find(u => u.team === team && isShaman(u) && u.hp > 0),
-          shamanPosition = shaman && nativePosition(w, shaman),
+          // 0x4f6020 retains the loaded origin when no construction base exists.
+          shamanPosition =
+            w.outcome.level === 3 && tribe === 2 && w.ai.constructionBase === undefined
+              ? nativePosition(w, campaignPosition(w, 'yellow'))
+              : shaman && nativePosition(w, shaman),
           cell =
             w.ai.constructionBase ??
             (shamanPosition ? ((shamanPosition.x >>> 8) & 254) | (shamanPosition.y & 0xfe00) : 0)
