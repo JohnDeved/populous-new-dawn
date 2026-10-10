@@ -9,11 +9,11 @@ import { waitForCheckpointReadback } from '../checkpoint-readback.mjs'
 // Authored Mission 2 startup owners at product ac7e894b. Additional ordinary
 // allocations are allowed; none of these five existing members may be missing.
 export const requiredRadiusMembers = Object.freeze([
-  { id: 1, model: 7 },
-  { id: 2, model: 3 },
-  { id: 3, model: 3 },
-  { id: 22, model: 4 },
-  { id: 71, model: 3 },
+  { sourceIndex: 1, id: 1, model: 7, owner: 3, x: 68, z: 102, angle: 512 },
+  { sourceIndex: 3, id: 2, model: 3, owner: 3, x: 82, z: 102, angle: 512 },
+  { sourceIndex: 5, id: 3, model: 3, owner: 3, x: 76, z: 114, angle: 512 },
+  { sourceIndex: 24, id: 22, model: 4, owner: 3, x: 116, z: -132, angle: 512 },
+  { sourceIndex: 79, id: 71, model: 3, owner: 3, x: 102, z: 118, angle: 1536 },
 ])
 export const radiusCheckpointBounds = Object.freeze({
   innerMs: 180000,
@@ -31,10 +31,20 @@ function assertSnapshot(snapshot) {
   assert.equal(snapshot.aiAlias, true)
   assert.ok(Number.isInteger(snapshot.radius) && snapshot.radius >= 0 && snapshot.radius <= 255)
   assert.equal(snapshot.hasMembership, true)
+  assert.deepEqual(
+    snapshot.sources,
+    requiredRadiusMembers,
+    'Authored indices and live IDs have distinct owners'
+  )
   for (const required of requiredRadiusMembers) {
     const member = snapshot.members.find(item => item.id === required.id)
     assert.ok(member, `Authored M2 member ${required.id} must be retained`)
     assert.equal(member.model, required.model)
+    assert.deepEqual(member.anchor, {
+      x: Math.round((required.x + 8) * 256) & 0xfe00,
+      y: Math.round((-required.z - 8) * 256) & 0xfe00,
+    })
+    assert.equal(member.angle, required.angle)
   }
   for (const member of snapshot.members) {
     assert.equal(member.team, 'green')
@@ -100,75 +110,97 @@ export default async function ({ page, output, receipt, openMission, observeChec
     await page.waitForFunction(() => window.testStore.getWorld().turn > 0, null, options(15000))
     await click('Game settings')
     await page.locator('dialog.game-dialog').waitFor({ state: 'visible', ...options() })
-    report.before = await page.evaluate(async owner => {
-      if (Object.hasOwn(window, 'selectionRadiusCheckpoint'))
-        throw Error('Foreign checkpoint observer exists')
-      const { armTempleCheckpoint } =
-          await import('/scripts/local-render/temple-training-checkpoint.mjs'),
-        { buildingModel } = await import('/app/building-shapes.ts'),
-        store = window.testStore,
-        observers = new Map(),
-        snapshot = ({ world }) => {
-          const ai = world.campaignAIs[3]
-          return {
-            level: world.outcome.level,
-            turn: world.turn,
-            tribe: world.activeCampaignTribe,
-            aiAlias: ai === world.ai,
-            radius: ai?.constructionRadius,
-            basePresent: ai?.constructionBase !== undefined,
-            base: ai?.constructionBase,
-            hasMembership: Array.isArray(ai?.constructionBuildings),
-            members: Array.isArray(ai?.constructionBuildings)
-              ? ai.constructionBuildings.map(member => ({
-                  id: member.id,
-                  team: member.team,
-                  model: buildingModel(member),
-                  x: member.x,
-                  z: member.z,
-                  present: world.buildings.some(building => building.id === member.id),
-                  sameObject:
-                    world.buildings.find(building => building.id === member.id) === member,
-                }))
-              : [],
-          }
-        }
-      if (!store.getWorld().paused) throw Error('Public settings must own pause before observation')
-      const api = {
-        arm(kind) {
-          if (observers.has(kind)) throw Error('One attempt per public checkpoint operation')
-          const name = kind === 'save' ? 'Save checkpoint' : 'Load checkpoint',
-            button = [...document.querySelectorAll('button')].find(
-              item => item.textContent.trim() === name
-            )
-          if (!button) throw Error(`Missing public ${name}`)
-          observers.set(kind, armTempleCheckpoint({ kind, store, button, snapshot }))
-        },
-        async result(kind) {
-          const observer = observers.get(kind)
-          if (!observer) throw Error('Checkpoint observer was not armed')
-          const closed = observer.close()
-          return {
-            status: closed,
-            digest: await observer.digest(),
-            expectedLoad: kind === 'save' ? await observer.expectedLoadDigest() : undefined,
-          }
-        },
-        close() {
-          const results = []
-          for (const [kind, observer] of observers) {
-            try {
-              results.push({ kind, status: observer.close() })
-            } catch (error) {
-              results.push({ kind, error: String(error) })
+    report.before = await page.evaluate(
+      async ({ owner, requiredMembers }) => {
+        if (Object.hasOwn(window, 'selectionRadiusCheckpoint'))
+          throw Error('Foreign checkpoint observer exists')
+        const { armTempleCheckpoint } =
+            await import('/scripts/local-render/temple-training-checkpoint.mjs'),
+          { buildingModel } = await import('/app/building-shapes.ts'),
+          { missionData } = await import('/app/mission-data.ts'),
+          store = window.testStore,
+          observers = new Map(),
+          sources = requiredMembers.map(({ sourceIndex, id }) => {
+            const source = missionData(2).level.objects.find(item => item.index === sourceIndex)
+            if (source?.type !== 2) throw Error('Required authored class-2 source is absent')
+            return {
+              sourceIndex,
+              id,
+              model: source.model,
+              owner: source.owner,
+              x: source.x,
+              z: source.z,
+              angle: source.angle,
+            }
+          }),
+          snapshot = ({ world }) => {
+            const ai = world.campaignAIs[3]
+            return {
+              level: world.outcome.level,
+              turn: world.turn,
+              tribe: world.activeCampaignTribe,
+              aiAlias: ai === world.ai,
+              radius: ai?.constructionRadius,
+              basePresent: ai?.constructionBase !== undefined,
+              base: ai?.constructionBase,
+              hasMembership: Array.isArray(ai?.constructionBuildings),
+              sources,
+              members: Array.isArray(ai?.constructionBuildings)
+                ? ai.constructionBuildings.map(member => ({
+                    id: member.id,
+                    team: member.team,
+                    model: buildingModel(member),
+                    x: member.x,
+                    z: member.z,
+                    anchor: { ...member.anchor },
+                    angle: Math.round((member.angle * 2048) / (2 * Math.PI)),
+                    present: world.buildings.some(building => building.id === member.id),
+                    sameObject:
+                      world.buildings.find(building => building.id === member.id) === member,
+                  }))
+                : [],
             }
           }
-          return results
-        },
-      }
-      window.selectionRadiusCheckpoint = { owner, api }
-      return snapshot({ world: store.getWorld() })
-    }, owner)
+        if (!store.getWorld().paused)
+          throw Error('Public settings must own pause before observation')
+        const api = {
+          arm(kind) {
+            if (observers.has(kind)) throw Error('One attempt per public checkpoint operation')
+            const name = kind === 'save' ? 'Save checkpoint' : 'Load checkpoint',
+              button = [...document.querySelectorAll('button')].find(
+                item => item.textContent.trim() === name
+              )
+            if (!button) throw Error(`Missing public ${name}`)
+            observers.set(kind, armTempleCheckpoint({ kind, store, button, snapshot }))
+          },
+          async result(kind) {
+            const observer = observers.get(kind)
+            if (!observer) throw Error('Checkpoint observer was not armed')
+            const closed = observer.close()
+            return {
+              status: closed,
+              digest: await observer.digest(),
+              expectedLoad: kind === 'save' ? await observer.expectedLoadDigest() : undefined,
+            }
+          },
+          close() {
+            const results = []
+            for (const [kind, observer] of observers) {
+              try {
+                results.push({ kind, status: observer.close() })
+              } catch (error) {
+                results.push({ kind, error: String(error) })
+              }
+            }
+            return results
+          },
+        }
+        const initial = snapshot({ world: store.getWorld() })
+        window.selectionRadiusCheckpoint = { owner, api }
+        return initial
+      },
+      { owner, requiredMembers: requiredRadiusMembers }
+    )
     installed = true
     assertSnapshot(report.before)
     persist()
