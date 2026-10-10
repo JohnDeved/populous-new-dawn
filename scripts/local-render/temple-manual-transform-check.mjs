@@ -1,6 +1,5 @@
 // Node-only maintained Vite pipeline check in middleware mode; no browser/gameplay.
 import assert from 'node:assert/strict'
-import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -13,12 +12,15 @@ assert.equal(process.env.POPULOUS_GAME_ROOT, root)
 assert.equal(process.env.CLOUDFLARE_CF_FETCH_ENABLED, 'false')
 assert(process.env.TMPDIR?.startsWith(resolve(root, 'work/')))
 const file = 'scripts/local-render/temple-manual-witness.mjs'
-const old = execFileSync('git', ['show', `02da50391dd2968d7389a78160370bafb6004f51:${file}`], {
-  encoding: 'utf8',
-})
+// Controlled lexical regression fixture, not historical application source.
+// A local guard named require must reproduce the maintained plugin boundary.
+const old = `const require = (value, message) => { if (!value) throw Error(message) }
+require(true, 'controlled local guard')
+`
 const sha = bytes => createHash('sha256').update(bytes).digest('hex')
 const report = {
   bounds,
+  baselineKind: 'controlled local require-function fixture',
   baselineSha256: sha(old),
   currentSha256: sha(readFileSync(file)),
   modules: [],
@@ -36,7 +38,7 @@ try {
   assert(server.config.plugins.some(plugin => plugin.name.includes('commonjs')))
   try {
     await server.environments.client.pluginContainer.transform(old, resolve(root, file))
-    assert.fail('Historical local require must reproduce the real maintained transform rejection')
+    assert.fail('Controlled local require must reproduce the maintained transform rejection')
   } catch (error) {
     assert.match(String(error), /invalid import.*require|cannot be statically analyzed/s)
     report.baselineRejected = String(error)
