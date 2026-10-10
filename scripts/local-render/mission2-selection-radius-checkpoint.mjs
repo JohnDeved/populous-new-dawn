@@ -15,6 +15,10 @@ export const requiredRadiusMembers = Object.freeze([
   { sourceIndex: 24, id: 22, model: 4, owner: 3, x: 116, z: -132, angle: 512 },
   { sourceIndex: 79, id: 71, model: 3, owner: 3, x: 102, z: 118, angle: 1536 },
 ])
+export const requiredRadiusSource = Object.freeze({
+  sourceSha256: '83f5c446975398b163ef00526567f7a86b2666d26f9f026231ec0b36bf5a289f',
+  headerSha256: '44be9f709f03f4b4d936d86056256e7bb98683088332b4bb47354ad709ea8a49',
+})
 export const radiusCheckpointBounds = Object.freeze({
   innerMs: 180000,
   outerMs: 220000,
@@ -31,6 +35,7 @@ function assertSnapshot(snapshot) {
   assert.equal(snapshot.aiAlias, true)
   assert.ok(Number.isInteger(snapshot.radius) && snapshot.radius >= 0 && snapshot.radius <= 255)
   assert.equal(snapshot.hasMembership, true)
+  assert.deepEqual(snapshot.source, requiredRadiusSource)
   assert.deepEqual(
     snapshot.sources,
     requiredRadiusMembers,
@@ -64,6 +69,7 @@ export default async function ({ page, output, receipt, openMission, observeChec
       source: receipt.source,
       bounds: radiusCheckpointBounds,
       requiredMembers: requiredRadiusMembers,
+      requiredSource: requiredRadiusSource,
       method:
         'Public Mission 2 entry, real clock, settings pause and trusted Save/Load. Read-only queue/alias snapshots and unchanged typed checkpoint observer.',
       limits:
@@ -144,6 +150,10 @@ export default async function ({ page, output, receipt, openMission, observeChec
               basePresent: ai?.constructionBase !== undefined,
               base: ai?.constructionBase,
               hasMembership: Array.isArray(ai?.constructionBuildings),
+              source: {
+                sourceSha256: missionData(2).level.sourceSha256,
+                headerSha256: missionData(2).level.headerSha256,
+              },
               sources,
               members: Array.isArray(ai?.constructionBuildings)
                 ? ai.constructionBuildings.map(member => ({
