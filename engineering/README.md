@@ -55,6 +55,13 @@ For narrow read-only research or a small docs fix, a compact issue/PR brief is e
 Do not create another contract just to delegate. An optional contract helps when scope,
 generated ownership, or multi-step verification needs mechanical checks.
 
+## Recover after a cloud reset
+
+Use the [cloud bootstrap](cloud-bootstrap.md) for a hash-pinned, isolated Linux
+workspace. Recovery never restores credentials, changes existing branches, or
+claims old ignored proof logs survived. Push source checkpoints and preserve
+reviewable evidence through the normal handoff process.
+
 ## Useful local commands
 
 ```sh
