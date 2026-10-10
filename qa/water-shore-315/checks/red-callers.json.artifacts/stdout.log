@@ -1,0 +1,84 @@
+▶ authored water callers keep surface coordinates fixed while shared coastal points animate
+  ✖ Mission 1 (164.582683ms)
+  ✖ Mission 2 (131.190836ms)
+  ✖ Mission 3 (53.258102ms)
+✖ authored water callers keep surface coordinates fixed while shared coastal points animate (6180.202654ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 0
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6979.395072
+
+✖ failing tests:
+
+test at tests/water-animation-callers.test.mjs:20:44
+✖ Mission 1 (164.582683ms)
+  AssertionError [ERR_ASSERTION]: ordinary water update must not move sea texture independently of shore
+  + actual - expected
+  
+    {
+  +   scroll: 0.08984375
+  -   scroll: 0
+    }
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/water-shore-animation-20261010/tests/water-animation-callers.test.mjs:43:12)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/water-shore-animation-20261010/tests/water-animation-callers.test.mjs:20:36)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: { scroll: 0.08984375 },
+    expected: { scroll: 0 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/water-animation-callers.test.mjs:20:44
+✖ Mission 2 (131.190836ms)
+  AssertionError [ERR_ASSERTION]: ordinary water update must not move sea texture independently of shore
+  + actual - expected
+  
+    {
+  +   scroll: 0.08984375
+  -   scroll: 0
+    }
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/water-shore-animation-20261010/tests/water-animation-callers.test.mjs:43:12)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/water-shore-animation-20261010/tests/water-animation-callers.test.mjs:20:36)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: { scroll: 0.08984375 },
+    expected: { scroll: 0 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/water-animation-callers.test.mjs:20:44
+✖ Mission 3 (53.258102ms)
+  AssertionError [ERR_ASSERTION]: ordinary water update must not move sea texture independently of shore
+  + actual - expected
+  
+    {
+  +   scroll: 0.08984375
+  -   scroll: 0
+    }
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/water-shore-animation-20261010/tests/water-animation-callers.test.mjs:43:12)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/water-shore-animation-20261010/tests/water-animation-callers.test.mjs:20:36)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: { scroll: 0.08984375 },
+    expected: { scroll: 0 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

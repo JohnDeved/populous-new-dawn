@@ -1,0 +1,58 @@
+// Production terrain setup, geometry and wave update; supplies only IO/view boundaries.
+import assert from 'node:assert/strict'
+import test from 'node:test'
+import { readFileSync } from 'node:fs'
+import * as THREE from 'three'
+import { loadSceneFixture } from './support/bloodlust-scene.mjs'
+import { bindSceneEnvironment } from './support/world-environment-scene.mjs'
+
+const nop = () => {}
+test('authored water callers keep surface coordinates fixed while shared coastal points animate', async t => {
+  const api = await loadSceneFixture()
+  const { GameScene } = await import('../app/scene.ts')
+  const { initializeTerrain } = await import('../app/scene-terrain-runtime.ts')
+  const previousFetch = globalThis.fetch
+  t.after(() => { globalThis.fetch = previousFetch })
+  globalThis.fetch = async url => {
+    const bytes = readFileSync(new URL(`../public${url}`, import.meta.url))
+    return { ok: true, arrayBuffer: async () => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) }
+  }
+  for (const mission of [1, 2, 3]) await t.test(`Mission ${mission}`, async () => {
+    const world = api.createWorld(mission)
+    const scene = Object.assign(Object.create(GameScene.prototype), {
+      world, terrainLoad: new AbortController(), terrainMap: new THREE.DataTexture(),
+      waterMap: new THREE.DataTexture(new Uint8Array(256 * 256 * 4), 256, 256),
+      // Before the fix this is the actual uniform passed to the live shader.
+      waterScroll: { value: 0 }, updateTerrainTexture: nop, updateView: nop,
+      view: {}, decorations: new THREE.Group(),
+    })
+    await bindSceneEnvironment(scene)
+    const initialized = initializeTerrain(scene)
+    scene.terrain = initialized.terrain
+    await initialized.ready
+    scene.rebuildTerrain()
+    const uniforms = () => Object.fromEntries(Object.entries(scene.terrain.material.uniforms)
+      .filter(([, uniform]) => typeof uniform.value === 'number').map(([name, uniform]) => [name, uniform.value]))
+    world.turn = 0
+    scene.updateWater()
+    const zero = uniforms(), bytes = Uint8Array.from(scene.waterMap.image.data)
+    const positions = scene.terrain.geometry.getAttribute('position')
+    const initial = Float32Array.from(positions.array)
+    world.turn = 23
+    scene.updateWater()
+    assert.deepEqual(uniforms(), zero, 'ordinary water update must not move sea texture independently of shore')
+    assert.deepEqual(scene.waterMap.image.data, bytes, 'landscape-acquired water texture remains fixed')
+    assert.ok(positions.array.some((value, i) => value !== initial[i]), 'WATDISP height animation remains live')
+    const shared = new Map()
+    for (let i = 0; i < positions.count; i++) {
+      const key = `${positions.getX(i)},${positions.getZ(i)}`
+      if (shared.has(key)) assert.equal(positions.getY(i), shared.get(key), 'shared shore/water height')
+      shared.set(key, positions.getY(i))
+    }
+    world.turn = 256
+    scene.updateWater()
+    assert.deepEqual(positions.array, initial, 'wave phase wraps')
+    scene.terrain.geometry.dispose()
+    scene.terrain.material.dispose()
+  })
+})

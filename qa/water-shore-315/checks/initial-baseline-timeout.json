@@ -1,0 +1,98 @@
+{
+  "startedAt": "2026-10-10T19:05:18.011Z",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/water-shore-animation-20261010",
+    "commit": "4fdf367db4eb6d15d9a05d84f85758a2893c0526",
+    "tree": "e724ce4018995a5c421fa7d7c4b0f475c2cca073",
+    "status": "?? scripts/local-render/water-shore-animation.mjs\n?? tests/water-animation-callers.test.mjs",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [
+      {
+        "path": "scripts/local-render/water-shore-animation.mjs",
+        "mode": 33188,
+        "sha256": "4d03a75be227f46537e35139e796934d26f398b2129ff2c1901efcb4a3620f0a"
+      },
+      {
+        "path": "tests/water-animation-callers.test.mjs",
+        "mode": 33188,
+        "sha256": "5e24b4cd1bb78c829320c892a3d47e43ace5143fb6d0bb477ed6baea72a64f7b"
+      }
+    ],
+    "fingerprint": "4d4fa8ab4358db3f370b0e1554bba3d988dde3a702a6a7695a7894acffd4c5e3"
+  },
+  "launch": {
+    "executablePath": "/workspace/scratch/69fd8163d94e/recovery-20261010b/browser/chrome-headless-shell-linux64/chrome-headless-shell",
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": true,
+    "args": [
+      "--remote-debugging-pipe"
+    ],
+    "timeout": 30000
+  },
+  "softwarePerformanceOnly": true,
+  "errors": [],
+  "warnings": [
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0x28ec001d2c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x28ec001d2c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x28ec001d2c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x28ec001d2c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)",
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content."
+  ],
+  "status": "failed",
+  "readiness": {
+    "timeoutMs": 60000,
+    "attempts": 6,
+    "first": {
+      "elapsedMs": 14044,
+      "pending": false,
+      "error": {
+        "name": "TimeoutError",
+        "message": "The operation was aborted due to timeout",
+        "cause": ""
+      }
+    },
+    "last": {
+      "elapsedMs": 22357,
+      "pending": false,
+      "status": 200,
+      "ok": true
+    },
+    "elapsedMs": 22357,
+    "listening": true,
+    "ready": true
+  },
+  "browserVersion": "154.0.8037.92",
+  "failure": "Error: Run exceeded 240000ms\n    at Timeout._onTimeout (file:///workspace/scratch/69fd8163d94e/water-shore-animation-20261010/scripts/local-render/harness.mjs:403:29)\n    at listOnTimeout (node:internal/timers:635:17)\n    at process.processTimers (node:internal/timers:571:7)",
+  "finishedAt": "2026-10-10T19:09:19.906Z",
+  "sourceAfter": {
+    "root": "/workspace/scratch/69fd8163d94e/water-shore-animation-20261010",
+    "commit": "4fdf367db4eb6d15d9a05d84f85758a2893c0526",
+    "tree": "e724ce4018995a5c421fa7d7c4b0f475c2cca073",
+    "status": "?? scripts/local-render/water-shore-animation.mjs\n?? tests/water-animation-callers.test.mjs",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [
+      {
+        "path": "scripts/local-render/water-shore-animation.mjs",
+        "mode": 33188,
+        "sha256": "4d03a75be227f46537e35139e796934d26f398b2129ff2c1901efcb4a3620f0a"
+      },
+      {
+        "path": "tests/water-animation-callers.test.mjs",
+        "mode": 33188,
+        "sha256": "5e24b4cd1bb78c829320c892a3d47e43ace5143fb6d0bb477ed6baea72a64f7b"
+      }
+    ],
+    "fingerprint": "4d4fa8ab4358db3f370b0e1554bba3d988dde3a702a6a7695a7894acffd4c5e3"
+  }
+}
