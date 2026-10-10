@@ -26,7 +26,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .dock-tabs button{width:31px;height:27px;display:grid;place-content:center;border:8px solid transparent;border-image:url('/original/hud-tab.png') 8 10 fill repeat;padding:0}
 .dock-tabs button.active{border-image-source:url('/original/hud-tab-active.png')}
 .shaman-controls{position:absolute;left:0;top:112px;width:100px;height:39px}
-.shaman-controls button{padding:0}.globe-button{position:absolute;left:5px;top:10px}
+.shaman-controls button{padding:0}.nearby-followers-button{position:absolute;left:6px;top:10px;width:24px;height:18px;display:grid;place-content:center}
 .portrait{position:absolute;left:33px;top:2px;width:30px;height:35px;background:url('/original/hud-portrait.png')}
 .portrait:hover,.portrait:active{background-image:url('/original/hud-portrait-hover.png')}
 .portrait canvas{position:absolute;left:-33px;top:-114px;width:100px;height:480px;pointer-events:none;image-rendering:pixelated}

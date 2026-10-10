@@ -89,14 +89,17 @@ for trial in range(120):
     write(0x89d17c, 'I', 32); write(0x89d188, 'I', 1)
     call(0x4ecac0)
     totals = [0] * 9
+    display_totals = [0] * 9
     tasks = [[0] * 6 for _ in range(9)]
     for model in range(2,8):
         totals[model] = read(0x89dbef + model * 2, 'h')
+        display_totals[model] = read((0x89dc01 if nearby else 0x89dbef) + model * 2, 'h')
         for category in range(6):
             tasks[model][category] = read((0x89dcd9 if nearby else 0x89dc6d) + (model * 6 + category) * 2, 'h')
     totals[0] = sum(totals[2:7])
+    display_totals[0] = sum(display_totals[2:7])
     tasks[0] = [sum(tasks[model][category] for model in range(2,7)) for category in range(6)]
-    cases.append(dict(kind='counts', people=browser, nearby=nearby, point=point, expected=dict(totals=totals, tasks=tasks)))
+    cases.append(dict(kind='counts', people=browser, nearby=nearby, point=point, expected=dict(totals=totals, displayTotals=display_totals, tasks=tasks)))
 
 script = """import { classifyFollowerTask, followerTaskCounts, selectTaskFollowers, focusTaskFollower } from './app/hud-tasks.ts';
 let input='';for await(const c of process.stdin) input+=c;
