@@ -1,0 +1,231 @@
+{
+  "kind": "reviewed-save-preparation-direct-owner-source-with-necessity-clarification",
+  "assessmentBase": "f9675f56c597ec83adf02f28e9801bfc6bbd0490",
+  "priorResearchHead": "26b67c98058a2ca0a34349dc25ad66bfc4830bda",
+  "inputSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "tool": "/usr/bin/objdump",
+  "toolVersion": "GNU objdump (GNU Binutils for Debian) 2.44",
+  "toolSha256": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+  "cpuAffinity": [
+    4
+  ],
+  "nativeExecution": false,
+  "saveFileOperations": false,
+  "files": {
+    "00431970-00431a80.asm": {
+      "sha256": "9e21f6ee5c79a707598a5093fcd77c8e4efd11c4c767714e308d666f10d8cf51",
+      "bytes": 4992
+    },
+    "004434e0-00443910.asm": {
+      "sha256": "b5b129b5c1e6f9b39e84b78e61007f71f092decabc8a316e1b3b4ae71c540094",
+      "bytes": 18222
+    },
+    "README.md": {
+      "sha256": "99008ceed89cd93f1d734864ca0b67160fd0ba99ab7d41a28d8839c8f74f06e2",
+      "bytes": 6430
+    }
+  },
+  "independentSourceReviewSha256": "cf9b43f0f8d91a1af1bbe06e991aad240584f86679f711e6a1aadb1736654fb9",
+  "sourceReviewedFindingsSha256": "fe9cbd6314eb81d82926a73a6ccdb89eb73bf14efe10f8a9f1ae3b6a0a03f777",
+  "sourceReviewedInputsSha256": "42f45dad9d1913704e4f0110087bb22c08dfde918c5e8adf7650449ff0de87df",
+  "publicationFindingsSha256": "99008ceed89cd93f1d734864ca0b67160fd0ba99ab7d41a28d8839c8f74f06e2",
+  "publicationReviewInputsSha256": "0af55789906c75c08e2e4e654df8e81ff5f0221d3ec33f5210cdbb64e83fffa1",
+  "wordingOnlySuccessor": {
+    "reviewInputsSha256": "42f45dad9d1913704e4f0110087bb22c08dfde918c5e8adf7650449ff0de87df",
+    "reason": "Clarify necessity: missing native representation callees are named residuals, not automatic blockers for a modern maintained lifecycle/checkpoint owner."
+  },
+  "proposalSha256": "9997a47ec340abbc29ecbe024949cd910468b130b12d11d015f7e6839c12e629",
+  "selectedBodies": [
+    {
+      "start": "004434e0",
+      "stopExclusive": "00443519",
+      "return": "00443518",
+      "bytes": 57
+    },
+    {
+      "start": "00431970",
+      "stopExclusive": "004319dd",
+      "return": "004319dc",
+      "bytes": 109
+    }
+  ],
+  "sourceBindings": [
+    {
+      "path": "decomp/exports.json",
+      "sha256": "51e55c295a9956e89be85c98df835f1da141e3e10cb6b16435f55423ff5b26db",
+      "bytes": 115741,
+      "sourceRevision": "26b67c98058a2ca0a34349dc25ad66bfc4830bda"
+    },
+    {
+      "path": "decomp/generated/00443910.c",
+      "sha256": "8cfc762f9cf6c0db66345fd06cbe40e56d866ade1ed55977cc11d47a93fbab8f",
+      "bytes": 558,
+      "sourceRevision": "26b67c98058a2ca0a34349dc25ad66bfc4830bda",
+      "verifiedExportManifest": true
+    },
+    {
+      "path": "decomp/generated/00431a80.c",
+      "sha256": "8f9de8e8e6bb2a88f33e111a72d8c9e8eec9c03421c50224b3aaf74559cacfdc",
+      "bytes": 2181,
+      "sourceRevision": "26b67c98058a2ca0a34349dc25ad66bfc4830bda",
+      "verifiedExportManifest": true
+    },
+    {
+      "path": "decomp/generated/004ed820.c",
+      "sha256": "2ad39ba7c56959eab017534655d27df09ea7023f2992035d5dd403d74c167c1d",
+      "bytes": 631,
+      "sourceRevision": "26b67c98058a2ca0a34349dc25ad66bfc4830bda",
+      "verifiedExportManifest": true
+    },
+    {
+      "path": "references/verification/swarm-class2-preauthored-static-2026-10-10/README.md",
+      "sha256": "e2af31e3ab443c7eb59fe0877f9fe842314e81a81fdaef12d5ddf6cc3b6cf2c3",
+      "bytes": 8454,
+      "sourceRevision": "26b67c98058a2ca0a34349dc25ad66bfc4830bda"
+    },
+    {
+      "path": "references/verification/swarm-class2-preauthored-static-2026-10-10/00430bb0-00430bd0.asm",
+      "sha256": "798affef0b6b289acd3ac360dfa5225501dc453970277ed5a37c642c1ca776f7",
+      "bytes": 765,
+      "sourceRevision": "26b67c98058a2ca0a34349dc25ad66bfc4830bda"
+    },
+    {
+      "path": "references/verification/swarm-class2-save-ownership-2026-10-10/00426d70-00427220.asm",
+      "sha256": "d429456d1b2ed06430d9bf6d7a2ffc745763e55e58c420f391c3c1f4ac25d9f7",
+      "bytes": 17079,
+      "sourceRevision": "26b67c98058a2ca0a34349dc25ad66bfc4830bda"
+    },
+    {
+      "path": "references/verification/swarm-class2-save-ownership-2026-10-10/state-buffer.md",
+      "sha256": "43768dd7a3c9c45ea840fa333d1af8684d22b8da40451ff9daf470686c66de72",
+      "bytes": 5600,
+      "sourceRevision": "26b67c98058a2ca0a34349dc25ad66bfc4830bda"
+    },
+    {
+      "path": "references/verification/swarm-class2-fresh-reset-static-2026-10-10/README.md",
+      "sha256": "55b2f1cd63eeb342648e86265c075e7c228124b00576ab40659d3c09b9e00ce7",
+      "bytes": 8153,
+      "sourceRevision": "26b67c98058a2ca0a34349dc25ad66bfc4830bda"
+    },
+    {
+      "path": "decomp/research/swarm-class2-lifecycle-ownership.md",
+      "sha256": "37f1d280cc2d70513f1a58a7ef1ab7237bd59c4375f5e27c1292df5f33c2762f",
+      "bytes": 18433,
+      "sourceRevision": "26b67c98058a2ca0a34349dc25ad66bfc4830bda"
+    }
+  ],
+  "decoderReceipts": [
+    {
+      "argv": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x004434e0",
+        "--stop-address=0x00443910",
+        "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.0044832080020569265,
+      "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "toolSha256After": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+      "stdoutSha256": "b5b129b5c1e6f9b39e84b78e61007f71f092decabc8a316e1b3b4ae71c540094",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "start": "004434e0",
+      "stopExclusive": "00443910",
+      "meaning": "capped Save representation-preparation body; actual returns required, incidental neighbors excluded"
+    },
+    {
+      "argv": [
+        "/usr/bin/objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x00431970",
+        "--stop-address=0x00431a80",
+        "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.0026041279998025857,
+      "inputSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "toolSha256After": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+      "stdoutSha256": "9e21f6ee5c79a707598a5093fcd77c8e4efd11c4c767714e308d666f10d8cf51",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "start": "00431970",
+      "stopExclusive": "00431a80",
+      "meaning": "capped Save representation-preparation body; actual returns required, incidental neighbors excluded"
+    }
+  ],
+  "sourceArtifacts": [
+    {
+      "path": "00431970-00431a80.asm",
+      "sha256": "9e21f6ee5c79a707598a5093fcd77c8e4efd11c4c767714e308d666f10d8cf51",
+      "bytes": 4992
+    },
+    {
+      "path": "00431970-00431a80.json",
+      "sha256": "500ef02d71d430533c41e596ab607fca4a6a1e808b45acda7545bc49b461a09b",
+      "bytes": 815
+    },
+    {
+      "path": "00431970-00431a80.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "004434e0-00443910.asm",
+      "sha256": "b5b129b5c1e6f9b39e84b78e61007f71f092decabc8a316e1b3b4ae71c540094",
+      "bytes": 18222
+    },
+    {
+      "path": "004434e0-00443910.json",
+      "sha256": "76cb373b406fa9fc1a9acdfab7d99200b84af2f0c8f74b484e604479f624dd5b",
+      "bytes": 815
+    },
+    {
+      "path": "004434e0-00443910.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "callee-availability.json",
+      "sha256": "6648656949ad852d486d03b039343ec5b456ec1bedab5cc240c9e9c46ba9e291",
+      "bytes": 512
+    },
+    {
+      "path": "findings.md",
+      "sha256": "fe9cbd6314eb81d82926a73a6ccdb89eb73bf14efe10f8a9f1ae3b6a0a03f777",
+      "bytes": 5678
+    },
+    {
+      "path": "preflight.json",
+      "sha256": "1f91383148b8b368a7e1e97df65477e87c3aff9f66b7c03d1d7fd5e5479a9173",
+      "bytes": 417
+    },
+    {
+      "path": "proposal.json",
+      "sha256": "9997a47ec340abbc29ecbe024949cd910468b130b12d11d015f7e6839c12e629",
+      "bytes": 2493
+    }
+  ],
+  "priorPublication": {
+    "packetCommit": "ef04928ae0923e8a658eb4c8549af4c8b89d634d",
+    "head": "26b67c98058a2ca0a34349dc25ad66bfc4830bda",
+    "independentPublicationReviewSha256": "7f153084dc2fd82558f89c36c9dd8ac0163c6c5dc8c7a976bad3b7add0716b6d",
+    "remoteFileReadbackSha256": "fb7f8774f20e73e1975568765ec924b628254b371845e742c75626fab2c4f5cf",
+    "issueComment": "https://github.com/JohnDeved/populous-new-dawn/issues/61#issuecomment-6093542666"
+  },
+  "limits": [
+    "No child decoding",
+    "Upper24 argument bits of pushed EBX are not normalized",
+    "Auxiliary copied values do not receive invented semantic labels",
+    "No ordinary Load or generic I/O expansion",
+    "Modern identity/lifetime/checkpoint contract remains incomplete"
+  ],
+  "remainingRepresentationCallees": [
+    "00462d70",
+    "0041b5c0",
+    "00494930"
+  ],
+  "necessity": "Named native representation residuals are not automatic prerequisites for a modern semantic checkpoint; live class2 ownership and supported initialization/order remain separate."
+}
