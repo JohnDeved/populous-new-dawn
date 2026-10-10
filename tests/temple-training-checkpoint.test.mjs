@@ -247,6 +247,8 @@ function publicLoad(store) {
   const noop = () => {},
     bindings = {
       store,
+      cancelNearbyInput: noop,
+      engine: { current: null },
       setSelectorOpen: noop,
       audio: { current: { reset: noop } },
       setMenu: noop,
