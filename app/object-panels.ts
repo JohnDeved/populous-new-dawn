@@ -30,6 +30,7 @@ import {
 import { liveWorshippers, selectWorshippers } from './live-worship.ts'
 import { worshipPanel } from './worship-panel.ts'
 import { automaticVaultPanelActive, automaticWorshipPanelActive } from './worship-panel-activity.ts'
+import { vaultPrayerPoint } from './vault-geometry.ts'
 import { nativeUnitModel } from './unit-kinds.ts'
 import models from './original-models.json' with { type: 'json' }
 import { paintPanel } from './training-panel.ts'
@@ -332,7 +333,10 @@ export class ObjectPanels {
       let offset = (scene.unitMeshes.get(id)?.userData.nativeFrameHeight ?? 0) * 8
       if (vehicle) offset = models[originalVehicleMesh(vehicle.model)].panelHeight
       else if (head)
-        offset = (models as Record<number, { panelHeight: number }>)[head.model].panelHeight
+        offset =
+          head.kind === 'vault'
+            ? 0
+            : (models as Record<number, { panelHeight: number }>)[head.model].panelHeight
       panel = {
         element,
         canvas,
@@ -593,12 +597,17 @@ export class ObjectPanels {
         element.setAttribute('aria-label', label)
         panel.key = key
       }
-      const point =
-        (u && scene.unitScreen(id, panel.offset / 128)) ??
-        scene.screen(
-          target,
-          ((p?.h ?? vehicle?.h ?? nativePosition(world, target).h) + panel.offset) / 45
-        )
+      const socket = head?.kind === 'vault' ? vaultPrayerPoint(head) : null,
+        anchor = socket ? browserPosition(socket) : target,
+        point =
+          (u && scene.unitScreen(id, panel.offset / 128)) ??
+          scene.screen(
+            anchor,
+            ((p?.h ?? vehicle?.h ?? nativePosition(world, anchor).h) +
+              panel.offset +
+              (socket?.heightOffset ?? 0)) /
+              45
+          )
       if (head || vehicle) {
         const containerRect = scene.container.getBoundingClientRect(),
           rendererRect = scene.renderer.domElement.getBoundingClientRect(),
