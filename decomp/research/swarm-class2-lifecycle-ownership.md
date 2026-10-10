@@ -256,3 +256,17 @@ state remain the connected implementation boundary; current final arrays cannot
 reconstruct these events. No runtime implementation or Swarm admission follows.
 
 [plan-initializer]: https://github.com/JohnDeved/populous-new-dawn/blob/021520a3f54235134d7ef5c157429f4f1784ca6b/references/verification/swarm-class9-plan-initializer-2026-10-10/README.md
+
+## Human plan validator closure
+
+The [reviewed admission validator][plan-validator] binds command `0x0e`'s packed
+model/rotation/cell arguments and the complete `004b9a20` local control flow.
+Its direct writes are local; primary rejection still permits the same cell's
+secondary and mask-bit-4 callbacks before the next-cell short circuit. Only a
+nonzero low-byte result enters `004b9190` mode2. Missing predicate side effects
+remain unproved. The concrete next ownership question is `004ba7a0`, called
+before the class-9 allocation context and slot request; success-side callbacks
+are later boundaries. Queue transport and supported incoming shared allocation
+state remain separate. This source result adds no runtime admission.
+
+[plan-validator]: https://github.com/JohnDeved/populous-new-dawn/blob/a9dad1d488f636434bef060bd5c8811605a7388c/references/verification/swarm-plan-admission-validator-2026-10-10/README.md

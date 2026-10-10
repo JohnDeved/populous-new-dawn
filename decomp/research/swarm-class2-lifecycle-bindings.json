@@ -5,7 +5,7 @@
   "currentTree": "babd82b3787182ef91e09ae27baedb70a6fa753a",
   "priorAcceptedPacket": "74b74346f2d67e94aed013fc9e1960e20ef36ceb",
   "priorInterpretationMain": "d6cf109474379172728a3ccebf46ef72a15f3a58",
-  "contractSha256": "a1db806972dfb96432ff8c5c2c85f390d51cc45f94d431fe2b22c384bcec6b6b",
+  "contractSha256": "925f6ea5583769cefd7bd39d6b9317da9a4b7ec84e4c00e5ae9b4335930f1406",
   "retainedExportProvenance": {
     "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
     "ghidraVersion": "12.1.3",
@@ -335,5 +335,12 @@
     "assessmentMain": "3b13a7ff534ab95797b0b06330055cead956160d",
     "independentSourceReviewSha256": "907136329132958452d23fbd59cfd981d82671ac31365d5f38d2641e737f48b2",
     "closure": "Complete004b8070 body closes missing class9 constructor. Initial cell insertion and retained state1 relocation are distinct; actual request feeders and supported incoming shared allocator state remain. No runtime admission or all-class history claim."
+  },
+  "humanPlanValidatorFollowup": {
+    "packetCommit": "a9dad1d488f636434bef060bd5c8811605a7388c",
+    "packetPath": "references/verification/swarm-plan-admission-validator-2026-10-10",
+    "assessmentMain": "e17e8e06cf3ecde6adc503153e527d7a5674e7fc",
+    "independentSourceReviewSha256": "2f9c9494032f713941a713f01bb6c821f3e7ca358e517d1946e62e91d75da018",
+    "closure": "Complete 004b9a20 local admission flow and packed argument widths; missing predicate side effects, queue transport and incoming shared state remain. Pre-request 004ba7a0 is the next concrete ownership/order boundary. No runtime admission."
   }
 }
