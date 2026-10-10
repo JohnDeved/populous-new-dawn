@@ -1268,7 +1268,8 @@
         {"path": "decomp/research/loading-art.md", "heading": "Resource descriptor and failure propagation"},
         {"path": "decomp/research/vault-side-fire.md", "heading": "Model-18 Vault excludes generic attached fire"},
         {"path": "decomp/research/vault-side-fire.md", "heading": "Known / unknown boundary"},
-        {"path": "decomp/research/vault-knowledge-world-assets.md", "heading": "Owned assets and live integration"}
+        {"path": "decomp/research/vault-knowledge-world-assets.md", "heading": "Owned assets and live integration"},
+        {"path": "decomp/research/vault-prayer-panel-anchor.md", "heading": "Static source contract"}
       ],
       "nativeAddresses": [
         "0x40bce0",

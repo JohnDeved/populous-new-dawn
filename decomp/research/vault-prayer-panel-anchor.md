@@ -58,6 +58,16 @@ browser witness separately checks candidate socket projection and DOM tail at
 recorded stages. Historical PR310 screenshots are not a matched camera baseline;
 no numerical before/after pixel claim follows from those images.
 
+The corrected same-test replay at `b42dcb7bb7dd2d26c8b354997e563c8585cf15f6`
+uses test SHA-256 `cdc92dc9d6400e56304f1a384335cb22902997c74502f3c673ba5344ce751502`.
+Restoring only the two changed runtime files to base `35de8e6c` reproduces the
+same four height failures; restoring the committed candidate passes all26 tests
+including the unchanged appearance/vehicle controls. Both source-bound receipts
+retain stable before/after hashes. The correction asserts native XY modulo65536:
+`browserPosition` canonical z123 and authored z-133 are periodic equivalents, and
+`RenderView` owns camera-relative wrapping. The earlier literal z-133 expectation
+was a test representation mistake, not a changed attachment contract.
+
 The original zero-height socket branch falls back to the building inside point
 and fresh terrain. Slot0 here always has height480, so that branch is unreachable
 for supported completed Vaults. Original state1 construction scaling and signed
