@@ -1,4 +1,10 @@
-import { tribeForTeam, type Building, type Tree, type World } from './world-types.ts'
+import {
+  tribeForTeam,
+  type Building,
+  type NativePoint,
+  type Tree,
+  type World,
+} from './world-types.ts'
 import {
   queueTerrain,
   processTerrain,
@@ -33,7 +39,7 @@ import { stepBuildingTerrain, stepTerrainCollapse } from './building-terrain.ts'
 import { release } from './world-tasks.ts'
 import { initializeLivePanic } from './live-people.ts'
 import { createBuildingSmoke, type BuildingSmoke } from './building-smoke.ts'
-import { random } from './native-math.ts'
+import { random, short } from './native-math.ts'
 import { buildingHp } from './world-rules.ts'
 import { creditCampaignAttackTask } from './campaign-runtime.ts'
 import modelAssets from './original-models.json' with { type: 'json' }
@@ -188,6 +194,46 @@ export function damageDisasterBuilding(
   if (attacker !== undefined && attacker !== -1) state.plan.attacker = attacker
   b.progress = Math.max(0, state.plan.remaining) / rules.buildingLife[state.model]
   b.logs = Math.max(0, Math.floor(state.plan.remaining / 100))
+  b.hp = Math.min(b.hp, buildingHp(b.kind) * b.progress)
+}
+
+export function damageTornadoBuilding(
+  w: World,
+  b: Building,
+  attacker: number,
+  allocateLog: (point: NativePoint) => boolean = point => {
+    w.trees.push({ id: w.nextId++, ...browserPosition(point), logs: 1, model: 11 })
+    return true // ponytail: existing unbounded scenery adapter; native pool exhaustion remains open.
+  }
+) {
+  const state = ensureBuildingDamage(b),
+    { plan } = state,
+    oldStage = state.stage
+  state.stage = (oldStage - 1) & 255
+  if (state.state === 2 && !(state.flags2 & 0x100000)) state.state = 1
+  if (short(plan.remaining) > 0 && allocateLog(nativePosition(w, b)))
+    changeBuildingWork(plan, -100, state, null, {
+      move: () => {},
+      release: () => {},
+      init: () => {},
+    })
+  const retired = short(plan.remaining) <= 0
+  if (retired) {
+    // The live plan belongs to the building; normal turn cleanup removes both.
+    if (b.attackTaskMember !== undefined) creditCampaignAttackTask(w, b.attackTaskMember, 1)
+    b.hp = 0
+  }
+  if ((attacker & 255) !== 255) state.attacker = attacker & 255
+  if (!retired) {
+    plan.repairDelay = rules.buildingRepairDelay
+    if ((attacker & 255) !== 255) plan.attacker = attacker & 255
+  }
+  if (retired || state.stage !== oldStage) {
+    emitBuildingDebris(w, b, oldStage, w)
+    sound(w, 0x12, b)
+  }
+  b.progress = Math.max(0, plan.remaining) / rules.buildingLife[state.model]
+  b.logs = Math.max(0, Math.floor(plan.remaining / 100))
   b.hp = Math.min(b.hp, buildingHp(b.kind) * b.progress)
 }
 
