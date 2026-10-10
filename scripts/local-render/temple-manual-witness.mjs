@@ -112,6 +112,25 @@ export function createTempleManualObservation({
     finishInput()
     require(input?.restored && !input.errors.length, 'Manual pointer observation must restore')
     require(input.events.length === 2, 'Exactly one manual right-down/right-up pair required')
+    const down = input.events[0],
+      picks = down.picks.filter(
+        pick => pick.owner === 'scene' && ['pickUnit', 'pickWorldObject'].includes(pick.name)
+      )
+    require(picks.length === 2 &&
+      picks[0].name === 'pickUnit' &&
+      picks[0].id === null &&
+      picks[1].name === 'pickWorldObject' &&
+      picks[1].id === targetId, 'Actual right-down must miss a person and pick this Temple')
+    for (const pick of picks)
+      require(pick.receiverMatches &&
+        !pick.threw &&
+        JSON.stringify(pick.args) ===
+          JSON.stringify(down.args), 'Actual right-down picker receiver or input changed')
+    const inspected = mode === 'expiry' ? reuse : creation
+    require(inspected &&
+      inspected.args[2] === inspected.after.inspection.held &&
+      release?.args[0] ===
+        inspected.args[2], 'Actual controller press and release pointer must match')
     for (const [index, event] of input.events.entries()) {
       require(event.type === ['pointerdown', 'pointerup'][index], 'Manual pointer order mismatch')
       require(event.trusted &&

@@ -160,7 +160,8 @@ export function assertTempleLifecycle(
     assert.equal(row.before.target.admission.inside, 1)
   }
   const steps = epoch.records.filter(
-    row => row.kind === 'step' && row.ordinal > requests[0].ordinal
+    row =>
+      (row.kind === 'step' || (manual && row.kind === 'renew')) && row.ordinal > requests[0].ordinal
   )
   let previous = { ...requests[0].after.record },
     held = 0,
@@ -180,6 +181,22 @@ export function assertTempleLifecycle(
     assert.equal(before.record.identity, identity)
     assert.equal(before.record.phase, previous.phase)
     assert.equal(before.record.remaining, previous.remaining)
+    if (row.kind === 'renew') {
+      const retained = before.inspection.selected === targetId && previous.phase === 1
+      assert.deepEqual(after.record, {
+        ...before.record,
+        remaining: retained ? before.record.hold : before.record.remaining,
+      })
+      assert.equal(after.inspection.held, before.inspection.held)
+      assert.equal(
+        after.inspection.selected,
+        before.inspection.held === null && row.hovered !== before.inspection.selected
+          ? null
+          : before.inspection.selected
+      )
+      previous = { ...after.record }
+      continue
+    }
     const active = !!(before.target.admission.activity & 128)
     let expected
     if (previous.phase === -1) expected = [0, 2]

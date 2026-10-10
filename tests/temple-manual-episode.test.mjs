@@ -14,6 +14,7 @@ import { assertTempleManualObservation } from '../scripts/local-render/temple-ma
 import {
   assertTempleFreshRequest,
   assertTempleReusedRequest,
+  assertTempleLifecycle,
 } from '../scripts/local-render/temple-training-contract.mjs'
 
 const nop = () => {}
@@ -133,11 +134,22 @@ async function fixture(t, mode = 'expiry', options = {}) {
   }
   scene.tooltipElement.getAttribute = name => scene.tooltipElement.attributes[name] ?? null
   scene.renderBuildingPanels = f.paint
+  const { syncSecondaryReservations } = await import('../app/scene-secondary-effects.ts')
+  // Renderer/listener teardown is supplied; actual ObjectPanels disposal and
+  // reservation synchronization remain in the controlled lifecycle contract.
+  scene.dispose = () => {
+    scene.objectPanels.dispose()
+    for (const panel of scene.buildingPanels.values()) panel.remove()
+    scene.buildingPanels.clear()
+    syncSecondaryReservations(scene)
+    scene.disposed = true
+  }
   const epoch = createTempleTrainingEpoch({
     scene,
     store: window.testStore,
     targetId: temple.id,
     controller: scene.tooltipController,
+    trackInspection: mode === 'approach',
   })
   const manual = createTempleManualObservation({
     scene,
@@ -149,7 +161,7 @@ async function fixture(t, mode = 'expiry', options = {}) {
     try {
       if (!manual.status().closed) manual.take()
     } finally {
-      epoch.close()
+      if (!epoch.status().closed) epoch.close()
     }
   })
   const fire = (type, patch = {}) => {
@@ -231,6 +243,15 @@ test('actual Temple dwell, trusted held-input observer and natural expiry comple
     r => {
       r.terminalKind = null
     },
+    r => {
+      r.input.events[0].picks.find(p => p.owner === 'scene' && p.name === 'pickWorldObject').id++
+    },
+    r => {
+      r.input.events[0].after.armedWorldMatches = false
+    },
+    r => {
+      r.release.args[0]++
+    },
   ]) {
     const invalid = structuredClone(evidence)
     mutate(invalid)
@@ -274,6 +295,31 @@ test('actual Page Escape and explicit approach input feed the same record into t
   changed.creation.after.record.identity++
   assert.throws(() => assertTempleReusedRequest(first, temple.id, traineeId, changed))
   assert.equal(world.units.find(unit => unit.id === traineeId).inside, temple.id)
+  // The reused record is still manually renewed before the automatic step.
+  for (let i = 0; i < 4; i++) f.frame()
+  f.fire('pointermove', { clientY: 599, buttons: 0 })
+  for (let i = 0; i < 8; i++) f.frame()
+  scene.dispose()
+  const lifecycle = epoch.close(),
+    options = {
+      targetId: temple.id,
+      traineeId,
+      initialPreachers: [],
+      initialTrained: 0,
+      complete: false,
+      manual: evidence,
+    }
+  assertTempleLifecycle(lifecycle, options)
+  const missingRenewal = structuredClone(lifecycle)
+  const renewal = missingRenewal.records.findIndex(
+    row =>
+      row.kind === 'renew' &&
+      row.ordinal > lifecycle.records.find(row => row.kind === 'request').ordinal &&
+      row.after.record?.remaining !== row.before.record?.remaining
+  )
+  assert(renewal >= 0, 'Real manual renewal must be observed after automatic reuse')
+  missingRenewal.records.splice(renewal, 1)
+  assert.throws(() => assertTempleLifecycle(missingRenewal, options))
 })
 
 test('row overflow preserves its error, detaches actual callers and rejects premature success', async t => {

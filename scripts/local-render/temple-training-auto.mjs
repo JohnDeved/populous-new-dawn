@@ -158,12 +158,12 @@ export default async function templeTrainingAuto(
   }
   try {
     report.initial = await page.evaluate(
-      async ({ targetId }) => {
+      async ({ targetId, trackInspection }) => {
         const { installTempleTrainingRuntime } =
           await import('/scripts/local-render/temple-training-witness.mjs')
-        return installTempleTrainingRuntime({ targetId })
+        return installTempleTrainingRuntime({ targetId, trackInspection })
       },
-      { targetId }
+      { targetId, trackInspection: !!inspectionSteps }
     )
     installed = true
     save()

@@ -23,8 +23,32 @@ export function assertTempleManualObservation(report) {
   assert.equal(input.restored, true)
   assert.deepEqual(input.errors, [])
   assert.equal(input.events.length, 2)
+  const picks = input.events[0].picks.filter(
+    pick => pick.owner === 'scene' && ['pickUnit', 'pickWorldObject'].includes(pick.name)
+  )
+  assert.deepEqual(
+    picks.map(pick => [pick.name, pick.id]),
+    [
+      ['pickUnit', null],
+      ['pickWorldObject', report.targetId],
+    ]
+  )
+  for (const pick of picks) {
+    assert(pick.receiverMatches && !pick.threw)
+    assert.deepEqual(pick.args, input.events[0].args)
+  }
+  const inspected = report.mode === 'expiry' ? report.reuse : creation
+  assert.equal(inspected.args[2], inspected.after.inspection.held)
+  assert.equal(report.release.args[0], inspected.args[2])
   for (const [i, event] of input.events.entries()) {
     assert.equal(event.type, ['pointerdown', 'pointerup'][i])
+    for (const state of [event.state, event.after])
+      assert(
+        state.currentSceneMatches &&
+          state.currentWorldMatches &&
+          state.armedWorldMatches &&
+          state.armedCanvasMatches
+      )
     assert(event.trusted && event.canvasTarget && event.canvasOwned && event.button === 2)
     for (const key of ['ctrlKey', 'shiftKey', 'altKey', 'metaKey']) assert(!event.args[key])
   }
