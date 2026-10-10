@@ -1,0 +1,372 @@
+{
+  "archiveSha256": "6aa6c366809ea1d9575ec1d31a24527a95c7332f0a1d2ab692f7a602e7e10702",
+  "decoderSha256": "02127ee637d42c033119a16045c26b01adaa7d8c2833a82c3bedd03d247039e0",
+  "decodedAtlasRgbaSha256": {
+    "c": "da4705054afe7cdee9098afe92cc05d4eadb5c93b6c54f890efaca4f03776f64",
+    "p": "108c4ea87c8e4dd49711267942895647cf2d7a323daf6aa74eb84975ca589a2d",
+    "s": "33c4a40f979ebe2ad2ced6d60e093ed5fd3cd607fbcaacd6bdecf786c3a30703"
+  },
+  "terrain": {
+    "c": {
+      "bytes": 386048,
+      "equalsTracked": true,
+      "sha256": "8b23328932f2aeac33a0ce65e64cc0ab9bc110fe35a812b1d53ab81f9e68f68f"
+    },
+    "p": {
+      "bytes": 386048,
+      "equalsTracked": false,
+      "sha256": "a07fc142b38441dd65bc99e55e2eb8f33a6423b4d02b3662f3be78e4eb4880f9"
+    },
+    "s": {
+      "bytes": 386048,
+      "equalsTracked": false,
+      "sha256": "e4bbc3509b7eae22ed24648e0a7161ba940a723de1720a9ff479e842075aaaac"
+    }
+  },
+  "treeModels": [
+    {
+      "banks": {
+        "2": {
+          "decodedSha256": "baa4fc55fa74b9ca2a8216fa00f37b9631b97b29952e9e40ea45746a70d4b8ad",
+          "panelHeight": 330,
+          "scale": 160,
+          "shapeIndices": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "tiles": [
+            129,
+            222
+          ],
+          "triangles": 38
+        },
+        "6": {
+          "decodedSha256": "d3150e36dc9ef2bd1f4cb45cb1062ecbe9beb043fe008703691362329e5484cb",
+          "panelHeight": 438,
+          "scale": 160,
+          "shapeIndices": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "tiles": [
+            129,
+            222
+          ],
+          "triangles": 54
+        }
+      },
+      "model": 13
+    },
+    {
+      "banks": {
+        "2": {
+          "decodedSha256": "b8e8096d59c4431716d2647bb3571aab9fb95019286a9e356f76e802d5156bf9",
+          "panelHeight": 375,
+          "scale": 160,
+          "shapeIndices": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "tiles": [
+            129,
+            136
+          ],
+          "triangles": 69
+        },
+        "6": {
+          "decodedSha256": "85526951521c8c01078ab06941f1b1072a9ddd91e5c06e42fd690c389f0331b3",
+          "panelHeight": 487,
+          "scale": 160,
+          "shapeIndices": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "tiles": [
+            129,
+            222
+          ],
+          "triangles": 38
+        }
+      },
+      "model": 14
+    },
+    {
+      "banks": {
+        "2": {
+          "decodedSha256": "c041bb2ab6413217f098acbd87708e07baca6ebe46ce48a5b29ff13e58d6f5fa",
+          "panelHeight": 380,
+          "scale": 160,
+          "shapeIndices": [
+            5,
+            5,
+            5,
+            5
+          ],
+          "tiles": [
+            129,
+            136
+          ],
+          "triangles": 81
+        },
+        "6": {
+          "decodedSha256": "a2bbd03ad813e0b5649cdc0e74f989a58606d209f88b94eb1ad40bc73b2d436b",
+          "panelHeight": 400,
+          "scale": 160,
+          "shapeIndices": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "tiles": [
+            222,
+            231
+          ],
+          "triangles": 29
+        }
+      },
+      "model": 15
+    },
+    {
+      "banks": {
+        "2": {
+          "decodedSha256": "baa4fc55fa74b9ca2a8216fa00f37b9631b97b29952e9e40ea45746a70d4b8ad",
+          "panelHeight": 330,
+          "scale": 160,
+          "shapeIndices": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "tiles": [
+            129,
+            222
+          ],
+          "triangles": 38
+        },
+        "6": {
+          "decodedSha256": "d3150e36dc9ef2bd1f4cb45cb1062ecbe9beb043fe008703691362329e5484cb",
+          "panelHeight": 438,
+          "scale": 160,
+          "shapeIndices": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "tiles": [
+            129,
+            222
+          ],
+          "triangles": 54
+        }
+      },
+      "model": 16
+    },
+    {
+      "banks": {
+        "2": {
+          "decodedSha256": "b8e8096d59c4431716d2647bb3571aab9fb95019286a9e356f76e802d5156bf9",
+          "panelHeight": 375,
+          "scale": 160,
+          "shapeIndices": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "tiles": [
+            129,
+            136
+          ],
+          "triangles": 69
+        },
+        "6": {
+          "decodedSha256": "85526951521c8c01078ab06941f1b1072a9ddd91e5c06e42fd690c389f0331b3",
+          "panelHeight": 487,
+          "scale": 160,
+          "shapeIndices": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "tiles": [
+            129,
+            222
+          ],
+          "triangles": 38
+        }
+      },
+      "model": 17
+    },
+    {
+      "banks": {
+        "2": {
+          "decodedSha256": "c041bb2ab6413217f098acbd87708e07baca6ebe46ce48a5b29ff13e58d6f5fa",
+          "panelHeight": 380,
+          "scale": 160,
+          "shapeIndices": [
+            5,
+            5,
+            5,
+            5
+          ],
+          "tiles": [
+            129,
+            136
+          ],
+          "triangles": 81
+        },
+        "6": {
+          "decodedSha256": "a2bbd03ad813e0b5649cdc0e74f989a58606d209f88b94eb1ad40bc73b2d436b",
+          "panelHeight": 400,
+          "scale": 160,
+          "shapeIndices": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "tiles": [
+            222,
+            231
+          ],
+          "triangles": 29
+        }
+      },
+      "model": 18
+    }
+  ],
+  "inputHashes": {
+    "data/al0-c.dat": {
+      "bytes": 65536,
+      "sha256": "afc46e78b56f901f1331ceb0b02052eeaba2b6446b8747a03d0f12639ae17310"
+    },
+    "data/al0-p.dat": {
+      "bytes": 65536,
+      "sha256": "d6bb76a8ba8c2613376132fa7b0eec58277254fee4b786129746ed0c96890357"
+    },
+    "data/al0-s.dat": {
+      "bytes": 65536,
+      "sha256": "63fea1567adfdfb199d378086fe25c6f7822341d3607755a80218d79f07c4f5c"
+    },
+    "data/bigf0-c.dat": {
+      "bytes": 294912,
+      "sha256": "4787545c07f41d6949895e4e280d32fd571b3690536a8356f558638486c58129"
+    },
+    "data/bigf0-p.dat": {
+      "bytes": 294912,
+      "sha256": "a0e35123959dfe90484b49242b4d0456c87e0eb07306454e3c3c78dd2485463c"
+    },
+    "data/bigf0-s.dat": {
+      "bytes": 294912,
+      "sha256": "d9f52ca325da373805c8f2ea112e6cd2f80a701f0cf798a09fadd6ec64288b61"
+    },
+    "data/bl320-c.dat": {
+      "bytes": 262144,
+      "sha256": "26fbee4d3cb590462e1ef3c9afe1964283f1b662e8c58057ed8f2cbf324b2a05"
+    },
+    "data/bl320-p.dat": {
+      "bytes": 262144,
+      "sha256": "26fbee4d3cb590462e1ef3c9afe1964283f1b662e8c58057ed8f2cbf324b2a05"
+    },
+    "data/bl320-s.dat": {
+      "bytes": 262144,
+      "sha256": "26fbee4d3cb590462e1ef3c9afe1964283f1b662e8c58057ed8f2cbf324b2a05"
+    },
+    "data/cliff0-c.dat": {
+      "bytes": 8192,
+      "sha256": "a1e756622f142ff45615e873c757c01a53ebdb6b54383d28577d6c807fba8c72"
+    },
+    "data/cliff0-p.dat": {
+      "bytes": 8192,
+      "sha256": "e2bff228a79105adf3e3cacb6a1b16d391c06cf08349049b434d38deaca68563"
+    },
+    "data/cliff0-s.dat": {
+      "bytes": 8192,
+      "sha256": "31a3341376c5913017f3706d977b150c47907d0b54ccaaf609aa04ee609a805f"
+    },
+    "data/disp0-c.dat": {
+      "bytes": 65536,
+      "sha256": "d68d33c50badc5a002955cdba53010b9ebcddc70cfb89db3d6c369f3ab37b33c"
+    },
+    "data/disp0-p.dat": {
+      "bytes": 65536,
+      "sha256": "29bdc43b44722e0d3d2d885da58d160b9eb5077a18f255b031e8b8bc89a88855"
+    },
+    "data/disp0-s.dat": {
+      "bytes": 65536,
+      "sha256": "75d4d97bdcca573dfe98ea060966a08861763727c2511d366b971062648e7842"
+    },
+    "data/fade0-c.dat": {
+      "bytes": 16384,
+      "sha256": "d95163a55e441156b2e2c675f5c9f6f26d3f6016b72fe0896901f17e6ee622f0"
+    },
+    "data/fade0-p.dat": {
+      "bytes": 16384,
+      "sha256": "e906f9755d23bec714b30aafa7df54dee6bcabde62d346196d7df718d92b739d"
+    },
+    "data/fade0-s.dat": {
+      "bytes": 16384,
+      "sha256": "34fd9ec830f271894ec637df64bf9e8d6a3a116d9825a0804ba7070e9909166c"
+    },
+    "data/pal0-c.dat": {
+      "bytes": 1024,
+      "sha256": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53"
+    },
+    "data/pal0-p.dat": {
+      "bytes": 1024,
+      "sha256": "f246c0c22c835208167ae4ad8a4c1f1303691c610a1ff8560edeaf1f7d095f74"
+    },
+    "data/pal0-s.dat": {
+      "bytes": 1024,
+      "sha256": "545843d0e8dc788549ca3546389eaded787369ddfb530995055c8b4b7d3658db"
+    },
+    "objects/facs0-2.dat": {
+      "bytes": 686100,
+      "sha256": "01a9a6d02efa0d35f7026cd97f8e01f72cbfb72e94217efe8256e8fe43597e9a"
+    },
+    "objects/facs0-6.dat": {
+      "bytes": 680940,
+      "sha256": "b14ddf5828a413c1959135b9974209ad1571155cffd61a721d0cda0e22c0b8e6"
+    },
+    "objects/objs0-2.dat": {
+      "bytes": 8532,
+      "sha256": "e1af6bdf050608d7c1832700826bece72ca592abdff3ee9c2138c50ed8a8607d"
+    },
+    "objects/objs0-6.dat": {
+      "bytes": 8532,
+      "sha256": "1507aea3853e8e2ed5fffa262d092f36d64442ebe7aa11c87c0c700016320666"
+    },
+    "objects/pnts0-2.dat": {
+      "bytes": 59880,
+      "sha256": "09ebbdc9496d2ebd3a932be96af3fd27e6701a41105a5154aec4abe39e50b911"
+    },
+    "objects/pnts0-6.dat": {
+      "bytes": 59508,
+      "sha256": "27f657863d1da9f7d3cdd39fa559d2057cd7198e9f287caea8175b5765c9a8ce"
+    },
+    "objects/shapes.dat": {
+      "bytes": 4604,
+      "sha256": "ae1188129d84c266d91a1e9e75d960e99e80cdfd573f85d524742e970a0b2849"
+    }
+  },
+  "sourceFilesSha256": {
+    "app/original-models.json": "1665fcc36e57bbb765259ec9b7c1755a6b126db837787c9038ed955c76a8afc5",
+    "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+    "app/original-shapes.json": "0d0fcd2252efe0bae7cbb9a7f3a9acc4f6f0bb7a6e6e83eb5fe4e34ec247e094",
+    "public/original/atlas.png": "fdb5c2af7ca43debb5d943036969df29949773b6b94c0b7ce99ffc5d946b27b0",
+    "public/original/landscape.bin": "8b23328932f2aeac33a0ce65e64cc0ab9bc110fe35a812b1d53ab81f9e68f68f"
+  },
+  "sourceInventoryCommit": "d13825915c557cb24b0fc5341b5280c69ac88c94"
+}

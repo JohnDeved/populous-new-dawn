@@ -590,6 +590,12 @@
         },
         { "path": "app/original-minimap-frame.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-minimap-frame.py" },
         { "path": "public/original/minimap-frame.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-minimap-frame.py" },
+        { "path": "public/original/landscape-s.bin", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-world-environments.py" },
+        { "path": "public/original/landscape-p.bin", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-world-environments.py" },
+        { "path": "public/original/atlas-s.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-world-environments.py" },
+        { "path": "public/original/atlas-p.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-world-environments.py" },
+        { "path": "app/original-models-bank6.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-world-environments.py" },
+        { "path": "public/original/world-environments.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-world-environments.py" },
         { "path": "public/original", "type": "directory", "tracked": true, "protected": true }
       ],
       "recording": "Only the documented importer owns each app/original-*.json or public/original asset; do not infer one producer from an original-* name."

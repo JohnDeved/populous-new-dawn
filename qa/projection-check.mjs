@@ -74,9 +74,9 @@ try{
  assert.equal(result.error,0);assert.deepEqual(errors,[]);console.log(`PASS: ${result.count} WebGL2 projected points exactly match the CPU-compared native projection`);
  console.log(`PASS: ${result.modelCount} WebGL model vertices match native transforms; maximum clip-space error ${result.maxError}`);
  const picking=await page.evaluate(async()=>{
-  const {GameScene}=await import('/app/scene.ts'),m=await import('/app/model.ts'),w=m.createWorld();w.paused=true;w.inputMask=0;
+  const {GameScene}=await import('/app/scene.ts'),m=await import('/app/model.ts'),{createGameStore}=await import('/app/game-store.ts'),store=createGameStore(),w=store.getWorld();w.paused=true;w.inputMask=0;
   const host=document.createElement('div');Object.assign(host.style,{position:'fixed',inset:'0 0 0 200px'});document.body.append(host);
-  const scene=new GameScene(host,document.createElement('canvas'),document.createElement('canvas'),w,()=>{},()=>{}),geometry=scene.terrain.geometry,positions=geometry.getAttribute('position'),indices=geometry.index;
+  const scene=new GameScene(host,document.createElement('canvas'),document.createElement('canvas'),w,()=>{},()=>{},undefined,store.bindPresentation(w)),geometry=scene.terrain.geometry,positions=geometry.getAttribute('position'),indices=geometry.index;
   const triangles=[];
   for(let i=0;i<indices.count;i+=3){const p=[0,1,2].map(j=>{const id=indices.getX(i+j);return {x:positions.getX(id),y:positions.getY(id),z:positions.getZ(id)};});if(p.every(p=>p.x>=8&&p.x<=10&&p.z>=32&&p.z<=34))triangles.push(p);}
   let checked=0;

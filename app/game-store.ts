@@ -1,6 +1,14 @@
+import { worldEnvironment } from './world-environment.ts'
 import { rebuildSecondaryLists } from './secondary-effects.ts'
 import { restoreSecondaryEffects } from './hut-smoke-runtime.ts'
-import { campaignCommand, createGift, createWorld, type Gift, type World } from './model.ts'
+import {
+  campaignCommand,
+  createGift,
+  createWorld,
+  syncLandscapeObjects,
+  type Gift,
+  type World,
+} from './model.ts'
 import { missionData, missionEnemyTribe, missionNumbers } from './mission-data.ts'
 import { teamForTribe, type Point } from './world-types.ts'
 import { createComputerProducers } from './computer.ts'
@@ -279,6 +287,9 @@ export function migrateCheckpoint(world: World) {
   world.giftCounts.volcano ??= 0
   world.shots.angel ??= 0
   world.giftCounts.angel ??= 0
+  // Retire stored legacy bank2 poses through their original shape before
+  // registering the world's selected shape, before any restored scene draws.
+  syncLandscapeObjects(world)
   const gifts = world.gifts as unknown as (Gift | LegacyGift)[]
   for (const shrine of world.shrines) initializeVaultKnowledge(shrine, world.outcome.level)
   for (const gift of gifts) if (gift.kind === 'gift') initializeVaultKnowledgeGift(world, gift)
@@ -357,6 +368,7 @@ export function createGameStore() {
     observedCompletion = world.outcome.completedLevel,
     revision = 0
   const presentation = createSharedAniblResource()
+  presentation.transition(worldEnvironment(world).landscape)
   let presentationToken: symbol | null = null
   const completedMissions = new Set<number>()
   const listeners = new Set<() => void>()
@@ -382,7 +394,7 @@ export function createGameStore() {
   const replaceWorld = (next: World, retainResource = false) => {
     // Preparation has already succeeded. Commit both owners before publication;
     // old Scene callbacks lose authority even when Restart retains the resource.
-    presentation.transition(next.outcome.level === 3, retainResource)
+    presentation.transition(worldEnvironment(next).landscape, retainResource)
     world = next
     presentationToken = null
     observedCompletion = world.outcome.completedLevel
@@ -456,7 +468,7 @@ export function createGameStore() {
       return true
     },
     restart: () => {
-      const retainResource = world.outcome.level === 3 && !(world.land.landFlags & 8)
+      const retainResource = !(world.land.landFlags & 8)
       replaceWorld(createWorld(world.outcome.level), retainResource)
     },
     startMission: (mission: number) => {

@@ -488,6 +488,7 @@ export function installMission3BuildingScreenWitness({
             checkOwner()
             const resource = drawResource(),
               resolved = templeSpriteMaterial(
+                3,
                 command.frame,
                 command.palette,
                 scene.templeResourceSnapshot
@@ -563,8 +564,10 @@ export function installMission3BuildingScreenWitness({
                 'World Temple did not consume the same latched p tile/epoch'
               )
               check(
-                src?.split('?')[0].endsWith(`/${templeArt.modelAtlas}.png`),
-                'Actual world Temple material is not p'
+                resource.bank === 'p' &&
+                  resource.modelAtlas === 'atlas-p' &&
+                  src?.split('?')[0].endsWith(`/${resource.modelAtlas}.png`),
+                'Actual world Temple material is not the selected full p atlas'
               )
               pending = {
                 id: building.id,

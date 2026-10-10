@@ -1,13 +1,14 @@
 import { templeArt } from './temple-art.ts'
 import * as THREE from 'three'
-import nativeModelData from './original-models.json'
-import { modelDepthBias, modelStage, modelTextureModes, type NativeModel } from './model-faces.ts'
+import { nativeModelResource, type NativeModelResource } from './model-resources.ts'
+import { compatibilityEnvironment, type WorldEnvironment } from './world-environment.ts'
+import { modelDepthBias, modelStage, modelTextureModes } from './model-faces.ts'
 import { modelLighting, modelWaveOffsets } from './model-lighting.ts'
 import nativeUnits from './original-units.json'
 import nativeEffects from './original-effects.json'
 import { lightningTexture } from './lightning.ts'
 
-export const nativeModels: Record<number, NativeModel> = nativeModelData
+export { nativeModels } from './model-resources.ts'
 export const material = (color: number, extra = {}) =>
   new THREE.MeshStandardMaterial({ color, roughness: 1, ...extra })
 type TextureAsset = {
@@ -60,6 +61,8 @@ export function loadTexture(kind: string) {
   t.anisotropy = 8
   if (
     kind === 'atlas' ||
+    kind === 'atlas-s' ||
+    kind === 'atlas-p' ||
     kind === templeArt.modelAtlas ||
     kind.startsWith('sky') ||
     kind.startsWith('clouds')
@@ -110,9 +113,16 @@ export function effectFrame(sprite: THREE.Sprite, frame: { index: number; w: num
   )
   sprite.scale.set(frame.w, frame.h, 1)
 }
-export function nativeModel(id: number, scale = 2, stage = 4, temple = false) {
-  const data = nativeModels[id]
-  const geo = geometry(`original-${id}-${stage}`, () => {
+export function nativeModel(
+  id: number,
+  scale = 2,
+  stage = 4,
+  animatedTemple = false,
+  environment: WorldEnvironment = compatibilityEnvironment
+) {
+  const resource = nativeModelResource(id, environment.objects.bank),
+    { data } = resource
+  const geo = geometry(`original-${resource.bank}-${id}-${stage}`, () => {
     const { p, uv } = modelStage(data, stage),
       g = new THREE.BufferGeometry()
     g.setAttribute('position', new THREE.Float32BufferAttribute(p, 3))
@@ -134,7 +144,7 @@ export function nativeModel(id: number, scale = 2, stage = 4, temple = false) {
     // Native screen-space winding is clockwise after the WebGL Y inversion.
     // 0x4708d0 culls rear faces; 0x471c40 keeps both construction-stage sides.
     new THREE.MeshBasicMaterial({
-      map: texture(temple ? templeArt.modelAtlas : 'atlas'),
+      map: texture(environment.landscape.modelAtlas),
       side: stage === 4 ? THREE.BackSide : THREE.DoubleSide,
       alphaTest: 0.5,
     })
@@ -142,15 +152,16 @@ export function nativeModel(id: number, scale = 2, stage = 4, temple = false) {
   mesh.scale.setScalar(scale)
   mesh.material.defines = { USE_MODEL_WAVE: '' }
   mesh.userData.nativeModel = id
+  mesh.userData.nativeResource = resource
   mesh.userData.stage = stage
   mesh.userData.nativeScale = data.scale
   mesh.userData.highlight = { value: 0 }
-  if (temple) mesh.userData.templeTileOffset = { value: new THREE.Vector2() }
+  if (animatedTemple) mesh.userData.templeTileOffset = { value: new THREE.Vector2() }
   mesh.material.onBeforeCompile = shader => {
     shader.uniforms.modelHighlight = mesh.userData.highlight
-    if (temple) shader.uniforms.templeTileOffset = mesh.userData.templeTileOffset
+    if (animatedTemple) shader.uniforms.templeTileOffset = mesh.userData.templeTileOffset
     shader.vertexShader =
-      `${temple ? 'uniform vec2 templeTileOffset;\n' : ''}attribute float faceShade;
+      `${animatedTemple ? 'uniform vec2 templeTileOffset;\n' : ''}attribute float faceShade;
 attribute vec3 faceAnchor;
 attribute float textureMode;
 varying float modelLight;
@@ -168,7 +179,7 @@ varying float modelTextureMode;
       modelLight=float(depth>-3328?max(1,int(faceShade)+nativeMul(-3328-depth,32)/8192):int(faceShade));
     `
     )
-    if (temple)
+    if (animatedTemple)
       shader.vertexShader = shader.vertexShader.replace(
         '#include <uv_vertex>',
         '#include <uv_vertex>\nif(textureMode==32.) vMapUv += templeTileOffset;'
@@ -190,12 +201,16 @@ varying float modelTextureMode;
     )
   }
   mesh.material.customProgramCacheKey = () =>
-    temple ? 'native-model-light-temple' : 'native-model-light'
+    animatedTemple ? 'native-model-light-temple' : 'native-model-light'
   return mesh
 }
 export function updateModelLighting(object: THREE.Object3D) {
   if (!(object instanceof THREE.Mesh) || object.userData.nativeModel === undefined) return
   const { nativeModel: id, nativeSize, stage } = object.userData,
+    resource =
+      (object.userData.nativeResource as NativeModelResource | undefined) ??
+      nativeModelResource(id),
+    { data } = resource,
     heading = object.parent?.userData.nativeHeading ?? 0,
     tilt = object.parent?.userData.nativeTilt ?? 0,
     roll = object.parent?.userData.nativeRoll ?? 0,
@@ -213,9 +228,9 @@ export function updateModelLighting(object: THREE.Object3D) {
     if (wave)
       attribute.array.set(
         modelWaveOffsets(
-          nativeModels[id],
+          data,
           position.array,
-          nativeSize ?? nativeModels[id].scale,
+          nativeSize ?? data.scale,
           heading,
           wave,
           wave.origin,
@@ -229,7 +244,7 @@ export function updateModelLighting(object: THREE.Object3D) {
   }
   if (object.userData.lightKey === key) return
   const { shades, anchors } = modelLighting(
-    nativeModels[id],
+    data,
     position.array,
     stage,
     heading,

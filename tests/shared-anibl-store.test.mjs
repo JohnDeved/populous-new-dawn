@@ -6,7 +6,7 @@ import { visitWorshipAcquisition } from '../app/worship-acquisition-runtime.ts'
 
 test('M3 resources publish atomically with World and expose immutable shared selections', () => {
   const store = createGameStore()
-  assert.equal(store.getPresentationSnapshot(), null)
+  assert.equal(store.getPresentationSnapshot()?.bank, 'c', 'initial World activates its c resource')
   const published = []
   store.subscribe(() =>
     published.push({
@@ -35,7 +35,9 @@ test('M3 resources publish atomically with World and expose immutable shared sel
   for (let i = 0; i < 5; i++) assert.deepEqual(binding.snapshot(), beforeReads)
   store.startMission(1)
   assert.equal(published.at(-1).world.outcome.level, 1)
-  assert.equal(published.at(-1).resource, null, 'invalidation precedes publication')
+  assert.equal(published.at(-1).resource.bank, 'c', 'new bank is selected before publication')
+  assert.equal(published.at(-1).resource.counter, 0)
+  assert.ok(published.at(-1).resource.epoch > first.epoch)
   assert.equal(binding.isCurrent(), false)
 })
 
@@ -171,7 +173,7 @@ test('missing checkpoints and failed preparation preserve World, resource, and l
   assert.equal(binding.isCurrent(), true)
 })
 
-test('fresh starts, leaving M3, and non-normal Restart cannot retain the old M3 epoch', () => {
+test('fresh starts, bank changes, and non-normal Restart cannot retain the old epoch', () => {
   const store = createGameStore()
   store.startMission(3)
   const first = store.bindPresentation(store.getWorld())
@@ -186,14 +188,73 @@ test('fresh starts, leaving M3, and non-normal Restart cannot retain the old M3 
   assert.ok(store.getPresentationSnapshot().epoch > epoch)
   ;({ epoch } = store.getPresentationSnapshot())
   store.startMission(1)
-  const unsupported = store.bindPresentation(store.getWorld())
-  assert.equal(unsupported.isCurrent(), true, 'Scene liveness is independent of resource support')
-  unsupported.advance()
-  assert.equal(unsupported.snapshot(), null)
+  const current = store.bindPresentation(store.getWorld())
+  assert.equal(current.isCurrent(), true)
+  assert.equal(current.snapshot()?.bank, 'c', 'M1 owns a live c resource')
+  assert.ok(current.snapshot().epoch > epoch)
+  current.advance()
+  assert.equal(current.snapshot().counter, 1)
   store.startMission(3)
   assert.ok(store.getPresentationSnapshot().epoch > epoch)
   assert.equal(store.getPresentationSnapshot().counter, 0)
 })
+
+for (const [mission, bank, modelAtlas] of [
+  [1, 'c', 'atlas'],
+  [2, 's', 'atlas-s'],
+  [3, 'p', 'atlas-p'],
+  [6, 'c', 'atlas'],
+  [10, 'p', 'atlas-p'],
+  [4, 'c', 'atlas'], // Authored d retains the explicit c compatibility resource.
+]) {
+  test(`M${mission} ${bank} resource survives normal Restart and resets on Load`, async () => {
+    const store = createGameStore()
+    if (mission !== 1) store.startMission(mission)
+    const world = store.getWorld(),
+      binding = store.bindPresentation(world),
+      first = binding.snapshot()
+    assert.ok(first, `M${mission} must activate the shared resource without an acquisition`)
+    assert.deepEqual(
+      { bank: first.bank, modelAtlas: first.modelAtlas, counter: first.counter, tile: first.tile },
+      { bank, modelAtlas, counter: 0, tile: 92 }
+    )
+    binding.advance()
+    binding.advance()
+    const retained = binding.snapshot()
+    await store.saveCheckpoint()
+    assert.equal(binding.snapshot(), retained, 'Save does not reset or advance presentation')
+    store.restart()
+    assert.deepEqual(store.getPresentationSnapshot(), retained)
+    assert.equal(binding.isCurrent(), false)
+    binding.advance()
+    const restarted = store.bindPresentation(store.getWorld())
+    assert.deepEqual(restarted.snapshot(), retained, 'stale callback cannot advance retained epoch')
+    restarted.advance()
+    assert.equal(restarted.snapshot().counter, 3)
+    assert.equal(store.loadCheckpoint(), true)
+    const loaded = store.getPresentationSnapshot()
+    assert.deepEqual(
+      {
+        bank: loaded.bank,
+        modelAtlas: loaded.modelAtlas,
+        counter: loaded.counter,
+        tile: loaded.tile,
+      },
+      { bank, modelAtlas, counter: 0, tile: 92 }
+    )
+    assert.ok(loaded.epoch > retained.epoch)
+    assert.equal(restarted.isCurrent(), false)
+    restarted.advance()
+    restarted.release()
+    const current = store.bindPresentation(store.getWorld())
+    assert.equal(current.snapshot(), loaded)
+    current.advance()
+    assert.equal(current.snapshot().counter, 1)
+    assert.equal(first.counter, 0, 'older immutable snapshots retain their original selection')
+    current.release()
+    binding.release()
+  })
+}
 
 test('the existing nominal clock owns catch-up and visible-pause visits, not draw reads or 24-Hz animation', () => {
   const store = createGameStore()
