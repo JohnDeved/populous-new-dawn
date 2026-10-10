@@ -1,0 +1,128 @@
+{
+  "priorReviewedHead": "ce899202ff0c83688f4d9b815eff7f3a82e8baca",
+  "date": "2026-10-09",
+  "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "executableSize": 2275840,
+  "extraction": {
+    "command": [
+      "python",
+      "/workspace/scratch/69fd8163d94e/training-auto-contract-20261009/scripts/extract-reference.py",
+      "--component",
+      "Component0",
+      "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/PopulousTB-Setup.zip",
+      "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game",
+      "d3dpoptb.exe"
+    ],
+    "startedAt": "2026-10-09T19:30:32.203604+00:00",
+    "limits": {
+      "cpuAffinity": [
+        4
+      ],
+      "wallTimeoutSeconds": 120,
+      "addressSpaceBytes": 4294967296
+    },
+    "archiveSha256": "6aa6c366809ea1d9575ec1d31a24527a95c7332f0a1d2ab692f7a602e7e10702",
+    "scriptSha256": "43870b6e06aeb43f8ea9103f3e601e4236397cbb1e49d72c43e570d4e13ffd7e",
+    "status": "passed",
+    "exitCode": 0,
+    "elapsedSeconds": 6.237,
+    "output": {
+      "name": "d3dpoptb.exe",
+      "size": 2275840,
+      "sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+    },
+    "verified": true,
+    "archiveUnchanged": true,
+    "scriptUnchanged": true
+  },
+  "extractor": {
+    "package": "binary-refinery",
+    "version": "0.10.11",
+    "source": "https://pypi.org/project/binary-refinery/0.10.11/",
+    "artifactSize": 3556534,
+    "artifactSha256": "2c2d850ef79dd1da41549203b145b8a26ce556d6b1abe4f6262625727a8483d2"
+  },
+  "runtimeDependencies": {
+    "pure-magic-rs": {
+      "version": "0.5.1",
+      "filename": "pure_magic_rs-0.5.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+      "size": 1727569,
+      "sha256": "5ef3709472b86b270b9b9831fcb6675fceb886bae0501b0b697844ea81239d34",
+      "source": "https://files.pythonhosted.org/packages/66/4f/f2c2967036c5b1d78be701696a3bdf603a8d9773202313a930204d82c7c3/pure_magic_rs-0.5.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl"
+    }
+  },
+  "preservedImportFailure": {
+    "message": "ModuleNotFoundError: No module named 'pure_magic_rs'",
+    "stderrSha256": "2349cbe3988ab6f185f3f09f116eeb34d0e1ad2e1fca45497fc431d8964c0541"
+  },
+  "functions": {
+    "00503f60": {
+      "command": [
+        "objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x00503f60",
+        "--stop-address=0x00504010",
+        "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "objdumpVersion": "GNU objdump (GNU Binutils for Debian) 2.44",
+      "executableSize": 2275840,
+      "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "range": {
+        "start": "00503f60",
+        "endExclusive": "00504010",
+        "fileOffset": 1061728,
+        "size": 176,
+        "sha256": "83cfe7c6af8701e95dc4d25d2093d40206a2a8d3c2b23cbdd7c5e04fcd1bd9c9"
+      },
+      "stdoutSha256": "723a3787bd03d823882ea0f920f062e6e9a99500760a96e922383bb718615252",
+      "exitCode": 0,
+      "nativeExecution": false,
+      "publishedExcerpt": "decomp/research/training-panel-auto-reset/00503f60.asm.txt",
+      "publishedSha256": "d4489d66da102b0cb2c609515dd6744bab629077805620b657c177ae83c00a4c"
+    },
+    "00503230": {
+      "command": [
+        "objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x00503230",
+        "--stop-address=0x0050329c",
+        "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe"
+      ],
+      "objdumpVersion": "GNU objdump (GNU Binutils for Debian) 2.44",
+      "executableSize": 2275840,
+      "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "range": {
+        "start": "00503230",
+        "endExclusive": "0050329c",
+        "fileOffset": 1058352,
+        "size": 108,
+        "sha256": "3a52bdcd906921fad6647ade91f65ab9f6fd9db28e5830f8b5008a751b81b9d3"
+      },
+      "stdoutSha256": "c1edac741d103d24a34f0b2f7935f2b54ac6b7aad7e4eb8cf10b49a26c71f86f",
+      "exitCode": 0,
+      "nativeExecution": false,
+      "publishedExcerpt": "decomp/research/training-panel-auto-reset/00503230.asm.txt",
+      "publishedSha256": "b969fe6ad9d4749063910d1e99fc2053977dc4c09a21eb68299231eeb38994c8"
+    }
+  },
+  "retainedHelpers": {
+    "decomp/generated/00443260.c": "4c64dee3bef82f645e9d1a88e67e4015875a424d306de92f29cfc6b130e197a4",
+    "decomp/generated/00442b50.c": "2b6dd81e576bea1dc7194237f7a438c029941e0bdcfb40cf39bc2a5076369763",
+    "decomp/generated/00442cd0.c": "a0690000386be947346cd9d48ded9632723fc6917af04760bec9dfc2f8a20c41",
+    "decomp/generated/004ee300.c": "530622e00689118a11eac9031402d9b6409ef242c69ac3fdbb0d20e28f1cd726",
+    "decomp/generated/004ef180.c": "021baf2a38e2dcf2062bdffc12aa449b5f2e789898aab1e776f1c1a0913802ae",
+    "decomp/generated/004ed530.c": "92e396aedef19ce77247afeec387e9dcb2d49ce457fab7522c22356f7946bf8e",
+    "decomp/generated/004ed820.c": "2ad39ba7c56959eab017534655d27df09ea7023f2992035d5dd403d74c167c1d",
+    "decomp/generated/00405b80.c": "05b5f7e151c07985c9e9d5a6036243644a115e5f07f00a949ac4cf02ca1b07b3",
+    "decomp/generated/00509290.c": "bc5eb0df096dbea9d0f5e1201b6e2ca0b0fc4201d90262c62c546e25da65e21b",
+    "decomp/generated/005092e0.c": "9a48c34eeb57336caeebd673b6a7f6f7856a8b8fc1ee88a1145293500377d6e4"
+  },
+  "originalExecution": false,
+  "runtimeChanged": false,
+  "completeSaveFormatClaimed": false,
+  "newLevelCallerChainEstablished": false
+}

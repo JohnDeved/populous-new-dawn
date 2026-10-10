@@ -1,0 +1,69 @@
+{
+  "base": "4e8356ef043d9963abd16a840c3246abc972fe48",
+  "tree": "158391790e41b3b4f72f9340fba05885c6837654",
+  "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "ghidraVersion": "12.1.3",
+  "exportManifestSha256": "51e55c295a9956e89be85c98df835f1da141e3e10cb6b16435f55423ff5b26db",
+  "campManualManifestVerified": true,
+  "exportsVerified": {
+    "decomp/generated/00403280.c": "2714dbc7a2fc7a7f5baa9ea51b2f171f2df08f009df923b40cb13f2cedea327d",
+    "decomp/generated/00405b80.c": "05b5f7e151c07985c9e9d5a6036243644a115e5f07f00a949ac4cf02ca1b07b3",
+    "decomp/generated/00451370.c": "adc8fe2b1223f745306d64d1a5d124781107a227c9da3d45e8ebc468231180ac",
+    "decomp/generated/004edae0.c": "99f288f5cbb482ce6fad7f12bce4dbf62735bebcdd4c1e394fdb1d7095f8f7eb",
+    "decomp/generated/004edbd0.c": "7d2fd8b7814d358292d45429a31a4d573fdeb0f712e236f7fadefd620c0d455b",
+    "decomp/generated/004ed820.c": "2ad39ba7c56959eab017534655d27df09ea7023f2992035d5dd403d74c167c1d",
+    "decomp/generated/00504060.c": "2038be12309b51322ae2f3536f9a257fe865b3554c5952decc5239bd06d9ea97",
+    "decomp/generated/00504660.c": "8d631ad4f8ea1bed8ed2d1367c571bcca501e29cdaa4431b2bbad1af00efde3c",
+    "decomp/generated/00504920.c": "f5314cd673045e9887159198815e6a17dfbe6c2927e55d9c9135246f71f50e9e",
+    "decomp/generated/00509290.c": "bc5eb0df096dbea9d0f5e1201b6e2ca0b0fc4201d90262c62c546e25da65e21b",
+    "decomp/generated/005092e0.c": "9a48c34eeb57336caeebd673b6a7f6f7856a8b8fc1ee88a1145293500377d6e4",
+    "decomp/generated/00504bc0.c": "073b8e8c7c9827136952d8721f90665199f8f3bb45951251a3a28e4b71ff168e",
+    "decomp/generated/004a4960.c": "082373c8c2c9244af20a64d81e6e70f981ff3a3785103dd0ad7858e9ccdbf7df",
+    "decomp/generated/004a5590.c": "15d94e01036d5a77f5a3235d4e331a6558a6c83671b64221306b75a750270ff2",
+    "decomp/generated/004ec6f0.c": "497df5820bfebb7f79eb9cbaf2b887295f7933431958ab4c992ebb33f39e7923",
+    "decomp/generated/00442cd0.c": "a0690000386be947346cd9d48ded9632723fc6917af04760bec9dfc2f8a20c41",
+    "decomp/generated/00443260.c": "4c64dee3bef82f645e9d1a88e67e4015875a424d306de92f29cfc6b130e197a4",
+    "decomp/generated/00442b50.c": "2b6dd81e576bea1dc7194237f7a438c029941e0bdcfb40cf39bc2a5076369763"
+  },
+  "portCompared": {
+    "app/world-turn.ts": "20b2290596d9059bc1dda421ce45798a6d547f94c9aa9e0a98a4e8f64068f93c",
+    "app/live-building-entry.ts": "9f58dbf0c20e362d4c45f8bba18c69b90f7310429e0eb82c495de808cf22fb99",
+    "app/training-conversion.ts": "6c8cade2447474f1d966cdfad22e9098d2fd4a5535891fe8c942ba7266806bf7",
+    "app/building-occupants.ts": "24e6458718cd665b52188ac5473bfe265d179bb03ac530217c761addd471797a",
+    "app/object-panels.ts": "5d55387ad91524c10dbbed441c88cfb258e28bab507a633b6f3e12de8d0fb5da",
+    "app/building-panels.ts": "fcd3aba5c900bf04ecfe3bee0cbf831438d3fab1293fac5e569e30152e0e9bfe",
+    "app/scene-secondary-effects.ts": "b0548a878c34f2a8d8f895a58cc64b6f7b724443f002fc7345a6d7663863b1ad",
+    "app/person-panel.ts": "2ede0182a7b477006f2ca1adb9e71df0b746785ba701b035456b2354d8b1699f",
+    "app/scene.ts": "f90080a9f6afe81e934b07fb441971bb927d739aa53cd01ff9a38e99fdc2d95f",
+    "app/scene-tooltip-runtime.ts": "b2a53279069a5fccf2b3760c81672390720045c4bd0970d7cd61bc86a1d4b261",
+    "app/scene-camera-runtime.ts": "baf9002590104af73e9d5f44d0abe3ee61ec1e2ad8a117e0987265f005d5613d",
+    "app/game-clock.ts": "d4f850867943a54ebf86e79b6d71e2f842d0e6c61c70bb2884872bd6d002eef6",
+    "app/game-store.ts": "300cc63a292b79057bc64457dcfd087b2f7162194e2108d753e899c35861c675",
+    "app/hut-smoke-runtime.ts": "8652d3c33cc2c195344c62a7a9d2aba572620742c0dd89458634f576853ac834",
+    "app/page.tsx": "af95be6e48354ffec34046eb0c265612ef460d612d69c91e56825c9ce7948765",
+    "app/mission-data.ts": "c4859525c084dfcd478a4fb5e08b93bb5f37c2aa1c2b8cd3250d5683b7e957cf",
+    "app/world-state.ts": "880c00574e29d9f9e2cffd59d79ff337dcfe07d023d45b95481c09ff9e056ff6",
+    "app/level-two.ts": "c576f47683ab6e58682e78c221eed5f44e91717e2e27097be0f5b5ba9f97c111",
+    "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6"
+  },
+  "acceptedControllerSource": {
+    "commit": "c1b16d5af571f4735f036f71b063827b3a7f6e17",
+    "files": {
+      "decomp/research/ordinary-tooltip-controller/clock-and-caller.asm.txt": "d18d7a2a84dad746f5711c76230036d86303642dc882f2f1c5fedd2ead8f6c36",
+      "decomp/research/ordinary-tooltip-controller/contract-table.md": "3ed35fd9ed07b0bf38795f9dac7d64545a2fcbcada48dbaaf0197fbbe8cd5501",
+      "decomp/research/ordinary-tooltip-controller/ordinary-admission.md": "ac0b8892f23b4c4c24b34ab016f698252547e0c375035339e192cd37c56e7fc9"
+    }
+  },
+  "resetBoundary": {
+    "unresolved": [
+      "00503f60",
+      "00503230"
+    ],
+    "canonicalDocumentedExecutablePresent": false,
+    "retainedMatchingExportOrAssemblyFound": false,
+    "staticDecodePerformed": false
+  },
+  "newNativeExecution": false,
+  "browserExecution": false,
+  "runtimeChanged": false
+}

@@ -441,6 +441,18 @@
         "interface.hud.minimap-input"
       ],
       "evidence": [
+        {
+          "path": "decomp/research/training-panel-auto-contract.md",
+          "heading": "Training panel automatic request and latch"
+        },
+        {
+          "path": "decomp/research/training-panel-auto-reset.md",
+          "heading": "Automatic training panel load reset"
+        },
+        {
+          "path": "decomp/research/training-panel-auto-implementation.md",
+          "heading": "Model7 automatic panel implementation contract"
+        },
         { "path": "references/modern-performance.md", "heading": "Chronological game clock" },
         { "path": "decomp/research/camera-bookmarks.md", "heading": "Camera bookmarks" },
         { "path": "decomp/research/minimap-frame.md", "heading": "Minimap frame composition" },
