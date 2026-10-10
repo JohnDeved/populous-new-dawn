@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { tornadoWoodImpact, attachTornadoBuildingObservation } from '../scripts/local-render/tornado-building-witness.mjs'
+import { tornadoWoodImpact, attachTornadoBuildingObservation, assertTornadoBuildingCast } from '../scripts/local-render/tornado-building-witness.mjs'
+import { finishTornadoBuildingRun } from '../scripts/local-render/mission2-tornado-building.mjs'
 import { createWorld, cast } from '../app/model.ts'
 import { advanceGame } from '../app/game-clock.ts'
 import { UnitMotion } from '../app/unit-motion.ts'
@@ -196,4 +197,53 @@ test('Tornado observer composes actual advanceGame, projectile impact and live b
   const visits = evidence.visits.length
   advanceGame(world, clock, 1 / 12)
   assert.equal(evidence.visits.length, visits, 'First accepted impact detaches atomically')
+})
+
+test('Tornado cast consumer binds actual delivered terrain pick and quantized projectile', () => {
+  const args = { clientX: 400, clientY: 500, button: 0 }
+  const before = { mode: 'tornado', overviewActive: false, worldMatches: true, caster: 54,
+    turn: 100, stock: 3, projectiles: [] }
+  const after = { ...before, mode: null, stock: 2, projectiles: [{ id: 20, spell: 'tornado',
+    caster: 54, phase: 'windup', remaining: 6, turns: 0, visuals: [],
+    target: { x: 69, z: 101 }, destination: { x: 19712, y: -27904, h: 100 } }] }
+  const pointer = { restored: true, errors: [], events: [{ type: 'pointerup', trusted: true,
+    button: 0, canvasOwned: true, canvasTarget: true, args,
+    state: { currentSceneMatches: true, currentWorldMatches: true, armedWorldMatches: true,
+      armedCanvasMatches: true },
+    picks: [{ owner: 'scene', name: 'pick', receiverMatches: true, args,
+      point: { x: 68.9, z: 100.7 } }] }] }
+  const receipt = { before, after, pointer }
+  assert.deepEqual(assertTornadoBuildingCast(receipt, 54),
+    { projectileId: 20, point: { x: 68.9, z: 100.7 }, target: { x: 69, z: 101 } })
+  for (const alter of [
+    r => { r.pointer.events[0].trusted = false },
+    r => { r.pointer.events[0].state.armedWorldMatches = false },
+    r => { r.pointer.events[0].picks[0].args = { ...args, clientX: 401 } },
+    r => { r.pointer.events[0].picks[0].point.x = 66 },
+    r => { r.pointer.events[0].picks.push({ name: 'pickPerson' }) },
+    r => { r.after.projectiles[0].caster = 55 },
+    r => { r.after.projectiles[0].destination.y++ },
+    r => { r.after.projectiles[0].phase = 'flight' },
+    r => { r.after.turn++ },
+    r => { r.after.stock++ },
+  ]) {
+    const copy = structuredClone(receipt)
+    alter(copy)
+    assert.throws(() => assertTornadoBuildingCast(copy, 54))
+  }
+})
+
+test('Tornado route cleanup attempts finish, dispose and save while preserving primary failure', async () => {
+  const primary = new Error('actual route failure'), attempts = []
+  const report = { status: 'failed' }
+  const observation = {
+    async evaluate() { attempts.push('finish'); throw Error('finish failure') },
+    async dispose() { attempts.push('dispose'); throw Error('dispose failure') },
+  }
+  const failure = await finishTornadoBuildingRun({ observation, report, primaryError: primary,
+    save() { attempts.push('save'); throw Error('save failure') } })
+  assert.equal(failure, primary)
+  assert.deepEqual(attempts, ['finish', 'dispose', 'save'])
+  assert.equal(report.cleanupErrors.length, 3)
+  assert.equal(report.status, 'failed')
 })

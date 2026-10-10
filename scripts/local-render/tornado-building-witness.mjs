@@ -11,6 +11,41 @@ const cell = point => ((point.y & 0xfe00) | ((point.x >>> 8) & 254)) >>> 0
 const harmful = new Set(['blast', 'blastWave', 'lightning', 'fire', 'firestorm',
   'swamp', 'swarm', 'tornado', 'earthquake', 'volcano', 'erosion', 'angel', 'firewarriorShot'])
 
+export function assertTornadoBuildingCast({ before, after, pointer }, shamanId) {
+  insist(before.mode === 'tornado' && after.mode === null && !before.overviewActive,
+    'Actual Tornado mode did not complete')
+  insist(before.worldMatches && after.worldMatches && before.caster === shamanId &&
+    after.caster === shamanId && before.turn === after.turn && after.stock === before.stock - 1,
+    'Cast receipt lost synchronous World/caster/stock ownership')
+  insist(pointer.restored && !pointer.errors.length, 'Pointer observation was not cleanly restored')
+  const releases = pointer.events.filter(event => event.type === 'pointerup')
+  insist(releases.length === 1, 'Exactly one actual pointer release required')
+  const release = releases[0]
+  insist(release.trusted && release.button === 0 && release.canvasTarget && release.canvasOwned &&
+    release.state.currentSceneMatches && release.state.currentWorldMatches &&
+    release.state.armedWorldMatches && release.state.armedCanvasMatches,
+    'Actual pointer release lost canvas/World ownership')
+  const picks = release.picks.filter(pick => pick.owner === 'scene' && pick.name === 'pick')
+  insist(picks.length === 1 && picks[0].receiverMatches && !picks[0].threw &&
+    JSON.stringify(picks[0].args) === JSON.stringify(release.args), 'Actual terrain picker chain changed')
+  insist(!release.picks.some(pick => ['pickPerson', 'pickUnit', 'pickWorldObject'].includes(pick.name)),
+    'Tornado unexpectedly used a person/object target route')
+  const point = picks[0].point
+  insist(point && Number.isFinite(point.x) && Number.isFinite(point.z), 'No delivered terrain point')
+  const fresh = after.projectiles.filter(p => !before.projectiles.some(old => old.id === p.id))
+  insist(fresh.length === 1 && fresh[0].spell === 'tornado' && fresh[0].caster === shamanId &&
+    fresh[0].phase === 'windup' && fresh[0].remaining === 6 && fresh[0].turns === 0 &&
+    fresh[0].visuals.length === 0 && fresh[0].blastTarget === undefined,
+    'Unique actual Tornado projectile was not initialized')
+  const target = { x: Math.floor(point.x / 2) * 2 + 1, z: -Math.floor(-point.z / 2) * 2 - 1 }
+  insist(fresh[0].target.x === target.x && fresh[0].target.z === target.z,
+    'Projectile target does not quantize the actual delivered terrain pick')
+  const position = native(target)
+  insist(fresh[0].destination.x === position.x && fresh[0].destination.y === position.y,
+    'Projectile destination disagrees with its delivered target')
+  return { projectileId: fresh[0].id, point, target }
+}
+
 // Plain-data contract. Net work loss alone never attributes an impact to Tornado.
 export function tornadoWoodImpact(before, after, logs) {
   const loss = before.building.work - after.building.work
@@ -18,6 +53,8 @@ export function tornadoWoodImpact(before, after, logs) {
   insist(before.building.hp > 0, 'Impact target was already retired')
   insist(before.competing.length === 0 && after.competing.length === 0,
     'Competing damage/timber work prevents Tornado attribution')
+  // Deliberately narrower than the last phase0 visit that switches to phase1.
+  // Such a late hit is rejected by this witness, not relabelled as a game failure.
   insist(after.tornado && after.tornado.phase === 0, 'No active owned Tornado at impact')
   insist(cell(after.tornado) === cell(native(after.building)), 'Owned Tornado missed target cell')
   insist(loss === 100, 'Impact must remove exactly 100 work')
@@ -123,6 +160,11 @@ export function attachTornadoBuildingObservation(scene, store, expected, current
         else if (descriptors.get(name)) Object.defineProperty(clock, name, descriptors.get(name))
         else delete clock[name]
       } catch (error) { evidence.cleanupErrors.push(`${name}: ${errorText(error)}`) }
+    }
+    for (const name of Object.keys(originals)) {
+      try { if (clock[name] !== originals[name] && !evidence.cleanupErrors.some(row => row.startsWith(name)))
+        evidence.cleanupErrors.push(`${name} restoration was not verified`) }
+      catch (error) { evidence.cleanupErrors.push(`${name} readback: ${errorText(error)}`) }
     }
     evidence.restored = !evidence.cleanupErrors.length
     return evidence
