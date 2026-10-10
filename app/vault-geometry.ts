@@ -2,6 +2,7 @@ import {
   buildingFootprintCells,
   buildingInsidePoint,
   buildingOutsidePoint,
+  buildingSocketPoint,
 } from './building-shapes.ts'
 import { movePosition } from './native-math.ts'
 import type { Shrine, World } from './world-types.ts'
@@ -17,6 +18,12 @@ export function vaultShapePose(vault: VaultPose) {
     anchorX: Math.round((vault.x + 8) * 256) & 0xfe00,
     anchorY: Math.round((-vault.z - 8) * 256) & 0xfe00,
   }
+}
+
+// The model-18 building descriptor attaches prayer panels to socket 0.
+// Reward knowledge has its own socket 1; neither uses the scenery panel height.
+export function vaultPrayerPoint(vault: VaultPose) {
+  return buildingSocketPoint(vaultShapePose(vault), 0)
 }
 
 export function vaultPoints(vault: VaultPose) {

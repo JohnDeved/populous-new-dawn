@@ -43,6 +43,7 @@ Recent reusable topic notes: [Preacher sermon gestures and original artwork](res
 [Model45 Stone Head logical animation visits](research/stone-head-logical-visits.md),
 [Ordinary person and Splash logical animation visits](research/sprite-logical-visits.md),
 [Mission 3 Temple world HFX ownership and lifetime](research/vault-knowledge-world-assets.md),
+[Completed authored Vault prayer-panel socket anchor](research/vault-prayer-panel-anchor.md),
 [Ordinary spell acquisition screen handoff and arrival deadline](research/worship-grant-handoff.md),
 [Ordinary acquisition companion and native draw commands](research/worship-grant-presentation.md),
 [Second ordinary gift replacement and independent payout](research/worship-grant-replacement.md),
