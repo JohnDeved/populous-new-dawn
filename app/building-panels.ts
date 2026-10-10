@@ -16,8 +16,19 @@ import {
   workshopWorkBlocks,
 } from './workshop-panel.ts'
 
-export function retainedBuildingPanel(b: Pick<Building, 'kind' | 'progress'>) {
-  return b.progress >= 1 && (b.kind === 'hut' || b.kind === 'camp')
+export function retainedBuildingPanel(
+  b: Pick<Building, 'kind' | 'progress' | 'admission'>,
+  playerTribe: number
+) {
+  return (
+    b.progress >= 1 &&
+    (b.kind === 'hut' ||
+      b.kind === 'camp' ||
+      (b.kind === 'temple' &&
+        b.admission?.class === 2 &&
+        b.admission.model === 5 &&
+        b.admission.tribe === playerTribe))
+  )
 }
 
 // Dismantling retains the existing independent browser-control adapter. Training
@@ -26,8 +37,8 @@ export function dismantlingCampPanel(b: Pick<Building, 'kind' | 'admission'>) {
   return b.kind === 'camp' && !!((b.admission?.activity ?? 0) & 0x8000)
 }
 
-// Temple manual hover keeps its existing DOM adapter. Active training and its
-// exiting automatic record instead require synchronous callback ownership.
+// Active Temple training and its exiting automatic record take precedence over
+// the independent held-controls adapter, including failed/fresh allocation.
 function templeTrainingOwnsPanel(b: Building, record: { automatic: boolean } | undefined) {
   return (
     b.kind === 'temple' &&
@@ -117,11 +128,13 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
       (templeTrainingOwnsPanel(building, record) &&
         !((building.admission?.activity ?? 0) & 0x8000) &&
         (modal || !record || record.phase < 0)) ||
-      (retainedBuildingPanel(building) &&
+      (retainedBuildingPanel(building, world.manaWorld.playerTribe) &&
         !dismantlingCampPanel(building) &&
+        !(building.kind === 'temple' && (building.admission?.activity ?? 0) & 0x8000) &&
         (modal ||
+          (building.kind === 'temple' && record && record.phase < 0) ||
           (!scene.objectPanels.buildingRecords.has(id) &&
-            !(building.kind === 'camp' && controlsHeld)))) ||
+            !((building.kind === 'camp' || building.kind === 'temple') && controlsHeld)))) ||
       world.inputMask ||
       scene.overviewActive ||
       !controlsHeld
@@ -143,19 +156,20 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
       activity = admission?.activity ?? 0
     if ((!plan && !profile) || b.team !== 'blue' || b.hp <= 0 || !scene.visible(b)) continue
     const record = scene.objectPanels.buildingRecords.get(b.id),
-      retained = retainedBuildingPanel(b) || templeTrainingOwnsPanel(b, record),
+      retained =
+        retainedBuildingPanel(b, world.manaWorld.playerTribe) || templeTrainingOwnsPanel(b, record),
       existing = scene.buildingPanels.get(b.id),
-      campHeld =
-        b.kind === 'camp' &&
+      trainingHeld =
+        (b.kind === 'camp' || b.kind === 'temple') &&
         !modal &&
         existing &&
         !existing.hidden &&
         (existing.matches(':hover') || existing.contains(document.activeElement)),
       independentControls =
-        dismantlingCampPanel(b) || campHeld || (b.kind === 'temple' && !!(activity & 0x8000)),
+        dismantlingCampPanel(b) || trainingHeld || (b.kind === 'temple' && !!(activity & 0x8000)),
       paintable =
         record &&
-        !((b.kind === 'camp' || b.kind === 'temple') && record.automatic && record.phase < 0)
+        !((b.kind === 'temple' || (b.kind === 'camp' && record.automatic)) && record.phase < 0)
     if (retained && !independentControls && (!paintable || modal)) continue
     // Other building types retain the existing visibility adapter.
     if (
