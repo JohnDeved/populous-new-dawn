@@ -42,7 +42,11 @@ target collection, native route reconstruction, and world-history inference.
   lock already belongs to slot2. Construction base0 prevents a Shaman fallback.
 - State-table mask8 is clear for states14/10 and set for17. No housing/patrol/order
   or marked-person alternative is supplied; only the designated state17 fallback
-  can be selected. The state14 initializer preserves0x2200 and the assignment field.
+  can be selected. The state10 negative control retains an entry owner so the
+  actual selection adapter sees state10; a precondition checks that owner/state
+  and the adapter's complete eligible set. An empty-path native-only state10 owner
+  would otherwise be projected as idle17. The state14 initializer preserves0x2200
+  and the assignment field.
 - No state23 person or Preacher/Shaman is present. The original assist prelude is
   therefore outside these supplied cases.
 - Nodev24.19.0 supports direct TypeScript imports. Dependencies resolve through a

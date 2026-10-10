@@ -4,7 +4,8 @@ import { createWorldState, addUnit } from '../app/world-state.ts'
 import { createLivePerson } from '../app/live-people.ts'
 import { createComputerQueue, computerPhase } from '../app/computer.ts'
 import { withCampaignTribe } from '../app/campaign-runtime.ts'
-import { stepComputerTasks } from '../app/computer-runtime.ts'
+import { computerSelectionWorld, stepComputerTasks } from '../app/computer-runtime.ts'
+import { selectComputerPeople } from '../app/computer-selection.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
 
 // Supplied controller-boundary cases, not a campaign witness or native execution.
@@ -65,8 +66,17 @@ test('phase3 completion admits prior, other-state14 and final-fallback people', 
   const c = fixture(), prior = person(c), other = person(c, { assignment: 99 }),
     fallback = person(c, { state: 17 }), nonselected = person(c, { state: 10 }),
     otherTribe = person(c, { team: 'blue' })
+  // Empty state10 native owners are omitted by the presentation selector. Keep
+  // this control visible through its actual retained entry owner instead of
+  // allowing the adapter to synthesize an idle state17 person from its path.
+  nonselected.u.entry = { person: nonselected.p }
   c.task.members = [prior.u.id]
   c.task.requested = 2
+  const selection = withCampaignTribe(c.w, tribe, () => computerSelectionWorld(c.w, tribe))
+  assert.equal(selection.sources.get(nonselected.u.id), nonselected.p)
+  assert.equal(selection.world.units.get(nonselected.u.id).state, 10)
+  assert.deepEqual(selectComputerPeople(selection.world, -1, -1, -1, 1, 0, 7, 100),
+    [fallback.u.id], 'fixture: only the designated fallback is eligible in the actual adapter')
   const controls = [nonselected, otherTribe].map(membership)
   visit(c)
   assert.equal(c.task.phase, 4, 'fixture: actual phase3 completion was reached')
