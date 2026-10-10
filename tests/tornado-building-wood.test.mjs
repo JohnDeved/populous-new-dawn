@@ -70,7 +70,7 @@ test('live Tornado releases one loose log at the damaged building before debris 
   assert.equal(buildingStage(building), 2)
   assert.equal(building.damageState.state, 1)
   assert.equal(building.progress, 2 / 3)
-  assert.equal(building.hp, beforeHp * 2 / 3)
+  assert.equal(building.hp, beforeHp * (2 / 3))
   assert.equal(building.damageState.attacker, 0)
   assert.equal(building.damageState.plan.attacker, 0)
   assert.equal(building.damageState.plan.repairDelay, rules.buildingRepairDelay)
@@ -80,6 +80,10 @@ test('live Tornado releases one loose log at the damaged building before debris 
 test('live Tornado reuses plan work and retires exhausted buildings through normal turn cleanup', () => {
   const { world, building } = setup()
   const plan = ensureBuildingDamage(building).plan
+  const occupied = Array.from(world.land.buildingIds.keys()).filter(
+    index => (world.land.buildingIds[index] & 1023) === building.id
+  )
+  assert.ok(occupied.length > 0, 'Live target must own terrain before retirement')
   for (const remaining of [200, 100, 0]) {
     const beforeId = world.nextId
     const beforeTrees = world.trees.length
@@ -102,6 +106,7 @@ test('live Tornado reuses plan work and retires exhausted buildings through norm
   world.effects = []
   tick(world, 1 / 12)
   assert.equal(world.buildings.includes(building), false)
+  assert.ok(occupied.every(index => (world.land.buildingIds[index] & 1023) !== building.id))
   assert.equal(Array.from(world.land.buildingIds).some(id => (id & 1023) === building.id), false)
 })
 
