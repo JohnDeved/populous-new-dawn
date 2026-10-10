@@ -69,8 +69,8 @@ export default async function mission3VaultPrayer({ page, openMission, output, s
       const world = window.testStore.getWorld(), heads = world.shrines.filter(s => s.kind === 'vault' && s.reward === 'temple')
       if (heads.length !== 1 || world.unlockedTemple || heads[0].uses !== 0) throw Error('Fresh authored M3 Vault required')
       const target = heads[0], points = vaultPoints(target)
-      installVaultPrayerWitness({ targetId: target.id, shamanId })
       const initialAnchor = readVaultPanelAnchor(window.testSceneRef.current, target.id)
+      installVaultPrayerWitness({ targetId: target.id, shamanId })
       return { target: { id: target.id, x: target.x, z: target.z }, points, initialAnchor,
         ground: browserPosition(points.leave), initial: window.vaultPrayer.status() }
     }, shamanId)
