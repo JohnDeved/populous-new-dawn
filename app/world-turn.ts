@@ -55,6 +55,7 @@ import {
   campaignTribe,
   cleanupDefeatedTribe,
   withCampaignTribe,
+  rebuildConstructionBuildings,
 } from './campaign-runtime.ts'
 import { campaignRules, stepForcedCampaignAttack } from './campaign-command-runtime.ts'
 import {
@@ -1761,6 +1762,8 @@ function stepTurn(w: World) {
   w.units = w.units.filter(u => u.hp > 0 || u.flight || u.native?.state === 44)
   removeMissingVehiclePassengers(w)
   w.buildings = w.buildings.filter(b => b.hp > 0)
+  // The next tribe visit observes this completed object turn's membership.
+  rebuildConstructionBuildings(w)
   w.selected = w.selected.filter(id => w.units.some(u => u.id === id))
   syncLivePersonCells(w)
   syncLandscapeObjects(w)
