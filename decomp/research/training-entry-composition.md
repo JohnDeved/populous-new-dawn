@@ -74,3 +74,7 @@ The [reviewed main-source observation](../../references/verification/training-ow
 ## Conditional startup conversion proof
 
 A [single original eight-Wildman fixture](../../references/verification/training-startup-phase-2026-10-10/README.md) confirms a replacement inherits the next class-allocation counter and waits until the next primary pass for its first person visit. It does not recover Mission 3's prior allocation ledger, justify a seed of 52, or establish a safe product repair.
+
+## Mission 3 source-only allocation ledger
+
+The [reviewed finite ledger](../../references/verification/mission3-allocation-ledger-2026-10-10/README.md) binds the 52 direct person records in loader order and identifies exact remaining nested constructor/postload, early-Hut and both-wave ordering boundaries. It does not treat 52 as a seed or justify a product repair. No original instructions were executed in this pass.
