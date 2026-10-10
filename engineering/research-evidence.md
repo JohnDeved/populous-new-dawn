@@ -13,8 +13,10 @@ A version-1 JSON packet contains:
   `adapterVersion`. Pass these independently from the current assignment. Do not
   obtain expected identity from an untrusted packet being verified.
 - `sources`: nonempty entries `{id, path, sha256}`. Paths are root-relative regular
-  files, using the portable bundle path guard; traversal, symlinks, sensitive paths
-  and files larger than 16 MiB are rejected. Same-path reads are batched; every
+  files, using the portable bundle path guard; traversal, final-component symlinks,
+  paths resolving outside the repository, sensitive paths and files larger than
+  16 MiB are rejected. Intermediate directory symlinks resolving inside the
+  repository are allowed. Same-path reads are batched; every
   declared hash is checked, including duplicate-path references.
 - `dossiers`: entries with unique `id`, `facts`, `inferences`, `unknowns`, and any
   other question/status/source-location metadata. All metadata is retained.
