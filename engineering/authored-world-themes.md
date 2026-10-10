@@ -51,7 +51,7 @@ Focused checks use verified stationary dependencies by read-only symlink, CPU4,
 private temporary paths and a 60-second bound. Full check/build/browser admission
 is serialized by the coordinator. No parity completion claim is made here.
 
-## Retained validation
+## Historical validation
 
 - Exact repaired pre-runtime caller RED: `3ce2517c4`, exit1; actual M2/M3/M10
   c fetch, M3/M5 bank2 geometry/picking and shadow ownership failures.
@@ -67,5 +67,8 @@ is serialized by the coordinator. No parity completion claim is made here.
   changes. Source-bound final quality, standard check/build and ordinary rendered
   evidence remain separate required review inputs.
 
-Ignored raw command receipts are retained under
-`work/orchestration/authored-world-themes/` on the implementation executor.
+The executor reset on 2026-10-10 removed the ignored raw command receipts.
+The outcomes above are historical reports, not fresh validation of the recovered
+checkout. The committed PR #316 portable RED bundle remains available. Fresh
+source-bound quality and focused checks must accompany the recovered source;
+standard check/build and ordinary rendered evidence remain outstanding.

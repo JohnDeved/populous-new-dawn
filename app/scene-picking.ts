@@ -56,7 +56,7 @@ export class ScenePicking {
     const resource =
         (shape.nativeResource as NativeModelResource | undefined) ??
         nativeModelResource(shape.nativeModel),
-      data = resource.data,
+      { data } = resource,
       { stage } = shape
     const origin = new THREE.Vector3().setFromMatrixPosition(mesh.matrixWorld)
     const nativeOrigin = s.view.relative(origin, (origin.y * 128) / 45)

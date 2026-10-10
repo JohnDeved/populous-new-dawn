@@ -95,7 +95,7 @@ function fixture(
   const token = {},
     calls = [],
     resource = createSharedAniblResource()
-  resource.transition(true)
+  resource.transition({ bank: 'p', modelAtlas: 'atlas-p' })
   const mainCanvas = {}
   const scene = {
     world,
@@ -179,6 +179,7 @@ function fixture(
     bridge: { measure: () => geometry },
     sprite(command) {
       const material = templeSpriteMaterial(
+        3,
         command.frame,
         command.palette,
         scene.templeResourceSnapshot
@@ -388,7 +389,7 @@ function fixture(
               templeResourceEpoch: resource.snapshot().epoch + Number(wrongWorldEpoch),
               templeTileOffset: { value: { x, y } },
             },
-            material: { map: atlas },
+            material: { map: { ...atlas, image: { ...image, src: '/original/atlas-p.png' } } },
           },
         ],
       })
@@ -432,6 +433,7 @@ test('M3 synchronous6/82, latched natural frames, p sprites and completed world 
   assert.equal(
     evidence.materialSamples[0].resolvedRgb,
     templeSpriteMaterial(
+      3,
       templeArt.frames[0].source,
       templeArt.tints[0].selector,
       f.scene.templeResourceSnapshot

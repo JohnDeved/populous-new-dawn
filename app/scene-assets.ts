@@ -121,7 +121,7 @@ export function nativeModel(
   environment: WorldEnvironment = compatibilityEnvironment
 ) {
   const resource = nativeModelResource(id, environment.objects.bank),
-    data = resource.data
+    { data } = resource
   const geo = geometry(`original-${resource.bank}-${id}-${stage}`, () => {
     const { p, uv } = modelStage(data, stage),
       g = new THREE.BufferGeometry()
@@ -210,7 +210,7 @@ export function updateModelLighting(object: THREE.Object3D) {
     resource =
       (object.userData.nativeResource as NativeModelResource | undefined) ??
       nativeModelResource(id),
-    data = resource.data,
+    { data } = resource,
     heading = object.parent?.userData.nativeHeading ?? 0,
     tilt = object.parent?.userData.nativeTilt ?? 0,
     roll = object.parent?.userData.nativeRoll ?? 0,
