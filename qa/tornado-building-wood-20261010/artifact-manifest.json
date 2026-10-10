@@ -1,5 +1,5 @@
 {
-  "status": "preparing-ordinary-attempt-running",
+  "status": "complete-all-results-independently-accepted-publication-review-pending",
   "entries": [
     {
       "original": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/tornado-format-7dddafa2.json",
@@ -1056,7 +1056,73 @@
       "path": "ordinary/tornado-ordinary-d37f8899-01-immediate-guards.json",
       "bytes": 948,
       "sha256": "89ea1a9401efee5318dc97c3c3308a5a9c6e6c7d858a445b06b8e4eb3f28e159"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-ordinary-d37f8899-01/receipt.json",
+      "path": "ordinary/receipt.json",
+      "bytes": 6283,
+      "sha256": "015726ed53a2eace0b9d053d527bfc53e2dc68203149972fd90dc367325af929"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-ordinary-d37f8899-01/mission2-tornado-building.json",
+      "path": "ordinary/mission2-tornado-building.json",
+      "bytes": 530550,
+      "sha256": "7dc386d6c85ba3ebb0034057bdb80d522d893b81374d913eb78353267fbc674e"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-ordinary-d37f8899-01/server.log",
+      "path": "ordinary/server.log",
+      "bytes": 691,
+      "sha256": "bc53f02f773307e50341934cd0b00904103c430f643abe7ce7ce5c29f1e8f492"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-ordinary-d37f8899-01/camp-before-tornado.png",
+      "path": "ordinary/camp-before-tornado.png",
+      "bytes": 1764615,
+      "sha256": "54196e562c6a761a4e1288712315677a300b59fcec25a2db30d035b7db2e7ac8"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-ordinary-d37f8899-01/camp-after-tornado.png",
+      "path": "ordinary/camp-after-tornado.png",
+      "bytes": 1770458,
+      "sha256": "ef7ba4beb44094ded22ebacf882abaad5025b6ccbefef00cee1560e05c3a190d"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-ordinary-d37f8899-01-command.json",
+      "path": "ordinary/tornado-ordinary-d37f8899-01-command.json",
+      "bytes": 67389,
+      "sha256": "9e6f9983a142ed867ef0e7523f2f0995e953c7bdf9cba148a56af98f6070509f"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-ordinary-d37f8899-01-command.json.artifacts/stdout.log",
+      "path": "ordinary/tornado-ordinary-d37f8899-01-command.json.artifacts/stdout.log",
+      "bytes": 402,
+      "sha256": "7ceb121bdb1a9a36cab3cb3d1a98c93643053bd47c417f2503cae4d22384a5e0"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-ordinary-d37f8899-01-command.json.artifacts/stderr.log",
+      "path": "ordinary/tornado-ordinary-d37f8899-01-command.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/workspace/scratch/69fd8163d94e/tornado-ordinary-result-review-d37f8899-20261010.json",
+      "path": "reviews/tornado-ordinary-result-review-d37f8899-20261010.json",
+      "bytes": 7244,
+      "sha256": "5c567a61e52738db12b1cab92fb6c6c564ab8d13ccfc5a2a5f80d804259591d2"
     }
   ],
-  "scope": "Exact copied completed gates and reviews; no profile, save, browser storage, held archive or original executable included."
+  "scope": "Exact copied completed gates and reviews; no profile, save, browser storage, held archive or original executable included.",
+  "derived": [
+    {
+      "path": "README.md",
+      "bytes": 5610,
+      "sha256": "288bd6dce3a1fbd29b0ecc917d72082ad82f7eea793892af28552be440e10d2a"
+    },
+    {
+      "path": "ordinary/result-summary.json",
+      "bytes": 3374,
+      "sha256": "a86d805f94e24a8b99714be7ac94031a69a45476eed04acce6c55149ace780bc"
+    }
+  ]
 }

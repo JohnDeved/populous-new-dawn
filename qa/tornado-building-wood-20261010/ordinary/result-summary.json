@@ -1,0 +1,126 @@
+{
+  "kind": "derived-ordinary-result-summary",
+  "status": "passed-independently-accepted",
+  "application": "92907866646e418747dd2bda44236d9949835bc5",
+  "checker": "d37f8899a583b10e58d2e0c257709fcd80ec4768",
+  "sourceFingerprint": "6fed3896808bfe83f7085bcabf2c71aa5a607e648ee3c82641d070ace6c855da",
+  "timing": {
+    "harnessStartedAt": "2026-10-10T04:59:42.975Z",
+    "harnessFinishedAt": "2026-10-10T05:04:35.948Z",
+    "outerStartedAt": "2026-10-10T04:59:42.640Z",
+    "outerFinishedAt": "2026-10-10T05:04:38.581Z",
+    "wrapperFinishedAt": "2026-10-10T05:04:39.531020+00:00"
+  },
+  "route": {
+    "bridgeBeganTurn": 556,
+    "bridgeCompletedTurn": 615,
+    "originalShamanAtHeadTurn": 972,
+    "earnedGiftsTurn": 2144,
+    "earnedStock": 3,
+    "earnedGiftCount": 3,
+    "approachArrivalTurn": 2948,
+    "castTurn": 3050,
+    "stockBefore": 3,
+    "stockAfter": 2,
+    "castTarget": {
+      "projectileId": 3602,
+      "point": {
+        "x": 68.8505762742567,
+        "z": 100.69501619002335
+      },
+      "target": {
+        "x": 69,
+        "z": 101
+      }
+    }
+  },
+  "impact": {
+    "turn": 3072,
+    "before": {
+      "id": 1,
+      "x": 68.921875,
+      "z": 100.703125,
+      "hp": 260,
+      "life": 800,
+      "work": 800,
+      "stage": 4,
+      "present": true,
+      "attacker": null
+    },
+    "after": {
+      "id": 1,
+      "x": 68.921875,
+      "z": 100.703125,
+      "hp": 227.5,
+      "life": 800,
+      "work": 700,
+      "stage": 3,
+      "present": true,
+      "attacker": 0
+    },
+    "tornado": {
+      "id": 3626,
+      "x": 19767,
+      "y": 37507,
+      "phase": 0,
+      "remaining": 186,
+      "tribe": 0
+    },
+    "log": {
+      "id": 3627,
+      "x": 68.921875,
+      "z": 100.703125,
+      "model": 11,
+      "logs": 1
+    }
+  },
+  "observer": {
+    "visits": 85,
+    "terminal": {
+      "reason": "impact",
+      "turn": 3072
+    },
+    "restored": true,
+    "errors": [],
+    "cleanupErrors": []
+  },
+  "profileCleanup": {
+    "cleanupVerified": true,
+    "continuationVerified": true,
+    "leaseReleased": true,
+    "browserOwnershipMarkersAbsent": true,
+    "checkpointAtEnd": null
+  },
+  "readiness": {
+    "timeoutMs": 60000,
+    "attempts": 5,
+    "first": {
+      "elapsedMs": 13318,
+      "pending": false,
+      "error": {
+        "name": "TimeoutError",
+        "message": "The operation was aborted due to timeout",
+        "cause": ""
+      }
+    },
+    "last": {
+      "elapsedMs": 19078,
+      "pending": false,
+      "status": 200,
+      "ok": true
+    },
+    "elapsedMs": 19079,
+    "listening": true,
+    "ready": true
+  },
+  "renderedFrames": "Natural public paused frames before the cast and after the accepted impact. The after image visibly shows Tornado and Camp damage; exact work/log identity is proven by synchronous observer records, not pixel counting.",
+  "limits": [
+    "One earned ordinary Camp hit only; no victory, Save/Load, native execution, original save interoperability, pixel parity or hardware performance claim",
+    "Production loose-wood adapter always succeeds; injected failure controls remain component evidence",
+    "First failed transform exit124 and cleanupUNKNOWN preserved separately"
+  ],
+  "independentReview": {
+    "path": "reviews/tornado-ordinary-result-review-d37f8899-20261010.json",
+    "sha256": "5c567a61e52738db12b1cab92fb6c6c564ab8d13ccfc5a2a5f80d804259591d2"
+  }
+}

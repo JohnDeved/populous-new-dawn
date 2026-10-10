@@ -1,0 +1,181 @@
+{
+  "verdict": "ACCEPT",
+  "scope": "One earned ordinary Mission2 Tornado impact on existing Green Camp; exact combined product929/QA d37",
+  "reviewedAt": "2026-10-10T05:08:02.265962+00:00",
+  "product": "92907866646e418747dd2bda44236d9949835bc5",
+  "qaSource": {
+    "root": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010",
+    "commit": "d37f8899a583b10e58d2e0c257709fcd80ec4768",
+    "tree": "3594b2b9e7415fd2cde66a48a05671ea5c0d5194",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "6fed3896808bfe83f7085bcabf2c71aa5a607e648ee3c82641d070ace6c855da"
+  },
+  "bindingReviewSha256": "223a3f71c4472ae4b6d12ff1c4ee7a468f9b0182a6faa3b0b31df80de0de0f71",
+  "standardReviewSha256": "583c51c58daa57c4ab0fd217d76fd2e2d0af5cb2cbd5e1bdd64c5f39e5ab3bd6",
+  "artifacts": {
+    "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-ordinary-d37f8899-01/receipt.json": {
+      "sha256": "015726ed53a2eace0b9d053d527bfc53e2dc68203149972fd90dc367325af929",
+      "bytes": 6283
+    },
+    "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-ordinary-d37f8899-01/mission2-tornado-building.json": {
+      "sha256": "7dc386d6c85ba3ebb0034057bdb80d522d893b81374d913eb78353267fbc674e",
+      "bytes": 530550
+    },
+    "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-ordinary-d37f8899-01-command.json": {
+      "sha256": "9e6f9983a142ed867ef0e7523f2f0995e953c7bdf9cba148a56af98f6070509f",
+      "bytes": 67389
+    },
+    "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-ordinary-d37f8899-01/server.log": {
+      "sha256": "bc53f02f773307e50341934cd0b00904103c430f643abe7ce7ce5c29f1e8f492",
+      "bytes": 691
+    },
+    "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/local-render-profiles/tornado-building-d37f8899-01/populous-profile.json": {
+      "sha256": "270d63077a970ea70abc1b888a13b3c19d7cd938e7b37a3f163f62e0cd39fcd5",
+      "bytes": 2190
+    },
+    "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-ordinary-prelaunch-d37f8899-final.json": {
+      "sha256": "399c6ae5d0f76f0feb606c09394c55b8cd6c9147af531715f26f665128b705fa",
+      "bytes": 62365
+    }
+  },
+  "images": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-ordinary-d37f8899-01/camp-before-tornado.png",
+      "sha256": "54196e562c6a761a4e1288712315677a300b59fcec25a2db30d035b7db2e7ac8",
+      "bytes": 1764615,
+      "dimensions": [
+        1440,
+        1000
+      ]
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/tornado-class2-ordinary-20261010/work/orchestration/tornado-ordinary-d37f8899-01/camp-after-tornado.png",
+      "sha256": "ef7ba4beb44094ded22ebacf882abaad5025b6ccbefef00cee1560e05c3a190d",
+      "bytes": 1770458,
+      "dimensions": [
+        1440,
+        1000
+      ]
+    }
+  ],
+  "earnedRoute": {
+    "initialStock": 0,
+    "bridgeUses": 1,
+    "bridgeCompleteTurn": 615,
+    "headUses": 3,
+    "earnedStock": 3,
+    "earnedTurn": 2144,
+    "worshipBraves": [
+      173,
+      176,
+      275,
+      1247,
+      3506
+    ]
+  },
+  "cast": {
+    "turn": 3050,
+    "caster": 54,
+    "stockBefore": 3,
+    "stockAfter": 2,
+    "projectileId": 3602,
+    "actualPick": {
+      "x": 68.8505762742567,
+      "z": 100.69501619002335
+    },
+    "target": {
+      "x": 69,
+      "z": 101
+    }
+  },
+  "observation": {
+    "initialTurn": 2987,
+    "visits": 85,
+    "terminal": {
+      "reason": "impact",
+      "turn": 3072
+    },
+    "impact": {
+      "turn": 3072,
+      "before": {
+        "id": 1,
+        "x": 68.921875,
+        "z": 100.703125,
+        "hp": 260,
+        "life": 800,
+        "work": 800,
+        "stage": 4,
+        "present": true,
+        "attacker": null
+      },
+      "after": {
+        "id": 1,
+        "x": 68.921875,
+        "z": 100.703125,
+        "hp": 227.5,
+        "life": 800,
+        "work": 700,
+        "stage": 3,
+        "present": true,
+        "attacker": 0
+      },
+      "tornado": {
+        "id": 3626,
+        "x": 19767,
+        "y": 37507,
+        "phase": 0,
+        "remaining": 186,
+        "tribe": 0
+      },
+      "log": {
+        "id": 3627,
+        "x": 68.921875,
+        "z": 100.703125,
+        "model": 11,
+        "logs": 1
+      }
+    },
+    "restored": true
+  },
+  "cleanup": {
+    "harnessVerified": true,
+    "profileMarkerMatchesReceipt": true,
+    "leaseAndBrowserOwnershipMarkersAbsent": true,
+    "checkpointAtStart": null,
+    "checkpointAtEnd": null,
+    "errors": [],
+    "warnings": [
+      "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+      "[.WebGL-0x2fa40019e800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+      "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+      "[.WebGL-0x2fa40019e800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+      "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+      "[.WebGL-0x2fa40019e800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+      "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+      "[.WebGL-0x2fa40019e800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+    ]
+  },
+  "timing": {
+    "harnessStartedAt": "2026-10-10T04:59:42.975Z",
+    "harnessFinishedAt": "2026-10-10T05:04:35.948Z",
+    "outerStartedAt": "2026-10-10T04:59:42.640Z",
+    "outerFinishedAt": "2026-10-10T05:04:38.581Z",
+    "wrapperCollectedAt": "2026-10-10T05:04:39.531Z"
+  },
+  "checks": [
+    "Exact outer admitted argv and all164 input pins; clean source and runtime/scenario before/after correspondence",
+    "Actual trusted public worship and cast recipients, same-turn World/caster/stock transition and delivered terrain-pick quantization",
+    "85 continuous synchronous visits, unique projectile then Blue Tornado, no competing writers, exactly100 work and one exact-position model11 log",
+    "Atomic impact terminal and passive callback restoration, clean owned browser/profile/server completion",
+    "Both original1440x1000 PNGs visually inspected: comparable Camp view, visible roof/stage loss and live Tornado"
+  ],
+  "limits": [
+    "Camp remains alive at700 work; no ordinary retirement/exhaustion claim. Those boundaries belong to supplied focused caller evidence.",
+    "Pause card partly covers foreground. Exact log identity/work/position is established by synchronous scalar evidence, not pixel-only counting.",
+    "No Save/Load in this fresh episode; profile cleanup provenance does not claim a saved checkpoint.",
+    "Initial failed transform cleanup remains UNKNOWN; no native execution, pixel parity or hardware-performance claim.",
+    "Scoped Oxlint retains15 inherited findings."
+  ]
+}

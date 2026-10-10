@@ -1,8 +1,8 @@
 # Tornado building timber evidence
 
-This packet preserves the source, focused regressions, standard gates and ordinary
-QA checks for PR #305. The ordinary Mission 2 attempt is still running; no ordinary
-gameplay result is claimed by this preparation checkpoint.
+This packet preserves the source, focused regressions, standard gates and accepted
+ordinary Mission 2 witness for PR #305. One fresh earned Tornado cast reached the
+actual building callback and released its matching log.
 
 ## Source and application identity
 
@@ -46,6 +46,37 @@ receipts and their stdout/stderr files. `prior-standard/` preserves the earlier
 4c65 application results with their original identity. `reviews/` contains the
 independent source, result and exact ordinary launch binding verdicts.
 
+## Ordinary Mission 2 result
+
+Fresh public play earned shrine 55's bridge, completed it at turn 615, brought the
+original Blue Shaman to head 56, and earned three Tornado gifts at turn 2144 using
+actual Brave worshippers. The public HUD cast at turn 3050 spent one gift and
+produced projectile 3602, followed by owned Tornado effect 3626.
+
+At turn **3072**, the current Green Camp 1 changed **stage 4 to 3** and **plan work
+800 to 700**. Exactly one matching new log, **3627 / model 11 / one log**, appeared
+at its current position `(68.921875, 100.703125)`. The Camp survived. The passive
+observer recorded 85 consecutive real turn visits, found no competing writer,
+detached at that first accepted impact and restored both callbacks without error.
+
+The inner harness finished at `05:04:35.948Z`; the outer command receipt finished
+at `05:04:38.581Z`, with exit zero. Its profile cleanup and continuation checks
+passed, the lease was released, and no checkpoint was created. The complete raw
+scenario, delivered pointer receipt, turn records and cleanup are in `ordinary/`.
+Independent result review is
+`reviews/tornado-ordinary-result-review-d37f8899-20261010.json`.
+
+Before the earned cast, paused through the public UI:
+
+![Green Camp before the earned Tornado cast](ordinary/camp-before-tornado.png)
+
+After the accepted impact, showing the live Tornado and damaged Camp:
+
+![Tornado and damaged Green Camp after the earned cast](ordinary/camp-after-tornado.png)
+
+The pause card partly covers the ground. Exact work and log identity are proved
+by the synchronous scalar records, not by counting pixels in these natural frames.
+
 ## Preserved failures and limits
 
 `product-focused/` retains the expected red tests, the initial formatting failure
@@ -57,13 +88,10 @@ separate receipts.
 a server. Worker cleanup is **UNKNOWN**. Its task paths remain quarantined. The
 successful fresh attempts do not retroactively prove cleanup of that first attempt.
 
-The ordinary route uses fresh Mission 2, the original Blue Shaman, shrine 55's
-earned bridge, two or more actual Brave worshippers at head 56, and an earned
-Tornado cast through the public HUD and delivered scene picker. The intended
-witness is one eligible current Green Camp hit with a 100-work decrement and its
-matching new model-11 log, observed on the real turn callbacks without another
-damage or timber writer. The observer detaches on its first accepted impact,
-error or 320-turn bound and preserves cleanup failures. No victory, Save/Load,
+The ordinary route proves one eligible current Green Camp hit. The observer stops
+at its first accepted impact, error or 320-turn bound and preserves cleanup
+failures. Exhausted-work removal and supplied allocation failure remain component
+coverage. No victory, Save/Load,
 native execution, original save interoperability, pixel parity or hardware
 performance claim follows from this packet.
 
