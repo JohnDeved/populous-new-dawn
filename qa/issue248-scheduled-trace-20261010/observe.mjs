@@ -9,7 +9,7 @@ import { pathToFileURL, fileURLToPath } from 'node:url'
 
 // One authored world, no scenario edits, no restore, no search over seeds.
 const root = '/workspace/scratch/69fd8163d94e/issue248-scheduled-trace-20261010'
-const output = '/workspace/scratch/69fd8163d94e/issue248-scheduled-trace-packet-20261010/phase3-run'
+const output = '/workspace/scratch/69fd8163d94e/issue248-scheduled-trace-packet-20261010/phase3-capture-run'
 const base = '4754e12d3590bde18656416514871b033de164be'
 const qaPrefix = 'qa/issue248-scheduled-trace-20261010/'
 const limits = { worlds: 1, turns: 22064, wallMilliseconds: 180000, phase3Completions: 1 }
@@ -33,7 +33,7 @@ assert.ok(changedFromBase.every(path => path.startsWith(qaPrefix)), 'Only the re
 assert.equal(git('diff', '--name-only', base, '--', 'app'), '')
 assert.equal(initial.status, '')
 assert.equal(fileURLToPath(import.meta.url), `${root}/${qaPrefix}observe.mjs`)
-initial.qaFiles = Object.fromEntries(['observe.mjs', 'proposal.md', 'purity.test.mjs'].map(name => {
+initial.qaFiles = Object.fromEntries(['observe.mjs', 'proposal.md', 'purity.test.mjs', 'project-phase3.mjs'].map(name => {
   const path = `${qaPrefix}${name}`, bytes = readFileSync(`${root}/${path}`)
   assert.equal(hash(bytes), hash(execFileSync('git', ['-C', root, 'show', `HEAD:${path}`])),
     `Executed QA bytes must match the pushed source commit: ${name}`)
@@ -51,11 +51,11 @@ assert.ok(process.execArgv.includes('--experimental-test-module-mocks'))
 assert.ok(!existsSync(`${output}.jsonl`), 'Never overwrite a previous attempt')
 const started = performance.now()
 const events = []
-let writtenBytes = 0
+let writtenBytes = 0, captureBytes = 0
 const emit = event => {
   const row = { sequence: events.length, ...event }
   const line = JSON.stringify(row) + '\n'
-  assert.ok(writtenBytes + Buffer.byteLength(line) <= byteLimits.jsonl, 'JSONL byte bound')
+  assert.ok(writtenBytes + captureBytes + Buffer.byteLength(line) <= byteLimits.jsonl, 'JSONL byte bound')
   events.push(row)
   appendFileSync(`${output}.jsonl`, line)
   writtenBytes += Buffer.byteLength(line)
@@ -103,68 +103,38 @@ function assertNeutral(scope, beforeBytes, afterBytes) {
   }
   assert.equal(hash(afterBytes), hash(beforeBytes), `${scope} changed during observation`)
 }
-const personFields = ['id', 'class', 'model', 'tribe', 'state', 'previousState',
-  'substate', 'flags2', 'flags3', 'flags4', 'computerAssignment', 'assignment',
-  'vehicle', 'x', 'y', 'immediateCommand', 'commandCursor']
-const pick = (object, keys) => Object.fromEntries(keys.map(key => [key, object?.[key] ?? null]))
-const aliases = unit => ({ flight: unit.flight, fight: unit.fight?.motion,
-  native: unit.native, entry: unit.entry?.person, builder: unit.builder?.person,
-  resident: unit.resident?.person })
-function registeredPeople(observed, tribe, task) {
-  // The registry is authoritative. No hp, task.members, model or alias eligibility filter.
-  return [...observed.objectCells.objects.entries()]
-    .filter(([, person]) => person.class === 1 && person.tribe === tribe)
-    .map(([registryKey, person]) => ({ registryKey, person: pick(person, personFields),
-      absentFields: personFields.filter(key => !Object.hasOwn(person, key)),
-      listedInTask: task.members.includes(person.id),
-      registryKeyMatchesPersonId: registryKey === person.id,
-      units: observed.units.flatMap((unit, unitIndex) => {
-        const owners = Object.entries(aliases(unit)).filter(([, owner]) => owner)
-        if (unit.id !== registryKey && unit.id !== person.id &&
-          !owners.some(([, owner]) => owner === person)) return []
-        return [{ unitIndex, ...pick(unit, ['id', 'team', 'kind', 'hp', 'inside']),
-          nativeFlags7f: Object.hasOwn(unit, 'nativeFlags7f') ? unit.nativeFlags7f : null,
-          hasNativeFlags7f: Object.hasOwn(unit, 'nativeFlags7f'),
-          authoritativeAliases: owners.filter(([, owner]) => owner === person).map(([name]) => name),
-          aliases: owners.map(([name, owner]) => ({ name, isRegisteredPerson: owner === person,
-            person: pick(owner, personFields) })) }]
-      }) }))
-}
 function phase3Outcome(before, after) {
   if (before.phase !== 3) return null
   if (after.phase === 4 && after.selected > 0 && (after.flags & 1)) return 'completed-positive'
   if (!(after.flags & 1)) return 'retired-without-admission'
   return after.phase === 3 ? null : 'unexpected-phase-exit'
 }
-function snapshot(index) {
+function snapshot(index, capture = false) {
   const liveBefore = serialize(world)
   assert.ok(liveBefore.length <= byteLimits.world, 'Serialized world byte bound')
-  const observed = structuredClone(world), detachedBefore = serialize(observed)
+  let result
   try {
-    const task = observed.campaignAIs[2].tasks[index]
-    const people = registeredPeople(observed, 2, task)
-    return { turn: observed.turn, index, task: structuredClone(task),
-      randomState: observed.randomState, cosmeticRandom: observed.cosmeticRandom.randomState,
-      queue: { cursor: observed.campaignAIs[2].cursor, flags: observed.campaignAIs[2].flags,
-        selectionOwner: observed.campaignAIs[2].selectionOwner },
-      registeredPeople: people,
-      state14RegistryKeys: people.filter(row => row.person.state === 14).map(row => row.registryKey),
-      unlistedState14RegistryKeys: people.filter(row => row.person.state === 14 && !row.listedInTask)
-        .map(row => row.registryKey),
-      unmatchedAliasRegistryKeys: people.filter(row => !row.units.some(unit => unit.authoritativeAliases.length))
-        .map(row => row.registryKey),
-      taskMemberRegistry: task.members.map(id => ({ id,
-        registered: pick(observed.objectCells.objects.get(id), ['id', 'class', 'tribe', 'model', 'state']),
-        present: observed.objectCells.objects.has(id) })),
-      nativeFields: { task31: null, nativePersonChainOrder: null, task26: null, task08VisitCounter: null,
-        reason: 'Port registry order and task fields do not establish the missing native projections' } }
+    const task = world.campaignAIs[2].tasks[index]
+    result = { turn: world.turn, index, task: structuredClone(task),
+      randomState: world.randomState, cosmeticRandom: world.cosmeticRandom.randomState,
+      queue: { cursor: world.campaignAIs[2].cursor, flags: world.campaignAIs[2].flags,
+        selectionOwner: world.campaignAIs[2].selectionOwner } }
   } catch (error) {
     emit({ kind: 'observer-helper-error', name: error.name, message: error.message, stack: error.stack })
     throw error
   } finally {
     assertNeutral('live world', liveBefore, serialize(world))
-    assertNeutral('detached projection input', detachedBefore, serialize(observed))
   }
+  if (capture) {
+    assert.equal(captureBytes, 0, 'Only the decisive completion world is captured')
+    assert.ok(writtenBytes + liveBefore.length <= byteLimits.jsonl, 'Combined capture/JSONL byte bound')
+    const path = `${output}.completion.bin`
+    writeFileSync(path, liveBefore, { flag: 'wx' })
+    captureBytes = liveBefore.length
+    result.capture = { path, sha256: hash(liveBefore), bytes: liveBefore.length,
+      boundary: 'after the complete real phase3 action batch, before later gameplay' }
+  }
+  return result
 }
 const computerMock = mock.module(url('app/computer.ts'), { cache: true, namedExports: {
   ...actualComputer,
@@ -209,7 +179,7 @@ try {
     if (w !== world || tribe !== 2) return
     for (const event of pending) {
       assert.equal(event.afterDispatch, undefined, 'Exactly one dispatcher completion per visit')
-      event.afterDispatch = snapshot(event.beforeController.index)
+      event.afterDispatch = snapshot(event.beforeController.index, event.outcome === 'completed-positive')
       assert.equal(event.afterDispatch.turn, event.beforeController.turn)
       emit(event)
       visits++
@@ -254,7 +224,7 @@ try {
       livingCounts: Object.fromEntries(['blue', 'yellow', 'green', 'wild'].map(team =>
         [team, world.units.filter(unit => unit.team === team && unit.hp > 0).length])) } : null,
     trackedDiff, status: git('status', '--short'),
-    claim: 'Port-only full registered state14 input at phase3 completion; no admission writes, specialist maintenance or native parity proved' }
+    claim: 'Port-only raw phase3 completion capture; full cohort requires separate hash-verified offline projection; no native parity proved' }
   emit(result)
   const summary = JSON.stringify(result, null, 2) + '\n'
   assert.ok(Buffer.byteLength(summary) <= byteLimits.summary, 'Summary byte bound')

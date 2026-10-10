@@ -1,128 +1,107 @@
-# One scheduled Mission 6 phase3 admission-input observation
+# One phase3 raw completion capture and offline membership projection
 
-Status: source preparation and separately granted controlled qualification only.
-No authored mission execution is authorized. Independent prelaunch review and a
-separate coordinator resource grant are required before any mission execution. This is a new input question, not a retry of the
-failed phase16 trace and not an admission implementation.
+Exact source preparation; no replay authorized by this document. The existing
+phase3 run atbe6e8df2 remains FAILED at6479, before its first controller delegation,
+with zero accepted visits or completion cohort. Its complete12-byte detached-wire
+mismatch is two integer/double encodings of equal coordinates103/111; all other
+bytes match. This is consistent with [Node24.19's documented noncanonical output](https://github.com/nodejs/node/blob/v24.19.0/doc/api/v8.md#serialization-api),
+not a retrospective pass. All prior failures, captures and receipts stay local.
 
-## Question and exact boundary
+## Question and decisive boundary
 
-What is the entire current registered class-1 tribe-2 state14 population when the
-first naturally allocated Chumara type20 task completes phase3? Capture all same-
-tribe registered people, then derive the state14 set. Do not filter by task.members,
-hp, model, old assignment, flags or whether an expected unit alias matches.
+Capture the first naturally completed Chumara phase3 task, then determine its entire
+registered class1/tribe2 state14 population offline. Include unlisted, dead,
+unmatched and stale-alias people, with model/state/raw assignment and authoritative
+ordinary identity. No hp, task.members, model, flag or old-assignment eligibility
+filter is allowed. Registry Map order is not recovered native chain order.
 
-The [accepted native ownership source](https://github.com/JohnDeved/populous-new-dawn/blob/15470e43c06cebb5bc03db4707b449a6e69f9c1b/decomp/research/raid-phase16-target-persistence.md)
-places admission after positive final selection, across the full tribe state14
-chain. Current port production does not apply this assignment operation. The
-controller's selection callback returns IDs before the runtime processes its
-`select` actions and `changeLivePersonState(...,14)`. Therefore four stages remain
-separate: before controller; immediately after each actual consumed selection
-callback; after controller return; immediately after the real dispatcher has
-applied the entire action batch. Only the last stage is the decisive cohort.
-No intervening gameplay step precedes that final snapshot. The enclosing tick
-then returns normally, and the loop stops without another tick; its terminal
-world/AI may reflect the remainder of that tick and is not substituted for the
-captured dispatcher boundary.
+The [accepted native ownership contract](https://github.com/JohnDeved/populous-new-dawn/blob/15470e43c06cebb5bc03db4707b449a6e69f9c1b/decomp/research/raid-phase16-target-persistence.md)
+places full state14 admission after positive final selection. Current port assigns
+no such ownership. Callback return and controller return precede the runtime's
+actual select-action/state14 batch. Preserve their separate scalar task/callback/
+action metadata. The only persisted full-world capture occurs immediately after
+the complete real final dispatcher batch, before later gameplay. It is accepted
+only when entry phase3 has naturally reached active phase4 with selected>0.
+The enclosing tick returns normally; later terminal state is not the cohort input.
 
-Observe the first allocation only, including its incomplete quota visits. A
-positive completion requires actual entry phase3 followed by phase4, selected>0
-and active task. Empty retirement and unexpected phase exits stop as misses.
-A returned selected ID is not automatically a state14 member. Registry order is
-port Map iteration order, not recovered native tribe-chain order.
+## Source and minimal delta
 
-## Source, scope and preserved history
+Production remains main4754e12d3590bde18656416514871b033de164be in owned worktree
+`/workspace/scratch/69fd8163d94e/issue248-scheduled-trace-20261010`, branch
+`research/issue248-phase3-admission-20261010`. Only the exact QA directory changes.
+PR30932ad31ce remains separate expected-red; no held PR292 source is imported.
+The old phase16 and failed phase3 sources/results remain immutable at published
+commits485ed5c3,52766b75 andbe6e8df2. No previous test result is transferred.
 
-Production base remains main `4754e12d3590bde18656416514871b033de164be` in the owned
-worktree `/workspace/scratch/69fd8163d94e/issue248-scheduled-trace-20261010`, branch
-`research/issue248-phase3-admission-20261010`. The observer is a bounded delta from
-the accepted runner at `485ed5c3aeae59ae2756685786555c2bbfc75d13`, after its compact
-publication `52766b75355edd4668941e9c5bce297a929fc4bb`. Only this QA directory may
-differ from production; app, tests and package inputs remain unchanged. PR309
-`32ad31ce01d0a95a0da2cbd002e96fa1d7f0b8ff` remains separately expected-red and is
-not imported. No held PR292 code is used.
+Reuse the source pin, exact-once allocator/controller and declaration-only runtime
+wrapper, original function bodies, first authored createWorld(6), default seed,
+both opponents and tick(1/12). No injections, checkpoints, state/AI edits, extra
+callbacks, native/browser execution or scenario search.
 
-The old phase16 runner, tests, proposal, inventory and results remain immutable
-at their published source commits. All local failed attempts and buffers remain
-untouched. The old overall run remains FAILED; its accepted dispatch7637 and
-three-visit prefix are not a phase3 input witness. No prior purity-test acceptance
-is transferred to the changed observer.
+During the live run, snapshot copies only task/queue/RNG metadata. The existing
+complete live-world V8 byte guard and original-error/finally rejection behavior
+remain unchanged. A mismatch still fails with the bounded before/after pair.
+At the positive dispatcher boundary, save the already-created guarded before
+buffer once with wx and its path/size/hash. No detached clone or registry/helper
+projection occurs during gameplay. There is no canonicalization, exception for
+particular fields or new semantic comparator. The live gate remains conservative
+and may itself reject differing encodings of equal values.
 
-## Minimal observer and contract
+After terminal exit0 and passed source/input guards, run project-phase3.mjs
+separately on immutable, hash-verified files. It checks the receipt's hashes for
+JSONL/summary/capture, the source-pinned helper hash, one positive completion,
+turn/task correspondence, and input hashes again before writing its result.
+It imports only Node built-ins and projects ordinary registry/person/Unit data.
+Unsupported membership structures, non-data fields or non-integer membership
+values fail explicitly instead of being silently coerced. Known raw7f presence
+stays separate from absence. Ordinary alias identity is evaluated inside the one
+decoded graph; original typed backing and cross-capture pointer identity are not
+claimed. See purity-inventory.md for the finite read surface and seven contracts.
 
-Reuse the source pin, exactly-once allocator/controller wrappers, declaration-only
-runtime wrapper, original-body check, first authored `createWorld(6)` and
-`tick(world,1/12)` loop. Both authored opponents stay active; use the default seed.
-There are no injected entities/tasks, state or AI edits, checkpoints, native or
-browser execution, alternate scenarios or searches. There is no extra production
-query: remove defense/terrain/collector/order helpers and their private export.
-Only actual `select`/`selectShaman` callback invocations are delegated once and
-logged, with the exact returned actions preserved.
+No task31, native route/counter or native-chain projection is invented. Full
+specialist maintenance, universal activation, production repair, native parity and
+Mission1–3 impact remain outside this observation. A bounded ordinary cohort would
+not by itself authorize an admission patch.
 
-Each snapshot clones the world once and reads only detached retained properties.
-Enumerate the registry directly, preserving every class-1 tribe-2 row even when
-its unit is dead, missing, unlisted, has another team, has an ID/key mismatch, or
-has no matching alias. Record raw person model/state/assignment/flags, missing
-fields, registry key, task inclusion and each matching unit's hp/kind/team/inside.
-Match unit aliases by object identity (flight, fight.motion, native, entry.person,
-builder.person, resident.person); retain both matching and stale aliases. Unit
-matching accepts registry key, person ID or exact alias identity so mismatches are
-diagnostics rather than dropped rows. Raw nativeFlags7f presence and value remain
-separate. No owner precedence or native upper-bit value is invented.
+## Fixed budgets and commands
 
-The strict whole-live-world and whole-detached-world V8 byte guards are unchanged,
-including finally guards, original helper error retention and bounded local
-before/after rejection buffers. The prior typed-view uncertainty is not exempted;
-a new byte mismatch fails this attempt. See `purity-inventory.md` for the finite
-read surface. Five dependency-free controlled tests are prepared in `purity.test.mjs`
-with status recorded in the separate source-bound qualification receipt. They cover
-complete cohort/identity retention, exact wrapper/action-batch timing, mutation plus
-exception, live mutation, and oversize refusal.
-They cannot prove a scheduled game path or resolve the historical byte mismatch.
+One fresh world, at most22,064 turns and180,000ms internal including imports;
+CPU4; external190s timeout plus5s SIGKILL grace. Stop after the first actual positive
+phase3 completion tick, empty retirement, unexpected phase exit, exception or
+bound. No automatic retry. Capture misses/terminal states honestly.
 
-Missing task+0x31, route+0x26, native visit counter and native tribe-chain ordering
-remain null/unbound. This observation cannot qualify universal admission or
-specialist maintenance, prove original/native parity, or establish Mission1–3
-impact. A Warrior-only current cohort, if observed, would be one bounded input;
-it would not authorize a Warrior-only activation patch.
+Each serialized world is at most16MiB. Accepted capture, JSONL and offline cohort
+share32MiB; the first rejected before/after pair has a separate32MiB allowance.
+Summary/stdout/stderr/receipts remain at most1MiB each (receipt allowance shared
+across mission/offline collection), total68MiB. Raw captures remain local.
+Use fresh phase3-capture-run.*, phase3-capture-command-receipt.json, TMP/cache,
+stdout/stderr and source-bound receipts; any existing run output causes refusal.
+The offline projection does not start until terminal mission receipt exists.
 
-## Fixed bounds and prospective execution
+Before any mission replay: independent exact-source prelaunch ACCEPT, passing
+controlled qualification, normal Git push/readback, coordinator's fresh one-run
+CPU4 grant and immediate source/input/dependency/fresh-output guards. The existing
+stationary dependency symlink is read-only; canonical device27/inode538212 must
+match. No installs/moves/copies, dependency writes, broad standards or extra runs.
 
-Exactly one fresh world; at most22,064 turns and180,000ms internal wall time,
-including imports; CPU4; external190s timeout with SIGTERM and5s SIGKILL grace.
-Stop on the first completed phase3 dispatcher batch, first retirement/unexpected
-phase exit, any guard/error, or either bound. No automatic retry or second case.
-Capture an exact terminal AI/queue where in-process termination permits it;
-outer/import failure supports only its last recorded boundary.
-
-Retain the previous byte caps: JSONL32MiB, each world buffer16MiB (pair32MiB),
-summary1MiB; the prospective outer receipt caps stdout1MiB and stderr1MiB, total
-raw evidence67MiB plus a separately bounded1MiB command receipt. Use fresh
-`phase3-run.*`, TMP/cache and a source-bound outer receipt; refusal if raw output
-already exists. No raw-world publication. The committed observer, proposal and
-contract-test bytes must equal HEAD and the independently reviewed source pin.
-
-Before mission execution, freeze/review the source, qualify the controlled contract
-under its own resource grant, push/read back if authorized, and receive a new
-mission run grant. Immediate source, package/dependency and output-freshness guards apply.
-Canonical dependencies remain stationary at device27/inode538212, accessed only
-through the already-owned read-only symlink if the coordinator admits that use.
-No move, copy, install, package/cache writes outside task-local paths, broad
-check/build, authentication changes or unrelated GitHub writes.
-
-Controlled qualification command, status in its fresh source-bound receipt:
+Controlled qualification (each command bounded to20s on CPU4, fresh receipts):
 
 ```
-taskset -c 4 timeout --signal=TERM --kill-after=2s 20s node --test qa/issue248-scheduled-trace-20261010/purity.test.mjs
+node --check qa/issue248-scheduled-trace-20261010/observe.mjs
+node --check qa/issue248-scheduled-trace-20261010/project-phase3.mjs
+node --check qa/issue248-scheduled-trace-20261010/purity.test.mjs
+node qa/issue248-scheduled-trace-20261010/observe.mjs --verify-source-only
+node --test qa/issue248-scheduled-trace-20261010/purity.test.mjs
 ```
 
-Prospective mission command, not executed:
+Prospective mission command (not executed):
 
 ```
 taskset -c 4 timeout --signal=TERM --kill-after=5s 190s node --experimental-test-module-mocks qa/issue248-scheduled-trace-20261010/observe.mjs
 ```
 
-Syntax/source-only checks and the five controlled contracts are authorized on CPU4
-with fresh receipts and commands bounded to60s or less. Their exact statuses belong
-in those receipts. No production/runtime/dependency execution is part of preparing
-this proposal; broad standard checks are not applicable to this observational QA delta.
+Prospective offline command, only after successful terminal capture (not executed):
+
+```
+taskset -c 4 timeout --signal=TERM --kill-after=2s 20s node qa/issue248-scheduled-trace-20261010/project-phase3.mjs
+```
