@@ -78,3 +78,7 @@ A [single original eight-Wildman fixture](../../references/verification/training
 ## Mission 3 source-only allocation ledger
 
 The [reviewed finite ledger](../../references/verification/mission3-allocation-ledger-2026-10-10/README.md) binds the 52 direct person records in loader order and identifies exact remaining nested constructor/postload, early-Hut and both-wave ordering boundaries. It does not treat 52 as a seed or justify a product repair. No original instructions were executed in this pass.
+
+## Closed callback frontier
+
+The [bounded static follow-up](../../references/verification/mission3-callback-closure-2026-10-10/README.md) excludes the two authored buildings' conditional model9 child from descriptor bytes and closes the named single-player post-load callbacks as nonproducers. Exact successful loader allocation and runtime startup history remain unresolved; the next proposed trace is a turn-zero constructor ledger with explicit segmented-state and OS-boundary requirements.
