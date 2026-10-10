@@ -9,7 +9,7 @@ import { assertNearbyEvidence } from '../scripts/local-render/follower-nearby-co
 import { selectTaskFollowers, focusTaskFollower } from '../app/hud-tasks.ts'
 import { browserPosition } from '../app/world-coordinates.ts'
 
-function fixture({ own = false, readError = null, installFailure = false, maxEvents = 128, largeRead = false } = {}) {
+function fixture({ own = false, readError = null, installFailure = false, removeFailure = false, maxEvents = 128, largeRead = false } = {}) {
   const world = { castingTribes: [{ flags: 0x4000 }], turn: 12, selected: [] },
     people = [{ id: 1, model: 2, category: 2, x: 256, y: 256,
       flags4: 0x20000000, flags3: 0, selectionFlags: 0, assignment: 0 }],
@@ -22,6 +22,7 @@ function fixture({ own = false, readError = null, installFailure = false, maxEve
       },
       removeEventListener(type, callback, capture) {
         assert.equal(this, root)
+        if (removeFailure) throw Error(`Removal failed: ${type} ${capture}`)
         const index = listeners.findIndex(item => item.type === type && item.callback === callback && item.capture === capture)
         if (index >= 0) listeners.splice(index, 1)
       },
@@ -190,7 +191,7 @@ test('wrong control/event/modifiers/focus recipient, detached commits and empty 
   f.scene.dispatchNearbyFollowers(100)
   await f.fire(() => f.scene.chooseFollowers(2, { shiftKey: false, ctrlKey: false }, true, 2),
     { type: 'contextmenu', button: 2, label: 'Idle Braves' })
-  const evidence = f.api.take()
+  const evidence = f.api.take({ phases: ['entry'], nearby: true })
   assertNearbyEvidence(evidence, { phases: ['entry'], nearby: true })
   const tamper = change => {
     const wrong = structuredClone(evidence)
@@ -207,4 +208,28 @@ test('wrong control/event/modifiers/focus recipient, detached commits and empty 
   tamper(value => { value.records[2].focusCalls = [] })
   tamper(value => { value.terminal.nearby = false })
   tamper(value => { value.records = []; value.requests = 0; value.commits = 0 })
+})
+
+test('synchronous endpoint sealing rejects unfinished/wrong phases and retains every bounded cleanup failure', async () => {
+  const pending = fixture()
+  await pending.fire(() => pending.scene.requestNearbyFollowers())
+  const state = pending.api.seal({ phases: ['entry'], nearby: true })
+  assert.equal(state.closed, true)
+  assert.match(state.errors[0], /unfinished requests/)
+  assert.equal(pending.listeners.length, 0)
+  assert.equal(pending.scene.dispatchNearbyFollowers, pending.prototype.dispatchNearbyFollowers)
+  const wrong = fixture()
+  await wrong.fire(() => wrong.scene.requestNearbyFollowers())
+  wrong.scene.dispatchNearbyFollowers(100)
+  assert.match(wrong.api.seal({ phases: ['different'], nearby: true }).errors[0], /wrong phases/)
+  const stale = fixture()
+  stale.replace()
+  assert.match(stale.api.seal({ phases: ['entry'], nearby: true }).errors[0], /owner changed/)
+  const cleanup = fixture({ removeFailure: true })
+  for (const name of ['requestNearbyFollowers', 'onSound', 'dispatchNearbyFollowers', 'chooseFollowers', 'focus', 'cancelNearbyFollowers'])
+    cleanup.scene[name] = () => 'foreign owner'
+  const evidence = cleanup.api.take()
+  assert.equal(evidence.errorCount, 20)
+  assert.equal(evidence.errors.length, 20)
+  assert.ok(Buffer.byteLength(JSON.stringify(evidence)) <= evidence.maxBytes)
 })

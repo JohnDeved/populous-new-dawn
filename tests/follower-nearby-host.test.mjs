@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs'
 import ts from 'typescript'
 import { assertNearbyEvidence } from '../scripts/local-render/follower-nearby-contract.mjs'
 
-test('actual host finally retains the primary failure and attempts every cleanup and report', async () => {
+for (const reportFailure of [false, true]) test(`actual host finally retains the primary failure and attempts every cleanup; report failure ${reportFailure}`, async () => {
   const source = ts.createSourceFile('mission1-nearby-followers.mjs',
     readFileSync(new URL('../scripts/local-render/mission1-nearby-followers.mjs', import.meta.url), 'utf8'),
     ts.ScriptTarget.Latest, true),
@@ -17,7 +17,7 @@ test('actual host finally retains the primary failure and attempts every cleanup
     bad = label => { events.push(label); throw Error(label) },
     clean = { errors: [], cleanup: { listener: true, subscription: true } },
     bindings = {
-      assert, assertNearbyEvidence, report, failure: primary, heldPrimary: true,
+      assert, assertNearbyEvidence, report, receipt: { errors: [] }, failure: primary, heldPrimary: true,
       screenshot: async () => bad('screenshot failed'),
       page: { mouse: { up: async () => bad('release failed') } },
       witnesses: [
@@ -33,11 +33,13 @@ test('actual host finally retains the primary failure and attempts every cleanup
         dispose: async () => bad('checkpoint dispose failed'),
       },
       cdp: { send: async () => bad('metrics clear failed'), detach: async () => bad('CDP detach failed') },
-      save: () => { events.push('terminal report'); assert.equal(report.status, 'failed') },
+      save: () => {
+        events.push('terminal report'); assert.equal(report.status, 'failed')
+        if (reportFailure) throw Error('report writer failed')
+      },
     },
-    run = Function(...Object.keys(bindings), `return async () => ${finalizer.getText(source)}`)(...Object.values(bindings))
-  await assert.doesNotReject(run())
-  assert.equal(bindings.failure, primary)
+    run = Function(...Object.keys(bindings), `return async () => {${finalizer.getText(source)};return failure}`)(...Object.values(bindings))
+  assert.equal(await run(), primary)
   assert.deepEqual(events, [
     'screenshot failed', 'release failed', 'first export failed', 'first dispose failed',
     'second export', 'second dispose', 'checkpoint close', 'checkpoint dispose failed',
@@ -47,4 +49,8 @@ test('actual host finally retains the primary failure and attempts every cleanup
   for (const name of ['screenshot failed', 'release failed', 'first export failed',
     'first dispose failed', 'checkpoint dispose failed', 'metrics clear failed', 'CDP detach failed'])
     assert.ok(report.errors.some(error => error.includes(name)), name)
+  if (reportFailure) {
+    assert.match(report.errors.at(-1), /report writer failed/)
+    assert.deepEqual(bindings.receipt.errors, [report.errors.at(-1)])
+  }
 })

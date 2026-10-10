@@ -12,10 +12,10 @@ export function createNearbyFollowerWitness({ scene, store, read, root, maxEvent
     add = root.addEventListener, remove = root.removeEventListener,
     sizes = new Map(), size = value => new TextEncoder().encode(JSON.stringify(value)).length
   let closed = false, exported = false, phase = 'entry', event = null, request = null, selection = null,
-    overflow = false, errorCount = 0, ordinal = 0, recordBytes = 0, terminal = null
+    overflow = false, errorCount = 0, ordinal = 0, recordBytes = 0, terminal = null, sealed = null
   const error = value => {
     errorCount++
-    if (errors.length < 16) errors.push(String(value?.stack ?? value).slice(0, 2048))
+    errors.push(String(value?.stack ?? value).slice(0, 2048))
     if (!closed) close()
   }
   const observe = action => {
@@ -89,11 +89,54 @@ export function createNearbyFollowerWitness({ scene, store, read, root, maxEvent
   }
   const capture = value => { if (!closed) event = value }
   const release = value => { if (event === value) event = null }
+  const captureTerminal = () => {
+    const value = snapshot()
+    if (recordBytes + size(value) > maxBytes - 65536) {
+      overflow = true
+      throw Error('Nearby terminal snapshot exceeds complete-export budget')
+    }
+    terminal = value
+  }
+  function seal(expected) {
+    if (closed) {
+      if (JSON.stringify(sealed) !== JSON.stringify(expected)) throw Error('Nearby endpoint was not sealed as declared')
+      return status()
+    }
+    try {
+      if (!Array.isArray(expected?.phases) || !expected.phases.length || typeof expected.nearby !== 'boolean')
+        throw Error('Nearby endpoint requires declared phases and final mode')
+      captureTerminal()
+      let pending = null, last = null
+      const phases = []
+      for (const row of records) {
+        if (row.threw) throw Error('Nearby action threw before endpoint')
+        if (row.kind === 'request') {
+          if (row.admitted) {
+            if (pending) throw Error('Nearby endpoint has overlapping admitted requests')
+            pending = row
+          } else if (!pending) throw Error('Nearby endpoint has an unowned rejected request')
+        } else if (row.kind === 'commit') {
+          if (!pending || row.phase !== pending.phase || row.beforeFlags !== pending.before.flags ||
+            row.after.nearby === pending.before.nearby || (row.beforeFlags ^ row.after.flags) !== 128)
+            throw Error('Nearby endpoint has an unjoined commitment')
+          phases.push(row.phase)
+          pending = null
+          last = row
+        }
+      }
+      if (pending || !last || phases.length !== counters.commits ||
+        JSON.stringify(phases) !== JSON.stringify(expected.phases) ||
+        terminal.nearby !== expected.nearby || terminal.nearby !== last.after.nearby)
+        throw Error('Nearby endpoint has unfinished requests, wrong phases or wrong final mode')
+      sealed = structuredClone(expected)
+    } catch (failure) { error(failure) }
+    return close()
+  }
   function close() {
     if (closed) return status()
     closed = true
-    if (!errorCount) {
-      try { terminal = snapshot() } catch (failure) { error(failure) }
+    if (!errorCount && !terminal) {
+      try { captureTerminal() } catch (failure) { error(failure) }
     }
     event = null
     request = null
@@ -109,7 +152,7 @@ export function createNearbyFollowerWitness({ scene, store, read, root, maxEvent
   function status() {
     return { closed, exported, overflow, errorCount, errors: [...errors],
       ...counters, clock: { ...clock }, records: records.length, recordBytes, maxBytes, phase,
-      terminalMode: terminal?.nearby, terminalTurn: terminal?.turn }
+      terminalMode: terminal?.nearby, terminalTurn: terminal?.turn, sealed }
   }
   try {
     wrap('requestNearbyFollowers', () => {
@@ -172,8 +215,10 @@ export function createNearbyFollowerWitness({ scene, store, read, root, maxEvent
     },
     snapshot,
     close,
-    take() {
+    seal,
+    take(expected) {
       if (exported) throw Error('Nearby terminal evidence already exported')
+      if (expected) seal(expected)
       close()
       exported = true
       const result = structuredClone({ ...status(), records, terminal })

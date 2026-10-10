@@ -235,7 +235,8 @@ export default async function ({ page, openMission, output, receipt, signal, obs
       return JSON.stringify(report.committed) === JSON.stringify(report.saved.digest)
     }), true, 'Public Save must commit its complete typed record')
     report.profileSave = await observeCheckpoint('Mission 1 nearby followers Save')
-    await witness.evaluate(api => api.close())
+    await witness.evaluate(api => api.seal({ phases: ['global-held', 'global-away', 'nearby-before-save'], nearby: true }))
+    await status()
     await checkpoint.evaluate(api => api.armLoad())
     await input.button('Load checkpoint')
     const loaded = await wait(() => checkpoint.evaluate(api => api.status()), value => value.start?.attached,
@@ -276,13 +277,14 @@ export default async function ({ page, openMission, output, receipt, signal, obs
     catch (error) { report.errors.push(String(error)) }
     if (heldPrimary) try { await page.mouse.up() } catch (error) { report.errors.push(String(error)) }
     report.epochs = []
-    for (const handle of witnesses) {
+    for (const [index, handle] of witnesses.entries()) {
       try {
-        const evidence = await handle.evaluate(api => api.take())
-        report.epochs.push(evidence)
-        assertNearbyEvidence(evidence, report.epochs.length === 1
+        const expected = index === 0
           ? { phases: ['global-held', 'global-away', 'nearby-before-save'], nearby: true }
-          : { phases: ['loaded-global', 'compact-nearby', 'compact-keyboard-global'], nearby: false })
+          : { phases: ['loaded-global', 'compact-nearby', 'compact-keyboard-global'], nearby: false },
+          evidence = await handle.evaluate((api, expected) => api.take(expected), expected)
+        report.epochs.push(evidence)
+        assertNearbyEvidence(evidence, expected)
       } catch (error) { report.errors.push(String(error?.stack ?? error)) }
       finally { try { await handle.dispose() } catch (error) { report.errors.push(String(error)) } }
     }
@@ -305,7 +307,13 @@ export default async function ({ page, openMission, output, receipt, signal, obs
     }
     if (report.status === 'observed' && !report.errors.length) report.status = 'passed'
     else report.status = 'failed'
-    save()
+    try { save() } catch (error) {
+      const diagnostic = `Nearby terminal report write failed: ${String(error?.stack ?? error)}`
+      report.status = 'failed'
+      report.errors.push(diagnostic)
+      receipt.errors.push(diagnostic)
+      failure ??= error
+    }
   }
   if (failure) throw failure
   assert.deepEqual(report.errors, [])

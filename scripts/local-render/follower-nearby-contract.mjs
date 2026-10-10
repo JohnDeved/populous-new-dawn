@@ -81,6 +81,7 @@ export function assertNearbyEvidence(evidence, expected = {}) {
   assert.equal(evidence.overflow, false)
   assert.equal(evidence.errorCount, 0)
   assert.deepEqual(evidence.errors, [])
+  if (expected.phases) assert.deepEqual(evidence.sealed, expected, 'Endpoint must be validated before detachment')
   assert.ok(evidence.requests > 0 && evidence.commits > 0, 'An ordinary mode episode cannot be empty')
   let pending = null, lastCommit = null
   const phases = []
