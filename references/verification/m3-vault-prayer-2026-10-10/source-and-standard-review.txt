@@ -1,0 +1,110 @@
+Independent Vault prayer-panel review: SOURCE AND EXECUTION ADMISSION ACCEPT
+Reviewed 2026-10-10, by review_vault_prayer_panel.
+
+Base: 4754e12d3590bde18656416514871b033de164be.
+Combined source: 79618d3323a6062dd2b7fc1c4e37e8055d2f86a0.
+Combined tree: 697c47d853096e9c71130499d6de953f34421d25.
+Product: 55948aa662a46701bc84ecf484fc2b50b54a820d.
+QA: ec85d574b1710d2f6130bf6a303b3aba55de459f.
+
+No unresolved source findings. Reviewed the full product and QA diffs, original
+004fb270 / 00509290 / 005092e0 / 00504060 / 00504920 evidence, actual World-to-Scene
+callers, ObjectPanels lifetime, and current Scene/store binding. The request uses
+the sampled Vault body and prior local cached count before eligibility/count/work;
+phase1 reads the new count on every elapsed presentation visit. Hold16, successful
+creation-only latch, shared32/160 capacity rejection/reuse, cancellation/reissue,
+finite-trigger retirement, and stale/disposed/reloaded ownership are covered.
+Requested extra local-owner/body-identity negatives and batched-entry expiry were
+added and reviewed. No work/reward/RNG code was changed.
+
+Failure-first189d394d receipt/raw log verified: existing actual M3 approach passed;
+new first0-to1 callback assertion failed exactly at the missing request. Clean
+before/after fingerprints and stdout hash matched. Product focused11/11 and shared
+Camp/Temple53/53 receipts passed at55948aa6; those files are unchanged in79618d33.
+QA5/5 contract and three syntax checks passed at ec85d574. Typecheck and scoped
+format passed. Scoped ESLint remains FAILED208 and Oxlint remains FAILED287.
+Exact baseline comparisons establish no added/removed diagnostics; the reviewer
+independently recomputed Oxlint identities from hashed raw logs, matching all287
+file/column/message/exact-source-line entries. These are inherited failures, not
+passing lint gates. The unsupported Oxlint stdin attempt is not baseline evidence.
+
+Standards execution profile ACCEPT:
+  work/orchestration/vault-prayer-final-01/profile-proposal.json
+  SHA256 a2024aeddee3bf71d354c4700f78009c12dbfc7656717374735bcba93981b16d
+  work/orchestration/vault-prayer-final-01/run-profile.py
+  SHA256 7adc15acb6c3da54af6d7d73c612aa98e0f66b782dc363a4a524f25b1317265d
+Verified all300 current package-glob test files exactly once, all300 test hashes
+and seven other input hashes, the accepted17-stage sequence with only the added
+Vault witness test, typecheck first, parity/orchestration checks, and build.
+Launcher checks clean exact source and dependency dev27/inode538212 before each
+stage, uses fresh private caches/TMP and maintained receipts, and stops any
+failure, unknown result, or source drift. Admission is CPU5-7,180s inner/200s receipt
+outer per stage,1200s overall plus15s termination grace. All stages must be fresh.
+
+Ordinary browser execution binding ACCEPT:
+  work/orchestration/vault-ordinary-prelaunch-79618d33-01.json
+  SHA256 8bf0ee5c47e3c2d83d78b38e8a874e29c639b9508eb871dc906aecde63a21b3b
+All25 input hashes independently matched. Browser SHA256:
+7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706.
+Fresh profile/output/receipt paths and stationary dependency identity verified.
+Use the maintained sandboxed Chrome154 harness, public M3 prefix, exact preflighted
+ground cancellation, synchronous old/new-count/input/update observations, automatic
+display without inspection, expiry before new creation, and earned reward/departure.
+Numeric allocator reuse is permitted. Polling/records are bounded. No forced
+world/tick/render/state calls. The unchanged harness owns abort, browser/server
+cleanup and verified profile provenance.720s scenario/750s harness/780s outer plus
+15s grace. Launch only after standards resource release and current source, port4397,
+fresh-path and resource guards. This review did not execute tests or a browser.
+
+Final acceptance is PENDING fresh full-standard terminal receipts, ordinary raw
+evidence, actual screenshot inspection and immutable publication links. This is
+source/admission approval only. Preserve scoped limits: no full composed-native
+claim, native mixed-class scheduling, physical panel allocation, exact Vault socket
+anchor, clickable Vault glyphs, sinking, original raster/audio fidelity or hardware
+performance. The combined Shrine/nonzero-model/active flags remain documented
+browser body/trigger adapters. No generic enabled/completed hide rule was accepted.
+
+2026-10-10 10:17 UTC: FINAL STANDARD RESULT ACCEPT
+Aggregate work/orchestration/vault-prayer-final-01/aggregate.json SHA256
+4320075f8d06ed320023d256e6e86a262968a5a58af383d60d663ff08333a530.
+Independently checked all17 receipt hashes, raw stdout/stderr hashes and contents,
+exact admitted commands, passed/exit0 status, identical clean79618d33 before/after
+source, and all300 current package-glob files exactly once. Recomputed final Node
+summaries:1864 tests,1864 passes, zero failures/cancellations/skips/todos. Typecheck,
+parity consistency, orchestration consistency and production build passed fresh.
+Run interval10:10:20.876 to10:16:48.660 UTC; summed commands371.240s, span387.784s.
+Build retained nonfatal proxy/npm, plugin-timing, large-chunk and route-classification
+warnings. Inherited scoped lint failures remain as described above. Ordinary
+browser evidence, pixels and immutable publication links remain pending.
+
+2026-10-10 10:21 UTC: FINAL PRODUCT / ORDINARY RESULT / MERGE-SCOPE ACCEPT
+Exact product source remains79618d3323a6062dd2b7fc1c4e37e8055d2f86a0.
+Ordinary output: work/orchestration/vault-ordinary-79618d33-01/.
+Harness receipt SHA2567c0fd121b4fb99c1051070d4e8c3b3e5764fe2222a7bad6192345e7ba2f1faf6.
+Scenario report SHA256796b3bb5736e1f5bf5385386dc820e6b2cd087419cc6a94b9b6eac1d969a374b.
+Sibling command receipt SHA2561b1b5aa2d5558f09881aa984662e321160a27c8a69625e80863095a52d312169.
+Independently verified all three terminal passes, command exit0, exact admitted
+command, raw output hashes, input/source/runtime identity, fresh owned profile,
+empty errors/cleanupErrors, cleanupVerified/continuationVerified and owner.lock
+release.777 records, no overflow. All274 target requests preserve head/Shaman state
+synchronously. Exactly two opens, both automatic and non-immediate. Old0 request
+rejects at turn732 before count becomes1; first creation736, trusted ground command3
+at776/work12, current0 at780 and full expiry781. Trusted command33 reissue832 creates
+at852. Earned use1330, Temple unlock1412, original Shaman order release1425. Final
+observer.close snapshot1449 confirms retirement; it is not the exact departure event.
+
+Inspected all four actual1440x1000 PNGs. Automatic panel/glyph is readable and fully
+visible above the Vault, disappears after cancellation, recreates, and is absent
+after earned knowledge with Temple HUD/message visible. No visible clipping.
+Natural screenshot brackets: first745-761, expired789-807, recreated859-875,
+earned/departure1431-1448. Do not label these screenshots exact-turn captures.
+PNG SHA256:
+  first:1f4b5ee7819053ce10b838e5782cee6fe9c0c5454e7b35aa7cdbbcccc972e5a2
+  expired:78d04892c8666d7b41ae5f38342f2adc7d80381a300cb5bde3551ad1fe64dc89
+  recreated:8046eae5c818ebf13019a221fe07676c19c0ba50b06f51510c337e079e23697e
+  earned:3436bef5ac0de6255b9b9c21e6d0ef678bb8c382e2b134e9fc9900f9932c579f
+Chrome154.0.8037.92 used the admitted sandbox flags. Retained console warnings
+identify software-WebGL fallback, readback stalls and texture-update warnings;
+there is no original raster or hardware-performance claim. All earlier scoped
+limits and inherited lint failures remain. Immutable publication-link verification
+may follow as evidence packaging; no gameplay rerun is required for that step.

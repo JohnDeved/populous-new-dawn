@@ -1,0 +1,282 @@
+{
+  "version": 1,
+  "kind": "fresh-standard-profile-aggregate",
+  "status": "passed",
+  "source": "79618d3323a6062dd2b7fc1c4e37e8055d2f86a0",
+  "tree": "697c47d853096e9c71130499d6de953f34421d25",
+  "profileSha256": "a2024aeddee3bf71d354c4700f78009c12dbfc7656717374735bcba93981b16d",
+  "standardTestFiles": 300,
+  "tests": 1864,
+  "pass": 1864,
+  "fail": 0,
+  "cancelled": 0,
+  "skipped": 0,
+  "todo": 0,
+  "startedAt": "2026-10-10T10:10:20.876Z",
+  "finishedAt": "2026-10-10T10:16:48.660Z",
+  "summedCommandSeconds": 371.24,
+  "wallIntervalSeconds": 387.784,
+  "betweenCommandSeconds": 16.544,
+  "counting": "Last top-level Node summary per test stage; nested wrappers not counted twice.",
+  "coverage": "All300 current standard files once, type/parity/orchestration/build fresh; no result carry.",
+  "limitations": [
+    "Scoped ESLint and Oxlint remain failed with independently attributed208/287 inherited findings.",
+    "Ordinary rendered M3 evidence and result review remain pending.",
+    "Original static/source and supplied caller proof; no new native execution."
+  ],
+  "stages": [
+    {
+      "name": "typecheck",
+      "receipt": "work/orchestration/vault-prayer-final-01/typecheck.json",
+      "receiptSha256": "055904b526ca50aa5bf85d488a89361515802065452f11da2f401bd8f67c88a0",
+      "startedAt": "2026-10-10T10:10:20.876Z",
+      "finishedAt": "2026-10-10T10:10:32.276Z",
+      "seconds": 11.4
+    },
+    {
+      "name": "tests-new",
+      "receipt": "work/orchestration/vault-prayer-final-01/tests-new.json",
+      "receiptSha256": "76e1de281040e2eac83550888434088246c974f65411549d158e5b607fd93395",
+      "startedAt": "2026-10-10T10:10:33.320Z",
+      "finishedAt": "2026-10-10T10:11:23.785Z",
+      "seconds": 50.465,
+      "files": 26,
+      "counts": {
+        "tests": 235,
+        "pass": 235,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-01",
+      "receipt": "work/orchestration/vault-prayer-final-01/tests-01.json",
+      "receiptSha256": "a23f0bd359273a9e44c8f8016b4803aaa7d674ebf404c3fb416f7d3ebcd45c87",
+      "startedAt": "2026-10-10T10:11:24.800Z",
+      "finishedAt": "2026-10-10T10:11:43.819Z",
+      "seconds": 19.019,
+      "files": 33,
+      "counts": {
+        "tests": 170,
+        "pass": 170,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-02",
+      "receipt": "work/orchestration/vault-prayer-final-01/tests-02.json",
+      "receiptSha256": "1222c6df995a29a9a824c37c27f8ba2f9ed2fb29f810bb9e04733921b8435fca",
+      "startedAt": "2026-10-10T10:11:44.814Z",
+      "finishedAt": "2026-10-10T10:12:05.573Z",
+      "seconds": 20.759,
+      "files": 33,
+      "counts": {
+        "tests": 165,
+        "pass": 165,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-03",
+      "receipt": "work/orchestration/vault-prayer-final-01/tests-03.json",
+      "receiptSha256": "941c6f96f4e45de3d8bfc0973ff56719059dc1afc6a0281d84167353cdfb2151",
+      "startedAt": "2026-10-10T10:12:06.647Z",
+      "finishedAt": "2026-10-10T10:12:37.671Z",
+      "seconds": 31.024,
+      "files": 34,
+      "counts": {
+        "tests": 285,
+        "pass": 285,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-04a",
+      "receipt": "work/orchestration/vault-prayer-final-01/tests-04a.json",
+      "receiptSha256": "f35ac81755db74f3dae2ae6e2d37e8c33d02c2f7d1ede56c60e8e24617669202",
+      "startedAt": "2026-10-10T10:12:38.784Z",
+      "finishedAt": "2026-10-10T10:12:54.713Z",
+      "seconds": 15.929,
+      "files": 13,
+      "counts": {
+        "tests": 66,
+        "pass": 66,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-04b",
+      "receipt": "work/orchestration/vault-prayer-final-01/tests-04b.json",
+      "receiptSha256": "1725dc08b71c52112aed4eefd10bb9ceca93217e378655ce46708b9903bb5a67",
+      "startedAt": "2026-10-10T10:12:55.709Z",
+      "finishedAt": "2026-10-10T10:13:11.800Z",
+      "seconds": 16.091,
+      "files": 11,
+      "counts": {
+        "tests": 75,
+        "pass": 75,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-04c",
+      "receipt": "work/orchestration/vault-prayer-final-01/tests-04c.json",
+      "receiptSha256": "4896c183ce64d68987c35b20579a799ddd9d2e0638aee35ecd272871fe867e1d",
+      "startedAt": "2026-10-10T10:13:12.808Z",
+      "finishedAt": "2026-10-10T10:13:30.229Z",
+      "seconds": 17.421,
+      "files": 11,
+      "counts": {
+        "tests": 32,
+        "pass": 32,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-05a",
+      "receipt": "work/orchestration/vault-prayer-final-01/tests-05a.json",
+      "receiptSha256": "6de58272764411c832f45c60e554c22a5b2fbc0092e8b2332111769e03877390",
+      "startedAt": "2026-10-10T10:13:31.267Z",
+      "finishedAt": "2026-10-10T10:14:04.838Z",
+      "seconds": 33.571,
+      "files": 11,
+      "counts": {
+        "tests": 54,
+        "pass": 54,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-05b",
+      "receipt": "work/orchestration/vault-prayer-final-01/tests-05b.json",
+      "receiptSha256": "3e9f4d93aee962685d77d1fe3f2e4dd7bea19ca7aff22ae428fcde2c1c8e81b1",
+      "startedAt": "2026-10-10T10:14:05.898Z",
+      "finishedAt": "2026-10-10T10:14:58.981Z",
+      "seconds": 53.083,
+      "files": 11,
+      "counts": {
+        "tests": 47,
+        "pass": 47,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-05c",
+      "receipt": "work/orchestration/vault-prayer-final-01/tests-05c.json",
+      "receiptSha256": "b12cd4bf9c20daf03f11df5cfd8642a4bf18b00efed7d3ad9afa6a99286f3678",
+      "startedAt": "2026-10-10T10:15:00.033Z",
+      "finishedAt": "2026-10-10T10:15:08.414Z",
+      "seconds": 8.381,
+      "files": 11,
+      "counts": {
+        "tests": 90,
+        "pass": 90,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-06",
+      "receipt": "work/orchestration/vault-prayer-final-01/tests-06.json",
+      "receiptSha256": "e04bc9a8c101738cce80f743bb9cf39a4a65625ce48e959213dfa8acaacb4bd4",
+      "startedAt": "2026-10-10T10:15:09.443Z",
+      "finishedAt": "2026-10-10T10:15:36.279Z",
+      "seconds": 26.836,
+      "files": 34,
+      "counts": {
+        "tests": 328,
+        "pass": 328,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-07",
+      "receipt": "work/orchestration/vault-prayer-final-01/tests-07.json",
+      "receiptSha256": "5fce04aad593d4819b0ba9f95b8cce538fdb1aa4416053b3e6c4cedbe586cdd5",
+      "startedAt": "2026-10-10T10:15:37.262Z",
+      "finishedAt": "2026-10-10T10:15:53.290Z",
+      "seconds": 16.028,
+      "files": 33,
+      "counts": {
+        "tests": 141,
+        "pass": 141,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "tests-08",
+      "receipt": "work/orchestration/vault-prayer-final-01/tests-08.json",
+      "receiptSha256": "29c7b171fe039bd41d0b3b7bdceed38cda635725cb7fce761c97c92b2c559e53",
+      "startedAt": "2026-10-10T10:15:54.305Z",
+      "finishedAt": "2026-10-10T10:16:18.442Z",
+      "seconds": 24.137,
+      "files": 39,
+      "counts": {
+        "tests": 176,
+        "pass": 176,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "name": "parity-check",
+      "receipt": "work/orchestration/vault-prayer-final-01/parity-check.json",
+      "receiptSha256": "0c27d4a50c117b966b46e18bff7bd3a220ae3c4b747437345f24bc9419c1d455",
+      "startedAt": "2026-10-10T10:16:19.542Z",
+      "finishedAt": "2026-10-10T10:16:19.958Z",
+      "seconds": 0.416
+    },
+    {
+      "name": "orchestration-check",
+      "receipt": "work/orchestration/vault-prayer-final-01/orchestration-check.json",
+      "receiptSha256": "b12c5ee8adab6ca1c200b67b715bb4e4153c777fa20e5c7ea0337e3d292ff44e",
+      "startedAt": "2026-10-10T10:16:20.979Z",
+      "finishedAt": "2026-10-10T10:16:21.558Z",
+      "seconds": 0.579
+    },
+    {
+      "name": "build",
+      "receipt": "work/orchestration/vault-prayer-final-01/build.json",
+      "receiptSha256": "2999504d738637e484a76417dc3555d280d2aae7cced04d7791d3fbae8e2c0d4",
+      "startedAt": "2026-10-10T10:16:22.559Z",
+      "finishedAt": "2026-10-10T10:16:48.660Z",
+      "seconds": 26.101
+    }
+  ]
+}

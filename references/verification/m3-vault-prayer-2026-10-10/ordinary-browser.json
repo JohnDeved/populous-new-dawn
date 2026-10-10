@@ -1,0 +1,746 @@
+{
+  "version": 1,
+  "kind": "compact-ordinary-browser-summary",
+  "status": "passed",
+  "resultReview": "accepted",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/vault-automatic-prayer-panel-20261010",
+    "commit": "79618d3323a6062dd2b7fc1c4e37e8055d2f86a0",
+    "tree": "697c47d853096e9c71130499d6de953f34421d25",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "27a2dc5657dda86aacbaa59d6dce1ca9eec10a6b4e2bc90a601c3d782fa549d5"
+  },
+  "browserVersion": "154.0.8037.92",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "chromiumSandbox": true,
+  "headless": true,
+  "softwarePerformanceOnly": true,
+  "startedAt": "2026-10-10T10:17:14.689Z",
+  "finishedAt": "2026-10-10T10:19:50.429Z",
+  "commandFinishedAt": "2026-10-10T10:19:53.076Z",
+  "summary": {
+    "initialCommand33Turn": 176,
+    "firstCountZeroToOneTurn": 732,
+    "creationTurns": [
+      736,
+      852
+    ],
+    "interruptionTurn": 776,
+    "interruptionWork": 12,
+    "zeroCountTurn": 780,
+    "expiryTurn": 781,
+    "reissueTurn": 832,
+    "earnedUseTurn": 1330,
+    "templeUnlockTurn": 1412,
+    "originalTaskAndOrderReleaseTurn": 1425,
+    "finalObserverCloseTurn": 1449,
+    "automaticOpenCalls": 2,
+    "manualOrReusedOpenCalls": 0
+  },
+  "observerErrors": [],
+  "cleanupErrors": [],
+  "observerClosed": true,
+  "overflow": false,
+  "profile": {
+    "id": "0357c4e9-5a0f-4dbe-b3bd-91e262236fd8",
+    "mode": "created",
+    "cleanupVerified": true,
+    "continuationVerified": true,
+    "inputs": {
+      "application": "d5897164ea5de6e7a90f8d8cfe989dbb0ffe64ec7441df47ee2e8fabff29e16b",
+      "checker": "d216bc0f9e6caf4f0ff29951b762f30933d30041b643143aae36a472dcc627b6"
+    }
+  },
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=15s",
+    "780s",
+    "node",
+    "scripts/local-render/harness.mjs",
+    "--game-root",
+    "/workspace/scratch/69fd8163d94e/vault-automatic-prayer-panel-20261010",
+    "--port",
+    "4397",
+    "--output",
+    "/workspace/scratch/69fd8163d94e/vault-automatic-prayer-panel-20261010/work/orchestration/vault-ordinary-79618d33-01",
+    "--profile",
+    "/workspace/scratch/69fd8163d94e/vault-automatic-prayer-panel-20261010/work/local-render-profiles/vault-prayer-79618d33-01",
+    "--browser",
+    "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/work/orchestration/recovery-20261009b/browser/chrome-headless-shell-linux64/chrome-headless-shell",
+    "--mission",
+    "3",
+    "--timeout",
+    "750000",
+    "--scenario",
+    "/workspace/scratch/69fd8163d94e/vault-automatic-prayer-panel-20261010/scripts/local-render/mission3-vault-prayer.mjs"
+  ],
+  "sourceInputs": {
+    "scripts/local-render/mission3-vault-prayer.mjs": "b61a93c8246d46aabec9931946e20145a39836544992455920640ad5e231088b",
+    "scripts/local-render/vault-prayer-witness.mjs": "f2a7a10fd05dbe52ad0b6d69ea21e9944bf313d9c118782bc3b43ad50121aa14",
+    "scripts/local-render/vault-prayer-contract.mjs": "ee4a7e1bdadb11ac10844f5ab6aeaacb24f200f8ba33d60e1d8037e91d4d4067",
+    "scripts/local-render/mission1-vault-input.mjs": "3ceaa6bf4537c4056b917c9efa1d59f4adb6016e4a5c033b5fded8d09c6fcdec",
+    "scripts/browser-game.mjs": "061ecb23dbcc5296fa6cdd044f44910af52884bb20d4fce5a9d64eb4391d9ba9",
+    "scripts/campaign-start-readiness.mjs": "214ffc2ce95ea039328e356d493ba8beb887e2d5ef1084b672fb0413fac48d28",
+    "qa/erosion-ordinary/input.mjs": "29afe98c0e35e79fc25b6f9f6f0782de072ef9276d56bd8304ab9b72a99a8e19",
+    "qa/erosion-ordinary/minimap-input.mjs": "acf622d6277bae5ec3cf734c03cea7a4a8637f1dde9c710c8be6e2234ebd30e5",
+    "scripts/local-render/harness.mjs": "19212b8b57d8f1ec47583ec12a3b33152832c103b91a266aa4a774bf0043a021",
+    "scripts/local-render/owned-profile.mjs": "445a29903f994f7fd4c4d0ee32924400b31b6c73673ec2e04d3f4ad3eee403f5",
+    "scripts/local-render/checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+    "scripts/local-render/vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27",
+    "scripts/orchestration/command-receipt.mjs": "cb6e670973ddf7e0e83bb7efb79e7b4f2315e575d9764620c539a8683ea6727d",
+    "package.json": "3b8a837c172a783bc9517ee15d9d5eba0abaaeadcfebbdab6fd9e2dfa0052304",
+    "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+    "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "node_modules/vite/dist/node/cli.js": "369e1007819411176548d14afe9635e02d31d59941c91fb0a8a34f48ef0a2c41",
+    "node_modules/vite/dist/node/chunks/node.js": "fa7bedc63f02873469779fe5d3c1a3a60d7a9c8e1c164cfd64dd5f50859eef8c",
+    "node_modules/miniflare/dist/src/index.js": "9584409d464f6c21d720b20da3c5dc6e5bdab0393f9cb19b36cb960beaf0958b",
+    "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/node_modules/@playwright/test/package.json": "5587f932b8979b6889654b60e3c28aeb7ca0abbac00eec8c176c939a16149536",
+    "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/node_modules/playwright-core/lib/coreBundle.js": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+    "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/work/orchestration/recovery-20261009b/browser/chrome-headless-shell-linux64/chrome-headless-shell": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+    "/workspace/scratch/69fd8163d94e/vault-automatic-prayer-witness-20261010/work/orchestration/vault-prayer-contract-02.json": "829aa03f739fafb829ca40c4ca1659e5eea3e4665886db42f89658963dfd8fe6",
+    "/workspace/scratch/69fd8163d94e/vault-automatic-prayer-witness-20261010/work/orchestration/vault-prayer-syntax-02.json": "6242a53caed50f4f1792c33d60be17a9dccc044f750450c22935e26d4a498dc6",
+    "/workspace/scratch/69fd8163d94e/vault-automatic-prayer-panel-20261010/work/orchestration/vault-ordinary-prelaunch-79618d33-01.json": "8bf0ee5c47e3c2d83d78b38e8a874e29c639b9508eb871dc906aecde63a21b3b"
+  },
+  "retainedRaw": {
+    "commandReceipt": {
+      "path": "work/orchestration/vault-ordinary-79618d33-01-command.json",
+      "sha256": "1b1b5aa2d5558f09881aa984662e321160a27c8a69625e80863095a52d312169"
+    },
+    "harnessReceipt": {
+      "path": "work/orchestration/vault-ordinary-79618d33-01/receipt.json",
+      "sha256": "7c0fd121b4fb99c1051070d4e8c3b3e5764fe2222a7bad6192345e7ba2f1faf6"
+    },
+    "scenarioReport": {
+      "path": "work/orchestration/vault-ordinary-79618d33-01/mission3-vault-prayer.json",
+      "sha256": "796b3bb5736e1f5bf5385386dc820e6b2cd087419cc6a94b9b6eac1d969a374b"
+    }
+  },
+  "stages": [
+    {
+      "image": "vault-first-automatic-panel.png",
+      "sha256": "1f4b5ee7819053ce10b838e5782cee6fe9c0c5454e7b35aa7cdbbcccc972e5a2",
+      "bytes": 1832762,
+      "captureIntervalTurns": [
+        745,
+        761
+      ],
+      "before": {
+        "turn": 745,
+        "time": 62.083333333333336,
+        "animationFrame": 1491,
+        "panelFrame": 1491,
+        "current": true,
+        "level": 3,
+        "speed": 1,
+        "paused": false,
+        "status": "playing",
+        "inputMask": 0,
+        "mode": null,
+        "selected": [
+          46
+        ],
+        "unlocked": false,
+        "trained": 0,
+        "cast": 0,
+        "head": {
+          "id": 92,
+          "kind": "vault",
+          "model": 154,
+          "x": -37,
+          "z": -133,
+          "active": true,
+          "enabled": true,
+          "followers": 1,
+          "work": 4,
+          "target": 100,
+          "progress": 0.04,
+          "uses": 0,
+          "forced": false
+        },
+        "shaman": {
+          "id": 46,
+          "kind": "shaman",
+          "team": "blue",
+          "hp": 100,
+          "work": 92,
+          "vault": {
+            "head": 92,
+            "phase": 2,
+            "entering": false,
+            "remaining": 0
+          },
+          "orderId": 6,
+          "order": {
+            "model": 33,
+            "a": 92,
+            "flags": 0,
+            "references": 1
+          }
+        },
+        "record": {
+          "identity": 1,
+          "elementIdentity": 2,
+          "automatic": true,
+          "phase": 1,
+          "remaining": 15,
+          "hold": 16
+        },
+        "latch": true,
+        "inspected": null,
+        "dom": {
+          "present": true,
+          "connected": true,
+          "hidden": false,
+          "focused": false,
+          "hovered": false,
+          "label": "Vault of Knowledge: shaman learning; 4% complete",
+          "width": 32,
+          "height": 62,
+          "visibleButtons": 0
+        },
+        "offTarget": true,
+        "reservations": 1
+      },
+      "after": {
+        "turn": 761,
+        "time": 63.416666666666664,
+        "animationFrame": 1522,
+        "panelFrame": 1522,
+        "current": true,
+        "level": 3,
+        "speed": 1,
+        "paused": false,
+        "status": "playing",
+        "inputMask": 0,
+        "mode": null,
+        "selected": [
+          46
+        ],
+        "unlocked": false,
+        "trained": 0,
+        "cast": 0,
+        "head": {
+          "id": 92,
+          "kind": "vault",
+          "model": 154,
+          "x": -37,
+          "z": -133,
+          "active": true,
+          "enabled": true,
+          "followers": 1,
+          "work": 8,
+          "target": 100,
+          "progress": 0.08,
+          "uses": 0,
+          "forced": false
+        },
+        "shaman": {
+          "id": 46,
+          "kind": "shaman",
+          "team": "blue",
+          "hp": 100,
+          "work": 92,
+          "vault": {
+            "head": 92,
+            "phase": 2,
+            "entering": false,
+            "remaining": 0
+          },
+          "orderId": 6,
+          "order": {
+            "model": 33,
+            "a": 92,
+            "flags": 0,
+            "references": 1
+          }
+        },
+        "record": {
+          "identity": 1,
+          "elementIdentity": 2,
+          "automatic": true,
+          "phase": 1,
+          "remaining": 15,
+          "hold": 16
+        },
+        "latch": true,
+        "inspected": null,
+        "dom": {
+          "present": true,
+          "connected": true,
+          "hidden": false,
+          "focused": false,
+          "hovered": false,
+          "label": "Vault of Knowledge: shaman learning; 8% complete",
+          "width": 32,
+          "height": 62,
+          "visibleButtons": 0
+        },
+        "offTarget": true,
+        "reservations": 1
+      }
+    },
+    {
+      "image": "vault-interrupted-panel-expired.png",
+      "sha256": "78d04892c8666d7b41ae5f38342f2adc7d80381a300cb5bde3551ad1fe64dc89",
+      "bytes": 1835070,
+      "captureIntervalTurns": [
+        789,
+        807
+      ],
+      "before": {
+        "turn": 789,
+        "time": 65.75,
+        "animationFrame": 1578,
+        "panelFrame": 1578,
+        "current": true,
+        "level": 3,
+        "speed": 1,
+        "paused": false,
+        "status": "playing",
+        "inputMask": 0,
+        "mode": null,
+        "selected": [
+          46
+        ],
+        "unlocked": false,
+        "trained": 0,
+        "cast": 0,
+        "head": {
+          "id": 92,
+          "kind": "vault",
+          "model": 154,
+          "x": -37,
+          "z": -133,
+          "active": true,
+          "enabled": true,
+          "followers": 0,
+          "work": 9,
+          "target": 100,
+          "progress": 0.09,
+          "uses": 0,
+          "forced": false
+        },
+        "shaman": {
+          "id": 46,
+          "kind": "shaman",
+          "team": "blue",
+          "hp": 100,
+          "work": null,
+          "vault": null,
+          "orderId": 10,
+          "order": {
+            "model": 3,
+            "a": 58118,
+            "flags": 0,
+            "references": 1
+          }
+        },
+        "record": null,
+        "latch": false,
+        "inspected": null,
+        "dom": {
+          "present": false,
+          "connected": false,
+          "hidden": null,
+          "focused": false,
+          "hovered": false,
+          "label": null,
+          "width": 0,
+          "height": 0,
+          "visibleButtons": 0
+        },
+        "offTarget": true,
+        "reservations": 0
+      },
+      "after": {
+        "turn": 807,
+        "time": 67.25,
+        "animationFrame": 1614,
+        "panelFrame": 1614,
+        "current": true,
+        "level": 3,
+        "speed": 1,
+        "paused": false,
+        "status": "playing",
+        "inputMask": 0,
+        "mode": null,
+        "selected": [
+          46
+        ],
+        "unlocked": false,
+        "trained": 0,
+        "cast": 0,
+        "head": {
+          "id": 92,
+          "kind": "vault",
+          "model": 154,
+          "x": -37,
+          "z": -133,
+          "active": true,
+          "enabled": true,
+          "followers": 0,
+          "work": 5,
+          "target": 100,
+          "progress": 0.05,
+          "uses": 0,
+          "forced": false
+        },
+        "shaman": {
+          "id": 46,
+          "kind": "shaman",
+          "team": "blue",
+          "hp": 100,
+          "work": null,
+          "vault": null,
+          "orderId": 0,
+          "order": {
+            "model": 0,
+            "a": 0,
+            "flags": 0,
+            "references": 0
+          }
+        },
+        "record": null,
+        "latch": false,
+        "inspected": null,
+        "dom": {
+          "present": false,
+          "connected": false,
+          "hidden": null,
+          "focused": false,
+          "hovered": false,
+          "label": null,
+          "width": 0,
+          "height": 0,
+          "visibleButtons": 0
+        },
+        "offTarget": true,
+        "reservations": 0
+      }
+    },
+    {
+      "image": "vault-recreated-automatic-panel.png",
+      "sha256": "8046eae5c818ebf13019a221fe07676c19c0ba50b06f51510c337e079e23697e",
+      "bytes": 1832213,
+      "captureIntervalTurns": [
+        859,
+        875
+      ],
+      "before": {
+        "turn": 859,
+        "time": 71.58333333333333,
+        "animationFrame": 1719,
+        "panelFrame": 1719,
+        "current": true,
+        "level": 3,
+        "speed": 1,
+        "paused": false,
+        "status": "playing",
+        "inputMask": 0,
+        "mode": null,
+        "selected": [
+          46
+        ],
+        "unlocked": false,
+        "trained": 0,
+        "cast": 0,
+        "head": {
+          "id": 92,
+          "kind": "vault",
+          "model": 154,
+          "x": -37,
+          "z": -133,
+          "active": true,
+          "enabled": true,
+          "followers": 1,
+          "work": 3,
+          "target": 100,
+          "progress": 0.03,
+          "uses": 0,
+          "forced": false
+        },
+        "shaman": {
+          "id": 46,
+          "kind": "shaman",
+          "team": "blue",
+          "hp": 100,
+          "work": 92,
+          "vault": {
+            "head": 92,
+            "phase": 2,
+            "entering": false,
+            "remaining": 0
+          },
+          "orderId": 11,
+          "order": {
+            "model": 33,
+            "a": 92,
+            "flags": 0,
+            "references": 1
+          }
+        },
+        "record": {
+          "identity": 3,
+          "elementIdentity": 4,
+          "automatic": true,
+          "phase": 1,
+          "remaining": 15,
+          "hold": 16
+        },
+        "latch": true,
+        "inspected": null,
+        "dom": {
+          "present": true,
+          "connected": true,
+          "hidden": false,
+          "focused": false,
+          "hovered": false,
+          "label": "Vault of Knowledge: shaman learning; 3% complete",
+          "width": 32,
+          "height": 62,
+          "visibleButtons": 0
+        },
+        "offTarget": true,
+        "reservations": 1
+      },
+      "after": {
+        "turn": 875,
+        "time": 72.91666666666667,
+        "animationFrame": 1750,
+        "panelFrame": 1750,
+        "current": true,
+        "level": 3,
+        "speed": 1,
+        "paused": false,
+        "status": "playing",
+        "inputMask": 0,
+        "mode": null,
+        "selected": [
+          46
+        ],
+        "unlocked": false,
+        "trained": 0,
+        "cast": 0,
+        "head": {
+          "id": 92,
+          "kind": "vault",
+          "model": 154,
+          "x": -37,
+          "z": -133,
+          "active": true,
+          "enabled": true,
+          "followers": 1,
+          "work": 7,
+          "target": 100,
+          "progress": 0.07,
+          "uses": 0,
+          "forced": false
+        },
+        "shaman": {
+          "id": 46,
+          "kind": "shaman",
+          "team": "blue",
+          "hp": 100,
+          "work": 92,
+          "vault": {
+            "head": 92,
+            "phase": 2,
+            "entering": false,
+            "remaining": 0
+          },
+          "orderId": 11,
+          "order": {
+            "model": 33,
+            "a": 92,
+            "flags": 0,
+            "references": 1
+          }
+        },
+        "record": {
+          "identity": 3,
+          "elementIdentity": 4,
+          "automatic": true,
+          "phase": 1,
+          "remaining": 15,
+          "hold": 16
+        },
+        "latch": true,
+        "inspected": null,
+        "dom": {
+          "present": true,
+          "connected": true,
+          "hidden": false,
+          "focused": false,
+          "hovered": false,
+          "label": "Vault of Knowledge: shaman learning; 7% complete",
+          "width": 32,
+          "height": 62,
+          "visibleButtons": 0
+        },
+        "offTarget": true,
+        "reservations": 1
+      }
+    },
+    {
+      "image": "vault-earned-knowledge-and-departure.png",
+      "sha256": "3436bef5ac0de6255b9b9c21e6d0ef678bb8c382e2b134e9fc9900f9932c579f",
+      "bytes": 1841744,
+      "captureIntervalTurns": [
+        1431,
+        1448
+      ],
+      "before": {
+        "turn": 1431,
+        "time": 119.25,
+        "animationFrame": 2863,
+        "panelFrame": 2863,
+        "current": true,
+        "level": 3,
+        "speed": 1,
+        "paused": false,
+        "status": "playing",
+        "inputMask": 0,
+        "mode": null,
+        "selected": [
+          46
+        ],
+        "unlocked": true,
+        "trained": 0,
+        "cast": 0,
+        "head": {
+          "id": 92,
+          "kind": "vault",
+          "model": 152,
+          "x": -37,
+          "z": -133,
+          "active": false,
+          "enabled": true,
+          "followers": 1,
+          "work": 0,
+          "target": 100,
+          "progress": 0,
+          "uses": 1,
+          "forced": true
+        },
+        "shaman": {
+          "id": 46,
+          "kind": "shaman",
+          "team": "blue",
+          "hp": 100,
+          "work": null,
+          "vault": null,
+          "orderId": 0,
+          "order": {
+            "model": 0,
+            "a": 0,
+            "flags": 0,
+            "references": 0
+          }
+        },
+        "record": null,
+        "latch": false,
+        "inspected": null,
+        "dom": {
+          "present": false,
+          "connected": false,
+          "hidden": null,
+          "focused": false,
+          "hovered": false,
+          "label": null,
+          "width": 0,
+          "height": 0,
+          "visibleButtons": 0
+        },
+        "offTarget": true,
+        "reservations": 0
+      },
+      "after": {
+        "turn": 1448,
+        "time": 120.66666666666667,
+        "animationFrame": 2897,
+        "panelFrame": 2897,
+        "current": true,
+        "level": 3,
+        "speed": 1,
+        "paused": false,
+        "status": "playing",
+        "inputMask": 0,
+        "mode": null,
+        "selected": [
+          46
+        ],
+        "unlocked": true,
+        "trained": 0,
+        "cast": 0,
+        "head": {
+          "id": 92,
+          "kind": "vault",
+          "model": 152,
+          "x": -37,
+          "z": -133,
+          "active": false,
+          "enabled": true,
+          "followers": 1,
+          "work": 0,
+          "target": 100,
+          "progress": 0,
+          "uses": 1,
+          "forced": true
+        },
+        "shaman": {
+          "id": 46,
+          "kind": "shaman",
+          "team": "blue",
+          "hp": 100,
+          "work": null,
+          "vault": null,
+          "orderId": 0,
+          "order": {
+            "model": 0,
+            "a": 0,
+            "flags": 0,
+            "references": 0
+          }
+        },
+        "record": null,
+        "latch": false,
+        "inspected": null,
+        "dom": {
+          "present": false,
+          "connected": false,
+          "hidden": null,
+          "focused": false,
+          "hovered": false,
+          "label": null,
+          "width": 0,
+          "height": 0,
+          "visibleButtons": 0
+        },
+        "offTarget": true,
+        "reservations": 0
+      }
+    }
+  ],
+  "rendererWarnings": [
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0x1374001b3e00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x1374001b3e00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+  ],
+  "limits": [
+    "One ordinary M3 automatic Vault panel interruption/reissue and earned reward/departure. No native timing, physical allocator, socket anchor, clickable-slot or hardware-performance claim.",
+    "Actual ordinary lifecycle captures at one unchanged product source, not before/after implementation images.",
+    "Screenshots are bracketed by their before/after observation turns; no exact frozen-frame claim.",
+    "parityMeasurements is empty: the local-render scenario naming is outside current reporter discovery. No computed parity credit or ledger change is claimed.",
+    "Raw reports are retained, not embedded; no profile or original input bytes are published."
+  ],
+  "rawSummaryNamingNote": "The retained raw summary calls1449 departureTurn. It is actually observer.close; the synchronous final task/order release is1425. Raw report bytes and hash are unchanged.",
+  "reviewSha256": "cb6cc2624fe43007578ebf49d13c57ff7cb51b210fdffb1c1f160b4187c08b77"
+}

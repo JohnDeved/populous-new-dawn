@@ -1,0 +1,421 @@
+{
+  "version": 1,
+  "kind": "compact-source-bound-verification-summary",
+  "base": "4754e12d3590bde18656416514871b033de164be",
+  "source": "79618d3323a6062dd2b7fc1c4e37e8055d2f86a0",
+  "sourceTree": "697c47d853096e9c71130499d6de953f34421d25",
+  "sourceAndCallerUnchangedSince": "55948aa662a46701bc84ecf484fc2b50b54a820d",
+  "pr": 310,
+  "issue": 72,
+  "issueScope": "partial; refs only",
+  "standardAggregateSha256": "4320075f8d06ed320023d256e6e86a262968a5a58af383d60d663ff08333a530",
+  "reviewSha256": "cb6cc2624fe43007578ebf49d13c57ff7cb51b210fdffb1c1f160b4187c08b77",
+  "standardResult": "passed17 stages;1864/1864 tests across300 standard files, fresh typecheck/parity/orchestration/build",
+  "browserResult": {
+    "status": "passed",
+    "resultReview": "accepted",
+    "summarySha256": "69b683133cc14a3a416bbadaba7040a6cf96eebf176eff45a01914ee022d509d",
+    "rawCommandReceiptSha256": "1b1b5aa2d5558f09881aa984662e321160a27c8a69625e80863095a52d312169",
+    "source": "79618d3323a6062dd2b7fc1c4e37e8055d2f86a0",
+    "profileCleanupVerified": true,
+    "observerErrors": []
+  },
+  "originalEvidence": "Retained static source only; no fresh composed native execution.",
+  "receipts": [
+    {
+      "name": "expected-red",
+      "scope": "Expected missing first0\u21921 sampler request assertion; existing approach test passed. No runtime edits at this head.",
+      "retainedReceipt": "work/orchestration/vault-auto-red/caller.json",
+      "receiptSha256": "91c367aee762c67d444ce847fc54600e101bb5bb7ef7ff928014fc5ab986a1ea",
+      "status": "failed",
+      "exitCode": 1,
+      "source": {
+        "headOid": "189d394dce56719a6e3e27c19f09a17c7cc94003",
+        "branch": "feature/vault-automatic-prayer-panel-20261010",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {
+          "scripts/orchestration/command-receipt.mjs": "cb6e670973ddf7e0e83bb7efb79e7b4f2315e575d9764620c539a8683ea6727d",
+          "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+          "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+        }
+      },
+      "sourceUnchanged": true,
+      "command": [
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "60s",
+        "taskset",
+        "-c",
+        "4",
+        "node",
+        "--test",
+        "tests/vault-approach-caller.test.mjs"
+      ],
+      "startedAt": "2026-10-10T09:55:01.777Z",
+      "finishedAt": "2026-10-10T09:55:04.247Z",
+      "stdoutSha256": "f0662afaafb70e9900c4bb24487dc823d977d7daec9ace9f0ff6a8a73c079fcb",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "initial-consumer-attempt",
+      "scope": "9 passed,1 supplied capacity-fixture failure: mock building reservations had not been resynced after clearing records. Setup repaired without weakening allocation assertions.",
+      "retainedReceipt": "work/orchestration/vault-auto-green/caller.json",
+      "receiptSha256": "6b145d43c5976b0aa5184a19847b25989653640e0fc15df8ffe837aa1eeb22cf",
+      "status": "failed",
+      "exitCode": 1,
+      "source": {
+        "headOid": "158ff2ed038878ec96a8611a9b8ed085eaf297b2",
+        "branch": "feature/vault-automatic-prayer-panel-20261010",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {
+          "scripts/orchestration/command-receipt.mjs": "cb6e670973ddf7e0e83bb7efb79e7b4f2315e575d9764620c539a8683ea6727d",
+          "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+          "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+        }
+      },
+      "sourceUnchanged": true,
+      "command": [
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "60s",
+        "taskset",
+        "-c",
+        "4",
+        "node",
+        "--test",
+        "tests/vault-approach-caller.test.mjs",
+        "tests/worship-panel-activity.test.mjs"
+      ],
+      "startedAt": "2026-10-10T09:59:49.146Z",
+      "finishedAt": "2026-10-10T09:59:55.515Z",
+      "stdoutSha256": "e2f1f3289a44a367112e1552998f49a0658927eec4b0c51c93f95fb0cbf7e62c",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "corrected-caller",
+      "scope": "11/11 actual caller and supporting regressions passed.",
+      "retainedReceipt": "work/orchestration/vault-auto-green2/caller.json",
+      "receiptSha256": "fd1fb9f4b44778ba59a388c282e8a18ccef9886f1e493f9facfb57999dd39444",
+      "status": "passed",
+      "exitCode": 0,
+      "source": {
+        "headOid": "55948aa662a46701bc84ecf484fc2b50b54a820d",
+        "branch": "feature/vault-automatic-prayer-panel-20261010",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {
+          "scripts/orchestration/command-receipt.mjs": "cb6e670973ddf7e0e83bb7efb79e7b4f2315e575d9764620c539a8683ea6727d",
+          "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+          "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+        }
+      },
+      "sourceUnchanged": true,
+      "command": [
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "60s",
+        "taskset",
+        "-c",
+        "4",
+        "node",
+        "--test",
+        "tests/vault-approach-caller.test.mjs",
+        "tests/worship-panel-activity.test.mjs"
+      ],
+      "startedAt": "2026-10-10T10:01:42.979Z",
+      "finishedAt": "2026-10-10T10:01:49.814Z",
+      "stdoutSha256": "f248dbdb716c95f678b7dd897363c234115ba256ce79f025be7e97b44e74c14f",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "camp-temple-compatibility",
+      "scope": "53/53 existing shared consumer regressions passed.",
+      "retainedReceipt": "work/orchestration/vault-auto-shared/callers.json",
+      "receiptSha256": "1c9ab938dc57592698c26fbc29b9fb17d7d7238aba8bac12657d1f6f992a10ba",
+      "status": "passed",
+      "exitCode": 0,
+      "source": {
+        "headOid": "55948aa662a46701bc84ecf484fc2b50b54a820d",
+        "branch": "feature/vault-automatic-prayer-panel-20261010",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {
+          "scripts/orchestration/command-receipt.mjs": "cb6e670973ddf7e0e83bb7efb79e7b4f2315e575d9764620c539a8683ea6727d",
+          "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+          "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+        }
+      },
+      "sourceUnchanged": true,
+      "command": [
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "60s",
+        "taskset",
+        "-c",
+        "4",
+        "node",
+        "--test",
+        "tests/camp-automatic-panel.test.mjs",
+        "tests/temple-automatic-panel.test.mjs",
+        "tests/temple-training-witness.test.mjs",
+        "tests/temple-training-cache.test.mjs"
+      ],
+      "startedAt": "2026-10-10T10:02:07.503Z",
+      "finishedAt": "2026-10-10T10:02:39.158Z",
+      "stdoutSha256": "21c0e2cd4fa57a80c451b20951feb7d21951b98fd04f8c3557810cf71b7ded37",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "early-typecheck",
+      "scope": "Passed before test-only changes and one explanatory source comment; final profile also contains fresh exact-head typecheck.",
+      "retainedReceipt": "work/orchestration/vault-auto-typecheck/typecheck.json",
+      "receiptSha256": "1e5242fb29facccc50cc438bc5adeea4050e18c4b75552ccd8e496b693038c1b",
+      "status": "passed",
+      "exitCode": 0,
+      "source": {
+        "headOid": "158ff2ed038878ec96a8611a9b8ed085eaf297b2",
+        "branch": "feature/vault-automatic-prayer-panel-20261010",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {
+          "scripts/orchestration/command-receipt.mjs": "cb6e670973ddf7e0e83bb7efb79e7b4f2315e575d9764620c539a8683ea6727d",
+          "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+          "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+        }
+      },
+      "sourceUnchanged": true,
+      "command": [
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "60s",
+        "taskset",
+        "-c",
+        "4",
+        "node_modules/.bin/tsc",
+        "--noEmit",
+        "--incremental",
+        "false"
+      ],
+      "startedAt": "2026-10-10T09:57:57.850Z",
+      "finishedAt": "2026-10-10T09:58:15.105Z",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "scoped-format",
+      "scope": "Four changed maintained TypeScript files passed.",
+      "retainedReceipt": "work/orchestration/vault-auto-format/result.json",
+      "receiptSha256": "da962f89d6137d1d1500afc512e50c97ffb8e846b9a8160f06ff9af678cc1279",
+      "status": "passed",
+      "exitCode": 0,
+      "source": {
+        "headOid": "55948aa662a46701bc84ecf484fc2b50b54a820d",
+        "branch": "feature/vault-automatic-prayer-panel-20261010",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {
+          "scripts/orchestration/command-receipt.mjs": "cb6e670973ddf7e0e83bb7efb79e7b4f2315e575d9764620c539a8683ea6727d",
+          "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+          "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+        }
+      },
+      "sourceUnchanged": true,
+      "command": [
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "60s",
+        "taskset",
+        "-c",
+        "4",
+        "node_modules/.bin/oxfmt",
+        "--check",
+        "app/object-panels.ts",
+        "app/training-panel-requests.ts",
+        "app/worship-panel-activity.ts",
+        "app/world-turn.ts"
+      ],
+      "startedAt": "2026-10-10T10:03:44.557Z",
+      "finishedAt": "2026-10-10T10:03:44.695Z",
+      "stdoutSha256": "fcf997a8a9e5e1a7ab39e83fa12e6118207f873664778c918ab5e9cf3c033452",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "scoped-eslint",
+      "scope": "FAILED208 inherited unused-import diagnostics; exact base stdin reproduced208, no new identities.",
+      "retainedReceipt": "work/orchestration/vault-auto-eslint/result.json",
+      "receiptSha256": "2549c3f692ffc53e2e45e3ae4e462068609fc11803ae8f66f6fafaf518b1e645",
+      "status": "failed",
+      "exitCode": 1,
+      "source": {
+        "headOid": "55948aa662a46701bc84ecf484fc2b50b54a820d",
+        "branch": "feature/vault-automatic-prayer-panel-20261010",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {
+          "scripts/orchestration/command-receipt.mjs": "cb6e670973ddf7e0e83bb7efb79e7b4f2315e575d9764620c539a8683ea6727d",
+          "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+          "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+        }
+      },
+      "sourceUnchanged": true,
+      "command": [
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "60s",
+        "taskset",
+        "-c",
+        "4",
+        "node_modules/.bin/eslint",
+        "app/object-panels.ts",
+        "app/training-panel-requests.ts",
+        "app/worship-panel-activity.ts",
+        "app/world-turn.ts"
+      ],
+      "startedAt": "2026-10-10T10:03:45.969Z",
+      "finishedAt": "2026-10-10T10:03:48.714Z",
+      "stdoutSha256": "c9a78f344d8a9f4e3f8021041ea4a7384b723684f44ea74a3f91001e4891c448",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "scoped-oxlint",
+      "scope": "FAILED287 inherited diagnostics; detached exact-base comparison matched file/column/message/source text, no new identities.",
+      "retainedReceipt": "work/orchestration/vault-auto-oxlint/result.json",
+      "receiptSha256": "07b2816378f2e6e77250f742b90033bef3c7fdc052c74b6a471f3989c07ceae4",
+      "status": "failed",
+      "exitCode": 1,
+      "source": {
+        "headOid": "55948aa662a46701bc84ecf484fc2b50b54a820d",
+        "branch": "feature/vault-automatic-prayer-panel-20261010",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {
+          "scripts/orchestration/command-receipt.mjs": "cb6e670973ddf7e0e83bb7efb79e7b4f2315e575d9764620c539a8683ea6727d",
+          "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+          "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+        }
+      },
+      "sourceUnchanged": true,
+      "command": [
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "60s",
+        "taskset",
+        "-c",
+        "4",
+        "node_modules/.bin/oxlint",
+        "app/object-panels.ts",
+        "app/training-panel-requests.ts",
+        "app/worship-panel-activity.ts",
+        "app/world-turn.ts"
+      ],
+      "startedAt": "2026-10-10T10:03:47.393Z",
+      "finishedAt": "2026-10-10T10:03:47.880Z",
+      "stdoutSha256": "7be2bd6d663d5cf8363ae5a4f8d70a348d871c19ce73e5917b3ca4c6c87fa7e8",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "lint-stdin-attribution-attempt",
+      "scope": "ESLint comparison succeeded; Oxlint stdin-filename is unsupported. Overall failed attempt retained, never treated as a clean Oxlint baseline.",
+      "retainedReceipt": "work/orchestration/vault-auto-baseline/result.json",
+      "receiptSha256": "f95bf9374e7732873031d2c5749817e081bf3b867ab0c70b5a40c9d4cea46c85",
+      "status": "failed",
+      "exitCode": 1,
+      "source": {
+        "headOid": "79618d3323a6062dd2b7fc1c4e37e8055d2f86a0",
+        "branch": "feature/vault-automatic-prayer-panel-20261010",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {
+          "scripts/orchestration/command-receipt.mjs": "cb6e670973ddf7e0e83bb7efb79e7b4f2315e575d9764620c539a8683ea6727d",
+          "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+          "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+          "/tmp/vault-quality-baseline.mjs": "63cecfb9a29a2d470f21200c30b522043671dd218b33d03c74c922320ec2e12b",
+          "work/orchestration/vault-auto-eslint/result.json.artifacts/stdout.log": "c9a78f344d8a9f4e3f8021041ea4a7384b723684f44ea74a3f91001e4891c448",
+          "work/orchestration/vault-auto-oxlint/result.json.artifacts/stdout.log": "7be2bd6d663d5cf8363ae5a4f8d70a348d871c19ce73e5917b3ca4c6c87fa7e8"
+        }
+      },
+      "sourceUnchanged": true,
+      "command": [
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "60s",
+        "taskset",
+        "-c",
+        "4",
+        "node",
+        "/tmp/vault-quality-baseline.mjs",
+        "work/orchestration/vault-auto-baseline/comparison.json"
+      ],
+      "startedAt": "2026-10-10T10:05:53.365Z",
+      "finishedAt": "2026-10-10T10:06:01.069Z",
+      "stdoutSha256": "b7a75f9f1bf253b01ff903a958ed239c7a41b9ccf9ee2df9f16c68487e1cedf9",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "detached-oxlint-base",
+      "scope": "FAILED287 at exact base under same explicit config and stationary binary; no baseline dependency tree added.",
+      "retainedReceipt": "/workspace/scratch/69fd8163d94e/vault-prayer-quality-baseline-20261010/work/orchestration/vault-auto-oxlint-base/result.json",
+      "receiptSha256": "9bf8abd312894b45e943076b22762e3915e3b816533080b4109277248ba991d3",
+      "status": "failed",
+      "exitCode": 1,
+      "source": {
+        "headOid": "4754e12d3590bde18656416514871b033de164be",
+        "branch": "",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {
+          "scripts/orchestration/command-receipt.mjs": "cb6e670973ddf7e0e83bb7efb79e7b4f2315e575d9764620c539a8683ea6727d",
+          "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+          "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+          "/workspace/scratch/69fd8163d94e/vault-automatic-prayer-panel-20261010/.oxlintrc.json": "caa0057ea1cbbc87402c3942667be83c2298b3a167957cea7153d0d72444ccff",
+          "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/node_modules/oxc-standard/.oxlintrc.json": "12a8af193abedfc648f0b37822a0092df18b5cd83644b8e6bd57d0f1e24d2bbc"
+        }
+      },
+      "sourceUnchanged": true,
+      "command": [
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "60s",
+        "taskset",
+        "-c",
+        "4",
+        "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/node_modules/.bin/oxlint",
+        "--config",
+        "/workspace/scratch/69fd8163d94e/vault-automatic-prayer-panel-20261010/.oxlintrc.json",
+        "app/object-panels.ts",
+        "app/training-panel-requests.ts",
+        "app/worship-panel-activity.ts",
+        "app/world-turn.ts"
+      ],
+      "startedAt": "2026-10-10T10:08:37.159Z",
+      "finishedAt": "2026-10-10T10:08:37.338Z",
+      "stdoutSha256": "7a43123cf5aea94d2e10af73c9abf186d29770003e495e7550d42948c8e57e63",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "lintAttribution": {
+    "eslint": {
+      "status": "failed",
+      "diagnostics": 208,
+      "new": 0,
+      "method": "Exact base bytes via stdin, unchanged configuration."
+    },
+    "oxlint": {
+      "status": "failed",
+      "diagnostics": 287,
+      "new": 0,
+      "comparisonSha256": "db281df626c523c3d8475faf9d51ce82f7b79a200229f2eee4d2b5a2da48d9ae",
+      "method": "Detached exact-base source tree, same explicit config/stationary binary; compared file/column/rule-message/exact source line. All33 cycle-import diagnostics preexisting. Baseline has no node_modules."
+    }
+  },
+  "nonfatalBuildWarnings": [
+    "proxy/npm notices",
+    "plugin timing",
+    "large chunks",
+    "route classification"
+  ],
+  "rawEvidence": "Raw receipts/logs are retained under the listed local paths. This public packet is a hash-bound compact summary; it contains no browser profiles, original executable/data bytes, or raw archive.",
+  "parityDiscoveryLimit": "Empty parityMeasurements: maintained local-render scenario name is outside current reporter discovery; no computed parity credit or ledger change."
+}
