@@ -84,7 +84,7 @@ test('the live building factory opts into original training selection without ti
   const source = readFileSync(new URL('../app/scene-entities.ts', import.meta.url), 'utf8')
   const factory = source.slice(source.indexOf('function makeBuilding('), source.indexOf('\nfunction makeVehicle('))
   assert.ok(factory.includes('originalTrainingHutObject(b)'))
-  assert.ok(factory.includes('nativeModel(renderId'))
+  assert.match(factory, /nativeModel\(\s*renderId/)
   assert.ok(factory.includes('signature: `${id}-${stage}`'))
   assert.ok(!factory.includes('.material.color'))
 })

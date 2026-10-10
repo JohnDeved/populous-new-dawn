@@ -117,7 +117,7 @@ export function nativeModel(
   id: number,
   scale = 2,
   stage = 4,
-  temple = false,
+  animatedTemple = false,
   environment: WorldEnvironment = compatibilityEnvironment
 ) {
   const resource = nativeModelResource(id, environment.objects.bank),
@@ -144,7 +144,7 @@ export function nativeModel(
     // Native screen-space winding is clockwise after the WebGL Y inversion.
     // 0x4708d0 culls rear faces; 0x471c40 keeps both construction-stage sides.
     new THREE.MeshBasicMaterial({
-      map: texture(temple ? templeArt.modelAtlas : environment.landscape.modelAtlas),
+      map: texture(environment.landscape.modelAtlas),
       side: stage === 4 ? THREE.BackSide : THREE.DoubleSide,
       alphaTest: 0.5,
     })
@@ -156,12 +156,12 @@ export function nativeModel(
   mesh.userData.stage = stage
   mesh.userData.nativeScale = data.scale
   mesh.userData.highlight = { value: 0 }
-  if (temple) mesh.userData.templeTileOffset = { value: new THREE.Vector2() }
+  if (animatedTemple) mesh.userData.templeTileOffset = { value: new THREE.Vector2() }
   mesh.material.onBeforeCompile = shader => {
     shader.uniforms.modelHighlight = mesh.userData.highlight
-    if (temple) shader.uniforms.templeTileOffset = mesh.userData.templeTileOffset
+    if (animatedTemple) shader.uniforms.templeTileOffset = mesh.userData.templeTileOffset
     shader.vertexShader =
-      `${temple ? 'uniform vec2 templeTileOffset;\n' : ''}attribute float faceShade;
+      `${animatedTemple ? 'uniform vec2 templeTileOffset;\n' : ''}attribute float faceShade;
 attribute vec3 faceAnchor;
 attribute float textureMode;
 varying float modelLight;
@@ -179,7 +179,7 @@ varying float modelTextureMode;
       modelLight=float(depth>-3328?max(1,int(faceShade)+nativeMul(-3328-depth,32)/8192):int(faceShade));
     `
     )
-    if (temple)
+    if (animatedTemple)
       shader.vertexShader = shader.vertexShader.replace(
         '#include <uv_vertex>',
         '#include <uv_vertex>\nif(textureMode==32.) vMapUv += templeTileOffset;'
@@ -201,7 +201,7 @@ varying float modelTextureMode;
     )
   }
   mesh.material.customProgramCacheKey = () =>
-    temple ? 'native-model-light-temple' : 'native-model-light'
+    animatedTemple ? 'native-model-light-temple' : 'native-model-light'
   return mesh
 }
 export function updateModelLighting(object: THREE.Object3D) {

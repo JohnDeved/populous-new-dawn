@@ -68,6 +68,7 @@ const ready = constructor.body.statements.find(
 test('actual Scene preload/start/animate/dispose and Page retry respect the current store binding', async t => {
   const api = await loadSceneFixture(),
     { GameScene } = await import('../app/scene.ts'),
+    { worldEnvironment } = await import('../app/world-environment.ts'),
     { createGameStore } = await import('../app/game-store.ts'),
     { loadTexture, retryFailedTexture } = await import('../app/scene-assets.ts'),
     { vaultKnowledgeAtlas } = await import('../app/vault-appearance.ts'),
@@ -123,6 +124,7 @@ test('actual Scene preload/start/animate/dispose and Page retry respect the curr
       calls = [],
       scene = Object.assign(Object.create(GameScene.prototype), {
         world,
+        environment: worldEnvironment(world),
         started: false,
         disposed: false,
         previous: null,
@@ -329,8 +331,8 @@ test('actual world building caller binds the Temple shader across nine selection
         fragmentShader: '#include <colorspace_fragment>',
       }
     assert.equal(mesh.userData.nativeModel, 95)
-    assert.equal(fixture.scene.buildingMeshes.get(temple.id).userData.signature, '95-4-p')
-    assert.equal(mesh.material.map.image.src, '/original/temple-model-p.png')
+    assert.equal(fixture.scene.buildingMeshes.get(temple.id).userData.signature, '95-4-animated')
+    assert.equal(mesh.material.map.image.src, '/original/atlas-p.png')
     mesh.material.onBeforeCompile(shader)
     assert.equal(shader.uniforms.templeTileOffset, mesh.userData.templeTileOffset)
     assert.match(shader.vertexShader, /if\(textureMode==32\.\) vMapUv \+= templeTileOffset/)
@@ -340,7 +342,7 @@ test('actual world building caller binds the Temple shader across nine selection
       fixture.scene.templeResourceSnapshot = snapshot
       fixture.render()
       assert.equal(fixture.scene.buildingMeshes.get(temple.id).children[0], mesh)
-      assert.equal(fixture.scene.buildingMeshes.get(temple.id).userData.signature, '95-4-p')
+      assert.equal(fixture.scene.buildingMeshes.get(temple.id).userData.signature, '95-4-animated')
       assert.equal(mesh.geometry, geometry)
       assert.deepEqual([...mesh.geometry.getAttribute('uv').array], originalUV)
       assert.deepEqual(
@@ -406,7 +408,7 @@ test('actual training factories retain legacy keys and reuse all16 meshes at all
           const group = fixture.scene.buildingMeshes.get(building.id),
             [mesh] = group.children,
             { geometry, material } = mesh
-          assert.equal(group.userData.signature, `${base + tribe}-${stage}`)
+          assert.equal(group.userData.signature, `${base + tribe}-${stage}${kind === 'temple' && stage === 4 ? '-animated' : ''}`)
           assert.equal(mesh.userData.nativeModel, base + tribe)
           assert.equal(mesh.userData.stage, stage)
           assert.equal(material.map.image.src, '/original/atlas.png')

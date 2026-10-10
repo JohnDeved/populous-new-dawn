@@ -488,6 +488,7 @@ export function installMission3BuildingScreenWitness({
             checkOwner()
             const resource = drawResource(),
               resolved = templeSpriteMaterial(
+                3,
                 command.frame,
                 command.palette,
                 scene.templeResourceSnapshot

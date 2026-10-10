@@ -358,8 +358,8 @@ export class GameScene {
   ) {
     this.presentationBinding = presentationBinding
     this.templeResourceSnapshot = presentationBinding?.snapshot() ?? null
-    if (world.outcome.level === 3 && !this.templeResourceSnapshot)
-      throw new Error('Mission 3 requires its presentation resource binding')
+    if (!this.templeResourceSnapshot)
+      throw new Error('Scene requires its presentation resource binding')
     if (tooltipSession) {
       this.tooltipSession = tooltipSession
       this.tooltipController = createTooltipController(this.tooltip, tooltipSession)

@@ -1,3 +1,4 @@
+import { worldEnvironment } from './world-environment.ts'
 import { rebuildSecondaryLists } from './secondary-effects.ts'
 import { restoreSecondaryEffects } from './hut-smoke-runtime.ts'
 import {
@@ -367,6 +368,7 @@ export function createGameStore() {
     observedCompletion = world.outcome.completedLevel,
     revision = 0
   const presentation = createSharedAniblResource()
+  presentation.transition(worldEnvironment(world).landscape)
   let presentationToken: symbol | null = null
   const completedMissions = new Set<number>()
   const listeners = new Set<() => void>()
@@ -392,7 +394,7 @@ export function createGameStore() {
   const replaceWorld = (next: World, retainResource = false) => {
     // Preparation has already succeeded. Commit both owners before publication;
     // old Scene callbacks lose authority even when Restart retains the resource.
-    presentation.transition(next.outcome.level === 3, retainResource)
+    presentation.transition(worldEnvironment(next).landscape, retainResource)
     world = next
     presentationToken = null
     observedCompletion = world.outcome.completedLevel
@@ -466,7 +468,7 @@ export function createGameStore() {
       return true
     },
     restart: () => {
-      const retainResource = world.outcome.level === 3 && !(world.land.landFlags & 8)
+      const retainResource = !(world.land.landFlags & 8)
       replaceWorld(createWorld(world.outcome.level), retainResource)
     },
     startMission: (mission: number) => {

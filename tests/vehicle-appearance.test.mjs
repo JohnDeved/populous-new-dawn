@@ -109,7 +109,7 @@ test('the shipped vehicle factory consumes original models, with no custom hull/
   const entities = readFileSync(new URL('../app/scene-entities.ts', import.meta.url), 'utf8')
   const factory = entities.slice(entities.indexOf('function makeVehicle('), entities.indexOf('\nexport ', entities.indexOf('function makeVehicle(')))
   assert.ok(factory.includes('originalVehicleMesh(v.model)'))
-  assert.ok(factory.includes('nativeModel(resource)'))
+  assert.ok(factory.includes('nativeModel(resource, 2, 4, false, scene.environment)'))
   assert.ok(factory.includes('point: { id: v.id }, vehicle: v.id'))
   assert.ok(!/SphereGeometry|PlaneGeometry|\bbox\(/.test(factory))
   assert.ok(entities.includes('scene.locate(g, browserPosition(v), v.h / 45)'))

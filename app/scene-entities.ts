@@ -190,7 +190,7 @@ function makeBuilding(scene: GameScene, b: Building, stage: number, temple = fal
     health,
     healthFill,
   }
-  if (temple) g.userData.signature += '-p'
+  if (temple) g.userData.signature += '-animated'
   return g
 }
 
@@ -679,13 +679,13 @@ export function updateBuildingsFrame(scene: GameScene) {
     if (b.preparation) continue
     const stage = buildingStage(b),
       temple = templeWorldMaterial(
-        scene.world.outcome.level,
+        scene.environment,
         b,
         buildingObject(b),
         stage,
         scene.templeResourceSnapshot
       ),
-      signature = `${buildingObject(b)}-${stage}${temple ? '-p' : ''}`
+      signature = `${buildingObject(b)}-${stage}${temple ? '-animated' : ''}`
     let g = scene.buildingMeshes.get(b.id)
     if (g && g.userData.signature !== signature) {
       releaseHutSmoke(scene, g)
