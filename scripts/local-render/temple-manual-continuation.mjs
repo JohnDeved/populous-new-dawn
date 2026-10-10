@@ -1,5 +1,5 @@
 // Adapted from reviewed public7da59ae Temple continuation. Carry only this run's
-// real committed Save2695; both preceding ordinary attempts remain failed.
+// real committed Save2695; all preceding ordinary attempts remain failed.
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
@@ -23,10 +23,19 @@ export const templeContinuationSource = Object.freeze({
   origin: 'http://127.0.0.1:4374',
 })
 export const templeContinuationBounds = Object.freeze({ harnessMs: 1500000, loadMs: 15000 })
+export const templeContinuationPrevious = Object.freeze({
+  output: 'work/orchestration/temple-manual-ordinary-03',
+  receiptSha256: 'cb92af049b5103a5050e56e15cf95f58b8434bff6661032c820bd5ad0864df4c',
+  trainingSha256: '95c579d6ddcddc68bc78d446715e5b325a95ce7c42d9f9459ae354596c754172',
+  loadSha256: '0ac414fcdde16561993dab954a417fe1e69614ed5af14212b0fc36cd76f867ab',
+  priorRunId: '2c7783da-f039-4172-b0bf-75ad09a55195',
+  sourceFingerprint: '8a151c0a27191d7d1067e86494ae0e0876e5c37cfb380041eb50d26f9e6fdb08',
+  checker: '5ed8e59b49374586b2a325c3c839ba4c157cb31124e0f246079a1e38b37c6f1a',
+})
 
 export function readTempleContinuation(root, receipt) {
-  const read = (file, expected) => {
-    const bytes = readFileSync(resolve(root, templeContinuationSource.output, file))
+  const read = (file, expected, output = templeContinuationSource.output) => {
+    const bytes = readFileSync(resolve(root, output, file))
     assert.equal(
       createHash('sha256').update(bytes).digest('hex'),
       expected,
@@ -62,16 +71,36 @@ export function readTempleContinuation(root, receipt) {
   assert.deepEqual(epoch.errors, [])
   assert.equal(epoch.input, null)
   assert.equal(epoch.records.filter(row => row.kind === 'request').length, 0)
+  // Carry the latest failed lease separately from the genuine earned prefix.
+  const previous = templeContinuationPrevious,
+    latest = read('receipt.json', previous.receiptSha256, previous.output),
+    latestTraining = read('temple-training-auto.json', previous.trainingSha256, previous.output),
+    latestLoad = read('temple-manual-continuation.json', previous.loadSha256, previous.output)
+  assert.equal(latest.status, 'failed')
+  assert.deepEqual(latest.errors, [])
+  assert.equal(latest.profile.cleanupVerified, true)
+  assert.equal(latest.profile.continuationVerified, true)
+  assert.deepEqual(latest.profile.checkpointAtEnd, prior.profile.checkpointAtEnd)
+  assert.equal(latestLoad.status, 'passed')
+  assert.deepEqual(latestLoad.cleanupErrors, [])
+  assert.equal(latestTraining.status, 'failed')
+  assert.deepEqual(latestTraining.cleanupErrors, [])
+  assert.deepEqual(latestTraining.observation.cleanupErrors, [])
+  assert.equal(latestTraining.manual.expiry.status, 'passed')
+  const approach = latestTraining.manual.approach
+  assert.equal(approach.status, 'failed')
+  assert.deepEqual(approach.cleanupErrors, [])
+  assert.equal(approach.observation.creation, null)
+  assert.equal(approach.observation.input, null)
+  assert.equal(approach.observation.request.result, 'automatic:created')
+  assert.match(approach.observation.errors.join('\n'), /Actual fresh manual allocation required/)
   assert.equal(receipt.profile.mode, 'reused')
   assert.equal(receipt.profile.id, templeContinuationSource.profileId)
   assert.equal(receipt.profile.origin, templeContinuationSource.origin)
-  assert.equal(receipt.profile.previousRun.runId, templeContinuationSource.priorRunId)
-  assert.equal(receipt.profile.previousRun.receiptSha256, templeContinuationSource.receiptSha256)
-  assert.equal(
-    receipt.profile.previousRun.sourceFingerprint,
-    templeContinuationSource.sourceFingerprint
-  )
-  assert.equal(receipt.profile.previousRun.checker, templeContinuationSource.checker)
+  assert.equal(receipt.profile.previousRun.runId, previous.priorRunId)
+  assert.equal(receipt.profile.previousRun.receiptSha256, previous.receiptSha256)
+  assert.equal(receipt.profile.previousRun.sourceFingerprint, previous.sourceFingerprint)
+  assert.equal(receipt.profile.previousRun.checker, previous.checker)
   assert.equal(receipt.profile.inputs.application, templeContinuationSource.application)
   assert.equal(receipt.profile.correspondence?.decision, 'ACCEPT')
   assert.deepEqual(receipt.profile.checkpointAtStart, prior.profile.checkpointAtEnd)

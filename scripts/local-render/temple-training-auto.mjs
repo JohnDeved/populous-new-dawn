@@ -210,16 +210,25 @@ export default async function templeTrainingAuto(
     report.hit = await input.entityPoint('buildings', targetId, 8)
     save()
     assert.equal(report.hit.rejection, null)
-    await page.evaluate(id => window.templeTraining.armInput(id), traineeId)
-    try {
-      report.dispatch = await input.dispatch(report.hit, 8, [traineeId])
-    } finally {
-      report.trainingInput = await page.evaluate(() => window.templeTraining.finishInput())
-      save()
+    const dispatch = async () => {
+      await page.evaluate(id => window.templeTraining.armInput(id), traineeId)
+      try {
+        report.dispatch = await input.dispatch(report.hit, 8, [traineeId])
+      } finally {
+        report.trainingInput = await page.evaluate(() => window.templeTraining.finishInput())
+        save()
+      }
+      report.recipient = assertTempleTrainInput(report.trainingInput, targetId, traineeId)
+      return report.dispatch
     }
-    report.recipient = assertTempleTrainInput(report.trainingInput, targetId, traineeId)
     if (inspectionSteps)
-      report.manualTransition = await inspectionSteps.approach({ ...inspectionContext, traineeId })
+      report.manualTransition = await inspectionSteps.approach({
+        ...inspectionContext,
+        traineeId,
+        hit: report.hit,
+        dispatch,
+      })
+    else await dispatch()
     await page.mouse.move(20, 975)
     report.active = await wait(
       'actual-entry-and-four-held-visits',

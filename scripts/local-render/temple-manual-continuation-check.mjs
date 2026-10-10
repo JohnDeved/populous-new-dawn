@@ -4,16 +4,19 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { readTempleContinuation, templeContinuationSource } from './temple-manual-continuation.mjs'
+import {
+  readTempleContinuation,
+  templeContinuationPrevious,
+} from './temple-manual-continuation.mjs'
 
-test('continuation admits only the exact retained failed02 profile and committed Save2695', () => {
+test('continuation admits only the exact failed03 lease and original committed Save2695', () => {
   const root = process.cwd()
   const prior = JSON.parse(
-    readFileSync(resolve(root, templeContinuationSource.output, 'receipt.json'))
+    readFileSync(resolve(root, templeContinuationPrevious.output, 'receipt.json'))
   )
   const manifest = JSON.parse(readFileSync(resolve(prior.profile.path, 'populous-profile.json')))
   assert.equal(manifest.lastRun.runId, prior.profile.runId)
-  assert.equal(manifest.lastRun.receiptSha256, templeContinuationSource.receiptSha256)
+  assert.equal(manifest.lastRun.receiptSha256, templeContinuationPrevious.receiptSha256)
   assert.deepEqual(manifest.lastRun.checkpointAtEnd, prior.profile.checkpointAtEnd)
   const simulated = {
     profile: {

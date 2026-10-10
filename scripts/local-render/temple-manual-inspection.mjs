@@ -102,6 +102,14 @@ export function createTempleManualSteps({ output }) {
     if (failed) throw failure
     assert.deepEqual(entry.cleanupErrors, [])
     assertTempleManualObservation(evidence)
+    if (mode === 'approach') {
+      assert(evidence.initial.turn <= entry.dispatch.before.turn)
+      assert(evidence.creation.before.turn >= entry.dispatch.after.turn)
+      assert.deepEqual(
+        [evidence.input.events[0].x, evidence.input.events[0].y],
+        [entry.hit.x, entry.hit.y]
+      )
+    }
     entry.status = 'passed'
     if (evidence.firstFrame) {
       writeFileSync(
@@ -175,13 +183,15 @@ export function createTempleManualSteps({ output }) {
       return run(
         'approach',
         context,
-        async ({ page, input, targetId, wait, act, down, up, entry }) => {
+        async ({ page, targetId, hit, dispatch, wait, act, down, up, entry }) => {
+          // Attach before the real command. The validated training click leaves
+          // the pointer at this target; the actual right event proves its pick.
+          assert.equal(hit.id, targetId)
+          assert.equal(hit.rejection, null)
+          entry.hit = hit
+          entry.dispatch = await dispatch()
           await act('clear-selection', () => page.keyboard.press('Escape'))
           await wait(status => status.selectedCount === 0)
-          const hit = await input.entityPoint('buildings', targetId, null)
-          entry.hit = hit
-          assert.equal(hit.rejection, null)
-          await act('return-to-Temple', () => page.mouse.move(hit.x, hit.y))
           await down()
           await wait(status => status.created)
           await up()
