@@ -36,8 +36,8 @@ Full typed checkpoint digests are intentionally distinguished:
 - Expected migrated Load / actual first Load publication: `b8777edd3f9ca81807cc03e31b095568564474c81b7558f8953e93fb44f4a744`.
 
 The Save and Load full digests differ; Load is compared with production migration,
-not incorrectly asserted equal to the saved object graph. The original committed
-Save remains unchanged at terminal readback. [The compact summary](summary.json)
+not incorrectly asserted equal to the saved object graph. The active Save
+at turn 3012 remains unchanged at terminal readback. [The compact summary](summary.json)
 retains full typed component digests, exact boundaries, source and receipt hashes.
 
 ## Preserved failures and earlier proof

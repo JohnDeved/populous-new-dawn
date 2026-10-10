@@ -114,7 +114,7 @@
     },
     "oldSceneDisposed": true,
     "samePageSession": true,
-    "semantics": "Save and committed readback match; Load matches detached production migration. Saved and loaded full digests differ in this run; no particular raw normalization field is asserted. Terminal storage retains the original committed Save."
+    "semantics": "Save and committed readback match; Load matches detached production migration. Saved and loaded full digests differ in this run; no particular raw normalization field is asserted. Terminal storage retains the active Save at turn 3012."
   },
   "afterLoad": {
     "requestTurn": 3013,
