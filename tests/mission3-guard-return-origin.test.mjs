@@ -40,6 +40,8 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
   const { createLivePerson } = await import('../app/live-people.ts')
   const { migrateCheckpoint } = await import('../app/game-store.ts')
   const { browserPosition } = await import('../app/world-coordinates.ts')
+  const { orderEffects } = await import('../app/live-movement.ts')
+  const { removeObjectFromCell } = await import('../app/object-cells.ts')
 
   // These are supplied command1103 caller states, not an ordinary guard history.
   function scenario({
@@ -56,43 +58,34 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
     assert.ok(shaman)
     assert.ok(guard)
     Object.assign(shaman, browserPosition({ x: 0x1000, y: 0x1000 }))
-    shaman.native = createLivePerson(world, shaman)
+    assert.ok(shaman.native, 'preserve the actual startup person and its command18')
+    Object.assign(shaman.native, { x: 0x1000, y: 0x1000 })
     assert.equal(shaman.native.speed, 0, 'this controlled release has no Shaman speed RNG')
+    if (unavailable === 'missing') {
+      actual.clearPersonOrders(world.buildingOrders, shaman.native, orderEffects(world))
+      removeObjectFromCell(world.objectCells, shaman.native)
+      world.units = world.units.filter(unit => unit.id !== shaman.id)
+    }
+    if (unavailable === 'dead') {
+      shaman.hp = 0
+      shaman.native.life = 0
+    }
+    assert.equal(guard.native, null, 'the supplied guard has no startup orders to replace')
     guard.native = createLivePerson(world, guard)
     const p = guard.native
     p.state = queued ? 33 : 10
     p.commandStatus = 30
     p.commandCursor = 3
-    if (queued) p.commands[3] = 1
-    else p.immediateCommand = 1
-    p.commands[6] = 2
-    // This supplied two-person roster uses its own declared order pool; the
-    // authored startup orders belong to the roster omitted from this fixture.
-    world.buildingOrders = {
-      records: Array.from({ length: world.buildingOrders.records.length }, actual.emptyPersonOrder),
-      cursor: 4,
-      active: 0,
-    }
-    Object.assign(world.buildingOrders.records[1], { model: 30, references: 1 })
-    Object.assign(world.buildingOrders.records[2], {
-      model: 3,
-      references: 1,
-      a: 0x2200,
-      b: 0x4400,
-    })
-    Object.assign(world.buildingOrders.records[10], {
-      model: 3,
-      references: 1,
-      a: 0x6600,
-      b: 0x8800,
-    })
-    world.buildingOrders.active = 3
-    world.buildingOrders.cursor = 4
-    world.units = [guard, shaman]
-    if (unavailable === 'missing') world.units = [guard]
-    if (unavailable === 'dead') {
-      shaman.hp = 0
-      shaman.native.life = 0
+    // Retain the complete roster and genuine startup pool. Add only this
+    // controlled guard's two orders through the production allocator/attachment.
+    for (const [model, slot] of [
+      [30, queued ? 3 : -1],
+      [3, 6],
+    ]) {
+      const id = actual.allocatePersonOrder(world.buildingOrders)
+      assert.ok(id)
+      Object.assign(world.buildingOrders.records[id], { model, a: 0x2200, b: 0x4400 })
+      actual.attachPersonOrder(world.buildingOrders, p, id, slot, orderEffects(world))
     }
     world.manaTribes[p.tribe].shamanGuards = 1
     world.manaTribes[p.tribe].shamanGuardChanged = 0
@@ -137,7 +130,8 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
   function assertReturned({ world, guard }, point) {
     const p = guard.native,
       state = p.state,
-      unrelated = structuredClone(world.buildingOrders.records[10]),
+      beforePool = structuredClone(world.buildingOrders),
+      oldIds = [p.immediateCommand, ...p.commands].filter(Boolean),
       observed = visit(world),
       order = actual.currentPersonOrder(world.buildingOrders, p)
     assert.equal(observed.length, 1)
@@ -146,13 +140,16 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
     assert.equal(order.references, 1)
     assert.equal(p.state, state, 'return does not restart the current person state')
     assert.equal(p.immediateCommand, 0)
-    assert.deepEqual(p.commands, [4, 0, 0, 0, 0, 0, 0, 0])
+    const newId = p.commands[0]
+    assert.ok(newId && !oldIds.includes(newId), 'allocate before releasing the guard orders')
+    assert.deepEqual(p.commands, [newId, 0, 0, 0, 0, 0, 0, 0])
     assert.equal(p.commandCursor, 0)
-    assert.equal(world.buildingOrders.records[1].references, 0)
-    assert.equal(world.buildingOrders.records[2].references, 0)
-    assert.equal(world.buildingOrders.active, 2)
-    assert.equal(world.buildingOrders.cursor, 5)
-    assert.deepEqual(world.buildingOrders.records[10], unrelated)
+    for (const id of oldIds) assert.equal(world.buildingOrders.records[id].references, 0)
+    assert.equal(world.buildingOrders.active, beforePool.active - 1)
+    assert.equal(world.buildingOrders.cursor, newId < 799 ? newId + 1 : 1)
+    for (const [id, before] of beforePool.records.entries())
+      if (!oldIds.includes(id) && id !== newId)
+        assert.deepEqual(world.buildingOrders.records[id], before, `unrelated startup record ${id}`)
     assert.equal(world.manaTribes[p.tribe].shamanGuards, 0)
     assert.equal(world.manaTribes[p.tribe].shamanGuardChanged, 1)
     assert.deepEqual(
@@ -187,13 +184,13 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
   for (const cancelled of [false, true])
     test(`immediate ${cancelled ? 'cancelled30' : 'non30'} suppresses queued order30`, () => {
       const { world, guard } = scenario({ queued: true })
-      Object.assign(world.buildingOrders.records[3], {
+      const id = actual.allocatePersonOrder(world.buildingOrders)
+      assert.ok(id)
+      Object.assign(world.buildingOrders.records[id], {
         model: cancelled ? 30 : 3,
         flags: cancelled ? 1 : 0,
-        references: 1,
       })
-      guard.native.immediateCommand = 3
-      world.buildingOrders.active++
+      actual.attachPersonOrder(world.buildingOrders, guard.native, id, -1, orderEffects(world))
       const before = structuredClone(world)
       assert.deepEqual(visit(world), [])
       assert.deepEqual(world, before)
@@ -202,9 +199,10 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
   for (const excluded of ['state17', 'cancelled', 'non30', 'dead', 'other-tribe'])
     test(`${excluded} person or order remains untouched`, () => {
       const { world, guard } = scenario()
+      const order = actual.currentPersonOrder(world.buildingOrders, guard.native)
       if (excluded === 'state17') guard.native.state = 17
-      if (excluded === 'cancelled') world.buildingOrders.records[1].flags = 1
-      if (excluded === 'non30') world.buildingOrders.records[1].model = 17
+      if (excluded === 'cancelled') order.flags = 1
+      if (excluded === 'non30') order.model = 17
       if (excluded === 'dead') guard.hp = 0
       if (excluded === 'other-tribe') {
         guard.team = 'blue'
@@ -218,7 +216,8 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
   for (const queued of [false, true])
     test(`full pool preserves a genuinely eligible ${queued ? 'queued' : 'immediate'} guard`, () => {
       const { world, guard } = scenario({ queued })
-      for (const record of world.buildingOrders.records) record.references = 1
+      for (const record of world.buildingOrders.records.slice(1)) record.references ||= 1
+      world.buildingOrders.active = 799
       assert.equal(actual.currentPersonOrder(world.buildingOrders, guard.native).model, 30)
       const before = structuredClone(world)
       assert.deepEqual(visit(world), [])
