@@ -818,7 +818,11 @@ function produceMissionBuilding(w: World, tribe: number) {
       : availableTrainingPeople(selection.world)
   if (available < 2) return false
   const shaman = w.units.find(unit => unit.team === team && isShaman(unit) && unit.hp > 0),
-    position = shaman && nativePosition(w, shaman),
+    // 0x4e5580 captures the loaded origin before an ordinary base is established.
+    position =
+      w.outcome.level === 2 && tribe === 3 && w.ai.constructionBase === undefined
+        ? nativePosition(w, campaignPosition(w, 'green'))
+        : shaman && nativePosition(w, shaman),
     origin =
       w.outcome.level === 2 && w.ai.constructionBase !== undefined
         ? w.ai.constructionBase
