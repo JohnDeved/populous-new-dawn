@@ -1,0 +1,37 @@
+{
+  "kind": "read-only canonical-data inventory",
+  "startedAt": "2026-10-10T11:14:56.958472+00:00",
+  "elapsedSeconds": 5.981,
+  "command": [
+    "python",
+    "/workspace/scratch/69fd8163d94e/early-mission-theme-source-20261010/decomp/research/early-mission-theme-20261010/inventory.py",
+    "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/PopulousTB-Setup.zip",
+    "--repo",
+    "/workspace/scratch/69fd8163d94e/early-mission-theme-source-20261010",
+    "--source-commit",
+    "35de8e6ca6864a98aff3bca0f263e87eee7fa65c"
+  ],
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/extractor/binary_refinery-0.10.11:/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/runtime"
+  },
+  "sourceCommit": "35de8e6ca6864a98aff3bca0f263e87eee7fa65c",
+  "archiveSha256": "6aa6c366809ea1d9575ec1d31a24527a95c7332f0a1d2ab692f7a602e7e10702",
+  "inventoryScriptSha256": "c99681b3c4c132b3c350e59320c3d9c63640d59e1b5d95e8d6591a5090ddb667",
+  "decoderSha256": "02127ee637d42c033119a16045c26b01adaa7d8c2833a82c3bedd03d247039e0",
+  "binaryRefineryVersion": "0.10.11",
+  "exitCode": 0,
+  "status": "passed",
+  "stdout": "inventory.json",
+  "stdoutSha256": "764edc764da91206d2401de20a5d294f7d0486054dbc6e3c7221b7af688eb7e4",
+  "stderr": "",
+  "notRun": [
+    "installer or original instructions",
+    "game or browser",
+    "native probes",
+    "dependency installation",
+    "broad importer main",
+    "regression tests",
+    "asset generation"
+  ]
+}
