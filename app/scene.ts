@@ -217,7 +217,6 @@ export class GameScene {
   waves: Uint8Array | null = null
   waterMap = new THREE.DataTexture(new Uint8Array(256 * 256 * 4), 256, 256)
   waterState = ''
-  waterScroll = { value: 0 }
   terrainMap = new THREE.DataTexture(new Uint8Array(4096 * 4096 * 4), 4096, 4096)
   readonly environment: WorldEnvironment
   terrainTextures: TerrainTextures | null = null

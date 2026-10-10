@@ -98,7 +98,6 @@ try {
             highlight.setXYZ(i, 0, 0, 0)
           }
           surface.needsUpdate = light.needsUpdate = highlight.needsUpdate = true
-          s.waterScroll.value = 0
         }
         if (name.startsWith('cloud')) {
           const fade = geometry.getAttribute('fade')
