@@ -127,3 +127,17 @@ clean `50aefe1d` checkout; it does not replace gameplay functions. Earlier faile
 phase-test and test-authoring attempts are retained under
 `work/training-movement-composition/`. Parent verification owns the exact-fixture
 raw evidence and the remaining serialized acceptance gates.
+
+## Integration remains blocked
+
+Candidate `ebe803d4` failed the unchanged Mission 2 fresh-campaign eligibility
+acceptance and still shows an ordinary rendered three-person admission. A passive
+event audit found no earlier valid replacement request; no test correction is
+justified. Full shipping gates remain outstanding. See the [blocked evidence and
+finite tight-geometry differential](../../references/verification/training-movement-2026-10-10/blocked/README.md).
+
+The new counter-only browser control introduces a same-turn pair while original
+allocation phases produce separate admissions. It does not explain the full
+app-produced burst or ordinary triple. Native owner lifetime, actual ordinary
+rephasing and checkpoint history must be traced before choosing a producer fix.
+No global counter patch, capacity change, issue closure or deployment follows.

@@ -1,0 +1,30 @@
+✖ Mission 2 explicitly trains replacement Warriors after natural combat despite zero producer preferences (7489.364239ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8542.745925
+
+✖ failing tests:
+
+test at tests/mission2-replacement.test.mjs:7:1
+✖ Mission 2 explicitly trains replacement Warriors after natural combat despite zero producer preferences (7489.364239ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(people('green').length > 10)
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/training-movement-composition-20261010/tests/mission2-replacement.test.mjs:66:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

@@ -1,0 +1,4376 @@
+{
+  "scope": "Reduced tight-eight controlled model diagnostic; 33 paired turns; no ordinary UI reproduction or global lifetime claim",
+  "fixture": {
+    "description": "Reduced eight-Brave synthetic flat-terrain geometry-template diagnostic, not an exact ordinary Mission 3 continuation",
+    "geometrySource": "/workspace/scratch/69fd8163d94e/training-movement-composition-20261010/work/issue29-composed-browser/composed1/ordinary-m3.json",
+    "geometrySourceSha256": "1646b375d4c3ca146de27b2cc7e9720d5e7ac2de2a9d57595cb453a17778cefc",
+    "geometrySourceCommit": "ebe803d4d54cbd1b45041e2d9b271d94c0096a9f",
+    "geometrySourceBoundary": "observerInitial",
+    "geometrySourceTurn": 1064,
+    "initialTurn": 0,
+    "selectedTags": [
+      312,
+      309,
+      519,
+      516,
+      513,
+      510,
+      300,
+      507
+    ],
+    "omittedTags": [
+      306,
+      589
+    ],
+    "desiredPrimaryPersonVisitOrder": [
+      312,
+      309,
+      519,
+      516,
+      513,
+      510,
+      300,
+      507
+    ],
+    "allocationGeometryTagOrder": [
+      507,
+      300,
+      510,
+      513,
+      516,
+      519,
+      309,
+      312
+    ],
+    "people": [
+      {
+        "geometryTag": 312,
+        "x": 12032,
+        "y": 37752,
+        "h": 400,
+        "ordinaryPosition": {
+          "x": 39,
+          "z": 100.53125
+        }
+      },
+      {
+        "geometryTag": 309,
+        "x": 11912,
+        "y": 37632,
+        "h": 400,
+        "ordinaryPosition": {
+          "x": 38.53125,
+          "z": 101
+        }
+      },
+      {
+        "geometryTag": 519,
+        "x": 12152,
+        "y": 37632,
+        "h": 400,
+        "ordinaryPosition": {
+          "x": 39.46875,
+          "z": 101
+        }
+      },
+      {
+        "geometryTag": 516,
+        "x": 10496,
+        "y": 42752,
+        "h": 400,
+        "ordinaryPosition": {
+          "x": 33,
+          "z": 81
+        }
+      },
+      {
+        "geometryTag": 513,
+        "x": 11908,
+        "y": 37671,
+        "h": 400,
+        "ordinaryPosition": {
+          "x": 38.515625,
+          "z": 100.84765625
+        }
+      },
+      {
+        "geometryTag": 510,
+        "x": 11008,
+        "y": 42240,
+        "h": 400,
+        "ordinaryPosition": {
+          "x": 35,
+          "z": 83
+        }
+      },
+      {
+        "geometryTag": 300,
+        "x": 12108,
+        "y": 37527,
+        "h": 400,
+        "ordinaryPosition": {
+          "x": 39.296875,
+          "z": 101.41015625
+        }
+      },
+      {
+        "geometryTag": 507,
+        "x": 11520,
+        "y": 42240,
+        "h": 400,
+        "ordinaryPosition": {
+          "x": 37,
+          "z": 83
+        }
+      }
+    ],
+    "building": {
+      "model": 7,
+      "object": 103,
+      "tribe": 0,
+      "angle": 0,
+      "anchorX": 11264,
+      "anchorY": 38400,
+      "h": 400,
+      "outsidePoint": {
+        "x": 11392,
+        "y": 37824
+      },
+      "insidePoint": {
+        "x": 11520,
+        "y": 39296
+      }
+    },
+    "terrain": {
+      "width": 128,
+      "height": 128,
+      "cellHeight": 400,
+      "source": "synthetic"
+    },
+    "nativePositionFormula": "x=round((app.x+8)*256)&65535; y=round((-app.z-8)*256)&65535; h=400 (synthetic)",
+    "limits": [
+      "Only planar geometry/order are mapped from the ordinary observer at turn1064; missing actual height/support, angle/heading, precommand route/cell/list/RNG/owner lifecycle state are not reconstructed.",
+      "Ten selected people reduced to eight changes references, RNG, formation and overflow behavior.",
+      "Native allocation and all counters/RNG/state production are genuine; no app counter is copied into native.",
+      "Absolute native start is turn0, unlike ordinary M3; no causal claim follows from phase differences alone."
+    ]
+  },
+  "initialNative": {
+    "randomState": 1757885462,
+    "poseRandom": 2271560481,
+    "visitOrder": [
+      312,
+      309,
+      519,
+      516,
+      513,
+      510,
+      300,
+      507
+    ],
+    "phases": [
+      {
+        "tag": 507,
+        "counter": 0,
+        "angle": 0
+      },
+      {
+        "tag": 300,
+        "counter": 1,
+        "angle": 0
+      },
+      {
+        "tag": 510,
+        "counter": 2,
+        "angle": 0
+      },
+      {
+        "tag": 513,
+        "counter": 3,
+        "angle": 0
+      },
+      {
+        "tag": 516,
+        "counter": 4,
+        "angle": 0
+      },
+      {
+        "tag": 519,
+        "counter": 5,
+        "angle": 0
+      },
+      {
+        "tag": 309,
+        "counter": 6,
+        "angle": 0
+      },
+      {
+        "tag": 312,
+        "counter": 7,
+        "angle": 0
+      }
+    ]
+  },
+  "native": {
+    "status": "completed",
+    "admissions": [
+      {
+        "turn": 25,
+        "tag": 513,
+        "result": 1
+      },
+      {
+        "turn": 29,
+        "tag": 300,
+        "result": 1
+      },
+      {
+        "turn": 30,
+        "tag": 309,
+        "result": 1
+      },
+      {
+        "turn": 31,
+        "tag": 312,
+        "result": 1
+      },
+      {
+        "turn": 33,
+        "tag": 519,
+        "result": 1
+      }
+    ],
+    "timeline": [
+      {
+        "turn": 1,
+        "inside": 0,
+        "enteringCounter": 0,
+        "outsideSubstate5": [],
+        "queue": null
+      },
+      {
+        "turn": 2,
+        "inside": 0,
+        "enteringCounter": 0,
+        "outsideSubstate5": [],
+        "queue": null
+      },
+      {
+        "turn": 3,
+        "inside": 0,
+        "enteringCounter": 0,
+        "outsideSubstate5": [],
+        "queue": null
+      },
+      {
+        "turn": 4,
+        "inside": 0,
+        "enteringCounter": 0,
+        "outsideSubstate5": [],
+        "queue": null
+      },
+      {
+        "turn": 5,
+        "inside": 0,
+        "enteringCounter": 0,
+        "outsideSubstate5": [],
+        "queue": null
+      },
+      {
+        "turn": 6,
+        "inside": 0,
+        "enteringCounter": 0,
+        "outsideSubstate5": [],
+        "queue": null
+      },
+      {
+        "turn": 7,
+        "inside": 0,
+        "enteringCounter": 0,
+        "outsideSubstate5": [],
+        "queue": null
+      },
+      {
+        "turn": 8,
+        "inside": 0,
+        "enteringCounter": 1,
+        "outsideSubstate5": [
+          513
+        ],
+        "queue": null
+      },
+      {
+        "turn": 9,
+        "inside": 0,
+        "enteringCounter": 1,
+        "outsideSubstate5": [
+          513
+        ],
+        "queue": null
+      },
+      {
+        "turn": 10,
+        "inside": 0,
+        "enteringCounter": 1,
+        "outsideSubstate5": [
+          513
+        ],
+        "queue": null
+      },
+      {
+        "turn": 11,
+        "inside": 0,
+        "enteringCounter": 2,
+        "outsideSubstate5": [
+          513,
+          309
+        ],
+        "queue": null
+      },
+      {
+        "turn": 12,
+        "inside": 0,
+        "enteringCounter": 4,
+        "outsideSubstate5": [
+          300,
+          513,
+          309,
+          312
+        ],
+        "queue": null
+      },
+      {
+        "turn": 13,
+        "inside": 0,
+        "enteringCounter": 4,
+        "outsideSubstate5": [
+          300,
+          513,
+          309,
+          312
+        ],
+        "queue": null
+      },
+      {
+        "turn": 14,
+        "inside": 0,
+        "enteringCounter": 5,
+        "outsideSubstate5": [
+          300,
+          513,
+          519,
+          309,
+          312
+        ],
+        "queue": null
+      },
+      {
+        "turn": 15,
+        "inside": 0,
+        "enteringCounter": 5,
+        "outsideSubstate5": [
+          300,
+          513,
+          519,
+          309,
+          312
+        ],
+        "queue": null
+      },
+      {
+        "turn": 16,
+        "inside": 0,
+        "enteringCounter": 5,
+        "outsideSubstate5": [
+          300,
+          513,
+          519,
+          309,
+          312
+        ],
+        "queue": null
+      },
+      {
+        "turn": 17,
+        "inside": 0,
+        "enteringCounter": 5,
+        "outsideSubstate5": [
+          300,
+          513,
+          519,
+          309,
+          312
+        ],
+        "queue": null
+      },
+      {
+        "turn": 18,
+        "inside": 0,
+        "enteringCounter": 5,
+        "outsideSubstate5": [
+          300,
+          513,
+          519,
+          309,
+          312
+        ],
+        "queue": null
+      },
+      {
+        "turn": 19,
+        "inside": 0,
+        "enteringCounter": 5,
+        "outsideSubstate5": [
+          300,
+          513,
+          519,
+          309,
+          312
+        ],
+        "queue": null
+      },
+      {
+        "turn": 20,
+        "inside": 0,
+        "enteringCounter": 5,
+        "outsideSubstate5": [
+          300,
+          513,
+          519,
+          309,
+          312
+        ],
+        "queue": null
+      },
+      {
+        "turn": 21,
+        "inside": 0,
+        "enteringCounter": 5,
+        "outsideSubstate5": [
+          300,
+          513,
+          519,
+          309,
+          312
+        ],
+        "queue": null
+      },
+      {
+        "turn": 22,
+        "inside": 0,
+        "enteringCounter": 5,
+        "outsideSubstate5": [
+          300,
+          513,
+          519,
+          309,
+          312
+        ],
+        "queue": null
+      },
+      {
+        "turn": 23,
+        "inside": 0,
+        "enteringCounter": 5,
+        "outsideSubstate5": [
+          300,
+          513,
+          519,
+          309,
+          312
+        ],
+        "queue": null
+      },
+      {
+        "turn": 24,
+        "inside": 0,
+        "enteringCounter": 5,
+        "outsideSubstate5": [
+          300,
+          513,
+          519,
+          309,
+          312
+        ],
+        "queue": null
+      },
+      {
+        "turn": 25,
+        "inside": 1,
+        "enteringCounter": 5,
+        "outsideSubstate5": [
+          300,
+          519,
+          309,
+          312
+        ],
+        "queue": null
+      },
+      {
+        "turn": 26,
+        "inside": 1,
+        "enteringCounter": 5,
+        "outsideSubstate5": [
+          300,
+          519,
+          309,
+          312
+        ],
+        "queue": null
+      },
+      {
+        "turn": 27,
+        "inside": 1,
+        "enteringCounter": 5,
+        "outsideSubstate5": [
+          300,
+          519,
+          309,
+          312
+        ],
+        "queue": null
+      },
+      {
+        "turn": 28,
+        "inside": 1,
+        "enteringCounter": 5,
+        "outsideSubstate5": [
+          300,
+          519,
+          309,
+          312
+        ],
+        "queue": null
+      },
+      {
+        "turn": 29,
+        "inside": 2,
+        "enteringCounter": 0,
+        "outsideSubstate5": [
+          519,
+          309,
+          312
+        ],
+        "queue": null
+      },
+      {
+        "turn": 30,
+        "inside": 3,
+        "enteringCounter": 0,
+        "outsideSubstate5": [
+          519,
+          312
+        ],
+        "queue": null
+      },
+      {
+        "turn": 31,
+        "inside": 4,
+        "enteringCounter": 0,
+        "outsideSubstate5": [
+          519
+        ],
+        "queue": null
+      },
+      {
+        "turn": 32,
+        "inside": 4,
+        "enteringCounter": 0,
+        "outsideSubstate5": [
+          519
+        ],
+        "queue": null
+      },
+      {
+        "turn": 33,
+        "inside": 5,
+        "enteringCounter": 0,
+        "outsideSubstate5": [],
+        "queue": null
+      }
+    ],
+    "maxOutsideSubstate5EndTurn": 5,
+    "maxEnteringCounter": 5
+  },
+  "arms": {
+    "exact-native-snapshot": {
+      "status": "completed-native-window",
+      "sourceHead": "ebe803d4d54cbd1b45041e2d9b271d94c0096a9f",
+      "initialValidation": "passed",
+      "initialRandomState": 1757885462,
+      "initialPoseRandom": 2271560481,
+      "admissions": [
+        {
+          "turn": 25,
+          "tag": 513,
+          "result": 1
+        },
+        {
+          "turn": 29,
+          "tag": 300,
+          "result": 1
+        },
+        {
+          "turn": 30,
+          "tag": 309,
+          "result": 1
+        },
+        {
+          "turn": 31,
+          "tag": 312,
+          "result": 1
+        },
+        {
+          "turn": 33,
+          "tag": 519,
+          "result": 1
+        }
+      ],
+      "timeline": [
+        {
+          "turn": 1,
+          "inside": 0,
+          "enteringCounter": 0,
+          "outsideSubstate5": [],
+          "queue": []
+        },
+        {
+          "turn": 2,
+          "inside": 0,
+          "enteringCounter": 0,
+          "outsideSubstate5": [],
+          "queue": []
+        },
+        {
+          "turn": 3,
+          "inside": 0,
+          "enteringCounter": 0,
+          "outsideSubstate5": [],
+          "queue": []
+        },
+        {
+          "turn": 4,
+          "inside": 0,
+          "enteringCounter": 0,
+          "outsideSubstate5": [],
+          "queue": []
+        },
+        {
+          "turn": 5,
+          "inside": 0,
+          "enteringCounter": 0,
+          "outsideSubstate5": [],
+          "queue": []
+        },
+        {
+          "turn": 6,
+          "inside": 0,
+          "enteringCounter": 0,
+          "outsideSubstate5": [],
+          "queue": []
+        },
+        {
+          "turn": 7,
+          "inside": 0,
+          "enteringCounter": 0,
+          "outsideSubstate5": [],
+          "queue": []
+        },
+        {
+          "turn": 8,
+          "inside": 0,
+          "enteringCounter": 1,
+          "outsideSubstate5": [
+            513
+          ],
+          "queue": []
+        },
+        {
+          "turn": 9,
+          "inside": 0,
+          "enteringCounter": 1,
+          "outsideSubstate5": [
+            513
+          ],
+          "queue": []
+        },
+        {
+          "turn": 10,
+          "inside": 0,
+          "enteringCounter": 1,
+          "outsideSubstate5": [
+            513
+          ],
+          "queue": []
+        },
+        {
+          "turn": 11,
+          "inside": 0,
+          "enteringCounter": 2,
+          "outsideSubstate5": [
+            513,
+            309
+          ],
+          "queue": []
+        },
+        {
+          "turn": 12,
+          "inside": 0,
+          "enteringCounter": 4,
+          "outsideSubstate5": [
+            300,
+            513,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 13,
+          "inside": 0,
+          "enteringCounter": 4,
+          "outsideSubstate5": [
+            300,
+            513,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 14,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            300,
+            513,
+            519,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 15,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            300,
+            513,
+            519,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 16,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            300,
+            513,
+            519,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 17,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            300,
+            513,
+            519,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 18,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            300,
+            513,
+            519,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 19,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            300,
+            513,
+            519,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 20,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            300,
+            513,
+            519,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 21,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            300,
+            513,
+            519,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 22,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            300,
+            513,
+            519,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 23,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            300,
+            513,
+            519,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 24,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            300,
+            513,
+            519,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 25,
+          "inside": 1,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            300,
+            519,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 26,
+          "inside": 1,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            300,
+            519,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 27,
+          "inside": 1,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            300,
+            519,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 28,
+          "inside": 1,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            300,
+            519,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 29,
+          "inside": 2,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            519,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 30,
+          "inside": 3,
+          "enteringCounter": 0,
+          "outsideSubstate5": [
+            519,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 31,
+          "inside": 4,
+          "enteringCounter": 0,
+          "outsideSubstate5": [
+            519
+          ],
+          "queue": []
+        },
+        {
+          "turn": 32,
+          "inside": 4,
+          "enteringCounter": 0,
+          "outsideSubstate5": [
+            519
+          ],
+          "queue": []
+        },
+        {
+          "turn": 33,
+          "inside": 5,
+          "enteringCounter": 0,
+          "outsideSubstate5": [],
+          "queue": []
+        }
+      ],
+      "maxOutsideSubstate5EndTurn": 5,
+      "maxOutsideSubstate5AfterPersonVisit": 5,
+      "maxEnteringCounter": 5,
+      "finalInside": 5,
+      "personDifferenceCounts": {
+        "stamp": 768,
+        "cellNext": 39,
+        "displacement": 35
+      },
+      "buildingDifferenceCounts": {
+        "flags2": 33,
+        "entryTimer": 22,
+        "entering": 1
+      },
+      "firstObserved": {
+        "turn": 2,
+        "id": 1832,
+        "phase": "post-counter/preparation",
+        "differences": [
+          {
+            "field": "stamp",
+            "native": 1,
+            "browser": 0
+          }
+        ]
+      },
+      "firstControl": null,
+      "firstPosition": null,
+      "firstRng": null,
+      "firstFormation": null,
+      "firstRoutePool": null,
+      "formationMapping": [
+        {
+          "ordinal": 1,
+          "nativeId": 1831,
+          "browserId": 1840,
+          "nativeTurn": 25,
+          "browserTurn": 25
+        },
+        {
+          "ordinal": 2,
+          "nativeId": 1830,
+          "browserId": 1841,
+          "nativeTurn": 25,
+          "browserTurn": 25
+        }
+      ],
+      "terrainAllBeforeAfterEqual": true
+    },
+    "app-producer01": {
+      "status": "completed-native-window",
+      "sourceHead": "ebe803d4d54cbd1b45041e2d9b271d94c0096a9f",
+      "initialValidation": "passed",
+      "initialRandomState": 3062508023,
+      "initialPoseRandom": 2271560481,
+      "admissions": [
+        {
+          "turn": 28,
+          "tag": 312,
+          "result": 1
+        },
+        {
+          "turn": 28,
+          "tag": 309,
+          "result": 1
+        },
+        {
+          "turn": 28,
+          "tag": 519,
+          "result": 1
+        },
+        {
+          "turn": 28,
+          "tag": 300,
+          "result": 1
+        },
+        {
+          "turn": 30,
+          "tag": 513,
+          "result": 1
+        }
+      ],
+      "timeline": [
+        {
+          "turn": 1,
+          "inside": 0,
+          "enteringCounter": 0,
+          "outsideSubstate5": [],
+          "queue": []
+        },
+        {
+          "turn": 2,
+          "inside": 0,
+          "enteringCounter": 0,
+          "outsideSubstate5": [],
+          "queue": []
+        },
+        {
+          "turn": 3,
+          "inside": 0,
+          "enteringCounter": 0,
+          "outsideSubstate5": [],
+          "queue": []
+        },
+        {
+          "turn": 4,
+          "inside": 0,
+          "enteringCounter": 0,
+          "outsideSubstate5": [],
+          "queue": []
+        },
+        {
+          "turn": 5,
+          "inside": 0,
+          "enteringCounter": 0,
+          "outsideSubstate5": [],
+          "queue": []
+        },
+        {
+          "turn": 6,
+          "inside": 0,
+          "enteringCounter": 0,
+          "outsideSubstate5": [],
+          "queue": []
+        },
+        {
+          "turn": 7,
+          "inside": 0,
+          "enteringCounter": 0,
+          "outsideSubstate5": [],
+          "queue": []
+        },
+        {
+          "turn": 8,
+          "inside": 0,
+          "enteringCounter": 0,
+          "outsideSubstate5": [],
+          "queue": []
+        },
+        {
+          "turn": 9,
+          "inside": 0,
+          "enteringCounter": 3,
+          "outsideSubstate5": [
+            309,
+            519,
+            300
+          ],
+          "queue": []
+        },
+        {
+          "turn": 10,
+          "inside": 0,
+          "enteringCounter": 3,
+          "outsideSubstate5": [
+            309,
+            519,
+            300
+          ],
+          "queue": []
+        },
+        {
+          "turn": 11,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            312,
+            309,
+            519,
+            513,
+            300
+          ],
+          "queue": []
+        },
+        {
+          "turn": 12,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            312,
+            309,
+            519,
+            513,
+            300
+          ],
+          "queue": []
+        },
+        {
+          "turn": 13,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            312,
+            309,
+            519,
+            513,
+            300
+          ],
+          "queue": []
+        },
+        {
+          "turn": 14,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            312,
+            309,
+            519,
+            513,
+            300
+          ],
+          "queue": []
+        },
+        {
+          "turn": 15,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            312,
+            309,
+            519,
+            513,
+            300
+          ],
+          "queue": []
+        },
+        {
+          "turn": 16,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            312,
+            309,
+            519,
+            513,
+            300
+          ],
+          "queue": []
+        },
+        {
+          "turn": 17,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            312,
+            309,
+            519,
+            513,
+            300
+          ],
+          "queue": []
+        },
+        {
+          "turn": 18,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            312,
+            309,
+            519,
+            513,
+            300
+          ],
+          "queue": []
+        },
+        {
+          "turn": 19,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            312,
+            309,
+            519,
+            513,
+            300
+          ],
+          "queue": []
+        },
+        {
+          "turn": 20,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            312,
+            309,
+            519,
+            513,
+            300
+          ],
+          "queue": []
+        },
+        {
+          "turn": 21,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            312,
+            309,
+            519,
+            513,
+            300
+          ],
+          "queue": []
+        },
+        {
+          "turn": 22,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            312,
+            309,
+            519,
+            513,
+            300
+          ],
+          "queue": []
+        },
+        {
+          "turn": 23,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            312,
+            309,
+            519,
+            513,
+            300
+          ],
+          "queue": []
+        },
+        {
+          "turn": 24,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            312,
+            309,
+            519,
+            513,
+            300
+          ],
+          "queue": []
+        },
+        {
+          "turn": 25,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            312,
+            309,
+            519,
+            513,
+            300
+          ],
+          "queue": []
+        },
+        {
+          "turn": 26,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            312,
+            309,
+            519,
+            513,
+            300
+          ],
+          "queue": []
+        },
+        {
+          "turn": 27,
+          "inside": 0,
+          "enteringCounter": 0,
+          "outsideSubstate5": [
+            312,
+            309,
+            519,
+            513,
+            300
+          ],
+          "queue": []
+        },
+        {
+          "turn": 28,
+          "inside": 4,
+          "enteringCounter": 0,
+          "outsideSubstate5": [
+            513
+          ],
+          "queue": []
+        },
+        {
+          "turn": 29,
+          "inside": 4,
+          "enteringCounter": 0,
+          "outsideSubstate5": [
+            513
+          ],
+          "queue": []
+        },
+        {
+          "turn": 30,
+          "inside": 5,
+          "enteringCounter": 0,
+          "outsideSubstate5": [],
+          "queue": []
+        },
+        {
+          "turn": 31,
+          "inside": 5,
+          "enteringCounter": 0,
+          "outsideSubstate5": [],
+          "queue": []
+        },
+        {
+          "turn": 32,
+          "inside": 5,
+          "enteringCounter": 0,
+          "outsideSubstate5": [],
+          "queue": []
+        },
+        {
+          "turn": 33,
+          "inside": 5,
+          "enteringCounter": 0,
+          "outsideSubstate5": [],
+          "queue": []
+        }
+      ],
+      "maxOutsideSubstate5EndTurn": 5,
+      "maxOutsideSubstate5AfterPersonVisit": 5,
+      "maxEnteringCounter": 5,
+      "finalInside": 5,
+      "personDifferenceCounts": {
+        "counter": 693,
+        "flags2": 164,
+        "flags3": 792,
+        "flags4": 792,
+        "cellNext": 500,
+        "cellPrevious": 477,
+        "destinationX": 91,
+        "destinationY": 91,
+        "turnAngle": 163,
+        "turnY": 163,
+        "speed": 654,
+        "life": 792,
+        "selectionFlags": 792,
+        "formationDelay": 307,
+        "x": 768,
+        "y": 775,
+        "displacement": 746,
+        "motionGroup": 382,
+        "angle": 661,
+        "heading": 661,
+        "recoveryCounter": 67,
+        "stamp": 768,
+        "substate": 118,
+        "goalX": 42,
+        "goalY": 42,
+        "assignment": 116,
+        "object": 46
+      },
+      "buildingDifferenceCounts": {
+        "flags2": 33,
+        "entering": 8,
+        "entryTimer": 19,
+        "activity": 3,
+        "inside": 8,
+        "trainingCost": 8,
+        "occupants": 9
+      },
+      "firstObserved": {
+        "turn": 1,
+        "id": 1832,
+        "phase": "post-counter/preparation",
+        "differences": [
+          {
+            "field": "counter",
+            "native": 8,
+            "browser": 1
+          },
+          {
+            "field": "flags2",
+            "native": 1107432064,
+            "browser": 1107431936
+          },
+          {
+            "field": "flags3",
+            "native": 262404,
+            "browser": 264192
+          },
+          {
+            "field": "flags4",
+            "native": 545259776,
+            "browser": 536871168
+          },
+          {
+            "field": "cellNext",
+            "native": 1833,
+            "browser": 0
+          },
+          {
+            "field": "cellPrevious",
+            "native": 0,
+            "browser": 1833
+          },
+          {
+            "field": "destinationX",
+            "native": 0,
+            "browser": 12032
+          },
+          {
+            "field": "destinationY",
+            "native": 0,
+            "browser": 37632
+          },
+          {
+            "field": "turnAngle",
+            "native": 824,
+            "browser": 12032
+          },
+          {
+            "field": "turnY",
+            "native": 0,
+            "browser": 37632
+          },
+          {
+            "field": "speed",
+            "native": 73,
+            "browser": 86
+          },
+          {
+            "field": "life",
+            "native": 795,
+            "browser": 1000
+          },
+          {
+            "field": "selectionFlags",
+            "native": 128,
+            "browser": 129
+          },
+          {
+            "field": "formationDelay",
+            "native": 8,
+            "browser": 0
+          }
+        ]
+      },
+      "firstControl": {
+        "turn": 1,
+        "id": 1832,
+        "phase": "post-counter/preparation",
+        "differences": [
+          {
+            "field": "counter",
+            "native": 8,
+            "browser": 1
+          },
+          {
+            "field": "flags2",
+            "native": 1107432064,
+            "browser": 1107431936
+          },
+          {
+            "field": "flags3",
+            "native": 262404,
+            "browser": 264192
+          },
+          {
+            "field": "flags4",
+            "native": 545259776,
+            "browser": 536871168
+          },
+          {
+            "field": "destinationX",
+            "native": 0,
+            "browser": 12032
+          },
+          {
+            "field": "destinationY",
+            "native": 0,
+            "browser": 37632
+          },
+          {
+            "field": "turnAngle",
+            "native": 824,
+            "browser": 12032
+          },
+          {
+            "field": "turnY",
+            "native": 0,
+            "browser": 37632
+          },
+          {
+            "field": "speed",
+            "native": 73,
+            "browser": 86
+          },
+          {
+            "field": "formationDelay",
+            "native": 8,
+            "browser": 0
+          }
+        ]
+      },
+      "firstPosition": {
+        "turn": 1,
+        "id": 1832,
+        "phase": "post-motion/pre-command",
+        "differences": [
+          {
+            "field": "x",
+            "native": 12086,
+            "browser": 12096
+          },
+          {
+            "field": "y",
+            "native": 37806,
+            "browser": 37816
+          }
+        ]
+      },
+      "firstRng": {
+        "turn": 1,
+        "building": [
+          {
+            "field": "flags2",
+            "native": 131136,
+            "browser": 64
+          }
+        ],
+        "randomState": {
+          "native": 398171263,
+          "browser": 2839686578
+        },
+        "poseRandom": null,
+        "outsideEntering": {
+          "native": [],
+          "browser": []
+        }
+      },
+      "firstFormation": {
+        "turn": 25,
+        "nativeOrder": [
+          1831,
+          1830
+        ],
+        "mappedNativeOrder": [
+          1840,
+          null
+        ],
+        "browserOrder": [
+          1840
+        ],
+        "differences": [
+          {
+            "nativeId": 1831,
+            "browserId": 1840,
+            "fields": [
+              {
+                "field": "x",
+                "native": 8345,
+                "browser": 8646
+              },
+              {
+                "field": "y",
+                "native": 42653,
+                "browser": 42675
+              },
+              {
+                "field": "timer",
+                "native": 42,
+                "browser": 34
+              },
+              {
+                "field": "count",
+                "native": 1,
+                "browser": 3
+              },
+              {
+                "field": "freeSlot",
+                "native": 1,
+                "browser": 3
+              },
+              {
+                "field": "members",
+                "native": [
+                  1835,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "browser": [
+                  1835,
+                  1839,
+                  1837,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "nativeId": 1830,
+            "missing": true
+          }
+        ]
+      },
+      "firstRoutePool": {
+        "turn": 1,
+        "recordsEqual": false,
+        "fields": [
+          {
+            "field": "last",
+            "native": 4,
+            "browser": 12
+          },
+          {
+            "field": "cursor",
+            "native": 4,
+            "browser": 12
+          }
+        ]
+      },
+      "formationMapping": [
+        {
+          "ordinal": 1,
+          "nativeId": 1831,
+          "browserId": 1840,
+          "nativeTurn": 25,
+          "browserTurn": 25
+        },
+        {
+          "ordinal": 2,
+          "nativeId": 1830,
+          "nativeTurn": 25
+        }
+      ],
+      "terrainAllBeforeAfterEqual": true
+    },
+    "phase-only-counter-control": {
+      "status": "completed-native-window",
+      "sourceHead": "ebe803d4d54cbd1b45041e2d9b271d94c0096a9f",
+      "initialValidation": "passed",
+      "initialRandomState": 1757885462,
+      "initialPoseRandom": 2271560481,
+      "admissions": [
+        {
+          "turn": 26,
+          "tag": 513,
+          "result": 1
+        },
+        {
+          "turn": 30,
+          "tag": 309,
+          "result": 1
+        },
+        {
+          "turn": 30,
+          "tag": 300,
+          "result": 1
+        },
+        {
+          "turn": 32,
+          "tag": 312,
+          "result": 1
+        }
+      ],
+      "timeline": [
+        {
+          "turn": 1,
+          "inside": 0,
+          "enteringCounter": 0,
+          "outsideSubstate5": [],
+          "queue": []
+        },
+        {
+          "turn": 2,
+          "inside": 0,
+          "enteringCounter": 0,
+          "outsideSubstate5": [],
+          "queue": []
+        },
+        {
+          "turn": 3,
+          "inside": 0,
+          "enteringCounter": 0,
+          "outsideSubstate5": [],
+          "queue": []
+        },
+        {
+          "turn": 4,
+          "inside": 0,
+          "enteringCounter": 0,
+          "outsideSubstate5": [],
+          "queue": []
+        },
+        {
+          "turn": 5,
+          "inside": 0,
+          "enteringCounter": 0,
+          "outsideSubstate5": [],
+          "queue": []
+        },
+        {
+          "turn": 6,
+          "inside": 0,
+          "enteringCounter": 0,
+          "outsideSubstate5": [],
+          "queue": []
+        },
+        {
+          "turn": 7,
+          "inside": 0,
+          "enteringCounter": 0,
+          "outsideSubstate5": [],
+          "queue": []
+        },
+        {
+          "turn": 8,
+          "inside": 0,
+          "enteringCounter": 0,
+          "outsideSubstate5": [],
+          "queue": []
+        },
+        {
+          "turn": 9,
+          "inside": 0,
+          "enteringCounter": 1,
+          "outsideSubstate5": [
+            513
+          ],
+          "queue": []
+        },
+        {
+          "turn": 10,
+          "inside": 0,
+          "enteringCounter": 1,
+          "outsideSubstate5": [
+            513
+          ],
+          "queue": []
+        },
+        {
+          "turn": 11,
+          "inside": 0,
+          "enteringCounter": 2,
+          "outsideSubstate5": [
+            513,
+            309
+          ],
+          "queue": []
+        },
+        {
+          "turn": 12,
+          "inside": 0,
+          "enteringCounter": 2,
+          "outsideSubstate5": [
+            513,
+            309
+          ],
+          "queue": []
+        },
+        {
+          "turn": 13,
+          "inside": 0,
+          "enteringCounter": 4,
+          "outsideSubstate5": [
+            300,
+            513,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 14,
+          "inside": 0,
+          "enteringCounter": 4,
+          "outsideSubstate5": [
+            300,
+            513,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 15,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            300,
+            513,
+            519,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 16,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            300,
+            513,
+            519,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 17,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            300,
+            513,
+            519,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 18,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            300,
+            513,
+            519,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 19,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            300,
+            513,
+            519,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 20,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            300,
+            513,
+            519,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 21,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            300,
+            513,
+            519,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 22,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            300,
+            513,
+            519,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 23,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            300,
+            513,
+            519,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 24,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            300,
+            513,
+            519,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 25,
+          "inside": 0,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            300,
+            513,
+            519,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 26,
+          "inside": 1,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            300,
+            519,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 27,
+          "inside": 1,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            300,
+            519,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 28,
+          "inside": 1,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            300,
+            519,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 29,
+          "inside": 1,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            300,
+            519,
+            309,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 30,
+          "inside": 3,
+          "enteringCounter": 5,
+          "outsideSubstate5": [
+            519,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 31,
+          "inside": 3,
+          "enteringCounter": 0,
+          "outsideSubstate5": [
+            519,
+            312
+          ],
+          "queue": []
+        },
+        {
+          "turn": 32,
+          "inside": 4,
+          "enteringCounter": 0,
+          "outsideSubstate5": [
+            519
+          ],
+          "queue": []
+        },
+        {
+          "turn": 33,
+          "inside": 4,
+          "enteringCounter": 0,
+          "outsideSubstate5": [
+            519
+          ],
+          "queue": []
+        }
+      ],
+      "maxOutsideSubstate5EndTurn": 5,
+      "maxOutsideSubstate5AfterPersonVisit": 5,
+      "maxEnteringCounter": 5,
+      "finalInside": 4,
+      "personDifferenceCounts": {
+        "counter": 693,
+        "stamp": 768,
+        "substate": 43,
+        "angle": 270,
+        "y": 325,
+        "heading": 270,
+        "displacement": 185,
+        "x": 294,
+        "flags2": 40,
+        "flags4": 12,
+        "goalX": 12,
+        "goalY": 12,
+        "destinationX": 12,
+        "destinationY": 12,
+        "turnAngle": 12,
+        "turnY": 12,
+        "speed": 21,
+        "assignment": 22,
+        "formationDelay": 76,
+        "cellPrevious": 117,
+        "cellNext": 147,
+        "object": 9,
+        "recoveryCounter": 30
+      },
+      "buildingDifferenceCounts": {
+        "flags2": 33,
+        "entering": 5,
+        "entryTimer": 21,
+        "activity": 1,
+        "inside": 4,
+        "trainingCost": 4,
+        "occupants": 6
+      },
+      "firstObserved": {
+        "turn": 1,
+        "id": 1832,
+        "phase": "post-counter/preparation",
+        "differences": [
+          {
+            "field": "counter",
+            "native": 8,
+            "browser": 1
+          }
+        ]
+      },
+      "firstControl": {
+        "turn": 1,
+        "id": 1832,
+        "phase": "post-counter/preparation",
+        "differences": [
+          {
+            "field": "counter",
+            "native": 8,
+            "browser": 1
+          }
+        ]
+      },
+      "firstPosition": {
+        "turn": 7,
+        "id": 1838,
+        "phase": "post-motion/pre-command",
+        "differences": [
+          {
+            "field": "y",
+            "native": 37678,
+            "browser": 37677
+          }
+        ]
+      },
+      "firstRng": {
+        "turn": 8,
+        "building": [
+          {
+            "field": "flags2",
+            "native": 131136,
+            "browser": 64
+          },
+          {
+            "field": "entering",
+            "native": 1,
+            "browser": 0
+          },
+          {
+            "field": "entryTimer",
+            "native": 15,
+            "browser": 0
+          }
+        ],
+        "randomState": {
+          "native": 1710389243,
+          "browser": 398171263
+        },
+        "poseRandom": null,
+        "outsideEntering": {
+          "native": [
+            1836
+          ],
+          "browser": []
+        }
+      },
+      "firstFormation": null,
+      "firstRoutePool": null,
+      "formationMapping": [
+        {
+          "ordinal": 1,
+          "nativeId": 1831,
+          "browserId": 1840,
+          "nativeTurn": 25,
+          "browserTurn": 25
+        },
+        {
+          "ordinal": 2,
+          "nativeId": 1830,
+          "browserId": 1841,
+          "nativeTurn": 25,
+          "browserTurn": 25
+        }
+      ],
+      "terrainAllBeforeAfterEqual": true
+    }
+  },
+  "producer": {
+    "initialPersonDifferences": [
+      {
+        "tag": 507,
+        "id": 1839,
+        "differences": [
+          {
+            "field": "flags2",
+            "native": 1107432064,
+            "app": 1107431936
+          },
+          {
+            "field": "flags3",
+            "native": 262404,
+            "app": 264192
+          },
+          {
+            "field": "flags4",
+            "native": 545259776,
+            "app": 536871168
+          },
+          {
+            "field": "destinationX",
+            "native": 0,
+            "app": 11520
+          },
+          {
+            "field": "destinationY",
+            "native": 0,
+            "app": 42240
+          },
+          {
+            "field": "turnAngle",
+            "native": 155,
+            "app": 11520
+          },
+          {
+            "field": "turnY",
+            "native": 0,
+            "app": 42240
+          },
+          {
+            "field": "speed",
+            "native": 73,
+            "app": 83
+          },
+          {
+            "field": "maxLife",
+            "native": 778,
+            "app": null
+          },
+          {
+            "field": "life",
+            "native": 778,
+            "app": 1000
+          },
+          {
+            "field": "selectionFlags",
+            "native": 128,
+            "app": 129
+          },
+          {
+            "field": "formationDelay",
+            "native": 8,
+            "app": 0
+          },
+          {
+            "field": "healthMarker",
+            "native": 255,
+            "app": null
+          },
+          {
+            "field": "morphTimer",
+            "native": 639,
+            "app": 0
+          },
+          {
+            "field": "computerAssignment",
+            "native": null,
+            "app": 0
+          }
+        ]
+      },
+      {
+        "tag": 300,
+        "id": 1838,
+        "differences": [
+          {
+            "field": "counter",
+            "native": 1,
+            "app": 0
+          },
+          {
+            "field": "flags2",
+            "native": 1107432064,
+            "app": 1107431936
+          },
+          {
+            "field": "flags3",
+            "native": 262404,
+            "app": 264192
+          },
+          {
+            "field": "flags4",
+            "native": 545259776,
+            "app": 536871168
+          },
+          {
+            "field": "cellNext",
+            "native": 0,
+            "app": 1836
+          },
+          {
+            "field": "cellPrevious",
+            "native": 1836,
+            "app": 0
+          },
+          {
+            "field": "destinationX",
+            "native": 0,
+            "app": 12032
+          },
+          {
+            "field": "destinationY",
+            "native": 0,
+            "app": 37632
+          },
+          {
+            "field": "turnAngle",
+            "native": 857,
+            "app": 12032
+          },
+          {
+            "field": "turnY",
+            "native": 0,
+            "app": 37632
+          },
+          {
+            "field": "speed",
+            "native": 75,
+            "app": 74
+          },
+          {
+            "field": "maxLife",
+            "native": 842,
+            "app": null
+          },
+          {
+            "field": "life",
+            "native": 842,
+            "app": 1000
+          },
+          {
+            "field": "selectionFlags",
+            "native": 128,
+            "app": 129
+          },
+          {
+            "field": "formationDelay",
+            "native": 8,
+            "app": 0
+          },
+          {
+            "field": "healthMarker",
+            "native": 255,
+            "app": null
+          },
+          {
+            "field": "morphTimer",
+            "native": 639,
+            "app": 0
+          },
+          {
+            "field": "computerAssignment",
+            "native": null,
+            "app": 0
+          }
+        ]
+      },
+      {
+        "tag": 510,
+        "id": 1837,
+        "differences": [
+          {
+            "field": "counter",
+            "native": 2,
+            "app": 0
+          },
+          {
+            "field": "flags2",
+            "native": 1107432064,
+            "app": 1107431936
+          },
+          {
+            "field": "flags3",
+            "native": 262404,
+            "app": 264192
+          },
+          {
+            "field": "flags4",
+            "native": 545259776,
+            "app": 536871168
+          },
+          {
+            "field": "destinationX",
+            "native": 0,
+            "app": 11008
+          },
+          {
+            "field": "destinationY",
+            "native": 0,
+            "app": 42240
+          },
+          {
+            "field": "turnAngle",
+            "native": 815,
+            "app": 11008
+          },
+          {
+            "field": "turnY",
+            "native": 0,
+            "app": 42240
+          },
+          {
+            "field": "speed",
+            "native": 82,
+            "app": 85
+          },
+          {
+            "field": "maxLife",
+            "native": 826,
+            "app": null
+          },
+          {
+            "field": "life",
+            "native": 826,
+            "app": 1000
+          },
+          {
+            "field": "selectionFlags",
+            "native": 128,
+            "app": 129
+          },
+          {
+            "field": "formationDelay",
+            "native": 8,
+            "app": 0
+          },
+          {
+            "field": "healthMarker",
+            "native": 255,
+            "app": null
+          },
+          {
+            "field": "morphTimer",
+            "native": 639,
+            "app": 0
+          },
+          {
+            "field": "computerAssignment",
+            "native": null,
+            "app": 0
+          }
+        ]
+      },
+      {
+        "tag": 513,
+        "id": 1836,
+        "differences": [
+          {
+            "field": "counter",
+            "native": 3,
+            "app": 0
+          },
+          {
+            "field": "flags2",
+            "native": 1107432064,
+            "app": 1107431936
+          },
+          {
+            "field": "flags3",
+            "native": 262404,
+            "app": 264192
+          },
+          {
+            "field": "flags4",
+            "native": 545259776,
+            "app": 536871168
+          },
+          {
+            "field": "cellNext",
+            "native": 1838,
+            "app": 1834
+          },
+          {
+            "field": "cellPrevious",
+            "native": 1834,
+            "app": 1838
+          },
+          {
+            "field": "destinationX",
+            "native": 0,
+            "app": 12032
+          },
+          {
+            "field": "destinationY",
+            "native": 0,
+            "app": 37632
+          },
+          {
+            "field": "turnAngle",
+            "native": 1996,
+            "app": 12032
+          },
+          {
+            "field": "turnY",
+            "native": 0,
+            "app": 37632
+          },
+          {
+            "field": "speed",
+            "native": 81,
+            "app": 70
+          },
+          {
+            "field": "maxLife",
+            "native": 820,
+            "app": null
+          },
+          {
+            "field": "life",
+            "native": 820,
+            "app": 1000
+          },
+          {
+            "field": "selectionFlags",
+            "native": 128,
+            "app": 129
+          },
+          {
+            "field": "formationDelay",
+            "native": 8,
+            "app": 0
+          },
+          {
+            "field": "healthMarker",
+            "native": 255,
+            "app": null
+          },
+          {
+            "field": "morphTimer",
+            "native": 639,
+            "app": 0
+          },
+          {
+            "field": "computerAssignment",
+            "native": null,
+            "app": 0
+          }
+        ]
+      },
+      {
+        "tag": 516,
+        "id": 1835,
+        "differences": [
+          {
+            "field": "counter",
+            "native": 4,
+            "app": 0
+          },
+          {
+            "field": "flags2",
+            "native": 1107432064,
+            "app": 1107431936
+          },
+          {
+            "field": "flags3",
+            "native": 262404,
+            "app": 264192
+          },
+          {
+            "field": "flags4",
+            "native": 545259776,
+            "app": 536871168
+          },
+          {
+            "field": "destinationX",
+            "native": 0,
+            "app": 10496
+          },
+          {
+            "field": "destinationY",
+            "native": 0,
+            "app": 42752
+          },
+          {
+            "field": "turnAngle",
+            "native": 1326,
+            "app": 10496
+          },
+          {
+            "field": "turnY",
+            "native": 0,
+            "app": 42752
+          },
+          {
+            "field": "speed",
+            "native": 83,
+            "app": 86
+          },
+          {
+            "field": "maxLife",
+            "native": 854,
+            "app": null
+          },
+          {
+            "field": "life",
+            "native": 854,
+            "app": 1000
+          },
+          {
+            "field": "selectionFlags",
+            "native": 128,
+            "app": 129
+          },
+          {
+            "field": "formationDelay",
+            "native": 8,
+            "app": 0
+          },
+          {
+            "field": "healthMarker",
+            "native": 255,
+            "app": null
+          },
+          {
+            "field": "morphTimer",
+            "native": 639,
+            "app": 0
+          },
+          {
+            "field": "computerAssignment",
+            "native": null,
+            "app": 0
+          }
+        ]
+      },
+      {
+        "tag": 519,
+        "id": 1834,
+        "differences": [
+          {
+            "field": "counter",
+            "native": 5,
+            "app": 0
+          },
+          {
+            "field": "flags2",
+            "native": 1107432064,
+            "app": 1107431936
+          },
+          {
+            "field": "flags3",
+            "native": 262404,
+            "app": 264192
+          },
+          {
+            "field": "flags4",
+            "native": 545259776,
+            "app": 536871168
+          },
+          {
+            "field": "cellNext",
+            "native": 1836,
+            "app": 1833
+          },
+          {
+            "field": "cellPrevious",
+            "native": 1833,
+            "app": 1836
+          },
+          {
+            "field": "destinationX",
+            "native": 0,
+            "app": 12032
+          },
+          {
+            "field": "destinationY",
+            "native": 0,
+            "app": 37632
+          },
+          {
+            "field": "turnAngle",
+            "native": 578,
+            "app": 12032
+          },
+          {
+            "field": "turnY",
+            "native": 0,
+            "app": 37632
+          },
+          {
+            "field": "speed",
+            "native": 75,
+            "app": 74
+          },
+          {
+            "field": "maxLife",
+            "native": 857,
+            "app": null
+          },
+          {
+            "field": "life",
+            "native": 857,
+            "app": 1000
+          },
+          {
+            "field": "selectionFlags",
+            "native": 128,
+            "app": 129
+          },
+          {
+            "field": "formationDelay",
+            "native": 8,
+            "app": 0
+          },
+          {
+            "field": "healthMarker",
+            "native": 255,
+            "app": null
+          },
+          {
+            "field": "morphTimer",
+            "native": 639,
+            "app": 0
+          },
+          {
+            "field": "computerAssignment",
+            "native": null,
+            "app": 0
+          }
+        ]
+      },
+      {
+        "tag": 309,
+        "id": 1833,
+        "differences": [
+          {
+            "field": "counter",
+            "native": 6,
+            "app": 0
+          },
+          {
+            "field": "flags2",
+            "native": 1107432064,
+            "app": 1107431936
+          },
+          {
+            "field": "flags3",
+            "native": 262404,
+            "app": 264192
+          },
+          {
+            "field": "flags4",
+            "native": 545259776,
+            "app": 536871168
+          },
+          {
+            "field": "cellNext",
+            "native": 1834,
+            "app": 1832
+          },
+          {
+            "field": "cellPrevious",
+            "native": 1832,
+            "app": 1834
+          },
+          {
+            "field": "destinationX",
+            "native": 0,
+            "app": 12032
+          },
+          {
+            "field": "destinationY",
+            "native": 0,
+            "app": 37632
+          },
+          {
+            "field": "turnAngle",
+            "native": 630,
+            "app": 12032
+          },
+          {
+            "field": "turnY",
+            "native": 0,
+            "app": 37632
+          },
+          {
+            "field": "speed",
+            "native": 72,
+            "app": 70
+          },
+          {
+            "field": "maxLife",
+            "native": 959,
+            "app": null
+          },
+          {
+            "field": "life",
+            "native": 959,
+            "app": 1000
+          },
+          {
+            "field": "selectionFlags",
+            "native": 128,
+            "app": 129
+          },
+          {
+            "field": "formationDelay",
+            "native": 8,
+            "app": 0
+          },
+          {
+            "field": "healthMarker",
+            "native": 255,
+            "app": null
+          },
+          {
+            "field": "morphTimer",
+            "native": 639,
+            "app": 0
+          },
+          {
+            "field": "computerAssignment",
+            "native": null,
+            "app": 0
+          }
+        ]
+      },
+      {
+        "tag": 312,
+        "id": 1832,
+        "differences": [
+          {
+            "field": "counter",
+            "native": 7,
+            "app": 0
+          },
+          {
+            "field": "flags2",
+            "native": 1107432064,
+            "app": 1107431936
+          },
+          {
+            "field": "flags3",
+            "native": 262404,
+            "app": 264192
+          },
+          {
+            "field": "flags4",
+            "native": 545259776,
+            "app": 536871168
+          },
+          {
+            "field": "cellNext",
+            "native": 1833,
+            "app": 0
+          },
+          {
+            "field": "cellPrevious",
+            "native": 0,
+            "app": 1833
+          },
+          {
+            "field": "destinationX",
+            "native": 0,
+            "app": 12032
+          },
+          {
+            "field": "destinationY",
+            "native": 0,
+            "app": 37632
+          },
+          {
+            "field": "turnAngle",
+            "native": 824,
+            "app": 12032
+          },
+          {
+            "field": "turnY",
+            "native": 0,
+            "app": 37632
+          },
+          {
+            "field": "speed",
+            "native": 73,
+            "app": 86
+          },
+          {
+            "field": "maxLife",
+            "native": 795,
+            "app": null
+          },
+          {
+            "field": "life",
+            "native": 795,
+            "app": 1000
+          },
+          {
+            "field": "selectionFlags",
+            "native": 128,
+            "app": 129
+          },
+          {
+            "field": "formationDelay",
+            "native": 8,
+            "app": 0
+          },
+          {
+            "field": "healthMarker",
+            "native": 255,
+            "app": null
+          },
+          {
+            "field": "morphTimer",
+            "native": 639,
+            "app": 0
+          },
+          {
+            "field": "computerAssignment",
+            "native": null,
+            "app": 0
+          }
+        ]
+      }
+    ],
+    "worldScalarDifferences": [
+      {
+        "field": "randomState",
+        "native": 1757885462,
+        "app": 3062508023
+      },
+      {
+        "field": "cellHeadsSha256",
+        "native": "f77e28df182130e8167957018b635a7394a93a76766449d7493f18c3e54350c2",
+        "app": "7ca0541454121af468ddb96db5e016561c8890c742cf5e8230e9c8c8aa3d2b59"
+      }
+    ],
+    "events": [
+      {
+        "phase": "before-materialization",
+        "worldRandomState": 1488818045,
+        "people": []
+      },
+      {
+        "phase": "before-addUnit",
+        "id": 1832,
+        "tag": 312,
+        "worldRandomState": 1488818045,
+        "people": []
+      },
+      {
+        "phase": "after-addUnit",
+        "id": 1832,
+        "tag": 312,
+        "worldRandomState": 1488818045,
+        "people": []
+      },
+      {
+        "phase": "before-addUnit",
+        "id": 1833,
+        "tag": 309,
+        "worldRandomState": 1488818045,
+        "people": []
+      },
+      {
+        "phase": "after-addUnit",
+        "id": 1833,
+        "tag": 309,
+        "worldRandomState": 1488818045,
+        "people": []
+      },
+      {
+        "phase": "before-addUnit",
+        "id": 1834,
+        "tag": 519,
+        "worldRandomState": 1488818045,
+        "people": []
+      },
+      {
+        "phase": "after-addUnit",
+        "id": 1834,
+        "tag": 519,
+        "worldRandomState": 1488818045,
+        "people": []
+      },
+      {
+        "phase": "before-addUnit",
+        "id": 1835,
+        "tag": 516,
+        "worldRandomState": 1488818045,
+        "people": []
+      },
+      {
+        "phase": "after-addUnit",
+        "id": 1835,
+        "tag": 516,
+        "worldRandomState": 1488818045,
+        "people": []
+      },
+      {
+        "phase": "before-addUnit",
+        "id": 1836,
+        "tag": 513,
+        "worldRandomState": 1488818045,
+        "people": []
+      },
+      {
+        "phase": "after-addUnit",
+        "id": 1836,
+        "tag": 513,
+        "worldRandomState": 1488818045,
+        "people": []
+      },
+      {
+        "phase": "before-addUnit",
+        "id": 1837,
+        "tag": 510,
+        "worldRandomState": 1488818045,
+        "people": []
+      },
+      {
+        "phase": "after-addUnit",
+        "id": 1837,
+        "tag": 510,
+        "worldRandomState": 1488818045,
+        "people": []
+      },
+      {
+        "phase": "before-addUnit",
+        "id": 1838,
+        "tag": 300,
+        "worldRandomState": 1488818045,
+        "people": []
+      },
+      {
+        "phase": "after-addUnit",
+        "id": 1838,
+        "tag": 300,
+        "worldRandomState": 1488818045,
+        "people": []
+      },
+      {
+        "phase": "before-addUnit",
+        "id": 1839,
+        "tag": 507,
+        "worldRandomState": 1488818045,
+        "people": []
+      },
+      {
+        "phase": "after-addUnit",
+        "id": 1839,
+        "tag": 507,
+        "worldRandomState": 1488818045,
+        "people": []
+      },
+      {
+        "phase": "before-stepLiveResting",
+        "id": 1832,
+        "tag": 312,
+        "worldRandomState": 1488818045,
+        "people": []
+      },
+      {
+        "phase": "before-createLivePerson",
+        "worldRandomState": 1488818045,
+        "people": []
+      },
+      {
+        "phase": "after-createLivePerson",
+        "id": 1832,
+        "tag": 312,
+        "personCounter": 255,
+        "worldRandomState": 1488818045,
+        "people": []
+      },
+      {
+        "phase": "after-stepLiveResting",
+        "id": 1832,
+        "tag": 312,
+        "worldRandomState": 2737914962,
+        "people": [
+          {
+            "tag": 312,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          }
+        ]
+      },
+      {
+        "phase": "before-stepLiveResting",
+        "id": 1833,
+        "tag": 309,
+        "worldRandomState": 2737914962,
+        "people": [
+          {
+            "tag": 312,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          }
+        ]
+      },
+      {
+        "phase": "before-createLivePerson",
+        "worldRandomState": 2737914962,
+        "people": [
+          {
+            "tag": 312,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          }
+        ]
+      },
+      {
+        "phase": "after-createLivePerson",
+        "id": 1833,
+        "tag": 309,
+        "personCounter": 255,
+        "worldRandomState": 2737914962,
+        "people": [
+          {
+            "tag": 312,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          }
+        ]
+      },
+      {
+        "phase": "after-stepLiveResting",
+        "id": 1833,
+        "tag": 309,
+        "worldRandomState": 1575020329,
+        "people": [
+          {
+            "tag": 312,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 309,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 81
+          }
+        ]
+      },
+      {
+        "phase": "before-stepLiveResting",
+        "id": 1834,
+        "tag": 519,
+        "worldRandomState": 1575020329,
+        "people": [
+          {
+            "tag": 312,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 309,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 81
+          }
+        ]
+      },
+      {
+        "phase": "before-createLivePerson",
+        "worldRandomState": 1575020329,
+        "people": [
+          {
+            "tag": 312,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 309,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 81
+          }
+        ]
+      },
+      {
+        "phase": "after-createLivePerson",
+        "id": 1834,
+        "tag": 519,
+        "personCounter": 255,
+        "worldRandomState": 1575020329,
+        "people": [
+          {
+            "tag": 312,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 309,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 81
+          }
+        ]
+      },
+      {
+        "phase": "after-stepLiveResting",
+        "id": 1834,
+        "tag": 519,
+        "worldRandomState": 634046319,
+        "people": [
+          {
+            "tag": 312,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 309,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 81
+          },
+          {
+            "tag": 519,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          }
+        ]
+      },
+      {
+        "phase": "before-stepLiveResting",
+        "id": 1835,
+        "tag": 516,
+        "worldRandomState": 634046319,
+        "people": [
+          {
+            "tag": 312,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 309,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 81
+          },
+          {
+            "tag": 519,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          }
+        ]
+      },
+      {
+        "phase": "before-createLivePerson",
+        "worldRandomState": 634046319,
+        "people": [
+          {
+            "tag": 312,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 309,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 81
+          },
+          {
+            "tag": 519,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          }
+        ]
+      },
+      {
+        "phase": "after-createLivePerson",
+        "id": 1835,
+        "tag": 516,
+        "personCounter": 255,
+        "worldRandomState": 634046319,
+        "people": [
+          {
+            "tag": 312,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 309,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 81
+          },
+          {
+            "tag": 519,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          }
+        ]
+      },
+      {
+        "phase": "after-stepLiveResting",
+        "id": 1835,
+        "tag": 516,
+        "worldRandomState": 1757885462,
+        "people": [
+          {
+            "tag": 312,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 309,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 81
+          },
+          {
+            "tag": 519,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 516,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 73
+          }
+        ]
+      },
+      {
+        "phase": "before-stepLiveResting",
+        "id": 1836,
+        "tag": 513,
+        "worldRandomState": 1757885462,
+        "people": [
+          {
+            "tag": 312,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 309,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 81
+          },
+          {
+            "tag": 519,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 516,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 73
+          }
+        ]
+      },
+      {
+        "phase": "before-createLivePerson",
+        "worldRandomState": 1757885462,
+        "people": [
+          {
+            "tag": 312,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 309,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 81
+          },
+          {
+            "tag": 519,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 516,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 73
+          }
+        ]
+      },
+      {
+        "phase": "after-createLivePerson",
+        "id": 1836,
+        "tag": 513,
+        "personCounter": 255,
+        "worldRandomState": 1757885462,
+        "people": [
+          {
+            "tag": 312,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 309,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 81
+          },
+          {
+            "tag": 519,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 516,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 73
+          }
+        ]
+      },
+      {
+        "phase": "after-stepLiveResting",
+        "id": 1836,
+        "tag": 513,
+        "worldRandomState": 1622230853,
+        "people": [
+          {
+            "tag": 312,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 309,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 81
+          },
+          {
+            "tag": 519,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 516,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 73
+          },
+          {
+            "tag": 513,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          }
+        ]
+      },
+      {
+        "phase": "before-stepLiveResting",
+        "id": 1837,
+        "tag": 510,
+        "worldRandomState": 1622230853,
+        "people": [
+          {
+            "tag": 312,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 309,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 81
+          },
+          {
+            "tag": 519,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 516,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 73
+          },
+          {
+            "tag": 513,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          }
+        ]
+      },
+      {
+        "phase": "before-createLivePerson",
+        "worldRandomState": 1622230853,
+        "people": [
+          {
+            "tag": 312,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 309,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 81
+          },
+          {
+            "tag": 519,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 516,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 73
+          },
+          {
+            "tag": 513,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          }
+        ]
+      },
+      {
+        "phase": "after-createLivePerson",
+        "id": 1837,
+        "tag": 510,
+        "personCounter": 255,
+        "worldRandomState": 1622230853,
+        "people": [
+          {
+            "tag": 312,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 309,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 81
+          },
+          {
+            "tag": 519,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 516,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 73
+          },
+          {
+            "tag": 513,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          }
+        ]
+      },
+      {
+        "phase": "after-stepLiveResting",
+        "id": 1837,
+        "tag": 510,
+        "worldRandomState": 3101702253,
+        "people": [
+          {
+            "tag": 312,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 309,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 81
+          },
+          {
+            "tag": 519,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 516,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 73
+          },
+          {
+            "tag": 513,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 510,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 82
+          }
+        ]
+      },
+      {
+        "phase": "before-stepLiveResting",
+        "id": 1838,
+        "tag": 300,
+        "worldRandomState": 3101702253,
+        "people": [
+          {
+            "tag": 312,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 309,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 81
+          },
+          {
+            "tag": 519,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 516,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 73
+          },
+          {
+            "tag": 513,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 510,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 82
+          }
+        ]
+      },
+      {
+        "phase": "before-createLivePerson",
+        "worldRandomState": 3101702253,
+        "people": [
+          {
+            "tag": 312,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 309,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 81
+          },
+          {
+            "tag": 519,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 516,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 73
+          },
+          {
+            "tag": 513,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 510,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 82
+          }
+        ]
+      },
+      {
+        "phase": "after-createLivePerson",
+        "id": 1838,
+        "tag": 300,
+        "personCounter": 255,
+        "worldRandomState": 3101702253,
+        "people": [
+          {
+            "tag": 312,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 309,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 81
+          },
+          {
+            "tag": 519,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 516,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 73
+          },
+          {
+            "tag": 513,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 510,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 82
+          }
+        ]
+      },
+      {
+        "phase": "after-stepLiveResting",
+        "id": 1838,
+        "tag": 300,
+        "worldRandomState": 917606340,
+        "people": [
+          {
+            "tag": 312,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 309,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 81
+          },
+          {
+            "tag": 519,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 516,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 73
+          },
+          {
+            "tag": 513,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 510,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 82
+          },
+          {
+            "tag": 300,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 79
+          }
+        ]
+      },
+      {
+        "phase": "before-stepLiveResting",
+        "id": 1839,
+        "tag": 507,
+        "worldRandomState": 917606340,
+        "people": [
+          {
+            "tag": 312,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 309,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 81
+          },
+          {
+            "tag": 519,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 516,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 73
+          },
+          {
+            "tag": 513,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 510,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 82
+          },
+          {
+            "tag": 300,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 79
+          }
+        ]
+      },
+      {
+        "phase": "before-createLivePerson",
+        "worldRandomState": 917606340,
+        "people": [
+          {
+            "tag": 312,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 309,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 81
+          },
+          {
+            "tag": 519,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 516,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 73
+          },
+          {
+            "tag": 513,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 510,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 82
+          },
+          {
+            "tag": 300,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 79
+          }
+        ]
+      },
+      {
+        "phase": "after-createLivePerson",
+        "id": 1839,
+        "tag": 507,
+        "personCounter": 255,
+        "worldRandomState": 917606340,
+        "people": [
+          {
+            "tag": 312,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 309,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 81
+          },
+          {
+            "tag": 519,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 516,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 73
+          },
+          {
+            "tag": 513,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 510,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 82
+          },
+          {
+            "tag": 300,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 79
+          }
+        ]
+      },
+      {
+        "phase": "after-stepLiveResting",
+        "id": 1839,
+        "tag": 507,
+        "worldRandomState": 398171263,
+        "people": [
+          {
+            "tag": 312,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 309,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 81
+          },
+          {
+            "tag": 519,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 516,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 73
+          },
+          {
+            "tag": 513,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 510,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 82
+          },
+          {
+            "tag": 300,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 79
+          },
+          {
+            "tag": 507,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 70
+          }
+        ]
+      },
+      {
+        "phase": "before-public-command",
+        "worldRandomState": 398171263,
+        "people": [
+          {
+            "tag": 312,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 309,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 81
+          },
+          {
+            "tag": 519,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 516,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 73
+          },
+          {
+            "tag": 513,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 75
+          },
+          {
+            "tag": 510,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 82
+          },
+          {
+            "tag": 300,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 79
+          },
+          {
+            "tag": 507,
+            "counter": 0,
+            "state": 19,
+            "angle": 0,
+            "speed": 70
+          }
+        ]
+      },
+      {
+        "phase": "after-public-command",
+        "worldRandomState": 3062508023,
+        "people": [
+          {
+            "tag": 312,
+            "counter": 0,
+            "state": 10,
+            "angle": 0,
+            "speed": 86
+          },
+          {
+            "tag": 309,
+            "counter": 0,
+            "state": 10,
+            "angle": 0,
+            "speed": 70
+          },
+          {
+            "tag": 519,
+            "counter": 0,
+            "state": 10,
+            "angle": 0,
+            "speed": 74
+          },
+          {
+            "tag": 516,
+            "counter": 0,
+            "state": 10,
+            "angle": 0,
+            "speed": 86
+          },
+          {
+            "tag": 513,
+            "counter": 0,
+            "state": 10,
+            "angle": 0,
+            "speed": 70
+          },
+          {
+            "tag": 510,
+            "counter": 0,
+            "state": 10,
+            "angle": 0,
+            "speed": 85
+          },
+          {
+            "tag": 300,
+            "counter": 0,
+            "state": 10,
+            "angle": 0,
+            "speed": 74
+          },
+          {
+            "tag": 507,
+            "counter": 0,
+            "state": 10,
+            "angle": 0,
+            "speed": 83
+          }
+        ]
+      }
+    ]
+  },
+  "counterOnlyIndependentAssertion": {
+    "passed": true,
+    "statement": "Across separately generated initial-browser captures, every captured field including person-owner aliases, full command pool, full route arrays, RNG, building, formation/cell-head hash and visit order is exactly equal after masking only person counters. Each intervened counter equals actual app-produced value mapped by fixture geometry tag.",
+    "counterDeltas": [
+      {
+        "id": 1839,
+        "tag": 507,
+        "native": 0,
+        "intervention": 0,
+        "actualApp": 0
+      },
+      {
+        "id": 1838,
+        "tag": 300,
+        "native": 1,
+        "intervention": 0,
+        "actualApp": 0
+      },
+      {
+        "id": 1837,
+        "tag": 510,
+        "native": 2,
+        "intervention": 0,
+        "actualApp": 0
+      },
+      {
+        "id": 1836,
+        "tag": 513,
+        "native": 3,
+        "intervention": 0,
+        "actualApp": 0
+      },
+      {
+        "id": 1835,
+        "tag": 516,
+        "native": 4,
+        "intervention": 0,
+        "actualApp": 0
+      },
+      {
+        "id": 1834,
+        "tag": 519,
+        "native": 5,
+        "intervention": 0,
+        "actualApp": 0
+      },
+      {
+        "id": 1833,
+        "tag": 309,
+        "native": 6,
+        "intervention": 0,
+        "actualApp": 0
+      },
+      {
+        "id": 1832,
+        "tag": 312,
+        "native": 7,
+        "intervention": 0,
+        "actualApp": 0
+      }
+    ]
+  },
+  "conclusion": "Exact-native-input candidate matches tight admissions/mapped movement/RNG/formation/routes. Actual app materialization/resting/command produces a four-way burst but carries numerous non-counter confounds. Counter-only intervention changes admission timing and produces a pair, not the four-way burst or ordinary triple. Phase synchronization alone is insufficient to explain this reduced fixture; no global counter repair or ordinary-M3 cause is established."
+}

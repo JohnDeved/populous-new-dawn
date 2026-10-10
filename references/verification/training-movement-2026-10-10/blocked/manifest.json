@@ -1,0 +1,94 @@
+{
+  "controlled-candidate.tar.gz": {
+    "bytes": 165434,
+    "sha256": "52e270b96d0a98e9b89f3d035820cc95f0def1080bbc59ba7208837b48ea92ef"
+  },
+  "event-observer-loader.mjs": {
+    "bytes": 2006,
+    "sha256": "c375fd217ae0d366d3b67a36d0239714dc389d45bb73c5c84a2a64d5e0cd642a"
+  },
+  "mission2-candidate-stderr.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "mission2-candidate-stdout.log": {
+    "bytes": 1108,
+    "sha256": "4673e433d40b1e03d4ad83fe5c652ec452e07976a549bc3d27b5cc613eaddb91"
+  },
+  "mission2-candidate.json": {
+    "bytes": 2685,
+    "sha256": "9155fabb5759c76c88d8c0a551cad91f2ef1c1120342a65c218486b163335ad7"
+  },
+  "mission2-diagnostic.mjs": {
+    "bytes": 5328,
+    "sha256": "8e54b38ed56076e390fdc25a543fba9a7d835e0f148533cb4f016f4e9abc165e"
+  },
+  "mission2-event-diagnostic.mjs": {
+    "bytes": 7533,
+    "sha256": "2cb5de05ffe0ea5b09d5e501f1cc868781d05b23da648eb70b8939460024ed0d"
+  },
+  "mission2-event-observation-stderr.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "mission2-event-observation-stdout.log": {
+    "bytes": 2607,
+    "sha256": "1063bdb7fc47e722cddc59011bc3136f99b7004f1f4baacf7f5bc3df7e5f9eef"
+  },
+  "mission2-event-observation.json": {
+    "bytes": 5173,
+    "sha256": "3807ad4668c44821bf45afc678c3126bec834ce6a6fa770dcde4fe9eecbff6c1"
+  },
+  "mission2-events.json": {
+    "bytes": 46400,
+    "sha256": "530879ab5a811b6c2416a7db82a1ec387ed9e30b53080dfb6c61e19a9f70c46d"
+  },
+  "mission2-observation-stderr.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "mission2-observation-stdout.log": {
+    "bytes": 2485,
+    "sha256": "e4dcc6edf6300c843e3665bc4ca9500f51b43ec361239f6db676d682434b0401"
+  },
+  "mission2-observation.json": {
+    "bytes": 4661,
+    "sha256": "20e7fda69b83920a5cef8f0847d1972322da2cef53e7c10677856fa50ee2f300"
+  },
+  "ordinary-live.png": {
+    "bytes": 2238806,
+    "sha256": "510e981b2555145e530f58872870dac1d13765cd825dcd641f5dc2a483006047"
+  },
+  "ordinary-raw.json": {
+    "bytes": 799484,
+    "sha256": "1646b375d4c3ca146de27b2cc7e9720d5e7ac2de2a9d57595cb453a17778cefc"
+  },
+  "ordinary-receipt.json": {
+    "bytes": 863638,
+    "sha256": "699274672309310d2b63926a6c00c65018edc07859f94b8b02070745360c5ca7"
+  },
+  "ordinary-result.png": {
+    "bytes": 1976894,
+    "sha256": "70a511c54f5233164e88bb43ff937df3c29b67406dae74b78c7a929382e2d729"
+  },
+  "ordinary-summary.json": {
+    "bytes": 57108,
+    "sha256": "6d3f7119ad8579aaad5f6569a2610feeb8d30197bb21fb5a2e6ddf81d879e545"
+  },
+  "ordinary-witness.md": {
+    "bytes": 8533,
+    "sha256": "03ffb4c0509211e0c639b371fdc729762ec1363a7e0ed3ebbeb4ae667f872b8c"
+  },
+  "tight-comparison.tar.gz": {
+    "bytes": 5749144,
+    "sha256": "cc995f443f47e3ed2387c6e60a627a6ebd2ab16770fe17f9cea507647ae710fb"
+  },
+  "tight-native-findings.md": {
+    "bytes": 9473,
+    "sha256": "6bcf16f2dee86b1a6bb6134e2a3980466970ba9628122a311ee1310aed66f112"
+  },
+  "tight-summary.json": {
+    "bytes": 92072,
+    "sha256": "11ad5520db69cbdb4f55651829d8cfdd8c68403bc7494d20ea4ad797c5131cba"
+  }
+}
