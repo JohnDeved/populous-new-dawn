@@ -299,3 +299,20 @@ actual-class state-initializer effects and supported incoming history remain
 separate. Closing this body adds no runtime admission or complete shared owner.
 
 [class9-removal]: https://github.com/JohnDeved/populous-new-dawn/blob/d9c5d4043ee62c000d32cc2d91ed554714f194cf/references/verification/swarm-class9-removal-2026-10-10/README.md
+
+## Connected implementation decision after these closures
+
+The [reviewed connected decision][connected-decision] compares the actual
+consumer at main `721c3b08` and accounts for the new radius membership owner.
+No ordinary World yet supplies exact shared physical allocation history to
+`placeBuilding → tick/worker → prepareBuildingSite`. The local constructor,
+admission, cancellation and deferred-retirement contracts are substantially
+closed, but the real initial/intervening request stream and separate lifetime/
+cell ownership remain prerequisites. A supplied-state caller test is possible
+without claiming ordinary native IDs; a Building-array ledger would invent them.
+Conditional model10/models2/3 leaves are not universal new-Hut1 requirements.
+Old checkpoints cannot acquire missing history at Load. This finite chain stops
+with the connected prerequisite; no new decoder or detached runtime component
+is proposed.
+
+[connected-decision]: https://github.com/JohnDeved/populous-new-dawn/blob/7a9a3c681971eae278757a5b906d0f26d9e12ba7/references/verification/swarm-connected-slice-decision-2026-10-10/README.md
