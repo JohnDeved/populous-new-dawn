@@ -425,5 +425,15 @@
     "readbackSha256": "0bf2d71c4e13431de1b0327949332106119d89f354233e3be8ee56d6d5e45298",
     "providerObservedAt": "2026-10-10T10:23:29.094026+00:00",
     "providerStatus": "in_progress"
+  },
+  "providerFinal": {
+    "status": "success",
+    "checkId": 114191849429,
+    "completedAt": "2026-10-10T10:23:30Z",
+    "main": "35de8e6ca6864a98aff3bca0f263e87eee7fa65c",
+    "version": "86776fd2-a982-4c88-8aee-9845b0bdab06",
+    "buildId": "d90bca2e-ad32-43ee-a53c-d17ee0a512ea",
+    "dashboardUrl": "https://dash.cloudflare.com/19321bcee0ed17a93b709cb602dd070c/workers/services/view/populous-new-dawn/production/builds/d90bca2e-ad32-43ee-a53c-d17ee0a512ea",
+    "provenance": "Authoritative completed GitHub check response independently received by the integration coordinator; later optional saved-response collection remained empty/held. No verified saved raw receipt claim."
   }
 }
