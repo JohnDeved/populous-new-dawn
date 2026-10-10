@@ -1,6 +1,7 @@
 import { hudGlyph } from './hud-font.ts'
 import hud from './original-hud.json' with { type: 'json' }
 import type { Unit } from './world-types.ts'
+import { nativeUnitModel } from './unit-kinds.ts'
 
 // 0x5cb255..0x5cb35d: native class order and HFX pairs. Model 6 is the
 // Firewarrior; model 4 is the Preacher (not their previously swapped labels).
@@ -15,13 +16,18 @@ const followerClasses = [
 // 0x4a1170/0x4a0510: empty classes retain a disabled frame, without icon/count
 // art. Training knowledge is independent; housed followers still count.
 export function followerClassControls(
-  units: readonly Pick<Unit, 'team' | 'kind' | 'hp' | 'ghost'>[]
+  units: readonly Pick<Unit, 'team' | 'kind' | 'hp' | 'ghost'>[],
+  counts?: { totals: readonly number[]; displayTotals: readonly number[] }
 ) {
   return followerClasses.map(({ kind, label, sprite }) => {
-    const count = units.filter(
-      unit => unit.team === 'blue' && unit.hp > 0 && !unit.ghost && unit.kind === kind
-    ).length
-    return { kind, label, sprite, count, enabled: count > 0 }
+    const model = nativeUnitModel(kind),
+      total = counts
+        ? counts.totals[model]
+        : units.filter(
+            unit => unit.team === 'blue' && unit.hp > 0 && !unit.ghost && unit.kind === kind
+          ).length,
+      count = counts ? counts.displayTotals[model] : total
+    return { kind, label, sprite, count, enabled: total > 0 }
   })
 }
 

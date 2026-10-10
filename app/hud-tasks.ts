@@ -54,19 +54,22 @@ export function classifyFollowerTask(
 // independently. Class enable uses the global total even in nearby display mode.
 export function followerTaskCounts(people: readonly TaskPerson[], point: Point, nearby = false) {
   const totals = Array<number>(9).fill(0),
+    displayTotals = Array<number>(9).fill(0),
     tasks = Array.from({ length: 9 }, () => Array<number>(6).fill(0))
   for (const p of people) {
     if (!(p.flags4 & 0x20000000) || p.flags4 & 0x800 || p.model < 2 || p.model > 7) continue
     totals[p.model]++
     if (nearby && positionDistanceSquared(point, p) >= 0x2400000) continue
+    displayTotals[p.model]++
     if (p.category >= 0 && p.category < 6) tasks[p.model][p.category]++
     if (p.selectionFlags & 128) tasks[p.model][1]++
   }
   for (let model = 2; model <= 6; model++) {
     totals[0] += totals[model]
+    displayTotals[0] += displayTotals[model]
     for (let category = 0; category < 6; category++) tasks[0][category] += tasks[model][category]
   }
-  return { totals, tasks }
+  return { totals, displayTotals, tasks }
 }
 
 // Nonzero task categories bypass the persistent strip's assignment priorities.

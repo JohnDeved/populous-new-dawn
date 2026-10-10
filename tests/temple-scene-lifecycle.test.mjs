@@ -244,6 +244,8 @@ test('actual Scene preload/start/animate/dispose and Page retry respect the curr
       store,
       loadRequest,
       audio: { current: { reset: nop } },
+      cancelNearbyInput: nop,
+      engine: { current: null },
       setSelectorOpen: nop,
       setMenu: nop,
       setReady: value => pageEvents.push(['ready', value]),

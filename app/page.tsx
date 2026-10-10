@@ -14,6 +14,8 @@ import {
   useSyncExternalStore,
   type CSSProperties,
   type MouseEvent,
+  type PointerEvent,
+  type KeyboardEvent as ReactKeyboardEvent,
   type SyntheticEvent,
 } from 'react'
 import {
@@ -57,7 +59,7 @@ import { spellOrder } from './spell-button'
 import { followerClassControls } from './hud-population'
 import { FollowerTasks } from './follower-tasks-view'
 import { hudTaskPeople } from './follower-tasks-runtime'
-import type { FollowerTask } from './hud-tasks'
+import { followerTaskCounts, type FollowerTask } from './hud-tasks'
 import type { TransportKind } from './hud-transports'
 import { hudTransports } from './follower-transports-runtime'
 import { createTooltipSession } from './tooltip-controller'
@@ -104,6 +106,7 @@ export default function Home() {
   const [soundPending, setSoundPending] = useState(false)
   const [hudSize, setHudSize] = useState('auto')
   const [hudCamera, setHudCamera] = useState({ x: 0, y: 0 })
+  const [nearbyPressed, setNearbyPressed] = useState(false)
   const [messageViewportHeight, setMessageViewportHeight] = useState(480)
   const [checkpointNotice, setCheckpointNotice] = useState('')
   const [startup, setStartup] = useState<'loading' | 'choice' | 'playing'>('loading')
@@ -131,6 +134,11 @@ export default function Home() {
     ['temple', templeButton],
   ])
   const followerPress = useRef<EventTarget | null>(null)
+  const nearbyPress = useRef<{
+    scene: GameScene
+    pointer?: number
+    key?: string
+  } | null>(null)
   const loadRequest = useRef<LoadRequest | null>(null)
   const messageDetails = useRef(new Map<number, HTMLDetailsElement>())
   useEffect(() => {
@@ -181,6 +189,65 @@ export default function Home() {
   const tooltipSession = useRef(createTooltipSession())
   const engine = useRef<GameScene | null>(null),
     audio = useRef<Soundscape | null>(null)
+  const clearNearbyPress = useCallback(() => {
+    nearbyPress.current = null
+    setNearbyPressed(false)
+  }, [])
+  const cancelNearbyInput = useCallback(() => {
+    clearNearbyPress()
+    engine.current?.cancelNearbyFollowers()
+  }, [clearNearbyPress])
+  const openMenu = useCallback(() => {
+    cancelNearbyInput()
+    if (engine.current) engine.current.nearbyFollowersHudActive = false
+    setMenu(true)
+  }, [cancelNearbyInput, setMenu])
+  function openSelector() {
+    cancelNearbyInput()
+    if (engine.current) engine.current.nearbyFollowersHudActive = false
+    setSelectorOpen(true)
+  }
+  useEffect(() => {
+    const scene = engine.current
+    if (!scene) return
+    scene.onNearbyFollowersCancel = () => {
+      if (nearbyPress.current && nearbyPress.current.scene !== scene) return
+      nearbyPress.current = null
+      setNearbyPressed(false)
+    }
+    scene.nearbyFollowersHudActive =
+      ready && startup === 'playing' && !menu && !selectorOpen && scene.world === world
+    if (!scene.nearbyFollowersHudActive) scene.cancelNearbyFollowers()
+    return () => {
+      scene.nearbyFollowersHudActive = false
+      scene.cancelNearbyFollowers()
+      scene.onNearbyFollowersCancel = undefined
+    }
+  }, [world, ready, startup, menu, selectorOpen])
+  useEffect(() => {
+    const cancel = () => {
+      nearbyPress.current = null
+      setNearbyPressed(false)
+      engine.current?.cancelNearbyFollowers()
+    }
+    const hidden = () => {
+      if (document.hidden) cancel()
+    }
+    const escape = (event: globalThis.KeyboardEvent) => {
+      if (event.key !== 'Escape') return
+      nearbyPress.current = null
+      setNearbyPressed(false)
+    }
+    globalThis.addEventListener('blur', cancel)
+    document.addEventListener('visibilitychange', hidden)
+    globalThis.addEventListener('keydown', escape)
+    return () => {
+      globalThis.removeEventListener('blur', cancel)
+      document.removeEventListener('visibilitychange', hidden)
+      globalThis.removeEventListener('keydown', escape)
+      cancel()
+    }
+  }, [])
   const measureWorshipHud = useCallback(
     (
       model: WorshipTargetModel,
@@ -409,7 +476,7 @@ export default function Home() {
       if (e.key === 'Escape') {
         if (store.getWorld().outcome.level === tutorialLevel) {
           e.preventDefault()
-          setMenu(true)
+          openMenu()
           return
         }
         store.change(cancelInteraction)
@@ -439,7 +506,7 @@ export default function Home() {
     }
     window.addEventListener('keydown', key)
     return () => window.removeEventListener('keydown', key)
-  }, [world, update, store, ready])
+  }, [world, update, store, ready, openMenu])
   useEffect(() => {
     if (menu) {
       store.change(w => {
@@ -513,7 +580,74 @@ export default function Home() {
       },
     }
   }
+  function currentNearbyScene() {
+    const scene = engine.current
+    return ready &&
+      startup === 'playing' &&
+      !menu &&
+      !selectorOpen &&
+      scene?.world === world &&
+      scene.canRequestNearbyFollowers()
+      ? scene
+      : null
+  }
+  function releaseNearbyPress(scene: GameScene | undefined) {
+    clearNearbyPress()
+    if (scene && scene === currentNearbyScene()) scene.requestNearbyFollowers()
+  }
+  const nearbyControl = {
+    disabled:
+      !ready ||
+      startup !== 'playing' ||
+      menu ||
+      selectorOpen ||
+      !!world.inputMask ||
+      !!(world.manaWorld.gameFlags & 32),
+    onPointerDown: (event: PointerEvent<HTMLButtonElement>) => {
+      const scene = currentNearbyScene()
+      if (event.button !== 0 || !scene || event.currentTarget.disabled) return
+      nearbyPress.current = { scene, pointer: event.pointerId }
+      setNearbyPressed(true)
+    },
+    onPointerUp: (event: PointerEvent<HTMLButtonElement>) => {
+      const press = nearbyPress.current
+      if (event.button !== 0 || press?.pointer !== event.pointerId) return
+      const bounds = event.currentTarget.getBoundingClientRect(),
+        inside =
+          event.clientX >= bounds.left &&
+          event.clientX < bounds.right &&
+          event.clientY >= bounds.top &&
+          event.clientY < bounds.bottom
+      releaseNearbyPress(inside ? press.scene : undefined)
+    },
+    onPointerLeave: clearNearbyPress,
+    onPointerCancel: clearNearbyPress,
+    onBlur: clearNearbyPress,
+    onContextMenu: (event: MouseEvent<HTMLButtonElement>) => event.preventDefault(),
+    onClick: (event: MouseEvent<HTMLButtonElement>) => {
+      // Keyboard handling below suppresses browser key-generated clicks. A
+      // detail-zero click remains the accessibility/assistive activation path.
+      if (!event.detail && !nearbyPress.current) currentNearbyScene()?.requestNearbyFollowers()
+    },
+    onKeyDown: (event: ReactKeyboardEvent<HTMLButtonElement>) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return
+      event.preventDefault()
+      if (event.repeat) return
+      const scene = currentNearbyScene()
+      if (!scene || event.currentTarget.disabled) return
+      nearbyPress.current = { scene, key: event.key }
+      setNearbyPressed(true)
+    },
+    onKeyUp: (event: ReactKeyboardEvent<HTMLButtonElement>) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return
+      event.preventDefault()
+      const press = nearbyPress.current
+      if (press?.key === event.key) releaseNearbyPress(press.scene)
+    },
+  }
   function beginLoad(request: LoadRequest) {
+    cancelNearbyInput()
+    if (engine.current) engine.current.nearbyFollowersHudActive = false
     setSelectorOpen(false)
     audio.current?.reset()
     setMenu(false)
@@ -540,6 +674,8 @@ export default function Home() {
     beginLoad({ kind: 'mission', mission })
   }
   function exitTutorial() {
+    cancelNearbyInput()
+    if (engine.current) engine.current.nearbyFollowersHudActive = false
     audio.current?.reset()
     setMenu(false)
     setReady(false)
@@ -560,7 +696,10 @@ export default function Home() {
         : 'Checkpoint saved for this session only; browser storage is unavailable.'
     )
   }
-  const blue = world.units.filter(u => u.team === 'blue'),
+  const nearby = !!(world.castingTribes[0].flags & 128),
+    followerPeople = hudTaskPeople(world),
+    followerCounts = followerTaskCounts(followerPeople, hudCamera, nearby),
+    blue = world.units.filter(u => u.team === 'blue'),
     enemyTribes = missionComputerTribes(world.outcome.level).filter(
       tribe => world.outcome.level !== 6 || tribe !== 1
     ),
@@ -965,12 +1104,13 @@ export default function Home() {
         </nav>
         <div className="shaman-controls">
           <button
-            className="globe-button"
-            aria-label="Planet overview"
-            title="Planet overview · Enter"
-            onClick={() => engine.current?.overview()}
+            className="nearby-followers-button"
+            aria-label="Nearby followers"
+            aria-pressed={nearby}
+            title="Nearby followers · Limit counts and selection to the camera area"
+            {...nearbyControl}
           >
-            <HudSprite id={875} />
+            <HudSprite id={875 + Number(nearby) * 2 + Number(nearbyPressed)} />
           </button>
           <button
             className="portrait"
@@ -989,7 +1129,7 @@ export default function Home() {
             className="help-button"
             aria-label="Menu"
             title="Help and game menu"
-            onClick={() => setMenu(true)}
+            onClick={openMenu}
           >
             ?
           </button>
@@ -1018,9 +1158,9 @@ export default function Home() {
               population={population(world, 'blue')}
               capacity={populationLimit(world, 'blue')}
             />
-            <FollowerNumber count={population(world, 'blue') - 1} total />
+            <FollowerNumber count={followerCounts.displayTotals[0]} total alternate={nearby} />
           </button>
-          {followerClassControls(blue).map(u => (
+          {followerClassControls(blue, followerCounts).map(u => (
             <button
               key={u.kind}
               aria-label={`Select ${u.kind}`}
@@ -1032,7 +1172,7 @@ export default function Home() {
               {u.enabled && (
                 <>
                   <FollowerIcon sprite={u.sprite} />
-                  <FollowerNumber count={u.count} />
+                  <FollowerNumber count={u.count} alternate={nearby} />
                 </>
               )}
             </button>
@@ -1045,12 +1185,12 @@ export default function Home() {
         >
           {tab === 'followers' && (
             <FollowerTasks
-              people={hudTaskPeople(world)}
+              counts={followerCounts}
               vehicles={hudTransports(world)}
               transportPeople={hudTaskPeople(world, false)}
               transportControl={(model, kind) => followerControl(model, undefined, kind)}
               center={hudCamera}
-              nearby={!!(world.castingTribes[0].flags & 128)}
+              nearby={nearby}
               control={followerControl}
             />
           )}
@@ -1211,7 +1351,7 @@ export default function Home() {
           >
             {world.paused ? '▷' : 'Ⅱ'}
           </button>
-          <button aria-label="Game settings" title="Game settings" onClick={() => setMenu(true)}>
+          <button aria-label="Game settings" title="Game settings" onClick={openMenu}>
             ☰
           </button>
         </div>
@@ -1233,7 +1373,7 @@ export default function Home() {
             event.preventDefault()
             if (selectorOpen) {
               setSelectorOpen(false)
-              if (world.status === 'playing') setMenu(true)
+              if (world.status === 'playing') openMenu()
             }
           }}
         >
@@ -1248,7 +1388,7 @@ export default function Home() {
               selectorOpen
                 ? () => {
                     setSelectorOpen(false)
-                    if (world.status === 'playing') setMenu(true)
+                    if (world.status === 'playing') openMenu()
                   }
                 : undefined
             }
@@ -1323,7 +1463,7 @@ export default function Home() {
               : 'Restart Level'}{' '}
             <span>↗</span>
           </button>
-          <button className="secondary-button" onClick={() => setSelectorOpen(true)}>
+          <button className="secondary-button" onClick={openSelector}>
             Select Level
           </button>
         </div>
@@ -1417,7 +1557,7 @@ export default function Home() {
             className="secondary-button"
             onClick={() => {
               setMenu(false)
-              setSelectorOpen(true)
+              openSelector()
             }}
           >
             Select Level

@@ -68,6 +68,7 @@
         "scripts/import-temple-acquisition.py",
         "scripts/import-vehicle-panel-icons.py",
         "scripts/import-follower-tasks.py",
+        "scripts/import-follower-nearby.py",
         "scripts/import-minimap-frame.py",
         "scripts/import-sound.py",
         "scripts/import-music.py"
@@ -283,6 +284,10 @@
             {
               "producer": "scripts/import-worship-acquisition.py",
               "scope": "Only HFX1059/1060/1068 ordinary-palette body rectangles; preserve every existing rectangle and metadata value except total atlas height."
+            },
+            {
+              "producer": "scripts/import-follower-nearby.py",
+              "scope": "Only HFX876/877/878 ordinary-palette rectangles; preserve every existing rectangle and metadata value except total atlas height."
             }
           ]
         },
@@ -331,6 +336,10 @@
             {
               "producer": "scripts/import-worship-acquisition.py",
               "scope": "Append only ordinary-palette HFX1059/1060/1068 beneath the current image without repacking or changing any existing pixels."
+            },
+            {
+              "producer": "scripts/import-follower-nearby.py",
+              "scope": "Append only ordinary-palette HFX876/877/878 beneath the current image without repacking or changing any existing pixels."
             }
           ]
         },

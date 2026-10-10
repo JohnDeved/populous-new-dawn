@@ -12,6 +12,7 @@ import { type FlybyCamera } from './flyby.ts'
 import { FpsGraph } from './fps-graph.ts'
 import { levelStartCamera } from './level-start.ts'
 import { advanceGame } from './game-clock.ts'
+import { FollowerNearbyMode } from './follower-nearby.ts'
 import { bindTrainingPanelRequests } from './training-panel-requests.ts'
 import {
   WorshipAcquisitionPresentation,
@@ -316,6 +317,9 @@ export class GameScene {
   }
   templeResourceSnapshot: SharedAniblSnapshot | null = null
   private presentationBinding?: PresentationBinding
+  private nearbyFollowers?: FollowerNearbyMode
+  nearbyFollowersHudActive = false
+  onNearbyFollowersCancel?: () => void
   worshipPresentation: WorshipAcquisitionPresentation
   terrainVersion = -1
   treeSignature = ''
@@ -517,6 +521,41 @@ export class GameScene {
   }
   isCurrent() {
     return !this.disposed && (!this.presentationBinding || this.presentationBinding.isCurrent())
+  }
+  canRequestNearbyFollowers() {
+    return !!(
+      this.started &&
+      this.isCurrent() &&
+      this.nearbyFollowersHudActive &&
+      !document.hidden &&
+      !document.querySelector('dialog[open]') &&
+      !this.world.inputMask &&
+      !this.overviewStage &&
+      !this.overviewActive &&
+      !(this.world.manaWorld.gameFlags & 32)
+    )
+  }
+  requestNearbyFollowers() {
+    if (!this.canRequestNearbyFollowers()) {
+      this.cancelNearbyFollowers()
+      return false
+    }
+    this.nearbyFollowers ??= new FollowerNearbyMode()
+    return this.nearbyFollowers.request(this.world, performance.now(), cue =>
+      this.onSound(cue, 1, 0)
+    )
+  }
+  dispatchNearbyFollowers(now: number) {
+    if (!this.canRequestNearbyFollowers()) {
+      this.cancelNearbyFollowers()
+      return
+    }
+    this.nearbyFollowers ??= new FollowerNearbyMode()
+    if (this.nearbyFollowers.advance(this.world, now)) this.onChange()
+  }
+  cancelNearbyFollowers() {
+    this.nearbyFollowers?.cancel()
+    this.onNearbyFollowersCancel?.()
   }
   start() {
     if (this.presentationBinding && !this.presentationBinding.isCurrent()) return false
@@ -759,7 +798,11 @@ export class GameScene {
     playWorldSounds(this)
   }
   animate = (now: number) => {
-    if (this.disposed || (this.presentationBinding && !this.presentationBinding.isCurrent())) return
+    if (!this.isCurrent()) {
+      this.cancelNearbyFollowers()
+      this.nearbyFollowers?.reset()
+      return
+    }
     if (this.renderer.getPixelRatio() !== Math.min(devicePixelRatio, 1.8)) this.setSize()
     const previous = this.previous ?? now,
       skyTicks = Math.imul(Math.max(0, Math.floor(now) - Math.floor(previous)), 64) >>> 0,
@@ -767,6 +810,7 @@ export class GameScene {
     if (this.fpsGraph) this.fpsGraph.update(document.hidden ? 0 : dt * 1000)
     this.previous = now
     syncSecondaryReservations(this)
+    this.dispatchNearbyFollowers(now)
     advanceGame(this.world, this.gameClock, dt)
     this.templeResourceSnapshot = this.presentationBinding?.snapshot() ?? null
     this.playWorldSounds()
@@ -863,6 +907,9 @@ export class GameScene {
   dispose() {
     if (this.disposed) return
     this.disposed = true
+    this.cancelNearbyFollowers()
+    this.nearbyFollowers?.reset()
+    this.onNearbyFollowersCancel = undefined
     this.releaseTrainingPanelRequests?.()
     this.releaseTrainingPanelRequests = null
     this.presentationBinding?.release()
