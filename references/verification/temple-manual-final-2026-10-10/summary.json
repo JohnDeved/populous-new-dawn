@@ -1,0 +1,247 @@
+{
+  "version": 1,
+  "scope": "Completed local Blue Temple manual inspection through ordinary training and checkpoint continuation",
+  "run": "ordinary-04",
+  "status": "passed",
+  "resultReview": {
+    "status": "accepted",
+    "sha256": "3659850f558128e50763e01d1a0da4489a1a6b39a8cc3d647618a1f93bd886b8"
+  },
+  "productSource": "8512737f0c24b56d199cb327644b9eb6ca67b156",
+  "productTree": "663bccd65664bb7c2297df89d8b69ba9842b6e3b",
+  "qaSource": "01ff23c93ea617746273757ec8b1c7f694926893",
+  "qaTree": "76744af62e743717ee0d4cbea1bd8206083bc202",
+  "productStandards": {
+    "status": "accepted",
+    "stages": 17,
+    "tests": 1755,
+    "standardFiles": 287,
+    "aggregateSha256": "91a0422f541c76a39428ffb4c6aae3929283e6f0b188fdf5bc9528e75b69247b",
+    "reviewSha256": "42b0d257288d5fa42c9763abd54c7e26174882c5d5b743a32356b2c9d03f6827"
+  },
+  "innerRun": {
+    "startedAt": "2026-10-10T01:17:32.764Z",
+    "finishedAt": "2026-10-10T01:19:03.726Z",
+    "status": "passed",
+    "exitCode": 0
+  },
+  "receiptHashes": {
+    "outer": "66f0553036509683a081d98fcad83dc8b9115ca87c096ddd2f7a2fd66e0fea03",
+    "inner": "3f170fa05c1a9e6cd5098450b4d488f058b1039767e85d2fd7c28be328bc529f",
+    "trainingTrace": "2c2354cb954af4d1c3aa74fe48068276aee27d01dd1301269e2f8efb736e6169",
+    "startupLoad": "0ac414fcdde16561993dab954a417fe1e69614ed5af14212b0fc36cd76f867ab"
+  },
+  "startup": {
+    "route": "Genuine public Load from the committed Mission 3 Save made through ordinary construction in attempt 02; exact source/profile correspondence was separately admitted.",
+    "turn": 2695,
+    "target": 1021,
+    "trained": 0,
+    "checkpointSha256": "ed9e36de19fdca40671f2ff54d0f785f2f00417c6d87f11f8c8a3f92f902bf51"
+  },
+  "idleManual": {
+    "recordIdentity": 2,
+    "creationTurn": 2823,
+    "explicitReuseTurn": 2839,
+    "heldOffTargetVisits": 38,
+    "releaseTurn": 2860,
+    "retirementTurn": 2869,
+    "terminalRecord": null,
+    "terminalReservations": 0
+  },
+  "manualToAutomatic": {
+    "trainee": 303,
+    "manualRecordIdentity": 4,
+    "manualCreationTurn": 2964,
+    "requestTurn": 2979,
+    "requestResult": "automatic:reused",
+    "before": {
+      "identity": 4,
+      "automatic": false,
+      "phase": 1,
+      "remaining": 15,
+      "hold": 16
+    },
+    "after": {
+      "identity": 4,
+      "automatic": true,
+      "phase": 1,
+      "remaining": 15,
+      "hold": 16
+    },
+    "reservationCount": 1,
+    "automaticLatch": true
+  },
+  "checkpoint": {
+    "savedAndCommitted": {
+      "version": 1,
+      "level": 3,
+      "turn": 3012,
+      "time": 251,
+      "checkpointSha256": "52f22821fe2668eacfc24d1e5754dbce925f4fb7770fb4f890ef5ed9fe30dea4",
+      "actorsSha256": "13f9ba2d447111edec0936b0ba10e1244d2ab1a546c68f33c345baa57d4405f5",
+      "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+      "stockSha256": "32b39e6eaf8e5b68f275df8beb09569779760f5f5f3b5e5ea311c7da563ace5a"
+    },
+    "expectedLoad": {
+      "version": 1,
+      "level": 3,
+      "turn": 3012,
+      "time": 251,
+      "checkpointSha256": "b8777edd3f9ca81807cc03e31b095568564474c81b7558f8953e93fb44f4a744",
+      "actorsSha256": "13f9ba2d447111edec0936b0ba10e1244d2ab1a546c68f33c345baa57d4405f5",
+      "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+      "stockSha256": "32b39e6eaf8e5b68f275df8beb09569779760f5f5f3b5e5ea311c7da563ace5a"
+    },
+    "actualLoad": {
+      "version": 1,
+      "level": 3,
+      "turn": 3012,
+      "time": 251,
+      "checkpointSha256": "b8777edd3f9ca81807cc03e31b095568564474c81b7558f8953e93fb44f4a744",
+      "actorsSha256": "13f9ba2d447111edec0936b0ba10e1244d2ab1a546c68f33c345baa57d4405f5",
+      "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+      "stockSha256": "32b39e6eaf8e5b68f275df8beb09569779760f5f5f3b5e5ea311c7da563ace5a"
+    },
+    "finalCommitted": {
+      "version": 1,
+      "level": 3,
+      "turn": 3012,
+      "time": 251,
+      "checkpointSha256": "52f22821fe2668eacfc24d1e5754dbce925f4fb7770fb4f890ef5ed9fe30dea4",
+      "actorsSha256": "13f9ba2d447111edec0936b0ba10e1244d2ab1a546c68f33c345baa57d4405f5",
+      "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+      "stockSha256": "32b39e6eaf8e5b68f275df8beb09569779760f5f5f3b5e5ea311c7da563ace5a"
+    },
+    "oldSceneDisposed": true,
+    "samePageSession": true,
+    "semantics": "Save and committed readback match; Load matches detached production migration. Saved and loaded full digests differ in this run; no particular raw normalization field is asserted. Terminal storage retains the original committed Save."
+  },
+  "afterLoad": {
+    "requestTurn": 3013,
+    "requestResult": "automatic:created",
+    "newRecord": {
+      "identity": 3,
+      "automatic": true,
+      "phase": -1,
+      "remaining": 0,
+      "hold": 16
+    },
+    "epoch": 2
+  },
+  "terminal": {
+    "turn": 3234,
+    "trained": 1,
+    "epoch": 2,
+    "record": null,
+    "latch": false,
+    "reservations": 0,
+    "dom": {
+      "present": false,
+      "hidden": null,
+      "focused": false,
+      "hovered": false
+    },
+    "newPreacherId": 3167,
+    "newPreacherHp": 55,
+    "originalTraineeRetired": true,
+    "laterClosedTurn": 3254
+  },
+  "cleanup": {
+    "resultCleanupErrors": 0,
+    "observationCleanupErrors": 0,
+    "pageErrors": 0,
+    "warnings": 6,
+    "normalRunReview": "accepted",
+    "firstViteSetupCleanup": "unknown",
+    "saveAndLoadBoundaryListenersAndSubscriptionsRestored": true,
+    "bothEpochsClosedWithoutErrorsOrOverflow": true,
+    "profileCleanupVerified": true,
+    "profileContinuationVerified": true,
+    "ownerAndBrowserMarkersAbsent": true
+  },
+  "priorAttempts": [
+    {
+      "run": "ordinary-01",
+      "status": "failed",
+      "reason": "Genuine knowledge acquired; home minimap view rejected before construction. Precise subcause not recorded; manual tail/Save not reached."
+    },
+    {
+      "run": "ordinary-02",
+      "status": "failed",
+      "reason": "Genuine Temple construction and committed Save 2695 passed; Vite interpreted the local require guard as dynamic require and returned HTTP 500 before manual observer installation."
+    },
+    {
+      "run": "ordinary-03",
+      "status": "failed",
+      "reason": "Startup Load and complete idle manual lifecycle accepted, but trainee entered at 2970 and fresh automatic record was created at 2971 before later manual input; no approach reuse or active checkpoint/conversion proof in that attempt.",
+      "report": "../temple-manual-ordinary-03-2026-10-10/README.md"
+    }
+  ],
+  "prelaunchGuard": {
+    "status": "prelaunch-guard-rejected",
+    "sha256": "306d90808c5741e7e5a57d38ca108358ef132585643399f63d95a6eda2ca11e0",
+    "condition": "Incorrect equality against abbreviated ACCEPT instead of the accepted full decision string",
+    "browserStarted": false,
+    "resourceOrProfileOrOutputWrites": false,
+    "correction": "Matched the exact accepted verdict hash and full decision string, then reran all unchanged immediate guards."
+  },
+  "developmentEvidence": "Earlier red/green/preflight failures and the nested-summary aggregation guard remain in the source/standard report; none are relabeled.",
+  "oxlint": {
+    "status": "failed",
+    "inheritedWarnings": 35,
+    "inheritedErrors": 1,
+    "unchangedDiagnosticsReview": "accepted"
+  },
+  "images": [
+    {
+      "file": "temple-manual-first.png",
+      "bytes": 1823602,
+      "sha256": "7e94b3de1b9cff52e6c709bb1e8ba52820e560ebfe11449aceed12f119326088",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "file": "temple-training-active.png",
+      "bytes": 1828760,
+      "sha256": "1119ef7c08ad9c77a24a30651dece4e7666362d6eecb1e00cd64ed596e24b09d",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "file": "temple-training-released.png",
+      "bytes": 1901263,
+      "sha256": "20087a9e63d944003d687ccbb871db5bcf2d9d3d5214352461140e08c3cef75c",
+      "width": 1440,
+      "height": 1000
+    }
+  ],
+  "presentation": {
+    "browser": "Chrome Headless Shell 154.0.8037.92",
+    "viewport": [
+      1440,
+      1000
+    ],
+    "softwareRenderingOnly": true,
+    "captureTiming": "Host screenshots follow recorded predicates, with no asserted exact screenshot simulation turn.",
+    "comparison": "Same-run lifecycle; camera framing changes after Load. No prior-product or original-raster pixel comparison.",
+    "occupancy": "The active screenshot shows one trainee in a five-person-capacity panel; it does not show five occupants."
+  },
+  "remainingLimits": [
+    "native walltime cadence",
+    "complete Temple raster equivalence",
+    "physical secondary allocation",
+    "hardware frame performance",
+    "full issue25 or gameplay parity"
+  ],
+  "supportingOnly": true,
+  "publicationBoundary": "Concise report/summary and three unchanged original PNGs only; no raw archive, profile or trace.",
+  "retainedQaFormatting": "Shared Mission 1 input formatting failure remains inherited and explicit; no clean global formatting claim.",
+  "qaChecksAtExecution": {
+    "uniquePackageCases": 1763,
+    "testFiles": 289,
+    "carriedCases": 1708,
+    "freshCases": 55,
+    "separateSupportChecks": 3,
+    "limit": "Execution-source correspondence at QA01ff only; not a fresh complete union run and not an assertion about any future maintained-source successor."
+  }
+}

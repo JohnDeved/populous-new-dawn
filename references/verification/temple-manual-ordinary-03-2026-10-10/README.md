@@ -87,3 +87,7 @@ SHA256: `bd5063f2a1e0f950f522ca69d2256d0098f563dbd07e655c97d4c0bf87b69724`.
 Only this report, summary and three relevant PNGs are published; raw archives,
 profiles and traces remain excluded. No tests or browser run was repeated for
 publication. No full parity or merge-ready claim is made.
+
+## Subsequent accepted continuation
+
+Attempt 03 remains failed with the exact bounded acceptance above. The separate [ordinary attempt 04](../temple-manual-final-2026-10-10/README.md) completed the later manual-to-automatic, active checkpoint, natural conversion and retirement obligations; its exact source and verdict are documented there.

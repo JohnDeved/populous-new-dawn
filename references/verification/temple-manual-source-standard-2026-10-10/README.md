@@ -110,3 +110,7 @@ change the parity ledger, publish browser proof or authorize an early merge.
 failed overall, while independent review accepts genuine startup Load and the
 complete idle manual lifecycle. Three inspected lifecycle PNGs are published
 there. Automatic reuse, active Save/Load and conversion remain unproved.
+
+## Final ordinary acceptance
+
+The source/standard checkpoint above predates the ordinary result. The [final ordinary witness](../temple-manual-final-2026-10-10/README.md) is now independently accepted on unchanged product 851, including same-record reuse, active Save/Load and natural conversion/retirement. Earlier failed attempts remain failed.
