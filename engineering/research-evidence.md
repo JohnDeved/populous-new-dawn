@@ -101,3 +101,30 @@ orchestration check suite and `npm test`. It covers lossless retrieval, source
 identity drift, tampering, missing backing files, path guards, exact query/version,
 claim dimensions, callback proof obligations, freshness and latest failure ties.
 No token, agent-time, correctness, native parity or gameplay improvement is claimed.
+
+## Reviewed browser-reference record projection
+
+`evaluateThemeReferenceRecord(repo, request)` from
+`scripts/orchestration/theme-reference-evidence.mjs` derives and evaluates exactly
+two historical-record claims in one call. `request` contains consumer-known
+`mappingVersion: "theme-reference-record-v1"`, `sourceCommit`, `sourceFingerprint`,
+and a `sources` manifest using `{id, path, sha256}`. Supply independent expected
+identity; never derive trust from an incoming packet. Required source IDs are
+`outer`, `inner`, `scenario`, `witness`, `harness`, and `observer`. The four producer
+IDs correspond to the exact reviewed source paths and hashes pinned in the helper;
+retain their raw files and the recorded Git commit locally. Missing Git objects,
+changed producer bytes, unknown versions, receipt drift/errors, or inconsistent
+save/load boundaries fail closed. No source is executed or fetched.
+
+This mapping covers the historical theme-reference producer only: its
+`captured-reference` outcome and recorded Mission 3 save/load digest equality.
+It returns seven hash-linked facts, evaluation, original observation time, and
+explicit absent obligations. It exports no claim/result packet and accepts no
+manual authority/dimension overrides. The derivation time is an offline byte
+inspection, not a new browser run. Browser reference success does not prove native
+policy, matched original pixels, corrected resource selection, current-main
+validation, hardware performance, or campaign victory. Hashes do not authenticate
+a receipt. Independent producer/receipt review remains necessary; never route
+edited output through the generic checker as if it carried authority. Tests use
+synthetic receipts and read-only pinned producer fixtures; actual pilot receipts
+remain separate evidence. No time/token savings or parity credit are claimed.
