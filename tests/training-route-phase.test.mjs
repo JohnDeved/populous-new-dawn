@@ -9,7 +9,7 @@ import { migrateCheckpoint } from '../app/game-store.ts'
 
 // Supplied unobstructed approach; exercise public player and shared AI order
 // producers. This checks counter ownership, not original doorway throughput.
-function scenario(kind, producer) {
+function scenario(kind, producer, orderModel = 8) {
   const w = createStartedWorld(1)
   retainFixtureUnits(w, u => u.kind === 'shaman')
   w.manaWorld.gameFlags = 32
@@ -26,7 +26,7 @@ function scenario(kind, producer) {
     w.selected = units.map(u => u.id)
     assert.equal(command(w, b), true)
   } else {
-    const order = { ...emptyPersonOrder(), model: 8, a: b.id }
+    const order = { ...emptyPersonOrder(), model: orderModel, a: b.id }
     assert.deepEqual(appendLiveOrders(w, units, order, true), { accepted: true, count: 8 })
   }
   tick(w, 1 / 12)
@@ -83,4 +83,23 @@ test('route-only legacy owners retain world-turn synchronization', async () => {
   p.counter = 255
   stepLiveRoute(w, u)
   assert.equal(p.counter, w.turn & 255)
+})
+
+for (const kind of ['hut', 'tower', 'boatHouse', 'balloonHut']) {
+  test(`${kind} routed entry uses the same retained counter owner`, () => {
+    const { w, units } = scenario(kind, 'ai')
+    const before = units.map(u => u.entry.person.counter)
+    tick(w, 1 / 12)
+    for (const [i, u] of units.entries())
+      assert.equal(u.entry.person.counter, (before[i] + 1) & 255)
+  })
+}
+
+
+test('dismantling approach keeps its retained entry counter', () => {
+  const { w, units } = scenario('camp', 'ai', 10)
+  const before = units.map(u => u.entry.person.counter)
+  tick(w, 1 / 12)
+  for (const [i, u] of units.entries())
+    assert.equal(u.entry.person.counter, (before[i] + 1) & 255)
 })
