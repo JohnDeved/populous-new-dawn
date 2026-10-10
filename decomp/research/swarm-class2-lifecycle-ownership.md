@@ -285,3 +285,17 @@ avoids these callbacks for that invocation; it does not establish incoming
 shared allocation history. No runtime implementation or Swarm admission follows.
 
 [plan-pre-request]: https://github.com/JohnDeved/populous-new-dawn/blob/016b2f0850f2047a5b6b0a05d914f6a7be664c7e/references/verification/swarm-plan-pre-request-2026-10-10/README.md
+
+## Class-9 retirement closure
+
+The [reviewed class9 removal][class9-removal] closes `004ba410`. It performs
+exterior-cell and actual-occupant work, separate resource-cache cleanup, then
+`004ba57e → 004edcf0`. The input record is unlinked and marked class zero/deleted,
+with counter3 pending membership and unchanged physical ID. Its slot is not
+immediately available to the following plan request; the already proved
+pending consumer and pool prepend determine later reuse. The caller has no
+rollback when the new allocation fails. Model10-only `0042cfc0`, earlier
+actual-class state-initializer effects and supported incoming history remain
+separate. Closing this body adds no runtime admission or complete shared owner.
+
+[class9-removal]: https://github.com/JohnDeved/populous-new-dawn/blob/d9c5d4043ee62c000d32cc2d91ed554714f194cf/references/verification/swarm-class9-removal-2026-10-10/README.md
