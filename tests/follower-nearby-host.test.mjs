@@ -51,6 +51,6 @@ for (const reportFailure of [false, true]) test(`actual host finally retains the
     assert.ok(report.errors.some(error => error.includes(name)), name)
   if (reportFailure) {
     assert.match(report.errors.at(-1), /report writer failed/)
-    assert.deepEqual(bindings.receipt.errors, [report.errors.at(-1)])
+    assert.deepEqual(bindings.receipt.errors, report.errors)
   }
 })

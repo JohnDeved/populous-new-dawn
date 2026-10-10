@@ -311,7 +311,7 @@ export default async function ({ page, openMission, output, receipt, signal, obs
       const diagnostic = `Nearby terminal report write failed: ${String(error?.stack ?? error)}`
       report.status = 'failed'
       report.errors.push(diagnostic)
-      receipt.errors.push(diagnostic)
+      receipt.errors.push(...report.errors)
       failure ??= error
     }
   }

@@ -132,7 +132,7 @@ test('ordinary observer joins actual Page activation, deferred Scene commit, cou
   t.after(() => load.close())
   const loadFunction = pageNode(node => ts.isFunctionDeclaration(node) && node.name?.text === 'beginLoad'),
     loadPage = evaluatePage(`function(){${loadFunction.getText(pageSource)};return beginLoad;}`, {
-      store, cancelNearbyInput: page.cancelNearbyInput, setSelectorOpen: noOp,
+      store, engine: { current: scene }, cancelNearbyInput: page.cancelNearbyInput, setSelectorOpen: noOp,
       audio: { current: { reset: noOp } }, setMenu: noOp, setReady: noOp, setError: noOp,
       loadRequest: { current: null }, setTab: noOp, setStartup: noOp,
     })()

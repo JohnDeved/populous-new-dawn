@@ -12,6 +12,9 @@ assert.equal(process.env.POPULOUS_GAME_ROOT, root)
 assert.equal(process.env.CLOUDFLARE_CF_FETCH_ENABLED, 'false')
 assert(process.env.TMPDIR?.startsWith(resolve(root, 'work/')))
 const file = 'scripts/local-render/temple-manual-witness.mjs'
+const extraEntries = process.argv.slice(2)
+assert(extraEntries.length <= 4 && extraEntries.every(entry =>
+  /^\/scripts\/local-render\/[a-z0-9-]+\.mjs$/.test(entry)), 'Invalid explicit browser helper entry')
 // Controlled lexical regression fixture, not historical application source.
 // A local guard named require must reproduce the maintained plugin boundary.
 const old = `const require = (value, message) => { if (!value) throw Error(message) }
@@ -23,6 +26,7 @@ const report = {
   baselineKind: 'controlled local require-function fixture',
   baselineSha256: sha(old),
   currentSha256: sha(readFileSync(file)),
+  extraEntries: extraEntries.map(entry => ({ entry, sha256: sha(readFileSync(resolve(root, entry.slice(1)))) })),
   modules: [],
   bytes: 0,
 }
@@ -30,6 +34,7 @@ let server
 try {
   server = await createServer({
     configFile: resolve(root, 'scripts/local-render/vite.config.mjs'),
+    configLoader: 'native',
     cacheDir: resolve(process.env.TMPDIR, 'node_modules/.vite'),
     server: { middlewareMode: true, hmr: false, watch: null },
   })
@@ -47,6 +52,7 @@ try {
       '/' + file,
       '/scripts/local-render/temple-training-witness.mjs',
       '/scripts/local-render/temple-training-checkpoint.mjs',
+      ...extraEntries,
     ],
     seen = new Set()
   while (queue.length) {
