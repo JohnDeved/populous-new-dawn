@@ -1,0 +1,414 @@
+{
+  "version": 1,
+  "scope": "Completed local Blue class-2/model-5 Temple manual inspection; source, controlled callers and full standards only",
+  "pullRequest": "https://github.com/JohnDeved/populous-new-dawn/pull/296",
+  "base": "26f23e1f8d61f431f87eb18fffcd4ee4d41fe35f",
+  "source": "8512737f0c24b56d199cb327644b9eb6ca67b156",
+  "sourceTree": "663bccd65664bb7c2297df89d8b69ba9842b6e3b",
+  "sourceReview": {
+    "status": "accepted",
+    "sha256": "fd76fbe7ea5160ca6e54bec19e32ea5e9235d0d23ee3ad79f1297e76998f36a9"
+  },
+  "standardReview": {
+    "status": "accepted",
+    "sha256": "42b0d257288d5fa42c9763abd54c7e26174882c5d5b743a32356b2c9d03f6827"
+  },
+  "standard": {
+    "status": "passed",
+    "aggregateSha256": "91a0422f541c76a39428ffb4c6aae3929283e6f0b188fdf5bc9528e75b69247b",
+    "profileSha256": "039ce44718b2e6b2152362c45b162cce5afbda33ce997b7139e20e28738228ed",
+    "standardFiles": 287,
+    "counts": {
+      "tests": 1755,
+      "pass": 1755,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "startedAt": "2026-10-10T00:10:37.343Z",
+    "finishedAt": "2026-10-10T00:18:53.845Z",
+    "commandSeconds": 369.653,
+    "elapsedSeconds": 496.502,
+    "method": "Fresh sequential standard tests exactly once, then type/parity/orchestration/build; no carry. Strict Oxlint remains failed on accepted inherited diagnostics. Counts use the exact terminal Node summary footer; the first nested-summary aggregation guard is retained.",
+    "stages": [
+      {
+        "stage": "tests-new",
+        "status": "passed",
+        "sha256": "a8eabdf3d74ce5193f6fd08bb40a61d3cc1358c6f34a75e4baf3411c268819c2",
+        "stdoutSha256": "4e163ec409ccd120401681226b211597520cdb8156ed9660dae227158b3ca367",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "counts": {
+          "tests": 134,
+          "suites": 0,
+          "pass": 134,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "stage": "tests-01",
+        "status": "passed",
+        "sha256": "3b81d56e702db2b8eef64987e2c09c62d643cd9914c5a666f6f05025efd19bea",
+        "stdoutSha256": "c70787d7c9f5acadeb4a09dd9346c57dd18505569b2995c957b3e63c682fb98c",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "counts": {
+          "tests": 170,
+          "suites": 0,
+          "pass": 170,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "stage": "tests-02",
+        "status": "passed",
+        "sha256": "158914927ef7da3279b19bae1be8a64c6d947dadf08d06d416613076bacddbd9",
+        "stdoutSha256": "e10c164940053fc22cb7806e52e5bcf05525f36ee95517435fa043dc9f9ca56c",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "counts": {
+          "tests": 165,
+          "suites": 0,
+          "pass": 165,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "stage": "tests-03",
+        "status": "passed",
+        "sha256": "3ff69a6462f1b972b12221b6030e71f09dd92b1f9dbdb65833fceed8c6d44efb",
+        "stdoutSha256": "d767cddffb47d8102a2325e1f98d48d95936c31fac3df8c5d7e79f509cf25ee6",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "counts": {
+          "tests": 283,
+          "suites": 0,
+          "pass": 283,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "stage": "tests-04a",
+        "status": "passed",
+        "sha256": "69ac6284fe45b9a5d9557610b5a518bbd1f6c2cb047936716e24fd6e3bfd61ed",
+        "stdoutSha256": "a0a094154003dbb010538332b5994ef631ff58965ac1b184bdb270edc7f34f6a",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "counts": {
+          "tests": 66,
+          "suites": 0,
+          "pass": 66,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "stage": "tests-04b",
+        "status": "passed",
+        "sha256": "3cdf331e9d69cf8741c84c92be2f6aeee8757b48f77a11a5673ca7d689a71c4c",
+        "stdoutSha256": "3711e3643819b65d510c8caebf8a58db5fc024f52292420001dc13fdc9cbc3ec",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "counts": {
+          "tests": 75,
+          "suites": 0,
+          "pass": 75,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "stage": "tests-04c",
+        "status": "passed",
+        "sha256": "f28c87d902f2906a2d98d7a18262a87ef22454b2a037dbf61cacf7903bbb27c2",
+        "stdoutSha256": "96ba3d065e6ccc85d48913b46670a73231c9729cce749055769830d302335b04",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "counts": {
+          "tests": 32,
+          "suites": 0,
+          "pass": 32,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "stage": "tests-05a",
+        "status": "passed",
+        "sha256": "f64faaa24a221c4be483c84e01af6d54b36a4f8065782397e338ca450c31dc9b",
+        "stdoutSha256": "c2ad8a2da8be0df40fffb51d8f74680bcf185591e0dc2a41e3f1f7c178d344ae",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "counts": {
+          "tests": 54,
+          "suites": 0,
+          "pass": 54,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "stage": "tests-05b",
+        "status": "passed",
+        "sha256": "5623fa78320d0303d983ba4b43360f54a91f15f2b0961baeee93860dbc2fe841",
+        "stdoutSha256": "0ea977daa9ec19cadc55b62304f5ff10d2d7f9d1322060140eb6de27ef4fedce",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "counts": {
+          "tests": 47,
+          "suites": 0,
+          "pass": 47,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "stage": "tests-05c",
+        "status": "passed",
+        "sha256": "2c34c9419784f5df9c82320e8cb60df32fd89491938921482471eee8278e7a69",
+        "stdoutSha256": "ad2d891ff51dbcd9165e62ad2acb5fbc147b1f615a7b1449063ed41de2d246d2",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "counts": {
+          "tests": 90,
+          "suites": 0,
+          "pass": 90,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "stage": "tests-06",
+        "status": "passed",
+        "sha256": "893e3da7000a1c4b3352e958b710b5ee480be61e1d96eaf717502b99e1a4383a",
+        "stdoutSha256": "75b1c61850ccd9ca6c748e85fbe709801944016301f1d3eedce8fb91a28dc234",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "counts": {
+          "tests": 328,
+          "suites": 0,
+          "pass": 328,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "stage": "tests-07",
+        "status": "passed",
+        "sha256": "2a7481135a85bc9225cd2007fcc2788a302e83c8823e2000d50468d95f46f28c",
+        "stdoutSha256": "b0241c816b31c6c444fd6014c25164f807fdf463e62fe96be612dc0085643c31",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "counts": {
+          "tests": 141,
+          "suites": 0,
+          "pass": 141,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "stage": "tests-08",
+        "status": "passed",
+        "sha256": "680d1b1a3271bc11be861c239fd61814582e70dec626a9f88e7d5a45ad940eb0",
+        "stdoutSha256": "0d5a5e7e1aa7ae1bc203289eafb0963d05a264800c4436ec9ec4a2b1a593c743",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "counts": {
+          "tests": 170,
+          "suites": 0,
+          "pass": 170,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "stage": "typecheck",
+        "status": "passed",
+        "sha256": "de188fdad064dc0673deb614434374d8236e104f0d8055c3c2eff14811651cb1",
+        "stdoutSha256": "5b3b688caa668685eebda41ca93c4e60de869bac3645a0b25bf22809e6c84ba5",
+        "stderrSha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f"
+      },
+      {
+        "stage": "parity-check",
+        "status": "passed",
+        "sha256": "6e451f629fa1d74f8b5d500525438b26a3b588f5b338821f93261111dc131eeb",
+        "stdoutSha256": "f39c8ad20b8013f4e4e4ade55ff5d63ab1c8df3729611db56c2d25cf734b48a9",
+        "stderrSha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f"
+      },
+      {
+        "stage": "orchestration-check",
+        "status": "passed",
+        "sha256": "b15b665e752bfa63d6350422d4000075948da88a06d251f7d28c92fc6d6cfce2",
+        "stdoutSha256": "b18d09c73c92014599d480b65ec8bfb1e0c0b21e0a236c56baaee4e0e935f9ac",
+        "stderrSha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f"
+      },
+      {
+        "stage": "build",
+        "status": "passed",
+        "sha256": "b7d92d58d2af21a2cf704cf8795f405ae411be1fd7a6d6c586698768ed5e9482",
+        "stdoutSha256": "240285c22ccf42928a573546ff3a72c3e476a04dba1e53d5bb0d6f6b2caabed3",
+        "stderrSha256": "4cd9f510060bc222ed86aceab1fe28523ad5d3b97db7d6760b0b50ceaf08c682"
+      }
+    ]
+  },
+  "retainedAggregationGuard": {
+    "status": "failed-aggregation-guard",
+    "sha256": "49652064f61465b7108d9a929ea4e8ab1cc7cf27ca0c9442f46e8f0192bfa18e",
+    "reason": "First aggregation rejected a nested 39-test stdout summary in tests-06. No aggregate was written. Replacement counts only the exact contiguous terminal Node footer (328 tests); command receipts were unchanged."
+  },
+  "developmentAndQualityReceipts": [
+    {
+      "receipt": "temple-manual-first-red-01.json",
+      "sourceHead": "6bad7ad48e80b6828439497e0018a41a7c20dbc6",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "failed",
+      "exitCode": 1,
+      "receiptSha256": "77c5fe721495fabe4c93af6668f01d7c578ad2875c2fbc4499e2eb69b93fcaa2",
+      "stdoutSha256": "ff325adbc2a047a7577b0e30088152c754e564fe196b441545894a7a334a176f",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "receipt": "temple-manual-first-red-02.json",
+      "sourceHead": "7cf64c8723aa1eb3eacd8bb829c35ca57a0b963d",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "failed",
+      "exitCode": 1,
+      "receiptSha256": "deb2b85c01e39adeb565b886189ad4ceb03e31548b46248ee9ed64428cbebc57",
+      "stdoutSha256": "b0e478a14a3685a481e703ea1a4b8920e9776d2211bacb6d79c353cf13177465",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "receipt": "temple-manual-green-01.json",
+      "sourceHead": "7cf64c8723aa1eb3eacd8bb829c35ca57a0b963d",
+      "trackedDiffSha256": "030f20f668eaa0750ac91a4af257a2b3828c6948e173bdbaf5c345558f7c766c",
+      "status": "failed",
+      "exitCode": 1,
+      "receiptSha256": "837ed4b581ebbb974588d52054cfe46809778bf6edf3699ce873012bf0eb2525",
+      "stdoutSha256": "4647e4dff0e237638c04e7c6370e058a871361cf9630e3c0baf2a00286e96abf",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "receipt": "temple-manual-green-02.json",
+      "sourceHead": "7cf64c8723aa1eb3eacd8bb829c35ca57a0b963d",
+      "trackedDiffSha256": "5279a305dcfbb67467d9bcfdb55044661a995a00d2c06cf1e4d0638b2a6b030d",
+      "status": "passed",
+      "exitCode": 0,
+      "receiptSha256": "6f830194d475bf8bfbe37a2c87ce22951b0bd204546227750a0f64f961f3bb2d",
+      "stdoutSha256": "71edc60c0dc209fa2a66eebdb18e1a228879f3114b802af90435d0c9eb8d2b59",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "receipt": "temple-manual-final-focused-01.json",
+      "sourceHead": "8512737f0c24b56d199cb327644b9eb6ca67b156",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "passed",
+      "exitCode": 0,
+      "receiptSha256": "44ed516c3700f640e77633c23017f0cb9e62cb7f81b51fbe83f3c36b6ae6273e",
+      "stdoutSha256": "9b9d8812a5408ec1e78a5b2438c8357f94da4fd55a6767f55cfb3816cbee8d25",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "receipt": "temple-manual-typecheck-01.json",
+      "sourceHead": "8512737f0c24b56d199cb327644b9eb6ca67b156",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "passed",
+      "exitCode": 0,
+      "receiptSha256": "ff2aee42d298831fa9ad163e3f781eed3c1caf7a87bc5d5309505001af29e3bf",
+      "stdoutSha256": "5b3b688caa668685eebda41ca93c4e60de869bac3645a0b25bf22809e6c84ba5",
+      "stderrSha256": "7d61cb2e2deb776dfec4d6f54693f9edeed0af5c4da52f091c53c995d862fb65"
+    },
+    {
+      "receipt": "temple-manual-eslint-01.json",
+      "sourceHead": "8512737f0c24b56d199cb327644b9eb6ca67b156",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "passed",
+      "exitCode": 0,
+      "receiptSha256": "5be4bd75a86c2e6431b0a5d09de1b73d2a8fbbf6570e615e8586547e5e316583",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "receipt": "temple-manual-orchestration-01.json",
+      "sourceHead": "8512737f0c24b56d199cb327644b9eb6ca67b156",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "passed",
+      "exitCode": 0,
+      "receiptSha256": "5fb837ad27626ece0ac75ef0dd58b07d236ad9c2217032a74a94aca9a3668197",
+      "stdoutSha256": "43c002bd9919d33decacd72f244f2342112451d4d6cbf5087cb824f92e45a75d",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "receipt": "temple-manual-context-01.json",
+      "sourceHead": "8512737f0c24b56d199cb327644b9eb6ca67b156",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "passed",
+      "exitCode": 0,
+      "receiptSha256": "e8677d9929d2ef2b7558279f417057d2c30bcdff56db3afe7fc0a7a088acb328",
+      "stdoutSha256": "75fe7040f8c0d63c657279e295b46a791fa0ff839336abff4c363403c77b42f6",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "receipt": "temple-manual-format-all-01.json",
+      "sourceHead": "8512737f0c24b56d199cb327644b9eb6ca67b156",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "passed",
+      "exitCode": 0,
+      "receiptSha256": "a3054ce522594991029e3ef7f651cdc04e7d5e64d20829762c7154861419ef9a",
+      "stdoutSha256": "f4d697ec9774f6e5247074d664d6c98dc1179fc4df7c428472636de1cc69be3c",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "receipt": "temple-manual-preflight-01.json",
+      "sourceHead": "8512737f0c24b56d199cb327644b9eb6ca67b156",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "failed",
+      "exitCode": 1,
+      "receiptSha256": "26cc917b18353562e5d5cb6c2398dd6661de058b809056001bc84167e73dc884",
+      "stdoutSha256": "e80b3d25e7ee0da7da9efbcea8951ece99dd770a2033bf1cde51bbeb154b2cf6",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "oxlint": {
+    "status": "failed",
+    "warnings": 35,
+    "errors": 1,
+    "inheritedDiagnosticsReview": "accepted",
+    "baselineSource": "26f23e1f8d61f431f87eb18fffcd4ee4d41fe35f",
+    "baselineReceiptSha256": "075ccdd87fc3c7410a2adbebc649de09dcd227ff86d7c9fbf93075c5aebb6c64",
+    "attributionSha256": "a966ac75012907c7f1930e92cb390bc382ac6133aa24463ac581bf84bc23a123",
+    "method": "Same command, installed tool, lockfile and config; independent review verified all 36 signatures and source lines, with only location/indentation changes."
+  },
+  "remainingGates": [
+    "ordinary public-input M3 rendered episode on the exact accepted composition",
+    "committed typed browser Save/Load witness",
+    "comparable rendered images, verified inline URLs and rendered readback",
+    "integration review before merge"
+  ],
+  "notClaimed": [
+    "native walltime cadence",
+    "complete Temple raster equivalence",
+    "physical secondary allocation",
+    "hardware frame performance",
+    "full issue25 or gameplay parity"
+  ],
+  "publicationBoundary": "Compact summary and receipt hashes only; raw stdout, archives and execution profiles are not included."
+}
