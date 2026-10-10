@@ -76,7 +76,7 @@ controlled effect, one live building and deterministic admission seed. These are
 explicit controlled Node cases, not ordinary campaign evidence.
 
 1. Successful Hut hit appends exactly one model-11/logs-1 tree at the target's
-   current wrapped position, with the pre-call nextId and one increment. Work
+   current wrapped position, with the pre-call nextId before later debris IDs. Work
    becomes 200, stage 2, hp/progress follow retained adapters. This must fail on
    base because no wood is created. Assert no unrelated existing tree mutation.
 2. Existing plan is reused by identity; repeat successful hits exhaust work,
@@ -92,7 +92,8 @@ explicit controlled Node cases, not ordinary campaign evidence.
    no tree/nextId/work/progress/hp loss, but retains stage decrement and source
    attacker/repair/debris behavior. Include 0-to-255 byte wrap as component state.
 5. Final-stage-unchanged success suppresses debris/sound18 even though stage was
-   temporarily decremented. Attacker255 preserves prior attribution; retired plan
+   temporarily decremented, so this case also asserts exactly one total nextId
+   increment and no RNG draw from the wood adapter. Attacker255 preserves prior attribution; retired plan
    gets no post-retirement delay/attacker writes; existing exhausted work requests
    no allocation. These distinguish ordering errors from the happy path.
 6. Existing refresh-schedule Tornado test and existing Earthquake tests must pass.
@@ -141,8 +142,11 @@ its identity after fresh eligibility/range checks on a detached world clone;
 pause only through public controls for before capture. Observe actual HUD Tornado
 choice and the delivered canvas pointer, accepted stock decrement and spawned
 projectile. Resume and observe every actual `gameClock.afterTurn`, retaining
-unchanged original callback invocation and real Scene/store identity. Record all
-target work/stage/hp transitions, new loose-log IDs/positions and retirement; stop
+unchanged original callback invocation and real Scene/store identity. Keep polling
+bounded to the target, owned Tornado effect and newly created loose wood; retain
+synchronous per-turn snapshots locally and export evidence once at terminal, not
+whole-world/history JSON on every poll. Record target work/stage/hp transitions,
+new loose-log IDs/positions and retirement; stop
 the success witness after an admitted Tornado impact and verified wood/work
 correspondence. Claim exhausted-work removal only if naturally reached; use later
 earned gifts as ordinary attempts if needed, never pin/move the Tornado or target.
