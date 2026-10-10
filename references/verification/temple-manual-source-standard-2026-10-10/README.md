@@ -103,3 +103,10 @@ browser state.
 Native walltime cadence, complete Temple raster equivalence, physical secondary
 allocation and hardware frame performance remain gaps. This report does not
 change the parity ledger, publish browser proof or authorize an early merge.
+
+## Bounded ordinary update
+
+[Ordinary attempt 03](../temple-manual-ordinary-03-2026-10-10/README.md) remains
+failed overall, while independent review accepts genuine startup Load and the
+complete idle manual lifecycle. Three inspected lifecycle PNGs are published
+there. Automatic reuse, active Save/Load and conversion remain unproved.

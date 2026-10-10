@@ -1,0 +1,153 @@
+{
+  "version": 1,
+  "run": "ordinary-03",
+  "overallStatus": "failed",
+  "acceptedScope": [
+    "genuine public startup Load from committed Save at turn 2695",
+    "complete idle Temple manual lifecycle",
+    "normal run cleanup"
+  ],
+  "reviewSha256": "bd5063f2a1e0f950f522ca69d2256d0098f563dbd07e655c97d4c0bf87b69724",
+  "productSource": "8512737f0c24b56d199cb327644b9eb6ca67b156",
+  "productTree": "663bccd65664bb7c2297df89d8b69ba9842b6e3b",
+  "qaSource": "b77ef76af26dcaf91e20600d80836ab159142b6b",
+  "qaTree": "cf19ea0d8c796ee9b8cc5a5e34a57d73207dc663",
+  "sourceBindingReviewSha256": "85924a6ed5e8b06c8527aa083d8eb17a867000e3d07afc989d8df05f43fcf8a4",
+  "standardAcceptance": {
+    "unchanged": true,
+    "tests": 1755,
+    "standardFiles": 287,
+    "stages": 17,
+    "reviewSha256": "42b0d257288d5fa42c9763abd54c7e26174882c5d5b743a32356b2c9d03f6827"
+  },
+  "innerRun": {
+    "startedAt": "2026-10-10T01:03:05.881Z",
+    "finishedAt": "2026-10-10T01:04:16.975Z",
+    "exitCode": 1,
+    "signal": null
+  },
+  "receiptHashes": {
+    "outer": "daacbdb009f7139048251683a563e8a9ef0f850954f690c8701ff60879947a99",
+    "inner": "cb92af049b5103a5050e56e15cf95f58b8434bff6661032c820bd5ad0864df4c",
+    "startupLoad": "0ac414fcdde16561993dab954a417fe1e69614ed5af14212b0fc36cd76f867ab"
+  },
+  "startupLoad": {
+    "publicLoad": true,
+    "trustedSynchronousFirstPublication": true,
+    "turn": 2695,
+    "paused": true,
+    "target": 1021,
+    "trained": 0,
+    "typedDigests": {
+      "version": 1,
+      "level": 3,
+      "turn": 2695,
+      "time": 224.58333333333334,
+      "checkpointSha256": "ed9e36de19fdca40671f2ff54d0f785f2f00417c6d87f11f8c8a3f92f902bf51",
+      "actorsSha256": "702e20a75ad55b8b34264d2c7a7544049cd0064a7ce6c6032f5f4fcb046f08f0",
+      "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+      "stockSha256": "32b39e6eaf8e5b68f275df8beb09569779760f5f5f3b5e5ea311c7da563ace5a"
+    },
+    "migrationLimit": "The actual full typed digest equals the detached committed checkpoint after the two production migration steps and happens also to equal the original saved digest in this run; no generalized migration identity claim."
+  },
+  "idleManual": {
+    "target": 1021,
+    "recordIdentity": 2,
+    "creationTurn": 2822,
+    "creation": "hover:created, phase-1/remaining0/hold16, automatic false, one reservation, latch false",
+    "firstDisplay": "Imported name913, actual threshold25\u2192dwell26, phase0/remaining2 on the creating controller visit",
+    "firstPanelCaptureTurn": 2822,
+    "explicitReuseTurn": 2840,
+    "explicitReuse": "Trusted actual right down/up, actual pickUnit miss and pickWorldObject1021, matching pointer1 press/release; same record and dwell preserved",
+    "heldOffTargetControllerVisits": 40,
+    "releaseTurn": 2862,
+    "retirementTurn": 2871,
+    "retainedRows": 218,
+    "verification": "Independent raw-row computation confirms exact entry/renew/hold/exit countdown, three exit visits, and terminal record/latch/reservation/DOM release. All row current-World/level/speed/unpaused/health/shaman guards hold. No training occurred during this idle segment."
+  },
+  "failure": {
+    "classification": "Required manual-before-automatic ordering failed; no product defect inferred",
+    "trainee": 303,
+    "entryTurn": 2970,
+    "automaticRequestTurn": 2971,
+    "automaticRequestResult": "automatic:created",
+    "freshAutomaticRecordIdentity": 4,
+    "manualPointerPairObserved": false,
+    "sameRecordReuseProved": false,
+    "hostError": "One owned manual pointer pair required at approach armInput.",
+    "cause": "Approach observer attached at turn2959 with selected Brave303 on command8/order18, entryTimer10. It retained automatic:created at turn2971 before any manual creation/input; complete then captured Actual fresh manual allocation required and closed. The later host armInput therefore rejected the closed observer."
+  },
+  "cleanup": {
+    "pageErrors": 0,
+    "warnings": 5,
+    "observerCleanupErrors": 0,
+    "trainingCleanupErrors": 0,
+    "trainingEpochClosed": true,
+    "trainingEpochErrors": 0,
+    "trainingEpochOverflow": false,
+    "profileCleanupVerified": true,
+    "profileContinuationVerified": true,
+    "ownerAndBrowserMarkersAbsent": true,
+    "earlierViteSetupCleanup": "unknown"
+  },
+  "images": [
+    {
+      "file": "temple-manual-first.png",
+      "bytes": 1828350,
+      "sha256": "2adbc1564f8890d65ee4db4a2fdbd9d8e427df81cd9d34a665d17aa1918fcc6b",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "file": "temple-manual-held.png",
+      "bytes": 1844432,
+      "sha256": "04079b9faeb8266a163b7f8a1017bcb25d9debfd3a2000fe3bdeef26e9ee1048",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "file": "temple-manual-released.png",
+      "bytes": 1856126,
+      "sha256": "0afe20dced4b4f3a653d6a89dc416bc3016bcdb89dae1a6d8037c31fb2d24e99",
+      "width": 1440,
+      "height": 1000
+    }
+  ],
+  "presentation": {
+    "browser": "Chrome Headless Shell 154.0.8037.92",
+    "viewport": [
+      1440,
+      1000
+    ],
+    "softwareRenderingOnly": true,
+    "captureTiming": "Host screenshots follow recorded predicates; an exact simulation turn is not assigned to an unrecorded screenshot instant.",
+    "comparison": "Same-run first/held/released lifecycle, not a prior-product before/after pair."
+  },
+  "priorAttempts": [
+    {
+      "run": "ordinary-01",
+      "status": "failed",
+      "limit": "Knowledge acquired, home minimap view rejected before Temple construction; precise minimap subcause not recorded; no manual tail or Save; normal cleanup verified."
+    },
+    {
+      "run": "ordinary-02",
+      "status": "failed",
+      "limit": "Genuine Temple construction and committed Save 2695 passed; Vite interpreted the local require guard as dynamic require and returned HTTP 500 before observer installation; no manual result; normal cleanup verified."
+    }
+  ],
+  "notProved": [
+    "manual-to-automatic same-record reuse",
+    "active Save and in-session Load",
+    "natural conversion",
+    "full post-training retirement",
+    "original raster equivalence",
+    "native walltime cadence",
+    "physical secondary allocation",
+    "hardware frame performance",
+    "full issue25 or gameplay parity"
+  ],
+  "oxlint": "Failed, 35 warnings and one error; independently accepted unchanged inherited diagnostics.",
+  "nextWork": "QA author repairs approach timing only; a new exact source/admission review is required before continuation.",
+  "supportingOnly": true,
+  "publicationBoundary": "Concise report/summary plus three unchanged relevant PNGs. No raw archive, profile, raw trace or full command output."
+}
