@@ -1,0 +1,28 @@
+{
+  "target": "0043e8e0",
+  "method": "Canonical .text byte candidates for E8 relative-call target; instruction boundaries verified only by subsequent bounded disassembly. Slot literal candidates are data occurrences until decoded.",
+  "directCallCandidates": [
+    "0x43e8bd",
+    "0x4b3add"
+  ],
+  "slotBaseLiteralCandidates": [
+    "0x43e35e",
+    "0x43e374",
+    "0x43e3d3",
+    "0x442c2f",
+    "0x442c45",
+    "0x479d07",
+    "0x47aaf9",
+    "0x47ab34",
+    "0x47ac3b",
+    "0x47b233",
+    "0x47b642",
+    "0x47b794",
+    "0x47b846",
+    "0x47b97e",
+    "0x47ba47",
+    "0x47bb1c",
+    "0x47c36a",
+    "0x47c444"
+  ]
+}

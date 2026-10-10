@@ -1,0 +1,47 @@
+{
+  "verdict": "ACCEPT revision2 finite implementation and failure-first test contract",
+  "reviewedAtUtc": "2026-10-10T05:31:00Z",
+  "contract": {
+    "path": "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/follower-nearby-source-20261010/implementation-contract-v2.md",
+    "sha256": "e2d9e598e257c2a8e415520455e12ea0fb50f27669b1f1ef6ebbad044f1b7330"
+  },
+  "preservedFirstDraftSha256": "b920d42724ac7172dfaad1710907ede1da7eeb38716a9c3972bf1753e9592deb",
+  "assessedHead": "92907866646e418747dd2bda44236d9949835bc5",
+  "currentMainCorrespondence": {
+    "head": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+    "identicalTree": "c35d4fda6617bf905942cc783b0c5d82d32c73a1"
+  },
+  "sourceReviews": {
+    "/workspace/scratch/69fd8163d94e/follower-nearby-static-producer-review-20261010.json": "f71fb20dd852cc297f9ac00f4e4502d0a726f8d5f72f8a87e555893a3ca62f95",
+    "/workspace/scratch/69fd8163d94e/follower-nearby-ordinary-consumer-review-20261010.json": "9889c629b963b9895333edbbc780988560475c360a930a32dcb6e3b6172ac4b8"
+  },
+  "additionalReadSources": {
+    "app/world-rules.ts": "5688538516b4f908930dbcd46ebb807a958ee3f7edbbcd59e7067d04bf74fd2a",
+    "app/audio.ts": "fc767de4f8e607f0fe257bda7f99bfecbbb9059de171aa5d89720b94b9889bb0",
+    "app/original-sound.json": "5ddccef0c8990ebf26f125f0c5aa19e946c20f23def8e887902b8f20d132557f",
+    "app/hud.tsx": "a864ecf785e4f3090682834452c7385f17040a0088a9f9704130d48d0fab8e19",
+    "app/globals.css": "4503b77f2bbce07b00977040376a9e62ebaeba9a7c8faaf19ee28879d4051d32",
+    "scripts/import-original.py": "02127ee637d42c033119a16045c26b01adaa7d8c2833a82c3bedd03d247039e0",
+    "scripts/import-hud.py": "6dcfa221c84b2c6b16fc42f04fbf1ecabf6b12b3b390cc081d2e6de2ac84ae80"
+  },
+  "acceptedContract": [
+    "One transient mode-specific desired-value slot owned by actual current Scene/World. Committed tribe bit80 remains authoritative. First admitted desired value wins; callback cue requested before occupied-slot rejection. Other flag bits preserved. No immediate double XOR.",
+    "12Hz elapsed dispatch before advanceGame, independent of simulation pause/speed and worship/tooltip clocks, explicitly a modern port policy with native rate unknown. performance.now request timestamps and RAF timestamps share origin. First frame anchors without consuming, no prearrival dispatch, equal/backward/nonfinite times cannot produce visits, catch-up consumes once without replaying cues.",
+    "A valid second armed press held across a previous successful commitment remains armed; its later release reads new committed mode. Blocked/modal/hidden/stale cancellation clears pending/armed state. Page modal handlers cancel synchronously before any same-handler Save snapshot.",
+    "Actual current-binding checks reject old Scene work immediately after store replaceWorld and when another Scene binds same World, before React cleanup. Disposal/replacement reset pending and phase.",
+    "Save clones only committed World. It does not flush/serialize transient pending state; eligible current Scene can commit after the snapshot without changing the saved copy. Ordinary menu cancellation precedes Save. Load restores committed mode with fresh transient owner. Restart/new mission retain existing fresh flags. This is the port lifecycle contract, not original binary-save equivalence.",
+    "Persistent displayed model totals derive from same eligible people/rawcamera as task counts, independent of overlapping task row sums; strict toroidal radius, models2..6 Total, global enablement/housing and existing selection asymmetries retained.",
+    "Restore original875..878 state arithmetic and narrow canonical RGBA appender preserving old atlas rectangles/pixels. Cue110/111 source records currently point to samples148/149; reuse existing onSound/audio pause/mute owner. Exact art input availability/import bytes still require normal implementation verification.",
+    "Meaningful actual Page->Scene->elapsed consumer failure-first contracts plus model/owner/lifecycle/time edge checks; genuine authored Mission1 count/selection/typed checkpoint episode. No injected browser flag or synthetic people substitute for ordinary input proof."
+  ],
+  "reviewCorrectionsResolved": [
+    "Common monotonic source and pre-first-frame request rule explicitly specified.",
+    "Successful commit no longer cancels a separate valid held press; only blocked/modal/hidden/stale cancellation does.",
+    "Modal cancellation must precede a same-handler Save snapshot synchronously."
+  ],
+  "limits": [
+    "This accepts the implementation proposal and test scope, not final code/test/art/browser qualification or a run command. Resource binding remains with coordinator.",
+    "No general queue rewrite, shared AI pending state, native ring contention/pipeline timing, all interface schedules, original default/save semantics, tooltip758 text, new native execution or full issue60 closure.",
+    "No performance claim from arbitrary render frames. Final implementation must compose actual consumer ordering and preserve controlled time/lifecycle tests stated in the contract."
+  ]
+}

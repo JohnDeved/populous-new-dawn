@@ -1,0 +1,77 @@
+{
+  "verdict": "ACCEPT bounded ordinary-consumer and paused-dispatch source addendum",
+  "reviewedAtUtc": "2026-10-10T05:25:00Z",
+  "assessedHead": "92907866646e418747dd2bda44236d9949835bc5",
+  "inputs": {
+    "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/follower-nearby-source-20261010/ordinary-consumer-addendum.md": "5019a93deb30e4e85adcbdf7cba505224aab8a4c33e055d65a71c36117e86ed4",
+    "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/follower-nearby-source-20261010/ordinary-consumer-correspondence.json": "95f1397ffd6622acad5770b4cc02db4a318e81add13164597449dc344d96a5a5"
+  },
+  "priorSourceReview": {
+    "path": "/workspace/scratch/69fd8163d94e/follower-nearby-static-producer-review-20261010.json",
+    "sha256": "f71fb20dd852cc297f9ac00f4e4502d0a726f8d5f72f8a87e555893a3ca62f95"
+  },
+  "verification": {
+    "newArtifactHashes": 9,
+    "trackedSourceHashes": 10,
+    "indexedExports": 7,
+    "canonicalExeAndToolHashes": "match accepted identities",
+    "assemblyBytesVerified": [
+      {
+        "name": "command-availability-0043e480-0043e890.asm",
+        "printedBytesVerified": 1040
+      },
+      {
+        "name": "command-ring-writers-0043e320-0043e480.asm",
+        "printedBytesVerified": 352
+      },
+      {
+        "name": "ordinary-command-call-0043e840-0043e8e0.asm",
+        "printedBytesVerified": 160
+      },
+      {
+        "name": "ordinary-dispatch-phase-004a5920-004a59c0.asm",
+        "printedBytesVerified": 160
+      },
+      {
+        "name": "pending-slot-clear-0047ac30-0047ac90.asm",
+        "printedBytesVerified": 96
+      },
+      {
+        "name": "slot-clear-boundaries-0043e330-0043e420.asm",
+        "printedBytesVerified": 240
+      }
+    ],
+    "directE8Candidates": {
+      "0x43e8e0": [
+        "0x43e8bd",
+        "0x4b3add"
+      ],
+      "0x43e890": [
+        "0x4a5604",
+        "0x4a573e",
+        "0x4a57e9",
+        "0x4a595d"
+      ],
+      "0x43e3c0": [
+        "0x442c86",
+        "0x4a4b65"
+      ]
+    },
+    "sourceTrackedClean": true
+  },
+  "findings": [
+    "Ordinary0043e890 is distinct from recorded playback004b3920. Complete selected body0043e890..0043e8d5 checks recorded-input bit10, each of four tribe+c20 fields and current command+c; no simulation pause-bit2 gate.",
+    "Pending input at00897997, per-tribe rings008979d3/stride5e2 and current command0089d18c are distinct. Retained ring writers copy all15 bytes and preserve desired value/opcode. Non-network0043e480 checks readiness and sequence, copies current records and advances indices/write flags without pause-bit2 guard.",
+    "draw_main normal interface branch reaches ring-copy/main_loop_outer. Retained004a5590 non-network timed branch and numeric slice004a5946..004a59ad bind availability -> ordinary command dispatch ->0047aac0 ->ring producer0043e320 ->pending clear0047ac30 ->later tribe/simulation. Simulation pause guard lies inside004ec6f0. A ready ordinary mode command can therefore commit while simulation is paused when normal HUD/game processing remains active.",
+    "0047ac30 normally clears60 pending bytes; globalbit100 instead clears itself and preserves pending records for that visit. No unconditional all-visits clear claim.",
+    "Cue request still occurs in callback;0048a050 normally rejects flags1 cues during bit2 pause outside interface10 exception. Require producer-call evidence separately from actual audible playback.",
+    "A port dispatch visit before advanceGame at the already guarded GameScene.animate owner is a narrow integration opportunity that can service pause. A simulation-only consumer is insufficient for the proved active-HUD pause behavior."
+  ],
+  "remainingImplementationDecisions": [
+    "Explicit elapsed-time dispatch contract and relationship to current presentation/controller timing, with actual composed Page request->consumer proof. Rendering frames must not silently be asserted equal to native command cadence.",
+    "Pending desired-value World/tribe ownership, blocked/modal/replaced/disposed behavior, Save/Load/restart handling, preserve unrelated committed bits.",
+    "Keep first accepted request through dispatch; test two releases before visit versus release/visit/release, both starting modes, and active-HUD paused request commitment without advancing simulation.",
+    "Cross-command contention, exact100-slot ring/pipeline latency, exceptional bit100 buffering, all menu/window modes, native user-save codec/defaults and physical allocation parity remain outside this finite slice."
+  ],
+  "methodLimits": "Read-only source and canonical byte comparisons; no decoder rerun, original execution/emulation, tests, browser or app edits. Partial unrelated prefix0043e840, mid-instruction004a5920 and trailing partial004a59bc are excluded. Selected call chronology is independently anchored in retained full004a5590 export; no complete caller ASM claim."
+}

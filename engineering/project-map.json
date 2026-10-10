@@ -204,6 +204,10 @@
         {
           "path": "decomp/research/follower-tasks-live.md",
           "heading": "Followers task rows: live integration"
+        },
+        {
+          "path": "decomp/research/follower-nearby-mode.md",
+          "heading": "Followers global/nearby control"
         }
       ],
       "nativeAddresses": [

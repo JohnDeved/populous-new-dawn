@@ -1,0 +1,30 @@
+{
+  "head": "92907866646e418747dd2bda44236d9949835bc5",
+  "trackedStatus": "",
+  "priorManifestSha256": "98267199af7d3a426a9195131c888cf8d804ccab44cb65a7ce1d5607cc595179",
+  "priorAddendumManifestSha256": "cedae3518b358e5b576d41b0846243475eb14ba2db0f66b8d6ba9f3eae8810ef",
+  "newFiles": {
+    "command-availability-0043e480-0043e890.asm": "c83289ee670989a6fe2ed5d0dd79f342dfff76d7a22b9a2a85a68a2b04decdec",
+    "command-ring-writers-0043e320-0043e480.asm": "fb3e5b5ae5293bdfb1608862fa2314184c95226aeeb60d2c96178d5ec47b8be6",
+    "consumer-call-candidates.json": "d514f96835924b751887d0f84e37551135a8ebb0b5d84cc1157df66cd3f0e332",
+    "ordinary-command-call-0043e840-0043e8e0.asm": "f56194a19285fa80c37189da30ce64e1ee018ebeef32076795e27c7f33b813de",
+    "ordinary-consumer-addendum.md": "5019a93deb30e4e85adcbdf7cba505224aab8a4c33e055d65a71c36117e86ed4",
+    "ordinary-dispatch-caller-candidates.json": "a4c935f78e9356a230f5260ce4bed441fe4b8a86b101b728422f810dbc206674",
+    "ordinary-dispatch-phase-004a5920-004a59c0.asm": "462e3772dcfe8193649a21645b4e3617c11b4d84bdef202f96aed9d3e5fbcd6e",
+    "pending-slot-clear-0047ac30-0047ac90.asm": "8f95a416a0a3dfc7af30168384d63240ed687b05c74fe6cf3e5d14f35bf0ac81",
+    "slot-clear-boundaries-0043e330-0043e420.asm": "7af0c3fa55a75b9218c0052cf873355688caa225d20f70aad5f1c7a9c2ba1342"
+  },
+  "reusedSourceHashes": {
+    "decomp/generated/004a4960.c": "082373c8c2c9244af20a64d81e6e70f981ff3a3785103dd0ad7858e9ccdbf7df",
+    "decomp/generated/004a5590.c": "15d94e01036d5a77f5a3235d4e331a6558a6c83671b64221306b75a750270ff2",
+    "decomp/generated/004ec6f0.c": "497df5820bfebb7f79eb9cbaf2b887295f7933431958ab4c992ebb33f39e7923",
+    "decomp/generated/00479f00.c": "6ff959d185c343a1f14762df4e305c702f6d6ba738bff40cc5f44c66b08c820c",
+    "decomp/generated/00442b50.c": "2b6dd81e576bea1dc7194237f7a438c029941e0bdcfb40cf39bc2a5076369763",
+    "decomp/generated/004b3920.c": "c891f1db130e9d5bd4e452958c689186040b13dbf2020eadf65797101c130edf",
+    "decomp/generated/0048a050.c": "d15c141449e07ce8a6530c82dc65fb43ecdc352c33fe739f7b9c2e39b60f74a0",
+    "app/scene.ts": "c6c88945abbb84909020670ac2069b8da91381ecf6bab121d65519614cac38e1",
+    "app/game-clock.ts": "d4f850867943a54ebf86e79b6d71e2f842d0e6c61c70bb2884872bd6d002eef6",
+    "app/world-turn.ts": "bce117719a8045e1943df2fad8b9500d26e3f90221e333289362df08ab3fee20"
+  },
+  "method": "Canonical .text direct-call candidate scan, named consumer/clear disassembly windows, retained source control-flow reasoning; no native execution/emulation or runtime work."
+}
