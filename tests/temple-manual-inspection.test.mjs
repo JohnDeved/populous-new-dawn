@@ -238,11 +238,8 @@ test('Temple manual failure leaves paint hidden and retains explicit feedback an
 test('actual Brave training callback reuses the manual Temple owner without reset or duplicate reservation', async t => {
   const fixture = await templePanelFixture(t),
     { scene, world, temple, api, frame } = fixture,
-    { pointerDown, pointerUp, pointerMove } = await import('../app/scene-input-runtime.ts')
+    { pointerDown, pointerUp } = await import('../app/scene-input-runtime.ts')
   startScene(t, scene)
-  await inspect(fixture)
-  const record = records(scene).get(temple.id)
-  assert.ok(record)
   const brave = world.units.find(
     unit => unit.team === 'blue' && unit.kind === 'brave' && unit.hp > 0 && unit.inside === null
   )
@@ -254,12 +251,13 @@ test('actual Brave training callback reuses the manual Temple owner without rese
     order = world.buildingOrders.records[person.commands[person.commandCursor]]
   assert.equal(order.model, 8)
   assert.equal(order.a, temple.id)
-  // Hold existing controls via the supplied DOM boundary while ordinary entry
-  // and fixed-turn simulation complete. No supplied training activity here.
-  fixture.paint()
-  const panel = scene.buildingPanels.get(temple.id)
-  panel.matches = () => true
-  pointerMove(scene, { clientX: 799, clientY: 1, buttons: 0 })
+  // Same model producer as public Escape, after the real training command.
+  // Keep the real pointer over the Temple during approach so manual renewal
+  // survives until entry, without a supplied control-hover hold.
+  api.cancelInteraction(world)
+  await inspect(fixture)
+  const record = records(scene).get(temple.id)
+  assert.ok(record)
   const request = scene.objectPanels.requestAutomaticTraining
   let observed
   scene.objectPanels.requestAutomaticTraining = function (id) {
