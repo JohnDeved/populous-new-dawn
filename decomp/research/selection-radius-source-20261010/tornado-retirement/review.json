@@ -1,0 +1,62 @@
+{
+  "decision": "ACCEPT bounded static source and successful exhausted-work membership edge; test-only proposal may proceed, runtime remains gated on its exact scope",
+  "sourceHead": "b2213c221f9037573093ccdf4248c0d081b806bf",
+  "equivalentMain": "3b13a7ff534ab95797b0b06330055cead956160d",
+  "sourceTree": "f821f3d711694cbb74e4c2c70e4ab2ce4ff5834c",
+  "inputExecutableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "packets": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/selection-radius-source-20261010/work/tornado-building-retirement-static-20261010T034700Z/manifest.json",
+      "bytes": 1750,
+      "sha256": "db1b70b89667a9946f3d73b6ed74357756552d06ccff60bf3bc5bb27ac7abfd5"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/selection-radius-source-20261010/work/tornado-stage-owner-static-20261010T034920Z/manifest.json",
+      "bytes": 1500,
+      "sha256": "5d0e8dc40f4a1ca6cd7cbd0bc450a7573083bf34b183a67cb84c7edee04528db"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/selection-radius-source-20261010/work/tornado-retirement-child-static-20261010T035100Z/manifest.json",
+      "bytes": 1519,
+      "sha256": "98c857934b5e40203542ad20aa85107f84cd87fa45f32410bb34d6f66f7d8e9f"
+    }
+  ],
+  "verification": [
+    "All packet output sizes/SHA256 verified",
+    "Complete PE and each admitted range SHA256 verified",
+    "Every displayed assembly byte independently matched to the canonical .text mapping",
+    "Direct calls and contained child exit branches read back",
+    "No reviewer test/native execution/emulation or source edit"
+  ],
+  "findings": [
+    "0050f82d class2 branch applies descriptor protection and RNG admission. It saves the old stage byte, decrements that byte at0050f895, and calls004980a0(building,1) at0050f898. Attacker and plan repair bookkeeping follow; class-zero/stage-change control gates debris. No broader Tornado motion/rendering/cadence claim is made.",
+    "004980a0 first calls retained00498140 to ensure/reuse the linked plan. It resolves a non-deleted, nonzero-class plan, reads signed remaining work, and for positive amount and positive work attempts allocation of class5/model11/tribe255 at the building position.",
+    "Only nonzero allocation return executes004ba2c0(plan,-100). The caller stage decrement precedes this allocation. Therefore allocation failure can leave decremented stage with unchanged plan work; the current port unconditional work decrement is a separate existing difference.",
+    "The signed plan-work<=0 check at0049811c calls0040b130(plan,building); normal exits converge at00498134. No padding after return is interpreted.",
+    "Complete0040b130..0040b16d checks each pointer independently: non-null plan receives0040b230 cleanup and004ef180 retirement; non-null building receives0041b550 loss credit and004ef180 retirement.004ef180 class2 dispatch reaches accepted00403820/004edcf0. This closes the successful exhausted-work removal callback corresponding to the port hp-zero endpoint.",
+    "M2 Tornado is reachable through its authored head and retained ordinary grant/cast observations. Their failed checker envelope remains failed; this source review adds no ordinary completion or selection claim."
+  ],
+  "controlledIntegrationBoundary": "A shallow member-reference snapshot at the maintained completed-object rebuild can now be proposed against the accepted class2 success-lifecycle mapping. This is scoped to existing supported live adapters. Native allocation failure/full physical stream, unconditional port disaster damage, and original scheduling remain separate limits. No radius change may silently repair, simulate or claim those branches.",
+  "requiredTestProposal": [
+    "Real current radius opportunity and selector call chain with all existing gates, filters and RNG preserved",
+    "Class9 plans excluded; successfully activated incomplete class2 admitted; models18/19 excluded",
+    "Read current stored member coordinates; retain removed prior members; defer new allocations until a genuine rebuild; in-place upgrade precedes that rebuild",
+    "Fresh supported initialization, first-base reset, modern reference aliases and removed members across actual store pipeline",
+    "Missing or malformed membership uses entire compatibility center/radius adapter until genuine rebuild; valid radius alone is insufficient",
+    "Established-base missing or malformed radius remains unknown; no byte coercion or reconstruction from present buildings",
+    "Exact maximum, floor sqrt, halving, full candidate comparison and low-byte wrap cases without revisiting accepted source math",
+    "Existing M1/M2/M3 caller expectations preserved before a separately admitted full campaign validation"
+  ],
+  "priorPartialReview": {
+    "path": "/workspace/scratch/69fd8163d94e/selection-radius-membership-partial-review-20261010.json",
+    "bytes": 7690,
+    "sha256": "d19267857bd09da6767238ddb068f578ce3046c057db733da540b0e1a06624e0"
+  },
+  "limits": [
+    "This closes the prior named Tornado child source HOLD only",
+    "No runtime implementation or model execution admission in this artifact",
+    "No generic hp==native-active equivalence beyond the explicitly mapped live success lifecycle",
+    "No original binary Save or whole allocator parity",
+    "Earthquake remains a separately bounded early-mission reachability question"
+  ]
+}

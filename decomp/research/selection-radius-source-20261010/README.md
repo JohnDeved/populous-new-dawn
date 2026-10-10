@@ -122,3 +122,37 @@ active membership. Earthquake remains a separate reachability question.
 The [initial publication review](membership/initial-publication-review.json)
 records two exact raw objdump trailing-space exceptions. Raw assembly is
 preserved byte-for-byte; no clean all-files whitespace result is claimed.
+
+## Tornado retirement closure and separate damage discrepancy
+
+The subsequent [independent source review](tornado-retirement/review.json),
+SHA-256 `43c5473526e6020bf203394c21293dc5207bf0581f89d2e1c8737d9da6cbe3cd`,
+closes the named retirement tail. Three bounded data-only windows and their
+exact hashes are retained in the [packet](tornado-retirement/manifest.json).
+No original instructions were executed or emulated.
+
+The [full sequence](tornado-retirement/findings.json) is:
+
+1. Tornado class-2 admission decrements the stage byte before calling
+   `004980a0(building, 1)` at `0050f898`.
+2. The owner ensures a live work plan and attempts a neutral class-5/model-11
+   loose-log allocation at the current building position. Only successful
+   allocation applies `004ba2c0(plan, -100)`.
+3. Signed work at or below zero calls `0040b130(plan, building)`. Its complete
+   64-byte body cleans/retires the plan, records building loss, then retires
+   the building through the already bound class-2 retirement chain.
+
+This exposes a separate current Tornado discrepancy: `damageDisasterBuilding`
+applies work loss unconditionally and does not create the loose log. Native
+allocation failure preserves work while retaining the prior stage decrement.
+The port can store stage and work independently; its existing loose-log
+adapter is explicitly unbounded, so native pool-exhaustion parity is unavailable.
+No disaster-damage change is folded into the radius work. Earthquake shares the
+current adapter but has no newly accepted effect contract here.
+
+The radius input contract may therefore use the maintained supported
+active-building adapter at its genuine completed-object rebuild. Successful
+work exhaustion corresponds to class-2 retirement. The adapter's existing
+Tornado allocation/work history remains an explicit native-equivalence limit;
+this source closure does not certify full building history or authorize runtime
+changes without the separate failure-first caller review.

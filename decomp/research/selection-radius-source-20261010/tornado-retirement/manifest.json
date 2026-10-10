@@ -1,0 +1,46 @@
+{
+  "review.json": {
+    "sha256": "43c5473526e6020bf203394c21293dc5207bf0581f89d2e1c8737d9da6cbe3cd",
+    "bytes": 5398
+  },
+  "findings.json": {
+    "sha256": "e27ad465f2c70857247dd99499185d47e6b865d1b0c469dd3a0af1e8717ed370",
+    "bytes": 4680
+  },
+  "retirement-child/manifest.json": {
+    "sha256": "98c857934b5e40203542ad20aa85107f84cd87fa45f32410bb34d6f66f7d8e9f",
+    "bytes": 1519
+  },
+  "retirement-child/stderr.txt": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "retirement-child/retirement-child.asm": {
+    "sha256": "cdcc632b41caaa2a0e613626f405b93cc54eee599e1906d8ae4a70f99168525f",
+    "bytes": 1381
+  },
+  "work-owner/manifest.json": {
+    "sha256": "5d0e8dc40f4a1ca6cd7cbd0bc450a7573083bf34b183a67cb84c7edee04528db",
+    "bytes": 1500
+  },
+  "work-owner/stderr.txt": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "work-owner/stage-owner.asm": {
+    "sha256": "d5a5a7324dfad4239a9a8e3b4fabb3d11cb8751a994906f4695ff11c587f2ebd",
+    "bytes": 3271
+  },
+  "caller/manifest.json": {
+    "sha256": "db1b70b89667a9946f3d73b6ed74357756552d06ccff60bf3bc5bb27ac7abfd5",
+    "bytes": 1750
+  },
+  "caller/stderr.txt": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "caller/tornado.asm": {
+    "sha256": "a3a42a1fd97e5a3d836007f237629791de1b0b3806bcf17708617f49275b3cce",
+    "bytes": 38411
+  }
+}

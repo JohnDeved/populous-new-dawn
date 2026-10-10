@@ -1,0 +1,48 @@
+{
+  "kind": "bounded static Tornado building retirement branch read",
+  "sourceHead": "b2213c221f9037573093ccdf4248c0d081b806bf",
+  "executableSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "executableSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "executableBytes": 2275840,
+  "tool": "/usr/bin/objdump",
+  "toolSha256": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+  "toolVersion": "GNU objdump (GNU Binutils for Debian) 2.44",
+  "imageBase": "0x400000",
+  "section": {
+    "name": ".text",
+    "virtualAddress": 4096,
+    "virtualSize": 1591844,
+    "rawSize": 1592320,
+    "rawOffset": 1024
+  },
+  "virtualStart": "0x50f490",
+  "virtualStop": "0x50fe60",
+  "fileStart": 1108112,
+  "fileStop": 1110624,
+  "byteCount": 2512,
+  "rawBytesSha256": "dff3ff6e6212e072523d5fd663083be0c12fa8fdd6abdbd31af6cae59b41e509",
+  "command": [
+    "taskset",
+    "-c",
+    "4",
+    "/usr/bin/objdump",
+    "-d",
+    "-Mintel",
+    "--start-address=0x50f490",
+    "--stop-address=0x50fe60",
+    "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe"
+  ],
+  "exitCode": 0,
+  "artifacts": {
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "tornado.asm": {
+      "bytes": 38411,
+      "sha256": "a3a42a1fd97e5a3d836007f237629791de1b0b3806bcf17708617f49275b3cce"
+    }
+  },
+  "interpretationScope": "Only class2 selection/work decrement/retirement branch; stop boundary0050fe60 is model14 initializer named by00509c10, not an asserted Tornado damage branch. No movement/rendering/order/cadence claims.",
+  "originalInstructionsExecutedOrEmulated": false
+}

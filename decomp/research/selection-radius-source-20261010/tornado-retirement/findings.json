@@ -1,0 +1,43 @@
+{
+  "kind": "static Tornado building damage and retirement closure",
+  "sourceHead": "b2213c221f9037573093ccdf4248c0d081b806bf",
+  "evidenceType": "Canonical static bytes plus retained source; no original instructions executed/emulated",
+  "packets": {
+    "tornadoCaller": {
+      "manifest": "work/tornado-building-retirement-static-20261010T034700Z/manifest.json",
+      "sha256": "db1b70b89667a9946f3d73b6ed74357756552d06ccff60bf3bc5bb27ac7abfd5"
+    },
+    "workOwner": {
+      "manifest": "work/tornado-stage-owner-static-20261010T034920Z/manifest.json",
+      "sha256": "5d0e8dc40f4a1ca6cd7cbd0bc450a7573083bf34b183a67cb84c7edee04528db"
+    },
+    "retirementChild": {
+      "manifest": "work/tornado-retirement-child-static-20261010T035100Z/manifest.json",
+      "sha256": "98c857934b5e40203542ad20aa85107f84cd87fa45f32410bb34d6f66f7d8e9f"
+    }
+  },
+  "ordinaryReachability": {
+    "mission": "M2, head56; retained mission2-message-103 names native coordinates204,96 and instruction to attack enemy buildings.",
+    "source": "Authored reward class6/model2 settings[11,4,3,1,0,0], spell model4=Tornado; zero initial Tornado stock is filled by ordinary worship.",
+    "observation": "references/verification/mission-two-controls-2026-10-04/README.md reports three ordinary gifts and two actual casts. Its checker envelope is explicitly failed; this is bounded retained observation, not a new clean run."
+  },
+  "sequence": [
+    "0050f82d class2 branch excludes model flags0x8000, draws original RNG and admits low3bits<2.",
+    "0050f88a retains old stage inBL;0050f895 unconditionally writes oldstage-1 as byte before calling004980a0(building,1).",
+    "004980a0 calls retained00498140 to ensure/reuse a valid linked work plan; missing/deleted/class-zero linked plan after that returns without wood/work removal.",
+    "For amount>0 and signed remainingwork>0,004980fb attempts class5/model11/tribe255 allocation at current building position. Only nonzero allocation applies004ba2c0(plan,-100), at0049810d. One attempt is requested by this Tornado caller.",
+    "After attempts, signed plan remainingwork<=0 calls0040b130(plan,building) at00498128.",
+    "0040b130 independently guards each pointer: plan cleanup0040b230 and retirement004ef180; building loss credit0041b550 then retirement004ef180. It returns0040b16d. Existing004ef180 class2 dispatch reaches accepted00403820\u2192004edcf0 immediate allocation/cell removal and pending-free counter3.",
+    "Back in Tornado caller,00408d00 writes attacker when not255; existing live-plan repair/attacker bookkeeping follows. Classzero or finalstage!=oldstage controls debris/sound."
+  ],
+  "exactFailureBoundary": "Stage decrement occurs before plan/wood allocation. Failed wood allocation preserves plan work but does not undo stage. Do not describe all damage as allocation-gated or replace this with unconditional -100.",
+  "radiusConsequence": "Actual work exhaustion retires class2 before the next004ecac0 rebuild. No hp/completion filter exists in the native list producer. Port hp-zero removal can represent this successful exhausted-work outcome, while its earlier damage/allocator equivalence remains a separate boundary.",
+  "portCandidate": {
+    "current": "tornado-runtime:87 delegates to damageDisasterBuilding, which unconditionally applies -100 work and clamps hp; no loose model11 wood is allocated. Earthquake shares that helper but is outside this Tornado source correction.",
+    "representable": "Building.damageState independently stores stage and plan.remaining; world-terrain-runtime:91-95 renders stored stage. They can preserve stage change with unchanged work.",
+    "existingWoodAdapter": "live-construction-runtime:112-115 and other ordinary timber callers push model11/logs1 at current native->browser position with nextId++, returning true. Existing comment explicitly says unbounded scenery until native object-pool allocation is connected.",
+    "smallestScope": "A Tornado-only building callback/helper can preserve stage\u2192ensure-plan\u2192allocate-loose-log\u2192conditional work change\u2192exhausted-work removal, using the existing port wood representation. Keep Earthquake and global allocation untouched.",
+    "limits": "Actual port allocation cannot fail under the current unbounded adapter, so failure controls are supplied component state, not ordinary native pool-exhaustion parity. Native physical IDs, mixed-class pool choice, initializer RNG/history and full effect scheduling remain outside this correction."
+  },
+  "stop": "Named retirement child closes using existing retained leaves. No further Tornado movement/rendering or allocator audit; no runtime edits."
+}

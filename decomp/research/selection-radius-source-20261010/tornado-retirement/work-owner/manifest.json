@@ -1,0 +1,47 @@
+{
+  "sourceHead": "b2213c221f9037573093ccdf4248c0d081b806bf",
+  "executableSha256Before": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "executableSha256After": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "executableBytes": 2275840,
+  "tool": "/usr/bin/objdump",
+  "toolSha256": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+  "toolVersion": "GNU objdump (GNU Binutils for Debian) 2.44",
+  "imageBase": "0x400000",
+  "section": {
+    "name": ".text",
+    "virtualAddress": 4096,
+    "virtualSize": 1591844,
+    "rawSize": 1592320,
+    "rawOffset": 1024
+  },
+  "kind": "bounded static Tornado stage owner",
+  "virtualStart": "0x4980a0",
+  "virtualStop": "0x498140",
+  "fileStart": 619680,
+  "fileStop": 619840,
+  "byteCount": 160,
+  "rawBytesSha256": "131fce048470a77298c81cd4f877c9105fe21f5b26c6369ad1754669fd842be3",
+  "command": [
+    "taskset",
+    "-c",
+    "4",
+    "/usr/bin/objdump",
+    "-d",
+    "-Mintel",
+    "--start-address=0x4980a0",
+    "--stop-address=0x498140",
+    "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe"
+  ],
+  "exitCode": 0,
+  "artifacts": {
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stage-owner.asm": {
+      "bytes": 3271,
+      "sha256": "d5a5a7324dfad4239a9a8e3b4fabb3d11cb8751a994906f4695ff11c587f2ebd"
+    }
+  },
+  "originalInstructionsExecutedOrEmulated": false
+}
