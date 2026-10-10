@@ -5,8 +5,14 @@ Source-only mapping for issue #61 at main
 The exact missing port producer is a persistent class-2 identity and cell-list
 lifecycle, including ordinary buildings and neutral Vault bodies. The current
 terrain handle, browser Building object and lazy occupancy record do not supply
-that history. Two replacement boundaries and an unretained class-2 removal body
+that history. Two replacement boundaries and missing port identity/history
 prevent treating a new list adapter as an established implementation contract.
+
+The subsequent [reviewed static retirement closure][retirement] resolves the
+original removal-body gap. The original mapping remains immutable at
+[`7b3f4b775`](https://github.com/JohnDeved/populous-new-dawn/blob/7b3f4b775e4b7b7ca162c3ba98f33ea664a064fb/decomp/research/swarm-class2-lifecycle-ownership.md);
+the assessment base above and the remaining bootstrap/Load/alias limits are
+unchanged. This update does not add a runtime owner.
 
 This extends the accepted [Swarm controller contract][controller] and
 [integration review][review] at `74b74346f2d67e94aed013fc9e1960e20ef36ceb`;
@@ -20,19 +26,21 @@ unchanged owners from later source changes and bind the inspected files.
 Retained Ghidra C is pseudocode, not compilable original source. The 19 selected
 exports match `decomp/exports.json`, whose executable identity is
 `3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`.
-No executable, archive, native probe or decoder was opened or run for this note.
+The original mapping opened no executable/archive and ran no native probe or
+decoder. The separately linked retirement follow-up verified canonical bytes
+and used bounded data-only decoding; it executed no original instructions.
 
 | Owner/field | Source-backed contract | Port consequence |
 | --- | --- | --- |
 | Object identity | `004ed880` initializes physical `+0x24` indices; `004ed8a0` takes a free record, clears it while preserving that index, then assigns class/model/tribe/position. Allocation-list links differ from cell links. | Browser IDs, authored record indices and terrain handles cannot be equated with native object identity. Reuse is observable to remembered-ID consumers. |
 | Cell membership | `00403610:19–28` saves aligned anchors and inserts the actual supplied position. `004ee470` prepends to the 512-unit cell: `+0x20` next, `+0x22` previous, cell head, flags2 `0x20000`. | Record insertion at the real class-2 allocation opportunity, before subsequent geometry relocation; never insert a class-9 plan as class 2. |
 | Relocation | `00403d50` derives model origin from anchor `+0x7a/+0x7c`, object `+0x33` and rotation `+0x26`; `004ee580` splices only across XY cell boundaries and always copies position. `00403280:17–25` consumes pending geometry flag `0x8000000`. | Same-cell and height-only changes retain order. Footprints and inside/outside points do not define membership. |
-| Removal mechanics | `004ee4f0` splices neighbors/head and clears membership, retaining the removed record's own links. | A reusable mechanism exists; its correct class-2 invocation boundary still needs the missing lifetime producer below. |
+| Removal mechanics | `004ee4f0` splices neighbors/head and clears membership, retaining the removed record's own links. The [static closure][retirement] binds class-2 `00403820` to immediate `004edcf0` cell/allocation retirement. | The native invocation is now proved; a corresponding port lifetime producer remains absent. |
 | Class-2 allocation from plan | `004b8470:303–331` allocates a separate class-2 object and stores its index in the existing plan's `+0x92`; initialization is explicitly staged. | Plan identity and allocated building identity are distinct even when the port exposes one Building. |
 | Hut upgrade | `004050c0:57–85` allocates the successor class-2 building first. Only successful allocation then cleans up and retires the old object. | Upgrade is replacement with new insertion order and identity, not only movement or model mutation. Failure retains the old object. |
 | Neutral Vault | `00402ec0:95–109` runs building initialization for model 18, then forces tribe `0xff`. `004866a0:44–60` can also allocate a model-18 Vault during level postprocessing. | Neutral Vaults remain class-2 candidates; the separate trigger/reward object is not their identity. |
 | Authored startup | `00484a10:180–255` walks file records, allocates eligible objects, writes authored ordinal to `+8`, then performs trigger and Vault postprocessing. | Authored ordinal `+8` is distinct from physical ID `+0x24`. Final arrays do not recover all allocation/postprocessing history. |
-| Deferred reuse | `004ee300` rebuilds primary free/allocated/pending-free lists from physical records and class/deleted state. `004ec6f0:130–143` counts down pending frees before returning them to a free list. | Immediate browser handle reuse is not proof of native reuse timing or free-list choice. The class-2 retirement transaction remains unbound. |
+| Deferred reuse | `004ee300` rebuilds primary free/allocated/pending-free lists from physical records and class/deleted state. The [static closure][retirement] proves counter 3, the `004ec6f0` countdown and exact `00401b40` pool prepend. | Immediate browser handle reuse is not proof of native reuse timing or free-list choice. Preserve countdown opportunities and list history. |
 
 The accepted Swarm acquisition predicate is first class-2 object of another tribe
 in the retained cell chain, absent from ten remembered IDs. There is no occupancy,
@@ -119,15 +127,13 @@ port ownership mistakes; it must not silently change the native raw-ID predicate
    replacement, retirement and restoration, including Vault bodies. Keep it
    independent of person reconciliation and terrain-handle aliases. The caller
    table above is finite; an arbitrary `buildings` snapshot is not that producer.
-2. **Class-2 lifetime source incomplete:** retained `004ef180:25–27` dispatches
-   class 2 to **`00403820`**, whose body is absent from the selected main export
-   manifest. `00403860` proves occupant/terrain/associated-object cleanup, but
-   does not itself unlink the building or define the deferred-free transaction.
-   Upgrade and Vault terminal callers then invoke `update_after_unit_alloc`;
-   that named body is not retained either. `004edcf0`, identified as deletion
-   in existing research, is also absent from this export manifest. Do not import
-   another class's destructor as proof. A later separately authorized retained
-   source recovery must bind these exact producers before claiming reuse timing.
+2. **Native retirement-body gap closed; port transaction still absent:** the
+   [reviewed static packet][retirement] now binds `00403820 → 004edcf0`, immediate
+   cell unlink/class-zero/deleted/pending counter 3, and the conditional
+   `004ec6f0 → 00401b40` delayed pool prepend. The selected main Ghidra manifest
+   remains unchanged; the new evidence is retained as bounded assembly. Existing
+   cleanup/associated-object owners retain their scope. This closes the named
+   original-body gap, not browser identity aliases or save reconstruction.
 3. **Bootstrap/legacy order incomplete:** the retained loader proves authored
    allocation before Vault postprocessing, but current aliases omit some of
    those records and its `load_level_init_units` tail is not bound here. No
@@ -139,7 +145,9 @@ new blocker. PR284's successful-Hut passive storage and the earlier ground-Swarm
 episode do not close building allocation history, Vault identity or class-2
 retirement. No runtime implementation, class-2 compatibility rewrite, browser
 encounter, tests, native execution, parity increase or issue closure is delivered.
-Verification here is source/hash/link inspection only.
+The original mapping used source/hash/link inspection only; the linked static
+follow-up records its additional data-only decoding and independent review.
 
 [controller]: https://github.com/JohnDeved/populous-new-dawn/blob/74b74346f2d67e94aed013fc9e1960e20ef36ceb/decomp/research/swarm-building-pursuit.md
 [review]: https://github.com/JohnDeved/populous-new-dawn/blob/74b74346f2d67e94aed013fc9e1960e20ef36ceb/references/verification/swarm-building-static-2026-10-09/integration-review.md
+[retirement]: https://github.com/JohnDeved/populous-new-dawn/blob/d2606766f736a4640d469fb0a2b5384aec43fa84/references/verification/swarm-class2-retirement-static-2026-10-10/README.md
