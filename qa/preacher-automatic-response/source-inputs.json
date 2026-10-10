@@ -1,0 +1,64 @@
+{
+  "status": "candidate-source-adopted-execution-requires-exact-preflight-and-resource-grant",
+  "issue": 243,
+  "base": "1c7e6b05687aca14d9350e17c7ae14dc6c68bb97",
+  "componentEvidence": "d0f1092f1b4e0711ffdc848381e18e465a01c8ca",
+  "reusedQa": "0ef63ba8e1dbf2ef51e33626948e179116c40ca4",
+  "inheritedFiles": {
+    "qa/preacher-gesture-baseline/observe.mjs": "38924d397c0fe342e14713410abf1ffc6a56dd44ab7ad3f011477b6718dcfcb9",
+    "qa/preacher-gesture-baseline/inherited/accepted-input.mjs": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+    "qa/preacher-gesture-baseline/inherited/input-boundary.mjs": "704b9c03c24419e9bee553ba259c9e6b7d9bb9b9121e06848e52691c4e861ac7",
+    "qa/preacher-gesture-baseline/inherited/ordinary-input.mjs": "29708369124b7b1cbfde0150007f13f7ec25a27bc8ea6a9f7b6826ca693f8e85",
+    "qa/preacher-gesture-baseline/inherited/browser-probes.mjs": "a4ae152d98aa97b6aeafefb61b2a505f99bea840824e702edb75ae0a4c653cdd",
+    "qa/preacher-gesture-baseline/inherited/observer.mjs": "b00d2465b9b9bb7a574a8c151ec35d1cda5423c847e138b808a8e16ad47d9186",
+    "qa/preacher-gesture-candidate/ground-input.mjs": "0e108c481d44441078e8ce5317654baa0a4535ca461e90b29e7455d4c8802b6d",
+    "qa/preacher-gesture-candidate/ground-dispatch.mjs": "42139eca57022912489c4a036981794afd668b3f335ef376e6abbe54e5f89e72",
+    "qa/preacher-gesture-candidate/load-boundary.mjs": "46ca676143212890e4465d2daf857e959377f93eed2b9f1179d8af05edbf5940",
+    "qa/preacher-gesture-candidate/expected-runtime.json": "14b1df0f9b38157214acbd8370cc53992ebb0ee15e72a30f6d556d373b2bf617",
+    "qa/erosion-ordinary/runtime.mjs": "b6e8580cea631b8a81513cbdfab83dd6680c528e719abd323f1f927acf569a53",
+    "qa/erosion-ordinary/source-policy.mjs": "834f3c72abd9918c85bd45293833786b927c24dd7be2658f09cc874a50c57004",
+    "qa/erosion-ordinary/policy.json": "644f29cdf8edef6b5aebcaaa0cccbe8ffb64138b13e24168c69293b348b0a53e"
+  },
+  "baselineTrees": {
+    "app": "e08471b1db080a7ce66d2082b309d6efcfe9db26",
+    "public": "7afafb32546784eea20fd993df0f9eb5f9b86779",
+    "scripts": "8f104b2a70b4c94a4b08b4492a8031762cdaeb85",
+    "tests": "6466ceb1b731902e7e9bf539f6036f7b6a841b45"
+  },
+  "candidateSource": "e4e84e225a451eb301b5e41ab27811a6c6d37300",
+  "candidateTrees": {
+    "app": "c3b564d75550004ca7bcd14401523bf7779747d4",
+    "public": "7afafb32546784eea20fd993df0f9eb5f9b86779",
+    "scripts": "bd29f7499db0080bd5f34e2dd552da848d6fa78d",
+    "tests": "a88a5eca22245887b8abf9910e71c778331b7157"
+  },
+  "caps": {
+    "acquisitionMs": 360000,
+    "approachMs": 180000,
+    "lifecycleMs": 120000,
+    "loadMs": 90000,
+    "interruptionMs": 30000,
+    "harnessMs": 840000,
+    "outerInterruptSeconds": 870,
+    "outerKillGraceSeconds": 20,
+    "rowsPerEpoch": 12000,
+    "visitsPerEpoch": 3600,
+    "screenshots": 6
+  },
+  "ports": {
+    "baseline": 4407,
+    "candidate": 4408
+  },
+  "profiles": {
+    "baseline": "work/local-render-profiles/preacher-response-baseline",
+    "candidate": "work/local-render-profiles/preacher-response-candidate"
+  },
+  "adaptedFiles": {
+    "qa/preacher-gesture-candidate/acquire.mjs": {
+      "baseSha256": "4fef9e4e3d3def13d7f685724b88a14253d7eeb63c888a0b11ef79643b6aa8ec",
+      "sha256": "39d57728ea73e66cd7179b6476486a5d55735d7c0ab04d986236e1379cdd222e",
+      "reason": "Only add binding to a genuinely verified ordinary Load prefix; unchanged existing input helper bodies and original acquisition path. No actor/state injection or new training.",
+      "scope": "Existing acquisition behavior retained; optional verified paused-loaded controls binding skips resume, selection and home camera preparation for saved32 tail."
+    }
+  }
+}

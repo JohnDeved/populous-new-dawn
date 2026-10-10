@@ -1,0 +1,380 @@
+{
+  "scope": "Exact rejected detached route predictions from ordinary crossing01; no crossing input or movement occurred. Regression geometry only.",
+  "sourceHead": "7e62df915f42f492bb0a1b57efb973648579996a",
+  "runId": "aa669380-a734-4c6b-9662-b8e7f908dbf4",
+  "responseSha256": "5a110df2ea483d579aaedfe80925d096ab64a31d9568ca1498cfc08f223f1947",
+  "turn": 4227,
+  "origin": {
+    "x": 35.0078125,
+    "z": 88.984375
+  },
+  "sourceNative": {
+    "id": 3162,
+    "x": 11010,
+    "y": 40708
+  },
+  "primaryCells": [
+    [
+      5,
+      53
+    ],
+    [
+      5,
+      53
+    ],
+    [
+      107,
+      46
+    ],
+    [
+      107,
+      46
+    ]
+  ],
+  "probes": [
+    {
+      "braveId": 3067,
+      "beyond": 6,
+      "destination": {
+        "x": -18.359017880947988,
+        "z": -88.02838065863125
+      },
+      "context": {
+        "model": 3,
+        "enabled": true,
+        "buildingId": null,
+        "personId": 2909,
+        "shrineId": null,
+        "treeId": null,
+        "vehicleId": null
+      },
+      "path": [
+        {
+          "x": 25,
+          "z": 93
+        },
+        {
+          "x": 21,
+          "z": -125
+        },
+        {
+          "x": 15,
+          "z": -125
+        },
+        {
+          "x": -19,
+          "z": -89
+        },
+        {
+          "x": -18.359375,
+          "z": -88.02734375
+        }
+      ],
+      "witness": null,
+      "targetCell": [
+        124,
+        42
+      ]
+    },
+    {
+      "braveId": 3067,
+      "beyond": 8,
+      "destination": {
+        "x": -19.47869050793065,
+        "z": -86.37117421150833
+      },
+      "context": {
+        "model": 3,
+        "enabled": true,
+        "buildingId": null,
+        "personId": null,
+        "shrineId": null,
+        "treeId": null,
+        "vehicleId": null
+      },
+      "path": [
+        {
+          "x": 25,
+          "z": 93
+        },
+        {
+          "x": 21,
+          "z": -125
+        },
+        {
+          "x": 15,
+          "z": -125
+        },
+        {
+          "x": -19,
+          "z": -87
+        },
+        {
+          "x": -19.48046875,
+          "z": -86.37109375
+        }
+      ],
+      "witness": null,
+      "targetCell": [
+        124,
+        42
+      ]
+    },
+    {
+      "braveId": 2975,
+      "beyond": 6,
+      "destination": {
+        "x": -26.70111472406427,
+        "z": -88.27752715208283
+      },
+      "context": {
+        "model": 3,
+        "enabled": true,
+        "buildingId": null,
+        "personId": null,
+        "shrineId": null,
+        "treeId": null,
+        "vehicleId": null
+      },
+      "path": [
+        {
+          "x": 25,
+          "z": 93
+        },
+        {
+          "x": 21,
+          "z": -125
+        },
+        {
+          "x": -27,
+          "z": -89
+        },
+        {
+          "x": -26.69921875,
+          "z": -88.27734375
+        }
+      ],
+      "witness": null,
+      "targetCell": [
+        120,
+        42
+      ]
+    },
+    {
+      "braveId": 2975,
+      "beyond": 8,
+      "destination": {
+        "x": -27.93481963208569,
+        "z": -86.70336953611047
+      },
+      "context": {
+        "model": 3,
+        "enabled": true,
+        "buildingId": null,
+        "personId": null,
+        "shrineId": null,
+        "treeId": null,
+        "vehicleId": null
+      },
+      "path": [
+        {
+          "x": 25,
+          "z": 93
+        },
+        {
+          "x": 21,
+          "z": -125
+        },
+        {
+          "x": -27,
+          "z": -87
+        },
+        {
+          "x": -27.93359375,
+          "z": -86.703125
+        }
+      ],
+      "witness": null,
+      "targetCell": [
+        120,
+        42
+      ]
+    },
+    {
+      "braveId": 2909,
+      "beyond": 6,
+      "destination": {
+        "x": -22.415131427708616,
+        "z": -84.06675792896021
+      },
+      "context": {
+        "model": 3,
+        "enabled": true,
+        "buildingId": null,
+        "personId": null,
+        "shrineId": null,
+        "treeId": null,
+        "vehicleId": null
+      },
+      "path": [
+        {
+          "x": 25,
+          "z": 93
+        },
+        {
+          "x": 21,
+          "z": -125
+        },
+        {
+          "x": 15,
+          "z": -125
+        },
+        {
+          "x": -23,
+          "z": -85
+        },
+        {
+          "x": -22.4140625,
+          "z": -84.06640625
+        }
+      ],
+      "witness": null,
+      "targetCell": [
+        122,
+        40
+      ]
+    },
+    {
+      "braveId": 2909,
+      "beyond": 8,
+      "destination": {
+        "x": -23.553508570278154,
+        "z": -82.42234390528029
+      },
+      "context": {
+        "model": 3,
+        "enabled": true,
+        "buildingId": null,
+        "personId": null,
+        "shrineId": null,
+        "treeId": null,
+        "vehicleId": null
+      },
+      "path": [
+        {
+          "x": 25,
+          "z": 93
+        },
+        {
+          "x": 21,
+          "z": -125
+        },
+        {
+          "x": 15,
+          "z": -125
+        },
+        {
+          "x": -23,
+          "z": -83
+        },
+        {
+          "x": -23.5546875,
+          "z": -82.421875
+        }
+      ],
+      "witness": null,
+      "targetCell": [
+        122,
+        40
+      ]
+    },
+    {
+      "braveId": 53,
+      "beyond": 6,
+      "destination": {
+        "x": -47.75546064277546,
+        "z": -103.34136718499741
+      },
+      "context": {
+        "model": 19,
+        "enabled": true,
+        "buildingId": 1018,
+        "personId": null,
+        "shrineId": null,
+        "treeId": null,
+        "vehicleId": null
+      },
+      "path": [
+        {
+          "x": 25,
+          "z": 93
+        },
+        {
+          "x": 21,
+          "z": -125
+        },
+        {
+          "x": 3,
+          "z": -117
+        },
+        {
+          "x": -47,
+          "z": -103
+        },
+        {
+          "x": -47.75390625,
+          "z": -103.33984375
+        }
+      ],
+      "witness": null,
+      "targetCell": [
+        110,
+        49
+      ]
+    },
+    {
+      "braveId": 53,
+      "beyond": 8,
+      "destination": {
+        "x": -49.34061419036726,
+        "z": -102.12182291332988
+      },
+      "context": {
+        "model": 3,
+        "enabled": true,
+        "buildingId": null,
+        "personId": null,
+        "shrineId": null,
+        "treeId": null,
+        "vehicleId": null
+      },
+      "path": [
+        {
+          "x": 25,
+          "z": 93
+        },
+        {
+          "x": 21,
+          "z": -125
+        },
+        {
+          "x": 3,
+          "z": -117
+        },
+        {
+          "x": -49,
+          "z": -103
+        },
+        {
+          "x": -49.33984375,
+          "z": -102.12109375
+        }
+      ],
+      "witness": null,
+      "targetCell": [
+        110,
+        49
+      ]
+    }
+  ]
+}

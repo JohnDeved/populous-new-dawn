@@ -1,0 +1,58 @@
+{
+  "phase": "saved-response",
+  "side": "candidate",
+  "priorRunId": "1b7ef4cd-1930-41f5-b844-35ef64fe2cea",
+  "profileId": "1c9f5a98-8976-4f7a-91d4-97f5903c01af",
+  "application": "3285607c8c3c2a2181eaa07ebb85b8b5f1e19a975ad385ba54fd938309ac84d1",
+  "previousChecker": "47332398f29867e30183e15d8e468f0b7a823d59e598165dbd23a289f59755b3",
+  "previousSourceFingerprint": "9a21024bfb6c25c641b07c87a395b3a504c60f66829b56ff7d887082bffcfae5",
+  "previousSourceCommit": "88920b26e1862383036e40814198d36326d9f7a1",
+  "previousReceipt": "work/orchestration/preacher-automatic-response/candidate/continuation03/receipt.json",
+  "previousReceiptSha256": "212dc1c6a2f1c8f1997e8938842aa8ba345f7f76d78383d8bad1cbf32f405b83",
+  "receipt": {
+    "path": "work/orchestration/preacher-automatic-response/candidate/continuation03/receipt.json",
+    "sha256": "212dc1c6a2f1c8f1997e8938842aa8ba345f7f76d78383d8bad1cbf32f405b83"
+  },
+  "response": {
+    "path": "work/orchestration/preacher-automatic-response/candidate/continuation03/response.json",
+    "sha256": "6d5426bf0a4cfd85d7213c785bb27fb0bfc57131f4d2c14aae27dd52c8b6cb10"
+  },
+  "checkpoint": {
+    "version": 1,
+    "level": 3,
+    "turn": 4743,
+    "time": 395.25,
+    "checkpointSha256": "6d35bae3536df93dd0669d6911281fc0a77cc4e2612444aa2309ead9268ac7c6",
+    "actorsSha256": "1696138adebbf4f3b33452aa5fac93c51c74bf8f499e865151ff89489d93dbba",
+    "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+    "stockSha256": "9b14d78af2cacfee925b4b43d044d70d8b1eb884508c630c10f7f24e74917893"
+  },
+  "originalActors": {
+    "shamanId": 46,
+    "preacherId": 3162,
+    "templeId": 1021,
+    "traineeId": 519
+  },
+  "originalAcquisition": {
+    "receipt": "work/orchestration/preacher-automatic-response/candidate/attempt01/acquisition.json",
+    "sha256": "88102e98c13bff8032cb4e5436c2c3f58c491a076d13462eab751a5b5ac85369",
+    "firstAdmission": "work/orchestration/preacher-automatic-response/candidate/attempt01/first-trainee-admission.json",
+    "firstAdmissionSha256": "6c4b79ed443dd8913e66b0bbc12a0f5274d5df6cc42a6cda0745f0863d84c7e5",
+    "status": "Original ordinary acquisition succeeded inside failed first32 stable-cell witness attempt01. Earlier unqualified4402 event stays failed.",
+    "sourceCommit": "d969cace30848f4777352baa061fdc6eb2ca26d8",
+    "runId": "c841847a-f3ae-43f8-a9e5-9e1ad5b183c5"
+  },
+  "prefixStatus": "Continuation03 remains FAILED at later owner handoff; selected response/Save/natural release/Load/synchronous4806 cancellation are independently reviewed boundaries.",
+  "caps": {
+    "scenarioMs": 120000,
+    "harnessMs": 180000,
+    "outerInterruptSeconds": 210,
+    "outerKillGraceSeconds": 20,
+    "loadMs": 90000,
+    "interruptionMs": 30000,
+    "maxInputMoves": 1,
+    "rows": 12000,
+    "visits": 3600
+  },
+  "scope": "Genuine4743 ordinary Load/Pause, paused existing controls, one cancellation and later ordinary paused image. No acquisition, crossing, new Save, callback hook or state reconstruction."
+}
