@@ -166,3 +166,20 @@ test('preflight whitespace checks work in an isolated linked worktree', async t 
   assert.equal(result.attempts.length, 3)
   assert.equal(readFileSync(join(repo, 'changed.txt'), 'utf8'), 'clean\n')
 })
+
+
+test('preflight does not mistake a no-index access error for a clean difference', async t => {
+  const { repo, base } = whitespaceFixture(t)
+  const { runPreflight } = await import('../scripts/orchestration/preflight.mjs')
+  writeFileSync(join(repo, 'vanishing.txt'), 'clean\n')
+  const attempts = []
+  const result = runPreflight(repo, base, (command, args, options) => {
+    attempts.push([command, ...args])
+    if (args.includes('--no-index')) rmSync(join(repo, 'vanishing.txt'))
+    return spawnSync(command, args, { ...options, stdio: 'pipe', encoding: 'utf8' })
+  })
+  assert.equal(result.results.at(-1).exitCode, 1)
+  assert.equal(result.status, 'failed')
+  assert.equal(attempts.length, 4)
+  assert.ok(attempts.every(command => command[0] === 'git'))
+})

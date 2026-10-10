@@ -44,12 +44,16 @@ export function runPreflight(repo, base, execute = spawnSync) {
   const results = []
   for (const command of [...whitespaceCommands(repo, changes), ...preflightCommands(paths)]) {
     const startedAt = new Date().toISOString()
+    const noIndex = command[0] === 'git' && command.includes('--no-index')
     const result = execute(command[0], command.slice(1), {
-      cwd: repo, stdio: 'inherit', timeout: 120_000, shell: false,
+      cwd: repo, stdio: noIndex ? ['inherit', 'inherit', 'pipe'] : 'inherit',
+      timeout: 120_000, shell: false,
     })
-    // --no-index implies --exit-code: 1 is a clean difference, 3 includes
-    // whitespace errors. Retain the real exit code in the receipt.
-    const cleanDifference = command[0] === 'git' && command.includes('--no-index') && result.status === 1
+    // --no-index implies --exit-code: 1 can mean either a clean difference or
+    // an access error. Only accept it without diagnostics; 3 includes whitespace
+    // errors. Forward diagnostics and retain the real exit code in the receipt.
+    if (noIndex && result.stderr?.length) process.stderr.write(result.stderr)
+    const cleanDifference = noIndex && result.status === 1 && result.stderr?.length === 0
     const status = result.error ? 'blocked' : result.status === 0 || cleanDifference ? 'passed' : 'failed'
     results.push({ command, startedAt, finishedAt: new Date().toISOString(), status,
       exitCode: result.status, signal: result.signal ?? null,
