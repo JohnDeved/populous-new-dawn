@@ -92,6 +92,34 @@ test('completed Temple waits for actual first name display to own its manual pai
   )
 })
 
+test('fresh manual Temple ownership hides existing held controls until its first composed step', async t => {
+  const { scene, temple, frame, paint } = await templePanelFixture(t)
+  // Supply dismantling only to establish the independent existing DOM owner.
+  temple.admission.activity |= 0x8000
+  paint()
+  const panel = scene.buildingPanels.get(temple.id)
+  assert.equal(panel.hidden, false)
+  temple.admission.activity &= ~0x8000
+  panel.matches = () => true
+  panel.contains = () => true
+  paint()
+  assert.equal(panel.hidden, false)
+  assert.equal(scene.objectPanels.inspectBuilding(temple.id, 'hover'), 'hover:created')
+  assert.deepEqual(records(scene).get(temple.id), {
+    phase: -1,
+    remaining: 0,
+    hold: 16,
+    automatic: false,
+  })
+  paint()
+  assert.equal(panel.hidden, true, 'held/focused DOM cannot bypass fresh manual phase -1')
+  frame()
+  paint()
+  assert.equal(scene.buildingPanels.get(temple.id), panel)
+  assert.equal(panel.hidden, false)
+  assert.equal(records(scene).get(temple.id).phase, 0)
+})
+
 test('Temple explicit held input reuses one record, releases off-target and expires at the existing opportunity', async t => {
   const fixture = await templePanelFixture(t),
     { scene, world, temple, frame, paint } = fixture,
