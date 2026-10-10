@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createHash } from 'node:crypto'
+import * as THREE from 'three'
+import { RenderView } from '../app/render-view.ts'
 import models from '../app/original-models.json' with { type: 'json' }
 import { modelStage, modelTextureModes } from '../app/model-faces.ts'
 import {
@@ -61,7 +63,9 @@ function fixture(t) {
       alphaTest: 0.5,
       side: 1,
       customProgramCacheKey: () =>
-        mesh.userData.stage === 4 ? 'native-model-light-temple' : 'native-model-light',
+        mesh.userData.stage === 4
+          ? 'native-mesh-true-false-native-model-light-temple'
+          : 'native-mesh-true-false-native-model-light',
       map: {
         userData: { encodedColors: true },
         image: { src: 'http://localhost/original/atlas-p.png', complete: true, naturalWidth: 256 },
@@ -468,4 +472,28 @@ test('distant Temple views use bounded shortest-wrap minimap waypoints and prese
     }
   }
   assert.throws(() => templeViewWaypoints({ x: NaN, z: 0 }, { x: 0, z: 0 }))
+})
+
+test('actual RenderView.prepare composes the precise native mesh shader cache key', () => {
+  for (const animated of [false, true]) {
+    const view = new RenderView(),
+      scene = new THREE.Scene(),
+      texture = new THREE.Texture()
+    texture.userData.encodedColors = true
+    const material = new THREE.MeshBasicMaterial({ map: texture }),
+      geometry = new THREE.BufferGeometry(),
+      mesh = new THREE.Mesh(geometry, material)
+    material.customProgramCacheKey = () =>
+      animated ? 'native-model-light-temple' : 'native-model-light'
+    scene.add(mesh)
+    view.prepare(scene)
+    assert.equal(
+      mesh.material.customProgramCacheKey(),
+      `native-mesh-true-false-native-model-light${animated ? '-temple' : ''}`
+    )
+    view.dispose()
+    texture.dispose()
+    geometry.dispose()
+    material.dispose()
+  }
 })

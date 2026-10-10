@@ -260,7 +260,7 @@ export function requireOrdinaryTempleFrame(frame, expected) {
     ])
       assert.equal(row[field], model[field], `Actual Temple ${field}`)
     if (row.stage === 4) {
-      assert.equal(row.program, 'native-model-light-temple')
+      assert.equal(row.program, 'native-mesh-true-false-native-model-light-temple')
       assert.equal(row.epoch, frame.resource.epoch)
       assert.deepEqual(row.offset, [
         ((frame.resource.tile & 7) - 4) / 8,
@@ -268,7 +268,7 @@ export function requireOrdinaryTempleFrame(frame, expected) {
       ])
       assert.ok(row.mode32Vertices > 0)
     } else {
-      assert.equal(row.program, 'native-model-light')
+      assert.equal(row.program, 'native-mesh-true-false-native-model-light')
       assert.equal(row.offset, null)
       assert.equal(row.epoch, null)
       assert.equal(row.mode32Vertices, 0)
