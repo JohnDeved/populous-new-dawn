@@ -209,6 +209,51 @@ function childOutcome(child) {
     child.once('exit', (code, signal) => resolve({ code, signal }))
   })
 }
+// Opt-in same-invocation supervision for foreground commands whose descendants
+// stay in their process group. This does not acquire the shared queue or supervise
+// arbitrary daemons. Wrap it in command-receipt for source-bound, persistent logs.
+export async function runForegroundCommand({ command, timeoutMs, cwd = process.cwd(), env = process.env, stdio = 'inherit' }) {
+  assert(process.platform !== 'win32', 'Foreground supervision requires POSIX process groups')
+  argv(command, 'command')
+  assert(Number.isSafeInteger(timeoutMs) && timeoutMs > 0, 'timeoutMs must be a positive safe integer')
+  assert(['inherit', 'ignore'].includes(stdio), 'foreground stdio must be inherit or ignore')
+  const deadline = Date.now() + timeoutMs
+  let child, outcome, group, stopReason
+  const interrupted = () => { stopReason ??= 'interrupted' }
+  for (const name of ['SIGINT', 'SIGTERM']) process.on(name, interrupted)
+  try {
+    child = spawn(command[0], command.slice(1), { cwd, env, stdio, detached: true })
+    const finished = childOutcome(child).then(value => { outcome = value })
+    if (child.pid) {
+      group = { pid: child.pid, members: new Map() }
+      const owner = processTable().find(row => row.pid === child.pid && row.pgid === child.pid)
+      if (owner) group.members.set(owner.pid, owner.identity)
+    }
+    while (!outcome && !stopReason) {
+      if (group) verifyGroupIdentity(group)
+      if (Date.now() >= deadline) stopReason = 'timed-out'
+      else await sleep(50)
+    }
+    // A leader can exit while descendants keep running (or retain inherited
+    // pipes). Cleanup is independent of child close, and always verifies an
+    // observed owned identity before signalling. Missing proof fails closed.
+    if (group) await stopGroup(group)
+    await finished
+    return {
+      status: stopReason ?? (outcome.code === 0 && !outcome.error ? 'passed' : 'failed'),
+      exitCode: outcome.code ?? null,
+      signal: outcome.signal ?? null,
+      error: outcome.error ? { code: outcome.error.code, message: outcome.error.message } : undefined,
+      resourcesReleased: true,
+    }
+  } catch (error) {
+    child?.unref()
+    return { status: 'cleanup-blocked', resourcesReleased: false, reason: error.message }
+  } finally {
+    for (const name of ['SIGINT', 'SIGTERM']) process.removeListener(name, interrupted)
+  }
+}
+
 export async function superviseBrowserCheck({
   checkerCommand,
   cwd = process.cwd(),
@@ -754,6 +799,14 @@ export async function waitForResult(dir, id) {
 }
 async function main() {
   const [command, ...args] = process.argv.slice(2)
+  if (command === 'foreground') {
+    assert(args.length >= 3 && args[1] === '--', 'foreground requires TIMEOUT_MS -- COMMAND [ARG...]')
+    const result = await runForegroundCommand({ timeoutMs: Number(args[0]), command: args.slice(2) })
+    console.error(JSON.stringify(result))
+    process.exitCode = result.status === 'passed' ? 0 : result.status === 'timed-out' ? 124
+      : result.status === 'interrupted' ? 130 : (result.exitCode || 1)
+    return
+  }
   if (command === 'supervise') {
     assert(args.length, 'supervise requires a checker path')
     await superviseBrowserCheck({ checkerCommand: [process.execPath, ...args] })
@@ -819,7 +872,7 @@ async function main() {
   else if (command === 'resume' || command === 'recover') await recover(dir)
   else
     throw Error(
-      'Usage: performance-queue.mjs run SPEC | submit SPEC | wait ID | status | cancel ID | pause REASON | resume | recover [--dir PATH] | supervise CHECKER [ARG...]'
+      'Usage: performance-queue.mjs run SPEC | submit SPEC | wait ID | status | cancel ID | pause REASON | resume | recover [--dir PATH] | supervise CHECKER [ARG...] | foreground TIMEOUT_MS -- COMMAND [ARG...]'
     )
 }
 if (process.argv[1] && path.resolve(process.argv[1]) === script)

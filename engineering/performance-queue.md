@@ -53,6 +53,39 @@ share no writable resources with that job. This does not recover the old queue o
 establish machine idleness; timing/performance claims remain blocked. Browser work
 also needs its reviewed same-invocation process guardian and private resources.
 
+### Optional bounded foreground advisories
+
+For a foreground advisory whose children do not detach, the existing queue tool
+also offers a same-invocation supervisor. It does not submit a queue job or acquire
+its shared lane. Coordinate expensive work with the parent as above. Choose an
+explicit timeout for the particular attempt; no timeout or quality default changes.
+For example, a deliberately two-minute health investigation can use:
+
+```sh
+node scripts/orchestration/command-receipt.mjs \
+  --output work/orchestration/unique-attempt/health.json \
+  --input scripts/performance-queue.mjs \
+  --input package-lock.json --input node_modules/.package-lock.json \
+  -- node scripts/performance-queue.mjs foreground 120000 -- npm run quality:health
+```
+
+`foreground TIMEOUT_MS -- COMMAND [ARG...]` requires a positive integer timeout,
+passes direct argv, and inherits raw stdout/stderr into the receipt's logs. It
+checks the owned process-group identities before signalling, sends TERM and then
+KILL if necessary, and checks release even when the command leader exits early.
+The deadline excludes the bounded cleanup grace period. Timeout exits 124,
+interruption exits 130, and findings preserve the child's nonzero exit; even a
+TERM handler exiting zero cannot turn a timeout into a pass. The terminal summary
+in stderr distinguishes `timed-out`, `interrupted`, and `cleanup-blocked`; the
+outer command receipt remains a failed non-pass with raw evidence.
+
+This mode is only for foreground commands whose descendants stay in the owned
+process group, not browsers, detached daemons, or arbitrary process discovery.
+Unknown identities or failed cleanup cannot certify release. Losing/killing the
+outer receipt session still leaves its prepared receipt **unknown**; a missing
+session never proves cleanup. Keep its resources and logs as described above.
+Required check/build gates and long-running explicitly requested jobs are unchanged.
+
 ## Stable-scope detached queue
 
 Use `node scripts/performance-queue.mjs run job.json` for **prepared, authorized**
