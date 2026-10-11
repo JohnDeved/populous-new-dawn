@@ -75,6 +75,9 @@ const unitAtlasOrigins = nativeUnits.pieces.map((piece, index) =>
   spriteAtlasOrigin(piece, index, nativeUnits)
 )
 
+// Derived only for the current frame; weak ownership follows the Scene lifetime.
+const unitFrameIds = new WeakMap<GameScene, Set<number>>()
+
 const teamColor = {
   blue: 0x303fc1,
   red: 0xb92720,
@@ -476,8 +479,16 @@ export function animatePerson(
 }
 
 export function updateUnitsFrame(scene: GameScene) {
+  let ids = unitFrameIds.get(scene)
+  if (!ids) {
+    ids = new Set()
+    unitFrameIds.set(scene, ids)
+  }
+  ids.clear()
+  for (const u of scene.world.units) ids.add(u.id)
+  // Accepted checkpoint IDs may be NaN, which never matched the old strict comparison.
   for (const [id, g] of scene.unitMeshes)
-    if (!scene.world.units.some(u => u.id === id)) {
+    if (Number.isNaN(id) || !ids.has(id)) {
       scene.objects.remove(g)
       scene.releaseGroup(g)
       scene.unitMeshes.delete(id)
