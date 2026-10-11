@@ -118,3 +118,7 @@ The [reviewed progression and failure bundle](../../references/verification/miss
 ## First completed conditional record
 
 The [reviewed run07 milestone](../../references/verification/mission3-first-record-2026-10-11/README.md) completes a genuine Hut allocation, postprocessing and authored-ID publication. Its pool slot 639 differs from authored ID 1. All 2,555,942 observer events reconcile. The next scenery record stops before an unknown pool-alternator increment; class1 remains untouched. This conditional partial ledger does not recover actual startup or establish a product fix.
+
+## Conditional 92-record allocation ledger
+
+The [reviewed run08 ledger](../../references/verification/mission3-partial-ledger-2026-10-11/README.md) verifies 92 completed records, 94 started allocations and 93 returns. Forty class1 persons copy phases 0–39; the twelve relevant Blue-start Wildmen are still later records. Full event/call/pool/counter reconciliation preserves an open nested class6/model10 allocation at record93. The conditions and 102 exact output projections remain explicit. This narrows prior allocation order without yet recovering the ordinary training owners' replacement phases or a product fix.
