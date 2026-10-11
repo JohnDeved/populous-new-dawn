@@ -77,6 +77,7 @@ const unitAtlasOrigins = nativeUnits.pieces.map((piece, index) =>
 
 // Derived only for the current frame; weak ownership follows the Scene lifetime.
 const unitFrameIds = new WeakMap<GameScene, Set<number>>()
+const vehicleFrameIds = new WeakMap<GameScene, Set<number>>()
 
 const teamColor = {
   blue: 0x303fc1,
@@ -629,8 +630,15 @@ export function updateUnitsFrame(scene: GameScene) {
 }
 
 export function updateVehiclesFrame(scene: GameScene) {
+  let ids = vehicleFrameIds.get(scene)
+  if (!ids) {
+    ids = new Set()
+    vehicleFrameIds.set(scene, ids)
+  }
+  ids.clear()
+  for (const v of scene.world.vehicles) if (v.active || v.destructionState) ids.add(v.id)
   for (const [id, g] of scene.vehicleMeshes)
-    if (!scene.world.vehicles.some(v => v.id === id && (v.active || v.destructionState))) {
+    if (Number.isNaN(id) || !ids.has(id)) {
       scene.objects.remove(g)
       scene.releaseGroup(g)
       scene.vehicleMeshes.delete(id)
