@@ -1,3 +1,4 @@
+import { hasPersonClock, visitPrimaryPerson } from './person-clock.ts'
 import { tribeForTeam, type Building, type Point, type Unit, type World } from './world-types.ts'
 import { BUILDINGS, buildingHp, unitSpeed } from './world-rules.ts'
 import { breedingWork } from './world-state.ts'
@@ -78,7 +79,8 @@ export function processBuilderWork(w: World, u: Unit, b: Building) {
   Object.assign(p, nativePosition(w, u))
   p.x &= 65535
   p.y &= 65535
-  p.counter = w.turn & 255
+  if (hasPersonClock(w)) visitPrimaryPerson(w, u, p)
+  else p.counter = w.turn & 255
   p.state = 10
   p.cargo = Math.round(u.cargo * 100)
   const leaving = task.task === BuilderTask.Leave

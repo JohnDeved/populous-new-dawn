@@ -1,3 +1,4 @@
+import type { PersonClock } from './person-clock.ts'
 import type { SecondaryEffects } from './secondary-effects.ts'
 import type { LevelStartSite, StartPoint, StartWave } from './level-start.ts'
 import type { LiveFormation } from './live-movement.ts'
@@ -178,6 +179,7 @@ export type Unit = Point & {
   supportHeight?: number
   entry?: BuildingEntry
   resident?: { building: number; slot: number; person: LivePerson }
+  personCounter?: number
   native: LivePerson | null
   burnTrail?: number
   flight?: LivePerson
@@ -436,6 +438,7 @@ export type CampaignAI = ScriptState &
   }
 
 export type World = {
+  personClock?: PersonClock
   objectCells: ObjectCells
   marching: LiveFormation[]
   combatMarches: CombatMarch[]

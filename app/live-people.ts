@@ -1,3 +1,4 @@
+import { personCounter, visitPrimaryPerson } from './person-clock.ts'
 import { discardInvalidResident, residentPerson } from './building-resident.ts'
 import { deselectLiveVehiclePassengers } from './live-vehicles.ts'
 import { latchShamanDeathFrame } from './shaman-death-vfx.ts'
@@ -168,7 +169,7 @@ export function createLivePerson(w: World, u: Unit): LivePerson {
     h: pos.h,
     anchorX: pos.x & 65535,
     anchorY: pos.y & 65535,
-    counter: (w.turn - 1) & 255,
+    counter: personCounter(w, u),
     flags2: u.inside === null ? 0 : 0x800000,
     // 0x4d23ed supplies the logical animation gate. Keep models outside the
     // verified ordinary-person range on their existing adapter.
@@ -904,7 +905,7 @@ export function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
     if (object !== -1) setLivePersonAnimation(w, p, object)
   }
   const initialize = () => initializeLivePerson(w, u, stateContext(), p)
-  p.counter = (p.counter + 1) & 255
+  visitPrimaryPerson(w, u, p)
   preparePersonTurn(p, w.manaWorld.gameFlags, {
     initialize,
     animation: animate,
@@ -1123,7 +1124,7 @@ export function stepLivePerson(w: World, u: Unit) {
   const ctx = context(w),
     { state, effects } = ctx
   const p = u.native!
-  p.counter = (p.counter + 1) & 255
+  visitPrimaryPerson(w, u, p)
   preparePersonTurn(p, w.manaWorld.gameFlags, {
     initialize: () => initializeLivePerson(w, u, ctx),
     animation: () => {

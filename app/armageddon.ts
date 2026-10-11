@@ -1,3 +1,4 @@
+import { useLegacyPersonClock } from './person-clock.ts'
 import { changeLivePersonState, createLivePerson, registerLivePerson } from './live-people.ts'
 import { nativePosition, refreshTerrainSurface } from './world-terrain-runtime.ts'
 import { browserPosition } from './world-coordinates.ts'
@@ -54,6 +55,7 @@ const activeTribes = (w: World) =>
   )
 
 function rebuildParticipants(w: World, fx: Effect, tribes: number[]) {
+  useLegacyPersonClock(w, 'armageddon')
   const census = tribes.map(tribe => {
       const team = teamForTribe(tribe),
         people = w.units.filter(u => u.team === team && !u.ghost && u.hp > 0),

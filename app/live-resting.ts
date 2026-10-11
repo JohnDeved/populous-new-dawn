@@ -1,3 +1,4 @@
+import { hasPersonClock, visitPrimaryPerson } from './person-clock.ts'
 import { buildingPose } from './building-shapes.ts'
 import { sound } from './world-effects.ts'
 import { browserPosition, nativePosition, type World, type Unit } from './model.ts'
@@ -117,7 +118,8 @@ export function stepLiveResting(w: World, u: Unit) {
     const p = u.native ?? createLivePerson(w, u)
     setPersonAnchor(p, nativePosition(w, u))
     setDirectPersonDestination(w.motionRoutes, p, p)
-    p.counter = w.turn & 255
+    if (hasPersonClock(w)) visitPrimaryPerson(w, u, p)
+    else p.counter = w.turn & 255
     u.native = p
     registerLivePerson(w, p)
     changeLivePersonState(w, u, 17)
@@ -127,7 +129,7 @@ export function stepLiveResting(w: World, u: Unit) {
   }
   const p = u.native!
   registerLivePerson(w, p)
-  p.counter = (p.counter + 1) & 255
+  visitPrimaryPerson(w, u, p)
   preparePersonTurn(p, w.manaWorld.gameFlags, {
     initialize: () => changeLivePersonState(w, u),
     animation: () => {

@@ -1,3 +1,4 @@
+import { restorePersonClock } from './person-clock.ts'
 import { worldEnvironment } from './world-environment.ts'
 import { rebuildSecondaryLists } from './secondary-effects.ts'
 import { restoreSecondaryEffects } from './hut-smoke-runtime.ts'
@@ -145,6 +146,7 @@ function migrateLegacyBridgeOrigins(world: World) {
 }
 
 export function migrateCheckpoint(world: World) {
+  restorePersonClock(world)
   for (const unit of world.units) discardInvalidResident(world, unit)
   world.worshipAcquisition ??= createWorshipAcquisitionRuntime()
   world.worshipAcquisition.controllers.building ??= null

@@ -1,3 +1,4 @@
+import { visitPrimaryPerson } from './person-clock.ts'
 import {
   buildingFirePoints,
   buildingModel,
@@ -430,7 +431,7 @@ export function stepLiveBuildingAttack(w: World, u: Unit, b?: Building) {
   }
   const p = u.native!
   registerLivePerson(w, p)
-  p.counter = (p.counter + 1) & 255
+  visitPrimaryPerson(w, u, p)
   preparePersonTurn(p, w.manaWorld.gameFlags, {
     initialize: () => changeLivePersonState(w, u),
     animation: () => {

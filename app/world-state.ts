@@ -1,3 +1,4 @@
+import { allocatePersonCounter } from './person-clock.ts'
 import { createSecondaryEffects } from './secondary-effects.ts'
 import { createWorshipAcquisitionRuntime } from './worship-acquisition-runtime.ts'
 import {
@@ -260,6 +261,7 @@ export function createWorldState(missionNumber = 1): World {
     cosmeticRandom: { randomState: 1 },
     worshipAcquisition: createWorshipAcquisitionRuntime(),
     effectCounter: 0,
+    personClock: { mode: 'allocation', next: 0 },
     secondaryEffects: createSecondaryEffects(),
     nextId: 1,
     footprints: createFootprints(),
@@ -364,6 +366,7 @@ export function trainingCost(w: World, team: Team) {
 export function addUnit(w: World, team: Team, kind: UnitKind, p: Point) {
   const u: Unit = {
     native: null,
+    personCounter: allocatePersonCounter(w),
     vault: null,
     x: p.x,
     z: p.z,

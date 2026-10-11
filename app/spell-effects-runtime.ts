@@ -1,3 +1,10 @@
+import {
+  hasPersonClock,
+  hasPrimaryPersonVisit,
+  isPrimaryPersonMember,
+  personCounter,
+  visitPrimaryPerson,
+} from './person-clock.ts'
 import constants from './original-constants.json' with { type: 'json' }
 import rules from './original-rules.json' with { type: 'json' }
 import modelAssets from './original-models.json' with { type: 'json' }
@@ -111,8 +118,14 @@ function replaceHypnotisedUnit(w: World, source: Unit, team: Team, originalTeam?
   if (slot < 0) return
   const position = { x: source.x, z: source.z },
     { hp, cargo, heading, kind } = source,
-    people = retainedPeople(source)
-  releaseTasks(w, source)
+    people = retainedPeople(source),
+    resident = hasPersonClock(w) ? residentPerson(w, source) : undefined
+  if (resident) people.push(resident)
+  // Native class-1 deletion releases the same housed person from its slot.
+  // Task detachment alone would discard passive storage and strand occupancy.
+  if (hasPersonClock(w) && source.inside !== null && people.some(p => p.flags2 & 0x800000))
+    release(w, source)
+  else releaseTasks(w, source)
   for (const p of people) if (p.flags2 & 0x20000) removeObjectFromCell(w.objectCells, p)
   w.objectCells.objects.delete(source.id)
   w.selected = w.selected.filter(id => id !== source.id)
@@ -176,18 +189,33 @@ export function applyHypnotise(w: World, point: Point, team: Team) {
   return targets
 }
 
+// Called after the person's state body in the composed primary traversal.
+// It consumes the already visited byte; it never supplies another visit.
+export function stepPersonHypnotise(w: World, u: Unit) {
+  const status = u.hypnotise
+  if (!status || u.hp <= 0 || !isPrimaryPersonMember(w, u)) return
+  if (hasPersonClock(w)) status.counter = personCounter(w, u)
+  else status.counter = (status.counter + 1) & 255
+  const tribe = tribeForTeam(status.originalTeam),
+    defeated = tribe >= 0 && w.manaTribes[tribe].defeatTimer
+  // The native epilogue clears defeated-tribe status before its phase gate.
+  if (!(hasPersonClock(w) && defeated) && (status.counter & 7 || --status.remaining > 0)) return
+  if (defeated) {
+    delete u.hypnotise
+    for (const p of [...retainedPeople(u), residentPerson(w, u)])
+      if (p) p.flags4 = (p.flags4 & ~0x4000) >>> 0
+  } else replaceHypnotisedUnit(w, u, status.originalTeam)
+}
+
+// Legacy scheduling and explicit standalone visits retain this entry point.
 export function stepUnitHypnotise(w: World) {
   for (const u of [...w.units]) {
-    const status = u.hypnotise
-    if (!status || u.hp <= 0) continue
-    status.counter = (status.counter + 1) & 255
-    if (status.counter & 7 || --status.remaining > 0) continue
-    const tribe = tribeForTeam(status.originalTeam)
-    if (tribe >= 0 && w.manaTribes[tribe].defeatTimer) {
-      delete u.hypnotise
-      for (const p of [...retainedPeople(u), residentPerson(w, u)])
-        if (p) p.flags4 = (p.flags4 & ~0x4000) >>> 0
-    } else replaceHypnotisedUnit(w, u, status.originalTeam)
+    if (!u.hypnotise || u.hp <= 0 || !isPrimaryPersonMember(w, u)) continue
+    if (hasPersonClock(w)) {
+      if (!hasPrimaryPersonVisit(w, u)) continue
+      visitPrimaryPerson(w, u)
+    }
+    stepPersonHypnotise(w, u)
   }
 }
 

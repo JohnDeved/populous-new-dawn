@@ -66,8 +66,12 @@ test('Hypnotise uses the native footprint, temporary ownership, expiry, and AI t
   const expiring = converted[0],
     expiringId = expiring.id,
     idsBeforeExpiry = new Set(w.units.map(u => u.id))
+  // Expiry is gated by the retained person byte, not an independently seeded timer.
+  for (let visits = 0; (expiring.personCounter & 7) !== 6 && visits < 8; visits++)
+    stepUnitHypnotise(w)
+  assert.equal(expiring.personCounter & 7, 6)
+  assert.equal(expiring.hypnotise.counter, expiring.personCounter)
   expiring.hypnotise.remaining = 1
-  expiring.hypnotise.counter = 6
   stepUnitHypnotise(w)
   assert.ok(w.units.includes(expiring))
   stepUnitHypnotise(w)
@@ -91,8 +95,10 @@ test('Hypnotise uses the native footprint, temporary ownership, expiry, and AI t
   assert.ok(w.effects.some(fx => fx.kind === 'death' && fx.unit?.team === 'red'))
 
   const permanent = w.units.find(u => u.hypnotise)
+  for (let visits = 0; (permanent.personCounter & 7) !== 7 && visits < 8; visits++)
+    stepUnitHypnotise(w)
+  assert.equal(permanent.personCounter & 7, 7)
   permanent.hypnotise.remaining = 1
-  permanent.hypnotise.counter = 7
   w.manaTribes[1].defeatTimer = 1
   stepUnitHypnotise(w)
   assert.equal(permanent.team, 'blue')
