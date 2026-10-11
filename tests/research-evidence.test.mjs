@@ -61,6 +61,27 @@ for (const mode of ['tamper', 'missing', 'traversal', 'symlink', 'duplicate-id',
   if (mode === 'raw-disagrees') f.packet.dossiers[0].raw.pseudocode = 'unrelated'
   assert.throws(() => compactResearch(f.repo, f.packet, expected))
 })
+for (const command of ['research-view', 'research-read']) for (const mode of ['malformed-json', 'missing-selector'])
+  test(`${command} identifies the raw source and selector needing repair: ${mode}`, t => {
+    const f = fixture(t)
+    const packet = command === 'research-read' ? compactResearch(f.repo, f.packet, expected) : f.packet
+    const raw = mode === 'malformed-json' ? '{private-evidence-content' : '{"function":{}}'
+    writeFileSync(join(f.repo, 'assembly.json'), raw)
+    packet.sources.find(source => source.id === 'asm').sha256 = sha(raw)
+    writeFileSync(join(f.repo, 'packet.json'), JSON.stringify(packet))
+    const args = [command, '--packet', 'packet.json', '--source-fingerprint', expected.sourceFingerprint,
+      '--query', expected.query, '--adapter-version', expected.adapterVersion]
+    if (command === 'research-read') args.push('--dossier', 'training', '--field', 'assembly')
+    mkdirSync(join(f.repo, 'scripts/orchestration'), { recursive: true })
+    for (const name of ['cli.mjs', 'research-evidence.mjs', 'review-bundle.mjs'])
+      writeFileSync(join(f.repo, 'scripts/orchestration', name), readFileSync(new URL(`../scripts/orchestration/${name}`, import.meta.url)))
+    const result = spawnSync(process.execPath, ['scripts/orchestration/cli.mjs', ...args], { cwd: f.repo, encoding: 'utf8' })
+    assert.equal(result.status, 1, result.stderr)
+    assert.equal(result.stdout, '')
+    assert.match(result.stderr, /dossier "training", field "assembly", source "asm", selector \["function","instructions"\]/)
+    assert.match(result.stderr, mode === 'malformed-json' ? /Invalid raw JSON.*inspect the backing source JSON/ : /Missing raw selector.*missing key "instructions"/)
+    assert.doesNotMatch(result.stderr, /private-evidence-content/)
+  })
 test('changed unrelated source also blocks on-demand retrieval', t => {
   const f = fixture(t), view = compactResearch(f.repo, f.packet, expected)
   writeFileSync(join(f.repo, 'assembly.json'), '{}')
