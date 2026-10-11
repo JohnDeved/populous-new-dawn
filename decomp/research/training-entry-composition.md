@@ -102,3 +102,7 @@ The [reviewed caller-prefix result](../../references/verification/mission3-reset
 ## Conditional sunlight continuation
 
 The [reviewed original sunlight prefix](../../references/verification/mission3-sunlight-prefix-2026-10-11/README.md) passes 43 predeclared outputs and preserves the earlier checkpoint after 198,587 original instructions. Independent source-derived event ordering and mask replay cover all 158,959 observer events. Forty canonical trigonometric words remain an explicit entry condition, alongside the existing camera-return and palette-allocation conditions. The exact integer square-root helper runs; terrain and constructors do not. This advances setup evidence without establishing the later Mission 3 allocation seed or a safe product fix.
+
+## Coherent terrain, command and tribe prefix
+
+The [two reviewed pre-loader cases](../../references/verification/mission3-preloader-prefix-2026-10-11/README.md) execute terrain masks, command initialization and tribe reset together, stopping before the loader call. Each passes 101 known fields, eight bit predicates and complete terrain-mask coverage. Canonical CPSCR012 transport supplies the real script comparison without a new omission. The two labeled land-bit alternatives have distinct calls and control-kind bytes; neither selects actual campaign history or proves whole-state equivalence. Remaining loader, bank and animation setup must be bound before authored-object execution.
