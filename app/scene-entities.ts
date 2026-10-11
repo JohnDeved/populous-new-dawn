@@ -76,6 +76,28 @@ const unitAtlasOrigins = nativeUnits.pieces.map((piece, index) =>
   spriteAtlasOrigin(piece, index, nativeUnits)
 )
 
+type UnitDirections = { frames: number[]; flip: boolean; source?: number }[]
+type UnitAnimationTable = Record<string, UnitDirections>
+
+// Imported animation tables have no runtime writers; retain their first source match.
+const unitDirectionsBySource = new WeakMap<
+  UnitAnimationTable,
+  Map<number | undefined, UnitDirections>
+>()
+
+function followerDirections(animations: UnitAnimationTable, source: number) {
+  if (Number.isNaN(source)) return undefined
+  let sources = unitDirectionsBySource.get(animations)
+  if (!sources) {
+    sources = new Map()
+    for (const directions of Object.values(animations))
+      if ('source' in directions[0] && !sources.has(directions[0].source))
+        sources.set(directions[0].source, directions)
+    unitDirectionsBySource.set(animations, sources)
+  }
+  return sources.get(source)
+}
+
 // Derived only for the current frame; weak ownership follows the Scene lifetime.
 const unitFrameIds = new WeakMap<GameScene, Set<number>>()
 const unitFrameSelectedIds = new WeakMap<GameScene, Set<number>>()
@@ -623,12 +645,7 @@ export function updateUnitsFrame(scene: GameScene) {
     g.userData.pickable = canPickUnit(scene.world, u)
     g.userData.drawFlags =
       (renderFlags & 0xa000 || u.lift > 0 ? 2 : 0) | (renderFlags & 0x4000 ? 4 : 0)
-    const animations = (
-      nativeUnits.animations as Record<
-        string,
-        Record<string, { frames: number[]; flip: boolean }[]>
-      >
-    )[
+    const animations = (nativeUnits.animations as Record<string, UnitAnimationTable>)[
       u.kind === 'shaman'
         ? shamanAppearance(u.team).signature
         : `${animationTeam(renderTeam)}-${u.kind}`
@@ -644,7 +661,7 @@ export function updateUnitsFrame(scene: GameScene) {
           ? undefined
           : u.kind === 'shaman'
             ? shamanNativeDirections(u.team, source)
-            : Object.values(animations).find(d => 'source' in d[0] && d[0].source === source),
+            : followerDirections(animations, source),
       directions = nativeDirections || animations[state] || animations.idle
     scene.animatePerson(
       g,
