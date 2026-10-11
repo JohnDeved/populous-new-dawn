@@ -151,6 +151,32 @@ class EventReplayTests(unittest.TestCase):
             self.reject(lambda r, c: r['invalidationEvents'][1].update(changes))
         self.reject(lambda r, c: r['invalidationEvents'][1].update(knownMask='0xffffffff'), 'boundary contract')
 
+    def test_observed_invalidation_pc_rejects_numeric_equality_aliases(self):
+        for index in (0, 1):  # Memory and register descriptors use the same guard.
+            for expected, observed in ((48, 48.0), (1, True), (0, False)):
+                receipt, contract = fixture()
+                contract['invalidationEvents'][index]['pc'] = expected
+                receipt['invalidationEvents'][index]['pc'] = observed
+                with self.subTest(target=index, pc=observed), self.assertRaisesRegex(ValueError, 'invalidation pc'):
+                    run(receipt, contract)
+
+    def test_invalidation_pc_shape_range_and_valid_boundaries(self):
+        invalid = (-1, 1 << 32, '0x100000000', '0X30', '48', '0xg', '', None)
+        for index in (0, 1):
+            for value in invalid:
+                for side in ('observed', 'expected'):
+                    receipt, contract = fixture()
+                    document = receipt if side == 'observed' else contract
+                    document['invalidationEvents'][index]['pc'] = value
+                    with self.subTest(target=index, side=side, pc=value), self.assertRaisesRegex(ValueError, '[Pp][Cc]'):
+                        run(receipt, contract)
+            for value in (0, (1 << 32) - 1, '0x0', '0xffffffff'):
+                receipt, contract = fixture()
+                receipt['invalidationEvents'][index]['pc'] = value
+                contract['invalidationEvents'][index]['pc'] = value
+                with self.subTest(target=index, valid_pc=value):
+                    run(receipt, contract)
+
     def test_metadata_shape_counts_and_extent_fail_closed(self):
         for changes in ({'schemaVersion': True}, {'ordering': 'retirement'}, {'eventCount': True}, {'eventCount': 99}, {'firstOrdinal': 1}, {'lastOrdinal': 99}, {'extra': 1}):
             def mutate(r, c):

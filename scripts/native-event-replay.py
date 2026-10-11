@@ -122,6 +122,7 @@ def invalidation(row, state):
     """Extract only the shared memory/register contract; extra producer fields remain."""
     common = ('eventOrdinal', 'pc', 'target', 'knownMask', 'reason')
     require(all(key in row for key in common), 'incomplete invalidation')
+    require(0 <= number(row['pc'], 'invalidation pc') < 1 << 32, 'invalid invalidation PC')
     require(isinstance(row['reason'], str) and row['reason'].strip(), 'invalidation reason missing')
     require(row['target'] in ('memory', 'register'), 'unknown invalidation target')
     result = {key: row[key] for key in common}
@@ -204,7 +205,6 @@ def replay_receipt(raw, expected_sha256, contract, expected_contract_sha256):
     for item in expected_invalidations:
         require(isinstance(item, dict) and invalidation(item, state) == item, 'invalid expected invalidation shape')
         integer(item['eventOrdinal'], 'invalidation ordinal')
-        require(0 <= number(item['pc'], 'invalidation pc') < 1 << 32, 'invalid invalidation PC')
     streams = []
     for stream in STREAMS:
         rows = receipt.get(stream)
