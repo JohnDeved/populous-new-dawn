@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict'
-import { execFileSync } from 'node:child_process'
+import { execFileSync, spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import {
   appendFileSync,
+  chmodSync,
+  copyFileSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -1380,4 +1382,189 @@ test('verification runs only safe contract checks, records blocking, and detects
     invalid.identity.taskId = '../escape'
     assert.throws(() => validateContract(repo, invalid), /Invalid task id/)
   })
+})
+
+
+// Copy the real CLI and its import closure into the existing small repository.
+// Only the context child is synthetic: never recursively execute this test suite.
+function preflightCliFixture(t) {
+  const repo = fixtureRepo()
+  t.after(() => rmSync(repo, { recursive: true, force: true }))
+  mkdirSync(join(repo, 'scripts/orchestration'), { recursive: true })
+  for (const name of ['preflight', 'cli', 'research-evidence', 'review-bundle']) {
+    copyFileSync(new URL(`../scripts/orchestration/${name}.mjs`, import.meta.url),
+      join(repo, `scripts/orchestration/${name}.mjs`))
+  }
+  put(repo, 'tests/orchestration.test.mjs', [
+    "import assert from 'node:assert/strict'",
+    "import { existsSync } from 'node:fs'",
+    "import test from 'node:test'",
+    "test('context fixture', () => assert.ok(existsSync('GOAL.md')))",
+    "test('unselected fixture', () => assert.fail('must remain filtered'))",
+    '',
+  ].join('\n'))
+  run(repo, 'git', 'config', 'core.whitespace', 'blank-at-eol,blank-at-eof,space-before-tab')
+  run(repo, 'git', 'add', '.')
+  run(repo, 'git', 'commit', '-qm', 'CLI fixture')
+  return { repo, base: run(repo, 'git', 'rev-parse', 'HEAD').trim() }
+}
+
+function runPreflightCli(repo, args, cwd = repo) {
+  const snapshot = () => ({
+    head: run(repo, 'git', 'rev-parse', 'HEAD'),
+    index: run(repo, 'git', 'ls-files', '--stage'),
+    status: run(repo, 'git', 'status', '--porcelain=v1', '--untracked-files=all'),
+    diff: run(repo, 'git', 'diff', '--binary'),
+  })
+  const before = snapshot()
+  const env = { ...process.env }
+  // This CLI launches its own bounded node:test child, outside the parent runner.
+  delete env.NODE_TEST_CONTEXT
+  const result = spawnSync(process.execPath,
+    [join(repo, 'scripts/orchestration/preflight.mjs'), ...args],
+    { cwd, env, encoding: 'utf8', timeout: 20_000 })
+  assert.ifError(result.error)
+  assert.equal(result.signal, null)
+  assert.deepEqual(snapshot(), before, 'preflight must not change HEAD, index or worktree')
+  return result
+}
+
+function preflightCliReport(stdout) {
+  // stdout intentionally includes inherited validator/TAP or Git diagnostics.
+  // The final pretty-printed JSON object is the preflight receipt, not all stdout.
+  const start = stdout.lastIndexOf('{\n  "base":')
+  assert.ok(start >= 0, stdout)
+  const report = JSON.parse(stdout.slice(start))
+  assert.deepEqual(Object.keys(report), ['base', 'paths', 'results', 'status', 'finalGate'])
+  assert.equal(report.finalGate, false)
+  for (const result of report.results) {
+    assert.deepEqual(Object.keys(result),
+      ['command', 'startedAt', 'finishedAt', 'status', 'exitCode', 'signal', 'error'])
+    assert.ok(Number.isFinite(Date.parse(result.startedAt)))
+    assert.ok(Date.parse(result.finishedAt) >= Date.parse(result.startedAt))
+    assert.equal(result.signal, null)
+  }
+  return report
+}
+
+test('preflight CLI passes clean untracked changes from its script root with inherited output', t => {
+  const { repo, base } = preflightCliFixture(t)
+  put(repo, '-clean file.txt', 'clean\n')
+  // Launch outside the repository: children must still run in the CLI's root.
+  const result = runPreflightCli(repo, ['--base', base], tmpdir())
+  assert.equal(result.status, 0, result.stderr || result.stdout)
+  assert.equal(result.stderr, '')
+  assert.match(result.stdout, /context fixture/)
+  assert.doesNotMatch(result.stdout, /must remain filtered/)
+  const report = preflightCliReport(result.stdout)
+  assert.equal(report.base, base)
+  assert.deepEqual(report.paths, ['-clean file.txt'])
+  assert.equal(report.status, 'passed')
+  assert.equal(report.results.length, 6)
+  assert.ok(report.results.every(item => item.status === 'passed' && item.error === null))
+  assert.deepEqual(report.results.map(item => item.exitCode), [0, 0, 0, 1, 0, 0])
+  assert.deepEqual(report.results[3].command.slice(-4), ['--no-index', '--', '/dev/null', '-clean file.txt'])
+  assert.deepEqual(report.results.at(-1).command,
+    ['node', '--test', '--test-name-pattern=context', 'tests/orchestration.test.mjs'])
+  assert.equal(readFileSync(join(repo, '-clean file.txt'), 'utf8'), 'clean\n')
+})
+
+test('preflight CLI exits one on real whitespace findings and stops before other checks', t => {
+  const { repo, base } = preflightCliFixture(t)
+  put(repo, '-finding file.txt', 'trailing   \n')
+  const result = runPreflightCli(repo, ['--base', base])
+  assert.equal(result.status, 1)
+  assert.equal(result.stderr, '')
+  assert.match(result.stdout, /-finding file\.txt:1: trailing whitespace/)
+  const report = preflightCliReport(result.stdout)
+  assert.equal(report.status, 'failed')
+  assert.equal(report.results.length, 4)
+  assert.equal(report.results.at(-1).exitCode, 3)
+  assert.equal(report.results.at(-1).status, 'failed')
+  assert.ok(report.results.every(item => item.command[0] === 'git'))
+  assert.equal(readFileSync(join(repo, '-finding file.txt'), 'utf8'), 'trailing   \n')
+})
+
+for (const unavailable of ['missing', 'nonexecutable']) {
+  test(`preflight CLI reports a ${unavailable} tool as blocked JSON with exit one`, t => {
+    const { repo, base } = preflightCliFixture(t)
+    if (unavailable === 'nonexecutable') {
+      put(repo, 'node_modules/.bin/eslint', '#!/bin/sh\nexit 0\n')
+      chmodSync(join(repo, 'node_modules/.bin/eslint'), 0o644)
+      run(repo, 'git', 'add', '.')
+      run(repo, 'git', 'commit', '-qm', 'unavailable tool')
+    }
+    put(repo, 'tests/new.test.mjs', 'export {}\n')
+    const result = runPreflightCli(repo, ['--base', base])
+    assert.equal(result.status, 1)
+    assert.equal(result.stderr, '')
+    const report = preflightCliReport(result.stdout)
+    assert.equal(report.status, 'blocked')
+    assert.equal(report.results.length, 5)
+    assert.deepEqual(report.results.at(-1).command,
+      ['node_modules/.bin/eslint', '--max-warnings', '0', '--', 'tests/new.test.mjs'])
+    assert.equal(report.results.at(-1).status, 'blocked')
+    assert.equal(report.results.at(-1).exitCode, null)
+    assert.match(report.results.at(-1).error, unavailable === 'missing' ? /ENOENT/ : /EACCES/)
+  })
+}
+
+test('preflight CLI rejects invalid arguments on stderr without creating an output file', t => {
+  const { repo, base } = preflightCliFixture(t)
+  for (const [args, message] of [
+    [[], 'Requires --base <accepted-base>'],
+    [['--base', 'missing-base'], 'Base ref is not a commit'],
+    [['--base', base, '--output', 'unexpected.json'], 'Only --base is supported'],
+  ]) {
+    const result = runPreflightCli(repo, args)
+    assert.equal(result.status, 1)
+    assert.equal(result.stdout, '')
+    assert.match(result.stderr, /^orchestration preflight: /m)
+    assert.ok(result.stderr.includes(message), result.stderr)
+  }
+})
+
+test('preflight CLI fails closed on a real unreadable changed file', {
+  skip: process.platform === 'win32' || process.getuid?.() === 0
+    ? 'requires ordinary Unix file permissions' : false,
+}, t => {
+  const { repo, base } = preflightCliFixture(t)
+  const path = join(repo, 'unreadable.txt')
+  writeFileSync(path, 'private fixture\n')
+  chmodSync(path, 0)
+  try {
+    const result = runPreflightCli(repo, ['--base', base])
+    assert.equal(result.status, 1)
+    assert.equal(result.stdout, '')
+    assert.match(result.stderr, /^orchestration preflight: .*EACCES/)
+    assert.match(result.stderr, /unreadable\.txt/)
+  } finally {
+    chmodSync(path, 0o600)
+  }
+  assert.equal(readFileSync(path, 'utf8'), 'private fixture\n')
+})
+
+
+test('preflight CLI preserves failed child stdout and stderr before the final report', t => {
+  const { repo, base } = preflightCliFixture(t)
+  put(repo, 'node_modules/.bin/eslint', [
+    '#!/usr/bin/env node',
+    "process.stdout.write('fixture lint finding\\n')",
+    "process.stderr.write('fixture lint diagnostic\\n')",
+    'process.exitCode = 2',
+    '',
+  ].join('\n'))
+  chmodSync(join(repo, 'node_modules/.bin/eslint'), 0o755)
+  run(repo, 'git', 'add', '.')
+  run(repo, 'git', 'commit', '-qm', 'failing child fixture')
+  put(repo, 'tests/new.test.mjs', 'export {}\n')
+  const result = runPreflightCli(repo, ['--base', base])
+  assert.equal(result.status, 1)
+  assert.equal(result.stderr, 'fixture lint diagnostic\n')
+  assert.ok(result.stdout.startsWith('fixture lint finding\n'))
+  const report = preflightCliReport(result.stdout)
+  assert.equal(report.status, 'failed')
+  assert.equal(report.results.length, 5)
+  assert.equal(report.results.at(-1).exitCode, 2)
+  assert.equal(report.results.at(-1).error, null)
 })
