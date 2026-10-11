@@ -1,0 +1,15 @@
+{
+  "kind": "pnd-full-tree-equivalence",
+  "pullRequest": "https://github.com/JohnDeved/populous-new-dawn/pull/345",
+  "heads": {
+    "reviewedAuthor": "5afbdb95f90ded2888e2ede0ef3179f5358eebc6",
+    "publishedDraft": "160b4b2bcc0eab08f84a4d83be02772c592e26ce"
+  },
+  "trees": {
+    "reviewedAuthor": "b95b00e79a81a29bf099b1aee15d67b11011ff6b",
+    "publishedDraft": "b95b00e79a81a29bf099b1aee15d67b11011ff6b"
+  },
+  "sameFullTree": true,
+  "base": "860e8ae246b5237469b36a5f2c7794ce75731e95",
+  "scope": "Author focused/quality evidence is carried only by identical committed source tree; exact published-head standard check/build still run separately by coordinator; no reruns or deployment claim."
+}

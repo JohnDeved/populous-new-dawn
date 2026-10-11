@@ -1,0 +1,297 @@
+{
+  "head": "160b4b2bcc0eab08f84a4d83be02772c592e26ce",
+  "diffSha256": "1840ccd34fa7747696fa832eb4c261c739c0c434878412c6563ee8173b214b50",
+  "redactionRule": "Reviewed exporter replaces canonical/requested source root and executor home prefixes in bounded decoded text. Receipt stdoutSha256/stderrSha256 fields retain original decoded stream hashes. The independent transport hashes below describe copied decoded stream strings after redaction. Author and baseline paths outside the export root remain unchanged. Failed strict lint and failed baseline regression retain their original statuses.",
+  "receiptFiles": [
+    {
+      "sourcePath": "work/orchestration/issue144-vehicles-focused-fd9dbc1.json",
+      "sourceSha256": "c49680f5ea7f37d62cbc28c0e4daa1a3be5ae42db1ebd06882a70ccd7594fa5c",
+      "sourceBytes": 5499,
+      "bundlePath": "receipts/work/orchestration/issue144-vehicles-focused-fd9dbc1.json",
+      "bundleSha256": "c49680f5ea7f37d62cbc28c0e4daa1a3be5ae42db1ebd06882a70ccd7594fa5c",
+      "bundleBytes": 5499,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-vehicles-baseline-focused-860e8ae.json",
+      "sourceSha256": "e6c24680d5146e4225cb37468eb029588ff6fe5775c2a77bde05ac4be111e7a7",
+      "sourceBytes": 5697,
+      "bundlePath": "receipts/work/orchestration/issue144-vehicles-baseline-focused-860e8ae.json",
+      "bundleSha256": "e6c24680d5146e4225cb37468eb029588ff6fe5775c2a77bde05ac4be111e7a7",
+      "bundleBytes": 5697,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-vehicles-oxfmt-fd9dbc1.json",
+      "sourceSha256": "f0941d16b1c1a79129c1af02e7e31bd5d42e34859bec471c5fb7975d37b3653d",
+      "sourceBytes": 3343,
+      "bundlePath": "receipts/work/orchestration/issue144-vehicles-oxfmt-fd9dbc1.json",
+      "bundleSha256": "f0941d16b1c1a79129c1af02e7e31bd5d42e34859bec471c5fb7975d37b3653d",
+      "bundleBytes": 3343,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-vehicles-eslint-fd9dbc1.json",
+      "sourceSha256": "95e0a1604c9437032a61d0101cb87605e33801351eaf8e4e3e08a2b48a1e9d9a",
+      "sourceBytes": 3055,
+      "bundlePath": "receipts/work/orchestration/issue144-vehicles-eslint-fd9dbc1.json",
+      "bundleSha256": "95e0a1604c9437032a61d0101cb87605e33801351eaf8e4e3e08a2b48a1e9d9a",
+      "bundleBytes": 3055,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-vehicles-oxlint-fd9dbc1.json",
+      "sourceSha256": "611dbfb536dbb714809e948f8c2b7e6bd08c28fa5014a4cab39fa2bd3a6ca285",
+      "sourceBytes": 4068,
+      "bundlePath": "receipts/work/orchestration/issue144-vehicles-oxlint-fd9dbc1.json",
+      "bundleSha256": "611dbfb536dbb714809e948f8c2b7e6bd08c28fa5014a4cab39fa2bd3a6ca285",
+      "bundleBytes": 4068,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-vehicles-baseline-oxlint-860e8ae.json",
+      "sourceSha256": "98caa82c5ce4c413726511381ff89f07e3f091e64916e7494948e6c056813b6d",
+      "sourceBytes": 4026,
+      "bundlePath": "receipts/work/orchestration/issue144-vehicles-baseline-oxlint-860e8ae.json",
+      "bundleSha256": "98caa82c5ce4c413726511381ff89f07e3f091e64916e7494948e6c056813b6d",
+      "bundleBytes": 4026,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-vehicles-comparison-fd9dbc1.json",
+      "sourceSha256": "0896ea5eb30e9bbd907e8c9c5ff25e78fca3ca0dff782e0ed72ac5bdc2f37e26",
+      "sourceBytes": 5480,
+      "bundlePath": "receipts/work/orchestration/issue144-vehicles-comparison-fd9dbc1.json",
+      "bundleSha256": "0896ea5eb30e9bbd907e8c9c5ff25e78fca3ca0dff782e0ed72ac5bdc2f37e26",
+      "bundleBytes": 5480,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-vehicles-note-format-5afbdb9.json",
+      "sourceSha256": "677c935c3d59f86f745430f8e4bfe3ce238a1d514a2300a0e5b5973debc07626",
+      "sourceBytes": 2389,
+      "bundlePath": "receipts/work/orchestration/issue144-vehicles-note-format-5afbdb9.json",
+      "bundleSha256": "677c935c3d59f86f745430f8e4bfe3ce238a1d514a2300a0e5b5973debc07626",
+      "bundleBytes": 2389,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-vehicles-author-proof.json",
+      "sourceSha256": "94884680e71f24788784d2e887d37feb1b472ffa694bef40e5da8b9b1f534700",
+      "sourceBytes": 6457,
+      "bundlePath": "receipts/work/orchestration/issue144-vehicles-author-proof.json",
+      "bundleSha256": "94884680e71f24788784d2e887d37feb1b472ffa694bef40e5da8b9b1f534700",
+      "bundleBytes": 6457,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-vehicles-published-tree.json",
+      "sourceSha256": "934f5bd90d2e041a2c598170ff2973c9b08ead5b429253d881b454f40fc4f728",
+      "sourceBytes": 702,
+      "bundlePath": "receipts/work/orchestration/issue144-vehicles-published-tree.json",
+      "bundleSha256": "934f5bd90d2e041a2c598170ff2973c9b08ead5b429253d881b454f40fc4f728",
+      "bundleBytes": 702,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-vehicles-final/check-01.json",
+      "sourceSha256": "9c7c85343bcae063a9d8e6f6ee54b381818ffbafd16216064683bb323cbc86ce",
+      "sourceBytes": 223111,
+      "bundlePath": "receipts/work/orchestration/issue144-vehicles-final/check-01.json",
+      "bundleSha256": "a66aadfde2cc42deed24622c2fe72e6165b6648fbc7fb040c7a5aebc80cad12a",
+      "bundleBytes": 222951,
+      "redactions": 8
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-vehicles-final/build-01.json",
+      "sourceSha256": "34d66638375dadfbe07a125ec7ac2774cb52a0fdb99834333050471fba37df66",
+      "sourceBytes": 4216,
+      "bundlePath": "receipts/work/orchestration/issue144-vehicles-final/build-01.json",
+      "bundleSha256": "1710be6382df772478492310cbb7d06b33333cb39a508d7c48a1ab9c498719cd",
+      "bundleBytes": 4156,
+      "redactions": 3
+    }
+  ],
+  "streams": [
+    {
+      "receipt": "work/orchestration/issue144-vehicles-focused-fd9dbc1.json",
+      "stream": "stdout",
+      "status": "passed",
+      "exitCode": 0,
+      "originalSha256": "91ffb4410a6ddd9f10d2c85ef63c1b99ac6f25b8fdbd42c57e8f6e1e967561ec",
+      "transportSha256": "91ffb4410a6ddd9f10d2c85ef63c1b99ac6f25b8fdbd42c57e8f6e1e967561ec",
+      "changed": false
+    },
+    {
+      "receipt": "work/orchestration/issue144-vehicles-focused-fd9dbc1.json",
+      "stream": "stderr",
+      "status": "passed",
+      "exitCode": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changed": false
+    },
+    {
+      "receipt": "work/orchestration/issue144-vehicles-baseline-focused-860e8ae.json",
+      "stream": "stdout",
+      "status": "failed",
+      "exitCode": 1,
+      "originalSha256": "a92042d15367bee51379faffb1bb789652e0dd727e76e03ec91e0429256966a2",
+      "transportSha256": "a92042d15367bee51379faffb1bb789652e0dd727e76e03ec91e0429256966a2",
+      "changed": false
+    },
+    {
+      "receipt": "work/orchestration/issue144-vehicles-baseline-focused-860e8ae.json",
+      "stream": "stderr",
+      "status": "failed",
+      "exitCode": 1,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changed": false
+    },
+    {
+      "receipt": "work/orchestration/issue144-vehicles-oxfmt-fd9dbc1.json",
+      "stream": "stdout",
+      "status": "passed",
+      "exitCode": 0,
+      "originalSha256": "13eb60123a9b5aecba0b3faac22b3ee7a9ad26c99515b1884814b4131f4edf2d",
+      "transportSha256": "13eb60123a9b5aecba0b3faac22b3ee7a9ad26c99515b1884814b4131f4edf2d",
+      "changed": false
+    },
+    {
+      "receipt": "work/orchestration/issue144-vehicles-oxfmt-fd9dbc1.json",
+      "stream": "stderr",
+      "status": "passed",
+      "exitCode": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changed": false
+    },
+    {
+      "receipt": "work/orchestration/issue144-vehicles-eslint-fd9dbc1.json",
+      "stream": "stdout",
+      "status": "passed",
+      "exitCode": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changed": false
+    },
+    {
+      "receipt": "work/orchestration/issue144-vehicles-eslint-fd9dbc1.json",
+      "stream": "stderr",
+      "status": "passed",
+      "exitCode": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changed": false
+    },
+    {
+      "receipt": "work/orchestration/issue144-vehicles-oxlint-fd9dbc1.json",
+      "stream": "stdout",
+      "status": "failed",
+      "exitCode": 1,
+      "originalSha256": "7a062bf661f63b23bbf770b0d7cd67ca6d513a6f593b614b936d1a2dc9aca639",
+      "transportSha256": "7a062bf661f63b23bbf770b0d7cd67ca6d513a6f593b614b936d1a2dc9aca639",
+      "changed": false
+    },
+    {
+      "receipt": "work/orchestration/issue144-vehicles-oxlint-fd9dbc1.json",
+      "stream": "stderr",
+      "status": "failed",
+      "exitCode": 1,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changed": false
+    },
+    {
+      "receipt": "work/orchestration/issue144-vehicles-baseline-oxlint-860e8ae.json",
+      "stream": "stdout",
+      "status": "failed",
+      "exitCode": 1,
+      "originalSha256": "b2a4680b7745e78d162fb7040e9c8709b51913050d041fbb80eeeeb7e156129e",
+      "transportSha256": "b2a4680b7745e78d162fb7040e9c8709b51913050d041fbb80eeeeb7e156129e",
+      "changed": false
+    },
+    {
+      "receipt": "work/orchestration/issue144-vehicles-baseline-oxlint-860e8ae.json",
+      "stream": "stderr",
+      "status": "failed",
+      "exitCode": 1,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changed": false
+    },
+    {
+      "receipt": "work/orchestration/issue144-vehicles-comparison-fd9dbc1.json",
+      "stream": "stdout",
+      "status": "passed",
+      "exitCode": 0,
+      "originalSha256": "45fa3206f268d6828b6de50adfc74dded08d1811beacc4a4d2246f7d3a64f11b",
+      "transportSha256": "45fa3206f268d6828b6de50adfc74dded08d1811beacc4a4d2246f7d3a64f11b",
+      "changed": false
+    },
+    {
+      "receipt": "work/orchestration/issue144-vehicles-comparison-fd9dbc1.json",
+      "stream": "stderr",
+      "status": "passed",
+      "exitCode": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changed": false
+    },
+    {
+      "receipt": "work/orchestration/issue144-vehicles-note-format-5afbdb9.json",
+      "stream": "stdout",
+      "status": "passed",
+      "exitCode": 0,
+      "originalSha256": "d84441902aa8a33d8f2ca034ae3c0d8e03b536a7940cd947c1023a5d2ed0f5fe",
+      "transportSha256": "d84441902aa8a33d8f2ca034ae3c0d8e03b536a7940cd947c1023a5d2ed0f5fe",
+      "changed": false
+    },
+    {
+      "receipt": "work/orchestration/issue144-vehicles-note-format-5afbdb9.json",
+      "stream": "stderr",
+      "status": "passed",
+      "exitCode": 0,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changed": false
+    },
+    {
+      "receipt": "work/orchestration/issue144-vehicles-final/check-01.json",
+      "stream": "stdout",
+      "status": "passed",
+      "exitCode": 0,
+      "originalSha256": "b68c90ad55c6391eb5976c006a91b84f0f483bbc00cade646b48662f5f424f93",
+      "transportSha256": "f7daba11fd479f2b2bb4daa2f8fb41b49dd52ee154b7373c05f45a1e25f2983e",
+      "changed": true
+    },
+    {
+      "receipt": "work/orchestration/issue144-vehicles-final/check-01.json",
+      "stream": "stderr",
+      "status": "passed",
+      "exitCode": 0,
+      "originalSha256": "2d456593f8606487194228723e7e1b864c22db011e35e35a7946f4bc006c2192",
+      "transportSha256": "2d456593f8606487194228723e7e1b864c22db011e35e35a7946f4bc006c2192",
+      "changed": false
+    },
+    {
+      "receipt": "work/orchestration/issue144-vehicles-final/build-01.json",
+      "stream": "stdout",
+      "status": "passed",
+      "exitCode": 0,
+      "originalSha256": "0922a6db08e043281064924dcb08843dfa6583cac6654be26b98f36a021c5912",
+      "transportSha256": "0922a6db08e043281064924dcb08843dfa6583cac6654be26b98f36a021c5912",
+      "changed": false
+    },
+    {
+      "receipt": "work/orchestration/issue144-vehicles-final/build-01.json",
+      "stream": "stderr",
+      "status": "passed",
+      "exitCode": 0,
+      "originalSha256": "44a515a7392146c350398668c9dcae9727c91cd57f896035ef9fd1dac9c766dd",
+      "transportSha256": "44a515a7392146c350398668c9dcae9727c91cd57f896035ef9fd1dac9c766dd",
+      "changed": false
+    }
+  ]
+}

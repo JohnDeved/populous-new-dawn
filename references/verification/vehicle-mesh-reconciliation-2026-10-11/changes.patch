@@ -1,0 +1,527 @@
+diff --git a/app/scene-entities.ts b/app/scene-entities.ts
+index e88f003e..95efc99f 100644
+--- a/app/scene-entities.ts
++++ b/app/scene-entities.ts
+@@ -77,6 +77,7 @@ const unitAtlasOrigins = nativeUnits.pieces.map((piece, index) =>
+ 
+ // Derived only for the current frame; weak ownership follows the Scene lifetime.
+ const unitFrameIds = new WeakMap<GameScene, Set<number>>()
++const vehicleFrameIds = new WeakMap<GameScene, Set<number>>()
+ 
+ const teamColor = {
+   blue: 0x303fc1,
+@@ -629,8 +630,15 @@ export function updateUnitsFrame(scene: GameScene) {
+ }
+ 
+ export function updateVehiclesFrame(scene: GameScene) {
++  let ids = vehicleFrameIds.get(scene)
++  if (!ids) {
++    ids = new Set()
++    vehicleFrameIds.set(scene, ids)
++  }
++  ids.clear()
++  for (const v of scene.world.vehicles) if (v.active || v.destructionState) ids.add(v.id)
+   for (const [id, g] of scene.vehicleMeshes)
+-    if (!scene.world.vehicles.some(v => v.id === id && (v.active || v.destructionState))) {
++    if (Number.isNaN(id) || !ids.has(id)) {
+       scene.objects.remove(g)
+       scene.releaseGroup(g)
+       scene.vehicleMeshes.delete(id)
+diff --git a/references/vehicle-mesh-reconciliation.md b/references/vehicle-mesh-reconciliation.md
+new file mode 100644
+index 00000000..c3d2c89c
+--- /dev/null
++++ b/references/vehicle-mesh-reconciliation.md
+@@ -0,0 +1,68 @@
++# Vehicle mesh cleanup membership — issue #144
++
++`GameScene.animate` calls `updateVehiclesFrame` in `app/scene-entities.ts`.
++Previously, each existing mesh searched `world.vehicles` with `some`. Cleanup now
++rebuilds a reusable Scene-owned ID set on **every call**, including exactly the
++vehicles eligible under `active || destructionState`, and checks each mesh with
++`has`. Weak ownership caches only this disposable derived set. Simulation records,
++RNG and save validation are unchanged.
++
++The mesh-map iteration, remove/release/delete order, subsequent vehicle filter and
++complete drawing body are unchanged. Inactive destruction states 5 and 6 remain
++drawn until the state clears. Surviving IDs keep their existing model and cached
++appearance. World replacement and in-place ID/eligibility changes take effect on
++the next call. Accepted migrated `NaN` IDs retain the original strict-comparison
++behavior: remove/release/delete and rebuild on each repeated frame.
++
++The focused command runs `tests/vehicle-mesh-reconciliation.test.mjs` and
++`tests/follower-transport-owner-consumers.test.mjs`. The actual Node Scene fixture
++supplies texture loading without constructing a browser renderer. It imports the
++maintained frame/factory/model/UV code, actual Scene transforms and production
++`scene-assets.releaseGroup`. Assertions cover geometry/material disposal once,
++shared atlas preservation, removal order, survivor identity, spawn, inactive
++destruction states, in-place changes, loaded/empty worlds, independent Scenes,
++transforms and complete-world/RNG equality. The former VM-only vehicle appearance
++case now exercises the actual caller while retaining apparent-owner, checkpoint,
++legacy and cache assertions. Its damage and Blast cases remain byte-identical.
++
++All eight cases **passed** on Node v24.19.0 at
++`fd9dbc1f6cd3bc3f529c893b02b13677d12f7f8b`, based on
++`860e8ae246b5237469b36a5f2c7794ce75731e95`. Raw receipt
++`work/orchestration/issue144-vehicles-focused-fd9dbc1.json` binds the actual source,
++tests, helpers, package/installed locks and TypeScript/Three importer modules before
++and after. Exit 0; stdout SHA256
++`91ffb4410a6ddd9f10d2c85ef63c1b99ac6f25b8fdbd42c57e8f6e1e967561ec`.
++
++The deterministic diagnostic counts ID reads after initial mesh creation. The
++old-cleanup reference is the frozen previous `some` expression; candidate counts
++invoke the **full actual vehicle-frame caller**. Mixed cleanup adds as many stale
++meshes as survivors.
++
++| Vehicles | Old survivor cleanup | New full frame | Old mixed cleanup | New mixed full frame |
++| -------: | -------------------: | -------------: | ----------------: | -------------------: |
++|       64 |                2,080 |            128 |             6,176 |                  128 |
++|      256 |               32,896 |            512 |            98,432 |                  512 |
++|    1,024 |              524,800 |          2,048 |         1,573,376 |                2,048 |
++
++Separately, the exact unmodified base production source was executed in detached
++`/workspace/pnd-baseline-144-vehicles`, with the same final tests and helper overlaid
++as explicitly hashed inputs. Its seven lifecycle/appearance/damage/Blast cases
++passed; scaling **failed**, exit 1, at 64 survivors with 2,144 actual full-frame ID
++reads against the 192-read bound. Raw receipt
++`work/orchestration/issue144-vehicles-baseline-focused-860e8ae.json`, stdout SHA256
++`a92042d15367bee51379faffb1bb789652e0dd727e76e03ec91e0429256966a2`, is retained.
++No assertion, production source or config was changed to obtain this failure.
++
++Scoped Oxfmt and ESLint **passed**. Strict scoped Oxlint **failed** on candidate and
++base with eight warnings and one error. The separate receipt comparison **passed**:
++the nine-diagnostic multisets match exactly after normalizing only numeric line
++and column prefixes. Raw failures remain separate; no lint rule was relaxed.
++Formatting covered the changed TypeScript/new files and the changed first consumer
++case, preserving the inherited surrounding test text.
++
++At this author checkpoint, standard check/build and independent final integration
++review are **not-run**. Source review accepted the bounded change; final evidence
++review remains pending. Browser QA and representative hardware measurements are
++**not-run**, with supported browser access blocked in this executor. ID-read counts
++establish algorithmic work only, not FPS, wall-time improvement, native raster
++equivalence, deployment behavior or completion of the broader issue #144.
+diff --git a/tests/follower-transport-owner-consumers.test.mjs b/tests/follower-transport-owner-consumers.test.mjs
+index 6b1b0320..a3dc0f13 100644
+--- a/tests/follower-transport-owner-consumers.test.mjs
++++ b/tests/follower-transport-owner-consumers.test.mjs
+@@ -7,8 +7,9 @@ import { createWorld, addUnit, browserPosition } from '../app/model.ts'
+ import { createLivePerson } from '../app/live-people.ts'
+ import { boardLiveVehicle, damageLiveVehicle } from '../app/live-vehicles.ts'
+ import { migrateCheckpoint } from '../app/game-store.ts'
+-import { teamForTribe, tribeForTeam, vehicleApparentTribe } from '../app/world-types.ts'
++import { tribeForTeam, vehicleApparentTribe } from '../app/world-types.ts'
+ import { originalVehicleUV } from '../app/vehicle-appearance.ts'
++import { makeVehicleScene } from './support/vehicle-scene.mjs'
+ 
+ // Execute the maintained adapter itself. Only its renderer/engine leaves are
+ // supplied; this verifies source wiring, not native/GPU rendering or full Blast.
+@@ -39,31 +40,42 @@ function splitOwner(model) {
+   return { world, vehicle }
+ }
+ 
+-test('vehicle creation and frame cache use apparent tribe, including checkpoints and legacy fallback', () => {
++test('vehicle creation and frame cache use apparent tribe, including checkpoints and legacy fallback', async () => {
+   for (const model of [1, 3]) {
+-    const { world, vehicle } = splitOwner(model), copies = []
+-    const update = adapter('scene-entities.ts', 'updateVehiclesFrame', {
+-      browserPosition, originalVehicleUV, teamForTribe, vehicleApparentTribe,
+-      makeVehicle: () => ({ userData: {}, children: [{ geometry: { getAttribute: () => ({
+-        copyArray: array => copies.push([...array]), needsUpdate: false,
+-      }) } }] }),
+-    })
+-    const scene = { world: { vehicles: [vehicle] }, vehicleMeshes: new Map(),
+-      objects: { add() {}, remove() {} }, releaseGroup() {}, locate() {}, orientModel() {} }
+-    update(scene)
+-    assert.deepEqual(copies.at(-1), [...originalVehicleUV(model, 'blue')])
+-    assert.equal(scene.vehicleMeshes.get(vehicle.id).userData.vehicleTeam, 'blue')
+-    update(scene); assert.equal(copies.length, 1, 'unchanged appearance reuses cached UVs')
+-    vehicle.apparentTribe = 2
+-    update(scene)
+-    assert.deepEqual(copies.at(-1), [...originalVehicleUV(model, 'yellow')])
+-    assert.equal(scene.vehicleMeshes.get(vehicle.id).userData.vehicleTeam, 'yellow')
+-    const restored = migrateCheckpoint(structuredClone(world)).vehicles.find(v => v.id === vehicle.id)
+-    scene.world.vehicles = [restored]; update(scene)
+-    assert.equal(copies.length, 2, 'checkpoint keeps the apparent material')
+-    delete restored.apparentTribe; update(scene)
+-    assert.deepEqual(copies.at(-1), [...originalVehicleUV(model, 'red')])
+-    assert.equal(scene.vehicleMeshes.get(vehicle.id).userData.vehicleTeam, 'red')
++    const { world, vehicle } = splitOwner(model)
++    world.vehicles = [vehicle]
++    const fixture = await makeVehicleScene(world),
++      { scene, render } = fixture
++    try {
++      render()
++      const group = scene.vehicleMeshes.get(vehicle.id),
++        uv = group.children[0].geometry.getAttribute('uv'),
++        initialVersion = uv.version
++      assert.deepEqual([...uv.array], [...originalVehicleUV(model, 'blue')])
++      assert.equal(group.userData.vehicleTeam, 'blue')
++      render()
++      assert.equal(scene.vehicleMeshes.get(vehicle.id), group)
++      assert.equal(uv.version, initialVersion, 'unchanged appearance reuses cached UVs')
++      vehicle.apparentTribe = 2
++      render()
++      assert.deepEqual([...uv.array], [...originalVehicleUV(model, 'yellow')])
++      assert.equal(scene.vehicleMeshes.get(vehicle.id).userData.vehicleTeam, 'yellow')
++      assert.equal(uv.version, initialVersion + 1)
++      const restored = migrateCheckpoint(structuredClone(world)).vehicles.find(
++        v => v.id === vehicle.id
++      )
++      scene.world.vehicles = [restored]
++      render()
++      assert.equal(scene.vehicleMeshes.get(vehicle.id), group)
++      assert.equal(uv.version, initialVersion + 1, 'checkpoint keeps the apparent material')
++      delete restored.apparentTribe
++      render()
++      assert.deepEqual([...uv.array], [...originalVehicleUV(model, 'red')])
++      assert.equal(scene.vehicleMeshes.get(vehicle.id).userData.vehicleTeam, 'red')
++      assert.equal(uv.version, initialVersion + 2)
++    } finally {
++      fixture.close()
++    }
+   }
+ })
+ 
+diff --git a/tests/support/vehicle-scene.mjs b/tests/support/vehicle-scene.mjs
+new file mode 100644
+index 00000000..fc417ff0
+--- /dev/null
++++ b/tests/support/vehicle-scene.mjs
+@@ -0,0 +1,20 @@
++// Actual vehicle factory/frame/model/UV/resource and Scene transform methods.
++// The existing fixture supplies texture loading and avoids browser/GPU setup.
++import { makeSceneFixture } from './bloodlust-scene.mjs'
++
++export async function makeVehicleScene(world) {
++  const fixture = await makeSceneFixture(world),
++    { GameScene } = await import('../../app/scene.ts'),
++    { releaseGroup } = await import('../../app/scene-assets.ts'),
++    { scene, api } = fixture
++  scene.vehicleMeshes = new Map()
++  scene.locate = GameScene.prototype.locate
++  scene.orientModel = GameScene.prototype.orientModel
++  scene.releaseGroup = releaseGroup
++  const render = () => api.updateVehiclesFrame(scene)
++  const close = () => {
++    for (const group of scene.vehicleMeshes.values()) scene.releaseGroup(group)
++    fixture.close()
++  }
++  return { scene, api, render, close, requests: fixture.requests }
++}
+diff --git a/tests/vehicle-mesh-reconciliation.test.mjs b/tests/vehicle-mesh-reconciliation.test.mjs
+new file mode 100644
+index 00000000..a39136de
+--- /dev/null
++++ b/tests/vehicle-mesh-reconciliation.test.mjs
+@@ -0,0 +1,310 @@
++// Actual class4 frame/factory/Scene transforms and resource disposal in Node.
++// Authored vehicle templates plus controlled lifecycle/scaling states; no
++// ordinary gameplay, browser, native raster or hardware timing claim.
++import assert from 'node:assert/strict'
++import test from 'node:test'
++import * as THREE from 'three'
++import { loadSceneFixture } from './support/bloodlust-scene.mjs'
++import { makeVehicleScene } from './support/vehicle-scene.mjs'
++
++async function worldWithVehicles(models) {
++  const api = await loadSceneFixture(),
++    world = api.createWorld(22),
++    templates = new Map(world.vehicles.map(v => [v.model, v]))
++  world.vehicles = models.map((model, index) => ({
++    ...structuredClone(templates.get(model)),
++    id: world.nextId++,
++    active: true,
++    destructionState: 0,
++    x: 1000 + index * 256,
++    y: 2000,
++    h: 128,
++    heading: Math.PI / 2,
++  }))
++  assert.ok(
++    world.vehicles.every(v => v.class === 4),
++    'templates come from authored Mission 22 vehicles'
++  )
++  return { api, world }
++}
++
++function observeCleanup(scene) {
++  const events = [],
++    remove = scene.objects.remove.bind(scene.objects),
++    drop = scene.vehicleMeshes.delete.bind(scene.vehicleMeshes),
++    release = scene.releaseGroup
++  scene.objects.remove = group => {
++    events.push(['remove', group.userData.vehicle])
++    return remove(group)
++  }
++  scene.releaseGroup = group => {
++    events.push(['release', group.userData.vehicle])
++    release(group)
++  }
++  scene.vehicleMeshes.delete = id => {
++    events.push(['delete', id])
++    return drop(id)
++  }
++  return events
++}
++
++test('inactive vehicle destruction states5/6 remain drawn until the state clears', async () => {
++  const { world } = await worldWithVehicles([1, 1, 3, 3]),
++    [active, sinking, rising, hidden] = world.vehicles
++  Object.assign(sinking, { active: false, destructionState: 5 })
++  Object.assign(rising, { active: false, destructionState: 6 })
++  hidden.active = false
++  const fixture = await makeVehicleScene(world)
++  try {
++    const before = structuredClone(world)
++    fixture.render()
++    assert.deepEqual([...fixture.scene.vehicleMeshes.keys()], [active.id, sinking.id, rising.id])
++    const groups = new Map(fixture.scene.vehicleMeshes),
++      events = observeCleanup(fixture.scene)
++    fixture.render()
++    assert.deepEqual(events, [])
++    assert.deepEqual(world, before)
++    sinking.destructionState = 6
++    fixture.render()
++    assert.equal(fixture.scene.vehicleMeshes.get(sinking.id), groups.get(sinking.id))
++    assert.deepEqual(events, [], 'both nonzero destruction states are eligible')
++    rising.destructionState = 0
++    const cleared = structuredClone(world)
++    fixture.render()
++    assert.deepEqual(events, [
++      ['remove', rising.id],
++      ['release', rising.id],
++      ['delete', rising.id],
++    ])
++    assert.equal(groups.get(rising.id).parent, null)
++    assert.deepEqual(world, cleared)
++    events.length = 0
++    active.active = false
++    sinking.destructionState = 0
++    fixture.render()
++    assert.deepEqual(
++      events,
++      [active, sinking].flatMap(v => [
++        ['remove', v.id],
++        ['release', v.id],
++        ['delete', v.id],
++      ])
++    )
++    assert.equal(fixture.scene.vehicleMeshes.size, 0)
++    hidden.active = true
++    fixture.render()
++    assert.deepEqual(
++      [...fixture.scene.vehicleMeshes.keys()],
++      [hidden.id],
++      'in-place eligibility change is observed'
++    )
++  } finally {
++    fixture.close()
++  }
++})
++
++test('vehicle cleanup preserves ordered disposal, shared atlas, survivor mesh and actual transforms', async () => {
++  const { world } = await worldWithVehicles([1, 3, 1, 3]),
++    [a, b, c, d] = world.vehicles,
++    fixture = await makeVehicleScene(world)
++  let sharedMap, onSharedDispose
++  try {
++    fixture.render()
++    const original = new Map(fixture.scene.vehicleMeshes),
++      events = observeCleanup(fixture.scene),
++      disposed = []
++    sharedMap = original.get(a.id).children[0].material.map
++    let sharedDisposals = 0
++    onSharedDispose = () => sharedDisposals++
++    sharedMap.addEventListener('dispose', onSharedDispose)
++    for (const v of [b, d]) {
++      const mesh = original.get(v.id).children[0]
++      assert.equal(mesh.material.map, sharedMap)
++      mesh.geometry.addEventListener('dispose', () => disposed.push(`${v.id}:geometry`))
++      mesh.material.addEventListener('dispose', () => disposed.push(`${v.id}:material`))
++    }
++    const spawned = {
++      ...structuredClone(b),
++      id: world.nextId++,
++      x: 5000,
++      y: 6000,
++      h: 256,
++      heading: Math.PI,
++    }
++    world.vehicles = [c, a, spawned]
++    const before = structuredClone(world)
++    fixture.render()
++    assert.deepEqual(
++      events,
++      [b, d].flatMap(v => [
++        ['remove', v.id],
++        ['release', v.id],
++        ['delete', v.id],
++      ])
++    )
++    assert.deepEqual(disposed, [
++      `${b.id}:geometry`,
++      `${b.id}:material`,
++      `${d.id}:geometry`,
++      `${d.id}:material`,
++    ])
++    assert.equal(sharedDisposals, 0)
++    assert.equal(fixture.scene.vehicleMeshes.get(a.id), original.get(a.id))
++    assert.equal(fixture.scene.vehicleMeshes.get(c.id), original.get(c.id))
++    assert.deepEqual([...fixture.scene.vehicleMeshes.keys()], [a.id, c.id, spawned.id])
++    const group = fixture.scene.vehicleMeshes.get(spawned.id)
++    assert.equal(group.userData.vehicleMesh, 144)
++    assert.equal(group.children[0].userData.nativeModel, 144)
++    assert.deepEqual(group.position.toArray(), [11.53125, 2, -31.4375])
++    assert.equal(group.rotation.y, -Math.PI)
++    assert.equal(group.userData.nativeHeading, 1024)
++    assert.deepEqual(world, before, 'actual rendering preserves all simulation data and RNG')
++    events.length = 0
++    fixture.render()
++    assert.deepEqual(events, [])
++    assert.deepEqual(world, before)
++  } finally {
++    if (sharedMap) sharedMap.removeEventListener('dispose', onSharedDispose)
++    fixture.close()
++  }
++})
++
++test('migrated NaN vehicle IDs retain strict cleanup and rebuild without world repair', async () => {
++  const { api, world } = await worldWithVehicles([1])
++  world.vehicles[0].id = NaN
++  const restored = api.migrateCheckpoint(structuredClone(world))
++  assert.ok(restored)
++  assert.ok(Number.isNaN(restored.vehicles[0].id))
++  const before = structuredClone(restored),
++    fixture = await makeVehicleScene(restored)
++  try {
++    fixture.render()
++    const events = observeCleanup(fixture.scene)
++    let previous = fixture.scene.vehicleMeshes.get(NaN)
++    for (let frame = 0; frame < 3; frame++) {
++      events.length = 0
++      fixture.render()
++      const replacement = fixture.scene.vehicleMeshes.get(NaN)
++      assert.deepEqual(events, [
++        ['remove', NaN],
++        ['release', NaN],
++        ['delete', NaN],
++      ])
++      assert.notEqual(replacement, previous)
++      assert.equal(previous.parent, null)
++      assert.equal(replacement.parent, fixture.scene.objects)
++      assert.deepEqual(restored, before)
++      previous = replacement
++    }
++  } finally {
++    fixture.close()
++  }
++})
++
++test('vehicle membership observes in-place IDs, loaded worlds, independent Scenes and empty replacements', async () => {
++  const { api, world } = await worldWithVehicles([1, 3]),
++    fixture = await makeVehicleScene(world)
++  let other
++  try {
++    fixture.render()
++    const [a, b] = world.vehicles,
++      oldId = a.id,
++      oldA = fixture.scene.vehicleMeshes.get(a.id),
++      oldB = fixture.scene.vehicleMeshes.get(b.id)
++    a.id = world.nextId++
++    fixture.render()
++    assert.equal(fixture.scene.vehicleMeshes.has(oldId), false)
++    assert.equal(oldA.parent, null)
++    const restored = api.migrateCheckpoint(structuredClone(world)),
++      before = structuredClone(restored)
++    fixture.scene.world = restored
++    fixture.render()
++    assert.equal(fixture.scene.vehicleMeshes.get(b.id), oldB)
++    other = await makeVehicleScene(restored)
++    other.render()
++    const otherGroups = [...other.scene.vehicleMeshes.values()]
++    assert.notEqual(other.scene.vehicleMeshes.get(b.id), oldB)
++    fixture.scene.world = { ...restored, vehicles: [] }
++    fixture.render()
++    assert.equal(fixture.scene.vehicleMeshes.size, 0)
++    assert.equal(fixture.scene.objects.children.length, 0)
++    other.render()
++    assert.deepEqual([...other.scene.vehicleMeshes.values()], otherGroups)
++    fixture.scene.world = restored
++    fixture.render()
++    assert.equal(fixture.scene.vehicleMeshes.size, 2)
++    assert.deepEqual(restored, before)
++  } finally {
++    other?.close()
++    fixture.close()
++  }
++})
++
++test('actual vehicle-frame membership ID reads scale linearly for survivors and stale meshes', async t => {
++  const rows = []
++  for (const count of [64, 256, 1024]) {
++    const { world } = await worldWithVehicles(
++        Array.from({ length: count }, (_, i) => (i & 1 ? 3 : 1))
++      ),
++      fixture = await makeVehicleScene(world)
++    try {
++      fixture.render()
++      const groups = [...fixture.scene.vehicleMeshes.values()]
++      let reads = 0
++      for (const v of world.vehicles) {
++        const id = v.id
++        Object.defineProperty(v, 'id', {
++          enumerable: true,
++          configurable: true,
++          get: () => {
++            reads++
++            return id
++          },
++        })
++      }
++      const oldMembershipReads = ids => {
++        reads = 0
++        for (const id of ids)
++          world.vehicles.some(v => v.id === id && (v.active || v.destructionState))
++        return reads
++      }
++      const survivorBaseline = oldMembershipReads(fixture.scene.vehicleMeshes.keys())
++      assert.equal(survivorBaseline, (count * (count + 1)) / 2)
++      reads = 0
++      fixture.render()
++      const survivorFrame = reads
++      assert.ok(survivorFrame <= 3 * count, `${count} survivors: ${survivorFrame} ID reads`)
++      assert.deepEqual([...fixture.scene.vehicleMeshes.values()], groups)
++      for (let i = 0; i < count; i++) {
++        const group = new THREE.Group(),
++          id = -(i + 1)
++        group.userData.vehicle = id
++        fixture.scene.vehicleMeshes.set(id, group)
++        fixture.scene.objects.add(group)
++      }
++      const mixedBaseline = oldMembershipReads(fixture.scene.vehicleMeshes.keys())
++      assert.equal(mixedBaseline, (count * (count + 1)) / 2 + count * count)
++      reads = 0
++      fixture.render()
++      const mixedFrame = reads
++      assert.ok(
++        mixedFrame <= 3 * count,
++        `${count} survivors + stale meshes: ${mixedFrame} ID reads`
++      )
++      assert.deepEqual([...fixture.scene.vehicleMeshes.values()], groups)
++      rows.push({ count, survivorBaseline, survivorFrame, mixedBaseline, mixedFrame })
++    } finally {
++      fixture.close()
++    }
++  }
++  for (let i = 1; i < rows.length; i++) {
++    assert.equal(rows[i].survivorFrame, rows[i - 1].survivorFrame * 4)
++    assert.equal(rows[i].mixedFrame, rows[i - 1].mixedFrame * 4)
++  }
++  t.diagnostic(
++    JSON.stringify({
++      vehicleIdReads: rows,
++      scope: 'Node actual full vehicle frame; no wall-time/browser/GPU/FPS claim',
++    })
++  )
++})

@@ -1,0 +1,34 @@
+{
+  "kind": "pnd-vehicle-reconciliation-author-proof",
+  "head": "5afbdb95f90ded2888e2ede0ef3179f5358eebc6",
+  "tree": "b95b00e79a81a29bf099b1aee15d67b11011ff6b",
+  "base": "860e8ae246b5237469b36a5f2c7794ce75731e95",
+  "testedHead": "fd9dbc1f6cd3bc3f529c893b02b13677d12f7f8b",
+  "noteOnlyDelta": [
+    "references/vehicle-mesh-reconciliation.md"
+  ],
+  "sourceSha256": {
+    "app/scene-entities.ts": "15d43bb1ad650c5868787d021aabbc7dc629875187252d67d3c8630d298deb38",
+    "tests/follower-transport-owner-consumers.test.mjs": "6561e20e2cab16f3996ad7fc37f961ddc5513974ce035e8b2bb63ee3cdb71c44",
+    "tests/support/vehicle-scene.mjs": "9bc57d56d6f57c413e6a6ba29d768f5362c7da79c7cf6e7b9f7d073699b9eddb",
+    "tests/vehicle-mesh-reconciliation.test.mjs": "851800e58c86e7751d101f8877d3c88701cb90274215ab3ca1225958f0df0d55",
+    "references/vehicle-mesh-reconciliation.md": "e7af319341216cecc238d1655d308277b4b0b775a62ab2edd54319c650a9b8cc"
+  },
+  "unchangedTestedInputs": [
+    "app/scene-entities.ts",
+    "tests/follower-transport-owner-consumers.test.mjs",
+    "tests/support/vehicle-scene.mjs",
+    "tests/vehicle-mesh-reconciliation.test.mjs"
+  ],
+  "reviewHelpers": {
+    "work/orchestration/check-vehicle-format.mjs": {
+      "sha256": "4d1d3049c82e9251ebd99962a5f157b0fe6a3d19d702a18ceee4f6a5f65de513",
+      "text": "import assert from 'node:assert/strict'\nimport { readFileSync } from 'node:fs'\nimport { spawnSync } from 'node:child_process'\n\nconst result = spawnSync('node_modules/.bin/oxfmt', ['--check', 'app/scene-entities.ts', 'tests/vehicle-mesh-reconciliation.test.mjs', 'tests/support/vehicle-scene.mjs'], { encoding: 'utf8' })\nprocess.stdout.write(result.stdout)\nprocess.stderr.write(result.stderr)\nassert.equal(result.status, 0)\nconst path = 'tests/follower-transport-owner-consumers.test.mjs'\nconst source = readFileSync(path, 'utf8')\nconst start = source.indexOf(\"test('vehicle creation\")\nconst end = source.indexOf(\"test('vehicle damage immunity\", start)\nassert.ok(start >= 0 && end > start)\nconst chunk = source.slice(start, end)\nconst formatted = spawnSync('node_modules/.bin/oxfmt', ['--stdin-filepath', path], { input: chunk, encoding: 'utf8' })\nassert.equal(formatted.status, 0, formatted.stderr)\nassert.equal(chunk.trimEnd(), formatted.stdout.trimEnd())\nconsole.log('PASS: changed first consumer case is formatted; inherited surrounding cases excluded')\n"
+    },
+    "work/orchestration/compare-vehicle-receipts.mjs": {
+      "sha256": "91d3e23668e9957820465aa5849500618d925c4a2dea441be1519eb5b29f3dcf",
+      "text": "import assert from 'node:assert/strict'\nimport { createHash } from 'node:crypto'\nimport { readFileSync } from 'node:fs'\nimport { execFileSync } from 'node:child_process'\n\nconst hash = value => createHash('sha256').update(value).digest('hex')\nconst root = '/workspace/pnd-baseline-144-vehicles'\nconst base = '860e8ae246b5237469b36a5f2c7794ce75731e95'\nconst candidate = 'fd9dbc1f6cd3bc3f529c893b02b13677d12f7f8b'\nconst load = name => {\n  const receipt = JSON.parse(readFileSync(`work/orchestration/${name}`, 'utf8'))\n  assert.equal(receipt.phase, 'finished')\n  assert.deepEqual(receipt.source, receipt.sourceAfter)\n  assert.equal(hash(receipt.stdout), receipt.stdoutSha256)\n  assert.equal(hash(receipt.stderr), receipt.stderrSha256)\n  return receipt\n}\nconst full = load('issue144-vehicles-focused-fd9dbc1.json')\nconst previous = load('issue144-vehicles-baseline-focused-860e8ae.json')\nassert.equal(full.source.headOid, candidate)\nassert.equal(previous.source.headOid, base)\nassert.equal(full.status, 'passed')\nassert.equal(full.exitCode, 0)\nassert.equal(previous.status, 'failed')\nassert.equal(previous.exitCode, 1)\nassert.deepEqual(full.command, previous.command)\nassert.deepEqual(Object.keys(full.source.inputs), Object.keys(previous.source.inputs))\nfor (const [path, value] of Object.entries(full.source.inputs)) {\n  assert.equal(hash(readFileSync(path)), value, path)\n  if (path !== 'app/scene-entities.ts') assert.equal(value, previous.source.inputs[path], path)\n}\nassert.match(full.stdout, /pass 8\\n.*fail 0/)\nassert.match(previous.stdout, /pass 7\\n.*fail 1/)\nassert.match(previous.stdout, /64 survivors: 2144 ID reads/)\nassert.equal(execFileSync('git', ['diff', '--name-only', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(), 'tests/follower-transport-owner-consumers.test.mjs')\nassert.equal(hash(execFileSync('git', ['show', `${base}:app/scene-entities.ts`])), previous.source.inputs['app/scene-entities.ts'])\nassert.equal(hash(readFileSync(`${root}/app/scene-entities.ts`)), previous.source.inputs['app/scene-entities.ts'])\nconst baseConsumer = execFileSync('git', ['show', `${base}:tests/follower-transport-owner-consumers.test.mjs`], { encoding: 'utf8' })\nconst finalConsumer = readFileSync('tests/follower-transport-owner-consumers.test.mjs', 'utf8')\nconst tail = value => value.slice(value.indexOf(\"test('vehicle damage immunity\"))\nassert.equal(tail(finalConsumer), tail(baseConsumer))\nconst lint = load('issue144-vehicles-oxlint-fd9dbc1.json')\nconst oldLint = load('issue144-vehicles-baseline-oxlint-860e8ae.json')\nfor (const receipt of [lint, oldLint]) {\n  assert.equal(receipt.status, 'failed')\n  assert.equal(receipt.exitCode, 1)\n}\nassert.equal(lint.source.headOid, candidate)\nassert.equal(oldLint.source.headOid, base)\nassert.deepEqual(lint.command, oldLint.command)\nfor (const [path, value] of Object.entries(lint.source.inputs))\n  if (path !== 'app/scene-entities.ts') assert.equal(value, oldLint.source.inputs[path], path)\nconst diagnostics = receipt => receipt.stdout.trim().split('\\n').map(line => line.replace(/:\\d+:\\d+(?=: (?:warning|error))/, ':<line>:<column>')).sort()\nassert.equal(diagnostics(lint).length, 9)\nassert.deepEqual(diagnostics(lint), diagnostics(oldLint))\nconsole.log(JSON.stringify({ focusedCandidate: 'passed 8/8', actualUnmodifiedBase: 'failed: 7 passed, scaling failed at64 with2144 ID reads', pairedInputHashes: full.source.inputs, productionBaseUnchanged: true, damageAndBlastTailUnchanged: true, strictOxlintCandidate: 'failed', strictOxlintBase: 'failed', diagnosticMultiset: 'passed: nine exact inherited diagnostics; only numeric line/column prefixes normalized' }, null, 2))\n"
+    }
+  },
+  "scope": "Source algorithm and actual Node caller only; browser/hardware/full issue acceptance not run; strict Oxlint remains failed separately from inherited-diagnostic comparison pass"
+}

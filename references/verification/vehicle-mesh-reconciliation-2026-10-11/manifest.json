@@ -1,0 +1,174 @@
+{
+  "version": 1,
+  "kind": "pnd-review-bundle",
+  "taskId": "issue144-vehicle-mesh-index-final",
+  "repository": {
+    "branch": "",
+    "baseCommit": "860e8ae246b5237469b36a5f2c7794ce75731e95",
+    "headOid": "160b4b2bcc0eab08f84a4d83be02772c592e26ce"
+  },
+  "diff": {
+    "path": "changes.patch",
+    "sha256": "1840ccd34fa7747696fa832eb4c261c739c0c434878412c6563ee8173b214b50",
+    "bytes": 22900
+  },
+  "sources": [
+    {
+      "status": "M",
+      "path": "app/scene-entities.ts",
+      "state": "present",
+      "sha256": "15d43bb1ad650c5868787d021aabbc7dc629875187252d67d3c8630d298deb38",
+      "blobOid": "95efc99fa5fa47c896b4f5ed4ace0b69b9e6fea6",
+      "bytes": 30289
+    },
+    {
+      "status": "A",
+      "path": "references/vehicle-mesh-reconciliation.md",
+      "state": "present",
+      "sha256": "e7af319341216cecc238d1655d308277b4b0b775a62ab2edd54319c650a9b8cc",
+      "blobOid": "c3d2c89cd9e2f862af2ee831ab7cd1917fdc8885",
+      "bytes": 4498
+    },
+    {
+      "status": "M",
+      "path": "tests/follower-transport-owner-consumers.test.mjs",
+      "state": "present",
+      "sha256": "6561e20e2cab16f3996ad7fc37f961ddc5513974ce035e8b2bb63ee3cdb71c44",
+      "blobOid": "a3dc0f13f898fc1c1133e0dd12aae187f50c4719",
+      "bytes": 5164
+    },
+    {
+      "status": "A",
+      "path": "tests/support/vehicle-scene.mjs",
+      "state": "present",
+      "sha256": "9bc57d56d6f57c413e6a6ba29d768f5362c7da79c7cf6e7b9f7d073699b9eddb",
+      "blobOid": "fc417ff0c308a3c038b325d5314ce7a357bd87c9",
+      "bytes": 883
+    },
+    {
+      "status": "A",
+      "path": "tests/vehicle-mesh-reconciliation.test.mjs",
+      "state": "present",
+      "sha256": "851800e58c86e7751d101f8877d3c88701cb90274215ab3ca1225958f0df0d55",
+      "blobOid": "a39136de04db33b0abc84aa990401464a1d0a3d5",
+      "bytes": 10904
+    }
+  ],
+  "receipts": [
+    {
+      "sourcePath": "work/orchestration/issue144-vehicles-focused-fd9dbc1.json",
+      "sourceSha256": "c49680f5ea7f37d62cbc28c0e4daa1a3be5ae42db1ebd06882a70ccd7594fa5c",
+      "sourceBytes": 5499,
+      "bundlePath": "receipts/work/orchestration/issue144-vehicles-focused-fd9dbc1.json",
+      "bundleSha256": "c49680f5ea7f37d62cbc28c0e4daa1a3be5ae42db1ebd06882a70ccd7594fa5c",
+      "bundleBytes": 5499,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-vehicles-baseline-focused-860e8ae.json",
+      "sourceSha256": "e6c24680d5146e4225cb37468eb029588ff6fe5775c2a77bde05ac4be111e7a7",
+      "sourceBytes": 5697,
+      "bundlePath": "receipts/work/orchestration/issue144-vehicles-baseline-focused-860e8ae.json",
+      "bundleSha256": "e6c24680d5146e4225cb37468eb029588ff6fe5775c2a77bde05ac4be111e7a7",
+      "bundleBytes": 5697,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-vehicles-oxfmt-fd9dbc1.json",
+      "sourceSha256": "f0941d16b1c1a79129c1af02e7e31bd5d42e34859bec471c5fb7975d37b3653d",
+      "sourceBytes": 3343,
+      "bundlePath": "receipts/work/orchestration/issue144-vehicles-oxfmt-fd9dbc1.json",
+      "bundleSha256": "f0941d16b1c1a79129c1af02e7e31bd5d42e34859bec471c5fb7975d37b3653d",
+      "bundleBytes": 3343,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-vehicles-eslint-fd9dbc1.json",
+      "sourceSha256": "95e0a1604c9437032a61d0101cb87605e33801351eaf8e4e3e08a2b48a1e9d9a",
+      "sourceBytes": 3055,
+      "bundlePath": "receipts/work/orchestration/issue144-vehicles-eslint-fd9dbc1.json",
+      "bundleSha256": "95e0a1604c9437032a61d0101cb87605e33801351eaf8e4e3e08a2b48a1e9d9a",
+      "bundleBytes": 3055,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-vehicles-oxlint-fd9dbc1.json",
+      "sourceSha256": "611dbfb536dbb714809e948f8c2b7e6bd08c28fa5014a4cab39fa2bd3a6ca285",
+      "sourceBytes": 4068,
+      "bundlePath": "receipts/work/orchestration/issue144-vehicles-oxlint-fd9dbc1.json",
+      "bundleSha256": "611dbfb536dbb714809e948f8c2b7e6bd08c28fa5014a4cab39fa2bd3a6ca285",
+      "bundleBytes": 4068,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-vehicles-baseline-oxlint-860e8ae.json",
+      "sourceSha256": "98caa82c5ce4c413726511381ff89f07e3f091e64916e7494948e6c056813b6d",
+      "sourceBytes": 4026,
+      "bundlePath": "receipts/work/orchestration/issue144-vehicles-baseline-oxlint-860e8ae.json",
+      "bundleSha256": "98caa82c5ce4c413726511381ff89f07e3f091e64916e7494948e6c056813b6d",
+      "bundleBytes": 4026,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-vehicles-comparison-fd9dbc1.json",
+      "sourceSha256": "0896ea5eb30e9bbd907e8c9c5ff25e78fca3ca0dff782e0ed72ac5bdc2f37e26",
+      "sourceBytes": 5480,
+      "bundlePath": "receipts/work/orchestration/issue144-vehicles-comparison-fd9dbc1.json",
+      "bundleSha256": "0896ea5eb30e9bbd907e8c9c5ff25e78fca3ca0dff782e0ed72ac5bdc2f37e26",
+      "bundleBytes": 5480,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-vehicles-note-format-5afbdb9.json",
+      "sourceSha256": "677c935c3d59f86f745430f8e4bfe3ce238a1d514a2300a0e5b5973debc07626",
+      "sourceBytes": 2389,
+      "bundlePath": "receipts/work/orchestration/issue144-vehicles-note-format-5afbdb9.json",
+      "bundleSha256": "677c935c3d59f86f745430f8e4bfe3ce238a1d514a2300a0e5b5973debc07626",
+      "bundleBytes": 2389,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-vehicles-author-proof.json",
+      "sourceSha256": "94884680e71f24788784d2e887d37feb1b472ffa694bef40e5da8b9b1f534700",
+      "sourceBytes": 6457,
+      "bundlePath": "receipts/work/orchestration/issue144-vehicles-author-proof.json",
+      "bundleSha256": "94884680e71f24788784d2e887d37feb1b472ffa694bef40e5da8b9b1f534700",
+      "bundleBytes": 6457,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-vehicles-published-tree.json",
+      "sourceSha256": "934f5bd90d2e041a2c598170ff2973c9b08ead5b429253d881b454f40fc4f728",
+      "sourceBytes": 702,
+      "bundlePath": "receipts/work/orchestration/issue144-vehicles-published-tree.json",
+      "bundleSha256": "934f5bd90d2e041a2c598170ff2973c9b08ead5b429253d881b454f40fc4f728",
+      "bundleBytes": 702,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-vehicles-final/check-01.json",
+      "sourceSha256": "9c7c85343bcae063a9d8e6f6ee54b381818ffbafd16216064683bb323cbc86ce",
+      "sourceBytes": 223111,
+      "bundlePath": "receipts/work/orchestration/issue144-vehicles-final/check-01.json",
+      "bundleSha256": "a66aadfde2cc42deed24622c2fe72e6165b6648fbc7fb040c7a5aebc80cad12a",
+      "bundleBytes": 222951,
+      "redactions": 8
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-vehicles-final/build-01.json",
+      "sourceSha256": "34d66638375dadfbe07a125ec7ac2774cb52a0fdb99834333050471fba37df66",
+      "sourceBytes": 4216,
+      "bundlePath": "receipts/work/orchestration/issue144-vehicles-final/build-01.json",
+      "bundleSha256": "1710be6382df772478492310cbb7d06b33333cb39a508d7c48a1ab9c498719cd",
+      "bundleBytes": 4156,
+      "redactions": 3
+    }
+  ],
+  "reviewerPreflight": {
+    "instructions": "Open this bundle in a permitted executor and verify it against trusted caller-supplied identities before review.",
+    "verify": [
+      "node",
+      "verify.mjs"
+    ]
+  }
+}

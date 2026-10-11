@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "9316e8f9-bc7b-4694-b17b-8dc81eff1a5e",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "fd9dbc1f6cd3bc3f529c893b02b13677d12f7f8b",
+    "branch": "codex/issue144-vehicle-mesh-index",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/scene-entities.ts": "15d43bb1ad650c5868787d021aabbc7dc629875187252d67d3c8630d298deb38",
+      "app/scene.ts": "663df1f7542e46be7721e57bdad43ed9c37991e5c74cd0347a3e132616e089ca",
+      "app/scene-assets.ts": "e8e2a7e5fb22af8c45afa4a3682b7a5f6dcfcddb6e74878073f18932ad2835e5",
+      "tests/vehicle-mesh-reconciliation.test.mjs": "851800e58c86e7751d101f8877d3c88701cb90274215ab3ca1225958f0df0d55",
+      "tests/follower-transport-owner-consumers.test.mjs": "6561e20e2cab16f3996ad7fc37f961ddc5513974ce035e8b2bb63ee3cdb71c44",
+      "tests/support/vehicle-scene.mjs": "9bc57d56d6f57c413e6a6ba29d768f5362c7da79c7cf6e7b9f7d073699b9eddb",
+      "tests/support/bloodlust-scene.mjs": "68141adbfb7cd7193ee2fcaf85d8b9f169b4a8a7f4d98ac7bf8aaba025722337",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "node_modules/typescript/lib/typescript.js": "3ae902c92cc44dace175c0e69e13a4b0899f6983c6121d76b9ab8dd5795e7675",
+      "node_modules/three/build/three.module.js": "bbf5ed13fe4373f5bd38b14ea8e62e9f157327da5638edc6d3863e08b167c9c7",
+      "node_modules/three/build/three.core.js": "3718df126d69c125362a03340913204470d8c50238605150e57f808840fb7759"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/vehicle-mesh-reconciliation.test.mjs",
+    "tests/follower-transport-owner-consumers.test.mjs"
+  ],
+  "cwd": "/workspace/pnd-author-144-vehicles",
+  "startedAt": "2026-10-11T15:19:02.422Z",
+  "artifacts": {
+    "stdout": "/workspace/pnd-author-144-vehicles/work/orchestration/issue144-vehicles-focused-fd9dbc1.json.artifacts/stdout.log",
+    "stderr": "/workspace/pnd-author-144-vehicles/work/orchestration/issue144-vehicles-focused-fd9dbc1.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-11T15:19:06.529Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ vehicle creation and frame cache use apparent tribe, including checkpoints and legacy fallback (946.022202ms)\n✔ vehicle damage immunity follows apparent tribe while real-owner counts stay unchanged (58.411916ms)\n✔ live Blast projects class4 apparent tribe without changing the real owner (72.024542ms)\n✔ inactive vehicle destruction states5/6 remain drawn until the state clears (3423.924795ms)\n✔ vehicle cleanup preserves ordered disposal, shared atlas, survivor mesh and actual transforms (51.421882ms)\n✔ migrated NaN vehicle IDs retain strict cleanup and rebuild without world repair (37.681865ms)\n✔ vehicle membership observes in-place IDs, loaded worlds, independent Scenes and empty replacements (35.5093ms)\n✔ actual vehicle-frame membership ID reads scale linearly for survivors and stale meshes (163.900058ms)\nℹ {\"vehicleIdReads\":[{\"count\":64,\"survivorBaseline\":2080,\"survivorFrame\":128,\"mixedBaseline\":6176,\"mixedFrame\":128},{\"count\":256,\"survivorBaseline\":32896,\"survivorFrame\":512,\"mixedBaseline\":98432,\"mixedFrame\":512},{\"count\":1024,\"survivorBaseline\":524800,\"survivorFrame\":2048,\"mixedBaseline\":1573376,\"mixedFrame\":2048}],\"scope\":\"Node actual full vehicle frame; no wall-time/browser/GPU/FPS claim\"}\nℹ tests 8\nℹ suites 0\nℹ pass 8\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 4063.968746\n",
+  "stderr": "",
+  "stdoutSha256": "91ffb4410a6ddd9f10d2c85ef63c1b99ac6f25b8fdbd42c57e8f6e1e967561ec",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "fd9dbc1f6cd3bc3f529c893b02b13677d12f7f8b",
+    "branch": "codex/issue144-vehicle-mesh-index",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/scene-entities.ts": "15d43bb1ad650c5868787d021aabbc7dc629875187252d67d3c8630d298deb38",
+      "app/scene.ts": "663df1f7542e46be7721e57bdad43ed9c37991e5c74cd0347a3e132616e089ca",
+      "app/scene-assets.ts": "e8e2a7e5fb22af8c45afa4a3682b7a5f6dcfcddb6e74878073f18932ad2835e5",
+      "tests/vehicle-mesh-reconciliation.test.mjs": "851800e58c86e7751d101f8877d3c88701cb90274215ab3ca1225958f0df0d55",
+      "tests/follower-transport-owner-consumers.test.mjs": "6561e20e2cab16f3996ad7fc37f961ddc5513974ce035e8b2bb63ee3cdb71c44",
+      "tests/support/vehicle-scene.mjs": "9bc57d56d6f57c413e6a6ba29d768f5362c7da79c7cf6e7b9f7d073699b9eddb",
+      "tests/support/bloodlust-scene.mjs": "68141adbfb7cd7193ee2fcaf85d8b9f169b4a8a7f4d98ac7bf8aaba025722337",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "node_modules/typescript/lib/typescript.js": "3ae902c92cc44dace175c0e69e13a4b0899f6983c6121d76b9ab8dd5795e7675",
+      "node_modules/three/build/three.module.js": "bbf5ed13fe4373f5bd38b14ea8e62e9f157327da5638edc6d3863e08b167c9c7",
+      "node_modules/three/build/three.core.js": "3718df126d69c125362a03340913204470d8c50238605150e57f808840fb7759"
+    }
+  }
+}
