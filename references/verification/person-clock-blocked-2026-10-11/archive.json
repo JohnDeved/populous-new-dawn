@@ -1,0 +1,8 @@
+{
+  "archive": "evidence.tar.gz",
+  "bytes": 3816807,
+  "sha256": "6f31ffa106af3a93f93b96cffee4e7add577e9bd1d8bff69cf9a612026387391",
+  "manifestSha256": "1465507e2263814ee2459de26fc8badd1430406070eb2e9326b56cdaff06337b",
+  "members": 123,
+  "uncompressedMemberBytes": 122331897
+}

@@ -1,0 +1,12 @@
+{
+  "head": "7d2bdca419867594f82fc837f5ae2bd2b5adebff",
+  "archiveSha256": "6f31ffa106af3a93f93b96cffee4e7add577e9bd1d8bff69cf9a612026387391",
+  "manifestSha256": "1465507e2263814ee2459de26fc8badd1430406070eb2e9326b56cdaff06337b",
+  "verifiedMembers": 123,
+  "verifiedListedFiles": 122,
+  "uncompressedBytes": 122331897,
+  "archiveFilesOnly": true,
+  "worktreeClean": true,
+  "appDiffMatches": true,
+  "status": "HOLD / REJECT MERGE"
+}

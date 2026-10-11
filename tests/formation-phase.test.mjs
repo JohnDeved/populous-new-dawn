@@ -27,7 +27,9 @@ test('live turn preserves native tribe order, inactive skipping and next-turn fo
   let recruited=false
   w.units.forEach((u,i)=>{
    let counter=c.initial
-   Object.defineProperty(u.native,'counter',{configurable:true,get:()=>counter,set:value=>{
+   // Explicit native phase fixture: Unit owns visits; adapters only project them.
+   u.native.counter=c.initial
+   Object.defineProperty(u,'personCounter',{enumerable:true,configurable:true,get:()=>counter,set:value=>{
     counter=value;events.push(['object',c.objects[i],value])
     if(!recruited){w.marching.unshift(formation(30,0));recruited=true}
    }})
@@ -36,6 +38,7 @@ test('live turn preserves native tribe order, inactive skipping and next-turn fo
   for(const expected of [c.first,c.second]) {
    tick(w,1/12)
    assert.deepEqual(events,expected.filter(([kind,id])=>kind==='formation'||kind==='object'&&c.objects.includes(id)))
+   for(const u of w.units) assert.equal(u.native.counter,u.personCounter,'adapter projects the actual retained visit')
    events.length=0
   }
  }

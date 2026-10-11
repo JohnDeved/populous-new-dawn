@@ -14,7 +14,7 @@ import { buildingAdmission, stepBuildingEntry } from '../app/live-building-entry
 import { migrateCheckpoint } from '../app/game-store.ts'
 import { residentPerson } from '../app/building-resident.ts'
 import { evacuateBuilding } from '../app/building-runtime.ts'
-import { shieldFollowers, bloodlustFollowers, setUnitInvisibility, stepUnitShields, stepUnitBloodlust, stepUnitInvisibility, stepUnitHypnotise } from '../app/spell-effects-runtime.ts'
+import { applyHypnotise, shieldFollowers, bloodlustFollowers, setUnitInvisibility, stepUnitShields, stepUnitBloodlust, stepUnitInvisibility, stepUnitHypnotise } from '../app/spell-effects-runtime.ts'
 
 function scenario(direction = 0, count = 1, level = 1) {
   const w = createStartedWorld()
@@ -357,7 +357,7 @@ test('pre-admission Invisibility expiry keeps the existing player and enemy rend
 test('defeated original-tribe Hypnotise expiry clears only the passive status flag', () => {
   const { w, b, u, p } = housed()
   tick(w, 1 / 12)
-  u.hypnotise = { originalTeam: 'red', remaining: 1, counter: 7 }
+  u.hypnotise = { originalTeam: 'red', remaining: 1, counter: u.personCounter }
   w.manaTribes[1].defeatTimer = 1
   p.flags4 |= 0x4800
   const before = structuredClone(p), random = w.randomState, slot = u.resident.slot
@@ -365,7 +365,8 @@ test('defeated original-tribe Hypnotise expiry clears only the passive status fl
   assert.equal(w.units.find(unit => unit.id === u.id), u)
   assert.equal(u.hypnotise, undefined)
   assert.equal(u.team, 'blue')
-  assert.deepEqual(p, { ...before, flags4: (before.flags4 & ~0x4000) >>> 0 })
+  assert.equal(u.personCounter, (before.counter + 1) & 255)
+  assert.deepEqual(p, { ...before, counter: u.personCounter, flags4: (before.flags4 & ~0x4000) >>> 0 })
   assert.equal(w.randomState, random)
   assert.equal(b.admission.occupants[slot], u.id)
   assert.equal(residentPerson(w, u), p)
@@ -442,4 +443,63 @@ test('full-Hut evacuation removes each exact passive person without corrupting n
     assert.equal(u.resident, undefined)
     assert.equal(owners.get(u.id).building, null)
   }
+})
+
+
+test('housing preserves the active lifetime clock through residence, checkpoint and leave without a live owner', () => {
+  const { w, b, u, p } = housed(), seed = w.personClock.next
+  for (let visit = 0; visit < 10; visit++) {
+    const phase = u.personCounter
+    tick(w, 1 / 12)
+    assert.equal(u.personCounter, (phase + 1) & 255)
+    assert.equal(p.counter, u.personCounter)
+    assert.equal(residentPerson(w, u), p)
+    assert.equal(u.native, null)
+    assert.equal(u.entry, undefined)
+    assert.equal(unitAnimationSource(u), null)
+    assert.equal(w.objectCells.objects.has(u.id), false)
+  }
+  assert.equal(w.personClock.next, seed)
+  const loaded = migrateCheckpoint(structuredClone(w)), retained = loaded.units.find(v => v.id === u.id)
+  const stored = retained.resident.person, phase = retained.personCounter
+  assert.equal(stored.counter, phase)
+  assert.equal(leaveLiveBuilding(loaded, retained), stored)
+  assert.equal(retained.personCounter, phase)
+  assert.equal(stored.counter, phase)
+  assert.equal(loaded.personClock.next, seed)
+  assert.equal(retained.inside, null)
+  assert.ok(!loaded.buildings.find(v => v.id === b.id).admission.occupants.includes(u.id))
+  loaded.selected = [retained.id]
+  assert.ok(command(loaded, { x: 9, z: 30 }))
+  assert.equal(retained.personCounter, phase, 'leave/order adoption is not a visit')
+  assert.equal(retained.native.counter, phase)
+  tick(loaded, 1 / 12)
+  assert.equal(retained.personCounter, (phase + 1) & 255)
+  assert.equal(retained.native.counter, retained.personCounter)
+  assert.equal(loaded.personClock.next, seed)
+})
+
+
+test('normal Hypnotise expiry releases the real housed slot while allocating the replacement lifetime', () => {
+  const w = createStartedWorld()
+  w.manaWorld.gameFlags = 32
+  retainFixtureUnits(w, u => u.kind === 'shaman')
+  w.terrain.fill(3); w.terrainVersion++
+  const b = addBuilding(w, 'blue', 'hut', { x: -2, z: 32 }, true)
+  const source = addUnit(w, 'red', 'brave', { x: 7, z: 33 })
+  applyHypnotise(w, source, 'blue')
+  const u = w.units.find(u => u.hypnotise)
+  w.selected = [u.id]
+  assert.ok(command(w, b))
+  until(w, () => u.inside === b.id)
+  const p = residentPerson(w, u), seed = w.personClock.next
+  assert.ok(p)
+  u.hypnotise.remaining = 1
+  for (let visit = 0; w.units.includes(u) && visit < 8; visit++) tick(w, 1 / 12)
+  assert.ok(!w.units.includes(u))
+  assert.equal(w.personClock.next, (seed + 1) & 255)
+  assert.ok(!b.admission.occupants.includes(u.id))
+  assert.equal(b.admission.inside, 0)
+  assert.equal(w.objectCells.objects.has(u.id), false)
+  assert.ok(w.units.some(v => v !== source && v.team === 'red' && v.kind === 'brave'))
 })

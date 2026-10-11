@@ -35,11 +35,12 @@ function setup() {
     u.hp = record.hp
     u.native = createLivePerson(w, u)
     Object.assign(u.native, structuredClone(record.fields))
+    u.personCounter = u.native.counter // preserve the supplied native phase on its lifetime owner
     if (record.commands) u.native.commands = [...record.commands]
     u.heading = Math.PI - u.native.angle * Math.PI / 1024
   }
   const preacher = w.units[0], p = preacher.native
-  p.counter = s.storedCounter
+  p.counter = preacher.personCounter = s.storedCounter
   // These exact absent-value properties are assigned by physics/adoption. Supply
   // them before snapshotting, rather than masking arbitrary wrapper mutations.
   preacher.entry = undefined
@@ -153,6 +154,7 @@ test('real five-listener preaching caller preserves the original terminal turnin
         animationMode: target.animationMode,
       })
       if (target.substate === 4) expectedPerson.flags2 = (expectedPerson.flags2 | 0x40000000) >>> 0
+      expected.units[0].personCounter = target.counter
       expected.randomState = target.simulationRandom
       assertOwners(w, preacher, p)
       assert.equal(p.counter, target.counter)

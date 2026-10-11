@@ -1,3 +1,4 @@
+import { visitPrimaryPerson } from './person-clock.ts'
 import { buildingPose } from './building-shapes.ts'
 import { clearTaskBindings, releaseTasks } from './world-tasks.ts'
 import {
@@ -608,7 +609,7 @@ function replaceConvertedVictim(w: World, u: Unit, preacher: LivePerson) {
 
 export function stepLiveConversionVictim(w: World, u: Unit) {
   const victim = u.native!
-  victim.counter = (victim.counter + 1) & 255
+  visitPrimaryPerson(w, u, victim)
   const preacher =
       w.units.find(candidate => candidate.id === victim.workTarget && candidate.hp > 0)?.native ??
       undefined,

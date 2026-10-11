@@ -31,6 +31,7 @@ function sermon(seed = 0, team = 'blue') {
     flags2: person.flags2 & ~0x40002004,
     goalX: person.x, goalY: person.y,
   })
+  unit.personCounter = person.counter // same explicitly supplied native phase, authoritative owner
   setLivePersonAnimation(world, person, 97)
   person.f1 = person.f2 = 0
   world.cosmeticRandom.randomState = seed
@@ -92,10 +93,12 @@ test('live entry and loop setters restore first-frame delay and loop assignment 
   const { world, unit, person } = sermon(1)
   Object.assign(person, { substate: 2, counter: 6, flags2: person.flags2 | 0x40000000,
     f1: 7, f2: 2, assignment: 0x100 })
+  unit.personCounter = person.counter
   stepLivePreaching(world, unit)
   assert.deepEqual([person.object, person.f1, person.f2, person.timer], [160, 1, 0, 7])
   Object.assign(person, { substate: 3, counter: 6, flags2: person.flags2 | 0x40000000,
     f1: 7, f2: 2 })
+  unit.personCounter = person.counter
   stepLivePreaching(world, unit)
   assert.deepEqual([person.object, person.f1, person.f2, person.assignment], [168, 1, 0, 0x110])
 })

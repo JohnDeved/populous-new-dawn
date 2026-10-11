@@ -1,3 +1,4 @@
+import { hasPersonClock, projectPersonCounter } from './person-clock.ts'
 import { buildingPose } from './building-shapes.ts'
 import {
   nativePosition,
@@ -379,8 +380,9 @@ export function stepLiveRoute(w: World, u: Unit) {
     p.x = to.x & 65535
     p.y = to.y & 65535
     p.h = to.h
-    p.counter = w.turn & 255
+    if (!hasPersonClock(w)) p.counter = w.turn & 255
   }
+  projectPersonCounter(w, u, p)
   advanceLiveRoute(w, p)
   if (!p.motionGroup && p.x === p.goalX && p.y === p.goalY) clearLivePath(w, u)
   else u.path = liveRoutePoints(w, p)

@@ -1,3 +1,4 @@
+import { hasPersonClock, visitPrimaryPerson } from './person-clock.ts'
 import { teamForTribe, tribeForTeam, type World, type Unit, type Effect } from './world-types.ts'
 import { missionData } from './mission-data.ts'
 import {
@@ -90,7 +91,8 @@ export function initializeLevelStart(w: World) {
     const p = u.native,
       position = nativePosition(w, u)
     setLivePersonAnimation(w, p, rules.personAnimationObjects[7])
-    p.counter = people.findIndex(o => o.model === 7 && o.owner === tribeForTeam(u.team)) & 255
+    if (!hasPersonClock(w))
+      p.counter = people.findIndex(o => o.model === 7 && o.owner === tribeForTeam(u.team)) & 255
     const center = { x: (position.x & 0xfe00) + 256, y: (position.y & 0xfe00) + 256, h: position.h }
     const order = allocatePersonOrder(w.buildingOrders)
     if (!order) throw new Error('Opening command pool is unexpectedly exhausted')
@@ -287,8 +289,13 @@ export function stepLevelStarts(w: World) {
       p.flags2 &= ~0x4000
       continue
     }
-    site.counter = (site.counter + 1) & 255
-    p.counter = site.counter
+    if (hasPersonClock(w)) {
+      visitPrimaryPerson(w, u, p)
+      site.counter = p.counter
+    } else {
+      site.counter = (site.counter + 1) & 255
+      p.counter = site.counter
+    }
     if (p.state !== 10) {
       // 0x4c1b80 may enter cast state22 without clearing command18. Its return
       // goes through 0x432260, which reinitializes the command at substate0.

@@ -1,3 +1,4 @@
+import { visitPrimaryPerson } from './person-clock.ts'
 import { reconcileWorldHutSmoke } from './hut-smoke-runtime.ts'
 import { notifyHutOccupancy } from './hut-occupancy-smoke.ts'
 import { buildingPose } from './building-shapes.ts'
@@ -465,7 +466,7 @@ export function stepBuildingEntry(w: World, u: Unit, b?: Building) {
   if (p.state === 21) {
     // Native state-21 pose freezes once its signed timer expires. AI reassignment
     // and other occupied classes remain separate scheduler consumers.
-    p.counter = (p.counter + 1) & 255
+    visitPrimaryPerson(w, u, p)
     if (p.timer) {
       p.timer = ((p.timer - 1) << 16) >> 16
       if (p.timer < 1) p.renderFlags |= 2
@@ -484,7 +485,7 @@ export function stepBuildingEntry(w: World, u: Unit, b?: Building) {
       order.a === b.id &&
       ['camp', 'temple', 'spyHut', 'firewarriorHut'].includes(b.kind)
   syncLivePersonCells(w)
-  p.counter = (p.counter + 1) & 255
+  visitPrimaryPerson(w, u, p)
   p.cargo = Math.round(u.cargo * 100)
   const owner = (p: { id: number }) => w.units.find(u => u.id === p.id)!
   const stop = (p: EntryPerson) => {

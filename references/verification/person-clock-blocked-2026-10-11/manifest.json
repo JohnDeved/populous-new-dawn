@@ -1,0 +1,620 @@
+{
+  "schemaVersion": 1,
+  "base": "c8f789dd4a922f831527f4334c53c3e6365d194e",
+  "predecessor": "24e90cbe86b4f970f04f5b531f9bc1744e896e0b",
+  "status": "HOLD: source-supported reader law conflicts with unchanged Mission2 acceptance",
+  "scope": "Source, test inputs, raw receipts/logs and passive diagnostic evidence only; no original EXE/assets/dependencies/profiles. Older reviews have their original narrower scope. No original native execution.",
+  "appDiffSha256": "88251d199a7eacb507b6e08754aad7758d5f74b799531d09394c7eafc6e9fb0e",
+  "files": [
+    {
+      "path": "app/armageddon.ts",
+      "bytes": 9324,
+      "sha256": "81c1c1b5d250445dd0bf294c92b53177305af58769aed0d88bffd390d10142a4"
+    },
+    {
+      "path": "app/game-store.ts",
+      "bytes": 19285,
+      "sha256": "a33d3da735c5ed12d7dd95a6da4b26a36823d61daf5966506a9eb033a552dd1a"
+    },
+    {
+      "path": "app/level-start-runtime.ts",
+      "bytes": 15177,
+      "sha256": "db56313ebafe5388b820c1d6f60e85962126dbdeb3020ba0a49ccd77198663dd"
+    },
+    {
+      "path": "app/live-building-combat.ts",
+      "bytes": 28482,
+      "sha256": "0185be7f8c8eb72ec984881b88e61a9b453ee225f44e453ebbb7ead7ae5bfa95"
+    },
+    {
+      "path": "app/live-building-entry.ts",
+      "bytes": 24694,
+      "sha256": "6e58e9222687d7d063bfc8a07d663526c26899f1d9f40dba96f0c264fb4a337d"
+    },
+    {
+      "path": "app/live-combat.ts",
+      "bytes": 18181,
+      "sha256": "9b79fa7c8591337be19cdba36aeeb41ce9d80ff8a50d75c11639ce55bb99c2ad"
+    },
+    {
+      "path": "app/live-construction-runtime.ts",
+      "bytes": 20842,
+      "sha256": "7fd7b5bbf2fc9e5f2c1900ffbf4962284110e04516de4517454d9e1a93462f59"
+    },
+    {
+      "path": "app/live-movement.ts",
+      "bytes": 38325,
+      "sha256": "b92696832bb362f40065bbdd3ae04bd67f6b445e83ddff9328622044d60807ee"
+    },
+    {
+      "path": "app/live-pathfinding.ts",
+      "bytes": 13618,
+      "sha256": "6f1198ada6d934b9d09bee8a012fbf146a1d6fd5c31393af1b09a61a6966ae8e"
+    },
+    {
+      "path": "app/live-people.ts",
+      "bytes": 45178,
+      "sha256": "323aca62d2fb95a2bf5e1f5fe66bc38e97e168877488f3088fabf2c778fbbf31"
+    },
+    {
+      "path": "app/live-resting.ts",
+      "bytes": 8023,
+      "sha256": "112dc1c5526c28d06513c5deb267f3426f5ae10b06decbf810a04088cc6fb8c4"
+    },
+    {
+      "path": "app/person-clock.ts",
+      "bytes": 4539,
+      "sha256": "686ed38da0e232c6ccef176433d344815413b6f3788f068477f1c757da63cd17"
+    },
+    {
+      "path": "app/scene-entities.ts",
+      "bytes": 29847,
+      "sha256": "8564d42cd817293d1fbc1d7dfb9b76ad93bb5114efd397c6fe820c217d5f4748"
+    },
+    {
+      "path": "app/spell-effects-runtime.ts",
+      "bytes": 44548,
+      "sha256": "bb05242b5e00a2231d3a8c265aed24b9227f79814e84a8391dfae70f0558268a"
+    },
+    {
+      "path": "app/world-state.ts",
+      "bytes": 12574,
+      "sha256": "5cb811d2c94f2d1d895d909f14b03a73202a36eb397439a703db2e45cd24941d"
+    },
+    {
+      "path": "app/world-turn.ts",
+      "bytes": 68669,
+      "sha256": "bc99bab3c3f7a36446eca867b96fc3f2a8e1c32cab00f66dec4dfd31a22363b7"
+    },
+    {
+      "path": "app/world-types.ts",
+      "bytes": 15876,
+      "sha256": "1169e9950b771452f391d7a476d8b8f2b75204aff994123f58fde9a1855bd59a"
+    },
+    {
+      "path": "decomp/research/firewarrior-firing-phase/port.mjs",
+      "bytes": 3788,
+      "sha256": "45482fd2161491ac8028f4b074232e00d45c64b16f8529c57c70b0c948854c75"
+    },
+    {
+      "path": "references/person-clock.md",
+      "bytes": 8933,
+      "sha256": "233d3a15aa9e1c69c407bf623b2463b9aa57f138e34574349475578f3b7afd14"
+    },
+    {
+      "path": "scripts/mission3-natural-preacher-scenario.mjs",
+      "bytes": 4463,
+      "sha256": "5b2e0d1496287b9a02ce063d9b84e7353917b1e7290ac5626a71000635333da0"
+    },
+    {
+      "path": "scripts/mission3-raid-recruitment-pair.mjs",
+      "bytes": 10482,
+      "sha256": "1db16711c4a6726943d034a56040e17e436330f40f37ceb54a3ca93cb2575cfc"
+    },
+    {
+      "path": "tests/building-workers.test.mjs",
+      "bytes": 8839,
+      "sha256": "e0edba38a385b4cb3e12d2b65fb2d7e006689549fcc1de88b4dd9d4763cf4981"
+    },
+    {
+      "path": "tests/formation-phase.test.mjs",
+      "bytes": 3364,
+      "sha256": "0bcc768ebff018ab5835025dd74b5f93fe86c07d86f448d64c9aadce8442d060"
+    },
+    {
+      "path": "tests/game.test.mjs",
+      "bytes": 207207,
+      "sha256": "73522052aeccee4090dfbc71e7096288116f6df4bff244091e3713298336cc0c"
+    },
+    {
+      "path": "tests/housing-entry.test.mjs",
+      "bytes": 22053,
+      "sha256": "0b590be41c16a3d42dc93ea8fdc2fd831b0364baf52b075ef982b6cec07b64fe"
+    },
+    {
+      "path": "tests/hypnotise.test.mjs",
+      "bytes": 7141,
+      "sha256": "ba5a5c1890ecc9209310a75a120b692fc79f6322020a38b916585ce1b342f403"
+    },
+    {
+      "path": "tests/person-clock-consumers.test.mjs",
+      "bytes": 9926,
+      "sha256": "17c40fba3b9362661dc62e8fb42b081799e4b28ec9fb645806b726b9779db76f"
+    },
+    {
+      "path": "tests/person-clock.test.mjs",
+      "bytes": 12995,
+      "sha256": "0d51507238174e8db957208b3b9e6a410db54ca9314db5107af3626f09a0a984"
+    },
+    {
+      "path": "tests/preacher-gestures.test.mjs",
+      "bytes": 10179,
+      "sha256": "f7be914f0cf045088aac27fcff25344afa33ed34cfbec55577cea80407846fc9"
+    },
+    {
+      "path": "tests/preacher-terminal-turning-live.test.mjs",
+      "bytes": 9320,
+      "sha256": "c371063ee5e63e2f1559aa20eab989a33b1aab3efc26d807bc6cc985283487a8"
+    },
+    {
+      "path": "tests/training-entry.test.mjs",
+      "bytes": 14820,
+      "sha256": "12ac12df60ac55361b46eabf6759fd83bab61ecf1bceb774954a10a8d3acc5f1"
+    },
+    {
+      "path": "work/orchestration/person-clock/actual-caller-green01.json",
+      "bytes": 2129,
+      "sha256": "1a948643883e34a2395dd514e06c0ca3edcaf98e37dc2350c9a92aa33e442722"
+    },
+    {
+      "path": "work/orchestration/person-clock/actual-caller-green01.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/person-clock/actual-caller-green01.json.artifacts/stdout.log",
+      "bytes": 227,
+      "sha256": "ea1aa5390ad0e8feff0b81ccb129089b8a6b91e43dc3ffd1f0f4b82d44af489c"
+    },
+    {
+      "path": "work/orchestration/person-clock/actual-caller-red.json",
+      "bytes": 2767,
+      "sha256": "010ca30b3f5958493b76896c3c301ae084de14b167f4c4b1c2fae94036aac56c"
+    },
+    {
+      "path": "work/orchestration/person-clock/actual-caller-red.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/person-clock/actual-caller-red.json.artifacts/stdout.log",
+      "bytes": 1046,
+      "sha256": "6febd7dec70b966aae6f901ccb2236a8827fa59b3dfefd8c69e49bd3c0031b82"
+    },
+    {
+      "path": "work/orchestration/person-clock/browser-ordinary01.json",
+      "bytes": 3703,
+      "sha256": "b64da0a53ea7ef93417767777b25c8eb89cd4b586f69cae1b1e55cb18228dde4"
+    },
+    {
+      "path": "work/orchestration/person-clock/browser-ordinary01.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/person-clock/browser-ordinary01.json.artifacts/stdout.log",
+      "bytes": 54,
+      "sha256": "1a0706352bc7519c8498ce6960104cad28502f5cd81b6c6ee95e6740cad529f1"
+    },
+    {
+      "path": "work/orchestration/person-clock/consumer-focused17.json",
+      "bytes": 15757,
+      "sha256": "6f8051bd5f405e25ccc618828603fb33addde07eda647403ec94c8ffe2b63c1e"
+    },
+    {
+      "path": "work/orchestration/person-clock/consumer-focused17.json.artifacts/stderr.log",
+      "bytes": 307,
+      "sha256": "7d61cb2e2deb776dfec4d6f54693f9edeed0af5c4da52f091c53c995d862fb65"
+    },
+    {
+      "path": "work/orchestration/person-clock/consumer-focused17.json.artifacts/stdout.log",
+      "bytes": 13219,
+      "sha256": "4aa9e078bad97ab1d15ab9d3b7ddd2fafaa5d02313a5a920c6954618774ac43a"
+    },
+    {
+      "path": "work/orchestration/person-clock/consumer-green14.json",
+      "bytes": 6011,
+      "sha256": "a0833dc66ed4dc78fed8498f45160448f3d25b2abe808aa95f0a516e29204011"
+    },
+    {
+      "path": "work/orchestration/person-clock/consumer-green14.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/person-clock/consumer-green14.json.artifacts/stdout.log",
+      "bytes": 3947,
+      "sha256": "bb1be2819e61818dda3c84ca606255f7df7f6a3b273662f2e2ee500b49d782bd"
+    },
+    {
+      "path": "work/orchestration/person-clock/consumer-green16.json",
+      "bytes": 3131,
+      "sha256": "9c04fba17cbb46c2ff7b143a5d719e93615631ae617f6501ef0f0718eb209d6f"
+    },
+    {
+      "path": "work/orchestration/person-clock/consumer-green16.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/person-clock/consumer-green16.json.artifacts/stdout.log",
+      "bytes": 1389,
+      "sha256": "0b580b877af3cbec18c35c4fd712567e5fafd58164eafde20d05e48e8b0ac94d"
+    },
+    {
+      "path": "work/orchestration/person-clock/consumer-red13.json",
+      "bytes": 17164,
+      "sha256": "9e56f08bc4041659f0714d6fde8c1d30b811c094fbe87d2d0c7fdb5ae7ada4b2"
+    },
+    {
+      "path": "work/orchestration/person-clock/consumer-red13.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/person-clock/consumer-red13.json.artifacts/stdout.log",
+      "bytes": 14834,
+      "sha256": "d3fb03907291c6e51ddeee2b8179f8493e53a988b47fe40ce5b545081bf85db3"
+    },
+    {
+      "path": "work/orchestration/person-clock/full-check01-failures.json",
+      "bytes": 9185,
+      "sha256": "d629c4c002ea05fb40bc453b520e688af38e8422a265077444e6811180400c1b"
+    },
+    {
+      "path": "work/orchestration/person-clock/full-check01.json",
+      "bytes": 246555,
+      "sha256": "df91814139d90ce586f101c4742003e8673b240bd91409e8bd67a683ef0d9e77"
+    },
+    {
+      "path": "work/orchestration/person-clock/full-check01.json.artifacts/stderr.log",
+      "bytes": 921,
+      "sha256": "729d7a00c08d1d11c1dc0dd021c8bb255bd601279f1ce2a22fb5360bb9b9c461"
+    },
+    {
+      "path": "work/orchestration/person-clock/full-check01.json.artifacts/stdout.log",
+      "bytes": 240085,
+      "sha256": "7f3d413abc8075e9ba8f7a8b2d88c472fed160c6e7f199496e2159c3fa85aad4"
+    },
+    {
+      "path": "work/orchestration/person-clock/marker-and-mission6-frontiers07.json",
+      "bytes": 85924,
+      "sha256": "355c116fb3e92e6dbdf6f1b99dc081b478a2c5a66f1390d403d0362f2f3c6499"
+    },
+    {
+      "path": "work/orchestration/person-clock/marker-and-mission6-frontiers07.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/person-clock/marker-and-mission6-frontiers07.json.artifacts/stdout.log",
+      "bytes": 71219,
+      "sha256": "bc38e12e9a5449c71fa314be22ccdd187aadb16e33b06bd13a4ea577850c21c8"
+    },
+    {
+      "path": "work/orchestration/person-clock/marker-boundary05.json",
+      "bytes": 1942,
+      "sha256": "83b04109384b36a4d793aa5597997b9d8dd290aa2b49dde54acc054a2a9afabc"
+    },
+    {
+      "path": "work/orchestration/person-clock/marker-boundary05.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/person-clock/marker-boundary05.json.artifacts/stdout.log",
+      "bytes": 194,
+      "sha256": "1cd66102db4f66cf1354b98e9f48dc7b6936828b34528f3839e09f5c9988d031"
+    },
+    {
+      "path": "work/orchestration/person-clock/mechanical-and-journey02.json",
+      "bytes": 6138,
+      "sha256": "f7c39e1e13f1dc35d161323f12f0c3d131b9f1e96e5d290e1bd73e21e0389433"
+    },
+    {
+      "path": "work/orchestration/person-clock/mechanical-and-journey02.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/person-clock/mechanical-and-journey02.json.artifacts/stdout.log",
+      "bytes": 4054,
+      "sha256": "c531775a14f384e01bb8125bcdb4836d0aab34d6abe820469d128fb193275812"
+    },
+    {
+      "path": "work/orchestration/person-clock/mission2-assault-pair19.json",
+      "bytes": 5898,
+      "sha256": "ecd3f91acb4d1a9e0731068c8b20e79adbe6e50becb206079dc2cd25469954bd"
+    },
+    {
+      "path": "work/orchestration/person-clock/mission2-assault-pair19.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/person-clock/mission2-assault-pair19.json.artifacts/stdout.log",
+      "bytes": 3212,
+      "sha256": "874932d6bac3a04d262cb1ccf0623e3ed1686e3bb196e3edba6e1f9283ce742f"
+    },
+    {
+      "path": "work/orchestration/person-clock/mission2-reader-pair18.json",
+      "bytes": 4660,
+      "sha256": "e1beb14d46db5482fb7765ef040bb65407903ba84b6f97a62d8bfbd8d8ac9a17"
+    },
+    {
+      "path": "work/orchestration/person-clock/mission2-reader-pair18.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/person-clock/mission2-reader-pair18.json.artifacts/stdout.log",
+      "bytes": 2149,
+      "sha256": "f61a4cd130de70b2965ee14f2066368344b5f9624dd5c7b23974a2ac364fd335"
+    },
+    {
+      "path": "work/orchestration/person-clock/mission4-attack-owner10.json",
+      "bytes": 2447,
+      "sha256": "452a08ab39ad088850bd55dc4373b0062052b79ac4de79dbbf55fb69b4ff6417"
+    },
+    {
+      "path": "work/orchestration/person-clock/mission4-attack-owner10.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/person-clock/mission4-attack-owner10.json.artifacts/stdout.log",
+      "bytes": 403,
+      "sha256": "436ce8982be47d820f54b2570343c9a172f1073e9287a8119598f6d6771eccf5"
+    },
+    {
+      "path": "work/orchestration/person-clock/mission4-input-gate12.json",
+      "bytes": 8004,
+      "sha256": "9281bee91653178a3eea16035b500963990980a8cdf2fa82969e5954bd01f42a"
+    },
+    {
+      "path": "work/orchestration/person-clock/mission4-input-gate12.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/person-clock/mission4-input-gate12.json.artifacts/stdout.log",
+      "bytes": 5320,
+      "sha256": "fa33ad03ab2d8a5187f6c667f3a9f65237eeffa0fbf7d897fc100d4b13878cd3"
+    },
+    {
+      "path": "work/orchestration/person-clock/resident-leave07.json",
+      "bytes": 1791,
+      "sha256": "53aab771fb91d91938013abc0da907870df6e0c9a0e04183f0440fd46ffda9ce"
+    },
+    {
+      "path": "work/orchestration/person-clock/resident-leave07.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/person-clock/resident-leave07.json.artifacts/stdout.log",
+      "bytes": 239,
+      "sha256": "057fdaba77a7322f77bec952388683134b165b36e3fce80137666bb8d41841f6"
+    },
+    {
+      "path": "work/orchestration/person-clock/targeted06.json",
+      "bytes": 18189,
+      "sha256": "114504fc40e1cd288140614d40e27b00068426ab0942a0d9d44b528b36406585"
+    },
+    {
+      "path": "work/orchestration/person-clock/targeted06.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/person-clock/targeted06.json.artifacts/stdout.log",
+      "bytes": 15294,
+      "sha256": "79c22617d58e05993c8f1d1495d1672d49ca7dd8c2ccb7427676b2d1c08279e3"
+    },
+    {
+      "path": "work/orchestration/person-clock/tower-red15.json",
+      "bytes": 4818,
+      "sha256": "dfdef0e153e4d59033e95f68e1aa1948baf91005e71db5da45a1d1a7675a79a1"
+    },
+    {
+      "path": "work/orchestration/person-clock/tower-red15.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/person-clock/tower-red15.json.artifacts/stdout.log",
+      "bytes": 2620,
+      "sha256": "8bb32e575588645092cbd2336a82a95b90a670a629135fa4c1f10e6e30df779c"
+    },
+    {
+      "path": "work/person-clock-browser/ordinary-m3-clock.mjs",
+      "bytes": 17853,
+      "sha256": "b25fece1fb57ead0d006c8cbe430f1f4331d7cd9acb92eee010fb05ce31da37c"
+    },
+    {
+      "path": "work/person-clock-browser/ordinary1/ordinary-m3.json",
+      "bytes": 2023536,
+      "sha256": "b8611657b154b26f98850022fb59db8e470fc9a929d7c96323b37bbb63cad6ac"
+    },
+    {
+      "path": "work/person-clock-browser/ordinary1/receipt.json",
+      "bytes": 2176018,
+      "sha256": "46429caab76c1dd89fa873129854e47581649866d613173b2f5e2c070e841f50"
+    },
+    {
+      "path": "work/person-clock-browser/ordinary1/server.log",
+      "bytes": 953,
+      "sha256": "bf78fdf3a9e61e95992bd503933cfb89ef8e56f1348f580dbc073261ee888912"
+    },
+    {
+      "path": "work/person-clock-browser/paired-entry-source-comparison.json",
+      "bytes": 6228,
+      "sha256": "c9e665797f61356140cf415966c8630c7408c51b237e42bc1653a61c90150545"
+    },
+    {
+      "path": "work/person-clock-browser/upstream-spacing-assessment.md",
+      "bytes": 3159,
+      "sha256": "b3653f2ab07ed3f97d7b4c700ccd7e6569a970f1318ce540b3780a00e2e4054b"
+    },
+    {
+      "path": "work/person-clock-diagnosis/blocked-source.patch",
+      "bytes": 99502,
+      "sha256": "73dafcbc31c801ad73307ae65b95eaacfd80b31edf157b9284cffaf02a79e369"
+    },
+    {
+      "path": "work/person-clock-diagnosis/cell774-source-boundary.json",
+      "bytes": 3060,
+      "sha256": "1ec327a8507f94f38a956efbcd36c9550edd1803fff463f2b7cf895d2105f1b1"
+    },
+    {
+      "path": "work/person-clock-diagnosis/consumer-head-loader.mjs",
+      "bytes": 956,
+      "sha256": "5f6af5598b19ccd3e05152f3b9f4ecd0af20bdcfd65facc688abee2215c7c3e7"
+    },
+    {
+      "path": "work/person-clock-diagnosis/consumer-repair-manifest01.json",
+      "bytes": 2107,
+      "sha256": "2c0136a9ffb81c9f6e956ed937baf4555cf12cc2d6410ca9cca2dc370a285fb5"
+    },
+    {
+      "path": "work/person-clock-diagnosis/consumer-repair-status.md",
+      "bytes": 2063,
+      "sha256": "daccbe895fd51b55972026ef0d4e5f4b6de47dafffa337ed0d5f3a6ecd19f0bf"
+    },
+    {
+      "path": "work/person-clock-diagnosis/create_blocked_bundle.py",
+      "bytes": 4384,
+      "sha256": "ba9a10ba641c393c2e1db6c75e700311c78e9bd82ccca892eed87d591bf7dc1f"
+    },
+    {
+      "path": "work/person-clock-diagnosis/current-classification.md",
+      "bytes": 4772,
+      "sha256": "f45108e24db6c594bcaf7a558632dd63e2ecc6be133fd2cf52e4afec44c3140b"
+    },
+    {
+      "path": "work/person-clock-diagnosis/firewarrior-pin-body-proof.json",
+      "bytes": 1301,
+      "sha256": "0ebcb21f9035b37de665241e7ca7dca8c4b758fdee42a78d8b41f8934bbdd187"
+    },
+    {
+      "path": "work/person-clock-diagnosis/firewarrior-pin-body-proof02.json",
+      "bytes": 1617,
+      "sha256": "66b2ad5eac0bf474825db5a432111e9cf42a99d5238801de8bf5e0609ab3862e"
+    },
+    {
+      "path": "work/person-clock-diagnosis/mission2-assault-24e.json",
+      "bytes": 44409634,
+      "sha256": "d51d6637764589d2d19b5844f90f070f8c6b3ab06167959dde36c79b9eb0143d"
+    },
+    {
+      "path": "work/person-clock-diagnosis/mission2-assault-candidate.json",
+      "bytes": 39983549,
+      "sha256": "90b89a9be97a2211ea113511ab42c22ce9da9c21d77688f5c37c84ac981f6b19"
+    },
+    {
+      "path": "work/person-clock-diagnosis/mission2-assault-discriminator.mjs",
+      "bytes": 9377,
+      "sha256": "e3fc3d2e3efc81d4fd32abcb2c8fba43037f301bce7c145a548745ad90d31bcb"
+    },
+    {
+      "path": "work/person-clock-diagnosis/mission2-assault-finding.json",
+      "bytes": 9431,
+      "sha256": "fbcd0ecc453d357ad54fd5720c0ffbc4be64e62b9cb33d69f1e1dc22cf7e3c3d"
+    },
+    {
+      "path": "work/person-clock-diagnosis/mission2-consumer-pair.mjs",
+      "bytes": 8115,
+      "sha256": "2c787fb01d3db4bdd1ce8a2ae42250849c08f5eebbee43e7cbbd8435570ece12"
+    },
+    {
+      "path": "work/person-clock-diagnosis/mission2-reader-24e.json",
+      "bytes": 14518343,
+      "sha256": "161d044367632ebed82157fd185cc0cd1df15674efa57dc6cb9e6a06caf77e56"
+    },
+    {
+      "path": "work/person-clock-diagnosis/mission2-reader-candidate.json",
+      "bytes": 12978244,
+      "sha256": "c2382ff80229bb1ef9ef9c4ccf94d7a7a1a363c45bd689fe6a02df69bca4d892"
+    },
+    {
+      "path": "work/person-clock-diagnosis/mission4-input-baseline.json",
+      "bytes": 2448420,
+      "sha256": "008433bf0dbe441c5e2c44ce677456798cf58304dfe4731b19378701f165c07d"
+    },
+    {
+      "path": "work/person-clock-diagnosis/mission4-input-candidate.json",
+      "bytes": 1792547,
+      "sha256": "338c8f9c7efec76733575d070cbbd4eae9a68825bb5be3477fb8f9fe3ce00550"
+    },
+    {
+      "path": "work/person-clock-diagnosis/mission4-input-gate.mjs",
+      "bytes": 7285,
+      "sha256": "800f0eeac36aaa270052627a74233980ce6b380a55aadd5b68c995c3ae016452"
+    },
+    {
+      "path": "work/person-clock-diagnosis/mission6-retry-proof.json",
+      "bytes": 3528,
+      "sha256": "696ac3f0d1fb64d0d82bb93f1d142916a68fc8c1ec2d462b16c8e3d59912f784"
+    },
+    {
+      "path": "work/person-clock-diagnosis/remaining-eight.json",
+      "bytes": 2239,
+      "sha256": "55d9d052a6a92c17f17e36e6236589c31aeffd6dbd8e04b62f679133d6d595fc"
+    },
+    {
+      "path": "work/review-person-clock-fix-20261011/audit_turn_consumers.py",
+      "bytes": 9954,
+      "sha256": "e4370460e54812542e122194cf5be36d7558724246f0b9cf602dcadcda9074d3"
+    },
+    {
+      "path": "work/review-person-clock-fix-20261011/browser-review.json",
+      "bytes": 107859,
+      "sha256": "003b4a18ccb4e9855a08e6f48039f2e39aa3130a1400fb6f5151cb9cef88c679"
+    },
+    {
+      "path": "work/review-person-clock-fix-20261011/housed-expiry-calls.json",
+      "bytes": 3271,
+      "sha256": "b95207c3b17db467f7736ce37bcfb13161e915cc3cf2377fde7f74d5c9d4139b"
+    },
+    {
+      "path": "work/review-person-clock-fix-20261011/housed-expiry-disassembly.txt",
+      "bytes": 10148,
+      "sha256": "b5eb7c287867d0553a728f8d7a43ceb045cb39bffb4e006ef282745cb62e8530"
+    },
+    {
+      "path": "work/review-person-clock-fix-20261011/preview-source.json",
+      "bytes": 1992,
+      "sha256": "e5e53b2cd6e75a19bf3aab5ecc2cdd271e40276572af743480f605e6f85c9b9e"
+    },
+    {
+      "path": "work/review-person-clock-fix-20261011/resident-source-binding.json",
+      "bytes": 1253,
+      "sha256": "a11aff5c46d62aec1a58b0a3836ccd589e6cd28a7705529462fe7b62d3d6a92d"
+    },
+    {
+      "path": "work/review-person-clock-fix-20261011/review.md",
+      "bytes": 28756,
+      "sha256": "4578bd344d3820c5590206f60c86df370e115f35edd246d0e6743dfb8dc3ea70"
+    },
+    {
+      "path": "work/review-person-clock-fix-20261011/world-turn-consumer-audit.json",
+      "bytes": 42397,
+      "sha256": "2aa023f57d3aa59ba728b7502b8cd2232eb6990112a53ac6fafca67df5ec1eb2"
+    },
+    {
+      "path": "work/review-person-clock-fix-20261011/world-turn-reads.txt",
+      "bytes": 6736,
+      "sha256": "d94023602b506416475f7dbd0c5e35c5c7fe112dba398f1a5e44e25fa941696c"
+    }
+  ]
+}

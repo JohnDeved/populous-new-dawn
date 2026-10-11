@@ -116,8 +116,12 @@ function runCase(index) {
   if (fixture.checkpointRoundTrip) {
     const loaded = createWorld(3)
     Object.assign(loaded, { ...world, land: loaded.land, outcome: { ...loaded.outcome, level: 3 } })
+    // Supplied old checkpoint records have no allocation history. Keep the whole
+    // synthetic checkpoint legacy rather than infer new Unit phases or a seed.
+    delete loaded.personClock
     loaded.campaignAIs[2] = loaded.ai
     world = migrateCheckpoint(structuredClone(loaded))
+    assert.equal(world.personClock.mode, 'legacy')
     assert.equal(world.outcome.level, 3)
     assert.equal(world.campaignAIs[2], world.ai)
   }

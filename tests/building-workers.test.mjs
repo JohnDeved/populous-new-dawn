@@ -95,12 +95,20 @@ test('later construction haulers skip timber reserved by an earlier search',()=>
   for(const tree of w.trees)tree.logs=1
   const workers=w.units.filter(u=>u.team==='blue'&&u.kind==='brave').slice(0,4)
   for(const u of workers)Object.assign(u,{...entrance(w,b),work:b.id,inside:null,path:[],cargo:0,tree:null,builder:{task:BuilderTask.Work,busy:0,phase:0,restart:true}})
-  for(let turn=0;turn<33;turn++)tick(w,1/12)
+  const reservedAt=new Map()
+  for(let turn=0;turn<33;turn++){
+    tick(w,1/12)
+    for(const tree of w.trees)if(tree.reservations&&!reservedAt.has(tree.id)){
+      assert.equal(tree.reservationTimer,64,'the actual reservation event starts at64')
+      reservedAt.set(tree.id,w.turn)
+    }
+  }
   const fetchers=workers.filter(u=>u.builder?.task===BuilderTask.Fetch)
   assert.equal(fetchers.length,2)
   assert.equal(fetchers[0].tree,fetchers[1].tree,'same-turn native searches are not atomic')
   const first=fetchers[0].tree,tree=w.trees.find(tree=>tree.id===first)
-  assert.deepEqual([tree.reservations,tree.flags4&0x100000,tree.reservationTimer],[1,0x100000,64])
+  assert.deepEqual([tree.reservations,tree.flags4&0x100000,tree.reservationTimer],[1,0x100000,64-(w.turn-reservedAt.get(first))])
+  assert.ok(reservedAt.has(first))
   workers[2].builder={task:BuilderTask.Fetch,busy:0,phase:0,restart:true}
   for(let turn=0;turn<40&&!workers[2].tree;turn++)tick(w,1/12)
   assert.ok(workers[2].tree)

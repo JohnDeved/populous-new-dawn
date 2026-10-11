@@ -1,0 +1,35 @@
+{
+  "verdict": "ACCEPT_DOCUMENTATION_PUBLICATION_ONLY_PRODUCT_HOLD",
+  "archiveSha256": "03eafe464697c6459f88f7e3a72a59ca88c8b2bdd7231de7125669697e32344f",
+  "archiveBytes": 4996530,
+  "manifestSha256": "f215352e1dab167cac673be9a1ee3d63d31eaee7fdb73481677be5d4f9430c73",
+  "verifiedMembers": 74,
+  "verifiedUncompressedBytes": 286522772,
+  "unsafeOrDuplicateOrLinkedMembers": [],
+  "missingOrExtraMembers": [],
+  "allMemberHashesAndLengthsMatch": true,
+  "reviewMembers": {
+    "review/arrival-final-review.md": {
+      "sha256": "1c345109d9fd28108eb6459d32df1fb9b34afc310c10e5dc503b4356bc08fe0d",
+      "bytes": 5200
+    },
+    "review/arrival-observer-admission.json": {
+      "sha256": "7af829858822cebb7ed31c1fe5d341765f5b8979154b3ab0acde22afccd8eccb",
+      "bytes": 3149
+    },
+    "review/arrival-retained-review.json": {
+      "sha256": "ba16b33a8a1aa24ecab9ea4ac6ff0f7da1428a66f722a4c85abb0e4c3989352f",
+      "bytes": 20191
+    },
+    "review/arrival-trace-review.json": {
+      "sha256": "79324325f646bedeebd436cdcd925001b8f510dee56b7fa986e91842673d8e4d",
+      "bytes": 5834
+    },
+    "review/verify-arrival-trace.py": {
+      "sha256": "b298fe695eb11f729ca1cff9b4ad4b6eec9ae0d8f0b5ec0473065d54359ae375",
+      "bytes": 7052
+    }
+  },
+  "ledgerWordingCorrected": true,
+  "scope": "Independent streaming read-only check; no extraction, browser, gameplay or native execution."
+}
