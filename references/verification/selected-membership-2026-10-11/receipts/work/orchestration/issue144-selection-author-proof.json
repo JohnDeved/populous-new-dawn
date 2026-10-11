@@ -1,0 +1,52 @@
+{
+  "kind": "pnd-selected-membership-author-proof",
+  "head": "6a60855fbd63f15fd54b7a917bde51a7b5e48bdd",
+  "tree": "8914cb5b0d28b3fafe1e9ffd7487ca61661bf1aa",
+  "base": "e125813da6aa6a211f36d2248a877e10dc0efd45",
+  "testedHead": "4ab408b75747b2fadc195a85db82ee6f18ec721f",
+  "noteOnlyDelta": [
+    "references/selected-id-reconciliation.md"
+  ],
+  "sourceSha256": {
+    "app/scene-entities.ts": "301e86b3b57f211c54b90f9c5fb12b81f05f39cb367556471e94d33bc9e147da",
+    "app/scene.ts": "aa0f9203b62cb6e6f91103c8bb048c17bbd06904fc6fa9c72f809be41ade0f53",
+    "app/selection-runtime.ts": "a207ba434fe178e372f47d95dcced539acb7fa894029d90ded04090dd67c1b2e",
+    "references/selected-id-reconciliation.md": "5861493f1533661c4e729475735830f30d2140c1bea92f077f502f0da98504cf",
+    "tests/selected-id-reconciliation.test.mjs": "5aa3c74615e087fdae2463dc67a89d4aff25501e7d75599ee3b657e1c16b2849",
+    "tests/support/selection-scene.mjs": "5297459e4fa4f5568d1d01f0afc81790710bed8cddb0f7292d5c065a98735bb0"
+  },
+  "unchangedTestedInputs": [
+    "app/scene-entities.ts",
+    "app/scene.ts",
+    "app/selection-runtime.ts",
+    "app/scene-effects.ts",
+    "app/scene-assets.ts",
+    "app/model.ts",
+    "app/world-initialization.ts",
+    "app/game-store.ts",
+    "app/projection.ts",
+    "app/unit-animation-source.ts",
+    "app/person-selection.ts",
+    "app/person-orders.ts",
+    "app/hud-selection.ts",
+    "app/live-people.ts",
+    "app/original-units.json",
+    "app/original-rules.json",
+    "tests/selected-id-reconciliation.test.mjs",
+    "tests/support/selection-scene.mjs",
+    "tests/support/bloodlust-scene.mjs",
+    "tests/level-start-fixture.mjs",
+    "package-lock.json",
+    "node_modules/.package-lock.json",
+    "node_modules/typescript/lib/typescript.js",
+    "node_modules/three/build/three.module.js",
+    "node_modules/three/build/three.core.js"
+  ],
+  "reviewHelpers": {
+    "work/orchestration/compare-selection-receipts.mjs": {
+      "sha256": "8d41dd452fb5c0343789c716a813a83ff9705f8a3364de245dcffa5b17e5cae8",
+      "text": "import assert from 'node:assert/strict'\nimport { createHash } from 'node:crypto'\nimport { readFileSync } from 'node:fs'\nimport { execFileSync } from 'node:child_process'\n\nconst hash = value => createHash('sha256').update(value).digest('hex')\nconst base = 'e125813da6aa6a211f36d2248a877e10dc0efd45'\nconst candidate = '4ab408b75747b2fadc195a85db82ee6f18ec721f'\nconst root = '/workspace/pnd-baseline-144-selection'\nconst changed = new Set(['app/scene-entities.ts', 'app/scene.ts', 'app/selection-runtime.ts'])\nconst load = name => {\n  const receipt = JSON.parse(readFileSync(`work/orchestration/${name}`, 'utf8'))\n  assert.equal(receipt.phase, 'finished')\n  assert.deepEqual(receipt.source, receipt.sourceAfter)\n  for (const stream of ['stdout', 'stderr']) {\n    assert.equal(hash(receipt[stream]), receipt[`${stream}Sha256`])\n    assert.equal(hash(readFileSync(receipt.artifacts[stream])), receipt[`${stream}Sha256`])\n  }\n  return receipt\n}\nconst full = load('issue144-selection-focused-4ab408b.json')\nconst previous = load('issue144-selection-baseline-focused-e125813.json')\nassert.equal(full.source.headOid, candidate)\nassert.equal(previous.source.headOid, base)\nassert.equal(full.status, 'passed')\nassert.equal(full.exitCode, 0)\nassert.equal(previous.status, 'failed')\nassert.equal(previous.exitCode, 1)\nassert.deepEqual(full.command, previous.command)\nassert.deepEqual(Object.keys(full.source.inputs), Object.keys(previous.source.inputs))\nfor (const [path, digest] of Object.entries(full.source.inputs)) {\n  assert.equal(hash(readFileSync(path)), digest, path)\n  assert.equal(hash(readFileSync(`${root}/${path}`)), previous.source.inputs[path], path)\n  if (!changed.has(path)) assert.equal(digest, previous.source.inputs[path], path)\n}\nassert.match(full.stdout, /pass 7\\n.*fail 0/)\nassert.match(previous.stdout, /pass 5\\n.*fail 2/)\nassert.match(previous.stdout, /wrapper must forward an explicitly empty set/)\nassert.match(previous.stdout, /quiet idle full unit caller read 4160 selected slots for 64 people/)\nassert.equal(\n  execFileSync('git', ['diff', '--name-only', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(),\n  ''\n)\nassert.equal(previous.source.trackedDiffSha256, hash(''))\nconst original = path => execFileSync('git', ['show', `${base}:${path}`], { encoding: 'utf8' })\nfor (const path of changed) assert.equal(hash(original(path)), previous.source.inputs[path])\nconst restore = (value, from, to) => {\n  assert.ok(value.includes(from), from)\n  assert.equal(value.split(from).length, 2, 'the explicit source transformation must occur once')\n  return value.replace(from, to)\n}\nlet entities = readFileSync('app/scene-entities.ts', 'utf8')\nentities = restore(entities, 'const unitFrameSelectedIds = new WeakMap<GameScene, Set<number>>()\\n', '')\nentities = restore(entities, 'frameNumber?: number,\\n  selectedIds?: ReadonlySet<number>', 'frameNumber?: number')\nentities = restore(\n  entities,\n  `        selectionFlags:\n          (selectedIds?.has(g.userData.unit) ?? scene.world.selected.includes(g.userData.unit))\n            ? 128\n            : 0,`,\n  '        selectionFlags: scene.world.selected.includes(g.userData.unit) ? 128 : 0,'\n)\nentities = restore(\n  entities,\n  `  let selectedIds = unitFrameSelectedIds.get(scene)\n  if (!selectedIds) {\n    selectedIds = new Set()\n    unitFrameSelectedIds.set(scene, selectedIds)\n  }\n  selectedIds.clear()\n  for (const id of scene.world.selected) selectedIds.add(id)\n`,\n  ''\n)\nentities = restore(entities, 'unitAnimation(scene.world, u, selectedIds)', 'unitAnimation(scene.world, u)')\nentities = restore(\n  entities,\n  'nativeDirections ? animationSource!.f2 : undefined,\\n      selectedIds',\n  'nativeDirections ? animationSource!.f2 : undefined'\n)\nassert.equal(entities, original('app/scene-entities.ts'))\nlet scene = readFileSync('app/scene.ts', 'utf8')\nscene = restore(scene, 'frameNumber?: number,\\n    selectedIds?: ReadonlySet<number>', 'frameNumber?: number')\nscene = restore(\n  scene,\n  'animatePerson(this, g, heading, directions, age, once, frameNumber, selectedIds)',\n  'animatePerson(this, g, heading, directions, age, once, frameNumber)'\n)\nassert.equal(scene, original('app/scene.ts'))\nlet selection = readFileSync('app/selection-runtime.ts', 'utf8')\nselection = restore(\n  selection,\n  'unitAnimation(w: World, u: Unit, selectedIds?: ReadonlySet<number>)',\n  'unitAnimation(w: World, u: Unit)'\n)\nselection = restore(\n  selection,\n  \"return (selectedIds?.has(u.id) ?? w.selected.includes(u.id)) ? 'selected' : 'idle'\",\n  \"return w.selected.includes(u.id) ? 'selected' : 'idle'\"\n)\nassert.equal(selection, original('app/selection-runtime.ts'))\nconst lint = load('issue144-selection-oxlint-4ab408b.json')\nconst oldLint = load('issue144-selection-baseline-oxlint-e125813.json')\nfor (const receipt of [lint, oldLint]) {\n  assert.equal(receipt.status, 'failed')\n  assert.equal(receipt.exitCode, 1)\n}\nassert.equal(lint.source.headOid, candidate)\nassert.equal(oldLint.source.headOid, base)\nassert.deepEqual(lint.command, oldLint.command)\nfor (const [path, digest] of Object.entries(lint.source.inputs))\n  if (!changed.has(path)) assert.equal(digest, oldLint.source.inputs[path], path)\nconst diagnostics = receipt => receipt.stdout.trim().split('\\n')\n  .map(line => line.replace(/:\\d+:\\d+(?=: (?:warning|error))/, ':<line>:<column>')).sort()\nassert.equal(diagnostics(lint).length, 28)\nassert.deepEqual(diagnostics(lint), diagnostics(oldLint))\nconsole.log(JSON.stringify({\n  focusedCandidate: 'passed 7/7',\n  actualUnmodifiedBase: 'failed: five unchanged lifecycle/default cases passed; new explicit-set authority and scaling failed',\n  baseScaling: '4160 selected-slot reads for64 people; bound128',\n  pairedInputHashes: full.source.inputs,\n  productionBaseUnchanged: true,\n  allSourceOutsideExplicitMembershipAndOptionalForwardingUnchanged: true,\n  strictOxlintCandidate: 'failed',\n  strictOxlintBase: 'failed',\n  diagnosticMultiset: 'passed:28 inherited diagnostics (24warnings/4errors); only numeric line/column prefixes normalized',\n  scalingScope: 'quiet all-selected legacy idle people, both idle-state and arrow consumers; selected-slot reads only, no whole-frame/native/browser/hardware timing claim',\n}, null, 2))\n"
+    }
+  },
+  "scope": "Actual full Node unit/Scene wrappers and maintained selection producers. Quiet legacy-idle selected-slot diagnostic covers both includes consumers. Diagnostic effect selection observer is supplied and does not add production corpse arrows. Base new-contract and scaling failures are distinct; strict28 inherited diagnostics remain failed separately from comparison pass. Browser/native-raster/hardware/whole-issue/deployment acceptance not claimed."
+}

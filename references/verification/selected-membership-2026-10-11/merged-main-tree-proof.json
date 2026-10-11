@@ -1,0 +1,25 @@
+{
+  "kind": "pnd-merged-main-full-tree-equivalence",
+  "status": "passed",
+  "actualGitSource": "shared repository object database populated from anonymous public Git",
+  "publishedHead": "22b42875f5e9c8544ff8049c3c22634feff6f43f",
+  "authorHead": "6a60855fbd63f15fd54b7a917bde51a7b5e48bdd",
+  "mergedMain": "084c7ba4dfb116c4d1304bf54d3a7c9802bc14ba",
+  "parent": "e125813da6aa6a211f36d2248a877e10dc0efd45",
+  "fullTree": "8914cb5b0d28b3fafe1e9ffd7487ca61661bf1aa",
+  "emptyPublishedToMergedDiff": true,
+  "sourceAndGateCarry": "Complete tree equality carries accepted source, focused and standard gates without reruns; no deployed behavior claim.",
+  "providerCIAtCheckpoint": {
+    "publishedHead": {
+      "checkRunId": 114529220631,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "mergedMain": {
+      "checkRunId": 114531906421,
+      "status": "in_progress",
+      "conclusion": null
+    },
+    "provenance": "Coordinator verified provider state; terminal main proof is supplied separately after completion."
+  }
+}

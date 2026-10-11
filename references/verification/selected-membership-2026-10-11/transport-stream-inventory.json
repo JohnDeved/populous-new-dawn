@@ -1,0 +1,188 @@
+{
+  "kind": "pnd-review-transport-stream-inventory",
+  "head": "22b42875f5e9c8544ff8049c3c22634feff6f43f",
+  "notice": "Literal source-root and home strings are replaced in copied receipt metadata/payloads. Original stdoutSha256/stderrSha256 fields retain original decoded hashes. Only root standard-check stdout is transformed among 20 streams; transport hashes are independently listed here. Both base failures and strict Oxlint failures remain failed; comparison pass is distinct. Supplemental inventory is outside core-manifest verification.",
+  "decodedStreamCount": 20,
+  "streams": [
+    {
+      "sourcePath": "work/orchestration/issue144-selection-focused-4ab408b.json",
+      "stream": "stdout",
+      "status": "passed",
+      "originalDecodedSha256": "c0c34a9cd3bb8446ca171e0a72ab5c818490a713f66cef03c934ded1f441cc9c",
+      "transportDecodedSha256": "c0c34a9cd3bb8446ca171e0a72ab5c818490a713f66cef03c934ded1f441cc9c",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-focused-4ab408b.json",
+      "stream": "stderr",
+      "status": "passed",
+      "originalDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-baseline-focused-e125813.json",
+      "stream": "stdout",
+      "status": "failed",
+      "originalDecodedSha256": "7a9969b047ec021769d7535d1e6d6ddd8080220765586420e50894cdd63fa9e2",
+      "transportDecodedSha256": "7a9969b047ec021769d7535d1e6d6ddd8080220765586420e50894cdd63fa9e2",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-baseline-focused-e125813.json",
+      "stream": "stderr",
+      "status": "failed",
+      "originalDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-oxfmt-4ab408b.json",
+      "stream": "stdout",
+      "status": "passed",
+      "originalDecodedSha256": "657a2e361fa8bb94a6dd9fe1520753078ba1b23cbeaf3331203869422be90b9f",
+      "transportDecodedSha256": "657a2e361fa8bb94a6dd9fe1520753078ba1b23cbeaf3331203869422be90b9f",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-oxfmt-4ab408b.json",
+      "stream": "stderr",
+      "status": "passed",
+      "originalDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-eslint-4ab408b.json",
+      "stream": "stdout",
+      "status": "passed",
+      "originalDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-eslint-4ab408b.json",
+      "stream": "stderr",
+      "status": "passed",
+      "originalDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-oxlint-4ab408b.json",
+      "stream": "stdout",
+      "status": "failed",
+      "originalDecodedSha256": "e718a04dd6b7de9c6e250fdfee601d8d2e746a991b8e6ceb5707e573fef4b7fd",
+      "transportDecodedSha256": "e718a04dd6b7de9c6e250fdfee601d8d2e746a991b8e6ceb5707e573fef4b7fd",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-oxlint-4ab408b.json",
+      "stream": "stderr",
+      "status": "failed",
+      "originalDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-baseline-oxlint-e125813.json",
+      "stream": "stdout",
+      "status": "failed",
+      "originalDecodedSha256": "0bff16f2a07d44d7e16a7241706170d0d9cc45f16dd707ab487c9b6950a11fe1",
+      "transportDecodedSha256": "0bff16f2a07d44d7e16a7241706170d0d9cc45f16dd707ab487c9b6950a11fe1",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-baseline-oxlint-e125813.json",
+      "stream": "stderr",
+      "status": "failed",
+      "originalDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-comparison-4ab408b.json",
+      "stream": "stdout",
+      "status": "passed",
+      "originalDecodedSha256": "427ddf2645c5179df3de889dfab6d618ba9dbbbab2f6d4e414234b9c4829d06d",
+      "transportDecodedSha256": "427ddf2645c5179df3de889dfab6d618ba9dbbbab2f6d4e414234b9c4829d06d",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-comparison-4ab408b.json",
+      "stream": "stderr",
+      "status": "passed",
+      "originalDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-note-format-final.json",
+      "stream": "stdout",
+      "status": "passed",
+      "originalDecodedSha256": "381e8da06940261de6c659efd933dea3c2595501183fe4f34a921f749b6fde0f",
+      "transportDecodedSha256": "381e8da06940261de6c659efd933dea3c2595501183fe4f34a921f749b6fde0f",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-note-format-final.json",
+      "stream": "stderr",
+      "status": "passed",
+      "originalDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-final/check-01.json",
+      "stream": "stdout",
+      "status": "passed",
+      "originalDecodedSha256": "23b7110c1686111d5d131843b5642d0017639780ba7003ab855e475c24948ace",
+      "transportDecodedSha256": "f3c0fdd1921d2b38dfc5d389e3389c1e38c081e491d56d24e9f8f8d4037ebff9",
+      "transformed": true,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-final/check-01.json",
+      "stream": "stderr",
+      "status": "passed",
+      "originalDecodedSha256": "01c9f0fa849496a74324fe7e0f3086d0c1daaad75e95532d1be617cbe6f7d122",
+      "transportDecodedSha256": "01c9f0fa849496a74324fe7e0f3086d0c1daaad75e95532d1be617cbe6f7d122",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-final/build-01.json",
+      "stream": "stdout",
+      "status": "passed",
+      "originalDecodedSha256": "c4fb7d9a2f6989dbaba65b75e91c399436cf9b88144dfbd31c50f1d375ea34eb",
+      "transportDecodedSha256": "c4fb7d9a2f6989dbaba65b75e91c399436cf9b88144dfbd31c50f1d375ea34eb",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-final/build-01.json",
+      "stream": "stderr",
+      "status": "passed",
+      "originalDecodedSha256": "37303b843e2ce507fcc9d84f37582f033679086b40fc0554269b92dedb0923c9",
+      "transportDecodedSha256": "37303b843e2ce507fcc9d84f37582f033679086b40fc0554269b92dedb0923c9",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    }
+  ]
+}

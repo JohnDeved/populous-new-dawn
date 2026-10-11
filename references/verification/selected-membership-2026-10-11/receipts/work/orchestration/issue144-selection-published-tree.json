@@ -1,0 +1,41 @@
+{
+  "status": "passed",
+  "transport": "anonymous public Git fetch",
+  "publishedHead": "22b42875f5e9c8544ff8049c3c22634feff6f43f",
+  "base": "e125813da6aa6a211f36d2248a877e10dc0efd45",
+  "authorHead": "6a60855fbd63f15fd54b7a917bde51a7b5e48bdd",
+  "fullTree": "8914cb5b0d28b3fafe1e9ffd7487ca61661bf1aa",
+  "sources": [
+    {
+      "path": "app/scene-entities.ts",
+      "bytes": 31497,
+      "sha256": "301e86b3b57f211c54b90f9c5fb12b81f05f39cb367556471e94d33bc9e147da"
+    },
+    {
+      "path": "app/scene.ts",
+      "bytes": 31529,
+      "sha256": "aa0f9203b62cb6e6f91103c8bb048c17bbd06904fc6fa9c72f809be41ade0f53"
+    },
+    {
+      "path": "app/selection-runtime.ts",
+      "bytes": 8993,
+      "sha256": "a207ba434fe178e372f47d95dcced539acb7fa894029d90ded04090dd67c1b2e"
+    },
+    {
+      "path": "references/selected-id-reconciliation.md",
+      "bytes": 5178,
+      "sha256": "5861493f1533661c4e729475735830f30d2140c1bea92f077f502f0da98504cf"
+    },
+    {
+      "path": "tests/selected-id-reconciliation.test.mjs",
+      "bytes": 13439,
+      "sha256": "5aa3c74615e087fdae2463dc67a89d4aff25501e7d75599ee3b657e1c16b2849"
+    },
+    {
+      "path": "tests/support/selection-scene.mjs",
+      "bytes": 1081,
+      "sha256": "5297459e4fa4f5568d1d01f0afc81790710bed8cddb0f7292d5c065a98735bb0"
+    }
+  ],
+  "diffSha256": "331264432105cddd285deb72a65817b16dab54e7d08a8cf8f5b5a2fef87fe995"
+}

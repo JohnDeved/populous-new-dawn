@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "ca27a365-3d2a-4703-87fa-f7c6c2bbb0fa",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "4ab408b75747b2fadc195a85db82ee6f18ec721f",
+    "branch": "codex/issue144-selected-id-index",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/scene-entities.ts": "301e86b3b57f211c54b90f9c5fb12b81f05f39cb367556471e94d33bc9e147da",
+      "app/scene.ts": "aa0f9203b62cb6e6f91103c8bb048c17bbd06904fc6fa9c72f809be41ade0f53",
+      "app/selection-runtime.ts": "a207ba434fe178e372f47d95dcced539acb7fa894029d90ded04090dd67c1b2e",
+      "tests/selected-id-reconciliation.test.mjs": "5aa3c74615e087fdae2463dc67a89d4aff25501e7d75599ee3b657e1c16b2849",
+      "tests/support/selection-scene.mjs": "5297459e4fa4f5568d1d01f0afc81790710bed8cddb0f7292d5c065a98735bb0",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      ".oxfmtrc.json": "3d994b16c5ebbf15cb6a77529615f68696433af8e0384da5a1f8420b38db7479"
+    }
+  },
+  "command": [
+    "node_modules/.bin/oxfmt",
+    "--check",
+    "app/scene-entities.ts",
+    "app/scene.ts",
+    "app/selection-runtime.ts",
+    "tests/selected-id-reconciliation.test.mjs",
+    "tests/support/selection-scene.mjs"
+  ],
+  "cwd": "/workspace/pnd-author-144-selection",
+  "startedAt": "2026-10-11T17:15:01.247Z",
+  "artifacts": {
+    "stdout": "/workspace/pnd-author-144-selection/work/orchestration/issue144-selection-oxfmt-4ab408b.json.artifacts/stdout.log",
+    "stderr": "/workspace/pnd-author-144-selection/work/orchestration/issue144-selection-oxfmt-4ab408b.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-11T17:15:01.353Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 10ms on 5 files using 4 threads.\n",
+  "stderr": "",
+  "stdoutSha256": "657a2e361fa8bb94a6dd9fe1520753078ba1b23cbeaf3331203869422be90b9f",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "4ab408b75747b2fadc195a85db82ee6f18ec721f",
+    "branch": "codex/issue144-selected-id-index",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/scene-entities.ts": "301e86b3b57f211c54b90f9c5fb12b81f05f39cb367556471e94d33bc9e147da",
+      "app/scene.ts": "aa0f9203b62cb6e6f91103c8bb048c17bbd06904fc6fa9c72f809be41ade0f53",
+      "app/selection-runtime.ts": "a207ba434fe178e372f47d95dcced539acb7fa894029d90ded04090dd67c1b2e",
+      "tests/selected-id-reconciliation.test.mjs": "5aa3c74615e087fdae2463dc67a89d4aff25501e7d75599ee3b657e1c16b2849",
+      "tests/support/selection-scene.mjs": "5297459e4fa4f5568d1d01f0afc81790710bed8cddb0f7292d5c065a98735bb0",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      ".oxfmtrc.json": "3d994b16c5ebbf15cb6a77529615f68696433af8e0384da5a1f8420b38db7479"
+    }
+  }
+}

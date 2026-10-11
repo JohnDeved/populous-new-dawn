@@ -1,0 +1,209 @@
+{
+  "version": 1,
+  "kind": "pnd-review-bundle",
+  "taskId": "issue144-selection-final",
+  "repository": {
+    "branch": "",
+    "baseCommit": "e125813da6aa6a211f36d2248a877e10dc0efd45",
+    "headOid": "22b42875f5e9c8544ff8049c3c22634feff6f43f"
+  },
+  "diff": {
+    "path": "changes.patch",
+    "sha256": "331264432105cddd285deb72a65817b16dab54e7d08a8cf8f5b5a2fef87fe995",
+    "bytes": 25260
+  },
+  "sources": [
+    {
+      "status": "M",
+      "path": "app/scene-entities.ts",
+      "state": "present",
+      "sha256": "301e86b3b57f211c54b90f9c5fb12b81f05f39cb367556471e94d33bc9e147da",
+      "blobOid": "bf1b90eb8938e7c615a1c9e575cd87cd56f505eb",
+      "bytes": 31497
+    },
+    {
+      "status": "M",
+      "path": "app/scene.ts",
+      "state": "present",
+      "sha256": "aa0f9203b62cb6e6f91103c8bb048c17bbd06904fc6fa9c72f809be41ade0f53",
+      "blobOid": "ee70afc3cec16243f51aed68be229e0bd4c4e779",
+      "bytes": 31529
+    },
+    {
+      "status": "M",
+      "path": "app/selection-runtime.ts",
+      "state": "present",
+      "sha256": "a207ba434fe178e372f47d95dcced539acb7fa894029d90ded04090dd67c1b2e",
+      "blobOid": "760b1f6fb208e37bf11d942aebaee7ed0945f820",
+      "bytes": 8993
+    },
+    {
+      "status": "A",
+      "path": "references/selected-id-reconciliation.md",
+      "state": "present",
+      "sha256": "5861493f1533661c4e729475735830f30d2140c1bea92f077f502f0da98504cf",
+      "blobOid": "d3067f75218266f30272a44afc8e48548793bac3",
+      "bytes": 5178
+    },
+    {
+      "status": "A",
+      "path": "tests/selected-id-reconciliation.test.mjs",
+      "state": "present",
+      "sha256": "5aa3c74615e087fdae2463dc67a89d4aff25501e7d75599ee3b657e1c16b2849",
+      "blobOid": "e5e7e87448b6231a7849f76712c32df861dfc2c1",
+      "bytes": 13439
+    },
+    {
+      "status": "A",
+      "path": "tests/support/selection-scene.mjs",
+      "state": "present",
+      "sha256": "5297459e4fa4f5568d1d01f0afc81790710bed8cddb0f7292d5c065a98735bb0",
+      "blobOid": "e4c4351b66a340813a6ef8a9f75daa8ed3d9c825",
+      "bytes": 1081
+    }
+  ],
+  "receipts": [
+    {
+      "sourcePath": "work/orchestration/issue144-selection-focused-4ab408b.json",
+      "sourceSha256": "09e52c9677af132f60619cb1982c2d6f4f96067adcce1877c204cd23fe90fca7",
+      "sourceBytes": 7872,
+      "bundlePath": "receipts/work/orchestration/issue144-selection-focused-4ab408b.json",
+      "bundleSha256": "09e52c9677af132f60619cb1982c2d6f4f96067adcce1877c204cd23fe90fca7",
+      "bundleBytes": 7872,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-baseline-focused-e125813.json",
+      "sourceSha256": "fdf973ee123ee3412313012278a11c680d957cfea104613e66152599219c13a0",
+      "sourceBytes": 8957,
+      "bundlePath": "receipts/work/orchestration/issue144-selection-baseline-focused-e125813.json",
+      "bundleSha256": "fdf973ee123ee3412313012278a11c680d957cfea104613e66152599219c13a0",
+      "bundleBytes": 8957,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-oxfmt-4ab408b.json",
+      "sourceSha256": "f6b434710e9c032905125913bcea1306c7a7bcb9e06c529ecaa8aa58e5ef0724",
+      "sourceBytes": 3305,
+      "bundlePath": "receipts/work/orchestration/issue144-selection-oxfmt-4ab408b.json",
+      "bundleSha256": "f6b434710e9c032905125913bcea1306c7a7bcb9e06c529ecaa8aa58e5ef0724",
+      "bundleBytes": 3305,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-eslint-4ab408b.json",
+      "sourceSha256": "e2837e86229c5ac562e184b60dd966228be440f9afcf374346372efcd59dac44",
+      "sourceBytes": 3186,
+      "bundlePath": "receipts/work/orchestration/issue144-selection-eslint-4ab408b.json",
+      "bundleSha256": "e2837e86229c5ac562e184b60dd966228be440f9afcf374346372efcd59dac44",
+      "bundleBytes": 3186,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-oxlint-4ab408b.json",
+      "sourceSha256": "16aa473f5904b518ae1c89180ab0b137921657ad5f66b635dc7647a2d4215834",
+      "sourceBytes": 8494,
+      "bundlePath": "receipts/work/orchestration/issue144-selection-oxlint-4ab408b.json",
+      "bundleSha256": "16aa473f5904b518ae1c89180ab0b137921657ad5f66b635dc7647a2d4215834",
+      "bundleBytes": 8494,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-baseline-oxlint-e125813.json",
+      "sourceSha256": "9aee1138a8373e9d7557b1bf500c80d8dbfc19a97a1b19f8e075bbe0cb417ff8",
+      "sourceBytes": 8454,
+      "bundlePath": "receipts/work/orchestration/issue144-selection-baseline-oxlint-e125813.json",
+      "bundleSha256": "9aee1138a8373e9d7557b1bf500c80d8dbfc19a97a1b19f8e075bbe0cb417ff8",
+      "bundleBytes": 8454,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-comparison-4ab408b.json",
+      "sourceSha256": "e7c8b64196e000bbbabb003f380e071711c2da84277d3932b0a18031c25dad44",
+      "sourceBytes": 7282,
+      "bundlePath": "receipts/work/orchestration/issue144-selection-comparison-4ab408b.json",
+      "bundleSha256": "e7c8b64196e000bbbabb003f380e071711c2da84277d3932b0a18031c25dad44",
+      "bundleBytes": 7282,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-note-format-final.json",
+      "sourceSha256": "d9f75f497fb691618df4bc2df4a9da145d6d09fbe51f30da9c38e275daa9d892",
+      "sourceBytes": 2385,
+      "bundlePath": "receipts/work/orchestration/issue144-selection-note-format-final.json",
+      "bundleSha256": "d9f75f497fb691618df4bc2df4a9da145d6d09fbe51f30da9c38e275daa9d892",
+      "bundleBytes": 2385,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-author-proof.json",
+      "sourceSha256": "ad9c4f5209d593ab006f95365303f846a847610af9a0809a49e996a30ba1a815",
+      "sourceBytes": 8838,
+      "bundlePath": "receipts/work/orchestration/issue144-selection-author-proof.json",
+      "bundleSha256": "ad9c4f5209d593ab006f95365303f846a847610af9a0809a49e996a30ba1a815",
+      "bundleBytes": 8838,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-published-tree.json",
+      "sourceSha256": "6378754cada077416ad79377c36eb81ee2e6cffe1f9d93171139ec16a50e1cfd",
+      "sourceBytes": 1392,
+      "bundlePath": "receipts/work/orchestration/issue144-selection-published-tree.json",
+      "bundleSha256": "6378754cada077416ad79377c36eb81ee2e6cffe1f9d93171139ec16a50e1cfd",
+      "bundleBytes": 1392,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-final/check-01.json",
+      "sourceSha256": "12c9b3179893a737a0b47cffb56c096202102288746e06e6e8c7f9d0aa389ace",
+      "sourceBytes": 227410,
+      "bundlePath": "receipts/work/orchestration/issue144-selection-final/check-01.json",
+      "bundleSha256": "cd43330ce760c73949a434603130e04b666d29f02eec37e7357a9c1607b6349a",
+      "bundleBytes": 227242,
+      "redactions": 8
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-final/build-01.json",
+      "sourceSha256": "80fba95a531f3f67ec57595388125abcc6623140e8c1549e6233ee4e7dee02f4",
+      "sourceBytes": 4206,
+      "bundlePath": "receipts/work/orchestration/issue144-selection-final/build-01.json",
+      "bundleSha256": "499f37836651cf5bf0366c25a835c910f0f4affc63862b6fb700f57d06fb4ff1",
+      "bundleBytes": 4143,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-final/plan.json",
+      "sourceSha256": "b5164443cf76783c66220623af07d787bc9dbf0a6ea0234d21cc11a41984f02c",
+      "sourceBytes": 110397,
+      "bundlePath": "receipts/work/orchestration/issue144-selection-final/plan.json",
+      "bundleSha256": "b5164443cf76783c66220623af07d787bc9dbf0a6ea0234d21cc11a41984f02c",
+      "bundleBytes": 110397,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-final/check-selection-03.json",
+      "sourceSha256": "6f2f9231cf514106754c9eaac5c272a9f899ca42038c7d2a159da662ed3fb8db",
+      "sourceBytes": 147423,
+      "bundlePath": "receipts/work/orchestration/issue144-selection-final/check-selection-03.json",
+      "bundleSha256": "6f2f9231cf514106754c9eaac5c272a9f899ca42038c7d2a159da662ed3fb8db",
+      "bundleBytes": 147423,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-selection-final/test-supervisor-source.json",
+      "sourceSha256": "57f3647229b72697059c79885ea10419d699e5e3219ed6705d1dfc681ff99cc9",
+      "sourceBytes": 1328,
+      "bundlePath": "receipts/work/orchestration/issue144-selection-final/test-supervisor-source.json",
+      "bundleSha256": "57f3647229b72697059c79885ea10419d699e5e3219ed6705d1dfc681ff99cc9",
+      "bundleBytes": 1328,
+      "redactions": 0
+    }
+  ],
+  "reviewerPreflight": {
+    "instructions": "Open this bundle in a permitted executor and verify it against trusted caller-supplied identities before review.",
+    "verify": [
+      "node",
+      "verify.mjs"
+    ]
+  }
+}

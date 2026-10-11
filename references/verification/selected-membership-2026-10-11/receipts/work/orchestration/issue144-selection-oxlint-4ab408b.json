@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "59b14bc0-930d-452a-92a8-9b7c990ef817",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "4ab408b75747b2fadc195a85db82ee6f18ec721f",
+    "branch": "codex/issue144-selected-id-index",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/scene-entities.ts": "301e86b3b57f211c54b90f9c5fb12b81f05f39cb367556471e94d33bc9e147da",
+      "app/scene.ts": "aa0f9203b62cb6e6f91103c8bb048c17bbd06904fc6fa9c72f809be41ade0f53",
+      "app/selection-runtime.ts": "a207ba434fe178e372f47d95dcced539acb7fa894029d90ded04090dd67c1b2e",
+      "tests/selected-id-reconciliation.test.mjs": "5aa3c74615e087fdae2463dc67a89d4aff25501e7d75599ee3b657e1c16b2849",
+      "tests/support/selection-scene.mjs": "5297459e4fa4f5568d1d01f0afc81790710bed8cddb0f7292d5c065a98735bb0",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      ".oxlintrc.json": "caa0057ea1cbbc87402c3942667be83c2298b3a167957cea7153d0d72444ccff",
+      "node_modules/oxc-standard/.oxlintrc.json": "12a8af193abedfc648f0b37822a0092df18b5cd83644b8e6bd57d0f1e24d2bbc"
+    }
+  },
+  "command": [
+    "node_modules/.bin/oxlint",
+    "--deny-warnings",
+    "app/scene-entities.ts",
+    "app/scene.ts",
+    "app/selection-runtime.ts"
+  ],
+  "cwd": "/workspace/pnd-author-144-selection",
+  "startedAt": "2026-10-11T17:15:04.844Z",
+  "artifacts": {
+    "stdout": "/workspace/pnd-author-144-selection/work/orchestration/issue144-selection-oxlint-4ab408b.json.artifacts/stdout.log",
+    "stderr": "/workspace/pnd-author-144-selection/work/orchestration/issue144-selection-oxlint-4ab408b.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-11T17:15:04.936Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "app/selection-runtime.ts:8:35: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.\napp/selection-runtime.ts:11:23: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.\napp/selection-runtime.ts:82:26: warning eslint(no-shadow): 'b' is already declared in the upper scope. help: Consider renaming 'b' to avoid shadowing the variable from the outer scope.\napp/selection-runtime.ts:36:12: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/selection-runtime.ts:38:9: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/selection-runtime.ts:40:11: warning unicorn(no-nested-ternary): Unexpected deeply nested ternary expression. help: Avoid nesting ternary expressions for more than one level.\napp/selection-runtime.ts:45:12: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/selection-runtime.ts:47:9: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/selection-runtime.ts:49:11: warning unicorn(no-nested-ternary): Unexpected deeply nested ternary expression. help: Avoid nesting ternary expressions for more than one level.\napp/scene.ts:730:5: warning eslint(no-shadow): 'focus' is already declared in the upper scope. help: Consider renaming 'focus' to avoid shadowing the variable from the outer scope.\napp/scene.ts:41:1: error typescript(consistent-type-imports): Imports terrainAtlas are only used as type. help: Mark all type-only imports with the type specifier\napp/scene.ts:450:15: warning unicorn(prefer-dom-node-append): Prefer `Node#append()` over `Node#appendChild()` for DOM nodes. help: Replace `Node#appendChild()` with `Node#append()`.\napp/scene.ts:451:34: warning unicorn(prefer-dom-node-append): Prefer `Node#append()` over `Node#appendChild()` for DOM nodes. help: Replace `Node#appendChild()` with `Node#append()`.\napp/scene.ts:466:25: warning unicorn(prefer-dom-node-append): Prefer `Node#append()` over `Node#appendChild()` for DOM nodes. help: Replace `Node#appendChild()` with `Node#append()`.\napp/scene.ts:467:15: warning unicorn(prefer-dom-node-append): Prefer `Node#append()` over `Node#appendChild()` for DOM nodes. help: Replace `Node#appendChild()` with `Node#append()`.\napp/scene.ts:472:25: warning unicorn(prefer-dom-node-append): Prefer `Node#append()` over `Node#appendChild()` for DOM nodes. help: Replace `Node#appendChild()` with `Node#append()`.\napp/scene.ts:474:15: warning unicorn(prefer-dom-node-append): Prefer `Node#append()` over `Node#appendChild()` for DOM nodes. help: Replace `Node#appendChild()` with `Node#append()`.\napp/scene.ts:480:25: warning unicorn(prefer-dom-node-append): Prefer `Node#append()` over `Node#appendChild()` for DOM nodes. help: Replace `Node#appendChild()` with `Node#append()`.\napp/scene.ts:483:15: warning unicorn(prefer-dom-node-append): Prefer `Node#append()` over `Node#appendChild()` for DOM nodes. help: Replace `Node#appendChild()` with `Node#append()`.\napp/scene-entities.ts:433:11: warning eslint(no-shadow): 'material' is already declared in the upper scope. help: Consider renaming 'material' to avoid shadowing the variable from the outer scope.\napp/scene-entities.ts:662:47: warning eslint(no-shadow): 'v' is already declared in the upper scope. help: Consider renaming 'v' to avoid shadowing the variable from the outer scope.\napp/scene-entities.ts:696:48: warning eslint(no-shadow): 'b' is already declared in the upper scope. help: Consider renaming 'b' to avoid shadowing the variable from the outer scope.\napp/scene-entities.ts:181:8: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/scene-entities.ts:181:32: warning unicorn(no-nested-ternary): Unexpected nested ternary expression without parentheses. help: Add parentheses around the nested ternary expression.\napp/scene-entities.ts:444:13: error eslint(no-multi-assign): Do not use chained assignment help: Separate each assignment into its own statement\napp/scene-entities.ts:612:9: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/scene-entities.ts:614:13: warning unicorn(no-nested-ternary): Unexpected nested ternary expression without parentheses. help: Add parentheses around the nested ternary expression.\napp/scene-entities.ts:847:21: warning eslint(prefer-destructuring): Use Object destructuring. help: Use object destructuring rather than direct member access.\n",
+  "stderr": "",
+  "stdoutSha256": "e718a04dd6b7de9c6e250fdfee601d8d2e746a991b8e6ceb5707e573fef4b7fd",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "4ab408b75747b2fadc195a85db82ee6f18ec721f",
+    "branch": "codex/issue144-selected-id-index",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/scene-entities.ts": "301e86b3b57f211c54b90f9c5fb12b81f05f39cb367556471e94d33bc9e147da",
+      "app/scene.ts": "aa0f9203b62cb6e6f91103c8bb048c17bbd06904fc6fa9c72f809be41ade0f53",
+      "app/selection-runtime.ts": "a207ba434fe178e372f47d95dcced539acb7fa894029d90ded04090dd67c1b2e",
+      "tests/selected-id-reconciliation.test.mjs": "5aa3c74615e087fdae2463dc67a89d4aff25501e7d75599ee3b657e1c16b2849",
+      "tests/support/selection-scene.mjs": "5297459e4fa4f5568d1d01f0afc81790710bed8cddb0f7292d5c065a98735bb0",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      ".oxlintrc.json": "caa0057ea1cbbc87402c3942667be83c2298b3a167957cea7153d0d72444ccff",
+      "node_modules/oxc-standard/.oxlintrc.json": "12a8af193abedfc648f0b37822a0092df18b5cd83644b8e6bd57d0f1e24d2bbc"
+    }
+  }
+}

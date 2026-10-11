@@ -1,0 +1,330 @@
+{
+  "kind": "terminal-exact-head-and-merged-main-ci-proof",
+  "publishedHead": "22b42875f5e9c8544ff8049c3c22634feff6f43f",
+  "authorHead": "6a60855fbd63f15fd54b7a917bde51a7b5e48bdd",
+  "base": "e125813da6aa6a211f36d2248a877e10dc0efd45",
+  "mergedHead": "084c7ba4dfb116c4d1304bf54d3a7c9802bc14ba",
+  "fullTree": "8914cb5b0d28b3fafe1e9ffd7487ca61661bf1aa",
+  "sourceReview": "Independent source, focused evidence, exact published source and final integration ACCEPT; root+independent actual merged full-tree/parent/source verification ACCEPT.",
+  "headGitData": {
+    "sha": "22b42875f5e9c8544ff8049c3c22634feff6f43f",
+    "node_id": "C_kwDOUWLSPdoAKDIyYjQyODc1ZjVlOWM4NTQ0ZmY4MDQ5YzNjMjI2MzRmZWZmNmY0M2Y",
+    "url": "https://api.github.com/repos/JohnDeved/populous-new-dawn/git/commits/22b42875f5e9c8544ff8049c3c22634feff6f43f",
+    "html_url": "https://github.com/JohnDeved/populous-new-dawn/commit/22b42875f5e9c8544ff8049c3c22634feff6f43f",
+    "author": {
+      "name": "undefined",
+      "email": "johann@objekt.stream",
+      "date": "2026-10-11T17:21:58Z"
+    },
+    "committer": {
+      "name": "undefined",
+      "email": "johann@objekt.stream",
+      "date": "2026-10-11T17:21:58Z"
+    },
+    "tree": {
+      "sha": "8914cb5b0d28b3fafe1e9ffd7487ca61661bf1aa",
+      "url": "https://api.github.com/repos/JohnDeved/populous-new-dawn/git/trees/8914cb5b0d28b3fafe1e9ffd7487ca61661bf1aa"
+    },
+    "message": "perf: reuse current frame selection membership for person rendering",
+    "parents": [
+      {
+        "sha": "e125813da6aa6a211f36d2248a877e10dc0efd45",
+        "url": "https://api.github.com/repos/JohnDeved/populous-new-dawn/git/commits/e125813da6aa6a211f36d2248a877e10dc0efd45",
+        "html_url": "https://github.com/JohnDeved/populous-new-dawn/commit/e125813da6aa6a211f36d2248a877e10dc0efd45"
+      }
+    ],
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null,
+      "verified_at": null
+    }
+  },
+  "reviewedTestMergeGitData": {
+    "sha": "70b5b6da7b0d19aea77a58cdd504a8a7dfc289ab",
+    "node_id": "C_kwDOUWLSPdoAKDcwYjViNmRhN2IwZDE5YWVhNzdhNThjZGQ1MDRhOGE3ZGZjMjg5YWI",
+    "url": "https://api.github.com/repos/JohnDeved/populous-new-dawn/git/commits/70b5b6da7b0d19aea77a58cdd504a8a7dfc289ab",
+    "html_url": "https://github.com/JohnDeved/populous-new-dawn/commit/70b5b6da7b0d19aea77a58cdd504a8a7dfc289ab",
+    "author": {
+      "name": "undefined",
+      "email": "johann@objekt.stream",
+      "date": "2026-10-11T17:22:24Z"
+    },
+    "committer": {
+      "name": "GitHub",
+      "email": "noreply@github.com",
+      "date": "2026-10-11T17:22:24Z"
+    },
+    "tree": {
+      "sha": "8914cb5b0d28b3fafe1e9ffd7487ca61661bf1aa",
+      "url": "https://api.github.com/repos/JohnDeved/populous-new-dawn/git/trees/8914cb5b0d28b3fafe1e9ffd7487ca61661bf1aa"
+    },
+    "message": "Merge 22b42875f5e9c8544ff8049c3c22634feff6f43f into e125813da6aa6a211f36d2248a877e10dc0efd45",
+    "parents": [
+      {
+        "sha": "e125813da6aa6a211f36d2248a877e10dc0efd45",
+        "url": "https://api.github.com/repos/JohnDeved/populous-new-dawn/git/commits/e125813da6aa6a211f36d2248a877e10dc0efd45",
+        "html_url": "https://github.com/JohnDeved/populous-new-dawn/commit/e125813da6aa6a211f36d2248a877e10dc0efd45"
+      },
+      {
+        "sha": "22b42875f5e9c8544ff8049c3c22634feff6f43f",
+        "url": "https://api.github.com/repos/JohnDeved/populous-new-dawn/git/commits/22b42875f5e9c8544ff8049c3c22634feff6f43f",
+        "html_url": "https://github.com/JohnDeved/populous-new-dawn/commit/22b42875f5e9c8544ff8049c3c22634feff6f43f"
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "reason": "valid",
+      "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJqy8XQCRC1aQ7uu5UhlAAATSwQACoB/fxw+PnSwI1XE0H5yINt\nQxgt3P4hC9jShyXk+kMMDW89Nc8kxFI6CHWPZes3LHGCAF2Tx5hGKrYy2oLp+JQS\nGXj6j49dnqXXd+KVPsIuOY20sv0KfwUi5FcME9vnIDotSb+zc4RechCJ/1K6xptl\nyef8foCUfaPZxcWuPn5EwyH1AQdHkQZkndooFTjBobBY9WaEZVS9RlPBm6WmhKmL\ng9i91qKZfzkZlkMTL1RLRLAB4Vrw/3ApqsDaiMFma8s4+PAw3ZYoWZDx1GDvK2qs\nvafhsEoxc48hz0/H+uyJTBnYw+DRwEWjgWnIKwO+d1UDYhRnIqhhj8LSBCIGvavg\nkERXp8IweGyAGhXM4aTfpnf3T2wp9kMVknY/2KyhWEcnjTD44gaHCbberhrd6l30\nqbEPzJWOk4C3LCKom8gWMJnMsxJGwST4DkW1Jw3KM+YMJt4ze8xjixjsnFj+dkzy\ngm+SDh0VjASZwC74rFO8JlscrH4l82D3kK/6GNL0HpQu3t7rmmY8z4cjaij2FDAD\nCxSoGF2FVtr6KVD27X6//k+KcX1jgkM7CyEUy/FQ96Fk4Km8w0m/egp4ZmW87EtK\neXUtTt7/FnY+f430AscYRhSjs3xRgyQ0Uf+Q6AsgFE6fJ2/YE1oYre2kZPIs0tX/\nkLsbcBRZTVbE6EtfeJtZ\n=PFmL\n-----END PGP SIGNATURE-----\n",
+      "payload": "tree 8914cb5b0d28b3fafe1e9ffd7487ca61661bf1aa\nparent e125813da6aa6a211f36d2248a877e10dc0efd45\nparent 22b42875f5e9c8544ff8049c3c22634feff6f43f\nauthor undefined <johann@objekt.stream> 1791739344 +0200\ncommitter GitHub <noreply@github.com> 1791739344 +0200\n\nMerge 22b42875f5e9c8544ff8049c3c22634feff6f43f into e125813da6aa6a211f36d2248a877e10dc0efd45\n",
+      "verified_at": "2026-10-11T17:22:25Z"
+    }
+  },
+  "mergedGitData": {
+    "sha": "084c7ba4dfb116c4d1304bf54d3a7c9802bc14ba",
+    "node_id": "C_kwDOUWLSPdoAKDA4NGM3YmE0ZGZiMTE2YzRkMTMwNGJmNTRkM2E3Yzk4MDJiYzE0YmE",
+    "url": "https://api.github.com/repos/JohnDeved/populous-new-dawn/git/commits/084c7ba4dfb116c4d1304bf54d3a7c9802bc14ba",
+    "html_url": "https://github.com/JohnDeved/populous-new-dawn/commit/084c7ba4dfb116c4d1304bf54d3a7c9802bc14ba",
+    "author": {
+      "name": "undefined",
+      "email": "johann@objekt.stream",
+      "date": "2026-10-11T17:37:01Z"
+    },
+    "committer": {
+      "name": "GitHub",
+      "email": "noreply@github.com",
+      "date": "2026-10-11T17:37:01Z"
+    },
+    "tree": {
+      "sha": "8914cb5b0d28b3fafe1e9ffd7487ca61661bf1aa",
+      "url": "https://api.github.com/repos/JohnDeved/populous-new-dawn/git/trees/8914cb5b0d28b3fafe1e9ffd7487ca61661bf1aa"
+    },
+    "message": "perf: reuse current frame selection membership for person rendering (#350)",
+    "parents": [
+      {
+        "sha": "e125813da6aa6a211f36d2248a877e10dc0efd45",
+        "url": "https://api.github.com/repos/JohnDeved/populous-new-dawn/git/commits/e125813da6aa6a211f36d2248a877e10dc0efd45",
+        "html_url": "https://github.com/JohnDeved/populous-new-dawn/commit/e125813da6aa6a211f36d2248a877e10dc0efd45"
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "reason": "valid",
+      "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJqy8k9CRC1aQ7uu5UhlAAAmYYQAIYnEuLDvPZoiC31WS2xI4wL\nQkQaL8LPiDexWaaVn/Q8D8gai8BJo7VqYpjaLPq621+9SwyMASr4/cFY1+LruOAO\nTfyTFJ1mbGdIMmfQ3JcRXD4Lf/DJ/QHPxQgoJJYBzTCkiWNQEK8jPeBDGqOAQzqb\nTvTjOhA/SpLMKKJBKKCY+HhBlEmDeqkVBdxJRofaVzIAJ1MqSWm9Nm9JwAuZoMUy\n+3I6EwByB5Edb+iITQgaziHGZthMObdSdn/PY7VThMwAA3EpN57wrcGQV7+psvnF\nd4pqAP1wyeKbpZfzoQOcd5vSXM2RoGx1vVP/aUWFdo/QSAbh1Kxk5aLKPKuXS+HY\n4Jp5TsoF+DmWPv0o+P0oDtx05R2Fpk9k3TPdsbm/CSjhA4kMq3khZkaUJ8t/bXYp\nBPW1OXqLnEIJPWXBBIIiB2PVyRqnJNIvHA/XSdR4fElWHkoodJiuLTj5djWESBsX\ntO9IGrP/leZX2ZP9EbqINLP1v14Kz/GTOIuABghh9sU6V+w6LhQWRjgZ/F541G9N\nhtWGoPIOmIVnnp27jmGgxkWlRDLG6QayHTJUCmUUom7wr5ZcK3NJiQgKQpAs7TUL\n9TnRKAqSuofePzeXiqvRXwHFUA2EC0cw0k26TVO5UGJicKsgMN/YdJYeHht6YE5m\nwPQY2BeEcvlgwQdPpvsr\n=5E0O\n-----END PGP SIGNATURE-----\n",
+      "payload": "tree 8914cb5b0d28b3fafe1e9ffd7487ca61661bf1aa\nparent e125813da6aa6a211f36d2248a877e10dc0efd45\nauthor undefined <johann@objekt.stream> 1791740221 +0200\ncommitter GitHub <noreply@github.com> 1791740221 +0200\n\nperf: reuse current frame selection membership for person rendering (#350)",
+      "verified_at": "2026-10-11T17:37:02Z"
+    }
+  },
+  "headCI": {
+    "total_count": 1,
+    "check_runs": [
+      {
+        "id": 114529220631,
+        "name": "Workers Builds: populous-new-dawn",
+        "node_id": "CR_kwDOUWLSPc8AAAAaqnk4Fw",
+        "head_sha": "22b42875f5e9c8544ff8049c3c22634feff6f43f",
+        "external_id": "9962d569-bda7-4b00-b001-060384b5fc72",
+        "url": "https://api.github.com/repos/JohnDeved/populous-new-dawn/check-runs/114529220631",
+        "html_url": "https://github.com/JohnDeved/populous-new-dawn/runs/114529220631",
+        "details_url": "https://dash.cloudflare.com/19321bcee0ed17a93b709cb602dd070c/workers/services/view/populous-new-dawn/production/builds/9962d569-bda7-4b00-b001-060384b5fc72",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-10-11T17:24:07Z",
+        "completed_at": "2026-10-11T17:24:07Z",
+        "output": {
+          "title": "Workers Builds: populous-new-dawn",
+          "summary": "\nBuild ID: [9962d569-bda7-4b00-b001-060384b5fc72](https://dash.cloudflare.com/19321bcee0ed17a93b709cb602dd070c/workers/services/view/populous-new-dawn/production/builds/9962d569-bda7-4b00-b001-060384b5fc72)\nScript: [populous-new-dawn](https://dash.cloudflare.com/19321bcee0ed17a93b709cb602dd070c/workers/services/view/populous-new-dawn/production)\nVersion ID: b2e16bb7-ac03-47dd-8b3d-801fee58f72b\nPreview URL: https://b2e16bb7-populous-new-dawn.webtorrent.workers.dev\nPreview Alias URL: https://codex-issue144-frame-selection-membership-populous-new-dawn.webtorrent.workers.dev\n",
+          "text": null,
+          "annotations_count": 0,
+          "annotations_url": "https://api.github.com/repos/JohnDeved/populous-new-dawn/check-runs/114529220631/annotations"
+        },
+        "check_suite": {
+          "id": 103385866699
+        },
+        "app": {
+          "id": 85455,
+          "client_id": "Iv1.0879b6ff6c8f7a1a",
+          "slug": "cloudflare-workers-and-pages",
+          "node_id": "MDM6QXBwODU0NTU=",
+          "owner": {
+            "login": "cloudflare",
+            "id": 314135,
+            "node_id": "MDEyOk9yZ2FuaXphdGlvbjMxNDEzNQ==",
+            "avatar_url": "https://avatars.githubusercontent.com/u/314135?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/cloudflare",
+            "html_url": "https://github.com/cloudflare",
+            "followers_url": "https://api.github.com/users/cloudflare/followers",
+            "following_url": "https://api.github.com/users/cloudflare/following{/other_user}",
+            "gists_url": "https://api.github.com/users/cloudflare/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/cloudflare/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/cloudflare/subscriptions",
+            "organizations_url": "https://api.github.com/users/cloudflare/orgs",
+            "repos_url": "https://api.github.com/users/cloudflare/repos",
+            "events_url": "https://api.github.com/users/cloudflare/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/cloudflare/received_events",
+            "type": "Organization",
+            "user_view_type": "public",
+            "site_admin": false
+          },
+          "name": "Cloudflare Workers and Pages",
+          "description": "The **Cloudflare GitHub App** automatically deploys your code to Cloudflare when you merge a pull request to your GitHub repository. It can also create a new repository on your GitHub account when you get started with a Cloudflare template. \r\n\r\n\r\nThis integration also:\r\n- Displays the status of your deployments as check runs\r\n- Posts links to preview URLs as comments on each pull request (Cloudflare Pages only)\r\n\r\n\r\n<img src=\"https://imagedelivery.net/wSMYJvS3Xw-n339CbDyDIA/b3c1fc84-7d73-4fc4-8835-69e85980df00/public\" width=67% >\r\n\r\n\r\n<img src=\"https://imagedelivery.net/wSMYJvS3Xw-n339CbDyDIA/e9a5ffb3-4ec3-4dd6-8bc8-ed0eec5ddb00/public\" width=67% >\r\n\r\n\r\nFor more information, refer to the [Cloudflare Workers docs](https://developers.cloudflare.com/workers/ci-cd/builds/) and [Cloudflare Pages docs](https://developers.cloudflare.com/pages/configuration/git-integration/).",
+          "external_url": "https://developers.cloudflare.com/workers/ci-cd/builds/",
+          "html_url": "https://github.com/apps/cloudflare-workers-and-pages",
+          "created_at": "2020-10-19T20:23:00Z",
+          "updated_at": "2024-12-19T22:06:10Z",
+          "permissions": {
+            "administration": "write",
+            "checks": "write",
+            "contents": "write",
+            "deployments": "write",
+            "metadata": "read",
+            "pull_requests": "write"
+          },
+          "events": [
+            "pull_request",
+            "push"
+          ]
+        },
+        "pull_requests": [
+          {
+            "url": "https://api.github.com/repos/JohnDeved/populous-new-dawn/pulls/350",
+            "id": 4820900401,
+            "number": 350,
+            "head": {
+              "ref": "codex/issue144-frame-selection-membership",
+              "sha": "22b42875f5e9c8544ff8049c3c22634feff6f43f",
+              "repo": {
+                "id": 1365430845,
+                "url": "https://api.github.com/repos/JohnDeved/populous-new-dawn",
+                "name": "populous-new-dawn"
+              }
+            },
+            "base": {
+              "ref": "main",
+              "sha": "e125813da6aa6a211f36d2248a877e10dc0efd45",
+              "repo": {
+                "id": 1365430845,
+                "url": "https://api.github.com/repos/JohnDeved/populous-new-dawn",
+                "name": "populous-new-dawn"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "mainTerminalCI": {
+    "total_count": 1,
+    "check_runs": [
+      {
+        "id": 114532148703,
+        "name": "Workers Builds: populous-new-dawn",
+        "node_id": "CR_kwDOUWLSPc8AAAAaqqXl3w",
+        "head_sha": "084c7ba4dfb116c4d1304bf54d3a7c9802bc14ba",
+        "external_id": "f32daad1-6706-405a-8730-31f51bff3f40",
+        "url": "https://api.github.com/repos/JohnDeved/populous-new-dawn/check-runs/114532148703",
+        "html_url": "https://github.com/JohnDeved/populous-new-dawn/runs/114532148703",
+        "details_url": "https://dash.cloudflare.com/19321bcee0ed17a93b709cb602dd070c/workers/services/view/populous-new-dawn/production/builds/f32daad1-6706-405a-8730-31f51bff3f40",
+        "status": "completed",
+        "conclusion": "success",
+        "started_at": "2026-10-11T17:38:17Z",
+        "completed_at": "2026-10-11T17:38:17Z",
+        "output": {
+          "title": "Workers Builds: populous-new-dawn",
+          "summary": "\nBuild ID: [f32daad1-6706-405a-8730-31f51bff3f40](https://dash.cloudflare.com/19321bcee0ed17a93b709cb602dd070c/workers/services/view/populous-new-dawn/production/builds/f32daad1-6706-405a-8730-31f51bff3f40)\nScript: [populous-new-dawn](https://dash.cloudflare.com/19321bcee0ed17a93b709cb602dd070c/workers/services/view/populous-new-dawn/production)\nVersion ID: 710b9984-814c-4e09-9aaf-04d953429058\n",
+          "text": null,
+          "annotations_count": 0,
+          "annotations_url": "https://api.github.com/repos/JohnDeved/populous-new-dawn/check-runs/114532148703/annotations"
+        },
+        "check_suite": {
+          "id": 103388644635
+        },
+        "app": {
+          "id": 85455,
+          "client_id": "Iv1.0879b6ff6c8f7a1a",
+          "slug": "cloudflare-workers-and-pages",
+          "node_id": "MDM6QXBwODU0NTU=",
+          "owner": {
+            "login": "cloudflare",
+            "id": 314135,
+            "node_id": "MDEyOk9yZ2FuaXphdGlvbjMxNDEzNQ==",
+            "avatar_url": "https://avatars.githubusercontent.com/u/314135?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/cloudflare",
+            "html_url": "https://github.com/cloudflare",
+            "followers_url": "https://api.github.com/users/cloudflare/followers",
+            "following_url": "https://api.github.com/users/cloudflare/following{/other_user}",
+            "gists_url": "https://api.github.com/users/cloudflare/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/cloudflare/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/cloudflare/subscriptions",
+            "organizations_url": "https://api.github.com/users/cloudflare/orgs",
+            "repos_url": "https://api.github.com/users/cloudflare/repos",
+            "events_url": "https://api.github.com/users/cloudflare/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/cloudflare/received_events",
+            "type": "Organization",
+            "user_view_type": "public",
+            "site_admin": false
+          },
+          "name": "Cloudflare Workers and Pages",
+          "description": "The **Cloudflare GitHub App** automatically deploys your code to Cloudflare when you merge a pull request to your GitHub repository. It can also create a new repository on your GitHub account when you get started with a Cloudflare template. \r\n\r\n\r\nThis integration also:\r\n- Displays the status of your deployments as check runs\r\n- Posts links to preview URLs as comments on each pull request (Cloudflare Pages only)\r\n\r\n\r\n<img src=\"https://imagedelivery.net/wSMYJvS3Xw-n339CbDyDIA/b3c1fc84-7d73-4fc4-8835-69e85980df00/public\" width=67% >\r\n\r\n\r\n<img src=\"https://imagedelivery.net/wSMYJvS3Xw-n339CbDyDIA/e9a5ffb3-4ec3-4dd6-8bc8-ed0eec5ddb00/public\" width=67% >\r\n\r\n\r\nFor more information, refer to the [Cloudflare Workers docs](https://developers.cloudflare.com/workers/ci-cd/builds/) and [Cloudflare Pages docs](https://developers.cloudflare.com/pages/configuration/git-integration/).",
+          "external_url": "https://developers.cloudflare.com/workers/ci-cd/builds/",
+          "html_url": "https://github.com/apps/cloudflare-workers-and-pages",
+          "created_at": "2020-10-19T20:23:00Z",
+          "updated_at": "2024-12-19T22:06:10Z",
+          "permissions": {
+            "administration": "write",
+            "checks": "write",
+            "contents": "write",
+            "deployments": "write",
+            "metadata": "read",
+            "pull_requests": "write"
+          },
+          "events": [
+            "pull_request",
+            "push"
+          ]
+        },
+        "pull_requests": []
+      }
+    ]
+  },
+  "historicalMainCheckpoint": {
+    "id": 114531906421,
+    "status": "in_progress",
+    "conclusion": null,
+    "interpretation": "Historical original packet checkpoint; latest check id114532148703 terminalSUCCESS is a separate later observation. No success claimed for original job."
+  },
+  "standardCheck": {
+    "status": "passed",
+    "tests": 2061,
+    "pass": 2061,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0,
+    "finishedAt": "2026-10-11T17:32:28.163Z",
+    "stdoutSha256": "23b7110c1686111d5d131843b5642d0017639780ba7003ab855e475c24948ace",
+    "stderrSha256": "01c9f0fa849496a74324fe7e0f3086d0c1daaad75e95532d1be617cbe6f7d122",
+    "sequence": "Unchanged npm run check: typecheck, npm test, parity:check, orchestration:check under reviewed owned-descendant subreaper; actual exit0; all source/input/artifact identities independently verified."
+  },
+  "standardBuild": {
+    "status": "passed",
+    "head": "22b42875f5e9c8544ff8049c3c22634feff6f43f",
+    "exitCode": 0,
+    "finishedAt": "2026-10-11T17:33:49.533Z",
+    "stdoutSha256": "c4fb7d9a2f6989dbaba65b75e91c399436cf9b88144dfbd31c50f1d375ea34eb",
+    "stderrSha256": "37303b843e2ce507fcc9d84f37582f033679086b40fc0554269b92dedb0923c9",
+    "sourceStable": true,
+    "noticeTail": "\u001b[33m\u25b2 \u001b[43;33m[\u001b[43;30mWARNING\u001b[43;33m]\u001b[0m \u001b[1mProxy environment variables detected. We'll use your proxy for fetch requests.\u001b[0m\n\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - vinext:css-data-url (48%)\n  - vinext:middleware-server-only (10%)\n  - alias (8%)\n  - rsc:virtual-client-package (8%)\n  - vinext:og-inline-fetch-assets (5%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - rsc:virtual-client-package (17%)\n  - rsc:load-environment-module (14%)\n  - vinext:og-inline-fetch-assets (12%)\n  - rsc:use-client (11%)\n  - vinext:middleware-server-only (8%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n[plugin builtin:vite-reporter] \n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\nnpm notice\nnpm notice New major version of npm available! 11.9.0 -> 12.2.0\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0\nnpm notice To update run: npm install -g npm@12.2.0\nnpm notice\n"
+  },
+  "scopeAndCheckLimits": {
+    "focused": "Candidate7PASS; pristine base5PASS/2distinctFAIL (new explicit set authority adapter contract and full-caller scale4160 vs128bound at64). Strict source/base OxlintFAILED24warnings4errors, separate28-diagnostic comparisonPASS. No assertions/rules/source were weakened.",
+    "planner": "Original115selectors retain all57blocked/58not-run statuses. Scoped selector03 explicitly records stale clock filename and maintains exact original command NOTRUN; unchanged standard npm check covers all four existing clock declarations plus actual maintained tests/unit-motion.test.mjs. Affected supporting browserdrag and headed hardwareprofile NOTRUN, no browser/native/hardware claim.",
+    "source": "Only current-frame presentation membership lookups and optional adapters; default direct/effect/live fallback unchanged. Exact reviewed/tested/merged tree equal; no new gate/source rerun for equal tree.",
+    "archive": "Original frozen reviewed archive contains21files; this later terminal CI file is separately reviewed22ndpublicationfile, excluded from original archive.",
+    "deployment": "Successful standard build and provider CI do not establish ordinary deployed player flows. Broad #144 remains open."
+  },
+  "rootReadOnlyValidationCorrection": "Initial artifact-integrity helper assumed artifacts array and failed read-only; actual receipt has stream-path object. Corrected helper verified original raw bytes/source/inputs; no gate rerun or mutation."
+}
