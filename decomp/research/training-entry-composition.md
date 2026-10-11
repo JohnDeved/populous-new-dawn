@@ -114,3 +114,7 @@ The [reviewed partial constructor diagnostic](../../references/verification/miss
 ## Constructor progression and preserved harness corrections
 
 The [reviewed progression and failure bundle](../../references/verification/mission3-constructor-progression-2026-10-11/README.md) retains runs03–06: genuine terrain brightness and bounded cache projections, followed by conservative call, timeout, context and operand-form stops. None completes an allocation or record. It also corrects two review gaps: an animation budget declaration never reached the actual dispatcher, and positive guard fixtures derived from their production allowlist missed a historical caller. Exact independent regressions now cover those failures. A finite admitted-set capability audit precedes the next bounded repair; no startup seed or product fix is claimed.
+
+## First completed conditional record
+
+The [reviewed run07 milestone](../../references/verification/mission3-first-record-2026-10-11/README.md) completes a genuine Hut allocation, postprocessing and authored-ID publication. Its pool slot 639 differs from authored ID 1. All 2,555,942 observer events reconcile. The next scenery record stops before an unknown pool-alternator increment; class1 remains untouched. This conditional partial ledger does not recover actual startup or establish a product fix.
