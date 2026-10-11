@@ -43,16 +43,20 @@ export function naturalPreacherJourney(world) {
   const preacher = world.units.find(unit => unit.team === 'blue' && unit.kind === 'preacher')
   setSelection(world, [preacher.id])
   assertCondition(command(world, { x: -33, z: -110 }), 'Preacher staging approach rejected')
-  // Let the real defense commit to the staging cell before the final sermon.
+  // Let the real defense commit to its captured hostile-entity cell before the final sermon.
   // This observes its queue ownership; it does not change the enemy task or RNG.
   until('preacher-response-dispatched', () => world.ai.tasks.some((task, index) =>
     (task.flags & 1) && task.type === 8 && task.entity === preacher.id &&
-    task.phase === 6 && task.selected > 0 && world.units.some(unit => {
+    task.phase === 6 && task.selected > 0 && Number.isInteger(task.defense?.center) && world.units.some(unit => {
       if (unit.team !== 'yellow' || unit.kind !== 'preacher' || unit.hp <= 0) return false
       const person = unitAnimationSource(unit)
       if (!person || person.computerAssignment !== index + 1) return false
       const order = currentPersonOrder(world.buildingOrders, person)
-      return order?.model === 3 && !(order.flags & 1) && order.a === 59008 && order.b === 26240
+      // 4c5f70 phase5 queues movement to the saved center; 435780 encodes
+      // that cell into signed-short-compatible half-cell world coordinates.
+      const center = task.defense.center & 65535
+      return order?.model === 3 && !(order.flags & 1) &&
+        order.a === ((center << 8) + 128 & 65535) && order.b === (center & 0xff00) + 128
     })))
   setSelection(world, [preacher.id])
   assertCondition(command(world, preachingPoint), 'Preacher approach rejected')

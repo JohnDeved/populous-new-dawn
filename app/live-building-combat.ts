@@ -1,4 +1,4 @@
-import { visitPrimaryPerson } from './person-clock.ts'
+import { hasPersonClock, personCounter, visitPrimaryPerson } from './person-clock.ts'
 import {
   buildingFirePoints,
   buildingModel,
@@ -239,9 +239,10 @@ function stepSpySabotage(w: World, u: Unit, p: LivePerson, order: PersonOrder) {
 
 export function startLiveCombatResponse(w: World, u: Unit) {
   if (u.team === 'wild' || u.builder) return false
-  const retained = u.native ?? u.entry?.person
+  const retained = u.native ?? u.entry?.person,
+    counter = hasPersonClock(w) ? personCounter(w, u) : w.turn
   if (
-    w.turn & rules.personModels[nativePersonModel(u)].scanMask &&
+    counter & rules.personModels[nativePersonModel(u)].scanMask &&
     !((retained?.flags3 ?? 0) & 0x800)
   )
     return false

@@ -4,6 +4,7 @@ import {
   hasPersonClock,
   isPrimaryPersonMember,
   primaryPersonMembers,
+  personCounter,
   visitedPrimaryPerson,
   visitPrimaryPerson,
 } from './person-clock.ts'
@@ -1300,7 +1301,8 @@ function stepTurn(w: World) {
     try {
       if (startingPeople.has(u.id)) continue
       if (hasPersonClock(w)) visitPrimaryPerson(w, u)
-      if (u.attackReservation) stepAttackReservation(u.attackReservation, w.turn)
+      if (u.attackReservation && (!hasPersonClock(w) || visitedPrimaryPerson(w, u)))
+        stepAttackReservation(u.attackReservation, hasPersonClock(w) ? personCounter(w, u) : w.turn)
       u.fighting = false
       const spy = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person
       if (spy?.model === 5 && spy.disguise & 63)

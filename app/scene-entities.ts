@@ -1,3 +1,4 @@
+import { hasPersonClock, personCounter } from './person-clock.ts'
 import { templeWorldMaterial } from './temple-art.ts'
 import { hutSmokeState } from './hut-smoke-runtime.ts'
 import type { GameScene } from './scene.ts'
@@ -519,7 +520,10 @@ export function updateUnitsFrame(scene: GameScene) {
         0.18 + Math.sin(scene.world.time * 6) * 0.04
     }
     const bloodlust = g.userData.bloodlust as THREE.Mesh
-    bloodlust.visible = !!u.bloodlust && (u.bloodlust >= 16 * 8 || !(scene.world.turn & 2))
+    const bloodlustPhase = hasPersonClock(scene.world)
+      ? personCounter(scene.world, u)
+      : scene.world.turn
+    bloodlust.visible = !!u.bloodlust && (u.bloodlust >= 16 * 8 || !(bloodlustPhase & 2))
     if (bloodlust.visible) bloodlust.rotation.z = scene.world.time * 4
     const animationSource = unitAnimationSource(u),
       person = animationSource ?? u.native ?? u.entry?.person ?? u.builder?.person,

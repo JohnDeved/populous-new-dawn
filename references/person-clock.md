@@ -96,9 +96,50 @@ real initialization), retaining their original eventual movement/cleanup checks.
 Timber fixtures observe reservation64 at its actual creation, followed by exact
 scenery decrements, retaining the same-tree race and reserved-tree exclusion.
 
-At the current source snapshot, the focused 16-file run passes 152 tests,
-including the unchanged complete Mission 2 replacement scenario. Earlier failed
-receipts are retained. Full checks/build, fresh code review and the ordinary
-trusted-input rendered Mission 3 witness remain required. This candidate is not
-yet accepted for integration and does not establish original pixel parity,
-complete startup parity, or resolution of issue 29.
+The original 24e candidate passed the focused 16-file run (152 tests including
+unchanged Mission 2), but its full check failed 27 of 2,024 tests. Mechanical
+phase/legacy-fixture corrections and a source-backed Mission 3 saved-defense
+center predicate subsequently passed 40/40. Those focused passes never supersede
+the full-gate failure.
+
+A later exhaustive world-turn-use audit found five omitted person-phase reads:
+the ordinary scanner prefilter, temporary scanner context, target-query
+prefilter, Unit reservation parity and Bloodlust expiry blink. Allocation-mode
+callers now read the retained Unit byte. Scans and rendering do not advance it;
+reservation consumes the existing pre-body visit and skips identities without a
+visit. Legacy worlds retain their old world phase. Building reservation remains
+on its own counter. Global healing/invisibility and the existing status-duration
+representations are unchanged. Shield expiry rendering and the automatic idle-Hut
+adapter remain explicit incomplete parity boundaries.
+
+The corrected actual-caller suite passes 15/15, with opposite global/Unit phases,
+real tower admission, pending alerts, no-visit reservations, save/render purity,
+and legacy/global-clock controls. Its preserved RED includes ten intended reader
+failures; two initial tower setup errors are separately retained. The corrected
+tower fixture then reproduces both intended phase failures against exact 24e.
+
+**Integration remains HOLD.** TypeScript passes, but the coherent-reader focused
+suite passes only 100/103. Unchanged Mission 2 fails its required Green
+population >10 prerequisite with exactly 10 survivors. No threshold, input,
+tactic, RNG seed or campaign budget was changed. Two local combat fixtures also
+fail and remain unchanged. Full build and a new full check have not run.
+
+An exact ordinary-input pair starts its first assault at turn 6184 with identical
+serialized world state (Blue30/Green27). The first material response difference
+is Blue Warrior1328 at6436: both have retained phase219, clear pending-scan bit,
+and the same route/state. The prior global phase admits automatic order277;
+retained219&3 suppresses it, as the native scanner law requires. This demonstrates
+a source/acceptance conflict, not full native battle parity or proof of every
+later casualty. The prior reader passes the >10 gate with18 Green at7003; the
+coherent reader reaches it with10 at7255.
+
+The real Mission 3 trusted-input witness on24e demonstrates retained owner phases
+and normal training, but paired simultaneous admissions persist. Its browser
+roster is first observed atturn79, not allocation time. Late paused stills are not
+matched doorway-transition moments; rendered software-WebGL frames have nearest
+wall-clock turn correlation only. Mission4's failed input path is separately
+unresolved; height0 alone does not prove a terrain/recovery defect.
+
+See [blocked review packet](verification/person-clock-blocked-2026-10-11/README.md)
+for exact receipts, sources, failed attempts, and remaining limits. This draft is
+not accepted for merge and does not resolve issue29.

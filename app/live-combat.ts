@@ -1,3 +1,4 @@
+import { hasPersonClock, personCounter } from './person-clock.ts'
 import { tribeForTeam, type World, type Unit, type Building } from './world-types.ts'
 import { buildingModel, buildingOutsidePoint, buildingPose } from './building-shapes.ts'
 import { automaticCombatScanner, engagementRange, inEngagementArea } from './melee-engagement.ts'
@@ -204,12 +205,13 @@ export function selectLiveFirewarriorTarget(
 
 function combatScan(
   w: World,
+  u: Unit,
   p: Omit<Parameters<typeof automaticCombatScanner>[0], 'counter'>,
   order: Parameters<typeof automaticCombatScanner>[1],
   inTower = false,
   firewarriorReady = () => false
 ) {
-  const scan = { ...p, counter: w.turn & 255 },
+  const scan = { ...p, counter: hasPersonClock(w) ? personCounter(w, u) : w.turn & 255 },
     scanner = automaticCombatScanner(
       scan,
       order,
@@ -404,7 +406,7 @@ export function allocateLiveCombatResponse(
   firewarriorReady: (target?: Unit | Building) => boolean = () => false
 ) {
   const order = currentPersonOrder(w.buildingOrders, p)
-  const scanner = combatScan(w, p, order, false, firewarriorReady)
+  const scanner = combatScan(w, u, p, order, false, firewarriorReady)
   if (scanner !== 'melee' && scanner !== 'preacher' && scanner !== 'firewarrior') return 0
   if (order?.model === 27) return 0
   if (scanner === 'preacher') return startPreacherResponse(w, p, peers, effects)
@@ -426,8 +428,9 @@ function automaticTarget(
   if (u.team === 'wild') return
   const native = u.builder?.person ?? u.native ?? u.entry?.person
   const model = nativePersonModel(u)
-  // Ordinary counters retain the world phase until native allocation owns them.
-  if (w.turn & rules.personModels[model].scanMask && !((native?.flags3 ?? 0) & 0x800)) return
+  // The scanner reads this person after its visit; a query never advances it.
+  const counter = hasPersonClock(w) ? personCounter(w, u) : w.turn
+  if (counter & rules.personModels[model].scanMask && !((native?.flags3 ?? 0) & 0x800)) return
   const source = combatPerson(u)
   const p = native ?? {
     ...source,
@@ -444,7 +447,10 @@ function automaticTarget(
   // remain in the command migration; do not invent the ritual eligibility result.
   // The ordinary live roster uses the melee scanner. Specialist response
   // controllers must own their distinct searches rather than fall through here.
-  if (combatScan(w, p, current, inTower, () => !u.cooldown) !== expected || current?.model === 27)
+  if (
+    combatScan(w, u, p, current, inTower, () => !u.cooldown) !== expected ||
+    current?.model === 27
+  )
     return
   const range = engagementRange(p, current, inTower)
   if (!range) return

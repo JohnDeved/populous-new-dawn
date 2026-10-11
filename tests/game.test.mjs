@@ -542,9 +542,25 @@ test('mission marker task sends one reserved brave to marker one',async()=>{
  const counted=createWorld(),routeUnit=counted.units.find(u=>u.team==='red'&&u.kind==='warrior'),route=createLivePerson(counted,routeUnit),routeOrder=counted.buildingOrders.records[799];
  routeUnit.native=route;route.commands[0]=799;route.commandStatus=11;routeOrder.references=1;writePersonOrder(routeOrder,11,0,level.markers[1],0);assert.equal(computerMarkerOrderCount(counted,1,1,-1),1);
  const w=createWorld(),task=w.ai.tasks[0];
- until(w,()=>w.units.some(u=>u.team==='red'&&u.native?.computerAssignment===99&&currentPersonOrder(w.buildingOrders,u.native)?.model===3),2);
- const assigned=w.units.filter(u=>u.team==='red'&&u.native?.computerAssignment===99),order=currentPersonOrder(w.buildingOrders,assigned[0].native);
- assert.equal(assigned.length,1);assert.equal(assigned[0].kind,'brave');assert.deepEqual({model:order.model,a:order.a,b:order.b},{model:3,a:0xfe80,b:0xfa80});assert.equal(w.ai.commandDelay,20);
+ let issued=null;
+ // Capture the real publication at the next retained-byte write, before the
+ // primary state body can legitimately complete this already-near destination.
+ for(const u of w.units.filter(u=>u.team==='red')){
+  let phase=u.personCounter;
+  Object.defineProperty(u,'personCounter',{configurable:true,enumerable:true,get:()=>phase,set:value=>{
+   const p=u.native,order=p&&currentPersonOrder(w.buildingOrders,p);
+   if(!issued&&p?.computerAssignment===99&&order?.model===3)
+    issued={unit:u,person:p,id:p.commands.find(id=>id&&w.buildingOrders.records[id]===order),order:{model:order.model,a:order.a,b:order.b},phase:value,x:p.x,y:p.y,delay:w.ai.commandDelay,taskPhase:task.phase};
+   phase=value;
+  }});
+ }
+ until(w,()=>issued!==null,2);
+ const assigned=w.units.filter(u=>u.team==='red'&&u.native?.computerAssignment===99);
+ assert.equal(assigned.length,1);assert.equal(assigned[0],issued.unit);assert.equal(assigned[0].kind,'brave');assert.deepEqual(issued.order,{model:3,a:0xfe80,b:0xfa80});assert.equal(issued.delay,20);assert.equal(issued.taskPhase,6);
+ // 0x4336c0 checks phase&3, then 0x43bb60 uses radius384+56 per axis.
+ assert.equal(issued.phase&3,0);assert.ok(Math.abs(issued.x-issued.order.a)<440&&Math.abs(issued.y-issued.order.b)<440);
+ assert.ok(Math.abs(issued.person.x-issued.order.a)<440&&Math.abs(issued.person.y-issued.order.b)<440,'post-physics position satisfies the actual native completion gate');
+ assert.equal(currentPersonOrder(w.buildingOrders,issued.person),undefined);assert.equal(w.buildingOrders.records[issued.id].references,0);assert.equal(issued.person.state,19);assert.equal(issued.unit.personCounter,issued.phase);
  until(w,()=>!(task.flags&1),1);assert.equal(w.ai.selectionOwner,10);assert.equal(w.ai.flags&2,0);
 });
 
