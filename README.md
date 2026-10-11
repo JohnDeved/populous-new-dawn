@@ -123,7 +123,10 @@ Keep `npm run lint` for the existing correctness and accessibility checks during
 `npm run quality:health` ranks complexity hotspots and refactoring targets,
 `npm run quality:dupes` finds duplication, and `npm run quality:unused` finds
 unused-code candidates. These commands are advisory: exit 1 means findings,
-exit 2 means an execution/configuration error. Python native-comparison scripts
+exit 2 means an execution/configuration error. For a deliberately time-bounded
+advisory attempt, use the opt-in [foreground supervisor](engineering/performance-queue.md#optional-bounded-foreground-advisories)
+with a command receipt; timeout is a non-pass, never an advisory success.
+Python native-comparison scripts
 import engine exports indirectly, so investigate callers before deleting anything.
 The initial complexity hotspots are `stepTurn`, `stepCelebration` and
 `stepTrainingPerson`; simplify coherent pieces while preserving native comparisons.
