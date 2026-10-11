@@ -69,8 +69,19 @@ npm run orchestration:review-bundle -- verify \
 
 Repeat `--expected-source`, `--expected-deletion`, and `--expected-receipt` for the complete expected sets. Deleted sources are explicit `state: "deleted"` manifest entries with no ambiguous `sha256: null`. `--expected-receipt` uses the copied bundle receipt hash (`bundleSha256` from the trusted creation output), so altered receipt payloads cannot self-authenticate by changing the manifest. The verifier rejects absolute/traversal paths, symlink escapes, identity-count drift, and any manifest identity that disagrees with those caller-supplied values.
 
-A reviewer can run the bundled `node verify.mjs` from any permitted executor with
-the same trusted expected arguments, without editing or opening the worker worktree.
+The standalone verifier locates the bundle beside its own `verify.mjs`, regardless
+of the working directory. `--bundle` belongs to the repository wrapper above and
+is not accepted by the standalone CLI. Run it directly from any permitted executor,
+without opening the worker worktree, using the same trusted `--expected-*` identities:
+
+```sh
+node /absolute/review-bundle/verify.mjs \
+  --expected-head "$HEAD" \
+  --expected-diff-sha256 "$DIFF_SHA" \
+  --expected-source path/to/source.ts="$SOURCE_SHA" \
+  --expected-deletion path/to/deleted-source.ts \
+  --expected-receipt work/orchestration/task/npm-check.json="$RECEIPT_SHA"
+```
 
 ## Raw source-bound command receipts
 
