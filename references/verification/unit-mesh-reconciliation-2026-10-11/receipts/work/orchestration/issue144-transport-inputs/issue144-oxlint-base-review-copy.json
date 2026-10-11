@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "d253f47b-d8fe-4fe1-8576-d580c70d6a3e",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "8ad7a0c1d94654bb6d1979eb6dce7aaafc7adb9e",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/scene-entities.ts": "c1eff40e1054cfcf3fd916ea54b090ef1a4989bac90c7b3b74f3bf5cbd703353",
+      ".oxlintrc.json": "caa0057ea1cbbc87402c3942667be83c2298b3a167957cea7153d0d72444ccff",
+      "node_modules/oxc-standard/.oxlintrc.json": "12a8af193abedfc648f0b37822a0092df18b5cd83644b8e6bd57d0f1e24d2bbc",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "node_modules/.bin/oxlint",
+    "--deny-warnings",
+    "app/scene-entities.ts"
+  ],
+  "cwd": "/workspace/pnd-baseline-144",
+  "startedAt": "2026-10-11T14:45:50.643Z",
+  "artifacts": {
+    "stdout": "/workspace/pnd-baseline-144/work/orchestration/issue144-oxlint-base-8ad7a0c.json.artifacts/stdout.log",
+    "stderr": "/workspace/pnd-baseline-144/work/orchestration/issue144-oxlint-base-8ad7a0c.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-11T14:45:50.755Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "app/scene-entities.ts:424:11: warning eslint(no-shadow): 'material' is already declared in the upper scope. help: Consider renaming 'material' to avoid shadowing the variable from the outer scope.\napp/scene-entities.ts:627:47: warning eslint(no-shadow): 'v' is already declared in the upper scope. help: Consider renaming 'v' to avoid shadowing the variable from the outer scope.\napp/scene-entities.ts:654:48: warning eslint(no-shadow): 'b' is already declared in the upper scope. help: Consider renaming 'b' to avoid shadowing the variable from the outer scope.\napp/scene-entities.ts:173:8: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/scene-entities.ts:173:32: warning unicorn(no-nested-ternary): Unexpected nested ternary expression without parentheses. help: Add parentheses around the nested ternary expression.\napp/scene-entities.ts:435:13: error eslint(no-multi-assign): Do not use chained assignment help: Separate each assignment into its own statement\napp/scene-entities.ts:585:9: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/scene-entities.ts:587:13: warning unicorn(no-nested-ternary): Unexpected nested ternary expression without parentheses. help: Add parentheses around the nested ternary expression.\napp/scene-entities.ts:791:21: warning eslint(prefer-destructuring): Use Object destructuring. help: Use object destructuring rather than direct member access.\n",
+  "stderr": "",
+  "stdoutSha256": "f53955bc1bf978d68cadbd06e919bfdb449d0cd767b34a3b4a0eb732f29516be",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "8ad7a0c1d94654bb6d1979eb6dce7aaafc7adb9e",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/scene-entities.ts": "c1eff40e1054cfcf3fd916ea54b090ef1a4989bac90c7b3b74f3bf5cbd703353",
+      ".oxlintrc.json": "caa0057ea1cbbc87402c3942667be83c2298b3a167957cea7153d0d72444ccff",
+      "node_modules/oxc-standard/.oxlintrc.json": "12a8af193abedfc648f0b37822a0092df18b5cd83644b8e6bd57d0f1e24d2bbc",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

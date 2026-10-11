@@ -1,0 +1,27 @@
+{
+  "status": "passed",
+  "claim": "equal diagnostic sets after removing only line/column shifts",
+  "candidate": {
+    "head": "a0cfa97841a5e3eb827a1fa30364e9ca92f24a6d",
+    "status": "failed",
+    "stdoutSha256": "b2a4680b7745e78d162fb7040e9c8709b51913050d041fbb80eeeeb7e156129e"
+  },
+  "baseline": {
+    "head": "8ad7a0c1d94654bb6d1979eb6dce7aaafc7adb9e",
+    "status": "failed",
+    "stdoutSha256": "f53955bc1bf978d68cadbd06e919bfdb449d0cd767b34a3b4a0eb732f29516be"
+  },
+  "warnings": 8,
+  "errors": 1,
+  "diagnostics": [
+    "app/scene-entities.ts: error eslint(no-multi-assign): Do not use chained assignment help: Separate each assignment into its own statement",
+    "app/scene-entities.ts: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.",
+    "app/scene-entities.ts: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.",
+    "app/scene-entities.ts: warning eslint(no-shadow): 'b' is already declared in the upper scope. help: Consider renaming 'b' to avoid shadowing the variable from the outer scope.",
+    "app/scene-entities.ts: warning eslint(no-shadow): 'material' is already declared in the upper scope. help: Consider renaming 'material' to avoid shadowing the variable from the outer scope.",
+    "app/scene-entities.ts: warning eslint(no-shadow): 'v' is already declared in the upper scope. help: Consider renaming 'v' to avoid shadowing the variable from the outer scope.",
+    "app/scene-entities.ts: warning eslint(prefer-destructuring): Use Object destructuring. help: Use object destructuring rather than direct member access.",
+    "app/scene-entities.ts: warning unicorn(no-nested-ternary): Unexpected nested ternary expression without parentheses. help: Add parentheses around the nested ternary expression.",
+    "app/scene-entities.ts: warning unicorn(no-nested-ternary): Unexpected nested ternary expression without parentheses. help: Add parentheses around the nested ternary expression."
+  ]
+}

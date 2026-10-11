@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "cbb2a4c9-6b8f-4f23-a226-d5b179a7e70e",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "8ad7a0c1d94654bb6d1979eb6dce7aaafc7adb9e",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/scene-entities.ts": "c1eff40e1054cfcf3fd916ea54b090ef1a4989bac90c7b3b74f3bf5cbd703353",
+      "tests/unit-mesh-reconciliation.test.mjs": "14aeac2841374b777e0c70db057ab0a80b285db8872fb74967e07bdd10d175f7",
+      "tests/support/bloodlust-scene.mjs": "68141adbfb7cd7193ee2fcaf85d8b9f169b4a8a7f4d98ac7bf8aaba025722337",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "node_modules/typescript/lib/typescript.js": "3ae902c92cc44dace175c0e69e13a4b0899f6983c6121d76b9ab8dd5795e7675",
+      "node_modules/three/build/three.module.js": "bbf5ed13fe4373f5bd38b14ea8e62e9f157327da5638edc6d3863e08b167c9c7",
+      "node_modules/three/build/three.core.js": "3718df126d69c125362a03340913204470d8c50238605150e57f808840fb7759"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/unit-mesh-reconciliation.test.mjs"
+  ],
+  "cwd": "/workspace/pnd-baseline-144",
+  "startedAt": "2026-10-11T14:46:57.551Z",
+  "artifacts": {
+    "stdout": "/workspace/pnd-baseline-144/work/orchestration/issue144-baseline-formatted-8ad7a0c.json.artifacts/stdout.log",
+    "stderr": "/workspace/pnd-baseline-144/work/orchestration/issue144-baseline-formatted-8ad7a0c.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-11T14:47:00.990Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "✔ unit-frame cleanup preserves survivor identity, removal order and resource release (2981.078617ms)\n✔ unit-frame signature replacement retains cleanup ordering and draws the new kind/team (39.434831ms)\n✔ membership rebuild observes in-place IDs, empty worlds, migrated loads and independent scenes (29.507531ms)\n✖ actual unit-frame membership work scales linearly for survivors and stale meshes (31.631985ms)\nℹ tests 4\nℹ suites 0\nℹ pass 3\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 3397.634522\n\n✖ failing tests:\n\ntest at tests/unit-mesh-reconciliation.test.mjs:171:1\n✖ actual unit-frame membership work scales linearly for survivors and stale meshes (31.631985ms)\n  AssertionError [ERR_ASSERTION]: 64 survivors: 2208 ID reads\n      at TestContext.<anonymous> (file:///workspace/pnd-baseline-144/tests/unit-mesh-reconciliation.test.mjs:203:14)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: false,\n    expected: true,\n    operator: '==',\n    diff: 'simple'\n  }\n",
+  "stderr": "",
+  "stdoutSha256": "9507bdb15ab41c4f17f01eb9c93914d2265c1ae95eeb2f4328029b193569308e",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "8ad7a0c1d94654bb6d1979eb6dce7aaafc7adb9e",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/scene-entities.ts": "c1eff40e1054cfcf3fd916ea54b090ef1a4989bac90c7b3b74f3bf5cbd703353",
+      "tests/unit-mesh-reconciliation.test.mjs": "14aeac2841374b777e0c70db057ab0a80b285db8872fb74967e07bdd10d175f7",
+      "tests/support/bloodlust-scene.mjs": "68141adbfb7cd7193ee2fcaf85d8b9f169b4a8a7f4d98ac7bf8aaba025722337",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "node_modules/typescript/lib/typescript.js": "3ae902c92cc44dace175c0e69e13a4b0899f6983c6121d76b9ab8dd5795e7675",
+      "node_modules/three/build/three.module.js": "bbf5ed13fe4373f5bd38b14ea8e62e9f157327da5638edc6d3863e08b167c9c7",
+      "node_modules/three/build/three.core.js": "3718df126d69c125362a03340913204470d8c50238605150e57f808840fb7759"
+    }
+  }
+}

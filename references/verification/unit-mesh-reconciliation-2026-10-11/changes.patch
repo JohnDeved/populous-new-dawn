@@ -1,0 +1,383 @@
+diff --git a/app/scene-entities.ts b/app/scene-entities.ts
+index 0739bee1..e88f003e 100644
+--- a/app/scene-entities.ts
++++ b/app/scene-entities.ts
+@@ -75,6 +75,9 @@ const unitAtlasOrigins = nativeUnits.pieces.map((piece, index) =>
+   spriteAtlasOrigin(piece, index, nativeUnits)
+ )
+ 
++// Derived only for the current frame; weak ownership follows the Scene lifetime.
++const unitFrameIds = new WeakMap<GameScene, Set<number>>()
++
+ const teamColor = {
+   blue: 0x303fc1,
+   red: 0xb92720,
+@@ -476,8 +479,16 @@ export function animatePerson(
+ }
+ 
+ export function updateUnitsFrame(scene: GameScene) {
++  let ids = unitFrameIds.get(scene)
++  if (!ids) {
++    ids = new Set()
++    unitFrameIds.set(scene, ids)
++  }
++  ids.clear()
++  for (const u of scene.world.units) ids.add(u.id)
++  // Accepted checkpoint IDs may be NaN, which never matched the old strict comparison.
+   for (const [id, g] of scene.unitMeshes)
+-    if (!scene.world.units.some(u => u.id === id)) {
++    if (Number.isNaN(id) || !ids.has(id)) {
+       scene.objects.remove(g)
+       scene.releaseGroup(g)
+       scene.unitMeshes.delete(id)
+diff --git a/references/unit-mesh-reconciliation.md b/references/unit-mesh-reconciliation.md
+new file mode 100644
+index 00000000..38d18324
+--- /dev/null
++++ b/references/unit-mesh-reconciliation.md
+@@ -0,0 +1,66 @@
++# Unit mesh cleanup membership — issue #144
++
++`GameScene.animate` calls `updateUnitsFrame` in `app/scene-entities.ts`. Previously,
++each existing unit mesh searched `world.units` with `some`. Cleanup now rebuilds a
++reusable Scene-owned ID set from the current world on **every call**, then checks
++each mesh with `has`. A weak Scene key owns only this derived set; no simulation
++record or dirty/version signal is cached.
++
++The mesh-map iteration and remove/release/delete order are unchanged. Signature
++replacement and the complete per-unit drawing body are unchanged. Replacing a
++world or changing an ID in place takes effect on the next call. Other entity,
++effect and drawing scans remain outside this bounded #144 change.
++
++`NaN` IDs accepted by existing checkpoint migration continue to be removed and
++rebuilt each frame, preserving the previous strict-comparison behavior. A focused
++actual migrated-checkpoint regression covers this edge; save validation is unchanged.
++
++`node --test tests/unit-mesh-reconciliation.test.mjs` passed all four tests on
++Node v24.19.0 at candidate `6151fb145c0436785a070fcd255591969c1273ae`, based on
++`8ad7a0c1d94654bb6d1979eb6dce7aaafc7adb9e`. The existing Node fixture imports the
++actual frame caller, mesh creation and animation, supplying texture loading,
++projection and motion leaves. Lifecycle assertions use the unchanged production
++`scene-assets.releaseGroup`, checking ordered calls and stale selection material
++and cloned texture disposal. They also check survivor identity, spawn/signature
++replacement, empty/reloaded worlds, independent Scenes and full-world/RNG equality.
++
++The deterministic diagnostic counts unit-ID reads. Its old-cleanup reference is
++the previous `some` membership expression, not a full baseline renderer. The new
++measurement invokes the **full actual unit-frame caller**, after initial mesh
++creation. The mixed case adds the same number of stale mesh IDs as survivors.
++
++| Units | Old survivor cleanup | New full frame | Old mixed cleanup | New mixed full frame |
++| ----: | -------------------: | -------------: | ----------------: | -------------------: |
++|    64 |                2,080 |            192 |             6,176 |                  192 |
++|   256 |               32,896 |            768 |            98,432 |                  768 |
++| 1,024 |              524,800 |          3,072 |         1,573,376 |                3,072 |
++
++Raw author receipt: `work/orchestration/issue144-focused-6151fb1.json` and its
++`.artifacts/stdout.log`. It binds source, test, fixture, package lock and installed
++lock hashes before/after; source remained clean. Receipt status **passed**, exit
++0; stdout SHA256 `f9f1e46de5104a00a0bbf0ba9e610c4469685092d559d28362badf8856225694`.
++
++The same test was then run against the unmodified exact base in isolated detached
++`/workspace/pnd-baseline-144`, with only the new test overlaid as an explicit hashed
++input. Its three lifecycle cases passed; its scaling case **failed**, exit 1,
++with 2,208 actual full-frame ID reads for 64 survivors against the 256-read bound.
++The failed raw receipt is `work/orchestration/issue144-baseline-8ad7a0c.json` in that
++worktree, stdout SHA256
++`00a07ed38764d362e19ed0fca52f680779ffc8df57dedaaf98342bf11d044191`.
++It also hashes the actual TypeScript/Three importer modules. The failure confirms
++the regression distinguishes the old caller from the candidate; no assertions or
++author production inputs were changed for this baseline run.
++
++After formatting the test/note, candidate `41b1b2a31f0b819e45da11a4ecadd745fde0d4dd`
++again passed all four focused cases, plus scoped Oxfmt and ESLint. Strict scoped
++Oxlint **failed** with eight warnings and one error; the unmodified exact base
++also failed with the same diagnostic multiset after removing only shifted line
++and column numbers. Those raw failures remain separate from the passing checks;
++no rule, assertion or configuration was relaxed. Production source is unchanged.
++
++At this author checkpoint, standard check/build and independent final review are
++**not-run**. Candidate focused checks passed; the baseline failure is retained
++separately. Browser QA and representative hardware measurements
++are **not-run**; supported browser access is blocked in this executor. The ID-read
++result establishes bounded algorithmic work, not FPS, wall-time improvement,
++native raster equivalence, deployment behavior or completion of the whole issue.
+diff --git a/tests/unit-mesh-reconciliation.test.mjs b/tests/unit-mesh-reconciliation.test.mjs
+new file mode 100644
+index 00000000..4dd17ac5
+--- /dev/null
++++ b/tests/unit-mesh-reconciliation.test.mjs
+@@ -0,0 +1,273 @@
++// Actual unit-frame caller and Three resources; texture/projection leaves are
++// supplied by the existing Node fixture. These are not browser/FPS measurements.
++import assert from 'node:assert/strict'
++import test from 'node:test'
++import * as THREE from 'three'
++import { loadSceneFixture, makeSceneFixture } from './support/bloodlust-scene.mjs'
++
++async function worldWithUnits(count) {
++  const api = await loadSceneFixture(),
++    world = api.createWorld(1)
++  world.units = []
++  world.selected = []
++  for (let i = 0; i < count; i++) api.addUnit(world, 'blue', 'brave', { x: i % 16, z: 0 })
++  return { api, world }
++}
++
++async function observeCleanup(fixture) {
++  const { releaseGroup } = await import('../app/scene-assets.ts'),
++    { scene } = fixture,
++    events = [],
++    remove = scene.objects.remove.bind(scene.objects),
++    drop = scene.unitMeshes.delete.bind(scene.unitMeshes)
++  scene.objects.remove = group => {
++    events.push(['remove', group.userData.unit])
++    return remove(group)
++  }
++  scene.releaseGroup = group => {
++    events.push(['release', group.userData.unit])
++    releaseGroup(group)
++  }
++  scene.unitMeshes.delete = id => {
++    events.push(['delete', id])
++    return drop(id)
++  }
++  return events
++}
++
++test('unit-frame cleanup preserves survivor identity, removal order and resource release', async () => {
++  const { api, world } = await worldWithUnits(4),
++    fixture = await makeSceneFixture(world),
++    [a, b, c, d] = world.units
++  try {
++    fixture.render()
++    const original = new Map(fixture.scene.unitMeshes),
++      events = await observeCleanup(fixture),
++      disposed = []
++    for (const unit of [b, d]) {
++      const group = original.get(unit.id)
++      group.userData.selection.material.addEventListener('dispose', () => disposed.push(unit.id))
++      group.userData.selection.material.map.addEventListener('dispose', () =>
++        disposed.push(`${unit.id}:map`)
++      )
++    }
++    const spawned = api.addUnit(world, 'blue', 'warrior', { x: 4, z: 1 })
++    world.units = [c, a, spawned]
++    const before = structuredClone(world)
++    fixture.render()
++    assert.deepEqual(
++      events,
++      [b, d].flatMap(unit => [
++        ['remove', unit.id],
++        ['release', unit.id],
++        ['delete', unit.id],
++      ])
++    )
++    assert.deepEqual(disposed, [`${b.id}:map`, b.id, `${d.id}:map`, d.id])
++    assert.equal(fixture.scene.unitMeshes.get(a.id), original.get(a.id))
++    assert.equal(fixture.scene.unitMeshes.get(c.id), original.get(c.id))
++    assert.deepEqual([...fixture.scene.unitMeshes.keys()], [a.id, c.id, spawned.id])
++    assert.deepEqual(fixture.scene.objects.children, [
++      original.get(a.id),
++      original.get(c.id),
++      fixture.scene.unitMeshes.get(spawned.id),
++    ])
++    assert.deepEqual(world, before, 'rendering preserves all simulation data and RNG owners')
++    events.length = 0
++    fixture.render()
++    assert.deepEqual(events, [], 'repeated frames do not remove/release survivors again')
++    assert.deepEqual(world, before)
++    assert.equal(fixture.scene.unitMeshes.get(a.id).userData.cellPosition, a)
++    assert.deepEqual(fixture.scene.unitMeshes.get(spawned.id).position.toArray(), [4, 0, 1])
++  } finally {
++    fixture.close()
++  }
++})
++
++test('unit-frame signature replacement retains cleanup ordering and draws the new kind/team', async () => {
++  const { world } = await worldWithUnits(1),
++    fixture = await makeSceneFixture(world)
++  try {
++    fixture.render()
++    const unit = world.units[0],
++      old = fixture.scene.unitMeshes.get(unit.id),
++      events = await observeCleanup(fixture)
++    unit.kind = 'warrior'
++    unit.team = 'red'
++    const before = structuredClone(world)
++    fixture.render()
++    const replacement = fixture.scene.unitMeshes.get(unit.id)
++    assert.notEqual(replacement, old)
++    assert.deepEqual(events, [
++      ['remove', unit.id],
++      ['release', unit.id],
++      ['delete', unit.id],
++    ])
++    assert.equal(old.parent, null)
++    assert.equal(replacement.parent, fixture.scene.objects)
++    assert.equal(replacement.userData.signature, 'red-warrior')
++    assert.equal(replacement.userData.owner, 1)
++    assert.deepEqual(world, before)
++    events.length = 0
++    fixture.render()
++    assert.equal(fixture.scene.unitMeshes.get(unit.id), replacement)
++    assert.deepEqual(events, [])
++  } finally {
++    fixture.close()
++  }
++})
++
++test('membership rebuild observes in-place IDs, empty worlds, migrated loads and independent scenes', async () => {
++  const { api, world } = await worldWithUnits(2),
++    fixture = await makeSceneFixture(world)
++  let other
++  try {
++    fixture.render()
++    const [a, b] = world.units,
++      oldA = fixture.scene.unitMeshes.get(a.id),
++      oldId = a.id,
++      oldB = fixture.scene.unitMeshes.get(b.id)
++    a.id = world.nextId++
++    fixture.render()
++    assert.equal(fixture.scene.unitMeshes.has(oldId), false)
++    assert.equal(oldA.parent, null)
++    assert.notEqual(fixture.scene.unitMeshes.get(a.id), oldA)
++    const restored = api.migrateCheckpoint(structuredClone(world)),
++      before = structuredClone(restored)
++    fixture.scene.world = restored
++    fixture.render()
++    assert.equal(
++      fixture.scene.unitMeshes.get(b.id),
++      oldB,
++      'same ID/signature survives a loaded world'
++    )
++    assert.equal(oldB.userData.cellPosition, restored.units[1], 'draw uses the newly loaded record')
++    assert.deepEqual(restored, before)
++    other = await makeSceneFixture(restored)
++    other.render()
++    assert.notEqual(other.scene.unitMeshes.get(b.id), oldB)
++    const otherGroups = [...other.scene.unitMeshes.values()]
++    fixture.scene.world = { ...restored, units: [] }
++    fixture.render()
++    assert.equal(fixture.scene.unitMeshes.size, 0)
++    assert.equal(fixture.scene.objects.children.length, 0)
++    other.render()
++    assert.deepEqual(
++      [...other.scene.unitMeshes.values()],
++      otherGroups,
++      'Scenes own independent frame indexes'
++    )
++    fixture.scene.world = restored
++    fixture.render()
++    assert.equal(fixture.scene.unitMeshes.size, restored.units.length)
++    assert.deepEqual(restored, before)
++  } finally {
++    // Fixtures install texture/document leaves, so unwind in creation order's reverse.
++    other?.close()
++    fixture.close()
++  }
++})
++
++test('a migrated NaN ID retains strict-comparison cleanup and rebuilds every frame', async () => {
++  const { api, world } = await worldWithUnits(1)
++  world.units[0].id = NaN
++  const restored = api.migrateCheckpoint(structuredClone(world))
++  assert.ok(restored)
++  assert.ok(Number.isNaN(restored.units[0].id), 'migration retains the actual saved NaN ID')
++  const before = structuredClone(restored),
++    fixture = await makeSceneFixture(restored)
++  try {
++    fixture.render()
++    const events = await observeCleanup(fixture)
++    let previous = fixture.scene.unitMeshes.get(NaN)
++    assert.ok(previous)
++    for (let frame = 0; frame < 3; frame++) {
++      events.length = 0
++      fixture.render()
++      const replacement = fixture.scene.unitMeshes.get(NaN)
++      assert.deepEqual(events, [
++        ['remove', NaN],
++        ['release', NaN],
++        ['delete', NaN],
++      ])
++      assert.notEqual(replacement, previous)
++      assert.equal(previous.parent, null)
++      assert.equal(replacement.parent, fixture.scene.objects)
++      assert.deepEqual(
++        restored,
++        before,
++        'rendering does not repair or otherwise mutate the saved world'
++      )
++      previous = replacement
++    }
++  } finally {
++    fixture.close()
++  }
++})
++
++test('actual unit-frame membership work scales linearly for survivors and stale meshes', async t => {
++  const rows = []
++  for (const count of [64, 256, 1024]) {
++    const { world } = await worldWithUnits(count),
++      fixture = await makeSceneFixture(world)
++    try {
++      fixture.render()
++      const groups = [...fixture.scene.unitMeshes.values()]
++      let reads = 0
++      for (const unit of world.units) {
++        const id = unit.id
++        Object.defineProperty(unit, 'id', {
++          enumerable: true,
++          configurable: true,
++          get: () => {
++            reads++
++            return id
++          },
++        })
++      }
++      // Freeze the previous cleanup's membership expression as a diagnostic
++      // reference; the candidate measurement invokes the actual full frame caller.
++      const oldMembershipReads = ids => {
++        reads = 0
++        for (const id of ids) world.units.some(unit => unit.id === id)
++        return reads
++      }
++      const survivorBaseline = oldMembershipReads(fixture.scene.unitMeshes.keys())
++      assert.equal(survivorBaseline, (count * (count + 1)) / 2)
++      reads = 0
++      fixture.render()
++      const survivorFrame = reads
++      assert.ok(survivorFrame <= 4 * count, `${count} survivors: ${survivorFrame} ID reads`)
++      assert.deepEqual([...fixture.scene.unitMeshes.values()], groups)
++      const stale = groups.map((_, index) => [-(index + 1), new THREE.Group()])
++      for (const [id, group] of stale) {
++        group.userData.unit = id
++        fixture.scene.unitMeshes.set(id, group)
++        fixture.scene.objects.add(group)
++      }
++      const mixedBaseline = oldMembershipReads(fixture.scene.unitMeshes.keys())
++      assert.equal(mixedBaseline, (count * (count + 1)) / 2 + count * count)
++      reads = 0
++      fixture.render()
++      const mixedFrame = reads
++      assert.ok(
++        mixedFrame <= 4 * count,
++        `${count} survivors + stale meshes: ${mixedFrame} ID reads`
++      )
++      assert.deepEqual([...fixture.scene.unitMeshes.values()], groups)
++      rows.push({ count, survivorBaseline, survivorFrame, mixedBaseline, mixedFrame })
++    } finally {
++      fixture.close()
++    }
++  }
++  for (let i = 1; i < rows.length; i++) {
++    assert.equal(rows[i].survivorFrame, rows[i - 1].survivorFrame * 4)
++    assert.equal(rows[i].mixedFrame, rows[i - 1].mixedFrame * 4)
++  }
++  t.diagnostic(
++    JSON.stringify({
++      unitIdReads: rows,
++      scope: 'Node actual frame caller; no wall time/browser/GPU/FPS claim',
++    })
++  )
++})

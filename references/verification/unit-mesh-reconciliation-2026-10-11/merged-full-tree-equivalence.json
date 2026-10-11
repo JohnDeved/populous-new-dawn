@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "kind": "merged-full-tree-equivalence",
+  "reviewedAuthorHead": "a0cfa97841a5e3eb827a1fa30364e9ca92f24a6d",
+  "testedPublishedHead": "c4614400953ff1618abb85ad8edd93135f04babf",
+  "mergedMain": {
+    "head": "860e8ae246b5237469b36a5f2c7794ce75731e95",
+    "tree": "35d95366fafeb21f79bce4f5428cad8d2801aeb5"
+  },
+  "identicalFullTree": "35d95366fafeb21f79bce4f5428cad8d2801aeb5",
+  "claim": "Reviewed, tested published and merged source have identical complete Git tree identity. Existing raw receipt heads/statuses remain unchanged; no checks were rerun for this merge annotation. Main CI status and deployment behavior are not inferred."
+}

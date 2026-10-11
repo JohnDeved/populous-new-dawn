@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "71a7b6f3-45cc-49ef-a5bc-1c7ebad77125",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "a0cfa97841a5e3eb827a1fa30364e9ca92f24a6d",
+    "branch": "codex/issue144-unit-mesh-index",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/scene-entities.ts": "82801fc7b8123633711243e14d76f0ebb7f5a50265aab9fc32cb9ef8ed8b9725",
+      "tests/unit-mesh-reconciliation.test.mjs": "fd3c6acf9091850b7acd1f207f86be11ffb45d6f65240771a9ff37e0188732dc",
+      "eslint.config.mjs": "9578a25ed5bb7d9d6cd35f99459aa4b7987c9e32612ef1e020fa58826dc35543",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "node_modules/.bin/eslint",
+    "app/scene-entities.ts",
+    "tests/unit-mesh-reconciliation.test.mjs"
+  ],
+  "cwd": "/workspace/pnd-author-144",
+  "startedAt": "2026-10-11T14:50:42.156Z",
+  "artifacts": {
+    "stdout": "/workspace/pnd-author-144/work/orchestration/issue144-eslint-nan-a0cfa97.json.artifacts/stdout.log",
+    "stderr": "/workspace/pnd-author-144/work/orchestration/issue144-eslint-nan-a0cfa97.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-11T14:50:43.301Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "a0cfa97841a5e3eb827a1fa30364e9ca92f24a6d",
+    "branch": "codex/issue144-unit-mesh-index",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/scene-entities.ts": "82801fc7b8123633711243e14d76f0ebb7f5a50265aab9fc32cb9ef8ed8b9725",
+      "tests/unit-mesh-reconciliation.test.mjs": "fd3c6acf9091850b7acd1f207f86be11ffb45d6f65240771a9ff37e0188732dc",
+      "eslint.config.mjs": "9578a25ed5bb7d9d6cd35f99459aa4b7987c9e32612ef1e020fa58826dc35543",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

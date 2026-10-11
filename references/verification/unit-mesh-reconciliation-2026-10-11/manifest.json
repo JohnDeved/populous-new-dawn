@@ -1,0 +1,158 @@
+{
+  "version": 1,
+  "kind": "pnd-review-bundle",
+  "taskId": "issue144-final-c461",
+  "repository": {
+    "branch": "",
+    "baseCommit": "8ad7a0c1d94654bb6d1979eb6dce7aaafc7adb9e",
+    "headOid": "c4614400953ff1618abb85ad8edd93135f04babf"
+  },
+  "diff": {
+    "path": "changes.patch",
+    "sha256": "84a78e3efa7f0d44a095f63bde34a039c2eadf24e5ea70535d6a9b33e38b6fd5",
+    "bytes": 16190
+  },
+  "sources": [
+    {
+      "status": "M",
+      "path": "app/scene-entities.ts",
+      "state": "present",
+      "sha256": "82801fc7b8123633711243e14d76f0ebb7f5a50265aab9fc32cb9ef8ed8b9725",
+      "blobOid": "e88f003eeccfa973a6b6e56b0902d8fbc3ffc2ce",
+      "bytes": 30058
+    },
+    {
+      "status": "A",
+      "path": "references/unit-mesh-reconciliation.md",
+      "state": "present",
+      "sha256": "f327d6a4c640820df0d49a017341a4674dda0cbd7fd4ef86d152e31cd0b76389",
+      "blobOid": "38d1832435258f8afe9d805f634104f06feb457a",
+      "bytes": 4412
+    },
+    {
+      "status": "A",
+      "path": "tests/unit-mesh-reconciliation.test.mjs",
+      "state": "present",
+      "sha256": "fd3c6acf9091850b7acd1f207f86be11ffb45d6f65240771a9ff37e0188732dc",
+      "blobOid": "4dd17ac596a13ce1d86355a082e65e8b0950f447",
+      "bytes": 9902
+    }
+  ],
+  "receipts": [
+    {
+      "sourcePath": "work/orchestration/issue144-transport-inputs/issue144-focused-nan-a0cfa97.json",
+      "sourceSha256": "1934b449e2498c39979467c60805ed4fa58892e52b531e46e3b9381ad77533d5",
+      "sourceBytes": 4208,
+      "bundlePath": "receipts/work/orchestration/issue144-transport-inputs/issue144-focused-nan-a0cfa97.json",
+      "bundleSha256": "1934b449e2498c39979467c60805ed4fa58892e52b531e46e3b9381ad77533d5",
+      "bundleBytes": 4208,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-transport-inputs/issue144-focused-formatted-41b1b2a.json",
+      "sourceSha256": "9cfbc194e0a498896601e1c1643a990a9233f2cbbc6786d27c251711d9e8f019",
+      "sourceBytes": 4126,
+      "bundlePath": "receipts/work/orchestration/issue144-transport-inputs/issue144-focused-formatted-41b1b2a.json",
+      "bundleSha256": "9cfbc194e0a498896601e1c1643a990a9233f2cbbc6786d27c251711d9e8f019",
+      "bundleBytes": 4126,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-transport-inputs/issue144-oxfmt-nan-a0cfa97.json",
+      "sourceSha256": "80ee9c8b2ebbaada68c781f8ee4f84e4c02956109697968bd8560d32a27d748e",
+      "sourceBytes": 2425,
+      "bundlePath": "receipts/work/orchestration/issue144-transport-inputs/issue144-oxfmt-nan-a0cfa97.json",
+      "bundleSha256": "80ee9c8b2ebbaada68c781f8ee4f84e4c02956109697968bd8560d32a27d748e",
+      "bundleBytes": 2425,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-transport-inputs/issue144-eslint-nan-a0cfa97.json",
+      "sourceSha256": "a55a23dc731e5682ba6d333441168b2de0e4e2ee3c71901129c5eda348bf7e59",
+      "sourceBytes": 2245,
+      "bundlePath": "receipts/work/orchestration/issue144-transport-inputs/issue144-eslint-nan-a0cfa97.json",
+      "bundleSha256": "a55a23dc731e5682ba6d333441168b2de0e4e2ee3c71901129c5eda348bf7e59",
+      "bundleBytes": 2245,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-transport-inputs/issue144-oxlint-nan-a0cfa97.json",
+      "sourceSha256": "6ad57976960de42f4b34718b3f9e42e36a256bfa10ebcd5071491b53aa32bbc9",
+      "sourceBytes": 3835,
+      "bundlePath": "receipts/work/orchestration/issue144-transport-inputs/issue144-oxlint-nan-a0cfa97.json",
+      "bundleSha256": "6ad57976960de42f4b34718b3f9e42e36a256bfa10ebcd5071491b53aa32bbc9",
+      "bundleBytes": 3835,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-transport-inputs/issue144-baseline-formatted-review-copy.json",
+      "sourceSha256": "3d506c1f3fe6f80509ff7be0dd3184f901c9ff287ca40e1d490448f8babe0320",
+      "sourceBytes": 4301,
+      "bundlePath": "receipts/work/orchestration/issue144-transport-inputs/issue144-baseline-formatted-review-copy.json",
+      "bundleSha256": "3d506c1f3fe6f80509ff7be0dd3184f901c9ff287ca40e1d490448f8babe0320",
+      "bundleBytes": 4301,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-transport-inputs/issue144-oxlint-base-review-copy.json",
+      "sourceSha256": "e1b7170e73195e4494b797aa966ea47938ef098dd0384e278236439b2ab316d4",
+      "sourceBytes": 3783,
+      "bundlePath": "receipts/work/orchestration/issue144-transport-inputs/issue144-oxlint-base-review-copy.json",
+      "bundleSha256": "e1b7170e73195e4494b797aa966ea47938ef098dd0384e278236439b2ab316d4",
+      "bundleBytes": 3783,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-transport-inputs/issue144-oxlint-nan-comparison.json",
+      "sourceSha256": "0b506bbc413ac8f684abe56bc9884e03761e5ccf56141f5d985f4df7d67c0057",
+      "sourceBytes": 2143,
+      "bundlePath": "receipts/work/orchestration/issue144-transport-inputs/issue144-oxlint-nan-comparison.json",
+      "bundleSha256": "0b506bbc413ac8f684abe56bc9884e03761e5ccf56141f5d985f4df7d67c0057",
+      "bundleBytes": 2143,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-transport-inputs/issue144-paired-focused-comparison.json",
+      "sourceSha256": "f8dfe4f128fc4e3e812526ad35d881854e56f8f5047354a841d8dae9441a74cb",
+      "sourceBytes": 2328,
+      "bundlePath": "receipts/work/orchestration/issue144-transport-inputs/issue144-paired-focused-comparison.json",
+      "bundleSha256": "f8dfe4f128fc4e3e812526ad35d881854e56f8f5047354a841d8dae9441a74cb",
+      "bundleBytes": 2328,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-transport-inputs/full-tree-equivalence.json",
+      "sourceSha256": "bd46e6d11217e2666d0ddc446079164dfb004222601e7646b99a9ad43f0051e4",
+      "sourceBytes": 1053,
+      "bundlePath": "receipts/work/orchestration/issue144-transport-inputs/full-tree-equivalence.json",
+      "bundleSha256": "bd46e6d11217e2666d0ddc446079164dfb004222601e7646b99a9ad43f0051e4",
+      "bundleBytes": 1053,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-final/check-01.json",
+      "sourceSha256": "c116fbdc03c6b1a84794335fd5fa718853e146a0e26bc799cdfbfd3bd997e404",
+      "sourceBytes": 221845,
+      "bundlePath": "receipts/work/orchestration/issue144-final/check-01.json",
+      "bundleSha256": "62186ad525da06cee316712284a8db9d6018fb6c6cea37591316a7216f108930",
+      "bundleBytes": 221757,
+      "redactions": 8
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-final/build-01.json",
+      "sourceSha256": "757b6097db88c7a2734f69400f39d483028c102be3968fbf8cc934f0d138c27b",
+      "sourceBytes": 4207,
+      "bundlePath": "receipts/work/orchestration/issue144-final/build-01.json",
+      "bundleSha256": "2c53883943369748951c1ad3656c44151081f064896531b9476f1b4a8b596bad",
+      "bundleBytes": 4174,
+      "redactions": 3
+    }
+  ],
+  "reviewerPreflight": {
+    "instructions": "Open this bundle in a permitted executor and verify it against trusted caller-supplied identities before review.",
+    "verify": [
+      "node",
+      "verify.mjs"
+    ]
+  }
+}

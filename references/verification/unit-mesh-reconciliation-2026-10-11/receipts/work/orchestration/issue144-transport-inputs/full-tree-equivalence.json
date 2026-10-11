@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "kind": "full-git-tree-equivalence",
+  "status": "passed",
+  "base": "8ad7a0c1d94654bb6d1979eb6dce7aaafc7adb9e",
+  "author": {
+    "head": "a0cfa97841a5e3eb827a1fa30364e9ca92f24a6d",
+    "tree": "35d95366fafeb21f79bce4f5428cad8d2801aeb5"
+  },
+  "remote": {
+    "head": "c4614400953ff1618abb85ad8edd93135f04babf",
+    "tree": "35d95366fafeb21f79bce4f5428cad8d2801aeb5"
+  },
+  "sources": [
+    {
+      "path": "app/scene-entities.ts",
+      "sha256": "82801fc7b8123633711243e14d76f0ebb7f5a50265aab9fc32cb9ef8ed8b9725"
+    },
+    {
+      "path": "tests/unit-mesh-reconciliation.test.mjs",
+      "sha256": "fd3c6acf9091850b7acd1f207f86be11ffb45d6f65240771a9ff37e0188732dc"
+    },
+    {
+      "path": "references/unit-mesh-reconciliation.md",
+      "sha256": "f327d6a4c640820df0d49a017341a4674dda0cbd7fd4ef86d152e31cd0b76389"
+    }
+  ],
+  "claim": "All tracked source files and file modes have identical Git tree identity; commits differ because connector publication created the remote commit. Original receipt heads remain explicit."
+}
