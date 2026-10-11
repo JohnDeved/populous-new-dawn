@@ -1,0 +1,261 @@
+{
+  "verdict": "VALID_HISTORICAL_OBSERVATION_CHANGED_INPUT_TIMING",
+  "traceSha256": "09c1a20bb2bcf9e42e593dc48537d851d6bc5719e4592abe7c68e74199b92975",
+  "eventCount": 23936,
+  "callCount": 11968,
+  "turnRange": [
+    1070,
+    1107
+  ],
+  "errors": [],
+  "armTurn": 1069,
+  "trustedClickTurn": 1077,
+  "checks": {
+    "One route callback after movement": 152,
+    "Unblocked displacement": 119,
+    "Two actual slope samples": 119,
+    "Native slope sample coordinates": 119,
+    "Native slope velocity formula": 119,
+    "Velocity cap": 120,
+    "RNG transform": 14,
+    "Direct route release and copied destinations": 5,
+    "One command after one motion": 120,
+    "One recovery draw and speed": 8,
+    "Case4 recovery then direct destination": 4,
+    "Physical admission gate": 4
+  },
+  "failures": [],
+  "recoveries": [
+    {
+      "id": 312,
+      "turn": 1078,
+      "counter": 93,
+      "substate": 1,
+      "speedBefore": 83,
+      "speedAfter": 81,
+      "rngBefore": 2652107826,
+      "rngAfter": 42583838,
+      "draws": 1
+    },
+    {
+      "id": 519,
+      "turn": 1078,
+      "counter": 95,
+      "substate": 1,
+      "speedBefore": 80,
+      "speedAfter": 72,
+      "rngBefore": 3052389684,
+      "rngAfter": 3566804019,
+      "draws": 1
+    },
+    {
+      "id": 513,
+      "turn": 1078,
+      "counter": 93,
+      "substate": 1,
+      "speedBefore": 80,
+      "speedAfter": 84,
+      "rngBefore": 1737613840,
+      "rngAfter": 2273129548,
+      "draws": 1
+    },
+    {
+      "id": 300,
+      "turn": 1078,
+      "counter": 89,
+      "substate": 1,
+      "speedBefore": 72,
+      "speedAfter": 78,
+      "rngBefore": 3311306949,
+      "rngAfter": 3861077374,
+      "draws": 1
+    },
+    {
+      "id": 513,
+      "turn": 1086,
+      "counter": 101,
+      "substate": 5,
+      "speedBefore": 84,
+      "speedAfter": 80,
+      "rngBefore": 1760524637,
+      "rngAfter": 1659198820,
+      "draws": 1
+    },
+    {
+      "id": 312,
+      "turn": 1088,
+      "counter": 103,
+      "substate": 5,
+      "speedBefore": 81,
+      "speedAfter": 71,
+      "rngBefore": 2516745040,
+      "rngAfter": 2440922935,
+      "draws": 1
+    },
+    {
+      "id": 519,
+      "turn": 1088,
+      "counter": 105,
+      "substate": 5,
+      "speedBefore": 72,
+      "speedAfter": 84,
+      "rngBefore": 2440922935,
+      "rngAfter": 1404123055,
+      "draws": 1
+    },
+    {
+      "id": 300,
+      "turn": 1090,
+      "counter": 101,
+      "substate": 5,
+      "speedBefore": 78,
+      "speedAfter": 86,
+      "rngBefore": 796160582,
+      "rngAfter": 3609838190,
+      "draws": 1
+    }
+  ],
+  "admissions": [
+    {
+      "turn": 1103,
+      "id": 513,
+      "counter": 118,
+      "distances": [
+        7,
+        51
+      ],
+      "position": [
+        11513,
+        39245
+      ],
+      "slot": 0,
+      "insideBefore": 0,
+      "insideAfter": 1,
+      "queueHead": 0,
+      "queued": false
+    },
+    {
+      "turn": 1105,
+      "id": 519,
+      "counter": 122,
+      "distances": [
+        3,
+        3
+      ],
+      "position": [
+        11517,
+        39299
+      ],
+      "slot": 1,
+      "insideBefore": 1,
+      "insideAfter": 2,
+      "queueHead": 0,
+      "queued": false
+    },
+    {
+      "turn": 1107,
+      "id": 312,
+      "counter": 122,
+      "distances": [
+        9,
+        73
+      ],
+      "position": [
+        11511,
+        39223
+      ],
+      "slot": 3,
+      "insideBefore": 3,
+      "insideAfter": 4,
+      "queueHead": 0,
+      "queued": false
+    },
+    {
+      "turn": 1107,
+      "id": 300,
+      "counter": 118,
+      "distances": [
+        3,
+        5
+      ],
+      "position": [
+        11517,
+        39291
+      ],
+      "slot": 4,
+      "insideBefore": 4,
+      "insideAfter": 5,
+      "queueHead": 0,
+      "queued": false
+    }
+  ],
+  "formationReferenceRows": 0,
+  "summary": {
+    "maxSubstate5": 5,
+    "maxEntering": 5,
+    "maxInside": 5,
+    "perPerson": [
+      {
+        "id": 312,
+        "firstSubstate5": 1088,
+        "firstInside": 1107
+      },
+      {
+        "id": 309,
+        "firstSubstate5": 1087,
+        "firstInside": 1106
+      },
+      {
+        "id": 519,
+        "firstSubstate5": 1088,
+        "firstInside": 1105
+      },
+      {
+        "id": 516,
+        "firstQueue": 1132
+      },
+      {
+        "id": 513,
+        "firstSubstate5": 1086,
+        "firstInside": 1103
+      },
+      {
+        "id": 510,
+        "firstQueue": 1120
+      },
+      {
+        "id": 300,
+        "firstSubstate5": 1090,
+        "firstInside": 1107
+      },
+      {
+        "id": 507,
+        "firstQueue": 1119
+      },
+      {
+        "id": 306,
+        "firstQueue": 1131
+      },
+      {
+        "id": 589,
+        "firstQueue": 1120
+      }
+    ]
+  },
+  "limits": [
+    "Source-law arithmetic over actual recorded inputs only; no gameplay or native execution.",
+    "Observed trusted click1077 differs from retained ordinary1 click1069, so original two pairs and speed history were not reproduced.",
+    "Local ground slope/speed/cap and command ordering only: no exhaustive route solver/collision or original ordinary RNG history equivalence.",
+    "Native controlled attempt08 supplies state boundaries, not exact ordinary history. Product341 remains HOLD."
+  ],
+  "totalFormulaAndOrderChecks": 903,
+  "directTravelRouteFinding": "Every recorded state10/substate5 call for all four people has motionGroup0; there are zero advancePersonRoute calls in that state. stepLiveRoute still runs as the expected motion tail callback.",
+  "postRunSourceCheck": {
+    "listedFiles": 352,
+    "existingFilesMatched": 351,
+    "missing": [
+      "node_modules/.package-lock.json"
+    ],
+    "note": "Private dependency tree no longer present after terminal. Terminal process receipt records all352 hashes unchanged; current app/observer/input source files still independently match."
+  }
+}
