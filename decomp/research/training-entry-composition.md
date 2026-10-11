@@ -90,3 +90,7 @@ The [reviewed static preflight](../../references/verification/mission3-construct
 ## Original pool/terrain prerequisite
 
 The [reviewed original run](../../references/verification/mission3-pool-reset-2026-10-10/README.md) establishes deterministic free-list reconstruction and complete terrain clearing despite unknown prior bytes. It does not run an allocator or constructor and leaves the class1 seed unknown. The retained mode proof supplies the New Game tutorial clear and globe interface predicate conditionally; land-mode history and full setup remain open.
+
+## Conditional projected reset
+
+The [reviewed conditional reset](../../references/verification/mission3-projected-reset-2026-10-10/README.md) passed32 predeclared known outputs after14,428 original integer instructions with three explicit camera floating-point omissions. Normal omitted-fragment return is an assumption. This does not admit the object constructor or recover its later class1 seed; the next exact input is the caller's64-byte palette copy.
