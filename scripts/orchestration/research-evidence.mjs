@@ -49,14 +49,19 @@ function readSources(repo, sources) {
   return values
 }
 
-function rawValue(pointer, sources) {
+function rawValue(pointer, sources, dossierId, field) {
   assert(pointer && text(pointer.sourceId) && sources.has(pointer.sourceId), 'Missing raw source ID')
+  const context = `dossier ${JSON.stringify(dossierId)}, field ${JSON.stringify(field)}, source ${JSON.stringify(pointer.sourceId)}`
   const raw = sources.get(pointer.sourceId).toString('utf8')
   if (pointer.format === 'text') return raw
-  assert(pointer.format === 'json' && Array.isArray(pointer.keys) && pointer.keys.every(text), 'Invalid raw selector')
-  let value = JSON.parse(raw)
+  assert(pointer.format === 'json' && Array.isArray(pointer.keys) && pointer.keys.every(text), `Invalid raw selector: ${context}`)
+  const selection = `${context}, selector ${JSON.stringify(pointer.keys)}`
+  let value
+  try { value = JSON.parse(raw) } catch {
+    throw new Error(`Invalid raw JSON: ${selection}; inspect the backing source JSON`)
+  }
   for (const key of pointer.keys) {
-    assert(value !== null && typeof value === 'object' && Object.hasOwn(value, key), 'Missing raw selector')
+    assert(value !== null && typeof value === 'object' && Object.hasOwn(value, key), `Missing raw selector: ${selection}; missing key ${JSON.stringify(key)}`)
     value = value[key]
   }
   return value
@@ -77,7 +82,7 @@ export function compactResearch(repo, packet, expected) {
     assert(dossier.rawSources && isDeepStrictEqual(Object.keys(dossier.raw).sort(), Object.keys(dossier.rawSources).sort()), 'Raw fields require exact source pointers')
     for (const [name, value] of Object.entries(dossier.raw)) {
       assert(['pseudocode', 'assembly'].includes(name), 'Only pseudocode/assembly can be omitted')
-      assert(isDeepStrictEqual(value, rawValue(dossier.rawSources[name], sources)), `Raw source differs from dossier: ${name}`)
+      assert(isDeepStrictEqual(value, rawValue(dossier.rawSources[name], sources, dossier.id, name)), `Raw source differs from dossier: ${name}`)
     }
     const retained = { ...dossier }
     delete retained.raw
@@ -93,7 +98,7 @@ export function retrieveResearch(repo, view, expected, dossierId, field) {
   const dossier = view.dossiers.find(item => item.id === dossierId)
   assert(dossier && Object.hasOwn(dossier.rawSources, field), 'Unknown dossier/raw field')
   // Verify every declared backing source, not just the selected excerpt.
-  return rawValue(dossier.rawSources[field], readSources(repo, view.sources))
+  return rawValue(dossier.rawSources[field], readSources(repo, view.sources), dossierId, field)
 }
 
 export function claimContractSha256(claim) {
