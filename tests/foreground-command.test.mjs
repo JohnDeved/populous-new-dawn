@@ -6,6 +6,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { runCommandReceipt } from '../scripts/orchestration/command-receipt.mjs'
 import { fileURLToPath } from 'node:url'
+import { performance } from 'node:perf_hooks'
 import { runForegroundCommand } from '../scripts/performance-queue.mjs'
 
 const cli = fileURLToPath(new URL('../scripts/performance-queue.mjs', import.meta.url))
@@ -125,4 +126,30 @@ process.stdout.write(previous?rows.trimEnd().split('\\n').map(row=>row+' changed
   assert.match(terminal.reason, /owned process identity is no longer present/)
   assert.equal(fs.existsSync(marker), false)
   assert.equal(fs.existsSync(done), true)
+})
+
+
+test('exit observed after the deadline between polls cannot pass', async t => {
+  const realSetTimeout = globalThis.setTimeout
+  let clockReads = 0, releasePoll
+  // Hold the next poll while a real finite child exits. The monotonic clock
+  // moves from before to after the deadline at the outcome callback itself.
+  t.mock.method(globalThis, 'setTimeout', (callback, ms, ...args) => {
+    if (ms !== 50) return realSetTimeout(callback, ms, ...args)
+    const fallback = realSetTimeout(callback, 1000, ...args)
+    releasePoll = () => { clearTimeout(fallback); setImmediate(callback, ...args) }
+    return fallback
+  })
+  t.mock.method(performance, 'now', () => {
+    clockReads++
+    if (clockReads === 1) return 0
+    if (clockReads === 2) return 99
+    releasePoll?.()
+    return 101
+  })
+  const result = await run('setTimeout(()=>process.exit(0),30)', 100)
+  assert.equal(result.exitCode, 0)
+  assert.equal(result.status, 'timed-out')
+  assert.equal(result.resourcesReleased, true)
+  assert.equal(clockReads, 3, 'deadline, pre-deadline poll, and post-deadline exit must all be observed')
 })

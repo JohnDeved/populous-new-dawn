@@ -9,6 +9,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { isDeepStrictEqual } from 'node:util'
+import { performance } from 'node:perf_hooks'
 
 const script = fileURLToPath(import.meta.url)
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
@@ -217,13 +218,18 @@ export async function runForegroundCommand({ command, timeoutMs, cwd = process.c
   argv(command, 'command')
   assert(Number.isSafeInteger(timeoutMs) && timeoutMs > 0, 'timeoutMs must be a positive safe integer')
   assert(['inherit', 'ignore'].includes(stdio), 'foreground stdio must be inherit or ignore')
-  const deadline = Date.now() + timeoutMs
+  const deadline = performance.now() + timeoutMs
   let child, outcome, group, stopReason
   const interrupted = () => { stopReason ??= 'interrupted' }
   for (const name of ['SIGINT', 'SIGTERM']) process.on(name, interrupted)
   try {
     child = spawn(command[0], command.slice(1), { cwd, env, stdio, detached: true })
-    const finished = childOutcome(child).then(value => { outcome = value })
+    const finished = childOutcome(child).then(value => {
+      // An exit can arrive after the deadline but before the next poll. Classify
+      // it here; measuring after cleanup would incorrectly include its grace.
+      if (performance.now() >= deadline) stopReason ??= 'timed-out'
+      outcome = value
+    })
     if (child.pid) {
       group = { pid: child.pid, members: new Map() }
       const owner = processTable().find(row => row.pid === child.pid && row.pgid === child.pid)
@@ -231,7 +237,7 @@ export async function runForegroundCommand({ command, timeoutMs, cwd = process.c
     }
     while (!outcome && !stopReason) {
       if (group) verifyGroupIdentity(group)
-      if (Date.now() >= deadline) stopReason = 'timed-out'
+      if (performance.now() >= deadline) stopReason = 'timed-out'
       else await sleep(50)
     }
     // A leader can exit while descendants keep running (or retain inherited
