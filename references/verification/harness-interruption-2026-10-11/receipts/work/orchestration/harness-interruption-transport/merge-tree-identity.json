@@ -1,0 +1,15 @@
+{
+  "kind": "verified-post-merge-tree-identity",
+  "observedAt": "2026-10-11T14:40:00.985080+00:00",
+  "testedSourceHead": "227ce21d9a1a21e601820baac6d8c0daec8743b2",
+  "testedSourceTree": "9d91e0c1646f11264817a024eeab20b0eb045e92",
+  "mergedMainCommit": "8ad7a0c1d94654bb6d1979eb6dce7aaafc7adb9e",
+  "mergedMainTree": "9d91e0c1646f11264817a024eeab20b0eb045e92",
+  "sameTree": true,
+  "method": "git rev-parse of exact existing commit objects in gate checkout; main commit identity supplied by parent merge result",
+  "mainParents": [
+    "c8f789dd4a922f831527f4334c53c3e6365d194e"
+  ],
+  "mainMetadataSha256": "4346e231612bb87c5326c78f0dbadd507bf1b5cca05eecbb135eeab993cc01dc",
+  "limits": "No gate rerun. Raw gate receipts remain bound to tested head227ce21d; equality of the full Git tree connects those results to the merged source. No browser/deployment/hardware or later-main claim."
+}

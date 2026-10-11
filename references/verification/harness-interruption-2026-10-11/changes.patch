@@ -1,0 +1,128 @@
+diff --git a/tests/local-render-harness.test.mjs b/tests/local-render-harness.test.mjs
+index a173774d..372d8a05 100644
+--- a/tests/local-render-harness.test.mjs
++++ b/tests/local-render-harness.test.mjs
+@@ -92,8 +92,14 @@ test('source fingerprint catches dirty tracked and untracked byte drift with unc
+ async function lateScenarioResult(trigger) {
+   let persisted,
+     scenarioStarted = false,
++    scenarioCompleted = false,
+     screenshotCalls = 0,
+     browserClosed = false
++  const timers = new Set()
++  let beginScreenshot
++  const screenshotStarted = new Promise(resolve => {
++    beginScreenshot = resolve
++  })
+   let releaseScreenshot
+   const lateCompletion = new Promise(resolve => {
+     releaseScreenshot = resolve
+@@ -121,6 +127,7 @@ async function lateScenarioResult(trigger) {
+     getByRole: () => ({ async waitFor() {} }),
+     async screenshot() {
+       screenshotCalls++
++      beginScreenshot()
+       await lateCompletion
+     },
+   }
+@@ -168,8 +175,17 @@ async function lateScenarioResult(trigger) {
+     AbortSignal,
+     structuredClone,
+     process: fakeProcess,
+-    setTimeout: (fn, ms) => setTimeout(fn, ms === 250 ? 1 : ms),
+-    clearTimeout,
++    setTimeout(fn, ms) {
++      const timer = { fn, ms }
++      timers.add(timer)
++      // Readiness polling advances without racing the fixture's deadline.
++      if (ms === 250)
++        queueMicrotask(() => {
++          if (timers.delete(timer)) fn()
++        })
++      return timer
++    },
++    clearTimeout: timer => timers.delete(timer),
+     mkdirSync() {},
+     existsSync: () => true,
+     writeFileSync: (_, text) => {
+@@ -185,7 +201,7 @@ async function lateScenarioResult(trigger) {
+       },
+     }),
+     spawn: () => {
+-      setTimeout(() => stream.emit('data', 'Local: http://127.0.0.1:4188'), 0)
++      queueMicrotask(() => stream.emit('data', 'Local: http://127.0.0.1:4188'))
+       return server
+     },
+     fetch: async () => ({ ok: true }),
+@@ -193,30 +209,57 @@ async function lateScenarioResult(trigger) {
+   vm.runInNewContext(source + '\nglobalThis.run = runLocalBrowser', sandbox)
+   const scenario = async ({ signal }) => {
+     scenarioStarted = true
+-    if (trigger === 'interrupt') setTimeout(() => fakeProcess.emit('SIGINT'), 0)
+-    await new Promise(resolve => signal.addEventListener('abort', resolve, { once: true }))
+-    releaseScreenshot()
++    const aborted = new Promise(resolve =>
++      signal.addEventListener('abort', resolve, { once: true })
++    )
++    if (trigger === 'interrupt') fakeProcess.emit('SIGINT')
++    else {
++      // Readiness has finished and cleared its timer; only the run deadline remains.
++      const deadlines = [...timers].filter(timer => timer.ms === 100)
++      assert.equal(deadlines.length, 1)
++      timers.delete(deadlines[0])
++      deadlines[0].fn()
++    }
++    await aborted
++    await screenshotStarted
++    scenarioCompleted = true
+     return { completedAfterAbort: true }
+   }
+-  await assert.rejects(
+-    sandbox.run(
+-      {
+-        gameRoot: '/fixture',
+-        output: '/proof',
+-        browserPath: '/official-shell',
+-        port: 4188,
+-        timeout: 100,
+-      },
+-      scenario
+-    ),
++  const run = sandbox.run(
++    {
++      gameRoot: '/fixture',
++      output: '/proof',
++      browserPath: '/official-shell',
++      port: 4188,
++      timeout: 100,
++    },
++    scenario
++  )
++  const rejected = assert.rejects(
++    run,
+     trigger === 'timeout' ? /exceeded 100ms/ : /Interrupted/
+   )
++  await Promise.race([
++    screenshotStarted,
++    run.then(
++      () => assert.fail('Harness passed before failure diagnostics'),
++      () => assert.fail('Harness rejected before failure diagnostics')
++    ),
++  ])
++  // Drain the scenario's promise chain while the diagnostic screenshot is pending.
++  await new Promise(resolve => setImmediate(resolve))
++  assert.equal(scenarioCompleted, true)
++  assert.equal(persisted, undefined)
++  assert.equal(browserClosed, false)
++  releaseScreenshot()
++  await rejected
+   assert.equal(scenarioStarted, true)
+   assert.equal(screenshotCalls, 1)
+   assert.equal(browserClosed, true)
+   assert.equal(persisted.status, 'failed')
+   assert.equal(Object.hasOwn(persisted, 'result'), false)
+   assert.match(persisted.failure, trigger === 'timeout' ? /exceeded 100ms/ : /Interrupted/)
++  assert.equal(timers.size, 0)
+ }
+ test('active scenario completing during timeout diagnostics cannot turn failure into pass', () =>
+   lateScenarioResult('timeout'))

@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "37d5b4f8-2d03-4b80-9350-ae45f8e4d3fd",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "227ce21d9a1a21e601820baac6d8c0daec8743b2",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "/workspace/pnd-test-subreaper.py": "b748c3773af8501f362cae9dfff7c6e74600610ccbc1538bf92b1fa2d9c3886b"
+    }
+  },
+  "command": [
+    "python3",
+    "/workspace/pnd-test-subreaper.py",
+    "node",
+    "--test",
+    "tests/performance-queue.test.mjs"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-11T14:27:49.771Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/harness-interruption-final/queue-subreaper-01.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/harness-interruption-final/queue-subreaper-01.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-11T14:28:05.133Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ browser supervisor verifies cleanup after a missing checker dependency (273.484254ms)\n✔ browser supervisor does not start the checker while the server port refuses connections (1165.306387ms)\n✔ browser supervisor verifies cleanup after a checker exception (237.727931ms)\n✔ browser supervisor classifies server spawn failure and verifies empty cleanup (6.051312ms)\n✔ browser supervisor stops the checker when the ready server exits (623.053495ms)\n✔ browser supervisor SIGTERM includes a detached checker descendant (832.227015ms)\n✔ concurrent submitters and controllers preserve FIFO without overlap (1178.555231ms)\n✔ failed and timed-out jobs release before automatic next job (1366.988655ms)\n✔ cancel running and queued jobs without running queued command (848.392454ms)\n✔ missing cleanup blocks handoff, recovery requires a fresh matching receipt (851.105747ms)\n✔ live detached child prevents next test and is never killed by the queue (846.86822ms)\n✔ controller crash retains lock; recovery refuses live owner or job (1076.445462ms)\n✔ foreign or missing execution scope cannot prove a controller stopped or authorize recovery (653.736472ms)\n✔ legacy active jobs remain unknown even with no controller lock (558.154326ms)\n✔ paused submissions start no transient controller before recovery (645.784172ms)\n✔ source drift and busy ports block commands without touching existing server (510.240604ms)\n✔ all linked worktrees resolve the same queue; invalid specs never launch (368.9132ms)\n✔ submission preserves PATH under an ESM temp parent and returns one compact result (1442.404921ms)\n✔ concurrent identical retries share one unfinished job; completed work can run again (1073.102517ms)\n✔ run exposes a recovery ID before caller interruption; retry keeps the running job (678.793862ms)\nℹ tests 20\nℹ suites 0\nℹ pass 20\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 15305.116497\n",
+  "stderr": "Task subreaper: command exit=0, descendants reaped=18\n",
+  "stdoutSha256": "9b7f42f7174de5693604b117423d118f1f67f1d7ac87e34fea6b17337345c59b",
+  "stderrSha256": "bf9f1b55c2329d0e55d4cffcc1eb5fbe68c130c52e3e7424d7fab40f10b0f6b8",
+  "sourceAfter": {
+    "headOid": "227ce21d9a1a21e601820baac6d8c0daec8743b2",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "/workspace/pnd-test-subreaper.py": "b748c3773af8501f362cae9dfff7c6e74600610ccbc1538bf92b1fa2d9c3886b"
+    }
+  }
+}

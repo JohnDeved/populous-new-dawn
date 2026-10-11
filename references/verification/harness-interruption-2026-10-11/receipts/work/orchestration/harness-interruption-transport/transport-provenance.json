@@ -1,0 +1,97 @@
+{
+  "purpose": "Portable review evidence for PR #343; no gameplay, browser, hardware-performance, or deployment claim.",
+  "generatedAt": "2026-10-11T14:37:30.851530+00:00",
+  "base": "c8f789dd4a922f831527f4334c53c3e6365d194e",
+  "reviewedRemoteHead": "227ce21d9a1a21e601820baac6d8c0daec8743b2",
+  "remoteTree": "9d91e0c1646f11264817a024eeab20b0eb045e92",
+  "localFocusedAndMutationHead": "e0a76db47a2479d5a4213eb116056160b76bbed6",
+  "localTree": "9d91e0c1646f11264817a024eeab20b0eb045e92",
+  "identityBoundary": "Local focused/mutation receipts retain their real e0a76db4 commit. Equivalence to remote tested head is the verified identical full Git tree and fixture bytes, not identical commit OID. Queue/full-check/build receipts bind remote head directly.",
+  "changedSource": {
+    "path": "tests/local-render-harness.test.mjs",
+    "sha256": "90655687beaa3b2f4c8e40fb74f7a267f1d4c3026141f19eb07b9086bcc1dfec",
+    "blobOid": "372d8a053e34a89416a106be8261400a76d7078c"
+  },
+  "diffSha256": "e880b99d400d9528355136ac365c736cc0be17ee4c87ec8c3138dd5949e29010",
+  "externalSubreaper": {
+    "originalPath": "/workspace/pnd-test-subreaper.py",
+    "sha256": "b748c3773af8501f362cae9dfff7c6e74600610ccbc1538bf92b1fa2d9c3886b",
+    "scope": "Task-private foreground descendant reaper; unchanged full npm run check beneath wrapper; no repository test or production modification.",
+    "includedAs": "external-pnd-test-subreaper.py"
+  },
+  "mutationBoundary": "Scratch-only harness mutates late scenario completion to overwrite failed outcome with passed. Both selected abort cases fail Missing expected rejection; raw mutation receipt correctly remains failed/exit1.",
+  "claims": {
+    "focused": "15/15 passed on verified same-tree local commit",
+    "queue": "20/20 passed exact remote head under disclosed task-private subreaper",
+    "fullCheck": "2027/2027 tests, typecheck, parity and orchestration passed exact remote head under disclosed subreaper",
+    "build": "passed exact remote head with installed-lock input bound",
+    "browser": "not-run and not claimed",
+    "hardwarePerformance": "not-run and not claimed",
+    "deployment": "not-run and not claimed"
+  },
+  "artifacts": [
+    {
+      "path": "focused-local-e0a76db4.json",
+      "kind": "raw-command-receipt",
+      "originalPath": "/workspace/pnd-workflow-interruption/work/orchestration/harness-interruption/focused-01.json",
+      "sha256": "0e76f8f45b487109e741bac1e91af5292dd6fc97b0f270284ca8c0b73292692b",
+      "head": "e0a76db47a2479d5a4213eb116056160b76bbed6",
+      "rawStatus": "passed",
+      "exitCode": 0
+    },
+    {
+      "path": "mutation-local-e0a76db4.json",
+      "kind": "raw-command-receipt",
+      "originalPath": "/workspace/pnd-workflow-interruption/work/orchestration/harness-interruption/mutation-01.json",
+      "sha256": "d7d484a44cd4f2b320940fb880e716e867e2e94257e0656ee6dbb0c0a89d1b67",
+      "head": "e0a76db47a2479d5a4213eb116056160b76bbed6",
+      "rawStatus": "failed",
+      "exitCode": 1
+    },
+    {
+      "path": "queue-subreaper-227ce21d.json",
+      "kind": "raw-command-receipt",
+      "originalPath": "<SOURCE_ROOT>/work/orchestration/harness-interruption-final/queue-subreaper-01.json",
+      "sha256": "8e42680899fd3e43d7791037c91b045454c3015605d3762d3c52b4bdb8776406",
+      "head": "227ce21d9a1a21e601820baac6d8c0daec8743b2",
+      "rawStatus": "passed",
+      "exitCode": 0
+    },
+    {
+      "path": "check-227ce21d.json",
+      "kind": "raw-command-receipt",
+      "originalPath": "<SOURCE_ROOT>/work/orchestration/harness-interruption-final/check-01.json",
+      "sha256": "be88dd0f88e409091bc44ed3a936a86ca2be3cf06a68c48548761118781576cc",
+      "head": "227ce21d9a1a21e601820baac6d8c0daec8743b2",
+      "rawStatus": "passed",
+      "exitCode": 0
+    },
+    {
+      "path": "build-227ce21d.json",
+      "kind": "raw-command-receipt",
+      "originalPath": "<SOURCE_ROOT>/work/orchestration/harness-interruption-final/build-01.json",
+      "sha256": "19694a35dc5690751fb7df81682c25e7563111bc13a08ac25cb2d0e317c9638f",
+      "head": "227ce21d9a1a21e601820baac6d8c0daec8743b2",
+      "rawStatus": "passed",
+      "exitCode": 0
+    },
+    {
+      "path": "external-pnd-test-subreaper.py",
+      "kind": "explicit-external-input-or-scratch-mutation",
+      "originalPath": "/workspace/pnd-test-subreaper.py",
+      "sha256": "b748c3773af8501f362cae9dfff7c6e74600610ccbc1538bf92b1fa2d9c3886b"
+    },
+    {
+      "path": "mutation-harness.mjs",
+      "kind": "explicit-external-input-or-scratch-mutation",
+      "originalPath": "/workspace/pnd-workflow-interruption/work/orchestration/harness-interruption/mutation-harness.mjs",
+      "sha256": "bdf8d2d8cbd750666f44af00cbe2e539b1ebe305d28851d2553dc8ae5d101df2"
+    },
+    {
+      "path": "mutation-fixture.test.mjs",
+      "kind": "explicit-external-input-or-scratch-mutation",
+      "originalPath": "/workspace/pnd-workflow-interruption/work/orchestration/harness-interruption/mutation-fixture.test.mjs",
+      "sha256": "33219ddd03e8b7d8391880d31ceac3bc0a3f2e8361be25bed8ce972e198ffb3b"
+    }
+  ]
+}

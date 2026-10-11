@@ -1,0 +1,124 @@
+{
+  "version": 1,
+  "kind": "pnd-review-bundle",
+  "taskId": "harness-interruption-343-227ce21d-merged",
+  "repository": {
+    "branch": "",
+    "baseCommit": "c8f789dd4a922f831527f4334c53c3e6365d194e",
+    "headOid": "227ce21d9a1a21e601820baac6d8c0daec8743b2"
+  },
+  "diff": {
+    "path": "changes.patch",
+    "sha256": "e880b99d400d9528355136ac365c736cc0be17ee4c87ec8c3138dd5949e29010",
+    "bytes": 4474
+  },
+  "sources": [
+    {
+      "status": "M",
+      "path": "tests/local-render-harness.test.mjs",
+      "state": "present",
+      "sha256": "90655687beaa3b2f4c8e40fb74f7a267f1d4c3026141f19eb07b9086bcc1dfec",
+      "blobOid": "372d8a053e34a89416a106be8261400a76d7078c",
+      "bytes": 18895
+    }
+  ],
+  "receipts": [
+    {
+      "sourcePath": "work/orchestration/harness-interruption-transport/focused-local-e0a76db4.json",
+      "sourceSha256": "0e76f8f45b487109e741bac1e91af5292dd6fc97b0f270284ca8c0b73292692b",
+      "sourceBytes": 3050,
+      "bundlePath": "receipts/work/orchestration/harness-interruption-transport/focused-local-e0a76db4.json",
+      "bundleSha256": "0e76f8f45b487109e741bac1e91af5292dd6fc97b0f270284ca8c0b73292692b",
+      "bundleBytes": 3050,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/harness-interruption-transport/mutation-local-e0a76db4.json",
+      "sourceSha256": "d7d484a44cd4f2b320940fb880e716e867e2e94257e0656ee6dbb0c0a89d1b67",
+      "sourceBytes": 4308,
+      "bundlePath": "receipts/work/orchestration/harness-interruption-transport/mutation-local-e0a76db4.json",
+      "bundleSha256": "d7d484a44cd4f2b320940fb880e716e867e2e94257e0656ee6dbb0c0a89d1b67",
+      "bundleBytes": 4308,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/harness-interruption-transport/queue-subreaper-227ce21d.json",
+      "sourceSha256": "8e42680899fd3e43d7791037c91b045454c3015605d3762d3c52b4bdb8776406",
+      "sourceBytes": 3860,
+      "bundlePath": "receipts/work/orchestration/harness-interruption-transport/queue-subreaper-227ce21d.json",
+      "bundleSha256": "5d8c4efa29a22346eca1adfe670d8ebd8fbc147f21ab170c19f9bbbc0eeeb462",
+      "bundleBytes": 3827,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/harness-interruption-transport/check-227ce21d.json",
+      "sourceSha256": "be88dd0f88e409091bc44ed3a936a86ca2be3cf06a68c48548761118781576cc",
+      "sourceBytes": 221125,
+      "bundlePath": "receipts/work/orchestration/harness-interruption-transport/check-227ce21d.json",
+      "bundleSha256": "daba1c011f26cb6ca218831fc6eb76d9121f3a72cee134de4f7815c7d8d69d98",
+      "bundleBytes": 221037,
+      "redactions": 8
+    },
+    {
+      "sourcePath": "work/orchestration/harness-interruption-transport/build-227ce21d.json",
+      "sourceSha256": "19694a35dc5690751fb7df81682c25e7563111bc13a08ac25cb2d0e317c9638f",
+      "sourceBytes": 4188,
+      "bundlePath": "receipts/work/orchestration/harness-interruption-transport/build-227ce21d.json",
+      "bundleSha256": "4fdf50862ddc62a75d697aa5f77fde8cafdafcf9a4470a9fe1eec0fb64fa2261",
+      "bundleBytes": 4155,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/harness-interruption-transport/external-pnd-test-subreaper.py",
+      "sourceSha256": "b748c3773af8501f362cae9dfff7c6e74600610ccbc1538bf92b1fa2d9c3886b",
+      "sourceBytes": 970,
+      "bundlePath": "receipts/work/orchestration/harness-interruption-transport/external-pnd-test-subreaper.py",
+      "bundleSha256": "b748c3773af8501f362cae9dfff7c6e74600610ccbc1538bf92b1fa2d9c3886b",
+      "bundleBytes": 970,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/harness-interruption-transport/mutation-harness.mjs",
+      "sourceSha256": "bdf8d2d8cbd750666f44af00cbe2e539b1ebe305d28851d2553dc8ae5d101df2",
+      "sourceBytes": 22015,
+      "bundlePath": "receipts/work/orchestration/harness-interruption-transport/mutation-harness.mjs",
+      "bundleSha256": "bdf8d2d8cbd750666f44af00cbe2e539b1ebe305d28851d2553dc8ae5d101df2",
+      "bundleBytes": 22015,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/harness-interruption-transport/mutation-fixture.test.mjs",
+      "sourceSha256": "33219ddd03e8b7d8391880d31ceac3bc0a3f2e8361be25bed8ce972e198ffb3b",
+      "sourceBytes": 19128,
+      "bundlePath": "receipts/work/orchestration/harness-interruption-transport/mutation-fixture.test.mjs",
+      "bundleSha256": "33219ddd03e8b7d8391880d31ceac3bc0a3f2e8361be25bed8ce972e198ffb3b",
+      "bundleBytes": 19128,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/harness-interruption-transport/transport-provenance.json",
+      "sourceSha256": "56e1a7176094d27bed8e498941c2d3026d0226a71a736d42ec265e9eb9a4f3f6",
+      "sourceBytes": 5098,
+      "bundlePath": "receipts/work/orchestration/harness-interruption-transport/transport-provenance.json",
+      "bundleSha256": "fe753809af6dafc11fb70925a73a9485ca95f7337853096ee518341024d85943",
+      "bundleBytes": 5065,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/harness-interruption-transport/merge-tree-identity.json",
+      "sourceSha256": "c54caf536a384b9f55655fef54fdfa111c2cc9bba2e8deeb39450f489c3d7ecc",
+      "sourceBytes": 891,
+      "bundlePath": "receipts/work/orchestration/harness-interruption-transport/merge-tree-identity.json",
+      "bundleSha256": "c54caf536a384b9f55655fef54fdfa111c2cc9bba2e8deeb39450f489c3d7ecc",
+      "bundleBytes": 891,
+      "redactions": 0
+    }
+  ],
+  "reviewerPreflight": {
+    "instructions": "Open this bundle in a permitted executor and verify it against trusted caller-supplied identities before review.",
+    "verify": [
+      "node",
+      "verify.mjs"
+    ]
+  }
+}

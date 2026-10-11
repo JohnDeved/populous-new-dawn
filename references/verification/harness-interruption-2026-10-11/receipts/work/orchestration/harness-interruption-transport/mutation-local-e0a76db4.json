@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "9da0479a-5146-4a1f-8c5e-bc29cd5bbebd",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "e0a76db47a2479d5a4213eb116056160b76bbed6",
+    "branch": "codex/harness-interruption-fixture",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/local-render-harness.test.mjs": "90655687beaa3b2f4c8e40fb74f7a267f1d4c3026141f19eb07b9086bcc1dfec",
+      "scripts/local-render/harness.mjs": "19212b8b57d8f1ec47583ec12a3b33152832c103b91a266aa4a774bf0043a021",
+      "work/orchestration/harness-interruption/mutation-harness.mjs": "bdf8d2d8cbd750666f44af00cbe2e539b1ebe305d28851d2553dc8ae5d101df2",
+      "work/orchestration/harness-interruption/mutation-fixture.test.mjs": "33219ddd03e8b7d8391880d31ceac3bc0a3f2e8361be25bed8ce972e198ffb3b"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "--test-name-pattern",
+    "active scenario completing during",
+    "work/orchestration/harness-interruption/mutation-fixture.test.mjs"
+  ],
+  "cwd": "/workspace/pnd-workflow-interruption",
+  "startedAt": "2026-10-11T14:22:43.634Z",
+  "artifacts": {
+    "stdout": "/workspace/pnd-workflow-interruption/work/orchestration/harness-interruption/mutation-01.json.artifacts/stdout.log",
+    "stderr": "/workspace/pnd-workflow-interruption/work/orchestration/harness-interruption/mutation-01.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-11T14:22:43.757Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "✖ active scenario completing during timeout diagnostics cannot turn failure into pass (8.125226ms)\n✖ active scenario completing during interrupt diagnostics cannot turn failure into pass (2.651584ms)\nℹ tests 2\nℹ suites 0\nℹ pass 0\nℹ fail 2\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 86.256606\n\n✖ failing tests:\n\ntest at work/orchestration/harness-interruption/mutation-fixture.test.mjs:264:1\n✖ active scenario completing during timeout diagnostics cannot turn failure into pass (8.125226ms)\n  AssertionError [ERR_ASSERTION]: Missing expected rejection.\n      at async lateScenarioResult (file:///workspace/pnd-workflow-interruption/work/orchestration/harness-interruption/mutation-fixture.test.mjs:255:3)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: undefined,\n    expected: /exceeded 100ms/,\n    operator: 'rejects',\n    diff: 'simple'\n  }\n\ntest at work/orchestration/harness-interruption/mutation-fixture.test.mjs:266:1\n✖ active scenario completing during interrupt diagnostics cannot turn failure into pass (2.651584ms)\n  AssertionError [ERR_ASSERTION]: Missing expected rejection.\n      at async lateScenarioResult (file:///workspace/pnd-workflow-interruption/work/orchestration/harness-interruption/mutation-fixture.test.mjs:255:3)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: undefined,\n    expected: /Interrupted/,\n    operator: 'rejects',\n    diff: 'simple'\n  }\n",
+  "stderr": "",
+  "stdoutSha256": "e30f2876bbeccb59f22a90f0ffcdd6f7d3ba7d3b2c4c0691ed697075a4ad3add",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "e0a76db47a2479d5a4213eb116056160b76bbed6",
+    "branch": "codex/harness-interruption-fixture",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/local-render-harness.test.mjs": "90655687beaa3b2f4c8e40fb74f7a267f1d4c3026141f19eb07b9086bcc1dfec",
+      "scripts/local-render/harness.mjs": "19212b8b57d8f1ec47583ec12a3b33152832c103b91a266aa4a774bf0043a021",
+      "work/orchestration/harness-interruption/mutation-harness.mjs": "bdf8d2d8cbd750666f44af00cbe2e539b1ebe305d28851d2553dc8ae5d101df2",
+      "work/orchestration/harness-interruption/mutation-fixture.test.mjs": "33219ddd03e8b7d8391880d31ceac3bc0a3f2e8361be25bed8ce972e198ffb3b"
+    }
+  }
+}
