@@ -78,6 +78,7 @@ const unitAtlasOrigins = nativeUnits.pieces.map((piece, index) =>
 // Derived only for the current frame; weak ownership follows the Scene lifetime.
 const unitFrameIds = new WeakMap<GameScene, Set<number>>()
 const vehicleFrameIds = new WeakMap<GameScene, Set<number>>()
+const planFrameIds = new WeakMap<GameScene, Set<number>>()
 
 const teamColor = {
   blue: 0x303fc1,
@@ -664,8 +665,15 @@ export function updateVehiclesFrame(scene: GameScene) {
 }
 
 export function updateBuildingsFrame(scene: GameScene) {
+  let ids = planFrameIds.get(scene)
+  if (!ids) {
+    ids = new Set()
+    planFrameIds.set(scene, ids)
+  }
+  ids.clear()
+  for (const b of scene.world.buildings) if (b.preparation) ids.add(b.id)
   for (const [id, mesh] of scene.plans)
-    if (!scene.world.buildings.some(b => b.id === id && b.preparation)) {
+    if (Number.isNaN(id) || !ids.has(id)) {
       mesh.removeFromParent()
       mesh.geometry.dispose()
       scene.plans.delete(id)
