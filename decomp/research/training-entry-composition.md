@@ -110,3 +110,7 @@ The [two reviewed pre-loader cases](../../references/verification/mission3-prelo
 ## First conditioned authored-record allocator
 
 The [reviewed partial constructor diagnostic](../../references/verification/mission3-constructor-stop-2026-10-11/README.md) reaches the first class 2 allocation after genuine selected setup. It copies counter 0 and advances class 2 to 1, then stops at an unsupplied initializer-suppression byte before the allocator returns. No record completes and class 1 stays 0. Independent reconciliation covers all 2,412,445 observer events and the exact unknown stop. This conditional seam does not establish actual Mission 3 startup or a product repair; the next bounded task is a consolidated constructor-input contract.
+
+## Constructor progression and preserved harness corrections
+
+The [reviewed progression and failure bundle](../../references/verification/mission3-constructor-progression-2026-10-11/README.md) retains runs03–06: genuine terrain brightness and bounded cache projections, followed by conservative call, timeout, context and operand-form stops. None completes an allocation or record. It also corrects two review gaps: an animation budget declaration never reached the actual dispatcher, and positive guard fixtures derived from their production allowlist missed a historical caller. Exact independent regressions now cover those failures. A finite admitted-set capability audit precedes the next bounded repair; no startup seed or product fix is claimed.
