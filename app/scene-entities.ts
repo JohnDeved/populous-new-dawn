@@ -1,5 +1,6 @@
 import { templeWorldMaterial } from './temple-art.ts'
 import { hutSmokeState } from './hut-smoke-runtime.ts'
+import type { SecondaryEffect } from './secondary-effects.ts'
 import type { GameScene } from './scene.ts'
 import * as THREE from 'three'
 import {
@@ -85,6 +86,10 @@ const planFrameIds = new WeakMap<GameScene, Set<number>>()
 const planFrameViews = new WeakMap<GameScene, Building[]>()
 const buildingFrameIds = new WeakMap<GameScene, Set<number>>()
 const shrineFrameIds = new WeakMap<GameScene, Set<number>>()
+const hutPuffFrames = new WeakMap<
+  GameScene,
+  { puffs: Extract<SecondaryEffect, { kind: 'hutPuff' }>[]; serials: Set<number> }
+>()
 
 const teamColor = {
   blue: 0x303fc1,
@@ -266,16 +271,29 @@ function updateHutOccupancySmoke(scene: GameScene, b: Building, buildingGroup: T
 }
 
 function updateHutSmokePuffs(scene: GameScene) {
-  const owner = scene.world.secondaryEffects,
-    puffs = owner.order.flatMap(slot => {
-      const entry = owner.slots[slot]
-      return entry?.kind === 'hutPuff' ? [entry] : []
-    })
+  const owner = scene.world.secondaryEffects
+  let snapshot = hutPuffFrames.get(scene)
+  if (!snapshot) {
+    snapshot = { puffs: [], serials: new Set() }
+    hutPuffFrames.set(scene, snapshot)
+  }
+  const { puffs, serials } = snapshot
+  serials.clear()
+  let count = 0
+  // Preserve the eager ordered record snapshot before cleanup and drawing.
+  owner.order.forEach(slot => {
+    const entry = owner.slots[slot]
+    if (entry?.kind === 'hutPuff') {
+      puffs[count++] = entry
+      serials.add(entry.serial)
+    }
+  })
+  puffs.length = count
   // Kept outside building groups: removing or replacing a root does not remove
   // its already-allocated children, whose own sixteen visits still apply.
   scene.hutSmokePuffs ??= new Map()
   for (const [id, group] of scene.hutSmokePuffs)
-    if (!puffs.some(puff => puff.serial === id)) {
+    if (Number.isNaN(id) || !serials.has(id)) {
       group.removeFromParent()
       scene.releaseGroup(group)
       scene.hutSmokePuffs.delete(id)
