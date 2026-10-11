@@ -1120,7 +1120,9 @@ test('game server rejects an invalid isolated port', async () => {
 })
 
 function taskSpec(repo) {
-  const { identity: _identity, version: _version, ...spec } = contract(repo, 'HEAD')
+  const spec = contract(repo, 'HEAD')
+  delete spec.identity
+  delete spec.version
   spec.verification.results = []
   return spec
 }
