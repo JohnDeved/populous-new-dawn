@@ -80,6 +80,7 @@ const unitFrameIds = new WeakMap<GameScene, Set<number>>()
 const unitFrameSelectedIds = new WeakMap<GameScene, Set<number>>()
 const unitFrameBuildingsById = new WeakMap<GameScene, Map<Unit['work'], Building>>()
 const vehicleFrameIds = new WeakMap<GameScene, Set<number>>()
+const vehicleFrameViews = new WeakMap<GameScene, Vehicle[]>()
 const planFrameIds = new WeakMap<GameScene, Set<number>>()
 const buildingFrameIds = new WeakMap<GameScene, Set<number>>()
 const shrineFrameIds = new WeakMap<GameScene, Set<number>>()
@@ -670,7 +671,19 @@ export function updateVehiclesFrame(scene: GameScene) {
       scene.releaseGroup(g)
       scene.vehicleMeshes.delete(id)
     }
-  for (const v of scene.world.vehicles.filter(v => v.active || v.destructionState)) {
+  let vehicles = vehicleFrameViews.get(scene)
+  if (!vehicles) {
+    vehicles = []
+    vehicleFrameViews.set(scene, vehicles)
+  }
+  const view = vehicles
+  let count = 0
+  // Preserve the eager eligibility snapshot at its original post-cleanup boundary.
+  scene.world.vehicles.forEach(v => {
+    if (v.active || v.destructionState) view[count++] = v
+  })
+  view.length = count
+  for (const v of view) {
     let g = scene.vehicleMeshes.get(v.id)
     if (!g) {
       g = makeVehicle(scene, v)
