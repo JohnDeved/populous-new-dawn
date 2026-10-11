@@ -469,6 +469,14 @@ test('housing preserves the active lifetime clock through residence, checkpoint 
   assert.equal(loaded.personClock.next, seed)
   assert.equal(retained.inside, null)
   assert.ok(!loaded.buildings.find(v => v.id === b.id).admission.occupants.includes(u.id))
+  loaded.selected = [retained.id]
+  assert.ok(command(loaded, { x: 9, z: 30 }))
+  assert.equal(retained.personCounter, phase, 'leave/order adoption is not a visit')
+  assert.equal(retained.native.counter, phase)
+  tick(loaded, 1 / 12)
+  assert.equal(retained.personCounter, (phase + 1) & 255)
+  assert.equal(retained.native.counter, retained.personCounter)
+  assert.equal(loaded.personClock.next, seed)
 })
 
 
