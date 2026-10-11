@@ -27,7 +27,7 @@ import { currentPersonOrder, deselectPerson } from './person-orders.ts'
 import { builderActivity, unitAnimationSource } from './unit-animation-source.ts'
 export { builderActivity, unitAnimationSource } from './unit-animation-source.ts'
 
-export function unitAnimation(w: World, u: Unit) {
+export function unitAnimation(w: World, u: Unit, selectedIds?: ReadonlySet<number>) {
   if (u.lift > 0) return 'airborne'
   if (u.casting) return 'cast'
   if (u.fight?.animation) return u.fight.animation
@@ -72,7 +72,7 @@ export function unitAnimation(w: World, u: Unit) {
     )
   )
     return 'pray'
-  return w.selected.includes(u.id) ? 'selected' : 'idle'
+  return (selectedIds?.has(u.id) ?? w.selected.includes(u.id)) ? 'selected' : 'idle'
 }
 
 export function selectionBuilding(w: World, point: { x: number; y: number }) {
