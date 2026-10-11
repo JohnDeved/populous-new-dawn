@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "6989cab2-71a1-41d3-99f6-d8fe05940868",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "dbb5e48d7eda875959eea833037c4b733ec23773",
+    "branch": "codex/issue144-shrine-mesh-index",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/scene-entities.ts": "3bf374e2892c764adac08afcb6b1d81ed869495a7b18d19a347abdcca7352cd5",
+      "tests/shrine-mesh-reconciliation.test.mjs": "6a4885db28899de0215094dd07c2429e37fde636fdecc6d199a59ad910477413",
+      "tests/support/shrine-scene.mjs": "dc998c13b9ee742df511148c6a3b5fb974537147596cca45edaa76bcb630ee3c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      ".oxlintrc.json": "caa0057ea1cbbc87402c3942667be83c2298b3a167957cea7153d0d72444ccff",
+      "node_modules/oxc-standard/.oxlintrc.json": "12a8af193abedfc648f0b37822a0092df18b5cd83644b8e6bd57d0f1e24d2bbc"
+    }
+  },
+  "command": [
+    "node_modules/.bin/oxlint",
+    "--deny-warnings",
+    "app/scene-entities.ts"
+  ],
+  "cwd": "/workspace/pnd-author-144-shrines",
+  "startedAt": "2026-10-11T16:49:24.206Z",
+  "artifacts": {
+    "stdout": "/workspace/pnd-author-144-shrines/work/orchestration/issue144-shrines-oxlint-dbb5e48.json.artifacts/stdout.log",
+    "stderr": "/workspace/pnd-author-144-shrines/work/orchestration/issue144-shrines-oxlint-dbb5e48.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-11T16:49:24.300Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "app/scene-entities.ts:431:11: warning eslint(no-shadow): 'material' is already declared in the upper scope. help: Consider renaming 'material' to avoid shadowing the variable from the outer scope.\napp/scene-entities.ts:649:47: warning eslint(no-shadow): 'v' is already declared in the upper scope. help: Consider renaming 'v' to avoid shadowing the variable from the outer scope.\napp/scene-entities.ts:683:48: warning eslint(no-shadow): 'b' is already declared in the upper scope. help: Consider renaming 'b' to avoid shadowing the variable from the outer scope.\napp/scene-entities.ts:180:8: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/scene-entities.ts:180:32: warning unicorn(no-nested-ternary): Unexpected nested ternary expression without parentheses. help: Add parentheses around the nested ternary expression.\napp/scene-entities.ts:442:13: error eslint(no-multi-assign): Do not use chained assignment help: Separate each assignment into its own statement\napp/scene-entities.ts:600:9: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/scene-entities.ts:602:13: warning unicorn(no-nested-ternary): Unexpected nested ternary expression without parentheses. help: Add parentheses around the nested ternary expression.\napp/scene-entities.ts:834:21: warning eslint(prefer-destructuring): Use Object destructuring. help: Use object destructuring rather than direct member access.\n",
+  "stderr": "",
+  "stdoutSha256": "8b0f7377d14a389e75d8e1fd1d79ccf92bce978bb8537ebfa7f22481bdf3a9e6",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "dbb5e48d7eda875959eea833037c4b733ec23773",
+    "branch": "codex/issue144-shrine-mesh-index",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/scene-entities.ts": "3bf374e2892c764adac08afcb6b1d81ed869495a7b18d19a347abdcca7352cd5",
+      "tests/shrine-mesh-reconciliation.test.mjs": "6a4885db28899de0215094dd07c2429e37fde636fdecc6d199a59ad910477413",
+      "tests/support/shrine-scene.mjs": "dc998c13b9ee742df511148c6a3b5fb974537147596cca45edaa76bcb630ee3c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      ".oxlintrc.json": "caa0057ea1cbbc87402c3942667be83c2298b3a167957cea7153d0d72444ccff",
+      "node_modules/oxc-standard/.oxlintrc.json": "12a8af193abedfc648f0b37822a0092df18b5cd83644b8e6bd57d0f1e24d2bbc"
+    }
+  }
+}

@@ -1,0 +1,1247 @@
+{
+  "kind": "root-exact-head-check-selection",
+  "base": "5516c1c230654d54f239804a6885bde370bdfa43",
+  "head": "fd462d846d00f6db22426d92ca5aaa485484295e",
+  "planSha256": "3a74de9adedc4b76ec5fee9ec58cbac0f49554049f88c36ba45ef8dbf782f09f",
+  "counts": {
+    "native": 36,
+    "browser": 28,
+    "portable": 18,
+    "static": 2,
+    "build": 1
+  },
+  "sourceScope": "Scene-owned shrine cleanup membership only; exact model truthiness and strict NaN semantics. Original ordered marker/model teardown and entire later creation, geometry, animation, marker and visibility code unchanged.",
+  "unknownPathsExplicitlyReviewed": [
+    {
+      "path": "references/shrine-mesh-reconciliation.md",
+      "acceptance": "Independent full source/test/note review ACCEPT. Actual factories/Scene transforms/resources, six lifecycle/scaling cases and honest documented limits."
+    },
+    {
+      "path": "tests/shrine-mesh-reconciliation.test.mjs",
+      "acceptance": "Independent full source/test/note review ACCEPT. Actual factories/Scene transforms/resources, six lifecycle/scaling cases and honest documented limits."
+    },
+    {
+      "path": "tests/support/shrine-scene.mjs",
+      "acceptance": "Independent full source/test/note review ACCEPT. Actual factories/Scene transforms/resources, six lifecycle/scaling cases and honest documented limits."
+    }
+  ],
+  "selectedStandardGates": [
+    {
+      "command": [
+        "python3",
+        "/workspace/pnd-test-subreaper.py",
+        "npm",
+        "run",
+        "check"
+      ],
+      "status": "not-run",
+      "reason": "Standard npm check unchanged; reviewed task-local supervisor preserves actual foreground process exit and reaps only owned descendants."
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "status": "not-run",
+      "reason": "Standard production build on identical exact published source, after check terminal pass."
+    }
+  ],
+  "portableCoverage": [
+    {
+      "id": "follower-transports-portable",
+      "files": [
+        "tests/follower-transports.test.mjs",
+        "tests/follower-transport-runtime.test.mjs",
+        "tests/browser-follower-transports-checker.test.mjs",
+        "tests/hud-layout.test.mjs",
+        "tests/follower-transport-owner-consumers.test.mjs",
+        "tests/transport-pixel-reference.test.mjs"
+      ]
+    },
+    {
+      "id": "level-start-portable",
+      "files": [
+        "tests/level-start.test.mjs",
+        "tests/startup-burst-angles.test.mjs",
+        "tests/startup-burst-height.test.mjs",
+        "tests/startup-burst-observer.test.mjs"
+      ]
+    },
+    {
+      "id": "mission14-rewards-portable",
+      "files": [
+        "tests/mission14-rewards.test.mjs",
+        "tests/mission5-angel.test.mjs"
+      ]
+    },
+    {
+      "id": "mission15-prison-portable",
+      "files": [
+        "tests/mission15-prison.test.mjs"
+      ]
+    },
+    {
+      "id": "mission16-bloodlust-portable",
+      "files": [
+        "tests/mission16-bloodlust.test.mjs"
+      ]
+    },
+    {
+      "id": "mission17-armageddon-portable",
+      "files": [
+        "tests/mission17-armageddon.test.mjs"
+      ]
+    },
+    {
+      "id": "mission18-portable",
+      "files": [
+        "tests/mission18.test.mjs"
+      ]
+    },
+    {
+      "id": "mission19-portable",
+      "files": [
+        "tests/mission19.test.mjs"
+      ]
+    },
+    {
+      "id": "mission20-portable",
+      "files": [
+        "tests/mission20.test.mjs"
+      ]
+    },
+    {
+      "id": "mission21-portable",
+      "files": [
+        "tests/mission21.test.mjs"
+      ]
+    },
+    {
+      "id": "mission22-portable",
+      "files": [
+        "tests/mission22.test.mjs"
+      ]
+    },
+    {
+      "id": "mission23-portable",
+      "files": [
+        "tests/mission23.test.mjs"
+      ]
+    },
+    {
+      "id": "mission5-angel-portable",
+      "files": [
+        "tests/mission5-angel.test.mjs"
+      ]
+    },
+    {
+      "id": "reincarnation-wave-portable",
+      "files": [
+        "tests/reincarnation-wave.test.mjs",
+        "tests/level-start.test.mjs",
+        "tests/person-panic.test.mjs"
+      ]
+    },
+    {
+      "id": "repository-check",
+      "files": []
+    },
+    {
+      "id": "shaman-appearance-portable",
+      "files": [
+        "tests/shaman-appearance.test.mjs",
+        "tests/sprite-layers.test.mjs"
+      ]
+    },
+    {
+      "id": "shaman-death-ground-portable",
+      "files": [
+        "tests/shaman-death-ground.test.mjs",
+        "tests/shaman-death-cadence.test.mjs",
+        "tests/shaman-death-vfx.test.mjs",
+        "tests/controlled-scene-frames.test.mjs"
+      ]
+    },
+    {
+      "id": "tutorial-first-lesson-portable",
+      "files": [
+        "tests/tutorial.test.mjs"
+      ]
+    }
+  ],
+  "portableCoverageReason": "All18 selected portable test paths are in standard tests/*.test.mjs and level-start script expands to the same selected paths. Node24 already enables default type stripping for the selected optional-flag variants. No assertions or configuration changed.",
+  "broadSelectorApplicability": "The raw planner broad campaign source selectors retain their blocked/not-run states. For this bounded output-preserving cleanup membership seam, native/browser/static resource checks are independently assessed not-applicable; maintained models/assets/geometry/animation/visibility and gameplay ownership are untouched. No native/browser/hardware/deployment or complete144 acceptance credit.",
+  "checks": [
+    {
+      "id": "building-counterattack-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-building-counterattack.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "camera-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-camera-smoothing.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "campaign-natural-victory-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/local-render/harness.mjs",
+        "--scenario",
+        "scripts/local-render/campaign-fixed-turn.mjs",
+        "--port",
+        "4196",
+        "--timeout",
+        "900000",
+        "--output",
+        "$POPULOUS_CAMPAIGN_OUTPUT"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_BROWSER, POPULOUS_CAMPAIGN_OUTPUT",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "firewarrior-building-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-firewarrior-building.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "follower-task-art-native",
+      "kind": "native",
+      "command": [
+        "python3",
+        "scripts/check-native-follower-task-art.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "follower-transports-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/local-render/harness.mjs",
+        "--game-root",
+        ".",
+        "--scenario",
+        "scripts/check-browser-follower-transports.mjs",
+        "--port",
+        "4357",
+        "--output",
+        "work/orchestration/follower-transports-browser",
+        "--timeout",
+        "600000"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_BROWSER",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "follower-transports-native",
+      "kind": "native",
+      "command": [
+        "python3",
+        "scripts/check-native-follower-transports.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "follower-transports-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/follower-transports.test.mjs",
+        "tests/follower-transport-runtime.test.mjs",
+        "tests/browser-follower-transports-checker.test.mjs",
+        "tests/hud-layout.test.mjs",
+        "tests/follower-transport-owner-consumers.test.mjs",
+        "tests/transport-pixel-reference.test.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "selected only; planning never executes checks",
+      "selection": "standard-gate-covered"
+    },
+    {
+      "id": "level-start-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-level-start.mjs"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_URL, POPULOUS_LEVEL_START_OUTPUT",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "level-start-native",
+      "kind": "native",
+      "command": [
+        "$POPULOUS_PYTHON",
+        "-B",
+        "scripts/check-native-level-start.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_PYTHON, POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "level-start-portable",
+      "kind": "portable",
+      "command": [
+        "npm",
+        "run",
+        "test:level-start"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "selected only; planning never executes checks",
+      "selection": "standard-gate-covered"
+    },
+    {
+      "id": "level-start-static",
+      "kind": "static",
+      "command": [
+        "$POPULOUS_PYTHON",
+        "-B",
+        "scripts/check-static-level-start.py",
+        "--data-root",
+        "$POPULOUS_DATA_ROOT"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_PYTHON, POPULOUS_DATA_ROOT",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "messages-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-messages.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "messages-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-messages.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission10-opening-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission10-opening.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission11-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission11.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission11-build-at-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission11-build-at.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission11-housing-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission11-housing.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission11-settlement-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission11-settlement.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission12-opening-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission12-opening.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission12-spy-sabotage-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission12-spy-sabotage.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission13-balloon-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-balloon.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission13-opening-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission13-opening.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission14-rewards-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission14-rewards.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission14-rewards-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission14-rewards.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission14-rewards-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission14-rewards.test.mjs",
+        "tests/mission5-angel.test.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "selected only; planning never executes checks",
+      "selection": "standard-gate-covered"
+    },
+    {
+      "id": "mission15-prison-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission15-prison.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission15-prison-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission15-prison.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission15-prison-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission15-prison.test.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "selected only; planning never executes checks",
+      "selection": "standard-gate-covered"
+    },
+    {
+      "id": "mission16-bloodlust-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission16-bloodlust.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission16-bloodlust-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission16-bloodlust.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission16-bloodlust-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission16-bloodlust.test.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "selected only; planning never executes checks",
+      "selection": "standard-gate-covered"
+    },
+    {
+      "id": "mission17-armageddon-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission17-armageddon.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission17-armageddon-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission17-armageddon.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission17-armageddon-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission17-armageddon.test.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "selected only; planning never executes checks",
+      "selection": "standard-gate-covered"
+    },
+    {
+      "id": "mission18-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission18.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission18-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission18.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission18-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission18.test.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "selected only; planning never executes checks",
+      "selection": "standard-gate-covered"
+    },
+    {
+      "id": "mission19-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission19.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission19-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission19.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission19-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission19.test.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "selected only; planning never executes checks",
+      "selection": "standard-gate-covered"
+    },
+    {
+      "id": "mission20-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission20.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission20-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission20.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission20-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission20.test.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "selected only; planning never executes checks",
+      "selection": "standard-gate-covered"
+    },
+    {
+      "id": "mission21-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission21.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission21-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission21.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission21-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission21.test.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "selected only; planning never executes checks",
+      "selection": "standard-gate-covered"
+    },
+    {
+      "id": "mission22-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission22.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission22-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission22-gifts.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission22-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission22.test.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "selected only; planning never executes checks",
+      "selection": "standard-gate-covered"
+    },
+    {
+      "id": "mission23-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission23.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission23-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission23.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission23-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission23.test.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "selected only; planning never executes checks",
+      "selection": "standard-gate-covered"
+    },
+    {
+      "id": "mission23-settlement-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission23-settlement.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission4-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission4.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission5-angel-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission5-angel.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission5-angel-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission5-angel.test.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "selected only; planning never executes checks",
+      "selection": "standard-gate-covered"
+    },
+    {
+      "id": "mission7-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission7.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission7-opening-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission7-opening.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission8-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission8.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission8-firewarrior-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-firewarrior.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission9-boat-house-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-boat-house.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "mission9-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission9.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "production-build",
+      "kind": "build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "selected only; planning never executes checks",
+      "selection": "standard-build"
+    },
+    {
+      "id": "reincarnation-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-reincarnation.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "reincarnation-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-reincarnation.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "reincarnation-wave-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/local-render/harness.mjs",
+        "--scenario",
+        "scripts/check-browser-reincarnation-wave.mjs",
+        "--mission",
+        "2",
+        "--browser",
+        "$POPULOUS_HEADLESS_SHELL",
+        "--output",
+        "$POPULOUS_ARTIFACT_DIR"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_ARTIFACT_DIR, POPULOUS_HEADLESS_SHELL",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "reincarnation-wave-native",
+      "kind": "native",
+      "command": [
+        "$POPULOUS_PYTHON",
+        "-B",
+        "scripts/check-native-reincarnation-wave.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE, POPULOUS_PYTHON",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "reincarnation-wave-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/reincarnation-wave.test.mjs",
+        "tests/level-start.test.mjs",
+        "tests/person-panic.test.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "selected only; planning never executes checks",
+      "selection": "standard-gate-covered"
+    },
+    {
+      "id": "repository-check",
+      "kind": "portable",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "selected only; planning never executes checks",
+      "selection": "standard-gate-covered"
+    },
+    {
+      "id": "shaman-appearance-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-shaman-appearance.mjs",
+        "--reference-report",
+        "$POPULOUS_SHAMAN_REFERENCE",
+        "--output-dir",
+        "$POPULOUS_SHAMAN_OUTPUT",
+        "--headed"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_URL, POPULOUS_SHAMAN_REFERENCE, POPULOUS_SHAMAN_OUTPUT",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "shaman-appearance-native",
+      "kind": "native",
+      "command": [
+        "$POPULOUS_PYTHON",
+        "-B",
+        "scripts/check-native-shaman-appearance.py",
+        "$POPULOUS_EXE",
+        "--output",
+        "$POPULOUS_SHAMAN_NATIVE_OUTPUT"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_PYTHON, POPULOUS_EXE, POPULOUS_SHAMAN_NATIVE_OUTPUT",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "shaman-appearance-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/shaman-appearance.test.mjs",
+        "tests/sprite-layers.test.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "selected only; planning never executes checks",
+      "selection": "standard-gate-covered"
+    },
+    {
+      "id": "shaman-assets-static",
+      "kind": "static",
+      "command": [
+        "$POPULOUS_PYTHON",
+        "-B",
+        "scripts/check-static-shaman-appearance.py",
+        "--data-root",
+        "$POPULOUS_DATA_ROOT"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_PYTHON, POPULOUS_DATA_ROOT",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "shaman-death-ground-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/local-render/harness.mjs",
+        "--scenario",
+        "scripts/check-browser-shaman-death-ground.mjs",
+        "--mission",
+        "1",
+        "--browser",
+        "$POPULOUS_HEADLESS_SHELL",
+        "--output",
+        "$POPULOUS_ARTIFACT_DIR",
+        "--timeout",
+        "480000"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_HEADLESS_SHELL, POPULOUS_ARTIFACT_DIR",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "shaman-death-ground-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-shaman-death-ground.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "shaman-death-ground-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/shaman-death-ground.test.mjs",
+        "tests/shaman-death-cadence.test.mjs",
+        "tests/shaman-death-vfx.test.mjs",
+        "tests/controlled-scene-frames.test.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "selected only; planning never executes checks",
+      "selection": "standard-gate-covered"
+    },
+    {
+      "id": "transport-ownership-native",
+      "kind": "native",
+      "command": [
+        "python3",
+        "scripts/check-native-transport-ownership.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "transport-vehicle-materials-native",
+      "kind": "native",
+      "command": [
+        "python3",
+        "-B",
+        "scripts/check-native-vehicle-materials.py",
+        "$POPULOUS_EXE",
+        "$POPULOUS_LIVE_MODEL_INPUT"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE, POPULOUS_LIVE_MODEL_INPUT",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "tutorial-first-lesson-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-tutorial.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "tutorial-first-lesson-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/tutorial.test.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "selected only; planning never executes checks",
+      "selection": "standard-gate-covered"
+    },
+    {
+      "id": "vault-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-vault.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "vehicle-destruction-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-vehicle-damage.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "worship-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-worship.mjs"
+      ],
+      "plannedStatus": "not-run",
+      "plannedReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "selection": "not-applicable-to-bounded-change"
+    },
+    {
+      "id": "worship-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-worship.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannedStatus": "blocked",
+      "plannedReason": "missing environment: POPULOUS_EXE",
+      "selection": "not-applicable-to-bounded-change"
+    }
+  ],
+  "priorPlanComparison": "All85 selector commands, side effects, resources, prerequisites, known limits and original statuses match the independently accepted #347 plan. Only repository-check reasons add the three new explicitly reviewed unknown paths.",
+  "requiredOrder": "Independent selection/source acceptance before standard gates; serialize check then build; retain distinct attempt receipts and source/input/artifact evidence."
+}

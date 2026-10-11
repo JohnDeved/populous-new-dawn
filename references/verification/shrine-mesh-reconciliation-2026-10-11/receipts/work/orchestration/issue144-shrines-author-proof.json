@@ -1,0 +1,52 @@
+{
+  "kind": "pnd-shrine-reconciliation-author-proof",
+  "head": "39da9ab6685f31b97bfe3f642dbb834b14ddd597",
+  "tree": "06b5bedd0ff912d280fb9896c412614e83371d31",
+  "base": "5516c1c230654d54f239804a6885bde370bdfa43",
+  "testedHead": "dbb5e48d7eda875959eea833037c4b733ec23773",
+  "noteOnlyDelta": [
+    "references/shrine-mesh-reconciliation.md"
+  ],
+  "sourceSha256": {
+    "app/scene-entities.ts": "3bf374e2892c764adac08afcb6b1d81ed869495a7b18d19a347abdcca7352cd5",
+    "references/shrine-mesh-reconciliation.md": "25ef33ab787643aed4f5198652b3235799de234b0c97d3306436cafddd3c66fb",
+    "tests/shrine-mesh-reconciliation.test.mjs": "6a4885db28899de0215094dd07c2429e37fde636fdecc6d199a59ad910477413",
+    "tests/support/shrine-scene.mjs": "dc998c13b9ee742df511148c6a3b5fb974537147596cca45edaa76bcb630ee3c"
+  },
+  "unchangedTestedInputs": [
+    "app/scene-entities.ts",
+    "app/scene.ts",
+    "app/scene-assets.ts",
+    "app/model.ts",
+    "app/world-initialization.ts",
+    "app/game-store.ts",
+    "app/worship-appearance.ts",
+    "app/stone-head-animation.ts",
+    "app/stone-head-149.ts",
+    "app/stone-head-orientation.ts",
+    "app/vault-appearance.ts",
+    "app/scene-vault-knowledge.ts",
+    "app/vault.ts",
+    "app/morph.ts",
+    "app/original-models.json",
+    "app/original-stone-heads.json",
+    "app/original-vault-knowledge.json",
+    "app/original-vault-knowledge-camp.json",
+    "tests/shrine-mesh-reconciliation.test.mjs",
+    "tests/support/shrine-scene.mjs",
+    "tests/support/bloodlust-scene.mjs",
+    "tests/level-start-fixture.mjs",
+    "package-lock.json",
+    "node_modules/.package-lock.json",
+    "node_modules/typescript/lib/typescript.js",
+    "node_modules/three/build/three.module.js",
+    "node_modules/three/build/three.core.js"
+  ],
+  "reviewHelpers": {
+    "work/orchestration/compare-shrine-receipts.mjs": {
+      "sha256": "ddb2a61ece6040bbd2d64ad28a53c250ff40860e8d9dee9daf62ea76d40537b3",
+      "text": "import assert from 'node:assert/strict'\nimport { createHash } from 'node:crypto'\nimport { readFileSync } from 'node:fs'\nimport { execFileSync } from 'node:child_process'\n\nconst hash = value => createHash('sha256').update(value).digest('hex')\nconst root = '/workspace/pnd-baseline-144-shrines'\nconst base = '5516c1c230654d54f239804a6885bde370bdfa43'\nconst candidate = 'dbb5e48d7eda875959eea833037c4b733ec23773'\nconst load = name => {\n  const receipt = JSON.parse(readFileSync(`work/orchestration/${name}`, 'utf8'))\n  assert.equal(receipt.phase, 'finished')\n  assert.deepEqual(receipt.source, receipt.sourceAfter)\n  for (const stream of ['stdout', 'stderr']) {\n    assert.equal(hash(receipt[stream]), receipt[`${stream}Sha256`])\n    assert.equal(hash(readFileSync(receipt.artifacts[stream])), receipt[`${stream}Sha256`])\n  }\n  return receipt\n}\nconst full = load('issue144-shrines-focused-dbb5e48.json')\nconst previous = load('issue144-shrines-baseline-focused-5516c1c.json')\nassert.equal(full.source.headOid, candidate)\nassert.equal(previous.source.headOid, base)\nassert.equal(full.status, 'passed')\nassert.equal(full.exitCode, 0)\nassert.equal(previous.status, 'failed')\nassert.equal(previous.exitCode, 1)\nassert.deepEqual(full.command, previous.command)\nassert.deepEqual(Object.keys(full.source.inputs), Object.keys(previous.source.inputs))\nfor (const [path, value] of Object.entries(full.source.inputs)) {\n  assert.equal(hash(readFileSync(path)), value, path)\n  assert.equal(hash(readFileSync(`${root}/${path}`)), previous.source.inputs[path], path)\n  if (path !== 'app/scene-entities.ts') assert.equal(value, previous.source.inputs[path], path)\n}\nassert.match(full.stdout, /pass 6\\n.*fail 0/)\nassert.match(previous.stdout, /pass 5\\n.*fail 1/)\nassert.match(previous.stdout, /initialized shrine-only full caller read 2208 IDs for 64 shrines/)\nassert.equal(\n  execFileSync('git', ['diff', '--name-only', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(),\n  ''\n)\nassert.equal(previous.source.trackedDiffSha256, hash(''))\nconst original = execFileSync('git', ['show', `${base}:app/scene-entities.ts`], {\n  encoding: 'utf8',\n})\nassert.equal(hash(original), previous.source.inputs['app/scene-entities.ts'])\nconst source = readFileSync('app/scene-entities.ts', 'utf8')\nconst start = 'export function updateShrinesFrame(scene: GameScene) {'\nconst weakOwner = 'const shrineFrameIds = new WeakMap<GameScene, Set<number>>()\\n'\nassert.equal(source.split(start)[0].replace(weakOwner, ''), original.split(start)[0])\nassert.match(original, /!scene\\.world\\.shrines\\.some\\(s => s\\.id === id && s\\.model\\)/)\nassert.match(source, /if \\(shrine\\.model\\) ids\\.add\\(shrine\\.id\\)/)\nassert.match(source, /if \\(Number\\.isNaN\\(id\\) \\|\\| !ids\\.has\\(id\\)\\)/)\nconst body = value => {\n  const from = value.indexOf('      const marker = entry.g.userData.vaultKnowledgeMarker', value.indexOf(start))\n  assert.ok(from >= 0)\n  return value.slice(from)\n}\nassert.equal(body(source), body(original))\nconst lint = load('issue144-shrines-oxlint-dbb5e48.json')\nconst oldLint = load('issue144-shrines-baseline-oxlint-5516c1c.json')\nfor (const receipt of [lint, oldLint]) {\n  assert.equal(receipt.status, 'failed')\n  assert.equal(receipt.exitCode, 1)\n}\nassert.equal(lint.source.headOid, candidate)\nassert.equal(oldLint.source.headOid, base)\nassert.deepEqual(lint.command, oldLint.command)\nfor (const [path, value] of Object.entries(lint.source.inputs))\n  if (path !== 'app/scene-entities.ts') assert.equal(value, oldLint.source.inputs[path], path)\nconst diagnostics = receipt =>\n  receipt.stdout\n    .trim()\n    .split('\\n')\n    .map(line => line.replace(/:\\d+:\\d+(?=: (?:warning|error))/, ':<line>:<column>'))\n    .sort()\nassert.equal(diagnostics(lint).length, 9)\nassert.deepEqual(diagnostics(lint), diagnostics(oldLint))\nconsole.log(\n  JSON.stringify(\n    {\n      focusedCandidate: 'passed 6/6',\n      actualUnmodifiedBase: 'failed: five passed, scaling failed at64 with2208 ID reads',\n      pairedInputHashes: full.source.inputs,\n      productionBaseUnchanged: true,\n      earlierSceneBodyUnchanged: true,\n      cleanupAndFullLaterShrineBodyUnchanged: true,\n      strictOxlintCandidate: 'failed',\n      strictOxlintBase: 'failed',\n      diagnosticMultiset:\n        'passed: nine exact inherited diagnostics; only numeric line/column prefixes normalized',\n      scalingScope:\n        'initialized shrine-only model8 population; no Stone Head, Vault marker or morph initialization; no wall-time or hardware claim',\n    },\n    null,\n    2\n  )\n)\n"
+    }
+  },
+  "scope": "Actual Node shrine factory/frame caller; initialized model8 shrine-only ID-read diagnostic. Controlled Vault/Stone Head cases preserve rendering ownership and legitimate initializer writes. Browser/native-raster/hardware/whole-issue acceptance not claimed. Strict Oxlint remains failed separately from inherited-diagnostic comparison pass."
+}

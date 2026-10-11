@@ -1,0 +1,30 @@
+{
+  "kind": "actual-git-author-published-full-tree-equivalence",
+  "head": "fd462d846d00f6db22426d92ca5aaa485484295e",
+  "author": "39da9ab6685f31b97bfe3f642dbb834b14ddd597",
+  "base": "5516c1c230654d54f239804a6885bde370bdfa43",
+  "tree": "06b5bedd0ff912d280fb9896c412614e83371d31",
+  "files": [
+    {
+      "path": "app/scene-entities.ts",
+      "bytes": 31050,
+      "sha256": "3bf374e2892c764adac08afcb6b1d81ed869495a7b18d19a347abdcca7352cd5"
+    },
+    {
+      "path": "references/shrine-mesh-reconciliation.md",
+      "bytes": 4731,
+      "sha256": "25ef33ab787643aed4f5198652b3235799de234b0c97d3306436cafddd3c66fb"
+    },
+    {
+      "path": "tests/shrine-mesh-reconciliation.test.mjs",
+      "bytes": 19462,
+      "sha256": "6a4885db28899de0215094dd07c2429e37fde636fdecc6d199a59ad910477413"
+    },
+    {
+      "path": "tests/support/shrine-scene.mjs",
+      "bytes": 1120,
+      "sha256": "dc998c13b9ee742df511148c6a3b5fb974537147596cca45edaa76bcb630ee3c"
+    }
+  ],
+  "status": "passed"
+}

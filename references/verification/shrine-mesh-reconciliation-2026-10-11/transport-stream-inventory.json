@@ -1,0 +1,188 @@
+{
+  "kind": "pnd-review-transport-stream-inventory",
+  "head": "fd462d846d00f6db22426d92ca5aaa485484295e",
+  "notice": "Literal source-root and home strings are replaced in copied receipt metadata/payloads. Original stdoutSha256/stderrSha256 fields retain original decoded hashes. Only root standard-check stdout is transformed among20 streams; transport hashes are independently listed here. Strict Oxlint and base scaling remain failed; comparison pass is distinct. This supplemental inventory is outside core-manifest verification.",
+  "decodedStreamCount": 20,
+  "streams": [
+    {
+      "sourcePath": "work/orchestration/issue144-shrines-focused-dbb5e48.json",
+      "stream": "stdout",
+      "status": "passed",
+      "originalDecodedSha256": "2ecbb45d9d62069da7d7fa8b1a1a410eed9a5226448ca5482ca41dd32c0e0f18",
+      "transportDecodedSha256": "2ecbb45d9d62069da7d7fa8b1a1a410eed9a5226448ca5482ca41dd32c0e0f18",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-shrines-focused-dbb5e48.json",
+      "stream": "stderr",
+      "status": "passed",
+      "originalDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-shrines-baseline-focused-5516c1c.json",
+      "stream": "stdout",
+      "status": "failed",
+      "originalDecodedSha256": "7772db6ec807e8312bee4864b53f7089e58aab10eb33f1df0318665cfac04fe0",
+      "transportDecodedSha256": "7772db6ec807e8312bee4864b53f7089e58aab10eb33f1df0318665cfac04fe0",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-shrines-baseline-focused-5516c1c.json",
+      "stream": "stderr",
+      "status": "failed",
+      "originalDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-shrines-oxfmt-dbb5e48.json",
+      "stream": "stdout",
+      "status": "passed",
+      "originalDecodedSha256": "39c5942ba91954a916c5306c814ed8561ea86fe2dc2cc66e8ada647629fdb80f",
+      "transportDecodedSha256": "39c5942ba91954a916c5306c814ed8561ea86fe2dc2cc66e8ada647629fdb80f",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-shrines-oxfmt-dbb5e48.json",
+      "stream": "stderr",
+      "status": "passed",
+      "originalDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-shrines-eslint-dbb5e48.json",
+      "stream": "stdout",
+      "status": "passed",
+      "originalDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-shrines-eslint-dbb5e48.json",
+      "stream": "stderr",
+      "status": "passed",
+      "originalDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-shrines-oxlint-dbb5e48.json",
+      "stream": "stdout",
+      "status": "failed",
+      "originalDecodedSha256": "8b0f7377d14a389e75d8e1fd1d79ccf92bce978bb8537ebfa7f22481bdf3a9e6",
+      "transportDecodedSha256": "8b0f7377d14a389e75d8e1fd1d79ccf92bce978bb8537ebfa7f22481bdf3a9e6",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-shrines-oxlint-dbb5e48.json",
+      "stream": "stderr",
+      "status": "failed",
+      "originalDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-shrines-baseline-oxlint-5516c1c.json",
+      "stream": "stdout",
+      "status": "failed",
+      "originalDecodedSha256": "cc017ad7afecc49f2606b30d481f1ee80a38077e7260398ba65dfe41d15e1fac",
+      "transportDecodedSha256": "cc017ad7afecc49f2606b30d481f1ee80a38077e7260398ba65dfe41d15e1fac",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-shrines-baseline-oxlint-5516c1c.json",
+      "stream": "stderr",
+      "status": "failed",
+      "originalDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-shrines-comparison-dbb5e48.json",
+      "stream": "stdout",
+      "status": "passed",
+      "originalDecodedSha256": "9eefe95463bfb5d61b57e3c67ff5ae52b91a00a0169b6171dd25845e290ac5ad",
+      "transportDecodedSha256": "9eefe95463bfb5d61b57e3c67ff5ae52b91a00a0169b6171dd25845e290ac5ad",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-shrines-comparison-dbb5e48.json",
+      "stream": "stderr",
+      "status": "passed",
+      "originalDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-shrines-note-format-final.json",
+      "stream": "stdout",
+      "status": "passed",
+      "originalDecodedSha256": "9eeae00b20f365fc580165ef8b166674c966700160fb6b0efdcdd53006854db1",
+      "transportDecodedSha256": "9eeae00b20f365fc580165ef8b166674c966700160fb6b0efdcdd53006854db1",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-shrines-note-format-final.json",
+      "stream": "stderr",
+      "status": "passed",
+      "originalDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-shrines-final/check-01.json",
+      "stream": "stdout",
+      "status": "passed",
+      "originalDecodedSha256": "32927873f58fcb8ec274a47b89910eb3ad13db672f9477f04aac599ec9ccd9bf",
+      "transportDecodedSha256": "e2cf18ea727534afa9d9f7ab60d0c5de104ee09b3bcf373192eb7b1bfb2fd8b8",
+      "transformed": true,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-shrines-final/check-01.json",
+      "stream": "stderr",
+      "status": "passed",
+      "originalDecodedSha256": "2d456593f8606487194228723e7e1b864c22db011e35e35a7946f4bc006c2192",
+      "transportDecodedSha256": "2d456593f8606487194228723e7e1b864c22db011e35e35a7946f4bc006c2192",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-shrines-final/build-01.json",
+      "stream": "stdout",
+      "status": "passed",
+      "originalDecodedSha256": "dfe62438fdce5d2935404ec5a9fc8b4e3dd41e5d51d14ec126314325941d55b7",
+      "transportDecodedSha256": "dfe62438fdce5d2935404ec5a9fc8b4e3dd41e5d51d14ec126314325941d55b7",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-shrines-final/build-01.json",
+      "stream": "stderr",
+      "status": "passed",
+      "originalDecodedSha256": "5211d3f9cd16b797dadd6fadd32cfbba542ad40fce35a775446bfe66c6415776",
+      "transportDecodedSha256": "5211d3f9cd16b797dadd6fadd32cfbba542ad40fce35a775446bfe66c6415776",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    }
+  ]
+}

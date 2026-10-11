@@ -1,0 +1,12 @@
+{
+  "kind": "pnd-merged-tested-author-full-tree-equivalence",
+  "authorHead": "39da9ab6685f31b97bfe3f642dbb834b14ddd597",
+  "publishedTestedHead": "fd462d846d00f6db22426d92ca5aaa485484295e",
+  "mergedMain": "e125813da6aa6a211f36d2248a877e10dc0efd45",
+  "mergedParent": "5516c1c230654d54f239804a6885bde370bdfa43",
+  "fullTree": "06b5bedd0ff912d280fb9896c412614e83371d31",
+  "completeBinaryDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": "passed",
+  "gateCarry": "Previously accepted exact published check2054/2054 and build carry through identical full tree; no gates rerun for merge.",
+  "providerMainCI": "in_progress at this artifact checkpoint; coordinator supplies terminal provider proof separately."
+}

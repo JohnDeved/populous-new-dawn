@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "822c62ab-36bf-4847-8a34-6b05637e4f11",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "dbb5e48d7eda875959eea833037c4b733ec23773",
+    "branch": "codex/issue144-shrine-mesh-index",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/scene-entities.ts": "3bf374e2892c764adac08afcb6b1d81ed869495a7b18d19a347abdcca7352cd5",
+      "tests/shrine-mesh-reconciliation.test.mjs": "6a4885db28899de0215094dd07c2429e37fde636fdecc6d199a59ad910477413",
+      "tests/support/shrine-scene.mjs": "dc998c13b9ee742df511148c6a3b5fb974537147596cca45edaa76bcb630ee3c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      ".oxfmtrc.json": "3d994b16c5ebbf15cb6a77529615f68696433af8e0384da5a1f8420b38db7479"
+    }
+  },
+  "command": [
+    "node_modules/.bin/oxfmt",
+    "--check",
+    "app/scene-entities.ts",
+    "tests/shrine-mesh-reconciliation.test.mjs",
+    "tests/support/shrine-scene.mjs"
+  ],
+  "cwd": "/workspace/pnd-author-144-shrines",
+  "startedAt": "2026-10-11T16:49:20.635Z",
+  "artifacts": {
+    "stdout": "/workspace/pnd-author-144-shrines/work/orchestration/issue144-shrines-oxfmt-dbb5e48.json.artifacts/stdout.log",
+    "stderr": "/workspace/pnd-author-144-shrines/work/orchestration/issue144-shrines-oxfmt-dbb5e48.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-11T16:49:20.750Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 3ms on 3 files using 4 threads.\n",
+  "stderr": "",
+  "stdoutSha256": "39c5942ba91954a916c5306c814ed8561ea86fe2dc2cc66e8ada647629fdb80f",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "dbb5e48d7eda875959eea833037c4b733ec23773",
+    "branch": "codex/issue144-shrine-mesh-index",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/scene-entities.ts": "3bf374e2892c764adac08afcb6b1d81ed869495a7b18d19a347abdcca7352cd5",
+      "tests/shrine-mesh-reconciliation.test.mjs": "6a4885db28899de0215094dd07c2429e37fde636fdecc6d199a59ad910477413",
+      "tests/support/shrine-scene.mjs": "dc998c13b9ee742df511148c6a3b5fb974537147596cca45edaa76bcb630ee3c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      ".oxfmtrc.json": "3d994b16c5ebbf15cb6a77529615f68696433af8e0384da5a1f8420b38db7479"
+    }
+  }
+}
