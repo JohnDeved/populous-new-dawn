@@ -80,6 +80,7 @@ const unitFrameIds = new WeakMap<GameScene, Set<number>>()
 const vehicleFrameIds = new WeakMap<GameScene, Set<number>>()
 const planFrameIds = new WeakMap<GameScene, Set<number>>()
 const buildingFrameIds = new WeakMap<GameScene, Set<number>>()
+const shrineFrameIds = new WeakMap<GameScene, Set<number>>()
 
 const teamColor = {
   blue: 0x303fc1,
@@ -768,8 +769,15 @@ export function updateBuildingsFrame(scene: GameScene) {
 }
 
 export function updateShrinesFrame(scene: GameScene) {
+  let ids = shrineFrameIds.get(scene)
+  if (!ids) {
+    ids = new Set()
+    shrineFrameIds.set(scene, ids)
+  }
+  ids.clear()
+  for (const shrine of scene.world.shrines) if (shrine.model) ids.add(shrine.id)
   for (const [id, entry] of scene.shrineMeshes)
-    if (!scene.world.shrines.some(s => s.id === id && s.model)) {
+    if (Number.isNaN(id) || !ids.has(id)) {
       const marker = entry.g.userData.vaultKnowledgeMarker as THREE.Group | undefined
       if (marker) {
         scene.objects.remove(marker)
