@@ -78,6 +78,7 @@ const unitAtlasOrigins = nativeUnits.pieces.map((piece, index) =>
 // Derived only for the current frame; weak ownership follows the Scene lifetime.
 const unitFrameIds = new WeakMap<GameScene, Set<number>>()
 const unitFrameSelectedIds = new WeakMap<GameScene, Set<number>>()
+const unitFrameBuildingsById = new WeakMap<GameScene, Map<Unit['work'], Building>>()
 const vehicleFrameIds = new WeakMap<GameScene, Set<number>>()
 const planFrameIds = new WeakMap<GameScene, Set<number>>()
 const buildingFrameIds = new WeakMap<GameScene, Set<number>>()
@@ -502,6 +503,16 @@ export function updateUnitsFrame(scene: GameScene) {
   }
   selectedIds.clear()
   for (const id of scene.world.selected) selectedIds.add(id)
+  let buildingsById = unitFrameBuildingsById.get(scene)
+  if (!buildingsById) {
+    buildingsById = new Map()
+    unitFrameBuildingsById.set(scene, buildingsById)
+  }
+  buildingsById.clear()
+  for (const building of scene.world.buildings) {
+    const { id } = building
+    if (!buildingsById.has(id)) buildingsById.set(id, building)
+  }
   // Accepted checkpoint IDs may be NaN, which never matched the old strict comparison.
   for (const [id, g] of scene.unitMeshes)
     if (Number.isNaN(id) || !ids.has(id)) {
@@ -602,7 +613,7 @@ export function updateUnitsFrame(scene: GameScene) {
         ? shamanAppearance(u.team).signature
         : `${animationTeam(renderTeam)}-${u.kind}`
     ]
-    const state = unitAnimation(scene.world, u, selectedIds)
+    const state = unitAnimation(scene.world, u, selectedIds, buildingsById)
     if (g.userData.state !== state) {
       g.userData.state = state
       g.userData.since = scene.world.time
