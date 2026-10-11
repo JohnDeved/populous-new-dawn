@@ -106,3 +106,7 @@ The [reviewed original sunlight prefix](../../references/verification/mission3-s
 ## Coherent terrain, command and tribe prefix
 
 The [two reviewed pre-loader cases](../../references/verification/mission3-preloader-prefix-2026-10-11/README.md) execute terrain masks, command initialization and tribe reset together, stopping before the loader call. Each passes 101 known fields, eight bit predicates and complete terrain-mask coverage. Canonical CPSCR012 transport supplies the real script comparison without a new omission. The two labeled land-bit alternatives have distinct calls and control-kind bytes; neither selects actual campaign history or proves whole-state equivalence. Remaining loader, bank and animation setup must be bound before authored-object execution.
+
+## First conditioned authored-record allocator
+
+The [reviewed partial constructor diagnostic](../../references/verification/mission3-constructor-stop-2026-10-11/README.md) reaches the first class 2 allocation after genuine selected setup. It copies counter 0 and advances class 2 to 1, then stops at an unsupplied initializer-suppression byte before the allocator returns. No record completes and class 1 stays 0. Independent reconciliation covers all 2,412,445 observer events and the exact unknown stop. This conditional seam does not establish actual Mission 3 startup or a product repair; the next bounded task is a consolidated constructor-input contract.
