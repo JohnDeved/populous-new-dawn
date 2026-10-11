@@ -102,6 +102,7 @@ function followerDirections(animations: UnitAnimationTable, source: number) {
 const unitFrameIds = new WeakMap<GameScene, Set<number>>()
 const unitFrameSelectedIds = new WeakMap<GameScene, Set<number>>()
 const unitFrameBuildingsById = new WeakMap<GameScene, Map<Unit['work'], Building>>()
+const unitFrameShrinesById = new WeakMap<GameScene, Map<Unit['work'], Shrine[]>>()
 const vehicleFrameIds = new WeakMap<GameScene, Set<number>>()
 const vehicleFrameViews = new WeakMap<GameScene, Vehicle[]>()
 const planFrameIds = new WeakMap<GameScene, Set<number>>()
@@ -555,6 +556,19 @@ export function updateUnitsFrame(scene: GameScene) {
     const { id } = building
     if (!buildingsById.has(id)) buildingsById.set(id, building)
   }
+  let shrinesById = unitFrameShrinesById.get(scene)
+  if (!shrinesById) {
+    shrinesById = new Map()
+    unitFrameShrinesById.set(scene, shrinesById)
+  }
+  const shrineBuckets = shrinesById
+  shrineBuckets.clear()
+  scene.world.shrines.forEach(shrine => {
+    const { id } = shrine
+    const bucket = shrineBuckets.get(id)
+    if (bucket) bucket.push(shrine)
+    else shrineBuckets.set(id, [shrine])
+  })
   // Accepted checkpoint IDs may be NaN, which never matched the old strict comparison.
   for (const [id, g] of scene.unitMeshes)
     if (Number.isNaN(id) || !ids.has(id)) {
@@ -650,7 +664,7 @@ export function updateUnitsFrame(scene: GameScene) {
         ? shamanAppearance(u.team).signature
         : `${animationTeam(renderTeam)}-${u.kind}`
     ]
-    const state = unitAnimation(scene.world, u, selectedIds, buildingsById)
+    const state = unitAnimation(scene.world, u, selectedIds, buildingsById, shrineBuckets)
     if (g.userData.state !== state) {
       g.userData.state = state
       g.userData.since = scene.world.time
