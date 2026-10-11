@@ -1,0 +1,562 @@
+{
+  "version": 1,
+  "testedHead": "cf5e7fb6607530f39ce17b772d9d9cd0507fc398",
+  "sourceTree": "56f9bbd3043953fb443c27ee947b0f8647d2bd3c",
+  "standardGates": [
+    "npm run check",
+    "npm run build"
+  ],
+  "unknownPathsReview": "Independent full source/test/note/portable review ACCEPTED all three paths, including the new actual-caller test and evidence note. All selected portable test files are covered by npm run check.",
+  "narrowClaim": "Completed-building eligible-ID membership only. Strict equality, smoke unsubscribe/removal/resource order, preparation phase and complete later drawing body are preserved. Occupancy/puff/shrine and other scans remain outside this partial claim. Broad native/browser file selectors are not applicable to this output-preserving algorithmic seam; preserve original planning statuses, award no browser/native/hardware, FPS or full-issue credit.",
+  "sourceFiles": [
+    {
+      "path": "app/scene-entities.ts",
+      "sha256": "8862c237287b6fb1a5a8d59c4a2528be8a7f274663d0bbbbc3121043d8229ab9"
+    },
+    {
+      "path": "references/building-mesh-reconciliation.md",
+      "sha256": "09036ef379458d6fc7f41172360e94edfc019dd7c3be6af2980bffeb809132e8"
+    },
+    {
+      "path": "tests/building-mesh-reconciliation.test.mjs",
+      "sha256": "f02d9632550ea5fc897ef4114af5d3298005d16dae0529418654b1269ec1f40a"
+    }
+  ],
+  "setupAttempts": [
+    {
+      "status": "failed",
+      "command": [
+        "node",
+        "scripts/orchestration/plan.mjs",
+        "--base",
+        "7cb339d01713b3ec3c7e1f46bbdd6d78a5fca86f",
+        "--output",
+        "work/orchestration/issue144-buildings-final/plan.json"
+      ],
+      "reason": "Assumed nonexistent planner module; MODULE_NOT_FOUND; no plan or standard gate created."
+    },
+    {
+      "status": "passed",
+      "command": [
+        "node",
+        "scripts/orchestration/cli.mjs",
+        "plan",
+        "--base",
+        "7cb339d01713b3ec3c7e1f46bbdd6d78a5fca86f"
+      ],
+      "reason": "Used repository-declared planner entry point; stdout saved as plan.json."
+    }
+  ],
+  "planStatuses": [
+    {
+      "id": "building-counterattack-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "camera-browser",
+      "kind": "browser",
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "campaign-natural-victory-browser",
+      "kind": "browser",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_BROWSER, POPULOUS_CAMPAIGN_OUTPUT"
+    },
+    {
+      "id": "firewarrior-building-browser",
+      "kind": "browser",
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "follower-task-art-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "follower-transports-browser",
+      "kind": "browser",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_BROWSER"
+    },
+    {
+      "id": "follower-transports-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "follower-transports-portable",
+      "kind": "portable",
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "level-start-browser",
+      "kind": "browser",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_URL, POPULOUS_LEVEL_START_OUTPUT"
+    },
+    {
+      "id": "level-start-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_PYTHON, POPULOUS_EXE"
+    },
+    {
+      "id": "level-start-portable",
+      "kind": "portable",
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "level-start-static",
+      "kind": "static",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_PYTHON, POPULOUS_DATA_ROOT"
+    },
+    {
+      "id": "messages-browser",
+      "kind": "browser",
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "messages-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission10-opening-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission11-browser",
+      "kind": "browser",
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission11-build-at-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission11-housing-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission11-settlement-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission12-opening-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission12-spy-sabotage-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission13-balloon-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission13-opening-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission14-rewards-browser",
+      "kind": "browser",
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission14-rewards-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission14-rewards-portable",
+      "kind": "portable",
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission15-prison-browser",
+      "kind": "browser",
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission15-prison-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission15-prison-portable",
+      "kind": "portable",
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission16-bloodlust-browser",
+      "kind": "browser",
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission16-bloodlust-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission16-bloodlust-portable",
+      "kind": "portable",
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission17-armageddon-browser",
+      "kind": "browser",
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission17-armageddon-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission17-armageddon-portable",
+      "kind": "portable",
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission18-browser",
+      "kind": "browser",
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission18-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission18-portable",
+      "kind": "portable",
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission19-browser",
+      "kind": "browser",
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission19-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission19-portable",
+      "kind": "portable",
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission20-browser",
+      "kind": "browser",
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission20-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission20-portable",
+      "kind": "portable",
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission21-browser",
+      "kind": "browser",
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission21-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission21-portable",
+      "kind": "portable",
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission22-browser",
+      "kind": "browser",
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission22-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission22-portable",
+      "kind": "portable",
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission23-browser",
+      "kind": "browser",
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission23-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission23-portable",
+      "kind": "portable",
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission23-settlement-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission4-browser",
+      "kind": "browser",
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission5-angel-browser",
+      "kind": "browser",
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission5-angel-portable",
+      "kind": "portable",
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission7-browser",
+      "kind": "browser",
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission7-opening-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission8-browser",
+      "kind": "browser",
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission8-firewarrior-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission9-boat-house-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission9-browser",
+      "kind": "browser",
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "production-build",
+      "kind": "build",
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "reincarnation-browser",
+      "kind": "browser",
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "reincarnation-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "reincarnation-wave-browser",
+      "kind": "browser",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_ARTIFACT_DIR, POPULOUS_HEADLESS_SHELL"
+    },
+    {
+      "id": "reincarnation-wave-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE, POPULOUS_PYTHON"
+    },
+    {
+      "id": "reincarnation-wave-portable",
+      "kind": "portable",
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "repository-check",
+      "kind": "portable",
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "shaman-appearance-browser",
+      "kind": "browser",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_URL, POPULOUS_SHAMAN_REFERENCE, POPULOUS_SHAMAN_OUTPUT"
+    },
+    {
+      "id": "shaman-appearance-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_PYTHON, POPULOUS_EXE, POPULOUS_SHAMAN_NATIVE_OUTPUT"
+    },
+    {
+      "id": "shaman-appearance-portable",
+      "kind": "portable",
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "shaman-assets-static",
+      "kind": "static",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_PYTHON, POPULOUS_DATA_ROOT"
+    },
+    {
+      "id": "shaman-death-ground-browser",
+      "kind": "browser",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_HEADLESS_SHELL, POPULOUS_ARTIFACT_DIR"
+    },
+    {
+      "id": "shaman-death-ground-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "shaman-death-ground-portable",
+      "kind": "portable",
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "transport-ownership-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "transport-vehicle-materials-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE, POPULOUS_LIVE_MODEL_INPUT"
+    },
+    {
+      "id": "tutorial-first-lesson-browser",
+      "kind": "browser",
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "tutorial-first-lesson-portable",
+      "kind": "portable",
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "vault-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "vehicle-destruction-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "worship-browser",
+      "kind": "browser",
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "worship-native",
+      "kind": "native",
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    }
+  ]
+}

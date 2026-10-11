@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "1d179b9b-ce1c-4f2e-9442-a48e2b765404",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "651b989768907a33e37d1d4ac435a71074885e47",
+    "branch": "codex/issue144-building-mesh-index",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/scene-entities.ts": "8862c237287b6fb1a5a8d59c4a2528be8a7f274663d0bbbbc3121043d8229ab9",
+      "app/scene.ts": "663df1f7542e46be7721e57bdad43ed9c37991e5c74cd0347a3e132616e089ca",
+      "app/scene-input-runtime.ts": "a0d6e101c78b4fa4e4cc5d4ee671b2c97dc6509fdca12d68889224dcd5c7724b",
+      "app/scene-assets.ts": "e8e2a7e5fb22af8c45afa4a3682b7a5f6dcfcddb6e74878073f18932ad2835e5",
+      "app/construction-runtime.ts": "2ea49ae789ae747732c3bc327d58735f501b52dfcff84c17eef83ca4386c0653",
+      "app/hut-smoke-runtime.ts": "8652d3c33cc2c195344c62a7a9d2aba572620742c0dd89458634f576853ac834",
+      "app/hut-occupancy-smoke.ts": "4d6660697dfa08ed6a99d5a906b857f9b259d3152abb7f33f82d389d84d1ed07",
+      "app/game-store.ts": "1a48cc21cdbcbee579347b9ee3321086750376816a2e152ac13aa6b27bf3081d",
+      "tests/building-mesh-reconciliation.test.mjs": "f02d9632550ea5fc897ef4114af5d3298005d16dae0529418654b1269ec1f40a",
+      "tests/support/plan-scene.mjs": "e4819de84617166fd3ab385a9dcf78ae8390cff6ed972ed864ef6af4761c747a",
+      "tests/support/hut-smoke-scene.mjs": "57cac80516f37ed084578bf4608ce478675bc5d6691b83375b6d30622e9d26d7",
+      "tests/support/bloodlust-scene.mjs": "68141adbfb7cd7193ee2fcaf85d8b9f169b4a8a7f4d98ac7bf8aaba025722337",
+      "tests/level-start-fixture.mjs": "9a3421df185be19f8423d3363a79fd867bbafa2e105aa97071242fce3a28072b",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "node_modules/typescript/lib/typescript.js": "3ae902c92cc44dace175c0e69e13a4b0899f6983c6121d76b9ab8dd5795e7675",
+      "node_modules/three/build/three.module.js": "bbf5ed13fe4373f5bd38b14ea8e62e9f157327da5638edc6d3863e08b167c9c7",
+      "node_modules/three/build/three.core.js": "3718df126d69c125362a03340913204470d8c50238605150e57f808840fb7759"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/building-mesh-reconciliation.test.mjs"
+  ],
+  "cwd": "/workspace/pnd-author-144-buildings",
+  "startedAt": "2026-10-11T16:10:27.431Z",
+  "artifacts": {
+    "stdout": "/workspace/pnd-author-144-buildings/work/orchestration/issue144-buildings-focused-651b989.json.artifacts/stdout.log",
+    "stderr": "/workspace/pnd-author-144-buildings/work/orchestration/issue144-buildings-focused-651b989.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-11T16:10:31.592Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "Completed-only ID-read diagnostic (frozen old cleanup vs actual candidate full caller): [{\"buildings\":64,\"oldSurvivors\":2080,\"currentSurvivors\":128,\"oldMixed\":6176,\"currentMixed\":128},{\"buildings\":256,\"oldSurvivors\":32896,\"currentSurvivors\":512,\"oldMixed\":98432,\"currentMixed\":512},{\"buildings\":1024,\"oldSurvivors\":524800,\"currentSurvivors\":2048,\"oldMixed\":1573376,\"currentMixed\":2048}]\n✔ completed cleanup preserves ordered disposal, shared atlas, survivor identity and Scene transforms (3251.878939ms)\n✔ completed stage and resource signatures retain replacement, health material and cached output (83.356677ms)\n✔ completed to preparation and back preserves the earlier plan phase and shared cursor material (43.642625ms)\n✔ completed membership observes migrated NaN IDs, in-place IDs, loaded worlds and independent Scenes (48.040633ms)\n✔ real attached smoke teardown unsubscribes occupancy while independent emitted children and atlas survive (169.782746ms)\n✔ completed-only membership has linear full-caller ID reads with empty plans, units and secondary population (231.024254ms)\nℹ tests 6\nℹ suites 0\nℹ pass 6\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 4123.891083\n",
+  "stderr": "",
+  "stdoutSha256": "cba413f5a7bcda8d3d37181eacc09f82b4794fa04c49c6a1a8a4c117a4ba6b0a",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "651b989768907a33e37d1d4ac435a71074885e47",
+    "branch": "codex/issue144-building-mesh-index",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/scene-entities.ts": "8862c237287b6fb1a5a8d59c4a2528be8a7f274663d0bbbbc3121043d8229ab9",
+      "app/scene.ts": "663df1f7542e46be7721e57bdad43ed9c37991e5c74cd0347a3e132616e089ca",
+      "app/scene-input-runtime.ts": "a0d6e101c78b4fa4e4cc5d4ee671b2c97dc6509fdca12d68889224dcd5c7724b",
+      "app/scene-assets.ts": "e8e2a7e5fb22af8c45afa4a3682b7a5f6dcfcddb6e74878073f18932ad2835e5",
+      "app/construction-runtime.ts": "2ea49ae789ae747732c3bc327d58735f501b52dfcff84c17eef83ca4386c0653",
+      "app/hut-smoke-runtime.ts": "8652d3c33cc2c195344c62a7a9d2aba572620742c0dd89458634f576853ac834",
+      "app/hut-occupancy-smoke.ts": "4d6660697dfa08ed6a99d5a906b857f9b259d3152abb7f33f82d389d84d1ed07",
+      "app/game-store.ts": "1a48cc21cdbcbee579347b9ee3321086750376816a2e152ac13aa6b27bf3081d",
+      "tests/building-mesh-reconciliation.test.mjs": "f02d9632550ea5fc897ef4114af5d3298005d16dae0529418654b1269ec1f40a",
+      "tests/support/plan-scene.mjs": "e4819de84617166fd3ab385a9dcf78ae8390cff6ed972ed864ef6af4761c747a",
+      "tests/support/hut-smoke-scene.mjs": "57cac80516f37ed084578bf4608ce478675bc5d6691b83375b6d30622e9d26d7",
+      "tests/support/bloodlust-scene.mjs": "68141adbfb7cd7193ee2fcaf85d8b9f169b4a8a7f4d98ac7bf8aaba025722337",
+      "tests/level-start-fixture.mjs": "9a3421df185be19f8423d3363a79fd867bbafa2e105aa97071242fce3a28072b",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "node_modules/typescript/lib/typescript.js": "3ae902c92cc44dace175c0e69e13a4b0899f6983c6121d76b9ab8dd5795e7675",
+      "node_modules/three/build/three.module.js": "bbf5ed13fe4373f5bd38b14ea8e62e9f157327da5638edc6d3863e08b167c9c7",
+      "node_modules/three/build/three.core.js": "3718df126d69c125362a03340913204470d8c50238605150e57f808840fb7759"
+    }
+  }
+}

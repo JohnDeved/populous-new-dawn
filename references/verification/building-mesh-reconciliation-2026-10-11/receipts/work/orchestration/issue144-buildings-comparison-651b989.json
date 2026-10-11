@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "da8f4bb6-a64e-4a5b-9949-474a07a3b5cf",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "651b989768907a33e37d1d4ac435a71074885e47",
+    "branch": "codex/issue144-building-mesh-index",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/compare-building-receipts.mjs": "78355e73a7641a633827ef32546e73f7be9a58232b1cd118aa06bb13184c8957",
+      "work/orchestration/issue144-buildings-focused-651b989.json": "06933bcf3e0c5eb82dbcb424b662bddce24dbd0cd38f0fb2682070f290614d86",
+      "work/orchestration/issue144-buildings-baseline-focused-7cb339d.json": "c026f3eedbc18f85f37874dfd8269462f55cb2d17f51a20999ee0f542fedf115",
+      "work/orchestration/issue144-buildings-oxlint-651b989.json": "edc99b6f6529470400ed84292dff284575ab0e293b42394febdf3e92bef4f48e",
+      "work/orchestration/issue144-buildings-baseline-oxlint-7cb339d.json": "803e31e16bcf63c4a24b910df4de04b558cf4bfe1d396098251fe7485a14a38f",
+      "app/scene-entities.ts": "8862c237287b6fb1a5a8d59c4a2528be8a7f274663d0bbbbc3121043d8229ab9",
+      "tests/building-mesh-reconciliation.test.mjs": "f02d9632550ea5fc897ef4114af5d3298005d16dae0529418654b1269ec1f40a",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "node",
+    "work/orchestration/compare-building-receipts.mjs"
+  ],
+  "cwd": "/workspace/pnd-author-144-buildings",
+  "startedAt": "2026-10-11T16:12:24.180Z",
+  "artifacts": {
+    "stdout": "/workspace/pnd-author-144-buildings/work/orchestration/issue144-buildings-comparison-651b989.json.artifacts/stdout.log",
+    "stderr": "/workspace/pnd-author-144-buildings/work/orchestration/issue144-buildings-comparison-651b989.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-11T16:12:24.239Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\n  \"focusedCandidate\": \"passed 6/6\",\n  \"actualUnmodifiedBase\": \"failed: five passed, scaling failed at64 with2144 ID reads\",\n  \"pairedInputHashes\": {\n    \"app/scene-entities.ts\": \"8862c237287b6fb1a5a8d59c4a2528be8a7f274663d0bbbbc3121043d8229ab9\",\n    \"app/scene.ts\": \"663df1f7542e46be7721e57bdad43ed9c37991e5c74cd0347a3e132616e089ca\",\n    \"app/scene-input-runtime.ts\": \"a0d6e101c78b4fa4e4cc5d4ee671b2c97dc6509fdca12d68889224dcd5c7724b\",\n    \"app/scene-assets.ts\": \"e8e2a7e5fb22af8c45afa4a3682b7a5f6dcfcddb6e74878073f18932ad2835e5\",\n    \"app/construction-runtime.ts\": \"2ea49ae789ae747732c3bc327d58735f501b52dfcff84c17eef83ca4386c0653\",\n    \"app/hut-smoke-runtime.ts\": \"8652d3c33cc2c195344c62a7a9d2aba572620742c0dd89458634f576853ac834\",\n    \"app/hut-occupancy-smoke.ts\": \"4d6660697dfa08ed6a99d5a906b857f9b259d3152abb7f33f82d389d84d1ed07\",\n    \"app/game-store.ts\": \"1a48cc21cdbcbee579347b9ee3321086750376816a2e152ac13aa6b27bf3081d\",\n    \"tests/building-mesh-reconciliation.test.mjs\": \"f02d9632550ea5fc897ef4114af5d3298005d16dae0529418654b1269ec1f40a\",\n    \"tests/support/plan-scene.mjs\": \"e4819de84617166fd3ab385a9dcf78ae8390cff6ed972ed864ef6af4761c747a\",\n    \"tests/support/hut-smoke-scene.mjs\": \"57cac80516f37ed084578bf4608ce478675bc5d6691b83375b6d30622e9d26d7\",\n    \"tests/support/bloodlust-scene.mjs\": \"68141adbfb7cd7193ee2fcaf85d8b9f169b4a8a7f4d98ac7bf8aaba025722337\",\n    \"tests/level-start-fixture.mjs\": \"9a3421df185be19f8423d3363a79fd867bbafa2e105aa97071242fce3a28072b\",\n    \"package-lock.json\": \"c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba\",\n    \"node_modules/.package-lock.json\": \"65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8\",\n    \"node_modules/typescript/lib/typescript.js\": \"3ae902c92cc44dace175c0e69e13a4b0899f6983c6121d76b9ab8dd5795e7675\",\n    \"node_modules/three/build/three.module.js\": \"bbf5ed13fe4373f5bd38b14ea8e62e9f157327da5638edc6d3863e08b167c9c7\",\n    \"node_modules/three/build/three.core.js\": \"3718df126d69c125362a03340913204470d8c50238605150e57f808840fb7759\"\n  },\n  \"productionBaseUnchanged\": true,\n  \"earlierPlanPhaseUnchanged\": true,\n  \"cleanupAndFullLaterBuildingBodyUnchanged\": true,\n  \"strictOxlintCandidate\": \"failed\",\n  \"strictOxlintBase\": \"failed\",\n  \"diagnosticMultiset\": \"passed: nine exact inherited diagnostics; only numeric line/column prefixes normalized\",\n  \"scalingScope\": \"completed-only population, preparation map empty, units zero, secondary effects quiet; occupancy and puff scans excluded\"\n}\n",
+  "stderr": "",
+  "stdoutSha256": "11ad0f4ece9b4ec805c437b7b9edca200406b28fcb7950066b0156025c65baca",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "651b989768907a33e37d1d4ac435a71074885e47",
+    "branch": "codex/issue144-building-mesh-index",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/compare-building-receipts.mjs": "78355e73a7641a633827ef32546e73f7be9a58232b1cd118aa06bb13184c8957",
+      "work/orchestration/issue144-buildings-focused-651b989.json": "06933bcf3e0c5eb82dbcb424b662bddce24dbd0cd38f0fb2682070f290614d86",
+      "work/orchestration/issue144-buildings-baseline-focused-7cb339d.json": "c026f3eedbc18f85f37874dfd8269462f55cb2d17f51a20999ee0f542fedf115",
+      "work/orchestration/issue144-buildings-oxlint-651b989.json": "edc99b6f6529470400ed84292dff284575ab0e293b42394febdf3e92bef4f48e",
+      "work/orchestration/issue144-buildings-baseline-oxlint-7cb339d.json": "803e31e16bcf63c4a24b910df4de04b558cf4bfe1d396098251fe7485a14a38f",
+      "app/scene-entities.ts": "8862c237287b6fb1a5a8d59c4a2528be8a7f274663d0bbbbc3121043d8229ab9",
+      "tests/building-mesh-reconciliation.test.mjs": "f02d9632550ea5fc897ef4114af5d3298005d16dae0529418654b1269ec1f40a",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

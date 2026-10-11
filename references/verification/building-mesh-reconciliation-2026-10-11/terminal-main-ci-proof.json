@@ -1,0 +1,121 @@
+{
+  "version": 1,
+  "kind": "pnd-merged-source-proof",
+  "pr": 347,
+  "repository": "JohnDeved/populous-new-dawn",
+  "base": "7cb339d01713b3ec3c7e1f46bbdd6d78a5fca86f",
+  "author": "142929a5ba829077c1f10964e4d714fa38a160a1",
+  "testedRemote": "cf5e7fb6607530f39ce17b772d9d9cd0507fc398",
+  "testMerge": {
+    "sha": "d41437119579d88123827c583c23cb29b7aaf628",
+    "node_id": "C_kwDOUWLSPdoAKGQ0MTQzNzExOTU3OWQ4ODEyMzgyN2M1ODNjMjNjYjI5YjdhYWY2Mjg",
+    "url": "https://api.github.com/repos/JohnDeved/populous-new-dawn/git/commits/d41437119579d88123827c583c23cb29b7aaf628",
+    "html_url": "https://github.com/JohnDeved/populous-new-dawn/commit/d41437119579d88123827c583c23cb29b7aaf628",
+    "author": {
+      "name": "undefined",
+      "email": "johann@objekt.stream",
+      "date": "2026-10-11T16:18:09Z"
+    },
+    "committer": {
+      "name": "GitHub",
+      "email": "noreply@github.com",
+      "date": "2026-10-11T16:18:09Z"
+    },
+    "tree": {
+      "sha": "56f9bbd3043953fb443c27ee947b0f8647d2bd3c",
+      "url": "https://api.github.com/repos/JohnDeved/populous-new-dawn/git/trees/56f9bbd3043953fb443c27ee947b0f8647d2bd3c"
+    },
+    "message": "Merge cf5e7fb6607530f39ce17b772d9d9cd0507fc398 into 7cb339d01713b3ec3c7e1f46bbdd6d78a5fca86f",
+    "parents": [
+      {
+        "sha": "7cb339d01713b3ec3c7e1f46bbdd6d78a5fca86f",
+        "url": "https://api.github.com/repos/JohnDeved/populous-new-dawn/git/commits/7cb339d01713b3ec3c7e1f46bbdd6d78a5fca86f",
+        "html_url": "https://github.com/JohnDeved/populous-new-dawn/commit/7cb339d01713b3ec3c7e1f46bbdd6d78a5fca86f"
+      },
+      {
+        "sha": "cf5e7fb6607530f39ce17b772d9d9cd0507fc398",
+        "url": "https://api.github.com/repos/JohnDeved/populous-new-dawn/git/commits/cf5e7fb6607530f39ce17b772d9d9cd0507fc398",
+        "html_url": "https://github.com/JohnDeved/populous-new-dawn/commit/cf5e7fb6607530f39ce17b772d9d9cd0507fc398"
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "reason": "valid",
+      "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJqy7bBCRC1aQ7uu5UhlAAAbNsQAJkmRZzvdfGn8wCTjfJaF6g+\nyAEd67BkUMjGyrs9M9utml58g9rDYCizZb0glPiyuWRFeZVyu1jVnKQGYPMSZiKl\n3MZPIU6hM8LAh70pgT8u/TQ7Ty+naEU8md92jDNZUMgFDflKcvQ3jtTk091kRfQ7\ngy3v4zJ9emxJXVEMrkm41irl35xUMeeF118a9KSsjeQNb55Yn4O64r/DfR+GpMcL\nPHaU0G1BeOiYTOVx4J6F/eprRcCrZrEgPLjxu0yyjgkBPHe9WOkaQivXULyk6B1x\nk3uldGLQJMd77mGKo/QgPBEDWHoFLsbICPkGH8CJ5gg6R6qJUfI7wkvHFxwu3XOp\nj9sCtGYUm739mt8fo8SO+LguAH6K6GAtCUxo49IdjitvBg3wFhWEtZh07QW6TA4l\n2ws96atHpzUW3lcmh1QwxC4+C/XZx/Ox6YQ6s9CQv6DTq2pBf/+g6CMaOOcc7WML\nLmzTvFVDJcWx9Z1yE0vephmdeSpRio0s9hYol2MUWPVg7yvN8IzkDAxwNr/EDZ+c\nl5vRuNFitlvzJd5n+hX1JpSsOcmhp/GGu4sLacwQ7HbET6/AOpi+d1wqwgY2jJFd\nwFo/6h1krOaQdjwnKrJ8V91DfR0ztTxoFN4+WzdZHgGuzSR2oMvSgNWnK43S+tpI\nkMV1ial3zzZ3lfnmOyve\n=2gCG\n-----END PGP SIGNATURE-----\n",
+      "payload": "tree 56f9bbd3043953fb443c27ee947b0f8647d2bd3c\nparent 7cb339d01713b3ec3c7e1f46bbdd6d78a5fca86f\nparent cf5e7fb6607530f39ce17b772d9d9cd0507fc398\nauthor undefined <johann@objekt.stream> 1791735489 +0200\ncommitter GitHub <noreply@github.com> 1791735489 +0200\n\nMerge cf5e7fb6607530f39ce17b772d9d9cd0507fc398 into 7cb339d01713b3ec3c7e1f46bbdd6d78a5fca86f\n",
+      "verified_at": "2026-10-11T16:18:09Z"
+    }
+  },
+  "merged": {
+    "sha": "5bf19003ee3580a9e0197bbd2057b7967ad09a64",
+    "node_id": "C_kwDOUWLSPdoAKDViZjE5MDAzZWUzNTgwYTllMDE5N2JiZDIwNTdiNzk2N2FkMDlhNjQ",
+    "url": "https://api.github.com/repos/JohnDeved/populous-new-dawn/git/commits/5bf19003ee3580a9e0197bbd2057b7967ad09a64",
+    "html_url": "https://github.com/JohnDeved/populous-new-dawn/commit/5bf19003ee3580a9e0197bbd2057b7967ad09a64",
+    "author": {
+      "name": "undefined",
+      "email": "johann@objekt.stream",
+      "date": "2026-10-11T16:27:26Z"
+    },
+    "committer": {
+      "name": "GitHub",
+      "email": "noreply@github.com",
+      "date": "2026-10-11T16:27:26Z"
+    },
+    "tree": {
+      "sha": "56f9bbd3043953fb443c27ee947b0f8647d2bd3c",
+      "url": "https://api.github.com/repos/JohnDeved/populous-new-dawn/git/trees/56f9bbd3043953fb443c27ee947b0f8647d2bd3c"
+    },
+    "message": "perf: index completed-building cleanup membership per Scene (#347)",
+    "parents": [
+      {
+        "sha": "7cb339d01713b3ec3c7e1f46bbdd6d78a5fca86f",
+        "url": "https://api.github.com/repos/JohnDeved/populous-new-dawn/git/commits/7cb339d01713b3ec3c7e1f46bbdd6d78a5fca86f",
+        "html_url": "https://github.com/JohnDeved/populous-new-dawn/commit/7cb339d01713b3ec3c7e1f46bbdd6d78a5fca86f"
+      }
+    ],
+    "verification": {
+      "verified": true,
+      "reason": "valid",
+      "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJqy7juCRC1aQ7uu5UhlAAAAA8QAHVi3qeQ9cf4gACZFe5M9xqk\nfQqlR2jGbCHNeNbpDpEyMRHXwDemLGNa0O1geef6F91mnXGVD4e9SuewelEAmMkL\nWBoDtkvLiCykDbnzXRCIvV0RyMLBLU+oRh9n7oaNuX8ie6Yy/YfxC+0mGnyJxSJs\nwrOU1TwhdxDYEWPp0SgOokYsJF2J8uWPPSrIusrQV9AGZtCGCEfWWVAf72V8mnrI\nO8ENNY7fihMOUlO0kjDBW/GttiUONiQmgqc56ISZcR/KYeBZc0tvWlX1VANgTSpn\nIcj7G9e8VydwDZIfbtMkphC4ioGHBKoF2nCzjPvxg7fIrf587g+v/anZ8mPTeZ9W\n2RGvKywOwkL5S8HZy2jGatAVceuBIritVAu/0ObNJH0xqz8duhYMSjEKFtMPvdM/\nhmNqEYMm45sgHm+5Ffgeh0lQCQb8/oi9FczArcqh0Vf7vnnOscare+1o3KUQYs5V\nnunhXK5ZOFabp8BHZOFH4eExO6YlnrAAoilB3OaaTEPEMd5sCE54MgsZUTJAK8ir\nZge1fv6xjpHpZAQHA19rzcuXhiyEfQH7sCtr524gIhAtiGdixB+jPfgDW4On/Gog\nEBB57rVzHKlpXOfrHVvMerl8dxQ1yDpovrukB8fWhGgdUKdfANg7GHqg8ptF/OAv\nmyIV1ZlP7QT9+DoCcDCy\n=q23D\n-----END PGP SIGNATURE-----\n",
+      "payload": "tree 56f9bbd3043953fb443c27ee947b0f8647d2bd3c\nparent 7cb339d01713b3ec3c7e1f46bbdd6d78a5fca86f\nauthor undefined <johann@objekt.stream> 1791736046 +0200\ncommitter GitHub <noreply@github.com> 1791736046 +0200\n\nperf: index completed-building cleanup membership per Scene (#347)",
+      "verified_at": "2026-10-11T16:27:27Z"
+    }
+  },
+  "fullTree": "56f9bbd3043953fb443c27ee947b0f8647d2bd3c",
+  "headCi": [
+    {
+      "name": "Workers Builds: populous-new-dawn",
+      "head": "cf5e7fb6607530f39ce17b772d9d9cd0507fc398",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/runs/114516074806",
+      "completedAt": "2026-10-11T16:20:00Z"
+    }
+  ],
+  "mainCi": [
+    {
+      "name": "Workers Builds: populous-new-dawn",
+      "head": "5bf19003ee3580a9e0197bbd2057b7967ad09a64",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/JohnDeved/populous-new-dawn/runs/114518211459",
+      "completedAt": "2026-10-11T16:30:18Z"
+    }
+  ],
+  "gateSummary": {
+    "check": {
+      "status": "passed",
+      "tests": 2048,
+      "failed": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    "build": {
+      "status": "passed"
+    },
+    "independentReview": "ACCEPT",
+    "browserNativeHardware": "not-run",
+    "strictOxlint": "failed on base and candidate; unchanged diagnostic comparison passed"
+  },
+  "limits": "Full-tree equality verifies integration source, not deployed behavior. Completed-building operation counts only with empty plans/units/quiet secondary effects; remaining occupancy/puff/shrine and other costs remain outside the claim."
+}

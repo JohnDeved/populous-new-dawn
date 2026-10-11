@@ -1,0 +1,18 @@
+{
+  "kind": "pnd-published-author-full-tree-equivalence",
+  "publishedHead": "cf5e7fb6607530f39ce17b772d9d9cd0507fc398",
+  "authorHead": "142929a5ba829077c1f10964e4d714fa38a160a1",
+  "base": "7cb339d01713b3ec3c7e1f46bbdd6d78a5fca86f",
+  "publishedParent": "7cb339d01713b3ec3c7e1f46bbdd6d78a5fca86f",
+  "fullTree": "56f9bbd3043953fb443c27ee947b0f8647d2bd3c",
+  "authorTree": "56f9bbd3043953fb443c27ee947b0f8647d2bd3c",
+  "publishedTree": "56f9bbd3043953fb443c27ee947b0f8647d2bd3c",
+  "emptyFullTreeDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceSha256": {
+    "app/scene-entities.ts": "8862c237287b6fb1a5a8d59c4a2528be8a7f274663d0bbbbc3121043d8229ab9",
+    "tests/building-mesh-reconciliation.test.mjs": "f02d9632550ea5fc897ef4114af5d3298005d16dae0529418654b1269ec1f40a",
+    "references/building-mesh-reconciliation.md": "09036ef379458d6fc7f41172360e94edfc019dd7c3be6af2980bffeb809132e8"
+  },
+  "verification": "actual local Git commit/tree/parent/blob objects and empty full-tree binary diff; author checkout clean",
+  "carry": "Accepted author focused/scoped quality source/test inputs remain identical; author final note-only proof is retained separately. No gate reruns. Remote standard gates remain pending until parent receipts finish. Browser/native raster/hardware/whole-issue acceptance not claimed; strict Oxlint remains failed."
+}

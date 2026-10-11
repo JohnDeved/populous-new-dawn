@@ -1,0 +1,572 @@
+diff --git a/app/scene-entities.ts b/app/scene-entities.ts
+index b2bc5d18..337a81dd 100644
+--- a/app/scene-entities.ts
++++ b/app/scene-entities.ts
+@@ -79,6 +79,7 @@ const unitAtlasOrigins = nativeUnits.pieces.map((piece, index) =>
+ const unitFrameIds = new WeakMap<GameScene, Set<number>>()
+ const vehicleFrameIds = new WeakMap<GameScene, Set<number>>()
+ const planFrameIds = new WeakMap<GameScene, Set<number>>()
++const buildingFrameIds = new WeakMap<GameScene, Set<number>>()
+ 
+ const teamColor = {
+   blue: 0x303fc1,
+@@ -695,8 +696,15 @@ export function updateBuildingsFrame(scene: GameScene) {
+       mesh.userData.signature = key
+     }
+   }
++  let buildingIds = buildingFrameIds.get(scene)
++  if (!buildingIds) {
++    buildingIds = new Set()
++    buildingFrameIds.set(scene, buildingIds)
++  }
++  buildingIds.clear()
++  for (const b of scene.world.buildings) if (!b.preparation) buildingIds.add(b.id)
+   for (const [id, g] of scene.buildingMeshes)
+-    if (!scene.world.buildings.some(b => b.id === id && !b.preparation)) {
++    if (Number.isNaN(id) || !buildingIds.has(id)) {
+       releaseHutSmoke(scene, g)
+       scene.objects.remove(g)
+       scene.releaseGroup(g)
+diff --git a/references/building-mesh-reconciliation.md b/references/building-mesh-reconciliation.md
+new file mode 100644
+index 00000000..abe1a9be
+--- /dev/null
++++ b/references/building-mesh-reconciliation.md
+@@ -0,0 +1,73 @@
++# Completed-building mesh cleanup membership — issue #144
++
++`GameScene.animate` calls `updateBuildingsFrame` in `app/scene-entities.ts`.
++Completed-building cleanup previously searched `world.buildings` with `some`
++for every cached group. It now rebuilds a reusable Scene-owned ID set on **every
++call**, immediately after the unchanged preparation phase, using exactly
++`!preparation` truthiness. Weak ownership retains disposable derived IDs only;
++no simulation record, save validation or guessed dirty/version signal is cached.
++
++The releaseHutSmoke/objects.remove/releaseGroup/buildingMeshes.delete order is
++unchanged. The entire earlier plan phase and all later signature/model, health,
++transform, Temple, wave, smoke and puff code are byte-identical to the base.
++Accepted migrated `NaN` IDs preserve strict equality: cleanup and rebuild on every
++repeated frame. Other scene cleanup, occupancy and puff scans are outside this slice.
++
++`tests/building-mesh-reconciliation.test.mjs` invokes the **actual full building
++caller** through the unchanged plan-scene wrapper, maintained Scene transforms and
++real `scene-assets.releaseGroup`. Texture loading and unrelated decorations are
++supplied. Red populations use the shipped `addBuilding` initializer; copies and
++transitions are explicitly diagnostic. Controlled quiet states avoid unrelated
++smoke/Shake writes. The blue case reuses `fullHutScene`'s actual command8 admission
++and clock visits to obtain a naturally allocated puff, then performs controlled
++root removal. It proves real material-dispose observer unsubscribe by calling
++`notifyHutOccupancy` afterward, without replacing the listener or notification.
++It does not claim ordinary player demolition or a browser-rendered flow.
++
++Six cases **passed** on Node v24.19.0 at
++`651b989768907a33e37d1d4ac435a71074885e47`, based on exact main
++`7cb339d01713b3ec3c7e1f46bbdd6d78a5fca86f`. They cover ordered stale removal,
++single owned geometry/material disposal, shared atlas/cursor retention, survivor
++identity and spawning, maintained transforms, stage/resource signature replacement
++with the initializer's team health material, current/legacy checkpoint cache reuse,
++completed↔preparation transitions, accepted NaN migration, in-place IDs, loaded/empty
++worlds, independent Scenes, real smoke teardown and independent puff ownership.
++Whole-world/land.flags and gameplay/cosmetic RNG equality are asserted only after
++the stated controlled setup or after smoke roots/puff allocation have completed.
++The raw receipt binds source, actual fixtures, observer/initializer/resource code,
++locks and TypeScript/Three importer bytes before/after:
++`work/orchestration/issue144-buildings-focused-651b989.json`, exit 0, stdout SHA256
++`cba413f5a7bcda8d3d37181eacc09f82b4794fa04c49c6a1a8a4c117a4ba6b0a`.
++
++The deterministic ID-read diagnostic uses a **completed-only population with an
++empty preparation map, zero units and quiet secondary effects**. Old columns
++execute the frozen previous cleanup expression; new columns execute the actual
++full caller for that bounded population. Mixed cleanup adds equally many stale
++groups. This does not measure remaining occupancy/puff costs or wall time.
++
++| Buildings | Old survivor cleanup | New full frame | Old mixed cleanup | New mixed full frame |
++| --------: | -------------------: | -------------: | ----------------: | -------------------: |
++|        64 |                2,080 |            128 |             6,176 |                  128 |
++|       256 |               32,896 |            512 |            98,432 |                  512 |
++|     1,024 |              524,800 |          2,048 |         1,573,376 |                2,048 |
++
++Separately, the same final test and unchanged fixture/lock inputs were overlaid
++on pristine base production in detached `/workspace/pnd-baseline-144-buildings`.
++Its five lifecycle cases passed; scaling **failed**, exit 1, with 2,144 actual
++full-caller ID reads at 64 buildings against the 192-read bound. Raw receipt
++`work/orchestration/issue144-buildings-baseline-focused-7cb339d.json`, stdout SHA256
++`afb5a52dc5a7f6a836457ac984fc6f85560bda84ee57c96ec3d04a05a903f2de`,
++is retained. No assertions, production source or config were changed for this run.
++
++Scoped Oxfmt and ESLint **passed**. Strict scoped Oxlint **failed** on candidate
++and base with eight warnings and one error. The separate comparison **passed**:
++nine diagnostics match exactly after normalizing only numeric line/column prefixes;
++paired inputs, unchanged base production, earlier plan phase and the complete
++post-cleanup body are also checked. Raw failures remain separate; no lint rule
++was relaxed. The ignored comparator source is embedded in the portable proof.
++
++At this author checkpoint, standard check/build and independent final integration
++review are **not-run**. Browser QA and representative hardware measurements are
++**not-run**, with supported browser access blocked in this executor. This proves
++bounded cleanup membership work, not whole-caller complexity, FPS, hardware timing,
++native raster equivalence, deployment behavior or completion of #144.
+diff --git a/tests/building-mesh-reconciliation.test.mjs b/tests/building-mesh-reconciliation.test.mjs
+new file mode 100644
+index 00000000..94e7000a
+--- /dev/null
++++ b/tests/building-mesh-reconciliation.test.mjs
+@@ -0,0 +1,458 @@
++// Actual completed-building frame/factory/Scene transforms and resource cleanup.
++// Controlled populations/transitions; fullHutScene retains actual command8 admission.
++// No ordinary browser gameplay, native raster or hardware timing claim.
++import assert from 'node:assert/strict'
++import test from 'node:test'
++import * as THREE from 'three'
++import { loadSceneFixture } from './support/bloodlust-scene.mjs'
++import { makePlanScene } from './support/plan-scene.mjs'
++import { fullHutScene } from './support/hut-smoke-scene.mjs'
++
++async function worldWithBuildings(count) {
++  const api = await loadSceneFixture(),
++    world = api.createWorld(22)
++  world.buildings = []
++  world.units = []
++  // Maintained initializer used by shipped placement; copies are diagnostic only.
++  const template = api.addBuilding(world, 'red', 'hut', { x: 0, z: 0 }, true, {
++    angle: Math.PI / 2,
++  })
++  world.buildings = Array.from({ length: count }, () => ({
++    ...structuredClone(template),
++    id: world.nextId++,
++  }))
++  assert.deepEqual(world.secondaryEffects.order, [])
++  return { api, world }
++}
++
++function observeCleanup(scene) {
++  const events = [],
++    remove = scene.objects.remove.bind(scene.objects),
++    release = scene.releaseGroup,
++    drop = scene.buildingMeshes.delete.bind(scene.buildingMeshes)
++  scene.objects.remove = group => {
++    events.push(['remove', group.userData.building])
++    return remove(group)
++  }
++  scene.releaseGroup = group => {
++    events.push(['release', group.userData.building])
++    release(group)
++  }
++  scene.buildingMeshes.delete = id => {
++    events.push(['delete', id])
++    return drop(id)
++  }
++  return events
++}
++
++test('completed cleanup preserves ordered disposal, shared atlas, survivor identity and Scene transforms', async () => {
++  const { world } = await worldWithBuildings(4),
++    [a, b, c, d] = world.buildings,
++    fixture = await makePlanScene(world)
++  let sharedMap, onSharedDispose
++  try {
++    fixture.render()
++    const original = new Map(fixture.scene.buildingMeshes),
++      events = observeCleanup(fixture.scene),
++      disposed = []
++    sharedMap = original.get(a.id).children[0].material.map
++    let sharedDisposals = 0
++    onSharedDispose = () => sharedDisposals++
++    sharedMap.addEventListener('dispose', onSharedDispose)
++    for (const v of [b, d]) {
++      const mesh = original.get(v.id).children[0]
++      assert.equal(mesh.material.map, sharedMap)
++      mesh.geometry.addEventListener('dispose', () => disposed.push(`${v.id}:geometry`))
++      mesh.material.addEventListener('dispose', () => disposed.push(`${v.id}:material`))
++    }
++    const spawned = { ...structuredClone(b), id: world.nextId++ }
++    world.buildings = [c, a, spawned]
++    const before = structuredClone(world)
++    fixture.render()
++    assert.deepEqual(
++      events,
++      [b, d].flatMap(v => [
++        ['remove', v.id],
++        ['release', v.id],
++        ['delete', v.id],
++      ])
++    )
++    assert.deepEqual(disposed, [
++      `${b.id}:geometry`,
++      `${b.id}:material`,
++      `${d.id}:geometry`,
++      `${d.id}:material`,
++    ])
++    assert.equal(sharedDisposals, 0)
++    assert.equal(fixture.scene.buildingMeshes.get(a.id), original.get(a.id))
++    assert.equal(fixture.scene.buildingMeshes.get(c.id), original.get(c.id))
++    assert.deepEqual([...fixture.scene.buildingMeshes.keys()], [a.id, c.id, spawned.id])
++    for (const v of [b, d]) assert.equal(original.get(v.id).parent, null)
++    const group = fixture.scene.buildingMeshes.get(spawned.id)
++    assert.equal(group.parent, fixture.scene.objects)
++    assert.deepEqual(group.position.toArray(), [
++      spawned.x,
++      Math.round(spawned.foundation * 45) / 128,
++      spawned.z,
++    ])
++    assert.equal(group.rotation.y, -spawned.angle)
++    assert.equal(group.userData.nativeHeading, Math.round((spawned.angle * 1024) / Math.PI) & 2047)
++    assert.deepEqual(
++      world,
++      before,
++      'controlled red population preserves full World and both RNG owners'
++    )
++    events.length = 0
++    fixture.render()
++    assert.deepEqual(events, [])
++    assert.equal(disposed.length, 4, 'owned stale resources dispose once')
++    assert.deepEqual(world, before)
++  } finally {
++    if (onSharedDispose) sharedMap.removeEventListener('dispose', onSharedDispose)
++    fixture.close()
++  }
++})
++
++test('completed stage and resource signatures retain replacement, health material and cached output', async () => {
++  const { api, world } = await worldWithBuildings(1),
++    building = world.buildings[0],
++    fixture = await makePlanScene(world)
++  try {
++    fixture.render()
++    const first = fixture.scene.buildingMeshes.get(building.id)
++    let disposals = 0
++    first.children[0].geometry.addEventListener('dispose', () => disposals++)
++    building.progress = 0.5
++    const staged = structuredClone(world)
++    fixture.render()
++    const second = fixture.scene.buildingMeshes.get(building.id)
++    assert.notEqual(second, first)
++    assert.notEqual(second.userData.signature, first.userData.signature)
++    assert.equal(first.parent, null)
++    assert.equal(disposals, 1)
++    assert.equal(second.children[0].userData.stage, api.buildingStage(building))
++    assert.deepEqual(world, staged)
++    fixture.render()
++    assert.equal(fixture.scene.buildingMeshes.get(building.id), second)
++    const replacement = api.addBuilding(world, 'yellow', 'camp', { x: 12, z: 8 }, true)
++    // Different maintained initializer descriptor, same controlled identity.
++    world.buildings = [{ ...structuredClone(replacement), id: building.id }]
++    const changed = structuredClone(world)
++    fixture.render()
++    const third = fixture.scene.buildingMeshes.get(building.id)
++    assert.notEqual(third, second)
++    assert.equal(second.parent, null)
++    assert.equal(third.children[0].userData.nativeModel, 105)
++    assert.equal(third.userData.signature, '105-4')
++    assert.equal(third.userData.healthFill.material.color.getHex(), 0xd1aa22)
++    assert.deepEqual(world, changed)
++    const restored = api.migrateCheckpoint(structuredClone(world))
++    assert.ok(restored)
++    fixture.scene.world = restored
++    const loaded = structuredClone(restored)
++    fixture.render()
++    assert.equal(fixture.scene.buildingMeshes.get(building.id), third)
++    assert.deepEqual(restored, loaded)
++    // Accepted missing secondary-history legacy default, not invented native saves.
++    const legacy = structuredClone(restored)
++    delete legacy.secondaryEffects
++    assert.ok(api.migrateCheckpoint(legacy))
++    fixture.scene.world = legacy
++    const legacyBefore = structuredClone(legacy)
++    fixture.render()
++    assert.equal(fixture.scene.buildingMeshes.get(building.id), third)
++    assert.deepEqual(legacy, legacyBefore)
++  } finally {
++    fixture.close()
++  }
++})
++
++test('completed to preparation and back preserves the earlier plan phase and shared cursor material', async () => {
++  const { api, world } = await worldWithBuildings(1),
++    building = world.buildings[0],
++    template = api.addBuilding(world, 'red', 'hut', { x: 0, z: 0 }, false, { plan: true }),
++    preparation = structuredClone(template.preparation)
++  world.buildings = [building]
++  const fixture = await makePlanScene(world)
++  let onCursorDispose
++  try {
++    fixture.render()
++    const group = fixture.scene.buildingMeshes.get(building.id),
++      events = observeCleanup(fixture.scene)
++    let modelDisposals = 0,
++      cursorDisposals = 0
++    group.children[0].geometry.addEventListener('dispose', () => modelDisposals++)
++    onCursorDispose = () => cursorDisposals++
++    fixture.scene.cursor.material.addEventListener('dispose', onCursorDispose)
++    building.preparation = preparation
++    building.progress = 0
++    const preparing = structuredClone(world)
++    fixture.render()
++    assert.deepEqual(events, [
++      ['remove', building.id],
++      ['release', building.id],
++      ['delete', building.id],
++    ])
++    assert.equal(group.parent, null)
++    assert.equal(modelDisposals, 1)
++    assert.equal(fixture.scene.buildingMeshes.size, 0)
++    const plan = fixture.scene.plans.get(building.id)
++    assert.equal(plan.parent, fixture.scene.ground)
++    assert.equal(plan.material, fixture.scene.cursor.material)
++    assert.ok(plan.geometry.getAttribute('position').count > 0)
++    assert.deepEqual(world, preparing, 'actual plan geometry preserves land.flags and World/RNG')
++    fixture.render()
++    assert.equal(fixture.scene.plans.get(building.id), plan)
++    assert.equal(modelDisposals, 1)
++    let planDisposals = 0
++    plan.geometry.addEventListener('dispose', () => planDisposals++)
++    delete building.preparation
++    building.progress = 1
++    const built = structuredClone(world)
++    fixture.render()
++    assert.equal(plan.parent, null)
++    assert.equal(planDisposals, 1)
++    assert.equal(cursorDisposals, 0)
++    assert.equal(fixture.scene.plans.size, 0)
++    const replacement = fixture.scene.buildingMeshes.get(building.id)
++    assert.notEqual(replacement, group)
++    assert.equal(replacement.parent, fixture.scene.objects)
++    fixture.render()
++    assert.equal(fixture.scene.buildingMeshes.get(building.id), replacement)
++    assert.deepEqual(world, built)
++  } finally {
++    if (onCursorDispose)
++      fixture.scene.cursor.material.removeEventListener('dispose', onCursorDispose)
++    fixture.close()
++  }
++})
++
++test('completed membership observes migrated NaN IDs, in-place IDs, loaded worlds and independent Scenes', async () => {
++  const { api, world } = await worldWithBuildings(2)
++  world.buildings[0].id = NaN
++  const restored = api.migrateCheckpoint(structuredClone(world))
++  assert.ok(restored)
++  assert.ok(Number.isNaN(restored.buildings[0].id))
++  const before = structuredClone(restored),
++    fixture = await makePlanScene(restored)
++  let other
++  try {
++    fixture.render()
++    let previous = fixture.scene.buildingMeshes.get(NaN)
++    const survivor = fixture.scene.buildingMeshes.get(restored.buildings[1].id)
++    for (let frame = 0; frame < 3; frame++) {
++      let disposals = 0
++      previous.children[0].geometry.addEventListener('dispose', () => disposals++)
++      fixture.render()
++      const replacement = fixture.scene.buildingMeshes.get(NaN)
++      assert.notEqual(replacement, previous)
++      assert.equal(previous.parent, null)
++      assert.equal(disposals, 1)
++      assert.equal(fixture.scene.buildingMeshes.get(restored.buildings[1].id), survivor)
++      assert.deepEqual(restored, before)
++      previous = replacement
++    }
++    restored.buildings = [restored.buildings[1]]
++    const oldId = restored.buildings[0].id
++    restored.buildings[0].id = restored.nextId++
++    fixture.render()
++    assert.equal(fixture.scene.buildingMeshes.has(oldId), false)
++    assert.equal(survivor.parent, null)
++    const loaded = api.migrateCheckpoint(structuredClone(restored)),
++      loadedBefore = structuredClone(loaded),
++      cached = fixture.scene.buildingMeshes.get(loaded.buildings[0].id)
++    fixture.scene.world = loaded
++    fixture.render()
++    assert.equal(fixture.scene.buildingMeshes.get(loaded.buildings[0].id), cached)
++    other = await makePlanScene(loaded)
++    other.render()
++    const independent = other.scene.buildingMeshes.get(loaded.buildings[0].id)
++    assert.notEqual(independent, cached)
++    fixture.scene.world = { ...loaded, buildings: [] }
++    fixture.render()
++    assert.equal(fixture.scene.buildingMeshes.size, 0)
++    assert.equal(fixture.scene.objects.children.length, 0)
++    other.render()
++    assert.equal(other.scene.buildingMeshes.get(loaded.buildings[0].id), independent)
++    fixture.scene.world = loaded
++    fixture.render()
++    assert.deepEqual(loaded, loadedBefore)
++  } finally {
++    other?.close()
++    fixture.close()
++  }
++})
++
++test('real attached smoke teardown unsubscribes occupancy while independent emitted children and atlas survive', async () => {
++  const fixture = await fullHutScene(),
++    { scene, api, render, hut } = fixture,
++    { GameScene } = await import('../app/scene.ts'),
++    { releaseGroup } = await import('../app/scene-assets.ts'),
++    { notifyHutOccupancy } = await import('../app/hut-occupancy-smoke.ts')
++  Object.assign(scene, {
++    planGeometry: GameScene.prototype.planGeometry,
++    y: GameScene.prototype.y,
++    locate: GameScene.prototype.locate,
++    orientModel: GameScene.prototype.orientModel,
++    releaseGroup,
++  })
++  let atlas, onAtlasDispose
++  try {
++    const puffs = () =>
++      scene.world.secondaryEffects.order
++        .map(slot => scene.world.secondaryEffects.slots[slot])
++        .filter(entry => entry.kind === 'hutPuff')
++    for (let visit = 0; visit < 512 && !puffs().length; visit++) {
++      api.advanceGame(scene.world, scene.gameClock, 1 / 12)
++      render()
++    }
++    assert.ok(puffs().length, 'existing command8 admission route naturally allocates a child')
++    const child = puffs()[0],
++      childGroup = scene.hutSmokePuffs.get(child.serial),
++      buildingGroup = scene.buildingMeshes.get(hut.id),
++      smoke = buildingGroup.userData.hutOccupancySmoke,
++      events = [],
++      remove = scene.objects.remove.bind(scene.objects),
++      drop = scene.buildingMeshes.delete.bind(scene.buildingMeshes),
++      release = scene.releaseGroup
++    assert.equal(smoke.group.parent, scene.objects)
++    atlas = smoke.sprite.material.map
++    assert.equal(childGroup.children[0].material.map, atlas)
++    let smokeDisposals = 0,
++      modelDisposals = 0,
++      childDisposals = 0,
++      atlasDisposals = 0
++    smoke.sprite.material.addEventListener('dispose', () => smokeDisposals++)
++    buildingGroup.children[0].geometry.addEventListener('dispose', () => modelDisposals++)
++    childGroup.children[0].material.addEventListener('dispose', () => childDisposals++)
++    onAtlasDispose = () => atlasDisposals++
++    atlas.addEventListener('dispose', onAtlasDispose)
++    const label = group =>
++      group === smoke.group ? 'smoke' : group === buildingGroup ? 'building' : 'other'
++    scene.objects.remove = group => {
++      events.push(['remove', label(group)])
++      return remove(group)
++    }
++    scene.releaseGroup = group => {
++      events.push(['release', label(group)])
++      release(group)
++    }
++    scene.buildingMeshes.delete = id => {
++      events.push(['delete', id])
++      return drop(id)
++    }
++    // Controlled removal after real admission/emission; no ordinary demolition claim.
++    scene.world.buildings = scene.world.buildings.filter(b => b !== hut)
++    const before = structuredClone(scene.world)
++    render()
++    assert.deepEqual(events, [
++      ['remove', 'smoke'],
++      ['release', 'smoke'],
++      ['remove', 'building'],
++      ['release', 'building'],
++      ['delete', hut.id],
++    ])
++    assert.equal(smokeDisposals, 1)
++    assert.equal(modelDisposals, 1)
++    assert.equal(childDisposals, 0)
++    assert.equal(atlasDisposals, 0)
++    assert.equal(smoke.group.parent, null)
++    assert.equal(buildingGroup.parent, null)
++    assert.equal(buildingGroup.userData.hutOccupancySmoke, undefined)
++    assert.equal(scene.hutSmokePuffs.get(child.serial), childGroup)
++    assert.equal(childGroup.parent, scene.objects)
++    assert.deepEqual(
++      scene.world,
++      before,
++      'all roots were initialized before this non-advancing render'
++    )
++    const objects = [...scene.objects.children]
++    events.length = 0
++    notifyHutOccupancy(hut)
++    assert.equal(
++      buildingGroup.userData.hutOccupancySmoke,
++      undefined,
++      'real dispose listener removed the old occupancy observer'
++    )
++    assert.deepEqual(scene.objects.children, objects)
++    assert.deepEqual(events, [])
++    render()
++    assert.deepEqual(events, [])
++    assert.equal(scene.hutSmokePuffs.get(child.serial), childGroup)
++    assert.equal(childDisposals, 0)
++    assert.equal(smokeDisposals, 1)
++    assert.deepEqual(scene.world, before)
++  } finally {
++    if (onAtlasDispose) atlas.removeEventListener('dispose', onAtlasDispose)
++    for (const group of scene.hutSmokePuffs.values()) scene.releaseGroup(group)
++    fixture.close()
++  }
++})
++
++test('completed-only membership has linear full-caller ID reads with empty plans, units and secondary population', async () => {
++  const counts = []
++  for (const count of [64, 256, 1024]) {
++    const { world } = await worldWithBuildings(count),
++      fixture = await makePlanScene(world)
++    try {
++      fixture.render()
++      assert.equal(fixture.scene.plans.size, 0)
++      assert.equal(world.units.length, 0)
++      assert.deepEqual(world.secondaryEffects.order, [])
++      let reads = 0
++      for (const b of world.buildings) {
++        const id = b.id
++        Object.defineProperty(b, 'id', {
++          enumerable: true,
++          configurable: true,
++          get: () => {
++            reads++
++            return id
++          },
++        })
++      }
++      const ids = [...fixture.scene.buildingMeshes.keys()],
++        frozenCleanup = meshIds => {
++          for (const id of meshIds) world.buildings.some(b => b.id === id && !b.preparation)
++        }
++      frozenCleanup(ids)
++      const oldSurvivors = reads
++      reads = 0
++      fixture.render()
++      const currentSurvivors = reads
++      assert.ok(
++        currentSurvivors <= count * 3,
++        `completed-only full caller read ${currentSurvivors} IDs for ${count} buildings`
++      )
++      const staleIds = Array.from({ length: count }, (_, index) => world.nextId + index + 1)
++      reads = 0
++      frozenCleanup([...ids, ...staleIds])
++      const oldMixed = reads
++      for (const id of staleIds) {
++        const group = new THREE.Group()
++        group.userData.building = id
++        fixture.scene.buildingMeshes.set(id, group)
++        fixture.scene.objects.add(group)
++      }
++      reads = 0
++      fixture.render()
++      const currentMixed = reads
++      assert.ok(
++        currentMixed <= count * 3,
++        `mixed completed-only caller read ${currentMixed} IDs for ${count} buildings`
++      )
++      assert.equal(fixture.scene.buildingMeshes.size, count)
++      counts.push({ buildings: count, oldSurvivors, currentSurvivors, oldMixed, currentMixed })
++    } finally {
++      fixture.close()
++    }
++  }
++  for (let i = 1; i < counts.length; i++) {
++    assert.equal(counts[i].currentSurvivors, counts[i - 1].currentSurvivors * 4)
++    assert.equal(counts[i].currentMixed, counts[i - 1].currentMixed * 4)
++  }
++  console.log(
++    'Completed-only ID-read diagnostic (frozen old cleanup vs actual candidate full caller):',
++    JSON.stringify(counts)
++  )
++})

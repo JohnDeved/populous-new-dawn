@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "4b31840a-0b7c-4b33-bcae-17014bdf68cc",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "651b989768907a33e37d1d4ac435a71074885e47",
+    "branch": "codex/issue144-building-mesh-index",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/scene-entities.ts": "8862c237287b6fb1a5a8d59c4a2528be8a7f274663d0bbbbc3121043d8229ab9",
+      "tests/building-mesh-reconciliation.test.mjs": "f02d9632550ea5fc897ef4114af5d3298005d16dae0529418654b1269ec1f40a",
+      ".oxfmtrc.json": "3d994b16c5ebbf15cb6a77529615f68696433af8e0384da5a1f8420b38db7479",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "node_modules/.bin/oxfmt",
+    "--check",
+    "app/scene-entities.ts",
+    "tests/building-mesh-reconciliation.test.mjs"
+  ],
+  "cwd": "/workspace/pnd-author-144-buildings",
+  "startedAt": "2026-10-11T16:10:50.657Z",
+  "artifacts": {
+    "stdout": "/workspace/pnd-author-144-buildings/work/orchestration/issue144-buildings-oxfmt-651b989.json.artifacts/stdout.log",
+    "stderr": "/workspace/pnd-author-144-buildings/work/orchestration/issue144-buildings-oxfmt-651b989.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-11T16:10:50.753Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 3ms on 2 files using 4 threads.\n",
+  "stderr": "",
+  "stdoutSha256": "8a4de9614b2ed863cff8d748cf919dfa42652447321cd336b85dd08ef1b48bb3",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "651b989768907a33e37d1d4ac435a71074885e47",
+    "branch": "codex/issue144-building-mesh-index",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/scene-entities.ts": "8862c237287b6fb1a5a8d59c4a2528be8a7f274663d0bbbbc3121043d8229ab9",
+      "tests/building-mesh-reconciliation.test.mjs": "f02d9632550ea5fc897ef4114af5d3298005d16dae0529418654b1269ec1f40a",
+      ".oxfmtrc.json": "3d994b16c5ebbf15cb6a77529615f68696433af8e0384da5a1f8420b38db7479",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

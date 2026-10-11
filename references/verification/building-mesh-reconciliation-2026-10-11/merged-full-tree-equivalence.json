@@ -1,0 +1,17 @@
+{
+  "kind": "pnd-merged-full-tree-equivalence",
+  "issue": 144,
+  "pullRequest": 347,
+  "authorHead": "142929a5ba829077c1f10964e4d714fa38a160a1",
+  "publishedTestedHead": "cf5e7fb6607530f39ce17b772d9d9cd0507fc398",
+  "mergedMain": "5bf19003ee3580a9e0197bbd2057b7967ad09a64",
+  "mergedParent": "7cb339d01713b3ec3c7e1f46bbdd6d78a5fca86f",
+  "authorFullTree": "56f9bbd3043953fb443c27ee947b0f8647d2bd3c",
+  "publishedFullTree": "56f9bbd3043953fb443c27ee947b0f8647d2bd3c",
+  "mergedFullTree": "56f9bbd3043953fb443c27ee947b0f8647d2bd3c",
+  "emptyPublishedToMergedBinaryDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "emptyAuthorToMergedBinaryDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "verification": "Actual local immutable Git tree/parent/full binary diff objects; parent also verified REST/local clean fast-forward. Core command receipts remain bound to their original tested heads and unchanged bytes.",
+  "carry": "Identical complete tree preserves exact published standard-gate source and reviewed author focused/quality source. No source/gate reruns; no browser/hardware/whole-issue/deployment claims.",
+  "mergedMainProviderCi": "pending parent exact-head monitoring at this supplement checkpoint; no terminal provider claim"
+}

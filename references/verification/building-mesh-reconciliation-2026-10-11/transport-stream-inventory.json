@@ -1,0 +1,194 @@
+{
+  "kind": "pnd-review-transport-stream-inventory",
+  "head": "cf5e7fb6607530f39ce17b772d9d9cd0507fc398",
+  "notice": "Exporter replaces source-root and home-directory strings in copied receipt metadata and decoded payloads. Original stdoutSha256/stderrSha256 fields preserve original decoded stream hashes; transportDecodedSha256 records copied stream identity independently. Root check/build terminal passes, author strict Oxlint/base scaling failures, comparison pass and planner setup failure/selected statuses stay distinct. This supplemental inventory is outside the core manifest verifier.",
+  "decodedStreamCount": 20,
+  "transformedStreams": [
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-final/check-01.json",
+      "stream": "stdout"
+    }
+  ],
+  "streams": [
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-focused-651b989.json",
+      "stream": "stdout",
+      "status": "passed",
+      "originalDecodedSha256": "cba413f5a7bcda8d3d37181eacc09f82b4794fa04c49c6a1a8a4c117a4ba6b0a",
+      "transportDecodedSha256": "cba413f5a7bcda8d3d37181eacc09f82b4794fa04c49c6a1a8a4c117a4ba6b0a",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-focused-651b989.json",
+      "stream": "stderr",
+      "status": "passed",
+      "originalDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-baseline-focused-7cb339d.json",
+      "stream": "stdout",
+      "status": "failed",
+      "originalDecodedSha256": "afb5a52dc5a7f6a836457ac984fc6f85560bda84ee57c96ec3d04a05a903f2de",
+      "transportDecodedSha256": "afb5a52dc5a7f6a836457ac984fc6f85560bda84ee57c96ec3d04a05a903f2de",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-baseline-focused-7cb339d.json",
+      "stream": "stderr",
+      "status": "failed",
+      "originalDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-oxfmt-651b989.json",
+      "stream": "stdout",
+      "status": "passed",
+      "originalDecodedSha256": "8a4de9614b2ed863cff8d748cf919dfa42652447321cd336b85dd08ef1b48bb3",
+      "transportDecodedSha256": "8a4de9614b2ed863cff8d748cf919dfa42652447321cd336b85dd08ef1b48bb3",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-oxfmt-651b989.json",
+      "stream": "stderr",
+      "status": "passed",
+      "originalDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-eslint-651b989.json",
+      "stream": "stdout",
+      "status": "passed",
+      "originalDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-eslint-651b989.json",
+      "stream": "stderr",
+      "status": "passed",
+      "originalDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-oxlint-651b989.json",
+      "stream": "stdout",
+      "status": "failed",
+      "originalDecodedSha256": "cc017ad7afecc49f2606b30d481f1ee80a38077e7260398ba65dfe41d15e1fac",
+      "transportDecodedSha256": "cc017ad7afecc49f2606b30d481f1ee80a38077e7260398ba65dfe41d15e1fac",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-oxlint-651b989.json",
+      "stream": "stderr",
+      "status": "failed",
+      "originalDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-baseline-oxlint-7cb339d.json",
+      "stream": "stdout",
+      "status": "failed",
+      "originalDecodedSha256": "f1fcfc2d0d3b53b62b56505b35b8bb02646f5e11367c19418a09d0a847477a58",
+      "transportDecodedSha256": "f1fcfc2d0d3b53b62b56505b35b8bb02646f5e11367c19418a09d0a847477a58",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-baseline-oxlint-7cb339d.json",
+      "stream": "stderr",
+      "status": "failed",
+      "originalDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-comparison-651b989.json",
+      "stream": "stdout",
+      "status": "passed",
+      "originalDecodedSha256": "11ad0f4ece9b4ec805c437b7b9edca200406b28fcb7950066b0156025c65baca",
+      "transportDecodedSha256": "11ad0f4ece9b4ec805c437b7b9edca200406b28fcb7950066b0156025c65baca",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-comparison-651b989.json",
+      "stream": "stderr",
+      "status": "passed",
+      "originalDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-note-format-final.json",
+      "stream": "stdout",
+      "status": "passed",
+      "originalDecodedSha256": "a798cb5a99b036a3d4d3e55ccbc65e49e3687b9005c243b1e71014d9b08adcca",
+      "transportDecodedSha256": "a798cb5a99b036a3d4d3e55ccbc65e49e3687b9005c243b1e71014d9b08adcca",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-note-format-final.json",
+      "stream": "stderr",
+      "status": "passed",
+      "originalDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transportDecodedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-final/check-01.json",
+      "stream": "stdout",
+      "status": "passed",
+      "originalDecodedSha256": "aea7286fd6ed759d76e1cecb2e32ec16c5c1d8258f1a81540ceb67411a61296e",
+      "transportDecodedSha256": "b7cc5b3db5d2ab4b2939adb0a47c2cb53d33d9bca5ee43504f22d0a4a07dd7b1",
+      "transformed": true,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-final/check-01.json",
+      "stream": "stderr",
+      "status": "passed",
+      "originalDecodedSha256": "01c9f0fa849496a74324fe7e0f3086d0c1daaad75e95532d1be617cbe6f7d122",
+      "transportDecodedSha256": "01c9f0fa849496a74324fe7e0f3086d0c1daaad75e95532d1be617cbe6f7d122",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-final/build-01.json",
+      "stream": "stdout",
+      "status": "passed",
+      "originalDecodedSha256": "5ef37999a62a7c1e42e849217dad5684f335239fdcc8e3faf4755d2ac3b6a604",
+      "transportDecodedSha256": "5ef37999a62a7c1e42e849217dad5684f335239fdcc8e3faf4755d2ac3b6a604",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-final/build-01.json",
+      "stream": "stderr",
+      "status": "passed",
+      "originalDecodedSha256": "5a3c2a9be70588acc050f54139f67763d3fd564cc3a45638be582186a3d8b871",
+      "transportDecodedSha256": "5a3c2a9be70588acc050f54139f67763d3fd564cc3a45638be582186a3d8b871",
+      "transformed": false,
+      "originalHashFieldPreserved": true
+    }
+  ]
+}

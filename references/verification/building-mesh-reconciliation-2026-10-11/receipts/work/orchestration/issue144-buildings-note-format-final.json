@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "1ed84379-9df0-483e-beb9-c25285e234e8",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "142929a5ba829077c1f10964e4d714fa38a160a1",
+    "branch": "codex/issue144-building-mesh-index",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "references/building-mesh-reconciliation.md": "09036ef379458d6fc7f41172360e94edfc019dd7c3be6af2980bffeb809132e8",
+      ".oxfmtrc.json": "3d994b16c5ebbf15cb6a77529615f68696433af8e0384da5a1f8420b38db7479",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "node_modules/.bin/oxfmt",
+    "--check",
+    "references/building-mesh-reconciliation.md"
+  ],
+  "cwd": "/workspace/pnd-author-144-buildings",
+  "startedAt": "2026-10-11T16:13:11.210Z",
+  "artifacts": {
+    "stdout": "/workspace/pnd-author-144-buildings/work/orchestration/issue144-buildings-note-format-final.json.artifacts/stdout.log",
+    "stderr": "/workspace/pnd-author-144-buildings/work/orchestration/issue144-buildings-note-format-final.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-11T16:13:11.438Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 132ms on 1 files using 4 threads.\n",
+  "stderr": "",
+  "stdoutSha256": "a798cb5a99b036a3d4d3e55ccbc65e49e3687b9005c243b1e71014d9b08adcca",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "142929a5ba829077c1f10964e4d714fa38a160a1",
+    "branch": "codex/issue144-building-mesh-index",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "references/building-mesh-reconciliation.md": "09036ef379458d6fc7f41172360e94edfc019dd7c3be6af2980bffeb809132e8",
+      ".oxfmtrc.json": "3d994b16c5ebbf15cb6a77529615f68696433af8e0384da5a1f8420b38db7479",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

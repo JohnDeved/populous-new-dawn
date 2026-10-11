@@ -1,0 +1,185 @@
+{
+  "version": 1,
+  "kind": "pnd-review-bundle",
+  "taskId": "issue144-buildings-final",
+  "repository": {
+    "branch": "",
+    "baseCommit": "7cb339d01713b3ec3c7e1f46bbdd6d78a5fca86f",
+    "headOid": "cf5e7fb6607530f39ce17b772d9d9cd0507fc398"
+  },
+  "diff": {
+    "path": "changes.patch",
+    "sha256": "777cfcc7f80ae32362d64c5698b267af11e8c84375f32e079014fa449922df97",
+    "bytes": 25430
+  },
+  "sources": [
+    {
+      "status": "M",
+      "path": "app/scene-entities.ts",
+      "state": "present",
+      "sha256": "8862c237287b6fb1a5a8d59c4a2528be8a7f274663d0bbbbc3121043d8229ab9",
+      "blobOid": "337a81dd9b893b9341a1c6c3e8fcccf3224fd6b3",
+      "bytes": 30805
+    },
+    {
+      "status": "A",
+      "path": "references/building-mesh-reconciliation.md",
+      "state": "present",
+      "sha256": "09036ef379458d6fc7f41172360e94edfc019dd7c3be6af2980bffeb809132e8",
+      "blobOid": "abe1a9be3675f274d649ef25b2596952a358d998",
+      "bytes": 5098
+    },
+    {
+      "status": "A",
+      "path": "tests/building-mesh-reconciliation.test.mjs",
+      "state": "present",
+      "sha256": "f02d9632550ea5fc897ef4114af5d3298005d16dae0529418654b1269ec1f40a",
+      "blobOid": "94e7000a52813f0369708e66b8207a8b1dd0ea1c",
+      "bytes": 18168
+    }
+  ],
+  "receipts": [
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-focused-651b989.json",
+      "sourceSha256": "06933bcf3e0c5eb82dbcb424b662bddce24dbd0cd38f0fb2682070f290614d86",
+      "sourceBytes": 6502,
+      "bundlePath": "receipts/work/orchestration/issue144-buildings-focused-651b989.json",
+      "bundleSha256": "06933bcf3e0c5eb82dbcb424b662bddce24dbd0cd38f0fb2682070f290614d86",
+      "bundleBytes": 6502,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-baseline-focused-7cb339d.json",
+      "sourceSha256": "c026f3eedbc18f85f37874dfd8269462f55cb2d17f51a20999ee0f542fedf115",
+      "sourceBytes": 6768,
+      "bundlePath": "receipts/work/orchestration/issue144-buildings-baseline-focused-7cb339d.json",
+      "bundleSha256": "c026f3eedbc18f85f37874dfd8269462f55cb2d17f51a20999ee0f542fedf115",
+      "bundleBytes": 6768,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-oxfmt-651b989.json",
+      "sourceSha256": "73b5a42e82c70fcb8aa2c1d184c1ed4ab2dc6146c915fa5ea5cf6995bcf873d1",
+      "sourceBytes": 2615,
+      "bundlePath": "receipts/work/orchestration/issue144-buildings-oxfmt-651b989.json",
+      "bundleSha256": "73b5a42e82c70fcb8aa2c1d184c1ed4ab2dc6146c915fa5ea5cf6995bcf873d1",
+      "bundleBytes": 2615,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-eslint-651b989.json",
+      "sourceSha256": "58463cb91d020b4c6d4b78b14f5ea9f5b9acd90ff7171161640088bc24e373d7",
+      "sourceBytes": 2497,
+      "bundlePath": "receipts/work/orchestration/issue144-buildings-eslint-651b989.json",
+      "bundleSha256": "58463cb91d020b4c6d4b78b14f5ea9f5b9acd90ff7171161640088bc24e373d7",
+      "bundleBytes": 2497,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-oxlint-651b989.json",
+      "sourceSha256": "edc99b6f6529470400ed84292dff284575ab0e293b42394febdf3e92bef4f48e",
+      "sourceBytes": 4075,
+      "bundlePath": "receipts/work/orchestration/issue144-buildings-oxlint-651b989.json",
+      "bundleSha256": "edc99b6f6529470400ed84292dff284575ab0e293b42394febdf3e92bef4f48e",
+      "bundleBytes": 4075,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-baseline-oxlint-7cb339d.json",
+      "sourceSha256": "803e31e16bcf63c4a24b910df4de04b558cf4bfe1d396098251fe7485a14a38f",
+      "sourceBytes": 4031,
+      "bundlePath": "receipts/work/orchestration/issue144-buildings-baseline-oxlint-7cb339d.json",
+      "bundleSha256": "803e31e16bcf63c4a24b910df4de04b558cf4bfe1d396098251fe7485a14a38f",
+      "bundleBytes": 4031,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-comparison-651b989.json",
+      "sourceSha256": "df2d027e4d6f0962978c09fbe2399c0852198a2a587adec8826797e295a03f66",
+      "sourceBytes": 6256,
+      "bundlePath": "receipts/work/orchestration/issue144-buildings-comparison-651b989.json",
+      "bundleSha256": "df2d027e4d6f0962978c09fbe2399c0852198a2a587adec8826797e295a03f66",
+      "bundleBytes": 6256,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-note-format-final.json",
+      "sourceSha256": "2d4b4f82a9a443e43285f59a3ed44576bbfc2fb884c825c4795b4fa617f21f61",
+      "sourceBytes": 2395,
+      "bundlePath": "receipts/work/orchestration/issue144-buildings-note-format-final.json",
+      "bundleSha256": "2d4b4f82a9a443e43285f59a3ed44576bbfc2fb884c825c4795b4fa617f21f61",
+      "bundleBytes": 2395,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-author-proof.json",
+      "sourceSha256": "7591540b5e64da09e079795616be47f6d9b52c09aeee22e13e907c774c7a74a8",
+      "sourceBytes": 5799,
+      "bundlePath": "receipts/work/orchestration/issue144-buildings-author-proof.json",
+      "bundleSha256": "7591540b5e64da09e079795616be47f6d9b52c09aeee22e13e907c774c7a74a8",
+      "bundleBytes": 5799,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-published-tree.json",
+      "sourceSha256": "806d1786bde8d6bd0f2b8e4bd820a1735263f2c2625bf687d23a118b4d41cc1a",
+      "sourceBytes": 1385,
+      "bundlePath": "receipts/work/orchestration/issue144-buildings-published-tree.json",
+      "bundleSha256": "806d1786bde8d6bd0f2b8e4bd820a1735263f2c2625bf687d23a118b4d41cc1a",
+      "bundleBytes": 1385,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-final/check-01.json",
+      "sourceSha256": "7debcd70adf66a2f2fef6027a31f51daf09c195e364d77094b73194430077d68",
+      "sourceBytes": 225124,
+      "bundlePath": "receipts/work/orchestration/issue144-buildings-final/check-01.json",
+      "bundleSha256": "54e71d692c853ce0c6b9517ede386eee96fd57f66a96a562c5700a650a05dc3d",
+      "bundleBytes": 224956,
+      "redactions": 8
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-final/build-01.json",
+      "sourceSha256": "e03412a4f0fb5c6df010329f6ba221e116995b4919478a07f71c56f4c5a77347",
+      "sourceBytes": 4547,
+      "bundlePath": "receipts/work/orchestration/issue144-buildings-final/build-01.json",
+      "bundleSha256": "b13d50db0d843b58bd4b1562ec188a0f9f6a12c0f9ecfe182a91096c05f276a8",
+      "bundleBytes": 4484,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-final/plan.json",
+      "sourceSha256": "16530e141a43e20384d7a560a5fb705de6e72d3e843636a9ff3edb0c32828f98",
+      "sourceBytes": 80117,
+      "bundlePath": "receipts/work/orchestration/issue144-buildings-final/plan.json",
+      "bundleSha256": "16530e141a43e20384d7a560a5fb705de6e72d3e843636a9ff3edb0c32828f98",
+      "bundleBytes": 80117,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-final/check-selection.json",
+      "sourceSha256": "fde1cd9c644c89d9b7ca029eb0543365adf532667c2525495d635bc7a1f55a2c",
+      "sourceBytes": 17049,
+      "bundlePath": "receipts/work/orchestration/issue144-buildings-final/check-selection.json",
+      "bundleSha256": "fde1cd9c644c89d9b7ca029eb0543365adf532667c2525495d635bc7a1f55a2c",
+      "bundleBytes": 17049,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/issue144-buildings-final/test-supervisor-source.json",
+      "sourceSha256": "6a77a26c597715ef41a9d990f1c6c7e7deec2d9cb3c07308e6ec5833af784cc7",
+      "sourceBytes": 1613,
+      "bundlePath": "receipts/work/orchestration/issue144-buildings-final/test-supervisor-source.json",
+      "bundleSha256": "6a77a26c597715ef41a9d990f1c6c7e7deec2d9cb3c07308e6ec5833af784cc7",
+      "bundleBytes": 1613,
+      "redactions": 0
+    }
+  ],
+  "reviewerPreflight": {
+    "instructions": "Open this bundle in a permitted executor and verify it against trusted caller-supplied identities before review.",
+    "verify": [
+      "node",
+      "verify.mjs"
+    ]
+  }
+}
