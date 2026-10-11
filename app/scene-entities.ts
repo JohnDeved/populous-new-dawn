@@ -77,6 +77,7 @@ const unitAtlasOrigins = nativeUnits.pieces.map((piece, index) =>
 
 // Derived only for the current frame; weak ownership follows the Scene lifetime.
 const unitFrameIds = new WeakMap<GameScene, Set<number>>()
+const unitFrameSelectedIds = new WeakMap<GameScene, Set<number>>()
 const vehicleFrameIds = new WeakMap<GameScene, Set<number>>()
 const planFrameIds = new WeakMap<GameScene, Set<number>>()
 const buildingFrameIds = new WeakMap<GameScene, Set<number>>()
@@ -368,7 +369,8 @@ export function animatePerson(
   directions: { frames: number[]; flip: boolean }[],
   age: number,
   once = false,
-  frameNumber?: number
+  frameNumber?: number,
+  selectedIds?: ReadonlySet<number>
 ) {
   const direction = spriteDirection(
     Math.round((scene.cameraBearing * 1024) / Math.PI),
@@ -464,7 +466,10 @@ export function animatePerson(
         owner: g.userData.owner,
         player: 0,
         type: 1,
-        selectionFlags: scene.world.selected.includes(g.userData.unit) ? 128 : 0,
+        selectionFlags:
+          (selectedIds?.has(g.userData.unit) ?? scene.world.selected.includes(g.userData.unit))
+            ? 128
+            : 0,
         x: 0,
         y: 0,
         frameHeight: size(frame.nativeHeight),
@@ -490,6 +495,13 @@ export function updateUnitsFrame(scene: GameScene) {
   }
   ids.clear()
   for (const u of scene.world.units) ids.add(u.id)
+  let selectedIds = unitFrameSelectedIds.get(scene)
+  if (!selectedIds) {
+    selectedIds = new Set()
+    unitFrameSelectedIds.set(scene, selectedIds)
+  }
+  selectedIds.clear()
+  for (const id of scene.world.selected) selectedIds.add(id)
   // Accepted checkpoint IDs may be NaN, which never matched the old strict comparison.
   for (const [id, g] of scene.unitMeshes)
     if (Number.isNaN(id) || !ids.has(id)) {
@@ -590,7 +602,7 @@ export function updateUnitsFrame(scene: GameScene) {
         ? shamanAppearance(u.team).signature
         : `${animationTeam(renderTeam)}-${u.kind}`
     ]
-    const state = unitAnimation(scene.world, u)
+    const state = unitAnimation(scene.world, u, selectedIds)
     if (g.userData.state !== state) {
       g.userData.state = state
       g.userData.since = scene.world.time
@@ -609,7 +621,8 @@ export function updateUnitsFrame(scene: GameScene) {
       directions,
       nativeDirections ? 0 : scene.world.time - (u.fight ? u.fight.started / 12 : g.userData.since),
       !nativeDirections && !!u.fight && ['attack', 'strike', 'special', 'recoil'].includes(state),
-      nativeDirections ? animationSource!.f2 : undefined
+      nativeDirections ? animationSource!.f2 : undefined,
+      selectedIds
     )
     const gauge = unitHealthGauge({
       enabled: !!showHealth,

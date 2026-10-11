@@ -764,9 +764,10 @@ export class GameScene {
     directions: { frames: number[]; flip: boolean }[],
     age: number,
     once = false,
-    frameNumber?: number
+    frameNumber?: number,
+    selectedIds?: ReadonlySet<number>
   ) {
-    animatePerson(this, g, heading, directions, age, once, frameNumber)
+    animatePerson(this, g, heading, directions, age, once, frameNumber, selectedIds)
   }
   makeFx(f: Effect) {
     return makeFx(this, f)
