@@ -1,0 +1,20 @@
+{
+  "kind": "pnd-merged-full-tree-equivalence",
+  "pullRequest": "https://github.com/JohnDeved/populous-new-dawn/pull/346",
+  "heads": {
+    "reviewedAuthor": "3d9848bc645d3abab146e4f1056dd01f72925651",
+    "testedPublished": "dc3d18bed3dc40d684619905550fccfb4b0af966",
+    "mergedMain": "7cb339d01713b3ec3c7e1f46bbdd6d78a5fca86f"
+  },
+  "trees": {
+    "reviewedAuthor": "6dca6191013a7c7263821151a75681ee18e199f8",
+    "testedPublished": "6dca6191013a7c7263821151a75681ee18e199f8",
+    "mergedMain": "6dca6191013a7c7263821151a75681ee18e199f8"
+  },
+  "mergedParents": [
+    "79833890f3b3b06f91d0179dcc61cd0e012882ba"
+  ],
+  "sameFullTree": true,
+  "reruns": false,
+  "claim": "Accepted source/focused/quality and exact published-head standard gate evidence carries only by identical full committed tree. No fresh main tests, deployment/browser/hardware or whole-issue claim."
+}

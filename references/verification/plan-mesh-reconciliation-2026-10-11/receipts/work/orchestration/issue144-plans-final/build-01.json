@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "c80bdfe4-1eb2-424d-8dfd-f572883048ea",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "dc3d18bed3dc40d684619905550fccfb4b0af966",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "npm",
+    "run",
+    "build"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-11T15:54:07.165Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/issue144-plans-final/build-01.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/issue144-plans-final/build-01.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-11T15:54:26.818Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 build\n> WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext build\n\n\n  vinext build  (Vite 8.0.13)\n\n[1/5] analyze client references...\n\u001b[2K\rtransforming...✓ 272 modules transformed.\nrendering chunks...\n✓ built in 5.72s\n[2/5] analyze server references...\n\u001b[2K\rtransforming...✓ 408 modules transformed.\nrendering chunks...\n✓ built in 1.54s\n[3/5] build rsc environment...\n\u001b[2K\rtransforming...✓ 270 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 5.29s\n[4/5] build client environment...\n\u001b[2K\rtransforming...✓ 449 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 3.05s\n[5/5] build ssr environment...\n\u001b[2K\rtransforming...✓ 414 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 2.58s\n\u001b[0m\n  Route (app)\n  ─ ? /\n\n  ? Unknown\n\n  ? Some routes could not be classified. vinext currently uses static analysis\n    and cannot detect dynamic API usage (headers(), cookies(), etc.) at build time.\n    Automatic classification will be improved in a future release.\n\n  Build complete. Run `vinext start` to start the production server.\n\n",
+  "stderr": "\u001b[33m▲ \u001b[43;33m[\u001b[43;30mWARNING\u001b[43;33m]\u001b[0m \u001b[1mProxy environment variables detected. We'll use your proxy for fetch requests.\u001b[0m\n\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - rsc:virtual-client-package (36%)\n  - vinext:og-inline-fetch-assets (22%)\n  - alias (10%)\n  - vinext:css-data-url (8%)\n  - rsc:react-server-dom-webpack-alias (5%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - rsc:virtual-client-package (21%)\n  - vinext:og-inline-fetch-assets (16%)\n  - rsc:load-environment-module (13%)\n  - vinext:middleware-server-only (12%)\n  - alias (8%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n[plugin builtin:vite-reporter] \n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - vinext:middleware-server-only (16%)\n  - vinext:og-inline-fetch-assets (13%)\n  - vinext:css-data-url (10%)\n  - alias (10%)\n  - rsc:virtual-client-package (10%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\nnpm notice\nnpm notice New major version of npm available! 11.9.0 -> 12.2.0\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0\nnpm notice To update run: npm install -g npm@12.2.0\nnpm notice\n",
+  "stdoutSha256": "e376326b6a74887f4ded1221d02f84df77247521cf8ece9542a4dc21807a3061",
+  "stderrSha256": "130665dc1cdb93823fb2a5bfb45e2ed1426b24e48bbf7264538e7e67d0b67355",
+  "sourceAfter": {
+    "headOid": "dc3d18bed3dc40d684619905550fccfb4b0af966",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

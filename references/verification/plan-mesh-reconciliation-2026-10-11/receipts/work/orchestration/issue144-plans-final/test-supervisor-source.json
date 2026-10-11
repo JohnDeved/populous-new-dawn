@@ -1,0 +1,8 @@
+{
+  "kind": "pnd-test-supervisor-source",
+  "inputPath": "/workspace/pnd-test-subreaper.py",
+  "sha256": "b748c3773af8501f362cae9dfff7c6e74600610ccbc1538bf92b1fa2d9c3886b",
+  "text": "\"\"\"Reap only descendants of one foreground test command in this executor.\"\"\"\nimport ctypes\nimport os\nimport subprocess\nimport sys\n\nif len(sys.argv) < 2:\n    raise SystemExit(\"Supply the foreground command as argv\")\nlibc = ctypes.CDLL(None, use_errno=True)\nif libc.prctl(36, 1, 0, 0, 0) != 0:  # Linux PR_SET_CHILD_SUBREAPER\n    error = ctypes.get_errno()\n    raise OSError(error, os.strerror(error))\n\ncommand = subprocess.Popen(sys.argv[1:])\nexit_code = None\nreaped = 0\nwhile True:\n    try:\n        pid, status = os.waitpid(-1, 0)\n    except InterruptedError:\n        continue\n    except ChildProcessError:\n        break\n    reaped += 1\n    if pid == command.pid:\n        exit_code = os.waitstatus_to_exitcode(status)\n\nprint(f\"Task subreaper: command exit={exit_code}, descendants reaped={reaped}\", file=sys.stderr)\nif exit_code is None:\n    raise SystemExit(\"Foreground command exit was not observed\")\nraise SystemExit(exit_code if exit_code >= 0 else 128 - exit_code)\n",
+  "boundReceipt": "work/orchestration/issue144-plans-final/check-01.json",
+  "scope": "Actual coordinator command helper, unchanged before/after exact published-head check; reaps only descendants of foreground command and propagates its exit code."
+}

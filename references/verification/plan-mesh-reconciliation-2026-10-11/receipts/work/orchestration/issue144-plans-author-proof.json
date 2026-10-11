@@ -1,0 +1,28 @@
+{
+  "kind": "pnd-plan-reconciliation-author-proof",
+  "head": "3d9848bc645d3abab146e4f1056dd01f72925651",
+  "tree": "6dca6191013a7c7263821151a75681ee18e199f8",
+  "base": "79833890f3b3b06f91d0179dcc61cd0e012882ba",
+  "testedHead": "2773eaaa3e325b621bfec003abc49f18929ab6da",
+  "noteOnlyDelta": [
+    "references/plan-mesh-reconciliation.md"
+  ],
+  "sourceSha256": {
+    "app/scene-entities.ts": "00455a7023572795ba3b6529e47529ece1890cdeb02f3de1a70fb590d68e17c7",
+    "tests/plan-mesh-reconciliation.test.mjs": "7fc5bf4b59b6193128a158ed5a830cc38719f43a1bd7596ee81665225c9ebf76",
+    "tests/support/plan-scene.mjs": "e4819de84617166fd3ab385a9dcf78ae8390cff6ed972ed864ef6af4761c747a",
+    "references/plan-mesh-reconciliation.md": "4edacdeabc565a23b6a00dbbff347c8cb51b8c35d017ff9ee26c9d1977e8875a"
+  },
+  "unchangedTestedInputs": [
+    "app/scene-entities.ts",
+    "tests/plan-mesh-reconciliation.test.mjs",
+    "tests/support/plan-scene.mjs"
+  ],
+  "reviewHelpers": {
+    "work/orchestration/compare-plan-receipts.mjs": {
+      "sha256": "9cd9aee8993328da7cfc899c6b0bc8d31ea4102670dd9e0d2b8791e4fd5c323e",
+      "text": "import assert from 'node:assert/strict'\nimport { createHash } from 'node:crypto'\nimport { readFileSync } from 'node:fs'\nimport { execFileSync } from 'node:child_process'\n\nconst hash = value => createHash('sha256').update(value).digest('hex')\nconst root = '/workspace/pnd-baseline-144-plans'\nconst base = '79833890f3b3b06f91d0179dcc61cd0e012882ba'\nconst candidate = '2773eaaa3e325b621bfec003abc49f18929ab6da'\nconst load = name => {\n  const receipt = JSON.parse(readFileSync(`work/orchestration/${name}`, 'utf8'))\n  assert.equal(receipt.phase, 'finished')\n  assert.deepEqual(receipt.source, receipt.sourceAfter)\n  assert.equal(hash(receipt.stdout), receipt.stdoutSha256)\n  assert.equal(hash(receipt.stderr), receipt.stderrSha256)\n  return receipt\n}\nconst full = load('issue144-plans-focused-2773eaa.json')\nconst previous = load('issue144-plans-baseline-focused-7983389.json')\nassert.equal(full.source.headOid, candidate)\nassert.equal(previous.source.headOid, base)\nassert.equal(full.status, 'passed')\nassert.equal(full.exitCode, 0)\nassert.equal(previous.status, 'failed')\nassert.equal(previous.exitCode, 1)\nassert.deepEqual(full.command, previous.command)\nassert.deepEqual(Object.keys(full.source.inputs), Object.keys(previous.source.inputs))\nfor (const [path, value] of Object.entries(full.source.inputs)) {\n  assert.equal(hash(readFileSync(path)), value, path)\n  if (path !== 'app/scene-entities.ts') assert.equal(value, previous.source.inputs[path], path)\n}\nassert.match(full.stdout, /pass 5\\n.*fail 0/)\nassert.match(previous.stdout, /pass 4\\n.*fail 1/)\nassert.match(previous.stdout, /64 preparation plans: 2144 ID reads/)\nassert.equal(execFileSync('git', ['diff', '--name-only', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(), '')\nassert.equal(previous.source.trackedDiffSha256, hash(''))\nconst original = execFileSync('git', ['show', `${base}:app/scene-entities.ts`], { encoding: 'utf8' })\nassert.equal(hash(original), previous.source.inputs['app/scene-entities.ts'])\nassert.equal(hash(readFileSync(`${root}/app/scene-entities.ts`)), previous.source.inputs['app/scene-entities.ts'])\nconst source = readFileSync('app/scene-entities.ts', 'utf8')\nconst marker = '  for (const b of scene.world.buildings.filter(b => b.preparation)) {'\nconst remainder = value => {\n  const start = value.indexOf(marker)\n  assert.ok(start >= 0)\n  return value.slice(start, value.indexOf('\\nexport function updateShrinesFrame', start))\n}\nassert.equal(remainder(source), remainder(original))\nconst lint = load('issue144-plans-oxlint-2773eaa.json')\nconst oldLint = load('issue144-plans-baseline-oxlint-7983389.json')\nfor (const receipt of [lint, oldLint]) {\n  assert.equal(receipt.status, 'failed')\n  assert.equal(receipt.exitCode, 1)\n}\nassert.equal(lint.source.headOid, candidate)\nassert.equal(oldLint.source.headOid, base)\nassert.deepEqual(lint.command, oldLint.command)\nfor (const [path, value] of Object.entries(lint.source.inputs))\n  if (path !== 'app/scene-entities.ts') assert.equal(value, oldLint.source.inputs[path], path)\nconst diagnostics = receipt => receipt.stdout.trim().split('\\n').map(line => line.replace(/:\\d+:\\d+(?=: (?:warning|error))/, ':<line>:<column>')).sort()\nassert.equal(diagnostics(lint).length, 9)\nassert.deepEqual(diagnostics(lint), diagnostics(oldLint))\nconsole.log(JSON.stringify({ focusedCandidate: 'passed 5/5', actualUnmodifiedBase: 'failed: four passed, scaling failed at 64 with 2144 ID reads', pairedInputHashes: full.source.inputs, productionBaseUnchanged: true, laterFilterAndBuildingBodyUnchanged: true, strictOxlintCandidate: 'failed', strictOxlintBase: 'failed', diagnosticMultiset: 'passed: nine exact inherited diagnostics; only numeric line/column prefixes normalized', scalingScope: 'preparation-only population and empty completed-building mesh map; completed cleanup remains quadratic' }, null, 2))\n"
+    }
+  },
+  "scope": "Actual Node caller for preparation-only scaling population; completed cleanup remains quadratic. Browser/hardware/whole-issue acceptance not run; strict Oxlint remains failed separately from exact inherited-diagnostic comparison pass."
+}

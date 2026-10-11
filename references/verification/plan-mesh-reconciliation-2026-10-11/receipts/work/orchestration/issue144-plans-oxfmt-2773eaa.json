@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "d923cf04-5740-4102-9d08-e503598e0e5c",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "2773eaaa3e325b621bfec003abc49f18929ab6da",
+    "branch": "codex/issue144-plan-mesh-index",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/scene-entities.ts": "00455a7023572795ba3b6529e47529ece1890cdeb02f3de1a70fb590d68e17c7",
+      "tests/plan-mesh-reconciliation.test.mjs": "7fc5bf4b59b6193128a158ed5a830cc38719f43a1bd7596ee81665225c9ebf76",
+      "tests/support/plan-scene.mjs": "e4819de84617166fd3ab385a9dcf78ae8390cff6ed972ed864ef6af4761c747a",
+      ".oxfmtrc.json": "3d994b16c5ebbf15cb6a77529615f68696433af8e0384da5a1f8420b38db7479",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "node_modules/.bin/oxfmt",
+    "--check",
+    "app/scene-entities.ts",
+    "tests/plan-mesh-reconciliation.test.mjs",
+    "tests/support/plan-scene.mjs"
+  ],
+  "cwd": "/workspace/pnd-author-144-plans",
+  "startedAt": "2026-10-11T15:41:54.150Z",
+  "artifacts": {
+    "stdout": "/workspace/pnd-author-144-plans/work/orchestration/issue144-plans-oxfmt-2773eaa.json.artifacts/stdout.log",
+    "stderr": "/workspace/pnd-author-144-plans/work/orchestration/issue144-plans-oxfmt-2773eaa.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-11T15:41:54.248Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 3ms on 3 files using 4 threads.\n",
+  "stderr": "",
+  "stdoutSha256": "39c5942ba91954a916c5306c814ed8561ea86fe2dc2cc66e8ada647629fdb80f",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "2773eaaa3e325b621bfec003abc49f18929ab6da",
+    "branch": "codex/issue144-plan-mesh-index",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/scene-entities.ts": "00455a7023572795ba3b6529e47529ece1890cdeb02f3de1a70fb590d68e17c7",
+      "tests/plan-mesh-reconciliation.test.mjs": "7fc5bf4b59b6193128a158ed5a830cc38719f43a1bd7596ee81665225c9ebf76",
+      "tests/support/plan-scene.mjs": "e4819de84617166fd3ab385a9dcf78ae8390cff6ed972ed864ef6af4761c747a",
+      ".oxfmtrc.json": "3d994b16c5ebbf15cb6a77529615f68696433af8e0384da5a1f8420b38db7479",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}
