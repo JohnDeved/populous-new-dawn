@@ -1,0 +1,137 @@
+{
+  "kind": "pnd-redacted-transport-hash-clarification",
+  "generatedAt": "2026-10-11T14:45:07.967316+00:00",
+  "testedSourceHead": "227ce21d9a1a21e601820baac6d8c0daec8743b2",
+  "testedSourceTree": "9d91e0c1646f11264817a024eeab20b0eb045e92",
+  "publishedEvidenceCommit": "00b842d60dfbbe50631150442d6ded29ae53d53d",
+  "publishedEvidenceRoot": "references/verification/harness-interruption-2026-10-11",
+  "scope": "Supplemental clarification only. Published bundle, manifest and receipts remain immutable. No source edits or check reruns. No original stream text is included.",
+  "terminology": "These files are redacted transport copies of raw command receipts. Embedded stdoutSha256/stderrSha256 continue to identify the original pre-transport raw streams; they do not automatically identify the decoded transported strings.",
+  "redactionRule": {
+    "implementation": "Reviewed scripts/orchestration/review-bundle.mjs redactReceipt function at tested source head.",
+    "algorithm": "Decode original receipt bytes as UTF-8; replace literal canonical source-root, requested source-root and exporting-home substrings, longest needle first, throughout the whole receipt text; encode UTF-8. No parsing, truncation or other text changes.",
+    "sourceRootBoundary": {
+      "canonicalRoot": "/workspace/pnd-gates-343",
+      "requestedRoot": "/workspace/pnd-gates-343",
+      "replacement": "<SOURCE_ROOT>",
+      "duplicateNeedle": "Canonical/requested strings are identical here; the second pass makes no additional replacements."
+    },
+    "homeBoundary": {
+      "originalValue": "omitted",
+      "replacement": "<HOME>",
+      "replacementsInTheseReceipts": 0
+    },
+    "embeddedStrings": "The whole-text rule also redacts matching path substrings inside JSON-encoded stdout/stderr values.",
+    "localReceiptBoundary": "Earlier e0a76db4 receipts use a different checkout root; they are unchanged by this exporter invocation."
+  },
+  "hashMethod": "SHA-256 of exact original/transported receipt bytes; stream hashes are SHA-256 of each decoded JSON stdout/stderr string encoded as UTF-8.",
+  "artifacts": [
+    {
+      "bundleReceiptPath": "receipts/work/orchestration/harness-interruption-transport/focused-local-e0a76db4.json",
+      "originalReceiptSha256": "0e76f8f45b487109e741bac1e91af5292dd6fc97b0f270284ca8c0b73292692b",
+      "transportedReceiptSha256": "0e76f8f45b487109e741bac1e91af5292dd6fc97b0f270284ca8c0b73292692b",
+      "receiptChangedByRedaction": false,
+      "literalReplacementCount": 0,
+      "streams": {
+        "stdout": {
+          "originalSha256": "0f5506b7694d38ffb18c1171ffe07d7454c829c4be661c4ccd1ebaa79f5e6b86",
+          "transportedSha256": "0f5506b7694d38ffb18c1171ffe07d7454c829c4be661c4ccd1ebaa79f5e6b86",
+          "changedByRedaction": false,
+          "embeddedReceiptHashMeaning": "Original pre-transport stream hash; intentionally unchanged."
+        },
+        "stderr": {
+          "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "transportedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "changedByRedaction": false,
+          "embeddedReceiptHashMeaning": "Original pre-transport stream hash; intentionally unchanged."
+        }
+      }
+    },
+    {
+      "bundleReceiptPath": "receipts/work/orchestration/harness-interruption-transport/mutation-local-e0a76db4.json",
+      "originalReceiptSha256": "d7d484a44cd4f2b320940fb880e716e867e2e94257e0656ee6dbb0c0a89d1b67",
+      "transportedReceiptSha256": "d7d484a44cd4f2b320940fb880e716e867e2e94257e0656ee6dbb0c0a89d1b67",
+      "receiptChangedByRedaction": false,
+      "literalReplacementCount": 0,
+      "streams": {
+        "stdout": {
+          "originalSha256": "e30f2876bbeccb59f22a90f0ffcdd6f7d3ba7d3b2c4c0691ed697075a4ad3add",
+          "transportedSha256": "e30f2876bbeccb59f22a90f0ffcdd6f7d3ba7d3b2c4c0691ed697075a4ad3add",
+          "changedByRedaction": false,
+          "embeddedReceiptHashMeaning": "Original pre-transport stream hash; intentionally unchanged."
+        },
+        "stderr": {
+          "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "transportedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "changedByRedaction": false,
+          "embeddedReceiptHashMeaning": "Original pre-transport stream hash; intentionally unchanged."
+        }
+      }
+    },
+    {
+      "bundleReceiptPath": "receipts/work/orchestration/harness-interruption-transport/queue-subreaper-227ce21d.json",
+      "originalReceiptSha256": "8e42680899fd3e43d7791037c91b045454c3015605d3762d3c52b4bdb8776406",
+      "transportedReceiptSha256": "5d8c4efa29a22346eca1adfe670d8ebd8fbc147f21ab170c19f9bbbc0eeeb462",
+      "receiptChangedByRedaction": true,
+      "literalReplacementCount": 3,
+      "streams": {
+        "stdout": {
+          "originalSha256": "9b7f42f7174de5693604b117423d118f1f67f1d7ac87e34fea6b17337345c59b",
+          "transportedSha256": "9b7f42f7174de5693604b117423d118f1f67f1d7ac87e34fea6b17337345c59b",
+          "changedByRedaction": false,
+          "embeddedReceiptHashMeaning": "Original pre-transport stream hash; intentionally unchanged."
+        },
+        "stderr": {
+          "originalSha256": "bf9f1b55c2329d0e55d4cffcc1eb5fbe68c130c52e3e7424d7fab40f10b0f6b8",
+          "transportedSha256": "bf9f1b55c2329d0e55d4cffcc1eb5fbe68c130c52e3e7424d7fab40f10b0f6b8",
+          "changedByRedaction": false,
+          "embeddedReceiptHashMeaning": "Original pre-transport stream hash; intentionally unchanged."
+        }
+      }
+    },
+    {
+      "bundleReceiptPath": "receipts/work/orchestration/harness-interruption-transport/check-227ce21d.json",
+      "originalReceiptSha256": "be88dd0f88e409091bc44ed3a936a86ca2be3cf06a68c48548761118781576cc",
+      "transportedReceiptSha256": "daba1c011f26cb6ca218831fc6eb76d9121f3a72cee134de4f7815c7d8d69d98",
+      "receiptChangedByRedaction": true,
+      "literalReplacementCount": 8,
+      "streams": {
+        "stdout": {
+          "originalSha256": "86255db9205d717e218d88f71d4c6f022f105ede8ecd8ae2f5e975bc48df61a0",
+          "transportedSha256": "550c7e3b57524c8b3accf9237f83e176f401b43460c0d932429cc850eff554a1",
+          "changedByRedaction": true,
+          "embeddedReceiptHashMeaning": "Original pre-transport stream hash; intentionally unchanged."
+        },
+        "stderr": {
+          "originalSha256": "f92acf0fb239ff116c1d671150923c4f66ef2e971819ebb018e5d2603c54c3be",
+          "transportedSha256": "f92acf0fb239ff116c1d671150923c4f66ef2e971819ebb018e5d2603c54c3be",
+          "changedByRedaction": false,
+          "embeddedReceiptHashMeaning": "Original pre-transport stream hash; intentionally unchanged."
+        }
+      }
+    },
+    {
+      "bundleReceiptPath": "receipts/work/orchestration/harness-interruption-transport/build-227ce21d.json",
+      "originalReceiptSha256": "19694a35dc5690751fb7df81682c25e7563111bc13a08ac25cb2d0e317c9638f",
+      "transportedReceiptSha256": "4fdf50862ddc62a75d697aa5f77fde8cafdafcf9a4470a9fe1eec0fb64fa2261",
+      "receiptChangedByRedaction": true,
+      "literalReplacementCount": 3,
+      "streams": {
+        "stdout": {
+          "originalSha256": "ec34f42f63c09e89d44e77f2f0975b2837ab42b600c0f7c018e1b304105930bd",
+          "transportedSha256": "ec34f42f63c09e89d44e77f2f0975b2837ab42b600c0f7c018e1b304105930bd",
+          "changedByRedaction": false,
+          "embeddedReceiptHashMeaning": "Original pre-transport stream hash; intentionally unchanged."
+        },
+        "stderr": {
+          "originalSha256": "6d488f2493b4de0a29886f680515ac1789eda592b9b683cc36b59a34b024392b",
+          "transportedSha256": "6d488f2493b4de0a29886f680515ac1789eda592b9b683cc36b59a34b024392b",
+          "changedByRedaction": false,
+          "embeddedReceiptHashMeaning": "Original pre-transport stream hash; intentionally unchanged."
+        }
+      }
+    }
+  ],
+  "interpretation": "Compare manifest sourceSha256 to originalReceiptSha256 and manifest bundleSha256 to transportedReceiptSha256. Compare embedded original stream hash fields to originalSha256. For transported stream text, use transportedSha256 below.",
+  "claims": "Transport integrity and disclosure only; no browser, hardware-performance or deployment claim."
+}
