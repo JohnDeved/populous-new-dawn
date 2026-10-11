@@ -79,6 +79,7 @@ const unitAtlasOrigins = nativeUnits.pieces.map((piece, index) =>
 const unitFrameIds = new WeakMap<GameScene, Set<number>>()
 const vehicleFrameIds = new WeakMap<GameScene, Set<number>>()
 const planFrameIds = new WeakMap<GameScene, Set<number>>()
+const buildingFrameIds = new WeakMap<GameScene, Set<number>>()
 
 const teamColor = {
   blue: 0x303fc1,
@@ -695,8 +696,15 @@ export function updateBuildingsFrame(scene: GameScene) {
       mesh.userData.signature = key
     }
   }
+  let buildingIds = buildingFrameIds.get(scene)
+  if (!buildingIds) {
+    buildingIds = new Set()
+    buildingFrameIds.set(scene, buildingIds)
+  }
+  buildingIds.clear()
+  for (const b of scene.world.buildings) if (!b.preparation) buildingIds.add(b.id)
   for (const [id, g] of scene.buildingMeshes)
-    if (!scene.world.buildings.some(b => b.id === id && !b.preparation)) {
+    if (Number.isNaN(id) || !buildingIds.has(id)) {
       releaseHutSmoke(scene, g)
       scene.objects.remove(g)
       scene.releaseGroup(g)
