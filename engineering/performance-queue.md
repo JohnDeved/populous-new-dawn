@@ -20,6 +20,54 @@ scripts cannot accidentally inherit its `package.json` module type.
 no shared fixed ports, profiles, capture paths, or record modes. The receipt helper
 does not enforce isolation or manage arbitrary daemons.
 
+Before creating the worktree or copying private dependencies, check user-available
+space on the **destination filesystem** (use its existing parent if the target does
+not exist). Record the destination, timestamp, available bytes, source paths and
+their full-copy size estimate, plus an explicit reserve for build output, caches,
+temporary files and receipt logs. Include every copy still to be made; do not assume
+reflinks, sparse files or hardlinks will save space. Stop preparation if available
+bytes are less than the copy estimate plus reserve, or either value is unknown.
+Check again immediately before a large dependency copy if preparation intervenes.
+This is a point-in-time guard, not a reservation or guarantee against ENOSPC; other
+writers, inode exhaustion and quotas can still cause failure.
+
+If space is insufficient, coordinate with the parent. Reclaim only explicitly owned,
+completed runs whose dependencies are not used by another checkout. Preserve source,
+raw logs, receipts, queue locks and dependency-lock identity before removing generated
+dependencies or build output. Unknown runs remain untouched; a missing process in
+another execution scope does not prove completion. Recheck available space before
+retrying, and never solve the shortage by sharing writable dependency trees.
+
+For example, on Linux, GNU `du -s -B1 --count-links SOURCE...` reports allocated
+bytes; repeat with `--apparent-size` and use at least the larger estimate for each
+source. Count repeated copies separately and allow for destination allocation
+overhead. Record the source commit and dependency-lock hashes; size is not input
+identity. Declare the output/scratch reserve from the planned workload and retained
+comparable output sizes, with headroom, rather than treating a fixed value as safe.
+After assigning those byte estimates and an existing destination parent, this
+read-only Node check prints the budget and exits nonzero on a shortage or bad input:
+
+```sh
+node --input-type=module - "$existingDestinationParent" "$fullCopyBytes" "$outputScratchReserveBytes" <<'NODE'
+import { statfsSync } from 'node:fs'
+const [destination, copy, reserve] = process.argv.slice(2)
+if (!destination || !/^[0-9]+$/.test(copy ?? '') || !/^[0-9]+$/.test(reserve ?? '') || BigInt(reserve) === 0n)
+  throw new Error('Declare destination, full-copy bytes and a positive output/scratch reserve')
+const { bsize, bavail } = statfsSync(destination, { bigint: true })
+if (bsize <= 0n || bavail < 0n) throw new Error('Unknown usable filesystem capacity')
+const available = bsize * bavail
+const required = BigInt(copy) + BigInt(reserve)
+console.log(JSON.stringify({ destination, measuredAt: new Date().toISOString(),
+  blockBytes: String(bsize), availableBlocks: String(bavail), availableBytes: String(available),
+  fullCopyBytes: copy, reserveBytes: reserve, requiredBytes: String(required),
+  status: available >= required ? 'sufficient-at-measurement' : 'insufficient' }))
+if (available < required) process.exitCode = 1
+NODE
+```
+
+Retain the output with the preparation evidence and require a zero exit before
+proceeding. The command neither copies nor deletes anything and does not reserve space.
+
 Run the existing command receipt helper directly, without the detached queue:
 
 ```sh
