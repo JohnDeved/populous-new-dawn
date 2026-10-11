@@ -98,3 +98,7 @@ The [reviewed conditional reset](../../references/verification/mission3-projecte
 ## Actual reset and palette-copy prefix
 
 The [reviewed caller-prefix result](../../references/verification/mission3-reset-palette-2026-10-11/README.md) executes the original palette copy with unknown source data and an explicitly scoped allocation renaming. All 33 selected fields and CPU/stack assertions pass; the palette remains unknown. This extends the conditional reset prerequisite without adding another presentation omission, but stops before sunlight and does not admit the constructor.
+
+## Conditional sunlight continuation
+
+The [reviewed original sunlight prefix](../../references/verification/mission3-sunlight-prefix-2026-10-11/README.md) passes 43 predeclared outputs and preserves the earlier checkpoint after 198,587 original instructions. Independent source-derived event ordering and mask replay cover all 158,959 observer events. Forty canonical trigonometric words remain an explicit entry condition, alongside the existing camera-return and palette-allocation conditions. The exact integer square-root helper runs; terrain and constructors do not. This advances setup evidence without establishing the later Mission 3 allocation seed or a safe product fix.
