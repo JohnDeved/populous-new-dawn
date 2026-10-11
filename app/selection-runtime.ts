@@ -1,4 +1,4 @@
-import { type Building, type Unit, type World } from './world-types.ts'
+import { type Building, type Shrine, type Unit, type World } from './world-types.ts'
 import { BuilderTask } from './building-workers.ts'
 import { SceneryPhase } from './building-clearing.ts'
 import { buildingModel } from './building-shapes.ts'
@@ -31,7 +31,8 @@ export function unitAnimation(
   w: World,
   u: Unit,
   selectedIds?: ReadonlySet<number>,
-  buildingsById?: ReadonlyMap<Unit['work'], Building>
+  buildingsById?: ReadonlyMap<Unit['work'], Building>,
+  shrinesById?: ReadonlyMap<Unit['work'], readonly Shrine[]>
 ) {
   if (u.lift > 0) return 'airborne'
   if (u.casting) return 'cast'
@@ -71,8 +72,13 @@ export function unitAnimation(
   if (u.path.length) return u.cargo ? 'carry' : 'walk'
   if (u.cargo) return 'carryIdle'
   if (u.harvest) return 'work'
+  let shrines: readonly Shrine[] | undefined
+  if (shrinesById === undefined) {
+    const { shrines: liveShrines } = w
+    shrines = liveShrines
+  } else if (!Number.isNaN(u.work)) shrines = shrinesById.get(u.work)
   if (
-    w.shrines.some(
+    shrines?.some(
       s =>
         s.id === u.work &&
         s.active &&
