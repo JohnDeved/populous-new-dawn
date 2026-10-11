@@ -82,6 +82,7 @@ const unitFrameBuildingsById = new WeakMap<GameScene, Map<Unit['work'], Building
 const vehicleFrameIds = new WeakMap<GameScene, Set<number>>()
 const vehicleFrameViews = new WeakMap<GameScene, Vehicle[]>()
 const planFrameIds = new WeakMap<GameScene, Set<number>>()
+const planFrameViews = new WeakMap<GameScene, Building[]>()
 const buildingFrameIds = new WeakMap<GameScene, Set<number>>()
 const shrineFrameIds = new WeakMap<GameScene, Set<number>>()
 
@@ -717,7 +718,19 @@ export function updateBuildingsFrame(scene: GameScene) {
       mesh.geometry.dispose()
       scene.plans.delete(id)
     }
-  for (const b of scene.world.buildings.filter(b => b.preparation)) {
+  let buildings = planFrameViews.get(scene)
+  if (!buildings) {
+    buildings = []
+    planFrameViews.set(scene, buildings)
+  }
+  const view = buildings
+  let count = 0
+  // Preserve the eager preparation snapshot after cleanup and before drawing.
+  scene.world.buildings.forEach(b => {
+    if (b.preparation) view[count++] = b
+  })
+  view.length = count
+  for (const b of view) {
     let mesh = scene.plans.get(b.id)
     if (!mesh) {
       mesh = new THREE.Mesh(new THREE.BufferGeometry(), scene.cursor.material)
