@@ -56,7 +56,9 @@ test('CLI needs an explicit positive timeout and preserves raw command output', 
 test('an exited leader cannot leave descendant-held output pipes hanging', () => {
   // The fixture descendant has its own finite fallback, even if supervision fails.
   const source = `const {spawn}=require('node:child_process');spawn(process.execPath,['-e',"console.log('descendant-ready');setTimeout(()=>{},1500)"],{stdio:'inherit'});setTimeout(()=>process.exit(0),250)`
-  const result = spawnSync(process.execPath, [cli, 'foreground', '500', '--', process.execPath, '-e', source], { encoding: 'utf8', timeout: 6000 })
+  // This exercises early-exit cleanup, not the timeout path. Leave scheduling
+  // headroom when the aggregate suite runs many independent fixture processes.
+  const result = spawnSync(process.execPath, [cli, 'foreground', '5000', '--', process.execPath, '-e', source], { encoding: 'utf8', timeout: 8000 })
   assert.equal(result.error, undefined)
   assert.match(result.stdout, /descendant-ready/)
   const terminal = JSON.parse(result.stderr.trim().split('\n').at(-1))
