@@ -34,4 +34,4 @@ The actual caller continues at `0042b59c → 004a2920`. This reads palette point
 
 Subsequent setup must retain actual globe header suppliers, pre-constructor tribe reset, record-pool lifetime, loaded bank6 assets, source-ordered terrain setup and mode predicates. The prior pool/terrain result and this projected reset are separate prerequisites, not a claim that the full constructor is admitted.
 
-Main and rejected product candidates remain unchanged. Research-only structural/diff checks apply; no full product checks, browser acceptance, merge or deployment are claimed. Issue29 remains open.
+This research has not changed product code or merged to main; unrelated workflow work may advance main independently. The rejected product candidates remain rejected. Research-only structural/diff checks apply; no full product checks, browser acceptance, merge or deployment are claimed. Issue29 remains open.

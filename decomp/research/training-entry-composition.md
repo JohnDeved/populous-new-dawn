@@ -94,3 +94,7 @@ The [reviewed original run](../../references/verification/mission3-pool-reset-20
 ## Conditional projected reset
 
 The [reviewed conditional reset](../../references/verification/mission3-projected-reset-2026-10-10/README.md) passed32 predeclared known outputs after14,428 original integer instructions with three explicit camera floating-point omissions. Normal omitted-fragment return is an assumption. This does not admit the object constructor or recover its later class1 seed; the next exact input is the caller's64-byte palette copy.
+
+## Actual reset and palette-copy prefix
+
+The [reviewed caller-prefix result](../../references/verification/mission3-reset-palette-2026-10-11/README.md) executes the original palette copy with unknown source data and an explicitly scoped allocation renaming. All 33 selected fields and CPU/stack assertions pass; the palette remains unknown. This extends the conditional reset prerequisite without adding another presentation omission, but stops before sunlight and does not admit the constructor.

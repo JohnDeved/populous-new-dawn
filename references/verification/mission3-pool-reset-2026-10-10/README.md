@@ -37,4 +37,4 @@ The pool/terrain result removes a requirement for arbitrary prior object/terrain
 
 Reset calls globe-camera helper0042cfd0 through0041ce00. Its x87 outputs and input control state are unbound. The next source-only question is whether the written camera fields or register effects can be consumed by the admitted object-initialization path. A reviewed, explicit presentation-only omission might be justified by that proof; no such omission is accepted here. Otherwise the actual consumed floating-point state must be bound. No known-failing reset is rerun merely to hit that boundary.
 
-Main and rejected product candidates are unchanged. Full product check/build/browser/parity gates were not run for this research-only publication; no merge or deployment is claimed. Issue29 remains open.
+This research has not changed product code or merged to main; unrelated workflow work may advance main independently. The rejected product candidates remain rejected. Full product check/build/browser/parity gates were not run for this research-only publication; no merge or deployment is claimed. Issue29 remains open.
