@@ -1,0 +1,35 @@
+{
+  "verdict": "ACCEPT_LIGHT_PUBLICATION_REVIEW",
+  "sourceHead": "647666884acef2452f9a6439ec0256ff22f04199",
+  "manifestSha256": "4a545f70ff8696dd24c6fdad4fa7721c59a0cecf36c396068c20f64e357df82a",
+  "readmeSha256": "09240e69c0f544291c8be2bb9a81447276d47923403a22d58fb53ad085d4bd66",
+  "compositionIndexSha256": "8b033c9ac19a2dc7f79d670a738dc25f9057c43a39a3d356f3b41c78046984b5",
+  "packages": [
+    {
+      "run": 9,
+      "members": 40,
+      "archive": {
+        "path": "references/verification/mission3-complete-ledger-2026-10-11/run09-proof.tar.gz",
+        "bytes": 16317357,
+        "sha256": "b0c692e2f709698443689737649beed88fa4b888b8161127931d634ea47400bc"
+      }
+    },
+    {
+      "run": 10,
+      "members": 52,
+      "archive": {
+        "path": "references/verification/mission3-complete-ledger-2026-10-11/run10-proof.tar.gz",
+        "bytes": 17229559,
+        "sha256": "e3603d77acb606e5518ce55e590e475865d4f5f79b5298c2a3baacb2e8108124"
+      }
+    }
+  ],
+  "archiveCheck": "All regular safe relative members match their declared length/hash and retained source bytes. No whole executable/assets, expanded result duplicates or product files are packaged. No extraction or expanded result/event replay performed.",
+  "claimCheck": "Run09 remains partial and rejects model18 before projection; run10 completes exactly the conditional20x100 StageA slots with109 authored publications,110 allocation returns and class1 copies0..51. Separate pool-slot and authored IDs,52 conditional seed,zero open calls and pre-postload00485050 stop retained. No replacement phase, actual startup or product fix inferred.",
+  "evidenceDepth": "Prior independent full cursor/mask/call/source-pool/counter/returned-snapshot reviews are hash-bound. RNG578 write-group chronology and snapshots were checked, not RNG arithmetic. General CPU/value interpretation and independent instruction retirement were not performed.",
+  "conditions": "Named entry and lifetime, canonical transport/mapping, model-derived terrain,51 tree gameplay-output and56 cache normal-completion/disjointness projections remain explicit. Unknown outputs and later phases remain open.",
+  "regressionEvidence": "Eight literal contexts and actual run03/run09 fixtures retained. Historical obsolete negative failure is preserved alongside the explicit current wrapper and all current32 independent-test logs;320 author tests retained.",
+  "reproduction": "Historical verifier needs retained paths/materialization, frozen dependencies, canonical EXE/DAT and static PE reader; archives are evidence bundles rather than a standalone asset-distributed executable.",
+  "standardGates": "Docs-only structural/diff checks; product check/build not applicable. No native execution in this review.",
+  "verifierSha256": "b91494fd7e1471376bbe48b693eedd3686f0b4989f1ab5e3282d273983ec9386"
+}

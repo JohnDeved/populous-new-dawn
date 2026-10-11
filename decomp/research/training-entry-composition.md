@@ -122,3 +122,7 @@ The [reviewed run07 milestone](../../references/verification/mission3-first-reco
 ## Conditional 92-record allocation ledger
 
 The [reviewed run08 ledger](../../references/verification/mission3-partial-ledger-2026-10-11/README.md) verifies 92 completed records, 94 started allocations and 93 returns. Forty class1 persons copy phases 0–39; the twelve relevant Blue-start Wildmen are still later records. Full event/call/pool/counter reconciliation preserves an open nested class6/model10 allocation at record93. The conditions and 102 exact output projections remain explicit. This narrows prior allocation order without yet recovering the ordinary training owners' replacement phases or a product fix.
+
+## Complete conditional constructor boundary
+
+The [independently reviewed run10 ledger](../../references/verification/mission3-complete-ledger-2026-10-11/README.md) processes all 2,000 slots, completes 109 authored records and returns all 110 allocations with no open calls. All 52 class1 counter copies are 0–51; the twelve later Blue-start Wildmen copy 40–51. The exact stop precedes global post-load work and conversion waves. Named entry assumptions and 107 exact output projections remain explicit, so this is not actual startup parity or a product phase constant. Next is the source-bound post-load and conversion-wave ordering for the affected followers.
