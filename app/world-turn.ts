@@ -1147,10 +1147,7 @@ function stepTurn(w: World) {
       b.kind === 'firewarriorHut'
     ) {
       stepLiveTraining(w, b)
-    } else if (
-      ((b.kind === 'boatHouse' && !b.boatLaunched) || b.kind === 'balloonHut') &&
-      inhabitants.length
-    ) {
+    } else if ((b.kind === 'boatHouse' || b.kind === 'balloonHut') && inhabitants.length) {
       const balloon = b.kind === 'balloonHut'
       if (++b.timer >= (balloon ? 1000 : 600)) {
         const pose = buildingPose(b),
