@@ -187,9 +187,9 @@ export class Painter {
           transform.multiply(local)
         }
         const origin = new THREE.Vector3().setFromMatrixPosition(transform)
-        const nativeOrigin = view.relative(origin, (origin.y * 128) / 45, unwrapped)
         // Every face of a native model uses the same anchor cell.
         if ((sprite || scale) && !view.visible(metadata.cellPosition ?? origin, unwrapped)) continue
+        const nativeOrigin = view.relative(origin, (origin.y * 128) / 45, unwrapped)
         if (listener && scale && !this.pendingSoundEnvironment!.trees) {
           const tree = metadata.point
           if (tree?.model > 0 && tree.model < 7)
