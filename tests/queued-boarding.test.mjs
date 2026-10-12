@@ -2,7 +2,7 @@
 import test from 'node:test'
 import { createGameStore } from '../app/game-store.ts'
 import assert from 'node:assert/strict'
-import { browserPosition, cast, command, tick } from '../app/model.ts'
+import { browserPosition, cast, command, tick, selectUnit } from '../app/model.ts'
 test('grounded staged boarding retains and visits the preceding waypoint', async () => {
   const stepUntil = (w, done, limit) => {
       for (let i = 0; i < limit; i++) {
@@ -16,7 +16,7 @@ test('grounded staged boarding retains and visits the preceding waypoint', async
       w.manaWorld.spells[0].disabled = 0xffffffff & ~(1 << (m - 1))
     },
     moveShaman = (w, s, p) => {
-      w.selected = [s.id]
+      selectUnit(w, s.id, false)
       assert.ok(command(w, p))
       stepUntil(w, () => Math.hypot(s.x - p.x, s.z - p.z) < 2, 1000)
     }
@@ -35,7 +35,7 @@ test('grounded staged boarding retains and visits the preceding waypoint', async
 
   const p = shaman.native
   assert.equal(p.vehicle, 0)
-  world.selected = [shaman.id]
+  selectUnit(world, shaman.id, false)
   assert.ok(command(world, { x: 0, z: -45 }, { ctrlKey: true }))
   const first = p.commands.find(Boolean)
   assert.equal(world.buildingOrders.records[first].flags, 128)

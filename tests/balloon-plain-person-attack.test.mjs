@@ -187,10 +187,10 @@ test('ordinary plain person target queues an unstaged transport attack through S
     if (shaman.fight && !firstOpponent) firstOpponent = shaman.fight.opponent
     if (shaman.hp <= 0 && !death) death = world.turn
   }
-  assert.equal(departure, 4273)
-  assert.equal(firstOpponent, 17)
+  assert.equal(departure, 4276)
+  assert.equal(firstOpponent, 10)
   assert.equal(world.units.find(u => u.id === firstOpponent).team, 'green')
-  assert.equal(death, 4304)
+  assert.equal(death, 4388)
   assert.equal(target.hp, 55)
   assert.equal(world.buildingOrders.records[orderId].references, 0)
   assert.deepEqual(balloon.passengers, [])

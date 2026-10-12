@@ -41,8 +41,7 @@ test('ordinary airborne tower command reaches departure and authored melee throu
     shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
     balloon = world.vehicles.find(vehicle => vehicle.model === 3),
     boat = world.vehicles.find(vehicle => vehicle.model === 1),
-    south = world.shrines.find(shrine => shrine.rewardMana === 600_000),
-    north = world.shrines.find(shrine => shrine.rewardMana === 1_000_000)
+    south = world.shrines.find(shrine => shrine.rewardMana === 600_000)
 
   focusCharging(world, 5)
   stepUntil(world, () => world.shots.swarm > 0, 1_500)
@@ -105,7 +104,8 @@ test('ordinary airborne tower command reaches departure and authored melee throu
       if (head.reward === undefined && head.rewardMana) head.reward = 'mana'
     return copy
   }
-  for (let i = 0; i < 400; i++) {
+  let death = 0
+  for (let i = 0; i < 600; i++) {
     tick(world, 1 / 12)
     tick(restored, 1 / 12)
     assert.deepEqual(comparable(restored), comparable(world))
@@ -128,8 +128,9 @@ test('ordinary airborne tower command reaches departure and authored melee throu
       assert.equal(cancelled.buildingOrders.records[oldOrder].references, 0)
       assert.ok(Math.hypot(unit.x - 55, unit.z - 121) < 1)
     }
-    if (world.turn === 4252) assert.equal(shaman.native.vehicle, balloon.id)
-    if (world.turn === 4253) {
+    if (shaman.hp <= 0 && !death) death = world.turn
+    if (world.turn === 4259) assert.equal(shaman.native.vehicle, balloon.id)
+    if (world.turn === 4260) {
       assert.deepEqual(
         [shaman.native.substate, shaman.native.workTarget, shaman.native.vehicle],
         [3, 105, 0]
@@ -137,14 +138,19 @@ test('ordinary airborne tower command reaches departure and authored melee throu
       assert.deepEqual(balloon.passengers, [])
       assert.equal(balloon.passengerCount, 0)
     }
-    if (world.turn === 4260) {
-      assert.equal(shaman.fight.opponent, 17)
-      assert.equal(world.units.find(u => u.id === 17).kind, 'preacher')
+    if (world.turn === 4266) {
+      assert.equal(shaman.fight.opponent, 11)
+      assert.equal(world.units.find(u => u.id === 11).kind, 'warrior')
       assert.equal(shaman.fight.motion.vehicle, 0)
     }
   }
   assert.equal(target.hp, 260)
-  assert.ok(shaman.hp > 0)
+  // Retained person counters change the later interception: the real Warrior
+  // kills this Shaman. Preserve target selection and require actual death cleanup.
+  assert.equal(death, 4436)
+  assert.equal(shaman.hp, 0)
+  assert.equal(order.references, 0)
+  assert.deepEqual(balloon.passengers, [])
 })
 
 // Supplied leaf boundaries supplement, not replace, the campaign witness.

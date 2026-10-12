@@ -125,10 +125,10 @@ test('ordinary queued person target moves its transport and preserves handoff th
     if (shaman.fight && !firstOpponent) firstOpponent = shaman.fight.opponent
     if (shaman.hp <= 0 && !death) death = world.turn
   }
-  assert.equal(departure, 4269)
+  assert.equal(departure, 4276)
   assert.equal(firstOpponent, 10)
   assert.equal(world.units.find(u => u.id === firstOpponent).team, 'green')
-  assert.equal(death, 4308)
+  assert.equal(death, 4389)
   assert.equal(world.buildingOrders.records[orderId].references, 0)
   assert.equal(target.hp, 55)
   assert.deepEqual(balloon.passengers, [])

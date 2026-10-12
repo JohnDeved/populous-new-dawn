@@ -99,8 +99,19 @@ test('Mission 22 Balloon worship lands, rewards once and continues through publi
   command(rejected, { ...north, id: north.id })
   assert.deepEqual(person.commands, commands)
   assert.equal(currentPersonOrder(rejected.buildingOrders, person).model, 3)
-  tick(world, 1 / 12)
-  assert.ok(command(world, { ...north, id: north.id }))
+  // Same-person boarding preserves its counter; the ordinary route now reaches
+  // the first admissible worship point at3996. Earlier clicks must retain travel.
+  const retained = shaman.native
+  for (let turn = 3980; turn <= 3996; turn++) {
+    assert.equal(world.turn, turn)
+    assert.ok(command(world, { ...north, id: north.id }))
+    assert.equal(shaman.native, retained)
+    if (turn < 3996) {
+      assert.deepEqual(retained.commands, commands)
+      assert.equal(currentPersonOrder(world.buildingOrders, retained).model, 3)
+      tick(world, 1 / 12)
+    }
+  }
   assert.equal(currentPersonOrder(world.buildingOrders, shaman.native).model, 27)
   await store.saveCheckpoint()
   assert.ok(store.loadCheckpoint())
@@ -118,8 +129,8 @@ test('Mission 22 Balloon worship lands, rewards once and continues through publi
     if (!balloon.passengerCount && !landed) landed = world.turn
     if (north.uses && !rewarded) rewarded = world.turn
   }
-  assert.equal(landed, 4028)
-  assert.equal(rewarded, 4226)
+  assert.equal(landed, 4036)
+  assert.equal(rewarded, 4238)
   assert.equal(north.uses, 1)
   assert.equal(shaman.native.vehicle, 0)
   assert.equal(shaman.hp, 100)
