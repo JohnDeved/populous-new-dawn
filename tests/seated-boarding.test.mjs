@@ -1,5 +1,6 @@
 // Ordinary acquired M22 Balloon; preparation supplies only the mana-focus adapter.
 import test from 'node:test'
+import { vehicleReady } from '../app/vehicle-routing.ts'
 import { createGameStore } from '../app/game-store.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 
@@ -69,9 +70,34 @@ test('same-vehicle boarding retains its acquired passenger through repeated inpu
     ['blue', [shaman.id], balloon.id]
   )
 
+  // The acquired craft is genuinely ready before the outbound movement. This
+  // covers native-admitted same-craft input separately from the moving rejection.
+  const readyWorld = structuredClone(world),
+    readyUnit = readyWorld.units.find(u => u.id === shaman.id),
+    readyVehicle = readyWorld.vehicles.find(v => v.id === balloon.id),
+    readyPerson = readyUnit.native
+  for (const modifiers of [{}, { ctrlKey: true }, { shiftKey: true }, { altKey: true }]) {
+    selectUnit(readyWorld, readyUnit.id, false)
+    assert.equal(vehicleReady(readyWorld.land, readyVehicle), true)
+    assert.ok(
+      command(readyWorld, { ...browserPosition(readyVehicle), id: readyVehicle.id }, modifiers)
+    )
+    const order = currentPersonOrder(readyWorld.buildingOrders, readyPerson)
+    assert.equal(order.model, 22)
+    tick(readyWorld, 1 / 12)
+    assert.equal(order.references, 0)
+    assert.equal(readyUnit.native, readyPerson)
+    assert.equal(readyWorld.objectCells.objects.get(readyUnit.id), readyPerson)
+    assert.equal(readyPerson.vehicle, readyVehicle.id)
+    assert.deepEqual(readyVehicle.passengers, [readyUnit.id])
+    assert.equal(readyPerson.state, 30)
+  }
+
   selectUnit(world, shaman.id, false)
   assert.ok(command(world, { x: 55, z: 121 }))
   while (world.turn < 4000) tick(world, 1 / 12)
+  // Existing browser input accepts this moving craft; native readiness rejects it.
+  assert.equal(vehicleReady(world.land, balloon), false)
   const person = shaman.native,
     old = currentPersonOrder(world.buildingOrders, person)
   const ownership = () => {
@@ -108,6 +134,7 @@ test('same-vehicle boarding retains its acquired passenger through repeated inpu
   assert.equal(boarding.references, 0)
   assert.equal(currentPersonOrder(world.buildingOrders, person), undefined)
   assert.equal(person.state, 30)
+  assert.equal(vehicleReady(world.land, balloon), false)
   for (const modifiers of [{}, { shiftKey: true }, { altKey: true }, { ctrlKey: true }]) {
     selectUnit(world, shaman.id, false)
     assert.ok(command(world, { ...browserPosition(balloon), id: balloon.id }, modifiers))
