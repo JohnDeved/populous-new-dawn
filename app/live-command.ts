@@ -23,6 +23,7 @@ import {
 } from './command-context.ts'
 import { acceptLivePath, findLivePath, planLivePath } from './live-pathfinding.ts'
 import { cancelLiveResting } from './live-resting.ts'
+import { cancelLiveBuildingAttack } from './live-building-combat.ts'
 import {
   acceptsPersonOrder,
   allocatePersonOrder,
@@ -500,6 +501,8 @@ export function command(
           driver = vehicle && w.units.find(u => u.id === vehicle.passengers[0]),
           person = driver?.native
         if (!vehicle || !driver || !person) continue
+        if (currentPersonOrder(w.buildingOrders, person)?.model === 19)
+          cancelLiveBuildingAttack(w, driver, true)
         cancelLiveOrder(w, driver)
         const order = allocatePersonOrder(w.buildingOrders)
         if (!order) continue
@@ -525,6 +528,8 @@ export function command(
           const passengerUnit = w.units.find(u => u.id === passengerId),
             passenger = passengerUnit?.native
           if (!passengerUnit || !passenger) continue
+          if (currentPersonOrder(w.buildingOrders, passenger)?.model === 19)
+            cancelLiveBuildingAttack(w, passengerUnit, true)
           cancelLiveOrder(w, passengerUnit)
           if (!path.motionGroup) continue
           attachPersonOrder(w.buildingOrders, passenger, order, 0, orderEffects(w))

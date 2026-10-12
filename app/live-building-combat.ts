@@ -126,13 +126,13 @@ export function liveBuildingAttackTarget(w: World, p: LivePerson) {
   )
 }
 
-export function cancelLiveBuildingAttack(w: World, u: Unit) {
+export function cancelLiveBuildingAttack(w: World, u: Unit, retainPerson = false) {
   const p = u.native ?? u.fight?.motion ?? u.flight
   if (!p || ![11, 15, 19, 21].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0)) return
   clearPersonOrders(w.buildingOrders, p, orderEffects(w))
   releasePersonRoute(w.motionRoutes, p)
   clearLivePath(w, u)
-  if (u.native === p) u.native = null
+  if (!retainPerson && u.native === p) u.native = null
   u.fighting = false
 }
 

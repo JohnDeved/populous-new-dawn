@@ -109,6 +109,25 @@ test('ordinary airborne tower command reaches departure and authored melee throu
     tick(world, 1 / 12)
     tick(restored, 1 / 12)
     assert.deepEqual(comparable(restored), comparable(world))
+    if (world.turn === 4000) {
+      const cancelled = structuredClone(world),
+        unit = cancelled.units.find(u => u.id === shaman.id),
+        person = unit.native,
+        oldOrder = person.commands[0],
+        transport = cancelled.vehicles.find(v => v.id === balloon.id)
+      selectUnit(cancelled, unit.id, false)
+      assert.ok(command(cancelled, { x: 55, z: 121 }))
+      assert.equal(unit.native, person)
+      assert.equal(person.vehicle, transport.id)
+      assert.deepEqual(transport.passengers, [unit.id])
+      assert.equal(cancelled.buildingOrders.records[oldOrder].references, 0)
+      assert.equal(currentPersonOrder(cancelled.buildingOrders, person).model, 3)
+      for (let turn = 0; turn < 400; turn++) tick(cancelled, 1 / 12)
+      assert.equal(person.vehicle, 0)
+      assert.deepEqual(transport.passengers, [])
+      assert.equal(cancelled.buildingOrders.records[oldOrder].references, 0)
+      assert.ok(Math.hypot(unit.x - 55, unit.z - 121) < 1)
+    }
     if (world.turn === 4252) assert.equal(shaman.native.vehicle, balloon.id)
     if (world.turn === 4253) {
       assert.deepEqual(
