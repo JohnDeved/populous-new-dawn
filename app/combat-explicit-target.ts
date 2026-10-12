@@ -1,6 +1,8 @@
 import type { CombatTarget, CombatPerson } from './combat-targets.ts'
 import type { SearchingCombatPerson } from './combat-order-search.ts'
 import type { PersonOrder } from './person-orders.ts'
+import { stepPersonWait, type PersonStateEffects } from './person-state.ts'
+import { nativeAngle } from './native-math.ts'
 
 type Point = { x: number; y: number }
 const short = (n: number) => (n << 16) >> 16
@@ -73,3 +75,33 @@ export function selectExplicitCombatTarget(
 // a completed body only finishes this direct order when its target is aboard.
 export const explicitCombatCommandResult = (bodyComplete: boolean, targetVehicle: number) =>
   Number(bodyComplete && targetVehicle !== 0)
+
+// 0x51a2a0 substate 12 and 0x439240. The entry visit decrements once before
+// the conditional waiting visit; losing the elevated target restarts immediately.
+export function pauseExplicitCombatTarget(
+  rng: { randomState: number },
+  p: SearchingCombatPerson,
+  target: CombatPerson | undefined,
+  e: { animation: PersonStateEffects['setAnimation']; releaseMotion: () => void }
+) {
+  if (p.flags2 & 0x40000000) {
+    p.timer = 8
+    p.assignment |= 16
+    const preserved = p.renderFlags & 16
+    p.animationMode = 4
+    p.flags2 = (p.flags2 & ~0x40000000) >>> 0
+    stepPersonWait(rng, p, e, false)
+    p.renderFlags |= preserved
+  }
+  if (target && !(target.flags2 & 1) && target.life > 0 && target.flags4 & 0x400) {
+    if (!(p.counter & 3)) {
+      const angle = nativeAngle(short(target.x - p.x), -short(target.y - p.y))
+      if (p.flags2 & 128) p.turnAngle = angle
+      p.heading = angle
+      p.angle = p.flags2 & 0x8000 ? (angle + 1024) & 2047 : angle
+    }
+    if (!stepPersonWait(rng, p, e, false)) return
+  }
+  p.substate = 0
+  p.flags2 = (p.flags2 | 0x40000000) >>> 0
+}

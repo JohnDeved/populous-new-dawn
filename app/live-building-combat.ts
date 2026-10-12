@@ -36,6 +36,7 @@ import {
   trackExplicitCombatTarget,
   selectExplicitCombatTarget,
   explicitCombatCommandResult,
+  pauseExplicitCombatTarget,
 } from './combat-explicit-target.ts'
 import { setPersonAnchor } from './person-order-update.ts'
 import { clearLivePath, replanLivePath, stepLiveRoute } from './live-pathfinding.ts'
@@ -526,7 +527,8 @@ export function stepLiveAboardPersonAttack(w: World, u: Unit) {
   const p = u.native,
     order = p && currentPersonOrder(w.buildingOrders, p)
   if (!p?.vehicle || order?.model !== 28 || p.model === 4 || p.model === 6) return false
-  if (p.substate) throw new Error('Unported airborne explicit-target phase')
+  if (p.substate !== 0 && p.substate !== 12)
+    throw new Error('Unported airborne explicit-target phase')
   registerLivePerson(w, p)
   p.counter = (p.counter + 1) & 255
   const motion = combatMotion(w, u, p)
@@ -613,6 +615,7 @@ export function stepLiveAboardPersonAttack(w: World, u: Unit) {
             }
           ),
       })
+      if (p.substate === 12) pauseExplicitCombatTarget(search, p, target, motion)
       w.randomState = search.randomState
       w.musicActivity = search.alert
       // 0x51fce0 only checks target transport after a nonzero shared-body result.

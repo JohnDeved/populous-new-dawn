@@ -116,3 +116,42 @@ test('explicit selector preserves person, existing fight-group and building iden
   })
   assert.equal(selectExplicitCombatTarget(objects, p, { a: 0, flags: 0 }), undefined)
 })
+
+import { pauseExplicitCombatTarget } from '../app/combat-explicit-target.ts'
+test('explicit elevated-target pause decrements twice on entry then restarts without dropping ownership', () => {
+  const p = {
+      ...person(),
+      physics: 18,
+      cargo: 0,
+      assignment: 0,
+      renderFlags: 16,
+      flags2: 0x40000080,
+      substate: 12,
+      timer: 99,
+      animationMode: 0,
+    },
+    t = { ...target(), flags4: 0x400 },
+    events = [],
+    rng = { randomState: 123 }
+  const e = {
+    animation: () => events.push('animation'),
+    releaseMotion: () => events.push('release'),
+  }
+  pauseExplicitCombatTarget(rng, p, t, e)
+  assert.equal(p.timer, 6)
+  assert.equal(p.substate, 12)
+  assert.equal(p.assignment & 16, 0)
+  assert.equal(p.renderFlags & 16, 16)
+  assert.equal(p.animationMode, 4)
+  assert.equal(p.turnAngle, p.heading)
+  assert.deepEqual(events, ['animation'])
+  for (let i = 0; i < 6; i++) pauseExplicitCombatTarget(rng, p, t, e)
+  assert.equal(p.timer, 0)
+  assert.equal(p.substate, 0)
+  assert.ok(p.flags2 & 0x40000000)
+  assert.equal(rng.randomState, 123)
+  p.substate = 12
+  pauseExplicitCombatTarget(rng, p, { ...t, flags4: 0 }, e)
+  assert.equal(p.timer, 7)
+  assert.equal(p.substate, 0)
+})

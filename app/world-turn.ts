@@ -1471,7 +1471,7 @@ function stepTurn(w: World) {
       }
     }
     const activeOrder = u.native && currentPersonOrder(w.buildingOrders, u.native)
-    if (stepLiveAboardPersonAttack(w, u)) continue
+    if (activeOrder?.model === 28 && u.native?.vehicle && stepLiveAboardPersonAttack(w, u)) continue
     if (u.native?.vehicle && !activeOrder) {
       const vehicle = w.vehicles.find(vehicle => vehicle.id === u.native!.vehicle)
       if (vehicle) syncLiveVehiclePassengers(w, vehicle)
