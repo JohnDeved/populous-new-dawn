@@ -1,4 +1,4 @@
-// Bounded direct-target transport handoff; grounded combat remains the existing adapter.
+// Staged transport waypoint completion preserves the shared queue and seated owner.
 import test from 'node:test'
 import { createGameStore } from '../app/game-store.ts'
 import { stepLiveOrderQueue } from '../app/live-movement.ts'
