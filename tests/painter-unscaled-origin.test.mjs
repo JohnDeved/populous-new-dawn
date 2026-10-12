@@ -84,6 +84,40 @@ function measure(view, call) {
   return { calls, resultRecords: records.size }
 }
 
+// Count the maintained origin-construction method only while actual Painter.update
+// executes. Preparation, camera setup and picking retain their own Vector work.
+function measureOrigins(fixture, call) {
+  const painter = fixture.view.painter,
+    originalUpdate = painter.update,
+    originalPosition = THREE.Vector3.prototype.setFromMatrixPosition,
+    receivers = new Set()
+  let active = 0,
+    originCalls = 0
+  painter.update = function (...args) {
+    active++
+    try {
+      return originalUpdate.apply(this, args)
+    } finally {
+      active--
+    }
+  }
+  THREE.Vector3.prototype.setFromMatrixPosition = function (matrix) {
+    const result = originalPosition.call(this, matrix)
+    if (active) {
+      originCalls++
+      receivers.add(this)
+    }
+    return result
+  }
+  try {
+    call()
+  } finally {
+    painter.update = originalUpdate
+    THREE.Vector3.prototype.setFromMatrixPosition = originalPosition
+  }
+  return { originCalls, distinctOriginVectors: receivers.size }
+}
+
 test('shipped visible terrain retains complete painter output, shared projections, ambience and picking', async () => {
   const api = await loadSceneFixture(),
     world = api.createWorld(1)
@@ -160,7 +194,10 @@ test('shipped visible terrain retains complete painter output, shared projection
           activity: 0,
         }
         fixture.view.painter.pendingSoundEnvironment = sound
-        const counts = measure(fixture.view, fixture.update)
+        let counts
+        const originCounts = measureOrigins(fixture, () => {
+          counts = measure(fixture.view, fixture.update)
+        })
         assert.equal(
           terrain.count,
           visibleTerrainCopies(fixture.view.bounds, fixture.view.rawCenter).length
@@ -226,6 +263,7 @@ test('shipped visible terrain retains complete painter output, shared projection
           visibleInstances: terrain.count,
           submittedIndices: terrain.geometry.drawRange.count,
           ...counts,
+          ...originCounts,
           outputSha256: hash(output),
         })
         previous = output
@@ -240,6 +278,10 @@ test('shipped visible terrain retains complete painter output, shared projection
       }
     }
     console.log(JSON.stringify({ diagnostic: 'shipped-visible-terrain-relative-results', rows }))
+    for (const row of rows) {
+      assert.equal(row.originCalls, 0, 'unscaled real terrain needs no instance origin Vector')
+      assert.equal(row.distinctOriginVectors, 0)
+    }
   } finally {
     globalThis.fetch = originalFetch
     owner.terrainLoad.abort()
@@ -270,12 +312,20 @@ test('authentic scaled model13 and sprites retain origin projection, commands an
       rows = []
     let previous
     for (let repeat = 0; repeat < 2; repeat++) {
-      const counts = measure(fixture.view, fixture.update),
+      let counts
+      const originCounts = measureOrigins(fixture, () => {
+          counts = measure(fixture.view, fixture.update)
+        }),
         output = fixture.snapshot()
       assert.deepEqual(
         counts,
         { calls: 2, resultRecords: 2 },
         'both truthy model and sprite still need their origin'
+      )
+      assert.deepEqual(
+        originCounts,
+        { originCalls: 2, distinctOriginVectors: 2 },
+        'truthy controls retain separate fresh origin Vectors'
       )
       assert.ok(fixture.view.painter.source(model))
       assert.ok(fixture.view.painter.source(sprite))
@@ -296,7 +346,7 @@ test('authentic scaled model13 and sprites retain origin projection, commands an
       )
       if (previous) assert.deepEqual(output, previous)
       previous = output
-      rows.push({ repeat, ...counts, outputSha256: hash(output) })
+      rows.push({ repeat, ...counts, ...originCounts, outputSha256: hash(output) })
       fixture.view.painter.afterRender()
       assert.equal(model.material, material)
       assert.equal(model.geometry.groups, groups)
@@ -304,6 +354,90 @@ test('authentic scaled model13 and sprites retain origin projection, commands an
     }
     console.log(JSON.stringify({ diagnostic: 'scaled-model-sprite-origin-controls', rows }))
   } finally {
+    fixture.close()
+    supplied.close()
+  }
+})
+
+test('delegating visibility and projection observers retain distinct truthy origins across frames', async () => {
+  const api = await loadSceneFixture(),
+    world = api.createWorld(1),
+    supplied = await makeSceneFixture(world)
+  const { nativeModel } = await import('../app/scene-assets.ts')
+  const fixture = frame(),
+    before = structuredClone(world),
+    retained = [],
+    seen = new Set()
+  const originalRelative = fixture.view.relative,
+    originalVisible = fixture.view.visible
+  let visibleInputs = [],
+    events = []
+  fixture.view.visible = function (point, unwrapped) {
+    visibleInputs.push(point)
+    events.push({ phase: 'visible', point })
+    return originalVisible.call(this, point, unwrapped)
+  }
+  fixture.view.relative = function (point, height, unwrapped) {
+    retained.push({ point, position: point.toArray() })
+    events.push({ phase: 'relative', point })
+    return originalRelative.call(this, point, height, unwrapped)
+  }
+  try {
+    for (let i = 0; i < 3; i++) fixture.add(new THREE.Sprite(new THREE.SpriteMaterial()))
+    for (let i = 0; i < 3; i++)
+      fixture.add(nativeModel(13, 2, 4, false, supplied.scene.environment))
+    for (let repeat = 0; repeat < 2; repeat++) {
+      fixture.objects.forEach((object, i) => {
+        object.position.x = (i - 3) / 4 + repeat / 8
+      })
+      const start = retained.length,
+        expected = fixture.objects.map(object => object.position.toArray())
+      visibleInputs = []
+      events = []
+      const origins = measureOrigins(fixture, fixture.update)
+      assert.deepEqual(origins, { originCalls: 6, distinctOriginVectors: 6 })
+      assert.equal(
+        retained.length - start,
+        6,
+        'every truthy instance still reaches projection once'
+      )
+      assert.equal(visibleInputs.length, 6)
+      assert.equal(events.length, 12)
+      for (let i = 0; i < 6; i++) {
+        const entry = retained[start + i]
+        assert.deepEqual(
+          events.slice(i * 2, i * 2 + 2),
+          [
+            { phase: 'visible', point: entry.point },
+            { phase: 'relative', point: entry.point },
+          ],
+          'callback order remains visibility then projection for every origin'
+        )
+        assert.equal(
+          visibleInputs[i],
+          entry.point,
+          'visibility precedes projection on the same fresh origin'
+        )
+        assert.deepEqual(entry.position, expected[i])
+        assert.ok(
+          !seen.has(entry.point),
+          'a fresh origin is retained for each truthy instance/frame'
+        )
+        seen.add(entry.point)
+      }
+      for (const entry of retained)
+        assert.deepEqual(
+          entry.point.toArray(),
+          entry.position,
+          'later instances and frames cannot change origins retained by public delegates'
+        )
+      fixture.view.painter.afterRender()
+      assert.deepEqual(world, before)
+    }
+    assert.equal(seen.size, 12)
+  } finally {
+    fixture.view.relative = originalRelative
+    fixture.view.visible = originalVisible
     fixture.close()
     supplied.close()
   }
@@ -341,7 +475,10 @@ test('supplied unscaled unique, shared and instanced faces avoid only their unus
         )
         fixture.update()
         fixture.view.painter.afterRender()
-        const counts = measure(fixture.view, fixture.update)
+        let counts
+        const originCounts = measureOrigins(fixture, () => {
+          counts = measure(fixture.view, fixture.update)
+        })
         assert.equal(fixture.view.painter.commandsBySlot.filter(Boolean).length, population)
         assert.equal(fixture.view.painter.commandsBySlot.length, population)
         assert.equal(
@@ -349,7 +486,13 @@ test('supplied unscaled unique, shared and instanced faces avoid only their unus
             .length,
           kind === 'unique' ? population * 3 : 3
         )
-        rows.push({ kind, population, ...counts, outputSha256: hash(fixture.snapshot()) })
+        rows.push({
+          kind,
+          population,
+          ...counts,
+          ...originCounts,
+          outputSha256: hash(fixture.snapshot()),
+        })
         assert.deepEqual(world, before)
       } finally {
         fixture.close()
@@ -364,5 +507,11 @@ test('supplied unscaled unique, shared and instanced faces avoid only their unus
       `${row.kind}/${row.population}: only accepted unique vertex projections remain`
     )
     assert.equal(row.resultRecords, expected)
+    assert.equal(
+      row.originCalls,
+      0,
+      `${row.kind}/${row.population}: unused origin Vectors are not constructed`
+    )
+    assert.equal(row.distinctOriginVectors, 0)
   }
 })
