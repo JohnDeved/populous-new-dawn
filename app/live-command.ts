@@ -557,17 +557,17 @@ export function command(
       .every(u => {
         const person = u.native ?? u.entry?.person ?? u.builder?.person
         if (!person?.vehicle) return true
-        // Native player input retains a same-vehicle passenger. Only an exact,
+        // Native player input retains an existing passenger. Only an exact,
         // living registered seat owner enters this already-supported controller.
-        const vehicle = context.vehicle!,
-          slot = vehicle.passengers.indexOf(u.id)
+        const vehicle = w.vehicles.find(v => v.id === person.vehicle && v.active),
+          slot = vehicle?.passengers.indexOf(u.id) ?? -1
         return (
           u.hp > 0 &&
           u.native === person &&
           person.id === u.id &&
           person.class === 1 &&
           !(person.flags2 & 1) &&
-          vehicle.active &&
+          vehicle &&
           person.vehicle === vehicle.id &&
           slot !== -1 &&
           slot < rules.vehicleCapacity[vehicle.model] &&
