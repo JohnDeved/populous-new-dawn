@@ -644,7 +644,7 @@ export function strikeLiveLightning(w: World, point: { x: number; y: number }, t
   }
   const units = new Map<number, Unit>()
   const people: LivePerson[] = []
-  // Ordinary allocation still supplies cell order, as in the live Blast adapter.
+  // Retain legacy/captive placement until exact native ownership is available.
   for (const u of w.units) {
     if (u.inside !== null || (u.hp <= 0 && !u.flight && u.native?.state !== 44)) continue
     const existing = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person
@@ -656,6 +656,17 @@ export function strikeLiveLightning(w: World, point: { x: number; y: number }, t
     units.set(p.id, u)
     people.unshift(p)
   }
+  // 00511f70 consumes the retained person chain before its inclusive kill cap.
+  // Project only exact owned objects into existing slots; snapshot before release.
+  const linked: LivePerson[] = []
+  for (const object of objectsInCell(w.objectCells, ((point.x >>> 8) & 254) | (point.y & 0xfe00))) {
+    const person = people.find(candidate => candidate === object)
+    if (person) linked.push(person)
+  }
+  const owned = new Set(linked)
+  let next = 0
+  for (const [index, person] of people.entries())
+    if (owned.has(person)) people[index] = linked[next++]
   strikeLightning(people, tribe, p => {
     const u = units.get(p.id)!
     releaseTasks(w, u)
