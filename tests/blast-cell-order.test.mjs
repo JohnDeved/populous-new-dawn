@@ -107,7 +107,7 @@ test('public checkpoint continuation preserves the pending Blast cap and linked 
   await store.saveCheckpoint()
   assert.equal(store.loadCheckpoint(), true)
   const restored = store.getWorld(),
-    wave = restored.effects.find(effect => effect.wave).wave
+    { wave } = restored.effects.find(effect => effect.wave)
   assert.deepEqual(nativeAlliedVisits(restored, wave), [507, 507, 312, 309, 513])
   tick(restored, 1 / 12)
   assert.deepEqual(flights(restored), [312, 309, 513, 507])
@@ -115,7 +115,7 @@ test('public checkpoint continuation preserves the pending Blast cap and linked 
 
 test('unregistered legacy people retain the existing Blast fallback ordering', () => {
   const { world, wave } = pendingFinalWave()
-  for (const person of [...world.objectCells.objects.values()]) {
+  for (const person of world.objectCells.objects.values()) {
     if (person.flags2 & 0x20000) removeObjectFromCell(world.objectCells, person)
     world.objectCells.objects.delete(person.id)
   }
