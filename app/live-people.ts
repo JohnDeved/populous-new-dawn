@@ -634,28 +634,32 @@ export function strikeLiveLightning(w: World, point: { x: number; y: number }, t
           u.kind === 'shaman' &&
           u.hp > 0
       )
-  if (captive) {
-    const p = leaveLiveBuilding(w, captive)
-    if (p) {
-      p.previousState = p.state
-      p.state = 3
-      captive.native = p
-    }
-  }
   const units = new Map<number, Unit>()
   const people: LivePerson[] = []
-  // Ordinary allocation still supplies cell order, as in the live Blast adapter.
+  // Retain legacy placement until exact native ownership is available.
   for (const u of w.units) {
     if (u.inside !== null || (u.hp <= 0 && !u.flight && u.native?.state !== 44)) continue
     const existing = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person
     const position = existing ?? nativePosition(w, u)
-    if (u !== captive && ((position.y & 65535) >> 9) * 128 + ((position.x & 65535) >> 9) !== cell)
-      continue
+    if (((position.y & 65535) >> 9) * 128 + ((position.x & 65535) >> 9) !== cell) continue
     const p = existing ?? createLivePerson(w, u)
     p.life = Math.round(u.hp * 20)
     units.set(p.id, u)
     people.unshift(p)
   }
+  // 00511f70 consumes the retained person chain before its inclusive kill cap.
+  // Project only exact owned objects into existing slots; snapshot before release.
+  const linked: LivePerson[] = []
+  for (const object of objectsInCell(w.objectCells, ((point.x >>> 8) & 254) | (point.y & 0xfe00))) {
+    const person = people.find(candidate => candidate === object)
+    if (person) linked.push(person)
+  }
+  const owned = new Set(linked)
+  let next = 0
+  // Ambiguous duplicate roster owners retain the previous fallback unchanged.
+  if (people.filter(person => owned.has(person)).length === linked.length)
+    for (const [index, person] of people.entries())
+      if (owned.has(person)) people[index] = linked[next++]
   strikeLightning(people, tribe, p => {
     const u = units.get(p.id)!
     releaseTasks(w, u)
@@ -666,6 +670,24 @@ export function strikeLiveLightning(w: World, point: { x: number; y: number }, t
     w.selected = w.selected.filter(id => id !== u.id)
   })
   for (const p of people) units.get(p.id)!.hp = p.life / 20
+  // 00511f70 handles the state-42 captive after the capped cell traversal.
+  // This forced state-3 consequence bypasses the ordinary immunity/kill budget.
+  if (captive) {
+    const p = leaveLiveBuilding(w, captive)
+    if (p) {
+      releaseTasks(w, captive)
+      p.flags2 = (p.flags2 & ~0x100000) >>> 0
+      p.previousState = 42 // Prison occupancy is the live adapter for native state 42.
+      p.state = 3
+      captive.native = p
+      if (p.tribe !== -1 && tribe !== -1) p.damageAttacker = tribe
+      // Hand state 3 to existing live death cleanup, as electrocution does.
+      // This is an adapter handoff, not a life write by native 004da0d0.
+      p.life = 0
+      captive.hp = 0
+      w.selected = w.selected.filter(id => id !== captive.id)
+    }
+  }
 }
 
 // Existing ordinary allocation order is also used by Blast's cell adapter.
