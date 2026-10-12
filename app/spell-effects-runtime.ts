@@ -223,24 +223,40 @@ export function stepUnitShields(w: World) {
 }
 
 export function shieldFollowers(w: World, point: Point, team: Team) {
-  const center = nativePosition(w, point)
-  // ponytail: nearest candidates approximate the unavailable native radius-3
-  // land-list callbacks; replace this ordering when 00515e30 is exportable.
-  const targets = w.units
-    .filter(
-      u =>
-        u.team === team &&
-        u.kind !== 'shaman' &&
-        u.hp > 0 &&
-        u.inside === null &&
-        positionDistance(nativePosition(w, u), center) <= 3 * 512
-    )
+  const center = nativePosition(w, point),
+    x = (center.x >>> 8) & 254,
+    y = (center.y >>> 8) & 254,
+    tribe = tribeForTeam(team),
+    units = new Map(w.units.map(u => [u.id, u])),
+    candidates: { unit: Unit; person: LivePerson; order: number }[] = []
+  // 00515e30 scans a 3-by-3 even-cell square, not a radius. Its temporary
+  // candidate chain reverses discovery before strict nearest-first selection.
+  for (const dy of [-2, 0, 2])
+    for (const dx of [-2, 0, 2])
+      for (const object of objectsInCell(
+        w.objectCells,
+        ((x + dx) & 254) | (((y + dy) & 254) << 8)
+      )) {
+        const person = object as LivePerson,
+          unit = units.get(person.id)
+        // 005156b0: existing Shield is ineligible, so recasting cannot refresh it.
+        if (
+          unit &&
+          person.class === 1 &&
+          person.tribe === tribe &&
+          ![1, 7, 8].includes(person.model) &&
+          !(person.flags4 & 0x4800) &&
+          !(person.flags3 & 0x8000)
+        )
+          candidates.push({ unit, person, order: candidates.length })
+      }
+  const targets = candidates
     .toSorted(
       (a, b) =>
-        positionDistance(nativePosition(w, a), center) -
-        positionDistance(nativePosition(w, b), center)
+        positionDistance(a.person, center) - positionDistance(b.person, center) || b.order - a.order
     )
     .slice(0, constants.SHIELD_NUM_PEOPLE)
+    .map(({ unit }) => unit)
   for (const u of targets) setUnitShield(w, u, SHIELD_TURNS)
   return targets
 }
