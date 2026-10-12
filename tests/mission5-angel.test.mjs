@@ -113,13 +113,10 @@ test('Mission 5 Angel head delivers its linked hostile summon through live worsh
     'native reach is a component-wise square, including its diagonal'
   )
   for (let turn = 0; turn < 20 && victim.hp === hp; turn++) tick(world, 1 / 12)
-  assert.equal(victim.hp, hp, 'Shield blocks the mode-zero strike')
-  assert.equal(world.killCredits[0][1], credits)
+  assert.equal(victim.hp, 0, '004e0a30 bypasses Shield on the first timer-eight strike')
+  assert.equal(world.killCredits[0][1], credits + 1)
   assert.ok(world.effects.some(effect => effect.kind === 'hit'))
 
-  victim.shield = 0
-  for (let turn = 0; turn < 80 && victim.hp > 0; turn++) tick(world, 1 / 12)
-  assert.equal(victim.hp, 0)
   assert.deepEqual(
     { phase: angel.angel.phase, timer: angel.angel.timer },
     { phase: 'striking', timer: 8 }

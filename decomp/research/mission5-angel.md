@@ -87,3 +87,37 @@ duration. An implementation may use the recovered owner, destination, combat, an
 cleanup contracts, but must not label its activation frame ordering or duration as
 exact native parity until a narrow head-completion/command-29 trace records the
 first class-1/model-8 allocation's caller, position, `+0x7c`, and `+0x97`.
+
+## Angel impact Shield correction (2026-10-12)
+
+The timer-eight ordinary-person branch in `004db980` calls `004e0a30`, not
+mode-zero `004da080`. The former directly subtracts current signed life at
+`+0x6e`. Its damage block retains level-flag `0x04000000` immunity, Bloodlust
+(`+0x16 & 8`, flags3 `0x80000`) reduction, and nonneutral victim/attacker
+attribution. It does not test Shield (`+0x15 & 0x80`, flags3 `0x8000`). The
+retained controller's person-selection and timer-eight branches likewise contain
+no Shield exclusion. Movement/helper and full selection equivalence are not
+established by this observation.
+
+The browser Angel consumer incorrectly used ordinary damage mode zero. Passing
+mode one to the existing `damagePerson` preserves the shared health, Bloodlust,
+immunity and attribution logic while bypassing only Shield. The existing Mission5
+fixture's explicit "Shield blocks" expectation described that browser error; its
+replacement requires death on the first timer-eight strike and retains target
+eligibility, exact recovery timing and one kill credit.
+
+`tests/angel-impact.test.mjs` supplies a flat field, people, stock and status
+durations, then uses public casting, projectile arrival, ordinary Angel selection,
+and real turn processing through impact and cleanup. The unchanged baseline
+produced a hit at turn29/timer8 in both ordinary and Shield cases, but Shield
+incorrectly kept50HP. Five of eight failure-first cases fail on that baseline.
+The matrix retains Bloodlust-only, combined status and global-immunity controls;
+neutral attribution cases explicitly supply a terminal state after selection,
+without claiming natural neutral target acquisition. The actual checkpoint API
+preserves exact continuation through impact and recovery; the CPU environment
+exercises its in-memory checkpoint rather than persistent browser storage.
+
+This correction does not implement `004e0a30`'s throw vector, person-state
+initialization, Angel counters or parameter-dependent cleanup flags. No fresh
+native execution, rendered acceptance, exact Angel movement, or full consumer
+equivalence is claimed. The earlier activation/lifetime boundaries still apply.

@@ -625,7 +625,14 @@ function stepTurn(w: World) {
           (source.flags3 & ~0x88000) |
           (event.hit.shield ? 0x8000 : 0) |
           (event.hit.bloodlust ? 0x80000 : 0)
-        damagePerson(source, w.levelFlags2, tribeForTeam(fx.team!), Math.round(event.hit.hp * 20))
+        // 004e0a30 subtracts life directly: Shield does not gate Angel impacts.
+        damagePerson(
+          source,
+          w.levelFlags2,
+          tribeForTeam(fx.team!),
+          Math.round(event.hit.hp * 20),
+          1
+        )
         event.hit.hp = Math.max(0, source.life / 20)
         effect(w, 'hit', event.hit)
         sound(w, 0xdc, event.hit)
