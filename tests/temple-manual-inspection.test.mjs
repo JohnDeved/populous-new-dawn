@@ -155,7 +155,7 @@ test('Temple explicit held input reuses one record, releases off-target and expi
   scene.cameraMotion = { active: 0 }
   scene.cameraPreviewButtons = null
   scene.cameraVelocity = { turn: 0, forward: 0, side: 0 }
-  pointerMove(scene, { clientX: 799, clientY: 1, buttons: 2 })
+  pointerMove(scene, { ...event, clientX: 799, clientY: 1, buttons: 2 })
   for (let visits = 0; visits < 30; visits++) frame()
   assert.equal(records(scene).get(temple.id), record)
   assert.deepEqual(record, { phase: 1, remaining: 15, hold: 16, automatic: false })

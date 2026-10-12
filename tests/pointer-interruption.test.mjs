@@ -4,13 +4,17 @@ import { loadSceneFixture } from './support/bloodlust-scene.mjs'
 import { createStartedWorld } from './level-start-fixture.mjs'
 
 const api = await loadSceneFixture()
-const { pointerDown, pointerUp, updateDrag, installInputListeners } = await import('../app/scene-input-runtime.ts')
+const { pointerDown, pointerUp, pointerMove, updateDrag, installInputListeners } =
+  await import('../app/scene-input-runtime.ts')
 const { skipIntroduction } = await import('../app/scene-camera-runtime.ts')
 
 function fixture(t) {
-  const world = createStartedWorld(), unit = world.units.find(u => u.team === 'blue' && u.kind === 'brave')
+  const world = createStartedWorld(),
+    unit = world.units.find(u => u.team === 'blue' && u.kind === 'brave')
   api.setSelection(world, [])
-  const globals = new Map(['window', 'document'].map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]))
+  const globals = new Map(
+    ['window', 'document'].map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)])
+  )
   globalThis.window = {}
   globalThis.document = { hidden: false, querySelector: () => null }
   t.after(() => {
@@ -19,18 +23,35 @@ function fixture(t) {
       else delete globalThis[key]
     }
   })
-  const listeners = [], captured = new Set()
+  const listeners = [],
+    captured = new Set()
   let hovered = unit
   const scene = {
-    world, renderer: { domElement: { setPointerCapture(id) { captured.add(id) } } },
-    listen(target, type, callback) { listeners.push({ target, type, callback }) },
-    keys: new Set(), globeMotion: { dragging: false, velocity: { x: 0, y: 0 } },
-    dragActive: { value: false }, selectionOverlay: { visible: false, update() {} },
-    view: { angle: 0 }, flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 },
+    world,
+    renderer: {
+      domElement: {
+        setPointerCapture(id) {
+          captured.add(id)
+        },
+      },
+    },
+    listen(target, type, callback) {
+      listeners.push({ target, type, callback })
+    },
+    keys: new Set(),
+    globeMotion: { dragging: false, velocity: { x: 0, y: 0 } },
+    dragActive: { value: false },
+    selectionOverlay: { visible: false, update() {} },
+    view: { angle: 0 },
+    flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 },
     pickUnit: () => hovered,
     pick: e => ({ x: unit.x + (e.clientX - 10) / 10, z: unit.z - (e.clientY - 10) / 10 }),
-    pickWorldObject: () => null, picking: { pickPerson: () => hovered?.id },
-    onChange() {}, onSound() {}, acknowledgePointer() {}, orderSound() {},
+    pickWorldObject: () => null,
+    picking: { pickPerson: () => hovered?.id },
+    onChange() {},
+    onSound() {},
+    acknowledgePointer() {},
+    orderSound() {},
     objectPanels: { releaseBuildingInspection() {} },
   }
   scene.pointerDown = e => pointerDown(scene, e)
@@ -39,9 +60,30 @@ function fixture(t) {
   skipIntroduction(scene)
   assert.equal(world.inputMask, 0)
   installInputListeners(scene, {})
-  const event = (pointerId = 1, extra = {}) => ({ button: 0, buttons: 1, pointerId, clientX: 10, clientY: 10, ctrlKey: false, shiftKey: false, altKey: false, metaKey: false, ...extra })
-  const emit = (target, type, e = {}) => listeners.filter(l => l.target === target && l.type === type).forEach(l => l.callback(e))
-  return { scene, world, unit, event, emit, hover: value => { hovered = value } }
+  const event = (pointerId = 1, extra = {}) => ({
+    button: 0,
+    buttons: 1,
+    pointerId,
+    clientX: 10,
+    clientY: 10,
+    ctrlKey: false,
+    shiftKey: false,
+    altKey: false,
+    metaKey: false,
+    ...extra,
+  })
+  const emit = (target, type, e = {}) =>
+    listeners.filter(l => l.target === target && l.type === type).forEach(l => l.callback(e))
+  return {
+    scene,
+    world,
+    unit,
+    event,
+    emit,
+    hover: value => {
+      hovered = value
+    },
+  }
 }
 
 for (const reason of ['blur', 'hidden', 'pointercancel']) {
@@ -57,10 +99,16 @@ for (const reason of ['blur', 'hidden', 'pointercancel']) {
     scene.navigationPointer = { x: 10, y: 10, buttons: 1 }
     const cancel = () => {
       if (reason === 'blur') emit(window, 'blur')
-      else if (reason === 'hidden') { document.hidden = true; emit(document, 'visibilitychange') }
-      else { emit(scene.renderer.domElement, 'pointercancel', event()); emit(window, 'pointercancel', event()) }
+      else if (reason === 'hidden') {
+        document.hidden = true
+        emit(document, 'visibilitychange')
+      } else {
+        emit(scene.renderer.domElement, 'pointercancel', event())
+        emit(window, 'pointercancel', event())
+      }
     }
-    cancel(); cancel()
+    cancel()
+    cancel()
     assert.equal(scene.drag, null)
     assert.equal(scene.dragActive.value, false)
     assert.equal(scene.selectionOverlay.visible, false)
@@ -78,7 +126,11 @@ for (const reason of ['blur', 'hidden', 'pointercancel']) {
     document.hidden = false
     pointerDown(scene, event(2))
     pointerUp(scene, event(2, { buttons: 0 }))
-    assert.deepEqual(world.selected, [unit.id], 'fresh selection remains valid, including while paused')
+    assert.deepEqual(
+      world.selected,
+      [unit.id],
+      'fresh selection remains valid, including while paused'
+    )
     api.setSelection(world, [])
     hover(undefined)
     pointerDown(scene, event(3, { clientX: 0, clientY: 0 }))
@@ -131,4 +183,49 @@ test('pointercancel still clears navigation state when no canvas gesture is owne
   scene.navigationPointer = { x: 0, y: 0, buttons: 0 }
   emit(window, 'pointercancel', event(8))
   assert.equal(scene.navigationPointer, null)
+})
+
+test('a cancelled camera drag cannot resume from held-button movement without a fresh press', t => {
+  const { scene, event, emit } = fixture(t)
+  Object.assign(scene, {
+    cameraMotion: { active: 0 },
+    cameraPosition: { x: 0, y: 0, angle: 0, zoom: 0 },
+    cameraVelocity: { turn: 0, forward: 0, side: 0 },
+    captureCamera() {},
+    updateView() {},
+  })
+  const right = (id, x) => event(id, { button: 2, buttons: 2, clientX: x, ctrlKey: true })
+  pointerDown(scene, right(1, 10))
+  pointerMove(scene, right(1, 20))
+  assert.equal(scene.cameraPosition.angle, 10)
+  emit(window, 'blur')
+  const angle = scene.cameraPosition.angle
+  pointerMove(scene, right(1, 60))
+  assert.equal(scene.cameraPosition.angle, angle)
+  pointerDown(scene, right(2, 60))
+  pointerMove(scene, right(1, 90))
+  assert.equal(scene.cameraPosition.angle, angle)
+  pointerMove(scene, right(2, 70))
+  assert.equal(scene.cameraPosition.angle, angle + 10)
+})
+
+test('a fresh middle-button camera drag pans after interruption', t => {
+  const { scene, event, emit } = fixture(t)
+  Object.assign(scene, {
+    tooltip: { draw: 0 },
+    cameraMotion: { active: 0 },
+    cameraPosition: { x: 0, y: 0, angle: 0, zoom: 0 },
+    cameraVelocity: { turn: 0, forward: 0, side: 0 },
+    captureCamera() {},
+    updateView() {},
+  })
+  const middle = (id, x) => event(id, { button: 1, buttons: 4, clientX: x })
+  pointerDown(scene, middle(1, 10))
+  emit(window, 'pointercancel', middle(1, 10))
+  const before = { ...scene.cameraPosition }
+  pointerMove(scene, middle(1, 20))
+  assert.deepEqual(scene.cameraPosition, before)
+  pointerDown(scene, middle(2, 20))
+  pointerMove(scene, middle(2, 30))
+  assert.notDeepEqual(scene.cameraPosition, before)
 })

@@ -283,7 +283,11 @@ export function pointerDown(scene: GameScene, event: PointerEvent) {
 export function pointerMove(scene: GameScene, event: PointerEvent) {
   scene.pointerButtons = event.buttons
   scene.pointerScreen = { clientX: event.clientX, clientY: event.clientY }
-  if (!scene.world.inputMask && (event.buttons === 2 || event.buttons === 4)) {
+  if (
+    !scene.world.inputMask &&
+    scene.pointerGesture?.pointerId === event.pointerId &&
+    (event.buttons === 2 || event.buttons === 4)
+  ) {
     const dx = event.clientX - scene.dragLast.x,
       dy = event.clientY - scene.dragLast.y
     scene.cameraMotion.active = 0
