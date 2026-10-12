@@ -14,7 +14,7 @@ import { spiralCell } from '../app/native-math.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
 import { campaignInternal, withCampaignTribe } from '../app/campaign-runtime.ts'
 import { stepComputerTasks } from '../app/computer-runtime.ts'
-import { createComputerQueue, requestAttack, stepAttackTask } from '../app/computer.ts'
+import { computerPhase, createComputerQueue, requestAttack, stepAttackTask } from '../app/computer.ts'
 import { createLivePerson } from '../app/live-people.ts'
 
 test('Mission 6 keeps both original opponents distinct through outcome and checkpoints', () => {
@@ -282,13 +282,15 @@ test('Mission 6 Chumara trains Preachers and launches its first mixed raid', () 
   )
   const originalMembers = [...restoredAttack.members]
   let abortTurn = null,
-    retired = false
+    retired = false,
+    reusedForTraining = false
   for (let turn = 0; turn < 513; turn++) {
     const phase = restoredAttack.phase,
       elapsed = restoredAttack.elapsed,
       fallback = restoredAttack.fallback,
-      active = !!(restoredAttack.flags & 1),
-      owners = phase === 6 ? originalMembers.map(id => {
+      active = !retired && !!(restoredAttack.flags & 1),
+      firstFreeSlot = raiding.campaignAIs[2].tasks.findIndex(task => !(task.flags & 1)),
+      owners = !retired && phase === 6 ? originalMembers.map(id => {
         const unit = raiding.units.find(unit => unit.id === id),
           person = raiding.objectCells.objects.get(id),
           order = person && currentPersonOrder(raiding.buildingOrders, person)
@@ -308,12 +310,14 @@ test('Mission 6 Chumara trains Preachers and launches its first mixed raid', () 
     const activeRaids = raiding.campaignAIs[2].tasks.filter(task => task.flags & 1 && task.type === 20)
     assert.ok(activeRaids.length <= 1)
     if (activeRaids.length) assert.equal(activeRaids[0], restoredAttack)
-    if (phase === 6 && restoredAttack.phase === 23) {
+    if (!retired && phase === 6 && restoredAttack.phase === 23) {
       // 004d14f0 aborts on an admitted combat member, even while others move.
       const combat = owners.find(owner => owner.id === preacherId && owner.fightOwned &&
         [25, 29].includes(owner.state))
       assert.ok(combat)
-      assert.equal(combat.order?.model, 32)
+      // Loaded-origin staging reaches immediate attack21 rather than sermon32.
+      // The native abort gate consumes this admitted fight state, not its order model.
+      assert.equal(combat.order?.model, 21)
       assert.ok(combat.immediate > 0)
       assert.equal(combat.queuedModel, 3)
       assert.ok(owners.some(owner => owner.state === 10 && owner.speed > 0 && owner.order?.model === 3))
@@ -345,12 +349,30 @@ test('Mission 6 Chumara trains Preachers and launches its first mixed raid', () 
     }
     if (retired) {
       assert.equal(activeRaids.length, 0)
-      assert.equal(restoredAttack.flags & 1, 0)
-      assert.deepEqual(restoredAttack.members, [])
+      // The earlier retirement leaves a free slot for the normal training producer.
+      // Do not mistake its reused mutable record for a resurrected raid.
+      if (!reusedForTraining && restoredAttack.flags & 1) {
+        assert.equal(computerPhase(raiding.turn - 1, 2), 'produce')
+        assert.equal(firstFreeSlot, raiding.campaignAIs[2].tasks.indexOf(restoredAttack))
+        assert.equal(restoredAttack.type, 6)
+        assert.equal(restoredAttack.phase, 0)
+        assert.equal(restoredAttack.requested, 0)
+        assert.deepEqual(restoredAttack.members, [])
+        const camp = raiding.buildings.find(building => building.id === restoredAttack.target)
+        assert.ok(camp && camp.hp > 0 && camp.team === 'yellow')
+        assert.equal(camp.progress, 1)
+        assert.equal(buildingModel(camp), 7)
+        reusedForTraining = true
+      } else if (!reusedForTraining) {
+        assert.equal(restoredAttack.flags & 1, 0)
+        assert.deepEqual(restoredAttack.members, [])
+      }
+      if (reusedForTraining) assert.equal(restoredAttack.type, 6)
     }
   }
   assert.ok(abortTurn !== null)
   assert.ok(retired)
+  assert.ok(reusedForTraining)
   assert.ok(originalMembers.every(id => raiding.units.some(unit => unit.id === id && unit.hp > 0)))
 })
 

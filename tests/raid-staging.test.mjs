@@ -16,7 +16,7 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
     })
     t.diagnostic(result.stdout)
     assert.equal(result.error, undefined)
-    assert.match(result.stdout, /tests 39\b/, 'all thirty-nine child cases must report')
+    assert.match(result.stdout, /tests 51\b/, 'all fifty-one child cases must report')
     assert.equal(result.status, 0, result.stderr + result.stdout)
   })
 } else {
@@ -79,6 +79,18 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
     { name: 'Mission 3 legacy recruitment retains loaded origin', level: 3, shaman: 'moved', checkpoint: 'legacy', phase: 3, quota: true, expected: 0x60da },
     { name: 'Mission 3 recruitment retains established base priority', level: 3, base: 0x60d8, shaman: 'moved', phase: 3, quota: true, expected: 0x60d8 },
     { name: 'Mission 3 established cell zero precedes loaded origin', level: 3, base: 0, shaman: 'moved', expected: 0 },
+    { name: 'Mission 6 Chumara loaded origin ignores moved Shaman and defence', level: 6, tribe: 2, shaman: 'moved', expected: 0xd094, },
+    { name: 'Mission 6 Chumara loaded origin survives dead Shaman without defence', level: 6, tribe: 2, shaman: 'dead', defence: false, expected: 0xd094, },
+    { name: 'Mission 6 Chumara modern checkpoint retains absent Shaman origin', level: 6, tribe: 2, shaman: 'missing', checkpoint: 'modern', expected: 0xd094, },
+    { name: 'Mission 6 Chumara saved explicit base zero wins', level: 6, tribe: 2, base: 0, checkpoint: 'modern', expected: 0, },
+    { name: 'Mission 6 Matak loaded origin ignores moved Shaman', level: 6, tribe: 3, shaman: 'moved', expected: 0x72d8, },
+    { name: 'Mission 6 Matak modern checkpoint survives dead Shaman', level: 6, tribe: 3, shaman: 'dead', checkpoint: 'modern', defence: false, expected: 0x72d8, },
+    { name: 'Mission 6 Matak legacy absent-base save derives missing Shaman origin', level: 6, tribe: 3, shaman: 'missing', checkpoint: 'legacy', expected: 0x72d8, },
+    { name: 'Mission 6 Matak legacy explicit base zero wins', level: 6, tribe: 3, base: 0, checkpoint: 'legacy', expected: 0, },
+    { name: 'Mission 6 finished Chumara raid returns to loaded origin', level: 6, tribe: 2, phase: 16, expected: 0xd094, },
+    { name: 'Mission 6 lost Matak target returns to loaded origin', level: 6, tribe: 3, phase: 17, expected: 0x72d8, },
+    { name: 'Mission 6 outbound target remains independent', level: 6, tribe: 2, phase: 9, expected: 0xd094, move: 0x2468, },
+    { name: 'Mission 6 regroup target remains independent', level: 6, tribe: 3, phase: 12, expected: 0x72d8, move: 0x1357, },
     { name: 'later Mission 5 retains enabled defence fallback', level: 5, tribe: 1, memberKind: 'warrior', shaman: 'moved', shamanPoint: { x: 24, z: -40 }, expected: 0x8232 },
     { name: 'later Mission 5 retains live Shaman fallback', level: 5, tribe: 1, memberKind: 'warrior', shaman: 'moved', shamanPoint: { x: 24, z: -40 }, defence: false, expected: 0x2020 },
   ]
@@ -86,6 +98,10 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
     const level = c.level ?? 2, tribe = c.tribe ?? [0, 1, 3, 2][level],
       team = ['blue', 'red', 'yellow', 'green'][tribe]
     let world = createWorld(level)
+    if (level === 6) {
+      world.activeCampaignTribe = tribe
+      world.ai = world.campaignAIs[tribe]
+    }
     const shaman = world.units.find(u => u.team === team && u.kind === 'shaman')
     assert.ok(shaman)
     if (c.shaman === 'moved') Object.assign(shaman, c.shamanPoint ?? { x: -8, z: -8 })
