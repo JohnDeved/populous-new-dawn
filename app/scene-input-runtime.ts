@@ -456,7 +456,12 @@ export function keyDown(scene: GameScene, event: KeyboardEvent) {
 }
 
 function cancelPointerGesture(scene: GameScene, pointerId?: number) {
-  if (pointerId !== undefined && scene.pointerGesture?.pointerId !== pointerId) return
+  if (
+    pointerId !== undefined &&
+    scene.pointerGesture &&
+    scene.pointerGesture.pointerId !== pointerId
+  )
+    return
   scene.pointerGesture = null
   cancelTooltipInspection(scene)
   scene.pointerButtons = 0

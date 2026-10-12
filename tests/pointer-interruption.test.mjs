@@ -125,3 +125,10 @@ test('masked opening and overview-transition releases remain inert', t => {
     scene.overviewStage = 0
   }
 })
+
+test('pointercancel still clears navigation state when no canvas gesture is owned', t => {
+  const { scene, event, emit } = fixture(t)
+  scene.navigationPointer = { x: 0, y: 0, buttons: 0 }
+  emit(window, 'pointercancel', event(8))
+  assert.equal(scene.navigationPointer, null)
+})
