@@ -39,7 +39,12 @@ import {
 } from './training.ts'
 import { stepTrainingConversion, type ConvertingBuilding } from './training-conversion.ts'
 import { requestTrainingPanel } from './training-panel-requests.ts'
-import { adoptLiveOrders, startLiveOrders, stepLiveOrderQueue } from './live-movement.ts'
+import {
+  adoptLiveOrders,
+  startLiveOrders,
+  stepLiveOrderQueue,
+  orderEffects as liveOrderEffects,
+} from './live-movement.ts'
 import {
   allocatePersonOrder,
   attachPersonOrder,
@@ -448,7 +453,8 @@ export function cancelBuildingEntry(w: World, u: Unit, preserveOrders = false) {
   if (!u.entry) return
   const p = u.entry.person
   if (!preserveOrders) {
-    clearPersonOrders(w.buildingOrders, p, orderEffects)
+    // Cancellation releases marching membership through the shared speed/pose owner.
+    clearPersonOrders(w.buildingOrders, p, liveOrderEffects(w))
     if (p.flags3 & 32) rebuildLiveTrainingQueue(w, p.workTarget)
   }
   releasePersonRoute(w.motionRoutes, p)

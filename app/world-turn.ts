@@ -189,6 +189,7 @@ import {
   stepLiveMovement,
   stepLivePreaching,
   stepLiveMarchingFormations,
+  rebuildLiveMarchingFormations,
   type LiveFormation,
 } from './live-movement.ts'
 import { cancelLiveResting, stepLiveResting } from './live-resting.ts'
@@ -1778,6 +1779,7 @@ function stepTurn(w: World) {
   w.buildings = w.buildings.filter(b => b.hp > 0)
   // The next tribe visit observes this completed object turn's membership.
   rebuildConstructionBuildings(w)
+  rebuildLiveMarchingFormations(w)
   w.selected = w.selected.filter(id => w.units.some(u => u.id === id))
   syncLivePersonCells(w)
   syncLandscapeObjects(w)

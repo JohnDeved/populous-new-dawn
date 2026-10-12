@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "945f3ab0-cbc4-4db4-a431-24a706d8bbd5",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "ebe803d4d54cbd1b45041e2d9b271d94c0096a9f",
+    "branch": "fix/training-movement-composition-29",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/training-movement-composition/mission2-event-diagnostic.mjs": "2cb5de05ffe0ea5b09d5e501f1cc868781d05b23da648eb70b8939460024ed0d",
+      "work/training-movement-composition/event-observer/loader.mjs": "c375fd217ae0d366d3b67a36d0239714dc389d45bb73c5c84a2a64d5e0cd642a"
+    }
+  },
+  "command": [
+    "node",
+    "--import",
+    "./work/training-movement-composition/event-observer/loader.mjs",
+    "--test",
+    "work/training-movement-composition/mission2-event-diagnostic.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/training-movement-composition-20261010",
+  "startedAt": "2026-10-10T21:44:16.802Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/training-movement-composition-20261010/work/orchestration/training-movement-composition/mission2-event-observation.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/training-movement-composition-20261010/work/orchestration/training-movement-composition/mission2-event-observation.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-10T21:44:24.942Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "BEFORE_COMBAT {\"turn\":6032,\"green\":[{\"id\":4,\"kind\":\"brave\",\"hp\":50},{\"id\":5,\"kind\":\"brave\",\"hp\":50},{\"id\":6,\"kind\":\"warrior\",\"hp\":90},{\"id\":7,\"kind\":\"warrior\",\"hp\":90},{\"id\":8,\"kind\":\"brave\",\"hp\":50},{\"id\":9,\"kind\":\"brave\",\"hp\":50},{\"id\":10,\"kind\":\"brave\",\"hp\":50},{\"id\":11,\"kind\":\"brave\",\"hp\":50},{\"id\":12,\"kind\":\"brave\",\"hp\":50},{\"id\":13,\"kind\":\"warrior\",\"hp\":90},{\"id\":14,\"kind\":\"warrior\",\"hp\":90},{\"id\":15,\"kind\":\"brave\",\"hp\":50},{\"id\":16,\"kind\":\"brave\",\"hp\":50},{\"id\":17,\"kind\":\"brave\",\"hp\":50},{\"id\":18,\"kind\":\"brave\",\"hp\":50},{\"id\":19,\"kind\":\"warrior\",\"hp\":90},{\"id\":20,\"kind\":\"shaman\",\"hp\":100},{\"id\":21,\"kind\":\"warrior\",\"hp\":90},{\"id\":1207,\"kind\":\"brave\",\"hp\":50},{\"id\":1245,\"kind\":\"brave\",\"hp\":50},{\"id\":1249,\"kind\":\"brave\",\"hp\":50},{\"id\":1251,\"kind\":\"brave\",\"hp\":50},{\"id\":1253,\"kind\":\"brave\",\"hp\":50},{\"id\":1255,\"kind\":\"brave\",\"hp\":50},{\"id\":1257,\"kind\":\"brave\",\"hp\":50},{\"id\":1262,\"kind\":\"brave\",\"hp\":50},{\"id\":1266,\"kind\":\"brave\",\"hp\":50}],\"blue\":28}\nAFTER_TARGET {\"turn\":6641,\"target\":21,\"green\":23,\"warriors\":3,\"blue\":27}\nAFTER_TARGET {\"turn\":7054,\"target\":7,\"green\":5,\"warriors\":1,\"blue\":25}\nPOST_COMBAT {\"turn\":7054,\"green\":[{\"id\":9,\"kind\":\"brave\",\"hp\":50},{\"id\":10,\"kind\":\"brave\",\"hp\":50},{\"id\":14,\"kind\":\"warrior\",\"hp\":16.75},{\"id\":1249,\"kind\":\"brave\",\"hp\":6.7},{\"id\":1266,\"kind\":\"brave\",\"hp\":29.1}],\"blue\":25}\n✖ Mission 2 explicitly trains replacement Warriors after natural combat despite zero producer preferences (7082.438013ms)\nℹ tests 1\nℹ suites 0\nℹ pass 0\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 8059.171925\n\n✖ failing tests:\n\ntest at work/training-movement-composition/mission2-event-diagnostic.mjs:10:1\n✖ Mission 2 explicitly trains replacement Warriors after natural combat despite zero producer preferences (7082.438013ms)\n  AssertionError [ERR_ASSERTION]: Condition not reached at turn 7118\n      at until (file:///workspace/scratch/69fd8163d94e/training-movement-composition-20261010/work/training-movement-composition/mission2-event-diagnostic.mjs:25:12)\n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/training-movement-composition-20261010/work/training-movement-composition/mission2-event-diagnostic.mjs:87:3)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.start (node:internal/test_runner/test:1242:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: false,\n    expected: true,\n    operator: '==',\n    diff: 'simple'\n  }\n",
+  "stderr": "",
+  "stdoutSha256": "1063bdb7fc47e722cddc59011bc3136f99b7004f1f4baacf7f5bc3df7e5f9eef",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "ebe803d4d54cbd1b45041e2d9b271d94c0096a9f",
+    "branch": "fix/training-movement-composition-29",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/training-movement-composition/mission2-event-diagnostic.mjs": "2cb5de05ffe0ea5b09d5e501f1cc868781d05b23da648eb70b8939460024ed0d",
+      "work/training-movement-composition/event-observer/loader.mjs": "c375fd217ae0d366d3b67a36d0239714dc389d45bb73c5c84a2a64d5e0cd642a"
+    }
+  }
+}

@@ -438,6 +438,7 @@ export type CampaignAI = ScriptState &
 export type World = {
   objectCells: ObjectCells
   marching: LiveFormation[]
+  marchingAllocations: LiveFormation[]
   combatMarches: CombatMarch[]
   lastOrderTurn: number
   buildingOrders: OrderPool

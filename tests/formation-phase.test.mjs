@@ -12,7 +12,7 @@ function world(count) {
  return w
 }
 
-test('live turn preserves native tribe order, inactive skipping and next-turn formation admission',()=>{
+test('live phase matches captured supplied tribe lists, inactive skipping and person order',()=>{
  assert.equal(fixture.executableSha256,manifest.executableSha256)
  for(const c of fixture.cases) {
   const w=world(c.objects.length),events=[]
@@ -23,7 +23,8 @@ test('live turn preserves native tribe order, inactive skipping and next-turn fo
    return {id,tribe,class:c.dead.includes(id)?0:10,members:Array(12).fill(0),
     get count(){if(visited!==w.turn){events.push(['formation',id,c.initial]);visited=w.turn}return 0}}
   }
-  w.marching=c.tribes[0].flatMap((_,slot)=>[3,2,1,0].map(tribe=>formation(c.tribes[tribe][slot],tribe)))
+  const supplied=c.tribes[0].flatMap((_,slot)=>[3,2,1,0].map(tribe=>formation(c.tribes[tribe][slot],tribe)))
+  w.marching=[...supplied]
   let recruited=false
   w.units.forEach((u,i)=>{
    let counter=c.initial
@@ -33,7 +34,13 @@ test('live turn preserves native tribe order, inactive skipping and next-turn fo
    }})
   })
   w.paused=c.paused
-  for(const expected of [c.first,c.second]) {
+  for(const [index,expected] of [c.first,c.second].entries()) {
+   // The native recorder stubs every world processor, including tribe rebuild;
+   // its primary list has only objects 20–22, not these supplied formations.
+   // Supply that exact next-turn tribe input rather than invent allocation ages.
+   // Actual creation/rebuild continuity is covered independently below and in
+   // training-movement-composition.test.mjs. The captured events stay unchanged.
+   if(index)w.marching=[...(recruited?[formation(30,0)]:[]),...supplied]
    tick(w,1/12)
    assert.deepEqual(events,expected.filter(([kind,id])=>kind==='formation'||kind==='object'&&c.objects.includes(id)))
    events.length=0

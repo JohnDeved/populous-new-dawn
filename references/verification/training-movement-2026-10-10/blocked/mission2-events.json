@@ -1,0 +1,3169 @@
+{
+  "observedSources": [
+    {
+      "url": "file:///workspace/scratch/69fd8163d94e/training-movement-composition-20261010/app/training-conversion.ts",
+      "originalSha256": "6c8cade2447474f1d966cdfad22e9098d2fd4a5535891fe8c942ba7266806bf7",
+      "observedSha256": "1528483472b906801c2ad99dfbb1bec602353343e2f6f0b20205e899c14f20e1"
+    },
+    {
+      "url": "file:///workspace/scratch/69fd8163d94e/training-movement-composition-20261010/app/campaign-command-runtime.ts",
+      "originalSha256": "5badf47c9b0e55d99f307a1a82c3ba311c835ac78edeabc9f6c7796a39314182",
+      "observedSha256": "3d0556a0b883299ab67013e05ace1768de06c36fb553ceafbec630612a28fc75"
+    },
+    {
+      "url": "file:///workspace/scratch/69fd8163d94e/training-movement-composition-20261010/app/computer-runtime.ts",
+      "originalSha256": "96b148458340f9803c5342c605a0294b615a03d7e06276185bf212bf0ce17ea8",
+      "observedSha256": "b3af3970871731ae23973356538f8300cc4bf3b410c11ee65146e89922539fa7"
+    }
+  ],
+  "events": [
+    {
+      "kind": "script-visit",
+      "turn": 7,
+      "population": 18,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 71,
+      "population": 19,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 135,
+      "population": 20,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 199,
+      "population": 21,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 263,
+      "population": 21,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 327,
+      "population": 21,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 391,
+      "population": 21,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 455,
+      "population": 22,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 519,
+      "population": 23,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 583,
+      "population": 24,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 647,
+      "population": 24,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 711,
+      "population": 25,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 775,
+      "population": 25,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 839,
+      "population": 26,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 903,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 967,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 1031,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 1095,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 1159,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 1223,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 1287,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 1351,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 1415,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 1479,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 1543,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 1607,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 1671,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 1735,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 1799,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 1863,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 1927,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 1991,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 2055,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 2119,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 2183,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 2247,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 2311,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 2375,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 2439,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 2503,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 2567,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 2631,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 2695,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 2759,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 2823,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 2887,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 2951,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 3015,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 3079,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 3143,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 3207,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 3271,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 3335,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 3399,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 3463,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 3527,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 3591,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 3655,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 3719,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 3783,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 3847,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 3911,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 3975,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 4039,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 4103,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 4167,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 4231,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 4295,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 4359,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 4423,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 4487,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 4551,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 4615,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 4679,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 4743,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 4807,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 4871,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 4935,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 4999,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 5063,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 5127,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 5191,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 5255,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 5319,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 5383,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 5447,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 5511,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 5575,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 5639,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 5703,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 5767,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 5831,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 5895,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 5959,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 6023,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 6087,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 6151,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 6215,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 6279,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 6343,
+      "population": 26,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 6407,
+      "population": 23,
+      "warriors": 5,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14,
+        19,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 6471,
+      "population": 22,
+      "warriors": 4,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 6535,
+      "population": 22,
+      "warriors": 4,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 6599,
+      "population": 22,
+      "warriors": 4,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14,
+        21
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 6663,
+      "population": 23,
+      "warriors": 3,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 6727,
+      "population": 23,
+      "warriors": 3,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 6791,
+      "population": 23,
+      "warriors": 3,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 6855,
+      "population": 19,
+      "warriors": 3,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 6919,
+      "population": 18,
+      "warriors": 3,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 6983,
+      "population": 12,
+      "warriors": 3,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 7047,
+      "population": 7,
+      "warriors": 3,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14
+      ],
+      "detail": {}
+    },
+    {
+      "kind": "script-visit",
+      "turn": 7111,
+      "population": 3,
+      "warriors": 0,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [],
+      "detail": {}
+    }
+  ],
+  "snapshots": [
+    {
+      "turn": 1,
+      "population": 18,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ]
+    },
+    {
+      "turn": 52,
+      "population": 19,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ]
+    },
+    {
+      "turn": 72,
+      "population": 20,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ]
+    },
+    {
+      "turn": 144,
+      "population": 21,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ]
+    },
+    {
+      "turn": 408,
+      "population": 22,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ]
+    },
+    {
+      "turn": 468,
+      "population": 23,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ]
+    },
+    {
+      "turn": 560,
+      "population": 24,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ]
+    },
+    {
+      "turn": 684,
+      "population": 25,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ]
+    },
+    {
+      "turn": 800,
+      "population": 26,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ]
+    },
+    {
+      "turn": 896,
+      "population": 27,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ]
+    },
+    {
+      "turn": 6343,
+      "population": 26,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ]
+    },
+    {
+      "turn": 6370,
+      "population": 25,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ]
+    },
+    {
+      "turn": 6395,
+      "population": 24,
+      "warriors": 6,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        13,
+        14,
+        19,
+        21
+      ]
+    },
+    {
+      "turn": 6406,
+      "population": 23,
+      "warriors": 5,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14,
+        19,
+        21
+      ]
+    },
+    {
+      "turn": 6410,
+      "population": 22,
+      "warriors": 4,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14,
+        21
+      ]
+    },
+    {
+      "turn": 6608,
+      "population": 24,
+      "warriors": 4,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14,
+        21
+      ]
+    },
+    {
+      "turn": 6641,
+      "population": 23,
+      "warriors": 3,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14
+      ]
+    },
+    {
+      "turn": 6799,
+      "population": 22,
+      "warriors": 3,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14
+      ]
+    },
+    {
+      "turn": 6800,
+      "population": 21,
+      "warriors": 3,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14
+      ]
+    },
+    {
+      "turn": 6839,
+      "population": 20,
+      "warriors": 3,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14
+      ]
+    },
+    {
+      "turn": 6855,
+      "population": 19,
+      "warriors": 3,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14
+      ]
+    },
+    {
+      "turn": 6856,
+      "population": 20,
+      "warriors": 3,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14
+      ]
+    },
+    {
+      "turn": 6873,
+      "population": 19,
+      "warriors": 3,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14
+      ]
+    },
+    {
+      "turn": 6874,
+      "population": 18,
+      "warriors": 3,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14
+      ]
+    },
+    {
+      "turn": 6876,
+      "population": 19,
+      "warriors": 3,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14
+      ]
+    },
+    {
+      "turn": 6895,
+      "population": 18,
+      "warriors": 3,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14
+      ]
+    },
+    {
+      "turn": 6932,
+      "population": 17,
+      "warriors": 3,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14
+      ]
+    },
+    {
+      "turn": 6951,
+      "population": 16,
+      "warriors": 3,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14
+      ]
+    },
+    {
+      "turn": 6956,
+      "population": 15,
+      "warriors": 3,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14
+      ]
+    },
+    {
+      "turn": 6958,
+      "population": 14,
+      "warriors": 3,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14
+      ]
+    },
+    {
+      "turn": 6961,
+      "population": 13,
+      "warriors": 3,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14
+      ]
+    },
+    {
+      "turn": 6976,
+      "population": 12,
+      "warriors": 3,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14
+      ]
+    },
+    {
+      "turn": 7000,
+      "population": 11,
+      "warriors": 3,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14
+      ]
+    },
+    {
+      "turn": 7015,
+      "population": 8,
+      "warriors": 3,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14
+      ]
+    },
+    {
+      "turn": 7029,
+      "population": 7,
+      "warriors": 3,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        6,
+        7,
+        14
+      ]
+    },
+    {
+      "turn": 7052,
+      "population": 6,
+      "warriors": 2,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        7,
+        14
+      ]
+    },
+    {
+      "turn": 7054,
+      "population": 5,
+      "warriors": 1,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        14
+      ]
+    },
+    {
+      "turn": 7067,
+      "population": 4,
+      "warriors": 1,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": [
+        14
+      ]
+    },
+    {
+      "turn": 7099,
+      "population": 3,
+      "warriors": 0,
+      "preferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tasks": [],
+      "warriorIds": []
+    }
+  ],
+  "snapshotFailures": [
+    {
+      "turn": 7054,
+      "assertion": "population > 10",
+      "actual": 5
+    }
+  ],
+  "final": {
+    "turn": 7118,
+    "population": 3,
+    "warriors": 0,
+    "preferences": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "tasks": [],
+    "warriorIds": []
+  }
+}

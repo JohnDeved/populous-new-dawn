@@ -127,6 +127,7 @@ export function createWorldState(missionNumber = 1): World {
     },
     objectCells: { heads: new Uint16Array(16384), objects: new Map() },
     marching: [],
+    marchingAllocations: [],
     combatMarches: [],
     lastOrderTurn: 0,
     buildingOrders: {

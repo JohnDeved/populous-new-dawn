@@ -703,14 +703,16 @@ function join(w: World, p: LivePerson) {
         destinationY: 0,
         shape: 0,
         speed: 0,
-        timer: 0,
+        timer: (random(w) & 31) + 32,
         shapeTimer: 0,
         count: 0,
         freeSlot: 0,
         members: Array(12).fill(0),
         offsets: Array.from({ length: 12 }, () => ({ x: 0, y: 0 })),
       }
-      // Native allocation prepends the tribe list. Browser object allocation has no cap yet.
+      // Creation publishes both lists immediately for same-turn recruitment.
+      // Browser IDs remain monotonic; native pool capacity/reuse is not modeled.
+      w.marchingAllocations.unshift(group)
       w.marching.unshift(group)
       return group
     }
@@ -1081,6 +1083,8 @@ export function stepLiveMarchingFormations(w: World) {
       stepMarchingFormation(state, g, {
         remove: () => {
           g.class = 0
+          const index = w.marchingAllocations.indexOf(g)
+          if (index !== -1) w.marchingAllocations.splice(index, 1)
         },
         destination: (p, to) => {
           p.turnAngle = to.x
@@ -1092,5 +1096,15 @@ export function stepLiveMarchingFormations(w: World) {
       w.randomState = state.randomState
     }
   }
-  w.marching = w.marching.filter(g => g.class)
+}
+
+// The completed object turn rebuilds tribe lists from the primary allocation
+// list. Prepending each primary record makes the oldest surviving group first.
+// Retired groups remain in the current traversal until here, skipped by class.
+export function rebuildLiveMarchingFormations(w: World) {
+  w.marching = []
+  for (let index = w.marchingAllocations.length - 1; index >= 0; index--) {
+    const group = w.marchingAllocations[index]
+    if (group.class) w.marching.push(group)
+  }
 }

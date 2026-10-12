@@ -764,9 +764,12 @@ export function command(
       path = moveOrder ? null : planLivePath(w, u, goal)
     if (!moveOrder && !path) continue
     if (friendly && friendly.progress < 1 && !dismantling) assignBuilder(friendly.builders!, u.id)
+    const entryPerson = moveOrder ? u.entry?.person : undefined
     release(w, u)
     if (order) {
       if (path) releasePersonRoute(w.motionRoutes, path)
+      // Replacing training with ground movement changes the order, not the person.
+      if (entryPerson) u.native = entryPerson
       startLiveOrder(w, u, order)
     } else acceptLivePath(w, u, path)
     u.work = shrine?.id ?? friendly?.id ?? null

@@ -1,0 +1,51 @@
+{
+  "sourceHead": "96a465d1b3dfb7ff7aae34865088308dc26d4783",
+  "sourceDirectory": "work/orchestration/training-native-20261010/retirement",
+  "files": [
+    {
+      "path": "findings.md",
+      "sha256": "562d2c33dc645bab454640b33fbfe6edf5aec775cdb6a02bce5b80b63326b6db",
+      "bytes": 9309
+    },
+    {
+      "path": "audit.json",
+      "sha256": "ee9edad3acfa917912f5827b96631d4738025b78dead1450b4bea9fb09b689e5",
+      "bytes": 5697
+    },
+    {
+      "path": "ordering-static.txt",
+      "sha256": "d8d540496b3f18d400516623517a4dd4b06997f346cdcedc04611819ef054f68",
+      "bytes": 12560
+    },
+    {
+      "path": "retirement-static.txt",
+      "sha256": "f380853ce99f1efa1860765229d0a2560ba1d396760d9d7d78b67f493a37b488",
+      "bytes": 11769
+    },
+    {
+      "path": "driver.py",
+      "sha256": "fecccda6edde216f4998db5ff160ef9f9b6af7487c4365ec7b447aa676f8b492",
+      "bytes": 19328
+    },
+    {
+      "path": "driver-observation.diff",
+      "sha256": "652dc92c51b6d20be58a0a775dd69e547281a39fdd7b4bc72a7d26bd157f42a5",
+      "bytes": 6713
+    },
+    {
+      "path": "audit.py",
+      "sha256": "a95d0a5aa56e2cad5ae56f8a0f822ca95f040c43905c7705bb5be693fc8b3e5d",
+      "bytes": 3904
+    },
+    {
+      "path": "prepare_trace.py",
+      "sha256": "347f97ca3501165391449cc9d36ecc5bc2d5e9ba1f7085d12179bdadfd159854",
+      "bytes": 3521
+    },
+    {
+      "path": "trace01/lifecycle.json",
+      "sha256": "3def351a3f584ed0bdd9b08e383337fe595fa6d7b175ffb4a6ad0d33ab71e7ec",
+      "bytes": 516751
+    }
+  ]
+}

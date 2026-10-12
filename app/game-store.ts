@@ -145,6 +145,10 @@ function migrateLegacyBridgeOrigins(world: World) {
 }
 
 export function migrateCheckpoint(world: World) {
+  // Older saves only prepended new groups and filtered retired ones. Their
+  // saved traversal is therefore also the primary newest-first allocation order.
+  // Keep its first visit intact; only the next real turn rebuilds tribe order.
+  world.marchingAllocations ??= world.marching.filter(group => group.class)
   for (const unit of world.units) discardInvalidResident(world, unit)
   world.worshipAcquisition ??= createWorshipAcquisitionRuntime()
   world.worshipAcquisition.controllers.building ??= null

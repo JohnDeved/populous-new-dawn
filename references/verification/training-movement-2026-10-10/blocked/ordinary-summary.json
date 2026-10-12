@@ -1,0 +1,2139 @@
+{
+  "status": "passed",
+  "scenarioStatus": "passed",
+  "startedAt": "2026-10-10T21:40:14.789Z",
+  "finishedAt": "2026-10-10T21:42:35.639Z",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/training-movement-composition-20261010",
+    "commit": "ebe803d4d54cbd1b45041e2d9b271d94c0096a9f",
+    "tree": "15262d5d45b7df056c8ab71ecd5fab528133f60d",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "d1459437af14d718437197e372b58b94cef5199d7709dc35e4a32c23d45c8aa4"
+  },
+  "sourceAfter": {
+    "root": "/workspace/scratch/69fd8163d94e/training-movement-composition-20261010",
+    "commit": "ebe803d4d54cbd1b45041e2d9b271d94c0096a9f",
+    "tree": "15262d5d45b7df056c8ab71ecd5fab528133f60d",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "d1459437af14d718437197e372b58b94cef5199d7709dc35e4a32c23d45c8aa4"
+  },
+  "checkerSha256": "2cd40f38937ac00eaa02f8b7a2568923586ed051f36412323bd653867de91a63",
+  "browserVersion": "154.0.8037.92",
+  "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "errors": [],
+  "observer": {
+    "restored": true,
+    "errors": [],
+    "rows": 84,
+    "turns": [
+      1064,
+      1147
+    ],
+    "nonAdjacent": []
+  },
+  "startup": {
+    "braves": 12,
+    "shamans": 1
+  },
+  "construction": {
+    "builders": [
+      312,
+      309,
+      519,
+      513,
+      300
+    ],
+    "targetId": 1022,
+    "placedTurn": 173,
+    "completedTurn": 947,
+    "progress": 1
+  },
+  "selected": [
+    312,
+    309,
+    519,
+    516,
+    513,
+    510,
+    300,
+    507,
+    306,
+    589
+  ],
+  "dispatch": {
+    "beforeTurn": 1066,
+    "afterTurn": 1068,
+    "selected": [
+      312,
+      309,
+      519,
+      516,
+      513,
+      510,
+      300,
+      507,
+      306,
+      589
+    ],
+    "commands": [
+      {
+        "id": 312,
+        "work": 1022,
+        "order": {
+          "model": 8,
+          "flags": 0,
+          "references": 10,
+          "object": 0,
+          "a": 1022,
+          "b": 0
+        }
+      },
+      {
+        "id": 309,
+        "work": 1022,
+        "order": {
+          "model": 8,
+          "flags": 0,
+          "references": 10,
+          "object": 0,
+          "a": 1022,
+          "b": 0
+        }
+      },
+      {
+        "id": 519,
+        "work": 1022,
+        "order": {
+          "model": 8,
+          "flags": 0,
+          "references": 10,
+          "object": 0,
+          "a": 1022,
+          "b": 0
+        }
+      },
+      {
+        "id": 516,
+        "work": 1022,
+        "order": {
+          "model": 8,
+          "flags": 0,
+          "references": 10,
+          "object": 0,
+          "a": 1022,
+          "b": 0
+        }
+      },
+      {
+        "id": 513,
+        "work": 1022,
+        "order": {
+          "model": 8,
+          "flags": 0,
+          "references": 10,
+          "object": 0,
+          "a": 1022,
+          "b": 0
+        }
+      },
+      {
+        "id": 510,
+        "work": 1022,
+        "order": {
+          "model": 8,
+          "flags": 0,
+          "references": 10,
+          "object": 0,
+          "a": 1022,
+          "b": 0
+        }
+      },
+      {
+        "id": 300,
+        "work": 1022,
+        "order": {
+          "model": 8,
+          "flags": 0,
+          "references": 10,
+          "object": 0,
+          "a": 1022,
+          "b": 0
+        }
+      },
+      {
+        "id": 507,
+        "work": 1022,
+        "order": {
+          "model": 8,
+          "flags": 0,
+          "references": 10,
+          "object": 0,
+          "a": 1022,
+          "b": 0
+        }
+      },
+      {
+        "id": 306,
+        "work": 1022,
+        "order": {
+          "model": 8,
+          "flags": 0,
+          "references": 10,
+          "object": 0,
+          "a": 1022,
+          "b": 0
+        }
+      },
+      {
+        "id": 589,
+        "work": 1022,
+        "order": {
+          "model": 8,
+          "flags": 0,
+          "references": 10,
+          "object": 0,
+          "a": 1022,
+          "b": 0
+        }
+      }
+    ],
+    "pointer": {
+      "events": [
+        {
+          "type": "pointerdown",
+          "turn": 1068,
+          "x": 825,
+          "y": 385,
+          "button": 0,
+          "buttons": 1,
+          "trusted": true,
+          "canvasTarget": true,
+          "canvasOwned": true,
+          "args": {
+            "clientX": 825,
+            "clientY": 385,
+            "button": 0,
+            "buttons": 1,
+            "ctrlKey": false,
+            "shiftKey": false,
+            "altKey": false,
+            "metaKey": false,
+            "pointerType": "mouse"
+          },
+          "state": {
+            "turn": 1068,
+            "frame": 1103,
+            "animationFrame": 2137,
+            "currentSceneMatches": true,
+            "currentWorldMatches": true,
+            "rect": {
+              "left": 200,
+              "top": 0,
+              "width": 1240,
+              "height": 1000
+            },
+            "localPixel": {
+              "x": 625,
+              "y": 385
+            },
+            "camera": {
+              "x": 11407,
+              "y": 38694,
+              "angle": 1131
+            },
+            "center": {
+              "x": 11407,
+              "y": 38694
+            },
+            "rawCenter": {
+              "x": 11407,
+              "y": -26842
+            },
+            "projection": {
+              "curvature": 35248,
+              "depth": 6500,
+              "perspective": 11,
+              "scale": 40786,
+              "width": 1240,
+              "height": 1000,
+              "centerX": 620,
+              "centerY": 423,
+              "fractionX": 4,
+              "fractionY": 4,
+              "pixelScaleX": 0.0625,
+              "pixelScaleY": 0.0625,
+              "matrix": [
+                -15509,
+                0,
+                5282,
+                -1841,
+                15356,
+                -5405,
+                -4952,
+                -5709,
+                -14536
+              ]
+            },
+            "target": {
+              "id": 1022,
+              "kind": "camp",
+              "model": null,
+              "x": 36.703125,
+              "z": 97.078125,
+              "active": null,
+              "enabled": null,
+              "stoneHead": null
+            },
+            "body": {
+              "nativeModel": 103,
+              "stoneHeadFrame": null,
+              "frame": null,
+              "stage": 4,
+              "nativeSize": null,
+              "visible": true,
+              "positionVersion": 0,
+              "matrixWorld": [
+                2,
+                0,
+                0,
+                0,
+                0,
+                2,
+                0,
+                0,
+                0,
+                0,
+                2,
+                0,
+                36.703125,
+                1.5,
+                97.078125,
+                1
+              ]
+            },
+            "cache": {
+              "lastKey": "1102,11407,38694,11407,-26842,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-15509,0,5282,-1841,15356,-5405,-4952,-5709,-14536,620,423,4,4,0.0625,0.0625,627,387",
+              "lastId": 1022,
+              "lastKind": "model"
+            },
+            "armedWorldMatches": true,
+            "armedCanvasMatches": true
+          },
+          "picks": [
+            {
+              "name": "pick",
+              "owner": "picking",
+              "receiverMatches": true,
+              "args": {
+                "clientX": 825,
+                "clientY": 385,
+                "button": 0,
+                "buttons": 1,
+                "ctrlKey": false,
+                "shiftKey": false,
+                "altKey": false,
+                "metaKey": false,
+                "pointerType": "mouse"
+              },
+              "id": 1022,
+              "point": null,
+              "before": {
+                "lastKey": "1102,11407,38694,11407,-26842,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-15509,0,5282,-1841,15356,-5405,-4952,-5709,-14536,620,423,4,4,0.0625,0.0625,627,387",
+                "lastId": 1022,
+                "lastKind": "model"
+              },
+              "after": {
+                "lastKey": "1103,11407,38694,11407,-26842,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-15509,0,5282,-1841,15356,-5405,-4952,-5709,-14536,620,423,4,4,0.0625,0.0625,625,385",
+                "lastId": 1022,
+                "lastKind": "model"
+              }
+            },
+            {
+              "name": "pickPerson",
+              "owner": "picking",
+              "receiverMatches": true,
+              "args": {
+                "clientX": 825,
+                "clientY": 385,
+                "button": 0,
+                "buttons": 1,
+                "ctrlKey": false,
+                "shiftKey": false,
+                "altKey": false,
+                "metaKey": false,
+                "pointerType": "mouse"
+              },
+              "id": null,
+              "point": null,
+              "before": {
+                "lastKey": "1102,11407,38694,11407,-26842,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-15509,0,5282,-1841,15356,-5405,-4952,-5709,-14536,620,423,4,4,0.0625,0.0625,627,387",
+                "lastId": 1022,
+                "lastKind": "model"
+              },
+              "after": {
+                "lastKey": "1103,11407,38694,11407,-26842,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-15509,0,5282,-1841,15356,-5405,-4952,-5709,-14536,620,423,4,4,0.0625,0.0625,625,385",
+                "lastId": 1022,
+                "lastKind": "model"
+              }
+            },
+            {
+              "name": "pickUnit",
+              "owner": "scene",
+              "receiverMatches": true,
+              "args": {
+                "clientX": 825,
+                "clientY": 385,
+                "button": 0,
+                "buttons": 1,
+                "ctrlKey": false,
+                "shiftKey": false,
+                "altKey": false,
+                "metaKey": false,
+                "pointerType": "mouse"
+              },
+              "id": null,
+              "point": null,
+              "before": {
+                "lastKey": "1102,11407,38694,11407,-26842,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-15509,0,5282,-1841,15356,-5405,-4952,-5709,-14536,620,423,4,4,0.0625,0.0625,627,387",
+                "lastId": 1022,
+                "lastKind": "model"
+              },
+              "after": {
+                "lastKey": "1103,11407,38694,11407,-26842,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-15509,0,5282,-1841,15356,-5405,-4952,-5709,-14536,620,423,4,4,0.0625,0.0625,625,385",
+                "lastId": 1022,
+                "lastKind": "model"
+              }
+            },
+            {
+              "name": "pick",
+              "owner": "scene",
+              "receiverMatches": true,
+              "args": {
+                "clientX": 825,
+                "clientY": 385,
+                "button": 0,
+                "buttons": 1,
+                "ctrlKey": false,
+                "shiftKey": false,
+                "altKey": false,
+                "metaKey": false,
+                "pointerType": "mouse"
+              },
+              "id": null,
+              "point": {
+                "x": 36.26920851128955,
+                "z": 97.10114928235612
+              },
+              "before": {
+                "lastKey": "1103,11407,38694,11407,-26842,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-15509,0,5282,-1841,15356,-5405,-4952,-5709,-14536,620,423,4,4,0.0625,0.0625,625,385",
+                "lastId": 1022,
+                "lastKind": "model"
+              },
+              "after": {
+                "lastKey": "1103,11407,38694,11407,-26842,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-15509,0,5282,-1841,15356,-5405,-4952,-5709,-14536,620,423,4,4,0.0625,0.0625,625,385",
+                "lastId": 1022,
+                "lastKind": "model"
+              }
+            }
+          ],
+          "after": {
+            "turn": 1068,
+            "frame": 1103,
+            "animationFrame": 2137,
+            "currentSceneMatches": true,
+            "currentWorldMatches": true,
+            "rect": {
+              "left": 200,
+              "top": 0,
+              "width": 1240,
+              "height": 1000
+            },
+            "localPixel": {
+              "x": 625,
+              "y": 385
+            },
+            "camera": {
+              "x": 11407,
+              "y": 38694,
+              "angle": 1131
+            },
+            "center": {
+              "x": 11407,
+              "y": 38694
+            },
+            "rawCenter": {
+              "x": 11407,
+              "y": -26842
+            },
+            "projection": {
+              "curvature": 35248,
+              "depth": 6500,
+              "perspective": 11,
+              "scale": 40786,
+              "width": 1240,
+              "height": 1000,
+              "centerX": 620,
+              "centerY": 423,
+              "fractionX": 4,
+              "fractionY": 4,
+              "pixelScaleX": 0.0625,
+              "pixelScaleY": 0.0625,
+              "matrix": [
+                -15509,
+                0,
+                5282,
+                -1841,
+                15356,
+                -5405,
+                -4952,
+                -5709,
+                -14536
+              ]
+            },
+            "target": {
+              "id": 1022,
+              "kind": "camp",
+              "model": null,
+              "x": 36.703125,
+              "z": 97.078125,
+              "active": null,
+              "enabled": null,
+              "stoneHead": null
+            },
+            "body": {
+              "nativeModel": 103,
+              "stoneHeadFrame": null,
+              "frame": null,
+              "stage": 4,
+              "nativeSize": null,
+              "visible": true,
+              "positionVersion": 0,
+              "matrixWorld": [
+                2,
+                0,
+                0,
+                0,
+                0,
+                2,
+                0,
+                0,
+                0,
+                0,
+                2,
+                0,
+                36.703125,
+                1.5,
+                97.078125,
+                1
+              ]
+            },
+            "cache": {
+              "lastKey": "1103,11407,38694,11407,-26842,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-15509,0,5282,-1841,15356,-5405,-4952,-5709,-14536,620,423,4,4,0.0625,0.0625,625,385",
+              "lastId": 1022,
+              "lastKind": "model"
+            },
+            "armedWorldMatches": true,
+            "armedCanvasMatches": true
+          }
+        },
+        {
+          "type": "pointerup",
+          "turn": 1068,
+          "x": 825,
+          "y": 385,
+          "button": 0,
+          "buttons": 0,
+          "trusted": true,
+          "canvasTarget": true,
+          "canvasOwned": true,
+          "args": {
+            "clientX": 825,
+            "clientY": 385,
+            "button": 0,
+            "buttons": 0,
+            "ctrlKey": false,
+            "shiftKey": false,
+            "altKey": false,
+            "metaKey": false,
+            "pointerType": "mouse"
+          },
+          "state": {
+            "turn": 1068,
+            "frame": 1103,
+            "animationFrame": 2137,
+            "currentSceneMatches": true,
+            "currentWorldMatches": true,
+            "rect": {
+              "left": 200,
+              "top": 0,
+              "width": 1240,
+              "height": 1000
+            },
+            "localPixel": {
+              "x": 625,
+              "y": 385
+            },
+            "camera": {
+              "x": 11407,
+              "y": 38694,
+              "angle": 1131
+            },
+            "center": {
+              "x": 11407,
+              "y": 38694
+            },
+            "rawCenter": {
+              "x": 11407,
+              "y": -26842
+            },
+            "projection": {
+              "curvature": 35248,
+              "depth": 6500,
+              "perspective": 11,
+              "scale": 40786,
+              "width": 1240,
+              "height": 1000,
+              "centerX": 620,
+              "centerY": 423,
+              "fractionX": 4,
+              "fractionY": 4,
+              "pixelScaleX": 0.0625,
+              "pixelScaleY": 0.0625,
+              "matrix": [
+                -15509,
+                0,
+                5282,
+                -1841,
+                15356,
+                -5405,
+                -4952,
+                -5709,
+                -14536
+              ]
+            },
+            "target": {
+              "id": 1022,
+              "kind": "camp",
+              "model": null,
+              "x": 36.703125,
+              "z": 97.078125,
+              "active": null,
+              "enabled": null,
+              "stoneHead": null
+            },
+            "body": {
+              "nativeModel": 103,
+              "stoneHeadFrame": null,
+              "frame": null,
+              "stage": 4,
+              "nativeSize": null,
+              "visible": true,
+              "positionVersion": 0,
+              "matrixWorld": [
+                2,
+                0,
+                0,
+                0,
+                0,
+                2,
+                0,
+                0,
+                0,
+                0,
+                2,
+                0,
+                36.703125,
+                1.5,
+                97.078125,
+                1
+              ]
+            },
+            "cache": {
+              "lastKey": "1103,11407,38694,11407,-26842,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-15509,0,5282,-1841,15356,-5405,-4952,-5709,-14536,620,423,4,4,0.0625,0.0625,625,385",
+              "lastId": 1022,
+              "lastKind": "model"
+            },
+            "armedWorldMatches": true,
+            "armedCanvasMatches": true
+          },
+          "picks": [
+            {
+              "name": "pick",
+              "owner": "scene",
+              "receiverMatches": true,
+              "args": {
+                "clientX": 825,
+                "clientY": 385,
+                "button": 0,
+                "buttons": 0,
+                "ctrlKey": false,
+                "shiftKey": false,
+                "altKey": false,
+                "metaKey": false,
+                "pointerType": "mouse"
+              },
+              "id": null,
+              "point": {
+                "x": 36.26920851128955,
+                "z": 97.10114928235612
+              },
+              "before": {
+                "lastKey": "1103,11407,38694,11407,-26842,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-15509,0,5282,-1841,15356,-5405,-4952,-5709,-14536,620,423,4,4,0.0625,0.0625,625,385",
+                "lastId": 1022,
+                "lastKind": "model"
+              },
+              "after": {
+                "lastKey": "1103,11407,38694,11407,-26842,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-15509,0,5282,-1841,15356,-5405,-4952,-5709,-14536,620,423,4,4,0.0625,0.0625,625,385",
+                "lastId": 1022,
+                "lastKind": "model"
+              }
+            },
+            {
+              "name": "pick",
+              "owner": "picking",
+              "receiverMatches": true,
+              "args": {
+                "clientX": 825,
+                "clientY": 385,
+                "button": 0,
+                "buttons": 0,
+                "ctrlKey": false,
+                "shiftKey": false,
+                "altKey": false,
+                "metaKey": false,
+                "pointerType": "mouse"
+              },
+              "id": 1022,
+              "point": null,
+              "before": {
+                "lastKey": "1103,11407,38694,11407,-26842,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-15509,0,5282,-1841,15356,-5405,-4952,-5709,-14536,620,423,4,4,0.0625,0.0625,625,385",
+                "lastId": 1022,
+                "lastKind": "model"
+              },
+              "after": {
+                "lastKey": "1103,11407,38694,11407,-26842,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-15509,0,5282,-1841,15356,-5405,-4952,-5709,-14536,620,423,4,4,0.0625,0.0625,625,385",
+                "lastId": 1022,
+                "lastKind": "model"
+              }
+            },
+            {
+              "name": "pickPerson",
+              "owner": "picking",
+              "receiverMatches": true,
+              "args": {
+                "clientX": 825,
+                "clientY": 385,
+                "button": 0,
+                "buttons": 0,
+                "ctrlKey": false,
+                "shiftKey": false,
+                "altKey": false,
+                "metaKey": false,
+                "pointerType": "mouse"
+              },
+              "id": null,
+              "point": null,
+              "before": {
+                "lastKey": "1103,11407,38694,11407,-26842,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-15509,0,5282,-1841,15356,-5405,-4952,-5709,-14536,620,423,4,4,0.0625,0.0625,625,385",
+                "lastId": 1022,
+                "lastKind": "model"
+              },
+              "after": {
+                "lastKey": "1103,11407,38694,11407,-26842,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-15509,0,5282,-1841,15356,-5405,-4952,-5709,-14536,620,423,4,4,0.0625,0.0625,625,385",
+                "lastId": 1022,
+                "lastKind": "model"
+              }
+            },
+            {
+              "name": "pick",
+              "owner": "picking",
+              "receiverMatches": true,
+              "args": {
+                "clientX": 825,
+                "clientY": 385,
+                "button": 0,
+                "buttons": 0,
+                "ctrlKey": false,
+                "shiftKey": false,
+                "altKey": false,
+                "metaKey": false,
+                "pointerType": "mouse"
+              },
+              "id": 1022,
+              "point": null,
+              "before": {
+                "lastKey": "1103,11407,38694,11407,-26842,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-15509,0,5282,-1841,15356,-5405,-4952,-5709,-14536,620,423,4,4,0.0625,0.0625,625,385",
+                "lastId": 1022,
+                "lastKind": "model"
+              },
+              "after": {
+                "lastKey": "1103,11407,38694,11407,-26842,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-15509,0,5282,-1841,15356,-5405,-4952,-5709,-14536,620,423,4,4,0.0625,0.0625,625,385",
+                "lastId": 1022,
+                "lastKind": "model"
+              }
+            },
+            {
+              "name": "pickWorldObject",
+              "owner": "scene",
+              "receiverMatches": true,
+              "args": {
+                "clientX": 825,
+                "clientY": 385,
+                "button": 0,
+                "buttons": 0,
+                "ctrlKey": false,
+                "shiftKey": false,
+                "altKey": false,
+                "metaKey": false,
+                "pointerType": "mouse"
+              },
+              "id": 1022,
+              "point": {
+                "x": 36.703125,
+                "z": 97.078125
+              },
+              "before": {
+                "lastKey": "1103,11407,38694,11407,-26842,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-15509,0,5282,-1841,15356,-5405,-4952,-5709,-14536,620,423,4,4,0.0625,0.0625,625,385",
+                "lastId": 1022,
+                "lastKind": "model"
+              },
+              "after": {
+                "lastKey": "1103,11407,38694,11407,-26842,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-15509,0,5282,-1841,15356,-5405,-4952,-5709,-14536,620,423,4,4,0.0625,0.0625,625,385",
+                "lastId": 1022,
+                "lastKind": "model"
+              }
+            }
+          ],
+          "after": {
+            "turn": 1068,
+            "frame": 1103,
+            "animationFrame": 2137,
+            "currentSceneMatches": true,
+            "currentWorldMatches": true,
+            "rect": {
+              "left": 200,
+              "top": 0,
+              "width": 1240,
+              "height": 1000
+            },
+            "localPixel": {
+              "x": 625,
+              "y": 385
+            },
+            "camera": {
+              "x": 11407,
+              "y": 38694,
+              "angle": 1131
+            },
+            "center": {
+              "x": 11407,
+              "y": 38694
+            },
+            "rawCenter": {
+              "x": 11407,
+              "y": -26842
+            },
+            "projection": {
+              "curvature": 35248,
+              "depth": 6500,
+              "perspective": 11,
+              "scale": 40786,
+              "width": 1240,
+              "height": 1000,
+              "centerX": 620,
+              "centerY": 423,
+              "fractionX": 4,
+              "fractionY": 4,
+              "pixelScaleX": 0.0625,
+              "pixelScaleY": 0.0625,
+              "matrix": [
+                -15509,
+                0,
+                5282,
+                -1841,
+                15356,
+                -5405,
+                -4952,
+                -5709,
+                -14536
+              ]
+            },
+            "target": {
+              "id": 1022,
+              "kind": "camp",
+              "model": null,
+              "x": 36.703125,
+              "z": 97.078125,
+              "active": null,
+              "enabled": null,
+              "stoneHead": null
+            },
+            "body": {
+              "nativeModel": 103,
+              "stoneHeadFrame": null,
+              "frame": null,
+              "stage": 4,
+              "nativeSize": null,
+              "visible": true,
+              "positionVersion": 0,
+              "matrixWorld": [
+                2,
+                0,
+                0,
+                0,
+                0,
+                2,
+                0,
+                0,
+                0,
+                0,
+                2,
+                0,
+                36.703125,
+                1.5,
+                97.078125,
+                1
+              ]
+            },
+            "cache": {
+              "lastKey": "1103,11407,38694,11407,-26842,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-15509,0,5282,-1841,15356,-5405,-4952,-5709,-14536,620,423,4,4,0.0625,0.0625,625,385",
+              "lastId": 1022,
+              "lastKind": "model"
+            },
+            "armedWorldMatches": true,
+            "armedCanvasMatches": true
+          }
+        }
+      ],
+      "errors": [],
+      "restored": true
+    }
+  },
+  "maxOutsideSubstate5": 5,
+  "maxEnteringIncludingResidents": 5,
+  "maxResidents": 5,
+  "firstMaxOutside": {
+    "observedAtMs": 1791668545726,
+    "turn": 1081,
+    "time": 90.08333333333333,
+    "paused": false,
+    "target": {
+      "id": 1022,
+      "hp": 260,
+      "progress": 1,
+      "inside": 0,
+      "entering": 5,
+      "entryDelay": 0,
+      "entryTimer": 16,
+      "queueHead": 0,
+      "queueFrom": 0,
+      "occupants": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "people": [
+      {
+        "id": 312,
+        "kind": "brave",
+        "hp": 50,
+        "x": 36.69921875,
+        "z": 99.03515625,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 5,
+          "counter": 57,
+          "speed": 82,
+          "x": 11443,
+          "y": 38135,
+          "goalX": 11520,
+          "goalY": 39296,
+          "flags2": 1107427840,
+          "flags3": 262144,
+          "flags4": 537133314,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 309,
+        "kind": "brave",
+        "hp": 50,
+        "x": 36.578125,
+        "z": 100.33203125,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 5,
+          "counter": 57,
+          "speed": 73,
+          "x": 11412,
+          "y": 37803,
+          "goalX": 11520,
+          "goalY": 39296,
+          "flags2": 1107431936,
+          "flags3": 262144,
+          "flags4": 537133314,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 519,
+        "kind": "brave",
+        "hp": 50,
+        "x": 36.5625,
+        "z": 99.76953125,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 5,
+          "counter": 57,
+          "speed": 71,
+          "x": 11408,
+          "y": 37947,
+          "goalX": 11520,
+          "goalY": 39296,
+          "flags2": 1107427840,
+          "flags3": 262144,
+          "flags4": 537133314,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 516,
+        "kind": "brave",
+        "hp": 50,
+        "x": 33,
+        "z": 84.796875,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 1,
+          "counter": 57,
+          "speed": 77,
+          "x": 10496,
+          "y": 41780,
+          "goalX": 11392,
+          "goalY": 37824,
+          "flags2": 1107427840,
+          "flags3": 262144,
+          "flags4": 537133312,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 513,
+        "kind": "brave",
+        "hp": 50,
+        "x": 36.51953125,
+        "z": 100.2734375,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 5,
+          "counter": 57,
+          "speed": 83,
+          "x": 11397,
+          "y": 37818,
+          "goalX": 11520,
+          "goalY": 39296,
+          "flags2": 1107431936,
+          "flags3": 262144,
+          "flags4": 537133314,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 510,
+        "kind": "brave",
+        "hp": 50,
+        "x": 34.21484375,
+        "z": 86.38671875,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 1,
+          "counter": 57,
+          "speed": 70,
+          "x": 10807,
+          "y": 41373,
+          "goalX": 11392,
+          "goalY": 37824,
+          "flags2": 1107427840,
+          "flags3": 262144,
+          "flags4": 537133312,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 300,
+        "kind": "brave",
+        "hp": 50,
+        "x": 36.66015625,
+        "z": 99.8046875,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 5,
+          "counter": 57,
+          "speed": 71,
+          "x": 11433,
+          "y": 37938,
+          "goalX": 11520,
+          "goalY": 39296,
+          "flags2": 1107427840,
+          "flags3": 262144,
+          "flags4": 537133314,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 507,
+        "kind": "brave",
+        "hp": 50,
+        "x": 35.6015625,
+        "z": 86.46875,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 1,
+          "counter": 57,
+          "speed": 75,
+          "x": 11162,
+          "y": 41352,
+          "goalX": 11392,
+          "goalY": 37824,
+          "flags2": 1107427840,
+          "flags3": 262144,
+          "flags4": 537133312,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 306,
+        "kind": "brave",
+        "hp": 50,
+        "x": 35.5703125,
+        "z": 82.6640625,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 1,
+          "counter": 57,
+          "speed": 78,
+          "x": 11154,
+          "y": 42326,
+          "goalX": 11392,
+          "goalY": 37824,
+          "flags2": 1107427840,
+          "flags3": 262144,
+          "flags4": 537133312,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 589,
+        "kind": "brave",
+        "hp": 50,
+        "x": 33.08984375,
+        "z": 87.2421875,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 1,
+          "counter": 57,
+          "speed": 86,
+          "x": 10519,
+          "y": 41154,
+          "goalX": 11392,
+          "goalY": 37824,
+          "flags2": 1107427840,
+          "flags3": 262144,
+          "flags4": 537133312,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      }
+    ]
+  },
+  "admissionsByTurn": [
+    {
+      "turn": 1094,
+      "ids": [
+        312
+      ],
+      "count": 1,
+      "events": [
+        {
+          "turn": 1094,
+          "previousTurn": 1093,
+          "id": 312,
+          "counter": 70,
+          "priorCounter": 69,
+          "priorSubstate": 5,
+          "position": {
+            "x": 36.9765625,
+            "z": 94.66796875
+          },
+          "priorPosition": {
+            "x": 36.94921875,
+            "z": 95.00390625
+          }
+        }
+      ]
+    },
+    {
+      "turn": 1098,
+      "ids": [
+        519,
+        513,
+        300
+      ],
+      "count": 3,
+      "events": [
+        {
+          "turn": 1098,
+          "previousTurn": 1097,
+          "id": 519,
+          "counter": 74,
+          "priorCounter": 73,
+          "priorSubstate": 5,
+          "position": {
+            "x": 36.94921875,
+            "z": 94.85546875
+          },
+          "priorPosition": {
+            "x": 36.921875,
+            "z": 95.14453125
+          }
+        },
+        {
+          "turn": 1098,
+          "previousTurn": 1097,
+          "id": 513,
+          "counter": 74,
+          "priorCounter": 73,
+          "priorSubstate": 5,
+          "position": {
+            "x": 36.9921875,
+            "z": 94.53515625
+          },
+          "priorPosition": {
+            "x": 36.9609375,
+            "z": 94.875
+          }
+        },
+        {
+          "turn": 1098,
+          "previousTurn": 1097,
+          "id": 300,
+          "counter": 74,
+          "priorCounter": 73,
+          "priorSubstate": 5,
+          "position": {
+            "x": 36.953125,
+            "z": 94.890625
+          },
+          "priorPosition": {
+            "x": 36.93359375,
+            "z": 95.1796875
+          }
+        }
+      ]
+    },
+    {
+      "turn": 1100,
+      "ids": [
+        309
+      ],
+      "count": 1,
+      "events": [
+        {
+          "turn": 1100,
+          "previousTurn": 1099,
+          "id": 309,
+          "counter": 76,
+          "priorCounter": 75,
+          "priorSubstate": 5,
+          "position": {
+            "x": 36.97265625,
+            "z": 94.72265625
+          },
+          "priorPosition": {
+            "x": 36.94140625,
+            "z": 95.01953125
+          }
+        }
+      ]
+    }
+  ],
+  "maxAdmissionsPerTurn": 3,
+  "terminalAcceptance": {
+    "residents": [
+      312,
+      309,
+      519,
+      513,
+      300
+    ],
+    "queue": [
+      507,
+      516,
+      306,
+      510,
+      589
+    ],
+    "complete": true
+  },
+  "terminal": {
+    "observedAtMs": 1791668553692,
+    "turn": 1147,
+    "time": 95.58333333333333,
+    "paused": false,
+    "target": {
+      "id": 1022,
+      "hp": 260,
+      "progress": 1,
+      "inside": 5,
+      "entering": 0,
+      "entryDelay": 0,
+      "entryTimer": 0,
+      "queueHead": 507,
+      "queueFrom": 0,
+      "occupants": [
+        312,
+        519,
+        513,
+        300,
+        309,
+        0
+      ]
+    },
+    "people": [
+      {
+        "id": 312,
+        "kind": "brave",
+        "hp": 50,
+        "x": 36.98828125,
+        "z": 94.49609375,
+        "inside": 1022,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 13,
+          "counter": 123,
+          "speed": 0,
+          "x": 11517,
+          "y": 39297,
+          "goalX": 11520,
+          "goalY": 39296,
+          "flags2": 1115816448,
+          "flags3": 262144,
+          "flags4": 537133314,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 309,
+        "kind": "brave",
+        "hp": 50,
+        "x": 36.99609375,
+        "z": 94.4921875,
+        "inside": 1022,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 13,
+          "counter": 123,
+          "speed": 0,
+          "x": 11519,
+          "y": 39298,
+          "goalX": 11520,
+          "goalY": 39296,
+          "flags2": 1115816448,
+          "flags3": 262144,
+          "flags4": 537133314,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 519,
+        "kind": "brave",
+        "hp": 50,
+        "x": 36.9765625,
+        "z": 94.56640625,
+        "inside": 1022,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 13,
+          "counter": 123,
+          "speed": 0,
+          "x": 11514,
+          "y": 39279,
+          "goalX": 11520,
+          "goalY": 39296,
+          "flags2": 1115816448,
+          "flags3": 262144,
+          "flags4": 537133314,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 516,
+        "kind": "brave",
+        "hp": 50,
+        "x": 33.5,
+        "z": 100.43359375,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 3,
+          "counter": 123,
+          "speed": 75,
+          "x": 10624,
+          "y": 37777,
+          "goalX": 11200,
+          "goalY": 37824,
+          "flags2": 1109524992,
+          "flags3": 262176,
+          "flags4": 537133312,
+          "renderFlags": 384,
+          "reservationNext": 306,
+          "commandPhase": 1
+        }
+      },
+      {
+        "id": 513,
+        "kind": "brave",
+        "hp": 50,
+        "x": 36.9921875,
+        "z": 94.50390625,
+        "inside": 1022,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 13,
+          "counter": 123,
+          "speed": 0,
+          "x": 11518,
+          "y": 39295,
+          "goalX": 11520,
+          "goalY": 39296,
+          "flags2": 1115816448,
+          "flags3": 262144,
+          "flags4": 537133314,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 510,
+        "kind": "brave",
+        "hp": 50,
+        "x": 32.875,
+        "z": 100.18359375,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 3,
+          "counter": 123,
+          "speed": 70,
+          "x": 10464,
+          "y": 37841,
+          "goalX": 10944,
+          "goalY": 37824,
+          "flags2": 1109529088,
+          "flags3": 262176,
+          "flags4": 537133312,
+          "renderFlags": 384,
+          "reservationNext": 589,
+          "commandPhase": 3
+        }
+      },
+      {
+        "id": 300,
+        "kind": "brave",
+        "hp": 50,
+        "x": 36.97265625,
+        "z": 94.6015625,
+        "inside": 1022,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 13,
+          "counter": 123,
+          "speed": 0,
+          "x": 11513,
+          "y": 39270,
+          "goalX": 11520,
+          "goalY": 39296,
+          "flags2": 1115816448,
+          "flags3": 262144,
+          "flags4": 537133314,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 507,
+        "kind": "brave",
+        "hp": 50,
+        "x": 36.5,
+        "z": 100.23046875,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 3,
+          "counter": 123,
+          "speed": 0,
+          "x": 11392,
+          "y": 37829,
+          "goalX": 11392,
+          "goalY": 37824,
+          "flags2": 1109525120,
+          "flags3": 262176,
+          "flags4": 537133312,
+          "renderFlags": 384,
+          "reservationNext": 516,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 306,
+        "kind": "brave",
+        "hp": 50,
+        "x": 34.546875,
+        "z": 100.5859375,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 3,
+          "counter": 123,
+          "speed": 85,
+          "x": 10892,
+          "y": 37738,
+          "goalX": 11072,
+          "goalY": 37824,
+          "flags2": 1109524992,
+          "flags3": 262176,
+          "flags4": 537133312,
+          "renderFlags": 384,
+          "reservationNext": 510,
+          "commandPhase": 2
+        }
+      },
+      {
+        "id": 589,
+        "kind": "brave",
+        "hp": 50,
+        "x": 32.87890625,
+        "z": 100.25,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 3,
+          "counter": 123,
+          "speed": 73,
+          "x": 10465,
+          "y": 37824,
+          "goalX": 10816,
+          "goalY": 37824,
+          "flags2": 1109529088,
+          "flags3": 262176,
+          "flags4": 537133312,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 4
+        }
+      }
+    ]
+  },
+  "screencast": {
+    "closed": true,
+    "errors": [],
+    "count": 25,
+    "frames": [
+      {
+        "index": 0,
+        "file": "entry-frame-000.png",
+        "receivedAtMs": 1791668545091,
+        "metadata": {
+          "offsetTop": 0,
+          "pageScaleFactor": 1,
+          "deviceWidth": 1440,
+          "deviceHeight": 1000,
+          "scrollOffsetX": 0,
+          "scrollOffsetY": 0,
+          "timestamp": 1791668544.964801
+        },
+        "nearestTurn": 1069,
+        "approximateAbsoluteMs": 119.198974609375,
+        "nearestOutsideCount": 0,
+        "nearestResidentIds": []
+      },
+      {
+        "index": 1,
+        "file": "entry-frame-001.png",
+        "receivedAtMs": 1791668545690,
+        "metadata": {
+          "offsetTop": 0,
+          "pageScaleFactor": 1,
+          "deviceWidth": 1440,
+          "deviceHeight": 1000,
+          "scrollOffsetX": 0,
+          "scrollOffsetY": 0,
+          "timestamp": 1791668545.579072
+        },
+        "nearestTurn": 1079,
+        "approximateAbsoluteMs": 5.072021484375,
+        "nearestOutsideCount": 3,
+        "nearestResidentIds": []
+      },
+      {
+        "index": 2,
+        "file": "entry-frame-002.png",
+        "receivedAtMs": 1791668546075,
+        "metadata": {
+          "offsetTop": 0,
+          "pageScaleFactor": 1,
+          "deviceWidth": 1440,
+          "deviceHeight": 1000,
+          "scrollOffsetX": 0,
+          "scrollOffsetY": 0,
+          "timestamp": 1791668545.97897
+        },
+        "nearestTurn": 1084,
+        "approximateAbsoluteMs": 13.969970703125,
+        "nearestOutsideCount": 5,
+        "nearestResidentIds": []
+      },
+      {
+        "index": 3,
+        "file": "entry-frame-003.png",
+        "receivedAtMs": 1791668546365,
+        "metadata": {
+          "offsetTop": 0,
+          "pageScaleFactor": 1,
+          "deviceWidth": 1440,
+          "deviceHeight": 1000,
+          "scrollOffsetX": 0,
+          "scrollOffsetY": 0,
+          "timestamp": 1791668546.28326
+        },
+        "nearestTurn": 1087,
+        "approximateAbsoluteMs": 17.260009765625,
+        "nearestOutsideCount": 5,
+        "nearestResidentIds": []
+      },
+      {
+        "index": 4,
+        "file": "entry-frame-004.png",
+        "receivedAtMs": 1791668546755,
+        "metadata": {
+          "offsetTop": 0,
+          "pageScaleFactor": 1,
+          "deviceWidth": 1440,
+          "deviceHeight": 1000,
+          "scrollOffsetX": 0,
+          "scrollOffsetY": 0,
+          "timestamp": 1791668546.65776
+        },
+        "nearestTurn": 1092,
+        "approximateAbsoluteMs": 17.760009765625,
+        "nearestOutsideCount": 5,
+        "nearestResidentIds": []
+      },
+      {
+        "index": 5,
+        "file": "entry-frame-005.png",
+        "receivedAtMs": 1791668547078,
+        "metadata": {
+          "offsetTop": 0,
+          "pageScaleFactor": 1,
+          "deviceWidth": 1440,
+          "deviceHeight": 1000,
+          "scrollOffsetX": 0,
+          "scrollOffsetY": 0,
+          "timestamp": 1791668546.974037
+        },
+        "nearestTurn": 1094,
+        "approximateAbsoluteMs": 129.036865234375,
+        "nearestOutsideCount": 4,
+        "nearestResidentIds": [
+          312
+        ]
+      },
+      {
+        "index": 6,
+        "file": "entry-frame-006.png",
+        "receivedAtMs": 1791668547373,
+        "metadata": {
+          "offsetTop": 0,
+          "pageScaleFactor": 1,
+          "deviceWidth": 1440,
+          "deviceHeight": 1000,
+          "scrollOffsetX": 0,
+          "scrollOffsetY": 0,
+          "timestamp": 1791668547.202164
+        },
+        "nearestTurn": 1094,
+        "approximateAbsoluteMs": 357.163818359375,
+        "nearestOutsideCount": 4,
+        "nearestResidentIds": [
+          312
+        ]
+      },
+      {
+        "index": 7,
+        "file": "entry-frame-007.png",
+        "receivedAtMs": 1791668547580,
+        "metadata": {
+          "offsetTop": 0,
+          "pageScaleFactor": 1,
+          "deviceWidth": 1440,
+          "deviceHeight": 1000,
+          "scrollOffsetX": 0,
+          "scrollOffsetY": 0,
+          "timestamp": 1791668547.471184
+        },
+        "nearestTurn": 1094,
+        "approximateAbsoluteMs": 626.18408203125,
+        "nearestOutsideCount": 4,
+        "nearestResidentIds": [
+          312
+        ]
+      },
+      {
+        "index": 8,
+        "file": "entry-frame-008.png",
+        "receivedAtMs": 1791668547797,
+        "metadata": {
+          "offsetTop": 0,
+          "pageScaleFactor": 1,
+          "deviceWidth": 1440,
+          "deviceHeight": 1000,
+          "scrollOffsetX": 0,
+          "scrollOffsetY": 0,
+          "timestamp": 1791668547.676114
+        },
+        "nearestTurn": 1094,
+        "approximateAbsoluteMs": 831.114013671875,
+        "nearestOutsideCount": 4,
+        "nearestResidentIds": [
+          312
+        ]
+      },
+      {
+        "index": 9,
+        "file": "entry-frame-009.png",
+        "receivedAtMs": 1791668548565,
+        "metadata": {
+          "offsetTop": 0,
+          "pageScaleFactor": 1,
+          "deviceWidth": 1440,
+          "deviceHeight": 1000,
+          "scrollOffsetX": 0,
+          "scrollOffsetY": 0,
+          "timestamp": 1791668548.360787
+        },
+        "nearestTurn": 1095,
+        "approximateAbsoluteMs": 1064.213134765625,
+        "nearestOutsideCount": 4,
+        "nearestResidentIds": [
+          312
+        ]
+      },
+      {
+        "index": 10,
+        "file": "entry-frame-010.png",
+        "receivedAtMs": 1791668548618,
+        "metadata": {
+          "offsetTop": 0,
+          "pageScaleFactor": 1,
+          "deviceWidth": 1440,
+          "deviceHeight": 1000,
+          "scrollOffsetX": 0,
+          "scrollOffsetY": 0,
+          "timestamp": 1791668548.380172
+        },
+        "nearestTurn": 1095,
+        "approximateAbsoluteMs": 1044.827880859375,
+        "nearestOutsideCount": 4,
+        "nearestResidentIds": [
+          312
+        ]
+      },
+      {
+        "index": 11,
+        "file": "entry-frame-011.png",
+        "receivedAtMs": 1791668548652,
+        "metadata": {
+          "offsetTop": 0,
+          "pageScaleFactor": 1,
+          "deviceWidth": 1440,
+          "deviceHeight": 1000,
+          "scrollOffsetX": 0,
+          "scrollOffsetY": 0,
+          "timestamp": 1791668548.36283
+        },
+        "nearestTurn": 1095,
+        "approximateAbsoluteMs": 1062.170166015625,
+        "nearestOutsideCount": 4,
+        "nearestResidentIds": [
+          312
+        ]
+      },
+      {
+        "index": 12,
+        "file": "entry-frame-012.png",
+        "receivedAtMs": 1791668548767,
+        "metadata": {
+          "offsetTop": 0,
+          "pageScaleFactor": 1,
+          "deviceWidth": 1440,
+          "deviceHeight": 1000,
+          "scrollOffsetX": 0,
+          "scrollOffsetY": 0,
+          "timestamp": 1791668548.643112
+        },
+        "nearestTurn": 1095,
+        "approximateAbsoluteMs": 781.887939453125,
+        "nearestOutsideCount": 4,
+        "nearestResidentIds": [
+          312
+        ]
+      },
+      {
+        "index": 13,
+        "file": "entry-frame-013.png",
+        "receivedAtMs": 1791668549016,
+        "metadata": {
+          "offsetTop": 0,
+          "pageScaleFactor": 1,
+          "deviceWidth": 1440,
+          "deviceHeight": 1000,
+          "scrollOffsetX": 0,
+          "scrollOffsetY": 0,
+          "timestamp": 1791668548.889893
+        },
+        "nearestTurn": 1095,
+        "approximateAbsoluteMs": 535.10693359375,
+        "nearestOutsideCount": 4,
+        "nearestResidentIds": [
+          312
+        ]
+      },
+      {
+        "index": 14,
+        "file": "entry-frame-014.png",
+        "receivedAtMs": 1791668549210,
+        "metadata": {
+          "offsetTop": 0,
+          "pageScaleFactor": 1,
+          "deviceWidth": 1440,
+          "deviceHeight": 1000,
+          "scrollOffsetX": 0,
+          "scrollOffsetY": 0,
+          "timestamp": 1791668549.104601
+        },
+        "nearestTurn": 1095,
+        "approximateAbsoluteMs": 320.399169921875,
+        "nearestOutsideCount": 4,
+        "nearestResidentIds": [
+          312
+        ]
+      },
+      {
+        "index": 15,
+        "file": "entry-frame-015.png",
+        "receivedAtMs": 1791668549446,
+        "metadata": {
+          "offsetTop": 0,
+          "pageScaleFactor": 1,
+          "deviceWidth": 1440,
+          "deviceHeight": 1000,
+          "scrollOffsetX": 0,
+          "scrollOffsetY": 0,
+          "timestamp": 1791668549.341808
+        },
+        "nearestTurn": 1095,
+        "approximateAbsoluteMs": 83.19189453125,
+        "nearestOutsideCount": 4,
+        "nearestResidentIds": [
+          312
+        ]
+      },
+      {
+        "index": 16,
+        "file": "entry-frame-016.png",
+        "receivedAtMs": 1791668549743,
+        "metadata": {
+          "offsetTop": 0,
+          "pageScaleFactor": 1,
+          "deviceWidth": 1440,
+          "deviceHeight": 1000,
+          "scrollOffsetX": 0,
+          "scrollOffsetY": 0,
+          "timestamp": 1791668549.641374
+        },
+        "nearestTurn": 1098,
+        "approximateAbsoluteMs": 24.3740234375,
+        "nearestOutsideCount": 1,
+        "nearestResidentIds": [
+          312,
+          519,
+          513,
+          300
+        ]
+      },
+      {
+        "index": 17,
+        "file": "entry-frame-017.png",
+        "receivedAtMs": 1791668550061,
+        "metadata": {
+          "offsetTop": 0,
+          "pageScaleFactor": 1,
+          "deviceWidth": 1440,
+          "deviceHeight": 1000,
+          "scrollOffsetX": 0,
+          "scrollOffsetY": 0,
+          "timestamp": 1791668549.921393
+        },
+        "nearestTurn": 1101,
+        "approximateAbsoluteMs": 22.607177734375,
+        "nearestOutsideCount": 0,
+        "nearestResidentIds": [
+          312,
+          309,
+          519,
+          513,
+          300
+        ]
+      },
+      {
+        "index": 18,
+        "file": "entry-frame-018.png",
+        "receivedAtMs": 1791668550606,
+        "metadata": {
+          "offsetTop": 0,
+          "pageScaleFactor": 1,
+          "deviceWidth": 1440,
+          "deviceHeight": 1000,
+          "scrollOffsetX": 0,
+          "scrollOffsetY": 0,
+          "timestamp": 1791668550.495674
+        },
+        "nearestTurn": 1108,
+        "approximateAbsoluteMs": 21.673828125,
+        "nearestOutsideCount": 0,
+        "nearestResidentIds": [
+          312,
+          309,
+          519,
+          513,
+          300
+        ]
+      },
+      {
+        "index": 19,
+        "file": "entry-frame-019.png",
+        "receivedAtMs": 1791668550925,
+        "metadata": {
+          "offsetTop": 0,
+          "pageScaleFactor": 1,
+          "deviceWidth": 1440,
+          "deviceHeight": 1000,
+          "scrollOffsetX": 0,
+          "scrollOffsetY": 0,
+          "timestamp": 1791668550.793227
+        },
+        "nearestTurn": 1112,
+        "approximateAbsoluteMs": 20.77294921875,
+        "nearestOutsideCount": 0,
+        "nearestResidentIds": [
+          312,
+          309,
+          519,
+          513,
+          300
+        ]
+      },
+      {
+        "index": 20,
+        "file": "entry-frame-020.png",
+        "receivedAtMs": 1791668551260,
+        "metadata": {
+          "offsetTop": 0,
+          "pageScaleFactor": 1,
+          "deviceWidth": 1440,
+          "deviceHeight": 1000,
+          "scrollOffsetX": 0,
+          "scrollOffsetY": 0,
+          "timestamp": 1791668551.138191
+        },
+        "nearestTurn": 1116,
+        "approximateAbsoluteMs": 14.19091796875,
+        "nearestOutsideCount": 0,
+        "nearestResidentIds": [
+          312,
+          309,
+          519,
+          513,
+          300
+        ]
+      },
+      {
+        "index": 21,
+        "file": "entry-frame-021.png",
+        "receivedAtMs": 1791668551572,
+        "metadata": {
+          "offsetTop": 0,
+          "pageScaleFactor": 1,
+          "deviceWidth": 1440,
+          "deviceHeight": 1000,
+          "scrollOffsetX": 0,
+          "scrollOffsetY": 0,
+          "timestamp": 1791668551.432362
+        },
+        "nearestTurn": 1119,
+        "approximateAbsoluteMs": 13.362060546875,
+        "nearestOutsideCount": 0,
+        "nearestResidentIds": [
+          312,
+          309,
+          519,
+          513,
+          300
+        ]
+      },
+      {
+        "index": 22,
+        "file": "entry-frame-022.png",
+        "receivedAtMs": 1791668551896,
+        "metadata": {
+          "offsetTop": 0,
+          "pageScaleFactor": 1,
+          "deviceWidth": 1440,
+          "deviceHeight": 1000,
+          "scrollOffsetX": 0,
+          "scrollOffsetY": 0,
+          "timestamp": 1791668551.754169
+        },
+        "nearestTurn": 1123,
+        "approximateAbsoluteMs": 16.1689453125,
+        "nearestOutsideCount": 0,
+        "nearestResidentIds": [
+          312,
+          309,
+          519,
+          513,
+          300
+        ]
+      },
+      {
+        "index": 23,
+        "file": "entry-frame-023.png",
+        "receivedAtMs": 1791668552145,
+        "metadata": {
+          "offsetTop": 0,
+          "pageScaleFactor": 1,
+          "deviceWidth": 1440,
+          "deviceHeight": 1000,
+          "scrollOffsetX": 0,
+          "scrollOffsetY": 0,
+          "timestamp": 1791668552.060904
+        },
+        "nearestTurn": 1127,
+        "approximateAbsoluteMs": 18.904052734375,
+        "nearestOutsideCount": 0,
+        "nearestResidentIds": [
+          312,
+          309,
+          519,
+          513,
+          300
+        ]
+      },
+      {
+        "index": 24,
+        "file": "entry-frame-024.png",
+        "receivedAtMs": 1791668552724,
+        "metadata": {
+          "offsetTop": 0,
+          "pageScaleFactor": 1,
+          "deviceWidth": 1440,
+          "deviceHeight": 1000,
+          "scrollOffsetX": 0,
+          "scrollOffsetY": 0,
+          "timestamp": 1791668552.552939
+        },
+        "nearestTurn": 1133,
+        "approximateAbsoluteMs": 30.06103515625,
+        "nearestOutsideCount": 0,
+        "nearestResidentIds": [
+          312,
+          309,
+          519,
+          513,
+          300
+        ]
+      }
+    ]
+  },
+  "limits": "Diagnostic ordinary Mission3 witness only. Candidate unchanged Mission2 regression remains blocked. Approximate CDP-to-turn wall-time correlation is not same-frame instrumentation. Roof/body occlusion limits exact crossing-pixel proof. Headless software-WebGL supports no FPS/hardware-performance claim. No native original execution or original pixel/timeline claim."
+}

@@ -1,0 +1,32 @@
+BEFORE_COMBAT {"turn":6032,"green":[{"id":4,"kind":"brave","hp":50},{"id":5,"kind":"brave","hp":50},{"id":6,"kind":"warrior","hp":90},{"id":7,"kind":"warrior","hp":90},{"id":8,"kind":"brave","hp":50},{"id":9,"kind":"brave","hp":50},{"id":10,"kind":"brave","hp":50},{"id":11,"kind":"brave","hp":50},{"id":12,"kind":"brave","hp":50},{"id":13,"kind":"warrior","hp":90},{"id":14,"kind":"warrior","hp":90},{"id":15,"kind":"brave","hp":50},{"id":16,"kind":"brave","hp":50},{"id":17,"kind":"brave","hp":50},{"id":18,"kind":"brave","hp":50},{"id":19,"kind":"warrior","hp":90},{"id":20,"kind":"shaman","hp":100},{"id":21,"kind":"warrior","hp":90},{"id":1207,"kind":"brave","hp":50},{"id":1245,"kind":"brave","hp":50},{"id":1249,"kind":"brave","hp":50},{"id":1251,"kind":"brave","hp":50},{"id":1253,"kind":"brave","hp":50},{"id":1255,"kind":"brave","hp":50},{"id":1257,"kind":"brave","hp":50},{"id":1262,"kind":"brave","hp":50},{"id":1266,"kind":"brave","hp":50}],"blue":28}
+AFTER_TARGET {"turn":6641,"target":21,"green":23,"warriors":3,"blue":27}
+AFTER_TARGET {"turn":7054,"target":7,"green":5,"warriors":1,"blue":25}
+POST_COMBAT {"turn":7054,"green":[{"id":9,"kind":"brave","hp":50},{"id":10,"kind":"brave","hp":50},{"id":14,"kind":"warrior","hp":16.75},{"id":1249,"kind":"brave","hp":6.7},{"id":1266,"kind":"brave","hp":29.1}],"blue":25}
+✖ Mission 2 explicitly trains replacement Warriors after natural combat despite zero producer preferences (7082.438013ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8059.171925
+
+✖ failing tests:
+
+test at work/training-movement-composition/mission2-event-diagnostic.mjs:10:1
+✖ Mission 2 explicitly trains replacement Warriors after natural combat despite zero producer preferences (7082.438013ms)
+  AssertionError [ERR_ASSERTION]: Condition not reached at turn 7118
+      at until (file:///workspace/scratch/69fd8163d94e/training-movement-composition-20261010/work/training-movement-composition/mission2-event-diagnostic.mjs:25:12)
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/training-movement-composition-20261010/work/training-movement-composition/mission2-event-diagnostic.mjs:87:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "2f8ac432-b7fe-49b7-a248-77bf9770d674",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "ebe803d4d54cbd1b45041e2d9b271d94c0096a9f",
+    "branch": "fix/training-movement-composition-29",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/mission2-replacement.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/training-movement-composition-20261010",
+  "startedAt": "2026-10-10T21:38:10.069Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/training-movement-composition-20261010/work/orchestration/training-movement-composition/mission2-candidate.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/training-movement-composition-20261010/work/orchestration/training-movement-composition/mission2-candidate.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-10T21:38:18.696Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "✖ Mission 2 explicitly trains replacement Warriors after natural combat despite zero producer preferences (7489.364239ms)\nℹ tests 1\nℹ suites 0\nℹ pass 0\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 8542.745925\n\n✖ failing tests:\n\ntest at tests/mission2-replacement.test.mjs:7:1\n✖ Mission 2 explicitly trains replacement Warriors after natural combat despite zero producer preferences (7489.364239ms)\n  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n  \n    assert.ok(people('green').length > 10)\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/training-movement-composition-20261010/tests/mission2-replacement.test.mjs:66:10)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.start (node:internal/test_runner/test:1242:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: false,\n    expected: true,\n    operator: '==',\n    diff: 'simple'\n  }\n",
+  "stderr": "",
+  "stdoutSha256": "4673e433d40b1e03d4ad83fe5c652ec452e07976a549bc3d27b5cc613eaddb91",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "ebe803d4d54cbd1b45041e2d9b271d94c0096a9f",
+    "branch": "fix/training-movement-composition-29",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}
