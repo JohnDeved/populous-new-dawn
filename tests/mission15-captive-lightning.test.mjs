@@ -23,6 +23,7 @@ test('ordinary Mission 15 deadline kills the captive directly, including public 
     tick(world, 1 / 12)
   assert.equal(world.turn, 5421)
   assert.equal(world.campaignTimer, 0)
+  assert.equal(world.killCredits[2][0], 0)
   assert.equal(world.inputMask & 128, 128)
   assert.equal(shaman.hp, 100)
   assert.notEqual(shaman.inside, null)
@@ -38,6 +39,7 @@ test('ordinary Mission 15 deadline kills the captive directly, including public 
     assert.equal(victim.native.damageAttacker, 2)
     assert.equal(victim.native.flags2 & 0x100000, 0)
     assert.equal(victim.hp, 0)
+    assert.equal(candidate.killCredits[2][0], 1)
     assert.equal(victim.inside, null)
     assert.equal(captive(candidate), undefined, 'direct death enters ordinary cleanup immediately')
     for (let turn = 0; turn < 32 && candidate.status === 'playing'; turn++) tick(candidate, 1 / 12)
@@ -49,6 +51,7 @@ test('ordinary Mission 15 deadline kills the captive directly, including public 
       .map(effect => effect.id)
     for (let turn = 0; turn < 20; turn++) tick(candidate, 1 / 12)
     assert.equal(candidate.spellCasts[2][3], 1)
+    assert.equal(candidate.killCredits[2][0], 1)
     assert.ok(
       candidate.effects
         .filter(effect => effect.kind === 'death')
