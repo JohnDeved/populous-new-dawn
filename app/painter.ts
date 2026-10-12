@@ -189,7 +189,8 @@ export class Painter {
         const origin = new THREE.Vector3().setFromMatrixPosition(transform)
         // Every face of a native model uses the same anchor cell.
         if ((sprite || scale) && !view.visible(metadata.cellPosition ?? origin, unwrapped)) continue
-        const nativeOrigin = view.relative(origin, (origin.y * 128) / 45, unwrapped)
+        const nativeOrigin =
+          sprite || scale ? view.relative(origin, (origin.y * 128) / 45, unwrapped) : undefined
         if (listener && scale && !this.pendingSoundEnvironment!.trees) {
           const tree = metadata.point
           if (tree?.model > 0 && tree.model < 7)
@@ -213,7 +214,7 @@ export class Painter {
           if (!vertices)
             bucket =
               spriteBucket(
-                depth(nativeOrigin),
+                depth(nativeOrigin!),
                 object === metadata.shadow ? -192 : (metadata.depthBias ?? -300)
               ) - 1
           else {
@@ -232,7 +233,7 @@ export class Painter {
                     raw,
                     object.userData.nativeSize ?? scale,
                     rotation!,
-                    nativeOrigin
+                    nativeOrigin!
                   )
                   vertices.depth[vertex] = depth(point)
                   if (object.userData.stage === 4)
