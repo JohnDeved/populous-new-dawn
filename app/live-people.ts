@@ -682,6 +682,21 @@ export function buildingFirePeople(w: World) {
     cells.set(cell, people)
     units.set(p.id, u)
   }
+  // 00408840 assigns panic/trail RNG in each socket's retained cell order.
+  // Preserve this adapter's snapshot and legacy slots across repeated sockets.
+  for (const [cell, people] of cells) {
+    const linked: LivePerson[] = []
+    for (const object of objectsInCell(w.objectCells, ((cell & 127) << 1) | ((cell >>> 7) << 9))) {
+      const person = people.find(candidate => candidate === object)
+      if (person) linked.push(person)
+    }
+    const owned = new Set(linked)
+    let next = 0
+    // Ambiguous duplicate owners retain the prior fallback unchanged.
+    if (people.filter(person => owned.has(person)).length === linked.length)
+      for (const [index, person] of people.entries())
+        if (owned.has(person)) people[index] = linked[next++]
+  }
   return (point: { x: number; y: number }, tribe: number) => {
     const cell = ((point.y & 65535) >> 9) * 128 + ((point.x & 65535) >> 9)
     const people = cells.get(cell) ?? []
