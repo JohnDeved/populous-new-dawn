@@ -204,6 +204,7 @@ import {
 import { announceCombatMarches, type CombatMarch } from './combat-order-search.ts'
 import {
   stepLiveBuildingAttack,
+  stepLiveAboardPersonAttack,
   cancelLiveBuildingAttack,
   startLiveCombatResponse,
 } from './live-building-combat.ts'
@@ -1470,6 +1471,7 @@ function stepTurn(w: World) {
       }
     }
     const activeOrder = u.native && currentPersonOrder(w.buildingOrders, u.native)
+    if (stepLiveAboardPersonAttack(w, u)) continue
     if (u.native?.vehicle && !activeOrder) {
       const vehicle = w.vehicles.find(vehicle => vehicle.id === u.native!.vehicle)
       if (vehicle) syncLiveVehiclePassengers(w, vehicle)
