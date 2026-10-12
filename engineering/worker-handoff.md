@@ -103,6 +103,23 @@ If relevant code, fixture, dependency, or runtime input changes, rerun affected 
 A portable bundle verifies identities and transport integrity, not gameplay correctness.
 Never include credentials, browser profiles, session data, or arbitrary machine logs.
 
+A completed role worktree may be reused after owner-confirmed closure and independent
+verification that its historical evidence remains recoverable. Preserve existing
+branches, reachable tested HEADs, raw receipts, artifacts, and held LOCAL packets.
+Reconstruct historical tracked inputs from recorded Git objects only when their bytes
+match receipt hashes; preserve dirty, untracked, helper, and installed-runtime inputs
+through explicit backups or verified references. Record reconstruction separately
+without rewriting original receipts or claiming old logical paths remain current.
+Current commands still require exact physical source/input checks before and after
+execution. The read-only `historical-input-resolver.mjs` verifies caller-pinned receipt
+and HEAD identities with complete explicit input mappings; its proof does not release
+ownership or authorize worktree reuse, evidence deletion, or publication.
+It requires the supplied original source root to match the receipt's recorded `cwd`;
+receipts captured with a separate command working directory need separate source-root
+evidence before this resolver can support them. Git reconstruction ignores replacement
+objects and disables lazy fetch so only available immutable objects supply verified
+blob bytes.
+
 For function-level research, optional [compact views and claim bindings](research-evidence.md)
 keep conclusions and evidence boundaries visible while deferring raw assembly and
 pseudocode. They supplement these receipts/bundles; they neither replace raw review
