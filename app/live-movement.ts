@@ -55,6 +55,7 @@ import {
 } from './person-state.ts'
 import {
   currentPersonOrder,
+  hasFollowingPersonOrder,
   emptyPersonOrder,
   allocatePersonOrder,
   attachPersonOrder,
@@ -88,6 +89,7 @@ import {
   liveVehicles,
   stepLiveVehicle,
   vehicleExitTarget,
+  vehicleExit,
 } from './live-vehicles.ts'
 import { vehicleCanDisembark, vehicleReady } from './vehicle-routing.ts'
 import {
@@ -887,11 +889,18 @@ export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects
   const driver = p.vehicle ? stepLiveVehicle(w, p) : false
   if (!p.vehicle) stepLivePhysics(w, u, p)
   if (!p.vehicle || driver) stepLiveRoute(w, u)
-  else return
+  else {
+    const order = currentPersonOrder(w.buildingOrders, p)
+    // Queue completion belongs to each seated person; only motion is driver-owned.
+    if (order?.model !== 3 || !(order.flags & 128 || hasFollowingPersonOrder(w.buildingOrders, p)))
+      return
+  }
   if (p.state !== 10 || (p.guardInputPending && p.flags2 & 16)) return
   const next = stepLiveOrderQueue(w, u, p, {
     3: order => {
-      if (!p.vehicle)
+      // 0x4336c0 completes intermediate/staged waypoints without disembarking.
+      // The shared 0x432590 queue advances before its final departure predicate.
+      if (!p.vehicle || order.flags & 128 || hasFollowingPersonOrder(w.buildingOrders, p))
         return Number(
           stepMovementOrder(p, order, w.land.categories, id => liveVehicles(w).get(id)!)
         )
@@ -1033,8 +1042,12 @@ export function stepLiveOrderQueue(
       cellObjects: unsupported,
       arrival: unsupported,
       leaveVehicle: () => {
-        if (p.vehicle) unsupported()
-        return false
+        const vehicle = w.vehicles.find(v => v.id === p.vehicle && v.active)
+        if (!vehicle) return false
+        const exit = vehicleExit(w, vehicle)
+        if (!exit.found) return false
+        leaveLiveVehicle(w, vehicle, p, exit.point)
+        return true
       },
       outside: to => outsideBuilding(w, to),
       destination: unsupported,
