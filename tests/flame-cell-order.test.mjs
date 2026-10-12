@@ -137,7 +137,7 @@ test('duplicate roster ownership keeps the fallback rather than overrunning the 
   assert.equal(world.randomState, expected.randomState)
 })
 
-test('repeated sockets use the original snapshot after callback-time ownership removal', () => {
+test('repeated sockets preserve the snapshot when registry ownership changes before visits', () => {
   const { world, point, packed, linked } = pendingIgnition(),
     expected = structuredClone(world),
     referencePeople = [...objectsInCell(expected.objectCells, packed)].filter(person =>
