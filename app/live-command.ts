@@ -549,7 +549,13 @@ export function command(
       return true
     }
   }
-  if (model === 22 && context.vehicle) {
+  const groundedBoarding =
+    model === 22 &&
+    context.vehicle &&
+    w.units
+      .filter(u => canOrder(u) && w.selected.includes(u.id))
+      .every(u => !(u.native ?? u.entry?.person ?? u.builder?.person)?.vehicle)
+  if (model === 22 && context.vehicle && !groundedBoarding) {
     const point = browserPosition(vehicleExitTarget(w, context.vehicle)),
       units = w.units.filter(
         u => canOrder(u) && w.selected.includes(u.id) && acceptsPersonOrder(combatPerson(u), 22)
@@ -559,7 +565,7 @@ export function command(
       Object.assign(w.buildingOrders.records[order], {
         model: 22,
         a: context.vehicle.id,
-        b: 0,
+        b: ((context.vehicle.x >>> 8) & 255) | (context.vehicle.y & 0xff00),
       })
     let count = 0
     for (const u of units) {
@@ -632,6 +638,7 @@ export function command(
     model === 15 ||
     model === 19 ||
     model === 33 ||
+    groundedBoarding ||
     ((model === 3 || model === 27 || model === 28 || queuedBuilding || queuedTree) &&
       (modifiers.ctrlKey || w.orderCursor))
   ) {
@@ -657,7 +664,7 @@ export function command(
         active = person ? (currentPersonOrder(w.buildingOrders, person)?.model ?? 0) : 0
       if (
         ![17, 31, 32].includes(active) &&
-        (!slot || !person || ![3, 6, 7, 8, 10, 15, 19, 27, 28].includes(active))
+        (!slot || !person || ![3, 6, 7, 8, 10, 15, 19, 22, 27, 28].includes(active))
       ) {
         release(w, u, model === 33)
         if (model === 33 && person) u.native = person
@@ -672,7 +679,11 @@ export function command(
         ? 0
         : model === 7
           ? 1
-          : (context.person?.id ?? context.building?.id ?? context.shrine?.id ?? 0),
+          : (context.person?.id ??
+            context.building?.id ??
+            context.shrine?.id ??
+            context.vehicle?.id ??
+            0),
       ((to.x >>> 8) & 255) | (to.y & 0xff00),
       input.flags
     )

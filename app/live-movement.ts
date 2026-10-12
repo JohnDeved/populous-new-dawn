@@ -33,7 +33,7 @@ import { clearLivePath, stepLiveRoute, replanLivePath } from './live-pathfinding
 import { releasePersonRoute } from './person-routes.ts'
 import { buildingOutsidePoint } from './building-shapes.ts'
 import { objectsInCell, removeObjectFromCell } from './object-cells.ts'
-import { nativeAngle, random } from './native-math.ts'
+import { cellDelta, nativeAngle, random } from './native-math.ts'
 import {
   startPersonOrders,
   configurePersonOrder,
@@ -44,9 +44,12 @@ import {
   stepPersonOrders,
   type OrderUpdateEffects,
 } from './person-order-update.ts'
+import { restingCellCollision } from './person-collision.ts'
+import { finishPersonPreparation } from './person-update.ts'
 import { stepConstructionOrder } from './construction-order.ts'
 import { assignBuilder, BuilderTask } from './building-workers.ts'
 import {
+  personAnimationObject,
   recoverPersonMovement,
   defaultPersonState,
   randomPersonSpeed,
@@ -371,6 +374,7 @@ function issueLiveOrders(
           model === 15 ||
           model === 16 ||
           model === 17 ||
+          model === 22 ||
           model === 27 ||
           model === 28 ||
           model === 30 ||
@@ -884,10 +888,19 @@ export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects
   const p = u.native!
   // 0x4ec6f0 advances the person clock even while vehicle motion owns position.
   if (p.vehicle) p.counter = (p.counter + 1) & 255
+  const boarding = currentPersonOrder(w.buildingOrders, p)?.model === 22
+  if (p.vehicle && boarding)
+    finishPersonPreparation(p, {
+      animation: () => {
+        const object = personAnimationObject(p)
+        if (object !== -1) setLivePersonAnimation(w, p, object)
+      },
+      destination: point => replanLivePath(w, u, p, point),
+    })
   const driver = p.vehicle ? stepLiveVehicle(w, p) : false
   if (!p.vehicle) stepLivePhysics(w, u, p)
   if (!p.vehicle || driver) stepLiveRoute(w, u)
-  else return
+  else if (!boarding) return
   if (p.state !== 10 || (p.guardInputPending && p.flags2 & 16)) return
   const next = stepLiveOrderQueue(w, u, p, {
     3: order => {
@@ -950,32 +963,57 @@ export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects
       return 0
     },
     22: order => {
-      if (p.motionGroup) return 0
       const vehicle = w.vehicles.find(v => v.id === order.a && v.active)
-      if (!vehicle) return 1
-      const holdVehicle = () => {
+      const complete = () => {
+        p.speed = 0
+        return 1
+      }
+      if (!vehicle) return complete()
+      const dx = cellDelta(order.b, (vehicle.x >>> 8) & 254),
+        dy = cellDelta(order.b >>> 8, (vehicle.y >>> 8) & 254),
+        driverPerson = w.pathfinding.people.get(vehicle.passengers[0])
+      // 0x435160 validates the clicked-cell lifetime and 0x4666f0 admission first.
+      if (
+        dx * dx + dy * dy >= 100 ||
+        vehicle.passengerCount >= rules.vehicleCapacity[vehicle.model] ||
+        !vehicleReady(w.land, vehicle) ||
+        (vehicle.passengerCount && driverPerson?.tribe !== p.tribe)
+      )
+        return complete()
+      if (p.vehicle === vehicle.id) return p.slowTurn ? 0 : complete()
+      // Cross-vehicle transfer retains its separate legacy adapter boundary.
+      if (p.vehicle) return 0
+      if (p.flags2 & 0x40000000) {
+        p.flags2 = (p.flags2 & ~0x40000000) >>> 0
+        recoverPersonMovement(w, p, (person, object) =>
+          setLivePersonAnimation(w, person as LivePerson, object)
+        )
+        const cell = (vehicle.y >>> 9) * 128 + (vehicle.x >>> 9),
+          direct =
+            !!(rules.vehicleRestFlags[vehicle.model] & 1) &&
+            !restingCellCollision(
+              { flags: w.land.flags[cell], category: w.land.categories[cell] },
+              w.land.walkMasks[w.pathfinding.state.walkMask],
+              vehicle,
+              true
+            )
+        replanLivePath(w, u, p, direct ? vehicle : vehicleExitTarget(w, vehicle))
+      }
+      if (p.slowTurn) return 0
+      const airborne = !!(rules.vehicleRestFlags[vehicle.model] & 1),
+        point = airborne ? vehicle : { x: p.goalX, y: p.goalY },
+        // Verified executable vehicle descriptors (23-byte rows), signed +0x11:
+        // models 3/4 are 1024. 0x4352de adds 56; Boat approach uses 312.
+        radius = airborne ? 1024 + 56 : 312
+      if (
+        Math.abs(short(point.x) - short(p.x)) < radius &&
+        Math.abs(short(point.y) - short(p.y)) < radius &&
+        boardLiveVehicle(w, p, vehicle)
+      ) {
         p.goalX = p.destinationX = vehicle.x
         p.goalY = p.destinationY = vehicle.y
       }
-      if (p.vehicle === vehicle.id) {
-        holdVehicle()
-        return 0
-      }
-      const close = (point: { x: number; y: number }) =>
-        Math.abs(short(point.x - p.x)) <= 576 && Math.abs(short(point.y - p.y)) <= 576
-      if (
-        (close(vehicle) || close(vehicleExitTarget(w, vehicle))) &&
-        vehicleReady(
-          {
-            flags: w.land.flags,
-            categories: w.land.categories,
-          },
-          vehicle
-        )
-      ) {
-        if (boardLiveVehicle(w, p, vehicle)) holdVehicle()
-      }
-      return 0
+      return p.vehicle === vehicle.id && !p.slowTurn ? complete() : 0
     },
     6: order => stepLiveConstructionOrder(w, u, p, order),
     27: () => Number(stepLiveWorship(w, u)),
