@@ -344,7 +344,13 @@ export function updateDrag(scene: GameScene, event: { clientX: number; clientY: 
 
 export function pointerUp(scene: GameScene, event: PointerEvent) {
   const gesture = scene.pointerGesture
-  if (!gesture || gesture.pointerId !== event.pointerId || gesture.button !== event.button) return
+  if (!gesture || gesture.pointerId !== event.pointerId) return
+  if (gesture.button !== event.button) {
+    // A chord emits one final pointerup; its last button may differ from the first.
+    // End ownership without interpreting it as another button's click.
+    if (event.buttons === 0) cancelPointerGesture(scene, event.pointerId)
+    return
+  }
   scene.pointerGesture = null
   queueBuildingInspection(scene, event, 'up')
   scene.pointerButtons = event.buttons

@@ -229,3 +229,74 @@ test('a fresh middle-button camera drag pans after interruption', t => {
   pointerMove(scene, middle(2, 30))
   assert.notDeepEqual(scene.cameraPosition, before)
 })
+
+for (const [first, last] of [
+  [0, 2],
+  [2, 0],
+  [0, 1],
+  [1, 0],
+  [1, 2],
+  [2, 1],
+]) {
+  for (const interruption of [null, 'blur', 'hidden', 'pointercancel']) {
+    test(`chord ${first}→${last} ends without a wrong-button action${interruption ? ' after ' + interruption : ''}`, t => {
+      const { scene, world, unit, event, emit, hover } = fixture(t)
+      Object.assign(scene, {
+        tooltip: { draw: 0 },
+        cameraMotion: { active: 0 },
+        cameraPosition: { x: 0, y: 0, angle: 0, zoom: 0 },
+        cameraVelocity: { turn: 0, forward: 0, side: 0 },
+        captureCamera() {},
+        updateView() {},
+      })
+      const held = button => [1, 4, 2][button]
+      // Pointer Events emit one down and one final up for a button chord.
+      // https://www.w3.org/TR/pointerevents3/#chorded-button-interactions
+      // Intermediate button transitions are pointermove events.
+      pointerDown(scene, event(1, { button: first, buttons: held(first), ctrlKey: true }))
+      if (first === 0) {
+        hover(undefined)
+        updateDrag(scene, event(1, { clientX: 30, clientY: 30 }))
+        assert.equal(scene.dragActive.value, true)
+      }
+      pointerMove(scene, event(1, { button: last, buttons: held(first) | held(last) }))
+      pointerMove(scene, event(1, { button: first, buttons: held(last) }))
+      scene.navigationPointer = { x: 10, y: 10, buttons: held(last) }
+      scene.tooltipInspectionInputs = [event(1)]
+      pointerUp(scene, event(9, { button: last, buttons: 0 }))
+      assert.equal(scene.pointerGesture.pointerId, 1, 'unrelated pointer cannot finish the chord')
+      if (interruption === 'hidden') {
+        document.hidden = true
+        emit(document, 'visibilitychange')
+      } else if (interruption === 'pointercancel') emit(window, 'pointercancel', event())
+      else if (interruption) emit(window, interruption)
+      pointerUp(scene, event(1, { button: last, buttons: 0 }))
+      assert.equal(scene.pointerGesture, null)
+      assert.equal(scene.pointerButtons, 0)
+      assert.equal(scene.navigationPointer, null)
+      assert.deepEqual(scene.tooltipInspectionInputs, [])
+      assert.equal(scene.drag, null)
+      assert.equal(scene.dragActive.value, false)
+      assert.equal(scene.selectionOverlay.visible, false)
+      assert.deepEqual(
+        world.selected,
+        [],
+        'different final button cannot complete the initial click'
+      )
+      hover(unit)
+      pointerDown(scene, event(2))
+      pointerUp(scene, event(2, { buttons: 0 }))
+      assert.deepEqual(world.selected, [unit.id], 'fresh click after chord stays usable')
+      const angle = scene.cameraPosition.angle
+      pointerDown(scene, event(3, { button: 2, buttons: 2, ctrlKey: true }))
+      pointerMove(scene, event(3, { button: -1, buttons: 2, clientX: 20 }))
+      pointerUp(scene, event(3, { button: 2, buttons: 0, clientX: 20 }))
+      assert.equal(scene.cameraPosition.angle, (angle + 10) & 2047)
+      const position = { ...scene.cameraPosition }
+      pointerDown(scene, event(4, { button: 1, buttons: 4 }))
+      pointerMove(scene, event(4, { button: -1, buttons: 4, clientX: 20 }))
+      pointerUp(scene, event(4, { button: 1, buttons: 0, clientX: 20 }))
+      assert.notDeepEqual(scene.cameraPosition, position, 'fresh middle drag pans')
+    })
+  }
+}
