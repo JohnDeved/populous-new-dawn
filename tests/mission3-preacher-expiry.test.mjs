@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { createWorld, command, setSelection } from '../app/model.ts'
+import { command, setSelection, tick } from '../app/model.ts'
+import { createGameStore } from '../app/game-store.ts'
 import { currentPersonOrder, hasFollowingPersonOrder } from '../app/person-orders.ts'
 import { unitAnimationSource } from '../app/unit-animation-source.ts'
 import { acquireNaturalPreacher } from '../scripts/mission3-natural-preacher-scenario.mjs'
@@ -8,9 +9,30 @@ import { acquireNaturalPreacher } from '../scripts/mission3-natural-preacher-sce
 // Authored acquisition and ordinary commands only. Waiting changes the genuine
 // conversion retry history; no timer, listener, phase, RNG or actor is supplied.
 // This CPU witness does not establish rendered or original-executable parity.
-test('ordinary automatic sermon reaches 840, retires its identity and resumes the retained route', () => {
-  const journey = acquireNaturalPreacher(createWorld(3))
-  const { world: w, preacher, shaman, step, until } = journey
+test('ordinary automatic sermon reaches 840, retires its identity and resumes the retained route', async () => {
+  const store = createGameStore()
+  store.startMission(3)
+  const journey = acquireNaturalPreacher(store.getWorld())
+  const { world: w, preacher, shaman } = journey
+  let restored
+  const compareCheckpoint = () => {
+    assert.deepEqual(restored.units, w.units)
+    assert.deepEqual(restored.buildingOrders, w.buildingOrders)
+    assert.deepEqual(restored.objectCells, w.objectCells)
+    assert.equal(restored.randomState, w.randomState)
+    assert.equal(restored.cosmeticRandom.randomState, w.cosmeticRandom.randomState)
+  }
+  const step = () => {
+    journey.step()
+    if (restored) {
+      tick(restored, 1 / 12)
+      compareCheckpoint()
+    }
+  }
+  const until = (label, predicate, limit) => {
+    for (let i = 0; i < limit && !predicate(); i++) step()
+    assert.ok(predicate(), label)
+  }
   assert.equal(w.turn, 2012)
   for (let i = 0; i < 56; i++) step()
   setSelection(w, [shaman.id])
@@ -40,6 +62,14 @@ test('ordinary automatic sermon reaches 840, retires its identity and resumes th
     const listener = w.units.find(u => u.id === journey.authoredVictimId)
     assert.equal(listener.native.state, 23)
     assert.equal(listener.native.workTarget, preacher.id)
+    if (timer === 839) {
+      // Public in-memory Save/Load immediately before expiry. Compare gameplay
+      // ownership/RNG, not browser storage, rendering or full checkpoint schema.
+      await store.saveCheckpoint()
+      assert.ok(store.loadCheckpoint())
+      restored = store.getWorld()
+      compareCheckpoint()
+    }
   }
   assert.equal(w.turn, 3389)
   assert.equal(person.commandCursor, 0)
