@@ -109,7 +109,7 @@ test('removed order icons and enemy person panels cannot focus a vehicle', () =>
   assert.deepEqual(focus(fixture), [])
 })
 
-test('ordinary building-target orders keep their existing browser-coordinate focus path', () => {
+test('ordinary building attack orders retain their packed-cell focus', () => {
   const world = api.createWorld(22)
   const shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman')
   const building = world.buildings.find(building => building.team === 'red')
@@ -117,11 +117,34 @@ test('ordinary building-target orders keep their existing browser-coordinate foc
   assert.ok(api.command(world, building))
   const icon = personOrderIcons(world.buildingOrders, shaman.native, world.objectCells.objects)[0]
   assert.equal(icon.model, 19)
-  const before = structuredClone(world)
+  // Model19 stores a cell, unlike boarding's live object plus fallback cell.
+  const point = personOrderFocus(world.buildingOrders.records[icon.id])
   assert.deepEqual(focus({ world, shaman, icon }), [
-    ['focus', { x: building.x, z: building.z }, { animate: true }],
+    ['focus', api.browserPosition(point), { animate: true }],
     ['sound', 0x6a],
-    ['open', building.id, true],
+    ['sound', 0x6a],
   ])
-  assert.deepEqual(world, before)
 })
+
+for (const kind of ['person', 'building']) {
+  test(`existing ${kind} object-focus conversion remains unchanged`, () => {
+    const fixture = boarding(),
+      { world, icon } = fixture
+    const target =
+      kind === 'person'
+        ? world.units.find(unit => unit.team === 'red')
+        : world.buildings.find(building => building.team === 'red')
+    // Supplied live object-order control, separate from ordinary Boat production.
+    Object.assign(world.buildingOrders.records[icon.id], {
+      model: kind === 'person' ? 14 : 8,
+      a: target.id,
+    })
+    const before = structuredClone(world)
+    assert.deepEqual(focus(fixture), [
+      ['focus', api.browserPosition(api.nativePosition(world, target)), { animate: true }],
+      ['sound', 0x6a],
+      ['open', target.id, true],
+    ])
+    assert.deepEqual(world, before)
+  })
+}
