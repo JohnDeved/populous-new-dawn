@@ -7,9 +7,9 @@ import { fileURLToPath } from 'node:url'
 
 const root = new URL('../../../', import.meta.url)
 const caller = new URL('app/live-building-combat.ts', root).href
-// Seated command19 cancellation changed this file; the ranged/postvisit body and
+// Explicit command28 transport changed this file; the ranged/postvisit body and
 // all sixteen model6, vehicle0, command21 comparison cases remain unchanged.
-const expectedCaller = '43089b6491d2a6726a01e3f1bc22cd2a77cdc3d01493fd399f45508e05aae87b'
+const expectedCaller = '8baa61077901e0a15cdd4accba52a9aea4e07acceae1d2db374448d2ec4c0513'
 const raw = readFileSync(fileURLToPath(caller))
 assert.equal(createHash('sha256').update(raw).digest('hex'), expectedCaller)
 let exposures = 0
