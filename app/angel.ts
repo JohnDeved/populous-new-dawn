@@ -33,6 +33,7 @@ function nearestEnemy(w: World, angel: Effect) {
       unit.hp <= 0 ||
       unit.inside !== null ||
       unit.invisibility ||
+      person?.state === 23 ||
       !!((person?.flags4 ?? 0) & 0x1000) ||
       targetTribe < 0 ||
       targetTribe === tribe ||

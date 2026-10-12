@@ -121,3 +121,26 @@ This correction does not implement `004e0a30`'s throw vector, person-state
 initialization, Angel counters or parameter-dependent cleanup flags. No fresh
 native execution, rendered acceptance, exact Angel movement, or full consumer
 equivalence is claimed. The earlier activation/lifetime boundaries still apply.
+
+## Initial target selection excludes conversion listeners (2026-10-12)
+
+`004db980`'s initial per-tribe person-chain scan admits class1 people only when
+their state is not `0x17` (decimal23), before the health, protection, alliance,
+disguise and nearest-distance checks. This is the conversion-listener state,
+not an exclusion of Preachers as a class. Its later case5 retained-target lookup
+does not repeat this state predicate. Therefore `nearestEnemy` now excludes the
+actual selected person owner's state23; the already-held target path is unchanged.
+No other eligibility gate or candidate ordering is changed.
+
+The new `angel-listener-selection.test.mjs` supplies terrain, people and spell
+stock. Ordinary preaching establishes state23 with the real Preacher owner, then
+public Angel casting/arrival reaches initial selection. The baseline incorrectly
+selects the listener. Three of four failure-first cases fail; the retained-target
+control already passes. Coverage requires a farther eligible enemy to win, no
+acquisition when all enemies listen, eligibility after a public command releases
+the sermon, retention when a previously acquired target subsequently starts
+listening, and exact checkpoint continuation through release and selection.
+The retention test explicitly adds a supplied Preacher after Angel acquisition;
+it does not claim an untouched campaign journey. Checkpoint persistence and
+native/rendered limitations remain those stated above. Other unrecovered or
+unimplemented Angel selection/controller behavior receives no completion credit.
