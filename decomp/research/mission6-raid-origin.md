@@ -71,3 +71,13 @@ Independent review approved the exact32-to21 expectation correction, with all
 existing identity, command preservation, timeout, retirement and513-turn budget
 assertions retained. The failed original aggregate and diagnostic are preserved;
 this does not change or re-certify sermon production itself.
+
+The next focused pass identified mutable controller-slot reuse, not a new raid:
+the original task retires at8335, then the ordinary training producer reuses its
+inactive slot0 at8382 for type6/phase0, model3, count0, available10 and completed
+Warrior Camp354. The real requestTraining call was observed unchanged. The
+maintained test now binds old-raid identity/retirement before reuse and separately
+checks the first-free-slot, producer cadence, type6/camp request and survivors.
+No-active-type20 is still required across the entire513-turn window; no budget
+was shortened and no later raid was allowed. This storage-reuse expectation
+correction was independently reviewed; both earlier failures remain retained.
