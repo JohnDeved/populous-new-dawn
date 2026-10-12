@@ -1,6 +1,8 @@
 // Bounded direct-target transport handoff; grounded combat remains the existing adapter.
 import test from 'node:test'
 import { createGameStore } from '../app/game-store.ts'
+import { stepLiveOrderQueue } from '../app/live-movement.ts'
+import { vehicleExit } from '../app/live-vehicles.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 
 import assert from 'node:assert/strict'
@@ -124,6 +126,24 @@ test('ordinary staged transport waypoints advance and retain the seated owner th
       assert.equal(world.buildingOrders.records[ids[1]].references, 1)
     }
     if (!last && !world.buildingOrders.records[ids[1]].references) last = world.turn
+    if (world.turn === 4120) {
+      // Supplied final-tail flag/completion boundary, separate from ordinary input.
+      for (const blocked of [false, true]) {
+        const control = structuredClone(world),
+          unit = control.units.find(u => u.id === shaman.id),
+          owner = unit.native,
+          vehicle = control.vehicles.find(v => v.id === balloon.id)
+        owner.flags3 |= 0x10000000
+        if (blocked) control.land.flags.fill(4)
+        assert.equal(vehicleExit(control, vehicle).found, !blocked)
+        stepLiveOrderQueue(control, unit, owner, { 3: () => 1 })
+        assert.equal(control.buildingOrders.records[ids[1]].references, 0)
+        assert.equal(owner.vehicle, blocked ? vehicle.id : 0)
+        assert.deepEqual(vehicle.passengers, blocked ? [unit.id] : [])
+        assert.equal(unit.native, owner)
+        assert.equal(control.objectCells.objects.get(unit.id), owner)
+      }
+    }
   }
   assert.equal(first, 4045)
   assert.equal(last, 4121)
