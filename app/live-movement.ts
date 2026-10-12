@@ -24,6 +24,7 @@ import { cancelBuildingEntry, initializeBuildingPerson } from './live-building-e
 import { stepLiveWorship, worshipHeadPose } from './live-worship.ts'
 import { worshipApproach } from './worship.ts'
 import {
+  leaveLiveAttackVehicle,
   liveBuildingAttackTarget,
   cancelLiveBuildingAttack,
   releaseLiveAttackReservation,
@@ -989,14 +990,24 @@ export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects
       )
         return complete()
       if (p.vehicle === vehicle.id) return p.slowTurn ? 0 : complete()
-      // Cross-vehicle transfer retains its separate legacy adapter boundary.
-      if (p.vehicle) return 0
       if (p.flags2 & 0x40000000) {
         p.flags2 = (p.flags2 & ~0x40000000) >>> 0
         recoverPersonMovement(w, p, (person, object) =>
           setLivePersonAnimation(w, person as LivePerson, object)
         )
         replanLivePath(w, u, p, vehicleExitTarget(w, vehicle))
+      }
+      if (p.vehicle) {
+        if (
+          Math.abs(short(vehicle.x) - short(p.x)) < 568 &&
+          Math.abs(short(vehicle.y) - short(p.y)) < 568
+        ) {
+          // 0x435160 uses the same projected768/fallback/anchor departure shape
+          // as 0x435550 mode1 before boarding the distinct target vehicle.
+          leaveLiveAttackVehicle(w, p, vehicle)
+          boardLiveVehicle(w, p, vehicle)
+        }
+        return p.vehicle === vehicle.id && !p.slowTurn ? complete() : 0
       }
       // Existing settled boarding geometry is an explicit adapter boundary;
       // native 0x435160's direct-airborne point/extent is separate work.

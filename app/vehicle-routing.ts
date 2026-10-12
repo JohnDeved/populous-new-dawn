@@ -89,7 +89,7 @@ export function boardingVehicle(w: VehicleRoutingWorld, p: { tribe: number }, pa
     !vehicleReady(w, v)
   )
     return 0
-  if (v.passengerCount && w.people.get(v.passengers[0])!.tribe !== p.tribe) return 0
+  if (v.passengerCount && w.people.get(v.passengers[0])?.tribe !== p.tribe) return 0
   return w.tribes[p.tribe].playerType === 1 && v.reservation ? 0 : id
 }
 
