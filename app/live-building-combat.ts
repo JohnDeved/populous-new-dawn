@@ -29,6 +29,7 @@ import {
   changeLivePersonState,
   type LivePerson,
 } from './live-people.ts'
+import { vehicleReady } from './vehicle-routing.ts'
 import { clearLivePath, replanLivePath } from './live-pathfinding.ts'
 import { releasePersonRoute, setDirectPersonDestination } from './person-routes.ts'
 import {
@@ -534,7 +535,13 @@ function stepAreaAttack(
         outside,
       }),
     withinArea: (command: PersonOrder) =>
-      withinCombatArea(p, command, undefined, { range, vehicleReady: unsupported }),
+      withinCombatArea(p, command, undefined, {
+        range,
+        vehicleReady: () => {
+          const vehicle = w.vehicles.find(v => v.id === p.vehicle && v.active)
+          return !!vehicle && vehicleReady(w.land, vehicle)
+        },
+      }),
     select: (command: PersonOrder, vehicleOnly: boolean) => {
       if (vehicleOnly || p.vehicle) unsupported()
       selected ??=

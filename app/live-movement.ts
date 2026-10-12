@@ -171,6 +171,12 @@ function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
         if (head) return worshipApproach(worshipHeadPose(w, head))
         unsupported()
       }
+      // 0x4389c0 gives command 19's packed-cell payload precedence over objects.
+      if (command.model === 19)
+        return {
+          x: (((command.a & 254) + 1) << 8) & 65535,
+          y: ((((command.a & 0xfefe) >>> 8) + 1) * 256) & 65535,
+        }
       // Other encoded targets retain their existing unsupported boundary.
       if (rules.personCommands[command.model].flags & (4 | 0x800 | 0x242)) unsupported()
       return { x: command.a & 65535, y: command.b & 65535 }
