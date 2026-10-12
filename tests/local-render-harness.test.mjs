@@ -225,8 +225,7 @@ async function lateScenarioResult(trigger) {
     scenarioCompleted = true
     return { completedAfterAbort: true }
   }
-  const run = sandbox
-    .run(
+  const run = sandbox.run(
     {
       gameRoot: '/fixture',
       output: '/proof',
