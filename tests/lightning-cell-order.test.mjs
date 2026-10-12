@@ -148,3 +148,18 @@ test('Lightning snapshots ordering before its first victim callback can remove a
   assert.ok(removed)
   assert.deepEqual(deaths(world, ids), nativeDeaths)
 })
+
+test('supplied malformed duplicate roster owners retain Lightning fallback tolerance', () => {
+  for (const sameUnit of [true, false]) {
+    const { world, bolt, ids, linked } = pendingStrike(),
+      unit = world.units.find(candidate => candidate.id === linked[0].id)
+    // No ordinary producer is established. Preserve the prior adapter's behavior,
+    // including repeated entries, rather than inventing a deduplication policy.
+    world.units.push(sameUnit ? unit : { ...unit })
+    assert.doesNotThrow(() => strikeLiveLightning(world, bolt.target, 0))
+    assert.deepEqual(
+      deaths(world, ids),
+      sameUnit ? [303, 306, 306, 507, 510, 513, 589] : [303, 306, 507, 510, 513, 589]
+    )
+  }
+})

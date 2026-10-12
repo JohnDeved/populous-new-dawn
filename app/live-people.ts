@@ -665,8 +665,10 @@ export function strikeLiveLightning(w: World, point: { x: number; y: number }, t
   }
   const owned = new Set(linked)
   let next = 0
-  for (const [index, person] of people.entries())
-    if (owned.has(person)) people[index] = linked[next++]
+  // Ambiguous duplicate roster owners retain the previous fallback unchanged.
+  if (people.filter(person => owned.has(person)).length === linked.length)
+    for (const [index, person] of people.entries())
+      if (owned.has(person)) people[index] = linked[next++]
   strikeLightning(people, tribe, p => {
     const u = units.get(p.id)!
     releaseTasks(w, u)

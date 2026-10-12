@@ -31,3 +31,14 @@ RNG samples for seven initialized victims; projection itself adds no draw.
 Existing Mission15 captive controls and native Lightning/phase vectors are reused.
 The spell stock setup, persistent-browser storage and rendered/native execution
 limits remain separate; neither this note nor these tests close the broad gate.
+
+Independent compatibility stress supplied duplicated roster owners, which have no
+established ordinary producer. The previous Lightning adapter tolerated both a
+repeated Unit reference and two Unit wrappers sharing one native person. Blast's
+Unit-ID map already collapses identical roster IDs, but distinct Unit IDs sharing
+one person exposed the same projection overrun. In both cases a non-bijective
+owned-slot mapping must retain the old fallback rather than insert an undefined
+object. The correction therefore requires owned slot count to equal linked count
+before projection. It does not deduplicate or repair malformed save data. Valid
+linked chains retain the ordinary capped-recipient fixes above and in
+`blast-cell-order.md`.
