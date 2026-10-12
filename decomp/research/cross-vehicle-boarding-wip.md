@@ -24,3 +24,9 @@ failed search, force arrival, or treat absence of an exception as transfer proof
 Static references: 00435160, 004663c0, 004666f0, 00432590, 004d9650. No original
 code execution or native trajectory equivalence is claimed. Staged multi-passenger
 vehicle-motion work #401 remains separate and held.
+
+The authored target's coastal resting predicate also returns0, so the new
+cross-craft branch selects its direct center as00435160 specifies. This source
+correction applies only to already-seated transfer; grounded403 geometry remains
+unchanged. The ordinary2218 center search still fails and enters recovery, so
+correcting the exitpoint mismatch does not establish a successful transfer.

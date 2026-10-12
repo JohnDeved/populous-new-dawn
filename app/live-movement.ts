@@ -93,6 +93,7 @@ import {
   vehicleExitTarget,
 } from './live-vehicles.ts'
 import { vehicleCanDisembark, vehicleReady } from './vehicle-routing.ts'
+import { restingCellCollision } from './person-collision.ts'
 import {
   cancelConversionVictim,
   inPreachingRange,
@@ -995,7 +996,18 @@ export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects
         recoverPersonMovement(w, p, (person, object) =>
           setLivePersonAnimation(w, person as LivePerson, object)
         )
-        replanLivePath(w, u, p, vehicleExitTarget(w, vehicle))
+        const target = { x: vehicle.x & 65535, y: vehicle.y & 65535 },
+          cell = (target.y >> 9) * 128 + (target.x >> 9),
+          direct =
+            p.vehicle &&
+            rules.vehicleRestFlags[vehicle.model] & 1 &&
+            !restingCellCollision(
+              { flags: w.land.flags[cell], category: w.land.categories[cell] },
+              w.land.walkMasks[w.pathfinding.state.walkMask],
+              target,
+              true
+            )
+        replanLivePath(w, u, p, direct ? target : vehicleExitTarget(w, vehicle))
       }
       if (p.vehicle) {
         if (
