@@ -342,7 +342,9 @@ export class Soundscape {
     this.playbackRequest++
     this.enabled = false
     this.music?.element.pause()
-    if (this.context && this.context.state !== 'closed') void this.context.suspend()
+    // Muting is the error fallback itself; local silence must not spawn a new
+    // unhandled rejection when the context cannot suspend.
+    if (this.context && this.context.state !== 'closed') void this.context.suspend().catch(() => {})
     if (this.backgroundTimer) clearInterval(this.backgroundTimer)
     this.backgroundTimer = null
     this.stopAll()
@@ -410,6 +412,6 @@ export class Soundscape {
     this.music?.dispose()
     this.music = null
     this.buffers.clear()
-    void this.context?.close()
+    void this.context?.close().catch(() => {})
   }
 }
