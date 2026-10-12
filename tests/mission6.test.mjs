@@ -313,7 +313,9 @@ test('Mission 6 Chumara trains Preachers and launches its first mixed raid', () 
       const combat = owners.find(owner => owner.id === preacherId && owner.fightOwned &&
         [25, 29].includes(owner.state))
       assert.ok(combat)
-      assert.equal(combat.order?.model, 32)
+      // Loaded-origin staging reaches immediate attack21 rather than sermon32.
+      // The native abort gate consumes this admitted fight state, not its order model.
+      assert.equal(combat.order?.model, 21)
       assert.ok(combat.immediate > 0)
       assert.equal(combat.queuedModel, 3)
       assert.ok(owners.some(owner => owner.state === 10 && owner.speed > 0 && owner.order?.model === 3))

@@ -58,3 +58,16 @@ the real command3 orders, including their existing +128 coordinate centering.
 The baseline failures and the initial new-test centering mistake remain retained
 locally. Simulation checks do not certify rendered input, a complete original
 raid trajectory, or universal native save/reset histories.
+
+## Maintained later combat witness
+
+The first aggregate exposed one old trajectory-specific expectation: the mixed
+raid test expected immediate sermon32 at the later phase6 abort. With corrected
+staging, its deterministic Preacher398 instead reaches registered fight state25
+at turn8333 with immediate attack21, flags32 and queued move3; all three peers
+remain moving. The [accepted original abort predicate](https://github.com/JohnDeved/populous-new-dawn/blob/925d9ea6fe994ab9e53db92193635ded89a91910/references/verification/raid-phase6-settlement-2026-10-06/fix-source-review/review.md)
+sets elapsed1801 for admitted states25/29 independently of the sermon test.
+Independent review approved the exact32-to21 expectation correction, with all
+existing identity, command preservation, timeout, retirement and513-turn budget
+assertions retained. The failed original aggregate and diagnostic are preserved;
+this does not change or re-certify sermon production itself.
