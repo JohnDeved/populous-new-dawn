@@ -94,6 +94,7 @@ import {
 } from './live-vehicles.ts'
 import { vehicleCanDisembark, vehicleReady } from './vehicle-routing.ts'
 import { restingCellCollision } from './person-collision.ts'
+import { clearFollowingBoardingOrders } from './vehicle-boarding-orders.ts'
 import {
   cancelConversionVictim,
   inPreachingRange,
@@ -1017,7 +1018,15 @@ export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects
           // 0x435160 uses the same projected768/fallback/anchor departure shape
           // as 0x435550 mode1 before boarding the distinct target vehicle.
           leaveLiveAttackVehicle(w, p, vehicle)
-          boardLiveVehicle(w, p, vehicle)
+          if (boardLiveVehicle(w, p, vehicle))
+            clearFollowingBoardingOrders(
+              w.buildingOrders,
+              p,
+              w.manaTribes[p.tribe].playerType,
+              vehicle.model,
+              id => w.vehicles.find(v => v.id === id && v.active)?.model,
+              orderEffects(w).deleteObject
+            )
         }
         return p.vehicle === vehicle.id && !p.slowTurn ? complete() : 0
       }

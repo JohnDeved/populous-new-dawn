@@ -30,3 +30,24 @@ cross-craft branch selects its direct center as00435160 specifies. This source
 correction applies only to already-seated transfer; grounded403 geometry remains
 unchanged. The ordinary2218 center search still fails and enters recovery, so
 correcting the exitpoint mismatch does not establish a successful transfer.
+
+## New nearby ordinary witness
+
+With the separately reviewed repeat-production repair #405, authored Mission15
+produces two ready Boats through actual worker commands. Their passenger-to-target
+signed axis deltas are -128/+40. Public cross-craft input previously reports no
+land route. The scoped prototype now transfers the same person at turn1333,
+clears the old physical seat, joins the target's existing driver, retires the
+boarding order and preserves a120-turn exact public checkpoint replay. The same
+person can transfer back while a non-driver.
+
+The new cross-craft consumer also invokes the human `0043dc20` cleanup: seven
+circular slots after the active slot, discarding later valid boarding orders whose
+live target craft model matches. AI playerType1 skips this cleanup; human2 runs
+it. Non-boarding orders remain unchanged. The pure callback contract includes
+attached-object deletion, while the existing live order effect still rejects
+nonzero attached native objects; ordinary boarding packets allocate object0.
+
+This does not repair the distant Mission22 path failure or imply native motion,
+boarding timing, resource, or allocation parity. Full verification is pending;
+the separate denied typecheck-result action remains held and was not retried.
