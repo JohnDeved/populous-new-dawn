@@ -378,25 +378,26 @@ export function invisibilityFollowers(w: World, point: Point, team: Team) {
   const center = nativePosition(w, point),
     x = (center.x >>> 8) & 254,
     y = (center.y >>> 8) & 254,
-    order = new Map<string, number>()
+    units = new Map(w.units.map(u => [u.id, u])),
+    candidates: { u: Unit; p: NativePoint; scan: number }[] = []
+  // 00515e30 collects linked-cell members and reverses that discovery chain.
+  // Keep the existing Invisibility predicate pending its separate native export.
   for (const dy of [-2, 0, 2])
-    for (const dx of [-2, 0, 2]) order.set(`${(x + dx) & 254}:${(y + dy) & 254}`, order.size)
-  const targets = w.units
-    .map((u, index) => {
-      const p = nativePosition(w, u),
-        scan = order.get(`${(p.x >>> 8) & 254}:${(p.y >>> 8) & 254}`)
-      return { u, p, scan: scan === undefined ? -1 : scan * w.units.length + index }
-    })
-    .filter(
-      ({ u, scan }) =>
-        scan >= 0 &&
-        u.team === team &&
-        u.kind !== 'shaman' &&
-        u.hp > 0 &&
-        u.inside === null &&
-        !u.invisibility &&
-        !((unitAnimationSource(u)?.flags4 ?? 0) & 0x1000)
-    )
+    for (const dx of [-2, 0, 2])
+      for (const p of objectsInCell(w.objectCells, ((x + dx) & 254) | (((y + dy) & 254) << 8))) {
+        const u = units.get(p.id)
+        if (
+          u &&
+          u.team === team &&
+          u.kind !== 'shaman' &&
+          u.hp > 0 &&
+          u.inside === null &&
+          !u.invisibility &&
+          !((unitAnimationSource(u)?.flags4 ?? 0) & 0x1000)
+        )
+          candidates.push({ u, p, scan: candidates.length })
+      }
+  const targets = candidates
     .toSorted(
       (a, b) => positionDistance(a.p, center) - positionDistance(b.p, center) || b.scan - a.scan
     )

@@ -14,7 +14,7 @@ import {
   unitInvisibilityRenderFlag,
   unitInvisibleToPlayer,
 } from '../app/model.ts'
-import { createLivePerson, createMeleePerson, enterLiveCombat } from '../app/live-people.ts'
+import { createLivePerson, createMeleePerson, enterLiveCombat, syncLivePersonCells } from '../app/live-people.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
 
 const emptyWorld = () => {
@@ -42,9 +42,12 @@ test('Invisibility marks the native six, does not refresh, and reveals on time o
   const enemy = addUnit(w, 'red', 'brave', { x: 2, z: 0 })
   addUnit(w, 'blue', 'warrior', { x: 10, z: 0 })
 
-  assert.deepEqual(invisibilityFollowers(w, { x: 2, z: 0 }, 'blue'), fresh.slice(1).reverse())
+  // Native selection uses registered cell chains, not the browser array order.
+  for (const unit of w.units) unit.native = createLivePerson(w, unit)
+  syncLivePersonCells(w)
+  assert.deepEqual(invisibilityFollowers(w, { x: 2, z: 0 }, 'blue'), fresh.slice(0, 6))
   assert.equal(existing.invisibility, 7)
-  assert.equal(fresh[0].invisibility, undefined)
+  assert.equal(fresh[6].invisibility, undefined)
   assert.equal(fresh[1].invisibility, constants.INVISIBLE_COUNT_X8 * 8)
   assert.equal(enemy.invisibility, undefined)
 
