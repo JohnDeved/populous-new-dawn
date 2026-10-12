@@ -7,7 +7,7 @@ let session = 0
 async function withStorage(initial, run, { failFirstRestore = false } = {}) {
   const records = new Map(Object.entries(structuredClone(initial))),
     writes = [], queue = [], previous = Object.getOwnPropertyDescriptor(globalThis, 'indexedDB')
-  let active = false, failProfileRead = false
+  let active = false, failProfileRead = false, failProfileCommit = false
   function next() {
     if (active || !queue.length) return
     active = true
@@ -32,9 +32,16 @@ async function withStorage(initial, run, { failFirstRestore = false } = {}) {
       finish(new Error('Synthetic startup read failure'))
       return
     }
+    let wroteProfile = false
     function step() {
       const operation = operations.shift()
-      if (!operation) return finish()
+      if (!operation) {
+        if (wroteProfile && failProfileCommit) {
+          failProfileCommit = false
+          return finish(new Error('Synthetic profile commit abort'))
+        }
+        return finish()
+      }
       if (operation.kind === 'get' && operation.key === 'profile' && mode === 'readwrite' && failProfileRead) {
         failProfileRead = false
         return finish(new Error('Synthetic atomic profile read failure'))
@@ -43,6 +50,7 @@ async function withStorage(initial, run, { failFirstRestore = false } = {}) {
       else {
         working.set(operation.key, structuredClone(operation.value))
         writes.push(operation.key)
+        if (operation.key === 'profile') wroteProfile = true
       }
       operation.request.dispatchEvent(new Event('success'))
       queueMicrotask(step)
@@ -91,7 +99,7 @@ async function withStorage(initial, run, { failFirstRestore = false } = {}) {
     const { createGameStore } = await import(`../app/game-store.ts?profile-union=${++session}`)
     return createGameStore()
   }
-  try { await run({ freshStore, records, writes, drain, failNextProfileRead: () => { failProfileRead = true } }) }
+  try { await run({ freshStore, records, writes, drain, failNextProfileRead: () => { failProfileRead = true }, failNextProfileCommit: () => { failProfileCommit = true } }) }
   finally {
     if (previous) Object.defineProperty(globalThis, 'indexedDB', previous)
     else delete globalThis.indexedDB
@@ -167,6 +175,22 @@ test('failed atomic profile read cannot overwrite data and later completion retr
     failNextProfileRead()
     complete(store, 3)
     await drain()
+    assert.deepEqual(records.get('profile').completed, [1, 2])
+    assert.deepEqual(store.getCompletedMissions(), [3])
+    complete(store, 4)
+    await drain()
+    assert.deepEqual(records.get('profile').completed, [1, 2, 3, 4])
+  })
+})
+
+
+test('transaction abort after profile put leaves stored progress unchanged', async () => {
+  await withStorage({ profile: { version: 1, completed: [1, 2] } }, async ({ freshStore, records, writes, drain, failNextProfileCommit }) => {
+    const store = await freshStore()
+    failNextProfileCommit()
+    complete(store, 3)
+    await drain()
+    assert.ok(writes.includes('profile'), 'the transaction reached put before aborting')
     assert.deepEqual(records.get('profile').completed, [1, 2])
     assert.deepEqual(store.getCompletedMissions(), [3])
     complete(store, 4)

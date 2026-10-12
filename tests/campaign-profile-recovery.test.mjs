@@ -18,11 +18,11 @@ async function withStorage(initial, run, { failRead = false } = {}) {
           assert.equal(storeName, 'checkpoints')
           return {
             get: key => {
-          const request = new EventTarget()
-          request.result = structuredClone(records.get(key))
-          queueMicrotask(() => request.dispatchEvent(new Event('success')))
-          return request
-        },
+              const request = new EventTarget()
+              request.result = structuredClone(records.get(key))
+              queueMicrotask(() => request.dispatchEvent(new Event('success')))
+              return request
+            },
             put: (value, key) => {
               assert.equal(mode, 'readwrite')
               writes.push(key)
