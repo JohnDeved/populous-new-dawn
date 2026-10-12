@@ -748,8 +748,9 @@ export function stepLiveBlastWave(w: World, wave: BlastWave) {
       w.objectCells,
       ((index % 128) * 2) | ((Math.floor(index / 128) * 2) << 8)
     )) {
-      const person = people.get(object.id)
-      if (person === object && cell.includes(person)) linked.push(person)
+      const person = records.get(object.id)
+      if (person === object && people.get(object.id) === person && cell.includes(person))
+        linked.push(person)
     }
     const owned = new Set(linked)
     let next = 0
