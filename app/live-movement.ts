@@ -95,6 +95,7 @@ import {
 import { vehicleCanDisembark, vehicleReady } from './vehicle-routing.ts'
 import { restingCellCollision } from './person-collision.ts'
 import { clearFollowingBoardingOrders } from './vehicle-boarding-orders.ts'
+import { withinVehicleTransferRange } from './vehicle-transfer.ts'
 import {
   cancelConversionVictim,
   inPreachingRange,
@@ -1011,10 +1012,7 @@ export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects
         replanLivePath(w, u, p, direct ? target : vehicleExitTarget(w, vehicle))
       }
       if (p.vehicle) {
-        if (
-          Math.abs(short(vehicle.x) - short(p.x)) < 568 &&
-          Math.abs(short(vehicle.y) - short(p.y)) < 568
-        ) {
+        if (withinVehicleTransferRange(p, vehicle)) {
           // 0x435160 uses the same projected768/fallback/anchor departure shape
           // as 0x435550 mode1 before boarding the distinct target vehicle.
           leaveLiveAttackVehicle(w, p, vehicle)

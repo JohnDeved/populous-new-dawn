@@ -47,3 +47,15 @@ test('post-boarding cleanup scans seven circular slots and preserves other order
   assert.equal(pool.records[1].references, 1)
   assert.equal(pool.active, 6)
 })
+
+// Supplied arithmetic boundary, separate from the authored-map handoff.
+test('cross-craft proximity uses strict separately signed axis distances', async () => {
+  const { withinVehicleTransferRange } = await import('../app/vehicle-transfer.ts')
+  for (const sign of [-1, 1]) {
+    assert.equal(withinVehicleTransferRange({ x: 0, y: 0 }, { x: sign * 567, y: sign * 567 }), true)
+    assert.equal(withinVehicleTransferRange({ x: 0, y: 0 }, { x: sign * 568, y: 0 }), false)
+    assert.equal(withinVehicleTransferRange({ x: 0, y: 0 }, { x: 0, y: sign * 568 }), false)
+  }
+  assert.equal(withinVehicleTransferRange({ x: 65530, y: 0 }, { x: 6, y: 0 }), true)
+  assert.equal(withinVehicleTransferRange({ x: 32760, y: 0 }, { x: 32776, y: 0 }), false)
+})
