@@ -721,8 +721,10 @@ export function command(
     tell(w, 'No command slots available.')
     return true
   }
+  const aboardAttack: Unit[] = []
   let count = 0,
-    constructionFull = false
+    constructionFull = false,
+    attackOrdersFull = false
   if (friendly && friendly.progress < 1 && !dismantling) constructionWorkers(w, friendly)
   for (const u of w.units.filter(u => canOrder(u) && w.selected.includes(u.id))) {
     if (!acceptsPersonOrder(combatPerson(u), model)) continue
@@ -764,6 +766,20 @@ export function command(
     const order = moveOrder || headOrder,
       path = moveOrder ? null : planLivePath(w, u, goal)
     if (!moveOrder && !path) continue
+    const person = u.native
+    if (
+      enemy &&
+      person?.vehicle &&
+      ![4, 6].includes(person.model) &&
+      w.objectCells.objects.get(u.id) === person &&
+      w.vehicles.some(v => v.id === person.vehicle && v.active && v.passengers.includes(u.id))
+    ) {
+      // Admission is unchanged. Plain and staged packets both own command 28;
+      // only the player-input staging bit differs (0x444f60/0x435cb0).
+      releasePersonRoute(w.motionRoutes, path!)
+      aboardAttack.push(u)
+      continue
+    }
     if (friendly && friendly.progress < 1 && !dismantling) assignBuilder(friendly.builders!, u.id)
     release(w, u)
     if (order) {
@@ -778,6 +794,26 @@ export function command(
     if (shrine?.kind === 'vault')
       u.vault = { head: shrine.id, phase: 1, entering: true, remaining: 0 }
     count++
+  }
+  if (enemy && aboardAttack.length) {
+    const input = playerOrderInput(28, 0, false, modifiers.shiftKey, modifiers.altKey),
+      order = emptyPersonOrder(),
+      to = nativePosition(w, enemy)
+    for (const u of aboardAttack) release(w, u)
+    writePersonOrder(order, 28, enemy.id, ((to.x >>> 8) & 255) | (to.y & 0xff00), input.flags)
+    const result = appendLiveOrders(w, aboardAttack, order, true)
+    attackOrdersFull = !result.accepted
+    if (result.accepted)
+      for (const u of aboardAttack) {
+        if (!u.native || currentPersonOrder(w.buildingOrders, u.native)?.model !== 28) continue
+        u.target = enemy.id
+        route(w, u, enemy, true)
+        count++
+      }
+    for (const u of aboardAttack)
+      if (u.native)
+        u.native.selectionFlags = (u.native.selectionFlags & ~1) | (u.native.selectionFlags >>> 7)
+    if (input.deselect) cancelInteraction(w)
   }
   let message = 'No land route. Bring your shaman to the shore and make a Land Bridge.'
   if (count) {
@@ -796,7 +832,8 @@ export function command(
       else if (friendly.kind === 'tower') message = 'Followers sent to occupy the guard tower.'
       else message = 'Braves sent to live in the hut.'
     } else if (enemy) message = 'Your followers march to battle.'
-  } else if (constructionFull) message = 'This building already has its full construction crew.'
+  } else if (attackOrdersFull) message = 'No command slots available.'
+  else if (constructionFull) message = 'This building already has its full construction crew.'
   else if (shrine?.kind === 'vault')
     message = 'Select your shaman to worship the Vault of Knowledge.'
   tell(w, message)
