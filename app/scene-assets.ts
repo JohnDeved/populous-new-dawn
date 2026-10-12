@@ -265,8 +265,12 @@ export function updateModelLighting(object: THREE.Object3D) {
   object.userData.lightKey = key
 }
 const meshes = new Map<string, THREE.BufferGeometry>()
+let sharedGeometryMembership: WeakSet<THREE.BufferGeometry> | undefined
 export function geometry(key: string, create: () => THREE.BufferGeometry) {
-  if (!meshes.has(key)) meshes.set(key, create())
+  if (!meshes.has(key)) {
+    meshes.set(key, create())
+    sharedGeometryMembership = undefined
+  }
   return meshes.get(key)!
 }
 export const box = (x: number, y: number, z: number) =>
@@ -296,7 +300,8 @@ export function releaseGroup(g: THREE.Object3D) {
       materials.add(o.material)
     }
     if (o instanceof THREE.Mesh || o instanceof THREE.Line) {
-      if (![...meshes.values()].includes(o.geometry)) o.geometry.dispose()
+      if (!(sharedGeometryMembership ??= new WeakSet(meshes.values())).has(o.geometry))
+        o.geometry.dispose()
       ;(Array.isArray(o.material) ? o.material : [o.material]).forEach(m => materials.add(m))
     }
   })
