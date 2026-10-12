@@ -225,7 +225,8 @@ async function lateScenarioResult(trigger) {
     scenarioCompleted = true
     return { completedAfterAbort: true }
   }
-  const run = sandbox.run(
+  const run = sandbox
+    .run(
     {
       gameRoot: '/fixture',
       output: '/proof',
@@ -284,9 +285,11 @@ async function startupFixture({
   responses = [],
   listening = true,
   pending = false,
+  pendingFetches = 0,
   interrupt = false,
   exit = false,
   profile = false,
+  beforeTimer = () => {},
 } = {}) {
   const calls = {
       mkdir: 0,
@@ -298,9 +301,16 @@ async function startupFixture({
       finish: 0,
       killed: [],
     },
-    timers = []
+    timers = [],
+    scheduled = new Set()
   let persisted,
     now = 0
+  const schedule = (fn, ms) => {
+    timers.push(ms)
+    const timer = { fn, ms, due: now + ms }
+    scheduled.add(timer)
+    return timer
+  }
   const process = new EventEmitter()
   process.env = {}
   process.argv = []
@@ -384,7 +394,14 @@ async function startupFixture({
     fileURLToPath,
     pathToFileURL,
     AbortController,
-    AbortSignal,
+    AbortSignal: {
+      any: signals => AbortSignal.any(signals),
+      timeout(ms) {
+        const controller = new AbortController()
+        schedule(() => controller.abort(new DOMException('Fetch timed out', 'TimeoutError')), ms)
+        return controller.signal
+      },
+    },
     structuredClone,
     console,
     process,
@@ -393,17 +410,8 @@ async function startupFixture({
         return now
       }
     },
-    setTimeout(fn, ms) {
-      timers.push(ms)
-      return setTimeout(
-        () => {
-          if (ms > 250 && ms <= 60000) now += ms
-          fn()
-        },
-        ms === 250 ? 1 : ms <= 60000 ? 20 : 100
-      )
-    },
-    clearTimeout,
+    setTimeout: schedule,
+    clearTimeout: timer => scheduled.delete(timer),
     sourceReceipt: () => ({ fingerprint: 'fixed' }),
     mkdirSync() {
       calls.mkdir++
@@ -443,7 +451,7 @@ async function startupFixture({
     },
     async fetch(_, { signal }) {
       calls.fetch++
-      if (pending)
+      if (pending || calls.fetch <= pendingFetches)
         return new Promise((_, reject) =>
           signal.addEventListener('abort', () => reject(signal.reason), { once: true })
         )
@@ -453,9 +461,10 @@ async function startupFixture({
     },
   }
   vm.runInNewContext(source + '\nglobalThis.run = runLocalBrowser', sandbox)
-  let failure
-  try {
-    await sandbox.run(
+  let failure,
+    settled = false
+  const run = sandbox
+    .run(
       {
         gameRoot: '/fixture',
         output: '/proof',
@@ -466,9 +475,27 @@ async function startupFixture({
       },
       scenario
     )
-  } catch (error) {
-    failure = error
+    .catch(error => {
+      failure = error
+    })
+    .finally(() => {
+      settled = true
+    })
+  // Drain promise continuations between virtual timers, as the host event loop
+  // does. Host scheduling delays must not consume the simulated readiness budget.
+  // Advancing the earliest deadline also covers per-fetch and overall timeouts.
+  for (let turns = 0; !settled; turns++) {
+    await new Promise(resolve => setImmediate(resolve))
+    if (settled) break
+    assert.ok(turns < 10000, 'Startup fixture exceeded its bounded virtual timer budget')
+    const next = [...scheduled].sort((a, b) => a.due - b.due)[0]
+    assert.ok(next, 'Startup fixture stalled without a scheduled timer')
+    await beforeTimer(next.ms)
+    scheduled.delete(next)
+    now = next.due
+    next.fn()
   }
+  await run
   return { calls, timers, persisted, failure, process }
 }
 test('direct API rejects blocked ports before output/profile/server or fetch acquisition', async () => {
@@ -517,13 +544,15 @@ test('deterministic nested bad-port failure stops after one fetch and closes onl
 test('server readiness ceiling bounds pending fetch and retains elapsed failure facts', async () => {
   const result = await startupFixture({ pending: true })
   assert.match(String(result.failure), /readiness exceeded 60000ms/)
-  assert.equal(result.calls.fetch, 1)
+  // First fetch at 250ms; subsequent attempts every 1500ms timeout + 250ms retry.
+  assert.equal(result.calls.fetch, 35)
   assert.equal(result.calls.launch, 0)
+  assert.equal(result.persisted.readiness.first.error.name, 'TimeoutError')
   assert.equal(result.persisted.readiness.timeoutMs, 60000)
   assert.equal(result.persisted.readiness.elapsedMs, 60000)
   assert.equal(result.persisted.readiness.ready, false)
   assert.match(result.persisted.readiness.abortReason, /readiness exceeded 60000ms/)
-  assert.ok(result.persisted.readiness.first.pending || result.persisted.readiness.first.error)
+  assert.ok(result.persisted.readiness.last.pending || result.persisted.readiness.last.error)
 })
 test('startup ceiling never exceeds overall timeout and also bounds a server that never announces listening', async () => {
   const result = await startupFixture({ timeout: 1000, listening: false })
@@ -563,4 +592,43 @@ test('readiness diagnostics keep bounded first/last facts without an unbounded r
   assert.equal(evidence.first.error.cause.length, 512)
   assert.equal(evidence.last.status, 204)
   assert.ok(!Object.values(evidence).some(Array.isArray))
+})
+
+test('readiness retry ordering is independent of host event-loop delay', async () => {
+  let delayed = false
+  const result = await startupFixture({
+    responses: [
+      new TypeError('fetch failed'),
+      { ok: false, status: 503 },
+      { ok: false, status: 502 },
+      { ok: true, status: 204 },
+    ],
+    async beforeTimer(ms) {
+      if (ms === 250 && !delayed) {
+        delayed = true
+        // Exceeds the old fixture's 20ms wall-clock deadline, without spending
+        // virtual server time or launching an actual browser/server.
+        await new Promise(resolve => setTimeout(resolve, 30))
+      }
+    },
+  })
+  assert.equal(delayed, true)
+  assert.equal(result.failure, undefined)
+  assert.equal(result.calls.fetch, 4)
+  assert.equal(result.calls.launch, 1)
+  assert.equal(result.persisted.readiness.elapsedMs, 1000)
+  assert.equal(result.persisted.readiness.ready, true)
+})
+
+test('readiness retries an expired fetch and accepts success within the unchanged ceiling', async () => {
+  const result = await startupFixture({ pendingFetches: 1 })
+  assert.equal(result.failure, undefined)
+  assert.equal(result.calls.fetch, 2)
+  assert.equal(result.calls.launch, 1)
+  assert.equal(result.persisted.readiness.first.error.name, 'TimeoutError')
+  assert.equal(result.persisted.readiness.first.elapsedMs, 1750)
+  assert.equal(result.persisted.readiness.last.status, 204)
+  assert.equal(result.persisted.readiness.elapsedMs, 2000)
+  assert.equal(result.persisted.readiness.timeoutMs, 60000)
+  assert.equal(result.persisted.readiness.ready, true)
 })
