@@ -739,6 +739,25 @@ export function stepLiveBlastWave(w: World, wave: BlastWave) {
       shake: 0,
       shakeOrigin: 0,
     })
+  // Preserve the adapter's unregistered/mixed-class slots, but project exact
+  // owned people into their retained cell-chain order (0050b740's visit order).
+  // Snapshot all cells before callbacks can release or replace person owners.
+  for (const [index, cell] of cells) {
+    const linked: BlastTarget[] = []
+    for (const object of objectsInCell(
+      w.objectCells,
+      ((index % 128) * 2) | ((Math.floor(index / 128) * 2) << 8)
+    )) {
+      const person = people.get(object.id)
+      if (person === object && cell.includes(person)) linked.push(person)
+    }
+    const owned = new Set(linked)
+    let next = 0
+    cells.set(
+      index,
+      cell.map(person => (owned.has(person) ? linked[next++] : person))
+    )
+  }
   const state = {
     randomState: w.randomState,
     search: w.indexedSearch,
