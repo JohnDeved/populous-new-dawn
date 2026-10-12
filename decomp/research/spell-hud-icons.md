@@ -204,3 +204,33 @@ both sizes and compares the exact prefix and word, without changing source data.
 A missing obsolete `import-rules.py` path and blocked handler reads are retained
 as limitations, not used to justify broad discovery or retries. The default149
 research commit and unresolved original cadence boundary are preserved.
+
+## October 12, 2026: current spell-icon reconciliation
+
+Assessment source: `81c05c16897f58a46171d165cb8f8ec5e75fb763`, with unchanged
+runtime and artwork from `e25f1a1e3eeeac7a03eac88704680aa8249c2a1a`. Preserve the
+historical tables, blocked reads and failed results above as source-labelled
+evidence, rather than interpreting their missing-art rows as current defects.
+
+[PR #82](https://github.com/JohnDeved/populous-new-dawn/pull/82), merged as
+`73b98a9f72c0a8e94d765d2d006df857e0177a23`, delivered Shield 408–410 and Bloodlust
+411–413 and removed their Unicode fallbacks. The retained audit binds all 20
+descriptor triples and 54 original crop comparisons; the six-frame append supplies
+the remaining artwork. Read-only reconciliation found all 20 current triples equal
+to that retained table and all 60 atlas rectangles present. This is metadata/source
+correspondence, not a fresh original-pixel comparison or an all-state browser pass.
+
+Current [spellButton](../../app/spell-button.ts) chooses ready artwork for charging
+or nonzero stock, with hover taking precedence; selection changes the border.
+HFX 1056 and [spell-visibility.ts](../../app/spell-visibility.ts) are also installed.
+The [visibility note](spell-hud-visibility.md) separates the mission-load discovery
+snapshot, ownership/stock precedence and casting permission, and preserves the
+historical implementation and result boundaries.
+
+Complete rendered coverage across the shipped spells and normal, inactive,
+selected, charging, disabled and undiscovered states remains open. The three
+historical visibility-check failures remain failed, including the question-mark
+CSS comparison that did not retain the actual serialized position. Source and
+rectangle availability do not replace that rendering obligation. No new browser,
+native-raster or hardware evidence is claimed; no further artwork replacement or
+building-icon decision is justified by this reconciliation. Issue #76 stays open.
