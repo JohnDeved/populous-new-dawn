@@ -387,7 +387,7 @@ async function writeCompletedMissions(completed: number[]) {
           Array.isArray(saved) ||
           saved.version !== PROFILE_VERSION ||
           !Array.isArray(saved.completed) ||
-          !saved.completed.every(
+          !Array.from(saved.completed).every(
             (mission: unknown) =>
               Number.isInteger(mission) && missionNumbers.some(number => number === mission)
           ))

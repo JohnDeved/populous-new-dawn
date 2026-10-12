@@ -142,6 +142,7 @@ for (const [label, profile] of [
   ['malformed list', { version: 1, completed: '1,2' }],
   ['invalid mission', { version: 1, completed: [1, 999] }],
   ['null record', null],
+  ['sparse list', { version: 1, completed: [1, , 2] }],
 ]) test(`${label} profile remains recoverable while session and checkpoint still work`, async () => {
   await withStorage({ profile }, async ({ freshStore, records, writes, drain }) => {
     const store = await freshStore(), before = structuredClone(profile)
