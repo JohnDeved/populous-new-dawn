@@ -2,6 +2,7 @@
 import test from 'node:test'
 import { createGameStore } from '../app/game-store.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
+import { release } from '../app/world-tasks.ts'
 
 import assert from 'node:assert/strict'
 import { browserPosition, cast, command, tick, selectUnit } from '../app/model.ts'
@@ -86,6 +87,38 @@ test('ordinary plain person target queues an unstaged transport attack through S
   const target = world.units.find(u => u.id === 17)
   assert.equal(target.team, 'green')
   assert.equal(target.kind, 'preacher')
+  // Supplied capacity boundary: every slot is held; the old movement record
+  // has one additional external reference so releasing this owner cannot free it.
+  const full = structuredClone(world),
+    fullUnit = full.units.find(u => u.id === shaman.id),
+    fullPerson = fullUnit.native,
+    heldOrder = fullPerson.commands.find(Boolean)
+  for (const record of full.buildingOrders.records) record.references = 1
+  full.buildingOrders.records[heldOrder].references = 2
+  full.buildingOrders.active = 799
+  const released = structuredClone(full)
+  release(
+    released,
+    released.units.find(u => u.id === shaman.id)
+  )
+  const routeReferences = routes => {
+    const view = new DataView(routes.records.buffer)
+    return Array.from({ length: 401 }, (_, i) => view.getInt16(i * 109, true))
+  }
+  selectUnit(full, shaman.id, false)
+  assert.ok(command(full, { ...target, id: target.id }))
+  assert.equal(fullUnit.native, fullPerson)
+  assert.equal(full.objectCells.objects.get(shaman.id), fullPerson)
+  assert.equal(fullPerson.vehicle, balloon.id)
+  assert.deepEqual(full.vehicles.find(v => v.id === balloon.id).passengers, [shaman.id])
+  assert.equal(currentPersonOrder(full.buildingOrders, fullPerson), undefined)
+  assert.deepEqual(fullPerson.commands, Array(8).fill(0))
+  assert.equal(full.buildingOrders.records[heldOrder].references, 1)
+  assert.equal(full.motionRoutes.active, released.motionRoutes.active)
+  assert.deepEqual(routeReferences(full.motionRoutes), routeReferences(released.motionRoutes))
+  assert.equal(full.pathfinding.people.has(shaman.id), false)
+  assert.match(full.message, /No command slots/)
+
   selectUnit(world, shaman.id, false)
   const previousPerson = shaman.native,
     previousOrder = previousPerson.commands.find(Boolean)
