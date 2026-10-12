@@ -112,7 +112,10 @@ function replaceHypnotisedUnit(w: World, source: Unit, team: Team, originalTeam?
   const position = { x: source.x, z: source.z },
     { hp, cargo, heading, kind } = source,
     people = retainedPeople(source)
-  releaseTasks(w, source)
+  // Release the physical building slot while its passive resident still exists.
+  // Generic task cleanup alone discards that owner and leaves a deleted occupant.
+  const occupant = release(w, source)
+  if (occupant && !people.includes(occupant)) people.push(occupant)
   for (const p of people) if (p.flags2 & 0x20000) removeObjectFromCell(w.objectCells, p)
   w.objectCells.objects.delete(source.id)
   w.selected = w.selected.filter(id => id !== source.id)
