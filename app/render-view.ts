@@ -175,6 +175,7 @@ export class RenderView {
       programKey: string
     }
   >()
+  private drawCallbacks = new WeakMap<THREE.Object3D, THREE.Object3D['onBeforeRender']>()
   terrainHeights: [number, number] = [0, 63]
   config = cameraConfig(0)
   projection: Projection = {
@@ -248,8 +249,13 @@ export class RenderView {
         : overview
           ? circularMeshBounds(this.config.diameter)
           : this.displayGroundFootprint.cover(
-              circularMeshBounds(this.config.diameter), this.config, width, height,
-              this.terrainHeights, angle, this.rawCenter
+              circularMeshBounds(this.config.diameter),
+              this.config,
+              width,
+              height,
+              this.terrainHeights,
+              angle,
+              this.rawCenter
             )
     const pixels = this.boundsTexture.image.data as Float32Array
     for (let i = 0; i < 222; i++) pixels.set(this.bounds[i], i * 2)
@@ -617,6 +623,29 @@ export class RenderView {
     index.needsUpdate = true
     geometry.setDrawRange(0, count)
   }
+  private createDrawCallback(object: THREE.Object3D): THREE.Object3D['onBeforeRender'] {
+    return (_renderer, _scene, _camera, _geometry, material) => {
+      const local = material.userData.nativeUniforms
+      if (!local) return
+      if (object.userData.atlasTransform)
+        local.nativeAtlasTransform.value = object.userData.atlasTransform
+      local.nativePainterRange.value.set(
+        !this.overview ? (this.painter.ranges.get(object) ?? [-1, 0]) : [-1, 0]
+      )
+      local.nativeModelScale.value = object.userData.nativeScale ?? 0
+      local.nativeObjectScale.value = object.userData.nativeSize ?? object.userData.nativeScale ?? 0
+      local.nativeRelative.value = object.userData.nativeRelative ? 1 : 0
+      const cell = object.parent?.userData.cellPosition
+      local.nativeCellAnchor.value.set(cell?.x ?? 0, 0, cell?.z ?? 0, cell ? 1 : 0)
+      local.nativeObjectBasis.value.set(
+        modelMatrix(
+          object.parent?.userData.nativeHeading ?? 0,
+          object.parent?.userData.nativeTilt ?? 0,
+          object.parent?.userData.nativeRoll ?? 0
+        )
+      )
+    }
+  }
   prepare(scene: THREE.Scene) {
     scene.onBeforeRender = renderer => {
       scene.traverseVisible(object => this.updateTerrainVisibility(object))
@@ -656,28 +685,12 @@ export class RenderView {
       object.material = Array.isArray(object.material)
         ? object.material.map(ownMaterial)
         : ownMaterial(object.material)
-      object.onBeforeRender = (_renderer, _scene, _camera, _geometry, material) => {
-        const local = material.userData.nativeUniforms
-        if (!local) return
-        if (object.userData.atlasTransform)
-          local.nativeAtlasTransform.value = object.userData.atlasTransform
-        local.nativePainterRange.value.set(
-          !this.overview ? (this.painter.ranges.get(object) ?? [-1, 0]) : [-1, 0]
-        )
-        local.nativeModelScale.value = object.userData.nativeScale ?? 0
-        local.nativeObjectScale.value =
-          object.userData.nativeSize ?? object.userData.nativeScale ?? 0
-        local.nativeRelative.value = object.userData.nativeRelative ? 1 : 0
-        const cell = object.parent?.userData.cellPosition
-        local.nativeCellAnchor.value.set(cell?.x ?? 0, 0, cell?.z ?? 0, cell ? 1 : 0)
-        local.nativeObjectBasis.value.set(
-          modelMatrix(
-            object.parent?.userData.nativeHeading ?? 0,
-            object.parent?.userData.nativeTilt ?? 0,
-            object.parent?.userData.nativeRoll ?? 0
-          )
-        )
+      let onBeforeRender = this.drawCallbacks.get(object)
+      if (!onBeforeRender) {
+        onBeforeRender = this.createDrawCallback(object)
+        this.drawCallbacks.set(object, onBeforeRender)
       }
+      object.onBeforeRender = onBeforeRender
       for (const material of Array.isArray(object.material) ? object.material : [object.material]) {
         if (this.materials.has(material)) continue
         material.fog = false
