@@ -144,3 +144,27 @@ The retention test explicitly adds a supplied Preacher after Angel acquisition;
 it does not claim an untouched campaign journey. Checkpoint persistence and
 native/rendered limitations remain those stated above. Other unrecovered or
 unimplemented Angel selection/controller behavior receives no completion credit.
+
+## Initial target selection respects Spy disguise (2026-10-12)
+
+The same `004db980` initial person scan tests model5's byte `+0xb2`: when
+the low six countdown bits are zero it compares the upper apparent-tribe bits
+against the Angel owner; otherwise it uses the actual tribe. The existing pure
+`computer-selection.ts::spyDisguisedFrom` matches that branch. `nearestEnemy`
+now uses this predicate on its selected person owner. Existing target retention,
+disguise production/countdown, and other selection behavior are unchanged.
+For a legacy owner with no disguise field, preserve prior eligibility rather
+than coercing undefined to an apparent Blue tribe; this is compatibility policy,
+not a native missing-byte claim.
+
+`angel-spy-selection.test.mjs` supplies field, actors, funding, an AI spell entry,
+readiness and remembered target cell. The public disguise command establishes
+actual disguise bytes, then the shipped AI spell dispatcher creates the Red
+Angel through ordinary casting/projectile arrival. The baseline attacks the
+apparently allied Spy; four of ten new tests fail. Controls retain pending
+countdown, another apparent tribe, non-Spy targets, a farther eligible target,
+reacquisition after ordinary combat reveals the Spy, a held target whose disguise
+subsequently completes, and exact checkpoint continuation. The missing-field and
+missing-owner cases explicitly supply terminal legacy ownership to test the compatibility
+policy, without claiming an ordinary tribe-change producer. No fresh native or
+rendered execution, full AI policy acquisition, or broader Angel parity is claimed.
