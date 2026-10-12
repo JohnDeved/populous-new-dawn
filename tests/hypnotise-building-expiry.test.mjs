@@ -56,10 +56,19 @@ for (const checkpoint of [false, true]) {
   })
 }
 
-test('defeated original tribe keeps the same housed person and occupied slot after Hypnotise expiry', () => {
+test('original tribe defeat immediately clears Hypnotise while retaining its housed person and slot', () => {
   const { w, b, converted } = housed(), before = [...b.admission.occupants]
+  const resident = converted.resident, person = resident.person
+  const commands = [...person.commands], nextId = w.nextId
+  converted.hypnotise.remaining = 55
+  converted.hypnotise.counter = 1
   w.manaTribes[1].defeatTimer = 1
-  until(w, () => !converted.hypnotise)
+  stepUnitHypnotise(w)
+  assert.equal(converted.hypnotise, undefined)
+  assert.equal(converted.resident, resident)
+  assert.equal(converted.resident.person, person)
+  assert.deepEqual(person.commands, commands)
+  assert.equal(w.nextId, nextId)
   assert.ok(w.units.includes(converted))
   assert.equal(converted.team, 'blue')
   assert.equal(converted.inside, b.id)
