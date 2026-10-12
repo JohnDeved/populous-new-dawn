@@ -665,7 +665,7 @@ export function stepLiveBlastWave(w: World, wave: BlastWave) {
   const vehicles = new Map(w.vehicles.filter(v => v.active).map(v => [v.id, v]))
   const cells = new Map<number, BlastTarget[]>()
   const records = new Map<number, BlastTarget>()
-  const people = new Map<number, LivePerson>()
+  const people = new Map<number, LivePerson & BlastTarget>()
   const shaken = new Map<number, Building | Tree>()
   const add = (p: BlastTarget) => {
     records.set(p.id, p)
@@ -679,8 +679,9 @@ export function stepLiveBlastWave(w: World, wave: BlastWave) {
     const existing = u.flight ?? u.fight?.motion ?? u.native
     const p = existing ?? createLivePerson(w, u)
     p.life = Math.round(u.hp * 20)
-    people.set(p.id, p)
-    add(Object.assign(p, { shake: 0, shakeOrigin: 0 }))
+    const target = Object.assign(p, { shake: 0, shakeOrigin: 0 })
+    people.set(p.id, target)
+    add(target)
   }
   const addShaken = (
     source: Building | Tree,
@@ -748,9 +749,8 @@ export function stepLiveBlastWave(w: World, wave: BlastWave) {
       w.objectCells,
       ((index % 128) * 2) | ((Math.floor(index / 128) * 2) << 8)
     )) {
-      const person = records.get(object.id)
-      if (person === object && people.get(object.id) === person && cell.includes(person))
-        linked.push(person)
+      const person = people.get(object.id)
+      if (person === object && cell.includes(person)) linked.push(person)
     }
     const owned = new Set(linked)
     let next = 0
