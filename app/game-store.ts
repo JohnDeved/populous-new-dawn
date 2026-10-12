@@ -355,13 +355,59 @@ async function readStoredState() {
   })
 }
 
-async function writeStoredValue(key: 'latest' | 'profile', value: unknown) {
+async function writeStoredValue(key: 'latest', value: unknown) {
   const database = await openCheckpointDatabase()
   if (!database) return false
   return new Promise<boolean>((resolve, reject) => {
     const transaction = database.transaction(CHECKPOINT_STORE, 'readwrite')
     transaction.objectStore(CHECKPOINT_STORE).put(value, key)
     transaction.addEventListener('complete', () => resolve(true))
+    const fail = () => reject(transaction.error)
+    transaction.addEventListener('error', fail)
+    transaction.addEventListener('abort', fail)
+  })
+}
+
+async function writeCompletedMissions(completed: number[]) {
+  const database = await openCheckpointDatabase()
+  if (!database) return false
+  return new Promise<boolean>((resolve, reject) => {
+    const transaction = database.transaction(CHECKPOINT_STORE, 'readwrite'),
+      store = transaction.objectStore(CHECKPOINT_STORE),
+      request = store.get('profile')
+    let written = false
+    request.addEventListener('success', () => {
+      const saved = request.result
+      // Preserve unknown or damaged records for recovery instead of overwriting
+      // them with this session's incomplete view of campaign progress.
+      if (
+        saved !== undefined &&
+        (saved === null ||
+          typeof saved !== 'object' ||
+          Array.isArray(saved) ||
+          saved.version !== PROFILE_VERSION ||
+          !Array.isArray(saved.completed) ||
+          !Array.from(saved.completed).every(
+            (mission: unknown) =>
+              Number.isInteger(mission) && missionNumbers.some(number => number === mission)
+          ))
+      )
+        return
+      // Read and merge in the same active transaction so another tab's completed
+      // missions cannot be replaced by a stale in-memory snapshot.
+      store.put(
+        {
+          ...saved,
+          version: PROFILE_VERSION,
+          completed: [...new Set<number>([...(saved?.completed ?? []), ...completed])].sort(
+            (a, b) => a - b
+          ),
+        },
+        'profile'
+      )
+      written = true
+    })
+    transaction.addEventListener('complete', () => resolve(written))
     const fail = () => reject(transaction.error)
     transaction.addEventListener('error', fail)
     transaction.addEventListener('abort', fail)
@@ -390,10 +436,7 @@ export function createGameStore() {
         !completedMissions.has(mission)
       ) {
         completedMissions.add(mission)
-        void writeStoredValue('profile', {
-          version: PROFILE_VERSION,
-          completed: [...completedMissions].sort((a, b) => a - b),
-        }).catch(() => {})
+        void writeCompletedMissions([...completedMissions]).catch(() => {})
       }
     }
     revision++
