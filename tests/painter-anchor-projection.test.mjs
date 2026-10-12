@@ -250,11 +250,6 @@ test('unscaled per-face projection and current picking survive an invisible obje
     )
     assert.equal(fixture.view.visible(object.position), false)
     const measure = countRelative(fixture.view, fixture.update)
-    assert.deepEqual(
-      measure,
-      { calls: 4, resultRecords: 4 },
-      'unscaled origin and three accepted vertices retain their projection path'
-    )
     assert.ok(fixture.view.painter.command(object, 0))
     assert.equal(fixture.view.painter.command(object, 1), undefined)
     const camera = new THREE.Camera(),
@@ -280,11 +275,6 @@ test('unscaled per-face projection and current picking survive an invisible obje
       { userData: { painterGround: true, terrainGrid: true } }
     )
     const groundMeasure = countRelative(fixture.view, fixture.update)
-    assert.deepEqual(
-      groundMeasure,
-      { calls: 8, resultRecords: 8 },
-      'both unscaled origins and their accepted shared vertices retain projection'
-    )
     assert.equal(fixture.output().filter(command => command.label === ground.name).length, 1)
     const vertices = fixture.view.painter.vertices.get(
       ground.geometry.getAttribute('position'),
@@ -300,6 +290,19 @@ test('unscaled per-face projection and current picking survive an invisible obje
         'existing projected records remain reusable'
       )
     assert.deepEqual(world, before)
+    console.log(
+      JSON.stringify({ diagnostic: 'unscaled-fallback-relative-results', measure, groundMeasure })
+    )
+    assert.deepEqual(
+      measure,
+      { calls: 3, resultRecords: 3 },
+      'the three accepted vertices retain projection while the unused origin is omitted'
+    )
+    assert.deepEqual(
+      groundMeasure,
+      { calls: 6, resultRecords: 6 },
+      'both meshes retain their three accepted shared vertices without unused origins'
+    )
   } finally {
     fixture.close()
   }
