@@ -685,6 +685,7 @@ export class ObjectPanels {
     const candidates = [
       [1, world.units.find(u => u.id === order.a && u.hp > 0)],
       [2, world.buildings.find(b => b.id === order.a && b.hp > 0)],
+      [4, world.vehicles.find(v => v.id === order.a && v.active)],
       [5, world.trees.find(t => t.id === order.a && t.logs > 0)],
       [10, world.shrines.find(s => s.id === order.a)],
     ] as const
@@ -692,7 +693,8 @@ export class ObjectPanels {
     const point = personOrderFocus(
       order,
       target && {
-        ...nativePosition(world, target),
+        // Vehicles already retain native coordinates, unlike browser world objects.
+        ...(objectClass === 4 ? target : nativePosition(world, target)),
         id: target.id,
         class: objectClass,
         flags2: 0,
