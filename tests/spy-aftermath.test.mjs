@@ -15,9 +15,9 @@ function makeIgnitionBoundary() {
       angle: (3 * Math.PI) / 2,
     }),
     brave = addUnit(w, 'blue', 'brave', { x: 7, z: 33 })
-  const until = (label, test, limit = 2000) => {
-    for (let i = 0; i < limit && !test(); i++) tick(w, 1 / 12)
-    assert.ok(test(), `${label} at ${w.turn}`)
+  const until = (label, condition, limit = 2000) => {
+    for (let i = 0; i < limit && !condition(); i++) tick(w, 1 / 12)
+    assert.ok(condition(), `${label} at ${w.turn}`)
   }
   w.selected = [brave.id]
   assert.ok(command(w, school))
@@ -141,7 +141,7 @@ test('legacy phase4 checkpoint without entry ownership never replays its earlier
   const loaded = migrateCheckpoint(structuredClone(w)),
     restored = loaded.units.find(u => u.id === spy.id),
     rng = loaded.randomState,
-    disguise = restored.native.disguise
+    { disguise } = restored.native
   loaded.campaignAIs[1].attributes[40] = 100
   for (let i = 0; i < 23; i++) {
     stepLiveBuildingAttack(loaded, restored)
