@@ -33,7 +33,7 @@ import { clearLivePath, stepLiveRoute, replanLivePath } from './live-pathfinding
 import { releasePersonRoute } from './person-routes.ts'
 import { buildingOutsidePoint } from './building-shapes.ts'
 import { objectsInCell, removeObjectFromCell } from './object-cells.ts'
-import { cellDelta, nativeAngle, random } from './native-math.ts'
+import { nativeAngle, random } from './native-math.ts'
 import {
   startPersonOrders,
   configurePersonOrder,
@@ -44,7 +44,6 @@ import {
   stepPersonOrders,
   type OrderUpdateEffects,
 } from './person-order-update.ts'
-import { restingCellCollision } from './person-collision.ts'
 import { finishPersonPreparation } from './person-update.ts'
 import { stepConstructionOrder } from './construction-order.ts'
 import { assignBuilder, BuilderTask } from './building-workers.ts'
@@ -969,12 +968,10 @@ export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects
         return 1
       }
       if (!vehicle) return complete()
-      const dx = cellDelta(order.b, (vehicle.x >>> 8) & 254),
-        dy = cellDelta(order.b >>> 8, (vehicle.y >>> 8) & 254),
-        driverPerson = w.pathfinding.people.get(vehicle.passengers[0])
-      // 0x435160 validates the clicked-cell lifetime and 0x4666f0 admission first.
+      const driverPerson = w.pathfinding.people.get(vehicle.passengers[0])
+      // Keep the existing adapter's omitted clicked-distance lifetime check for
+      // old records whose producer wrote b=0. Never invent their original click.
       if (
-        dx * dx + dy * dy >= 100 ||
         vehicle.passengerCount >= rules.vehicleCapacity[vehicle.model] ||
         !vehicleReady(w.land, vehicle) ||
         (vehicle.passengerCount && driverPerson?.tribe !== p.tribe)
@@ -988,26 +985,15 @@ export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects
         recoverPersonMovement(w, p, (person, object) =>
           setLivePersonAnimation(w, person as LivePerson, object)
         )
-        const cell = (vehicle.y >>> 9) * 128 + (vehicle.x >>> 9),
-          direct =
-            !!(rules.vehicleRestFlags[vehicle.model] & 1) &&
-            !restingCellCollision(
-              { flags: w.land.flags[cell], category: w.land.categories[cell] },
-              w.land.walkMasks[w.pathfinding.state.walkMask],
-              vehicle,
-              true
-            )
-        replanLivePath(w, u, p, direct ? vehicle : vehicleExitTarget(w, vehicle))
+        replanLivePath(w, u, p, vehicleExitTarget(w, vehicle))
       }
-      if (p.slowTurn) return 0
-      const airborne = !!(rules.vehicleRestFlags[vehicle.model] & 1),
-        point = airborne ? vehicle : { x: p.goalX, y: p.goalY },
-        // Verified executable vehicle descriptors (23-byte rows), signed +0x11:
-        // models 3/4 are 1024. 0x4352de adds 56; Boat approach uses 312.
-        radius = airborne ? 1024 + 56 : 312
+      // Existing settled boarding geometry is an explicit adapter boundary;
+      // native 0x435160's direct-airborne point/extent is separate work.
+      if (p.motionGroup || p.slowTurn) return 0
+      const close = (point: { x: number; y: number }) =>
+        Math.abs(short(point.x - p.x)) <= 576 && Math.abs(short(point.y - p.y)) <= 576
       if (
-        Math.abs(short(point.x) - short(p.x)) < radius &&
-        Math.abs(short(point.y) - short(p.y)) < radius &&
+        (close(vehicle) || close(vehicleExitTarget(w, vehicle))) &&
         boardLiveVehicle(w, p, vehicle)
       ) {
         p.goalX = p.destinationX = vehicle.x
