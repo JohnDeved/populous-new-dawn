@@ -21,7 +21,8 @@ import {
   type LivePerson,
 } from './live-people.ts'
 import { cancelBuildingEntry, initializeBuildingPerson } from './live-building-entry.ts'
-import { stepLiveWorship } from './live-worship.ts'
+import { stepLiveWorship, worshipHeadPose } from './live-worship.ts'
+import { worshipApproach } from './worship.ts'
 import {
   liveBuildingAttackTarget,
   releaseLiveAttackReservation,
@@ -164,7 +165,13 @@ function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
       replanLivePath(w, unit, person as LivePerson, { x, y })
     },
     commandPosition: command => {
-      // 0x4389c0 copies both payload words when no cell/object encoding is set.
+      // 0x4389c0 resolves a command-27 stone head through 0x4a8e70.
+      if (command.model === 27) {
+        const head = w.shrines.find(head => head.id === command.a && head.active)
+        if (head) return worshipApproach(worshipHeadPose(w, head))
+        unsupported()
+      }
+      // Other encoded targets retain their existing unsupported boundary.
       if (rules.personCommands[command.model].flags & (4 | 0x800 | 0x242)) unsupported()
       return { x: command.a & 65535, y: command.b & 65535 }
     },
@@ -853,6 +860,8 @@ export function startLiveConstructionOrder(w: World, u: Unit) {
 
 export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects['commands'] = {}) {
   const p = u.native!
+  // 0x4ec6f0 advances the person clock even while vehicle motion owns position.
+  if (p.vehicle) p.counter = (p.counter + 1) & 255
   const driver = p.vehicle ? stepLiveVehicle(w, p) : false
   if (!p.vehicle) stepLivePhysics(w, u, p)
   if (!p.vehicle || driver) stepLiveRoute(w, u)
