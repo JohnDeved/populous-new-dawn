@@ -7,8 +7,8 @@ import { fileURLToPath } from 'node:url'
 
 const root = new URL('../../../', import.meta.url)
 const caller = new URL('app/live-building-combat.ts', root).href
-// Spy phase0/1 changed this file; stepAreaAttack and the native comparison inputs are unchanged.
-const expectedCaller = 'da6d3bb16903a741ac9d4ce925d7e188ec1113071fd46d5791d7d163c0b1cb30'
+// Spy phase3/4 changed this file; stepAreaAttack and the native comparison inputs are unchanged.
+const expectedCaller = 'ad56fb036fb960a9fda24edec4a390bd136794450f0fa442250b8638d13af5f7'
 const raw = readFileSync(fileURLToPath(caller))
 assert.equal(createHash('sha256').update(raw).digest('hex'), expectedCaller)
 let exposures = 0

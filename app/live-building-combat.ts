@@ -222,17 +222,24 @@ function stepSpySabotage(w: World, u: Unit, p: LivePerson, order: PersonOrder) {
     if (--p.timer < 1) {
       igniteSabotagedBuilding(w, b, p.tribe)
       p.substate = 4
+      p.flags2 = (p.flags2 | 0x40000000) >>> 0
+    }
+  } else {
+    // 00439d30: discovery belongs to the next aftermath entry, not ignition.
+    // Existing phase4 checkpoints without the entry bit must not replay it.
+    if (p.flags2 & 0x40000000) {
+      p.flags2 = (p.flags2 & ~0x40000000) >>> 0
       p.timer = 24
       const targetTribe = tribeForTeam(b.team)
       if (
-        spyDetected(w, p) ||
-        (w.manaTribes[p.tribe].playerType !== 1 &&
-          !(w.land.landFlags & 8) &&
-          random(w) % 100 < (w.campaignAIs[targetTribe]?.attributes[40] ?? 0))
+        w.manaTribes[p.tribe].playerType !== 1 &&
+        random(w) % 100 < (w.campaignAIs[targetTribe]?.attributes[40] ?? 0) &&
+        !(w.land.landFlags & 8)
       )
         revealSpy(p)
     }
-  } else if (--p.timer < 1) return 1
+    if (--p.timer < 1) return 1
+  }
   return 0
 }
 
