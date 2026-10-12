@@ -25,6 +25,7 @@ import { stepLiveWorship, worshipHeadPose } from './live-worship.ts'
 import { worshipApproach } from './worship.ts'
 import {
   liveBuildingAttackTarget,
+  cancelLiveBuildingAttack,
   releaseLiveAttackReservation,
   startLiveCombatResponse,
 } from './live-building-combat.ts'
@@ -511,6 +512,15 @@ export function cancelLiveOrder(w: World, u: Unit) {
   clearPersonOrders(w.buildingOrders, p, orderEffects(w))
   releasePersonRoute(w.motionRoutes, p)
   clearLivePath(w, u)
+}
+
+// Transport replacement retains the exact seated person while its old owner
+// releases the queue and any attack reservation before a new order is attached.
+export function cancelLiveTransportOrder(w: World, u: Unit) {
+  const p = u.native
+  if (p && currentPersonOrder(w.buildingOrders, p)?.model === 19)
+    cancelLiveBuildingAttack(w, u, true)
+  cancelLiveOrder(w, u)
 }
 
 const allied = (w: World, tribe: number, other: number) =>
