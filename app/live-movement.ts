@@ -623,6 +623,13 @@ export function stepLiveConversionVictim(w: World, u: Unit) {
   if (result === 'cancel')
     changeLivePersonState(w, u, cancelConversionVictim(victim, w.manaWorld.gameFlags))
   else if (result === 'convert') {
+    if (victim.flags4 & 0x800) {
+      // 004d83b0 bypasses replacement allocation for ghosts. Use the existing
+      // port ghost-removal epilogue; 004d4b50's full native cleanup is not retained.
+      releaseTasks(w, u)
+      victim.life = u.hp = 0
+      return
+    }
     const team = teamForTribe(preacher!.tribe)
     if (population(w, team) <= 199 || w.manaTribes[victim.tribe].flags2 & 64)
       replaceConvertedVictim(w, u, preacher!)
