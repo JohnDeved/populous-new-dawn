@@ -128,11 +128,19 @@ export function liveBuildingAttackTarget(w: World, p: LivePerson) {
 
 export function cancelLiveBuildingAttack(w: World, u: Unit, retainPerson = false) {
   const p = u.native ?? u.fight?.motion ?? u.flight
-  if (!p || ![11, 15, 19, 21].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0)) return
+  const model = p && currentPersonOrder(w.buildingOrders, p)?.model
+  if (!p || ![11, 15, 19, 21].includes(model ?? 0)) return
+  // 0x4364d0 releases the queue on the same person; vehicle departure is separate.
+  const seated =
+    model === 19 &&
+    u.hp > 0 &&
+    u.native === p &&
+    w.objectCells.objects.get(p.id) === p &&
+    w.vehicles.some(v => v.id === p.vehicle && v.active && v.passengers.includes(p.id))
   clearPersonOrders(w.buildingOrders, p, orderEffects(w))
   releasePersonRoute(w.motionRoutes, p)
   clearLivePath(w, u)
-  if (!retainPerson && u.native === p) u.native = null
+  if (!retainPerson && !seated && u.native === p) u.native = null
   u.fighting = false
 }
 
