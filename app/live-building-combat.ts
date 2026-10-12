@@ -509,7 +509,7 @@ function stepGuardOrder(w: World, u: Unit, p: LivePerson, order: PersonOrder) {
 
 // 0x435550 mode 1, called by 0x520300. The caller ignores its native return
 // byte; do not extend this forced-departure path to mode 0's return contract.
-function leaveAttackVehicle(w: World, p: LivePerson, to: { x: number; y: number }) {
+export function leaveLiveAttackVehicle(w: World, p: LivePerson, to: { x: number; y: number }) {
   const vehicle = w.vehicles.find(candidate => candidate.id === p.vehicle && candidate.active)
   if (!vehicle) return
   let exit = { x: p.x, y: p.y }
@@ -602,7 +602,7 @@ function stepAreaAttack(
           vehicleDestination: point => {
             if (!p.vehicle) return
             if (command.model !== 19) unsupported()
-            leaveAttackVehicle(w, p, point)
+            leaveLiveAttackVehicle(w, p, point)
           },
         }
       ),
