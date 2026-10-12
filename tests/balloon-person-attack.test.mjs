@@ -30,8 +30,7 @@ test('ordinary queued person target moves its transport and preserves handoff th
     shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
     balloon = world.vehicles.find(vehicle => vehicle.model === 3),
     boat = world.vehicles.find(vehicle => vehicle.model === 1),
-    south = world.shrines.find(shrine => shrine.rewardMana === 600_000),
-    north = world.shrines.find(shrine => shrine.rewardMana === 1_000_000)
+    south = world.shrines.find(shrine => shrine.rewardMana === 600_000)
 
   focusCharging(world, 5)
   stepUntil(world, () => world.shots.swarm > 0, 1_500)
