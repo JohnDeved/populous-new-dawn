@@ -2,6 +2,8 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createWorld, addUnit } from '../app/model.ts'
 import { createLivePerson } from '../app/live-people.ts'
+import { stepLiveWorship } from '../app/live-worship.ts'
+import { vehicleExit } from '../app/live-vehicles.ts'
 import { stepLiveMovement } from '../app/live-movement.ts'
 import { boardLiveVehicle, leaveLiveVehicle } from '../app/live-vehicles.ts'
 import { browserPosition, cast, command, tick, selectUnit } from '../app/model.ts'
@@ -150,4 +152,31 @@ test('vehicle movement visits advance each passenger clock once, including wrap 
   assert.equal(driver.native.counter, 0)
   stepLiveMovement(world, driver)
   assert.equal(driver.native.counter, 1)
+})
+
+// Supplied failed-exit boundary: no available land must not detach ownership.
+test('worship keeps its passenger attached when every exit is blocked', () => {
+  const world = createWorld(22),
+    balloon = world.vehicles.find(v => v.model === 3),
+    unit = addUnit(world, 'blue', 'shaman', browserPosition(balloon))
+  unit.native = createLivePerson(world, unit)
+  const person = unit.native
+  world.pathfinding.people.set(unit.id, person)
+  assert.ok(boardLiveVehicle(world, person, balloon))
+  Object.assign(person, {
+    substate: 1,
+    target: world.shrines[0].id,
+    goalX: person.x,
+    goalY: person.y,
+    counter: 1,
+    flags2: person.flags2 & ~0x40000000,
+  })
+  world.land.flags.fill(4)
+  assert.equal(vehicleExit(world, balloon).found, false)
+  const position = { x: person.x, y: person.y, h: person.h }
+  assert.equal(stepLiveWorship(world, unit), false)
+  assert.equal(person.vehicle, balloon.id)
+  assert.deepEqual(balloon.passengers, [unit.id])
+  assert.equal(balloon.passengerCount, 1)
+  assert.deepEqual({ x: person.x, y: person.y, h: person.h }, position)
 })

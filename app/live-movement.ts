@@ -167,7 +167,7 @@ function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
     commandPosition: command => {
       // 0x4389c0 resolves a command-27 stone head through 0x4a8e70.
       if (command.model === 27) {
-        const head = w.shrines.find(head => head.id === command.a && head.active)
+        const head = w.shrines.find(candidate => candidate.id === command.a && candidate.active)
         if (head) return worshipApproach(worshipHeadPose(w, head))
         unsupported()
       }

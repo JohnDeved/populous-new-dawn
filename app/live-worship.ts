@@ -78,7 +78,7 @@ export function stepLiveWorship(w: World, u: Unit) {
     recover: () => recoverPersonMovement(w, p, (_, object) => setLivePersonAnimation(w, p, object)),
     disembark: () => {
       // 0x466c80(p, 0) leaves only when 0x466190 finds a valid exit.
-      const vehicle = w.vehicles.find(vehicle => vehicle.id === p.vehicle && vehicle.active)
+      const vehicle = w.vehicles.find(candidate => candidate.id === p.vehicle && candidate.active)
       if (!vehicle) return
       const exit = vehicleExit(w, vehicle)
       if (exit.found) leaveLiveVehicle(w, vehicle, p, exit.point)
