@@ -13,13 +13,18 @@ async function withDatabase(run, { synchronousFailures = 0 } = {}) {
       assert.equal(name, 'checkpoints')
       const transaction = new EventTarget()
       transaction.objectStore = () => ({
-        get: key => ({ result: structuredClone(records.get(key)) }),
+        get: key => {
+          const request = new EventTarget()
+          request.result = structuredClone(records.get(key))
+          queueMicrotask(() => request.dispatchEvent(new Event('success')))
+          return request
+        },
         put: (value, key) => {
           assert.equal(mode, 'readwrite')
           records.set(key, structuredClone(value))
         },
       })
-      queueMicrotask(() => transaction.dispatchEvent(new Event('complete')))
+      setImmediate(() => transaction.dispatchEvent(new Event('complete')))
       return transaction
     },
   }

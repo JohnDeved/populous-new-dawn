@@ -17,7 +17,12 @@ async function withStorage(initial, run, { failRead = false } = {}) {
         transaction.objectStore = storeName => {
           assert.equal(storeName, 'checkpoints')
           return {
-            get: key => ({ result: structuredClone(records.get(key)) }),
+            get: key => {
+          const request = new EventTarget()
+          request.result = structuredClone(records.get(key))
+          queueMicrotask(() => request.dispatchEvent(new Event('success')))
+          return request
+        },
             put: (value, key) => {
               assert.equal(mode, 'readwrite')
               writes.push(key)
@@ -25,7 +30,7 @@ async function withStorage(initial, run, { failRead = false } = {}) {
             },
           }
         }
-        queueMicrotask(() => {
+        setImmediate(() => {
           if (failRead && mode === 'readonly') {
             transaction.error = new Error('Synthetic storage read failure')
             transaction.dispatchEvent(new Event('abort'))
