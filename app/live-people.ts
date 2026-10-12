@@ -634,22 +634,14 @@ export function strikeLiveLightning(w: World, point: { x: number; y: number }, t
           u.kind === 'shaman' &&
           u.hp > 0
       )
-  if (captive) {
-    const p = leaveLiveBuilding(w, captive)
-    if (p) {
-      p.previousState = p.state
-      p.state = 3
-      captive.native = p
-    }
-  }
   const units = new Map<number, Unit>()
   const people: LivePerson[] = []
-  // Retain legacy/captive placement until exact native ownership is available.
+  // Retain legacy placement until exact native ownership is available.
   for (const u of w.units) {
     if (u.inside !== null || (u.hp <= 0 && !u.flight && u.native?.state !== 44)) continue
     const existing = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person
     const position = existing ?? nativePosition(w, u)
-    if (u !== captive && ((position.y & 65535) >> 9) * 128 + ((position.x & 65535) >> 9) !== cell)
+    if (((position.y & 65535) >> 9) * 128 + ((position.x & 65535) >> 9) !== cell)
       continue
     const p = existing ?? createLivePerson(w, u)
     p.life = Math.round(u.hp * 20)
@@ -679,6 +671,23 @@ export function strikeLiveLightning(w: World, point: { x: number; y: number }, t
     w.selected = w.selected.filter(id => id !== u.id)
   })
   for (const p of people) units.get(p.id)!.hp = p.life / 20
+  // 00511f70 handles the state-42 captive after the capped cell traversal.
+  // This forced state-3 consequence bypasses the ordinary immunity/kill budget.
+  if (captive) {
+    const p = leaveLiveBuilding(w, captive)
+    if (p) {
+      releaseTasks(w, captive)
+      p.flags2 = (p.flags2 & ~0x100000) >>> 0
+      p.previousState = 42 // Prison occupancy is the live adapter for native state 42.
+      p.state = 3
+      captive.native = p
+      if (p.tribe !== -1 && tribe !== -1) p.damageAttacker = tribe
+      // Hand state 3 to existing live death cleanup, as electrocution does.
+      // This is an adapter handoff, not a life write by native 004da0d0.
+      p.life = captive.hp = 0
+      w.selected = w.selected.filter(id => id !== captive.id)
+    }
+  }
 }
 
 // Existing ordinary allocation order is also used by Blast's cell adapter.
