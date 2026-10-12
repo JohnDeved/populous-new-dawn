@@ -385,14 +385,14 @@ export type Effect = Point & {
   reincarnation?: { team: Team; phase: number; ground: number; displayedFrame?: number }
   firewarriorShot?: {
     source: number
-    target: number
     attacker: number
-    remaining: number
     tower?: boolean
     bloodlust?: boolean
     impact?: boolean
-    destination?: NativePoint
-  }
+  } & (
+    | { target: number; remaining: number; destination?: NativePoint; pointTarget?: never }
+    | { pointTarget: NativePoint; target?: never; remaining?: never; destination?: never }
+  )
   angel?: AngelState
 }
 export type Gift = Effect & {
