@@ -115,7 +115,11 @@ export function stepFirewarriorShots(w: World) {
       // ponytail: this slice proves the ordinary Brave result. Add the native
       // target table, splash, protection, and LOS as those live paths land.
       const source = w.units.find(unit => unit.id === shot.source && unit.hp > 0),
+        // Older in-flight checkpoints may omit the marker; retain their unit
+        // impact behavior. Every current launch explicitly identifies its side.
+        ownsImpact = shot.impact !== false,
         damaged =
+          ownsImpact &&
           unit &&
           applyUnitDamage(
             unit,
@@ -144,7 +148,7 @@ export function stepFirewarriorShots(w: World) {
         w.attackCell = context.attackCell
         context.tribes.forEach((tribe, i) => (w.manaTribes[i].flags2 = tribe.flags))
       }
-      if (target) effect(w, 'hit', target)
+      if (target && ownsImpact) effect(w, 'hit', target)
       fx.duration = fx.age
       continue
     }
