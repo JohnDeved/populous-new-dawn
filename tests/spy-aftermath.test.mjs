@@ -152,7 +152,7 @@ test('legacy phase4 checkpoint without entry ownership never replays its earlier
 })
 
 test('zero discovery chance still draws once and target removal aborts before entry', () => {
-  const { w, spy, target } = setup()
+  const { w, spy } = setup()
   w.campaignAIs[1].attributes[40] = 0
   stepLiveBuildingAttack(w, spy)
   const expected = { randomState: w.randomState }
