@@ -9,7 +9,7 @@ const root = new URL('../../../', import.meta.url)
 const caller = new URL('app/live-building-combat.ts', root).href
 // Explicit command28 transport changed this file; the ranged/postvisit body and
 // all sixteen model6, vehicle0, command21 comparison cases remain unchanged.
-const expectedCaller = '8baa61077901e0a15cdd4accba52a9aea4e07acceae1d2db374448d2ec4c0513'
+const expectedCaller = '54188df84816697fa0e5f59529f832beefb74247758b31d1b49e93fc229e23c7'
 const raw = readFileSync(fileURLToPath(caller))
 assert.equal(createHash('sha256').update(raw).digest('hex'), expectedCaller)
 let exposures = 0

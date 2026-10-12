@@ -521,6 +521,9 @@ function stepGuardOrder(w: World, u: Unit, p: LivePerson, order: PersonOrder) {
   return false
 }
 
+const explicitTargetCell = (point: { x: number; y: number }) =>
+  ((point.y & 65535) >> 9) * 128 + ((point.x & 65535) >> 9)
+
 // Bounded 0x51fce0/0x51a2a0 transport handoff. Grounded command 28 retains
 // its existing controller; ranged/preacher and later airborne substates stay separate.
 export function stepLiveAboardPersonAttack(w: World, u: Unit) {
@@ -551,8 +554,6 @@ export function stepLiveAboardPersonAttack(w: World, u: Unit) {
       const target = combatPerson(owner)
       if (target.flags2 & 1) return 1
       const { world } = combatWorld(w, target, 128),
-        cell = (point: { x: number; y: number }) =>
-          ((point.y & 65535) >> 9) * 128 + ((point.x & 65535) >> 9),
         outside = (id: number) =>
           buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === id)!)),
         search = {
@@ -577,14 +578,15 @@ export function stepLiveAboardPersonAttack(w: World, u: Unit) {
           trackExplicitCombatTarget(p, target, {
             ...motion,
             outside: other => {
-              const index = cell(other)
+              const index = explicitTargetCell(other)
               return w.land.flags[index] & 512
                 ? outside(w.land.buildingIds[index] & 1023)
                 : undefined
             },
-            supportsTarget: other => !!terrainSupportsPerson(w.land.categories[cell(other)], other),
+            supportsTarget: other =>
+              !!terrainSupportsPerson(w.land.categories[explicitTargetCell(other)], other),
             targetOnWater: other =>
-              !!(rules.terrainCategoryFlags[w.land.categories[cell(other)] & 15] & 2),
+              !!(rules.terrainCategoryFlags[w.land.categories[explicitTargetCell(other)] & 15] & 2),
           }),
         withinArea: current =>
           withinCombatArea(p, current, target, {

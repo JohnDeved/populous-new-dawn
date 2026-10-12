@@ -155,3 +155,55 @@ test('explicit elevated-target pause decrements twice on entry then restarts wit
   assert.equal(p.timer, 7)
   assert.equal(p.substate, 0)
 })
+
+import { prepareCombatOrderVisit } from '../app/combat-order-search.ts'
+test('in-body route failure can enter and execute the explicit target pause without bypassing queue entry', () => {
+  const p = {
+      ...person(),
+      id: 89,
+      tribe: 0,
+      model: 7,
+      physics: 18,
+      flags2: 0x40000000,
+      flags3: 0,
+      substate: 0,
+      assignment: 0,
+      cargo: 0,
+      renderFlags: 16,
+      marchCooldown: 0,
+      turnAngle: 1000,
+      turnY: 1000,
+    },
+    t = { ...target(), flags4: 0x400 },
+    w = { randomState: 123, playerTribe: 0, alert: 0, marches: [] },
+    events = [],
+    e = {
+      ...effects(events),
+      animation: () => {},
+      approachPoint: () => ({ ...t, kind: 1 }),
+      destination: to => {
+        p.goalX = to.x
+        p.goalY = to.y
+        p.flags4 |= 0x10000000
+      },
+      withinArea: () => false,
+      select: () => {
+        throw new Error('pause must skip selection')
+      },
+      prepareTarget: () => {
+        throw new Error('pause must not depart')
+      },
+      range: () => 0,
+      trackTarget: () => trackExplicitCombatTarget(p, t, effects(events)),
+    }
+  assert.equal(p.flags4 & 0x10000000, 0)
+  assert.deepEqual(prepareCombatOrderVisit(w, p, { model: 28, flags: 128, a: 17, b: 0 }, e), {
+    complete: false,
+    restart: false,
+  })
+  assert.equal(p.substate, 12)
+  assert.equal(p.flags4 & 0x10000000, 0)
+  pauseExplicitCombatTarget(w, p, t, e)
+  assert.equal(p.substate, 12)
+  assert.equal(p.timer, 6)
+})

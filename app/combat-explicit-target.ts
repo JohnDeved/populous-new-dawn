@@ -4,7 +4,10 @@ import type { PersonOrder } from './person-orders.ts'
 import { stepPersonWait, type PersonStateEffects } from './person-state.ts'
 import { nativeAngle } from './native-math.ts'
 
-type Point = { x: number; y: number }
+interface Point {
+  x: number
+  y: number
+}
 const short = (n: number) => (n << 16) >> 16
 const near = (a: Point, b: Point) =>
   Math.abs(short(a.x) - short(b.x)) < 1080 && Math.abs(short(a.y) - short(b.y)) < 1080
@@ -40,8 +43,8 @@ export function trackExplicitCombatTarget(
     }
   } else if (target.vehicle && e.targetOnWater(target)) {
     blocked = true
-    if (!(p.flags2 & 0x800)) e.directDestination(target)
-    else result = 1
+    if (p.flags2 & 0x800) result = 1
+    else e.directDestination(target)
   }
   if (blocked) {
     e.releaseMotion()
