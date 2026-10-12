@@ -309,14 +309,22 @@ export function migrateCheckpoint(world: World) {
 
 function openCheckpointDatabase() {
   if (typeof indexedDB === 'undefined') return Promise.resolve(null)
-  return (checkpointDatabase ??= new Promise((resolve, reject) => {
+  if (checkpointDatabase) return checkpointDatabase
+  const pending = new Promise<IDBDatabase>((resolve, reject) => {
     const request = indexedDB.open(CHECKPOINT_DATABASE, 1)
     request.addEventListener('upgradeneeded', () =>
       request.result.createObjectStore(CHECKPOINT_STORE)
     )
     request.addEventListener('success', () => resolve(request.result))
     request.addEventListener('error', () => reject(request.error))
-  }))
+  })
+  checkpointDatabase = pending
+  // A transient open failure must not disable persistence for the whole session.
+  // Keep the original rejection for callers and only release this attempt's cache.
+  void pending.catch(() => {
+    if (checkpointDatabase === pending) checkpointDatabase = null
+  })
+  return pending
 }
 
 async function readStoredState() {
