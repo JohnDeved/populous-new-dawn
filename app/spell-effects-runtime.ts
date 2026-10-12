@@ -183,14 +183,16 @@ export function stepUnitHypnotise(w: World) {
   for (const u of [...w.units]) {
     const status = u.hypnotise
     if (!status || u.hp <= 0) continue
-    status.counter = (status.counter + 1) & 255
-    if (status.counter & 7 || --status.remaining > 0) continue
     const tribe = tribeForTeam(status.originalTeam)
     if (tribe >= 0 && w.manaTribes[tribe].defeatTimer) {
       delete u.hypnotise
       for (const p of [...retainedPeople(u), residentPerson(w, u)])
         if (p) p.flags4 = (p.flags4 & ~0x4000) >>> 0
-    } else replaceHypnotisedUnit(w, u, status.originalTeam)
+      continue
+    }
+    status.counter = (status.counter + 1) & 255
+    if (status.counter & 7 || --status.remaining > 0) continue
+    replaceHypnotisedUnit(w, u, status.originalTeam)
   }
 }
 
