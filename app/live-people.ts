@@ -683,7 +683,8 @@ export function strikeLiveLightning(w: World, point: { x: number; y: number }, t
       if (p.tribe !== -1 && tribe !== -1) p.damageAttacker = tribe
       // Hand state 3 to existing live death cleanup, as electrocution does.
       // This is an adapter handoff, not a life write by native 004da0d0.
-      p.life = captive.hp = 0
+      p.life = 0
+      captive.hp = 0
       w.selected = w.selected.filter(id => id !== captive.id)
     }
   }
