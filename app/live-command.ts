@@ -549,13 +549,32 @@ export function command(
       return true
     }
   }
-  const groundedBoarding =
+  const sharedBoarding =
     model === 22 &&
     context.vehicle &&
     w.units
       .filter(u => canOrder(u) && w.selected.includes(u.id))
-      .every(u => !(u.native ?? u.entry?.person ?? u.builder?.person)?.vehicle)
-  if (model === 22 && context.vehicle && !groundedBoarding) {
+      .every(u => {
+        const person = u.native ?? u.entry?.person ?? u.builder?.person
+        if (!person?.vehicle) return true
+        // Native player input retains a same-vehicle passenger. Only an exact,
+        // living registered seat owner enters this already-supported controller.
+        const vehicle = context.vehicle!,
+          slot = vehicle.passengers.indexOf(u.id)
+        return (
+          u.hp > 0 &&
+          u.native === person &&
+          person.id === u.id &&
+          person.class === 1 &&
+          !(person.flags2 & 1) &&
+          vehicle.active &&
+          person.vehicle === vehicle.id &&
+          slot !== -1 &&
+          slot < rules.vehicleCapacity[vehicle.model] &&
+          w.objectCells.objects.get(u.id) === person
+        )
+      })
+  if (model === 22 && context.vehicle && !sharedBoarding) {
     const point = browserPosition(vehicleExitTarget(w, context.vehicle)),
       units = w.units.filter(
         u => canOrder(u) && w.selected.includes(u.id) && acceptsPersonOrder(combatPerson(u), 22)
@@ -638,7 +657,7 @@ export function command(
     model === 15 ||
     model === 19 ||
     model === 33 ||
-    groundedBoarding ||
+    sharedBoarding ||
     ((model === 3 || model === 27 || model === 28 || queuedBuilding || queuedTree) &&
       (modifiers.ctrlKey || w.orderCursor))
   ) {
