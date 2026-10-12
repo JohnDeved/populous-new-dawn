@@ -10,6 +10,7 @@ import { migrateCheckpoint } from '../app/game-store.ts'
 import { tribeForTeam, vehicleApparentTribe } from '../app/world-types.ts'
 import { originalVehicleUV } from '../app/vehicle-appearance.ts'
 import { makeVehicleScene } from './support/vehicle-scene.mjs'
+import { objectsInCell } from '../app/object-cells.ts'
 
 // Execute the maintained adapter itself. Only its renderer/engine leaves are
 // supplied; this verifies source wiring, not native/GPU rendering or full Blast.
@@ -96,7 +97,7 @@ test('live Blast projects class4 apparent tribe without changing the real owner'
     const { world, vehicle } = splitOwner(model), observed = []
     world.units = []; world.buildings = []; world.trees = []; world.vehicles = [vehicle]
     const step = adapter('spell-effects-runtime.ts', 'stepLiveBlastWave', {
-      tribeForTeam, vehicleApparentTribe, syncLandscapeObjects() {},
+      tribeForTeam, vehicleApparentTribe, objectsInCell, syncLandscapeObjects() {},
       stepBlastWave: (_state, _wave, search) => {
         const cell = ((vehicle.y & 65535) >> 9) * 128 + ((vehicle.x & 65535) >> 9)
         observed.push(search.cell(cell).find(p => p.id === vehicle.id).tribe)
