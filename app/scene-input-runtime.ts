@@ -205,6 +205,7 @@ export function pickWorldObject(scene: GameScene, event: { clientX: number; clie
 }
 
 export function pointerDown(scene: GameScene, event: PointerEvent) {
+  scene.pointerGesture = { pointerId: event.pointerId, button: event.button }
   scene.pointerButtons = event.buttons
   if (
     event.button === 2 &&
@@ -338,6 +339,9 @@ export function updateDrag(scene: GameScene, event: { clientX: number; clientY: 
 }
 
 export function pointerUp(scene: GameScene, event: PointerEvent) {
+  const gesture = scene.pointerGesture
+  if (!gesture || gesture.pointerId !== event.pointerId || gesture.button !== event.button) return
+  scene.pointerGesture = null
   queueBuildingInspection(scene, event, 'up')
   scene.pointerButtons = event.buttons
   if (!(event.buttons & 6)) scene.globeMotion.dragging = false
@@ -451,6 +455,19 @@ export function keyDown(scene: GameScene, event: KeyboardEvent) {
   if (!modifier) event.preventDefault()
 }
 
+function cancelPointerGesture(scene: GameScene, pointerId?: number) {
+  if (pointerId !== undefined && scene.pointerGesture?.pointerId !== pointerId) return
+  scene.pointerGesture = null
+  cancelTooltipInspection(scene)
+  scene.pointerButtons = 0
+  scene.drag = null
+  scene.dragActive.value = false
+  scene.selectionOverlay.visible = false
+  scene.globeMotion.dragging = false
+  scene.globeMotion.velocity = { x: 0, y: 0 }
+  scene.navigationPointer = null
+}
+
 export function installInputListeners(scene: GameScene, minimap: HTMLCanvasElement) {
   scene.listen(scene.renderer.domElement, 'pointerdown', scene.pointerDown)
   scene.listen(scene.renderer.domElement, 'pointermove', scene.pointerMove)
@@ -461,14 +478,9 @@ export function installInputListeners(scene: GameScene, minimap: HTMLCanvasEleme
     scene.pointerState = ''
   })
   scene.listen(scene.renderer.domElement, 'pointerup', scene.pointerUp)
-  scene.listen(scene.renderer.domElement, 'pointercancel', () => {
-    cancelTooltipInspection(scene)
-    scene.pointerButtons = 0
-    scene.drag = null
-    scene.dragActive.value = false
-    scene.globeMotion.dragging = false
-    scene.globeMotion.velocity = { x: 0, y: 0 }
-  })
+  scene.listen(scene.renderer.domElement, 'pointercancel', e =>
+    cancelPointerGesture(scene, (e as PointerEvent).pointerId)
+  )
   scene.listen(scene.renderer.domElement, 'contextmenu', e => e.preventDefault())
   scene.listen(scene.renderer.domElement, 'wheel', e => {
     if (!scene.world.inputMask) {
@@ -500,17 +512,13 @@ export function installInputListeners(scene: GameScene, minimap: HTMLCanvasEleme
   scene.listen(window, 'pointerout', e => {
     if (!(e as PointerEvent).relatedTarget) scene.navigationPointer = null
   })
-  scene.listen(window, 'pointercancel', () => {
-    cancelTooltipInspection(scene)
-    scene.navigationPointer = null
-  })
+  scene.listen(window, 'pointercancel', e =>
+    cancelPointerGesture(scene, (e as PointerEvent).pointerId)
+  )
   const pause = () => {
-    cancelTooltipInspection(scene)
+    cancelPointerGesture(scene)
     scene.previous = null
-    scene.globeMotion.dragging = false
-    scene.globeMotion.velocity = { x: 0, y: 0 }
     scene.keys.clear()
-    scene.navigationPointer = null
     scene.world.paused = true
     scene.onChange()
   }

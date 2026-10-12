@@ -283,6 +283,7 @@ export class GameScene {
   hudTransportFocus = Array<number>(16).fill(0)
   buildingPanels = new Map<number, HTMLDivElement>()
   down = { x: 0, y: 0, button: 0, unit: undefined as number | undefined, extend: false }
+  pointerGesture: { pointerId: number; button: number } | null = null
   drag: { start: { x: number; y: number }; end: { x: number; y: number }; active: boolean } | null =
     null
   selectionOverlay: SelectionOverlay
