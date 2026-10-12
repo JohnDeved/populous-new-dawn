@@ -29,7 +29,17 @@ import {
   changeLivePersonState,
   type LivePerson,
 } from './live-people.ts'
-import { clearLivePath, replanLivePath } from './live-pathfinding.ts'
+import { vehicleReady } from './vehicle-routing.ts'
+import { leaveLiveVehicle, stepLiveVehicle, vehicleExit } from './live-vehicles.ts'
+import { restingCellCollision, terrainSupportsPerson } from './person-collision.ts'
+import {
+  trackExplicitCombatTarget,
+  selectExplicitCombatTarget,
+  explicitCombatCommandResult,
+  pauseExplicitCombatTarget,
+} from './combat-explicit-target.ts'
+import { setPersonAnchor } from './person-order-update.ts'
+import { clearLivePath, replanLivePath, stepLiveRoute } from './live-pathfinding.ts'
 import { releasePersonRoute, setDirectPersonDestination } from './person-routes.ts'
 import {
   personAnimationObject,
@@ -89,7 +99,7 @@ import { buildingAdmission } from './live-building-entry.ts'
 import { startIndexedSearch, nextIndexedSearch, endIndexedSearch } from './indexed-search.ts'
 import { igniteBuilding } from './building-damage.ts'
 import { reconcileWorldHutSmoke } from './hut-smoke-runtime.ts'
-import { random } from './native-math.ts'
+import { random, nativeAngle, movePosition, short } from './native-math.ts'
 import { firewarriorReady, launchFirewarrior } from './firewarrior.ts'
 
 const unsupported = (): never => {
@@ -122,13 +132,21 @@ export function liveBuildingAttackTarget(w: World, p: LivePerson) {
   )
 }
 
-export function cancelLiveBuildingAttack(w: World, u: Unit) {
+export function cancelLiveBuildingAttack(w: World, u: Unit, retainPerson = false) {
   const p = u.native ?? u.fight?.motion ?? u.flight
-  if (!p || ![11, 15, 19, 21].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0)) return
+  const model = p && currentPersonOrder(w.buildingOrders, p)?.model
+  if (!p || ![11, 15, 19, 21].includes(model ?? 0)) return
+  // 0x4364d0 releases the queue on the same person; vehicle departure is separate.
+  const seated =
+    model === 19 &&
+    u.hp > 0 &&
+    u.native === p &&
+    w.objectCells.objects.get(p.id) === p &&
+    w.vehicles.some(v => v.id === p.vehicle && v.active && v.passengers.includes(p.id))
   clearPersonOrders(w.buildingOrders, p, orderEffects(w))
   releasePersonRoute(w.motionRoutes, p)
   clearLivePath(w, u)
-  if (u.native === p) u.native = null
+  if (!retainPerson && !seated && u.native === p) u.native = null
   u.fighting = false
 }
 
@@ -447,7 +465,10 @@ export function stepLiveBuildingAttack(w: World, u: Unit, b?: Building) {
     destination: to => replanLivePath(w, u, p, to),
   })
   stepPersonReaction(p)
-  moveLivePerson(w, u, p)
+  if (p.vehicle && current?.model === 19) {
+    if (!stepLiveVehicle(w, p)) return
+    stepLiveRoute(w, u)
+  } else moveLivePerson(w, u, p)
   if (p.state !== 10) return
   const next = stepLiveOrderQueue(w, u, p, {
     11: order => Number(stepGuardOrder(w, u, p, order)),
@@ -500,6 +521,144 @@ function stepGuardOrder(w: World, u: Unit, p: LivePerson, order: PersonOrder) {
   return false
 }
 
+const explicitTargetCell = (point: { x: number; y: number }) =>
+  ((point.y & 65535) >> 9) * 128 + ((point.x & 65535) >> 9)
+
+// Bounded 0x51fce0/0x51a2a0 transport handoff. Grounded command 28 retains
+// its existing controller; ranged/preacher and later airborne substates stay separate.
+export function stepLiveAboardPersonAttack(w: World, u: Unit) {
+  const p = u.native,
+    order = p && currentPersonOrder(w.buildingOrders, p)
+  if (!p?.vehicle || order?.model !== 28 || p.model === 4 || p.model === 6) return false
+  if (p.substate !== 0 && p.substate !== 12)
+    throw new Error('Unported airborne explicit-target phase')
+  registerLivePerson(w, p)
+  p.counter = (p.counter + 1) & 255
+  const motion = combatMotion(w, u, p)
+  preparePersonTurn(p, w.manaWorld.gameFlags, {
+    initialize: () => changeLivePersonState(w, u),
+    animation: () => {
+      const object = personAnimationObject(p)
+      if (object !== -1) setLivePersonAnimation(w, p, object)
+    },
+    destination: motion.destination,
+  })
+  stepPersonReaction(p)
+  if (!stepLiveVehicle(w, p)) return true
+  stepLiveRoute(w, u)
+  if (p.state !== 10) return true
+  const next = stepLiveOrderQueue(w, u, p, {
+    28: command => {
+      const owner = w.units.find(candidate => candidate.id === command.a && candidate.hp > 0)
+      if (!owner) return 1
+      const target = combatPerson(owner)
+      if (target.flags2 & 1) return 1
+      const { world } = combatWorld(w, target, 128),
+        outside = (id: number) =>
+          buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === id)!)),
+        search = {
+          randomState: w.randomState,
+          playerTribe: w.manaWorld.playerTribe,
+          alert: w.musicActivity,
+          marches: w.combatMarches,
+        }
+      let selected: ReturnType<typeof selectExplicitCombatTarget>
+      const visit = prepareCombatOrderVisit(search, p, command, {
+        ...motion,
+        range: () => engagementRange(p, command, false),
+        approachPoint: current =>
+          findCombatApproachPoint(p, current, {
+            collision: collisionWorld(w),
+            search: w.indexedSearch,
+            landLimit: rules.pathLandLimit,
+            heightRange: key => terrainCellHeightRange(w.land, key),
+            outside,
+          }),
+        trackTarget: () =>
+          trackExplicitCombatTarget(p, target, {
+            ...motion,
+            outside: other => {
+              const index = explicitTargetCell(other)
+              return w.land.flags[index] & 512
+                ? outside(w.land.buildingIds[index] & 1023)
+                : undefined
+            },
+            supportsTarget: other =>
+              !!terrainSupportsPerson(w.land.categories[explicitTargetCell(other)], other),
+            targetOnWater: other =>
+              !!(rules.terrainCategoryFlags[w.land.categories[explicitTargetCell(other)] & 15] & 2),
+          }),
+        withinArea: current =>
+          withinCombatArea(p, current, target, {
+            range: () => engagementRange(p, current, false),
+            vehicleReady: () => {
+              const vehicle = w.vehicles.find(v => v.id === p.vehicle && v.active)
+              return !!vehicle && vehicleReady(w.land, vehicle)
+            },
+          }),
+        select: current => {
+          selected = selectExplicitCombatTarget(world.objects, p, current)
+          return selected && { id: selected.target.id, type: selected.type }
+        },
+        prepareTarget: current =>
+          beginCombatPursuit(
+            search,
+            p,
+            current,
+            {
+              ...selected!.target,
+              vehicle: selected!.target.class === 1 ? selected!.target.vehicle : 0,
+            },
+            {
+              ...motion,
+              canFire: unsupported,
+              commandPosition: () => target,
+              vehicleDestination: point => leaveLiveAttackVehicle(w, p, point),
+            }
+          ),
+      })
+      if (p.substate === 12) pauseExplicitCombatTarget(search, p, target, motion)
+      w.randomState = search.randomState
+      w.musicActivity = search.alert
+      // 0x51fce0 only checks target transport after a nonzero shared-body result.
+      return explicitCombatCommandResult(visit.complete, target.vehicle)
+    },
+  })
+  if (next) {
+    u.target = null
+    clearLivePath(w, u)
+    changeLivePersonState(w, u, next)
+  }
+  if (!u.fight) adoptLiveOrders(w, u, p)
+  return true // No second grounded controller visit on the departure turn.
+}
+
+// 0x435550 mode 1, called by 0x520300. The caller ignores its native return
+// byte; do not extend this forced-departure path to mode 0's return contract.
+export function leaveLiveAttackVehicle(w: World, p: LivePerson, to: { x: number; y: number }) {
+  const vehicle = w.vehicles.find(candidate => candidate.id === p.vehicle && candidate.active)
+  if (!vehicle) return
+  let exit = { x: p.x, y: p.y }
+  movePosition(exit, nativeAngle(short(to.x - p.x), -short(to.y - p.y)), 768)
+  const cell = (exit.y >> 9) * 128 + (exit.x >> 9)
+  if (
+    restingCellCollision(
+      { flags: w.land.flags[cell], category: w.land.categories[cell] },
+      w.land.walkMasks[w.pathfinding.state.walkMask],
+      exit
+    )
+  )
+    exit = vehicleExit(w, vehicle).point
+  // Existing departure adapter retains its simplified ground physics/RNG.
+  leaveLiveVehicle(w, vehicle, p, exit)
+  const index = (exit.y >> 9) * 128 + (exit.x >> 9),
+    building =
+      w.land.flags[index] & 512
+        ? w.buildings.find(b => b.id === (w.land.buildingIds[index] & 1023))
+        : undefined
+  setPersonAnchor(p, building ? buildingOutsidePoint(buildingPose(building)) : exit)
+}
+
 function stepAreaAttack(
   w: World,
   u: Unit,
@@ -534,9 +693,15 @@ function stepAreaAttack(
         outside,
       }),
     withinArea: (command: PersonOrder) =>
-      withinCombatArea(p, command, undefined, { range, vehicleReady: unsupported }),
+      withinCombatArea(p, command, undefined, {
+        range,
+        vehicleReady: () => {
+          const vehicle = w.vehicles.find(v => v.id === p.vehicle && v.active)
+          return !!vehicle && vehicleReady(w.land, vehicle)
+        },
+      }),
     select: (command: PersonOrder, vehicleOnly: boolean) => {
-      if (vehicleOnly || p.vehicle) unsupported()
+      if (vehicleOnly || (p.vehicle && command.model !== 19)) unsupported()
       selected ??=
         p.model === 6 && command.model === 21
           ? selectLiveFirewarriorTarget(w, u, command, target => firewarriorReady(w, u, target))
@@ -560,8 +725,10 @@ function stepAreaAttack(
             x: ((area.a & 254) + 1) * 256,
             y: (((area.a >>> 8) & 254) + 1) * 256,
           }),
-          vehicleDestination: () => {
-            if (p.vehicle) unsupported()
+          vehicleDestination: point => {
+            if (!p.vehicle) return
+            if (command.model !== 19) unsupported()
+            leaveLiveAttackVehicle(w, p, point)
           },
         }
       ),

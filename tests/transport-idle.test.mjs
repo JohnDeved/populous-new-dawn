@@ -75,15 +75,20 @@ test('shipped Balloon disguise configures its command position and completes abo
  assert.equal(spy.native.disguise, (1 << 6) | 63)
 })
 
-test('Balloon raw-coordinate startup wraps payload words and retains unported encodings', () => {
+test('Balloon startup resolves raw and attack-cell payloads while retaining unsupported targets', () => {
  const { w, spy } = aboard(3), p = spy.native
  const order = currentPersonOrder(w.buildingOrders, p)
  // Command15 has direct coordinate payloads and suppresses ground path setup.
  Object.assign(order, { model: 15, flags: 0, a: -32768, b: -1 })
  startLiveOrders(w, p, w)
  assert.deepEqual([p.destinationX, p.destinationY], [32768, 65535])
- for (const model of [6, 19, 27]) {
-  // Packed order.b, packed order.a, and object lookup remain explicit boundaries.
+ Object.assign(order, { model: 19, flags: 0, a: -32768, b: -1 })
+ startLiveOrders(w, p, w)
+ // The resolver's centered point is followed by configurePersonOrder's existing
+ // packed-cell setDestination, which retains the cell-corner route destination.
+ assert.deepEqual([p.destinationX, p.destinationY], [0, 32768])
+ for (const model of [6, 27]) {
+  // Packed order.b and a missing head remain explicit unsupported boundaries.
   Object.assign(order, { model, flags: 0 })
   assert.throws(() => startLiveOrders(w, p, w), /Unported live movement order consumer/)
  }

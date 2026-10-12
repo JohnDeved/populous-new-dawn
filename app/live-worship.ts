@@ -7,6 +7,7 @@ import { setPersonAnchor } from './person-order-update.ts'
 import { recoverPersonMovement } from './person-state.ts'
 import { releasePersonRoute } from './person-routes.ts'
 import { stepWorshipPerson } from './person-worship.ts'
+import { leaveLiveVehicle, vehicleExit } from './live-vehicles.ts'
 import { findWorshipPlace, worshipPositions } from './worship.ts'
 import { moveObjectInCells, objectsInCell } from './object-cells.ts'
 import { terrainPointHeight } from './native-terrain.ts'
@@ -76,7 +77,11 @@ export function stepLiveWorship(w: World, u: Unit) {
     },
     recover: () => recoverPersonMovement(w, p, (_, object) => setLivePersonAnimation(w, p, object)),
     disembark: () => {
-      throw new Error('Live worship vehicle ownership is not integrated')
+      // 0x466c80(p, 0) leaves only when 0x466190 finds a valid exit.
+      const vehicle = w.vehicles.find(candidate => candidate.id === p.vehicle && candidate.active)
+      if (!vehicle) return
+      const exit = vehicleExit(w, vehicle)
+      if (exit.found) leaveLiveVehicle(w, vehicle, p, exit.point)
     },
     anchor: point => setPersonAnchor(p, point),
     relocate: point => {

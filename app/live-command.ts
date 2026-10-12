@@ -36,6 +36,7 @@ import {
   appendLiveOrders,
   anchorLiveShamanGuard,
   cancelLiveOrder,
+  cancelLiveTransportOrder,
   movementOrder,
   orderEffects,
   replaceLiveTrainingOrders,
@@ -500,7 +501,7 @@ export function command(
           driver = vehicle && w.units.find(u => u.id === vehicle.passengers[0]),
           person = driver?.native
         if (!vehicle || !driver || !person) continue
-        cancelLiveOrder(w, driver)
+        cancelLiveTransportOrder(w, driver)
         const order = allocatePersonOrder(w.buildingOrders)
         if (!order) continue
         Object.assign(w.buildingOrders.records[order], {
@@ -525,7 +526,7 @@ export function command(
           const passengerUnit = w.units.find(u => u.id === passengerId),
             passenger = passengerUnit?.native
           if (!passengerUnit || !passenger) continue
-          cancelLiveOrder(w, passengerUnit)
+          cancelLiveTransportOrder(w, passengerUnit)
           if (!path.motionGroup) continue
           attachPersonOrder(w.buildingOrders, passenger, order, 0, orderEffects(w))
           attachPersonRoute(w.motionRoutes, passenger, path.motionGroup)
