@@ -87,6 +87,30 @@ test('ordinary plain person target queues an unstaged transport attack through S
   const target = world.units.find(u => u.id === 17)
   assert.equal(target.team, 'green')
   assert.equal(target.kind, 'preacher')
+  // Supplied team-only boundary, not an ordinary mixed-campaign claim:
+  // the existing grounded Brave keeps legacy targeting beside the real passenger.
+  const mixed = structuredClone(world),
+    mixedShaman = mixed.units.find(u => u.id === shaman.id),
+    mixedPerson = mixedShaman.native,
+    grounded = mixed.units.find(u => u.id === 173)
+  assert.equal(grounded.kind, 'brave')
+  assert.ok(grounded.hp > 0)
+  assert.ok(!grounded.native && !grounded.flight && !grounded.entry)
+  grounded.team = 'blue'
+  selectUnit(mixed, shaman.id, false)
+  selectUnit(mixed, grounded.id, true)
+  assert.ok(command(mixed, { ...target, id: target.id }))
+  assert.equal(mixedShaman.native, mixedPerson)
+  assert.equal(mixed.objectCells.objects.get(shaman.id), mixedPerson)
+  assert.equal(mixedPerson.vehicle, balloon.id)
+  assert.equal(currentPersonOrder(mixed.buildingOrders, mixedPerson).model, 28)
+  assert.equal(currentPersonOrder(mixed.buildingOrders, mixedPerson).references, 1)
+  assert.equal(grounded.target, target.id)
+  assert.equal(grounded.path.length, 2)
+  assert.ok(
+    !grounded.native || currentPersonOrder(mixed.buildingOrders, grounded.native)?.model !== 28
+  )
+
   // Supplied capacity boundary: every slot is held; the old movement record
   // has one additional external reference so releasing this owner cannot free it.
   const full = structuredClone(world),
