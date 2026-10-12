@@ -288,27 +288,30 @@ export class Soundscape {
     if (!this.music) this.music = new Music(ctx, this.master!, this)
     const { music } = this
     this.setMusicVolume(this.musicVolume)
-    await ctx.resume()
-    if (!this.loading) {
-      const samples = new Set(
-        AUDIO_CUES.flatMap(c => native.cues[c].samples.map(s => `${native.cues[c].bank}-${s}`))
-      )
-      this.loading = Promise.all(
-        [...samples].map(async key => {
-          if (this.buffers.has(key)) return
-          const response = await fetch(`/original/audio/${key}.wav`)
-          if (!response.ok) throw new Error(`Sound sample failed: ${key}`)
-          const buffer = await ctx.decodeAudioData(await response.arrayBuffer())
-          if (!this.disposed) this.buffers.set(key, buffer)
-        })
-      )
-        .then(() => {})
-        .catch(e => {
-          this.loading = null
-          throw e
-        })
-    }
+    // Music starts loading before the context resumes. Observe early failures
+    // without replacing the original promise awaited by this enable attempt.
+    void music.loading.catch(() => {})
     try {
+      await ctx.resume()
+      if (!this.loading) {
+        const samples = new Set(
+          AUDIO_CUES.flatMap(c => native.cues[c].samples.map(s => `${native.cues[c].bank}-${s}`))
+        )
+        this.loading = Promise.all(
+          [...samples].map(async key => {
+            if (this.buffers.has(key)) return
+            const response = await fetch(`/original/audio/${key}.wav`)
+            if (!response.ok) throw new Error(`Sound sample failed: ${key}`)
+            const buffer = await ctx.decodeAudioData(await response.arrayBuffer())
+            if (!this.disposed) this.buffers.set(key, buffer)
+          })
+        )
+          .then(() => {})
+          .catch(e => {
+            this.loading = null
+            throw e
+          })
+      }
       await Promise.all([this.loading, music.loading])
     } catch (error) {
       music.dispose()
