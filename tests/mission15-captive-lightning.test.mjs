@@ -12,9 +12,14 @@ const captive = world => world.units.find(unit => unit.team === 'blue' && unit.k
 test('ordinary Mission 15 deadline kills the captive directly, including public Save/Load', async () => {
   const store = createGameStore()
   store.startMission(15)
-  const world = store.getWorld(), shaman = captive(world)
+  const world = store.getWorld(),
+    shaman = captive(world)
   assert.equal(world.campaignTimer, 5400)
-  for (let turn = 0; turn < 5500 && !world.effects.some(effect => effect.lightning?.turn === -1); turn++)
+  for (
+    let turn = 0;
+    turn < 5500 && !world.effects.some(effect => effect.lightning?.turn === -1);
+    turn++
+  )
     tick(world, 1 / 12)
   assert.equal(world.turn, 5421)
   assert.equal(world.campaignTimer, 0)
@@ -39,16 +44,24 @@ test('ordinary Mission 15 deadline kills the captive directly, including public 
     assert.equal(candidate.status, 'lost')
     assert.equal(candidate.spellCasts[2][3], 1)
     assert.equal(candidate.buildings.find(building => building.kind === 'prison').hp, 260)
-    const count = candidate.effects.filter(effect => effect.kind === 'death').length
+    const deaths = candidate.effects
+      .filter(effect => effect.kind === 'death')
+      .map(effect => effect.id)
     for (let turn = 0; turn < 20; turn++) tick(candidate, 1 / 12)
     assert.equal(candidate.spellCasts[2][3], 1)
-    assert.equal(candidate.effects.filter(effect => effect.kind === 'death').length, count)
+    assert.ok(
+      candidate.effects
+        .filter(effect => effect.kind === 'death')
+        .every(effect => deaths.includes(effect.id))
+    )
   }
 })
 
 test('supplied saturated-cell and immunity controls cannot spare the separate captive', () => {
   for (const flags3 of [0, 0x8000, 0x20000]) {
-    const world = createWorld(15), shaman = captive(world), point = { x: 0, z: 0 }
+    const world = createWorld(15),
+      shaman = captive(world),
+      point = { x: 0, z: 0 }
     // Explicitly supplied adapter inputs, not an ordinary crowd producer.
     const followers = Array.from({ length: 8 }, () => addUnit(world, 'blue', 'brave', point))
     shaman.native = createLivePerson(world, shaman)
@@ -63,6 +76,10 @@ test('supplied saturated-cell and immunity controls cannot spare the separate ca
     assert.equal(shaman.native.previousState, 42)
     assert.equal(shaman.native.damageAttacker, 2)
     assert.equal(shaman.native.flags2 & 0x100000, 0)
-    assert.equal(world.randomState, expectedRandom.randomState, 'only the seven cell electrocutions draw speed RNG')
+    assert.equal(
+      world.randomState,
+      expectedRandom.randomState,
+      'only the seven cell electrocutions draw speed RNG'
+    )
   }
 })

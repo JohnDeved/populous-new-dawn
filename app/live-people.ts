@@ -641,8 +641,7 @@ export function strikeLiveLightning(w: World, point: { x: number; y: number }, t
     if (u.inside !== null || (u.hp <= 0 && !u.flight && u.native?.state !== 44)) continue
     const existing = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person
     const position = existing ?? nativePosition(w, u)
-    if (((position.y & 65535) >> 9) * 128 + ((position.x & 65535) >> 9) !== cell)
-      continue
+    if (((position.y & 65535) >> 9) * 128 + ((position.x & 65535) >> 9) !== cell) continue
     const p = existing ?? createLivePerson(w, u)
     p.life = Math.round(u.hp * 20)
     units.set(p.id, u)
