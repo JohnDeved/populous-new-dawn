@@ -968,7 +968,18 @@ export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects
         return 1
       }
       if (!vehicle) return complete()
-      const driverPerson = w.pathfinding.people.get(vehicle.passengers[0])
+      // 0x4666f0 resolves the persistent person object, not the active route cache.
+      // A settled state-30 driver need not remain in pathfinding.people.
+      const driverUnit = w.units.find(unit => unit.id === vehicle.passengers[0] && unit.hp > 0),
+        owner = driverUnit && personSource(driverUnit),
+        driverPerson =
+          owner &&
+          owner.id === vehicle.passengers[0] &&
+          owner.class === 1 &&
+          owner.vehicle === vehicle.id &&
+          w.objectCells.objects.get(owner.id) === owner
+            ? owner
+            : undefined
       // Keep the existing adapter's omitted clicked-distance lifetime check for
       // old records whose producer wrote b=0. Never invent their original click.
       if (

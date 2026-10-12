@@ -200,6 +200,11 @@ test('Mission 13 Balloon Hut repeatedly produces occupied airborne transport', (
   world.selected = [passenger.id]
   assert.ok(command(world, { ...browserPosition(balloon), id: balloon.id }))
   for (let turn = 0; balloon.passengerCount < 1 && turn < 1_000; turn++) tick(world, 1 / 12)
+  // Settled drivers leave the route cache but remain persistent vehicle owners.
+  assert.equal(passenger.native.state, 30)
+  assert.equal(world.pathfinding.people.has(passenger.id), false)
+  assert.equal(world.objectCells.objects.get(passenger.id), passenger.native)
+  assert.equal(passenger.native.vehicle, balloon.id)
   world.selected = [driver.id]
   assert.ok(command(world, { ...browserPosition(balloon), id: balloon.id }))
   for (let turn = 0; balloon.passengerCount < 2 && turn < 1_000; turn++) tick(world, 1 / 12)

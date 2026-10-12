@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {createWorld,addUnit,browserPosition,command,tick} from '../app/model.ts'
+import {createWorld,addUnit,browserPosition,command,tick,supportsFollower} from '../app/model.ts'
 import {createLivePerson,stepLiveImpulse} from '../app/live-people.ts'
 import {boardLiveVehicle,vehicleExit,vehicleExitTarget} from '../app/live-vehicles.ts'
 import {canUnloadVehicle,unloadLiveVehicle,selectVehiclePassenger} from '../app/vehicle-panel-runtime.ts'
@@ -51,7 +51,8 @@ test('authored Mission22 Boat and Balloon unload retain launch until a living la
  for(const model of [1,3]){
   const w=createWorld(22),v=w.vehicles.find(v=>v.model===model)
   w.units=[];w.pathfinding.people.clear();w.manaWorld.gameFlags=32
-  const u=addUnit(w,'blue','brave',browserPosition(v));w.selected=[u.id]
+  const exit=vehicleExit(w,v),point=browserPosition(exit.point);assert.ok(exit.found&&supportsFollower(w,point),'supplied follower starts on valid land')
+  const u=addUnit(w,'blue','brave',point);w.selected=[u.id]
   assert.equal(command(w,{...browserPosition(v),id:v.id}),true)
   for(let turn=0;turn<24&&!u.native?.vehicle;turn++)tick(w,1/12)
   assert.equal(u.native.vehicle,v.id);assert.equal(unloadLiveVehicle(w,v),true)

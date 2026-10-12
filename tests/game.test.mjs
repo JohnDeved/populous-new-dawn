@@ -2345,7 +2345,7 @@ test('Mission 5 grants, boards, sails, lands and checkpoints its original Boat',
  head.forced=true;head.reset=false;until(w,()=>boat.active,10);assert.equal(head.active,false);
  const shores=[],vehicleWorld=()=>({flags:w.land.flags,categories:w.land.categories,cellObjects:()=>[]});
  for(let y=0;y<256;y+=2)for(let x=0;x<256;x+=2){const p={x:(x+1)*256,y:(y+1)*256};if(vehicleCanDisembark(vehicleWorld(),boat,p))shores.push(p);}
- const start=shores.find(p=>{const q=browserPosition(p);return Math.hypot(q.x-followers[0].x,q.z-followers[0].z)<10});Object.assign(boat,start,{h:0,speed:-1});followers.forEach((u,i)=>Object.assign(u,browserPosition(boat),{x:browserPosition(boat).x-1-i/10}));w.selected=ids;
+ const start=shores.find(p=>{const q=browserPosition(p);return Math.hypot(q.x-followers[0].x,q.z-followers[0].z)<10});Object.assign(boat,start,{h:0,speed:-1});followers.forEach((u,i)=>Object.assign(u,browserPosition(boat),{x:browserPosition(boat).x-1-i/10}));syncLivePersonCells(w);w.selected=ids;
  assert.ok(command(w,{...browserPosition(boat),id:boat.id}));until(w,()=>boat.passengers.length===2,3);assert.deepEqual(boat.passengers,ids);
  await store.saveCheckpoint();assert.ok(store.loadCheckpoint());w=store.getWorld();boat=w.vehicles[0];followers=ids.map(id=>w.units.find(u=>u.id===id));assert.deepEqual(boat.passengers,ids);assert.ok(followers.every(u=>u.native?.vehicle===boat.id));
  const target=shores.map(p=>[Math.hypot(((p.x-boat.x)<<16>>16),((p.y-boat.y)<<16>>16)),p]).filter(([d])=>d>3000&&d<10000).sort((a,b)=>a[0]-b[0])[0][1];

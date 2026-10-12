@@ -1,11 +1,11 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { addUnit, browserPosition, command, createWorld, disguiseSelectedSpies, nativePosition, tick } from '../app/model.ts'
+import { addUnit, browserPosition, command, createWorld, disguiseSelectedSpies, nativePosition, supportsFollower, tick } from '../app/model.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
 import { changeLivePersonState } from '../app/live-people.ts'
-import { cancelLiveOrder, startLiveOrders } from '../app/live-movement.ts'
-import { leaveLiveVehicle } from '../app/live-vehicles.ts'
-import { currentPersonOrder } from '../app/person-orders.ts'
+import { cancelLiveOrder, startLiveOrders, orderEffects } from '../app/live-movement.ts'
+import { leaveLiveVehicle, vehicleExit } from '../app/live-vehicles.ts'
+import { currentPersonOrder, allocatePersonOrder, attachPersonOrder } from '../app/person-orders.ts'
 
 // Staged Spy population/location, authored Mission22 transports, real command/boarding.
 function aboard(model = 1) {
@@ -13,7 +13,10 @@ function aboard(model = 1) {
  const landing = nativePosition(w, w.units.find(u => u.team === 'blue'))
  w.manaWorld.gameFlags = 32
  w.units = []; w.pathfinding.people.clear()
- const spy = addUnit(w, 'blue', 'spy', browserPosition(v))
+ // Supplied grounded setup: deferred boarding must not spawn a person in water.
+ const exit = vehicleExit(w, v), point = browserPosition(exit.point)
+ assert.ok(exit.found && supportsFollower(w, point))
+ const spy = addUnit(w, 'blue', 'spy', point)
  w.selected = [spy.id]
  assert.ok(command(w, { ...browserPosition(v), id: v.id }))
  for (let i = 0; i < 24 && !spy.native?.vehicle; i++) tick(w, 1 / 12)
@@ -77,7 +80,12 @@ test('shipped Balloon disguise configures its command position and completes abo
 
 test('Balloon startup resolves raw and attack-cell payloads while retaining unsupported targets', () => {
  const { w, spy } = aboard(3), p = spy.native
- const order = currentPersonOrder(w.buildingOrders, p)
+ assert.equal(currentPersonOrder(w.buildingOrders, p), undefined)
+ // Supplied raw payload fixture, independent of the completed boarding record.
+ const id = allocatePersonOrder(w.buildingOrders)
+ assert.ok(id)
+ attachPersonOrder(w.buildingOrders, p, id, 0, orderEffects(w))
+ const order = w.buildingOrders.records[id]
  // Command15 has direct coordinate payloads and suppresses ground path setup.
  Object.assign(order, { model: 15, flags: 0, a: -32768, b: -1 })
  startLiveOrders(w, p, w)
