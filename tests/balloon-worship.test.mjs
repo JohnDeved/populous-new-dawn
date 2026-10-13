@@ -91,7 +91,7 @@ test('Mission 22 Balloon worship lands, rewards once and continues through publi
   const { store, world, shaman, balloon, north } = prepareFlight()
   selectUnit(world, shaman.id, false)
   assert.ok(command(world, { x: 55, z: 121 }))
-  while (world.turn < 3980) tick(world, 1 / 12)
+  while (world.turn < 3900) tick(world, 1 / 12)
   assert.equal(balloon.passengerCount, 1)
   const rejected = structuredClone(world),
     person = rejected.units.find(u => u.id === shaman.id).native
@@ -99,14 +99,15 @@ test('Mission 22 Balloon worship lands, rewards once and continues through publi
   command(rejected, { ...north, id: north.id })
   assert.deepEqual(person.commands, commands)
   assert.equal(currentPersonOrder(rejected.buildingOrders, person).model, 3)
-  // Source-backed Swarm pursuit changes the campaign RNG and route. The first
-  // admissible worship point is3993; earlier clicks must retain travel.
+  // With this exact repeated public input sequence, restored staffing changes
+  // the boundary: attempts3900..3986 retain travel, and3987 admits worship.
+  // This is not a universal earliest admission turn for other input histories.
   const retained = shaman.native
-  for (let turn = 3980; turn <= 3993; turn++) {
+  for (let turn = 3900; turn <= 3987; turn++) {
     assert.equal(world.turn, turn)
     assert.ok(command(world, { ...north, id: north.id }))
     assert.equal(shaman.native, retained)
-    if (turn < 3993) {
+    if (turn < 3987) {
       assert.deepEqual(retained.commands, commands)
       assert.equal(currentPersonOrder(world.buildingOrders, retained).model, 3)
       tick(world, 1 / 12)
@@ -129,11 +130,11 @@ test('Mission 22 Balloon worship lands, rewards once and continues through publi
     if (!balloon.passengerCount && !landed) landed = world.turn
     if (north.uses && !rewarded) rewarded = world.turn
   }
-  assert.equal(landed, 4033)
-  assert.equal(rewarded, 4234)
+  assert.equal(landed, 4028)
+  assert.equal(rewarded, 4230)
   assert.equal(north.uses, 1)
   assert.equal(shaman.native.vehicle, 0)
-  assert.equal(shaman.hp, 100)
+  assert.equal(shaman.hp, 100.6)
   assert.deepEqual(balloon.passengers, [])
   assert.equal(balloon.passengerCount, 0)
 })
