@@ -34,6 +34,7 @@ import {
 } from './person-orders.ts'
 import {
   appendLiveOrders,
+  appendLivePlayerOrders,
   anchorLiveShamanGuard,
   cancelLiveOrder,
   cancelLiveTransportOrder,
@@ -482,13 +483,21 @@ export function command(
   if (!context?.enabled) return false
   const { model } = context
   w.lastOrderTurn = w.turn
+  let sharedAirborneMovement = false
   if (model === 3) {
     const vehicles = new Set(
       w.units
         .filter(u => w.selected.includes(u.id) && u.native?.vehicle)
         .map(u => u.native!.vehicle)
     )
-    if (vehicles.size) {
+    sharedAirborneMovement =
+      !!vehicles.size &&
+      [...vehicles].every(id => {
+        const vehicle = w.vehicles.find(v => v.id === id && v.active)
+        return vehicle && rules.vehicleRestFlags[vehicle.model] & 1
+      })
+    // Keep the existing Boat/mixed-selection adapter until its controller is qualified.
+    if (vehicles.size && !sharedAirborneMovement) {
       const to = nativePosition(w, p),
         landingReservations = {
           search: w.indexedSearch,
@@ -658,6 +667,7 @@ export function command(
     model === 19 ||
     model === 33 ||
     sharedBoarding ||
+    sharedAirborneMovement ||
     ((model === 3 || model === 27 || model === 28 || queuedBuilding || queuedTree) &&
       (modifiers.ctrlKey || w.orderCursor))
   ) {
@@ -706,7 +716,7 @@ export function command(
       ((to.x >>> 8) & 255) | (to.y & 0xff00),
       input.flags
     )
-    const result = appendLiveOrders(w, units, order, slot === 0)
+    const result = appendLivePlayerOrders(w, units, order, slot === 0)
     if (model === 15 && result.accepted && context.building)
       for (const u of units) {
         const person = u.native ?? u.entry?.person ?? u.builder?.person

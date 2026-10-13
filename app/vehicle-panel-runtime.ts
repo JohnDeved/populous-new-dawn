@@ -5,9 +5,8 @@ import { vehicleReady } from './vehicle-routing.ts'
 import { unloadVehiclePeople, vehicleUnloadReady } from './vehicle-unload.ts'
 import { clearPersonOrders } from './person-orders.ts'
 import { orderEffects } from './live-movement.ts'
-import { setLivePersonAnimation } from './live-people.ts'
+import { publishLiveVehicleLaunch } from './live-people.ts'
 import rules from './original-rules.json' with { type: 'json' }
-import sprites from './original-units.json' with { type: 'json' }
 
 export function liveVehiclePassengers(w: World, v: Vehicle) {
   return v.passengers.slice(0, rules.vehicleCapacity[v.model]).flatMap(id => {
@@ -54,22 +53,7 @@ export function unloadLiveVehicle(w: World, v: Vehicle) {
     {
       exit: () => vehicleExit(w, v),
       clearOrders: p => clearPersonOrders(w.buildingOrders, p, orderEffects(w)),
-      launched: p => {
-        const unit = w.units.find(u => u.id === p.id)
-        if (!unit) return
-        // Expose the ordinary physics owner without destruction's extra flags.
-        unit.flight = p
-        unit.lift = 1
-        setLivePersonAnimation(w, p, rules.personAnimationObjects[(p.cargo ? 4 : 7) * 9 + p.model])
-        if (!p.cargo) {
-          p.f2 = 0
-          p.f1 = rules.animationDescriptors[p.draw].hold
-        }
-        p.assignment |= 128
-        p.slowTurn =
-          ((sprites.frameCounts[p.object] * (rules.animationDescriptors[p.draw].step + 1)) << 24) >>
-          24
-      },
+      launched: p => publishLiveVehicleLaunch(w, p),
     }
   )
   return true

@@ -68,10 +68,27 @@ test('shipped Balloon disguise configures its command position and completes abo
  assert.equal(spy.native.state, 30)
  assert.equal(spy.native.vehicle, v.id)
  assert.equal(spy.native.disguise, (2 << 6) | 63)
- const position = [v.x, v.y]
- for (let i = 0; i < 63; i++) tick(w, 1 / 12)
+ const owner = spy.native, counter = owner.counter
+ assert.equal(v.speed, 32)
+ assert.equal(owner.speed, 0)
+ // The retained active adapter moved once before disguise completed. Native
+ // zero-speed craft visits now decay and center it instead of freezing speed32.
+ const decay = [22, 15, 10, 6, 1, 1, 1, 1, 1, 1, 1, 1, 0]
+ for (let i = 0; i < 63; i++) {
+  tick(w, 1 / 12)
+  assert.equal(v.speed, decay[i] ?? 0)
+  assert.equal(spy.native, owner)
+  assert.equal(w.objectCells.objects.get(spy.id), owner)
+  assert.equal(owner.counter, counter)
+  assert.equal(owner.disguise, (2 << 6) | (62 - i))
+  assert.deepEqual([owner.tribe, v.team, v.apparentTribe], [0, 'blue', 2])
+ }
  assert.equal(spy.native.disguise, 2 << 6)
- assert.deepEqual([v.x, v.y], position)
+ assert.deepEqual([v.x, v.y], [46336, 14592])
+ for (let i = 0; i < 8; i++) tick(w, 1 / 12)
+ assert.deepEqual([v.x, v.y, v.speed], [46336, 14592, 0])
+ assert.equal(spy.native, owner)
+ assert.equal(owner.disguise, 2 << 6)
  assert.equal(disguiseSelectedSpies(w, 1), true)
  tick(w, 1 / 12)
  assert.equal(spy.native.state, 30)

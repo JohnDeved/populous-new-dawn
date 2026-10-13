@@ -1,3 +1,4 @@
+import { departVehiclePerson } from './vehicle-unload.ts'
 import { buildingPose } from './building-shapes.ts'
 import { clearTaskBindings, releaseTasks } from './world-tasks.ts'
 import {
@@ -15,6 +16,7 @@ import {
   createLivePerson,
   leaveLiveBuilding,
   changeLivePersonState,
+  publishLiveVehicleLaunch,
   registerLivePerson,
   setLivePersonAnimation,
   stepLivePhysics,
@@ -91,6 +93,7 @@ import {
   liveVehicles,
   stepLiveVehicle,
   vehicleExitTarget,
+  vehicleExit,
 } from './live-vehicles.ts'
 import { vehicleCanDisembark, vehicleReady } from './vehicle-routing.ts'
 import { restingCellCollision } from './person-collision.ts'
@@ -286,6 +289,17 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
   return issueLiveOrders(w, units, command, replace, false)
 }
 
+// 0x444f60's generic player-input tail restarts command28 as well. Direct
+// 0x43b670 attachment and existing computer callers retain their separate path.
+export function appendLivePlayerOrders(
+  w: World,
+  units: Unit[],
+  command: PersonOrder,
+  replace: boolean
+) {
+  return issueLiveOrders(w, units, command, replace, false, command.model === 28)
+}
+
 // Ordinary training input clears the entire selection before allocating once.
 // AI replacement and Ctrl queues retain their existing append semantics.
 export function replaceLiveTrainingOrders(w: World, units: Unit[], command: PersonOrder) {
@@ -297,7 +311,8 @@ function issueLiveOrders(
   units: Unit[],
   command: PersonOrder,
   replace: boolean,
-  playerReplacement: boolean
+  playerReplacement: boolean,
+  restartDirectTarget = false
 ) {
   let count = 0
   const bindings = units.map(unit => {
@@ -409,26 +424,26 @@ function issueLiveOrders(
       releasePreacherVictims(w, p, p.commandAux || 3)
   for (const { unit: u, person, retained } of bindings) {
     const p = person!
-    if (!accepted && !playerReplacement && preachers.includes(p)) continue
+    if (!accepted && !playerReplacement && !restartDirectTarget && preachers.includes(p)) continue
     // 0x43b670 only replaces and attaches command 28; keep direct-target motion intact.
-    if (command.model === 28) {
+    if (command.model === 28 && !restartDirectTarget) {
       if (!retained) adoptLiveOrders(w, u, p)
       continue
     }
     if (p.state === 25 || p.state === 29) continue
     // Native player input restarts the active order even when appending a later one.
     resetPersonMotion(p)
-    if (playerReplacement && p.flags2 & 0x100000) {
+    if ((playerReplacement || restartDirectTarget) && p.flags2 & 0x100000) {
       // No initializer may run for this person. A failed click still removes
       // its browser entry adapter and physical queue link before the next turn.
-      if (!accepted && u.entry?.person === p) {
+      if (playerReplacement && !accepted && u.entry?.person === p) {
         cancelBuildingEntry(w, u)
         u.native = p
         u.work = null
       }
       continue
     }
-    p.previousState = !playerReplacement && p.state === 14 ? 14 : 0
+    p.previousState = !playerReplacement && !restartDirectTarget && p.state === 14 ? 14 : 0
     p.state = defaultPersonState(p, w.manaWorld.gameFlags)
     if (u.entry) initializeBuildingPerson(w, p)
     else changeLivePersonState(w, u, undefined, p)
@@ -900,14 +915,19 @@ export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects
       },
       destination: point => replanLivePath(w, u, p, point),
     })
+  const airborne = !!(
+    p.vehicle && rules.vehicleRestFlags[liveVehicles(w).get(p.vehicle)?.model ?? 0] & 1
+  )
   const driver = p.vehicle ? stepLiveVehicle(w, p) : false
   if (!p.vehicle) stepLivePhysics(w, u, p)
   if (!p.vehicle || driver) stepLiveRoute(w, u)
-  else if (!boarding) return
+  else if (!boarding && (!airborne || currentPersonOrder(w.buildingOrders, p)?.model !== 3)) return
   if (p.state !== 10 || (p.guardInputPending && p.flags2 & 16)) return
   const next = stepLiveOrderQueue(w, u, p, {
     3: order => {
-      if (!p.vehicle)
+      // 0x4336c0 owns every airborne command3, including plain tails.
+      // 0x432590 subsequently applies the per-person departure flags.
+      if (!p.vehicle || airborne)
         return Number(
           stepMovementOrder(p, order, w.land.categories, id => liveVehicles(w).get(id)!)
         )
@@ -1098,8 +1118,14 @@ export function stepLiveOrderQueue(
       cellObjects: unsupported,
       arrival: unsupported,
       leaveVehicle: () => {
-        if (p.vehicle) unsupported()
-        return false
+        const vehicle = w.vehicles.find(v => v.id === p.vehicle && v.active)
+        if (!vehicle) return false
+        if (!(rules.vehicleRestFlags[vehicle.model] & 1)) return unsupported()
+        const exit = vehicleExit(w, vehicle)
+        if (!exit.found) return false
+        if (!departVehiclePerson(w, vehicle, p, exit.point)) return false
+        publishLiveVehicleLaunch(w, p)
+        return true
       },
       outside: to => outsideBuilding(w, to),
       destination: unsupported,

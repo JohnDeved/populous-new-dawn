@@ -5,6 +5,7 @@ import { leaveLiveAttackVehicle } from '../app/live-building-combat.ts'
 import { createLivePerson } from '../app/live-people.ts'
 import { boardLiveVehicle, vehicleExit } from '../app/live-vehicles.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
+import { vehicleReady } from '../app/vehicle-routing.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
 
 import assert from 'node:assert/strict'
@@ -123,18 +124,27 @@ test('ordinary airborne tower command reaches departure and authored melee throu
       assert.equal(person.vehicle, transport.id)
       assert.deepEqual(transport.passengers, [unit.id])
       assert.equal(cancelled.buildingOrders.records[oldOrder].references, 0)
-      assert.equal(currentPersonOrder(cancelled.buildingOrders, person).model, 3)
+      const movement = currentPersonOrder(cancelled.buildingOrders, person)
+      assert.equal(movement.model, 3)
       for (let turn = 0; turn < 400; turn++) tick(cancelled, 1 / 12)
-      assert.equal(person.vehicle, 0)
-      assert.deepEqual(transport.passengers, [])
+      // Plain model3 cancels the attack and finishes aboard. Deliberate Shift
+      // departure has separate ordinary flight/landing coverage.
+      assert.equal(person.vehicle, transport.id)
+      assert.deepEqual(transport.passengers, [unit.id])
+      assert.equal(unit.native, person)
+      assert.equal(cancelled.objectCells.objects.get(unit.id), person)
+      assert.equal(unit.hp, 100.6)
       assert.equal(cancelled.buildingOrders.records[oldOrder].references, 0)
-      assert.ok(Math.hypot(unit.x - 55, unit.z - 121) < 1)
+      assert.equal(movement.references, 0)
+      assert.equal(transport.speed, 0)
+      assert.deepEqual([transport.x, transport.y], [16640, 32512])
+      assert.equal(vehicleReady(cancelled.land, transport), true)
     }
     if (shaman.hp <= 0 && !death) death = world.turn
     if (target.hp <= 0 && !targetDeath) targetDeath = world.turn
     if (!order.references && !retired) retired = world.turn
-    if (world.turn === 4263) assert.equal(shaman.native.vehicle, balloon.id)
-    if (world.turn === 4264) {
+    if (world.turn === 4267) assert.equal(shaman.native.vehicle, balloon.id)
+    if (world.turn === 4268) {
       assert.deepEqual(
         [shaman.native.substate, shaman.native.workTarget, shaman.native.vehicle],
         [3, 105, 0]
@@ -142,21 +152,23 @@ test('ordinary airborne tower command reaches departure and authored melee throu
       assert.deepEqual(balloon.passengers, [])
       assert.equal(balloon.passengerCount, 0)
     }
-    if (world.turn === 4270) {
+    if (world.turn === 4274) {
       assert.equal(shaman.fight.opponent, 11)
       assert.equal(world.units.find(u => u.id === 11).kind, 'warrior')
       assert.equal(shaman.fight.motion.vehicle, 0)
     }
   }
-  assert.equal(target.hp, 0)
-  // Recurring patrols change the encounters. Continue the actual attack until
-  // it destroys the selected Tower and automatically retires its record.
-  assert.equal(targetDeath, 6428)
-  assert.equal(retired, 6429)
-  assert.equal(death, 0)
-  assert.equal(shaman.hp, 100.7)
-  assert.ok(world.units.includes(shaman))
-  assert.equal(world.objectCells.objects.get(shaman.id), shaman.native)
+  assert.equal(target.hp, 260)
+  // Shared plain-flight quantization/startup changes the route and encounters.
+  // The actual Shaman dies after the Warrior11 encounter; the selected Tower
+  // survives. Preserve automatic cleanup rather than substitute cancellation.
+  assert.equal(targetDeath, 0)
+  assert.equal(retired, 4493)
+  assert.equal(death, 4493)
+  assert.equal(shaman.hp, 0)
+  assert.equal(world.units.includes(shaman), false)
+  assert.equal(world.objectCells.objects.has(shaman.id), false)
+  assert.ok(world.buildings.includes(target))
   assert.equal(order.references, 0)
   assert.deepEqual(balloon.passengers, [])
 })

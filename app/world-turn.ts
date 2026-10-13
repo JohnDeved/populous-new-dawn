@@ -341,6 +341,7 @@ import {
   boardLiveVehicle,
   removeMissingVehiclePassengers,
   stepLiveVehicles,
+  beginLiveVehiclePass,
   syncLiveVehiclePassengers,
 } from './live-vehicles.ts'
 import {
@@ -1187,6 +1188,7 @@ function stepTurn(w: World) {
           release(w, worker)
           worker.native = createLivePerson(w, worker)
           w.pathfinding.people.set(worker.id, worker.native)
+          if (balloon) registerLivePerson(w, worker.native)
           boardLiveVehicle(w, worker.native, vehicle)
           if (w.manaTribes[tribeForTeam(b.team)].playerType === 1)
             for (const occupant of inhabitants.slice(1)) {
@@ -1284,6 +1286,7 @@ function stepTurn(w: World) {
   const startingPeople = new Set(w.units.filter(u => levelStartOwnsShaman(w, u)).map(u => u.id))
   stepLevelStarts(w)
   const armageddon = w.effects.find(fx => fx.armageddon)?.armageddon
+  beginLiveVehiclePass(w)
   for (const u of w.units) {
     if (startingPeople.has(u.id)) continue
     if (u.attackReservation) stepAttackReservation(u.attackReservation, w.turn)

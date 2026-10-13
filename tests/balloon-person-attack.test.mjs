@@ -113,7 +113,7 @@ test('ordinary queued person target moves its transport and preserves handoff th
     firstOpponentTeam = null,
     death = 0,
     targetDeath = 0
-  for (let i = 0; i < 600; i++) {
+  for (let i = 0; i < 1200; i++) {
     const beforeVehicle = person.vehicle,
       beforeCounter = person.counter
     tick(world, 1 / 12)
@@ -133,20 +133,24 @@ test('ordinary queued person target moves its transport and preserves handoff th
     if (shaman.hp <= 0 && !death) death = world.turn
     if (target.hp <= 0 && !targetDeath) targetDeath = world.turn
   }
-  assert.equal(departure, 4280)
-  assert.equal(firstFight, 4290)
-  assert.equal(firstOpponent, 10)
+  assert.equal(departure, 4284)
+  assert.equal(firstFight, 4285)
+  assert.equal(firstOpponent, 17)
   assert.equal(firstOpponentTeam, 'green')
-  // Recurring Red patrols change the timeline. Warrior10 intercepts before the
-  // selected target is reached; combat death retires28 while target17 survives.
-  assert.equal(death, 4344)
-  assert.equal(targetDeath, 0)
-  assert.equal(shaman.hp, 0)
-  assert.equal(world.units.includes(shaman), false)
-  assert.equal(world.objectCells.objects.has(shaman.id), false)
+  // Generic shared player28 now runs its native startup tail. The matched
+  // input changes configuration/RNG, while the selected first opponent remains17.
+  // Keep the former Shaman-death failure as a distinct, superseded outcome.
+  assert.equal(death, 0)
+  assert.equal(targetDeath, 4557)
+  assert.equal(world.turn, 5180)
+  assert.equal(shaman.hp, 101)
+  assert.equal(world.units.includes(shaman), true)
+  assert.equal(world.objectCells.objects.get(shaman.id), shaman.native)
+  assert.ok(shaman.native)
   assert.equal(world.buildingOrders.records[orderId].references, 0)
-  assert.equal(target.hp, 55)
-  assert.equal(world.units.includes(target), true)
+  assert.equal(target.hp, 0)
+  assert.equal(world.units.includes(target), false)
+  assert.equal(world.objectCells.objects.has(target.id), false)
   assert.deepEqual(balloon.passengers, [])
   assert.equal(balloon.passengerCount, 0)
 })
