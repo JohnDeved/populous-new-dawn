@@ -1,4 +1,5 @@
 import { vehicleReady } from '../app/vehicle-routing.ts'
+import { reachMission22FlightPoint } from './helpers/mission22-flight-phase.mjs'
 // Staged transport waypoint completion preserves the shared queue and seated owner.
 import test from 'node:test'
 import { createGameStore } from '../app/game-store.ts'
@@ -83,7 +84,7 @@ test('ordinary staged transport waypoints advance and retain the seated owner th
 
   selectUnit(world, shaman.id, false)
   assert.ok(command(world, { x: 55, z: 121 }))
-  while (world.turn < 4000) tick(world, 1 / 12)
+  reachMission22FlightPoint(world, shaman, balloon, 18067, 31550)
   const departureWorld = structuredClone(world),
     person = shaman.native,
     old = person.commands[person.commandCursor]
@@ -129,8 +130,10 @@ test('ordinary staged transport waypoints advance and retain the seated owner th
     [0, 2]
   )
   assert.deepEqual(comparable(restored), comparable(world))
+  const stagedStart = world.turn
   let first = 0,
-    last = 0
+    last = 0,
+    finalTailTested = false
   for (let i = 0; i < 700; i++) {
     tick(world, 1 / 12)
     tick(restored, 1 / 12)
@@ -148,7 +151,10 @@ test('ordinary staged transport waypoints advance and retain the seated owner th
       assert.equal(world.buildingOrders.records[ids[1]].references, 1)
     }
     if (!last && !world.buildingOrders.records[ids[1]].references) last = world.turn
-    if (world.turn === 4120) {
+    if (world.turn === stagedStart + 120) {
+      finalTailTested = true
+      assert.equal(world.buildingOrders.records[ids[0]].references, 0)
+      assert.equal(world.buildingOrders.records[ids[1]].references, 1)
       // Supplied final-tail flag/completion boundary, separate from ordinary input.
       for (const blocked of [false, true]) {
         const control = structuredClone(world),
@@ -168,8 +174,9 @@ test('ordinary staged transport waypoints advance and retain the seated owner th
       }
     }
   }
-  assert.equal(first, 4060)
-  assert.equal(last, 4136)
+  assert.equal(finalTailTested, true)
+  assert.equal(first, 3312)
+  assert.equal(last, 3388)
   assert.equal(person.state, 30)
   assert.equal(person.commands.filter(Boolean).length, 0)
   assert.equal(shaman.hp, 100.6)
@@ -195,7 +202,7 @@ test('ordinary staged transport waypoints advance and retain the seated owner th
     i++
   )
     tick(idle, 1 / 12)
-  assert.equal(idle.turn, 4088)
+  assert.equal(idle.turn, 3338)
   assert.equal(currentPersonOrder(idle.buildingOrders, idlePerson), undefined)
   assert.deepEqual([idlePerson.state, idleCraft.speed], [30, 0])
   assert.ok(vehicleReady(idle.land, idleCraft))
@@ -251,10 +258,10 @@ test('ordinary staged transport waypoints advance and retain the seated owner th
   }
   assert.deepEqual(
     [idleDeparture, idleFirstFight, idleFirstOpponent, idleDeath],
-    [4332, 4333, 17, 4372]
+    [3582, 3583, 17, 3615]
   )
   // Existing browser continuation removes the unit with positive retained native life.
-  assert.equal(idlePerson.life, 255)
+  assert.equal(idlePerson.life, 277)
   assert.equal(idleUnit.hp, 0)
   assert.equal(idle.units.includes(idleUnit), false)
   assert.equal(idle.objectCells.objects.has(idleUnit.id), false)
@@ -286,7 +293,7 @@ test('ordinary staged transport waypoints advance and retain the seated owner th
   )
   let launched = false,
     landed = false
-  while (departing.turn < 4300) {
+  while (departing.turn < departureWorld.turn + 300) {
     tick(departing, 1 / 12)
     tick(replay, 1 / 12)
     assert.deepEqual(comparable(departing), comparable(replay))
@@ -352,8 +359,9 @@ test('ordinary staged transport waypoints advance and retain the seated owner th
     [0, 2]
   )
   let waited = false,
-    filled = false
-  while (successor.turn < 4400) {
+    filled = false,
+    successorAssertions = 0
+  while (successor.turn < departureWorld.turn + 400) {
     tick(successor, 1 / 12)
     tick(successorReplay, 1 / 12)
     assert.deepEqual(comparable(successor), comparable(successorReplay))
@@ -371,19 +379,22 @@ test('ordinary staged transport waypoints advance and retain the seated owner th
       waited = true
     if (craft.passengers[0] === brave.id) filled = true
     const expected = new Map([
-      [4060, [1, 2]],
-      [4061, [0, 2]],
-      [4115, [0, 1]],
-      [4310, [0, 0]],
+      [3312, [1, 2]],
+      [3313, [0, 2]],
+      [3367, [0, 1]],
+      [3562, [0, 0]],
     ]).get(successor.turn)
-    if (expected)
+    if (expected) {
+      successorAssertions++
       assert.deepEqual(
         shared.map(id => successor.buildingOrders.records[id].references),
         expected
       )
-    if (successor.turn === 4088) assert.equal(craft.passengers[0], brave.id)
-    if (successor.turn === 4089) assert.equal(craft.passengerCount, 0)
+    }
+    if (successor.turn === 3340) { successorAssertions++; assert.equal(craft.passengers[0], brave.id) }
+    if (successor.turn === 3341) { successorAssertions++; assert.equal(craft.passengerCount, 0) }
   }
+  assert.equal(successorAssertions, 6)
   assert.ok(waited && filled)
   assert.equal(head.uses, 1)
   assert.deepEqual(

@@ -10,7 +10,9 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
     const result = spawnSync(
       process.execPath,
       ['--experimental-test-module-mocks', '--test', fileURLToPath(import.meta.url)],
-      { encoding: 'utf8', timeout: 60_000, maxBuffer: 1024 * 1024, env }
+      // External safety watchdog: allow aggregate scheduling headroom while
+      // retaining the child's8000-turn gameplay bound and exact raid assertions.
+      { encoding: 'utf8', timeout: 120_000, maxBuffer: 1024 * 1024, env }
     )
     assert.equal(result.error, undefined)
     assert.match(result.stdout, /tests 1\b/)

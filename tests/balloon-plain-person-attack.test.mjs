@@ -1,3 +1,4 @@
+import { reachMission22FlightPoint } from './helpers/mission22-flight-phase.mjs'
 // Bounded direct-target transport handoff; grounded combat remains the existing adapter.
 import test from 'node:test'
 import { createGameStore } from '../app/game-store.ts'
@@ -72,7 +73,7 @@ test('ordinary plain person target queues an unstaged transport attack through S
 
   selectUnit(world, shaman.id, false)
   assert.ok(command(world, { x: 55, z: 121 }))
-  while (world.turn < 3900) tick(world, 1 / 12)
+  reachMission22FlightPoint(world, shaman, balloon, 20767, 29926)
   const rejectedPerson = shaman.native,
     rejectedOrder = currentPersonOrder(world.buildingOrders, rejectedPerson),
     rejectedCommands = [...rejectedPerson.commands]
@@ -83,7 +84,7 @@ test('ordinary plain person target queues an unstaged transport attack through S
   assert.equal(shaman.native, rejectedPerson)
   assert.equal(world.objectCells.objects.get(shaman.id), rejectedPerson)
   assert.match(world.message, /No land route/)
-  while (world.turn < 4000) tick(world, 1 / 12)
+  reachMission22FlightPoint(world, shaman, balloon, 18067, 31550)
   const target = world.units.find(u => u.id === 17)
   assert.equal(target.team, 'green')
   assert.equal(target.kind, 'preacher')
@@ -195,18 +196,18 @@ test('ordinary plain person target queues an unstaged transport attack through S
     if (target.hp <= 0 && !targetDeath) targetDeath = world.turn
     if (shaman.hp <= 0 && !death) death = world.turn
   }
-  assert.equal(departure, 4288)
-  assert.equal(firstFight, 4289)
+  assert.equal(departure, 3540)
+  assert.equal(firstFight, 3541)
   assert.equal(firstOpponent, 17)
   assert.equal(firstOpponentTeam, 'green')
-  assert.equal(death, 4312)
-  assert.equal(targetDeath, 0)
-  assert.equal(shaman.hp, 0)
-  assert.equal(world.objectCells.objects.has(shaman.id), false)
-  assert.equal(world.units.includes(shaman), false)
-  assert.equal(world.units.includes(target), true)
-  assert.equal(world.objectCells.objects.has(target.id), true)
-  assert.equal(target.hp, 55)
+  assert.equal(death, 0)
+  assert.equal(targetDeath, 3760)
+  assert.equal(shaman.hp, 100.75)
+  assert.equal(world.objectCells.objects.get(shaman.id), shaman.native)
+  assert.equal(world.units.includes(shaman), true)
+  assert.equal(world.units.includes(target), false)
+  assert.equal(world.objectCells.objects.has(target.id), false)
+  assert.equal(target.hp, 0)
   assert.equal(world.buildingOrders.records[orderId].references, 0)
   assert.deepEqual(balloon.passengers, [])
   assert.equal(balloon.passengerCount, 0)

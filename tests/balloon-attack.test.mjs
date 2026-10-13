@@ -1,4 +1,5 @@
-// Bounded transport handoff; tower damage/completion remains unproved.
+import { reachMission22FlightPoint } from './helpers/mission22-flight-phase.mjs'
+// Ordinary transport handoff, Tower destruction and later casualty/cleanup.
 import test from 'node:test'
 import { createGameStore } from '../app/game-store.ts'
 import { leaveLiveAttackVehicle } from '../app/live-building-combat.ts'
@@ -84,7 +85,7 @@ test('ordinary airborne tower command reaches departure and authored melee throu
 
   selectUnit(world, shaman.id, false)
   assert.ok(command(world, { x: 55, z: 121 }))
-  while (world.turn < 3980) tick(world, 1 / 12)
+  reachMission22FlightPoint(world, shaman, balloon, 18607, 31225)
   const target = world.buildings.find(b => b.id === 105)
   assert.equal(target.team, 'green')
   assert.equal(target.kind, 'tower')
@@ -107,12 +108,14 @@ test('ordinary airborne tower command reaches departure and authored melee throu
   }
   let death = 0,
     targetDeath = 0,
-    retired = 0
+    retired = 0,
+    timedAssertions = 0
   while (world.turn < 6429) {
     tick(world, 1 / 12)
     tick(restored, 1 / 12)
     assert.deepEqual(comparable(restored), comparable(world))
-    if (world.turn === 4000) {
+    if (world.turn === 3253) {
+      timedAssertions++
       const cancelled = structuredClone(world),
         unit = cancelled.units.find(u => u.id === shaman.id),
         person = unit.native,
@@ -137,14 +140,15 @@ test('ordinary airborne tower command reaches departure and authored melee throu
       assert.equal(cancelled.buildingOrders.records[oldOrder].references, 0)
       assert.equal(movement.references, 0)
       assert.equal(transport.speed, 0)
-      assert.deepEqual([transport.x, transport.y], [16640, 32512])
+      assert.deepEqual([transport.x, transport.y], [16128, 32512])
       assert.equal(vehicleReady(cancelled.land, transport), true)
     }
     if (shaman.hp <= 0 && !death) death = world.turn
     if (target.hp <= 0 && !targetDeath) targetDeath = world.turn
     if (!order.references && !retired) retired = world.turn
-    if (world.turn === 4267) assert.equal(shaman.native.vehicle, balloon.id)
-    if (world.turn === 4268) {
+    if (world.turn === 3519) { timedAssertions++; assert.equal(shaman.native.vehicle, balloon.id) }
+    if (world.turn === 3520) {
+      timedAssertions++
       assert.deepEqual(
         [shaman.native.substate, shaman.native.workTarget, shaman.native.vehicle],
         [3, 105, 0]
@@ -152,23 +156,25 @@ test('ordinary airborne tower command reaches departure and authored melee throu
       assert.deepEqual(balloon.passengers, [])
       assert.equal(balloon.passengerCount, 0)
     }
-    if (world.turn === 4274) {
+    if (world.turn === 3526) {
+      timedAssertions++
       assert.equal(shaman.fight.opponent, 11)
       assert.equal(world.units.find(u => u.id === 11).kind, 'warrior')
       assert.equal(shaman.fight.motion.vehicle, 0)
     }
   }
-  assert.equal(target.hp, 260)
-  // Shared plain-flight quantization/startup changes the route and encounters.
-  // The actual Shaman dies after the Warrior11 encounter; the selected Tower
-  // survives. Preserve automatic cleanup rather than substitute cancellation.
-  assert.equal(targetDeath, 0)
-  assert.equal(retired, 4493)
-  assert.equal(death, 4493)
+  assert.equal(timedAssertions, 4)
+  assert.equal(target.hp, 0)
+  // The real route destroys the selected Tower and retires the attack, then
+  // observes a later Shaman casualty. Keep both outcomes and ownership cleanup;
+  // this is not a claim of native damage/death parity.
+  assert.equal(targetDeath, 5337)
+  assert.equal(retired, 5338)
+  assert.equal(death, 5563)
   assert.equal(shaman.hp, 0)
   assert.equal(world.units.includes(shaman), false)
   assert.equal(world.objectCells.objects.has(shaman.id), false)
-  assert.ok(world.buildings.includes(target))
+  assert.equal(world.buildings.includes(target), false)
   assert.equal(order.references, 0)
   assert.deepEqual(balloon.passengers, [])
 })

@@ -1,3 +1,4 @@
+import { reachMission22FlightPoint } from './helpers/mission22-flight-phase.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createWorld, addUnit } from '../app/model.ts'
@@ -91,7 +92,7 @@ test('Mission 22 Balloon worship lands, rewards once and continues through publi
   const { store, world, shaman, balloon, north } = prepareFlight()
   selectUnit(world, shaman.id, false)
   assert.ok(command(world, { x: 55, z: 121 }))
-  while (world.turn < 3900) tick(world, 1 / 12)
+  reachMission22FlightPoint(world, shaman, balloon, 20767, 29926)
   assert.equal(balloon.passengerCount, 1)
   const rejected = structuredClone(world),
     person = rejected.units.find(u => u.id === shaman.id).native
@@ -99,20 +100,19 @@ test('Mission 22 Balloon worship lands, rewards once and continues through publi
   command(rejected, { ...north, id: north.id })
   assert.deepEqual(person.commands, commands)
   assert.equal(currentPersonOrder(rejected.buildingOrders, person).model, 3)
-  // With this exact repeated public input sequence, shared plain-flight startup
-  // changes the boundary: attempts3900..4004 retain travel, and4005 admits worship.
-  // This is not a universal earliest admission turn for other input histories.
-  const retained = shaman.native
-  for (let turn = 3900; turn <= 4005; turn++) {
-    assert.equal(world.turn, turn)
+  // Keep the actual repeated-input history: every rejected attempt retains
+  // the original travel owner and record, until the first real admission.
+  const retained = shaman.native, attempts = []
+  for (let count = 0; count < 150; count++) {
+    attempts.push(world.turn)
     assert.ok(command(world, { ...north, id: north.id }))
     assert.equal(shaman.native, retained)
-    if (turn < 4005) {
-      assert.deepEqual(retained.commands, commands)
-      assert.equal(currentPersonOrder(world.buildingOrders, retained).model, 3)
-      tick(world, 1 / 12)
-    }
+    if (currentPersonOrder(world.buildingOrders, retained).model === 27) break
+    assert.deepEqual(retained.commands, commands)
+    assert.equal(currentPersonOrder(world.buildingOrders, retained).model, 3)
+    tick(world, 1 / 12)
   }
+  assert.deepEqual(attempts, Array.from({ length: 106 }, (_, index) => 3153 + index))
   const worship = currentPersonOrder(world.buildingOrders, shaman.native)
   assert.equal(worship.model, 27)
   assert.equal(worship.references, 1)
@@ -134,8 +134,8 @@ test('Mission 22 Balloon worship lands, rewards once and continues through publi
     if (!balloon.passengerCount && !landed) landed = world.turn
     if (north.uses && !rewarded) rewarded = world.turn
   }
-  assert.equal(landed, 4048)
-  assert.equal(rewarded, 4250)
+  assert.equal(landed, 3301)
+  assert.equal(rewarded, 3502)
   assert.equal(north.uses, 1)
   assert.equal(worship.references, 0)
   assert.equal(shaman.native.vehicle, 0)

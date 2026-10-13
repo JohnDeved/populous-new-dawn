@@ -1,3 +1,4 @@
+import { reachMission22FlightPoint } from './helpers/mission22-flight-phase.mjs'
 // Ordinary acquired M22 Balloon; preparation supplies only the mana-focus adapter.
 import test from 'node:test'
 import { vehicleReady } from '../app/vehicle-routing.ts'
@@ -95,7 +96,7 @@ test('same-vehicle boarding retains its acquired passenger through repeated inpu
 
   selectUnit(world, shaman.id, false)
   assert.ok(command(world, { x: 55, z: 121 }))
-  while (world.turn < 4000) tick(world, 1 / 12)
+  reachMission22FlightPoint(world, shaman, balloon, 18067, 31550)
   // Existing browser input accepts this moving craft; native readiness rejects it.
   assert.equal(vehicleReady(world.land, balloon), false)
   const person = shaman.native,
