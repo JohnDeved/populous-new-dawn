@@ -834,8 +834,10 @@ function ejectSwarmBuildingPeople(w: World, id: number, tribe: number) {
     const personId = building.admission.occupants[slot],
       unit = w.units.find(u => u.id === personId && u.hp > 0)
     if (!unit) continue
+    const owner = unit.entry?.person ?? unit.native ?? unit.resident?.person
+    if (owner && (owner.flags2 & 1 || !owner.class)) continue
     const p = leaveBuildingEntry(w, unit)
-    if (!p || p.flags2 & 1 || !p.class) continue
+    if (!p) continue
     unit.native = p
     p.flags2 &= ~16
     if (!(p.flags2 & 0x100000)) initializeLivePanic(w, unit, p)

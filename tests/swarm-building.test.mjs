@@ -195,7 +195,7 @@ test('earned M22 Swarm pursues a unique occupied hut, ejects residents and retur
     tick(w, 1 / 12)
     tick(restored, 1 / 12)
     assert.deepEqual(comparable(restored), comparable(w))
-    if (swarm.stage === 5) {
+    if (!ejected && swarm.stage === 5) {
       ingress = swarm.insects.every(i => i.hidden)
       // Supplied stale slots/count0: source checks count once before traversal.
       const stale = structuredClone(w),
@@ -211,6 +211,23 @@ test('earned M22 Swarm pursues a unique occupied hut, ejects residents and retur
         before
       )
       assert.equal(staleFx.swarm.stage, 6)
+      for (const invalid of ['deleted', 'class0']) {
+        const world = structuredClone(w),
+          effect = world.effects.find(f => f.swarm),
+          building = world.buildings.find(b => b.id === 92),
+          unit = world.units.find(u => u.id === residents[0].id),
+          owner = unit.entry?.person ?? unit.native ?? unit.resident?.person
+        assert.ok(owner)
+        if (invalid === 'deleted') owner.flags2 |= 1
+        else owner.class = 0
+        effect.swarm.remaining = 101
+        const slot = building.admission.occupants.indexOf(unit.id)
+        stepSwarm(world, effect)
+        assert.equal(building.admission.occupants[slot], unit.id)
+        assert.equal(unit.inside, 92)
+        assert.equal(unit.hp, 50)
+        assert.equal(building.admission.inside, 1)
+      }
     }
     if (!ejected && swarm.stage === 6) {
       ejected = true
