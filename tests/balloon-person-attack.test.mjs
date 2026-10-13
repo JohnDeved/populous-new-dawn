@@ -109,7 +109,9 @@ test('ordinary queued person target moves its transport and preserves handoff th
     }
   let departure = 0,
     firstOpponent = 0,
-    death = 0
+    firstOpponentTeam = null,
+    death = 0,
+    targetDeath = 0
   for (let i = 0; i < 600; i++) {
     const beforeVehicle = person.vehicle,
       beforeCounter = person.counter
@@ -122,15 +124,25 @@ test('ordinary queued person target moves its transport and preserves handoff th
       assert.equal(person.counter, (beforeCounter + 1) & 255)
       assert.equal(world.buildingOrders.records[orderId].references, 1)
     }
-    if (shaman.fight && !firstOpponent) firstOpponent = shaman.fight.opponent
+    if (shaman.fight && !firstOpponent) {
+      firstOpponent = shaman.fight.opponent
+      firstOpponentTeam = world.units.find(u => u.id === firstOpponent).team
+    }
     if (shaman.hp <= 0 && !death) death = world.turn
+    if (target.hp <= 0 && !targetDeath) targetDeath = world.turn
   }
-  assert.equal(departure, 4276)
-  assert.equal(firstOpponent, 10)
-  assert.equal(world.units.find(u => u.id === firstOpponent).team, 'green')
-  assert.equal(death, 4389)
+  assert.equal(departure, 4272)
+  assert.equal(firstOpponent, 17)
+  assert.equal(firstOpponentTeam, 'green')
+  assert.equal(death, 0)
+  assert.equal(targetDeath, 4505)
+  assert.equal(shaman.hp, 96.35)
+  assert.ok(world.units.includes(shaman))
+  assert.equal(world.objectCells.objects.get(shaman.id), shaman.native)
   assert.equal(world.buildingOrders.records[orderId].references, 0)
-  assert.equal(target.hp, 55)
+  assert.equal(target.hp, 0)
+  assert.equal(world.units.includes(target), false)
+  assert.equal(world.objectCells.objects.has(target.id), false)
   assert.deepEqual(balloon.passengers, [])
   assert.equal(balloon.passengerCount, 0)
 })

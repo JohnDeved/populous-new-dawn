@@ -278,7 +278,7 @@ export function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {
     for (let i = 0; i < g.children.length; i++) {
       const sprite = g.children[i] as THREE.Sprite,
         insect = swarm.insects[i]
-      sprite.visible = !!insect
+      sprite.visible = !!insect && !insect.hidden
       if (!insect) continue
       sprite.position.set(
         short(insect.x - swarm.x) / 256,
