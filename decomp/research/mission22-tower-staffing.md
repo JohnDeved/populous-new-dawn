@@ -49,3 +49,10 @@ through the existing physics owner, then dies and releases the attack reference.
 It does not destroy the selected Tower. Grounded and airborne person attacks and
 worship have separately measured encounter/admission outcomes; exact input
 sequences and full checkpoint/ownership assertions are retained in their tests.
+
+The final death boundary is the existing unsupported-settling adapter: retained
+person life remains2012 while its airborne flag clears over category8 with
+supportsFollower false; the browser sets HP0 and performs cleanup. This is not
+a claim that native falling damage reduced life or that native death timing is
+matched. The separate prerequisite restores the source-defined motion handoff;
+it does not rewrite that later death adapter.
