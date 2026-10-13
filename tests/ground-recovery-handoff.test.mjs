@@ -5,6 +5,7 @@ import { browserPosition, tick } from '../app/model.ts'
 import { createLivePerson, moveLivePerson, collisionWorld } from '../app/live-people.ts'
 import { groundVelocity, recoverGroundObstacle } from '../app/person-motion.ts'
 import { unsupportedGround, limitPersonVelocity } from '../app/person-physics.ts'
+import { allocatePersonOrder } from '../app/person-orders.ts'
 import { personStepCollision } from '../app/person-collision.ts'
 import { terrainPointHeight } from '../app/native-terrain.ts'
 
@@ -121,4 +122,30 @@ test('supported failure, successful alternate recovery and turning do not enter 
     assert.equal(p.flags2 & 0x80000, 0, boundary)
     assert.deepEqual(p.velocity, velocity, boundary)
   }
+})
+
+// Explicit queued-owner fixture; the recovery branch must not finish the order.
+test('failed recovery preserves a supplied attached order and exact owner', () => {
+  const { w, u, p } = fixture(),
+    id = allocatePersonOrder(w.buildingOrders)
+  assert.ok(id)
+  Object.assign(w.buildingOrders.records[id], {
+    model: 3,
+    flags: 128,
+    references: 1,
+    a: 8960,
+    b: 33536,
+  })
+  w.buildingOrders.active++
+  p.commands[0] = id
+  p.commandCursor = 0
+  p.commandStatus = 3
+  const before = structuredClone(w.buildingOrders)
+  moveLivePerson(w, u, p)
+  assert.equal(u.native, p)
+  assert.equal(u.flight, p)
+  assert.equal(w.objectCells.objects.get(u.id), p)
+  assert.deepEqual(w.buildingOrders, before)
+  assert.equal(p.commands[0], id)
+  assert.equal(p.counter, 60)
 })
