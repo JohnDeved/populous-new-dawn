@@ -41,6 +41,22 @@ Angel activation and movement adapter limits remain explicit.
 
 ## Validation
 
-Ordinary candidate victory, latch checkpoint continuation, profile persistence and
-Continue Mission6 are pending. Supplied predicate/cadence controls supplement,
-rather than replace, the genuine acquisition and failure-first route.
+The prototype fresh route reproduces the actual reward/combat milestones without
+saved-world input: Boat489, raises at2652/3016, Angel5342 at3844 and Shaman removal
+at4145. The due inputs produce latch values1/2/3/4 at post-turn4160/4192/4224/4256;
+post-turn4288 is won with variable13=9, completedLevel4 and29 Red followers still
+alive. Raw public checkpoint continuation matches. In-session profile records5
+and the public store starts Mission6 with that completion retained.
+
+Supplied predicate/cadence controls supplement the genuine route. The same fresh route also commits its won checkpoint/profile through the existing
+synthetic IndexedDB transaction fixture. A fresh module/store reconstructs the won
+world and profile[5], follows the source-bound Continue store path to Mission6,
+saves, and a third store reconstructs Mission6 playing/profile[5]. The shared
+storage fixture's existing profile-union tests remain covered. Final committed
+gates are pending. Rendered browser persistence and actual Continue-button
+interaction remain separate acceptance, not established by this synthetic model.
+
+The independent supported cloud-browser capability check on2026-10-13 failed
+before gameplay with `THREE.WebGLRenderer: Error creating WebGL context.` It did
+not run the candidate Mission5 route. No GPU/security settings were changed, and
+no rendered acceptance or full closure of issue96 is claimed by these tests.
