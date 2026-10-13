@@ -213,3 +213,12 @@ test('an unregistered vehicle retains its mixed-class slot before projected peop
   assert.ok(events.includes('person'))
   assert.deepEqual(flights(world), [312, 309, 513, 507])
 })
+
+test('supplied malformed distinct roster IDs sharing one person retain Blast fallback tolerance', () => {
+  const { world, wave } = pendingFinalWave(),
+    unit = world.units.find(candidate => candidate.id === 513)
+  // Deliberately malformed compatibility control, without an ordinary producer.
+  world.units.push({ ...unit, id: world.nextId++ })
+  assert.doesNotThrow(() => stepLiveBlastWave(world, wave))
+  assert.deepEqual(flights(world), [312, 309, 513, 507])
+})

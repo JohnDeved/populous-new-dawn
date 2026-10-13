@@ -204,6 +204,7 @@ import {
 import { announceCombatMarches, type CombatMarch } from './combat-order-search.ts'
 import {
   stepLiveBuildingAttack,
+  stepLiveAboardPersonAttack,
   cancelLiveBuildingAttack,
   startLiveCombatResponse,
 } from './live-building-combat.ts'
@@ -1146,10 +1147,7 @@ function stepTurn(w: World) {
       b.kind === 'firewarriorHut'
     ) {
       stepLiveTraining(w, b)
-    } else if (
-      ((b.kind === 'boatHouse' && !b.boatLaunched) || b.kind === 'balloonHut') &&
-      inhabitants.length
-    ) {
+    } else if ((b.kind === 'boatHouse' || b.kind === 'balloonHut') && inhabitants.length) {
       const balloon = b.kind === 'balloonHut'
       if (++b.timer >= (balloon ? 1000 : 600)) {
         const pose = buildingPose(b),
@@ -1470,6 +1468,7 @@ function stepTurn(w: World) {
       }
     }
     const activeOrder = u.native && currentPersonOrder(w.buildingOrders, u.native)
+    if (activeOrder?.model === 28 && u.native?.vehicle && stepLiveAboardPersonAttack(w, u)) continue
     if (u.native?.vehicle && !activeOrder) {
       const vehicle = w.vehicles.find(vehicle => vehicle.id === u.native!.vehicle)
       if (vehicle) syncLiveVehiclePassengers(w, vehicle)

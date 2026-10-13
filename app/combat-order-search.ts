@@ -55,6 +55,7 @@ interface CombatSearchEffects {
   select: (order: PersonOrder, vehicleOnly: boolean) => { id: number; type: number } | undefined
   prepareTarget: (order: PersonOrder, id: number) => boolean
   range: () => number
+  trackTarget?: () => number
 }
 
 // 0x51a2a0 shares eight march summaries across people, keyed by both payload
@@ -102,7 +103,7 @@ export function retargetCombatOrder(
   return chooseTarget(p, order, e)
 }
 
-// Command 19/21's front half, through target dispatch (0x51a8db). The caller
+// Command 19/21/28's front half, through target dispatch (0x51a8db). The caller
 // retains both results until after the selected attack phase: completion and
 // restart are independent, and automatic rescanning can replace restart.
 export function prepareCombatOrderVisit(
@@ -111,7 +112,7 @@ export function prepareCombatOrderVisit(
   order: PersonOrder,
   e: CombatSearchEffects
 ) {
-  if (order.model !== 11 && order.model !== 19 && order.model !== 21)
+  if (![11, 19, 21, 28].includes(order.model))
     throw new RangeError(`Unsupported attack command ${order.model}`)
   if (p.tribe === w.playerTribe && !w.alert) w.alert = 1
   const automatic = order.model === 21
@@ -141,8 +142,18 @@ export function prepareCombatOrderVisit(
     }
     p.assignment |= 8
     if (scan) {
+      let tracking = 0
+      if (order.model === 28) {
+        if (!e.trackTarget) throw new Error('Explicit combat tracking is required')
+        tracking = e.trackTarget()
+        if (tracking === 1) complete = true
+        else if (tracking === 2) {
+          p.substate = 12
+          p.flags2 = (p.flags2 | 0x40000000) >>> 0
+        }
+      }
       if (p.model !== 6) recordMarch(w, p, order)
-      if (e.withinArea(order)) {
+      if (!tracking && e.withinArea(order)) {
         const selected = chooseTarget(p, order, e, p.model === 6 && automatic && !!p.vehicle)
         if (selected !== undefined) restart = selected
         else if (automatic) {

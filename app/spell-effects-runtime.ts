@@ -753,6 +753,8 @@ export function stepLiveBlastWave(w: World, wave: BlastWave) {
       if (person === object && cell.includes(person)) linked.push(person)
     }
     const owned = new Set(linked)
+    // An ambiguous repeated person must not overrun the retained linked slots.
+    if (cell.filter(person => owned.has(person)).length !== linked.length) continue
     let next = 0
     cells.set(
       index,

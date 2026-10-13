@@ -139,13 +139,30 @@ function routeContext(w: World, u: Unit, p: LivePerson, searchOption = 0) {
     active: t.active,
     defeatTimer: t.defeatTimer,
   }))
-  const vehicles = liveVehicles(w)
+  const vehicles = liveVehicles(w),
+    people = new Map(w.pathfinding.people)
+  // Occupied-vehicle admission resolves persistent native drivers, independently
+  // of whether they currently own an active person route.
+  for (const vehicle of vehicles.values()) {
+    people.delete(vehicle.passengers[0])
+    const unit = w.units.find(u => u.id === vehicle.passengers[0] && u.hp > 0),
+      owner = unit?.native ?? unit?.entry?.person ?? unit?.builder?.person
+    if (
+      owner &&
+      owner.id === unit!.id &&
+      owner.class === 1 &&
+      !(owner.flags2 & 1) &&
+      owner.vehicle === vehicle.id &&
+      w.objectCells.objects.get(owner.id) === owner
+    )
+      people.set(owner.id, owner)
+  }
   const vehicleWorld = {
     flags: w.land.flags,
     categories: w.land.categories,
     boatsEnabled: Number(boats),
     vehicles,
-    people: w.pathfinding.people,
+    people,
     tribes,
     cellObjects: (cell: number) => liveVehicleCellObjects(w, cell),
   }

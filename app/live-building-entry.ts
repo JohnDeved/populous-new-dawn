@@ -63,6 +63,7 @@ import {
   initializePersonState,
   defaultPersonState,
   resetPersonMotion,
+  recoverPersonMovement,
 } from './person-state.ts'
 import { terrainPointHeight } from './native-terrain.ts'
 import {
@@ -96,13 +97,17 @@ export type BuildingAdmission = ConvertingBuilding & TrainingBuilding & { manaNe
 function unsupported(): never {
   throw new Error('Building entry reached an unported world consumer')
 }
-const orderEffects: OrderEffects = {
+const orderEffects = (w: World): OrderEffects => ({
   prepare: unsupported,
   stopWork: unsupported,
   releaseSpell: unsupported,
   deleteObject: unsupported,
-  releaseFight: unsupported,
-}
+  // 004364d0 -> 00501be0 clears assignment 0x20 before this recovery.
+  releaseFight: person =>
+    recoverPersonMovement(w, person as LivePerson, (current, object) =>
+      setLivePersonAnimation(w, current as LivePerson, object)
+    ),
+})
 const person = (w: World, u: Unit): EntryPerson =>
   Object.assign(createLivePerson(w, u), { savedVehicle: 0, orderDelay: 0 })
 
@@ -117,7 +122,7 @@ function begin(w: World, u: Unit, b: Building): BuildingEntry | undefined {
     model: b.admission?.activity && b.admission.activity & 0x8000 ? 10 : 8,
     a: b.id,
   })
-  attachPersonOrder(orders, p, id, 0, orderEffects)
+  attachPersonOrder(orders, p, id, 0, orderEffects(w))
   p.previousState = p.state
   p.state = defaultPersonState(p, w.manaWorld.gameFlags)
   initializeBuildingPerson(w, p)
@@ -208,8 +213,8 @@ export function initializeBuildingPerson(w: World, p: EntryPerson) {
                 b: point.y & 65535,
               }),
             occupied: () => false,
-            clearOrders: () => clearPersonOrders(w.buildingOrders, p, orderEffects),
-            attachOrder: id => attachPersonOrder(w.buildingOrders, p, id, 0, orderEffects),
+            clearOrders: () => clearPersonOrders(w.buildingOrders, p, orderEffects(w)),
+            attachOrder: id => attachPersonOrder(w.buildingOrders, p, id, 0, orderEffects(w)),
             initialize,
           })
           if (u && currentPersonOrder(w.buildingOrders, p)?.model === 31) adoptLiveOrders(w, u, p)
@@ -319,7 +324,7 @@ function context(w: World) {
 
 function occupancyEffects(w: World, people: Map<number, EntryPerson>): OccupancyEffects {
   return {
-    orders: orderEffects,
+    orders: orderEffects(w),
     leaveVehicle: p => {
       if ((p as EntryPerson).vehicle) unsupported()
     },
@@ -420,8 +425,8 @@ export function dismantleBuilding(w: World, b: Building) {
         p = ctx.people.get(id)!
       u.entry ??= { person: p, orders: w.buildingOrders }
       leaveBuildingEntry(w, u)
-      clearPersonOrders(w.buildingOrders, p, orderEffects)
-      attachPersonOrder(w.buildingOrders, p, order, 0, orderEffects)
+      clearPersonOrders(w.buildingOrders, p, orderEffects(w))
+      attachPersonOrder(w.buildingOrders, p, order, 0, orderEffects(w))
       resetPersonMotion(p)
       u.work = b.id
       if (!(p.flags2 & 0x100000)) {
@@ -448,7 +453,7 @@ export function cancelBuildingEntry(w: World, u: Unit, preserveOrders = false) {
   if (!u.entry) return
   const p = u.entry.person
   if (!preserveOrders) {
-    clearPersonOrders(w.buildingOrders, p, orderEffects)
+    clearPersonOrders(w.buildingOrders, p, orderEffects(w))
     if (p.flags3 & 32) rebuildLiveTrainingQueue(w, p.workTarget)
   }
   releasePersonRoute(w.motionRoutes, p)
@@ -642,7 +647,7 @@ export function stepLiveTraining(w: World, b: Building) {
   stepTrainingConversion(ctx, state, {
     ...effects,
     orders: {
-      ...orderEffects,
+      ...orderEffects(w),
       prepare: (order, model, x, y, flags = 0) => {
         if (model !== 3) unsupported()
         prepareMovementOrder(order, { x, y }, flags, w.land, id =>
