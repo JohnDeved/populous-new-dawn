@@ -181,6 +181,24 @@ function registeredHypnotiseOrder(
   return seen.size === candidates.length ? reverse : null
 }
 
+// 0050eab0 has no inside-building exclusion. Keep the legacy ground predicate,
+// and admit occupants only through their exact linked native person owner.
+function linkedHypnotiseOccupant(w: World, u: Unit, point: { x: number; y: number }) {
+  const p = unitAnimationSource(u)
+  return (
+    !!p &&
+    p.id === u.id &&
+    p.class === 1 &&
+    !(p.flags2 & 1) &&
+    p.tribe === tribeForTeam(u.team) &&
+    p.model === nativePersonModel(u) &&
+    (p.x & 65535) === (point.x & 65535) &&
+    (p.y & 65535) === (point.y & 65535) &&
+    w.objectCells.objects.get(u.id) === p &&
+    [...objectsInCell(w.objectCells, (p.y & 0xfe00) | ((p.x >>> 8) & 254))].includes(p)
+  )
+}
+
 export function hypnotiseTargets(w: World, point: Point, team: Team) {
   const center = nativePosition(w, point),
     x = (center.x >>> 8) & 254,
@@ -194,11 +212,11 @@ export function hypnotiseTargets(w: World, point: Point, team: Team) {
         scan = order.get(`${(p.x >>> 8) & 254}:${(p.y >>> 8) & 254}`)
       return { u, p, scan: scan === undefined ? -1 : scan * w.units.length + index }
     })
-    .filter(({ u, scan }) => {
+    .filter(({ u, p: position, scan }) => {
       const p = unitAnimationSource(u)
       return (
         scan >= 0 &&
-        u.inside === null &&
+        (u.inside === null || linkedHypnotiseOccupant(w, u, position)) &&
         ![1, 7, 8].includes(nativePersonModel(u)) &&
         u.team !== team &&
         !((p?.flags4 ?? 0) & 0x1000) &&
@@ -223,7 +241,8 @@ export function applyHypnotise(w: World, point: Point, team: Team) {
   for (const { u } of targets) {
     const p = unitAnimationSource(u)
     if ((p?.flags4 ?? 0) & 0x800) {
-      releaseTasks(w, u)
+      if (u.inside === null) releaseTasks(w, u)
+      else release(w, u)
       if ((p?.flags2 ?? 0) & 0x20000) removeObjectFromCell(w.objectCells, p as LivePerson)
       w.objectCells.objects.delete(u.id)
       w.selected = w.selected.filter(id => id !== u.id)
