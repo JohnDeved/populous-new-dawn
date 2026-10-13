@@ -41,6 +41,10 @@ The navigation bypass is caller-owned. Boat models1/2 both use source physics12
 and descriptor initial state1; state1 clears speed(+5f), reservation(+9f) and
 navigation bits10000/100/1, then sets4000. Fresh allocation supplies zero seats
 and turn fields. Life uses the imported shipped balance value5000.
+The existing Boat movement consumer reads personSpeeds[physics]: model12 is110,
+where the old placeholder model1 was32. This corrects movement speed as well as
+readiness for authored Boats across missions, so affected route regressions must
+be requalified; unchanged Boat motion is not claimed.
 Presentation/audio fields outside the current Vehicle representation are not
 claimed as newly ported here.
 

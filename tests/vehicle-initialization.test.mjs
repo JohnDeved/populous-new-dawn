@@ -101,6 +101,7 @@ test('ordinary authored Warriors board, retain seats through store load and depa
   const ids=w.units.filter(u=>u.team==='blue'&&u.kind==='warrior').map(u=>u.id)
   assert.equal(ids.length,4)
   for(const [i,id] of ids.entries())selectUnit(w,id,i>0)
+  assert.deepEqual([...w.selected].sort((a,b)=>a-b),[...ids].sort((a,b)=>a-b))
   assert.equal(command(w,{...browserPosition(boat),id:boat.id}),true)
   const aboard=()=>ids.every(id=>w.units.find(u=>u.id===id).native?.vehicle===boat.id)
   for(let i=0;i<240&&!aboard();i++)tick(w,1/12)
