@@ -10,8 +10,7 @@ turn advances to1473.
 
 The guard's only preceding write is startup251–253, which initializes variable2
 to zero. Its next writer starts with the original EVERY2047/offset63 header at
-645–648 and complete condition649–662: internal1180 (player kills against this
-tribe) >9 and variable2==0 assigns1. This real guard producer is included, with
+645–648 and complete condition649–662: internal1180 (Blue kills against Red) >9 and variable2==0 assigns1. This real guard producer is included, with
 an explicit closing EVERY, rather than allowing the new dispatch indefinitely
 under a stale zero or adding an invented time cutoff. Later source writes assign
 2,3,4 or5 and never reopen zero. Their attack-phase values and side effects are
