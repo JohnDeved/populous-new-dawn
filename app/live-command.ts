@@ -482,18 +482,21 @@ export function command(
   if (!context?.enabled) return false
   const { model } = context
   w.lastOrderTurn = w.turn
+  let sharedAirborneMovement = false
   if (model === 3) {
     const vehicles = new Set(
       w.units
         .filter(u => w.selected.includes(u.id) && u.native?.vehicle)
         .map(u => u.native!.vehicle)
     )
-    const airborneSelection = [...vehicles].every(id => {
-      const vehicle = w.vehicles.find(v => v.id === id && v.active)
-      return vehicle && rules.vehicleRestFlags[vehicle.model] & 1
-    })
+    sharedAirborneMovement =
+      !!vehicles.size &&
+      [...vehicles].every(id => {
+        const vehicle = w.vehicles.find(v => v.id === id && v.active)
+        return vehicle && rules.vehicleRestFlags[vehicle.model] & 1
+      })
     // Keep the existing Boat/mixed-selection adapter until its controller is qualified.
-    if (vehicles.size && !airborneSelection) {
+    if (vehicles.size && !sharedAirborneMovement) {
       const to = nativePosition(w, p),
         landingReservations = {
           search: w.indexedSearch,
@@ -663,6 +666,7 @@ export function command(
     model === 19 ||
     model === 33 ||
     sharedBoarding ||
+    sharedAirborneMovement ||
     ((model === 3 || model === 27 || model === 28 || queuedBuilding || queuedTree) &&
       (modifiers.ctrlKey || w.orderCursor))
   ) {
