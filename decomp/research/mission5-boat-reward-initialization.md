@@ -25,6 +25,14 @@ constructor occupancy, but the detached source is not a registered blocker at
 reward-time allocation. Reusing an all-previous-vehicles construction scan for
 reward would therefore be incorrect; supply the actual then-registered set.
 
+Raw004ede10 copies0xb3 bytes, then restores destination position+3d/+3f/+41,
+state+2c, allocated links+0/+4/+20/+22 and identity+24, byte+2e, and only selected
+flag bits (+c bits1/20000, +10 bit20000000, +14 bit4); it clears+8. In particular,
+heading+26, physics+30, speed+5f, navigation+92 and life+98 are NOT restored from
+the fresh destination. They copy from the detached source before immediate
+004ed700 processing. A future reward implementation must preserve exactly this
+field ownership, rather than retaining every freshly initialized field.
+
 A single preparation plus active=true is therefore insufficient. Initial and
 reward-time input contexts, allocation identity and template-copy field ownership
 need distinct tests. No exact M5 reward endpoint is claimed by the cold M10 proof. Because the
