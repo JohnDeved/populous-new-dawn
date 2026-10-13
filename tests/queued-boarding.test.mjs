@@ -33,10 +33,28 @@ test('grounded staged boarding retains and visits the preceding waypoint', async
   assert.ok(cast(world, 'swarm', { x: 27, z: -29 }))
   stepUntil(world, () => world.effects.some(effect => effect.swarm?.applied), 100)
 
+  // Keep the old western detour as an ordinary lethal contrast: source-backed
+  // Swarm pursuit changes enemy/RNG outcomes, not the queue's ownership contract.
+  const lethal = structuredClone(world),
+    lethalShaman = lethal.units.find(u => u.id === shaman.id),
+    lethalBoat = lethal.vehicles.find(v => v.id === boat.id)
+  selectUnit(lethal, lethalShaman.id, false)
+  assert.ok(command(lethal, { x: 0, z: -45 }, { ctrlKey: true }))
+  const lethalFirst = lethalShaman.native.commands[0]
+  assert.ok(
+    command(lethal, { ...browserPosition(lethalBoat), id: lethalBoat.id }, { ctrlKey: true })
+  )
+  const lethalSecond = lethalShaman.native.commands[1]
+  let lethalFight = 0,
+    lethalOpponent = 0,
+    lethalDeath = 0,
+    lethalClosest = Infinity
+
   const p = shaman.native
   assert.equal(p.vehicle, 0)
   selectUnit(world, shaman.id, false)
-  assert.ok(command(world, { x: 0, z: -45 }, { ctrlKey: true }))
+  // A real approach waypoint avoids the now-active western interception.
+  assert.ok(command(world, { x: 22, z: -39 }, { ctrlKey: true }))
   const first = p.commands.find(Boolean)
   assert.equal(world.buildingOrders.records[first].flags, 128)
   const control = structuredClone(world),
@@ -71,17 +89,36 @@ test('grounded staged boarding retains and visits the preceding waypoint', async
     boarded = null
   for (let n = 0; n < 300; n++) {
     tick(world, 1 / 12)
+    tick(lethal, 1 / 12)
+    lethalClosest = Math.min(lethalClosest, Math.hypot(lethalShaman.x, lethalShaman.z + 45))
+    if (lethalShaman.fight && !lethalFight) {
+      lethalFight = lethal.turn
+      lethalOpponent = lethalShaman.fight.opponent
+    }
+    if (lethalShaman.hp <= 0 && !lethalDeath) lethalDeath = lethal.turn
     tick(control, 1 / 12)
     tick(restored, 1 / 12)
     tick(legacy, 1 / 12)
     assert.deepEqual(comparable(restored), comparable(world))
-    closest = Math.min(closest, Math.hypot(shaman.x, shaman.z + 45))
-    controlClosest = Math.min(controlClosest, Math.hypot(controlShaman.x, controlShaman.z + 45))
+    closest = Math.min(closest, Math.hypot(shaman.x - 22, shaman.z + 39))
+    controlClosest = Math.min(
+      controlClosest,
+      Math.hypot(controlShaman.x - 22, controlShaman.z + 39)
+    )
     if (boat.passengerCount && boarded === null) boarded = world.turn
   }
+  assert.ok(lethalClosest < 1)
+  assert.deepEqual([lethalFight, lethalOpponent, lethalDeath], [1473, 97, 1506])
+  assert.equal(lethalShaman.hp, 0)
+  assert.equal(lethal.units.includes(lethalShaman), false)
+  assert.equal(lethal.objectCells.objects.has(lethalShaman.id), false)
+  assert.equal(lethal.buildingOrders.records[lethalFirst].references, 0)
+  assert.equal(lethal.buildingOrders.records[lethalSecond].references, 0)
+  assert.deepEqual(lethalBoat.passengers, [])
   assert.ok(controlClosest < 1)
   assert.ok(closest < 1)
-  assert.ok(boarded)
+  assert.equal(boarded, 1387)
+  assert.equal(shaman.hp, 100)
   assert.equal(world.buildingOrders.records[first].references, 0)
   assert.equal(world.buildingOrders.records[second].references, 0)
   assert.equal(after.vehicle, boat.id)

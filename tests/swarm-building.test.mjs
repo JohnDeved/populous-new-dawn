@@ -167,6 +167,20 @@ test('earned M22 Swarm pursues a unique occupied hut, ejects residents and retur
     }
   }
   assert.deepEqual(first, { n: 7, ids: [92] })
+  // Supplied class9 plan excludes the earliest candidate, but partial progress
+  // alone does not change an already allocated class2 building's eligibility.
+  for (const plan of [true, false]) {
+    const control = structuredClone(w),
+      target = control.buildings.find(b => b.id === 92),
+      effect = control.effects.find(f => f.swarm)
+    target.progress = 0.5
+    if (plan) target.preparation = {}
+    else delete target.preparation
+    stepSwarm(control, effect)
+    assert.equal(effect.swarm.phase, 'building')
+    if (plan) assert.notEqual(effect.swarm.building, 92)
+    else assert.equal(effect.swarm.building, 92)
+  }
   tick(w, 1 / 12)
   assert.deepEqual([swarm.phase, swarm.stage, swarm.building], ['building', 0, 92])
   // Supplied repeat-window projection: an already visited hut is never reacquired.

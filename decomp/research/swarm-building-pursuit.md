@@ -50,3 +50,33 @@ Existing ground Swarm tests remain acceptance controls. Source requires wander
 RNG before acquisition and the common ground scan; the previous combined motion
 helper ran that wander update after the scan. This change composes the native
 order without replacing ground eligibility, damage or panic behavior.
+
+## Requalification of existing transport routes
+
+The first standard check failed five maintained Mission22 transport expectations.
+Their shared acquisition route casts Swarm beside empty BoatHouse94, which is a
+valid enemy class2 target (occupancy is not an acquisition condition). At1311 the
+new controller acquires94; stage0 and stage1 replace wandering visits, so the first
+RNG difference at1313 is the skipped old wander draws. No transport runtime changed.
+The original staged detour subsequently reaches its waypoint but is intercepted
+by Warrior97 at1473, fights97/98 and dies1506 with retired references, instead of
+boarding. This lethal route is retained as evidence, not reclassified as boarding.
+
+Independent source-bound transport replays retain public checkpoint and ownership
+assertions: tower105 selection/departure4256, Warrior11 interception4262 and
+Shaman death4297 (tower260 unchanged); queued person17 departure4272/fight4273,
+target death4505 with Shaman aliveHP96.35 at4580; plain person17 departure4276/
+fight4277 and Shaman death4302 (target55 unchanged). Worship now rejects through
+3992, admits3993, lands4033 and grants exactly one reward4234. These are observed
+browser campaign outcomes, not original-game trajectory/timing equivalence.
+
+Acquisition excludes class9 preparation plans, using the same browser class
+projection as building combat. Partially built allocated class2 objects remain
+eligible; progress alone is not a native class test.
+
+The maintained successful staged boarding path uses the actual approach waypoint
+(22,-39), reaches within0.65 browser units and boards at1387 with HP100. Its
+waypoint-only control, exact native/registry owner, both retired references,
+legacy missing-b payload and public checkpoint replay remain asserted. The old
+western detour remains a separate ordinary branch in the same test, with exact
+first opponent/death, waypoint visit and complete ownership cleanup asserted.

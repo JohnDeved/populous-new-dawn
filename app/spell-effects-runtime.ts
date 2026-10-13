@@ -859,7 +859,12 @@ function swarmBuildingEffects(w: World, swarm: ReturnType<typeof swarmState>) {
         // Buildings have no native class-2 cell chain in this adapter. Retain
         // roster order within a cell; the authored witness has a unique target.
         const building = w.buildings.find(b => {
-          if (b.hp <= 0 || tribeForTeam(b.team) === swarm.tribe || history.includes(b.id))
+          if (
+            b.preparation ||
+            b.hp <= 0 ||
+            tribeForTeam(b.team) === swarm.tribe ||
+            history.includes(b.id)
+          )
             return false
           const point = nativePosition(w, b)
           return ((point.y & 0xfe00) | ((point.x >>> 8) & 254)) === cell
