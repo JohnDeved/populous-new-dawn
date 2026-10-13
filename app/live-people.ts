@@ -1138,15 +1138,23 @@ export function moveLivePerson(w: World, u: Unit, p: LivePerson) {
           return outside ? buildingOutsidePoint(pose) : buildingApproachPoint(pose, p)
         }
       )
-    const velocity = { x: 0, y: 0, z: 0 }
+    const velocity = { x: 0, y: Math.max(0, short(p.velocity.y)), z: 0 }
     groundVelocity(velocity, p, speed, p.heading, terrain)
     limitPersonVelocity(p.physics, velocity)
     const next = { x: (p.x + velocity.x) & 65535, y: (p.y + velocity.z) & 65535, h: 0 }
     next.h = terrain(next.x, next.y)
     if (speed && blocked(next)) {
       if (turning) Object.assign(next, { x: p.x, y: p.y, h: terrain(p.x, p.y) })
-      else recoverGroundObstacle(p, next, !!building, terrain, blocked)
-      // Native failed-recovery airborne dispatch remains in the physics work.
+      else if (
+        !recoverGroundObstacle(p, next, !!building, terrain, blocked) &&
+        unsupportedGround(w.land, p, p.physics)
+      ) {
+        // 0x4e7193: retain this ground step's limited velocity, not an old combat
+        // impulse. Shared physics owns the next visit; do not visit it twice.
+        Object.assign(p.velocity, velocity)
+        p.flags2 = (p.flags2 | 0x80000) >>> 0
+        u.flight = p
+      }
     }
     moveObjectInCells(w.objectCells, p, next)
     Object.assign(u, browserPosition(next))
