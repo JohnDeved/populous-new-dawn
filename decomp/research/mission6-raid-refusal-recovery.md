@@ -38,7 +38,10 @@ through to proximity.
 Native recruitment completion at `4cb7e4..4cb7ff` assigns every selected state-14
 person's byte +af to taskIndex+1 via `4f2440`. The browser still uses its admitted
 `task.members` list; this change does not claim native assignment publication or
-whole-object-list traversal parity. Exact registered person identity and the
+whole-object-list traversal parity. The unchanged spell callback also retains its
+global tribe-Shaman lookup rather than enforcing task membership; the actual
+Shaman in this ordinary acceptance is independently proved to be an admitted
+member. Exact registered person identity and the
 existing bounded release validation are preserved.
 
 The existing proximity radius/selection adapter, native whole-group state-19 and
