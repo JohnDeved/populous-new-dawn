@@ -44,25 +44,26 @@ test('M7 economic building reads use live owners and consume include-incomplete 
 })
 
 test('M7 controlled school admission requires five available Braves for either school', () => {
-  for (const kind of ['camp', 'temple']) for (const count of [4, 5, 6]) {
-    const w = createWorld(7)
-    retainFixtureUnits(w, u => u.team !== 'yellow' || u.kind === 'shaman')
-    for (let i = 0; i < count; i++) {
-      const u = addUnit(w, 'yellow', 'brave', { x: 0, z: i })
-      u.native = createLivePerson(w, u)
-      u.native.state = 17
+  for (const kind of ['camp', 'temple'])
+    for (const count of [4, 5, 6]) {
+      const w = createWorld(7)
+      retainFixtureUnits(w, u => u.team !== 'yellow' || u.kind === 'shaman')
+      for (let i = 0; i < count; i++) {
+        const u = addUnit(w, 'yellow', 'brave', { x: 0, z: i })
+        u.native = createLivePerson(w, u)
+        u.native.state = 17
+      }
+      const school = addBuilding(w, 'yellow', kind, { x: 0, z: 0 }, true)
+      w.ai.states = 64
+      w.ai.attributes[6] = kind === 'temple' ? 100 : 0
+      w.ai.attributes[7] = kind === 'camp' ? 100 : 0
+      for (const task of w.ai.tasks) task.flags = 0
+      w.turn = 61
+      stepComputerTasks(w, 2)
+      const tasks = w.ai.tasks.filter(t => t.flags & 1)
+      assert.equal(tasks.length, Number(count >= 5), `${kind}/${count}`)
+      if (tasks.length) assert.deepEqual([tasks[0].type, tasks[0].target], [6, school.id])
     }
-    const school = addBuilding(w, 'yellow', kind, { x: 0, z: 0 }, true)
-    w.ai.states = 64
-    w.ai.attributes[6] = kind === 'temple' ? 100 : 0
-    w.ai.attributes[7] = kind === 'camp' ? 100 : 0
-    for (const task of w.ai.tasks) task.flags = 0
-    w.turn = 61
-    stepComputerTasks(w, 2)
-    const tasks = w.ai.tasks.filter(t => t.flags & 1)
-    assert.equal(tasks.length, Number(count >= 5), `${kind}/${count}`)
-    if (tasks.length) assert.deepEqual([tasks[0].type, tasks[0].target], [6, school.id])
-  }
 })
 
 test('M7 original roster builds its settlement and retains producer history on reload', () => {
@@ -74,7 +75,10 @@ test('M7 original roster builds its settlement and retains producer history on r
   assert.equal(plans.filter(b => b.kind === 'hut').length, 3)
   assert.equal(w.ai.producers.find(p => p.id === 1).attempts, 5)
   const replay = migrateCheckpoint(structuredClone(w))
-  for (let i = 0; i < 64; i++) { tick(w, 1 / 12); tick(replay, 1 / 12) }
+  for (let i = 0; i < 64; i++) {
+    tick(w, 1 / 12)
+    tick(replay, 1 / 12)
+  }
   assert.deepEqual(replay, w)
 })
 
