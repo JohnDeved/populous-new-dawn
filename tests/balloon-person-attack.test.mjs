@@ -109,6 +109,7 @@ test('ordinary queued person target moves its transport and preserves handoff th
     }
   let departure = 0,
     firstOpponent = 0,
+    firstFight = 0,
     firstOpponentTeam = null,
     death = 0,
     targetDeath = 0
@@ -125,24 +126,28 @@ test('ordinary queued person target moves its transport and preserves handoff th
       assert.equal(world.buildingOrders.records[orderId].references, 1)
     }
     if (shaman.fight && !firstOpponent) {
+      firstFight = world.turn
       firstOpponent = shaman.fight.opponent
       firstOpponentTeam = world.units.find(u => u.id === firstOpponent).team
     }
     if (shaman.hp <= 0 && !death) death = world.turn
     if (target.hp <= 0 && !targetDeath) targetDeath = world.turn
   }
-  assert.equal(departure, 4272)
+  assert.equal(departure, 4268)
+  assert.equal(firstFight, 4269)
   assert.equal(firstOpponent, 17)
   assert.equal(firstOpponentTeam, 'green')
-  assert.equal(death, 0)
-  assert.equal(targetDeath, 4505)
-  assert.equal(shaman.hp, 96.35)
-  assert.ok(world.units.includes(shaman))
-  assert.equal(world.objectCells.objects.get(shaman.id), shaman.native)
+  // Restored Red staffing changes the campaign timeline. The intended target
+  // is first encountered; later reinforcement combat kills the Shaman and
+  // retires 28 while the intended target remains alive.
+  assert.equal(death, 4301)
+  assert.equal(targetDeath, 0)
+  assert.equal(shaman.hp, 0)
+  assert.equal(world.units.includes(shaman), false)
+  assert.equal(world.objectCells.objects.has(shaman.id), false)
   assert.equal(world.buildingOrders.records[orderId].references, 0)
-  assert.equal(target.hp, 0)
-  assert.equal(world.units.includes(target), false)
-  assert.equal(world.objectCells.objects.has(target.id), false)
+  assert.equal(target.hp, 55)
+  assert.equal(world.units.includes(target), true)
   assert.deepEqual(balloon.passengers, [])
   assert.equal(balloon.passengerCount, 0)
 })

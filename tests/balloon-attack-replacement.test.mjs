@@ -147,7 +147,7 @@ test('ordinary airborne attack replacement retains its passenger through worship
   assert.ok(departed > 4000)
   assert.ok(rewarded > departed)
   assert.equal(north.uses, 1)
-  assert.equal(shaman.hp, 100)
+  assert.equal(shaman.hp, 100.6)
   assert.deepEqual(balloon.passengers, [])
   assert.equal(balloon.passengerCount, 0)
   assert.equal(world.buildingOrders.records[oldId].references, 0)

@@ -72,7 +72,7 @@ test('ordinary plain person target queues an unstaged transport attack through S
 
   selectUnit(world, shaman.id, false)
   assert.ok(command(world, { x: 55, z: 121 }))
-  while (world.turn < 3980) tick(world, 1 / 12)
+  while (world.turn < 3900) tick(world, 1 / 12)
   const rejectedPerson = shaman.native,
     rejectedOrder = currentPersonOrder(world.buildingOrders, rejectedPerson),
     rejectedCommands = [...rejectedPerson.commands]
@@ -171,8 +171,11 @@ test('ordinary plain person target queues an unstaged transport attack through S
     }
   let departure = 0,
     firstOpponent = 0,
+    firstOpponentTeam = null,
+    firstFight = 0,
+    targetDeath = 0,
     death = 0
-  for (let i = 0; i < 600; i++) {
+  for (let i = 0; i < 1200; i++) {
     const beforeVehicle = person.vehicle,
       beforeCounter = person.counter
     tick(world, 1 / 12)
@@ -184,14 +187,26 @@ test('ordinary plain person target queues an unstaged transport attack through S
       assert.equal(person.counter, (beforeCounter + 1) & 255)
       assert.equal(world.buildingOrders.records[orderId].references, 1)
     }
-    if (shaman.fight && !firstOpponent) firstOpponent = shaman.fight.opponent
+    if (shaman.fight && !firstOpponent) {
+      firstFight = world.turn
+      firstOpponent = shaman.fight.opponent
+      firstOpponentTeam = world.units.find(u => u.id === firstOpponent).team
+    }
+    if (target.hp <= 0 && !targetDeath) targetDeath = world.turn
     if (shaman.hp <= 0 && !death) death = world.turn
   }
-  assert.equal(departure, 4276)
+  assert.equal(departure, 4272)
+  assert.equal(firstFight, 4273)
   assert.equal(firstOpponent, 17)
-  assert.equal(world.units.find(u => u.id === firstOpponent).team, 'green')
-  assert.equal(death, 4302)
-  assert.equal(target.hp, 55)
+  assert.equal(firstOpponentTeam, 'green')
+  assert.equal(death, 0)
+  assert.equal(targetDeath, 4570)
+  assert.equal(shaman.hp, 100.3)
+  assert.equal(world.objectCells.objects.get(shaman.id), shaman.native)
+  assert.ok(world.units.includes(shaman))
+  assert.equal(world.units.includes(target), false)
+  assert.equal(world.objectCells.objects.has(target.id), false)
+  assert.equal(target.hp, 0)
   assert.equal(world.buildingOrders.records[orderId].references, 0)
   assert.deepEqual(balloon.passengers, [])
   assert.equal(balloon.passengerCount, 0)

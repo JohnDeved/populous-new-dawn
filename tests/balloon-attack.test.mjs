@@ -129,8 +129,8 @@ test('ordinary airborne tower command reaches departure and authored melee throu
       assert.ok(Math.hypot(unit.x - 55, unit.z - 121) < 1)
     }
     if (shaman.hp <= 0 && !death) death = world.turn
-    if (world.turn === 4255) assert.equal(shaman.native.vehicle, balloon.id)
-    if (world.turn === 4256) {
+    if (world.turn === 4251) assert.equal(shaman.native.vehicle, balloon.id)
+    if (world.turn === 4252) {
       assert.deepEqual(
         [shaman.native.substate, shaman.native.workTarget, shaman.native.vehicle],
         [3, 105, 0]
@@ -138,16 +138,17 @@ test('ordinary airborne tower command reaches departure and authored melee throu
       assert.deepEqual(balloon.passengers, [])
       assert.equal(balloon.passengerCount, 0)
     }
-    if (world.turn === 4262) {
+    if (world.turn === 4260) {
       assert.equal(shaman.fight.opponent, 11)
       assert.equal(world.units.find(u => u.id === 11).kind, 'warrior')
       assert.equal(shaman.fight.motion.vehicle, 0)
     }
   }
   assert.equal(target.hp, 260)
-  // Source-backed Swarm pursuit changes the later interception: the real Warrior
-  // kills this Shaman. Preserve target selection and require actual death cleanup.
-  assert.equal(death, 4297)
+  // Restored staffing changes the interception. Failed ground recovery now
+  // hands the retained person to existing physics after combat; death retires
+  // the attack. The selected Tower is not destroyed by this bounded route.
+  assert.equal(death, 4315)
   assert.equal(shaman.hp, 0)
   assert.equal(order.references, 0)
   assert.deepEqual(balloon.passengers, [])
