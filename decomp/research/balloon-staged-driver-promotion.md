@@ -123,3 +123,29 @@ reference. Both remain alive/currently registered through the public replay.
 This vacant-seat fill is distinct from the historical eligible-queue seat swap.
 Separate clones prevent one continuation from mutating another's saved arrays;
 the initial contaminated fixture failure remains recorded.
+
+## Produced owners and explicit departure maintenance
+
+The first full gate exposed a production seam before movement: the Balloon Hut
+reconstructed its builder's live person and boarded it before publishing that
+replacement to object cells. The strict pre-person driver selector therefore
+removed the physical seat against the previous registry owner. The producer now
+registers the new Balloon owner before boarding; selector identity validation is
+unchanged. The existing Boat producer and additional released inhabitants are
+outside this correction. Supplied completed-Hut/timer controls retain the original
+failure and verify the produced owner's seat/count/registry and checkpoint.
+
+The original M22 northern-mana route requires actual departure for subsequent
+spellcasting and reuse. Its two departure inputs now explicitly use public Shift,
+wait for real supported flight settling, and retain the reward and no-replay
+assertions. Existing idle settling can clear both native and registry projection;
+tests keep the released flight owner for vehicle/reference assertions while
+checking the living supported roster unit and absence of stale projections.
+The repeated M13 production/reuse fixture also requires a genuinely ready
+boarding site. Its old disembark-only search admitted category1 endpoints where
+the empty craft correctly rejected reboarding. Those direct-Shift and centered
+weak-endpoint failures are retained. The supplied search now checks actual
+readiness in the goal's3x3 arrival neighborhood, waits for observed occupied rest,
+and uses public Shift for departure. Terrain and runtime landing rules are not
+changed. Immediate produced-owner publication and120-tick raw public checkpoint
+continuation are tested separately from the subsequent reuse route.

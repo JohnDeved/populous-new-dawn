@@ -134,7 +134,9 @@ test('same-vehicle boarding retains its acquired passenger through repeated inpu
   assert.equal(boarding.references, 0)
   assert.equal(currentPersonOrder(world.buildingOrders, person), undefined)
   assert.equal(person.state, 30)
-  assert.equal(vehicleReady(world.land, balloon), false)
+  // The occupied zero-speed controller now centers and restores readiness.
+  assert.deepEqual([balloon.x, balloon.y, balloon.speed], [18176, 31488, 0])
+  assert.equal(vehicleReady(world.land, balloon), true)
   for (const modifiers of [{}, { shiftKey: true }, { altKey: true }, { ctrlKey: true }]) {
     selectUnit(world, shaman.id, false)
     assert.ok(command(world, { ...browserPosition(balloon), id: balloon.id }, modifiers))
