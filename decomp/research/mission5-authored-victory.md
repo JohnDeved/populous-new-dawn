@@ -9,8 +9,8 @@ The executable is inspected only; no original execution is part of this change.
 The current campaign genuinely earns Convert, occupies Tower96, converts Brave339,
 earns and boards the Boat, raises land through heads109/94, then earns Angel5342
 from head95 at3844. Its ordinary strike removes Red Shaman116 at4145 with native
-life and browser HP zero. A Blue Angel remains, but29 Red followers survive and
-the game stays playing through4305. The retained baseline shows all five relevant
+life and browser HP zero while30 Red followers remain. A Blue Angel remains;
+by4305,29 Red followers survive and the game is still playing. The retained baseline shows all five relevant
 script opportunities leave variable13 at0.
 
 ## Source branch
