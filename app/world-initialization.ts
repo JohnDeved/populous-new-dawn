@@ -1,3 +1,4 @@
+import { assignVehicleAllocationCounter } from './vehicle-allocation.ts'
 import { initializeAuthoredBoat } from './vehicle-initialization.ts'
 import { initializeLevelStart } from './level-start-runtime.ts'
 import type { Point, Shrine, Vehicle, World } from './world-types.ts'
@@ -173,6 +174,7 @@ export function createWorld(missionNumber = 1): World {
         life: rules.vehicleLife[o.model],
         destructionState: 0,
       }
+      assignVehicleAllocationCounter(w, vehicle)
       if (o.model === 1 || o.model === 2) {
         // Earlier authored footprints must exist before the shore predicate.
         syncLandscapeObjects(w)

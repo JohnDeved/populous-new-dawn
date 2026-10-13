@@ -30,6 +30,7 @@ test('an occupied Boat House produces again after its first craft leaves', async
     worker = world.units.find(u => u.id === 76),
     person = worker.entry?.person ?? worker.native,
     oldOrder = currentPersonOrder(world.buildingOrders, person)
+  assert.deepEqual([first.counter, first.life, world.vehicleAllocationSeed], [0, 5000, 1])
   assert.equal(worker.inside, house.id)
   assert.equal(worker.hp, 50)
   assert.deepEqual(first.passengers, [71])
@@ -55,7 +56,11 @@ test('an occupied Boat House produces again after its first craft leaves', async
       maxClearance,
       Math.hypot(((first.x - launch.x) << 16) >> 16, ((first.y - launch.y) << 16) >> 16)
     )
-    if (world.vehicles.length === 2 && secondTurn === null) secondTurn = world.turn
+    if (world.vehicles.length === 2 && secondTurn === null) {
+      secondTurn = world.turn
+      const produced = world.vehicles.find(vehicle => vehicle.id !== first.id)
+      assert.deepEqual([produced.counter, produced.life, world.vehicleAllocationSeed], [1, 5000, 2])
+    }
   }
   assert.ok(maxClearance > 2000)
   assert.ok(secondTurn, 'the remaining actual worker must produce the next Boat')

@@ -159,9 +159,13 @@ test('Mission 13 Balloon Hut repeatedly produces occupied airborne transport', a
       brave.inside = hut.id
       brave.work = hut.id
       hut.timer = 999
+      const allocationSeed = world.vehicleAllocationSeed
       tick(world, 1 / 12)
       const produced = world.vehicles.find(vehicle => vehicle.id === brave.native.vehicle)
       assert.ok(produced)
+      assert.equal(produced.counter, allocationSeed, 'new workshop craft skips its ordinary visit this pass')
+      assert.equal(produced.life, 5000)
+      assert.equal(world.vehicleAllocationSeed, (allocationSeed + 1) & 255)
       assert.deepEqual(produced.passengers, [brave.id])
       assert.equal(produced.passengerCount, 1)
       assert.equal(world.objectCells.objects.get(brave.id), brave.native)
@@ -180,6 +184,7 @@ test('Mission 13 Balloon Hut repeatedly produces occupied airborne transport', a
   const loaded = store.getWorld(),
     producedOwners = uninterrupted.vehicles.map(vehicle => ({
       vehicle: vehicle.id,
+      counter: vehicle.counter,
       id: vehicle.passengers[0],
       owner: uninterrupted.units.find(unit => unit.id === vehicle.passengers[0]).native,
     }))
@@ -191,6 +196,8 @@ test('Mission 13 Balloon Hut repeatedly produces occupied airborne transport', a
     for (const entry of producedOwners) {
       const vehicle = uninterrupted.vehicles.find(vehicle => vehicle.id === entry.vehicle),
         unit = uninterrupted.units.find(unit => unit.id === entry.id)
+      assert.equal(vehicle.counter, (entry.counter + turn + 1) & 255)
+      assert.equal(vehicle.life, 5000)
       assert.deepEqual(vehicle.passengers, [entry.id])
       assert.equal(vehicle.passengerCount, 1)
       assert.equal(unit.native, entry.owner)
