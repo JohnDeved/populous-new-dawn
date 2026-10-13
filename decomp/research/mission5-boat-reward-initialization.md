@@ -27,7 +27,11 @@ reward would therefore be incorrect; supply the actual then-registered set.
 
 A single preparation plus active=true is therefore insufficient. Initial and
 reward-time input contexts, allocation identity and template-copy field ownership
-need distinct tests. No exact M5 reward endpoint is claimed by the cold M10 proof.
+need distinct tests. No exact M5 reward endpoint is claimed by the cold M10 proof. Because the
+current reward code still activates this stored object, initial preparation also
+changes its eventual visible position and movement speed. That downstream effect
+is acknowledged, not accepted as a faithful reward lifecycle. The initial-only
+test checks that preparation leaves the source inactive and linked to its head.
 
 ## Provenance
 

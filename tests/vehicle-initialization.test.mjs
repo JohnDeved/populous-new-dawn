@@ -189,3 +189,16 @@ test('ordinary authored Warriors board, retain seats through store load and depa
   assert.ok(aboard())
   assert.equal(boat.passengerCount, 4)
 })
+
+test('M5 linked Boat is prepared while still inactive and attached to its reward head', () => {
+  const w = createWorld(5),
+    boat = w.vehicles[0],
+    head = w.shrines.find(s => s.kind === 'boat')
+  assert.equal(boat.active, false)
+  assert.equal(head.rewardVehicle, boat.id)
+  assert.notDeepEqual([boat.x, boat.y], [-7084, 12197])
+  assert.equal(boat.physics, 12)
+  assert.equal(boat.speed, 0)
+  assert.equal(vehicleReady(w.land, boat), true)
+  // No reward is triggered here: fresh reward allocation/copy is a separate owner.
+})
