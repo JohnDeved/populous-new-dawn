@@ -28,7 +28,7 @@ import {
 } from './computer.ts'
 import { release } from './world-tasks.ts'
 import { isShaman, SPELLS, TURNS_PER_SECOND } from './world-rules.ts'
-import { cellsNear, random } from './native-math.ts'
+import { cellsNear, random, short } from './native-math.ts'
 import { sound } from './world-effects.ts'
 import { flybyCommand } from './flyby.ts'
 import { addMessage, messageStringId } from './messages.ts'
@@ -149,6 +149,7 @@ export function campaignCommand(
       1180: 0,
       1187: 0,
       1190: 3,
+      1192: 2,
       1197: 0,
       1200: 1,
       1201: 0,
@@ -612,6 +613,22 @@ export function campaignCommand(
     return
   }
 
+  if (opcode === 1192) {
+    const tribe = args[0] >= 1118 && args[0] <= 1121 ? args[0] - 1118 : read(args[0])
+    if (!Number.isInteger(tribe) || tribe < 0 || tribe > 3)
+      throw new RangeError('Invalid Angel-count tribe')
+    const team = campaignTeam(w, tribe)
+    // 0x490e40 reads the signed model8 counter rebuilt by 0x4ecac0. The browser
+    // represents initialized Angel payloads as owned effects, including their
+    // dying phase until actual end-of-pass retirement. Stock/presentation is not
+    // a payload, and no HP or substate gate belongs to this count.
+    writeVariable(
+      args[1],
+      short(w.effects.filter(effect => effect.angel && effect.team === team).length)
+    )
+    return
+  }
+
   if (opcode === 1169) {
     w.castingTribes[w.manaWorld.playerTribe].flags |= 0x20000
     return
@@ -828,7 +845,8 @@ export function campaignRules(w: World) {
                     ? [
                         12,
                         1003,
-                        ...script.codes.slice(529, 546),
+                        // Complete original Angel-present/Shaman-absent delayed victory latch.
+                        ...script.codes.slice(529, 599),
                         ...script.codes.slice(599, 706),
                         1004,
                         ...script.codes.slice(707, 744),
