@@ -424,7 +424,7 @@ function issueLiveOrders(
       releasePreacherVictims(w, p, p.commandAux || 3)
   for (const { unit: u, person, retained } of bindings) {
     const p = person!
-    if (!accepted && !playerReplacement && preachers.includes(p)) continue
+    if (!accepted && !playerReplacement && !restartDirectTarget && preachers.includes(p)) continue
     // 0x43b670 only replaces and attaches command 28; keep direct-target motion intact.
     if (command.model === 28 && !restartDirectTarget) {
       if (!retained) adoptLiveOrders(w, u, p)
