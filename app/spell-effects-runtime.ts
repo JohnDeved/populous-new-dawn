@@ -386,19 +386,28 @@ export function invisibilityFollowers(w: World, point: Point, team: Team) {
     units = new Map(w.units.map(u => [u.id, u])),
     candidates: { u: Unit; p: NativePoint; scan: number }[] = []
   // 00515e30 collects linked-cell members and reverses that discovery chain.
-  // Keep the existing Invisibility predicate pending its separate native export.
+  // 0050d890 admits registered class-1 occupants, including Towers. Preserve the existing
+  // ground predicate while requiring the exact live owner for this added branch.
   for (const dy of [-2, 0, 2])
     for (const dx of [-2, 0, 2])
       for (const p of objectsInCell(w.objectCells, ((x + dx) & 254) | (((y + dy) & 254) << 8))) {
-        const u = units.get(p.id)
+        const u = units.get(p.id),
+          owner = u && unitAnimationSource(u)
         if (
           u &&
           u.team === team &&
           u.kind !== 'shaman' &&
           u.hp > 0 &&
-          u.inside === null &&
+          (u.inside === null ||
+            (owner &&
+              p === owner &&
+              owner.id === u.id &&
+              owner.class === 1 &&
+              !(owner.flags2 & 1) &&
+              owner.tribe === tribeForTeam(team) &&
+              owner.model !== 7)) &&
           !u.invisibility &&
-          !((unitAnimationSource(u)?.flags4 ?? 0) & 0x1000)
+          !((owner?.flags4 ?? 0) & 0x1000)
         )
           candidates.push({ u, p, scan: candidates.length })
       }

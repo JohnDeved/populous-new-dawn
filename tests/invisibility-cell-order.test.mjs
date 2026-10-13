@@ -105,7 +105,7 @@ test('unregistered placeholders are absent from the native scan', () => {
   assert.equal(placeholder.invisibility, undefined)
 })
 
-test('the existing browser predicate remains separate from the unavailable native predicate', () => {
+test('existing ground ghost and hypnosis eligibility remains unchanged', () => {
   const w = field(),
     existing = person(w, 0x2100, 0x2100),
     enemy = person(w, 0x2100, 0x2100, 'red'),

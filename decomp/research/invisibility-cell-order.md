@@ -61,3 +61,10 @@ Ghidra 12.1.3. These are decompiler outputs, not original source code. Fresh nat
 execution and normal-input rendered acquisition/cast remain unrun. CPU fixtures
 supply populations/positions and some list transitions. This does not establish
 complete Invisibility eligibility, native save equivalence or full spell parity.
+
+## Registered-occupant continuation
+
+The later static predicate slice and ordinary Tower omission are documented in
+`invisibility-registered-occupants.md`. That bounded extension admits exact linked
+inside person owners without changing the selector order/cap or the retained
+ground predicate behavior described above.
