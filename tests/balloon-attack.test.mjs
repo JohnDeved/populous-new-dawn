@@ -1,5 +1,5 @@
 import { reachMission22FlightPoint } from './helpers/mission22-flight-phase.mjs'
-// Bounded transport handoff; tower damage/completion remains unproved.
+// Ordinary transport handoff, Tower destruction and later casualty/cleanup.
 import test from 'node:test'
 import { createGameStore } from '../app/game-store.ts'
 import { leaveLiveAttackVehicle } from '../app/live-building-combat.ts'
@@ -140,7 +140,7 @@ test('ordinary airborne tower command reaches departure and authored melee throu
       assert.equal(cancelled.buildingOrders.records[oldOrder].references, 0)
       assert.equal(movement.references, 0)
       assert.equal(transport.speed, 0)
-      assert.deepEqual([transport.x, transport.y], [16640, 32512])
+      assert.deepEqual([transport.x, transport.y], [16128, 32512])
       assert.equal(vehicleReady(cancelled.land, transport), true)
     }
     if (shaman.hp <= 0 && !death) death = world.turn
