@@ -13,7 +13,12 @@ import { restingCellCollision, terrainSupportsPerson } from './person-collision.
 import { randomPersonSpeed } from './person-state.ts'
 import { movePosition, nativeAngle } from './native-math.ts'
 import { attachPersonRoute, releasePersonRoute, routeVehicleAvailable } from './person-routes.ts'
-import { boardingVehicle, vehicleReady } from './vehicle-routing.ts'
+import {
+  boardingVehicle,
+  findVehicleLanding,
+  vehicleCanDisembark,
+  vehicleReady,
+} from './vehicle-routing.ts'
 import { moveObjectInCells } from './object-cells.ts'
 import { markPersonSelected } from './person-selection.ts'
 import rules from './original-rules.json' with { type: 'json' }
@@ -298,6 +303,68 @@ export function selectLiveBalloonDrivers(w: World) {
   }
 }
 
+// Bounded 0x4641d0 zero-desired-speed tail. Positive speed projects the
+// browser's moving state; untouched initial/resting speed -1 is not native state4.
+// Active movement still owns its retained fixed-vector/height/wait adapter.
+function stopUnvisitedBalloon(w: World, v: Vehicle) {
+  const visited = vehicleMovementPass.get(w)
+  if (
+    !visited ||
+    visited.has(v.id) ||
+    !(rules.vehicleRestFlags[v.model] & 1) ||
+    short(v.speed) <= 0
+  )
+    return
+  const candidate = w.units.find(u => u.id === v.passengers[0])?.native,
+    driver =
+      candidate?.class === 1 &&
+      candidate.id === v.passengers[0] &&
+      !(candidate.flags2 & 1) &&
+      w.objectCells.objects.get(candidate.id) === candidate
+        ? candidate
+        : undefined,
+    land = {
+      flags: w.land.flags,
+      categories: w.land.categories,
+      cellObjects: (cell: number) => liveVehicleCellObjects(w, cell),
+    }
+  // Ownerless moving/rest-state transitions remain in the existing adapter.
+  if (!driver || short(driver.speed)) return
+  visited.add(v.id)
+  if (short(v.speed) > 1) {
+    v.speed = short(Math.trunc((short(v.speed) * 22) / 32))
+    if (v.speed < 6) v.speed = 1
+    if (v.speed > 1) {
+      // Retained radians heading projects native travel heading; no new turn state.
+      const angle = (1024 - Math.round((v.heading * 1024) / Math.PI)) & 2047
+      movePosition(v, angle, v.speed)
+    }
+    v.h = terrainPointHeight(w.land, v) + 560
+    return
+  }
+  const index = ((v.y & 65535) >> 9) * 128 + ((v.x & 65535) >> 9)
+  if (
+    (v.x & 511) === 256 &&
+    (v.y & 511) === 256 &&
+    vehicleCanDisembark(land, v, v) &&
+    (v.passengerCount || rules.terrainCategoryFlags[w.land.categories[index] & 15] & 61)
+  ) {
+    v.speed = 0
+    v.h = terrainPointHeight(w.land, v) + 560
+    v.navigationFlags &= ~0x10000
+    return
+  }
+  // 0x466fc0 centers the returned point even when the bounded search fails.
+  const { point } = findVehicleLanding(land, w.indexedSearch, v, v),
+    target = { x: (point.x & 0xfe00) + 256, y: (point.y & 0xfe00) + 256 }
+  if ((v.x & 65535) === target.x && (v.y & 65535) === target.y) return
+  v.navigationFlags |= 0x8000
+  if (Math.abs(short(v.x) - short(target.x)) < 13 && Math.abs(short(v.y) - short(target.y)) < 13) {
+    v.x = target.x
+    v.y = target.y
+  } else movePosition(v, nativeAngle(short(target.x - v.x), -short(target.y - v.y)), 12)
+}
+
 export function stepLiveVehicles(w: World) {
   for (const v of w.vehicles) {
     if (v.destructionState === 5) {
@@ -315,6 +382,7 @@ export function stepLiveVehicles(w: World) {
       if (v.h > 1023) v.destructionState = 0
       continue
     }
+    if (v.active) stopUnvisitedBalloon(w, v)
     // 0x463cb0 deliberately leaves exact zero untouched and restores occupied positive life.
     if (!v.active || !v.life) continue
     v.life = short(v.life - 1)
