@@ -39,3 +39,13 @@ impact pair targeting Shaman 89; the first hit at browser turn 1355 reduces life
 2000 to 1500. The existing health updater adds 32 every eligible eighth turn
 while below maximum, without clamping the final increment, reaching life 2012
 (HP100.6) at1480. This producer change does not modify damage or healing.
+
+The changed campaign also exposes a previously ignored failed-ground-recovery
+branch after the later Tower attack's melee encounter. That prerequisite is
+implemented and reviewed separately; this branch composes it rather than hiding
+a movement correction in the script producer. The composed ordinary trace
+selects Tower105, enters the real encounter, leaves the former stalled position
+through the existing physics owner, then dies and releases the attack reference.
+It does not destroy the selected Tower. Grounded and airborne person attacks and
+worship have separately measured encounter/admission outcomes; exact input
+sequences and full checkpoint/ownership assertions are retained in their tests.
