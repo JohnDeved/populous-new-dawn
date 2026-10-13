@@ -168,6 +168,8 @@ test('Mission 22 Shaman can steal, checkpoint and sail the authored enemy Boat',
     boat.id,
   ])
 
+  assert.deepEqual([world.turn, shaman.hp], [1390, 81.4])
+
   world = migrateCheckpoint(structuredClone(world))
   shaman = world.units.find(unit => unit.id === shaman.id)
   boat = world.vehicles.find(vehicle => vehicle.id === boat.id)
@@ -200,12 +202,16 @@ test('Mission 22 Shaman can steal, checkpoint and sail the authored enemy Boat',
       )
       .sort((a, b) => a.distance - b.distance)
       .find(({ point }) => browserPosition(point).x < 20)?.point
-  assert.ok(landing)
+  assert.deepEqual(landing, { x: 6912, y: 11520 })
   world.selected = [shaman.id]
   assert.ok(command(world, browserPosition(landing)))
   stepUntil(world, () => boat.passengerCount === 0, 2_000)
   assert.equal(shaman.native.vehicle, 0)
-  assert.equal(shaman.hp, 100.6)
+  // The prepared physics12 Boat reaches this same shore at1447. The Shaman
+  // boards at1390 with81.4HP and heals seven times before arrival; the earlier
+  // physics1 voyage allowed five additional healing events before1585.
+  assert.equal(world.turn, 1447)
+  assert.equal(shaman.hp, 92.6)
   assert.equal(boat.team, 'blue')
 })
 

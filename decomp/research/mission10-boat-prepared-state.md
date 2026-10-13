@@ -239,3 +239,32 @@ four seats by turn111. A plain water command moved the Boat from9586/6002 to
 9696/5993 at turn112 with all four retained. No terrain painting, entity injection,
 position rewrite, direct boarding call or readiness override is used. This is
 Node execution of browser game source, not a rendered mouse-input proof.
+
+### Authored-Boat consequences beyond Mission 10
+
+The constructor's physics12 selects speed110 in the existing movement adapter,
+where the previous physics1 selected32. This increment therefore changes actual
+Boat travel, not only boarding readiness. The shipped authored-Boat inventory is
+Mission5/index100, Mission10/index109 and Mission22/index132; Mission15 has none.
+The initial Mission5 template remains inactive and linked. Its prepared fields
+also affect later reward copying, whose separate allocation/processing contract
+is not implemented by this increment.
+
+The unchanged Mission22 theft/checkpoint/sail route provides a bounded health
+explanation. Both old and prepared-Boat runs take the same100→75 damage at1355,
+board at1390 with81.4HP and choose native landing6912/11520. The prepared Boat
+arrives1447 with92.6HP; the former Boat arrives1585 with100.6HP. The exact health
+trace differs only by five later1.6-point regeneration events before the former
+arrival. It is not additional incoming damage or a changed destination.
+
+Earlier Boat travel also advances ordinary Balloon acquisition from2953 to2206.
+Moving-input transport regressions must select their actual model3 owner, speed,
+reference and geometry phase rather than reuse absolute3900/3980/4000 campaign
+turns. The shared test helper reaches measured flight points using ordinary
+simulation with a finite bound and asserts ownership, occupancy, readiness and
+exit predicate. Separate idle input remains a required scenario: qualification
+exposed the generic player-model28 startup omission, repaired in the preceding
+transport increment rather than concealed by moving-phase test maintenance.
+
+All observations here are game-source CPU evidence. Original executable execution
+and rendered gameplay acceptance are not claimed.
