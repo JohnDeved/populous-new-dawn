@@ -100,14 +100,14 @@ test('Mission 22 Balloon worship lands, rewards once and continues through publi
   assert.deepEqual(person.commands, commands)
   assert.equal(currentPersonOrder(rejected.buildingOrders, person).model, 3)
   // With this exact repeated public input sequence, restored staffing changes
-  // the boundary: attempts3900..3986 retain travel, and3987 admits worship.
+  // the boundary: attempts3900..4003 retain travel, and4004 admits worship.
   // This is not a universal earliest admission turn for other input histories.
   const retained = shaman.native
-  for (let turn = 3900; turn <= 3987; turn++) {
+  for (let turn = 3900; turn <= 4004; turn++) {
     assert.equal(world.turn, turn)
     assert.ok(command(world, { ...north, id: north.id }))
     assert.equal(shaman.native, retained)
-    if (turn < 3987) {
+    if (turn < 4004) {
       assert.deepEqual(retained.commands, commands)
       assert.equal(currentPersonOrder(world.buildingOrders, retained).model, 3)
       tick(world, 1 / 12)
@@ -130,8 +130,8 @@ test('Mission 22 Balloon worship lands, rewards once and continues through publi
     if (!balloon.passengerCount && !landed) landed = world.turn
     if (north.uses && !rewarded) rewarded = world.turn
   }
-  assert.equal(landed, 4028)
-  assert.equal(rewarded, 4230)
+  assert.equal(landed, 4045)
+  assert.equal(rewarded, 4246)
   assert.equal(north.uses, 1)
   assert.equal(shaman.native.vehicle, 0)
   assert.equal(shaman.hp, 100.6)

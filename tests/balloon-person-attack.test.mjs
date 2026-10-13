@@ -133,14 +133,13 @@ test('ordinary queued person target moves its transport and preserves handoff th
     if (shaman.hp <= 0 && !death) death = world.turn
     if (target.hp <= 0 && !targetDeath) targetDeath = world.turn
   }
-  assert.equal(departure, 4268)
-  assert.equal(firstFight, 4269)
-  assert.equal(firstOpponent, 17)
+  assert.equal(departure, 4280)
+  assert.equal(firstFight, 4290)
+  assert.equal(firstOpponent, 10)
   assert.equal(firstOpponentTeam, 'green')
-  // Restored Red staffing changes the campaign timeline. The intended target
-  // is first encountered; later reinforcement combat kills the Shaman and
-  // retires 28 while the intended target remains alive.
-  assert.equal(death, 4301)
+  // Recurring Red patrols change the timeline. Warrior10 intercepts before the
+  // selected target is reached; combat death retires28 while target17 survives.
+  assert.equal(death, 4344)
   assert.equal(targetDeath, 0)
   assert.equal(shaman.hp, 0)
   assert.equal(world.units.includes(shaman), false)
