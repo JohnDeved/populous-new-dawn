@@ -1053,8 +1053,8 @@ export function stepLiveSwamp(w: World, swamp: Swamp) {
       const p = people.get(target.id)!,
         u = units.get(p.id)!
       // 004ef180→004d4b50 removes occupied ghosts through 00407490 first.
-      if (u.inside !== null) release(w, u)
-      else releaseTasks(w, u)
+      if (u.inside === null) releaseTasks(w, u)
+      else release(w, u)
       const index = w.units.indexOf(u)
       if (index !== -1) w.units.splice(index, 1)
       w.selected = w.selected.filter(id => id !== u.id)
