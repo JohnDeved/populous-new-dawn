@@ -1894,7 +1894,7 @@ test('live blocked followers retain native detour steering and recovery timers',
  assert.equal(p.heading,heading,'normal facing cannot overwrite active recovery steering');
 });
 
-test('live celebrants obey native walk masks and survive the legacy ground-height cutoff', async () => {
+test('live celebrants hand unsupported recovery to physics and supported ground permits movement', async () => {
  const {createLivePerson}=await import('../app/live-people.ts');
  const {default:rules}=await import('../app/original-rules.json',{with:{type:'json'}});
  const w=createWorld(),u=w.units.find(u=>u.team==='blue'&&u.kind==='brave');
@@ -1903,11 +1903,21 @@ test('live celebrants obey native walk masks and survive the legacy ground-heigh
  w.land.categories.fill(rules.terrainCategoryFlags.findIndex(f=>f&1));
  Object.assign(u,{x:7,z:33,inside:null,work:null});u.native=createLivePerson(w,u);
  Object.assign(u.native,{state:41,substate:1,flags2:128,counter:0,heading:512,angle:512,turnAngle:512,speed:20,assignment:0,animationMode:0,commandPhase:100,timer:100});
+ const p=u.native,supported=structuredClone(w),open=supported.units[0];
  w.land.walkMasks[0].fill(0);tick(w,1/12);
  assert.ok(w.units.includes(u)&&u.hp>0,'native support replaces the legacy height death guard');
  assert.deepEqual({x:u.x,z:u.z},{x:7,z:33},'blocked native mask rejects every detour');
+ assert.equal(u.flight,p);assert.equal(p.counter,1);
  w.land.walkMasks[0].fill(255);tick(w,1/12);
- assert.notDeepEqual({x:u.x,z:u.z},{x:7,z:33},'native mask update allows the next grounded step');
+ assert.equal(u.flight,undefined);assert.equal(p.state,10);assert.equal(p.counter,2);
+ assert.equal(u.hp,50);
+ assert.deepEqual({x:u.x,z:u.z},{x:7,z:33},'the next visit settles before another grounded step');
+ // Independent supported-current-cell control, not a forced reset of flight.
+ supported.land.walkMasks[0].fill(255);tick(supported,1/12);
+ assert.ok(supported.units.includes(open)&&open.hp>0);
+ assert.notDeepEqual({x:open.x,z:open.z},{x:7,z:33},'initially supported ground permits motion');
+ assert.equal(open.native.state,41);assert.equal(open.native.counter,1);
+ assert.equal(open.flight,undefined);
 });
 
 
