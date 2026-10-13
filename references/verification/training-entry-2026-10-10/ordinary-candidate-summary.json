@@ -1,0 +1,598 @@
+{
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/training-entry-diagnostic-candidate-20261010",
+    "commit": "bd420fd252182e8e28fdeb03a6577f844a04a746",
+    "tree": "5c68f33001e8b0c87865cfbf0930445189d5f2ed",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "c53a536463384a6aea32e01eb7637c39d59abaa0c2259425dce7a380981e9533"
+  },
+  "checkerSha256": "2cd40f38937ac00eaa02f8b7a2568923586ed051f36412323bd653867de91a63",
+  "turns": [
+    1090,
+    1167
+  ],
+  "rows": 78,
+  "max": {
+    "observedAtMs": 1791662817677,
+    "turn": 1107,
+    "time": 92.25,
+    "paused": false,
+    "target": {
+      "id": 1022,
+      "hp": 260,
+      "progress": 1,
+      "inside": 0,
+      "entering": 5,
+      "entryDelay": 0,
+      "entryTimer": 16,
+      "queueHead": 0,
+      "queueFrom": 0,
+      "occupants": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "people": [
+      {
+        "id": 312,
+        "kind": "brave",
+        "hp": 50,
+        "x": 36.51171875,
+        "z": 99.6640625,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 5,
+          "counter": 83,
+          "speed": 74,
+          "x": 11395,
+          "y": 37974,
+          "goalX": 11520,
+          "goalY": 39296,
+          "flags2": 1107427840,
+          "flags3": 262144,
+          "flags4": 537133314,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 309,
+        "kind": "brave",
+        "hp": 50,
+        "x": 36.48046875,
+        "z": 100.2578125,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 5,
+          "counter": 83,
+          "speed": 74,
+          "x": 11387,
+          "y": 37822,
+          "goalX": 11520,
+          "goalY": 39296,
+          "flags2": 1107431936,
+          "flags3": 262144,
+          "flags4": 537133314,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 519,
+        "kind": "brave",
+        "hp": 50,
+        "x": 36.54296875,
+        "z": 99.61328125,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 5,
+          "counter": 83,
+          "speed": 83,
+          "x": 11403,
+          "y": 37987,
+          "goalX": 11520,
+          "goalY": 39296,
+          "flags2": 1107427840,
+          "flags3": 262144,
+          "flags4": 537133314,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 516,
+        "kind": "brave",
+        "hp": 50,
+        "x": 32.30078125,
+        "z": 84.16796875,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 1,
+          "counter": 83,
+          "speed": 77,
+          "x": 10317,
+          "y": 41941,
+          "goalX": 11392,
+          "goalY": 37824,
+          "flags2": 1107427840,
+          "flags3": 262144,
+          "flags4": 537133312,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 513,
+        "kind": "brave",
+        "hp": 50,
+        "x": 36.5859375,
+        "z": 99.66796875,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 5,
+          "counter": 83,
+          "speed": 80,
+          "x": 11414,
+          "y": 37973,
+          "goalX": 11520,
+          "goalY": 39296,
+          "flags2": 1107427840,
+          "flags3": 262144,
+          "flags4": 537133314,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 510,
+        "kind": "brave",
+        "hp": 50,
+        "x": 34.1875,
+        "z": 86.390625,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 1,
+          "counter": 83,
+          "speed": 71,
+          "x": 10800,
+          "y": 41372,
+          "goalX": 11392,
+          "goalY": 37824,
+          "flags2": 1107427840,
+          "flags3": 262144,
+          "flags4": 537133312,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 300,
+        "kind": "brave",
+        "hp": 50,
+        "x": 36.62890625,
+        "z": 99.13671875,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 5,
+          "counter": 83,
+          "speed": 74,
+          "x": 11425,
+          "y": 38109,
+          "goalX": 11520,
+          "goalY": 39296,
+          "flags2": 1107427840,
+          "flags3": 262144,
+          "flags4": 537133314,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 507,
+        "kind": "brave",
+        "hp": 50,
+        "x": 35.67578125,
+        "z": 87.00390625,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 1,
+          "counter": 83,
+          "speed": 82,
+          "x": 11181,
+          "y": 41215,
+          "goalX": 11392,
+          "goalY": 37824,
+          "flags2": 1107427840,
+          "flags3": 262144,
+          "flags4": 537133312,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 306,
+        "kind": "brave",
+        "hp": 50,
+        "x": 35.58203125,
+        "z": 81.546875,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 1,
+          "counter": 83,
+          "speed": 79,
+          "x": 11157,
+          "y": 42612,
+          "goalX": 11392,
+          "goalY": 37824,
+          "flags2": 1107427840,
+          "flags3": 262144,
+          "flags4": 537133312,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 589,
+        "kind": "brave",
+        "hp": 50,
+        "x": 32.671875,
+        "z": 86.80078125,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 1,
+          "counter": 83,
+          "speed": 81,
+          "x": 10412,
+          "y": 41267,
+          "goalX": 11392,
+          "goalY": 37824,
+          "flags2": 1107427840,
+          "flags3": 262144,
+          "flags4": 537133312,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      }
+    ]
+  },
+  "admissions": [
+    {
+      "turn": 1122,
+      "ids": [
+        519,
+        513,
+        300
+      ],
+      "counters": [
+        98,
+        98,
+        98
+      ]
+    },
+    {
+      "turn": 1124,
+      "ids": [
+        312
+      ],
+      "counters": [
+        100
+      ]
+    },
+    {
+      "turn": 1126,
+      "ids": [
+        309
+      ],
+      "counters": [
+        102
+      ]
+    }
+  ],
+  "terminal": {
+    "residents": [
+      312,
+      309,
+      519,
+      513,
+      300
+    ],
+    "queue": [
+      507,
+      589,
+      510,
+      516,
+      306
+    ],
+    "complete": true
+  },
+  "frames": [
+    {
+      "index": 0,
+      "file": "entry-frame-000.png",
+      "frameTimestampMs": 1791662816762.793,
+      "nearestObservedTurn": 1095,
+      "observedMinusFrameMs": 68.20703125,
+      "nearestOutsideSubstate5": 0,
+      "nearestInside": 0,
+      "warning": "Approximate nearest wall-time correlation, not exact same-frame state proof"
+    },
+    {
+      "index": 1,
+      "file": "entry-frame-001.png",
+      "frameTimestampMs": 1791662817186.904,
+      "nearestObservedTurn": 1101,
+      "observedMinusFrameMs": -11.904052734375,
+      "nearestOutsideSubstate5": 0,
+      "nearestInside": 0,
+      "warning": "Approximate nearest wall-time correlation, not exact same-frame state proof"
+    },
+    {
+      "index": 2,
+      "file": "entry-frame-002.png",
+      "frameTimestampMs": 1791662817553.93,
+      "nearestObservedTurn": 1105,
+      "observedMinusFrameMs": -16.929931640625,
+      "nearestOutsideSubstate5": 4,
+      "nearestInside": 0,
+      "warning": "Approximate nearest wall-time correlation, not exact same-frame state proof"
+    },
+    {
+      "index": 3,
+      "file": "entry-frame-003.png",
+      "frameTimestampMs": 1791662817938.3591,
+      "nearestObservedTurn": 1110,
+      "observedMinusFrameMs": -15.359130859375,
+      "nearestOutsideSubstate5": 5,
+      "nearestInside": 0,
+      "warning": "Approximate nearest wall-time correlation, not exact same-frame state proof"
+    },
+    {
+      "index": 4,
+      "file": "entry-frame-004.png",
+      "frameTimestampMs": 1791662818305.381,
+      "nearestObservedTurn": 1114,
+      "observedMinusFrameMs": -16.381103515625,
+      "nearestOutsideSubstate5": 5,
+      "nearestInside": 0,
+      "warning": "Approximate nearest wall-time correlation, not exact same-frame state proof"
+    },
+    {
+      "index": 5,
+      "file": "entry-frame-005.png",
+      "frameTimestampMs": 1791662818637.229,
+      "nearestObservedTurn": 1118,
+      "observedMinusFrameMs": -15.22900390625,
+      "nearestOutsideSubstate5": 5,
+      "nearestInside": 0,
+      "warning": "Approximate nearest wall-time correlation, not exact same-frame state proof"
+    },
+    {
+      "index": 6,
+      "file": "entry-frame-006.png",
+      "frameTimestampMs": 1791662819015.019,
+      "nearestObservedTurn": 1121,
+      "observedMinusFrameMs": -150.01904296875,
+      "nearestOutsideSubstate5": 5,
+      "nearestInside": 0,
+      "warning": "Approximate nearest wall-time correlation, not exact same-frame state proof"
+    },
+    {
+      "index": 7,
+      "file": "entry-frame-007.png",
+      "frameTimestampMs": 1791662819230.335,
+      "nearestObservedTurn": 1121,
+      "observedMinusFrameMs": -365.3349609375,
+      "nearestOutsideSubstate5": 5,
+      "nearestInside": 0,
+      "warning": "Approximate nearest wall-time correlation, not exact same-frame state proof"
+    },
+    {
+      "index": 8,
+      "file": "entry-frame-008.png",
+      "frameTimestampMs": 1791662819482.187,
+      "nearestObservedTurn": 1121,
+      "observedMinusFrameMs": -617.18701171875,
+      "nearestOutsideSubstate5": 5,
+      "nearestInside": 0,
+      "warning": "Approximate nearest wall-time correlation, not exact same-frame state proof"
+    },
+    {
+      "index": 9,
+      "file": "entry-frame-009.png",
+      "frameTimestampMs": 1791662819711.554,
+      "nearestObservedTurn": 1121,
+      "observedMinusFrameMs": -846.553955078125,
+      "nearestOutsideSubstate5": 5,
+      "nearestInside": 0,
+      "warning": "Approximate nearest wall-time correlation, not exact same-frame state proof"
+    },
+    {
+      "index": 10,
+      "file": "entry-frame-010.png",
+      "frameTimestampMs": 1791662820394.116,
+      "nearestObservedTurn": 1122,
+      "observedMinusFrameMs": 966.884033203125,
+      "nearestOutsideSubstate5": 2,
+      "nearestInside": 3,
+      "warning": "Approximate nearest wall-time correlation, not exact same-frame state proof"
+    },
+    {
+      "index": 11,
+      "file": "entry-frame-011.png",
+      "frameTimestampMs": 1791662820405.499,
+      "nearestObservedTurn": 1122,
+      "observedMinusFrameMs": 955.5009765625,
+      "nearestOutsideSubstate5": 2,
+      "nearestInside": 3,
+      "warning": "Approximate nearest wall-time correlation, not exact same-frame state proof"
+    },
+    {
+      "index": 12,
+      "file": "entry-frame-012.png",
+      "frameTimestampMs": 1791662820445.782,
+      "nearestObservedTurn": 1122,
+      "observedMinusFrameMs": 915.218017578125,
+      "nearestOutsideSubstate5": 2,
+      "nearestInside": 3,
+      "warning": "Approximate nearest wall-time correlation, not exact same-frame state proof"
+    },
+    {
+      "index": 13,
+      "file": "entry-frame-013.png",
+      "frameTimestampMs": 1791662820706.257,
+      "nearestObservedTurn": 1122,
+      "observedMinusFrameMs": 654.742919921875,
+      "nearestOutsideSubstate5": 2,
+      "nearestInside": 3,
+      "warning": "Approximate nearest wall-time correlation, not exact same-frame state proof"
+    },
+    {
+      "index": 14,
+      "file": "entry-frame-014.png",
+      "frameTimestampMs": 1791662820955.7048,
+      "nearestObservedTurn": 1122,
+      "observedMinusFrameMs": 405.295166015625,
+      "nearestOutsideSubstate5": 2,
+      "nearestInside": 3,
+      "warning": "Approximate nearest wall-time correlation, not exact same-frame state proof"
+    },
+    {
+      "index": 15,
+      "file": "entry-frame-015.png",
+      "frameTimestampMs": 1791662821160.9348,
+      "nearestObservedTurn": 1122,
+      "observedMinusFrameMs": 200.065185546875,
+      "nearestOutsideSubstate5": 2,
+      "nearestInside": 3,
+      "warning": "Approximate nearest wall-time correlation, not exact same-frame state proof"
+    },
+    {
+      "index": 16,
+      "file": "entry-frame-016.png",
+      "frameTimestampMs": 1791662821362.51,
+      "nearestObservedTurn": 1122,
+      "observedMinusFrameMs": -1.510009765625,
+      "nearestOutsideSubstate5": 2,
+      "nearestInside": 3,
+      "warning": "Approximate nearest wall-time correlation, not exact same-frame state proof"
+    },
+    {
+      "index": 17,
+      "file": "entry-frame-017.png",
+      "frameTimestampMs": 1791662821637.804,
+      "nearestObservedTurn": 1125,
+      "observedMinusFrameMs": -14.803955078125,
+      "nearestOutsideSubstate5": 1,
+      "nearestInside": 4,
+      "warning": "Approximate nearest wall-time correlation, not exact same-frame state proof"
+    },
+    {
+      "index": 18,
+      "file": "entry-frame-018.png",
+      "frameTimestampMs": 1791662821924.824,
+      "nearestObservedTurn": 1129,
+      "observedMinusFrameMs": -15.823974609375,
+      "nearestOutsideSubstate5": 0,
+      "nearestInside": 5,
+      "warning": "Approximate nearest wall-time correlation, not exact same-frame state proof"
+    },
+    {
+      "index": 19,
+      "file": "entry-frame-019.png",
+      "frameTimestampMs": 1791662822210.621,
+      "nearestObservedTurn": 1132,
+      "observedMinusFrameMs": -16.62109375,
+      "nearestOutsideSubstate5": 0,
+      "nearestInside": 5,
+      "warning": "Approximate nearest wall-time correlation, not exact same-frame state proof"
+    },
+    {
+      "index": 20,
+      "file": "entry-frame-020.png",
+      "frameTimestampMs": 1791662822531.328,
+      "nearestObservedTurn": 1136,
+      "observedMinusFrameMs": 16.672119140625,
+      "nearestOutsideSubstate5": 0,
+      "nearestInside": 5,
+      "warning": "Approximate nearest wall-time correlation, not exact same-frame state proof"
+    },
+    {
+      "index": 21,
+      "file": "entry-frame-021.png",
+      "frameTimestampMs": 1791662822876.073,
+      "nearestObservedTurn": 1140,
+      "observedMinusFrameMs": -20.072998046875,
+      "nearestOutsideSubstate5": 0,
+      "nearestInside": 5,
+      "warning": "Approximate nearest wall-time correlation, not exact same-frame state proof"
+    },
+    {
+      "index": 22,
+      "file": "entry-frame-022.png",
+      "frameTimestampMs": 1791662823201.6,
+      "nearestObservedTurn": 1144,
+      "observedMinusFrameMs": 10.39990234375,
+      "nearestOutsideSubstate5": 0,
+      "nearestInside": 5,
+      "warning": "Approximate nearest wall-time correlation, not exact same-frame state proof"
+    },
+    {
+      "index": 23,
+      "file": "entry-frame-023.png",
+      "frameTimestampMs": 1791662823538.808,
+      "nearestObservedTurn": 1148,
+      "observedMinusFrameMs": -13.80810546875,
+      "nearestOutsideSubstate5": 0,
+      "nearestInside": 5,
+      "warning": "Approximate nearest wall-time correlation, not exact same-frame state proof"
+    },
+    {
+      "index": 24,
+      "file": "entry-frame-024.png",
+      "frameTimestampMs": 1791662823889.4329,
+      "nearestObservedTurn": 1152,
+      "observedMinusFrameMs": 21.567138671875,
+      "nearestOutsideSubstate5": 0,
+      "nearestInside": 5,
+      "warning": "Approximate nearest wall-time correlation, not exact same-frame state proof"
+    }
+  ],
+  "captureClosed": true,
+  "observerRestored": true
+}

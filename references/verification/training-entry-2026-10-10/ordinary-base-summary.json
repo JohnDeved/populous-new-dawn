@@ -1,0 +1,787 @@
+{
+  "turns": [
+    1125,
+    1217
+  ],
+  "max": {
+    "turn": 1145,
+    "time": 95.41666666666667,
+    "paused": false,
+    "target": {
+      "id": 1022,
+      "hp": 260,
+      "progress": 1,
+      "inside": 0,
+      "entering": 5,
+      "entryDelay": 0,
+      "entryTimer": 16,
+      "queueHead": 0,
+      "queueFrom": 0,
+      "occupants": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "people": [
+      {
+        "id": 312,
+        "kind": "brave",
+        "hp": 50,
+        "x": 36.64453125,
+        "z": 99.1875,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 5,
+          "counter": 121,
+          "speed": 72,
+          "x": 11429,
+          "y": 38096,
+          "goalX": 11520,
+          "goalY": 39296,
+          "flags2": 1107427840,
+          "flags3": 262144,
+          "flags4": 537133314,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 309,
+        "kind": "brave",
+        "hp": 50,
+        "x": 36.59765625,
+        "z": 98.93359375,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 5,
+          "counter": 121,
+          "speed": 83,
+          "x": 11417,
+          "y": 38161,
+          "goalX": 11520,
+          "goalY": 39296,
+          "flags2": 1107427840,
+          "flags3": 262144,
+          "flags4": 537133314,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 519,
+        "kind": "brave",
+        "hp": 50,
+        "x": 36.55078125,
+        "z": 100.3046875,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 5,
+          "counter": 121,
+          "speed": 80,
+          "x": 11405,
+          "y": 37810,
+          "goalX": 11520,
+          "goalY": 39296,
+          "flags2": 1107431936,
+          "flags3": 262144,
+          "flags4": 537133314,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 516,
+        "kind": "brave",
+        "hp": 50,
+        "x": 32.5390625,
+        "z": 85.0703125,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 1,
+          "counter": 121,
+          "speed": 78,
+          "x": 10378,
+          "y": 41710,
+          "goalX": 11392,
+          "goalY": 37824,
+          "flags2": 1107427840,
+          "flags3": 262144,
+          "flags4": 537133312,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 513,
+        "kind": "brave",
+        "hp": 50,
+        "x": 36.76171875,
+        "z": 97.984375,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 5,
+          "counter": 121,
+          "speed": 73,
+          "x": 11459,
+          "y": 38404,
+          "goalX": 11520,
+          "goalY": 39296,
+          "flags2": 1107427840,
+          "flags3": 262144,
+          "flags4": 537133314,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 510,
+        "kind": "brave",
+        "hp": 50,
+        "x": 34.1328125,
+        "z": 87.3984375,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 1,
+          "counter": 121,
+          "speed": 72,
+          "x": 10786,
+          "y": 41114,
+          "goalX": 11392,
+          "goalY": 37824,
+          "flags2": 1107427840,
+          "flags3": 262144,
+          "flags4": 537133312,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 300,
+        "kind": "brave",
+        "hp": 50,
+        "x": 36.59765625,
+        "z": 98.91796875,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 5,
+          "counter": 121,
+          "speed": 84,
+          "x": 11417,
+          "y": 38165,
+          "goalX": 11520,
+          "goalY": 39296,
+          "flags2": 1107427840,
+          "flags3": 262144,
+          "flags4": 537133314,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 507,
+        "kind": "brave",
+        "hp": 50,
+        "x": 35.5703125,
+        "z": 87.27734375,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 1,
+          "counter": 121,
+          "speed": 81,
+          "x": 11154,
+          "y": 41145,
+          "goalX": 11392,
+          "goalY": 37824,
+          "flags2": 1107427840,
+          "flags3": 262144,
+          "flags4": 537133312,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 306,
+        "kind": "brave",
+        "hp": 50,
+        "x": 35.5859375,
+        "z": 83.5390625,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 1,
+          "counter": 121,
+          "speed": 77,
+          "x": 11158,
+          "y": 42102,
+          "goalX": 11392,
+          "goalY": 37824,
+          "flags2": 1107427840,
+          "flags3": 262144,
+          "flags4": 537133312,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      },
+      {
+        "id": 589,
+        "kind": "brave",
+        "hp": 50,
+        "x": 33,
+        "z": 87.2109375,
+        "inside": null,
+        "work": 1022,
+        "entry": {
+          "state": 10,
+          "substate": 1,
+          "counter": 121,
+          "speed": 73,
+          "x": 10496,
+          "y": 41162,
+          "goalX": 11392,
+          "goalY": 37824,
+          "flags2": 1107427840,
+          "flags3": 262144,
+          "flags4": 537133312,
+          "renderFlags": 384,
+          "reservationNext": 0,
+          "commandPhase": 0
+        }
+      }
+    ]
+  },
+  "admissions": [
+    {
+      "turn": 1156,
+      "ids": [
+        513
+      ],
+      "counters": [
+        132
+      ],
+      "positions": [
+        {
+          "id": 513,
+          "x": 36.9765625,
+          "z": 94.71875
+        }
+      ]
+    },
+    {
+      "turn": 1158,
+      "ids": [
+        309,
+        300
+      ],
+      "counters": [
+        134,
+        134
+      ],
+      "positions": [
+        {
+          "id": 309,
+          "x": 36.9921875,
+          "z": 94.515625
+        },
+        {
+          "id": 300,
+          "x": 36.98828125,
+          "z": 94.48828125
+        }
+      ]
+    },
+    {
+      "turn": 1160,
+      "ids": [
+        312
+      ],
+      "counters": [
+        136
+      ],
+      "positions": [
+        {
+          "id": 312,
+          "x": 36.96484375,
+          "z": 94.79296875
+        }
+      ]
+    },
+    {
+      "turn": 1162,
+      "ids": [
+        519
+      ],
+      "counters": [
+        138
+      ],
+      "positions": [
+        {
+          "id": 519,
+          "x": 36.97265625,
+          "z": 94.7265625
+        }
+      ]
+    }
+  ],
+  "transitions": [
+    {
+      "id": 312,
+      "transitions": [
+        {
+          "turn": 1125,
+          "inside": null,
+          "x": 39.296875,
+          "z": 101.41015625
+        },
+        {
+          "turn": 1131,
+          "inside": null,
+          "substate": 1,
+          "counter": 107,
+          "x": 39.1640625,
+          "z": 101.2265625
+        },
+        {
+          "turn": 1140,
+          "inside": null,
+          "substate": 4,
+          "counter": 116,
+          "x": 36.8203125,
+          "z": 100.46484375
+        },
+        {
+          "turn": 1141,
+          "inside": null,
+          "substate": 5,
+          "counter": 117,
+          "x": 36.56640625,
+          "z": 100.296875
+        },
+        {
+          "turn": 1160,
+          "inside": 1022,
+          "substate": 12,
+          "counter": 136,
+          "x": 36.96484375,
+          "z": 94.79296875
+        },
+        {
+          "turn": 1161,
+          "inside": 1022,
+          "substate": 13,
+          "counter": 137,
+          "x": 36.99609375,
+          "z": 94.5
+        }
+      ]
+    },
+    {
+      "id": 309,
+      "transitions": [
+        {
+          "turn": 1125,
+          "inside": null,
+          "x": 39,
+          "z": 100.4921875
+        },
+        {
+          "turn": 1131,
+          "inside": null,
+          "substate": 1,
+          "counter": 107,
+          "x": 39,
+          "z": 100.81640625
+        },
+        {
+          "turn": 1140,
+          "inside": null,
+          "substate": 4,
+          "counter": 116,
+          "x": 36.5703125,
+          "z": 100.30078125
+        },
+        {
+          "turn": 1141,
+          "inside": null,
+          "substate": 5,
+          "counter": 117,
+          "x": 36.4921875,
+          "z": 100.25390625
+        },
+        {
+          "turn": 1158,
+          "inside": 1022,
+          "substate": 12,
+          "counter": 134,
+          "x": 36.9921875,
+          "z": 94.515625
+        },
+        {
+          "turn": 1159,
+          "inside": 1022,
+          "substate": 13,
+          "counter": 135,
+          "x": 36.9921875,
+          "z": 94.50390625
+        }
+      ]
+    },
+    {
+      "id": 519,
+      "transitions": [
+        {
+          "turn": 1125,
+          "inside": null,
+          "x": 39.48046875,
+          "z": 100.84375
+        },
+        {
+          "turn": 1131,
+          "inside": null,
+          "substate": 1,
+          "counter": 107,
+          "x": 39.828125,
+          "z": 101.0234375
+        },
+        {
+          "turn": 1144,
+          "inside": null,
+          "substate": 4,
+          "counter": 120,
+          "x": 36.8203125,
+          "z": 100.515625
+        },
+        {
+          "turn": 1145,
+          "inside": null,
+          "substate": 5,
+          "counter": 121,
+          "x": 36.55078125,
+          "z": 100.3046875
+        },
+        {
+          "turn": 1162,
+          "inside": 1022,
+          "substate": 12,
+          "counter": 138,
+          "x": 36.97265625,
+          "z": 94.7265625
+        },
+        {
+          "turn": 1163,
+          "inside": 1022,
+          "substate": 13,
+          "counter": 139,
+          "x": 36.9921875,
+          "z": 94.4921875
+        }
+      ]
+    },
+    {
+      "id": 516,
+      "transitions": [
+        {
+          "turn": 1125,
+          "inside": null,
+          "x": 33,
+          "z": 81
+        },
+        {
+          "turn": 1131,
+          "inside": null,
+          "substate": 1,
+          "counter": 107,
+          "x": 33,
+          "z": 81
+        },
+        {
+          "turn": 1182,
+          "inside": null,
+          "substate": 2,
+          "counter": 158,
+          "x": 33.6328125,
+          "z": 95.37890625
+        },
+        {
+          "turn": 1183,
+          "inside": null,
+          "substate": 3,
+          "counter": 159,
+          "x": 33.59765625,
+          "z": 95.69921875
+        }
+      ]
+    },
+    {
+      "id": 513,
+      "transitions": [
+        {
+          "turn": 1125,
+          "inside": null,
+          "x": 38.515625,
+          "z": 100.84765625
+        },
+        {
+          "turn": 1131,
+          "inside": null,
+          "substate": 1,
+          "counter": 107,
+          "x": 38.3515625,
+          "z": 100.54296875
+        },
+        {
+          "turn": 1136,
+          "inside": null,
+          "substate": 4,
+          "counter": 112,
+          "x": 36.90625,
+          "z": 100.3671875
+        },
+        {
+          "turn": 1137,
+          "inside": null,
+          "substate": 5,
+          "counter": 113,
+          "x": 36.63671875,
+          "z": 100.296875
+        },
+        {
+          "turn": 1156,
+          "inside": 1022,
+          "substate": 12,
+          "counter": 132,
+          "x": 36.9765625,
+          "z": 94.71875
+        },
+        {
+          "turn": 1157,
+          "inside": 1022,
+          "substate": 13,
+          "counter": 133,
+          "x": 36.99609375,
+          "z": 94.4921875
+        }
+      ]
+    },
+    {
+      "id": 510,
+      "transitions": [
+        {
+          "turn": 1125,
+          "inside": null,
+          "x": 35,
+          "z": 83
+        },
+        {
+          "turn": 1131,
+          "inside": null,
+          "substate": 1,
+          "counter": 107,
+          "x": 35,
+          "z": 83.296875
+        },
+        {
+          "turn": 1176,
+          "inside": null,
+          "substate": 2,
+          "counter": 152,
+          "x": 32.70703125,
+          "z": 95.484375
+        },
+        {
+          "turn": 1177,
+          "inside": null,
+          "substate": 3,
+          "counter": 153,
+          "x": 32.71875,
+          "z": 95.79296875
+        }
+      ]
+    },
+    {
+      "id": 300,
+      "transitions": [
+        {
+          "turn": 1125,
+          "inside": null,
+          "x": 38.703125,
+          "z": 101.4140625
+        },
+        {
+          "turn": 1131,
+          "inside": null,
+          "substate": 1,
+          "counter": 107,
+          "x": 38.8828125,
+          "z": 101.16015625
+        },
+        {
+          "turn": 1140,
+          "inside": null,
+          "substate": 4,
+          "counter": 116,
+          "x": 36.5859375,
+          "z": 100.3046875
+        },
+        {
+          "turn": 1141,
+          "inside": null,
+          "substate": 5,
+          "counter": 117,
+          "x": 36.4921875,
+          "z": 100.25390625
+        },
+        {
+          "turn": 1158,
+          "inside": 1022,
+          "substate": 12,
+          "counter": 134,
+          "x": 36.98828125,
+          "z": 94.48828125
+        },
+        {
+          "turn": 1159,
+          "inside": 1022,
+          "substate": 13,
+          "counter": 135,
+          "x": 36.98828125,
+          "z": 94.4765625
+        }
+      ]
+    },
+    {
+      "id": 507,
+      "transitions": [
+        {
+          "turn": 1125,
+          "inside": null,
+          "x": 37,
+          "z": 83
+        },
+        {
+          "turn": 1131,
+          "inside": null,
+          "substate": 1,
+          "counter": 107,
+          "x": 37,
+          "z": 83
+        },
+        {
+          "turn": 1172,
+          "inside": null,
+          "substate": 2,
+          "counter": 148,
+          "x": 33.25,
+          "z": 95.11328125
+        },
+        {
+          "turn": 1173,
+          "inside": null,
+          "substate": 3,
+          "counter": 149,
+          "x": 33.234375,
+          "z": 95.4453125
+        }
+      ]
+    },
+    {
+      "id": 306,
+      "transitions": [
+        {
+          "turn": 1125,
+          "inside": null,
+          "x": 37,
+          "z": 79
+        },
+        {
+          "turn": 1131,
+          "inside": null,
+          "substate": 1,
+          "counter": 107,
+          "x": 36.78125,
+          "z": 79.21875
+        },
+        {
+          "turn": 1182,
+          "inside": null,
+          "substate": 2,
+          "counter": 158,
+          "x": 32.99609375,
+          "z": 95.3359375
+        },
+        {
+          "turn": 1183,
+          "inside": null,
+          "substate": 3,
+          "counter": 159,
+          "x": 32.99609375,
+          "z": 95.6484375
+        }
+      ]
+    },
+    {
+      "id": 589,
+      "transitions": [
+        {
+          "turn": 1125,
+          "inside": null,
+          "x": 33,
+          "z": 83
+        },
+        {
+          "turn": 1131,
+          "inside": null,
+          "substate": 1,
+          "counter": 107,
+          "x": 33,
+          "z": 83
+        },
+        {
+          "turn": 1174,
+          "inside": null,
+          "substate": 2,
+          "counter": 150,
+          "x": 33,
+          "z": 95.23046875
+        },
+        {
+          "turn": 1175,
+          "inside": null,
+          "substate": 3,
+          "counter": 151,
+          "x": 33,
+          "z": 95.5390625
+        }
+      ]
+    }
+  ]
+}

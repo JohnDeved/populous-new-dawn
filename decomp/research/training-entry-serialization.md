@@ -669,3 +669,76 @@ Focused reproduction: `node --test tests/training-interpolation.test.mjs
 unobstructed training fixture, a real pointer group command and fixed-turn /
 fractional-frame sampling. Its isolated-sprite captures remove hut coverage as
 a labelled diagnostic; they are not original-game pixel evidence.
+
+## Retained approach counter ownership — 10 October 2026
+
+Renewed source audit at `50aefe1d49f70057380bf9a5fa8f0b319c8ad441` found a
+concrete adapter defect in the actual human/shared-AI entry path. Original
+`004ec6f0.c` increments each existing person's class counter before dispatch;
+`004d32b0.c` runs motion before the command controller. The route consumer
+`004eadc0.c` reads that counter but does not replace it with a global turn.
+Command 8's approach/admission tests read the same retained counter.
+
+The browser adopts a training person into `unit.entry.person`, clearing
+`unit.native`. Destination planning registers that same object as the route
+owner. On the next visit, `stepBuildingEntry` increments its counter and calls
+`moveLivePerson`, which calls `stepLiveRoute`. The latter's legacy-owner adapter
+mistakenly treats the entry owner as legacy because it is not `unit.native`,
+then assigns `world.turn & 255` to its counter. A supplied eight-person public
+training-command diagnostic captured the actual write stacks: on world turn 74,
+entry visits incremented distinct counters to 74 through 81, then route
+advancement reset every one to 74.
+
+This invalidates the earlier counter-staggering rejection as a decisive test
+unless the staggered values were verified after route advancement. It does not
+prove that retained phases serialize visible doorway crossings. Fresh browser
+person adapters still initialize their counters from the same world turn;
+capacity five and overlapping approach pipelines are unchanged original rules.
+
+`tests/training-route-phase.test.mjs` exercises all four training schools through
+public human orders and the shared AI producer boundary, verifies actual routed
+owner identity, and requires per-person increments through admission and overflow,
+including byte wrap. It also covers checkpoint continuation and preserves a
+route-only legacy-owner synchronization control. Before correction, all eight
+school/producer cases fail at the next actual visit: expected counter 0, observed
+world-turn counter 74. The correction excludes only the canonical entry owner
+from the counter assignment; coordinate/height synchronization and other owner
+classes retain their existing behavior.
+
+The exact full-original initial records, RNG/list order, terrain/routes/formation
+state, group-entry driver and full per-person timeline are still absent from the
+accessible retained evidence. The historical Temple admission summary is not a
+paired baseline for the old Warrior Hut fixture. This correction therefore does
+not establish full native scheduler equivalence, a one-person semaphore, matched
+original pixels, or closure of issue 29. A matched original save/replay or the
+complete retained probe inputs and timeline remains the discriminator for those
+claims.
+
+A current-only flat-land eight-Brave diagnostic confirms that this is a timing
+ownership correction, not the complete reported fix. Before/after admission turns
+relative to the command are Warrior Hut `46/48/50/52/52` → `47/49/51/53/53`,
+Temple `44/46/48/50/52` → `43/45/49/51/51`, Spy Hut `30/30/34/34/34` →
+`29/31/35/35/35`, and Firewarrior Hut `44/48/48/50/50` → `45/47/49/51/51`.
+Both versions retain five residents and overflow. Multiple same-turn admissions
+remain; these supplied fixtures do not establish original visual behavior.
+
+### Candidate rejected by full acceptance
+
+The counter candidate `bd420fd252182e8e28fdeb03a6577f844a04a746` is **unmerged and
+not accepted**. Its build passes, but the full check passes only 1,928/1,929 tests.
+`mission2-replacement.test.mjs` fails its required post-combat Matak population
+`>10` precondition. Paired unchanged-assertion diagnostics reach combat on both
+versions at turn 6372 with the same 27 Matak IDs/HP and 30 Blue people. The base
+finishes the required Warrior assaults with 14 Matak; the candidate finishes with
+9. This is a consequential downstream battle difference, not an economy setup
+failure. Independent review rejects integration pending a source-backed resolution;
+no target, army, delay, threshold or assertion was tuned to obtain green.
+
+Ordinary rendered Mission 3 construction followed by a ten-Brave training order
+also retains the original reported symptom on the candidate: five simultaneous
+approach entrants, including three actual admissions on one turn. Both versions
+reach five occupants and a complete five-person overflow queue. These real-clock
+runs establish ordinary current-game behavior, not equivalent original-game
+fixtures or matched crossing pixels. Issue 29 remains open, with no gameplay fix
+or parity credit claimed. The finite evidence and remaining inputs are retained in
+`references/verification/training-entry-2026-10-10/README.md`.

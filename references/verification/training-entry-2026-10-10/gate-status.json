@@ -1,0 +1,145 @@
+{
+  "testedHead": "bd420fd252182e8e28fdeb03a6577f844a04a746",
+  "integration": "REJECT",
+  "gates": [
+    {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "source": {
+        "headOid": "bd420fd252182e8e28fdeb03a6577f844a04a746",
+        "branch": "fix/training-entry-counter-29",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {
+          "scripts/orchestration/command-receipt.mjs": "cb6e670973ddf7e0e83bb7efb79e7b4f2315e575d9764620c539a8683ea6727d",
+          "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+          "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+        }
+      },
+      "receiptSha256": "d27ef7a6fd1a29aefc43fd8dc919fe75e84f4721936b99b5fc3ed8d2014582c1",
+      "stdoutSha256": "5add1219fc4de24c40ff2369aafedc4210d6dcd9ed3306010dddd118c01a7a34",
+      "stderrSha256": "c68f4af2556b94799309c9a413533d0341ef2b05ff757d2cd8e4732e622af865"
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "status": "failed",
+      "exitCode": 1,
+      "source": {
+        "headOid": "bd420fd252182e8e28fdeb03a6577f844a04a746",
+        "branch": "fix/training-entry-counter-29",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {
+          "scripts/orchestration/command-receipt.mjs": "cb6e670973ddf7e0e83bb7efb79e7b4f2315e575d9764620c539a8683ea6727d",
+          "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+          "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+        }
+      },
+      "receiptSha256": "2c9e403e1c4559ce811c051f6a7d8e45fe4e2dba7cc0e81e6b7518149b618464",
+      "stdoutSha256": "0ce19be09328c86c912e341aec17a29a9bca2ed15ef0ea5e706991e322b52888",
+      "stderrSha256": "729d7a00c08d1d11c1dc0dd021c8bb255bd601279f1ce2a22fb5360bb9b9c461"
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "format:check"
+      ],
+      "status": "failed",
+      "exitCode": 1,
+      "source": {
+        "headOid": "bd420fd252182e8e28fdeb03a6577f844a04a746",
+        "branch": "fix/training-entry-counter-29",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {
+          "scripts/orchestration/command-receipt.mjs": "cb6e670973ddf7e0e83bb7efb79e7b4f2315e575d9764620c539a8683ea6727d",
+          "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+          "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+        }
+      },
+      "receiptSha256": "a1c428fe3aa989f0e600f4cbdebc334a1da3ebf488509a8de19b7bb2a0f54d48",
+      "stdoutSha256": "92655a60ac0de11b62a817ac0ed265a98ebd8a47b17177744999be86d5883b39",
+      "stderrSha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f"
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "lint:standard"
+      ],
+      "status": "failed",
+      "exitCode": 1,
+      "source": {
+        "headOid": "bd420fd252182e8e28fdeb03a6577f844a04a746",
+        "branch": "fix/training-entry-counter-29",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {
+          "scripts/orchestration/command-receipt.mjs": "cb6e670973ddf7e0e83bb7efb79e7b4f2315e575d9764620c539a8683ea6727d",
+          "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+          "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+        }
+      },
+      "receiptSha256": "ea1a9f50b7f3b024fb4fa34d36e228a7682a6d4a1b2b2b4ab017cc8915906010",
+      "stdoutSha256": "432d948ec5ab55e81806a6e3d456038983c501695f1aec17608329da5f24f126",
+      "stderrSha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f"
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "status": "failed",
+      "exitCode": 1,
+      "source": {
+        "headOid": "bd420fd252182e8e28fdeb03a6577f844a04a746",
+        "branch": "fix/training-entry-counter-29",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {
+          "scripts/orchestration/command-receipt.mjs": "cb6e670973ddf7e0e83bb7efb79e7b4f2315e575d9764620c539a8683ea6727d",
+          "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+          "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+        }
+      },
+      "receiptSha256": "67db17d5c3f6719d9d4f23dd721c66316732e926dd7f8ed625e257a41eab06dd",
+      "stdoutSha256": "62e53059dc0cfedcfcc9700afa6a684023dffcabba06ea21e7585815082e2fba",
+      "stderrSha256": "7d61cb2e2deb776dfec4d6f54693f9edeed0af5c4da52f091c53c995d862fb65"
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "quality:health"
+      ],
+      "status": "unknown",
+      "exitCode": null,
+      "source": {
+        "headOid": "bd420fd252182e8e28fdeb03a6577f844a04a746",
+        "branch": "fix/training-entry-counter-29",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {
+          "scripts/orchestration/command-receipt.mjs": "cb6e670973ddf7e0e83bb7efb79e7b4f2315e575d9764620c539a8683ea6727d",
+          "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+          "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+        }
+      },
+      "receiptSha256": "009c7e8e10c804bf0a27dcb824ec2521e4dcc1e9a495d67b151ed1bedf625608",
+      "stdoutSha256": null,
+      "stderrSha256": null
+    }
+  ],
+  "notRun": [
+    "quality:dupes",
+    "quality:unused",
+    "parity:check (full check stopped after npm test failure)",
+    "orchestration:check (full check stopped after npm test failure)"
+  ],
+  "limits": "Gate raw receipts remain ignored. Fallow health lost its session and has no terminal result or verified cleanup. Fresh diagnostics and browser use separate private worktrees/dependencies. No performance claim."
+}
