@@ -673,6 +673,9 @@ export function stepAttackTask(
     return [{ kind: 'move', target: input.staging, replace: true }]
   }
   if (task.phase === 6) {
+    // 0x4d14f0 advances the task clock before casting; every spell outcome
+    // still reaches member settlement and the fallback transition.
+    task.elapsed += ai.tasks.filter(t => t.flags & 1).length
     const spells = task.spells ?? []
     if (spells.some(Boolean) && input.taskSpell) {
       const model = input.taskSpell(spells, task.target)
@@ -680,9 +683,7 @@ export function stepAttackTask(
         const slot = spells.indexOf(model)
         if (slot >= 0) spells[slot] = 0
       }
-      return actions
     }
-    task.elapsed += ai.tasks.filter(t => t.flags & 1).length
     const settled = input.settled()
     if (settled === null) {
       releaseSelection(ai, index)
