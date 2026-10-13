@@ -111,13 +111,13 @@ test('ordinary Red staffing and mixed patrols share selection and retire exact s
   while (w.turn < 129) tick(w, 1 / 12)
   assert.deepEqual(
     active(w).map(t => t.type),
-    [7, 7, 7, 7, 7, 7, 24, 24]
+    [6, 7, 7, 7, 7, 7, 7, 24, 24]
   )
   await store.saveCheckpoint()
   assert.ok(store.loadCheckpoint())
   const replay = store.getWorld()
   assert.deepEqual(replay, w)
-  const first = [258, 259, 260, 265, 266, 267, 268, 269, 270],
+  const first = [261, 262, 263, 265, 266, 267, 268, 269, 270],
     initial = new Map(
       first.map(id => {
         const u = w.units.find(u => u.id === id)
@@ -136,12 +136,12 @@ test('ordinary Red staffing and mixed patrols share selection and retire exact s
     tick(w, 1 / 12)
     tick(replay, 1 / 12)
     assert.deepEqual(replay, w)
-    if (w.turn === 194) {
-      assert.equal(w.campaignAIs[1].selectionOwner, 6)
-      for (const id of [258, 259, 260]) assert.ok(w.campaignAIs[1].tasks[6].members.includes(id))
+    if (w.turn === 278) {
+      assert.equal(w.campaignAIs[1].selectionOwner, 7)
+      for (const id of [261, 262, 263]) assert.ok(w.campaignAIs[1].tasks[7].members.includes(id))
     }
-    if (w.turn === 218) {
-      for (const id of [29, 30]) {
+    if (w.turn === 290) {
+      for (const id of [33, 34]) {
         assert.equal(w.buildingOrders.records[id].references, 9)
         assert.deepEqual(owners(id), first)
       }
@@ -176,25 +176,35 @@ test('ordinary Red staffing and mixed patrols share selection and retire exact s
     }
   }
   for (const [id, expected] of [
-    [91, [265, 270, 273, 274]],
-    [92, [265, 270, 273, 274]],
-    [100, [260, 266, 267, 268, 269, 272, 277]],
-    [101, [260, 266, 267, 268, 269, 272, 277]],
-    [102, [275, 278]],
-    [103, [275, 278]],
-    [104, [258, 264, 276]],
-    [105, [258, 264, 276]],
+    [67, [276]],
+    [68, [276]],
+    [72, [274]],
+    [73, [274]],
+    [90, [265, 273]],
+    [91, [265, 273]],
+    [99, [261, 262, 264, 266, 267, 268, 277, 358]],
+    [100, [261, 262, 264, 266, 267, 268, 277, 358]],
+    [102, [263, 269, 272]],
+    [103, [263, 269, 272]],
+    [104, [270, 275]],
+    [105, [270, 275]],
   ])
     assert.deepEqual(owners(id), expected)
-  for (const id of [29, 30, 7, 18, 19, 25, 26, 27, 28, 35, 36, 37, 38, 64]) {
+  for (const id of [
+    33, 34, 36, 37, 40, 41, 45, 46, 49, 50, 54, 55, 63, 64, 65, 66, 80, 81, 83, 84, 85, 86, 7, 18,
+    19, 25, 26, 27, 28, 29, 30, 31, 32, 38,
+  ]) {
     assert.equal(w.buildingOrders.records[id].references, 0)
     assert.deepEqual(owners(id), [])
   }
+  const trained = w.units.find(u => u.id === 358)
+  assert.equal(trained.kind, 'warrior')
+  assert.equal(w.objectCells.objects.get(358), owner(trained))
   assert.equal(
     w.units.filter(
       u =>
         u.team === 'red' && owner(u) && currentPersonOrder(w.buildingOrders, owner(u))?.model === 25
     ).length,
-    16
+    17
   )
 })

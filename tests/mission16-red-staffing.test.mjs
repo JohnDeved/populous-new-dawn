@@ -109,20 +109,8 @@ test('ordinary M16 Red recurring requests physically garrison all six Towers and
     assert.deepEqual(replay, w)
     for (const id of ids) {
       const u = w.units.find(u => u.id === id)
-      if (!u) {
-        assert.equal(id, 257, 'only the observed non-garrison casualty may leave this census')
-        assert.ok(w.turn >= 1045)
-        assert.equal(entries.has(id), false)
-        assert.equal(w.objectCells.objects.has(id), false)
-        assert.equal(w.buildingOrders.records[64].references, 0)
-        continue
-      }
+      assert.ok(u, 'all ten original Firewarriors survive this requalified campaign')
       const p = u.entry?.person ?? u.native
-      if (id === 257 && w.turn === 1044) {
-        assert.equal(u.hp, 11.2)
-        assert.equal(currentPersonOrder(w.buildingOrders, p).model, 8)
-        assert.equal(w.buildingOrders.records[64].references, 1)
-      }
       assert.equal(w.objectCells.objects.get(id), p)
       const order = currentPersonOrder(w.buildingOrders, p)
       if (order?.model === 8) orders.add(p.commands[p.commandCursor])
@@ -135,22 +123,21 @@ test('ordinary M16 Red recurring requests physically garrison all six Towers and
     if (w.turn >= 1200)
       assert.equal(staffing(w).length, 0, 'already staffed Towers do not need replacement tasks')
   }
-  // Mixed patrol selection reserves some earlier staffing candidates. Observe
-  // every real Firewarrior, then assert the six actual completed garrisons.
+  // The restored training task precedes staffing and changes shared scheduling.
   assert.deepEqual(
     [...entries].sort((a, b) => a[0] - b[0]),
     [
-      [255, [249, 184]],
-      [256, [250, 160]],
-      [259, [254, 802]],
-      [261, [253, 552]],
-      [262, [252, 574]],
-      [263, [251, 596]],
+      [255, [249, 278]],
+      [256, [250, 258]],
+      [257, [251, 244]],
+      [258, [252, 220]],
+      [259, [253, 192]],
+      [260, [254, 164]],
     ]
   )
   assert.deepEqual(
     [...orders].sort((a, b) => a - b),
-    [18, 26, 35, 36, 37, 38, 64]
+    [18, 27, 29, 30, 31, 32]
   )
   for (const id of orders) assert.equal(w.buildingOrders.records[id].references, 0)
   for (const id of entries.keys()) {
@@ -165,9 +152,6 @@ test('ordinary M16 Red recurring requests physically garrison all six Towers and
     assert.equal(w.objectCells.objects.get(id), p)
     assert.ok([...objectsInCell(w.objectCells, (p.y & 0xfe00) | ((p.x >>> 8) & 254))].includes(p))
   }
-  assert.equal(
-    w.units.some(u => u.id === 257),
-    false
-  )
+  assert.equal(w.units.find(u => u.id === 257).inside, 251)
   assert.ok(originalTasks.every(t => t.members.length === 0))
 })
