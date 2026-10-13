@@ -1011,13 +1011,28 @@ export function stepLiveSwamp(w: World, swamp: Swamp) {
     people = new Map<number, LivePerson>(),
     cells = new Map<number, SwampTarget[]>()
   for (const u of w.units) {
-    if (u.inside !== null || (u.hp <= 0 && !u.flight)) continue
+    if (u.hp <= 0 && !u.flight) continue
     const p = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? createLivePerson(w, u),
       cell = ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9),
       row = cells.get(cell) ?? []
+    // 00511400 visits registered class1 occupants, including Tower residents.
+    // Hidden/unregistered building placeholders retain the existing exclusion.
+    if (
+      u.inside !== null &&
+      (p.id !== u.id ||
+        p.class !== 1 ||
+        p.flags2 & 1 ||
+        w.objectCells.objects.get(u.id) !== p ||
+        ![...objectsInCell(w.objectCells, (p.y & 0xfe00) | ((p.x >>> 8) & 254))].includes(p))
+    )
+      continue
     units.set(p.id, u)
     people.set(p.id, p)
-    row.unshift({ ...p, attached: p.vehicle, immune: false })
+    row.unshift({
+      ...p,
+      attached: p.vehicle,
+      immune: u.inside !== null && !!(rules.personPhysicsFlags[p.physics] & 2),
+    })
     cells.set(cell, row)
   }
   swamp.counter = (swamp.counter + 1) & 255
@@ -1037,7 +1052,9 @@ export function stepLiveSwamp(w: World, swamp: Swamp) {
     remove: target => {
       const p = people.get(target.id)!,
         u = units.get(p.id)!
-      releaseTasks(w, u)
+      // 004ef180→004d4b50 removes occupied ghosts through 00407490 first.
+      if (u.inside !== null) release(w, u)
+      else releaseTasks(w, u)
       const index = w.units.indexOf(u)
       if (index !== -1) w.units.splice(index, 1)
       w.selected = w.selected.filter(id => id !== u.id)
