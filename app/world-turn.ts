@@ -1,3 +1,4 @@
+import { assignVehicleAllocationCounter } from './vehicle-allocation.ts'
 import { residentPerson } from './building-resident.ts'
 import { createReincarnationWave, stepReincarnationWave } from './reincarnation-wave-runtime.ts'
 import { reconcileWorldHutSmoke, stepSecondaryEffects } from './hut-smoke-runtime.ts'
@@ -1184,6 +1185,7 @@ function stepTurn(w: World) {
               destructionState: 0,
             },
             worker = inhabitants[0]
+          assignVehicleAllocationCounter(w, vehicle)
           w.vehicles.push(vehicle)
           release(w, worker)
           worker.native = createLivePerson(w, worker)

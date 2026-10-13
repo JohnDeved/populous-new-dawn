@@ -155,6 +155,8 @@ export function syncLiveVehiclePassengers(w: World, v: Vehicle) {
 export function removeMissingVehiclePassengers(w: World) {
   const people = new Set(w.units.map(unit => unit.id))
   for (const vehicle of w.vehicles) {
+    // Linked reward templates are detached from ordinary object processing.
+    if (!vehicle.active) continue
     vehicle.passengers = vehicle.passengers.filter(id => people.has(id))
     vehicle.passengerCount = vehicle.passengers.length
     if (!vehicle.passengerCount) vehicle.speed = -1
@@ -367,6 +369,9 @@ function stopUnvisitedBalloon(w: World, v: Vehicle) {
 
 export function stepLiveVehicles(w: World) {
   for (const v of w.vehicles) {
+    // 0x4ec8b3 increments before the ordinary object body; unknown legacy phase
+    // stays unknown. This does not restore the full native vehicle controller.
+    if (v.active && v.counter !== undefined) v.counter = (v.counter + 1) & 255
     if (v.destructionState === 5) {
       const cell = ((v.y & 65535) >> 9) * 128 + ((v.x & 65535) >> 9)
       if (terrainSupportsPerson(w.land.categories[cell], v)) {

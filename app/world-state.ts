@@ -207,6 +207,7 @@ export function createWorldState(missionNumber = 1): World {
     terrain: makeTerrain(land),
     terrainVersion: 0,
     units: [],
+    vehicleAllocationSeed: 0,
     vehicles: [],
     buildings: [],
     effects: [],
