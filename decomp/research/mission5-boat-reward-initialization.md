@@ -16,6 +16,15 @@ position, runs the constructor again against reward-time terrain/occupancy/searc
 state, and then004ede10 preserves the NEW destination's position/state/list links
 through its template copy. Even an already-valid point receives the successful
 162-unit category adjustment again. The old source is subsequently deleted.
+The loader's post-pass004edf50 is also an occupancy boundary: generic004ed580
+sets flags+10 bit20000000; for linked sources the post-pass clears that bit,
+unlinks registered cells (flags+c bit20000), clears registration, installs state0
+and invokes the class state initializer. This occurs AFTER all authored object
+allocations. Consequently earlier inactive templates count in initial authored
+constructor occupancy, but the detached source is not a registered blocker at
+reward-time allocation. Reusing an all-previous-vehicles construction scan for
+reward would therefore be incorrect; supply the actual then-registered set.
+
 A single preparation plus active=true is therefore insufficient. Initial and
 reward-time input contexts, allocation identity and template-copy field ownership
 need distinct tests. No exact M5 reward endpoint is claimed by the cold M10 proof.
