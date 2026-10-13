@@ -49,6 +49,7 @@ import {
   type World,
 } from './world-types.ts'
 import {
+  buildingInsidePoint,
   buildingFirePoints,
   buildingModel,
   buildingOutsidePoint,
@@ -76,6 +77,7 @@ import {
   createSwarmState,
   hasSwarmRuntime,
   initializeSwarmInsects,
+  stepSwarmBuilding,
   stepSwarmLifetime,
   stepSwarmMotion,
   swarmNeedsScan,
@@ -93,6 +95,7 @@ import { startArmageddon } from './armageddon.ts'
 import { setDirectPersonDestination } from './person-routes.ts'
 import { blastPersonPosition } from './blast-targeting.ts'
 import { residentPerson } from './building-resident.ts'
+import { leaveBuildingEntry } from './live-building-entry.ts'
 
 const debrisModels: Record<number, NativeModel> = modelAssets
 const SHIELD_TURNS = constants.SHIELD_COUNT_X8 * 8
@@ -823,6 +826,52 @@ export function stepLiveBlastWave(w: World, wave: BlastWave) {
   return alive
 }
 
+function ejectSwarmBuildingPeople(w: World, id: number, tribe: number) {
+  const building = w.buildings.find(b => b.id === id)
+  if (!building?.admission?.inside) return
+  // Native walks six physical slots while removal callbacks mutate the array.
+  for (let slot = 0; slot < 6; slot++) {
+    const personId = building.admission.occupants[slot],
+      unit = w.units.find(u => u.id === personId && u.hp > 0)
+    if (!unit) continue
+    const p = leaveBuildingEntry(w, unit)
+    if (!p || p.flags2 & 1 || !p.class) continue
+    unit.native = p
+    p.flags2 &= ~16
+    if (!(p.flags2 & 0x100000)) initializeLivePanic(w, unit, p)
+    // The building arm orders panic before ghost removal, then damage/reveal.
+    if (p.flags4 & 0x800) p.life = 0
+    damagePerson(p, w.levelFlags2, tribe, constants.SWARM_PERSON_DAMAGE)
+    if (p.model === 5) p.disguise = (p.tribe << 6) & 255
+    unit.hp = p.life / 20
+  }
+}
+
+function swarmBuildingEffects(w: World, swarm: ReturnType<typeof swarmState>) {
+  const valid = (id: number) => w.buildings.find(b => b.id === id && b.hp > 0)
+  return {
+    acquire: (history: readonly number[]) => {
+      const origin = (swarm.origin.y & 0xfe00) | ((swarm.origin.x >>> 8) & 254)
+      for (let index = 0; index < 167; index++) {
+        const cell = spiralCell(origin, index, 0)
+        // Buildings have no native class-2 cell chain in this adapter. Retain
+        // roster order within a cell; the authored witness has a unique target.
+        const building = w.buildings.find(b => {
+          if (b.hp <= 0 || tribeForTeam(b.team) === swarm.tribe || history.includes(b.id))
+            return false
+          const point = nativePosition(w, b)
+          return ((point.y & 0xfe00) | ((point.x >>> 8) & 254)) === cell
+        })
+        if (building) return building.id
+      }
+    },
+    valid: (id: number) => !!valid(id),
+    outside: (id: number) => buildingOutsidePoint(buildingPose(valid(id)!)),
+    inside: (id: number) => buildingInsidePoint(buildingPose(valid(id)!)),
+    eject: (id: number) => ejectSwarmBuildingPeople(w, id, swarm.tribe),
+  }
+}
+
 export function stepSwarm(w: World, fx: Effect) {
   const stored = fx.swarm!
   if (!hasSwarmRuntime(stored)) {
@@ -840,7 +889,7 @@ export function stepSwarm(w: World, fx: Effect) {
   if (initializing) {
     initializeSwarmInsects(w, swarm)
     swarm.phase = 'wandering'
-  }
+  } else stepSwarmBuilding(w, swarm, swarmBuildingEffects(w, swarm))
   if (swarmNeedsScan(swarm)) {
     const centerCell = ((swarm.y & 0xfe00) | ((swarm.x >>> 8) & 254)) >>> 0,
       cells = new Set([
@@ -882,7 +931,7 @@ export function stepSwarm(w: World, fx: Effect) {
     }
     swarm.applied = true
   }
-  stepSwarmMotion(w, swarm, point => terrainPointHeight(w.land, point), !initializing)
+  stepSwarmMotion(w, swarm, point => terrainPointHeight(w.land, point), false)
   Object.assign(fx, browserPosition(swarm))
   fx.height = swarm.h / 45
   return stepSwarmLifetime(swarm)
