@@ -804,7 +804,9 @@ function produceMissionTraining(w: World, tribe: number) {
   if (!(w.ai.states & (1 << 6))) return false
   const population = campaignPersonCount(w, tribe),
     eligible = [
-      ...(w.outcome.level === 6 && tribe === 2 ? [{ model: 4, building: 5, preference: 6 }] : []),
+      ...([6, 7].includes(w.outcome.level) && tribe === 2
+        ? [{ model: 4, building: 5, preference: 6 }]
+        : []),
       { model: 3, building: 7, preference: 7 },
     ]
       .map(candidate => ({
@@ -827,6 +829,7 @@ function produceMissionTraining(w: World, tribe: number) {
   if (
     (w.outcome.level >= 1 && w.outcome.level <= 3) ||
     w.outcome.level === 6 ||
+    (w.outcome.level === 7 && tribe === 2) ||
     w.outcome.level === 12 ||
     w.outcome.level === 16
       ? !hasComputerTrainingCapacity(available, capacity)
@@ -861,7 +864,7 @@ function produceMissionBuilding(w: World, tribe: number) {
         )
       }, 0)
   if (
-    ![2, 3, 6, 11, 12, 23].includes(w.outcome.level) ||
+    (![2, 3, 6, 11, 12, 23].includes(w.outcome.level) && !(w.outcome.level === 7 && tribe === 2)) ||
     !(w.ai.states & 1) ||
     w.ai.tasks.filter(task => task.flags & 1 && task.type === 0).length >= w.ai.attributes[9]
   )
@@ -1602,7 +1605,7 @@ export function stepComputerTasks(w: World, tribe: number) {
     return
   }
   if (phase === 'produce') {
-    if (w.outcome.level >= 1 && w.outcome.level <= 3) {
+    if (earlyResponse || (w.outcome.level === 7 && tribe === 2)) {
       produceComputerTasks(
         w.ai,
         id => {

@@ -863,6 +863,10 @@ export function campaignRules(w: World) {
                           12,
                           1003,
                           ...script.codes.slice(254, 259),
+                          // Chumara's original EVERY255 settlement and training targets.
+                          // Later tower, patrol, raid and message branches remain unbound.
+                          ...script.codes.slice(447, 595),
+                          1004,
                           ...script.codes.slice(1892, 1978),
                           1004,
                           1019,
