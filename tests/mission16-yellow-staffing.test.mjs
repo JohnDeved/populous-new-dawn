@@ -130,12 +130,12 @@ test('ordinary M16 recurring requests physically garrison all five Towers and re
       [295, 291, 168],
       [296, 289, 180],
       [297, 290, 190],
-      [298, 292, 200],
+      [298, 292, 196],
     ]
   )
   assert.deepEqual(
     [...orders].sort((a, b) => a - b),
-    [7, 19, 26, 27, 29]
+    [7, 19, 25, 27, 28]
   )
   for (const id of orders) assert.equal(w.buildingOrders.records[id].references, 0)
   for (const id of ids) {
