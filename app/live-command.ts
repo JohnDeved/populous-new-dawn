@@ -34,6 +34,7 @@ import {
 } from './person-orders.ts'
 import {
   appendLiveOrders,
+  appendLivePlayerOrders,
   anchorLiveShamanGuard,
   cancelLiveOrder,
   cancelLiveTransportOrder,
@@ -715,7 +716,7 @@ export function command(
       ((to.x >>> 8) & 255) | (to.y & 0xff00),
       input.flags
     )
-    const result = appendLiveOrders(w, units, order, slot === 0)
+    const result = appendLivePlayerOrders(w, units, order, slot === 0)
     if (model === 15 && result.accepted && context.building)
       for (const u of units) {
         const person = u.native ?? u.entry?.person ?? u.builder?.person

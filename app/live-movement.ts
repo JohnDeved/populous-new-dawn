@@ -289,6 +289,17 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
   return issueLiveOrders(w, units, command, replace, false)
 }
 
+// 0x444f60's generic player-input tail restarts command28 as well. Direct
+// 0x43b670 attachment and existing computer callers retain their separate path.
+export function appendLivePlayerOrders(
+  w: World,
+  units: Unit[],
+  command: PersonOrder,
+  replace: boolean
+) {
+  return issueLiveOrders(w, units, command, replace, false, command.model === 28)
+}
+
 // Ordinary training input clears the entire selection before allocating once.
 // AI replacement and Ctrl queues retain their existing append semantics.
 export function replaceLiveTrainingOrders(w: World, units: Unit[], command: PersonOrder) {
@@ -300,7 +311,8 @@ function issueLiveOrders(
   units: Unit[],
   command: PersonOrder,
   replace: boolean,
-  playerReplacement: boolean
+  playerReplacement: boolean,
+  restartDirectTarget = false
 ) {
   let count = 0
   const bindings = units.map(unit => {
@@ -414,24 +426,24 @@ function issueLiveOrders(
     const p = person!
     if (!accepted && !playerReplacement && preachers.includes(p)) continue
     // 0x43b670 only replaces and attaches command 28; keep direct-target motion intact.
-    if (command.model === 28) {
+    if (command.model === 28 && !restartDirectTarget) {
       if (!retained) adoptLiveOrders(w, u, p)
       continue
     }
     if (p.state === 25 || p.state === 29) continue
     // Native player input restarts the active order even when appending a later one.
     resetPersonMotion(p)
-    if (playerReplacement && p.flags2 & 0x100000) {
+    if ((playerReplacement || restartDirectTarget) && p.flags2 & 0x100000) {
       // No initializer may run for this person. A failed click still removes
       // its browser entry adapter and physical queue link before the next turn.
-      if (!accepted && u.entry?.person === p) {
+      if (playerReplacement && !accepted && u.entry?.person === p) {
         cancelBuildingEntry(w, u)
         u.native = p
         u.work = null
       }
       continue
     }
-    p.previousState = !playerReplacement && p.state === 14 ? 14 : 0
+    p.previousState = !playerReplacement && !restartDirectTarget && p.state === 14 ? 14 : 0
     p.state = defaultPersonState(p, w.manaWorld.gameFlags)
     if (u.entry) initializeBuildingPerson(w, p)
     else changeLivePersonState(w, u, undefined, p)
