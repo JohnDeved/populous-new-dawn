@@ -2,6 +2,24 @@
 
 Bounded retained-source proof for #102 blocking #96. This note does not authorize production edits.
 
+## 2026-10-13 correction to the historical acceptance wording
+
+PR106 already corrected object100's imported native coordinates. PR422 supplies
+initial authored Boat construction; it does not complete the separate reward
+path. The later paragraphs proposing equivalent preparation only at activation,
+or activation that simply preserves the inactive template's position, are
+historical and are not the current native contract.
+
+The source sequence below is decisive: initial allocation prepares the inactive
+source; reward004fb270 allocates a NEW vehicle from that source's CURRENT live
+position, runs the constructor again against reward-time terrain/occupancy/search
+state, and then004ede10 preserves the NEW destination's position/state/list links
+through its template copy. Even an already-valid point receives the successful
+162-unit category adjustment again. The old source is subsequently deleted.
+A single preparation plus active=true is therefore insufficient. Initial and
+reward-time input contexts, allocation identity and template-copy field ownership
+need distinct tests. No exact M5 reward endpoint is claimed by the cold M10 proof.
+
 ## Provenance
 
 - Verified executable: `d3dpoptb.exe`, SHA-256 `3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`.
