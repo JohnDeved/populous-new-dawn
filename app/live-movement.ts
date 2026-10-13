@@ -58,7 +58,6 @@ import {
 } from './person-state.ts'
 import {
   currentPersonOrder,
-  hasFollowingPersonOrder,
   emptyPersonOrder,
   allocatePersonOrder,
   attachPersonOrder,
@@ -902,21 +901,19 @@ export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects
       },
       destination: point => replanLivePath(w, u, p, point),
     })
+  const airborne = !!(
+    p.vehicle && rules.vehicleRestFlags[liveVehicles(w).get(p.vehicle)?.model ?? 0] & 1
+  )
   const driver = p.vehicle ? stepLiveVehicle(w, p) : false
   if (!p.vehicle) stepLivePhysics(w, u, p)
   if (!p.vehicle || driver) stepLiveRoute(w, u)
-  else if (!boarding) {
-    const order = currentPersonOrder(w.buildingOrders, p)
-    // Queue completion belongs to each seated person; only motion is driver-owned.
-    if (order?.model !== 3 || !(order.flags & 128 || hasFollowingPersonOrder(w.buildingOrders, p)))
-      return
-  }
+  else if (!boarding && (!airborne || currentPersonOrder(w.buildingOrders, p)?.model !== 3)) return
   if (p.state !== 10 || (p.guardInputPending && p.flags2 & 16)) return
   const next = stepLiveOrderQueue(w, u, p, {
     3: order => {
-      // 0x4336c0 completes intermediate/staged waypoints without disembarking.
-      // The shared 0x432590 queue advances before its final departure predicate.
-      if (!p.vehicle || order.flags & 128 || hasFollowingPersonOrder(w.buildingOrders, p))
+      // 0x4336c0 owns every airborne command3, including plain tails.
+      // 0x432590 subsequently applies the per-person departure flags.
+      if (!p.vehicle || airborne)
         return Number(
           stepMovementOrder(p, order, w.land.categories, id => liveVehicles(w).get(id)!)
         )
@@ -1109,6 +1106,7 @@ export function stepLiveOrderQueue(
       leaveVehicle: () => {
         const vehicle = w.vehicles.find(v => v.id === p.vehicle && v.active)
         if (!vehicle) return false
+        if (!(rules.vehicleRestFlags[vehicle.model] & 1)) return unsupported()
         const exit = vehicleExit(w, vehicle)
         if (!exit.found) return false
         leaveLiveVehicle(w, vehicle, p, exit.point)

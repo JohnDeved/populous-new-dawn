@@ -482,13 +482,18 @@ export function command(
   if (!context?.enabled) return false
   const { model } = context
   w.lastOrderTurn = w.turn
-  if (model === 3 && !modifiers.ctrlKey && !w.orderCursor) {
+  if (model === 3) {
     const vehicles = new Set(
       w.units
         .filter(u => w.selected.includes(u.id) && u.native?.vehicle)
         .map(u => u.native!.vehicle)
     )
-    if (vehicles.size) {
+    const airborneSelection = [...vehicles].every(id => {
+      const vehicle = w.vehicles.find(v => v.id === id && v.active)
+      return vehicle && rules.vehicleRestFlags[vehicle.model] & 1
+    })
+    // Keep the existing Boat/mixed-selection adapter until its controller is qualified.
+    if (vehicles.size && !airborneSelection) {
       const to = nativePosition(w, p),
         landingReservations = {
           search: w.indexedSearch,
