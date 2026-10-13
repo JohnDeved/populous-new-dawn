@@ -174,7 +174,7 @@ test('ordinary airborne tower command reaches departure and authored melee throu
   assert.equal(shaman.hp, 0)
   assert.equal(world.units.includes(shaman), false)
   assert.equal(world.objectCells.objects.has(shaman.id), false)
-  assert.ok(world.buildings.includes(target))
+  assert.equal(world.buildings.includes(target), false)
   assert.equal(order.references, 0)
   assert.deepEqual(balloon.passengers, [])
 })
