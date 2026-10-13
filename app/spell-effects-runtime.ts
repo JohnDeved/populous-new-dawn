@@ -139,14 +139,56 @@ function replaceHypnotisedUnit(w: World, source: Unit, team: Team, originalTeam?
   return replacement
 }
 
-export function applyHypnotise(w: World, point: Point, team: Team) {
+// 00515e30 marks nearest recipients, then invokes callbacks along its prepended
+// discovery chain. Keep the whole legacy projection when exact ownership or
+// geometry is unavailable; this does not expand the existing eligibility rules.
+function registeredHypnotiseOrder(
+  w: World,
+  candidates: { u: Unit; p: { x: number; y: number }; scan: number }[],
+  x: number,
+  y: number
+) {
+  const byId = new Map(candidates.map(candidate => [candidate.u.id, candidate])),
+    reverse: typeof candidates = [],
+    seen = new Set<number>()
+  if (byId.size !== candidates.length) return null
+  for (const dy of [-2, 0, 2])
+    for (const dx of [-2, 0, 2])
+      for (const object of objectsInCell(
+        w.objectCells,
+        ((x + dx) & 254) | (((y + dy) & 254) << 8)
+      )) {
+        const candidate = byId.get(object.id)
+        if (!candidate) continue
+        const owner = unitAnimationSource(candidate.u)
+        if (
+          !owner ||
+          object !== owner ||
+          owner.id !== candidate.u.id ||
+          w.objectCells.objects.get(owner.id) !== owner ||
+          seen.has(owner.id) ||
+          owner.class !== 1 ||
+          owner.flags2 & 1 ||
+          owner.tribe !== tribeForTeam(candidate.u.team) ||
+          owner.model !== nativePersonModel(candidate.u) ||
+          (owner.x & 65535) !== (candidate.p.x & 65535) ||
+          (owner.y & 65535) !== (candidate.p.y & 65535)
+        )
+          return null
+        seen.add(owner.id)
+        reverse.unshift(candidate)
+      }
+  return seen.size === candidates.length ? reverse : null
+}
+
+export function hypnotiseTargets(w: World, point: Point, team: Team) {
   const center = nativePosition(w, point),
     x = (center.x >>> 8) & 254,
     y = (center.y >>> 8) & 254,
     order = new Map<string, number>()
   for (const dy of [-2, 0, 2])
     for (const dx of [-2, 0, 2]) order.set(`${(x + dx) & 254}:${(y + dy) & 254}`, order.size)
-  const targets = w.units
+  const candidates = w.units
     .map((u, index) => {
       const p = nativePosition(w, u),
         scan = order.get(`${(p.x >>> 8) & 254}:${(p.y >>> 8) & 254}`)
@@ -163,10 +205,21 @@ export function applyHypnotise(w: World, point: Point, team: Team) {
         !u.invisibility
       )
     })
-    .toSorted(
-      (a, b) => positionDistance(a.p, center) - positionDistance(b.p, center) || b.scan - a.scan
-    )
-    .slice(0, constants.HYPNO_NUM_PEOPLE)
+  const reverse = registeredHypnotiseOrder(w, candidates, x, y),
+    nearest = (reverse ?? candidates)
+      .toSorted(
+        (a, b) =>
+          positionDistance(a.p, center) - positionDistance(b.p, center) ||
+          (reverse ? 0 : b.scan - a.scan)
+      )
+      .slice(0, constants.HYPNO_NUM_PEOPLE),
+    marked = new Set(nearest),
+    targets = reverse ? reverse.filter(candidate => marked.has(candidate)) : nearest
+  return targets
+}
+
+export function applyHypnotise(w: World, point: Point, team: Team) {
+  const targets = hypnotiseTargets(w, point, team)
   for (const { u } of targets) {
     const p = unitAnimationSource(u)
     if ((p?.flags4 ?? 0) & 0x800) {
