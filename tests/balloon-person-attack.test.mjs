@@ -133,13 +133,14 @@ test('ordinary queued person target moves its transport and preserves handoff th
     if (shaman.hp <= 0 && !death) death = world.turn
     if (target.hp <= 0 && !targetDeath) targetDeath = world.turn
   }
-  assert.equal(departure, 4280)
-  assert.equal(firstFight, 4290)
-  assert.equal(firstOpponent, 10)
+  assert.equal(departure, 4284)
+  assert.equal(firstFight, 4285)
+  assert.equal(firstOpponent, 17)
   assert.equal(firstOpponentTeam, 'green')
-  // Recurring Red patrols change the timeline. Warrior10 intercepts before the
-  // selected target is reached; combat death retires28 while target17 survives.
-  assert.equal(death, 4344)
+  // Shared Balloon input changes the preceding trajectory/RNG. The selected
+  // Preacher17 is reached first; later observed death retires28 while17 survives.
+  // This is a browser outcome, not a native damage/landing parity claim.
+  assert.equal(death, 4305)
   assert.equal(targetDeath, 0)
   assert.equal(shaman.hp, 0)
   assert.equal(world.units.includes(shaman), false)

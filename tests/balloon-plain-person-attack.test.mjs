@@ -195,11 +195,11 @@ test('ordinary plain person target queues an unstaged transport attack through S
     if (target.hp <= 0 && !targetDeath) targetDeath = world.turn
     if (shaman.hp <= 0 && !death) death = world.turn
   }
-  assert.equal(departure, 4284)
-  assert.equal(firstFight, 4294)
-  assert.equal(firstOpponent, 10)
+  assert.equal(departure, 4288)
+  assert.equal(firstFight, 4289)
+  assert.equal(firstOpponent, 17)
   assert.equal(firstOpponentTeam, 'green')
-  assert.equal(death, 4373)
+  assert.equal(death, 4312)
   assert.equal(targetDeath, 0)
   assert.equal(shaman.hp, 0)
   assert.equal(world.objectCells.objects.has(shaman.id), false)
