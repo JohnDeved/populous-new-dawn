@@ -141,7 +141,27 @@ test('earned Hypnotise converts an ordinary registered enemy Tower occupant and 
   assert.ok(!w.objectCells.objects.has(target.id))
   assert.equal(tower.admission.inside, 0)
   assert.ok(!tower.admission.occupants.includes(target.id))
-  for (let n = 0; n < 470; n++) step()
+  const convertedOwner = converted.native
+  while (w.turn < 6330) step()
+  assert.equal(converted.hp, 3.6)
+  assert.equal(converted.hypnotise.remaining, 45)
+  const beforeDeathUnitIds = new Set(w.units.map(u => u.id))
+  step()
+  assert.equal(w.turn, 6331)
+  assert.equal(converted.hp, 0)
+  assert.equal(converted.team, 'red')
+  assert.equal(converted.hypnotise, undefined)
+  assert.equal(convertedOwner.tribe, 1)
+  assert.equal(convertedOwner.flags4 & 0x4000, 0)
+  assert.ok(!w.units.includes(converted))
+  assert.ok(!w.objectCells.objects.has(converted.id))
+  // Natural death restores the retained owner before removal; this route does
+  // not exercise expiry or allocate a restored replacement.
+  assert.deepEqual(
+    w.units.filter(u => !beforeDeathUnitIds.has(u.id)),
+    []
+  )
+  while (w.turn < 6721) step()
   assert.ok(!w.units.includes(converted))
   assert.ok(!w.objectCells.objects.has(converted.id))
 })
