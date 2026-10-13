@@ -47,7 +47,7 @@ test('unload click rechecks speed, occupancy and terrain after rendered enabled 
  assert.ok(units.every(u=>u.native.vehicle===v.id))
 })
 
-test('authored Mission22 Boat and Balloon unload retain launch until a living landing',()=>{
+test('supplied passengers retain actual prepared Mission22 unload trajectories until settling',()=>{
  for(const model of [1,3]){
   const w=createWorld(22),v=w.vehicles.find(v=>v.model===model)
   w.units=[];w.pathfinding.people.clear();w.manaWorld.gameFlags=32
@@ -55,10 +55,55 @@ test('authored Mission22 Boat and Balloon unload retain launch until a living la
   const u=addUnit(w,'blue','brave',point);w.selected=[u.id]
   assert.equal(command(w,{...browserPosition(v),id:v.id}),true)
   for(let turn=0;turn<24&&!u.native?.vehicle;turn++)tick(w,1/12)
-  assert.equal(u.native.vehicle,v.id);assert.equal(unloadLiveVehicle(w,v),true)
+  assert.equal(u.native.vehicle,v.id)
+  const retained=u.native
+  assert.equal(unloadLiveVehicle(w,v),true)
+  if(model===1) {
+   assert.deepEqual([retained.x,retained.y,retained.h],[10330,6177,48])
+   assert.deepEqual(retained.velocity,{x:-118,y:60,z:-109})
+  }
   let turns=0
   for(;u.flight&&turns<200;turns++)stepLiveImpulse(w,u)
   assert.ok(turns>1,`model${model}: impulse must not be discarded on its first tick`)
-  assert.equal(u.flight,undefined);assert.ok(u.hp>0,`model${model}: living landing`)
+  assert.equal(u.flight,undefined)
+  assert.equal(retained.flags4&0x400,0)
+  assert.equal(retained.life,1000)
+  if(model===1) {
+   // The prepared seat launches toward a valid exit, but this supplied direct
+   // unload settles in water first. The existing adapter clears browser HP;
+   // native life remains positive. This is not native death parity.
+   assert.equal(turns,4)
+   assert.deepEqual([retained.x,retained.y,retained.h],[9878,5761,0])
+   assert.equal(supportsFollower(w,u),false)
+   assert.equal(u.hp,0)
+  } else {
+   assert.equal(turns,5)
+   assert.deepEqual([retained.x,retained.y,retained.h],[46336,15298,931])
+   assert.equal(supportsFollower(w,u),true)
+   assert.equal(u.hp,50)
+  }
+ }
+})
+
+// Explicitly supplied terrain control, separate from the authored shoreline above.
+test('supplied dry neighborhood preserves living Boat and Balloon unload landings',()=>{
+ for(const model of [1,3]) {
+  const {w,v,units}=setup(model)
+  w.land.categories.fill(0)
+  w.land.categories[((v.y&65535)>>9)*128+((v.x&65535)>>9)]=2
+  assert.equal(canUnloadVehicle(w,v),true)
+  assert.equal(unloadLiveVehicle(w,v),true)
+  for(const u of units) {
+   const person=u.flight,hp=u.hp
+   let steps=0
+   for(;u.flight&&steps<200;steps++)stepLiveImpulse(w,u)
+   assert.equal(steps,model===1?6:7)
+   assert.equal(u.flight,undefined)
+   assert.equal(person.vehicle,0)
+   assert.equal(person.flags4&0x400,0)
+   assert.equal(supportsFollower(w,u),true)
+   assert.equal(u.hp,hp)
+  }
+  assert.equal(v.passengerCount,0)
  }
 })

@@ -196,7 +196,8 @@ test('M5 linked Boat is prepared while still inactive and attached to its reward
     head = w.shrines.find(s => s.kind === 'boat')
   assert.equal(boat.active, false)
   assert.equal(head.rewardVehicle, boat.id)
-  assert.notDeepEqual([boat.x, boat.y], [-7084, 12197])
+  // Observed source-general browser initialization, not native M5 endpoint parity.
+  assert.deepEqual([boat.x, boat.y, boat.heading], [58226, 12429, 7 * Math.PI / 4])
   assert.equal(boat.physics, 12)
   assert.equal(boat.speed, 0)
   assert.equal(vehicleReady(w.land, boat), true)

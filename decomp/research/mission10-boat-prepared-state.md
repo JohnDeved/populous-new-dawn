@@ -268,3 +268,14 @@ transport increment rather than concealed by moving-phase test maintenance.
 
 All observations here are game-source CPU evidence. Original executable execution
 and rendered gameplay acceptance are not claimed.
+
+The supplied direct-unload regression also exposes a material seat-projection
+consequence. In untouched Mission22 terrain, a supplied Brave aboard the prepared
+Boat starts at10330/6177/h48 and launches with velocity(-118,60,-109) toward the
+valid projected exit9600/5504. Four physics steps settle at9878/5761/h0, still
+unsupported: retained native life1000 stays positive while the existing browser
+landing adapter sets HP0 and clears flight. This scoped result is not native death
+parity. The authored Balloon control still settles supported and alive. A separate,
+explicitly supplied dry-category neighborhood with a retained coastal craft cell
+verifies living Boat and Balloon unload mechanics without replacing the actual
+shoreline hazard. Ordinary sailed Mission22 landing remains separately exercised.
