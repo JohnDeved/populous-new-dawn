@@ -242,6 +242,15 @@ function destroyLiveVehicle(w: World, v: Vehicle) {
 // with an eligible queued command. Person phases and order references are untouched.
 // The browser schedules this once before person visits; native object-list ordering
 // and the existing movement adapter remain separate composition boundaries.
+const vehicleMovementPass = new WeakMap<World, Set<number>>()
+
+// A browser world pass owns one airborne craft decision, independently of how
+// many people become driver during its visits. Checkpoints occur between passes.
+export function beginLiveVehiclePass(w: World) {
+  vehicleMovementPass.set(w, new Set())
+  selectLiveBalloonDrivers(w)
+}
+
 export function selectLiveBalloonDrivers(w: World) {
   for (const v of w.vehicles) {
     if (!v.active || !(rules.vehicleRestFlags[v.model] & 1) || !v.passengerCount) continue
@@ -315,6 +324,7 @@ export function stepLiveVehicles(w: World) {
   // The vehicle controller publishes seats after all person route/controller
   // visits. A boarding route may otherwise overwrite its provisional placement.
   for (const v of w.vehicles) if (v.active && v.passengerCount) syncLiveVehiclePassengers(w, v)
+  vehicleMovementPass.delete(w)
 }
 
 export function stepLiveVehicle(w: World, p: LivePerson) {
@@ -323,6 +333,14 @@ export function stepLiveVehicle(w: World, p: LivePerson) {
   if (v.passengers[0] !== p.id) {
     syncLiveVehiclePassengers(w, v)
     return false
+  }
+  if (rules.vehicleRestFlags[v.model] & 1) {
+    const moved = vehicleMovementPass.get(w)
+    if (moved?.has(v.id)) {
+      syncLiveVehiclePassengers(w, v)
+      return true
+    }
+    moved?.add(v.id)
   }
   const vehicles = liveVehicles(w),
     vehicleWorld = {

@@ -1040,6 +1040,23 @@ export function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
   if (ctx) w.randomState = ctx.state.randomState
 }
 
+// Publish the existing voluntary vehicle-launch physics/animation owner.
+export function publishLiveVehicleLaunch(w: World, p: LivePerson) {
+  const unit = w.units.find(u => u.id === p.id)
+  if (!unit) return
+  // Expose the ordinary physics owner without destruction's extra flags.
+  unit.flight = p
+  unit.lift = 1
+  setLivePersonAnimation(w, p, rules.personAnimationObjects[(p.cargo ? 4 : 7) * 9 + p.model])
+  if (!p.cargo) {
+    p.f2 = 0
+    p.f1 = rules.animationDescriptors[p.draw].hold
+  }
+  p.assignment |= 128
+  p.slowTurn =
+    ((sprites.frameCounts[p.object] * (rules.animationDescriptors[p.draw].step + 1)) << 24) >> 24
+}
+
 export function stepLiveImpulse(w: World, u: Unit) {
   const p = u.flight!
   stepLivePhysics(w, u, p)

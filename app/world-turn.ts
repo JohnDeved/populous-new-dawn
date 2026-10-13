@@ -341,7 +341,7 @@ import {
   boardLiveVehicle,
   removeMissingVehiclePassengers,
   stepLiveVehicles,
-  selectLiveBalloonDrivers,
+  beginLiveVehiclePass,
   syncLiveVehiclePassengers,
 } from './live-vehicles.ts'
 import {
@@ -1285,7 +1285,7 @@ function stepTurn(w: World) {
   const startingPeople = new Set(w.units.filter(u => levelStartOwnsShaman(w, u)).map(u => u.id))
   stepLevelStarts(w)
   const armageddon = w.effects.find(fx => fx.armageddon)?.armageddon
-  selectLiveBalloonDrivers(w)
+  beginLiveVehiclePass(w)
   for (const u of w.units) {
     if (startingPeople.has(u.id)) continue
     if (u.attackReservation) stepAttackReservation(u.attackReservation, w.turn)

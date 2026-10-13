@@ -1,3 +1,4 @@
+import { departVehiclePerson } from './vehicle-unload.ts'
 import { buildingPose } from './building-shapes.ts'
 import { clearTaskBindings, releaseTasks } from './world-tasks.ts'
 import {
@@ -15,6 +16,7 @@ import {
   createLivePerson,
   leaveLiveBuilding,
   changeLivePersonState,
+  publishLiveVehicleLaunch,
   registerLivePerson,
   setLivePersonAnimation,
   stepLivePhysics,
@@ -1109,7 +1111,8 @@ export function stepLiveOrderQueue(
         if (!(rules.vehicleRestFlags[vehicle.model] & 1)) return unsupported()
         const exit = vehicleExit(w, vehicle)
         if (!exit.found) return false
-        leaveLiveVehicle(w, vehicle, p, exit.point)
+        if (!departVehiclePerson(w, vehicle, p, exit.point)) return false
+        publishLiveVehicleLaunch(w, p)
         return true
       },
       outside: to => outsideBuilding(w, to),
