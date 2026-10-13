@@ -940,6 +940,11 @@ export function campaignRules(w: World) {
                                         ]
                                       : [12, 1003, 1004, 1019],
   }
+  if (w.outcome.level === 18 && tribe === 1) {
+    // Complete first patrol/Preacher block and the following original kill-count
+    // guard transition. Later attack phases never reopen its zero-valued gate.
+    boundCampaignScript.codes = [12, 1003, ...script.codes.slice(624, 663), 1004, 1004, 1019]
+  }
   if (w.outcome.level === 22 && tribe === 1) {
     // Authored EVERY255 Tower staffing followed by marker-route staffing.
     // The later conditional emergency sibling remains unbound.
