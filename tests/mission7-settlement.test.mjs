@@ -6,6 +6,7 @@ import { campaignInternal } from '../app/campaign-runtime.ts'
 import { stepComputerTasks } from '../app/computer-runtime.ts'
 import { createLivePerson } from '../app/live-people.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
+import { messageStringId } from '../app/messages.ts'
 import { retainFixtureUnits } from './level-start-fixture.mjs'
 
 test('M7 economic EVERY255 runs on Chumara phase254 and510, capped at40', () => {
@@ -75,4 +76,15 @@ test('M7 original roster builds its settlement and retains producer history on r
   const replay = migrateCheckpoint(structuredClone(w))
   for (let i = 0; i < 64; i++) { tick(w, 1 / 12); tick(replay, 1 / 12) }
   assert.deepEqual(replay, w)
+})
+
+test('M7 settlement projection leaves later raid/message51 branch unbound', () => {
+  const w = createWorld(7)
+  // Supplied latch would trigger the excluded raid warning; no false completion claim.
+  w.ai.variables[26] = 1
+  w.turn = 8190
+  campaignRules(w)
+  assert.equal(w.ai.variables[26], 1)
+  assert.ok(!w.messages.slots.some(m => m?.stringId === messageStringId(51)))
+  assert.equal(w.ai.tasks.filter(t => t.flags & 1 && t.type === 20).length, 0)
 })
