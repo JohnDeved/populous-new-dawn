@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createGameStore } from '../app/game-store.ts'
 import { command, cast, tick, selectUnit, nativePosition } from '../app/model.ts'
+import { stepSwarm } from '../app/spell-effects-runtime.ts'
 import { spellTargetError } from '../app/live-command.ts'
 import { spiralCell, random } from '../app/native-math.ts'
 import {
@@ -90,13 +91,31 @@ test('Swarm building stages keep visit boundaries, history RNG, invalidation and
   )
   assert.equal(state.phase, 'wandering')
   state.phase = 'building'
-  state.stopped = true
+  state.stage = 2
+  state.stopped = false
   valid = false
   const before = structuredClone(state.insects)
   stepSwarmBuilding(rng, state, effects)
   assert.equal(state.phase, 'wandering')
+  assert.equal(state.stopped, false)
+  assert.deepEqual(state.insects, before)
+  state.phase = 'building'
+  state.stage = 4
+  state.stopped = true
+  stepSwarmBuilding(rng, state, effects)
+  assert.equal(state.phase, 'wandering')
   assert.equal(state.stopped, true)
   assert.deepEqual(state.insects, before)
+  valid = true
+  state.phase = 'wandering'
+  state.wander = 10
+  state.visitedBuildings = Array.from({ length: 10 }, (_, i) => i + 1)
+  const historyOracle = { randomState: rng.randomState },
+    expected = [...state.visitedBuildings]
+  expected[random(historyOracle) % 10] = 42
+  stepSwarmBuilding(rng, state, effects)
+  assert.deepEqual(state.visitedBuildings, expected)
+  assert.equal(rng.randomState, historyOracle.randomState)
 })
 
 test('earned M22 Swarm pursues a unique occupied hut, ejects residents and returns with public checkpoint continuity', async () => {
@@ -150,6 +169,14 @@ test('earned M22 Swarm pursues a unique occupied hut, ejects residents and retur
   assert.deepEqual(first, { n: 7, ids: [92] })
   tick(w, 1 / 12)
   assert.deepEqual([swarm.phase, swarm.stage, swarm.building], ['building', 0, 92])
+  // Supplied repeat-window projection: an already visited hut is never reacquired.
+  const revisiting = structuredClone(w),
+    revisitFx = revisiting.effects.find(f => f.swarm)
+  revisitFx.swarm.phase = 'wandering'
+  revisitFx.swarm.remaining = 192
+  revisitFx.swarm.building = undefined
+  stepSwarm(revisiting, revisitFx)
+  assert.notEqual(revisitFx.swarm.building, 92)
   until(() => swarm.stage === 4, 100)
   assert.ok(residents.every(u => u.inside === hut.id && u.hp === 50))
   await store.saveCheckpoint()
@@ -168,7 +195,23 @@ test('earned M22 Swarm pursues a unique occupied hut, ejects residents and retur
     tick(w, 1 / 12)
     tick(restored, 1 / 12)
     assert.deepEqual(comparable(restored), comparable(w))
-    if (swarm.stage === 5) ingress = swarm.insects.every(i => i.hidden)
+    if (swarm.stage === 5) {
+      ingress = swarm.insects.every(i => i.hidden)
+      // Supplied stale slots/count0: source checks count once before traversal.
+      const stale = structuredClone(w),
+        staleFx = stale.effects.find(f => f.swarm),
+        staleHut = stale.buildings.find(b => b.id === 92)
+      staleHut.admission.inside = 0
+      staleFx.swarm.remaining = 101 // isolate building arm from the common ground scan
+      const people = stale.units.filter(u => residents.some(r => r.id === u.id)),
+        before = people.map(u => [u.id, u.inside, u.hp])
+      stepSwarm(stale, staleFx)
+      assert.deepEqual(
+        people.map(u => [u.id, u.inside, u.hp]),
+        before
+      )
+      assert.equal(staleFx.swarm.stage, 6)
+    }
     if (!ejected && swarm.stage === 6) {
       ejected = true
       assert.ok(ingress)
