@@ -96,6 +96,7 @@ export function processBoatRewardInitialization(
     if (vehicle.life < 1) {
       result.state = 5
       vehicle.speed = 0
+      vehicleExit(world, vehicle)
       vehicle.navigationFlags |= 0x10000
       vehicle.destructionState = 5
       vehicle.active = false
