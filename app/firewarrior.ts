@@ -1,5 +1,11 @@
-import type { Building, Effect, Unit, World } from './world-types.ts'
-import { tribeForTeam } from './world-types.ts'
+import {
+  tribeForTeam,
+  type Building,
+  type Effect,
+  type NativePoint,
+  type Unit,
+  type World,
+} from './world-types.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import { nativeAngle, short } from './native-math.ts'
 import { browserPosition, nativeDistance, nativeStep3D } from './world-coordinates.ts'
@@ -22,13 +28,33 @@ function locate(fx: Effect, p: { x: number; y: number; h: number }) {
   fx.height = p.h / 45
 }
 
+type FirewarriorTarget =
+  | { entity: Unit | Building }
+  | { point: NativePoint; origin: NativePoint; heading: number }
+
 export function launchFirewarrior(w: World, source: Unit, target: Unit | Building) {
-  const origin = nativePosition(w, source),
-    destination = nativePosition(w, target),
+  return launchShots(w, source, { entity: target })
+}
+
+export function launchCelebrationShots(
+  w: World,
+  source: Unit,
+  person: NativePoint & { heading: number },
+  point: NativePoint
+) {
+  return launchShots(w, source, { point, origin: person, heading: person.heading })
+}
+
+function launchShots(w: World, source: Unit, target: FirewarriorTarget) {
+  const pointTarget = 'point' in target,
+    origin = pointTarget ? target.origin : nativePosition(w, source),
+    destination = pointTarget ? target.point : nativePosition(w, target.entity),
     tower = w.buildings.find(
       building => building.id === source.inside && building.kind === 'tower'
     ),
-    yaw = nativeAngle(short(destination.x - origin.x), -short(destination.y - origin.y))
+    yaw = pointTarget
+      ? target.heading
+      : nativeAngle(short(destination.x - origin.x), -short(destination.y - origin.y))
   let tracked = 0
   const heightOffset = tower
     ? (source.entry?.person.supportHeight ?? source.supportHeight ?? 0) + 16
@@ -37,25 +63,37 @@ export function launchFirewarrior(w: World, source: Unit, target: Unit | Buildin
     const position = nativeStep3D(origin, yaw + side * 512, 512, 0x60),
       fx = effect(w, 'firewarriorShot', browserPosition(position))
     position.h = Math.max(position.h, terrainPointHeight(w.land, position)) + heightOffset
+    if (pointTarget) position.h = short(position.h)
     fx.height = position.h / 45
     fx.duration = Infinity
     fx.sprite = { sequence: 'blastShot', frame: 0, fixed: true }
     fx.firewarriorShot = {
       source: source.id,
-      target: target.id,
       attacker: tribeForTeam(source.team),
-      remaining: 16,
       tower: !!tower,
       bloodlust: !!source.bloodlust,
       impact: side === 1,
-      destination: { ...destination, h: destination.h + 80 },
+      ...(pointTarget
+        ? {
+            pointTarget: {
+              x: short(destination.x),
+              y: short(destination.y),
+              h: short(destination.h),
+            },
+          }
+        : {
+            target: target.entity.id,
+            remaining: 16,
+            destination: { ...destination, h: destination.h + 80 },
+          }),
     }
+    if (pointTarget) sound(w, 0xa1, fx)
     tracked = fx.id
   }
   source.cooldown =
     (tower ? towerFirewarriorCooldown : firewarriorCooldown) /
     (source.bloodlust ? 1 << constants.BLOODLUST_SW_BLAST_X : 1)
-  sound(w, 0xa1, source)
+  if (!pointTarget) sound(w, 0xa1, source)
   return tracked
 }
 
@@ -93,10 +131,40 @@ export function firewarriorReady(w: World, source: Unit, target: Unit | Building
 export const towerFirewarriorReady = (w: World, source: Unit, target: Unit) =>
   firewarriorReady(w, source, target, true)
 
+// Point-mode flight uses the native strict arrival gate and terminal sound,
+// without an entity lookup, damage consumer or the legacy combat-shot timeout.
+function stepCelebrationShot(w: World, fx: Effect, destination: NativePoint, impact: boolean) {
+  const position = nativePosition(w, fx)
+  position.h = Math.round((fx.height ?? position.h / 45) * 45)
+  destination.h = Math.max(destination.h, terrainPointHeight(w.land, destination))
+  const distance = nativeDistance(position, destination),
+    arrived =
+      Math.abs(short(destination.x) - short(position.x)) < 0x408 &&
+      Math.abs(short(destination.y) - short(position.y)) < 0x408 &&
+      Math.abs(destination.h - position.h) < 0x408 &&
+      distance < 0x200,
+    length = arrived ? Math.trunc((distance * 15) / 16) : 0x200,
+    dx = short(destination.x - position.x),
+    dy = short(destination.y - position.y),
+    yaw = nativeAngle(dx, -dy),
+    pitch = nativeAngle(Math.max(Math.abs(dx), Math.abs(dy)), -2 * (destination.h - position.h)),
+    next = nativeStep3D(position, yaw, pitch, length)
+  next.h = Math.max(next.h, terrainPointHeight(w.land, next))
+  locate(fx, next)
+  if (arrived) {
+    if (impact) sound(w, 0xb2, fx)
+    fx.duration = fx.age
+  }
+}
+
 export function stepFirewarriorShots(w: World) {
   for (const fx of w.effects.filter(effect => effect.firewarriorShot)) {
-    const shot = fx.firewarriorShot!,
-      unit = w.units.find(unit => unit.id === shot.target && unit.hp > 0),
+    const shot = fx.firewarriorShot!
+    if (shot.pointTarget) {
+      if (fx.age < fx.duration) stepCelebrationShot(w, fx, shot.pointTarget, !!shot.impact)
+      continue
+    }
+    const unit = w.units.find(unit => unit.id === shot.target && unit.hp > 0),
       building = w.buildings.find(building => building.id === shot.target && building.hp > 0),
       target = unit ?? building
     if (!shot.remaining--) {
