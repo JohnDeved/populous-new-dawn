@@ -16,7 +16,9 @@ const run = (source, timeoutMs = 500) => runForegroundCommand({
 
 test('foreground mode preserves success, findings, and launch failures', async () => {
   for (const code of [0, 1, 2]) {
-    const result = await run(`process.exit(${code})`)
+    // This checks exit classification, not deadline behavior. Aggregate child
+    // scheduling can exceed500ms; dedicated timeout cases keep that strict bound.
+    const result = await run(`process.exit(${code})`, 5000)
     assert.equal(result.exitCode, code)
     assert.equal(result.status, code === 0 ? 'passed' : 'failed')
     assert.equal(result.resourcesReleased, true)
