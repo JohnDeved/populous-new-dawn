@@ -85,7 +85,7 @@ test('ordinary M16 Red recurring requests physically garrison all six Towers and
   const store = createGameStore()
   store.startMission(16)
   const w = store.getWorld(),
-    ids = [255, 256, 257, 258, 259, 260]
+    ids = [255, 256, 257, 258, 259, 260, 261, 262, 263, 264]
   while (w.turn < 128) tick(w, 1 / 12)
   assert.equal(staffing(w).length, 0)
   assert.ok(ids.every(id => w.units.find(u => u.id === id).inside === null))
@@ -108,8 +108,21 @@ test('ordinary M16 Red recurring requests physically garrison all six Towers and
     tick(replay, 1 / 12)
     assert.deepEqual(replay, w)
     for (const id of ids) {
-      const u = w.units.find(u => u.id === id),
-        p = u.entry?.person ?? u.native
+      const u = w.units.find(u => u.id === id)
+      if (!u) {
+        assert.equal(id, 257, 'only the observed non-garrison casualty may leave this census')
+        assert.ok(w.turn >= 1045)
+        assert.equal(entries.has(id), false)
+        assert.equal(w.objectCells.objects.has(id), false)
+        assert.equal(w.buildingOrders.records[64].references, 0)
+        continue
+      }
+      const p = u.entry?.person ?? u.native
+      if (id === 257 && w.turn === 1044) {
+        assert.equal(u.hp, 11.2)
+        assert.equal(currentPersonOrder(w.buildingOrders, p).model, 8)
+        assert.equal(w.buildingOrders.records[64].references, 1)
+      }
       assert.equal(w.objectCells.objects.get(id), p)
       const order = currentPersonOrder(w.buildingOrders, p)
       if (order?.model === 8) orders.add(p.commands[p.commandCursor])
@@ -122,23 +135,25 @@ test('ordinary M16 Red recurring requests physically garrison all six Towers and
     if (w.turn >= 1200)
       assert.equal(staffing(w).length, 0, 'already staffed Towers do not need replacement tasks')
   }
+  // Mixed patrol selection reserves some earlier staffing candidates. Observe
+  // every real Firewarrior, then assert the six actual completed garrisons.
   assert.deepEqual(
-    ids.map(id => [id, ...entries.get(id)]),
+    [...entries].sort((a, b) => a[0] - b[0]),
     [
-      [255, 249, 172],
-      [256, 250, 154],
-      [257, 251, 218],
-      [258, 252, 218],
-      [259, 253, 202],
-      [260, 254, 192],
+      [255, [249, 184]],
+      [256, [250, 160]],
+      [259, [254, 802]],
+      [261, [253, 552]],
+      [262, [252, 574]],
+      [263, [251, 596]],
     ]
   )
   assert.deepEqual(
     [...orders].sort((a, b) => a - b),
-    [18, 25, 28, 30, 31, 32]
+    [18, 26, 35, 36, 37, 38, 64]
   )
   for (const id of orders) assert.equal(w.buildingOrders.records[id].references, 0)
-  for (const id of ids) {
+  for (const id of entries.keys()) {
     const u = w.units.find(u => u.id === id),
       p = u.entry.person,
       b = w.buildings.find(b => b.id === u.inside)
@@ -150,5 +165,9 @@ test('ordinary M16 Red recurring requests physically garrison all six Towers and
     assert.equal(w.objectCells.objects.get(id), p)
     assert.ok([...objectsInCell(w.objectCells, (p.y & 0xfe00) | ((p.x >>> 8) & 254))].includes(p))
   }
+  assert.equal(
+    w.units.some(u => u.id === 257),
+    false
+  )
   assert.ok(originalTasks.every(t => t.members.length === 0))
 })
