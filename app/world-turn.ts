@@ -1,5 +1,9 @@
 import { grantLinkedBoatReward } from './vehicle-reward.ts'
-import { assignVehicleAllocationCounter, deferVehicleOrdinaryVisit } from './vehicle-allocation.ts'
+import {
+  assignVehicleAllocationCounter,
+  deferVehicleOrdinaryVisit,
+  finishVehicleOrdinaryVisits,
+} from './vehicle-allocation.ts'
 import { residentPerson } from './building-resident.ts'
 import { createReincarnationWave, stepReincarnationWave } from './reincarnation-wave-runtime.ts'
 import { reconcileWorldHutSmoke, stepSecondaryEffects } from './hut-smoke-runtime.ts'
@@ -1872,4 +1876,5 @@ function stepTurn(w: World) {
     w.status = 'lost'
   }
   w.effects = w.effects.filter(f => f.age < f.duration)
+  finishVehicleOrdinaryVisits(w)
 }

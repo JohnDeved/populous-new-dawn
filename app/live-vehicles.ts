@@ -1,4 +1,4 @@
-import { vehicleOrdinaryVisitDeferred, finishVehicleOrdinaryVisits } from './vehicle-allocation.ts'
+import { vehicleOrdinaryVisitDeferred } from './vehicle-allocation.ts'
 import { seatVehiclePassenger, vehicleSeat } from './vehicle-seats.ts'
 import type { LivePerson } from './live-people.ts'
 import {
@@ -401,7 +401,6 @@ export function stepLiveVehicles(w: World) {
   // visits. A boarding route may otherwise overwrite its provisional placement.
   for (const v of w.vehicles) if (v.active && v.passengerCount) syncLiveVehiclePassengers(w, v)
   vehicleMovementPass.delete(w)
-  finishVehicleOrdinaryVisits(w)
 }
 
 export function stepLiveVehicle(w: World, p: LivePerson) {
