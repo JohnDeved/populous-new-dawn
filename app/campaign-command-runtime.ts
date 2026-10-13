@@ -424,7 +424,8 @@ export function campaignCommand(
       enabled,
       maximum,
       target.id,
-      taskSpells
+      taskSpells,
+      missionSixAttack ? { staging: level.markers[options[1]], spell: options[2] } : {}
     )
     return
   }

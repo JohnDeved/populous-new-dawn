@@ -6,9 +6,10 @@ import { currentPersonOrder } from '../app/person-orders.ts'
 import { spellInRange } from '../app/spell-casting.ts'
 import { loadSceneFixture } from './support/bloodlust-scene.mjs'
 
-// Genuine opening and authored raid. This proves failed-route recovery, not a
-// Matak bridge or Mission6 victory; those campaign objectives remain separate.
-test('ordinary Mission6 releases its blocked first Matak raid without stranded owners', async () => {
+// Genuine opening followed by a supplied legacy task without new marker metadata.
+// Keep the original failed-route release assertions as checkpoint compatibility;
+// fresh current-source marker travel/Bridge has a separate ordinary acceptance.
+test('legacy markerless Mission6 task releases its blocked raid without stranded owners', async () => {
   await loadSceneFixture()
   const { skipIntroduction } = await import('../app/scene-camera-runtime.ts')
   const store = createGameStore()
@@ -61,6 +62,8 @@ test('ordinary Mission6 releases its blocked first Matak raid without stranded o
   assert.ok(task)
   assert.equal(world.turn, 6767)
   assert.deepEqual(task.spells, [12, 3, 2])
+  delete task.stagingMarker
+  delete task.spellMarker
   const phaseLimit = world.turn + 512
   while (world.turn < phaseLimit && task.phase !== 6 && world.status === 'playing')
     tick(world, 1 / 12)
@@ -76,6 +79,9 @@ test('ordinary Mission6 releases its blocked first Matak raid without stranded o
   assert.ok(store.loadCheckpoint())
   const replay = store.getWorld()
   assert.deepEqual(replay, world)
+  const restoredTask = replay.campaignAIs[3].tasks.find(t => t.flags & 1 && t.type === 20)
+  assert.ok(!Object.hasOwn(restoredTask, 'stagingMarker'))
+  assert.ok(!Object.hasOwn(restoredTask, 'spellMarker'))
   const advance = () => {
     tick(world, 1 / 12)
     tick(replay, 1 / 12)

@@ -21,6 +21,10 @@ export type ComputerTask = {
   responseScan?: { category: number; tribe: number; entity: number; cell: number }
   defense?: { center: number; recenter: boolean; cursor: number; fallback: boolean }
   spells?: number[]
+  attackVisits?: number
+  stagingMarker?: number
+  spellMarker?: number
+  markerDelay?: number
   quotas: number[]
   members: number[]
   route: MarkerEntry[]
@@ -430,7 +434,8 @@ export function requestAttack(
   enabled: boolean,
   maximum: number,
   entity = 0,
-  spells: number[] = []
+  spells: number[] = [],
+  markers: { staging?: number; spell?: number } = {}
 ) {
   if (!enabled || ai.tasks.filter(t => t.flags & 1 && t.type === 20).length >= maximum) return
   const task = ai.tasks.find(t => !(t.flags & 1))
@@ -454,6 +459,10 @@ export function requestAttack(
     retries: 0,
     retreatPercent: retreatPercent & 255,
     spells: Array.from({ length: 3 }, (_, index) => (spells[index] ?? 0) & 255),
+    attackVisits: 0,
+    stagingMarker: markers.staging ?? -1,
+    spellMarker: markers.spell ?? -1,
+    markerDelay: 0,
     quotas: quotas.slice(0, 6).map(n => n & 255),
     members: [],
   })
@@ -598,6 +607,7 @@ export type AttackInput = {
   entity?: (id: number) => AttackTarget | null
   tracking?: (id: number) => boolean
   reacquire?: () => AttackTarget | null
+  markerSpell?: () => 'absent' | 'pending' | 'finished'
   taskSpell?: (models: readonly number[], target: number) => number | null
   outbound?: (
     target: number,
@@ -625,7 +635,11 @@ export function stepAttackTask(
 ): AttackAction[] {
   const task = ai.tasks[index],
     actions: AttackAction[] = []
+  // 0x4cb549: the per-task visit counter precedes every phase body.
+  // Old markerless checkpoints retain their existing task shape.
+  if (task.attackVisits !== undefined) task.attackVisits = (task.attackVisits + 1) | 0
   if (task.phase === 0) {
+    if (task.attackVisits !== undefined) task.attackVisits = 0
     task.selected = 0
     task.remaining = 0
     task.elapsed = 0
@@ -703,8 +717,41 @@ export function stepAttackTask(
     return actions
   }
   if (task.phase === 7) {
+    if (
+      (task.stagingMarker ?? -1) === -1 &&
+      (task.spellMarker ?? -1) !== -1 &&
+      (task.spells?.[0] ?? 0) >= 2 &&
+      (task.spells?.[0] ?? 0) <= 17
+    ) {
+      task.phase = 21
+      task.fallback = 7
+      return actions
+    }
     if (!input.ready()) return actions
-    if (acquireSelection(ai, index)) task.phase = 9
+    if (acquireSelection(ai, index)) task.phase = (task.stagingMarker ?? -1) === -1 ? 9 : 8
+    return actions
+  }
+  if (task.phase === 8) {
+    const target = task.stagingMarker!
+    task.stagingMarker = -1
+    releaseSelection(ai, index)
+    task.phase = 6
+    task.fallback = 7
+    task.elapsed = 0
+    return [{ kind: 'move', target, replace: true }]
+  }
+  if (task.phase === 21) {
+    const result = input.markerSpell?.() ?? 'pending'
+    if (result === 'absent') task.phase = task.fallback
+    else if (result === 'finished') {
+      task.phase = 22
+      task.markerDelay = 32
+    }
+    return actions
+  }
+  if (task.phase === 22) {
+    task.markerDelay = ((task.markerDelay ?? 0) - 1) & 255
+    if (!task.markerDelay) task.phase = task.fallback
     return actions
   }
   if (task.phase === 9) {

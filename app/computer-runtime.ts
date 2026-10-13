@@ -25,6 +25,7 @@ import {
   writePersonOrder,
   commitPersonOrders,
   clearPersonOrders,
+  removePersonOrder,
   prepareMovementOrder,
   queuePersonOrder,
   allocatePersonOrder,
@@ -1182,6 +1183,81 @@ function allocateComputerSpell(w: World, u: Unit, model: number, cell: number) {
   }
 }
 
+// 0x4cc7d7: the marker branch uses the tribe Shaman and ONLY spell byte zero.
+// It does not share phase 6's first-permitted selector or positional target scan.
+function castAttackMarkerSpell(w: World, tribe: number, task: ComputerTask, home: number) {
+  const shaman = w.units.find(u => u.team === campaignTeam(w, tribe) && isShaman(u) && u.hp > 0)
+  if (!shaman) return 'absent' as const
+  const person = combatPerson(shaman),
+    casting = w.castingTribes[tribe],
+    caster = {
+      ...spellCaster(w, shaman),
+      ...person,
+      landIndex: person.vehicle,
+      casting,
+      playerType: w.manaTribes[tribe].playerType,
+    },
+    stock = w.manaWorld.spells[tribe],
+    spells = task.spells ?? [],
+    model = spells[0] ?? 0
+  if (shaman.casting) caster.flags4 |= 0x400
+  if (model >= 2 && model <= 17) {
+    if (!canShamanCast(casting, caster.playerType, caster) || (task.attackVisits ?? 0) & 7)
+      return 'pending' as const
+    const payment = spellPaymentType(w.manaWorld.gameFlags, casting.flags, stock, model)
+    if (payment !== 3 && w.manaTribes[tribe].mana < rules.spellCharging[model].cost) spells[0] = 0
+    else {
+      const target = missionData(w.outcome.level).level.markers[task.spellMarker!]
+      if (target === undefined) throw new Error('Invalid attack spell marker')
+      if (!computerSpellInRange(w.manaWorld.gameFlags, casting.flags, caster, target, model)) {
+        if (rules.personStateFlags[person.state] & 8) spells[0] = 0
+        return 'pending' as const
+      }
+      if (computerSpellAllowed(casting, w.ai.flags, w.manaWorld.gameFlags, model))
+        allocateComputerSpell(w, shaman, model, target)
+      spells[0] = 0
+    }
+  }
+  // Cleared slots are not compacted. Success/refusal observes byte zero again
+  // immediately, then retains the Shaman only while some remaining spell is affordable.
+  const costs = spells
+    .filter(remainingModel => remainingModel && remainingModel !== 6 && remainingModel !== 19)
+    .map(remainingModel =>
+      spellPaymentType(w.manaWorld.gameFlags, casting.flags, stock, remainingModel) === 3
+        ? 0
+        : rules.spellCharging[remainingModel].cost
+    )
+  if (!costs.length || w.manaTribes[tribe].mana < Math.min(...costs)) {
+    const owner = defensePerson(shaman)
+    if (!owner || w.objectCells.objects.get(shaman.id) !== owner)
+      throw new Error('Unregistered attack marker Shaman owner')
+    // 0x43b2a0 replaces the queue without running a state initializer. Allocation
+    // failure leaves that queue intact, but the caller still clears assignment.
+    const id = allocatePersonOrder(w.buildingOrders)
+    if (id) {
+      prepareMovementOrder(
+        w.buildingOrders.records[id],
+        { x: (home & 254) << 8, y: home & 0xfe00 },
+        0,
+        w.land,
+        buildingId =>
+          buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === buildingId)!))
+      )
+      owner.flags2 = (owner.flags2 | 0x10) >>> 0
+      owner.commandCursor = 0
+      for (let slot = 0; slot < 8; slot++)
+        if (owner.commands[slot]) removePersonOrder(w.buildingOrders, owner, slot, orderEffects(w))
+      if (owner.immediateCommand) removePersonOrder(w.buildingOrders, owner, -1, orderEffects(w))
+      owner.flags2 = (owner.flags2 & ~0x8000000) >>> 0
+      owner.flags3 = (owner.flags3 & ~0x200) >>> 0
+      attachPersonOrder(w.buildingOrders, owner, id, 0, orderEffects(w))
+      adoptLiveOrders(w, shaman, owner)
+    }
+    assignDefensePerson(shaman, owner, 0)
+  }
+  return 'finished' as const
+}
+
 function castAttackTaskSpell(w: World, tribe: number, task: ComputerTask) {
   const models = task.spells ?? []
   if (!models.some(Boolean)) return null
@@ -1876,6 +1952,7 @@ export function stepComputerTasks(w: World, tribe: number) {
               return null
             return shaman.id
           },
+          markerSpell: () => castAttackMarkerSpell(w, tribe, task, staging),
           taskSpell: () => castAttackTaskSpell(w, tribe, task),
           select: (model, count, destination) => {
             let recruitmentOrigin = destination
