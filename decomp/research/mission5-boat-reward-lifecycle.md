@@ -11,7 +11,7 @@ Tower96, casts that stock at a real wild, and the resulting Brave339 worships th
 Boat head. Authored template100/head101 map to browser97/98. At reward716 the old
 adapter only activates97. That failure-first and exact reward-entry observer are
 retained. The source is already ready after the initializer prerequisite; the new
-claim is allocation, copy, immediate processing, retirement and subsequent reuse.
+claim is allocation, copy, immediate processing, retirement, boarding and sailing.
 
 ## Source ownership
 
@@ -60,5 +60,13 @@ head retirement is independent of that sharing guard. Allocation failure still
 consumes the surrounding use and terminal cleanup. The browser's live allocator
 retains unbounded IDs; failure ordering is tested through a supplied callback.
 
-Validation and ordinary playable continuation are pending on the reward prototype.
+The ordinary prototype grants Boat489 at716 with counter1/life4999/speed0;
+source97/head98 and the old worship record retire. The actual converted Brave339
+boards at754, sails at874, and returns to a supported living departure at904.
+Raw public save/load comparisons span the grant, boarding and movement. The empty
+Boat is unready at that final departure endpoint, so this is not a second-boarding
+claim. Existing Boat and Balloon workshop continuations also pass after ordinary
+visit deferral; maintained allocation-phase assertions also pass.
+
+Final committed focused and standard validation remain pending.
 Original executable use is static inspection only.

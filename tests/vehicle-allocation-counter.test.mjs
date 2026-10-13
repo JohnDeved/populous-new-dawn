@@ -49,3 +49,10 @@ test('missing-passenger cleanup changes active craft only', () => {
   removeMissingVehiclePassengers(world)
   assert.deepEqual([template.passengers, template.passengerCount, template.speed], [[], 0, -1])
 })
+
+test('inactive destruction state retains ordinary counter progression', () => {
+  const world = createWorld(22), vehicle = world.vehicles[0]
+  Object.assign(vehicle, { active: false, destructionState: 6, counter: 255 })
+  stepLiveVehicles(world)
+  assert.equal(vehicle.counter, 0)
+})
