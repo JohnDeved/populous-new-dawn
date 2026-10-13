@@ -1,3 +1,4 @@
+import { vehicleReady } from '../app/vehicle-routing.ts'
 // Staged transport waypoint completion preserves the shared queue and seated owner.
 import test from 'node:test'
 import { createGameStore } from '../app/game-store.ts'
@@ -174,6 +175,92 @@ test('ordinary staged transport waypoints advance and retain the seated owner th
   assert.equal(shaman.hp, 100.6)
   assert.equal(balloon.speed, 0)
   assert.deepEqual([balloon.x & 511, balloon.y & 511], [256, 256])
+
+  // Independent ordinary rest -> Ctrl28 input. No state/counter/terrain injection.
+  const idleStore = createGameStore()
+  idleStore.startMission(22)
+  const idle = idleStore.getWorld()
+  Object.assign(idle, structuredClone(departureWorld))
+  const idleUnit = idle.units.find(u => u.id === shaman.id),
+    idlePerson = idleUnit.native,
+    idleCraft = idle.vehicles.find(v => v.id === idlePerson.vehicle),
+    idleTarget = idle.units.find(u => u.id === 17)
+  for (
+    let i = 0;
+    i < 500 &&
+    (currentPersonOrder(idle.buildingOrders, idlePerson) ||
+      idlePerson.state !== 30 ||
+      idleCraft.speed !== 0 ||
+      !vehicleReady(idle.land, idleCraft));
+    i++
+  )
+    tick(idle, 1 / 12)
+  assert.equal(idle.turn, 4088)
+  assert.equal(currentPersonOrder(idle.buildingOrders, idlePerson), undefined)
+  assert.deepEqual([idlePerson.state, idleCraft.speed], [30, 0])
+  assert.ok(vehicleReady(idle.land, idleCraft))
+  const idleCounter = idlePerson.counter
+  selectUnit(idle, idleUnit.id, false)
+  assert.ok(command(idle, { ...idleTarget, id: idleTarget.id }, { ctrlKey: true }))
+  const idleOrder = currentPersonOrder(idle.buildingOrders, idlePerson)
+  assert.deepEqual(
+    [idlePerson.state, idlePerson.commandStatus, idlePerson.counter],
+    [10, 28, idleCounter]
+  )
+  assert.deepEqual([idleOrder.model, idleOrder.flags, idleOrder.references], [28, 128, 1])
+  assert.equal(idleUnit.native, idlePerson)
+  assert.equal(idle.objectCells.objects.get(idleUnit.id), idlePerson)
+  assert.deepEqual(idleCraft.passengers, [idleUnit.id])
+  await idleStore.saveCheckpoint()
+  assert.ok(idleStore.loadCheckpoint())
+  const idleReplay = idleStore.getWorld()
+  assert.deepEqual(
+    idle.shrines.flatMap((head, index) =>
+      head.reward !== idleReplay.shrines[index].reward ? [index] : []
+    ),
+    [0, 2]
+  )
+  let idleDeparture = 0,
+    idleFirstFight = 0,
+    idleFirstOpponent = 0,
+    idleDeath = 0
+  for (let i = 0; i < 1200; i++) {
+    const beforeVehicle = idlePerson.vehicle,
+      beforeCounter = idlePerson.counter
+    tick(idle, 1 / 12)
+    tick(idleReplay, 1 / 12)
+    assert.deepEqual(comparable(idleReplay), comparable(idle))
+    if (i === 0) {
+      assert.equal(idlePerson.counter, (idleCounter + 1) & 255)
+      assert.equal(idleCraft.x, 16608)
+    }
+    if (beforeVehicle && !idlePerson.vehicle) {
+      idleDeparture = idle.turn
+      assert.deepEqual([idlePerson.workTarget, idlePerson.substate], [17, 2])
+      assert.equal(idlePerson.counter, (beforeCounter + 1) & 255)
+    }
+    if (idleUnit.fight && !idleFirstFight) {
+      idleFirstFight = idle.turn
+      idleFirstOpponent = idleUnit.fight.opponent
+    }
+    if (idleUnit.hp <= 0 && !idleDeath) idleDeath = idle.turn
+    if (!idleDeath && idlePerson.vehicle) {
+      assert.equal(idleUnit.native, idlePerson)
+      assert.equal(idle.objectCells.objects.get(idleUnit.id), idlePerson)
+    }
+  }
+  assert.deepEqual(
+    [idleDeparture, idleFirstFight, idleFirstOpponent, idleDeath],
+    [4332, 4333, 17, 4372]
+  )
+  // Existing browser continuation removes the unit with positive retained native life.
+  assert.equal(idlePerson.life, 255)
+  assert.equal(idleUnit.hp, 0)
+  assert.equal(idle.units.includes(idleUnit), false)
+  assert.equal(idle.objectCells.objects.has(idleUnit.id), false)
+  assert.equal(idleOrder.references, 0)
+  assert.equal(idleCraft.passengerCount, 0)
+  assert.deepEqual(idleCraft.passengers, [])
 
   // Independent public Shift departure from the same genuinely acquired state.
   // The destination is ordinary dry land; no terrain or passenger fields change.

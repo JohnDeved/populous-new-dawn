@@ -149,3 +149,33 @@ readiness in the goal's3x3 arrival neighborhood, waits for observed occupied res
 and uses public Shift for departure. Terrain and runtime landing rules are not
 changed. Immediate produced-owner publication and120-tick raw public checkpoint
 continuation are tested separately from the subsequent reuse route.
+
+## Shared target startup after rest
+
+A later ordinary route exposed a separate state30 boundary: generic Ctrl28
+attached a live reference but inherited the direct-target attach-only exception,
+leaving the seated person idle. Native444f60's generic player-input tail calls
+435cb0 then resets/reinitializes selected people, without a model28 exception.
+It excludes states25/29 before motion reset, then excludes protected100000 before
+state initialization, clears previousState, and chooses the existing default
+state. Native state30 itself remains idle while its vehicle reference is nonzero.
+
+The generic shared-player call now opts model28 into that existing restart tail.
+Direct43b670 and computer append callers retain their separate adapter. Person
+counter and physical owner are preserved. Allocation failure does not suppress
+this startup tail. Existing append allocation-before-replacement semantics remain
+an adapter boundary: native generic cursor0 clears through435c40 before435cb0,
+whereas appendPersonOrders may retain an old sermon when allocation fails. The
+supplied exhausted-sermon control verifies retained adapter ownership plus the
+restored startup tail, not native cancellation parity.
+
+The ordinary acquired craft reaches a ready idle state at4088. Identical Ctrl28
+input now immediately enters state10/status28, preserves the exact owner/counter
+and physical seat, and starts movement on the next visit. Its public1200-tick
+continuation reaches the selected target and eventually retires the order through
+observed browser death/cleanup. The original idle reference stall is retained.
+On the separate moving3980 input, matched before-input worlds show the restart's
+RNG/configuration change immediately. The same first opponent17 is reached at4285,
+but now dies at4557; the Shaman survives with HP101 and retired references through
+5180. The old expected-death failure is retained rather than treated as a timing
+shift. These are measured browser outcomes, not native combat parity claims.
