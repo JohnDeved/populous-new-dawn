@@ -780,9 +780,11 @@ function produceMissionTraining(w: World, tribe: number) {
     available = availableTrainingPeople(selection.world),
     capacity = rules.buildingCapacity[building]
   // Original 0x4e59a0 requires capacity, including equality. Later-mission
-  // adapters outside the already proved Mission6 path retain their current gate.
+  // adapters outside the proved early, Mission6 and Mission12 paths retain their gate.
   if (
-    (w.outcome.level >= 1 && w.outcome.level <= 3) || w.outcome.level === 6
+    (w.outcome.level >= 1 && w.outcome.level <= 3) ||
+    w.outcome.level === 6 ||
+    w.outcome.level === 12
       ? !hasComputerTrainingCapacity(available, capacity)
       : available >= capacity
   )
