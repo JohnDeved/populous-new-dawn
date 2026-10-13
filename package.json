@@ -38,7 +38,8 @@
     "build:cloudflare": "PND_CLOUDFLARE=1 npm run build",
     "deploy:cloudflare": "npm run build:cloudflare && wrangler deploy --config dist/server/wrangler.json",
     "preview:cloudflare": "npm run build:cloudflare && wrangler versions upload --config dist/server/wrangler.json",
-    "parity:measure": "node scripts/parity-measure.mjs"
+    "parity:measure": "node scripts/parity-measure.mjs",
+    "test:mission6-earned": "node scripts/check-mission6-earned-victory.mjs"
   },
   "dependencies": {
     "react": "19.2.6",
