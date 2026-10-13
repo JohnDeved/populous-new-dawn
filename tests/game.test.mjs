@@ -1961,7 +1961,8 @@ test('live cell insertion repairs a stale head left by a removed person',async()
 test('dead vehicle passengers release their slots and driver position',async()=>{
  const {removeMissingVehiclePassengers}=await import('../app/live-vehicles.ts');
  const w=createWorld(5),boat=w.vehicles[0],survivor=w.units[0];
- Object.assign(boat,{passengers:[999,survivor.id],passengerCount:2,speed:100});
+ // Supplied active craft: the authored Mission5 source is detached and must not be cleaned.
+ Object.assign(boat,{active:true,passengers:[999,survivor.id],passengerCount:2,speed:100});
  removeMissingVehiclePassengers(w);
  assert.deepEqual(boat.passengers,[survivor.id]);assert.equal(boat.passengerCount,1);assert.equal(boat.speed,100);
  w.units=[];removeMissingVehiclePassengers(w);
@@ -2343,7 +2344,7 @@ test('shaman escort uses native pursuit cadence and strict boundaries',async()=>
 
 test('Mission 5 Boat worship emits its original one-shot tutorial',async()=>{
  const {createGameStore}=await import('../app/game-store.ts'),store=createGameStore();store.startMission(5);const w=store.getWorld(),boat=w.vehicles[0],head=w.shrines.find(s=>s.kind==='boat'),warrior=w.units.find(u=>u.team==='blue'&&u.kind==='warrior');
- standAtHead(w,warrior,head);until(w,()=>boat.active,10);assert.equal(head.active,false);until(w,()=>w.messages.slots.some(message=>message?.stringId===662),20);
+ standAtHead(w,warrior,head);until(w,()=>w.vehicles.some(v=>v.active&&v.model===1&&v.id!==boat.id),10);assert.equal(head.active,false);assert.equal(w.vehicles.includes(boat),false);assert.equal(w.shrines.includes(head),false);until(w,()=>w.messages.slots.some(message=>message?.stringId===662),20);
  const tutorial=w.messages.slots.find(message=>message?.stringId===662);assert.deepEqual({text:messageText(tutorial.stringId),flags:tutorial.flags,lifetime:tutorial.lifetime,view:tutorial.view,latch:w.ai.variables[15]},{text:'The Ancients have granted you a Boat, Shaman.',flags:14065,lifetime:512,view:{cell:13022,payload:1800},latch:1});
  const serial=tutorial.serial;for(let turn=0;turn<32;turn++)tick(w,1/12);assert.deepEqual(w.messages.slots.filter(message=>message?.stringId===662).map(message=>message.serial),[serial]);
 });
@@ -2354,7 +2355,7 @@ test('supplied Mission 5 reward and relocated Boat support boarding, sailing and
  // Browser-prepared template; forced reward and relocated Boat/followers below
  // are supplied controls, not ordinary reward allocation/copy acceptance.
  assert.deepEqual([boat.model,boat.x,boat.y,boat.active],[1,58226,12429,false]);assert.equal(head.rewardVehicle,boat.id);
- head.forced=true;head.reset=false;until(w,()=>boat.active,10);assert.equal(head.active,false);
+ const source=boat;head.forced=true;head.reset=false;until(w,()=>w.vehicles.some(v=>v.active&&v.model===1&&v.id!==source.id),10);assert.equal(head.active,false);boat=w.vehicles.find(v=>v.active&&v.model===1&&v.id!==source.id);assert.ok(boat);assert.equal(w.vehicles.includes(source),false);assert.equal(w.shrines.includes(head),false);
  const shores=[],vehicleWorld=()=>({flags:w.land.flags,categories:w.land.categories,cellObjects:()=>[]});
  for(let y=0;y<256;y+=2)for(let x=0;x<256;x+=2){const p={x:(x+1)*256,y:(y+1)*256};if(vehicleCanDisembark(vehicleWorld(),boat,p))shores.push(p);}
  const start=shores.find(p=>{const q=browserPosition(p);return Math.hypot(q.x-followers[0].x,q.z-followers[0].z)<10});Object.assign(boat,start,{h:0,speed:-1});followers.forEach((u,i)=>Object.assign(u,browserPosition(boat),{x:browserPosition(boat).x-1-i/10}));syncLivePersonCells(w);w.selected=ids;
@@ -2362,6 +2363,6 @@ test('supplied Mission 5 reward and relocated Boat support boarding, sailing and
  await store.saveCheckpoint();assert.ok(store.loadCheckpoint());w=store.getWorld();boat=w.vehicles[0];followers=ids.map(id=>w.units.find(u=>u.id===id));assert.deepEqual(boat.passengers,ids);assert.ok(followers.every(u=>u.native?.vehicle===boat.id));
  const target=shores.map(p=>[Math.hypot(((p.x-boat.x)<<16>>16),((p.y-boat.y)<<16>>16)),p]).filter(([d])=>d>3000&&d<10000).sort((a,b)=>a[0]-b[0])[0][1];
  const before=[boat.x,boat.y];assert.ok(command(w,browserPosition(target)));until(w,()=>boat.x!==before[0]||boat.y!==before[1],3);assert.ok(followers.every(u=>u.native?.vehicle===boat.id));assert.ok(followers[0].native.motionGroup);assert.ok(followers.every(u=>u.native.motionGroup===followers[0].native.motionGroup));assert.notDeepEqual([boat.x,boat.y],[target.x,target.y]);
- until(w,()=>followers.every(u=>!u.native?.vehicle),20);assert.deepEqual(boat.passengers,[]);assert.equal(boat.speed,-1);assert.ok(vehicleReady(vehicleWorld(),boat));assert.ok(followers.every(u=>vehicleCanDisembark(vehicleWorld(),boat,u.native)));
+ until(w,()=>followers.every(u=>!u.native?.vehicle),20);assert.deepEqual(followers.map(u=>u.hp),[90,90]);assert.deepEqual(boat.passengers,[]);assert.equal(boat.speed,-1);assert.ok(vehicleReady(vehicleWorld(),boat));assert.ok(followers.every(u=>vehicleCanDisembark(vehicleWorld(),boat,u.native)));
  await store.saveCheckpoint();assert.ok(store.loadCheckpoint());w=store.getWorld();assert.deepEqual(w.vehicles[0].passengers,[]);assert.ok(ids.every(id=>!w.units.find(u=>u.id===id).native?.vehicle));
 });

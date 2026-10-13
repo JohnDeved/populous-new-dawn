@@ -68,5 +68,10 @@ Boat is unready at that final departure endpoint, so this is not a second-boardi
 claim. Existing Boat and Balloon workshop continuations also pass after ordinary
 visit deferral; maintained allocation-phase assertions also pass.
 
-Final committed focused and standard validation remain pending.
+The first final aggregate retained2475/2478 passes and three old-fixture failures:
+two waited for the retired template to activate, and active passenger cleanup used
+a detached template. Independent identity-aware tutorial/supplied sailing controls
+preserve tutorial662, one-shot behavior, both90HP followers and public checkpoints;
+the cleanup control now explicitly supplies an active craft. Repaired final
+committed focused and standard validation remain pending.
 Original executable use is static inspection only.
