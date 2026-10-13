@@ -21,7 +21,7 @@ The executable pinned in `decomp/tools.json` dispatches Hypnotise through
 callback`0050eb00`. The retained selector prepends eligible objects encountered
 in wrapped3x3 linked-cell order, marks nearest recipients with strict comparisons,
 then calls all marked objects along that reverse-discovery chain. Callback
-`0050eb81` synchronously allocates an enemy replacement; success records status,
+`0050eb00` synchronously allocates an enemy replacement at `0050eb81`; success records status,
 original tribe, life and cargo before marking the old object for later deletion.
 The selector's separate cleanup pass runs after all callbacks. No original code
 was executed for this work.
