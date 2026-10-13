@@ -666,34 +666,66 @@ test('Mission 6 ATTACK snapshots the native three-spell payload and keeps old ta
   task.phase = 6
   task.fallback = 18
   const seen = [],
+    events = [],
     input = {
       staging: 0,
       select: () => [],
-      settled: () => true,
+      settled: () => {
+        events.push('settled')
+        return true
+      },
       memberWithin: () => null,
       ready: () => true,
       activeMembers: () => 1,
       targetsRemain: () => true,
       random: () => 0,
       taskSpell: (models, target) => {
-        seen.push({ models: [...models], target })
+        events.push('cast')
+        seen.push({ models: [...models], target, elapsed: task.elapsed })
         return null
       },
     }
   assert.deepEqual(stepAttackTask(ai, 0, input), [])
-  assert.equal(
-    task.phase,
-    6,
-    'a retained task spell must retry rather than skip the native phase-6 hook'
-  )
+  assert.equal(task.phase, 18, 'a refused spell still reaches settled-member fallback')
   assert.deepEqual(task.spells, [12, 3, 2], 'failed allocation must not consume a task spell')
-  assert.deepEqual(seen, [{ models: [12, 3, 2], target: 0x80ce }])
+  assert.deepEqual(seen, [{ models: [12, 3, 2], target: 0x80ce, elapsed: 1 }])
+  assert.deepEqual(events, ['cast', 'settled'])
 
-  input.taskSpell = models => models[0]
+  task.phase = 6
+  events.length = 0
+  input.taskSpell = models => {
+    events.push('cast')
+    return models[0]
+  }
   assert.deepEqual(stepAttackTask(ai, 0, input), [])
-  assert.equal(task.phase, 6)
+  assert.equal(task.phase, 18)
+  assert.equal(task.elapsed, 2)
+  assert.deepEqual(events, ['cast', 'settled'])
   assert.deepEqual(task.spells, [0, 3, 2], 'successful allocation consumes only the selected model')
 
+  task.phase = 6
+  task.elapsed = 1799
+  stepAttackTask(ai, 0, { ...input, taskSpell: () => null, settled: () => false })
+  assert.equal(task.elapsed, 1800)
+  assert.equal(task.phase, 6, 'timeout is strictly greater than 1800')
+  assert.deepEqual(
+    stepAttackTask(ai, 0, { ...input, taskSpell: () => null, settled: () => false }),
+    []
+  )
+  assert.equal(task.elapsed, 1801)
+  assert.equal(task.phase, 18, 'remaining payload cannot suppress the native timeout')
+  assert.deepEqual(task.spells, [0, 3, 2])
+
+  task.phase = 6
+  task.members.push(123)
+  assert.deepEqual(
+    stepAttackTask(ai, 0, { ...input, taskSpell: () => null, settled: () => null }),
+    []
+  )
+  assert.equal(task.flags & 3, 0)
+  assert.deepEqual(task.members, [], 'missing members still clean up with a retained payload')
+
+  task.flags |= 1
   delete task.spells
   task.phase = 6
   assert.deepEqual(stepAttackTask(ai, 0, { ...input, taskSpell: undefined }), [])
