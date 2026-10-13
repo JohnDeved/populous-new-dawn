@@ -636,9 +636,10 @@ export function stepAttackTask(
   const task = ai.tasks[index],
     actions: AttackAction[] = []
   // 0x4cb549: the per-task visit counter precedes every phase body.
-  task.attackVisits = ((task.attackVisits ?? 0) + 1) | 0
+  // Old markerless checkpoints retain their existing task shape.
+  if (task.attackVisits !== undefined) task.attackVisits = (task.attackVisits + 1) | 0
   if (task.phase === 0) {
-    task.attackVisits = 0
+    if (task.attackVisits !== undefined) task.attackVisits = 0
     task.selected = 0
     task.remaining = 0
     task.elapsed = 0

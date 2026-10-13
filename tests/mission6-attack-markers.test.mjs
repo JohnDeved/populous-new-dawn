@@ -56,6 +56,10 @@ test('markerless legacy attacks keep the established phase7 route', () => {
   Object.assign(t, { flags: 1, type: 20, phase: 7, spells: [12, 3, 2] })
   stepAttackTask(ai, 0, input)
   assert.equal(t.phase, 9)
+  assert.equal(Object.hasOwn(t, 'attackVisits'), false)
+  t.phase = 0
+  stepAttackTask(ai, 0, input)
+  assert.equal(Object.hasOwn(t, 'attackVisits'), false)
 })
 
 // Supplied caster fixtures isolate phase21. Fresh ordinary marker allocation,
