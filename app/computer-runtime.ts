@@ -682,10 +682,16 @@ function computerAttackOutbound(w: World, index: number, target: number, radius:
     if (p.state === 25 || p.state === 29 || p.flags2 & 0x80000) return { kind: 'attack' as const }
     if (
       p.state === 33 &&
-      (p.substate === 3 || (p.substate === 2 && p.animationMode > 4)) &&
-      releaseAttackPerson(w, index, u, p)
-    )
+      (!unsignedAttackField(p.substate, 255) ||
+        (p.substate === 2 && !unsignedAttackField(p.animationMode, 255)))
+    ) {
+      remaining = true
       continue
+    }
+    if (p.state === 33 && (p.substate === 3 || (p.substate === 2 && p.animationMode > 4))) {
+      if (!releaseAttackPerson(w, index, u, p)) remaining = true
+      continue
+    }
     remaining = true
     if (!computerAttackReady(u)) continue
     const position = nativePosition(w, u),
