@@ -112,6 +112,8 @@ export type NativePoint = { x: number; y: number; h: number }
 export type Vehicle = NativePoint & {
   // Native allocation/visit byte. Missing in legacy checkpoints means unknown.
   counter?: number
+  // Snapshot of the reward's immediate visit, not an ordinary vehicle controller.
+  rewardInitialization?: import('./vehicle-reward.ts').BoatRewardInitialization
   // Native apparent owner (+0x2f); team retains real count owner (+0xa1).
   apparentTribe?: number
   id: number

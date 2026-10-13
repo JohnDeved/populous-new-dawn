@@ -7,14 +7,16 @@ const packedCell = (p: { x: number; y: number }) => ((p.x >>> 8) & 254) | (p.y &
 
 // Fresh authored Boats: 0x4631b0 -> 0x463ba0 -> state-1 0x463370.
 // The browser's vehicle collection is its existing class-4 cell adapter.
-export function initializeAuthoredBoat(w: World, v: Vehicle) {
+function initializeBoat(w: World, v: Vehicle, includeInactive: boolean) {
   if (!(v.navigationFlags & 0x200000)) {
     const context = {
       flags: w.land.flags,
       categories: w.land.categories,
       // Construction includes linked inactive templates, unlike live routing.
       cellObjects: (cell: number) =>
-        w.vehicles.filter(other => packedCell(other) === (cell & 0xfefe)),
+        w.vehicles.filter(
+          other => (includeInactive || other.active) && packedCell(other) === (cell & 0xfefe)
+        ),
     }
     Object.assign(v, prepareVehiclePosition(context, w.indexedSearch, v, v).point)
   }
@@ -35,4 +37,13 @@ export function initializeAuthoredBoat(w: World, v: Vehicle) {
   v.reservation = 0
   v.passengerCount = 0
   v.passengers = []
+}
+
+export function initializeAuthoredBoat(w: World, v: Vehicle) {
+  initializeBoat(w, v, true)
+}
+// Linked sources were detached after level loading; reward allocation uses live
+// registered class4 occupancy, while the authored loop includes prior templates.
+export function initializeRewardBoat(w: World, v: Vehicle) {
+  initializeBoat(w, v, false)
 }

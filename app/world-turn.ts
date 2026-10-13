@@ -1,4 +1,5 @@
-import { assignVehicleAllocationCounter } from './vehicle-allocation.ts'
+import { grantLinkedBoatReward } from './vehicle-reward.ts'
+import { assignVehicleAllocationCounter, deferVehicleOrdinaryVisit } from './vehicle-allocation.ts'
 import { residentPerson } from './building-resident.ts'
 import { createReincarnationWave, stepReincarnationWave } from './reincarnation-wave-runtime.ts'
 import { reconcileWorldHutSmoke, stepSecondaryEffects } from './hut-smoke-runtime.ts'
@@ -882,7 +883,9 @@ function stepTurn(w: World) {
   processProjectiles(w)
   for (const message of w.messages.slots) if (message) message.age = (message.age + 1) | 0
   w.wood = w.trees.reduce((s, t) => s + Math.floor(t.logs), 0)
+  const retiredVehicleHeads = new Set<number>()
   for (const shrine of w.shrines) {
+    const previousUsesRemaining = shrine.remaining
     if (shrine.kind !== 'vault') stepWorshipHead(shrine)
     if ((shrine.kind === 'mana' || shrine.kind === 'inert') && shrine.rewardDelay) {
       if (--shrine.rewardDelay === 0) {
@@ -1038,7 +1041,16 @@ function stepTurn(w: World) {
         }
       } else if (shrine.kind === 'boat') {
         const boat = w.vehicles.find(v => v.id === shrine.rewardVehicle)
-        if (boat) {
+        const finalUse = previousUsesRemaining === 1 && shrine.remaining === 0
+        if (!boat || boat.model === 1 || boat.model === 2) {
+          const reward = grantLinkedBoatReward(w, shrine, finalUse)
+          if (reward) {
+            w.castingTribes[0].flags |= 64
+            tell(w, 'Boat received. Select followers and click it to board.')
+          }
+          if (finalUse) retiredVehicleHeads.add(shrine.id)
+        } else {
+          // Other linked class4 models retain their existing reward adapter.
           boat.active = true
           w.castingTribes[0].flags |= 64
           tell(w, 'Boat received. Select followers and click it to board.')
@@ -1058,6 +1070,8 @@ function stepTurn(w: World) {
     }
     syncStoneHeadPresentation(shrine)
   }
+  if (retiredVehicleHeads.size)
+    w.shrines = w.shrines.filter(shrine => !retiredVehicleHeads.has(shrine.id))
   // New rewards have already notified their objects. Complete their queued
   // landscape work after all shrine calls, without a second notification pass.
   if (terrainCenters.length) {
@@ -1186,6 +1200,7 @@ function stepTurn(w: World) {
             },
             worker = inhabitants[0]
           assignVehicleAllocationCounter(w, vehicle)
+          deferVehicleOrdinaryVisit(w, vehicle)
           w.vehicles.push(vehicle)
           release(w, worker)
           worker.native = createLivePerson(w, worker)

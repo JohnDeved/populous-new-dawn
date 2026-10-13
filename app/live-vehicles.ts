@@ -1,3 +1,4 @@
+import { vehicleOrdinaryVisitDeferred, finishVehicleOrdinaryVisits } from './vehicle-allocation.ts'
 import { seatVehiclePassenger, vehicleSeat } from './vehicle-seats.ts'
 import type { LivePerson } from './live-people.ts'
 import {
@@ -156,7 +157,7 @@ export function removeMissingVehiclePassengers(w: World) {
   const people = new Set(w.units.map(unit => unit.id))
   for (const vehicle of w.vehicles) {
     // Linked reward templates are detached from ordinary object processing.
-    if (!vehicle.active) continue
+    if (!vehicle.active || vehicleOrdinaryVisitDeferred(w, vehicle)) continue
     vehicle.passengers = vehicle.passengers.filter(id => people.has(id))
     vehicle.passengerCount = vehicle.passengers.length
     if (!vehicle.passengerCount) vehicle.speed = -1
@@ -369,9 +370,11 @@ function stopUnvisitedBalloon(w: World, v: Vehicle) {
 
 export function stepLiveVehicles(w: World) {
   for (const v of w.vehicles) {
+    if (vehicleOrdinaryVisitDeferred(w, v)) continue
     // 0x4ec8b3 increments before the ordinary object body; unknown legacy phase
     // stays unknown. This does not restore the full native vehicle controller.
-    if (v.active && v.counter !== undefined) v.counter = (v.counter + 1) & 255
+    if ((v.active || v.destructionState) && v.counter !== undefined)
+      v.counter = (v.counter + 1) & 255
     if (v.destructionState === 5) {
       const cell = ((v.y & 65535) >> 9) * 128 + ((v.x & 65535) >> 9)
       if (terrainSupportsPerson(w.land.categories[cell], v)) {
@@ -398,6 +401,7 @@ export function stepLiveVehicles(w: World) {
   // visits. A boarding route may otherwise overwrite its provisional placement.
   for (const v of w.vehicles) if (v.active && v.passengerCount) syncLiveVehiclePassengers(w, v)
   vehicleMovementPass.delete(w)
+  finishVehicleOrdinaryVisits(w)
 }
 
 export function stepLiveVehicle(w: World, p: LivePerson) {
