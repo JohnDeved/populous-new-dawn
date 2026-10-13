@@ -33,6 +33,14 @@ The maintained regression requires all three recipients, exact Tower person and
 cell ownership, the existing full1440-turn application value, continued countdown
 while occupied, no refresh, and raw public Save/Load equality. Supplied alias,
 deleted, class0, native-tribe and native-Shaman controls restrict the new branch.
-Ordinary exit and unlinked Hut exclusion are separate acceptance controls, not
-inferred from Tower admission. No rendered/IndexedDB UI, original-runtime timing or full spell parity
-claim is made.
+After 40 occupied turns, an ordinary movement order leaves the Tower and later
+enters authored Hut97. Another 160 turns preserve raw checkpoint equality,
+countdown, current resident status and building membership. The existing ground
+dispatch reconstructs the person owner; no original-entry identity claim is made
+across that transition. Independent controls verify actual unlinked Hut exclusion.
+
+Separate ground-exit probes reach the same route-recovery state33 on the parent
+and candidate, with identical position, pending order and owner reconstruction.
+The candidate's current registered owner retains Invisibility and its owned render
+bit; successful destination arrival is not claimed for those probes. No rendered/
+IndexedDB UI, original-runtime timing or full spell parity claim is made.

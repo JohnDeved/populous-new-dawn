@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createGameStore } from '../app/game-store.ts'
 import { command, selectUnit, tick, cast, invisibilityFollowers } from '../app/model.ts'
+import { currentPersonOrder } from '../app/person-orders.ts'
 import { objectsInCell } from '../app/object-cells.ts'
 import { nativePosition } from '../app/world-terrain-runtime.ts'
 import constants from '../app/original-constants.json' with { type: 'json' }
@@ -79,7 +80,7 @@ test('earned Invisibility reaches an ordinary registered Tower occupant with pub
   const restored = store.getWorld()
   assert.deepEqual(restored, w)
   const initial = unit.invisibility
-  for (let n = 0; n < 120; n++) {
+  for (let n = 0; n < 40; n++) {
     tick(w, 1 / 12)
     tick(restored, 1 / 12)
     assert.deepEqual(restored, w)
@@ -87,8 +88,30 @@ test('earned Invisibility reaches an ordinary registered Tower occupant with pub
     assert.equal(w.objectCells.objects.get(unit.id), person)
     assert.equal(unit.inside, tower.id)
   }
-  assert.equal(unit.invisibility, initial - 120)
+  assert.equal(unit.invisibility, initial - 40)
   assert.equal(unit.hp, 50)
   assert.ok(!invisibilityFollowers(w, unit, 'blue').includes(unit))
-  assert.equal(unit.invisibility, initial - 120)
+  assert.equal(unit.invisibility, initial - 40)
+  // Ordinary movement leaves the Tower and subsequently enters authored Hut97.
+  // Ground dispatch reconstructs its person owner; verify the current resident,
+  // rather than claiming the old Tower record survives that existing adapter.
+  for (const world of [w, restored]) {
+    selectUnit(world, unit.id)
+    assert.ok(command(world, { x: 27, z: -3 }))
+    const selected = world.units.find(u => u.id === unit.id)
+    assert.equal(currentPersonOrder(world.buildingOrders, selected.native)?.model, 3)
+  }
+  for (let n = 0; n < 160; n++) {
+    tick(w, 1 / 12)
+    tick(restored, 1 / 12)
+    assert.deepEqual(restored, w)
+  }
+  assert.equal(unit.inside, 97)
+  assert.equal(unit.hp, 50)
+  assert.equal(unit.invisibility, initial - 200)
+  assert.equal(tower.admission.inside, 0)
+  assert.ok(w.buildings.find(b => b.id === 97).admission.occupants.includes(unit.id))
+  const resident = unit.entry?.person ?? unit.resident?.person ?? unit.native
+  assert.ok(resident.flags4 & 0x1000)
+  assert.ok(!invisibilityFollowers(w, unit, 'blue').includes(unit))
 })
