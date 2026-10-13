@@ -203,7 +203,7 @@ test('Mission 22 Shaman can steal, checkpoint and sail the authored enemy Boat',
   assert.ok(command(world, browserPosition(landing)))
   stepUntil(world, () => boat.passengerCount === 0, 2_000)
   assert.equal(shaman.native.vehicle, 0)
-  assert.equal(shaman.hp, 100)
+  assert.equal(shaman.hp, 100.6)
   assert.equal(boat.team, 'blue')
 })
 
@@ -318,7 +318,7 @@ test('Mission 22 Shaman can claim the authored Balloon and complete the northern
   continueWithoutReplay(() => balloon.passengerCount === 1, 1_000)
   assert.ok(command(world, { x: -29, z: -33 }))
   continueWithoutReplay(() => balloon.passengerCount === 0, 2_000)
-  assert.deepEqual([balloon.team, shaman.native.vehicle, shaman.hp], ['blue', 0, 100])
+  assert.deepEqual([balloon.team, shaman.native.vehicle, shaman.hp], ['blue', 0, 100.6])
   assert.deepEqual(
     [north.active, north.uses, north.rewardDelay, world.effects.some(effect => effect.reward === 'mana')],
     [false, 1, 0, false]

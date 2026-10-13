@@ -48,6 +48,11 @@ test('ordinary M22 authored EVERY255 requests a real Firewarrior Tower garrison'
     withCampaignTribe(clone, 1, () => campaignRules(clone))
     assert.equal(activeStaffing(clone).length, 0, boundary)
   }
+  const full = structuredClone(w)
+  for (const task of full.campaignAIs[1].tasks) task.flags |= 1
+  const fullTasks = structuredClone(full.campaignAIs[1].tasks)
+  withCampaignTribe(full, 1, () => campaignRules(full))
+  assert.deepEqual(full.campaignAIs[1].tasks, fullTasks)
   tick(w, 1 / 12)
   assert.equal(w.turn, 256)
   const task = activeStaffing(w)[0]
@@ -108,4 +113,9 @@ test('ordinary M22 authored EVERY255 requests a real Firewarrior Tower garrison'
   assert.equal(w.buildingOrders.records[orderId].references, 0)
   assert.equal(activeStaffing(w).length, 0)
   assert.ok(task.members.length === 0)
+  // Ordinary later due visits must not allocate another task for an already
+  // correctly staffed Tower. Continue to the next real mask boundary.
+  while (w.turn < 1280) tick(w, 1 / 12)
+  assert.equal(fw.inside, tower.id)
+  assert.equal(activeStaffing(w).length, 0)
 })

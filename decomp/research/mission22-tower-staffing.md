@@ -33,3 +33,9 @@ Absent, destroyed and wrong-tribe Tower fixtures are explicitly supplied control
 Adding this real enemy garrison can change subsequent combat, random-number
 consumption and campaign outcomes. Historical route failures are retained and
 must be causally requalified before updating their expected outcomes.
+
+In the retained ordinary Boat acquisition trace, Tower Firewarrior 96 emits the
+impact pair targeting Shaman 89; the first hit at browser turn 1355 reduces life
+2000 to 1500. The existing health updater adds 32 every eligible eighth turn
+while below maximum, without clamping the final increment, reaching life 2012
+(HP100.6) at1480. This producer change does not modify damage or healing.

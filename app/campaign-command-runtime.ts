@@ -938,18 +938,12 @@ export function campaignRules(w: World) {
                                           1004,
                                           1019,
                                         ]
-                                      : w.outcome.level === 22 && tribe === 1
-                                        ? [
-                                            12,
-                                            1003,
-                                            // Authored EVERY255 Tower staffing statement only.
-                                            // Later marker and emergency siblings remain unbound.
-                                            ...script.codes.slice(227, 235),
-                                            1004,
-                                            1004,
-                                            1019,
-                                          ]
-                                        : [12, 1003, 1004, 1019],
+                                      : [12, 1003, 1004, 1019],
+  }
+  if (w.outcome.level === 22 && tribe === 1) {
+    // Authored EVERY255 Tower staffing statement only.
+    // Later marker and emergency siblings remain unbound.
+    boundCampaignScript.codes = [12, 1003, ...script.codes.slice(227, 235), 1004, 1004, 1019]
   }
   // ponytail: bind reviewed statements with their original enclosing conditions and real hosts.
   runScript(boundCampaignScript, w.ai, {
