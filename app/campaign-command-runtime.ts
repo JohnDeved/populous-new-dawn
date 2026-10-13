@@ -940,6 +940,11 @@ export function campaignRules(w: World) {
                                         ]
                                       : [12, 1003, 1004, 1019],
   }
+  if (w.outcome.level === 16 && tribe === 2) {
+    // Original Yellow EVERY255/offset127 and both population-gated Tower groups.
+    // Later patrol, guard and expansion siblings remain outside this projection.
+    boundCampaignScript.codes = [12, 1003, ...script.codes.slice(570, 613), 1004, 1004, 1019]
+  }
   if (w.outcome.level === 18 && tribe === 1) {
     // Complete first patrol/Preacher block and the following original kill-count
     // guard transition. Later attack phases never reopen its zero-valued gate.
