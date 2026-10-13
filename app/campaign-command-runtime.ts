@@ -941,9 +941,9 @@ export function campaignRules(w: World) {
                                       : [12, 1003, 1004, 1019],
   }
   if (w.outcome.level === 16 && tribe === 1) {
-    // Original Red EVERY255/offset127 and its two population-gated Tower groups.
-    // Separate expansion, patrol and emergency siblings remain unbound.
-    boundCampaignScript.codes = [12, 1003, ...script.codes.slice(655, 703), 1004, 1004, 1019]
+    // Original Red EVERY255/offset127: six Tower requests precede both patrol groups.
+    // Separate expansion, nearby-count, training and guard siblings remain unbound.
+    boundCampaignScript.codes = [12, 1003, ...script.codes.slice(655, 729), 1004, 1004, 1019]
   }
   if (w.outcome.level === 16 && tribe === 2) {
     // Original Yellow EVERY255/offset127 and both population-gated Tower groups.
