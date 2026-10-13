@@ -599,6 +599,10 @@ export type AttackInput = {
   tracking?: (id: number) => boolean
   reacquire?: () => AttackTarget | null
   taskSpell?: (models: readonly number[], target: number) => number | null
+  outbound?: (
+    target: number,
+    radius: number
+  ) => { kind: 'empty' | 'attack' | 'pending' } | { kind: 'regroup'; cell: number }
 }
 export type AttackTarget = { id: number; target: number; direct?: boolean; contained?: boolean }
 export type AttackAction =
@@ -721,11 +725,22 @@ export function stepAttackTask(
     return [{ kind: 'move', target: task.target, replace: true }]
   }
   if (task.phase === 10) {
-    const regroup = input.memberWithin(task.target, 20)
+    task.elapsed += ai.tasks.filter(t => t.flags & 1).length
+    const outbound = input.outbound?.(task.target, 20)
+    if (outbound?.kind === 'empty' || outbound?.kind === 'attack') {
+      task.phase = outbound.kind === 'empty' ? 23 : 15
+      return actions
+    }
+    const regroup = outbound
+      ? outbound.kind === 'regroup'
+        ? outbound.cell
+        : null
+      : input.memberWithin(task.target, 20)
     if (regroup !== null) {
       task.regroup = regroup
       task.phase = 11
     }
+    if (task.elapsed > 1800) task.phase = 11
     return actions
   }
   if (task.phase === 11) {

@@ -651,6 +651,51 @@ function canReleaseComputerAttackPerson(w: World, index: number, u: Unit, p: Liv
   return w.buildingOrders.active >= freed
 }
 
+function registeredAttackPerson(w: World, u: Unit) {
+  const registered = w.objectCells.objects.get(u.id)
+  return [u.flight, u.fight?.motion, u.native, u.entry?.person, u.builder?.person].find(
+    person => person && person === registered
+  )
+}
+
+function releaseAttackPerson(w: World, index: number, u: Unit, p: LivePerson) {
+  if (!canReleaseComputerAttackPerson(w, index, u, p)) return false
+  // 0x4f2440: absence of +7f remains unknown; known upper bits survive.
+  if (Object.hasOwn(u, 'nativeFlags7f')) u.nativeFlags7f! &= 254
+  p.computerAssignment = 0
+  p.flags3 = (p.flags3 & ~0x2000) >>> 0
+  finishComputerPerson(w, u, p, true, true)
+  w.ai.tasks[index].members = w.ai.tasks[index].members.filter(id => id !== u.id)
+  return true
+}
+
+// 0x4cbbc4: retain the admitted-member and proximity adapters, but preserve
+// per-member forced-state, release, then proximity ordering.
+function computerAttackOutbound(w: World, index: number, target: number, radius: number) {
+  let remaining = false
+  for (const u of computerAttackUnits(w, index)) {
+    const p = registeredAttackPerson(w, u)
+    if (!p) {
+      remaining = true
+      continue
+    }
+    if (p.state === 25 || p.state === 29 || p.flags2 & 0x80000) return { kind: 'attack' as const }
+    if (
+      p.state === 33 &&
+      (p.substate === 3 || (p.substate === 2 && p.animationMode > 4)) &&
+      releaseAttackPerson(w, index, u, p)
+    )
+      continue
+    remaining = true
+    if (!computerAttackReady(u)) continue
+    const position = nativePosition(w, u),
+      cell = ((position.x >>> 8) & 254) | (position.y & 0xfe00)
+    if (cellDistanceSquared(cell, target) <= radius * radius)
+      return { kind: 'regroup' as const, cell }
+  }
+  return { kind: remaining ? ('pending' as const) : ('empty' as const) }
+}
+
 // 0x4d14f0: task.members supplies the port's admitted-member ownership. Inspect
 // the registered person, including a fight owner that shadows stale u.native.
 function computerAttackSettled(w: World, index: number) {
@@ -658,10 +703,7 @@ function computerAttackSettled(w: World, index: number) {
   if (!units.length) return null
   let settled = true
   for (const u of units) {
-    const registered = w.objectCells.objects.get(u.id),
-      p = [u.flight, u.fight?.motion, u.native, u.entry?.person, u.builder?.person].find(
-        person => person && person === registered
-      )
+    const p = registeredAttackPerson(w, u)
     if (
       !p ||
       !unsignedAttackField(p.state, 255) ||
@@ -685,13 +727,7 @@ function computerAttackSettled(w: World, index: number) {
       }
       if (p.substate === 3 || (p.substate === 2 && p.animationMode > 4)) {
         settled = false
-        if (!canReleaseComputerAttackPerson(w, index, u, p)) continue
-        // 0x4f2440: absence of +7f remains unknown; known upper bits survive.
-        if (Object.hasOwn(u, 'nativeFlags7f')) u.nativeFlags7f! &= 254
-        p.computerAssignment = 0
-        p.flags3 = (p.flags3 & ~0x2000) >>> 0
-        finishComputerPerson(w, u, p, true, true)
-        w.ai.tasks[index].members = w.ai.tasks[index].members.filter(id => id !== u.id)
+        releaseAttackPerson(w, index, u, p)
         continue
       }
     }
@@ -1863,6 +1899,7 @@ export function stepComputerTasks(w: World, tribe: number) {
             return ids
           },
           settled: () => computerAttackSettled(w, index),
+          outbound: (target, radius) => computerAttackOutbound(w, index, target, radius),
           memberWithin: (target, radius) => {
             const unit = computerAttackUnits(w, index).find(u => {
               if (!computerAttackReady(u)) return false
