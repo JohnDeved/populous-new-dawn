@@ -104,8 +104,10 @@ test('ordinary airborne tower command reaches departure and authored melee throu
       if (head.reward === undefined && head.rewardMana) head.reward = 'mana'
     return copy
   }
-  let death = 0
-  for (let i = 0; i < 600; i++) {
+  let death = 0,
+    targetDeath = 0,
+    retired = 0
+  while (world.turn < 6429) {
     tick(world, 1 / 12)
     tick(restored, 1 / 12)
     assert.deepEqual(comparable(restored), comparable(world))
@@ -129,8 +131,10 @@ test('ordinary airborne tower command reaches departure and authored melee throu
       assert.ok(Math.hypot(unit.x - 55, unit.z - 121) < 1)
     }
     if (shaman.hp <= 0 && !death) death = world.turn
-    if (world.turn === 4251) assert.equal(shaman.native.vehicle, balloon.id)
-    if (world.turn === 4252) {
+    if (target.hp <= 0 && !targetDeath) targetDeath = world.turn
+    if (!order.references && !retired) retired = world.turn
+    if (world.turn === 4263) assert.equal(shaman.native.vehicle, balloon.id)
+    if (world.turn === 4264) {
       assert.deepEqual(
         [shaman.native.substate, shaman.native.workTarget, shaman.native.vehicle],
         [3, 105, 0]
@@ -138,18 +142,21 @@ test('ordinary airborne tower command reaches departure and authored melee throu
       assert.deepEqual(balloon.passengers, [])
       assert.equal(balloon.passengerCount, 0)
     }
-    if (world.turn === 4260) {
+    if (world.turn === 4270) {
       assert.equal(shaman.fight.opponent, 11)
       assert.equal(world.units.find(u => u.id === 11).kind, 'warrior')
       assert.equal(shaman.fight.motion.vehicle, 0)
     }
   }
-  assert.equal(target.hp, 260)
-  // Restored staffing changes the interception. Failed ground recovery now
-  // hands the retained person to existing physics after combat; death retires
-  // the attack. The selected Tower is not destroyed by this bounded route.
-  assert.equal(death, 4315)
-  assert.equal(shaman.hp, 0)
+  assert.equal(target.hp, 0)
+  // Recurring patrols change the encounters. Continue the actual attack until
+  // it destroys the selected Tower and automatically retires its record.
+  assert.equal(targetDeath, 6428)
+  assert.equal(retired, 6429)
+  assert.equal(death, 0)
+  assert.equal(shaman.hp, 100.7)
+  assert.ok(world.units.includes(shaman))
+  assert.equal(world.objectCells.objects.get(shaman.id), shaman.native)
   assert.equal(order.references, 0)
   assert.deepEqual(balloon.passengers, [])
 })

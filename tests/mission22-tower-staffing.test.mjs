@@ -23,8 +23,8 @@ test('ordinary M22 authored EVERY255 requests a real Firewarrior Tower garrison'
       [0, 14],
     ]
   )
-  // This is deliberately only the staffing statement, not its following marker
-  // request1092 or conditional emergency1086, nor the full recurring script.
+  // The following marker request retains this order within the partial block;
+  // conditional emergency1086 and the rest of the recurring script stay excluded.
   assert.deepEqual(red.codes.slice(235, 241), [1006, 1092, 16, 21, 36, 36])
   const store = createGameStore()
   store.startMission(22)
@@ -69,6 +69,8 @@ test('ordinary M22 authored EVERY255 requests a real Firewarrior Tower garrison'
     false
   )
   tick(w, 1 / 12)
+  assert.deepEqual(task.members, []) // The following marker task gets this visit.
+  tick(w, 1 / 12)
   assert.deepEqual(task.members, [fw.id])
   assert.equal(task.phase, 4)
   await store.saveCheckpoint()
@@ -82,7 +84,7 @@ test('ordinary M22 authored EVERY255 requests a real Firewarrior Tower garrison'
   assert.deepEqual(comparable(restored), comparable(w))
   let orderId = 0,
     entered = 0
-  for (let n = 0; n < 943; n++) {
+  for (let n = 0; n < 942; n++) {
     tick(w, 1 / 12)
     tick(restored, 1 / 12)
     assert.deepEqual(comparable(restored), comparable(w))
@@ -95,7 +97,7 @@ test('ordinary M22 authored EVERY255 requests a real Firewarrior Tower garrison'
     if (fw.inside === tower.id && !entered) entered = w.turn
   }
   // Browser outcome, not a native completion-time parity claim.
-  assert.equal(entered, 272)
+  assert.equal(entered, 274)
   assert.equal(w.turn, 1200)
   assert.equal(fw.inside, tower.id)
   assert.equal(fw.hp, 35)

@@ -17,8 +17,10 @@ the turn afterwards, so the first task is observed at turn 256. The projection
 keeps the whole EVERY header and staffing statement and supplies explicit block
 terminators. The existing opcode handler and type-7 task consumer are unchanged.
 
-The later sibling marker request 1092 and conditional emergency request 1086 are
-omitted. They cannot condition this earlier invocation, but could alter later
+The initial staffing-only restoration omitted sibling marker request 1092; the
+subsequent [marker restoration](mission22-marker-patrol.md) includes it in its
+original following position. Conditional emergency request 1086 remains omitted.
+These siblings cannot condition this earlier invocation, but can alter later
 native task scheduling and population. Accordingly, this restores staffing
 capability and its producer cadence, not full-block or native completion-time
 parity. The unrelated requested-model-zero consumer path is unchanged.

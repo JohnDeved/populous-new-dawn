@@ -108,7 +108,7 @@ test('grounded staged boarding retains and visits the preceding waypoint', async
     if (boat.passengerCount && boarded === null) boarded = world.turn
   }
   assert.ok(lethalClosest < 1)
-  assert.deepEqual([lethalFight, lethalOpponent, lethalDeath], [1477, 97, 1509])
+  assert.deepEqual([lethalFight, lethalOpponent, lethalDeath], [1476, 97, 1507])
   assert.equal(lethalShaman.hp, 0)
   assert.equal(lethal.units.includes(lethalShaman), false)
   assert.equal(lethal.objectCells.objects.has(lethalShaman.id), false)
@@ -117,7 +117,7 @@ test('grounded staged boarding retains and visits the preceding waypoint', async
   assert.deepEqual(lethalBoat.passengers, [])
   assert.ok(controlClosest < 1)
   assert.ok(closest < 1)
-  assert.equal(boarded, 1385)
+  assert.equal(boarded, 1390)
   assert.equal(shaman.hp, 100.6)
   assert.equal(world.buildingOrders.records[first].references, 0)
   assert.equal(world.buildingOrders.records[second].references, 0)
