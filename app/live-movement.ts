@@ -1030,8 +1030,16 @@ export function stepLiveOrderQueue(
     p,
     {
       commands,
-      commandPosition: order =>
-        order.model === 30 ? shamanGuardPosition(w, order, p) : { x: order.a, y: order.b },
+      commandPosition: order => {
+        if (order.model === 30) return shamanGuardPosition(w, order, p)
+        // Area commands store a packed cell in a and search extents in b.
+        if (rules.personCommands[order.model].flags & 0x800)
+          return {
+            x: ((order.a & 254) + 1) * 256,
+            y: (((order.a >>> 8) & 254) + 1) * 256,
+          }
+        return { x: order.a, y: order.b }
+      },
       vehicleDestination: unsupported,
       vehicleReady: unsupported,
       changeTribe: tribe => {

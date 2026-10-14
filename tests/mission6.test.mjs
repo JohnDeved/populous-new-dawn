@@ -280,86 +280,91 @@ test('Mission 6 Chumara trains Preachers and launches its first mixed raid', () 
         (unit.native?.flags4 ?? 0) & 0x40000
     )
   )
-  const originalMembers = [...restoredAttack.members]
-  let abortTurn = null,
-    retired = false,
-    reusedForTraining = false
+  const originalMembers = [...restoredAttack.members],
+    warriors = originalMembers.filter(id => id !== preacherId),
+    raidSlot = raiding.campaignAIs[2].tasks.indexOf(restoredAttack)
+  assert.equal(raiding.turn, 8016)
+  // Correct packed command19 anchors retain the attackers at Blue's base.
+  // The former raw-coordinate retreat/phase6 abort was an adapter bug; its
+  // independently captured native abort controls remain in raid-phase6-settlement.
   for (let turn = 0; turn < 513; turn++) {
-    const phase = restoredAttack.phase,
-      elapsed = restoredAttack.elapsed,
-      fallback = restoredAttack.fallback,
-      active = !retired && !!(restoredAttack.flags & 1),
-      firstFreeSlot = raiding.campaignAIs[2].tasks.findIndex(task => !(task.flags & 1)),
-      owners = !retired && phase === 6 ? originalMembers.map(id => {
+    tick(raiding, 1 / 12)
+    const activeRaids = raiding.campaignAIs[2].tasks.filter(task => task.flags & 1 && task.type === 20)
+    assert.equal(activeRaids.length, 1)
+    assert.equal(activeRaids[0], restoredAttack)
+    assert.equal(restoredAttack.phase, 16)
+    assert.deepEqual(restoredAttack.members, originalMembers)
+    if (raiding.turn === 8203)
+      for (const id of warriors) {
         const unit = raiding.units.find(unit => unit.id === id),
-          person = raiding.objectCells.objects.get(id),
-          order = person && currentPersonOrder(raiding.buildingOrders, person)
-        assert.ok(unit && person)
-        assert.ok([unit.flight, unit.fight?.motion, unit.native, unit.entry?.person,
-          unit.builder?.person].includes(person))
-        return {
-          id, person, state: person.state, speed: person.speed,
-          fightOwned: unit.fight?.motion === person,
-          immediate: person.immediateCommand, cursor: person.commandCursor,
-          commands: [...person.commands],
-          queuedModel: raiding.buildingOrders.records[person.commands[person.commandCursor]]?.model,
-          order, payload: order && { ...order },
-        }
-      }) : []
+          person = raiding.objectCells.objects.get(id)
+        assert.equal(unit.native, person)
+        assert.deepEqual([person.anchorX, person.anchorY], [15104, 14592])
+      }
+  }
+  assert.equal(raiding.turn, 8529)
+  assert.deepEqual(
+    [restoredAttack.phase, restoredAttack.target, restoredAttack.damage, restoredAttack.retries],
+    [16, 14394, 2, 0]
+  )
+  assert.ok(originalMembers.every(id => {
+    const unit = raiding.units.find(unit => unit.id === id)
+    return unit && unit.hp > 0 && Math.hypot(unit.x - 51, unit.z + 65) < 8
+  }))
+  for (const id of warriors) {
+    const person = raiding.objectCells.objects.get(id)
+    assert.deepEqual([person.anchorX, person.anchorY], [15104, 14592])
+  }
+  assert.equal(currentPersonOrder(raiding.buildingOrders,
+    raiding.objectCells.objects.get(preacherId))?.model, 17)
+
+  // The real returning Shaman's reincarnation wave now reaches these local
+  // attackers. Observe its casualties, retirement and first producer-slot reuse.
+  let retired = false, reusedForTraining = false
+  while (raiding.turn < 8702) {
+    const phase = restoredAttack.phase,
+      active = !retired && !!(restoredAttack.flags & 1),
+      firstFreeSlot = raiding.campaignAIs[2].tasks.findIndex(task => !(task.flags & 1))
     tick(raiding, 1 / 12)
     const activeRaids = raiding.campaignAIs[2].tasks.filter(task => task.flags & 1 && task.type === 20)
     assert.ok(activeRaids.length <= 1)
     if (activeRaids.length) assert.equal(activeRaids[0], restoredAttack)
-    if (!retired && phase === 6 && restoredAttack.phase === 23) {
-      // 004d14f0 aborts on an admitted combat member, even while others move.
-      const combat = owners.find(owner => owner.id === preacherId && owner.fightOwned &&
-        [25, 29].includes(owner.state))
-      assert.ok(combat)
-      // Loaded-origin staging reaches immediate attack21 rather than sermon32.
-      // The native abort gate consumes this admitted fight state, not its order model.
-      assert.equal(combat.order?.model, 21)
-      assert.ok(combat.immediate > 0)
-      assert.equal(combat.queuedModel, 3)
-      assert.ok(owners.some(owner => owner.state === 10 && owner.speed > 0 && owner.order?.model === 3))
-      assert.equal(abortTurn, null)
-      assert.ok(elapsed <= 1800)
-      assert.equal(fallback, 23)
-      assert.equal(restoredAttack.elapsed, 1801)
-      assert.equal(restoredAttack.fallback, 23)
+    if (raiding.turn === 8668) {
+      assert.ok(raiding.units.some(unit => unit.kind === 'shaman' && unit.team === 'blue' && unit.hp > 0))
+      assert.ok(raiding.effects.some(effect => effect.reincarnationWave?.tribe === 0))
+    }
+    if (raiding.turn === 8678) {
+      assert.equal(restoredAttack.phase, 23)
       assert.equal(restoredAttack.flags & 1, 1)
       assert.deepEqual(restoredAttack.members, originalMembers)
-      for (const owner of owners) {
-        assert.equal(raiding.objectCells.objects.get(owner.id), owner.person)
-        assert.equal(owner.person.immediateCommand, owner.immediate)
-        assert.equal(owner.person.commandCursor, owner.cursor)
-        assert.deepEqual(owner.person.commands, owner.commands)
-        assert.equal(currentPersonOrder(raiding.buildingOrders, owner.person), owner.order)
-        assert.deepEqual(owner.order, owner.payload)
-      }
-      abortTurn = raiding.turn
+      assert.ok(originalMembers.every(id => !raiding.units.some(unit => unit.id === id)))
+      assert.ok(originalMembers.every(id => !raiding.objectCells.objects.has(id)))
+      assert.equal(raiding.killCredits[0][2], 4)
     }
     if (active && !(restoredAttack.flags & 1)) {
+      assert.equal(raiding.turn, 8680)
       assert.equal(phase, 23)
-      assert.ok(abortTurn !== null && raiding.turn > abortTurn)
       assert.equal(restoredAttack.phase, 23)
-      assert.equal(restoredAttack.elapsed, 1801)
+      assert.equal(restoredAttack.elapsed, 305)
+      assert.equal(restoredAttack.fallback, 14)
       assert.equal(restoredAttack.flags & 3, 0)
       assert.deepEqual(restoredAttack.members, [])
       retired = true
     }
     if (retired) {
       assert.equal(activeRaids.length, 0)
-      // The earlier retirement leaves a free slot for the normal training producer.
-      // Do not mistake its reused mutable record for a resurrected raid.
       if (!reusedForTraining && restoredAttack.flags & 1) {
+        assert.equal(raiding.turn, 8702)
         assert.equal(computerPhase(raiding.turn - 1, 2), 'produce')
-        assert.equal(firstFreeSlot, raiding.campaignAIs[2].tasks.indexOf(restoredAttack))
+        assert.equal(firstFreeSlot, raidSlot)
+        assert.equal(raiding.campaignAIs[2].tasks[raidSlot], restoredAttack)
         assert.equal(restoredAttack.type, 6)
         assert.equal(restoredAttack.phase, 0)
         assert.equal(restoredAttack.requested, 0)
         assert.deepEqual(restoredAttack.members, [])
         const camp = raiding.buildings.find(building => building.id === restoredAttack.target)
         assert.ok(camp && camp.hp > 0 && camp.team === 'yellow')
+        assert.equal(camp.id, 354)
         assert.equal(camp.progress, 1)
         assert.equal(buildingModel(camp), 7)
         reusedForTraining = true
@@ -367,13 +372,11 @@ test('Mission 6 Chumara trains Preachers and launches its first mixed raid', () 
         assert.equal(restoredAttack.flags & 1, 0)
         assert.deepEqual(restoredAttack.members, [])
       }
-      if (reusedForTraining) assert.equal(restoredAttack.type, 6)
     }
   }
-  assert.ok(abortTurn !== null)
   assert.ok(retired)
   assert.ok(reusedForTraining)
-  assert.ok(originalMembers.every(id => raiding.units.some(unit => unit.id === id && unit.hp > 0)))
+  assert.ok(originalMembers.every(id => !raiding.units.some(unit => unit.id === id)))
 })
 
 test('Mission 6 opponents expand and Matak launches its first Warrior raid', () => {
