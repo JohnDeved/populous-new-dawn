@@ -9,6 +9,7 @@ import { effect, sound } from './world-effects.ts'
 import { applyUnitDamage } from './combat-runtime.ts'
 import { damageBuilding, ensureBuildingDamage } from './building-damage.ts'
 import { TURNS_PER_SECOND } from './world-rules.ts'
+import { stepFirewarriorPoint } from './firewarrior-point.ts'
 import { automaticTowerFirewarriorTarget } from './live-combat.ts'
 import { engagementRange } from './melee-engagement.ts'
 import constants from './original-constants.json' with { type: 'json' }
@@ -95,6 +96,10 @@ export const towerFirewarriorReady = (w: World, source: Unit, target: Unit) =>
 
 export function stepFirewarriorShots(w: World) {
   for (const fx of w.effects.filter(effect => effect.firewarriorShot)) {
+    if (fx.firewarriorShot!.point) {
+      stepFirewarriorPoint(w, fx, nativePosition(w, fx), { effect, sound })
+      continue
+    }
     const shot = fx.firewarriorShot!,
       unit = w.units.find(unit => unit.id === shot.target && unit.hp > 0),
       building = w.buildings.find(building => building.id === shot.target && building.hp > 0),

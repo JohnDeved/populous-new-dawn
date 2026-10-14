@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "fe22fc4b-c5aa-434e-9dc1-d5742c2f5ecc",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "ede773bf7e848ba57fb9a1903001a582d6d97b37",
+    "branch": "fix/firewarrior-celebration",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/firewarrior-celebration.test.mjs",
+    "tests/firewarrior-impact-owner.test.mjs",
+    "tests/firewarrior-firing-phase.test.mjs",
+    "tests/firewarrior-firing-artwork.test.mjs",
+    "tests/firewarrior-resting-artwork.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-m17-route-cells",
+  "startedAt": "2026-10-14T16:05:56.852Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-m17-route-cells/work/orchestration/m17-celebration/focused.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-m17-route-cells/work/orchestration/m17-celebration/focused.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T16:06:00.135Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ explicit celebration pair preserves native point height, support offset, allocation sides and non-damaging arrival (281.730852ms)\n✔ genuine M17 won6784 passes prior celebration throw with physical sky shots and Save/Load twins (1166.335384ms)\n✔ explicit wrapped point shots live beyond the ordinary sixteen-visit timeout and both retire on arrival (47.468253ms)\n✔ Firewarrior row15 has its own eight-direction five-frame firing family (6.723228ms)\n✔ firing pieces use disjoint 32px subslots while every old atlas origin stays fixed (74.605143ms)\n✔ actual ranged body matches owned native visits: person-entry-walk-frame3 (2.103691ms)\n✔ actual ranged body matches owned native visits: person-entry-idle-frame4 (0.34149ms)\n✔ actual ranged body matches owned native visits: person-recovery-boundary-present (0.476994ms)\n✔ actual ranged body matches owned native visits: person-wait-entry-present (0.260189ms)\n✔ actual ranged body matches owned native visits: person-wait-entry-gone (0.280006ms)\n✔ actual ranged body matches owned native visits: person-cooldown-entry (0.129133ms)\n✔ actual ranged body matches owned native visits: person-cooldown-expiry (0.146626ms)\n✔ actual ranged body matches owned native visits: person-cooldown-cleared (0.101901ms)\n✔ actual ranged body matches owned native visits: building-entry-walk-frame3 (0.452723ms)\n✔ actual ranged body matches owned native visits: building-entry-idle-frame4 (0.802772ms)\n✔ actual ranged body matches owned native visits: building-recovery-boundary-present (0.157207ms)\n✔ actual ranged body matches owned native visits: building-wait-entry-present (0.107098ms)\n✔ actual ranged body matches owned native visits: building-wait-entry-gone (0.11571ms)\n✔ actual ranged body matches owned native visits: building-cooldown-entry (0.502552ms)\n✔ actual ranged body matches owned native visits: building-cooldown-expiry (0.081112ms)\n✔ actual ranged body matches owned native visits: building-cooldown-cleared (0.110717ms)\n✔ on-foot pair has one authoritative unit impact (121.873089ms)\n✔ on-foot Bloodlust pair has one authoritative unit impact (87.690602ms)\n✔ tower pair has one authoritative unit impact (76.450048ms)\n✔ tower Bloodlust pair has one authoritative unit impact (39.717052ms)\n✔ whole pair preserves Shield and only the marked side emits hit feedback (45.408448ms)\n✔ visual side cannot claim lethal damage or campaign kill attribution (98.369774ms)\n✔ source loss preserves launched impact but cannot fabricate a living attacker (72.793822ms)\n✔ legacy omitted markers preserve old in-flight unit behavior through checkpoint restore (89.969323ms)\n✔ current pair side ownership survives an in-flight checkpoint unchanged (82.183035ms)\n✔ building impact keeps its existing false marker behavior (46.050015ms)\n✔ building impact keeps its existing true marker behavior (46.473372ms)\n✔ building impact keeps its existing undefined marker behavior (48.100515ms)\n✔ native Firewarrior resting source720 resolves its actual original frames (3.297343ms)\nℹ tests 34\nℹ suites 0\nℹ pass 34\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 3138.754426\n",
+  "stderr": "",
+  "stdoutSha256": "2c96a92bd7f48d9e130445a06c0d2773cb7a62d99ecccf03992a65168b6d2494",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "ede773bf7e848ba57fb9a1903001a582d6d97b37",
+    "branch": "fix/firewarrior-celebration",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

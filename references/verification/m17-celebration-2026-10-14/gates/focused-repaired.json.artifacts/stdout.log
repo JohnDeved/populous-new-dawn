@@ -1,0 +1,42 @@
+✔ explicit celebration pair preserves native point height, support offset, allocation sides and non-damaging arrival (717.111817ms)
+✔ genuine M17 won6784 passes prior celebration throw with physical sky shots and Save/Load twins (754.379016ms)
+✔ explicit wrapped point shots live beyond the ordinary sixteen-visit timeout and both retire on arrival (46.356793ms)
+✔ Firewarrior row15 has its own eight-direction five-frame firing family (4.717961ms)
+✔ firing pieces use disjoint 32px subslots while every old atlas origin stays fixed (327.689063ms)
+✔ actual ranged body matches owned native visits: person-entry-walk-frame3 (2.221018ms)
+✔ actual ranged body matches owned native visits: person-entry-idle-frame4 (0.198264ms)
+✔ actual ranged body matches owned native visits: person-recovery-boundary-present (0.587519ms)
+✔ actual ranged body matches owned native visits: person-wait-entry-present (0.297297ms)
+✔ actual ranged body matches owned native visits: person-wait-entry-gone (0.161023ms)
+✔ actual ranged body matches owned native visits: person-cooldown-entry (0.166928ms)
+✔ actual ranged body matches owned native visits: person-cooldown-expiry (0.209274ms)
+✔ actual ranged body matches owned native visits: person-cooldown-cleared (0.12362ms)
+✔ actual ranged body matches owned native visits: building-entry-walk-frame3 (0.330817ms)
+✔ actual ranged body matches owned native visits: building-entry-idle-frame4 (0.548029ms)
+✔ actual ranged body matches owned native visits: building-recovery-boundary-present (0.226267ms)
+✔ actual ranged body matches owned native visits: building-wait-entry-present (0.122762ms)
+✔ actual ranged body matches owned native visits: building-wait-entry-gone (0.082119ms)
+✔ actual ranged body matches owned native visits: building-cooldown-entry (0.074001ms)
+✔ actual ranged body matches owned native visits: building-cooldown-expiry (0.058524ms)
+✔ actual ranged body matches owned native visits: building-cooldown-cleared (0.126016ms)
+✔ on-foot pair has one authoritative unit impact (699.566927ms)
+✔ on-foot Bloodlust pair has one authoritative unit impact (131.735503ms)
+✔ tower pair has one authoritative unit impact (61.365378ms)
+✔ tower Bloodlust pair has one authoritative unit impact (157.061524ms)
+✔ whole pair preserves Shield and only the marked side emits hit feedback (163.728856ms)
+✔ visual side cannot claim lethal damage or campaign kill attribution (358.992185ms)
+✔ source loss preserves launched impact but cannot fabricate a living attacker (145.586813ms)
+✔ legacy omitted markers preserve old in-flight unit behavior through checkpoint restore (150.887869ms)
+✔ current pair side ownership survives an in-flight checkpoint unchanged (76.719462ms)
+✔ building impact keeps its existing false marker behavior (122.868622ms)
+✔ building impact keeps its existing true marker behavior (45.059269ms)
+✔ building impact keeps its existing undefined marker behavior (105.311338ms)
+✔ native Firewarrior resting source720 resolves its actual original frames (135.082849ms)
+ℹ tests 34
+ℹ suites 0
+ℹ pass 34
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6952.138933

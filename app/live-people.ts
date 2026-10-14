@@ -1,3 +1,4 @@
+import { launchFirewarriorPoint } from './firewarrior-point.ts'
 import { discardInvalidResident, residentPerson } from './building-resident.ts'
 import { deselectLiveVehiclePassengers } from './live-vehicles.ts'
 import { latchShamanDeathFrame } from './shaman-death-vfx.ts'
@@ -442,8 +443,10 @@ function context(w: World) {
         w.units.find(u => u.id === person.id)!
       )
     },
-    projectile: () => {
-      throw new Error('Live firewarriors are not yet implemented')
+    projectile: (person, to) => {
+      const source = w.units.find(u => u.id === person.id)!
+      revealUnitInvisibility(w, source)
+      launchFirewarriorPoint(w, source, person as LivePerson, to, { effect, sound })
     },
   }
   return { state, effects }

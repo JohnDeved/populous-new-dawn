@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "47f133ef-9f03-4f5e-99e3-2c938611a9d9",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "584d40aebd4a18bb2adb37a0788697acc3f0406c",
+    "branch": "fix/firewarrior-celebration",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "work/m17-celebration/compare-oxlint.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-m17-route-cells",
+  "startedAt": "2026-10-14T16:24:36.625Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-m17-route-cells/work/orchestration/m17-celebration/frozen-quality.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-m17-route-cells/work/orchestration/m17-celebration/frozen-quality.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T16:24:40.563Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\"base\":\"f2e97561be4e186db1d24a1c161a8f4958ea9180\",\"candidate\":\"584d40aebd4a18bb2adb37a0788697acc3f0406c\",\"baseline\":1408,\"current\":1408,\"added\":[],\"removed\":[]}\n",
+  "stderr": "",
+  "stdoutSha256": "c6bd070f2a08ec898da31992b1137f0724bd674950f736239ada3567f769ab9c",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "584d40aebd4a18bb2adb37a0788697acc3f0406c",
+    "branch": "fix/firewarrior-celebration",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}
