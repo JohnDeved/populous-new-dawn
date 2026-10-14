@@ -85,3 +85,13 @@ failed Load is preserved; it did not overwrite the saved checkpoint. Browser
 profiles/raw storage are intentionally not included in this packet. Receipts
 retain private local path references for provenance, but only bounded observations
 and screenshots are published. No deployment/parity/runtime files changed.
+
+## Publication gate disposition
+
+The [retained gate receipts](gates/README.md) include a passing typecheck, production
+build, parity/orchestration validation and isolated queue suite. The full aggregate
+is **FAILED** (2,603/2,605), and the isolated foreground suite is also **FAILED** on
+a different process-startup timing fixture. All failures are retained, unchanged
+from main source; acceptance of this QA-only change must remain explicitly
+scope-qualified, never described as a green full suite. The original official
+browser metadata entry is retained as `browser-official-version.json`.

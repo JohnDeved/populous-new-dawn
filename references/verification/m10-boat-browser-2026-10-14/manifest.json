@@ -1,8 +1,9 @@
 {
   "version": 1,
   "files": {
-    "README.md": "0ff3e48d5b4524e8a8ee90f0fa2403f334fb399ea37f53f26a75ae2e82f51e08",
+    "README.md": "37dbdee8141b0b1f307cd48baf89343558a724be09bdd3af37d2f72f25bb963a",
     "browser-install.json": "67c4cafd86142f49804698a0fedbec88c1ac0203dd8406eedbc4fb221a4dcd1d",
+    "browser-official-version.json": "3558d5e9867c5737f68aa4063eb3bf9e46e1d09a146fc23775df0fcc8528e927",
     "failed-dependency-layout/receipt.json": "278bf65f11e476cca47f5e29396a6e23b53f599d5fab086cdfb27ec98140d968",
     "failed-dependency-layout/server.log": "0c425a9543e1d9929a90d2ebedea836e67a452b51c9641c929645e82c26c5298",
     "failed-readiness/receipt.json": "2e4625773293e92881989cff1579b68dbd063226c85dec60e30ed47d80b888d3",
@@ -11,6 +12,12 @@
     "failed-save/receipt.json": "744f196edbb62197be5a22fc64d8d77ab52e14e51cfa51700cea197c4f6fcb80",
     "failed-save/server.log": "cf15a3593bf2a897328466f90467217c60f97a752be2f6ed16f8fd99d1e19b4b",
     "final-independent-review.md": "eaf7c28085fc57340143339c4c881dbe7c6ad60c04fafab9adf30a6abc6afa51",
+    "gates/README.md": "47822df9623e90de161b8d985c387817ff6d3db304a0d558d5a1a7ee7e145757",
+    "gates/build.json": "d0259cbd9a58da88d5c02d1c1905a07b30ad992da9326b569d82b53c42e70729",
+    "gates/check.json": "3e018ab375c9825b6a0aa8216ce7d7abc22eb505659501b1dccc7c861113030f",
+    "gates/foreground-isolated.json": "2ffe6e61c0539beab3a607461c9431fe9047a00544bbf513721a451a8aee51e6",
+    "gates/metadata.json": "5176d700cf392111d11259db4e4f893cf52fc663155a0d0bfa6a14c4c4b380db",
+    "gates/queue-isolated.json": "c635e23d088bff4744a7485bae2924840a59b4af815376296fa3204e05e46bd8",
     "inspection-correspondence.json": "f1a65f2b0e78c68076307de0dcb629991634d195d00899d180aae08f4211cdf8",
     "inspection-review.md": "8eeacc1bb60b0291d0f6c5072479d550258387e2b1f75c6f6f85ffa6e9c750d0",
     "load-hover-failure/boat-checkpoint.json": "2ab833004ccdc9835f9066e8d657a223390274e7bc06f811e041b8518c25c766",
