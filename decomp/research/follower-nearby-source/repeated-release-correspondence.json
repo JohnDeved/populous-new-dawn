@@ -1,0 +1,19 @@
+{
+  "head": "92907866646e418747dd2bda44236d9949835bc5",
+  "trackedStatus": "",
+  "addendum": {
+    "path": "repeated-release-addendum.md",
+    "sha256": "c9befb6faebd3168b07b4bf8f3e0d5f8d8386d01f96292d7a4a915d5bc2b41d6"
+  },
+  "originalManifestSha256": "98267199af7d3a426a9195131c888cf8d804ccab44cb65a7ce1d5607cc595179",
+  "additionalSourceHashes": {
+    "app/game-clock.ts": "d4f850867943a54ebf86e79b6d71e2f842d0e6c61c70bb2884872bd6d002eef6",
+    "app/world-turn.ts": "bce117719a8045e1943df2fad8b9500d26e3f90221e333289362df08ab3fee20",
+    "app/scene.ts": "c6c88945abbb84909020670ac2069b8da91381ecf6bab121d65519614cac38e1",
+    "app/scene-input-runtime.ts": "a0d6e101c78b4fa4e4cc5d4ee671b2c97dc6509fdca12d68889224dcd5c7724b",
+    "app/game-store.ts": "9f3095fe6f351011e03124899e5693a21eb172855e61e11cd3d50bd5bf32c612",
+    "app/world-types.ts": "9ebdd9dc5bf1a6b87eb7f058a28c1706ff059198995b538740ae5a0d3afc6baf",
+    "decomp/generated/004b3920.c": "c891f1db130e9d5bd4e452958c689186040b13dbf2020eadf65797101c130edf"
+  },
+  "method": "Source reads and deduction from previously recorded static branches only; no tests/native/browser execution or code changes."
+}

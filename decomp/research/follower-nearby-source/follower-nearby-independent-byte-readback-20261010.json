@@ -1,0 +1,83 @@
+{
+  "sourceHead": "92907866646e418747dd2bda44236d9949835bc5",
+  "uniqueTrackedHashes": 40,
+  "packetHashes": 19,
+  "indexedExports": 7,
+  "assemblyWindows": [
+    {
+      "file": "callback-refresh-004a1680-004a1720.asm",
+      "bytes": 160,
+      "start": "0x4a1680",
+      "end": "0x4a1720"
+    },
+    {
+      "file": "command-producer-00479cf0-00479dd0.asm",
+      "bytes": 224,
+      "start": "0x479cf0",
+      "end": "0x479dd0"
+    },
+    {
+      "file": "constructor-0044ca80-0044cd60.asm",
+      "bytes": 736,
+      "start": "0x44ca80",
+      "end": "0x44cd60"
+    },
+    {
+      "file": "control-press-0044bf50-0044c180.asm",
+      "bytes": 560,
+      "start": "0x44bf50",
+      "end": "0x44c180"
+    },
+    {
+      "file": "control-press-tail-0044c3d6-0044c480.asm",
+      "bytes": 169,
+      "start": "0x44c3d6",
+      "end": "0x44c47f"
+    },
+    {
+      "file": "control-release-0044c4a0-0044c650.asm",
+      "bytes": 432,
+      "start": "0x44c4a0",
+      "end": "0x44c650"
+    },
+    {
+      "file": "control-renderer-004a1a30-004a1dd0.asm",
+      "bytes": 928,
+      "start": "0x4a1a30",
+      "end": "0x4a1dd0"
+    },
+    {
+      "file": "generic-input-entry-0044b890-0044baa0.asm",
+      "bytes": 528,
+      "start": "0x44b890",
+      "end": "0x44baa0"
+    },
+    {
+      "file": "input-callback-owner-0044b150-0044b770.asm",
+      "bytes": 1568,
+      "start": "0x44b150",
+      "end": "0x44b770"
+    },
+    {
+      "file": "input-entry-boundary-0044b100-0044b170.asm",
+      "bytes": 112,
+      "start": "0x44b100",
+      "end": "0x44b170"
+    },
+    {
+      "file": "nearby-bit-writer-004404e2-00440530.asm",
+      "bytes": 78,
+      "start": "0x4404e2",
+      "end": "0x440530"
+    },
+    {
+      "file": "tribe-command-dispatch-0043e8e0-0043e980.asm",
+      "bytes": 160,
+      "start": "0x43e8e0",
+      "end": "0x43e980"
+    }
+  ],
+  "verifiedCanonicalSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "objdumpSha256": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+  "result": "PASS"
+}

@@ -1,0 +1,206 @@
+{
+  "schema": 1,
+  "assessedHead": "92907866646e418747dd2bda44236d9949835bc5",
+  "publicationBase": "721c3b08950fee0e19e4117bc7c516fe73d773c8",
+  "sharedTree": "c35d4fda6617bf905942cc783b0c5d82d32c73a1",
+  "scope": "Exact portable source packet copies and independent static/contract reviews. No executable binary, private profile, credentials, runtime code, tests or generated app assets.",
+  "pathConvention": "Original absolute workspace paths are provenance labels. Matching packet/review basenames are retained in this directory; tracked source paths resolve at assessedHead. Later addenda and implementation-contract-v2 control earlier unresolved policy wording.",
+  "canonicalExeSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "files": {
+    "adjacent-controls.json": {
+      "sha256": "c8255b7e8f6c67e6e5b0ec294452dd4efe12cd9c75d5c552cfe815283de576aa",
+      "bytes": 2735,
+      "sourceLabel": "ignored-source-packet/adjacent-controls.json"
+    },
+    "callback-candidates-roots.json": {
+      "sha256": "826303623618a0788d61f9df7fa9af2fdef92524a2af31b9b3dd94ccc8af829c",
+      "bytes": 1609,
+      "sourceLabel": "ignored-source-packet/callback-candidates-roots.json"
+    },
+    "callback-load-candidates.json": {
+      "sha256": "51db0f9ac0f189fd26fc7b6789199d435d6b31625b6c5d3de50c27e8b1658ed4",
+      "bytes": 525,
+      "sourceLabel": "ignored-source-packet/callback-load-candidates.json"
+    },
+    "callback-refresh-004a1680-004a1720.asm": {
+      "sha256": "780dcd4a65fb99cd170e334cac6defd2a12bb68ce8e1bfc6d46248ff31835299",
+      "bytes": 3189,
+      "sourceLabel": "ignored-source-packet/callback-refresh-004a1680-004a1720.asm"
+    },
+    "command-availability-0043e480-0043e890.asm": {
+      "sha256": "c83289ee670989a6fe2ed5d0dd79f342dfff76d7a22b9a2a85a68a2b04decdec",
+      "bytes": 15618,
+      "sourceLabel": "ignored-source-packet/command-availability-0043e480-0043e890.asm"
+    },
+    "command-producer-00479cf0-00479dd0.asm": {
+      "sha256": "dbe472bdeb14d8577093e5d6bb61973495d204d24df28f99637b4cc0dd4a3d62",
+      "bytes": 5392,
+      "sourceLabel": "ignored-source-packet/command-producer-00479cf0-00479dd0.asm"
+    },
+    "command-ring-writers-0043e320-0043e480.asm": {
+      "sha256": "fb3e5b5ae5293bdfb1608862fa2314184c95226aeeb60d2c96178d5ec47b8be6",
+      "bytes": 6141,
+      "sourceLabel": "ignored-source-packet/command-ring-writers-0043e320-0043e480.asm"
+    },
+    "constructor-0044ca80-0044cd60.asm": {
+      "sha256": "e4e583884d0434c0d1174626bd0b2a89813bf24de11c1b801faa0a745d92a7dc",
+      "bytes": 13016,
+      "sourceLabel": "ignored-source-packet/constructor-0044ca80-0044cd60.asm"
+    },
+    "consumer-call-candidates.json": {
+      "sha256": "d514f96835924b751887d0f84e37551135a8ebb0b5d84cc1157df66cd3f0e332",
+      "bytes": 624,
+      "sourceLabel": "ignored-source-packet/consumer-call-candidates.json"
+    },
+    "control-press-0044bf50-0044c180.asm": {
+      "sha256": "f70e69ba9a63b137ca9a4ffc3f9eddc0c58d88557e7ca9bcd9531bffb2d35ed4",
+      "bytes": 8561,
+      "sourceLabel": "ignored-source-packet/control-press-0044bf50-0044c180.asm"
+    },
+    "control-press-tail-0044c3d6-0044c480.asm": {
+      "sha256": "114da8ec4461a9ab154bbd026d5e2e492d7d619e0e89e63fac8219168e776f3a",
+      "bytes": 3402,
+      "sourceLabel": "ignored-source-packet/control-press-tail-0044c3d6-0044c480.asm"
+    },
+    "control-release-0044c4a0-0044c650.asm": {
+      "sha256": "4603f6d58c523ba378ffa57d9e52a8b76e7c5e47635b2ef07e2779140c5cfc9b",
+      "bytes": 8122,
+      "sourceLabel": "ignored-source-packet/control-release-0044c4a0-0044c650.asm"
+    },
+    "control-renderer-004a1a30-004a1dd0.asm": {
+      "sha256": "794534a82f60e0f52df258b51b50039a15f40cdc7ca4972b12f9fb7c60be5226",
+      "bytes": 15515,
+      "sourceLabel": "ignored-source-packet/control-renderer-004a1a30-004a1dd0.asm"
+    },
+    "descriptor-inspection.json": {
+      "sha256": "fba080c96ef1ddf92adf72344ea22e1d2388f743f5a006e25ede7bf7807e09eb",
+      "bytes": 6729,
+      "sourceLabel": "ignored-source-packet/descriptor-inspection.json"
+    },
+    "dispatch-and-art.json": {
+      "sha256": "4c9c26329a62de92703d2d675bef4e71c2a70f061cb98f3f9da7ad729a179c76",
+      "bytes": 280,
+      "sourceLabel": "ignored-source-packet/dispatch-and-art.json"
+    },
+    "findings.md": {
+      "sha256": "8e2f2c8925df21f4259b4b4f15fccab6dca8130623e7f8b26a51a3f84a821051",
+      "bytes": 16317,
+      "sourceLabel": "ignored-source-packet/findings.md"
+    },
+    "follower-nearby-implementation-contract-review-v2-20261010.json": {
+      "sha256": "3dc665476792ee6cc13da997964c0ce6ec3c5e809de3c5e72d343347f58740e4",
+      "bytes": 5130,
+      "sourceLabel": "independent-review/follower-nearby-implementation-contract-review-v2-20261010.json"
+    },
+    "follower-nearby-independent-byte-readback-20261010.json": {
+      "sha256": "d56e395022841b813a350b5e947541ce314e4556f9a10d954d4b0c49fc160214",
+      "bytes": 2059,
+      "sourceLabel": "independent-review/follower-nearby-independent-byte-readback-20261010.json"
+    },
+    "follower-nearby-ordinary-consumer-review-20261010.json": {
+      "sha256": "9889c629b963b9895333edbbc780988560475c360a930a32dcb6e3b6172ac4b8",
+      "bytes": 4929,
+      "sourceLabel": "independent-review/follower-nearby-ordinary-consumer-review-20261010.json"
+    },
+    "follower-nearby-static-producer-review-20261010.json": {
+      "sha256": "f71fb20dd852cc297f9ac00f4e4502d0a726f8d5f72f8a87e555893a3ca62f95",
+      "bytes": 6835,
+      "sourceLabel": "independent-review/follower-nearby-static-producer-review-20261010.json"
+    },
+    "generic-input-entry-0044b890-0044baa0.asm": {
+      "sha256": "6bf94ba17f0eb50cfdcaf85c94d16f33697494df8e4ec8ac198bf4cfe7cc2b53",
+      "bytes": 8582,
+      "sourceLabel": "ignored-source-packet/generic-input-entry-0044b890-0044baa0.asm"
+    },
+    "implementation-contract-correspondence.json": {
+      "sha256": "d8904eb8b64552f21abd3851dafd2bc7aa088ba6de677f38b8e41a213114981c",
+      "bytes": 2613,
+      "sourceLabel": "ignored-source-packet/implementation-contract-correspondence.json"
+    },
+    "implementation-contract-v2.md": {
+      "sha256": "e2d9e598e257c2a8e415520455e12ea0fb50f27669b1f1ef6ebbad044f1b7330",
+      "bytes": 15938,
+      "sourceLabel": "ignored-source-packet/implementation-contract-v2.md"
+    },
+    "implementation-contract.md": {
+      "sha256": "b920d42724ac7172dfaad1710907ede1da7eeb38716a9c3972bf1753e9592deb",
+      "bytes": 14779,
+      "sourceLabel": "ignored-source-packet/implementation-contract.md"
+    },
+    "input-callback-owner-0044b150-0044b770.asm": {
+      "sha256": "0f14613c4badd57c30b00f101a956e1fd9ce0e40c4f45672c6aa31ef2c571103",
+      "bytes": 24581,
+      "sourceLabel": "ignored-source-packet/input-callback-owner-0044b150-0044b770.asm"
+    },
+    "input-entry-boundary-0044b100-0044b170.asm": {
+      "sha256": "a09ae02f315f06a2e3f8c8f37f6139ebf09bf24f9d76b28ef6602a9ba4d804e2",
+      "bytes": 1596,
+      "sourceLabel": "ignored-source-packet/input-entry-boundary-0044b100-0044b170.asm"
+    },
+    "nearby-bit-writer-004404e2-00440530.asm": {
+      "sha256": "6760279456494ced3900ef8fbf72ab1a0fe60edc8cc57d4a41ff0d354dfa9a84",
+      "bytes": 1067,
+      "sourceLabel": "ignored-source-packet/nearby-bit-writer-004404e2-00440530.asm"
+    },
+    "ordinary-command-call-0043e840-0043e8e0.asm": {
+      "sha256": "f56194a19285fa80c37189da30ce64e1ee018ebeef32076795e27c7f33b813de",
+      "bytes": 3434,
+      "sourceLabel": "ignored-source-packet/ordinary-command-call-0043e840-0043e8e0.asm"
+    },
+    "ordinary-consumer-addendum.md": {
+      "sha256": "5019a93deb30e4e85adcbdf7cba505224aab8a4c33e055d65a71c36117e86ed4",
+      "bytes": 7063,
+      "sourceLabel": "ignored-source-packet/ordinary-consumer-addendum.md"
+    },
+    "ordinary-consumer-correspondence.json": {
+      "sha256": "95f1397ffd6622acad5770b4cc02db4a318e81add13164597449dc344d96a5a5",
+      "bytes": 2544,
+      "sourceLabel": "ignored-source-packet/ordinary-consumer-correspondence.json"
+    },
+    "ordinary-dispatch-caller-candidates.json": {
+      "sha256": "a4c935f78e9356a230f5260ce4bed441fe4b8a86b101b728422f810dbc206674",
+      "bytes": 139,
+      "sourceLabel": "ignored-source-packet/ordinary-dispatch-caller-candidates.json"
+    },
+    "ordinary-dispatch-phase-004a5920-004a59c0.asm": {
+      "sha256": "462e3772dcfe8193649a21645b4e3617c11b4d84bdef202f96aed9d3e5fbcd6e",
+      "bytes": 2391,
+      "sourceLabel": "ignored-source-packet/ordinary-dispatch-phase-004a5920-004a59c0.asm"
+    },
+    "pending-slot-clear-0047ac30-0047ac90.asm": {
+      "sha256": "8f95a416a0a3dfc7af30168384d63240ed687b05c74fe6cf3e5d14f35bf0ac81",
+      "bytes": 1733,
+      "sourceLabel": "ignored-source-packet/pending-slot-clear-0047ac30-0047ac90.asm"
+    },
+    "repeated-release-addendum.md": {
+      "sha256": "c9befb6faebd3168b07b4bf8f3e0d5f8d8386d01f96292d7a4a915d5bc2b41d6",
+      "bytes": 6399,
+      "sourceLabel": "ignored-source-packet/repeated-release-addendum.md"
+    },
+    "repeated-release-correspondence.json": {
+      "sha256": "cedae3518b358e5b576d41b0846243475eb14ba2db0f66b8d6ba9f3eae8810ef",
+      "bytes": 1162,
+      "sourceLabel": "ignored-source-packet/repeated-release-correspondence.json"
+    },
+    "slot-clear-boundaries-0043e330-0043e420.asm": {
+      "sha256": "7af0c3fa55a75b9218c0052cf873355688caa225d20f70aad5f1c7a9c2ba1342",
+      "bytes": 4141,
+      "sourceLabel": "ignored-source-packet/slot-clear-boundaries-0043e330-0043e420.asm"
+    },
+    "source-correspondence.json": {
+      "sha256": "98267199af7d3a426a9195131c888cf8d804ccab44cb65a7ce1d5607cc595179",
+      "bytes": 6976,
+      "sourceLabel": "ignored-source-packet/source-correspondence.json"
+    },
+    "tribe-command-dispatch-0043e8e0-0043e980.asm": {
+      "sha256": "969ab3e73f84448eb58d78b4072ef5d2d32ded26fccd8aa64bd753de83229b00",
+      "bytes": 2297,
+      "sourceLabel": "ignored-source-packet/tribe-command-dispatch-0043e8e0-0043e980.asm"
+    },
+    "writer-target.json": {
+      "sha256": "c45a8d08252fb98f04f3bd07ced7a5fc97d2b8a2d8108d91cf227c7173788e15",
+      "bytes": 126,
+      "sourceLabel": "ignored-source-packet/writer-target.json"
+    }
+  }
+}

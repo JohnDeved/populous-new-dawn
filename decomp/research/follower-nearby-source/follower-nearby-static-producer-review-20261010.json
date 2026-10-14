@@ -1,0 +1,42 @@
+{
+  "verdict": "ACCEPT static producer and repeated-release source deduction; implementation policy remains separately reviewable",
+  "reviewedAtUtc": "2026-10-10T05:24:00Z",
+  "assessedHead": "92907866646e418747dd2bda44236d9949835bc5",
+  "assessedTree": "c35d4fda6617bf905942cc783b0c5d82d32c73a1",
+  "scope": "Issue 60 finite follower global/nearby mode control producer, existing count/input consumers, and repeated-release edge. Independent read-only review; no target execution/emulation, decoder rerun, game, browser or tests.",
+  "inputs": {
+    "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/follower-nearby-source-20261010/findings.md": "8e2f2c8925df21f4259b4b4f15fccab6dca8130623e7f8b26a51a3f84a821051",
+    "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/follower-nearby-source-20261010/source-correspondence.json": "98267199af7d3a426a9195131c888cf8d804ccab44cb65a7ce1d5607cc595179",
+    "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/follower-nearby-source-20261010/repeated-release-addendum.md": "c9befb6faebd3168b07b4bf8f3e0d5f8d8386d01f96292d7a4a915d5bc2b41d6",
+    "/workspace/scratch/69fd8163d94e/tornado-class2-wood-20261010/work/orchestration/follower-nearby-source-20261010/repeated-release-correspondence.json": "cedae3518b358e5b576d41b0846243475eb14ba2db0f66b8d6ba9f3eae8810ef"
+  },
+  "independentByteReadback": {
+    "path": "/workspace/scratch/69fd8163d94e/follower-nearby-independent-byte-readback-20261010.json",
+    "sha256": "d56e395022841b813a350b5e947541ce314e4556f9a10d954d4b0c49fc160214"
+  },
+  "verified": [
+    "40 unique tracked source hashes and assessed HEAD/clean tree; 19 original packet hashes; 7 reused exports match exports.json. The addendum and its 7 source pins match (5 additional unique tracked sources).",
+    "Canonical executable size 2275840 and SHA256 3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f; installed objdump SHA256 96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f. All bytes printed in 12 retained ASM windows equal PE-mapped executable bytes; all copied descriptor raw bytes equal the same PE.",
+    "Root 005cd0be ID1 has both child pointers 005caea0. Descriptor 005cb1b8 has type3, HFX875, left004a1680, right/hover0, refresh004a16f0, renderer004a1a30, tooltip758, mode0. Constructor copies these exact owners into runtime callbacks and initializes present/enabled/visible.",
+    "Actual generic input entry0044b130, authoritative refresh before ordinary input; hit/modal gates; disabled press guard. Canonical data resolves type3 press to0044c08f, release to0044c4fe, and both held dispatch entries to0044b61d. Release clears the armed side after one callback; held input does not repeat this action.",
+    "Callback reads committed tribe+93d bit80, requests cue6e/value1 if clear or cue6f/value0 if set, then submits command5f. Producer00479cf0 rejects global bit800 and occupied tribe command slot. Writer selector byte00442443=42 selects004404e2, whose OR/AND writes preserve every other flag bit.",
+    "Renderer004a1a30 returns004a1bdf and computes HFX875/876 for global normal/pressed and877/878 for nearby normal/pressed. Later neighbor bodies in that larger window do not extend this control claim.",
+    "Native class/Total renderers select global versus nearby counters; retained population probe supports alternate font behavior. Count rebuild preserves mode bit80. Current task/transport count and selection consumers already use that bit; current persistent strip stays global and HFX875 incorrectly invokes overview. Existing Enter overview route remains.",
+    "Two completed release callbacks before command consumption request the same desired value and directional cue twice; first empty-slot request is retained, second is rejected. A release after actual consumption can request the reverse mode. This is static deduction, not a scheduler reachability trace.",
+    "Current GameScene.animate calls advanceGame, which delegates fixed turns to tick; tick returns when paused. afterCurrentGameTurn is specifically transient presentation work and is not an admitted gameplay command owner. Current save/load clones World; fresh restart/mission creates new tribes with committed flag clear."
+  ],
+  "implementationBoundary": {
+    "immediateXor": "Not accepted as equivalent. Two releases without an intervening consume would cancel each other, contrary to the proved first-request behavior.",
+    "smallestOpportunity": "A mode-specific pending desired value tied to its actual World/tribe and consumed at an explicitly chosen existing controller/turn boundary can preserve repeated-release behavior without a general queue framework. This is an integration opportunity, not acceptance of an implementation or native cadence.",
+    "requiredDecisions": "Freeze exact commit boundary, paused admission/consumption behavior, pending Save/Load ownership and replacement/disposal behavior before implementation review. Keep committed flags as count/selection/display owner and preserve unrelated bits. Cross-command contention against absent shared human queue remains an explicit limit.",
+    "focusedContracts": "Use actual Page/controller request plus actual chosen consumer: two releases before consume -> one transition/two directional cue requests, release-consume-release -> two opposite transitions, both starting modes, held/cancelled/right/blocked input, current versus stale World, committed and pending checkpoint/restart behavior. Existing consumer asymmetries remain source-backed fixtures.",
+    "ordinaryEpisode": "The genuine Mission1 camera/count/selection route is a feasible source-led proposal, not an admitted runtime result. Source/RGBA import, final driver/observer contracts and exact run binding remain separate."
+  },
+  "limits": [
+    "Repeated-release addendum controls any original findings wording that could otherwise imply immediate per-release XOR approval.",
+    "No exact original outer scheduling, global shared command contention, ordinary save/default policy, physical key0x97 mapping or localized tooltip758 text is claimed.",
+    "Full callback is not proven RNG-neutral: cue producer may allocate audio/use RNG. No original runtime trace or pixel equality was produced in this packet.",
+    "Original decoder method is retained as command shape and exact byte windows, not a full command execution/cleanup receipt. This review verifies the bytes and current tool identity independently; it does not invent historical receipt fields.",
+    "Mid-instruction exploratory prefix and embedded table pseudo-instructions remain excluded as stated. The press-tail listing ends at0044c47f with omitted zero before declared stop; relevant table bytes were independently read as data."
+  ]
+}

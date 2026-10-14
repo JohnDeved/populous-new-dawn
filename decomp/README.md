@@ -5248,3 +5248,12 @@ remains separate. This evidence alone does not claim live browser completion.
 per-call native height/RNG inputs, detached observation and strict source/runtime
 admission. Native sound ownership, reward activation timing and downstream terrain
 consumers remain explicit boundaries. Browser/native execution is not yet claimed.
+
+## Followers global/nearby control
+
+[Static producer and paused-consumer evidence](research/follower-nearby-mode.md)
+binds HFX875 to release-driven command 0x5f and tribe bit 0x80, including first-wins
+repeated-release behavior, four icon states and existing count/selection consumers.
+The reviewed implementation proposal names a mode-specific 12 Hz port compatibility
+clock and transient checkpoint ownership; no new runtime/native execution or
+Followers completion is claimed.
