@@ -1,11 +1,15 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import rules from '../app/original-rules.json' with { type: 'json' }
+import { chargingSpells } from '../app/mana.ts'
+import { cast } from '../app/live-command.ts'
 import { createGameStore } from '../app/game-store.ts'
 import { createWorld } from '../app/world-initialization.ts'
 import { spellButton } from '../app/spell-button.ts'
 import {
   spellHudButton,
+  spellHudCanCharge,
+  spellHudPermanent,
   spellHudRoster,
   spellHudVisibility,
   undiscoveredSpellModels,
@@ -37,10 +41,7 @@ test('fresh and later missions use the native owned/reward-source/cast-permissio
         )
         continue
       }
-      const rule = rules.spellCharging[spell.model],
-        canCast =
-          !(world.manaWorld.gameFlags & 32) &&
-          (rule.mode !== 2 || !!(world.manaWorld.gameFlags & 256))
+      const canCast = !(world.manaWorld.gameFlags & 32)
       assert.equal(
         roster.get(spell.model),
         canCast ? 'visible' : 'visible-disabled',
@@ -95,4 +96,63 @@ test('undiscovered art is the native HFX1056 branch and visible-disabled keeps n
     fills: [],
   })
   assert.deepEqual(spellHudButton('visible-disabled', input), spellButton(input))
+})
+
+
+test('normal campaign initialization removes mode-2 HDR availability before HUD discovery', () => {
+  for (const mission of [1, 16, 17, 18, 19]) {
+    const world = createWorld(mission)
+    for (const spell of SPELLS.filter(spell => rules.spellCharging[spell.model].mode === 2)) {
+      assert.equal(spellHudPermanent(world, spell), false)
+      assert.equal(world.shots[spell.id], 0)
+      assert.equal(spellHudVisibility(world, spell),
+        undiscoveredSpellModels(world).has(spell.model) ? 'undiscovered' : 'hidden')
+    }
+    assert.equal(world.manaWorld.gameFlags & 256, 0)
+  }
+})
+
+test('earned mode-2 stock permits selection without enabling charging, including legacy masks', () => {
+  for (const [mission, id] of [[16, 'bloodlust'], [17, 'armageddon'], [18, 'armageddon'], [19, 'teleport']]) {
+    for (const legacy of [false, true]) {
+      const world = createWorld(mission), spell = SPELLS.find(spell => spell.id === id)
+      if (legacy) world.manaWorld.spells[0].available |= 1 << spell.model
+      world.shots[id] = 1
+      const before = structuredClone(world)
+      assert.equal(spellHudVisibility(world, spell), 'visible')
+      assert.equal(spellHudCanCharge(world, spell), false)
+      assert.deepEqual(world, before)
+      const charging = chargingSpells(world.manaWorld, 0)
+      world.manaWorld.spells[0].available &= ~(1 << spell.model)
+      assert.deepEqual(chargingSpells(world.manaWorld, 0), charging)
+      if (legacy) world.manaWorld.spells[0].available |= 1 << spell.model
+      world.shots[id] = 0
+      const shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman')
+      assert.equal(cast(world, id, shaman), false, 'zero stock cannot cast, including legacy availability')
+      assert.equal(world.shots[id], 0)
+      world.manaWorld.gameFlags = 256
+      assert.equal(spellHudCanCharge(world, spell), true)
+    }
+  }
+})
+
+test('earned mode-2 stock and legacy ownership survive save/load unchanged; restart uses new startup', async () => {
+  const store = createGameStore()
+  store.startMission(18)
+  store.change(world => {
+    world.shots.armageddon = 1
+    world.manaWorld.spells[0].available |= 1 << 18
+  })
+  const spell = SPELLS.find(spell => spell.id === 'armageddon'),
+    before = structuredClone(store.getWorld())
+  await store.saveCheckpoint()
+  store.startMission(19)
+  assert.equal(store.loadCheckpoint(), true)
+  assert.equal(spellHudVisibility(store.getWorld(), spell), 'visible')
+  assert.equal(store.getWorld().shots.armageddon, before.shots.armageddon)
+  assert.deepEqual(store.getWorld().manaWorld, before.manaWorld)
+  store.restart()
+  assert.equal(store.getWorld().shots.armageddon, 0)
+  assert.equal(spellHudPermanent(store.getWorld(), spell), false)
+  assert.equal(spellHudVisibility(store.getWorld(), spell), 'undiscovered')
 })

@@ -63,7 +63,13 @@ import { followerTaskCounts, type FollowerTask } from './hud-tasks'
 import type { TransportKind } from './hud-transports'
 import { hudTransports } from './follower-transports-runtime'
 import { createTooltipSession } from './tooltip-controller'
-import { spellHudButton, spellHudRoster, spellHudVisibility } from './spell-visibility'
+import {
+  spellHudButton,
+  spellHudRoster,
+  spellHudVisibility,
+  spellHudCanCharge,
+  spellHudPermanent,
+} from './spell-visibility'
 import { nativeUnitModel } from './unit-kinds'
 import { missionComputerTribes, missionNumbers, tutorialLevel } from './mission-data'
 import { teamForTribe, type TribeTeam } from './world-types'
@@ -1202,15 +1208,15 @@ export default function Home() {
                 )
                 .map(({ spell: s, visibility }) => {
                   const player = world.manaWorld.playerTribe,
-                    owner = world.manaTribes[player]?.spellOwner ?? player,
-                    permanent = !!(world.manaWorld.spells[owner]?.available & (1 << s.model)),
+                    permanent = spellHudPermanent(world, s),
+                    canCharge = permanent && spellHudCanCharge(world, s),
                     undiscovered = visibility === 'undiscovered',
                     interactive = visibility === 'visible',
                     view = spellHudButton(visibility, {
                       model: s.model,
                       permanent,
                       charging:
-                        permanent &&
+                        canCharge &&
                         !(world.manaWorld.spells[player].disabled & (1 << (s.model - 1))),
                       hovered: !undiscovered && hover === s.id,
                       selected: interactive && world.mode === s.id,
@@ -1240,7 +1246,7 @@ export default function Home() {
                       title={
                         undiscovered
                           ? 'Undiscovered spell'
-                          : `${s.name}${permanent ? ' · Right-click to pause or resume charging' : ''}`
+                          : `${s.name}${canCharge ? ' · Right-click to pause or resume charging' : ''}`
                       }
                       onClick={() => {
                         if (!interactive) return
@@ -1251,7 +1257,7 @@ export default function Home() {
                       onContextMenu={e => {
                         e.preventDefault()
                         if (undiscovered) return
-                        if (permanent)
+                        if (canCharge)
                           store.change(w => {
                             const bit = 1 << (s.model - 1)
                             w.manaWorld.spells[player].disabled ^= bit
