@@ -19,7 +19,10 @@ export default async function ({ page, openMission, output, receipt, observeChec
   const state = async label => {
     const row = await page.evaluate(({ label, party, boatId }) => {
       const s = window.testSceneRef.current, w = s.world, boat = w.vehicles.find(v => v.id === boatId)
+      const gl = s.renderer.getContext(), debug = gl.getExtension('WEBGL_debug_renderer_info')
       return { label, wallTime: Date.now(), turn: w.turn, time: w.time, level: w.outcome.level,
+        renderer: debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER), contextLost: gl.isContextLost(),
+        counts: { units: w.units.length, vehicles: w.vehicles.length, buildings: w.buildings.length, secondary: w.secondaryEffects.slots.length },
         paused: w.paused, inputMask: w.inputMask, selected: [...w.selected], status: w.status,
         boat: boat && { id: boat.id, x: boat.x, y: boat.y, active: boat.active, passengers: [...boat.passengers] },
         party: party.map(id => { const u = w.units.find(u => u.id === id); return u && { id, kind: u.kind, hp: u.hp, x: u.x, z: u.z, vehicle: u.native?.vehicle, state: u.native?.state } }),
@@ -71,7 +74,10 @@ export default async function ({ page, openMission, output, receipt, observeChec
       const menu = page.locator('dialog.game-dialog'); await menu.waitFor({ state: 'visible' })
       const before = await state('save-menu')
       assert.equal(before.paused, true)
-      await menu.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
+      await capture('before-public-save')
+      report.actions.push({ label: 'public Save single click', phase: 'before', at: new Date().toISOString(), timeoutMs: 150000 }); save()
+      await menu.getByRole('button', { name: 'Save checkpoint', exact: true }).click({ timeout: 150000 })
+      report.actions.push({ label: 'public Save single click', phase: 'after', at: new Date().toISOString() }); save()
       let observed
       assert.equal(await waitForCheckpointReadback(async () => { signal.throwIfAborted(); observed = await observeCheckpoint('Occupied Boat public Save'); return observed.checkpoint?.level === 10 && observed.checkpoint.turn === before.turn }), true)
       report.saved = observed; report.status = 'passed'; await capture('saved-occupied-boat'); save()
