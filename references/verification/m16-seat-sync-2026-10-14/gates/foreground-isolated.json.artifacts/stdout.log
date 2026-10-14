@@ -1,0 +1,17 @@
+✔ foreground mode preserves success, findings, and launch failures (528.957261ms)
+✔ timeout cannot pass even when the command handles TERM with exit zero (626.431311ms)
+✔ timeout escalates a TERM-resistant owned command (1833.556448ms)
+✔ CLI needs an explicit positive timeout and preserves raw command output (1289.130912ms)
+✔ an exited leader cannot leave descendant-held output pipes hanging (605.184996ms)
+✔ interruption cleans the owned command without converting exit zero to a pass (494.647708ms)
+✔ existing command receipt retains timed-out failure and complete logs (779.803184ms)
+✔ changed ownership proof withholds signals and cleanup certification (972.32994ms)
+✔ exit observed after the deadline between polls cannot pass (200.163075ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7578.263681

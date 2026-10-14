@@ -1,0 +1,32 @@
+✔ ordinary nearby cross-craft boarding preserves the person and cleans later same-model orders (6649.331122ms)
+✔ route-advance departure launches every matching passenger without moving them to a distant ground waypoint (3271.001523ms)
+✔ route departure leaves a nonmatching-route passenger aboard for native replanning (113.273099ms)
+✔ supplied-focus same-vehicle boarding retains its acquired passenger through repeated input and Save/Load (13750.05032ms)
+✔ historical ordinary reboarding retires flight without replacing native owner or cancelling routes (28.619125ms)
+✔ unseated or separately owned flight remains with impulse physics (160.130333ms)
+✔ seated impulse preparation precedes native airborne-bit cleanup (57.08758ms)
+✔ historical no-order passenger keeps its seat, health and single clock through public Save/Load twins (1809.050508ms)
+✔ historical seated flight resumes a public movement order without losing a clock visit (75.99868ms)
+✔ supplied model-1 seated no-order control has one preparation/reaction visit per turn (195.556507ms)
+✔ supplied model-1 seated ordered control has one preparation/reaction visit per turn (159.047695ms)
+✔ supplied model-3 seated no-order control has one preparation/reaction visit per turn (116.636696ms)
+✔ supplied model-3 seated ordered control has one preparation/reaction visit per turn (112.200986ms)
+✔ retired route-map Balloon occupants launch from actual seats through public panel and Save/Load (3376.870512ms)
+✔ Boat and Balloon seat sync retain route-map precedence and existing fallback ownership (120.481351ms)
+✔ live vehicle damage keeps the native owner, special, signed and reset rules (214.988941ms)
+✔ Blast reaches live vehicles and native destruction ejects passengers alive (296.089656ms)
+✔ vehicle life and destruction survive checkpoint migration and reload (315.840323ms)
+✔ success-bearing exit preserves existing public point API and real failure (807.313478ms)
+✔ live panel selection only changes native selection flags and preserves unrelated selections/orders/RNG (685.869989ms)
+✔ Boat and Balloon unload launch without teleporting, clear orders, and survive occupied/airborne checkpoints (869.833961ms)
+✔ unload click rechecks speed, occupancy and terrain after rendered enabled state (145.1183ms)
+✔ supplied passengers retain actual prepared Mission22 unload trajectories until settling (272.188139ms)
+✔ supplied dry neighborhood preserves living Boat and Balloon unload landings (274.867292ms)
+ℹ tests 24
+ℹ suites 0
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 15109.223805

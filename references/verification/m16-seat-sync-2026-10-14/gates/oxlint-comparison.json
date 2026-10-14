@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "499fcd96-8c97-440d-89b6-2cc438bbefb6",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "287d4ee0a90df1296a626bbde26edb9d86f56c3a",
+    "branch": "fix/seated-native-position",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "work/m16-seat-sync/compare-oxlint.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-m16-seat-sync",
+  "startedAt": "2026-10-14T11:40:08.916Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-m16-seat-sync/work/orchestration/m16-seat-sync/oxlint-comparison.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-m16-seat-sync/work/orchestration/m16-seat-sync/oxlint-comparison.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T11:40:10.227Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\"base\":\"a550ac898d15ce5a5c58947c0cd0f8cbabc0cd06\",\"candidate\":\"287d4ee0a90df1296a626bbde26edb9d86f56c3a\",\"baseline\":1408,\"current\":1408,\"added\":[],\"removed\":[]}\n",
+  "stderr": "",
+  "stdoutSha256": "7071f070278c48e34c755ec61752f0d7e5fff8730c90b4f0a05936f96e76b9a2",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "287d4ee0a90df1296a626bbde26edb9d86f56c3a",
+    "branch": "fix/seated-native-position",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "c33c77f5-798c-431f-af29-127a4b129955",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "c900971788dfa014ef3aa99a9f3121a91e9ecbe9",
+    "branch": "fix/seated-native-position",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node_modules/.bin/oxfmt",
+    "--check",
+    "app/live-vehicles.ts",
+    "tests/seated-native-position.test.mjs",
+    "tests/balloon-person-attack.test.mjs",
+    "tests/balloon-plain-person-attack.test.mjs",
+    "tests/balloon-staged-movement.test.mjs",
+    "tests/helpers/seated-attack-origin.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-m16-seat-sync",
+  "startedAt": "2026-10-14T11:54:09.952Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-m16-seat-sync/work/orchestration/m16-seat-sync/final-format.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-m16-seat-sync/work/orchestration/m16-seat-sync/final-format.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T11:54:10.125Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 9ms on 6 files using 9 threads.\n",
+  "stderr": "",
+  "stdoutSha256": "66ca1ed2d288f87a056313a4c44cc6b2d55144e62a0a53a6fe1013e7d8e489ed",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "c900971788dfa014ef3aa99a9f3121a91e9ecbe9",
+    "branch": "fix/seated-native-position",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

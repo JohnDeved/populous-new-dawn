@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "662c44cb-d34d-47df-84ad-fe2386797b98",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "c900971788dfa014ef3aa99a9f3121a91e9ecbe9",
+    "branch": "fix/seated-native-position",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/foreground-command.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-m16-seat-sync",
+  "startedAt": "2026-10-14T11:53:48.714Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-m16-seat-sync/work/orchestration/m16-seat-sync/foreground-isolated.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-m16-seat-sync/work/orchestration/m16-seat-sync/foreground-isolated.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T11:53:56.451Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ foreground mode preserves success, findings, and launch failures (528.957261ms)\n✔ timeout cannot pass even when the command handles TERM with exit zero (626.431311ms)\n✔ timeout escalates a TERM-resistant owned command (1833.556448ms)\n✔ CLI needs an explicit positive timeout and preserves raw command output (1289.130912ms)\n✔ an exited leader cannot leave descendant-held output pipes hanging (605.184996ms)\n✔ interruption cleans the owned command without converting exit zero to a pass (494.647708ms)\n✔ existing command receipt retains timed-out failure and complete logs (779.803184ms)\n✔ changed ownership proof withholds signals and cleanup certification (972.32994ms)\n✔ exit observed after the deadline between polls cannot pass (200.163075ms)\nℹ tests 9\nℹ suites 0\nℹ pass 9\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 7578.263681\n",
+  "stderr": "",
+  "stdoutSha256": "a4721f25545a57e65d6b4525a155c4d33e1be631aee08b899dab15ac714535a1",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "c900971788dfa014ef3aa99a9f3121a91e9ecbe9",
+    "branch": "fix/seated-native-position",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}
