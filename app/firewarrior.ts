@@ -1,4 +1,4 @@
-import type { Building, Effect, Unit, World } from './world-types.ts'
+import type { Building, Effect, NativePoint, Unit, World } from './world-types.ts'
 import { tribeForTeam } from './world-types.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import { nativeAngle, short } from './native-math.ts'
@@ -9,6 +9,8 @@ import { effect, sound } from './world-effects.ts'
 import { applyUnitDamage } from './combat-runtime.ts'
 import { damageBuilding, ensureBuildingDamage } from './building-damage.ts'
 import { TURNS_PER_SECOND } from './world-rules.ts'
+import { createSpellTrail } from './spell-trails.ts'
+import type { LivePerson } from './live-people.ts'
 import { automaticTowerFirewarriorTarget } from './live-combat.ts'
 import { engagementRange } from './melee-engagement.ts'
 import constants from './original-constants.json' with { type: 'json' }
@@ -59,6 +61,76 @@ export function launchFirewarrior(w: World, source: Unit, target: Unit | Buildin
   return tracked
 }
 
+// 0x51fbf0 / 0x4bbcf0: celebration passes a null actor and an explicit sky
+// point. Keep the ordinary actor-target adapter above unchanged.
+export function launchFirewarriorPoint(
+  w: World,
+  source: Unit,
+  person: LivePerson,
+  destination: NativePoint
+) {
+  let tracked = 0
+  for (const side of [-1, 1]) {
+    const position = nativeStep3D(person, person.heading + side * 512, 512, 0x60),
+      fx = effect(w, 'firewarriorShot', browserPosition(position))
+    position.h = short(
+      Math.max(position.h, terrainPointHeight(w.land, position)) + person.supportHeight + 16
+    )
+    locate(fx, position)
+    fx.duration = Infinity
+    fx.sprite = { sequence: 'blastShot', frame: 0, fixed: true }
+    fx.firewarriorShot = {
+      source: source.id,
+      target: 0,
+      attacker: person.tribe,
+      remaining: 0,
+      point: true,
+      impact: side === 1,
+      destination: { ...destination },
+    }
+    tracked = fx.id
+    sound(w, 0xa1, fx)
+  }
+  const cooldown = 25 >> (person.flags3 & 0x80000 ? constants.BLOODLUST_SW_BLAST_X : 0)
+  person.disguise = cooldown
+  source.cooldown = cooldown / TURNS_PER_SECOND
+  return tracked
+}
+
+function stepFirewarriorPoint(w: World, fx: Effect) {
+  const shot = fx.firewarriorShot!,
+    position = nativePosition(w, fx),
+    destination = shot.destination!
+  position.h = Math.round((fx.height ?? position.h / 45) * 45)
+  destination.h = Math.max(destination.h, terrainPointHeight(w.land, destination))
+  const distance = nativeDistance(position, destination),
+    arrived = distance < 0x200,
+    length = arrived ? Math.trunc((distance * 15) / 16) : 0x200,
+    trail = effect(w, 'trail', browserPosition(position))
+  trail.sprite = { sequence: 'blastTrail', frame: 0 }
+  const animation = createSpellTrail(
+    w.land,
+    position,
+    3,
+    (w.effectCounter - 1) & 255,
+    w.cosmeticRandom
+  )
+  trail.animation = animation
+  trail.height = animation.h / 45
+  trail.duration = Infinity
+  const dx = short(destination.x - position.x),
+    dy = short(destination.y - position.y),
+    yaw = nativeAngle(dx, -dy),
+    pitch = nativeAngle(Math.max(Math.abs(dx), Math.abs(dy)), -2 * (destination.h - position.h)),
+    next = nativeStep3D(position, yaw, pitch, length)
+  next.h = Math.max(next.h, terrainPointHeight(w.land, next))
+  locate(fx, next)
+  if (arrived) {
+    if (shot.impact) sound(w, 0xb2, fx)
+    fx.duration = fx.age
+  }
+}
+
 export function stepTowerFirewarrior(w: World, source: Unit) {
   const target = automaticTowerFirewarriorTarget(w, source)
   if (!target || !towerFirewarriorReady(w, source, target)) return
@@ -95,6 +167,10 @@ export const towerFirewarriorReady = (w: World, source: Unit, target: Unit) =>
 
 export function stepFirewarriorShots(w: World) {
   for (const fx of w.effects.filter(effect => effect.firewarriorShot)) {
+    if (fx.firewarriorShot!.point) {
+      stepFirewarriorPoint(w, fx)
+      continue
+    }
     const shot = fx.firewarriorShot!,
       unit = w.units.find(unit => unit.id === shot.target && unit.hp > 0),
       building = w.buildings.find(building => building.id === shot.target && building.hp > 0),

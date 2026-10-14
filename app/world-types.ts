@@ -392,6 +392,7 @@ export type Effect = Point & {
     target: number
     attacker: number
     remaining: number
+    point?: boolean
     tower?: boolean
     bloodlust?: boolean
     impact?: boolean
