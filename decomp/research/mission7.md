@@ -73,3 +73,29 @@ resource, position, entity or order injection. It is not a player victory,
 rendered-browser or original-executable execution claim. Earlier current-port
 Mission7 victory at12640 predates this stronger settlement and is historical;
 a new ordinary player route is required for the changed runtime.
+
+## Damaged-settlement defender query
+
+The identity-repaired ordinary siege exposed a separate live adapter mismatch.
+Hut155 stayed at native damage state1, remaining200/stage2, with one hidden
+resident; eight Warriors repeatedly traversed Approach30/Enter31 without
+striking. An earned Swarm did not clear it. The retained0051a2a0 Enter restart
+condition was already correct, but its0051e300 world query was not: state1
+scans linked class1 non-neutral people of a different tribe on the associated
+plan footprint. Only completed states use the building's occupant count.
+
+Retained00498140 selects the object/orientation shape and plan origin;
+004b9d50 traverses row-major shape mask bit1 with byte-wrapped coordinate
+increments. `buildingFootprintCells(buildingPose(b))` matches that ownership.
+The live defender callback now scans those linked cells for state1 and retains
+completed occupancy and the existing prison boundary. It does not eject a
+resident or fabricate a plan defender. Broader damaged-building admission and
+plan lifecycle fidelity remain separate scope.
+
+Four orientation boundary regressions cover linked/unlinked people, signed
+neutral tribe, own tribe, non-person objects and completed occupancy. On the
+actual frozen36667 ordinary checkpoint, the corrected predicate alone allowed
+the existing Warrior orders to remove hut155 at36740, with73 ticks of complete
+twin equality and no additional player command. The source-bound diagnostic is
+`work/orchestration/m7-identity-final/damaged-siege-diagnostic.json`; its dirty
+source fingerprint distinguishes it from subsequent committed-head acceptance.

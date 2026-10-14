@@ -1,5 +1,6 @@
 import {
   buildingFirePoints,
+  buildingFootprintCells,
   buildingModel,
   buildingPose,
   buildingSabotagePoint,
@@ -83,7 +84,7 @@ import { fightWaitingPosition } from './melee-placement.ts'
 import { engagementRange } from './melee-engagement.ts'
 import { buildingInsidePoint, buildingOutsidePoint } from './building-shapes.ts'
 import { terrainCellHeightRange, terrainPointHeight } from './native-terrain.ts'
-import { moveObjectInCells } from './object-cells.ts'
+import { moveObjectInCells, objectsInCell } from './object-cells.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import sprites from './original-units.json' with { type: 'json' }
 import {
@@ -931,6 +932,22 @@ function stepAreaAttack(
   return visit.complete
 }
 
+// 0x51e300: damaged structures inspect the linked people on their plan footprint;
+// completed structures use their resident count. Hidden residents are not plan defenders.
+export function liveBuildingHasDefenders(w: World, b: Building, attackerTribe: number) {
+  if (b.kind === 'prison') return false
+  if (ensureBuildingDamage(b).state !== 1) return buildingAdmission(w, b).inside > 0
+  for (const index of buildingFootprintCells(buildingPose(b))) {
+    const cell = ((index >> 7) << 9) | ((index & 127) << 1)
+    for (const object of objectsInCell(w.objectCells, cell)) {
+      const person = object as LivePerson,
+        tribe = (person.tribe << 24) >> 24
+      if (person.class === 1 && tribe !== -1 && tribe !== (attackerTribe & 255)) return true
+    }
+  }
+  return false
+}
+
 function attackBuilding(w: World, u: Unit, p: LivePerson, b: Building) {
   const state = ensureBuildingDamage(b)
   const target = {
@@ -953,7 +970,7 @@ function attackBuilding(w: World, u: Unit, p: LivePerson, b: Building) {
   const result = attackCombatBuilding(context, p, target, {
     ...combatMotion(w, u, p),
     buildingAt: to => w.land.buildingIds[(to.y >> 9) * 128 + (to.x >> 9)],
-    hasDefenders: () => b.kind !== 'prison' && buildingAdmission(w, b).inside > 0,
+    hasDefenders: () => liveBuildingHasDefenders(w, b, p.tribe),
     removeDefender: () => {
       const admission = buildingAdmission(w, b)
       const id = admission.occupants.find(Boolean),
