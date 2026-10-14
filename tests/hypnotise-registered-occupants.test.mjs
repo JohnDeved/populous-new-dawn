@@ -143,11 +143,15 @@ test('earned Hypnotise converts an ordinary registered enemy Tower occupant and 
   assert.ok(!tower.admission.occupants.includes(target.id))
   const convertedOwner = converted.native
   while (w.turn < 6312) step()
-  assert.equal(converted.hp, 0.9)
+  assert.equal(converted.hp, 6.15)
   assert.equal(converted.hypnotise.remaining, 47)
+  // The corrected local rest anchor delays the actual lethal hit by ten turns.
+  while (w.turn < 6322) step()
+  assert.ok(converted.hp > 0)
+  assert.equal(converted.team, 'blue')
   const beforeDeathUnitIds = new Set(w.units.map(u => u.id))
   step()
-  assert.equal(w.turn, 6313)
+  assert.equal(w.turn, 6323)
   assert.equal(converted.hp, 0)
   assert.equal(converted.team, 'red')
   assert.equal(converted.hypnotise, undefined)

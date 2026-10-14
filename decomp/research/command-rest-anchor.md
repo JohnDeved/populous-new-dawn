@@ -53,3 +53,44 @@ turn-24915 continuation retains all actual Shaman/Preacher losses.
 
 No parity ledger, mission outcome, renderer behavior, hardware performance or
 historical casualty correction is claimed by this narrow repair.
+
+## Long-route regression consequences
+
+The first aggregate run on runtime `eb10c004` found four stale gameplay
+expectations. All four original test files passed unchanged on baseline `f689e0c`.
+Value-preserving anchor observers and independent unchanged-input continuations
+linked each changed chronology to the corrected native position; these were not
+blanket expectation updates:
+
+- Historical Mission 22 Balloon: Warrior 11 interception remains. Tower 105
+  destruction moves from turn 5337 to 5339, order release from 5338 to 5340.
+  At release, Shaman 89 resolves command 19 to `(9472,32512)` rather than the old
+  raw `(32512,256)`. Native local rest then retains `(9472,32576)` and the Shaman
+  survives through the existing turn-6429 horizon at 100.75 HP. The test now
+  asserts that exact survival/position/registered owner; the distinct fresh
+  Balloon case still asserts the unchanged turn-3870 casualty and cleanup.
+- Earned Hypnotise: converted Firewarrior 825 resolves command 21 at turn 6253
+  to `(4352,3328)` rather than `(3840,3328)`. Its turn-6312 HP is 6.15, and real
+  death occurs at 6323 rather than 6313. Temporary ownership, restore-before-death,
+  deletion, no replacement allocation, and checkpoint twins remain asserted.
+- Mission 5: Warrior 66's command-21 completion at turn 3655 changes its rest
+  destination. Angel allocation remains at 3844 (ID 5338 instead of 5342);
+  the Red Shaman falls at 4189 and the unchanged `[1,2,3,4,9]` authored latch
+  wins at 4320. All 29 Red survivors, persistence and Continue-to-6 coverage remain.
+- Mission 6: independent baseline/candidate worlds match at phase 16, turn 8016.
+  Three Warriors finish command 19 at 8203, now retaining `(15104,14592)` rather
+  than `(14592,2304)`. The old erroneous retreat caused the former combat-abort
+  chronology. The corrected mixed raid stays local through the original 513-turn
+  observation window. Blue's real returning Shaman wave kills the raiders;
+  source-traced `damagePerson` calls originate in `stepReincarnationWave`.
+  Retirement occurs at 8680 and the same task slot is reused by the first genuine
+  training-producer visit at 8702. The test retains exact local anchors, casualty
+  and registry cleanup, retirement, and mutable-slot reuse. All independently
+  captured native combat-abort controls in `raid-phase6-settlement.test.mjs`
+  remain unchanged.
+
+The changed-route diagnostic receipts retain their original failed assertions
+and later completed endpoints. The source-bound M6 packet additionally binds the
+identical pre-divergence worlds, native anchor writes, real wave casualty stacks
+and first-producer reuse. These observations update runtime regression chronology;
+they do not assert exact full-native damage/RNG parity or alter canonical M18 play.

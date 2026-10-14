@@ -211,7 +211,7 @@ test('fresh Mission5 victory persists across stores and the source-bound Continu
     while (!world.effects.some(e => e.angel) && world.turn < 5700) step()
     const angel = world.effects.find(e => e.angel)
     assert.ok(angel)
-    assert.deepEqual([world.turn, angel.id, angel.team], [3844, 5342, 'blue'])
+    assert.deepEqual([world.turn, angel.id, angel.team], [3844, 5338, 'blue'])
     let conditionTurn
     const latch = []
     while (world.status === 'playing' && world.effects.includes(angel) && world.turn < 6500) {
@@ -233,14 +233,14 @@ test('fresh Mission5 victory persists across stores and the source-bound Continu
       }
     }
     assert.equal(world.status, 'won')
-    assert.equal(world.turn, 4288)
+    assert.equal(world.turn, 4320)
     assert.equal(world.outcome.completedLevel, 4)
     assert.deepEqual(
       latch.map(e => e.var13),
       [1, 2, 3, 4, 9]
     )
     assert.deepEqual(store.getCompletedMissions(), [5])
-    assert.equal(conditionTurn, 4145)
+    assert.equal(conditionTurn, 4189)
     assert.equal(world.units.filter(unit => unit.team === 'red' && unit.hp > 0).length, 29)
     assert.ok(
       world.effects.includes(angel),

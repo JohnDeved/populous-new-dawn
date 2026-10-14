@@ -3,7 +3,7 @@ import { settleRouteLaunch } from './helpers/route-launch-landing.mjs'
 import { supportsFollower } from '../app/model.ts'
 import { reachMission22FlightPoint } from './helpers/mission22-flight-phase.mjs'
 import { loadHistoricalMission22Balloon } from './helpers/historical-mission22-balloon.mjs'
-// Ordinary transport handoff, Tower destruction and later casualty/cleanup.
+// Ordinary transport handoff, Tower destruction, local rest and casualty cleanup.
 import test from 'node:test'
 import { createGameStore } from '../app/game-store.ts'
 import { leaveLiveAttackVehicle } from '../app/live-building-combat.ts'
@@ -195,15 +195,25 @@ async function assertTowerContinuation({ store, world, shaman, balloon }, expect
   assert.deepEqual([firstFight, firstOpponent], [expected.fight, expected.opponent])
   assert.equal(target.hp, expected.targetHp ?? 0)
   // Preserve each actual browser outcome and its ownership cleanup. Historical
-  // acquisition destroys the Tower; fresh physical Boat travel now reaches a
-  // guard-interception phase that kills the Shaman before any Tower damage.
+  // acquisition destroys the Tower and rests locally; fresh physical Boat travel
+  // reaches a guard-interception phase that kills the Shaman before any damage.
   // Neither chronology is a claim of native damage/death parity.
   assert.equal(targetDeath, expected.targetDeath)
   assert.equal(retired, expected.retired)
   assert.equal(death, expected.death)
-  assert.equal(shaman.hp, 0)
-  assert.equal(world.units.includes(shaman), false)
-  assert.equal(world.objectCells.objects.has(shaman.id), false)
+  if (expected.survivor) {
+    assert.equal(world.units.includes(shaman), true)
+    assert.equal(world.objectCells.objects.get(shaman.id), shaman.native)
+    assert.equal(shaman.native.vehicle, 0)
+    assert.equal(currentPersonOrder(world.buildingOrders, shaman.native), undefined)
+    assert.deepEqual({ hp: shaman.hp, x: shaman.x, z: shaman.z,
+      state: shaman.native.state, anchorX: shaman.native.anchorX, anchorY: shaman.native.anchorY },
+    expected.survivor)
+  } else {
+    assert.equal(shaman.hp, 0)
+    assert.equal(world.units.includes(shaman), false)
+    assert.equal(world.objectCells.objects.has(shaman.id), false)
+  }
   assert.equal(world.buildings.includes(target), expected.targetDeath === 0)
   assert.equal(order.references, 0)
   assert.deepEqual(balloon.passengers, [])
@@ -227,16 +237,17 @@ test('fresh supplied-focus Balloon tower attack is intercepted before Tower dama
 
 // This hash-verified c44dadfc campaign checkpoint uses supplied spell-focus setup.
 // It preserves the original combat witness independently of current acquisition.
-test('historical c44 supplied-focus Balloon checkpoint retains Warrior11, Tower105 destruction and later Shaman casualty through Save/Load', async () => {
+test('historical c44 supplied-focus Balloon checkpoint retains Warrior11, Tower105 destruction and local Shaman rest through Save/Load', async () => {
   await assertTowerContinuation(await loadHistoricalMission22Balloon(), {
     inputPhase: [3233, 161],
     cancel: 3253,
     departure: 3520,
     fight: 3526,
     opponent: 11,
-    targetDeath: 5337,
-    retired: 5338,
-    death: 5563,
+    targetDeath: 5339,
+    retired: 5340,
+    death: 0,
+    survivor: { hp: 100.75, x: 29, z: 120.75, state: 19, anchorX: 9472, anchorY: 32576 },
   })
 })
 
