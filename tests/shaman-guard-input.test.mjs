@@ -220,9 +220,11 @@ for (const c of vectors.lifecycle.filter(c => c.label.startsWith('G-retain-desel
   assert.equal(unitAnimationSource(u), p)
 })
 
-test('protected preparation and passenger early-return retain pending ownership until actual adoption', () => {
+test('protected preparation and prepared passenger retain pending ownership until actual adoption', () => {
   const { w, u, p } = setup()
-  guardShaman(w); tick(w, 1 / 12); guardShaman(w)
+  guardShaman(w)
+  tick(w, 1 / 12)
+  guardShaman(w)
   p.flags2 |= 0x100000
   const before = phase(p)
   tick(w, 1 / 12)
@@ -233,11 +235,13 @@ test('protected preparation and passenger early-return retain pending ownership 
   assert.deepEqual(phase(p), before)
   assert.equal(w.manaTribes[0].shamanGuards, 0)
   p.flags2 &= ~0x100000
-  // The passenger branch returns before preparation; no fabricated vehicle is
-  // inserted into the world or used to claim ordinary boarding gameplay.
+  // Native 004d32b0 prepares before its passenger/order dispatch. This supplied
+  // invalid vehicle isolates the passenger return, not ordinary boarding gameplay.
   p.vehicle = 999
+  const counter = p.counter
   stepLiveMovement(w, u)
-  assert.ok(p.flags2 & 16)
+  assert.equal(p.flags2 & 16, 0)
+  assert.equal(p.counter, (counter + 1) & 255)
   assert.equal(p.guardInputPending, true)
   p.vehicle = 0
   tick(w, 1 / 12)
