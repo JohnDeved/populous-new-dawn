@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "a3dc4b40-2428-4719-bc0b-de59e6d6c1e9",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "235c94c85a00cd4f1b0c5159a896c9ecd50b8cb6",
+    "branch": "fix/balloon-hut-models",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/balloon-hut-models.test.mjs",
+    "tests/training-hut-appearance.test.mjs",
+    "tests/model-wave-deformation.test.mjs",
+    "tests/vehicle-destruction.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-balloon-hut-models",
+  "startedAt": "2026-10-14T13:33:05.370Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-balloon-hut-models/work/orchestration/balloon-hut-models/focused.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-balloon-hut-models/work/orchestration/balloon-hut-models/focused.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T13:33:11.768Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ four authentic Balloon Hut owners append without changing prior meshes or atlas (25.967875ms)\n✔ each Balloon Hut mesh supplies finite structural and terrain-collapse fragments (38.744648ms)\n✔ ordinary M16 defeated Balloon Hut damage continues beyond the actual crash through Save/Load (3756.745594ms)\n✔ native model wave uses half, quarter, eighth strength then resets (4.689301ms)\n✔ live waves retain first-hit deformation on resource scenery (200.864571ms)\n✔ training append preserves all70 pre-existing original models, including vehicles (20.600616ms)\n✔ all original training types and owners resolve to actual meshes, not Blue substitutes (2.531282ms)\n✔ the five recovered training variants retain original geometry, color tiles and all stages (8.178554ms)\n✔ authored Mission16/17/22 training assets and identities survive checkpoint reconstruction (423.992858ms)\n✔ the live building factory opts into original training selection without tint or gameplay changes (1.5193ms)\n✔ live vehicle damage keeps the native owner, special, signed and reset rules (187.588398ms)\n✔ Blast reaches live vehicles and native destruction ejects passengers alive (189.607274ms)\n✔ vehicle life and destruction survive checkpoint migration and reload (216.443279ms)\nℹ tests 13\nℹ suites 0\nℹ pass 13\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 6285.512847\n",
+  "stderr": "",
+  "stdoutSha256": "66b367d3358bc990d6abc6e53e64960c8a23f9835d1d19a81ce039ed5161e57d",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "235c94c85a00cd4f1b0c5159a896c9ecd50b8cb6",
+    "branch": "fix/balloon-hut-models",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

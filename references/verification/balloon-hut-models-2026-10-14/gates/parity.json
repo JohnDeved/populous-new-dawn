@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "3c4bfc11-1688-4616-a840-332ec02612b9",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "fbad11a7e0ccfd2956c035a9787c20fa7d8d594a",
+    "branch": "fix/balloon-hut-models",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "npm",
+    "run",
+    "parity:check"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-balloon-hut-models",
+  "startedAt": "2026-10-14T13:44:51.002Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-balloon-hut-models/work/orchestration/balloon-hut-models/parity.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-balloon-hut-models/work/orchestration/balloon-hut-models/parity.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T13:44:51.474Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 parity:check\n> node scripts/parity.mjs check\n\nParity ledger, evidence paths, revision and generated report are consistent.\n",
+  "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n",
+  "stdoutSha256": "f39c8ad20b8013f4e4e4ade55ff5d63ab1c8df3729611db56c2d25cf734b48a9",
+  "stderrSha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+  "sourceAfter": {
+    "headOid": "fbad11a7e0ccfd2956c035a9787c20fa7d8d594a",
+    "branch": "fix/balloon-hut-models",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

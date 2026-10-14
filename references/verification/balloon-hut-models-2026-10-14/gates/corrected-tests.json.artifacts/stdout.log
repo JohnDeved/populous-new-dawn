@@ -1,0 +1,13 @@
+✔ four authentic Balloon Hut owners append without changing prior meshes or atlas (27.179787ms)
+✔ each Balloon Hut mesh supplies finite structural and terrain-collapse fragments (48.748361ms)
+✔ ordinary M16 defeated Balloon Hut damage continues beyond the actual crash through Save/Load (3474.974599ms)
+✔ original c textures and pre-existing model values stay intact while p preserves unselected atlas pixels (67.937784ms)
+✔ twelve p sparkle crops retain native dimensions/alpha and pinned DATA-derived RGB (130.675584ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4579.875987

@@ -1,0 +1,5 @@
+{
+  head: 'fbad11a7e0ccfd2956c035a9787c20fa7d8d594a',
+  files: 405,
+  qualification: 'Original aggregate2616/2617 failed old whole-model-file pin; reviewed prior78-model preservation correction and full changed-file rerun pass. Combined qualification, never a green aggregate.'
+}

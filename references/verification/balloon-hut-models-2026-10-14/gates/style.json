@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "638e0632-a469-4ba9-b117-9c6ca4c42bbd",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "235c94c85a00cd4f1b0c5159a896c9ecd50b8cb6",
+    "branch": "fix/balloon-hut-models",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node_modules/.bin/eslint",
+    "app/scene-entities.ts",
+    "tests/balloon-hut-models.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-balloon-hut-models",
+  "startedAt": "2026-10-14T13:43:58.275Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-balloon-hut-models/work/orchestration/balloon-hut-models/style.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-balloon-hut-models/work/orchestration/balloon-hut-models/style.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T13:44:00.072Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "235c94c85a00cd4f1b0c5159a896c9ecd50b8cb6",
+    "branch": "fix/balloon-hut-models",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}
