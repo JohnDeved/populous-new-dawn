@@ -1,0 +1,28 @@
+✔ ordinary browser pose publication preserves physical identity, same-cell order and cross-cell linkage (449.393426ms)
+✔ existing flight, combat and vehicle physical owners are never overwritten by browser reconciliation (397.060923ms)
+✔ genuine M17 arena walk publishes current pose before encounter adoption and remains deterministic after Save/Load (3153.08439ms)
+✔ outdoor and building encounter calls match captured original fields, timing, RNG and sound (47.230155ms)
+✔ all playable encounter pairs show the opening strike, physical stagger and defender-centered fight (1555.047386ms)
+✔ encounters and their animations stay deterministic across render schedules (695.186294ms)
+✔ the native skip-intro flag and player cancellation do not leave stuck encounters (111.627095ms)
+✔ an encounter releases cleanly when an airborne participant returns to ordinary motion (44.507586ms)
+✔ live fights refresh the first native player alert each object turn (160.728397ms)
+✔ simulation owns quiet, attack and battle music activity across pause and cancellation (43.666054ms)
+✔ reinforcements and new encounters retain the same person and resume ground, building and worship orders (1986.839948ms)
+✔ replacing or killing a reinforcement releases every retained command reference (280.886895ms)
+✔ a displaced fighter retains its queue and a split keeps both followers’ original records (394.892886ms)
+✔ combat interruption and resumed orders preserve simulation and poses across render rates (996.844696ms)
+✔ combat removes a waiting trainee from its physical line while retaining its training order (179.492191ms)
+✔ public seated Tornado finishes casting and permits a second earned cast through Save/Load (2213.893677ms)
+✔ seated cast state owns retained area orders and moving Boat/Balloon seat visits (418.26719ms)
+✔ protected seated Shaman rejects public cast without stock or projectile changes (21.931596ms)
+✔ retired route-map Balloon occupants launch from actual seats through public panel and Save/Load (2155.585894ms)
+✔ Boat and Balloon seat sync retain route-map precedence and existing fallback ownership (208.660578ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5847.331282

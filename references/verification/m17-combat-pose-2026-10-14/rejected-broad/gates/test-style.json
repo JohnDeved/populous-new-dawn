@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "147c7f56-c46c-40ec-b739-55effa800b10",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "ed590e09224e4ebb15c761dc8bec4bdee13bb09e",
+    "branch": "fix/combat-pose-handoff",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node_modules/.bin/eslint",
+    "tests/combat-pose-handoff.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-m17-combat-pose",
+  "startedAt": "2026-10-14T14:42:56.860Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-m17-combat-pose/work/orchestration/m17-combat-pose/test-style.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-m17-combat-pose/work/orchestration/m17-combat-pose/test-style.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T14:42:58.589Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "ed590e09224e4ebb15c761dc8bec4bdee13bb09e",
+    "branch": "fix/combat-pose-handoff",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}
