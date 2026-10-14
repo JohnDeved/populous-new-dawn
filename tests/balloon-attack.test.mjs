@@ -220,7 +220,7 @@ test('fresh supplied-focus Balloon tower attack encounters Warrior10, destroys T
   })
 })
 
-// This immutable, hash-verified checkpoint was genuinely earned on c44dadfc.
+// This hash-verified c44dadfc campaign checkpoint uses supplied spell-focus setup.
 // It preserves the original combat witness independently of current acquisition.
 test('historical c44 supplied-focus Balloon checkpoint retains Warrior11, Tower105 destruction and later Shaman casualty through Save/Load', async () => {
   await assertTowerContinuation(await loadHistoricalMission22Balloon(), {

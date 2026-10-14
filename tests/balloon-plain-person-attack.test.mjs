@@ -262,7 +262,7 @@ test('fresh supplied-focus dry-route plain person target preserves interception 
   await assertPlainPersonAttack(prepareFreshFlight(), false)
 })
 
-// A genuinely earned c44dadfc checkpoint retains the prior successful witness.
+// A c44dadfc supplied-focus campaign checkpoint retains the prior successful witness.
 // This verifies current-source continuation, separately from fresh acquisition.
 test('historical c44 supplied-focus Balloon checkpoint retains plain Preacher17 victory through Save/Load', async () => {
   await assertPlainPersonAttack(await loadHistoricalMission22Balloon(), true)
