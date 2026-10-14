@@ -1,3 +1,4 @@
+import { writeLivePersonOrder as writePersonOrder } from './live-person-order.ts'
 import { TRIBE_TEAMS, tribeForTeam, type Point, type Unit, type World } from './world-types.ts'
 import {
   createLivePerson,
@@ -22,7 +23,6 @@ import {
   currentPersonOrder,
   deselectPerson,
   emptyPersonOrder,
-  writePersonOrder,
   commitPersonOrders,
   clearPersonOrders,
   removePersonOrder,
@@ -238,7 +238,14 @@ export function requestComputerPreacher(w: World, tribe: number, marker: number)
   if (id === null) return false
   const source = selected.sources.get(id)
   if (source) source.flags3 = selected.world.units.get(id)!.flags3
-  return requestPreacherTask(w.ai, id, marker, w.ai.states, campaignPersonCount(w, tribe, 4))
+  return requestPreacherTask(
+    w.ai,
+    id,
+    marker,
+    w.ai.states,
+    campaignPersonCount(w, tribe, 4),
+    id => id
+  )
 }
 
 //0x4f3280: only current order30 people return, with uncentered even coordinates.
@@ -594,7 +601,7 @@ const unsignedAttackField = (value: number, maximum: number) =>
 // leaves before changing either native admission or the port member list.
 function canReleaseComputerAttackPerson(w: World, index: number, u: Unit, p: LivePerson) {
   if (
-    !unsignedAttackField(p.id, 65535) ||
+    !unsignedAttackField(p.id, Number.MAX_SAFE_INTEGER) ||
     p.id !== u.id ||
     p.class !== 1 ||
     !unsignedAttackField(p.model, 8) ||
@@ -1365,20 +1372,27 @@ function computerResponseWorld(w: World, tribe: number) {
 }
 
 function requestComputerDefense(w: World, tribe: number, entity: number, cell: number) {
-  return requestDefenseTask(w.ai, w.ai.states, w.ai.attributes[15], entity, cell, () =>
-    summarizeSpellEnemies(computerResponseWorld(w, tribe), cell, 4, {
-      preachers: campaignPersonCount(w, tribe, 4),
-      firewarriors: campaignPersonCount(w, tribe, 6),
-      braves: campaignPersonCount(w, tribe, 2),
-      // Complete CPSCR012 assigns attribute46=1 once; no auto-training leaf.
-      autoTrain: false,
-      queuedPreachers: () => {
-        throw new Error('Unreachable Mission3 defense training query')
-      },
-      request: () => {
-        throw new Error('Unreachable Mission3 defense training request')
-      },
-    })
+  return requestDefenseTask(
+    w.ai,
+    w.ai.states,
+    w.ai.attributes[15],
+    entity,
+    cell,
+    () =>
+      summarizeSpellEnemies(computerResponseWorld(w, tribe), cell, 4, {
+        preachers: campaignPersonCount(w, tribe, 4),
+        firewarriors: campaignPersonCount(w, tribe, 6),
+        braves: campaignPersonCount(w, tribe, 2),
+        // Complete CPSCR012 assigns attribute46=1 once; no auto-training leaf.
+        autoTrain: false,
+        queuedPreachers: () => {
+          throw new Error('Unreachable Mission3 defense training query')
+        },
+        request: () => {
+          throw new Error('Unreachable Mission3 defense training request')
+        },
+      }),
+    id => id
   )
 }
 

@@ -63,3 +63,56 @@ handles through2^32, and intact legacy migration without reordered identity.
 These controlled boundaries supplement, rather than replace, the ordinary M7
 battle requalification. Full runtime gates and new-source route receipts must
 be recorded after this repair; earlier d20c5e81 acceptance is historical only.
+
+## Sustained turn-116740 queue and reference audit
+
+The next ordinary Mission 7 continuation exposed a separate boundary: camp 672
+was empty, but person 287375 remained at command-8 substate 3 with zero speed,
+zero entry delay and available capacity. Its full ID could never equal the
+signed-word queue head in `training.ts`. Queue traversal also masked head and
+successor handles to unsigned words. The preserved checkpoint is
+`priest-pursuit-terminal.v8` at turn 116740, SHA-256
+`b4bbfd12fc95de4745cf3c0aeb38b7d0ef133016175cfae3e1479bc2f6cd17d8`.
+It already contains orphaned legacy queue links: this repair does not invent
+lost queue order or migrate those links. The legitimate head can advance;
+ordinary cancel/reorder is required to recreate remaining player orders.
+
+The bounded owner audit below distinguishes native storage arithmetic from
+live monotonically allocated handles. Optional decoders are transient call
+arguments, never functions stored in checkpoints. Native callers retain their
+original signed/unsigned coercions. Live IDs use exact nonnegative safe-integer
+identity where validated; this is not a claim that all engine fields support
+an unlimited numeric domain.
+
+| Boundary | Retained native default | Live producer and consumer | Live adaptation |
+| --- | --- | --- | --- |
+| Training head/links | `00409c50` unsigned lookup; `00434610` signed head comparison | `live-building-entry` context passes actual person IDs to queue traversal/admission | `personId` decoder only for people; building target/workTarget remain bounded words |
+| Attack/guard order reference | `00435780` unsigned object word, `00432df0` signed target | player `live-command`, AI `computer-runtime`, campaign attack, and `shaman-guard` produce commands 28/30; movement resolves exact people | explicit live writer and order-start decoder for those command models |
+| Vehicle order reference | same command word/target rules | workshop and reward allocations use `nextId++`; command 22 and `selectLiveBalloonDrivers` resolve exact craft | preserve command-22 ID and compare full live vehicle/target handles |
+| Worship reference | same command word/target rules | legacy Mission 5 migration allocates missing Angel shrine with `nextId++`; `worshipOrder`/`stepLiveWorship` resolve it | preserve command-27 ID |
+| AI preacher task | `004f4520`/`004627f0` unsigned selected-person word | `requestComputerPreacher` selects exact person; task dispatcher resolves `entity` | optional person decoder supplied by live caller |
+| AI defense task | `004c5cf0`/`004627f0` unsigned entity word | live response scan supplies hostile person/building; task liveness resolves exact entity | optional entity decoder supplied by live caller |
+| Timber refresh owner | `004935c0` unsigned owner word | `live-construction-runtime` refreshes builder owner; next world search pass resolves exact `search.person` | optional person decoder at live refresh |
+| Fight membership | `00519a70` signed workFlags comparison | `processEncounter` and split groups allocate `nextId++`, store full group ID; `cleanBattles` supplies roster | optional group decoder supplied by live cleanup |
+| Attack-release validation | browser adapter previously rejected IDs above 65535 | composed live cleanup compares person ID with actual Unit owner | widen only identity validation, retaining ownership and on-foot eligibility |
+| Preacher fallback validation | browser adapter previously bounded links, fight owner and vehicle to 65535 | live object-cell chains and exact owner projections | safe-integer identity limits, preserving coordinate/flag/state/chain checks |
+
+Excluded domains: construction allocation explicitly bounds buildings/plans to
+1..1023. Order pool indices and reference counts, flags, timers, packed cell
+coordinates, terrain masks and model fields keep their existing arithmetic.
+Commands 4/14/29 have no supported live producer/order-start path; command 33
+Vault targets remain startup-allocated. `prepareCellOrder` handles bounded
+building/cell/area payloads. Growing timber/tree handles already travel through
+exact assignments and lookups. Checkpoints use structured records and preserve
+numeric handles; no new serialization migration is needed for these adapters.
+A separate signed-32 `requestAttack` entity coercion remains outside this tested
+16-bit cohort and must not be described as repaired.
+
+New controlled regressions exercise public queue overflow/cancellation/admission
+at 32768, 65536 and actual 287375, against a low-ID pipeline, including public
+store Save/Load with synthetic IndexedDB and per-tick replay; exact low-word
+aliases; command encoding and public attack/guard execution; real encounter
+cleanup; AI/timber default-vs-live owner decoding; high vehicle boarding; and
+legacy high-ID Angel shrine production. These supplied allocation-boundary
+fixtures are not ordinary campaign victory evidence. Existing retained native
+fixtures remain unchanged.

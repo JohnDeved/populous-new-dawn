@@ -21,7 +21,8 @@ export function requestDefenseTask(
     requiredWarriors: number
     requiredFirewarriors: number
     requiredPreachers: number
-  }
+  },
+  entityId?: (stored: number) => number
 ) {
   const task = ai.tasks.find(candidate => !(candidate.flags & 1))
   if (
@@ -34,7 +35,7 @@ export function requestDefenseTask(
     flags: ((task.flags & ~2) | 1) >>> 0,
     type: 8,
     phase: 0,
-    entity: entity & 65535,
+    entity: entityId?.(entity) ?? entity & 65535,
     target: cell & 65535,
     mode: 0,
     //0x462790 preserves scratch; normalphase0/2 own its reinitialization.
