@@ -1,3 +1,4 @@
+import { settleRouteLaunch } from './helpers/route-launch-landing.mjs'
 // Campaign setup supplies spell-focus masks; actors, charges and travel evolve through actual ticks.
 import { supportsFollower } from '../app/model.ts'
 import { reachMission22FlightPoint } from './helpers/mission22-flight-phase.mjs'
@@ -53,6 +54,7 @@ function prepareFlight() {
   assert.ok(supportsFollower(world, { x: -25, z: -61 }))
   assert.ok(command(world, { x: -25, z: -61 }))
   stepUntil(world, () => boat.passengerCount === 0, 2_000)
+  settleRouteLaunch(world, shaman, { x: -25, z: -61 })
   assert.ok(shaman.hp > 0 && supportsFollower(world, shaman))
   assert.equal(shaman.native.vehicle, 0)
 
@@ -71,6 +73,7 @@ function prepareFlight() {
   assert.ok(supportsFollower(world, { x: -83, z: -59 }))
   assert.ok(command(world, { x: -83, z: -59 }))
   stepUntil(world, () => boat.passengerCount === 0, 2_000)
+  settleRouteLaunch(world, shaman, { x: -83, z: -59 })
   assert.ok(shaman.hp > 0 && supportsFollower(world, shaman))
   assert.equal(shaman.native.vehicle, 0)
   assert.ok(cast(world, 'bridge', { x: -83, z: -69 }))
@@ -126,7 +129,7 @@ test('supplied-focus Mission22 Balloon worship lands, rewards once and continues
   // Dry Boat acquisition is later; retain all 105 rejections and one admission.
   assert.deepEqual(
     attempts,
-    Array.from({ length: 106 }, (_, index) => 3418 + index)
+    Array.from({ length: 106 }, (_, index) => 3466 + index)
   )
   const worship = currentPersonOrder(world.buildingOrders, shaman.native)
   assert.equal(worship.model, 27)
@@ -157,9 +160,9 @@ test('supplied-focus Mission22 Balloon worship lands, rewards once and continues
   }
   assert.equal(landings, 1)
   assert.equal(rewards, 1)
-  assert.equal(landed, 3566)
+  assert.equal(landed, 3614)
   // Worship checks its standing phase on even person counters.
-  assert.equal(rewarded, 3766)
+  assert.equal(rewarded, 3814)
   assert.equal(north.uses, 1)
   assert.equal(worship.references, 0)
   assert.equal(shaman.native.vehicle, 0)

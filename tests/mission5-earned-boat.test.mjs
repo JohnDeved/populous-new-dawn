@@ -181,8 +181,20 @@ test('earned Mission5 Boat is allocated, retires its template, and boards a real
   const shore = { x: -39, z: -59 }
   assert.ok(supportsFollower(world, shore))
   const land = dispatch(shore)
-  while ((person.vehicle || actor.flight) && actor.hp > 0 && world.turn < 1498) step()
-  assert.equal(world.turn, 922)
+  const launches = []
+  while ((person.vehicle || actor.flight) && actor.hp > 0 && world.turn < 1498) {
+    const wasSeated = person.vehicle,
+      before = { x: actor.x, z: actor.z }
+    step()
+    assert.ok(Math.hypot(actor.x - before.x, actor.z - before.z) < 2)
+    if (wasSeated && !person.vehicle) {
+      assert.equal(actor.flight, person)
+      assert.equal(actor.lift, 1)
+      launches.push(world.turn)
+    }
+  }
+  assert.deepEqual(launches, [922])
+  assert.equal(world.turn, 926)
   assert.equal(actor.native, person)
   assert.equal(world.objectCells.objects.get(actor.id), person)
   assert.equal(actor.hp, 50)
@@ -195,7 +207,7 @@ test('earned Mission5 Boat is allocated, retires its template, and boards a real
   const reboard = dispatch({ ...browserPosition(boat), id: boat.id })
   assert.equal(reboard.model, 22)
   while (!person.vehicle && actor.hp > 0 && world.turn < 1600) step()
-  assert.equal(world.turn, 923)
+  assert.equal(world.turn, 927)
   assert.deepEqual(boat.passengers, [actor.id])
   assert.equal(person.vehicle, boat.id)
   assert.equal(actor.hp, 50)

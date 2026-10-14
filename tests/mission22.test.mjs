@@ -1,3 +1,4 @@
+import { settleRouteLaunch } from './helpers/route-launch-landing.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 
@@ -232,10 +233,13 @@ test('Mission 22 supplied-focus Shaman can steal, checkpoint and sail the author
   assert.ok(supportsFollower(world, dry))
   assert.ok(command(world, dry))
   stepUntil(world, () => boat.passengerCount === 0, 2_000)
+  // This first shore is on the retained ground route, before its distant final goal.
+  settleRouteLaunch(world, shaman)
+  assert.deepEqual([shaman.x, shaman.z], [-33.2890625, -57.13671875])
   assert.equal(shaman.native.vehicle, 0)
   assert.ok(supportsFollower(world, shaman))
   // The extra public dry voyage permits full natural healing before landing.
-  assert.equal(world.turn, 1947)
+  assert.equal(world.turn, 1951)
   assert.equal(shaman.hp, 100.6)
   assert.equal(boat.team, 'blue')
 })
@@ -262,6 +266,7 @@ test('Mission 22 supplied-focus Shaman can claim the authored Balloon and comple
   assert.ok(supportsFollower(world, { x: -25, z: -61 }))
   assert.ok(command(world, { x: -25, z: -61 }))
   stepUntil(world, () => boat.passengerCount === 0, 2_000)
+  settleRouteLaunch(world, shaman, { x: -25, z: -61 })
   assert.ok(shaman.hp > 0 && supportsFollower(world, shaman))
   assert.equal(shaman.native.vehicle, 0)
 
@@ -280,6 +285,7 @@ test('Mission 22 supplied-focus Shaman can claim the authored Balloon and comple
   assert.ok(supportsFollower(world, { x: -83, z: -59 }))
   assert.ok(command(world, { x: -83, z: -59 }))
   stepUntil(world, () => boat.passengerCount === 0, 2_000)
+  settleRouteLaunch(world, shaman, { x: -83, z: -59 })
   assert.ok(shaman.hp > 0 && supportsFollower(world, shaman))
   assert.equal(shaman.native.vehicle, 0)
   assert.ok(cast(world, 'bridge', { x: -83, z: -69 }))

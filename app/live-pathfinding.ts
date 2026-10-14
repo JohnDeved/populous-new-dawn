@@ -8,7 +8,13 @@ import {
   type Point,
   type Vehicle,
 } from './model.ts'
-import { createLivePerson, collisionWorld, type LivePerson } from './live-people.ts'
+import {
+  createLivePerson,
+  collisionWorld,
+  publishLiveVehicleLaunch,
+  type LivePerson,
+} from './live-people.ts'
+import { departVehiclePerson } from './vehicle-unload.ts'
 import { buildingOutsidePoint } from './building-shapes.ts'
 import { buildingBlocksPerson, pathCellBlocked } from './person-collision.ts'
 import { terrainCellHeightRange } from './native-terrain.ts'
@@ -34,13 +40,12 @@ import {
 } from './vehicle-routing.ts'
 import {
   boardLiveVehicle,
-  leaveLiveVehicle,
   liveVehicleCellObjects,
   liveVehicles,
   nearestLiveBoat,
 } from './live-vehicles.ts'
 import { searchPersonPath, collectSearchPath } from './path-search.ts'
-import { createPathSolver, solvePersonPath } from './path-solver.ts'
+import { solvePersonPath } from './path-solver.ts'
 import {
   preparePathCandidates,
   choosePathCandidate,
@@ -379,8 +384,12 @@ function advanceLiveRoute(w: World, p: LivePerson) {
       vehicle.turnAngle = to.x
       vehicle.turnY = to.y
     },
-    leaveVehicle: (vehicle, person, to) =>
-      leaveLiveVehicle(w, vehicle as Vehicle, person as LivePerson, to),
+    // 0x4eadc0 calls 0x4659d0: launch from the current seat toward the next
+    // ground waypoint. That waypoint is a heading, never an immediate position.
+    leaveVehicle: (vehicle, person, to) => {
+      if (departVehiclePerson(w, vehicle as Vehicle, person as LivePerson, to))
+        publishLiveVehicleLaunch(w, person as LivePerson)
+    },
     clearOrders: person => releasePersonRoute(w.motionRoutes, person),
   })
 }

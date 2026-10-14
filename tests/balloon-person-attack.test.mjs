@@ -1,3 +1,4 @@
+import { settleRouteLaunch } from './helpers/route-launch-landing.mjs'
 // Campaign setup supplies spell-focus masks; actors, charges and travel evolve through actual ticks.
 import { supportsFollower } from '../app/model.ts'
 import { reachMission22FlightPoint } from './helpers/mission22-flight-phase.mjs'
@@ -49,6 +50,7 @@ test('supplied-focus current Mission22 queued person target moves its transport 
   assert.ok(supportsFollower(world, { x: -25, z: -61 }))
   assert.ok(command(world, { x: -25, z: -61 }))
   stepUntil(world, () => boat.passengerCount === 0, 2_000)
+  settleRouteLaunch(world, shaman, { x: -25, z: -61 })
   assert.ok(shaman.hp > 0 && supportsFollower(world, shaman))
   assert.equal(shaman.native.vehicle, 0)
 
@@ -67,6 +69,7 @@ test('supplied-focus current Mission22 queued person target moves its transport 
   assert.ok(supportsFollower(world, { x: -83, z: -59 }))
   assert.ok(command(world, { x: -83, z: -59 }))
   stepUntil(world, () => boat.passengerCount === 0, 2_000)
+  settleRouteLaunch(world, shaman, { x: -83, z: -59 })
   assert.ok(shaman.hp > 0 && supportsFollower(world, shaman))
   assert.equal(shaman.native.vehicle, 0)
   assert.ok(cast(world, 'bridge', { x: -83, z: -69 }))
@@ -151,19 +154,20 @@ test('supplied-focus current Mission22 queued person target moves its transport 
     if (target.hp <= 0 && !targetDeath) targetDeath = world.turn
   }
   assert.equal(departures, 1)
-  assert.equal(departure, 3804)
-  assert.equal(firstFight, 3814)
+  assert.equal(departure, 3852)
+  assert.equal(firstFight, 3862)
   assert.deepEqual(encounters, [
-    [3814, 10],
-    [3845, 12],
+    [3862, 10],
+    [3883, 12],
+    [3891, 11],
   ])
   assert.equal(firstOpponent, 10)
   assert.equal(firstOpponentTeam, 'green')
   // The longer dry Boat route changes the counter phase and campaign RNG.
-  // This moving attack still first encounters Warrior 10, then Warrior 12;
+  // This moving attack still first encounters Warrior 10, then Warriors 12 and 11;
   // observed death retires command 28 while the selected Preacher 17 survives.
   // This is a browser outcome, not a native damage/landing parity claim.
-  assert.equal(death, 3848)
+  assert.equal(death, 3891)
   assert.equal(targetDeath, 0)
   assert.equal(shaman.hp, 0)
   assert.equal(world.units.includes(shaman), false)
