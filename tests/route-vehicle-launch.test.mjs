@@ -5,6 +5,9 @@ import { gunzipSync } from 'node:zlib'
 import { deserialize } from 'node:v8'
 import { createHash } from 'node:crypto'
 import { tick, browserPosition } from '../app/model.ts'
+import { releasePersonRoute } from '../app/person-routes.ts'
+import { stepLiveVehicle } from '../app/live-vehicles.ts'
+import { stepLiveRoute } from '../app/live-pathfinding.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
 import { withStorage } from './support/profile-storage.mjs'
@@ -115,4 +118,36 @@ test('route-advance departure launches every matching passenger without moving t
       'this receipt does not fabricate mainland arrival'
     )
   })
+})
+
+// Supplied route-ownership split at an otherwise actual pre-departure frontier.
+// This isolates the nonmatching passenger rule, not an ordinary player action.
+test('route departure leaves a nonmatching-route passenger aboard for native replanning', () => {
+  const w = checkpoint()
+  for (let n = 0; n < 21; n++) tick(w, 1 / 12)
+  assert.equal(w.turn, 3821)
+  const boat = w.vehicles.find(v => v.id === 62),
+    held = w.units.find(u => u.id === 114),
+    p = held.native
+  releasePersonRoute(w.motionRoutes, p)
+  assert.equal(p.motionGroup, 0)
+  const order = currentPersonOrder(w.buildingOrders, p)
+  const driver = w.units.find(u => u.id === boat.passengers[0])
+  assert.notEqual(driver.id, held.id)
+  // The next actual vehicle visit reaches the disembark threshold.
+  assert.equal(stepLiveVehicle(w, driver.native), true)
+  const position = { x: held.x, z: held.z }
+  stepLiveRoute(w, driver)
+  assert.equal(boat.passengerCount, 1)
+  assert.deepEqual(boat.passengers.filter(Boolean), [held.id])
+  assert.equal(held.native, p)
+  assert.equal(p.vehicle, boat.id)
+  assert.ok(p.flags2 & 0x80000000, 'native unmatched passenger is marked for replanning')
+  assert.equal(held.flight, undefined)
+  assert.deepEqual({ x: held.x, z: held.z }, position)
+  assert.equal(currentPersonOrder(w.buildingOrders, p), order)
+  for (const u of party(w).filter(u => u !== held)) {
+    assert.equal(u.native.vehicle, 0)
+    assert.equal(u.flight, u.native)
+  }
 })

@@ -27,7 +27,12 @@ The retained historical M10 input is turn3800 on source
 `9f763cd4fe3d0a322acc9cf78bff36301f526785`. The input SHA-256 is
 `0dc9273cca6214ca7ab3794d1f8c9f1e2be37145f5919c4fd02894969be77792`.
 The original trace and source-bound receipt are archived under
-`references/fixtures/m10-route-launch/`. They prove that turn3822 moves all five
+`references/fixtures/m10-route-launch/`. The authoritative per-turn snapshots are
+the receipt's immutable stdout JSON lines. The separately retained rows file
+contains shared nested velocity/order references that its producer mutated in
+later ticks; only its copied primitive position/ownership fields are historical
+snapshots. Do not use that rows file to infer earlier velocity/order values.
+The immutable stdout proves that turn3822 moves all five
 passengers 50.7–51.5 world units in one tick: their craft remains near
 (7.539,-15.016), while they appear at the following ground waypoint near(-9,33),
 with no flight wrapper. The earlier endpoint and Totem receipts remain observations
