@@ -332,6 +332,7 @@ import {
   approachLiveMelee,
   stepLiveMeleeMotion,
   syncLivePersonCells,
+  syncBrowserPersonPosition,
   type LivePerson,
 } from './live-people.ts'
 import { removeObjectFromCell, objectsInCell, type ObjectCells } from './object-cells.ts'
@@ -1641,6 +1642,9 @@ function stepTurn(w: World) {
       }
       u.x = p.x
       u.z = p.z
+      // Native encounter admission reuses the current physical person. Publish
+      // this legacy path step before route completion or later combat contacts.
+      if (u.native && !u.builder?.person && !u.entry) syncBrowserPersonPosition(w, u, u.native)
       if (Math.hypot(dx, dz) <= length) u.path.shift()
       stepLiveRoute(w, u)
     } else if (
