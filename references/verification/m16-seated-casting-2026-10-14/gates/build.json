@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "5073c142-913d-4eab-8d2e-f0ef4eb23e6a",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "5c7867be5aa0ff847da805fa3006d82561d63882",
+    "branch": "fix/seated-casting-lifecycle",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "npm",
+    "run",
+    "build"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-m16-casting",
+  "startedAt": "2026-10-14T13:01:27.190Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-m16-casting/work/orchestration/m16-casting/build.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-m16-casting/work/orchestration/m16-casting/build.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T13:02:01.731Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 build\n> WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext build\n\n\n  vinext build  (Vite 8.0.13)\n\n[1/5] analyze client references...\n\u001b[2K\rtransforming...✓ 272 modules transformed.\nrendering chunks...\n✓ built in 7.42s\n[2/5] analyze server references...\n\u001b[2K\rtransforming...✓ 415 modules transformed.\nrendering chunks...\n✓ built in 2.55s\n[3/5] build rsc environment...\n\u001b[2K\rtransforming...✓ 270 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 8.44s\n[4/5] build client environment...\n\u001b[2K\rtransforming...✓ 456 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 6.79s\n[5/5] build ssr environment...\n\u001b[2K\rtransforming...✓ 421 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 5.78s\n\u001b[0m\n  Route (app)\n  ─ ? /\n\n  ? Unknown\n\n  ? Some routes could not be classified. vinext currently uses static analysis\n    and cannot detect dynamic API usage (headers(), cookies(), etc.) at build time.\n    Automatic classification will be improved in a future release.\n\n  Build complete. Run `vinext start` to start the production server.\n\n",
+  "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n\u001b[33m▲ \u001b[43;33m[\u001b[43;30mWARNING\u001b[43;33m]\u001b[0m \u001b[1mProxy environment variables detected. We'll use your proxy for fetch requests.\u001b[0m\n\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - rsc:virtual-client-package (24%)\n  - vinext:og-inline-fetch-assets (16%)\n  - vinext:css-data-url (11%)\n  - vinext:middleware-server-only (10%)\n  - alias (8%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - rsc:load-environment-module (22%)\n  - rsc:virtual-client-package (20%)\n  - vinext:css-data-url (11%)\n  - vinext:og-inline-fetch-assets (11%)\n  - vinext:jsx-in-js (6%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n[plugin builtin:vite-reporter] \n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - vinext:middleware-server-only (25%)\n  - alias (16%)\n  - rsc:virtual-client-package (13%)\n  - vinext:css-data-url (13%)\n  - vinext:og-inline-fetch-assets (7%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - vinext:css-data-url (19%)\n  - alias (13%)\n  - vinext:middleware-server-only (12%)\n  - rsc:virtual-client-package (11%)\n  - vinext:validate-middleware-exports (10%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\nnpm notice\nnpm notice New major version of npm available! 11.9.0 -> 12.2.0\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0\nnpm notice To update run: npm install -g npm@12.2.0\nnpm notice\n",
+  "stdoutSha256": "f6f323740e6ac6758e714f2abe91e3033dd988b66a3a19551fb8028f16a6bad1",
+  "stderrSha256": "c899ae360560ba9996e9ce07149f7c764c3ed8bc8fd39783c9994fb4ba545e52",
+  "sourceAfter": {
+    "headOid": "5c7867be5aa0ff847da805fa3006d82561d63882",
+    "branch": "fix/seated-casting-lifecycle",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

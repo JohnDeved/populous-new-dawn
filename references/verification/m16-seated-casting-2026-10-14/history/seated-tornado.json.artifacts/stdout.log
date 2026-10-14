@@ -1,0 +1,2 @@
+{"event":"public earned seated Shaman Tornado","turn":26250,"target":{"id":281,"x":-70.9296875,"z":52.9453125},"party":{"boatId":8830,"boat":{"x":-75,"z":39},"people":[{"id":115,"x":-74.7890625,"z":39.1328125,"vehicle":8830,"flight":false},{"id":8286,"x":-75.21484375,"z":38.87109375,"vehicle":8830,"flight":false}]}}
+{"event":"actual bounded Angel target lifecycle","turn":26251,"angel":null,"victim":null}

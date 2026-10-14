@@ -1,0 +1,5 @@
+
+> populous-first-dawn@0.1.0 parity:check
+> node scripts/parity.mjs check
+
+Parity ledger, evidence paths, revision and generated report are consistent.
