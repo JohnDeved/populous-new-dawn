@@ -120,6 +120,7 @@ try{
   const question=page.locator('.spell-list .spell-card').nth(bloodlustSlot)
   assert.equal(await question.getAttribute('aria-label'),'Undiscovered spell')
   assert.equal(await question.getAttribute('aria-disabled'),'true')
+  assert.equal(await question.evaluate(button=>button.disabled),false)
   // Exercise trusted pointer events despite Playwright's aria-disabled actionability guard.
   await question.click({force:true});await question.click({button:'right',force:true});await blank()
   await capture(question,1056,'undiscovered','bloodlust')
