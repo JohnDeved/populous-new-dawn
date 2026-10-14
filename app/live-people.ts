@@ -811,6 +811,10 @@ export function enterLiveCombat(w: World, u: Unit, state: 25 | 29, p?: LivePerso
   p ??= u.fight?.motion ?? u.native ?? u.entry?.person ?? createLivePerson(w, u)
   const flags = p.flags4 & 0x10007
   if (!(p.flags2 & 0x100000)) {
+    // 0x51e150 adopts the person's current physical position. Legacy walking
+    // publishes browser XY before the final cell epilogue; reconcile only that
+    // ordinary owner here, without changing route advancement or native owners.
+    if (p === u.native && !u.entry && !u.builder?.person) syncBrowserPersonPosition(w, u, p)
     p.previousState = p.state
     p.state = state
     const ctx = context(w)

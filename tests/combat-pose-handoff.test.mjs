@@ -88,6 +88,25 @@ test('existing flight, combat and vehicle physical owners are never overwritten 
     linked(w, p)
   }
 })
+test('combat admission reconciles only ordinary reused native poses, preserving protected and other owners', () => {
+  for (const owner of ['ordinary', 'protected', 'flight', 'fight', 'vehicle', 'entry', 'builder']) {
+    const { w, u, p } = supplied()
+    if (owner === 'protected') p.flags2 |= 0x100000
+    if (owner === 'flight') u.flight = p
+    if (owner === 'fight') u.fight = { motion: p }
+    if (owner === 'vehicle') p.vehicle = 123
+    if (owner === 'entry') u.entry = { person: p }
+    if (owner === 'builder') u.builder = { person: p }
+    const before = { x: p.x, y: p.y }
+    u.x += 0.25
+    const adopted = enterLiveCombat(w, u, 29)
+    assert.equal(adopted, p)
+    if (owner === 'ordinary') assert.equal(wrappedDistance(u, browserPosition(p)), 0)
+    else assert.deepEqual({ x: p.x, y: p.y }, before, owner)
+    linked(w, p)
+  }
+})
+
 test('genuine M17 arena walk publishes current pose before encounter adoption and remains deterministic after Save/Load', async () => {
   const bytes = gunzipSync(
     readFileSync(
