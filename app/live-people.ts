@@ -352,16 +352,22 @@ export function syncLivePersonCells(w: World) {
     // Vehicle attachment owns seated height/position independently of the
     // animation-source projection (command22 is not an on-foot pose owner).
     if (u.flight || u.fight?.motion || p.vehicle) continue
-    const to = nativePosition(w, u)
-    to.x &= 65535
-    to.y &= 65535
-    // Native physics owns height. Re-rounding the browser surface can hold a
-    // grounded follower one unit above native terrain, restarting gravity forever.
-    if (unitAnimationSource(u) === p)
-      to.h = to.x === p.x && to.y === p.y ? p.h : terrainPointHeight(w.land, to)
-    if (to.x !== p.x || to.y !== p.y || to.h !== p.h) moveObjectInCells(w.objectCells, p, to)
+    syncBrowserPersonPosition(w, u, p)
   }
   return people
+}
+
+// Publish an ordinary browser-owned step before a later controller can adopt
+// this same physical person. Flight, combat and seats already own native poses.
+export function syncBrowserPersonPosition(w: World, u: Unit, p: LivePerson) {
+  if (u.flight || u.fight?.motion || p.vehicle) return
+  const to = nativePosition(w, u)
+  to.x &= 65535
+  to.y &= 65535
+  // Keep the existing epilogue's native-height ownership on unchanged XY.
+  if (unitAnimationSource(u) === p)
+    to.h = to.x === p.x && to.y === p.y ? p.h : terrainPointHeight(w.land, to)
+  if (to.x !== p.x || to.y !== p.y || to.h !== p.h) moveObjectInCells(w.objectCells, p, to)
 }
 
 export function setLivePersonAnimation(w: World, p: LivePerson, object: number) {
@@ -805,6 +811,10 @@ export function enterLiveCombat(w: World, u: Unit, state: 25 | 29, p?: LivePerso
   p ??= u.fight?.motion ?? u.native ?? u.entry?.person ?? createLivePerson(w, u)
   const flags = p.flags4 & 0x10007
   if (!(p.flags2 & 0x100000)) {
+    // 0x51e150 adopts the person's current physical position. Legacy walking
+    // publishes browser XY before the final cell epilogue; reconcile only that
+    // ordinary owner here, without changing route advancement or native owners.
+    if (p === u.native && !u.entry && !u.builder?.person) syncBrowserPersonPosition(w, u, p)
     p.previousState = p.state
     p.state = state
     const ctx = context(w)

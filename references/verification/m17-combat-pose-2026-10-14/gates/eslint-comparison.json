@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "18d6fdd1-ca9f-4f56-b4c1-2190ea519d40",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "44b9f848cbd117675008707c0126861453269556",
+    "branch": "fix/combat-pose-handoff",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "work/m17-combat-pose-revised/compare-eslint.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-m17-combat-pose",
+  "startedAt": "2026-10-14T15:01:05.944Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-m17-combat-pose/work/orchestration/m17-combat-pose-revised/eslint-comparison.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-m17-combat-pose/work/orchestration/m17-combat-pose-revised/eslint-comparison.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T15:01:16.845Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\n  base: '8b842e87382cf5c772db82bcd27a0904bfe0e2dc',\n  head: '44b9f848cbd117675008707c0126861453269556',\n  baseline: 208,\n  candidate: 208,\n  identical: true\n}\n",
+  "stderr": "",
+  "stdoutSha256": "3b10dcbca919d79bfda9eed7f422ba726dabfcb83c1ccf5081d08ea2a3353698",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "44b9f848cbd117675008707c0126861453269556",
+    "branch": "fix/combat-pose-handoff",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}
