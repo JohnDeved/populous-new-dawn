@@ -1,0 +1,5 @@
+{
+  files: 404,
+  head: '5c7867be5aa0ff847da805fa3006d82561d63882',
+  qualification: 'Original aggregate2613/2614 failed one unchanged queue timeout; complete isolated queue file passes. Combined qualification, never a green aggregate.'
+}

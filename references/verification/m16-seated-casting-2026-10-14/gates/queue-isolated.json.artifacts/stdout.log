@@ -1,0 +1,28 @@
+✔ browser supervisor verifies cleanup after a missing checker dependency (562.738606ms)
+✔ browser supervisor does not start the checker while the server port refuses connections (1206.790684ms)
+✔ browser supervisor verifies cleanup after a checker exception (426.471882ms)
+✔ browser supervisor classifies server spawn failure and verifies empty cleanup (7.526377ms)
+✔ browser supervisor stops the checker when the ready server exits (730.117934ms)
+✔ browser supervisor SIGTERM includes a detached checker descendant (1279.50548ms)
+✔ concurrent submitters and controllers preserve FIFO without overlap (1814.121722ms)
+✔ failed and timed-out jobs release before automatic next job (1711.601189ms)
+✔ cancel running and queued jobs without running queued command (1302.936918ms)
+✔ missing cleanup blocks handoff, recovery requires a fresh matching receipt (1187.297822ms)
+✔ live detached child prevents next test and is never killed by the queue (1519.695725ms)
+✔ controller crash retains lock; recovery refuses live owner or job (1493.187513ms)
+✔ foreign or missing execution scope cannot prove a controller stopped or authorize recovery (1017.263907ms)
+✔ legacy active jobs remain unknown even with no controller lock (653.440448ms)
+✔ paused submissions start no transient controller before recovery (955.778958ms)
+✔ source drift and busy ports block commands without touching existing server (858.538441ms)
+✔ all linked worktrees resolve the same queue; invalid specs never launch (495.258653ms)
+✔ submission preserves PATH under an ESM temp parent and returns one compact result (2704.705547ms)
+✔ concurrent identical retries share one unfinished job; completed work can run again (2652.600225ms)
+✔ run exposes a recovery ID before caller interruption; retry keeps the running job (1637.083875ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 24447.19523

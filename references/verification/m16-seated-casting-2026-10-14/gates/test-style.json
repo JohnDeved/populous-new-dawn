@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "ebd84dba-4b88-46b1-885b-49c20d7b7537",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "5c7867be5aa0ff847da805fa3006d82561d63882",
+    "branch": "fix/seated-casting-lifecycle",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node_modules/.bin/eslint",
+    "tests/seated-casting.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-m16-casting",
+  "startedAt": "2026-10-14T13:02:19.167Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-m16-casting/work/orchestration/m16-casting/test-style.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-m16-casting/work/orchestration/m16-casting/test-style.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T13:02:21.456Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "5c7867be5aa0ff847da805fa3006d82561d63882",
+    "branch": "fix/seated-casting-lifecycle",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

@@ -385,7 +385,7 @@ export function spellTargetError(w: World, spell: Spell, p: Point) {
     shaman.lift > 0 ||
     shaman.casting ||
     !canShamanCast(w.castingTribes[0], w.manaTribes[0].playerType, {
-      state: 0,
+      state: shaman.native?.vehicle && shaman.native.state === 22 ? 22 : 0,
       flags2: 0,
       flags4: 0,
     })

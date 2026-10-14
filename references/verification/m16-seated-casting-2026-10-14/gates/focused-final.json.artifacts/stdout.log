@@ -1,0 +1,33 @@
+✔ ordinary Mission1–3 startup uses native terrain, authored gates and real conversion (1546.727462ms)
+✔ native opening excludes Shaman selection, without inventing a casting restriction (762.503164ms)
+✔ checkpoint restore resumes every opening stage without replaying terrain/conversion (4344.081375ms)
+✔ restart gets one fresh sequence; repeated flyby skip does not replay it (977.262506ms)
+✔ only carrier-created stones are obstacles, while legacy sites keep their reservations (136.317274ms)
+✔ opening wave, conversion and stone cues preload their existing original samples (15.553931ms)
+✔ permitted opening casts enter native state22 and resume command18 without a stuck controller (1340.74032ms)
+✔ fresh-load camera follows native cell-edge/center snapping and angle retention (2.938224ms)
+✔ the command18 completion turn owns exactly one native person visit (645.251333ms)
+✔ permitted state22 interruption and completion retain one counter increment per turn (1184.747984ms)
+✔ replacement player orders cancel startup before its counter write (342.700142ms)
+✔ only the linked neutral startup conversion flash follows its replacement Brave (238.517948ms)
+✔ a missing converted Brave does not retarget its flash or shorten the native expiry (227.392131ms)
+✔ an invalidated command18 is consumed by the ordinary queue without completing the site (121.936607ms)
+✔ public seated Tornado finishes casting and permits a second earned cast through Save/Load (1711.519685ms)
+✔ seated cast state owns retained area orders and moving Boat/Balloon seat visits (312.903899ms)
+✔ protected seated Shaman rejects public cast without stock or projectile changes (16.0224ms)
+✔ retired route-map Balloon occupants launch from actual seats through public panel and Save/Load (3087.229098ms)
+✔ Boat and Balloon seat sync retain route-map precedence and existing fallback ownership (170.842967ms)
+✔ success-bearing exit preserves existing public point API and real failure (181.087263ms)
+✔ live panel selection only changes native selection flags and preserves unrelated selections/orders/RNG (150.40699ms)
+✔ Boat and Balloon unload launch without teleporting, clear orders, and survive occupied/airborne checkpoints (257.446366ms)
+✔ unload click rechecks speed, occupancy and terrain after rendered enabled state (57.194869ms)
+✔ supplied passengers retain actual prepared Mission22 unload trajectories until settling (272.133068ms)
+✔ supplied dry neighborhood preserves living Boat and Balloon unload landings (235.018387ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14422.827005

@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "12e0d887-42e9-48ea-ba3c-bd5fdbeb460d",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "5c7867be5aa0ff847da805fa3006d82561d63882",
+    "branch": "fix/seated-casting-lifecycle",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/performance-queue.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-m16-casting",
+  "startedAt": "2026-10-14T13:02:55.935Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-m16-casting/work/orchestration/m16-casting/queue-isolated.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-m16-casting/work/orchestration/m16-casting/queue-isolated.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T13:03:20.652Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ browser supervisor verifies cleanup after a missing checker dependency (562.738606ms)\n✔ browser supervisor does not start the checker while the server port refuses connections (1206.790684ms)\n✔ browser supervisor verifies cleanup after a checker exception (426.471882ms)\n✔ browser supervisor classifies server spawn failure and verifies empty cleanup (7.526377ms)\n✔ browser supervisor stops the checker when the ready server exits (730.117934ms)\n✔ browser supervisor SIGTERM includes a detached checker descendant (1279.50548ms)\n✔ concurrent submitters and controllers preserve FIFO without overlap (1814.121722ms)\n✔ failed and timed-out jobs release before automatic next job (1711.601189ms)\n✔ cancel running and queued jobs without running queued command (1302.936918ms)\n✔ missing cleanup blocks handoff, recovery requires a fresh matching receipt (1187.297822ms)\n✔ live detached child prevents next test and is never killed by the queue (1519.695725ms)\n✔ controller crash retains lock; recovery refuses live owner or job (1493.187513ms)\n✔ foreign or missing execution scope cannot prove a controller stopped or authorize recovery (1017.263907ms)\n✔ legacy active jobs remain unknown even with no controller lock (653.440448ms)\n✔ paused submissions start no transient controller before recovery (955.778958ms)\n✔ source drift and busy ports block commands without touching existing server (858.538441ms)\n✔ all linked worktrees resolve the same queue; invalid specs never launch (495.258653ms)\n✔ submission preserves PATH under an ESM temp parent and returns one compact result (2704.705547ms)\n✔ concurrent identical retries share one unfinished job; completed work can run again (2652.600225ms)\n✔ run exposes a recovery ID before caller interruption; retry keeps the running job (1637.083875ms)\nℹ tests 20\nℹ suites 0\nℹ pass 20\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 24447.19523\n",
+  "stderr": "",
+  "stdoutSha256": "44c8e2279f69d0a87577b9d739aadee06fc0abbd88d1dd51304041065ae90b7a",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "5c7867be5aa0ff847da805fa3006d82561d63882",
+    "branch": "fix/seated-casting-lifecycle",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

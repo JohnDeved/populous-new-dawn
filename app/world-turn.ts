@@ -1367,6 +1367,7 @@ function stepTurn(w: World) {
     }
     if (
       u.native &&
+      u.native.state !== 22 &&
       [17, 31, 32].includes(currentPersonOrder(w.buildingOrders, u.native)?.model ?? 0)
     ) {
       stepLivePreaching(w, u)
@@ -1382,6 +1383,7 @@ function stepTurn(w: World) {
     }
     if (
       u.native &&
+      u.native.state !== 22 &&
       [11, 15, 19, 21].includes(currentPersonOrder(w.buildingOrders, u.native)?.model ?? 0)
     ) {
       stepLiveBuildingAttack(w, u)
@@ -1389,6 +1391,8 @@ function stepTurn(w: World) {
     }
     const castingState = u.native?.state === 22
     if (castingState) {
+      // Native person preparation precedes the cast-state timer, including aboard.
+      if (u.native!.vehicle) stepLivePhysics(w, u, u.native!)
       u.native!.timer = short(u.native!.timer - 1)
       if (u.native!.timer < 1)
         changeLivePersonState(w, u, defaultPersonState(u.native!, w.manaWorld.gameFlags))
