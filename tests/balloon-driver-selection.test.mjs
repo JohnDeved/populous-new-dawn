@@ -4,7 +4,7 @@ import { createWorld, addUnit, browserPosition, selectUnit, command } from '../a
 import { createLivePerson, registerLivePerson } from '../app/live-people.ts'
 import {
   boardLiveVehicle,
-  selectLiveBalloonDrivers,
+  selectLiveVehicleDrivers,
   beginLiveVehiclePass,
   stepLiveVehicle,
   stepLiveVehicles,
@@ -53,13 +53,13 @@ test('supplied Balloon selector promotes queued owner without changing phases or
   queue(w, b)
   const pool = structuredClone(w.buildingOrders),
     counters = [a.counter, b.counter]
-  selectLiveBalloonDrivers(w)
+  selectLiveVehicleDrivers(w)
   assert.deepEqual(v.passengers, [b.id, a.id])
   assert.ok(b.flags2 & 0x80000000)
   assert.deepEqual(w.buildingOrders, pool)
   assert.deepEqual([a.counter, b.counter], counters)
   for (const p of [a, b]) assert.equal(w.objectCells.objects.get(p.id), p)
-  selectLiveBalloonDrivers(w)
+  selectLiveVehicleDrivers(w)
   assert.deepEqual(v.passengers, [b.id, a.id])
 })
 
@@ -74,7 +74,7 @@ test('matching current22 yields to queued passenger; different target retains fi
     a.target = v.id + (matching ? 0 : 1)
     queue(w, b)
     b.motionGroup = 1
-    selectLiveBalloonDrivers(w)
+    selectLiveVehicleDrivers(w)
     assert.equal(v.passengers[0], matching ? b.id : a.id)
     assert.equal(b.flags2 & 0x80000000, 0)
   }
@@ -90,7 +90,7 @@ test('immediate-only commands are ignored, while Shaman38 qualifies without a qu
     b.immediateCommand = queue(w, b)
     b.commands.fill(0)
     b.state = casting ? 38 : 10
-    selectLiveBalloonDrivers(w)
+    selectLiveVehicleDrivers(w)
     assert.equal(v.passengers[0], casting ? b.id : a.id)
   }
 })
@@ -103,14 +103,14 @@ test('invalid first slot is removed and later owner fills it without queued-prom
   } = fixture()
   a.flags2 |= 1
   b.slowTurn = 2
-  selectLiveBalloonDrivers(w)
+  selectLiveVehicleDrivers(w)
   assert.deepEqual(v.passengers, [b.id, 0])
   assert.equal(v.passengerCount, 1)
   assert.ok(v.navigationFlags & 2)
   assert.equal(b.flags2 & 0x80000000, 0)
 })
 
-test('live adapter rejects stale registry aliases and leaves Boat selection unchanged', () => {
+test('live adapter rejects stale registry aliases and selects the Boat queued owner', () => {
   const {
     w,
     v,
@@ -118,15 +118,15 @@ test('live adapter rejects stale registry aliases and leaves Boat selection unch
   } = fixture()
   w.objectCells.objects.set(a.id, { ...a })
   queue(w, b)
-  selectLiveBalloonDrivers(w)
+  selectLiveVehicleDrivers(w)
   assert.equal(v.passengerCount, 1)
   assert.equal(v.passengers[0], b.id)
   assert.equal(w.units.find(u => u.id === a.id).native, a)
-  const boat = fixture(1),
-    before = structuredClone(boat.v)
+  const boat = fixture(1)
   queue(boat.w, boat.people[1])
-  selectLiveBalloonDrivers(boat.w)
-  assert.deepEqual(boat.v, before)
+  selectLiveVehicleDrivers(boat.w)
+  assert.deepEqual(boat.v.passengers, [boat.people[1].id, boat.people[0].id])
+  assert.equal(boat.v.passengerCount, 2)
 })
 
 test('voluntary per-person departure preserves seat position and exact pending ownership', () => {
@@ -270,9 +270,9 @@ test('unvisited airborne craft decelerates on cardinal headings without another 
   }
 })
 
-test('terminal stop projection retains initial, Boat and nonzero-desired-speed adapters', () => {
-  for (const mode of ['initial', 'boat', 'moving']) {
-    const { w, v, people } = fixture(mode === 'boat' ? 1 : 3)
+test('terminal stop projection retains initial and nonzero-desired-speed adapters', () => {
+  for (const mode of ['initial', 'moving']) {
+    const { w, v, people } = fixture()
     v.speed = mode === 'initial' ? -1 : 32
     people[0].speed = mode === 'moving' ? 12 : 0
     const before = [v.x, v.y, v.h, v.speed]
@@ -328,4 +328,60 @@ test('ownerless craft retain the existing moving-state adapter', () => {
   beginLiveVehiclePass(w)
   stepLiveVehicles(w)
   assert.deepEqual([v.x, v.y, v.speed], [20000, 20000, 32])
+})
+
+test('Boat stop uses open-water approach rather than airborne disembark or height', () => {
+  const { w, v, people } = fixture(1)
+  w.land.flags.fill(0)
+  w.land.categories.fill(1) // Native open-water category bit2.
+  w.land.heights.fill(0)
+  Object.assign(v, { x: 20224, y: 20224, h: 0, speed: 1 })
+  for (const p of people) p.speed = 0
+  beginLiveVehiclePass(w)
+  stepLiveVehicles(w)
+  assert.deepEqual([v.x, v.y, v.h, v.speed], [20224, 20224, 0, 0])
+  assert.deepEqual(
+    v.passengers,
+    people.map(p => p.id)
+  )
+})
+
+test('Boat zero-desired-speed coast decays while preserving its living driver', () => {
+  const { w, v, people } = fixture(1)
+  w.land.heights.fill(0)
+  Object.assign(v, { x: 20000, y: 20000, h: 0, heading: Math.PI / 2, speed: 32 })
+  for (const p of people) p.speed = 0
+  beginLiveVehiclePass(w)
+  stepLiveVehicles(w)
+  assert.deepEqual([v.x, v.y, v.h, v.speed], [20022, 20000, 0, 22])
+  assert.deepEqual(
+    v.passengers,
+    people.map(p => p.id)
+  )
+})
+
+for (const height of [-20, 73]) {
+  test(`Boat successful rest clamps below terrain and preserves above terrain (${height})`, () => {
+    const { w, v, people } = fixture(1)
+    w.land.flags.fill(0)
+    w.land.categories.fill(1)
+    w.land.heights.fill(0)
+    Object.assign(v, { x: 20224, y: 20224, h: height, speed: 1 })
+    for (const p of people) p.speed = 0
+    beginLiveVehiclePass(w)
+    stepLiveVehicles(w)
+    assert.deepEqual([v.h, v.speed], [Math.max(height, 0), 0])
+  })
+}
+
+test('Boat ongoing centering preserves height until actual rest transition', () => {
+  const { w, v, people } = fixture(1)
+  w.land.flags.fill(0)
+  w.land.categories.fill(1)
+  w.land.heights.fill(0)
+  Object.assign(v, { x: 20200, y: 20224, h: -20, speed: 1 })
+  for (const p of people) p.speed = 0
+  beginLiveVehiclePass(w)
+  stepLiveVehicles(w)
+  assert.deepEqual([v.x, v.y, v.h, v.speed], [20212, 20224, -20, 1])
 })

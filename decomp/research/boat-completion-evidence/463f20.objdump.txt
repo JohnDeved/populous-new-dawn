@@ -1,0 +1,231 @@
+
+populous-research-inputs/game/app/D3DPopTB.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+00463f20 <.text+0x62f20>:
+  463f20:	83 ec 04             	sub    esp,0x4
+  463f23:	53                   	push   ebx
+  463f24:	56                   	push   esi
+  463f25:	57                   	push   edi
+  463f26:	33 db                	xor    ebx,ebx
+  463f28:	8b 74 24 14          	mov    esi,DWORD PTR [esp+0x14]
+  463f2c:	55                   	push   ebp
+  463f2d:	89 5c 24 10          	mov    DWORD PTR [esp+0x10],ebx
+  463f31:	f6 46 0c 04          	test   BYTE PTR [esi+0xc],0x4
+  463f35:	74 0a                	je     0x463f41
+  463f37:	81 8e 92 00 00 00 00 	or     DWORD PTR [esi+0x92],0x8000
+  463f3e:	80 00 00 
+  463f41:	8b 86 92 00 00 00    	mov    eax,DWORD PTR [esi+0x92]
+  463f47:	f6 c4 80             	test   ah,0x80
+  463f4a:	74 3a                	je     0x463f86
+  463f4c:	25 ff 7f ff ff       	and    eax,0xffff7fff
+  463f51:	33 c9                	xor    ecx,ecx
+  463f53:	8a 4e 2b             	mov    cl,BYTE PTR [esi+0x2b]
+  463f56:	89 86 92 00 00 00    	mov    DWORD PTR [esi+0x92],eax
+  463f5c:	8b c1                	mov    eax,ecx
+  463f5e:	56                   	push   esi
+  463f5f:	8d 0c 49             	lea    ecx,[ecx+ecx*2]
+  463f62:	c1 e1 03             	shl    ecx,0x3
+  463f65:	2b c8                	sub    ecx,eax
+  463f67:	f6 81 4d 79 5a 00 01 	test   BYTE PTR [ecx+0x5a794d],0x1
+  463f6e:	75 07                	jne    0x463f77
+  463f70:	e8 3b 40 08 00       	call   0x4e7fb0
+  463f75:	eb 05                	jmp    0x463f7c
+  463f77:	e8 84 4f 08 00       	call   0x4e8f00
+  463f7c:	83 8e 92 00 00 00 02 	or     DWORD PTR [esi+0x92],0x2
+  463f83:	83 c4 04             	add    esp,0x4
+  463f86:	66 8b 86 9a 00 00 00 	mov    ax,WORD PTR [esi+0x9a]
+  463f8d:	66 85 c0             	test   ax,ax
+  463f90:	74 09                	je     0x463f9b
+  463f92:	66 48                	dec    ax
+  463f94:	66 89 86 9a 00 00 00 	mov    WORD PTR [esi+0x9a],ax
+  463f9b:	8a 86 9f 00 00 00    	mov    al,BYTE PTR [esi+0x9f]
+  463fa1:	84 c0                	test   al,al
+  463fa3:	74 0c                	je     0x463fb1
+  463fa5:	fe c8                	dec    al
+  463fa7:	88 86 9f 00 00 00    	mov    BYTE PTR [esi+0x9f],al
+  463fad:	75 02                	jne    0x463fb1
+  463faf:	b3 01                	mov    bl,0x1
+  463fb1:	56                   	push   esi
+  463fb2:	e8 a9 27 00 00       	call   0x466760
+  463fb7:	83 c4 04             	add    esp,0x4
+  463fba:	8b f8                	mov    edi,eax
+  463fbc:	85 ff                	test   edi,edi
+  463fbe:	74 13                	je     0x463fd3
+  463fc0:	0f bf 47 5f          	movsx  eax,WORD PTR [edi+0x5f]
+  463fc4:	89 44 24 10          	mov    DWORD PTR [esp+0x10],eax
+  463fc8:	84 db                	test   bl,bl
+  463fca:	74 07                	je     0x463fd3
+  463fcc:	81 4f 0c 00 00 00 80 	or     DWORD PTR [edi+0xc],0x80000000
+  463fd3:	33 db                	xor    ebx,ebx
+  463fd5:	39 5c 24 10          	cmp    DWORD PTR [esp+0x10],ebx
+  463fd9:	0f 85 4f 01 00 00    	jne    0x46412e
+  463fdf:	66 83 7e 5f 01       	cmp    WORD PTR [esi+0x5f],0x1
+  463fe4:	0f 8f 44 01 00 00    	jg     0x46412e
+  463fea:	66 89 5e 43          	mov    WORD PTR [esi+0x43],bx
+  463fee:	8d 4e 3d             	lea    ecx,[esi+0x3d]
+  463ff1:	66 8b 01             	mov    ax,WORD PTR [ecx]
+  463ff4:	33 d2                	xor    edx,edx
+  463ff6:	66 8b d0             	mov    dx,ax
+  463ff9:	66 89 5e 47          	mov    WORD PTR [esi+0x47],bx
+  463ffd:	81 e2 00 fe 00 00    	and    edx,0xfe00
+  464003:	0f b7 c0             	movzx  eax,ax
+  464006:	66 89 5e 45          	mov    WORD PTR [esi+0x45],bx
+  46400a:	2b d0                	sub    edx,eax
+  46400c:	81 fa 00 ff ff ff    	cmp    edx,0xffffff00
+  464012:	0f 85 b8 00 00 00    	jne    0x4640d0
+  464018:	66 8b 46 3f          	mov    ax,WORD PTR [esi+0x3f]
+  46401c:	33 d2                	xor    edx,edx
+  46401e:	66 8b d0             	mov    dx,ax
+  464021:	0f b7 c0             	movzx  eax,ax
+  464024:	81 e2 00 fe 00 00    	and    edx,0xfe00
+  46402a:	2b d0                	sub    edx,eax
+  46402c:	81 fa 00 ff ff ff    	cmp    edx,0xffffff00
+  464032:	0f 85 98 00 00 00    	jne    0x4640d0
+  464038:	33 d2                	xor    edx,edx
+  46403a:	8a 56 2b             	mov    dl,BYTE PTR [esi+0x2b]
+  46403d:	8b c2                	mov    eax,edx
+  46403f:	8d 14 52             	lea    edx,[edx+edx*2]
+  464042:	c1 e2 03             	shl    edx,0x3
+  464045:	2b d0                	sub    edx,eax
+  464047:	f6 82 4d 79 5a 00 01 	test   BYTE PTR [edx+0x5a794d],0x1
+  46404e:	75 0e                	jne    0x46405e
+  464050:	51                   	push   ecx
+  464051:	56                   	push   esi
+  464052:	e8 79 10 00 00       	call   0x4650d0
+  464057:	83 c4 08             	add    esp,0x8
+  46405a:	8a d8                	mov    bl,al
+  46405c:	eb 72                	jmp    0x4640d0
+  46405e:	32 db                	xor    bl,bl
+  464060:	51                   	push   ecx
+  464061:	e8 ea 0b fa ff       	call   0x404c50
+  464066:	83 c4 04             	add    esp,0x4
+  464069:	33 c9                	xor    ecx,ecx
+  46406b:	66 8b c8             	mov    cx,ax
+  46406e:	33 d2                	xor    edx,edx
+  464070:	66 8b d0             	mov    dx,ax
+  464073:	81 e1 fe 00 00 00    	and    ecx,0xfe
+  464079:	03 c9                	add    ecx,ecx
+  46407b:	81 e2 00 fe 00 00    	and    edx,0xfe00
+  464081:	0b ca                	or     ecx,edx
+  464083:	8d 3c 8d e4 03 8a 00 	lea    edi,[ecx*4+0x8a03e4]
+  46408a:	8b 0f                	mov    ecx,DWORD PTR [edi]
+  46408c:	f7 c1 04 02 00 00    	test   ecx,0x204
+  464092:	75 3c                	jne    0x4640d0
+  464094:	56                   	push   esi
+  464095:	50                   	push   eax
+  464096:	e8 75 14 00 00       	call   0x465510
+  46409b:	83 c4 08             	add    esp,0x8
+  46409e:	84 c0                	test   al,al
+  4640a0:	74 2e                	je     0x4640d0
+  4640a2:	85 f6                	test   esi,esi
+  4640a4:	74 08                	je     0x4640ae
+  4640a6:	38 9e 9e 00 00 00    	cmp    BYTE PTR [esi+0x9e],bl
+  4640ac:	75 1b                	jne    0x4640c9
+  4640ae:	8a 4f 0c             	mov    cl,BYTE PTR [edi+0xc]
+  4640b1:	33 c0                	xor    eax,eax
+  4640b3:	80 e1 0f             	and    cl,0xf
+  4640b6:	8a c1                	mov    al,cl
+  4640b8:	8b c8                	mov    ecx,eax
+  4640ba:	c1 e0 03             	shl    eax,0x3
+  4640bd:	2b c1                	sub    eax,ecx
+  4640bf:	f6 04 45 28 a3 5a 00 	test   BYTE PTR [eax*2+0x5aa328],0x3d
+  4640c6:	3d 
+  4640c7:	74 07                	je     0x4640d0
+  4640c9:	f6 07 02             	test   BYTE PTR [edi],0x2
+  4640cc:	75 02                	jne    0x4640d0
+  4640ce:	b3 01                	mov    bl,0x1
+  4640d0:	84 db                	test   bl,bl
+  4640d2:	74 4a                	je     0x46411e
+  4640d4:	66 c7 46 5f 00 00    	mov    WORD PTR [esi+0x5f],0x0
+  4640da:	56                   	push   esi
+  4640db:	6a 4f                	push   0x4f
+  4640dd:	e8 8e 66 02 00       	call   0x48a770
+  4640e2:	83 c4 08             	add    esp,0x8
+  4640e5:	33 c9                	xor    ecx,ecx
+  4640e7:	8a 4e 2b             	mov    cl,BYTE PTR [esi+0x2b]
+  4640ea:	8b c1                	mov    eax,ecx
+  4640ec:	8d 0c 49             	lea    ecx,[ecx+ecx*2]
+  4640ef:	c1 e1 03             	shl    ecx,0x3
+  4640f2:	2b c8                	sub    ecx,eax
+  4640f4:	f6 46 0e 10          	test   BYTE PTR [esi+0xe],0x10
+  4640f8:	8a 99 42 79 5a 00    	mov    bl,BYTE PTR [ecx+0x5a7942]
+  4640fe:	0f 85 b6 00 00 00    	jne    0x4641ba
+  464104:	56                   	push   esi
+  464105:	e8 e6 95 08 00       	call   0x4ed6f0
+  46410a:	83 c4 04             	add    esp,0x4
+  46410d:	88 5e 2c             	mov    BYTE PTR [esi+0x2c],bl
+  464110:	56                   	push   esi
+  464111:	e8 2a 95 08 00       	call   0x4ed640
+  464116:	83 c4 04             	add    esp,0x4
+  464119:	e9 9c 00 00 00       	jmp    0x4641ba
+  46411e:	6a 0c                	push   0xc
+  464120:	56                   	push   esi
+  464121:	e8 9a 2e 00 00       	call   0x466fc0
+  464126:	83 c4 08             	add    esp,0x8
+  464129:	e9 8c 00 00 00       	jmp    0x4641ba
+  46412e:	83 7c 24 10 00       	cmp    DWORD PTR [esp+0x10],0x0
+  464133:	75 5a                	jne    0x46418f
+  464135:	33 c9                	xor    ecx,ecx
+  464137:	8a 4e 2b             	mov    cl,BYTE PTR [esi+0x2b]
+  46413a:	8b c1                	mov    eax,ecx
+  46413c:	8d 0c 49             	lea    ecx,[ecx+ecx*2]
+  46413f:	c1 e1 03             	shl    ecx,0x3
+  464142:	2b c8                	sub    ecx,eax
+  464144:	80 be 9e 00 00 00 00 	cmp    BYTE PTR [esi+0x9e],0x0
+  46414b:	0f be a9 40 79 5a 00 	movsx  ebp,BYTE PTR [ecx+0x5a7940]
+  464152:	74 3b                	je     0x46418f
+  464154:	85 ed                	test   ebp,ebp
+  464156:	7e 37                	jle    0x46418f
+  464158:	8d 5e 7a             	lea    ebx,[esi+0x7a]
+  46415b:	66 8b 03             	mov    ax,WORD PTR [ebx]
+  46415e:	33 c9                	xor    ecx,ecx
+  464160:	66 3b c1             	cmp    ax,cx
+  464163:	74 17                	je     0x46417c
+  464165:	0f b7 c0             	movzx  eax,ax
+  464168:	8b 04 85 90 03 89 00 	mov    eax,DWORD PTR [eax*4+0x890390]
+  46416f:	f6 40 0c 01          	test   BYTE PTR [eax+0xc],0x1
+  464173:	75 07                	jne    0x46417c
+  464175:	38 48 2a             	cmp    BYTE PTR [eax+0x2a],cl
+  464178:	74 02                	je     0x46417c
+  46417a:	8b c8                	mov    ecx,eax
+  46417c:	85 c9                	test   ecx,ecx
+  46417e:	74 09                	je     0x464189
+  464180:	51                   	push   ecx
+  464181:	e8 1a fd 06 00       	call   0x4d3ea0
+  464186:	83 c4 04             	add    esp,0x4
+  464189:	83 c3 02             	add    ebx,0x2
+  46418c:	4d                   	dec    ebp
+  46418d:	75 cc                	jne    0x46415b
+  46418f:	8b 44 24 10          	mov    eax,DWORD PTR [esp+0x10]
+  464193:	50                   	push   eax
+  464194:	57                   	push   edi
+  464195:	56                   	push   esi
+  464196:	e8 85 28 00 00       	call   0x466a20
+  46419b:	83 c4 0c             	add    esp,0xc
+  46419e:	56                   	push   esi
+  46419f:	e8 0c 3e 08 00       	call   0x4e7fb0
+  4641a4:	83 c4 04             	add    esp,0x4
+  4641a7:	f6 46 10 10          	test   BYTE PTR [esi+0x10],0x10
+  4641ab:	75 0d                	jne    0x4641ba
+  4641ad:	6a 40                	push   0x40
+  4641af:	6a 4f                	push   0x4f
+  4641b1:	56                   	push   esi
+  4641b2:	e8 99 5e 02 00       	call   0x48a050
+  4641b7:	83 c4 0c             	add    esp,0xc
+  4641ba:	56                   	push   esi
+  4641bb:	e8 e0 1c 00 00       	call   0x465ea0
+  4641c0:	83 c4 04             	add    esp,0x4
+  4641c3:	5d                   	pop    ebp
+  4641c4:	5f                   	pop    edi
+  4641c5:	5e                   	pop    esi
+  4641c6:	5b                   	pop    ebx
+  4641c7:	83 c4 04             	add    esp,0x4
+  4641ca:	c3                   	ret
+  4641cb:	cc                   	int3
+  4641cc:	cc                   	int3
+  4641cd:	cc                   	int3
+  4641ce:	cc                   	int3
+  4641cf:	cc                   	int3

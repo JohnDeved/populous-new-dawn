@@ -7,7 +7,6 @@ import {
   nativePosition,
   addUnit,
   population,
-  supportsFollower,
   sound,
   type World,
   type Unit,
@@ -88,14 +87,12 @@ import { spyDisguisedFrom } from './computer-spells.ts'
 import { teamForTribe, tribeForTeam } from './world-types.ts'
 import {
   boardLiveVehicle,
-  leaveLiveVehicle,
-  liveVehicleCellObjects,
   liveVehicles,
   stepLiveVehicle,
   vehicleExitTarget,
   vehicleExit,
 } from './live-vehicles.ts'
-import { vehicleCanDisembark, vehicleReady } from './vehicle-routing.ts'
+import { vehicleReady } from './vehicle-routing.ts'
 import { restingCellCollision } from './person-collision.ts'
 import { clearFollowingBoardingOrders } from './vehicle-boarding-orders.ts'
 import { withinVehicleTransferRange } from './vehicle-transfer.ts'
@@ -916,76 +913,15 @@ export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects
       },
       destination: point => replanLivePath(w, u, p, point),
     })
-  const airborne = !!(
-    p.vehicle && rules.vehicleRestFlags[liveVehicles(w).get(p.vehicle)?.model ?? 0] & 1
-  )
   const driver = p.vehicle ? stepLiveVehicle(w, p) : false
   if (!p.vehicle) stepLivePhysics(w, u, p)
   if (!p.vehicle || driver) stepLiveRoute(w, u)
-  else if (!boarding && (!airborne || currentPersonOrder(w.buildingOrders, p)?.model !== 3)) return
+  else if (!boarding && currentPersonOrder(w.buildingOrders, p)?.model !== 3) return
   if (p.state !== 10 || (p.guardInputPending && p.flags2 & 16)) return
   const next = stepLiveOrderQueue(w, u, p, {
-    3: order => {
-      // 0x4336c0 owns every airborne command3, including plain tails.
-      // 0x432590 subsequently applies the per-person departure flags.
-      if (!p.vehicle || airborne)
-        return Number(
-          stepMovementOrder(p, order, w.land.categories, id => liveVehicles(w).get(id)!)
-        )
-      if (p.motionGroup) return 0
-      const vehicle = liveVehicles(w).get(p.vehicle),
-        // The route may coast-correct p.goal; command 3 retains the clicked land target.
-        to = { x: order.a, y: order.b },
-        vehicleWorld = {
-          flags: w.land.flags,
-          categories: w.land.categories,
-          cellObjects: (cell: number) => liveVehicleCellObjects(w, cell),
-        }
-      if (
-        vehicle &&
-        rules.vehicleRestFlags[vehicle.model] & 1 &&
-        Math.hypot(short(to.x - vehicle.x), short(to.y - vehicle.y)) >
-          rules.personSpeeds[vehicle.physics]
-      )
-        return 0
-      if (vehicle && vehicleCanDisembark(vehicleWorld, vehicle, to)) {
-        // ponytail: bounded shore scan; replace with native 004659d0 outward velocity when ported.
-        const airborne = !!(rules.vehicleRestFlags[vehicle.model] & 1),
-          radius = airborne ? 1024 : 512,
-          candidates = []
-        for (let y = -radius; y <= radius; y += 32)
-          for (let x = -radius; x <= radius; x += 32)
-            candidates.push({ x: short(to.x + x), y: short(to.y + y) })
-        candidates.sort(
-          (a, b) =>
-            (airborne
-              ? Math.abs(Math.hypot(short(a.x - to.x), short(a.y - to.y)) - 1024)
-              : Math.hypot(short(a.x - to.x), short(a.y - to.y))) -
-            (airborne
-              ? Math.abs(Math.hypot(short(b.x - to.x), short(b.y - to.y)) - 1024)
-              : Math.hypot(short(b.x - to.x), short(b.y - to.y)))
-        )
-        const exits: { x: number; y: number }[] = []
-        for (const candidate of candidates) {
-          if (
-            !supportsFollower(w, browserPosition(candidate)) ||
-            exits.some(
-              exit => Math.hypot(short(exit.x - candidate.x), short(exit.y - candidate.y)) < 96
-            )
-          )
-            continue
-          exits.push(candidate)
-          if (exits.length === vehicle.passengers.length) break
-        }
-        for (const [index, id] of [...vehicle.passengers].entries()) {
-          const passenger =
-            w.pathfinding.people.get(id) ?? w.units.find(unit => unit.id === id)?.native
-          if (passenger) leaveLiveVehicle(w, vehicle, passenger, exits[index] ?? to)
-        }
-        return 1
-      }
-      return 0
-    },
+    // 0x4336c0 arrival and 0x432590 per-person departure apply to both craft models.
+    3: order =>
+      Number(stepMovementOrder(p, order, w.land.categories, id => liveVehicles(w).get(id)!)),
     22: order => {
       const vehicle = w.vehicles.find(v => v.id === order.a && v.active)
       const complete = () => {
@@ -1121,7 +1057,6 @@ export function stepLiveOrderQueue(
       leaveVehicle: () => {
         const vehicle = w.vehicles.find(v => v.id === p.vehicle && v.active)
         if (!vehicle) return false
-        if (!(rules.vehicleRestFlags[vehicle.model] & 1)) return unsupported()
         const exit = vehicleExit(w, vehicle)
         if (!exit.found) return false
         if (!departVehiclePerson(w, vehicle, p, exit.point)) return false

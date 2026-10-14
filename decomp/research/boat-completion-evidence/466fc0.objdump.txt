@@ -1,0 +1,128 @@
+
+populous-research-inputs/game/app/D3DPopTB.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+00466fc0 <.text+0x65fc0>:
+  466fc0:	83 ec 0c             	sub    esp,0xc
+  466fc3:	33 c9                	xor    ecx,ecx
+  466fc5:	53                   	push   ebx
+  466fc6:	56                   	push   esi
+  466fc7:	57                   	push   edi
+  466fc8:	32 db                	xor    bl,bl
+  466fca:	8b 74 24 1c          	mov    esi,DWORD PTR [esp+0x1c]
+  466fce:	55                   	push   ebp
+  466fcf:	8a 4e 2b             	mov    cl,BYTE PTR [esi+0x2b]
+  466fd2:	8d 7e 3d             	lea    edi,[esi+0x3d]
+  466fd5:	8b c1                	mov    eax,ecx
+  466fd7:	8d 0c 49             	lea    ecx,[ecx+ecx*2]
+  466fda:	c1 e1 03             	shl    ecx,0x3
+  466fdd:	2b c8                	sub    ecx,eax
+  466fdf:	8d 44 24 10          	lea    eax,[esp+0x10]
+  466fe3:	50                   	push   eax
+  466fe4:	57                   	push   edi
+  466fe5:	f6 81 4d 79 5a 00 01 	test   BYTE PTR [ecx+0x5a794d],0x1
+  466fec:	56                   	push   esi
+  466fed:	75 07                	jne    0x466ff6
+  466fef:	e8 ec dc ff ff       	call   0x464ce0
+  466ff4:	eb 05                	jmp    0x466ffb
+  466ff6:	e8 b5 e1 ff ff       	call   0x4651b0
+  466ffb:	66 8b 44 24 1c       	mov    ax,WORD PTR [esp+0x1c]
+  467000:	83 c4 0c             	add    esp,0xc
+  467003:	66 25 00 fe          	and    ax,0xfe00
+  467007:	66 05 00 01          	add    ax,0x100
+  46700b:	66 8b 2f             	mov    bp,WORD PTR [edi]
+  46700e:	66 89 44 24 10       	mov    WORD PTR [esp+0x10],ax
+  467013:	66 8b 44 24 12       	mov    ax,WORD PTR [esp+0x12]
+  467018:	66 25 00 fe          	and    ax,0xfe00
+  46701c:	66 05 00 01          	add    ax,0x100
+  467020:	66 89 44 24 12       	mov    WORD PTR [esp+0x12],ax
+  467025:	66 3b 6c 24 10       	cmp    bp,WORD PTR [esp+0x10]
+  46702a:	75 0a                	jne    0x467036
+  46702c:	66 39 46 3f          	cmp    WORD PTR [esi+0x3f],ax
+  467030:	0f 84 ee 00 00 00    	je     0x467124
+  467036:	81 8e 92 00 00 00 00 	or     DWORD PTR [esi+0x92],0x8000
+  46703d:	80 00 00 
+  467040:	0f bf 44 24 10       	movsx  eax,WORD PTR [esp+0x10]
+  467045:	0f bf d5             	movsx  edx,bp
+  467048:	b3 01                	mov    bl,0x1
+  46704a:	8b 4c 24 24          	mov    ecx,DWORD PTR [esp+0x24]
+  46704e:	2b c2                	sub    eax,edx
+  467050:	99                   	cdq
+  467051:	33 c2                	xor    eax,edx
+  467053:	2b c2                	sub    eax,edx
+  467055:	8d 51 01             	lea    edx,[ecx+0x1]
+  467058:	3b c2                	cmp    eax,edx
+  46705a:	7d 2d                	jge    0x467089
+  46705c:	0f bf 44 24 12       	movsx  eax,WORD PTR [esp+0x12]
+  467061:	0f bf 56 3f          	movsx  edx,WORD PTR [esi+0x3f]
+  467065:	2b c2                	sub    eax,edx
+  467067:	99                   	cdq
+  467068:	33 c2                	xor    eax,edx
+  46706a:	2b c2                	sub    eax,edx
+  46706c:	8d 51 01             	lea    edx,[ecx+0x1]
+  46706f:	3b c2                	cmp    eax,edx
+  467071:	7d 16                	jge    0x467089
+  467073:	66 8b 44 24 10       	mov    ax,WORD PTR [esp+0x10]
+  467078:	66 8b 4c 24 12       	mov    cx,WORD PTR [esp+0x12]
+  46707d:	66 89 44 24 14       	mov    WORD PTR [esp+0x14],ax
+  467082:	66 89 4c 24 16       	mov    WORD PTR [esp+0x16],cx
+  467087:	eb 76                	jmp    0x4670ff
+  467089:	8d 54 24 14          	lea    edx,[esp+0x14]
+  46708d:	8b 07                	mov    eax,DWORD PTR [edi]
+  46708f:	66 8b 7f 04          	mov    di,WORD PTR [edi+0x4]
+  467093:	89 02                	mov    DWORD PTR [edx],eax
+  467095:	66 8b 44 24 10       	mov    ax,WORD PTR [esp+0x10]
+  46709a:	66 2b c5             	sub    ax,bp
+  46709d:	66 89 7a 04          	mov    WORD PTR [edx+0x4],di
+  4670a1:	0f b7 f8             	movzx  edi,ax
+  4670a4:	66 8b 44 24 12       	mov    ax,WORD PTR [esp+0x12]
+  4670a9:	8b d7                	mov    edx,edi
+  4670ab:	66 2b 46 3f          	sub    ax,WORD PTR [esi+0x3f]
+  4670af:	85 ff                	test   edi,edi
+  4670b1:	0f b7 c0             	movzx  eax,ax
+  4670b4:	7d 04                	jge    0x4670ba
+  4670b6:	8b d7                	mov    edx,edi
+  4670b8:	f7 da                	neg    edx
+  4670ba:	8b e8                	mov    ebp,eax
+  4670bc:	85 c0                	test   eax,eax
+  4670be:	7d 04                	jge    0x4670c4
+  4670c0:	8b e8                	mov    ebp,eax
+  4670c2:	f7 dd                	neg    ebp
+  4670c4:	81 fa 00 80 00 00    	cmp    edx,0x8000
+  4670ca:	7c 06                	jl     0x4670d2
+  4670cc:	8d ba 00 00 ff ff    	lea    edi,[edx-0x10000]
+  4670d2:	81 fd 00 80 00 00    	cmp    ebp,0x8000
+  4670d8:	7c 06                	jl     0x4670e0
+  4670da:	8d 85 00 00 ff ff    	lea    eax,[ebp-0x10000]
+  4670e0:	f7 d8                	neg    eax
+  4670e2:	51                   	push   ecx
+  4670e3:	50                   	push   eax
+  4670e4:	57                   	push   edi
+  4670e5:	e8 8a ef 11 00       	call   0x586074
+  4670ea:	66 25 ff 07          	and    ax,0x7ff
+  4670ee:	8d 4c 24 20          	lea    ecx,[esp+0x20]
+  4670f2:	83 c4 08             	add    esp,0x8
+  4670f5:	50                   	push   eax
+  4670f6:	51                   	push   ecx
+  4670f7:	e8 74 f9 07 00       	call   0x4e6a70
+  4670fc:	83 c4 0c             	add    esp,0xc
+  4670ff:	66 8b 46 41          	mov    ax,WORD PTR [esi+0x41]
+  467103:	8d 4c 24 14          	lea    ecx,[esp+0x14]
+  467107:	81 66 14 ff fe ff ff 	and    DWORD PTR [esi+0x14],0xfffffeff
+  46710e:	66 89 44 24 18       	mov    WORD PTR [esp+0x18],ax
+  467113:	51                   	push   ecx
+  467114:	56                   	push   esi
+  467115:	e8 66 74 08 00       	call   0x4ee580
+  46711a:	81 4e 14 00 01 00 00 	or     DWORD PTR [esi+0x14],0x100
+  467121:	83 c4 08             	add    esp,0x8
+  467124:	8a c3                	mov    al,bl
+  467126:	5d                   	pop    ebp
+  467127:	5f                   	pop    edi
+  467128:	5e                   	pop    esi
+  467129:	5b                   	pop    ebx
+  46712a:	83 c4 0c             	add    esp,0xc
+  46712d:	c3                   	ret
+  46712e:	cc                   	int3
+  46712f:	cc                   	int3
