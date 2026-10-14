@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "e94cc84a-de33-4bdd-a3c6-cac72fc859d5",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "ede773bf7e848ba57fb9a1903001a582d6d97b37",
+    "branch": "fix/firewarrior-celebration",
+    "trackedDiffSha256": "e1996219866a06cd463775eb69c9e31905708328aad6d1b34b51e5b35d0d7c97",
+    "inputs": {}
+  },
+  "command": [
+    "node_modules/.bin/eslint",
+    "app/firewarrior-point.ts",
+    "app/firewarrior.ts",
+    "app/live-people.ts",
+    "app/world-types.ts",
+    "tests/firewarrior-celebration.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-m17-route-cells",
+  "startedAt": "2026-10-14T16:23:22.750Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-m17-route-cells/work/orchestration/m17-celebration/factored-style.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-m17-route-cells/work/orchestration/m17-celebration/factored-style.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T16:23:25.123Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "ede773bf7e848ba57fb9a1903001a582d6d97b37",
+    "branch": "fix/firewarrior-celebration",
+    "trackedDiffSha256": "e1996219866a06cd463775eb69c9e31905708328aad6d1b34b51e5b35d0d7c97",
+    "inputs": {}
+  }
+}

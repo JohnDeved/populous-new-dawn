@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "94869e4f-d678-4237-a67f-ab0605232c1b",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "3de90382ebfaccad0628b5be0198a1a082763b58",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/m17-restart-route/final-accept.mjs": "152395b80121344a78dd34ac10e36d6df3651b3cff123eaa1a3f2369d725554e",
+      "work/m17-restart-route/clock-driver.mjs": "c184f2d1278166731a0df6079cb01721b2b6f6fb0f68c5811490b2297e9e8d64",
+      "work/m17-restart-route/convoy-native-consistency-combat.mjs": "7766bd81efa7a2945547d8c08c1fa4108805110a2d11bda645510efe2a8db112",
+      "work/m17-restart-route/all-cell-consistency.mjs": "1ed9a4d1e2c5faec22e6a21c0a862f6a8d9ee783003706b3bbc9c9c33a199f80",
+      "work/m17-restart-route/arena-resolved-terminal.v8": "aab90067763aa6966192bb333133b28682f3cb6d5b98120d5ca95cfe4eea5434",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "node",
+    "work/m17-restart-route/final-accept.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-m17-pose-audit",
+  "startedAt": "2026-10-14T15:39:32.187Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-m17-pose-audit/work/orchestration/m17-restart-route/final-accept.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-m17-pose-audit/work/orchestration/m17-restart-route/final-accept.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T15:39:34.311Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "",
+  "stderr": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\nundefined !== 2\n\n    at file:///workspace/scratch/69fd8163d94e/populous-m17-pose-audit/work/m17-restart-route/final-accept.mjs:6:98\n    at async withStorage (file:///workspace/scratch/69fd8163d94e/populous-m17-pose-audit/tests/support/profile-storage.mjs:115:5)\n    at async file:///workspace/scratch/69fd8163d94e/populous-m17-pose-audit/work/m17-restart-route/final-accept.mjs:5:1 {\n  generatedMessage: true,\n  code: 'ERR_ASSERTION',\n  actual: undefined,\n  expected: 2,\n  operator: 'strictEqual',\n  diff: 'simple'\n}\n\nNode.js v24.19.0\n",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "d5bb3ab179e8b1fad86ccc06f2d685537abdaf770757bb02caef767e0025f267",
+  "sourceAfter": {
+    "headOid": "3de90382ebfaccad0628b5be0198a1a082763b58",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/m17-restart-route/final-accept.mjs": "152395b80121344a78dd34ac10e36d6df3651b3cff123eaa1a3f2369d725554e",
+      "work/m17-restart-route/clock-driver.mjs": "c184f2d1278166731a0df6079cb01721b2b6f6fb0f68c5811490b2297e9e8d64",
+      "work/m17-restart-route/convoy-native-consistency-combat.mjs": "7766bd81efa7a2945547d8c08c1fa4108805110a2d11bda645510efe2a8db112",
+      "work/m17-restart-route/all-cell-consistency.mjs": "1ed9a4d1e2c5faec22e6a21c0a862f6a8d9ee783003706b3bbc9c9c33a199f80",
+      "work/m17-restart-route/arena-resolved-terminal.v8": "aab90067763aa6966192bb333133b28682f3cb6d5b98120d5ca95cfe4eea5434",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

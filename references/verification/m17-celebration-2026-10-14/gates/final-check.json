@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "ace2ae24-a199-49a8-9680-d703431cc2b2",
+  "status": "unknown",
+  "phase": "prepared",
+  "source": {
+    "headOid": "ede773bf7e848ba57fb9a1903001a582d6d97b37",
+    "branch": "fix/firewarrior-celebration",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "npm",
+    "run",
+    "check"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-m17-route-cells",
+  "startedAt": "2026-10-14T16:09:15.727Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-m17-route-cells/work/orchestration/m17-celebration/final-check.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-m17-route-cells/work/orchestration/m17-celebration/final-check.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": []
+}
