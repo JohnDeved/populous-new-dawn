@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "7ee88f89-1e27-4406-926a-cc657426e3a4",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "c900971788dfa014ef3aa99a9f3121a91e9ecbe9",
+    "branch": "fix/seated-native-position",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node_modules/.bin/eslint",
+    "app/live-vehicles.ts",
+    "tests/seated-native-position.test.mjs",
+    "tests/balloon-person-attack.test.mjs",
+    "tests/balloon-plain-person-attack.test.mjs",
+    "tests/balloon-staged-movement.test.mjs",
+    "tests/helpers/seated-attack-origin.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-m16-seat-sync",
+  "startedAt": "2026-10-14T11:54:04.664Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-m16-seat-sync/work/orchestration/m16-seat-sync/final-eslint.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-m16-seat-sync/work/orchestration/m16-seat-sync/final-eslint.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T11:54:08.146Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "c900971788dfa014ef3aa99a9f3121a91e9ecbe9",
+    "branch": "fix/seated-native-position",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

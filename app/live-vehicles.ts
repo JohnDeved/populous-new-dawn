@@ -144,9 +144,10 @@ export function leaveLiveVehicle(
 
 export function syncLiveVehiclePassengers(w: World, v: Vehicle) {
   for (const [slot, id] of v.passengers.entries()) {
-    const p = w.pathfinding.people.get(id)
+    const unit = w.units.find(u => u.id === id),
+      // Retiring a route removes its map entry, not the seated native owner.
+      p = w.pathfinding.people.get(id) ?? unit?.native
     if (p) seatVehiclePassenger(p, v, slot, point => relocateLivePerson(w, p, point))
-    const unit = w.units.find(u => u.id === id)
     if (unit) {
       Object.assign(unit, browserPosition(p ?? vehicleSeat(v, slot)))
       if (p) unit.heading = Math.PI - (p.angle * Math.PI) / 1024

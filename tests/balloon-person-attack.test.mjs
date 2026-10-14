@@ -1,3 +1,7 @@
+import {
+  seatedAttackOrigin,
+  boundedGroundAttackDeparture,
+} from './helpers/seated-attack-origin.mjs'
 import { settleRouteLaunch } from './helpers/route-launch-landing.mjs'
 // Campaign setup supplies spell-focus masks; actors, charges and travel evolve through actual ticks.
 import { supportsFollower } from '../app/model.ts'
@@ -133,10 +137,15 @@ test('supplied-focus current Mission22 queued person target moves its transport 
     const beforeVehicle = person.vehicle,
       beforeCounter = person.counter,
       beforeOpponent = shaman.fight?.opponent
+    const beforeSeat = { x: shaman.x, z: shaman.z }
+    // Historical inputs may carry stale metadata until their first ordinary visit.
+    if (beforeVehicle && i) seatedAttackOrigin(world, shaman, balloon)
     tick(world, 1 / 12)
     tick(restored, 1 / 12)
+    if (person.vehicle) seatedAttackOrigin(world, shaman, balloon)
     assert.deepEqual(comparable(restored), comparable(world))
     if (beforeVehicle && !person.vehicle) {
+      boundedGroundAttackDeparture(shaman, beforeSeat)
       departures++
       departure = world.turn
       assert.deepEqual([person.workTarget, person.substate], [target.id, 2])
@@ -155,19 +164,20 @@ test('supplied-focus current Mission22 queued person target moves its transport 
   }
   assert.equal(departures, 1)
   assert.equal(departure, 3852)
-  assert.equal(firstFight, 3862)
+  assert.equal(firstFight, 3857)
   assert.deepEqual(encounters, [
-    [3862, 10],
-    [3883, 12],
-    [3891, 11],
+    [3857, 17],
+    [3872, 10],
+    [3876, 12],
   ])
-  assert.equal(firstOpponent, 10)
+  assert.equal(firstOpponent, 17)
   assert.equal(firstOpponentTeam, 'green')
-  // The longer dry Boat route changes the counter phase and campaign RNG.
-  // This moving attack still first encounters Warrior 10, then Warriors 12 and 11;
+  // The corrected native seat origin first reaches selected Preacher17, then
+  // Warriors10 and12 intercept; the historical stale-origin chronology is retained
+  // in the M16 seat-sync evidence. The existing mode1 grounded attack adapter remains;
   // observed death retires command 28 while the selected Preacher 17 survives.
   // This is a browser outcome, not a native damage/landing parity claim.
-  assert.equal(death, 3891)
+  assert.equal(death, 3888)
   assert.equal(targetDeath, 0)
   assert.equal(shaman.hp, 0)
   assert.equal(world.units.includes(shaman), false)
