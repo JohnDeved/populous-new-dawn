@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "266139c6-965d-4db7-8cd5-9f37be78fc43",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "fbad11a7e0ccfd2956c035a9787c20fa7d8d594a",
+    "branch": "fix/balloon-hut-models",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/balloon-hut-models/coverage.mjs": "7e4bad22725f7562b7c9ce02ece53527e91b3449e096b902fa9449098be57b10",
+      "work/balloon-hut-models/test-file-hashes.json": "3773298044f39852865d7c20855772d2da7dbea2e4313d843f75f5652daf2817"
+    }
+  },
+  "command": [
+    "node",
+    "work/balloon-hut-models/coverage.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-balloon-hut-models",
+  "startedAt": "2026-10-14T13:45:39.412Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-balloon-hut-models/work/orchestration/balloon-hut-models/coverage.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-balloon-hut-models/work/orchestration/balloon-hut-models/coverage.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T13:45:39.533Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\n  head: 'fbad11a7e0ccfd2956c035a9787c20fa7d8d594a',\n  files: 405,\n  qualification: 'Original aggregate2616/2617 failed old whole-model-file pin; reviewed prior78-model preservation correction and full changed-file rerun pass. Combined qualification, never a green aggregate.'\n}\n",
+  "stderr": "",
+  "stdoutSha256": "00b8df92d53c5a021bb510e442709e29ccad52bfd3be7a73e3767ae300bd0937",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "fbad11a7e0ccfd2956c035a9787c20fa7d8d594a",
+    "branch": "fix/balloon-hut-models",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/balloon-hut-models/coverage.mjs": "7e4bad22725f7562b7c9ce02ece53527e91b3449e096b902fa9449098be57b10",
+      "work/balloon-hut-models/test-file-hashes.json": "3773298044f39852865d7c20855772d2da7dbea2e4313d843f75f5652daf2817"
+    }
+  }
+}
