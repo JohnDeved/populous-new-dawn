@@ -1,3 +1,4 @@
+import { settleRouteLaunch } from './helpers/route-launch-landing.mjs'
 // Campaign setup supplies spell-focus masks; actors, charges and travel evolve through actual ticks.
 import { vehicleReady } from '../app/vehicle-routing.ts'
 import { reachMission22FlightPoint } from './helpers/mission22-flight-phase.mjs'
@@ -59,6 +60,7 @@ test('supplied-focus current Mission22 staged transport waypoints advance and re
   assert.ok(supportsFollower(world, { x: -25, z: -61 }))
   assert.ok(command(world, { x: -25, z: -61 }))
   stepUntil(world, () => boat.passengerCount === 0, 2_000)
+  settleRouteLaunch(world, shaman, { x: -25, z: -61 })
   assert.ok(shaman.hp > 0 && supportsFollower(world, shaman))
   assert.equal(shaman.native.vehicle, 0)
 
@@ -77,6 +79,7 @@ test('supplied-focus current Mission22 staged transport waypoints advance and re
   assert.ok(supportsFollower(world, { x: -83, z: -59 }))
   assert.ok(command(world, { x: -83, z: -59 }))
   stepUntil(world, () => boat.passengerCount === 0, 2_000)
+  settleRouteLaunch(world, shaman, { x: -83, z: -59 })
   assert.ok(shaman.hp > 0 && supportsFollower(world, shaman))
   assert.equal(shaman.native.vehicle, 0)
   assert.ok(cast(world, 'bridge', { x: -83, z: -69 }))
@@ -94,8 +97,8 @@ test('supplied-focus current Mission22 staged transport waypoints advance and re
   selectUnit(world, shaman.id, false)
   assert.ok(command(world, { x: 55, z: 121 }))
   reachMission22FlightPoint(world, shaman, balloon, 18067, 31550)
-  // Dry native Boat departures preserve the naturally advanced passenger clock.
-  assert.deepEqual([world.turn, shaman.native.counter], [3518, 190])
+  // Physical Boat launches and settling advance the campaign and passenger clock.
+  assert.deepEqual([world.turn, shaman.native.counter], [3566, 238])
   const departureWorld = structuredClone(world),
     person = shaman.native,
     old = person.commands[person.commandCursor]
@@ -155,7 +158,7 @@ test('supplied-focus current Mission22 staged transport waypoints advance and re
     assert.deepEqual(balloon.passengers, [shaman.id])
     if (!first && !world.buildingOrders.records[ids[0]].references) {
       first = world.turn
-      assert.equal(person.counter, 252)
+      assert.equal(person.counter, 44)
       assert.equal(
         currentPersonOrder(world.buildingOrders, person),
         world.buildingOrders.records[ids[1]]
@@ -164,7 +167,7 @@ test('supplied-focus current Mission22 staged transport waypoints advance and re
     }
     if (!last && !world.buildingOrders.records[ids[1]].references) {
       last = world.turn
-      assert.equal(person.counter, 76)
+      assert.equal(person.counter, 124)
     }
     if (world.turn === stagedStart + 120) {
       finalTailTested = true
@@ -192,8 +195,8 @@ test('supplied-focus current Mission22 staged transport waypoints advance and re
   assert.equal(finalTailTested, true)
   // Each waypoint retires on its own four-visit clock phase. The second leg
   // starts at the first retirement's actual position, so this is not a time offset.
-  assert.equal(first, 3580)
-  assert.equal(last, 3660)
+  assert.equal(first, 3628)
+  assert.equal(last, 3708)
   assert.equal(person.state, 30)
   assert.equal(person.commands.filter(Boolean).length, 0)
   assert.equal(shaman.hp, 100.6)
@@ -219,12 +222,12 @@ test('supplied-focus current Mission22 staged transport waypoints advance and re
     i++
   )
     tick(idle, 1 / 12)
-  assert.equal(idle.turn, 3605)
+  assert.equal(idle.turn, 3653)
   assert.equal(currentPersonOrder(idle.buildingOrders, idlePerson), undefined)
   assert.deepEqual([idlePerson.state, idleCraft.speed], [30, 0])
   assert.ok(vehicleReady(idle.land, idleCraft))
   // The delayed native model3 retirement settles in this adjacent dry cell.
-  assert.deepEqual([idleCraft.x, idleCraft.y, idlePerson.counter], [16128, 32512, 252])
+  assert.deepEqual([idleCraft.x, idleCraft.y, idlePerson.counter], [16128, 32512, 44])
   const idleCounter = idlePerson.counter
   selectUnit(idle, idleUnit.id, false)
   assert.ok(command(idle, { ...idleTarget, id: idleTarget.id }, { ctrlKey: true }))
@@ -277,11 +280,11 @@ test('supplied-focus current Mission22 staged transport waypoints advance and re
   }
   assert.deepEqual(
     [idleDeparture, idleFirstFight, idleFirstOpponent, idleDeath],
-    [3833, 3834, 17, 3870]
+    [3881, 3882, 17, 3915]
   )
   // Existing browser continuation still removes the unit with positive retained
   // native life; the longer acquisition supplies its actual encounter/RNG history.
-  assert.equal(idlePerson.life, 317)
+  assert.equal(idlePerson.life, 1)
   assert.equal(idleUnit.hp, 0)
   assert.equal(idle.units.includes(idleUnit), false)
   assert.equal(idle.objectCells.objects.has(idleUnit.id), false)
@@ -399,10 +402,10 @@ test('supplied-focus current Mission22 staged transport waypoints advance and re
       waited = true
     if (craft.passengers[0] === brave.id) filled = true
     const expected = new Map([
-      [3577, [1, 2]],
-      [3580, [0, 2]],
-      [3635, [0, 1]],
-      [3830, [0, 0]],
+      [3625, [1, 2]],
+      [3628, [0, 2]],
+      [3683, [0, 1]],
+      [3878, [0, 0]],
     ]).get(successor.turn)
     if (expected) {
       successorAssertions++
@@ -413,10 +416,10 @@ test('supplied-focus current Mission22 staged transport waypoints advance and re
     }
     // +71 makes the passenger's model3 completion phase three visits earlier.
     // It must wait with model27 while the still-model3 driver retains the seat.
-    if (successor.turn === 3577) {
+    if (successor.turn === 3625) {
       assert.deepEqual(
         owners.map(p => p.counter),
-        [249, 64]
+        [41, 112]
       )
       assert.deepEqual(
         owners.map(p => currentPersonOrder(successor.buildingOrders, p)?.model),
@@ -424,12 +427,12 @@ test('supplied-focus current Mission22 staged transport waypoints advance and re
       )
       assert.deepEqual(craft.passengers, [firstUnit.id, brave.id])
     }
-    if (successor.turn === 3580)
+    if (successor.turn === 3628)
       assert.deepEqual(
         owners.map(p => p.counter),
-        [252, 67]
+        [44, 115]
       )
-    if (successor.turn === 3608) {
+    if (successor.turn === 3656) {
       successorAssertions++
       assert.equal(craft.passengers[0], brave.id)
       assert.deepEqual(
@@ -438,10 +441,10 @@ test('supplied-focus current Mission22 staged transport waypoints advance and re
       )
       assert.deepEqual(
         owners.map(p => p.counter),
-        [24, 95]
+        [72, 143]
       )
     }
-    if (successor.turn === 3609) {
+    if (successor.turn === 3657) {
       successorAssertions++
       assert.equal(craft.passengerCount, 0)
       assert.deepEqual(
@@ -450,7 +453,7 @@ test('supplied-focus current Mission22 staged transport waypoints advance and re
       )
       assert.deepEqual(
         owners.map(p => p.counter),
-        [25, 96]
+        [73, 144]
       )
     }
   }

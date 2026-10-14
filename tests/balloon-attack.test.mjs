@@ -1,3 +1,4 @@
+import { settleRouteLaunch } from './helpers/route-launch-landing.mjs'
 // Campaign setup supplies spell-focus masks; actors, charges and travel evolve through actual ticks.
 import { supportsFollower } from '../app/model.ts'
 import { reachMission22FlightPoint } from './helpers/mission22-flight-phase.mjs'
@@ -62,6 +63,7 @@ function prepareEarnedFlight() {
   assert.ok(supportsFollower(world, { x: -25, z: -61 }))
   assert.ok(command(world, { x: -25, z: -61 }))
   stepUntil(world, () => boat.passengerCount === 0, 2_000)
+  settleRouteLaunch(world, shaman, { x: -25, z: -61 })
   assert.ok(shaman.hp > 0 && supportsFollower(world, shaman))
   assert.equal(shaman.native.vehicle, 0)
 
@@ -80,6 +82,7 @@ function prepareEarnedFlight() {
   assert.ok(supportsFollower(world, { x: -83, z: -59 }))
   assert.ok(command(world, { x: -83, z: -59 }))
   stepUntil(world, () => boat.passengerCount === 0, 2_000)
+  settleRouteLaunch(world, shaman, { x: -83, z: -59 })
   assert.ok(shaman.hp > 0 && supportsFollower(world, shaman))
   assert.equal(shaman.native.vehicle, 0)
   assert.ok(cast(world, 'bridge', { x: -83, z: -69 }))
@@ -190,33 +193,35 @@ async function assertTowerContinuation({ store, world, shaman, balloon }, expect
   }
   assert.equal(timedAssertions, 4)
   assert.deepEqual([firstFight, firstOpponent], [expected.fight, expected.opponent])
-  assert.equal(target.hp, 0)
-  // The real route destroys the selected Tower and retires the attack, then
-  // observes a later Shaman casualty. Keep both outcomes and ownership cleanup;
-  // this is not a claim of native damage/death parity.
+  assert.equal(target.hp, expected.targetHp ?? 0)
+  // Preserve each actual browser outcome and its ownership cleanup. Historical
+  // acquisition destroys the Tower; fresh physical Boat travel now reaches a
+  // guard-interception phase that kills the Shaman before any Tower damage.
+  // Neither chronology is a claim of native damage/death parity.
   assert.equal(targetDeath, expected.targetDeath)
   assert.equal(retired, expected.retired)
   assert.equal(death, expected.death)
   assert.equal(shaman.hp, 0)
   assert.equal(world.units.includes(shaman), false)
   assert.equal(world.objectCells.objects.has(shaman.id), false)
-  assert.equal(world.buildings.includes(target), false)
+  assert.equal(world.buildings.includes(target), expected.targetDeath === 0)
   assert.equal(order.references, 0)
   assert.deepEqual(balloon.passengers, [])
 }
 
-// Current-source acquisition keeps its actual combat chronology. The historical
-// acquired-checkpoint case below separately retains the original Warrior11 witness.
-test('fresh supplied-focus Balloon tower attack encounters Warrior10, destroys Tower105 and later loses its Shaman through Save/Load', async () => {
+// Fresh physical Boat acquisition retains its actual failed direct-attack chronology.
+// The historical case below still requires Tower destruction and Warrior11 interception.
+test('fresh supplied-focus Balloon tower attack is intercepted before Tower damage and cleans up through Save/Load', async () => {
   await assertTowerContinuation(prepareEarnedFlight(), {
-    inputPhase: [3498, 170],
-    cancel: 3518,
-    departure: 3788,
-    fight: 3796,
+    inputPhase: [3546, 218],
+    cancel: 3566,
+    departure: 3836,
+    fight: 3844,
     opponent: 10,
-    targetDeath: 5615,
-    retired: 5616,
-    death: 5848,
+    targetHp: 260,
+    targetDeath: 0,
+    retired: 3870,
+    death: 3870,
   })
 })
 

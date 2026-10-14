@@ -59,3 +59,38 @@ This is a checkpoint-local lifecycle/trajectory proof. Earlier history, a new
 ordinary island route, full M10 victory, rendered graphics, and hardware FPS
 require separate evidence. No endgame checkpoint is repaired or treated as an
 authentic campaign result.
+
+## Physical landing expectations and campaign qualification
+
+The first frozen full-suite run (`4f295f22`) covered 401 test files and 2,605
+cases: 2,594 passed and 11 failed. Ten failures expected supported ground
+immediately when a Boat's passenger list became empty; one expected the old
+Mission5 landing turn922. Those assumptions omitted the native launch interval.
+The failures remain retained, rather than reported as a passing aggregate.
+
+The updated integration preparations explicitly observe the native flight alias,
+seat retirement, continuous motion, once-per-turn person clock, unchanged health,
+and real supported landing before their next input. Earned Mission5 now launches
+at922, lands at926 and reboards at927 through unchanged public Save/Load twins.
+The shared Mission22 preparation has four real physics ticks on each Boat launch;
+its later Balloon acquisition changes the campaign clock and RNG history. The
+standalone Boat voyage lands on its actual first shore at(-33.2890625,-57.13671875)
+at1951, rather than pretending that a short launch reached its distant final goal.
+
+Consequently, the fresh direct Tower105 attack now meets Warrior10 and loses its
+Shaman at3870 before damaging the Tower. The fresh regression explicitly requires
+that intact Tower, actual attack admission/departure/interception, cancellation
+controls and complete person/order cleanup. The unchanged hash-verified historical
+acquisition regression still requires Tower105 destruction and its later casualty.
+These are distinct browser outcome witnesses, not native combat damage/death parity.
+The original failure is preserved; no combat runtime, target health, guard population
+or terrain was changed to manufacture a win.
+
+A separate fresh public-start M10 replay on the runtime-identical `4f295f22`
+reaches genuine mainland with all five healthy at5796 and the second Totem at6527,
+with its ten Erosion effects and retired deadline. Every person/craft movement is
+checked per tick; settled boarding uses the existing adapter's separately bounded
+seat attachment. The last idle driver departs through another ordinary ground
+command and real flight. This supplies authentic transport and Totem integration;
+full mission victory, exact native boarding parity and rendered/FPS claims remain
+outside this result.

@@ -1,3 +1,4 @@
+import { settleRouteLaunch } from './helpers/route-launch-landing.mjs'
 // Campaign setup supplies spell-focus masks; actors, charges and travel evolve through actual ticks.
 import { supportsFollower } from '../app/model.ts'
 import { reachMission22FlightPoint } from './helpers/mission22-flight-phase.mjs'
@@ -49,6 +50,7 @@ test('supplied-focus same-vehicle boarding retains its acquired passenger throug
   assert.ok(supportsFollower(world, { x: -25, z: -61 }))
   assert.ok(command(world, { x: -25, z: -61 }))
   stepUntil(world, () => boat.passengerCount === 0, 2_000)
+  settleRouteLaunch(world, shaman, { x: -25, z: -61 })
   assert.ok(shaman.hp > 0 && supportsFollower(world, shaman))
   assert.equal(shaman.native.vehicle, 0)
 
@@ -67,6 +69,7 @@ test('supplied-focus same-vehicle boarding retains its acquired passenger throug
   assert.ok(supportsFollower(world, { x: -83, z: -59 }))
   assert.ok(command(world, { x: -83, z: -59 }))
   stepUntil(world, () => boat.passengerCount === 0, 2_000)
+  settleRouteLaunch(world, shaman, { x: -83, z: -59 })
   assert.ok(shaman.hp > 0 && supportsFollower(world, shaman))
   assert.equal(shaman.native.vehicle, 0)
   assert.ok(cast(world, 'bridge', { x: -83, z: -69 }))

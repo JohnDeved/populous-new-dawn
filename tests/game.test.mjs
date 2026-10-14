@@ -2461,11 +2461,20 @@ test('supplied Mission 5 reward and relocated Boat support boarding, sailing and
   assert.equal(boat.speed, -1)
   assert.ok(vehicleReady(vehicleWorld(), boat))
   assert.ok(vehicleCanDisembark(vehicleWorld(), boat, boat))
-  assert.ok(followers.every(u => supportsFollower(w, u)))
+  assert.ok(followers.every(u => u.flight === u.native && u.lift === 1))
+  for (let count = 0; count < 64 && followers.some(u => u.flight); count++) {
+    const before = followers.map(u => ({ x: u.x, z: u.z, counter: u.native.counter }))
+    tick(w, 1 / 12)
+    for (const [index, u] of followers.entries()) {
+      assert.equal(u.native.counter, (before[index].counter + 1) & 255)
+      assert.ok(Math.hypot(u.x - before[index].x, u.z - before[index].z) < 2)
+    }
+  }
+  assert.ok(followers.every(u => !u.flight && supportsFollower(w, u)))
   until(
     w,
-    () => followers.every(u => !u.flight && !currentPersonOrder(w.buildingOrders, u.native)),
-    3
+    () => followers.every(u => !currentPersonOrder(w.buildingOrders, u.native)),
+    64
   )
   assert.equal(landing.references, 0)
   for (const [i, u] of followers.entries()) {
