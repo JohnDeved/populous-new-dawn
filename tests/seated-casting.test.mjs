@@ -1,4 +1,5 @@
 import test from 'node:test'
+import rules from '../app/original-rules.json' with { type: 'json' }
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { gunzipSync } from 'node:zlib'
@@ -149,6 +150,10 @@ test('seated cast state owns retained area orders and moving Boat/Balloon seat v
       w.buildings.find(b => b.id === 281)
     )
     assert.equal(p.state, 22)
+    const [object, draw] =
+      rules.animationObjects[rules.personAnimationObjects[(p.cargo ? 4 : 0) * 9 + p.model]]
+    assert.equal(p.object, object)
+    assert.equal(p.draw, draw)
     assert.equal(currentPersonOrder(w.buildingOrders, p), order)
     p.flags4 |= 0x100000
     p.reactionTimer = 30
