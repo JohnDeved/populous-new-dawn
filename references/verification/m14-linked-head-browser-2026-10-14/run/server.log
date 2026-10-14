@@ -1,0 +1,17 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+6:31:04 AM [vite] (rsc) Re-optimizing dependencies because vite config has changed
+6:31:04 AM [vite] (ssr) Re-optimizing dependencies because vite config has changed
+6:31:06 AM [vite] (rsc) [optimizer] scanning dependencies...
+6:31:06 AM [vite] (ssr) [optimizer] scanning dependencies...
+6:31:23 AM [vite] (client) Re-optimizing dependencies because vite config has changed
+
+  VITE v8.0.13  ready in 22830 ms
+
+  ➜  Local:   http://127.0.0.1:4395/
+ GET / 200 in 615ms (compile: 1791973860.8s, render: 88ms)
+ GET / 200 in 230ms (compile: 1791973860.4s, render: 113ms)
+6:32:00 AM [vite] (client) [console.warn] THREE.WebGLRenderer: Texture marked for update but no image data found.
+6:32:01 AM [vite] (client) [console.warn] THREE.WebGLRenderer: Texture marked for update but no image data found.
+  ➜  Tunnel closed
