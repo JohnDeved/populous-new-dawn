@@ -2471,11 +2471,7 @@ test('supplied Mission 5 reward and relocated Boat support boarding, sailing and
     }
   }
   assert.ok(followers.every(u => !u.flight && supportsFollower(w, u)))
-  until(
-    w,
-    () => followers.every(u => !currentPersonOrder(w.buildingOrders, u.native)),
-    64
-  )
+  until(w, () => followers.every(u => !currentPersonOrder(w.buildingOrders, u.native)), 64)
   assert.equal(landing.references, 0)
   for (const [i, u] of followers.entries()) {
     assert.ok(w.units.includes(u))
