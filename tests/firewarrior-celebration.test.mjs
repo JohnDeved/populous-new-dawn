@@ -6,7 +6,9 @@ import { deserialize, serialize } from 'node:v8'
 import { createHash } from 'node:crypto'
 import { createWorld, addUnit, addBuilding } from '../app/model.ts'
 import { createLivePerson } from '../app/live-people.ts'
-import { launchFirewarriorPoint, stepFirewarriorShots } from '../app/firewarrior.ts'
+import { stepFirewarriorShots } from '../app/firewarrior.ts'
+import { launchFirewarriorPoint } from '../app/firewarrior-point.ts'
+import { effect, sound } from '../app/world-effects.ts'
 import { browserPosition, nativeStep3D } from '../app/world-coordinates.ts'
 import { terrainPointHeight } from '../app/native-terrain.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
@@ -30,7 +32,7 @@ test('explicit celebration pair preserves native point height, support offset, a
       random = w.randomState
     w.effects = []
     w.sounds = []
-    launchFirewarriorPoint(w, u, p, target)
+    launchFirewarriorPoint(w, u, p, target, { effect, sound })
     const shots = w.effects.filter(e => e.firewarriorShot)
     assert.equal(shots.length, 2)
     assert.equal(new Set(shots.map(e => e.id)).size, 2)
@@ -134,7 +136,7 @@ test('explicit wrapped point shots live beyond the ordinary sixteen-visit timeou
   p.x = 65000
   Object.assign(u, browserPosition(p))
   const target = { x: (p.x + 12000) & 65535, y: p.y, h: p.h + 3072 }
-  launchFirewarriorPoint(w, u, p, target)
+  launchFirewarriorPoint(w, u, p, target, { effect, sound })
   const pair = w.effects.filter(e => e.firewarriorShot),
     ids = pair.map(e => e.id)
   for (let i = 0; i < 17; i++) stepFirewarriorShots(w)
