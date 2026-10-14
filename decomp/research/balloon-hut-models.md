@@ -30,7 +30,7 @@ were read only; no original executable/installer was executed or emulated.
 ## Live consumers and qualification
 
 The building renderer already selects exact buildingObject where present. Before
-this import it used fallback model13; after import it uses each authentic owner
+this import it used fallback native mesh83 (BoatHouse building model13); after import it uses each authentic owner
 mesh. Debris iterates real faces, preserving the existing sequential allocation,
 RNG and first-motion semantics rather than silently skipping missing geometry.
 
