@@ -25,7 +25,7 @@ export default async function ({ page, openMission, output, receipt, observeChec
         counts: { units: w.units.length, vehicles: w.vehicles.length, buildings: w.buildings.length, secondary: w.secondaryEffects.slots.length },
         paused: w.paused, inputMask: w.inputMask, selected: [...w.selected], status: w.status,
         boat: boat && { id: boat.id, x: boat.x, y: boat.y, active: boat.active, passengers: [...boat.passengers] },
-        party: party.map(id => { const u = w.units.find(u => u.id === id); return u && { id, kind: u.kind, hp: u.hp, x: u.x, z: u.z, vehicle: u.native?.vehicle, state: u.native?.state } }),
+        party: party.map(id => { const u = w.units.find(u => u.id === id); return u && { id, kind: u.kind, hp: u.hp, x: u.x, z: u.z, vehicle: u.native?.vehicle, state: u.native?.state, flags2: u.native?.flags2, flags4: u.native?.flags4 } }),
         panels: [...document.querySelectorAll('.vehicle-panel')].map(e => ({ text: e.textContent, visible: !!e.getClientRects().length })) }
     }, { label, party, boatId })
     report.observations.push(row); save(); return row
@@ -111,7 +111,7 @@ export default async function ({ page, openMission, output, receipt, observeChec
     await unload.waitFor({ state: 'visible', timeout: 10000 })
     assert.equal(await unload.isEnabled(), true)
     await unload.click()
-    await page.waitForFunction(({ party, boatId }) => { const w=window.testSceneRef.current.world, v=w.vehicles.find(v=>v.id===boatId); return !v.passengers.length && party.every(id=>{const u=w.units.find(u=>u.id===id);return u&&u.hp>0&&!u.native?.vehicle}) }, { party, boatId }, { timeout: 60000 })
+    await page.waitForFunction(({ party, boatId }) => { const w=window.testSceneRef.current.world, v=w.vehicles.find(v=>v.id===boatId); return !v.passengers.some(Boolean) && party.every(id=>{const u=w.units.find(u=>u.id===id);return u&&u.hp>0&&u.native&&!u.native.vehicle&&!(u.native.flags2&0x80000)&&!(u.native.flags4&0x400)}) }, { party, boatId }, { timeout: 60000 })
     report.landed = await state('unloaded-alive'); await capture('unloaded-alive')
     report.loaded = loaded; report.saved = saved
     const stored = await observeCheckpoint('After genuine Load and unload')
