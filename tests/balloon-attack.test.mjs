@@ -1,4 +1,7 @@
+// Campaign setup supplies spell-focus masks; actors, charges and travel evolve through actual ticks.
+import { supportsFollower } from '../app/model.ts'
 import { reachMission22FlightPoint } from './helpers/mission22-flight-phase.mjs'
+import { loadHistoricalMission22Balloon } from './helpers/historical-mission22-balloon.mjs'
 // Ordinary transport handoff, Tower destruction and later casualty/cleanup.
 import test from 'node:test'
 import { createGameStore } from '../app/game-store.ts'
@@ -36,7 +39,7 @@ const stepUntil = (w, done, limit) => {
     stepUntil(w, () => Math.hypot(s.x - p.x, s.z - p.z) < 2, 1000)
   }
 // Preparation supplies only the existing mana-focus mask adapter.
-test('ordinary airborne tower command reaches departure and authored melee through Save/Load', async () => {
+function prepareEarnedFlight() {
   const store = createGameStore()
   store.startMission(22)
   let world = store.getWorld(),
@@ -55,8 +58,12 @@ test('ordinary airborne tower command reaches departure and authored melee throu
   selectUnit(world, shaman.id, false)
   assert.ok(command(world, { ...browserPosition(boat), id: boat.id }))
   stepUntil(world, () => boat.passengerCount === 1, 500)
-  assert.ok(command(world, { x: -25, z: -63 }))
+  // A dry destination requests the native route-ground departure.
+  assert.ok(supportsFollower(world, { x: -25, z: -61 }))
+  assert.ok(command(world, { x: -25, z: -61 }))
   stepUntil(world, () => boat.passengerCount === 0, 2_000)
+  assert.ok(shaman.hp > 0 && supportsFollower(world, shaman))
+  assert.equal(shaman.native.vehicle, 0)
 
   world.charging = true
   world.manaWorld.spells[0].disabled = 0xffffffff & ~(1 << 4) & ~(1 << 11)
@@ -69,8 +76,12 @@ test('ordinary airborne tower command reaches departure and authored melee throu
   selectUnit(world, shaman.id, false)
   assert.ok(command(world, { ...browserPosition(boat), id: boat.id }))
   stepUntil(world, () => boat.passengerCount === 1, 500)
-  assert.ok(command(world, { x: -83, z: -57 }))
+  // A dry destination requests the native route-ground departure.
+  assert.ok(supportsFollower(world, { x: -83, z: -59 }))
+  assert.ok(command(world, { x: -83, z: -59 }))
   stepUntil(world, () => boat.passengerCount === 0, 2_000)
+  assert.ok(shaman.hp > 0 && supportsFollower(world, shaman))
+  assert.equal(shaman.native.vehicle, 0)
   assert.ok(cast(world, 'bridge', { x: -83, z: -69 }))
   stepUntil(world, () => !shaman.casting, 100)
   for (let turn = 0; turn < 160; turn++) tick(world, 1 / 12)
@@ -83,9 +94,14 @@ test('ordinary airborne tower command reaches departure and authored melee throu
     ['blue', [shaman.id], balloon.id]
   )
 
+  return { store, world, shaman, balloon }
+}
+
+async function assertTowerContinuation({ store, world, shaman, balloon }, expected) {
   selectUnit(world, shaman.id, false)
   assert.ok(command(world, { x: 55, z: 121 }))
   reachMission22FlightPoint(world, shaman, balloon, 18607, 31225)
+  assert.deepEqual([world.turn, shaman.native.counter], expected.inputPhase)
   const target = world.buildings.find(b => b.id === 105)
   assert.equal(target.team, 'green')
   assert.equal(target.kind, 'tower')
@@ -109,12 +125,14 @@ test('ordinary airborne tower command reaches departure and authored melee throu
   let death = 0,
     targetDeath = 0,
     retired = 0,
-    timedAssertions = 0
+    timedAssertions = 0,
+    firstFight = 0,
+    firstOpponent = 0
   while (world.turn < 6429) {
     tick(world, 1 / 12)
     tick(restored, 1 / 12)
     assert.deepEqual(comparable(restored), comparable(world))
-    if (world.turn === 3253) {
+    if (world.turn === expected.cancel) {
       timedAssertions++
       const cancelled = structuredClone(world),
         unit = cancelled.units.find(u => u.id === shaman.id),
@@ -143,11 +161,18 @@ test('ordinary airborne tower command reaches departure and authored melee throu
       assert.deepEqual([transport.x, transport.y], [16128, 32512])
       assert.equal(vehicleReady(cancelled.land, transport), true)
     }
+    if (shaman.fight && !firstFight) {
+      firstFight = world.turn
+      firstOpponent = shaman.fight.opponent
+    }
     if (shaman.hp <= 0 && !death) death = world.turn
     if (target.hp <= 0 && !targetDeath) targetDeath = world.turn
     if (!order.references && !retired) retired = world.turn
-    if (world.turn === 3519) { timedAssertions++; assert.equal(shaman.native.vehicle, balloon.id) }
-    if (world.turn === 3520) {
+    if (world.turn === expected.departure - 1) {
+      timedAssertions++
+      assert.equal(shaman.native.vehicle, balloon.id)
+    }
+    if (world.turn === expected.departure) {
       timedAssertions++
       assert.deepEqual(
         [shaman.native.substate, shaman.native.workTarget, shaman.native.vehicle],
@@ -156,30 +181,61 @@ test('ordinary airborne tower command reaches departure and authored melee throu
       assert.deepEqual(balloon.passengers, [])
       assert.equal(balloon.passengerCount, 0)
     }
-    if (world.turn === 3526) {
+    if (world.turn === expected.fight) {
       timedAssertions++
-      assert.equal(shaman.fight.opponent, 11)
-      assert.equal(world.units.find(u => u.id === 11).kind, 'warrior')
+      assert.equal(shaman.fight.opponent, expected.opponent)
+      assert.equal(world.units.find(u => u.id === expected.opponent).kind, 'warrior')
       assert.equal(shaman.fight.motion.vehicle, 0)
     }
   }
   assert.equal(timedAssertions, 4)
+  assert.deepEqual([firstFight, firstOpponent], [expected.fight, expected.opponent])
   assert.equal(target.hp, 0)
   // The real route destroys the selected Tower and retires the attack, then
   // observes a later Shaman casualty. Keep both outcomes and ownership cleanup;
   // this is not a claim of native damage/death parity.
-  assert.equal(targetDeath, 5337)
-  assert.equal(retired, 5338)
-  assert.equal(death, 5563)
+  assert.equal(targetDeath, expected.targetDeath)
+  assert.equal(retired, expected.retired)
+  assert.equal(death, expected.death)
   assert.equal(shaman.hp, 0)
   assert.equal(world.units.includes(shaman), false)
   assert.equal(world.objectCells.objects.has(shaman.id), false)
   assert.equal(world.buildings.includes(target), false)
   assert.equal(order.references, 0)
   assert.deepEqual(balloon.passengers, [])
+}
+
+// Current-source acquisition keeps its actual combat chronology. The historical
+// acquired-checkpoint case below separately retains the original Warrior11 witness.
+test('fresh supplied-focus Balloon tower attack encounters Warrior10, destroys Tower105 and later loses its Shaman through Save/Load', async () => {
+  await assertTowerContinuation(prepareEarnedFlight(), {
+    inputPhase: [3498, 170],
+    cancel: 3518,
+    departure: 3788,
+    fight: 3796,
+    opponent: 10,
+    targetDeath: 5615,
+    retired: 5616,
+    death: 5848,
+  })
 })
 
-// Supplied leaf boundaries supplement, not replace, the campaign witness.
+// This hash-verified c44dadfc campaign checkpoint uses supplied spell-focus setup.
+// It preserves the original combat witness independently of current acquisition.
+test('historical c44 supplied-focus Balloon checkpoint retains Warrior11, Tower105 destruction and later Shaman casualty through Save/Load', async () => {
+  await assertTowerContinuation(await loadHistoricalMission22Balloon(), {
+    inputPhase: [3233, 161],
+    cancel: 3253,
+    departure: 3520,
+    fight: 3526,
+    opponent: 11,
+    targetDeath: 5337,
+    retired: 5338,
+    death: 5563,
+  })
+})
+
+// Supplied leaf boundaries supplement, not replace, both campaign witnesses.
 for (const blocked of [false, true])
   test(`forced attack departure with blocked=${blocked}`, () => {
     const world = createWorld(22),

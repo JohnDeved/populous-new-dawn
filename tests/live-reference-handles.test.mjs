@@ -151,7 +151,7 @@ test('legacy Angel migration and worship producer retain the allocated high shri
 test('high Balloon driver target equality does not alias at a word boundary', async () => {
   const { browserPosition } = await import('../app/model.ts')
   const { createLivePerson, registerLivePerson } = await import('../app/live-people.ts')
-  const { boardLiveVehicle, selectLiveBalloonDrivers } = await import('../app/live-vehicles.ts')
+  const { boardLiveVehicle, selectLiveVehicleDrivers } = await import('../app/live-vehicles.ts')
   const { allocatePersonOrder, attachPersonOrder } = await import('../app/person-orders.ts')
   for (const targetOffset of [0, 65536]) {
     const w = createWorld(22),
@@ -178,7 +178,7 @@ test('high Balloon driver target equality does not alias at a word boundary', as
       p.target = v.id + targetOffset
       people.push(p)
     }
-    selectLiveBalloonDrivers(w)
+    selectLiveVehicleDrivers(w)
     assert.equal(v.passengers[0], people[targetOffset ? 0 : 1].id)
   }
 })

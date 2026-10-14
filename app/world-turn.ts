@@ -1209,7 +1209,7 @@ function stepTurn(w: World) {
           release(w, worker)
           worker.native = createLivePerson(w, worker)
           w.pathfinding.people.set(worker.id, worker.native)
-          if (balloon) registerLivePerson(w, worker.native)
+          registerLivePerson(w, worker.native)
           boardLiveVehicle(w, worker.native, vehicle)
           if (w.manaTribes[tribeForTeam(b.team)].playerType === 1)
             for (const occupant of inhabitants.slice(1)) {

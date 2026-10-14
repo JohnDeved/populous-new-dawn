@@ -18,6 +18,7 @@ import {
   boardingVehicle,
   findVehicleLanding,
   vehicleCanDisembark,
+  vehicleCanApproach,
   vehicleReady,
 } from './vehicle-routing.ts'
 import { moveObjectInCells } from './object-cells.ts'
@@ -252,16 +253,16 @@ function destroyLiveVehicle(w: World, v: Vehicle) {
 // and the existing movement adapter remain separate composition boundaries.
 const vehicleMovementPass = new WeakMap<World, Set<number>>()
 
-// A browser world pass owns one airborne craft decision, independently of how
+// A browser world pass owns one supported craft decision, independently of how
 // many people become driver during its visits. Checkpoints occur between passes.
 export function beginLiveVehiclePass(w: World) {
   vehicleMovementPass.set(w, new Set())
-  selectLiveBalloonDrivers(w)
+  selectLiveVehicleDrivers(w)
 }
 
-export function selectLiveBalloonDrivers(w: World) {
+export function selectLiveVehicleDrivers(w: World) {
   for (const v of w.vehicles) {
-    if (!v.active || !(rules.vehicleRestFlags[v.model] & 1) || !v.passengerCount) continue
+    if (!v.active || ![1, 3].includes(v.model) || !v.passengerCount) continue
     const capacity = (rules.vehicleCapacity[v.model] << 24) >> 24
     const person = (id: number) => {
       const p = w.objectCells.objects.get(id) as LivePerson | undefined
@@ -303,18 +304,12 @@ export function selectLiveBalloonDrivers(w: World) {
   }
 }
 
-// Bounded 0x4641d0 zero-desired-speed tail. Positive speed projects the
-// browser's moving state; untouched initial/resting speed -1 is not native state4.
+// Bounded 0x463f20 Boat / 0x4641d0 Balloon zero-desired-speed tails.
+// Positive speed projects the browser moving state; initial speed -1 is not a move state.
 // Active movement still owns its retained fixed-vector/height/wait adapter.
-function stopUnvisitedBalloon(w: World, v: Vehicle) {
+function stopUnvisitedVehicle(w: World, v: Vehicle) {
   const visited = vehicleMovementPass.get(w)
-  if (
-    !visited ||
-    visited.has(v.id) ||
-    !(rules.vehicleRestFlags[v.model] & 1) ||
-    short(v.speed) <= 0
-  )
-    return
+  if (!visited || visited.has(v.id) || ![1, 3].includes(v.model) || short(v.speed) <= 0) return
   const candidate = w.units.find(u => u.id === v.passengers[0])?.native,
     driver =
       candidate?.class === 1 &&
@@ -328,6 +323,8 @@ function stopUnvisitedBalloon(w: World, v: Vehicle) {
       categories: w.land.categories,
       cellObjects: (cell: number) => liveVehicleCellObjects(w, cell),
     }
+  const airborne = !!(rules.vehicleRestFlags[v.model] & 1)
+  // The fixed-heading coast remains a browser projection, not 0x4e7fb0 Boat steering.
   // Ownerless moving/rest-state transitions remain in the existing adapter.
   if (!driver || short(driver.speed)) return
   visited.add(v.id)
@@ -339,18 +336,23 @@ function stopUnvisitedBalloon(w: World, v: Vehicle) {
       const angle = (1024 - Math.round((v.heading * 1024) / Math.PI)) & 2047
       movePosition(v, angle, v.speed)
     }
-    v.h = terrainPointHeight(w.land, v) + 560
+    v.h = terrainPointHeight(w.land, v) + (airborne ? 560 : 0)
     return
   }
   const index = ((v.y & 65535) >> 9) * 128 + ((v.x & 65535) >> 9)
   if (
     (v.x & 511) === 256 &&
     (v.y & 511) === 256 &&
-    vehicleCanDisembark(land, v, v) &&
-    (v.passengerCount || rules.terrainCategoryFlags[w.land.categories[index] & 15] & 61)
+    (airborne
+      ? vehicleCanDisembark(land, v, v) &&
+        (v.passengerCount || rules.terrainCategoryFlags[w.land.categories[index] & 15] & 61)
+      : vehicleCanApproach(land, v, v))
   ) {
     v.speed = 0
-    v.h = terrainPointHeight(w.land, v) + 560
+    // 0x463370 state1 -> 0x463750 raises Boats to terrain, preserving higher h.
+    v.h = airborne
+      ? terrainPointHeight(w.land, v) + 560
+      : Math.max(short(v.h), terrainPointHeight(w.land, v))
     v.navigationFlags &= ~0x10000
     return
   }
@@ -387,7 +389,7 @@ export function stepLiveVehicles(w: World) {
       if (v.h > 1023) v.destructionState = 0
       continue
     }
-    if (v.active) stopUnvisitedBalloon(w, v)
+    if (v.active) stopUnvisitedVehicle(w, v)
     // 0x463cb0 deliberately leaves exact zero untouched and restores occupied positive life.
     if (!v.active || !v.life) continue
     v.life = short(v.life - 1)
@@ -407,7 +409,7 @@ export function stepLiveVehicle(w: World, p: LivePerson) {
     syncLiveVehiclePassengers(w, v)
     return false
   }
-  if (rules.vehicleRestFlags[v.model] & 1) {
+  if ([1, 3].includes(v.model)) {
     const moved = vehicleMovementPass.get(w)
     if (moved?.has(v.id)) {
       syncLiveVehiclePassengers(w, v)

@@ -1,3 +1,4 @@
+// Campaign setup supplies spell-focus masks; actors, charges and travel evolve through actual ticks.
 import { vehicleReady } from '../app/vehicle-routing.ts'
 import { reachMission22FlightPoint } from './helpers/mission22-flight-phase.mjs'
 // Staged transport waypoint completion preserves the shared queue and seated owner.
@@ -35,7 +36,7 @@ const stepUntil = (w, done, limit) => {
     stepUntil(w, () => Math.hypot(s.x - p.x, s.z - p.z) < 2, 1000)
   }
 // Preparation supplies only the existing mana-focus mask adapter.
-test('ordinary staged transport waypoints advance and retain the seated owner through Save/Load', async () => {
+test('supplied-focus current Mission22 staged transport waypoints advance and retain the seated owner through Save/Load', async () => {
   const store = createGameStore()
   store.startMission(22)
   let world = store.getWorld(),
@@ -54,8 +55,12 @@ test('ordinary staged transport waypoints advance and retain the seated owner th
   selectUnit(world, shaman.id, false)
   assert.ok(command(world, { ...browserPosition(boat), id: boat.id }))
   stepUntil(world, () => boat.passengerCount === 1, 500)
-  assert.ok(command(world, { x: -25, z: -63 }))
+  // A dry destination requests the native route-ground departure.
+  assert.ok(supportsFollower(world, { x: -25, z: -61 }))
+  assert.ok(command(world, { x: -25, z: -61 }))
   stepUntil(world, () => boat.passengerCount === 0, 2_000)
+  assert.ok(shaman.hp > 0 && supportsFollower(world, shaman))
+  assert.equal(shaman.native.vehicle, 0)
 
   world.charging = true
   world.manaWorld.spells[0].disabled = 0xffffffff & ~(1 << 4) & ~(1 << 11)
@@ -68,8 +73,12 @@ test('ordinary staged transport waypoints advance and retain the seated owner th
   selectUnit(world, shaman.id, false)
   assert.ok(command(world, { ...browserPosition(boat), id: boat.id }))
   stepUntil(world, () => boat.passengerCount === 1, 500)
-  assert.ok(command(world, { x: -83, z: -57 }))
+  // A dry destination requests the native route-ground departure.
+  assert.ok(supportsFollower(world, { x: -83, z: -59 }))
+  assert.ok(command(world, { x: -83, z: -59 }))
   stepUntil(world, () => boat.passengerCount === 0, 2_000)
+  assert.ok(shaman.hp > 0 && supportsFollower(world, shaman))
+  assert.equal(shaman.native.vehicle, 0)
   assert.ok(cast(world, 'bridge', { x: -83, z: -69 }))
   stepUntil(world, () => !shaman.casting, 100)
   for (let turn = 0; turn < 160; turn++) tick(world, 1 / 12)
@@ -85,6 +94,8 @@ test('ordinary staged transport waypoints advance and retain the seated owner th
   selectUnit(world, shaman.id, false)
   assert.ok(command(world, { x: 55, z: 121 }))
   reachMission22FlightPoint(world, shaman, balloon, 18067, 31550)
+  // Dry native Boat departures preserve the naturally advanced passenger clock.
+  assert.deepEqual([world.turn, shaman.native.counter], [3518, 190])
   const departureWorld = structuredClone(world),
     person = shaman.native,
     old = person.commands[person.commandCursor]
@@ -144,13 +155,17 @@ test('ordinary staged transport waypoints advance and retain the seated owner th
     assert.deepEqual(balloon.passengers, [shaman.id])
     if (!first && !world.buildingOrders.records[ids[0]].references) {
       first = world.turn
+      assert.equal(person.counter, 252)
       assert.equal(
         currentPersonOrder(world.buildingOrders, person),
         world.buildingOrders.records[ids[1]]
       )
       assert.equal(world.buildingOrders.records[ids[1]].references, 1)
     }
-    if (!last && !world.buildingOrders.records[ids[1]].references) last = world.turn
+    if (!last && !world.buildingOrders.records[ids[1]].references) {
+      last = world.turn
+      assert.equal(person.counter, 76)
+    }
     if (world.turn === stagedStart + 120) {
       finalTailTested = true
       assert.equal(world.buildingOrders.records[ids[0]].references, 0)
@@ -175,8 +190,10 @@ test('ordinary staged transport waypoints advance and retain the seated owner th
     }
   }
   assert.equal(finalTailTested, true)
-  assert.equal(first, 3312)
-  assert.equal(last, 3388)
+  // Each waypoint retires on its own four-visit clock phase. The second leg
+  // starts at the first retirement's actual position, so this is not a time offset.
+  assert.equal(first, 3580)
+  assert.equal(last, 3660)
   assert.equal(person.state, 30)
   assert.equal(person.commands.filter(Boolean).length, 0)
   assert.equal(shaman.hp, 100.6)
@@ -202,10 +219,12 @@ test('ordinary staged transport waypoints advance and retain the seated owner th
     i++
   )
     tick(idle, 1 / 12)
-  assert.equal(idle.turn, 3338)
+  assert.equal(idle.turn, 3605)
   assert.equal(currentPersonOrder(idle.buildingOrders, idlePerson), undefined)
   assert.deepEqual([idlePerson.state, idleCraft.speed], [30, 0])
   assert.ok(vehicleReady(idle.land, idleCraft))
+  // The delayed native model3 retirement settles in this adjacent dry cell.
+  assert.deepEqual([idleCraft.x, idleCraft.y, idlePerson.counter], [16128, 32512, 252])
   const idleCounter = idlePerson.counter
   selectUnit(idle, idleUnit.id, false)
   assert.ok(command(idle, { ...idleTarget, id: idleTarget.id }, { ctrlKey: true }))
@@ -239,7 +258,7 @@ test('ordinary staged transport waypoints advance and retain the seated owner th
     assert.deepEqual(comparable(idleReplay), comparable(idle))
     if (i === 0) {
       assert.equal(idlePerson.counter, (idleCounter + 1) & 255)
-      assert.equal(idleCraft.x, 16608)
+      assert.equal(idleCraft.x, 16096)
     }
     if (beforeVehicle && !idlePerson.vehicle) {
       idleDeparture = idle.turn
@@ -258,10 +277,11 @@ test('ordinary staged transport waypoints advance and retain the seated owner th
   }
   assert.deepEqual(
     [idleDeparture, idleFirstFight, idleFirstOpponent, idleDeath],
-    [3582, 3583, 17, 3615]
+    [3833, 3834, 17, 3870]
   )
-  // Existing browser continuation removes the unit with positive retained native life.
-  assert.equal(idlePerson.life, 277)
+  // Existing browser continuation still removes the unit with positive retained
+  // native life; the longer acquisition supplies its actual encounter/RNG history.
+  assert.equal(idlePerson.life, 317)
   assert.equal(idleUnit.hp, 0)
   assert.equal(idle.units.includes(idleUnit), false)
   assert.equal(idle.objectCells.objects.has(idleUnit.id), false)
@@ -379,10 +399,10 @@ test('ordinary staged transport waypoints advance and retain the seated owner th
       waited = true
     if (craft.passengers[0] === brave.id) filled = true
     const expected = new Map([
-      [3312, [1, 2]],
-      [3313, [0, 2]],
-      [3367, [0, 1]],
-      [3562, [0, 0]],
+      [3577, [1, 2]],
+      [3580, [0, 2]],
+      [3635, [0, 1]],
+      [3830, [0, 0]],
     ]).get(successor.turn)
     if (expected) {
       successorAssertions++
@@ -391,8 +411,48 @@ test('ordinary staged transport waypoints advance and retain the seated owner th
         expected
       )
     }
-    if (successor.turn === 3340) { successorAssertions++; assert.equal(craft.passengers[0], brave.id) }
-    if (successor.turn === 3341) { successorAssertions++; assert.equal(craft.passengerCount, 0) }
+    // +71 makes the passenger's model3 completion phase three visits earlier.
+    // It must wait with model27 while the still-model3 driver retains the seat.
+    if (successor.turn === 3577) {
+      assert.deepEqual(
+        owners.map(p => p.counter),
+        [249, 64]
+      )
+      assert.deepEqual(
+        owners.map(p => currentPersonOrder(successor.buildingOrders, p)?.model),
+        [3, 27]
+      )
+      assert.deepEqual(craft.passengers, [firstUnit.id, brave.id])
+    }
+    if (successor.turn === 3580)
+      assert.deepEqual(
+        owners.map(p => p.counter),
+        [252, 67]
+      )
+    if (successor.turn === 3608) {
+      successorAssertions++
+      assert.equal(craft.passengers[0], brave.id)
+      assert.deepEqual(
+        owners.map(p => p.vehicle),
+        [0, craft.id]
+      )
+      assert.deepEqual(
+        owners.map(p => p.counter),
+        [24, 95]
+      )
+    }
+    if (successor.turn === 3609) {
+      successorAssertions++
+      assert.equal(craft.passengerCount, 0)
+      assert.deepEqual(
+        owners.map(p => p.vehicle),
+        [0, 0]
+      )
+      assert.deepEqual(
+        owners.map(p => p.counter),
+        [25, 96]
+      )
+    }
   }
   assert.equal(successorAssertions, 6)
   assert.ok(waited && filled)

@@ -3,54 +3,61 @@ import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { bindGame } from './browser-game.mjs'
 
-async function terrainClickPoint(page, target, spell = null, affected = null) {
-  return page.evaluate(async ({ point, spell, affected }) => {
-    const scene = globalThis.testScene,
-      { spellTargetError } = await import('/app/live-command.ts'),
-      { nativePosition } = await import('/app/model.ts'),
-      { spiralCell } = await import('/app/native-math.ts'),
-      required = scene.world.units.find(unit => unit.id === affected)
-    scene.focus(point)
-    for (let frame = 0; scene.cameraMotion.active && frame < 64; frame++)
-      scene.updateCameraMotion(1 / 24)
-    scene.onChange()
-    scene.renderer.render(scene.scene, scene.camera)
-    const projected = scene.screen(point),
-      bounds = scene.container.getBoundingClientRect(),
-      center = {
-        x: bounds.left + ((projected.x + 1) * bounds.width) / 2,
-        y: bounds.top + ((1 - projected.y) * bounds.height) / 2,
-      }
-    for (let radius = 0; radius <= 50; radius += 2)
-      for (let step = 0; step < 16; step++) {
-        const screen = {
-            x: center.x + Math.cos((step * Math.PI) / 8) * radius,
-            y: center.y + Math.sin((step * Math.PI) / 8) * radius,
-          },
-          event = { clientX: screen.x, clientY: screen.y },
-          picked = scene.pick(event),
-          nativeCenter = picked && nativePosition(scene.world, picked),
-          centerCell =
-            nativeCenter && ((nativeCenter.y & 0xfe00) | ((nativeCenter.x >>> 8) & 254)),
-          affectedCells = centerCell === null || centerCell === undefined
-            ? null
-            : new Set([centerCell, ...Array.from({ length: 7 }, (_, i) => spiralCell(centerCell, i, 0))]),
-          requiredNative = required && nativePosition(scene.world, required),
-          requiredCell =
-            requiredNative && ((requiredNative.y & 0xfe00) | ((requiredNative.x >>> 8) & 254))
-        if (
-          picked &&
-          document.elementFromPoint(screen.x, screen.y) === scene.renderer.domElement &&
-          !scene.pickUnit(event) &&
-          !scene.pickWorldObject(event) &&
-          Math.hypot(picked.x - point.x, picked.z - point.z) < (required ? 4 : 2) &&
-          (!required || affectedCells.has(requiredCell)) &&
-          (!spell || !spellTargetError(scene.world, spell, picked))
-        )
-          return { ...screen, picked }
-      }
-    throw new Error(`No exposed terrain target near ${JSON.stringify(point)}`)
-  }, { point: target, spell, affected })
+async function terrainClickPoint(page, target, spell = null, affected = null, dry = false) {
+  return page.evaluate(
+    async ({ point, spell, affected, dry }) => {
+      const scene = globalThis.testScene,
+        { spellTargetError } = await import('/app/live-command.ts'),
+        { nativePosition, supportsFollower } = await import('/app/model.ts'),
+        { spiralCell } = await import('/app/native-math.ts'),
+        required = scene.world.units.find(unit => unit.id === affected)
+      scene.focus(point)
+      for (let frame = 0; scene.cameraMotion.active && frame < 64; frame++)
+        scene.updateCameraMotion(1 / 24)
+      scene.onChange()
+      scene.renderer.render(scene.scene, scene.camera)
+      const projected = scene.screen(point),
+        bounds = scene.container.getBoundingClientRect(),
+        center = {
+          x: bounds.left + ((projected.x + 1) * bounds.width) / 2,
+          y: bounds.top + ((1 - projected.y) * bounds.height) / 2,
+        }
+      for (let radius = 0; radius <= 50; radius += 2)
+        for (let step = 0; step < 16; step++) {
+          const screen = {
+              x: center.x + Math.cos((step * Math.PI) / 8) * radius,
+              y: center.y + Math.sin((step * Math.PI) / 8) * radius,
+            },
+            event = { clientX: screen.x, clientY: screen.y },
+            picked = scene.pick(event),
+            nativeCenter = picked && nativePosition(scene.world, picked),
+            centerCell = nativeCenter && (nativeCenter.y & 0xfe00) | ((nativeCenter.x >>> 8) & 254),
+            affectedCells =
+              centerCell === null || centerCell === undefined
+                ? null
+                : new Set([
+                    centerCell,
+                    ...Array.from({ length: 7 }, (_, i) => spiralCell(centerCell, i, 0)),
+                  ]),
+            requiredNative = required && nativePosition(scene.world, required),
+            requiredCell =
+              requiredNative && (requiredNative.y & 0xfe00) | ((requiredNative.x >>> 8) & 254)
+          if (
+            picked &&
+            document.elementFromPoint(screen.x, screen.y) === scene.renderer.domElement &&
+            !scene.pickUnit(event) &&
+            !scene.pickWorldObject(event) &&
+            Math.hypot(picked.x - point.x, picked.z - point.z) < (required ? 4 : 2) &&
+            (!required || affectedCells.has(requiredCell)) &&
+            (!dry || supportsFollower(scene.world, picked)) &&
+            (!spell || !spellTargetError(scene.world, spell, picked))
+          )
+            return { ...screen, picked }
+        }
+      throw new Error(`No exposed terrain target near ${JSON.stringify(point)}`)
+    },
+    { point: target, spell, affected, dry }
+  )
 }
 
 async function shrineClickPoint(page, shrineId) {
@@ -185,9 +192,7 @@ try {
   await page.getByText(/None of my followers could accompany me/).waitFor()
   assert.deepEqual(
     await page.evaluate(() =>
-      globalThis.testScene.world.units
-        .filter(unit => unit.team === 'blue')
-        .map(unit => unit.kind)
+      globalThis.testScene.world.units.filter(unit => unit.team === 'blue').map(unit => unit.kind)
     ),
     ['shaman']
   )
@@ -211,7 +216,11 @@ try {
   })
   assert.deepEqual(
     worshipAppearance.map(({ mode, model, meshModel }) => [mode, model, meshModel]),
-    [[3, 8, 8], [3, 8, 8], [3, 8, 8]]
+    [
+      [3, 8, 8],
+      [3, 8, 8],
+      [3, 8, 8],
+    ]
   )
   const legacyCheckpoint = await page.evaluate(async () => {
     const store = globalThis.testStore,
@@ -219,7 +228,14 @@ try {
       heads = world.shrines,
       mana = heads.find(shrine => shrine.kind === 'mana' && shrine.rewardMana === 600_000),
       inert = heads.find(shrine => shrine.kind === 'inert'),
-      identity = heads.map(shrine => [shrine.id, shrine.x, shrine.z, shrine.kind, shrine.angle, shrine.range])
+      identity = heads.map(shrine => [
+        shrine.id,
+        shrine.x,
+        shrine.z,
+        shrine.kind,
+        shrine.angle,
+        shrine.range,
+      ])
     world.randomState = 0x3456789a
     world.cosmeticRandom.randomState = 0x456789ab
     mana.work = 17
@@ -238,7 +254,13 @@ try {
     const loaded = store.getWorld(),
       loadedMana = loaded.shrines.find(shrine => shrine.id === mana.id),
       loadedInert = loaded.shrines.find(shrine => shrine.id === inert.id),
-      preservedState = [loadedMana.work, loadedMana.followers, loadedMana.uses, loadedMana.rewardDelay, loadedMana.rewardRecipient],
+      preservedState = [
+        loadedMana.work,
+        loadedMana.followers,
+        loadedMana.uses,
+        loadedMana.rewardDelay,
+        loadedMana.rewardRecipient,
+      ],
       preservedRandom = [loaded.randomState, loaded.cosmeticRandom.randomState],
       { addUnit, command, tick } = await import('/app/model.ts'),
       brave = addUnit(loaded, 'blue', 'brave', loadedInert)
@@ -251,7 +273,14 @@ try {
     return {
       saved,
       identity,
-      loadedIdentity: loaded.shrines.map(shrine => [shrine.id, shrine.x, shrine.z, shrine.kind, shrine.angle, shrine.range]),
+      loadedIdentity: loaded.shrines.map(shrine => [
+        shrine.id,
+        shrine.x,
+        shrine.z,
+        shrine.kind,
+        shrine.angle,
+        shrine.range,
+      ]),
       appearances: loaded.shrines.map(shrine => [shrine.mode, shrine.model]),
       state: preservedState,
       random: preservedRandom,
@@ -267,7 +296,11 @@ try {
   })
   assert.equal(legacyCheckpoint.saved, true)
   assert.deepEqual(legacyCheckpoint.loadedIdentity, legacyCheckpoint.identity)
-  assert.deepEqual(legacyCheckpoint.appearances, [[3, 8], [3, 8], [3, 8]])
+  assert.deepEqual(legacyCheckpoint.appearances, [
+    [3, 8],
+    [3, 8],
+    [3, 8],
+  ])
   assert.deepEqual(legacyCheckpoint.state, [17, 1, 2, 19, 2])
   assert.deepEqual(legacyCheckpoint.random, [0x3456789a, 0x456789ab])
   assert.deepEqual(legacyCheckpoint.brave, {
@@ -307,7 +340,15 @@ try {
       model: head.model,
     }
   })
-  assert.deepEqual(braveRejection, { submitted: true, command: 0, work: 0, followers: 0, rewardDelay: null, mode: 3, model: 8 })
+  assert.deepEqual(braveRejection, {
+    submitted: true,
+    command: 0,
+    work: 0,
+    followers: 0,
+    rewardDelay: null,
+    mode: 3,
+    model: 8,
+  })
 
   await focusSpell(page, 'bridge', 'Land Bridge')
   const bridgePoint = await terrainClickPoint(page, { x: -29, z: -49 }, 'bridge')
@@ -319,7 +360,11 @@ try {
       { tick } = await import('/app/model.ts'),
       shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
       head = world.shrines.find(shrine => shrine.kind === 'mana' && shrine.rewardMana === 600_000)
-    for (let turn = 0; (shaman.casting || world.effects.some(effect => effect.bridge)) && turn < 2_000; turn++)
+    for (
+      let turn = 0;
+      (shaman.casting || world.effects.some(effect => effect.bridge)) && turn < 2_000;
+      turn++
+    )
       tick(world, 1 / 12)
     for (let turn = 0; turn < 160; turn++) tick(world, 1 / 12)
     for (let turn = 0; world.inputMask && turn < 2_000; turn++) tick(world, 1 / 12)
@@ -333,20 +378,20 @@ try {
   const headPoint = await shrineClickPoint(page, manaHead)
   await page.mouse.click(headPoint.x, headPoint.y)
   const worshipped = await page.evaluate(async id => {
-      const world = globalThis.testScene.world,
-        { tick } = await import('/app/model.ts'),
-        head = world.shrines.find(shrine => shrine.id === id),
-        shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman')
-      for (let turn = 0; head.rewardDelay !== 50 && turn < 500; turn++) tick(world, 1 / 12)
-      return {
-        rewardDelay: head.rewardDelay,
-        active: head.active,
-        uses: head.uses,
-        followers: head.followers,
-        shaman: [shaman.x, shaman.z, shaman.hp, shaman.native?.state],
-        message: world.message,
-      }
-    }, manaHead)
+    const world = globalThis.testScene.world,
+      { tick } = await import('/app/model.ts'),
+      head = world.shrines.find(shrine => shrine.id === id),
+      shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman')
+    for (let turn = 0; head.rewardDelay !== 50 && turn < 500; turn++) tick(world, 1 / 12)
+    return {
+      rewardDelay: head.rewardDelay,
+      active: head.active,
+      uses: head.uses,
+      followers: head.followers,
+      shaman: [shaman.x, shaman.z, shaman.hp, shaman.native?.state],
+      message: world.message,
+    }
+  }, manaHead)
   assert.equal(worshipped.rewardDelay, 50, JSON.stringify(worshipped))
   assert.deepEqual([worshipped.active, worshipped.uses], [true, 0], JSON.stringify(worshipped))
   await page.evaluate(() => globalThis.testStore.saveCheckpoint())
@@ -360,7 +405,11 @@ try {
       const world = globalThis.testScene.world,
         { tick } = await import('/app/model.ts'),
         head = world.shrines.find(shrine => shrine.id === id)
-      for (let turn = 0; !world.effects.some(effect => effect.reward === 'mana') && turn < 60; turn++)
+      for (
+        let turn = 0;
+        !world.effects.some(effect => effect.reward === 'mana') && turn < 60;
+        turn++
+      )
         tick(world, 1 / 12)
       const gift = world.effects.find(effect => effect.reward === 'mana'),
         giftState = [gift.amount, gift.recipient, gift.rewardModel, gift.phase]
@@ -405,28 +454,29 @@ try {
       { tick } = await import('/app/model.ts')
     for (let turn = 0; !world.effects.some(effect => effect.swarm?.applied) && turn < 100; turn++)
       tick(world, 1 / 12)
-    if (!world.effects.some(effect => effect.swarm?.applied)) throw new Error('Rendered Swarm missed')
+    if (!world.effects.some(effect => effect.swarm?.applied))
+      throw new Error('Rendered Swarm missed')
     return world.vehicles.find(vehicle => vehicle.model === 1).id
   })
   const boatPoint = await vehicleClickPoint(page, boatId)
   await page.mouse.click(boatPoint.x, boatPoint.y)
   const boarded = await page.evaluate(async id => {
-      const world = globalThis.testScene.world,
-        { tick } = await import('/app/model.ts'),
-        boat = world.vehicles.find(vehicle => vehicle.id === id),
-        shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman')
-      for (let turn = 0; !boat.passengerCount && shaman.hp > 0 && turn < 500; turn++)
-        tick(world, 1 / 12)
-      return {
-        result: [boat.team, boat.passengerCount, shaman.hp, shaman.native?.vehicle],
-        shaman: [shaman.x, shaman.z, shaman.native?.state],
-        enemies: world.units
-          .filter(unit => unit.team === 'red' && unit.kind === 'warrior' && unit.hp > 0)
-          .map(unit => [unit.id, unit.x, unit.z, unit.native?.state]),
-        message: world.message,
-        turn: world.turn,
-      }
-    }, boatId)
+    const world = globalThis.testScene.world,
+      { tick } = await import('/app/model.ts'),
+      boat = world.vehicles.find(vehicle => vehicle.id === id),
+      shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman')
+    for (let turn = 0; !boat.passengerCount && shaman.hp > 0 && turn < 500; turn++)
+      tick(world, 1 / 12)
+    return {
+      result: [boat.team, boat.passengerCount, shaman.hp, shaman.native?.vehicle],
+      shaman: [shaman.x, shaman.z, shaman.native?.state],
+      enemies: world.units
+        .filter(unit => unit.team === 'red' && unit.kind === 'warrior' && unit.hp > 0)
+        .map(unit => [unit.id, unit.x, unit.z, unit.native?.state]),
+      message: world.message,
+      turn: world.turn,
+    }
+  }, boatId)
   assert.deepEqual(boarded.result, ['blue', 1, 100, boatId], JSON.stringify(boarded))
   await page.evaluate(() => globalThis.testStore.saveCheckpoint())
   await page.evaluate(() => globalThis.testStore.loadCheckpoint())
@@ -434,7 +484,7 @@ try {
     () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
   )
   await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
-  const landing = await terrainClickPoint(page, { x: -25, z: -63 })
+  const landing = await terrainClickPoint(page, { x: -25, z: -61 }, null, null, true)
   await page.mouse.click(landing.x, landing.y)
   assert.deepEqual(
     await page.evaluate(async id => {
@@ -448,8 +498,8 @@ try {
     ['blue', 0, 100, 0]
   )
 
-  const southernHeadId = await page.evaluate(() =>
-    globalThis.testScene.world.shrines.find(shrine => shrine.rewardMana === 600_000).id
+  const southernHeadId = await page.evaluate(
+    () => globalThis.testScene.world.shrines.find(shrine => shrine.rewardMana === 600_000).id
   )
   await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
   const southernHead = await shrineClickPoint(page, southernHeadId)
@@ -480,7 +530,7 @@ try {
     }, boatId),
     1
   )
-  const balloonShore = await terrainClickPoint(page, { x: -83, z: -57 })
+  const balloonShore = await terrainClickPoint(page, { x: -83, z: -59 }, null, null, true)
   await page.mouse.click(balloonShore.x, balloonShore.y)
   assert.equal(
     await page.evaluate(async id => {
@@ -554,26 +604,32 @@ try {
       { tick } = await import('/app/model.ts')
     for (
       let turn = 0;
-      !world.effects.some(effect => effect.swarm?.applied && !ids.includes(effect.id)) && turn < 100;
+      !world.effects.some(effect => effect.swarm?.applied && !ids.includes(effect.id)) &&
+      turn < 100;
       turn++
     )
       tick(world, 1 / 12)
     if (!world.effects.some(effect => effect.swarm?.applied && !ids.includes(effect.id)))
       throw new Error('Rendered northern Swarm missed')
   }, priorSwarms)
-  const northernHeadId = await page.evaluate(() =>
-    globalThis.testScene.world.shrines.find(shrine => shrine.rewardMana === 1_000_000).id
+  const northernHeadId = await page.evaluate(
+    () => globalThis.testScene.world.shrines.find(shrine => shrine.rewardMana === 1_000_000).id
   )
   await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
   const northernHead = await shrineClickPoint(page, northernHeadId)
   await page.mouse.click(northernHead.x, northernHead.y)
-  const northernCompletion = await page.evaluate(async ({ headId, balloonId }) => {
+  const northernCompletion = await page.evaluate(
+    async ({ headId, balloonId }) => {
       const world = globalThis.testScene.world,
         { tick } = await import('/app/model.ts'),
         head = world.shrines.find(shrine => shrine.id === headId),
         balloon = world.vehicles.find(vehicle => vehicle.id === balloonId)
       for (let turn = 0; head.uses !== 1 && turn < 700; turn++) tick(world, 1 / 12)
-      for (let turn = 0; world.effects.some(effect => effect.reward === 'mana') && turn < 100; turn++)
+      for (
+        let turn = 0;
+        world.effects.some(effect => effect.reward === 'mana') && turn < 100;
+        turn++
+      )
         tick(world, 1 / 12)
       return [
         head.active,
@@ -584,7 +640,9 @@ try {
         balloon.team,
         balloon.passengerCount,
       ]
-    }, { headId: northernHeadId, balloonId })
+    },
+    { headId: northernHeadId, balloonId }
+  )
   assert.deepEqual(northernCompletion.slice(0, 4), [false, 1, 0, false])
   assert.ok(northernCompletion[4] >= 990_000)
   assert.deepEqual(northernCompletion.slice(5), ['blue', 0])
@@ -595,26 +653,30 @@ try {
   )
   await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
   assert.deepEqual(
-    await page.evaluate(({ headId, balloonId }) => {
-      const world = globalThis.testScene.world,
-        head = world.shrines.find(shrine => shrine.id === headId),
-        balloon = world.vehicles.find(vehicle => vehicle.id === balloonId)
-      return [
-        head.active,
-        head.uses,
-        head.rewardDelay,
-        world.effects.some(effect => effect.reward === 'mana'),
-        world.manaTribes[0].pending,
-        balloon.team,
-        balloon.passengerCount,
-      ]
-    }, { headId: northernHeadId, balloonId }),
+    await page.evaluate(
+      ({ headId, balloonId }) => {
+        const world = globalThis.testScene.world,
+          head = world.shrines.find(shrine => shrine.id === headId),
+          balloon = world.vehicles.find(vehicle => vehicle.id === balloonId)
+        return [
+          head.active,
+          head.uses,
+          head.rewardDelay,
+          world.effects.some(effect => effect.reward === 'mana'),
+          world.manaTribes[0].pending,
+          balloon.team,
+          balloon.passengerCount,
+        ]
+      },
+      { headId: northernHeadId, balloonId }
+    ),
     northernCompletion
   )
 
   const returnBalloon = await vehicleClickPoint(page, balloonId)
   await page.mouse.click(returnBalloon.x, returnBalloon.y)
-  const returnBoarding = await page.evaluate(async ({ id, previousPending, headId }) => {
+  const returnBoarding = await page.evaluate(
+    async ({ id, previousPending, headId }) => {
       const world = globalThis.testScene.world,
         { tick } = await import('/app/model.ts'),
         balloon = world.vehicles.find(vehicle => vehicle.id === id),
@@ -632,11 +694,14 @@ try {
         previousPending = world.manaTribes[0].pending
       }
       return [balloon.passengerCount, previousPending]
-    }, { id: balloonId, previousPending: northernCompletion[4], headId: northernHeadId })
+    },
+    { id: balloonId, previousPending: northernCompletion[4], headId: northernHeadId }
+  )
   assert.equal(returnBoarding[0], 1)
   const safeLanding = await terrainClickPoint(page, { x: -29, z: -33 })
   await page.mouse.click(safeLanding.x, safeLanding.y)
-  const returned = await page.evaluate(async ({ balloonId, headId, previousPending }) => {
+  const returned = await page.evaluate(
+    async ({ balloonId, headId, previousPending }) => {
       const world = globalThis.testScene.world,
         { tick } = await import('/app/model.ts'),
         balloon = world.vehicles.find(vehicle => vehicle.id === balloonId),
@@ -665,12 +730,16 @@ try {
         world.effects.some(effect => effect.reward === 'mana'),
         world.manaTribes[0].pending,
       ]
-    }, { balloonId, headId: northernHeadId, previousPending: returnBoarding[1] })
+    },
+    { balloonId, headId: northernHeadId, previousPending: returnBoarding[1] }
+  )
   assert.deepEqual(returned.slice(0, 8), ['blue', 0, 100, 0, false, 1, 0, false])
   assert.ok(returned[8] <= northernCompletion[4])
 
   assert.deepEqual(errors, [])
-  console.log('PASS: Mission 22 solo gifts, Boat and Balloon claims, checkpoint, travel, and landing')
+  console.log(
+    'PASS: Mission 22 solo gifts, Boat and Balloon claims, checkpoint, travel, and landing'
+  )
 } finally {
   await browser.close()
 }

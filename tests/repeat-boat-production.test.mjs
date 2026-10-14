@@ -34,6 +34,9 @@ test('an occupied Boat House produces again after its first craft leaves', async
   assert.equal(worker.inside, house.id)
   assert.equal(worker.hp, 50)
   assert.deepEqual(first.passengers, [71])
+  const firstDriver = world.units.find(unit => unit.id === 71).native
+  assert.equal(firstDriver.vehicle, first.id)
+  assert.equal(world.objectCells.objects.get(firstDriver.id), firstDriver)
   // Supplied destroyed-workshop boundary; the ordinary route above is unchanged.
   const destroyed = structuredClone(world)
   destroyed.buildings.find(b => b.id === house.id).hp = 0

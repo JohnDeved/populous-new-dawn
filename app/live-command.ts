@@ -37,7 +37,6 @@ import {
   appendLivePlayerOrders,
   anchorLiveShamanGuard,
   cancelLiveOrder,
-  cancelLiveTransportOrder,
   movementOrder,
   orderEffects,
   replaceLiveTrainingOrders,
@@ -46,7 +45,7 @@ import {
 } from './live-movement.ts'
 import { canOrder, cancelInteraction, selectionPeople } from './selection-runtime.ts'
 import { release } from './world-tasks.ts'
-import { attachPersonRoute, releasePersonRoute } from './person-routes.ts'
+import { releasePersonRoute } from './person-routes.ts'
 import {
   addBuilding,
   buildingPlanPose,
@@ -484,81 +483,14 @@ export function command(
   if (!context?.enabled) return false
   const { model } = context
   w.lastOrderTurn = w.turn
-  let sharedAirborneMovement = false
-  if (model === 3) {
-    const vehicles = new Set(
-      w.units
-        .filter(u => w.selected.includes(u.id) && u.native?.vehicle)
-        .map(u => u.native!.vehicle)
+  const sharedVehicleMovement =
+    model === 3 &&
+    w.units.some(
+      u =>
+        w.selected.includes(u.id) &&
+        u.native?.vehicle &&
+        w.vehicles.some(v => v.id === u.native!.vehicle && v.active && [1, 3].includes(v.model))
     )
-    sharedAirborneMovement =
-      !!vehicles.size &&
-      [...vehicles].every(id => {
-        const vehicle = w.vehicles.find(v => v.id === id && v.active)
-        return vehicle && rules.vehicleRestFlags[vehicle.model] & 1
-      })
-    // Keep the existing Boat/mixed-selection adapter until its controller is qualified.
-    if (vehicles.size && !sharedAirborneMovement) {
-      const to = nativePosition(w, p),
-        landingReservations = {
-          search: w.indexedSearch,
-          records: new Uint8Array(48),
-          count: 0,
-        }
-      let count = 0
-      for (const id of vehicles) {
-        const vehicle = w.vehicles.find(v => v.id === id && v.active),
-          driver = vehicle && w.units.find(u => u.id === vehicle.passengers[0]),
-          person = driver?.native
-        if (!vehicle || !driver || !person) continue
-        cancelLiveTransportOrder(w, driver)
-        const order = allocatePersonOrder(w.buildingOrders)
-        if (!order) continue
-        Object.assign(w.buildingOrders.records[order], {
-          model: 3,
-          a: to.x & 65535,
-          b: to.y & 65535,
-        })
-        attachPersonOrder(w.buildingOrders, person, order, 0, orderEffects(w))
-        const path = planLivePath(w, driver, p, person, false, true, landingReservations)
-        if (!path) {
-          cancelLiveOrder(w, driver)
-          continue
-        }
-        Object.assign(w.buildingOrders.records[order], {
-          a: path.goalX & 65535,
-          b: path.goalY & 65535,
-        })
-        path.commandStatus = 3
-        path.state = 10
-        acceptLivePath(w, driver, path)
-        for (const passengerId of vehicle.passengers.slice(1)) {
-          const passengerUnit = w.units.find(u => u.id === passengerId),
-            passenger = passengerUnit?.native
-          if (!passengerUnit || !passenger) continue
-          cancelLiveTransportOrder(w, passengerUnit)
-          if (!path.motionGroup) continue
-          attachPersonOrder(w.buildingOrders, passenger, order, 0, orderEffects(w))
-          attachPersonRoute(w.motionRoutes, passenger, path.motionGroup)
-          Object.assign(passenger, {
-            commandStatus: 3,
-            state: 10,
-            motionIndex: path.motionIndex,
-            goalX: path.goalX,
-            goalY: path.goalY,
-            destinationX: path.destinationX,
-            destinationY: path.destinationY,
-            turnAngle: path.turnAngle,
-            turnY: path.turnY,
-          })
-          acceptLivePath(w, passengerUnit, passenger)
-        }
-        count++
-      }
-      tell(w, count ? 'Your transport is on the move.' : 'The transport cannot reach that point.')
-      return true
-    }
-  }
   const sharedBoarding =
     model === 22 &&
     context.vehicle &&
@@ -668,7 +600,7 @@ export function command(
     model === 19 ||
     model === 33 ||
     sharedBoarding ||
-    sharedAirborneMovement ||
+    sharedVehicleMovement ||
     ((model === 3 || model === 27 || model === 28 || queuedBuilding || queuedTree) &&
       (modifiers.ctrlKey || w.orderCursor))
   ) {

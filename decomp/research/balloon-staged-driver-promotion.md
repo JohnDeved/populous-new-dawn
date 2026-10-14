@@ -8,7 +8,7 @@ The shared command producer already supports staged flags and references. This
 change sends plain and staged airborne selections through that producer and
 admits every seated person's command3 completion through existing4336c0/432590
 consumers.
-Selections containing a Boat retain the existing whole-selection adapter.
+At that historical boundary, selections containing a Boat retained the whole-selection adapter. The subsequent [Boat completion composition](boat-native-movement-completion.md) replaces that branch with the same per-person command owners.
 
 Historical PR401 exposed a supplied passenger-counter offset of71: the former
 driver passed the strict353 arrival window before the passenger's own visit. An
@@ -49,8 +49,8 @@ queue-only or promotion; that negative causal control is retained too.
 
 ## Bounded browser composition
 
-The selector runs once before browser person visits and is limited to airborne
-vehicles. A fresh transient per-world-pass set owns each airborne craft decision;
+The original selector ran once before browser person visits for airborne
+vehicles. The subsequent Boat composition extends the same explicit owner to live models1 and3. A fresh transient per-world-pass set owns each airborne craft decision;
 a later promoted driver still visits its own route/queue but cannot move the craft
 a second time. Final seat publication clears this set; each new tick and restored
 checkpoint starts a fresh pass. The original allocated-object visitation order is not claimed. Exact
