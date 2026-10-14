@@ -15,9 +15,9 @@ assert.ok(process.env.PND_QUEUE_JOB_ID&&process.env.PND_QUEUE_DEADLINE,'Use the 
 const url=process.env.POPULOUS_URL;assert.equal(new URL(url).port,'4318')
 mkdirSync(output,{recursive:false})
 const report={startedAt:new Date().toISOString(),job:process.env.PND_QUEUE_JOB_ID,mission:16,states:[],errors:[],
-  limits:['This verifies the existing authored Mission16 HUD policy, not unresolved original discovery/questionmark rules.',
+  limits:['Six served asset frames are verified; rendered controls cover Shield states and fresh Bloodlust discovery, not earned Bloodlust casting.',
     'Simulation is frozen after entering the real mission; no availability, stock, gifts or unlock flags are injected.',
-    'The inactive artwork is reached by the real pause-charging control; it is not a claim of native locked-state semantics.',
+    'Shield inactive artwork uses real pause-charging; mode-2 Bloodlust is an undiscovered reward and cannot charge in normal campaign.',
     'No gameplay/renderer/native-cadence or hardware FPS acceptance is implied.']}
 const save=()=>writeFileSync(join(output,'evidence.json'),JSON.stringify(report,null,2)+'\n')
 const browser=await chromium.launch({headless:true})
@@ -45,7 +45,8 @@ try{
       random:w.randomState,cosmetic:w.cosmeticRandom,renderer:ext?gl.getParameter(ext.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER),
       viewport:[innerWidth,innerHeight],dpr:devicePixelRatio,turn:w.turn}
   })
-  for(const model of [19,20])assert.ok(report.initial.available&(1<<model),'Authored availability must exist without test injection')
+  assert.ok(report.initial.available&(1<<19),'Shield remains permanently available')
+  assert.equal(report.initial.available&(1<<20),0,'Normal startup clears mode-2 Bloodlust availability')
   assert.equal(report.initial.shield,0);assert.equal(report.initial.bloodlust,0)
   // Verify the served image's six crops, separately from DOM placement/art state.
   report.servedFrames=await page.evaluate(async frames=>{
@@ -81,7 +82,7 @@ try{
         selected:button.getAttribute('aria-pressed'),buttonDisabled:button.disabled,label:button.getAttribute('aria-label')}
     },{position,id})
     assert.equal(data.text,'');assert.ok(data.image.includes('/original/hud.png'))
-    assert.equal(data.logicalWidth,'28px');assert.equal(data.logicalHeight,'25px')
+    assert.equal(data.logicalWidth,`${rect.w}px`);assert.equal(data.logicalHeight,`${rect.h}px`)
     assert.ok(data.box.width>0&&data.box.height>0)
     assert.equal(data.buttonDisabled,false)
     if(state==='selected')assert.equal(data.selected,'true')
@@ -90,7 +91,7 @@ try{
     await page.screenshot({path:join(output,`${spell}-${state}-full.png`)})
     save()
   }
-  for(const [spell,model,frames]of [['shield',19,[408,409,410]],['bloodlust',20,[411,412,413]]]){
+  for(const [spell,model,frames]of [['shield',19,[408,409,410]]]){
     const name=SPELLS.find(s=>s.id===spell).name
     const card=page.getByRole('button',{name:new RegExp('^'+name+', \\d+ shots$')})
     await card.waitFor({state:'visible'});await card.scrollIntoViewIfNeeded()
@@ -99,7 +100,7 @@ try{
     await card.click();await blank();await capture(card,frames[0],'selected',spell)
     assert.equal(await page.evaluate(()=>window.testScene.world.mode),spell)
     await card.click();await blank()
-    // Both are authored permanent slots. Right-click toggles only their existing
+    // Shield is an authored permanent slot. Right-click toggles only its existing
     // charge-pause flag; no test-side world flag mutation or artificial stock.
     await card.click({button:'right'});await blank()
     assert.ok(await page.evaluate(model=>!!(window.testScene.world.manaWorld.spells[0].disabled&(1<<(model-1))),model))
@@ -107,6 +108,20 @@ try{
     await card.hover();await capture(card,frames[2],'inactive-hover',spell)
     await card.click({button:'right'});await blank();await capture(card,frames[0],'resumed',spell)
   }
+  const bloodlustSlot=await page.evaluate(async()=>{
+    const {spellHudRoster}=await import('/app/spell-visibility.ts'),
+      {spellOrder}=await import('/app/spell-button.ts')
+    return spellHudRoster(window.testScene.world)
+      .toSorted((a,b)=>spellOrder.indexOf(a.spell.model)-spellOrder.indexOf(b.spell.model))
+      .findIndex(entry=>entry.spell.id==='bloodlust'&&entry.visibility==='undiscovered')
+  })
+  assert.ok(bloodlustSlot>=0,'Authored Bloodlust head must produce a discovery control')
+  assert.equal(await page.getByRole('button',{name:/^Bloodlust,/}).count(),0)
+  const question=page.locator('.spell-list .spell-card').nth(bloodlustSlot)
+  assert.equal(await question.getAttribute('aria-label'),'Undiscovered spell')
+  assert.equal(await question.getAttribute('aria-disabled'),'true')
+  await question.click();await question.click({button:'right'});await blank()
+  await capture(question,1056,'undiscovered','bloodlust')
   report.final=await page.evaluate(()=>{
     const w=window.testScene.world
     return{available:w.manaWorld.spells[0].available,disabled:w.manaWorld.spells[0].disabled,
@@ -116,8 +131,8 @@ try{
   for(const key of ['available','disabled','shield','bloodlust','gifts','random','cosmetic','turn'])
     assert.deepEqual(report.final[key],report.initial[key],`Preserved ${key}`)
   assert.equal(report.final.mode,null)
-  assert.deepEqual(new Set(report.states.map(s=>s.id)),new Set([408,409,410,411,412,413]))
+  assert.deepEqual(new Set(report.states.map(s=>s.id)),new Set([408,409,410,1056]))
   assert.deepEqual(report.errors,[]);assert.equal(report.expired,undefined)
-  report.status='PASS_AUTHORED_SHIELD_BLOODLUST_ORIGINAL_HUD'
+  report.status='PASS_SIX_ASSETS_SHIELD_CONTROLS_BLOODLUST_DISCOVERY'
 }catch(error){report.status='FAILED_SIX_FRAME_HUD_ACCEPTANCE';report.error=error.stack??String(error);process.exitCode=1}
 finally{clearTimeout(timer);await browser.close();report.browserClosed=true;report.finishedAt=new Date().toISOString();save();console.log(JSON.stringify({status:report.status,error:report.error,states:report.states.length,output,initial:report.initial,final:report.final,browserClosed:true},null,2))}
