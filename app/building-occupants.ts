@@ -34,6 +34,8 @@ export type OccupiedBuilding = BuildingShapePose &
   }
 export interface OccupancyWorld {
   people: Map<number, BuildingOccupant>
+  // Native slots are signed words; the browser host stores opaque safe-integer handles.
+  occupantId?: (slot: number) => number
   orders: OrderPool
   towerTribes: number
   buildings: Map<number, OccupiedBuilding>
@@ -190,7 +192,7 @@ export function leaveBuilding(w: OccupancyWorld, p: BuildingOccupant, effects: O
   } else {
     for (const id of w.tribes[p.tribe].buildingIds) {
       const b = w.buildings.get(id)!
-      if (b.occupants.some(slot => short(slot) === p.id)) {
+      if (b.occupants.some(slot => (w.occupantId?.(slot) ?? short(slot)) === p.id)) {
         removeBuildingOccupant(w, b, p, effects)
         return
       }
@@ -258,7 +260,7 @@ export function removeBuildingOccupant(
   if (byte(b.inside) <= 0) return
   const slot = b.occupants
     .slice(0, 6)
-    .findIndex(id => (person ? short(id) === person.id : id !== 0))
+    .findIndex(id => (person ? (w.occupantId?.(id) ?? short(id)) === person.id : id !== 0))
   if (slot < 0) return
   const p = w.people.get(b.occupants[slot])
   if (!p) throw new RangeError('Native occupant slot has no object record')

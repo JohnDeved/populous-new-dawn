@@ -235,7 +235,8 @@ export function refreshTimberSearch(
   owner: { searchIndex: number },
   center: number,
   angle: number,
-  person?: { id: number; tribe: number }
+  person?: { id: number; tribe: number },
+  personId?: (stored: number) => number
 ) {
   center &= 0xfefe
   let index = (owner.searchIndex << 24) >> 24
@@ -253,7 +254,7 @@ export function refreshTimberSearch(
   }
   owner.searchIndex = index
   pool.records[index].tribe = person ? (person.tribe << 24) >> 24 : -1
-  pool.records[index].person = person ? person.id & 65535 : 0
+  pool.records[index].person = person ? (personId?.(person.id) ?? person.id & 65535) : 0
   return index
 }
 

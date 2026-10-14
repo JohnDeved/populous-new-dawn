@@ -1,3 +1,4 @@
+import { writeLivePersonOrder as writePersonOrder } from './live-person-order.ts'
 import { TRIBE_TEAMS, tribeForTeam, type Point, type Unit, type World } from './world-types.ts'
 import {
   createLivePerson,
@@ -22,7 +23,6 @@ import {
   currentPersonOrder,
   deselectPerson,
   emptyPersonOrder,
-  writePersonOrder,
   commitPersonOrders,
   clearPersonOrders,
   removePersonOrder,
@@ -238,7 +238,14 @@ export function requestComputerPreacher(w: World, tribe: number, marker: number)
   if (id === null) return false
   const source = selected.sources.get(id)
   if (source) source.flags3 = selected.world.units.get(id)!.flags3
-  return requestPreacherTask(w.ai, id, marker, w.ai.states, campaignPersonCount(w, tribe, 4))
+  return requestPreacherTask(
+    w.ai,
+    id,
+    marker,
+    w.ai.states,
+    campaignPersonCount(w, tribe, 4),
+    id => id
+  )
 }
 
 //0x4f3280: only current order30 people return, with uncentered even coordinates.
@@ -594,7 +601,7 @@ const unsignedAttackField = (value: number, maximum: number) =>
 // leaves before changing either native admission or the port member list.
 function canReleaseComputerAttackPerson(w: World, index: number, u: Unit, p: LivePerson) {
   if (
-    !unsignedAttackField(p.id, 65535) ||
+    !unsignedAttackField(p.id, Number.MAX_SAFE_INTEGER) ||
     p.id !== u.id ||
     p.class !== 1 ||
     !unsignedAttackField(p.model, 8) ||
@@ -804,7 +811,9 @@ function produceMissionTraining(w: World, tribe: number) {
   if (!(w.ai.states & (1 << 6))) return false
   const population = campaignPersonCount(w, tribe),
     eligible = [
-      ...(w.outcome.level === 6 && tribe === 2 ? [{ model: 4, building: 5, preference: 6 }] : []),
+      ...([6, 7].includes(w.outcome.level) && tribe === 2
+        ? [{ model: 4, building: 5, preference: 6 }]
+        : []),
       { model: 3, building: 7, preference: 7 },
     ]
       .map(candidate => ({
@@ -827,6 +836,7 @@ function produceMissionTraining(w: World, tribe: number) {
   if (
     (w.outcome.level >= 1 && w.outcome.level <= 3) ||
     w.outcome.level === 6 ||
+    (w.outcome.level === 7 && tribe === 2) ||
     w.outcome.level === 12 ||
     w.outcome.level === 16
       ? !hasComputerTrainingCapacity(available, capacity)
@@ -861,7 +871,7 @@ function produceMissionBuilding(w: World, tribe: number) {
         )
       }, 0)
   if (
-    ![2, 3, 6, 11, 12, 23].includes(w.outcome.level) ||
+    (![2, 3, 6, 11, 12, 23].includes(w.outcome.level) && !(w.outcome.level === 7 && tribe === 2)) ||
     !(w.ai.states & 1) ||
     w.ai.tasks.filter(task => task.flags & 1 && task.type === 0).length >= w.ai.attributes[9]
   )
@@ -1362,20 +1372,27 @@ function computerResponseWorld(w: World, tribe: number) {
 }
 
 function requestComputerDefense(w: World, tribe: number, entity: number, cell: number) {
-  return requestDefenseTask(w.ai, w.ai.states, w.ai.attributes[15], entity, cell, () =>
-    summarizeSpellEnemies(computerResponseWorld(w, tribe), cell, 4, {
-      preachers: campaignPersonCount(w, tribe, 4),
-      firewarriors: campaignPersonCount(w, tribe, 6),
-      braves: campaignPersonCount(w, tribe, 2),
-      // Complete CPSCR012 assigns attribute46=1 once; no auto-training leaf.
-      autoTrain: false,
-      queuedPreachers: () => {
-        throw new Error('Unreachable Mission3 defense training query')
-      },
-      request: () => {
-        throw new Error('Unreachable Mission3 defense training request')
-      },
-    })
+  return requestDefenseTask(
+    w.ai,
+    w.ai.states,
+    w.ai.attributes[15],
+    entity,
+    cell,
+    () =>
+      summarizeSpellEnemies(computerResponseWorld(w, tribe), cell, 4, {
+        preachers: campaignPersonCount(w, tribe, 4),
+        firewarriors: campaignPersonCount(w, tribe, 6),
+        braves: campaignPersonCount(w, tribe, 2),
+        // Complete CPSCR012 assigns attribute46=1 once; no auto-training leaf.
+        autoTrain: false,
+        queuedPreachers: () => {
+          throw new Error('Unreachable Mission3 defense training query')
+        },
+        request: () => {
+          throw new Error('Unreachable Mission3 defense training request')
+        },
+      }),
+    id => id
   )
 }
 
@@ -1602,7 +1619,7 @@ export function stepComputerTasks(w: World, tribe: number) {
     return
   }
   if (phase === 'produce') {
-    if (w.outcome.level >= 1 && w.outcome.level <= 3) {
+    if (earlyResponse || (w.outcome.level === 7 && tribe === 2)) {
       produceComputerTasks(
         w.ai,
         id => {

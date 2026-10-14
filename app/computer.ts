@@ -128,7 +128,8 @@ export function requestPreacherTask(
   person: number,
   marker: number,
   states: number,
-  preachers: number
+  preachers: number,
+  personId?: (stored: number) => number
 ) {
   const free = ai.tasks.filter(task => !(task.flags & 1))
   if (
@@ -142,7 +143,7 @@ export function requestPreacherTask(
     flags: ((free[0].flags & ~2) | 1) >>> 0,
     type: 11,
     phase: 4,
-    entity: person & 65535,
+    entity: personId?.(person) ?? person & 65535,
     target: marker & 65535,
     extra: 0,
     mode: 0,

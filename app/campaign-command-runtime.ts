@@ -1,3 +1,4 @@
+import { writeLivePersonOrder as writePersonOrder } from './live-person-order.ts'
 import type { World } from './world-types.ts'
 import {
   headAt,
@@ -39,7 +40,7 @@ import { nativePersonModel } from './live-combat.ts'
 import { unitAnimationSource } from './selection-runtime.ts'
 import { buildingCounterattack } from './live-building-combat.ts'
 import { appendLiveOrders } from './live-movement.ts'
-import { emptyPersonOrder, writePersonOrder } from './person-orders.ts'
+import { emptyPersonOrder } from './person-orders.ts'
 import { route } from './live-command.ts'
 import { nativePosition } from './world-terrain-runtime.ts'
 import { nativeCellPoint } from './world-coordinates.ts'
@@ -863,6 +864,10 @@ export function campaignRules(w: World) {
                           12,
                           1003,
                           ...script.codes.slice(254, 259),
+                          // Chumara's original EVERY255 settlement and training targets.
+                          // Later tower, patrol, raid and message branches remain unbound.
+                          ...script.codes.slice(447, 595),
+                          1004,
                           ...script.codes.slice(1892, 1978),
                           1004,
                           1019,

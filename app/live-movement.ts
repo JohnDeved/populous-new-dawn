@@ -169,6 +169,7 @@ function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
     })),
   }
   const effects: OrderStartEffects = {
+    objectId: (id, model) => ([22, 27, 28, 30].includes(model) ? id : (id << 16) >> 16),
     setAnimation: (person, object) => setLivePersonAnimation(w, person as LivePerson, object),
     setDestination: (person, x, y) => {
       const unit = w.units.find(u => u.id === person.id)!

@@ -1,3 +1,4 @@
+import { writeLivePersonOrder as writePersonOrder } from './live-person-order.ts'
 import {
   tribeForTeam,
   type Building,
@@ -30,7 +31,6 @@ import {
   currentPersonOrder,
   emptyPersonOrder,
   playerOrderInput,
-  writePersonOrder,
 } from './person-orders.ts'
 import {
   appendLiveOrders,
@@ -266,7 +266,8 @@ export function guardShaman(w: World) {
       people,
       shaman.id,
       orderEffects(w),
-      (p, order) => anchorLiveShamanGuard(w, p, order)
+      (p, order) => anchorLiveShamanGuard(w, p, order),
+      id => id
     )
     for (const p of changed) {
       p.guardInputPending = true

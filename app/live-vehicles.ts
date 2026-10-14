@@ -289,10 +289,7 @@ export function selectLiveBalloonDrivers(w: World) {
       const p = person(v.passengers[slot])
       if (!p) continue
       if (
-        !(
-          p.commands[p.commandCursor] &&
-          (p.commandStatus !== 22 || (p.vehicle & 65535) !== short(p.target))
-        ) &&
+        !(p.commands[p.commandCursor] && (p.commandStatus !== 22 || p.vehicle !== p.target)) &&
         !(p.model === 7 && p.state === 38)
       )
         continue
