@@ -206,7 +206,7 @@ function makeBuilding(scene: GameScene, b: Building, stage: number, temple = fal
     id = buildingObject(b),
     base = rules.buildingObjects[buildingModel(b)],
     // Training huts require their actual tribe mesh. Preserve unrelated and
-    // neutral fallback behavior; Balloon Hut resource87 remains unimported.
+    // neutral fallback behavior; all four Balloon Hut meshes are imported.
     renderId =
       originalTrainingHutObject(b) ??
       (nativeModels[id] ? id : nativeModels[base] ? base : rules.buildingObjects[13])
