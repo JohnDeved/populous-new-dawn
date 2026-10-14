@@ -1,0 +1,59 @@
+✖ registered route aliases relink same/cross-cell movement before ordinary retirement without changing route timing (138.005783ms)
+✖ unlinked, route-only, nonmatching registration and native-owned records preserve their existing copy contract (63.914294ms)
+✔ genuine M17 retired encounter route crosses cells and unlinks cleanly through Save/Load twins (662.084238ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 1
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2000.469426
+
+✖ failing tests:
+
+test at tests/registered-route-cells.test.mjs:50:1
+✖ registered route aliases relink same/cross-cell movement before ordinary retirement without changing route timing (138.005783ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      h: 135,
+      x: 2112,
+  +   y: 63488
+  -   y: -2048
+    }
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/populous-m17-route-cells/tests/registered-route-cells.test.mjs:76:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { x: 2112, y: 63488, h: 135 },
+    expected: { x: 2112, y: -2048, h: 135 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/registered-route-cells.test.mjs:105:1
+✖ unlinked, route-only, nonmatching registration and native-owned records preserve their existing copy contract (63.914294ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  63488 !== -2048
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/populous-m17-route-cells/tests/registered-route-cells.test.mjs:130:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 63488,
+    expected: -2048,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
