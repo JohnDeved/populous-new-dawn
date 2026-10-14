@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "9b0f4e85-0856-472c-b0cd-15133b102870",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "3de90382ebfaccad0628b5be0198a1a082763b58",
+    "branch": "fix/registered-route-cell-move",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node_modules/.bin/eslint",
+    "app/live-pathfinding.ts",
+    "tests/registered-route-cells.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-m17-route-cells",
+  "startedAt": "2026-10-14T15:36:57.061Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-m17-route-cells/work/orchestration/m17-route-cells/style.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-m17-route-cells/work/orchestration/m17-route-cells/style.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T15:37:00.744Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "3de90382ebfaccad0628b5be0198a1a082763b58",
+    "branch": "fix/registered-route-cell-move",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

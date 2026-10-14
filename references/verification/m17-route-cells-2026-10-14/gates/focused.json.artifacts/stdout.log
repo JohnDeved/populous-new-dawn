@@ -1,0 +1,30 @@
+✔ ordinary browser pose publication preserves physical identity, same-cell order and cross-cell linkage (231.291853ms)
+✔ existing flight, combat and vehicle physical owners are never overwritten by browser reconciliation (148.380102ms)
+✔ combat admission reconciles only ordinary reused native poses, preserving protected and other owners (385.697405ms)
+✔ genuine M17 arena walk publishes current pose before encounter adoption and remains deterministic after Save/Load (2861.884841ms)
+✔ outdoor and building encounter calls match captured original fields, timing, RNG and sound (75.322146ms)
+✔ all playable encounter pairs show the opening strike, physical stagger and defender-centered fight (1134.292854ms)
+✔ encounters and their animations stay deterministic across render schedules (702.049332ms)
+✔ the native skip-intro flag and player cancellation do not leave stuck encounters (169.214672ms)
+✔ an encounter releases cleanly when an airborne participant returns to ordinary motion (96.245062ms)
+✔ live fights refresh the first native player alert each object turn (172.800113ms)
+✔ simulation owns quiet, attack and battle music activity across pause and cancellation (52.565219ms)
+✔ registered route aliases relink same/cross-cell movement before ordinary retirement without changing route timing (412.162256ms)
+✔ unlinked, route-only, nonmatching registration and native-owned records preserve their existing copy contract (292.914386ms)
+✔ genuine M17 retired encounter route crosses cells and unlinks cleanly through Save/Load twins (832.853006ms)
+✔ route-advance departure launches every matching passenger without moving them to a distant ground waypoint (1911.722659ms)
+✔ route departure leaves a nonmatching-route passenger aboard for native replanning (81.975551ms)
+✔ retired route-map Balloon occupants launch from actual seats through public panel and Save/Load (1674.942842ms)
+✔ Boat and Balloon seat sync retain route-map precedence and existing fallback ownership (117.366196ms)
+✔ Boat travel and exit keep registered passenger object-cell membership current (192.49853ms)
+✔ Balloon travel and exit keep registered passenger object-cell membership current (152.995815ms)
+✔ same-cell passenger sync preserves one linked membership and never allocates an unregistered person (71.954204ms)
+✔ checkpoint clone retains passenger cell identity and wrapped exit reindexes without duplicates (75.242699ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4681.558988
