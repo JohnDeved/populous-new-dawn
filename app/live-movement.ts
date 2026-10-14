@@ -46,11 +46,9 @@ import {
   stepPersonOrders,
   type OrderUpdateEffects,
 } from './person-order-update.ts'
-import { finishPersonPreparation } from './person-update.ts'
 import { stepConstructionOrder } from './construction-order.ts'
 import { assignBuilder, BuilderTask } from './building-workers.ts'
 import {
-  personAnimationObject,
   recoverPersonMovement,
   defaultPersonState,
   randomPersonSpeed,
@@ -902,19 +900,11 @@ export function startLiveConstructionOrder(w: World, u: Unit) {
 
 export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects['commands'] = {}) {
   const p = u.native!
-  // 0x4ec6f0 advances the person clock even while vehicle motion owns position.
-  if (p.vehicle) p.counter = (p.counter + 1) & 255
+  // 0x4d32b0 prepares and visits physics before vehicle/order dispatch too.
+  // Seated physics is frozen by 0x4000, but its clock/reaction still advance.
+  stepLivePhysics(w, u, p)
   const boarding = currentPersonOrder(w.buildingOrders, p)?.model === 22
-  if (p.vehicle && boarding)
-    finishPersonPreparation(p, {
-      animation: () => {
-        const object = personAnimationObject(p)
-        if (object !== -1) setLivePersonAnimation(w, p, object)
-      },
-      destination: point => replanLivePath(w, u, p, point),
-    })
   const driver = p.vehicle ? stepLiveVehicle(w, p) : false
-  if (!p.vehicle) stepLivePhysics(w, u, p)
   if (!p.vehicle || driver) stepLiveRoute(w, u)
   else if (!boarding && currentPersonOrder(w.buildingOrders, p)?.model !== 3) return
   if (p.state !== 10 || (p.guardInputPending && p.flags2 & 16)) return

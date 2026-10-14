@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "845ca495-54f5-4344-8073-99f86b1d93cc",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "97f65ac0374fdf2cdd013794d666363a6019c113",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/m10-restart-route/authored-boarding.mjs": "3d2e46c0b32f758ad55966bf102d9ca56228a774b7f22d1a6491945625a9e43c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "node",
+    "work/m10-restart-route/authored-boarding.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-m10-validation",
+  "startedAt": "2026-10-14T03:49:22.334Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-m10-validation/work/orchestration/m10-restart-route/authored-boarding.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-m10-validation/work/orchestration/m10-restart-route/authored-boarding.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T03:49:25.660Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\"event\":\"fresh public M10 authored prepared Boat\",\"turn\":1,\"profile\":[],\"boat\":{\"id\":62,\"x\":29.4453125,\"z\":-31.4453125,\"ready\":true},\"party\":[63,111,112,113,114],\"limits\":\"Empty synthetic profile, current merged runtime; authored Boat unchanged, no actor relocation\"}\n{\"event\":\"public party order\",\"turn\":1,\"ids\":[63,111,112,113,114],\"point\":{\"x\":27,\"z\":-27},\"ok\":[true,true]}\n{\"event\":\"public party order\",\"turn\":110,\"ids\":[63,111,112,113,114],\"point\":{\"id\":62,\"x\":29.4453125,\"z\":-31.4453125},\"ok\":[true,true]}\n{\"event\":\"ordinary authored Boat fully boarded\",\"turn\":120,\"boat\":62,\"passengers\":[111,112,113,114,63],\"timer\":null}\n",
+  "stderr": "",
+  "stdoutSha256": "6ba696418d3fa6fee387589689df94acf7ada39a09bf4bbf548755974bd6d769",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "97f65ac0374fdf2cdd013794d666363a6019c113",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/m10-restart-route/authored-boarding.mjs": "3d2e46c0b32f758ad55966bf102d9ca56228a774b7f22d1a6491945625a9e43c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

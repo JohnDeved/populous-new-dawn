@@ -324,6 +324,7 @@ import {
   leaveLiveBuilding,
   stepLivePerson,
   stepLiveImpulse,
+  resumeLiveSeatedFlight,
   registerLivePerson,
   changeLivePersonState,
   disturbLiveVolcanoPerson,
@@ -1323,7 +1324,7 @@ function stepTurn(w: World) {
       stepLiveTornadoPerson(w, u)
       continue
     }
-    if (u.flight) {
+    if (u.flight && !resumeLiveSeatedFlight(u)) {
       stepLiveImpulse(w, u)
       continue
     }
@@ -1494,6 +1495,7 @@ function stepTurn(w: World) {
     const activeOrder = u.native && currentPersonOrder(w.buildingOrders, u.native)
     if (activeOrder?.model === 28 && u.native?.vehicle && stepLiveAboardPersonAttack(w, u)) continue
     if (u.native?.vehicle && !activeOrder) {
+      stepLivePhysics(w, u, u.native)
       const vehicle = w.vehicles.find(vehicle => vehicle.id === u.native!.vehicle)
       if (vehicle) syncLiveVehiclePassengers(w, vehicle)
       continue

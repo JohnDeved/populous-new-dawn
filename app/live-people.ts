@@ -986,6 +986,9 @@ export function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
       readyToFight: () => false,
     }
   )
+  // 0x4d32de: seated ownership clears these bits after preparation/physics,
+  // before ordinary person-state dispatch. The falling-animation bit survives.
+  if (p.vehicle) p.flags2 = (p.flags2 & ~0x82000) >>> 0
   if (p.state === 25 || p.state === 29) {
     const group = p.workFlags && w.fights.some(b => b.id === p.workFlags)
     const next = stateAfterFight(
@@ -1055,6 +1058,18 @@ export function publishLiveVehicleLaunch(w: World, p: LivePerson) {
   p.assignment |= 128
   p.slowTurn =
     ((sprites.frameCounts[p.object] * (rules.animationDescriptors[p.draw].step + 1)) << 24) >> 24
+}
+
+// 0x4d32de clears impulse/airborne flags for a seated person and continues
+// state dispatch. A retained departure wrapper must not steal that visit.
+export function resumeLiveSeatedFlight(u: Unit) {
+  const p = u.flight
+  // Settled seats freeze physics (0x4e6d00). Other flight owners keep their
+  // ordinary physics visit, including a vehicle transition not yet seated.
+  if (!p || u.native !== p || p.state !== 10 || !p.vehicle || !(p.flags2 & 0x4000)) return false
+  u.flight = undefined
+  u.lift = 0
+  return true
 }
 
 export function stepLiveImpulse(w: World, u: Unit) {
