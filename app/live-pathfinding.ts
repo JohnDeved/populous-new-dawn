@@ -1,3 +1,4 @@
+import { moveObjectInCells } from './object-cells.ts'
 import { buildingPose } from './building-shapes.ts'
 import {
   nativePosition,
@@ -402,9 +403,15 @@ export function stepLiveRoute(w: World, u: Unit) {
   if (!p) return
   if (p !== u.native) {
     const to = nativePosition(w, u)
-    p.x = to.x & 65535
-    p.y = to.y & 65535
-    p.h = to.h
+    // A retired task can leave its route record aliased to a linked physical
+    // person. Move that owner through its cell chains before later retirement.
+    if (w.objectCells.objects.get(p.id) === p && p.flags2 & 0x20000)
+      moveObjectInCells(w.objectCells, p, to)
+    else {
+      p.x = to.x & 65535
+      p.y = to.y & 65535
+      p.h = to.h
+    }
     p.counter = w.turn & 255
   }
   advanceLiveRoute(w, p)
