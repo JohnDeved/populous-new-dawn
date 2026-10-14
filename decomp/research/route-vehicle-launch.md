@@ -88,7 +88,7 @@ or terrain was changed to manufacture a win.
 
 A separate fresh public-start M10 replay on the runtime-identical `4f295f22`
 reaches genuine mainland with all five healthy at5796 and the second Totem at6527,
-with its ten Erosion effects and retired deadline. Every person/craft movement is
+with its ten Erosion effects and retired deadline. Transport and flight movement is
 checked per tick; settled boarding uses the existing adapter's separately bounded
 seat attachment. The last idle driver departs through another ordinary ground
 command and real flight. This supplies authentic transport and Totem integration;
