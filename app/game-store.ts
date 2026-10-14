@@ -145,6 +145,10 @@ function migrateLegacyBridgeOrigins(world: World) {
 }
 
 export function migrateCheckpoint(world: World) {
+  // Preserve intact legacy cell order. This cannot recover a chain that an older
+  // runtime already truncated after allocating a person handle above 0xffff.
+  if (world.objectCells.heads instanceof Uint16Array)
+    world.objectCells.heads = new Float64Array(world.objectCells.heads)
   for (const unit of world.units) discardInvalidResident(world, unit)
   world.worshipAcquisition ??= createWorshipAcquisitionRuntime()
   world.worshipAcquisition.controllers.building ??= null

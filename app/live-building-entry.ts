@@ -311,6 +311,9 @@ function context(w: World) {
   return {
     randomState: w.randomState,
     people,
+    // Native pool indices are bounded. Browser person handles can exceed 0x7fff;
+    // preserve their full identity when comparing stored occupant references.
+    occupantId: (slot: number) => slot,
     buildings,
     tribes,
     orders: w.buildingOrders,

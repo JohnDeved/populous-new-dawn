@@ -10,7 +10,8 @@ export interface CellObject {
   displacement: { x: number; y: number; h: number }
 }
 export interface ObjectCells {
-  heads: Uint16Array
+  // Native fixtures use bounded pool indices; live worlds use full browser handles.
+  heads: Uint16Array | Float64Array
   objects: Map<number, CellObject>
 }
 const index = (p: { x: number; y: number }) => ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9)
