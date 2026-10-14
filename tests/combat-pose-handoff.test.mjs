@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 import { gunzipSync } from 'node:zlib'
 import { deserialize } from 'node:v8'
 import { createHash } from 'node:crypto'
-import { createWorld, addUnit, nativePosition } from '../app/model.ts'
+import { createWorld, addUnit } from '../app/model.ts'
 import {
   createLivePerson,
   registerLivePerson,
