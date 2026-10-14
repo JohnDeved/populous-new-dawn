@@ -1,0 +1,68 @@
+{
+  "startedAt": "2026-10-14T10:55:50.149Z",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/populous-shrine-toast",
+    "commit": "0b0eddde41d324a0f0701f9002cca4c5e640c965",
+    "tree": "eede2f911c7874c07b56bdadadffb7f2e1b67ac0",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "1f9cfa7e5bcf46ab4fcac2e4eb0d6d942440357760cdd6baa8ed78377a364c3f"
+  },
+  "launch": {
+    "executablePath": "/workspace/scratch/69fd8163d94e/browser-recovery-20261014/chrome-headless-shell-linux64/chrome-headless-shell",
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": true,
+    "args": [
+      "--remote-debugging-pipe"
+    ],
+    "timeout": 30000
+  },
+  "softwarePerformanceOnly": true,
+  "errors": [],
+  "warnings": [
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0xf40078d000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0xf40078d000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0xf40078d000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0xf40078d000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+  ],
+  "status": "failed",
+  "readiness": {
+    "timeoutMs": 60000,
+    "attempts": 12,
+    "first": {
+      "elapsedMs": 20920,
+      "pending": false,
+      "error": {
+        "name": "TimeoutError",
+        "message": "The operation was aborted due to timeout",
+        "cause": ""
+      }
+    },
+    "last": {
+      "elapsedMs": 39435,
+      "pending": false,
+      "status": 200,
+      "ok": true
+    },
+    "elapsedMs": 39435,
+    "listening": true,
+    "ready": true
+  },
+  "browserVersion": "154.0.8037.92",
+  "failure": "locator.waitFor: Timeout 45000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByText('Worshipping Earthquake stone head. 6 followers are required.', { exact: true }) to be visible\u001b[22m\n\n    at default (/workspace/scratch/69fd8163d94e/browser-recovery-20261014/shrine-toast/public-prefix.mjs:34:49)\n    at async runLocalBrowser (/workspace/scratch/69fd8163d94e/populous-shrine-toast/scripts/local-render/harness.mjs:399:20)\n    at async file:///workspace/scratch/69fd8163d94e/populous-shrine-toast/scripts/local-render/harness.mjs:592:21",
+  "finishedAt": "2026-10-14T10:58:41.553Z",
+  "sourceAfter": {
+    "root": "/workspace/scratch/69fd8163d94e/populous-shrine-toast",
+    "commit": "0b0eddde41d324a0f0701f9002cca4c5e640c965",
+    "tree": "eede2f911c7874c07b56bdadadffb7f2e1b67ac0",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "1f9cfa7e5bcf46ab4fcac2e4eb0d6d942440357760cdd6baa8ed78377a364c3f"
+  }
+}
