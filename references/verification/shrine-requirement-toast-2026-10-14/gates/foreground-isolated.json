@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "51da2771-7adb-4212-b502-6a68e3370375",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "0b0eddde41d324a0f0701f9002cca4c5e640c965",
+    "branch": "fix/authored-shrine-count",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/foreground-command.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-shrine-toast",
+  "startedAt": "2026-10-14T10:54:52.039Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-shrine-toast/work/orchestration/shrine-toast/foreground-isolated.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-shrine-toast/work/orchestration/shrine-toast/foreground-isolated.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T10:54:59.233Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ foreground mode preserves success, findings, and launch failures (444.511323ms)\n✔ timeout cannot pass even when the command handles TERM with exit zero (616.307301ms)\n✔ timeout escalates a TERM-resistant owned command (1762.100392ms)\n✔ CLI needs an explicit positive timeout and preserves raw command output (1292.764813ms)\n✔ an exited leader cannot leave descendant-held output pipes hanging (519.735037ms)\n✔ interruption cleans the owned command without converting exit zero to a pass (401.828834ms)\n✔ existing command receipt retains timed-out failure and complete logs (811.418584ms)\n✔ changed ownership proof withholds signals and cleanup certification (979.366513ms)\n✔ exit observed after the deadline between polls cannot pass (123.3015ms)\nℹ tests 9\nℹ suites 0\nℹ pass 9\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 7089.634789\n",
+  "stderr": "",
+  "stdoutSha256": "92c1f8f002239d28495dc523e2b14f7c996ec712c34f0be99df63af60db0769a",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "0b0eddde41d324a0f0701f9002cca4c5e640c965",
+    "branch": "fix/authored-shrine-count",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

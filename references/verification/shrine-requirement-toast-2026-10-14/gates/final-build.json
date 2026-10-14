@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "9c33d9ab-1faa-4498-93fe-248c807ad27d",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "bc6230b98fe623548c42d84b6401c2a6a5cb2400",
+    "branch": "fix/authored-shrine-count",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "npm",
+    "run",
+    "build"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-shrine-toast",
+  "startedAt": "2026-10-14T11:00:11.127Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-shrine-toast/work/orchestration/shrine-toast/final-build.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-shrine-toast/work/orchestration/shrine-toast/final-build.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T11:00:47.295Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 build\n> WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext build\n\n\n  vinext build  (Vite 8.0.13)\n\n[1/5] analyze client references...\n\u001b[2K\rtransforming...✓ 272 modules transformed.\nrendering chunks...\n✓ built in 7.53s\n[2/5] analyze server references...\n\u001b[2K\rtransforming...✓ 415 modules transformed.\nrendering chunks...\n✓ built in 3.50s\n[3/5] build rsc environment...\n\u001b[2K\rtransforming...✓ 270 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 9.57s\n[4/5] build client environment...\n\u001b[2K\rtransforming...✓ 456 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 5.34s\n[5/5] build ssr environment...\n\u001b[2K\rtransforming...✓ 421 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 5.53s\n\u001b[0m\n  Route (app)\n  ─ ? /\n\n  ? Unknown\n\n  ? Some routes could not be classified. vinext currently uses static analysis\n    and cannot detect dynamic API usage (headers(), cookies(), etc.) at build time.\n    Automatic classification will be improved in a future release.\n\n  Build complete. Run `vinext start` to start the production server.\n\n",
+  "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n\u001b[33m▲ \u001b[43;33m[\u001b[43;30mWARNING\u001b[43;33m]\u001b[0m \u001b[1mProxy environment variables detected. We'll use your proxy for fetch requests.\u001b[0m\n\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - vinext:jsx-in-js (27%)\n  - rsc:virtual-client-package (17%)\n  - vinext:og-inline-fetch-assets (10%)\n  - vinext:middleware-server-only (8%)\n  - vinext:image-imports (8%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - vinext:middleware-server-only (20%)\n  - vinext:validate-middleware-exports (14%)\n  - rsc:virtual-client-package (11%)\n  - alias (10%)\n  - vinext:og-inline-fetch-assets (10%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - alias (20%)\n  - rsc:virtual-client-package (15%)\n  - rsc:load-environment-module (13%)\n  - vinext:middleware-server-only (12%)\n  - vinext:og-inline-fetch-assets (9%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n[plugin builtin:vite-reporter] \n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - vinext:middleware-server-only (23%)\n  - vinext:css-data-url (16%)\n  - alias (12%)\n  - rsc:virtual-client-package (10%)\n  - vinext:og-inline-fetch-assets (9%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - vinext:css-data-url (22%)\n  - vinext:middleware-server-only (22%)\n  - vinext:validate-middleware-exports (11%)\n  - rsc:virtual-client-package (9%)\n  - alias (8%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\nnpm notice\nnpm notice New major version of npm available! 11.9.0 -> 12.2.0\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0\nnpm notice To update run: npm install -g npm@12.2.0\nnpm notice\n",
+  "stdoutSha256": "ddb8f8843331b3b44ac84bc418934b0f0c4ecb29c4769ea4b49f25f79f36de9f",
+  "stderrSha256": "fe573b9f8856dfb8848f36d5cd021644394f16cc336695118aadb60d93219c88",
+  "sourceAfter": {
+    "headOid": "bc6230b98fe623548c42d84b6401c2a6a5cb2400",
+    "branch": "fix/authored-shrine-count",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

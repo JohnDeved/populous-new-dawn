@@ -792,9 +792,14 @@ export function command(
   if (count) {
     message = 'Your followers are on the move.'
     if (dismantling) message = 'Braves assigned to dismantle the building and recover timber.'
-    else if (shrine)
-      message = `Worshipping ${shrine.name}. ${shrine.kind === 'vault' ? 'Only your shaman can learn its secrets.' : 'One follower is enough.'}`
-    else if (friendly) {
+    else if (shrine) {
+      let requirement: string
+      if (shrine.kind === 'vault') requirement = 'Only your shaman can learn its secrets.'
+      else if (shrine.mode === 3) requirement = 'Only your shaman can worship here.'
+      else if (shrine.required === 1) requirement = 'One follower is enough.'
+      else requirement = `${shrine.required} followers are required.`
+      message = `Worshipping ${shrine.name}. ${requirement}`
+    } else if (friendly) {
       if (friendly.progress < 1) message = 'Braves assigned to construction.'
       else if (friendly.kind === 'camp') message = 'Braves sent to train as warriors.'
       else if (friendly.kind === 'temple') message = 'Braves sent to train as preachers.'

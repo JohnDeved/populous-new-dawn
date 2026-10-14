@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "e299411a-0ede-4355-9b12-4461dd1efced",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "bc6230b98fe623548c42d84b6401c2a6a5cb2400",
+    "branch": "fix/authored-shrine-count",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node_modules/.bin/oxfmt",
+    "--check",
+    "app/live-command.ts",
+    "tests/shrine-command-message.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-shrine-toast",
+  "startedAt": "2026-10-14T11:00:05.350Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-shrine-toast/work/orchestration/shrine-toast/final-format.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-shrine-toast/work/orchestration/shrine-toast/final-format.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T11:00:05.603Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 11ms on 2 files using 9 threads.\n",
+  "stderr": "",
+  "stdoutSha256": "56f926a9971c720358058a95f4e98cdd2c8e32173df3c40b44a05cc2720dd5d1",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "bc6230b98fe623548c42d84b6401c2a6a5cb2400",
+    "branch": "fix/authored-shrine-count",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}
