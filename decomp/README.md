@@ -1550,9 +1550,11 @@ Run `scripts/check-native-resting-slots.py EXE`: 16,384 sequential indexed-searc
 operations compare every record byte, startup checks compare every offset, and
 2,048 cases each compare cell eligibility, slot validity, search and compaction.
 Native search, terrain, command and linked-list routines execute; only the
-building outside-point consumer is supplied. Slot-validity fixtures use owned
-slots within their shape; invalid shape/slot combinations read unrelated native
-storage. Search pool exhaustion, stale bytes, marked objects and failed terrain
+building outside-point consumer is supplied. Slot-validity fixtures cover all six
+slot numbers independently of population: sparse native compaction can retain a
+number above its shape and read the following initialized ring. See
+[resting-slot layout](research/resting-slot-layout.md) for the M18 crash repair.
+Search pool exhaustion, stale bytes, marked objects and failed terrain
 eligibility are included. A gameplay regression composes actual linked cells,
 search, ownership, compaction and the resting controller's reposition request
 through follower arrival and departure. There are 612 raw exports and 57 gameplay
