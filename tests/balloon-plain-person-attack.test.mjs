@@ -1,3 +1,7 @@
+import {
+  seatedAttackOrigin,
+  boundedGroundAttackDeparture,
+} from './helpers/seated-attack-origin.mjs'
 import { settleRouteLaunch } from './helpers/route-launch-landing.mjs'
 // Campaign setup supplies spell-focus masks; actors, charges and travel evolve through actual ticks.
 import { supportsFollower } from '../app/model.ts'
@@ -200,10 +204,15 @@ async function assertPlainPersonAttack({ store, world, shaman, balloon }, histor
     const beforeVehicle = person.vehicle,
       beforeCounter = person.counter,
       beforeOpponent = shaman.fight?.opponent
+    const beforeSeat = { x: shaman.x, z: shaman.z }
+    // Historical inputs may carry stale metadata until their first ordinary visit.
+    if (beforeVehicle && i) seatedAttackOrigin(world, shaman, balloon)
     tick(world, 1 / 12)
     tick(restored, 1 / 12)
+    if (person.vehicle) seatedAttackOrigin(world, shaman, balloon)
     assert.deepEqual(comparable(restored), comparable(world))
     if (beforeVehicle && !person.vehicle) {
+      boundedGroundAttackDeparture(shaman, beforeSeat)
       departures++
       departure = world.turn
       assert.deepEqual([person.workTarget, person.substate], [target.id, 2])
@@ -223,29 +232,32 @@ async function assertPlainPersonAttack({ store, world, shaman, balloon }, histor
   assert.equal(departures, 1)
   if (historical) {
     assert.equal(departure, 3540)
-    assert.equal(firstFight, 3541)
+    assert.equal(firstFight, 3545)
     assert.equal(firstOpponent, 17)
     assert.equal(firstOpponentTeam, 'green')
-    assert.equal(death, 0)
-    assert.equal(targetDeath, 3760)
-    assert.equal(shaman.hp, 100.75)
-    assert.equal(world.objectCells.objects.get(shaman.id), shaman.native)
-    assert.equal(world.units.includes(shaman), true)
-    assert.equal(world.units.includes(target), false)
-    assert.equal(world.objectCells.objects.has(target.id), false)
-    assert.equal(target.hp, 0)
+    // The old-source victory is retained in the paired historical evidence.
+    // Correct native seat coordinates change the existing grounded attack exit.
+    assert.equal(death, 3578)
+    assert.equal(targetDeath, 0)
+    assert.equal(shaman.hp, 0)
+    assert.equal(world.objectCells.objects.has(shaman.id), false)
+    assert.equal(world.units.includes(shaman), false)
+    assert.equal(world.units.includes(target), true)
+    assert.equal(world.objectCells.objects.has(target.id), true)
+    assert.equal(target.hp, 55)
   } else {
-    // The fresh dry route reaches another native clock/RNG phase. Its selected
-    // Preacher 17 survives guard interception; this is a browser outcome witness.
+    // The corrected seat-origin attack first reaches selected Preacher17, then
+    // guards intercept. This remains an existing browser grounded-adapter outcome.
     assert.equal(departure, 3852)
-    assert.equal(firstFight, 3862)
-    assert.equal(firstOpponent, 10)
+    assert.equal(firstFight, 3857)
+    assert.equal(firstOpponent, 17)
     assert.equal(firstOpponentTeam, 'green')
     assert.deepEqual(encounters, [
-      [3862, 10],
-      [3901, 11],
+      [3857, 17],
+      [3873, 12],
+      [3877, 11],
     ])
-    assert.equal(death, 3915)
+    assert.equal(death, 3884)
     assert.equal(targetDeath, 0)
     assert.equal(shaman.hp, 0)
     assert.equal(world.objectCells.objects.has(shaman.id), false)
@@ -263,8 +275,8 @@ test('fresh supplied-focus dry-route plain person target preserves interception 
   await assertPlainPersonAttack(prepareFreshFlight(), false)
 })
 
-// A c44dadfc supplied-focus campaign checkpoint retains the prior successful witness.
-// This verifies current-source continuation, separately from fresh acquisition.
-test('historical c44 supplied-focus Balloon checkpoint retains plain Preacher17 victory through Save/Load', async () => {
+// The c44dadfc checkpoint is historical input, not a promise of the old outcome.
+// Old-source victory is retained; corrected current-source interception is asserted.
+test('historical c44 Balloon checkpoint uses corrected seat origin and retains current interception cleanup through Save/Load', async () => {
   await assertPlainPersonAttack(await loadHistoricalMission22Balloon(), true)
 })

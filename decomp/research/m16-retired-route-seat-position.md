@@ -47,3 +47,31 @@ precedence, unregistered native fallback and browser-only legacy passengers.
 This checkpoint-local proof cannot qualify earlier corrupted native positions;
 independent player replay must start at actual preboarding9396 before campaign
 continuation. Standard gates and that public replay are pending at first commit.
+
+## Corrected M22 attack chronology
+
+The full initial candidate suite exposed four existing M22 Balloon attack
+expectations tied to stale native seat coordinates. Paired observation-only
+collectors preserve the old-source victory and all original assertions; they
+force failure and are not test acceptance. Baseline runtime equals basea550.
+At historical turn3539 both browser views show the same seat, while baseline
+nativeXY9975/32415 is stale and candidate9024/32521 is current. Both depart3540,
+but their grounded exits are9210/32485 versus8261/32426. The corrected continuation
+loses the Shaman at3578 and leaves selected Preacher17 alive55HP; old source won.
+Fresh queued/plain inputs first meet selected17 before guard interception; their
+Shaman loss and command/cell cleanup remain asserted. Staged idle attack still
+meets17 and loses, with corrected timing and retained-life diagnostic.
+
+This departure is the existing `leaveLiveAttackVehicle` mode1 grounded adapter,
+not voluntary launch: static00435550 reads actual personXYZ then applies its
+0x300 move. Correct seat-origin changes the terrain/encounter sequence; no combat
+runtime changed to force a result. New tests assert exact physical seat origin
+and bounded768-unit grounded exit while retaining counter/order/owner/SaveLoad
+and full cleanup assertions. The former successful expected test and both raw
+collector streams are retained under verification/chronology. Plain-person paired
+rows are limited to3539–3545 to avoid aliasing fresh/historical later turn labels.
+Mode1 origin disassembly command:
+`objdump -d -Mintel --start-address=0x435550 --stop-address=0x435650 D3DPopTB.exe`.
+Original435589 addresses person+0x3d;435590–43559f derives target-minus-personXY;
+4355e6 pushes0x300;4355ee copies actual personXYZ;435606 calls4e6a70. This supports
+current-seat origin ownership, not the browser adapter's full ground physics.

@@ -1,3 +1,7 @@
+import {
+  seatedAttackOrigin,
+  boundedGroundAttackDeparture,
+} from './helpers/seated-attack-origin.mjs'
 import { settleRouteLaunch } from './helpers/route-launch-landing.mjs'
 // Campaign setup supplies spell-focus masks; actors, charges and travel evolve through actual ticks.
 import { vehicleReady } from '../app/vehicle-routing.ts'
@@ -256,14 +260,19 @@ test('supplied-focus current Mission22 staged transport waypoints advance and re
   for (let i = 0; i < 1200; i++) {
     const beforeVehicle = idlePerson.vehicle,
       beforeCounter = idlePerson.counter
+    const beforeSeat = { x: idleUnit.x, z: idleUnit.z }
+    // Historical inputs may carry stale metadata until their first ordinary visit.
+    if (beforeVehicle && i) seatedAttackOrigin(idle, idleUnit, idleCraft)
     tick(idle, 1 / 12)
     tick(idleReplay, 1 / 12)
+    if (idlePerson.vehicle) seatedAttackOrigin(idle, idleUnit, idleCraft)
     assert.deepEqual(comparable(idleReplay), comparable(idle))
     if (i === 0) {
       assert.equal(idlePerson.counter, (idleCounter + 1) & 255)
       assert.equal(idleCraft.x, 16096)
     }
     if (beforeVehicle && !idlePerson.vehicle) {
+      boundedGroundAttackDeparture(idleUnit, beforeSeat)
       idleDeparture = idle.turn
       assert.deepEqual([idlePerson.workTarget, idlePerson.substate], [17, 2])
       assert.equal(idlePerson.counter, (beforeCounter + 1) & 255)
@@ -280,11 +289,12 @@ test('supplied-focus current Mission22 staged transport waypoints advance and re
   }
   assert.deepEqual(
     [idleDeparture, idleFirstFight, idleFirstOpponent, idleDeath],
-    [3881, 3882, 17, 3915]
+    [3881, 3886, 17, 3917]
   )
   // Existing browser continuation still removes the unit with positive retained
-  // native life; the longer acquisition supplies its actual encounter/RNG history.
-  assert.equal(idlePerson.life, 1)
+  // native life; corrected seat-origin changes its actual encounter/RNG history.
+  // This existing mode1 grounded adapter is not voluntary-launch physics parity.
+  assert.equal(idlePerson.life, 227)
   assert.equal(idleUnit.hp, 0)
   assert.equal(idle.units.includes(idleUnit), false)
   assert.equal(idle.objectCells.objects.has(idleUnit.id), false)
