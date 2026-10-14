@@ -1,3 +1,5 @@
+// Campaign setup supplies spell-focus masks; actors, charges and travel evolve through actual ticks.
+import { supportsFollower } from '../app/model.ts'
 import { reachMission22FlightPoint } from './helpers/mission22-flight-phase.mjs'
 // Ordinary acquired M22 Balloon; preparation supplies only the mana-focus adapter.
 import test from 'node:test'
@@ -24,7 +26,7 @@ const stepUntil = (w, done, limit) => {
     stepUntil(w, () => Math.hypot(s.x - p.x, s.z - p.z) < 2, 1000)
   }
 // Preparation supplies only the existing mana-focus mask adapter.
-test('same-vehicle boarding retains its acquired passenger through repeated input and Save/Load', async () => {
+test('supplied-focus same-vehicle boarding retains its acquired passenger through repeated input and Save/Load', async () => {
   const store = createGameStore()
   store.startMission(22)
   let world = store.getWorld(),
@@ -43,8 +45,12 @@ test('same-vehicle boarding retains its acquired passenger through repeated inpu
   selectUnit(world, shaman.id, false)
   assert.ok(command(world, { ...browserPosition(boat), id: boat.id }))
   stepUntil(world, () => boat.passengerCount === 1, 500)
-  assert.ok(command(world, { x: -25, z: -63 }))
+  // A dry destination requests the native route-ground departure.
+  assert.ok(supportsFollower(world, { x: -25, z: -61 }))
+  assert.ok(command(world, { x: -25, z: -61 }))
   stepUntil(world, () => boat.passengerCount === 0, 2_000)
+  assert.ok(shaman.hp > 0 && supportsFollower(world, shaman))
+  assert.equal(shaman.native.vehicle, 0)
 
   world.charging = true
   world.manaWorld.spells[0].disabled = 0xffffffff & ~(1 << 4) & ~(1 << 11)
@@ -57,8 +63,12 @@ test('same-vehicle boarding retains its acquired passenger through repeated inpu
   selectUnit(world, shaman.id, false)
   assert.ok(command(world, { ...browserPosition(boat), id: boat.id }))
   stepUntil(world, () => boat.passengerCount === 1, 500)
-  assert.ok(command(world, { x: -83, z: -57 }))
+  // A dry destination requests the native route-ground departure.
+  assert.ok(supportsFollower(world, { x: -83, z: -59 }))
+  assert.ok(command(world, { x: -83, z: -59 }))
   stepUntil(world, () => boat.passengerCount === 0, 2_000)
+  assert.ok(shaman.hp > 0 && supportsFollower(world, shaman))
+  assert.equal(shaman.native.vehicle, 0)
   assert.ok(cast(world, 'bridge', { x: -83, z: -69 }))
   stepUntil(world, () => !shaman.casting, 100)
   for (let turn = 0; turn < 160; turn++) tick(world, 1 / 12)

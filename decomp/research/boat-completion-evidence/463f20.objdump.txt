@@ -16,7 +16,7 @@ Disassembly of section .text:
   463f31:	f6 46 0c 04          	test   BYTE PTR [esi+0xc],0x4
   463f35:	74 0a                	je     0x463f41
   463f37:	81 8e 92 00 00 00 00 	or     DWORD PTR [esi+0x92],0x8000
-  463f3e:	80 00 00 
+  463f3e:	80 00 00
   463f41:	8b 86 92 00 00 00    	mov    eax,DWORD PTR [esi+0x92]
   463f47:	f6 c4 80             	test   ah,0x80
   463f4a:	74 3a                	je     0x463f86
@@ -132,7 +132,7 @@ Disassembly of section .text:
   4640ba:	c1 e0 03             	shl    eax,0x3
   4640bd:	2b c1                	sub    eax,ecx
   4640bf:	f6 04 45 28 a3 5a 00 	test   BYTE PTR [eax*2+0x5aa328],0x3d
-  4640c6:	3d 
+  4640c6:	3d
   4640c7:	74 07                	je     0x4640d0
   4640c9:	f6 07 02             	test   BYTE PTR [edi],0x2
   4640cc:	75 02                	jne    0x4640d0

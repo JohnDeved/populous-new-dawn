@@ -43,7 +43,7 @@ Disassembly of section .text:
   46702c:	66 39 46 3f          	cmp    WORD PTR [esi+0x3f],ax
   467030:	0f 84 ee 00 00 00    	je     0x467124
   467036:	81 8e 92 00 00 00 00 	or     DWORD PTR [esi+0x92],0x8000
-  46703d:	80 00 00 
+  46703d:	80 00 00
   467040:	0f bf 44 24 10       	movsx  eax,WORD PTR [esp+0x10]
   467045:	0f bf d5             	movsx  edx,bp
   467048:	b3 01                	mov    bl,0x1

@@ -106,3 +106,29 @@ at922 preserves50HP and leaves a ready craft; public reboarding completes923.
 The same public Save/Load twins continue through every tick. A diagnostic Shift
 click at the unsuitable original open-water point killed the follower and is
 not used as successful landing evidence.
+
+## Downstream Mission22 requalification
+
+The full frozen916 run retained ten failed tests whose acquisition expected
+plain Boat water-stop mass ejection. Current tests instead verify real dry
+route-ground departures at(-25,-61) and(-83,-59). This changes acquisition from
+historical2206/counter158 to2471/counter167 and therefore changes later phases,
+world RNG and combat chronology. Exact spatial input points and native order,
+owner, target, reference and checkpoint assertions remain checked.
+
+These Mission22 setups directly supply spell-focus masks. They are explicitly
+campaign-derived supplied-focus fixtures, not fully ordinary public acquisition.
+The separately qualified Mission9 route supplies the ordinary public-input
+transport/victory witness.
+
+Most current continuations retain their previous structural result with measured,
+nonuniform timing changes. Two combat scenarios change materially: fresh plain
+attack is intercepted by guards instead of killing Preacher17; fresh Tower105
+attack first encounters Warrior10 rather than11. Their current-source tests
+assert the actual target handling, encounters, outcomes and cleanup. Separate
+[historical supplied-focus checkpoint continuations](../../tests/fixtures/mission22-historical/README.md)
+retain every original strict Tower105/Warrior11 and Preacher17-victory assertion.
+The historical producer was independently reproduced with identical full-world
+hashes. It is browser-port history, not native execution or current fresh-route
+coverage. Failed idle/ground phase probes remain diagnostic failures and are not
+accepted as restored historical phase or successful outcome controls.

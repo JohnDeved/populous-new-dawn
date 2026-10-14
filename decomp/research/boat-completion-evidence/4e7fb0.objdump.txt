@@ -30,7 +30,7 @@ Disassembly of section .text:
   4e7ffb:	25 00 01 00 00       	and    eax,0x100
   4e8000:	8b d8                	mov    ebx,eax
   4e8002:	c7 44 24 2c 00 00 00 	mov    DWORD PTR [esp+0x2c],0x0
-  4e8009:	00 
+  4e8009:	00
   4e800a:	66 8b 47 7a          	mov    ax,WORD PTR [edi+0x7a]
   4e800e:	66 85 c0             	test   ax,ax
   4e8011:	74 1a                	je     0x4e802d
@@ -98,7 +98,7 @@ Disassembly of section .text:
   4e80e9:	66 a9 00 fe          	test   ax,0xfe00
   4e80ed:	74 08                	je     0x4e80f7
   4e80ef:	c7 44 24 24 05 00 00 	mov    DWORD PTR [esp+0x24],0x5
-  4e80f6:	00 
+  4e80f6:	00
   4e80f7:	83 7c 24 24 00       	cmp    DWORD PTR [esp+0x24],0x0
   4e80fc:	0f 84 37 02 00 00    	je     0x4e8339
   4e8102:	83 7c 24 24 06       	cmp    DWORD PTR [esp+0x24],0x6
@@ -107,7 +107,7 @@ Disassembly of section .text:
   4e8110:	75 10                	jne    0x4e8122
   4e8112:	c6 87 a4 00 00 00 00 	mov    BYTE PTR [edi+0xa4],0x0
   4e8119:	66 c7 87 9c 00 00 00 	mov    WORD PTR [edi+0x9c],0x0
-  4e8120:	00 00 
+  4e8120:	00 00
   4e8122:	83 7c 24 24 05       	cmp    DWORD PTR [esp+0x24],0x5
   4e8127:	0f 85 a3 00 00 00    	jne    0x4e81d0
   4e812d:	85 f6                	test   esi,esi
@@ -163,7 +163,7 @@ Disassembly of section .text:
   4e81d0:	85 db                	test   ebx,ebx
   4e81d2:	0f 85 52 01 00 00    	jne    0x4e832a
   4e81d8:	66 83 bf 9c 00 00 00 	cmp    WORD PTR [edi+0x9c],0x0
-  4e81df:	00 
+  4e81df:	00
   4e81e0:	0f 85 5c 01 00 00    	jne    0x4e8342
   4e81e6:	66 8b 47 26          	mov    ax,WORD PTR [edi+0x26]
   4e81ea:	33 f6                	xor    esi,esi
@@ -265,11 +265,11 @@ Disassembly of section .text:
   4e8321:	c6 87 9f 00 00 00 26 	mov    BYTE PTR [edi+0x9f],0x26
   4e8328:	eb 18                	jmp    0x4e8342
   4e832a:	66 c7 87 9c 00 00 00 	mov    WORD PTR [edi+0x9c],0x0
-  4e8331:	00 00 
+  4e8331:	00 00
   4e8333:	66 89 77 5f          	mov    WORD PTR [edi+0x5f],si
   4e8337:	eb 09                	jmp    0x4e8342
   4e8339:	66 c7 87 9c 00 00 00 	mov    WORD PTR [edi+0x9c],0x0
-  4e8340:	00 00 
+  4e8340:	00 00
   4e8342:	8d 44 24 14          	lea    eax,[esp+0x14]
   4e8346:	50                   	push   eax
   4e8347:	57                   	push   edi
@@ -287,7 +287,7 @@ Disassembly of section .text:
   4e8372:	80 bf 9f 00 00 00 00 	cmp    BYTE PTR [edi+0x9f],0x0
   4e8379:	75 27                	jne    0x4e83a2
   4e837b:	66 83 bf a6 00 00 00 	cmp    WORD PTR [edi+0xa6],0x0
-  4e8382:	00 
+  4e8382:	00
   4e8383:	75 1d                	jne    0x4e83a2
   4e8385:	8a 87 a4 00 00 00    	mov    al,BYTE PTR [edi+0xa4]
   4e838b:	84 c0                	test   al,al
@@ -296,7 +296,7 @@ Disassembly of section .text:
   4e8391:	76 0f                	jbe    0x4e83a2
   4e8393:	c6 87 a4 00 00 00 00 	mov    BYTE PTR [edi+0xa4],0x0
   4e839a:	c7 44 24 34 01 00 00 	mov    DWORD PTR [esp+0x34],0x1
-  4e83a1:	00 
+  4e83a1:	00
   4e83a2:	fe 87 a4 00 00 00    	inc    BYTE PTR [edi+0xa4]
   4e83a8:	e9 69 02 00 00       	jmp    0x4e8616
   4e83ad:	83 7c 24 30 00       	cmp    DWORD PTR [esp+0x30],0x0
@@ -582,7 +582,7 @@ Disassembly of section .text:
   4e874d:	81 e5 00 fe 00 00    	and    ebp,0xfe00
   4e8753:	0b f5                	or     esi,ebp
   4e8755:	f6 04 b5 e4 03 8a 00 	test   BYTE PTR [esi*4+0x8a03e4],0x8
-  4e875c:	08 
+  4e875c:	08
   4e875d:	74 10                	je     0x4e876f
   4e875f:	66 03 44 24 24       	add    ax,WORD PTR [esp+0x24]
   4e8764:	41                   	inc    ecx
@@ -609,7 +609,7 @@ Disassembly of section .text:
   4e87a6:	83 7c 24 34 00       	cmp    DWORD PTR [esp+0x34],0x0
   4e87ab:	74 66                	je     0x4e8813
   4e87ad:	66 c7 87 a6 00 00 00 	mov    WORD PTR [edi+0xa6],0x20
-  4e87b4:	20 00 
+  4e87b4:	20 00
   4e87b6:	33 c9                	xor    ecx,ecx
   4e87b8:	8a 4f 2b             	mov    cl,BYTE PTR [edi+0x2b]
   4e87bb:	8b c1                	mov    eax,ecx
@@ -648,7 +648,7 @@ Disassembly of section .text:
   4e881d:	83 c4 04             	add    esp,0x4
   4e8820:	eb 08                	jmp    0x4e882a
   4e8822:	c7 44 24 38 01 00 00 	mov    DWORD PTR [esp+0x38],0x1
-  4e8829:	00 
+  4e8829:	00
   4e882a:	83 7c 24 38 00       	cmp    DWORD PTR [esp+0x38],0x0
   4e882f:	0f 84 9d 00 00 00    	je     0x4e88d2
   4e8835:	8d 47 3d             	lea    eax,[edi+0x3d]

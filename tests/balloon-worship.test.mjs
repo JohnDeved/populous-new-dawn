@@ -1,3 +1,5 @@
+// Campaign setup supplies spell-focus masks; actors, charges and travel evolve through actual ticks.
+import { supportsFollower } from '../app/model.ts'
 import { reachMission22FlightPoint } from './helpers/mission22-flight-phase.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
@@ -47,8 +49,12 @@ function prepareFlight() {
   selectUnit(world, shaman.id, false)
   assert.ok(command(world, { ...browserPosition(boat), id: boat.id }))
   stepUntil(world, () => boat.passengerCount === 1, 500)
-  assert.ok(command(world, { x: -25, z: -63 }))
+  // A dry destination requests the native route-ground departure.
+  assert.ok(supportsFollower(world, { x: -25, z: -61 }))
+  assert.ok(command(world, { x: -25, z: -61 }))
   stepUntil(world, () => boat.passengerCount === 0, 2_000)
+  assert.ok(shaman.hp > 0 && supportsFollower(world, shaman))
+  assert.equal(shaman.native.vehicle, 0)
 
   world.charging = true
   world.manaWorld.spells[0].disabled = 0xffffffff & ~(1 << 4) & ~(1 << 11)
@@ -61,8 +67,12 @@ function prepareFlight() {
   selectUnit(world, shaman.id, false)
   assert.ok(command(world, { ...browserPosition(boat), id: boat.id }))
   stepUntil(world, () => boat.passengerCount === 1, 500)
-  assert.ok(command(world, { x: -83, z: -57 }))
+  // A dry destination requests the native route-ground departure.
+  assert.ok(supportsFollower(world, { x: -83, z: -59 }))
+  assert.ok(command(world, { x: -83, z: -59 }))
   stepUntil(world, () => boat.passengerCount === 0, 2_000)
+  assert.ok(shaman.hp > 0 && supportsFollower(world, shaman))
+  assert.equal(shaman.native.vehicle, 0)
   assert.ok(cast(world, 'bridge', { x: -83, z: -69 }))
   stepUntil(world, () => !shaman.casting, 100)
   for (let turn = 0; turn < 160; turn++) tick(world, 1 / 12)
@@ -88,7 +98,7 @@ function comparable(world) {
   return copy
 }
 
-test('Mission 22 Balloon worship lands, rewards once and continues through public Save/Load', async () => {
+test('supplied-focus Mission22 Balloon worship lands, rewards once and continues through public Save/Load', async () => {
   const { store, world, shaman, balloon, north } = prepareFlight()
   selectUnit(world, shaman.id, false)
   assert.ok(command(world, { x: 55, z: 121 }))
@@ -102,7 +112,8 @@ test('Mission 22 Balloon worship lands, rewards once and continues through publi
   assert.equal(currentPersonOrder(rejected.buildingOrders, person).model, 3)
   // Keep the actual repeated-input history: every rejected attempt retains
   // the original travel owner and record, until the first real admission.
-  const retained = shaman.native, attempts = []
+  const retained = shaman.native,
+    attempts = []
   for (let count = 0; count < 150; count++) {
     attempts.push(world.turn)
     assert.ok(command(world, { ...north, id: north.id }))
@@ -112,7 +123,11 @@ test('Mission 22 Balloon worship lands, rewards once and continues through publi
     assert.equal(currentPersonOrder(world.buildingOrders, retained).model, 3)
     tick(world, 1 / 12)
   }
-  assert.deepEqual(attempts, Array.from({ length: 106 }, (_, index) => 3153 + index))
+  // Dry Boat acquisition is later; retain all 105 rejections and one admission.
+  assert.deepEqual(
+    attempts,
+    Array.from({ length: 106 }, (_, index) => 3418 + index)
+  )
   const worship = currentPersonOrder(world.buildingOrders, shaman.native)
   assert.equal(worship.model, 27)
   assert.equal(worship.references, 1)
@@ -123,19 +138,28 @@ test('Mission 22 Balloon worship lands, rewards once and continues through publi
   const restored = store.getWorld()
   assert.deepEqual(comparable(restored), comparable(world))
   let landed = 0,
-    rewarded = 0
+    rewarded = 0,
+    landings = 0,
+    rewards = 0
   for (let i = 0; i < 400; i++) {
     const p = shaman.native,
-      before = p.counter
+      before = p.counter,
+      beforePassengers = balloon.passengerCount,
+      beforeUses = north.uses
     tick(world, 1 / 12)
     tick(restored, 1 / 12)
     assert.deepEqual(comparable(restored), comparable(world))
     if (p === shaman.native && p.state === 10) assert.equal(p.counter, (before + 1) & 255)
+    if (beforePassengers && !balloon.passengerCount) landings++
+    if (north.uses !== beforeUses) rewards++
     if (!balloon.passengerCount && !landed) landed = world.turn
     if (north.uses && !rewarded) rewarded = world.turn
   }
-  assert.equal(landed, 3301)
-  assert.equal(rewarded, 3502)
+  assert.equal(landings, 1)
+  assert.equal(rewards, 1)
+  assert.equal(landed, 3566)
+  // Worship checks its standing phase on even person counters.
+  assert.equal(rewarded, 3766)
   assert.equal(north.uses, 1)
   assert.equal(worship.references, 0)
   assert.equal(shaman.native.vehicle, 0)

@@ -1,4 +1,7 @@
+// Campaign setup supplies spell-focus masks; actors, charges and travel evolve through actual ticks.
+import { supportsFollower } from '../app/model.ts'
 import { reachMission22FlightPoint } from './helpers/mission22-flight-phase.mjs'
+import { loadHistoricalMission22Balloon } from './helpers/historical-mission22-balloon.mjs'
 // Bounded direct-target transport handoff; grounded combat remains the existing adapter.
 import test from 'node:test'
 import { createGameStore } from '../app/game-store.ts'
@@ -24,7 +27,7 @@ const stepUntil = (w, done, limit) => {
     stepUntil(w, () => Math.hypot(s.x - p.x, s.z - p.z) < 2, 1000)
   }
 // Preparation supplies only the existing mana-focus mask adapter.
-test('ordinary plain person target queues an unstaged transport attack through Save/Load', async () => {
+function prepareFreshFlight() {
   const store = createGameStore()
   store.startMission(22)
   let world = store.getWorld(),
@@ -43,8 +46,12 @@ test('ordinary plain person target queues an unstaged transport attack through S
   selectUnit(world, shaman.id, false)
   assert.ok(command(world, { ...browserPosition(boat), id: boat.id }))
   stepUntil(world, () => boat.passengerCount === 1, 500)
-  assert.ok(command(world, { x: -25, z: -63 }))
+  // A dry destination requests the native route-ground departure.
+  assert.ok(supportsFollower(world, { x: -25, z: -61 }))
+  assert.ok(command(world, { x: -25, z: -61 }))
   stepUntil(world, () => boat.passengerCount === 0, 2_000)
+  assert.ok(shaman.hp > 0 && supportsFollower(world, shaman))
+  assert.equal(shaman.native.vehicle, 0)
 
   world.charging = true
   world.manaWorld.spells[0].disabled = 0xffffffff & ~(1 << 4) & ~(1 << 11)
@@ -57,8 +64,12 @@ test('ordinary plain person target queues an unstaged transport attack through S
   selectUnit(world, shaman.id, false)
   assert.ok(command(world, { ...browserPosition(boat), id: boat.id }))
   stepUntil(world, () => boat.passengerCount === 1, 500)
-  assert.ok(command(world, { x: -83, z: -57 }))
+  // A dry destination requests the native route-ground departure.
+  assert.ok(supportsFollower(world, { x: -83, z: -59 }))
+  assert.ok(command(world, { x: -83, z: -59 }))
   stepUntil(world, () => boat.passengerCount === 0, 2_000)
+  assert.ok(shaman.hp > 0 && supportsFollower(world, shaman))
+  assert.equal(shaman.native.vehicle, 0)
   assert.ok(cast(world, 'bridge', { x: -83, z: -69 }))
   stepUntil(world, () => !shaman.casting, 100)
   for (let turn = 0; turn < 160; turn++) tick(world, 1 / 12)
@@ -71,6 +82,10 @@ test('ordinary plain person target queues an unstaged transport attack through S
     ['blue', [shaman.id], balloon.id]
   )
 
+  return { store, world, shaman, balloon }
+}
+
+async function assertPlainPersonAttack({ store, world, shaman, balloon }, historical) {
   selectUnit(world, shaman.id, false)
   assert.ok(command(world, { x: 55, z: 121 }))
   reachMission22FlightPoint(world, shaman, balloon, 20767, 29926)
@@ -170,7 +185,9 @@ test('ordinary plain person target queues an unstaged transport attack through S
         if (head.reward === undefined && head.rewardMana) head.reward = 'mana'
       return copy
     }
-  let departure = 0,
+  const encounters = []
+  let departures = 0,
+    departure = 0,
     firstOpponent = 0,
     firstOpponentTeam = null,
     firstFight = 0,
@@ -178,16 +195,20 @@ test('ordinary plain person target queues an unstaged transport attack through S
     death = 0
   for (let i = 0; i < 1200; i++) {
     const beforeVehicle = person.vehicle,
-      beforeCounter = person.counter
+      beforeCounter = person.counter,
+      beforeOpponent = shaman.fight?.opponent
     tick(world, 1 / 12)
     tick(restored, 1 / 12)
     assert.deepEqual(comparable(restored), comparable(world))
     if (beforeVehicle && !person.vehicle) {
+      departures++
       departure = world.turn
       assert.deepEqual([person.workTarget, person.substate], [target.id, 2])
       assert.equal(person.counter, (beforeCounter + 1) & 255)
       assert.equal(world.buildingOrders.records[orderId].references, 1)
     }
+    if (shaman.fight && shaman.fight.opponent !== beforeOpponent)
+      encounters.push([world.turn, shaman.fight.opponent])
     if (shaman.fight && !firstOpponent) {
       firstFight = world.turn
       firstOpponent = shaman.fight.opponent
@@ -196,19 +217,53 @@ test('ordinary plain person target queues an unstaged transport attack through S
     if (target.hp <= 0 && !targetDeath) targetDeath = world.turn
     if (shaman.hp <= 0 && !death) death = world.turn
   }
-  assert.equal(departure, 3540)
-  assert.equal(firstFight, 3541)
-  assert.equal(firstOpponent, 17)
-  assert.equal(firstOpponentTeam, 'green')
-  assert.equal(death, 0)
-  assert.equal(targetDeath, 3760)
-  assert.equal(shaman.hp, 100.75)
-  assert.equal(world.objectCells.objects.get(shaman.id), shaman.native)
-  assert.equal(world.units.includes(shaman), true)
-  assert.equal(world.units.includes(target), false)
-  assert.equal(world.objectCells.objects.has(target.id), false)
-  assert.equal(target.hp, 0)
+  assert.equal(departures, 1)
+  if (historical) {
+    assert.equal(departure, 3540)
+    assert.equal(firstFight, 3541)
+    assert.equal(firstOpponent, 17)
+    assert.equal(firstOpponentTeam, 'green')
+    assert.equal(death, 0)
+    assert.equal(targetDeath, 3760)
+    assert.equal(shaman.hp, 100.75)
+    assert.equal(world.objectCells.objects.get(shaman.id), shaman.native)
+    assert.equal(world.units.includes(shaman), true)
+    assert.equal(world.units.includes(target), false)
+    assert.equal(world.objectCells.objects.has(target.id), false)
+    assert.equal(target.hp, 0)
+  } else {
+    // The fresh dry route reaches another native clock/RNG phase. Its selected
+    // Preacher 17 survives guard interception; this is a browser outcome witness.
+    assert.equal(departure, 3804)
+    assert.equal(firstFight, 3814)
+    assert.equal(firstOpponent, 10)
+    assert.equal(firstOpponentTeam, 'green')
+    assert.deepEqual(encounters, [
+      [3814, 10],
+      [3856, 12],
+      [3860, 11],
+      [3866, 10],
+    ])
+    assert.equal(death, 3866)
+    assert.equal(targetDeath, 0)
+    assert.equal(shaman.hp, 0)
+    assert.equal(world.objectCells.objects.has(shaman.id), false)
+    assert.equal(world.units.includes(shaman), false)
+    assert.equal(world.units.includes(target), true)
+    assert.equal(world.objectCells.objects.has(target.id), true)
+    assert.equal(target.hp, 55)
+  }
   assert.equal(world.buildingOrders.records[orderId].references, 0)
   assert.deepEqual(balloon.passengers, [])
   assert.equal(balloon.passengerCount, 0)
+}
+
+test('fresh supplied-focus dry-route plain person target preserves interception and cleanup through Save/Load', async () => {
+  await assertPlainPersonAttack(prepareFreshFlight(), false)
+})
+
+// A genuinely earned c44dadfc checkpoint retains the prior successful witness.
+// This verifies current-source continuation, separately from fresh acquisition.
+test('historical c44 supplied-focus Balloon checkpoint retains plain Preacher17 victory through Save/Load', async () => {
+  await assertPlainPersonAttack(await loadHistoricalMission22Balloon(), true)
 })

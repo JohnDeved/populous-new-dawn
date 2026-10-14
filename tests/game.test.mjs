@@ -2349,20 +2349,169 @@ test('Mission 5 Boat worship emits its original one-shot tutorial',async()=>{
  const serial=tutorial.serial;for(let turn=0;turn<32;turn++)tick(w,1/12);assert.deepEqual(w.messages.slots.filter(message=>message?.stringId===662).map(message=>message.serial),[serial]);
 });
 
-test('supplied Mission 5 reward and relocated Boat support boarding, sailing and checkpoints',async()=>{
- const {vehicleCanDisembark,vehicleReady}=await import('../app/vehicle-routing.ts'),{createGameStore}=await import('../app/game-store.ts');
- const store=createGameStore();store.startMission(5);let w=store.getWorld(),boat=w.vehicles[0],followers=w.units.filter(u=>u.team==='blue'&&u.kind==='warrior').slice(0,2);const ids=followers.map(u=>u.id),head=w.shrines.find(s=>s.kind==='boat');
- // Browser-prepared template; forced reward and relocated Boat/followers below
- // are supplied controls, not ordinary reward allocation/copy acceptance.
- assert.deepEqual([boat.model,boat.x,boat.y,boat.active],[1,58226,12429,false]);assert.equal(head.rewardVehicle,boat.id);
- const source=boat;head.forced=true;head.reset=false;until(w,()=>w.vehicles.some(v=>v.active&&v.model===1&&v.id!==source.id),10);assert.equal(head.active,false);boat=w.vehicles.find(v=>v.active&&v.model===1&&v.id!==source.id);assert.ok(boat);assert.equal(w.vehicles.includes(source),false);assert.equal(w.shrines.includes(head),false);
- const shores=[],vehicleWorld=()=>({flags:w.land.flags,categories:w.land.categories,cellObjects:()=>[]});
- for(let y=0;y<256;y+=2)for(let x=0;x<256;x+=2){const p={x:(x+1)*256,y:(y+1)*256};if(vehicleCanDisembark(vehicleWorld(),boat,p))shores.push(p);}
- const start=shores.find(p=>{const q=browserPosition(p);return Math.hypot(q.x-followers[0].x,q.z-followers[0].z)<10});Object.assign(boat,start,{h:0,speed:-1});followers.forEach((u,i)=>Object.assign(u,browserPosition(boat),{x:browserPosition(boat).x-1-i/10}));syncLivePersonCells(w);w.selected=ids;
- assert.ok(command(w,{...browserPosition(boat),id:boat.id}));until(w,()=>boat.passengers.length===2,3);assert.deepEqual(boat.passengers,ids);
- await store.saveCheckpoint();assert.ok(store.loadCheckpoint());w=store.getWorld();boat=w.vehicles[0];followers=ids.map(id=>w.units.find(u=>u.id===id));assert.deepEqual(boat.passengers,ids);assert.ok(followers.every(u=>u.native?.vehicle===boat.id));
- const target=shores.map(p=>[Math.hypot(((p.x-boat.x)<<16>>16),((p.y-boat.y)<<16>>16)),p]).filter(([d])=>d>3000&&d<10000).sort((a,b)=>a[0]-b[0])[0][1];
- const before=[boat.x,boat.y];assert.ok(command(w,browserPosition(target)));until(w,()=>boat.x!==before[0]||boat.y!==before[1],3);assert.ok(followers.every(u=>u.native?.vehicle===boat.id));assert.ok(followers[0].native.motionGroup);assert.ok(followers.every(u=>u.native.motionGroup===followers[0].native.motionGroup));assert.notDeepEqual([boat.x,boat.y],[target.x,target.y]);
- until(w,()=>followers.every(u=>!u.native?.vehicle),20);assert.deepEqual(followers.map(u=>u.hp),[90,90]);assert.deepEqual(boat.passengers,[]);assert.equal(boat.speed,-1);assert.ok(vehicleReady(vehicleWorld(),boat));assert.ok(followers.every(u=>vehicleCanDisembark(vehicleWorld(),boat,u.native)));
- await store.saveCheckpoint();assert.ok(store.loadCheckpoint());w=store.getWorld();assert.deepEqual(w.vehicles[0].passengers,[]);assert.ok(ids.every(id=>!w.units.find(u=>u.id===id).native?.vehicle));
-});
+test('supplied Mission 5 reward and relocated Boat support boarding, sailing and checkpoints', async () => {
+  const { vehicleCanDisembark, vehicleReady } = await import('../app/vehicle-routing.ts'),
+    { createGameStore } = await import('../app/game-store.ts'),
+    { supportsFollower } = await import('../app/model.ts')
+  const store = createGameStore()
+  store.startMission(5)
+  let w = store.getWorld(),
+    boat = w.vehicles[0],
+    followers = w.units.filter(u => u.team === 'blue' && u.kind === 'warrior').slice(0, 2)
+  const ids = followers.map(u => u.id),
+    head = w.shrines.find(s => s.kind === 'boat')
+  // Browser-prepared template; forced reward and relocated Boat/followers below
+  // are supplied controls, not ordinary reward allocation/copy acceptance.
+  assert.deepEqual([boat.model, boat.x, boat.y, boat.active], [1, 58226, 12429, false])
+  assert.equal(head.rewardVehicle, boat.id)
+  const source = boat
+  head.forced = true
+  head.reset = false
+  until(w, () => w.vehicles.some(v => v.active && v.model === 1 && v.id !== source.id), 10)
+  assert.equal(head.active, false)
+  boat = w.vehicles.find(v => v.active && v.model === 1 && v.id !== source.id)
+  assert.ok(boat)
+  assert.equal(w.vehicles.includes(source), false)
+  assert.equal(w.shrines.includes(head), false)
+  const shores = [],
+    vehicleWorld = () => ({
+      flags: w.land.flags,
+      categories: w.land.categories,
+      cellObjects: () => [],
+    })
+  for (let y = 0; y < 256; y += 2)
+    for (let x = 0; x < 256; x += 2) {
+      const p = { x: (x + 1) * 256, y: (y + 1) * 256 }
+      if (vehicleCanDisembark(vehicleWorld(), boat, p)) shores.push(p)
+    }
+  const start = shores.find(p => {
+    const q = browserPosition(p)
+    return Math.hypot(q.x - followers[0].x, q.z - followers[0].z) < 10
+  })
+  Object.assign(boat, start, { h: 0, speed: -1 })
+  followers.forEach((u, i) =>
+    Object.assign(u, browserPosition(boat), { x: browserPosition(boat).x - 1 - i / 10 })
+  )
+  syncLivePersonCells(w)
+  w.selected = ids
+  assert.ok(command(w, { ...browserPosition(boat), id: boat.id }))
+  until(w, () => boat.passengers.length === 2, 3)
+  assert.deepEqual(boat.passengers, ids)
+  await store.saveCheckpoint()
+  assert.ok(store.loadCheckpoint())
+  w = store.getWorld()
+  boat = w.vehicles[0]
+  followers = ids.map(id => w.units.find(u => u.id === id))
+  assert.deepEqual(boat.passengers, ids)
+  assert.ok(followers.every(u => u.native?.vehicle === boat.id))
+  const target = shores
+    .map(p => [Math.hypot(((p.x - boat.x) << 16) >> 16, ((p.y - boat.y) << 16) >> 16), p])
+    .filter(([d]) => d > 3000 && d < 10000)
+    .sort((a, b) => a[0] - b[0])[0][1]
+  const owners = followers.map(u => u.native),
+    before = [boat.x, boat.y]
+  assert.ok(command(w, browserPosition(target)))
+  const sail = currentPersonOrder(w.buildingOrders, owners[0])
+  assert.equal(sail.flags, 0)
+  assert.equal(sail.references, 2)
+  assert.equal(currentPersonOrder(w.buildingOrders, owners[1]), sail)
+  until(w, () => boat.x !== before[0] || boat.y !== before[1], 3)
+  assert.ok(followers.every(u => u.native?.vehicle === boat.id))
+  assert.ok(followers[0].native.motionGroup)
+  assert.ok(followers.every(u => u.native.motionGroup === followers[0].native.motionGroup))
+  assert.notDeepEqual([boat.x, boat.y], [target.x, target.y])
+  // Plain native completion releases each person's order and route, keeping the
+  // crew aboard through the Boat's settling tail rather than ejecting everyone.
+  until(
+    w,
+    () => followers.every(u => !currentPersonOrder(w.buildingOrders, u.native)) && boat.speed === 0,
+    20
+  )
+  assert.equal(sail.references, 0)
+  assert.deepEqual(boat.passengers, ids)
+  assert.equal(boat.passengerCount, 2)
+  assert.deepEqual(
+    followers.map(u => u.hp),
+    [90, 90]
+  )
+  for (const [i, u] of followers.entries()) {
+    assert.equal(u.native, owners[i])
+    assert.equal(w.objectCells.objects.get(u.id), owners[i])
+    assert.deepEqual(
+      [u.native.state, u.native.commandStatus, u.native.motionGroup, u.native.vehicle],
+      [30, 0, 0, boat.id]
+    )
+  }
+  // A new public dry-land order takes the real route-ground-leg departure.
+  // Its dry endpoint is beyond the shoreline, so check the empty Boat's shore
+  // eligibility separately from the living followers' actual ground support.
+  const land = { x: -9, z: -15 }
+  assert.ok(supportsFollower(w, land))
+  assert.ok(command(w, land))
+  const landing = currentPersonOrder(w.buildingOrders, owners[0])
+  assert.equal(landing.model, 3)
+  assert.equal(landing.references, 2)
+  until(w, () => followers.every(u => !u.native?.vehicle), 20)
+  assert.deepEqual(
+    followers.map(u => u.hp),
+    [90, 90]
+  )
+  assert.deepEqual(boat.passengers, [])
+  assert.equal(boat.passengerCount, 0)
+  assert.equal(boat.speed, -1)
+  assert.ok(vehicleReady(vehicleWorld(), boat))
+  assert.ok(vehicleCanDisembark(vehicleWorld(), boat, boat))
+  assert.ok(followers.every(u => supportsFollower(w, u)))
+  until(
+    w,
+    () => followers.every(u => !u.flight && !currentPersonOrder(w.buildingOrders, u.native)),
+    3
+  )
+  assert.equal(landing.references, 0)
+  for (const [i, u] of followers.entries()) {
+    assert.ok(w.units.includes(u))
+    assert.equal(u.hp, 90)
+    assert.equal(u.native, owners[i])
+    assert.equal(w.objectCells.objects.get(u.id), owners[i])
+    assert.equal(u.native.motionGroup, 0)
+    assert.ok(supportsFollower(w, u))
+  }
+  await store.saveCheckpoint()
+  assert.ok(store.loadCheckpoint())
+  w = store.getWorld()
+  assert.deepEqual(w.vehicles[0].passengers, [])
+  assert.ok(ids.every(id => !w.units.find(u => u.id === id).native?.vehicle))
+  boat = w.vehicles[0]
+  followers = ids.map(id => w.units.find(u => u.id === id))
+  assert.deepEqual(
+    followers.map(u => u.hp),
+    [90, 90]
+  )
+  assert.ok(followers.every(u => supportsFollower(w, u)))
+  assert.ok(command(w, { ...browserPosition(boat), id: boat.id }))
+  until(w, () => boat.passengers.length === 2, 3)
+  assert.deepEqual(boat.passengers, ids)
+  assert.deepEqual(
+    followers.map(u => u.hp),
+    [90, 90]
+  )
+  assert.ok(
+    followers.every(
+      u => u.native?.vehicle === boat.id && w.objectCells.objects.get(u.id) === u.native
+    )
+  )
+  await store.saveCheckpoint()
+  assert.ok(store.loadCheckpoint())
+  w = store.getWorld()
+  boat = w.vehicles[0]
+  assert.deepEqual(boat.passengers, ids)
+  assert.equal(boat.passengerCount, 2)
+  assert.ok(
+    ids.every(id => {
+      const u = w.units.find(u => u.id === id)
+      return (
+        u.hp === 90 && u.native?.vehicle === boat.id && w.objectCells.objects.get(id) === u.native
+      )
+    })
+  )
+})
