@@ -137,3 +137,22 @@ reviewed acquisition/return pins6166→6172,6179→6185,6617→6625 change;
 6916 remains unchanged. Later unpinned observations differ (restored actor850
 and HP79.25 versus849 and79 at7168), so this is not an unchanged full-world
 outcome claim.
+
+## Registered occupant damage and retained death6323 witness
+
+The fresh earned Hypnotise route reaches cast eligibility6241 and effect6255,
+nine turns after the old route. Real conversion retains actor825/HP35, but the
+actual melee ledger changes: attacker364 replaces366 among attackers398/425,
+with different hit ordering, health-scaled damage and regeneration. At6312 the
+fresh actor hasHP16.9/remaining48; it is alive at6323 withHP9.55/remaining46,
+and dies6331 fromHP2.1. Its existing native owner restores Red tribe and clears
+Hypnotise before removal, with no restored replacement allocation. Full replay
+through6721 preserves registry cleanup. This is not an unchanged damage history.
+
+A complete source-bound historical pre-conversion world6246, produced by exact
+9f7a4758 only after its unchanged full original test passed, separately retains
+HP6.15/remaining47 and real death6323. Current-runtime public Save/Load validates
+all original admission/ghost exclusions, conversion and same-owner restoration,
+no replacement allocation and cleanup. The two maintained cases keep exact HP,
+remaining and death assertions for their explicitly labeled routes; no threshold
+was widened and the historical6323 obligation remains executable.

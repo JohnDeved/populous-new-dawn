@@ -14,7 +14,7 @@ import { spiralCell } from '../app/native-math.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
 import { campaignInternal, withCampaignTribe } from '../app/campaign-runtime.ts'
 import { stepComputerTasks } from '../app/computer-runtime.ts'
-import { computerPhase, createComputerQueue, requestAttack, stepAttackTask } from '../app/computer.ts'
+import { createComputerQueue, requestAttack, stepAttackTask } from '../app/computer.ts'
 import { createLivePerson } from '../app/live-people.ts'
 import { objectsInCell } from '../app/object-cells.ts'
 import { combatPerson } from '../app/live-combat.ts'

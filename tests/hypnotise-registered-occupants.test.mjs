@@ -1,3 +1,4 @@
+import { loadHistoricalMission22Occupant } from './helpers/historical-mission22-occupant.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createGameStore } from '../app/game-store.ts'
@@ -34,10 +35,10 @@ async function prepare() {
   selectUnit(w, shaman.id, false)
   assert.ok(command(w, { x: 13, z: -31 }))
   until(() => spellTargetError(w, 'hypnotise', target) === null, 300)
-  assert.equal(w.turn, 6232)
+  assert.equal(w.turn, 6241)
   assert.ok(cast(w, 'hypnotise', target))
   until(() => w.effects.some(f => f.kind === 'hypnotise' && f.turnsRemaining === 12), 60)
-  assert.equal(w.turn, 6246)
+  assert.equal(w.turn, 6255)
   const effect = w.effects.find(f => f.kind === 'hypnotise')
   const center = nativePosition(w, effect)
   assert.deepEqual([center.x, center.y], [4352, 3840])
@@ -50,8 +51,7 @@ const comparable = w => {
   return copy
 }
 
-test('earned Hypnotise converts an ordinary registered enemy Tower occupant and preserves checkpoint continuation', async () => {
-  const { store, w, target, tower, effect } = await prepare()
+async function assertRegisteredConversion({ store, w, target, tower, effect }, expected) {
   const old = target.entry.person,
     next = w.nextId,
     position = { x: target.x, z: target.z },
@@ -143,15 +143,24 @@ test('earned Hypnotise converts an ordinary registered enemy Tower occupant and 
   assert.ok(!tower.admission.occupants.includes(target.id))
   const convertedOwner = converted.native
   while (w.turn < 6312) step()
-  assert.equal(converted.hp, 6.15)
-  assert.equal(converted.hypnotise.remaining, 47)
-  // The corrected local rest anchor delays the actual lethal hit by ten turns.
-  while (w.turn < 6322) step()
+  assert.equal(converted.hp, expected.checkpointHp)
+  assert.equal(converted.hypnotise.remaining, expected.checkpointRemaining)
+  // Preserve the original6323 casualty in the explicit historical case. The
+  // fresh route has a separately measured melee ledger and remains alive then.
+  if (expected.death === 6331) {
+    while (w.turn < 6323) step()
+    assert.equal(converted.hp, 9.55)
+    assert.equal(converted.hypnotise.remaining, 46)
+    assert.equal(converted.team, 'blue')
+    assert.equal(w.objectCells.objects.get(converted.id), convertedOwner)
+  }
+  while (w.turn < expected.death - 1) step()
+  assert.equal(converted.hp, expected.beforeDeathHp)
   assert.ok(converted.hp > 0)
   assert.equal(converted.team, 'blue')
   const beforeDeathUnitIds = new Set(w.units.map(u => u.id))
   step()
-  assert.equal(w.turn, 6323)
+  assert.equal(w.turn, expected.death)
   assert.equal(converted.hp, 0)
   assert.equal(converted.team, 'red')
   assert.equal(converted.hypnotise, undefined)
@@ -168,4 +177,16 @@ test('earned Hypnotise converts an ordinary registered enemy Tower occupant and 
   while (w.turn < 6721) step()
   assert.ok(!w.units.includes(converted))
   assert.ok(!w.objectCells.objects.has(converted.id))
+}
+
+test('fresh earned Hypnotise retains registered occupant conversion, measured damage and real death through Save/Load', async () => {
+  await assertRegisteredConversion(await prepare(), {
+    checkpointHp: 16.9, checkpointRemaining: 48, beforeDeathHp: 2.1, death: 6331,
+  })
+})
+
+test('historical pre-newborn registered occupant retains HP6.15, remaining47 and real death6323 through Save/Load', async () => {
+  await assertRegisteredConversion(await loadHistoricalMission22Occupant(), {
+    checkpointHp: 6.15, checkpointRemaining: 47, beforeDeathHp: 1.45, death: 6323,
+  })
 })
