@@ -10,7 +10,7 @@ export default async function({page,context,output}) {
  const category=async name=>{await button(name).click();assert.equal(await options.getAttribute('data-category'),name);assert.equal(await options.locator('[aria-current="page"]').getAttribute('aria-label'),name);assert.equal(await button(name).count(),0)}
  await page.setViewportSize({width:1280,height:960})
  await button('Options').click();await options.locator('[aria-current="page"]').waitFor()
- assert.equal(await options.getAttribute('data-category'),'Game')
+ assert.equal(await options.getAttribute('data-category'),'Game');assert.equal(await button('Back').evaluate(button=>button===document.activeElement),true)
  assert.equal(await button('Direct3D').count(),0)
  for(let i=0;i<3;i++){
   await category('Sound');assert.equal(await button('Direct3D').count(),0)

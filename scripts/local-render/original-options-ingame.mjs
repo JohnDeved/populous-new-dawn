@@ -17,7 +17,7 @@ export default async function({page,output,root,receipt}) {
  await page.evaluate(()=>document.querySelector('.skip-introduction')?.click())
  await page.waitForFunction(()=>!window.testStore.getWorld().inputMask)
  await button('Enable sound').click();await button('Mute sound').waitFor()
- await button('Game settings').click();await button('Options').click();await category('Sound')
+ await button('Game settings').click();await button('Options').click();assert.equal(await button('Back').evaluate(button=>button===document.activeElement),true);await category('Sound')
  assert.equal(await volume('Master volume').inputValue(),'0.2');assert.equal(await volume('Music volume').inputValue(),'0.6')
  assert.equal(await options.getAttribute('data-skin'),'ingame')
  assert.equal(await page.locator('.campaign-messages').evaluate(element=>getComputedStyle(element).visibility),'hidden')
