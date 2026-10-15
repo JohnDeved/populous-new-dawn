@@ -68,6 +68,7 @@ try {
         errors.push(message.text())
     })
     await page.goto(url, { waitUntil: 'networkidle' })
+    await page.getByRole('dialog', { name: 'Main menu', exact: true }).getByRole('button', { name: 'New Game', exact: true }).click()
     const start = page.getByRole('dialog', { name: 'Start game' })
     await start.waitFor()
     await start.getByText('Populous: The Beginning', { exact: true }).waitFor()

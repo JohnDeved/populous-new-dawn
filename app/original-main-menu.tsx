@@ -11,7 +11,16 @@ interface Props {
   options: ReactNode
 }
 
-function MenuText({ text, highlighted }: { text: string; highlighted: boolean }) {
+function MenuText({
+  text,
+  highlighted,
+  ready,
+}: {
+  text: string
+  highlighted: boolean
+  ready: boolean
+}) {
+  if (!ready) return <span className={styles.fallback}>{text}</span>
   const bank = highlighted ? assets.banks.fehi33we : assets.banks.feft33we
   return (
     <span className={styles.text} aria-hidden="true">
@@ -42,9 +51,11 @@ export function OriginalMainMenu({ hasCheckpoint, onNewGame, onTutorial, onLoad,
   const animation = useRef(0)
   const [hovered, setHovered] = useState<string | null>(null)
   const [focused, setFocused] = useState<string | null>(null)
-  const returnFocus = useRef<HTMLButtonElement | null>(null)
+  const returnFocus = useRef<string | null>(null)
   const [panel, setPanel] = useState<'main' | 'options' | 'quit'>('main')
   const [scale, setScale] = useState(1)
+  const [artReady, setArtReady] = useState(false)
+  const [sourceReady, setSourceReady] = useState(false)
   useEffect(() => {
     const resize = () => setScale(frontendScale(window.innerWidth, window.innerHeight))
     resize()
@@ -58,19 +69,6 @@ export function OriginalMainMenu({ hasCheckpoint, onNewGame, onTutorial, onLoad,
   }, [])
   useEffect(() => {
     let active = true
-    const draw = () => {
-      const context = canvas.current?.getContext('2d')
-      if (context && pixels.current)
-        context.putImageData(
-          new ImageData(
-            frontendBackground(pixels.current, pointer.current, panel === 'main'),
-            640,
-            480
-          ),
-          0,
-          0
-        )
-    }
     const controller = new AbortController()
     void fetch('/original/frontend/composition.bin', { signal: controller.signal })
       .then(response => {
@@ -78,23 +76,54 @@ export function OriginalMainMenu({ hasCheckpoint, onNewGame, onTutorial, onLoad,
         return response.arrayBuffer()
       })
       .then(data => {
+        if (data.byteLength !== assets.binaryBytes) throw Error('Invalid frontend artwork')
         if (active) {
           pixels.current = new Uint8Array(data)
-          draw()
+          setSourceReady(true)
         }
       })
       .catch(() => {
-        /* Static background and readable labels remain available. */
+        /* Static background remains available if the effect data fails. */
+      })
+    void Promise.all(
+      ['feft33we', 'fehi33we', 'felgspen'].map(name => {
+        const image = new Image()
+        image.src = `/original/frontend/${name}.png`
+        return image.decode()
+      })
+    )
+      .then(() => {
+        if (active) setArtReady(true)
+      })
+      .catch(() => {
+        /* Keep visible HTML labels. */
       })
     return () => {
       active = false
       controller.abort()
       cancelAnimationFrame(animation.current)
     }
-  }, [panel])
+  }, [])
   useEffect(() => {
-    if (panel === 'main') (returnFocus.current ?? first.current)?.focus()
-    else dialog.current?.querySelector<HTMLButtonElement>('[data-panel-back]')?.focus()
+    const context = canvas.current?.getContext('2d')
+    if (context && pixels.current)
+      context.putImageData(
+        new ImageData(
+          frontendBackground(pixels.current, pointer.current, panel === 'main'),
+          640,
+          480
+        ),
+        0,
+        0
+      )
+  }, [panel, sourceReady])
+  useEffect(() => {
+    if (panel === 'main') {
+      const previous = Array.from(
+        dialog.current?.querySelectorAll<HTMLButtonElement>('nav button') ?? []
+      ).find(button => button.getAttribute('aria-label') === returnFocus.current)
+      ;(previous ?? first.current)?.focus()
+    } else dialog.current?.querySelector<HTMLButtonElement>('[data-panel-back]')?.focus()
   }, [panel])
   function back() {
     setPanel('main')
@@ -160,13 +189,17 @@ export function OriginalMainMenu({ hasCheckpoint, onNewGame, onTutorial, onLoad,
           aria-hidden="true"
         />
         <h1 className={styles.title} aria-label="Populous: The Beginning">
-          <span className={styles.logo} />
+          {artReady ? (
+            <span className={styles.logo} />
+          ) : (
+            <span className={styles.fallbackTitle}>Populous: The Beginning</span>
+          )}
         </h1>
         {panel === 'main' ? (
           <nav aria-label="Main menu choices" className={styles.rows}>
             {rows.map((row, index) => (
               <button
-                ref={index === 0 ? first : undefined}
+                ref={index === (hasCheckpoint ? 2 : 0) ? first : undefined}
                 key={row.label}
                 aria-label={row.label}
                 aria-disabled={!!row.unavailable}
@@ -176,13 +209,14 @@ export function OriginalMainMenu({ hasCheckpoint, onNewGame, onTutorial, onLoad,
                 onBlur={() => setFocused(null)}
                 title={row.unavailable}
                 style={{ top: frontendRowY(index) }}
-                onClick={event => {
+                onClick={() => {
                   if (row.unavailable) return
-                  returnFocus.current = event.currentTarget
+                  returnFocus.current = row.label
                   row.action?.()
                 }}
               >
                 <MenuText
+                  ready={artReady}
                   text={row.label}
                   highlighted={!row.unavailable && (hovered === row.label || focused === row.label)}
                 />

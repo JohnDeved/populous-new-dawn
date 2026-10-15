@@ -119,6 +119,7 @@ export default async function ({
     }
     try {
       await check('Public mission entry', async () => {
+        await page.getByRole('dialog', { name: 'Main menu', exact: true }).getByRole('button', { name: 'New Game', exact: true }).click()
         const dialog = page.getByRole('dialog', { name: 'Start game', exact: true })
         await dialog.waitFor()
         if (level === 1) {
@@ -220,7 +221,7 @@ export default async function ({
         await waitForSavedCheckpoint(page, saved.turn, signal)
         await page.screenshot({ path: resolve(output, `mission-${level}-saved-settings.png`) })
         await page.reload({ waitUntil: 'domcontentloaded' })
-        const selector = page.getByRole('dialog', { name: 'Start game', exact: true })
+        const selector = page.getByRole('dialog', { name: 'Main menu', exact: true })
         await selector.waitFor()
         // Observe replacement synchronously; scene binding may span real turns.
         await page.evaluate(() => {

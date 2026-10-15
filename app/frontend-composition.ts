@@ -1,4 +1,4 @@
-import assets from './original-frontend.json'
+import assets from './original-frontend.json' with { type: 'json' }
 
 export const frontendRows = [
   'New Game',
