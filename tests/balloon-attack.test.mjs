@@ -244,8 +244,8 @@ test('historical c44 supplied-focus Balloon checkpoint retains Warrior11, Tower1
     departure: 3520,
     fight: 3526,
     opponent: 11,
-    targetDeath: 5339,
-    retired: 5340,
+    targetDeath: 5350,
+    retired: 5351,
     death: 0,
     survivor: { hp: 100.75, x: 29, z: 120.75, state: 19, anchorX: 9472, anchorY: 32576 },
   })

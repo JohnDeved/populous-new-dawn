@@ -84,3 +84,12 @@ all order and vehicle cleanup. Reviewed measured pins change fight1476→1460,
 death1507→1485 and boarding1390→1375. Both source-bound diagnostic runs passed
 all downstream assertions and full replay; final maintained-file gates remain
 required.
+
+
+The historical M22 Tower checkpoint separately retains input/cancel/departure,
+Warrior11 interception, HP100.75, survivor position and anchor, physical ownership,
+cleanup and every-turn replay through6429. Its reviewed target death5339→5350
+and order retirement5340→5351 are the only changes accepted from that pair.
+The candidate file aggregate remains failed (3/4): the fresh cancellation control
+rests at (16640,32512) instead of (16128,32512). That protected spatial assertion
+remains unchanged, and the fresh continuation beyond it was not executed.
