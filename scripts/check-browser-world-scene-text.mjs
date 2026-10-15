@@ -9,7 +9,6 @@ export default async function({page,root,output,receipt}) {
  const panel=n=>page.getByRole('button',{name:new RegExp(`^Panel Mission ${n}(, completed)?$`)})
  const tip=id=>page.locator(`[data-native-tooltip="${id}"]`)
  const noTip=async()=>assert.equal(await page.locator('[data-native-tooltip]').count(),0)
- const controls=async()=>{const b=button('Browser controls');if(await b.getAttribute('aria-expanded')==='false')await b.click()}
  const record=(name,value)=>writeFileSync(resolve(output,name),JSON.stringify(value,null,2)+'\n')
  const stages=[]
  const mark=stage=>{stages.push({stage,at:new Date().toISOString()});record('scene-text-stages.json',stages)}

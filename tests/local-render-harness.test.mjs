@@ -160,8 +160,8 @@ async function lateScenarioResult(trigger) {
       JSON.stringify('file:///fixture/scripts/local-render/harness.mjs')
     )
     .replace(
-      "const { bindGame } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)",
-      'const bindGame = async () => {}'
+      "const { bindGame, showAllMissions } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)",
+      'const bindGame = async () => {}, showAllMissions = async () => {}'
     )
   const sandbox = {
     sourceReceipt: () => ({ fingerprint: 'fixed-clean-identity' }),
@@ -287,6 +287,8 @@ async function startupFixture({
   pendingFetches = 0,
   interrupt = false,
   exit = false,
+  signal,
+  signalDuringFetch,
   profile = false,
   beforeTimer = () => {},
 } = {}) {
@@ -367,8 +369,8 @@ async function startupFixture({
       JSON.stringify('file:///fixture/scripts/local-render/harness.mjs')
     )
     .replace(
-      "const { bindGame } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)",
-      'const bindGame = async () => {}'
+      "const { bindGame, showAllMissions } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)",
+      'const bindGame = async () => {}, showAllMissions = async () => {}'
     )
     .replace(
       'await import(pathToFileURL(resolve(options.scenario)).href)',
@@ -444,12 +446,14 @@ async function startupFixture({
       queueMicrotask(() => {
         if (listening) stdout.emit('data', `http://127.0.0.1:${port}`)
         if (exit) server.exitCode = 2
+        if (signal) server.signalCode = signal
         if (interrupt) process.emit('SIGTERM')
       })
       return server
     },
     async fetch(_, { signal }) {
       calls.fetch++
+      if (signalDuringFetch) server.signalCode = signalDuringFetch
       if (pending || calls.fetch <= pendingFetches)
         return new Promise((_, reject) =>
           signal.addEventListener('abort', () => reject(signal.reason), { once: true })
@@ -630,4 +634,21 @@ test('readiness retries an expired fetch and accepts success within the unchange
   assert.equal(result.persisted.readiness.elapsedMs, 2000)
   assert.equal(result.persisted.readiness.timeoutMs, 60000)
   assert.equal(result.persisted.readiness.ready, true)
+})
+
+test('startup child signal exits before or during readiness never launch the browser', async () => {
+  for (const options of [
+    { signal: 'SIGKILL', listening: false },
+    { signal: 'SIGKILL', listening: true },
+    { signalDuringFetch: 'SIGKILL' },
+  ]) {
+    const result = await startupFixture(options)
+    assert.match(String(result.failure), /Local server exited SIGKILL/)
+    assert.equal(result.calls.launch, 0)
+    assert.equal(result.calls.fetch, options.signalDuringFetch ? 1 : 0)
+    assert.equal(result.persisted.status, 'failed')
+    assert.equal(result.persisted.readiness.ready, false)
+    if (options.signalDuringFetch) assert.equal(result.persisted.readiness.last.status, 204)
+    assert.ok(result.calls.killed.every(([pid]) => pid === -100))
+  }
 })

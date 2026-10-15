@@ -263,7 +263,7 @@ export async function runLocalBrowser(options, scenario) {
       for (;;) {
         abort.signal.throwIfAborted()
         if (spawnError) throw spawnError
-        if (server.exitCode !== null || server.signalCode !== null)
+        if (server.exitCode !== null || typeof server.signalCode === 'string')
           throw new Error(`Local server exited ${server.exitCode ?? server.signalCode}; see server.log`)
         if (listening) {
           readiness.attempts++
@@ -296,7 +296,7 @@ export async function runLocalBrowser(options, scenario) {
           }
           abort.signal.throwIfAborted()
           if (spawnError) throw spawnError
-          if (server.exitCode !== null || server.signalCode !== null)
+          if (server.exitCode !== null || typeof server.signalCode === 'string')
             throw new Error(`Local server exited ${server.exitCode ?? server.signalCode}; see server.log`)
           if (fact.ok) {
             readiness.ready = true
