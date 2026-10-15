@@ -45,7 +45,7 @@ export default defineConfig(async () => {
 
   return {
     // Keep generated caches outside potentially shared, read-only dependencies.
-    cacheDir: "work/vite-cache",
+    cacheDir: "work/build-cache/node_modules/.vite",
     server: {
       watch: isCodexSeatbeltSandbox
         ? { useFsEvents: false, usePolling: true, ignored: ['**/work/**'] }

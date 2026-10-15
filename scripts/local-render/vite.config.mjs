@@ -9,7 +9,7 @@ const hosting = JSON.parse(readFileSync(resolve(root, '.openai/hosting.json'), '
 export default {
   root,
   // Worktrees may share read-only installed dependencies. Keep optimizer writes local.
-  cacheDir: resolve(root, "work/local-render-vite-cache"),
+  cacheDir: resolve(root, "work/local-render-cache/node_modules/.vite"),
   server: { watch: { ignored: ['**/work/**'] } },
   plugins: [vinext(), cloudflare({
     inspectorPort: false,
