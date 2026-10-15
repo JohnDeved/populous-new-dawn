@@ -38,7 +38,7 @@ test('Page switches, checkpoint Load, Restart and failed-resource retry bind eac
   visit(source)
   assert.equal(functions.length, 2)
   const noop = () => {}, engine = { current: null }, loadRequest = { current: null },
-    bindings = { store, engine, loadRequest, audio: { current: { reset: noop } }, cancelNearbyInput: noop, setSelectorOpen: noop, setMenu: noop, setReady: noop, setError: noop, setTab: noop, setStartup: noop },
+    bindings = { store, engine, loadRequest, menuSession: { current: null }, pendingMenuCamera: { current: [] }, audio: { current: { reset: noop } }, cancelNearbyInput: noop, setSelectorOpen: noop, setMenu: noop, setReady: noop, setError: noop, setTab: noop, setStartup: noop },
     js = ts.transpileModule(`(function(){${functions.join('\n')}\nreturn {beginLoad,retryLoad}})`, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext } }).outputText,
     page = new Function(...Object.keys(bindings), `return ${js}`)(...Object.values(bindings))()
   async function sceneForWorld() {

@@ -220,7 +220,7 @@ export default function Home() {
       })
     }
     setMenu(true)
-  }, [cancelNearbyInput, store])
+  }, [cancelNearbyInput, store, setMenu])
   function closeMenu() {
     const session = menuSession.current
     menuSession.current = null

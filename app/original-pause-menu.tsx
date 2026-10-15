@@ -43,6 +43,40 @@ function MenuText({
   )
 }
 
+function MenuRow({
+  label,
+  y,
+  action,
+  disabled = false,
+  highlight,
+  ready,
+  setHighlight,
+}: {
+  label: string
+  y: number
+  action: () => void
+  disabled?: boolean
+  highlight: string | null
+  ready: boolean
+  setHighlight: (label: string | null) => void
+}) {
+  return (
+    <button
+      aria-label={label}
+      disabled={disabled}
+      title={disabled ? 'No saved checkpoint in this browser' : undefined}
+      style={{ top: y, width: Math.max(200, textWidth(label) + 16) }}
+      onClick={action}
+      onPointerEnter={() => setHighlight(label)}
+      onPointerLeave={() => setHighlight(null)}
+      onFocus={() => setHighlight(label)}
+      onBlur={() => setHighlight(null)}
+    >
+      <MenuText text={label} highlighted={!disabled && highlight === label} ready={ready} />
+    </button>
+  )
+}
+
 type Panel = 'root' | 'options' | 'save' | 'load' | 'restart' | 'quit-level' | 'quit-game'
 interface Props {
   tutorial: boolean
@@ -88,12 +122,9 @@ export function OriginalPauseMenu(props: Props) {
     }
   }, [])
   useEffect(() => {
-    const label =
-      panel === 'root'
-        ? returnFocus.current
-        : ['restart', 'quit-level', 'quit-game'].includes(panel)
-          ? 'No'
-          : 'Back'
+    let label = 'Back'
+    if (panel === 'root') label = returnFocus.current
+    else if (['restart', 'quit-level', 'quit-game'].includes(panel)) label = 'No'
     dialog.current?.querySelector<HTMLButtonElement>(`button[aria-label="${label}"]`)?.focus()
   }, [panel])
   function back() {
@@ -129,64 +160,38 @@ export function OriginalPauseMenu(props: Props) {
     action()
   }
   const root = [
-    { label: 'Continue Game', action: props.onContinue },
-    ...(!props.tutorial
-      ? [
-          {
-            label: 'Load Game',
-            action: () => open('load', 'Load Game'),
-            disabled: !props.hasCheckpoint,
-          },
-          { label: 'Save Game', action: () => open('save', 'Save Game') },
-        ]
-      : []),
-    { label: 'Options', action: () => open('options', 'Options') },
-    ...(!props.tutorial
-      ? [
-          { label: 'Restart Level', action: () => open('restart', 'Restart Level') },
-          { label: 'Quit Level', action: () => open('quit-level', 'Quit Level') },
-        ]
-      : []),
-    { label: 'Quit Game', action: () => open('quit-game', 'Quit Game') },
+    'Continue Game',
+    ...(props.tutorial ? [] : ['Load Game', 'Save Game']),
+    'Options',
+    ...(props.tutorial ? [] : ['Restart Level', 'Quit Level']),
+    'Quit Game',
   ]
-  const question =
-    panel === 'restart' ? 'Restart Level?' : panel === 'quit-level' ? 'Quit Level?' : 'Quit Game?'
-  const confirm = panel === 'restart' || panel === 'quit-level' || panel === 'quit-game'
-  const rows =
-    panel === 'root'
-      ? root
-      : confirm
-        ? [
-            {
-              label: 'Yes',
-              action: () =>
-                once(
-                  panel === 'restart'
-                    ? props.onRestart
-                    : panel === 'quit-level'
-                      ? props.onQuitLevel
-                      : props.onQuitGame
-                ),
-            },
-            { label: 'No', action: () => setPanel('root') },
-          ]
-        : []
-  function row(label: string, y: number, action: () => void, disabled = false) {
-    return (
-      <button
-        key={label}
-        aria-label={label}
-        disabled={disabled}
-        style={{ top: y, width: Math.max(200, textWidth(label) + 16) }}
-        onClick={action}
-        onPointerEnter={() => setHighlight(label)}
-        onPointerLeave={() => setHighlight(null)}
-        onFocus={() => setHighlight(label)}
-        onBlur={() => setHighlight(null)}
-      >
-        <MenuText text={label} highlighted={!disabled && highlight === label} ready={ready} />
-      </button>
-    )
+  const confirmations: Partial<Record<Panel, { question: string; action: () => void }>> = {
+    restart: { question: 'Restart Level?', action: props.onRestart },
+    'quit-level': { question: 'Quit Level?', action: props.onQuitLevel },
+    'quit-game': { question: 'Quit Game?', action: props.onQuitGame },
+  }
+  const confirmation = confirmations[panel]
+  const panelTitles: Partial<Record<Panel, string>> = {
+    options: 'Browser options and help',
+    save: 'Save Game',
+    load: 'Load Game',
+  }
+  let rows = panel === 'root' ? root : []
+  if (confirmation) rows = ['Yes', 'No']
+  function activate(label: string) {
+    const targets: Record<string, Panel> = {
+      'Load Game': 'load',
+      'Save Game': 'save',
+      Options: 'options',
+      'Restart Level': 'restart',
+      'Quit Level': 'quit-level',
+      'Quit Game': 'quit-game',
+    }
+    if (label === 'Continue Game') props.onContinue()
+    else if (label === 'Yes' && confirmation) once(confirmation.action)
+    else if (label === 'No') setPanel('root')
+    else if (targets[label]) open(targets[label], label)
   }
   return (
     <dialog
@@ -213,59 +218,53 @@ export function OriginalPauseMenu(props: Props) {
         if (!buttons.length) return
         event.preventDefault()
         const current = buttons.indexOf(document.activeElement as HTMLButtonElement)
-        buttons[
-          event.key === 'Home'
-            ? 0
-            : event.key === 'End'
-              ? buttons.length - 1
-              : (current + (event.key === 'ArrowDown' ? 1 : -1) + buttons.length) % buttons.length
-        ]?.focus()
+        let next =
+          (current + (event.key === 'ArrowDown' ? 1 : -1) + buttons.length) % buttons.length
+        if (event.key === 'Home') next = 0
+        else if (event.key === 'End') next = buttons.length - 1
+        buttons[next]?.focus()
       }}
     >
       <div className={styles.frame}>
-        {confirm && (
+        {confirmation && (
           <>
-            <h2 className={styles.question} aria-label={question}>
-              <MenuText text={question} highlighted={false} ready={ready} />
+            <h2 className={styles.question} aria-label={confirmation.question}>
+              <MenuText text={confirmation.question} highlighted={false} ready={ready} />
             </h2>
             {panel !== 'restart' && (
               <p className={styles.adaptation}>
                 {panel === 'quit-level'
                   ? 'Return to world selection. Unsaved progress will be lost.'
-                  : 'Return to the main menu. Close the browser tab to leave the game.'}
+                  : 'Return to the main menu. Unsaved progress will be lost. Close the browser tab to leave the game.'}
               </p>
             )}
           </>
         )}
         <nav className={`${shared.rows} ${styles.rows}`} aria-label="Game menu choices">
-          {rows.map((item, index) =>
-            row(
-              item.label,
-              159 + (index + (confirm ? 1 : 0)) * 30,
-              item.action,
-              'disabled' in item && !!item.disabled
-            )
-          )}
-          {row('Back', 454, back)}
+          {rows.map((label, index) => (
+            <MenuRow
+              key={label}
+              label={label}
+              y={159 + (index + Number(!!confirmation)) * 30}
+              action={() => activate(label)}
+              disabled={label === 'Load Game' && !props.hasCheckpoint}
+              highlight={highlight}
+              ready={ready}
+              setHighlight={setHighlight}
+            />
+          ))}
+          <MenuRow
+            label="Back"
+            y={454}
+            action={back}
+            highlight={highlight}
+            ready={ready}
+            setHighlight={setHighlight}
+          />
         </nav>
-        {!confirm && panel !== 'root' && (
-          <section
-            className={styles.panel}
-            aria-label={
-              panel === 'options'
-                ? 'Browser options and help'
-                : panel === 'save'
-                  ? 'Save Game'
-                  : 'Load Game'
-            }
-          >
-            <h2>
-              {panel === 'options'
-                ? 'Browser options and help'
-                : panel === 'save'
-                  ? 'Save Game'
-                  : 'Load Game'}
-            </h2>
+        {!confirmation && panel !== 'root' && (
+          <section className={styles.panel} aria-label={panelTitles[panel]}>
+            <h2>{panelTitles[panel]}</h2>
             {panel === 'options' ? (
               props.options
             ) : (

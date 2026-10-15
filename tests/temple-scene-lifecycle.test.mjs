@@ -246,6 +246,8 @@ test('actual Scene preload/start/animate/dispose and Page retry respect the curr
       store,
       loadRequest,
       audio: { current: { reset: nop } },
+      menuSession: { current: null },
+      pendingMenuCamera: { current: [] },
       cancelNearbyInput: nop,
       engine: { current: null },
       setSelectorOpen: nop,
