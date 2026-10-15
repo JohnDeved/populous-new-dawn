@@ -36,6 +36,7 @@ import {
 } from './model'
 import { createGameStore } from './game-store'
 import { WorldSelector } from './world-selector'
+import { OriginalMainMenu } from './original-main-menu'
 import worldSelectorStyles from './world-selector.module.css'
 import type { GameScene } from './scene'
 import { Soundscape } from './audio'
@@ -127,6 +128,7 @@ export default function Home() {
   }, [])
   const [menu, setMenu] = useState(false)
   const [selectorOpen, setSelectorOpen] = useState(false)
+  const [startupCampaign, setStartupCampaign] = useState(false)
   const [ready, setReady] = useState(false)
   const [desktopNotice, setDesktopNotice] = useState(true)
   const [error, setError] = useState('')
@@ -440,7 +442,7 @@ export default function Home() {
   }, [world, update, store, startup, measureWorshipHud])
   useEffect(() => {
     const modal = startupDialog.current
-    if ((startup === 'choice' || selectorOpen) && modal && !modal.open) {
+    if (((startup === 'choice' && startupCampaign) || selectorOpen) && modal && !modal.open) {
       if (selectorOpen)
         store.change(w => {
           w.paused = true
@@ -450,7 +452,7 @@ export default function Home() {
     return () => {
       if (modal?.open) modal.close()
     }
-  }, [startup, selectorOpen, store])
+  }, [startup, startupCampaign, selectorOpen, store])
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
       if (
@@ -687,6 +689,7 @@ export default function Home() {
     setReady(false)
     setError('')
     loadRequest.current = null
+    setStartupCampaign(false)
     setStartup('choice')
   }
   function loadCheckpoint() {
@@ -1369,7 +1372,50 @@ export default function Home() {
         </div>
       )}
 
-      {(startup === 'choice' || selectorOpen) && (
+      {startup === 'choice' && !startupCampaign && (
+        <OriginalMainMenu
+          hasCheckpoint={store.hasCheckpoint()}
+          onNewGame={() => setStartupCampaign(true)}
+          onTutorial={() => startMission(tutorialLevel)}
+          onLoad={loadCheckpoint}
+          options={
+            <>
+              <label>
+                Master volume
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step=".05"
+                  value={volume}
+                  onChange={e =>
+                    changeAudioPreferences({ ...audioPreferences, volume: Number(e.target.value) })
+                  }
+                />
+              </label>
+              <label>
+                Music volume
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step=".05"
+                  value={musicVolume}
+                  onChange={e =>
+                    changeAudioPreferences({
+                      ...audioPreferences,
+                      musicVolume: Number(e.target.value),
+                    })
+                  }
+                />
+              </label>
+              <p>Volume preferences apply when game audio is enabled.</p>
+              {audioStorageNotice && <p role="status">{audioStorageNotice}</p>}
+            </>
+          }
+        />
+      )}
+      {((startup === 'choice' && startupCampaign) || selectorOpen) && (
         <dialog
           ref={startupDialog}
           className={worldSelectorStyles.dialog}
@@ -1380,7 +1426,7 @@ export default function Home() {
             if (selectorOpen) {
               setSelectorOpen(false)
               if (world.status === 'playing') openMenu()
-            }
+            } else setStartupCampaign(false)
           }}
         >
           <WorldSelector
@@ -1396,7 +1442,7 @@ export default function Home() {
                     setSelectorOpen(false)
                     if (world.status === 'playing') openMenu()
                   }
-                : undefined
+                : () => setStartupCampaign(false)
             }
           />
         </dialog>
