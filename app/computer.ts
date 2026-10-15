@@ -604,6 +604,7 @@ export type AttackInput = {
   ready: () => boolean
   activeMembers: () => number
   targetsRemain: (target: number) => boolean
+  attackOrdersCurrent?: (target: number) => boolean
   random: () => number
   entity?: (id: number) => AttackTarget | null
   tracking?: (id: number) => boolean
@@ -834,7 +835,11 @@ export function stepAttackTask(
     if (task.damage < task.extra && target) {
       const moved = task.target !== target.target
       task.target = target.target
-      if (moved || !input.targetsRemain(task.target))
+      if (
+        moved ||
+        !input.targetsRemain(task.target) ||
+        input.attackOrdersCurrent?.(task.target) === false
+      )
         return [{ kind: 'attack', target: task.target, replace: true }]
       return actions
     }

@@ -1949,9 +1949,10 @@ export function stepComputerTasks(w: World, tribe: number) {
           staging,
           ready: () => computerAttackUnits(w, index).every(computerAttackReady),
           activeMembers: () => computerAttackUnits(w, index).length,
-          targetsRemain: target =>
-            computerAttackHasOrder(w, index, 19, target) &&
-            computerAttackTargetsRemain(w, tribe, target),
+          // Native 0x4f5950 collects targets independently of member commands;
+          // mixed raids legitimately retain Preacher17 alongside Warrior19.
+          targetsRemain: target => computerAttackTargetsRemain(w, tribe, target),
+          attackOrdersCurrent: target => computerAttackHasOrder(w, index, 19, target),
           random: () => random(w),
           entity: id => campaignAttackEntity(w, id),
           tracking: id => computerAttackHasOrder(w, index, 28, id),

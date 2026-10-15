@@ -5250,3 +5250,6 @@ remains separate. This evidence alone does not claim live browser completion.
 per-call native height/RNG inputs, detached observation and strict source/runtime
 admission. Native sound ownership, reward activation timing and downstream terrain
 consumers remain explicit boundaries. Browser/native execution is not yet claimed.
+
+Mixed-raid target availability versus member-order refresh: see
+[the static evidence and live-caller regression](research/mixed-raid-target-exhaustion/README.md).
