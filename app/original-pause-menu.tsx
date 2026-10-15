@@ -1,8 +1,47 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
-import { MenuText } from './original-main-menu'
-import { frontendScale, frontendTextWidth } from './frontend-composition'
+import font from './original-pause-font.json'
+import { frontendScale } from './frontend-composition'
 import shared from './original-main-menu.module.css'
 import styles from './original-pause-menu.module.css'
+
+const textWidth = (text: string) =>
+  [...text].reduce((width, letter) => width + font.rects[letter.charCodeAt(0) - 32].w, 0)
+function MenuText({
+  text,
+  highlighted,
+  ready,
+}: {
+  text: string
+  highlighted: boolean
+  ready: boolean
+}) {
+  if (!ready) return <span className={shared.fallback}>{text}</span>
+  return (
+    <span
+      className={shared.text}
+      aria-hidden="true"
+      style={{
+        transform: `translateX(-${textWidth(text) >> 1}px)`,
+        opacity: highlighted ? 1 : 2 / 3,
+      }}
+    >
+      {[...text].map((letter, index) => {
+        const glyph = font.rects[letter.charCodeAt(0) - 32]
+        return (
+          <i
+            key={index}
+            style={{
+              width: glyph.w,
+              height: glyph.h,
+              backgroundPosition: `-${glyph.x}px -${glyph.y}px`,
+              backgroundImage: "url('/original/pause-font.png')",
+            }}
+          />
+        )
+      })}
+    </span>
+  )
+}
 
 type Panel = 'root' | 'options' | 'save' | 'load' | 'restart' | 'quit-level' | 'quit-game'
 interface Props {
@@ -26,7 +65,7 @@ export function OriginalPauseMenu(props: Props) {
   const [saving, setSaving] = useState(false)
   const savingRef = useRef(false)
   const actionTaken = useRef(false)
-  const returnFocus = useRef('Continue')
+  const returnFocus = useRef('Continue Game')
   useEffect(() => {
     const resize = () => setScale(frontendScale(window.innerWidth, window.innerHeight))
     resize()
@@ -34,13 +73,10 @@ export function OriginalPauseMenu(props: Props) {
     const modal = dialog.current
     modal?.showModal()
     let active = true
-    void Promise.all(
-      ['feft33we', 'fehi33we'].map(name => {
-        const image = new Image()
-        image.src = `/original/frontend/${name}.png`
-        return image.decode()
-      })
-    )
+    const image = new Image()
+    image.src = '/original/pause-font.png'
+    void image
+      .decode()
       .then(() => {
         if (active) setReady(true)
       })
@@ -93,7 +129,7 @@ export function OriginalPauseMenu(props: Props) {
     action()
   }
   const root = [
-    { label: 'Continue', action: props.onContinue },
+    { label: 'Continue Game', action: props.onContinue },
     ...(!props.tutorial
       ? [
           {
@@ -114,11 +150,7 @@ export function OriginalPauseMenu(props: Props) {
     { label: 'Quit Game', action: () => open('quit-game', 'Quit Game') },
   ]
   const question =
-    panel === 'restart'
-      ? 'Restart this level?'
-      : panel === 'quit-level'
-        ? 'Quit this level?'
-        : 'Quit game?'
+    panel === 'restart' ? 'Restart Level?' : panel === 'quit-level' ? 'Quit Level?' : 'Quit Game?'
   const confirm = panel === 'restart' || panel === 'quit-level' || panel === 'quit-game'
   const rows =
     panel === 'root'
@@ -145,7 +177,7 @@ export function OriginalPauseMenu(props: Props) {
         key={label}
         aria-label={label}
         disabled={disabled}
-        style={{ top: y, width: Math.max(200, frontendTextWidth(label) + 16) }}
+        style={{ top: y, width: Math.max(200, textWidth(label) + 16) }}
         onClick={action}
         onPointerEnter={() => setHighlight(label)}
         onPointerLeave={() => setHighlight(null)}

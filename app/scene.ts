@@ -106,6 +106,7 @@ import {
 import { updateHudFrame } from './scene-hud-runtime.ts'
 import {
   acknowledgePointer,
+  cancelPointerGesture,
   chooseFollowers,
   chooseTransport,
   drawPointer,
@@ -300,6 +301,10 @@ export class GameScene {
     this.modalSuspended = suspended
     this.previous = null
     this.keys.clear()
+    const pointerId = this.pointerGesture?.pointerId
+    if (pointerId !== undefined && this.renderer.domElement.hasPointerCapture(pointerId))
+      this.renderer.domElement.releasePointerCapture(pointerId)
+    cancelPointerGesture(this)
     this.cancelNearbyFollowers()
     this.cancelTooltipInspection()
   }

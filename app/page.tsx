@@ -204,6 +204,7 @@ export default function Home() {
     clearNearbyPress()
     engine.current?.cancelNearbyFollowers()
   }, [clearNearbyPress])
+  const pendingMenuCamera = useRef<((scene: GameScene) => void)[]>([])
   // Native 00458060 captures prior pause; only the same world may restore it.
   const menuSession = useRef<{ world: typeof world; paused: boolean } | null>(null)
   const openMenu = useCallback(() => {
@@ -227,7 +228,11 @@ export default function Home() {
       store.change(w => {
         w.paused = session.paused
       })
-      if (engine.current?.world === session.world) engine.current.setModalSuspended(false)
+      if (engine.current?.world === session.world) {
+        engine.current.setModalSuspended(false)
+        for (const action of pendingMenuCamera.current) action(engine.current)
+      }
+      pendingMenuCamera.current = []
     }
   }
   function openSelector() {
@@ -668,6 +673,7 @@ export default function Home() {
   function beginLoad(request: LoadRequest) {
     if (request.kind === 'checkpoint' && !store.hasCheckpoint()) return
     menuSession.current = null
+    pendingMenuCamera.current = []
     cancelNearbyInput()
     if (engine.current) engine.current.nearbyFollowersHudActive = false
     setSelectorOpen(false)
@@ -697,6 +703,7 @@ export default function Home() {
   }
   function exitTutorial() {
     menuSession.current = null
+    pendingMenuCamera.current = []
     cancelNearbyInput()
     if (engine.current) engine.current.nearbyFollowersHudActive = false
     audio.current?.reset()
@@ -719,6 +726,7 @@ export default function Home() {
   }
   function quitLevel() {
     menuSession.current = null
+    pendingMenuCamera.current = []
     cancelNearbyInput()
     audio.current?.reset()
     setMenu(false)
@@ -1643,12 +1651,23 @@ export default function Home() {
                 >
                   {world.speed}× game speed
                 </button>
-                <button onClick={() => engine.current?.zoom(true)}>Zoom in</button>
-                <button onClick={() => engine.current?.zoom(false)}>Zoom out</button>
-                <button onClick={() => engine.current?.focus(shaman ?? HOME, { animate: true })}>
+                <button onClick={() => pendingMenuCamera.current.push(scene => scene.zoom(true))}>
+                  Zoom in
+                </button>
+                <button onClick={() => pendingMenuCamera.current.push(scene => scene.zoom(false))}>
+                  Zoom out
+                </button>
+                <button
+                  onClick={() =>
+                    pendingMenuCamera.current.push(scene =>
+                      scene.focus(shaman ?? HOME, { animate: true })
+                    )
+                  }
+                >
                   Focus settlement
                 </button>
               </div>
+              <p>Camera changes apply when you continue.</p>
               <label className="hud-settings">
                 HUD size
                 <select
