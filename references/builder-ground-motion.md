@@ -1,7 +1,7 @@
 # Builder ground motion and canonical ownership
 
 Issue #456, prerequisite to draft #455. This is a bounded movement/lifecycle
-repair, not completion of Mission 7 settlement acceptance.
+repair, not completion of Mission 7 or proof of original-game settlement timing.
 
 ## Evidence and old failure
 
@@ -75,16 +75,29 @@ at 421. The first paid Convert cast moved from 719 to 714; task retirement moved
 from 724 to 719. The paid-cast, newborn, and checkpoint lifecycle assertions pass,
 but this is not unchanged timing or proven full native scheduler equivalence.
 
-The unchanged 8000-turn settlement check remains failed. In the retained working
+The historical unchanged 8000-turn settlement check failed and its receipt is retained. In the retained working
 candidate diagnostic, the Camp completes at 6348, the Temple starts at 6473,
 finishes ground preparation at 7160, and has four of eight logs at 8000. The
 Temple completes at 8973 and the first natural Preacher appears at 9216; the
 bounded diagnostic stops immediately. Its full resource/path/controller trace
 is `first-preacher-wip5.json` and its raw stdout artifact. This later outcome is
-not acceptance of the 8000-turn gate. Independent review must distinguish later
-native-order construction from any concealed stall before changing that verdict.
+not acceptance of the historical 8000-turn gate. Independent review found no sampled
+cell/path alias violations or 1024-turn approach loop; the longest completed Fetch
+Approach episode was 208 turns, and the Temple maximum was 118.
 
-No original executable was executed/emulated. No timeout, settlement assertion,
-parity claim, or Mission 19 acceptance was changed. Full checks, build, rendered
+After that review, the parent approved a named **current-port 9216-turn observation**
+in `scripts/check-mission7-settlement.mjs`. It is a fixed checkpoint, not a 12000-turn
+poll or a claimed native deadline. Every original outcome assertion remains:
+population above 30, newly trained Warrior and Preacher, completed Tower/Hut/Camp/
+Temple, an upgraded Hut, and 64-turn complete-world checkpoint equality. Both
+simulation-only `tick` and shipped `advanceGame` independently passed these
+assertions at 9216 and the checkpoint twins through 9280 on commit b05f62a1.
+The clocks are not interchangeable: advanceGame adds logical/display animation
+visits. Their observed settlement outcomes match here; no general clock equality
+is claimed.
+
+No original executable was executed/emulated. No controller timeout, semantic settlement assertion,
+parity claim, or Mission 19 acceptance was changed. The reviewed fixed timing
+observation is the only settlement-gate revision. Full checks, build, rendered
 browser and performance evidence remain separate required gates; their exact
 status belongs in the source-bound receipts and PR review.

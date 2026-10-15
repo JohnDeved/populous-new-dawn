@@ -221,7 +221,7 @@ test('currently turning collision retains position and visits controller once', 
 
 for (const counter of [64, 65, 128, 255])
   test(`native recovery uses signed counter ${counter} and deterministic 22 probes`, () => {
-    const { w, p } = failedRecovery(),
+    const { p } = failedRecovery(),
       probes = []
     p.recoveryCounter = counter
     p.motionMode = 7
