@@ -83,7 +83,7 @@ export default async function checkWorldSelector({ page, context, url, root, out
   await page.screenshot({path:resolve(output,'restored-next-mission3-640x480.png')})
   const cdp=await context.newCDPSession(page)
   await cdp.send('Emulation.setDeviceMetricsOverride',{width:1024,height:768,deviceScaleFactor:2,mobile:false})
-  await page.getByRole('button',{name:'Select Mission 1',exact:true}).focus()
+  await page.getByRole('button',{name:'Select Mission 1',exact:true}).click()
   await page.keyboard.press('ArrowRight')
   await page.getByRole('button',{name:'Replay Mission 2',exact:true}).waitFor()
   const shot=await cdp.send('Page.captureScreenshot',{format:'png',fromSurface:true,captureBeyondViewport:false})
