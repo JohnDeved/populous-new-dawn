@@ -15,6 +15,7 @@ interface Props {
   onTutorial: () => void
   onLoad: () => void
   onBack?: () => void
+  replacingWorld?: boolean
 }
 
 export function WorldSelector({
@@ -25,9 +26,15 @@ export function WorldSelector({
   onTutorial,
   onLoad,
   onBack,
+  replacingWorld = false,
 }: Props) {
   const [selected, setSelected] = useState(() => openingRecommendedMission(completed))
   const [allMissions, setAllMissions] = useState(false)
+  const [failedArt, setFailedArt] = useState<string[]>([])
+  const panelArt = `/original/world-selector/panel/${selected}-`
+  const artFailed = failedArt.includes(panelArt)
+  const failArt = () =>
+    setFailedArt(previous => (previous.includes(panelArt) ? previous : [...previous, panelArt]))
   const available = openingMissionAvailable(selected, completed)
   const isCompleted = completed.includes(selected)
   const body = selectorWorlds.find(world => world.mission === selected)!
@@ -52,7 +59,6 @@ export function WorldSelector({
     <section className={styles.selector} aria-label="World selection">
       <header className={styles.header}>
         <div>
-          <p className={styles.eyebrow}>Populous: The Beginning</p>
           <h2>Select Level</h2>
         </div>
         {onBack && <button onClick={onBack}>Back</button>}
@@ -116,7 +122,7 @@ export function WorldSelector({
                   )
                 })}
               </svg>
-              <p>Original orbit layout · opening worlds</p>
+              <p>Opening orbits · adapted view</p>
             </div>
             <section className={styles.details} aria-label="Selected world">
               <div
@@ -124,18 +130,7 @@ export function WorldSelector({
                 style={{ backgroundImage: `url(/original/world-selector/mission-${selected}.png)` }}
                 aria-hidden="true"
               />
-              <p className={styles.eyebrow}>World {selected}</p>
-              <h3>Mission {selected}</h3>
-              <p role="status">{status}</p>
               <p className={styles.orbitDescription}>Moon of World 5 · orbit {body.orbitRadius}</p>
-              <button
-                className={styles.start}
-                disabled={!available}
-                onKeyDown={navigate}
-                onClick={() => onStart(selected)}
-              >
-                {isCompleted ? `Replay Mission ${selected}` : `Start Mission ${selected}`}
-              </button>
             </section>
           </div>
           <div className={styles.worldChoices} aria-label="Choose campaign world">
@@ -159,14 +154,50 @@ export function WorldSelector({
               )
             })}
           </div>
-          <p className={styles.hint}>
-            Select a world, then start. Left and right arrows cycle available worlds.
-          </p>
-          {completed.includes(3) && (
-            <p className={styles.hint}>
-              Opening worlds completed. Continue with the other playable worlds in All missions.
-            </p>
-          )}
+          <div className={styles.selectedTitle}>
+            <p role="status">{status}</p>
+            <h3>Mission {selected}</h3>
+          </div>
+          <div
+            className={`${styles.panel} ${artFailed ? styles.artFallback : ''}`}
+            aria-label="Campaign status panel"
+          >
+            {!artFailed && (
+              <img className={styles.panelArt} src={`${panelArt}0.png`} alt="" onError={failArt} />
+            )}
+            <div className={styles.panelGlyphs}>
+              {openingCampaignMissions.map(mission => (
+                <button
+                  key={mission}
+                  className={styles.panelGlyph}
+                  aria-label={`Panel Mission ${mission}${completed.includes(mission) ? ', completed' : ''}`}
+                  aria-pressed={mission === selected}
+                  title={`Mission ${mission}`}
+                  onKeyDown={navigate}
+                  onClick={() => setSelected(mission)}
+                  style={{ left: `${((28 + (mission - 1) * 20) / 638) * 100}%` }}
+                >
+                  {!artFailed && openingMissionAvailable(mission, completed) && (
+                    <img
+                      src={`${panelArt}${completed.includes(mission) ? 6 : 5}.png`}
+                      alt=""
+                      onError={failArt}
+                    />
+                  )}
+                </button>
+              ))}
+            </div>
+            <button
+              className={styles.start}
+              disabled={!available}
+              aria-label={isCompleted ? `Replay Mission ${selected}` : `Start Mission ${selected}`}
+              onKeyDown={navigate}
+              onClick={() => onStart(selected)}
+            >
+              {!artFailed && <img src={`${panelArt}10.png`} alt="" onError={failArt} />}
+              <span>{artFailed ? 'Start' : 'Launch'}</span>
+            </button>
+          </div>
         </>
       )}
       <footer className={styles.footer}>
@@ -176,9 +207,7 @@ export function WorldSelector({
             Load Game
           </button>
         )}
-        {onBack && (
-          <p>Starting a mission replaces the current world. Save a checkpoint before switching.</p>
-        )}
+        {replacingWorld && <p>Starting a mission replaces the current world.</p>}
       </footer>
     </section>
   )
