@@ -44,3 +44,15 @@ Sound enable byte00895db0; Music separate byte00895db1. Sound off calls0048b480;
 Text descriptors above genuinely store style2. This does not authorize using frontend FEFT33WE in-game: retain frontend style2 bank mapping [6,7,8,9,10,0], FEFT33WE/Fehi33we/Felo33we/Feti33we/FEsd33WE and existing indexed fade shadows/glow; retain existing verified in-game style2 F00T9 path. Slider has no text font. Selected tabs use low state rather than interactive highlighted state.
 Canonical language strings are recorded in static-data.txt, including exact lowercase q in Sound quality. New scoped import can extend existing frontend importer with exactly feslider.spr and separately prove ingame palette consumer before claiming matching ingame slider pixels. Importer must not run until output ownership established.
 Suggested acceptance for implementation: shared Game/Sound tab/back state machine and prior pause preservation; original row coordinates and native text/value formatting tests; explicit Master/Music adaptation labels; slider thumb sizes/normal-selected frames and nonclipping; frontend vs ingame font/palette distinction; keyboard/pointer usable with accessible controls. Unsupported Game/Graphics/quality options need honest reasons, not inert functioning-looking toggles. Do not claim full original settings semantics, startup default preference values, persistence, OS input mapping or pixel fidelity from this static proof.
+
+## Selected in-game tab alpha (review correction)
+Static style2 table005d5da8=(6,7,8,9,10,0); selected flags9 contain bit8,
+which004fe4b0 maps to index2 and bank8. The in-game004fdbc0 bank selector
+uses full local alpha for bank8, two-thirds for normal bank6, and one-third
+for dim bank9. Low-bank selection therefore does NOT mean reduced opacity
+in-game. Retained ingame-style-alpha.txt is GNU objdump2.44 output from the
+same hash-pinned supplied EXE, command: objdump -d -Mintel
+--start-address=0x4fddab --stop-address=0x4fde14 D3DPopTB.exe. Existing
+decomp/generated/004fdbc0.c and frontend-menu-static/0x4fe4b0.txt retain
+the encompassing selectors. Browser tests check selected1, normal2/3 and
+focused1; entrance fade remains outside this settled-state rendering slice.

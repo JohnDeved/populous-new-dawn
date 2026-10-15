@@ -16,6 +16,9 @@ export default async function({page,context,root,output,receipt}) {
  const cdp=await context.newCDPSession(page)
  if(dpr!==1)await cdp.send('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:dpr,mobile:false})
  await page.mouse.move(-5,-5);await page.waitForTimeout(100)
+ assert.equal(await options.getByRole('heading',{name:'Sound',exact:true}).locator('[aria-hidden="true"]').evaluate(element=>Number(getComputedStyle(element).opacity)),1)
+ const normal=await button('Game').locator('[aria-hidden="true"]').evaluate(element=>Number(getComputedStyle(element).opacity));assert.ok(Math.abs(normal-2/3)<0.000001)
+ await button('Graphics').focus();assert.equal(await button('Graphics').locator('[aria-hidden="true"]').evaluate(element=>Number(getComputedStyle(element).opacity)),1);await options.getByRole('heading',{name:'Sound',exact:true}).focus()
  for(const control of await options.locator('button,input').all()){const box=await control.boundingBox();assert.ok(box.x>=-1&&box.y>=-1&&box.x+box.width<=width+1&&box.y+box.height<=height+1)}
  assert.equal(await page.locator('.campaign-messages').evaluate(element=>getComputedStyle(element).visibility),'hidden')
  const shot=await cdp.send('Page.captureScreenshot',{format:'png',fromSurface:true,captureBeyondViewport:false}),png=Buffer.from(shot.data,'base64')

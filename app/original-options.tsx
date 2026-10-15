@@ -42,7 +42,7 @@ function Text({
       className={styles.text}
       style={{
         transform: `translateX(-${width >> 1}px)`,
-        opacity: skin === 'ingame' && state !== 'highlight' ? 2 / 3 : 1,
+        opacity: skin === 'ingame' && state === 'normal' ? 2 / 3 : 1,
       }}
     >
       {[...text].map((letter, index) => {
