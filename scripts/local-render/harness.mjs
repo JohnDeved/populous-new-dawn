@@ -349,7 +349,7 @@ export async function runLocalBrowser(options, scenario) {
     page.setDefaultTimeout(45000)
     await page.goto(url, { waitUntil: 'domcontentloaded' })
     await page
-      .getByRole('dialog', { name: 'Start game', exact: true })
+      .getByRole('dialog', { name: /^(Main menu|Start game)$/ })
       .waitFor({ state: 'visible' })
     if (lease) {
       receipt.profile.checkpointAtStart = await readCommittedCheckpoint(page)
@@ -368,6 +368,8 @@ export async function runLocalBrowser(options, scenario) {
     }
     const { bindGame } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
     const openMission = async mission => {
+      const mainMenu = page.getByRole('dialog', { name: 'Main menu', exact: true })
+      if (await mainMenu.isVisible()) await mainMenu.getByRole('button', { name: 'New Game', exact: true }).click()
       const button = page.getByRole('button', { name: `Mission ${mission}`, exact: true })
       const allMissions = page.getByRole('button', { name: 'All missions', exact: true })
       if (!(await button.isVisible()) && (await allMissions.isVisible())) await allMissions.click()

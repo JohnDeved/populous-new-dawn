@@ -30,7 +30,10 @@ original.png(outputs / 'background.png', 640, 480,
 # FE font styles use sprite index character-0x20 and the decoded sprite width.
 # Keep each source bank separate so no guessed palette/color conversion occurs.
 rects = {}
-for name in ['Fehi20we.spr', 'Felo20we.spr', 'FEsd20WE.spr', 'felgspen.spr', 'FELGsdEN.spr', 'Fepointe.spr']:
+raw = bytearray(background + palette + read('fefade1.dat'))
+assert len(raw) == 640 * 480 + 1024 + 16384
+mask_banks = {}
+for name in ['FEFT33WE.spr', 'Fehi33we.spr', 'Felo33we.spr', 'FEsd33WE.spr', 'felgspen.spr', 'FELGsdEN.spr', 'Fepointe.spr', 'fecursor.spr']:
     bank = original.sprites(read(name), palette)
     width = max(512, max(w for w, h, pixels in bank))
     x = y = row_height = 0
@@ -48,8 +51,22 @@ for name in ['Fehi20we.spr', 'Felo20we.spr', 'FEsd20WE.spr', 'felgspen.spr', 'FE
             at = ((rect['y'] + row) * width + rect['x']) * 4
             atlas[at:at+w*4] = pixels[row*w*4:(row+1)*w*4]
     stem = name.lower().removesuffix('.spr')
-    original.png(outputs / f'{stem}.png', width, height, atlas)
+    if stem in ['felgsden', 'fesd33we', 'fecursor']:
+        index_palette = b''.join(bytes([i, 0, 0, 255]) for i in range(256))
+        masks = []
+        for w, h, pixels in original.sprites((source / name).read_bytes(), index_palette):
+            masks.append(dict(w=w, h=h, offset=len(raw)))
+            # Transparent is 255; original fade masks contain only rows 0..63.
+            values = bytes(pixels[i] if pixels[i+3] else 255 for i in range(0, len(pixels), 4))
+            assert all(v < 64 or v == 255 for v in values)
+            raw.extend(values)
+        mask_banks[stem] = masks
+    if stem == 'fepointe':
+        original.png(outputs / 'pointer.png', *bank[0])
+    if stem not in mask_banks:
+        original.png(outputs / f'{stem}.png', width, height, atlas)
     rects[stem] = dict(width=width, height=height, rects=entries)
 metadata = dict(source='Populous: The Beginning supplied assets', inputs=inputs,
-                background=dict(width=640, height=480), banks=rects)
+                background=dict(width=640, height=480), banks=rects, masks=mask_banks, binaryBytes=len(raw))
+(outputs / 'composition.bin').write_bytes(raw)
 (root / 'app/original-frontend.json').write_text(json.dumps(metadata, indent=2) + '\n')

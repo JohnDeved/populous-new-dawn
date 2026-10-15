@@ -13,6 +13,7 @@
   color: #fff1bb;
   overflow: hidden;
 }
+.dialog, .dialog button, .dialog input { cursor: url('/original/frontend/pointer.png') 0 0, auto; }
 .dialog::backdrop { background: #171309; }
 .frame {
   position: absolute;
@@ -23,19 +24,22 @@
   transform: translate(-50%, -50%) scale(var(--frontend-scale));
   background: url('/original/frontend/background.png') center / 640px 480px no-repeat;
 }
-.title { position: absolute; left: 0; top: 18px; width: 100%; margin: 0; text-align: center; font: 32px Georgia, serif; color: #fff0a5; text-shadow: 2px 3px #201e08; }
-.rows button { position: absolute; left: 50%; transform: translateX(-50%); display: flex; align-items: flex-start; justify-content: center; min-width: 200px; height: 29px; padding: 0 8px; margin: 0; background: transparent; border: 0; border-radius: 0; cursor: pointer; }
+.title { margin: 0; }
+.logo { position: absolute; display: block; background-repeat: no-repeat; pointer-events: none; }
+.logo { left: 181px; top: 10px; width: 290px; height: 101px; background-image: url('/original/frontend/felgspen.png'); }
+.background { position: absolute; inset: 0; width: 640px; height: 480px; pointer-events: none; }
+
+.rows button { position: absolute; left: 50%; transform: translateX(-50%); display: flex; align-items: flex-start; justify-content: center; min-width: 200px; height: 29px; padding: 0 8px; margin: 0; background: transparent; border: 0; border-radius: 0; cursor: inherit; }
 .text { display: flex; align-items: flex-start; pointer-events: none; }
-.text i { display: block; flex-shrink: 0; background-image: url('/original/frontend/fehi20we.png'); }
-.rows button:hover .text { filter: brightness(1.35); }
+.text i { display: block; flex-shrink: 0;  }
 .rows button:focus-visible { outline: 1px solid #fff1bb; outline-offset: 1px; background: #201a0870; }
 .rows button[aria-disabled='true'] .text { opacity: .5; }
-.rows button[aria-disabled='true'] { cursor: default; }
+.rows button[aria-disabled='true'] { cursor: inherit; }
 .reason { display: none; position: absolute; z-index: 2; top: 25px; left: 50%; transform: translateX(-50%); width: 400px; padding: 6px; background: #201a08ee; color: #fff1bb; font: 13px/1.3 sans-serif; text-align: center; pointer-events: none; }
 .rows button:hover .reason, .rows button:focus-visible .reason { display: block; }
 .panel { position: absolute; left: 130px; top: 135px; width: 380px; max-height: 290px; overflow: auto; padding: 20px; box-sizing: border-box; background: #211b10ed; border: 1px solid #b6a35c; font: 16px/1.5 sans-serif; }
 .panel h2 { margin: 0 0 12px; font: 25px Georgia, serif; }
 .panel label { display: block; margin: 10px 0; }
 .panel input { display: block; width: 100%; accent-color: #d8c477; }
-.panel button { min-height: 36px; padding: 6px 18px; background: #42391d; color: #fff1bb; border: 1px solid #b6a35c; font: inherit; cursor: pointer; }
+.panel button { min-height: 36px; padding: 6px 18px; background: #42391d; color: #fff1bb; border: 1px solid #b6a35c; font: inherit; cursor: inherit; }
 .panel button:focus-visible { outline: 2px solid #fff1bb; outline-offset: 2px; }

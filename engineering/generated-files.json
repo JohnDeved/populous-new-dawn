@@ -6,34 +6,13 @@
       "kind": "bookkeeping",
       "generator": {
         "executable": "npm",
-        "args": [
-          "run",
-          "parity:record",
-          "--",
-          "<authorized-note>"
-        ]
+        "args": ["run", "parity:record", "--", "<authorized-note>"]
       },
-      "callers": [
-        "scripts/parity.mjs",
-        "package.json"
-      ],
-      "inputs": [
-        "parity.json",
-        "parity-history.json"
-      ],
+      "callers": ["scripts/parity.mjs", "package.json"],
+      "inputs": ["parity.json", "parity-history.json"],
       "outputs": [
-        {
-          "path": "PARITY.md",
-          "type": "file",
-          "tracked": true,
-          "protected": true
-        },
-        {
-          "path": "parity-history.json",
-          "type": "file",
-          "tracked": true,
-          "protected": true
-        }
+        { "path": "PARITY.md", "type": "file", "tracked": true, "protected": true },
+        { "path": "parity-history.json", "type": "file", "tracked": true, "protected": true }
       ],
       "recording": "Only after authorized ledger changes, appropriate evidence, and independent review; commit ledger, history, and report together."
     },
@@ -42,33 +21,13 @@
       "kind": "native-evidence",
       "generator": {
         "executable": "python3",
-        "args": [
-          "scripts/decomp.py",
-          "export",
-          "<reviewed-addresses>"
-        ]
+        "args": ["scripts/decomp.py", "export", "<reviewed-addresses>"]
       },
-      "callers": [
-        "scripts/decomp.py",
-        "decomp/README.md"
-      ],
-      "inputs": [
-        "decomp/sections.tsv",
-        "decomp/tools.json"
-      ],
+      "callers": ["scripts/decomp.py", "decomp/README.md"],
+      "inputs": ["decomp/sections.tsv", "decomp/tools.json"],
       "outputs": [
-        {
-          "path": "decomp/generated",
-          "type": "directory",
-          "tracked": true,
-          "protected": true
-        },
-        {
-          "path": "decomp/exports.json",
-          "type": "file",
-          "tracked": true,
-          "protected": true
-        }
+        { "path": "decomp/generated", "type": "directory", "tracked": true, "protected": true },
+        { "path": "decomp/exports.json", "type": "file", "tracked": true, "protected": true }
       ],
       "recording": "Serialize access to one Ghidra project. Export to a scratch directory for comparison before replacing reviewed evidence."
     },
@@ -77,11 +36,7 @@
       "kind": "native-evidence",
       "generator": {
         "executable": "python3",
-        "args": [
-          "scripts/check-native-<scope>.py",
-          "$POPULOUS_EXE",
-          "--record"
-        ]
+        "args": ["scripts/check-native-<scope>.py", "$POPULOUS_EXE", "--record"]
       },
       "callers": [
         "scripts/check-native-drag-selection.py",
@@ -89,17 +44,9 @@
         "scripts/extract-shaman-guard-vectors.mjs",
         "scripts/check-native-terrain.py"
       ],
-      "inputs": [
-        "decomp/requirements.txt",
-        "decomp/sections.tsv"
-      ],
+      "inputs": ["decomp/requirements.txt", "decomp/sections.tsv"],
       "outputs": [
-        {
-          "path": "tests/fixtures",
-          "type": "directory",
-          "tracked": true,
-          "protected": true
-        }
+        { "path": "tests/fixtures", "type": "directory", "tracked": true, "protected": true }
       ],
       "recording": "Inspect each script, executable/data hashes, supplied consumers, and output path. Most writes require --record, but historical building-entry, movement-order, orders, and person-panic checks write fixtures unconditionally. Shaman Guard extraction writes only its named fixture from accepted hash-pinned raw results; --check is read-only."
     },
@@ -108,13 +55,11 @@
       "kind": "imported-assets",
       "generator": {
         "executable": "python3",
-        "args": [
-          "scripts/import-<scope>.py",
-          "<user-supplied-game-path>"
-        ]
+        "args": ["scripts/import-<scope>.py", "<user-supplied-game-path>"]
       },
       "callers": [
         "scripts/import-original.py",
+        "scripts/import-frontend.py",
         "scripts/import-level.py",
         "scripts/import-messages.py",
         "scripts/import-script.py",
@@ -127,49 +72,15 @@
         "scripts/import-follower-nearby.py",
         "scripts/import-minimap-frame.py",
         "scripts/import-sound.py",
-        "scripts/import-music.py",
-        "scripts/import-frontend.py"
+        "scripts/import-music.py"
       ],
-      "inputs": [
-        "references/native-assets.md",
-        "decomp/sections.tsv"
-      ],
+      "inputs": ["references/native-assets.md", "decomp/sections.tsv"],
       "outputs": [
-        {
-          "path": "app/original-frontend.json",
-          "type": "file",
-          "tracked": true,
-          "protected": true,
-          "producer": "scripts/import-frontend.py"
-        },
-        {
-          "path": "public/original/frontend",
-          "type": "directory",
-          "tracked": true,
-          "protected": true,
-          "producer": "scripts/import-frontend.py"
-        },
-        {
-          "path": "app/original-temple-acquisition.json",
-          "type": "file",
-          "tracked": true,
-          "protected": true,
-          "producer": "scripts/import-temple-acquisition.py"
-        },
-        {
-          "path": "public/original/temple-model-p.png",
-          "type": "file",
-          "tracked": true,
-          "protected": true,
-          "producer": "scripts/import-temple-acquisition.py"
-        },
-        {
-          "path": "public/original/temple-sparkles-p.png",
-          "type": "file",
-          "tracked": true,
-          "protected": true,
-          "producer": "scripts/import-temple-acquisition.py"
-        },
+        { "path": "app/original-frontend.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-frontend.py" },
+        { "path": "public/original/frontend", "type": "directory", "tracked": true, "protected": true, "producer": "scripts/import-frontend.py" },
+        { "path": "app/original-temple-acquisition.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-temple-acquisition.py" },
+        { "path": "public/original/temple-model-p.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-temple-acquisition.py" },
+        { "path": "public/original/temple-sparkles-p.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-temple-acquisition.py" },
         {
           "path": "app/level-one.ts",
           "type": "file",
@@ -680,68 +591,15 @@
           "protected": true,
           "producer": "scripts/import-original.py"
         },
-        {
-          "path": "app/original-minimap-frame.json",
-          "type": "file",
-          "tracked": true,
-          "protected": true,
-          "producer": "scripts/import-minimap-frame.py"
-        },
-        {
-          "path": "public/original/minimap-frame.png",
-          "type": "file",
-          "tracked": true,
-          "protected": true,
-          "producer": "scripts/import-minimap-frame.py"
-        },
-        {
-          "path": "public/original/landscape-s.bin",
-          "type": "file",
-          "tracked": true,
-          "protected": true,
-          "producer": "scripts/import-world-environments.py"
-        },
-        {
-          "path": "public/original/landscape-p.bin",
-          "type": "file",
-          "tracked": true,
-          "protected": true,
-          "producer": "scripts/import-world-environments.py"
-        },
-        {
-          "path": "public/original/atlas-s.png",
-          "type": "file",
-          "tracked": true,
-          "protected": true,
-          "producer": "scripts/import-world-environments.py"
-        },
-        {
-          "path": "public/original/atlas-p.png",
-          "type": "file",
-          "tracked": true,
-          "protected": true,
-          "producer": "scripts/import-world-environments.py"
-        },
-        {
-          "path": "app/original-models-bank6.json",
-          "type": "file",
-          "tracked": true,
-          "protected": true,
-          "producer": "scripts/import-world-environments.py"
-        },
-        {
-          "path": "public/original/world-environments.json",
-          "type": "file",
-          "tracked": true,
-          "protected": true,
-          "producer": "scripts/import-world-environments.py"
-        },
-        {
-          "path": "public/original",
-          "type": "directory",
-          "tracked": true,
-          "protected": true
-        }
+        { "path": "app/original-minimap-frame.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-minimap-frame.py" },
+        { "path": "public/original/minimap-frame.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-minimap-frame.py" },
+        { "path": "public/original/landscape-s.bin", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-world-environments.py" },
+        { "path": "public/original/landscape-p.bin", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-world-environments.py" },
+        { "path": "public/original/atlas-s.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-world-environments.py" },
+        { "path": "public/original/atlas-p.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-world-environments.py" },
+        { "path": "app/original-models-bank6.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-world-environments.py" },
+        { "path": "public/original/world-environments.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-world-environments.py" },
+        { "path": "public/original", "type": "directory", "tracked": true, "protected": true }
       ],
       "recording": "Only the documented importer owns each app/original-*.json or public/original asset; do not infer one producer from an original-* name."
     },
@@ -750,19 +608,14 @@
       "kind": "measurement",
       "generator": {
         "executable": "node",
-        "args": [
-          "scripts/profile-game.mjs",
-          "<declared-workload-options>"
-        ]
+        "args": ["scripts/profile-game.mjs", "<declared-workload-options>"]
       },
       "callers": [
         "scripts/profile-game.mjs",
         "scripts/bench-terrain-notifications.mjs",
         "scripts/check-browser-drag-selection.mjs"
       ],
-      "inputs": [
-        "references/modern-performance.md"
-      ],
+      "inputs": ["references/modern-performance.md"],
       "outputs": [
         {
           "path": "references/performance",
@@ -776,28 +629,11 @@
     {
       "id": "orchestration-cache",
       "kind": "disposable",
-      "generator": {
-        "executable": "npm",
-        "args": [
-          "run",
-          "orchestration:index"
-        ]
-      },
-      "callers": [
-        "scripts/orchestration/cli.mjs"
-      ],
-      "inputs": [
-        "engineering/project-map.json",
-        "engineering/checks.json",
-        "parity.json"
-      ],
+      "generator": { "executable": "npm", "args": ["run", "orchestration:index"] },
+      "callers": ["scripts/orchestration/cli.mjs"],
+      "inputs": ["engineering/project-map.json", "engineering/checks.json", "parity.json"],
       "outputs": [
-        {
-          "path": "work/orchestration",
-          "type": "directory",
-          "tracked": false,
-          "protected": false
-        }
+        { "path": "work/orchestration", "type": "directory", "tracked": false, "protected": false }
       ],
       "recording": "Ignored indexes are regenerable. Retain source-bound receipts and prior failed/denied attempts through review; historical timing records need no active maintenance. Never use a stale fingerprint or commit the cache/receipts."
     }
