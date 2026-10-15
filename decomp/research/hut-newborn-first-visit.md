@@ -93,3 +93,14 @@ and order retirement5340→5351 are the only changes accepted from that pair.
 The candidate file aggregate remains failed (3/4): the fresh cancellation control
 rests at (16640,32512) instead of (16128,32512). That protected spatial assertion
 remains unchanged, and the fresh continuation beyond it was not executed.
+
+
+A subsequent source-bound fresh Tower continuation passes all obligations and
+full replay through6429: input[3531,203], cancellation3551, departure3820,
+fight3828/opponent10, intact Tower HP260, and Shaman death/order retirement3996.
+Its cancellation control rests at[16640,32512], while the historical control
+retains[16128,32512]. Paired actual command3 completion and original landing
+search observations establish identical prepared goals and eligible landings
+on opposite sides of cell16384 after existing browser coasting. This is a
+qualified browser outcome, not a new claim of native coasting parity. Maintained
+and final-head full gates remain required.
