@@ -52,7 +52,9 @@ readable labels.
 
 Pause/world/camera/audio ownership stays in the existing page and scene code.
 Options never unpauses the world or resumes audio. Camera changes remain deferred
-until Continue. Existing prior-paused state is preserved by the owner.
+until Continue. Existing prior-paused state is preserved by the owner. Underlying
+browser message presentation is hidden while the owning pause modal is open,
+then restored without dismissing messages, changing their flags or advancing timers.
 
 ## Generation and checks
 

@@ -1018,6 +1018,7 @@ export default function Home() {
         <div
           key={routeNotice.serial}
           className="world-message route-notice"
+          style={{ visibility: menu ? 'hidden' : undefined }}
           role="status"
           onAnimationEnd={() =>
             store.change(w => {
@@ -1030,12 +1031,20 @@ export default function Home() {
         </div>
       )}
       {ready && !routeNotice && world.messageUntil > world.time && (
-        <div className="world-message" role="status">
+        <div
+          className="world-message"
+          role="status"
+          style={{ visibility: menu ? 'hidden' : undefined }}
+        >
           <span>✧</span>
           {world.message}
         </div>
       )}
-      <aside className="campaign-messages" aria-label="Campaign messages">
+      <aside
+        className="campaign-messages"
+        aria-label="Campaign messages"
+        style={{ visibility: menu ? 'hidden' : undefined }}
+      >
         {world.messages.slots
           .map((message, slot) => ({ message, slot }))
           .filter(entry => entry.message)

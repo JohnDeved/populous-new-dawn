@@ -4,7 +4,7 @@ import ingame from './original-pause-font.json'
 import type { FrontendTextRow } from './frontend-composition'
 import styles from './original-options.module.css'
 
-export interface OriginalOptionsProps {
+interface OriginalOptionsProps {
   skin: 'frontend' | 'ingame'
   onBack: () => void
   volume: number

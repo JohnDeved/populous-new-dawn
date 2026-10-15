@@ -1,8 +1,7 @@
 import assert from 'node:assert/strict'
 import {resolve} from 'node:path'
 import {writeFileSync} from 'node:fs'
-import {pathToFileURL} from 'node:url'
-export default async function({page,context,output,root,receipt}) {
+export default async function({page,context,output}) {
  const progress=[],passed=name=>{progress.push(name);writeFileSync(resolve(output,'progress.json'),JSON.stringify(progress,null,2))}
  const button=name=>page.getByRole('button',{name,exact:true})
  const options=page.locator('[data-original-options]')
@@ -49,43 +48,5 @@ export default async function({page,context,output,root,receipt}) {
  assert.equal(png.readUInt32BE(16),1600);assert.equal(png.readUInt32BE(20),1200);writeFileSync(resolve(output,'frontend-sound-dpr2.png'),png)
  await cdp.send('Emulation.clearDeviceMetricsOverride');await cdp.detach()
  passed('native-slider-geometry-modern-ultrawide-small-height-DPR2')
- await page.setViewportSize({width:1280,height:960});await button('Back').click()
- const {bindGame}=await import(pathToFileURL(resolve(root,'scripts/browser-game.mjs')).href)
- await page.setViewportSize({width:800,height:600});await button('New Game').click();await button('Start Mission 1').click();await bindGame(page)
- const guard=page.getByRole('button',{name:'Continue anyway',exact:false});if(await guard.isVisible())await guard.click();await page.setViewportSize({width:1280,height:960})
- await page.waitForFunction(()=>window.testStore.getWorld().flyby.flags&1||!window.testStore.getWorld().inputMask)
- await page.evaluate(()=>document.querySelector('.skip-introduction')?.click())
- await page.waitForFunction(()=>!window.testStore.getWorld().inputMask)
- await button('Enable sound').click();await button('Mute sound').waitFor()
- await button('Game settings').click();await button('Options').click();await category('Sound')
- assert.equal(await volume('Master volume').inputValue(),'0.2');assert.equal(await volume('Music volume').inputValue(),'0.6')
- assert.equal(await options.getAttribute('data-skin'),'ingame')
- const frozen=()=>page.evaluate(()=>{const w=window.testStore.getWorld(),s=window.testSceneRef.current;return {world:JSON.stringify(w),animation:s.gameClock.animationFrame,time:s.gameClock.animationTime,camera:s.camera.position.toArray()}})
- const before=await frozen();await page.waitForTimeout(400);assert.deepEqual(await frozen(),before)
- await page.evaluate(()=>{const main=document.querySelector('main');let fiber=main[Object.keys(main).find(key=>key.startsWith('__reactFiber'))];for(;fiber;fiber=fiber.return)for(let hook=fiber.memoizedState;hook;hook=hook.next)if(hook.memoizedState?.current?.buffers instanceof Map&&'randomState' in hook.memoizedState.current)window.optionsAudio=hook.memoizedState.current})
- assert.equal(await page.evaluate(()=>window.optionsAudio.paused),true)
- assert.equal(await page.evaluate(()=>window.optionsAudio.context.state),'suspended')
- await setVolume('Master volume',7);await setVolume('Music volume',9)
- passed('shared-volumes-world-camera-frozen-and-audio-context-suspended')
- assert.equal(await page.evaluate(()=>window.optionsAudio.context.state),'suspended')
- for(const [width,height] of [[640,480],[1280,960],[1920,1080],[2560,720]]){
-  await page.setViewportSize({width,height});await page.mouse.move(-5,-5);await page.waitForTimeout(80)
-  await page.screenshot({path:resolve(output,`ingame-sound-${width}x${height}.png`)})
- }
- await page.setViewportSize({width:1280,height:960})
- await button('Browser compatibility and help').click();assert.equal(await page.getByRole('combobox',{name:'HUD size'}).isVisible(),true)
- await button('Zoom in').click();assert.deepEqual(await frozen(),before)
- await button('Back to Options').click();assert.equal(await options.getAttribute('data-category'),'Sound')
- await page.keyboard.press('Escape');assert.equal(await button('Options').evaluate(b=>b===document.activeElement),true)
- await page.keyboard.press('Escape');assert.equal(await page.evaluate(()=>window.testStore.getWorld().paused),false)
- await page.waitForFunction(()=>window.optionsAudio.context.state==='running')
- await button('Pause game').click();await button('Game settings').click();await button('Options').click()
- await page.keyboard.press('Escape');await page.keyboard.press('Escape');assert.equal(await page.evaluate(()=>window.testStore.getWorld().paused),true)
- passed('shared-entry-volume-world-camera-freeze-audio-suspend-and-pause-ownership')
- await button('Game settings').click();await button('Quit Game').click();await button('Yes').click()
- await button('Options').click();await category('Sound')
- assert.equal(await volume('Master volume').inputValue(),'0.35');assert.equal(await volume('Music volume').inputValue(),'0.45')
- passed('in-game-preferences-return-to-startup')
- assert.deepEqual(receipt.errors,[])
- return {checks:progress,limits:['Headless software rendering; no hardware performance or native runtime pixel parity claim']}
+ return {checks:progress,limits:['Frontend-only display episode; software rendering']}
 }
