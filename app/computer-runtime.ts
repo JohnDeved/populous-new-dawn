@@ -352,7 +352,12 @@ function stepComputerPreacher(w: World, tribe: number, index: number) {
   }
 }
 
-// 0x4c7370: native type2 task, scoped to Mission3 until other producers are integrated.
+// Keep producer, dispatcher and legacy-spell suppression on the same bounded scope.
+function usesNativeConvertTask(w: World, tribe: number) {
+  return w.outcome.level === 3 || (w.outcome.level === 7 && tribe === 2)
+}
+
+// 0x4c7370: native type2 task for the integrated Mission3 and M7 Chumara producers.
 function stepComputerConvert(w: World, tribe: number, index: number) {
   const task = w.ai.tasks[index],
     unit = w.units.find(u => u.hp > 0 && u.team === campaignTeam(w, tribe) && isShaman(u)),
@@ -377,7 +382,7 @@ function stepComputerConvert(w: World, tribe: number, index: number) {
   }
   if (!unit || !p) return
   if (task.phase === 0) {
-    // Mission 3's stored fallback is the authored Shaman's loaded cell.
+    // The stored fallback is the authored Shaman's immutable loaded cell.
     const origin =
       tribe === 2 && w.ai.constructionBase === undefined
         ? nativePosition(w, campaignPosition(w, 'yellow'))
@@ -1615,7 +1620,7 @@ export function stepComputerTasks(w: World, tribe: number) {
         w.ai,
         id => {
           if (id === 1) return produceMissionBuilding(w, tribe)
-          if (id === 0 && w.outcome.level === 3)
+          if (id === 0 && usesNativeConvertTask(w, tribe))
             return requestConvertTask(
               w.ai,
               w.ai.states,
@@ -1673,7 +1678,7 @@ export function stepComputerTasks(w: World, tribe: number) {
       stepComputerDefense(w, tribe, index)
       return
     }
-    if (w.outcome.level === 3 && task.type === 2) {
+    if (usesNativeConvertTask(w, tribe) && task.type === 2) {
       stepComputerConvert(w, tribe, index)
       return
     }
@@ -2205,7 +2210,7 @@ export function stepComputerSpells(w: World, tribe = campaignTribe(w)) {
     gameFlags: w.manaWorld.gameFlags,
     aiFlags: w.ai.flags,
     aiStates: w.ai.states,
-    nativeConvertTask: w.outcome.level === 3,
+    nativeConvertTask: usesNativeConvertTask(w, tribe),
     coordinateTarget: w.ai.coordinateLatch,
     blastFrequency: w.ai.attributes[32],
     stock: w.manaWorld.spells[tribe],
