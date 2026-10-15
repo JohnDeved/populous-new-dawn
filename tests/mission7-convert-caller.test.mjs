@@ -12,7 +12,7 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
       { encoding: 'utf8', timeout: 20_000, maxBuffer: 1024 * 1024, env })
     t.diagnostic(result.stdout)
     assert.equal(result.error, undefined)
-    assert.match(result.stdout, /tests 9\b/)
+    assert.match(result.stdout, /tests 12\b/)
     assert.equal(result.status, 0, result.stderr + result.stdout)
   })
 } else {
@@ -53,6 +53,24 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
       origins = []
       stepComputerTasks(w, 2)
       assert.deepEqual(origins, [base ?? 0x1a20])
+    })
+  for (const unavailable of ['missing', 'dead', 'assigned'])
+    test(`M7 ${unavailable} Shaman retires before generic origin query`, () => {
+      const w = createWorld(7)
+      const shaman = w.units.find(u => u.team === 'yellow' && u.kind === 'shaman')
+      shaman.native = createLivePerson(w, shaman)
+      if (unavailable === 'missing') w.units = w.units.filter(u => u !== shaman)
+      if (unavailable === 'dead') { shaman.hp = 0; shaman.native.life = 0 }
+      if (unavailable === 'assigned') shaman.native.computerAssignment = 1
+      for (const task of w.ai.tasks) task.flags = 0
+      convert.requestConvertTask(w.ai, 4, 1)
+      w.turn = 1
+      w.ai.cursor = 0
+      origins = []
+      stepComputerTasks(w, 2)
+      assert.deepEqual(origins, [])
+      assert.equal(w.ai.tasks[0].phase, 3)
+      assert.equal(w.ai.tasks[0].flags & 3, 0)
     })
   for (const [level, tribe, expected] of [[3, 2, true], [7, 2, true], [7, 1, false]])
     test(`legacy Convert suppression level${level}/tribe${tribe}=${expected}`, () => {

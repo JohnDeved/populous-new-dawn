@@ -951,6 +951,8 @@ function produceMissionBuilding(w: World, tribe: number) {
 function stepComputerConstruction(w: World, tribe: number, index: number) {
   const task = w.ai.tasks[index],
     team = campaignTeam(w, tribe),
+    // 0x4c6da0 phase3 establishes the first ordinary Tower's exterior as base.
+    establishesBase = [2, 3].includes(w.outcome.level) || (w.outcome.level === 7 && tribe === 2),
     cleanup = (removePlan = false) => {
       for (const id of task.members) {
         const unit = w.units.find(unit => unit.id === id)
@@ -1055,13 +1057,13 @@ function stepComputerConstruction(w: World, tribe: number, index: number) {
       task.target = cell
       task.entity = building.id
       task.retries = 0
-      task.phase = [2, 3].includes(w.outcome.level) && task.requested === 4 ? 3 : 4
+      task.phase = establishesBase && task.requested === 4 ? 3 : 4
       return
     }
     if (task.elapsed >= task.remaining) cleanup()
     return
   }
-  if (task.phase === 3 && [2, 3].includes(w.outcome.level)) {
+  if (task.phase === 3 && establishesBase) {
     const building = w.buildings.find(b => b.id === task.entity && b.hp > 0)
     if (!task.extra && w.ai.constructionBase === undefined && building) {
       const outside = buildingOutsidePoint(buildingPose(building))
