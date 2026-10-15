@@ -1,0 +1,23 @@
+
+/workspace/scratch/69fd8163d94e/populous-research-inputs/game/app/D3DPopTB.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+004a32d0 <.text+0xa22d0>:
+  4a32d0:	8b 44 24 04          	mov    eax,DWORD PTR [esp+0x4]
+  4a32d4:	c6 80 fc 03 00 00 00 	mov    BYTE PTR [eax+0x3fc],0x0
+  4a32db:	c6 80 fd 03 00 00 00 	mov    BYTE PTR [eax+0x3fd],0x0
+  4a32e2:	c6 80 fe 03 00 00 00 	mov    BYTE PTR [eax+0x3fe],0x0
+  4a32e9:	c6 80 f8 03 00 00 00 	mov    BYTE PTR [eax+0x3f8],0x0
+  4a32f0:	c6 80 f9 03 00 00 00 	mov    BYTE PTR [eax+0x3f9],0x0
+  4a32f7:	c6 80 fa 03 00 00 00 	mov    BYTE PTR [eax+0x3fa],0x0
+  4a32fe:	80 7c 24 08 00       	cmp    BYTE PTR [esp+0x8],0x0
+  4a3303:	74 2a                	je     0x4a332f
+  4a3305:	c6 80 fc 03 00 00 ff 	mov    BYTE PTR [eax+0x3fc],0xff
+  4a330c:	c6 80 fd 03 00 00 ff 	mov    BYTE PTR [eax+0x3fd],0xff
+  4a3313:	c6 80 fe 03 00 00 ff 	mov    BYTE PTR [eax+0x3fe],0xff
+  4a331a:	c6 80 f8 03 00 00 83 	mov    BYTE PTR [eax+0x3f8],0x83
+  4a3321:	c6 80 f9 03 00 00 83 	mov    BYTE PTR [eax+0x3f9],0x83
+  4a3328:	c6 80 fa 03 00 00 83 	mov    BYTE PTR [eax+0x3fa],0x83
+  4a332f:	c3                   	ret

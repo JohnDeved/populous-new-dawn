@@ -1,0 +1,133 @@
+
+/workspace/scratch/69fd8163d94e/populous-research-inputs/game/app/D3DPopTB.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+0045a151 <.text+0x59151>:
+  45a151:	83 3d a8 9c 74 00 00 	cmp    DWORD PTR ds:0x749ca8,0x0
+  45a158:	7e 2c                	jle    0x45a186
+  45a15a:	be 9c 9c 5d 00       	mov    esi,0x5d9c9c
+  45a15f:	8b 0d a8 9c 74 00    	mov    ecx,DWORD PTR ds:0x749ca8
+  45a165:	c7 06 00 00 00 00    	mov    DWORD PTR [esi],0x0
+  45a16b:	8b 16                	mov    edx,DWORD PTR [esi]
+  45a16d:	8d 42 01             	lea    eax,[edx+0x1]
+  45a170:	89 06                	mov    DWORD PTR [esi],eax
+  45a172:	8b 5e 04             	mov    ebx,DWORD PTR [esi+0x4]
+  45a175:	81 3c d3 00 00 00 80 	cmp    DWORD PTR [ebx+edx*8],0x80000000
+  45a17c:	75 ed                	jne    0x45a16b
+  45a17e:	ff 0e                	dec    DWORD PTR [esi]
+  45a180:	83 c6 20             	add    esi,0x20
+  45a183:	49                   	dec    ecx
+  45a184:	75 df                	jne    0x45a165
+  45a186:	83 3d c8 9c 74 00 00 	cmp    DWORD PTR ds:0x749cc8,0x0
+  45a18d:	7e 2c                	jle    0x45a1bb
+  45a18f:	be 70 8e 5d 00       	mov    esi,0x5d8e70
+  45a194:	8b 0d c8 9c 74 00    	mov    ecx,DWORD PTR ds:0x749cc8
+  45a19a:	c7 06 00 00 00 00    	mov    DWORD PTR [esi],0x0
+  45a1a0:	8b 16                	mov    edx,DWORD PTR [esi]
+  45a1a2:	8d 42 01             	lea    eax,[edx+0x1]
+  45a1a5:	89 06                	mov    DWORD PTR [esi],eax
+  45a1a7:	8b 5e 04             	mov    ebx,DWORD PTR [esi+0x4]
+  45a1aa:	81 3c 93 00 00 00 80 	cmp    DWORD PTR [ebx+edx*4],0x80000000
+  45a1b1:	75 ed                	jne    0x45a1a0
+  45a1b3:	ff 0e                	dec    DWORD PTR [esi]
+  45a1b5:	83 c6 3c             	add    esi,0x3c
+  45a1b8:	49                   	dec    ecx
+  45a1b9:	75 df                	jne    0x45a19a
+  45a1bb:	c7 44 24 10 00 00 00 	mov    DWORD PTR [esp+0x10],0x0
+  45a1c2:	00 
+  45a1c3:	83 3d d4 9c 74 00 00 	cmp    DWORD PTR ds:0x749cd4,0x0
+  45a1ca:	be b0 88 5d 00       	mov    esi,0x5d88b0
+  45a1cf:	7e 7a                	jle    0x45a24b
+  45a1d1:	c7 46 24 00 00 00 00 	mov    DWORD PTR [esi+0x24],0x0
+  45a1d8:	8b 46 24             	mov    eax,DWORD PTR [esi+0x24]
+  45a1db:	8d 48 01             	lea    ecx,[eax+0x1]
+  45a1de:	8d 14 80             	lea    edx,[eax+eax*4]
+  45a1e1:	89 4e 24             	mov    DWORD PTR [esi+0x24],ecx
+  45a1e4:	8b 46 28             	mov    eax,DWORD PTR [esi+0x28]
+  45a1e7:	81 3c d0 00 00 00 80 	cmp    DWORD PTR [eax+edx*8],0x80000000
+  45a1ee:	75 e8                	jne    0x45a1d8
+  45a1f0:	8d 41 ff             	lea    eax,[ecx-0x1]
+  45a1f3:	33 ed                	xor    ebp,ebp
+  45a1f5:	89 46 24             	mov    DWORD PTR [esi+0x24],eax
+  45a1f8:	85 c0                	test   eax,eax
+  45a1fa:	8b 5e 28             	mov    ebx,DWORD PTR [esi+0x28]
+  45a1fd:	7e 39                	jle    0x45a238
+  45a1ff:	8b 46 2c             	mov    eax,DWORD PTR [esi+0x2c]
+  45a202:	85 c0                	test   eax,eax
+  45a204:	7e 22                	jle    0x45a228
+  45a206:	8d 0c c0             	lea    ecx,[eax+eax*8]
+  45a209:	8d 0c 88             	lea    ecx,[eax+ecx*4]
+  45a20c:	c1 e1 02             	shl    ecx,0x2
+  45a20f:	51                   	push   ecx
+  45a210:	e8 1b c4 0c 00       	call   0x526630
+  45a215:	83 c4 04             	add    esp,0x4
+  45a218:	8b f8                	mov    edi,eax
+  45a21a:	b9 25 00 00 00       	mov    ecx,0x25
+  45a21f:	89 43 10             	mov    DWORD PTR [ebx+0x10],eax
+  45a222:	33 c0                	xor    eax,eax
+  45a224:	f3 ab                	rep stos DWORD PTR es:[edi],eax
+  45a226:	eb 07                	jmp    0x45a22f
+  45a228:	c7 43 10 00 00 00 00 	mov    DWORD PTR [ebx+0x10],0x0
+  45a22f:	45                   	inc    ebp
+  45a230:	83 c3 28             	add    ebx,0x28
+  45a233:	39 6e 24             	cmp    DWORD PTR [esi+0x24],ebp
+  45a236:	7f c7                	jg     0x45a1ff
+  45a238:	83 c6 5c             	add    esi,0x5c
+  45a23b:	ff 44 24 10          	inc    DWORD PTR [esp+0x10]
+  45a23f:	8b 44 24 10          	mov    eax,DWORD PTR [esp+0x10]
+  45a243:	39 05 d4 9c 74 00    	cmp    DWORD PTR ds:0x749cd4,eax
+  45a249:	7f 86                	jg     0x45a1d1
+  45a24b:	c7 44 24 10 00 00 00 	mov    DWORD PTR [esp+0x10],0x0
+  45a252:	00 
+  45a253:	83 3d a8 9c 74 00 00 	cmp    DWORD PTR ds:0x749ca8,0x0
+  45a25a:	be 98 9c 5d 00       	mov    esi,0x5d9c98
+  45a25f:	0f 8e ff 00 00 00    	jle    0x45a364
+  45a265:	8b 7c 24 10          	mov    edi,DWORD PTR [esp+0x10]
+  45a269:	c7 46 14 ff ff ff ff 	mov    DWORD PTR [esi+0x14],0xffffffff
+  45a270:	c7 46 10 ff ff ff ff 	mov    DWORD PTR [esi+0x10],0xffffffff
+  45a277:	c7 46 18 00 00 00 00 	mov    DWORD PTR [esi+0x18],0x0
+  45a27e:	8b 4e 08             	mov    ecx,DWORD PTR [esi+0x8]
+  45a281:	33 d2                	xor    edx,edx
+  45a283:	39 56 04             	cmp    DWORD PTR [esi+0x4],edx
+  45a286:	7e 7d                	jle    0x45a305
+  45a288:	83 7e 10 ff          	cmp    DWORD PTR [esi+0x10],0xffffffff
+  45a28c:	75 54                	jne    0x45a2e2
+  45a28e:	8b 41 04             	mov    eax,DWORD PTR [ecx+0x4]
+  45a291:	8b 28                	mov    ebp,DWORD PTR [eax]
+  45a293:	f7 c5 03 00 00 00    	test   ebp,0x3
+  45a299:	75 3e                	jne    0x45a2d9
+  45a29b:	8b 19                	mov    ebx,DWORD PTR [ecx]
+  45a29d:	83 eb 04             	sub    ebx,0x4
+  45a2a0:	83 fb 09             	cmp    ebx,0x9
+  45a2a3:	77 34                	ja     0x45a2d9
+  45a2a5:	33 c0                	xor    eax,eax
+  45a2a7:	8a 83 a8 a3 45 00    	mov    al,BYTE PTR [ebx+0x45a3a8]
+  45a2ad:	ff 24 85 90 a3 45 00 	jmp    DWORD PTR [eax*4+0x45a390]
+  45a2b4:	bf 01 00 00 00       	mov    edi,0x1
+  45a2b9:	eb 20                	jmp    0x45a2db
+  45a2bb:	f7 c5 10 00 00 00    	test   ebp,0x10
+  45a2c1:	75 18                	jne    0x45a2db
+  45a2c3:	bf 01 00 00 00       	mov    edi,0x1
+  45a2c8:	eb 11                	jmp    0x45a2db
+  45a2ca:	f7 c5 10 00 00 00    	test   ebp,0x10
+  45a2d0:	75 09                	jne    0x45a2db
+  45a2d2:	bf 01 00 00 00       	mov    edi,0x1
+  45a2d7:	eb 02                	jmp    0x45a2db
+  45a2d9:	33 ff                	xor    edi,edi
+  45a2db:	85 ff                	test   edi,edi
+  45a2dd:	74 03                	je     0x45a2e2
+  45a2df:	89 56 10             	mov    DWORD PTR [esi+0x10],edx
+  45a2e2:	33 db                	xor    ebx,ebx
+  45a2e4:	8b 01                	mov    eax,DWORD PTR [ecx]
+  45a2e6:	83 f8 06             	cmp    eax,0x6
+  45a2e9:	74 05                	je     0x45a2f0
+  45a2eb:	83 f8 07             	cmp    eax,0x7
+  45a2ee:	75 05                	jne    0x45a2f5
+  45a2f0:	bb 01 00 00 00       	mov    ebx,0x1
+  45a2f5:	85 db                	test   ebx,ebx
+  45a2f7:	74 03                	je     0x45a2fc
+  45a2f9:	ff 46 18             	inc    DWORD PTR [esi+0x18]
+  45a2fc:	42                   	inc    edx
+  45a2fd:	83 c1 08             	add    ecx,0x8

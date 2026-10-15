@@ -19,6 +19,12 @@ export const frontendTextWidth = (text: string) =>
     0
   )
 
+export interface FrontendTextRow {
+  text: string
+  x: number
+  y: number
+}
+
 interface Mask {
   w: number
   h: number
@@ -47,14 +53,17 @@ export function frontendBackground(
   source: Uint8Array,
   pointer: { x: number; y: number },
   menu: boolean,
-  glowFrame: number | null = null
+  glowFrame: number | null = null,
+  textRows: readonly FrontendTextRow[] = []
 ) {
   if (source.length !== assets.binaryBytes) throw new Error('Invalid frontend composition data')
   const indexed = source.slice(0, 640 * 480)
-  if (menu) {
-    for (const [index, text] of frontendRows.entries()) {
-      let x = 320 - (frontendTextWidth(text) >> 1)
-      const y = frontendRowY(index)
+  const rows = menu
+    ? frontendRows.map((text, index) => ({ text, x: 320, y: frontendRowY(index) }))
+    : textRows
+  {
+    for (const { text, x: center, y } of rows) {
+      let x = center - (frontendTextWidth(text) >> 1)
       for (const letter of text) {
         const mask = assets.masks.fesd33we[letter.charCodeAt(0) - 32]
         fadeMask(
