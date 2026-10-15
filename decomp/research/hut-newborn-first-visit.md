@@ -57,3 +57,13 @@ required every raid member to have command19, although mixed dispatch gives the
 Preacher command17. With its cached entity gone, a living eligible Blue Shaman
 four squared cells from the target was ignored and retries reached33. That fix
 belongs to issue446; it is not disguised as a newborn fixture update.
+
+The M23 Red population observation at turn 2585 was separately reconciled against
+full paired birth/removal ledgers: seven initial actors plus five baseline or six
+corrected ordinary Hut births, with no removals, exactly equal the final 12/13
+identity sets. Corrected actor 392 was born from Hut 341 at 2423 and is a healthy
+physical resident of Hut 313 at 2585. Active registry ownership, passive resident
+slots, and builder work/roster ownership were qualified independently; passive
+owners are intentionally not cell-registry owners. Both diagnostic runs retain
+all original settlement checks, checkpoint equality and the 128-turn tail. Only
+the Red population count changes; final maintained-file gates remain required.
