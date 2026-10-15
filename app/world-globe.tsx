@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { globeBackingSize, rasterGlobe } from './world-globe-raster'
+import { advanceGlobeRaster, globeBackingSize, rasterGlobeRows } from './world-globe-raster'
 
 export function WorldGlobe({ mission }: { mission: number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -12,6 +12,7 @@ export function WorldGlobe({ mission }: { mission: number }) {
     let texture: Uint8ClampedArray | undefined
     let lastSize = 0
     let frame = 0
+    let rendering: { size: number; rows: ReturnType<typeof rasterGlobeRows> } | undefined
     const image = new Image()
     function fail() {
       if (!disposed) setFailed(true)
@@ -20,9 +21,21 @@ export function WorldGlobe({ mission }: { mission: number }) {
       frame = 0
       if (disposed || !texture || !context || !canvas) return
       const size = globeBackingSize(canvas.getBoundingClientRect().width, window.devicePixelRatio)
-      if (!size || size === lastSize) return
+      if (!size || size === lastSize) {
+        rendering = undefined
+        return
+      }
+      if (rendering?.size !== size) rendering = { size, rows: rasterGlobeRows(texture, size) }
+      const result = advanceGlobeRaster(rendering.rows)
+      if (!result.done) {
+        frame = requestAnimationFrame(draw)
+        return
+      }
+      // Publish only the completed current-size generation. Until then the last
+      // complete image stays visible, scaled by CSS. Unmount cancels the frame.
       canvas.width = canvas.height = size
-      context.putImageData(new ImageData(rasterGlobe(texture, size), size, size), 0, 0)
+      context.putImageData(new ImageData(result.value, size, size), 0, 0)
+      rendering = undefined
       lastSize = size
       canvas.dataset.ready = 'true'
     }

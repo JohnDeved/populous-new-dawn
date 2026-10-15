@@ -42,9 +42,11 @@ See [full globe findings](world-selector-globe-evidence/globe-findings.md),
   not claimed. Float32 structural stores/recurrence are retained; JS arithmetic
   is not an x87 emulator.
 - Canvas2D uploads a static indexed-triangle raster on texture/size/DPR changes
-  only, with no animation loop, extra WebGL context, or input handlers. Backing size
+  only, with cancellable six-millisecond scanline batches and no continuous animation loop, extra WebGL context, or input handlers. Backing size
   is bounded at 2048 square to avoid pathological display-scale allocations;
-  ordinary 4K/DPR2 fits below that bound. Pixel-centre edge coverage is a browser
+  ordinary 4K/DPR2 fits below that bound. During resize, the prior complete image
+  remains visible until the current-size generation finishes. Obsolete size work
+  is discarded; unmount cancels pending work. Pixel-centre edge coverage is a browser
   adaptation, not an original-device pixel-parity claim.
 - Missing/invalid textures show a text fallback without preventing navigation or
   starting the mission. Mission-keyed lifetime prevents an old load replacing a

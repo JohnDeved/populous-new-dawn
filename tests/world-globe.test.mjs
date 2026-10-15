@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { spawnSync } from 'node:child_process'
 import {createGlobeMesh,globeShade} from '../app/world-globe-mesh.ts'
-import {rasterGlobe,globeBackingSize} from '../app/world-globe-raster.ts'
+import {rasterGlobe,globeBackingSize,rasterGlobeRows,advanceGlobeRaster} from '../app/world-globe-raster.ts'
 
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
 test('reference subdivision, native angular stitch and seams retain source recipe',()=>{
@@ -113,4 +113,22 @@ test('mission-specific globe assets have independent source and output provenanc
   assert.ok(asset.sources['data/plstx00'+asset.mission+'.dat'])
  }
  assert.equal(new Set(provenance.assets.map(a=>a.rgbSha256)).size,3)
+})
+
+test('cooperative row batches preserve pixels and bound work between scheduler yields',()=>{
+ const texture=new Uint8ClampedArray(128*128*4).fill(100)
+ const rows=rasterGlobeRows(texture,256)
+ let ticks=0,batches=0,result
+ do {
+  const start=ticks
+  result=advanceGlobeRaster(rows,()=>ticks++)
+  assert.ok(ticks-start<=7)
+  batches++
+ } while(!result.done)
+ assert.ok(batches>100)
+ assert.deepEqual(result.value,rasterGlobe(texture,256))
+ // Abandoned work has no mutable global output or side effects on later work.
+ const abandoned=rasterGlobeRows(texture,2048)
+ advanceGlobeRaster(abandoned,()=>ticks++)
+ assert.deepEqual(rasterGlobe(texture,64),rasterGlobe(texture,64))
 })

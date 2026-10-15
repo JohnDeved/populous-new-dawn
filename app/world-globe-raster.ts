@@ -38,7 +38,10 @@ function edge(a: GlobeVertex, b: GlobeVertex, x: number, y: number) {
   return (b.x - a.x) * (y - a.y) - (b.y - a.y) * (x - a.x)
 }
 
-export function rasterGlobe(texture: Uint8ClampedArray, size: number) {
+export function* rasterGlobeRows(
+  texture: Uint8ClampedArray,
+  size: number
+): Generator<void, Uint8ClampedArray> {
   if (texture.length !== textureSize * textureSize * 4)
     throw new RangeError('Expected a 128-square RGBA globe texture')
   if (!Number.isInteger(size) || size < 1 || size > 2048)
@@ -76,7 +79,28 @@ export function rasterGlobe(texture: Uint8ClampedArray, size: number) {
         }
         pixels[offset + 3] = 255
       }
+      // Yield at scanlines, not triangles: even a large centre triangle must
+      // leave the main thread available to input and newer resize requests.
+      yield
     }
   }
   return pixels
+}
+
+// Synchronous consumer for portable regression tests and total-cost measurements.
+export function rasterGlobe(texture: Uint8ClampedArray, size: number) {
+  const rows = rasterGlobeRows(texture, size)
+  let result = rows.next()
+  while (!result.done) result = rows.next()
+  return result.value
+}
+
+export function advanceGlobeRaster(
+  rows: ReturnType<typeof rasterGlobeRows>,
+  now: () => number = performance.now.bind(performance)
+) {
+  const deadline = now() + 6
+  let result = rows.next()
+  while (!result.done && now() < deadline) result = rows.next()
+  return result
 }
