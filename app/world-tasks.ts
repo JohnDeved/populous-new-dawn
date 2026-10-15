@@ -15,17 +15,17 @@ export function clearFightAssignment(u: Unit) {
   u.fight = null
 }
 
-export function release(w: World, u: Unit, preserveOrders = false) {
+export function release(w: World, u: Unit, preserveOrders = false, preserveResting = false) {
   const occupant = u.inside !== null ? leaveLiveBuilding(w, u) : undefined
   u.inside = null
-  releaseTasks(w, u, preserveOrders)
+  releaseTasks(w, u, preserveOrders, preserveResting)
   return occupant
 }
-export function releaseTasks(w: World, u: Unit, preserveOrders = false) {
+export function releaseTasks(w: World, u: Unit, preserveOrders = false, preserveResting = false) {
   // A replacement clears queued G before resting's eager state initializer.
   // Keep native bit16: it legitimately prepares the replacement next turn.
   if (!preserveOrders && u.native?.guardInputPending) cancelLiveOrder(w, u)
-  cancelLiveResting(w, u)
+  if (!preserveResting) cancelLiveResting(w, u)
   if (preserveOrders) {
     // Combat takes the same person/queue; its state initializer releases training slots.
     u.entry = undefined
