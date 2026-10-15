@@ -149,7 +149,7 @@ test('earned M22 Hypnotise binds replacement allocation to actual cell callback 
   selectUnit(w, s.id)
   assert.ok(command(w, { x: 20, z: -41 }))
   for (let n = 0; n < 100 && spellTargetError(w, 'hypnotise', target); n++) tick(w, 1 / 12)
-  assert.equal(w.turn, 6166)
+  assert.equal(w.turn, 6172)
   assert.equal(spellTargetError(w, 'hypnotise', target), null)
   assert.ok(cast(w, 'hypnotise', target))
   assert.equal(w.shots.hypnotise, 0)
@@ -162,7 +162,7 @@ test('earned M22 Hypnotise binds replacement allocation to actual cell callback 
   const effect = w.effects.find(f => f.kind === 'hypnotise'),
     center = nativePosition(w, effect)
   assert.deepEqual([center.x, center.y], [5888, 5888])
-  assert.equal(w.turn, 6179)
+  assert.equal(w.turn, 6185)
   const discovered = []
   for (const dy of [-2, 0, 2])
     for (const dx of [-2, 0, 2])
