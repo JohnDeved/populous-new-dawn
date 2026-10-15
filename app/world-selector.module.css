@@ -8,9 +8,9 @@
   overflow: auto;
   border: 0;
   color: #f0e7d1;
-  background: #050709;
+  background: #000;
 }
-.dialog::backdrop { background: #050709; }
+.dialog::backdrop { background: #000; }
 .selector {
   --panel-width: min(100vw, calc(100dvh * 4 / 3));
   position: relative;
@@ -27,19 +27,11 @@
 .header { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 8px 16px 0; }
 .header h2 { margin: 0; font-size: 22px; font-weight: 400; }
 .tabs { display: flex; gap: 8px; padding: 6px 16px; }
-.campaign { position: absolute; inset: 112px 15% calc(var(--panel-width) * .16) 15%; display: grid; grid-template-columns: 1.2fr 1fr; align-items: center; gap: 20px; }
-.map svg { display: block; width: 100%; max-height: min(50dvh, 500px); overflow: visible; }
-.map svg text { font: 13px sans-serif; fill: #d6dce0; }
-.orbit { fill: none; stroke: #665e47; stroke-width: 1; }
-.parentWorld { fill: #998564; }
-.futureWorld { fill: #607080; }
-.map g circle { fill: #8aaaca; stroke: #c0d2e0; }
-.selectedOrbit circle { fill: #e3c985 !important; stroke: #ffe8a4 !important; stroke-width: 2; }
-.selectedOrbit text { fill: #ffe8a4 !important; font-weight: 700 !important; }
-.map p { margin: -6px 0 0; color: #9c998c; font-size: 12px; text-align: center; }
-.details { text-align: center; }
-.planet { width: min(22vw, 32dvh); aspect-ratio: 1; margin: 0 auto 16px; display: grid; place-items: center; color: #adbcc9; font-size: 12px; }
-.orbitDescription { color: #adbcc9; font-size: 12px; }
+.scene { position: absolute; width: var(--panel-width); height: calc(var(--panel-width) * .75); bottom: 0; left: 50%; transform: translateX(-50%); pointer-events: none; }
+.scene canvas { display: block; width: 100%; height: 100%; }
+.sceneFailure { position: absolute; top: 45%; left: 15%; right: 15%; text-align: center; pointer-events: auto; font-size: 13px; }
+.header, .tabs, .footer, .worldChoices, .selectedTitle, .panel { z-index: 1; }
+.header, .tabs { position: relative; }
 .worldChoices { position: absolute; top: 118px; left: 16px; display: grid; gap: 6px; }
 .worldChoices button { display: flex; flex-direction: column; align-items: start; gap: 2px; padding: 5px 8px; }
 .worldChoices strong { font-size: 13px; }
@@ -74,10 +66,6 @@
   .footer { right: 8px; gap: 4px; }
   .footer p { top: 52px; width: 175px; }
   .header { padding-inline: 8px; }
-  .campaign { inset: 180px 12px 130px; gap: 0; }
-  .map { display: none; }
-  .campaign { grid-template-columns: 1fr; }
-  .planet { width: min(42vw, 30dvh); }
   .worldChoices { top: 118px; left: 8px; right: 8px; display: flex; }
   .worldChoices button { flex: 1; }
   .selectedTitle { bottom: max(61px, calc(var(--panel-width) * 61 / 640)); }

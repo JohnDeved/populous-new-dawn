@@ -98,5 +98,5 @@ export function createGlobeMesh(radius = 128, offsetU = 0, offsetV = 0) {
     previousStart = start
     previousAngles = angles
   }
-  return { vertices, triangles, ringCounts }
+  return { vertices, triangles, ringCounts, fullSegments: Math.trunc((2 * pi) / angle) }
 }

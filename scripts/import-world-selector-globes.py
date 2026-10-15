@@ -35,7 +35,7 @@ def main():
     spec.loader.exec_module(decoder)
     args.output.mkdir(parents=True, exist_ok=True)
     records = []
-    for mission in (1, 2, 3):
+    for mission in range(1, 25):
         header_path = f'levels/levl2{mission:03d}.hdr'
         header = (args.game_root / header_path).read_bytes()
         if len(header) != 616:
@@ -55,13 +55,21 @@ def main():
                                     for path, data in zip(paths, inputs)},
                         'rgbSha256': hashlib.sha256(rgb).hexdigest(), 'output': output.name,
                         'outputSha256': hashlib.sha256(output.read_bytes()).hexdigest()})
+    for name, expected in [('Sun.png', '67d20335b39471fa5c0be3799b8ae36e41ba857d77b5b804201c79c9d905a657'),
+                           ('ring.png', '6814e461c75a21d904132087a37eea8045d5d9d69a09f230e0b0ae6b1340245c')]:
+        data = (args.game_root / 'data/d3d' / name).read_bytes()
+        if hashlib.sha256(data).hexdigest() != expected:
+            raise ValueError(f'Source hash mismatch: {name}')
+        (args.output / name.lower()).write_bytes(data)
+        records.append({'source': f'data/d3d/{name}', 'output': name.lower(),
+                        'sourceSha256': expected, 'outputSha256': expected})
     (args.output / 'provenance.json').write_text(json.dumps({
         'consumer': '004289c8 -> 00428b90 -> 004306d0',
         'layout': 'Four sequential 256x256 tiles: TL, TR, BL, BR',
         'reduction': 'Per-channel palette RGB integer sum of 4x4 pixels, shifted right 4',
         'adaptation': 'RGB8 before device-dependent texture quantization',
         'assets': records}, indent=2) + '\n')
-    print('Imported three 128x128 ordinary globe textures.')
+    print('Imported 24 ordinary globe textures and source sun/orbit images.')
 
 
 if __name__ == '__main__':

@@ -3,10 +3,9 @@ import {
   openingCampaignMissions,
   openingMissionAvailable,
   openingRecommendedMission,
-  selectorWorlds,
 } from './world-selector-data'
 import styles from './world-selector.module.css'
-import { WorldGlobe } from './world-globe'
+import { WorldSelectorScene } from './world-selector-scene'
 
 interface Props {
   missions: readonly number[]
@@ -38,7 +37,6 @@ export function WorldSelector({
     setFailedArt(previous => (previous.includes(panelArt) ? previous : [...previous, panelArt]))
   const available = openingMissionAvailable(selected, completed)
   const isCompleted = completed.includes(selected)
-  const body = selectorWorlds.find(world => world.mission === selected)!
   let status = 'Available'
   if (isCompleted) status = 'Completed · ready to replay'
   else if (!available) status = `Complete Mission ${selected - 1} to continue.`
@@ -91,47 +89,10 @@ export function WorldSelector({
         </section>
       ) : (
         <>
-          <div className={styles.campaign}>
-            <div className={styles.map} aria-label="Opening worlds orbit map">
-              <svg
-                viewBox="0 0 420 400"
-                role="img"
-                aria-label="Missions 1, 2 and 3 orbit the same parent world. Mission 1 is the outermost moon."
-              >
-                {[150, 110, 70, 35].map(radius => (
-                  <circle key={radius} cx="190" cy="180" r={radius} className={styles.orbit} />
-                ))}
-                <circle cx="190" cy="180" r="10" className={styles.parentWorld} />
-                <text x="210" y="183">
-                  World 5
-                </text>
-                <circle cx="190" cy="215" r="8" className={styles.futureWorld} />
-                <text x="210" y="220">
-                  World 4
-                </text>
-                {openingCampaignMissions.map(mission => {
-                  const world = selectorWorlds.find(value => value.mission === mission)!
-                  const y = 180 + world.orbitRadius
-                  return (
-                    <g key={mission} className={mission === selected ? styles.selectedOrbit : ''}>
-                      <circle cx="190" cy={y} r={mission === selected ? 15 : 8} />
-                      <text x="220" y={y + 5}>
-                        Mission {mission}
-                        {completed.includes(mission) ? ' ✓' : ''}
-                      </text>
-                    </g>
-                  )
-                })}
-              </svg>
-              <p>Opening orbits · adapted view</p>
-            </div>
-            <section className={styles.details} aria-label="Selected world">
-              <div className={styles.planet}>
-                <WorldGlobe key={selected} mission={selected} />
-              </div>
-              <p className={styles.orbitDescription}>Moon of World 5 · orbit {body.orbitRadius}</p>
-            </section>
-          </div>
+          <WorldSelectorScene
+            mission={selected}
+            progressionMission={openingRecommendedMission(completed)}
+          />
           <div className={styles.worldChoices} aria-label="Choose campaign world">
             {openingCampaignMissions.map(mission => {
               const unlocked = openingMissionAvailable(mission, completed)

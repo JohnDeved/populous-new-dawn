@@ -104,15 +104,16 @@ for t,p in [(b'',p),(t,b'')]:
 test('mission-specific globe assets have independent source and output provenance',()=>{
  const root='public/original/world-selector/globes/'
  const provenance=JSON.parse(readFileSync(root+'provenance.json'))
- assert.equal(provenance.assets.length,3)
- assert.deepEqual(provenance.assets.map(a=>a.bank),[12,28,25])
- for(const asset of provenance.assets){
+ assert.equal(provenance.assets.length,26)
+ const ordinary=provenance.assets.filter(a=>a.mission)
+ assert.deepEqual(ordinary.slice(0,3).map(a=>a.bank),[12,28,25])
+ for(const asset of ordinary){
   assert.equal(hash(readFileSync(root+asset.output)),asset.outputSha256)
   assert.equal(asset.width,128);assert.equal(asset.height,128)
   assert.equal(Object.keys(asset.sources).length,3)
-  assert.ok(asset.sources['data/plstx00'+asset.mission+'.dat'])
+  assert.ok(asset.sources['data/plstx'+String(asset.mission).padStart(3,'0')+'.dat'])
  }
- assert.equal(new Set(provenance.assets.map(a=>a.rgbSha256)).size,3)
+ assert.equal(new Set(ordinary.map(a=>a.rgbSha256)).size,24)
 })
 
 test('cooperative row batches preserve pixels and bound work between scheduler yields',()=>{
