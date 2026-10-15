@@ -15,9 +15,10 @@ export default async function ({ page, root, output, receipt, openMission, obser
     await openMission(1)
     const readiness = await waitForShamanReadiness(page)
     await page.getByRole('button', { name: 'Game settings', exact: true }).click()
-    const menu = page.locator('dialog.game-dialog')
+    const menu = page.locator('dialog[data-original-pause-menu]')
     await menu.waitFor({ state: 'visible' })
     const savedTurn = await page.evaluate(() => window.testStore.getWorld().turn)
+    await menu.getByRole('button', { name: 'Save Game', exact: true }).click()
     await menu.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
     let observed
     assert.equal(await waitForCheckpointReadback(async () => {

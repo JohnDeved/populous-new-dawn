@@ -63,7 +63,7 @@ export default async function({page,browser,url,root,output,receipt}) {
  passed('tutorial-ready')
  const desktop=page.getByRole('button',{name:'Continue anyway',exact:false});if(await desktop.isVisible())await desktop.click()
  await page.getByRole('button',{name:'Game settings',exact:true}).click()
- await button('Quit to Main Menu').click();await main.waitFor();await noScene()
+ await button('Quit Game').click();await button('Yes').click();await main.waitFor();await noScene()
  passed('tutorial-return-main')
  // Separate the independent failure-injection scenario from the previous WebGL context.
  await page.reload({waitUntil:'domcontentloaded'});await main.waitFor()
@@ -83,8 +83,8 @@ export default async function({page,browser,url,root,output,receipt}) {
  await page.waitForFunction(()=>window.testStore.getWorld().flyby.flags&1||!window.testStore.getWorld().inputMask)
  const skip=page.locator('.skip-introduction');if(await skip.isVisible())await skip.click()
  await page.waitForFunction(()=>!window.testStore.getWorld().inputMask)
- await button('Game settings').click();await button('Save checkpoint').click()
- await page.waitForFunction(()=>[...document.querySelectorAll('button')].some(b=>b.textContent.trim()==='Load checkpoint'&&!b.disabled))
+ await button('Game settings').click();await button('Save Game').click();await button('Save checkpoint').click()
+ await page.getByRole('status').filter({hasText:'Checkpoint saved in this browser.'}).waitFor()
  const saved=await page.evaluate(()=>({level:window.testStore.getWorld().outcome.level,turn:window.testStore.getWorld().turn}))
  const committed=await waitForCheckpointReadback(()=>page.evaluate(async expected=>{
   const db=await new Promise((resolve,reject)=>{const r=indexedDB.open('populous-new-dawn',1);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})
@@ -101,7 +101,7 @@ export default async function({page,browser,url,root,output,receipt}) {
  await button('Game settings').click()
  const paused=await page.evaluate(()=>window.testStore.getWorld().turn)
  await page.waitForTimeout(250);assert.equal(await page.evaluate(()=>window.testStore.getWorld().turn),paused)
- await button('Select Level').click();await button('Back').click()
+ await button('Options').click();await button('Select Level').click();await button('Back').click()
  assert.equal(await page.evaluate(()=>window.testStore.getWorld().paused),true)
  // A fresh DPR2 document tests real asset decode and pointer CSS under display scaling.
  const high=await browser.newContext({viewport:{width:1920,height:1080},deviceScaleFactor:2})

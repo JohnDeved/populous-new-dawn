@@ -106,6 +106,7 @@ import {
 import { updateHudFrame } from './scene-hud-runtime.ts'
 import {
   acknowledgePointer,
+  cancelPointerGesture,
   chooseFollowers,
   chooseTransport,
   drawPointer,
@@ -295,6 +296,18 @@ export class GameScene {
   disposed = false
   fpsGraph = new URLSearchParams(location.search).has('fps') ? new FpsGraph() : null
   previous: number | null = null
+  modalSuspended = false
+  setModalSuspended(suspended: boolean) {
+    this.modalSuspended = suspended
+    this.previous = null
+    this.keys.clear()
+    const pointerId = this.pointerGesture?.pointerId
+    if (pointerId !== undefined && this.renderer.domElement.hasPointerCapture(pointerId))
+      this.renderer.domElement.releasePointerCapture(pointerId)
+    cancelPointerGesture(this)
+    this.cancelNearbyFollowers()
+    this.cancelTooltipInspection()
+  }
   uiTimer = 0
   unitMotion = new UnitMotion()
   projectileMotion = new ProjectileMotion()
@@ -820,6 +833,13 @@ export class GameScene {
       dt = Math.max(0, now - previous) / 1000
     if (this.fpsGraph) this.fpsGraph.update(document.hidden ? 0 : dt * 1000)
     this.previous = now
+    // Pause menus freeze the entire presentation, not ordinary Space pause.
+    // Keep sampling timestamps so resuming never catches up suspended wall time.
+    if (this.modalSuspended) {
+      this.renderer.render(this.scene, this.camera)
+      this.frame = requestAnimationFrame(this.animate)
+      return
+    }
     syncSecondaryReservations(this)
     this.dispatchNearbyFollowers(now)
     advanceGame(this.world, this.gameClock, dt)

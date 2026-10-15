@@ -205,6 +205,7 @@ export function pickWorldObject(scene: GameScene, event: { clientX: number; clie
 }
 
 export function pointerDown(scene: GameScene, event: PointerEvent) {
+  if (scene.modalSuspended) return
   scene.pointerGesture = { pointerId: event.pointerId, button: event.button }
   scene.pointerButtons = event.buttons
   if (
@@ -281,6 +282,7 @@ export function pointerDown(scene: GameScene, event: PointerEvent) {
 }
 
 export function pointerMove(scene: GameScene, event: PointerEvent) {
+  if (scene.modalSuspended) return
   scene.pointerButtons = event.buttons
   scene.pointerScreen = { clientX: event.clientX, clientY: event.clientY }
   if (
@@ -343,6 +345,7 @@ export function updateDrag(scene: GameScene, event: { clientX: number; clientY: 
 }
 
 export function pointerUp(scene: GameScene, event: PointerEvent) {
+  if (scene.modalSuspended) return
   const gesture = scene.pointerGesture
   if (!gesture || gesture.pointerId !== event.pointerId) return
   if (gesture.button !== event.button) {
@@ -465,7 +468,7 @@ export function keyDown(scene: GameScene, event: KeyboardEvent) {
   if (!modifier) event.preventDefault()
 }
 
-function cancelPointerGesture(scene: GameScene, pointerId?: number) {
+export function cancelPointerGesture(scene: GameScene, pointerId?: number) {
   if (
     pointerId !== undefined &&
     scene.pointerGesture &&

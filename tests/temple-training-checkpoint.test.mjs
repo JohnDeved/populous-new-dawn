@@ -247,6 +247,8 @@ function publicLoad(store) {
   const noop = () => {},
     bindings = {
       store,
+      menuSession: { current: null },
+      pendingMenuCamera: { current: [] },
       cancelNearbyInput: noop,
       engine: { current: null },
       setSelectorOpen: noop,

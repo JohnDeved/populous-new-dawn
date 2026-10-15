@@ -22,7 +22,7 @@ export default async function({page,browser,url,root,output,receipt}) {
   return {level:w.outcome.level,turn:w.turn,time:w.time,units:w.units.map(u=>[u.id,u.kind,u.team,u.hp,u.x,u.z]),shots:structuredClone(w.shots)}
  })
  await button('Game settings').click()
- const saved=await snapshot();await button('Save checkpoint').click()
+ const saved=await snapshot();await button('Save Game').click();await button('Save checkpoint').click()
  const committed=await waitForCheckpointReadback(()=>page.evaluate(async expected=>{
   const db=await new Promise((resolve,reject)=>{const r=indexedDB.open('populous-new-dawn',1);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})
   try {const r=db.transaction('checkpoints','readonly').objectStore('checkpoints').get('latest');const v=await new Promise((resolve,reject)=>{r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});return v?.world?.turn===expected.turn&&v.world.outcome.level===expected.level}finally{db.close()}
@@ -49,7 +49,7 @@ export default async function({page,browser,url,root,output,receipt}) {
  await bindGame(page);await button('Game settings').click()
  const pausedTurn=await page.evaluate(()=>window.testStore.getWorld().turn)
  await page.waitForTimeout(250);assert.equal(await page.evaluate(()=>window.testStore.getWorld().turn),pausedTurn)
- await button('Select Level').click();await button('Back').click()
+ await button('Options').click();await button('Select Level').click();await button('Back').click()
  assert.equal(await page.evaluate(()=>window.testStore.getWorld().paused),true)
  await page.screenshot({path:resolve(output,'checkpoint-loaded-paused.png')})
  passed('loaded-scene-ready-and-selector-back-preserves-pause')
