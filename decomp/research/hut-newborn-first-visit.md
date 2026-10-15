@@ -104,3 +104,36 @@ search observations establish identical prepared goals and eligible landings
 on opposite sides of cell16384 after existing browser coasting. This is a
 qualified browser outcome, not a new claim of native coasting parity. Maintained
 and final-head full gates remain required.
+
+## Qualified Mission 6 alternate natural outcome
+
+With the separately merged native target collector, the current fresh raid
+converts Blue289→Yellow549 at8097,290→572 at8191,282→575 at8193 and291→595
+at8246. Blue Shaman95 dies8269 after no other Blue population remains; the
+existing reincarnation eligibility therefore schedules no respawn. The first
+empty-target scene also has no hostile buildings and all seven linked Green
+owners outside the native radius7 scan. Thirty-three empty retries lead to
+phase6 at8371, with all four original actors sharing return command126/ref4.
+
+Public Save/Load and full replay retain reference transitions4→3 at9071,
+3→1 at9112 and1→0 at9116. This scene retires by timeout, not settlement:
+elapsed1800→1801/phase23 at10233, inactive task/empty members at10234. All four
+original owners remain healthy and registered, assignment0, no queued or
+immediate commands, and home anchors[38144,53504]. No current natural producer
+slot reuse is claimed.
+
+A separately labeled complete historical pre-newborn8529 checkpoint retains the
+original four real reincarnation-wave casualties, Blue kill credit, phase23
+retirement and first producer-slot reuse through8702. The exact9f7a4758 producer
+passed the entire unchanged original8016→8702 test before exporting. Its
+provenance and producer receipt are retained with the compressed fixture; the
+current-runtime historical consumer uses public Save/Load and full replay.
+Both maintained files pass11 tests on the measured candidate; final-head full
+gates remain required.
+
+The M22 patrol pair preserves exact7168 position, returned-owner health79.7,
+patrol order payload/reference accounting and full1100-turn replay. Individually
+reviewed acquisition/return pins6166→6172,6179→6185,6617→6625 change;
+6916 remains unchanged. Later unpinned observations differ (restored actor850
+and HP79.25 versus849 and79 at7168), so this is not an unchanged full-world
+outcome claim.
