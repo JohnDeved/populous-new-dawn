@@ -72,3 +72,27 @@ exercises explicit storage, artwork and AudioContext failure boundaries. These a
 browser consistency checks, not native runtime or hardware performance evidence.
 
 Exact final receipts and screenshot identities are listed in the PR handoff.
+
+## Retained display limit
+
+Actual frontend 640×480, 1280×960, 1920×1080, 3440×1440, short-height and DPR2
+checks passed. Actual Mission 1 Options at 640×480 and 1280×960 passed, including
+settled font-state alpha, live shared volumes and pause/audio/message ownership.
+Battlefield ultrawide and DPR2 remain **unverified**: aggregate resize attempts
+crashed Chrome, and separate fresh attempts crashed during initial Mission 1
+canvas creation before Options or the requested display override. A final bounded
+attempt through the previously working startup Options route failed at the same
+initial canvas step; no further unchanged browser retries were performed. These
+failures are retained and are not counted as successful display evidence. Frontend
+DPR2 is not substituted for battlefield DPR2. No unsafe browser flags were used.
+
+Audio rejection/retry testing additionally exposed body focus after a disabled
+async control. Options now captures Escape only while its nested compatibility
+panel and owning dialog are open, with listener cleanup on back/unmount. The page
+keyboard handler also explicitly excludes an open game menu. A focused real browser
+regression verifies body-focused h/Space leave the entire paused world unchanged,
+and three distinct Escapes return one level each without duplicate cancellation.
+
+[Comparable before/after screenshots](../../references/ui-options/README.md) retain
+exact capture commits and limitations. Native defaults, Game/Graphics/Direct3D
+adapters, sound-quality behavior and full original settings persistence remain open.
