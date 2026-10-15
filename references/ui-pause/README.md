@@ -1,7 +1,7 @@
 # Pause-menu visual progress
 
-Both images are actual sandboxed Chrome154 software-renderer captures of the
-shipped Mission1 UI at640×480. This is a layout comparison, not a pixel-diff test;
+Both images are actual sandboxed Chrome 154 software-renderer captures of the
+shipped Mission 1 UI at 640×480. This is a layout comparison, not a pixel-diff test;
 world time and camera state are not pinned. Neither image is an original-game capture.
 
 - `before-640x480.png`: exact clean main
