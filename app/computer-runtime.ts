@@ -1,5 +1,5 @@
 import { writeLivePersonOrder as writePersonOrder } from './live-person-order.ts'
-import { TRIBE_TEAMS, tribeForTeam, type Point, type Unit, type World } from './world-types.ts'
+import { TRIBE_TEAMS, tribeForTeam, type Unit, type World } from './world-types.ts'
 import {
   createLivePerson,
   registerLivePerson,
