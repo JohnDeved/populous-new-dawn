@@ -235,6 +235,7 @@ export function notifyHeightChanges(w: World, changes: Iterable<{ cell: number; 
         if (b?.damageState) b.damageState.flags2 |= 4
         const u = w.units.find(u => u.id === id)
         if (u?.native) u.native.flags2 |= 4
+        if (u?.flight) u.flight.flags2 |= 4
         if (u?.builder?.person) u.builder.person.flags2 |= 4
         const fx = w.effects.find(fx => fx.id === id)
         if (fx?.fire) fx.fire.groundDirty = true
