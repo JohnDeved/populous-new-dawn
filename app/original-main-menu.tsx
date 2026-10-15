@@ -6,6 +6,7 @@ import {
   frontendRowY,
   frontendScale,
   frontendTextWidth,
+  type FrontendTextRow,
 } from './frontend-composition.ts'
 
 interface Props {
@@ -13,7 +14,10 @@ interface Props {
   onNewGame: () => void
   onTutorial: () => void
   onLoad: () => void
-  options: ReactNode
+  renderOptions: (
+    onBack: () => void,
+    onTextRowsChange: (rows: FrontendTextRow[]) => void
+  ) => ReactNode
 }
 
 function MenuText({
@@ -51,7 +55,13 @@ function MenuText({
   )
 }
 
-export function OriginalMainMenu({ hasCheckpoint, onNewGame, onTutorial, onLoad, options }: Props) {
+export function OriginalMainMenu({
+  hasCheckpoint,
+  onNewGame,
+  onTutorial,
+  onLoad,
+  renderOptions,
+}: Props) {
   const dialog = useRef<HTMLDialogElement>(null)
   const first = useRef<HTMLButtonElement>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
@@ -64,6 +74,7 @@ export function OriginalMainMenu({ hasCheckpoint, onNewGame, onTutorial, onLoad,
   const [focused, setFocused] = useState<string | null>(null)
   const returnFocus = useRef<string | null>(null)
   const [panel, setPanel] = useState<'main' | 'options' | 'quit'>('main')
+  const [optionRows, setOptionRows] = useState<FrontendTextRow[]>([])
   const [scale, setScale] = useState(1)
   const [artReady, setArtReady] = useState(false)
   const [sourceReady, setSourceReady] = useState(false)
@@ -124,7 +135,8 @@ export function OriginalMainMenu({ hasCheckpoint, onNewGame, onTutorial, onLoad,
             pixels.current,
             pointer.current,
             panel === 'main',
-            pointerMode.current ? glowFrame.current : null
+            pointerMode.current ? glowFrame.current : null,
+            panel === 'options' ? optionRows : []
           ),
           640,
           480
@@ -132,7 +144,7 @@ export function OriginalMainMenu({ hasCheckpoint, onNewGame, onTutorial, onLoad,
         0,
         0
       )
-  }, [panel])
+  }, [panel, optionRows])
   useEffect(() => {
     draw()
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
@@ -235,7 +247,7 @@ export function OriginalMainMenu({ hasCheckpoint, onNewGame, onTutorial, onLoad,
             <span className={styles.fallbackTitle}>Populous: The Beginning</span>
           )}
         </h1>
-        {panel === 'main' ? (
+        {panel === 'main' && (
           <nav aria-label="Main menu choices" className={styles.rows}>
             {rows.map((row, index) => (
               <button
@@ -267,20 +279,15 @@ export function OriginalMainMenu({ hasCheckpoint, onNewGame, onTutorial, onLoad,
               </button>
             ))}
           </nav>
-        ) : (
-          <section
-            className={styles.panel}
-            aria-label={panel === 'options' ? 'Options' : 'Quit game'}
-          >
-            <h2>{panel === 'options' ? 'Options' : 'Quit Game'}</h2>
-            {panel === 'options' ? (
-              options
-            ) : (
-              <p>
-                You can close this browser tab to quit. Your saved checkpoint will remain available
-                in this browser.
-              </p>
-            )}
+        )}
+        {panel === 'options' && renderOptions(back, setOptionRows)}
+        {panel === 'quit' && (
+          <section className={styles.panel} aria-label="Quit game">
+            <h2>Quit Game</h2>
+            <p>
+              You can close this browser tab to quit. Your saved checkpoint will remain available in
+              this browser.
+            </p>
             <button data-panel-back onClick={back}>
               Back
             </button>

@@ -40,7 +40,7 @@ function events(owner) {
     },
   }
 }
-function pageEscape({ world, scene, api }) {
+function pageEscape({ world, scene, api }, menu = false) {
   const source = ts.createSourceFile(
     'page.tsx',
     readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8'),
@@ -64,6 +64,7 @@ function pageEscape({ world, scene, api }) {
   }).outputText
   return Function(
     'ready',
+    'menu',
     'world',
     'store',
     'engine',
@@ -75,6 +76,7 @@ function pageEscape({ world, scene, api }) {
     `return ${code}`
   )(
     true,
+    menu,
     world,
     { getWorld: () => world, change: fn => fn(world) },
     { current: scene },
@@ -277,6 +279,17 @@ test('actual Page Escape and explicit approach input feed the same record into t
   const trainInput = epoch.finishInput()
   assert.equal(trainInput.events[1].state.trainee.order.model, 8)
   assert.equal(trainInput.events[1].state.trainee.order.a, temple.id)
+  // The mounted pause menu owns keyboard input, including when body has focus.
+  const selectedBeforeMenu = [...world.selected]
+  for (const key of ['Escape', 'h', ' ']) {
+    pageEscape(f, true)({
+      key,
+      code: key === ' ' ? 'Space' : key,
+      target: { closest: () => null },
+      preventDefault: () => assert.fail('Page must leave menu-owned input alone'),
+    })
+    assert.deepEqual(world.selected, selectedBeforeMenu)
+  }
   pageEscape(f)({
     key: 'Escape',
     code: 'Escape',

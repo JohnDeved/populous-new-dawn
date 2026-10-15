@@ -1,5 +1,7 @@
 'use client'
 
+import { OriginalOptions } from './original-options'
+
 import { hudScale } from './hud-layout.ts'
 import { flushSync } from 'react-dom'
 import type { WorshipAcquisitionGeometry, WorshipTargetModel } from './worship-acquisition.ts'
@@ -110,6 +112,7 @@ export default function Home() {
   const [audioPreferences, setAudioPreferences] =
     useState<AudioPreferences>(DEFAULT_AUDIO_PREFERENCES)
   const [audioStorageNotice, setAudioStorageNotice] = useState('')
+  const [audioStartNotice, setAudioStartNotice] = useState('')
   const { volume, musicVolume } = audioPreferences
   const [soundPending, setSoundPending] = useState(false)
   const [hudSize, setHudSize] = useState('auto')
@@ -483,6 +486,7 @@ export default function Home() {
     const key = (e: KeyboardEvent) => {
       if (
         !ready ||
+        menu ||
         e.ctrlKey ||
         e.metaKey ||
         e.altKey ||
@@ -540,7 +544,7 @@ export default function Home() {
     }
     window.addEventListener('keydown', key)
     return () => window.removeEventListener('keydown', key)
-  }, [world, update, store, ready, openMenu])
+  }, [world, update, store, ready, openMenu, menu])
   useEffect(() => {
     void audio.current?.setPaused(world.paused || document.hidden).catch(() => {
       audio.current?.mute()
@@ -557,6 +561,7 @@ export default function Home() {
     return () => clearInterval(timer)
   }, [])
   async function toggleSound() {
+    setAudioStartNotice('')
     if (sound) {
       audio.current?.mute()
       setSound(false)
@@ -568,6 +573,7 @@ export default function Home() {
         setSound(!!(await audio.current?.enable()))
       } catch {
         audio.current?.mute()
+        setAudioStartNotice('Audio could not start. Try the sound button again.')
         tell(world, 'Audio could not start. Try the sound button again.')
         update()
       } finally {
@@ -1013,6 +1019,7 @@ export default function Home() {
         <div
           key={routeNotice.serial}
           className="world-message route-notice"
+          style={{ visibility: menu ? 'hidden' : undefined }}
           role="status"
           onAnimationEnd={() =>
             store.change(w => {
@@ -1025,12 +1032,20 @@ export default function Home() {
         </div>
       )}
       {ready && !routeNotice && world.messageUntil > world.time && (
-        <div className="world-message" role="status">
+        <div
+          className="world-message"
+          role="status"
+          style={{ visibility: menu ? 'hidden' : undefined }}
+        >
           <span>✧</span>
           {world.message}
         </div>
       )}
-      <aside className="campaign-messages" aria-label="Campaign messages">
+      <aside
+        className="campaign-messages"
+        aria-label="Campaign messages"
+        style={{ visibility: menu ? 'hidden' : undefined }}
+      >
         {world.messages.slots
           .map((message, slot) => ({ message, slot }))
           .filter(entry => entry.message)
@@ -1416,41 +1431,22 @@ export default function Home() {
           onNewGame={() => setStartupCampaign(true)}
           onTutorial={() => startMission(tutorialLevel)}
           onLoad={loadCheckpoint}
-          options={
-            <>
-              <label>
-                Master volume
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step=".05"
-                  value={volume}
-                  onChange={e =>
-                    changeAudioPreferences({ ...audioPreferences, volume: Number(e.target.value) })
-                  }
-                />
-              </label>
-              <label>
-                Music volume
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step=".05"
-                  value={musicVolume}
-                  onChange={e =>
-                    changeAudioPreferences({
-                      ...audioPreferences,
-                      musicVolume: Number(e.target.value),
-                    })
-                  }
-                />
-              </label>
-              <p>Volume preferences apply when game audio is enabled.</p>
-              {audioStorageNotice && <p role="status">{audioStorageNotice}</p>}
-            </>
-          }
+          renderOptions={(onBack, onTextRowsChange) => (
+            <OriginalOptions
+              skin="frontend"
+              onBack={onBack}
+              onTextRowsChange={onTextRowsChange}
+              volume={volume}
+              musicVolume={musicVolume}
+              storageNotice={audioStorageNotice}
+              onVolume={nextVolume =>
+                changeAudioPreferences({ ...audioPreferences, volume: nextVolume })
+              }
+              onMusicVolume={nextVolume =>
+                changeAudioPreferences({ ...audioPreferences, musicVolume: nextVolume })
+              }
+            />
+          )}
         />
       )}
       {((startup === 'choice' && startupCampaign) || selectorOpen) && (
@@ -1568,261 +1564,250 @@ export default function Home() {
           onRestart={restart}
           onQuitLevel={quitLevel}
           onQuitGame={exitTutorial}
-          options={
-            <>
-              <p>
-                {world.outcome.level === tutorialLevel
-                  ? 'Leave the World View with Return, then learn to move and rotate the camera.'
-                  : world.outcome.level === 1
-                    ? 'Worship for Land Bridge, discover warrior training, then defeat every Dakini follower.'
-                    : world.outcome.level === 2
-                      ? 'Open the way with the Totem Pole, claim Tornado, then defeat every Matak follower.'
-                      : world.outcome.level === 3
-                        ? 'Use Swarm against the Chumara, steal Temple knowledge, then train preachers to turn their followers.'
-                        : world.outcome.level === 4
-                          ? 'Convert Wildmen, discover the Guard Tower, claim Lightning, then defeat the Matak.'
-                          : world.outcome.level === 5
-                            ? 'Claim the Boat from the stone head, board your followers, cross the water, then defeat the Dakini.'
-                            : world.outcome.level === 6
-                              ? 'Establish your settlement, then defeat both the Chumara and Matak tribes.'
-                              : world.outcome.level === 7
-                                ? 'Convert Wildmen, claim Invisibility from the stone head, then conceal followers before engaging the Chumara.'
-                                : world.outcome.level === 8
-                                  ? 'Claim Firewarrior training from the Vault, build the school, then train ranged defenders against the Dakini.'
-                                  : world.outcome.level === 9
-                                    ? 'Claim Boat House knowledge from the Vault, build at the shore, then send a Brave inside to build and board a Boat.'
-                                    : world.outcome.level === 10
-                                      ? 'Board two followers onto the provided Boat, cross the water, and worship the Totem Pole before the island sinks.'
-                                      : world.outcome.level === 11
-                                        ? 'Explore the Hypnotise, Swamp, and Flatten knowledge sites before facing the Chumara and Matak tribes.'
-                                        : world.outcome.level === 12
-                                          ? 'Prepare for all three Enemy tribes and seek Tornado, Spy Training, and Erosion knowledge.'
-                                          : world.outcome.level === 13
-                                            ? 'Seek Balloon Hut, Firestorm, Shield, Volcano, and Earthquake knowledge before facing the Chumara and Matak tribes.'
-                                            : world.outcome.level === 14
-                                              ? 'Worship the stone heads to claim Angel of Death, Earthquake, and Land Bridge before facing all three Enemy tribes.'
-                                              : world.outcome.level === 15
-                                                ? 'Free your imprisoned Shaman before the Dakini timer expires.'
-                                                : world.outcome.level === 16
-                                                  ? 'Claim Bloodlust, cast it on your followers, and use their fighting frenzy against every enemy tribe.'
-                                                  : world.outcome.level === 17
-                                                    ? 'Claim Armageddon and survive the final arena battle against every tribe.'
-                                                    : world.outcome.level === 20
-                                                      ? 'Create new land for war by following the linked stone heads through Land Bridge, Flatten, Firestorm, and Volcano.'
-                                                      : world.outcome.level === 21
-                                                        ? 'Focus mana on Convert Wild, then send three followers to the fault’s Flatten totem before it erupts.'
-                                                        : world.outcome.level === 22
-                                                          ? 'Restore your magic at the southern stone head, cross the water alone, and steal enemy transport to reach the other tribes.'
-                                                          : "Prepare for the enemy tribes' powerful magic and seek Armageddon."}
-              </p>
-              <div className="menu-actions">
-                <button
-                  className="secondary-button"
-                  onClick={() => {
-                    setMenu(false)
-                    openSelector()
-                  }}
-                >
-                  Select Level
-                </button>
-              </div>
-              {objectives.length > 0 && (
-                <details className="menu-objectives">
-                  <summary>
-                    Objectives · {objectives.filter(o => o.done).length} / {objectives.length}
-                  </summary>
-                  <ul>
-                    {objectives.map(o => (
-                      <li key={o.text}>
-                        {o.done ? '✓ ' : ''}
-                        {o.text}
-                      </li>
-                    ))}
-                  </ul>
-                </details>
-              )}
-              <div className="menu-utilities">
-                <span>{timeLabel(world.time)}</span>
-                <button
-                  onClick={() => {
-                    store.change(w => {
-                      w.speed = w.speed === 1 ? 2 : 1
-                    })
-                  }}
-                >
-                  {world.speed}× game speed
-                </button>
-                <button onClick={() => pendingMenuCamera.current.push(scene => scene.zoom(true))}>
-                  Zoom in
-                </button>
-                <button onClick={() => pendingMenuCamera.current.push(scene => scene.zoom(false))}>
-                  Zoom out
-                </button>
-                <button
-                  onClick={() =>
-                    pendingMenuCamera.current.push(scene =>
-                      scene.focus(shaman ?? HOME, { animate: true })
-                    )
-                  }
-                >
-                  Focus settlement
-                </button>
-              </div>
-              <p>Camera changes apply when you continue.</p>
-              <label className="hud-settings">
-                HUD size
-                <select
-                  aria-label="HUD size"
-                  value={hudSize}
-                  onChange={e => {
-                    setHudSize(e.target.value)
-                    try {
-                      localStorage.setItem('hud-size', e.target.value)
-                    } catch {
-                      // Keep the session preference when storage is unavailable.
-                    }
-                  }}
-                >
-                  <option value="auto">Automatic</option>
-                  {[1, 1.5, 2, 2.5, 3, 4].map(size => (
-                    <option key={size} value={size}>
-                      {size * 100}%
-                    </option>
-                  ))}
-                </select>
-                <span>Fits your window without stretching.</span>
-              </label>
-              <h3>Your powers, at a glance</h3>
-              <div className="help-grid">
-                <span>Click</span>
-                <strong>Select a follower or give a move / attack order</strong>
-                <span>Right-click / Escape</span>
-                <strong>Cancel targeting, then deselect followers · Orders keep running</strong>
-                <span>Drag on land</span>
-                <strong>Select a group · Ctrl adds to selection</strong>
-                <span>Shift Z / X / C / V · Z / X / C / V</span>
-                <strong>Set camera bookmarks · Recall them</strong>
-                <span>Ctrl-click / Shift-click</span>
-                <strong>Toggle a follower / Give an order through friendly followers</strong>
-                <span>HUD follower buttons</span>
-                <strong>
-                  Click adds one · Ctrl adds five · Shift adds all · Right-click focuses next
-                </strong>
-                <span>Right / middle drag</span>
-                <strong>Right drag turns the view · middle drag moves it</strong>
-                <span>Scroll · = / −</span>
-                <strong>Switch view · WASD to move · Q / E to turn</strong>
-                <span>↑ / ↓ · ← / →</span>
-                <strong>Move forward / back · Rotate left / right</strong>
-                <span>Ctrl + ← / → · Shift</span>
-                <strong>Pan sideways · Hold Shift for fast panning</strong>
-                <span>Screen edges</span>
-                <strong>Move the pointer to an outer edge to scroll</strong>
-                <span>1–3 / B</span>
-                <strong>Choose a spell / open buildings</strong>
-                <span>Space with a building plan</span>
-                <strong>Rotate the entrance before placing</strong>
-                <span>H / F / G / Space / Esc</span>
-                <strong>Shaman / focus / guard shaman / pause / cancel</strong>
-              </div>
-              <p className="help-tip">
-                Each spell shows its own casting range. Right-click a rechargeable spell to pause or
-                resume it and focus mana elsewhere. Worship the southern head for Land Bridge (four
-                held at once), and the central head for four Lightning gifts. Only your shaman can
-                learn at the vault. Select braves and click a friendly hut to house them, or a
-                completed training hut to train them. Builders carry logs from trees. Followers
-                drown in water; Blast can knock them off a shore.
-              </p>
-              <div className="audio-settings">
-                <button
-                  className="secondary-button"
-                  onClick={toggleSound}
-                  disabled={soundPending}
-                  aria-busy={soundPending}
-                >
-                  {sound ? '♪ Sound on' : '♫ Enable sound'}
-                </button>
-                <label>
-                  Master volume{' '}
-                  <input
-                    type="range"
-                    min="0"
-                    max="1"
-                    step=".05"
-                    value={volume}
-                    onChange={e =>
-                      changeAudioPreferences({
-                        ...audioPreferences,
-                        volume: Number(e.target.value),
-                      })
-                    }
-                  />
-                </label>
-                <label>
-                  Music volume{' '}
-                  <input
-                    type="range"
-                    min="0"
-                    max="1"
-                    step=".05"
-                    value={musicVolume}
-                    onChange={e =>
-                      changeAudioPreferences({
-                        ...audioPreferences,
-                        musicVolume: Number(e.target.value),
-                      })
-                    }
-                  />
-                </label>
-              </div>
-              {audioStorageNotice && <p role="status">{audioStorageNotice}</p>}
-              <details className="reference-details">
-                <summary>About this recreation & references</summary>
-                <p>
-                  Level 1: The Journey Begins. Terrain, starting objects and shrine timings were
-                  read from the supplied original level file. Building and tree meshes, texture
-                  coordinates, layered unit animations, HUD artwork and landscape bank c were
-                  decoded from the supplied game archive. The browser renderer approximates the
-                  original lighting, terrain displacement and water animation. Selection voices,
-                  spell cues and combat sounds use the original recordings. Original music and
-                  percussion now play alongside environmental sounds; exact world mixing, activity
-                  ownership and the complete native sound scheduler are still being reconstructed.
-                  Village growth and mana use rules traced from the executable. Combat state
-                  selection, pathfinding and defensive AI still differ from the original.
-                </p>
-                <div>
-                  <a
-                    href="https://store.steampowered.com/app/2616430/Populous_The_Beginning/"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Original game & visual references ↗
-                  </a>
-                  <a
-                    href="https://wiki.popre.net/Populous%3A_The_Beginning"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Gameplay reference ↗
-                  </a>
-                  <a
-                    href="https://www.youtube.com/watch?v=kIY_4F47R6Q"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Mark Knight’s original soundtrack ↗
-                  </a>
-                  <a
-                    href="https://sounds.spriters-resource.com/pc_computer/populousbegin/asset/393974/"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Shaman voice reference ↗
-                  </a>
-                </div>
-              </details>
-            </>
-          }
+          renderOptions={onBack => (
+            <OriginalOptions
+              skin="ingame"
+              onBack={onBack}
+              volume={volume}
+              musicVolume={musicVolume}
+              storageNotice={audioStorageNotice}
+              onVolume={nextVolume =>
+                changeAudioPreferences({ ...audioPreferences, volume: nextVolume })
+              }
+              onMusicVolume={nextVolume =>
+                changeAudioPreferences({ ...audioPreferences, musicVolume: nextVolume })
+              }
+              compatibility={
+                <>
+                  <p>
+                    {world.outcome.level === tutorialLevel
+                      ? 'Leave the World View with Return, then learn to move and rotate the camera.'
+                      : world.outcome.level === 1
+                        ? 'Worship for Land Bridge, discover warrior training, then defeat every Dakini follower.'
+                        : world.outcome.level === 2
+                          ? 'Open the way with the Totem Pole, claim Tornado, then defeat every Matak follower.'
+                          : world.outcome.level === 3
+                            ? 'Use Swarm against the Chumara, steal Temple knowledge, then train preachers to turn their followers.'
+                            : world.outcome.level === 4
+                              ? 'Convert Wildmen, discover the Guard Tower, claim Lightning, then defeat the Matak.'
+                              : world.outcome.level === 5
+                                ? 'Claim the Boat from the stone head, board your followers, cross the water, then defeat the Dakini.'
+                                : world.outcome.level === 6
+                                  ? 'Establish your settlement, then defeat both the Chumara and Matak tribes.'
+                                  : world.outcome.level === 7
+                                    ? 'Convert Wildmen, claim Invisibility from the stone head, then conceal followers before engaging the Chumara.'
+                                    : world.outcome.level === 8
+                                      ? 'Claim Firewarrior training from the Vault, build the school, then train ranged defenders against the Dakini.'
+                                      : world.outcome.level === 9
+                                        ? 'Claim Boat House knowledge from the Vault, build at the shore, then send a Brave inside to build and board a Boat.'
+                                        : world.outcome.level === 10
+                                          ? 'Board two followers onto the provided Boat, cross the water, and worship the Totem Pole before the island sinks.'
+                                          : world.outcome.level === 11
+                                            ? 'Explore the Hypnotise, Swamp, and Flatten knowledge sites before facing the Chumara and Matak tribes.'
+                                            : world.outcome.level === 12
+                                              ? 'Prepare for all three Enemy tribes and seek Tornado, Spy Training, and Erosion knowledge.'
+                                              : world.outcome.level === 13
+                                                ? 'Seek Balloon Hut, Firestorm, Shield, Volcano, and Earthquake knowledge before facing the Chumara and Matak tribes.'
+                                                : world.outcome.level === 14
+                                                  ? 'Worship the stone heads to claim Angel of Death, Earthquake, and Land Bridge before facing all three Enemy tribes.'
+                                                  : world.outcome.level === 15
+                                                    ? 'Free your imprisoned Shaman before the Dakini timer expires.'
+                                                    : world.outcome.level === 16
+                                                      ? 'Claim Bloodlust, cast it on your followers, and use their fighting frenzy against every enemy tribe.'
+                                                      : world.outcome.level === 17
+                                                        ? 'Claim Armageddon and survive the final arena battle against every tribe.'
+                                                        : world.outcome.level === 20
+                                                          ? 'Create new land for war by following the linked stone heads through Land Bridge, Flatten, Firestorm, and Volcano.'
+                                                          : world.outcome.level === 21
+                                                            ? 'Focus mana on Convert Wild, then send three followers to the fault’s Flatten totem before it erupts.'
+                                                            : world.outcome.level === 22
+                                                              ? 'Restore your magic at the southern stone head, cross the water alone, and steal enemy transport to reach the other tribes.'
+                                                              : "Prepare for the enemy tribes' powerful magic and seek Armageddon."}
+                  </p>
+                  <div className="menu-actions">
+                    <button
+                      className="secondary-button"
+                      onClick={() => {
+                        setMenu(false)
+                        openSelector()
+                      }}
+                    >
+                      Select Level
+                    </button>
+                  </div>
+                  {objectives.length > 0 && (
+                    <details className="menu-objectives">
+                      <summary>
+                        Objectives · {objectives.filter(o => o.done).length} / {objectives.length}
+                      </summary>
+                      <ul>
+                        {objectives.map(o => (
+                          <li key={o.text}>
+                            {o.done ? '✓ ' : ''}
+                            {o.text}
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
+                  )}
+                  <div className="menu-utilities">
+                    <span>{timeLabel(world.time)}</span>
+                    <button
+                      onClick={() => {
+                        store.change(w => {
+                          w.speed = w.speed === 1 ? 2 : 1
+                        })
+                      }}
+                    >
+                      {world.speed}× game speed
+                    </button>
+                    <button
+                      onClick={() => pendingMenuCamera.current.push(scene => scene.zoom(true))}
+                    >
+                      Zoom in
+                    </button>
+                    <button
+                      onClick={() => pendingMenuCamera.current.push(scene => scene.zoom(false))}
+                    >
+                      Zoom out
+                    </button>
+                    <button
+                      onClick={() =>
+                        pendingMenuCamera.current.push(scene =>
+                          scene.focus(shaman ?? HOME, { animate: true })
+                        )
+                      }
+                    >
+                      Focus settlement
+                    </button>
+                  </div>
+                  <p>Camera changes apply when you continue.</p>
+                  <label className="hud-settings">
+                    HUD size
+                    <select
+                      aria-label="HUD size"
+                      value={hudSize}
+                      onChange={e => {
+                        setHudSize(e.target.value)
+                        try {
+                          localStorage.setItem('hud-size', e.target.value)
+                        } catch {
+                          // Keep the session preference when storage is unavailable.
+                        }
+                      }}
+                    >
+                      <option value="auto">Automatic</option>
+                      {[1, 1.5, 2, 2.5, 3, 4].map(size => (
+                        <option key={size} value={size}>
+                          {size * 100}%
+                        </option>
+                      ))}
+                    </select>
+                    <span>Fits your window without stretching.</span>
+                  </label>
+                  <h3>Your powers, at a glance</h3>
+                  <div className="help-grid">
+                    <span>Click</span>
+                    <strong>Select a follower or give a move / attack order</strong>
+                    <span>Right-click / Escape</span>
+                    <strong>Cancel targeting, then deselect followers · Orders keep running</strong>
+                    <span>Drag on land</span>
+                    <strong>Select a group · Ctrl adds to selection</strong>
+                    <span>Shift Z / X / C / V · Z / X / C / V</span>
+                    <strong>Set camera bookmarks · Recall them</strong>
+                    <span>Ctrl-click / Shift-click</span>
+                    <strong>Toggle a follower / Give an order through friendly followers</strong>
+                    <span>HUD follower buttons</span>
+                    <strong>
+                      Click adds one · Ctrl adds five · Shift adds all · Right-click focuses next
+                    </strong>
+                    <span>Right / middle drag</span>
+                    <strong>Right drag turns the view · middle drag moves it</strong>
+                    <span>Scroll · = / −</span>
+                    <strong>Switch view · WASD to move · Q / E to turn</strong>
+                    <span>↑ / ↓ · ← / →</span>
+                    <strong>Move forward / back · Rotate left / right</strong>
+                    <span>Ctrl + ← / → · Shift</span>
+                    <strong>Pan sideways · Hold Shift for fast panning</strong>
+                    <span>Screen edges</span>
+                    <strong>Move the pointer to an outer edge to scroll</strong>
+                    <span>1–3 / B</span>
+                    <strong>Choose a spell / open buildings</strong>
+                    <span>Space with a building plan</span>
+                    <strong>Rotate the entrance before placing</strong>
+                    <span>H / F / G / Space / Esc</span>
+                    <strong>Shaman / focus / guard shaman / pause / cancel</strong>
+                  </div>
+                  <p className="help-tip">
+                    Each spell shows its own casting range. Right-click a rechargeable spell to
+                    pause or resume it and focus mana elsewhere. Worship the southern head for Land
+                    Bridge (four held at once), and the central head for four Lightning gifts. Only
+                    your shaman can learn at the vault. Select braves and click a friendly hut to
+                    house them, or a completed training hut to train them. Builders carry logs from
+                    trees. Followers drown in water; Blast can knock them off a shore.
+                  </p>
+                  <div className="audio-settings">
+                    <button
+                      className="secondary-button"
+                      onClick={toggleSound}
+                      disabled={soundPending}
+                      aria-busy={soundPending}
+                    >
+                      {sound ? '♪ Sound on' : '♫ Enable sound'}
+                    </button>
+                  </div>
+                  {audioStorageNotice && <p role="status">{audioStorageNotice}</p>}
+                  {audioStartNotice && <p role="status">{audioStartNotice}</p>}
+                  <details className="reference-details">
+                    <summary>About this recreation & references</summary>
+                    <p>
+                      Level 1: The Journey Begins. Terrain, starting objects and shrine timings were
+                      read from the supplied original level file. Building and tree meshes, texture
+                      coordinates, layered unit animations, HUD artwork and landscape bank c were
+                      decoded from the supplied game archive. The browser renderer approximates the
+                      original lighting, terrain displacement and water animation. Selection voices,
+                      spell cues and combat sounds use the original recordings. Original music and
+                      percussion now play alongside environmental sounds; exact world mixing,
+                      activity ownership and the complete native sound scheduler are still being
+                      reconstructed. Village growth and mana use rules traced from the executable.
+                      Combat state selection, pathfinding and defensive AI still differ from the
+                      original.
+                    </p>
+                    <div>
+                      <a
+                        href="https://store.steampowered.com/app/2616430/Populous_The_Beginning/"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Original game & visual references ↗
+                      </a>
+                      <a
+                        href="https://wiki.popre.net/Populous%3A_The_Beginning"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Gameplay reference ↗
+                      </a>
+                      <a
+                        href="https://www.youtube.com/watch?v=kIY_4F47R6Q"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Mark Knight’s original soundtrack ↗
+                      </a>
+                      <a
+                        href="https://sounds.spriters-resource.com/pc_computer/populousbegin/asset/393974/"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Shaman voice reference ↗
+                      </a>
+                    </div>
+                  </details>
+                </>
+              }
+            />
+          )}
         />
       )}
     </main>
