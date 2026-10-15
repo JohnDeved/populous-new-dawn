@@ -68,3 +68,26 @@ this is not a claim of native execution or hardware performance.
 Retain source-bound command/browser receipts and failed attempts in the review
 handoff. Before/after screenshots must identify the actual source head. Software
 Chrome evidence cannot certify hardware frame performance or exact native pixels.
+
+### Recorded browser coverage and remaining harness work
+
+Clean `b7f4eeae` interaction evidence establishes frozen world/clock/camera,
+640×480 through ultrawide/short layouts, confirmation cancel/focus, running and
+already-paused close, selector return, and durable checkpoint replacement. Its
+later restart scene creation crashed; that complete episode is not a pass.
+Separate clean `24479c53` episodes passed restart replacement/one-shot Yes and
+Tutorial captured-drag cancellation/Quit Game. Clean `97e96c5f` episodes passed
+real DPR2 and a blocked font request with readable keyboard-accessible fallback.
+Quit Level Yes and the controlled storage-failure/pending-save episode remain
+rendered acceptance gaps: later attempts failed during initial world/startup
+loading, before those actions. Initial-world software-Chrome crashes were also
+reproduced on exact base main. These failures are retained, not counted as passes.
+
+The new pause scenarios supplement recent migrated startup/checkpoint scenarios.
+Older browser scenarios still need menu-navigation/observer-selector migration:
+`early-missions`, `minimap-frame`, `mission1-hut-dismantle` and its `-witness`,
+`mission10-boat-checkpoint`, `mission3-building-lifecycle`,
+`mission3-building-screen`, `mission3-temple-checkpoint`, `readiness-lifecycle`,
+`temple-training-auto`, `temple-training-witness`, and `water-shore-animation`
+(all under `scripts/local-render`, `.mjs`). They are not claimed passing here;
+stale combined-dialog selectors must not be diagnosed as gameplay regressions.
