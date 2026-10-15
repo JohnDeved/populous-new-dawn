@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import {resolve} from 'node:path'
+import {writeFileSync} from 'node:fs'
 
 // Pure frontend display/readability coverage without creating a WebGL scene.
 export default async function({page,context,url,output,receipt}) {
@@ -11,7 +12,11 @@ export default async function({page,context,url,output,receipt}) {
  assert.equal(await page.evaluate(()=>window.devicePixelRatio),2)
  await main.getByRole('button',{name:'Options',exact:true}).hover()
  await page.waitForTimeout(150)
- await page.screenshot({path:resolve(output,'main-1920x1080-dpr2.png')})
+ // Playwright's page screenshot restores its context's DPR1 override. Capture
+ // through this same CDP display session to retain the actual DPR2 surface.
+ const shot=await cdp.send('Page.captureScreenshot',{format:'png',fromSurface:true,captureBeyondViewport:false})
+ const png=Buffer.from(shot.data,'base64');assert.equal(png.readUInt32BE(16),3840);assert.equal(png.readUInt32BE(20),2160)
+ writeFileSync(resolve(output,'main-1920x1080-dpr2.png'),png)
  assert.equal(await page.evaluate(()=>window.devicePixelRatio),2)
  const bounds=await main.locator('canvas').boundingBox()
  assert.ok(Math.abs(bounds.width-1440)<1&&Math.abs(bounds.height-1080)<1)
