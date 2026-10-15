@@ -67,3 +67,20 @@ slots, and builder work/roster ownership were qualified independently; passive
 owners are intentionally not cell-registry owners. Both diagnostic runs retain
 all original settlement checks, checkpoint equality and the 128-turn tail. Only
 the Red population count changes; final maintained-file gates remain required.
+
+
+The M22 queued-boarding case was paired through its complete 300-turn replay.
+The plain grounded control completes command3 against the prepared native point
+(7808,8064), using the strict per-axis model7 extent160 plus target extent56,
+rather than a Euclidean distance from the original clicked point. Its assertion
+now observes the actual reference retirement, unchanged payload, predecessor,
+every-fourth counter phase, physical owner and command cleanup. Both runtimes
+meet that native contract. The baseline plain control later dies from ranged
+hits, while the corrected plain control survives; no unchanged survival outcome
+is claimed for that unasserted control. The queued actor still reaches the
+original clicked-point distance below1, boards with HP100.6 and retains exact
+ownership/cleanup. The lethal route still encounters Warrior97 and dies with
+all order and vehicle cleanup. Reviewed measured pins change fight1476→1460,
+death1507→1485 and boarding1390→1375. Both source-bound diagnostic runs passed
+all downstream assertions and full replay; final maintained-file gates remain
+required.
