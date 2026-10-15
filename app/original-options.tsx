@@ -17,6 +17,8 @@ interface OriginalOptionsProps {
 }
 const categories = ['Game', 'Sound', 'Graphics'] as const
 type Category = (typeof categories)[number] | 'Direct3D'
+type TextState = 'normal' | 'highlight' | 'low'
+const fontBanks = { normal: 'feft33we', highlight: 'fehi33we', low: 'felo33we' } as const
 
 function Text({
   text,
@@ -26,11 +28,11 @@ function Text({
 }: {
   text: string
   skin: OriginalOptionsProps['skin']
-  state: 'normal' | 'highlight' | 'low'
+  state: TextState
   ready: boolean
 }) {
   if (!ready) return <span className={styles.fallback}>{text}</span>
-  const name = state === 'highlight' ? 'fehi33we' : state === 'low' ? 'felo33we' : 'feft33we'
+  const name = fontBanks[state]
   const bank = skin === 'frontend' ? frontend.banks[name] : ingame
   const width = [...text].reduce(
     (total, letter) => total + bank.rects[letter.charCodeAt(0) - 32].w,
@@ -128,7 +130,9 @@ export function OriginalOptions({
     }
   }, [skin])
   useEffect(() => {
-    root.current?.querySelector<HTMLElement>('[aria-current="page"]')?.focus()
+    root.current
+      ?.querySelector<HTMLElement>(`[aria-current="page"][aria-label="${category}"]`)
+      ?.focus()
   }, [category])
   useEffect(() => {
     if (browser) root.current?.querySelector<HTMLButtonElement>('[data-return-options]')?.focus()
@@ -159,14 +163,10 @@ export function OriginalOptions({
     setHighlight(null)
   }
   function label(text: string, low = false) {
-    return (
-      <Text
-        text={text}
-        skin={skin}
-        state={low ? 'low' : highlight === text ? 'highlight' : 'normal'}
-        ready={ready}
-      />
-    )
+    let state: TextState = 'normal'
+    if (low) state = 'low'
+    else if (highlight === text) state = 'highlight'
+    return <Text text={text} skin={skin} state={state} ready={ready} />
   }
   function choice(text: string, x: number, y: number, action: () => void, selected = false) {
     const position = { left: x, top: y }

@@ -28,7 +28,7 @@ export default async function({page,root,output,receipt}) {
   await button('Tutorial').click();await bindGame(page)
   await button('Game settings').click();await button('Options').click();await button('Browser compatibility and help').click()
   await page.evaluate(()=>{window.resumeForOptions=AudioContext.prototype.resume;AudioContext.prototype.resume=function(){return Promise.reject(new DOMException('Audio blocked for test','NotAllowedError'))}})
-  await button('♫ Enable sound').click();await page.getByRole('status').filter({hasText:'Audio could not start.'}).waitFor()
+  await button('♫ Enable sound').click();await page.getByRole('status').filter({hasText:'Audio could not start.'}).waitFor();await page.getByRole('status').filter({hasText:'Audio could not start.'}).scrollIntoViewIfNeeded()
   assert.equal(await button('♫ Enable sound').isEnabled(),true)
   assert.equal(await page.evaluate(()=>window.testStore.getWorld().paused),true)
   await page.screenshot({path:resolve(output,'ingame-audio-failure.png')})

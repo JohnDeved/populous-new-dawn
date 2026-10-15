@@ -14,7 +14,10 @@ interface Props {
   onNewGame: () => void
   onTutorial: () => void
   onLoad: () => void
-  options: (onBack: () => void, onTextRowsChange: (rows: FrontendTextRow[]) => void) => ReactNode
+  renderOptions: (
+    onBack: () => void,
+    onTextRowsChange: (rows: FrontendTextRow[]) => void
+  ) => ReactNode
 }
 
 function MenuText({
@@ -52,7 +55,13 @@ function MenuText({
   )
 }
 
-export function OriginalMainMenu({ hasCheckpoint, onNewGame, onTutorial, onLoad, options }: Props) {
+export function OriginalMainMenu({
+  hasCheckpoint,
+  onNewGame,
+  onTutorial,
+  onLoad,
+  renderOptions,
+}: Props) {
   const dialog = useRef<HTMLDialogElement>(null)
   const first = useRef<HTMLButtonElement>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
@@ -238,7 +247,7 @@ export function OriginalMainMenu({ hasCheckpoint, onNewGame, onTutorial, onLoad,
             <span className={styles.fallbackTitle}>Populous: The Beginning</span>
           )}
         </h1>
-        {panel === 'main' ? (
+        {panel === 'main' && (
           <nav aria-label="Main menu choices" className={styles.rows}>
             {rows.map((row, index) => (
               <button
@@ -270,9 +279,9 @@ export function OriginalMainMenu({ hasCheckpoint, onNewGame, onTutorial, onLoad,
               </button>
             ))}
           </nav>
-        ) : panel === 'options' ? (
-          options(back, setOptionRows)
-        ) : (
+        )}
+        {panel === 'options' && renderOptions(back, setOptionRows)}
+        {panel === 'quit' && (
           <section className={styles.panel} aria-label="Quit game">
             <h2>Quit Game</h2>
             <p>

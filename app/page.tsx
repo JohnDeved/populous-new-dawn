@@ -1430,7 +1430,7 @@ export default function Home() {
           onNewGame={() => setStartupCampaign(true)}
           onTutorial={() => startMission(tutorialLevel)}
           onLoad={loadCheckpoint}
-          options={(onBack, onTextRowsChange) => (
+          renderOptions={(onBack, onTextRowsChange) => (
             <OriginalOptions
               skin="frontend"
               onBack={onBack}
@@ -1438,9 +1438,11 @@ export default function Home() {
               volume={volume}
               musicVolume={musicVolume}
               storageNotice={audioStorageNotice}
-              onVolume={volume => changeAudioPreferences({ ...audioPreferences, volume })}
-              onMusicVolume={musicVolume =>
-                changeAudioPreferences({ ...audioPreferences, musicVolume })
+              onVolume={nextVolume =>
+                changeAudioPreferences({ ...audioPreferences, volume: nextVolume })
+              }
+              onMusicVolume={nextVolume =>
+                changeAudioPreferences({ ...audioPreferences, musicVolume: nextVolume })
               }
             />
           )}
@@ -1561,16 +1563,18 @@ export default function Home() {
           onRestart={restart}
           onQuitLevel={quitLevel}
           onQuitGame={exitTutorial}
-          options={onBack => (
+          renderOptions={onBack => (
             <OriginalOptions
               skin="ingame"
               onBack={onBack}
               volume={volume}
               musicVolume={musicVolume}
               storageNotice={audioStorageNotice}
-              onVolume={volume => changeAudioPreferences({ ...audioPreferences, volume })}
-              onMusicVolume={musicVolume =>
-                changeAudioPreferences({ ...audioPreferences, musicVolume })
+              onVolume={nextVolume =>
+                changeAudioPreferences({ ...audioPreferences, volume: nextVolume })
+              }
+              onMusicVolume={nextVolume =>
+                changeAudioPreferences({ ...audioPreferences, musicVolume: nextVolume })
               }
               compatibility={
                 <>

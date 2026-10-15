@@ -85,7 +85,7 @@ type Panel = 'root' | 'options' | 'save' | 'load' | 'restart' | 'quit-level' | '
 interface Props {
   tutorial: boolean
   hasCheckpoint: boolean
-  options: (onBack: () => void) => ReactNode
+  renderOptions: (onBack: () => void) => ReactNode
   onContinue: () => void
   onSave: () => Promise<boolean>
   onLoad: () => void
@@ -267,32 +267,30 @@ export function OriginalPauseMenu(props: Props) {
             />
           )}
         </nav>
-        {panel === 'options' && props.options(back)}
+        {panel === 'options' && props.renderOptions(back)}
         {!confirmation && panel !== 'root' && panel !== 'options' && (
           <section className={styles.panel} aria-label={panelTitles[panel]}>
             <h2>{panelTitles[panel]}</h2>
-            <>
-              <p>
-                This browser version stores one checkpoint. Original multi-slot save files are not
-                yet supported.
-              </p>
-              {panel === 'save' ? (
-                <>
-                  <p>Saving replaces the previous checkpoint.</p>
-                  <button disabled={saving} onClick={() => void save()}>
-                    {saving ? 'Saving…' : 'Save checkpoint'}
-                  </button>
-                </>
-              ) : (
-                <>
-                  <p>Loading replaces the current world and discards unsaved progress.</p>
-                  <button disabled={!props.hasCheckpoint} onClick={() => once(props.onLoad)}>
-                    Load checkpoint
-                  </button>
-                </>
-              )}
-              {notice && <p role="status">{notice}</p>}
-            </>
+            <p>
+              This browser version stores one checkpoint. Original multi-slot save files are not yet
+              supported.
+            </p>
+            {panel === 'save' ? (
+              <>
+                <p>Saving replaces the previous checkpoint.</p>
+                <button disabled={saving} onClick={() => void save()}>
+                  {saving ? 'Saving…' : 'Save checkpoint'}
+                </button>
+              </>
+            ) : (
+              <>
+                <p>Loading replaces the current world and discards unsaved progress.</p>
+                <button disabled={!props.hasCheckpoint} onClick={() => once(props.onLoad)}>
+                  Load checkpoint
+                </button>
+              </>
+            )}
+            {notice && <p role="status">{notice}</p>}
           </section>
         )}
       </div>
