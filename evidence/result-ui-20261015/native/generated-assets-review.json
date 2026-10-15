@@ -1,0 +1,24 @@
+{
+  "status": "passed",
+  "method": "Independent source PSFB decode plus PNG byte parsing; generated importer was inspected but not executed by reviewer",
+  "metadataSha256": "96daa41ef7a9cf0640dd7394d91d55545c00d36d64599852100041c3c61315c3",
+  "sourceGlyphsCompared": 224,
+  "atlasAllPixelsMatch": true,
+  "panelAllPixelsMatch": true,
+  "panelTransparentPixels": 3405,
+  "numberedTitlesCompared": 23,
+  "outputs": {
+    "result-panel.png": {
+      "sha256": "60785ad734dd4c7c62abd5f52d3d195fc74dc3a7e2cd6cc815ea54caa4fa23ed",
+      "rgbaSha256": "64adc2a8795fd5b67dce95adea38372ab10dc0fd7a884e4f825d7d0dd9f7cfb3",
+      "width": 384,
+      "height": 368
+    },
+    "result-font.png": {
+      "sha256": "46d35c177850244ed211c0556af98694bb428835e7708a79f3acee16828e0676",
+      "rgbaSha256": "33c65441938af60ee630967093ccc58738ff4192494c0848f2f394485f5e3aa9",
+      "width": 304,
+      "height": 294
+    }
+  }
+}

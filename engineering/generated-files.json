@@ -63,6 +63,7 @@
         "scripts/import-options.py",
         "scripts/import-world-selector-panel.py",
         "scripts/import-world-selector-text.py",
+        "scripts/import-result-ui.py",
         "scripts/import-level.py",
         "scripts/import-messages.py",
         "scripts/import-script.py",
@@ -79,6 +80,9 @@
       ],
       "inputs": ["references/native-assets.md", "decomp/sections.tsv"],
       "outputs": [
+        { "path": "app/original-result-ui.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-result-ui.py" },
+        { "path": "public/original/result-panel.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-result-ui.py" },
+        { "path": "public/original/result-font.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-result-ui.py" },
         { "path": "public/original/world-selector/text", "type": "directory", "tracked": true, "protected": true, "producer": "scripts/import-world-selector-text.py" },
         { "path": "public/original/world-selector/panel", "type": "directory", "tracked": true, "protected": true, "producer": "scripts/import-world-selector-panel.py" },
         { "path": "app/original-options-art.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-options.py" },

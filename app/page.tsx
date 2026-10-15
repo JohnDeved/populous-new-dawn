@@ -3,6 +3,7 @@
 import { OriginalOptions } from './original-options'
 
 import { hudScale } from './hud-layout.ts'
+import { OriginalResultScreen } from './original-result-screen'
 import { flushSync } from 'react-dom'
 import type { WorshipAcquisitionGeometry, WorshipTargetModel } from './worship-acquisition.ts'
 import type { WorshipHudGeometry } from './worship-acquisition-layout.ts'
@@ -780,7 +781,6 @@ export default function Home() {
     return true
   }
   const nextMission = missionNumbers.find(mission => mission === world.outcome.level + 1),
-    enemyName = enemies.map(enemy => enemy.name).join(' and '),
     objectives =
       world.outcome.level === 1
         ? [
@@ -1518,42 +1518,19 @@ export default function Home() {
         </div>
       )}
       {world.status !== 'playing' && !world.outcome.cameraPlaying && (
-        <div className="end-screen">
-          <span className="end-rune">{world.status === 'won' ? '✺' : '◈'}</span>
-          <p className="eyebrow">{world.status === 'won' ? 'Level Complete' : 'Level Failed'}</p>
-          <h2>{world.status === 'won' ? 'Level Won' : 'Level Lost'}</h2>
-          <p>
-            {world.status === 'won'
-              ? `The ${enemyName} are defeated.`
-              : 'You have failed to conquer this world.'}
-          </p>
-          <div className="end-stats">
-            <span>
-              {timeLabel(world.time)}
-              <small>TIME</small>
-            </span>
-            <span>
-              {world.stats.cast}
-              <small>SPELLS CAST</small>
-            </span>
-            <span>
-              {world.stats.built}
-              <small>BUILDINGS RAISED</small>
-            </span>
-          </div>
-          <button
-            className="primary-button"
-            onClick={world.status === 'won' && nextMission ? continueCampaign : restart}
-          >
-            {world.status === 'won' && nextMission
+        <OriginalResultScreen
+          status={world.status}
+          level={world.outcome.level}
+          player={world.manaWorld.playerTribe + 1}
+          time={world.time}
+          primaryLabel={
+            world.status === 'won' && nextMission
               ? `Continue to Mission ${nextMission}`
-              : 'Restart Level'}{' '}
-            <span>↗</span>
-          </button>
-          <button className="secondary-button" onClick={openSelector}>
-            Select Level
-          </button>
-        </div>
+              : 'Restart Level'
+          }
+          onPrimary={world.status === 'won' && nextMission ? continueCampaign : restart}
+          onSelectLevel={openSelector}
+        />
       )}
       {menu && (
         <OriginalPauseMenu
