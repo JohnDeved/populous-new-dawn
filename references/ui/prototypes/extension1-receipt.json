@@ -1,0 +1,79 @@
+{
+  "startedAt": "2026-10-15T13:43:01.402Z",
+  "source": {
+    "root": "/tmp/populous-raid447-fallback-0229",
+    "commit": "98c3c2fff52f3259edc3d9ce1f35518f46d9db70",
+    "tree": "14da5c8fd42e220aea6f8797c8fdb364e3c174d7",
+    "status": "M app/original-main-menu.module.css\n M app/original-main-menu.tsx\n?? public/adapted/",
+    "trackedDiffSha256": "89baa1a35b43d4ae5444e9838fe0e18cc6b39b07b44f13def07e0912e8b11b9b",
+    "untracked": [
+      {
+        "path": "public/adapted/frontend/stone-surround-v1.png",
+        "mode": 33188,
+        "sha256": "75d826562cb38d47a8dac4a4778e7ba8dec2f512d67a17d13121e6368ba74223"
+      }
+    ],
+    "fingerprint": "9ca788e08ce5201512ebc3546ec44ffea2d1261193449bdbd1225410b4348435"
+  },
+  "launch": {
+    "executablePath": "/workspace/scratch/69fd8163d94e/browser-recovery-20261014/chrome-headless-shell-linux64/chrome-headless-shell",
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": true,
+    "args": [
+      "--remote-debugging-pipe"
+    ],
+    "timeout": 30000
+  },
+  "softwarePerformanceOnly": true,
+  "errors": [],
+  "warnings": [],
+  "status": "passed",
+  "readiness": {
+    "timeoutMs": 60000,
+    "attempts": 7,
+    "first": {
+      "elapsedMs": 14577,
+      "pending": false,
+      "error": {
+        "name": "TimeoutError",
+        "message": "The operation was aborted due to timeout",
+        "cause": ""
+      }
+    },
+    "last": {
+      "elapsedMs": 24205,
+      "pending": false,
+      "status": 200,
+      "ok": true
+    },
+    "elapsedMs": 24206,
+    "listening": true,
+    "ready": true
+  },
+  "browserVersion": "154.0.8037.92",
+  "result": {
+    "checks": [
+      "2D menu captures"
+    ],
+    "limits": [
+      "Headless Chrome; no WebGL or hardware performance claim"
+    ]
+  },
+  "finishedAt": "2026-10-15T13:43:44.934Z",
+  "sourceAfter": {
+    "root": "/tmp/populous-raid447-fallback-0229",
+    "commit": "98c3c2fff52f3259edc3d9ce1f35518f46d9db70",
+    "tree": "14da5c8fd42e220aea6f8797c8fdb364e3c174d7",
+    "status": "M app/original-main-menu.module.css\n M app/original-main-menu.tsx\n?? public/adapted/",
+    "trackedDiffSha256": "89baa1a35b43d4ae5444e9838fe0e18cc6b39b07b44f13def07e0912e8b11b9b",
+    "untracked": [
+      {
+        "path": "public/adapted/frontend/stone-surround-v1.png",
+        "mode": 33188,
+        "sha256": "75d826562cb38d47a8dac4a4778e7ba8dec2f512d67a17d13121e6368ba74223"
+      }
+    ],
+    "fingerprint": "9ca788e08ce5201512ebc3546ec44ffea2d1261193449bdbd1225410b4348435"
+  }
+}

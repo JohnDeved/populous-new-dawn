@@ -19,15 +19,7 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background-repeat: repeat;
-  background-size: calc(16px * var(--frontend-scale)) calc(16px * var(--frontend-scale));
-  opacity: .65;
-}
-.surround::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at center, #a47d2733, #17130999);
+  background: url('/adapted/frontend/stone-surround-v1.png') center / auto calc(480px * var(--frontend-scale)) no-repeat;
 }
 .frame {
   position: absolute;
