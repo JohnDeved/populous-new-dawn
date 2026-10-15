@@ -85,4 +85,21 @@ measure GPU completion or establish hardware frame rate.
 
 The native scene/title/panel is the default presentation; browser compatibility
 controls are explicitly grouped behind the visible Browser controls toggle.
-Final repairs, lifecycle checks and standard gates are still pending.
+Final application source at `cd08f30aec9fcda2d78fda366d445f72e561828e` has passed
+typecheck/parity/orchestration and reviewed scene/lifecycle/text checks. All429
+test files have passing coverage with2760 tests, using a complete43-batch inventory
+at70c1b946 plus entire repaired batches18/36 atcd08f30a. Initial11 failures are
+retained; the intervening diff only repairs harness/test expectations and adds one
+signal regression. No application subtree changed across those heads.
+
+Canonical Cloudflare production-target build check116708241907 succeeded atcd08f30a;
+the recorded Workers command invokes the full vinext build. Four local ordinary
+Sites-target builds were killed with exit137, including a lower-heap attempt that
+reached SSR output. They remain failed with no proven cause. Global lint/format/
+unused findings are baseline-attributed, not passed; health/duplication checks pass.
+
+Actual asset/context restoration, real visibility resume and paused-world identity
+remain BLOCKED/NOT VERIFIED after retained browser/server failures. A remote-only
+browser attempt failed before loading UI. Accepted evidence and limits are indexed
+in evidence/selector-scene-validation-20261015. Root owns final merge; this does not
+close the full original UI or campaign issues.
