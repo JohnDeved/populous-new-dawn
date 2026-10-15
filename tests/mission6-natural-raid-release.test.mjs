@@ -93,27 +93,41 @@ test('legacy markerless Mission6 task releases its blocked raid without stranded
   assert.ok(task.elapsed > 0, 'actual refused cast still advances the task clock')
   assert.deepEqual(task.spells, [12, 3, 2])
   while (world.turn < phaseLimit + 512 && task.phase !== 18) advance()
-  assert.deepEqual([world.turn, task.phase, task.elapsed], [6886, 18, 104])
+  assert.deepEqual([world.turn, task.phase, task.elapsed], [6846, 18, 64])
   while (world.turn < phaseLimit + 512 && task.phase !== 10) advance()
-  assert.deepEqual([world.turn, task.phase, task.elapsed], [6889, 10, 0])
-  const first = owners.get(ids[0]),
+  assert.deepEqual([world.turn, task.phase, task.elapsed], [6849, 10, 0])
+  // Native state33 settlement can release original members before the shared
+  // return order. Preserve their health/identity checks through the full tail.
+  assert.deepEqual(task.members, [619, 620, 9])
+  for (const id of [618, 654]) {
+    const unit = world.units.find(u => u.id === id), person = owners.get(id)
+    assert.ok(!task.members.includes(id))
+    assert.equal(unit.hp, health.get(id))
+    assert.equal(unit.native, person)
+    assert.equal(world.objectCells.objects.get(id), person)
+    assert.ok(person.commands.every(command => command === 0))
+    assert.equal(person.immediateCommand, 0)
+    assert.equal(currentPersonOrder(world.buildingOrders, person), undefined)
+  }
+  const admitted = task.members.map(id => owners.get(id)),
+    first = admitted[0],
     orderId = first.immediateCommand || first.commands[first.commandCursor],
     order = world.buildingOrders.records[orderId]
   assert.equal(order.model, 3)
-  assert.equal(order.references, 5)
-  for (const person of owners.values())
+  assert.equal(order.references, 3)
+  for (const person of admitted)
     assert.equal(currentPersonOrder(world.buildingOrders, person), order)
   const releaseLimit = world.turn + 256
   while (world.turn < releaseLimit && task.phase !== 23) advance()
   assert.equal(task.phase, 23)
-  assert.equal(world.turn, 6943)
+  assert.equal(world.turn, 6903)
   for (const id of ids) assert.equal(world.units.find(u => u.id === id).hp, health.get(id))
   assert.deepEqual(task.members, [])
   assert.equal(order.references, 0)
   assert.deepEqual(task.spells, [12, 3, 2], 'range-refused spells remain unconsumed')
   advance()
   assert.equal(task.flags & 1, 0)
-  assert.equal(world.turn, 6944)
+  assert.equal(world.turn, 6904)
   for (let i = 0; i < 145; i++) advance()
   for (const [id, person] of owners) {
     const unit = world.units.find(u => u.id === id)

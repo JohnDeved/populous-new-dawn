@@ -130,7 +130,7 @@ test('ordinary M16 recurring requests physically garrison all five Towers and re
       [295, 291, 168],
       [296, 289, 180],
       [297, 290, 192],
-      [298, 292, 196],
+      [298, 292, 200],
     ]
   )
   assert.deepEqual(

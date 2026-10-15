@@ -2,6 +2,7 @@
 import test from 'node:test'
 import { createGameStore } from '../app/game-store.ts'
 import assert from 'node:assert/strict'
+import { stepMovementOrder } from '../app/person-orders.ts'
 import { browserPosition, cast, command, tick, selectUnit } from '../app/model.ts'
 test('grounded staged boarding retains and visits the preceding waypoint', async () => {
   const stepUntil = (w, done, limit) => {
@@ -58,7 +59,10 @@ test('grounded staged boarding retains and visits the preceding waypoint', async
   const first = p.commands.find(Boolean)
   assert.equal(world.buildingOrders.records[first].flags, 128)
   const control = structuredClone(world),
-    controlShaman = control.units.find(u => u.id === shaman.id)
+    controlShaman = control.units.find(u => u.id === shaman.id),
+    controlOwner = controlShaman.native,
+    controlMovement = structuredClone(control.buildingOrders.records[first])
+  assert.deepEqual([controlMovement.model,controlMovement.flags,controlMovement.a,controlMovement.b],[3,128,7808,8064])
   assert.ok(command(world, { ...browserPosition(boat), id: boat.id }, { ctrlKey: true }))
   const after = shaman.native
   assert.equal(world.buildingOrders.records[first].references, 1)
@@ -85,7 +89,7 @@ test('grounded staged boarding retains and visits the preceding waypoint', async
   const legacy = structuredClone(world)
   legacy.buildingOrders.records[second].b = 0
   let closest = Infinity,
-    controlClosest = Infinity,
+    controlRetirements = 0,
     boarded = null
   for (let n = 0; n < 300; n++) {
     tick(world, 1 / 12)
@@ -96,28 +100,55 @@ test('grounded staged boarding retains and visits the preceding waypoint', async
       lethalOpponent = lethalShaman.fight.opponent
     }
     if (lethalShaman.hp <= 0 && !lethalDeath) lethalDeath = lethal.turn
+    const controlHadReference = control.buildingOrders.records[first].references,
+      controlBefore = controlHadReference ? structuredClone(controlOwner) : null,
+      controlOrderBefore = controlHadReference ? structuredClone(control.buildingOrders.records[first]) : null
     tick(control, 1 / 12)
+    if (controlHadReference && !control.buildingOrders.records[first].references) {
+      controlRetirements++
+      assert.equal(controlHadReference, 1)
+      assert.deepEqual(
+        [controlOrderBefore.model, controlOrderBefore.flags, controlOrderBefore.a, controlOrderBefore.b],
+        [3, 128, 7808, 8064]
+      )
+      assert.equal(controlBefore.commands[controlBefore.commandCursor],first)
+      assert.equal(controlBefore.state,10)
+      assert.equal(controlShaman.native,controlOwner)
+      assert.equal(control.objectCells.objects.get(controlShaman.id),controlOwner)
+      assert.equal(controlShaman.hp,100)
+      assert.deepEqual([controlOwner.model,controlOwner.vehicle,controlOwner.flags4&0x4000000],[7,0,0])
+      assert.equal(controlOwner.counter,(controlBefore.counter+1)&255)
+      assert.equal(controlOwner.counter & 3, 0)
+      // Original model7 extent160 plus target extent56, strict on each axis.
+      assert.ok(Math.abs(controlOwner.x - controlMovement.a) < 216)
+      assert.ok(Math.abs(controlOwner.y - controlMovement.b) < 216)
+      const noVehicle = () => { throw Error('grounded waypoint cannot request vehicle position') }
+      assert.equal(stepMovementOrder(controlBefore,controlMovement,control.land.categories,noVehicle),false)
+      assert.equal(stepMovementOrder(controlOwner,controlMovement,control.land.categories,noVehicle),true)
+      assert.deepEqual([controlOwner.goalX,controlOwner.goalY],[controlMovement.a,controlMovement.b])
+      assert.deepEqual(controlOwner.commands.filter(Boolean),[])
+      assert.equal(controlOwner.immediateCommand,0)
+    }
     tick(restored, 1 / 12)
     tick(legacy, 1 / 12)
     assert.deepEqual(comparable(restored), comparable(world))
     closest = Math.min(closest, Math.hypot(shaman.x - 22, shaman.z + 39))
-    controlClosest = Math.min(
-      controlClosest,
-      Math.hypot(controlShaman.x - 22, controlShaman.z + 39)
-    )
     if (boat.passengerCount && boarded === null) boarded = world.turn
   }
   assert.ok(lethalClosest < 1)
-  assert.deepEqual([lethalFight, lethalOpponent, lethalDeath], [1476, 97, 1507])
+  assert.deepEqual([lethalFight, lethalOpponent, lethalDeath], [1460, 97, 1485])
   assert.equal(lethalShaman.hp, 0)
   assert.equal(lethal.units.includes(lethalShaman), false)
   assert.equal(lethal.objectCells.objects.has(lethalShaman.id), false)
   assert.equal(lethal.buildingOrders.records[lethalFirst].references, 0)
   assert.equal(lethal.buildingOrders.records[lethalSecond].references, 0)
   assert.deepEqual(lethalBoat.passengers, [])
-  assert.ok(controlClosest < 1)
+  // Command3 completes against its prepared native point and square arrival
+  // extent, on every fourth person visit. The clicked-point Euclidean distance
+  // is not that contract; both predecessor and one actual retirement are checked.
+  assert.equal(controlRetirements,1)
   assert.ok(closest < 1)
-  assert.equal(boarded, 1390)
+  assert.equal(boarded, 1375)
   assert.equal(shaman.hp, 100.6)
   assert.equal(world.buildingOrders.records[first].references, 0)
   assert.equal(world.buildingOrders.records[second].references, 0)

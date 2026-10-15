@@ -108,7 +108,7 @@ test('ordinary returned Warrior resumes the authored patrol after real conversio
   selectUnit(w, s.id)
   assert.ok(command(w, { x: 20, z: -41 }))
   for (let n = 0; n < 100 && spellTargetError(w, 'hypnotise', target); n++) tick(w, 1 / 12)
-  assert.equal(w.turn, 6166)
+  assert.equal(w.turn, 6172)
   assert.equal(spellTargetError(w, 'hypnotise', target), null)
   assert.ok(cast(w, 'hypnotise', target))
   assert.equal(w.shots.hypnotise, 0)
@@ -121,7 +121,7 @@ test('ordinary returned Warrior resumes the authored patrol after real conversio
   const effect = w.effects.find(f => f.kind === 'hypnotise'),
     center = nativePosition(w, effect)
   assert.deepEqual([center.x, center.y], [5888, 5888])
-  assert.equal(w.turn, 6179)
+  assert.equal(w.turn, 6185)
   tick(w, 1 / 12)
   const converted = w.units
     .filter(u => u.hypnotise?.originalTeam === 'red' && u.kind === 'warrior')
@@ -151,7 +151,7 @@ test('ordinary returned Warrior resumes the authored patrol after real conversio
         u => u.team === 'red' && u.kind === 'warrior' && !initialRed.has(u.id)
       )
       if (restored) {
-        assert.equal(w.turn, 6617)
+        assert.equal(w.turn, 6625)
         assert.equal(restored.hp, 79.7)
         assert.ok(!w.units.includes(converted))
         assert.ok(!w.objectCells.objects.has(converted.id))

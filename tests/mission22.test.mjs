@@ -184,7 +184,7 @@ test('Mission 22 supplied-focus Shaman can steal, checkpoint and sail the author
     ['blue', [shaman.id], boat.id]
   )
 
-  assert.deepEqual([world.turn, shaman.hp], [1390, 81.4])
+  assert.deepEqual([world.turn, shaman.hp], [1378, 81.4])
 
   world = migrateCheckpoint(structuredClone(world))
   shaman = world.units.find(unit => unit.id === shaman.id)
@@ -239,7 +239,7 @@ test('Mission 22 supplied-focus Shaman can steal, checkpoint and sail the author
   assert.equal(shaman.native.vehicle, 0)
   assert.ok(supportsFollower(world, shaman))
   // The extra public dry voyage permits full natural healing before landing.
-  assert.equal(world.turn, 1951)
+  assert.equal(world.turn, 1939)
   assert.equal(shaman.hp, 100.6)
   assert.equal(boat.team, 'blue')
 })

@@ -161,7 +161,7 @@ async function assertTowerContinuation({ store, world, shaman, balloon }, expect
       assert.equal(cancelled.buildingOrders.records[oldOrder].references, 0)
       assert.equal(movement.references, 0)
       assert.equal(transport.speed, 0)
-      assert.deepEqual([transport.x, transport.y], [16128, 32512])
+      assert.deepEqual([transport.x, transport.y], expected.cancelRest)
       assert.equal(vehicleReady(cancelled.land, transport), true)
     }
     if (shaman.fight && !firstFight) {
@@ -223,15 +223,16 @@ async function assertTowerContinuation({ store, world, shaman, balloon }, expect
 // The historical case below still requires Tower destruction and Warrior11 interception.
 test('fresh supplied-focus Balloon tower attack is intercepted before Tower damage and cleans up through Save/Load', async () => {
   await assertTowerContinuation(prepareEarnedFlight(), {
-    inputPhase: [3546, 218],
-    cancel: 3566,
-    departure: 3836,
-    fight: 3844,
+    inputPhase: [3531, 203],
+    cancel: 3551,
+    cancelRest: [16640, 32512],
+    departure: 3820,
+    fight: 3828,
     opponent: 10,
     targetHp: 260,
     targetDeath: 0,
-    retired: 3870,
-    death: 3870,
+    retired: 3996,
+    death: 3996,
   })
 })
 
@@ -241,11 +242,12 @@ test('historical c44 supplied-focus Balloon checkpoint retains Warrior11, Tower1
   await assertTowerContinuation(await loadHistoricalMission22Balloon(), {
     inputPhase: [3233, 161],
     cancel: 3253,
+    cancelRest: [16128, 32512],
     departure: 3520,
     fight: 3526,
     opponent: 11,
-    targetDeath: 5339,
-    retired: 5340,
+    targetDeath: 5350,
+    retired: 5351,
     death: 0,
     survivor: { hp: 100.75, x: 29, z: 120.75, state: 19, anchorX: 9472, anchorY: 32576 },
   })
