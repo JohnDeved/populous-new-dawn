@@ -246,18 +246,19 @@ async function assertPlainPersonAttack({ store, world, shaman, balloon }, histor
     assert.equal(world.objectCells.objects.has(target.id), true)
     assert.equal(target.hp, 55)
   } else {
-    // The corrected seat-origin attack first reaches selected Preacher17, then
-    // guards intercept. This remains an existing browser grounded-adapter outcome.
-    assert.equal(departure, 3852)
-    assert.equal(firstFight, 3857)
+    // First contact retains selected Preacher17; guard reinforcement and actual
+    // melee opponent writes yield this exact existing grounded-adapter outcome.
+    assert.equal(departure, 3840)
+    assert.equal(firstFight, 3845)
     assert.equal(firstOpponent, 17)
     assert.equal(firstOpponentTeam, 'green')
     assert.deepEqual(encounters, [
-      [3857, 17],
-      [3873, 12],
-      [3877, 11],
+      [3845, 17],
+      [3858, 10],
+      [3863, 11],
+      [3871, 12],
     ])
-    assert.equal(death, 3884)
+    assert.equal(death, 3872)
     assert.equal(targetDeath, 0)
     assert.equal(shaman.hp, 0)
     assert.equal(world.objectCells.objects.has(shaman.id), false)

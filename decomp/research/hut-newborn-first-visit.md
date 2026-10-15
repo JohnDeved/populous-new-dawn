@@ -156,3 +156,17 @@ all original admission/ghost exclusions, conversion and same-owner restoration,
 no replacement allocation and cleanup. The two maintained cases keep exact HP,
 remaining and death assertions for their explicitly labeled routes; no threshold
 was widened and the historical6323 obligation remains executable.
+
+## Queued and plain balloon attack opponent sequences
+
+Both current fresh routes retain their requested Preacher17 and first actual
+contact with that target. The source-bound paired observer records actual guard
+reinforcement and melee opponent writes, rather than treating every changed
+`fight.opponent` as a new acquisition. Queued writes are
+[3841,17],[3868,12],[3882,11],[3888,12], with departure3836/death3891;
+fresh plain writes are[3845,17],[3858,10],[3863,11],[3871,12], with
+ departure3840/death3872. Their prior sequences each had three entries; the
+current four-entry sequences are explicitly different combat histories.
+The qualified continuation executes full original replay and all targetHP55,
+no-target-death, actor removal, registry, order-reference and passenger cleanup
+checks. The separately labeled historical plain case is unchanged.

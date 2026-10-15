@@ -163,21 +163,22 @@ test('supplied-focus current Mission22 queued person target moves its transport 
     if (target.hp <= 0 && !targetDeath) targetDeath = world.turn
   }
   assert.equal(departures, 1)
-  assert.equal(departure, 3852)
-  assert.equal(firstFight, 3857)
+  assert.equal(departure, 3836)
+  assert.equal(firstFight, 3841)
   assert.deepEqual(encounters, [
-    [3857, 17],
-    [3872, 10],
-    [3876, 12],
+    [3841, 17],
+    [3868, 12],
+    [3882, 11],
+    [3888, 12],
   ])
   assert.equal(firstOpponent, 17)
   assert.equal(firstOpponentTeam, 'green')
-  // The corrected native seat origin first reaches selected Preacher17, then
-  // Warriors10 and12 intercept; the historical stale-origin chronology is retained
-  // in the M16 seat-sync evidence. The existing mode1 grounded attack adapter remains;
+  // The actual first contact still reaches selected Preacher17. Guard reinforcements
+  // and later melee opponent writes produce the complete observed sequence above.
+  // The existing mode1 grounded attack adapter remains;
   // observed death retires command 28 while the selected Preacher 17 survives.
   // This is a browser outcome, not a native damage/landing parity claim.
-  assert.equal(death, 3888)
+  assert.equal(death, 3891)
   assert.equal(targetDeath, 0)
   assert.equal(shaman.hp, 0)
   assert.equal(world.units.includes(shaman), false)
