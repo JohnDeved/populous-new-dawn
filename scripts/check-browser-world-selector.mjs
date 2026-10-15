@@ -19,6 +19,10 @@ export default async function checkWorldSelector({ page, context, url, root, out
   assert.ok(Math.abs(glyph.x-34)<.02&&Math.abs(glyph.y-445)<.02, JSON.stringify({glyph,geometry,style:await page.getByRole('button',{name:'Panel Mission 1',exact:true}).evaluate(b=>({box:b.getBoundingClientRect().toJSON(),css:getComputedStyle(b).cssText,markup:b.outerHTML}))}))
   assert.equal(await page.getByRole('button',{name:'Panel Mission 2',exact:true}).locator('img').count(),0)
   await page.screenshot({path:resolve(output,'fresh-640x480.png')})
+  const panelOne=page.getByRole('button',{name:'Panel Mission 1',exact:true})
+  await panelOne.hover();await panelOne.focus()
+  assert.equal(await panelOne.evaluate(b=>getComputedStyle(b).backgroundColor),'rgba(0, 0, 0, 0)')
+  await page.screenshot({path:resolve(output,'glyph-hover-focus-640x480.png')})
   for(let i=0;i<3;i++) {
     await page.keyboard.press('Escape')
     await page.getByRole('dialog',{name:'Main menu',exact:true}).waitFor()

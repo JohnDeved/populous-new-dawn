@@ -175,7 +175,7 @@ export function WorldSelector({
                   title={`Mission ${mission}`}
                   onKeyDown={navigate}
                   onClick={() => setSelected(mission)}
-                  style={{ left: `${((28 + (mission - 1) * 20) / 638) * 100}%` }}
+                  style={{ left: `calc(var(--panel-width) * ${28 + (mission - 1) * 20} / 640)` }}
                 >
                   {!artFailed && openingMissionAvailable(mission, completed) && (
                     <img
