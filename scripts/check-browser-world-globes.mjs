@@ -54,6 +54,11 @@ export default async function({page,context,output,receipt}) {
  await globe(1).waitFor()
  await page.waitForFunction(()=>document.querySelector('canvas[data-world-globe="1"]').width===1382)
  assert.equal(await page.locator('canvas[data-world-globe]').count(),1)
+ await page.evaluate(()=>{window.globeBatchMs=[];window.globeRasterStart=performance.now()})
+ await cdp.send('Emulation.setDeviceMetricsOverride',{width:3840,height:2160,deviceScaleFactor:4,mobile:false})
+ await page.waitForFunction(()=>document.querySelector('canvas[data-world-globe="1"]').width===2048)
+ const cap=await page.evaluate(()=>({backing:2048,batchMs:window.globeBatchMs,maxBatchMs:Math.max(...window.globeBatchMs),elapsedMs:performance.now()-window.globeRasterStart}))
+ assert.ok(cap.maxBatchMs<50);samples.push(cap)
  await cdp.send('Emulation.clearDeviceMetricsOverride');await cdp.detach()
  for(const mission of [2,3,1,3,2,1]){
   await button(`Select Mission ${mission}`).click();await globe(mission).waitFor()
