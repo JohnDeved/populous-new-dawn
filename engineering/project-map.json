@@ -779,6 +779,7 @@
         "app/worship.ts"
       ],
       "researchPaths": [
+        "decomp/research/world-selector-globes.md",
         "tests/worship-acquisition-controller.test.mjs",
         "tests/worship-acquisition-runtime.test.mjs",
         "tests/worship-acquisition-source.test.mjs",
@@ -1122,6 +1123,7 @@
         "effects.reincarnation"
       ],
       "evidence": [
+        { "path": "decomp/research/world-selector-globes.md", "heading": "Ordinary selector globes" },
         { "path": "decomp/README.md", "heading": "Campaign interpreter comparison" },
         { "path": "decomp/research/worship-grant-handoff.md", "heading": "Three findings" },
         { "path": "decomp/research/worship-grant-presentation.md", "heading": "Three findings" },

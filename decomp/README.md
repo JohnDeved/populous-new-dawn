@@ -5253,3 +5253,5 @@ consumers remain explicit boundaries. Browser/native execution is not yet claime
 
 Mixed-raid target availability versus member-order refresh: see
 [the static evidence and live-caller regression](research/mixed-raid-target-exhaustion/README.md).
+
+- [Ordinary selector globe texture, rings, UV and vertex light](research/world-selector-globes.md)

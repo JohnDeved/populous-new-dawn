@@ -6,6 +6,7 @@ import {
   selectorWorlds,
 } from './world-selector-data'
 import styles from './world-selector.module.css'
+import { WorldGlobe } from './world-globe'
 
 interface Props {
   missions: readonly number[]
@@ -125,11 +126,9 @@ export function WorldSelector({
               <p>Opening orbits · adapted view</p>
             </div>
             <section className={styles.details} aria-label="Selected world">
-              <div
-                className={styles.planet}
-                style={{ backgroundImage: `url(/original/world-selector/mission-${selected}.png)` }}
-                aria-hidden="true"
-              />
+              <div className={styles.planet}>
+                <WorldGlobe key={selected} mission={selected} />
+              </div>
               <p className={styles.orbitDescription}>Moon of World 5 · orbit {body.orbitRadius}</p>
             </section>
           </div>

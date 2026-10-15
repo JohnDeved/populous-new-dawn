@@ -606,6 +606,7 @@
         { "path": "public/original/atlas-p.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-world-environments.py" },
         { "path": "app/original-models-bank6.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-world-environments.py" },
         { "path": "public/original/world-environments.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-world-environments.py" },
+        { "path": "public/original/world-selector/globes", "type": "directory", "tracked": true, "protected": true, "producer": "scripts/import-world-selector-globes.py" },
         { "path": "public/original", "type": "directory", "tracked": true, "protected": true }
       ],
       "recording": "Only the documented importer owns each app/original-*.json or public/original asset; do not infer one producer from an original-* name."

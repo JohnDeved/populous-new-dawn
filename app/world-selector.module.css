@@ -38,7 +38,7 @@
 .selectedOrbit text { fill: #ffe8a4 !important; font-weight: 700 !important; }
 .map p { margin: -6px 0 0; color: #9c998c; font-size: 12px; text-align: center; }
 .details { text-align: center; }
-.planet { width: min(22vw, 32dvh); aspect-ratio: 1; margin: 0 auto 16px; border-radius: 50%; background-size: 210%; background-position: 45% 45%; box-shadow: inset -28px -12px 35px #000e, inset 7px 5px 14px #c6e7ff40, 0 0 0 1px #647889; }
+.planet { width: min(22vw, 32dvh); aspect-ratio: 1; margin: 0 auto 16px; display: grid; place-items: center; color: #adbcc9; font-size: 12px; }
 .orbitDescription { color: #adbcc9; font-size: 12px; }
 .worldChoices { position: absolute; top: 118px; left: 16px; display: grid; gap: 6px; }
 .worldChoices button { display: flex; flex-direction: column; align-items: start; gap: 2px; padding: 5px 8px; }
