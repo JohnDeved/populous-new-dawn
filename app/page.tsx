@@ -212,6 +212,7 @@ export default function Home() {
     if (engine.current) engine.current.nearbyFollowersHudActive = false
     if (!menuSession.current) {
       const current = store.getWorld()
+      pendingMenuCamera.current = []
       menuSession.current = { world: current, paused: current.paused }
       engine.current?.setModalSuspended(true)
       store.change(w => {
@@ -232,8 +233,8 @@ export default function Home() {
         engine.current.setModalSuspended(false)
         for (const action of pendingMenuCamera.current) action(engine.current)
       }
-      pendingMenuCamera.current = []
     }
+    pendingMenuCamera.current = []
   }
   function openSelector() {
     cancelNearbyInput()
