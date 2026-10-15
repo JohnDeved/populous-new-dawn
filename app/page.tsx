@@ -112,6 +112,7 @@ export default function Home() {
   const [audioPreferences, setAudioPreferences] =
     useState<AudioPreferences>(DEFAULT_AUDIO_PREFERENCES)
   const [audioStorageNotice, setAudioStorageNotice] = useState('')
+  const [audioStartNotice, setAudioStartNotice] = useState('')
   const { volume, musicVolume } = audioPreferences
   const [soundPending, setSoundPending] = useState(false)
   const [hudSize, setHudSize] = useState('auto')
@@ -559,6 +560,7 @@ export default function Home() {
     return () => clearInterval(timer)
   }, [])
   async function toggleSound() {
+    setAudioStartNotice('')
     if (sound) {
       audio.current?.mute()
       setSound(false)
@@ -570,6 +572,7 @@ export default function Home() {
         setSound(!!(await audio.current?.enable()))
       } catch {
         audio.current?.mute()
+        setAudioStartNotice('Audio could not start. Try the sound button again.')
         tell(world, 'Audio could not start. Try the sound button again.')
         update()
       } finally {
@@ -1740,6 +1743,7 @@ export default function Home() {
                     </button>
                   </div>
                   {audioStorageNotice && <p role="status">{audioStorageNotice}</p>}
+                  {audioStartNotice && <p role="status">{audioStartNotice}</p>}
                   <details className="reference-details">
                     <summary>About this recreation & references</summary>
                     <p>

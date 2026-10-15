@@ -60,7 +60,7 @@ export default async function({page,output,root}) {
  }
  passed('pointer-keyboard-close-preserves-running-and-already-paused')
  await button('Resume game').click();await button('Menu').click()
- await button('Options').click();await page.getByRole('region',{name:'Browser options and help'}).waitFor()
+ await button('Options').click();await button('Browser compatibility and help').click();await page.getByRole('region',{name:'Browser compatibility and help'}).waitFor()
  assert.equal(await page.getByRole('combobox',{name:'HUD size'}).isVisible(),true)
  await button('Select Level').click();await button('Back').click();assert.equal(await paused(),true)
  await button('Back').click();assert.equal(await paused(),false)

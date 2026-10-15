@@ -1,0 +1,89 @@
+import assert from 'node:assert/strict'
+import {resolve} from 'node:path'
+import {writeFileSync} from 'node:fs'
+import {pathToFileURL} from 'node:url'
+export default async function({page,context,output,root,receipt}) {
+ const progress=[],passed=name=>{progress.push(name);writeFileSync(resolve(output,'progress.json'),JSON.stringify(progress,null,2))}
+ const button=name=>page.getByRole('button',{name,exact:true})
+ const options=page.locator('[data-original-options]')
+ const volume=name=>page.getByRole('slider',{name,exact:true})
+ const setVolume=async(name,steps)=>{await volume(name).focus();await page.keyboard.press('Home');for(let i=0;i<steps;i++)await page.keyboard.press('ArrowRight')}
+ const category=async name=>{await button(name).click();assert.equal(await options.getAttribute('data-category'),name);assert.equal(await options.locator('[aria-current="page"]').getAttribute('aria-label'),name);assert.equal(await button(name).count(),0)}
+ await page.setViewportSize({width:1280,height:960})
+ await button('Options').click();await options.locator('[aria-current="page"]').waitFor()
+ assert.equal(await options.getAttribute('data-category'),'Game')
+ assert.equal(await button('Direct3D').count(),0)
+ for(let i=0;i<3;i++){
+  await category('Sound');assert.equal(await button('Direct3D').count(),0)
+  await category('Graphics');assert.equal(await button('Direct3D').count(),1)
+  await category('Direct3D');await category('Game')
+ }
+ passed('initial-Game-selected-noninteractive-categories-conditional-Direct3D-repetition')
+ await category('Sound');await options.locator('[aria-label="Sound quality unavailable"]').waitFor()
+ await setVolume('Master volume',4);await setVolume('Music volume',12)
+ assert.equal(await volume('Master volume').inputValue(),'0.2');assert.equal(await volume('Music volume').inputValue(),'0.6')
+ const stored=await page.evaluate(()=>JSON.parse(localStorage.getItem('populous-audio-preferences')))
+ assert.deepEqual(stored,{version:1,volume:0.2,musicVolume:0.6})
+ await button('Browser compatibility and help').click();await button('Back to Options').waitFor()
+ assert.equal(await button('Back to Options').evaluate(b=>b===document.activeElement),true)
+ await page.keyboard.press('Escape');assert.equal(await options.getAttribute('data-category'),'Sound')
+ assert.equal(await button('Browser compatibility and help').evaluate(b=>b===document.activeElement),true)
+ await page.keyboard.press('Escape');assert.equal(await button('Options').evaluate(b=>b===document.activeElement),true)
+ await page.reload();await button('Options').click();await category('Sound')
+ assert.equal(await volume('Master volume').inputValue(),'0.2');assert.equal(await volume('Music volume').inputValue(),'0.6')
+ passed('browser-range-keyboard-persistence-reload-nested-Escape-and-focus')
+ await options.and(page.locator('[data-art-ready="true"]')).waitFor();assert.equal(await options.getByRole('heading',{name:'Sound',exact:true}).count(),1)
+ await options.locator('[aria-current="page"]').focus();await page.keyboard.press('Tab');assert.equal(await button('Graphics').evaluate(b=>b===document.activeElement),true);await page.keyboard.press('Shift+Tab');assert.equal(await button('Game').evaluate(b=>b===document.activeElement),true)
+ for(const [width,height] of [[640,480],[1280,960],[1920,1080],[3440,1440],[900,360]]) {
+  await page.setViewportSize({width,height});await page.mouse.move(-5,-5);await page.waitForTimeout(80)
+  for(const control of await options.locator('button,input').all()){const box=await control.boundingBox();assert.ok(box.x>=-1&&box.y>=-1&&box.x+box.width<=width+1&&box.y+box.height<=height+1)}
+  await page.screenshot({path:resolve(output,`frontend-sound-${width}x${height}.png`)})
+ }
+ await page.setViewportSize({width:640,height:480})
+ const geometry=await options.evaluate(element=>{const root=element.getBoundingClientRect();return [...element.querySelectorAll('input')].map(input=>{const box=input.getBoundingClientRect();return {x:box.x-root.x,y:box.y-root.y,w:box.width,h:box.height}})})
+ assert.deepEqual(geometry,[{x:166,y:169,w:308,h:22},{x:166,y:229,w:308,h:22}])
+ const cdp=await context.newCDPSession(page)
+ await cdp.send('Emulation.setDeviceMetricsOverride',{width:800,height:600,deviceScaleFactor:2,mobile:false})
+ await page.waitForTimeout(100)
+ const capture=await cdp.send('Page.captureScreenshot',{format:'png',fromSurface:true,captureBeyondViewport:false}),png=Buffer.from(capture.data,'base64')
+ assert.equal(png.readUInt32BE(16),1600);assert.equal(png.readUInt32BE(20),1200);writeFileSync(resolve(output,'frontend-sound-dpr2.png'),png)
+ await cdp.send('Emulation.clearDeviceMetricsOverride');await cdp.detach()
+ passed('native-slider-geometry-modern-ultrawide-small-height-DPR2')
+ await page.setViewportSize({width:1280,height:960});await button('Back').click()
+ const {bindGame}=await import(pathToFileURL(resolve(root,'scripts/browser-game.mjs')).href)
+ await button('New Game').click();await button('Start Mission 1').click();await bindGame(page)
+ await page.waitForFunction(()=>window.testStore.getWorld().flyby.flags&1||!window.testStore.getWorld().inputMask)
+ await page.evaluate(()=>document.querySelector('.skip-introduction')?.click())
+ await page.waitForFunction(()=>!window.testStore.getWorld().inputMask)
+ await button('Enable sound').click();await button('Mute sound').waitFor()
+ await button('Game settings').click();await button('Options').click();await category('Sound')
+ assert.equal(await volume('Master volume').inputValue(),'0.2');assert.equal(await volume('Music volume').inputValue(),'0.6')
+ assert.equal(await options.getAttribute('data-skin'),'ingame')
+ const frozen=()=>page.evaluate(()=>{const w=window.testStore.getWorld(),s=window.testSceneRef.current;return {world:JSON.stringify(w),animation:s.gameClock.animationFrame,time:s.gameClock.animationTime,camera:s.camera.position.toArray()}})
+ const before=await frozen();await page.waitForTimeout(400);assert.deepEqual(await frozen(),before)
+ await page.evaluate(()=>{const main=document.querySelector('main');let fiber=main[Object.keys(main).find(key=>key.startsWith('__reactFiber'))];for(;fiber;fiber=fiber.return)for(let hook=fiber.memoizedState;hook;hook=hook.next)if(hook.memoizedState?.current?.buffers instanceof Map&&'randomState' in hook.memoizedState.current)window.optionsAudio=hook.memoizedState.current})
+ assert.equal(await page.evaluate(()=>window.optionsAudio.paused),true)
+ assert.equal(await page.evaluate(()=>window.optionsAudio.context.state),'suspended')
+ await setVolume('Master volume',7);await setVolume('Music volume',9)
+ assert.equal(await page.evaluate(()=>window.optionsAudio.context.state),'suspended')
+ for(const [width,height] of [[640,480],[1280,960],[1920,1080],[3440,1440]]){
+  await page.setViewportSize({width,height});await page.mouse.move(-5,-5);await page.waitForTimeout(80)
+  await page.screenshot({path:resolve(output,`ingame-sound-${width}x${height}.png`)})
+ }
+ await page.setViewportSize({width:1280,height:960})
+ await button('Browser compatibility and help').click();assert.equal(await page.getByRole('combobox',{name:'HUD size'}).isVisible(),true)
+ await button('Zoom in').click();assert.deepEqual(await frozen(),before)
+ await button('Back to Options').click();assert.equal(await options.getAttribute('data-category'),'Sound')
+ await page.keyboard.press('Escape');assert.equal(await button('Options').evaluate(b=>b===document.activeElement),true)
+ await page.keyboard.press('Escape');assert.equal(await page.evaluate(()=>window.testStore.getWorld().paused),false)
+ await page.waitForFunction(()=>window.optionsAudio.context.state==='running')
+ await button('Pause game').click();await button('Game settings').click();await button('Options').click()
+ await page.keyboard.press('Escape');await page.keyboard.press('Escape');assert.equal(await page.evaluate(()=>window.testStore.getWorld().paused),true)
+ passed('shared-entry-volume-world-camera-freeze-audio-suspend-and-pause-ownership')
+ await button('Game settings').click();await button('Quit Game').click();await button('Yes').click()
+ await button('Options').click();await category('Sound')
+ assert.equal(await volume('Master volume').inputValue(),'0.35');assert.equal(await volume('Music volume').inputValue(),'0.45')
+ passed('in-game-preferences-return-to-startup')
+ assert.deepEqual(receipt.errors,[])
+ return {checks:progress,limits:['Headless software rendering; no hardware performance or native runtime pixel parity claim']}
+}

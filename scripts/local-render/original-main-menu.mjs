@@ -40,11 +40,11 @@ export default async function({page,browser,url,root,output,receipt}) {
  await page.mouse.move(10,10);await button('Tutorial').hover();const movingPixels=await digest();await page.waitForTimeout(220);assert.notEqual(await digest(),movingPixels,'pointer mode animates original glow')
  await page.mouse.move(-5,-5);const leavePixels=await digest();await page.waitForTimeout(220);assert.equal(await digest(),leavePixels,'pointer leave removes and stops glow')
  await button('Options').focus();await page.keyboard.press('Enter')
- await page.getByRole('region',{name:'Options',exact:true}).waitFor()
+ await page.getByRole('region',{name:'Options',exact:true}).waitFor();await button('Sound').click()
  await page.getByRole('slider',{name:'Master volume'}).focus();await page.keyboard.press('Home');for(let i=0;i<4;i++)await page.keyboard.press('ArrowRight')
  await page.keyboard.press('Escape')
  assert.equal(await button('Options').evaluate(b=>b===document.activeElement),true)
- await button('Options').click();assert.equal(await page.getByRole('slider',{name:'Master volume'}).inputValue(),'0.2');await button('Back').click()
+ await button('Options').click();await button('Sound').click();assert.equal(await page.getByRole('slider',{name:'Master volume'}).inputValue(),'0.2');await button('Back').click()
  await button('Quit').click();await page.getByText('You can close this browser tab to quit.',{exact:false}).waitFor();await button('Back').click();assert.equal(await button('Quit').evaluate(b=>b===document.activeElement),true);await noScene()
  for(const exit of ['Back','Escape']) {
   await button('New Game').click();await page.getByRole('dialog',{name:'Start game',exact:true}).waitFor()

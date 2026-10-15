@@ -95,7 +95,7 @@ export function OriginalOptions({
               ? [
                   { text: masterText, x: 320, y: 139 },
                   { text: musicText, x: 320, y: 199 },
-                  { text: 'Sound quality', x: 320, y: 259 },
+                  { text: 'Sound quality : <Unavailable>', x: 320, y: 259 },
                 ]
               : []),
           ],
@@ -175,6 +175,8 @@ export function OriginalOptions({
         key={text}
         className={styles.choice}
         aria-label={text}
+        role="heading"
+        aria-level={2}
         aria-current="page"
         tabIndex={-1}
         style={position}
@@ -269,11 +271,11 @@ export function OriginalOptions({
                 style={{ top: 259 }}
                 aria-label="Sound quality unavailable"
               >
-                {label('Sound quality', true)}
+                {label('Sound quality : <Unavailable>')}
               </div>
               <p className={styles.notice}>
-                Browser volume controls. Master also affects music. Original sound quality selection
-                is not available. Audio starts when enabled in-game.
+                Browser volume controls. Master also affects music. Audio starts when enabled
+                in-game.
               </p>
               {storageNotice && (
                 <p className={styles.storage} role="status">
