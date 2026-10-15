@@ -1,0 +1,69 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> populous-first-dawn@0.1.0 check
+> npm run typecheck && npm test && npm run parity:check && npm run orchestration:check
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> populous-first-dawn@0.1.0 typecheck
+> tsc --noEmit
+
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> populous-first-dawn@0.1.0 test
+> node --test tests/*.test.mjs
+
+✔ live Mission3 adapters rotate an eligible Convert Wild producer behind training (197.493881ms)
+✔ producer table preserves singleton priority, one stable pass, and signed counts (1.395536ms)
+✔ producer capacity is checked before callbacks and after pre-table allocation (0.920718ms)
+✔ checkpoint migration retains producer history and initializes each legacy AI independently (296.884498ms)
+✔ authored early producer opportunities record native table attempts without changing later missions (1413.664869ms)
+✔ Missions1/2 never enable type8 or idle type11/15 response follow-ups (319.442297ms)
+✔ ordinary Missions1/2 allocate a real pre-table scan at their first producer opportunity (646.901936ms)
+✔ normal first scans finish and repeat without a placeholder reservation (1236.533403ms)
+✔ ordinary Mission2 movement reaches a real response and resumes the scan checkpoint (718.09783ms)
+✔ response allocation preserves native duplicate, disabled, cancellation and exhaustion gates (1.470296ms)
+✔ early automatic training requires at least the native school capacity (510.815686ms)
+✔ training capacity compares the native signed32-bit available total (25.974475ms)
+✔ public Blast visits retained rest once per airborne turn and Save/Load preserves the continuation (831.620033ms)
+ℹ Natural landing after 6 post-launch turns: state 10, flight cleared, native null, former owner removed from cell registry
+✔ supplied airborne state 1 has one preparation, reaction and physics visit (255.766931ms)
+✔ supplied airborne state 17 has one preparation, reaction and physics visit (133.199777ms)
+✔ supplied airborne state 19 has one preparation, reaction and physics visit (95.04806ms)
+✔ supplied state 1 consumes interruption 4 before clearing it on detached flight owner (119.161598ms)
+✔ supplied state 1 consumes interruption 8192 before clearing it on detached flight owner (67.109296ms)
+✔ supplied state 1 signed timer expiry transitions once without re-running the new controller (93.642427ms)
+✔ supplied state 17 approach uses post-physics position and does not visit state 19 twice (101.648297ms)
+✔ supplied state 19 honors interruption before clearing it and transitions the actual owner (101.771637ms)
+✔ supplied state 19 advances gameplay RNG twice at its idle phase and preserves cosmetic RNG (110.521436ms)
+✔ supplied state 19 substate 4 publishes its single timber drop (149.664746ms)
+✔ supplied state 19 substate 8 publishes its single timber drop (152.284173ms)
+✔ supplied state 19 retains its controller when interrupted within its goal and clears the bits afterward (83.404723ms)
+✔ supplied detached resting owner acquires a real slot after physics without replacing the stale native alias (97.721696ms)
+✔ Angel timer-eight strike preserves native ordinary damage policy (338.388779ms)
+✔ Angel timer-eight strike preserves native Shield damage policy (215.564038ms)
+✔ Angel timer-eight strike preserves native Bloodlust damage policy (112.520769ms)
+✔ Angel timer-eight strike preserves native Shield and Bloodlust damage policy (95.160561ms)
+✔ Angel timer-eight strike preserves native global immunity damage policy (80.957535ms)
+✔ Angel impact preserves absent attribution for supplied neutral victim (89.844709ms)
+✔ Angel impact preserves absent attribution for supplied neutral attacker (84.754655ms)
+✔ Angel Shield impact and recovery continue identically through the checkpoint API (199.66296ms)
+✔ Angel initial selection skips a real sermon listener for a farther eligible enemy (330.011302ms)
+✔ Angel acquires nobody while its only enemy is listening, then acquires after sermon release (218.528183ms)
+✔ an already-held Angel target remains held when ordinary preaching puts it into state23 (160.016687ms)
+✔ checkpoint preserves listener exclusion and subsequent ordinary release/selection (239.912693ms)
+✔ Angel initial selection respects completed matching disguise (232.094385ms)
+✔ Angel initial selection respects pending disguise counter (93.614722ms)
+✔ Angel initial selection respects other apparent tribe (99.313167ms)
+✔ Angel initial selection respects ordinary non-Spy (99.464079ms)
+✔ Angel skips the nearer disguised Spy for a farther eligible person (67.758765ms)
+✔ ordinary combat reveals the Spy and makes it eligible for initial Angel selection (115.407184ms)
+✔ an already-held Angel target stays held when its public disguise countdown completes (86.313031ms)
+✔ missing legacy disguise field preserves prior eligibility instead of inventing apparent tribe (86.001817ms)
+✔ missing legacy person owner preserves initial Angel eligibility (74.167956ms)
+✔ checkpoint preserves completed disguise and enemy Angel exclusion (213.231962ms)

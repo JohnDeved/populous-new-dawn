@@ -1,0 +1,26 @@
+{
+  "sourceCommit": "73f3b74271850344b15fe996a456bd6153108b60",
+  "files": {
+    "app/page.tsx": "0af08cf6daeb4cfdd217399623cf6bb7de8358804c42022448b7b189ecec4b05",
+    "app/globals.css": "c935bae824728e4f1ea1a0ec479750454141fda4e8e1b7fef594cd715a3c7a8b",
+    "app/hud-layout.ts": "013169e0feab4f2c71659b1fb22781c78755fd9ccca1542095224135eb08b6d6",
+    "app/original-result-screen.tsx": "fed8544ebbcaf5560bc8d98ec396ed81868527b286ff4c82fd8ee62a02b9b2e8",
+    "app/original-result-screen.module.css": "a8b4814bf3f0782ce6b23ac088daf2a926641d64e4d80f68c344899acc743097",
+    "app/original-result-layout.ts": "e2164652aa5342e6c17bdb6415747b325fd8ea7effcac52911278c00a290460d",
+    "app/original-result-ui.json": "96daa41ef7a9cf0640dd7394d91d55545c00d36d64599852100041c3c61315c3",
+    "public/original/result-panel.png": "60785ad734dd4c7c62abd5f52d3d195fc74dc3a7e2cd6cc815ea54caa4fa23ed",
+    "public/original/result-font.png": "46d35c177850244ed211c0556af98694bb428835e7708a79f3acee16828e0676"
+  },
+  "fragments": {
+    "resultGate": "37fb34d43bd42e0621e951e4c22df18c7fa5f618732226639e13aa538f28b840",
+    "rootClickCapture": "6b4204fd3bc895fa057318aa71f090139bf4ef539f08a3d28b740f625e401f57",
+    "rootKeyEffect": "99169b4ab1b844101baaf264f18151de5761d9e340b192edc5f9371bd65a1083"
+  },
+  "limits": [
+    "Source-bound React presentation fixture with actual production component, current globals.css and hudScale.",
+    "Exact Home result JSX gate, click capture, and keyboard effect byte-extracted; world/store/engine/remaining dependencies are explicit fixture stubs.",
+    "Neutral source-styled battlefield, no scene, model, lifecycle, campaign, profile, save or native runtime mounted.",
+    "Callback spies prove dispatch only, never real world replacement or progression.",
+    "Headless browser; no hardware performance or natural outcome equivalence claim."
+  ]
+}
