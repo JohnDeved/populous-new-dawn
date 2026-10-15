@@ -19,7 +19,7 @@ export default async function({page,browser,url,root,output,receipt}) {
  await page.waitForFunction(()=>!window.testStore.getWorld().inputMask)
  const snapshot=()=>page.evaluate(()=>{
   const w=window.testStore.getWorld()
-  return {level:w.outcome.level,turn:w.turn,time:w.time,units:w.units.map(u=>[u.id,u.kind,u.hp,u.x,u.y]),shots:structuredClone(w.shots)}
+  return {level:w.outcome.level,turn:w.turn,time:w.time,units:w.units.map(u=>[u.id,u.kind,u.team,u.hp,u.x,u.z]),shots:structuredClone(w.shots)}
  })
  await button('Game settings').click()
  const saved=await snapshot();await button('Save checkpoint').click()
@@ -38,7 +38,7 @@ export default async function({page,browser,url,root,output,receipt}) {
   document.addEventListener('click',event=>{
    if(!event.target.closest('[aria-label="Load Game"]'))return
    const w=window.checkpointMenuStore.getWorld()
-   window.loadedMenuBoundary={level:w.outcome.level,turn:w.turn,time:w.time,units:w.units.map(u=>[u.id,u.kind,u.hp,u.x,u.y]),shots:structuredClone(w.shots)}
+   window.loadedMenuBoundary={level:w.outcome.level,turn:w.turn,time:w.time,units:w.units.map(u=>[u.id,u.kind,u.team,u.hp,u.x,u.z]),shots:structuredClone(w.shots)}
   })
  })
  const startupTurn=await page.evaluate(()=>window.checkpointMenuStore.getWorld().turn)
