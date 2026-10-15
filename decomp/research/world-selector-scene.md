@@ -1,6 +1,6 @@
 # Shared original selector scene (work in progress)
 
-Refs #17, #457. Dependent on PR464, exact base
+Refs #17, #457. PR464 merged into main `7ed3ea04f483e3a9c7b0c3f788dda4a76c4d442d`; exact development base
 `265444c6dc5ce58ec7e6427b123374a0de7dc44d`; no complete UI parity claim.
 Canonical GitHub main at task start: `762be79c810d8ae5d9e05d8e44e283bdff94b47b`.
 
@@ -39,7 +39,7 @@ this scene's causal core. No type4 space sprites or fullscreen plsbackg are adde
   phase ownership by vertex index across adaptive tessellation changes.
 - Linear repeat RGB8/RGBA8 sampling, source vertex diffuse plus specular, source
   alpha/inverse-source-alpha blend, no culling, depth test/write. Modern GPU raster,
-  color precision and clipping differ from the unmeasured original device.
+  perspective-correct color/UV interpolation, color precision and clipping differ from the unmeasured original device.
 - The scene and panel share proportional 640x480 logical framing. Tessellation is
   logical-radius based, clamped to the existing safe [1,255] mesh range. High-DPI
   stars cover one logical pixel. Invalid centre/front depth is safely rejected;

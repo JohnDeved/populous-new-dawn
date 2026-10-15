@@ -56,7 +56,7 @@ export class SelectorRenderer {
   private buffer: WebGLBuffer
   private vao: WebGLVertexArrayObject
   private textures = new Map<string, WebGLTexture>()
-  private images = new Set<HTMLImageElement>()
+  private images = new Map<HTMLImageElement, () => void>()
   private stream = new Float32Array(65536 * 11)
   private pointSize: WebGLUniformLocation | null
   private disposed = false
@@ -75,7 +75,12 @@ export class SelectorRenderer {
     const program = gl.createProgram(),
       buffer = gl.createBuffer(),
       vao = gl.createVertexArray()
-    if (!program || !buffer || !vao) throw new Error('Scene allocation failed')
+    if (!program || !buffer || !vao) {
+      gl.deleteProgram(program)
+      gl.deleteBuffer(buffer)
+      gl.deleteVertexArray(vao)
+      throw new Error('Scene allocation failed')
+    }
     this.program = program
     this.buffer = buffer
     this.vao = vao
@@ -157,7 +162,7 @@ export class SelectorRenderer {
         name =>
           new Promise<void>((resolve, reject) => {
             const image = new Image()
-            this.images.add(image)
+            this.images.set(image, resolve)
             image.onload = () => {
               this.images.delete(image)
               if (this.disposed) {
@@ -214,22 +219,17 @@ export class SelectorRenderer {
     let offset = 0
     for (let i = 0; i < count; i++) {
       const v = vertices[indices ? indices[i] : i]
-      this.stream.set(
-        [
-          v.x,
-          v.y,
-          v.depth,
-          v.rhw,
-          v.u,
-          v.v,
-          v.red / 255,
-          v.green / 255,
-          v.blue / 255,
-          v.alpha / 255,
-          v.specular / 255,
-        ],
-        offset
-      )
+      this.stream[offset] = v.x
+      this.stream[offset + 1] = v.y
+      this.stream[offset + 2] = v.depth
+      this.stream[offset + 3] = v.rhw
+      this.stream[offset + 4] = v.u
+      this.stream[offset + 5] = v.v
+      this.stream[offset + 6] = v.red / 255
+      this.stream[offset + 7] = v.green / 255
+      this.stream[offset + 8] = v.blue / 255
+      this.stream[offset + 9] = v.alpha / 255
+      this.stream[offset + 10] = v.specular / 255
       offset += 11
     }
     if (blend) gl.enable(gl.BLEND)
@@ -321,10 +321,11 @@ export class SelectorRenderer {
   dispose() {
     if (this.disposed) return
     this.disposed = true
-    for (const image of this.images) {
+    for (const [image, cancel] of this.images) {
       image.onload = null
       image.onerror = null
       image.src = ''
+      cancel()
     }
     this.images.clear()
     for (const texture of this.textures.values()) this.gl.deleteTexture(texture)

@@ -39,7 +39,7 @@ export function WorldSelectorScene({
       delete canvas!.dataset.ready
     }
     function draw(timestamp: number) {
-      if (disposed || !renderer) return
+      if (disposed || broken || !renderer) return
       try {
         const delta = lastTime === undefined ? 0 : (timestamp - lastTime) / 1000
         lastTime = timestamp
@@ -83,7 +83,7 @@ export function WorldSelectorScene({
         .load()
         .then(() => {
           loaded = true
-          if (!disposed && !document.hidden) frame = requestAnimationFrame(draw)
+          if (!disposed && !broken && !document.hidden) frame = requestAnimationFrame(draw)
         })
         .catch(fail)
     } catch {
