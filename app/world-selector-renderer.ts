@@ -62,7 +62,9 @@ export class SelectorRenderer {
   private disposed = false
   private stars = createPointStars()
   readonly sun = new SunWobble()
-  constructor(readonly canvas: HTMLCanvasElement) {
+  readonly canvas: HTMLCanvasElement
+  constructor(canvas: HTMLCanvasElement) {
+    this.canvas = canvas
     const gl = canvas.getContext('webgl2', {
       alpha: false,
       antialias: false,

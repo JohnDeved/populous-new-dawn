@@ -123,7 +123,7 @@ export default async function ({
         const dialog = page.getByRole('dialog', { name: 'Start game', exact: true })
         await dialog.waitFor()
         if (level === 1) {
-          await dialog.getByRole('button', { name: 'Select Mission 1', exact: true }).click()
+          await dialog.getByRole('button', { name: /^Panel Mission 1(?:, completed)?$/, exact: true }).click()
           await dialog.getByRole('button', { name: 'Start Mission 1', exact: true }).click()
         } else {
           await showAllMissions(page)

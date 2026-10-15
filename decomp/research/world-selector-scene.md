@@ -20,8 +20,13 @@ https://github.com/JohnDeved/populous-new-dawn/tree/4c0861be5a07e11a58cef7e027ca
 Portable packet SHA256: `24bd3b0d502c31762ce036a4b519a5934fed6a82c4fe2105b13aaf95e4f110e0`.
 Verified supplied EXE SHA256: `3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`.
 Original executable is read as data, never executed or emulated here.
-Titlefont/tooltip/cursor evidence is not yet independently reviewed and is outside
-this scene's causal core. No type4 space sprites or fullscreen plsbackg are added.
+Title/tooltip/cursor binding and deterministic asset preparation received independent
+static review on 2026-10-15 and are integrated separately from the scene math.
+Native Western glyph title/tooltip images preserve dimensions and source strings;
+the panel cursor is frame12 with hotspot(0,0). CSS cursor device scaling, source
+palette RGB and per-selection palette switching are explicit browser adaptations.
+Tooltip text waits strictly longer than500ms, follows the pointer and has no invented
+frame. Fallback/accessible button labels remain ordinary browser text. No type4 space sprites or fullscreen plsbackg are added.
 
 ## Deliberate modern compatibility choices
 

@@ -1,0 +1,53 @@
+{
+  "status": "passed",
+  "command": "python3 /tmp/selector-text-assets/verify-assets.py",
+  "importerSha256": "f8e67bd66f187dc7499908500adb48f71732df08eb3fa92f6b829a365569d803",
+  "inputSha256": {
+    "d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "data/fenew/felo20we.spr": "9179950e0b53e1d27a6864ef5848af5fff95883c531b328ae3ba2889111f11ee",
+    "data/fenew/fettwe.spr": "8d76fc1ef0abf454449e77ddaf6aab8b386072d6f037b1f1463a391f110656ad",
+    "data/plspanel.spr": "9b3e17fd501c65c7357cb64c0c8f27ec43304da8726afa6044b642e65e50a778",
+    "language/lang00.dat": "e826c478746d666a3ea9ea36cb7804d1d226d5f83084230987b1de293066cf7d",
+    "levels/levl2001.hdr": "4b89ef6d64e4010bb3ec3b5985d0edc8e710504e8b1bc75a6ae688bd6eb070a6",
+    "levels/levl2002.hdr": "44be9f709f03f4b4d936d86056256e7bb98683088332b4bb47354ad709ea8a49",
+    "levels/levl2003.hdr": "219dd7611a4e3f6c2d4e78620a4d5bb9cf61bf0e9c66c21b2b43b89c8ba4d3f0",
+    "data/plspl0-c.dat": "9e6dc9767ea11135c001c69acc090cfdaa7b55131725bc0bce204015050c39c2",
+    "data/plspl0-s.dat": "a74fd9c5e6b630e9de3ffa7f93ce1cca2785dfd0de5499923ae18d51ebc8b2e4",
+    "data/plspl0-p.dat": "916b8eef2b9c9a9af6607ad29501364d5a280681ba52229bfff32c8a2fe2c736"
+  },
+  "checks": [
+    "1344 atlas glyph pixel/metric comparisons",
+    "21 PNG dimensions/RGBA/PNG hashes/opaque-or-transparent alpha",
+    "5 previous source-packet RGBA matches",
+    "23 deterministic output byte matches",
+    "tampered source rejected before output",
+    "source hashes unchanged"
+  ],
+  "glyphComparisons": 1344,
+  "outputsSha256": {
+    "runtime.json": "f87efcb2b744d71cdced7170922cefca5e05f7704c40f5f99b98719da802c489",
+    "provenance.json": "bec6d03be7d4a6dbf1ef837eea0f3039ae7e44f2653c6c1cf66241699dd8d644",
+    "cursor-3.png": "cbd9223b4065b09bcf39e7b4241287149213845badb319250a84b55c76c9d30b",
+    "tooltip-3-980.png": "65b1b2054ac320974a77a651e090505207c880e2c401b18d4a14b1d8fb36524e",
+    "tooltip-3-979.png": "a80fa6505116a7d0d01703ba1ccbc6e24fcc099df3f49fe312f4acb622b65555",
+    "tooltip-3-978.png": "5d2b243d29eef2e26f9966a04b27e61499a6642fc0dd0d61759aff777ce40f7e",
+    "title-3.png": "33b9ea1f9ed79b178dba4afd911138a96de494ee6e4dca7279bbbfd1aa627b3b",
+    "tooltip-font-p.png": "c84257b8de7bba2b60727c61684e5d035f2d23807c5d83485f0558bf86d42e62",
+    "title-font-p.png": "e327c4b8419d680637f2bded4e503ece8b5efa24b349df1cbfb716310a79c080",
+    "cursor-2.png": "cbd9223b4065b09bcf39e7b4241287149213845badb319250a84b55c76c9d30b",
+    "tooltip-2-980.png": "65b1b2054ac320974a77a651e090505207c880e2c401b18d4a14b1d8fb36524e",
+    "tooltip-2-979.png": "a80fa6505116a7d0d01703ba1ccbc6e24fcc099df3f49fe312f4acb622b65555",
+    "tooltip-2-978.png": "5d2b243d29eef2e26f9966a04b27e61499a6642fc0dd0d61759aff777ce40f7e",
+    "title-2.png": "93c4a25fda6caa8bee0e3e212bfaaca98b18a399cb2aa1e77cf076b1c44721fa",
+    "tooltip-font-s.png": "c84257b8de7bba2b60727c61684e5d035f2d23807c5d83485f0558bf86d42e62",
+    "title-font-s.png": "e327c4b8419d680637f2bded4e503ece8b5efa24b349df1cbfb716310a79c080",
+    "cursor-1.png": "cbd9223b4065b09bcf39e7b4241287149213845badb319250a84b55c76c9d30b",
+    "tooltip-1-980.png": "65b1b2054ac320974a77a651e090505207c880e2c401b18d4a14b1d8fb36524e",
+    "tooltip-1-979.png": "a80fa6505116a7d0d01703ba1ccbc6e24fcc099df3f49fe312f4acb622b65555",
+    "tooltip-1-978.png": "5d2b243d29eef2e26f9966a04b27e61499a6642fc0dd0d61759aff777ce40f7e",
+    "title-1.png": "c16a84a0e87df328cf8ba999968fbb329cf7ee0697558669083996de4d327fa9",
+    "tooltip-font-c.png": "c84257b8de7bba2b60727c61684e5d035f2d23807c5d83485f0558bf86d42e62",
+    "title-font-c.png": "e327c4b8419d680637f2bded4e503ece8b5efa24b349df1cbfb716310a79c080"
+  },
+  "limits": "No browser, native execution, build or full tests; source semantics require independent review."
+}

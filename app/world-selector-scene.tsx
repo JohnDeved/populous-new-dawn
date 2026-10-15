@@ -30,6 +30,7 @@ export function WorldSelectorScene({
     const motion = new SelectorMotion()
     setFailed(false)
     delete canvas.dataset.ready
+    canvas.dataset.generation = String(generation)
     function fail() {
       if (disposed) return
       broken = true

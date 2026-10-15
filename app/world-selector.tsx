@@ -1,4 +1,4 @@
-import { useState, type KeyboardEvent } from 'react'
+import { useRef, useState, type KeyboardEvent, type CSSProperties } from 'react'
 import {
   openingCampaignMissions,
   openingMissionAvailable,
@@ -6,6 +6,7 @@ import {
 } from './world-selector-data'
 import styles from './world-selector.module.css'
 import { WorldSelectorScene } from './world-selector-scene'
+import { SelectorTitle, SelectorTooltip } from './world-selector-text'
 
 interface Props {
   missions: readonly number[]
@@ -28,8 +29,10 @@ export function WorldSelector({
   onBack,
   replacingWorld = false,
 }: Props) {
+  const container = useRef<HTMLElement>(null)
   const [selected, setSelected] = useState(() => openingRecommendedMission(completed))
   const [allMissions, setAllMissions] = useState(false)
+  const [compatibility, setCompatibility] = useState(false)
   const [failedArt, setFailedArt] = useState<string[]>([])
   const panelArt = `/original/world-selector/panel/${selected}-`
   const artFailed = failedArt.includes(panelArt)
@@ -55,21 +58,83 @@ export function WorldSelector({
   }
 
   return (
-    <section className={styles.selector} aria-label="World selection">
-      <header className={styles.header}>
-        <div>
-          <h2>Select Level</h2>
-        </div>
-        {onBack && <button onClick={onBack}>Back</button>}
-      </header>
-      <div className={styles.tabs}>
-        <button aria-pressed={!allMissions} onClick={() => setAllMissions(false)}>
-          Campaign worlds
-        </button>
-        <button aria-pressed={allMissions} onClick={() => setAllMissions(true)}>
-          All missions
-        </button>
-      </div>
+    <section
+      ref={container}
+      className={`${styles.selector} ${!allMissions ? styles.nativePointer : ''}`}
+      aria-label="World selection"
+      style={
+        {
+          '--selector-cursor': `url("/original/world-selector/text/cursor-${selected}.png") 0 0`,
+        } as CSSProperties
+      }
+    >
+      <h2 className={styles.visuallyHidden}>Select Level</h2>
+      <button
+        className={styles.compatibilityToggle}
+        aria-expanded={compatibility}
+        aria-controls="selector-browser-controls"
+        onClick={() => setCompatibility(value => !value)}
+      >
+        Browser controls
+      </button>
+      {compatibility && (
+        <section
+          id="selector-browser-controls"
+          className={styles.compatibility}
+          aria-label="Browser compatibility controls"
+        >
+          <p>Browser compatibility controls</p>
+          <div className={styles.tabs}>
+            <button
+              aria-pressed={!allMissions}
+              onClick={() => {
+                setAllMissions(false)
+                setCompatibility(false)
+              }}
+            >
+              Campaign worlds
+            </button>
+            <button
+              aria-pressed={allMissions}
+              onClick={() => {
+                setAllMissions(true)
+                setCompatibility(false)
+              }}
+            >
+              All missions
+            </button>
+          </div>
+          <label>
+            Inspect campaign world
+            <select
+              aria-label="Inspect campaign world"
+              value={selected}
+              onChange={event => {
+                setSelected(Number(event.target.value))
+                setAllMissions(false)
+              }}
+            >
+              {openingCampaignMissions.map(mission => (
+                <option key={mission} value={mission}>
+                  Mission {mission} ·{' '}
+                  {completed.includes(mission)
+                    ? 'Completed'
+                    : openingMissionAvailable(mission, completed)
+                      ? 'Available'
+                      : 'Locked'}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className={styles.compatibilityActions}>
+            <button onClick={onTutorial}>Tutorial</button>
+            {hasCheckpoint && <button onClick={onLoad}>Load Game</button>}
+            {onBack && <button onClick={onBack}>Back</button>}
+          </div>
+          <p role="status">{status}</p>
+          {replacingWorld && <p>Starting a mission replaces the current world.</p>}
+        </section>
+      )}
       {allMissions ? (
         <section className={styles.direct} aria-label="All missions">
           <h3>Choose any playable mission</h3>
@@ -93,30 +158,11 @@ export function WorldSelector({
             mission={selected}
             progressionMission={openingRecommendedMission(completed)}
           />
-          <div className={styles.worldChoices} aria-label="Choose campaign world">
-            {openingCampaignMissions.map(mission => {
-              const unlocked = openingMissionAvailable(mission, completed)
-              let label = 'Locked'
-              if (completed.includes(mission)) label = 'Completed ✓'
-              else if (unlocked) label = 'Available'
-              return (
-                <button
-                  key={mission}
-                  autoFocus={!hasCheckpoint && mission === selected}
-                  aria-pressed={mission === selected}
-                  aria-label={`Select Mission ${mission}`}
-                  onKeyDown={navigate}
-                  onClick={() => setSelected(mission)}
-                >
-                  <strong>Mission {mission}</strong>
-                  <span>{label}</span>
-                </button>
-              )
-            })}
-          </div>
           <div className={styles.selectedTitle}>
-            <p role="status">{status}</p>
-            <h3>Mission {selected}</h3>
+            <p role="status" className={available ? styles.visuallyHidden : styles.lockedStatus}>
+              {status}
+            </p>
+            <SelectorTitle mission={selected} />
           </div>
           <div
             className={`${styles.panel} ${artFailed ? styles.artFallback : ''}`}
@@ -132,7 +178,21 @@ export function WorldSelector({
                   className={styles.panelGlyph}
                   aria-label={`Panel Mission ${mission}${completed.includes(mission) ? ', completed' : ''}`}
                   aria-pressed={mission === selected}
-                  title={`Mission ${mission}`}
+                  autoFocus={mission === selected}
+                  aria-description={
+                    completed.includes(mission)
+                      ? 'Completed, ready to replay'
+                      : openingMissionAvailable(mission, completed)
+                        ? 'Available'
+                        : `Locked, complete Mission ${mission - 1} to continue`
+                  }
+                  data-selector-tooltip={
+                    openingMissionAvailable(mission, completed)
+                      ? completed.includes(mission)
+                        ? 980
+                        : 979
+                      : undefined
+                  }
                   onKeyDown={navigate}
                   onClick={() => setSelected(mission)}
                   style={{ left: `calc(var(--panel-width) * ${28 + (mission - 1) * 20} / 640)` }}
@@ -150,25 +210,18 @@ export function WorldSelector({
             <button
               className={styles.start}
               disabled={!available}
+              data-selector-tooltip={available ? 978 : undefined}
               aria-label={isCompleted ? `Replay Mission ${selected}` : `Start Mission ${selected}`}
               onKeyDown={navigate}
               onClick={() => onStart(selected)}
             >
               {!artFailed && <img src={`${panelArt}10.png`} alt="" onError={failArt} />}
-              <span>{artFailed ? 'Start' : 'Launch'}</span>
+              <span className={artFailed ? undefined : styles.visuallyHidden}>Start</span>
             </button>
           </div>
+          <SelectorTooltip mission={selected} container={container} />
         </>
       )}
-      <footer className={styles.footer}>
-        <button onClick={onTutorial}>Tutorial</button>
-        {hasCheckpoint && (
-          <button autoFocus onClick={onLoad}>
-            Load Game
-          </button>
-        )}
-        {replacingWorld && <p>Starting a mission replaces the current world.</p>}
-      </footer>
     </section>
   )
 }

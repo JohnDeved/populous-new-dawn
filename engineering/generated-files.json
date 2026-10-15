@@ -62,6 +62,7 @@
         "scripts/import-frontend.py",
         "scripts/import-options.py",
         "scripts/import-world-selector-panel.py",
+        "scripts/import-world-selector-text.py",
         "scripts/import-level.py",
         "scripts/import-messages.py",
         "scripts/import-script.py",
@@ -78,6 +79,7 @@
       ],
       "inputs": ["references/native-assets.md", "decomp/sections.tsv"],
       "outputs": [
+        { "path": "public/original/world-selector/text", "type": "directory", "tracked": true, "protected": true, "producer": "scripts/import-world-selector-text.py" },
         { "path": "public/original/world-selector/panel", "type": "directory", "tracked": true, "protected": true, "producer": "scripts/import-world-selector-panel.py" },
         { "path": "app/original-options-art.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-options.py" },
         { "path": "public/original/options", "type": "directory", "tracked": true, "protected": true, "producer": "scripts/import-options.py" },
