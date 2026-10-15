@@ -1129,18 +1129,44 @@ test('computer attack exhausts native scans and retreats below its surviving-mem
  stepAttackTask(ai,0,input);assert.equal(task.flags&1,0);
 });
 
-test('computer attack pool exhaustion skips hostile dispatch and retires through native empty scans',async()=>{
+test('computer attack pool exhaustion preserves live targets, then retires only after genuinely empty scans',async()=>{
  const {requestAttack}=await import('../app/computer.ts');
  const {currentPersonOrder}=await import('../app/person-orders.ts');
+ const {stepComputerTasks}=await import('../app/computer-runtime.ts');
  const w=createWorld(),members=w.units.filter(u=>u.team==='red'&&u.kind!=='shaman').slice(0,3);
  requestAttack(w.ai,level.markers[3],3,3,999,[100,0,0,0,0,0],0,true,1);
- const task=w.ai.tasks.find(t=>t.type===20);task.phase=15;task.members=members.map(u=>u.id);w.ai.cursor=w.ai.tasks.indexOf(task);
+ const task=w.ai.tasks.find(t=>t.type===20),index=w.ai.tasks.indexOf(task);
+ task.phase=15;task.members=members.map(u=>u.id);w.ai.cursor=index;
  for(let id=1;id<w.buildingOrders.records.length;id++)w.buildingOrders.records[id].references=1;
  w.buildingOrders.active=799;tick(w,1/12);
  assert.equal(task.phase,16);assert.ok(members.every(u=>currentPersonOrder(w.buildingOrders,u.native)?.model!==19));
- until(w,()=>!(task.flags&1),10);assert.equal(task.retries,33);
+ // Supplied phase16 inputs isolate target collection from failed order allocation.
+ // Static 0x4cc14a collects targets before member processing at 0x4cc172.
+ const enemy=w.units.find(u=>u.team==='blue'&&u.kind==='shaman'),position=nativePosition(w,enemy);
+ assert.ok(enemy.hp>0&&enemy.inside===null&&!enemy.flight&&enemy.native?.state!==23);
+ task.entity=0;task.target=((position.x>>>8)&254)|(position.y&0xfe00);
+ const target=task.target,random=w.randomState;
+ const visit=()=>{w.ai.cursor=index;stepComputerTasks(w,w.activeCampaignTribe);};
+ for(let n=0;n<40;n++)visit();
+ assert.deepEqual([task.phase,task.retries,task.target,w.randomState],[16,0,target,random]);
+ assert.ok(members.every(u=>currentPersonOrder(w.buildingOrders,u.native)?.model!==19));
+ // Preserve ordinary member evolution before testing staging cleanup.
+ for(let n=0;n<40;n++){tick(w,1/12);assert.deepEqual([task.phase,task.retries],[16,0]);}
+ // Make every possible target genuinely ineligible, rather than treating a full
+ // order pool as an empty target area. These are supplied inputs, not live deaths.
+ const emptyRandom=w.randomState;
+ const targets=[...w.units,...w.buildings].filter(o=>o.team==='blue').map(o=>[o,o.hp]);
+ for(const [object] of targets)object.hp=0;
+ for(let retry=1;retry<=32;retry++){visit();assert.deepEqual([task.phase,task.retries],[16,retry]);}
+ visit();assert.deepEqual([task.phase,task.fallback,task.retries],[6,23,33]);
+ assert.notEqual(w.randomState,emptyRandom);
+ // Restore supplied health before ordinary ticks so this control cannot trigger
+ // victory/defeat instead of exercising the original bounded cleanup path.
+ for(const [object,hp] of targets)object.hp=hp;
+ until(w,()=>!(task.flags&1),10);
+ assert.equal(task.retries,33);
  requestAttack(w.ai,task.origin,3,1,999,w.ai.attributes.slice(11,17),0,true,1);
- assert.ok(w.ai.tasks.some(t=>t.flags&1&&t.type===20),'the exhausted command pool does not leak a task slot');
+ assert.ok(w.ai.tasks.some(t=>t.flags&1&&t.type===20),'the retired task slot is reusable');
 });
 
 test('queued training keeps its selection lock until issuing the order and frees its slot after arrival', async () => {

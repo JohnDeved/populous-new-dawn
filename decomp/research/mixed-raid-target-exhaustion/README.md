@@ -51,3 +51,10 @@ regressions, not original-executable or full native composition evidence.
 
 This does not change the separate newborn update, award parity, or resolve the
 paused Mission19 health-wrap investigation.
+
+The command-pool exhaustion regression also distinguishes a failed order allocation
+from empty target collection: nearby eligible targets keep phase16/retry0 through
+supplied visits and ordinary turns. Only explicitly ineligible target inputs permit
+32 retries and the33rd staging return; bounded ordinary cleanup and task-slot reuse
+remain required. The raid collector's pre-existing radius/flight-filter differences
+from the original helper remain separate work and are not certified by this fix.
