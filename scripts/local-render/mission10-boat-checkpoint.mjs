@@ -95,7 +95,7 @@ export default async function ({ page, openMission, output, receipt, observeChec
         try { window.boatLoadBoundary = { version: 1, world: structuredClone(world) } } catch (e) { window.boatLoadError = String(e) } finally { unsubscribe() }
       })
     })
-    await page.getByRole('dialog', { name: 'Start game', exact: true }).getByRole('button', { name: 'Load Game', exact: true }).click()
+    await page.getByRole('dialog', { name: 'Main menu', exact: true }).getByRole('button', { name: 'Load Game', exact: true }).click()
     assert.equal(await page.evaluate(() => window.boatLoadError), null)
     const loaded = await page.evaluate(checkpointObservation, { observationName: 'boatLoadBoundary' })
     for (const key of ['level','turn','time','actorsSha256','terrainSha256','stockSha256']) assert.deepEqual(loaded[key], saved[key], `Load boundary ${key}`)

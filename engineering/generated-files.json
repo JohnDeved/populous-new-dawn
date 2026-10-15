@@ -59,6 +59,7 @@
       },
       "callers": [
         "scripts/import-original.py",
+        "scripts/import-frontend.py",
         "scripts/import-level.py",
         "scripts/import-messages.py",
         "scripts/import-script.py",
@@ -75,6 +76,8 @@
       ],
       "inputs": ["references/native-assets.md", "decomp/sections.tsv"],
       "outputs": [
+        { "path": "app/original-frontend.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-frontend.py" },
+        { "path": "public/original/frontend", "type": "directory", "tracked": true, "protected": true, "producer": "scripts/import-frontend.py" },
         { "path": "app/original-temple-acquisition.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-temple-acquisition.py" },
         { "path": "public/original/temple-model-p.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-temple-acquisition.py" },
         { "path": "public/original/temple-sparkles-p.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-temple-acquisition.py" },

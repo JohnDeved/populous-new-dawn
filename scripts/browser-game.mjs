@@ -1,6 +1,9 @@
 // Explicit public-UI setup for checks that start an arbitrary mission.
 // Campaign progression acceptance must use Select Mission + Start instead.
 export async function showAllMissions(page) {
+  await page.getByRole('dialog', { name: /^(Main menu|Start game)$/ }).waitFor({ state: 'visible' })
+  const mainMenu = page.getByRole('dialog', { name: 'Main menu', exact: true })
+  if (await mainMenu.isVisible()) await mainMenu.getByRole('button', { name: 'New Game', exact: true }).click()
   const startup = page.getByRole('dialog', { name: 'Start game', exact: true })
   await startup.waitFor({ state: 'visible' })
   const allMissions = startup.getByRole('button', { name: 'All missions', exact: true })

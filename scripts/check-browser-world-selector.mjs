@@ -6,6 +6,7 @@ import { pathToFileURL } from 'node:url'
 // do not use the direct-access openMission helper.
 export default async function checkWorldSelector({ page, url, root, output }) {
   const dialog = page.getByRole('dialog', { name: 'Start game', exact: true })
+  await page.getByRole('dialog', { name: 'Main menu', exact: true }).getByRole('button', { name: 'New Game', exact: true }).click()
   await dialog.waitFor({ state: 'visible' })
   await page.getByRole('button', { name: 'Select Mission 2', exact: true }).click()
   assert.equal(await page.getByRole('button', { name: 'Start Mission 2', exact: true }).isDisabled(), true)
@@ -58,6 +59,7 @@ export default async function checkWorldSelector({ page, url, root, output }) {
     database.close()
   })
   await page.goto(url,{waitUntil:'networkidle'})
+  await page.getByRole('button', { name: 'New Game', exact: true }).click()
   await page.getByRole('button',{name:'Start Mission 3',exact:true}).waitFor({state:'visible'})
   assert.equal(await page.getByRole('button',{name:'Start Mission 3',exact:true}).isEnabled(),true)
   await page.getByRole('button',{name:'Select Mission 3',exact:true}).focus()

@@ -202,7 +202,7 @@ export default async function mission3BuildingScreen(context, continuation = nul
       const click = async () => {
         if (startup)
           await page
-            .getByRole('dialog', { name: 'Start game', exact: true })
+            .getByRole('dialog', { name: 'Main menu', exact: true })
             .getByRole('button', { name: 'Load Game', exact: true })
             .click()
         else await page.getByRole('button', { name, exact: true }).click()
