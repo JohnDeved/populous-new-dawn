@@ -1,7 +1,8 @@
 # Mission 7 Chumara first automatic Convert task
 
 Refs #103. Base4711317e, first producer integration0fc9dfc8. This is a bounded
-first-Convert integration, not full M7 AI, recurring spell policy, or player victory.
+first-Convert integration with its authored usage-limit enablement, not full M7 AI,
+all-spell interval policy, or player victory.
 
 ## Static ownership
 
@@ -66,10 +67,62 @@ Raw source-bound receipts and all failures are retained under the task evidence
 bundle. Final standard gates and rendered/settlement/player QA are separate
 requirements, not established by these focused tests.
 
+## Authored usage-limit dependency
+
+A separately tested minimal projection retains CPSCR021 slices298:310,
+374:380 and444:447: EVERY255 offset132, IF own population<73, both1172 ON
+commands and original closures. For tribe2 the first visits are122 and378.
+Four real-caller tests fail without the projection and pass with it, covering
+both branches/boundary, surrounding nondue turns, unchanged interval arrays,
+four-use refusal and reopening after64 recovery calls. All1173 model2..16
+interval commands remain excluded; Convert17 retains original default interval1.
+
+The natural first cast now records used17=1/remaining17=64; first-cast timing,
+newborn identities and complete checkpoint twins are unchanged. Five casts by
+8000 do not prove excess usage: the counters recover between sufficiently spaced
+casts. The corrected enablement restores accounting/permission rather than
+arbitrarily limiting total mission casts to four.
+
+## Settlement consequence
+
+The former exact8000 snapshot assertion fails with no Preacher yet. A paired
+shipped-clock diagnostic bypasses ONLY the M7 producer id0 (leaving dispatcher,
+legacy suppression, Tower base and1172 unchanged). Combined: Temple plan5188,
+first log/stage0.125 at5779, stages0.25..1 at8692,8950,9204,9478,9740,9994,10280;
+first Preacher10524. Producer-bypassed control: plan5455, completion6764,
+first Preacher7224, five Preachers8000. Combined builder196 is the first converted
+Brave, with newborn877 and original8 in the builder slots. They are alive and
+carry actual model6 building orders; timber progresses1→8 to completion.
+This establishes changed roster/task/RNG consequences and ongoing construction,
+not a permanent inability to produce a Temple or Preachers. Raw old8000 failure
+and paired diagnostic source fingerprints remain retained.
+
 ## Explicit limits
 
-CPSCR021 words298..446 remain excluded. Their EVERY255 offset132 executes1172
-ON (flag0x40000 usage limits), with1173 operands models2..16, not Convert17.
-The first Convert with used17=0 is unaffected. Do not claim complete authored
-ongoing cadence or permission from this first-task integration. No raids or
-Wildman wandering are added. M19 canonical turn32099 remains unchanged.
+Other spell intervals (1173models2..16), later raids and native Wildman wandering
+remain unbound. The bounded1172 projection is not full M7 spell/AI parity.
+Rendered first AI conversion, player HUD/pointer Convert/recruitment, and public
+checkpoint checks are separate from ordinary full-mission victory. No current
+full victory claim is made. M19 canonical turn32099 remains unchanged.
+
+## Integration blocker: coastal builder recovery (#456)
+
+The additional first-log trace invalidates a timing-only interpretation. Builder1127
+selects healthy four-log tree146 at5800. At5819 its remaining path is(127,127),
+with native goal34560/30976 and speed82. The next step at5820 is unsupported
+coastal category10/height0, so the compatibility movement branch clears the path.
+The retained builder then waits at its unchanged position until phase24's native
+1024 countdown expires at6824, retries the same tree, and is reassigned by training
+at7185. This is an exposed movement/recovery gap, not grounds to weaken8000.
+
+`00496750`'s approach timer and `004392a0` unchanged-goal checks are retained.
+The missing boundary is shared person motion/recovery before state dispatch:
+`004d32b0` calls `004d42a0`, whose high flags2 replan invokes `004e9d80` unless
+turning. The builder adapter instead detaches its person and uses compatibility
+path following. Unconditional replanning is not a proven replacement for the
+native recovery/flags/RNG/alias lifecycle.
+
+[Issue456](https://github.com/JohnDeved/populous-new-dawn/issues/456) tracks the
+separate prerequisite. PR455 remains draft and blocked; the original8000 settlement
+assertion is unchanged. No full-suite/component/build gates were started for this
+blocked candidate, and no merge or full-Mission7 completion is claimed.

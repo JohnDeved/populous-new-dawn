@@ -41,8 +41,10 @@ for (let i = 0; i < 2500 && !retired; i++) {
     events.push({ turn: w.turn, phase: 8, x: shaman.x, z: shaman.z })
   }
   if (w.spellCasts[2][17] !== before.casts) {
-    events.push({ turn: w.turn, cast: w.spellCasts[2][17], manaBefore: before.mana, manaAfter: w.manaTribes[2].mana, stock: w.manaWorld.spells[2].stocks[17] })
+    events.push({ turn: w.turn, cast: w.spellCasts[2][17], manaBefore: before.mana, manaAfter: w.manaTribes[2].mana, stock: w.manaWorld.spells[2].stocks[17], usage: { ...w.castingTribes[2].spells[17] } })
     assert.ok(w.manaTribes[2].mana < before.mana)
+    assert.equal(w.ai.flags & 0x40000, 0x40000)
+    assert.deepEqual(w.castingTribes[2].spells[17], { used: 1, interval: 1, remaining: 64 })
   }
   retired = !!firstTask && !(firstTask.flags & 1) && w.spellCasts[2][17] > 0
 }
