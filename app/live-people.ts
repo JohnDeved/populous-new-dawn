@@ -1122,15 +1122,15 @@ export function stepLiveBuilderPhysics(w: World, u: Unit, p: LivePerson, control
   // World effects and controller queries observe this completed physical step.
   Object.assign(u, browserPosition(p))
   if (p.flags2 & 0x80000) u.flight = p
-  if (p.state !== 10) {
+  if (p.state === 10) {
+    prepared.commit()
+    controller()
+  } else {
     // Dispatch an actual preparation/landing transition on the same visit,
     // without another physics step or overwriting its new state next turn.
     releaseTasks(w, u, true, true)
     u.native = p
     dispatchLivePhysics(w, u, p, previousState, prepared)
-  } else {
-    prepared.commit()
-    controller()
   }
   publishLivePhysics(u, p)
   if (u.flight === p) finishLiveImpulse(w, u, p)
