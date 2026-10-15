@@ -51,7 +51,8 @@ export default async function({page,context,output,root,receipt}) {
  passed('native-slider-geometry-modern-ultrawide-small-height-DPR2')
  await page.setViewportSize({width:1280,height:960});await button('Back').click()
  const {bindGame}=await import(pathToFileURL(resolve(root,'scripts/browser-game.mjs')).href)
- await button('New Game').click();await button('Start Mission 1').click();await bindGame(page)
+ await page.setViewportSize({width:800,height:600});await button('New Game').click();await button('Start Mission 1').click();await bindGame(page)
+ const guard=page.getByRole('button',{name:'Continue anyway',exact:false});if(await guard.isVisible())await guard.click();await page.setViewportSize({width:1280,height:960})
  await page.waitForFunction(()=>window.testStore.getWorld().flyby.flags&1||!window.testStore.getWorld().inputMask)
  await page.evaluate(()=>document.querySelector('.skip-introduction')?.click())
  await page.waitForFunction(()=>!window.testStore.getWorld().inputMask)
@@ -65,8 +66,9 @@ export default async function({page,context,output,root,receipt}) {
  assert.equal(await page.evaluate(()=>window.optionsAudio.paused),true)
  assert.equal(await page.evaluate(()=>window.optionsAudio.context.state),'suspended')
  await setVolume('Master volume',7);await setVolume('Music volume',9)
+ passed('shared-volumes-world-camera-frozen-and-audio-context-suspended')
  assert.equal(await page.evaluate(()=>window.optionsAudio.context.state),'suspended')
- for(const [width,height] of [[640,480],[1280,960],[1920,1080],[3440,1440]]){
+ for(const [width,height] of [[640,480],[1280,960],[1920,1080],[2560,720]]){
   await page.setViewportSize({width,height});await page.mouse.move(-5,-5);await page.waitForTimeout(80)
   await page.screenshot({path:resolve(output,`ingame-sound-${width}x${height}.png`)})
  }
