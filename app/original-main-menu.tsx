@@ -16,7 +16,7 @@ interface Props {
   options: ReactNode
 }
 
-function MenuText({
+export function MenuText({
   text,
   highlighted,
   ready,

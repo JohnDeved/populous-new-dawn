@@ -506,9 +506,10 @@ export function createGameStore() {
       }
       return !!checkpoint
     },
-    saveCheckpoint: async () => {
+    saveCheckpoint: async (paused = world.paused) => {
       rebuildSecondaryLists(world.secondaryEffects)
       const saved = structuredClone(world)
+      saved.paused = paused
       checkpoint = saved
       update()
       try {
