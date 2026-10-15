@@ -27,3 +27,14 @@ are retained verbatim; empty page-error arrays do not convert them to passes.
 Sandboxed Chrome 154 / ANGLE software renderer. No original-runtime pixel parity,
 unsafe browser flags, forced production animation freezes or hardware FPS claim.
 The final candidate also needs its tooltip/fallback repair checks and standard gates.
+
+## Text diagnostic at `22fdd9ee`
+
+The first live text attempt failed the same-ID observation without persisting its
+epochs, so its cause remains inconclusive. The external raw-timestamp diagnostic
+passed the entire unchanged episode and assertions: title/cursor, strict >500 ms,
+same-ID retention, changed-ID reset, keyboard locked selection, resize/real-scroll/
+leave/unmount clearing and title/panel fallbacks. One timer survived a second move
+360.8 ms after the first, with insertion at 510.8 ms total and no invalidations.
+The later accessibility-only repair replaces aria-description with useId-scoped
+aria-describedby hidden status text; it does not change pixels, timing or controls.

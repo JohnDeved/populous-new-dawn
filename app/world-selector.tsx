@@ -1,4 +1,4 @@
-import { useRef, useState, type KeyboardEvent, type CSSProperties } from 'react'
+import { useId, useRef, useState, type KeyboardEvent, type CSSProperties } from 'react'
 import {
   openingCampaignMissions,
   openingMissionAvailable,
@@ -30,6 +30,7 @@ export function WorldSelector({
   replacingWorld = false,
 }: Props) {
   const container = useRef<HTMLElement>(null)
+  const descriptionId = useId()
   const [selected, setSelected] = useState(() => openingRecommendedMission(completed))
   const [allMissions, setAllMissions] = useState(false)
   const [compatibility, setCompatibility] = useState(false)
@@ -182,13 +183,7 @@ export function WorldSelector({
                   aria-label={`Panel Mission ${mission}${completed.includes(mission) ? ', completed' : ''}`}
                   aria-pressed={mission === selected}
                   autoFocus={mission === selected}
-                  aria-description={
-                    completed.includes(mission)
-                      ? 'Completed, ready to replay'
-                      : openingMissionAvailable(mission, completed)
-                        ? 'Available'
-                        : `Locked, complete Mission ${mission - 1} to continue`
-                  }
+                  aria-describedby={`${descriptionId}-${mission}`}
                   data-selector-tooltip={
                     openingMissionAvailable(mission, completed)
                       ? completed.includes(mission)
@@ -200,6 +195,13 @@ export function WorldSelector({
                   onClick={() => setSelected(mission)}
                   style={{ left: `calc(var(--panel-width) * ${28 + (mission - 1) * 20} / 640)` }}
                 >
+                  <span id={`${descriptionId}-${mission}`} className={styles.visuallyHidden}>
+                    {completed.includes(mission)
+                      ? 'Completed, ready to replay'
+                      : openingMissionAvailable(mission, completed)
+                        ? 'Available'
+                        : `Locked, complete Mission ${mission - 1} to continue`}
+                  </span>
                   {artFailed && <span>{mission}</span>}
                   {!artFailed && openingMissionAvailable(mission, completed) && (
                     <img

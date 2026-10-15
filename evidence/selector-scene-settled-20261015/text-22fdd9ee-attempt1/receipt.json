@@ -1,0 +1,66 @@
+{
+  "startedAt": "2026-10-15T21:37:56.423Z",
+  "source": {
+    "root": "/tmp/populous-selector-scene-457",
+    "commit": "22fdd9eed1c15974f92ea6e0df0eb16096f382a3",
+    "tree": "cebb8775c5f68c1431d7c2c804c41849a6acbe73",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "c5a88ea979f84d0d04e46a1d8e08ef8258723c66b1043e6b93da4c15c12e81c1"
+  },
+  "launch": {
+    "executablePath": "/workspace/scratch/69fd8163d94e/browser-recovery-20261014/chrome-headless-shell-linux64/chrome-headless-shell",
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": true,
+    "args": [
+      "--remote-debugging-pipe"
+    ],
+    "timeout": 30000
+  },
+  "softwarePerformanceOnly": true,
+  "errors": [],
+  "warnings": [
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0xfec007b8000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0xfec007b8000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0xfec007b8000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0xfec007b8000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+  ],
+  "status": "failed",
+  "readiness": {
+    "timeoutMs": 60000,
+    "attempts": 14,
+    "first": {
+      "elapsedMs": 26152,
+      "pending": false,
+      "error": {
+        "name": "TimeoutError",
+        "message": "The operation was aborted due to timeout",
+        "cause": ""
+      }
+    },
+    "last": {
+      "elapsedMs": 54202,
+      "pending": false,
+      "status": 200,
+      "ok": true
+    },
+    "elapsedMs": 54202,
+    "listening": true,
+    "ready": true
+  },
+  "browserVersion": "154.0.8037.92",
+  "failure": "AssertionError [ERR_ASSERTION]: Same-ID pointer movement must retain the original hover start\n    at default (file:///tmp/populous-selector-scene-457/scripts/check-browser-world-scene-text.mjs:68:9)\n    at async runLocalBrowser (file:///tmp/populous-selector-scene-457/scripts/local-render/harness.mjs:400:20)\n    at async file:///tmp/populous-selector-scene-457/scripts/local-render/harness.mjs:593:21",
+  "finishedAt": "2026-10-15T21:39:34.619Z",
+  "sourceAfter": {
+    "root": "/tmp/populous-selector-scene-457",
+    "commit": "22fdd9eed1c15974f92ea6e0df0eb16096f382a3",
+    "tree": "cebb8775c5f68c1431d7c2c804c41849a6acbe73",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "c5a88ea979f84d0d04e46a1d8e08ef8258723c66b1043e6b93da4c15c12e81c1"
+  }
+}

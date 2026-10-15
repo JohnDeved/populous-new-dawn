@@ -1,0 +1,18 @@
+[
+  {
+    "stage": "start",
+    "at": "2026-10-15T21:39:17.980Z"
+  },
+  {
+    "stage": "selector ready; checking title geometry/cursors",
+    "at": "2026-10-15T21:39:29.195Z"
+  },
+  {
+    "stage": "titles/cursors passed; installing tooltip epoch observer",
+    "at": "2026-10-15T21:39:32.655Z"
+  },
+  {
+    "stage": "testing same-ID >500ms hover",
+    "at": "2026-10-15T21:39:32.777Z"
+  }
+]
