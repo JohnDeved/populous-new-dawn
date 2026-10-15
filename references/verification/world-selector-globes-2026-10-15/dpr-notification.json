@@ -1,0 +1,16 @@
+{
+  "dpr": 4,
+  "matchesOld": false,
+  "matchesFresh2": false,
+  "matchesFresh4": true,
+  "events": [
+    {
+      "name": "device-box",
+      "t": 26350.40000000596,
+      "dpr": 2,
+      "css": 225.265625,
+      "backing": 451,
+      "box": 226
+    }
+  ]
+}

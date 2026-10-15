@@ -32,3 +32,14 @@ the synchronous prototype's 101–126ms static-raster microbenchmark cost. These
 different measurements: callback latency versus total CPU throughput, not a
 claimed total-work speedup. Scanline batches preserve exact raster output and
 cancel superseded resize/mission work; the prior complete image remains visible.
+
+## Headless DPR notification boundary
+
+`dpr-notification-receipt.json` and `dpr-notification.json` retain the focused
+observation at `ea046be2cc99c16ef6b9f144813b28ae95cf5021`. A settled CDP DPR2→4
+change updated `devicePixelRatio` and queried resolution matches, but emitted no
+resolution-change or window-resize event. Device-pixel ResizeObserver reported
+226 physical pixels for 225.265625 CSS pixels even at emulated DPR2 and did not
+notify at DPR4. This is not proof of normal monitor-transition behavior. Final
+DPR2/4 raster stress checks include a real CSS resize; live monitor-DPR transitions
+remain unverified. Failed DPR-only attempts are retained in task evidence.

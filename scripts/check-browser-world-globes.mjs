@@ -46,7 +46,10 @@ export default async function({page,context,output,receipt}) {
  await page.setViewportSize({width:1024,height:768})
  const cdp=await context.newCDPSession(page)
  await cdp.send('Emulation.setDeviceMetricsOverride',{width:1024,height:768,deviceScaleFactor:2,mobile:false})
- await waitForBacking('dpr2',2)
+ // CDP changes ratio without reliably emitting resolution-change events.
+ // A real CSS resize verifies backing adaptation; live monitor changes remain unverified.
+ await cdp.send('Emulation.setDeviceMetricsOverride',{width:1025,height:768,deviceScaleFactor:2,mobile:false})
+ await waitForBacking('dpr2-with-resize',2)
  samples.push(await globe(1).evaluate(c=>({dpr:devicePixelRatio,width:c.width,css:c.getBoundingClientRect().width})))
  const shot=await cdp.send('Page.captureScreenshot',{format:'png',fromSurface:true,captureBeyondViewport:false})
  writeFileSync(resolve(output,'globe-dpr2.png'),Buffer.from(shot.data,'base64'))
@@ -76,7 +79,7 @@ export default async function({page,context,output,receipt}) {
  await page.waitForFunction(()=>document.querySelector('canvas[data-world-globe="1"]').width===1382)
  assert.equal(await page.locator('canvas[data-world-globe]').count(),1)
  await page.evaluate(()=>{window.globeBatchMs=[];window.globeRasterStart=performance.now()})
- await cdp.send('Emulation.setDeviceMetricsOverride',{width:3840,height:2160,deviceScaleFactor:4,mobile:false})
+ await cdp.send('Emulation.setDeviceMetricsOverride',{width:3839,height:2160,deviceScaleFactor:4,mobile:false})
  await waitForBacking('dpr4-cap',4)
  const cap=await page.evaluate(()=>({backing:2048,batchMs:window.globeBatchMs,maxBatchMs:Math.max(...window.globeBatchMs),elapsedMs:performance.now()-window.globeRasterStart}))
  assert.ok(cap.maxBatchMs<50);samples.push(cap)
@@ -114,5 +117,5 @@ export default async function({page,context,output,receipt}) {
  await button('Campaign worlds').click();await globe(2).waitFor()
  await button('Back').click();await button('New Game').click();await globe(1).waitFor()
  assert.deepEqual(receipt.errors.filter(e=>!e.includes('Failed to load resource: net::ERR_FAILED')),[])
- return {samples,checks:['Actual textured mesh pixel coverage','CSS resize including4K and DPR-only change','no focus/pointer overlay','rapid selection and stale-image lifetime','static idle pixels','missing-art fallback and availability','all23 direct access retained','Back/reopen','cooperative4K/DPR2 batch latency','superseded resize and mission generation cancellation'],limits:['Fixed adapted depth/pose and RGB8 bilinear repeat sampler; not original full-scene pixel parity','Headless compositor; no hardware performance claim']}
+ return {samples,checks:['Actual textured mesh pixel coverage','CSS resize including4K and DPR2/4 backing','no focus/pointer overlay','rapid selection and stale-image lifetime','static idle pixels','missing-art fallback and availability','all23 direct access retained','Back/reopen','cooperative4K/DPR2 batch latency','superseded resize and mission generation cancellation'],limits:['Fixed adapted depth/pose and RGB8 bilinear repeat sampler; not original full-scene pixel parity','Headless compositor; no hardware performance claim','CDP-only DPR changes omit browser notifications here; live monitor-DPR transition remains unverified']}
 }
