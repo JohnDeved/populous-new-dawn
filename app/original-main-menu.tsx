@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import assets from './original-frontend.json'
 import styles from './original-main-menu.module.css'
 import { frontendBackground, frontendRowY, frontendScale } from './frontend-composition.ts'
@@ -49,6 +49,8 @@ export function OriginalMainMenu({ hasCheckpoint, onNewGame, onTutorial, onLoad,
   const pixels = useRef<Uint8Array | null>(null)
   const pointer = useRef({ x: 320, y: 240 })
   const animation = useRef(0)
+  const pointerMode = useRef(true)
+  const glowFrame = useRef(0)
   const [hovered, setHovered] = useState<string | null>(null)
   const [focused, setFocused] = useState<string | null>(null)
   const returnFocus = useRef<string | null>(null)
@@ -104,19 +106,37 @@ export function OriginalMainMenu({ hasCheckpoint, onNewGame, onTutorial, onLoad,
       cancelAnimationFrame(animation.current)
     }
   }, [])
-  useEffect(() => {
+  const draw = useCallback(() => {
     const context = canvas.current?.getContext('2d')
     if (context && pixels.current)
       context.putImageData(
         new ImageData(
-          frontendBackground(pixels.current, pointer.current, panel === 'main'),
+          frontendBackground(
+            pixels.current,
+            pointer.current,
+            panel === 'main',
+            pointerMode.current ? glowFrame.current : null
+          ),
           640,
           480
         ),
         0,
         0
       )
-  }, [panel, sourceReady])
+  }, [panel])
+  useEffect(() => {
+    draw()
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const timer = window.setInterval(() => {
+      if (!pointerMode.current || document.hidden) return
+      glowFrame.current = (glowFrame.current + 1) % 8
+      draw()
+    }, 101)
+    return () => {
+      window.clearInterval(timer)
+      cancelAnimationFrame(animation.current)
+    }
+  }, [draw, sourceReady])
   useEffect(() => {
     if (panel === 'main') {
       const previous = Array.from(
@@ -151,6 +171,24 @@ export function OriginalMainMenu({ hasCheckpoint, onNewGame, onTutorial, onLoad,
       ref={dialog}
       className={styles.dialog}
       aria-label="Main menu"
+      data-original-main-menu
+      onKeyDown={event => {
+        pointerMode.current = false
+        draw()
+        if (panel !== 'main' || !['ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return
+        event.preventDefault()
+        const buttons = Array.from(
+          dialog.current?.querySelectorAll<HTMLButtonElement>('nav button') ?? []
+        )
+        const current = buttons.indexOf(document.activeElement as HTMLButtonElement)
+        const next =
+          event.key === 'Home'
+            ? 0
+            : event.key === 'End'
+              ? buttons.length - 1
+              : (current + (event.key === 'ArrowDown' ? 1 : -1) + buttons.length) % buttons.length
+        buttons[next]?.focus()
+      }}
       onCancel={event => {
         event.preventDefault()
         back()
@@ -163,23 +201,16 @@ export function OriginalMainMenu({ hasCheckpoint, onNewGame, onTutorial, onLoad,
           const bounds = event.currentTarget.getBoundingClientRect()
           const x = Math.floor((event.clientX - bounds.left) / scale)
           const y = Math.floor((event.clientY - bounds.top) / scale)
+          if (x !== pointer.current.x || y !== pointer.current.y) pointerMode.current = true
           pointer.current = { x, y }
           cancelAnimationFrame(animation.current)
-          animation.current = requestAnimationFrame(() => {
-            const context = canvas.current?.getContext('2d')
-            if (context && pixels.current)
-              context.putImageData(
-                new ImageData(
-                  frontendBackground(pixels.current, pointer.current, panel === 'main'),
-                  640,
-                  480
-                ),
-                0,
-                0
-              )
-          })
+          animation.current = requestAnimationFrame(draw)
         }}
-        onPointerLeave={() => setHovered(null)}
+        onPointerLeave={() => {
+          setHovered(null)
+          pointerMode.current = false
+          draw()
+        }}
       >
         <canvas
           ref={canvas}

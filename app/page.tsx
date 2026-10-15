@@ -729,7 +729,12 @@ export default function Home() {
   const modeName =
     SPELLS.find(s => s.id === world.mode)?.name ?? BUILDINGS.find(b => b.id === world.mode)?.name
   function blockLoadingInteraction(event: SyntheticEvent) {
-    if (ready || (event.target as Element).closest('.loading-world,[data-world-selector]'))
+    if (
+      ready ||
+      (event.target as Element).closest(
+        '.loading-world,[data-world-selector],[data-original-main-menu]'
+      )
+    )
       return false
     event.preventDefault()
     event.stopPropagation()
@@ -940,7 +945,7 @@ export default function Home() {
         if (
           world.inputMask &&
           !(e.target as Element).closest(
-            '.top-actions,.wordmark,.game-dialog,.campaign-messages,.skip-introduction,.paused-badge,.desktop-recommendation,.loading-world,.end-screen,[data-world-selector]'
+            '.top-actions,.wordmark,.game-dialog,.campaign-messages,.skip-introduction,.paused-badge,.desktop-recommendation,.loading-world,.end-screen,[data-world-selector],[data-original-main-menu]'
           )
         ) {
           e.preventDefault()

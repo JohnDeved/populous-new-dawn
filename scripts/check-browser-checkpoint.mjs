@@ -419,7 +419,6 @@ try {
   await page.reload({ waitUntil: 'networkidle' })
   const startup = page.getByRole('dialog', { name: 'Main menu' })
   await startup.waitFor()
-  await page.getByRole('button', { name: 'Load Game', exact: true }).focus()
   assert.equal(await page.getByRole('button', { name: 'Load Game', exact: true }).evaluate(button => button === document.activeElement), true)
   await page.getByRole('button', { name: 'New Game', exact: true }).click()
   await page.getByRole('button', { name: 'Start Mission 2', exact: true }).waitFor()

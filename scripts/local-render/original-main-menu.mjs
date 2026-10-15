@@ -3,6 +3,7 @@ import {resolve} from 'node:path'
 import {pathToFileURL} from 'node:url'
 
 export default async function({page,browser,url,root,output,receipt}) {
+ const {waitForCheckpointReadback}=await import(pathToFileURL(resolve(root,'scripts/checkpoint-readback.mjs')).href)
  const {bindGame}=await import(pathToFileURL(resolve(root,'scripts/browser-game.mjs')).href)
  const main=page.getByRole('dialog',{name:'Main menu',exact:true})
  const button=name=>page.getByRole('button',{name,exact:true})
@@ -62,6 +63,11 @@ export default async function({page,browser,url,root,output,receipt}) {
  await button('Game settings').click();await button('Save checkpoint').click()
  await page.waitForFunction(()=>[...document.querySelectorAll('button')].some(b=>b.textContent.trim()==='Load checkpoint'&&!b.disabled))
  const saved=await page.evaluate(()=>({level:window.testStore.getWorld().outcome.level,turn:window.testStore.getWorld().turn}))
+ const committed=await waitForCheckpointReadback(()=>page.evaluate(async expected=>{
+  const db=await new Promise((resolve,reject)=>{const r=indexedDB.open('populous-new-dawn',1);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})
+  try {const r=db.transaction('checkpoints','readonly').objectStore('checkpoints').get('latest');const v=await new Promise((resolve,reject)=>{r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});return v?.world?.turn===expected.turn&&v.world.outcome.level===expected.level}finally{db.close()}
+ },saved),{pause:()=>page.waitForTimeout(100)})
+ assert.equal(committed,true)
  await page.reload({waitUntil:'domcontentloaded'});await main.waitFor();await noScene()
  assert.equal(await button('Load Game').getAttribute('aria-disabled'),'false')
  await button('Load Game').click();await bindGame(page)

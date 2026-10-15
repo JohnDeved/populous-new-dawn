@@ -46,7 +46,8 @@ export function fadeMask(target: Uint8Array, source: Uint8Array, mask: Mask, x: 
 export function frontendBackground(
   source: Uint8Array,
   pointer: { x: number; y: number },
-  menu: boolean
+  menu: boolean,
+  glowFrame: number | null = null
 ) {
   if (source.length !== assets.binaryBytes) throw Error('Invalid frontend composition data')
   const indexed = source.slice(0, 640 * 480)
@@ -69,6 +70,10 @@ export function frontendBackground(
   }
   const logo = assets.masks.felgsden[0]
   fadeMask(indexed, source, logo, 173 - ((pointer.x - 320) >> 5), 5 - ((pointer.y - 60) >> 5))
+  if (glowFrame !== null) {
+    const glow = assets.masks.fecursor[glowFrame % assets.masks.fecursor.length]
+    fadeMask(indexed, source, glow, pointer.x - 64, pointer.y - 64)
+  }
   const rgba = new Uint8ClampedArray(640 * 480 * 4)
   for (let i = 0; i < indexed.length; i++) {
     const color = 640 * 480 + indexed[i] * 4

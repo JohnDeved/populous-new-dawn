@@ -46,6 +46,8 @@ test('native shadow composition is deterministic, pointer-dependent, opaque and 
  assert.notDeepEqual(result,frontendBackground(bytes,{x:100,y:100},true))
  assert.notDeepEqual(result,frontendBackground(bytes,pointer,false))
  assert.ok(result.every((n,i)=>i%4!==3||n===255))
+ assert.notDeepEqual(result,frontendBackground(bytes,pointer,true,0))
+ assert.notDeepEqual(frontendBackground(bytes,pointer,true,0),frontendBackground(bytes,pointer,true,1))
  assert.deepEqual(bytes,before)
  assert.throws(()=>frontendBackground(bytes.subarray(1),pointer,true),/Invalid/)
 })
