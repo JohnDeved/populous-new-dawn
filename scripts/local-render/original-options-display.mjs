@@ -6,7 +6,10 @@ export default async function({page,context,root,output,receipt}) {
  const width=Number(process.env.PND_OPTIONS_WIDTH??1920),height=Number(process.env.PND_OPTIONS_HEIGHT??1080),dpr=Number(process.env.PND_OPTIONS_DPR??1)
  const button=name=>page.getByRole('button',{name,exact:true})
  const {bindGame}=await import(pathToFileURL(resolve(root,'scripts/browser-game.mjs')).href)
- await page.setViewportSize({width:800,height:600});await button('New Game').click();await button('Start Mission 1').click();await bindGame(page)
+ await page.setViewportSize({width:800,height:600})
+ // Use the verified shipped Options-to-mission route; direct scene startup can crash this software renderer.
+ await button('Options').click();await button('Sound').click();await page.locator('[data-original-options][data-art-ready="true"]').waitFor();await button('Back').click()
+ await button('New Game').click();await button('Start Mission 1').click();await bindGame(page)
  const guard=page.getByRole('button',{name:'Continue anyway',exact:false});if(await guard.isVisible())await guard.click()
  await page.waitForFunction(()=>window.testStore.getWorld().flyby.flags&1||!window.testStore.getWorld().inputMask)
  await page.evaluate(()=>document.querySelector('.skip-introduction')?.click());await page.waitForFunction(()=>!window.testStore.getWorld().inputMask)
