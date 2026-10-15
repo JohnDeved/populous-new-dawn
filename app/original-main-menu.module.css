@@ -30,7 +30,7 @@
 .background { position: absolute; inset: 0; width: 640px; height: 480px; pointer-events: none; }
 
 .rows button { position: absolute; left: 50%; transform: translateX(-50%); display: flex; align-items: flex-start; justify-content: center; min-width: 200px; height: 29px; padding: 0 8px; margin: 0; background: transparent; border: 0; border-radius: 0; cursor: inherit; }
-.text { display: flex; align-items: flex-start; pointer-events: none; }
+.text { position: absolute; left: 50%; top: 0; display: flex; align-items: flex-start; pointer-events: none; }
 .text i { display: block; flex-shrink: 0;  }
 .rows button:focus-visible { outline: 1px solid #fff1bb; outline-offset: 1px; background: #201a0870; }
 .rows button[aria-disabled='true'] .text { opacity: .5; }

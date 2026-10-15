@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import assets from './original-frontend.json'
 import styles from './original-main-menu.module.css'
-import { frontendBackground, frontendRowY, frontendScale } from './frontend-composition.ts'
+import {
+  frontendBackground,
+  frontendRowY,
+  frontendScale,
+  frontendTextWidth,
+} from './frontend-composition.ts'
 
 interface Props {
   hasCheckpoint: boolean
@@ -23,7 +28,11 @@ function MenuText({
   if (!ready) return <span className={styles.fallback}>{text}</span>
   const bank = highlighted ? assets.banks.fehi33we : assets.banks.feft33we
   return (
-    <span className={styles.text} aria-hidden="true">
+    <span
+      className={styles.text}
+      aria-hidden="true"
+      style={{ transform: `translateX(-${frontendTextWidth(text) >> 1}px)` }}
+    >
       {Array.from(text, (letter, index) => {
         const glyph = bank.rects[letter.charCodeAt(0) - 32]
         return (
@@ -239,7 +248,10 @@ export function OriginalMainMenu({ hasCheckpoint, onNewGame, onTutorial, onLoad,
                 onFocus={() => setFocused(row.label)}
                 onBlur={() => setFocused(null)}
                 title={row.unavailable}
-                style={{ top: frontendRowY(index) }}
+                style={{
+                  top: frontendRowY(index),
+                  width: Math.max(200, 2 * Math.ceil((frontendTextWidth(row.label) + 16) / 2)),
+                }}
                 onClick={() => {
                   if (row.unavailable) return
                   returnFocus.current = row.label

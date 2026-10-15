@@ -1,10 +1,12 @@
 import assert from 'node:assert/strict'
 import {resolve} from 'node:path'
+import {writeFileSync} from 'node:fs'
 import {pathToFileURL} from 'node:url'
 
 export default async function({page,browser,url,root,output,receipt}) {
  const {waitForCheckpointReadback}=await import(pathToFileURL(resolve(root,'scripts/checkpoint-readback.mjs')).href)
  const {bindGame}=await import(pathToFileURL(resolve(root,'scripts/browser-game.mjs')).href)
+ const progress=[];const passed=name=>{progress.push(name);writeFileSync(resolve(output,'progress.json'),JSON.stringify(progress,null,2)+'\n')}
  const main=page.getByRole('dialog',{name:'Main menu',exact:true})
  const button=name=>page.getByRole('button',{name,exact:true})
  const noScene=async()=>assert.equal(await page.locator('.world-viewport canvas').count(),0)
@@ -52,17 +54,24 @@ export default async function({page,browser,url,root,output,receipt}) {
  await page.mouse.move(-5,-5)
  assert.equal(await main.isVisible(),true)
  assert.match(await main.evaluate(el=>getComputedStyle(el).cursor),/pointer\.png.*0 0/)
+ passed('menu-viewports-keyboard-options-back-cancel-glow')
  // Keep the software-WebGL gameplay smoke bounded; menu dimensions were tested above.
  await page.setViewportSize({width:800,height:600})
  await button('Tutorial').click();await bindGame(page)
  assert.equal(await page.evaluate(()=>window.testStore.getWorld().outcome.level),79)
+ await page.screenshot({path:resolve(output,'tutorial-ready.png')})
+ passed('tutorial-ready')
  const desktop=page.getByRole('button',{name:'Continue anyway',exact:false});if(await desktop.isVisible())await desktop.click()
  await page.getByRole('button',{name:'Game settings',exact:true}).click()
  await button('Quit to Main Menu').click();await main.waitFor();await noScene()
+ passed('tutorial-return-main')
+ // Separate the independent failure-injection scenario from the previous WebGL context.
+ await page.reload({waitUntil:'domcontentloaded'});await main.waitFor()
  // Force one real network failure, then use the retained request's Retry button.
  await page.route('**/original/landscape.bin',route=>route.abort('failed'))
  await button('New Game').click();await button('Start Mission 1').click()
  await page.getByRole('heading',{name:'Loading failed',exact:true}).waitFor()
+ passed('real-network-failure-shows-retry')
  const stopped=await page.evaluate(()=>{
   let f=document.querySelector('main')[Object.keys(document.querySelector('main')).find(k=>k.startsWith('__reactFiber'))]
   for(;f;f=f.return)for(let h=f.memoizedState;h;h=h.next)if(h.memoizedState?.getWorld){window.menuTestStore=h.memoizedState;return h.memoizedState.getWorld().turn}
@@ -70,6 +79,7 @@ export default async function({page,browser,url,root,output,receipt}) {
  await page.waitForTimeout(250);assert.equal(await page.evaluate(()=>window.menuTestStore.getWorld().turn),stopped)
  await page.unroute('**/original/landscape.bin');await button('Try again').click();await bindGame(page)
  if(await desktop.isVisible())await desktop.click()
+ passed('retry-load-ready')
  await page.waitForFunction(()=>window.testStore.getWorld().flyby.flags&1||!window.testStore.getWorld().inputMask)
  const skip=page.locator('.skip-introduction');if(await skip.isVisible())await skip.click()
  await page.waitForFunction(()=>!window.testStore.getWorld().inputMask)
@@ -87,6 +97,7 @@ export default async function({page,browser,url,root,output,receipt}) {
  if(await desktop.isVisible())await desktop.click()
  assert.equal(await page.evaluate(()=>window.testStore.getWorld().outcome.level),saved.level)
  assert.ok(await page.evaluate(()=>window.testStore.getWorld().turn)>=saved.turn)
+ passed('fresh-checkpoint-load-ready')
  await button('Game settings').click()
  const paused=await page.evaluate(()=>window.testStore.getWorld().turn)
  await page.waitForTimeout(250);assert.equal(await page.evaluate(()=>window.testStore.getWorld().turn),paused)
