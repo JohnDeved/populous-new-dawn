@@ -891,7 +891,12 @@ export function stepLiveBlastWave(w: World, wave: BlastWave) {
     u.hp = p.life / 20
     u.burnTrail = p.burnTrail
     if (p.flags2 & 0x80000) {
-      if (!u.flight) release(w, u)
+      if (!u.flight) {
+        // 0x50b740 ordinary push retains its person state and resting slot.
+        // Panic and other owners still take their existing task-release path.
+        const resting = u.native === p && [1, 17, 19].includes(p.state)
+        release(w, u, false, resting)
+      }
       u.flight = p
       u.lift = 1
     }

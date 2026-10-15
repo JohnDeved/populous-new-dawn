@@ -6,7 +6,11 @@ import { buildingPose } from './building-shapes.ts'
 import { effect, emitGroundSpark, requestTutorial, sound } from './world-effects.ts'
 import { releaseTasks } from './world-tasks.ts'
 import { initializeRouteRecovery, stepRouteRecovery } from './person-route-recovery.ts'
-import { initializeLiveIdleApproach, rebuildLiveRestingSlots } from './live-resting.ts'
+import {
+  initializeLiveIdleApproach,
+  rebuildLiveRestingSlots,
+  stepLiveRestingState,
+} from './live-resting.ts'
 import { initializeRestingPerson } from './person-idle.ts'
 import { stampFootprints } from './footprints.ts'
 import { adoptLiveOrders, startLiveOrders } from './live-movement.ts'
@@ -1003,6 +1007,9 @@ export function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
   // 0x4d32de: seated ownership clears these bits after preparation/physics,
   // before ordinary person-state dispatch. The falling-animation bit survives.
   if (p.vehicle) p.flags2 = (p.flags2 & ~0x82000) >>> 0
+  // Native dispatch selects the current state once after physics. A state
+  // controller transition must not cause another controller visit this turn.
+  const resting = p.state === 1 || p.state === 17 || p.state === 19
   if (p.state === 25 || p.state === 29) {
     const group = p.workFlags && w.fights.some(b => b.id === p.workFlags)
     const next = stateAfterFight(
@@ -1049,12 +1056,16 @@ export function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
   }
   if (p.state === 26) updateLivePanic(w, u, stateContext(), p)
   if ((fighting || recovering) && p.state === 10) adoptLiveOrders(w, u, p)
+  if (ctx) w.randomState = ctx.state.randomState
+  if (resting) {
+    stepLiveRestingState(w, u, p)
+    u.cargo = p.cargo / 100
+  }
   p.flags2 = (p.flags2 & ~0x2004) >>> 0
   Object.assign(u, browserPosition(p))
   u.heading = Math.PI - (p.angle * Math.PI) / 1024
   u.hp = p.life / 20
   u.supportHeight = p.supportHeight || undefined
-  if (ctx) w.randomState = ctx.state.randomState
 }
 
 // Publish the existing voluntary vehicle-launch physics/animation owner.
