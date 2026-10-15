@@ -90,9 +90,9 @@ The historical M22 Tower checkpoint separately retains input/cancel/departure,
 Warrior11 interception, HP100.75, survivor position and anchor, physical ownership,
 cleanup and every-turn replay through6429. Its reviewed target death5339→5350
 and order retirement5340→5351 are the only changes accepted from that pair.
-The candidate file aggregate remains failed (3/4): the fresh cancellation control
-rests at (16640,32512) instead of (16128,32512). That protected spatial assertion
-remains unchanged, and the fresh continuation beyond it was not executed.
+That first candidate file aggregate failed (3/4): the fresh cancellation control
+rested at (16640,32512) instead of (16128,32512). The protected spatial assertion
+remained unchanged at that stage, and the later continuation was not executed.
 
 
 A subsequent source-bound fresh Tower continuation passes all obligations and
@@ -170,3 +170,35 @@ current four-entry sequences are explicitly different combat histories.
 The qualified continuation executes full original replay and all targetHP55,
 no-target-death, actor removal, registry, order-reference and passenger cleanup
 checks. The separately labeled historical plain case is unchanged.
+
+
+## Staged balloon branches and retained historical obligations
+
+The current fresh idle command still requests Preacher17, but actual native
+visit-phase ordering lets Warrior10 intercept at3872 after departure3867. The
+paired baseline first reaches Preacher17 at3886 after departure3881. Source-bound
+actual selector/contact calls retain the same forced-exit geometry and target.
+The current browser melee history ends at3975: Warrior10 applies16.4 damage to
+HP9.25, making browserHP0 while the same physical owner retains native life185.
+The ordinary body and health tail skip the dead actor, then release its command
+and remove its registry entry. This is the existing browser-owned lethal-damage
+boundary, not a repair for native signed-life overflow. Full1200-turn replay
+retains exact residual185 and all cleanup.
+
+The supplied successor's +71 counter offset now completes the driver first:
+command models[27,3] at3612 with counters[28,99], both27 at3613/[29,100].
+The seat transfers at3641 and becomes empty3642; references follow the complete
+[2,2]→[1,2]→[0,2]→[0,1]→[0,0] sequence, ending3862 with shrine use1.
+All owners stay healthy/registered, and final command queues/immediate slots
+and shared bindings are empty. The historical3566 input separately retains its
+original passenger-first[3,27] ordering and every original exact transport pin.
+
+Two complete source-bound historical worlds preserve the original mechanisms.
+The3566 witness covers original staged/final-tail/Shift/successor branches and
+idle acquisition through3886/opponent17 only. A full current-runtime continuation
+from3566 failed at death3926 versus3917 and remains failed evidence. A separate
+genuine3916 predeath world preserves actual death3917, retained owner227 and
+complete cleanup/replay through4853. Each archive is exported only after the
+unchanged original full baseline test passes. The maintained tests explicitly
+separate fresh natural input, historical acquisition/transport, and historical
+lethal cleanup, with no selected-actor repairs or widened thresholds.
