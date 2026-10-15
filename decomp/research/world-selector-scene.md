@@ -1,0 +1,65 @@
+# Shared original selector scene (work in progress)
+
+Refs #17, #457. Dependent on PR464, exact base
+`265444c6dc5ce58ec7e6427b123374a0de7dc44d`; no complete UI parity claim.
+Canonical GitHub main at task start: `762be79c810d8ae5d9e05d8e44e283bdff94b47b`.
+
+## Plan and evidence
+
+Replace the adapted orbit diagram and separate enlarged preview with one scene:
+all 25 authored bodies, their own imported textures, source-selected camera focus,
+elapsed orbital motion, the existing adaptive screen-ring mesh and vertex light,
+sun wobble/alpha annuli, textured orbit ribbons, point stars and a black clear.
+Use GPU triangle/point rasterization with explicit transformed-lit coordinates and
+depth writes rather than per-pixel JavaScript rasterization each animation frame.
+Keep the original panel, existing opening availability/replay, all 23 direct
+mission choices, Tutorial/checkpoint/Back and actual world launch ownership.
+
+Source packets and independent depth supplement:
+https://github.com/JohnDeved/populous-new-dawn/tree/4c0861be5a07e11a58cef7e027ca4fb704a34aeb/evidence/selector-next-scene-20261015
+Portable packet SHA256: `24bd3b0d502c31762ce036a4b519a5934fed6a82c4fe2105b13aaf95e4f110e0`.
+Verified supplied EXE SHA256: `3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`.
+Original executable is read as data, never executed or emulated here.
+Titlefont/tooltip/cursor evidence is not yet independently reviewed and is outside
+this scene's causal core. No type4 space sprites or fullscreen plsbackg are added.
+
+## Deliberate modern compatibility choices
+
+- One scene owner. Fresh lifecycle on every mount, zero first dt after assets load;
+  visibility suspension resets presentation timestamps and drops hidden elapsed time.
+  Native first dt was load-dependent and source-global state persisted on reentry.
+- Source camera integrator and orbital update ordering at a fixed 1/120-second
+  internal step, with interpolated uncapped presentation. This is a modern schedule,
+  not a claim that the original ran at 120Hz. Cap elapsed catchup at one second.
+- Keep progression anchor derived from the existing recommended opening mission
+  separate from the camera-selected body. No campaign unlock semantics expansion.
+- Ordinary UV spin at 0.6 units/second; sun phase rates use source RNG speed values
+  times 30 per second. These chosen cosmetic rates have no historical FPS claim.
+  Deterministic seeds replace unknown shared historical RNG state. Preserve sun
+  phase ownership by vertex index across adaptive tessellation changes.
+- Linear repeat RGB8/RGBA8 sampling, source vertex diffuse plus specular, source
+  alpha/inverse-source-alpha blend, no culling, depth test/write. Modern GPU raster,
+  color precision and clipping differ from the unmeasured original device.
+- The scene and panel share proportional 640x480 logical framing. Tessellation is
+  logical-radius based, clamped to the existing safe [1,255] mesh range. High-DPI
+  stars cover one logical pixel. Invalid centre/front depth is safely rejected;
+  orbit segments crossing the near plane are omitted, as the source path does.
+- Panel remains DOM art for accessibility; the final partial star batch is composed
+  before the DOM panel rather than after it. This explicit overlay correction keeps
+  controls legible; full original draw-order pixels are not claimed.
+
+## Acceptance and delivery sequence
+
+1. Commit/push this plan and source math WIP; create a dependent draft PR.
+2. Build the integrated prototype and capture clean comparable before/after rendered
+   screenshots before expensive final gates, serialized with the parent.
+3. Add focused math, texture provenance, timing, clipping and lifecycle regressions.
+4. Run source-bound typecheck/build/parity/orchestration/quality and full durable
+   test-file batches. Preserve failed receipts; resume only missing batches.
+5. Render selection transition, multiple viewport/DPR, responsive inputs, missing
+   assets/context, repeated open/close, real launch and paused world identity.
+6. Independent review and repairs; root alone merges. Headless/software-rendered
+   screenshots are reconstruction evidence, not historical pixel or hardware FPS
+   parity. #17 and #457 remain open for their remaining scope.
+
+Initial status: implementation and final checks not yet complete.
