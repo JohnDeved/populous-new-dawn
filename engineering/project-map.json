@@ -1123,6 +1123,7 @@
       ],
       "evidence": [
         { "path": "decomp/README.md", "heading": "Campaign interpreter comparison" },
+        { "path": "decomp/research/training-entry-composition.md", "heading": "First divergences" },
         { "path": "decomp/research/worship-grant-handoff.md", "heading": "Three findings" },
         { "path": "decomp/research/worship-grant-presentation.md", "heading": "Three findings" },
         { "path": "decomp/research/worship-grant-replacement.md", "heading": "Dynamic result" },

@@ -1,0 +1,21 @@
+{
+  "verdict": "ACCEPT_SUNLIGHT_RESEARCH_PUBLICATION",
+  "archiveSha256": "c18cb1faf602252c906e99753c90f29b81212dc4b158c313fba03d626d0d8733",
+  "archiveBytes": 1431726,
+  "regularMembersIndependentlyVerified": 72,
+  "gzipResultRoundTripVerified": true,
+  "readmeAndCompositionClaimsMatchAcceptedResult": true,
+  "conditionsPreserved": [
+    "canonical sampled-trig entry values",
+    "normal no-fault omitted FP return",
+    "live disjoint scoped palette allocation renaming"
+  ],
+  "wholeOriginalExecutableOrAssetFilesIncluded": false,
+  "trackedProductOrSourceEdits": false,
+  "originalInstructionsExecutedByReviewer": 0,
+  "reviewedFiles": {
+    "references/verification/mission3-sunlight-prefix-2026-10-11/README.md": "1d9daa4d0016da8aeca0fb5b976e5a0614914fbf7c3c908881a9a71741de2612",
+    "references/verification/mission3-sunlight-prefix-2026-10-11/manifest.json": "5eac1dde01dd7dd449a3e4b0093e5f35dd900a31966bacf56d3bb7fe659f36e2",
+    "decomp/research/training-entry-composition.md": "e7b331725b188f50177075b8e54564a94602b14d7c0688c5d60475cbd74046e7"
+  }
+}
