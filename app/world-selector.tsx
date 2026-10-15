@@ -110,7 +110,10 @@ export function WorldSelector({
               aria-label="Inspect campaign world"
               value={selected}
               onChange={event => {
-                setSelected(Number(event.target.value))
+                const mission = openingCampaignMissions.find(
+                  value => value === Number(event.target.value)
+                )
+                if (mission) setSelected(mission)
                 setAllMissions(false)
               }}
             >
