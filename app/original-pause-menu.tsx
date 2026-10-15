@@ -65,7 +65,11 @@ function MenuRow({
       aria-label={label}
       disabled={disabled}
       title={disabled ? 'No saved checkpoint in this browser' : undefined}
-      style={{ top: y, width: Math.max(200, textWidth(label) + 16) }}
+      style={{
+        top: y,
+        width: Math.max(200, textWidth(label) + 16),
+        height: label === 'Back' ? 26 : 29,
+      }}
       onClick={action}
       onPointerEnter={() => setHighlight(label)}
       onPointerLeave={() => setHighlight(null)}
