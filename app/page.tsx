@@ -1465,6 +1465,7 @@ export default function Home() {
         >
           <WorldSelector
             missions={missionNumbers}
+            replacingWorld={selectorOpen}
             completed={completedMissions}
             hasCheckpoint={store.hasCheckpoint()}
             onStart={startMission}
