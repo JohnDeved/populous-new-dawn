@@ -15,10 +15,10 @@ export default async function({page,openMission,output,root}) {
  await page.waitForSelector('.world-viewport canvas')
  const {bindGame:bind}=await import(pathToFileURL(resolve(root,'scripts/browser-game.mjs')).href)
  await bind(page)
+ const desktopStart=page.getByRole('button',{name:'Continue anyway',exact:false});if(await desktopStart.isVisible())await desktopStart.click()
  await page.waitForFunction(()=>window.testStore.getWorld().flyby.flags&1||!window.testStore.getWorld().inputMask)
  await page.evaluate(()=>document.querySelector('.skip-introduction')?.click())
  await page.waitForFunction(()=>!window.testStore.getWorld().inputMask)
- const desktopStart=page.getByRole('button',{name:'Continue anyway',exact:false});if(await desktopStart.isVisible())await desktopStart.click()
  await button('Menu').click();await modal.waitFor()
  assert.deepEqual(await modal.locator('nav button').evaluateAll(bs=>bs.map(b=>b.getAttribute('aria-label'))),['Continue Game','Load Game','Save Game','Options','Restart Level','Quit Level','Quit Game','Back'])
  assert.equal(await button('Load Game').isDisabled(),true)
@@ -28,7 +28,7 @@ export default async function({page,openMission,output,root}) {
   for(const b of await modal.locator('nav button').all()){const r=await b.boundingBox();assert.ok(r.x>=-1&&r.y>=-1&&r.x+r.width<=width+1&&r.y+r.height<=height+1)}
   await page.screenshot({path:resolve(output,`pause-${width}x${height}.png`)})
  }
- await page.setViewportSize({width:800,height:600});passed('native-root-and-responsive-viewports')
+ await page.setViewportSize({width:960,height:720});passed('native-root-and-responsive-viewports')
  for(const label of ['Restart Level','Quit Level','Quit Game']) {
   for(const cancel of ['No','Back','Escape']) {
    await button(label).click();assert.equal(await modal.getAttribute('data-panel'),label==='Restart Level'?'restart':label==='Quit Level'?'quit-level':'quit-game')
@@ -40,6 +40,13 @@ export default async function({page,openMission,output,root}) {
   }
  }
  passed('all-destructive-confirmations-cancel-back-escape-focus')
+ const resumeBoundary=await page.evaluate(()=>new Promise(resolve=>{
+  const world=window.testStore.getWorld(),before=world.turn
+  document.querySelector('[data-original-pause-menu] button[aria-label="Continue Game"]').click()
+  requestAnimationFrame(()=>resolve({before,after:world.turn}))
+ }))
+ assert.equal(resumeBoundary.after,resumeBoundary.before)
+ await button('Menu').click();passed('no-suspended-wall-time-catchup-on-first-resumed-frame')
  for(const close of ['Continue Game','Back','Escape']) {
   if(close==='Escape')await page.keyboard.press('Escape');else await button(close).click()
   assert.equal(await paused(),false)
