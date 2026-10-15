@@ -26,7 +26,9 @@ Native Western glyph title/tooltip images preserve dimensions and source strings
 the panel cursor is frame12 with hotspot(0,0). CSS cursor device scaling, source
 palette RGB and per-selection palette switching are explicit browser adaptations.
 Tooltip text waits strictly longer than500ms, follows the pointer and has no invented
-frame. Fallback/accessible button labels remain ordinary browser text. No type4 space sprites or fullscreen plsbackg are added.
+frame. Keyboard selection remounts the tooltip owner, and resize/scroll clears it,
+as explicit browser stale-tooltip prevention; the native same-ID timer normally
+persists. Fallback/accessible button labels remain ordinary browser text. No type4 space sprites or fullscreen plsbackg are added.
 
 ## Deliberate modern compatibility choices
 
@@ -67,4 +69,20 @@ frame. Fallback/accessible button labels remain ordinary browser text. No type4 
    screenshots are reconstruction evidence, not historical pixel or hardware FPS
    parity. #17 and #457 remain open for their remaining scope.
 
-Initial status: implementation and final checks not yet complete.
+## Rendered prototype at `52e645ad`
+
+The sandboxed Chrome/ANGLE software-rendered scene episode passed with clean
+source fingerprint `7ef6e8668cbcad280b4e1c048799d5fe86ffb8a26baef9f8db982e537afb6f38`.
+Naturally settled Mission 1 and Mission 2 centers were `(320,240)` logical pixels,
+after 12.674 and 25.641 seconds. The projected nominal radius is
+`400*8/hypot(200,66.6667) = 15.1789`; the source mesh's last submitted ring ends at
+`sin(3*pi/8)` times that radius, giving the observed extent `14.0235` pixels.
+A bounded readback before/after an actual ribbon draw changed 110 of 243 sampled
+pixels. Responsive selection/progression and DPR checks passed; DPR4 backing was
+capped to 4096x3072. Separate warmed CPU submission samples (299, after 5 discarded)
+were p95 4.8 ms and max 31.4 ms on this software-rendered environment. They do not
+measure GPU completion or establish hardware frame rate.
+
+The native scene/title/panel is the default presentation; browser compatibility
+controls are explicitly grouped behind the visible Browser controls toggle.
+Final repairs, lifecycle checks and standard gates are still pending.

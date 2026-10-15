@@ -1,0 +1,227 @@
+{"at":"2026-10-15T21:27:56.009Z","stage":"start","action":"page.addInitScript"}
+{"at":"2026-10-15T21:27:56.011Z","stage":"end","action":"page.addInitScript"}
+{"at":"2026-10-15T21:27:56.011Z","stage":"start","action":"page.reload"}
+{"at":"2026-10-15T21:27:56.188Z","stage":"end","action":"page.reload"}
+{"at":"2026-10-15T21:27:56.190Z","stage":"start","action":"page.getByRole(dialog,{\"name\":\"Main menu\",\"exact\":true}).waitFor"}
+{"at":"2026-10-15T21:27:57.640Z","stage":"end","action":"page.getByRole(dialog,{\"name\":\"Main menu\",\"exact\":true}).waitFor"}
+{"at":"2026-10-15T21:27:57.640Z","stage":"start","action":"page.getByRole(button,{\"name\":\"New Game\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:01.641Z","stage":"end","action":"page.getByRole(button,{\"name\":\"New Game\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:01.642Z","stage":"start","action":"page.getByRole(dialog,{\"name\":\"Start game\",\"exact\":true}).waitFor"}
+{"at":"2026-10-15T21:28:07.568Z","stage":"end","action":"page.getByRole(dialog,{\"name\":\"Start game\",\"exact\":true}).waitFor"}
+{"at":"2026-10-15T21:28:07.568Z","stage":"start","action":"page.locator(canvas[data-world-scene=\"true\"][data-ready=\"true\"]).waitFor"}
+{"at":"2026-10-15T21:28:07.612Z","stage":"end","action":"page.locator(canvas[data-world-scene=\"true\"][data-ready=\"true\"]).waitFor"}
+{"at":"2026-10-15T21:28:07.612Z","stage":"start","action":"page.getByRole(button,{\"name\":{}}).click"}
+{"at":"2026-10-15T21:28:07.852Z","stage":"end","action":"page.getByRole(button,{\"name\":{}}).click"}
+{"at":"2026-10-15T21:28:07.852Z","stage":"start","action":"page.waitForFunction"}
+{"at":"2026-10-15T21:28:07.945Z","stage":"end","action":"page.waitForFunction"}
+{"at":"2026-10-15T21:28:07.945Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).count"}
+{"at":"2026-10-15T21:28:07.967Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).count"}
+{"at":"2026-10-15T21:28:07.967Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).getAttribute"}
+{"at":"2026-10-15T21:28:08.041Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).getAttribute"}
+{"at":"2026-10-15T21:28:08.041Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:08.254Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:08.254Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Back\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:08.377Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Back\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:08.377Z","stage":"start","action":"page.locator(canvas[data-world-scene=\"true\"]).count"}
+{"at":"2026-10-15T21:28:08.385Z","stage":"end","action":"page.locator(canvas[data-world-scene=\"true\"]).count"}
+{"at":"2026-10-15T21:28:08.385Z","stage":"start","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:08.403Z","stage":"end","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:08.403Z","stage":"start","action":"page.waitForTimeout"}
+{"at":"2026-10-15T21:28:08.585Z","stage":"end","action":"page.waitForTimeout"}
+{"at":"2026-10-15T21:28:08.585Z","stage":"start","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:08.588Z","stage":"end","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:08.590Z","stage":"start","action":"page.getByRole(button,{\"name\":\"New Game\",\"exact\":true}).focus"}
+{"at":"2026-10-15T21:28:08.597Z","stage":"end","action":"page.getByRole(button,{\"name\":\"New Game\",\"exact\":true}).focus"}
+{"at":"2026-10-15T21:28:08.613Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Tutorial\",\"exact\":true}).evaluate"}
+{"at":"2026-10-15T21:28:08.626Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Tutorial\",\"exact\":true}).evaluate"}
+{"at":"2026-10-15T21:28:08.626Z","stage":"start","action":"page.getByRole(dialog,{\"name\":\"Main menu\",\"exact\":true}).waitFor"}
+{"at":"2026-10-15T21:28:08.630Z","stage":"end","action":"page.getByRole(dialog,{\"name\":\"Main menu\",\"exact\":true}).waitFor"}
+{"at":"2026-10-15T21:28:08.630Z","stage":"start","action":"page.getByRole(button,{\"name\":\"New Game\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:08.734Z","stage":"end","action":"page.getByRole(button,{\"name\":\"New Game\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:08.735Z","stage":"start","action":"page.getByRole(dialog,{\"name\":\"Start game\",\"exact\":true}).waitFor"}
+{"at":"2026-10-15T21:28:08.739Z","stage":"end","action":"page.getByRole(dialog,{\"name\":\"Start game\",\"exact\":true}).waitFor"}
+{"at":"2026-10-15T21:28:08.739Z","stage":"start","action":"page.locator(canvas[data-world-scene=\"true\"][data-ready=\"true\"]).waitFor"}
+{"at":"2026-10-15T21:28:08.835Z","stage":"end","action":"page.locator(canvas[data-world-scene=\"true\"][data-ready=\"true\"]).waitFor"}
+{"at":"2026-10-15T21:28:08.835Z","stage":"start","action":"page.getByRole(button,{\"name\":{}}).click"}
+{"at":"2026-10-15T21:28:09.096Z","stage":"end","action":"page.getByRole(button,{\"name\":{}}).click"}
+{"at":"2026-10-15T21:28:09.097Z","stage":"start","action":"page.waitForFunction"}
+{"at":"2026-10-15T21:28:09.139Z","stage":"end","action":"page.waitForFunction"}
+{"at":"2026-10-15T21:28:09.172Z","stage":"start","action":"page.locator(canvas[data-world-scene=\"true\"]).count"}
+{"at":"2026-10-15T21:28:09.179Z","stage":"end","action":"page.locator(canvas[data-world-scene=\"true\"]).count"}
+{"at":"2026-10-15T21:28:09.179Z","stage":"start","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:09.193Z","stage":"end","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:09.194Z","stage":"start","action":"page.waitForTimeout"}
+{"at":"2026-10-15T21:28:09.376Z","stage":"end","action":"page.waitForTimeout"}
+{"at":"2026-10-15T21:28:09.376Z","stage":"start","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:09.379Z","stage":"end","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:09.379Z","stage":"start","action":"page.getByRole(button,{\"name\":\"New Game\",\"exact\":true}).focus"}
+{"at":"2026-10-15T21:28:09.385Z","stage":"end","action":"page.getByRole(button,{\"name\":\"New Game\",\"exact\":true}).focus"}
+{"at":"2026-10-15T21:28:09.396Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Tutorial\",\"exact\":true}).evaluate"}
+{"at":"2026-10-15T21:28:09.407Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Tutorial\",\"exact\":true}).evaluate"}
+{"at":"2026-10-15T21:28:09.407Z","stage":"start","action":"page.getByRole(dialog,{\"name\":\"Main menu\",\"exact\":true}).waitFor"}
+{"at":"2026-10-15T21:28:09.411Z","stage":"end","action":"page.getByRole(dialog,{\"name\":\"Main menu\",\"exact\":true}).waitFor"}
+{"at":"2026-10-15T21:28:09.411Z","stage":"start","action":"page.getByRole(button,{\"name\":\"New Game\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:09.506Z","stage":"end","action":"page.getByRole(button,{\"name\":\"New Game\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:09.506Z","stage":"start","action":"page.getByRole(dialog,{\"name\":\"Start game\",\"exact\":true}).waitFor"}
+{"at":"2026-10-15T21:28:09.522Z","stage":"end","action":"page.getByRole(dialog,{\"name\":\"Start game\",\"exact\":true}).waitFor"}
+{"at":"2026-10-15T21:28:09.522Z","stage":"start","action":"page.locator(canvas[data-world-scene=\"true\"][data-ready=\"true\"]).waitFor"}
+{"at":"2026-10-15T21:28:09.612Z","stage":"end","action":"page.locator(canvas[data-world-scene=\"true\"][data-ready=\"true\"]).waitFor"}
+{"at":"2026-10-15T21:28:09.612Z","stage":"start","action":"page.getByRole(button,{\"name\":{}}).click"}
+{"at":"2026-10-15T21:28:09.858Z","stage":"end","action":"page.getByRole(button,{\"name\":{}}).click"}
+{"at":"2026-10-15T21:28:09.858Z","stage":"start","action":"page.waitForFunction"}
+{"at":"2026-10-15T21:28:09.894Z","stage":"end","action":"page.waitForFunction"}
+{"at":"2026-10-15T21:28:09.894Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).count"}
+{"at":"2026-10-15T21:28:09.914Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).count"}
+{"at":"2026-10-15T21:28:09.914Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).getAttribute"}
+{"at":"2026-10-15T21:28:09.933Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).getAttribute"}
+{"at":"2026-10-15T21:28:09.933Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:10.144Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:10.144Z","stage":"start","action":"page.getByRole(button,{\"name\":\"All missions\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:10.309Z","stage":"end","action":"page.getByRole(button,{\"name\":\"All missions\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:10.309Z","stage":"start","action":"page.locator(canvas[data-world-scene=\"true\"]).count"}
+{"at":"2026-10-15T21:28:10.311Z","stage":"end","action":"page.locator(canvas[data-world-scene=\"true\"]).count"}
+{"at":"2026-10-15T21:28:10.311Z","stage":"start","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:10.313Z","stage":"end","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:10.313Z","stage":"start","action":"page.waitForTimeout"}
+{"at":"2026-10-15T21:28:10.495Z","stage":"end","action":"page.waitForTimeout"}
+{"at":"2026-10-15T21:28:10.495Z","stage":"start","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:10.498Z","stage":"end","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:10.498Z","stage":"start","action":"page.getByRole(button,{\"name\":{}}).count"}
+{"at":"2026-10-15T21:28:10.503Z","stage":"end","action":"page.getByRole(button,{\"name\":{}}).count"}
+{"at":"2026-10-15T21:28:10.503Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).count"}
+{"at":"2026-10-15T21:28:10.506Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).count"}
+{"at":"2026-10-15T21:28:10.506Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).getAttribute"}
+{"at":"2026-10-15T21:28:10.509Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).getAttribute"}
+{"at":"2026-10-15T21:28:10.509Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:10.536Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:10.536Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Campaign worlds\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:10.707Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Campaign worlds\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:10.707Z","stage":"start","action":"page.locator(canvas[data-world-scene=\"true\"][data-ready=\"true\"]).waitFor"}
+{"at":"2026-10-15T21:28:10.752Z","stage":"end","action":"page.locator(canvas[data-world-scene=\"true\"][data-ready=\"true\"]).waitFor"}
+{"at":"2026-10-15T21:28:10.752Z","stage":"start","action":"page.waitForFunction"}
+{"at":"2026-10-15T21:28:10.788Z","stage":"end","action":"page.waitForFunction"}
+{"at":"2026-10-15T21:28:10.788Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).count"}
+{"at":"2026-10-15T21:28:10.809Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).count"}
+{"at":"2026-10-15T21:28:10.809Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).getAttribute"}
+{"at":"2026-10-15T21:28:10.829Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).getAttribute"}
+{"at":"2026-10-15T21:28:10.829Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:11.020Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:11.020Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Back\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:11.225Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Back\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:11.225Z","stage":"start","action":"page.locator(canvas[data-world-scene=\"true\"]).count"}
+{"at":"2026-10-15T21:28:11.232Z","stage":"end","action":"page.locator(canvas[data-world-scene=\"true\"]).count"}
+{"at":"2026-10-15T21:28:11.232Z","stage":"start","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:11.240Z","stage":"end","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:11.240Z","stage":"start","action":"page.waitForTimeout"}
+{"at":"2026-10-15T21:28:11.423Z","stage":"end","action":"page.waitForTimeout"}
+{"at":"2026-10-15T21:28:11.424Z","stage":"start","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:11.427Z","stage":"end","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:11.427Z","stage":"start","action":"page.getByRole(button,{\"name\":\"New Game\",\"exact\":true}).focus"}
+{"at":"2026-10-15T21:28:11.433Z","stage":"end","action":"page.getByRole(button,{\"name\":\"New Game\",\"exact\":true}).focus"}
+{"at":"2026-10-15T21:28:11.442Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Tutorial\",\"exact\":true}).evaluate"}
+{"at":"2026-10-15T21:28:11.456Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Tutorial\",\"exact\":true}).evaluate"}
+{"at":"2026-10-15T21:28:11.456Z","stage":"start","action":"page.route"}
+{"at":"2026-10-15T21:28:11.462Z","stage":"end","action":"page.route"}
+{"at":"2026-10-15T21:28:11.462Z","stage":"start","action":"page.getByRole(dialog,{\"name\":\"Main menu\",\"exact\":true}).waitFor"}
+{"at":"2026-10-15T21:28:11.465Z","stage":"end","action":"page.getByRole(dialog,{\"name\":\"Main menu\",\"exact\":true}).waitFor"}
+{"at":"2026-10-15T21:28:11.466Z","stage":"start","action":"page.getByRole(button,{\"name\":\"New Game\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:11.535Z","stage":"end","action":"page.getByRole(button,{\"name\":\"New Game\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:11.536Z","stage":"start","action":"page.getByRole(dialog,{\"name\":\"Start game\",\"exact\":true}).waitFor"}
+{"at":"2026-10-15T21:28:11.556Z","stage":"end","action":"page.getByRole(dialog,{\"name\":\"Start game\",\"exact\":true}).waitFor"}
+{"at":"2026-10-15T21:28:11.557Z","stage":"start","action":"page.getByRole(button,{\"name\":{}}).click"}
+{"at":"2026-10-15T21:28:11.639Z","stage":"end","action":"page.getByRole(button,{\"name\":{}}).click"}
+{"at":"2026-10-15T21:28:11.640Z","stage":"start","action":"page.locator(canvas[data-world-scene=\"true\"]).elementHandle"}
+{"at":"2026-10-15T21:28:11.656Z","stage":"end","action":"page.locator(canvas[data-world-scene=\"true\"]).elementHandle"}
+{"at":"2026-10-15T21:28:11.656Z","stage":"start","action":"page.unroute"}
+{"at":"2026-10-15T21:28:11.666Z","stage":"end","action":"page.unroute"}
+{"at":"2026-10-15T21:28:11.666Z","stage":"start","action":"page.locator(canvas[data-world-scene=\"true\"][data-ready=\"true\"]).waitFor"}
+{"at":"2026-10-15T21:28:11.755Z","stage":"end","action":"page.locator(canvas[data-world-scene=\"true\"][data-ready=\"true\"]).waitFor"}
+{"at":"2026-10-15T21:28:11.755Z","stage":"start","action":"page.waitForFunction"}
+{"at":"2026-10-15T21:28:11.808Z","stage":"end","action":"page.waitForFunction"}
+{"at":"2026-10-15T21:28:11.828Z","stage":"start","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:11.847Z","stage":"end","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:11.851Z","stage":"start","action":"page.unroute"}
+{"at":"2026-10-15T21:28:11.852Z","stage":"end","action":"page.unroute"}
+{"at":"2026-10-15T21:28:11.852Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).count"}
+{"at":"2026-10-15T21:28:11.872Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).count"}
+{"at":"2026-10-15T21:28:11.872Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).getAttribute"}
+{"at":"2026-10-15T21:28:11.893Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).getAttribute"}
+{"at":"2026-10-15T21:28:11.894Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:12.062Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:12.062Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Back\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:12.283Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Back\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:12.283Z","stage":"start","action":"page.locator(canvas[data-world-scene=\"true\"]).count"}
+{"at":"2026-10-15T21:28:12.291Z","stage":"end","action":"page.locator(canvas[data-world-scene=\"true\"]).count"}
+{"at":"2026-10-15T21:28:12.291Z","stage":"start","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:12.296Z","stage":"end","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:12.296Z","stage":"start","action":"page.waitForTimeout"}
+{"at":"2026-10-15T21:28:12.476Z","stage":"end","action":"page.waitForTimeout"}
+{"at":"2026-10-15T21:28:12.476Z","stage":"start","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:12.479Z","stage":"end","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:12.479Z","stage":"start","action":"page.route"}
+{"at":"2026-10-15T21:28:12.481Z","stage":"end","action":"page.route"}
+{"at":"2026-10-15T21:28:12.482Z","stage":"start","action":"page.getByRole(dialog,{\"name\":\"Main menu\",\"exact\":true}).waitFor"}
+{"at":"2026-10-15T21:28:12.497Z","stage":"end","action":"page.getByRole(dialog,{\"name\":\"Main menu\",\"exact\":true}).waitFor"}
+{"at":"2026-10-15T21:28:12.497Z","stage":"start","action":"page.getByRole(button,{\"name\":\"New Game\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:12.572Z","stage":"end","action":"page.getByRole(button,{\"name\":\"New Game\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:12.573Z","stage":"start","action":"page.getByRole(dialog,{\"name\":\"Start game\",\"exact\":true}).waitFor"}
+{"at":"2026-10-15T21:28:12.585Z","stage":"end","action":"page.getByRole(dialog,{\"name\":\"Start game\",\"exact\":true}).waitFor"}
+{"at":"2026-10-15T21:28:12.585Z","stage":"start","action":"page.getByRole(button,{\"name\":{}}).click"}
+{"at":"2026-10-15T21:28:12.642Z","stage":"end","action":"page.getByRole(button,{\"name\":{}}).click"}
+{"at":"2026-10-15T21:28:12.642Z","stage":"start","action":"page.locator(canvas[data-world-scene=\"true\"]).elementHandle"}
+{"at":"2026-10-15T21:28:12.652Z","stage":"end","action":"page.locator(canvas[data-world-scene=\"true\"]).elementHandle"}
+{"at":"2026-10-15T21:28:12.652Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).count"}
+{"at":"2026-10-15T21:28:12.655Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).count"}
+{"at":"2026-10-15T21:28:12.655Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).getAttribute"}
+{"at":"2026-10-15T21:28:12.657Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).getAttribute"}
+{"at":"2026-10-15T21:28:12.657Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:12.701Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:12.702Z","stage":"start","action":"page.getByRole(button,{\"name\":\"All missions\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:12.736Z","stage":"end","action":"page.getByRole(button,{\"name\":\"All missions\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:12.736Z","stage":"start","action":"page.locator(canvas[data-world-scene=\"true\"]).count"}
+{"at":"2026-10-15T21:28:12.738Z","stage":"end","action":"page.locator(canvas[data-world-scene=\"true\"]).count"}
+{"at":"2026-10-15T21:28:12.738Z","stage":"start","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:12.739Z","stage":"end","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:12.739Z","stage":"start","action":"page.waitForTimeout"}
+{"at":"2026-10-15T21:28:12.920Z","stage":"end","action":"page.waitForTimeout"}
+{"at":"2026-10-15T21:28:12.920Z","stage":"start","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:12.922Z","stage":"end","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:12.923Z","stage":"start","action":"page.unroute"}
+{"at":"2026-10-15T21:28:12.926Z","stage":"end","action":"page.unroute"}
+{"at":"2026-10-15T21:28:12.927Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).count"}
+{"at":"2026-10-15T21:28:12.930Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).count"}
+{"at":"2026-10-15T21:28:12.930Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).getAttribute"}
+{"at":"2026-10-15T21:28:12.933Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).getAttribute"}
+{"at":"2026-10-15T21:28:12.933Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:12.951Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:12.951Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Campaign worlds\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:13.096Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Campaign worlds\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:13.097Z","stage":"start","action":"page.locator(canvas[data-world-scene=\"true\"][data-ready=\"true\"]).waitFor"}
+{"at":"2026-10-15T21:28:13.159Z","stage":"end","action":"page.locator(canvas[data-world-scene=\"true\"][data-ready=\"true\"]).waitFor"}
+{"at":"2026-10-15T21:28:13.159Z","stage":"start","action":"page.waitForFunction"}
+{"at":"2026-10-15T21:28:13.212Z","stage":"end","action":"page.waitForFunction"}
+{"at":"2026-10-15T21:28:13.265Z","stage":"start","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:13.290Z","stage":"end","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:13.290Z","stage":"start","action":"page.unroute"}
+{"at":"2026-10-15T21:28:13.291Z","stage":"end","action":"page.unroute"}
+{"at":"2026-10-15T21:28:13.291Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).count"}
+{"at":"2026-10-15T21:28:13.308Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).count"}
+{"at":"2026-10-15T21:28:13.308Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).getAttribute"}
+{"at":"2026-10-15T21:28:13.347Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).getAttribute"}
+{"at":"2026-10-15T21:28:13.347Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:13.602Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Browser controls\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:13.602Z","stage":"start","action":"page.getByRole(button,{\"name\":\"Back\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:24.368Z","stage":"end","action":"page.getByRole(button,{\"name\":\"Back\",\"exact\":true}).click"}
+{"at":"2026-10-15T21:28:24.369Z","stage":"start","action":"page.locator(canvas[data-world-scene=\"true\"]).count"}
+{"at":"2026-10-15T21:28:25.209Z","stage":"end","action":"page.locator(canvas[data-world-scene=\"true\"]).count"}
+{"at":"2026-10-15T21:28:25.209Z","stage":"start","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:26.807Z","stage":"end","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:26.807Z","stage":"start","action":"page.waitForTimeout"}
+{"at":"2026-10-15T21:28:26.993Z","stage":"end","action":"page.waitForTimeout"}
+{"at":"2026-10-15T21:28:26.993Z","stage":"start","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:28.331Z","stage":"end","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:28.332Z","stage":"start","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:28.975Z","stage":"end","action":"page.evaluate"}
+{"at":"2026-10-15T21:28:28.976Z","stage":"scenario finally"}
+{"at":"2026-10-15T21:28:30.282Z","stage":"PAGE CLOSE"}
+{"at":"2026-10-15T21:28:31.363Z","stage":"BROWSER DISCONNECTED"}

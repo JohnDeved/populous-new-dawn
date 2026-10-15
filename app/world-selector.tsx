@@ -200,6 +200,7 @@ export function WorldSelector({
                   onClick={() => setSelected(mission)}
                   style={{ left: `calc(var(--panel-width) * ${28 + (mission - 1) * 20} / 640)` }}
                 >
+                  {artFailed && <span>{mission}</span>}
                   {!artFailed && openingMissionAvailable(mission, completed) && (
                     <img
                       src={`${panelArt}${completed.includes(mission) ? 6 : 5}.png`}
@@ -222,7 +223,7 @@ export function WorldSelector({
               <span className={artFailed ? undefined : styles.visuallyHidden}>Start</span>
             </button>
           </div>
-          <SelectorTooltip mission={selected} container={container} />
+          <SelectorTooltip key={selected} mission={selected} container={container} />
         </>
       )}
     </section>

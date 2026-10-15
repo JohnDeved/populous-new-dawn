@@ -1,0 +1,65 @@
+{
+  "startedAt": "2026-10-15T21:28:59.248Z",
+  "source": {
+    "root": "/tmp/populous-selector-scene-457",
+    "commit": "52e645ad96273c6c153bb895b3b566d8299652d7",
+    "tree": "f9ca94d8cff47def47d6b275b9a3210e778f5914",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "7ef6e8668cbcad280b4e1c048799d5fe86ffb8a26baef9f8db982e537afb6f38"
+  },
+  "launch": {
+    "executablePath": "/workspace/scratch/69fd8163d94e/browser-recovery-20261014/chrome-headless-shell-linux64/chrome-headless-shell",
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": true,
+    "args": [
+      "--remote-debugging-pipe"
+    ],
+    "timeout": 30000
+  },
+  "softwarePerformanceOnly": true,
+  "errors": [],
+  "warnings": [],
+  "status": "failed",
+  "readiness": {
+    "timeoutMs": 60000,
+    "attempts": 8,
+    "first": {
+      "elapsedMs": 20104,
+      "pending": false,
+      "error": {
+        "name": "TimeoutError",
+        "message": "The operation was aborted due to timeout",
+        "cause": ""
+      }
+    },
+    "last": {
+      "elapsedMs": 31368,
+      "pending": false,
+      "status": 200,
+      "ok": true
+    },
+    "elapsedMs": 31368,
+    "listening": true,
+    "ready": true
+  },
+  "browserVersion": "154.0.8037.92",
+  "externalDiagnostic": {
+    "path": "/tmp/selector-scene-checks/failures-diagnostic.mjs",
+    "beforeSha256": "5e973ca76236c547792731c68cd60344e7cb0b476f7d7d63e2fbab70b3b2d5f0",
+    "afterSha256": "5e973ca76236c547792731c68cd60344e7cb0b476f7d7d63e2fbab70b3b2d5f0"
+  },
+  "failure": "locator.waitFor: Page crashed\nCall log:\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Main menu', exact: true }) to be visible\u001b[22m\n\n    at Proxy.<anonymous> (/tmp/selector-scene-checks/failures-diagnostic.mjs:23:24)\n    at open (/tmp/populous-selector-scene-457/scripts/check-browser-world-scene.mjs:19:66)\n    at failureEpisode (/tmp/populous-selector-scene-457/scripts/check-browser-world-scene.mjs:270:11)\n    at async default (/tmp/selector-scene-checks/failures-diagnostic.mjs:29:13)\n    at async runLocalBrowser (/tmp/populous-selector-scene-457/scripts/local-render/harness.mjs:400:20)\n    at async file:///tmp/populous-selector-scene-457/scripts/local-render/harness.mjs:593:21",
+  "finishedAt": "2026-10-15T21:30:08.325Z",
+  "sourceAfter": {
+    "root": "/tmp/populous-selector-scene-457",
+    "commit": "52e645ad96273c6c153bb895b3b566d8299652d7",
+    "tree": "f9ca94d8cff47def47d6b275b9a3210e778f5914",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "7ef6e8668cbcad280b4e1c048799d5fe86ffb8a26baef9f8db982e537afb6f38"
+  }
+}

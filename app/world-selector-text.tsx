@@ -65,10 +65,14 @@ export function SelectorTooltip({
     element.addEventListener('pointermove', move)
     element.addEventListener('pointerleave', clear)
     element.addEventListener('pointerdown', clear)
+    window.addEventListener('resize', clear)
+    window.addEventListener('scroll', clear, true)
     return () => {
       element.removeEventListener('pointermove', move)
       element.removeEventListener('pointerleave', clear)
       element.removeEventListener('pointerdown', clear)
+      window.removeEventListener('resize', clear)
+      window.removeEventListener('scroll', clear, true)
     }
   }, [container])
   const started = state?.started
