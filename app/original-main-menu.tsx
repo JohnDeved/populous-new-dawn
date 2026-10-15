@@ -77,18 +77,18 @@ export function OriginalMainMenu({ hasCheckpoint, onNewGame, onTutorial, onLoad,
       .then(() => {
         if (!active) return
         // Modern decorative surround: stone only, outside the intact native frame.
-        // This 32×32 upper-left stone patch contains no artwork or lettering.
+        // This 8×8 upper-left stone-grain patch contains no artwork or lettering.
         const tile = document.createElement('canvas')
-        tile.width = tile.height = 64
+        tile.width = tile.height = 16
         const context = tile.getContext('2d')
         if (!context) return
         // Reflect stone grain at the tile edges to avoid hard repeat seams.
         for (const x of [0, 1])
           for (const y of [0, 1]) {
             context.save()
-            context.translate(x * 64, y * 64)
+            context.translate(x * 16, y * 16)
             context.scale(x ? -1 : 1, y ? -1 : 1)
-            context.drawImage(image, 20, 20, 32, 32, 0, 0, 32, 32)
+            context.drawImage(image, 40, 8, 8, 8, 0, 0, 8, 8)
             context.restore()
           }
         setSurround(`url(${tile.toDataURL()})`)
