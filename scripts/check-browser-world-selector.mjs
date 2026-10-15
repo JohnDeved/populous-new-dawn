@@ -6,6 +6,8 @@ import { pathToFileURL } from 'node:url'
 // Scenario for scripts/local-render/harness.mjs. Campaign actions deliberately
 // do not use the direct-access openMission helper.
 export default async function checkWorldSelector({ page, context, url, root, output, receipt }) {
+  const select=mission=>page.getByRole('button',{name:new RegExp(`^Panel Mission ${mission}(, completed)?$`)})
+  const showControls=async()=>{const b=page.getByRole('button',{name:'Browser controls',exact:true});if(await b.count() && await b.getAttribute('aria-expanded')==='false')await b.click()}
   const dialog = page.getByRole('dialog', { name: 'Start game', exact: true })
   await page.getByRole('dialog', { name: 'Main menu', exact: true }).getByRole('button', { name: 'New Game', exact: true }).click()
   await dialog.waitFor({ state: 'visible' })
@@ -33,7 +35,7 @@ export default async function checkWorldSelector({ page, context, url, root, out
     await page.getByRole('dialog',{name:'Main menu',exact:true}).waitFor()
     await page.getByRole('button',{name:'New Game',exact:true}).click()
   }
-  await page.getByRole('button', { name: 'Select Mission 2', exact: true }).click()
+  await select(2).click()
   assert.equal(await page.getByRole('button', { name: 'Start Mission 2', exact: true }).isDisabled(), true)
   await page.screenshot({path:resolve(output,'locked-mission2.png')})
   await page.keyboard.press('ArrowRight')
@@ -42,7 +44,7 @@ export default async function checkWorldSelector({ page, context, url, root, out
 
   for (const viewport of [{width:640,height:480},{width:1024,height:768},{width:390,height:844},{width:1920,height:1080},{width:3440,height:1440}]) {
     await page.setViewportSize(viewport)
-    await page.getByRole('button', { name: 'Select Mission 1', exact: true }).click()
+    await select(1).click()
     const bounds = await page.getByRole('button', { name: 'Start Mission 1', exact: true }).boundingBox()
     assert.ok(bounds && bounds.width >= 44 && bounds.height >= 44)
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)
@@ -54,6 +56,7 @@ export default async function checkWorldSelector({ page, context, url, root, out
   await showAllMissions(page)
   assert.equal(await page.getByRole('button',{name:/^Mission \d+(, completed)?$/}).count(),23)
   await page.screenshot({path:resolve(output,'all-missions.png')})
+  await showControls()
   await page.getByRole('button', { name: 'Campaign worlds', exact: true }).click()
   // A persisted completion fixture isolates restore/selector integration.
   // It is not a claim of naturally winning these missions in this check.
@@ -66,12 +69,12 @@ export default async function checkWorldSelector({ page, context, url, root, out
   await page.getByRole('button', { name: 'New Game', exact: true }).click()
   await page.getByRole('button',{name:'Start Mission 3',exact:true}).waitFor({state:'visible'})
   assert.equal(await page.getByRole('button',{name:'Start Mission 3',exact:true}).isEnabled(),true)
-  await page.getByRole('button',{name:'Select Mission 3',exact:true}).focus()
+  await select(3).focus()
   await page.keyboard.press('ArrowLeft')
   await page.getByRole('button',{name:'Replay Mission 2',exact:true}).waitFor()
   await page.keyboard.press('ArrowRight')
   await page.getByRole('button',{name:'Start Mission 3',exact:true}).waitFor()
-  await page.getByRole('button',{name:'Select Mission 1',exact:true}).click()
+  await select(1).click()
   await page.getByRole('button',{name:'Replay Mission 1',exact:true}).waitFor({state:'visible'})
   await page.screenshot({path:resolve(output,'restored-progress.png')})
   await page.setViewportSize({width:640,height:480})
@@ -79,11 +82,11 @@ export default async function checkWorldSelector({ page, context, url, root, out
   await page.getByRole('button',{name:'Replay Mission 2',exact:true}).waitFor()
   assert.ok((await page.getByRole('button',{name:'Panel Mission 1, completed',exact:true}).locator('img').getAttribute('src')).endsWith('2-6.png'))
   await page.screenshot({path:resolve(output,'completed-mission2-640x480.png')})
-  await page.getByRole('button',{name:'Select Mission 3',exact:true}).click()
+  await select(3).click()
   await page.screenshot({path:resolve(output,'restored-next-mission3-640x480.png')})
   const cdp=await context.newCDPSession(page)
   await cdp.send('Emulation.setDeviceMetricsOverride',{width:1024,height:768,deviceScaleFactor:2,mobile:false})
-  await page.getByRole('button',{name:'Select Mission 1',exact:true}).click()
+  await select(1).click()
   await page.keyboard.press('ArrowRight')
   await page.getByRole('button',{name:'Replay Mission 2',exact:true}).waitFor()
   const shot=await cdp.send('Page.captureScreenshot',{format:'png',fromSurface:true,captureBeyondViewport:false})
@@ -92,5 +95,5 @@ export default async function checkWorldSelector({ page, context, url, root, out
   writeFileSync(resolve(output,'selector-dpr2.png'),png)
   await cdp.send('Emulation.clearDeviceMetricsOverride');await cdp.detach()
   assert.deepEqual(receipt.errors,[])
-  return {renderer:'Chromium frontend compositor; no battlefield scene initialized',geometry,checks:['source strip/glyph geometry at640x480','repeated startup Escape and reopen','panel glyph pointer selection','DPR2 keyboard and rendered capture','fresh locked/unlocked state','left/right selection','responsive overflow','all23 missions retained','persisted completion restoration and replay'],limits:['Completion profile fixture; not natural campaign victory','Native strip and ordinary globe components; adapted orbit diagram, fixed globe pose/depth and sampler; not full-scene native pixel parity']}
+  return {renderer:'Chromium frontend compositor; no battlefield scene initialized',geometry,checks:['source strip/glyph geometry at640x480','repeated startup Escape and reopen','panel glyph pointer selection','DPR2 keyboard and rendered capture','fresh locked/unlocked state','left/right selection','responsive overflow','all23 missions retained','persisted completion restoration and replay'],limits:['Completion profile fixture; not natural campaign victory','Native strip and source-derived shared GPU scene; browser adaptation, not original GPU pixel parity']}
 }
