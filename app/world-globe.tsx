@@ -33,7 +33,8 @@ export function WorldGlobe({ mission }: { mission: number }) {
       }
       // Publish only the completed current-size generation. Until then the last
       // complete image stays visible, scaled by CSS. Unmount cancels the frame.
-      canvas.width = canvas.height = size
+      canvas.width = size
+      canvas.height = size
       context.putImageData(new ImageData(result.value, size, size), 0, 0)
       rendering = undefined
       lastSize = size
@@ -50,7 +51,8 @@ export function WorldGlobe({ mission }: { mission: number }) {
           return
         }
         const source = document.createElement('canvas')
-        source.width = source.height = 128
+        source.width = 128
+        source.height = 128
         const sourceContext = source.getContext('2d')
         if (!sourceContext) {
           fail()
@@ -79,7 +81,8 @@ export function WorldGlobe({ mission }: { mission: number }) {
     window.addEventListener('resize', schedule)
     return () => {
       disposed = true
-      image.onload = image.onerror = null
+      image.onload = null
+      image.onerror = null
       observer.disconnect()
       resolution.removeEventListener('change', watchResolution)
       window.removeEventListener('resize', schedule)

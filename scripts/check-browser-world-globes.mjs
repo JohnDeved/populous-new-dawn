@@ -8,6 +8,27 @@ export default async function({page,context,output,receipt}) {
  const globe=mission=>page.locator(`canvas[data-world-globe="${mission}"][data-ready="true"]`)
  await globe(1).waitFor()
  const samples=[]
+ // Retain actual browser state if a DPR-only transition stops scheduling work.
+ // Observational listeners never call the component's schedule function.
+ await page.evaluate(()=>{
+  window.globeEvents=[]
+  const record=name=>{
+   const c=document.querySelector('canvas[data-world-globe]')
+   window.globeEvents.push({name,time:performance.now(),dpr:devicePixelRatio,css:c?.getBoundingClientRect().width,backing:c?.width})
+  }
+  window.addEventListener('resize',()=>record('resize'))
+  matchMedia('(resolution: 1dppx)').addEventListener('change',()=>record('resolution1'))
+  const request=window.requestAnimationFrame.bind(window)
+  window.requestAnimationFrame=callback=>request(time=>{callback(time);record(`raf:${callback.name}`)})
+ })
+ async function waitForBacking(label,dpr){
+  try{
+   await page.waitForFunction(expected=>{const c=document.querySelector('canvas[data-world-globe]');return (!expected||devicePixelRatio===expected)&&c.width===Math.min(2048,Math.round(c.getBoundingClientRect().width*devicePixelRatio))},dpr)
+  }finally{
+   const state=await page.evaluate(()=>{const c=document.querySelector('canvas[data-world-globe]');return {dpr:devicePixelRatio,css:c?.getBoundingClientRect().width,backing:c?.width,ready:c?.dataset.ready,events:window.globeEvents.splice(0)}})
+   writeFileSync(resolve(output,`backing-${label}.json`),JSON.stringify(state,null,2))
+  }
+ }
  for(const [width,height] of [[640,480],[1920,1080],[3440,1440],[3840,2160],[390,844]]){
   await page.setViewportSize({width,height})
   await page.waitForFunction(()=>{const c=document.querySelector('canvas[data-world-globe]');return c.width===Math.min(2048,Math.round(c.getBoundingClientRect().width*devicePixelRatio))})
@@ -25,7 +46,7 @@ export default async function({page,context,output,receipt}) {
  await page.setViewportSize({width:1024,height:768})
  const cdp=await context.newCDPSession(page)
  await cdp.send('Emulation.setDeviceMetricsOverride',{width:1024,height:768,deviceScaleFactor:2,mobile:false})
- await page.waitForFunction(()=>{const c=document.querySelector('canvas[data-world-globe]');return devicePixelRatio===2&&c.width===Math.round(c.getBoundingClientRect().width*2)})
+ await waitForBacking('dpr2',2)
  samples.push(await globe(1).evaluate(c=>({dpr:devicePixelRatio,width:c.width,css:c.getBoundingClientRect().width})))
  const shot=await cdp.send('Page.captureScreenshot',{format:'png',fromSurface:true,captureBeyondViewport:false})
  writeFileSync(resolve(output,'globe-dpr2.png'),Buffer.from(shot.data,'base64'))
@@ -56,7 +77,7 @@ export default async function({page,context,output,receipt}) {
  assert.equal(await page.locator('canvas[data-world-globe]').count(),1)
  await page.evaluate(()=>{window.globeBatchMs=[];window.globeRasterStart=performance.now()})
  await cdp.send('Emulation.setDeviceMetricsOverride',{width:3840,height:2160,deviceScaleFactor:4,mobile:false})
- await page.waitForFunction(()=>document.querySelector('canvas[data-world-globe="1"]').width===2048)
+ await waitForBacking('dpr4-cap',4)
  const cap=await page.evaluate(()=>({backing:2048,batchMs:window.globeBatchMs,maxBatchMs:Math.max(...window.globeBatchMs),elapsedMs:performance.now()-window.globeRasterStart}))
  assert.ok(cap.maxBatchMs<50);samples.push(cap)
  await cdp.send('Emulation.clearDeviceMetricsOverride');await cdp.detach()
