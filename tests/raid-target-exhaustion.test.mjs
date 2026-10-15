@@ -7,6 +7,7 @@ import { createLivePerson, registerLivePerson } from '../app/live-people.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { withCampaignTribe } from '../app/campaign-runtime.ts'
 import { stepComputerTasks } from '../app/computer-runtime.ts'
+import { moveObjectInCells } from '../app/object-cells.ts'
 
 // Supplied live-caller regression for the ordinary M6 failure observed at turn8098.
 // The phase15 dispatcher itself owns the mixed Warrior19/Preacher17 orders.
@@ -77,8 +78,11 @@ for (const [name, exclude] of [
   ['wrong owner', c => { c.enemy.team = 'yellow' }],
   ['inside building', c => { c.enemy.inside = 123 }],
   ['state23', c => { c.enemy.native.state = 23 }],
-  ['airborne', c => { c.enemy.flight = {} }],
-  ['outside radius', c => { Object.assign(c.enemy, nativeCellPoint(0x543a)) }],
+  ['native exclusion flag', c => { c.enemy.native.flags2 |= 0x10000 }],
+  ['outside native scan', c => {
+    Object.assign(c.enemy, nativeCellPoint(0x543a))
+    moveObjectInCells(c.w.objectCells, c.enemy.native, nativePosition(c.w, c.enemy))
+  }],
 ]) {
   test(`target collection still rejects ${name}`, () => {
     const c = fixture()

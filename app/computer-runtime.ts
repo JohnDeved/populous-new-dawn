@@ -1,5 +1,5 @@
 import { writeLivePersonOrder as writePersonOrder } from './live-person-order.ts'
-import { TRIBE_TEAMS, tribeForTeam, type Point, type Unit, type World } from './world-types.ts'
+import { TRIBE_TEAMS, tribeForTeam, type Unit, type World } from './world-types.ts'
 import {
   createLivePerson,
   registerLivePerson,
@@ -785,25 +785,16 @@ function computerAttackHasOrder(w: World, index: number, model: number, target: 
 }
 
 function computerAttackTargetsRemain(w: World, tribe: number, target: number) {
-  const team = campaignTeam(w, tribe === 0 ? campaignTribe(w) : 0)
-  if (!team) return false
-  const within = (object: Point) => {
-    const p = nativePosition(w, object),
-      cell = ((p.x >>> 8) & 254) | (p.y & 0xfe00)
-    return cellDistanceSquared(cell, target) <= 100
-  }
-  return (
-    w.units.some(
-      u =>
-        u.team === team &&
-        u.hp > 0 &&
-        u.inside === null &&
-        u.native?.state !== 23 &&
-        !u.flight &&
-        within(u)
-    ) ||
-    w.buildings.some(b => b.team === team && b.hp > 0 && b.damageState?.state !== 3 && within(b))
-  )
+  // Phase16 calls 0x4f5950 with radius7 and independent maximum10 lists,
+  // using native cell order and owner flags, including transient fight owners.
+  const world = computerResponseWorld(w, tribe),
+    targets = collectDefenseTargets(
+      tribe,
+      world.alliances,
+      target,
+      cell => world.cells.get(cell) ?? []
+    )
+  return targets.people.length > 0 || targets.buildings.length > 0
 }
 
 function produceMissionTraining(w: World, tribe: number) {
