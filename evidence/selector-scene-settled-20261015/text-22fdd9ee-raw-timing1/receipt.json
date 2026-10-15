@@ -1,0 +1,264 @@
+{
+  "startedAt": "2026-10-15T21:41:51.548Z",
+  "source": {
+    "root": "/tmp/populous-selector-scene-457",
+    "commit": "22fdd9eed1c15974f92ea6e0df0eb16096f382a3",
+    "tree": "cebb8775c5f68c1431d7c2c804c41849a6acbe73",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "c5a88ea979f84d0d04e46a1d8e08ef8258723c66b1043e6b93da4c15c12e81c1"
+  },
+  "launch": {
+    "executablePath": "/workspace/scratch/69fd8163d94e/browser-recovery-20261014/chrome-headless-shell-linux64/chrome-headless-shell",
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": true,
+    "args": [
+      "--remote-debugging-pipe"
+    ],
+    "timeout": 30000
+  },
+  "softwarePerformanceOnly": true,
+  "errors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+  ],
+  "warnings": [
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0xb3c001cf600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0xb3c001cf600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0xb3c001cf600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0xb3c001cf600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)",
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content."
+  ],
+  "status": "passed",
+  "readiness": {
+    "timeoutMs": 60000,
+    "attempts": 7,
+    "first": {
+      "elapsedMs": 21829,
+      "pending": false,
+      "error": {
+        "name": "TimeoutError",
+        "message": "The operation was aborted due to timeout",
+        "cause": ""
+      }
+    },
+    "last": {
+      "elapsedMs": 31531,
+      "pending": false,
+      "status": 200,
+      "ok": true
+    },
+    "elapsedMs": 31531,
+    "listening": true,
+    "ready": true
+  },
+  "browserVersion": "154.0.8037.92",
+  "externalDiagnostic": {
+    "path": "/tmp/selector-scene-checks/text-raw-timing-diagnostic.mjs",
+    "beforeSha256": "c38c11dc1a22a4655977caf3280f48d83292ef429ddd924bdc61ae9a9dff2a5f",
+    "purpose": "Exact same-ID timing assertion, original250ms waits; raw event and timer observations only",
+    "afterSha256": "c38c11dc1a22a4655977caf3280f48d83292ef429ddd924bdc61ae9a9dff2a5f"
+  },
+  "result": {
+    "checks": [
+      "selected bitmap title source geometry",
+      "computed native cursor URL/hotspot",
+      "strict >500ms tooltip delay",
+      "same-ID move preserves hover epoch",
+      "ID change resets epoch",
+      "keyboard locked selection clears stale launch tooltip",
+      "resize/actual capture-scroll/leave/unmount clear",
+      "title text fallback",
+      "visible fallback panel numerals"
+    ],
+    "titleFacts": [
+      {
+        "mission": 1,
+        "src": "/original/world-selector/text/title-1.png",
+        "natural": [
+          200,
+          19
+        ],
+        "box": {
+          "x": 275,
+          "y": 500,
+          "width": 250,
+          "height": 23.75,
+          "top": 500,
+          "right": 525,
+          "bottom": 523.75,
+          "left": 275
+        },
+        "cursor": "url(\"http://127.0.0.1:4195/original/world-selector/text/cursor-1.png\") 0 0, auto"
+      },
+      {
+        "mission": 2,
+        "src": "/original/world-selector/text/title-2.png",
+        "natural": [
+          139,
+          19
+        ],
+        "box": {
+          "x": 313.125,
+          "y": 500,
+          "width": 173.75,
+          "height": 23.75,
+          "top": 500,
+          "right": 486.875,
+          "bottom": 523.75,
+          "left": 313.125
+        },
+        "cursor": "url(\"http://127.0.0.1:4195/original/world-selector/text/cursor-2.png\") 0 0, auto"
+      },
+      {
+        "mission": 3,
+        "src": "/original/world-selector/text/title-3.png",
+        "natural": [
+          170,
+          19
+        ],
+        "box": {
+          "x": 293.75,
+          "y": 500,
+          "width": 212.5,
+          "height": 23.75,
+          "top": 500,
+          "right": 506.25,
+          "bottom": 523.75,
+          "left": 293.75
+        },
+        "cursor": "url(\"http://127.0.0.1:4195/original/world-selector/text/cursor-3.png\") 0 0, auto"
+      },
+      {
+        "mission": 1,
+        "src": "/original/world-selector/text/title-1.png",
+        "natural": [
+          200,
+          19
+        ],
+        "box": {
+          "x": 275,
+          "y": 500,
+          "width": 250,
+          "height": 23.75,
+          "top": 500,
+          "right": 525,
+          "bottom": 523.75,
+          "left": 275
+        },
+        "cursor": "url(\"http://127.0.0.1:4195/original/world-selector/text/cursor-1.png\") 0 0, auto"
+      }
+    ],
+    "events": [
+      {
+        "kind": "move",
+        "id": null,
+        "start": 0,
+        "last": 40060.69999998808,
+        "x": 10,
+        "y": 10,
+        "at": 40060.69999998808
+      },
+      {
+        "kind": "move",
+        "id": 979,
+        "start": 40408.59999999404,
+        "last": 40408.59999999404,
+        "x": 48.75,
+        "y": 563.75,
+        "at": 40408.59999999404
+      },
+      {
+        "kind": "timer-set",
+        "token": 7,
+        "at": 40431.79999998212,
+        "delay": 478.19999998807907,
+        "stack": "Error\n    at window.setTimeout (eval at evaluate (:311:30), <anonymous>:9:17)\n    at http://127.0.0.1:4195/app/world-selector-text.tsx:73:17\n    at Object.react_stack_bottom_frame (http://127.0.0.1:4195/work/local-render-cache/node_modules/.vite/deps/react-dom_client.js?v=8eae1e59:12904:13)\n    at runWithFiberInDEV (http://127.0.0.1:4195/work/local-render-cache/node_modules/.vite/deps/react-dom_client.js?v=8eae1e59:851:66)\n    at commitHookEffectListMount (http://127.0.0.1:4195/work/local-render-cache/node_modules/.vite/deps/react-dom_client.js?v=8eae1e59:6617:153)\n    at commitHookPassiveMountEffects (http://127.0.0.1:4195/work/local-render-cache/node_modules/.vite/deps/react-dom_client.js?v=8eae1e59:6652:55)\n    at commitPassiveMountOnFiber (http://127.0.0.1:4195/work/local-render-cache/node_modules/.vite/deps/react-dom_client.js?v=8eae1e59:7618:22)\n    at recursivelyTraversePassiveMountEffects (http://127.0.0.1:4195/work/local-render-cache/node_modules/.vite/deps/react-dom_client.js?v=8eae1e59:7606:5)\n    at commitPassiveMountOnFiber (http://127.0.0.1:4195/work/local-render-cache/node_modules/.vite/deps/react-dom_client.js?v=8eae1e59:7672:14)\n    at recursivelyTraversePassiveMountEffects (http://127.0.0.1:4195/work/local-render-cache/node_modules/.vite/deps/react-dom_client.js?v=8eae1e59:7606:5)"
+      },
+      {
+        "kind": "move",
+        "id": 979,
+        "start": 40408.59999999404,
+        "last": 40769.40000000596,
+        "x": 50.75,
+        "y": 563.75,
+        "at": 40769.40000000596
+      },
+      {
+        "kind": "timer-fire",
+        "token": 7,
+        "at": 40914.79999998212,
+        "scheduled": 40431.79999998212,
+        "delay": 478.19999998807907
+      },
+      {
+        "kind": "shown",
+        "id": 979,
+        "at": 40919.40000000596,
+        "start": 40408.59999999404,
+        "last": 40769.40000000596
+      },
+      {
+        "kind": "move",
+        "id": 978,
+        "start": 41455.90000000596,
+        "last": 41455.90000000596,
+        "x": 744.375,
+        "y": 560.625,
+        "at": 41455.90000000596
+      },
+      {
+        "kind": "timer-clear",
+        "token": 7,
+        "at": 41476.09999999404,
+        "scheduled": 40431.79999998212,
+        "delay": 478.19999998807907
+      },
+      {
+        "kind": "timer-set",
+        "token": 8,
+        "at": 41476.29999998212,
+        "delay": 494.5,
+        "stack": "Error\n    at window.setTimeout (eval at evaluate (:311:30), <anonymous>:9:17)\n    at http://127.0.0.1:4195/app/world-selector-text.tsx:73:17\n    at Object.react_stack_bottom_frame (http://127.0.0.1:4195/work/local-render-cache/node_modules/.vite/deps/react-dom_client.js?v=8eae1e59:12904:13)\n    at runWithFiberInDEV (http://127.0.0.1:4195/work/local-render-cache/node_modules/.vite/deps/react-dom_client.js?v=8eae1e59:851:66)\n    at commitHookEffectListMount (http://127.0.0.1:4195/work/local-render-cache/node_modules/.vite/deps/react-dom_client.js?v=8eae1e59:6617:153)\n    at commitHookPassiveMountEffects (http://127.0.0.1:4195/work/local-render-cache/node_modules/.vite/deps/react-dom_client.js?v=8eae1e59:6652:55)\n    at commitPassiveMountOnFiber (http://127.0.0.1:4195/work/local-render-cache/node_modules/.vite/deps/react-dom_client.js?v=8eae1e59:7618:22)\n    at recursivelyTraversePassiveMountEffects (http://127.0.0.1:4195/work/local-render-cache/node_modules/.vite/deps/react-dom_client.js?v=8eae1e59:7606:5)\n    at commitPassiveMountOnFiber (http://127.0.0.1:4195/work/local-render-cache/node_modules/.vite/deps/react-dom_client.js?v=8eae1e59:7672:14)\n    at recursivelyTraversePassiveMountEffects (http://127.0.0.1:4195/work/local-render-cache/node_modules/.vite/deps/react-dom_client.js?v=8eae1e59:7606:5)"
+      },
+      {
+        "kind": "timer-fire",
+        "token": 8,
+        "at": 41997.90000000596,
+        "scheduled": 41476.29999998212,
+        "delay": 494.5
+      },
+      {
+        "kind": "shown",
+        "id": 978,
+        "at": 42017.40000000596,
+        "start": 41455.90000000596,
+        "last": 41455.90000000596
+      }
+    ],
+    "limits": [
+      "Browser behavior and source bitmap geometry, not original runtime pixel identity",
+      "Browser screenshot omits actual OS pointer; cursor is verified by computed CSS URL/hotspot",
+      "Wall-clock event timing observed without synthetic timers or pointer events"
+    ]
+  },
+  "finishedAt": "2026-10-15T21:43:16.659Z",
+  "sourceAfter": {
+    "root": "/tmp/populous-selector-scene-457",
+    "commit": "22fdd9eed1c15974f92ea6e0df0eb16096f382a3",
+    "tree": "cebb8775c5f68c1431d7c2c804c41849a6acbe73",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "c5a88ea979f84d0d04e46a1d8e08ef8258723c66b1043e6b93da4c15c12e81c1"
+  }
+}

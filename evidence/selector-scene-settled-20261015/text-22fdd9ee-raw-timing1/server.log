@@ -1,0 +1,13 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+  VITE v8.0.13  ready in 20163 ms
+
+  ➜  Local:   http://127.0.0.1:4195/
+ GET / 200 in 680ms (compile: 1792100512.4s, render: 630ms)
+ GET / 200 in 81ms (compile: 1792100512.4s, render: 57ms)
+Assets in public directory cannot be imported from JavaScript.
+If you intend to import that asset, put the file in the src directory, and use /src/original/world-selector/text/runtime.json instead of /public/original/world-selector/text/runtime.json.
+If you intend to use the URL of that asset, use /original/world-selector/text/runtime.json?url.
+  ➜  Tunnel closed

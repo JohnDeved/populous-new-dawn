@@ -44,6 +44,8 @@ export default defineConfig(async () => {
   const { cloudflare } = await import("@cloudflare/vite-plugin");
 
   return {
+    // Keep generated caches outside potentially shared, read-only dependencies.
+    cacheDir: "work/build-cache/node_modules/.vite",
     server: {
       watch: isCodexSeatbeltSandbox
         ? { useFsEvents: false, usePolling: true, ignored: ['**/work/**'] }

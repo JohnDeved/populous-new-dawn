@@ -1,0 +1,62 @@
+{
+  "startedAt": "2026-10-15T21:02:58.575Z",
+  "source": {
+    "root": "/tmp/populous-raid447-fallback-0229",
+    "commit": "265444c6dc5ce58ec7e6427b123374a0de7dc44d",
+    "tree": "332b0a7a00985d79b541d5aa91a64c761f807bb2",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "65f6bad1e9eb433abbbd46580063fd70c6ebfdf1f0f72e7d84a3b208040cce6e"
+  },
+  "launch": {
+    "executablePath": "/workspace/scratch/69fd8163d94e/browser-recovery-20261014/chrome-headless-shell-linux64/chrome-headless-shell",
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": true,
+    "args": [
+      "--remote-debugging-pipe"
+    ],
+    "timeout": 30000
+  },
+  "softwarePerformanceOnly": true,
+  "errors": [],
+  "warnings": [],
+  "status": "passed",
+  "readiness": {
+    "timeoutMs": 60000,
+    "attempts": 11,
+    "first": {
+      "elapsedMs": 20100,
+      "pending": false,
+      "error": {
+        "name": "TimeoutError",
+        "message": "The operation was aborted due to timeout",
+        "cause": ""
+      }
+    },
+    "last": {
+      "elapsedMs": 36542,
+      "pending": false,
+      "status": 200,
+      "ok": true
+    },
+    "elapsedMs": 36542,
+    "listening": true,
+    "ready": true
+  },
+  "browserVersion": "154.0.8037.92",
+  "result": {
+    "claim": "Clean PR464 selector baseline, headless reconstruction, no original-runtime comparison."
+  },
+  "finishedAt": "2026-10-15T21:04:04.420Z",
+  "sourceAfter": {
+    "root": "/tmp/populous-raid447-fallback-0229",
+    "commit": "265444c6dc5ce58ec7e6427b123374a0de7dc44d",
+    "tree": "332b0a7a00985d79b541d5aa91a64c761f807bb2",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "65f6bad1e9eb433abbbd46580063fd70c6ebfdf1f0f72e7d84a3b208040cce6e"
+  }
+}

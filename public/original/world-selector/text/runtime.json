@@ -1,0 +1,123 @@
+{
+  "version": 1,
+  "baseUrl": "/original/world-selector/text/",
+  "banks": {
+    "1": {
+      "palette": "c",
+      "title": {
+        "file": "title-1.png",
+        "width": 200,
+        "height": 19,
+        "text": "01 : The Journey Begins",
+        "nativeY": 400
+      },
+      "tooltips": {
+        "978": {
+          "file": "tooltip-1-978.png",
+          "width": 109,
+          "height": 10,
+          "text": "Begin World: {}start"
+        },
+        "979": {
+          "file": "tooltip-1-979.png",
+          "width": 167,
+          "height": 10,
+          "text": "An unconquered world: {}select"
+        },
+        "980": {
+          "file": "tooltip-1-980.png",
+          "width": 218,
+          "height": 10,
+          "text": "You have conquered this world: {}select"
+        }
+      },
+      "cursor": {
+        "file": "cursor-1.png",
+        "width": 26,
+        "height": 27,
+        "hotspot": [
+          0,
+          0
+        ]
+      }
+    },
+    "2": {
+      "palette": "s",
+      "title": {
+        "file": "title-2.png",
+        "width": 139,
+        "height": 19,
+        "text": "02 : Night Falls",
+        "nativeY": 400
+      },
+      "tooltips": {
+        "978": {
+          "file": "tooltip-2-978.png",
+          "width": 109,
+          "height": 10,
+          "text": "Begin World: {}start"
+        },
+        "979": {
+          "file": "tooltip-2-979.png",
+          "width": 167,
+          "height": 10,
+          "text": "An unconquered world: {}select"
+        },
+        "980": {
+          "file": "tooltip-2-980.png",
+          "width": 218,
+          "height": 10,
+          "text": "You have conquered this world: {}select"
+        }
+      },
+      "cursor": {
+        "file": "cursor-2.png",
+        "width": 26,
+        "height": 27,
+        "hotspot": [
+          0,
+          0
+        ]
+      }
+    },
+    "3": {
+      "palette": "p",
+      "title": {
+        "file": "title-3.png",
+        "width": 170,
+        "height": 19,
+        "text": "03 : Crisis of Faith",
+        "nativeY": 400
+      },
+      "tooltips": {
+        "978": {
+          "file": "tooltip-3-978.png",
+          "width": 109,
+          "height": 10,
+          "text": "Begin World: {}start"
+        },
+        "979": {
+          "file": "tooltip-3-979.png",
+          "width": 167,
+          "height": 10,
+          "text": "An unconquered world: {}select"
+        },
+        "980": {
+          "file": "tooltip-3-980.png",
+          "width": 218,
+          "height": 10,
+          "text": "You have conquered this world: {}select"
+        }
+      },
+      "cursor": {
+        "file": "cursor-3.png",
+        "width": 26,
+        "height": 27,
+        "hotspot": [
+          0,
+          0
+        ]
+      }
+    }
+  }
+}
