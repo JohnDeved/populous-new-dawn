@@ -486,6 +486,7 @@ export default function Home() {
     const key = (e: KeyboardEvent) => {
       if (
         !ready ||
+        menu ||
         e.ctrlKey ||
         e.metaKey ||
         e.altKey ||
@@ -543,7 +544,7 @@ export default function Home() {
     }
     window.addEventListener('keydown', key)
     return () => window.removeEventListener('keydown', key)
-  }, [world, update, store, ready, openMenu])
+  }, [world, update, store, ready, openMenu, menu])
   useEffect(() => {
     void audio.current?.setPaused(world.paused || document.hidden).catch(() => {
       audio.current?.mute()

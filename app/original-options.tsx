@@ -138,9 +138,10 @@ export function OriginalOptions({
     if (browser) root.current?.querySelector<HTMLButtonElement>('[data-return-options]')?.focus()
   }, [browser])
   useEffect(() => {
+    if (!browser) return
     const element = root.current
     function keydown(event: KeyboardEvent) {
-      if (browser && event.key === 'Escape') {
+      if (browser && event.key === 'Escape' && element?.closest('dialog')?.open) {
         event.preventDefault()
         event.stopPropagation()
         setBrowser(false)
@@ -149,8 +150,9 @@ export function OriginalOptions({
         )
       }
     }
-    element?.addEventListener('keydown', keydown)
-    return () => element?.removeEventListener('keydown', keydown)
+    // Async disabled controls can leave focus on body rather than inside this panel.
+    document.addEventListener('keydown', keydown, true)
+    return () => document.removeEventListener('keydown', keydown, true)
   }, [browser])
   function returnFromBrowser() {
     setBrowser(false)
