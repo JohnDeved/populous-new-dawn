@@ -48,6 +48,8 @@ export function clearTaskBindings(w: World, u: Unit, preserveOrders = false) {
   u.tree = directTree
   u.harvest = undefined
   u.delivery = undefined
+  // Construction cancellation retains the physical person for the replacement.
+  u.native ??= u.builder?.person ?? null
   u.builder = undefined
   u.target = null
   u.guard = false
