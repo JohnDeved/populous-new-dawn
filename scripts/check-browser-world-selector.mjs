@@ -23,6 +23,11 @@ export default async function checkWorldSelector({ page, context, url, root, out
   await panelOne.hover();await panelOne.focus()
   assert.equal(await panelOne.evaluate(b=>getComputedStyle(b).backgroundColor),'rgba(0, 0, 0, 0)')
   await page.screenshot({path:resolve(output,'glyph-hover-focus-640x480.png')})
+  const launch=page.getByRole('button',{name:'Start Mission 1',exact:true})
+  await launch.hover();await launch.focus()
+  assert.equal(await launch.evaluate(b=>getComputedStyle(b).backgroundColor),'rgba(0, 0, 0, 0)')
+  assert.equal(await launch.locator('img').evaluate(img=>getComputedStyle(img).opacity),'1')
+  await page.screenshot({path:resolve(output,'launch-hover-focus-640x480.png')})
   for(let i=0;i<3;i++) {
     await page.keyboard.press('Escape')
     await page.getByRole('dialog',{name:'Main menu',exact:true}).waitFor()
@@ -44,7 +49,7 @@ export default async function checkWorldSelector({ page, context, url, root, out
     assert.equal(overflow,false)
     await page.screenshot({path:resolve(output,`fresh-${viewport.width}x${viewport.height}.png`)})
   }
-  await page.setViewportSize({width:1440,height:1000})
+  await page.setViewportSize({width:800,height:600})
   const { showAllMissions } = await import(pathToFileURL(resolve(root,'scripts/browser-game.mjs')).href)
   await showAllMissions(page)
   assert.equal(await page.getByRole('button',{name:/^Mission \d+(, completed)?$/}).count(),23)

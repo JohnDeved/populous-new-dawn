@@ -20,7 +20,7 @@
   container-type: inline-size;
 }
 .selector button { min-height: 44px; padding: 8px 12px; border: 1px solid #66583d; border-radius: 2px; background: #171710; color: #f0e7d1; cursor: pointer; font: inherit; }
-.selector button:not(.panelGlyph):hover { background: #302b1e; }
+.selector button:not(.panelGlyph):not(.start):hover { background: #302b1e; }
 .selector button:focus-visible { outline: 3px solid #f4db95; outline-offset: 2px; }
 .selector button:not(.panelGlyph)[aria-pressed='true'] { border-color: #eacf87; background: #38301e; }
 .selector button:disabled { opacity: .5; cursor: not-allowed; }
