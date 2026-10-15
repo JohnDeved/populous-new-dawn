@@ -1,0 +1,50 @@
+import assert from 'node:assert/strict'
+import {resolve} from 'node:path'
+import {pathToFileURL} from 'node:url'
+
+// Separate fresh episode: no large frontend captures precede actual WebGL startup.
+export default async function({page,root,output,receipt}) {
+  const dialog=page.getByRole('dialog',{name:'Start game',exact:true})
+  await page.setViewportSize({width:800,height:600})
+  await page.getByRole('button',{name:'New Game',exact:true}).click()
+  await page.getByRole('button', { name: 'Start Mission 1', exact: true }).click()
+  const { bindGame } = await import(pathToFileURL(resolve(root,'scripts/browser-game.mjs')).href)
+  await bindGame(page)
+  assert.equal(await page.evaluate(()=>window.testStore.getWorld().outcome.level),1)
+  const guard=page.getByRole('button',{name:'Continue anyway',exact:false});if(await guard.isVisible())await guard.click()
+  const skip=page.locator('.skip-introduction')
+  await skip.waitFor({state:'visible',timeout:45000}).catch(()=>{})
+  if(await skip.isVisible()) await skip.click()
+  await page.waitForFunction(()=>!window.testStore.getWorld().inputMask)
+  const renderer = await page.evaluate(()=> {
+    const gl=window.testScene.renderer.getContext(), debug=gl.getExtension('WEBGL_debug_renderer_info')
+    return debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER)
+  })
+  await page.getByRole('button',{name:'Game settings',exact:true}).click()
+  await page.getByRole('button',{name:'Options',exact:true}).click()
+  await page.getByRole('button',{name:'Browser compatibility and help',exact:true}).click()
+  await page.getByRole('button',{name:'Select Level',exact:true}).click()
+  await dialog.waitFor({state:'visible'})
+  await page.evaluate(()=>{window.selectorOriginalWorld=window.testStore.getWorld()})
+  const before=await page.evaluate(()=>({turn:window.testStore.getWorld().turn,level:window.testStore.getWorld().outcome.level,paused:window.testStore.getWorld().paused}))
+  await page.waitForTimeout(350)
+  const after=await page.evaluate(()=>({turn:window.testStore.getWorld().turn,level:window.testStore.getWorld().outcome.level,paused:window.testStore.getWorld().paused}))
+  assert.deepEqual(after,before)
+  assert.equal(await page.evaluate(()=>window.testStore.getWorld()===window.selectorOriginalWorld),true)
+  assert.equal(after.paused,true)
+  await page.screenshot({path:resolve(output,'ingame-selector.png')})
+  await page.getByRole('button',{name:'Back',exact:true}).click()
+  await page.getByRole('button',{name:'Continue Game',exact:false}).waitFor({state:'visible'})
+  assert.equal(await page.evaluate(()=>window.testStore.getWorld().paused),true)
+
+  await page.screenshot({path:resolve(output,'returned-pause-menu.png')})
+  await page.getByRole('button',{name:'Options',exact:true}).click()
+  await page.getByRole('button',{name:'Browser compatibility and help',exact:true}).click()
+  await page.getByRole('button',{name:'Select Level',exact:true}).click()
+  await page.keyboard.press('Escape')
+  await page.getByRole('button',{name:'Continue Game',exact:true}).waitFor()
+  assert.equal(await page.evaluate(()=>window.testStore.getWorld().outcome.level),1)
+
+  assert.deepEqual(receipt.errors,[])
+  return {renderer,before,after,checks:['pointer launch Mission1','Select Level through shipped compatibility menu','paused world object/turn/level identity preserved','Back and Escape return to paused main menu'],limits:['Headless software rendering; no hardware performance or natural-victory claim']}
+}

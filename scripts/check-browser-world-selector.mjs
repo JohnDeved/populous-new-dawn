@@ -55,38 +55,6 @@ export default async function checkWorldSelector({ page, context, url, root, out
   assert.equal(await page.getByRole('button',{name:/^Mission \d+(, completed)?$/}).count(),23)
   await page.screenshot({path:resolve(output,'all-missions.png')})
   await page.getByRole('button', { name: 'Campaign worlds', exact: true }).click()
-  await page.getByRole('button', { name: 'Start Mission 1', exact: true }).click()
-  const { bindGame } = await import(pathToFileURL(resolve(root,'scripts/browser-game.mjs')).href)
-  await bindGame(page)
-  assert.equal(await page.evaluate(()=>window.testStore.getWorld().outcome.level),1)
-  const guard=page.getByRole('button',{name:'Continue anyway',exact:false});if(await guard.isVisible())await guard.click()
-  const skip=page.locator('.skip-introduction')
-  await skip.waitFor({state:'visible',timeout:45000}).catch(()=>{})
-  if(await skip.isVisible()) await skip.click()
-  await page.waitForFunction(()=>!window.testStore.getWorld().inputMask)
-  const renderer = await page.evaluate(()=> {
-    const gl=window.testScene.renderer.getContext(), debug=gl.getExtension('WEBGL_debug_renderer_info')
-    return debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER)
-  })
-  await page.getByRole('button',{name:'Game settings',exact:true}).click()
-  await page.getByRole('button',{name:'Select Level',exact:true}).click()
-  await dialog.waitFor({state:'visible'})
-  const before=await page.evaluate(()=>({turn:window.testStore.getWorld().turn,level:window.testStore.getWorld().outcome.level,paused:window.testStore.getWorld().paused}))
-  await page.waitForTimeout(350)
-  const after=await page.evaluate(()=>({turn:window.testStore.getWorld().turn,level:window.testStore.getWorld().outcome.level,paused:window.testStore.getWorld().paused}))
-  assert.deepEqual(after,before)
-  assert.equal(after.paused,true)
-  await page.screenshot({path:resolve(output,'ingame-selector.png')})
-  await page.getByRole('button',{name:'Back',exact:true}).click()
-  await page.getByRole('button',{name:'Continue Game',exact:false}).waitFor({state:'visible'})
-  assert.equal(await page.evaluate(()=>window.testStore.getWorld().paused),true)
-
-  await page.screenshot({path:resolve(output,'returned-pause-menu.png')})
-  await page.getByRole('button',{name:'Select Level',exact:true}).click()
-  await page.keyboard.press('Escape')
-  await page.getByRole('button',{name:'Continue Game',exact:true}).waitFor()
-  assert.equal(await page.evaluate(()=>window.testStore.getWorld().outcome.level),1)
-
   // A persisted completion fixture isolates restore/selector integration.
   // It is not a claim of naturally winning these missions in this check.
   await page.evaluate(async()=> {
@@ -124,5 +92,5 @@ export default async function checkWorldSelector({ page, context, url, root, out
   writeFileSync(resolve(output,'selector-dpr2.png'),png)
   await cdp.send('Emulation.clearDeviceMetricsOverride');await cdp.detach()
   assert.deepEqual(receipt.errors,[])
-  return {renderer,geometry,checks:['source strip/glyph geometry at640x480','repeated startup Escape and reopen','panel glyph pointer selection','DPR2 keyboard and rendered capture','fresh locked/unlocked state','left/right selection','pointer launch Mission1','responsive overflow','all23 missions retained','return and Back preserve paused world','persisted completion restoration and replay'],limits:['Completion profile fixture; not natural campaign victory','Native authored layout and textures with modern flat-map/CSS sphere presentation; not native pixel parity']}
+  return {renderer:'Chromium frontend compositor; no battlefield scene initialized',geometry,checks:['source strip/glyph geometry at640x480','repeated startup Escape and reopen','panel glyph pointer selection','DPR2 keyboard and rendered capture','fresh locked/unlocked state','left/right selection','responsive overflow','all23 missions retained','persisted completion restoration and replay'],limits:['Completion profile fixture; not natural campaign victory','Native authored layout and textures with modern flat-map/CSS sphere presentation; not native pixel parity']}
 }

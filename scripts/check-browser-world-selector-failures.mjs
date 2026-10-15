@@ -32,7 +32,7 @@ export default async function({page,url,root,output,receipt}) {
   await button('Game settings').click();await button('Save Game').click();await button('Save checkpoint').click()
   await page.getByText('Checkpoint saved in this browser.',{exact:true}).waitFor()
   const saved=await page.evaluate(()=>({level:window.testStore.getWorld().outcome.level,turn:window.testStore.getWorld().turn}))
-  await page.keyboard.press('Escape');await button('Select Level').click()
+  await page.keyboard.press('Escape');await button('Options').click();await button('Browser compatibility and help').click();await button('Select Level').click()
   await button('Load Game').waitFor()
   await page.screenshot({path:resolve(output,'selector-checkpoint-access.png')})
   await button('Load Game').click();await bindGame(page)
