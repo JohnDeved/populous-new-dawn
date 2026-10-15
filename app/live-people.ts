@@ -257,8 +257,9 @@ export function createLivePerson(w: World, u: Unit): LivePerson {
 // Share native exit placement without allocating a synthetic occupancy world.
 // ponytail: ordinary occupants still belong to the browser unit list; native
 // six-slot admission, training repricing and order ownership remain to be wired.
-export function stepLivePersonHealth(w: World) {
+export function stepLivePersonHealth(w: World, deferred?: ReadonlySet<Unit>) {
   for (const u of w.units) {
+    if (deferred?.has(u)) continue
     discardInvalidResident(w, u)
     if (u.hp <= 0) continue
     const p = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person

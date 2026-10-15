@@ -127,10 +127,10 @@ test('ordinary M16 Red recurring requests physically garrison all six Towers and
   assert.deepEqual(
     [...entries].sort((a, b) => a[0] - b[0]),
     [
-      [255, [249, 278]],
+      [255, [249, 276]],
       [256, [250, 258]],
-      [257, [251, 244]],
-      [258, [252, 220]],
+      [257, [251, 240]],
+      [258, [252, 224]],
       [259, [253, 192]],
       [260, [254, 164]],
     ]

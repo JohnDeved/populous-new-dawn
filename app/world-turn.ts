@@ -498,6 +498,9 @@ function stepTurn(w: World) {
         },
       }
     )
+  // 0x4ed8a0 prepends Hut births behind 0x4ec6f0's cached-next traversal.
+  // Initialization is immediate; their first scheduled person visit is next turn.
+  const hutNewborns = new Set<Unit>()
   const dt = 1 / TURNS_PER_SECOND
   w.turn = (w.turn + 1) >>> 0
   if (!(w.manaWorld.gameFlags & 2))
@@ -1248,6 +1251,7 @@ function stepTurn(w: World) {
           return neighbor && buildingPose(neighbor)
         })
         const u = addUnit(w, b.team, 'brave', browserPosition(points.inside))
+        hutNewborns.add(u)
         u.heading = Math.PI - b.angle
         if (b.team === 'blue') sound(w, 0x28, u)
         effect(w, 'birth', browserPosition(points.flash))
@@ -1297,7 +1301,7 @@ function stepTurn(w: World) {
   processBattles(w)
   const contacts: [Unit, Unit][] = []
   const burningPeople = w.units
-    .filter(u => u.burnTrail && u.hp > 0)
+    .filter(u => !hutNewborns.has(u) && u.burnTrail && u.hp > 0)
     .map(u => ({
       unit: u,
       previous: u.flight ? { x: u.flight.x, y: u.flight.y, h: u.flight.h } : nativePosition(w, u),
@@ -1310,7 +1314,7 @@ function stepTurn(w: World) {
   const armageddon = w.effects.find(fx => fx.armageddon)?.armageddon
   beginLiveVehiclePass(w)
   for (const u of w.units) {
-    if (startingPeople.has(u.id)) continue
+    if (hutNewborns.has(u) || startingPeople.has(u.id)) continue
     if (u.attackReservation) stepAttackReservation(u.attackReservation, w.turn)
     u.fighting = false
     const spy = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person
@@ -1686,7 +1690,7 @@ function stepTurn(w: World) {
       }
     } else u.idleTurns = 0
   }
-  stepLivePersonHealth(w)
+  stepLivePersonHealth(w, hutNewborns)
   for (const { unit: u, previous } of burningPeople) {
     if (u.hp <= 0 && !u.flight) continue
     const person = { ...(u.flight ?? nativePosition(w, u)), burnTrail: u.burnTrail! }
@@ -1793,6 +1797,7 @@ function stepTurn(w: World) {
   }
   // Native person epilogue decrements the arrival-voice cooldown after its state body.
   for (const u of w.units) {
+    if (hutNewborns.has(u)) continue
     const p = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person
     if (p?.marchCooldown) p.marchCooldown--
   }

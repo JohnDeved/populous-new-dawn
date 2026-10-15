@@ -108,9 +108,9 @@ test('ordinary M16 capacity admission trains actual followers with complete chec
   assert.deepEqual(
     [...arrivals],
     [
-      [111, 372],
+      [111, 374],
       [110, 380],
-      [106, 384],
+      [106, 386],
     ]
   )
   assert.deepEqual(
@@ -121,7 +121,7 @@ test('ordinary M16 capacity admission trains actual followers with complete chec
       [360, 584],
       [438, 1540],
       [439, 1540],
-      [453, 1672],
+      [454, 1680],
     ]
   )
 })

@@ -85,8 +85,8 @@ test('ordinary M12 capacity admission produces real Warriors and replays the tra
       [270, 628],
       [293, 1292],
       [294, 1292],
-      [336, 1964],
-      [345, 2160],
+      [335, 1964],
+      [344, 2156],
     ]
   )
   assert.equal(training(w).length, 0)
