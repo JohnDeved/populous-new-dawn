@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import {resolve} from 'node:path'
 import {writeFileSync} from 'node:fs'
 import {pathToFileURL} from 'node:url'
-export default async function({page,openMission,output,root}) {
+export default async function({page,output,root}) {
  const {bindGame}=await import(pathToFileURL(resolve(root,'scripts/browser-game.mjs')).href)
  const progress=[],passed=name=>{progress.push(name);writeFileSync(resolve(output,'progress.json'),JSON.stringify(progress,null,2))}
  const button=name=>page.getByRole('button',{name,exact:true})
