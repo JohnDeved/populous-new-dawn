@@ -83,11 +83,11 @@ export function OriginalMainMenu({ hasCheckpoint, onNewGame, onTutorial, onLoad,
     const controller = new AbortController()
     void fetch('/original/frontend/composition.bin', { signal: controller.signal })
       .then(response => {
-        if (!response.ok) throw Error('Frontend artwork unavailable')
+        if (!response.ok) throw new Error('Frontend artwork unavailable')
         return response.arrayBuffer()
       })
       .then(data => {
-        if (data.byteLength !== assets.binaryBytes) throw Error('Invalid frontend artwork')
+        if (data.byteLength !== assets.binaryBytes) throw new Error('Invalid frontend artwork')
         if (active) {
           pixels.current = new Uint8Array(data)
           setSourceReady(true)
@@ -148,9 +148,9 @@ export function OriginalMainMenu({ hasCheckpoint, onNewGame, onTutorial, onLoad,
   }, [draw, sourceReady])
   useEffect(() => {
     if (panel === 'main') {
-      const previous = Array.from(
-        dialog.current?.querySelectorAll<HTMLButtonElement>('nav button') ?? []
-      ).find(button => button.getAttribute('aria-label') === returnFocus.current)
+      const previous = [
+        ...(dialog.current?.querySelectorAll<HTMLButtonElement>('nav button') ?? []),
+      ].find(button => button.getAttribute('aria-label') === returnFocus.current)
       ;(previous ?? first.current)?.focus()
     } else dialog.current?.querySelector<HTMLButtonElement>('[data-panel-back]')?.focus()
   }, [panel])
@@ -186,9 +186,9 @@ export function OriginalMainMenu({ hasCheckpoint, onNewGame, onTutorial, onLoad,
         draw()
         if (panel !== 'main' || !['ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return
         event.preventDefault()
-        const buttons = Array.from(
-          dialog.current?.querySelectorAll<HTMLButtonElement>('nav button') ?? []
-        )
+        const buttons = [
+          ...(dialog.current?.querySelectorAll<HTMLButtonElement>('nav button') ?? []),
+        ]
         const current = buttons.indexOf(document.activeElement as HTMLButtonElement)
         const next =
           event.key === 'Home'

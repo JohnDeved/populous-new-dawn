@@ -14,7 +14,7 @@ export const frontendRows = [
 export const frontendRowY = (index: number) => ((0x4aaa + index * 0x1000) * 480) >> 16
 export const frontendScale = (width: number, height: number) => Math.min(width / 640, height / 480)
 export const frontendTextWidth = (text: string) =>
-  Array.from(text).reduce(
+  [...text].reduce(
     (width, letter) => width + assets.banks.feft33we.rects[letter.charCodeAt(0) - 32].w,
     0
   )
@@ -49,7 +49,7 @@ export function frontendBackground(
   menu: boolean,
   glowFrame: number | null = null
 ) {
-  if (source.length !== assets.binaryBytes) throw Error('Invalid frontend composition data')
+  if (source.length !== assets.binaryBytes) throw new Error('Invalid frontend composition data')
   const indexed = source.slice(0, 640 * 480)
   if (menu) {
     for (const [index, text] of frontendRows.entries()) {
