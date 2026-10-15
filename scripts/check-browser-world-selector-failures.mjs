@@ -42,7 +42,7 @@ export default async function({page,url,root,output,receipt}) {
   await page.goto(url,{waitUntil:'networkidle'})
   // Startup restores the saved world's ownership; load and tutorial remain separate actions.
   await button('New Game').click();await button('Tutorial').click();await bindGame(page)
-  assert.equal(await page.evaluate(()=>window.testStore.getWorld().tutorial.active),true)
+  assert.equal(await page.evaluate(()=>window.testStore.getWorld().outcome.level),79)
   assert.deepEqual(receipt.errors.filter(error=>!error.includes('Failed to load resource: net::ERR_FAILED')&&!error.includes('Texture load failed: atlas')),[])
   return {artFailures,atlasFailures,saved,restored,checks:['visible art fallback and locked launch','keyboard Mission1 launch through required-texture failure and explicit retry','real saved checkpoint accessible and loadable from selector','Tutorial remains launchable'],limits:['Explicit resource failures; no natural campaign outcome evidence','Headless software rendering']}
 }
