@@ -67,6 +67,39 @@ export function OriginalMainMenu({ hasCheckpoint, onNewGame, onTutorial, onLoad,
   const [scale, setScale] = useState(1)
   const [artReady, setArtReady] = useState(false)
   const [sourceReady, setSourceReady] = useState(false)
+  const [surround, setSurround] = useState<string>()
+  useEffect(() => {
+    let active = true
+    const image = new Image()
+    image.src = '/original/frontend/background.png'
+    void image
+      .decode()
+      .then(() => {
+        if (!active) return
+        // Modern decorative surround: stone only, outside the intact native frame.
+        // This 32×32 upper-left stone patch contains no artwork or lettering.
+        const tile = document.createElement('canvas')
+        tile.width = tile.height = 64
+        const context = tile.getContext('2d')
+        if (!context) return
+        // Reflect stone grain at the tile edges to avoid hard repeat seams.
+        for (const x of [0, 1])
+          for (const y of [0, 1]) {
+            context.save()
+            context.translate(x * 64, y * 64)
+            context.scale(x ? -1 : 1, y ? -1 : 1)
+            context.drawImage(image, 20, 20, 32, 32, 0, 0, 32, 32)
+            context.restore()
+          }
+        setSurround(`url(${tile.toDataURL()})`)
+      })
+      .catch(() => {
+        /* Keep the solid surround when the original background is unavailable. */
+      })
+    return () => {
+      active = false
+    }
+  }, [])
   useEffect(() => {
     const resize = () => setScale(frontendScale(window.innerWidth, window.innerHeight))
     resize()
@@ -204,6 +237,12 @@ export function OriginalMainMenu({ hasCheckpoint, onNewGame, onTutorial, onLoad,
       }}
       style={{ '--frontend-scale': scale } as CSSProperties}
     >
+      <div
+        className={styles.surround}
+        aria-hidden="true"
+        data-menu-surround
+        style={{ backgroundImage: surround }}
+      />
       <div
         className={styles.frame}
         onPointerMove={event => {

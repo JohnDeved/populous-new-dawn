@@ -15,6 +15,20 @@
 }
 .dialog, .dialog button, .dialog input { cursor: url('/original/frontend/pointer.png') 0 0, auto; }
 .dialog::backdrop { background: #171309; }
+.surround {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-repeat: repeat;
+  background-size: calc(64px * var(--frontend-scale)) calc(64px * var(--frontend-scale));
+  opacity: .65;
+}
+.surround::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, #a47d2733, #17130999);
+}
 .frame {
   position: absolute;
   width: 640px;
