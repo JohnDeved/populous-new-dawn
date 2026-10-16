@@ -58,6 +58,8 @@ export default async function ({ page, browser, url, root, output }) {
   await button(page, 'New Game').click()
   await page.getByRole('dialog', { name: 'Start game', exact: true }).waitFor()
   assert.equal(await prompt(page).count(), 0)
+  await page.keyboard.press('Escape')
+  await main(page).waitFor()
   passed('no-opens-selector-and-persists-across-reload')
 
   const blocked = await browser.newContext({ viewport: { width: 640, height: 480 } })
