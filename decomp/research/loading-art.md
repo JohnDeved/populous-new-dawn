@@ -160,3 +160,33 @@ No runtime, stylesheet, loading contract, asset, importer or provenance change i
 part of this evidence publication. The checker produces only explicitly requested
 research output; it does not install artwork. Shared research/mapping index entries
 are proposed in the PR for CEO integration, not silently edited by this worker.
+
+
+## Western label and clear follow-up (2026-10-16)
+
+[Retained static source packet](../../evidence/loading-recovery-20261016/native-presentation.tar.gz)
+contains the source-hashed byte windows, GNU objdump listings, bounded reconstruction,
+and independent importer verification. This does not rerun or broaden the historical
+loading-mask checker above, and no original code was executed.
+
+The Western path selects frontend font slot 1, `data/fenew/FEFT20WE.spr`, through
+`005d5b58` and the slot table initialized by `004fd7c0`. English entry 515 measures
+81×19; the advances for `Loading...` are 8,14,10,11,4,10,12,4,4,4. The ordinary
+first-pass label origin is `trunc((W-81)/2), maskY-26`. Its X is independent of the
+130-pixel mask's X, including odd viewport widths. A second pass adds (+1,+1).
+
+`004a32d0` assigns FE gray RGB (131,131,131) and FF white. The selected 16-bit
+software surface's `00546190` positive-RLE path ignores source colour bytes and
+fills the supplied colour, with transparent skips. The bounded transparent
+composite is therefore 82×20. This is pre-device RGB, not a hardware RGB555/RGB565
+quantization claim, GPU text-path certification, or native screenshot. Other
+language engines, clipping/flipping paths, and the 512×384 offsets remain outside
+this evidence. The deterministic narrow importer is
+[`scripts/import-loading-label.py`](../../scripts/import-loading-label.py).
+
+The clear colour is current system-palette index 0 via `004525d0` and `00529940`.
+It is not a background picture or a universal literal black: supplied `fepal1`
+has black at index 0, while `pal0-c` has RGB (13,15,6). The browser's opaque black
+clear is a documented cross-context compatibility choice. Browser checkpoint
+lookup, failure copy, retry controls, and responsive recovery layout remain
+adaptations; see [integration boundaries](../../references/loading-recovery-ui.md).

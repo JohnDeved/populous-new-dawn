@@ -1,6 +1,7 @@
 'use client'
 
 import { OriginalOptions } from './original-options'
+import { OriginalLoadingScreen } from './original-loading-screen'
 
 import { hudScale } from './hud-layout.ts'
 import { OriginalResultScreen } from './original-result-screen'
@@ -1510,40 +1511,13 @@ export default function Home() {
           />
         </dialog>
       )}
-      {startup === 'loading' && (
-        <div className="loading-world" role="status">
-          <span className="loading-rune">⟡</span>
-          <h2>Loading...</h2>
-          <p>Looking for your last saved world.</p>
-        </div>
-      )}
-      {startup === 'playing' && (!ready || error) && (
-        <div
-          className={error ? 'loading-world' : 'loading-world loading-world-original'}
-          role="status"
-        >
-          {error ? (
-            <>
-              <span className="loading-rune">⟡</span>
-              <h2>Loading failed</h2>
-              <p>
-                The battlefield did not finish loading. Retry the same request when you are ready.
-              </p>
-              <details>
-                <summary>Technical details</summary>
-                {error}
-              </details>
-              <button className="primary-button" onClick={retryLoad}>
-                Try again
-              </button>
-            </>
-          ) : (
-            <div className="loading-original-art">
-              <span className="loading-original-label">Loading...</span>
-              <img src="/original/loading-mask.png" width={130} height={161} alt="" />
-            </div>
-          )}
-        </div>
+      {(startup === 'loading' || (startup === 'playing' && (!ready || error))) && (
+        <OriginalLoadingScreen
+          key={error ? 'failed' : startup}
+          phase={error ? 'failed' : startup === 'loading' ? 'restore' : 'loading'}
+          error={error}
+          onRetry={retryLoad}
+        />
       )}
       {world.status !== 'playing' && !world.outcome.cameraPlaying && (
         <OriginalResultScreen
