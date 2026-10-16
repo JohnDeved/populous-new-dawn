@@ -1,0 +1,27 @@
+{
+  "runUrl": "https://github.com/JohnDeved/populous-new-dawn/actions/runs/38904158157",
+  "launchedHead": "ae73280a0c092774a6b02518535a1370b755f52b",
+  "status": "inconclusive: baseline qualification failed",
+  "independentReview": "passed; no rerun",
+  "archiveBytes": 192422,
+  "archiveSha256": "dc9ee56f9135e1a1abcf1d54b3adcd84bd258cd2a0545c6694d429d3a5d52e81",
+  "files": {
+    "hosted-artifact/host.json": "a9f68515bf1cc96c80703bcec09881f061b0af1a49ed56b691523f9bbcaa49a1",
+    "hosted-artifact/npm-ci.log": "49202f9034097412609f7bbd00a34b05fa77f51412f543e481d69ae5a9863e01",
+    "hosted-artifact/npm-setup.log": "c95c114cd0ecd7262b2d7e28d5226f05cab97d9e0451d33173f28c58c519cb4a",
+    "hosted-artifact/preparation.json": "0d963680ce801a115ad82787139de753a4c7106758105926bd82807e02cb3d6f",
+    "hosted-artifact/report.json": "bc7b331711790193cddf1a6d68a21fcf0ef1f760e953b326a59825e29fcb1fb5",
+    "hosted-artifact/run-1-baseline.jsonl": "d96c875e913be8e910686ec18d395f9fcdbade2767191e06c88212290ba4c393",
+    "hosted-artifact/run-1-baseline.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "hosted-artifact/run-2-baseline.jsonl": "4484f78482dba0540395b09935bbc2fe2b23e596a83f3c4bf6616f27af8bd8cb",
+    "hosted-artifact/run-2-baseline.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "hosted-artifact/run-3-baseline.jsonl": "ab05c0682be77fda6f777c35505c3c7f76fce0ec73a9c898d496565d8e90e078",
+    "hosted-artifact/run-3-baseline.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "hosted-artifact/run-4-baseline.jsonl": "96b45131f964c5cd17c68f397aea4a95638b6f197c99de337e3c763949dd3c7b",
+    "hosted-artifact/run-4-baseline.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local-verification.json": "05fbbb51fe1485284097c7f13a7423e0f7b9adf81a34dc44f8c4db5775ccbd86",
+    "source-review-manifest.json": "94e3fc21b8ef219e893238ab36d39aa7a9574f262ea2c090a1d8d2ec29f347b1",
+    "analyzer-validation.test.mjs": "9c6ea399e2df24ec4c118adede497d0025cf63bbd460ae0bdb5b6bd2527b5663",
+    "analyzer-validation.tap": "1c2ae68dbe4eca73ea9a4dd187ecb78f2fe447f6e08c98a68dd27f3fc3d68c7e"
+  }
+}
