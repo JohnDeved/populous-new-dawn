@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "4ced359d-7291-4362-89fb-90c5590d16a6",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "b8cfda914ea72fd5f831f8e50bc988ca26aa4f31",
+    "branch": "tooling/reviewed-integration-queue",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/integration-queue/policy.mjs": "8688a662da3b12cd3cbb9732a0db06f18235b5b9fb5d06e625d781e1d173e79a",
+      "scripts/integration-queue/github.mjs": "82557822642dfff744c6f45905a653eccd96d6b86fc6a146a737df356707f894",
+      "scripts/integration-queue/resources.mjs": "938dff983ed94686877281788ca8078cade436a830f03d65fd0045ab5b530391",
+      "scripts/integration-queue/cli.mjs": "3af036612e8c3a96816b810cca01d1c40b151d40d6df47faf9664f1c966de5b0",
+      "scripts/integration-queue/writer.mjs": "93c239c4e5946979fa93370d61afd7c216198b4231fecf911bda0d8056215dd1",
+      "tests/integration-queue.test.mjs": "0a6bd8dba687c35e77a9912760e3af9830264acc6e3d4f2a0c9f4c6743bdf3a1",
+      "scripts/integration-queue/README.md": "4df283830f60bf3b359956993037888fc7db434b3ee49254ddc66366962e6b1d",
+      "scripts/orchestration/test-runner.mjs": "2d95f407982eef5194f8cfab0dea456f5ca2d84793c35a2ccd686187c79e2a05",
+      "tests/test-runner.test.mjs": "27182daa6907c8c19bf638c6577331d0bb78bc9f73fffb25c58ab0ae420e5a2c"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/integration-queue.test.mjs",
+    "tests/test-runner.test.mjs"
+  ],
+  "cwd": "[REPO]",
+  "startedAt": "2026-10-16T19:46:01.000Z",
+  "artifacts": {
+    "stdout": "[REPO]/work/orchestration/integration-queue-ready-only/focused.json.artifacts/stdout.log",
+    "stderr": "[REPO]/work/orchestration/integration-queue-ready-only/focused.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T19:46:02.502Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ allowlist binds fixed repository, exact content and independent source review (0.618125ms)\n✔ dry-run has no effects, waits for drain and gives a bounded ready proposal (0.652084ms)\n✔ fake GitHub sequence survives restart after each intent and verifies merge/deployment (24.124583ms)\n✔ a delayed old draft run resets the quiet window; reordering does not change identity (0.273583ms)\n✔ current canceled or failed rerun cannot fall back to an older green result (0.544042ms)\n✔ missing browser coverage cannot be disabled by allowlist for changed UI paths (0.226ms)\n✔ mandatory job/stage, app and source identity are all required (0.397334ms)\n✔ source/base/workflow/protection/review drift fails closed (0.304042ms)\n✔ refresh needs disjoint clean Git tree proof, exact parents and one-refresh bound (0.239709ms)\n✔ overlap and uncertain ready/merge never retry a mutation (0.192875ms)\n✔ uncertain merge can reconcile success, but rejects wrong tree, parents or deployment (0.56925ms)\n✔ checkpoint cannot silently extend authorization or replace the reviewed head (0.093708ms)\n✔ checkout proof needs exactly one real checkout hash, not arbitrary log text (0.144875ms)\n✔ real Git merge-tree proof preserves contents and modes; path overlap stops refresh (342.284542ms)\n✔ GitHub adapter uses only hostname-pinned GET argv and rejects incomplete pages (0.290792ms)\n✔ apply is disabled before any GitHub call; candidate approval files are rejected (25.626ms)\n✔ resource preflight reports serial fallback without changing policy or running tests (128.778875ms)\n✔ log source identities cannot be borrowed from a mutable PR association (0.249625ms)\n✔ fake Actions adapter binds workflow/run/attempt/check/app and actual checkout logs (0.966417ms)\n✔ CLI fixture executes the full read-only path, reports preflight, and resumes its quiet checkpoint (779.813834ms)\n✔ transport arguments pin GitHub host, refresh expected_head_sha and merge sha without bypass (0.221083ms)\n✔ dry-run never observes again, persists an intent, or calls the write transport (0.715ms)\n✔ arming rejects expired, mismatched, dirty, fixture, reused and unreviewed pilots before transport (0.483666ms)\n✔ source drift or a newly queued stale event during final recheck prevents submission (0.379041ms)\n✔ write intent is durable before transport; uncertain merge resumes without a second submission (14.258416ms)\n✔ journal failure prevents a write; non-confirming merge response remains uncertain (0.3145ms)\n✔ armed fake transport sequences refresh, drain, ready, exact checks and merge across restarts (0.680333ms)\n✔ Cloudflare observation pins exact commit/app/name/project and never promotes preview or older success (0.211416ms)\n✔ confirmed merge reports Cloudflare build success separately from serving deployment (0.204583ms)\n✔ source-bound non-required draft admission cannot replace or poison a genuine ready validation (0.185125ms)\n✔ later failed rerun of an older run blocks an earlier green higher run ID (0.092584ms)\n✔ gate selection stops on ambiguous chronology or disagreeing current required check (0.183833ms)\n✔ pagination rejects short incomplete responses, changing counts and duplicate entries (0.159041ms)\n✔ custom clean filter is rejected before resource preflight or any Git status can execute it (111.755125ms)\n✔ ready-only initial admission proposes one reviewed draft conversion; matching pass is reused (0.229041ms)\n✔ draft conversion cannot retry failed, canceled, ambiguous or orphaned validation (0.673833ms)\n✔ stale ready candidate requires refresh proof and verified earlier validation before draft (0.145792ms)\n✔ draft intent reconciles exact head/base and never retries uncertain conversion (0.121625ms)\n✔ submitted ready admission waits boundedly without another toggle, then accepts exact pass (0.909792ms)\n✔ draft transport persists before effect, rejects changed plan/state, and defaults to dry-run (0.694959ms)\n✔ full discovery preserves the top-level glob and includes unclassified files once (19.848042ms)\n✔ focus accepts only exact explicit unique discovered files and is never full-suite evidence (9.530417ms)\n✔ changed tests, helper drift and newly added helpers fall back to serial (6.252125ms)\n✔ empty discovery, malformed policy and test symlinks fail closed (4.200334ms)\nTAP version 13\n# Subtest: deliberate failure\nnot ok 1 - deliberate failure\n  ---\n  duration_ms: 0.261416\n  type: 'test'\n  location: '[TMP]/pnd-test-runner-hfwHIb/tests/a.test.mjs:1:42'\n  failureType: 'testCodeFailure'\n  error: 'expected diagnostic'\n  code: 'ERR_TEST_FAILURE'\n  stack: |-\n    TestContext.<anonymous> (file://[TMP]/pnd-test-runner-hfwHIb/tests/a.test.mjs:1:83)\n    Test.runInAsyncScope (node:async_hooks:227:14)\n    Test.run (node:internal/test_runner/test:1325:25)\n    Test.start (node:internal/test_runner/test:1191:17)\n    startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17)\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 0\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 30.542875\nTAP version 13\n# Subtest: b\nok 1 - b\n  ---\n  duration_ms: 0.231208\n  type: 'test'\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 1\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 30.246209\n✔ a real failed Node group cannot pass and does not omit remaining groups (112.020791ms)\n✔ launch errors, native signals and interrupted zero-exit children cannot pass (3.168209ms)\nTAP version 13\n# Subtest: a\nok 1 - a\n  ---\n  duration_ms: 0.227417\n  type: 'test'\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 1\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 31.112042\n✔ native zero exit passes an executed focus without claiming a full gate (56.573292ms)\n✔ empty, duplicate and incomplete execution plans cannot become a pass (2.676917ms)\n✔ environment selection and both isolation aliases are rejected, including quoted flags (2.974833ms)\n✔ real Node skip, TODO and unfiltered only-marker semantics stay intact (58.709666ms)\n✔ production-only source/data and dependency changes require renewed resource review (18.762291ms)\n✔ runtime preloads/customization and application symlinks conservatively use serial execution (2.701ms)\nℹ tests 52\nℹ suites 0\nℹ pass 52\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1477.902583\n",
+  "stderr": "",
+  "stdoutSha256": "2c641b8cb08e06958c4f2e8822af2d19c353af410774ccd48621130df8462e58",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "b8cfda914ea72fd5f831f8e50bc988ca26aa4f31",
+    "branch": "tooling/reviewed-integration-queue",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/integration-queue/policy.mjs": "8688a662da3b12cd3cbb9732a0db06f18235b5b9fb5d06e625d781e1d173e79a",
+      "scripts/integration-queue/github.mjs": "82557822642dfff744c6f45905a653eccd96d6b86fc6a146a737df356707f894",
+      "scripts/integration-queue/resources.mjs": "938dff983ed94686877281788ca8078cade436a830f03d65fd0045ab5b530391",
+      "scripts/integration-queue/cli.mjs": "3af036612e8c3a96816b810cca01d1c40b151d40d6df47faf9664f1c966de5b0",
+      "scripts/integration-queue/writer.mjs": "93c239c4e5946979fa93370d61afd7c216198b4231fecf911bda0d8056215dd1",
+      "tests/integration-queue.test.mjs": "0a6bd8dba687c35e77a9912760e3af9830264acc6e3d4f2a0c9f4c6743bdf3a1",
+      "scripts/integration-queue/README.md": "4df283830f60bf3b359956993037888fc7db434b3ee49254ddc66366962e6b1d",
+      "scripts/orchestration/test-runner.mjs": "2d95f407982eef5194f8cfab0dea456f5ca2d84793c35a2ccd686187c79e2a05",
+      "tests/test-runner.test.mjs": "27182daa6907c8c19bf638c6577331d0bb78bc9f73fffb25c58ab0ae420e5a2c"
+    }
+  }
+}
