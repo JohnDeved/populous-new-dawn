@@ -23,6 +23,20 @@ const categories = ['Game', 'Sound', 'Graphics'] as const
 type Category = (typeof categories)[number] | 'Direct3D'
 type TextState = 'normal' | 'highlight' | 'low'
 const fontBanks = { normal: 'feft33we', highlight: 'fehi33we', low: 'felo33we' } as const
+// Native no-gamma row layout. These have no proven browser settings adapters.
+const unavailableRows: Partial<Record<Category, FrontendTextRow[]>> = {
+  Graphics: [
+    { text: 'Screen Resolution : <Unavailable>', x: 320, y: 139 },
+    { text: 'Sky : <Unavailable>', x: 320, y: 169 },
+    { text: 'Footsteps : <Unavailable>', x: 320, y: 199 },
+    { text: 'Landscape Detail : <Unavailable>', x: 320, y: 229 },
+    { text: 'Quick Defaults : <Unavailable>', x: 320, y: 259 },
+  ],
+  Direct3D: [
+    { text: 'Device Selection : <Unavailable>', x: 320, y: 139 },
+    { text: 'Filtering : <Unavailable>', x: 320, y: 169 },
+  ],
+}
 
 function Text({
   text,
@@ -118,9 +132,10 @@ export function OriginalOptions({
             ...categories.map((text, index) => ({ text, x: 170 + 150 * index, y: 420 })),
             { text: 'Back', x: 320, y: 454 },
             ...(category === 'Graphics' || category === 'Direct3D'
-              ? [{ text: 'Direct3D', x: 320, y: 390 }]
+              ? [{ text: 'Direct3D Options', x: 320, y: 390 }]
               : []),
             ...(category === 'Game' ? gameRows : []),
+            ...(unavailableRows[category] ?? []),
             ...(category === 'Sound'
               ? [
                   { text: masterText, x: 320, y: 139 },
@@ -159,7 +174,7 @@ export function OriginalOptions({
   }, [skin])
   useEffect(() => {
     root.current
-      ?.querySelector<HTMLElement>(`[aria-current="page"][aria-label="${category}"]`)
+      ?.querySelector<HTMLElement>(`[aria-current="page"][data-option-key="${category}"]`)
       ?.focus()
   }, [category])
   useEffect(() => {
@@ -213,6 +228,7 @@ export function OriginalOptions({
         key={id}
         className={styles.choice}
         aria-label={text}
+        data-option-key={id}
         role="heading"
         aria-level={2}
         aria-current="page"
@@ -227,6 +243,7 @@ export function OriginalOptions({
         className={`${styles.choice}${options.wide ? ` ${styles.gameChoice}` : ''}`}
         style={position}
         aria-label={text}
+        data-option-key={id}
         data-panel-back={text === 'Back' || undefined}
         onPointerEnter={() => setHighlight(id)}
         onPointerLeave={() => setHighlight(null)}
@@ -366,10 +383,23 @@ export function OriginalOptions({
               )}
             </>
           )}
-          {category !== 'Game' && category !== 'Sound' && (
-            <p className={styles.unavailable}>
-              Original {category} settings are not yet available.
-            </p>
+          {unavailableRows[category] && (
+            <>
+              {unavailableRows[category].map(row => (
+                <div
+                  key={row.text}
+                  className={styles.soundLabel}
+                  style={{ top: row.y }}
+                  role="note"
+                  aria-label={row.text}
+                >
+                  {label(row.text)}
+                </div>
+              ))}
+              <p className={styles.notice}>
+                These original graphics controls are unavailable in this browser version.
+              </p>
+            </>
           )}
           <button
             className={styles.browserLink}
@@ -383,7 +413,16 @@ export function OriginalOptions({
               choice(text, 170 + index * 150, 420, () => select(text), category === text)
             )}
             {(category === 'Graphics' || category === 'Direct3D') &&
-              choice('Direct3D', 320, 390, () => select('Direct3D'), category === 'Direct3D')}
+              choice(
+                'Direct3D Options',
+                320,
+                390,
+                () => select('Direct3D'),
+                category === 'Direct3D',
+                {
+                  id: 'Direct3D',
+                }
+              )}
           </nav>
           {choice('Back', 320, 454, onBack)}
         </>

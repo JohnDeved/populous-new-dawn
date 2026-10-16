@@ -4,6 +4,8 @@ import {readFileSync} from 'node:fs'
 import {createHash} from 'node:crypto'
 import ts from 'typescript'
 import artwork from '../app/original-options-art.json' with {type:'json'}
+import frontend from '../app/original-frontend.json' with {type:'json'}
+import ingame from '../app/original-pause-font.json' with {type:'json'}
 import {frontendBackground} from '../app/frontend-composition.ts'
 const source=new Uint8Array(readFileSync(new URL('../public/original/frontend/composition.bin',import.meta.url)))
 // Evaluate the production row declarations, rather than copying their strings
@@ -27,8 +29,13 @@ const rowDeclarations = ['gameRows', 'rows'].map(name => {
   assert.ok(statement, `Production ${name} declaration exists`)
   return statement.getText(optionsSource)
 }).join('\n')
+const declaration = name => optionsSource.statements.find(
+  node => ts.isVariableStatement(node) && node.declarationList.declarations.some(
+    item => item.name.getText(optionsSource) === name
+  )
+).getText(optionsSource)
 const readRows = new Function('useMemo', 'gamePreferences', 'category', 'browser', 'masterText', 'musicText', 'categories',
-  ts.transpileModule(`${rowDeclarations}\nreturn rows;`, {
+  ts.transpileModule(`${declaration('unavailableRows')}\n${rowDeclarations}\nreturn rows;`, {
     compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.None }
   }).outputText
 )
@@ -88,6 +95,117 @@ test('Game publishes all five native positions and only current supported values
   }
   const preferences = { rotation: 'control-cursor', flipRotation: true }
   assert.deepEqual(optionRows(preferences, 'Game', true), [])
-  assert.deepEqual(optionRows(preferences, 'Graphics'), [...base, { text: 'Direct3D', x: 320, y: 390 }])
+  assert.equal(optionRows(preferences, 'Graphics').some(row => /Rotation|Tooltips|Selected|Autocast/.test(row.text)), false)
   assert.equal(optionRows(preferences, 'Sound').some(row => /Rotation|Tooltips|Selected|Autocast/.test(row.text)), false)
+})
+
+
+const graphics = [
+  { text: 'Screen Resolution : <Unavailable>', x: 320, y: 139 },
+  { text: 'Sky : <Unavailable>', x: 320, y: 169 },
+  { text: 'Footsteps : <Unavailable>', x: 320, y: 199 },
+  { text: 'Landscape Detail : <Unavailable>', x: 320, y: 229 },
+  { text: 'Quick Defaults : <Unavailable>', x: 320, y: 259 },
+]
+const direct3D = [
+  { text: 'Device Selection : <Unavailable>', x: 320, y: 139 },
+  { text: 'Filtering : <Unavailable>', x: 320, y: 169 },
+]
+test('Graphics and Direct3D publish the native no-gamma rows and full navigation label to indexed shadows', () => {
+  const preferences = { rotation: 'cursor', flipRotation: false }
+  for (const [category, expected] of [['Graphics', graphics], ['Direct3D', direct3D]]) {
+    const rows = optionRows(preferences, category)
+    const navigation = [
+      { text: 'Game', x: 170, y: 420 },
+      { text: 'Sound', x: 320, y: 420 },
+      { text: 'Graphics', x: 470, y: 420 },
+      { text: 'Back', x: 320, y: 454 },
+      { text: 'Direct3D Options', x: 320, y: 390 },
+    ]
+    assert.deepEqual(rows, [...navigation, ...expected])
+    const pixels = frontendBackground(source, { x: 320, y: 240 }, false, null, rows)
+    assert.deepEqual(pixels, frontendBackground(source, { x: 320, y: 240 }, false, null, [...navigation, ...expected]))
+    assert.notDeepEqual(pixels, frontendBackground(source, { x: 320, y: 240 }, false, null, navigation))
+    assert.deepEqual(optionRows(preferences, category, true), [])
+  }
+  for (const category of ['Game', 'Sound']) {
+    assert.equal(optionRows(preferences, category).some(row => /Direct3D/.test(row.text)), false)
+  }
+})
+
+// Evaluate the production component with deterministic hook state. Browser checks
+// additionally exercise React focus, event dispatch, fonts and actual Home/scene callers.
+const textFunction = optionsSource.statements.find(
+  node => ts.isFunctionDeclaration(node) && node.name?.text === 'Text'
+)
+const render = new Function('React', 'useEffect', 'useMemo', 'useRef', 'useState', 'frontend', 'ingame', 'styles', 'props',
+  ts.transpileModule([
+    ...['categories', 'fontBanks', 'unavailableRows'].map(declaration),
+    textFunction.getText(optionsSource),
+    optionsFunction.getText(optionsSource).replace(/^export /, ''),
+    'return OriginalOptions(props);',
+  ].join('\n'), {compilerOptions: {target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.React}}).outputText
+)
+function renderOptions(skin, category, highlight = null) {
+  const state = [category, false, highlight, true], nodes = [], effects = [], focus = []
+  const React = {
+    Fragment: 'fragment',
+    createElement(type, props, ...children) {
+      const element = typeof type === 'function'
+        ? type({...props, children}) : {type, props: props ?? {}, children}
+      nodes.push(element)
+      return element
+    },
+  }
+  render(React, (run, dependencies) => effects.push({run, dependencies}), make => make(),
+    () => ({current: {querySelector: selector => ({focus: () => focus.push(selector)})}}),
+    () => [state.shift(), () => {}], frontend, ingame, new Proxy({}, {get: (_, key) => key}), {
+      skin, volume: .35, musicVolume: .65, storageNotice: '', gameStorageNotice: '',
+      gamePreferences: {rotation: 'cursor', flipRotation: false},
+      onBack() {}, onVolume() {}, onMusicVolume() {}, onGamePreferences() {},
+    })
+  effects.find(effect => effect.dependencies.length === 1 && effect.dependencies[0] === category).run()
+  return {nodes, focus}
+}
+test('both skins render unsupported rows as inert notes and focus the full selected Direct3D label by its stable key', () => {
+  for (const skin of ['frontend', 'ingame']) for (const [category, expected] of [['Graphics', graphics], ['Direct3D', direct3D]]) {
+    const {nodes, focus} = renderOptions(skin, category)
+    const notes = nodes.filter(node => node.props.role === 'note')
+    assert.deepEqual(notes.map(node => [node.props['aria-label'], node.props.style.top]), expected.map(row => [row.text, row.y]))
+    for (const note of notes) {
+      assert.equal(note.type, 'div')
+      assert.equal(note.props.tabIndex, undefined)
+      assert.equal(note.props.disabled, undefined)
+      assert.equal(Object.keys(note.props).some(key => /^on[A-Z]/.test(key)), false)
+      const text = note.children[0]
+      assert.equal(text.props.style.opacity, skin === 'ingame' ? 2 / 3 : 1)
+      assert.match(text.children[0][0].props.style.backgroundImage, skin === 'ingame' ? /pause-font/ : /frontend\/feft33we/)
+    }
+    const nav = nodes.find(node => node.props['data-option-key'] === 'Direct3D')
+    assert.equal(nav.props['aria-label'], 'Direct3D Options')
+    assert.deepEqual(nav.props.style, {left: 320, top: 390})
+    assert.equal(nav.type, category === 'Direct3D' ? 'span' : 'button')
+    if (category === 'Direct3D') {
+      assert.equal(nav.props['aria-current'], 'page')
+      assert.equal(nav.props.tabIndex, -1)
+      assert.equal(nav.props.onClick, undefined)
+      assert.equal(nav.children[0].props.style.opacity, 1)
+      assert.match(nav.children[0].children[0][0].props.style.backgroundImage, skin === 'ingame' ? /pause-font/ : /frontend\/felo33we/)
+    }
+    assert.deepEqual(focus, [`[aria-current="page"][data-option-key="${category}"]`])
+    assert.equal(nodes.some(node => /Gamma|Turns Per Second|Reduce Screen|Colour Palette|Sky Detail|Anti-Aliasing/.test(node.props['aria-label'] ?? '')), false)
+  }
+})
+test('Direct3D Options has room for all 245 original glyph pixels in both fonts and highlights through its internal key', () => {
+  for (const bank of [frontend.banks.feft33we, frontend.banks.fehi33we, frontend.banks.felo33we, ingame]) {
+    assert.equal([...('Direct3D Options')].reduce((width, letter) => width + bank.rects[letter.charCodeAt(0) - 32].w, 0), 245)
+  }
+  const css = readFileSync(new URL('../app/original-options.module.css', import.meta.url), 'utf8')
+  assert.match(css, /\.choice\[data-option-key='Direct3D'\]\s*\{\s*width:\s*260px;/)
+  for (const skin of ['frontend', 'ingame']) {
+    const {nodes} = renderOptions(skin, 'Graphics', 'Direct3D')
+    const nav = nodes.find(node => node.props['data-option-key'] === 'Direct3D')
+    assert.equal(nav.children[0].props.style.opacity, 1)
+    assert.match(nav.children[0].children[0][0].props.style.backgroundImage, skin === 'ingame' ? /pause-font/ : /frontend\/fehi33we/)
+  }
 })
