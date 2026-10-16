@@ -9,9 +9,11 @@ const textWidth = (text: string) =>
     return width + (glyph?.advance ?? 8)
   }, 0)
 
+const bitmapAvailable = (text: string, ready: boolean) =>
+  ready && [...text].every(character => art.font.rects[character.charCodeAt(0) - 32])
+
 function ResultText({ text, ready }: { text: string; ready: boolean }) {
-  if (!ready || [...text].some(character => !art.font.rects[character.charCodeAt(0) - 32]))
-    return <span className={styles.fallback}>{text}</span>
+  if (!bitmapAvailable(text, ready)) return <span className={styles.fallback}>{text}</span>
   return (
     <span className={styles.text} aria-hidden="true">
       {[...text].map((character, index) => {
@@ -104,10 +106,24 @@ export function OriginalResultScreen({
     )
   }
   function centered(text: string, y: number) {
-    return line(
-      text,
-      layout.contentInset[0] + Math.floor((layout.contentWidth - textWidth(text)) / 2),
-      y
+    const bitmap = bitmapAvailable(text, fontReady)
+    return (
+      <span
+        className={styles.line}
+        style={{
+          left:
+            layout.contentInset[0] +
+            (bitmap
+              ? Math.floor((layout.contentWidth - textWidth(text)) / 2)
+              : layout.contentWidth / 2),
+          top: y,
+          transform: bitmap ? undefined : 'translateX(-50%)',
+        }}
+        role="img"
+        aria-label={text}
+      >
+        <ResultText text={text} ready={fontReady} />
+      </span>
     )
   }
   function primary() {

@@ -69,6 +69,23 @@ test('loss and terminal/tutorial actions retain the explicit parent-decided cons
   assert.ok(tutorial.includes('Tutorial') && !tutorial.includes('79 :'))
 })
 
+test('pending-font headings center their actual text while statistic columns keep their anchors', () => {
+  for (const status of ['won', 'lost']) for (const level of [1, 14]) {
+    const html = render({ status, level })
+    const lines = [...html.matchAll(/<span class="line" style="([^"]+)" role="img" aria-label="([^"]+)">/g)]
+    const headings = lines.slice(0, 3)
+    assert.deepEqual(headings.map(line => line[2]), [native.titles[level], 'Player 1.',
+      status === 'won' ? 'Level Status: Completed' : 'Level Status: Failed'])
+    for (const [i, line] of headings.entries()) {
+      assert.equal(line[1], `left:192px;top:${[13, 31, 49][i]}px;transform:translateX(-50%)`)
+    }
+    assert.ok(html.includes('data-font-ready="false"'))
+    assert.equal(lines[3][2], 'Time Taken')
+    assert.equal(lines[3][1], 'left:17px;top:76px')
+    assert.ok(lines.slice(3).every(line => !line[1].includes('transform')))
+  }
+})
+
 test('source panel metadata retains independently checked native geometry and glyph bounds', () => {
   assert.equal(native.layout640.panelWidth,384)
   assert.equal(native.layout640.panelHeight,368)

@@ -22,6 +22,14 @@ The runner image and system packages are not claimed to be immutable. A missing
 Chrome channel or sandbox failure fails the check. No downloaded-browser fallback,
 AppArmor/sysctl changes, or sandbox-disabling arguments are permitted.
 
+Local Mac runs may explicitly set `POPULOUS_BROWSER` to an already installed,
+verified official Chrome executable, for example
+`/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`. Verify the app's
+identity before using this override. The path must be absolute and executable;
+the runner records its hash/version and launches that exact executable with the
+same sandbox settings. Without an override the hosted Linux path and Chrome
+channel stay unchanged. There is no browser download or automatic fallback.
+
 Build time is capped at 120 seconds, browser time at 180 seconds, and the job at
 15 minutes. The output directory must be fresh (default
 `outputs/tutorial-browser`). Public assets are linked from the checkout rather
@@ -30,3 +38,19 @@ browser executable hash/version, dependencies, output bundle hashes, and cleanup
 The workflow retains only receipts, logs and screenshots for seven days, even
 on failure; it does not upload dependencies, the bundle, or original game assets.
 Local typechecking/full builds should not be repeated just to run this check.
+
+After the existing Tutorial groups, one Mission 1 scene checks live-world selector
+inspection. A fresh context follows New Game → recommendation No → Start Mission 1
+→ Skip introduction, then Game settings → Options → Browser compatibility and help
+→ Select Level. Browser controls' Inspect campaign world selects Mission 2 without
+starting it. Both initially paused and initially running episodes exercise Back,
+Escape, Continue Game, and a second Escape from the returned pause menu.
+Read-only observers retain world/scene/canvas and captured menu-session identity,
+check frozen level/turn/time and modal suspension, and reject disposal, terrain
+abort, canvas removal, or a loading replacement. Continue and repeated Escape must
+restore the captured pause policy. This differs from Quit Level → Yes, which
+abandons the world. `selector-inspection.json` and two screenshots retain the
+episode results; the runner's source manifest includes the added scenario.
+The selector receipt is saved after observation/context cleanup and validates late
+runtime errors. Scenario failures and each cleanup failure remain in the terminal
+receipt; cleanup still attempts to close the context if observer teardown fails.

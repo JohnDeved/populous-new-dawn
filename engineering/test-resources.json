@@ -25,7 +25,7 @@
     "tests/balloon-hut-models.test.mjs": "3ab56627860754f9beac859591eec85f3988824c1f607f8e6df8a5dbe2d31fb8",
     "tests/balloon-lagging-passenger.test.mjs": "4c2ffe6827de4c841a103d640c87b7a33b1ebad07769ed66d6852d869b7fd95e",
     "tests/balloon-person-attack.test.mjs": "bd9727b3b53eaa659a7b5173f7ecc50437162e844a6212d90207a5c72a9452df",
-    "tests/balloon-plain-person-attack.test.mjs": "7d38a789bae9c69951e9564c6458a9b5e59cfce17349c3edf9e9789573f9b139",
+    "tests/balloon-plain-person-attack.test.mjs": "279752834b7506868431e15f1518c770bb069350a731e420301f234b91f5ef3a",
     "tests/balloon-staged-movement.test.mjs": "9da75dd0fc7f78f0da7dba4baa40a3b28850e58625be0f66b2e1754e9e2fa858",
     "tests/balloon-target-startup.test.mjs": "40c10f9a6b315044936bf7e360eff314cae41fb0bb6b46800e3d4f374b078779",
     "tests/balloon-worship.test.mjs": "f498c8f59a8e0ab5f736a228c9a33aa754d3f40f3f3620b1d788aae2f213a179",

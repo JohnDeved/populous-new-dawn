@@ -1,0 +1,76 @@
+vite v8.0.13 building client environment for production...
+[2Ktransforming...
+/original/frontend/pointer.png referenced in /original/frontend/pointer.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/original/frontend/background.png referenced in /original/frontend/background.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/original/frontend/felgspen.png referenced in /original/frontend/felgspen.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/original/options/frontend-0.png referenced in /original/options/frontend-0.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/original/options/frontend-1.png referenced in /original/options/frontend-1.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/original/options/frontend-2.png referenced in /original/options/frontend-2.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/original/options/ingame-0.png referenced in /original/options/ingame-0.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/original/options/ingame-1.png referenced in /original/options/ingame-1.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/original/options/ingame-2.png referenced in /original/options/ingame-2.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/original/result-font.png referenced in /original/result-font.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/original/hud-panel.png referenced in /original/hud-panel.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/original/hud.png referenced in /original/hud.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/original/hud-tab.png referenced in /original/hud-tab.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/original/hud-tab-active.png referenced in /original/hud-tab-active.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/original/hud-portrait.png referenced in /original/hud-portrait.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/original/hud-portrait-hover.png referenced in /original/hud-portrait-hover.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/original/hud-health.png referenced in /original/hud-health.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/original/hud-follower.png referenced in /original/hud-follower.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/original/hud-follower-selected.png referenced in /original/hud-follower-selected.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/original/hud-follower-hover.png referenced in /original/hud-follower-hover.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/original/hud-population.png referenced in /original/hud-population.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/original/hud-mana.png referenced in /original/hud-mana.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/original/hud-commands.png referenced in /original/hud-commands.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/original/hud-button.png referenced in /original/hud-button.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/original/hud-button-selected.png referenced in /original/hud-button-selected.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/original/hud-charge.png referenced in /original/hud-charge.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/original/tooltip-border.png referenced in /original/tooltip-border.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/original/follower-task-panel.png referenced in /original/follower-task-panel.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/original/follower-task-normal.png referenced in /original/follower-task-normal.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/original/follower-task-pressed.png referenced in /original/follower-task-pressed.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/original/follower-tasks.png referenced in /original/follower-tasks.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+✓ 384 modules transformed.
+rendering chunks...
+outputs/tutorial-browser-e8e2dea0/dist/index.html                     0.36 kB
+outputs/tutorial-browser-e8e2dea0/dist/assets/index-ftol-2Bk.css     34.68 kB
+outputs/tutorial-browser-e8e2dea0/dist/assets/scene-ClFm4JeT.js     799.74 kB
+outputs/tutorial-browser-e8e2dea0/dist/assets/index-CJPm0UfN.js   6,819.67 kB
+
+✓ built in 579ms
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
