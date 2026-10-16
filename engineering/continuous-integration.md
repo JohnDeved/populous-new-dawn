@@ -104,3 +104,12 @@ CI can execute. Workflow results do not substitute for substantive code review.
 - [PR events and merge SHA](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request)
 - [Required checks and skipped jobs](https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks)
 - [Workflow concurrency](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency)
+
+## Initial rollout evidence
+
+On 2026-10-16, the [first draft run](https://github.com/JohnDeved/populous-new-dawn/actions/runs/38869175179)
+for PR #475 at head `737b84399c62a25cc2d3f809aef38f719ddd3045` failed only the
+readiness guard. Checkout, runtime setup, dependency installs, full checks and
+build were all skipped. This verifies the cheap draft boundary, not a full pass.
+Current ready/synchronize runs and the final reviewed candidate's full results are
+recorded on [PR #475](https://github.com/JohnDeved/populous-new-dawn/pull/475).
