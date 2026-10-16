@@ -1,6 +1,6 @@
 {
   "head": "927fd7cbaa757c45a2f629700757e5d72e3c96f4",
-  "createdAt": "2026-10-16T03:58:18.569085+00:00",
+  "createdAt": "2026-10-16T04:00:37.053452+00:00",
   "qualification": "Original absolute receipt paths remain unchanged. Archive names below map original retained files to portable members. Source and explicit input hashes, raw stdout/stderr, invalidated attempt, both runner variants and fresh recovery are preserved without rewriting receipts.",
   "members": {
     "baseline-quality/dupes.json": {
@@ -1005,8 +1005,8 @@
     },
     "validation/check-selection.md": {
       "source": "/tmp/quit-menu457/check-selection.md",
-      "sha256": "a98e7122de65cb7d66dae24cd6d3945febf2c5fa2d856a8b223b9ee7fec86ad4",
-      "bytes": 2411
+      "sha256": "bab423c0e7226de1909f53da525b2cc4ac2585bff2741594f7c5f75630f28fd9",
+      "bytes": 2510
     },
     "validation/checkrollup-927fd7cb-0319.json": {
       "source": "/tmp/quit-menu457/checkrollup-927fd7cb-0319.json",

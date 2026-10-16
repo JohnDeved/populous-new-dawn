@@ -29,8 +29,9 @@ The frontend labels are distinct from in-game menu19's `Quit Game?`.
 ## Source-bound browser evidence
 
 Actual production Home, CSS, store and original assets are mounted through a
-plain React/Vite entry. Vinext/Cloudflare/RSC bootstrap and hydration are excluded
-from this local evidence and covered separately by the canonical production build.
+plain React/Vite entry. Vinext/Cloudflare/RSC bootstrap and hydration are not exercised here.
+The canonical production build separately validates production compilation and
+build completion, not deployed bootstrap or hydration.
 Chrome Headless Shell 154.0.8037.92 runs sandboxed; this is rendered frontend/Canvas2D
 verification, not hardware-frame performance evidence.
 
@@ -128,4 +129,4 @@ opacity issues above; both repairs passed targeted re-review. Final publication
 head acceptance and its canonical build status are recorded on PR #469. The broad
 issue remains open for further original UI work. This evidence claims frontend
 presentation and browser consistency, not native process exit, gameplay parity,
-full Vinext/RSC local serving, or hardware performance.
+deployed Vinext/RSC bootstrap or hydration, or hardware performance.
