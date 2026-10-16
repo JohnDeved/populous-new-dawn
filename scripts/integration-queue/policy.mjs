@@ -384,7 +384,7 @@ export function decide(entry, observation, saved = null, now = Date.now()) {
     )
     if (o.draft === true) {
       requireThat(!state.readyAdmission, 'Ready transition already used; obtain new review')
-      validateBeforeDraft(entry, o, [GATES[0]])
+      validateBeforeDraft(entry, o, required, true)
       return propose({ kind: 'ready', head: o.head, base: o.base })
     }
     requireThat(o.draft === false && o.mergeable === true, 'PR readiness/mergeability is unknown')
@@ -513,14 +513,48 @@ function validatePassedGate(o, gate, latest) {
   )
 }
 
-function validateBeforeDraft(entry, o, required) {
+function validateBeforeDraft(entry, o, required, allowTutorialDraftGuard = false) {
   requireThat(Array.isArray(o.currentChecks), 'Missing current required-check selection')
   for (const gate of required) {
-    const runs = gateRuns(entry, o, gate)
-    if (runs.length) validatePassedGate(o, gate, latestChronological(runs, `${gate.job} attempts`))
+    const guards =
+      allowTutorialDraftGuard && gate === GATES[1]
+        ? o.runs.filter(
+            r =>
+              r.workflow === gate.workflow &&
+              r.head === o.head &&
+              r.job === gate.job &&
+              r.draftGuardOnly === true &&
+              r.workflowSha256 === entry.workflowHashes[gate.workflow] &&
+              r.appId === 15368 &&
+              r.app === 'github-actions' &&
+              r.status === 'completed' &&
+              r.conclusion === 'failure' &&
+              r.jobConclusion === 'failure' &&
+              Number.isSafeInteger(r.checkId) &&
+              r.checkId > 0
+          )
+        : []
+    const view = {
+      ...o,
+      currentChecks: o.currentChecks.filter(
+        c =>
+          !guards.some(
+            r =>
+              c.id === r.checkId &&
+              c.name === gate.job &&
+              c.head === o.head &&
+              c.appId === r.appId &&
+              c.status === 'completed' &&
+              c.conclusion === 'failure'
+          )
+      ),
+    }
+    const runs = gateRuns(entry, o, gate).filter(r => !guards.includes(r))
+    if (runs.length)
+      validatePassedGate(view, gate, latestChronological(runs, `${gate.job} attempts`))
     else
       requireThat(
-        !o.currentChecks.some(c => c.name === gate.job && c.head === o.head),
+        !view.currentChecks.some(c => c.name === gate.job && c.head === o.head),
         `Required check lacks matching run evidence: ${gate.job}`
       )
   }

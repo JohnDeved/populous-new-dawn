@@ -618,6 +618,7 @@ test('fake Actions adapter binds workflow/run/attempt/check/app and actual check
     attempt = 1,
     draft = false,
     draftFlag = true,
+    draftValidationRan = false,
     workflowText = 'reviewed workflow'
   e.workflowHashes = Object.fromEntries(GATES.map(g => [g.workflow, sha256('reviewed workflow')]))
   const calls = []
@@ -661,7 +662,13 @@ test('fake Actions adapter binds workflow/run/attempt/check/app and actual check
             conclusion: draft ? 'failure' : 'success',
             steps: gate.steps.map((name, index) => ({
               name,
-              conclusion: draft ? (index === 0 ? 'failure' : 'skipped') : 'success',
+              conclusion: draft
+                ? index === 0
+                  ? 'failure'
+                  : draftValidationRan
+                    ? 'success'
+                    : 'skipped'
+                : 'success',
             })),
           },
         ],
@@ -708,11 +715,23 @@ test('fake Actions adapter binds workflow/run/attempt/check/app and actual check
   const admissions = reader.runs(e, pr, o.synthetic)
   assert.equal(admissions[0].draftAdmission, true)
   assert.equal(admissions[1].draftAdmission, false)
+  assert.ok(admissions.every(r => r.draftGuardOnly === true))
+  draftValidationRan = true
+  assert.ok(reader.runs(e, pr, o.synthetic).every(r => r.draftGuardOnly === false))
+  draftValidationRan = false
   draftFlag = false
-  assert.ok(reader.runs(e, pr, o.synthetic).every(r => r.draftAdmission === false))
+  assert.ok(
+    reader
+      .runs(e, pr, o.synthetic)
+      .every(r => r.draftAdmission === false && r.draftGuardOnly === false)
+  )
   draftFlag = true
   workflowText = 'changed workflow'
-  assert.ok(reader.runs(e, pr, o.synthetic).every(r => r.draftAdmission === false))
+  assert.ok(
+    reader
+      .runs(e, pr, o.synthetic)
+      .every(r => r.draftAdmission === false && r.draftGuardOnly === false)
+  )
 })
 
 test('CLI fixture executes the full read-only path, reports preflight, and resumes its quiet checkpoint', () => {
@@ -1571,6 +1590,8 @@ test('pre-ready Full guard allows missing admission and verified cheap draft his
     jobConclusion: 'failure',
     identityVerified: false,
     merge: null,
+    draftGuardOnly: true,
+    workflowSha256: e.workflowHashes[GATES[1].workflow],
     steps: GATES[1].steps.map((name, i) => ({ name, conclusion: i === 0 ? 'failure' : 'skipped' })),
   }
   o.runs = [browser]
@@ -1580,4 +1601,84 @@ test('pre-ready Full guard allows missing admission and verified cheap draft his
   assert.equal(settled(e, o).action.kind, 'ready')
   full.draftAdmission = false
   assert.equal(settled(e, o).status, 'stop')
+})
+
+for (const conclusion of ['failure', 'cancelled']) {
+  test(`preexisting draft cannot retry required Tutorial ${conclusion}`, () => {
+    for (const explicit of [false, true]) {
+      const { e, o } = ready()
+      if (explicit) {
+        e.requireBrowser = true
+        o.changedPaths = ['docs/example.md']
+      }
+      o.draft = true
+      o.runs[1].conclusion = conclusion
+      o.runs[1].jobConclusion = conclusion
+      o.runs[1].identityVerified = false
+      o.currentChecks = checksFor(o.runs)
+      const d = settled(e, o)
+      assert.equal(d.status, 'stop')
+      assert.equal(d.action, null)
+      assert.match(
+        d.reason,
+        /Failed, canceled, skipped or unverified current gate: Tutorial browser/
+      )
+    }
+  })
+}
+
+test('pre-ready Tutorial qualification rejects ambiguous and unproven guard history only when required', () => {
+  const { e, o } = ready()
+  o.draft = true
+  o.runs.push({ ...o.runs[1], id: 999, checkId: 999 })
+  o.currentChecks = checksFor(o.runs)
+  assert.match(settled(e, o).reason, /Ambiguous attempt chronology: Tutorial browser/)
+  o.runs.pop()
+  const browser = o.runs[1]
+  Object.assign(browser, {
+    conclusion: 'failure',
+    jobConclusion: 'failure',
+    identityVerified: false,
+    steps: GATES[1].steps.map((name, i) => ({ name, conclusion: i === 0 ? 'failure' : 'skipped' })),
+  })
+  o.currentChecks = checksFor(o.runs)
+  assert.equal(settled(e, o).status, 'stop')
+  browser.draftGuardOnly = true
+  browser.workflowSha256 = 'b'.repeat(64)
+  assert.equal(settled(e, o).status, 'stop')
+  browser.workflowSha256 = e.workflowHashes[GATES[1].workflow]
+  assert.equal(settled(e, o).action.kind, 'ready')
+  o.draft = false
+  assert.equal(settled(e, o).status, 'stop')
+  o.draft = true
+  browser.draftGuardOnly = false
+  o.changedPaths = ['docs/example.md']
+  assert.equal(settled(e, o).action.kind, 'ready')
+})
+
+test('cheap Tutorial guard does not hide an earlier real failure before ready', () => {
+  const { e, o } = ready()
+  o.draft = true
+  const browser = o.runs[1]
+  browser.conclusion = 'failure'
+  browser.jobConclusion = 'failure'
+  browser.identityVerified = false
+  const guard = {
+    ...browser,
+    id: 999,
+    checkId: 999,
+    startedAt: '2026-10-16T19:00:00Z',
+    draftGuardOnly: true,
+    workflowSha256: e.workflowHashes[GATES[1].workflow],
+    steps: GATES[1].steps.map((name, i) => ({ name, conclusion: i === 0 ? 'failure' : 'skipped' })),
+  }
+  o.runs.push(guard)
+  o.currentChecks = checksFor(o.runs)
+  assert.match(
+    settled(e, o).reason,
+    /Failed, canceled, skipped or unverified current gate: Tutorial browser/
+  )
+  Object.assign(browser, green(o, GATES[1], 1))
+  o.currentChecks = checksFor(o.runs)
+  assert.equal(settled(e, o).action.kind, 'ready')
 })

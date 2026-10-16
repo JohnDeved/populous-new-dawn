@@ -117,8 +117,12 @@ this tool verifies CI coverage, not the meaning of external browser/native claim
    one mechanical refresh per entry. Each effect still requires its own pilot.
    Before ready, even a preexisting draft with a fresh checkpoint must have no
    failed, canceled, ambiguous or unverified real Full validation. Truly missing
-   admission and verified cheap Full draft guards remain eligible; ordinary
-   Tutorial draft-guard failures do not block this transition.
+   admission and verified cheap Full draft guards remain eligible. When Tutorial
+   applies, its real failed, canceled, ambiguous or unverified validation also
+   blocks ready. Only a positively verified Tutorial guard-only failure is excluded
+   here: exact Actions check and pinned workflow, logged `IS_DRAFT: true`, failed
+   readiness stage and skipped validation stages. Earlier real failures remain
+   visible; the genuine Tutorial merge gate still excludes nothing.
 5. Wait for terminal Full check and required Tutorial browser on the exact head,
    base and synthetic commit. Bind workflow/run/attempt/check suite/Actions app and
    actual checkout log plus logged `PR_HEAD_SHA`/`PR_BASE_SHA`. Require mandatory
