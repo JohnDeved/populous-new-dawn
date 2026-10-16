@@ -998,6 +998,7 @@ export default function Home() {
                                       },
                                     ]
                                   : []
+  const pendingLoadingPhase = startup === 'loading' ? 'restore' : 'loading'
   return (
     <main
       ref={shell}
@@ -1514,7 +1515,7 @@ export default function Home() {
       {(startup === 'loading' || (startup === 'playing' && (!ready || error))) && (
         <OriginalLoadingScreen
           key={error ? 'failed' : startup}
-          phase={error ? 'failed' : startup === 'loading' ? 'restore' : 'loading'}
+          phase={error ? 'failed' : pendingLoadingPhase}
           error={error}
           onRetry={retryLoad}
         />
