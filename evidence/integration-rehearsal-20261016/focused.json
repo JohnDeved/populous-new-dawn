@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "40d07ade-00e8-4b60-a328-d068917db319",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "73dc033746f1311785229296f00918ddad834b76",
+    "branch": "codex/integration-rehearsal-496-497-500-495",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "--test",
+    "--test-concurrency=1",
+    "tests/original-result-screen.test.mjs",
+    "tests/route-notice-modal.test.mjs",
+    "tests/checkpoint-restore-ui.test.mjs",
+    "tests/checkpoint-database-open-retry.test.mjs",
+    "tests/campaign-profile-recovery.test.mjs",
+    "tests/campaign-profile-union.test.mjs",
+    "tests/pause-menu-ownership.test.mjs",
+    "tests/pause-save-notice.test.mjs",
+    "tests/pause-checkpoint.test.mjs",
+    "tests/fps-graph-reset.test.mjs",
+    "tests/frame-performance.test.mjs"
+  ],
+  "cwd": "<rehearsal-root>",
+  "startedAt": "2026-10-16T17:42:14.891Z",
+  "artifacts": {
+    "stdout": "<rehearsal-root>/work/orchestration/integration-rehearsal/focused.json.artifacts/stdout.log",
+    "stderr": "<rehearsal-root>/work/orchestration/integration-rehearsal/focused.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T17:42:18.114Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ missing checkpoint does not suppress independent campaign progress (26.327833ms)\n✔ malformed checkpoint does not suppress independent campaign progress (19.403208ms)\n✔ partially migratable checkpoint does not suppress independent campaign progress (13.99175ms)\n✔ incompatible checkpoint does not suppress independent campaign progress (16.480583ms)\n✔ current valid checkpoint still restores and loads (28.725917ms)\n✔ legacy valid checkpoint still restores and loads (28.44575ms)\n✔ malformed stored checkpoint preserves usable session checkpoint and merges completion (15.451917ms)\n✔ storage read failure retains in-session progress and checkpoint (17.828459ms)\n✔ completion after failed startup read preserves earlier persisted progress (267.54725ms)\n✔ stale independent stores atomically union completions instead of last-writer loss (26.451ms)\n✔ incompatible profile remains recoverable while session and checkpoint still work (17.315958ms)\n✔ missing version profile remains recoverable while session and checkpoint still work (15.448667ms)\n✔ malformed list profile remains recoverable while session and checkpoint still work (13.79875ms)\n✔ invalid mission profile remains recoverable while session and checkpoint still work (13.696666ms)\n✔ null record profile remains recoverable while session and checkpoint still work (13.849917ms)\n✔ sparse list profile remains recoverable while session and checkpoint still work (13.721291ms)\n✔ new profile is created and duplicate completions remain unique and sorted (11.519625ms)\n✔ failed atomic profile read cannot overwrite data and later completion retries the union (11.557541ms)\n✔ transaction abort after profile put leaves stored progress unchanged (11.775166ms)\n✔ a failed database open can retry restore, then persist the next Save (249.338208ms)\n✔ concurrent callers share one failed open and one successful retry (25.350125ms)\n✔ repeated and synchronous open failures preserve memory checkpoint and completion (21.331291ms)\n✔ actual Home open failure exposes retry and enables Load after a recovered read (60.554208ms)\n✔ actual Home abort failure exposes retry and enables Load after a recovered read (37.090834ms)\n✔ genuine empty and unusable records are read results, not a failed lookup or proof of empty disk (48.196875ms)\n✔ repeated failed retries preserve the world and remain retryable (16.774583ms)\n✔ late read keeps a newer memory save and current world after navigation (42.52225ms)\n✔ initial restore completion cannot navigate after unmount (14.875416ms)\n✔ initial restore completion cannot navigate after world replacement (27.460083ms)\n✔ unsupported storage ends startup, explains session saves, and permits memory Load (17.237125ms)\n✔ actual graph repeated cleared resets avoid writes but preserve changed visibility labels (1.005875ms)\n✔ actual graph resets warmup and unpublished samples and excludes hidden time after resume (0.1355ms)\n(node:38355) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n✔ frame telemetry computes time-weighted cadence and per-frame CPU/call means at four Hz (0.3415ms)\n✔ a slow frame remains visible and affects cadence rather than being clamped away (0.100417ms)\n✔ history is one fixed 240-frame chronological ring and reset exposes no old window (0.481958ms)\n✔ invalid or nonpositive frame intervals cannot poison telemetry (0.063166ms)\n✔ hardware hints use the supplied live context and explicit approximate units (0.309917ms)\n✔ unsupported or privacy-restricted telemetry never fabricates hardware numbers (0.103625ms)\n✔ live callback CPU includes preparation, HUD and scheduling, excluding overlay work (1.5735ms)\n✔ modal callback measures rendering and scheduling without simulation or HUD (0.572792ms)\n✔ disabled and hidden diagnostics add no clock reads and preserve game callback order (1.614958ms)\n✔ 120 FPS cadence and total CPU remain separate measurements across reset (0.129417ms)\n✔ actual graph keeps a startup spike, auto scale and 120 FPS guide consistent until expiry (0.853208ms)\n✔ result time is a pure live-clock formatter with hours and no wrapping or mutation (0.264375ms)\n✔ result composition fits the battlefield and reserves room for browser controls (0.07525ms)\n✔ actual result component renders source headings and ten explicitly unavailable counters (3.467542ms)\n✔ loss and terminal/tutorial actions retain the explicit parent-decided consequence (3.60575ms)\n✔ pending-font headings center their actual text while statistic columns keep their anchors (3.956375ms)\n✔ source panel metadata retains independently checked native geometry and glyph bounds (0.088833ms)\n✔ modal checkpoint pause override affects the clone, never the live world (23.847166ms)\n✔ ordinary saves retain explicitly paused state and replacement does not mutate the old world (31.624917ms)\n✔ actual Page captures original pause once, holds it across panel return and restores same-world close (26.986917ms)\n✔ actual Page never restores an old pause state or queued camera request into a replacement world (5.083917ms)\n✔ actual Page applies queued camera conveniences only on final same-world close (5.24625ms)\n✔ persisted save completion cannot publish a notice in Load Game (3.176834ms)\n✔ persisted completion remains visible after reopening pending Save Game (0.69025ms)\n✔ session-only save completion cannot publish a notice in Load Game (0.8025ms)\n✔ session-only completion remains visible after reopening pending Save Game (0.517083ms)\n✔ failure save completion cannot publish a notice in Load Game (0.495625ms)\n✔ failure completion remains visible after reopening pending Save Game (0.615875ms)\n✔ Home keeps the notice through menu/selector/reopen and restores prior pause=false (24.943292ms)\n✔ Home keeps the notice through menu/selector/reopen and restores prior pause=true (9.342542ms)\n✔ ordinary game pause without a menu retains the presentation timer (6.613ms)\n✔ an obsolete animation callback cannot consume a replacement world notice with the same serial (4.944916ms)\n✔ a canceled notice callback cannot consume a newly issued notice (4.658167ms)\n✔ actual producer serial reuse does not give an old callback ownership of a new notice (4.730292ms)\nℹ tests 66\nℹ suites 0\nℹ pass 66\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 3197.695334\n",
+  "stderr": "",
+  "stdoutSha256": "17d9d1f7346e63ea6713c7ebe7fbc13769416dd3d497aa93edc5303fd59c68ca",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "73dc033746f1311785229296f00918ddad834b76",
+    "branch": "codex/integration-rehearsal-496-497-500-495",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

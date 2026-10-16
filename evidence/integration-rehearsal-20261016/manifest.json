@@ -1,0 +1,53 @@
+{
+  "scope": "Local rehearsal; not final CI acceptance",
+  "receipts": [
+    {
+      "file": "rehearsal.json",
+      "originalSha256": "e202f7ca7ddd9ec92c64a71ba47a3de47e2937a37e2758532eeb63822cec253b",
+      "publishedSha256": "e202f7ca7ddd9ec92c64a71ba47a3de47e2937a37e2758532eeb63822cec253b",
+      "redaction": "none"
+    },
+    {
+      "file": "focused.json",
+      "originalSha256": "4104804c962498f19ef2f7566a38f4df029b326bbf84ccb067118ad78499d9ee",
+      "publishedSha256": "ea2ea09d8b8fce8aa04a2529be1e02dc373802a2f8e5c57883a64be5c1f33533",
+      "redaction": "local checkout path only"
+    },
+    {
+      "file": "focused.json.artifacts/stdout.log",
+      "originalSha256": "17d9d1f7346e63ea6713c7ebe7fbc13769416dd3d497aa93edc5303fd59c68ca",
+      "publishedSha256": "17d9d1f7346e63ea6713c7ebe7fbc13769416dd3d497aa93edc5303fd59c68ca",
+      "redaction": "none"
+    },
+    {
+      "file": "focused.json.artifacts/stderr.log",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "publishedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "redaction": "none"
+    },
+    {
+      "file": "typecheck.json",
+      "originalSha256": "b278cde3f7fdada2854ca7d57791c52cf075c9aa249ce3497350140d0f4f4a65",
+      "publishedSha256": "db3504c1859c80bad0b30584b71ba74ff27ee5ef55dff4cf40493fa1a610cec8",
+      "redaction": "local checkout path only"
+    },
+    {
+      "file": "typecheck.json.artifacts/stdout.log",
+      "originalSha256": "5b3b688caa668685eebda41ca93c4e60de869bac3645a0b25bf22809e6c84ba5",
+      "publishedSha256": "5b3b688caa668685eebda41ca93c4e60de869bac3645a0b25bf22809e6c84ba5",
+      "redaction": "none"
+    },
+    {
+      "file": "typecheck.json.artifacts/stderr.log",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "publishedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "redaction": "none"
+    }
+  ],
+  "combinedPatchSha256": "a8678c0b8b7cc13c5878906d66436a5d22b1cbefb89911ae195e355831e1002e",
+  "notes": [
+    "Original receipt hashes remain in rehearsal.json; published path-redacted hashes are recorded here.",
+    "Raw stdout/stderr hashes remain unchanged.",
+    "The combined source commit was not pushed; combined.patch reconstructs its exact tree from the recorded base."
+  ]
+}

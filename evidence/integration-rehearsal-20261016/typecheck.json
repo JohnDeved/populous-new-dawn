@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "984ab0f6-5b7d-4204-b6c1-088ae887d94f",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "73dc033746f1311785229296f00918ddad834b76",
+    "branch": "codex/integration-rehearsal-496-497-500-495",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "npm",
+    "run",
+    "typecheck"
+  ],
+  "cwd": "<rehearsal-root>",
+  "startedAt": "2026-10-16T17:42:33.726Z",
+  "artifacts": {
+    "stdout": "<rehearsal-root>/work/orchestration/integration-rehearsal/typecheck.json.artifacts/stdout.log",
+    "stderr": "<rehearsal-root>/work/orchestration/integration-rehearsal/typecheck.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T17:42:37.821Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 typecheck\n> tsc --noEmit\n\n",
+  "stderr": "",
+  "stdoutSha256": "5b3b688caa668685eebda41ca93c4e60de869bac3645a0b25bf22809e6c84ba5",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "73dc033746f1311785229296f00918ddad834b76",
+    "branch": "codex/integration-rehearsal-496-497-500-495",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

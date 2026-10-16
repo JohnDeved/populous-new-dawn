@@ -1,0 +1,109 @@
+{
+  "scope": "Local integration rehearsal only; not final current-main merge acceptance",
+  "recordedAt": "2026-10-16T17:43:05.147Z",
+  "base": "7e4806f25a7d202e67491186f1e62c648e379dab",
+  "inputs": [
+    {
+      "pr": 496,
+      "head": "efef96b45bc62907a3eaa3d62c14001e6cff1afa"
+    },
+    {
+      "pr": 497,
+      "head": "a0bcf7dfa3dbf2491cfb9fb3c01d138cca005cd9"
+    },
+    {
+      "pr": 500,
+      "head": "9b959fa09fd86ac4cc2d72bbb95b92caefe09c93"
+    },
+    {
+      "pr": 495,
+      "head": "ae52fe209d9624aa4b2717953dcb24cc96bad1f1"
+    }
+  ],
+  "branch": "codex/integration-rehearsal-496-497-500-495",
+  "commit": "73dc033746f1311785229296f00918ddad834b76",
+  "tree": "49b0d197073988444a57e42d4d4aa283b54a088d",
+  "sourceConflicts": [],
+  "resolution": "Kept engineering/test-resources.json byte-identical to sampled main after merging FPS branch; no Mac final-CI resource fingerprint generated.",
+  "testResourcesBlob": "95a2f8d572a764c2358408f746d6fbe5e3fc36b4",
+  "baseTestResourcesBlob": "95a2f8d572a764c2358408f746d6fbe5e3fc36b4",
+  "testTotals": {
+    "tests": 66,
+    "pass": 66,
+    "fail": 0,
+    "skipped": 0
+  },
+  "checks": [
+    {
+      "name": "focused",
+      "status": "passed",
+      "exitCode": 0,
+      "command": [
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "tests/original-result-screen.test.mjs",
+        "tests/route-notice-modal.test.mjs",
+        "tests/checkpoint-restore-ui.test.mjs",
+        "tests/checkpoint-database-open-retry.test.mjs",
+        "tests/campaign-profile-recovery.test.mjs",
+        "tests/campaign-profile-union.test.mjs",
+        "tests/pause-menu-ownership.test.mjs",
+        "tests/pause-save-notice.test.mjs",
+        "tests/pause-checkpoint.test.mjs",
+        "tests/fps-graph-reset.test.mjs",
+        "tests/frame-performance.test.mjs"
+      ],
+      "source": {
+        "headOid": "73dc033746f1311785229296f00918ddad834b76",
+        "branch": "codex/integration-rehearsal-496-497-500-495",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {}
+      },
+      "sourceAfter": {
+        "headOid": "73dc033746f1311785229296f00918ddad834b76",
+        "branch": "codex/integration-rehearsal-496-497-500-495",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {}
+      },
+      "receipt": "work/orchestration/integration-rehearsal/focused.json",
+      "sha256": "4104804c962498f19ef2f7566a38f4df029b326bbf84ccb067118ad78499d9ee",
+      "stdoutSha256": "17d9d1f7346e63ea6713c7ebe7fbc13769416dd3d497aa93edc5303fd59c68ca",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "typecheck",
+      "status": "passed",
+      "exitCode": 0,
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "source": {
+        "headOid": "73dc033746f1311785229296f00918ddad834b76",
+        "branch": "codex/integration-rehearsal-496-497-500-495",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {}
+      },
+      "sourceAfter": {
+        "headOid": "73dc033746f1311785229296f00918ddad834b76",
+        "branch": "codex/integration-rehearsal-496-497-500-495",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {}
+      },
+      "receipt": "work/orchestration/integration-rehearsal/typecheck.json",
+      "sha256": "b278cde3f7fdada2854ca7d57791c52cf075c9aa249ce3497350140d0f4f4a65",
+      "stdoutSha256": "5b3b688caa668685eebda41ca93c4e60de869bac3645a0b25bf22809e6c84ba5",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "limitations": [
+    "No browser or full suite run.",
+    "No pushes or PR branch modifications.",
+    "Dependencies reused through local node_modules symlink; no installation or dependency edits.",
+    "Existing archived FPS review patch contains trailing whitespace; application/test diff check passes.",
+    "Sequential hosted gates must validate their own exact proposed merges."
+  ],
+  "weeklyUsagePercent": 7
+}
