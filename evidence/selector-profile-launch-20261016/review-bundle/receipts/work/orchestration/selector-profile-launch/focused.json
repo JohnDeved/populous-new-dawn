@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "ad154c31-bed3-415c-95bd-8389c7e87980",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "c64a43af27523ffd394948c24065c92012f9b8b9",
+    "branch": "codex/selector-profile-launch-17",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "--test",
+    "--test-concurrency=1",
+    "tests/selector-profile-launch.test.mjs",
+    "tests/world-selector.test.mjs",
+    "tests/campaign-profile-recovery.test.mjs",
+    "tests/campaign-profile-union.test.mjs"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-16T17:50:18.190Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/selector-profile-launch/focused.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/selector-profile-launch/focused.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T17:50:19.637Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ missing checkpoint does not suppress independent campaign progress (26.407917ms)\n✔ malformed checkpoint does not suppress independent campaign progress (19.587125ms)\n✔ partially migratable checkpoint does not suppress independent campaign progress (13.507333ms)\n✔ incompatible checkpoint does not suppress independent campaign progress (16.098875ms)\n✔ current valid checkpoint still restores and loads (29.189875ms)\n✔ legacy valid checkpoint still restores and loads (29.19325ms)\n✔ malformed stored checkpoint preserves usable session checkpoint and merges completion (15.078333ms)\n✔ storage read failure retains in-session progress and checkpoint (17.748583ms)\n✔ completion after failed startup read preserves earlier persisted progress (270.683792ms)\n✔ stale independent stores atomically union completions instead of last-writer loss (26.057875ms)\n✔ incompatible profile remains recoverable while session and checkpoint still work (18.844167ms)\n✔ missing version profile remains recoverable while session and checkpoint still work (16.1905ms)\n✔ malformed list profile remains recoverable while session and checkpoint still work (14.516875ms)\n✔ invalid mission profile remains recoverable while session and checkpoint still work (14.128959ms)\n✔ null record profile remains recoverable while session and checkpoint still work (13.901625ms)\n✔ sparse list profile remains recoverable while session and checkpoint still work (13.686458ms)\n✔ new profile is created and duplicate completions remain unique and sorted (11.59575ms)\n✔ failed atomic profile read cannot overwrite data and later completion retries the union (11.676542ms)\n✔ transaction abort after profile put leaves stored progress unchanged (11.820958ms)\n✔ fresh Home restores independent progress and selector Start launches Mission 3 instead of the older checkpoint (87.92975ms)\n✔ native selector body hierarchy retains all 25 worlds and first-three moons (0.62125ms)\n✔ opening campaign availability reflects completion without hiding replay access (0.082208ms)\nℹ tests 22\nℹ suites 0\nℹ pass 22\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1422.069667\n",
+  "stderr": "",
+  "stdoutSha256": "9cc1561a3a2a5c8a2b744a6788164cb203002340c13091e4f99c3c270c0203ad",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "c64a43af27523ffd394948c24065c92012f9b8b9",
+    "branch": "codex/selector-profile-launch-17",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

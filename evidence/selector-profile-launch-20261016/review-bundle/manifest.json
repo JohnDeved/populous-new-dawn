@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "kind": "pnd-review-bundle",
+  "taskId": "selector-profile-launch-17",
+  "repository": {
+    "branch": "codex/selector-profile-launch-17",
+    "baseCommit": "7e4806f25a7d202e67491186f1e62c648e379dab",
+    "headOid": "c64a43af27523ffd394948c24065c92012f9b8b9"
+  },
+  "diff": {
+    "path": "changes.patch",
+    "sha256": "1c08220b65cfebb7f086b13a328059f570553e2883b7100a0d0e5d0b123ce559",
+    "bytes": 7011
+  },
+  "sources": [
+    {
+      "status": "A",
+      "path": "tests/selector-profile-launch.test.mjs",
+      "state": "present",
+      "sha256": "5708262220bf46db35f3ff872a86a2690ab3dc6baa168808544e14987b981ca4",
+      "blobOid": "80b7795e30434f21d957611ae95a5293c94eca42",
+      "bytes": 6683
+    }
+  ],
+  "receipts": [
+    {
+      "sourcePath": "work/orchestration/selector-profile-launch/focused.json",
+      "sourceSha256": "9d814ddc6a7e0dfd98f082e6e62fcc68946af7a3d318e29bb018a71d3b04d193",
+      "sourceBytes": 3908,
+      "bundlePath": "receipts/work/orchestration/selector-profile-launch/focused.json",
+      "bundleSha256": "c9eeac0d6819fb5c52c2455637be1599a9dca82516b75c753977f374193309af",
+      "bundleBytes": 3713,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/selector-profile-launch/lint.json",
+      "sourceSha256": "e3a66aed70c06cd0eb42abd9cf4961ad2a1b15f400537d50deb738dc775a2fd6",
+      "sourceBytes": 1553,
+      "bundlePath": "receipts/work/orchestration/selector-profile-launch/lint.json",
+      "bundleSha256": "f29a07114a02f5ed7e872c274ce37f7fbfcb7debce12eba993ddec7b50eada8f",
+      "bundleBytes": 1358,
+      "redactions": 3
+    }
+  ],
+  "reviewerPreflight": {
+    "instructions": "Open this bundle in a permitted executor and verify it against trusted caller-supplied identities before review.",
+    "verify": [
+      "node",
+      "verify.mjs"
+    ]
+  }
+}
