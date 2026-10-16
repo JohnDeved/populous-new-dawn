@@ -1682,3 +1682,26 @@ test('cheap Tutorial guard does not hide an earlier real failure before ready', 
   o.currentChecks = checksFor(o.runs)
   assert.equal(settled(e, o).action.kind, 'ready')
 })
+
+test('new Tutorial guard proof restarts the stable observation window', () => {
+  const e = entry(),
+    o = observation(e)
+  o.runs = [
+    {
+      ...green(o, GATES[1], 1),
+      conclusion: 'failure',
+      jobConclusion: 'failure',
+      identityVerified: false,
+      draftGuardOnly: false,
+      workflowSha256: e.workflowHashes[GATES[1].workflow],
+    },
+  ]
+  o.currentChecks = checksFor(o.runs)
+  let d = decide(e, o, null, now)
+  o.runs[0].draftGuardOnly = true
+  d = decide(e, { ...o, observedAt: now + 60_000 }, d.checkpoint, now + 60_000)
+  assert.equal(d.status, 'wait')
+  assert.equal(d.checkpoint.quiet.since, now + 60_000)
+  d = decide(e, { ...o, observedAt: now + 120_000 }, d.checkpoint, now + 120_000)
+  assert.equal(d.action.kind, 'ready')
+})

@@ -335,6 +335,7 @@ export function decide(entry, observation, saved = null, now = Date.now()) {
           r.conclusion,
           r.checkId,
           r.draftAdmission,
+          r.draftGuardOnly,
         ])
         .sort((a, b) => a[0] - b[0]),
     })
