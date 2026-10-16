@@ -83,7 +83,7 @@ for (const [name, latest] of [
         assert.deepEqual(store.getCompletedMissions(), [1, 2])
         assert.deepEqual(records, before, 'stored records remain recoverable and unchanged')
       }
-      assert.equal(updates, 2, 'publish restored progress to subscribers')
+      assert.equal(updates, 4, 'publish pending status and restored progress to subscribers')
       assert.deepEqual(writes, [])
     })
   })
