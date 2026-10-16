@@ -26,7 +26,7 @@ test('live aggregate coverage includes every maintained workflow integrity suite
   const { checks } = JSON.parse(read('engineering/checks.json'))
   assert.deepEqual(checks.find(check => check.id === 'orchestration-tests').args, [
     '--test', 'tests/orchestration.test.mjs', 'tests/workflow-handoff.test.mjs',
-    'tests/workflow-policy.test.mjs', 'tests/research-evidence.test.mjs', 'tests/theme-reference-evidence.test.mjs',
+    'tests/workflow-policy.test.mjs', 'tests/research-evidence.test.mjs', 'tests/theme-reference-evidence.test.mjs', 'tests/test-runner.test.mjs',
   ])
   for (const id of ['orchestration-tests', 'repository-check']) {
     assert.ok(checks.find(check => check.id === id).inputs.includes('.codex/config.toml'),
@@ -182,4 +182,34 @@ test('preflight does not mistake a no-index access error for a clean difference'
   assert.equal(result.status, 'failed')
   assert.equal(attempts.length, 4)
   assert.ok(attempts.every(command => command[0] === 'git'))
+})
+
+// The aggregate gate and the intentionally partial editing loop are distinct.
+test('bounded test entrypoints preserve aggregate coverage and keep focus explicit', () => {
+  const { scripts } = JSON.parse(read('package.json'))
+  assert.equal(scripts.test, 'node scripts/orchestration/test-runner.mjs all')
+  assert.equal(scripts['test:focus'], 'node scripts/orchestration/test-runner.mjs focus')
+  assert.equal(scripts['test:serial'], 'node scripts/orchestration/test-runner.mjs serial')
+  assert.equal(scripts.check, 'npm run typecheck && npm test && npm run parity:check && npm run orchestration:check')
+})
+
+test('focused suggestions are advisory and broad or unknown changes fall back to the full suite', async () => {
+  const { focusedTestFeedback } = await import('../scripts/orchestration/cli.mjs')
+  const make = (path, status = 'M', unknown = false) => focusedTestFeedback({
+    changes: [{ path, status, endpoint: 'path' }], unknownPaths: unknown ? [path] : [],
+    checks: [{ command: ['node', '--test', 'tests/a.test.mjs'] }],
+  }, [
+    ...JSON.parse(read('engineering/project-map.json')).crossCutting.map(entry => entry.path),
+    ...JSON.parse(read('engineering/project-map.json')).subsystems.flatMap(subsystem => subsystem.sharedPaths),
+  ])
+  const focused = make('app/narrow.ts')
+  assert.deepEqual(focused.command, ['npm', 'run', 'test:focus', '--', 'tests/a.test.mjs'])
+  assert.equal(focused.finalGate, false)
+  assert.equal(focused.fullVerificationRequired, true)
+  assert.deepEqual(make('tests/new.test.mjs', 'A', true).command, ['npm', 'run', 'test:focus', '--', 'tests/a.test.mjs', 'tests/new.test.mjs'])
+  for (const path of ['app/model.ts', 'app/scene.ts', 'app/world-state.ts', 'app/world-types.ts', 'package-lock.json', 'tests/support/helper.mjs', 'scripts/new.mjs'])
+    assert.deepEqual(make(path).command, ['npm', 'test'])
+  assert.deepEqual(make('app/unmapped.ts', 'M', true).command, ['npm', 'test'])
+  assert.deepEqual(make('tests/deleted.test.mjs', 'D').command, ['npm', 'test'])
+  assert.equal(focusedTestFeedback({ changes: [], unknownPaths: [], checks: [] }).command, null)
 })

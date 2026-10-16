@@ -101,6 +101,37 @@ share no writable resources with that job. This does not recover the old queue o
 establish machine idleness; timing/performance claims remain blocked. Browser work
 also needs its reviewed same-invocation process guardian and private resources.
 
+### Same-invocation test-throughput comparisons
+
+For the bounded test-workflow comparison, predeclare the order within one foreground
+invocation and use the same committed source, complete test set, group order,
+Node executable/version, environment and inspected read-only dependency bytes.
+Only the declared concurrency/profile may differ. Retain source, runner, helper,
+lockfile and installed-package fingerprints before and after, all raw results,
+per-group coverage/exits and owned-process CPU/RSS telemetry. Give each attempt
+private outputs and temporary directories. Coordinate it as the sole currently
+scheduled heavy lane; never edit its loaded runners or dependencies.
+
+This can establish comparative command throughput in that invocation even when
+old jobs, machine quota or external host contention cannot be resolved. State
+those unknowns explicitly. It does not establish host idleness, recover old jobs,
+certify their cleanup, or measure hardware game performance. The existing rules
+for preserving unknown jobs and their writable resources remain unchanged.
+Read-only installed dependencies may be shared for this inspected comparison;
+any command that can write them needs the existing private-resource preparation.
+
+Reject drift, unequal selected cases, missing completion and failed/cancelled
+attempts as successful speedup evidence. Preserve all failed/unknown attempts.
+Report cold/warm conditions, order effects and observed memory tradeoffs; hashing
+reads warms filesystem caches and is not a genuinely cold start. A small pilot
+cannot establish whole-suite saving. Compare the complete identical final test
+set before making that claim. Keep typecheck/cache effects separate from the
+test phase, and retain the full correctness and build gates. A single complete
+C1-to-C2 pair may report its observed same-workload delta, explicitly subject to
+order, cache and host variability. It is not balanced or demonstrated repeatability.
+An order-controlled A/B/B/A pilot is separate supporting evidence, not a reason to
+extrapolate its percentage or erase the complete pair's sampling limits.
+
 ### Optional bounded foreground advisories
 
 For a foreground advisory whose children do not detach, the existing queue tool
