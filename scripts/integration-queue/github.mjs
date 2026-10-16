@@ -432,13 +432,16 @@ export function logIdentity(log) {
 export function cloudflareCheck(checks, commit) {
   const matches = checks
     .filter(c => c.name === CLOUDFLARE.name && c.app?.id === CLOUDFLARE.appId)
-    .toSorted((a, b) => b.id - a.id)
+    .toSorted((a, b) => Date.parse(b.started_at) - Date.parse(a.started_at))
   if (!matches.length) return null
   const c = matches[0]
   const build = c.details_url?.startsWith(CLOUDFLARE.productionBuildPrefix)
     ? c.details_url.slice(CLOUDFLARE.productionBuildPrefix.length)
     : ''
   const identityVerified =
+    matches.every(item => Number.isFinite(Date.parse(item.started_at))) &&
+    (matches.length === 1 ||
+      Date.parse(matches[0].started_at) !== Date.parse(matches[1].started_at)) &&
     c.head_sha === commit &&
     c.app?.slug === CLOUDFLARE.appSlug &&
     /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(build)
@@ -447,6 +450,7 @@ export function cloudflareCheck(checks, commit) {
     sha: c.head_sha,
     identityVerified,
     checkId: c.id,
+    startedAt: c.started_at,
     detailsUrl: c.details_url,
     state:
       c.status === 'completed'

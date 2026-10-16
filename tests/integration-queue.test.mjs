@@ -1181,6 +1181,7 @@ function cloudflareFixture(commit, overrides = {}) {
   return {
     id: 11,
     name: CLOUDFLARE.name,
+    started_at: '2026-10-16T18:00:00Z',
     head_sha: commit,
     app: { id: CLOUDFLARE.appId, slug: CLOUDFLARE.appSlug },
     status: 'completed',
@@ -1193,6 +1194,7 @@ function cloudflareFixture(commit, overrides = {}) {
 test('Cloudflare observation pins exact commit/app/name/project and never promotes preview or older success', () => {
   const good = cloudflareFixture(id(90))
   assert.equal(cloudflareCheck([good], id(90)).identityVerified, true)
+  assert.equal(cloudflareCheck([good, { ...good, id: 12 }], id(90)).identityVerified, false)
   for (const changes of [
     { head_sha: id(80) },
     { details_url: good.details_url.replace('/production/', '/preview/') },
@@ -1203,7 +1205,10 @@ test('Cloudflare observation pins exact commit/app/name/project and never promot
   }
   assert.equal(cloudflareCheck([{ ...good, app: { id: 9 } }], id(90)), null)
   assert.equal(
-    cloudflareCheck([good, { ...good, id: 12, conclusion: 'failure' }], id(90)).state,
+    cloudflareCheck(
+      [good, { ...good, id: 10, started_at: '2026-10-16T19:00:00Z', conclusion: 'failure' }],
+      id(90)
+    ).state,
     'failed'
   )
 })
