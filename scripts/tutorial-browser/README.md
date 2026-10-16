@@ -22,6 +22,14 @@ The runner image and system packages are not claimed to be immutable. A missing
 Chrome channel or sandbox failure fails the check. No downloaded-browser fallback,
 AppArmor/sysctl changes, or sandbox-disabling arguments are permitted.
 
+Local Mac runs may explicitly set `POPULOUS_BROWSER` to an already installed,
+verified official Chrome executable, for example
+`/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`. Verify the app's
+identity before using this override. The path must be absolute and executable;
+the runner records its hash/version and launches that exact executable with the
+same sandbox settings. Without an override the hosted Linux path and Chrome
+channel stay unchanged. There is no browser download or automatic fallback.
+
 Build time is capped at 120 seconds, browser time at 180 seconds, and the job at
 15 minutes. The output directory must be fresh (default
 `outputs/tutorial-browser`). Public assets are linked from the checkout rather
