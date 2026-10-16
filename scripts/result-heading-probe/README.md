@@ -1,16 +1,15 @@
-# Result heading before probe
+# Result heading probe
 
 This probe observes the real `OriginalResultScreen` with production `globals.css`
 and `hudScale`, following the isolated fixture convention in
-`scripts/result-ui-fixture`. It changes no application code or imported assets.
+`scripts/result-ui-fixture`. Running it changes no application code or imported assets.
 The neutral battlefield and inert callbacks do not establish Home lifecycle,
 campaign progression, natural outcomes, or original executable behavior.
 
-The candidate is heading placement while the bitmap font is unavailable.
-`centered()` currently computes left positions from retained bitmap advances even
-when `ResultText` renders Arial. That is a hypothesis until screenshots establish
-a visible offset. This probe deliberately does **not** assert that fallback text
-is centered or declare a product defect.
+The [retained before run](https://github.com/JohnDeved/populous-new-dawn/tree/16ee3983c4d9fa501a1a8bb99dc41377008b8fbc/review-evidence/result-heading-before/213b9342)
+confirmed visible leftward drift when bitmap-derived coordinates positioned Arial.
+The observer captures evidence without asserting fallback centering. The separate
+`compare.mjs` checks the matched after run, including unchanged ready screenshots.
 
 ## Matrix and measurements
 
@@ -34,14 +33,14 @@ measure typographic advances, not painted ink; inspect the corresponding PNGs
 before accepting a visible discrepancy. Original layout context remains in
 `decomp/research/original-result-ui.md` and `app/original-result-ui.json`.
 
-## Execution (pending browser-lane permission)
+## Execution
 
-Do not execute while another worker owns the browser lane. Parent permission is
-required for the first browser run and any later product correction. This branch
-is preparation only; no browser, server or full build has been run for it.
+Do not execute while another worker owns the browser lane. Coordinate the lane
+with the parent; do not overlap browser or build workloads.
 
 From the checkout, set `POPULOUS_BROWSER` to the existing official Chrome/Headless
-Shell executable and run after the lane is granted:
+Shell executable and run after the lane is granted. Set
+`POPULOUS_RESULT_PHASE=after` for an after capture (default: before):
 
 ```sh
 node scripts/orchestration/command-receipt.mjs \
@@ -61,8 +60,21 @@ version/binary hash, renderer, geometry, injected failures, errors, and cleanup.
 component/fixture/assets/configuration hashes and the actual bytes of installed
 dependency files (including file-symlink targets). Unsupported directory symlinks
 fail closed. Any input drift, launch/capture/cleanup error or 180-second browser
-deadline makes the run fail. `completed-before-observation` means the matrix
-finished; it is not an assertion that fallback rendering passes visual review.
+deadline makes the run fail. `completed-before-observation` or
+`completed-after-observation` means the matrix finished; neither asserts
+fallback-centering acceptance.
 
-Keep PR #491 frozen. Publish the before evidence for parent review, then await
-acceptance of a narrowly demonstrated correction before editing product code.
+Compare against the immutable before bundle, keeping both directories intact:
+
+```sh
+node scripts/result-heading-probe/compare.mjs BEFORE_DIRECTORY AFTER_DIRECTORY COMPARISON.json
+```
+
+The comparator verifies receipt/input/screenshot hashes and the exact 40-case
+inventory. All ready PNGs and heading geometry must match before exactly; every
+fallback heading must lie within 0.02 screen pixels of the content center and fit
+the panel. Pixels above/below the heading band (including statistic rows and
+controls) must match before exactly. Same-mount delay recovery and reload recovery
+must reproduce ready PNG bytes in every scenario. It preserves failed comparisons
+and refuses an existing output path. These are isolated-component, DPR1 results,
+not a natural Home outcome or general pixel-parity certification.

@@ -14,6 +14,8 @@ const fixture = resolve(import.meta.dirname, 'fixture')
 const output = resolve(process.argv[2] ?? 'work/result-heading-before')
 const browserPath = process.env.POPULOUS_BROWSER
 const port = Number(process.env.POPULOUS_RESULT_PORT ?? 4362)
+const phase = process.env.POPULOUS_RESULT_PHASE ?? 'before'
+assert.ok(['before', 'after'].includes(phase), 'Phase must be before or after')
 assert.ok(browserPath && existsSync(browserPath), 'Set POPULOUS_BROWSER to the installed Chrome executable')
 assert.ok(Number.isInteger(port) && port >= 1024 && port <= 65535)
 assert.equal(existsSync(output), false, 'Use a fresh output directory')
@@ -55,13 +57,13 @@ for (const viewport of [{ width: 640, height: 480 }, { width: 1920, height: 1080
   }
 }
 const receipt = {
-  status: 'running', command: process.argv, startedAt: new Date().toISOString(),
+  status: 'running', phase, command: process.argv, startedAt: new Date().toISOString(),
   node: { version: process.version, binary: process.execPath, sha256: hash(process.execPath) },
   host: { platform: platform(), arch: arch(), release: release() },
   browserPath, browserSha256: hash(browserPath), cases, longestRetainedTitle: longest,
   observations: [], errors: [], expectedFontFailures: [], screenshots: {},
   limits: [
-    'Before-only observation: a completed probe does not assert fallback centering is correct.',
+    'Observation only: use compare.mjs for matched fallback-centering acceptance.',
     'Real OriginalResultScreen, globals.css and hudScale; neutral battlefield and inert callbacks.',
     'No Home lifecycle, natural game outcome, native execution or hardware performance claim.',
     'Delay recovery uses the same component mount; failed decode recovery reloads a fresh mount.',
@@ -70,7 +72,7 @@ const receipt = {
 }
 const save = () => writeFileSync(resolve(output, 'receipt.json'), JSON.stringify(receipt, null, 2) + '\n')
 const fontBytes = readFileSync(resolve(root, 'public/original/result-font.png'))
-let before, browser, server, timer
+let before, browser, server, timer, timeoutClose
 save()
 
 async function capture(page, scenario, stage, fontReady) {
@@ -133,7 +135,10 @@ try {
   receipt.serverAddress = server.httpServer.address(); save()
   browser = await chromium.launch({ executablePath: browserPath, headless: true, chromiumSandbox: true, timeout: 30000 })
   receipt.browserVersion = browser.version()
-  timer = setTimeout(() => { receipt.timedOut = true; void browser.close() }, 180000)
+  timer = setTimeout(() => {
+    receipt.timedOut = true
+    timeoutClose = browser.close().catch(error => receipt.errors.push(`Timeout cleanup: ${error}`))
+  }, 180000)
   for (const scenario of cases) {
     const context = await browser.newContext({ viewport: scenario.viewport, deviceScaleFactor: 1 })
     let releaseFont
@@ -192,11 +197,12 @@ try {
     }
   }
   assert.equal(receipt.observations.length, 40)
-  receipt.status = 'completed-before-observation'
+  receipt.status = `completed-${phase}-observation`
 } catch (error) {
   receipt.status = 'failed'; receipt.failure = String(error); receipt.stack = error.stack; process.exitCode = 1
 } finally {
   clearTimeout(timer)
+  await timeoutClose
   for (const [name, close] of [['browser', () => browser?.close()], ['server', () => server?.close()]]) {
     try { await close(); receipt[`${name}Closed`] = true }
     catch (error) { receipt.errors.push(`${name} cleanup: ${error}`) }
