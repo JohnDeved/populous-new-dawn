@@ -115,7 +115,10 @@ this tool verifies CI coverage, not the meaning of external browser/native claim
    older run blocks the earlier green higher-ID run. Exclude only positively
    identified `Draft PR (not validated)` admissions: pinned workflow, Actions app,
    exact run/attempt/check, `IS_DRAFT: true`, failed readiness stage and skipped
-   validation stages. Failed ready validations are never excluded.
+   validation stages. This exclusion applies only to the Full check workflow
+   lane introduced by #502. Tutorial browser retains its original required job
+   name and must pass genuinely; its failed draft jobs are not ignored. Failed
+   ready validations are never excluded.
    Never retry/rerun obsolete events.
 6. Propose merge only with clean protected mergeability and explicit expected head,
    base, synthetic tree and run URLs/attempts. The writer uses `gh api` against

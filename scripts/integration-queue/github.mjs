@@ -208,7 +208,7 @@ export class GitHubReader {
             'jobs'
           )
           const matches = jobs.filter(
-            j => j.name === gate.job || j.name === 'Draft PR (not validated)'
+            j => j.name === gate.job || (gate.draftJob && j.name === gate.draftJob)
           )
           ensure(matches.length === 1, 'Missing or duplicate validation/admission job')
           const job = matches[0]
@@ -243,7 +243,8 @@ export class GitHubReader {
             row.steps.filter(s => s.name === name).length === 1 &&
             row.steps.find(s => s.name === name).conclusion === conclusion
           row.draftAdmission =
-            job.name === 'Draft PR (not validated)' &&
+            !!gate.draftJob &&
+            job.name === gate.draftJob &&
             row.workflowSha256 === entry.workflowHashes[gate.workflow] &&
             exact.conclusion === 'failure' &&
             job.conclusion === 'failure' &&

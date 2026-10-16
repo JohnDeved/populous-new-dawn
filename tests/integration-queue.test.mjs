@@ -657,7 +657,7 @@ test('fake Actions adapter binds workflow/run/attempt/check/app and actual check
           {
             id: 200 + index,
             check_run_url: `https://api.github.com/repos/${REPO}/check-runs/${300 + index}`,
-            name: draft ? 'Draft PR (not validated)' : gate.job,
+            name: draft && gate.draftJob ? gate.draftJob : gate.job,
             conclusion: draft ? 'failure' : 'success',
             steps: gate.steps.map((name, index) => ({
               name,
@@ -669,7 +669,7 @@ test('fake Actions adapter binds workflow/run/attempt/check/app and actual check
     if (endpoint.includes('/check-runs/'))
       return JSON.stringify({
         id: 300 + index,
-        name: draft ? 'Draft PR (not validated)' : gate.job,
+        name: draft && gate.draftJob ? gate.draftJob : gate.job,
         check_suite: { id: 400 + index },
         head_sha: o.head,
         conclusion: draft ? 'failure' : 'success',
@@ -703,7 +703,9 @@ test('fake Actions adapter binds workflow/run/attempt/check/app and actual check
   attempt = 1
   appId = 15368
   draft = true
-  assert.ok(reader.runs(e, pr, o.synthetic).every(r => r.draftAdmission === true))
+  const admissions = reader.runs(e, pr, o.synthetic)
+  assert.equal(admissions[0].draftAdmission, true)
+  assert.equal(admissions[1].draftAdmission, false)
   draftFlag = false
   assert.ok(reader.runs(e, pr, o.synthetic).every(r => r.draftAdmission === false))
   draftFlag = true

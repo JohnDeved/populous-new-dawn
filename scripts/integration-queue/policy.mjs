@@ -13,6 +13,7 @@ export const GATES = [
   {
     workflow: '.github/workflows/ready-pr-check.yml',
     job: 'Full check',
+    draftJob: 'Draft PR (not validated)',
     steps: [
       'Require a ready pull request',
       'Verify and record candidate identity',
@@ -370,7 +371,8 @@ export function decide(entry, observation, saved = null, now = Date.now()) {
           r.base === o.base &&
           !(
             r.draftAdmission === true &&
-            r.job === 'Draft PR (not validated)' &&
+            gate.draftJob &&
+            r.job === gate.draftJob &&
             r.appId === 15368 &&
             r.workflowSha256 === entry.workflowHashes[gate.workflow]
           )
