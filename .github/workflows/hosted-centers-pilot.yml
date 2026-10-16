@@ -1,0 +1,80 @@
+name: Hosted centers research pilot
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened]
+    paths:
+      - '.github/workflows/hosted-centers-pilot.yml'
+      - 'scripts/perf/pilot/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hosted-centers-research-pilot-474
+  cancel-in-progress: false
+
+jobs:
+  pilot:
+    name: Centers research pilot (not a merge gate)
+    if: >-
+      github.event.pull_request.draft == true &&
+      github.event.pull_request.head.ref == 'perf/hosted-centers-pilot-474' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      CI: 'true'
+      NODE_OPTIONS: ''
+      NODE_PATH: ''
+      NODE_COMPILE_CACHE: ''
+      NODE_V8_COVERAGE: ''
+    steps:
+      - name: Check out exact reviewed pilot head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up exact Node runtime
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.19.0'
+          architecture: x64
+          package-manager-cache: false
+      - name: Prepare pinned immutable inputs
+        env:
+          PILOT_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: node scripts/perf/pilot/prepare.mjs
+      - name: Install one shared locked dependency tree
+        run: |
+          set -o pipefail
+          npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0 2>&1 | tee outputs/centers-pilot/npm-setup.log
+          npm ci --prefix outputs/centers-pilot/dependencies --ignore-scripts --no-audit --no-fund 2>&1 | tee outputs/centers-pilot/npm-ci.log
+      - name: Run bounded qualification and conditional ABBA
+        timeout-minutes: 10
+        run: node scripts/perf/pilot/orchestrate.mjs
+      - name: Reject tracked pilot mutation
+        if: ${{ always() }}
+        run: git diff --exit-code HEAD --
+      - name: Finalize explicit failure or skipped receipt
+        if: ${{ always() }}
+        env:
+          PILOT_JOB_STATUS: ${{ job.status }}
+        run: |
+          if [ -f scripts/perf/pilot/finalize.mjs ]; then
+            node scripts/perf/pilot/finalize.mjs
+          fi
+      - name: Preserve raw evidence, including failure and skipped status
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: centers-pilot-${{ github.event.pull_request.head.sha }}
+          path: |
+            outputs/centers-pilot/*.json
+            outputs/centers-pilot/*.jsonl
+            outputs/centers-pilot/*.stderr
+            outputs/centers-pilot/*.log
+          if-no-files-found: warn
+          retention-days: 7
