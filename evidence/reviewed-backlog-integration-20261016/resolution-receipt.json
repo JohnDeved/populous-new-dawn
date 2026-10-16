@@ -1,0 +1,90 @@
+{
+  "status": "assembled-not-tested",
+  "branch": "codex/reviewed-backlog-integration-502",
+  "base": "2ea256bbc0535d4ccc1813cb94bfbc9130e5beed",
+  "baseTree": "bcd587a193a38496f91498306e052e680a18fc93",
+  "head": "b7da697a4cfe2912b821b24817fa31396369226d",
+  "tree": "7939655030941a014bfa4362986b6b1397c39469",
+  "merges": [
+    {
+      "pr": 495,
+      "sourceHead": "ae52fe209d9624aa4b2717953dcb24cc96bad1f1",
+      "mergeCommit": "5d2d4d88895494006b0f3e69d8e2185eb67d4025",
+      "parents": [
+        "2ea256bbc0535d4ccc1813cb94bfbc9130e5beed",
+        "ae52fe209d9624aa4b2717953dcb24cc96bad1f1"
+      ],
+      "tree": "472a120bcce6839222bad6b2aa3b467bc0514939",
+      "changedFileCount": 18,
+      "frozenFileBytesVerified": true
+    },
+    {
+      "pr": 498,
+      "sourceHead": "a4b1e92f53e425bc4b1abd574fe1de081bff2fa1",
+      "mergeCommit": "9c9a606ea4d203a5e6183b11792bf35ae80e78c2",
+      "parents": [
+        "5d2d4d88895494006b0f3e69d8e2185eb67d4025",
+        "a4b1e92f53e425bc4b1abd574fe1de081bff2fa1"
+      ],
+      "tree": "da25574a90cda8f9be0e3c964d77c5ebc4c668c8",
+      "changedFileCount": 80,
+      "frozenFileBytesVerified": true
+    },
+    {
+      "pr": 499,
+      "sourceHead": "80f3e78c3409376b3a35f764e6499a96508f9023",
+      "mergeCommit": "cf1fa144dd32b8a3bb3baf7067bcf8762f58830d",
+      "parents": [
+        "9c9a606ea4d203a5e6183b11792bf35ae80e78c2",
+        "80f3e78c3409376b3a35f764e6499a96508f9023"
+      ],
+      "tree": "c1e355f2132d5c718d59a9df6b082c7948cf58d3",
+      "changedFileCount": 10,
+      "frozenFileBytesVerified": true
+    },
+    {
+      "pr": 501,
+      "sourceHead": "a2adc244a6eb2660893a17b7ec2dafb02118ddfc",
+      "mergeCommit": "b7da697a4cfe2912b821b24817fa31396369226d",
+      "parents": [
+        "cf1fa144dd32b8a3bb3baf7067bcf8762f58830d",
+        "a2adc244a6eb2660893a17b7ec2dafb02118ddfc"
+      ],
+      "tree": "7939655030941a014bfa4362986b6b1397c39469",
+      "changedFileCount": 8,
+      "frozenFileBytesVerified": true
+    }
+  ],
+  "resolution": {
+    "mergeCommit": "5d2d4d88895494006b0f3e69d8e2185eb67d4025",
+    "onlyConflictedPath": "engineering/test-resources.json",
+    "authorization": "Parent explicitly approved preserving the entire #502 policy byte-for-byte, pending a new real Linux fingerprint.",
+    "chosenSource": "2ea256bbc0535d4ccc1813cb94bfbc9130e5beed",
+    "chosenBlob": "0663ee490470416069af7996bf8298e529543a4b",
+    "chosenSha256": "cd8670c7a9526fac77bf151cd3648248da7e1966123fb4656e4289d673a16540",
+    "rejectedIncomingBlob": "cf87d9e8495271913d05397ee3562c375a19b3c1",
+    "preservedProductionSha256": "2bf94672183b5c4fbb9a42af84a98626229a118cd2c83f079b76a85ef30bb0d5",
+    "rejectedIncomingProductionSha256": "61028d22fe5086614d5e277821c5526df7ecd0cf11b182da494c4622d7f5befc",
+    "allOtherPolicyBytesPreserved": true
+  },
+  "combinedDiff": {
+    "path": "combined.patch",
+    "sha256": "97e2459b5b2001e31f8fc4e219d3edb58aa5ff406bb844299b93965339f2b75a",
+    "bytes": 558448,
+    "changedFiles": 116
+  },
+  "gitBundle": {
+    "path": "candidate.bundle",
+    "sha256": "fce2ce422d522be9e04a6d67ff8aacb7fc04b4d49c83c3e0700eab0f80aa2210",
+    "bytes": 136116,
+    "verified": true
+  },
+  "limits": [
+    "No focused/full tests, build or browser run for this combined candidate.",
+    "No source edits beyond the authorized resource conflict resolution; no squash, cherry-pick or policy regeneration.",
+    "All historical source/evidence limitations remain unchanged; assembly is not new gameplay/native/browser evidence.",
+    "Production fingerprint is intentionally retained from #502; FPS changes require serial fallback until new independent Linux approval.",
+    "Final current main and #503 still require later integration and review before one genuine hosted gate.",
+    "Branch and artifacts are local only; nothing published or readied."
+  ]
+}

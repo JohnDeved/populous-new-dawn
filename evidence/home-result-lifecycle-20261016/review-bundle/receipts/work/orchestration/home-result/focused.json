@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "5c294ee1-8beb-402d-a323-aa4b91b4e470",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "dd8d09a449c700ef9b4d5fe6628db38292a8452d",
+    "branch": "codex/home-result-lifecycle",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "--test",
+    "--test-concurrency=1",
+    "tests/home-result-lifecycle.test.mjs",
+    "tests/original-result-screen.test.mjs",
+    "tests/pause-menu-ownership.test.mjs"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-16T17:14:48.694Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/home-result/focused.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/home-result/focused.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T17:14:49.527Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ Home gates the lost result on camera completion and wires Restart rather than Continue (37.512959ms)\n✔ Home returns from result selection by Back and cancel without replacing the lost world or opening pause menu (23.557375ms)\n✔ Home result Restart replaces the paused terminal world and clears stale menu ownership (22.642334ms)\n✔ result time is a pure live-clock formatter with hours and no wrapping or mutation (0.259958ms)\n✔ result composition fits the battlefield and reserves room for browser controls (0.076208ms)\n✔ actual result component renders source headings and ten explicitly unavailable counters (3.424583ms)\n✔ loss and terminal/tutorial actions retain the explicit parent-decided consequence (3.587459ms)\n✔ source panel metadata retains independently checked native geometry and glyph bounds (0.313083ms)\n✔ actual Page captures original pause once, holds it across panel return and restores same-world close (26.957834ms)\n✔ actual Page never restores an old pause state or queued camera request into a replacement world (5.133708ms)\n✔ actual Page applies queued camera conveniences only on final same-world close (5.235125ms)\nℹ tests 11\nℹ suites 0\nℹ pass 11\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 807.45125\n",
+  "stderr": "",
+  "stdoutSha256": "cba88fd3b49043dbb1239abf66b4e85f82d8cf84c5d7c03ffbb2e550c10f1275",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "dd8d09a449c700ef9b4d5fe6628db38292a8452d",
+    "branch": "codex/home-result-lifecycle",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

@@ -1,0 +1,140 @@
+{
+  "entry-crt": [
+    [
+      "0x55d6c0",
+      "0x55d867"
+    ]
+  ],
+  "entry-winmain": [
+    [
+      "0x583ef0",
+      "0x583f15"
+    ]
+  ],
+  "entry-app": [
+    [
+      "0x47fe90",
+      "0x47feca"
+    ]
+  ],
+  "entry-startup": [
+    [
+      "0x4a4450",
+      "0x4a45a1"
+    ]
+  ],
+  "startup-initializer": [
+    [
+      "0x4a4f70",
+      "0x4a5301"
+    ]
+  ],
+  "logo-guard-producer": [
+    [
+      "0x499800",
+      "0x499892"
+    ]
+  ],
+  "lobby-detection": [
+    [
+      "0x413db0",
+      "0x413f82"
+    ]
+  ],
+  "language-selector": [
+    [
+      "0x492ff0",
+      "0x4931b8"
+    ]
+  ],
+  "registry-open": [
+    [
+      "0x529e80",
+      "0x529ef3"
+    ],
+    [
+      "0x52a030",
+      "0x52a075"
+    ]
+  ],
+  "registry-read": [
+    [
+      "0x52a0e0",
+      "0x52a12e"
+    ],
+    [
+      "0x52a390",
+      "0x52a480"
+    ]
+  ],
+  "frontend-first-pass": [
+    [
+      "0x4587e3",
+      "0x458884"
+    ]
+  ],
+  "frontend-count-initializer": [
+    [
+      "0x459f40",
+      "0x45a186"
+    ]
+  ],
+  "frontend-select": [
+    [
+      "0x458a39",
+      "0x458afe"
+    ]
+  ],
+  "frontend-menu-set": [
+    [
+      "0x45a3c0",
+      "0x45a4cb"
+    ]
+  ],
+  "frontend-page-timer": [
+    [
+      "0x4c5b60",
+      "0x4c5c2f"
+    ],
+    [
+      "0x45d7f0",
+      "0x45d806"
+    ],
+    [
+      "0x4c5cd0",
+      "0x4c5cef"
+    ]
+  ],
+  "frontend-update-type1": [
+    [
+      "0x45ae30",
+      "0x45ae94"
+    ]
+  ],
+  "frontend-dispatch": [
+    [
+      "0x457aa9",
+      "0x457abc"
+    ]
+  ],
+  "frontend-input-boundary": [
+    [
+      "0x459000",
+      "0x4590f9"
+    ],
+    [
+      "0x45a500",
+      "0x45a544"
+    ]
+  ],
+  "guard-clearers": [
+    [
+      "0x4c3610",
+      "0x4c363f"
+    ],
+    [
+      "0x4c38b0",
+      "0x4c38ef"
+    ]
+  ]
+}

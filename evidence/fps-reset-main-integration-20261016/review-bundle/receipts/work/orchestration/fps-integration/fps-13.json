@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "71c4bfd8-efc0-400c-ac17-8992f8c9a1f0",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "28343293a919180cc0a18f8dc9151dece2fb8881",
+    "branch": "repair/pr495-main-integration",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/fps-graph.ts": "b3f505073fd7b8f317c2167ca447be7d167c59bff6e354a298e49ade892092dd",
+      "app/frame-performance.ts": "b528dcb8056340465bb6bb70b1c8df95fd73599cb50c74b50053f3d87f4684cd",
+      "app/performance-hardware.ts": "07ed102719c7391d039a25e05b7e4439f6c8ab8ca2fe487391b20116d1472324",
+      "app/original-pause-menu.tsx": "c4d0d1ee764e7baad145d105cece5bbb12f5d35fcc74b87405b0eb39495b694c",
+      "tests/fps-graph-reset.test.mjs": "3e2dfaa33002569af47e44da9fe388184f7f709b12a52fff52e5e6ed76a90e59",
+      "tests/frame-performance.test.mjs": "79fb1e1c50e31017b80fff36337e3b5894fc3a3e43d6426b1ff327786051e0b8",
+      "tests/pause-save-notice.test.mjs": "57ef02f8b507dda455060a510d63925142d53ff68acd7ae4d75580d4745d8686",
+      "engineering/test-resources.json": "523cf01cec12bf2ef3c02c44fd870e8c29d6f0cf7b26fa72f592fbc2f55c3772",
+      "scripts/orchestration/test-runner.mjs": "2d95f407982eef5194f8cfab0dea456f5ca2d84793c35a2ccd686187c79e2a05",
+      "package.json": "4cc4c8a4d22f87a09004739426d0dbbb3be01198a712849051f692d7afcb77f3",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "--test-concurrency=1",
+    "--test-reporter=tap",
+    "tests/fps-graph-reset.test.mjs",
+    "tests/frame-performance.test.mjs"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-16T16:30:42.357Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/fps-integration/fps-13.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/fps-integration/fps-13.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T16:30:42.479Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "TAP version 13\n# Subtest: actual graph repeated cleared resets avoid writes but preserve changed visibility labels\nok 1 - actual graph repeated cleared resets avoid writes but preserve changed visibility labels\n  ---\n  duration_ms: 0.938625\n  type: 'test'\n  ...\n# Subtest: actual graph resets warmup and unpublished samples and excludes hidden time after resume\nok 2 - actual graph resets warmup and unpublished samples and excludes hidden time after resume\n  ---\n  duration_ms: 0.137958\n  type: 'test'\n  ...\n# (node:3846) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: frame telemetry computes time-weighted cadence and per-frame CPU/call means at four Hz\nok 3 - frame telemetry computes time-weighted cadence and per-frame CPU/call means at four Hz\n  ---\n  duration_ms: 0.346291\n  type: 'test'\n  ...\n# Subtest: a slow frame remains visible and affects cadence rather than being clamped away\nok 4 - a slow frame remains visible and affects cadence rather than being clamped away\n  ---\n  duration_ms: 0.073959\n  type: 'test'\n  ...\n# Subtest: history is one fixed 240-frame chronological ring and reset exposes no old window\nok 5 - history is one fixed 240-frame chronological ring and reset exposes no old window\n  ---\n  duration_ms: 0.183042\n  type: 'test'\n  ...\n# Subtest: invalid or nonpositive frame intervals cannot poison telemetry\nok 6 - invalid or nonpositive frame intervals cannot poison telemetry\n  ---\n  duration_ms: 0.060083\n  type: 'test'\n  ...\n# Subtest: hardware hints use the supplied live context and explicit approximate units\nok 7 - hardware hints use the supplied live context and explicit approximate units\n  ---\n  duration_ms: 0.309625\n  type: 'test'\n  ...\n# Subtest: unsupported or privacy-restricted telemetry never fabricates hardware numbers\nok 8 - unsupported or privacy-restricted telemetry never fabricates hardware numbers\n  ---\n  duration_ms: 0.108167\n  type: 'test'\n  ...\n# Subtest: live callback CPU includes preparation, HUD and scheduling, excluding overlay work\nok 9 - live callback CPU includes preparation, HUD and scheduling, excluding overlay work\n  ---\n  duration_ms: 1.596333\n  type: 'test'\n  ...\n# Subtest: modal callback measures rendering and scheduling without simulation or HUD\nok 10 - modal callback measures rendering and scheduling without simulation or HUD\n  ---\n  duration_ms: 0.571917\n  type: 'test'\n  ...\n# Subtest: disabled and hidden diagnostics add no clock reads and preserve game callback order\nok 11 - disabled and hidden diagnostics add no clock reads and preserve game callback order\n  ---\n  duration_ms: 1.746708\n  type: 'test'\n  ...\n# Subtest: 120 FPS cadence and total CPU remain separate measurements across reset\nok 12 - 120 FPS cadence and total CPU remain separate measurements across reset\n  ---\n  duration_ms: 0.151416\n  type: 'test'\n  ...\n# Subtest: actual graph keeps a startup spike, auto scale and 120 FPS guide consistent until expiry\nok 13 - actual graph keeps a startup spike, auto scale and 120 FPS guide consistent until expiry\n  ---\n  duration_ms: 0.882041\n  type: 'test'\n  ...\n1..13\n# tests 13\n# suites 0\n# pass 13\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 98.819625\n",
+  "stderr": "",
+  "stdoutSha256": "5986e39c14b9d255c595f8bf681be29cfdb261c6421dc98614cfd46c1942f082",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "28343293a919180cc0a18f8dc9151dece2fb8881",
+    "branch": "repair/pr495-main-integration",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/fps-graph.ts": "b3f505073fd7b8f317c2167ca447be7d167c59bff6e354a298e49ade892092dd",
+      "app/frame-performance.ts": "b528dcb8056340465bb6bb70b1c8df95fd73599cb50c74b50053f3d87f4684cd",
+      "app/performance-hardware.ts": "07ed102719c7391d039a25e05b7e4439f6c8ab8ca2fe487391b20116d1472324",
+      "app/original-pause-menu.tsx": "c4d0d1ee764e7baad145d105cece5bbb12f5d35fcc74b87405b0eb39495b694c",
+      "tests/fps-graph-reset.test.mjs": "3e2dfaa33002569af47e44da9fe388184f7f709b12a52fff52e5e6ed76a90e59",
+      "tests/frame-performance.test.mjs": "79fb1e1c50e31017b80fff36337e3b5894fc3a3e43d6426b1ff327786051e0b8",
+      "tests/pause-save-notice.test.mjs": "57ef02f8b507dda455060a510d63925142d53ff68acd7ae4d75580d4745d8686",
+      "engineering/test-resources.json": "523cf01cec12bf2ef3c02c44fd870e8c29d6f0cf7b26fa72f592fbc2f55c3772",
+      "scripts/orchestration/test-runner.mjs": "2d95f407982eef5194f8cfab0dea456f5ca2d84793c35a2ccd686187c79e2a05",
+      "package.json": "4cc4c8a4d22f87a09004739426d0dbbb3be01198a712849051f692d7afcb77f3",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  }
+}

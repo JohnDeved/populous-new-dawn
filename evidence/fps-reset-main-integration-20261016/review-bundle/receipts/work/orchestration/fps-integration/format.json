@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "00fc551f-3813-4522-8a0d-120f04cdad46",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "28343293a919180cc0a18f8dc9151dece2fb8881",
+    "branch": "repair/pr495-main-integration",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/fps-graph.ts": "b3f505073fd7b8f317c2167ca447be7d167c59bff6e354a298e49ade892092dd",
+      "app/frame-performance.ts": "b528dcb8056340465bb6bb70b1c8df95fd73599cb50c74b50053f3d87f4684cd",
+      "app/performance-hardware.ts": "07ed102719c7391d039a25e05b7e4439f6c8ab8ca2fe487391b20116d1472324",
+      "app/original-pause-menu.tsx": "c4d0d1ee764e7baad145d105cece5bbb12f5d35fcc74b87405b0eb39495b694c",
+      "tests/fps-graph-reset.test.mjs": "3e2dfaa33002569af47e44da9fe388184f7f709b12a52fff52e5e6ed76a90e59",
+      "tests/frame-performance.test.mjs": "79fb1e1c50e31017b80fff36337e3b5894fc3a3e43d6426b1ff327786051e0b8",
+      "tests/pause-save-notice.test.mjs": "57ef02f8b507dda455060a510d63925142d53ff68acd7ae4d75580d4745d8686",
+      "engineering/test-resources.json": "523cf01cec12bf2ef3c02c44fd870e8c29d6f0cf7b26fa72f592fbc2f55c3772",
+      "scripts/orchestration/test-runner.mjs": "2d95f407982eef5194f8cfab0dea456f5ca2d84793c35a2ccd686187c79e2a05",
+      "package.json": "4cc4c8a4d22f87a09004739426d0dbbb3be01198a712849051f692d7afcb77f3",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  },
+  "command": [
+    "node_modules/.bin/oxfmt",
+    "--check",
+    "app/fps-graph.ts",
+    "app/original-pause-menu.tsx"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-16T16:30:43.806Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/fps-integration/format.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/fps-integration/format.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T16:30:44.505Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 2ms on 2 files using 10 threads.\n",
+  "stderr": "",
+  "stdoutSha256": "b2cb010cd9cf478758635541d6cc948f176cdefa8211dfe4f27cf975dd9755f8",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "28343293a919180cc0a18f8dc9151dece2fb8881",
+    "branch": "repair/pr495-main-integration",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/fps-graph.ts": "b3f505073fd7b8f317c2167ca447be7d167c59bff6e354a298e49ade892092dd",
+      "app/frame-performance.ts": "b528dcb8056340465bb6bb70b1c8df95fd73599cb50c74b50053f3d87f4684cd",
+      "app/performance-hardware.ts": "07ed102719c7391d039a25e05b7e4439f6c8ab8ca2fe487391b20116d1472324",
+      "app/original-pause-menu.tsx": "c4d0d1ee764e7baad145d105cece5bbb12f5d35fcc74b87405b0eb39495b694c",
+      "tests/fps-graph-reset.test.mjs": "3e2dfaa33002569af47e44da9fe388184f7f709b12a52fff52e5e6ed76a90e59",
+      "tests/frame-performance.test.mjs": "79fb1e1c50e31017b80fff36337e3b5894fc3a3e43d6426b1ff327786051e0b8",
+      "tests/pause-save-notice.test.mjs": "57ef02f8b507dda455060a510d63925142d53ff68acd7ae4d75580d4745d8686",
+      "engineering/test-resources.json": "523cf01cec12bf2ef3c02c44fd870e8c29d6f0cf7b26fa72f592fbc2f55c3772",
+      "scripts/orchestration/test-runner.mjs": "2d95f407982eef5194f8cfab0dea456f5ca2d84793c35a2ccd686187c79e2a05",
+      "package.json": "4cc4c8a4d22f87a09004739426d0dbbb3be01198a712849051f692d7afcb77f3",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  }
+}

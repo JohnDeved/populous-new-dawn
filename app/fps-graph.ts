@@ -5,6 +5,7 @@ import { readHardwareInfo, readHeapEstimate } from './performance-hardware.ts'
 export class FpsGraph {
   readonly element = document.createElement('aside')
   readonly samples = new FramePerformance()
+  private cleared = false
   private previous: number | null = null
   private fields: Record<string, HTMLElement> = {}
   private line: SVGPolylineElement
@@ -59,6 +60,11 @@ export class FpsGraph {
   }
 
   reset(state = 'Warming up') {
+    if (this.cleared) {
+      this.text('state', state)
+      return
+    }
+    this.cleared = true
     this.previous = null
     this.samples.reset()
     for (const name of ['fps', 'frame', 'peak', 'simulation', 'render', 'calls', 'callback'])
@@ -77,6 +83,7 @@ export class FpsGraph {
     state: string,
     callback: number
   ) {
+    this.cleared = false
     const { previous } = this
     this.previous = now
     if (previous === null) {
