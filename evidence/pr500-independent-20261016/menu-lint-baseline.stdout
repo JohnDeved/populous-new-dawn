@@ -1,0 +1,29 @@
+
+<review-root>/app/original-main-menu.tsx
+  318:14  error  Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+<review-root>/app/original-main-menu.tsx:318:14
+  316 |         {panel === 'main' && (
+  317 |           <nav aria-label="Main menu choices" className={styles.rows}>
+> 318 |             {rows.map((row, index) => (
+      |              ^^^^ Cannot access ref value during render
+  319 |               <button
+  320 |                 ref={index === (hasCheckpoint ? 2 : 0) ? first : undefined}
+  321 |                 key={row.label}      react-hooks/refs
+  318:14  error  Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+<review-root>/app/original-main-menu.tsx:318:14
+  316 |         {panel === 'main' && (
+  317 |           <nav aria-label="Main menu choices" className={styles.rows}>
+> 318 |             {rows.map((row, index) => (
+      |              ^^^^^^^^ Cannot access ref value during render
+  319 |               <button
+  320 |                 ref={index === (hasCheckpoint ? 2 : 0) ? first : undefined}
+  321 |                 key={row.label}  react-hooks/refs
+
+✖ 2 problems (2 errors, 0 warnings)
+

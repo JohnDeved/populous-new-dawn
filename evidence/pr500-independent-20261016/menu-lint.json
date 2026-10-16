@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "b59b4129-3b7a-4e89-85bb-743a55bde535",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "9b959fa09fd86ac4cc2d72bbb95b92caefe09c93",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node_modules/.bin/eslint",
+    "app/original-main-menu.tsx"
+  ],
+  "cwd": "<review-root>",
+  "startedAt": "2026-10-16T17:23:46.072Z",
+  "artifacts": {
+    "stdout": "<review-root>/work/orchestration/pr500-independent/menu-lint.json.artifacts/stdout.log",
+    "stderr": "<review-root>/work/orchestration/pr500-independent/menu-lint.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T17:23:47.347Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "\n<review-root>/app/original-main-menu.tsx\n  334:14  error  Error: Cannot access refs during render\n\nReact refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).\n\n<review-root>/app/original-main-menu.tsx:334:14\n  332 |         {panel === 'main' && (\n  333 |           <nav aria-label=\"Main menu choices\" className={styles.rows}>\n> 334 |             {rows.map((row, index) => (\n      |              ^^^^ Cannot access ref value during render\n  335 |               <button\n  336 |                 ref={index === (hasCheckpoint ? 2 : 0) ? first : undefined}\n  337 |                 key={row.label}      react-hooks/refs\n  334:14  error  Error: Cannot access refs during render\n\nReact refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).\n\n<review-root>/app/original-main-menu.tsx:334:14\n  332 |         {panel === 'main' && (\n  333 |           <nav aria-label=\"Main menu choices\" className={styles.rows}>\n> 334 |             {rows.map((row, index) => (\n      |              ^^^^^^^^ Cannot access ref value during render\n  335 |               <button\n  336 |                 ref={index === (hasCheckpoint ? 2 : 0) ? first : undefined}\n  337 |                 key={row.label}  react-hooks/refs\n\n✖ 2 problems (2 errors, 0 warnings)\n\n",
+  "stderr": "",
+  "stdoutSha256": "59fda1d07b21728c395b5aed2e01fba4dcf0851718b572fc3d81522dd49fcd6b",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "9b959fa09fd86ac4cc2d72bbb95b92caefe09c93",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

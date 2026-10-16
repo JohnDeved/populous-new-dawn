@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "3ae13724-3f98-42f1-8bc9-bba36c9e4c45",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "9b959fa09fd86ac4cc2d72bbb95b92caefe09c93",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "--test",
+    "--test-concurrency=1",
+    "tests/checkpoint-restore-ui.test.mjs",
+    "tests/checkpoint-database-open-retry.test.mjs",
+    "tests/campaign-profile-recovery.test.mjs",
+    "tests/campaign-profile-union.test.mjs"
+  ],
+  "cwd": "<review-root>",
+  "startedAt": "2026-10-16T17:23:42.693Z",
+  "artifacts": {
+    "stdout": "<review-root>/work/orchestration/pr500-independent/focused.json.artifacts/stdout.log",
+    "stderr": "<review-root>/work/orchestration/pr500-independent/focused.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T17:23:44.619Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ missing checkpoint does not suppress independent campaign progress (25.965208ms)\n✔ malformed checkpoint does not suppress independent campaign progress (19.434459ms)\n✔ partially migratable checkpoint does not suppress independent campaign progress (14.280042ms)\n✔ incompatible checkpoint does not suppress independent campaign progress (15.754709ms)\n✔ current valid checkpoint still restores and loads (29.692666ms)\n✔ legacy valid checkpoint still restores and loads (29.160291ms)\n✔ malformed stored checkpoint preserves usable session checkpoint and merges completion (15.357916ms)\n✔ storage read failure retains in-session progress and checkpoint (17.867333ms)\n✔ completion after failed startup read preserves earlier persisted progress (270.593542ms)\n✔ stale independent stores atomically union completions instead of last-writer loss (27.229417ms)\n✔ incompatible profile remains recoverable while session and checkpoint still work (17.334958ms)\n✔ missing version profile remains recoverable while session and checkpoint still work (15.700583ms)\n✔ malformed list profile remains recoverable while session and checkpoint still work (14.396791ms)\n✔ invalid mission profile remains recoverable while session and checkpoint still work (13.799208ms)\n✔ null record profile remains recoverable while session and checkpoint still work (13.943459ms)\n✔ sparse list profile remains recoverable while session and checkpoint still work (13.976459ms)\n✔ new profile is created and duplicate completions remain unique and sorted (11.827916ms)\n✔ failed atomic profile read cannot overwrite data and later completion retries the union (11.749791ms)\n✔ transaction abort after profile put leaves stored progress unchanged (11.924417ms)\n✔ a failed database open can retry restore, then persist the next Save (255.669042ms)\n✔ concurrent callers share one failed open and one successful retry (25.262709ms)\n✔ repeated and synchronous open failures preserve memory checkpoint and completion (21.110834ms)\n✔ actual Home open failure exposes retry and enables Load after a recovered read (60.622958ms)\n✔ actual Home abort failure exposes retry and enables Load after a recovered read (37.364375ms)\n✔ genuine empty and unusable records are read results, not a failed lookup or proof of empty disk (48.285833ms)\n✔ repeated failed retries preserve the world and remain retryable (16.68625ms)\n✔ late read keeps a newer memory save and current world after navigation (43.336ms)\n✔ initial restore completion cannot navigate after unmount (14.252583ms)\n✔ initial restore completion cannot navigate after world replacement (26.435292ms)\n✔ unsupported storage ends startup, explains session saves, and permits memory Load (17.095542ms)\nℹ tests 30\nℹ suites 0\nℹ pass 30\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1899.959375\n",
+  "stderr": "",
+  "stdoutSha256": "dc48821077145200b1f60fd7e0bb4e6ac4e7be4945ec45fcd1fdca0fbf0f7907",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "9b959fa09fd86ac4cc2d72bbb95b92caefe09c93",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "scope": "baseline source passed through candidate ESLint/config on stdin; no source edit",
+  "base": "7e4806f25a7d202e67491186f1e62c648e379dab",
+  "head": "9b959fa09fd86ac4cc2d72bbb95b92caefe09c93",
+  "command": [
+    "node",
+    "node_modules/eslint/bin/eslint.js",
+    "--stdin",
+    "--stdin-filename",
+    "app/original-main-menu.tsx"
+  ],
+  "sourceSha256": "03648f12524e694c33a56437c52991d854e4d0e664adb79afaafefc238b32917",
+  "exitCode": 1,
+  "stdoutSha256": "9b045b990444d2961a47c81e0e4b24a5e737ade2db8217d7fffc0e365558111f",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

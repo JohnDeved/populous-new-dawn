@@ -1,0 +1,60 @@
+{
+  "reviewedHead": "9b959fa09fd86ac4cc2d72bbb95b92caefe09c93",
+  "base": "7e4806f25a7d202e67491186f1e62c648e379dab",
+  "files": [
+    {
+      "path": "focused.json",
+      "originalSha256": "1c600d8337c9d888511fa5d5a5dd0543b0384c927fc944fa148fe07963212bb4",
+      "publishedSha256": "70971316153d065ee6fb0c1835d3ac32b17003f168ced65489be68b49e08a5c5",
+      "redacted": true
+    },
+    {
+      "path": "menu-lint.json",
+      "originalSha256": "43202bbf2115886d39eb436b1d6338c0477cfc27a252050eee64c921b3094055",
+      "publishedSha256": "38a89cd301b92791939cfb3b41733ee7625d90f124f31e60cc9f29212110f296",
+      "redacted": true
+    },
+    {
+      "path": "menu-lint-baseline.json",
+      "originalSha256": "30e9b95281af5d9fdd009b5bcd6456fef4c08cc0034aae5a4b73f806b71c71fd",
+      "publishedSha256": "30e9b95281af5d9fdd009b5bcd6456fef4c08cc0034aae5a4b73f806b71c71fd",
+      "redacted": false
+    },
+    {
+      "path": "menu-lint-baseline.stdout",
+      "originalSha256": "9b045b990444d2961a47c81e0e4b24a5e737ade2db8217d7fffc0e365558111f",
+      "publishedSha256": "c0db5357bb008cace46166ba3f43b56b3530c665553fe7870f35548225da2256",
+      "redacted": true
+    },
+    {
+      "path": "menu-lint-baseline.stderr",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "publishedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "redacted": false
+    },
+    {
+      "path": "focused.json.artifacts/stdout.log",
+      "originalSha256": "dc48821077145200b1f60fd7e0bb4e6ac4e7be4945ec45fcd1fdca0fbf0f7907",
+      "publishedSha256": "dc48821077145200b1f60fd7e0bb4e6ac4e7be4945ec45fcd1fdca0fbf0f7907",
+      "redacted": false
+    },
+    {
+      "path": "focused.json.artifacts/stderr.log",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "publishedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "redacted": false
+    },
+    {
+      "path": "menu-lint.json.artifacts/stdout.log",
+      "originalSha256": "59fda1d07b21728c395b5aed2e01fba4dcf0851718b572fc3d81522dd49fcd6b",
+      "publishedSha256": "68d17e398a17893bfad3666964878e734b1f3ad162f887ec1a54719d191a6021",
+      "redacted": true
+    },
+    {
+      "path": "menu-lint.json.artifacts/stderr.log",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "publishedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "redacted": false
+    }
+  ]
+}

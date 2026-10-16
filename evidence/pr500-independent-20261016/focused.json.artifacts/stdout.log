@@ -1,0 +1,38 @@
+✔ missing checkpoint does not suppress independent campaign progress (25.965208ms)
+✔ malformed checkpoint does not suppress independent campaign progress (19.434459ms)
+✔ partially migratable checkpoint does not suppress independent campaign progress (14.280042ms)
+✔ incompatible checkpoint does not suppress independent campaign progress (15.754709ms)
+✔ current valid checkpoint still restores and loads (29.692666ms)
+✔ legacy valid checkpoint still restores and loads (29.160291ms)
+✔ malformed stored checkpoint preserves usable session checkpoint and merges completion (15.357916ms)
+✔ storage read failure retains in-session progress and checkpoint (17.867333ms)
+✔ completion after failed startup read preserves earlier persisted progress (270.593542ms)
+✔ stale independent stores atomically union completions instead of last-writer loss (27.229417ms)
+✔ incompatible profile remains recoverable while session and checkpoint still work (17.334958ms)
+✔ missing version profile remains recoverable while session and checkpoint still work (15.700583ms)
+✔ malformed list profile remains recoverable while session and checkpoint still work (14.396791ms)
+✔ invalid mission profile remains recoverable while session and checkpoint still work (13.799208ms)
+✔ null record profile remains recoverable while session and checkpoint still work (13.943459ms)
+✔ sparse list profile remains recoverable while session and checkpoint still work (13.976459ms)
+✔ new profile is created and duplicate completions remain unique and sorted (11.827916ms)
+✔ failed atomic profile read cannot overwrite data and later completion retries the union (11.749791ms)
+✔ transaction abort after profile put leaves stored progress unchanged (11.924417ms)
+✔ a failed database open can retry restore, then persist the next Save (255.669042ms)
+✔ concurrent callers share one failed open and one successful retry (25.262709ms)
+✔ repeated and synchronous open failures preserve memory checkpoint and completion (21.110834ms)
+✔ actual Home open failure exposes retry and enables Load after a recovered read (60.622958ms)
+✔ actual Home abort failure exposes retry and enables Load after a recovered read (37.364375ms)
+✔ genuine empty and unusable records are read results, not a failed lookup or proof of empty disk (48.285833ms)
+✔ repeated failed retries preserve the world and remain retryable (16.68625ms)
+✔ late read keeps a newer memory save and current world after navigation (43.336ms)
+✔ initial restore completion cannot navigate after unmount (14.252583ms)
+✔ initial restore completion cannot navigate after world replacement (26.435292ms)
+✔ unsupported storage ends startup, explains session saves, and permits memory Load (17.095542ms)
+ℹ tests 30
+ℹ suites 0
+ℹ pass 30
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1899.959375
