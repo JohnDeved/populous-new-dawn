@@ -1,3 +1,4 @@
+import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 import assert from 'node:assert/strict'
 import {resolve} from 'node:path'
 import {pathToFileURL} from 'node:url'
@@ -5,7 +6,7 @@ export default async function({page,root,output}) {
  const {bindGame}=await import(pathToFileURL(resolve(root,'scripts/browser-game.mjs')).href)
  const button=name=>page.getByRole('button',{name,exact:true})
  await page.setViewportSize({width:800,height:600})
- await button('New Game').click();await button('Start Mission 1').click();await bindGame(page)
+ await openCampaignFromMainMenu(page);await button('Start Mission 1').click();await bindGame(page)
  await page.getByRole('button',{name:'Continue anyway',exact:false}).click()
  await page.waitForFunction(()=>window.testStore.getWorld().flyby.flags&1||!window.testStore.getWorld().inputMask)
  await page.evaluate(()=>document.querySelector('.skip-introduction')?.click())

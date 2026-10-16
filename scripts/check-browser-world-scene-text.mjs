@@ -1,3 +1,4 @@
+import { openCampaignFromMainMenu } from './browser-new-game.mjs'
 import assert from 'node:assert/strict'
 import {resolve} from 'node:path'
 import {readFileSync,writeFileSync} from 'node:fs'
@@ -14,7 +15,7 @@ export default async function({page,root,output,receipt}) {
  const mark=stage=>{stages.push({stage,at:new Date().toISOString()});record('scene-text-stages.json',stages)}
  mark('start')
  await page.setViewportSize({width:800,height:600})
- await button('New Game').click()
+ await openCampaignFromMainMenu(page)
  await page.locator('canvas[data-world-scene][data-ready="true"]').waitFor()
  mark('selector ready; checking title geometry/cursors')
  const titleFacts=[]
@@ -99,7 +100,7 @@ export default async function({page,root,output,receipt}) {
  await page.mouse.move(-5,-5);await noTip()
  await moveInside(button('Start Mission 1'));await tip(978).waitFor()
  await page.keyboard.press('Escape');await noTip()
- await button('New Game').click();await noTip()
+ await openCampaignFromMainMenu(page);await noTip()
  mark('resize/scroll/leave/unmount passed; title fallback')
  // A valid title network failure falls back to its same accessible/text label.
  await page.route('**/original/world-selector/text/title-2.png',r=>r.abort('failed'))
@@ -113,7 +114,7 @@ export default async function({page,root,output,receipt}) {
  // Panel labels become visibly numbered only while art is absent.
  await page.keyboard.press('Escape')
  await page.route('**/original/world-selector/panel/*.png',r=>r.abort('failed'))
- await button('New Game').click()
+ await openCampaignFromMainMenu(page)
  for(const mission of [1,2,3]) {
   await panel(mission).waitFor();await page.waitForFunction(n=>Array.from(document.querySelectorAll('button')).some(b=>b.getAttribute('aria-label')===`Panel Mission ${n}`&&b.innerText.includes(String(n))),mission)
  }

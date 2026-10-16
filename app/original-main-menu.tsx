@@ -2,6 +2,14 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties, type Reac
 import assets from './original-frontend.json'
 import styles from './original-main-menu.module.css'
 import {
+  answerTutorialRecommendation,
+  hasAnsweredTutorialRecommendation,
+  tutorialChoiceRows,
+  tutorialParagraphRows,
+  tutorialRecommendationRows,
+  tutorialRecommendationText,
+} from './tutorial-recommendation.ts'
+import {
   frontendBackground,
   frontendQuitRows,
   frontendRowY,
@@ -79,7 +87,8 @@ export function OriginalMainMenu({
   const [hovered, setHovered] = useState<string | null>(null)
   const [focused, setFocused] = useState<string | null>(null)
   const returnFocus = useRef<string | null>(null)
-  const [panel, setPanel] = useState<'main' | 'options' | 'quit'>('main')
+  const recommendationCommitted = useRef(false)
+  const [panel, setPanel] = useState<'main' | 'options' | 'quit' | 'tutorial-recommendation'>('main')
   const [optionRows, setOptionRows] = useState<FrontendTextRow[]>([])
   const [{ scale, canvasWidth }, setViewport] = useState({ scale: 1, canvasWidth: 640 })
   const [artReady, setArtReady] = useState(false)
@@ -159,7 +168,13 @@ export function OriginalMainMenu({
             pointer.current,
             panel === 'main',
             pointerMode.current ? glowFrame.current : null,
-            panel === 'options' ? optionRows : frontendQuitRows,
+            panel === 'options'
+              ? optionRows
+              : panel === 'tutorial-recommendation'
+                ? tutorialRecommendationRows.filter(row =>
+                    tutorialParagraphRows.includes(row) ? questionReady : artReady
+                  )
+                : frontendQuitRows,
             canvasWidth
           ),
           canvasWidth,
@@ -168,7 +183,7 @@ export function OriginalMainMenu({
         0,
         0
       )
-  }, [panel, optionRows, canvasWidth])
+  }, [panel, optionRows, canvasWidth, questionReady, artReady])
   useEffect(() => {
     draw()
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
@@ -194,7 +209,16 @@ export function OriginalMainMenu({
     setPanel('main')
   }
   const rows = [
-    { label: 'New Game', action: onNewGame },
+    {
+      label: 'New Game',
+      action: () => {
+        if (hasAnsweredTutorialRecommendation()) onNewGame()
+        else {
+          recommendationCommitted.current = false
+          setPanel('tutorial-recommendation')
+        }
+      },
+    },
     { label: 'Tutorial', action: onTutorial },
     {
       label: 'Load Game',
@@ -226,7 +250,10 @@ export function OriginalMainMenu({
           back()
           return
         }
-        if (panel !== 'main' || !['ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return
+        if (
+          (panel !== 'main' && panel !== 'tutorial-recommendation') ||
+          !['ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)
+        ) return
         event.preventDefault()
         const buttons = [
           ...(dialog.current?.querySelectorAll<HTMLButtonElement>('nav button') ?? []),
@@ -312,6 +339,50 @@ export function OriginalMainMenu({
           </nav>
         )}
         {panel === 'options' && renderOptions(back, setOptionRows)}
+        {panel === 'tutorial-recommendation' && (
+          <section
+            className={styles.quit}
+            aria-labelledby="frontend-tutorial-question"
+            data-original-tutorial-recommendation
+          >
+            <h2 id="frontend-tutorial-question" aria-label={tutorialRecommendationText}>
+              {tutorialParagraphRows.map(row => (
+                <span key={row.y} className={styles.question} style={{ top: row.y }}>
+                  <MenuText text={row.text} highlighted={false} low ready={questionReady} />
+                </span>
+              ))}
+            </h2>
+            <nav aria-label="Tutorial recommendation choices" className={styles.rows}>
+              {tutorialChoiceRows.map(row => (
+                <button
+                  key={row.text}
+                  aria-label={row.text}
+                  data-panel-back={row.text === 'Back' ? '' : undefined}
+                  style={{ top: row.y }}
+                  onPointerEnter={() => setHovered(row.text)}
+                  onPointerLeave={() => setHovered(null)}
+                  onFocus={() => setFocused(row.text)}
+                  onBlur={() => setFocused(null)}
+                  onClick={() => {
+                    if (recommendationCommitted.current) return
+                    recommendationCommitted.current = true
+                    back()
+                    if (row.text === 'Back') return
+                    answerTutorialRecommendation()
+                    if (row.text === 'Yes') onTutorial()
+                    else onNewGame()
+                  }}
+                >
+                  <MenuText
+                    text={row.text}
+                    ready={artReady}
+                    highlighted={hovered === row.text || focused === row.text}
+                  />
+                </button>
+              ))}
+            </nav>
+          </section>
+        )}
         {panel === 'quit' && (
           <section
             className={styles.quit}

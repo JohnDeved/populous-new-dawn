@@ -1,3 +1,4 @@
+import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 import assert from 'node:assert/strict'
 import {resolve} from 'node:path'
 import {writeFileSync} from 'node:fs'
@@ -10,7 +11,7 @@ export default async function({page,output,root}) {
  const state=()=>page.evaluate(()=>{const s=window.testSceneRef.current,w=window.testStore.getWorld();return {world:JSON.stringify(w),animation:s.gameClock.animationFrame,animationTime:s.gameClock.animationTime,phase:s.globe.phase,camera:s.cameraPosition,position:s.camera.position.toArray(),quaternion:s.camera.quaternion.toArray()}})
  const paused=()=>page.evaluate(()=>window.testStore.getWorld().paused)
  await page.setViewportSize({width:800,height:600})
- await page.getByRole('button',{name:'New Game',exact:true}).click()
+ await openCampaignFromMainMenu(page)
  await page.getByRole('button',{name:'Start Mission 1',exact:true}).click()
  await page.waitForSelector('.world-viewport canvas')
  const {bindGame:bind}=await import(pathToFileURL(resolve(root,'scripts/browser-game.mjs')).href)

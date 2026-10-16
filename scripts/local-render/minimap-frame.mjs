@@ -1,3 +1,4 @@
+import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 // Actual shipped frame pixels and lifecycle; existing map regression assertions run unchanged.
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
@@ -103,7 +104,7 @@ export default async function minimapFrameScenario({ browser, page, context, roo
   const highPage = await highDpi.newPage()
   await highPage.goto(url, { waitUntil: 'domcontentloaded' })
   await highPage.getByRole('dialog', { name: 'Main menu', exact: true }).waitFor({ state: 'visible' })
-  await highPage.getByRole('button', { name: 'New Game', exact: true }).click()
+  await openCampaignFromMainMenu(highPage)
   await highPage.getByRole('button', { name: 'All missions', exact: true }).click()
   await highPage.getByRole('button', { name: 'Mission 1', exact: true }).focus()
   await highPage.keyboard.press('Enter')

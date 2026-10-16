@@ -1,3 +1,4 @@
+import { openCampaignFromMainMenu } from './browser-new-game.mjs'
 import assert from 'node:assert/strict'
 import {resolve} from 'node:path'
 import {pathToFileURL} from 'node:url'
@@ -6,7 +7,7 @@ import {pathToFileURL} from 'node:url'
 export default async function({page,root,output,receipt}) {
   const dialog=page.getByRole('dialog',{name:'Start game',exact:true})
   await page.setViewportSize({width:800,height:600})
-  await page.getByRole('button',{name:'New Game',exact:true}).click()
+  await openCampaignFromMainMenu(page)
   await page.getByRole('button', { name: 'Start Mission 1', exact: true }).click()
   const { bindGame } = await import(pathToFileURL(resolve(root,'scripts/browser-game.mjs')).href)
   await bindGame(page)

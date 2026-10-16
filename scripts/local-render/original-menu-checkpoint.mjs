@@ -1,3 +1,4 @@
+import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 import assert from 'node:assert/strict'
 import {resolve} from 'node:path'
 import {pathToFileURL} from 'node:url'
@@ -12,7 +13,7 @@ export default async function({page,browser,url,root,output,receipt}) {
  const button=name=>page.getByRole('button',{name,exact:true})
  const main=page.getByRole('dialog',{name:'Main menu',exact:true})
  await page.setViewportSize({width:960,height:720})
- await main.getByRole('button',{name:'New Game',exact:true}).click()
+ await openCampaignFromMainMenu(page)
  await button('Start Mission 1').click();await bindGame(page)
  await page.waitForFunction(()=>window.testStore.getWorld().flyby.flags&1||!window.testStore.getWorld().inputMask)
  const skip=page.locator('.skip-introduction');if(await skip.isVisible())await skip.click()
@@ -67,7 +68,7 @@ export default async function({page,browser,url,root,output,receipt}) {
  await fp.goto(url,{waitUntil:'networkidle'});const fm=fp.getByRole('dialog',{name:'Main menu',exact:true});await fm.waitFor()
  assert.match(await fm.getByRole('button',{name:'New Game',exact:true}).innerText(),/New Game/)
  await fp.screenshot({path:resolve(output,'font-network-fallback.png')})
- await fm.getByRole('button',{name:'New Game',exact:true}).click();await fp.getByRole('dialog',{name:'Start game',exact:true}).waitFor();await fallback.close();passed('font-failure-visible-usable-fallback')
+ await openCampaignFromMainMenu(fp);await fp.getByRole('dialog',{name:'Start game',exact:true}).waitFor();await fallback.close();passed('font-failure-visible-usable-fallback')
  assert.deepEqual(receipt.errors,[])
  return {checks:progress,saved,renderer,limits:['Software WebGL; no hardware performance claim','Error/Retry has a separately retained baseline target-crash blocker']}
 }

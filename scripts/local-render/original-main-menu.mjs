@@ -1,3 +1,4 @@
+import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 import assert from 'node:assert/strict'
 import {resolve} from 'node:path'
 import {writeFileSync} from 'node:fs'
@@ -47,7 +48,7 @@ export default async function({page,browser,url,root,output,receipt}) {
  await button('Options').click();await button('Sound').click();assert.equal(await page.getByRole('slider',{name:'Master volume'}).inputValue(),'0.2');await button('Back').click()
  await button('Quit').click();await page.getByText('Close this browser tab to quit.',{exact:false}).waitFor();await button('Back').click();assert.equal(await button('Quit').evaluate(b=>b===document.activeElement),true);await noScene()
  for(const exit of ['Back','Escape']) {
-  await button('New Game').click();await page.getByRole('dialog',{name:'Start game',exact:true}).waitFor()
+  await openCampaignFromMainMenu(page);await page.getByRole('dialog',{name:'Start game',exact:true}).waitFor()
   if(exit==='Back')await button('Back').click();else await page.keyboard.press('Escape')
   await main.waitFor();await noScene()
  }
@@ -69,7 +70,7 @@ export default async function({page,browser,url,root,output,receipt}) {
  await page.reload({waitUntil:'domcontentloaded'});await main.waitFor()
  // Force one real network failure, then use the retained request's Retry button.
  await page.route('**/original/landscape.bin',route=>route.abort('failed'))
- await button('New Game').click();await button('Start Mission 1').click()
+ await openCampaignFromMainMenu(page);await button('Start Mission 1').click()
  await page.getByRole('heading',{name:'Loading failed',exact:true}).waitFor()
  passed('real-network-failure-shows-retry')
  const stopped=await page.evaluate(()=>{
@@ -115,7 +116,7 @@ export default async function({page,browser,url,root,output,receipt}) {
  await fp.goto(url,{waitUntil:'networkidle'});const fm=fp.getByRole('dialog',{name:'Main menu',exact:true});await fm.waitFor()
  assert.match(await fm.getByRole('button',{name:'New Game',exact:true}).innerText(),/New Game/)
  await fp.screenshot({path:resolve(output,'font-network-fallback.png')})
- await fm.getByRole('button',{name:'New Game',exact:true}).click();await fp.getByRole('dialog',{name:'Start game',exact:true}).waitFor();await fallback.close()
+ await openCampaignFromMainMenu(fp);await fp.getByRole('dialog',{name:'Start game',exact:true}).waitFor();await fallback.close()
  const unexpected=receipt.errors.filter(e=>!e.includes('Failed to load resource')&&!e.includes('net::ERR_FAILED'))
  assert.deepEqual(unexpected,[])
  return {saved,checks:['native rows/reference positions','four viewport scales','DPR2','unavailable actions','keyboard focus/activation','options persistence/back/Escape','quit browser guidance','campaign Back/Escape','Tutorial and return','no startup scene','real loading failure and retained Retry','fresh-document checkpoint load','pause/selector Back keeps paused','pointer leave and native CSS hotspot','font-fetch failure readable fallback'],limits:['Injected network failure only; no simulated gameplay inputs','Software headless renderer; not hardware performance or native execution pixel parity','Full options/pause restoration and intro movies remain separate']}

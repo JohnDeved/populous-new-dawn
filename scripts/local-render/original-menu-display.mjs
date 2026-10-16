@@ -1,3 +1,4 @@
+import { continueNewGameRecommendation } from '../browser-new-game.mjs'
 import assert from 'node:assert/strict'
 import {resolve} from 'node:path'
 import {writeFileSync} from 'node:fs'
@@ -30,6 +31,7 @@ export default async function({page,context,url,output,receipt}) {
  assert.equal(await page.locator('.world-viewport canvas').count(),0)
  await page.screenshot({path:resolve(output,'font-network-fallback.png')})
  await main.getByRole('button',{name:'New Game',exact:true}).focus();await page.keyboard.press('Enter')
+ await continueNewGameRecommendation(page)
  await page.getByRole('dialog',{name:'Start game',exact:true}).waitFor()
  await page.getByRole('button',{name:'Back',exact:true}).click();await main.waitFor()
  assert.deepEqual(receipt.errors.filter(error=>!error.includes('Failed to load resource: net::ERR_FAILED')),[])
