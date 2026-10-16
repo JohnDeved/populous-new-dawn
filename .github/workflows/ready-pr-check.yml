@@ -1,0 +1,96 @@
+name: Ready PR checks
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize, ready_for_review, converted_to_draft]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ready-pr-check-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  full-check:
+    # Keep this exact check name stable; make it required only after a pilot passes.
+    name: Full check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    env:
+      CI: 'true'
+      NODE_OPTIONS: ''
+      NODE_PATH: ''
+      NODE_COMPILE_CACHE: ''
+      NODE_V8_COVERAGE: ''
+      PND_TEST_CONCURRENCY: '2'
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      # A skipped required job can satisfy protection. Fail cheaply instead.
+      # GitHub also prevents merging draft PRs independently of this check.
+      - name: Require a ready pull request
+        env:
+          IS_DRAFT: ${{ github.event.pull_request.draft }}
+        run: |
+          if [ "$IS_DRAFT" != false ]; then
+            echo '::notice::Draft PR: full checks have not run. Mark ready to start them.'
+            exit 1
+          fi
+
+      - name: Check out the exact proposed merge
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          # erosion-observation.test.mjs reads a pinned historical Git blob.
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.19.0'
+          architecture: x64
+          package-manager-cache: false
+
+      - name: Set up Python for portable fixture tests
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12.14'
+          architecture: x64
+
+      - name: Install locked dependencies
+        run: |
+          npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
+          npm ci --no-audit --no-fund
+          python -m pip install --disable-pip-version-check --no-cache-dir --only-binary=:all: --require-hashes -r engineering/ci-python-requirements.txt
+
+      - name: Verify and record candidate identity
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git cat-file -e 3b899125cc8cedef938823718ad5d44f49957b66:app/erosion.ts
+          node --version
+          npm --version
+          python --version
+          python -c 'import PIL; print("Pillow", PIL.__version__)'
+          sha256sum package-lock.json node_modules/.package-lock.json
+          printf 'PR head: %s\nBase: %s\nTested merge: %s\n' "$PR_HEAD_SHA" "$PR_BASE_SHA" "$GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
+          node --input-type=module <<'NODE'
+          import { planTestRun } from './scripts/orchestration/test-runner.mjs'
+          const plan = planTestRun(process.cwd(), 'all')
+          console.log(JSON.stringify({ fullSuite: plan.fullSuite, files: plan.files.length,
+            parallelEligibility: plan.parallelEligibility,
+            groups: plan.groups.map(g => ({ concurrency: g.concurrency, files: g.files.length })) }))
+          NODE
+
+      - name: Full typecheck, tests, parity and orchestration
+        run: npm run check
+
+      - name: Production build
+        run: npm run build
+
+      - name: Reject tracked input mutation
+        run: git diff --exit-code HEAD --

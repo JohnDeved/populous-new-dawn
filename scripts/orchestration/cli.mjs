@@ -1207,6 +1207,7 @@ function workflowPath(path) {
     'AGENTS.md',
     'package.json',
     '.codex',
+    '.github/workflows',
     '.agents/skills/populous-engineering',
     'engineering',
     'scripts/orchestration',
