@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 import ts from 'typescript'
 import native from '../decomp/research/frontend-quit-menu/static-data.json' with { type: 'json' }
 import assets from '../app/original-frontend.json' with { type: 'json' }
-import { frontendTextWidth } from '../app/frontend-composition.ts'
+import { frontendTextWidth, frontendQuitRows } from '../app/frontend-composition.ts'
 import { tutorialRecommendationText, tutorialParagraphRows, tutorialChoiceRows } from '../app/tutorial-recommendation.ts'
 
 test('recommendation preserves menu2 text and action identities without claiming callback layout', () => {
@@ -80,7 +80,7 @@ test('production recommendation choices preserve cancellation and guard repeated
   assert.match(source, /label: 'Tutorial', action: onTutorial/)
 })
 
-test('production recommendation draw omits native shadows only for HTML-fallback rows', () => {
+test('production recommendation and Quit draws omit shadows only for HTML-fallback rows', () => {
   const source = readFileSync(new URL('../app/original-main-menu.tsx', import.meta.url), 'utf8')
   const parsed = ts.createSourceFile('menu.tsx', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
   let draw
@@ -93,15 +93,18 @@ test('production recommendation draw omits native shadows only for HTML-fallback
   const body = ts.transpileModule(`return ${draw.getText(parsed)};`, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText
   const make = new Function('canvas', 'pixels', 'pointer', 'panel', 'pointerMode', 'glowFrame', 'optionRows', 'canvasWidth', 'tutorialRecommendationRows', 'frontendQuitRows', 'tutorialParagraphRows', 'questionReady', 'artReady', 'frontendBackground', 'ImageData', body)
   const allRows = [...tutorialParagraphRows, ...tutorialChoiceRows]
-  for (const [questionReady, artReady, expected] of [
-    [true, true, allRows], [false, true, tutorialChoiceRows],
-    [true, false, tutorialParagraphRows], [false, false, []],
+  for (const [panel, questionRows, choiceRows] of [
+    ['tutorial-recommendation', tutorialParagraphRows, tutorialChoiceRows],
+    ['quit', frontendQuitRows.slice(0, 1), frontendQuitRows.slice(1)],
+  ]) for (const [questionReady, artReady, expected] of [
+    [true, true, [...questionRows, ...choiceRows]], [false, true, choiceRows],
+    [true, false, questionRows], [false, false, []],
   ]) {
     let captured
     const draw = make(
       { current: { getContext: () => ({ putImageData() {} }) } }, { current: new Uint8Array(1) },
-      { current: { x: 320, y: 240 } }, 'tutorial-recommendation', { current: false }, { current: 0 },
-      [], 640, allRows, [], tutorialParagraphRows, questionReady, artReady,
+      { current: { x: 320, y: 240 } }, panel, { current: false }, { current: 0 },
+      [], 640, allRows, frontendQuitRows, tutorialParagraphRows, questionReady, artReady,
       (...args) => { captured = args[4]; return new Uint8ClampedArray(4) }, class {},
     )
     draw()

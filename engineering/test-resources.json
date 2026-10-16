@@ -1,7 +1,7 @@
 {
   "version": 1,
   "helpersSha256": "cb03ae84c74495d811f704d140c33aa40a14376a99cf60558c42e1807fb72cbd",
-  "productionSha256": "764562f77bf96cb1054143dd63667a1d280108ea07e70ed83442d5f99455747a",
+  "productionSha256": "ab2438f6e838465345ab3f3de8540f44b179df172c9df02890f20db53df1aa5f",
   "parallel": {
     "tests/ai-producer-schedule.test.mjs": "e9c41f775b53064b5d27f26c5aee66a62afdb1cfee0f5fe1a02f5002d67a1489",
     "tests/ai-response-task.test.mjs": "a616ec84ec3f7ce1a681d608b66972b702c4af5b727ca6ceb4d176b568014809",
@@ -318,7 +318,7 @@
     "tests/transport-idle.test.mjs": "5086698b1c815efe8bf36da16f6a95da745391594adbbc4dcab9e27c33d953c1",
     "tests/tree-growth.test.mjs": "661f89a831730478cb066b11fabac263ff82c1aebba1643d04b66b72dbd4d433",
     "tests/tree-hover.test.mjs": "80fde1baa5711a8c9e47f727a37e8d4767dbeeea061010c982be99d9f7dd7dae",
-    "tests/tutorial-recommendation.test.mjs": "eeeef4133ff1f3e37a43efc96812acec45c503fd48a2bfe40d023036f2972296",
+    "tests/tutorial-recommendation.test.mjs": "2a4a374ff4c1b3e327a4d7b4295875dee4a243913cb07108a23ebf2d45ee1b6a",
     "tests/tutorial.test.mjs": "7d5eae8bb09c4b660f31f9f456b5b94cd437d19983f9345666a8474836d04fd9",
     "tests/unit-health.test.mjs": "d1d976df7d4956e87b73b3b002fd7fdd062fd71c9183e1198802a7a5cf18b6a3",
     "tests/unit-mesh-reconciliation.test.mjs": "fd3c6acf9091850b7acd1f207f86be11ffb45d6f65240771a9ff37e0188732dc",

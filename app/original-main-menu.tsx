@@ -174,7 +174,7 @@ export function OriginalMainMenu({
                 ? tutorialRecommendationRows.filter(row =>
                     tutorialParagraphRows.includes(row) ? questionReady : artReady
                   )
-                : frontendQuitRows,
+                : frontendQuitRows.filter((_, index) => index === 0 ? questionReady : artReady),
             canvasWidth
           ),
           canvasWidth,
