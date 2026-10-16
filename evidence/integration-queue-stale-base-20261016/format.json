@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "e441e994-a45c-46c3-bca5-977cf8da2d7a",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "6b97054be7b37429d227a1f494f15b3fc40c2a9f",
+    "branch": "tooling/stale-base-refresh-proposal",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node_modules/.bin/oxfmt",
+    "--check",
+    "scripts/integration-queue/github.mjs",
+    "scripts/integration-queue/policy.mjs",
+    "tests/integration-queue.test.mjs"
+  ],
+  "cwd": "/Users/johann/Documents/Codex/2026-10-16/task-2/populous-refresh-proposal",
+  "startedAt": "2026-10-16T21:07:07.170Z",
+  "artifacts": {
+    "stdout": "/Users/johann/Documents/Codex/2026-10-16/task-2/populous-refresh-proposal/work/orchestration/stale-base-refresh/format.json.artifacts/stdout.log",
+    "stderr": "/Users/johann/Documents/Codex/2026-10-16/task-2/populous-refresh-proposal/work/orchestration/stale-base-refresh/format.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T21:07:07.265Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 6ms on 3 files using 10 threads.\n",
+  "stderr": "",
+  "stdoutSha256": "270fcfe30f9043d3b1b33c7bf2b8ea01c8d79d19aa18a6df7c63df175c24d5c8",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "6b97054be7b37429d227a1f494f15b3fc40c2a9f",
+    "branch": "tooling/stale-base-refresh-proposal",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}
