@@ -52,18 +52,18 @@
       "sourceSha256": "d036a99e34659e37eb989305c3717733d125261a3ba32eca6bfc6ccfc81d3292",
       "sourceBytes": 6575,
       "bundlePath": "receipts/work/orchestration/ci-event-race/focused.json",
-      "bundleSha256": "beca379852520134e9675c041958bac7fedbbbce9be2ba880f4a638b61a04196",
-      "bundleBytes": 6355,
-      "redactions": 4
+      "bundleSha256": "2b99246c72cf606b0b7c970d5744f846b8c37c939fe274f452da5d35adee8b8b",
+      "bundleBytes": 6293,
+      "redactions": 6
     },
     {
       "sourcePath": "work/orchestration/ci-event-race/focused-canonical-tmp.json",
       "sourceSha256": "a37bd97b9459b415f61d0a1522f1a1cbbd5c285c4285558e21fdf39bc69f1faf",
       "sourceBytes": 5562,
       "bundlePath": "receipts/work/orchestration/ci-event-race/focused-canonical-tmp.json",
-      "bundleSha256": "53d00ce45ffe8d1d5a27cd4296a69a2e92823a7673639d23ddddbc156440ab6c",
-      "bundleBytes": 5397,
-      "redactions": 3
+      "bundleSha256": "81f73ffcf5767ba890c0d88862e983318064d2ca2e77c319a098c1b79d80d1ec",
+      "bundleBytes": 5362,
+      "redactions": 4
     },
     {
       "sourcePath": "work/orchestration/ci-event-race/lint.json",

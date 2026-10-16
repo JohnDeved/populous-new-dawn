@@ -22,11 +22,11 @@
   "expectedReceipts": [
     {
       "path": "work/orchestration/ci-event-race/focused.json",
-      "sha256": "beca379852520134e9675c041958bac7fedbbbce9be2ba880f4a638b61a04196"
+      "sha256": "2b99246c72cf606b0b7c970d5744f846b8c37c939fe274f452da5d35adee8b8b"
     },
     {
       "path": "work/orchestration/ci-event-race/focused-canonical-tmp.json",
-      "sha256": "53d00ce45ffe8d1d5a27cd4296a69a2e92823a7673639d23ddddbc156440ab6c"
+      "sha256": "81f73ffcf5767ba890c0d88862e983318064d2ca2e77c319a098c1b79d80d1ec"
     },
     {
       "path": "work/orchestration/ci-event-race/lint.json",

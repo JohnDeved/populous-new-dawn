@@ -12,7 +12,7 @@
   },
   "command": [
     "env",
-    "TMPDIR=/private/var/folders/37/p665gsls1z92brzm7gkkcsyr0000gn/T",
+    "TMPDIR=<TEMP_CANONICAL_ROOT>",
     "node",
     "--test",
     "tests/workflow-policy.test.mjs",

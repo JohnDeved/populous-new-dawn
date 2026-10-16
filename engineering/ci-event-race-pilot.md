@@ -2,8 +2,9 @@
 
 Source review and parent coordination must precede the pilot. This plan does not
 authorize execution, a merge, protection changes, extra token scopes, status
-writes or a new workflow. Keep the normal reviewed-PR queue separate from this
-disposable pilot PR. Local policy tests are not hosted lifecycle evidence.
+writes or a new workflow. Root coordinates the normal reviewed-PR queue and the
+reviewed primary PR #502 with its one draft companion. Local policy tests are not
+hosted lifecycle evidence.
 
 ## Candidate and evidence
 
@@ -25,47 +26,70 @@ base, merge SHA, step outcomes and raw logs. At each checkpoint capture
 `gh pr checks --required`, the PR's current identity/draft/mergeability state, and
 the required check's Actions app identity. Retain failed/cancelled attempts.
 
-## Ordered pilot, after approval
+## Preconditions and bounded budget
 
-1. Open the disposable candidate as draft. Verify its only admission job is
-   `Draft PR (not validated)`, failing the first guard with checkout/install/full
-   checks/build unexecuted. No job named `Full check` may appear for that event.
-2. Freeze its reviewed head/base/merge, mark ready and start the genuine full gate.
-   Rerun the recorded draft event while ready validation is active, then after
-   it succeeds. Confirm draft admission cannot cancel running or pending ready
-   work. Every accepted `Full check` must have all required steps passed.
-3. Exercise ready → draft → ready with the same frozen source. Record three
-   overlapping admissions, including a duplicate ready event: duplicates for the
-   exact same candidate may supersede each other, but a draft event may not replace
-   their pending/running lane. Do not infer chronological ordering from run IDs.
-4. Preserve one old-head run, update only pilot fixture source, and replay the old
-   event after the new candidate starts. For old-base isolation, use a retained
-   pilot event across a naturally occurring authorized main advance; update the
-   pilot branch to that main and replay the old event. Do not advance main solely
-   for this test. Neither old candidate may cancel the current one.
-5. On disposable pilot commits, introduce one ordinary failing test assertion and
-   one deliberate production-build input error separately. Observe genuine gate
-   failures (tests must stop the build; build must fail after a passing full check).
-   Cancel one active pilot validation explicitly and verify cancellation is not
-   accepted as a pass. Revert the fault commits, review the final source, and run
-   its complete gate again. No injected failure belongs in the fix PR.
-6. Required selection is the decisive check: obtain a real passing current-candidate
-   gate, then a *newer suite* containing only draft admission while the PR is ready.
-   A rerun of an older draft suite is insufficient to establish this ordering.
-   Normal rapid transitions may expose delayed delivery; record actual timing.
-   Do not add delay hooks or claim this case passed if ordinary events do not
-   produce it. Verify the real pass remains selected by required-only checks and
-   current PR mergeability, with strict protection unchanged. REST `filter=latest`
-   alone is not a mergeability oracle.
+Use #502 itself as the genuine reviewed primary candidate. Wait for #500 to merge,
+refresh #502 against current main, and complete final source review. Before the
+full gate, the native Linux resource worker supplies a separately reviewed
+`productionSha256`-only refresh for the new main application tree. Preserve current
+main's policy classifications and all other resource metadata. A Mac-derived
+fingerprint is not acceptable. This document does not authorize that refresh or
+any transition; root coordinates them.
 
-Stop on cancellation across distinct groups, an unexpected `Full check` on a
-draft event, hidden/poisoned required checks, source drift, unexpected permissions
-or missing terminal evidence. If the newer-suite case cannot be reproduced, leave
-that claim pending; if it fails, reject this design and retain the queue workaround.
-No merges are part of the pilot. Bound execution to these cases. Separate candidate
-groups can leave obsolete runs consuming minutes. After recording their behavior,
-the parent may cancel only explicitly identified, owned obsolete pilot runs, after
-rechecking that none belongs to the current candidate; never cancel current work.
+Budget one genuine current-candidate Full gate, at most two recorded draft-event
+reruns, and one same-head companion draft PR. Do not clone another full-validation
+PR, introduce failing test/build commits, repeatedly toggle draft/ready, or run
+additional full suites to retest unchanged machinery. Verify unchanged validation
+steps against the reviewed source; use the retained focused regression tests for
+failure propagation. Their npm/git failures are stubs, not hosted failure evidence.
+
+## Ordered pilot, after final review and root authorization
+
+1. Freeze #502's reviewed head/base/merge identities and protection snapshot. Retain
+   its cheap draft admission. Root marks #502 ready exactly once and starts the
+   genuine complete Full gate. Every required step must actually pass.
+2. Replay one recorded current-candidate draft event during that validation and,
+   if available, one owned old-head/base draft event after it. Each must fail
+   before checkout under the non-required name and must not cancel current work.
+   Record the actual group identities. An old draft replay proves the combined
+   candidate/lane partition, not old-ready isolation independently; focused source
+   contracts cover old-ready head/base/merge separation without another full run.
+3. After the genuine current-candidate pass, root may create a separate branch
+   pointing to #502's identical head commit and open exactly one companion PR as
+   draft against unchanged main. Do not mark the companion ready. Its newly created
+   suite must contain only cheap `Draft PR (not validated)` admission, later than
+   the primary's passing suite, while #502 stays ready. No event is suppressed and
+   no success is manufactured. Record both PRs' head/base/merge identities and all
+   suite/run/check associations rather than assuming shared commits imply shared
+   required-check selection.
+4. Inspect #502's actual required-check resolution and current mergeability,
+   including the Actions app identity and unchanged strict protection. Establish
+   whether GitHub includes the companion's newer suite in #502's selection context.
+   A shared head SHA, a REST `filter=latest` response, or a still-green primary
+   alone does not prove that association. If the newer suite participates and the
+   genuine Full pass remains selected, record that bounded selection result.
+
+## Stop conditions and limits
+
+Stop on cross-group cancellation, any draft job named `Full check`, a hidden or
+poisoned required result, candidate/protection drift, or missing evidence. Do not
+repeat the experiment to chase delivery ordering. If the companion suite is scoped
+only to its own PR, or its participation cannot be established, leave the decisive
+selection claim pending. The companion probe is not a same-PR delayed-event
+reproduction; keep that distinction explicit even if the shared-head probe passes.
+
+With the current triggers, returning the same PR from draft to ready necessarily
+creates another ready event. No deterministic same-PR newer-draft-suite reproduction
+is established here without delivery timing or additional machinery. Moving the
+probe post-merge alone does not remove that limit. A separately reviewed, carefully
+staged post-merge probe may be proposed if necessary, but this plan does not
+promise it can establish the missing case. Keep “fully proven” pending and retain
+the drained-draft → ready workaround for unproven cases.
+
+No pilot merges or settings/protection/permission changes are authorized. Separate
+candidate groups can leave obsolete runs consuming minutes. Any cleanup must name
+only owned obsolete runs, recheck their identity and never cancel current work.
+Root coordinates companion cleanup after retaining terminal evidence.
 
 ## Setup/build duplication: separate recommendation
 
