@@ -1,0 +1,651 @@
+{
+  "status": "assembled-not-tested",
+  "sourceHead": "b7da697a4cfe2912b821b24817fa31396369226d",
+  "sourceTree": "7939655030941a014bfa4362986b6b1397c39469",
+  "base": "2ea256bbc0535d4ccc1813cb94bfbc9130e5beed",
+  "baseTree": "bcd587a193a38496f91498306e052e680a18fc93",
+  "branch": "codex/reviewed-backlog-integration-502",
+  "ancestry": [
+    {
+      "pr": 495,
+      "sourceHead": "ae52fe209d9624aa4b2717953dcb24cc96bad1f1",
+      "mergeCommit": "5d2d4d88895494006b0f3e69d8e2185eb67d4025",
+      "parents": [
+        "2ea256bbc0535d4ccc1813cb94bfbc9130e5beed",
+        "ae52fe209d9624aa4b2717953dcb24cc96bad1f1"
+      ],
+      "tree": "472a120bcce6839222bad6b2aa3b467bc0514939",
+      "changedFileCount": 18,
+      "frozenFileBytesVerified": true
+    },
+    {
+      "pr": 498,
+      "sourceHead": "a4b1e92f53e425bc4b1abd574fe1de081bff2fa1",
+      "mergeCommit": "9c9a606ea4d203a5e6183b11792bf35ae80e78c2",
+      "parents": [
+        "5d2d4d88895494006b0f3e69d8e2185eb67d4025",
+        "a4b1e92f53e425bc4b1abd574fe1de081bff2fa1"
+      ],
+      "tree": "da25574a90cda8f9be0e3c964d77c5ebc4c668c8",
+      "changedFileCount": 80,
+      "frozenFileBytesVerified": true
+    },
+    {
+      "pr": 499,
+      "sourceHead": "80f3e78c3409376b3a35f764e6499a96508f9023",
+      "mergeCommit": "cf1fa144dd32b8a3bb3baf7067bcf8762f58830d",
+      "parents": [
+        "9c9a606ea4d203a5e6183b11792bf35ae80e78c2",
+        "80f3e78c3409376b3a35f764e6499a96508f9023"
+      ],
+      "tree": "c1e355f2132d5c718d59a9df6b082c7948cf58d3",
+      "changedFileCount": 10,
+      "frozenFileBytesVerified": true
+    },
+    {
+      "pr": 501,
+      "sourceHead": "a2adc244a6eb2660893a17b7ec2dafb02118ddfc",
+      "mergeCommit": "b7da697a4cfe2912b821b24817fa31396369226d",
+      "parents": [
+        "cf1fa144dd32b8a3bb3baf7067bcf8762f58830d",
+        "a2adc244a6eb2660893a17b7ec2dafb02118ddfc"
+      ],
+      "tree": "7939655030941a014bfa4362986b6b1397c39469",
+      "changedFileCount": 8,
+      "frozenFileBytesVerified": true
+    }
+  ],
+  "resolutionReceipt": {
+    "path": "resolution-receipt.json",
+    "originalSha256": "8c38490b87fe642c9d793bdb994162954f30023f5a043ffd877db50fe5b3ede7",
+    "publishedSha256": "8c38490b87fe642c9d793bdb994162954f30023f5a043ffd877db50fe5b3ede7",
+    "redactions": 0
+  },
+  "resourcePolicy": {
+    "path": "engineering/test-resources.json",
+    "sha256": "cd8670c7a9526fac77bf151cd3648248da7e1966123fb4656e4289d673a16540"
+  },
+  "combinedDiffSha256": "97e2459b5b2001e31f8fc4e219d3edb58aa5ff406bb844299b93965339f2b75a",
+  "changedFiles": [
+    {
+      "path": "app/fps-graph.ts",
+      "blob": "1fe724e026798353778536a573554e39013234a0",
+      "sha256": "b3f505073fd7b8f317c2167ca447be7d167c59bff6e354a298e49ade892092dd"
+    },
+    {
+      "path": "decomp/research/original-menus.md",
+      "blob": "cfa2961bd66d64de2884477d1c457797d373da04",
+      "sha256": "47d14251eba847d41a34fd18e11bc0367201863bed91cc1b42df3ca287c2a1da"
+    },
+    {
+      "path": "decomp/research/original-movie-input-player.md",
+      "blob": "f3da3578835b5b2794c064c20d52f4832d6e3a81",
+      "sha256": "9f4ec40683604f39035ec0d3d3782a3e20f19ca11005325e8637dd336e146f3a"
+    },
+    {
+      "path": "decomp/research/original-startup-boundaries.md",
+      "blob": "ffeef39e5806e5669588d94506aa3935ca5b89c8",
+      "sha256": "bc796b086a722dccf6044d1d498ad23becbd802f4447de5e009c1bb4ccef4825"
+    },
+    {
+      "path": "decomp/research/original-startup-movies.md",
+      "blob": "6243ea3642e9a37f609414053c4fb59da47f4996",
+      "sha256": "07fe516396894c273d60c011385fb799e1c3cb86fdeb222d13f840381283bb6b"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/README.md",
+      "blob": "75c494fa8579347e3c5351195565763fe5b1031a",
+      "sha256": "9b9a9599e86c48b831385ee682c0065b068dbf5d83dd836e48aecaec30bafbb8"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/SHA256SUMS",
+      "blob": "44755beb8016ed9de3976508dade198792e9279d",
+      "sha256": "8ea7718b33a3fbeab719fe964caba1f7a33c1335542d249f1ad73c20027d1366"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/extractor-environment.txt",
+      "blob": "90a7d58d6e7b11289435de045266b3965faab288",
+      "sha256": "d46db573bba7ccd64f9d62376e69b002fed7d2c50114c38ee6ad4e137c74bcc7"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/extractor-script-sha256.txt",
+      "blob": "4d4100e7274b8f845a8dd3fde1e41053f429cb0b",
+      "sha256": "db91e2e27daba29ebe50e0bbcb82c7312324f21445b2f2447ceae8fc1bed0127"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/file-manifest.json",
+      "blob": "b5d4b58429597bad04b5227335673b306281e554",
+      "sha256": "75d60c20423399ab4c5af9f80a8309b014116ca5f25ae1b1e5ac24221aaa8cd3"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/input-player/bounded-data.json",
+      "blob": "195cae0d2cfcde4c48baa505e4fffce02449de2f",
+      "sha256": "a83a507b24c7ca18f917b99009f1ff7429dd607e29a5c470e478529140836232"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/input-player/callers-continue.asm",
+      "blob": "dbf7540f291efd96b4270c7abab9cbee056fe29b",
+      "sha256": "06f0f9e22d59509a17014c78ff74a1c13ff2b25e03497d28ed6bfe56416f8a96"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/input-player/directinput-import-thunk.asm",
+      "blob": "2e77f7d442b54a6774b023a53ce645dee3913327",
+      "sha256": "cc2a02a5c8af4a0f5e3bb3784726080ee816d9ea048e71ffb6f4a4adad9efcb8"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/input-player/imports.txt",
+      "blob": "822c5cf6cb5210b780b19c78f9d862c8e8cac1ac",
+      "sha256": "efb846d677caa6478e1e794a9e9a947a7dd725cce9e433be6e9ec85e33aac9c9"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/input-player/input-dequeue-count.asm",
+      "blob": "d7de8f93d6899e7b68ed72665bdbdcbab26122ae",
+      "sha256": "1443311d8f4c8a67dac31e167fd5ca865fe5374d6941c2ce8bc3b4ac2fdc2f24"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/input-player/input-dispatch.asm",
+      "blob": "900800f8c4e4ae8f87a38f529f8cba59f5ddfcdb",
+      "sha256": "a139818c1f8c51093d436ade56117e9b5bec7ef65709a73a0408d3d6b7cd2315"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/input-player/input-helper-boundary.asm",
+      "blob": "39dbf2b1779d621fd9a311d3f2883130ed62abb4",
+      "sha256": "4dcac188ef0941661c5cc52f0bbe7d3e782df2fac5e68e109de353147879858b"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/input-player/input-ring.asm",
+      "blob": "fda6c99bf65952f2be2a8dfcb9e94d7083854998",
+      "sha256": "f82ef436a2ed2ba1d5cf4951b7afb11eca36fcef917ab733295389a0777a1a96"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/input-player/keyboard-producer.asm",
+      "blob": "70bfdca376698de41be6cc112d969b74b5213f49",
+      "sha256": "bec3d5ac81170c4e1da6cb14eabbe73f1dbee49eb64c5d8fd9043d7d70823a51"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/input-player/memory-release-boundary.asm",
+      "blob": "10e8f11e135aa63bf5853b35bcaa2ad6a17a6d27",
+      "sha256": "759f49697b9b67654f9ef8f0faaa8c3ceb8b3fd3cc12d22dbeacbf25d1c46609"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/input-player/mouse-producer.asm",
+      "blob": "ba63af30696be324edd22549c67da5e325fc855a",
+      "sha256": "8c12b338810af93922df5e7c1c6c32a477d11ad3ec48e76d062c6d68bee3ac20"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/input-player/movie-callbacks.asm",
+      "blob": "d502741723d5c8d6dd2ffe283aee709040482c3d",
+      "sha256": "b644286fd2589db404e6c946c46a214343c72925ed631544c3a327a2fc60e3f1"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/input-player/movie-wrapper.asm",
+      "blob": "40dabdbeb07e7001336107a9a18ab147e6b6ee2b",
+      "sha256": "86cc874039f320f6cf240d232506e82fa779a414b011b9279a5d4328b07c10b4"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/input-player/player-create.asm",
+      "blob": "d653f9e3f859ba7f3c493f23fa62a04fd6a37587",
+      "sha256": "8d3b00e273d98fef8eab7d66e7d41e364c59414fef2d551488a34cb166c7ef39"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/input-player/player-entry.asm",
+      "blob": "b52c0f050b344af43ce8b339de8ce0b64aec28ab",
+      "sha256": "1d0e4fca39e190207c58b4c109f87a6907be3f08d8570dce8fe731cae926a2f5"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/input-player/player-exit-helpers.asm",
+      "blob": "ca04b371105999bf5e7d2a9b5d3c228401ec763c",
+      "sha256": "2abdc6f0c8fdf941f793cad64af2435949e03393c61bc808f1e35433e15584c5"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/input-player/player-loop.asm",
+      "blob": "aa8ea62e7e8861b208af1df84bc991ae36fda4a9",
+      "sha256": "d804e61782ff5178cf2c2c3ac003b5bb211c4991b33121a6e679571da0226336"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/input-player/player-run-and-destroy.asm",
+      "blob": "143ad9357644c9f83885ec04ff64a02ce4e7f114",
+      "sha256": "cad856834e1720a9900ba3dbb67b2be9cfeba92fbe8be2e2a05eea81e39756d6"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/input-player/range-manifest.json",
+      "blob": "4a1abbbdf09de5422192914d40a759cff8e7f263",
+      "sha256": "4fcb23fbe64f3d9eccc849bc1cfdf0bfa57e4b58a5804ec315799ebd05a20146"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/input-player/reference-inventory.txt",
+      "blob": "18202e40137784c42c1d34b1aab9d78a32094407",
+      "sha256": "4d8503fc3c9120282703a3a768830174d5e50d220b5342d53ba958a188eed128"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/input-player/reproduce.py",
+      "blob": "c00e2d8e68ad2d34fc6852c0c2482056f0ad9e11",
+      "sha256": "40fbe52b7b4d52466876c61c9f450d7b1664511b8568894625a0afbf000a5edf"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/installer-member-summary.json",
+      "blob": "f9c3f3f680bc23438e52e179e7df21b730bf1146",
+      "sha256": "bc9a9e9e2c15c4db97f8d229f717ce27a7dd61c838140adbd39b9248c838214b"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/intro-caller.asm",
+      "blob": "c82d904aeccde95e0c8386211fac568932d01e8a",
+      "sha256": "f6dc1dc443a5aff619bc00b73272197d0012dac8b99fa62d9b0004eca53660f3"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/logo-caller.asm",
+      "blob": "5218d559a51e12b5e5c22f48c75a0badc0cb2886",
+      "sha256": "d2720999f68d32ee6e08b197295cba98db048f5f70ce33874b7f14dc69d3069d"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/logo-other-caller.asm",
+      "blob": "1ee482b91083a8599048407366ab92185c7a192e",
+      "sha256": "12a90c4efcc42901bfcba2c3585b1c5ec26f76b09c7dd4e46f26cc29865d36db"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/logo-startup-caller.asm",
+      "blob": "e694702b8d2616bbbace8e7c864707ca872a0c67",
+      "sha256": "421de96ab4211931035f1047c918d3a3218e1ad24a5afc785474b21047756a57"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/media-tool-version.txt",
+      "blob": "4e38d085e559ab509b91e06eff4362543a9c2bb3",
+      "sha256": "02412fef1eca820a65af53c5fa03b637f92ef643783005ccf9c4b4e3a31fb699"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/metadata/blogo.tgq.json",
+      "blob": "86f7d4af267b81cb91ec8c7d8bca00f116b9a60e",
+      "sha256": "2484063664805975bd4d88195f005c77536cd9963ff9d60574815b7f81e9f0e8"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/metadata/blogo.tgq.packets.json",
+      "blob": "7949bd55df3a41e07bcb46a2aaf22e985636c1ea",
+      "sha256": "479df0366cb89c163430617e66931cf496fef84e217faa42df64baffc050dc49"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/metadata/outro.tgq.json",
+      "blob": "eda72eeb689cab750777a0c7a22d9e5702335bc5",
+      "sha256": "35c9d90918bdd672f23165ed1b0b88d3076c36e41c011476221e559e7d6f9766"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/metadata/outro.tgq.packets.json",
+      "blob": "cb76777124760f962d171daf0d651849812eb05f",
+      "sha256": "2a8f445c9843aad907e4be0e9315ddb221a7a9d5e5381e64b9a1f41f7a0889d3"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/metadata/p3intro1.tgq.json",
+      "blob": "ff49e8d9fdc7f1275bc2b5fad1c82fcf9abca2df",
+      "sha256": "1730a0298a62a982efe991d38690d5f21d61ffa39109d3cedee73aa741afe0ef"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/metadata/p3intro1.tgq.packets.json",
+      "blob": "b08ef12d2af4155b0735fafda0ea5f4008f90ee0",
+      "sha256": "6f8f7148c39c863d7ed297ad4401dcd7b1121dd442fca356ba346ddb66fe7d29"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/metadata/p3intro2.tgq.json",
+      "blob": "70856264bbe08b925fef276f4c00e44bb3cd5877",
+      "sha256": "d9b85c83ea03f89f2b1674b9de321f7c8fde9696a8e7c3b557792116191df148"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/metadata/p3intro2.tgq.packets.json",
+      "blob": "b08ef12d2af4155b0735fafda0ea5f4008f90ee0",
+      "sha256": "6f8f7148c39c863d7ed297ad4401dcd7b1121dd442fca356ba346ddb66fe7d29"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/metadata/p3intro3.tgq.json",
+      "blob": "910b50720ebdbaa309e2d071f262ceed37fc08da",
+      "sha256": "577920949c6c6c698493082c779e54bf7eb2968440dafa4988a213b6e2eff98e"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/metadata/p3intro3.tgq.packets.json",
+      "blob": "02007557630e568eca71b372996fd3c7ce7eb29d",
+      "sha256": "fcefc428a5ff6c7048519745939ad7020ff93957bfcc24f8dcbf3c57bb5e5ae4"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/metadata/pop3mask.tgq.json",
+      "blob": "29652c24bc8b402682fd621daf3716fb1f66dd36",
+      "sha256": "a64e2fbb71d7f7d374c6f389c0071d3bea7b9489d4f837ad2545197efbc05b62"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/metadata/pop3mask.tgq.packets.json",
+      "blob": "1e1bd8313c04c7336bc8e14876460d2d25a7c7b5",
+      "sha256": "6d65637b68ff5e470cb3131dd898baf6d43ff98b4a86a681c9a11b86711dfeb8"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/metadata/trailer.tgq.json",
+      "blob": "385fe605fb21b0d51c99bbe82da70280b4489265",
+      "sha256": "7f081cc4c66df8ed2e420146d167d12700d3fdec34b6059b401c6fa30d5cc799"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/metadata/trailer.tgq.packets.json",
+      "blob": "7b7ba42ce75f2b38dff7cf2c22935b5c57e1a98e",
+      "sha256": "8631941b9d6ad9d9f343bb2d3595b741ecd4308b4fdf37595f5131bf5597ce27"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/movie-callback.asm",
+      "blob": "5afe43bb38f478232ec9912e5d419e09fa0d1979",
+      "sha256": "5d4a8a503f0d3132d696a6155ea405e7a220c4424eacbd7e27a9ac57827ef0ea"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/movie-inventory.json",
+      "blob": "069b62459b4c2749e27343a90b161f5d0ddc5ecd",
+      "sha256": "aa9b3a97637016e74debc8010795d96ccdd0285764421c7c944fb0665bb78373"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/movie-strings.json",
+      "blob": "35409b5af21384ab7c4457408c7ed07a98b0d541",
+      "sha256": "fdbad0b3269a2647d670360684783bc6c96d4e150a44ee6d5fe1aee8de04fac1"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/movie-wrapper.asm",
+      "blob": "53c9043a6c2ea98283aa0a0ebe11d251c7b52f02",
+      "sha256": "b246b41051e3d1469b87a68537f718c4ee7703a6923662a9d31cb6f7df764f3c"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/provenance.json",
+      "blob": "7dfbb49e6f9b6032cc1208e06ad1bf737437a3bc",
+      "sha256": "a30dbc128367194723c0377cf77fc730e03acf5626f8def28c18c577386cfa5c"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/retained-sources.json",
+      "blob": "3e29f42bf46d9b3cf2b4ae1e04ec0c98150cb22c",
+      "sha256": "5c38a1b86e1cca33e278e42a994a5c83ca3298632ba634424f5ce6091c9a7f9f"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/startup-boundaries/bounded-data.json",
+      "blob": "c13b4c7baea22b625487ccda66d49e36f7f97ed7",
+      "sha256": "563d2404247c5b54c665d5c7f95b76c04f355c59e2bc86acdc6747d371dcfe05"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/startup-boundaries/entry-app.asm",
+      "blob": "1ef141d11bf5aa7caaea02d7a3d290130d305bf4",
+      "sha256": "a2228747e0acdd46b57e86f1e1073c443abb278e56614056411f4735bf8baf34"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/startup-boundaries/entry-crt.asm",
+      "blob": "0d5260721ac0f1b454b70e240e12a48a81100134",
+      "sha256": "f1d00c33d0d1f035f3cef3ff4a6a65dce588092f9a0a44065cf5606bc4babeeb"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/startup-boundaries/entry-startup.asm",
+      "blob": "563495b692244ecea9292354a10cfa43fb2984d2",
+      "sha256": "80f196bb729f5c4587ac0d212d88167faf4c907c7b8cac636a5de686c3af4d1d"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/startup-boundaries/entry-winmain.asm",
+      "blob": "b53aecf370ceb415b366991cda09c794505390fb",
+      "sha256": "895060ea81e70f29d76042a639bc78da92dbebbd9466c8b222724bc8dbd0732e"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/startup-boundaries/frontend-count-initializer.asm",
+      "blob": "0dcff589f2c7a68865811e8113c46548242e328b",
+      "sha256": "517e857b05c3365d87308c778f8eb99026f39f77e22222db97e4e28df77fb0a8"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/startup-boundaries/frontend-dispatch.asm",
+      "blob": "ff800343491972deb4c5947540113304b470a936",
+      "sha256": "7c328e1483fedc04919acd7ab67e05597c5cb9137b2e6385ba236a29e1ad15f2"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/startup-boundaries/frontend-first-pass.asm",
+      "blob": "aee921cd9ce02b01605edc74f429f9ffd08c9c28",
+      "sha256": "193d1f6b01b997c97a4b4c3c5b565da98b109d5895578fc3e966f4f4f35c8c3e"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/startup-boundaries/frontend-input-boundary.asm",
+      "blob": "e6577380634b7161fecbeeac04c9a426bb08a635",
+      "sha256": "35c628258939476d07ea73f5ceb5360d51f5b3a16f2ce870d76df2e2c0fc15d6"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/startup-boundaries/frontend-menu-set.asm",
+      "blob": "4205bcd14e98a1d6aa3c660ac0bf27ef088296a0",
+      "sha256": "b0ca59b9326de59d6b5d3383651cd2e6da8cb3e6935c40d313f697656f44dcce"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/startup-boundaries/frontend-page-timer.asm",
+      "blob": "1f4239ebc8084c1f02f9d4ab7d462c43c50da149",
+      "sha256": "67606d656772eeca0df0faaf49f300d3d7d68029863c83435da40152f69c8898"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/startup-boundaries/frontend-select.asm",
+      "blob": "b44330d72c85f68ac329309642db71a521f6f7c1",
+      "sha256": "594bdc16134927ac869685cec1e763e728bb3c5257d7d8469c20374526979c4b"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/startup-boundaries/frontend-update-type1.asm",
+      "blob": "529860e92d7f705cc8ef1e6e7376e58c3180e65f",
+      "sha256": "29d52151e6bfaa900355aff48fd79f67edd3eddb65e03335e77ce2d1c7e778cb"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/startup-boundaries/guard-clearers.asm",
+      "blob": "dc9cfae1b47da42afc9ba8f75434f9c9934df7a7",
+      "sha256": "8653aeb6fd17b1a6b63b7a6eea45c32fb988cefa0bb61d564affea4ae77f0f2f"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/startup-boundaries/imports-and-entry.txt",
+      "blob": "ecb387c08f8e62fc1187d137bb2158c51ea34e59",
+      "sha256": "4dde84ce52cd3d2cac4fabac0b46bb7e32f0a73ddcbd5d9a9f26e02367be41c7"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/startup-boundaries/language-selector.asm",
+      "blob": "42dfdc161f27e3ee47fb839ee554b959a51fa974",
+      "sha256": "c1c478fc0437dfcfd7e5653f6c8157740b2f0775257195dea9245c0de8644df3"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/startup-boundaries/lobby-detection.asm",
+      "blob": "06b92fe308bb8fb84d5f1751c7ed678992d9dc34",
+      "sha256": "3323adc6028df7f64f9bbb20fb98ffd4bf5f9f23d632cec64a47e72b3111c1b8"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/startup-boundaries/logo-guard-producer.asm",
+      "blob": "45bed70e220a9e4e7646970f7670354bfe961b2a",
+      "sha256": "e1d88d8bbdff7252a74657419b77a7e200ffc76cc333f5035c1604a16b999de4"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/startup-boundaries/range-manifest.json",
+      "blob": "8c524675345a815fc89ca20c5186199f012a4ce4",
+      "sha256": "cb132510e7fb45f2c0581b78c972fa2ef4a4f7e71676e38495d9394580b2a587"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/startup-boundaries/registry-open.asm",
+      "blob": "52f958bb8ff76ab200fda58dba2618451abebc09",
+      "sha256": "1a81d07b9a10595ce2e1bdaae27d5589d833d8cc4747deac3b0d8e7088a509a7"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/startup-boundaries/registry-read.asm",
+      "blob": "eed6c75b33db479d52f3a53205d0f00b45226825",
+      "sha256": "19f3c330f1d2cbfa46107cbe4449cb6e478c84a3972b45ad17add1ed66a670f2"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/startup-boundaries/reproduce.py",
+      "blob": "ad97309eb7357918eb4a7c2601bbdae907cfa714",
+      "sha256": "3b51eecf55f6b7b507b0b10ed7630577f9a0e0c14d7f88eccefcc258f4201427"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/startup-boundaries/startup-initializer.asm",
+      "blob": "02cf935322bda32b7692f78cf2a899309454cbb8",
+      "sha256": "46143b215b29151f6dd334711bf3d41fe74a74b5f678bc3b5bad5060e08ad37f"
+    },
+    {
+      "path": "decomp/research/original-startup-movies/static-tool-version.txt",
+      "blob": "6eec398e647831880469a2fd474c8a96b25f71e5",
+      "sha256": "daf42e21a8469c763f295ffca68da3d6ab84d62a03ebc76663fab26dc8cfc5f9"
+    },
+    {
+      "path": "evidence/fps-reset-20261016/README.md",
+      "blob": "6c1c5c93d0f2021d62dde500b9a0f0ce6d1a40dd",
+      "sha256": "22c37ea89b56c26eb6b29e80cc23d6135e0a7f92537fec99ea2dc2d4fa23ce3f"
+    },
+    {
+      "path": "evidence/fps-reset-20261016/SHA256SUMS",
+      "blob": "5d75258daca7425f8c2a70615876b6ae58f37569",
+      "sha256": "70148fa35ad308530069447bfd4cec1cd0db16cbb335a08a161ae2cc19dc5c41"
+    },
+    {
+      "path": "evidence/fps-reset-20261016/focused.json",
+      "blob": "062616f6e49b2da7c8accf6e2c54012ed1800fe2",
+      "sha256": "6a7e9f175927a4e269eadace9e36e034d0d21606ab802c2434ac6c8a9daf6227"
+    },
+    {
+      "path": "evidence/fps-reset-20261016/preparation.json",
+      "blob": "cc54610d84b28315c6bd099a3061673db228ccc6",
+      "sha256": "e4ab1c643449f434aabaa351fd1db2b20ee4073c9a5adf6c83119c319dc216b3"
+    },
+    {
+      "path": "evidence/fps-reset-main-integration-20261016/README.md",
+      "blob": "726cceab7e6073153070ee786fe5b73ec547b600",
+      "sha256": "20a3b154c1b5d8e332adb401e246f9535874739c64a5e04f57bfa9789dd99592"
+    },
+    {
+      "path": "evidence/fps-reset-main-integration-20261016/review-bundle/README.md",
+      "blob": "9341cf55631c8daa97fcce4310f3777ef6263154",
+      "sha256": "4f492a41b3b6b35405c182eeac07dea8096c7b0c274b71f8ba8e8b0bb1afa5e0"
+    },
+    {
+      "path": "evidence/fps-reset-main-integration-20261016/review-bundle/changes.patch",
+      "blob": "68f62871632f1ff60c09816547fdf2f29b1717d7",
+      "sha256": "f7c375aa8bb00854c4ef440036b067d9f275af995125a217f316f4ed452a5476"
+    },
+    {
+      "path": "evidence/fps-reset-main-integration-20261016/review-bundle/manifest.json",
+      "blob": "7fe7ec77de7780b7468b335e4459820fb3f563ba",
+      "sha256": "7e5ac449a36af576064400048a4f38bb6af86704500111b686189c019e3623e2"
+    },
+    {
+      "path": "evidence/fps-reset-main-integration-20261016/review-bundle/receipts/work/orchestration/fps-integration/combined-identity.json",
+      "blob": "52709ad856789e48622a1926a5712ac6b97f606a",
+      "sha256": "2c26f3c3ea785a60c751f7601ab11b99700500dd90d126d948800662a1aea699"
+    },
+    {
+      "path": "evidence/fps-reset-main-integration-20261016/review-bundle/receipts/work/orchestration/fps-integration/format.json",
+      "blob": "d872e6db8580f31146c3d3bd9f7dce2d58deea9b",
+      "sha256": "af8aae605fb2e5456666fdd3231bc17c9cb16b641e64f5282d027bc9ddc08f15"
+    },
+    {
+      "path": "evidence/fps-reset-main-integration-20261016/review-bundle/receipts/work/orchestration/fps-integration/fps-13.json",
+      "blob": "919038186ba486098923da7aca77d77a94d76765",
+      "sha256": "e579028256513bf56bfcce9865ccd034341a8836cba9286a6ecc19f3d6ad2d63"
+    },
+    {
+      "path": "evidence/fps-reset-main-integration-20261016/review-bundle/receipts/work/orchestration/fps-integration/lint.json",
+      "blob": "41b39d24faa51198e392a1f25705545c01285bdd",
+      "sha256": "40b2ed258ef8c8ea1b3b9cada691f1bb92d21e178e4db20468c47b712067d4e9"
+    },
+    {
+      "path": "evidence/fps-reset-main-integration-20261016/review-bundle/receipts/work/orchestration/fps-integration/pause-integration.json",
+      "blob": "757c36d01196cc54eaf07c3a26cf6b62a0151461",
+      "sha256": "05c381f079710bae3dbbe6c7ec061bc84a76ae7761520a91d00dde9d31d0ed8b"
+    },
+    {
+      "path": "evidence/fps-reset-main-integration-20261016/review-bundle/receipts/work/orchestration/fps-integration/standard.json",
+      "blob": "08976309c0fdac3271b0c99340da3ac1e9f663c3",
+      "sha256": "c4bc4a3c5d4d665fdc86ad02243777f2b65fcca6a0ffdd75aabeedf1a62b3322"
+    },
+    {
+      "path": "evidence/fps-reset-main-integration-20261016/review-bundle/receipts/work/orchestration/fps-integration/structural.json",
+      "blob": "d082eb7fe45ae4d39bd1eea025d8e2bcc3a2cb91",
+      "sha256": "daa50c62761f2fdb7c6821550c2f6e5327d8a4cfef5e385e738ad1392ed2d107"
+    },
+    {
+      "path": "evidence/fps-reset-main-integration-20261016/review-bundle/verify.mjs",
+      "blob": "3c202806c8bfc004e350c38dc418ee739afda20f",
+      "sha256": "6a6e653d3aecce0ad4989701cbe0d87ef2bd8ef91f1f9876c144d8ea07e3ad6d"
+    },
+    {
+      "path": "evidence/home-result-lifecycle-20261016/README.md",
+      "blob": "5bbdb24c166b0262d861c2161446635f48eb57d5",
+      "sha256": "feca481ccb6c3db6243d171ae27dc624731a5dbdd41b0dfa63f09673502b23d9"
+    },
+    {
+      "path": "evidence/home-result-lifecycle-20261016/review-bundle/README.md",
+      "blob": "066b06958947b6abc6dd694197b17d2df6e07c97",
+      "sha256": "e9f04f9d161922f1f648dc3952b7b5ce64a03975283375cc7c7ed9503c92b006"
+    },
+    {
+      "path": "evidence/home-result-lifecycle-20261016/review-bundle/changes.patch",
+      "blob": "59efaa29d325da706bb86f1aeada14d934c21fcd",
+      "sha256": "7eae94fb65b702a3ad37108c9c2137e81ed732dced7e62e13e44e54d352acd16"
+    },
+    {
+      "path": "evidence/home-result-lifecycle-20261016/review-bundle/manifest.json",
+      "blob": "418857096aa5295b4f87780dae9e2241a4eb163d",
+      "sha256": "45604fb07e5a10f7c941de3e98f5330faec4a15effc781be90ba97f0b63eed80"
+    },
+    {
+      "path": "evidence/home-result-lifecycle-20261016/review-bundle/receipts/work/orchestration/home-result/focused.json",
+      "blob": "2e0a3189b2592decd030fde1520e59c7f160d252",
+      "sha256": "b1ae6717787707e621f0e4456ba065818ac763419af179b35c6a0d2de13efd42"
+    },
+    {
+      "path": "evidence/home-result-lifecycle-20261016/review-bundle/receipts/work/orchestration/home-result/lint.json",
+      "blob": "f29cc36626578c54fab5f8ac9dd76a969e6c6696",
+      "sha256": "83fd99110654e48016f0027ae2178aa63cfd4d5c6a66d775e3e707a25b7d1f31"
+    },
+    {
+      "path": "evidence/home-result-lifecycle-20261016/review-bundle/receipts/work/orchestration/home-result/syntax.json",
+      "blob": "ee2663130c71e835e662dc2bd0402632c200a4dd",
+      "sha256": "72898ac837de5c0c33bae48143c1f589518e8bc31e59f2851876140440e14718"
+    },
+    {
+      "path": "evidence/home-result-lifecycle-20261016/review-bundle/verify.mjs",
+      "blob": "3c202806c8bfc004e350c38dc418ee739afda20f",
+      "sha256": "6a6e653d3aecce0ad4989701cbe0d87ef2bd8ef91f1f9876c144d8ea07e3ad6d"
+    },
+    {
+      "path": "evidence/selector-profile-launch-20261016/README.md",
+      "blob": "4216fc1c77647835ec7631b6e526a8fdb7608525",
+      "sha256": "55d82c19a67ee1a8522e8d4b4bab55d3473d55103476e8eb090ab398ee3fec6c"
+    },
+    {
+      "path": "evidence/selector-profile-launch-20261016/review-bundle/README.md",
+      "blob": "988b67fc8d0872a41e43500249cb19177937d979",
+      "sha256": "c113a1e5d11d172cf449bfa7f24dc5f8f2992afce195ce424eff53f1b5199ce3"
+    },
+    {
+      "path": "evidence/selector-profile-launch-20261016/review-bundle/changes.patch",
+      "blob": "75827d7ad947dd2881dc7000c8d907a12efd8c13",
+      "sha256": "1c08220b65cfebb7f086b13a328059f570553e2883b7100a0d0e5d0b123ce559"
+    },
+    {
+      "path": "evidence/selector-profile-launch-20261016/review-bundle/manifest.json",
+      "blob": "7cd73f04bfc52ff133cf30dc52b530fc1feccf4f",
+      "sha256": "9be05bd2e2a4485c7adb1d94c85800bdabcabfcf23caf3cc46cd2acdbac9629e"
+    },
+    {
+      "path": "evidence/selector-profile-launch-20261016/review-bundle/receipts/work/orchestration/selector-profile-launch/focused.json",
+      "blob": "ff884823d5e1ea2b3412a9936bc4d50a11b5d406",
+      "sha256": "c9eeac0d6819fb5c52c2455637be1599a9dca82516b75c753977f374193309af"
+    },
+    {
+      "path": "evidence/selector-profile-launch-20261016/review-bundle/receipts/work/orchestration/selector-profile-launch/lint.json",
+      "blob": "006eeefbad7f112e994f03b0012bec418f1827ea",
+      "sha256": "f29a07114a02f5ed7e872c274ce37f7fbfcb7debce12eba993ddec7b50eada8f"
+    },
+    {
+      "path": "evidence/selector-profile-launch-20261016/review-bundle/verify.mjs",
+      "blob": "3c202806c8bfc004e350c38dc418ee739afda20f",
+      "sha256": "6a6e653d3aecce0ad4989701cbe0d87ef2bd8ef91f1f9876c144d8ea07e3ad6d"
+    },
+    {
+      "path": "scripts/local-render/result-loss-lifecycle.mjs",
+      "blob": "f62a5b0d47cbe6bb1564b07d58fd1dabd1479c6a",
+      "sha256": "6b834d225a2fea4f7311a051806fcce51595accfcdca27219fd9a7a4336e7e4f"
+    },
+    {
+      "path": "tests/fps-graph-reset.test.mjs",
+      "blob": "b445f2a9f5a2a55ab771916005a1e3b54587edca",
+      "sha256": "3e2dfaa33002569af47e44da9fe388184f7f709b12a52fff52e5e6ed76a90e59"
+    },
+    {
+      "path": "tests/home-result-lifecycle.test.mjs",
+      "blob": "b16adfe28e60728bfe8d07b87d5cd031280544f0",
+      "sha256": "8650a75446a7345797e9583610396370b7a9017a4b976ca0021a80e0f821d4a7"
+    },
+    {
+      "path": "tests/selector-profile-launch.test.mjs",
+      "blob": "80b7795e30434f21d957611ae95a5293c94eca42",
+      "sha256": "5708262220bf46db35f3ff872a86a2690ab3dc6baa168808544e14987b981ca4"
+    }
+  ]
+}
