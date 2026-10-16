@@ -290,7 +290,7 @@ export function OriginalPauseMenu(props: Props) {
                 </button>
               </>
             )}
-            {notice && <p role="status">{notice}</p>}
+            {panel === 'save' && notice && <p role="status">{notice}</p>}
           </section>
         )}
       </div>

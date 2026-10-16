@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "942d386a-ac66-4ac2-a20d-d79979bdb52e",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "c9e3cbc8003be7c9b3fc489d794297679476d2b9",
+    "branch": "fix/pause-save-notice-scope",
+    "trackedDiffSha256": "40f4073181a38a3094d32e00e5793fdbe2bf2f7f5c3282d934e3a2a6c291991e",
+    "inputs": {
+      "tests/pause-save-notice.test.mjs": "57ef02f8b507dda455060a510d63925142d53ff68acd7ae4d75580d4745d8686",
+      "app/original-pause-menu.tsx": "c4d0d1ee764e7baad145d105cece5bbb12f5d35fcc74b87405b0eb39495b694c"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/pause-save-notice.test.mjs",
+    "tests/pause-menu-ownership.test.mjs"
+  ],
+  "cwd": "/tmp/populous-recovered-20261016",
+  "startedAt": "2026-10-16T16:00:35.221Z",
+  "artifacts": {
+    "stdout": "/tmp/populous-recovered-20261016/work/orchestration/pause-save-notice/fixed.json.artifacts/stdout.log",
+    "stderr": "/tmp/populous-recovered-20261016/work/orchestration/pause-save-notice/fixed.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T16:00:35.889Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ actual Page captures original pause once, holds it across panel return and restores same-world close (98.840314ms)\n✔ actual Page never restores an old pause state or queued camera request into a replacement world (17.996482ms)\n✔ actual Page applies queued camera conveniences only on final same-world close (14.043694ms)\n✔ persisted save completion cannot publish a notice in Load Game (10.61232ms)\n✔ persisted completion remains visible after reopening pending Save Game (3.203964ms)\n✔ session-only save completion cannot publish a notice in Load Game (6.093574ms)\n✔ session-only completion remains visible after reopening pending Save Game (1.704748ms)\n✔ failure save completion cannot publish a notice in Load Game (1.554329ms)\n✔ failure completion remains visible after reopening pending Save Game (1.613438ms)\nℹ tests 9\nℹ suites 0\nℹ pass 9\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 576.592645\n",
+  "stderr": "",
+  "stdoutSha256": "5b1377ecf8020b018b7012e6e333ac51be2f66139a7240b9e4e310ad2dbc2f2f",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "c9e3cbc8003be7c9b3fc489d794297679476d2b9",
+    "branch": "fix/pause-save-notice-scope",
+    "trackedDiffSha256": "40f4073181a38a3094d32e00e5793fdbe2bf2f7f5c3282d934e3a2a6c291991e",
+    "inputs": {
+      "tests/pause-save-notice.test.mjs": "57ef02f8b507dda455060a510d63925142d53ff68acd7ae4d75580d4745d8686",
+      "app/original-pause-menu.tsx": "c4d0d1ee764e7baad145d105cece5bbb12f5d35fcc74b87405b0eb39495b694c"
+    }
+  }
+}

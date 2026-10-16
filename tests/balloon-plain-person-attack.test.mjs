@@ -1,3 +1,4 @@
+import { checkpointComparisonView, assertCheckpointComparisonDomain } from './helpers/checkpoint-comparison-view.mjs'
 import {
   seatedAttackOrigin,
   boundedGroundAttackDeparture,
@@ -186,12 +187,9 @@ async function assertPlainPersonAttack({ store, world, shaman, balloon }, histor
   await store.saveCheckpoint()
   assert.ok(store.loadCheckpoint())
   const restored = store.getWorld(),
-    comparable = w => {
-      const copy = structuredClone(w)
-      for (const head of copy.shrines)
-        if (head.reward === undefined && head.rewardMana) head.reward = 'mana'
-      return copy
-    }
+    comparable = checkpointComparisonView
+  assertCheckpointComparisonDomain(world)
+  assertCheckpointComparisonDomain(restored)
   const encounters = []
   let departures = 0,
     departure = 0,
