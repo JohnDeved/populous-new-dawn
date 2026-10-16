@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import assets from './original-frontend.json'
 import styles from './original-main-menu.module.css'
+import type { CheckpointReadStatus } from './game-store.ts'
 import {
   answerTutorialRecommendation,
   hasAnsweredTutorialRecommendation,
@@ -20,6 +21,8 @@ import {
 
 interface Props {
   hasCheckpoint: boolean
+  checkpointReadStatus: CheckpointReadStatus
+  onRetryCheckpoint: () => void
   onNewGame: () => void
   onTutorial: () => void
   onLoad: () => void
@@ -71,6 +74,8 @@ function MenuText({
 
 export function OriginalMainMenu({
   hasCheckpoint,
+  checkpointReadStatus,
+  onRetryCheckpoint,
   onNewGame,
   onTutorial,
   onLoad,
@@ -88,7 +93,9 @@ export function OriginalMainMenu({
   const [focused, setFocused] = useState<string | null>(null)
   const returnFocus = useRef<string | null>(null)
   const recommendationCommitted = useRef(false)
-  const [panel, setPanel] = useState<'main' | 'options' | 'quit' | 'tutorial-recommendation'>('main')
+  const [panel, setPanel] = useState<'main' | 'options' | 'quit' | 'tutorial-recommendation'>(
+    'main'
+  )
   const [optionRows, setOptionRows] = useState<FrontendTextRow[]>([])
   const [{ scale, canvasWidth }, setViewport] = useState({ scale: 1, canvasWidth: 640 })
   const [artReady, setArtReady] = useState(false)
@@ -174,7 +181,7 @@ export function OriginalMainMenu({
                 ? tutorialRecommendationRows.filter(row =>
                     tutorialParagraphRows.includes(row) ? questionReady : artReady
                   )
-                : frontendQuitRows.filter((_, index) => index === 0 ? questionReady : artReady),
+                : frontendQuitRows.filter((_, index) => (index === 0 ? questionReady : artReady)),
             canvasWidth,
             artReady,
             artReady
@@ -225,7 +232,15 @@ export function OriginalMainMenu({
     {
       label: 'Load Game',
       action: onLoad,
-      unavailable: !hasCheckpoint ? 'No saved checkpoint' : undefined,
+      unavailable: hasCheckpoint
+        ? undefined
+        : checkpointReadStatus === 'failed'
+          ? 'Saved checkpoint could not be read'
+          : checkpointReadStatus === 'unavailable'
+            ? 'Browser storage is unavailable'
+            : checkpointReadStatus === 'pending' || checkpointReadStatus === 'idle'
+              ? 'Checking browser storage'
+              : 'No usable saved checkpoint',
     },
     {
       label: 'Multiplayer',
@@ -261,7 +276,8 @@ export function OriginalMainMenu({
         if (
           (panel !== 'main' && panel !== 'tutorial-recommendation') ||
           !['ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)
-        ) return
+        )
+          return
         event.preventDefault()
         const buttons = [
           ...(dialog.current?.querySelectorAll<HTMLButtonElement>('nav button') ?? []),
@@ -347,6 +363,26 @@ export function OriginalMainMenu({
           </nav>
         )}
         {panel === 'options' && renderOptions(back, setOptionRows)}
+        {panel === 'main' && checkpointReadStatus !== 'read' && checkpointReadStatus !== 'idle' && (
+          <section className={styles.checkpointRecovery} aria-label="Browser checkpoint recovery">
+            <p role="status">
+              {checkpointReadStatus === 'failed'
+                ? 'Could not read browser storage. Your saved checkpoint may still be available.'
+                : checkpointReadStatus === 'pending'
+                  ? 'Checking browser storage…'
+                  : 'Browser storage is unavailable. You can still play and save for this session.'}
+            </p>
+            {checkpointReadStatus !== 'unavailable' && (
+              <button
+                type="button"
+                disabled={checkpointReadStatus === 'pending'}
+                onClick={onRetryCheckpoint}
+              >
+                Retry checkpoint lookup
+              </button>
+            )}
+          </section>
+        )}
         {panel === 'tutorial-recommendation' && (
           <section
             className={styles.quit}

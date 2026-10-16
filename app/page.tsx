@@ -405,8 +405,9 @@ export default function Home() {
   }, [])
   useEffect(() => {
     let active = true
+    const initialWorld = store.getWorld()
     void store.restoreCheckpoint().then(() => {
-      if (!active) return
+      if (!active || store.getWorld() !== initialWorld) return
       const preferences = readAudioPreferences()
       setAudioPreferences(preferences)
       audio.current?.setVolume(preferences.volume)
@@ -1455,6 +1456,10 @@ export default function Home() {
       {startup === 'choice' && !startupCampaign && (
         <OriginalMainMenu
           hasCheckpoint={store.hasCheckpoint()}
+          checkpointReadStatus={store.getCheckpointReadStatus()}
+          onRetryCheckpoint={() => {
+            void store.restoreCheckpoint()
+          }}
           onNewGame={() => setStartupCampaign(true)}
           onTutorial={() => startMission(tutorialLevel)}
           onLoad={loadCheckpoint}
