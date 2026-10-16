@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "f68d2a5f-334e-44e8-8cef-8ee18b444b51",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "dd109c8cf68a6bfad1e6f50b58b67b2093f8efc8",
+    "branch": "probe/route-notice-baseline",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/route-notice/run-replacement-managed.mjs": "74c57f4ddadbfa593d77cb8020c1e31a96783ce88fe54fb44abcfc84e840459e",
+      "scripts/local-render/route-notice-replacement.mjs": "26bcfcce3f6ffca154811f91a26814573de1e18dbd8cd1dfccc2df4f50325c77",
+      "app/page.tsx": "6ff8a8e39d65c96bd298a30765c378b9336a7f44efa067290ce53dd6222c40dc",
+      "app/globals.css": "5dc5e6713b0dc392e23b11e3ffc53c85565cfb66be780d6a49d8859f8ead0b07",
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  },
+  "command": [
+    "node",
+    "work/orchestration/route-notice/run-replacement-managed.mjs",
+    "outputs/route-notice-replacement-baseline-managed"
+  ],
+  "cwd": "<BASELINE_ROOT>",
+  "startedAt": "2026-10-16T16:59:26.500Z",
+  "artifacts": {
+    "stdout": "<BASELINE_ROOT>/work/orchestration/route-notice/browser-replacement-baseline-managed.json.artifacts/stdout.log",
+    "stderr": "<BASELINE_ROOT>/work/orchestration/route-notice/browser-replacement-baseline-managed.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T16:59:47.111Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\"status\":\"passed\",\"cleanupVerified\":true,\"output\":\"<BASELINE_ROOT>/outputs/route-notice-replacement-baseline-managed\"}\n",
+  "stderr": "",
+  "stdoutSha256": "2d0e026634852e214ea5ed51917766ea6dbfb84d2db5ad7cc5f561473e95895a",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "dd109c8cf68a6bfad1e6f50b58b67b2093f8efc8",
+    "branch": "probe/route-notice-baseline",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/route-notice/run-replacement-managed.mjs": "74c57f4ddadbfa593d77cb8020c1e31a96783ce88fe54fb44abcfc84e840459e",
+      "scripts/local-render/route-notice-replacement.mjs": "26bcfcce3f6ffca154811f91a26814573de1e18dbd8cd1dfccc2df4f50325c77",
+      "app/page.tsx": "6ff8a8e39d65c96bd298a30765c378b9336a7f44efa067290ce53dd6222c40dc",
+      "app/globals.css": "5dc5e6713b0dc392e23b11e3ffc53c85565cfb66be780d6a49d8859f8ead0b07",
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  }
+}

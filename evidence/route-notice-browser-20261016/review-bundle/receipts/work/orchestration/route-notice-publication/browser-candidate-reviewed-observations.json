@@ -1,0 +1,118 @@
+{
+  "scope": "actual Home CSS/handlers with a controlled route-notice fixture",
+  "expected": "preserved",
+  "observations": [
+    {
+      "initiallyPaused": false,
+      "stage": "hidden-longer-than-original-lifetime",
+      "before": {
+        "sameWorld": true,
+        "sameNotice": true,
+        "sameScene": true,
+        "sceneWorld": true,
+        "sameCanvas": true,
+        "paused": true,
+        "suspended": true,
+        "turn": 116,
+        "time": 9.666666666666666,
+        "sameAnimation": true,
+        "animationState": "paused",
+        "animationTime": 1249.9609999881134
+      },
+      "after": {
+        "sameWorld": true,
+        "sameNotice": true,
+        "sameScene": true,
+        "sceneWorld": true,
+        "sameCanvas": true,
+        "paused": true,
+        "suspended": true,
+        "turn": 116,
+        "time": 9.666666666666666,
+        "sameAnimation": true,
+        "animationState": "paused",
+        "animationTime": 1266.560999988112
+      }
+    },
+    {
+      "initiallyPaused": false,
+      "stage": "resumed-presentation-expired",
+      "resumed": {
+        "sameAnimation": true,
+        "currentTime": 1266.560999988112,
+        "remaining": 1733.439000011888
+      },
+      "elapsed": 1762.5,
+      "final": {
+        "sameWorld": true,
+        "sameNotice": false,
+        "sameScene": true,
+        "sceneWorld": true,
+        "sameCanvas": true,
+        "paused": false,
+        "suspended": false,
+        "turn": 137,
+        "time": 11.416666666666666,
+        "sameAnimation": false,
+        "animationState": null,
+        "animationTime": null
+      }
+    },
+    {
+      "initiallyPaused": true,
+      "stage": "hidden-longer-than-original-lifetime",
+      "before": {
+        "sameWorld": true,
+        "sameNotice": true,
+        "sameScene": true,
+        "sceneWorld": true,
+        "sameCanvas": true,
+        "paused": true,
+        "suspended": true,
+        "turn": 138,
+        "time": 11.5,
+        "sameAnimation": true,
+        "animationState": "paused",
+        "animationTime": 1249.9570000068268
+      },
+      "after": {
+        "sameWorld": true,
+        "sameNotice": true,
+        "sameScene": true,
+        "sceneWorld": true,
+        "sameCanvas": true,
+        "paused": true,
+        "suspended": true,
+        "turn": 138,
+        "time": 11.5,
+        "sameAnimation": true,
+        "animationState": "paused",
+        "animationTime": 1266.5570000068271
+      }
+    },
+    {
+      "initiallyPaused": true,
+      "stage": "resumed-presentation-expired",
+      "resumed": {
+        "sameAnimation": true,
+        "currentTime": 1299.910000027623,
+        "remaining": 1700.089999972377
+      },
+      "elapsed": 1724.5999999642372,
+      "final": {
+        "sameWorld": true,
+        "sameNotice": false,
+        "sameScene": true,
+        "sceneWorld": true,
+        "sameCanvas": true,
+        "paused": true,
+        "suspended": false,
+        "turn": 138,
+        "time": 11.5,
+        "sameAnimation": false,
+        "animationState": null,
+        "animationTime": null
+      }
+    }
+  ]
+}

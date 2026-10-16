@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "eec58dd7-ec3e-45b1-9e96-0b4f3f3730b9",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "a0bcf7dfa3dbf2491cfb9fb3c01d138cca005cd9",
+    "branch": "fix/route-notice-modal-lifetime",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/page.tsx": "57a4efce125b3578a1fdb3938f27c7189f52687faa4416c9a5a86d378cb5e8fb",
+      "tests/route-notice-modal.test.mjs": "00f9e3fe2b69b9404a1335472e2b3c820d4cf9b7ef0f284b01777310150c2606",
+      "scripts/local-render/route-notice-modal.mjs": "16ecfb70a00f92024d7cca1d6ec4f926cb9941a24aa774674b5e637da5501387",
+      "scripts/local-render/route-notice-replacement.mjs": "26bcfcce3f6ffca154811f91a26814573de1e18dbd8cd1dfccc2df4f50325c77",
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  },
+  "command": [
+    "node_modules/.bin/oxfmt",
+    "--check",
+    "app/page.tsx"
+  ],
+  "cwd": "<CANDIDATE_ROOT>",
+  "startedAt": "2026-10-16T16:52:40.749Z",
+  "artifacts": {
+    "stdout": "<CANDIDATE_ROOT>/work/orchestration/route-notice/review-format.json.artifacts/stdout.log",
+    "stderr": "<CANDIDATE_ROOT>/work/orchestration/route-notice/review-format.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T16:52:40.842Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 6ms on 1 files using 10 threads.\n",
+  "stderr": "",
+  "stdoutSha256": "5a359431a038d3c9db9dba15406a51a7b3d9c0ee06d0352036ad39fef1c40bbd",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "a0bcf7dfa3dbf2491cfb9fb3c01d138cca005cd9",
+    "branch": "fix/route-notice-modal-lifetime",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/page.tsx": "57a4efce125b3578a1fdb3938f27c7189f52687faa4416c9a5a86d378cb5e8fb",
+      "tests/route-notice-modal.test.mjs": "00f9e3fe2b69b9404a1335472e2b3c820d4cf9b7ef0f284b01777310150c2606",
+      "scripts/local-render/route-notice-modal.mjs": "16ecfb70a00f92024d7cca1d6ec4f926cb9941a24aa774674b5e637da5501387",
+      "scripts/local-render/route-notice-replacement.mjs": "26bcfcce3f6ffca154811f91a26814573de1e18dbd8cd1dfccc2df4f50325c77",
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  }
+}

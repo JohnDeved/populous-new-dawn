@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "3f1c4eaf-c304-463a-99c4-d0ed2a303d28",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "4f39e7f12e76317431de1023f30dc6385b9b2fa9",
+    "branch": "fix/route-notice-modal-lifetime",
+    "trackedDiffSha256": "087cbce928da122113ddf25243dc2826fafe24eddde309144885b6d92320e527",
+    "inputs": {
+      "app/page.tsx": "ef659889f3be388342b3347cd9e0c9c3eb6b4ad667226f0ca1f3116fede2e493",
+      "tests/route-notice-modal.test.mjs": "00f9e3fe2b69b9404a1335472e2b3c820d4cf9b7ef0f284b01777310150c2606",
+      "app/world-effects.ts": "265779df0ac4a6a576acd8f342b22ee174864a5f7515f2f25f8ca3d5ff3d354d"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/route-notice-modal.test.mjs"
+  ],
+  "cwd": "<CANDIDATE_ROOT>",
+  "startedAt": "2026-10-16T16:50:49.928Z",
+  "artifacts": {
+    "stdout": "<CANDIDATE_ROOT>/work/orchestration/route-notice/review-serial-reuse-before.json.artifacts/stdout.log",
+    "stderr": "<CANDIDATE_ROOT>/work/orchestration/route-notice/review-serial-reuse-before.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T16:50:50.410Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "✔ Home keeps the notice through menu/selector/reopen and restores prior pause=false (24.689708ms)\n✔ Home keeps the notice through menu/selector/reopen and restores prior pause=true (9.548709ms)\n✔ ordinary game pause without a menu retains the presentation timer (7.679875ms)\n✔ an obsolete animation callback cannot consume a replacement world notice with the same serial (5.156708ms)\n✔ a canceled notice callback cannot consume a newly issued notice (4.977959ms)\n✖ actual producer serial reuse does not give an old callback ownership of a new notice (5.14375ms)\nℹ tests 6\nℹ suites 0\nℹ pass 5\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 455.518708\n\n✖ failing tests:\n\ntest at tests/route-notice-modal.test.mjs:78:1\n✖ actual producer serial reuse does not give an old callback ownership of a new notice (5.14375ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  + actual - expected\n  \n  + null\n  - {\n  -   flags: 2097152,\n  -   message: 603,\n  -   serial: 1\n  - }\n  \n      at TestContext.<anonymous> (file://<CANDIDATE_ROOT>/tests/route-notice-modal.test.mjs:91:10)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1325:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)\n      at Test.postRun (node:internal/test_runner/test:1465:19)\n      at Test.run (node:internal/test_runner/test:1390:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: null,\n    expected: { flags: 2097152, message: 603, serial: 1 },\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n",
+  "stderr": "",
+  "stdoutSha256": "df0fbdf68cefebc6aa6a9f27b4ec70d79770764f605544e96ea34c777c07c353",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "4f39e7f12e76317431de1023f30dc6385b9b2fa9",
+    "branch": "fix/route-notice-modal-lifetime",
+    "trackedDiffSha256": "087cbce928da122113ddf25243dc2826fafe24eddde309144885b6d92320e527",
+    "inputs": {
+      "app/page.tsx": "ef659889f3be388342b3347cd9e0c9c3eb6b4ad667226f0ca1f3116fede2e493",
+      "tests/route-notice-modal.test.mjs": "00f9e3fe2b69b9404a1335472e2b3c820d4cf9b7ef0f284b01777310150c2606",
+      "app/world-effects.ts": "265779df0ac4a6a576acd8f342b22ee174864a5f7515f2f25f8ca3d5ff3d354d"
+    }
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "status": "passed",
+  "verifiedAt": "2026-10-16T17:01:42.116Z",
+  "port5198": "no listener",
+  "ownedRunnerProcesses": [],
+  "laneReleased": true,
+  "runs": [
+    {
+      "label": "candidate",
+      "head": "a0bcf7dfa3dbf2491cfb9fb3c01d138cca005cd9",
+      "status": "passed",
+      "cleanupVerified": true,
+      "sourceAfter": "identical",
+      "dependencyChanges": [],
+      "errors": [],
+      "warnings": [
+        "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+        "THREE.WebGLRenderer: Texture marked for update but no image data found."
+      ],
+      "startedAt": "2026-10-16T16:58:08.862Z",
+      "endedAt": "2026-10-16T16:58:35.343Z"
+    },
+    {
+      "label": "replacement-candidate",
+      "head": "a0bcf7dfa3dbf2491cfb9fb3c01d138cca005cd9",
+      "status": "passed",
+      "cleanupVerified": true,
+      "sourceAfter": "identical",
+      "dependencyChanges": [],
+      "errors": [],
+      "warnings": [
+        "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+        "THREE.WebGLRenderer: Texture marked for update but no image data found."
+      ],
+      "startedAt": "2026-10-16T17:00:10.770Z",
+      "endedAt": "2026-10-16T17:00:31.285Z"
+    },
+    {
+      "label": "baseline",
+      "head": "dd109c8cf68a6bfad1e6f50b58b67b2093f8efc8",
+      "status": "passed",
+      "cleanupVerified": true,
+      "sourceAfter": "identical",
+      "dependencyChanges": [],
+      "errors": [],
+      "warnings": [
+        "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+        "THREE.WebGLRenderer: Texture marked for update but no image data found."
+      ],
+      "startedAt": "2026-10-16T16:59:04.241Z",
+      "endedAt": "2026-10-16T16:59:25.516Z"
+    },
+    {
+      "label": "replacement-baseline",
+      "head": "dd109c8cf68a6bfad1e6f50b58b67b2093f8efc8",
+      "status": "passed",
+      "cleanupVerified": true,
+      "sourceAfter": "identical",
+      "dependencyChanges": [],
+      "errors": [],
+      "warnings": [
+        "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+        "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+        "THREE.WebGLRenderer: Texture marked for update but no image data found."
+      ],
+      "startedAt": "2026-10-16T16:59:26.928Z",
+      "endedAt": "2026-10-16T16:59:47.093Z"
+    }
+  ]
+}

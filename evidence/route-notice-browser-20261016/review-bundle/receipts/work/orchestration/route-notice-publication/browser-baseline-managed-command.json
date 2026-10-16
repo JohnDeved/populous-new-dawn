@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "f10a7d94-0ddb-4e89-81b9-5af107f3e463",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "dd109c8cf68a6bfad1e6f50b58b67b2093f8efc8",
+    "branch": "probe/route-notice-baseline",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/route-notice/run-browser-managed.mjs": "70f1079dc616a3f10ffc18c2377be46d3d7a4775f3fa390c543021165c9cbc88",
+      "scripts/local-render/route-notice-modal.mjs": "16ecfb70a00f92024d7cca1d6ec4f926cb9941a24aa774674b5e637da5501387",
+      "app/page.tsx": "6ff8a8e39d65c96bd298a30765c378b9336a7f44efa067290ce53dd6222c40dc",
+      "app/globals.css": "5dc5e6713b0dc392e23b11e3ffc53c85565cfb66be780d6a49d8859f8ead0b07",
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  },
+  "command": [
+    "node",
+    "work/orchestration/route-notice/run-browser-managed.mjs",
+    "outputs/route-notice-baseline-managed"
+  ],
+  "cwd": "<BASELINE_ROOT>",
+  "startedAt": "2026-10-16T16:59:03.430Z",
+  "artifacts": {
+    "stdout": "<BASELINE_ROOT>/work/orchestration/route-notice/browser-baseline-managed.json.artifacts/stdout.log",
+    "stderr": "<BASELINE_ROOT>/work/orchestration/route-notice/browser-baseline-managed.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T16:59:25.533Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\"status\":\"passed\",\"cleanupVerified\":true,\"output\":\"<BASELINE_ROOT>/outputs/route-notice-baseline-managed\"}\n",
+  "stderr": "",
+  "stdoutSha256": "f087489bc4da6109af7915b21f6bcdf642c13e511e7f17f0388e7740e0e0360e",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "dd109c8cf68a6bfad1e6f50b58b67b2093f8efc8",
+    "branch": "probe/route-notice-baseline",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/route-notice/run-browser-managed.mjs": "70f1079dc616a3f10ffc18c2377be46d3d7a4775f3fa390c543021165c9cbc88",
+      "scripts/local-render/route-notice-modal.mjs": "16ecfb70a00f92024d7cca1d6ec4f926cb9941a24aa774674b5e637da5501387",
+      "app/page.tsx": "6ff8a8e39d65c96bd298a30765c378b9336a7f44efa067290ce53dd6222c40dc",
+      "app/globals.css": "5dc5e6713b0dc392e23b11e3ffc53c85565cfb66be780d6a49d8859f8ead0b07",
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  }
+}

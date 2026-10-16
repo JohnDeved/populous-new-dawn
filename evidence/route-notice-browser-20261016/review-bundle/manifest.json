@@ -1,0 +1,639 @@
+{
+  "version": 1,
+  "kind": "pnd-review-bundle",
+  "taskId": "pr497-final-browser",
+  "repository": {
+    "branch": "fix/route-notice-modal-lifetime",
+    "baseCommit": "f85a8105fd77c71547fe5cd01594d3467c47b098",
+    "headOid": "a0bcf7dfa3dbf2491cfb9fb3c01d138cca005cd9"
+  },
+  "diff": {
+    "path": "changes.patch",
+    "sha256": "791c61916f079684a2112a6f95c57336e4dfe181cf0dac320b4851024641ad50",
+    "bytes": 91384
+  },
+  "sources": [
+    {
+      "status": "M",
+      "path": "app/page.tsx",
+      "state": "present",
+      "sha256": "57a4efce125b3578a1fdb3938f27c7189f52687faa4416c9a5a86d378cb5e8fb",
+      "blobOid": "89eb38b6b2740d6bcaeebe24ca15e15b854e4917",
+      "bytes": 75374
+    },
+    {
+      "status": "A",
+      "path": "decomp/research/route-notice-modal-lifetime.md",
+      "state": "present",
+      "sha256": "99083d33772464f806f657b2d6df73985686fa7ff789f11cd18e6d0b3d550af1",
+      "blobOid": "6430fcbec550d1736eae09398ca37a3565ed3ef4",
+      "bytes": 3303
+    },
+    {
+      "status": "A",
+      "path": "evidence/route-notice-modal-20261016/README.md",
+      "state": "present",
+      "sha256": "6d0fe0938a1b5ef79bbf51af8667fb25d3022b1706d37af63bbfb1f2d48cfe58",
+      "blobOid": "c091ad0c3aba4053ab9d3712bddaaa50ed01817b",
+      "bytes": 1629
+    },
+    {
+      "status": "A",
+      "path": "evidence/route-notice-modal-20261016/review-bundle/README.md",
+      "state": "present",
+      "sha256": "b6556545bcc8ae7943071a883f147c2661e073a318aea4e76f1346752b1d8521",
+      "blobOid": "9552168ba8cfd96c1a4d8bd26af03ac97222f191",
+      "bytes": 982
+    },
+    {
+      "status": "A",
+      "path": "evidence/route-notice-modal-20261016/review-bundle/changes.patch",
+      "state": "present",
+      "sha256": "8910c3e4d74a74d1d94f6240ce3d47651584db7868e731f1d014c386fb2ebe90",
+      "blobOid": "7aecbdb008bdf0df9d6c659a2c923d44ab8f1e78",
+      "bytes": 12834
+    },
+    {
+      "status": "A",
+      "path": "evidence/route-notice-modal-20261016/review-bundle/manifest.json",
+      "state": "present",
+      "sha256": "d0254f6e321bb361c8648bee08d0992bc156a430beebca892f005ad60f3e0fc1",
+      "blobOid": "718c1eb24ad8640f5291ba57912dbb4aa3a87329",
+      "bytes": 4782
+    },
+    {
+      "status": "A",
+      "path": "evidence/route-notice-modal-20261016/review-bundle/receipts/work/orchestration/route-notice/baseline-final-scope.json",
+      "state": "present",
+      "sha256": "efc91e5193a0ff1f38899d523ac2021ece23a1d9d8b29883313621f4639bdcb6",
+      "blobOid": "9df5a5b229b1a9468e9e1936d9f765179332f85a",
+      "bytes": 5713
+    },
+    {
+      "status": "A",
+      "path": "evidence/route-notice-modal-20261016/review-bundle/receipts/work/orchestration/route-notice/focused-final.json",
+      "state": "present",
+      "sha256": "8e045e90928d794bad2a7682a7cfbea804ffe5778acb9de833e60313a6c38ff2",
+      "blobOid": "1a2b085e72c2a2b3aa5c5db5dc0697fe1eda38f6",
+      "bytes": 4744
+    },
+    {
+      "status": "A",
+      "path": "evidence/route-notice-modal-20261016/review-bundle/receipts/work/orchestration/route-notice/format-final.json",
+      "state": "present",
+      "sha256": "a09a823f2eee2aa76416645ef468a5b36affde9677ef9a50f1640069e776f4ff",
+      "blobOid": "f42f4dcb8f8a54d405075d583ef8cecb5ef98bfa",
+      "bytes": 3160
+    },
+    {
+      "status": "A",
+      "path": "evidence/route-notice-modal-20261016/review-bundle/receipts/work/orchestration/route-notice/js-lint-final.json",
+      "state": "present",
+      "sha256": "e532456f75caf5b1a4594e42d93d9e3b48cc007ebdb2b883629abc8a5e42cd17",
+      "blobOid": "30aafaf023fcf0cc619905e43968d7c2982a0408",
+      "bytes": 3126
+    },
+    {
+      "status": "A",
+      "path": "evidence/route-notice-modal-20261016/review-bundle/receipts/work/orchestration/route-notice/lint-baseline.json",
+      "state": "present",
+      "sha256": "037a93861d0186760fb077b4f2afc180fa7f7e884826c1f6d462902d64c7abdf",
+      "blobOid": "1b656ea2144ff76435ea9a43915e7c7cc069a86f",
+      "bytes": 5266
+    },
+    {
+      "status": "A",
+      "path": "evidence/route-notice-modal-20261016/review-bundle/receipts/work/orchestration/route-notice/lint-final.json",
+      "state": "present",
+      "sha256": "fcb591db41488696d6a5370858ed9e3f09fd4096024d94cb99961cc289ccc09e",
+      "blobOid": "f8cb1e2507fb98d7e0cd698f2c143217f97a91a3",
+      "bytes": 5938
+    },
+    {
+      "status": "A",
+      "path": "evidence/route-notice-modal-20261016/review-bundle/receipts/work/orchestration/route-notice/standard-final.json",
+      "state": "present",
+      "sha256": "ee8ff571a629701954ed77de342a5ee534c77fb7a1835618e2057b9d33f8d5ce",
+      "blobOid": "e8f98d6c4720b22e1ef5b98d08507f3727085756",
+      "bytes": 11443
+    },
+    {
+      "status": "A",
+      "path": "evidence/route-notice-modal-20261016/review-bundle/verify.mjs",
+      "state": "present",
+      "sha256": "6a6e653d3aecce0ad4989701cbe0d87ef2bd8ef91f1f9876c144d8ea07e3ad6d",
+      "blobOid": "3c202806c8bfc004e350c38dc418ee739afda20f",
+      "bytes": 7176
+    },
+    {
+      "status": "A",
+      "path": "scripts/local-render/route-notice-modal.mjs",
+      "state": "present",
+      "sha256": "16ecfb70a00f92024d7cca1d6ec4f926cb9941a24aa774674b5e637da5501387",
+      "blobOid": "bb93db7eb9bd1fa8f3f48a5343ba4c0f68d889a6",
+      "bytes": 6735
+    },
+    {
+      "status": "A",
+      "path": "scripts/local-render/route-notice-replacement.mjs",
+      "state": "present",
+      "sha256": "26bcfcce3f6ffca154811f91a26814573de1e18dbd8cd1dfccc2df4f50325c77",
+      "blobOid": "b6e2648250b873a007fab1b0e72e9fa62a564107",
+      "bytes": 3085
+    },
+    {
+      "status": "A",
+      "path": "tests/route-notice-modal.test.mjs",
+      "state": "present",
+      "sha256": "00f9e3fe2b69b9404a1335472e2b3c820d4cf9b7ef0f284b01777310150c2606",
+      "blobOid": "b88b6086102f655c134755c5abfe2e6f5e8297b8",
+      "bytes": 4109
+    }
+  ],
+  "receipts": [
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-baseline-29a6b548-command.json",
+      "sourceSha256": "a5110119c63172d513ee234c017b3ca16a2eca9e69e9e85d1e5d77367e1de977",
+      "sourceBytes": 2592,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-baseline-29a6b548-command.json",
+      "bundleSha256": "a5110119c63172d513ee234c017b3ca16a2eca9e69e9e85d1e5d77367e1de977",
+      "bundleBytes": 2592,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-baseline-29a6b548-browser.json",
+      "sourceSha256": "4bb9a5e1976182d6751f922815acd296dc97131af2091b71f45b890836bc97e0",
+      "sourceBytes": 688659,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-baseline-29a6b548-browser.json",
+      "bundleSha256": "4bb9a5e1976182d6751f922815acd296dc97131af2091b71f45b890836bc97e0",
+      "bundleBytes": 688659,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-baseline-29a6b548-observations.json",
+      "sourceSha256": "996f217726835365d6ca6e9a2810e32e50745fec2b6404d8fbf586879e129579",
+      "sourceBytes": 2542,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-baseline-29a6b548-observations.json",
+      "bundleSha256": "996f217726835365d6ca6e9a2810e32e50745fec2b6404d8fbf586879e129579",
+      "bundleBytes": 2542,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-baseline-29a6b548-build.log",
+      "sourceSha256": "3b31627eefeeabe55cf113c8202e8e3446f21389c4599cd84f7070c3a7f3136a",
+      "sourceBytes": 5646,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-baseline-29a6b548-build.log",
+      "bundleSha256": "3b31627eefeeabe55cf113c8202e8e3446f21389c4599cd84f7070c3a7f3136a",
+      "bundleBytes": 5646,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-candidate-33208304-command.json",
+      "sourceSha256": "45f6de643c346ac338e1ff2bec0a00bcc9a6ed216aa214e51ab4ff60922014f4",
+      "sourceBytes": 2608,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-candidate-33208304-command.json",
+      "bundleSha256": "45f6de643c346ac338e1ff2bec0a00bcc9a6ed216aa214e51ab4ff60922014f4",
+      "bundleBytes": 2608,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-candidate-33208304-browser.json",
+      "sourceSha256": "a0d46b9dbe1fbea1988a3c6b87e2dc2b4da5928f57beab7d02814a4dbf6493c8",
+      "sourceBytes": 688791,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-candidate-33208304-browser.json",
+      "bundleSha256": "a0d46b9dbe1fbea1988a3c6b87e2dc2b4da5928f57beab7d02814a4dbf6493c8",
+      "bundleBytes": 688791,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-candidate-33208304-observations.json",
+      "sourceSha256": "2d547bcef533d72720bd850d62d5cadabe22b3e40e4362bf8098c67d32e2388b",
+      "sourceBytes": 2589,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-candidate-33208304-observations.json",
+      "bundleSha256": "2d547bcef533d72720bd850d62d5cadabe22b3e40e4362bf8098c67d32e2388b",
+      "bundleBytes": 2589,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-candidate-33208304-build.log",
+      "sourceSha256": "f0a60de412b011bd327aa0f21ffbecbea51c5864bcd40b4ca452796345962809",
+      "sourceBytes": 5650,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-candidate-33208304-build.log",
+      "bundleSha256": "f0a60de412b011bd327aa0f21ffbecbea51c5864bcd40b4ca452796345962809",
+      "bundleBytes": 5650,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-replacement-baseline-command.json",
+      "sourceSha256": "e60ae2bd5e269c8b7c42fee0e8c0d4bc6805eb4bf4886176fbf05e9c62ed1db6",
+      "sourceBytes": 2507,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-replacement-baseline-command.json",
+      "bundleSha256": "e60ae2bd5e269c8b7c42fee0e8c0d4bc6805eb4bf4886176fbf05e9c62ed1db6",
+      "bundleBytes": 2507,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-replacement-baseline-browser.json",
+      "sourceSha256": "98d448c9501da00d0a4f866db3bd5e23417df8d7b51076389c10ac0c2c6ce121",
+      "sourceBytes": 685722,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-replacement-baseline-browser.json",
+      "bundleSha256": "98d448c9501da00d0a4f866db3bd5e23417df8d7b51076389c10ac0c2c6ce121",
+      "bundleBytes": 685722,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-replacement-baseline-observations.json",
+      "sourceSha256": "a095d8d421ba3a5682aefabcf3ff5e0cd8e4ba9c3c29a1b6ba76939bbe1cf0ba",
+      "sourceBytes": 264,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-replacement-baseline-observations.json",
+      "bundleSha256": "a095d8d421ba3a5682aefabcf3ff5e0cd8e4ba9c3c29a1b6ba76939bbe1cf0ba",
+      "bundleBytes": 264,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-replacement-baseline-build.log",
+      "sourceSha256": "4bd120af1df0fdb9b3eddee9c95bf6751db2bace6d187fc0544258b85b96ad63",
+      "sourceBytes": 5658,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-replacement-baseline-build.log",
+      "bundleSha256": "4bd120af1df0fdb9b3eddee9c95bf6751db2bace6d187fc0544258b85b96ad63",
+      "bundleBytes": 5658,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-baseline-strengthened-command.json",
+      "sourceSha256": "f248663f818cf0eccc4d613ff5d87a71a8c07b4129bf6f0d68e7be494adbe04a",
+      "sourceBytes": 2633,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-baseline-strengthened-command.json",
+      "bundleSha256": "f248663f818cf0eccc4d613ff5d87a71a8c07b4129bf6f0d68e7be494adbe04a",
+      "bundleBytes": 2633,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-baseline-strengthened-browser.json",
+      "sourceSha256": "7e3d1171564b111611f876d32b6dc0a6a91f37d7ae23ee94c1714ba2b1724d35",
+      "sourceBytes": 689065,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-baseline-strengthened-browser.json",
+      "bundleSha256": "7e3d1171564b111611f876d32b6dc0a6a91f37d7ae23ee94c1714ba2b1724d35",
+      "bundleBytes": 689065,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-baseline-strengthened-observations.json",
+      "sourceSha256": "b6425d8afd3a633d296d8cc3cd1d2f6bcec3e33ba4a916226f2f2f563413c1d0",
+      "sourceBytes": 2693,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-baseline-strengthened-observations.json",
+      "bundleSha256": "b6425d8afd3a633d296d8cc3cd1d2f6bcec3e33ba4a916226f2f2f563413c1d0",
+      "bundleBytes": 2693,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-baseline-strengthened-build.log",
+      "sourceSha256": "8654bd1eb2dce7d96db2a8d335e02d305cdcfd8cb288214c6c06bd79e52f1811",
+      "sourceBytes": 5662,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-baseline-strengthened-build.log",
+      "bundleSha256": "8654bd1eb2dce7d96db2a8d335e02d305cdcfd8cb288214c6c06bd79e52f1811",
+      "bundleBytes": 5662,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-candidate-reviewed-command.json",
+      "sourceSha256": "9fb082c9349ed6495031fa033c245c0138246b89983651191d78cc2f0fe7c4bb",
+      "sourceBytes": 2636,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-candidate-reviewed-command.json",
+      "bundleSha256": "9fb082c9349ed6495031fa033c245c0138246b89983651191d78cc2f0fe7c4bb",
+      "bundleBytes": 2636,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-candidate-reviewed-browser.json",
+      "sourceSha256": "aaea34da766dd5f4e7f4d8cc62473b4f73c53f91e3c3d231d3e939085d02ecf1",
+      "sourceBytes": 689568,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-candidate-reviewed-browser.json",
+      "bundleSha256": "aaea34da766dd5f4e7f4d8cc62473b4f73c53f91e3c3d231d3e939085d02ecf1",
+      "bundleBytes": 689568,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-candidate-reviewed-observations.json",
+      "sourceSha256": "94d0525524195ab78e119e928b869b6ffd2eff68b213e5e230a2ed29ee8473cf",
+      "sourceBytes": 3077,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-candidate-reviewed-observations.json",
+      "bundleSha256": "94d0525524195ab78e119e928b869b6ffd2eff68b213e5e230a2ed29ee8473cf",
+      "bundleBytes": 3077,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-candidate-reviewed-build.log",
+      "sourceSha256": "4a3ab9a9cf37fa8f0f162acd0d090bbdaa323541ea6766a74d2e7258ba3b710b",
+      "sourceBytes": 5650,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-candidate-reviewed-build.log",
+      "bundleSha256": "4a3ab9a9cf37fa8f0f162acd0d090bbdaa323541ea6766a74d2e7258ba3b710b",
+      "bundleBytes": 5650,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-baseline-managed-command.json",
+      "sourceSha256": "c18aabd067f85cabcd09f951bfa7ed0bcf94e89ac60489dcf34283b902f4d021",
+      "sourceBytes": 2612,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-baseline-managed-command.json",
+      "bundleSha256": "c18aabd067f85cabcd09f951bfa7ed0bcf94e89ac60489dcf34283b902f4d021",
+      "bundleBytes": 2612,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-baseline-managed-browser.json",
+      "sourceSha256": "470ff9f14c2141b8db65897b7903bafa8f068634c65005f617ad9d8669c871ab",
+      "sourceBytes": 689261,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-baseline-managed-browser.json",
+      "bundleSha256": "470ff9f14c2141b8db65897b7903bafa8f068634c65005f617ad9d8669c871ab",
+      "bundleBytes": 689261,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-baseline-managed-observations.json",
+      "sourceSha256": "6f9a9751a39885f51d224cf1f7b8eb8da65306bed52b72aacfd0b044525ba28a",
+      "sourceBytes": 2693,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-baseline-managed-observations.json",
+      "bundleSha256": "6f9a9751a39885f51d224cf1f7b8eb8da65306bed52b72aacfd0b044525ba28a",
+      "bundleBytes": 2693,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-baseline-managed-build.log",
+      "sourceSha256": "b5c4114136d36601e3f3c72da40923da6bbd67a72c424f1efc2739eb0b790b15",
+      "sourceBytes": 5642,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-baseline-managed-build.log",
+      "bundleSha256": "b5c4114136d36601e3f3c72da40923da6bbd67a72c424f1efc2739eb0b790b15",
+      "bundleBytes": 5642,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-replacement-baseline-managed-command.json",
+      "sourceSha256": "3896ae48e996690237bc252b5af23e5420e2a6be5910ebfb75db587390cf98d7",
+      "sourceBytes": 2684,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-replacement-baseline-managed-command.json",
+      "bundleSha256": "3896ae48e996690237bc252b5af23e5420e2a6be5910ebfb75db587390cf98d7",
+      "bundleBytes": 2684,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-replacement-baseline-managed-browser.json",
+      "sourceSha256": "2590c88a1e2cc9d903305778245ae3f9954a344dd85c26c5c43d92066fabe464",
+      "sourceBytes": 686683,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-replacement-baseline-managed-browser.json",
+      "bundleSha256": "2590c88a1e2cc9d903305778245ae3f9954a344dd85c26c5c43d92066fabe464",
+      "bundleBytes": 686683,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-replacement-baseline-managed-observations.json",
+      "sourceSha256": "a095d8d421ba3a5682aefabcf3ff5e0cd8e4ba9c3c29a1b6ba76939bbe1cf0ba",
+      "sourceBytes": 264,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-replacement-baseline-managed-observations.json",
+      "bundleSha256": "a095d8d421ba3a5682aefabcf3ff5e0cd8e4ba9c3c29a1b6ba76939bbe1cf0ba",
+      "bundleBytes": 264,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-replacement-baseline-managed-build.log",
+      "sourceSha256": "692b7ba917797db92d7e0b9976bd205b995173b9d77fc1e35cdb6b5a41d5e225",
+      "sourceBytes": 5690,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-replacement-baseline-managed-build.log",
+      "bundleSha256": "692b7ba917797db92d7e0b9976bd205b995173b9d77fc1e35cdb6b5a41d5e225",
+      "bundleBytes": 5690,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-candidate-managed-command.json",
+      "sourceSha256": "7011a678f12391505a9d3fa7c60469996616d92e59b4cf5b282527030187edcc",
+      "sourceBytes": 2628,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-candidate-managed-command.json",
+      "bundleSha256": "7011a678f12391505a9d3fa7c60469996616d92e59b4cf5b282527030187edcc",
+      "bundleBytes": 2628,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-candidate-managed-browser.json",
+      "sourceSha256": "d3c1fb9b190f77979525007c1cb4115b4a3c7daa49bcf9910a4f06523fe5eca7",
+      "sourceBytes": 689676,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-candidate-managed-browser.json",
+      "bundleSha256": "d3c1fb9b190f77979525007c1cb4115b4a3c7daa49bcf9910a4f06523fe5eca7",
+      "bundleBytes": 689676,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-candidate-managed-observations.json",
+      "sourceSha256": "db96039fc03f664293e64885a7dcc1fa7c564dfcd83b806fa0e7b5c7e262d357",
+      "sourceBytes": 3078,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-candidate-managed-observations.json",
+      "bundleSha256": "db96039fc03f664293e64885a7dcc1fa7c564dfcd83b806fa0e7b5c7e262d357",
+      "bundleBytes": 3078,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-candidate-managed-build.log",
+      "sourceSha256": "2327cb3092de2da82b529ab7b468f9aa142dde8fa3ef5ae903c2b933ed470968",
+      "sourceBytes": 5646,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-candidate-managed-build.log",
+      "bundleSha256": "2327cb3092de2da82b529ab7b468f9aa142dde8fa3ef5ae903c2b933ed470968",
+      "bundleBytes": 5646,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-replacement-candidate-managed-command.json",
+      "sourceSha256": "ecd467aacd15653717ec2e40cf57f4db016757320b5782e76bfbc0ac2b62d5e7",
+      "sourceBytes": 2700,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-replacement-candidate-managed-command.json",
+      "bundleSha256": "ecd467aacd15653717ec2e40cf57f4db016757320b5782e76bfbc0ac2b62d5e7",
+      "bundleBytes": 2700,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-replacement-candidate-managed-browser.json",
+      "sourceSha256": "7923fdbe0349182da31fbdc790c8ab28a4e8d0acee890162031f1c9ce70ac9b3",
+      "sourceBytes": 686611,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-replacement-candidate-managed-browser.json",
+      "bundleSha256": "7923fdbe0349182da31fbdc790c8ab28a4e8d0acee890162031f1c9ce70ac9b3",
+      "bundleBytes": 686611,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-replacement-candidate-managed-observations.json",
+      "sourceSha256": "393c09810ee33f4c4dc2699c264ff2ba433c573c2e85eb18e24710da9b042a20",
+      "sourceBytes": 265,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-replacement-candidate-managed-observations.json",
+      "bundleSha256": "393c09810ee33f4c4dc2699c264ff2ba433c573c2e85eb18e24710da9b042a20",
+      "bundleBytes": 265,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/browser-replacement-candidate-managed-build.log",
+      "sourceSha256": "b12443d3c9402f920b79576326cea79abc7964db09d21a56702f56247557f3f1",
+      "sourceBytes": 5694,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/browser-replacement-candidate-managed-build.log",
+      "bundleSha256": "b12443d3c9402f920b79576326cea79abc7964db09d21a56702f56247557f3f1",
+      "bundleBytes": 5694,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/run-browser.mjs",
+      "sourceSha256": "5b2a1bc822e36da728b8a68c9c406835b70addb148bb217093aa48259b37935b",
+      "sourceBytes": 8661,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/run-browser.mjs",
+      "bundleSha256": "5b2a1bc822e36da728b8a68c9c406835b70addb148bb217093aa48259b37935b",
+      "bundleBytes": 8661,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/run-replacement.mjs",
+      "sourceSha256": "b86d98305f5475c9efa6697d91a9bdd18ac48a9a3879a7c06ec3a5179f47da24",
+      "sourceBytes": 8667,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/run-replacement.mjs",
+      "bundleSha256": "b86d98305f5475c9efa6697d91a9bdd18ac48a9a3879a7c06ec3a5179f47da24",
+      "bundleBytes": 8667,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/run-browser-bounded.mjs",
+      "sourceSha256": "7128c9f4471ea07fd80c42f5ec30bf52982379672806b7d9117b09e63f870e8b",
+      "sourceBytes": 9170,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/run-browser-bounded.mjs",
+      "bundleSha256": "7128c9f4471ea07fd80c42f5ec30bf52982379672806b7d9117b09e63f870e8b",
+      "bundleBytes": 9170,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/run-replacement-bounded.mjs",
+      "sourceSha256": "272dd6d454b58f7ffc73104cfa7c53d84dceb068f7c701dc140e8bc8588644ba",
+      "sourceBytes": 9176,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/run-replacement-bounded.mjs",
+      "bundleSha256": "272dd6d454b58f7ffc73104cfa7c53d84dceb068f7c701dc140e8bc8588644ba",
+      "bundleBytes": 9176,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/run-browser-isolated.mjs",
+      "sourceSha256": "8c0c8ed13a5ddd23e16d68984aa1ca022c3d9d2f5e9c53f93e1d5bb8b9074683",
+      "sourceBytes": 9525,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/run-browser-isolated.mjs",
+      "bundleSha256": "8c0c8ed13a5ddd23e16d68984aa1ca022c3d9d2f5e9c53f93e1d5bb8b9074683",
+      "bundleBytes": 9525,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/run-replacement-isolated.mjs",
+      "sourceSha256": "de3fbbefceca999f1d21dcc8c506c7a1532fce28883d63472951e3e538e9f74f",
+      "sourceBytes": 9531,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/run-replacement-isolated.mjs",
+      "bundleSha256": "de3fbbefceca999f1d21dcc8c506c7a1532fce28883d63472951e3e538e9f74f",
+      "bundleBytes": 9531,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/run-browser-managed.mjs",
+      "sourceSha256": "70f1079dc616a3f10ffc18c2377be46d3d7a4775f3fa390c543021165c9cbc88",
+      "sourceBytes": 9199,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/run-browser-managed.mjs",
+      "bundleSha256": "70f1079dc616a3f10ffc18c2377be46d3d7a4775f3fa390c543021165c9cbc88",
+      "bundleBytes": 9199,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/run-replacement-managed.mjs",
+      "sourceSha256": "74c57f4ddadbfa593d77cb8020c1e31a96783ce88fe54fb44abcfc84e840459e",
+      "sourceBytes": 9205,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/run-replacement-managed.mjs",
+      "bundleSha256": "74c57f4ddadbfa593d77cb8020c1e31a96783ce88fe54fb44abcfc84e840459e",
+      "bundleBytes": 9205,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/review-serial-reuse-before.json",
+      "sourceSha256": "5c008c49ce77ed0eabb0ebd5fd1f26e249305aa08c0878b43482aad04d27dd3f",
+      "sourceBytes": 3722,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/review-serial-reuse-before.json",
+      "bundleSha256": "5c008c49ce77ed0eabb0ebd5fd1f26e249305aa08c0878b43482aad04d27dd3f",
+      "bundleBytes": 3722,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/review-fixed-focused.json",
+      "sourceSha256": "d914c5c5650265bae72fe664e2a3371ebd1ad2b8830a3e8ef3ef07ad895c368d",
+      "sourceBytes": 4461,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/review-fixed-focused.json",
+      "bundleSha256": "d914c5c5650265bae72fe664e2a3371ebd1ad2b8830a3e8ef3ef07ad895c368d",
+      "bundleBytes": 4461,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/review-js-lint.json",
+      "sourceSha256": "b5adb72d632bff3f002b860f16d02a9d7f1efbe7765f51a796b8e5e5c2da6bef",
+      "sourceBytes": 2590,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/review-js-lint.json",
+      "bundleSha256": "b5adb72d632bff3f002b860f16d02a9d7f1efbe7765f51a796b8e5e5c2da6bef",
+      "bundleBytes": 2590,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/review-home-lint.json",
+      "sourceSha256": "c1ddca594167d5ba90b15cea7afbe774b814165f3a22a898b41412d630005d78",
+      "sourceBytes": 5269,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/review-home-lint.json",
+      "bundleSha256": "c1ddca594167d5ba90b15cea7afbe774b814165f3a22a898b41412d630005d78",
+      "bundleBytes": 5269,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/review-format.json",
+      "sourceSha256": "65c4eea2f17d38b4a4e75cb5998abadb4bd2f51cf6e87ec62834a31cb8a7126c",
+      "sourceBytes": 2567,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/review-format.json",
+      "bundleSha256": "65c4eea2f17d38b4a4e75cb5998abadb4bd2f51cf6e87ec62834a31cb8a7126c",
+      "bundleBytes": 2567,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/review-standard.json",
+      "sourceSha256": "8a10ebbfe479c02141e056d9de9851c26386c28c26fe8ac2ba9418b3ea982d13",
+      "sourceBytes": 10850,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/review-standard.json",
+      "bundleSha256": "8a10ebbfe479c02141e056d9de9851c26386c28c26fe8ac2ba9418b3ea982d13",
+      "bundleBytes": 10850,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/lane-cleanup.json",
+      "sourceSha256": "244052e83413b7095c6a56ddcc19575e33f5b22637b8ce11f0285704668f9f73",
+      "sourceBytes": 2377,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/lane-cleanup.json",
+      "bundleSha256": "244052e83413b7095c6a56ddcc19575e33f5b22637b8ce11f0285704668f9f73",
+      "bundleBytes": 2377,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/reviewer-probe-replay.json",
+      "sourceSha256": "4453d1fc4797429c55668e9fba75100f48e46d71ad09bf45708c5db4cc243be1",
+      "sourceBytes": 2508,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/reviewer-probe-replay.json",
+      "bundleSha256": "4453d1fc4797429c55668e9fba75100f48e46d71ad09bf45708c5db4cc243be1",
+      "bundleBytes": 2508,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/route-notice-publication/artifact-index.json",
+      "sourceSha256": "384548bb71a3845759169620f531276585f4353672a155ad795215dde945e388",
+      "sourceBytes": 25291,
+      "bundlePath": "receipts/work/orchestration/route-notice-publication/artifact-index.json",
+      "bundleSha256": "384548bb71a3845759169620f531276585f4353672a155ad795215dde945e388",
+      "bundleBytes": 25291,
+      "redactions": 0
+    }
+  ],
+  "reviewerPreflight": {
+    "instructions": "Open this bundle in a permitted executor and verify it against trusted caller-supplied identities before review.",
+    "verify": [
+      "node",
+      "verify.mjs"
+    ]
+  }
+}

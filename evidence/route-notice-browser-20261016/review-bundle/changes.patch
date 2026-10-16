@@ -1,0 +1,1336 @@
+diff --git a/app/page.tsx b/app/page.tsx
+index b912900b..89eb38b6 100644
+--- a/app/page.tsx
++++ b/app/page.tsx
+@@ -1046,11 +1046,14 @@ export default function Home() {
+         <div
+           key={routeNotice.serial}
+           className="world-message route-notice"
+-          style={{ visibility: menu ? 'hidden' : undefined }}
++          style={{
++            visibility: menu ? 'hidden' : undefined,
++            animationPlayState: menu || selectorOpen ? 'paused' : undefined,
++          }}
+           role="status"
+           onAnimationEnd={() =>
+             store.change(w => {
+-              if (w.routeNotice?.serial === routeNotice.serial) w.routeNotice = null
++              if (w === world && w.routeNotice === routeNotice) w.routeNotice = null
+             })
+           }
+         >
+diff --git a/decomp/research/route-notice-modal-lifetime.md b/decomp/research/route-notice-modal-lifetime.md
+new file mode 100644
+index 00000000..6430fcbe
+--- /dev/null
++++ b/decomp/research/route-notice-modal-lifetime.md
+@@ -0,0 +1,53 @@
++# Route notice lifetime during browser menu suspension
++
++Refs #457 / #16. Baseline f85a8105fd77c71547fe5cd01594d3467c47b098.
++
++Home hides `.route-notice` when the menu is open, but its three-second CSS animation
++continues. Its completion handler clears the world's notice. The selector is reached
++from the menu's Browser compatibility panel and retains that menu session while
++`menu` becomes false. Both surfaces therefore need to suspend this presentation timer.
++
++## Supported contract and limits
++
++[Original pause restoration](original-pause-menu-browser.md) records prior-pause
++capture at 00458060 and conditional restoration at 004584f0/00458710. It separately
++documents the browser adaptation: scene modal suspension freezes the presentation.
++The current `GameScene.animate` implements that explicit contract; ordinary Space
++pause still advances presentation. Home's actual open/close handlers capture the
++same world and restore its prior pause state. The current public menu and its
++selector always suspend; there is no supported continuing-world menu policy here.
++Native restricted/multiplayer menu contexts must not be inferred from these paths.
++
++This correction suspends the existing CSS timer while either supported modal is
++open. It preserves the existing timer during ordinary game pause and after closing
++a menu that began paused. It does not assert that three seconds is native timing,
++change notification production/text, or claim complete native notification fidelity.
++The original route failure remains flags 0x200000/message603 in `requestTutorial`.
++An obsolete callback also checks world identity before clearing a matching serial.
++
++## Focused reproduction
++
++`tests/route-notice-modal.test.mjs` evaluates the shipped Home JSX and real menu
++handlers through the existing AST harness. It checks initially running/paused
++sessions, selector return, reopen, final pause restoration, ordinary pause, and stale
++callbacks after replacement or a new notice. These tests validate component wiring
++and handlers, not actual browser animation time. Existing route-recovery tests cover
++the unchanged production boundary. Initial harness and intermediate failed attempts
++are retained separately from the valid baseline.
++
++## Prepared rendered reproduction — not yet run
++
++`scripts/local-render/route-notice-modal.mjs` uses actual Home, CSS, store and scene.
++It follows New Game, recommendation No, Mission1, Skip introduction. A controlled
++fixture then publishes only a route notice, explicitly excluding natural gameplay
++production acceptance. It observes the actual CSS animation, holds the menu for
++3.4 seconds, cancels Quit Level, inspects the selector, returns via Escape, reopens
++the menu, then verifies timer expiry after final close for both prior pause states.
++World/scene/canvas identity and frozen time/turn are checked. It never launches an
++All missions button or original executable.
++
++Run baseline and candidate serially after the parent releases the Mac browser lane.
++Use a fresh context/output for each and a source-bound runner with bounded build,
++browser timeout and cleanup. A baseline failure at `sameNotice` is expected; capture
++the observed animation/time state before the assertion. Do not count preparation or
++the controlled fixture as a real route-failure producer reproduction.
+diff --git a/evidence/route-notice-modal-20261016/README.md b/evidence/route-notice-modal-20261016/README.md
+new file mode 100644
+index 00000000..c091ad0c
+--- /dev/null
++++ b/evidence/route-notice-modal-20261016/README.md
+@@ -0,0 +1,11 @@
++# Route notice modal evidence
++
++Tested source: 3a5fe13442293dcc0d3fdeaf20f09fa23a7426ec. Baseline: f85a8105fd77c71547fe5cd01594d3467c47b098. This publication adds evidence only.
++
++Valid baseline with the final five component tests: 2 passed,3 failed (missing timer suspension for both prior pause states, and replacement-world callback ownership). Candidate: 14/14 passed across five component tests, three pause-ownership tests and six unchanged route-recovery producer tests. No skips.
++
++New JavaScript lint, formatting and standard lint passed. Whole changed-Home ESLint fails on the same pre-existing react-hooks/set-state-in-effect error at line138 and image warning as exact baseline; both raw receipts are included. No rules disabled. Standard lint retains existing warnings.
++
++The browser scenario is PREPARED, NOT RUN; parent owns the occupied Mac lane. No build, full suite, native execution, campaign/AI changes or resource classification refresh. Unknown paths require full hosted CI before acceptance. CSS animation timing is not certified by the AST component tests. A completion already dispatched before modal suspension remains eligible to clear its completed notice; only the remaining animation lifetime is suspended.
++
++Portable bundle verification passed using identities from the creation command output. Four source entries, seven raw receipts; diff SHA-256 8910c3e4d74a74d1d94f6240ce3d47651584db7868e731f1d014c386fb2ebe90. Source-root paths redacted. Initial incomplete-fixture and intermediate candidate attempts remain in ignored work/orchestration/route-notice; they are not baseline or acceptance evidence.
+diff --git a/evidence/route-notice-modal-20261016/review-bundle/README.md b/evidence/route-notice-modal-20261016/review-bundle/README.md
+new file mode 100644
+index 00000000..9552168b
+--- /dev/null
++++ b/evidence/route-notice-modal-20261016/review-bundle/README.md
+@@ -0,0 +1,17 @@
++# Review bundle: route-notice-modal
++
++This directory is intentionally outside the source checkout so a reviewer can open it
++from an independent permitted executor or worktree.
++
++1. Obtain the expected HEAD, changed-source SHA-256 values, receipt source hashes, and
++   diff SHA-256 from a trusted source/PR handoff — never from this bundle's manifest.
++2. Open this directory in the reviewer's permitted executor.
++3. Run `node verify.mjs --expected-head <HEAD> --expected-diff-sha256 <SHA>`
++   plus one `--expected-source path=sha256` for every present changed source,
++   one `--expected-deletion path` for every deleted tracked source, and one
++   `--expected-receipt path=sha256` for every receipt.
++4. Review `changes.patch`, `manifest.json`, and the copied bounded receipts.
++
++The bundle contains no repository credentials or environment files. Explicit receipt
++inputs are text-only, secret-like assignments are rejected, and local source/home paths
++are redacted in copied receipts.
+diff --git a/evidence/route-notice-modal-20261016/review-bundle/changes.patch b/evidence/route-notice-modal-20261016/review-bundle/changes.patch
+new file mode 100644
+index 00000000..7aecbdb0
+--- /dev/null
++++ b/evidence/route-notice-modal-20261016/review-bundle/changes.patch
+@@ -0,0 +1,239 @@
++diff --git a/app/page.tsx b/app/page.tsx
++index b912900b..177208e1 100644
++--- a/app/page.tsx
+++++ b/app/page.tsx
++@@ -1046,11 +1046,14 @@ export default function Home() {
++         <div
++           key={routeNotice.serial}
++           className="world-message route-notice"
++-          style={{ visibility: menu ? 'hidden' : undefined }}
+++          style={{
+++            visibility: menu ? 'hidden' : undefined,
+++            animationPlayState: menu || selectorOpen ? 'paused' : undefined,
+++          }}
++           role="status"
++           onAnimationEnd={() =>
++             store.change(w => {
++-              if (w.routeNotice?.serial === routeNotice.serial) w.routeNotice = null
+++              if (w === world && w.routeNotice?.serial === routeNotice.serial) w.routeNotice = null
++             })
++           }
++         >
++diff --git a/decomp/research/route-notice-modal-lifetime.md b/decomp/research/route-notice-modal-lifetime.md
++new file mode 100644
++index 00000000..6430fcbe
++--- /dev/null
+++++ b/decomp/research/route-notice-modal-lifetime.md
++@@ -0,0 +1,53 @@
+++# Route notice lifetime during browser menu suspension
+++
+++Refs #457 / #16. Baseline f85a8105fd77c71547fe5cd01594d3467c47b098.
+++
+++Home hides `.route-notice` when the menu is open, but its three-second CSS animation
+++continues. Its completion handler clears the world's notice. The selector is reached
+++from the menu's Browser compatibility panel and retains that menu session while
+++`menu` becomes false. Both surfaces therefore need to suspend this presentation timer.
+++
+++## Supported contract and limits
+++
+++[Original pause restoration](original-pause-menu-browser.md) records prior-pause
+++capture at 00458060 and conditional restoration at 004584f0/00458710. It separately
+++documents the browser adaptation: scene modal suspension freezes the presentation.
+++The current `GameScene.animate` implements that explicit contract; ordinary Space
+++pause still advances presentation. Home's actual open/close handlers capture the
+++same world and restore its prior pause state. The current public menu and its
+++selector always suspend; there is no supported continuing-world menu policy here.
+++Native restricted/multiplayer menu contexts must not be inferred from these paths.
+++
+++This correction suspends the existing CSS timer while either supported modal is
+++open. It preserves the existing timer during ordinary game pause and after closing
+++a menu that began paused. It does not assert that three seconds is native timing,
+++change notification production/text, or claim complete native notification fidelity.
+++The original route failure remains flags 0x200000/message603 in `requestTutorial`.
+++An obsolete callback also checks world identity before clearing a matching serial.
+++
+++## Focused reproduction
+++
+++`tests/route-notice-modal.test.mjs` evaluates the shipped Home JSX and real menu
+++handlers through the existing AST harness. It checks initially running/paused
+++sessions, selector return, reopen, final pause restoration, ordinary pause, and stale
+++callbacks after replacement or a new notice. These tests validate component wiring
+++and handlers, not actual browser animation time. Existing route-recovery tests cover
+++the unchanged production boundary. Initial harness and intermediate failed attempts
+++are retained separately from the valid baseline.
+++
+++## Prepared rendered reproduction — not yet run
+++
+++`scripts/local-render/route-notice-modal.mjs` uses actual Home, CSS, store and scene.
+++It follows New Game, recommendation No, Mission1, Skip introduction. A controlled
+++fixture then publishes only a route notice, explicitly excluding natural gameplay
+++production acceptance. It observes the actual CSS animation, holds the menu for
+++3.4 seconds, cancels Quit Level, inspects the selector, returns via Escape, reopens
+++the menu, then verifies timer expiry after final close for both prior pause states.
+++World/scene/canvas identity and frozen time/turn are checked. It never launches an
+++All missions button or original executable.
+++
+++Run baseline and candidate serially after the parent releases the Mac browser lane.
+++Use a fresh context/output for each and a source-bound runner with bounded build,
+++browser timeout and cleanup. A baseline failure at `sameNotice` is expected; capture
+++the observed animation/time state before the assertion. Do not count preparation or
+++the controlled fixture as a real route-failure producer reproduction.
++diff --git a/scripts/local-render/route-notice-modal.mjs b/scripts/local-render/route-notice-modal.mjs
++new file mode 100644
++index 00000000..1331200e
++--- /dev/null
+++++ b/scripts/local-render/route-notice-modal.mjs
++@@ -0,0 +1,72 @@
+++import assert from 'node:assert/strict'
+++import { writeFileSync } from 'node:fs'
+++import { resolve } from 'node:path'
+++import { bindGame } from '../browser-game.mjs'
+++import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
+++
+++// Presentation fixture only: seed one route notice after real Home/scene startup.
+++// This does not establish that a public gameplay command produces route failure.
+++export default async function ({ page, output }) {
+++  const observations = [], button = name => page.getByRole('button', { name, exact: true })
+++  const record = value => {
+++    observations.push(value)
+++    writeFileSync(resolve(output, 'route-notice.json'), JSON.stringify({
+++      scope: 'actual Home CSS/handlers with a controlled route-notice fixture', observations,
+++    }, null, 2))
+++  }
+++  await page.setViewportSize({ width: 960, height: 720 })
+++  await openCampaignFromMainMenu(page)
+++  await button('Start Mission 1').click()
+++  await bindGame(page)
+++  await page.locator('.skip-introduction').click()
+++  await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
+++  for (const initiallyPaused of [false, true]) {
+++    if (initiallyPaused) await button('Pause game').click()
+++    assert.equal(await page.evaluate(() => window.testStore.getWorld().paused), initiallyPaused)
+++    await page.evaluate(() => {
+++      const store = window.testStore, world = store.getWorld()
+++      store.change(w => { w.routeNotice = { flags: 0x200000, message: 603, serial: (w.routeNotice?.serial ?? 0) + 1 } })
+++      window.routeNoticeFixture = { world, notice: world.routeNotice, scene: window.testSceneRef.current,
+++        canvas: document.querySelector('.world-viewport canvas') }
+++    })
+++    await page.locator('.route-notice').waitFor({ state: 'visible' })
+++    await page.waitForTimeout(150)
+++    await button('Game settings').click()
+++    await page.getByRole('dialog', { name: 'Game menu', exact: true }).waitFor()
+++    const observe = () => page.evaluate(() => {
+++      const fixture = window.routeNoticeFixture, world = window.testStore.getWorld()
+++      const node = document.querySelector('.route-notice'), animation = node?.getAnimations()[0]
+++      return { sameWorld: world === fixture.world, sameNotice: world.routeNotice === fixture.notice,
+++        sameScene: window.testSceneRef.current === fixture.scene, sceneWorld: fixture.scene.world === world,
+++        sameCanvas: document.querySelector('.world-viewport canvas') === fixture.canvas,
+++        paused: world.paused, suspended: fixture.scene.modalSuspended, turn: world.turn, time: world.time,
+++        animationState: animation?.playState ?? null, animationTime: animation?.currentTime ?? null }
+++    })
+++    const before = await observe()
+++    await page.waitForTimeout(3400)
+++    const after = await observe()
+++    record({ initiallyPaused, stage: 'hidden-longer-than-original-lifetime', before, after })
+++    assert.equal(after.sameNotice, true, 'menu must retain the notice beyond its wall-clock lifetime')
+++    assert.equal(after.animationState, 'paused')
+++    assert.ok(Math.abs(after.animationTime - before.animationTime) < 60)
+++    for (const key of ['sameWorld', 'sameScene', 'sceneWorld', 'sameCanvas', 'paused', 'suspended']) assert.equal(after[key], true)
+++    assert.equal(after.turn, before.turn); assert.equal(after.time, before.time)
+++    await button('Quit Level').click(); await button('No').click()
+++    await button('Options').click(); await button('Browser compatibility and help').click()
+++    await button('Select Level').click()
+++    const selector = await observe()
+++    assert.equal(selector.animationState, 'paused')
+++    await page.keyboard.press('Escape')
+++    await button('Continue Game').click()
+++    await page.locator('.route-notice').waitFor({ state: 'visible' })
+++    await button('Game settings').click()
+++    await page.waitForTimeout(500)
+++    assert.equal((await observe()).sameNotice, true)
+++    await page.screenshot({ path: resolve(output, `route-notice-menu-${initiallyPaused}.png`) })
+++    await page.keyboard.press('Escape')
+++    assert.equal(await page.evaluate(() => window.testStore.getWorld().paused), initiallyPaused)
+++    await page.waitForFunction(() => window.testStore.getWorld().routeNotice === null, null, { timeout: 5000 })
+++    record({ initiallyPaused, stage: 'resumed-presentation-expired', final: await observe() })
+++  }
+++  return { status: 'passed', episodes: observations.length / 2, observations }
+++}
++diff --git a/tests/route-notice-modal.test.mjs b/tests/route-notice-modal.test.mjs
++new file mode 100644
++index 00000000..b65a51c6
++--- /dev/null
+++++ b/tests/route-notice-modal.test.mjs
++@@ -0,0 +1,75 @@
+++import test from 'node:test'
+++import assert from 'node:assert/strict'
+++import ts from 'typescript'
+++import { pageNode, pageSource, evaluatePage, pageNearby } from './support/follower-nearby-page.mjs'
+++
+++const notice = pageNode(node => ts.isJsxElement(node) &&
+++  node.openingElement.attributes.properties.some(attribute =>
+++    attribute.name?.getText(pageSource) === 'className' &&
+++    attribute.initializer?.text === 'world-message route-notice'))
+++
+++// Execute Home's shipped JSX and menu handlers; this does not simulate CSS time.
+++function fixture(paused = false) {
+++  const makeWorld = () => ({ paused, routeNotice: { serial: 1 }, castingTribes: [{ flags: 0 }],
+++    manaWorld: { gameFlags: 0 }, inputMask: 0 })
+++  let world = makeWorld(), menu = false, selectorOpen = false
+++  const scene = { world, cancelNearbyFollowers() {}, setModalSuspended(value) { this.modalSuspended = value } }
+++  const store = { getWorld: () => world, change: action => action(world) }
+++  const page = pageNearby(scene, { store, setMenu(value) { menu = value; if (value) selectorOpen = false },
+++    setSelectorOpen(value) { selectorOpen = value } })
+++  const render = () => evaluatePage(notice.getText(pageSource), {
+++    store, world, routeNotice: world.routeNotice, menu, selectorOpen,
+++    menuSession: page.bindings.menuSession, ROUTE_FAILURE_TEXT: 'Route failure',
+++  })
+++  return { page, scene, render, world: () => world,
+++    inspect() { menu = false; page.openSelector() },
+++    replace() { world = makeWorld(); return world },
+++  }
+++}
+++
+++for (const paused of [false, true]) {
+++  test(`Home keeps the notice through menu/selector/reopen and restores prior pause=${paused}`, () => {
+++    const ui = fixture(paused), original = ui.world().routeNotice
+++    ui.page.openMenu()
+++    const session = ui.page.bindings.menuSession.current
+++    for (const action of [() => {}, () => ui.inspect(), () => ui.page.openMenu()]) {
+++      action()
+++      assert.equal(ui.page.bindings.menuSession.current, session)
+++      assert.equal(ui.scene.modalSuspended, true)
+++      const element = ui.render()
+++      assert.equal(element.props.style.animationPlayState, 'paused')
+++      assert.equal(ui.world().routeNotice, original)
+++    }
+++    ui.page.closeMenu()
+++    assert.equal(ui.world().paused, paused)
+++    assert.equal(ui.scene.modalSuspended, false)
+++    assert.notEqual(ui.render().props.style.animationPlayState, 'paused')
+++    ui.page.openMenu()
+++    assert.equal(ui.render().props.style.animationPlayState, 'paused')
+++    ui.page.closeMenu()
+++    ui.render().props.onAnimationEnd()
+++    assert.equal(ui.world().routeNotice, null)
+++  })
+++}
+++
+++test('ordinary game pause without a menu retains the presentation timer', () => {
+++  const ui = fixture(true)
+++  assert.equal(ui.page.bindings.menuSession.current, null)
+++  assert.notEqual(ui.render().props.style.animationPlayState, 'paused')
+++  ui.render().props.onAnimationEnd()
+++  assert.equal(ui.world().routeNotice, null)
+++})
+++
+++test('an obsolete animation callback cannot consume a replacement world notice with the same serial', () => {
+++  const ui = fixture(), expired = ui.render().props.onAnimationEnd
+++  const replacement = ui.replace(), retained = replacement.routeNotice
+++  expired()
+++  assert.equal(replacement.routeNotice, retained)
+++})
+++
+++test('a canceled notice callback cannot consume a newly issued notice', () => {
+++  const ui = fixture(), expired = ui.render().props.onAnimationEnd
+++  ui.world().routeNotice = { serial: 2 }
+++  expired()
+++  assert.equal(ui.world().routeNotice.serial, 2)
+++})
+diff --git a/evidence/route-notice-modal-20261016/review-bundle/manifest.json b/evidence/route-notice-modal-20261016/review-bundle/manifest.json
+new file mode 100644
+index 00000000..718c1eb2
+--- /dev/null
++++ b/evidence/route-notice-modal-20261016/review-bundle/manifest.json
+@@ -0,0 +1,121 @@
++{
++  "version": 1,
++  "kind": "pnd-review-bundle",
++  "taskId": "route-notice-modal",
++  "repository": {
++    "branch": "fix/route-notice-modal-lifetime",
++    "baseCommit": "f85a8105fd77c71547fe5cd01594d3467c47b098",
++    "headOid": "3a5fe13442293dcc0d3fdeaf20f09fa23a7426ec"
++  },
++  "diff": {
++    "path": "changes.patch",
++    "sha256": "8910c3e4d74a74d1d94f6240ce3d47651584db7868e731f1d014c386fb2ebe90",
++    "bytes": 12834
++  },
++  "sources": [
++    {
++      "status": "M",
++      "path": "app/page.tsx",
++      "state": "present",
++      "sha256": "ef659889f3be388342b3347cd9e0c9c3eb6b4ad667226f0ca1f3116fede2e493",
++      "blobOid": "177208e1de77ddc9c03f66ef1df6c320bd31805d",
++      "bytes": 75389
++    },
++    {
++      "status": "A",
++      "path": "decomp/research/route-notice-modal-lifetime.md",
++      "state": "present",
++      "sha256": "99083d33772464f806f657b2d6df73985686fa7ff789f11cd18e6d0b3d550af1",
++      "blobOid": "6430fcbec550d1736eae09398ca37a3565ed3ef4",
++      "bytes": 3303
++    },
++    {
++      "status": "A",
++      "path": "scripts/local-render/route-notice-modal.mjs",
++      "state": "present",
++      "sha256": "6905e2be945e8d6dc2a50f59a60e859d69d90edb34d6c1d157fd2f0663beace9",
++      "blobOid": "1331200eb4dddec1054402d867c891a3d300a186",
++      "bytes": 4381
++    },
++    {
++      "status": "A",
++      "path": "tests/route-notice-modal.test.mjs",
++      "state": "present",
++      "sha256": "62387bf1116bf379e70f1a08c99dffa612cc44521ce6c9957eabfba462fae649",
++      "blobOid": "b65a51c6de8b5ab3e229da7ad723d76a38af7945",
++      "bytes": 3466
++    }
++  ],
++  "receipts": [
++    {
++      "sourcePath": "work/orchestration/route-notice/baseline-final-scope.json",
++      "sourceSha256": "866190c66c54ce25c4168140d714abf1ac3726ce479f60a7e126561a6f720d06",
++      "sourceBytes": 6049,
++      "bundlePath": "receipts/work/orchestration/route-notice/baseline-final-scope.json",
++      "bundleSha256": "efc91e5193a0ff1f38899d523ac2021ece23a1d9d8b29883313621f4639bdcb6",
++      "bundleBytes": 5713,
++      "redactions": 6
++    },
++    {
++      "sourcePath": "work/orchestration/route-notice/focused-final.json",
++      "sourceSha256": "ae5b3a3164207804a7472277a22286de257a1468ca09f8b747c76a47e64b86c7",
++      "sourceBytes": 4912,
++      "bundlePath": "receipts/work/orchestration/route-notice/focused-final.json",
++      "bundleSha256": "8e045e90928d794bad2a7682a7cfbea804ffe5778acb9de833e60313a6c38ff2",
++      "bundleBytes": 4744,
++      "redactions": 3
++    },
++    {
++      "sourcePath": "work/orchestration/route-notice/lint-baseline.json",
++      "sourceSha256": "71fcd01045932d5c30133e53dceabbe0e01e6a15d1831d0e1a8fe5402e48f11e",
++      "sourceBytes": 5546,
++      "bundlePath": "receipts/work/orchestration/route-notice/lint-baseline.json",
++      "bundleSha256": "037a93861d0186760fb077b4f2afc180fa7f7e884826c1f6d462902d64c7abdf",
++      "bundleBytes": 5266,
++      "redactions": 5
++    },
++    {
++      "sourcePath": "work/orchestration/route-notice/lint-final.json",
++      "sourceSha256": "3929371526e4f7dbcf4d33d56180784d2eb975e40ccad42cc76c2667a4b2a044",
++      "sourceBytes": 6218,
++      "bundlePath": "receipts/work/orchestration/route-notice/lint-final.json",
++      "bundleSha256": "fcb591db41488696d6a5370858ed9e3f09fd4096024d94cb99961cc289ccc09e",
++      "bundleBytes": 5938,
++      "redactions": 5
++    },
++    {
++      "sourcePath": "work/orchestration/route-notice/js-lint-final.json",
++      "sourceSha256": "952e06e159345039912ecef5c04dd45d12effb2ec261e29bff92868fe10b5922",
++      "sourceBytes": 3294,
++      "bundlePath": "receipts/work/orchestration/route-notice/js-lint-final.json",
++      "bundleSha256": "e532456f75caf5b1a4594e42d93d9e3b48cc007ebdb2b883629abc8a5e42cd17",
++      "bundleBytes": 3126,
++      "redactions": 3
++    },
++    {
++      "sourcePath": "work/orchestration/route-notice/format-final.json",
++      "sourceSha256": "7e6dd51cdd9de0e905f18014a59d4400f939f5403e41d330477dfc956c2fe70c",
++      "sourceBytes": 3328,
++      "bundlePath": "receipts/work/orchestration/route-notice/format-final.json",
++      "bundleSha256": "a09a823f2eee2aa76416645ef468a5b36affde9677ef9a50f1640069e776f4ff",
++      "bundleBytes": 3160,
++      "redactions": 3
++    },
++    {
++      "sourcePath": "work/orchestration/route-notice/standard-final.json",
++      "sourceSha256": "32a7caff823a2b298e203165e313cdcdd462c8e7d9701e37c32d73b065178c31",
++      "sourceBytes": 11611,
++      "bundlePath": "receipts/work/orchestration/route-notice/standard-final.json",
++      "bundleSha256": "ee8ff571a629701954ed77de342a5ee534c77fb7a1835618e2057b9d33f8d5ce",
++      "bundleBytes": 11443,
++      "redactions": 3
++    }
++  ],
++  "reviewerPreflight": {
++    "instructions": "Open this bundle in a permitted executor and verify it against trusted caller-supplied identities before review.",
++    "verify": [
++      "node",
++      "verify.mjs"
++    ]
++  }
++}
+diff --git a/evidence/route-notice-modal-20261016/review-bundle/receipts/work/orchestration/route-notice/baseline-final-scope.json b/evidence/route-notice-modal-20261016/review-bundle/receipts/work/orchestration/route-notice/baseline-final-scope.json
+new file mode 100644
+index 00000000..9df5a5b2
+--- /dev/null
++++ b/evidence/route-notice-modal-20261016/review-bundle/receipts/work/orchestration/route-notice/baseline-final-scope.json
+@@ -0,0 +1,50 @@
++{
++  "version": 1,
++  "kind": "pnd-command-receipt",
++  "runId": "347e1507-0d2f-4e10-a010-d0fa1876b875",
++  "status": "failed",
++  "phase": "finished",
++  "source": {
++    "headOid": "f85a8105fd77c71547fe5cd01594d3467c47b098",
++    "branch": "fix/route-notice-modal-lifetime",
++    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++    "inputs": {
++      "app/page.tsx": "6ff8a8e39d65c96bd298a30765c378b9336a7f44efa067290ce53dd6222c40dc",
++      "app/globals.css": "5dc5e6713b0dc392e23b11e3ffc53c85565cfb66be780d6a49d8859f8ead0b07",
++      "tests/route-notice-modal.test.mjs": "62387bf1116bf379e70f1a08c99dffa612cc44521ce6c9957eabfba462fae649",
++      "tests/support/follower-nearby-page.mjs": "23dbdb17393cfadf2c4d88c9c08d72b24f84214c094bfcb8428e57e5295e6345",
++      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
++    }
++  },
++  "command": [
++    "node",
++    "--test",
++    "tests/route-notice-modal.test.mjs"
++  ],
++  "cwd": "<SOURCE_ROOT>",
++  "startedAt": "2026-10-16T16:39:57.864Z",
++  "artifacts": {
++    "stdout": "<SOURCE_ROOT>/work/orchestration/route-notice/baseline-final-scope.json.artifacts/stdout.log",
++    "stderr": "<SOURCE_ROOT>/work/orchestration/route-notice/baseline-final-scope.json.artifacts/stderr.log"
++  },
++  "parityMeasurements": [],
++  "finishedAt": "2026-10-16T16:39:58.067Z",
++  "exitCode": 1,
++  "signal": null,
++  "stdout": "✖ Home keeps the notice through menu/selector/reopen and restores prior pause=false (22.267416ms)\n✖ Home keeps the notice through menu/selector/reopen and restores prior pause=true (7.292ms)\n✔ ordinary game pause without a menu retains the presentation timer (6.716875ms)\n✖ an obsolete animation callback cannot consume a replacement world notice with the same serial (6.60625ms)\n✔ a canceled notice callback cannot consume a newly issued notice (5.773375ms)\nℹ tests 5\nℹ suites 0\nℹ pass 2\nℹ fail 3\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 179.599875\n\n✖ failing tests:\n\ntest at tests/route-notice-modal.test.mjs:31:3\n✖ Home keeps the notice through menu/selector/reopen and restores prior pause=false (22.267416ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  + actual - expected\n  \n  + undefined\n  - 'paused'\n  \n      at TestContext.<anonymous> (file://<SOURCE_ROOT>/tests/route-notice-modal.test.mjs:40:14)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1325:25)\n      at Test.start (node:internal/test_runner/test:1191:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: undefined,\n    expected: 'paused',\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n\ntest at tests/route-notice-modal.test.mjs:31:3\n✖ Home keeps the notice through menu/selector/reopen and restores prior pause=true (7.292ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  + actual - expected\n  \n  + undefined\n  - 'paused'\n  \n      at TestContext.<anonymous> (file://<SOURCE_ROOT>/tests/route-notice-modal.test.mjs:40:14)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1325:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)\n      at Test.postRun (node:internal/test_runner/test:1465:19)\n      at Test.run (node:internal/test_runner/test:1390:12)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: undefined,\n    expected: 'paused',\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n\ntest at tests/route-notice-modal.test.mjs:63:1\n✖ an obsolete animation callback cannot consume a replacement world notice with the same serial (6.60625ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  + actual - expected\n  \n  + null\n  - {\n  -   serial: 1\n  - }\n  \n      at TestContext.<anonymous> (file://<SOURCE_ROOT>/tests/route-notice-modal.test.mjs:67:10)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1325:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)\n      at Test.postRun (node:internal/test_runner/test:1465:19)\n      at Test.run (node:internal/test_runner/test:1390:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: null,\n    expected: { serial: 1 },\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n",
++  "stderr": "",
++  "stdoutSha256": "720085cad0d72dde86270cb5e300cc42f169b7325bcc2f4870e6ee044c25efcf",
++  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++  "sourceAfter": {
++    "headOid": "f85a8105fd77c71547fe5cd01594d3467c47b098",
++    "branch": "fix/route-notice-modal-lifetime",
++    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++    "inputs": {
++      "app/page.tsx": "6ff8a8e39d65c96bd298a30765c378b9336a7f44efa067290ce53dd6222c40dc",
++      "app/globals.css": "5dc5e6713b0dc392e23b11e3ffc53c85565cfb66be780d6a49d8859f8ead0b07",
++      "tests/route-notice-modal.test.mjs": "62387bf1116bf379e70f1a08c99dffa612cc44521ce6c9957eabfba462fae649",
++      "tests/support/follower-nearby-page.mjs": "23dbdb17393cfadf2c4d88c9c08d72b24f84214c094bfcb8428e57e5295e6345",
++      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
++    }
++  }
++}
+diff --git a/evidence/route-notice-modal-20261016/review-bundle/receipts/work/orchestration/route-notice/focused-final.json b/evidence/route-notice-modal-20261016/review-bundle/receipts/work/orchestration/route-notice/focused-final.json
+new file mode 100644
+index 00000000..1a2b085e
+--- /dev/null
++++ b/evidence/route-notice-modal-20261016/review-bundle/receipts/work/orchestration/route-notice/focused-final.json
+@@ -0,0 +1,59 @@
++{
++  "version": 1,
++  "kind": "pnd-command-receipt",
++  "runId": "bb6a2e5b-9618-41a6-9bbe-428c83d3f1a1",
++  "status": "passed",
++  "phase": "finished",
++  "source": {
++    "headOid": "3a5fe13442293dcc0d3fdeaf20f09fa23a7426ec",
++    "branch": "fix/route-notice-modal-lifetime",
++    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++    "inputs": {
++      "app/page.tsx": "ef659889f3be388342b3347cd9e0c9c3eb6b4ad667226f0ca1f3116fede2e493",
++      "app/globals.css": "5dc5e6713b0dc392e23b11e3ffc53c85565cfb66be780d6a49d8859f8ead0b07",
++      "tests/route-notice-modal.test.mjs": "62387bf1116bf379e70f1a08c99dffa612cc44521ce6c9957eabfba462fae649",
++      "tests/pause-menu-ownership.test.mjs": "c52978248fea7be147dd8afcfe1e9c7c51519d9bda9540e981b77b7a5aaa7e85",
++      "tests/route-recovery.test.mjs": "828fbdcadf7bed17a1dfbdaafa3144c90724ca992796bd0283a3a385b514f1d7",
++      "tests/support/follower-nearby-page.mjs": "23dbdb17393cfadf2c4d88c9c08d72b24f84214c094bfcb8428e57e5295e6345",
++      "scripts/local-render/route-notice-modal.mjs": "6905e2be945e8d6dc2a50f59a60e859d69d90edb34d6c1d157fd2f0663beace9",
++      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
++    }
++  },
++  "command": [
++    "node",
++    "--test",
++    "--test-concurrency=1",
++    "tests/route-notice-modal.test.mjs",
++    "tests/pause-menu-ownership.test.mjs",
++    "tests/route-recovery.test.mjs"
++  ],
++  "cwd": "<SOURCE_ROOT>",
++  "startedAt": "2026-10-16T16:40:23.574Z",
++  "artifacts": {
++    "stdout": "<SOURCE_ROOT>/work/orchestration/route-notice/focused-final.json.artifacts/stdout.log",
++    "stderr": "<SOURCE_ROOT>/work/orchestration/route-notice/focused-final.json.artifacts/stderr.log"
++  },
++  "parityMeasurements": [],
++  "finishedAt": "2026-10-16T16:40:24.754Z",
++  "exitCode": 0,
++  "signal": null,
++  "stdout": "✔ actual Page captures original pause once, holds it across panel return and restores same-world close (27.697ms)\n✔ actual Page never restores an old pause state or queued camera request into a replacement world (5.334834ms)\n✔ actual Page applies queued camera conveniences only on final same-world close (5.315458ms)\n✔ Home keeps the notice through menu/selector/reopen and restores prior pause=false (26.544666ms)\n✔ Home keeps the notice through menu/selector/reopen and restores prior pause=true (10.903792ms)\n✔ ordinary game pause without a menu retains the presentation timer (6.072875ms)\n✔ an obsolete animation callback cannot consume a replacement world notice with the same serial (6.3265ms)\n✔ a canceled notice callback cannot consume a newly issued notice (5.049708ms)\n✔ failed-route initialization and retries match native fields, timing and ordered consumers (2.57625ms)\n✔ disconnected groups stop, retain shared attack/waypoint orders, retry and resume after land connects (87.842459ms)\n✔ route-failure notice keeps the original text and retriggers without tutorial history (26.321708ms)\n✔ new orders and death release blocked commands; shaman failures use their own original voice (53.186083ms)\n✔ blocked groups retry on simulation counters, with identical recovery and combat at 5–240 Hz (303.367833ms)\n✔ blocked building-entry owners resume the same person and finish ordinary admission (27.089875ms)\nℹ tests 14\nℹ suites 0\nℹ pass 14\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1154.617083\n",
++  "stderr": "",
++  "stdoutSha256": "4c6ad94a9860d71ec00de566d199e022432d902b89eebbbd666db98b655e1c17",
++  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++  "sourceAfter": {
++    "headOid": "3a5fe13442293dcc0d3fdeaf20f09fa23a7426ec",
++    "branch": "fix/route-notice-modal-lifetime",
++    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++    "inputs": {
++      "app/page.tsx": "ef659889f3be388342b3347cd9e0c9c3eb6b4ad667226f0ca1f3116fede2e493",
++      "app/globals.css": "5dc5e6713b0dc392e23b11e3ffc53c85565cfb66be780d6a49d8859f8ead0b07",
++      "tests/route-notice-modal.test.mjs": "62387bf1116bf379e70f1a08c99dffa612cc44521ce6c9957eabfba462fae649",
++      "tests/pause-menu-ownership.test.mjs": "c52978248fea7be147dd8afcfe1e9c7c51519d9bda9540e981b77b7a5aaa7e85",
++      "tests/route-recovery.test.mjs": "828fbdcadf7bed17a1dfbdaafa3144c90724ca992796bd0283a3a385b514f1d7",
++      "tests/support/follower-nearby-page.mjs": "23dbdb17393cfadf2c4d88c9c08d72b24f84214c094bfcb8428e57e5295e6345",
++      "scripts/local-render/route-notice-modal.mjs": "6905e2be945e8d6dc2a50f59a60e859d69d90edb34d6c1d157fd2f0663beace9",
++      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
++    }
++  }
++}
+diff --git a/evidence/route-notice-modal-20261016/review-bundle/receipts/work/orchestration/route-notice/format-final.json b/evidence/route-notice-modal-20261016/review-bundle/receipts/work/orchestration/route-notice/format-final.json
+new file mode 100644
+index 00000000..f42f4dcb
+--- /dev/null
++++ b/evidence/route-notice-modal-20261016/review-bundle/receipts/work/orchestration/route-notice/format-final.json
+@@ -0,0 +1,56 @@
++{
++  "version": 1,
++  "kind": "pnd-command-receipt",
++  "runId": "00bbfd18-ed87-4e16-9eb8-89764a4fd55e",
++  "status": "passed",
++  "phase": "finished",
++  "source": {
++    "headOid": "3a5fe13442293dcc0d3fdeaf20f09fa23a7426ec",
++    "branch": "fix/route-notice-modal-lifetime",
++    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++    "inputs": {
++      "app/page.tsx": "ef659889f3be388342b3347cd9e0c9c3eb6b4ad667226f0ca1f3116fede2e493",
++      "app/globals.css": "5dc5e6713b0dc392e23b11e3ffc53c85565cfb66be780d6a49d8859f8ead0b07",
++      "tests/route-notice-modal.test.mjs": "62387bf1116bf379e70f1a08c99dffa612cc44521ce6c9957eabfba462fae649",
++      "tests/pause-menu-ownership.test.mjs": "c52978248fea7be147dd8afcfe1e9c7c51519d9bda9540e981b77b7a5aaa7e85",
++      "tests/route-recovery.test.mjs": "828fbdcadf7bed17a1dfbdaafa3144c90724ca992796bd0283a3a385b514f1d7",
++      "tests/support/follower-nearby-page.mjs": "23dbdb17393cfadf2c4d88c9c08d72b24f84214c094bfcb8428e57e5295e6345",
++      "scripts/local-render/route-notice-modal.mjs": "6905e2be945e8d6dc2a50f59a60e859d69d90edb34d6c1d157fd2f0663beace9",
++      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
++    }
++  },
++  "command": [
++    "node_modules/.bin/oxfmt",
++    "--check",
++    "app/page.tsx"
++  ],
++  "cwd": "<SOURCE_ROOT>",
++  "startedAt": "2026-10-16T16:40:26.669Z",
++  "artifacts": {
++    "stdout": "<SOURCE_ROOT>/work/orchestration/route-notice/format-final.json.artifacts/stdout.log",
++    "stderr": "<SOURCE_ROOT>/work/orchestration/route-notice/format-final.json.artifacts/stderr.log"
++  },
++  "parityMeasurements": [],
++  "finishedAt": "2026-10-16T16:40:26.762Z",
++  "exitCode": 0,
++  "signal": null,
++  "stdout": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 6ms on 1 files using 10 threads.\n",
++  "stderr": "",
++  "stdoutSha256": "5a359431a038d3c9db9dba15406a51a7b3d9c0ee06d0352036ad39fef1c40bbd",
++  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++  "sourceAfter": {
++    "headOid": "3a5fe13442293dcc0d3fdeaf20f09fa23a7426ec",
++    "branch": "fix/route-notice-modal-lifetime",
++    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++    "inputs": {
++      "app/page.tsx": "ef659889f3be388342b3347cd9e0c9c3eb6b4ad667226f0ca1f3116fede2e493",
++      "app/globals.css": "5dc5e6713b0dc392e23b11e3ffc53c85565cfb66be780d6a49d8859f8ead0b07",
++      "tests/route-notice-modal.test.mjs": "62387bf1116bf379e70f1a08c99dffa612cc44521ce6c9957eabfba462fae649",
++      "tests/pause-menu-ownership.test.mjs": "c52978248fea7be147dd8afcfe1e9c7c51519d9bda9540e981b77b7a5aaa7e85",
++      "tests/route-recovery.test.mjs": "828fbdcadf7bed17a1dfbdaafa3144c90724ca992796bd0283a3a385b514f1d7",
++      "tests/support/follower-nearby-page.mjs": "23dbdb17393cfadf2c4d88c9c08d72b24f84214c094bfcb8428e57e5295e6345",
++      "scripts/local-render/route-notice-modal.mjs": "6905e2be945e8d6dc2a50f59a60e859d69d90edb34d6c1d157fd2f0663beace9",
++      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
++    }
++  }
++}
+diff --git a/evidence/route-notice-modal-20261016/review-bundle/receipts/work/orchestration/route-notice/js-lint-final.json b/evidence/route-notice-modal-20261016/review-bundle/receipts/work/orchestration/route-notice/js-lint-final.json
+new file mode 100644
+index 00000000..30aafaf0
+--- /dev/null
++++ b/evidence/route-notice-modal-20261016/review-bundle/receipts/work/orchestration/route-notice/js-lint-final.json
+@@ -0,0 +1,57 @@
++{
++  "version": 1,
++  "kind": "pnd-command-receipt",
++  "runId": "e692081c-0ef2-409b-a193-ba29a6008fd9",
++  "status": "passed",
++  "phase": "finished",
++  "source": {
++    "headOid": "3a5fe13442293dcc0d3fdeaf20f09fa23a7426ec",
++    "branch": "fix/route-notice-modal-lifetime",
++    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++    "inputs": {
++      "app/page.tsx": "ef659889f3be388342b3347cd9e0c9c3eb6b4ad667226f0ca1f3116fede2e493",
++      "app/globals.css": "5dc5e6713b0dc392e23b11e3ffc53c85565cfb66be780d6a49d8859f8ead0b07",
++      "tests/route-notice-modal.test.mjs": "62387bf1116bf379e70f1a08c99dffa612cc44521ce6c9957eabfba462fae649",
++      "tests/pause-menu-ownership.test.mjs": "c52978248fea7be147dd8afcfe1e9c7c51519d9bda9540e981b77b7a5aaa7e85",
++      "tests/route-recovery.test.mjs": "828fbdcadf7bed17a1dfbdaafa3144c90724ca992796bd0283a3a385b514f1d7",
++      "tests/support/follower-nearby-page.mjs": "23dbdb17393cfadf2c4d88c9c08d72b24f84214c094bfcb8428e57e5295e6345",
++      "scripts/local-render/route-notice-modal.mjs": "6905e2be945e8d6dc2a50f59a60e859d69d90edb34d6c1d157fd2f0663beace9",
++      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
++    }
++  },
++  "command": [
++    "node",
++    "node_modules/eslint/bin/eslint.js",
++    "tests/route-notice-modal.test.mjs",
++    "scripts/local-render/route-notice-modal.mjs"
++  ],
++  "cwd": "<SOURCE_ROOT>",
++  "startedAt": "2026-10-16T16:40:26.160Z",
++  "artifacts": {
++    "stdout": "<SOURCE_ROOT>/work/orchestration/route-notice/js-lint-final.json.artifacts/stdout.log",
++    "stderr": "<SOURCE_ROOT>/work/orchestration/route-notice/js-lint-final.json.artifacts/stderr.log"
++  },
++  "parityMeasurements": [],
++  "finishedAt": "2026-10-16T16:40:26.594Z",
++  "exitCode": 0,
++  "signal": null,
++  "stdout": "",
++  "stderr": "",
++  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++  "sourceAfter": {
++    "headOid": "3a5fe13442293dcc0d3fdeaf20f09fa23a7426ec",
++    "branch": "fix/route-notice-modal-lifetime",
++    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++    "inputs": {
++      "app/page.tsx": "ef659889f3be388342b3347cd9e0c9c3eb6b4ad667226f0ca1f3116fede2e493",
++      "app/globals.css": "5dc5e6713b0dc392e23b11e3ffc53c85565cfb66be780d6a49d8859f8ead0b07",
++      "tests/route-notice-modal.test.mjs": "62387bf1116bf379e70f1a08c99dffa612cc44521ce6c9957eabfba462fae649",
++      "tests/pause-menu-ownership.test.mjs": "c52978248fea7be147dd8afcfe1e9c7c51519d9bda9540e981b77b7a5aaa7e85",
++      "tests/route-recovery.test.mjs": "828fbdcadf7bed17a1dfbdaafa3144c90724ca992796bd0283a3a385b514f1d7",
++      "tests/support/follower-nearby-page.mjs": "23dbdb17393cfadf2c4d88c9c08d72b24f84214c094bfcb8428e57e5295e6345",
++      "scripts/local-render/route-notice-modal.mjs": "6905e2be945e8d6dc2a50f59a60e859d69d90edb34d6c1d157fd2f0663beace9",
++      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
++    }
++  }
++}
+diff --git a/evidence/route-notice-modal-20261016/review-bundle/receipts/work/orchestration/route-notice/lint-baseline.json b/evidence/route-notice-modal-20261016/review-bundle/receipts/work/orchestration/route-notice/lint-baseline.json
+new file mode 100644
+index 00000000..1b656ea2
+--- /dev/null
++++ b/evidence/route-notice-modal-20261016/review-bundle/receipts/work/orchestration/route-notice/lint-baseline.json
+@@ -0,0 +1,50 @@
++{
++  "version": 1,
++  "kind": "pnd-command-receipt",
++  "runId": "04c67d35-bdb2-4fc9-8ac6-0c46877292ea",
++  "status": "failed",
++  "phase": "finished",
++  "source": {
++    "headOid": "f85a8105fd77c71547fe5cd01594d3467c47b098",
++    "branch": "fix/route-notice-modal-lifetime",
++    "trackedDiffSha256": "8607b9aa6d8a090590098c2e578f8aac2859cbee6b04504f2a4688a045820e18",
++    "inputs": {
++      "app/page.tsx": "2a9113a9f5bd44b87eca33ef7d950c8c8339bba5417bd6ee3ccbb97e3a32baac",
++      "app/globals.css": "5dc5e6713b0dc392e23b11e3ffc53c85565cfb66be780d6a49d8859f8ead0b07",
++      "tests/route-notice-modal.test.mjs": "a6ad6f50441ac32c8acece4a505e736f87fb2674bedc0bd5f9d4964f3970184a",
++      "tests/support/follower-nearby-page.mjs": "23dbdb17393cfadf2c4d88c9c08d72b24f84214c094bfcb8428e57e5295e6345",
++      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
++    }
++  },
++  "command": [
++    "sh",
++    "-c",
++    "git show f85a8105fd77c71547fe5cd01594d3467c47b098:app/page.tsx | node node_modules/eslint/bin/eslint.js --stdin --stdin-filename app/page.tsx"
++  ],
++  "cwd": "<SOURCE_ROOT>",
++  "startedAt": "2026-10-16T16:37:07.368Z",
++  "artifacts": {
++    "stdout": "<SOURCE_ROOT>/work/orchestration/route-notice/lint-baseline.json.artifacts/stdout.log",
++    "stderr": "<SOURCE_ROOT>/work/orchestration/route-notice/lint-baseline.json.artifacts/stderr.log"
++  },
++  "parityMeasurements": [],
++  "finishedAt": "2026-10-16T16:37:08.220Z",
++  "exitCode": 1,
++  "signal": null,
++  "stdout": "\n<SOURCE_ROOT>/app/page.tsx\n   138:80  error    Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\n<SOURCE_ROOT>/app/page.tsx:138:80\n  136 |       const saved = localStorage.getItem('hud-size')\n  137 |       // oxlint-disable-next-line react/set-state-in-effect -- Restore browser storage after hydration.\n> 138 |       if (saved && ['auto', '1', '1.5', '2', '2.5', '3', '4'].includes(saved)) setHudSize(saved)\n      |                                                                                ^^^^^^^^^^ Avoid calling setState() directly within an effect\n  139 |     } catch {\n  140 |       // Storage can be disabled; the size control still works for this session.\n  141 |     }  react-hooks/set-state-in-effect\n  1107:19  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @next/next/no-img-element\n\n✖ 2 problems (1 error, 1 warning)\n\n",
++  "stderr": "",
++  "stdoutSha256": "97c899f8e69fcb9ce0cd45001ec13e98f369c40a005929a6bdd7be6064350b2d",
++  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++  "sourceAfter": {
++    "headOid": "f85a8105fd77c71547fe5cd01594d3467c47b098",
++    "branch": "fix/route-notice-modal-lifetime",
++    "trackedDiffSha256": "8607b9aa6d8a090590098c2e578f8aac2859cbee6b04504f2a4688a045820e18",
++    "inputs": {
++      "app/page.tsx": "2a9113a9f5bd44b87eca33ef7d950c8c8339bba5417bd6ee3ccbb97e3a32baac",
++      "app/globals.css": "5dc5e6713b0dc392e23b11e3ffc53c85565cfb66be780d6a49d8859f8ead0b07",
++      "tests/route-notice-modal.test.mjs": "a6ad6f50441ac32c8acece4a505e736f87fb2674bedc0bd5f9d4964f3970184a",
++      "tests/support/follower-nearby-page.mjs": "23dbdb17393cfadf2c4d88c9c08d72b24f84214c094bfcb8428e57e5295e6345",
++      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
++    }
++  }
++}
+diff --git a/evidence/route-notice-modal-20261016/review-bundle/receipts/work/orchestration/route-notice/lint-final.json b/evidence/route-notice-modal-20261016/review-bundle/receipts/work/orchestration/route-notice/lint-final.json
+new file mode 100644
+index 00000000..f8cb1e25
+--- /dev/null
++++ b/evidence/route-notice-modal-20261016/review-bundle/receipts/work/orchestration/route-notice/lint-final.json
+@@ -0,0 +1,58 @@
++{
++  "version": 1,
++  "kind": "pnd-command-receipt",
++  "runId": "d029174e-b78e-4fdb-875c-acc72e5850b0",
++  "status": "failed",
++  "phase": "finished",
++  "source": {
++    "headOid": "3a5fe13442293dcc0d3fdeaf20f09fa23a7426ec",
++    "branch": "fix/route-notice-modal-lifetime",
++    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++    "inputs": {
++      "app/page.tsx": "ef659889f3be388342b3347cd9e0c9c3eb6b4ad667226f0ca1f3116fede2e493",
++      "app/globals.css": "5dc5e6713b0dc392e23b11e3ffc53c85565cfb66be780d6a49d8859f8ead0b07",
++      "tests/route-notice-modal.test.mjs": "62387bf1116bf379e70f1a08c99dffa612cc44521ce6c9957eabfba462fae649",
++      "tests/pause-menu-ownership.test.mjs": "c52978248fea7be147dd8afcfe1e9c7c51519d9bda9540e981b77b7a5aaa7e85",
++      "tests/route-recovery.test.mjs": "828fbdcadf7bed17a1dfbdaafa3144c90724ca992796bd0283a3a385b514f1d7",
++      "tests/support/follower-nearby-page.mjs": "23dbdb17393cfadf2c4d88c9c08d72b24f84214c094bfcb8428e57e5295e6345",
++      "scripts/local-render/route-notice-modal.mjs": "6905e2be945e8d6dc2a50f59a60e859d69d90edb34d6c1d157fd2f0663beace9",
++      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
++    }
++  },
++  "command": [
++    "node",
++    "node_modules/eslint/bin/eslint.js",
++    "app/page.tsx",
++    "tests/route-notice-modal.test.mjs",
++    "scripts/local-render/route-notice-modal.mjs"
++  ],
++  "cwd": "<SOURCE_ROOT>",
++  "startedAt": "2026-10-16T16:40:24.824Z",
++  "artifacts": {
++    "stdout": "<SOURCE_ROOT>/work/orchestration/route-notice/lint-final.json.artifacts/stdout.log",
++    "stderr": "<SOURCE_ROOT>/work/orchestration/route-notice/lint-final.json.artifacts/stderr.log"
++  },
++  "parityMeasurements": [],
++  "finishedAt": "2026-10-16T16:40:26.090Z",
++  "exitCode": 1,
++  "signal": null,
++  "stdout": "\n<SOURCE_ROOT>/app/page.tsx\n   138:80  error    Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\n<SOURCE_ROOT>/app/page.tsx:138:80\n  136 |       const saved = localStorage.getItem('hud-size')\n  137 |       // oxlint-disable-next-line react/set-state-in-effect -- Restore browser storage after hydration.\n> 138 |       if (saved && ['auto', '1', '1.5', '2', '2.5', '3', '4'].includes(saved)) setHudSize(saved)\n      |                                                                                ^^^^^^^^^^ Avoid calling setState() directly within an effect\n  139 |     } catch {\n  140 |       // Storage can be disabled; the size control still works for this session.\n  141 |     }  react-hooks/set-state-in-effect\n  1110:19  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @next/next/no-img-element\n\n✖ 2 problems (1 error, 1 warning)\n\n",
++  "stderr": "",
++  "stdoutSha256": "8aea1dc9db68421d74ec53afaf5a6c70c90a8d979b2bec7bb44ed350652d681f",
++  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++  "sourceAfter": {
++    "headOid": "3a5fe13442293dcc0d3fdeaf20f09fa23a7426ec",
++    "branch": "fix/route-notice-modal-lifetime",
++    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++    "inputs": {
++      "app/page.tsx": "ef659889f3be388342b3347cd9e0c9c3eb6b4ad667226f0ca1f3116fede2e493",
++      "app/globals.css": "5dc5e6713b0dc392e23b11e3ffc53c85565cfb66be780d6a49d8859f8ead0b07",
++      "tests/route-notice-modal.test.mjs": "62387bf1116bf379e70f1a08c99dffa612cc44521ce6c9957eabfba462fae649",
++      "tests/pause-menu-ownership.test.mjs": "c52978248fea7be147dd8afcfe1e9c7c51519d9bda9540e981b77b7a5aaa7e85",
++      "tests/route-recovery.test.mjs": "828fbdcadf7bed17a1dfbdaafa3144c90724ca992796bd0283a3a385b514f1d7",
++      "tests/support/follower-nearby-page.mjs": "23dbdb17393cfadf2c4d88c9c08d72b24f84214c094bfcb8428e57e5295e6345",
++      "scripts/local-render/route-notice-modal.mjs": "6905e2be945e8d6dc2a50f59a60e859d69d90edb34d6c1d157fd2f0663beace9",
++      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
++    }
++  }
++}
+diff --git a/evidence/route-notice-modal-20261016/review-bundle/receipts/work/orchestration/route-notice/standard-final.json b/evidence/route-notice-modal-20261016/review-bundle/receipts/work/orchestration/route-notice/standard-final.json
+new file mode 100644
+index 00000000..e8f98d6c
+--- /dev/null
++++ b/evidence/route-notice-modal-20261016/review-bundle/receipts/work/orchestration/route-notice/standard-final.json
+@@ -0,0 +1,55 @@
++{
++  "version": 1,
++  "kind": "pnd-command-receipt",
++  "runId": "6baa387c-2211-45f4-be70-8d2d3bd7283f",
++  "status": "passed",
++  "phase": "finished",
++  "source": {
++    "headOid": "3a5fe13442293dcc0d3fdeaf20f09fa23a7426ec",
++    "branch": "fix/route-notice-modal-lifetime",
++    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++    "inputs": {
++      "app/page.tsx": "ef659889f3be388342b3347cd9e0c9c3eb6b4ad667226f0ca1f3116fede2e493",
++      "app/globals.css": "5dc5e6713b0dc392e23b11e3ffc53c85565cfb66be780d6a49d8859f8ead0b07",
++      "tests/route-notice-modal.test.mjs": "62387bf1116bf379e70f1a08c99dffa612cc44521ce6c9957eabfba462fae649",
++      "tests/pause-menu-ownership.test.mjs": "c52978248fea7be147dd8afcfe1e9c7c51519d9bda9540e981b77b7a5aaa7e85",
++      "tests/route-recovery.test.mjs": "828fbdcadf7bed17a1dfbdaafa3144c90724ca992796bd0283a3a385b514f1d7",
++      "tests/support/follower-nearby-page.mjs": "23dbdb17393cfadf2c4d88c9c08d72b24f84214c094bfcb8428e57e5295e6345",
++      "scripts/local-render/route-notice-modal.mjs": "6905e2be945e8d6dc2a50f59a60e859d69d90edb34d6c1d157fd2f0663beace9",
++      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
++    }
++  },
++  "command": [
++    "node_modules/.bin/oxlint",
++    "app/page.tsx"
++  ],
++  "cwd": "<SOURCE_ROOT>",
++  "startedAt": "2026-10-16T16:40:26.837Z",
++  "artifacts": {
++    "stdout": "<SOURCE_ROOT>/work/orchestration/route-notice/standard-final.json.artifacts/stdout.log",
++    "stderr": "<SOURCE_ROOT>/work/orchestration/route-notice/standard-final.json.artifacts/stderr.log"
++  },
++  "parityMeasurements": [],
++  "finishedAt": "2026-10-16T16:40:26.938Z",
++  "exitCode": 0,
++  "signal": null,
++  "stdout": "app/page.tsx:532:21: warning eslint(no-shadow): 's' is already declared in the upper scope. help: Consider renaming 's' to avoid shadowing the variable from the outer scope.\napp/page.tsx:552:36: warning eslint(no-shadow): 'u' is already declared in the upper scope. help: Consider renaming 'u' to avoid shadowing the variable from the outer scope.\napp/page.tsx:378:19: warning react(exhaustive-effect-dependencies): Found extra effect dependencies help: Extra dependencies can cause an effect to fire more often than it should, resulting in performance problems such as excessive renders and side effects\napp/page.tsx:114:14: warning eslint(prefer-destructuring): Use Object destructuring. help: Use object destructuring rather than direct member access.\napp/page.tsx:572:5: warning unicorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`. help: Replace the alias with `globalThis`.\napp/page.tsx:573:18: warning unicorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`. help: Replace the alias with `globalThis`.\napp/page.tsx:811:7: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:817:11: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:826:13: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:835:15: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:841:17: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:853:19: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:864:21: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:876:23: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:888:25: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:907:27: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:928:29: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:944:31: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:961:33: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:970:35: warning unicorn(no-nested-ternary): Unexpected deeply nested ternary expression. help: Avoid nesting ternary expressions for more than one level.\napp/page.tsx:1082:12: warning unicorn(no-array-sort): Use `Array#toSorted()` instead of `Array#sort()`. help: `Array#sort()` mutates the original array. Use `Array#toSorted()` to return a new sorted array without modifying the original.\napp/page.tsx:1181:35: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:1181:62: warning unicorn(no-nested-ternary): Unexpected nested ternary expression without parentheses. help: Add parentheses around the nested ternary expression.\napp/page.tsx:1400:25: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:1400:49: warning unicorn(no-nested-ternary): Unexpected nested ternary expression without parentheses. help: Add parentheses around the nested ternary expression.\napp/page.tsx:1570:22: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:1572:25: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:1574:27: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:1576:29: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:1578:31: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:1580:33: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:1582:35: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:1584:37: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:1586:39: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:1588:41: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:1590:43: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:1592:45: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:1594:47: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:1596:49: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:1598:51: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:1600:53: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:1602:55: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:1604:57: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:1606:59: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:1608:61: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\napp/page.tsx:1610:63: warning unicorn(no-nested-ternary): Unexpected deeply nested ternary expression. help: Avoid nesting ternary expressions for more than one level.\n",
++  "stderr": "",
++  "stdoutSha256": "4662c7213a961c1e68c2f92fc7116a88e618116410fde30088a5401aea02d8a2",
++  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++  "sourceAfter": {
++    "headOid": "3a5fe13442293dcc0d3fdeaf20f09fa23a7426ec",
++    "branch": "fix/route-notice-modal-lifetime",
++    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++    "inputs": {
++      "app/page.tsx": "ef659889f3be388342b3347cd9e0c9c3eb6b4ad667226f0ca1f3116fede2e493",
++      "app/globals.css": "5dc5e6713b0dc392e23b11e3ffc53c85565cfb66be780d6a49d8859f8ead0b07",
++      "tests/route-notice-modal.test.mjs": "62387bf1116bf379e70f1a08c99dffa612cc44521ce6c9957eabfba462fae649",
++      "tests/pause-menu-ownership.test.mjs": "c52978248fea7be147dd8afcfe1e9c7c51519d9bda9540e981b77b7a5aaa7e85",
++      "tests/route-recovery.test.mjs": "828fbdcadf7bed17a1dfbdaafa3144c90724ca992796bd0283a3a385b514f1d7",
++      "tests/support/follower-nearby-page.mjs": "23dbdb17393cfadf2c4d88c9c08d72b24f84214c094bfcb8428e57e5295e6345",
++      "scripts/local-render/route-notice-modal.mjs": "6905e2be945e8d6dc2a50f59a60e859d69d90edb34d6c1d157fd2f0663beace9",
++      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
++    }
++  }
++}
+diff --git a/evidence/route-notice-modal-20261016/review-bundle/verify.mjs b/evidence/route-notice-modal-20261016/review-bundle/verify.mjs
+new file mode 100644
+index 00000000..3c202806
+--- /dev/null
++++ b/evidence/route-notice-modal-20261016/review-bundle/verify.mjs
+@@ -0,0 +1,141 @@
++#!/usr/bin/env node
++import assert from 'node:assert/strict'
++import { createHash } from 'node:crypto'
++import { existsSync, lstatSync, readFileSync, realpathSync } from 'node:fs'
++import { dirname, isAbsolute, normalize, relative, resolve, sep } from 'node:path'
++import { fileURLToPath } from 'node:url'
++
++const HASH = /^[0-9a-f]{64}$/i
++const GIT_OID = /^[0-9a-f]{40,64}$/i
++const sha = value => createHash('sha256').update(value).digest('hex')
++const root = dirname(fileURLToPath(import.meta.url))
++
++function safeRelative(value, label) {
++  assert(typeof value === 'string' && value.length, label + ' must be non-empty')
++  assert(!isAbsolute(value) && !value.includes('\\0'), 'unsafe ' + label + ': ' + value)
++  assert(value.replaceAll('\\\\', '/') === value, 'non-canonical ' + label + ': ' + value)
++  assert(!value.split('/').includes('..'), 'unsafe ' + label + ' traversal: ' + value)
++  assert(normalize(value).split(sep).join('/') === value, 'non-canonical ' + label + ': ' + value)
++  return value
++}
++
++function safeFile(value, label) {
++  safeRelative(value, label)
++  const absolute = resolve(root, value)
++  assert(existsSync(absolute) && lstatSync(absolute).isFile(), 'missing ' + label + ': ' + value)
++  const bundle = realpathSync(root)
++  const resolved = realpathSync(absolute)
++  const local = relative(bundle, resolved)
++  assert(
++    local === '' || (!local.startsWith('..' + sep) && local !== '..' && !isAbsolute(local)),
++    label + ' resolves outside bundle: ' + value
++  )
++  return resolved
++}
++
++function parsePair(value, label) {
++  const index = value.lastIndexOf('=')
++  assert(index > 0, label + ' must be path=sha256')
++  const path = safeRelative(value.slice(0, index), label)
++  const hash = value.slice(index + 1)
++  assert(HASH.test(hash), 'invalid ' + label + ' sha256: ' + path)
++  return { path, sha256: hash.toLowerCase() }
++}
++
++function parseArgs(args) {
++  const options = { expectedSource: [], expectedReceipt: [], expectedDeletion: [] }
++  for (let index = 0; index < args.length; index++) {
++    const flag = args[index]
++    const value = args[++index]
++    assert(flag && flag.startsWith('--') && value !== undefined && !value.startsWith('--'), 'invalid verifier argument')
++    if (flag === '--expected-source') options.expectedSource.push(parsePair(value, 'expected source'))
++    else if (flag === '--expected-receipt') options.expectedReceipt.push(parsePair(value, 'expected receipt'))
++    else if (flag === '--expected-deletion') options.expectedDeletion.push(safeRelative(value, 'expected deletion'))
++    else if (flag === '--expected-head') options.expectedHead = value
++    else if (flag === '--expected-diff-sha256') options.expectedDiffSha256 = value
++    else throw new Error('unknown verifier option: ' + flag)
++  }
++  assert(GIT_OID.test(options.expectedHead || ''), 'trusted --expected-head is required')
++  assert(HASH.test(options.expectedDiffSha256 || ''), 'trusted --expected-diff-sha256 is required')
++  return options
++}
++
++function mapEntries(entries, label) {
++  const values = new Map()
++  for (const entry of entries) {
++    assert(!values.has(entry.path), 'duplicate ' + label + ': ' + entry.path)
++    values.set(entry.path, entry.sha256)
++  }
++  return values
++}
++
++const expected = parseArgs(process.argv.slice(2))
++const manifest = JSON.parse(readFileSync(safeFile('manifest.json', 'manifest'), 'utf8'))
++assert.equal(manifest.version, 1)
++assert.equal(manifest.kind, 'pnd-review-bundle')
++assert.equal(manifest.repository && manifest.repository.headOid, expected.expectedHead, 'bundle head identity mismatch')
++assert.equal(manifest.diff && manifest.diff.sha256, expected.expectedDiffSha256.toLowerCase(), 'bundle diff identity mismatch')
++
++const expectedSources = mapEntries(expected.expectedSource, 'expected source')
++const expectedDeletions = new Set(expected.expectedDeletion)
++assert.equal(expectedDeletions.size, expected.expectedDeletion.length, 'duplicate expected deletion')
++const sources = new Map()
++const deletions = new Set()
++const sourcePaths = new Set()
++for (const path of expectedSources.keys())
++  assert(!expectedDeletions.has(path), 'source cannot be both present and deleted: ' + path)
++assert(Array.isArray(manifest.sources), 'manifest sources must be an array')
++for (const source of manifest.sources) {
++  const path = safeRelative(source.path, 'manifest source path')
++  assert(!sourcePaths.has(path), 'duplicate manifest source: ' + path)
++  sourcePaths.add(path)
++  if (source.state === 'deleted') {
++    assert(/^D/.test(source.status || ''), 'invalid deleted source status: ' + path)
++    assert(!Object.hasOwn(source, 'sha256'), 'deleted source must not carry sha256: ' + path)
++    assert(!Object.hasOwn(source, 'blobOid'), 'deleted source must not carry blobOid: ' + path)
++    assert(!Object.hasOwn(source, 'bytes'), 'deleted source must not carry bytes: ' + path)
++    deletions.add(path)
++    continue
++  }
++  assert.equal(source.state, 'present', 'invalid manifest source state: ' + path)
++  assert(!/^D/.test(source.status || ''), 'present source cannot have deleted status: ' + path)
++  assert(HASH.test(source.sha256 || ''), 'invalid manifest source sha256: ' + path)
++  sources.set(path, source.sha256.toLowerCase())
++}
++assert.equal(sources.size, expectedSources.size, 'bundle source identity count mismatch')
++assert.equal(deletions.size, expectedDeletions.size, 'bundle deletion identity count mismatch')
++for (const [path, hash] of expectedSources)
++  assert.equal(sources.get(path), hash, 'bundle source identity mismatch: ' + path)
++for (const path of expectedDeletions)
++  assert(deletions.has(path), 'bundle deletion identity mismatch: ' + path)
++
++const expectedReceipts = mapEntries(expected.expectedReceipt, 'expected receipt')
++const receiptSources = new Map()
++assert(Array.isArray(manifest.receipts), 'manifest receipts must be an array')
++for (const receipt of manifest.receipts) {
++  const path = safeRelative(receipt.sourcePath, 'manifest receipt source path')
++  assert(HASH.test(receipt.bundleSha256 || ''), 'invalid manifest receipt bundle sha256: ' + path)
++  assert(!receiptSources.has(path), 'duplicate manifest receipt: ' + path)
++  receiptSources.set(path, receipt.bundleSha256.toLowerCase())
++}
++assert.equal(receiptSources.size, expectedReceipts.size, 'bundle receipt identity count mismatch')
++for (const [path, hash] of expectedReceipts)
++  assert.equal(receiptSources.get(path), hash, 'bundle receipt identity mismatch: ' + path)
++
++const diff = readFileSync(safeFile(manifest.diff.path, 'diff'))
++assert.equal(sha(diff), expected.expectedDiffSha256.toLowerCase())
++assert.equal(diff.length, manifest.diff.bytes)
++for (const receipt of manifest.receipts) {
++  const data = readFileSync(safeFile(receipt.bundlePath, 'receipt bundle path'))
++  const trustedHash = expectedReceipts.get(receipt.sourcePath)
++  assert(trustedHash, 'missing trusted receipt identity: ' + receipt.sourcePath)
++  assert.equal(sha(data), trustedHash, receipt.bundlePath)
++  assert.equal(data.length, receipt.bundleBytes, receipt.bundlePath)
++}
++console.log(JSON.stringify({
++  status: 'passed',
++  headOid: expected.expectedHead,
++  sources: sources.size + deletions.size,
++  receipts: receiptSources.size,
++  diffSha256: expected.expectedDiffSha256.toLowerCase(),
++}, null, 2))
+diff --git a/scripts/local-render/route-notice-modal.mjs b/scripts/local-render/route-notice-modal.mjs
+new file mode 100644
+index 00000000..bb93db7e
+--- /dev/null
++++ b/scripts/local-render/route-notice-modal.mjs
+@@ -0,0 +1,109 @@
++import assert from 'node:assert/strict'
++import { writeFileSync } from 'node:fs'
++import { resolve } from 'node:path'
++import { bindGame } from '../browser-game.mjs'
++import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
++
++// Presentation fixture only: seed one route notice after real Home/scene startup.
++// This does not establish that a public gameplay command produces route failure.
++export default async function ({ page, output }) {
++  const expected = process.env.PND_ROUTE_NOTICE_EXPECT ?? 'preserved'
++  assert.ok(['preserved', 'expired'].includes(expected))
++  const observations = [], button = name => page.getByRole('button', { name, exact: true })
++  const record = value => {
++    observations.push(value)
++    writeFileSync(resolve(output, 'route-notice.json'), JSON.stringify({
++      scope: 'actual Home CSS/handlers with a controlled route-notice fixture', expected, observations,
++    }, null, 2))
++  }
++  await page.setViewportSize({ width: 960, height: 720 })
++  await openCampaignFromMainMenu(page)
++  await button('Start Mission 1').click()
++  await bindGame(page)
++  await page.locator('.skip-introduction').click()
++  await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
++  for (const initiallyPaused of [false, true]) {
++    if (initiallyPaused) await button('Pause game').click()
++    assert.equal(await page.evaluate(() => window.testStore.getWorld().paused), initiallyPaused)
++    await page.evaluate(() => {
++      const store = window.testStore, world = store.getWorld()
++      store.change(w => { w.routeNotice = { flags: 0x200000, message: 603, serial: (w.routeNotice?.serial ?? 0) + 1 } })
++      window.routeNoticeFixture = { world, notice: world.routeNotice, scene: window.testSceneRef.current,
++        canvas: document.querySelector('.world-viewport canvas') }
++    })
++    await page.locator('.route-notice').waitFor({ state: 'visible' })
++    await page.evaluate(() => {
++      const fixture = window.routeNoticeFixture
++      fixture.animation = document.querySelector('.route-notice').getAnimations()[0]
++      fixture.animation.addEventListener('finish', () => { fixture.finishedAt = performance.now() }, { once: true })
++    })
++    await page.waitForFunction(() => window.routeNoticeFixture.animation.currentTime >= 1200)
++    await button('Game settings').click()
++    await page.getByRole('dialog', { name: 'Game menu', exact: true }).waitFor()
++    const observe = () => page.evaluate(() => {
++      const fixture = window.routeNoticeFixture, world = window.testStore.getWorld()
++      const node = document.querySelector('.route-notice'), animation = node?.getAnimations()[0]
++      return { sameWorld: world === fixture.world, sameNotice: world.routeNotice === fixture.notice,
++        sameScene: window.testSceneRef.current === fixture.scene, sceneWorld: fixture.scene.world === world,
++        sameCanvas: document.querySelector('.world-viewport canvas') === fixture.canvas,
++        paused: world.paused, suspended: fixture.scene.modalSuspended, turn: world.turn, time: world.time,
++        sameAnimation: animation === fixture.animation,
++        animationState: animation?.playState ?? null, animationTime: animation?.currentTime ?? null }
++    })
++    const before = await observe()
++    await page.waitForTimeout(3400)
++    const after = await observe()
++    record({ initiallyPaused, stage: 'hidden-longer-than-original-lifetime', before, after })
++    for (const key of ['sameWorld', 'sameScene', 'sceneWorld', 'sameCanvas', 'paused', 'suspended']) assert.equal(after[key], true)
++    assert.equal(after.turn, before.turn); assert.equal(after.time, before.time)
++    if (expected === 'expired') {
++      assert.equal(before.animationState, 'running')
++      assert.equal(after.sameNotice, false, 'baseline must reproduce hidden notice expiry')
++      assert.equal(after.animationState, null)
++      await page.screenshot({ path: resolve(output, `route-notice-baseline-menu-${initiallyPaused}.png`) })
++      await button('Continue Game').click()
++      assert.equal(await page.evaluate(() => window.testStore.getWorld().paused), initiallyPaused)
++      record({ initiallyPaused, stage: 'baseline-return-expired', final: await observe() })
++      continue
++    }
++    assert.equal(after.sameNotice, true, 'menu must retain the notice beyond its wall-clock lifetime')
++    assert.equal(after.sameAnimation, true)
++    assert.equal(after.animationState, 'paused')
++    assert.ok(Math.abs(after.animationTime - before.animationTime) < 60)
++    await button('Quit Level').click(); await button('No').click()
++    await button('Options').click(); await button('Browser compatibility and help').click()
++    await button('Select Level').click()
++    const selector = await observe()
++    assert.equal(selector.animationState, 'paused')
++    assert.equal(selector.sameAnimation, true)
++    await page.keyboard.press('Escape')
++    await button('Continue Game').click()
++    await page.locator('.route-notice').waitFor({ state: 'visible' })
++    await button('Game settings').click()
++    await page.waitForTimeout(500)
++    const reopened = await observe()
++    assert.equal(reopened.sameNotice, true)
++    assert.equal(reopened.sameAnimation, true)
++    assert.ok(reopened.animationTime >= after.animationTime)
++    await page.screenshot({ path: resolve(output, `route-notice-menu-${initiallyPaused}.png`) })
++    await page.keyboard.press('Escape')
++    assert.equal(await page.evaluate(() => window.testStore.getWorld().paused), initiallyPaused)
++    const resumed = await page.evaluate(() => {
++      const fixture = window.routeNoticeFixture
++      const animation = document.querySelector('.route-notice').getAnimations()[0]
++      fixture.resumedAt = performance.now()
++      return { sameAnimation: animation === fixture.animation, currentTime: animation.currentTime,
++        remaining: animation.effect.getTiming().duration - animation.currentTime }
++    })
++    assert.equal(resumed.sameAnimation, true)
++    assert.ok(resumed.currentTime >= 1200)
++    assert.ok(resumed.remaining > 0 && resumed.remaining <= 1800)
++    await page.screenshot({ path: resolve(output, `route-notice-return-${initiallyPaused}.png`) })
++    await page.waitForFunction(() => window.testStore.getWorld().routeNotice === null, null, { timeout: 5000 })
++    const elapsed = await page.evaluate(() => window.routeNoticeFixture.finishedAt - window.routeNoticeFixture.resumedAt)
++    record({ initiallyPaused, stage: 'resumed-presentation-expired', resumed, elapsed, final: await observe() })
++    assert.ok(Number.isFinite(elapsed) && Math.abs(elapsed - resumed.remaining) < 250,
++      `expiry ${elapsed}ms must match remaining ${resumed.remaining}ms, not restart at three seconds`)
++  }
++  return { status: 'passed', episodes: observations.length / 2, observations }
++}
+diff --git a/scripts/local-render/route-notice-replacement.mjs b/scripts/local-render/route-notice-replacement.mjs
+new file mode 100644
+index 00000000..b6e26482
+--- /dev/null
++++ b/scripts/local-render/route-notice-replacement.mjs
+@@ -0,0 +1,51 @@
++import assert from 'node:assert/strict'
++import { writeFileSync } from 'node:fs'
++import { resolve } from 'node:path'
++import { bindGame } from '../browser-game.mjs'
++import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
++
++// Retain the actual React handler, then invoke it after a real public restart.
++// Notice publication and stale invocation are controlled presentation fixtures.
++export default async function ({ page, output }) {
++  const expected = process.env.PND_ROUTE_NOTICE_EXPECT ?? 'preserved'
++  assert.ok(['preserved', 'expired'].includes(expected))
++  const button = name => page.getByRole('button', { name, exact: true })
++  await page.setViewportSize({ width: 960, height: 720 })
++  await openCampaignFromMainMenu(page)
++  await button('Start Mission 1').click(); await bindGame(page)
++  await page.locator('.skip-introduction').click()
++  await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
++  await page.evaluate(() => window.testStore.change(w => {
++    w.routeNotice = { flags: 0x200000, message: 603, serial: 77 }
++  }))
++  await page.locator('.route-notice').waitFor({ state: 'visible' })
++  await page.evaluate(() => {
++    const node = document.querySelector('.route-notice')
++    const props = Object.keys(node).find(key => key.startsWith('__reactProps$'))
++    if (!props || typeof node[props].onAnimationEnd !== 'function') throw Error('Actual React completion handler unavailable')
++    window.staleRouteNoticeFixture = { world: window.testStore.getWorld(),
++      scene: window.testSceneRef.current, complete: node[props].onAnimationEnd }
++  })
++  await button('Game settings').click(); await button('Restart Level').click(); await button('Yes').click()
++  await page.waitForFunction(() => window.testStore.getWorld() !== window.staleRouteNoticeFixture.world)
++  await bindGame(page); await page.locator('.skip-introduction').click()
++  await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
++  await page.evaluate(() => window.testStore.change(w => {
++    w.routeNotice = { flags: 0x200000, message: 603, serial: 77 }
++  }))
++  await page.locator('.route-notice').waitFor({ state: 'visible' })
++  const result = await page.evaluate(() => {
++    const fixture = window.staleRouteNoticeFixture, world = window.testStore.getWorld()
++    const notice = world.routeNotice
++    fixture.complete()
++    return { replacedWorld: world !== fixture.world, replacedScene: window.testSceneRef.current !== fixture.scene,
++      sameSerial: notice.serial === 77, noticePreserved: world.routeNotice === notice }
++  })
++  writeFileSync(resolve(output, 'route-notice-replacement.json'), JSON.stringify({
++    scope: 'actual Home retained handler, public restart, controlled notice publication and stale invocation', expected, result,
++  }, null, 2))
++  assert.equal(result.replacedWorld, true); assert.equal(result.replacedScene, true)
++  assert.equal(result.sameSerial, true); assert.equal(result.noticePreserved, expected === 'preserved')
++  await page.screenshot({ path: resolve(output, 'route-notice-replacement.png') })
++  return { status: 'passed', result }
++}
+diff --git a/tests/route-notice-modal.test.mjs b/tests/route-notice-modal.test.mjs
+new file mode 100644
+index 00000000..b88b6086
+--- /dev/null
++++ b/tests/route-notice-modal.test.mjs
+@@ -0,0 +1,92 @@
++import test from 'node:test'
++import assert from 'node:assert/strict'
++import ts from 'typescript'
++import { requestTutorial } from '../app/model.ts'
++import { pageNode, pageSource, evaluatePage, pageNearby } from './support/follower-nearby-page.mjs'
++
++const notice = pageNode(node => ts.isJsxElement(node) &&
++  node.openingElement.attributes.properties.some(attribute =>
++    attribute.name?.getText(pageSource) === 'className' &&
++    attribute.initializer?.text === 'world-message route-notice'))
++
++// Execute Home's shipped JSX and menu handlers; this does not simulate CSS time.
++function fixture(paused = false) {
++  const makeWorld = () => ({ paused, routeNotice: { serial: 1 }, castingTribes: [{ flags: 0 }],
++    manaWorld: { gameFlags: 0 }, inputMask: 0 })
++  let world = makeWorld(), menu = false, selectorOpen = false
++  const scene = { world, cancelNearbyFollowers() {}, setModalSuspended(value) { this.modalSuspended = value } }
++  const store = { getWorld: () => world, change: action => action(world) }
++  const page = pageNearby(scene, { store, setMenu(value) { menu = value; if (value) selectorOpen = false },
++    setSelectorOpen(value) { selectorOpen = value } })
++  const render = () => evaluatePage(notice.getText(pageSource), {
++    store, world, routeNotice: world.routeNotice, menu, selectorOpen,
++    menuSession: page.bindings.menuSession, ROUTE_FAILURE_TEXT: 'Route failure',
++  })
++  return { page, scene, render, world: () => world,
++    inspect() { menu = false; page.openSelector() },
++    replace() { world = makeWorld(); return world },
++  }
++}
++
++for (const paused of [false, true]) {
++  test(`Home keeps the notice through menu/selector/reopen and restores prior pause=${paused}`, () => {
++    const ui = fixture(paused), original = ui.world().routeNotice
++    ui.page.openMenu()
++    const session = ui.page.bindings.menuSession.current
++    for (const action of [() => {}, () => ui.inspect(), () => ui.page.openMenu()]) {
++      action()
++      assert.equal(ui.page.bindings.menuSession.current, session)
++      assert.equal(ui.scene.modalSuspended, true)
++      const element = ui.render()
++      assert.equal(element.props.style.animationPlayState, 'paused')
++      assert.equal(ui.world().routeNotice, original)
++    }
++    ui.page.closeMenu()
++    assert.equal(ui.world().paused, paused)
++    assert.equal(ui.scene.modalSuspended, false)
++    assert.notEqual(ui.render().props.style.animationPlayState, 'paused')
++    ui.page.openMenu()
++    assert.equal(ui.render().props.style.animationPlayState, 'paused')
++    ui.page.closeMenu()
++    ui.render().props.onAnimationEnd()
++    assert.equal(ui.world().routeNotice, null)
++  })
++}
++
++test('ordinary game pause without a menu retains the presentation timer', () => {
++  const ui = fixture(true)
++  assert.equal(ui.page.bindings.menuSession.current, null)
++  assert.notEqual(ui.render().props.style.animationPlayState, 'paused')
++  ui.render().props.onAnimationEnd()
++  assert.equal(ui.world().routeNotice, null)
++})
++
++test('an obsolete animation callback cannot consume a replacement world notice with the same serial', () => {
++  const ui = fixture(), expired = ui.render().props.onAnimationEnd
++  const replacement = ui.replace(), retained = replacement.routeNotice
++  expired()
++  assert.equal(replacement.routeNotice, retained)
++})
++
++test('a canceled notice callback cannot consume a newly issued notice', () => {
++  const ui = fixture(), expired = ui.render().props.onAnimationEnd
++  ui.world().routeNotice = { serial: 2 }
++  expired()
++  assert.equal(ui.world().routeNotice.serial, 2)
++})
++
++test('actual producer serial reuse does not give an old callback ownership of a new notice', () => {
++  const ui = fixture()
++  ui.world().routeNotice = null
++  requestTutorial(ui.world(), 0x200000, 603)
++  const first = ui.world().routeNotice, complete = ui.render().props.onAnimationEnd
++  assert.equal(first.serial, 1)
++  complete()
++  assert.equal(ui.world().routeNotice, null)
++  requestTutorial(ui.world(), 0x200000, 603)
++  const next = ui.world().routeNotice
++  assert.equal(next.serial, first.serial)
++  assert.notEqual(next, first)
++  complete()
++  assert.equal(ui.world().routeNotice, next)
++})

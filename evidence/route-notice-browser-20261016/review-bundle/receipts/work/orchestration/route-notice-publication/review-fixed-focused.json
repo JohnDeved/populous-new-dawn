@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "7374dd92-6f74-408f-9e30-027f3e656e8c",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "a0bcf7dfa3dbf2491cfb9fb3c01d138cca005cd9",
+    "branch": "fix/route-notice-modal-lifetime",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/page.tsx": "57a4efce125b3578a1fdb3938f27c7189f52687faa4416c9a5a86d378cb5e8fb",
+      "app/world-effects.ts": "265779df0ac4a6a576acd8f342b22ee174864a5f7515f2f25f8ca3d5ff3d354d",
+      "tests/route-notice-modal.test.mjs": "00f9e3fe2b69b9404a1335472e2b3c820d4cf9b7ef0f284b01777310150c2606",
+      "scripts/local-render/route-notice-modal.mjs": "16ecfb70a00f92024d7cca1d6ec4f926cb9941a24aa774674b5e637da5501387",
+      "scripts/local-render/route-notice-replacement.mjs": "26bcfcce3f6ffca154811f91a26814573de1e18dbd8cd1dfccc2df4f50325c77",
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "--test-concurrency=1",
+    "tests/route-notice-modal.test.mjs",
+    "tests/pause-menu-ownership.test.mjs",
+    "tests/route-recovery.test.mjs"
+  ],
+  "cwd": "<CANDIDATE_ROOT>",
+  "startedAt": "2026-10-16T16:52:16.611Z",
+  "artifacts": {
+    "stdout": "<CANDIDATE_ROOT>/work/orchestration/route-notice/review-fixed-focused.json.artifacts/stdout.log",
+    "stderr": "<CANDIDATE_ROOT>/work/orchestration/route-notice/review-fixed-focused.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T16:52:18.052Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ actual Page captures original pause once, holds it across panel return and restores same-world close (26.98ms)\n✔ actual Page never restores an old pause state or queued camera request into a replacement world (5.233292ms)\n✔ actual Page applies queued camera conveniences only on final same-world close (5.389083ms)\n✔ Home keeps the notice through menu/selector/reopen and restores prior pause=false (26.024791ms)\n✔ Home keeps the notice through menu/selector/reopen and restores prior pause=true (10.165584ms)\n✔ ordinary game pause without a menu retains the presentation timer (6.111417ms)\n✔ an obsolete animation callback cannot consume a replacement world notice with the same serial (5.357916ms)\n✔ a canceled notice callback cannot consume a newly issued notice (4.768959ms)\n✔ actual producer serial reuse does not give an old callback ownership of a new notice (4.673625ms)\n✔ failed-route initialization and retries match native fields, timing and ordered consumers (2.533292ms)\n✔ disconnected groups stop, retain shared attack/waypoint orders, retry and resume after land connects (88.394084ms)\n✔ route-failure notice keeps the original text and retriggers without tutorial history (25.91375ms)\n✔ new orders and death release blocked commands; shaman failures use their own original voice (52.89475ms)\n✔ blocked groups retry on simulation counters, with identical recovery and combat at 5–240 Hz (294.194292ms)\n✔ blocked building-entry owners resume the same person and finish ordinary admission (26.70525ms)\nℹ tests 15\nℹ suites 0\nℹ pass 15\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1416.586333\n",
+  "stderr": "",
+  "stdoutSha256": "810d5aa639d3b92f57caff28ab12159311646d28da9dc1b8d585833cff976c1a",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "a0bcf7dfa3dbf2491cfb9fb3c01d138cca005cd9",
+    "branch": "fix/route-notice-modal-lifetime",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/page.tsx": "57a4efce125b3578a1fdb3938f27c7189f52687faa4416c9a5a86d378cb5e8fb",
+      "app/world-effects.ts": "265779df0ac4a6a576acd8f342b22ee174864a5f7515f2f25f8ca3d5ff3d354d",
+      "tests/route-notice-modal.test.mjs": "00f9e3fe2b69b9404a1335472e2b3c820d4cf9b7ef0f284b01777310150c2606",
+      "scripts/local-render/route-notice-modal.mjs": "16ecfb70a00f92024d7cca1d6ec4f926cb9941a24aa774674b5e637da5501387",
+      "scripts/local-render/route-notice-replacement.mjs": "26bcfcce3f6ffca154811f91a26814573de1e18dbd8cd1dfccc2df4f50325c77",
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  }
+}

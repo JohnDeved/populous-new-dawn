@@ -1,0 +1,10 @@
+{
+  "scope": "actual Home retained handler, public restart, controlled notice publication and stale invocation",
+  "expected": "preserved",
+  "result": {
+    "replacedWorld": true,
+    "replacedScene": true,
+    "sameSerial": true,
+    "noticePreserved": true
+  }
+}

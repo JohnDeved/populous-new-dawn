@@ -1,0 +1,100 @@
+{
+  "scope": "actual Home CSS/handlers with a controlled route-notice fixture",
+  "expected": "expired",
+  "observations": [
+    {
+      "initiallyPaused": false,
+      "stage": "hidden-longer-than-original-lifetime",
+      "before": {
+        "sameWorld": true,
+        "sameNotice": true,
+        "sameScene": true,
+        "sceneWorld": true,
+        "sameCanvas": true,
+        "paused": true,
+        "suspended": true,
+        "turn": 103,
+        "time": 8.583333333333334,
+        "animationState": "running",
+        "animationTime": 149.96399995125742
+      },
+      "after": {
+        "sameWorld": true,
+        "sameNotice": false,
+        "sameScene": true,
+        "sceneWorld": true,
+        "sameCanvas": true,
+        "paused": true,
+        "suspended": true,
+        "turn": 103,
+        "time": 8.583333333333334,
+        "animationState": null,
+        "animationTime": null
+      }
+    },
+    {
+      "initiallyPaused": false,
+      "stage": "baseline-return-expired",
+      "final": {
+        "sameWorld": true,
+        "sameNotice": false,
+        "sameScene": true,
+        "sceneWorld": true,
+        "sameCanvas": true,
+        "paused": false,
+        "suspended": false,
+        "turn": 103,
+        "time": 8.583333333333334,
+        "animationState": null,
+        "animationTime": null
+      }
+    },
+    {
+      "initiallyPaused": true,
+      "stage": "hidden-longer-than-original-lifetime",
+      "before": {
+        "sameWorld": true,
+        "sameNotice": true,
+        "sameScene": true,
+        "sceneWorld": true,
+        "sameCanvas": true,
+        "paused": true,
+        "suspended": true,
+        "turn": 103,
+        "time": 8.583333333333334,
+        "animationState": "running",
+        "animationTime": 166.68199996659538
+      },
+      "after": {
+        "sameWorld": true,
+        "sameNotice": false,
+        "sameScene": true,
+        "sceneWorld": true,
+        "sameCanvas": true,
+        "paused": true,
+        "suspended": true,
+        "turn": 103,
+        "time": 8.583333333333334,
+        "animationState": null,
+        "animationTime": null
+      }
+    },
+    {
+      "initiallyPaused": true,
+      "stage": "baseline-return-expired",
+      "final": {
+        "sameWorld": true,
+        "sameNotice": false,
+        "sameScene": true,
+        "sceneWorld": true,
+        "sameCanvas": true,
+        "paused": true,
+        "suspended": false,
+        "turn": 103,
+        "time": 8.583333333333334,
+        "animationState": null,
+        "animationTime": null
+      }
+    }
+  ]
+}

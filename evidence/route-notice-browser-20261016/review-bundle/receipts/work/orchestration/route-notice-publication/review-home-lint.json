@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "b9e449d9-82cc-472d-84ab-084f20002273",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "a0bcf7dfa3dbf2491cfb9fb3c01d138cca005cd9",
+    "branch": "fix/route-notice-modal-lifetime",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/page.tsx": "57a4efce125b3578a1fdb3938f27c7189f52687faa4416c9a5a86d378cb5e8fb",
+      "tests/route-notice-modal.test.mjs": "00f9e3fe2b69b9404a1335472e2b3c820d4cf9b7ef0f284b01777310150c2606",
+      "scripts/local-render/route-notice-modal.mjs": "16ecfb70a00f92024d7cca1d6ec4f926cb9941a24aa774674b5e637da5501387",
+      "scripts/local-render/route-notice-replacement.mjs": "26bcfcce3f6ffca154811f91a26814573de1e18dbd8cd1dfccc2df4f50325c77",
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  },
+  "command": [
+    "node",
+    "node_modules/eslint/bin/eslint.js",
+    "app/page.tsx"
+  ],
+  "cwd": "<CANDIDATE_ROOT>",
+  "startedAt": "2026-10-16T16:52:39.794Z",
+  "artifacts": {
+    "stdout": "<CANDIDATE_ROOT>/work/orchestration/route-notice/review-home-lint.json.artifacts/stdout.log",
+    "stderr": "<CANDIDATE_ROOT>/work/orchestration/route-notice/review-home-lint.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T16:52:40.674Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "\n<CANDIDATE_ROOT>/app/page.tsx\n   138:80  error    Error: Calling setState synchronously within an effect can trigger cascading renders\n\nEffects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:\n* Update external systems with the latest state from React.\n* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n\nCalling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).\n\n<CANDIDATE_ROOT>/app/page.tsx:138:80\n  136 |       const saved = localStorage.getItem('hud-size')\n  137 |       // oxlint-disable-next-line react/set-state-in-effect -- Restore browser storage after hydration.\n> 138 |       if (saved && ['auto', '1', '1.5', '2', '2.5', '3', '4'].includes(saved)) setHudSize(saved)\n      |                                                                                ^^^^^^^^^^ Avoid calling setState() directly within an effect\n  139 |     } catch {\n  140 |       // Storage can be disabled; the size control still works for this session.\n  141 |     }  react-hooks/set-state-in-effect\n  1110:19  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @next/next/no-img-element\n\n✖ 2 problems (1 error, 1 warning)\n\n",
+  "stderr": "",
+  "stdoutSha256": "8aea1dc9db68421d74ec53afaf5a6c70c90a8d979b2bec7bb44ed350652d681f",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "a0bcf7dfa3dbf2491cfb9fb3c01d138cca005cd9",
+    "branch": "fix/route-notice-modal-lifetime",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/page.tsx": "57a4efce125b3578a1fdb3938f27c7189f52687faa4416c9a5a86d378cb5e8fb",
+      "tests/route-notice-modal.test.mjs": "00f9e3fe2b69b9404a1335472e2b3c820d4cf9b7ef0f284b01777310150c2606",
+      "scripts/local-render/route-notice-modal.mjs": "16ecfb70a00f92024d7cca1d6ec4f926cb9941a24aa774674b5e637da5501387",
+      "scripts/local-render/route-notice-replacement.mjs": "26bcfcce3f6ffca154811f91a26814573de1e18dbd8cd1dfccc2df4f50325c77",
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  }
+}
