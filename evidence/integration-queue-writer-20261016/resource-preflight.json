@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "34a55966-83cd-4deb-869c-e5ecd9a6a141",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "9cbb3125eafc2e4e084ad02d7cc03684acd18464",
+    "branch": "tooling/reviewed-integration-queue",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/integration-queue/policy.mjs": "33e9563e09b383ed8d71a372ac7a039d9d4d3e0c4d8977569d325a69d33296c3",
+      "scripts/integration-queue/github.mjs": "4c1d91648b0d951cc57ab11fb2a07e80bb1c3404dc9e376f3fef111cf3bdc019",
+      "scripts/integration-queue/resources.mjs": "938dff983ed94686877281788ca8078cade436a830f03d65fd0045ab5b530391",
+      "scripts/integration-queue/cli.mjs": "3af036612e8c3a96816b810cca01d1c40b151d40d6df47faf9664f1c966de5b0",
+      "scripts/integration-queue/writer.mjs": "c598ca867bc266f453d6e0346215cefd7b48a201f84213ec1c94c6b42a59e288",
+      "tests/integration-queue.test.mjs": "63b171f6b5fc67970172ce4e5f8cc0877a70ec35362b0ddbfffd3d7ea95fc268",
+      "scripts/integration-queue/README.md": "a689a28da70add2c5b220354b2a5cfd52344ac280f1641b663b333ed704de0f4",
+      "scripts/orchestration/test-runner.mjs": "2d95f407982eef5194f8cfab0dea456f5ca2d84793c35a2ccd686187c79e2a05",
+      "tests/test-runner.test.mjs": "27182daa6907c8c19bf638c6577331d0bb78bc9f73fffb25c58ab0ae420e5a2c"
+    }
+  },
+  "command": [
+    "node",
+    "--input-type=module",
+    "-e",
+    "import {planTestRun} from './scripts/orchestration/test-runner.mjs'; const p=planTestRun(process.cwd(),'all'); console.log(JSON.stringify({fullSuite:p.fullSuite,parallelEligibility:p.parallelEligibility,files:p.files.length,groups:p.groups.map(g=>({concurrency:g.concurrency,files:g.files.length}))}))"
+  ],
+  "cwd": "[REPO]",
+  "startedAt": "2026-10-16T19:31:16.211Z",
+  "artifacts": {
+    "stdout": "[REPO]/work/orchestration/integration-queue-writer/resource-preflight.json.artifacts/stdout.log",
+    "stderr": "[REPO]/work/orchestration/integration-queue-writer/resource-preflight.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T19:31:16.279Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\"fullSuite\":true,\"parallelEligibility\":\"production-config-runtime-drift\",\"files\":450,\"groups\":[{\"concurrency\":1,\"files\":450}]}\n",
+  "stderr": "",
+  "stdoutSha256": "8252de438179a3bb4eaeeddf3f1607ff3b97f7773d3be03a7629aeffb6a11f18",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "9cbb3125eafc2e4e084ad02d7cc03684acd18464",
+    "branch": "tooling/reviewed-integration-queue",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/integration-queue/policy.mjs": "33e9563e09b383ed8d71a372ac7a039d9d4d3e0c4d8977569d325a69d33296c3",
+      "scripts/integration-queue/github.mjs": "4c1d91648b0d951cc57ab11fb2a07e80bb1c3404dc9e376f3fef111cf3bdc019",
+      "scripts/integration-queue/resources.mjs": "938dff983ed94686877281788ca8078cade436a830f03d65fd0045ab5b530391",
+      "scripts/integration-queue/cli.mjs": "3af036612e8c3a96816b810cca01d1c40b151d40d6df47faf9664f1c966de5b0",
+      "scripts/integration-queue/writer.mjs": "c598ca867bc266f453d6e0346215cefd7b48a201f84213ec1c94c6b42a59e288",
+      "tests/integration-queue.test.mjs": "63b171f6b5fc67970172ce4e5f8cc0877a70ec35362b0ddbfffd3d7ea95fc268",
+      "scripts/integration-queue/README.md": "a689a28da70add2c5b220354b2a5cfd52344ac280f1641b663b333ed704de0f4",
+      "scripts/orchestration/test-runner.mjs": "2d95f407982eef5194f8cfab0dea456f5ca2d84793c35a2ccd686187c79e2a05",
+      "tests/test-runner.test.mjs": "27182daa6907c8c19bf638c6577331d0bb78bc9f73fffb25c58ab0ae420e5a2c"
+    }
+  }
+}

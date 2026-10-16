@@ -1,5 +1,8 @@
 # Read-only integration queue evidence — 2026-10-16
 
+Historical foundation evidence. Current guarded-writer checks and review repairs
+are in [the later report](../integration-queue-writer-20261016/README.md).
+
 Tested code: `8a9520d22c9ff0476022d51d1862b46394e5ce62`.
 Source base: `cf38a755a3a00255184c63c175a00076cff6b025`.
 Later evidence-only commits do not change these inputs; `source-manifest.json`
