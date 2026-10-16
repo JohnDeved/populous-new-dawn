@@ -468,7 +468,18 @@ test('checkout proof needs exactly one real checkout hash, not arbitrary log tex
 
 function repoFixture() {
   const dir = mkdtempSync(join(tmpdir(), 'pnd-queue-git-'))
-  const git = (...args) => execFileSync('git', args, { cwd: dir, encoding: 'utf8' }).trim()
+  // Disposable fixtures own their Git configuration; production readers still inspect inherited config.
+  const env = {
+    ...Object.fromEntries(
+      Object.entries(process.env).filter(([key]) => !/^GIT_CONFIG(?:_|$)/.test(key))
+    ),
+    GIT_CONFIG_GLOBAL: '/dev/null',
+    GIT_CONFIG_NOSYSTEM: '1',
+    GIT_CONFIG_COUNT: '0',
+  }
+  const execute = (command, args, cwd = dir) =>
+    execFileSync(command, args, { cwd, encoding: 'utf8', env })
+  const git = (...args) => execute('git', args).trim()
   git('init', '-q')
   git('config', 'user.email', 'test@example.test')
   git('config', 'user.name', 'Test')
@@ -479,11 +490,11 @@ function repoFixture() {
   put('file.txt', 'initial\n')
   git('add', '.')
   git('commit', '-qm', 'base')
-  return { dir, git, put }
+  return { dir, git, put, execute, env }
 }
 
 test('real Git merge-tree proof preserves contents and modes; path overlap stops refresh', () => {
-  const { dir, git, put } = repoFixture()
+  const { dir, git, put, execute } = repoFixture()
   try {
     const base = git('rev-parse', 'HEAD')
     put('source.txt', 'reviewed\n')
@@ -497,7 +508,7 @@ test('real Git merge-tree proof preserves contents and modes; path overlap stops
     git('add', '.')
     git('commit', '-qm', 'main')
     const main = git('rev-parse', 'HEAD'),
-      reader = new GitHubReader({ cwd: dir })
+      reader = new GitHubReader({ cwd: dir, execute })
     const proof = reader.refresh({ reviewBase: base }, source, main)
     assert.equal(proof.clean, true)
     assert.equal(proof.disjoint, true)
@@ -735,7 +746,7 @@ test('fake Actions adapter binds workflow/run/attempt/check/app and actual check
 })
 
 test('CLI fixture executes the full read-only path, reports preflight, and resumes its quiet checkpoint', () => {
-  const { dir, git, put } = repoFixture()
+  const { dir, git, put, env } = repoFixture()
   const trusted = mkdtempSync(join(tmpdir(), 'pnd-queue-cli-'))
   try {
     const base = git('rev-parse', 'HEAD')
@@ -810,7 +821,7 @@ test('CLI fixture executes the full read-only path, reports preflight, and resum
       '--snapshot',
       snapshot,
     ]
-    const first = spawnSync(process.execPath, argv, { encoding: 'utf8' })
+    const first = spawnSync(process.execPath, argv, { encoding: 'utf8', env })
     assert.equal(first.status, 0, first.stderr)
     assert.equal(JSON.parse(first.stdout)[0].status, 'wait')
     assert.equal(
@@ -820,7 +831,7 @@ test('CLI fixture executes the full read-only path, reports preflight, and resum
     const saved = JSON.parse(readFileSync(state, 'utf8'))
     saved.entries[e.pr].quiet.since -= 60_001
     atomicWrite(state, saved)
-    const second = spawnSync(process.execPath, argv, { encoding: 'utf8' })
+    const second = spawnSync(process.execPath, argv, { encoding: 'utf8', env })
     assert.equal(second.status, 0, second.stderr)
     const output = JSON.parse(second.stdout)[0]
     assert.equal(output.mode, 'fixture-dry-run')
@@ -834,7 +845,7 @@ test('CLI fixture executes the full read-only path, reports preflight, and resum
     const liveArgs = argv.slice(0, -2)
     const mismatch = spawnSync(process.execPath, liveArgs, {
       encoding: 'utf8',
-      env: { ...process.env, PATH: `${bin}:${process.env.PATH}` },
+      env: { ...env, PATH: `${bin}:${env.PATH}` },
     })
     assert.equal(mismatch.status, 2)
     assert.match(mismatch.stderr, /fixture\/live mode changed/)
@@ -842,7 +853,7 @@ test('CLI fixture executes the full read-only path, reports preflight, and resum
     const linked = join(trusted, 'linked-state.json')
     symlinkSync(state, linked)
     const linkedArgs = argv.map(value => (value === state ? linked : value))
-    const linkedResult = spawnSync(process.execPath, linkedArgs, { encoding: 'utf8' })
+    const linkedResult = spawnSync(process.execPath, linkedArgs, { encoding: 'utf8', env })
     assert.equal(linkedResult.status, 2)
     assert.match(linkedResult.stderr, /not a symlink/)
     assert.equal(git('rev-parse', 'HEAD'), synthetic)
@@ -1343,7 +1354,7 @@ test('pagination rejects short incomplete responses, changing counts and duplica
 })
 
 test('custom clean filter is rejected before resource preflight or any Git status can execute it', () => {
-  const { dir, git, put } = repoFixture()
+  const { dir, git, put, execute } = repoFixture()
   try {
     put('.gitattributes', 'file.txt filter=probe\n')
     git('add', '.gitattributes')
@@ -1351,7 +1362,7 @@ test('custom clean filter is rejected before resource preflight or any Git statu
     const marker = join(dir, 'filter-executed')
     git('config', 'filter.probe.clean', `touch '${marker}'; cat`)
     put('file.txt', 'would trigger clean filter during status\n')
-    const reader = new GitHubReader({ cwd: dir })
+    const reader = new GitHubReader({ cwd: dir, execute })
     const preflight = resourcePreflight(dir, (...args) => reader.git(...args))
     assert.equal(preflight.status, 'blocked')
     assert.match(preflight.reason, /drivers rejected before/)
@@ -1704,4 +1715,77 @@ test('new Tutorial guard proof restarts the stable observation window', () => {
   assert.equal(d.checkpoint.quiet.since, now + 60_000)
   d = decide(e, { ...o, observedAt: now + 120_000 }, d.checkpoint, now + 120_000)
   assert.equal(d.action.kind, 'ready')
+})
+
+test('disposable Git fixtures remain hermetic under inherited global, system and injected filters', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'pnd-queue-inherited-config-'))
+  try {
+    const global = join(dir, 'global.gitconfig'),
+      system = join(dir, 'system.gitconfig')
+    writeFileSync(
+      global,
+      '[filter "lfs"]\nclean = git-lfs clean -- %f\nsmudge = git-lfs smudge -- %f\nprocess = git-lfs filter-process\nrequired = true\n'
+    )
+    writeFileSync(system, '[filter "system"]\nclean = false\n')
+    const child = spawnSync(
+      process.execPath,
+      [
+        '--test',
+        '--test-name-pattern=^(real Git merge-tree proof|resource preflight reports|CLI fixture executes|custom clean filter is rejected)',
+        resolve('tests/integration-queue.test.mjs'),
+      ],
+      {
+        encoding: 'utf8',
+        timeout: 30_000,
+        env: {
+          ...process.env,
+          NODE_TEST_CONTEXT: undefined,
+          GIT_CONFIG_GLOBAL: global,
+          GIT_CONFIG_SYSTEM: system,
+          GIT_CONFIG_NOSYSTEM: '0',
+          GIT_CONFIG_COUNT: '1',
+          GIT_CONFIG_KEY_0: 'filter.injected.clean',
+          GIT_CONFIG_VALUE_0: 'false',
+          GIT_CONFIG_PARAMETERS: "'filter.parameter.clean=false'",
+        },
+      }
+    )
+    assert.equal(child.status, 0, child.stderr + child.stdout)
+    assert.match(child.stdout, /(?:#|ℹ) tests 4\b/)
+    assert.match(child.stdout, /(?:#|ℹ) pass 4\b/)
+  } finally {
+    rmSync(dir, { recursive: true })
+  }
+})
+
+test('production reader rejects inherited clean filters before status can invoke them', () => {
+  const { dir, git, put, env } = repoFixture()
+  const trusted = mkdtempSync(join(tmpdir(), 'pnd-queue-global-guard-'))
+  try {
+    put('.gitattributes', 'file.txt filter=probe\n')
+    git('add', '.gitattributes')
+    git('commit', '-qm', 'attributes')
+    put('file.txt', 'would invoke inherited clean filter\n')
+    const marker = join(trusted, 'filter-executed'),
+      global = join(trusted, 'global.gitconfig')
+    execFileSync(
+      'git',
+      ['config', '--file', global, 'filter.probe.clean', `touch '${marker}'; cat`],
+      { env }
+    )
+    const script = `import assert from 'node:assert/strict';
+      import {GitHubReader} from ${JSON.stringify(new URL('../scripts/integration-queue/github.mjs', import.meta.url).href)};
+      const reader = new GitHubReader({cwd: process.argv[1]});
+      assert.throws(() => reader.git('status', '--porcelain'), {message: 'Custom Git merge/filter drivers rejected before inspecting working files'});`
+    const child = spawnSync(process.execPath, ['--input-type=module', '-e', script, dir], {
+      encoding: 'utf8',
+      env: { ...env, GIT_CONFIG_GLOBAL: global },
+      timeout: 30_000,
+    })
+    assert.equal(child.status, 0, child.stderr + child.stdout)
+    assert.throws(() => readFileSync(marker), { code: 'ENOENT' })
+  } finally {
+    rmSync(dir, { recursive: true })
+    rmSync(trusted, { recursive: true })
+  }
 })
