@@ -1,4 +1,4 @@
-# Reviewed integration queue (read-only pilot)
+# Reviewed integration queue (guarded pilot)
 
 This driver inspects one explicit reviewed PR at a time and reports the next safe
 step. It can inspect an ordinary PR or a separately reviewed integration PR with
@@ -6,11 +6,12 @@ preserved merge ancestry. It does not declare the integration PR's constituent P
 tested. GitHub remains the task/status surface; the local checkpoint only records
 observation continuity and uncertain effects.
 
-**Live mutations are disabled.** `--apply` fails before GitHub access. There is no
-write adapter, flag/environment escape hatch, background polling, workflow rerun,
-new credential, protection change, deploy, squash, rebase or automatic approval.
-The fake-GitHub tests exercise the proposed sequence. Independent review and a
-parent-approved bounded pilot must precede a separately reviewed write adapter.
+**Dry-run is the default.** The writer can submit one refresh, ready transition or
+exact-head merge only with an explicit parent-approved, independently reviewed
+plan and short-lived pilot. It has no background polling, workflow rerun, new
+credential, protection change, deploy, squash, rebase or automatic approval.
+No live mutation pilot has been run during implementation. Root must authorize
+that separately after independent review.
 
 ## Read-only invocation
 
@@ -19,7 +20,8 @@ checkout at the exact synthetic merge, with existing installed dependencies. The
 driver never installs dependencies, runs candidate code/hooks, fetches, checks out,
 or changes a ref. Missing Git objects or dependencies produce an actionable stop.
 Git commands disable hooks/fsmonitor/external diff/textconv. Custom merge/filter
-drivers are rejected before inspection; `merge-tree` may write unreachable Git
+drivers are rejected by reading configuration before status, preflight or other
+Git operations can inspect working files; `merge-tree` may write unreachable Git
 objects but cannot update refs or the working tree.
 
 ```sh
@@ -28,12 +30,15 @@ node /trusted/tool/scripts/integration-queue/cli.mjs \
   --candidate /isolated/candidate --state /trusted/queue-state.json
 ```
 
-Each call is one bounded observation, not a daemon. Reinvoke after the reported
+Each call is one bounded observation and at most one explicitly armed effect. Reinvoke after the reported
 wait. It uses existing `gh` authentication, with fixed `github.com` and
-`JohnDeved/populous-new-dawn`, GET requests and argument arrays only. Do not create
+`JohnDeved/populous-new-dawn`, GET requests for observation and fixed argument arrays for guarded mutations. Do not create
 an automation around it until the pilot is approved. `--snapshot /fixture.json`
 reads a map keyed by PR number and labels its output `fixture-dry-run`; fixture
-results are never live evidence. Exit 2 means stop/error; a wait or proposal exits
+results are never live evidence. Version-2 checkpoints bind fixture/live mode, a
+random journal ID and the canonical journal path. Fixture history cannot seed a
+live quiet window or pilot. Older checkpoint versions stop rather than migrate
+implicitly. Exit 2 means stop/error; a wait or proposal exits
 0 and must not be interpreted as merge permission.
 
 Keep allowlist, review and resource receipts outside the candidate checkout. Their
@@ -98,31 +103,42 @@ this tool verifies CI coverage, not the meaning of external browser/native claim
 4. Surface the exported `planTestRun(candidate, 'all')` preflight before ready.
    It reads inputs without running tests. The exact synthetic candidate is required;
    serial fallback is valid and visible, never silently reclassified. Propose ready
-   only after the stale runs drain. A future writer must persist `recordIntent()`
-   durably before every effect and re-read identities immediately before applying it.
+   only after the stale runs drain. The writer persists `recordIntent()` durably
+   before every effect and re-reads identities immediately before applying it.
 5. Wait for terminal Full check and required Tutorial browser on the exact head,
    base and synthetic commit. Bind workflow/run/attempt/check suite/Actions app and
    actual checkout log plus logged `PR_HEAD_SHA`/`PR_BASE_SHA`. Require mandatory
    stages and job success. Never fall back to an older green run after a newer red
-   or canceled run. Never retry/rerun obsolete events.
+   or canceled run. Rank actual attempt/job start times, not numeric run IDs;
+   require agreement with the current named Actions check on that head. Missing
+   timestamps, ties or conflicting selection stop. A later failed rerun of an
+   older run blocks the earlier green higher-ID run. Exclude only positively
+   identified `Draft PR (not validated)` admissions: pinned workflow, Actions app,
+   exact run/attempt/check, `IS_DRAFT: true`, failed readiness stage and skipped
+   validation stages. Failed ready validations are never excluded.
+   Never retry/rerun obsolete events.
 6. Propose merge only with clean protected mergeability and explicit expected head,
-   base, synthetic tree and run URLs/attempts. A future writer must use a guarded
-   merge such as `gh pr merge --merge --match-head-commit <head> --repo ...`, with
-   no `--admin`, `--auto`, squash or rebase. The head guard alone cannot guard base
-   movement; strict protection and a fresh full identity recheck remain required.
+   base, synthetic tree and run URLs/attempts. The writer uses `gh api` against
+   fixed github.com, PUT `/pulls/N/merge`, `sha=<expected head>` and
+   `merge_method=merge`. Refresh uses PUT `/pulls/N/update-branch` with
+   `expected_head_sha=<expected head>`. Ready uses `gh pr ready N` with the fixed
+   repository. There is no admin/auto-merge/squash/rebase path. GitHub ready has no
+   head CAS, so fresh checks and subsequent reconciliation guard that transition.
+   Head CAS cannot atomically guard base movement; root must serialize the
+   integration lane, and strict protection plus final identity recheck remain
+   required. Any unexpected post-effect parents/tree stop for reconciliation.
 7. After an uncertain effect, reconcile before considering another effect. Same-head
    refresh, still-draft ready or apparently-unmerged merge stops instead of retrying.
    A confirmed merge must have `[testedBase, testedHead]` parents, the tested tree,
-   and be main's current tip. Wait for an existing successful GitHub deployment of
-   that exact commit/environment/URL. No deployment is triggered. If this repository
-   lacks SHA-bound GitHub deployment records, completion remains unverified and a
-   separately reviewed read-only provider adapter is needed.
+   and be main's current tip. Deployment observation follows the explicitly
+   approved mode below. No deployment is triggered and no serving-production claim
+   is inferred from a build check.
 
 Checkpoints are atomically replaced and fsynced under an exclusive `.lock` file.
 An interrupted process leaves the lock: inspect the process and checkpoint before
 removing it manually. Do not delete a checkpoint to retry an uncertain mutation.
 Changed authorization hashes, stale observations, clock rollback, incomplete/capped
-pagination, missing logs, authentication failures and changing PR views stop.
+pagination (including short pages whose total_count promises more), missing logs, authentication failures and changing PR views stop.
 One queue entry must reach verified completion before the next is considered.
 
 ## Optional resource proposal
@@ -156,9 +172,93 @@ temporary Git objects. It does not touch a real PR. It covers reordered/delayed
 runs, failed/canceled/skipped checks, source/workflow/protection drift, conflicts,
 missing browser coverage, guarded refresh ancestry, uncertain effects, deployment
 identity, pagination limits, approval-file boundaries and serial preflight.
-The production writer is absent, so no live mutation or hands-off integration is
-claimed. The normal ready-PR full check/build remains required for this tool PR.
+The actual writer is covered through fake transports; no live mutation or
+hands-off production integration is claimed before the approved pilot. The normal ready-PR full check/build remains
+required for this tool PR.
 
 Relevant GitHub contracts: [workflow runs](https://docs.github.com/en/rest/actions/workflow-runs),
 [pull-request merge/update APIs](https://docs.github.com/en/rest/pulls/pulls), and
 [GH CLI exact-head merge](https://cli.github.com/manual/gh_pr_merge).
+
+
+## Arming one reviewed effect
+
+A dry-run `propose` result includes a `plan` object. Save that exact object outside
+the candidate checkout, hash its bytes, and have the independent reviewer inspect
+the plan and exact clean driver commit. The parent may then create a pilot JSON
+outside the candidate checkout. The driver does not create approvals or broaden
+one action into a PR-wide authorization. Normal read-only calls continue polling
+and reconciling between effects; the parent can coordinate the bounded sequence
+without involving the user again.
+
+```json
+{
+  "version": 1,
+  "repo": "JohnDeved/populous-new-dawn",
+  "pr": 123,
+  "approvedBy": "<same parent as allowlist>",
+  "planSha256": "<SHA-256 of exact plan file>",
+  "createdAt": "<ISO UTC creation time>",
+  "expiresAt": "<ISO UTC expiry, at most one hour later>",
+  "review": {
+    "decision": "ACCEPT",
+    "reviewer": "<independent reviewer>",
+    "planSha256": "<same plan file digest>",
+    "driverHead": "<exact reviewed clean driver commit>",
+    "file": "/trusted/pilot-review.md",
+    "sha256": "<SHA-256 of independent review>"
+  }
+}
+```
+
+After root's explicit pilot authorization:
+
+```sh
+node /trusted/tool/scripts/integration-queue/cli.mjs \
+  --allowlist /trusted/queue.json --allowlist-sha256 <hash> \
+  --candidate /isolated/candidate --state /trusted/queue-state.json \
+  --apply --plan /trusted/plan.json --plan-sha256 <hash> \
+  --pilot /trusted/pilot.json --pilot-sha256 <hash>
+```
+
+The plan binds the allowlist and entry digests, driver commit, journal ID/path,
+and exact action including head/base/tree/check attempts. The writer re-observes
+live GitHub state and recomputes policy before submission. It fsyncs intent and
+consumes the pilot before calling GH. A transport timeout, denied response,
+non-confirming merge response, or interrupted process never authorizes replay.
+`submitted` means the request returned, not that its remote effect is verified.
+The next read-only call reconciles the pending intent. Reusing a consumed pilot
+performs reconciliation only; it never submits a second action. Do not restore an
+old journal, erase intent, or switch journal files to retry an uncertain request.
+Fixture mode cannot arm the writer. Neither environment variables nor PR text arm
+it, and no real pilot/approval file is shipped in this repository.
+
+## Deployment observation modes
+
+The current repository exposes Cloudflare Workers build checks on exact main
+commits. To select that observer, replace `deployment` in the allowlist with:
+
+```json
+{
+  "kind": "cloudflare-check",
+  "appId": 85455,
+  "appSlug": "cloudflare-workers-and-pages",
+  "name": "Workers Builds: populous-new-dawn",
+  "project": "populous-new-dawn",
+  "productionBuildPrefix": "https://dash.cloudflare.com/19321bcee0ed17a93b709cb602dd070c/workers/services/view/populous-new-dawn/production/builds/"
+}
+```
+
+The observer requires the exact merge SHA, pinned app/name/project and a production
+build URL with a build UUID. A newer failed check cannot borrow an older success;
+a preview, wrong project, wrong commit or wrong app cannot pass. Success reports
+`merge: confirmed`, `deployment: provider-production-build-check-passed`, and
+`servingDeployment: unverified`. It does not probe the site or prove which version
+is serving traffic. A missing/pending check waits after confirming the merge;
+a failed or unverified check stops with that distinction visible.
+
+The original GitHub deployment observer remains available as
+`kind: "github-deployment"` (or the original omitted-kind form), with an explicit
+environment and URL. An explicit `{ "kind": "unverified", "reason": "..." }`
+policy instead finishes with `merge: confirmed, deployment: unverified`; it must
+never be described as production verification.

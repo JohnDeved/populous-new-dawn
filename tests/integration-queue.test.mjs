@@ -1,6 +1,14 @@
 import assert from 'node:assert/strict'
 import { execFileSync, spawnSync } from 'node:child_process'
-import { mkdtempSync, readFileSync, mkdirSync, writeFileSync, rmSync, chmodSync } from 'node:fs'
+import {
+  mkdtempSync,
+  readFileSync,
+  mkdirSync,
+  writeFileSync,
+  rmSync,
+  chmodSync,
+  symlinkSync,
+} from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import test from 'node:test'
@@ -808,6 +816,12 @@ test('CLI fixture executes the full read-only path, reports preflight, and resum
     assert.equal(mismatch.status, 2)
     assert.match(mismatch.stderr, /fixture\/live mode changed/)
     assert.throws(() => readFileSync(marker), { code: 'ENOENT' })
+    const linked = join(trusted, 'linked-state.json')
+    symlinkSync(state, linked)
+    const linkedArgs = argv.map(value => (value === state ? linked : value))
+    const linkedResult = spawnSync(process.execPath, linkedArgs, { encoding: 'utf8' })
+    assert.equal(linkedResult.status, 2)
+    assert.match(linkedResult.stderr, /not a symlink/)
     assert.equal(git('rev-parse', 'HEAD'), synthetic)
     assert.equal(git('status', '--porcelain'), '')
   } finally {

@@ -3,6 +3,7 @@ import {
   mkdirSync,
   readFileSync,
   realpathSync,
+  lstatSync,
   renameSync,
   writeFileSync,
   openSync,
@@ -183,6 +184,7 @@ export function main(argv = process.argv.slice(2)) {
     const mode = args['--snapshot'] ? 'fixture' : 'github'
     let saved = { version: 2, mode, authorization, journalId: randomUUID(), entries: {} }
     try {
+      ensure(lstatSync(statePath).isFile(), 'Checkpoint must be a regular file, not a symlink')
       saved = json(statePath)
     } catch (error) {
       if (error.code !== 'ENOENT') throw error
