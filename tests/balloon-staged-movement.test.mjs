@@ -1,3 +1,4 @@
+import { stagedCheckpointComparisonView, assertStagedCheckpointComparisonDomain } from './helpers/staged-checkpoint-comparison-view.mjs'
 import {
   seatedAttackOrigin,
   boundedGroundAttackDeparture,
@@ -187,17 +188,9 @@ async function assertStagedTransport({ store, world, shaman, balloon }, pins) {
   await store.saveCheckpoint()
   assert.ok(store.loadCheckpoint())
   const restored = store.getWorld(),
-    comparable = world => {
-      const copy = structuredClone(world)
-      for (const [index, id] of [
-        [0, 102],
-        [2, 120],
-      ]) {
-        assert.equal(copy.shrines[index].id, id)
-        if (copy.shrines[index].reward === undefined) copy.shrines[index].reward = 'mana'
-      }
-      return copy
-    }
+    comparable = stagedCheckpointComparisonView
+  assertStagedCheckpointComparisonDomain(world)
+  assertStagedCheckpointComparisonDomain(restored)
   assert.deepEqual(
     world.shrines.flatMap((head, index) =>
       head.reward !== restored.shrines[index].reward ? [index] : []
@@ -304,6 +297,8 @@ async function assertStagedTransport({ store, world, shaman, balloon }, pins) {
   await idleStore.saveCheckpoint()
   assert.ok(idleStore.loadCheckpoint())
   const idleReplay = idleStore.getWorld()
+  assertStagedCheckpointComparisonDomain(idle)
+  assertStagedCheckpointComparisonDomain(idleReplay)
   assert.deepEqual(
     idle.shrines.flatMap((head, index) =>
       head.reward !== idleReplay.shrines[index].reward ? [index] : []
@@ -388,6 +383,8 @@ async function assertStagedTransport({ store, world, shaman, balloon }, pins) {
   await departureStore.saveCheckpoint()
   assert.ok(departureStore.loadCheckpoint())
   const replay = departureStore.getWorld()
+  assertStagedCheckpointComparisonDomain(departing)
+  assertStagedCheckpointComparisonDomain(replay)
   assert.deepEqual(
     departing.shrines.flatMap((head, index) =>
       head.reward !== replay.shrines[index].reward ? [index] : []
@@ -457,6 +454,8 @@ async function assertStagedTransport({ store, world, shaman, balloon }, pins) {
   await successorStore.saveCheckpoint()
   assert.ok(successorStore.loadCheckpoint())
   const successorReplay = successorStore.getWorld()
+  assertStagedCheckpointComparisonDomain(successor)
+  assertStagedCheckpointComparisonDomain(successorReplay)
   assert.deepEqual(
     successor.shrines.flatMap((s, i) =>
       s.reward !== successorReplay.shrines[i].reward ? [i] : []
