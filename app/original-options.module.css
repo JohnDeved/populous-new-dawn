@@ -1,5 +1,6 @@
 .options { position: absolute; inset: 0; color: #fff1bb; }
 .choice { position: absolute; transform: translateX(-50%); width: 142px; height: 26px; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; cursor: inherit; }
+.choice[data-option-key='Direct3D'] { width: 260px; }
 .gameChoice { width: 540px; }
 .text { position: absolute; left: 50%; top: 0; display: flex; align-items: flex-start; pointer-events: none; }
 .text i { display: block; flex-shrink: 0; }
@@ -7,9 +8,8 @@
 .choice:focus-visible, .slider:focus-visible { outline: 1px solid #fff1bb; outline-offset: 2px; }
 .soundLabel { position: absolute; left: 0; width: 640px; height: 28px; text-align: center; }
 .slider { position: absolute; left: 166px; width: 308px; height: 22px; margin: 0; padding: 0; accent-color: #d8c477; }
-.notice, .unavailable, .storage { position: absolute; left: 120px; width: 400px; margin: 0; text-align: center; font: 13px/1.4 sans-serif; color: #fff1bb; text-shadow: 1px 1px #000; }
+.notice, .storage { position: absolute; left: 120px; width: 400px; margin: 0; text-align: center; font: 13px/1.4 sans-serif; color: #fff1bb; text-shadow: 1px 1px #000; }
 .notice { top: 294px; }
-.unavailable { top: 139px; }
 .storage { top: 338px; }
 .browserLink { position: absolute; left: 50%; top: 360px; transform: translateX(-50%); padding: 4px 8px; color: #fff1bb; border: 0; background: #211b10c9; font: 13px/1.4 sans-serif; white-space: nowrap; cursor: inherit; }
 .compatibility { position: absolute; left: 70px; top: 120px; width: 500px; max-height: 350px; padding: 20px; box-sizing: border-box; overflow: auto; background: #10191ff5; border: 1px solid #b6a35c; font: 15px/1.5 sans-serif; }

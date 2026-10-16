@@ -1,7 +1,7 @@
 {
   "version": 1,
   "helpersSha256": "cb03ae84c74495d811f704d140c33aa40a14376a99cf60558c42e1807fb72cbd",
-  "productionSha256": "f828fbeabb2dc2110a30f79675033ce1f1a3a37f0a5d8ef6e1a06e37b9d7d0c1",
+  "productionSha256": "750b4612965aa5e513c5c78b82af2db6ceba5425385e7d1630129da0c4108a6d",
   "parallel": {
     "tests/ai-producer-schedule.test.mjs": "e9c41f775b53064b5d27f26c5aee66a62afdb1cfee0f5fe1a02f5002d67a1489",
     "tests/ai-response-task.test.mjs": "a616ec84ec3f7ce1a681d608b66972b702c4af5b727ca6ceb4d176b568014809",
@@ -212,7 +212,7 @@
     "tests/occupant-handle-domain.test.mjs": "95e41d91cf32e7bd9cbffb7f066252f7966dacd87a45a04acf1c1087804cf7bd",
     "tests/original-frontend-quit.test.mjs": "02c2e73aa08413de0d7cd6c0ed66eba5b5213cf584f350dd81295d4661d35563",
     "tests/original-loading-screen.test.mjs": "f340b31d7e286af795a4ac2cb22caf41b82f7fd3af637a7bc0837dfcf134e671",
-    "tests/original-options.test.mjs": "d0a75a8d7e0e0fe7fb34e9f5d7b0572a6ddd7c66236379adbd87a7a34984d918",
+    "tests/original-options.test.mjs": "188fb6a6fc3015a022b68e3811258221166cef56fc30ae81b6f56babdd3cb9ea",
     "tests/original-result-screen.test.mjs": "b2d93cf0ce58d5f9f9eaa2b321a46bc4d8d67bb279fe0f3bdf6e4a50f0feb9bb",
     "tests/painter-anchor-projection.test.mjs": "5fef6098ec551f6a6555c5441f25104362e53e087408d4b668c03947a416e172",
     "tests/painter-centers.test.mjs": "e217de812498b2e40ac7265ee8af704f21dc95435b46738046dc9459e7f200eb",
