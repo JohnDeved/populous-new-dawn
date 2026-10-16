@@ -1,0 +1,40 @@
+{
+  "expectedHead": "7c86021d208780659bb91ef55e7b948e37fd0b08",
+  "expectedDiffSha256": "8639355244e58d0f214fc629c020a43441a60fdb37ac3eac2b84ad10767c1fdf",
+  "expectedSources": [
+    {
+      "path": ".github/workflows/ready-pr-check.yml",
+      "sha256": "0de9dfe622cb162d09133839896f02b38ae5c4fa9e9b35a9ed6a209d4d3850c9"
+    },
+    {
+      "path": "engineering/ci-event-race-pilot.md",
+      "sha256": "be3ffec27721c0aea3da2827a85990b62965db050a98360ab00dbc5615325c2e"
+    },
+    {
+      "path": "engineering/continuous-integration.md",
+      "sha256": "92e4707143aa9cd529ce28fdaa0e3dec7d71713723796b1db4536b59228291a1"
+    },
+    {
+      "path": "tests/workflow-policy.test.mjs",
+      "sha256": "dcadb66d209f256c5140fb25a85a30fa90da5c51330ba0e27967dc9d06ba83d6"
+    }
+  ],
+  "expectedReceipts": [
+    {
+      "path": "work/orchestration/ci-event-race/focused.json",
+      "sha256": "2b99246c72cf606b0b7c970d5744f846b8c37c939fe274f452da5d35adee8b8b"
+    },
+    {
+      "path": "work/orchestration/ci-event-race/focused-canonical-tmp.json",
+      "sha256": "81f73ffcf5767ba890c0d88862e983318064d2ca2e77c319a098c1b79d80d1ec"
+    },
+    {
+      "path": "work/orchestration/ci-event-race/lint.json",
+      "sha256": "f70eb4e0530b211e24b4f90459ef71874da7e711c64d22f09ff4495673e5ddd1"
+    },
+    {
+      "path": "work/orchestration/ci-event-race/structure.json",
+      "sha256": "a292e5fada3e543761baed7bf3332c826a4797d84c3b03d915241035d2d5c758"
+    }
+  ]
+}

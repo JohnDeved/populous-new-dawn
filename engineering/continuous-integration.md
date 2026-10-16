@@ -13,9 +13,10 @@ native, rendered-browser or hardware-performance acceptance.
    runs typecheck, every discovered top-level test, parity and orchestration checks,
    then a production build. Do not launch a duplicate local full gate while this
    one is pending; continue independent work in another branch or review/research.
-3. Repair failures with focused feedback and push. A synchronize event starts the
-   updated gate. Never weaken assertions, omit test files or regenerate reference
-   evidence to obtain a pass.
+3. Repair failures with focused feedback and push. After review of the exact new
+   head, return an already-ready PR to draft and mark it ready once. A synchronize
+   event does not start this workflow. Never weaken assertions, omit test files or
+   regenerate reference evidence to obtain a pass.
 4. Before merging, verify the current reviewed PR head, current main base and exact
    tested merge match the successful check. Keep the run URL/attempt, source SHAs,
    command results and raw job logs with the PR's evidence. Source changes invalidate
@@ -23,25 +24,41 @@ native, rendered-browser or hardware-performance acceptance.
 
 ## Events and draft behavior
 
-PRs targeting main trigger on `opened`, `reopened`, `synchronize`,
-`ready_for_review` and `converted_to_draft`. There is no push trigger or path filter.
-This avoids a second full run for the same push and a redundant post-merge run.
+PRs targeting main trigger only on `ready_for_review`. Opening, reopening,
+synchronizing, converting to draft or retargeting a PR does not admit this
+workflow. There is no push trigger, path filter, dispatch path or conditional job.
+The reviewed-candidate coordinator must issue one draft-to-ready transition after
+reviewing each exact candidate that lacks a matching full pass. This includes
+repairs, main refreshes and PRs opened or reopened already ready. Reuse an existing
+genuine pass when it exactly matches the reviewed head/base/merge; opening or
+reopening alone is not a reason to rerun it. New heads without a successful gate
+remain blocked by required checks; a missing run is not success.
 
-Drafts fail the first, inexpensive readiness step. Checkout, installs and full
-checks do not run. The red draft check is intentional: GitHub independently blocks
-merging drafts, but a conditionally skipped required job can count as successful.
-Marking ready launches the real gate instead of preserving an untested green check.
+The strict readiness guard remains defense in depth. Only the boolean `false`
+permits the required `Full check` name and passes the guard. A missing/malformed
+value or the string `"false"` fails before checkout under `Draft PR (not validated)`.
+Normal draft activity now creates no Full-workflow run; the guard is not a separate
+draft-admission service. There is still one unconditional job and no skipped or
+neutral required job or manufactured success.
 
-The concurrency group is specific to this workflow and PR. A newly admitted run
-cancels its predecessor. Admission is not a chronological comparison of commit
-SHAs: a manual rerun of an old event can cancel a newer run. Do not rerun obsolete
-attempts; verify the current head/base rather than simply trusting the latest run
-in a list. Converting back to draft cancels unnecessary work.
+Concurrency remains partitioned by workflow, PR number, event head, event base,
+proposed merge SHA and draft/ready lane. Duplicate ready events for the same
+candidate may supersede each other. Converting to draft does not cancel existing
+ready validation. Separate candidates can consume obsolete compute; the coordinator
+must avoid unnecessary transitions and never cancel current work during cleanup.
 
-Retargeting a ready PR to main emits `edited`, which this workflow does not handle.
-After retargeting, start a fresh supported event by returning it to draft and
-marking ready, reopening it, or updating its head. Main moving independently also
-does not start a run: update/rebase the PR before accepting the new combined tree.
+The earlier split-name pilot proved draft/ready cancellation isolation but failed
+newer-suite eligibility: a companion's non-required draft failure appeared in
+#502's rollup and the primary remained blocked despite a successful required Full
+check. Closing the companion did not restore eligibility. The precise internal
+blocking rule was not exposed. See the retained results and revised bounded pilot
+in [ci-event-race-pilot.md](ci-event-race-pilot.md). The trigger correction prevents
+new draft admissions; it does not retroactively repair that tested SHA or establish
+hosted success before its own pilot passes.
+
+Main moving independently does not start a run. Update/rebase the PR, review its
+new candidate, and transition it from draft to ready before accepting the new
+combined tree. Retargeting to main follows the same reviewed transition contract.
 A future merge queue needs a separately reviewed `merge_group` trigger.
 
 ## Reproducible inputs
@@ -87,12 +104,11 @@ configuration is a separate owner-authorized administration action, not performe
 by this workflow. Do not claim enforcement until the actual settings are verified.
 Until then, the parent must explicitly wait for the matching successful gate.
 
-After a successful pilot, the owner can use repository Settings → Branches to
-add/edit a main branch protection rule: require pull requests; require the observed
-`Full check` status from GitHub Actions; require branches to be up to date; and
-apply the rule to administrators without an owner bypass. An equivalent active
-main ruleset is also suitable. Preserve unrelated existing settings. The required
-job name must stay stable; no other workflow should reuse it.
+Read-only verification on 2026-10-16 confirmed strict main protection requiring
+`Full check` from GitHub Actions app `15368`, with administrator enforcement and
+no force pushes/deletions. This event-race change does not alter those settings or
+token permissions. Keep that required name stable for real candidate validation;
+draft admission and other workflows must not reuse it.
 
 Verify the settings against the PR's mergeability before claiming enforcement.
 A denied administration endpoint is not permission to retry with another identity.
@@ -111,5 +127,5 @@ On 2026-10-16, the [first draft run](https://github.com/JohnDeved/populous-new-d
 for PR #475 at head `737b84399c62a25cc2d3f809aef38f719ddd3045` failed only the
 readiness guard. Checkout, runtime setup, dependency installs, full checks and
 build were all skipped. This verifies the cheap draft boundary, not a full pass.
-Current ready/synchronize runs and the final reviewed candidate's full results are
+Historical ready/synchronize runs and that reviewed candidate's full results are
 recorded on [PR #475](https://github.com/JohnDeved/populous-new-dawn/pull/475).

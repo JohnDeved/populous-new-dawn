@@ -1,0 +1,62 @@
+{
+  "testedSource": {
+    "branch": "codex/ci-draft-ready-race-473",
+    "baseCommit": "870d3012f6d7800414b3a06efa106e9518bd38ff",
+    "headOid": "0c0a330fc5f7204b4c725f1e76d21e60c28e154b"
+  },
+  "diffSha256": "0d086a2ee64b318951a8fb9b78f246a65447d8c2a935a62b9e1d378061a5ef1d",
+  "sources": [
+    {
+      "status": "M",
+      "path": ".github/workflows/ready-pr-check.yml",
+      "state": "present",
+      "sha256": "b9523f3a17133c51e485195592a2620c983f8944127c3754e749c64090470219",
+      "blobOid": "0994a36ea398a14ae23e2aa5818eb674fdc1b51e",
+      "bytes": 3743
+    },
+    {
+      "status": "M",
+      "path": "engineering/ci-event-race-pilot.md",
+      "state": "present",
+      "sha256": "8be7746c13d9c029613d6b0ee8ae996adeb0c57410859cec057851913f40d502",
+      "blobOid": "34daa26863dadbc67928dd7466e77fdb3f0bcaa5",
+      "bytes": 7014
+    },
+    {
+      "status": "M",
+      "path": "engineering/continuous-integration.md",
+      "state": "present",
+      "sha256": "92e6ff5587bdc627e93c1d754e05a2bc459897974242c19f6f2aa9f496c8b1b7",
+      "blobOid": "3db5ceec95a2ddb1f0579e070b6f81cb7b932f7a",
+      "bytes": 8261
+    },
+    {
+      "status": "M",
+      "path": "tests/workflow-policy.test.mjs",
+      "state": "present",
+      "sha256": "ec81ed831f547b9f1a89feb4a268bbe22fd8c2f2a1c07e9dbfbde2c6b4cfd0c2",
+      "blobOid": "7eab70089d42d26db8320a2cec95e9fa3e4add8b",
+      "bytes": 19375
+    }
+  ],
+  "receipts": [
+    {
+      "path": "policy.json",
+      "originalSha256": "6770586609b01731beb3eb5859b1b6d8a248a28187f7fcd3329980875521193a",
+      "publishedSha256": "d5ec80530492c20d667ea380c56d1d2db46289619f2815d8878611a2d9b1b161",
+      "redactions": 3
+    },
+    {
+      "path": "lint.json",
+      "originalSha256": "213762f6c785e3700b8f1467f6f810e1403191b04d4fbed87d9e52e6714a16bd",
+      "publishedSha256": "75bacc6469bdc9afe0ac15c8367d4bf144e09643e9a4ab3cee78d7444d4e401b",
+      "redactions": 3
+    },
+    {
+      "path": "structure.json",
+      "originalSha256": "f6ba5cafb7cbf8063bbf39e2bc9f15bb03c6945b263bb307469b6f8d2c3c3027",
+      "publishedSha256": "ca121a3df8858e874201fbf4aa2dd331fc6e43c871a4a6c6aa1a3d4c27ec4840",
+      "redactions": 3
+    }
+  ]
+}
