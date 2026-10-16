@@ -171,7 +171,9 @@ export function OriginalMainMenu({
             panel === 'options'
               ? optionRows
               : panel === 'tutorial-recommendation'
-                ? tutorialRecommendationRows
+                ? tutorialRecommendationRows.filter(row =>
+                    tutorialParagraphRows.includes(row) ? questionReady : artReady
+                  )
                 : frontendQuitRows,
             canvasWidth
           ),
@@ -181,7 +183,7 @@ export function OriginalMainMenu({
         0,
         0
       )
-  }, [panel, optionRows, canvasWidth])
+  }, [panel, optionRows, canvasWidth, questionReady, artReady])
   useEffect(() => {
     draw()
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
