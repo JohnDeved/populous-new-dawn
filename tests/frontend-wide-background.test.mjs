@@ -133,3 +133,20 @@ test('wide final composition stays opaque and rejects fractional or invalid widt
  assert.equal(pixels.length,854*480*4);assert.ok(pixels.every((n,i)=>i%4!==3||n===255))
  for(const width of [639,641,854.5,NaN,Infinity])assert.throws(()=>frontendBackground(source,{x:0,y:0},true,null,[],width),/Invalid frontend composition width/)
 })
+
+// Accepted rendered composition at 69d450d7, pinned before allocation optimization.
+test('wide palette diffusion remains byte-identical to the visually accepted field', () => {
+  const accepted = [
+    [642, 'bafec2da5d14b6076f42453b6398d2436054991148d2cfeff1c2166de44395e7'],
+    [660, '8a1729488d9ffb8ab90ea1f185502e620de7d50bd21ba58b48662008117cdb3b'],
+    [720, '6ab110b385cc78004f15036f9cdf6c4fbde8a1998234c35dc560074d8fac92e1'],
+    [800, '35f322ab3b5e7f28fbf55f44842789511d2da1c153b8e84e1cc732d54035a028'],
+    [854, '12a8301c7c9b902e183c2eb03b8399d6cb460d2605d7c22edbc9cf9a4d4f7b81'],
+    [1148, 'fcea7ea82ec40bc8b3dfa28ad3a81355e1f20416342291302ddd8f6e71854d25'],
+    [1280, '998801248621f36c5939af2140aa078f2de638e92458e209bca3babe81a372d2'],
+    [1708, '40164b0695cff953ee916bb4375d8206d42707909b1f1d2a8625c4c06ac902a3'],
+  ]
+  for (const [width, expected] of accepted) {
+    assert.equal(sha(frontendWideIndexedBackground(source, width)), expected)
+  }
+})

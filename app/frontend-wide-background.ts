@@ -57,7 +57,7 @@ function edgeColors(source: Uint8Array) {
     const side: number[][] = []
     for (const y of [0, 152, 304]) {
       const color = [0, 0, 0]
-      // Only source stone above the baked badges; average it rather than stretching
+      // Only outer artwork above the baked badges; average it rather than stretching
       // edge pixels or repeating a texture strip across the wider viewport.
       for (let row = y; row < y + 80; row++) {
         for (let col = x; col < x + 32; col++) {
@@ -79,9 +79,15 @@ export function frontendWideIndexedBackground(source: Uint8Array, width: number)
   const offset = (width - 640) / 2
   const feather = Math.min(120, (width - 640) / 2)
   const edges = edgeColors(source)
-  const palette = Array.from({ length: 256 }, (_, index) =>
-    Array.from({ length: 3 }, (_, channel) => source[640 * 480 + index * 4 + channel])
-  )
+  const red = new Uint8Array(256)
+  const green = new Uint8Array(256)
+  const blue = new Uint8Array(256)
+  for (let index = 0; index < 256; index++) {
+    const at = 640 * 480 + index * 4
+    red[index] = source[at]
+    green[index] = source[at + 1]
+    blue[index] = source[at + 2]
+  }
   const quantized = new Map<number, number>()
   function nearest(r: number, g: number, b: number) {
     r = Math.round(r)
@@ -92,9 +98,8 @@ export function frontendWideIndexedBackground(source: Uint8Array, width: number)
     if (cached !== undefined) return cached
     let closest = 0
     let distance = Infinity
-    for (let index = 0; index < palette.length; index++) {
-      const color = palette[index]
-      const next = (color[0] - r) ** 2 + (color[1] - g) ** 2 + (color[2] - b) ** 2
+    for (let index = 0; index < 256; index++) {
+      const next = (red[index] - r) ** 2 + (green[index] - g) ** 2 + (blue[index] - b) ** 2
       if (next < distance) {
         closest = index
         distance = next
@@ -131,15 +136,38 @@ export function frontendWideIndexedBackground(source: Uint8Array, width: number)
       }
       const horizontal = x / (width - 1)
       const at = (x + 1) * 3
-      const color = sides[0].map((value, channel) => {
-        const field = value * (1 - horizontal) + sides[1][channel] * horizontal
-        const mixed = palette[original][channel] * (1 - amount) + field * amount
-        return Math.max(0, Math.min(255, mixed + currentErrors[at + channel]))
-      })
-      const chosen = nearest(color[0], color[1], color[2])
+      const r = Math.max(
+        0,
+        Math.min(
+          255,
+          red[original] * (1 - amount) +
+            (sides[0][0] * (1 - horizontal) + sides[1][0] * horizontal) * amount +
+            currentErrors[at]
+        )
+      )
+      const g = Math.max(
+        0,
+        Math.min(
+          255,
+          green[original] * (1 - amount) +
+            (sides[0][1] * (1 - horizontal) + sides[1][1] * horizontal) * amount +
+            currentErrors[at + 1]
+        )
+      )
+      const b = Math.max(
+        0,
+        Math.min(
+          255,
+          blue[original] * (1 - amount) +
+            (sides[0][2] * (1 - horizontal) + sides[1][2] * horizontal) * amount +
+            currentErrors[at + 2]
+        )
+      )
+      const chosen = nearest(r, g, b)
       indexed[y * width + x] = chosen
       for (let channel = 0; channel < 3; channel++) {
-        const error = color[channel] - palette[chosen][channel]
+        const error =
+          channel === 0 ? r - red[chosen] : channel === 1 ? g - green[chosen] : b - blue[chosen]
         currentErrors[at + direction * 3 + channel] += error * (7 / 16)
         nextErrors[at - direction * 3 + channel] += error * (3 / 16)
         nextErrors[at + channel] += error * (5 / 16)
