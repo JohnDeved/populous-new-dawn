@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { stripVTControlCharacters } from 'node:util'
-import { GATES, REPO, sha256, validateEntry } from './policy.mjs'
+import { CLOUDFLARE, GATES, REPO, sha256, validateEntry } from './policy.mjs'
 
 const sha = value => /^[0-9a-f]{40}$/.test(value ?? '')
 const ensure = (condition, message) => {
@@ -17,8 +17,7 @@ const run = (file, args, cwd) =>
     env: { ...process.env, GH_PROMPT_DISABLED: '1', GH_PAGER: 'cat' },
   })
 
-// There is deliberately no write adapter, apply flag, environment override, token
-// discovery or Actions mutation. A future pilot needs a separately reviewed change.
+// This reader only issues GET requests. The separately armed writer owns mutations.
 export class GitHubReader {
   constructor({ cwd = process.cwd(), execute = run } = {}) {
     this.cwd = cwd
@@ -38,35 +37,59 @@ export class GitHubReader {
   }
   pages(endpoint, key = null) {
     const values = []
+    let expected
     for (let page = 1; page <= 10; page++) {
       const response = this.get(
         `${endpoint}${endpoint.includes('?') ? '&' : '?'}per_page=100&page=${page}`
       )
       const rows = key ? response[key] : response
       ensure(Array.isArray(rows), `Incomplete collection: ${endpoint}`)
-      ensure(
-        !(response.total_count >= 1000),
-        `GitHub collection cap reached: ${endpoint}; narrow scope manually`
-      )
+      if (key) {
+        ensure(
+          Number.isSafeInteger(response.total_count) && response.total_count >= 0,
+          `Missing total_count: ${endpoint}`
+        )
+        ensure(
+          response.total_count < 1000,
+          `GitHub collection cap reached: ${endpoint}; narrow scope manually`
+        )
+        expected ??= response.total_count
+        ensure(
+          expected === response.total_count,
+          `Collection changed during pagination: ${endpoint}`
+        )
+      }
       values.push(...rows)
-      if (rows.length < 100) return values
+      if (key)
+        ensure(
+          values.length <= expected && new Set(values.map(v => v.id)).size === values.length,
+          `Duplicate or excess collection entries: ${endpoint}`
+        )
+      if (rows.length < 100) {
+        ensure(
+          !key || values.length === expected,
+          `Incomplete enumeration despite short page: ${endpoint}`
+        )
+        return values
+      }
     }
     throw new Error(`Pagination bound reached: ${endpoint}; cannot claim a complete observation`)
   }
   git(...args) {
-    return this.execute(
-      'git',
-      [
-        '-c',
-        'core.hooksPath=/dev/null',
-        '-c',
-        'core.fsmonitor=false',
-        '-c',
-        'core.attributesFile=/dev/null',
-        ...args,
-      ],
-      this.cwd
-    ).trim()
+    const prefix = [
+      '-c',
+      'core.hooksPath=/dev/null',
+      '-c',
+      'core.fsmonitor=false',
+      '-c',
+      'core.attributesFile=/dev/null',
+    ]
+    // config --null --list does not inspect working files or invoke clean filters.
+    // Run it before every other Git operation, including status in preflight.
+    assertSafeGitConfiguration(
+      this.execute('git', [...prefix, 'config', '--null', '--list'], this.cwd)
+    )
+    return this.execute('git', [...prefix, ...args], this.cwd).trim()
   }
   commit(oid) {
     ensure(sha(oid), 'Missing immutable commit SHA')
@@ -169,54 +192,72 @@ export class GitHubReader {
           attempt: exact.run_attempt,
           workflow: gate.workflow,
           event: exact.event,
-          head: association.head.sha,
+          head: exact.head_sha,
           base: association.base.sha,
           merge: null,
           status: exact.status,
           conclusion: exact.conclusion,
           updatedAt: exact.updated_at,
+          startedAt: exact.run_started_at,
           url: exact.html_url,
           identityVerified: false,
         }
-        if (
-          exact.status === 'completed' &&
-          exact.conclusion === 'success' &&
-          row.head === pr.head.sha &&
-          row.base === pr.base.sha
-        ) {
+        if (exact.status === 'completed' && row.head === pr.head.sha) {
           const jobs = this.pages(
             `repos/${REPO}/actions/runs/${exact.id}/attempts/${exact.run_attempt}/jobs`,
             'jobs'
           )
-          const matches = jobs.filter(j => j.name === gate.job)
-          ensure(matches.length === 1, 'Missing or duplicate gate job')
+          const matches = jobs.filter(
+            j => j.name === gate.job || j.name === 'Draft PR (not validated)'
+          )
+          ensure(matches.length === 1, 'Missing or duplicate validation/admission job')
           const job = matches[0]
           ensure(
             job.check_run_url?.startsWith(`https://api.github.com/repos/${REPO}/check-runs/`),
             'Unexpected check run URL'
           )
           const check = this.get(job.check_run_url.slice('https://api.github.com/'.length))
-          ensure(check.check_suite?.id === exact.check_suite_id, 'Check suite/run mismatch')
+          ensure(
+            check.check_suite?.id === exact.check_suite_id &&
+              check.head_sha === row.head &&
+              check.name === job.name &&
+              check.app?.id === 15368 &&
+              check.app?.slug === 'github-actions',
+            'Check suite/run/app mismatch'
+          )
           const log = this.get(`repos/${REPO}/actions/jobs/${job.id}/logs`, true)
           const identity = logIdentity(log)
-          row.head = identity.head
-          row.base = identity.base
+          row.head = identity.head ?? row.head
+          row.base = identity.base ?? row.base
           row.merge = identity.merge
           row.logSha256 = sha256(log)
-          row.app = check.app?.slug
-          row.appId = check.app?.id
+          row.app = check.app.slug
+          row.appId = check.app.id
+          row.checkId = check.id
+          row.startedAt = job.started_at ?? exact.run_started_at
           row.job = job.name
           row.jobConclusion = job.conclusion
           row.steps = job.steps.map(s => ({ name: s.name, conclusion: s.conclusion }))
+          row.workflowSha256 = this.workflow(gate.workflow, exact.head_sha).sha256
+          const stage = (name, conclusion) =>
+            row.steps.filter(s => s.name === name).length === 1 &&
+            row.steps.find(s => s.name === name).conclusion === conclusion
+          row.draftAdmission =
+            job.name === 'Draft PR (not validated)' &&
+            row.workflowSha256 === entry.workflowHashes[gate.workflow] &&
+            exact.conclusion === 'failure' &&
+            job.conclusion === 'failure' &&
+            check.conclusion === 'failure' &&
+            /(?:^|\n)[^\n]*?\bIS_DRAFT: true\s*(?=\n|$)/.test(log) &&
+            stage('Require a ready pull request', 'failure') &&
+            gate.steps.slice(1).every(name => stage(name, 'skipped'))
           row.identityVerified =
-            row.head === pr.head.sha &&
-            row.base === pr.base.sha &&
+            identity.head === pr.head.sha &&
+            identity.base === pr.base.sha &&
             row.merge === synthetic?.sha &&
-            row.app === 'github-actions' &&
-            row.appId === 15368 &&
-            exact.head_sha === row.head &&
-            check.head_sha === row.head &&
-            check.conclusion === 'success'
+            exact.head_sha === identity.head &&
+            check.conclusion === 'success' &&
+            row.workflowSha256 === entry.workflowHashes[gate.workflow]
         }
         runs.push(row)
       }
@@ -239,12 +280,6 @@ export class GitHubReader {
       ensure(
         !this.git('status', '--porcelain', '--untracked-files=normal'),
         'Candidate checkout must be clean'
-      )
-      ensure(
-        !/^(?:merge\..*\.driver|filter\..*\.(?:clean|smudge|process))=/m.test(
-          this.git('config', '--list')
-        ),
-        'Custom Git merge/filter drivers need manual inspection'
       )
       result.reviewDigest = sha256(readFileSync(resolve(allowlistDirectory, entry.review.file)))
       ensure(
@@ -286,21 +321,31 @@ export class GitHubReader {
       ])
       if (pr.merged) {
         result.mergeCommit = this.commit(pr.merge_commit_sha)
-        const deployments = this.pages(
-          `${root}/deployments?sha=${pr.merge_commit_sha}&environment=${encodeURIComponent(entry.deployment.environment)}`
-        )
-        const deployment = deployments.toSorted((a, b) => b.id - a.id)[0]
-        if (deployment) {
-          const statuses = this.pages(`${root}/deployments/${deployment.id}/statuses`).toSorted(
-            (a, b) => b.id - a.id
+        if (entry.deployment.kind === 'cloudflare-check') {
+          result.deployment = cloudflareCheck(
+            this.pages(
+              `${root}/commits/${pr.merge_commit_sha}/check-runs?filter=all`,
+              'check_runs'
+            ),
+            pr.merge_commit_sha
           )
-          if (statuses[0])
-            result.deployment = {
-              sha: deployment.sha,
-              environment: deployment.environment,
-              state: statuses[0].state,
-              url: statuses[0].environment_url,
-            }
+        } else if (entry.deployment.kind !== 'unverified') {
+          const deployments = this.pages(
+            `${root}/deployments?sha=${pr.merge_commit_sha}&environment=${encodeURIComponent(entry.deployment.environment)}`
+          )
+          const deployment = deployments.toSorted((a, b) => b.id - a.id)[0]
+          if (deployment) {
+            const statuses = this.pages(`${root}/deployments/${deployment.id}/statuses`).toSorted(
+              (a, b) => b.id - a.id
+            )
+            if (statuses[0])
+              result.deployment = {
+                sha: deployment.sha,
+                environment: deployment.environment,
+                state: statuses[0].state,
+                url: statuses[0].environment_url,
+              }
+          }
         }
       } else {
         ensure(pr.base.sha === main, 'PR base view differs from main; obtain a fresh observation')
@@ -324,6 +369,20 @@ export class GitHubReader {
           result.workflows.push(...GATES.map(g => this.workflow(g.workflow, result.synthetic.sha)))
         }
         result.runs = this.runs(entry, pr, result.synthetic)
+        result.currentChecks = this.pages(
+          `${root}/commits/${pr.head.sha}/check-runs?filter=all`,
+          'check_runs'
+        )
+          .filter(c => c.app?.id === 15368 && GATES.some(g => g.job === c.name))
+          .map(c => ({
+            id: c.id,
+            name: c.name,
+            appId: c.app.id,
+            head: c.head_sha,
+            startedAt: c.started_at,
+            status: c.status,
+            conclusion: c.conclusion,
+          }))
       }
       const endPr = this.get(`${root}/pulls/${entry.pr}`)
       const endMain = this.get(`${root}/git/ref/heads/main`).object.sha
@@ -368,4 +427,46 @@ export function logIdentity(log) {
     return values.length === 1 ? values[0] : null
   }
   return { head: unique('PR_HEAD_SHA'), base: unique('PR_BASE_SHA'), merge: checkoutSha(log) }
+}
+
+export function cloudflareCheck(checks, commit) {
+  const matches = checks
+    .filter(c => c.name === CLOUDFLARE.name && c.app?.id === CLOUDFLARE.appId)
+    .toSorted((a, b) => b.id - a.id)
+  if (!matches.length) return null
+  const c = matches[0]
+  const build = c.details_url?.startsWith(CLOUDFLARE.productionBuildPrefix)
+    ? c.details_url.slice(CLOUDFLARE.productionBuildPrefix.length)
+    : ''
+  const identityVerified =
+    c.head_sha === commit &&
+    c.app?.slug === CLOUDFLARE.appSlug &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(build)
+  return {
+    ...CLOUDFLARE,
+    sha: c.head_sha,
+    identityVerified,
+    checkId: c.id,
+    detailsUrl: c.details_url,
+    state:
+      c.status === 'completed'
+        ? c.conclusion === 'success'
+          ? 'success'
+          : 'failed'
+        : ['queued', 'in_progress'].includes(c.status)
+          ? 'pending'
+          : 'unknown',
+    conclusion: c.conclusion,
+  }
+}
+
+export function assertSafeGitConfiguration(raw) {
+  const keys = raw
+    .split('\0')
+    .filter(Boolean)
+    .map(item => item.split('\n', 1)[0].toLowerCase())
+  ensure(
+    !keys.some(key => /^(?:merge\..*\.driver|filter\..*\.(?:clean|smudge|process))$/.test(key)),
+    'Custom Git merge/filter drivers rejected before inspecting working files'
+  )
 }

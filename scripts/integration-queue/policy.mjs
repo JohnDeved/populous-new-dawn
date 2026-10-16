@@ -1,6 +1,14 @@
 import { createHash } from 'node:crypto'
 
 export const REPO = 'JohnDeved/populous-new-dawn'
+export const CLOUDFLARE = {
+  appId: 85455,
+  appSlug: 'cloudflare-workers-and-pages',
+  name: 'Workers Builds: populous-new-dawn',
+  project: 'populous-new-dawn',
+  productionBuildPrefix:
+    'https://dash.cloudflare.com/19321bcee0ed17a93b709cb602dd070c/workers/services/view/populous-new-dawn/production/builds/',
+}
 export const GATES = [
   {
     workflow: '.github/workflows/ready-pr-check.yml',
@@ -69,8 +77,13 @@ export function validateEntry(entry) {
     'Pin both reviewed workflow SHA-256 digests'
   )
   requireThat(
-    entry.deployment?.environment?.trim() && /^https:\/\//.test(entry.deployment.url ?? ''),
-    'Pin deployment environment and HTTPS URL'
+    (entry.deployment?.kind === 'cloudflare-check' &&
+      Object.entries(CLOUDFLARE).every(([key, value]) => entry.deployment[key] === value)) ||
+      (entry.deployment?.kind === 'unverified' && entry.deployment.reason?.trim()) ||
+      ((!entry.deployment?.kind || entry.deployment.kind === 'github-deployment') &&
+        entry.deployment?.environment?.trim() &&
+        /^https:\/\//.test(entry.deployment.url ?? '')),
+    'Pin a supported deployment observation policy'
   )
   return entry
 }
@@ -91,7 +104,11 @@ export function decide(entry, observation, saved = null, now = Date.now()) {
   const stop = reason => result('stop', reason)
   const wait = reason => result('wait', reason)
   const propose = action =>
-    result('propose', `Would ${action.kind}; live mutations are disabled`, action)
+    result(
+      'propose',
+      `Would ${action.kind}; dry-run unless an exact reviewed pilot is armed`,
+      action
+    )
   try {
     validateEntry(entry)
     requireThat(Number.isFinite(now), 'Invalid clock')
@@ -201,6 +218,43 @@ export function decide(entry, observation, saved = null, now = Date.now()) {
           o.base === o.mergeCommit.sha,
         'Merged commit/tree/parents or main tip differ from the tested candidate; inspect integration'
       )
+      if (entry.deployment.kind === 'unverified')
+        return {
+          ...result('done', 'Merge confirmed; deployment unverified by explicit policy'),
+          outcome: { merge: 'confirmed', deployment: 'unverified' },
+        }
+      if (entry.deployment.kind === 'cloudflare-check') {
+        if (!o.deployment)
+          return wait(
+            'Merge confirmed; exact-commit Cloudflare production build check is not yet observed'
+          )
+        const d = o.deployment
+        requireThat(
+          d.sha === o.mergeCommit.sha &&
+            d.identityVerified === true &&
+            Object.entries(CLOUDFLARE).every(([key, value]) => d[key] === value),
+          'Merge confirmed; Cloudflare check identity is unverified'
+        )
+        if (d.state === 'pending')
+          return wait('Merge confirmed; exact-commit Cloudflare production build check is pending')
+        requireThat(
+          d.state === 'success',
+          'Merge confirmed; exact-commit Cloudflare production build check did not pass'
+        )
+        return {
+          ...result(
+            'done',
+            'Merge confirmed; exact-commit Cloudflare production build check passed; serving deployment unverified'
+          ),
+          outcome: {
+            merge: 'confirmed',
+            deployment: 'provider-production-build-check-passed',
+            servingDeployment: 'unverified',
+            checkId: d.checkId,
+            url: d.detailsUrl,
+          },
+        }
+      }
       if (!o.deployment)
         return wait(
           'Waiting for an existing deployment of the exact merged commit; no deploy is triggered'
@@ -251,8 +305,20 @@ export function decide(entry, observation, saved = null, now = Date.now()) {
       base: o.base,
       draft: o.draft,
       merge: o.synthetic,
+      currentChecks: o.currentChecks
+        ?.map(c => [c.id, c.name, c.head, c.appId, c.startedAt, c.status, c.conclusion])
+        .sort((a, b) => a[0] - b[0]),
       runs: o.runs
-        .map(r => [r.id, r.attempt, r.updatedAt, r.status, r.conclusion])
+        .map(r => [
+          r.id,
+          r.attempt,
+          r.startedAt,
+          r.updatedAt,
+          r.status,
+          r.conclusion,
+          r.checkId,
+          r.draftAdmission,
+        ])
         .sort((a, b) => a[0] - b[0]),
     })
     if (state.quiet?.fingerprint !== fingerprint) state.quiet = { fingerprint, since: now }
@@ -298,11 +364,20 @@ export function decide(entry, observation, saved = null, now = Date.now()) {
     const checks = []
     for (const gate of required) {
       const runs = o.runs.filter(
-        r => r.workflow === gate.workflow && r.head === o.head && r.base === o.base
+        r =>
+          r.workflow === gate.workflow &&
+          r.head === o.head &&
+          r.base === o.base &&
+          !(
+            r.draftAdmission === true &&
+            r.job === 'Draft PR (not validated)' &&
+            r.appId === 15368 &&
+            r.workflowSha256 === entry.workflowHashes[gate.workflow]
+          )
       )
       requireThat(runs.length > 0, `Missing exact head/base/synthetic run: ${gate.job}`)
       // Do not cherry-pick an older green attempt after a newer red/canceled one.
-      const latest = runs.toSorted((a, b) => b.id - a.id || b.attempt - a.attempt)[0]
+      const latest = latestChronological(runs, `${gate.job} attempts`)
       requireThat(
         latest.merge === o.synthetic.sha &&
           latest.conclusion === 'success' &&
@@ -318,6 +393,17 @@ export function decide(entry, observation, saved = null, now = Date.now()) {
               latest.steps.find(s => s.name === name).conclusion === 'success'
           ),
         `Failed, canceled, skipped or unverified current gate: ${gate.job} run ${latest.id}/${latest.attempt}`
+      )
+      requireThat(Array.isArray(o.currentChecks), 'Missing current required-check selection')
+      const current = latestChronological(
+        o.currentChecks.filter(c => c.name === gate.job && c.appId === 15368 && c.head === o.head),
+        `${gate.job} current checks`
+      )
+      requireThat(
+        current.id === latest.checkId &&
+          current.status === 'completed' &&
+          current.conclusion === 'success',
+        `Current required check disagrees with exact tested attempt: ${gate.job}`
       )
       checks.push({ id: latest.id, attempt: latest.attempt, url: latest.url })
     }
@@ -345,4 +431,17 @@ export function recordIntent(decision) {
     pending: structuredClone(decision.action),
     quiet: null,
   }
+}
+
+function latestChronological(items, label) {
+  requireThat(
+    items.length > 0 && items.every(item => Number.isFinite(Date.parse(item.startedAt))),
+    `Missing attempt chronology: ${label}`
+  )
+  const ordered = items.toSorted((a, b) => Date.parse(b.startedAt) - Date.parse(a.startedAt))
+  requireThat(
+    ordered.length === 1 || Date.parse(ordered[0].startedAt) !== Date.parse(ordered[1].startedAt),
+    `Ambiguous attempt chronology: ${label}`
+  )
+  return ordered[0]
 }

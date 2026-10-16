@@ -5,11 +5,13 @@ import {
   planTestRun,
   productionFingerprint,
 } from '../orchestration/test-runner.mjs'
+import { assertSafeGitConfiguration } from './github.mjs'
 import { digest, sha256 } from './policy.mjs'
 
 export function resourcePreflight(repo, git, approval = null, installReceipt = null) {
   const result = { status: 'blocked', proposal: null }
   try {
+    assertSafeGitConfiguration(git('config', '--null', '--list'))
     result.candidate = git('rev-parse', 'HEAD')
     result.tree = git('rev-parse', 'HEAD^{tree}')
     if (git('status', '--porcelain', '--untracked-files=normal'))

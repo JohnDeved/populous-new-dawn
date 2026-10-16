@@ -6,6 +6,7 @@ import { join, resolve } from 'node:path'
 import test from 'node:test'
 import {
   REPO,
+  CLOUDFLARE,
   GATES,
   browserRequired,
   decide,
@@ -13,7 +14,17 @@ import {
   sha256,
   validateEntry,
 } from '../scripts/integration-queue/policy.mjs'
-import { GitHubReader, checkoutSha, logIdentity } from '../scripts/integration-queue/github.mjs'
+import {
+  GitHubReader,
+  checkoutSha,
+  logIdentity,
+  cloudflareCheck,
+} from '../scripts/integration-queue/github.mjs'
+import {
+  proposedPlan,
+  submitPilot,
+  mutationArguments,
+} from '../scripts/integration-queue/writer.mjs'
 import { atomicWrite, trustedFile } from '../scripts/integration-queue/cli.mjs'
 import {
   resourcePreflight,
@@ -78,6 +89,7 @@ function observation(e = entry()) {
     changedPaths: ['app/page.tsx'],
     synthetic: { sha: id(4), tree: id(5), parents: [e.reviewBase, e.sourceHead] },
     runs: [],
+    currentChecks: [],
     resource: {
       status: 'observed',
       fullSuite: true,
@@ -98,7 +110,9 @@ function green(o, gate, index) {
     merge: o.synthetic.sha,
     status: 'completed',
     conclusion: 'success',
-    updatedAt: 'time',
+    updatedAt: '2026-10-16T18:01:00Z',
+    startedAt: '2026-10-16T18:00:00Z',
+    checkId: 300 + index,
     url: `https://github.com/${REPO}/actions/runs/${100 + index}`,
     identityVerified: true,
     app: 'github-actions',
@@ -107,6 +121,17 @@ function green(o, gate, index) {
     jobConclusion: 'success',
     steps: gate.steps.map(name => ({ name, conclusion: 'success' })),
   }
+}
+function checksFor(runs) {
+  return runs.map(r => ({
+    id: r.checkId,
+    name: r.job,
+    appId: r.appId,
+    head: r.head,
+    startedAt: r.startedAt,
+    status: r.status,
+    conclusion: r.jobConclusion,
+  }))
 }
 function settled(e, o, saved = null) {
   const first = decide(e, o, saved, now)
@@ -118,6 +143,7 @@ function ready() {
     o = observation(e)
   o.draft = false
   o.runs = GATES.map((g, i) => green(o, g, i))
+  o.currentChecks = checksFor(o.runs)
   return { e, o }
 }
 
@@ -176,6 +202,7 @@ test('fake GitHub sequence survives restart after each intent and verifies merge
     assert.equal(state.pending.head, o.head)
     o.draft = false
     o.runs = GATES.map((g, i) => green(o, g, i))
+    o.currentChecks = checksFor(o.runs)
     d = settled(e, o, state)
     assert.equal(d.action.kind, 'merge')
     state = persist()
@@ -229,7 +256,13 @@ test('current canceled or failed rerun cannot fall back to an older green result
     'action_required',
   ]) {
     const { e, o } = ready()
-    o.runs.push({ ...o.runs[0], id: 200, conclusion, merge: null })
+    o.runs.push({
+      ...o.runs[0],
+      id: 200,
+      conclusion,
+      merge: null,
+      startedAt: '2026-10-16T19:00:00Z',
+    })
     assert.match(settled(e, o).reason, /Failed, canceled, skipped/)
   }
 })
@@ -481,7 +514,7 @@ test('GitHub adapter uses only hostname-pinned GET argv and rejects incomplete p
   const reader = new GitHubReader({
     execute: (command, args) => {
       calls.push([command, args])
-      return JSON.stringify({ items: [{ id: 1 }] })
+      return JSON.stringify({ total_count: 1, items: [{ id: 1 }] })
     },
   })
   assert.deepEqual(reader.pages(`repos/${REPO}/fake`, 'items'), [{ id: 1 }])
@@ -507,7 +540,7 @@ test('apply is disabled before any GitHub call; candidate approval files are rej
     env: { ...process.env, PATH: '/nonexistent' },
   })
   assert.equal(output.status, 2)
-  assert.match(output.stderr, /Live mutations are disabled/)
+  assert.match(output.stderr, /Live mutations require/)
   const dir = mkdtempSync(join(tmpdir(), 'pnd-queue-trust-'))
   try {
     const file = join(dir, 'review.md')
@@ -574,7 +607,11 @@ test('fake Actions adapter binds workflow/run/attempt/check/app and actual check
     o = observation(e)
   let logBase = o.base,
     appId = 15368,
-    attempt = 1
+    attempt = 1,
+    draft = false,
+    draftFlag = true,
+    workflowText = 'reviewed workflow'
+  e.workflowHashes = Object.fromEntries(GATES.map(g => [g.workflow, sha256('reviewed workflow')]))
   const calls = []
   const execute = (command, args) => {
     assert.equal(command, 'gh')
@@ -597,34 +634,47 @@ test('fake Actions adapter binds workflow/run/attempt/check/app and actual check
       event: 'pull_request',
       check_suite_id: 400 + index,
       status: 'completed',
-      conclusion: 'success',
-      updated_at: 'now',
+      conclusion: draft ? 'failure' : 'success',
+      updated_at: '2026-10-16T18:01:00Z',
+      run_started_at: '2026-10-16T18:00:00Z',
       html_url: 'https://github.com/example',
       pull_requests: [{ number: e.pr, head: { sha: o.head }, base: { sha: o.base } }],
     }
-    if (endpoint.includes('/workflows/'))
-      return JSON.stringify({ workflow_runs: [{ ...run, run_attempt: 1 }] })
+    if (endpoint.includes('/actions/workflows/'))
+      return JSON.stringify({ total_count: 1, workflow_runs: [{ ...run, run_attempt: 1 }] })
     if (endpoint.includes('/jobs?'))
       return JSON.stringify({
+        total_count: 1,
         jobs: [
           {
             id: 200 + index,
             check_run_url: `https://api.github.com/repos/${REPO}/check-runs/${300 + index}`,
-            name: gate.job,
-            conclusion: 'success',
-            steps: gate.steps.map(name => ({ name, conclusion: 'success' })),
+            name: draft ? 'Draft PR (not validated)' : gate.job,
+            conclusion: draft ? 'failure' : 'success',
+            steps: gate.steps.map((name, index) => ({
+              name,
+              conclusion: draft ? (index === 0 ? 'failure' : 'skipped') : 'success',
+            })),
           },
         ],
       })
     if (endpoint.includes('/check-runs/'))
       return JSON.stringify({
+        id: 300 + index,
+        name: draft ? 'Draft PR (not validated)' : gate.job,
         check_suite: { id: 400 + index },
         head_sha: o.head,
-        conclusion: 'success',
+        conclusion: draft ? 'failure' : 'success',
         app: { slug: 'github-actions', id: appId },
       })
+    if (endpoint.endsWith('/logs') && draft) return `IS_DRAFT: ${draftFlag}\n`
     if (endpoint.endsWith('/logs'))
       return `PR_HEAD_SHA: ${o.head}\nPR_BASE_SHA: ${logBase}\n[command]/usr/bin/git log -1 --format=%H\n${o.synthetic.sha}\n`
+    if (endpoint.includes('/contents/'))
+      return JSON.stringify({
+        encoding: 'base64',
+        content: Buffer.from(workflowText).toString('base64'),
+      })
     if (endpoint.includes('/attempts/')) return JSON.stringify(run)
     throw new Error(`Unexpected fake request ${endpoint}`)
   }
@@ -639,9 +689,18 @@ test('fake Actions adapter binds workflow/run/attempt/check/app and actual check
   assert.ok(runs.every(r => !r.identityVerified && r.base === id(99)))
   logBase = o.base
   appId = 9
-  assert.ok(reader.runs(e, pr, o.synthetic).every(r => !r.identityVerified))
+  assert.throws(() => reader.runs(e, pr, o.synthetic), /Check suite\/run\/app mismatch/)
   attempt = 2
   assert.throws(() => reader.runs(e, pr, o.synthetic), /identity drift/)
+  attempt = 1
+  appId = 15368
+  draft = true
+  assert.ok(reader.runs(e, pr, o.synthetic).every(r => r.draftAdmission === true))
+  draftFlag = false
+  assert.ok(reader.runs(e, pr, o.synthetic).every(r => r.draftAdmission === false))
+  draftFlag = true
+  workflowText = 'changed workflow'
+  assert.ok(reader.runs(e, pr, o.synthetic).every(r => r.draftAdmission === false))
 })
 
 test('CLI fixture executes the full read-only path, reports preflight, and resumes its quiet checkpoint', () => {
@@ -736,10 +795,518 @@ test('CLI fixture executes the full read-only path, reports preflight, and resum
     assert.equal(output.mode, 'fixture-dry-run')
     assert.equal(output.action.kind, 'ready')
     assert.equal(output.checkpoint.pending, null)
+    const bin = join(trusted, 'bin')
+    mkdirSync(bin)
+    const marker = join(trusted, 'unexpected-gh')
+    writeFileSync(join(bin, 'gh'), `#!/bin/sh\ntouch '${marker}'\nexit 99\n`)
+    chmodSync(join(bin, 'gh'), 0o755)
+    const liveArgs = argv.slice(0, -2)
+    const mismatch = spawnSync(process.execPath, liveArgs, {
+      encoding: 'utf8',
+      env: { ...process.env, PATH: `${bin}:${process.env.PATH}` },
+    })
+    assert.equal(mismatch.status, 2)
+    assert.match(mismatch.stderr, /fixture\/live mode changed/)
+    assert.throws(() => readFileSync(marker), { code: 'ENOENT' })
     assert.equal(git('rev-parse', 'HEAD'), synthetic)
     assert.equal(git('status', '--porcelain'), '')
   } finally {
     rmSync(dir, { recursive: true })
     rmSync(trusted, { recursive: true })
+  }
+})
+
+function armed(e, decision, time = now + 60_000) {
+  const context = {
+    allowlistSha256: h,
+    driverHead: id(999),
+    journalId: '00000000-0000-4000-8000-000000000001',
+    journalPath: '/trusted/journal.json',
+    driverClean: true,
+    fixture: false,
+    pilotReviewSha256: h,
+    usedPilot: false,
+  }
+  const plan = proposedPlan(e, decision, context)
+  context.planSha256 = sha256(JSON.stringify(plan))
+  const pilot = {
+    version: 1,
+    repo: REPO,
+    pr: e.pr,
+    approvedBy: e.approvedBy,
+    planSha256: context.planSha256,
+    createdAt: new Date(time - 1000).toISOString(),
+    expiresAt: new Date(time + 60_000).toISOString(),
+    review: {
+      decision: 'ACCEPT',
+      reviewer: 'independent-adapter-reviewer',
+      driverHead: context.driverHead,
+      planSha256: context.planSha256,
+      sha256: h,
+    },
+  }
+  return { entry: e, decision, plan, pilot, context, clock: () => time }
+}
+
+test('transport arguments pin GitHub host, refresh expected_head_sha and merge sha without bypass', () => {
+  assert.deepEqual(
+    mutationArguments(123, { kind: 'refresh', head: id(1), base: id(3), tree: id(5) }),
+    [
+      'api',
+      '--hostname',
+      'github.com',
+      '--method',
+      'PUT',
+      `repos/${REPO}/pulls/123/update-branch`,
+      '-f',
+      `expected_head_sha=${id(1)}`,
+    ]
+  )
+  assert.deepEqual(mutationArguments(123, { kind: 'ready', head: id(1), base: id(3) }), [
+    'pr',
+    'ready',
+    '123',
+    '--repo',
+    `github.com/${REPO}`,
+  ])
+  assert.deepEqual(
+    mutationArguments(123, { kind: 'merge', head: id(1), base: id(3), tree: id(5), merge: id(4) }),
+    [
+      'api',
+      '--hostname',
+      'github.com',
+      '--method',
+      'PUT',
+      `repos/${REPO}/pulls/123/merge`,
+      '-f',
+      `sha=${id(1)}`,
+      '-f',
+      'merge_method=merge',
+    ]
+  )
+  assert.throws(
+    () => mutationArguments(123, { kind: 'admin', head: id(1), base: id(3) }),
+    /Unknown/
+  )
+})
+
+test('dry-run never observes again, persists an intent, or calls the write transport', () => {
+  const { e, o } = ready(),
+    decision = settled(e, o)
+  const forbidden = () => {
+    throw new Error('dry-run side effect')
+  }
+  const result = submitPilot({
+    ...armed(e, decision),
+    observe: forbidden,
+    persist: forbidden,
+    transport: forbidden,
+  })
+  assert.equal(result.status, 'dry-run')
+})
+
+test('arming rejects expired, mismatched, dirty, fixture, reused and unreviewed pilots before transport', () => {
+  const { e, o } = ready(),
+    decision = settled(e, o)
+  for (const mutate of [
+    p => {
+      p.pilot.expiresAt = new Date(now).toISOString()
+    },
+    p => {
+      p.plan.action.head = id(88)
+    },
+    p => {
+      p.context.driverClean = false
+    },
+    p => {
+      p.context.fixture = true
+    },
+    p => {
+      p.context.usedPilot = true
+    },
+    p => {
+      p.context.journalId = '00000000-0000-4000-8000-000000000002'
+    },
+    p => {
+      p.context.journalPath = '/trusted/different-journal.json'
+    },
+    p => {
+      p.pilot.review.decision = 'COMMENT'
+    },
+    p => {
+      p.pilot.review.driverHead = id(88)
+    },
+    p => {
+      p.context.pilotReviewSha256 = 'b'.repeat(64)
+    },
+    p => {
+      p.pilot.approvedBy = 'someone-else'
+    },
+  ]) {
+    const p = armed(e, decision)
+    mutate(p)
+    let effects = 0
+    assert.throws(() =>
+      submitPilot({
+        ...p,
+        apply: true,
+        observe: () => {
+          throw new Error('must reject before observation')
+        },
+        persist: () => {
+          effects++
+        },
+        transport: () => {
+          effects++
+        },
+      })
+    )
+    assert.equal(effects, 0)
+  }
+})
+
+test('source drift or a newly queued stale event during final recheck prevents submission', () => {
+  const { e, o } = ready(),
+    decision = settled(e, o)
+  for (const change of [
+    v => {
+      v.head = id(99)
+    },
+    v => {
+      v.runs.push({ id: 2, attempt: 1, status: 'queued' })
+    },
+    v => {
+      v.base = id(99)
+    },
+    v => {
+      v.runs[0].conclusion = 'failure'
+    },
+  ]) {
+    const fresh = structuredClone(o)
+    fresh.observedAt = now + 60_000
+    change(fresh)
+    let calls = 0
+    assert.throws(() =>
+      submitPilot({
+        ...armed(e, decision),
+        apply: true,
+        observe: () => fresh,
+        persist: () => {
+          calls++
+        },
+        transport: () => {
+          calls++
+        },
+      })
+    )
+    assert.equal(calls, 0)
+  }
+})
+
+test('write intent is durable before transport; uncertain merge resumes without a second submission', () => {
+  const { e, o } = ready(),
+    decision = settled(e, o)
+  const dir = mkdtempSync(join(tmpdir(), 'pnd-pilot-reconcile-')),
+    path = join(dir, 'state.json')
+  try {
+    let calls = 0
+    const result = submitPilot({
+      ...armed(e, decision),
+      apply: true,
+      observe: () => ({ ...o, observedAt: now + 60_000 }),
+      persist: (checkpoint, receipt) => atomicWrite(path, { checkpoint, receipt }),
+      transport: args => {
+        calls++
+        const saved = JSON.parse(readFileSync(path))
+        assert.equal(saved.receipt.status, 'intent')
+        assert.equal(saved.checkpoint.pending.kind, 'merge')
+        assert.ok(args.includes(`sha=${o.head}`))
+        throw new Error('Connection dropped after server accepted the merge')
+      },
+    })
+    assert.equal(result.status, 'uncertain')
+    assert.equal(calls, 1)
+    const saved = JSON.parse(readFileSync(path))
+    assert.match(decide(e, o, saved.checkpoint, now).reason, /Merge outcome uncertain/)
+    o.merged = true
+    o.mergeCommit = { sha: id(90), tree: o.synthetic.tree, parents: [o.base, o.head] }
+    o.base = id(90)
+    o.deployment = { sha: id(90), ...e.deployment, state: 'success' }
+    assert.equal(decide(e, o, saved.checkpoint, now).status, 'done')
+    assert.equal(calls, 1)
+  } finally {
+    rmSync(dir, { recursive: true })
+  }
+})
+
+test('journal failure prevents a write; non-confirming merge response remains uncertain', () => {
+  const { e, o } = ready(),
+    decision = settled(e, o)
+  let calls = 0
+  assert.throws(
+    () =>
+      submitPilot({
+        ...armed(e, decision),
+        apply: true,
+        observe: () => ({ ...o, observedAt: now + 60_000 }),
+        persist: () => {
+          throw new Error('disk full')
+        },
+        transport: () => {
+          calls++
+        },
+      }),
+    /disk full/
+  )
+  assert.equal(calls, 0)
+  const result = submitPilot({
+    ...armed(e, decision),
+    apply: true,
+    observe: () => ({ ...o, observedAt: now + 60_000 }),
+    persist: () => {},
+    transport: () => '{"merged":false}',
+  })
+  assert.equal(result.status, 'uncertain')
+})
+
+test('armed fake transport sequences refresh, drain, ready, exact checks and merge across restarts', () => {
+  const e = entry(),
+    o = observation(e)
+  e.deployment = { kind: 'unverified', reason: 'fake transport fixture only' }
+  o.upToDate = false
+  o.base = id(8)
+  o.refresh = {
+    sourceHead: o.head,
+    base: o.base,
+    reviewBase: e.reviewBase,
+    clean: true,
+    disjoint: true,
+    tree: id(9),
+  }
+  let saved = null,
+    time = now,
+    latestReceipt
+  const commands = []
+  const inspect = () => {
+    o.observedAt = time
+    return o
+  }
+  const poll = () => {
+    const d = decide(e, inspect(), saved, time)
+    saved = JSON.parse(JSON.stringify(d.checkpoint))
+    return d
+  }
+  const settle = () => {
+    poll()
+    time += 60_000
+    return poll()
+  }
+  const send = (decision, effect) =>
+    submitPilot({
+      ...armed(e, decision, time),
+      apply: true,
+      observe: inspect,
+      persist: (checkpoint, receipt) => {
+        saved = JSON.parse(JSON.stringify(checkpoint))
+        latestReceipt = receipt
+      },
+      transport: args => {
+        assert.equal(latestReceipt.status, 'intent')
+        commands.push(args)
+        return effect()
+      },
+    })
+  assert.equal(
+    send(settle(), () => {
+      o.acceptedRefresh = structuredClone(o.refresh)
+      o.head = id(10)
+      o.headCommit = { sha: o.head, parents: [e.sourceHead, o.base], tree: id(9) }
+      o.upToDate = true
+      o.synthetic = { sha: id(11), parents: [o.base, o.head], tree: id(9) }
+      o.resource = { ...o.resource, candidate: id(11), tree: id(9) }
+      return '{"message":"Updating pull request branch"}'
+    }).status,
+    'submitted'
+  )
+  o.runs = [{ id: 5, attempt: 1, status: 'queued' }]
+  assert.equal(poll().status, 'wait')
+  assert.equal(commands.length, 1)
+  o.runs[0].status = 'completed'
+  o.runs[0].conclusion = 'failure'
+  assert.equal(
+    send(settle(), () => {
+      o.draft = false
+      o.runs = GATES.map((g, i) => ({ ...green(o, g, i), status: 'queued' }))
+      return 'Ready'
+    }).status,
+    'submitted'
+  )
+  assert.equal(poll().status, 'wait')
+  assert.equal(commands.length, 2)
+  o.runs = GATES.map((g, i) => green(o, g, i))
+  o.currentChecks = checksFor(o.runs)
+  assert.equal(
+    send(settle(), () => {
+      o.merged = true
+      o.mergeCommit = { sha: id(12), parents: [o.base, o.head], tree: o.synthetic.tree }
+      o.base = id(12)
+      return JSON.stringify({ merged: true, sha: id(12) })
+    }).status,
+    'submitted'
+  )
+  const final = poll()
+  assert.equal(final.status, 'done')
+  assert.equal(final.outcome.deployment, 'unverified')
+  assert.equal(commands.length, 3)
+  assert.ok(commands[0].includes(`expected_head_sha=${e.sourceHead}`))
+  assert.deepEqual(commands[1], ['pr', 'ready', '123', '--repo', `github.com/${REPO}`])
+  assert.ok(commands[2].includes(`sha=${id(10)}`))
+})
+
+function cloudflareFixture(commit, overrides = {}) {
+  return {
+    id: 11,
+    name: CLOUDFLARE.name,
+    head_sha: commit,
+    app: { id: CLOUDFLARE.appId, slug: CLOUDFLARE.appSlug },
+    status: 'completed',
+    conclusion: 'success',
+    details_url: `${CLOUDFLARE.productionBuildPrefix}b9cc9073-ea13-4fdf-bc9d-c5406f962ec8`,
+    ...overrides,
+  }
+}
+
+test('Cloudflare observation pins exact commit/app/name/project and never promotes preview or older success', () => {
+  const good = cloudflareFixture(id(90))
+  assert.equal(cloudflareCheck([good], id(90)).identityVerified, true)
+  for (const changes of [
+    { head_sha: id(80) },
+    { details_url: good.details_url.replace('/production/', '/preview/') },
+    { details_url: good.details_url.replace('/populous-new-dawn/', '/other-project/') },
+    { app: { id: CLOUDFLARE.appId, slug: 'other-app' } },
+  ]) {
+    assert.equal(cloudflareCheck([{ ...good, ...changes }], id(90)).identityVerified, false)
+  }
+  assert.equal(cloudflareCheck([{ ...good, app: { id: 9 } }], id(90)), null)
+  assert.equal(
+    cloudflareCheck([good, { ...good, id: 12, conclusion: 'failure' }], id(90)).state,
+    'failed'
+  )
+})
+
+test('confirmed merge reports Cloudflare build success separately from serving deployment', () => {
+  const { e, o } = ready()
+  e.deployment = { kind: 'cloudflare-check', ...CLOUDFLARE }
+  const state = recordIntent(settled(e, o))
+  o.merged = true
+  o.mergeCommit = { sha: id(90), tree: o.synthetic.tree, parents: [o.base, o.head] }
+  o.base = id(90)
+  assert.match(decide(e, o, state, now).reason, /Merge confirmed.*not yet observed/)
+  o.deployment = cloudflareCheck([cloudflareFixture(id(90))], id(90))
+  const result = decide(e, o, state, now)
+  assert.equal(result.status, 'done')
+  assert.equal(result.outcome.deployment, 'provider-production-build-check-passed')
+  assert.equal(result.outcome.servingDeployment, 'unverified')
+})
+
+test('source-bound non-required draft admission cannot replace or poison a genuine ready validation', () => {
+  const { e, o } = ready()
+  const admission = {
+    ...green(o, GATES[0], 0),
+    id: 102,
+    startedAt: '2026-10-16T19:00:00Z',
+    conclusion: 'failure',
+    job: 'Draft PR (not validated)',
+    jobConclusion: 'failure',
+    draftAdmission: true,
+    workflowSha256: e.workflowHashes[GATES[0].workflow],
+    merge: null,
+    identityVerified: false,
+  }
+  o.runs.push(admission)
+  assert.equal(settled(e, o).action.kind, 'merge')
+  admission.draftAdmission = false
+  assert.match(settled(e, o).reason, /Failed, canceled, skipped/)
+  admission.draftAdmission = true
+  admission.job = 'Full check'
+  assert.match(settled(e, o).reason, /Failed, canceled, skipped/)
+})
+
+test('later failed rerun of an older run blocks an earlier green higher run ID', () => {
+  const { e, o } = ready()
+  o.runs.push({
+    ...o.runs[0],
+    id: 99,
+    attempt: 2,
+    checkId: 999,
+    startedAt: '2026-10-16T19:00:00Z',
+    conclusion: 'failure',
+    jobConclusion: 'failure',
+  })
+  o.currentChecks = checksFor(o.runs)
+  const result = settled(e, o)
+  assert.equal(result.status, 'stop')
+  assert.match(result.reason, /run 99\/2/)
+})
+
+test('gate selection stops on ambiguous chronology or disagreeing current required check', () => {
+  const { e, o } = ready()
+  o.runs.push({ ...o.runs[0], id: 99, attempt: 2 })
+  assert.match(settled(e, o).reason, /Ambiguous attempt chronology/)
+  o.runs.pop()
+  delete o.runs[0].startedAt
+  assert.match(settled(e, o).reason, /Missing attempt chronology/)
+  o.runs[0].startedAt = '2026-10-16T18:00:00Z'
+  o.currentChecks.push({
+    ...o.currentChecks[0],
+    id: 999,
+    startedAt: '2026-10-16T19:00:00Z',
+    conclusion: 'failure',
+  })
+  assert.match(settled(e, o).reason, /Current required check disagrees/)
+})
+
+test('pagination rejects short incomplete responses, changing counts and duplicate entries', () => {
+  const endpoint = `repos/${REPO}/fake`
+  const short = new GitHubReader({
+    execute: () => JSON.stringify({ total_count: 2, items: [{ id: 1 }] }),
+  })
+  assert.throws(() => short.pages(endpoint, 'items'), /Incomplete enumeration/)
+  const missing = new GitHubReader({ execute: () => JSON.stringify({ items: [] }) })
+  assert.throws(() => missing.pages(endpoint, 'items'), /Missing total_count/)
+  for (const badCount of [true, false]) {
+    let page = 0
+    const reader = new GitHubReader({
+      execute: () =>
+        JSON.stringify(
+          ++page === 1
+            ? { total_count: 101, items: Array.from({ length: 100 }, (_, id) => ({ id })) }
+            : { total_count: badCount ? 102 : 101, items: [{ id: 1 }] }
+        ),
+    })
+    assert.throws(
+      () => reader.pages(endpoint, 'items'),
+      badCount ? /Collection changed/ : /Duplicate/
+    )
+  }
+})
+
+test('custom clean filter is rejected before resource preflight or any Git status can execute it', () => {
+  const { dir, git, put } = repoFixture()
+  try {
+    put('.gitattributes', 'file.txt filter=probe\n')
+    git('add', '.gitattributes')
+    git('commit', '-qm', 'attributes')
+    const marker = join(dir, 'filter-executed')
+    git('config', 'filter.probe.clean', `touch '${marker}'; cat`)
+    put('file.txt', 'would trigger clean filter during status\n')
+    const reader = new GitHubReader({ cwd: dir })
+    const preflight = resourcePreflight(dir, (...args) => reader.git(...args))
+    assert.equal(preflight.status, 'blocked')
+    assert.match(preflight.reason, /drivers rejected before/)
+    assert.throws(() => reader.git('status', '--porcelain'), /drivers rejected before/)
+    assert.throws(() => readFileSync(marker), { code: 'ENOENT' })
+  } finally {
+    rmSync(dir, { recursive: true })
   }
 })
