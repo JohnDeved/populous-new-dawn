@@ -1,0 +1,329 @@
+diff --git a/.github/workflows/ready-pr-check.yml b/.github/workflows/ready-pr-check.yml
+index 9a89a12a..145822b5 100644
+--- a/.github/workflows/ready-pr-check.yml
++++ b/.github/workflows/ready-pr-check.yml
+@@ -9,13 +9,13 @@ permissions:
+   contents: read
+ 
+ concurrency:
+-  group: ready-pr-check-${{ github.event.pull_request.number }}
++  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}-${{ github.event.pull_request.base.sha }}-${{ github.sha }}-${{ toJSON(github.event.pull_request.draft) == 'false' && 'ready' || 'draft' }}
+   cancel-in-progress: true
+ 
+ jobs:
+   full-check:
+-    # Keep this exact check name stable; make it required only after a pilot passes.
+-    name: Full check
++    # Only an explicitly ready candidate may publish the required check name.
++    name: ${{ toJSON(github.event.pull_request.draft) == 'false' && 'Full check' || 'Draft PR (not validated)' }}
+     runs-on: ubuntu-24.04
+     timeout-minutes: 120
+     env:
+@@ -27,11 +27,10 @@ jobs:
+       PND_TEST_CONCURRENCY: '2'
+       WRANGLER_SEND_METRICS: 'false'
+     steps:
+-      # A skipped required job can satisfy protection. Fail cheaply instead.
+-      # GitHub also prevents merging draft PRs independently of this check.
++      # Draft admission fails under its own non-required name; never skip a gate.
+       - name: Require a ready pull request
+         env:
+-          IS_DRAFT: ${{ github.event.pull_request.draft }}
++          IS_DRAFT: ${{ toJSON(github.event.pull_request.draft) }}
+         run: |
+           if [ "$IS_DRAFT" != false ]; then
+             echo '::notice::Draft PR: full checks have not run. Mark ready to start them.'
+diff --git a/engineering/ci-event-race-pilot.md b/engineering/ci-event-race-pilot.md
+new file mode 100644
+index 00000000..6eda6d70
+--- /dev/null
++++ b/engineering/ci-event-race-pilot.md
+@@ -0,0 +1,90 @@
++# Draft/ready event race: bounded hosted pilot proposal
++
++Source review and parent coordination must precede the pilot. This plan does not
++authorize execution, a merge, protection changes, extra token scopes, status
++writes or a new workflow. Keep the normal reviewed-PR queue separate from this
++disposable pilot PR. Local policy tests are not hosted lifecycle evidence.
++
++## Candidate and evidence
++
++Base reviewed for this change: `cf38a755a3a00255184c63c175a00076cff6b025`.
++[Issue #473 diagnosis](https://github.com/JohnDeved/populous-new-dawn/issues/473#issuecomment-6221240164)
++records a newer draft suite cancelling a real ready run, then blocking its genuine
++successful rerun under the same required `Full check` name.
++
++The proposed change keeps every full validation step and pinned dependency/runtime
++unchanged. Only ready boolean events use the required name. Drafts fail under a
++different name; concurrency includes workflow/PR/head/base/merge/readiness. Missing
++or malformed draft values fail closed. The event snapshot is not a live-state API
++or a freshness oracle: the merge coordinator still verifies current head/base/merge.
++
++Use normal pull-request transitions, updates and explicit reruns of recorded pilot
++events. Do not fabricate payloads, checks or statuses. Record every event action,
++run/attempt/suite/job/check ID, creation/start/end time, event draft value, head,
++base, merge SHA, step outcomes and raw logs. At each checkpoint capture
++`gh pr checks --required`, the PR's current identity/draft/mergeability state, and
++the required check's Actions app identity. Retain failed/cancelled attempts.
++
++## Ordered pilot, after approval
++
++1. Open the disposable candidate as draft. Verify its only admission job is
++   `Draft PR (not validated)`, failing the first guard with checkout/install/full
++   checks/build unexecuted. No job named `Full check` may appear for that event.
++2. Freeze its reviewed head/base/merge, mark ready and start the genuine full gate.
++   Rerun the recorded draft event while ready validation is active, then after
++   it succeeds. Confirm draft admission cannot cancel running or pending ready
++   work. Every accepted `Full check` must have all required steps passed.
++3. Exercise ready → draft → ready with the same frozen source. Record three
++   overlapping admissions, including a duplicate ready event: duplicates for the
++   exact same candidate may supersede each other, but a draft event may not replace
++   their pending/running lane. Do not infer chronological ordering from run IDs.
++4. Preserve one old-head run, update only pilot fixture source, and replay the old
++   event after the new candidate starts. For old-base isolation, use a retained
++   pilot event across a naturally occurring authorized main advance; update the
++   pilot branch to that main and replay the old event. Do not advance main solely
++   for this test. Neither old candidate may cancel the current one.
++5. On disposable pilot commits, introduce one ordinary failing test assertion and
++   one deliberate production-build input error separately. Observe genuine gate
++   failures (tests must stop the build; build must fail after a passing full check).
++   Cancel one active pilot validation explicitly and verify cancellation is not
++   accepted as a pass. Revert the fault commits, review the final source, and run
++   its complete gate again. No injected failure belongs in the fix PR.
++6. Required selection is the decisive check: obtain a real passing current-candidate
++   gate, then a *newer suite* containing only draft admission while the PR is ready.
++   A rerun of an older draft suite is insufficient to establish this ordering.
++   Normal rapid transitions may expose delayed delivery; record actual timing.
++   Do not add delay hooks or claim this case passed if ordinary events do not
++   produce it. Verify the real pass remains selected by required-only checks and
++   current PR mergeability, with strict protection unchanged. REST `filter=latest`
++   alone is not a mergeability oracle.
++
++Stop on cancellation across distinct groups, an unexpected `Full check` on a
++draft event, hidden/poisoned required checks, source drift, unexpected permissions
++or missing terminal evidence. If the newer-suite case cannot be reproduced, leave
++that claim pending; if it fails, reject this design and retain the queue workaround.
++No merges are part of the pilot. Bound execution to these cases. Separate candidate
++groups can leave obsolete runs consuming minutes. After recording their behavior,
++the parent may cancel only explicitly identified, owned obsolete pilot runs, after
++rechecking that none belongs to the current candidate; never cancel current work.
++
++## Setup/build duplication: separate recommendation
++
++Both Full and Tutorial currently check out the same proposed merge, set up Node
++24.19.0/npm 11.9.0 and run `npm ci`. That installation is duplicated. Their builds
++are **not equivalent**: Full runs the Vinext production build; Tutorial builds a
++plain Vite Home fixture and runs browser interactions. Reusing one build output
++for the other would remove coverage. Full additionally installs pinned Python/Pillow.
++
++After this race is proven, separately review using one runner's checkout/locked
++installation for both existing build paths, with Tutorial's current path selection,
++its complete scenarios, unchanged deadlines/receipts, and immutability checks after
++each phase. Measure setup savings and added serial critical-path time before
++adoption; two jobs cannot share an install merely by calling a reusable workflow.
++Do not add dependency caches/artifact transfers or replace `npm ci` in this fix.
++Tutorial's own PR-wide admission/cancellation policy is unchanged and needs its
++own reviewed treatment if the workflows remain separate. This PR fixes the
++required Full-check race only, not all Actions scheduling or setup cost.
++
++Primary semantics: [concurrency and pending replacement](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency),
++[expression context availability](https://docs.github.com/en/actions/reference/workflows-and-actions/contexts#context-availability),
++[required-check selection and skipped/neutral outcomes](https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks).
+diff --git a/engineering/continuous-integration.md b/engineering/continuous-integration.md
+index 2309fdd0..c2907f0b 100644
+--- a/engineering/continuous-integration.md
++++ b/engineering/continuous-integration.md
+@@ -27,16 +27,27 @@ PRs targeting main trigger on `opened`, `reopened`, `synchronize`,
+ `ready_for_review` and `converted_to_draft`. There is no push trigger or path filter.
+ This avoids a second full run for the same push and a redundant post-merge run.
+ 
+-Drafts fail the first, inexpensive readiness step. Checkout, installs and full
+-checks do not run. The red draft check is intentional: GitHub independently blocks
+-merging drafts, but a conditionally skipped required job can count as successful.
+-Marking ready launches the real gate instead of preserving an untested green check.
+-
+-The concurrency group is specific to this workflow and PR. A newly admitted run
+-cancels its predecessor. Admission is not a chronological comparison of commit
+-SHAs: a manual rerun of an old event can cancel a newer run. Do not rerun obsolete
+-attempts; verify the current head/base rather than simply trusting the latest run
+-in a list. Converting back to draft cancels unnecessary work.
++Only an event whose draft value is the boolean `false` names its job `Full check`.
++Other events use `Draft PR (not validated)` and fail the first, inexpensive
++readiness step. Checkout, installs and full checks do not run. Both admission and
++the shell guard serialize the value with `toJSON`, so a missing/malformed value or
++the string `"false"` cannot pass as ready. There is still one unconditional job;
++no skipped/neutral required job or manufactured success replaces validation.
++
++Concurrency is partitioned by workflow, PR number, event head, event base, proposed
++merge SHA and draft/ready lane. Draft admission cannot cancel or replace pending
++ready work, and old head/base/merge events have separate groups. Duplicate ready
++events for the same candidate can still supersede each other. Converting to draft
++deliberately does not cancel an existing ready validation. This trades occasional
++obsolete compute for protection against out-of-order admission; the reviewed queue
++driver should avoid unnecessary transitions and obsolete reruns.
++
++These source contracts do not prove GitHub's required-check selection across
++differently named jobs in newer suites. Adoption requires the
++[bounded hosted lifecycle pilot](ci-event-race-pilot.md), including a real current
++full pass followed by later draft admission while the PR is ready. Until that
++evidence passes, keep the drained-draft → ready queue workaround. No claim of
++hosted race resolution follows from local policy tests alone.
+ 
+ Retargeting a ready PR to main emits `edited`, which this workflow does not handle.
+ After retargeting, start a fresh supported event by returning it to draft and
+@@ -87,12 +98,11 @@ configuration is a separate owner-authorized administration action, not performe
+ by this workflow. Do not claim enforcement until the actual settings are verified.
+ Until then, the parent must explicitly wait for the matching successful gate.
+ 
+-After a successful pilot, the owner can use repository Settings → Branches to
+-add/edit a main branch protection rule: require pull requests; require the observed
+-`Full check` status from GitHub Actions; require branches to be up to date; and
+-apply the rule to administrators without an owner bypass. An equivalent active
+-main ruleset is also suitable. Preserve unrelated existing settings. The required
+-job name must stay stable; no other workflow should reuse it.
++Read-only verification on 2026-10-16 confirmed strict main protection requiring
++`Full check` from GitHub Actions app `15368`, with administrator enforcement and
++no force pushes/deletions. This event-race change does not alter those settings or
++token permissions. Keep that required name stable for real candidate validation;
++draft admission and other workflows must not reuse it.
+ 
+ Verify the settings against the PR's mergeability before claiming enforcement.
+ A denied administration endpoint is not permission to retry with another identity.
+diff --git a/tests/workflow-policy.test.mjs b/tests/workflow-policy.test.mjs
+index 64dc224f..42d1b127 100644
+--- a/tests/workflow-policy.test.mjs
++++ b/tests/workflow-policy.test.mjs
+@@ -217,17 +217,19 @@ test('focused suggestions are advisory and broad or unknown changes fall back to
+ // This is a deliberately simple one-job workflow. Keep its merge-critical
+ // structure reviewable; hosted lifecycle evidence remains separate from these
+ // source/shell contract checks (this is not a YAML or Actions implementation).
+-test('ready-PR full gate keeps explicit triggers, stable status and least privilege', () => {
++test('ready-PR full gate keeps explicit triggers, candidate admission and least privilege', () => {
+   const workflow = read('.github/workflows/ready-pr-check.yml')
+   assert.match(workflow, /^name: Ready PR checks$/m)
+   assert.match(workflow, /^on:\n {2}pull_request:\n {4}branches: \[main\]\n {4}types: \[opened, reopened, synchronize, ready_for_review, converted_to_draft\]$/m)
+   assert.match(workflow, /^permissions:\n {2}contents: read\n/m)
+-  assert.match(workflow, /^concurrency:\n {2}group: ready-pr-check-\$\{\{ github.event.pull_request.number \}\}\n {2}cancel-in-progress: true$/m)
+-  assert.match(workflow, /^jobs:\n {2}full-check:\n(?: {4}#.*\n)* {4}name: Full check\n {4}runs-on: ubuntu-24.04\n {4}timeout-minutes: 120$/m)
++  assert.match(workflow, /^concurrency:\n {2}group: .+\n {2}cancel-in-progress: true$/m)
++  assert.match(workflow, /^jobs:\n {2}full-check:\n(?: {4}#.*\n)* {4}name: \$\{\{ toJSON\(github.event.pull_request.draft\) == 'false' && 'Full check' \|\| 'Draft PR \(not validated\)' \}\}\n {4}runs-on: ubuntu-24.04\n {4}timeout-minutes: 120$/m)
+   assert.doesNotMatch(workflow, /^\s*(?:if|continue-on-error|paths|paths-ignore|push|pull_request_target|workflow_run|environment|secrets):/m)
+   assert.doesNotMatch(workflow, /\$\{\{\s*secrets\.|actions\/(?:cache|upload-artifact)@|--if-present|npm run (?:deploy|parity:record)/)
+-  assert.deepEqual([...workflow.matchAll(/uses: ([\w/-]+)@([a-f0-9]{40})/g)].map(m => m[1]), [
+-    'actions/checkout', 'actions/setup-node', 'actions/setup-python',
++  assert.deepEqual([...workflow.matchAll(/uses: ([\w/-]+)@([a-f0-9]{40})/g)].map(m => [m[1], m[2]]), [
++    ['actions/checkout', '3d3c42e5aac5ba805825da76410c181273ba90b1'],
++    ['actions/setup-node', '949feb2413d6458794dcd2491c4babbbce0c15c1'],
++    ['actions/setup-python', '5fda3b95a4ea91299a34e894583c3862153e4b97'],
+   ])
+   assert.match(workflow, /ref: \$\{\{ github.sha \}\}\n[\s\S]*fetch-depth: 0\n {10}persist-credentials: false/)
+   assert.match(workflow, /node-version: '24\.19\.0'/)
+@@ -244,15 +246,105 @@ test('ready-PR full gate keeps explicit triggers, stable status and least privil
+ 
+ test('draft readiness guard fails closed before checkout, installation or full tests', () => {
+   const workflow = read('.github/workflows/ready-pr-check.yml')
+-  const guard = workflow.match(/ {4}steps:\n(?: {6}#.*\n)* {6}- name: Require a ready pull request\n {8}env:\n {10}IS_DRAFT: \$\{\{ github.event.pull_request.draft \}\}\n {8}run: \|\n((?: {10}[^\n]*\n)+)/)?.[1]
++  const guard = workflow.match(/ {4}steps:\n(?: {6}#.*\n)* {6}- name: Require a ready pull request\n {8}env:\n {10}IS_DRAFT: \$\{\{ toJSON\(github.event.pull_request.draft\) \}\}\n {8}run: \|\n((?: {10}[^\n]*\n)+)/)?.[1]
+   assert.ok(guard, 'readiness guard must be the first step')
+   const script = guard.replace(/^ {10}/gm, '')
+-  for (const [value, status] of [['false', 0], ['true', 1], ['', 1], ['unexpected', 1]]) {
++  for (const value of [false, true, undefined, null, '', 'false', 'False', 'true', 0, [], {}]) {
++    const status = value === false ? 0 : 1
+     const result = spawnSync('bash', ['-e', '-c', script], {
+-      env: { ...process.env, IS_DRAFT: value }, encoding: 'utf8',
++      env: { ...process.env, IS_DRAFT: JSON.stringify(value) ?? '' }, encoding: 'utf8',
+     })
+     assert.equal(result.error, undefined)
+     assert.equal(result.status, status, result.stderr)
+     if (status) assert.match(result.stdout, /Draft PR: full checks have not run/)
+   }
+ })
++
++// Evaluate only this workflow's small expression subset against event fixtures.
++// These contracts cannot establish GitHub scheduling or required-check selection.
++function admission(draft, overrides = {}) {
++  const workflow = read('.github/workflows/ready-pr-check.yml')
++  const context = {
++    'github.workflow': 'Ready PR checks', 'github.event.pull_request.number': 123,
++    'github.event.pull_request.head.sha': '1'.repeat(40),
++    'github.event.pull_request.base.sha': '2'.repeat(40), 'github.sha': '3'.repeat(40),
++    ...overrides,
++  }
++  const render = template => template.replace(/\$\{\{ (.*?) \}\}/g, (_, expression) => {
++    const choice = expression.match(/^toJSON\(github.event.pull_request.draft\) == 'false' && '([^']+)' \|\| '([^']+)'$/)
++    if (choice) return JSON.stringify(draft) === 'false' ? choice[1] : choice[2]
++    assert.ok(Object.hasOwn(context, expression), `unreviewed expression: ${expression}`)
++    return context[expression]
++  })
++  return {
++    name: render(workflow.match(/^ {4}name: (.+)$/m)[1]),
++    group: render(workflow.match(/^ {2}group: (.+)$/m)[1]),
++  }
++}
++
++test('only boolean-ready events publish Full check; stale or malformed draft admission is separate', () => {
++  const ready = admission(false)
++  assert.equal(ready.name, 'Full check')
++  assert.equal(ready.group, `Ready PR checks-123-${'1'.repeat(40)}-${'2'.repeat(40)}-${'3'.repeat(40)}-ready`)
++  for (const value of [true, undefined, null, '', 'false', 'False', 0, [], {}]) {
++    const draft = admission(value)
++    assert.equal(draft.name, 'Draft PR (not validated)')
++    assert.notEqual(draft.group, ready.group)
++    assert.ok(draft.group.endsWith('-draft'))
++  }
++})
++
++test('old heads, bases and merge SHAs cannot share current-candidate cancellation or pending replacement', () => {
++  for (const draft of [false, true]) {
++    const current = admission(draft)
++    for (const key of ['github.event.pull_request.head.sha', 'github.event.pull_request.base.sha', 'github.sha']) {
++      assert.notEqual(admission(draft, { [key]: '4'.repeat(40) }).group, current.group, key)
++    }
++    assert.notEqual(admission(draft, { 'github.event.pull_request.number': 124 }).group, current.group)
++    assert.notEqual(admission(draft, { 'github.workflow': 'Another workflow' }).group, current.group)
++  }
++})
++
++test('repeated transitions and three overlapping admissions retain separate candidate and draft groups', () => {
++  const ready = admission(false), staleDraft = admission(true)
++  const oldReady = admission(false, { 'github.event.pull_request.base.sha': '4'.repeat(40) })
++  assert.equal(new Set([ready.group, staleDraft.group, oldReady.group]).size, 3)
++  for (const sequence of [[false, true, false], [true, false, true], [false, false, true, false]]) {
++    for (const draft of sequence) assert.deepEqual(admission(draft), draft ? staleDraft : ready)
++  }
++  // Same-candidate ready duplicates may supersede each other; each still runs the full gate.
++  assert.equal(admission(false).group, ready.group)
++})
++
++test('full/build/mutation shell commands propagate stubbed failures and cancellation', () => {
++  const workflow = read('.github/workflows/ready-pr-check.yml')
++  const tail = workflow.slice(workflow.indexOf('      - name: Full typecheck, tests, parity and orchestration'))
++  const commands = [...tail.matchAll(/^ {8}run: (.+)$/gm)].map(match => match[1])
++  assert.deepEqual(commands, ['npm run check', 'npm run build', 'git diff --exit-code HEAD --'])
++  const script = `
++    npm() {
++      printf '%s\\n' "$*"
++      if [ "$2" = check ]; then
++        if [ "$FAILURE" = cancel ]; then kill -TERM "$$"; fi
++        if [ "$FAILURE" = check ]; then return 17; fi
++      elif [ "$FAILURE" = build ]; then return 23; fi
++    }
++    git() { printf '%s\\n' "$*"; if [ "$FAILURE" = mutation ]; then return 1; fi; }
++    ${commands.join('\n')}
++  `
++  for (const [failure, status, signal, output] of [
++    ['none', 0, null, ['run check', 'run build', 'diff --exit-code HEAD --']],
++    ['check', 17, null, ['run check']],
++    ['build', 23, null, ['run check', 'run build']],
++    ['mutation', 1, null, ['run check', 'run build', 'diff --exit-code HEAD --']],
++    ['cancel', null, 'SIGTERM', ['run check']],
++  ]) {
++    const result = spawnSync('bash', ['-e', '-c', script], {
++      env: { ...process.env, FAILURE: failure }, encoding: 'utf8',
++    })
++    assert.equal(result.error, undefined)
++    assert.equal(result.status, status, result.stderr)
++    assert.equal(result.signal, signal)
++    assert.deepEqual(result.stdout.trim().split('\n'), output)
++  }
++})

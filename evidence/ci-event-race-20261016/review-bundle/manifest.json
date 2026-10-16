@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "kind": "pnd-review-bundle",
+  "taskId": "ci-event-race-473",
+  "repository": {
+    "branch": "codex/ci-draft-ready-race-473",
+    "baseCommit": "cf38a755a3a00255184c63c175a00076cff6b025",
+    "headOid": "7c86021d208780659bb91ef55e7b948e37fd0b08"
+  },
+  "diff": {
+    "path": "changes.patch",
+    "sha256": "8639355244e58d0f214fc629c020a43441a60fdb37ac3eac2b84ad10767c1fdf",
+    "bytes": 21194
+  },
+  "sources": [
+    {
+      "status": "M",
+      "path": ".github/workflows/ready-pr-check.yml",
+      "state": "present",
+      "sha256": "0de9dfe622cb162d09133839896f02b38ae5c4fa9e9b35a9ed6a209d4d3850c9",
+      "blobOid": "145822b5bbc969be42f57e9ab9a266262668c3ea",
+      "bytes": 3794
+    },
+    {
+      "status": "A",
+      "path": "engineering/ci-event-race-pilot.md",
+      "state": "present",
+      "sha256": "be3ffec27721c0aea3da2827a85990b62965db050a98360ab00dbc5615325c2e",
+      "blobOid": "6eda6d705b18f3fc32586ee3db0b6a0ad80c63db",
+      "bytes": 6337
+    },
+    {
+      "status": "M",
+      "path": "engineering/continuous-integration.md",
+      "state": "present",
+      "sha256": "92e4707143aa9cd529ce28fdaa0e3dec7d71713723796b1db4536b59228291a1",
+      "blobOid": "c2907f0b3f0d99fca839c6ce336c8bd5d57a4ca0",
+      "bytes": 7785
+    },
+    {
+      "status": "M",
+      "path": "tests/workflow-policy.test.mjs",
+      "state": "present",
+      "sha256": "dcadb66d209f256c5140fb25a85a30fa90da5c51330ba0e27967dc9d06ba83d6",
+      "blobOid": "42d1b127be27ff4380d2e3a319c5e4108396c328",
+      "bytes": 19391
+    }
+  ],
+  "receipts": [
+    {
+      "sourcePath": "work/orchestration/ci-event-race/focused.json",
+      "sourceSha256": "d036a99e34659e37eb989305c3717733d125261a3ba32eca6bfc6ccfc81d3292",
+      "sourceBytes": 6575,
+      "bundlePath": "receipts/work/orchestration/ci-event-race/focused.json",
+      "bundleSha256": "beca379852520134e9675c041958bac7fedbbbce9be2ba880f4a638b61a04196",
+      "bundleBytes": 6355,
+      "redactions": 4
+    },
+    {
+      "sourcePath": "work/orchestration/ci-event-race/focused-canonical-tmp.json",
+      "sourceSha256": "a37bd97b9459b415f61d0a1522f1a1cbbd5c285c4285558e21fdf39bc69f1faf",
+      "sourceBytes": 5562,
+      "bundlePath": "receipts/work/orchestration/ci-event-race/focused-canonical-tmp.json",
+      "bundleSha256": "53d00ce45ffe8d1d5a27cd4296a69a2e92823a7673639d23ddddbc156440ab6c",
+      "bundleBytes": 5397,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/ci-event-race/lint.json",
+      "sourceSha256": "96dbc15f0b5c6ed270262dfaf7961065609815e3ee9697b83ea0fd32eef11340",
+      "sourceBytes": 1489,
+      "bundlePath": "receipts/work/orchestration/ci-event-race/lint.json",
+      "bundleSha256": "f70eb4e0530b211e24b4f90459ef71874da7e711c64d22f09ff4495673e5ddd1",
+      "bundleBytes": 1324,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/ci-event-race/structure.json",
+      "sourceSha256": "3aec62ca152db43b364f02fe1276be67b83b0cdbe650b5ffb1df12f8e1d8aeb9",
+      "sourceBytes": 8354,
+      "bundlePath": "receipts/work/orchestration/ci-event-race/structure.json",
+      "bundleSha256": "a292e5fada3e543761baed7bf3332c826a4797d84c3b03d915241035d2d5c758",
+      "bundleBytes": 8189,
+      "redactions": 3
+    }
+  ],
+  "reviewerPreflight": {
+    "instructions": "Open this bundle in a permitted executor and verify it against trusted caller-supplied identities before review.",
+    "verify": [
+      "node",
+      "verify.mjs"
+    ]
+  }
+}
