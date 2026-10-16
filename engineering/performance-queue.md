@@ -103,8 +103,8 @@ also needs its reviewed same-invocation process guardian and private resources.
 
 ### Same-invocation test-throughput comparisons
 
-For the bounded test-workflow comparison, use a single foreground invocation with
-balanced A/B order and the same committed source, complete test set, group order,
+For the bounded test-workflow comparison, predeclare the order within one foreground
+invocation and use the same committed source, complete test set, group order,
 Node executable/version, environment and inspected read-only dependency bytes.
 Only the declared concurrency/profile may differ. Retain source, runner, helper,
 lockfile and installed-package fingerprints before and after, all raw results,
@@ -126,7 +126,11 @@ Report cold/warm conditions, order effects and observed memory tradeoffs; hashin
 reads warms filesystem caches and is not a genuinely cold start. A small pilot
 cannot establish whole-suite saving. Compare the complete identical final test
 set before making that claim. Keep typecheck/cache effects separate from the
-test phase, and retain the full correctness and build gates.
+test phase, and retain the full correctness and build gates. A single complete
+C1-to-C2 pair may report its observed same-workload delta, explicitly subject to
+order, cache and host variability. It is not balanced or demonstrated repeatability.
+An order-controlled A/B/B/A pilot is separate supporting evidence, not a reason to
+extrapolate its percentage or erase the complete pair's sampling limits.
 
 ### Optional bounded foreground advisories
 
