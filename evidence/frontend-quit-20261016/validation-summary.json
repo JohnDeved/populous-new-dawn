@@ -1,0 +1,426 @@
+{
+  "testedHead": "927fd7cbaa757c45a2f629700757e5d72e3c96f4",
+  "inventory": {
+    "status": "passed-qualified",
+    "files": 434,
+    "tests": {
+      "tests": 2795,
+      "pass": 2795,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "acceptedReceipts": {
+      "1": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-01-recovery1.json"
+      ],
+      "2": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-02.json"
+      ],
+      "3": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-03.json"
+      ],
+      "4": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-04.json"
+      ],
+      "5": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-05.json"
+      ],
+      "6": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-06.json"
+      ],
+      "7": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-07.json"
+      ],
+      "8": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-08.json"
+      ],
+      "9": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-09.json"
+      ],
+      "10": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-10.json"
+      ],
+      "11": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-11.json"
+      ],
+      "12": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-12.json"
+      ],
+      "13": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-13.json"
+      ],
+      "14": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-14.json"
+      ],
+      "15": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-15.json"
+      ],
+      "16": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-16.json"
+      ],
+      "17": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-17.json"
+      ],
+      "18": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-18.json"
+      ],
+      "19": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-19.json"
+      ],
+      "20": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-20.json"
+      ],
+      "21": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-21.json"
+      ],
+      "22": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-22.json"
+      ],
+      "23": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-23.json"
+      ],
+      "24": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-24.json"
+      ],
+      "25": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-25.json"
+      ],
+      "26": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-26.json"
+      ],
+      "27": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-27.json"
+      ],
+      "28": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-28.json"
+      ],
+      "29": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-29.json"
+      ],
+      "30": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-30.json"
+      ],
+      "31": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-31.json"
+      ],
+      "32": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-32.json"
+      ],
+      "33": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-33.json"
+      ],
+      "34": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-34.json"
+      ],
+      "35": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-35.json"
+      ],
+      "36": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-36.json"
+      ],
+      "37": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-37.json"
+      ],
+      "38": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-38.json"
+      ],
+      "39": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-39.json"
+      ],
+      "40": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-40.json"
+      ],
+      "41": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-41.json"
+      ],
+      "42": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-42.json"
+      ],
+      "43": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-43.json"
+      ],
+      "44": [
+        "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-44.json"
+      ]
+    },
+    "excludedReceipt": "inventory-01.json",
+    "qualification": "For the original multi-batch invocation, retained loaded runner2275eb0e differs from per-batch disk-input hash06837d92 only by a never-executed preinventory hold. Later passes require this explicit semantic qualification, not a claim that disk bytes were loaded. Batch1invalidated must be replaced by a distinct stable-runner receipt; original preserved.",
+    "independentAuditSha256": "8de4d4af8a0bd5ec825b5c4f3204960ffb438c00ed04400dd936d8c809ed2749"
+  },
+  "gates": {
+    "focused": {
+      "command": [
+        "node",
+        "--test",
+        "tests/frontend-composition.test.mjs",
+        "tests/original-frontend-quit.test.mjs",
+        "tests/original-options.test.mjs"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "receiptSha256": "f7d33adec620a595fdc469881026ae4eb30093cf6c86eb3d3d84b41dd19c0ca3"
+    },
+    "eslintChanged": {
+      "command": [
+        "node",
+        "node_modules/eslint/bin/eslint.js",
+        "app/original-main-menu.tsx",
+        "app/frontend-composition.ts"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "receiptSha256": "d5b6ced5c06818cf13d0b970d2a7f564211be33e8d1504e6c2d89d9ed7bf5eba"
+    },
+    "formatChanged": {
+      "command": [
+        "node",
+        "node_modules/oxfmt/bin/oxfmt",
+        "--check",
+        "app/original-main-menu.tsx",
+        "app/frontend-composition.ts"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "receiptSha256": "3332cb9a73602d629ba429bae620218b8bdc1614d2c1afd353c1ba8d954b1640"
+    },
+    "typecheck": {
+      "command": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit",
+        "--incremental",
+        "false"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "receiptSha256": "7c1c4e91afdad5967984ce09874eb55154af3275b5461adf32fd0e4892c964ff"
+    },
+    "parity": {
+      "command": [
+        "npm",
+        "run",
+        "parity:check"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "receiptSha256": "8cb9dbd681aa8da920025452f42a035249bc2c6c42f806264c8e2e119db3a807"
+    },
+    "orchestration": {
+      "command": [
+        "npm",
+        "run",
+        "orchestration:check"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "receiptSha256": "9775793d588319851d6481d27f04babb26643d7ef016472ce1bcd89200bcdf28"
+    },
+    "eslint": {
+      "command": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "status": "failed",
+      "exitCode": 1,
+      "signal": null,
+      "receiptSha256": "097f3bf2c93401589491fe6c60fdda79492fb72d3012dc0d3c5b5ea1f2d1b958"
+    },
+    "oxlint": {
+      "command": [
+        "npm",
+        "run",
+        "lint:standard"
+      ],
+      "status": "failed",
+      "exitCode": 1,
+      "signal": null,
+      "receiptSha256": "d999460af00efc0ad41a738b28d6bbd31cb6df25aef76731a0008fddc2400ca6"
+    },
+    "format": {
+      "command": [
+        "npm",
+        "run",
+        "format:check"
+      ],
+      "status": "failed",
+      "exitCode": 1,
+      "signal": null,
+      "receiptSha256": "ea13066156690db63e0b2f696d6cc73d862e894af9503ac2bbdd765893fd3b99"
+    },
+    "health": {
+      "command": [
+        "npm",
+        "run",
+        "quality:health"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "receiptSha256": "ada9154ffb41fd2cfec1bf219ecc7572068a0b5c9b870c0f4536f428a3f43ab8"
+    },
+    "dupes": {
+      "command": [
+        "npm",
+        "run",
+        "quality:dupes"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "receiptSha256": "ef21fd1e583d0e3ed43945dd28293d18cd8e86d0df96eaba9e57a7ab9a64d496"
+    },
+    "unused": {
+      "command": [
+        "npm",
+        "run",
+        "quality:unused"
+      ],
+      "status": "failed",
+      "exitCode": 1,
+      "signal": null,
+      "receiptSha256": "91eaf8ebbc348718789c90cf6d249972c61681c0879e769735a3d63459d4b837"
+    }
+  },
+  "quality": {
+    "format": {
+      "comparison": {
+        "baselineFiles": [
+          "app/viewport-bounds.ts"
+        ],
+        "candidateFiles": [
+          "app/viewport-bounds.ts"
+        ],
+        "addedFiles": [],
+        "removedFiles": []
+      },
+      "summaryLines": null
+    },
+    "eslint": {
+      "comparison": {
+        "baselineCount": 401,
+        "candidateCount": 401,
+        "added": [],
+        "removed": [],
+        "baselineSeverity": {
+          "error": 392,
+          "warning": 9
+        },
+        "candidateSeverity": {
+          "error": 392,
+          "warning": 9
+        }
+      },
+      "summaryLines": null
+    },
+    "oxlint": {
+      "comparison": {
+        "baselineCount": 1434,
+        "candidateCount": 1434,
+        "added": [],
+        "removed": [],
+        "baselineSeverity": {
+          "warning": 761,
+          "error": 673
+        },
+        "candidateSeverity": {
+          "warning": 761,
+          "error": 673
+        }
+      },
+      "summaryLines": null
+    },
+    "health": {
+      "comparison": null,
+      "summaryLines": {
+        "baseline": [
+          "\u25a0 Metrics: 250,611 LOC \u00b7 dead files 7.9% \u00b7 dead exports 2.0% \u00b7 avg cyclomatic 2.4 \u00b7 p90 cyclomatic 4 \u00b7 maintainability 83.9 (moderate) \u00b7 1 churn hotspot (since 6 months) \u00b7 20 circular deps \u00b7 3 unused deps",
+          "\u25cf Hotspots (1 files, since 6 months)",
+          "\u25cf Refactoring targets (394)",
+          "\u2717 2704 above threshold \u00b7 29003 analyzed (0.72s)"
+        ],
+        "candidate": [
+          "\u25a0 Metrics: 250,903 LOC \u00b7 dead files 7.9% \u00b7 dead exports 2.0% \u00b7 avg cyclomatic 2.4 \u00b7 p90 cyclomatic 4 \u00b7 maintainability 83.9 (moderate) \u00b7 2 churn hotspots (since 6 months) \u00b7 20 circular deps \u00b7 3 unused deps",
+          "\u25cf Hotspots (2 files, since 6 months)",
+          "\u25cf Refactoring targets (396)",
+          "\u2717 2709 above threshold \u00b7 29096 analyzed (0.78s)"
+        ]
+      }
+    },
+    "dupes": {
+      "comparison": null,
+      "summaryLines": {
+        "baseline": [
+          "\u25cf Duplicates (807 clone groups)",
+          "\u25cf Clone families (127 with multiple groups)",
+          "\u2717 19,156 lines (11.2%) duplicated across 382 files (0.57s)"
+        ],
+        "candidate": [
+          "\u25cf Duplicates (808 clone groups)",
+          "\u25cf Clone families (127 with multiple groups)",
+          "\u2717 19,168 lines (11.2%) duplicated across 384 files (0.59s)"
+        ]
+      }
+    },
+    "unused": {
+      "comparison": null,
+      "summaryLines": {
+        "baseline": [
+          "\u25cf Unused files (99)",
+          "\u25cf Unused exports (1)",
+          "\u25cf Unused devDependencies (3)",
+          "\u25cf Unresolved imports (294)",
+          "\u25cf Unlisted dependencies (1)",
+          "\u25cf Circular dependencies (20)",
+          "\u2717 99 files \u00b7 1 export \u00b7 3 dev/optional dependencies \u00b7 294 unresolved imports \u00b7 1 unlisted dependency \u00b7 20 circular dependencies (0.55s)"
+        ],
+        "candidate": [
+          "\u25cf Unused files (99)",
+          "\u25cf Unused exports (1)",
+          "\u25cf Unused devDependencies (3)",
+          "\u25cf Unresolved imports (294)",
+          "\u25cf Unlisted dependencies (1)",
+          "\u25cf Circular dependencies (20)",
+          "\u2717 99 files \u00b7 1 export \u00b7 3 dev/optional dependencies \u00b7 294 unresolved imports \u00b7 1 unlisted dependency \u00b7 20 circular dependencies (0.57s)"
+        ]
+      }
+    }
+  },
+  "limits": [
+    "npm run check was decomposed into its exact TypeScript, full Node inventory, parity and orchestration stages; monolithic command not rerun.",
+    "No local production build due to storage constraints; canonical exact-head Cloudflare build passed separately.",
+    "Full browser suite remains a336fa0d, affected opacity replay38c37e9d; updated complete scenario was not rerun wholesale.",
+    "Fallow human diagnostics are truncated; displayed baseline identity does not prove identity of undisplayed findings."
+  ],
+  "qualityBaselineCodeEquivalence": {
+    "extensions": [
+      "js",
+      "jsx",
+      "mjs",
+      "cjs",
+      "ts",
+      "tsx",
+      "mts",
+      "cts",
+      "vue",
+      "svelte",
+      "astro",
+      "css",
+      "html"
+    ],
+    "baselineCount": 1258,
+    "canonicalCount": 1258,
+    "baselineManifestSha256": "86bc7e90856cac1acccdb27b538603b16c2281a67afc9b3b2c860a5dedb19f62",
+    "canonicalManifestSha256": "86bc7e90856cac1acccdb27b538603b16c2281a67afc9b3b2c860a5dedb19f62",
+    "changed": {},
+    "qualification": "Includes tracked code in references, qa, evidence and fixtures outside entry roots. All baseline-to-canonical changed paths are separately retained, including JSON receipts and archives. Git-history-derived churn metrics are reported without normalization."
+  }
+}

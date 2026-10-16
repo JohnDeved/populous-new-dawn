@@ -66,3 +66,7 @@ frontend draw evidence remains in ../frontend-menu-static/. No new asset import 
 parity credit is involved. Tests validate descriptors, exported production row data,
 existing atlas metrics and shadow inputs. Browser receipts separately establish live
 UI behavior, fallback, focus and display fit.
+
+## Rendered restoration evidence
+
+[Source-bound before/after captures and final validation](../../../evidence/frontend-quit-20261016/README.md) retain actual Home behavior, explicit browser adaptations, failed attempts and repaired Escape/disabled-label checks. Original-byte presentation proof and rendered browser evidence remain distinct.
