@@ -1,7 +1,8 @@
 # Result UI restoration evidence
 
 Refs #457. Native source proof and bounded presentation verification are complete;
-full integrated and standard-gate acceptance remain explicitly tracked below.
+bounded presentation acceptance is retained below. Actual full-game lifecycle
+remains blocked and is not claimed.
 
 ## Source and captures
 
@@ -42,8 +43,25 @@ full integrated and standard-gate acceptance remain explicitly tracked below.
   expectations to source metadata without changing application behavior.
 - `checks/initial-attempts.json` records the capped typecheck heap failure and
   intentionally interrupted monolithic check. Default-heap typecheck passed, but
-  no complete `npm run check` pass is claimed by those attempts. Complete durable
-  test inventory, parity/orchestration and quality checks remain pending.
+  no complete `npm run check` pass is claimed by those attempts. The complete durable
+  inventory and split gates are retained separately below.
+- Full standard split coverage passed on clean `17f9d776`: all 430 test files,
+  2,765 passing tests in 43 complete batches, TypeScript, parity and orchestration.
+  Independent accounting verified every file exactly once, final top-level counts,
+  source/input/installed-lock/raw-log hashes, with no skips or substitutions.
+- Focused maintained-file lint/format, health and duplication commands passed.
+  Global ESLint/Oxlint/format/unused remain failed with independent attribution:
+  392 existing ESLint errors, one additional nonfatal source-PNG warning, unchanged
+  1,434 Oxlint diagnostics, unchanged viewport-bounds formatting failure, and one
+  retained historical CSS file added to unused/duplication evidence findings.
+- Independent final bounded-presentation ACCEPT and exact input/tree fingerprints:
+  `validation/`. Full raw receipts/logs, complete inventory, runners and audits are
+  in `validation/validation-17f9d776.tar.gz`; archive checksum is alongside it.
+- One integrated remote attempt on the successful immutable preview stopped at
+  `ERR_CERT_AUTHORITY_INVALID` before loading the game. No warning bypass, retry,
+  injected setup or live assertion ran. `integrated-remote-blocked/` preserves it.
+  Real result-camera, continued simulation, Continue/Restart world replacement,
+  selector-return and durable profile/checkpoint behavior remain unverified.
 - Source explanation and adaptations: `decomp/research/original-result-ui.md`.
   No gameplay parity credit, native runtime/pixel equivalence or hardware
   performance claim follows from these presentation fixtures.

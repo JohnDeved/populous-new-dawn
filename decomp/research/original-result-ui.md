@@ -72,8 +72,16 @@ Focused component/layout tests: `node --test tests/original-result-screen.test.m
 Independent import checks cover every glyph, frame and tile position, deterministic
 regeneration, and rejection of each mutated input before output writes.
 
-Full checks/build/rendered lifecycle acceptance are tracked in the linked PR;
-this source note does not declare them passed. Two clean-main integrated-harness
+Standard split checks passed on the clean `17f9d776` candidate: all 430 test files
+(2,765 passing tests), TypeScript, parity and orchestration. Canonical exact-source
+production-target builds succeeded. Independent review accepts this bounded
+presentation slice; raw gates, global-quality attribution and source fingerprints
+are retained in `evidence/result-ui-20261015/validation/`. Actual full-game rendered
+lifecycle remains blocked and is not claimed. Two clean-main integrated-harness
 baseline attempts terminated during initial route readiness with server SIGKILL,
 before browser launch. Source-bound static before/after UI fixtures are separate
 and retain that limitation.
+
+One remote immutable-preview episode stopped at ERR_CERT_AUTHORITY_INVALID before
+loading the game. Certificate validation remained enabled; no bypass or retry was
+used. Static fixture checks do not replace those unverified live lifecycle paths.
