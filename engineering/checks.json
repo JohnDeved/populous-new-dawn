@@ -823,7 +823,7 @@
         "Synthetic repositories validate mechanics; live assertions cover only the mapped performance boundaries named by this suite."
       ],
       "executable": "node",
-      "args": ["--test", "tests/orchestration.test.mjs", "tests/workflow-handoff.test.mjs", "tests/workflow-policy.test.mjs", "tests/research-evidence.test.mjs", "tests/theme-reference-evidence.test.mjs"],
+      "args": ["--test", "tests/orchestration.test.mjs", "tests/workflow-handoff.test.mjs", "tests/workflow-policy.test.mjs", "tests/research-evidence.test.mjs", "tests/theme-reference-evidence.test.mjs", "tests/test-runner.test.mjs"],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -913,7 +913,7 @@
         "PARITY.md"
       ],
       "prerequisites": ["Installed npm dependencies"],
-      "sideEffects": ["May update ignored tool caches"],
+      "sideEffects": ["May update ignored tool caches", "Runs every top-level tests/*.test.mjs file through the bounded Node runner; resource-sensitive/unreviewed files are serial."],
       "resources": ["Serialize with other full test runs"],
       "expected": { "exitCode": 0, "artifacts": [] }
     },
