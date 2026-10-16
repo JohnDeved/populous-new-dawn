@@ -1,0 +1,82 @@
+[
+  {
+    "viewport": {
+      "width": 640,
+      "height": 480
+    },
+    "status": "won",
+    "level": 1,
+    "readyRecoveryPngIdentical": true,
+    "failurePendingPngIdentical": true
+  },
+  {
+    "viewport": {
+      "width": 640,
+      "height": 480
+    },
+    "status": "won",
+    "level": 14,
+    "readyRecoveryPngIdentical": true,
+    "failurePendingPngIdentical": true
+  },
+  {
+    "viewport": {
+      "width": 640,
+      "height": 480
+    },
+    "status": "lost",
+    "level": 1,
+    "readyRecoveryPngIdentical": true,
+    "failurePendingPngIdentical": true
+  },
+  {
+    "viewport": {
+      "width": 640,
+      "height": 480
+    },
+    "status": "lost",
+    "level": 14,
+    "readyRecoveryPngIdentical": true,
+    "failurePendingPngIdentical": true
+  },
+  {
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "status": "won",
+    "level": 1,
+    "readyRecoveryPngIdentical": true,
+    "failurePendingPngIdentical": true
+  },
+  {
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "status": "won",
+    "level": 14,
+    "readyRecoveryPngIdentical": true,
+    "failurePendingPngIdentical": true
+  },
+  {
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "status": "lost",
+    "level": 1,
+    "readyRecoveryPngIdentical": true,
+    "failurePendingPngIdentical": true
+  },
+  {
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "status": "lost",
+    "level": 14,
+    "readyRecoveryPngIdentical": true,
+    "failurePendingPngIdentical": true
+  }
+]

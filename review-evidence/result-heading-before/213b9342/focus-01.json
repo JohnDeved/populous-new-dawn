@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "a69c2ba8-9557-4a59-9818-ac4e84b87bce",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "213b93426002877f37552ee1faa1c885351734b3",
+    "branch": "codex/result-heading-before-probe",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "npm",
+    "run",
+    "test:focus",
+    "--",
+    "tests/original-result-screen.test.mjs"
+  ],
+  "cwd": "/Users/johann/Documents/Codex/2026-10-16/task/populous-result-probe",
+  "startedAt": "2026-10-16T16:20:19.588Z",
+  "artifacts": {
+    "stdout": "/Users/johann/Documents/Codex/2026-10-16/task/populous-result-probe/work/orchestration/result-heading-before/focus-01.json.artifacts/stdout.log",
+    "stderr": "/Users/johann/Documents/Codex/2026-10-16/task/populous-result-probe/work/orchestration/result-heading-before/focus-01.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T16:20:19.944Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 test:focus\n> node scripts/orchestration/test-runner.mjs focus tests/original-result-screen.test.mjs\n\nTAP version 13\n# Subtest: result time is a pure live-clock formatter with hours and no wrapping or mutation\nok 1 - result time is a pure live-clock formatter with hours and no wrapping or mutation\n  ---\n  duration_ms: 0.298625\n  type: 'test'\n  ...\n# Subtest: result composition fits the battlefield and reserves room for browser controls\nok 2 - result composition fits the battlefield and reserves room for browser controls\n  ---\n  duration_ms: 0.082625\n  type: 'test'\n  ...\n# Subtest: actual result component renders source headings and ten explicitly unavailable counters\nok 3 - actual result component renders source headings and ten explicitly unavailable counters\n  ---\n  duration_ms: 4.124166\n  type: 'test'\n  ...\n# Subtest: loss and terminal/tutorial actions retain the explicit parent-decided consequence\nok 4 - loss and terminal/tutorial actions retain the explicit parent-decided consequence\n  ---\n  duration_ms: 4.662875\n  type: 'test'\n  ...\n# Subtest: source panel metadata retains independently checked native geometry and glyph bounds\nok 5 - source panel metadata retains independently checked native geometry and glyph bounds\n  ---\n  duration_ms: 0.39\n  type: 'test'\n  ...\n1..5\n# tests 5\n# suites 0\n# pass 5\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 214.192375\n",
+  "stderr": "{\"kind\":\"pnd-test-plan\",\"mode\":\"focus\",\"fullSuite\":false,\"parallelEligibility\":\"focused-serial\",\"files\":[\"tests/original-result-screen.test.mjs\"],\"groups\":[{\"concurrency\":1,\"files\":[\"tests/original-result-screen.test.mjs\"]}]}\n{\"kind\":\"pnd-test-group\",\"command\":[\"/Users/johann/.nvm/versions/node/v24.18.0/bin/node\",\"--test\",\"--test-concurrency=1\",\"--test-reporter=tap\",\"tests/original-result-screen.test.mjs\"],\"files\":[\"tests/original-result-screen.test.mjs\"],\"concurrency\":1,\"exitCode\":0,\"signal\":null,\"error\":null,\"status\":\"passed\",\"wallMs\":241.113834}\n{\"kind\":\"pnd-test-result\",\"mode\":\"focus\",\"fullSuite\":false,\"complete\":true,\"interrupted\":null,\"results\":[{\"command\":[\"/Users/johann/.nvm/versions/node/v24.18.0/bin/node\",\"--test\",\"--test-concurrency=1\",\"--test-reporter=tap\",\"tests/original-result-screen.test.mjs\"],\"files\":[\"tests/original-result-screen.test.mjs\"],\"concurrency\":1,\"exitCode\":0,\"signal\":null,\"error\":null,\"status\":\"passed\",\"wallMs\":241.113834}],\"wallMs\":241.900875,\"status\":\"passed\"}\n",
+  "stdoutSha256": "29c3bb766efe7a7ac05234c6abc8b377c6404e7d08551c51565db87f22c60d48",
+  "stderrSha256": "3c74317d3d47604d68cfb7449e1f18ba73d95ca5a3ff1c2b61779495f515c953",
+  "sourceAfter": {
+    "headOid": "213b93426002877f37552ee1faa1c885351734b3",
+    "branch": "codex/result-heading-before-probe",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}
