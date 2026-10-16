@@ -1666,6 +1666,16 @@ export default function Home() {
                     </button>
                   </div>
                   <p>Camera changes apply when you continue.</p>
+                  <button
+                    className="secondary-button"
+                    aria-pressed={!!engine.current?.fpsGraph}
+                    onClick={() => {
+                      engine.current?.togglePerformance()
+                      update()
+                    }}
+                  >
+                    Toggle performance overlay · F8
+                  </button>
                   <label className="hud-settings">
                     HUD size
                     <select
@@ -1736,6 +1746,8 @@ export default function Home() {
                     <strong>Choose a spell / open buildings</strong>
                     <span>Space with a building plan</span>
                     <strong>Rotate the entrance before placing</strong>
+                    <span>F8</span>
+                    <strong>Toggle live FPS, frame times and CPU/render diagnostics</strong>
                     <span>H / F / G / Space / Esc</span>
                     <strong>Shaman / focus / guard shaman / pause / cancel</strong>
                   </div>

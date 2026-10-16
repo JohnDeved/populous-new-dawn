@@ -296,7 +296,16 @@ export class GameScene {
   frame = 0
   started = false
   disposed = false
-  fpsGraph = new URLSearchParams(location.search).has('fps') ? new FpsGraph() : null
+  fpsGraph: FpsGraph | null = null
+  togglePerformance() {
+    if (this.fpsGraph) {
+      this.fpsGraph.element.remove()
+      this.fpsGraph = null
+    } else {
+      this.fpsGraph = new FpsGraph(this.renderer.getContext())
+      this.container.appendChild(this.fpsGraph.element)
+    }
+  }
   previous: number | null = null
   modalSuspended = false
   setModalSuspended(suspended: boolean) {
@@ -464,7 +473,7 @@ export class GameScene {
     this.renderer.domElement.tabIndex = 0
     this.renderer.domElement.className = 'battlefield'
     container.appendChild(this.renderer.domElement)
-    if (this.fpsGraph) container.appendChild(this.fpsGraph.element)
+    if (new URLSearchParams(location.search).has('fps')) this.togglePerformance()
     Object.assign(this.pointerOutline.style, {
       position: 'absolute',
       inset: '0',
@@ -833,18 +842,29 @@ export class GameScene {
     const previous = this.previous ?? now,
       skyTicks = Math.imul(Math.max(0, Math.floor(now) - Math.floor(previous)), 64) >>> 0,
       dt = Math.max(0, now - previous) / 1000
-    if (this.fpsGraph) this.fpsGraph.update(document.hidden ? 0 : dt * 1000)
+    const diagnostic = document.hidden ? null : this.fpsGraph
+    if (document.hidden) this.fpsGraph?.reset('Hidden tab · sampling stopped')
     this.previous = now
     // Pause menus freeze the entire presentation, not ordinary Space pause.
     // Keep sampling timestamps so resuming never catches up suspended wall time.
     if (this.modalSuspended) {
+      const renderStart = diagnostic ? performance.now() : 0
       this.renderer.render(this.scene, this.camera)
+      diagnostic?.update(
+        now,
+        0,
+        performance.now() - renderStart,
+        this.renderer.info.render.calls,
+        'Menu · rendering'
+      )
       this.frame = requestAnimationFrame(this.animate)
       return
     }
     syncSecondaryReservations(this)
     this.dispatchNearbyFollowers(now)
+    const simulationStart = diagnostic ? performance.now() : 0
     advanceGame(this.world, this.gameClock, dt)
+    const simulationMs = diagnostic ? performance.now() - simulationStart : 0
     this.templeResourceSnapshot = this.presentationBinding?.snapshot() ?? null
     this.playWorldSounds()
     this.updateTerrainFrame()
@@ -884,7 +904,15 @@ export class GameScene {
     this.updatePlacement()
     this.updateSpellPointerFrame(spec)
     this.updateEnvironmentFrame(skyTicks)
+    const renderStart = diagnostic ? performance.now() : 0
     this.renderSceneFrame(hovered, hoveredBuilding)
+    diagnostic?.update(
+      now,
+      simulationMs,
+      performance.now() - renderStart,
+      this.renderer.info.render.calls,
+      this.world.paused ? 'Paused · rendering' : 'Live'
+    )
     this.updateHudFrame(now, dt)
     this.frame = requestAnimationFrame(this.animate)
   }
