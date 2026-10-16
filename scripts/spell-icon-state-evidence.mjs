@@ -33,7 +33,7 @@ export function spellIconSourceSnapshot(root) {
 
 // Observe pages before navigation, including contexts whose startup never returns.
 export async function runSpellIconEvidence({ report, launch, run, save, snapshot, timeout = 240000 }) {
-  let browser, timer
+  let browser, timer, timeoutClose
   report.contexts = []
   report.errors = []
   report.browserClosed = false
@@ -41,7 +41,15 @@ export async function runSpellIconEvidence({ report, launch, run, save, snapshot
     report.sourceBefore = snapshot()
     save()
     browser = await launch()
-    timer = setTimeout(() => { report.expired = true; void browser.close() }, timeout)
+    const deadline = new Promise((_, reject) => {
+      timer = setTimeout(() => {
+        report.expired = true
+        timeoutClose = Promise.resolve().then(() => browser.close()).catch(error => {
+          report.timeoutCleanupError = error.stack ?? String(error)
+        })
+        reject(Error('Spell icon evidence timed out'))
+      }, timeout)
+    })
     const observedBrowser = {
       async newContext(options) {
         const record = { index: report.contexts.length, errors: [], closed: false }
@@ -60,13 +68,14 @@ export async function runSpellIconEvidence({ report, launch, run, save, snapshot
         return context
       },
     }
-    await run(browser, observedBrowser)
+    await Promise.race([run(browser, observedBrowser), deadline])
     report.status = 'passed'
   } catch (error) {
     report.status = 'failed'
     report.error = error.stack ?? String(error)
   } finally {
     clearTimeout(timer)
+    await timeoutClose
     if (browser) {
       try { await browser.close(); report.browserClosed = true }
       catch (error) { report.status = 'failed'; report.cleanupError = error.stack ?? String(error) }
