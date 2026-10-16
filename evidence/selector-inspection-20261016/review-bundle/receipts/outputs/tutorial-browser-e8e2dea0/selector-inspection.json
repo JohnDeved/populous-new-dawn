@@ -1,0 +1,138 @@
+{
+  "status": "passed",
+  "episodes": [
+    {
+      "initiallyPaused": true,
+      "captured": {
+        "level": 1,
+        "turn": 101,
+        "time": 8.416666666666666,
+        "capturedPaused": true
+      },
+      "afterBack": {
+        "sameWorld": true,
+        "sameScene": true,
+        "sameSceneWorld": true,
+        "sameCanvas": true,
+        "disposed": false,
+        "terrainAborted": false,
+        "loading": false,
+        "canvasRemoved": false,
+        "sameSession": true,
+        "sessionCleared": false,
+        "paused": true,
+        "modalSuspended": true,
+        "frozen": true,
+        "level": 1,
+        "turn": 101,
+        "time": 8.416666666666666
+      },
+      "afterEscape": {
+        "sameWorld": true,
+        "sameScene": true,
+        "sameSceneWorld": true,
+        "sameCanvas": true,
+        "disposed": false,
+        "terrainAborted": false,
+        "loading": false,
+        "canvasRemoved": false,
+        "sameSession": true,
+        "sessionCleared": false,
+        "paused": true,
+        "modalSuspended": true,
+        "frozen": true,
+        "level": 1,
+        "turn": 101,
+        "time": 8.416666666666666
+      },
+      "repeatedEscape": {
+        "sameWorld": true,
+        "sameScene": true,
+        "sameSceneWorld": true,
+        "sameCanvas": true,
+        "disposed": false,
+        "terrainAborted": false,
+        "loading": false,
+        "canvasRemoved": false,
+        "sameSession": false,
+        "sessionCleared": true,
+        "paused": true,
+        "modalSuspended": false,
+        "frozen": true,
+        "level": 1,
+        "turn": 101,
+        "time": 8.416666666666666
+      }
+    },
+    {
+      "initiallyPaused": false,
+      "captured": {
+        "level": 1,
+        "turn": 101,
+        "time": 8.416666666666666,
+        "capturedPaused": false
+      },
+      "afterBack": {
+        "sameWorld": true,
+        "sameScene": true,
+        "sameSceneWorld": true,
+        "sameCanvas": true,
+        "disposed": false,
+        "terrainAborted": false,
+        "loading": false,
+        "canvasRemoved": false,
+        "sameSession": true,
+        "sessionCleared": false,
+        "paused": true,
+        "modalSuspended": true,
+        "frozen": true,
+        "level": 1,
+        "turn": 101,
+        "time": 8.416666666666666
+      },
+      "afterEscape": {
+        "sameWorld": true,
+        "sameScene": true,
+        "sameSceneWorld": true,
+        "sameCanvas": true,
+        "disposed": false,
+        "terrainAborted": false,
+        "loading": false,
+        "canvasRemoved": false,
+        "sameSession": true,
+        "sessionCleared": false,
+        "paused": true,
+        "modalSuspended": true,
+        "frozen": true,
+        "level": 1,
+        "turn": 101,
+        "time": 8.416666666666666
+      },
+      "repeatedEscape": {
+        "sameWorld": true,
+        "sameScene": true,
+        "sameSceneWorld": true,
+        "sameCanvas": true,
+        "disposed": false,
+        "terrainAborted": false,
+        "loading": false,
+        "canvasRemoved": false,
+        "sameSession": false,
+        "sessionCleared": true,
+        "paused": false,
+        "modalSuspended": false,
+        "frozen": false,
+        "level": 1,
+        "turn": 103,
+        "time": 8.583333333333334
+      }
+    }
+  ],
+  "errors": [],
+  "cleanup": {
+    "observationDisconnected": true,
+    "contextClosed": true,
+    "errors": []
+  },
+  "failure": null
+}

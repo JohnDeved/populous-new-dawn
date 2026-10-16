@@ -1,0 +1,33 @@
+{
+  "testedHead": "e8e2dea065155cd509fe6cf17339214caabe292f",
+  "screenshots": {
+    "recommendation-1920x1080.png": {
+      "sha256": "faf4938fb0207da4798c4d771763a24c9692d555d10e63fe42189e9a00196162",
+      "bytes": 2924888
+    },
+    "recommendation-640x480.png": {
+      "sha256": "af2c98860850b9d9a753d1896f2991619717da384eaaa8e7f250fedb5714e804",
+      "bytes": 445333
+    },
+    "recommendation-900x360.png": {
+      "sha256": "16c37dc968506b30d79835cf81a8090b62ee3bf389105f9086e860c6b04fd983",
+      "bytes": 618677
+    },
+    "recommendation-font-fallback.png": {
+      "sha256": "55d60356a85a9ce587568209c2d0b70e90a3fb9eac67d41eca19b4ba6ea45279",
+      "bytes": 477319
+    },
+    "recommendation-tutorial-ready.png": {
+      "sha256": "558849cc54fbc120af0db35445a66bd3047b798633bf37073b84fde1c45d76a0",
+      "bytes": 107964
+    },
+    "selector-inspection-paused.png": {
+      "sha256": "cad9b9c9f270c62dacfa08c869a9be63c1d1b8cc16c7eebb070d8feb90d08344",
+      "bytes": 96960
+    },
+    "selector-inspection-running.png": {
+      "sha256": "c1a9b6736daa8d97c7114058922b53273d13975961eaa8c90152b63623b5ea5d",
+      "bytes": 97031
+    }
+  }
+}

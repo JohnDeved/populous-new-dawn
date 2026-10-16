@@ -4,12 +4,14 @@ import { spawn, execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { resolve, dirname } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { readFileSync, writeFileSync, readdirSync, lstatSync, statSync, existsSync, mkdirSync, symlinkSync } from 'node:fs'
+import { readFileSync, writeFileSync, readdirSync, lstatSync, statSync, existsSync, mkdirSync, symlinkSync, accessSync, constants } from 'node:fs'
 import assert from 'node:assert/strict'
+import { browserConfiguration } from './browser-config.mjs'
 const root = resolve(dirname(import.meta.filename), '../..')
 const fixture = resolve(dirname(import.meta.filename), 'fixture')
 const out = resolve(process.argv[2] || resolve(root, 'outputs/tutorial-browser'))
 const scenario = resolve(root, 'scripts/local-render/tutorial-recommendation.mjs')
+const selectorScenario = resolve(root, 'scripts/tutorial-browser/selector-inspection.mjs')
 const port = 5198
 if (existsSync(out)) throw Error('Output must be fresh')
 mkdirSync(out, { recursive: true })
@@ -23,8 +25,10 @@ const source = { commit, files: Object.fromEntries(files.map(name => [name, hash
   limits: ['Actual production Home component, store and scene through plain Vite hosting; excludes Vinext/Cloudflare/RSC hosting.'] }
 // The official Chrome channel has the hosted Ubuntu AppArmor profile.
 // Never fall back to an unsandboxed downloaded browser.
-const browserPath = '/opt/google/chrome/chrome'
+const browserConfig = browserConfiguration(process.env.POPULOUS_BROWSER)
+const { browserPath } = browserConfig
 assert.ok(existsSync(browserPath), 'Supported preinstalled official Chrome channel is required')
+accessSync(browserPath, constants.X_OK)
 const browserBinaryVersion = execFileSync(browserPath, ['--version'], { encoding: 'utf8' }).trim()
 const dependencies = resolve(root, 'node_modules')
 function metadata(path, prefix = '') {
@@ -49,10 +53,13 @@ function outputManifest(path, prefix = '') {
 }
 const receipt = { status: 'running', startedAt: new Date().toISOString(), source, command: process.argv,
   runnerSha256: hash(import.meta.filename), builderSha256: hash(resolve(dirname(import.meta.filename), 'build-home.mjs')),
+  browserConfigSha256: hash(resolve(dirname(import.meta.filename), 'browser-config.mjs')),
   scenarioSha256: hash(scenario), fixtureSha256: hash(resolve(fixture, 'main.tsx')),
+  selectorScenarioSha256: hash(selectorScenario),
   fixtureHtmlSha256: hash(resolve(fixture, 'index.html')),
   buildPackageVersions: Object.fromEntries(['vite', '@vitejs/plugin-react', '@tailwindcss/postcss', '@playwright/test', 'playwright-core'].map(name => [name, JSON.parse(readFileSync(resolve(dependencies, name, 'package.json'))).version])),
-  browserPath, browserChannel: 'chrome', browserBinaryVersion, browserSha256: hash(browserPath), node: process.version,
+  browserPath, browserPathSource: browserConfig.browserPathSource, launch: browserConfig.launch,
+  browserChannel: browserConfig.launch.channel ?? null, browserBinaryVersion, browserSha256: hash(browserPath), node: process.version,
   environment: { TMPDIR: process.env.TMPDIR, XDG_CACHE_HOME: process.env.XDG_CACHE_HOME },
   limits: [...source.limits, 'Production Vite bundle of actual Home; excludes Vinext/Cloudflare/RSC hosting. No causal claim about prior development-server crashes.'], errors: [], warnings: [] }
 const save = () => writeFileSync(resolve(out, 'receipt.json'), JSON.stringify(receipt, null, 2) + '\n')
@@ -83,7 +90,7 @@ try {
   }
   verifySource(); save()
   server = await preview({ configFile: false, root: fixture, build: { outDir: dist }, preview: { host: '127.0.0.1', port, strictPort: true } })
-  browser = await chromium.launch({ channel: 'chrome', headless: true, chromiumSandbox: true, ignoreDefaultArgs: true, args: ['--headless', '--remote-debugging-pipe'], timeout: 30000 })
+  browser = await chromium.launch(browserConfig.launch)
   receipt.browserVersion = browser.version(); save()
   timer = setTimeout(() => { receipt.browserTimedOut = true; void browser.close() }, 180000)
   context = await browser.newContext({ viewport: { width: 640, height: 480 }, deviceScaleFactor: 1 })
@@ -94,6 +101,7 @@ try {
   const url = `http://127.0.0.1:${port}`
   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 })
   receipt.result = await (await import(pathToFileURL(scenario).href)).default({ page, context, browser, url, root, output: out, receipt })
+  receipt.selectorInspection = await (await import(pathToFileURL(selectorScenario).href)).default({ browser, url, output: out })
   assert.equal(receipt.browserTimedOut, undefined)
   assert.deepEqual(receipt.errors, [], 'Unexpected primary-page runtime/console errors')
   receipt.status = 'passed'
