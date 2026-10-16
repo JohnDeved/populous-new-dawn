@@ -1,0 +1,14 @@
+{
+  "head": "a0bcf7dfa3dbf2491cfb9fb3c01d138cca005cd9",
+  "command": [
+    "node",
+    "--test",
+    "--test-concurrency=1",
+    "tests/route-notice-modal.test.mjs",
+    "tests/pause-menu-ownership.test.mjs",
+    "tests/route-recovery.test.mjs"
+  ],
+  "exitCode": 0,
+  "stdoutSha256": "9bc3f16272981d4d381d99bf3c8fee9703a942f6a4446f4d5b03fdabe1d0a59f",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

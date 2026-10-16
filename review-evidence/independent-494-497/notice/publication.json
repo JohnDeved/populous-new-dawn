@@ -1,0 +1,48 @@
+{
+  "sourceHashesPreserved": true,
+  "redaction": "Only absolute review-directory prefixes in failed assertion stacks replaced with <review-evidence>.",
+  "files": [
+    {
+      "file": "verify-notice-instance.mjs",
+      "originalSha256": "0fce0ecead2dde1e33472b39a943c7c9cfa90a6de540f165204d26013254f2d4",
+      "publishedSha256": "0fce0ecead2dde1e33472b39a943c7c9cfa90a6de540f165204d26013254f2d4",
+      "privatePathRedacted": false
+    },
+    {
+      "file": "serial-reuse-before.json",
+      "originalSha256": "736b3a42c8ba03ab74b2a028bf1399557bde3c65cdc1ddcd567e21f5070f1ec9",
+      "publishedSha256": "c750c20e9af0135b216a320975a283d1bbe576226c0f9cdb494213c7cb5b859d",
+      "privatePathRedacted": true
+    },
+    {
+      "file": "serial-reuse-corrected-4f39e7f.json",
+      "originalSha256": "c43c397d19077b5d4bc20f7e9e7524d8e4a356d10232c95ba16e4ba28d605649",
+      "publishedSha256": "813cfd8ac1fb550aec7b8c97782cef70a00d2e0bcf626a790d95beceed87b03d",
+      "privatePathRedacted": true
+    },
+    {
+      "file": "serial-reuse-corrected-a0bcf7d.json",
+      "originalSha256": "b398acc5174ebc0a261cef89cc638eeacd835b1e0c933324f3aada7f71379965",
+      "publishedSha256": "b398acc5174ebc0a261cef89cc638eeacd835b1e0c933324f3aada7f71379965",
+      "privatePathRedacted": false
+    },
+    {
+      "file": "focused-a0bcf7d.json",
+      "originalSha256": "37cd4ca23a235eaaf9957edbd6e6ef25f70c4da0dccb7daf4f3bedede87d2f30",
+      "publishedSha256": "37cd4ca23a235eaaf9957edbd6e6ef25f70c4da0dccb7daf4f3bedede87d2f30",
+      "privatePathRedacted": false
+    },
+    {
+      "file": "focused-a0bcf7d.stdout",
+      "originalSha256": "9bc3f16272981d4d381d99bf3c8fee9703a942f6a4446f4d5b03fdabe1d0a59f",
+      "publishedSha256": "9bc3f16272981d4d381d99bf3c8fee9703a942f6a4446f4d5b03fdabe1d0a59f",
+      "privatePathRedacted": false
+    },
+    {
+      "file": "focused-a0bcf7d.stderr",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "publishedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "privatePathRedacted": false
+    }
+  ]
+}

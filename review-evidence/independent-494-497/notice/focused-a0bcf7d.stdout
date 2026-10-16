@@ -1,0 +1,23 @@
+✔ actual Page captures original pause once, holds it across panel return and restores same-world close (27.231208ms)
+✔ actual Page never restores an old pause state or queued camera request into a replacement world (5.090667ms)
+✔ actual Page applies queued camera conveniences only on final same-world close (5.284ms)
+✔ Home keeps the notice through menu/selector/reopen and restores prior pause=false (24.501167ms)
+✔ Home keeps the notice through menu/selector/reopen and restores prior pause=true (9.90375ms)
+✔ ordinary game pause without a menu retains the presentation timer (5.509333ms)
+✔ an obsolete animation callback cannot consume a replacement world notice with the same serial (5.057667ms)
+✔ a canceled notice callback cannot consume a newly issued notice (4.822416ms)
+✔ actual producer serial reuse does not give an old callback ownership of a new notice (4.861625ms)
+✔ failed-route initialization and retries match native fields, timing and ordered consumers (2.58525ms)
+✔ disconnected groups stop, retain shared attack/waypoint orders, retry and resume after land connects (84.52875ms)
+✔ route-failure notice keeps the original text and retriggers without tutorial history (25.998667ms)
+✔ new orders and death release blocked commands; shaman failures use their own original voice (53.501209ms)
+✔ blocked groups retry on simulation counters, with identical recovery and combat at 5–240 Hz (290.154167ms)
+✔ blocked building-entry owners resume the same person and finish ordinary admission (28.707583ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1376.953125
