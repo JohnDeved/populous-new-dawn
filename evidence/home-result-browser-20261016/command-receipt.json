@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "bfc38050-7076-4a92-b476-870705a528b0",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "80f3e78c3409376b3a35f764e6499a96508f9023",
+    "branch": "codex/home-result-lifecycle",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/home-result/run-managed.mjs": "f05e276410897f599941c4609b7064569f9d224fb1504bc209ff91f49ffccf95"
+    }
+  },
+  "command": [
+    "node",
+    "work/orchestration/home-result/run-managed.mjs",
+    "outputs/home-result-managed-01"
+  ],
+  "cwd": "<source-root>",
+  "startedAt": "2026-10-16T17:18:10.096Z",
+  "artifacts": {
+    "stdout": "<source-root>/work/orchestration/home-result/browser-managed-01.json.artifacts/stdout.log",
+    "stderr": "<source-root>/work/orchestration/home-result/browser-managed-01.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T17:18:36.221Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\"status\":\"passed\",\"cleanupVerified\":true,\"output\":\"<source-root>/outputs/home-result-managed-01\"}\n",
+  "stderr": "",
+  "stdoutSha256": "9ef59ecea27b65479604be59ec7e08f855afa33a1d4f625c1625eea5ae5f3287",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "80f3e78c3409376b3a35f764e6499a96508f9023",
+    "branch": "codex/home-result-lifecycle",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/home-result/run-managed.mjs": "f05e276410897f599941c4609b7064569f9d224fb1504bc209ff91f49ffccf95"
+    }
+  }
+}

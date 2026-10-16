@@ -1,0 +1,42 @@
+{
+  "status": "passed",
+  "scope": "actual Home with a seeded paused loss; public selector return and Restart",
+  "observations": [
+    {
+      "route": "Back",
+      "retained": {
+        "sameWorld": true,
+        "sameScene": true,
+        "sameCanvas": true,
+        "disposed": false,
+        "status": "lost",
+        "paused": true
+      }
+    },
+    {
+      "route": "Escape",
+      "retained": {
+        "sameWorld": true,
+        "sameScene": true,
+        "sameCanvas": true,
+        "disposed": false,
+        "status": "lost",
+        "paused": true
+      }
+    }
+  ],
+  "restarted": {
+    "replacedWorld": true,
+    "replacedScene": true,
+    "sceneOwnsWorld": true,
+    "oldDisposed": true,
+    "oldAborted": true,
+    "oldCanvasDetached": true,
+    "oldStatus": "lost",
+    "oldPaused": true,
+    "level": 1,
+    "status": "playing",
+    "paused": false,
+    "suspended": false
+  }
+}

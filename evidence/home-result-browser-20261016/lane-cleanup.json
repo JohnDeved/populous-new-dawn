@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "verifiedAt": "2026-10-16T17:19:09.365570+00:00",
+  "port5198": "no listener",
+  "ownedRunnerProcesses": [],
+  "laneReleased": true,
+  "source": "80f3e78c3409376b3a35f764e6499a96508f9023",
+  "browserReceiptSha256": "f36d1cafe1290d26c44d6e10502c54e10fb0f16dfa47f3a52d410570db90d5da",
+  "cleanupVerified": true,
+  "errors": [],
+  "warnings": [
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found."
+  ]
+}

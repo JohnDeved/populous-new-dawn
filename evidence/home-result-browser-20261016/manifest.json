@@ -1,0 +1,59 @@
+{
+  "testedHead": "80f3e78c3409376b3a35f764e6499a96508f9023",
+  "files": [
+    {
+      "path": "browser-receipt.json",
+      "originalSha256": "f36d1cafe1290d26c44d6e10502c54e10fb0f16dfa47f3a52d410570db90d5da",
+      "publishedSha256": "d35d63d71a6c38c749ff5292235f93baeae922589b719da87063fb0b642b3c36",
+      "redacted": true
+    },
+    {
+      "path": "dependencies.json",
+      "originalSha256": "6be43821df85192cb9133d0f2997b92273ae2bf1895f89a2eb5cf96a5ba65d62",
+      "publishedSha256": "6be43821df85192cb9133d0f2997b92273ae2bf1895f89a2eb5cf96a5ba65d62",
+      "redacted": false
+    },
+    {
+      "path": "build.log",
+      "originalSha256": "90501a1cb345116020c5979665ca2399d97b00330b5bebc6550924757f17ad9a",
+      "publishedSha256": "90501a1cb345116020c5979665ca2399d97b00330b5bebc6550924757f17ad9a",
+      "redacted": false
+    },
+    {
+      "path": "observations.json",
+      "originalSha256": "48f20d821f294d3426153fb54979f9427adf931d6d76642b4b41ae73c592e662",
+      "publishedSha256": "48f20d821f294d3426153fb54979f9427adf931d6d76642b4b41ae73c592e662",
+      "redacted": false
+    },
+    {
+      "path": "lost-result.png",
+      "originalSha256": "64f48325d5933ca503cb6984c7bc0e722f64880c29a1005d05a8be3f07c07572",
+      "publishedSha256": "64f48325d5933ca503cb6984c7bc0e722f64880c29a1005d05a8be3f07c07572",
+      "redacted": false
+    },
+    {
+      "path": "restarted-after-loss.png",
+      "originalSha256": "d99b446b3ab5ed8dc8b064c199a2d441280eb251828129ea6281b64615a02eaa",
+      "publishedSha256": "d99b446b3ab5ed8dc8b064c199a2d441280eb251828129ea6281b64615a02eaa",
+      "redacted": false
+    },
+    {
+      "path": "run-managed.mjs",
+      "originalSha256": "f05e276410897f599941c4609b7064569f9d224fb1504bc209ff91f49ffccf95",
+      "publishedSha256": "f05e276410897f599941c4609b7064569f9d224fb1504bc209ff91f49ffccf95",
+      "redacted": false
+    },
+    {
+      "path": "command-receipt.json",
+      "originalSha256": "7dcb357ac0c0b9064f1eb6350be4067101ca5c64761a7aef21a3a1fbe357c63b",
+      "publishedSha256": "c89906deabb3aa704cd00c3bb365f9be77450107d8bf8ff7e4d41ed4830961ae",
+      "redacted": true
+    },
+    {
+      "path": "lane-cleanup.json",
+      "originalSha256": "e25f7ee7fe5361f1f3e5567ea1e38d780c1f491bf6075e71279fc1e48053a29a",
+      "publishedSha256": "e25f7ee7fe5361f1f3e5567ea1e38d780c1f491bf6075e71279fc1e48053a29a",
+      "redacted": false
+    }
+  ]
+}
