@@ -20,8 +20,9 @@ const homeMenu = pageNode(node => ts.isJsxSelfClosingElement(node) && node.tagNa
 function menu(store, overrides = {}) {
   const home = evaluatePage(homeMenu.getText(pageSource), {
     OriginalMainMenu: 'OriginalMainMenu', store,
-    setStartupCampaign: () => {}, startMission: () => {}, tutorialLevel: 79,
-    loadCheckpoint: () => store.loadCheckpoint(), ...overrides,
+    setStartupCampaign: () => assert.fail('lookup must not navigate to campaign selection'),
+    startMission: () => assert.fail('lookup must not start a mission'), tutorialLevel: 79,
+    loadCheckpoint: () => assert.fail('lookup must not load a checkpoint'), ...overrides,
   })
   return renderMenu(home.props)
 }
@@ -34,13 +35,22 @@ const button = (tree, name) => nodes(tree).find(node => node.type === 'button' &
 const text = tree => nodes(tree).flatMap(node => node.children.filter(child => typeof child === 'string')).join(' ')
 function startup(store) {
   const states = []
+  const names = ['beginLoad', 'startMission', 'loadCheckpoint']
+  const declarations = names.map(name => pageNode(node => ts.isFunctionDeclaration(node) && node.name?.text === name).getText(pageSource)).join('\n')
+  const navigation = evaluatePage(`function(){${declarations}; return {${names.join(',')}}}`, {
+    store, setStartup: state => states.push(state),
+    menuSession: { current: null }, pendingMenuCamera: { current: [] },
+    engine: { current: null }, audio: { current: null }, loadRequest: { current: null },
+    cancelNearbyInput: () => {}, setSelectorOpen: () => {}, setMenu: () => {},
+    setReady: () => {}, setError: () => {}, setTab: () => {},
+  })()
   const cleanup = pageEffect('store.restoreCheckpoint()', {
     store, readAudioPreferences: () => ({ volume: 1, musicVolume: 1 }),
     readGamePreferences: () => ({}), setAudioPreferences: () => {}, audio: { current: null },
     gamePreferencesRef: { current: null }, setGamePreferences: () => {},
     setStartup: state => states.push(state),
   })()
-  return { states, cleanup }
+  return { states, cleanup, navigation }
 }
 const settle = () => new Promise(resolve => setImmediate(resolve))
 let session = 0
@@ -117,11 +127,12 @@ for (const failure of ['open', 'abort']) test(`actual Home ${failure} failure ex
     assert.deepEqual(records, before)
     assert.deepEqual(writes, [])
     assert.deepEqual(store.getCompletedMissions(), [1, 2])
-    const recovered = button(menu(store), 'Load Game')
+    const recovered = button(menu(store, home.navigation), 'Load Game')
     assert.equal(recovered.props['aria-disabled'], false)
     recovered.props.onClick()
     assert.equal(store.getWorld().turn, 217)
     assert.notEqual(store.getWorld(), active)
+    assert.deepEqual(home.states, ['choice', 'playing'], 'only deliberate Load invokes actual Home beginLoad')
     home.cleanup()
   }, { latest: { version: 1, world: saved }, profile: { version: 1, completed: [1, 2] } })
 })
@@ -164,16 +175,16 @@ test('late read keeps a newer memory save and current world after navigation', a
     await open(true)
     button(menu(store), 'Retry checkpoint lookup').props.onClick()
     await open()
-    store.startMission(2)
+    home.navigation.startMission(2)
     const newer = store.getWorld()
     newer.turn = 999
     assert.equal(await store.saveCheckpoint(), true)
-    home.cleanup()
     await read()
     assert.equal(store.getWorld(), newer)
-    assert.deepEqual(home.states, ['choice'])
-    assert.equal(store.loadCheckpoint(), true)
+    assert.deepEqual(home.states, ['choice', 'playing'], 'Home stays mounted while retry completes after mission launch')
+    home.navigation.loadCheckpoint()
     assert.equal(store.getWorld().turn, 999, 'post-await memory checkpoint wins over old read')
+    home.cleanup()
   }, { latest: { version: 1, world: saved } })
 })
 
@@ -204,7 +215,7 @@ test('unsupported storage ends startup, explains session saves, and permits memo
     assert.equal(button(menu(store), 'Retry checkpoint lookup'), undefined)
     store.getWorld().turn = 313
     assert.equal(await store.saveCheckpoint(), false)
-    const load = button(menu(store), 'Load Game')
+    const load = button(menu(store, home.navigation), 'Load Game')
     assert.equal(load.props['aria-disabled'], false)
     load.props.onClick()
     assert.equal(store.getWorld().turn, 313)
