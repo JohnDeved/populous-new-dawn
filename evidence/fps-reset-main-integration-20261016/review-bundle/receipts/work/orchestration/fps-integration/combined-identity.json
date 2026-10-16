@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "5332d7be-9416-43e8-be95-0c5626937d29",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "28343293a919180cc0a18f8dc9151dece2fb8881",
+    "branch": "repair/pr495-main-integration",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "engineering/test-resources.json": "523cf01cec12bf2ef3c02c44fd870e8c29d6f0cf7b26fa72f592fbc2f55c3772",
+      "app/fps-graph.ts": "b3f505073fd7b8f317c2167ca447be7d167c59bff6e354a298e49ade892092dd",
+      "app/original-pause-menu.tsx": "c4d0d1ee764e7baad145d105cece5bbb12f5d35fcc74b87405b0eb39495b694c",
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  },
+  "command": [
+    "node",
+    "--input-type=module",
+    "-e",
+    "import assert from 'node:assert/strict'; import {readFileSync} from 'node:fs'; import {execFileSync} from 'node:child_process'; import {productionFingerprint,planTestRun} from './scripts/orchestration/test-runner.mjs'; const policy=JSON.parse(readFileSync('engineering/test-resources.json')); assert.equal(productionFingerprint(process.cwd()),policy.productionSha256); for(const path of ['app/fps-graph.ts','tests/fps-graph-reset.test.mjs','tests/frame-performance.test.mjs']) assert.deepEqual(readFileSync(path),execFileSync('git',['show','5314bd846ca8f25104734641d9b4f75a0c6b1c0a:'+path])); assert.deepEqual(readFileSync('app/original-pause-menu.tsx'),execFileSync('git',['show','f85a8105fd77c71547fe5cd01594d3467c47b098:app/original-pause-menu.tsx'])); const before=JSON.parse(execFileSync('git',['show','5314bd846ca8f25104734641d9b4f75a0c6b1c0a:engineering/test-resources.json'])); assert.deepEqual({...policy,productionSha256:null},{...before,productionSha256:null}); const plan=planTestRun(process.cwd(),'all'); console.log(JSON.stringify({productionSha256:policy.productionSha256,runtime:{node:process.version,platform:process.platform,arch:process.arch},sourceUnchanged:true,classificationUnchanged:true,planOnly:{eligibility:plan.parallelEligibility,groups:plan.groups.map(g=>({concurrency:g.concurrency,files:g.files.length}))}},null,2));"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-16T16:31:27.548Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/fps-integration/combined-identity.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/fps-integration/combined-identity.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T16:31:27.757Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\n  \"productionSha256\": \"61028d22fe5086614d5e277821c5526df7ecd0cf11b182da494c4622d7f5befc\",\n  \"runtime\": {\n    \"node\": \"v24.18.0\",\n    \"platform\": \"darwin\",\n    \"arch\": \"arm64\"\n  },\n  \"sourceUnchanged\": true,\n  \"classificationUnchanged\": true,\n  \"planOnly\": {\n    \"eligibility\": \"reviewed\",\n    \"groups\": [\n      {\n        \"concurrency\": 2,\n        \"files\": 364\n      },\n      {\n        \"concurrency\": 1,\n        \"files\": 81\n      }\n    ]\n  }\n}\n",
+  "stderr": "",
+  "stdoutSha256": "d1a32c9a20630e578da616b9fdeb9cfaf2d3659347539cebc6d3f03218f66a14",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "28343293a919180cc0a18f8dc9151dece2fb8881",
+    "branch": "repair/pr495-main-integration",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "engineering/test-resources.json": "523cf01cec12bf2ef3c02c44fd870e8c29d6f0cf7b26fa72f592fbc2f55c3772",
+      "app/fps-graph.ts": "b3f505073fd7b8f317c2167ca447be7d167c59bff6e354a298e49ade892092dd",
+      "app/original-pause-menu.tsx": "c4d0d1ee764e7baad145d105cece5bbb12f5d35fcc74b87405b0eb39495b694c",
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  }
+}
