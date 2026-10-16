@@ -1,0 +1,18 @@
+{
+  "purpose": "Reproduce hosted inherited-config failure; LFS-shaped config is a controlled witness, not confirmed hosted key",
+  "head": "ad9043fd6ca0b0a35f31b93227148a42d60bb3e4",
+  "command": [
+    "env",
+    "GIT_CONFIG_GLOBAL=/tmp/pnd-hosted-global.gitconfig",
+    "GIT_CONFIG_NOSYSTEM=1",
+    "node",
+    "--test",
+    "tests/integration-queue.test.mjs"
+  ],
+  "config": "[filter \"lfs\"]\n\tclean = git-lfs clean -- %f\n\tsmudge = git-lfs smudge -- %f\n\tprocess = git-lfs filter-process\n\trequired = true\n",
+  "configSha256": "b76f47ee2fe5df0e3029804fc5fb3433887d1b06da2dcee95c590e8af5e353b6",
+  "exitCode": 1,
+  "stdoutSha256": "0a992cb7b09b684fe29a59e08633d6fd5227a7b8a1655dcadea59e709965cddd",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "testSourceSha256": "bec7ceb02de02a05f6ca1e75908f6c2904da444962579eb3dfae67c78484110b"
+}
