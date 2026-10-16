@@ -440,7 +440,9 @@ export function keyDown(scene: GameScene, event: KeyboardEvent) {
       !event.altKey &&
       !event.metaKey &&
       !event.shiftKey &&
-      !(event.target as HTMLElement).closest('input,textarea,select,dialog,a,[contenteditable]')
+      !(event.target as HTMLElement | null)?.closest?.(
+        'input,textarea,select,dialog,a,[contenteditable]'
+      )
     ) {
       event.preventDefault()
       scene.togglePerformance()
