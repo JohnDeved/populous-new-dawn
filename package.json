@@ -9,7 +9,7 @@
     "dev": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext dev",
     "build": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext build",
     "start": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext start",
-    "test": "node --test tests/*.test.mjs",
+    "test": "node scripts/orchestration/test-runner.mjs all",
     "test:level-start": "node --test tests/level-start.test.mjs tests/startup-burst-angles.test.mjs tests/startup-burst-height.test.mjs tests/startup-burst-observer.test.mjs",
     "typecheck": "tsc --noEmit",
     "check": "npm run typecheck && npm test && npm run parity:check && npm run orchestration:check",
@@ -39,7 +39,9 @@
     "deploy:cloudflare": "npm run build:cloudflare && wrangler deploy --config dist/server/wrangler.json",
     "preview:cloudflare": "npm run build:cloudflare && wrangler versions upload --config dist/server/wrangler.json",
     "parity:measure": "node scripts/parity-measure.mjs",
-    "test:mission6-earned": "node scripts/check-mission6-earned-victory.mjs"
+    "test:mission6-earned": "node scripts/check-mission6-earned-victory.mjs",
+    "test:focus": "node scripts/orchestration/test-runner.mjs focus",
+    "test:serial": "node scripts/orchestration/test-runner.mjs serial"
   },
   "dependencies": {
     "react": "19.2.6",
