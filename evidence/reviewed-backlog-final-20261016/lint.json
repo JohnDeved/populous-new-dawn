@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "72e2461f-c75f-4a9a-8d10-c972c39abc29",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "6f5d5c168d265dab4d2341940eb76f4d1e1eb813",
+    "branch": "codex/reviewed-backlog-integration-502",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "node_modules/eslint/bin/eslint.js",
+    "app/fps-graph.ts",
+    "tests/fps-graph-reset.test.mjs",
+    "tests/home-result-lifecycle.test.mjs",
+    "tests/selector-profile-launch.test.mjs",
+    "scripts/local-render/result-loss-lifecycle.mjs"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-16T20:15:53.182Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/reviewed-backlog-final/lint.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/reviewed-backlog-final/lint.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T20:15:56.105Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "6f5d5c168d265dab4d2341940eb76f4d1e1eb813",
+    "branch": "codex/reviewed-backlog-integration-502",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

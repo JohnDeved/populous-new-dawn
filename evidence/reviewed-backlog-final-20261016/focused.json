@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "f653906f-c347-48af-a9cb-ddfbea327594",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "6f5d5c168d265dab4d2341940eb76f4d1e1eb813",
+    "branch": "codex/reviewed-backlog-integration-502",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "--test",
+    "--test-concurrency=1",
+    "tests/fps-graph-reset.test.mjs",
+    "tests/frame-performance.test.mjs",
+    "tests/pause-save-notice.test.mjs",
+    "tests/pause-menu.test.mjs",
+    "tests/home-result-lifecycle.test.mjs",
+    "tests/original-result-screen.test.mjs",
+    "tests/pause-menu-ownership.test.mjs",
+    "tests/selector-profile-launch.test.mjs",
+    "tests/world-selector.test.mjs",
+    "tests/campaign-profile-recovery.test.mjs",
+    "tests/campaign-profile-union.test.mjs",
+    "tests/checkpoint-restore-ui.test.mjs"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-16T20:15:53.182Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/reviewed-backlog-final/focused.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/reviewed-backlog-final/focused.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T20:15:58.951Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ missing checkpoint does not suppress independent campaign progress (60.205167ms)\n✔ malformed checkpoint does not suppress independent campaign progress (44.079917ms)\n✔ partially migratable checkpoint does not suppress independent campaign progress (26.55225ms)\n✔ incompatible checkpoint does not suppress independent campaign progress (25.488208ms)\n✔ current valid checkpoint still restores and loads (62.423375ms)\n✔ legacy valid checkpoint still restores and loads (52.098334ms)\n✔ malformed stored checkpoint preserves usable session checkpoint and merges completion (34.934333ms)\n✔ storage read failure retains in-session progress and checkpoint (80.865542ms)\n✔ completion after failed startup read preserves earlier persisted progress (1150.295084ms)\n✔ stale independent stores atomically union completions instead of last-writer loss (47.636166ms)\n✔ incompatible profile remains recoverable while session and checkpoint still work (25.961875ms)\n✔ missing version profile remains recoverable while session and checkpoint still work (21.043833ms)\n✔ malformed list profile remains recoverable while session and checkpoint still work (21.019667ms)\n✔ invalid mission profile remains recoverable while session and checkpoint still work (18.035042ms)\n✔ null record profile remains recoverable while session and checkpoint still work (19.02425ms)\n✔ sparse list profile remains recoverable while session and checkpoint still work (31.123708ms)\n✔ new profile is created and duplicate completions remain unique and sorted (21.109459ms)\n✔ failed atomic profile read cannot overwrite data and later completion retries the union (18.0575ms)\n✔ transaction abort after profile put leaves stored progress unchanged (20.48325ms)\n✔ actual Home open failure exposes retry and enables Load after a recovered read (251.43225ms)\n✔ actual Home abort failure exposes retry and enables Load after a recovered read (106.609416ms)\n✔ genuine empty and unusable records are read results, not a failed lookup or proof of empty disk (106.546625ms)\n✔ repeated failed retries preserve the world and remain retryable (30.324083ms)\n✔ late read keeps a newer memory save and current world after navigation (65.932208ms)\n✔ initial restore completion cannot navigate after unmount (33.084042ms)\n✔ initial restore completion cannot navigate after world replacement (70.9805ms)\n✔ unsupported storage ends startup, explains session saves, and permits memory Load (23.208666ms)\n✔ actual graph repeated cleared resets avoid writes but preserve changed visibility labels (0.955875ms)\n✔ actual graph resets warmup and unpublished samples and excludes hidden time after resume (0.139208ms)\n(node:88338) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n✔ frame telemetry computes time-weighted cadence and per-frame CPU/call means at four Hz (0.385834ms)\n✔ a slow frame remains visible and affects cadence rather than being clamped away (0.083209ms)\n✔ history is one fixed 240-frame chronological ring and reset exposes no old window (0.494334ms)\n✔ invalid or nonpositive frame intervals cannot poison telemetry (0.043583ms)\n✔ hardware hints use the supplied live context and explicit approximate units (0.324042ms)\n✔ unsupported or privacy-restricted telemetry never fabricates hardware numbers (0.114125ms)\n✔ live callback CPU includes preparation, HUD and scheduling, excluding overlay work (2.701959ms)\n✔ modal callback measures rendering and scheduling without simulation or HUD (0.931583ms)\n✔ disabled and hidden diagnostics add no clock reads and preserve game callback order (3.442ms)\n✔ 120 FPS cadence and total CPU remain separate measurements across reset (0.190709ms)\n✔ actual graph keeps a startup spike, auto scale and 120 FPS guide consistent until expiry (0.924834ms)\n✔ Home gates the lost result on camera completion and wires Restart rather than Continue (44.284291ms)\n✔ Home returns from result selection by Back and cancel without replacing the lost world or opening pause menu (25.382125ms)\n✔ Home result Restart replaces the paused terminal world and clears stale menu ownership (24.9935ms)\n✔ result time is a pure live-clock formatter with hours and no wrapping or mutation (0.284666ms)\n✔ result composition fits the battlefield and reserves room for browser controls (0.081334ms)\n✔ actual result component renders source headings and ten explicitly unavailable counters (3.68975ms)\n✔ loss and terminal/tutorial actions retain the explicit parent-decided consequence (3.851167ms)\n✔ pending-font headings center their actual text while statistic columns keep their anchors (4.179167ms)\n✔ source panel metadata retains independently checked native geometry and glyph bounds (0.096417ms)\n✔ actual Page captures original pause once, holds it across panel return and restores same-world close (28.100708ms)\n✔ actual Page never restores an old pause state or queued camera request into a replacement world (5.13025ms)\n✔ actual Page applies queued camera conveniences only on final same-world close (5.805708ms)\n✔ persisted save completion cannot publish a notice in Load Game (3.131583ms)\n✔ persisted completion remains visible after reopening pending Save Game (0.759625ms)\n✔ session-only save completion cannot publish a notice in Load Game (0.5375ms)\n✔ session-only completion remains visible after reopening pending Save Game (0.868208ms)\n✔ failure save completion cannot publish a notice in Load Game (0.570125ms)\n✔ failure completion remains visible after reopening pending Save Game (0.582334ms)\n✔ fresh Home restores independent progress and selector Start launches Mission 3 instead of the older checkpoint (94.003ms)\n✔ native selector body hierarchy retains all 25 worlds and first-three moons (0.645291ms)\n✔ opening campaign availability reflects completion without hiding replay access (0.089ms)\nℹ tests 61\nℹ suites 0\nℹ pass 61\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 5739.375167\n",
+  "stderr": "",
+  "stdoutSha256": "8bdfc39ad67dd019a5fd855a22d81cd1a184806fc999a0603b225c7fac73e42a",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "6f5d5c168d265dab4d2341940eb76f4d1e1eb813",
+    "branch": "codex/reviewed-backlog-integration-502",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}
