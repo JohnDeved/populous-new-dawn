@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "b99eb6ae-a594-4719-99ed-077a694e8b12",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "eeec329f9dc6455713fd2e40927046adad83a4ee",
+    "branch": "tooling/reviewed-integration-queue",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/integration-queue/policy.mjs": "7e3c6f09c523da4f27994d21e59fe35d2893e555dcf5e21703285029f7f41051",
+      "scripts/integration-queue/github.mjs": "f6e757a4081e4cf5802a9c948c3c5cc0a1388e04f783b593e275869e934ce398",
+      "scripts/integration-queue/resources.mjs": "938dff983ed94686877281788ca8078cade436a830f03d65fd0045ab5b530391",
+      "scripts/integration-queue/cli.mjs": "3af036612e8c3a96816b810cca01d1c40b151d40d6df47faf9664f1c966de5b0",
+      "scripts/integration-queue/writer.mjs": "93c239c4e5946979fa93370d61afd7c216198b4231fecf911bda0d8056215dd1",
+      "tests/integration-queue.test.mjs": "2d79f02e758a420cecf8e87ae74abf3d75dfd7566843acb1e98e6856478bd66b",
+      "scripts/integration-queue/README.md": "dddb2797f7e0ba074e1ad293ba4f30548744da98f7eb738a343444d29a371a18",
+      "scripts/orchestration/test-runner.mjs": "2d95f407982eef5194f8cfab0dea456f5ca2d84793c35a2ccd686187c79e2a05",
+      "tests/test-runner.test.mjs": "27182daa6907c8c19bf638c6577331d0bb78bc9f73fffb25c58ab0ae420e5a2c"
+    }
+  },
+  "command": [
+    "env",
+    "GIT_CONFIG_GLOBAL=/tmp/pnd-hosted-global.gitconfig",
+    "GIT_CONFIG_NOSYSTEM=1",
+    "node",
+    "--test",
+    "tests/integration-queue.test.mjs"
+  ],
+  "cwd": "[REPO]",
+  "startedAt": "2026-10-16T20:30:02.607Z",
+  "artifacts": {
+    "stdout": "[REPO]/work/orchestration/integration-queue-git-config-after/inherited-config.json.artifacts/stdout.log",
+    "stderr": "[REPO]/work/orchestration/integration-queue-git-config-after/inherited-config.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T20:30:06.701Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ allowlist binds fixed repository, exact content and independent source review (0.902375ms)\n✔ dry-run has no effects, waits for drain and gives a bounded ready proposal (0.999584ms)\n✔ fake GitHub sequence survives restart after each intent and verifies merge/deployment (32.415667ms)\n✔ a delayed old draft run resets the quiet window; reordering does not change identity (0.376916ms)\n✔ current canceled or failed rerun cannot fall back to an older green result (0.949292ms)\n✔ missing browser coverage cannot be disabled by allowlist for changed UI paths (0.3165ms)\n✔ mandatory job/stage, app and source identity are all required (0.658333ms)\n✔ source/base/workflow/protection/review drift fails closed (0.335917ms)\n✔ refresh needs disjoint clean Git tree proof, exact parents and one-refresh bound (0.289334ms)\n✔ overlap and uncertain ready/merge never retry a mutation (0.599334ms)\n✔ uncertain merge can reconcile success, but rejects wrong tree, parents or deployment (0.40425ms)\n✔ checkpoint cannot silently extend authorization or replace the reviewed head (0.110458ms)\n✔ checkout proof needs exactly one real checkout hash, not arbitrary log text (0.16525ms)\n✔ real Git merge-tree proof preserves contents and modes; path overlap stops refresh (485.143042ms)\n✔ GitHub adapter uses only hostname-pinned GET argv and rejects incomplete pages (0.337792ms)\n✔ apply is disabled before any GitHub call; candidate approval files are rejected (44.674833ms)\n✔ resource preflight reports serial fallback without changing policy or running tests (248.615459ms)\n✔ log source identities cannot be borrowed from a mutable PR association (0.3545ms)\n✔ fake Actions adapter binds workflow/run/attempt/check/app and actual checkout logs (2.500834ms)\n✔ CLI fixture executes the full read-only path, reports preflight, and resumes its quiet checkpoint (1106.864292ms)\n✔ transport arguments pin GitHub host, refresh expected_head_sha and merge sha without bypass (0.304125ms)\n✔ dry-run never observes again, persists an intent, or calls the write transport (0.819208ms)\n✔ arming rejects expired, mismatched, dirty, fixture, reused and unreviewed pilots before transport (0.761291ms)\n✔ source drift or a newly queued stale event during final recheck prevents submission (0.41725ms)\n✔ write intent is durable before transport; uncertain merge resumes without a second submission (17.633375ms)\n✔ journal failure prevents a write; non-confirming merge response remains uncertain (0.286667ms)\n✔ armed fake transport sequences refresh, drain, ready, exact checks and merge across restarts (0.61925ms)\n✔ Cloudflare observation pins exact commit/app/name/project and never promotes preview or older success (0.19725ms)\n✔ confirmed merge reports Cloudflare build success separately from serving deployment (0.167958ms)\n✔ source-bound non-required draft admission cannot replace or poison a genuine ready validation (0.17425ms)\n✔ later failed rerun of an older run blocks an earlier green higher run ID (0.093166ms)\n✔ gate selection stops on ambiguous chronology or disagreeing current required check (0.191167ms)\n✔ pagination rejects short incomplete responses, changing counts and duplicate entries (0.163375ms)\n✔ custom clean filter is rejected before resource preflight or any Git status can execute it (127.990875ms)\n✔ ready-only initial admission proposes one reviewed draft conversion; matching pass is reused (0.369541ms)\n✔ draft conversion cannot retry failed, canceled, ambiguous or orphaned validation (0.646958ms)\n✔ stale ready candidate requires refresh proof and verified earlier validation before draft (0.197375ms)\n✔ draft intent reconciles exact head/base and never retries uncertain conversion (0.327958ms)\n✔ submitted ready admission waits boundedly without another toggle, then accepts exact pass (0.258041ms)\n✔ draft transport persists before effect, rejects changed plan/state, and defaults to dry-run (0.265625ms)\n✔ preexisting draft cannot retry real Full failure from a fresh checkpoint (0.078167ms)\n✔ preexisting draft cannot retry real Full cancelled from a fresh checkpoint (0.065459ms)\n✔ preexisting draft rejects ambiguous Full history and orphaned failed current check (0.115209ms)\n✔ pre-ready Full guard allows missing admission and verified cheap draft history, including Tutorial draft failures (0.158458ms)\n✔ preexisting draft cannot retry required Tutorial failure (0.143708ms)\n✔ preexisting draft cannot retry required Tutorial cancelled (0.102417ms)\n✔ pre-ready Tutorial qualification rejects ambiguous and unproven guard history only when required (0.256417ms)\n✔ cheap Tutorial guard does not hide an earlier real failure before ready (0.106542ms)\n✔ new Tutorial guard proof restarts the stable observation window (0.054ms)\n✔ disposable Git fixtures remain hermetic under inherited global, system and injected filters (1782.2055ms)\n✔ production reader rejects inherited clean filters before status can invoke them (137.834958ms)\nℹ tests 51\nℹ suites 0\nℹ pass 51\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 4051.518958\n",
+  "stderr": "",
+  "stdoutSha256": "6c4336d45ba5850b2b906ca508dc7fc4d73573620a8a79b9ef589446315d4b51",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "eeec329f9dc6455713fd2e40927046adad83a4ee",
+    "branch": "tooling/reviewed-integration-queue",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/integration-queue/policy.mjs": "7e3c6f09c523da4f27994d21e59fe35d2893e555dcf5e21703285029f7f41051",
+      "scripts/integration-queue/github.mjs": "f6e757a4081e4cf5802a9c948c3c5cc0a1388e04f783b593e275869e934ce398",
+      "scripts/integration-queue/resources.mjs": "938dff983ed94686877281788ca8078cade436a830f03d65fd0045ab5b530391",
+      "scripts/integration-queue/cli.mjs": "3af036612e8c3a96816b810cca01d1c40b151d40d6df47faf9664f1c966de5b0",
+      "scripts/integration-queue/writer.mjs": "93c239c4e5946979fa93370d61afd7c216198b4231fecf911bda0d8056215dd1",
+      "tests/integration-queue.test.mjs": "2d79f02e758a420cecf8e87ae74abf3d75dfd7566843acb1e98e6856478bd66b",
+      "scripts/integration-queue/README.md": "dddb2797f7e0ba074e1ad293ba4f30548744da98f7eb738a343444d29a371a18",
+      "scripts/orchestration/test-runner.mjs": "2d95f407982eef5194f8cfab0dea456f5ca2d84793c35a2ccd686187c79e2a05",
+      "tests/test-runner.test.mjs": "27182daa6907c8c19bf638c6577331d0bb78bc9f73fffb25c58ab0ae420e5a2c"
+    }
+  }
+}

@@ -1,0 +1,127 @@
+✔ allowlist binds fixed repository, exact content and independent source review (0.625ms)
+✔ dry-run has no effects, waits for drain and gives a bounded ready proposal (1.132875ms)
+✔ fake GitHub sequence survives restart after each intent and verifies merge/deployment (26.523625ms)
+✔ a delayed old draft run resets the quiet window; reordering does not change identity (0.256666ms)
+✔ current canceled or failed rerun cannot fall back to an older green result (0.500417ms)
+✔ missing browser coverage cannot be disabled by allowlist for changed UI paths (0.214167ms)
+✔ mandatory job/stage, app and source identity are all required (0.39625ms)
+✔ source/base/workflow/protection/review drift fails closed (0.279209ms)
+✔ refresh needs disjoint clean Git tree proof, exact parents and one-refresh bound (0.252417ms)
+✔ overlap and uncertain ready/merge never retry a mutation (0.199917ms)
+✔ uncertain merge can reconcile success, but rejects wrong tree, parents or deployment (0.710166ms)
+✔ checkpoint cannot silently extend authorization or replace the reviewed head (0.092ms)
+✔ checkout proof needs exactly one real checkout hash, not arbitrary log text (0.1395ms)
+✔ real Git merge-tree proof preserves contents and modes; path overlap stops refresh (354.171709ms)
+✔ GitHub adapter uses only hostname-pinned GET argv and rejects incomplete pages (0.285ms)
+✔ apply is disabled before any GitHub call; candidate approval files are rejected (25.107416ms)
+✔ resource preflight reports serial fallback without changing policy or running tests (129.692667ms)
+✔ log source identities cannot be borrowed from a mutable PR association (0.239291ms)
+✔ fake Actions adapter binds workflow/run/attempt/check/app and actual checkout logs (1.010666ms)
+✔ CLI fixture executes the full read-only path, reports preflight, and resumes its quiet checkpoint (699.118333ms)
+✔ transport arguments pin GitHub host, refresh expected_head_sha and merge sha without bypass (0.209458ms)
+✔ dry-run never observes again, persists an intent, or calls the write transport (0.599125ms)
+✔ arming rejects expired, mismatched, dirty, fixture, reused and unreviewed pilots before transport (0.477042ms)
+✔ source drift or a newly queued stale event during final recheck prevents submission (0.313834ms)
+✔ write intent is durable before transport; uncertain merge resumes without a second submission (16.338083ms)
+✔ journal failure prevents a write; non-confirming merge response remains uncertain (0.258958ms)
+✔ armed fake transport sequences refresh, drain, ready, exact checks and merge across restarts (0.6045ms)
+✔ Cloudflare observation pins exact commit/app/name/project and never promotes preview or older success (0.179333ms)
+✔ confirmed merge reports Cloudflare build success separately from serving deployment (0.171958ms)
+✔ source-bound non-required draft admission cannot replace or poison a genuine ready validation (0.172167ms)
+✔ later failed rerun of an older run blocks an earlier green higher run ID (0.088167ms)
+✔ gate selection stops on ambiguous chronology or disagreeing current required check (0.312834ms)
+✔ pagination rejects short incomplete responses, changing counts and duplicate entries (0.160542ms)
+✔ custom clean filter is rejected before resource preflight or any Git status can execute it (87.3075ms)
+✔ ready-only initial admission proposes one reviewed draft conversion; matching pass is reused (0.217042ms)
+✔ draft conversion cannot retry failed, canceled, ambiguous or orphaned validation (0.536375ms)
+✔ stale ready candidate requires refresh proof and verified earlier validation before draft (0.145666ms)
+✔ draft intent reconciles exact head/base and never retries uncertain conversion (0.117917ms)
+✔ submitted ready admission waits boundedly without another toggle, then accepts exact pass (0.198167ms)
+✔ draft transport persists before effect, rejects changed plan/state, and defaults to dry-run (0.21175ms)
+✔ preexisting draft cannot retry real Full failure from a fresh checkpoint (0.060333ms)
+✔ preexisting draft cannot retry real Full cancelled from a fresh checkpoint (0.053334ms)
+✔ preexisting draft rejects ambiguous Full history and orphaned failed current check (0.101417ms)
+✔ pre-ready Full guard allows missing admission and verified cheap draft history, including Tutorial draft failures (0.133167ms)
+✔ preexisting draft cannot retry required Tutorial failure (0.12025ms)
+✔ preexisting draft cannot retry required Tutorial cancelled (0.1095ms)
+✔ pre-ready Tutorial qualification rejects ambiguous and unproven guard history only when required (0.2285ms)
+✔ cheap Tutorial guard does not hide an earlier real failure before ready (0.223666ms)
+✔ new Tutorial guard proof restarts the stable observation window (0.04925ms)
+✔ full discovery preserves the top-level glob and includes unclassified files once (21.07025ms)
+✔ focus accepts only exact explicit unique discovered files and is never full-suite evidence (9.110125ms)
+✔ changed tests, helper drift and newly added helpers fall back to serial (6.673042ms)
+✔ empty discovery, malformed policy and test symlinks fail closed (10.381541ms)
+TAP version 13
+# Subtest: deliberate failure
+not ok 1 - deliberate failure
+  ---
+  duration_ms: 0.225166
+  type: 'test'
+  location: '[TMP]/pnd-test-runner-50YICc/tests/a.test.mjs:1:42'
+  failureType: 'testCodeFailure'
+  error: 'expected diagnostic'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    TestContext.<anonymous> (file://[TMP]/pnd-test-runner-50YICc/tests/a.test.mjs:1:83)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1325:25)
+    Test.start (node:internal/test_runner/test:1191:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 32.357458
+TAP version 13
+# Subtest: b
+ok 1 - b
+  ---
+  duration_ms: 0.225333
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 31.897875
+✔ a real failed Node group cannot pass and does not omit remaining groups (117.516875ms)
+✔ launch errors, native signals and interrupted zero-exit children cannot pass (3.203458ms)
+TAP version 13
+# Subtest: a
+ok 1 - a
+  ---
+  duration_ms: 0.231583
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 30.153291
+✔ native zero exit passes an executed focus without claiming a full gate (56.974833ms)
+✔ empty, duplicate and incomplete execution plans cannot become a pass (2.558333ms)
+✔ environment selection and both isolation aliases are rejected, including quoted flags (2.674125ms)
+✔ real Node skip, TODO and unfiltered only-marker semantics stay intact (55.545917ms)
+✔ production-only source/data and dependency changes require renewed resource review (17.9115ms)
+✔ runtime preloads/customization and application symlinks conservatively use serial execution (3.33575ms)
+ℹ tests 61
+ℹ suites 0
+ℹ pass 61
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1389.546625

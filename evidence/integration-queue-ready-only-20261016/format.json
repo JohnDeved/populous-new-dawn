@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "4992ac5d-32a4-4fe3-b1c2-3f87859bdc83",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "b8cfda914ea72fd5f831f8e50bc988ca26aa4f31",
+    "branch": "tooling/reviewed-integration-queue",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/integration-queue/policy.mjs": "8688a662da3b12cd3cbb9732a0db06f18235b5b9fb5d06e625d781e1d173e79a",
+      "scripts/integration-queue/github.mjs": "82557822642dfff744c6f45905a653eccd96d6b86fc6a146a737df356707f894",
+      "scripts/integration-queue/resources.mjs": "938dff983ed94686877281788ca8078cade436a830f03d65fd0045ab5b530391",
+      "scripts/integration-queue/cli.mjs": "3af036612e8c3a96816b810cca01d1c40b151d40d6df47faf9664f1c966de5b0",
+      "scripts/integration-queue/writer.mjs": "93c239c4e5946979fa93370d61afd7c216198b4231fecf911bda0d8056215dd1",
+      "tests/integration-queue.test.mjs": "0a6bd8dba687c35e77a9912760e3af9830264acc6e3d4f2a0c9f4c6743bdf3a1",
+      "scripts/integration-queue/README.md": "4df283830f60bf3b359956993037888fc7db434b3ee49254ddc66366962e6b1d",
+      "scripts/orchestration/test-runner.mjs": "2d95f407982eef5194f8cfab0dea456f5ca2d84793c35a2ccd686187c79e2a05",
+      "tests/test-runner.test.mjs": "27182daa6907c8c19bf638c6577331d0bb78bc9f73fffb25c58ab0ae420e5a2c"
+    }
+  },
+  "command": [
+    "node_modules/.bin/oxfmt",
+    "--check",
+    "scripts/integration-queue/policy.mjs",
+    "scripts/integration-queue/github.mjs",
+    "scripts/integration-queue/resources.mjs",
+    "scripts/integration-queue/cli.mjs",
+    "scripts/integration-queue/writer.mjs",
+    "tests/integration-queue.test.mjs"
+  ],
+  "cwd": "[REPO]",
+  "startedAt": "2026-10-16T19:46:03.636Z",
+  "artifacts": {
+    "stdout": "[REPO]/work/orchestration/integration-queue-ready-only/format.json.artifacts/stdout.log",
+    "stderr": "[REPO]/work/orchestration/integration-queue-ready-only/format.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T19:46:03.728Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 6ms on 6 files using 10 threads.\n",
+  "stderr": "",
+  "stdoutSha256": "b4fd73a8a3882b4d59336302a413ab05faff6c1f4e5481702abdfc20afbe587b",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "b8cfda914ea72fd5f831f8e50bc988ca26aa4f31",
+    "branch": "tooling/reviewed-integration-queue",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/integration-queue/policy.mjs": "8688a662da3b12cd3cbb9732a0db06f18235b5b9fb5d06e625d781e1d173e79a",
+      "scripts/integration-queue/github.mjs": "82557822642dfff744c6f45905a653eccd96d6b86fc6a146a737df356707f894",
+      "scripts/integration-queue/resources.mjs": "938dff983ed94686877281788ca8078cade436a830f03d65fd0045ab5b530391",
+      "scripts/integration-queue/cli.mjs": "3af036612e8c3a96816b810cca01d1c40b151d40d6df47faf9664f1c966de5b0",
+      "scripts/integration-queue/writer.mjs": "93c239c4e5946979fa93370d61afd7c216198b4231fecf911bda0d8056215dd1",
+      "tests/integration-queue.test.mjs": "0a6bd8dba687c35e77a9912760e3af9830264acc6e3d4f2a0c9f4c6743bdf3a1",
+      "scripts/integration-queue/README.md": "4df283830f60bf3b359956993037888fc7db434b3ee49254ddc66366962e6b1d",
+      "scripts/orchestration/test-runner.mjs": "2d95f407982eef5194f8cfab0dea456f5ca2d84793c35a2ccd686187c79e2a05",
+      "tests/test-runner.test.mjs": "27182daa6907c8c19bf638c6577331d0bb78bc9f73fffb25c58ab0ae420e5a2c"
+    }
+  }
+}
