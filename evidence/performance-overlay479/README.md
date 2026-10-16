@@ -15,7 +15,9 @@ Six focused sampler/hardware tests passed, including aggregation, unclamped spik
 
 `receipt.json` retains browser launch/runtime, source/input fingerprints, actual check result, errors and cleanup. `run-home.mjs` and `scenario.mjs` retain the local serving/scenario entry: actual unchanged Home, store, scene, CSS and assets on plain React/Vite. This excludes Vinext/Cloudflare/RSC hosting, which remains covered by the hosted production build. Browser 154.0.8037.92, sandboxed headless, SwiftShader, DPR 1. All browser assertions passed; zero errors, source identical afterward, dependencies unchanged, clean shutdown.
 
-Coverage: URL startup, default-off and repeated F8/menu toggles, current menu `aria-pressed`, ignored repeats/modifiers/editable targets, direct null/Window/document event targets, first-sample warmup, actual scene CPU/counters, paused/menu rendering, blur/visibility gap reset, click-through, accessible text, bounds and disposal.
+Passed single-scene browser coverage: URL startup and repeated F8/menu off/on toggles, current menu `aria-pressed`, ignored repeats/modifiers/editable targets, direct null/Window/document event targets, first-sample warmup, actual scene CPU/counters, paused/menu rendering, blur/visibility gap reset, click-through, accessible text, bounds and disposal.
+
+Default-off initialization is additionally established by source review and the first successfully rendered scene in the earlier partial two-load attempt; it is not part of the passed single-scene `?fps` run.
 
 Images are the same candidate with diagnostics off/on, not a fabricated earlier implementation:
 - `performance-off-640x480.jpg`: diagnostics off in Mission 1.
