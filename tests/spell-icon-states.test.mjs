@@ -5,8 +5,10 @@ import hud from '../app/original-hud.json' with { type: 'json' }
 import rules from '../app/original-rules.json' with { type: 'json' }
 import { spellHudButton } from '../app/spell-visibility.ts'
 import { SPELLS } from '../app/world-rules.ts'
+import { spellIconStateNames } from '../scripts/spell-icon-state-evidence.mjs'
 
 test('retained original descriptor table covers exactly the shipped spell models', () => {
+  assert.deepEqual(fixture.states.map(s => s.name), spellIconStateNames)
   assert.deepEqual(Object.keys(fixture.icons).map(Number), SPELLS.map(s => s.model).sort((a, b) => a - b))
   for (const [model, icons] of Object.entries(fixture.icons))
     assert.deepEqual(rules.spellCharging[model].icons, icons, `original model ${model}`)

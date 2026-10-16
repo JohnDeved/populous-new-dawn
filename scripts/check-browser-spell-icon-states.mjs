@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { chromium } from '@playwright/test'
 import { openGame } from './browser-game.mjs'
 import { readSpellHudSprite, sha256 } from './spell-hud-checker-contract.mjs'
@@ -8,6 +9,7 @@ import fixture from '../tests/fixtures/spell-icon-states.json' with { type: 'jso
 import hud from '../app/original-hud.json' with { type: 'json' }
 import rules from '../app/original-rules.json' with { type: 'json' }
 import { SPELLS } from '../app/world-rules.ts'
+import { assertSpellIconInventory, runSpellIconEvidence, spellIconSourceSnapshot, spellIconStateNames } from './spell-icon-state-evidence.mjs'
 
 const outputIndex = process.argv.indexOf('--output-dir')
 assert.ok(outputIndex >= 0 && process.argv[outputIndex + 1], 'Required --output-dir (new directory)')
@@ -23,13 +25,14 @@ const report = { status: 'running', startedAt: new Date().toISOString(), states:
   'Authored Mission 1 and 16 discovery are checked separately; no hardware performance claim.',
 ] }
 const save = () => writeFileSync(join(output, 'evidence.json'), JSON.stringify(report, null, 2) + '\n')
-const browser = await chromium.launch({ headless: true, chromiumSandbox: true })
-const timer = setTimeout(() => { report.expired = true; void browser.close() }, 240000)
-try {
+await runSpellIconEvidence({ report, save,
+  snapshot: () => spellIconSourceSnapshot(fileURLToPath(new URL('../', import.meta.url))),
+  launch: () => chromium.launch({ headless: true, chromiumSandbox: true }),
+  async run(browser, observedBrowser) {
+  assert.deepEqual(fixture.states.map(s => s.name), spellIconStateNames)
   report.browser = browser.version()
-  const first = await openGame(browser), errorLists = [first.errors]
+  const first = await openGame(observedBrowser)
   let page = first.page
-  report.errors = first.errors
   page.setDefaultTimeout(15000)
   await page.evaluate(() => {
     const s = window.testScene
@@ -79,19 +82,19 @@ try {
     let expected
     try { expected = await card.locator('[data-spell-reference]').screenshot() }
     finally { await page.evaluate(() => document.querySelector('[data-spell-reference]').replaceWith(window.spellIconElement)) }
+    writeFileSync(join(output, `${name}-reference.png`), expected)
     assert.deepEqual(actual, expected, `Rendered atlas crop ${name}`)
-    report.states.push({ spell, state, ...geometry, scale, screenshotSHA256: sha256(actual) })
+    report.states.push({ spell, state, ...geometry, scale, screenshotSHA256: sha256(actual), referenceSHA256: sha256(expected) })
     save()
   }
 
   // Authored discovery uses actual mission-load ownership/reward masks.
   for (const mission of [1, 16]) {
     if (mission === 16) {
-      const later = await openGame(browser, mission)
       await page.context().close()
+      const later = await openGame(observedBrowser, mission)
       page = later.page
       page.setDefaultTimeout(15000)
-      errorLists.push(later.errors)
     }
     await page.mouse.move(500, 900)
     await page.evaluate(() => {
@@ -100,8 +103,8 @@ try {
       cancelAnimationFrame(s.frame)
     })
     const questions = page.getByRole('button', { name: 'Undiscovered spell', exact: true })
-    assert.ok(await questions.count() > 0)
-    for (let i = 0; i < await questions.count(); i++) {
+    assert.equal(await questions.count(), 2, `Mission ${mission} authored undiscovered controls`)
+    for (let i = 0; i < 2; i++) {
       const card = questions.nth(i)
       assert.equal(await card.getAttribute('aria-disabled'), 'true')
       await card.hover({ force: true })
@@ -147,18 +150,7 @@ try {
     assert.equal(await card.locator('.hud-sprite').count(), rules.spellCharging[spell.model].normalLimit + 1)
     await capture(card, fixture.icons[spell.model][state.icon], state.name, spell.id, state.frame)
   }
-  assert.equal(report.states.filter(s => s.spell !== 'authored').length, 160)
-  report.errors = errorLists.flat()
-  assert.deepEqual(report.errors, [])
-  assert.equal(report.expired, undefined)
-  report.status = 'passed'
-} catch (error) {
-  report.status = 'failed'; report.error = error.stack ?? String(error); process.exitCode = 1
-} finally {
-  clearTimeout(timer)
-  await browser.close()
-  report.browserClosed = true
-  report.finishedAt = new Date().toISOString()
-  save()
-  console.log(JSON.stringify({ status: report.status, states: report.states.length, output, error: report.error }))
-}
+  assertSpellIconInventory(report.states, SPELLS)
+} })
+process.exitCode = report.status === 'passed' ? 0 : 1
+console.log(JSON.stringify({ status: report.status, states: report.states.length, sourceUnchanged: report.sourceUnchanged, output, error: report.error }))

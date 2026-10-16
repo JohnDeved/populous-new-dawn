@@ -279,3 +279,23 @@ pixel identity relies on the retained audit, not a new original-game extraction.
 No original executable, blocked popup/building mapping, parity record, full local
 suite or build was run. Full check/build remain the ready-PR GitHub gates. Issue
 #76 remains open for its broader original-game acceptance.
+
+### Review corrections and recovered interrupted attempt
+
+After the Mac reconnected, the first committed-head attempt at
+`6a0a1b23f4b65ee5a764acbe09244934914b137b` was recovered as **failed**: Mission 16
+navigation timed out after two Mission 1 observations. Its failed command receipt
+and browser evidence are preserved, rather than promoting the precommit run.
+
+The checker now closes Mission 1's context before opening Mission 16 and observes
+every context's page/console errors before navigation, including failed startup.
+Browser launch and cleanup are inside the terminal-report handling. It requires
+exactly two authored placeholders per mission and the exact 160 named matrix
+observations, rejecting duplicates, omissions and extra states. Both actual and
+reference PNGs are retained. The source snapshot binds HEAD, tracked diff, every
+tracked app source/original asset, the browser/setup/evidence helpers, fixture,
+dependency locks, installed package identities and runtime before/after execution;
+drift invalidates the result. Focused tests cover launch failure, failed later
+navigation, errors despite completed execution, cleanup failure, dependency drift
+and corrupted observation inventories. Exact passing source and accessible evidence
+are recorded in PR #491 after committed-source verification.
