@@ -1,0 +1,194 @@
+
+> populous-first-dawn@0.1.0 test:focus
+> node scripts/orchestration/test-runner.mjs focus tests/checkpoint-restore-ui.test.mjs tests/checkpoint-database-open-retry.test.mjs tests/campaign-profile-recovery.test.mjs tests/campaign-profile-union.test.mjs
+
+TAP version 13
+# Subtest: missing checkpoint does not suppress independent campaign progress
+ok 1 - missing checkpoint does not suppress independent campaign progress
+  ---
+  duration_ms: 26.488583
+  type: 'test'
+  ...
+# Subtest: malformed checkpoint does not suppress independent campaign progress
+ok 2 - malformed checkpoint does not suppress independent campaign progress
+  ---
+  duration_ms: 19.7045
+  type: 'test'
+  ...
+# Subtest: partially migratable checkpoint does not suppress independent campaign progress
+ok 3 - partially migratable checkpoint does not suppress independent campaign progress
+  ---
+  duration_ms: 13.554667
+  type: 'test'
+  ...
+# Subtest: incompatible checkpoint does not suppress independent campaign progress
+ok 4 - incompatible checkpoint does not suppress independent campaign progress
+  ---
+  duration_ms: 15.945708
+  type: 'test'
+  ...
+# Subtest: current valid checkpoint still restores and loads
+ok 5 - current valid checkpoint still restores and loads
+  ---
+  duration_ms: 29.481042
+  type: 'test'
+  ...
+# Subtest: legacy valid checkpoint still restores and loads
+ok 6 - legacy valid checkpoint still restores and loads
+  ---
+  duration_ms: 29.20675
+  type: 'test'
+  ...
+# Subtest: malformed stored checkpoint preserves usable session checkpoint and merges completion
+ok 7 - malformed stored checkpoint preserves usable session checkpoint and merges completion
+  ---
+  duration_ms: 15.285959
+  type: 'test'
+  ...
+# Subtest: storage read failure retains in-session progress and checkpoint
+ok 8 - storage read failure retains in-session progress and checkpoint
+  ---
+  duration_ms: 18.068916
+  type: 'test'
+  ...
+# Subtest: completion after failed startup read preserves earlier persisted progress
+ok 9 - completion after failed startup read preserves earlier persisted progress
+  ---
+  duration_ms: 274.407542
+  type: 'test'
+  ...
+# Subtest: stale independent stores atomically union completions instead of last-writer loss
+ok 10 - stale independent stores atomically union completions instead of last-writer loss
+  ---
+  duration_ms: 24.904709
+  type: 'test'
+  ...
+# Subtest: incompatible profile remains recoverable while session and checkpoint still work
+ok 11 - incompatible profile remains recoverable while session and checkpoint still work
+  ---
+  duration_ms: 14.2495
+  type: 'test'
+  ...
+# Subtest: missing version profile remains recoverable while session and checkpoint still work
+ok 12 - missing version profile remains recoverable while session and checkpoint still work
+  ---
+  duration_ms: 13.502042
+  type: 'test'
+  ...
+# Subtest: malformed list profile remains recoverable while session and checkpoint still work
+ok 13 - malformed list profile remains recoverable while session and checkpoint still work
+  ---
+  duration_ms: 13.747
+  type: 'test'
+  ...
+# Subtest: invalid mission profile remains recoverable while session and checkpoint still work
+ok 14 - invalid mission profile remains recoverable while session and checkpoint still work
+  ---
+  duration_ms: 14.215875
+  type: 'test'
+  ...
+# Subtest: null record profile remains recoverable while session and checkpoint still work
+ok 15 - null record profile remains recoverable while session and checkpoint still work
+  ---
+  duration_ms: 14.2255
+  type: 'test'
+  ...
+# Subtest: sparse list profile remains recoverable while session and checkpoint still work
+ok 16 - sparse list profile remains recoverable while session and checkpoint still work
+  ---
+  duration_ms: 16.541666
+  type: 'test'
+  ...
+# Subtest: new profile is created and duplicate completions remain unique and sorted
+ok 17 - new profile is created and duplicate completions remain unique and sorted
+  ---
+  duration_ms: 12.020708
+  type: 'test'
+  ...
+# Subtest: failed atomic profile read cannot overwrite data and later completion retries the union
+ok 18 - failed atomic profile read cannot overwrite data and later completion retries the union
+  ---
+  duration_ms: 12.000125
+  type: 'test'
+  ...
+# Subtest: transaction abort after profile put leaves stored progress unchanged
+ok 19 - transaction abort after profile put leaves stored progress unchanged
+  ---
+  duration_ms: 11.749125
+  type: 'test'
+  ...
+# Subtest: a failed database open can retry restore, then persist the next Save
+ok 20 - a failed database open can retry restore, then persist the next Save
+  ---
+  duration_ms: 254.074791
+  type: 'test'
+  ...
+# Subtest: concurrent callers share one failed open and one successful retry
+ok 21 - concurrent callers share one failed open and one successful retry
+  ---
+  duration_ms: 25.86275
+  type: 'test'
+  ...
+# Subtest: repeated and synchronous open failures preserve memory checkpoint and completion
+ok 22 - repeated and synchronous open failures preserve memory checkpoint and completion
+  ---
+  duration_ms: 22.27825
+  type: 'test'
+  ...
+# Subtest: actual Home open failure exposes retry and enables Load after a recovered read
+ok 23 - actual Home open failure exposes retry and enables Load after a recovered read
+  ---
+  duration_ms: 60.663417
+  type: 'test'
+  ...
+# Subtest: actual Home abort failure exposes retry and enables Load after a recovered read
+ok 24 - actual Home abort failure exposes retry and enables Load after a recovered read
+  ---
+  duration_ms: 36.218042
+  type: 'test'
+  ...
+# Subtest: genuine empty and unusable records are read results, not a failed lookup or proof of empty disk
+ok 25 - genuine empty and unusable records are read results, not a failed lookup or proof of empty disk
+  ---
+  duration_ms: 48.442708
+  type: 'test'
+  ...
+# Subtest: repeated failed retries preserve the world and remain retryable
+ok 26 - repeated failed retries preserve the world and remain retryable
+  ---
+  duration_ms: 16.051667
+  type: 'test'
+  ...
+# Subtest: late read keeps a newer memory save and current world after navigation
+ok 27 - late read keeps a newer memory save and current world after navigation
+  ---
+  duration_ms: 41.977416
+  type: 'test'
+  ...
+# Subtest: initial restore completion cannot navigate after unmount
+ok 28 - initial restore completion cannot navigate after unmount
+  ---
+  duration_ms: 15.912417
+  type: 'test'
+  ...
+# Subtest: initial restore completion cannot navigate after world replacement
+ok 29 - initial restore completion cannot navigate after world replacement
+  ---
+  duration_ms: 25.22275
+  type: 'test'
+  ...
+# Subtest: unsupported storage ends startup, explains session saves, and permits memory Load
+ok 30 - unsupported storage ends startup, explains session saves, and permits memory Load
+  ---
+  duration_ms: 18.116625
+  type: 'test'
+  ...
+1..30
+# tests 30
+# suites 0
+# pass 30
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1848.527541

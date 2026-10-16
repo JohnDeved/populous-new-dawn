@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "331b0072-1e28-45c2-99cf-d98c98e15413",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "2a6ce1e26658c0503354fe4de6db05e2d8aa1fbd",
+    "branch": "fix/checkpoint-restore-recovery",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node_modules/.bin/oxfmt",
+    "--check",
+    "app/game-store.ts",
+    "app/original-main-menu.tsx",
+    "app/page.tsx"
+  ],
+  "cwd": "<CANDIDATE_ROOT>",
+  "startedAt": "2026-10-16T17:20:12.268Z",
+  "artifacts": {
+    "stdout": "<CANDIDATE_ROOT>/work/orchestration/checkpoint-recovery/format.json.artifacts/stdout.log",
+    "stderr": "<CANDIDATE_ROOT>/work/orchestration/checkpoint-recovery/format.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T17:20:12.362Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 6ms on 3 files using 10 threads.\n",
+  "stderr": "",
+  "stdoutSha256": "270fcfe30f9043d3b1b33c7bf2b8ea01c8d79d19aa18a6df7c63df175c24d5c8",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "2a6ce1e26658c0503354fe4de6db05e2d8aa1fbd",
+    "branch": "fix/checkpoint-restore-recovery",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

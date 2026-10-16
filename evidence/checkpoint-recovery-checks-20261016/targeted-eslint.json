@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "0c855fd4-61a7-486e-8af7-e5c57d333aed",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "2a6ce1e26658c0503354fe4de6db05e2d8aa1fbd",
+    "branch": "fix/checkpoint-restore-recovery",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node_modules/.bin/eslint",
+    "app/game-store.ts",
+    "tests/checkpoint-restore-ui.test.mjs",
+    "tests/campaign-profile-recovery.test.mjs"
+  ],
+  "cwd": "<CANDIDATE_ROOT>",
+  "startedAt": "2026-10-16T17:20:10.092Z",
+  "artifacts": {
+    "stdout": "<CANDIDATE_ROOT>/work/orchestration/checkpoint-recovery/targeted-eslint.json.artifacts/stdout.log",
+    "stderr": "<CANDIDATE_ROOT>/work/orchestration/checkpoint-recovery/targeted-eslint.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T17:20:11.007Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "2a6ce1e26658c0503354fe4de6db05e2d8aa1fbd",
+    "branch": "fix/checkpoint-restore-recovery",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

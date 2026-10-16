@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "11f12396-722f-45ee-afb9-d4304e0a01eb",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "2a6ce1e26658c0503354fe4de6db05e2d8aa1fbd",
+    "branch": "fix/checkpoint-restore-recovery",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "npm",
+    "run",
+    "typecheck"
+  ],
+  "cwd": "<CANDIDATE_ROOT>",
+  "startedAt": "2026-10-16T17:18:28.187Z",
+  "artifacts": {
+    "stdout": "<CANDIDATE_ROOT>/work/orchestration/checkpoint-recovery/typecheck.json.artifacts/stdout.log",
+    "stderr": "<CANDIDATE_ROOT>/work/orchestration/checkpoint-recovery/typecheck.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T17:18:29.834Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 typecheck\n> tsc --noEmit\n\n",
+  "stderr": "",
+  "stdoutSha256": "5b3b688caa668685eebda41ca93c4e60de869bac3645a0b25bf22809e6c84ba5",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "2a6ce1e26658c0503354fe4de6db05e2d8aa1fbd",
+    "branch": "fix/checkpoint-restore-recovery",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}
