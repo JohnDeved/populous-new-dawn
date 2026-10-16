@@ -105,18 +105,41 @@ partial; they do not establish dependency completeness or reuse a previous pass.
 `npm test` discovers the same top-level `tests/*.test.mjs` set as before. It runs
 content-reviewed, in-memory/read-only files with at most two isolated Node workers,
 then every other file serially. `engineering/test-resources.json` binds each
-parallel file and all non-test `.mjs` helpers under `tests/` to reviewed bytes.
-New/changed/unclassified tests run serially; helper drift makes the whole suite
-serial until reviewed. The inventory never excludes a discovered test. Review
+parallel file, all non-test `.mjs` helpers under `tests/`, the whole `app/` tree,
+package/installed-lock/TypeScript configuration, and Node version/platform/architecture
+to a reviewed resource inventory. New/changed/unclassified tests run serially;
+shared-helper, production/config/runtime drift makes the whole suite serial until
+reviewed. Any nonempty `NODE_OPTIONS` or `NODE_PATH` also forces serial execution;
+test-selection/isolation options in `NODE_OPTIONS` are rejected. The inventory never excludes a discovered test. Review
 transitive production/runtime resource changes too: this classification is not a
-sandbox or a general proof that imported code has no side effects. Script consumers,
+sandbox or a general proof that imported code has no side effects. Installed
+dependencies must remain trusted/read-only: lockfile hashes do not attest arbitrary
+manually altered package JavaScript; formal comparisons bind actual package bytes. Script consumers,
 filesystem mutators, subprocess/socket tests and environment-controlled witnesses
 are conservatively serial in the initial inventory. Browser, build and performance
 jobs still hold the shared lane separately.
 
+After reviewing a production change for resource side effects, deliberately refresh
+`productionSha256` using the exported `productionFingerprint(repo)`; likewise use
+`helperFingerprint(repo)` after shared-helper review. Commit the reviewed policy before freezing the final
+candidate; do not edit it during verification. Inspect new/changed test
+imports and writes before adding/updating that file's SHA-256 in `parallel`.
+Do not refresh hashes merely to regain concurrency after an unexplained drift.
+For example, this prints candidate shared fingerprints without writing the policy:
+
+```sh
+node --input-type=module -e "import {productionFingerprint,helperFingerprint} from './scripts/orchestration/test-runner.mjs'; console.log(JSON.stringify({productionSha256:productionFingerprint(process.cwd()),helpersSha256:helperFingerprint(process.cwd())},null,2))"
+```
+
 `PND_TEST_CONCURRENCY=1 npm run check` uses the same file groups/order with the
 parallel group reduced to one worker. Only values `1` and `2` are accepted.
-`npm run test:serial` provides the same serial test phase directly. Focus always
+`npm run test:serial` provides the same serial test phase directly.
+On an executor with an inherited global module path, the conservative default is
+serial. After verifying that this checkout resolves its installed dependencies
+without a custom loader/path, use `NODE_PATH= NODE_OPTIONS= npm run check` for
+that one invocation; use the same empty environment for both measurement profiles.
+Do not change persistent settings or discard an intentional custom loader silently.
+`pnd-test-plan.parallelEligibility` explains any shared/runtime fallback. Focus always
 uses one worker. No new transform/result cache or runtime migration is involved.
 The standard `npm run check` and `npm run build` final gates remain required.
 

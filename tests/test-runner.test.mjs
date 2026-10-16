@@ -5,8 +5,19 @@ import { createHash } from 'node:crypto'
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import test from 'node:test'
-import { discoverTests, helperFingerprint, planTestRun, runTestPlan } from '../scripts/orchestration/test-runner.mjs'
+import test, { after } from 'node:test'
+import { discoverTests, helperFingerprint, productionFingerprint, planTestRun, runTestPlan } from '../scripts/orchestration/test-runner.mjs'
+
+// These synthetic inventories explicitly model an uncustomized Node runtime.
+// The environment-fallback regression below supplies customizations separately.
+const inheritedRuntime = Object.fromEntries(['NODE_OPTIONS', 'NODE_PATH'].map(key => [key, process.env[key]]))
+for (const key of Object.keys(inheritedRuntime)) process.env[key] = ''
+after(() => {
+  for (const [key, value] of Object.entries(inheritedRuntime)) {
+    if (value === undefined) delete process.env[key]
+    else process.env[key] = value
+  }
+})
 
 const digest = bytes => createHash('sha256').update(bytes).digest('hex')
 function fixture(t) {
@@ -16,10 +27,15 @@ function fixture(t) {
     mkdirSync(join(repo, file, '..'), { recursive: true })
     writeFileSync(join(repo, file), value)
   }
-  put('tests/a.test.mjs', "import test from 'node:test'; test('a', () => {})\n")
-  put('tests/b.test.mjs', "import test from 'node:test'; test('b', () => {})\n")
+  put('tests/a.test.mjs', "import test, { after } from 'node:test'; test('a', () => {})\n")
+  put('tests/b.test.mjs', "import test, { after } from 'node:test'; test('b', () => {})\n")
   put('tests/support/helper.mjs', 'export const helper = 1\n')
-  const policy = { version: 1, helpersSha256: helperFingerprint(repo),
+  put('app/source.ts', 'export const value = 1\n')
+  put('package.json', '{"type":"module"}')
+  put('package-lock.json', '{}')
+  put('tsconfig.json', '{}')
+  put('node_modules/.package-lock.json', '{}')
+  const policy = { version: 1, helpersSha256: helperFingerprint(repo), productionSha256: productionFingerprint(repo),
     parallel: { 'tests/a.test.mjs': digest(readFileSync(join(repo, 'tests/a.test.mjs'))) } }
   put('engineering/test-resources.json', JSON.stringify(policy))
   return { repo, put, policy }
@@ -31,7 +47,7 @@ test('full discovery preserves the top-level glob and includes unclassified file
   put('tests/nested/extra.test.mjs', '')
   put('tests/not-selected.pending.mjs', '')
   put('tests/.hidden.test.mjs', '')
-  put('tests/c.test.mjs', "import test from 'node:test'; test('c', () => {})\n")
+  put('tests/c.test.mjs', "import test, { after } from 'node:test'; test('c', () => {})\n")
   put('engineering/test-resources.json', JSON.stringify({ ...policy, helpersSha256: helperFingerprint(repo) }))
   const expected = ['tests/a.test.mjs', 'tests/b.test.mjs', 'tests/c.test.mjs']
   assert.deepEqual(discoverTests(repo), expected)
@@ -84,7 +100,7 @@ test('empty discovery, malformed policy and test symlinks fail closed', t => {
 
 test('a real failed Node group cannot pass and does not omit remaining groups', async t => {
   const { repo, put, policy } = fixture(t)
-  put('tests/a.test.mjs', "import test from 'node:test'; test('deliberate failure', () => { throw Error('expected diagnostic') })\n")
+  put('tests/a.test.mjs', "import test, { after } from 'node:test'; test('deliberate failure', () => { throw Error('expected diagnostic') })\n")
   policy.parallel['tests/a.test.mjs'] = digest(readFileSync(join(repo, 'tests/a.test.mjs')))
   put('engineering/test-resources.json', JSON.stringify(policy))
   const result = await runTestPlan(repo, planTestRun(repo, 'all'), quiet)
@@ -156,7 +172,7 @@ test('environment selection and both isolation aliases are rejected, including q
 
 test('real Node skip, TODO and unfiltered only-marker semantics stay intact', async t => {
   const { repo, put } = fixture(t)
-  put('tests/semantics.test.mjs', `import test from 'node:test';
+  put('tests/semantics.test.mjs', `import test, { after } from 'node:test';
     test('ordinary', () => {}); test.only('only marker without filtering', () => {});
     test.skip('skip', () => { throw Error('must stay skipped') }); test.todo('todo');
   `)
@@ -174,4 +190,35 @@ test('real Node skip, TODO and unfiltered only-marker semantics stay intact', as
   assert.match(stdout, /^# fail 0$/m)
   assert.match(stdout, /^# skipped 1$/m)
   assert.match(stdout, /^# todo 1$/m)
+})
+
+test('production-only source/data and dependency changes require renewed resource review', t => {
+  for (const [path, content] of [['app/source.ts', 'export const value = 2'],
+    ['app/new-data.json', '{}'], ['tsconfig.json', '{"strict":true}'],
+    ['node_modules/.package-lock.json', '{"changed":true}'], ['package.json', '{"type":"commonjs"}'], ['package-lock.json', '{"changed":true}']]) {
+    const { repo, put } = fixture(t)
+    assert.equal(planTestRun(repo, 'all').groups[0].concurrency, 2)
+    put(path, content)
+    assert.equal(planTestRun(repo, 'all').groups.length, 1)
+    assert.equal(planTestRun(repo, 'all').groups[0].concurrency, 1)
+    assert.deepEqual(planTestRun(repo, 'all').files, discoverTests(repo))
+  }
+})
+
+test('runtime preloads/customization and application symlinks conservatively use serial execution', t => {
+  const { repo } = fixture(t)
+  for (const key of ['NODE_OPTIONS', 'NODE_PATH']) {
+    const previous = process.env[key]
+    try {
+      process.env[key] = key === 'NODE_OPTIONS' ? '--max-old-space-size=1024' : '/custom-modules'
+      assert.equal(planTestRun(repo, 'all').groups.length, 1)
+      assert.equal(planTestRun(repo, 'all').groups[0].concurrency, 1)
+    } finally {
+      if (previous === undefined) delete process.env[key]
+      else process.env[key] = previous
+    }
+  }
+  symlinkSync('source.ts', join(repo, 'app/alias.ts'))
+  assert.equal(planTestRun(repo, 'all').groups[0].concurrency, 1)
+  assert.deepEqual(planTestRun(repo, 'all').files, discoverTests(repo))
 })
