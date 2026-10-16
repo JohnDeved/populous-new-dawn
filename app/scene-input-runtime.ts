@@ -433,6 +433,20 @@ export function pointerUp(scene: GameScene, event: PointerEvent) {
 }
 
 export function keyDown(scene: GameScene, event: KeyboardEvent) {
+  if (event.key === 'F8') {
+    if (
+      !event.repeat &&
+      !event.ctrlKey &&
+      !event.altKey &&
+      !event.metaKey &&
+      !event.shiftKey &&
+      !(event.target as HTMLElement).closest('input,textarea,select,dialog,a,[contenteditable]')
+    ) {
+      event.preventDefault()
+      scene.togglePerformance()
+    }
+    return
+  }
   const key = (
     event.code === 'Quote' || event.code.startsWith('Numpad') ? event.code : event.key
   ).toLowerCase()
@@ -536,6 +550,7 @@ export function installInputListeners(scene: GameScene, minimap: HTMLCanvasEleme
   const pause = () => {
     cancelPointerGesture(scene)
     scene.previous = null
+    scene.fpsGraph?.reset(document.hidden ? 'Hidden tab · sampling stopped' : 'Paused · warming up')
     scene.keys.clear()
     scene.world.paused = true
     scene.onChange()
@@ -543,6 +558,7 @@ export function installInputListeners(scene: GameScene, minimap: HTMLCanvasEleme
   scene.listen(window, 'blur', pause)
   scene.listen(document, 'visibilitychange', () => {
     scene.previous = null
+    scene.fpsGraph?.reset(document.hidden ? 'Hidden tab · sampling stopped' : 'Warming up')
     if (document.hidden) pause()
   })
   scene.listen(minimap, 'pointerdown', e => {
