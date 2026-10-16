@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "4b2862a4-83bd-4303-af65-3a0ea25dcff6",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "0d167db3c3388bf02fe1ad43b852ed35a0fb9a41",
+    "branch": "feat/web-performance-overlay",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--incremental",
+    "false"
+  ],
+  "cwd": "/tmp/populous-selector-scene-457",
+  "startedAt": "2026-10-16T08:42:09.758Z",
+  "artifacts": {
+    "stdout": "/tmp/populous-selector-scene-457/work/orchestration/performance-overlay479/typecheck.json.artifacts/stdout.log",
+    "stderr": "/tmp/populous-selector-scene-457/work/orchestration/performance-overlay479/typecheck.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T08:42:26.640Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "0d167db3c3388bf02fe1ad43b852ed35a0fb9a41",
+    "branch": "feat/web-performance-overlay",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

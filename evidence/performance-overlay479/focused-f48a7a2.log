@@ -1,0 +1,14 @@
+✔ frame telemetry computes time-weighted cadence and per-frame CPU/call means at four Hz (1.432487ms)
+✔ a slow frame remains visible and affects cadence rather than being clamped away (0.55932ms)
+✔ history is one fixed 240-frame chronological ring and reset exposes no old window (0.569713ms)
+✔ invalid or nonpositive frame intervals cannot poison telemetry (0.174205ms)
+✔ hardware hints use the supplied live context and explicit approximate units (1.76897ms)
+✔ unsupported or privacy-restricted telemetry never fabricates hardware numbers (1.027649ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 222.319089
