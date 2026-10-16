@@ -1,0 +1,17 @@
+{
+  "archive": "water-point-thread-cpu-diagnostics.tar.gz",
+  "bytes": 168794,
+  "sha256": "72190e4dc6cbefe590e31f64e78312cb75d199520785302cc5344e615c551214",
+  "files": {
+    "diagnostic-thread-cpu-v2.mjs": "69a5a1cd902358e13991df94148fd543650ba493c95eceaea5c9cdce0fa7845c",
+    "summarize-thread-diagnostic.py": "f528467c00c39cd23238a02cb2edeb9980fe392e6649bf29371f4a5a8e5bfb9a",
+    "THREAD-CPU-PROPOSAL.md": "9533e70a63696bb3539f2b0aa4c91fea3d32659ae0dcf4d0d13da3d2d2c36440",
+    "THREAD-CPU-RESULT.md": "2658647777a695ed675daf3d45b3a49ec6c94d294aa83e2e9b5642911f2fb9f3",
+    "diagnostic-thread-summary.json": "0ebff8a7fbdf7505c0997b888c29705b6cda57649db1d956dc5ebdea6ce74313",
+    "diagnostic-thread-execution-receipt.json": "f1285571f1d369144b23a259579f0c3fb5f68289745e35bfe76a6dbab9ec0329",
+    "diagnostic-thread-1-candidate.jsonl": "b7649d99caff8316e00d8acc1ca6a8a2216ca38131513788e87f17b5c908f206",
+    "diagnostic-thread-1-candidate.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "diagnostic-thread-2-baseline.jsonl": "12248da17a22c8939129d9d21dcc962061b62b042faa68d3346ab3c103a88f08",
+    "diagnostic-thread-2-baseline.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}
