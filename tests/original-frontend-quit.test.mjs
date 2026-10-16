@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {readFileSync} from 'node:fs'
+import ts from 'typescript'
 import assets from '../app/original-frontend.json' with {type:'json'}
 import native from '../decomp/research/frontend-quit-menu/static-data.json' with {type:'json'}
 import {frontendQuitRows, frontendTextWidth, frontendBackground, frontendScale} from '../app/frontend-composition.ts'
@@ -57,5 +58,25 @@ test('native coordinates fit the shared uniform composition including the bottom
   const scale=frontendScale(width,height)
   for(const row of frontendQuitRows) assert.ok((row.y+26)*scale<=height)
   assert.ok(640*scale<=width)
+ }
+})
+
+// Exercise the production keyboard callback, without mounting an invented menu.
+// Actual native dialog cancellation/focus remains covered by the browser scenario.
+test('frontend Escape prevents native dismissal and always reuses the existing back route',()=>{
+ const parsed=ts.createSourceFile('original-main-menu.tsx',readFileSync(new URL('../app/original-main-menu.tsx',import.meta.url),'utf8'),ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX)
+ let keyboard
+ function visit(node) {
+  if(ts.isJsxAttribute(node)&&node.name.getText(parsed)==='onKeyDown')keyboard=node.initializer.expression
+  ts.forEachChild(node,visit)
+ }
+ visit(parsed);assert.ok(keyboard)
+ const body=ts.transpileModule(`const callback = ${keyboard.getText(parsed)}; return callback;`,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.None}}).outputText
+ const make=new Function('pointerMode','draw','back','panel','dialog',body)
+ for(const panel of ['main','quit','options']) {
+  const pointerMode={current:true};let drawn=0,returned=0,prevented=0
+  const callback=make(pointerMode,()=>drawn++,()=>returned++,panel,{current:null})
+  callback({key:'Escape',preventDefault(){prevented++}})
+  assert.equal(pointerMode.current,false);assert.equal(drawn,1);assert.equal(returned,1);assert.equal(prevented,1)
  }
 })
