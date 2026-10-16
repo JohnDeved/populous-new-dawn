@@ -12,14 +12,25 @@ All other policy fields, including #494's test digest, remain unchanged. No Mac
 fingerprint was generated. The manifest binds the complete policy and expected
 hosted installed lock; hosted verification is still required.
 
-Passed: 61 focused test cases across 12 selected files; lint on the FPS source,
-three added tests and browser scenario; 135 structural checks; 78 retained static
-evidence hashes. Raw command output and original/published receipt hashes are
-included, with private source-root prefixes redacted. Local runtime was Node
-24.18.0 on macOS. A zero-exit legacy pause assertion file is included alongside the
-reported node:test cases. The planner leaves 119 imported paths unclassified;
-manual scope follows the explicitly accepted frozen backlog and is recorded in
-the manifest. No source or classification mapping was regenerated.
+The retained command reported **61 passing node:test cases**. It requested 12 paths,
+but only **11 are tracked files at the tested source**. The requested path
+`tests/pause-menu.test.mjs` does not exist at `6f5d5c16` and **was not executed**.
+The earlier claim of 12-file coverage and a zero-exit legacy pause assertion file
+was incorrect and is withdrawn. The original attempted command, exit status and
+61 results remain unchanged; no tests were rerun to conceal the mistake.
+`focused-file-inventory.json` records every requested path, source blob/hash for
+existing files, the missing path and the reported counts. No coverage is claimed
+for the nonexistent file. Existing pause coverage comes from the verified
+`pause-save-notice.test.mjs` and `pause-menu-ownership.test.mjs` files.
+
+Other passed checks: lint on the FPS source, three added tests and browser
+scenario; 135 structural checks; 78 retained static evidence hashes. Raw command
+output and original/published receipt hashes are included, with private source-root
+prefixes redacted. Local runtime was Node 24.18.0 on macOS. The planner leaves 119
+imported paths unclassified; manual scope follows the accepted frozen backlog and
+is recorded in the manifest. No source or classification mapping was regenerated.
+The same legacy-file claim in retained historical FPS notes is not evidence of an
+existing or executed file in this candidate.
 
 Historical evidence limits remain:
 - #495 is a narrow repeated FPS-overlay reset fix; no new performance benchmark.

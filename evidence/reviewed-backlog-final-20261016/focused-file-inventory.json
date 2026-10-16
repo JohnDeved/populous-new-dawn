@@ -1,0 +1,94 @@
+{
+  "kind": "source-bound-coverage-correction",
+  "sourceHead": "6f5d5c168d265dab4d2341940eb76f4d1e1eb813",
+  "sourceTree": "c6dc2cd27dabd7666d23689aa0cf7ea34b490371",
+  "rawReceipt": "focused.json",
+  "rawReceiptSha256": "16004be9df624b8dc77e8cb3355fe46753d3497f0510a639cc09167aec851deb",
+  "rawCommandAndResultsUnchanged": true,
+  "requestedPathCount": 12,
+  "verifiedExistingPathCount": 11,
+  "nonexistentRequestedPathCount": 1,
+  "reportedNodeTestCounts": {
+    "tests": 61,
+    "pass": 61,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "files": [
+    {
+      "path": "tests/fps-graph-reset.test.mjs",
+      "state": "tracked-file-at-tested-source",
+      "blob": "b445f2a9f5a2a55ab771916005a1e3b54587edca",
+      "sha256": "3e2dfaa33002569af47e44da9fe388184f7f709b12a52fff52e5e6ed76a90e59"
+    },
+    {
+      "path": "tests/frame-performance.test.mjs",
+      "state": "tracked-file-at-tested-source",
+      "blob": "eb3aaab04970f12e3d4abf78a095cc5251195d9c",
+      "sha256": "79fb1e1c50e31017b80fff36337e3b5894fc3a3e43d6426b1ff327786051e0b8"
+    },
+    {
+      "path": "tests/pause-save-notice.test.mjs",
+      "state": "tracked-file-at-tested-source",
+      "blob": "d14c4ef419957cef6241868a4d3c453c21c2967f",
+      "sha256": "57ef02f8b507dda455060a510d63925142d53ff68acd7ae4d75580d4745d8686"
+    },
+    {
+      "path": "tests/pause-menu.test.mjs",
+      "state": "absent-at-tested-source",
+      "execution": "not-executed",
+      "claimedCoverage": false
+    },
+    {
+      "path": "tests/home-result-lifecycle.test.mjs",
+      "state": "tracked-file-at-tested-source",
+      "blob": "b16adfe28e60728bfe8d07b87d5cd031280544f0",
+      "sha256": "8650a75446a7345797e9583610396370b7a9017a4b976ca0021a80e0f821d4a7"
+    },
+    {
+      "path": "tests/original-result-screen.test.mjs",
+      "state": "tracked-file-at-tested-source",
+      "blob": "95ccb3cd044a27ededcd4239852e2e6f4828c309",
+      "sha256": "3e701cb0a362ee298cd547d5750df76cd25fb2dcebb74cc485b601b6f854740a"
+    },
+    {
+      "path": "tests/pause-menu-ownership.test.mjs",
+      "state": "tracked-file-at-tested-source",
+      "blob": "a41f25d69e1516b6e0116978ae5ee8842e832ca7",
+      "sha256": "c52978248fea7be147dd8afcfe1e9c7c51519d9bda9540e981b77b7a5aaa7e85"
+    },
+    {
+      "path": "tests/selector-profile-launch.test.mjs",
+      "state": "tracked-file-at-tested-source",
+      "blob": "80b7795e30434f21d957611ae95a5293c94eca42",
+      "sha256": "5708262220bf46db35f3ff872a86a2690ab3dc6baa168808544e14987b981ca4"
+    },
+    {
+      "path": "tests/world-selector.test.mjs",
+      "state": "tracked-file-at-tested-source",
+      "blob": "0a01466c49e68b67b64b14f106075eff187c59db",
+      "sha256": "fd1934993479616d2b77021306bf1f1e7e44fac57358715590217187259ad761"
+    },
+    {
+      "path": "tests/campaign-profile-recovery.test.mjs",
+      "state": "tracked-file-at-tested-source",
+      "blob": "945be07aad3d65ef5f2a07394f6f6e5ebe0ec0eb",
+      "sha256": "4d132bec886109b62e9f02c643544c8371b39d51e6e42963a34f4d9963d39cfd"
+    },
+    {
+      "path": "tests/campaign-profile-union.test.mjs",
+      "state": "tracked-file-at-tested-source",
+      "blob": "2620bd0e01bfc00c2fe958b9ffbdb34b5c772ab6",
+      "sha256": "0316ffdf6b8a4ccf1a982de444b26735376fac3297ff98c33b0a036abe52937a"
+    },
+    {
+      "path": "tests/checkpoint-restore-ui.test.mjs",
+      "state": "tracked-file-at-tested-source",
+      "blob": "d3220125cc31258eb4faac1ce4017a01c57c890d",
+      "sha256": "3f459d8a845f3921704c9b74fc1ffd3b9fb4b0dc5c5bc8b43dddacb5afda525d"
+    }
+  ],
+  "correction": "tests/pause-menu.test.mjs does not exist at the tested source and was not executed. The prior legacy-assertion-file and 12-file coverage claims are withdrawn. A zero-exit command did not establish that every requested path existed. No tests were rerun for this correction."
+}
