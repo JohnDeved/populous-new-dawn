@@ -1,0 +1,112 @@
+{
+  "testedProductHead": "b675952c87c905de9a7d7046aa22264ac1ba0101",
+  "integratedHead": "81fa319a987da06d3ad4bed3b820ac9519ca49cc",
+  "integratedMain": "88e4d9714c351c51cd0b90dc536e33492a71f5b8",
+  "browserSourceFileCount": 1109,
+  "browserSourceFilesSha256": "9186b1e0bdbc3999820ff7c083a1793feaa04a2c1f67684e7e91ddc022d684ad",
+  "browserSourceMismatches": [],
+  "gitComparedPaths": [
+    "app",
+    "public",
+    "tests/original-options.test.mjs",
+    "engineering/test-resources.json"
+  ],
+  "gitDiffEmpty": true,
+  "resourcePolicySha256": "cc2aae222914eadfcfe64b3152037b21d7a9be3152243c789071ef2bf0fc8df0",
+  "optionsTestSha256": "188fb6a6fc3015a022b68e3811258221166cef56fc30ae81b6f56babdd3cb9ea",
+  "browserRuns": [
+    {
+      "run": "baseline-7ab389ce",
+      "status": "passed",
+      "sourceCommit": "7ab389ce07177c4fcd2a45724d651675c429f29a",
+      "receiptSha256": "abceadb4c041ab1ae4157cdf41ebe97fd28579e15c3d0a5dfea70c8c1ea1a3df",
+      "scenario": "capture-combined.mjs",
+      "scenarioSha256": "fae544c12d425539da7406a55a8f2b5cda4a8cd22dc559a58adbd91f7e0ba7a5",
+      "runner": "run-home-original.mjs",
+      "runnerSha256": "19072f4c34939e843f2af9a90322a7f2c1393fbb1280f2ab0efc1da8a08e7342"
+    },
+    {
+      "run": "candidate-b675952c",
+      "status": "failed",
+      "sourceCommit": "b675952c87c905de9a7d7046aa22264ac1ba0101",
+      "receiptSha256": "82d96ec5f5eb2d50ec23d911dbe2155a53e3959c18da796d46a9547ceea86fb7",
+      "scenario": "capture-combined.mjs",
+      "scenarioSha256": "fae544c12d425539da7406a55a8f2b5cda4a8cd22dc559a58adbd91f7e0ba7a5",
+      "runner": "run-home-original.mjs",
+      "runnerSha256": "19072f4c34939e843f2af9a90322a7f2c1393fbb1280f2ab0efc1da8a08e7342"
+    },
+    {
+      "run": "frontend-b675952c",
+      "status": "passed",
+      "sourceCommit": "b675952c87c905de9a7d7046aa22264ac1ba0101",
+      "receiptSha256": "3bcd15f3908f9aa36206c7de03d838f0f78fd9f0a8e75ff924dece6e9d256f67",
+      "scenario": "capture-split.mjs",
+      "scenarioSha256": "236ea85e0ae10c37a5e1af823546b62bf661f51ef7dc8aaeb53911d3b498e2e8",
+      "runner": "run-home-original.mjs",
+      "runnerSha256": "19072f4c34939e843f2af9a90322a7f2c1393fbb1280f2ab0efc1da8a08e7342"
+    },
+    {
+      "run": "ingame-b675952c",
+      "status": "failed",
+      "sourceCommit": "b675952c87c905de9a7d7046aa22264ac1ba0101",
+      "receiptSha256": "ff5803ba83d0cf70cbbd815c42d45151e2a73395fb362ef04d2dbbb817a6f01c",
+      "scenario": "capture-split.mjs",
+      "scenarioSha256": "236ea85e0ae10c37a5e1af823546b62bf661f51ef7dc8aaeb53911d3b498e2e8",
+      "runner": "run-home-original.mjs",
+      "runnerSha256": "19072f4c34939e843f2af9a90322a7f2c1393fbb1280f2ab0efc1da8a08e7342"
+    },
+    {
+      "run": "ingame-native-start-b675952c",
+      "status": "failed",
+      "sourceCommit": "b675952c87c905de9a7d7046aa22264ac1ba0101",
+      "receiptSha256": "1fed9bc91d8ece35e480b6f62f46a909afe8efd73e704888767d9578e5367743",
+      "scenario": "capture-native-start-before-repair.mjs",
+      "scenarioSha256": "06f1fa2fa650b4b2ab20ceeff711bc2062d4aec8a86a32751bdcd37382c1394b",
+      "runner": "run-home.mjs",
+      "runnerSha256": "3d960408c10363966f34bcaef642c2eed94b391bfd2090e7330dda8b257921c7"
+    },
+    {
+      "run": "ingame-repaired-b675952c",
+      "status": "failed",
+      "sourceCommit": "b675952c87c905de9a7d7046aa22264ac1ba0101",
+      "receiptSha256": "15ecd68313d5dc9eb9fa69c91f40b647a0b7b0d4fc174682c5dfc8225f8a9577",
+      "scenario": "capture-repaired-wide.mjs",
+      "scenarioSha256": "7f88b3171392e86523947245f55233ab7ae034e6018f4981317bf6501e9b1bd3",
+      "runner": "run-home.mjs",
+      "runnerSha256": "3d960408c10363966f34bcaef642c2eed94b391bfd2090e7330dda8b257921c7"
+    },
+    {
+      "run": "ingame-native-dpr-b675952c",
+      "status": "passed",
+      "sourceCommit": "b675952c87c905de9a7d7046aa22264ac1ba0101",
+      "receiptSha256": "be4d66e5622b798bcfef7755d79f85b8cd017f8d28e09f086c275813c446b87b",
+      "scenario": "capture.mjs",
+      "scenarioSha256": "ce7ce0a2c8650b196edd85f5c5e977a51055b3a4b4ebff60d39ab8e46e0799ce",
+      "runner": "run-home.mjs",
+      "runnerSha256": "3d960408c10363966f34bcaef642c2eed94b391bfd2090e7330dda8b257921c7"
+    }
+  ],
+  "validationArchiveSha256": "cf15263aa715c3f352bbe89fee612405c6058e27cd960d7684f2a90d56168a9e",
+  "images": [
+    {
+      "file": "before-frontend-graphics-1280x960.png",
+      "sha256": "6bdee26e89c237c413dbbce99d4a6d0bf9d13c8fa12ec8a40331c702f772306a"
+    },
+    {
+      "file": "after-frontend-graphics-1280x960.png",
+      "sha256": "6c77447dd500c9d695d2c8d86dce3719073513ab4994b6996094548b835d6d75"
+    },
+    {
+      "file": "before-ingame-direct3d-1280x960.png",
+      "sha256": "c776d3d7062a0df3542c40ebe71735a4b2e229b9d52ef8ed8b458f27ab545891"
+    },
+    {
+      "file": "after-ingame-direct3d-1280x960.png",
+      "sha256": "182f15d199c9f71de9c49bf6578297ebb74b3a020a0f01411bd8fdf55fb4eac5"
+    },
+    {
+      "file": "accepted-ingame-direct3d-640x480.png",
+      "sha256": "b53ad82f806185bf4b56b98638a64b4f7a71c239a72a3b07f46143104fffc39b"
+    }
+  ]
+}
