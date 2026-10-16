@@ -43,3 +43,6 @@ abort, canvas removal, or a loading replacement. Continue and repeated Escape mu
 restore the captured pause policy. This differs from Quit Level → Yes, which
 abandons the world. `selector-inspection.json` and two screenshots retain the
 episode results; the runner's source manifest includes the added scenario.
+The selector receipt is saved after observation/context cleanup and validates late
+runtime errors. Scenario failures and each cleanup failure remain in the terminal
+receipt; cleanup still attempts to close the context if observer teardown fails.

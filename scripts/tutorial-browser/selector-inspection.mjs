@@ -3,6 +3,26 @@ import { resolve } from 'node:path'
 import { writeFileSync } from 'node:fs'
 import { bindGame } from '../browser-game.mjs'
 
+export async function finishInspection({ context, observation, output, episodes, errors, failure, diagnostics }) {
+  const cleanup = { observationDisconnected: false, contextClosed: false, errors: [] }
+  const failures = failure ? [failure] : []
+  for (const [phase, action] of [
+    ['observationDisconnected', () => observation?.evaluate(observer => observer.disconnect())],
+    ['contextClosed', () => context.close()],
+  ]) {
+    try { await action(); cleanup[phase] = true } catch (error) {
+      cleanup.errors.push({ phase, message: String(error), stack: error.stack })
+      failures.push(error)
+    }
+  }
+  if (errors.length) failures.push(new Error(`Selector runtime/console errors: ${JSON.stringify(errors)}`))
+  const terminal = { status: failures.length ? 'failed' : 'passed', episodes, errors, cleanup,
+    failure: failure ? { message: String(failure), stack: failure.stack, ...diagnostics } : null }
+  writeFileSync(resolve(output, 'selector-inspection.json'), JSON.stringify(terminal, null, 2) + '\n')
+  if (failures.length) throw new AggregateError(failures, 'Selector inspection failed; see selector-inspection.json')
+  return terminal
+}
+
 // Observe Home's existing refs without changing the store, scene, clocks or loaders.
 async function observeGame(page) {
   return page.evaluateHandle(() => {
@@ -64,7 +84,8 @@ async function observeGame(page) {
 export default async function ({ browser, url, output }) {
   const context = await browser.newContext({ viewport: { width: 960, height: 720 } })
   const episodes = [], errors = []
-  let page, observation, failure
+  let page, observation, failure, result
+  const diagnostics = {}
   try {
     page = await context.newPage()
     page.setDefaultTimeout(25000)
@@ -157,18 +178,15 @@ export default async function ({ browser, url, output }) {
       await restored(paused, repeated)
       episodes.push({ initiallyPaused: paused, captured, afterBack, afterEscape, repeatedEscape: await read() })
     }
-    assert.deepEqual(errors, [], 'Selector inspection must not raise runtime/console errors')
-    return { checks: ['selector-inspection-same-live-world-back-escape-repeat-and-pause-policy'], episodes,
+    result = { checks: ['selector-inspection-same-live-world-back-escape-repeat-and-pause-policy'], episodes,
       limits: ['Browser regression only; no new native campaign rules or original-executable evidence', 'Actual Home through plain Vite; no Vinext/Cloudflare/RSC or hardware performance claim'] }
   } catch (error) {
-    failure = { message: String(error), stack: error.stack }
+    failure = error
     try {
-      failure.state = await observation?.evaluate(observer => observer.read())
+      diagnostics.state = await observation?.evaluate(observer => observer.read())
       await page?.screenshot({ path: resolve(output, 'selector-inspection-failure.png'), timeout: 10000 })
-    } catch (diagnosticError) { failure.diagnosticError = String(diagnosticError) }
-    throw error
-  } finally {
-    writeFileSync(resolve(output, 'selector-inspection.json'), JSON.stringify({ episodes, errors, failure }, null, 2) + '\n')
-    try { await observation?.evaluate(observer => observer.disconnect()) } finally { await context.close() }
+    } catch (diagnosticError) { diagnostics.error = String(diagnosticError) }
   }
+  const terminal = await finishInspection({ context, observation, output, episodes, errors, failure, diagnostics })
+  return { ...result, cleanup: terminal.cleanup }
 }
