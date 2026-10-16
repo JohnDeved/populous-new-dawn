@@ -42,3 +42,9 @@ PR #483 stays draft. No FPS, engine-wide gain, stable tail improvement or merge 
 The independently reviewed v2 block diagnostic found that slow candidate blocks were almost entirely accounted as current-thread CPU. Across all 16 changed-case blocks, wall-minus-thread-CPU gaps were below 0.5 ms. Candidate's last 64 calls took 498.864 ms wall and 498.848 ms current-thread CPU; all seven calls over 10 ms fell in that block, with no recorded GC event.
 
 This narrows the accounting question but does not identify JavaScript versus native/JIT/GC work, explain the prior 48–60 ms outliers, or resolve primary ABBA tail regressions. It establishes no FPS or smoothness gain. Local typecheck remains unpassed and PR #483 remains draft. See THREAD-CPU-RESULT.md and water-point-thread-cpu-diagnostics.tar.gz, bound by thread-diagnostic-archive-manifest.json. The original primary and v1 diagnostic evidence remains unchanged.
+
+## Sampled-profile stopping point
+
+A separately instrumented, independently checked profile pair is retained in SAMPLED-PROFILE-REPORT.md and water-point-sampled-profile.tar.gz. The candidate precompute helper accounts for about 5% of separately resolved weighted samples, with updateWater dominant. Inlining and clock-alignment uncertainty prevent attributing individual tails or clearing the helper of responsibility. Tail cause remains inconclusive; no further water diagnostic is proposed without a new hypothesis. No performance or FPS success is claimed.
+
+A distinct, unchanged-main terrain-only painter baseline for issue #474 lives in ../terrain-painter-performance-20261016/REPORT.md. It is not a measurement of this water candidate.

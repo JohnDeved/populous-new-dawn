@@ -1,0 +1,14 @@
+{
+  "archive": "terrain-painter-baseline.tar.gz",
+  "bytes": 57365,
+  "sha256": "518707b8b051f3b1e378458747a58a8dbe08efb24325135736db4c8b6834db9d",
+  "files": {
+    "benchmark.mjs": "d830fb24b6f4e0d10b89912b044b0828489b8317df928707d725e12b180ca7ea",
+    "source-manifest.json": "3e67ee94abc2f053f34637608c1091ffc8dc59c8df785932cb1fbc69803f7928",
+    "PLAN.md": "e34c9088076d1243bb5a0bb7be028f32d449a9fa5ab651390f7b372c7a9c536d",
+    "REPORT.md": "7ca062fea8c3866d0325d75bb3effa2aedb758558db7a686e9c6c54703946395",
+    "execution-receipt.json": "bd6b059c266f68a1dee1f73403cbb1e9e288de114f17e55086d30423349b2ba7",
+    "run-1.jsonl": "61d66d25a066854c07ebcc5226d9b62da8cb146177b5ebbc11c09e54a6abb2f8",
+    "run-1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}
