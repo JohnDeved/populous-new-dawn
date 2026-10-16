@@ -49,7 +49,9 @@ Record the worker owner honestly in an issue/PR note; do not impersonate a GitHu
 assignee. Update status at meaningful changes and remove stale labels. A blocker
 names its dependency, owner, next action, and acceptance; a closed prerequisite does
 not automatically complete its dependent gate. Reuse existing issues, labels, and
-repository access. No new Projects credentials, paid tools, or GitHub Actions.
+repository access. No new Projects credentials, paid tools, or additional GitHub Actions without
+separate authorization. The approved ready-PR workflow is described in
+[continuous integration](continuous-integration.md).
 
 For narrow read-only research or a small docs fix, a compact issue/PR brief is enough.
 Do not create another contract just to delegate. An optional contract helps when scope,
@@ -144,6 +146,10 @@ Do not change persistent settings or discard an intentional custom loader silent
 `pnd-test-plan.parallelEligibility` explains any shared/runtime fallback. Focus always
 uses one worker. No new transform/result cache or runtime migration is involved.
 The standard `npm run check` and `npm run build` final gates remain required.
+For ready PRs targeting main, the approved [hosted full gate](continuous-integration.md)
+runs both on the exact proposed merge. Use focused local checks while editing;
+do not duplicate a current hosted full run locally merely to wait for it. Keep
+affected native, rendered-browser and performance evidence separate.
 
 The runner prints JSON `pnd-test-plan`, `pnd-test-group` and `pnd-test-result`
 markers on stderr with exact file lists, commands, concurrency, native exits and
