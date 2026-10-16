@@ -61,8 +61,6 @@ export async function runSpellIconEvidence({ report, launch, run, save, snapshot
       },
     }
     await run(browser, observedBrowser)
-    assert.deepEqual(report.errors, [])
-    assert.equal(report.expired, undefined)
     report.status = 'passed'
   } catch (error) {
     report.status = 'failed'
@@ -73,6 +71,10 @@ export async function runSpellIconEvidence({ report, launch, run, save, snapshot
       try { await browser.close(); report.browserClosed = true }
       catch (error) { report.status = 'failed'; report.cleanupError = error.stack ?? String(error) }
     }
+    try {
+      assert.deepEqual(report.errors, [])
+      assert.equal(report.expired, undefined)
+    } catch (error) { report.status = 'failed'; report.error ??= error.stack ?? String(error) }
     try {
       report.sourceAfter = snapshot()
       report.sourceUnchanged = isDeepStrictEqual(report.sourceBefore, report.sourceAfter)

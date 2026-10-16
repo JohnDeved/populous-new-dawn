@@ -54,6 +54,23 @@ test('a completed run with browser errors cannot pass', async () => {
   assert.equal(result.errors[0].message, 'render error')
 })
 
+test('a close-time console error cannot leave passed terminal evidence', async () => {
+  const h = harness(), page = new EventEmitter()
+  h.browser.close = async () => {
+    await Promise.resolve()
+    page.emit('console', { type: () => 'error', text: () => 'late close error' })
+    h.contexts.forEach(context => context.emit('close'))
+  }
+  const result = await runSpellIconEvidence({ ...h.options, async run(browser, observed) {
+    const context = await observed.newContext()
+    context.emit('page', page)
+  } })
+  assert.equal(result.status, 'failed')
+  assert.equal(result.errors[0].message, 'late close error')
+  assert.equal(result.browserClosed, true)
+  assert.deepEqual(h.saved.at(-1), result)
+})
+
 test('source or dependency drift invalidates a successful browser run', async () => {
   const h = harness()
   let calls = 0
