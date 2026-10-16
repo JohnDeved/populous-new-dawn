@@ -1046,11 +1046,14 @@ export default function Home() {
         <div
           key={routeNotice.serial}
           className="world-message route-notice"
-          style={{ visibility: menu ? 'hidden' : undefined }}
+          style={{
+            visibility: menu ? 'hidden' : undefined,
+            animationPlayState: menu || selectorOpen ? 'paused' : undefined,
+          }}
           role="status"
           onAnimationEnd={() =>
             store.change(w => {
-              if (w.routeNotice?.serial === routeNotice.serial) w.routeNotice = null
+              if (w === world && w.routeNotice === routeNotice) w.routeNotice = null
             })
           }
         >
