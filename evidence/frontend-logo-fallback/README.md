@@ -1,7 +1,10 @@
 # Frontend logo shadow: fallback readiness
 
 Refs #16, #457. Stacked checkpoint on PR484's frozen head
-`f1e085cbb5e0f2d63a1e5cf1fb79d5addc158cc5`; not yet accepted for main integration.
+`f1e085cbb5e0f2d63a1e5cf1fb79d5addc158cc5`. After PR484 merged, this branch
+was updated onto main `c9d98cbb325a418a8b17243e7a3f142a2b91b8fa`.
+That main tree equals the original parent tree; product/test/evidence bytes carry
+unchanged. Hosted final-candidate acceptance remains pending.
 
 The original FELGsdEN mask belongs to the sprite logo, as retained in
 `decomp/research/frontend-menu-composition.md` (title and shadow source binding).
@@ -42,5 +45,5 @@ original-game screenshots, actual Home/world integration, or hardware benchmarks
 The prior mismatch is visible in PR484's `quit-choice-fallback.png`; it is a
 separate panel capture, not a pixel-matched before image for these main-menu shots.
 Main/options glyph-shadow mismatches behind HTML labels remain outside this slice.
-Full hosted checks and exact merged-base review remain pending. Do not merge the
-stacked branch before its parent; no workflow or check semantics change here.
+Full hosted checks and exact merged-base review remain pending. No workflow or
+check semantics change here.
