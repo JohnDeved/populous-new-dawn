@@ -12,6 +12,7 @@ import {
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import test from 'node:test'
+import { stripVTControlCharacters } from 'node:util'
 import {
   REPO,
   CLOUDFLARE,
@@ -743,6 +744,99 @@ test('GitHub adapter uses only hostname-pinned GET argv and rejects incomplete p
   assert.throws(() => capped.pages(`repos/${REPO}/fake`, 'items'), /cap reached/)
 })
 
+test('escape opt-in is restricted to captured numeric job logs, never other GETs', () => {
+  const calls = []
+  const reader = new GitHubReader({
+    execute: (_command, args) => {
+      calls.push(args)
+      return '{}'
+    },
+  })
+  const endpoint = `repos/${REPO}/actions/jobs/117178077076/logs`
+  reader.get(endpoint, true)
+  assert.deepEqual(calls[0], [
+    'api',
+    '--hostname',
+    'github.com',
+    '--method',
+    'GET',
+    endpoint,
+    '--allow-escape-sequences',
+  ])
+  reader.get(endpoint)
+  assert.equal(calls[1].includes('--allow-escape-sequences'), false)
+  for (const path of [
+    `repos/${REPO}/pulls/505`,
+    `${endpoint}?other=1`,
+    `repos/${REPO}/actions/jobs/not-a-number/logs`,
+    `repos/other/repo/actions/jobs/1/logs`,
+  ])
+    assert.throws(() => reader.get(path, true))
+  assert.equal(calls.length, 2)
+})
+
+test('production log transport captures escape bytes without rendering child output', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'pnd-queue-gh-'))
+  const payload = '\x1b[31mraw-log\x1b[0m\x1b]52;c;Y2xpcGJvYXJk\x07\n'
+  try {
+    const gh = join(dir, 'gh')
+    writeFileSync(
+      gh,
+      `#!${process.execPath}\n` +
+        `
+      const args = process.argv.slice(2)
+      if (!args.includes('--allow-escape-sequences')) {
+        process.stderr.write('the response contains terminal escape sequences')
+        process.exit(1)
+      }
+      if (process.stdout.isTTY || process.stderr.isTTY || process.env.GH_PAGER !== 'cat')
+        process.exit(9)
+      process.stdout.write(${JSON.stringify(payload)})
+      process.stderr.write(${JSON.stringify(payload)})
+      process.exit(args[5].includes('/jobs/2/') ? 1 : 0)
+    `
+    )
+    chmodSync(gh, 0o755)
+    const readerModule = JSON.stringify(resolve('scripts/integration-queue/github.mjs'))
+    const invoke = id =>
+      spawnSync(
+        process.execPath,
+        [
+          '--input-type=module',
+          '-e',
+          `
+      import { GitHubReader } from ${readerModule}
+      import { createHash } from 'node:crypto'
+      try {
+        const raw = new GitHubReader().get('repos/${REPO}/actions/jobs/${id}/logs', true)
+        console.log(createHash('sha256').update(raw).digest('hex'))
+      } catch (error) {
+        console.error(error.message)
+        process.exitCode = 7
+      }
+    `,
+        ],
+        {
+          encoding: 'utf8',
+          env: { ...process.env, PATH: `${dir}:${process.env.PATH}`, GH_PAGER: 'must-not-run' },
+        }
+      )
+    const success = invoke(1)
+    assert.equal(success.status, 0, success.stderr)
+    assert.equal(success.stdout.trim(), sha256(payload))
+    assert.equal(success.stderr, '')
+    const failed = invoke(2)
+    assert.equal(failed.status, 7)
+    assert.equal(failed.stdout, '')
+    assert.match(failed.stderr, /raw-log/)
+    assert.equal(failed.stderr, stripVTControlCharacters(failed.stderr))
+    assert.ok(!failed.stderr.includes('Y2xpcGJvYXJk'))
+    assert.notEqual(sha256(payload), sha256(stripVTControlCharacters(payload)))
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
+  }
+})
+
 test('apply is disabled before any GitHub call; candidate approval files are rejected', () => {
   const cli = resolve('scripts/integration-queue/cli.mjs')
   const output = spawnSync(process.execPath, [cli, '--apply'], {
@@ -821,9 +915,11 @@ test('fake Actions adapter binds workflow/run/attempt/check/app and actual check
     draft = false,
     draftFlag = true,
     draftValidationRan = false,
-    workflowText = 'reviewed workflow'
+    workflowText = 'reviewed workflow',
+    logSuffix = ''
   e.workflowHashes = Object.fromEntries(GATES.map(g => [g.workflow, sha256('reviewed workflow')]))
   const calls = []
+  const capturedLogs = []
   const execute = (command, args) => {
     assert.equal(command, 'gh')
     assert.deepEqual(args.slice(0, 5), ['api', '--hostname', 'github.com', '--method', 'GET'])
@@ -884,9 +980,17 @@ test('fake Actions adapter binds workflow/run/attempt/check/app and actual check
         conclusion: draft ? 'failure' : 'success',
         app: { slug: 'github-actions', id: appId },
       })
-    if (endpoint.endsWith('/logs') && draft) return `IS_DRAFT: ${draftFlag}\n`
-    if (endpoint.endsWith('/logs'))
-      return `PR_HEAD_SHA: ${o.head}\nPR_BASE_SHA: ${logBase}\n[command]/usr/bin/git log -1 --format=%H\n${o.synthetic.sha}\n`
+    if (endpoint.endsWith('/logs')) {
+      if (!args.includes('--allow-escape-sequences'))
+        throw new Error('the response contains terminal escape sequences')
+      const plain = draft
+        ? `IS_DRAFT: ${draftFlag}\n`
+        : `PR_HEAD_SHA: ${o.head}\nPR_BASE_SHA: ${logBase}\n[command]/usr/bin/git log -1 --format=%H\n${o.synthetic.sha}\n`
+      const raw =
+        plain.replaceAll('\n', '\x1b[0m\n\x1b[32m') + '\x1b]52;c;Y2xpcGJvYXJk\x07' + logSuffix
+      capturedLogs.push(raw)
+      return raw
+    }
     if (endpoint.includes('/contents/'))
       return JSON.stringify({
         encoding: 'base64',
@@ -900,6 +1004,21 @@ test('fake Actions adapter binds workflow/run/attempt/check/app and actual check
   let runs = reader.runs(e, pr, o.synthetic)
   assert.equal(runs.length, 2)
   assert.ok(runs.every(r => r.identityVerified && r.validationVerified))
+  assert.deepEqual(
+    runs.map(r => r.logSha256),
+    capturedLogs.map(raw => sha256(raw))
+  )
+  assert.ok(capturedLogs.every(raw => sha256(raw) !== sha256(stripVTControlCharacters(raw))))
+  assert.ok(!JSON.stringify(runs).includes('Y2xpcGJvYXJk'))
+  logSuffix = `PR_BASE_SHA: ${id(98)}\n`
+  assert.ok(
+    reader.runs(e, pr, o.synthetic).every(r => !r.identityVerified && !r.validationVerified)
+  )
+  logSuffix = `[command]/usr/bin/git log -1 --format=%H\n${o.synthetic.sha}\n`
+  assert.ok(
+    reader.runs(e, pr, o.synthetic).every(r => !r.identityVerified && !r.validationVerified)
+  )
+  logSuffix = ''
   assert.ok(reader.runs(e, pr, undefined).every(r => !r.identityVerified))
   assert.ok(calls.some(c => c.endsWith('/check-runs/300')))
   logBase = id(99)

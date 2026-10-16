@@ -19,6 +19,10 @@ Run the reviewed tool from a trusted checkout. Prepare a separate, clean candida
 checkout at the exact synthetic merge, with existing installed dependencies. The
 driver never installs dependencies, runs candidate code/hooks, fetches, checks out,
 or changes a ref. Missing Git objects or dependencies produce an actionable stop.
+Actions job logs use `--allow-escape-sequences` only on fixed-repository numeric
+job-log GETs captured through pipes. Raw captured logs are hashed before terminal
+controls are stripped for parsing; they are never rendered directly. Other GETs
+retain the default escape protection, and failed-child diagnostics are sanitized.
 Git commands disable hooks/fsmonitor/external diff/textconv. Custom merge/filter
 drivers are rejected by reading configuration before status, preflight or other
 Git operations can inspect working files; `merge-tree` may write unreachable Git

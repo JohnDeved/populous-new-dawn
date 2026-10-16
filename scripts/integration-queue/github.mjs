@@ -8,14 +8,20 @@ const sha = value => /^[0-9a-f]{40}$/.test(value ?? '')
 const ensure = (condition, message) => {
   if (!condition) throw new Error(message)
 }
-const run = (file, args, cwd) =>
-  execFileSync(file, args, {
-    cwd,
-    encoding: 'utf8',
-    timeout: 30_000,
-    maxBuffer: 16 * 1024 * 1024,
-    env: { ...process.env, GH_PROMPT_DISABLED: '1', GH_PAGER: 'cat' },
-  })
+const run = (file, args, cwd) => {
+  try {
+    return execFileSync(file, args, {
+      cwd,
+      encoding: 'utf8',
+      stdio: 'pipe',
+      timeout: 30_000,
+      maxBuffer: 16 * 1024 * 1024,
+      env: { ...process.env, GH_PROMPT_DISABLED: '1', GH_PAGER: 'cat' },
+    })
+  } catch (error) {
+    throw new Error(stripVTControlCharacters(error.message))
+  }
+}
 
 // This reader only issues GET requests. The separately armed writer owns mutations.
 export class GitHubReader {
@@ -28,11 +34,15 @@ export class GitHubReader {
       endpoint.startsWith(`repos/${REPO}/`) && !endpoint.includes('..'),
       'Unexpected GitHub endpoint'
     )
-    const raw = this.execute(
-      'gh',
-      ['api', '--hostname', 'github.com', '--method', 'GET', endpoint],
-      this.cwd
-    )
+    const args = ['api', '--hostname', 'github.com', '--method', 'GET', endpoint]
+    if (text) {
+      ensure(
+        new RegExp(`^repos/${REPO}/actions/jobs/[1-9][0-9]*/logs$`).test(endpoint),
+        'Raw text capture is restricted to numeric Actions job logs'
+      )
+      args.push('--allow-escape-sequences')
+    }
+    const raw = this.execute('gh', args, this.cwd)
     return text ? raw : JSON.parse(raw)
   }
   pages(endpoint, key = null) {
@@ -225,12 +235,13 @@ export class GitHubReader {
               check.app?.slug === 'github-actions',
             'Check suite/run/app mismatch'
           )
-          const log = this.get(`repos/${REPO}/actions/jobs/${job.id}/logs`, true)
+          const rawLog = this.get(`repos/${REPO}/actions/jobs/${job.id}/logs`, true)
+          const log = stripVTControlCharacters(rawLog)
           const identity = logIdentity(log)
           row.head = identity.head ?? row.head
           row.base = identity.base ?? row.base
           row.merge = identity.merge
-          row.logSha256 = sha256(log)
+          row.logSha256 = sha256(rawLog)
           row.app = check.app.slug
           row.appId = check.app.id
           row.checkId = check.id
@@ -435,7 +446,7 @@ export class GitHubReader {
       result.observedAt = Date.now()
     } catch (error) {
       // GH errors may include request details; retain a concise diagnostic, never env/auth output.
-      result.error = String(error.message).split('\n')[0]
+      result.error = stripVTControlCharacters(String(error.message)).split('\n')[0]
     }
     return result
   }
